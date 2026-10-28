@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/shop/shop_trade_cmsg.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ShopQuoteCmsgProto";
+
+// Asks what a basket would come to, without trading. Answered by a ShopQuoteSMSG.
+//
+// The client cannot work this out itself: every unit is priced against a town with one more or one fewer of
+// it, so the total is not amount times the price on the shelf.
+message ShopQuoteCMSG {
+  uint64 merchant_entity_id = 1;
+  repeated ShopLine lines = 2;
+}

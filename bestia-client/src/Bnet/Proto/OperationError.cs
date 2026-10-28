@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrzEwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqfFAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -83,8 +83,9 @@ namespace Bnet {
             "EF0SGQoVRVhDSEFOR0VfT1VUX09GX1JFQUNIEF4SFgoSRVhDSEFOR0VfVE9P",
             "X0hFQVZZEF8SFgoSVFJBREVfTkVFRFNfTUFTVEVSEGASEgoOTk9URUJPT0tf",
             "U1RBTEUQYRIUChBOT1RFQk9PS19JTlZBTElEEGISDwoLU0hPUF9DTE9TRUQQ",
-            "Y0IsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJv",
-            "dG9iBnByb3RvMw=="));
+            "YxISCg5TSE9QX1RPT19IRUFWWRBkEhYKElNIT1BfUFJJQ0VfQ0hBTkdFRBBl",
+            "QiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90",
+            "b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -476,6 +477,15 @@ namespace Bnet {
     /// The merchant is off shift. Their counter opens again with the hours the shop window showed.
     /// </summary>
     [pbr::OriginalName("SHOP_CLOSED")] ShopClosed = 99,
+    /// <summary>
+    /// The basket would leave the trader carrying more than they can.
+    /// </summary>
+    [pbr::OriginalName("SHOP_TOO_HEAVY")] ShopTooHeavy = 100,
+    /// <summary>
+    /// Prices moved since the last quote and the trade would now come out worse than it was shown. The client
+    /// asks for a fresh quote.
+    /// </summary>
+    [pbr::OriginalName("SHOP_PRICE_CHANGED")] ShopPriceChanged = 101,
   }
 
   #endregion

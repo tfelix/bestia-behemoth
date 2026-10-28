@@ -21,6 +21,7 @@ signal shop_closed()
 var inventory: Inventory = null
 
 const _WALK_AWAY_METRES := 10.0
+const _ACCEPT_ANY_BALANCE := -9223372036854775807
 
 ## The conversation's root topic. Talking to a merchant at work opens this window, so this is how to chat.
 const _CONVERSATION_ROOT := 0
@@ -191,4 +192,10 @@ func _on_trade(item_id: int, selling: bool) -> void:
 	if not is_shopping():
 		return
 
-	ConnectionManager.shop_trade(_merchant_entity_id, item_id, int(_amount.value), selling)
+	var line := ShopLine.new()
+	line.ItemId = item_id
+	line.Amount = int(_amount.value)
+	line.Selling = selling
+	# This window shows no quote, so it accepts whatever the live price is.
+	var lines: Array[ShopLine] = [line]
+	ConnectionManager.shop_trade(_merchant_entity_id, lines, _ACCEPT_ANY_BALANCE)

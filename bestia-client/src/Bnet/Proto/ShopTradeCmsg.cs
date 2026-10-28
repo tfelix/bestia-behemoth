@@ -24,15 +24,17 @@ namespace Bnet {
     static ShopTradeCmsgReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CiNtZXNzYWdlcy9zaG9wL3Nob3BfdHJhZGVfY21zZy5wcm90bxIEYm5ldCJd",
-            "Cg1TaG9wVHJhZGVDTVNHEg8KB2l0ZW1faWQYASABKAQSDgoGYW1vdW50GAIg",
-            "ASgFEg8KB3NlbGxpbmcYAyABKAgSGgoSbWVyY2hhbnRfZW50aXR5X2lkGAQg",
-            "ASgEQisKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ISU2hvcFRyYWRlQ21zZ1By",
-            "b3RvYgZwcm90bzM="));
+            "CiNtZXNzYWdlcy9zaG9wL3Nob3BfdHJhZGVfY21zZy5wcm90bxIEYm5ldCJk",
+            "Cg1TaG9wVHJhZGVDTVNHEhoKEm1lcmNoYW50X2VudGl0eV9pZBgBIAEoBBId",
+            "CgVsaW5lcxgCIAMoCzIOLmJuZXQuU2hvcExpbmUSGAoQZXhwZWN0ZWRfYmFs",
+            "YW5jZRgDIAEoAyI8CghTaG9wTGluZRIPCgdpdGVtX2lkGAEgASgEEg4KBmFt",
+            "b3VudBgCIAEoBRIPCgdzZWxsaW5nGAMgASgIQisKFW5ldC5iZXN0aWEuYm5l",
+            "dC5wcm90b0ISU2hvcFRyYWRlQ21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ShopTradeCMSG), global::Bnet.ShopTradeCMSG.Parser, new[]{ "ItemId", "Amount", "Selling", "MerchantEntityId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ShopTradeCMSG), global::Bnet.ShopTradeCMSG.Parser, new[]{ "MerchantEntityId", "Lines", "ExpectedBalance" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ShopLine), global::Bnet.ShopLine.Parser, new[]{ "ItemId", "Amount", "Selling" }, null, null, null, null)
           }));
     }
     #endregion
@@ -40,10 +42,10 @@ namespace Bnet {
   }
   #region Messages
   /// <summary>
-  /// Buys or sells `amount` of one item with the settlement the player is standing in.
+  /// Buys and sells a whole basket with the settlement the sender stands in, as one trade.
   ///
-  /// The price is not on the wire in either direction. A client that could name its own price would be a
-  /// client that could be wrong about it; what it sends is how much of what, and the server quotes.
+  /// No prices are sent. The server quotes every line against the live market, and only the difference changes
+  /// hands: selling can pay for buying.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class ShopTradeCMSG : pb::IMessage<ShopTradeCMSG>
@@ -80,10 +82,9 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public ShopTradeCMSG(ShopTradeCMSG other) : this() {
-      itemId_ = other.itemId_;
-      amount_ = other.amount_;
-      selling_ = other.selling_;
       merchantEntityId_ = other.merchantEntityId_;
+      lines_ = other.lines_.Clone();
+      expectedBalance_ = other.expectedBalance_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -91,6 +92,271 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public ShopTradeCMSG Clone() {
       return new ShopTradeCMSG(this);
+    }
+
+    /// <summary>Field number for the "merchant_entity_id" field.</summary>
+    public const int MerchantEntityIdFieldNumber = 1;
+    private ulong merchantEntityId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong MerchantEntityId {
+      get { return merchantEntityId_; }
+      set {
+        merchantEntityId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "lines" field.</summary>
+    public const int LinesFieldNumber = 2;
+    private static readonly pb::FieldCodec<global::Bnet.ShopLine> _repeated_lines_codec
+        = pb::FieldCodec.ForMessage(18, global::Bnet.ShopLine.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.ShopLine> lines_ = new pbc::RepeatedField<global::Bnet.ShopLine>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.ShopLine> Lines {
+      get { return lines_; }
+    }
+
+    /// <summary>Field number for the "expected_balance" field.</summary>
+    public const int ExpectedBalanceFieldNumber = 3;
+    private long expectedBalance_;
+    /// <summary>
+    /// The balance the player was last quoted: positive when the town pays them, negative when they pay. A trade
+    /// that would come out worse than this is refused, so a player never pays more than they were shown.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long ExpectedBalance {
+      get { return expectedBalance_; }
+      set {
+        expectedBalance_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as ShopTradeCMSG);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(ShopTradeCMSG other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (MerchantEntityId != other.MerchantEntityId) return false;
+      if(!lines_.Equals(other.lines_)) return false;
+      if (ExpectedBalance != other.ExpectedBalance) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (MerchantEntityId != 0UL) hash ^= MerchantEntityId.GetHashCode();
+      hash ^= lines_.GetHashCode();
+      if (ExpectedBalance != 0L) hash ^= ExpectedBalance.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (MerchantEntityId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(MerchantEntityId);
+      }
+      lines_.WriteTo(output, _repeated_lines_codec);
+      if (ExpectedBalance != 0L) {
+        output.WriteRawTag(24);
+        output.WriteInt64(ExpectedBalance);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (MerchantEntityId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(MerchantEntityId);
+      }
+      lines_.WriteTo(ref output, _repeated_lines_codec);
+      if (ExpectedBalance != 0L) {
+        output.WriteRawTag(24);
+        output.WriteInt64(ExpectedBalance);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (MerchantEntityId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(MerchantEntityId);
+      }
+      size += lines_.CalculateSize(_repeated_lines_codec);
+      if (ExpectedBalance != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(ExpectedBalance);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(ShopTradeCMSG other) {
+      if (other == null) {
+        return;
+      }
+      if (other.MerchantEntityId != 0UL) {
+        MerchantEntityId = other.MerchantEntityId;
+      }
+      lines_.Add(other.lines_);
+      if (other.ExpectedBalance != 0L) {
+        ExpectedBalance = other.ExpectedBalance;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            MerchantEntityId = input.ReadUInt64();
+            break;
+          }
+          case 18: {
+            lines_.AddEntriesFrom(input, _repeated_lines_codec);
+            break;
+          }
+          case 24: {
+            ExpectedBalance = input.ReadInt64();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            MerchantEntityId = input.ReadUInt64();
+            break;
+          }
+          case 18: {
+            lines_.AddEntriesFrom(ref input, _repeated_lines_codec);
+            break;
+          }
+          case 24: {
+            ExpectedBalance = input.ReadInt64();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class ShopLine : pb::IMessage<ShopLine>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<ShopLine> _parser = new pb::MessageParser<ShopLine>(() => new ShopLine());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<ShopLine> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Bnet.ShopTradeCmsgReflection.Descriptor.MessageTypes[1]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ShopLine() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ShopLine(ShopLine other) : this() {
+      itemId_ = other.itemId_;
+      amount_ = other.amount_;
+      selling_ = other.selling_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ShopLine Clone() {
+      return new ShopLine(this);
     }
 
     /// <summary>Field number for the "item_id" field.</summary>
@@ -121,7 +387,7 @@ namespace Bnet {
     public const int SellingFieldNumber = 3;
     private bool selling_;
     /// <summary>
-    /// True when the player is handing goods over, false when taking them.
+    /// True when the player hands goods over, false when they take them.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -132,31 +398,15 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "merchant_entity_id" field.</summary>
-    public const int MerchantEntityIdFieldNumber = 4;
-    private ulong merchantEntityId_;
-    /// <summary>
-    /// Who is being traded with. The prices are still the settlement's; this decides what they will deal in
-    /// at all, so a smith does not sell bread.
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong MerchantEntityId {
-      get { return merchantEntityId_; }
-      set {
-        merchantEntityId_ = value;
-      }
-    }
-
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
-      return Equals(other as ShopTradeCMSG);
+      return Equals(other as ShopLine);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(ShopTradeCMSG other) {
+    public bool Equals(ShopLine other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -166,7 +416,6 @@ namespace Bnet {
       if (ItemId != other.ItemId) return false;
       if (Amount != other.Amount) return false;
       if (Selling != other.Selling) return false;
-      if (MerchantEntityId != other.MerchantEntityId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -177,7 +426,6 @@ namespace Bnet {
       if (ItemId != 0UL) hash ^= ItemId.GetHashCode();
       if (Amount != 0) hash ^= Amount.GetHashCode();
       if (Selling != false) hash ^= Selling.GetHashCode();
-      if (MerchantEntityId != 0UL) hash ^= MerchantEntityId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -208,10 +456,6 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteBool(Selling);
       }
-      if (MerchantEntityId != 0UL) {
-        output.WriteRawTag(32);
-        output.WriteUInt64(MerchantEntityId);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -234,10 +478,6 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteBool(Selling);
       }
-      if (MerchantEntityId != 0UL) {
-        output.WriteRawTag(32);
-        output.WriteUInt64(MerchantEntityId);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -257,9 +497,6 @@ namespace Bnet {
       if (Selling != false) {
         size += 1 + 1;
       }
-      if (MerchantEntityId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(MerchantEntityId);
-      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -268,7 +505,7 @@ namespace Bnet {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(ShopTradeCMSG other) {
+    public void MergeFrom(ShopLine other) {
       if (other == null) {
         return;
       }
@@ -280,9 +517,6 @@ namespace Bnet {
       }
       if (other.Selling != false) {
         Selling = other.Selling;
-      }
-      if (other.MerchantEntityId != 0UL) {
-        MerchantEntityId = other.MerchantEntityId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -315,10 +549,6 @@ namespace Bnet {
             Selling = input.ReadBool();
             break;
           }
-          case 32: {
-            MerchantEntityId = input.ReadUInt64();
-            break;
-          }
         }
       }
     #endif
@@ -348,10 +578,6 @@ namespace Bnet {
           }
           case 24: {
             Selling = input.ReadBool();
-            break;
-          }
-          case 32: {
-            MerchantEntityId = input.ReadUInt64();
             break;
           }
         }

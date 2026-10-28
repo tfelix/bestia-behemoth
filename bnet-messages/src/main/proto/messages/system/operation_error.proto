@@ -271,6 +271,11 @@ enum OpError {
   NOTEBOOK_INVALID = 98;
   // The merchant is off shift. Their counter opens again with the hours the shop window showed.
   SHOP_CLOSED = 99;
+  // The basket would leave the trader carrying more than they can.
+  SHOP_TOO_HEAVY = 100;
+  // Prices moved since the last quote and the trade would now come out worse than it was shown. The client
+  // asks for a fresh quote.
+  SHOP_PRICE_CHANGED = 101;
 }
 
 message OperationError {

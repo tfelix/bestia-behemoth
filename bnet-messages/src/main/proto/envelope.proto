@@ -100,6 +100,8 @@ import "messages/map/collect_prop_cmsg.proto";
 import "messages/map/interact_entity_cmsg.proto";
 import "messages/shop/open_shop_cmsg.proto";
 import "messages/shop/shop_offer_smsg.proto";
+import "messages/shop/shop_quote_cmsg.proto";
+import "messages/shop/shop_quote_smsg.proto";
 import "messages/auction/auction_house_open_smsg.proto";
 import "messages/auction/list_auction_item_cmsg.proto";
 import "messages/auction/search_auctions_cmsg.proto";
@@ -281,6 +283,8 @@ message Envelope {
     OpenShopCMSG open_shop = 820;
     ShopTradeCMSG shop_trade = 821;
     ShopOfferSMSG shop_offer = 822;
+    ShopQuoteCMSG shop_quote = 823;
+    ShopQuoteSMSG shop_quote_result = 824;
 
     // AUCTION 840
     AuctionHouseOpenSMSG auction_house_open = 840;
