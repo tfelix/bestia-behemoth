@@ -14,7 +14,7 @@ import net.bestia.zone.util.EntityId
  * This is grouped as a sealed class purely for documentation/exhaustiveness at call sites - the
  * ECS itself has no notion of it. [net.bestia.zone.ecs.core.World] stores and queries components
  * keyed by their concrete runtime type, never a declared base type, so [ObtainItemIntentSystem]
- * queries each subtype ([LootItemIntent], [CreateItemIntent]) separately rather than querying
+ * queries each subtype ([LootItemIntent], [CreateItemIntent], [CreateItemsIntent]) separately rather than querying
  * `ObtainItemIntent::class` (which would never match anything).
  */
 sealed class ObtainItemIntent : Component {
@@ -36,4 +36,10 @@ sealed class ObtainItemIntent : Component {
     val roll: ItemRoll? = null,
     val provenance: ItemProvenance? = null,
   ) : ObtainItemIntent()
+
+  /**
+   * Several [CreateItemIntent]s for one entity at once. One [CreateItemIntent] fits on an entity at a time,
+   * so a payer of several goods appends to this instead, and nothing it adds overwrites another grant.
+   */
+  class CreateItemsIntent(val grants: List<CreateItemIntent>) : ObtainItemIntent()
 }

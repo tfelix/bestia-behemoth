@@ -54,15 +54,16 @@ class ObtainItemIntentSystem(
   /** Whose container the item is saved to: the master's own when [playerBestiaId] is null. */
   override val reads: ComponentClassSet = setOf(
     ObtainItemIntent.LootItemIntent::class, ObtainItemIntent.CreateItemIntent::class,
-    Position::class, Account::class, Master::class, OwnedBestia::class, GroundItemStack::class, CarryCapacity::class,
+    ObtainItemIntent.CreateItemsIntent::class, Position::class, Account::class, Master::class, OwnedBestia::class, GroundItemStack::class, CarryCapacity::class,
     Inventory::class, GroundItemIntegrity::class, LootProtection::class
   )
   override val writes: ComponentClassSet = setOf(
-    ObtainItemIntent.LootItemIntent::class, ObtainItemIntent.CreateItemIntent::class, Inventory::class
+    ObtainItemIntent.LootItemIntent::class, ObtainItemIntent.CreateItemIntent::class,
+    ObtainItemIntent.CreateItemsIntent::class, Inventory::class
   )
 
   override fun update(world: World, deltaTime: Float) {
-    // Two separate queries, not one query(ObtainItemIntent::class): components are stored keyed by
+    // Separate queries, not one query(ObtainItemIntent::class): components are stored keyed by
     // their concrete runtime type (see World.add), so a sealed base type is never itself a usable
     // query/store key - only its concrete subclasses are.
     world.query(ObtainItemIntent.LootItemIntent::class).each { entityId ->
@@ -73,6 +74,11 @@ class ObtainItemIntentSystem(
     world.query(ObtainItemIntent.CreateItemIntent::class).each { entityId ->
       tryCreateItem(world, entityId, get<ObtainItemIntent.CreateItemIntent>())
       world.remove(entityId, ObtainItemIntent.CreateItemIntent::class)
+    }
+
+    world.query(ObtainItemIntent.CreateItemsIntent::class).each { entityId ->
+      get<ObtainItemIntent.CreateItemsIntent>().grants.forEach { tryCreateItem(world, entityId, it) }
+      world.remove(entityId, ObtainItemIntent.CreateItemsIntent::class)
     }
   }
 
