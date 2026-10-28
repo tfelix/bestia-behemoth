@@ -87,7 +87,7 @@ class ShopTradeIntentSystem(
 
     val position = world.get(traderId, Position::class)?.toVec3L()
       ?: return deny(world, traderId, OperationErrorProto.OpError.SHOP_NONE_HERE)
-    val counter = world.get(intent.merchantEntityId, Position::class)?.toVec3L()
+    val counter = world.get(intent.counter.merchantId, Position::class)?.toVec3L()
     if (counter == null || !ShopReach.withinReach(position, counter)) {
       return deny(world, traderId, OperationErrorProto.OpError.SHOP_NONE_HERE)
     }
@@ -95,7 +95,7 @@ class ShopTradeIntentSystem(
       ?: return deny(world, traderId, OperationErrorProto.OpError.SHOP_NONE_HERE)
 
     val commodity = commodities.commodityOf(intent.itemId)
-      ?.takeIf { it.id in intent.stocked }
+      ?.takeIf { it.id in intent.counter.stocked }
     val quote = if (intent.selling) {
       shop.quoteSell(commodity, intent.amount)
     } else {
@@ -128,7 +128,7 @@ class ShopTradeIntentSystem(
 
     economy.settle(settlement, good.id, intent.amount, quote.coins, intent.selling)
     metrics.shopTrade(intent.selling, intent.amount, quote.coins)
-    offers.publish(world, traderId, intent.merchantEntityId, settlement, shop, intent.stocked)
+    offers.publish(world, traderId, settlement, shop, intent.counter)
 
     LOG.debug {
       "Entity $traderId ${if (intent.selling) "sold" else "bought"} ${intent.amount} ${good.id} " +

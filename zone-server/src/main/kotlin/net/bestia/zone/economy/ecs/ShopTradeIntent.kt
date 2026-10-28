@@ -1,7 +1,7 @@
 package net.bestia.zone.economy.ecs
 
 import net.bestia.zone.ecs.core.Component
-import net.bestia.zone.util.EntityId
+import net.bestia.zone.economy.shop.Counter
 
 /**
  * Intent to buy or sell [amount] of [itemId] with the settlement this entity is standing in.
@@ -24,11 +24,8 @@ data class ShopTradeIntent(
   val selling: Boolean,
 
   /**
-   * The commodities the merchant deals in, resolved off the tick where the household expansion is safe
-   * to do. Carried rather than looked up here because `SpeakerResolver` opens a world scope of its own.
+   * Whose counter, resolved off the tick where the household expansion is safe to do. Carried rather than
+   * looked up here because `SpeakerResolver` opens a world scope of its own.
    */
-  val stocked: Set<String>,
-
-  /** Whose counter, so the window that follows the trade says whose it is. */
-  val merchantEntityId: EntityId,
+  val counter: Counter,
 ) : Component

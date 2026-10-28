@@ -41,12 +41,15 @@ TALK_NEWS_NONE_1,Nothing worth repeating.
 TALK_NEWS_NONE_2,Not a thing. It has been that sort of month.
 TALK_NEWS_NONE_3,You would be the first to hear it if there were.
 TALK_NEWS_NONE_4,Nothing. Ask me again when somebody does something.
-TALK_SHOP_BUY_ASK,Show me your wares.
-TALK_SHOP_SELL_ASK,I have things to sell.
+TALK_SHOP_TRADE_ASK,Let's trade.
+TALK_SHOP_HOURS_ASK,When are you open?
 TALK_SHOP_OPENED_1,"Have a look, then. Everything out is everything I have."
 TALK_SHOP_OPENED_2,"Right. Mind the prices, they are not mine to argue with."
 TALK_SHOP_OPENED_3,Take your time. I am not going anywhere before dusk.
 TALK_SHOP_OPENED_4,"There it is. Ask if you want something you cannot see."
+TALK_SHOP_HOURS_1,"From {opens} o'clock until {closes}. Come back then."
+TALK_SHOP_HOURS_2,"Not now. I open at {opens} and shut at {closes}."
+TALK_SHOP_HOURS_3,The counter is shut until {opens} o'clock.
 TALK_NOT_YET_1,Not today. Come back another time.
 TALK_NOT_YET_2,Not yet. Ask me again when I have something to show you.
 TALK_NOT_YET_3,I have nothing ready. Another day.

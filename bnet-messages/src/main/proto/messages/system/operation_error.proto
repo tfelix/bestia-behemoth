@@ -269,6 +269,8 @@ enum OpError {
   NOTEBOOK_STALE = 97;
   // A notebook entry this client may not write, or one its collection does not accept.
   NOTEBOOK_INVALID = 98;
+  // The merchant is off shift. Their counter opens again with the hours the shop window showed.
+  SHOP_CLOSED = 99;
 }
 
 message OperationError {

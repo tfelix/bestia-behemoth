@@ -111,6 +111,8 @@ class ConversationLineCatalogue {
       ConversationKeys.SLOT_NAME,
       ConversationKeys.SLOT_TOWN,
       ConversationKeys.SLOT_TRADE,
+      ConversationKeys.SLOT_OPENS,
+      ConversationKeys.SLOT_CLOSES,
     )
 
     val LOG = KotlinLogging.logger { }

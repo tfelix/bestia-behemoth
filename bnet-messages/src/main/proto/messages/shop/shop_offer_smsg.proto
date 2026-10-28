@@ -18,6 +18,17 @@ message ShopOfferSMSG {
   // Whose counter this is. Carried rather than remembered by the client, because the window is not always
   // something the client asked for - asking a merchant for their wares in conversation pushes one.
   uint64 merchant_entity_id = 3;
+
+  string merchant_name = 4;
+
+  // Absent for a merchant who keeps no hours.
+  optional ShopHours hours = 5;
+}
+
+// The merchant's own minutes of the day, already moved by how early or late they keep their shift.
+message ShopHours {
+  int32 opens_at_minute = 1;
+  int32 closes_at_minute = 2;
 }
 
 message ShopEntry {

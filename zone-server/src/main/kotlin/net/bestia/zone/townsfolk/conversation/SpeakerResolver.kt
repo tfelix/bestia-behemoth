@@ -3,6 +3,7 @@ package net.bestia.zone.townsfolk.conversation
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.pop.Households
 import net.bestia.worldgen.pop.Kinship
+import net.bestia.zone.economy.shop.Merchant
 import net.bestia.zone.economy.shop.MerchantDirectory
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.townsfolk.ecs.HouseholdPlacement
@@ -29,8 +30,8 @@ class SpeakerResolver(
   private val naming: TownsfolkNaming,
 ) : MerchantDirectory {
 
-  override fun businessOf(entityId: EntityId): String? {
-    return of(entityId)?.business
+  override fun merchantOf(entityId: EntityId): Merchant? {
+    return of(entityId)?.merchant
   }
 
   /** @return null for anything that is not a townsperson, which is most entities. */
@@ -62,6 +63,7 @@ class SpeakerResolver(
         ?.let { BusinessCatalogue.ALL[it].id },
       member = person,
       seed = seed,
+      dayOffsetMinutes = placement.dayOffsetOf(settlement, household, member),
     )
   }
 }

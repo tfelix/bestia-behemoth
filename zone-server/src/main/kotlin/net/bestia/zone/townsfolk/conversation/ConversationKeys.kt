@@ -45,11 +45,14 @@ object ConversationKeys {
   /** A prefix, as [GREETING_PREFIX] is: `TALK_TRADE_LABOURER_1`. */
   const val TRADE_LINE_PREFIX = "TALK_TRADE_"
 
-  const val SHOP_BUY_ASK = "TALK_SHOP_BUY_ASK"
-  const val SHOP_SELL_ASK = "TALK_SHOP_SELL_ASK"
+  const val SHOP_TRADE_ASK = "TALK_SHOP_TRADE_ASK"
+  const val SHOP_HOURS_ASK = "TALK_SHOP_HOURS_ASK"
 
   /** Said as the window opens, so the conversation does not simply stop dead on an action. */
   const val SHOP_OPENED = "TALK_SHOP_OPENED"
+
+  /** An off-shift merchant naming their hours, as whole hours of the day in [SLOT_OPENS] and [SLOT_CLOSES]. */
+  const val SHOP_HOURS = "TALK_SHOP_HOURS"
 
   /** What a stubbed action answers with. One key, so removing it later is one grep. */
   const val NOT_YET = "TALK_NOT_YET"
@@ -60,9 +63,11 @@ object ConversationKeys {
    * A list rather than a convention over the constants above, because half of them are deliberately
    * single - a key added here with no count fails the boot, and a count with no key does too.
    */
-  val VARIED = setOf(GOODBYE, ABOUT_TOWN, NEWS_NONE, NOT_YET, SHOP_OPENED)
+  val VARIED = setOf(GOODBYE, ABOUT_TOWN, NEWS_NONE, NOT_YET, SHOP_OPENED, SHOP_HOURS)
 
   const val SLOT_NAME = "name"
   const val SLOT_TOWN = "town"
   const val SLOT_TRADE = "trade"
+  const val SLOT_OPENS = "opens"
+  const val SLOT_CLOSES = "closes"
 }

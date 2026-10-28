@@ -122,7 +122,7 @@ class ShopTradeIntentSystemTest {
   }
 
   private fun trade(traderId: EntityId, selling: Boolean, merchant: EntityId = merchant(Position(1, 0, 0))) {
-    world.add(traderId, ShopTradeIntent(BREAD_ITEM, 1, selling, setOf(BREAD), merchantEntityId = merchant))
+    world.add(traderId, ShopTradeIntent(BREAD_ITEM, 1, selling, Counter(merchant, "Mira", setOf(BREAD), ShopHours.ALWAYS_OPEN)))
     world.tick(0.05f)
   }
 

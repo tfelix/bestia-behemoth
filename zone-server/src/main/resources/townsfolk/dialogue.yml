@@ -100,6 +100,8 @@ conversation:
   TALK_NOT_YET: { variants: 4, slots: [] }
   # Said as the counter opens, so an action does not leave the conversation looking broken.
   TALK_SHOP_OPENED: { variants: 4, slots: [] }
+  # An off-shift merchant asked when they open.
+  TALK_SHOP_HOURS: { variants: 3, slots: [opens, closes] }
 
 # How long ago something was, in words - see the Era enum for the bands these name.
 eras:
