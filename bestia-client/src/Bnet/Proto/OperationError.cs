@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSriEwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrzEwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -82,8 +82,9 @@ namespace Bnet {
             "Q0VfQlVSTlRfT1VUEFwSHwobVFJBVkVMX0RFU1RJTkFUSU9OX0lOX1dBVEVS",
             "EF0SGQoVRVhDSEFOR0VfT1VUX09GX1JFQUNIEF4SFgoSRVhDSEFOR0VfVE9P",
             "X0hFQVZZEF8SFgoSVFJBREVfTkVFRFNfTUFTVEVSEGASEgoOTk9URUJPT0tf",
-            "U1RBTEUQYRIUChBOT1RFQk9PS19JTlZBTElEEGJCLAoVbmV0LmJlc3RpYS5i",
-            "bmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "U1RBTEUQYRIUChBOT1RFQk9PS19JTlZBTElEEGISDwoLU0hPUF9DTE9TRUQQ",
+            "Y0IsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJv",
+            "dG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -471,6 +472,10 @@ namespace Bnet {
     /// A notebook entry this client may not write, or one its collection does not accept.
     /// </summary>
     [pbr::OriginalName("NOTEBOOK_INVALID")] NotebookInvalid = 98,
+    /// <summary>
+    /// The merchant is off shift. Their counter opens again with the hours the shop window showed.
+    /// </summary>
+    [pbr::OriginalName("SHOP_CLOSED")] ShopClosed = 99,
   }
 
   #endregion

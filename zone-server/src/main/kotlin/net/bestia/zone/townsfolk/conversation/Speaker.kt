@@ -1,6 +1,8 @@
 package net.bestia.zone.townsfolk.conversation
 
 import net.bestia.worldgen.pop.Member
+import net.bestia.zone.economy.shop.Merchant
+import net.bestia.zone.economy.shop.ShopHours
 import net.bestia.zone.townsfolk.domain.Occupation
 import net.bestia.zone.util.EntityId
 
@@ -32,7 +34,12 @@ class Speaker(
   val business: String?,
   val member: Member,
   val seed: Long,
+  /** How far this person's own day sits off their occupation's stated hours. */
+  val dayOffsetMinutes: Int = 0,
 ) {
+
+  val merchant: Merchant
+    get() = Merchant(name, business, ShopHours(occupation.shift, dayOffsetMinutes))
 
   /**
    * The noun this person uses for their own trade, as a translation key.

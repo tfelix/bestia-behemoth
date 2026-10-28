@@ -2,6 +2,8 @@ package net.bestia.zone.townsfolk.conversation
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto
+import net.bestia.zone.economy.shop.MerchantStock
+import net.bestia.zone.economy.shop.ShopCounter
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.message.OperationErrorSMSG
@@ -21,16 +23,30 @@ import org.springframework.stereotype.Service
 class TalkService(
   private val speakers: SpeakerResolver,
   private val conversation: ConversationService,
+  private val merchants: MerchantStock,
+  private val shops: ShopCounter,
   private val world: WorldView,
   private val out: OutMessageProcessor,
 ) {
 
+  /** A merchant at work is asked for their counter rather than for a chat; the shop window offers the chat. */
   fun open(accountId: AccountId, actor: EntityId, target: EntityId) {
-    send(accountId, actor, target) { conversation.open(it) }
+    val speaker = reachableSpeaker(accountId, actor, target) ?: return
+    if (servedAtCounter(accountId, actor, speaker)) return
+
+    answer(accountId, speaker, conversation.open(speaker))
   }
 
   fun choose(accountId: AccountId, actor: EntityId, target: EntityId, topicId: Int) {
-    send(accountId, actor, target) { conversation.nodeFor(Asker(accountId, actor), it, topicId) }
+    val speaker = reachableSpeaker(accountId, actor, target) ?: return
+
+    answer(accountId, speaker, conversation.nodeFor(Asker(accountId, actor), speaker, topicId))
+  }
+
+  private fun servedAtCounter(accountId: AccountId, actor: EntityId, speaker: Speaker): Boolean {
+    val counter = merchants.counterOf(speaker.entityId, speaker.merchant) ?: return false
+
+    return shops.isOpen(counter) && shops.open(accountId, actor, counter) == null
   }
 
   /**
@@ -40,27 +56,30 @@ class TalkService(
    * this they could open a conversation, walk across the town and keep asking questions. The entity id
    * on the wire is what makes it cheap: the server re-resolves both ends each time anyway.
    */
-  private fun send(accountId: AccountId, actor: EntityId, target: EntityId, node: (Speaker) -> ConversationNode?) {
+  private fun reachableSpeaker(accountId: AccountId, actor: EntityId, target: EntityId): Speaker? {
     val speaker = speakers.of(target)
     if (speaker == null) {
       // Not a townsperson. An honest client only offers this on somebody who can talk, so this is a
       // stale id or a hand-built message - neither is worth a code the player would have to read.
       LOG.debug { "Account $accountId tried to talk to $target, which is nobody" }
-      return
+      return null
     }
 
     if (!withinReach(actor, target)) {
       out.sendToPlayer(accountId, OperationErrorSMSG(OperationErrorProto.OpError.TALK_OUT_OF_RANGE))
-      return
+      return null
     }
 
-    val answer = node(speaker)
-    if (answer == null) {
+    return speaker
+  }
+
+  private fun answer(accountId: AccountId, speaker: Speaker, node: ConversationNode?) {
+    if (node == null) {
       LOG.debug { "${speaker.identity} has nothing to say to topic asked by $accountId" }
       return
     }
 
-    out.sendToPlayer(accountId, ConversationSMSG(target, speaker.name, answer))
+    out.sendToPlayer(accountId, ConversationSMSG(speaker.entityId, speaker.name, node))
   }
 
   private fun withinReach(one: EntityId, other: EntityId): Boolean {

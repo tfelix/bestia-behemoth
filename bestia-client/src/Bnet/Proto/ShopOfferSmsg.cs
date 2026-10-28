@@ -24,17 +24,21 @@ namespace Bnet {
     static ShopOfferSmsgReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CiNtZXNzYWdlcy9zaG9wL3Nob3Bfb2ZmZXJfc21zZy5wcm90bxIEYm5ldCJh",
-            "Cg1TaG9wT2ZmZXJTTVNHEhIKCnNldHRsZW1lbnQYASABKAUSIAoHZW50cmll",
-            "cxgCIAMoCzIPLmJuZXQuU2hvcEVudHJ5EhoKEm1lcmNoYW50X2VudGl0eV9p",
-            "ZBgDIAEoBCJUCglTaG9wRW50cnkSDwoHaXRlbV9pZBgBIAEoBBIPCgdvZmZl",
+            "CiNtZXNzYWdlcy9zaG9wL3Nob3Bfb2ZmZXJfc21zZy5wcm90bxIEYm5ldCKn",
+            "AQoNU2hvcE9mZmVyU01TRxISCgpzZXR0bGVtZW50GAEgASgFEiAKB2VudHJp",
+            "ZXMYAiADKAsyDy5ibmV0LlNob3BFbnRyeRIaChJtZXJjaGFudF9lbnRpdHlf",
+            "aWQYAyABKAQSFQoNbWVyY2hhbnRfbmFtZRgEIAEoCRIjCgVob3VycxgFIAEo",
+            "CzIPLmJuZXQuU2hvcEhvdXJzSACIAQFCCAoGX2hvdXJzIj4KCVNob3BIb3Vy",
+            "cxIXCg9vcGVuc19hdF9taW51dGUYASABKAUSGAoQY2xvc2VzX2F0X21pbnV0",
+            "ZRgCIAEoBSJUCglTaG9wRW50cnkSDwoHaXRlbV9pZBgBIAEoBBIPCgdvZmZl",
             "cmVkGAIgASgFEhEKCWJ1eV9wcmljZRgDIAEoAxISCgpzZWxsX3ByaWNlGAQg",
             "ASgDQisKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ISU2hvcE9mZmVyU21zZ1By",
             "b3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ShopOfferSMSG), global::Bnet.ShopOfferSMSG.Parser, new[]{ "Settlement", "Entries", "MerchantEntityId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ShopOfferSMSG), global::Bnet.ShopOfferSMSG.Parser, new[]{ "Settlement", "Entries", "MerchantEntityId", "MerchantName", "Hours" }, new[]{ "Hours" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ShopHours), global::Bnet.ShopHours.Parser, new[]{ "OpensAtMinute", "ClosesAtMinute" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ShopEntry), global::Bnet.ShopEntry.Parser, new[]{ "ItemId", "Offered", "BuyPrice", "SellPrice" }, null, null, null, null)
           }));
     }
@@ -87,6 +91,8 @@ namespace Bnet {
       settlement_ = other.settlement_;
       entries_ = other.entries_.Clone();
       merchantEntityId_ = other.merchantEntityId_;
+      merchantName_ = other.merchantName_;
+      hours_ = other.hours_ != null ? other.hours_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -138,6 +144,33 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "merchant_name" field.</summary>
+    public const int MerchantNameFieldNumber = 4;
+    private string merchantName_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string MerchantName {
+      get { return merchantName_; }
+      set {
+        merchantName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "hours" field.</summary>
+    public const int HoursFieldNumber = 5;
+    private global::Bnet.ShopHours hours_;
+    /// <summary>
+    /// Absent for a merchant who keeps no hours.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.ShopHours Hours {
+      get { return hours_; }
+      set {
+        hours_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -156,6 +189,8 @@ namespace Bnet {
       if (Settlement != other.Settlement) return false;
       if(!entries_.Equals(other.entries_)) return false;
       if (MerchantEntityId != other.MerchantEntityId) return false;
+      if (MerchantName != other.MerchantName) return false;
+      if (!object.Equals(Hours, other.Hours)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -166,6 +201,8 @@ namespace Bnet {
       if (Settlement != 0) hash ^= Settlement.GetHashCode();
       hash ^= entries_.GetHashCode();
       if (MerchantEntityId != 0UL) hash ^= MerchantEntityId.GetHashCode();
+      if (MerchantName.Length != 0) hash ^= MerchantName.GetHashCode();
+      if (hours_ != null) hash ^= Hours.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -193,6 +230,14 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteUInt64(MerchantEntityId);
       }
+      if (MerchantName.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(MerchantName);
+      }
+      if (hours_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(Hours);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -212,6 +257,14 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteUInt64(MerchantEntityId);
       }
+      if (MerchantName.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(MerchantName);
+      }
+      if (hours_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(Hours);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -228,6 +281,12 @@ namespace Bnet {
       size += entries_.CalculateSize(_repeated_entries_codec);
       if (MerchantEntityId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(MerchantEntityId);
+      }
+      if (MerchantName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(MerchantName);
+      }
+      if (hours_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Hours);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -247,6 +306,15 @@ namespace Bnet {
       entries_.Add(other.entries_);
       if (other.MerchantEntityId != 0UL) {
         MerchantEntityId = other.MerchantEntityId;
+      }
+      if (other.MerchantName.Length != 0) {
+        MerchantName = other.MerchantName;
+      }
+      if (other.hours_ != null) {
+        if (hours_ == null) {
+          Hours = new global::Bnet.ShopHours();
+        }
+        Hours.MergeFrom(other.Hours);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -277,6 +345,17 @@ namespace Bnet {
           }
           case 24: {
             MerchantEntityId = input.ReadUInt64();
+            break;
+          }
+          case 34: {
+            MerchantName = input.ReadString();
+            break;
+          }
+          case 42: {
+            if (hours_ == null) {
+              Hours = new global::Bnet.ShopHours();
+            }
+            input.ReadMessage(Hours);
             break;
           }
         }
@@ -310,6 +389,255 @@ namespace Bnet {
             MerchantEntityId = input.ReadUInt64();
             break;
           }
+          case 34: {
+            MerchantName = input.ReadString();
+            break;
+          }
+          case 42: {
+            if (hours_ == null) {
+              Hours = new global::Bnet.ShopHours();
+            }
+            input.ReadMessage(Hours);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// The merchant's own minutes of the day, already moved by how early or late they keep their shift.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class ShopHours : pb::IMessage<ShopHours>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<ShopHours> _parser = new pb::MessageParser<ShopHours>(() => new ShopHours());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<ShopHours> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Bnet.ShopOfferSmsgReflection.Descriptor.MessageTypes[1]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ShopHours() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ShopHours(ShopHours other) : this() {
+      opensAtMinute_ = other.opensAtMinute_;
+      closesAtMinute_ = other.closesAtMinute_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ShopHours Clone() {
+      return new ShopHours(this);
+    }
+
+    /// <summary>Field number for the "opens_at_minute" field.</summary>
+    public const int OpensAtMinuteFieldNumber = 1;
+    private int opensAtMinute_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int OpensAtMinute {
+      get { return opensAtMinute_; }
+      set {
+        opensAtMinute_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "closes_at_minute" field.</summary>
+    public const int ClosesAtMinuteFieldNumber = 2;
+    private int closesAtMinute_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int ClosesAtMinute {
+      get { return closesAtMinute_; }
+      set {
+        closesAtMinute_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as ShopHours);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(ShopHours other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (OpensAtMinute != other.OpensAtMinute) return false;
+      if (ClosesAtMinute != other.ClosesAtMinute) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (OpensAtMinute != 0) hash ^= OpensAtMinute.GetHashCode();
+      if (ClosesAtMinute != 0) hash ^= ClosesAtMinute.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (OpensAtMinute != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(OpensAtMinute);
+      }
+      if (ClosesAtMinute != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(ClosesAtMinute);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (OpensAtMinute != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(OpensAtMinute);
+      }
+      if (ClosesAtMinute != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(ClosesAtMinute);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (OpensAtMinute != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(OpensAtMinute);
+      }
+      if (ClosesAtMinute != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(ClosesAtMinute);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(ShopHours other) {
+      if (other == null) {
+        return;
+      }
+      if (other.OpensAtMinute != 0) {
+        OpensAtMinute = other.OpensAtMinute;
+      }
+      if (other.ClosesAtMinute != 0) {
+        ClosesAtMinute = other.ClosesAtMinute;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            OpensAtMinute = input.ReadInt32();
+            break;
+          }
+          case 16: {
+            ClosesAtMinute = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            OpensAtMinute = input.ReadInt32();
+            break;
+          }
+          case 16: {
+            ClosesAtMinute = input.ReadInt32();
+            break;
+          }
         }
       }
     }
@@ -332,7 +660,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.ShopOfferSmsgReflection.Descriptor.MessageTypes[1]; }
+      get { return global::Bnet.ShopOfferSmsgReflection.Descriptor.MessageTypes[2]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

@@ -18,12 +18,21 @@ class MerchantStock(
   private val merchants: MerchantDirectory,
 ) {
 
-  /** Commodity ids this entity trades in, or null when they keep no shop at all. */
-  fun of(entityId: EntityId): Set<String>? {
-    return forBusiness(merchants.businessOf(entityId))
+  /** The counter [entityId] keeps, or null when they keep no shop at all. */
+  fun counterOf(entityId: EntityId): Counter? {
+    val merchant = merchants.merchantOf(entityId) ?: return null
+
+    return counterOf(entityId, merchant)
   }
 
   /** The same question for a caller that has already resolved the person, and so opens no world scope. */
+  fun counterOf(entityId: EntityId, merchant: Merchant): Counter? {
+    val stocked = forBusiness(merchant.business) ?: return null
+
+    return Counter(entityId, merchant.name, stocked, merchant.hours)
+  }
+
+  /** Commodity ids a business deals in, or null when it keeps no shop. */
   fun forBusiness(business: String?): Set<String>? {
     if (business == null) return null
 

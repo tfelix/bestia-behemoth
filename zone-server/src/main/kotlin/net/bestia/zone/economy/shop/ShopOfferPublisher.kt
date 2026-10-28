@@ -21,22 +21,14 @@ class ShopOfferPublisher(
   private val outMessageProcessor: OutMessageProcessor,
 ) {
 
-  fun publish(
-    world: World,
-    viewerId: EntityId,
-    merchantId: EntityId,
-    settlement: Int,
-    shop: Shop,
-    stocked: Set<String>,
-  ) {
+  fun publish(world: World, viewerId: EntityId, settlement: Int, shop: Shop, counter: Counter) {
     val accountId = world.get(viewerId, Account::class)?.accountId ?: return
 
-    publishTo(accountId, merchantId, settlement, shop, stocked)
+    publishTo(accountId, settlement, shop, counter)
   }
 
-  /** @param stocked what this merchant deals in; the town may hold plenty the counter has never had. */
-  fun publishTo(accountId: Long, merchantId: EntityId, settlement: Int, shop: Shop, stocked: Set<String>) {
-    val entries = shop.offers().filter { it.commodity.id in stocked }.mapNotNull { offer ->
+  fun publishTo(accountId: Long, settlement: Int, shop: Shop, counter: Counter) {
+    val entries = shop.offers().filter { it.commodity.id in counter.stocked }.mapNotNull { offer ->
       // A commodity whose item never made it into the catalogue is dropped rather than sent with a
       // meaningless id. `EconomyCoverage` fails the boot over it, so this cannot happen in a booted
       // server - what it protects is a test wiring a partial catalogue.
@@ -45,6 +37,13 @@ class ShopOfferPublisher(
       }
     }
 
-    outMessageProcessor.sendToPlayer(accountId, ShopOfferSMSG(settlement, merchantId, entries))
+    val offer = ShopOfferSMSG(
+      settlement = settlement,
+      merchantEntityId = counter.merchantId,
+      merchantName = counter.merchantName,
+      hours = counter.hours,
+      entries = entries,
+    )
+    outMessageProcessor.sendToPlayer(accountId, offer)
   }
 }

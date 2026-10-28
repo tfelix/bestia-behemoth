@@ -15,6 +15,8 @@ import net.bestia.zone.util.EntityId
 data class ShopOfferSMSG(
   val settlement: Int,
   val merchantEntityId: EntityId,
+  val merchantName: String,
+  val hours: ShopHours,
   val entries: List<Entry>,
 ) : SMSG {
 
@@ -25,6 +27,7 @@ data class ShopOfferSMSG(
     val offer = ShopOfferSmsgProto.ShopOfferSMSG.newBuilder()
       .setSettlement(settlement)
       .setMerchantEntityId(merchantEntityId)
+      .setMerchantName(merchantName)
       .addAllEntries(entries.map { entry ->
         ShopOfferSmsgProto.ShopEntry.newBuilder()
           .setItemId(entry.itemId)
@@ -33,10 +36,19 @@ data class ShopOfferSMSG(
           .setSellPrice(entry.sellPrice)
           .build()
       })
-      .build()
+
+    val opensAtMinute = hours.opensAtMinute
+    val closesAtMinute = hours.closesAtMinute
+    if (opensAtMinute != null && closesAtMinute != null) {
+      offer.setHours(
+        ShopOfferSmsgProto.ShopHours.newBuilder()
+          .setOpensAtMinute(opensAtMinute)
+          .setClosesAtMinute(closesAtMinute)
+      )
+    }
 
     return EnvelopeProto.Envelope.newBuilder()
-      .setShopOffer(offer)
+      .setShopOffer(offer.build())
       .build()
   }
 }

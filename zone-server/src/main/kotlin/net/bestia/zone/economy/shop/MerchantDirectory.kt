@@ -5,6 +5,6 @@ import net.bestia.zone.util.EntityId
 /** Who keeps which business. The townsfolk slice knows its people, so it implements this. */
 interface MerchantDirectory {
 
-  /** The business [entityId] works in, or null for anyone who keeps none. */
-  fun businessOf(entityId: EntityId): String?
+  /** The person behind [entityId], or null for anything that is not a townsperson. */
+  fun merchantOf(entityId: EntityId): Merchant?
 }

@@ -10,6 +10,10 @@ import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder
 import org.springframework.stereotype.Component
 import net.bestia.zone.economy.shop.MerchantStock
+import net.bestia.zone.economy.shop.ShopCounter
+import net.bestia.bnet.proto.OperationErrorProto
+import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.message.OutMessageProcessor
 
 /**
  * Attaches a [ShopTradeIntent] and returns. As empty as `CollectPropHandler`, and for its reason: every
@@ -20,6 +24,8 @@ class ShopTradeHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val deadActionGuard: DeadActionGuard,
   private val merchants: MerchantStock,
+  private val shops: ShopCounter,
+  private val outMessageProcessor: OutMessageProcessor,
 ) : TickMessageHandler<ShopTradeCMSG> {
   override val wire = decoder(MessageCase.SHOP_TRADE) { accountId, envelope ->
     ShopTradeCMSG.fromBnet(accountId, envelope.shopTrade)
@@ -33,8 +39,12 @@ class ShopTradeHandler(
     }
 
     // Resolved here because `SpeakerResolver` opens a world scope of its own, which the system that reads
-    // this has no use for. An empty set is a refusal the system reports, rather than a silent no-op here.
-    val stocked = merchants.of(msg.merchantEntityId).orEmpty()
+    // this has no use for.
+    val counter = merchants.counterOf(msg.merchantEntityId)
+      ?: return deny(msg, OperationErrorProto.OpError.SHOP_NONE_HERE)
+    if (!shops.isOpen(counter)) {
+      return deny(msg, OperationErrorProto.OpError.SHOP_CLOSED)
+    }
 
     world.modify(activeEntityId) { id ->
       add(
@@ -43,11 +53,16 @@ class ShopTradeHandler(
           itemId = msg.itemId,
           amount = msg.amount,
           selling = msg.selling,
-          stocked = stocked,
-          merchantEntityId = msg.merchantEntityId,
+          counter = counter,
         )
       )
     }
+
+    return true
+  }
+
+  private fun deny(msg: ShopTradeCMSG, code: OperationErrorProto.OpError): Boolean {
+    outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(code))
 
     return true
   }

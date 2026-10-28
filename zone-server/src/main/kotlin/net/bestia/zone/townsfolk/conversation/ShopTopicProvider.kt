@@ -1,18 +1,18 @@
 package net.bestia.zone.townsfolk.conversation
 
-import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.economy.SettlementEconomyService
+import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.ai.core.state.HourWindow
+import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.economy.shop.Counter
 import net.bestia.zone.economy.shop.MerchantStock
-import net.bestia.zone.economy.shop.ShopOfferPublisher
+import net.bestia.zone.economy.shop.ShopCounter
 import org.springframework.stereotype.Component
 
 /**
- * The counter, reached by asking for it.
+ * The counter, as a conversation reaches it.
  *
- * An action rather than a question, and the first of them: picking it opens the window instead of
- * answering. The reply still arrives, because a conversation that simply stopped dead on a choice reads
- * as a bug however well the window behind it works.
+ * A merchant at work is not talked to first: `TalkService` opens their window directly, and this option
+ * is the way back to it from *Chat*. Off shift it becomes the question of when they open.
  *
  * Pinned, on the tier's own argument: an option a player cannot rely on is one they never learn to look
  * for, and a merchant is exactly the case that has to be relied upon.
@@ -20,10 +20,8 @@ import org.springframework.stereotype.Component
 @Component
 class ShopTopicProvider(
   private val merchants: MerchantStock,
-  private val economy: SettlementEconomyService,
-  private val offers: ShopOfferPublisher,
+  private val shops: ShopCounter,
   private val lines: ConversationLineCatalogue,
-  private val world: WorldView,
 ) : DialogTopicProvider {
 
   override val pinned = true
@@ -36,37 +34,59 @@ class ShopTopicProvider(
   }
 
   override fun rootOptions(speaker: Speaker): List<ConversationOption> {
-    if (merchants.forBusiness(speaker.business) == null) return emptyList()
+    val counter = counterOf(speaker) ?: return emptyList()
 
-    return listOf(
-      ConversationOption(Topics.SHOP + BUY, Line(ConversationKeys.SHOP_BUY_ASK), OptionKind.ACTION),
-      ConversationOption(Topics.SHOP + SELL, Line(ConversationKeys.SHOP_SELL_ASK), OptionKind.ACTION),
-    )
+    val option = if (shops.isOpen(counter)) {
+      ConversationOption(Topics.SHOP + TRADE, Line(ConversationKeys.SHOP_TRADE_ASK), OptionKind.ACTION)
+    } else {
+      ConversationOption(Topics.SHOP + HOURS, Line(ConversationKeys.SHOP_HOURS_ASK))
+    }
+
+    return listOf(option)
   }
 
-  /**
-   * Both options open the same window, because both directions of a trade happen at one counter. They
-   * are two options rather than one so a player who wants to sell is told they can before they have
-   * worked out that the shop takes things as well.
-   */
   override fun nodeFor(asker: Asker, speaker: Speaker, topicId: Int): ConversationNode? {
-    if (Topics.localOf(Topics.SHOP, topicId) !in setOf(BUY, SELL)) return null
+    val counter = counterOf(speaker) ?: return null
 
-    val stocked = merchants.forBusiness(speaker.business) ?: return null
+    return when (Topics.localOf(Topics.SHOP, topicId)) {
+      TRADE -> when (shops.open(asker.accountId, asker.entityId, counter)) {
+        null -> ConversationNode(lines.lineFor(speaker, ConversationKeys.SHOP_OPENED), emptyList())
+        // The shift ended between the option and the click.
+        OpError.SHOP_CLOSED -> hoursNode(speaker, counter)
+        else -> null
+      }
 
-    // Whose prices is still decided by where the player is standing, never by who they asked - the
-    // merchant only chooses the counter. See `OpenShopHandler`, which answers the same question.
-    val shop = world.read {
-      get(asker.entityId, Position::class)?.toVec3L()?.let { economy.shopAt(it.x, it.y) }
-    } ?: return null
+      HOURS -> hoursNode(speaker, counter)
+      else -> null
+    }
+  }
 
-    offers.publishTo(asker.accountId, speaker.entityId, shop.first, shop.second, stocked)
+  private fun counterOf(speaker: Speaker): Counter? {
+    return merchants.counterOf(speaker.entityId, speaker.merchant)
+  }
 
-    return ConversationNode(lines.lineFor(speaker, ConversationKeys.SHOP_OPENED), emptyList())
+  private fun hoursNode(speaker: Speaker, counter: Counter): ConversationNode? {
+    val opens = counter.hours.opensAtMinute ?: return null
+    val closes = counter.hours.closesAtMinute ?: return null
+
+    val args = mapOf(
+      ConversationKeys.SLOT_OPENS to DialogArg.Number(nearestHour(opens)),
+      ConversationKeys.SLOT_CLOSES to DialogArg.Number(nearestHour(closes)),
+    )
+
+    return ConversationNode(lines.lineFor(speaker, ConversationKeys.SHOP_HOURS, args), emptyList())
+  }
+
+  /** Spoken, so a merchant who opens at 7:12 says seven. */
+  private fun nearestHour(minuteOfDay: Int): Long {
+    val hour = (minuteOfDay + HourWindow.MINUTES_PER_HOUR / 2) / HourWindow.MINUTES_PER_HOUR
+
+    return (hour % HOURS_PER_DAY).toLong()
   }
 
   private companion object {
-    const val BUY = 1
-    const val SELL = 2
+    const val TRADE = 1
+    const val HOURS = 2
+    const val HOURS_PER_DAY = 24
   }
 }

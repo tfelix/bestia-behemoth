@@ -20,17 +20,17 @@ class MerchantStockTest {
 
   @Test
   fun `a general store holds everything, because it produces none of it`() {
-    assertEquals(catalogue.commodities().map { it.id }.toSet(), stock.of(keeperOf("general_store")))
+    assertEquals(catalogue.commodities().map { it.id }.toSet(), stock.counterOf(keeperOf("general_store"))?.stocked)
   }
 
   @Test
   fun `a miller deals in what it takes as well as what it makes`() {
-    assertEquals(setOf("grain", "flour"), stock.of(keeperOf("miller")))
+    assertEquals(setOf("grain", "flour"), stock.counterOf(keeperOf("miller"))?.stocked)
   }
 
   @Test
   fun `a baker takes flour and sells bread, and has no grain to offer`() {
-    val offered = stock.of(keeperOf("baker"))
+    val offered = stock.counterOf(keeperOf("baker"))?.stocked
 
     assertEquals(setOf("flour", "bread"), offered)
     assertTrue("grain" !in offered!!, "a bakery was selling raw grain")
@@ -38,26 +38,26 @@ class MerchantStockTest {
 
   @Test
   fun `somebody who keeps no trade keeps no shop`() {
-    assertNull(stock.of(keeperOf(null)), "a townsperson with no business was given a counter")
+    assertNull(stock.counterOf(keeperOf(null))?.stocked, "a townsperson with no business was given a counter")
   }
 
   @Test
   fun `a trade that produces no commodity has nothing to sell`() {
     // A temple is a service, in economy.yml's own words: inventing an abstract good to hang off it
     // would buy an item nobody can hold.
-    assertNull(stock.of(keeperOf("temple")))
+    assertNull(stock.counterOf(keeperOf("temple"))?.stocked)
   }
 
   @Test
   fun `an entity that is not a townsperson at all is not a merchant`() {
-    every { merchants.businessOf(NOBODY) } returns null
+    every { merchants.merchantOf(NOBODY) } returns null
 
-    assertNull(stock.of(NOBODY))
+    assertNull(stock.counterOf(NOBODY)?.stocked)
   }
 
   private fun keeperOf(business: String?): Long {
     val entityId = business.hashCode().toLong()
-    every { merchants.businessOf(entityId) } returns business
+    every { merchants.merchantOf(entityId) } returns Merchant("Mira", business, ShopHours.ALWAYS_OPEN)
 
     return entityId
   }
