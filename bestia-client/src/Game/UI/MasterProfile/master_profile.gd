@@ -14,6 +14,7 @@ const _MENU_HOTKEYS := {
 	"Party": "toggle_party",
 	"Guild": "toggle_guild",
 	"Compendium": "toggle_compendium",
+	"Emotes": "toggle_emotes",
 }
 
 var _master_info: MasterInfo
@@ -50,6 +51,7 @@ signal status_win_toggled
 signal party_win_toggled
 signal guild_win_toggled
 signal compendium_win_toggled
+signal emotes_win_toggled
 signal options_toggled
 
 func _ready() -> void:
@@ -281,6 +283,8 @@ func _process(_delta: float) -> void:
 		guild_win_toggled.emit()
 	if Input.is_action_just_pressed("toggle_compendium"):
 		compendium_win_toggled.emit()
+	if Input.is_action_just_pressed("toggle_emotes"):
+		emotes_win_toggled.emit()
 
 
 ## The guild window has nothing to show outside a guild, so its button is only offered inside one.
@@ -326,6 +330,10 @@ func _on_party_pressed() -> void:
 
 func _on_guild_pressed() -> void:
 	guild_win_toggled.emit()
+
+
+func _on_emotes_pressed() -> void:
+	emotes_win_toggled.emit()
 
 
 func _on_compendium_pressed() -> void:

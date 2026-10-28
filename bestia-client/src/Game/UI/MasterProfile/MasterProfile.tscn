@@ -15,6 +15,7 @@
 [ext_resource type="Texture2D" path="res://Theme/Icons/coin.svg" id="13_coin"]
 [ext_resource type="Texture2D" path="res://Theme/Icons/flag.svg" id="14_flag"]
 [ext_resource type="Texture2D" path="res://Theme/Icons/book.svg" id="15_book"]
+[ext_resource type="Texture2D" path="res://Theme/Icons/mood-smile.svg" id="16_mood"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c5uss"]
 content_margin_left = 2.0
@@ -363,6 +364,14 @@ theme_override_constants/icon_max_width = 14
 icon = ExtResource("15_book")
 icon_alignment = 1
 
+[node name="Emotes" type="Button" parent="Margin/Layout/Bottom/Menu"]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+tooltip_text = "Emotes"
+theme_override_constants/icon_max_width = 14
+icon = ExtResource("16_mood")
+icon_alignment = 1
+
 [node name="Spacer" type="Control" parent="Margin/Layout/Bottom" unique_id=1630184722]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -417,4 +426,5 @@ label_settings = SubResource("LabelSettings_small")
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Party" to="." method="_on_party_pressed"]
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Guild" to="." method="_on_guild_pressed"]
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Compendium" to="." method="_on_compendium_pressed"]
+[connection signal="pressed" from="Margin/Layout/Bottom/Menu/Emotes" to="." method="_on_emotes_pressed"]
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Option" to="." method="_on_options_pressed"]

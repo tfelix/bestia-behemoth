@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="EmoteResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Game/Emote/emote_resource.gd" id="1_script"]
+[ext_resource type="Script" path="res://Game/Emote/emote_clips.gd" id="2_clips"]
+
+[sub_resource type="Resource" id="Resource_master"]
+script = ExtResource("2_clips")
+enter = &"Sit_Floor_Down"
+loop = &"Sit_Floor_Idle"
+exit = &"Sit_Floor_StandUp"
+
+[resource]
+script = ExtResource("1_script")
+kind = "SIT"
+label_key = "EMOTE_SIT"
+glyph = "_o"
+lasts = true
+master_clips = SubResource("Resource_master")

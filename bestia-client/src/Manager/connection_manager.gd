@@ -93,6 +93,7 @@ var NotebookListCMSG = load("res://Bnet/Message/Notebook/NotebookListCMSG.cs")
 var NotebookPutCMSG = load("res://Bnet/Message/Notebook/NotebookPutCMSG.cs")
 var NotebookDeleteCMSG = load("res://Bnet/Message/Notebook/NotebookDeleteCMSG.cs")
 var SelectActiveEntityCMSG = load("res://Bnet/Message/Entity/SelectActiveEntityCMSG.cs")
+var EmoteCMSG = load("res://Bnet/Message/Entity/EmoteCMSG.cs")
 var GetInventoryCMSG = load("res://Bnet/Message/Inventory/GetInventoryCMSG.cs")
 var GetSkillsCMSG = load("res://Bnet/Message/Master/GetSkillsCMSG.cs")
 var ActivateSkillCMSG = load("res://Bnet/Message/Master/ActivateSkillCMSG.cs")
@@ -1018,6 +1019,15 @@ func select_active_entity(entity_id: int) -> void:
 	assert(is_ready_to_send())
 	var msg = SelectActiveEntityCMSG.new()
 	msg.EntityId = entity_id
+	_socket.SendMessage(msg)
+
+
+## Asks for an emote on the entity we control, by its AnimationKind name ("CHEER"). Seen as its Animation component.
+func send_emote(kind: String) -> void:
+	if not is_ready_to_send():
+		return
+	var msg = EmoteCMSG.new()
+	msg.Kind = kind
 	_socket.SendMessage(msg)
 
 

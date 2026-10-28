@@ -2,6 +2,8 @@ keys,en
 ERROR_BASIC_SKILL_CHAT_LOCKED,You cannot speak yet. Raise Basic Skill to Lv. 2 in your Skills window.
 ERROR_BASIC_SKILL_PARTY_LOCKED,Parties need Basic Skill Lv. 5.
 ERROR_BASIC_SKILL_TRADE_LOCKED,Trading needs Basic Skill Lv. 1.
+ERROR_BASIC_SKILL_EMOTE_LOCKED,Emotes need Basic Skill Lv. 2.
+ERROR_EMOTE_NOT_NOW,Stand still to do that - you cannot emote while walking or casting.
 ERROR_EQUIP_LEVEL_TOO_LOW,You are not high enough level to wear that yet.
 ERROR_EQUIP_NOVICE_ONLY,Only a novice may wear that. Your training has taken you past it.
 ERROR_EQUIP_ARMOR_TYPE_NOT_WEARABLE,Your bestia cannot wear that kind of armor.
@@ -470,3 +472,12 @@ INVENTORY_SEARCH,Search
 INVENTORY_SORT_NAME,Name
 INVENTORY_SORT_AMOUNT,Amount
 INVENTORY_SORT_WEIGHT,Weight
+EMOTE_CHEER,Cheer
+EMOTE_JUMP,Jump
+EMOTE_POINT,Point
+EMOTE_FLOURISH,Flourish
+EMOTE_SIT,Sit
+EMOTE_LIE,Lie down
+EMOTE_BODY_CANNOT,The body you control has no %s emote.
+EMOTE_BAR_TITLE,Emote bar - Alt+1 to Alt+0
+EMOTE_WINDOW_HINT,"Click an emote to play it, or drag it onto the bar. Typing /cheer, /sit and the rest works too; /help lists them."

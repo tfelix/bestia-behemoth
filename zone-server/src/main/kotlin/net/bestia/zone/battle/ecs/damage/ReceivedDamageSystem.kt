@@ -15,6 +15,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.logout.ecs.LogoutIntent
 import org.springframework.stereotype.Component as SpringComponent
 import net.bestia.zone.ecs.core.update
+import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.entity.ecs.Dead
 
 /**
@@ -33,7 +34,7 @@ class ReceivedDamageSystem(
   override val writes: ComponentClassSet =
     setOf(
       Health::class, TakenDamage::class, Dead::class, LogoutIntent::class, Casting::class, Crafting::class,
-      InCombat::class, IncomingDamage::class
+      InCombat::class, IncomingDamage::class, Animation::class
     )
 
   override fun update(world: World, deltaTime: Float) {
@@ -78,6 +79,8 @@ class ReceivedDamageSystem(
         if (world.has(id, Crafting::class)) {
           world.remove(id, Crafting::class)
         }
+        // A hit stands an emoting entity up, the same tick it lands.
+        world.get(id, Animation::class)?.endEmote()
       }
 
       if (health.current == 0 && Dead.markOnce(world, id)) {

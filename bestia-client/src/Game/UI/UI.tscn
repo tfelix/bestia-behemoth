@@ -34,6 +34,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Invitation/InvitationTray.tscn" id="31_invites"]
 [ext_resource type="PackedScene" path="res://Game/UI/Compendium/Compendium.tscn" id="32_compendium"]
 [ext_resource type="PackedScene" path="res://Game/UI/Auction/AuctionHouse.tscn" id="33_auction"]
+[ext_resource type="PackedScene" path="res://Game/UI/Emotes/Emotes.tscn" id="34_emotes"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -155,6 +156,12 @@ layout_mode = 1
 content = ExtResource("32_compendium")
 window_title = "Bestia Compendium"
 
+[node name="EmotesWin" parent="." instance=ExtResource("8_wdgtw")]
+visible = false
+layout_mode = 1
+content = ExtResource("34_emotes")
+window_title = "Emotes"
+
 [node name="Invitations" parent="." instance=ExtResource("31_invites")]
 layout_mode = 1
 
@@ -203,4 +210,5 @@ oversampling_override = 1.0
 [connection signal="party_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_party_win_toggled"]
 [connection signal="guild_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_guild_win_toggled"]
 [connection signal="compendium_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_compendium_win_toggled"]
+[connection signal="emotes_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_emotes_win_toggled"]
 [connection signal="options_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_options_toggled"]

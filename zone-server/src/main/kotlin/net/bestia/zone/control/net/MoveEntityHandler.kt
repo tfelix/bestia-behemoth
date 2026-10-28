@@ -8,6 +8,7 @@ import net.bestia.zone.battle.ecs.skill.CastCancelService
 import net.bestia.zone.control.ClientLeg
 import net.bestia.zone.control.MoveRequestRateLimit
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.logout.ecs.LogoutCancelService
 import net.bestia.zone.message.OperationErrorSMSG
@@ -88,6 +89,8 @@ class MoveEntityHandler(
     castCancelService.cancelCast(world, id)
     castCancelService.cancelCraft(world, id)
     attackCancelService.cancelAttack(world, id)
+    // Standing up from a sit, on this tick rather than when EmoteSystem sees the path.
+    world.get(id, Animation::class)?.endEmote()
   }
 
   /** @return whether it set off */

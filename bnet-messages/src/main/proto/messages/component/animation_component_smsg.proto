@@ -10,9 +10,12 @@ option java_outer_classname = "AnimationComponentSMSGProto";
  *
  * Deliberately narrow. Walking used to be in here too, and it was pure duplication: the client
  * already plays its walk clip off its own movement prediction, every frame, so the server's WALK
- * lost the argument anyway - and a master, which has no Animation component at all, has always been
- * animated that way. Anything an observer can read off ordinary components (moving = has a path,
- * dead = has the Dead component) does not belong here.
+ * lost the argument anyway. Anything an observer can read off ordinary components (moving = has a
+ * path, dead = has the Dead component) does not belong here.
+ *
+ * Emotes are poses too: nothing else about a cheering master says it is cheering. A player asks for
+ * one with EmoteCMSG, and the server answers through this enum like any other pose. SLEEP is not an
+ * emote - only the AI plan sets it.
  */
 enum AnimationKind {
   reserved 1; // was WALK, now derived on the client from the path
@@ -21,6 +24,16 @@ enum AnimationKind {
   IDLE = 0;
   /** Lying down asleep - knowledge only the AI plan has (see ai/core/action/Posture). */
   SLEEP = 2;
+
+  // Emotes, played once.
+  CHEER = 3;
+  JUMP = 4;
+  POINT = 5;
+  FLOURISH = 6;
+
+  // Emotes that last until the entity walks, casts, is hit or dies.
+  SIT = 7;
+  LIE = 8;
 }
 
 message AnimationComponentSMSG {

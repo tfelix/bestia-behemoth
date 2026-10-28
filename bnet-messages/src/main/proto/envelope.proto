@@ -39,6 +39,7 @@ import "messages/compendium/request_compendium_cmsg.proto";
 import "messages/compendium/compendium_smsg.proto";
 import "messages/master/active_entity_smsg.proto";
 import "messages/entity/attack_entity_cmsg.proto";
+import "messages/entity/emote_cmsg.proto";
 import "messages/entity/state_batch_smsg.proto";
 import "messages/entity/damage_entity_smsg.proto";
 import "messages/inventory/get_inventory_cmsg.proto";
@@ -221,6 +222,7 @@ message Envelope {
     // 502 held GetAllEntities, the one-shot login snapshot, and is reserved below. An entity is now
     // announced when the chunk it stands in reaches the client - see ChunkEntityVisibility.
     AttackEntityCMSG attack_entity = 503;
+    EmoteCMSG emote = 508;
 
     // SOCIAL & PARTY 600
     AcceptPartyInviteCMSG accept_party_invite = 600;

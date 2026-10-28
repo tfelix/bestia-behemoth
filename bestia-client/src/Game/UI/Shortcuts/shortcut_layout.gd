@@ -4,18 +4,23 @@ class_name ShortcutLayout
 ## What sits on the shortcut bar of one master: a few layers for the master and for each of its bestias, so every
 ## entity keeps its own attacks. Below them lies one shared layer, which shows wherever an entity's own slot is
 ## empty, so a potion or the like sits on the same key for all of them.
+## Beside them sits the emote bar: ten emotes on Alt+1 to Alt+0, the master's alone and the same whichever entity it
+## controls. It has no layers and shows through nothing, so no bestia has to keep a slot free for a cheer.
 
 const LAYER_COUNT := 3
 ## The shared layer is shown and edited like one more layer after the entity's own ones.
 const SHARED_LAYER := LAYER_COUNT
 const MASTER_KEY := "master"
 const FORMAT_VERSION := 2
+const EMOTE_SLOT_COUNT := 10
 ## The bar had seven slots per row before layers. The seventh one moves to the second layer.
 const _LEGACY_SLOT_NUMBER := 6
 
 ## Entity key -> { "active_layer": int, "layers": Array of { "row:number" -> ShortcutData } }.
 var _entities: Dictionary = {}
 var _shared: Dictionary = {}
+## Emote bar slot number -> ShortcutData.
+var _emotes: Dictionary = {}
 
 
 static func entity_key_of(entity_id: int, master_entity_id: int) -> String:
@@ -58,6 +63,19 @@ func set_active_layer(entity_key: String, layer: int) -> void:
 	_entity(entity_key)["active_layer"] = layer
 
 
+func get_emote_slot(number: int) -> ShortcutData:
+	# A copy, for the same reason as get_slot.
+	var slot: ShortcutData = _emotes.get(number)
+	return slot.duplicate() if slot != null else ShortcutData.new()
+
+
+func set_emote_slot(number: int, data: ShortcutData) -> void:
+	if data.is_empty():
+		_emotes.erase(number)
+	else:
+		_emotes[number] = data.duplicate()
+
+
 func to_dict() -> Dictionary:
 	var entities := {}
 	for key in _entities:
@@ -66,7 +84,12 @@ func to_dict() -> Dictionary:
 		for slots in entity["layers"]:
 			layers.append(_slots_to_list(slots))
 		entities[key] = {"active_layer": entity["active_layer"], "layers": layers}
-	return {"version": FORMAT_VERSION, "entities": entities, "shared": _slots_to_list(_shared)}
+	var emotes := []
+	for number in _emotes:
+		emotes.append({"number": number, "data": _emotes[number].to_dict()})
+	return {
+		"version": FORMAT_VERSION, "entities": entities, "shared": _slots_to_list(_shared), "emotes": emotes
+	}
 
 
 ## Also reads the bar of one master as it was saved before layers: a flat list of slots.
@@ -79,6 +102,8 @@ static func from_dict(saved: Variant) -> ShortcutLayout:
 		for key in entities:
 			layout._read_entity(key, entities[key])
 		layout._read_slots(MASTER_KEY, SHARED_LAYER, saved.get("shared", []))
+		for slot in saved.get("emotes", []):
+			layout.set_emote_slot(int(slot["number"]), ShortcutData.from_dict(slot["data"]))
 	return layout
 
 

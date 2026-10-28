@@ -14,6 +14,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _party_win: WidgetWindow = $PartyWin
 @onready var _guild_win: WidgetWindow = $GuildWin
 @onready var _compendium_win: WidgetWindow = $CompendiumWin
+@onready var _emotes_win: WidgetWindow = $EmotesWin
 @onready var _auction_win: WidgetWindow = $AuctionWin
 @onready var _invitations: InvitationTray = $Invitations
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
@@ -86,6 +87,7 @@ func _ready() -> void:
 	var inventory := _inventory_win.get_content() as Inventory
 	_ground_drop_zone.inventory = inventory
 	_shortcuts.inventory = inventory
+	(_emotes_win.get_content() as EmoteWindow).shortcuts = _shortcuts
 
 	var equipment := _equipment_win.get_content() as Equipment
 	inventory.equipment = equipment
@@ -510,6 +512,10 @@ func _on_master_profile_guild_win_toggled() -> void:
 	if guild == null or not guild.is_in_guild():
 		return
 	_guild_win.visible = !_guild_win.visible
+
+
+func _on_master_profile_emotes_win_toggled() -> void:
+	_emotes_win.visible = !_emotes_win.visible
 
 
 func _on_master_profile_compendium_win_toggled() -> void:

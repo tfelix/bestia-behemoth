@@ -107,6 +107,9 @@ enum OpError {
   TRADE_FAILED = 35;
 
   BASIC_SKILL_TRADE_LOCKED = 36;
+  // Emotes are body language, so they open at the chat rank; worded on their own, since "you cannot speak"
+  // would read oddly for a cheer.
+  BASIC_SKILL_EMOTE_LOCKED = 102;
 
   // Chat commands. A command the player may not use is told apart from one that does not exist, because the
   // two are different problems: the first is answered by asking a GM, the second by checking the spelling.
@@ -276,6 +279,9 @@ enum OpError {
   // Prices moved since the last quote and the trade would now come out worse than it was shown. The client
   // asks for a fresh quote.
   SHOP_PRICE_CHANGED = 101;
+
+  // An emote asked for while walking, casting or crafting. The player stops and asks again.
+  EMOTE_NOT_NOW = 103;
 }
 
 message OperationError {

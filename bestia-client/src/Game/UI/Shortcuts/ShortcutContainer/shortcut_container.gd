@@ -12,6 +12,14 @@ var shortcut_row: int = 0
 @export
 var shortcut_number: int = 0
 
+## The input action that fires this slot. Empty for the shortcut bar's own `shortcut_<row>_<number>`.
+@export var action_name: String = ""
+## Off for a slot that only shows and edits what a key fires - the emote window's copy of the emote bar, whose keys
+## the always-present [Shortcuts] node answers, so a closed window still emotes and an open one does not emote twice.
+@export var listens_to_key: bool = true
+## Takes emotes and nothing else, as the emote bar does.
+@export var emotes_only: bool = false
+
 @onready var shortcut: Label = %Shortcut
 @onready var _icon: TextureRect = %Icon
 @onready var _count: Label = %Count
@@ -32,12 +40,17 @@ var _from_shared: bool = false
 var _usable_skill_level: int = 1
 ## Seconds left on a skill that is recovering, over the icon.
 var _cooldown: Label
+## An emote with no icon yet shows its glyph here instead.
+var _glyph: Label
 
 
 func _ready() -> void:
 	# assigning your input action from Project Settings Input Map
-	_prompt_action = "shortcut_%s_%s" % [shortcut_row, shortcut_number]
-	if InputMap.has_action(_prompt_action):
+	_prompt_action = action_name if not action_name.is_empty() else "shortcut_%s_%s" % [shortcut_row, shortcut_number]
+	if not action_name.is_empty():
+		# Not a bare key, so the modifier is part of the label: "Alt+1".
+		shortcut.text = Hotkeys.label_of(_prompt_action)
+	elif InputMap.has_action(_prompt_action):
 		# Bindings are physical (US positions), so the label is translated to what the player's own layout prints
 		# on that key: the key right of T reads Z on a German keyboard, not Y.
 		var key_action = InputMap.action_get_events(_prompt_action)[0]
@@ -54,6 +67,14 @@ func _ready() -> void:
 	_cooldown.visible = false
 	add_child(_cooldown)
 
+	_glyph = Label.new()
+	_glyph.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_glyph.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_glyph.add_theme_font_size_override("font_size", 18)
+	_glyph.visible = false
+	add_child(_glyph)
+
 	_update_display()
 
 
@@ -66,9 +87,12 @@ func _process(_delta: float) -> void:
 	if _cooldown.visible:
 		_cooldown.text = "%d" % ceili(left)
 	_icon.modulate = DISABLED_MODULATE if _disabled or left > 0.0 else Color.WHITE
+	_glyph.modulate = _icon.modulate
 
 
 func _shortcut_input(event: InputEvent) -> void:
+	if not listens_to_key:
+		return
 	# Exact, so a slot's bare key does not also fire under a modifier: Alt+G opens the guild window, it does not
 	# use what sits on G.
 	if event.is_action_pressed(_prompt_action, false, true):
@@ -101,6 +125,11 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	if typeof(data) != TYPE_DICTIONARY:
 		return false
 
+	if data["type"] == "emote":
+		return true
+	if emotes_only:
+		return false
+
 	if data["type"] == "skill":
 		return not _is_passive_skill(data["id"])
 
@@ -119,12 +148,18 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	if _shortcut_data.is_empty() or _from_shared:
 		return null
 
-	var preview: TextureRect = TextureRect.new()
-	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	preview.size = Vector2(50, 50)
-	preview.pivot_offset = preview.size / 2.0
-	preview.texture = _icon.texture
-	set_drag_preview(preview)
+	if _icon.texture == null and _glyph.visible:
+		var glyph_preview := Label.new()
+		glyph_preview.text = _glyph.text
+		glyph_preview.add_theme_font_size_override("font_size", 18)
+		set_drag_preview(glyph_preview)
+	else:
+		var preview: TextureRect = TextureRect.new()
+		preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		preview.size = Vector2(50, 50)
+		preview.pivot_offset = preview.size / 2.0
+		preview.texture = _icon.texture
+		set_drag_preview(preview)
 
 	_is_dragging_self = true
 
@@ -144,6 +179,8 @@ func _to_shortcut_dict(data: ShortcutData) -> Dictionary:
 			return {"type": "item", "id": data.reference_id}
 		ShortcutData.ShortcutType.SKILL:
 			return {"type": "skill", "id": data.reference_id, "level": data.skill_level}
+		ShortcutData.ShortcutType.EMOTE:
+			return {"type": "emote", "kind": data.emote_kind}
 
 	return {}
 
@@ -174,13 +211,18 @@ func trigger_shortcut() -> void:
 			_use_item()
 		ShortcutData.ShortcutType.SKILL:
 			_use_skill()
+		ShortcutData.ShortcutType.EMOTE:
+			ConnectionManager.send_emote(_shortcut_data.emote_kind)
 
 
 # Sets the shortcut depending on the dropped class.
 func set_shortcut(data: Dictionary) -> void:
 	_shortcut_data.clear()
 
-	if data["type"] == "item":
+	if data["type"] == "emote":
+		_shortcut_data.type = ShortcutData.ShortcutType.EMOTE
+		_shortcut_data.emote_kind = data["kind"]
+	elif data["type"] == "item":
 		_shortcut_data.type = ShortcutData.ShortcutType.ITEM
 		_shortcut_data.reference_id = data["id"]
 	elif data["type"] == "skill":
@@ -225,6 +267,7 @@ func set_usable_skill_level(level: int) -> void:
 func set_disabled(disabled: bool) -> void:
 	_disabled = disabled
 	_icon.modulate = DISABLED_MODULATE if disabled else Color.WHITE
+	_glyph.modulate = _icon.modulate
 
 
 func clear_shortcut() -> void:
@@ -234,6 +277,7 @@ func clear_shortcut() -> void:
 
 
 func _update_display() -> void:
+	_glyph.visible = false
 	if _shortcut_data.is_empty():
 		_icon.texture = null
 		_icon.visible = false
@@ -244,6 +288,8 @@ func _update_display() -> void:
 	_icon.visible = true
 
 	match _shortcut_data.type:
+		ShortcutData.ShortcutType.EMOTE:
+			_show_emote()
 		ShortcutData.ShortcutType.ITEM:
 			var item = ItemDB.get_instance().get_item(_shortcut_data.reference_id)
 			if item:
@@ -261,6 +307,23 @@ func _update_display() -> void:
 				printerr("Attack ID %s not found in AttackDB, can not display it" % [_shortcut_data.reference_id])
 			_count.visible = false
 			set_disabled(false)
+
+
+## Greyed out while the body the player controls has no clips for it - a bestia cannot cheer yet.
+func _show_emote() -> void:
+	var emote := EmoteDB.get_instance().get_emote(_shortcut_data.emote_kind)
+	_count_bg.visible = false
+	if emote == null:
+		printerr("Emote %s not found in EmoteDB, can not display it" % [_shortcut_data.emote_kind])
+		_icon.texture = null
+		return
+
+	_icon.texture = emote.icon
+	_glyph.text = emote.glyph
+	_glyph.visible = emote.icon == null
+	if not _from_shared:
+		tooltip_text = "%s (/%s)" % [tr(emote.label_key), emote.command()]
+	set_disabled(not EmoteDB.controlled_can_play(emote))
 
 
 func _use_item() -> void:

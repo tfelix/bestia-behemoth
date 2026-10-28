@@ -191,6 +191,8 @@ class AiActSystem(
    */
   private fun updatePosture(world: World, entityId: Long, action: Action?) {
     val animation = world.get(entityId, Animation::class) ?: return
+    // An emote is the player's, and EmoteSystem ends it; the AI would otherwise stand the entity up on its next act.
+    if (animation.isEmoting) return
 
     animation.currentAnimation = when (action?.posture) {
       Posture.SLEEPING -> Animation.AnimationKind.SLEEP

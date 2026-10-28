@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/component/animation_component_smsg.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "EmoteCMSGProto";
+
+/**
+ * Asks for an emote on the entity the player controls. Only the emote kinds of AnimationKind are
+ * accepted; the answer is that entity's Animation component, seen by everyone around it.
+ */
+message EmoteCMSG {
+  AnimationKind kind = 1;
+}

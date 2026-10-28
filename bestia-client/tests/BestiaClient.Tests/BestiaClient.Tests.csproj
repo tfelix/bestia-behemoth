@@ -40,6 +40,7 @@
     <None Include="..\..\src\Game\Item\DB\*.tres" CopyToOutputDirectory="PreserveNewest" Link="ItemDB\%(Filename)%(Extension)" />
     <None Include="..\..\src\Localization\bestias.csv" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\..\src\Game\Bestia\DB\*.tres" CopyToOutputDirectory="PreserveNewest" Link="BestiaDB\%(Filename)%(Extension)" />
+    <None Include="..\..\src\Game\Emote\DB\*.tres" CopyToOutputDirectory="PreserveNewest" Link="EmoteDB\%(Filename)%(Extension)" />
   </ItemGroup>
 
 </Project>
