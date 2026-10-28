@@ -170,7 +170,7 @@ class MapTileService(
       key = key,
       store = TileStore(File(config.cacheDir), key),
       // The longer edge: a world taller than it is wide still needs a level its whole map fits inside.
-      fitLevel = TileId.fitLevel(maxOf(width, height)),
+      topLevel = TileId.topLevel(maxOf(width, height)),
       widthMetres = width,
       heightMetres = height
     )
@@ -180,7 +180,7 @@ class MapTileService(
     val inputs: TileInputs,
     val key: MapWorldKey,
     val store: TileStore,
-    val fitLevel: Int,
+    val topLevel: Int,
     val widthMetres: Double,
     val heightMetres: Double
   )
@@ -193,7 +193,7 @@ class MapTileService(
       "worldMapVersion" to resources.key.value,
       "tileSize" to TileId.TILE_PIXELS,
       "minLevel" to 0,
-      "maxLevel" to resources.fitLevel,
+      "maxLevel" to resources.topLevel,
       "worldWidthMetres" to config.widthMetres,
       "worldHeightMetres" to config.heightMetres,
       "metresPerVoxel" to config.voxelSize
@@ -207,8 +207,8 @@ class MapTileService(
    *   an empty answer
    */
   fun tile(masterId: Long, id: TileId): Tile? {
-    require(id.level in 0..resources.fitLevel) {
-      "Level ${id.level} is outside 0..${resources.fitLevel}"
+    require(id.level in 0..resources.topLevel) {
+      "Level ${id.level} is outside 0..${resources.topLevel}"
     }
 
     if (!holdsTile(id)) return null
@@ -257,8 +257,8 @@ class MapTileService(
    * @throws IllegalArgumentException for a level outside the pyramid
    */
   fun habitat(masterId: Long, species: Bestia, id: TileId): Tile? {
-    require(id.level in 0..resources.fitLevel) {
-      "Level ${id.level} is outside 0..${resources.fitLevel}"
+    require(id.level in 0..resources.topLevel) {
+      "Level ${id.level} is outside 0..${resources.topLevel}"
     }
 
     if (!holdsTile(id)) return null
@@ -336,8 +336,8 @@ class MapTileService(
    *   an empty answer
    */
   fun places(masterId: Long, id: TileId): Places? {
-    require(id.level in 0..resources.fitLevel) {
-      "Level ${id.level} is outside 0..${resources.fitLevel}"
+    require(id.level in 0..resources.topLevel) {
+      "Level ${id.level} is outside 0..${resources.topLevel}"
     }
 
     if (!holdsTile(id)) return null
@@ -377,8 +377,8 @@ class MapTileService(
    *   an empty answer
    */
   fun services(masterId: Long, id: TileId): Services? {
-    require(id.level in 0..resources.fitLevel) {
-      "Level ${id.level} is outside 0..${resources.fitLevel}"
+    require(id.level in 0..resources.topLevel) {
+      "Level ${id.level} is outside 0..${resources.topLevel}"
     }
 
     if (!holdsTile(id)) return null

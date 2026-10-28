@@ -24,13 +24,13 @@ import java.util.concurrent.atomic.AtomicLong
  *
  * ```
  * ./gradlew :zone-server:mapBake -Pgenesis                       # coarse levels whole, fine ones round towns
- * ./gradlew :zone-server:mapBake -Pgenesis -Plevels=9..5         # only these levels, whole world
+ * ./gradlew :zone-server:mapBake -Pgenesis -Plevels=7..5         # only these levels, whole world
  * ./gradlew :zone-server:mapBake -Pgenesis -Pforce               # re-render tiles already on disk
  * ```
  *
  * ### Why the default is not "every level, everywhere"
  *
- * The pyramid is not uniform in cost or in value. On the 128 km Genesis world, L9 down to L5 is 341 tiles of
+ * The pyramid is not uniform in cost or in value. On the 128 km Genesis world, L7 down to L5 is 336 tiles of
  * raster sampling; L0 over the whole world is 262 144 tiles, most of them empty grassland, each needing a
  * per-pixel evaluation of the detail heightfield. So the default bakes the coarse levels whole - they are what a
  * player opening the world map sees, and they are cheap - and the fine levels only inside settlement bounds,
@@ -60,13 +60,13 @@ object MapBakeMain {
     val key = MapWorldKey.of(generated)
     val store = TileStore(args.file(OUT, DEFAULT_ROOT), key)
 
-    val fit = TileId.fitLevel(config.widthMetres)
+    val fit = TileId.topLevel(maxOf(config.widthMetres, config.heightMetres))
     val levels = args.string(LEVELS)?.let(::parseLevels) ?: (0..fit).reversed().toList()
     val force = args.has(FORCE)
     val threads = args.int(THREADS, Runtime.getRuntime().availableProcessors().coerceAtMost(MAX_THREADS))
 
     println(
-      "world %.0f x %.0f km, fits one tile at L%d, key %s".format(
+      "world %.0f x %.0f km, coarsest level served L%d, key %s".format(
         Locale.ROOT, config.widthMetres / 1000.0, config.heightMetres / 1000.0, fit, key
       )
     )

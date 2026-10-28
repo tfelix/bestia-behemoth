@@ -115,6 +115,15 @@ class TileIdTest {
   }
 
   @Test
+  fun `topLevel stops at 128 m per pixel however big the world is`() {
+    assertEquals(7, TileId.COARSEST_LEVEL)
+    assertEquals(7, TileId.topLevel(128_000.0))
+    assertEquals(7, TileId.topLevel(4_096_000.0))
+    // A world that fits one tile sooner keeps its own fit level.
+    assertEquals(5, TileId.topLevel(8_192.0))
+  }
+
+  @Test
   fun `covering returns every tile meeting an area and no others`() {
     val area = Aabb(0.0, 0.0, 128_000.0, 128_000.0)
     val tiles = TileId.covering(5, area)

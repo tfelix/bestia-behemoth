@@ -148,7 +148,7 @@ const _FILL_FLOOR_LEVEL := 3
 
 const _PNG_SIGNATURE := [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
 
-## World geometry, empty until [signal meta_ready]. Read it rather than assuming 256 or level 9.
+## World geometry, empty until [signal meta_ready]. Read it rather than assuming 256 or level 7.
 var meta: Dictionary = {}
 
 ## Tiles every player sees identically. See [method _is_shared] for how one is recognised.

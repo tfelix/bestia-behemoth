@@ -102,11 +102,24 @@ data class TileId(val level: Int, val tx: Long, val ty: Long) {
      */
     const val MAX_LEVEL = 30
 
-    /** The level at which a world of this size fits in a single tile: the coarsest one worth serving. */
+    /** The level at which a world of this size fits in a single tile. */
     fun fitLevel(worldMetres: Double): Int {
       require(worldMetres > 0.0) { "worldMetres must be positive, was $worldMetres" }
       return ceil(ln(worldMetres / TILE_PIXELS) / ln(2.0)).toInt().coerceIn(0, MAX_LEVEL)
     }
+
+    /**
+     * The coarsest level the map serves: 128 metres per pixel.
+     *
+     * Past it the map is a thumbnail. On Genesis L7 is already four tiles across, the whole continent at a glance,
+     * and the two levels above it (256 and 512 m per pixel) only held the same picture smaller - no town, road
+     * or coast reads at that scale, and each cost a bake and a zoom step for nothing. A smaller world still tops
+     * out at its [fitLevel], so this only ever cuts levels off a large one.
+     */
+    const val COARSEST_LEVEL = 7
+
+    /** The coarsest level served for a world of this size: its [fitLevel], but never past [COARSEST_LEVEL]. */
+    fun topLevel(worldMetres: Double): Int = minOf(fitLevel(worldMetres), COARSEST_LEVEL)
 
     /** How many tiles a world of this size needs along one edge at [level]. */
     fun tilesAcross(worldMetres: Double, level: Int): Long {

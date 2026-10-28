@@ -82,7 +82,7 @@ object MapServeMain {
     val store = TileStore(args.file(OUT, "build/map-cache"), key)
     val renderer = ThreadLocal.withInitial { TileRenderer(inputs) }
 
-    val fit = TileId.fitLevel(config.widthMetres)
+    val fit = TileId.topLevel(maxOf(config.widthMetres, config.heightMetres))
     val port = args.int(PORT, DEFAULT_PORT)
     val fog = args.string(FOG)?.let { syntheticCoverage(it, SurveyGrid(WorldWrap(config))) }
     // The generator's services only: nothing has been knocked down in a world nobody has played.

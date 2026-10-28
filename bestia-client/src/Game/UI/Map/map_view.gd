@@ -24,6 +24,14 @@ extends Control
 ## window.
 const _FOG := Color(0.11, 0.095, 0.08)
 
+## The map's paper, as the server paints it (`AtlasPalette.paper`), and the ink of the rules round its margin.
+const _PAPER := Color(0.9412, 0.9098, 0.8314)
+const _BORDER_INK := Color(0.15, 0.11, 0.08, 0.85)
+
+## Width of the margin round the world, in pixels: the overlay's, and the minimap's, which is too small for more.
+const _BORDER_PIXELS := 24.0
+const _BORDER_PIXELS_SMALL := 8.0
+
 ## The player marker: a dark hull with a lighter one inside it, so it reads over any tile. The light one is the
 ## driven entity's slot colour from [OwnedSlots], as are the dots of the player's other entities.
 const _MARKER_OUTLINE := Color(0.15, 0.11, 0.08)
@@ -222,7 +230,7 @@ signal pointed(at: Vector2)
 ## The drafted stops changed; see [member draft].
 signal draft_changed
 
-## Metres per pixel is 2^level, so 0 is one metre to the pixel and 9 is 512.
+## Metres per pixel is 2^level, so 0 is one metre to the pixel and 7 - the coarsest the server serves - is 128.
 @export var level: int = 2
 
 ## Whether the wheel zooms and dragging pans. False for the minimap, which follows the player instead.
@@ -300,7 +308,7 @@ var source: MapSource = null
 var centre := Vector2.ZERO
 
 var _min_level: int = 0
-var _max_level: int = 9
+var _max_level: int = 7
 var _metres_per_voxel: float = 1.0
 
 ## Tile edge in pixels, from [code]/meta[/code]. Read rather than assumed: it sets both the metres a tile
@@ -398,7 +406,7 @@ func setup(map_source: MapSource, entities: Node) -> void:
 
 func _on_meta_ready(meta: Dictionary) -> void:
 	_min_level = int(meta.get("minLevel", 0))
-	_max_level = int(meta.get("maxLevel", 9))
+	_max_level = int(meta.get("maxLevel", 7))
 	_metres_per_voxel = float(meta.get("metresPerVoxel", 1.0))
 	_tile_pixels = maxi(int(meta.get("tileSize", 256)), 1)
 	_world_width = float(meta.get("worldWidthMetres", 0.0))
@@ -568,6 +576,8 @@ func _draw() -> void:
 					if _text_of(service, "kind") not in hidden_services:
 						services.append(service)
 
+	_draw_border()
+
 	_visible_places = places
 	_visible_services = services
 	if show_grid:
@@ -584,6 +594,42 @@ func _draw() -> void:
 	_draw_pin()
 	_draw_north()
 	_draw_hover()
+
+
+## The sheet's margin: a band of paper round the world, ruled at the world's edge and again at its own.
+##
+## Drawn by the view rather than left to the tiles. The last tile along an axis runs past the world, and its
+## void is painted as paper - which gave the north and east edges a border of whatever width the overshoot
+## happened to be, and the south and west edges, where the world starts on a tile boundary, none at all. So
+## everything outside the margin is covered back to the panel's colour, which also trims that overshoot, and the
+## margin is then laid the same width on all four sides.
+func _draw_border() -> void:
+	if _world_width <= 0.0 or _world_height <= 0.0:
+		return
+
+	var width := _BORDER_PIXELS if interactive else _BORDER_PIXELS_SMALL
+	var north_west := _to_screen(Vector2(0.0, _world_height))
+	var south_east := _to_screen(Vector2(_world_width, 0.0))
+	var inner := Rect2(north_west, south_east - north_west)
+	var outer := inner.grow(width)
+
+	# Covered in four bands round the margin rather than one rectangle with a hole, which Godot cannot draw.
+	var left := clampf(outer.position.x, 0.0, size.x)
+	var right := clampf(outer.end.x, 0.0, size.x)
+	var top := clampf(outer.position.y, 0.0, size.y)
+	var bottom := clampf(outer.end.y, 0.0, size.y)
+	draw_rect(Rect2(0.0, 0.0, size.x, top), _FOG)
+	draw_rect(Rect2(0.0, bottom, size.x, size.y - bottom), _FOG)
+	draw_rect(Rect2(0.0, top, left, bottom - top), _FOG)
+	draw_rect(Rect2(right, top, size.x - right, bottom - top), _FOG)
+
+	draw_rect(Rect2(outer.position.x, outer.position.y, outer.size.x, width), _PAPER)
+	draw_rect(Rect2(outer.position.x, inner.end.y, outer.size.x, width), _PAPER)
+	draw_rect(Rect2(outer.position.x, inner.position.y, width, inner.size.y), _PAPER)
+	draw_rect(Rect2(inner.end.x, inner.position.y, width, inner.size.y), _PAPER)
+
+	draw_rect(inner, _BORDER_INK, false, 2.0)
+	draw_rect(outer, _BORDER_INK, false, 1.0)
 
 
 ## Lines between [param west]..[param east] and [param south]..[param north] world metres, clipped to the

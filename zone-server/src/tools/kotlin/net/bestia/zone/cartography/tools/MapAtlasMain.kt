@@ -44,8 +44,8 @@ object MapAtlasMain {
   fun main(argv: Array<String>) {
     val args = MapToolArgs.parse(argv, FLAGS)
     val config = args.config
-    val fit = TileId.fitLevel(config.widthMetres)
-    val level = args.int(LEVEL, fit - 1)
+    val fit = TileId.topLevel(maxOf(config.widthMetres, config.heightMetres))
+    val level = args.int(LEVEL, fit)
 
     val across = TileId.tilesAcross(config.widthMetres, level)
     val down = TileId.tilesAcross(config.heightMetres, level)

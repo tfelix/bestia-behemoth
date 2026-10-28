@@ -139,7 +139,7 @@ class MapQueriesTest {
     val meta = assertIs<ZoneAnswer.MapInfo>(ask(ZoneQuery.MapMeta).answer)
 
     assertEquals(TileId.TILE_PIXELS, meta.tileSize)
-    assertTrue(meta.maxLevel >= 9, "a 128 km world should fit one tile at L9 or coarser")
+    assertEquals(TileId.COARSEST_LEVEL, meta.maxLevel, "a 128 km world is served down to 128 m per pixel and no coarser")
     assertTrue(meta.worldMapVersion.isNotBlank() && meta.metresPerVoxel > 0)
   }
 
@@ -188,7 +188,7 @@ class MapQueriesTest {
   fun `a tile charted to its own edges but no further is served masked, not refused`() {
     // The ring just inside a chart's boundary: every cell of the tile is charted and the falloff margin around
     // it is not. A level-2 tile is 1024 m, so 800 m buries every cell centre and leaves the margin's corner out.
-    val spot = TileId.of(2, 20_000.0 + NEXT_SPOT++ * 20_000.0, 20_000.0)
+    val spot = nextSpot().let { (x, y) -> TileId.of(2, x, y) }
     val bounds = spot.bounds
     chartedAt((bounds.minX + bounds.maxX) / 2.0, (bounds.minY + bounds.maxY) / 2.0, radiusMetres = 800.0)
 
@@ -222,21 +222,25 @@ class MapQueriesTest {
   }
 
   @Test
-  fun `the coarsest level is one tile with nothing beside it`() {
+  fun `the coarsest level is served whole, with nothing past its last tile and no level above it`() {
     charted(radiusMetres = 3_000.0)
     val coarsest = meta().maxLevel
     assertEquals(Status.OK, ask(tileQuery(TileId(coarsest, 0, 0))).status, "the world should be charted by now")
 
-    for ((tx, ty) in listOf(1L to 0L, 0L to 1L, -1L to 0L, 0L to -1L, 1L to 1L)) {
+    val across = TileId.tilesAcross(meta().worldWidthMetres, coarsest)
+    val down = TileId.tilesAcross(meta().worldHeightMetres, coarsest)
+    for ((tx, ty) in listOf(across to 0L, 0L to down, -1L to 0L, 0L to -1L, across to down)) {
       assertEquals(Status.NOT_FOUND, ask(tileQuery(TileId(coarsest, tx, ty))).status, "L$coarsest/$tx/$ty")
     }
+
+    assertEquals(Status.INVALID, ask(tileQuery(TileId(coarsest + 1, 0, 0))).status, "L${coarsest + 1} is no longer served")
   }
 
   @Test
   fun `a tile charted a moment ago is not found no longer`() {
     // The first look leaves the master's empty coverage cached; without the eviction on a chart write, the
     // second look would get the first one's answer and the client would write that ground off.
-    val spot = TileId.of(3, 88_000.0 + NEXT_SPOT++ * 20_000.0, 44_000.0)
+    val spot = nextSpot().let { (x, y) -> TileId.of(3, x, y) }
     val centre = spot.bounds.let { (it.minX + it.maxX) / 2.0 to (it.minY + it.maxY) / 2.0 }
     assertEquals(Status.NOT_FOUND, ask(tileQuery(spot)).status, "this test needs ground nobody has looked at")
 
@@ -345,7 +349,18 @@ class MapQueriesTest {
 
   /** Charts a disc on ground nothing else has charted, 20 km east of the last, and answers its centre. */
   private fun charted(radiusMetres: Double): Pair<Double, Double> {
-    return chartedAt(20_000.0 + NEXT_SPOT++ * 20_000.0, 20_000.0, radiusMetres)
+    val (x, y) = nextSpot()
+    return chartedAt(x, y, radiusMetres)
+  }
+
+  /**
+   * Ground nothing else has charted: 20 km apart along y = 20 km, then along y = 44 km once that row of the 128 km
+   * world is used up. Past the world there is no ground to chart, and a test that asks about it gets a 404 that
+   * says nothing about the code under test.
+   */
+  private fun nextSpot(): Pair<Double, Double> {
+    val n = NEXT_SPOT++
+    return (20_000.0 + n % SPOTS_PER_ROW * 20_000.0) to (if (n < SPOTS_PER_ROW) 20_000.0 else 44_000.0)
   }
 
   private fun chartedAt(centreX: Double, centreY: Double, radiusMetres: Double): Pair<Double, Double> {
@@ -404,6 +419,8 @@ class MapQueriesTest {
   private companion object {
     /** Keeps each test's survey on its own ground, since the class charts on one master throughout. */
     var NEXT_SPOT = 0
+
+    const val SPOTS_PER_ROW = 6
 
     const val MASTER_NAME = "cartographer"
     const val BLOB = 1L
