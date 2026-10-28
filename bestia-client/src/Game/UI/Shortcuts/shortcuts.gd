@@ -80,7 +80,7 @@ func _pager_button(glyph: String, tooltip: String, step: int) -> Button:
 
 
 func _update_pager() -> void:
-	var shared_hotkey := _hotkey_of(_layer_action(ShortcutLayout.SHARED_LAYER))
+	var shared_hotkey := Hotkeys.label_of(_layer_action(ShortcutLayout.SHARED_LAYER))
 	if _active_layer() == ShortcutLayout.SHARED_LAYER:
 		_layer_label.text = SHARED_MARK
 		_layer_label.add_theme_color_override("font_color", UiStyle.ACCENT)
@@ -88,8 +88,8 @@ func _update_pager() -> void:
 			+ "They fill every empty slot on the other bars.") % [shared_hotkey]
 		return
 
-	var first := _hotkey_of(_layer_action(0))
-	var last := _hotkey_of(_layer_action(ShortcutLayout.LAYER_COUNT - 1))
+	var first := Hotkeys.label_of(_layer_action(0))
+	var last := Hotkeys.label_of(_layer_action(ShortcutLayout.LAYER_COUNT - 1))
 	_layer_label.text = str(_active_layer() + 1)
 	_layer_label.add_theme_color_override("font_color", UiStyle.TEXT)
 	_layer_label.tooltip_text = ("Bar %d of %d (%s to %s)\nYour master and every bestia have their own bars. "
@@ -101,13 +101,6 @@ static func _layer_action(layer: int) -> StringName:
 	if layer == ShortcutLayout.SHARED_LAYER:
 		return &"shortcut_layer_shared"
 	return StringName("shortcut_layer_%d" % [layer + 1])
-
-
-static func _hotkey_of(action: StringName) -> String:
-	for event in InputMap.action_get_events(action):
-		if event is InputEventKey:
-			return event.as_text_physical_keycode()
-	return ""
 
 
 func _collect_shortcut_containers() -> void:

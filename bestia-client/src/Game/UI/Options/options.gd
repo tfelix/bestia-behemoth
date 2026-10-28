@@ -56,7 +56,7 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
-		_toggle_menu()
+		toggle_menu()
 		get_viewport().set_input_as_handled()
 
 
@@ -67,7 +67,7 @@ func _process(delta: float) -> void:
 	_countdown_label.text = "Logging out in %d s" % int(ceil(_remaining_seconds))
 
 
-func _toggle_menu() -> void:
+func toggle_menu() -> void:
 	if _settings_holder.visible:
 		# ESC steps back out of the settings rather than closing the whole menu.
 		_hide_settings()

@@ -10,6 +10,7 @@ const _MENU_HOTKEYS := {
 	"Items": "toggle_inventory",
 	"Equip": "toggle_equipment",
 	"Skills": "toggle_skills",
+	"Option": "ui_cancel",
 	"Party": "toggle_party",
 	"Guild": "toggle_guild",
 	"Compendium": "toggle_compendium",
@@ -49,6 +50,7 @@ signal status_win_toggled
 signal party_win_toggled
 signal guild_win_toggled
 signal compendium_win_toggled
+signal options_toggled
 
 func _ready() -> void:
 	add_to_group("world_blocking_ui")
@@ -251,18 +253,11 @@ func _update_exp(exp: int, required_exp_next_level: int) -> void:
 
 func _name_hotkeys_in_tooltips() -> void:
 	for button_name in _MENU_HOTKEYS:
-		var hotkey := _hotkey_of(_MENU_HOTKEYS[button_name])
+		var hotkey := Hotkeys.label_of(_MENU_HOTKEYS[button_name])
 		if hotkey.is_empty():
 			continue
 		var button: Button = _menu.get_node(button_name)
 		button.tooltip_text = "%s (%s)" % [button.tooltip_text, hotkey]
-
-
-func _hotkey_of(action: StringName) -> String:
-	for event in InputMap.action_get_events(action):
-		if event is InputEventKey:
-			return event.as_text_physical_keycode()
-	return ""
 
 
 func _process(_delta: float) -> void:
@@ -335,3 +330,7 @@ func _on_guild_pressed() -> void:
 
 func _on_compendium_pressed() -> void:
 	compendium_win_toggled.emit()
+
+
+func _on_options_pressed() -> void:
+	options_toggled.emit()

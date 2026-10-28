@@ -334,7 +334,6 @@ icon_alignment = 1
 custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
 tooltip_text = "Option"
-disabled = true
 theme_override_constants/icon_max_width = 14
 icon = ExtResource("10_opti")
 icon_alignment = 1
@@ -418,3 +417,4 @@ label_settings = SubResource("LabelSettings_small")
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Party" to="." method="_on_party_pressed"]
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Guild" to="." method="_on_guild_pressed"]
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Compendium" to="." method="_on_compendium_pressed"]
+[connection signal="pressed" from="Margin/Layout/Bottom/Menu/Option" to="." method="_on_options_pressed"]

@@ -16,6 +16,20 @@ const _BUS_LABELS := {
 	&"Interface": "Interface",
 }
 
+## The windows a key opens, in the order of the profile's menu buttons. Read from the input map rather than
+## written out, so the list cannot fall behind a changed binding.
+const _WINDOW_KEYS := [
+	["Status", &"toggle_status"],
+	["Inventory", &"toggle_inventory"],
+	["Equipment", &"toggle_equipment"],
+	["Skills", &"toggle_skills"],
+	["Party", &"toggle_party"],
+	["Guild", &"toggle_guild"],
+	["Compendium", &"toggle_compendium"],
+	["Map", &"toggle_map"],
+	["Menu", &"ui_cancel"],
+]
+
 var _back_button: Button
 
 
@@ -45,6 +59,7 @@ func _ready() -> void:
 	tabs.custom_minimum_size = Vector2(0, 280)
 	tabs.add_child(_build_audio_tab())
 	tabs.add_child(_build_video_tab())
+	tabs.add_child(_build_keys_tab())
 	column.add_child(tabs)
 
 	_back_button = Button.new()
@@ -127,6 +142,35 @@ func _build_video_tab() -> Control:
 	)
 	grid.add_child(vsync)
 	return tab
+
+
+## Shown, not rebindable. Two pairs to a row, so the list fits the height the other tabs set.
+func _build_keys_tab() -> Control:
+	var tab := _tab("Keys")
+	var grid := _grid()
+	grid.columns = 4
+	tab.add_child(grid)
+
+	var rows: Array = _WINDOW_KEYS.map(func(entry: Array) -> Array:
+		return [entry[0], Hotkeys.label_of(entry[1])]
+	)
+	# The chat reads Enter itself rather than through an action.
+	rows.append(["Chat", OS.get_keycode_string(KEY_ENTER)])
+
+	for row in rows:
+		var name_label := _name_label(row[0])
+		name_label.custom_minimum_size = Vector2(100, 0)
+		grid.add_child(name_label)
+		grid.add_child(_key_label(row[1]))
+	return tab
+
+
+func _key_label(text: String) -> Label:
+	var label := Label.new()
+	label.text = text if not text.is_empty() else "-"
+	label.custom_minimum_size = Vector2(80, 0)
+	label.add_theme_color_override("font_color", UiStyle.ACCENT)
+	return label
 
 
 func _tab(tab_name: String) -> MarginContainer:

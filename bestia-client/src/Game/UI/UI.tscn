@@ -203,3 +203,4 @@ oversampling_override = 1.0
 [connection signal="party_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_party_win_toggled"]
 [connection signal="guild_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_guild_win_toggled"]
 [connection signal="compendium_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_compendium_win_toggled"]
+[connection signal="options_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_options_toggled"]
