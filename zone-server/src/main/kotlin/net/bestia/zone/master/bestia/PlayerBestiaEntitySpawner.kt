@@ -22,6 +22,7 @@ import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.item.ecs.WeightLimitCalculator
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.ecs.WornGear
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.identity.ecs.Account
@@ -177,6 +178,8 @@ class PlayerBestiaEntitySpawner(
     add(id, loaded.knownSkills)
     add(id, loaded.inventory)
     add(id, loaded.equipment)
+    // Without it no client in range, its owner's included, sees what it wears, nor the light it carries.
+    add(id, WornGear())
 
     // The species' own six, as for a wild one (`BestiaEntitySpawner`).
     val species = playerBestia.bestia
