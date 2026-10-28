@@ -382,7 +382,7 @@ func setup(map_source: MapSource, entities: Node) -> void:
 	source = map_source
 	entity_manager = entities
 
-	source.tile_ready.connect(func(_key: String, _texture: Texture2D) -> void: queue_redraw())
+	source.tile_ready.connect(func(_key: String) -> void: queue_redraw())
 	source.tile_absent.connect(func(_key: String) -> void: queue_redraw())
 	source.places_ready.connect(func(_key: String, _places: Array) -> void: queue_redraw())
 	source.habitat_ready.connect(func(_key: String) -> void: queue_redraw())
@@ -547,6 +547,8 @@ func _draw() -> void:
 			var texture := source.cached(key)
 			if texture == null:
 				source.want(level, tx, ty)
+				if not source.is_absent(key):
+					_draw_enlarged(tx, ty, span)
 				continue
 
 			# The tile's north-west corner: world y grows north and screen y grows down, so the *top* edge
@@ -1666,6 +1668,27 @@ func _zoom(steps: int, at: Vector2) -> void:
 
 func _metres_per_pixel() -> float:
 	return pow(2.0, level)
+
+
+## Fills the tile at [param tx], [param ty], which is not here, with its part of the nearest coarser one that is.
+##
+## Blurred, but the ground where it belongs rather than fog: what a zoom past the levels the source keeps whole
+## shows while the finer tile is on its way - and for good while the api-server is down.
+func _draw_enlarged(tx: int, ty: int, span: float) -> void:
+	for up in range(1, _max_level - level + 1):
+		var texture := source.cached(MapSource.key_of(level + up, tx >> up, ty >> up))
+		if texture == null:
+			continue
+
+		# Which of the ancestor's (2^up)² parts this tile is. Image rows run north to south and world y runs
+		# south to north, so the row is counted down from the ancestor's northern edge.
+		var within := (1 << up) - 1
+		var part := float(_tile_pixels) / float(1 << up)
+		var region := Rect2((tx & within) * part, (within - (ty & within)) * part, part, part)
+
+		var corner := _to_screen(Vector2(tx * span, (ty + 1) * span))
+		draw_texture_rect_region(texture, Rect2(corner, Vector2(_tile_pixels, _tile_pixels)), region)
+		return
 
 
 ## Index of the last tile the world has along an axis, or a bound past any screen when the extent is unknown.

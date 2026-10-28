@@ -19,9 +19,14 @@ extends Node
 ## [b]What the server never sends.[/b] Nothing tells this when the player's charts change. A chart is an
 ## item, so the inventory sync already carries the news - see [method set_chart_signature], called from
 ## [code]ui.gd[/code] whenever the set of charts held changes.
+##
+## [b]The whole map, not just what was looked at.[/b] Once it knows the world and the charts, this walks every
+## charted tile from the coarsest level down to [constant _FILL_FLOOR_LEVEL] in the background and keeps them on
+## disk - see [method _next_fill]. That, and the last [code]/meta[/code] kept beside them, is what lets the map
+## open with the api-server down.
 
-## A tile arrived. [param key] is [method key_of]'s form.
-signal tile_ready(key: String, texture: Texture2D)
+## A tile arrived, in memory or on disk; [method cached] has it. [param key] is [method key_of]'s form.
+signal tile_ready(key: String)
 
 ## The server has no tile there for this player: they have charted none of that ground.
 signal tile_absent(key: String)
@@ -88,6 +93,17 @@ const _MAX_RETRY_AFTER := 4096
 const _META_ATTEMPTS := 10
 const _META_RETRY_SECONDS := 1.5
 
+## How often [code]/meta[/code] is re-asked once the quick attempts are spent. For the rest of the session, not
+## a fixed number of times: an api-server that comes back is a map that comes back.
+const _META_PATIENT_SECONDS := 30.0
+
+## How long one [code]/meta[/code] may take before it counts as failed.
+##
+## Without it a server that is down is not a failure but a wait: Godot on Windows takes 30 s to give up on a
+## refused connection (measured), so the map kept on disk would appear half a minute after login. The answer is a
+## few hundred bytes the api-server asks the zone for, and a slow one is still taken by the next attempt.
+const _META_TIMEOUT_SECONDS := 5.0
+
 ## What is being asked about a tile: [code]t[/code] for the picture, [code]p[/code] for the names of what
 ## stands on it, [code]s[/code] for the services that are open for business on it.
 ##
@@ -113,9 +129,24 @@ const _SUFFIXES := {
 
 const _CACHE_ROOT := "user://mapcache/"
 
-## How many of the pool's connections [method prefetch] may hold at once. The rest stay free so a view that
-## starts drawing is never queued behind tiles nobody has looked at yet.
+## The last [code]/meta[/code] that answered, so a session that cannot reach the api-server can still find its
+## world's directory and draw what is in it.
+const _META_FILE := _CACHE_ROOT + "meta.json"
+
+## How many of the pool's connections [method prefetch] and the fill may hold at once. The rest stay free so a
+## view that starts drawing is never queued behind tiles nobody has looked at yet.
 const _BACKGROUND_SLOTS := 2
+
+## The finest level the background fill walks the whole charted map down to.
+##
+## The overlay's opening level ([code]MapOverlay._OPEN_LEVEL[/code]), so the map a player opens is there wherever
+## they have charted, with or without the api-server. Not finer, because each level down is four times the tiles:
+## a fully charted 128 km world is about 5,300 tiles from here up - some 120 MB at the ~22 KB a tile weighs - and
+## would be 16,000 more for level 2 and 250,000 for level 0. Finer tiles are kept as they are looked at, and a
+## view draws a coarser one enlarged where it has nothing finer.
+const _FILL_FLOOR_LEVEL := 3
+
+const _PNG_SIGNATURE := [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
 
 ## World geometry, empty until [signal meta_ready]. Read it rather than assuming 256 or level 9.
 var meta: Dictionary = {}
@@ -170,6 +201,16 @@ var _queue: Array[String] = []
 var _background: Array[String] = []
 var _in_flight: Dictionary = {}
 
+## Tiles the fill has still to visit, as (level, x, y), coarsest first. Drained after [member _background].
+var _fill: Array[Vector3i] = []
+
+## Tiles the fill has taken off [member _fill] and is waiting to hear about, as key -> (level, x, y). What arrives
+## for one of these is kept on disk only, and carries the walk on to the four tiles under it.
+var _fill_waiting: Dictionary = {}
+
+## Whether a timer is already due to resume a fill held up by a backing-off tile, so it is woken once.
+var _fill_wake_due: bool = false
+
 ## What is on disk, as key -> path, without having decoded any of it.
 ##
 ## Indexed rather than loaded: a well-travelled player's cache is thousands of files, and decoding them all
@@ -194,6 +235,13 @@ var _chart_key: String = ""
 ## fresh one because it also gets a fresh Game scene, and so a fresh one of these.
 var _refused: bool = false
 
+## Set while [member meta] is the one kept on disk rather than a live answer - the api-server did not answer.
+##
+## Nothing is requested while it stands, which leaves the disk cache as the whole map. Not a precaution: a tile's
+## URL carries no world version, so a server that came back with a regenerated world would have its tiles filed
+## under the old world's directory. The next [code]/meta[/code] that answers clears it.
+var _offline: bool = false
+
 
 static func key_of(level: int, tx: int, ty: int) -> String:
 	return "%d/%d/%d" % [level, tx, ty]
@@ -209,7 +257,7 @@ func _ready() -> void:
 
 ## Asks for the world geometry, retrying until it answers. Safe to call more than once.
 func fetch_meta() -> void:
-	if not meta.is_empty() or not _may_request():
+	if not meta.is_empty() or not _may_ask_meta():
 		return
 
 	_fetch_meta_once(1)
@@ -377,16 +425,21 @@ func prefetch(level: int, tx: int, ty: int) -> void:
 
 	var key := key_of(level, tx, ty)
 	var id := _WANT_TILE + ":" + key
-	# Asked of the indexes rather than of cached(): a tile on disk is already as good as here, and decoding a
-	# screenful of them for a map nobody has opened is the hitch the disk index exists to avoid.
-	var held := _shared.has(key) or _personal.has(key) or _disk_shared.has(key) or _disk_personal.has(key)
-	if held or _absent.has(id) or _in_flight.has(id) or _queue.has(id) or _background.has(id):
+	if _holds(key) or _absent.has(id) or _in_flight.has(id) or _queue.has(id) or _background.has(id):
 		return
 	if Time.get_ticks_msec() < int(_retry_after.get(id, 0)):
 		return
 
 	_background.append(id)
 	_pump()
+
+
+## Whether the picture of [param key] is here or on disk.
+##
+## Asked of the indexes rather than of [method cached]: a tile on disk is already as good as here, and decoding a
+## screenful of them for a map nobody has opened is the hitch the disk index exists to avoid.
+func _holds(key: String) -> bool:
+	return _shared.has(key) or _personal.has(key) or _disk_shared.has(key) or _disk_personal.has(key)
 
 
 func _want(kind: String, key: String) -> void:
@@ -418,7 +471,13 @@ func _want(kind: String, key: String) -> void:
 ## An empty ticket is the case that used to produce the second kind of 401: the map can be drawn before the
 ## zone has authenticated the connection, and sending [code]"Ticket "[/code] with nothing after it asks the
 ## server to refuse us. Not having a credential or a master yet is worth waiting out rather than asking about.
+##
+## Also false while [member _offline]; [code]/meta[/code] is asked regardless, being what ends it.
 func _may_request() -> bool:
+	return not _offline and _may_ask_meta()
+
+
+func _may_ask_meta() -> bool:
 	return not _refused and not ConnectionManager.http_ticket().is_empty() and _master_id() >= 0
 
 
@@ -453,6 +512,7 @@ func set_chart_signature(signature: String) -> void:
 
 func _fetch_meta_once(attempt: int) -> void:
 	var request := HTTPRequest.new()
+	request.timeout = _META_TIMEOUT_SECONDS
 	add_child(request)
 	request.request_completed.connect(
 		func(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
@@ -485,10 +545,40 @@ func _accept_meta(result: int, code: int, body: PackedByteArray) -> bool:
 		push_warning("MapSource: /meta was not an object")
 		return false
 
-	meta = json.data
+	_offline = false
+	_use_meta(json.data)
+
+	var file := FileAccess.open(_META_FILE, FileAccess.WRITE)
+	if file != null:
+		file.store_buffer(body)
+		file.close()
+
+	# Whatever waited out the outage - the fill, mostly - may go now.
+	_pump()
+	return true
+
+
+## Draws from the [code]/meta[/code] kept by the last session that reached the api-server, if there is one and
+## nothing better has arrived. Only the disk cache is read while it stands - see [member _offline].
+func _use_stored_meta() -> void:
+	if not meta.is_empty() or not FileAccess.file_exists(_META_FILE):
+		return
+
+	var stored: Variant = JSON.parse_string(FileAccess.get_file_as_string(_META_FILE))
+	if typeof(stored) != TYPE_DICTIONARY:
+		return
+
+	push_warning(
+		"MapSource: the api-server is not answering; drawing the map cached for %s" % stored.get("worldMapVersion")
+	)
+	_offline = true
+	_use_meta(stored)
+
+
+func _use_meta(answer: Dictionary) -> void:
+	meta = answer
 	_use_version(str(meta.get("worldMapVersion", "")))
 	meta_ready.emit(meta)
-	return true
 
 
 ## Asks for the charted places whose names contain [param text]; answered by [signal places_found], an empty
@@ -536,14 +626,20 @@ func _retry_meta(attempt: int) -> void:
 	if _refused:
 		return
 
-	if attempt >= _META_ATTEMPTS:
-		push_warning("MapSource: /meta failed %d times; there will be no map this session" % attempt)
-		return
+	# At the first failure rather than the last: the stored answer is as good now as it will be in fifteen
+	# seconds, and the player opening the map in the meantime is owed what is on disk.
+	_use_stored_meta()
 
-	await get_tree().create_timer(_META_RETRY_SECONDS).timeout
+	if attempt == _META_ATTEMPTS:
+		push_warning(
+			"MapSource: /meta failed %d times; asking every %d s from now on" % [attempt, int(_META_PATIENT_SECONDS)]
+		)
+
+	var wait := _META_RETRY_SECONDS if attempt < _META_ATTEMPTS else _META_PATIENT_SECONDS
+	await get_tree().create_timer(wait).timeout
 
 	# Another attempt may have landed - or the ticket been refused - while this one was waiting.
-	if meta.is_empty() and not _refused:
+	if (meta.is_empty() or _offline) and not _refused:
 		_fetch_meta_once(attempt + 1)
 
 
@@ -552,8 +648,11 @@ func _pump() -> void:
 		var id: String
 		if not _queue.is_empty():
 			id = _queue.pop_front()
-		elif not _background.is_empty() and _idle.size() > _POOL_SIZE - _BACKGROUND_SLOTS:
-			id = _background.pop_front()
+		elif _idle.size() > _POOL_SIZE - _BACKGROUND_SLOTS:
+			# The ground around the player before the rest of the map: it is what is about to be looked at.
+			id = _background.pop_front() if not _background.is_empty() else _next_fill()
+			if id.is_empty():
+				break
 		else:
 			break
 
@@ -580,6 +679,98 @@ func _pump() -> void:
 			request.request_completed.disconnect(handler)
 			_back_off(id)
 			_release(id, request)
+
+
+## Starts the walk over the whole charted map from the top of the pyramid, dropping one already under way.
+##
+## Called whenever what it would find changes - a world, or a chart set - and so never with anything worth keeping
+## in [member _fill]: the tiles it would have visited belong to the old one.
+func _start_fill() -> void:
+	_fill.clear()
+	_fill_waiting.clear()
+	if meta.is_empty() or _chart_key.is_empty():
+		return
+
+	var top := int(meta.get("maxLevel", 0))
+	var across := _tiles_across(top)
+	for ty in across.y:
+		for tx in across.x:
+			_fill.append(Vector3i(top, tx, ty))
+
+	_pump()
+
+
+## The next tile the fill has to ask for, as a request id, or "" when there is none it may ask for now.
+##
+## Walks the pyramid breadth first, so the coarse levels are complete before the fine ones are begun, and
+## descends only under tiles that exist: a 404 is ground with nothing charted in it, and neither is anything
+## finer inside it. A tile already on disk costs nothing - the walk goes straight on underneath it - so a
+## session after the first one asks only for what the last one did not finish, or what was charted since.
+func _next_fill() -> String:
+	if not _may_request():
+		return ""
+
+	while not _fill.is_empty():
+		var tile: Vector3i = _fill[0]
+		var key := key_of(tile.x, tile.y, tile.z)
+		var id := _WANT_TILE + ":" + key
+
+		if _holds(key):
+			_fill.pop_front()
+			_fill_below(tile)
+			continue
+
+		# Waited out at the head rather than passed over. A backing-off tile is, nearly always, a server that is
+		# not answering, and then the one request that keeps finding out whether it is back is the right amount.
+		var wait := int(_retry_after.get(id, 0)) - Time.get_ticks_msec()
+		if wait > 0:
+			_wake_fill(wait)
+			return ""
+
+		_fill.pop_front()
+		if _absent.has(id):
+			continue
+
+		_fill_waiting[key] = tile
+		# A view asked for it first. Its answer comes through _accept_tile all the same.
+		if _in_flight.has(id):
+			continue
+
+		return id
+
+	return ""
+
+
+## Queues the up to four tiles one level under [param tile], if the fill goes that deep.
+func _fill_below(tile: Vector3i) -> void:
+	var level := tile.x - 1
+	if level < maxi(_FILL_FLOOR_LEVEL, int(meta.get("minLevel", 0))):
+		return
+
+	var across := _tiles_across(level)
+	for ty in range(tile.z * 2, mini(tile.z * 2 + 2, across.y)):
+		for tx in range(tile.y * 2, mini(tile.y * 2 + 2, across.x)):
+			_fill.append(Vector3i(level, tx, ty))
+
+
+## How many tiles the world has across and up at [param level] - the server's [code]TileId.tilesAcross[/code].
+func _tiles_across(level: int) -> Vector2i:
+	var span := float(meta.get("tileSize", 256)) * pow(2.0, level)
+	return Vector2i(
+		maxi(ceili(float(meta.get("worldWidthMetres", 0.0)) / span), 1),
+		maxi(ceili(float(meta.get("worldHeightMetres", 0.0)) / span), 1)
+	)
+
+
+func _wake_fill(after_msec: int) -> void:
+	if _fill_wake_due:
+		return
+
+	_fill_wake_due = true
+	get_tree().create_timer(after_msec / 1000.0).timeout.connect(func() -> void:
+		_fill_wake_due = false
+		_pump()
+	)
 
 
 ## Everything both kinds of answer have in common - which is every failure mode, because the credential, the
@@ -609,6 +800,8 @@ func _on_completed(
 		if _absent.size() < _MAX_ABSENT:
 			_absent[id] = true
 		if kind == _WANT_TILE:
+			# Nothing under it to walk, either.
+			_fill_waiting.erase(key)
 			tile_absent.emit(key)
 		return
 
@@ -638,6 +831,31 @@ func _on_completed(
 
 
 func _accept_tile(key: String, headers: PackedStringArray, body: PackedByteArray) -> void:
+	var shared := _is_shared(headers)
+	var dir_path := _cache_dir if shared else _personal_dir
+
+	if _fill_waiting.has(key):
+		# Kept on disk only. The fill is the whole charted map, and a decoded tile is a quarter of a megabyte
+		# that may never be looked at this session; a view that does look decodes it from there.
+		if body.slice(0, _PNG_SIGNATURE.size()) != PackedByteArray(_PNG_SIGNATURE):
+			push_warning("MapSource: tile %s was not a PNG" % key)
+			_back_off(_WANT_TILE + ":" + key)
+			return
+
+		var tile: Vector3i = _fill_waiting[key]
+		_fill_waiting.erase(key)
+		var path := _write_through(key, body, dir_path)
+		var index: Dictionary = _disk_shared if shared else _disk_personal
+		if not path.is_empty():
+			index[key] = path
+
+		# Pumped here, not only on release: the connection was freed before this answer was read, and then
+		# the tiles under it were not queued yet - a fill that had nothing else in hand would stop at this one.
+		_fill_below(tile)
+		_pump()
+		tile_ready.emit(key)
+		return
+
 	var image := Image.new()
 	if image.load_png_from_buffer(body) != OK:
 		push_warning("MapSource: tile %s was not a readable PNG" % key)
@@ -645,14 +863,15 @@ func _accept_tile(key: String, headers: PackedStringArray, body: PackedByteArray
 		return
 
 	var texture := ImageTexture.create_from_image(image)
-	if _is_shared(headers):
+	if shared:
 		_shared[key] = texture
-		_write_through(key, body, _cache_dir, _disk_shared)
+		_disk_shared.erase(key)
 	else:
 		_personal[key] = texture
-		_write_through(key, body, _personal_dir, _disk_personal)
+		_disk_personal.erase(key)
+	_write_through(key, body, dir_path)
 
-	tile_ready.emit(key, texture)
+	tile_ready.emit(key)
 
 
 ## Dropped when it belongs to a species the map no longer shows: the player switched while it was in flight.
@@ -756,13 +975,23 @@ func _refuse() -> void:
 	_refused = true
 	_queue.clear()
 	_background.clear()
+	_fill.clear()
+	_fill_waiting.clear()
 	push_warning("MapSource: the map server refused this session's ticket; asking for nothing further")
 	map_unavailable.emit()
 
 
-func _back_off(key: String) -> void:
-	if _retry_after.size() < _MAX_RETRY_AFTER or _retry_after.has(key):
-		_retry_after[key] = Time.get_ticks_msec() + int(_RETRY_AFTER_SECONDS * 1000.0)
+func _back_off(id: String) -> void:
+	var tile: Variant = _fill_waiting.get(id.substr(2)) if id.begins_with(_WANT_TILE + ":") else null
+
+	# The fill's own tile past the cap too: it is one entry, and without it the fill would re-ask at once.
+	if _retry_after.size() < _MAX_RETRY_AFTER or _retry_after.has(id) or tile != null:
+		_retry_after[id] = Time.get_ticks_msec() + int(_RETRY_AFTER_SECONDS * 1000.0)
+
+	# Back at the head of the walk rather than out of it: dropping it would drop everything charted under it.
+	if tile != null:
+		_fill_waiting.erase(id.substr(2))
+		_fill.push_front(tile)
 
 
 func _release(key: String, request: HTTPRequest) -> void:
@@ -802,6 +1031,8 @@ func _use_version(version: String) -> void:
 func _use_chart_set() -> void:
 	_disk_personal = {}
 	_personal_dir = ""
+	_fill.clear()
+	_fill_waiting.clear()
 
 	if _cache_dir.is_empty() or _chart_key.is_empty():
 		return
@@ -814,6 +1045,7 @@ func _use_chart_set() -> void:
 	# directory per survey forever.
 	_discard_other_chart_sets()
 	_disk_personal = _index_tiles(_personal_dir)
+	_start_fill()
 
 
 func _discard_other_chart_sets() -> void:
@@ -888,19 +1120,20 @@ func _decode(index: Dictionary, key: String) -> Texture2D:
 	return ImageTexture.create_from_image(image)
 
 
-func _write_through(key: String, png: PackedByteArray, dir_path: String, index: Dictionary) -> void:
+## Stores a tile under [param dir_path] and returns where, or "" when it could not be stored.
+func _write_through(key: String, png: PackedByteArray, dir_path: String) -> String:
 	if dir_path.is_empty():
-		return
+		return ""
 
 	var parts := key.split("/")
 	var path := "%sL%02d_%06d_%06d.png" % [dir_path, int(parts[0]), int(parts[1]), int(parts[2])]
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
-		return
+		return ""
 
 	file.store_buffer(png)
 	file.close()
-	index.erase(key)
+	return path
 
 
 ## The selected master's map on the api-server. The master is in the path, as for the companion app, and the
