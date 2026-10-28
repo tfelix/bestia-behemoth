@@ -15,6 +15,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.ConnectionInfoService.PlayerEntity
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.ecs.WornGear
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.mocks.GameClientMockFactory
 import net.bestia.zone.world.MasterSpawnPointService
@@ -126,6 +127,13 @@ class PlayerBestiaRespawnScenario : BestiaNoSocketScenario(autoClientConnect = f
 
     assertEquals(setOf(respawned), bestiasInWorld())
     assertEquals(setOf(respawned), connectionInfoService.getOwnedEntitiesByMaster(client.connectedPlayerId, masterId))
+  }
+
+  /** What it wears, and whether its torch burns, reach the clients in range through this alone. */
+  @Test
+  @Order(3)
+  fun `a bestia shows its worn gear`() {
+    assertTrue(world.read { get(respawned.entityId, WornGear::class) != null })
   }
 
   private companion object {

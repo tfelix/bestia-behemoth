@@ -1,7 +1,8 @@
 extends Node3D
 class_name CarriedLight
 
-## The torch a master carries in the left hand: a stick, a flame, and the light it casts around them.
+## The torch a master carries in the left hand, or an owned bestia at its side: a stick, a flame, and the light
+## it casts around them.
 ##
 ## Presentation only. Whether it burns comes from the server ([member WornGearComponentSMSG.LightLit]), which
 ## is also what burns the torch down, so a light is seen exactly while it costs something. Top level, so the

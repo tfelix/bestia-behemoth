@@ -206,6 +206,9 @@ libraries = {
 [node name="DamageTagAnchor" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.256696, 0)
 
+[node name="LightAnchor" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 0.2, 0)
+
 [connection signal="input_event" from="Model/Area3D" to="." method="_on_area_3d_input_event"]
 [connection signal="mouse_entered" from="Model/Area3D" to="." method="_on_area_3d_mouse_entered"]
 [connection signal="mouse_exited" from="Model/Area3D" to="." method="_on_area_3d_mouse_exited"]

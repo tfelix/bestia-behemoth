@@ -1,6 +1,7 @@
 class_name BestiaVisual extends Visual
 
 var DamageTagScn = preload("res://Game/Entity/Visual/DamageTag/DamageTag.tscn")
+const CarriedLightScn := preload("res://Game/Entity/Visual/MasterVisual/CarriedLight/CarriedLight.tscn")
 
 const _IDLE_ANIM = "Idle"
 const _APPEAR_ANIM = "appear"
@@ -16,6 +17,8 @@ var _emblem_hash: String = ""
 var _emblem: NameTagEmblem = null
 var _hovered: bool = false
 var _selected: bool = false
+## Made on the first light worn, then kept and only switched, as on [MasterVisual].
+var _carried_light: CarriedLight = null
 
 @onready var _name_tag = $NameTag
 @onready var _anim_player = $AnimationPlayer as AnimationPlayer
@@ -58,6 +61,25 @@ func _apply_name_tag() -> void:
 	var bestia_name := _display_name if not _display_name.is_empty() else _species_name
 	_name_tag.text = GuildTagLine.under(bestia_name, _guild_line)
 	_emblem = GuildTagLine.show_emblem(_name_tag, _emblem, _emblem_hash)
+
+
+## An owned bestia wears gear too, but this placeholder draws none of it yet, only the light it carries.
+## Wild ones never send worn gear, so for them this is never called.
+func update_worn_gear(msg: WornGearComponentSMSG) -> void:
+	var light: ItemResource = null
+	for item_id in msg.ItemIds:
+		var item := ItemDB.get_instance().get_item(item_id)
+		if item != null and EquipmentSlot.from_item_value(item.equip_slot) == EquipmentSlot.Slot.LIGHT_SOURCE:
+			light = item
+
+	if _carried_light == null:
+		if light == null:
+			return
+		_carried_light = CarriedLightScn.instantiate()
+		add_child(_carried_light)
+		# Looked up here, not @onready: an entity can seed its visual before either is in the tree.
+		_carried_light.follow($LightAnchor)
+	_carried_light.show_light(light, msg.LightLit)
 
 
 func show_damage(msg: DamageEntitySMSG) -> void:
