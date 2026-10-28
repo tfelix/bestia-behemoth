@@ -5,6 +5,7 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.math.abs
 
 /**
  * What happens in the game itself, counted where it happens: damage and deaths, creatures appearing and going,
@@ -35,6 +36,18 @@ class GameMetrics(private val registry: MeterRegistry = SimpleMeterRegistry()) {
     SUCCESS, FAILED, ITEM_DESTROYED
   }
 
+  /** Who moved coin out of the world reserve or back into it. */
+  enum class CoinSource {
+    /** A settlement's treasury drifting toward its reference, and its trade beyond the map. */
+    SETTLEMENT,
+
+    /** A player striking coin from a gold bar. */
+    MINT,
+
+    /** An auction listing fee. */
+    AUCTION_FEE,
+  }
+
   private val hits = Counter.builder("zone.combat.hits")
     .description("Hits applied to a creature or player, after immunity")
     .register(registry)
@@ -62,10 +75,13 @@ class GameMetrics(private val registry: MeterRegistry = SimpleMeterRegistry()) {
   }
 
   private val coins = listOf("minted", "returned").associateWith { flow ->
-    Counter.builder("zone.economy.coins")
-      .tag("flow", flow)
-      .description("Coin leaving the world reserve to someone (minted) and going back to it (returned); the total is constant otherwise")
-      .register(registry)
+    CoinSource.entries.associateWith { source ->
+      Counter.builder("zone.economy.coins")
+        .tag("flow", flow)
+        .tag("source", source.name.lowercase())
+        .description("Coin leaving the world reserve to someone (minted) and going back to it (returned); the total is constant otherwise")
+        .register(registry)
+    }
   }
 
   private val shopTrades = listOf("buy", "sell").associateWith { direction ->
@@ -121,8 +137,9 @@ class GameMetrics(private val registry: MeterRegistry = SimpleMeterRegistry()) {
   }
 
   /** The reserve was charged [amount]: positive hands coin out into the world, negative takes it back. */
-  fun reserveCharged(amount: Double) {
-    if (amount > 0) coins.getValue("minted").increment(amount) else coins.getValue("returned").increment(-amount)
+  fun reserveCharged(amount: Double, source: CoinSource) {
+    val flow = if (amount > 0) "minted" else "returned"
+    coins.getValue(flow).getValue(source).increment(abs(amount))
   }
 
   fun shopTrade(selling: Boolean, units: Int, coins: Long) {

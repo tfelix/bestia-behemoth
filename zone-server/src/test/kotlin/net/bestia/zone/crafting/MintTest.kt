@@ -9,6 +9,7 @@ import net.bestia.zone.crafting.CraftingFixture.Companion.stack
 import net.bestia.zone.battle.ecs.skill.Crafting
 import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.economy.CoinReserve
+import net.bestia.zone.entity.GameMetrics.CoinSource
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -90,7 +91,7 @@ class MintTest {
       return balance
     }
 
-    override fun charge(coins: Double) {
+    override fun charge(coins: Double, source: CoinSource) {
       charged += coins
     }
   }

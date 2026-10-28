@@ -1,6 +1,7 @@
 package net.bestia.zone.crafting
 
 import net.bestia.zone.entity.GameMetrics
+import net.bestia.zone.entity.GameMetrics.CoinSource
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.bnet.proto.OperationSuccessProto.OpSuccess
@@ -290,7 +291,7 @@ class CraftingService(
 
         // Charged even if the grant overflows onto the ground: the coin exists in the world either way,
         // and the reserve is a count of the world's coin rather than of anybody's pack.
-        if (minted > 0) reserve.charge(minted.toDouble())
+        if (minted > 0) reserve.charge(minted.toDouble(), CoinSource.MINT)
       }
 
       RecipeEffect.ADD_SLOT -> applyToTarget(inventory, masterId, playerBestiaId, target!!.withSlots(target.slots + 1))

@@ -1,6 +1,7 @@
 package net.bestia.zone.economy
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.entity.GameMetrics.CoinSource
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.world.settlement.SettlementFates
 import net.bestia.zone.world.time.BestiaClock
@@ -57,6 +58,21 @@ class SettlementEconomyService(
   private val stored = HashSet<Int>()
 
   val trackedSettlements: Int get() = live.size
+
+  /**
+   * What the tracked settlements hold above their reference treasuries, in sum, as of the last [flush].
+   *
+   * Every other town sits at its reference, and the references sum to the NPC share of the supply. So this
+   * one number is all it takes to say how much coin the settlements hold. A snapshot because [live] is the
+   * tick thread's and the metrics scrape is not.
+   */
+  val treasurySurplus: Double get() = snapshot.treasurySurplus
+
+  /** [trackedSettlements] as of the last [flush], for the same reason. */
+  val disturbedSettlements: Int get() = snapshot.disturbedSettlements
+
+  @Volatile
+  private var snapshot = Snapshot(treasurySurplus = 0.0, disturbedSettlements = 0)
 
   /**
    * What a settlement's shelves look like right now, or null for a place with no economy at all.
@@ -180,6 +196,7 @@ class SettlementEconomyService(
 
   /** Writes every ledger that changed since the last flush: a save while off its reference, a delete once back. */
   fun flush() {
+    publishSnapshot()
     if (dirty.isEmpty()) return
 
     val shapeVersion = worldService.record.shapeVersion
@@ -200,6 +217,13 @@ class SettlementEconomyService(
     dirty.clear()
   }
 
+  private fun publishSnapshot() {
+    val surplus = live.entries.sumOf { (settlement, state) ->
+      state.treasury - (referenceOf(settlement)?.treasury ?: state.treasury)
+    }
+    snapshot = Snapshot(surplus, live.size)
+  }
+
   private fun advance(settlement: Int, reference: SettlementReference, today: Double): LedgerState {
     val current = live[settlement] ?: atReference(reference, today)
     val moved = step.advance(reference, current, today, reserve.available())
@@ -209,7 +233,7 @@ class SettlementEconomyService(
 
     // The other half of every coin the step moved. Nothing here came out of a player's purse - it is
     // reversion and trade beyond the map - so the reserve is what it came out of.
-    reserve.charge(moved.treasury - current.treasury)
+    reserve.charge(moved.treasury - current.treasury, CoinSource.SETTLEMENT)
     rememberIfWorthIt(settlement, reference, moved)
 
     return moved
@@ -245,6 +269,9 @@ class SettlementEconomyService(
   private fun atReference(reference: SettlementReference, today: Double): LedgerState {
     return LedgerState(treasury = reference.treasury, lastStepDay = today - FIRST_STEP_DAYS)
   }
+
+  /** Read together, so the scrape never pairs one flush's surplus with another's count. */
+  private class Snapshot(val treasurySurplus: Double, val disturbedSettlements: Int)
 
   companion object {
     /** Units of stock below which a settlement counts as being at its reference. */
