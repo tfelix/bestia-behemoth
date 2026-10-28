@@ -40,6 +40,9 @@ signal move_requested(amount: int)
 @export var durability: int = 0
 @export var max_durability: int = 0
 
+## While a shop is open: what its merchant pays for one, or -1 for something they do not buy.
+@export var trade_price: int = -1
+
 ## Sockets of the backing instance. Shown in the tooltip only; nothing can fill one yet.
 @export var slots: int = 0
 
@@ -75,6 +78,26 @@ func _ready() -> void:
 	tooltip_text = ItemDetail.as_bbcode(
 		item, upgrade_level, durability, max_durability, slots, item_level, rolled_stats, crafted_by, crafted_in
 	)
+	if _is_shopping():
+		_show_trade_price()
+
+
+func _is_shopping() -> bool:
+	return drag_source == "inventory_item" and inventory != null and inventory.is_trading()
+
+
+func _show_trade_price() -> void:
+	if trade_price < 0:
+		modulate = Color(1, 1, 1, 0.35)
+		tooltip_text += "\n" + tr("SHOP_NOT_BOUGHT_HERE")
+		return
+
+	var badge := PanelContainer.new()
+	badge.add_theme_stylebox_override("panel", UiStyle.flat(Color(0, 0, 0, 0.7), 3, 2))
+	badge.position = Vector2(2, 2)
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.add_child(AuctionFormat.price(trade_price, 0))
+	add_child(badge)
 
 
 ## The text is BBCode from [ItemDetail], so the default Label-based tooltip would render the markup
@@ -134,7 +157,11 @@ func _drop_data(at_position: Vector2, data: Variant) -> void:
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed and event.shift_pressed:
+		if _is_shopping() and trade_price >= 0 and _sells_on(event):
+			# Shift asks how many, a double-click sells the whole pile; the shop's basket can still take it back.
+			inventory.sell_requested.emit(item.item_id, 0 if event.shift_pressed else amount)
+			accept_event()
+		elif event.button_index == MOUSE_BUTTON_LEFT and event.pressed and event.shift_pressed:
 			if drag_source != "trade_offer":
 				move_requested.emit(amount)
 			accept_event()
@@ -151,6 +178,10 @@ func _gui_input(event: InputEvent) -> void:
 			if _can_move():
 				_open_move_menu()
 				accept_event()
+
+
+func _sells_on(event: InputEventMouseButton) -> bool:
+	return event.button_index == MOUSE_BUTTON_LEFT and event.pressed and (event.shift_pressed or event.double_click)
 
 
 ## A partner's row always sits in an open exchange; an inventory row only while one is open.

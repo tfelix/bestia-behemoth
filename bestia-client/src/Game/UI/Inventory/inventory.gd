@@ -12,6 +12,9 @@ signal items_gained(gains: Array[Dictionary])
 ## The gold coins the controlled entity carries, each time that number changes.
 signal gold_changed(amount: int)
 
+## The player asked to sell [param amount] of an item to the open shop, or 0 to be asked how many.
+signal sell_requested(item_id: int, amount: int)
+
 ## The player asked to swap goods with one of their own entities from outside this window - the world's
 ## right-click menu - so the window has to come up.
 signal exchange_opened()
@@ -52,6 +55,12 @@ var _items: Dictionary[int, Array]
 ## The orders the sort menu offers, as [code]{label, before: Callable(a, b) -> bool}[/code] over held
 ## [InventoryItemResource]s, in menu order. A list rather than an enum so another window can add its own.
 var _sort_keys: Array[Dictionary] = []
+
+## While a shop is open: what its merchant pays for one of each item they buy, and how many of each the
+## basket already holds. Held-back units are not drawn, so they cannot be sold twice or used meanwhile.
+var _trading := false
+var _sell_prices: Dictionary[int, int] = {}
+var _held_back: Dictionary[int, int] = {}
 var _reported_gold := 0
 
 ## Carry limit per owned entity, as the server last sent it. Only the limit is read: the load is summed off
@@ -220,9 +229,16 @@ func _render_items() -> void:
 	if !_items.has(selected_entity_id):
 		return
 
+	var still_held_back := _held_back.duplicate()
 	for item in _shown_items():
+		var held_back: int = mini(item.amount, still_held_back.get(item.item.item_id, 0))
+		still_held_back[item.item.item_id] = still_held_back.get(item.item.item_id, 0) - held_back
+		if held_back == item.amount:
+			continue
+
 		var inv_item = InventoryItem.instantiate()
-		inv_item.amount = item.amount
+		inv_item.amount = item.amount - held_back
+		inv_item.trade_price = _sell_prices.get(item.item.item_id, -1) if _trading else -1
 		inv_item.item = item.item
 		inv_item.unique_id = item.unique_id
 		inv_item.player_item_id = item.player_item_id
@@ -279,6 +295,65 @@ func _name_of_item(held) -> String:
 
 func _weight_of(held) -> int:
 	return held.item.weight * held.amount
+
+
+# ------------------------------------------------------------------ shop
+
+## Opens the bag to a shop: [param sell_prices] is item id to the merchant's price for one. Items it has no
+## price for are drawn faded, and a sort by what the merchant pays becomes available.
+func start_trading(sell_prices: Dictionary[int, int]) -> void:
+	if not _trading:
+		_add_sort_key("INVENTORY_SORT_SHOP_VALUE", func(a, b) -> bool: return _shop_value_of(a) > _shop_value_of(b))
+	_trading = true
+	_sell_prices = sell_prices
+	_render_items()
+
+
+func stop_trading() -> void:
+	if not _trading:
+		return
+
+	_trading = false
+	_sell_prices = {}
+	_held_back = {}
+	_remove_sort_key("INVENTORY_SORT_SHOP_VALUE")
+	_render_items()
+
+
+func is_trading() -> bool:
+	return _trading
+
+
+## How many of each item the shop basket is selling, so they are not drawn as still in the bag.
+func hold_back(amounts: Dictionary[int, int]) -> void:
+	_held_back = amounts
+	_render_items()
+
+
+## What the driven entity carries and can carry. A limit of 0 means it has not arrived yet.
+func carried_weight() -> int:
+	return _bag_weight(selected_entity_id)
+
+
+func carry_limit() -> int:
+	return _carry_max.get(selected_entity_id, 0)
+
+
+func _remove_sort_key(label: String) -> void:
+	var index := _sort_keys.find_custom(func(key: Dictionary) -> bool: return key.label == label)
+	if index < 0:
+		return
+
+	var was_selected := _sort.selected == index
+	_sort_keys.remove_at(index)
+	_sort.remove_item(index)
+	if was_selected:
+		_sort.select(0)
+
+
+## Unpriced items sort last: -1 per unit is below any price.
+func _shop_value_of(held) -> int:
+	return _sell_prices.get(held.item.item_id, -1) * held.amount
 
 
 ## Double-clicking an equipment item while the equipment window is open equips it into the slot the
