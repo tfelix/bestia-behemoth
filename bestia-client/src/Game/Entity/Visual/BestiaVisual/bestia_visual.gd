@@ -1,7 +1,9 @@
 class_name BestiaVisual extends Visual
 
 var DamageTagScn = preload("res://Game/Entity/Visual/DamageTag/DamageTag.tscn")
-const CarriedLightScn := preload("res://Game/Entity/Visual/MasterVisual/CarriedLight/CarriedLight.tscn")
+## Loaded when the first light is worn, not preloaded: this script is in a load cycle (BestiaDB ->
+## BestiaResource -> BestiaVisual.tscn -> here), and a preload inside it came back as an empty scene.
+const _CARRIED_LIGHT_PATH := "res://Game/Entity/Visual/MasterVisual/CarriedLight/CarriedLight.tscn"
 
 const _IDLE_ANIM = "Idle"
 const _APPEAR_ANIM = "appear"
@@ -79,7 +81,7 @@ func update_worn_gear(msg: WornGearComponentSMSG) -> void:
 	if _carried_light == null:
 		if light == null:
 			return
-		_carried_light = CarriedLightScn.instantiate()
+		_carried_light = (load(_CARRIED_LIGHT_PATH) as PackedScene).instantiate()
 		add_child(_carried_light)
 		# Looked up here, not @onready: an entity can seed its visual before either is in the tree.
 		_carried_light.follow($LightAnchor)
