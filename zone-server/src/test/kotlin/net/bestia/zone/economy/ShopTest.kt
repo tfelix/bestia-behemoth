@@ -88,12 +88,10 @@ class ShopTest {
   }
 
   @Test
-  fun `I9 - and a town with a full one will not either`() {
-    // The answer to dumping ten thousand apples: a refusal, not a collapsing price. A bad price would
-    // still transfer money.
+  fun `but a town with a full one still sells, because only the goods limit a purchase`() {
     val flush = shop(LedgerState(treasury = village.treasury * 10, lastStepDay = DAY))
 
-    assertEquals(Shop.Refusal.TREASURY_FULL, flush.quoteBuy(bread, 20).refusal)
+    assertTrue(flush.quoteBuy(bread, 20).allowed)
   }
 
   @Test

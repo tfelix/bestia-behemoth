@@ -77,7 +77,6 @@ class ShopCounter(
         Shop.Refusal.NOT_STOCKED -> OpError.SHOP_NOT_STOCKED
         Shop.Refusal.OUT_OF_STOCK -> OpError.SHOP_OUT_OF_STOCK
         Shop.Refusal.TREASURY_EMPTY -> OpError.SHOP_TREASURY_EMPTY
-        Shop.Refusal.TREASURY_FULL -> OpError.SHOP_TREASURY_FULL
       }
     }
   }
