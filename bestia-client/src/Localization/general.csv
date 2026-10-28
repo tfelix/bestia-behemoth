@@ -96,8 +96,29 @@ ERROR_SHOP_TREASURY_FULL,The town has more coin than it knows what to do with.
 ERROR_SHOP_CLOSED,The shop is closed. Come back during opening hours.
 ERROR_SHOP_TOO_HEAVY,You could not carry all of that.
 ERROR_SHOP_PRICE_CHANGED,The prices have just changed. Check the new total.
-SHOP_BUY_TOOLTIP,Each one costs a little more than the last.
-SHOP_SELL_TOOLTIP,Each one fetches a little less than the last.
+SHOP_WARES,Merchant sells
+SHOP_YOU_SELL,You sell
+SHOP_SELL_HINT,Double-click or drag items from your bag.
+SHOP_NOTHING_SPARE,Nothing to spare today.
+SHOP_NOT_BOUGHT_HERE,Not bought here.
+SHOP_ROW_TOOLTIP,"Double-click adds one, shift-click asks how many. Each one costs a little more than the last."
+SHOP_LESS,One fewer (shift: ten)
+SHOP_MORE,One more (shift: ten)
+SHOP_REMOVE,Take out of the basket
+SHOP_BUY_HOW_MANY,Buy how many %s?
+SHOP_SELL_HOW_MANY,Sell how many %s?
+SHOP_BUY_TOTAL,Buy %s
+SHOP_SELL_TOTAL,Sell %s
+SHOP_BALANCE,Balance
+SHOP_YOU_PAY,You pay
+SHOP_YOU_RECEIVE,You receive
+SHOP_GOLD,Gold %s → %s
+SHOP_LOAD,Load %d → %d / %d
+SHOP_CLEAR,Clear
+SHOP_CONFIRM,Confirm trade
+SHOP_UPDATING,Updating prices…
+SHOP_CANT_AFFORD,You can't afford this.
+INVENTORY_SORT_SHOP_VALUE,Shop value
 SHOP_CHAT,Chat
 SHOP_HOURS,Open %s-%s
 ERROR_TRAP_OUT_OF_RANGE,That is too far away to set a trap.

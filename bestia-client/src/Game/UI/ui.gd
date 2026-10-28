@@ -104,10 +104,11 @@ func _ready() -> void:
 	trade.trade_opened.connect(_on_trade_opened)
 	trade.trade_closed.connect(_on_trade_closed)
 
-	# And the shop, for the same reason again: asking a merchant for their wares is what opens it. It needs
-	# the inventory to know whether the player is holding anything a merchant would take.
+	# And the shop, for the same reason again: talking to a merchant at work is what opens it. Half of a
+	# basket is filled from the inventory, which the shop prices while it is open.
 	var shop := _shop_win.get_content() as Shop
 	shop.inventory = inventory
+	shop.connect_inventory()
 	shop.shop_opened.connect(_on_shop_opened)
 	shop.shop_closed.connect(_on_shop_closed)
 
@@ -464,6 +465,21 @@ func _on_shop_opened() -> void:
 	_shop_win.visible = true
 	_inventory_win.visible = true
 	_skills.visible = false
+	# Sizes settle one frame after the windows show.
+	await get_tree().process_frame
+	_dock_side_by_side(_shop_win, _inventory_win)
+
+
+## Puts [param left] and [param right] next to each other, the pair centred in the viewport.
+func _dock_side_by_side(left: Control, right: Control) -> void:
+	const GAP := 8.0
+	var bounds := get_viewport().get_visible_rect().size
+	var width := left.size.x + GAP + right.size.x
+	var top := maxf(0.0, (bounds.y - maxf(left.size.y, right.size.y)) / 2.0)
+	var start := maxf(0.0, (bounds.x - width) / 2.0)
+
+	left.position = Vector2(start, top).round()
+	right.position = Vector2(start + left.size.x + GAP, top).round()
 
 
 func _on_shop_closed() -> void:
