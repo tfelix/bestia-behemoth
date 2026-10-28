@@ -145,8 +145,15 @@ class EconomyStep(
     return (earned / earnable).coerceIn(0.0, 1.0)
   }
 
+  /**
+   * A surplus drains much faster than a shortfall refills. Coin players paid in should be back in the world
+   * reserve within days, where it can reach the other towns. A refill is a subsidy, and it has to stay slow
+   * or damage stops mattering - see [TREASURY_TAU_DAYS].
+   */
   private fun revertTreasury(purse: Double, target: Double): Double {
-    return target + (purse - target) * exp(-1.0 / TREASURY_TAU_DAYS)
+    val tau = if (purse > target) SURPLUS_TAU_DAYS else TREASURY_TAU_DAYS
+
+    return target + (purse - target) * exp(-1.0 / tau)
   }
 
   /**
@@ -326,7 +333,7 @@ class EconomyStep(
     private const val PRICE_TAU_DAYS = 2.0
 
     /**
-     * Game-days the treasury takes to revert to what a town that size ought to hold.
+     * Game-days a short treasury takes to refill to what a town that size ought to hold.
      *
      * Two game-months, because this is the one figure that decides whether damage lasts. Reversion is
      * the only income the model gives a settlement, so it is also a subsidy of `treasury / this` coins a
@@ -334,5 +341,8 @@ class EconomyStep(
      * a fire creates, and the fire stops mattering. Rebuilding savings from nothing is slow work.
      */
     private const val TREASURY_TAU_DAYS = 60.0
+
+    /** Game-days a treasury takes to hand back what it holds above its target, to the world reserve. */
+    private const val SURPLUS_TAU_DAYS = 10.0
   }
 }

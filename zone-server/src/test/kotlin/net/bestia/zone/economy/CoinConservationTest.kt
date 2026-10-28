@@ -53,6 +53,18 @@ class CoinConservationTest {
   }
 
   @Test
+  fun `a surplus is mostly back in the reserve within ten days, far sooner than a shortfall refills`() {
+    val surplus = flush().treasury - village.treasury
+    val left = walk(flush(), reserve = PLENTY, days = 10).treasury - village.treasury
+
+    val shortfall = village.treasury
+    val refilled = walk(LedgerState(treasury = 0.0, lastStepDay = START), reserve = PLENTY, days = 10).treasury
+
+    assertTrue(left < surplus * 0.4, "only ${surplus - left} of a $surplus surplus went back in ten days")
+    assertTrue(refilled < shortfall * 0.2, "an empty treasury refilled $refilled of $shortfall in ten days")
+  }
+
+  @Test
   fun `an empty reserve leaves a drained town drained`() {
     val state = walk(drained(), reserve = 0.0, days = 90)
 
