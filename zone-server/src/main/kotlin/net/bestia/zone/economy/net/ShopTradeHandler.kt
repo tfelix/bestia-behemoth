@@ -50,9 +50,8 @@ class ShopTradeHandler(
       add(
         id,
         ShopTradeIntent(
-          itemId = msg.itemId,
-          amount = msg.amount,
-          selling = msg.selling,
+          lines = msg.lines,
+          expectedBalance = msg.expectedBalance,
           counter = counter,
         )
       )

@@ -5,18 +5,23 @@ package bnet;
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "ShopTradeCmsgProto";
 
-// Buys or sells `amount` of one item with the settlement the player is standing in.
+// Buys and sells a whole basket with the settlement the sender stands in, as one trade.
 //
-// The price is not on the wire in either direction. A client that could name its own price would be a
-// client that could be wrong about it; what it sends is how much of what, and the server quotes.
+// No prices are sent. The server quotes every line against the live market, and only the difference changes
+// hands: selling can pay for buying.
 message ShopTradeCMSG {
+  uint64 merchant_entity_id = 1;
+  repeated ShopLine lines = 2;
+
+  // The balance the player was last quoted: positive when the town pays them, negative when they pay. A trade
+  // that would come out worse than this is refused, so a player never pays more than they were shown.
+  int64 expected_balance = 3;
+}
+
+message ShopLine {
   uint64 item_id = 1;
   int32 amount = 2;
 
-  // True when the player is handing goods over, false when taking them.
+  // True when the player hands goods over, false when they take them.
   bool selling = 3;
-
-  // Who is being traded with. The prices are still the settlement's; this decides what they will deal in
-  // at all, so a smith does not sell bread.
-  uint64 merchant_entity_id = 4;
 }

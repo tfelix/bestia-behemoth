@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/system/operation_error.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ShopQuoteSmsgProto";
+
+// What the basket of the last ShopQuoteCMSG comes to right now.
+message ShopQuoteSMSG {
+  uint64 merchant_entity_id = 1;
+
+  // Coins for each line, in the order the basket listed them.
+  repeated int64 line_coins = 2;
+
+  // Positive when the town pays the player, negative when the player pays.
+  int64 balance = 3;
+
+  // Set when the town would refuse the basket. refused_line names the line at fault, or is -1 when the basket
+  // as a whole is refused (the town cannot pay out, or cannot take in, the balance).
+  optional OpError refusal = 4;
+  int32 refused_line = 5;
+}

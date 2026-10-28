@@ -43,6 +43,7 @@ signal trade_state_received(message: TradeStateSMSG)
 ## Emitted whenever a merchant's counter is (re)drawn. A full snapshot each time - it opens the window and
 ## updates it, and it arrives again after every trade so the price shown is the price that was just moved.
 signal shop_offer_received(message: ShopOfferSMSG)
+signal shop_quote_received(message: ShopQuoteSMSG)
 signal auction_house_opened(message: AuctionHouseOpenSMSG)
 signal auction_listings_received(message: AuctionListingsSMSG)
 signal auction_claims_received(message: AuctionClaimsSMSG)
@@ -122,6 +123,7 @@ var ConfirmTradeCMSG = load("res://Bnet/Message/Trade/ConfirmTradeCMSG.cs")
 var CancelTradeCMSG = load("res://Bnet/Message/Trade/CancelTradeCMSG.cs")
 var OpenShopCMSG = load("res://Bnet/Message/Shop/OpenShopCMSG.cs")
 var ShopTradeCMSG = load("res://Bnet/Message/Shop/ShopTradeCMSG.cs")
+var ShopQuoteCMSG = load("res://Bnet/Message/Shop/ShopQuoteCMSG.cs")
 var SearchAuctionsCMSG = load("res://Bnet/Message/Auction/SearchAuctionsCMSG.cs")
 var BuyAuctionListingCMSG = load("res://Bnet/Message/Auction/BuyAuctionListingCMSG.cs")
 var RequestPartyInfoCMSG = load("res://Bnet/Message/Party/RequestPartyInfoCMSG.cs")
@@ -733,18 +735,26 @@ func open_shop(merchant_entity_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
-## Buys or sells [param amount] of one item. Nothing is applied locally - the answering ShopOfferSMSG
+## Trades a whole basket of ShopLines as one. Nothing is applied locally - the answering ShopOfferSMSG
 ## redraws the counter, which is also how a refusal corrects itself.
 ##
-## No price is sent. What was shown is a snapshot; the server quotes against the live one, so a stale
-## window pays today's price rather than the one on it.
-func shop_trade(merchant_entity_id: int, item_id: int, amount: int, selling: bool) -> void:
+## [param expected_balance] is the balance of the last ShopQuoteSMSG: positive when the town pays us. The
+## server refuses a trade that would come out worse, so we never pay more than we were shown.
+func shop_trade(merchant_entity_id: int, lines: Array[ShopLine], expected_balance: int) -> void:
 	assert(is_ready_to_send())
 	var msg = ShopTradeCMSG.new()
 	msg.MerchantEntityId = merchant_entity_id
-	msg.ItemId = item_id
-	msg.Amount = amount
-	msg.Selling = selling
+	msg.Lines.assign(lines)
+	msg.ExpectedBalance = expected_balance
+	_socket.SendMessage(msg)
+
+
+## Asks what a basket of ShopLines would come to. Answered by a ShopQuoteSMSG.
+func shop_quote(merchant_entity_id: int, lines: Array[ShopLine]) -> void:
+	assert(is_ready_to_send())
+	var msg = ShopQuoteCMSG.new()
+	msg.MerchantEntityId = merchant_entity_id
+	msg.Lines.assign(lines)
 	_socket.SendMessage(msg)
 
 
@@ -1130,6 +1140,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		trade_state_received.emit(message)
 	elif message is ShopOfferSMSG:
 		shop_offer_received.emit(message)
+	elif message is ShopQuoteSMSG:
+		shop_quote_received.emit(message)
 	elif message is AuctionHouseOpenSMSG:
 		auction_house_opened.emit(message)
 	elif message is AuctionListingsSMSG:

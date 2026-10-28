@@ -2,9 +2,10 @@ package net.bestia.zone.economy.ecs
 
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.economy.shop.Counter
+import net.bestia.zone.economy.shop.ShopTradeLine
 
 /**
- * Intent to buy or sell [amount] of [itemId] with the settlement this entity is standing in.
+ * Intent to trade a basket of [lines] with the settlement this entity is standing in.
  *
  * Attached by `ShopTradeHandler` and resolved by `ShopTradeIntentSystem`, where every check lives -
  * `CollectPropIntent`'s arrangement: the settlement ledger is a plain map touched only from the tick
@@ -16,12 +17,13 @@ import net.bestia.zone.economy.shop.Counter
  * defer to the end of the tick and would have granted twice.
  *
  * Only one can be attached at a time, since components are one per class per entity - a player who
- * clicks buy twice inside the same 50 ms tick gets the second. Matches `CollectPropIntent`.
+ * confirms twice inside the same 50 ms tick gets the second. Matches `CollectPropIntent`.
  */
 data class ShopTradeIntent(
-  val itemId: Long,
-  val amount: Int,
-  val selling: Boolean,
+  val lines: List<ShopTradeLine>,
+
+  /** The balance the player was quoted; the trade is refused if it would come out worse. */
+  val expectedBalance: Long,
 
   /**
    * Whose counter, resolved off the tick where the household expansion is safe to do. Carried rather than
