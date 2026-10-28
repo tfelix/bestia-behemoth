@@ -7,6 +7,7 @@ import net.bestia.worldgen.vector.Aabb
 import net.bestia.worldgen.vector.FeatureEvaluator
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
+import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.vector.VectorFeature
 import net.bestia.worldgen.voxel.LavaSampler
@@ -63,9 +64,22 @@ class GeneratedWaterSource(private val worlds: WorldService) : WaterSource {
       val surface = generated.materializer.surface
       val wadeable = AgentProfile().maxWadeDepth * generated.config.voxelSize
 
+      // The grid asks for the ground and then for the water over the same column; the ground is most of the cost.
+      var lastX = Double.NaN
+      var lastY = Double.NaN
+      var lastGround = 0.0
+      val groundAt = { x: Double, y: Double ->
+        if (x != lastX || y != lastY) {
+          val base = generated.base.heightAt(x, y)
+          lastGround = if (cuts.isEmpty) base else cuts.heightAt(x, y, base)
+          lastX = x
+          lastY = y
+        }
+        lastGround
+      }
+
       val isDeep = { x: Double, y: Double ->
-        val base = generated.base.heightAt(x, y)
-        val ground = if (cuts.isEmpty) base else cuts.heightAt(x, y, base)
+        val ground = groundAt(x, y)
 
         val molten = lava.surfaceAt(x, y)
         if (!molten.isNaN() && molten > ground) {
@@ -81,7 +95,15 @@ class GeneratedWaterSource(private val worlds: WorldService) : WaterSource {
         }
       }
 
-      return WaterSurvey(isDeep, crossings(features))
+      return WaterSurvey(isDeep, crossings(features), groundAt, roads(features))
+    }
+
+    private fun roads(features: List<VectorFeature>): List<List<Vec2d>> {
+      return features.asSequence()
+        .filter { it.kind == FeatureKind.ROAD || it.kind == FeatureKind.STREET }
+        .filterIsInstance<PolylineFeature>()
+        .map { it.centerline.points }
+        .toList()
     }
 
     /** Each bridge deck as its centre line, from the marker `BridgeDecks` builds its decks from. */

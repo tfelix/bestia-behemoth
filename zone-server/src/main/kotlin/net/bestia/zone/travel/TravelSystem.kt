@@ -61,14 +61,17 @@ class TravelSystem(
     }
 
     val knower = Knower.of(world, id)
-    if (planner.needsPlan(journey, knower)) {
+    if (planner.needsPlan(journey, knower, position)) {
       when (val planned = planner.plan(position, journey, knower)) {
-        is RoutePlanner.Planned.Ready -> journey.plan = planned.plan
+        is RoutePlanner.Planned.Ready -> {
+          journey.plan = planned.plan
+          journey.route = planner.outline(journey)
+        }
         RoutePlanner.Planned.NoRoute -> return end(world, id, journey, JourneyFailure.NO_ROUTE)
-        // Stands where it is rather than walking a way that may lead into the water; the grid needs a tick or two.
-        RoutePlanner.Planned.NotYet -> return
+        // Walks on along a stretch still good while the next is surveyed. Otherwise it stands where it is rather
+        // than walking a way that may lead into the water; the grid needs a tick or a few.
+        RoutePlanner.Planned.NotYet -> if (!planner.mayWalkOnWhileSurveying(journey, knower)) return
       }
-      journey.route = planner.outline(journey)
     }
 
     val aim = planner.nextAim(journey, position)

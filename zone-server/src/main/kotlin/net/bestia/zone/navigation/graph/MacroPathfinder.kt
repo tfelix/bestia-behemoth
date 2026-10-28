@@ -1,5 +1,6 @@
 package net.bestia.zone.navigation.graph
 
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.profile.MovementProfile
 
 /**
@@ -82,14 +83,21 @@ class MacroPathfinder(
    * for - and A* with an inadmissible heuristic returns a route that merely looks reasonable.
    */
   override fun heuristic(node: Int, goal: Int): Double {
-    val from = graph.nodePositions[node]
-    val to = graph.nodePositions[goal]
+    return estimate(graph.nodePositions[node], graph.nodePositions[goal])
+  }
 
-    val dx = (to.x - from.x).toDouble()
-    val dy = (to.y - from.y).toDouble()
-    val distance = Math.sqrt(dx * dx + dy * dy)
+  /** [heuristic] between two places rather than two nodes: never more than any way between them costs. */
+  fun estimate(from: Vec3L, to: Vec3L): Double {
+    return distance(from, to) * cheapestPerMetre
+  }
 
-    return distance * cheapestPerMetre
+  /** What walking straight from [from] to [to] over open country costs this creature, by the graph's measure. */
+  fun offGraphCost(from: Vec3L, to: Vec3L): Double {
+    return distance(from, to) * profile.costMultiplier(isMadeSurface = false)
+  }
+
+  private fun distance(from: Vec3L, to: Vec3L): Double {
+    return Math.hypot((to.x - from.x).toDouble(), (to.y - from.y).toDouble())
   }
 
   private val cheapestPerMetre: Double =

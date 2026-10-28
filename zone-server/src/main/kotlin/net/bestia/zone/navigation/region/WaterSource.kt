@@ -36,22 +36,18 @@ interface WaterSource {
 }
 
 /**
- * One area's water.
+ * One area's water, and the lie of the ground under it.
  *
  * @property isDeep whether a column, in world metres, stands under more water or lava than anyone can wade
  * @property crossings the decks that span it, each from one bank to the other: they are a few metres wide and
  *   a coarse sample of [isDeep] would step over them, so they are handed over as lines
+ * @property groundAt the height of the ground at a column, in metres. Asked for a column just before [isDeep]
+ *   is asked for the same one, which lets a source measure the ground once for both.
+ * @property roads the centre lines of the roads and streets through it, which are the easy going
  */
 class WaterSurvey(
   val isDeep: (worldX: Double, worldY: Double) -> Boolean,
   val crossings: List<Pair<Vec2d, Vec2d>>,
+  val groundAt: (worldX: Double, worldY: Double) -> Double = { _, _ -> 0.0 },
+  val roads: List<List<Vec2d>> = emptyList(),
 )
-
-/** How many blocks a caller may still survey before it must come back later. */
-fun interface SurveyBudget {
-  fun trySpend(): Boolean
-
-  companion object {
-    val UNLIMITED = SurveyBudget { true }
-  }
-}

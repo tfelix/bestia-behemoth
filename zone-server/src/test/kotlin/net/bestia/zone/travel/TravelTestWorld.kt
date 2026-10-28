@@ -20,6 +20,7 @@ import net.bestia.zone.navigation.local.LocalPathfindingService
 import net.bestia.zone.navigation.local.LocalWalkQuery
 import net.bestia.zone.navigation.profile.MovementProfileRegistry
 import net.bestia.zone.navigation.region.RegionGrid
+import net.bestia.zone.navigation.region.WaySearches
 import net.bestia.zone.navigation.region.WaterSource
 import net.bestia.zone.travel.knowledge.RouteKnowledge
 import net.bestia.zone.travel.knowledge.RouteSense
@@ -50,7 +51,7 @@ class TravelTestWorld(
   )
   private val budget = TravelBudget(travelConfig)
   private val travel = TravelSystem(
-    RoutePlanner(navigation, knowledge, navigationConfig, grid, budget),
+    RoutePlanner(navigation, knowledge, navigationConfig, WaySearches(grid, pool = null)),
     LegRefiner(navigation, budget, travelConfig, navigationConfig),
     ProgressWatchdog(knowledge, travelConfig),
     budget,

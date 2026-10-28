@@ -4,8 +4,10 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.NavEdgeKind
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.graph.AStar
+import net.bestia.zone.navigation.graph.AStarGraph
 import net.bestia.zone.navigation.graph.MacroGraphService
 import net.bestia.zone.navigation.graph.MacroPathfinder
+import net.bestia.zone.navigation.graph.RuntimeNavGraph
 import net.bestia.zone.navigation.local.LocalPathfindingService
 import net.bestia.zone.navigation.profile.MovementProfile
 import net.bestia.zone.navigation.profile.MovementProfileRegistry
@@ -55,21 +57,38 @@ class NavigationService(
    * A course from [from] to [destination] that avoids every edge [isBlocked] names, or null when there is none
    * for this creature.
    *
-   * Empty when there is nothing to steer by - no graph, or both ends nearest the same node - so the traveller
+   * The graph is entered at whichever of the [entries] nodes nearest [from] makes the cheapest course, and left
+   * at whichever of those nearest [destination] does, each reached straight over open country. Over a long way
+   * the nearest node alone can stand behind the traveller, or up a mountain beside it; over a short one, a
+   * straight line to a further node may cross the very river the graph would have bridged, so take one.
+   *
+   * Empty when there is nothing to steer by - no graph, or a course through one node only - so the traveller
    * walks straight. Which edges count as blocked is the caller's: a traveller avoids what it believes, not what
    * is true.
    */
-  fun planCourse(from: Vec3L, destination: Vec3L, profileId: String?, isBlocked: (Int) -> Boolean): MacroCourse? {
+  fun planCourse(
+    from: Vec3L,
+    destination: Vec3L,
+    profileId: String?,
+    entries: Int = 1,
+    isBlocked: (Int) -> Boolean,
+  ): MacroCourse? {
     macroGraph.ensureLoaded()
     val graph = macroGraph.graph
     if (graph.isEmpty) return ended(NavigationMetrics.Macro.NO_GRAPH, MacroCourse(emptyList(), emptyList()))
 
-    val start = graph.nearestNode(from) ?: return ended(NavigationMetrics.Macro.NO_START)
-    val goal = graph.nearestNode(destination) ?: return ended(NavigationMetrics.Macro.NO_GOAL)
-    if (start == goal) return ended(NavigationMetrics.Macro.SAME_NODE, MacroCourse(emptyList(), emptyList()))
+    val starts = graph.nearestNodes(from, entries)
+    val goals = graph.nearestNodes(destination, entries)
+    if (starts.isEmpty()) return ended(NavigationMetrics.Macro.NO_START)
+    if (goals.isEmpty()) return ended(NavigationMetrics.Macro.NO_GOAL)
 
     val pathfinder = MacroPathfinder(graph, profiles.getOrDefault(profileId), isBlocked)
-    val nodes = AStar.findPath(pathfinder, start, goal) ?: return ended(NavigationMetrics.Macro.NO_ROUTE)
+    val entered = EnteredGraph(pathfinder, graph.nodePositions, from, destination, starts, goals.toSet())
+    val path = AStar.findPath(entered, EnteredGraph.FROM, EnteredGraph.DESTINATION)
+      ?: return ended(NavigationMetrics.Macro.NO_ROUTE)
+    val nodes = path.drop(1).dropLast(1)
+    if (nodes.size < 2) return ended(NavigationMetrics.Macro.SAME_NODE, MacroCourse(emptyList(), emptyList()))
+
     val edges = nodes.zipWithNext { a, b ->
       pathfinder.cheapestEdge(a, b) ?: return ended(NavigationMetrics.Macro.NO_ROUTE)
     }
@@ -78,22 +97,39 @@ class NavigationService(
     return MacroCourse(nodes.drop(1), edges)
   }
 
-  /**
-   * Whether [way] passes over a bridge whose edge [isBlocked] names.
-   *
-   * For a way laid over the water grid, which takes every deck for dry ground whether it still stands or not.
-   */
-  fun crossesBlockedBridge(way: List<Vec3L>, isBlocked: (Int) -> Boolean): Boolean {
-    val graph = macroGraph.graph
-    val legs = way.zipWithNext()
-
-    return graph.edges.withIndex().any { (index, edge) ->
-      if (edge.kind != NavEdgeKind.BRIDGE || !isBlocked(index)) return@any false
-
-      val span = listOf(graph.nodePositions[edge.a]) + edge.waypoints + graph.nodePositions[edge.b]
-      span.zipWithNext().any { (c, d) -> legs.any { (a, b) -> segmentDistance(a, b, c, d) <= BRIDGE_REACH } }
-    }
+  /** The stretches of every bridge whose edge [isBlocked] names, for a way over the water grid to keep clear of. */
+  fun blockedBridgeSpans(isBlocked: (Int) -> Boolean): List<Pair<Vec3L, Vec3L>> {
+    return bridges().filter { isBlocked(it.edge) }.flatMap { it.stretches }
   }
+
+  /**
+   * The bridge a stretch from [a] to [b] crosses, if any: what a traveller stuck on a way over the water grid
+   * blames, since the grid takes every deck for ground whether it still stands or not.
+   */
+  fun bridgeCrossedBy(a: Vec3L, b: Vec3L): Int? {
+    return bridges().firstOrNull { bridge ->
+      bridge.stretches.any { (c, d) -> segmentDistance(a, b, c, d) <= BRIDGE_REACH }
+    }?.edge
+  }
+
+  /** A bridge edge and the stretches its deck runs along. */
+  private class Bridge(val edge: Int, val stretches: List<Pair<Vec3L, Vec3L>>)
+
+  private fun bridges(): List<Bridge> {
+    macroGraph.ensureLoaded()
+    val graph = macroGraph.graph
+    if (graph !== bridgesOf) {
+      bridges = graph.edges.withIndex().filter { it.value.kind == NavEdgeKind.BRIDGE }.map { (index, edge) ->
+        val span = listOf(graph.nodePositions[edge.a]) + edge.waypoints + graph.nodePositions[edge.b]
+        Bridge(index, span.zipWithNext())
+      }
+      bridgesOf = graph
+    }
+    return bridges
+  }
+
+  private var bridges: List<Bridge> = emptyList()
+  private var bridgesOf: RuntimeNavGraph? = null
 
   fun nodePosition(node: Int): Vec3L {
     return macroGraph.graph.nodePositions[node]
@@ -112,6 +148,49 @@ class NavigationService(
   }
 
   fun profileFor(profileId: String?): MovementProfile = profiles.getOrDefault(profileId)
+
+  /**
+   * The macro graph with the traveller's two ends added as nodes of their own: [FROM] joined to each of
+   * [starts], and each of [goals] joined to [DESTINATION], at what crossing open country to them costs.
+   */
+  private class EnteredGraph(
+    private val graph: MacroPathfinder,
+    private val positions: Array<Vec3L>,
+    private val from: Vec3L,
+    private val destination: Vec3L,
+    private val starts: List<Int>,
+    private val goals: Set<Int>,
+  ) : AStarGraph<Int> {
+
+    override fun neighbors(node: Int): List<Int> {
+      return when (node) {
+        FROM -> starts
+        DESTINATION -> emptyList()
+        else -> if (node in goals) graph.neighbors(node) + DESTINATION else graph.neighbors(node)
+      }
+    }
+
+    override fun cost(from: Int, to: Int): Double {
+      return when {
+        from == FROM -> graph.offGraphCost(this.from, positions[to])
+        to == DESTINATION -> graph.offGraphCost(positions[from], destination)
+        else -> graph.cost(from, to)
+      }
+    }
+
+    override fun heuristic(node: Int, goal: Int): Double {
+      return when (node) {
+        FROM -> graph.estimate(from, destination)
+        DESTINATION -> 0.0
+        else -> graph.estimate(positions[node], destination)
+      }
+    }
+
+    companion object {
+      const val FROM = -1
+      const val DESTINATION = -2
+    }
+  }
 
   private companion object {
     private val LOG = KotlinLogging.logger { }

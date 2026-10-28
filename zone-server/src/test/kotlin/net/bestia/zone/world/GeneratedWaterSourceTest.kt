@@ -42,6 +42,18 @@ class GeneratedWaterSourceTest {
     (listOf(STOOD) + way.points).zipWithNext().forEach { (a, b) -> assertMostlyDry(a, b) }
   }
 
+  @Test
+  fun `Grafdelve to Stanhold keeps to the river valley`() {
+    // From the client log: the course over the macro graph walked 30 km, east over the mountains and back.
+    val way = assertIs<RegionGrid.Way.Found>(RegionGrid(water).wayBetween(GRAFDELVE, STANHOLD))
+    val points = listOf(GRAFDELVE) + way.points
+
+    val walked = points.zipWithNext { a, b -> Math.hypot((b.x - a.x).toDouble(), (b.y - a.y).toDouble()) }.sum()
+    val straight = Math.hypot((STANHOLD.x - GRAFDELVE.x).toDouble(), (STANHOLD.y - GRAFDELVE.y).toDouble())
+    assertTrue(walked < straight * 1.2, "it walked ${walked.toInt()} m for ${straight.toInt()}: ${way.points}")
+    assertTrue(points.all { it.x in 44_000..47_500 }, "it left the valley: ${way.points}")
+  }
+
   /**
    * At most a cell's worth of water along a stretch: a cell that is mostly dry is open, so a way may clip a shore
    * or ford a stream, but never swims the lake.
@@ -69,6 +81,9 @@ class GeneratedWaterSourceTest {
     /** From the client log of the walk in question. */
     val STOOD = Vec3L(35392, 31416, 0)
     val CLICKED = Vec3L(34800, 30600, 0)
+
+    val GRAFDELVE = Vec3L(45071, 34065, 0)
+    val STANHOLD = Vec3L(46220, 25810, 0)
 
     const val MAX_WET_RUN_METRES = 32
 

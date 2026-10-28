@@ -59,6 +59,16 @@ class RuntimeNavGraph(
     return if (best < 0) null else best
   }
 
+  /** The [count] nodes nearest [position], nearest first. A linear scan, for the reason [nearestNode] gives. */
+  fun nearestNodes(position: Vec3L, count: Int): List<Int> {
+    return nodePositions.indices.sortedBy { id ->
+      val other = nodePositions[id]
+      val dx = (other.x - position.x).toDouble()
+      val dy = (other.y - position.y).toDouble()
+      dx * dx + dy * dy
+    }.take(count)
+  }
+
   /** Mirrors `worldgen`'s `NavNodeKind` without exposing the generator's type to the game code. */
   enum class NavNodeKindView { SETTLEMENT, GATE, BRIDGE_APPROACH, CAVE_ENTRANCE, WILDERNESS }
 

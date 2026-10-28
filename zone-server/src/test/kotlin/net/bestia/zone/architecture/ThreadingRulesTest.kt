@@ -24,6 +24,7 @@ class ThreadingRulesTest {
     "world/stream/ChunkWorkers.kt" to "terrain encoding, which never touches the world",
     "socket/SocketServer.kt" to "the Netty server",
     "cartography/tile/TileRenderPool.kt" to "map tile rendering, which never touches the world",
+    "navigation/region/WaySearches.kt" to "searching the water and terrain grid, which never touches the world",
   )
 
   private val startsThreads = Regex("""Executors\.|ScheduledExecutorService|ForkJoinPool\(|[^\w.]Thread\(|@Async|\bthread\(""")

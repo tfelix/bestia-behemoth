@@ -5,6 +5,7 @@ import net.bestia.zone.navigation.MacroCourse
 import net.bestia.zone.navigation.NavigationConfig
 import net.bestia.zone.navigation.NavigationService
 import net.bestia.zone.navigation.region.RegionGrid
+import net.bestia.zone.navigation.region.WaySearches
 import net.bestia.zone.travel.TravelPlan.Stop
 import net.bestia.zone.travel.knowledge.Knower
 import net.bestia.zone.travel.knowledge.RouteKnowledge
@@ -14,21 +15,22 @@ import org.springframework.stereotype.Component
  * Chooses the way to a journey's current waypoint, avoiding what its knower believes is blocked, and says what
  * to walk at next along it.
  *
- * The macro graph offers a course, since it is what knows which bridge has fallen. The [RegionGrid] lays the
- * stretches the graph leaves out - onto it, off it to the waypoint, or the whole way when the graph has nothing
- * to offer - round any water in between.
+ * The way is laid over the [RegionGrid], which knows the ground: it walks round water, keeps to valleys rather
+ * than climbing over ridges, and takes a road where one runs the right way. A bridge the knower believes has
+ * fallen is kept clear of, so the way goes round by another.
  *
- * The graph's nodes stand kilometres apart, so the nearest one to either end can be far behind it: a course
- * between two of them can lead a traveller a kilometre into town and back for a walk of three hundred metres.
- * Where the course wanders, the grid's way straight there is weighed against it.
+ * The macro graph's nodes stand kilometres apart, too far apart to walk by, so it is only asked which way to head
+ * for a waypoint further than one search of the grid spans: the way is then laid a stretch at a time, to the
+ * furthest node of the graph's course within reach, and the next stretch is laid as the traveller nears the end
+ * of this one. Where the grid finds no way at all - a waypoint across a strait, a bridge further off than its
+ * search reaches - the graph's course is walked node by node.
  */
 @Component
 class RoutePlanner(
   private val navigation: NavigationService,
   private val knowledge: RouteKnowledge,
   private val navigationConfig: NavigationConfig,
-  private val grid: RegionGrid,
-  private val budget: TravelBudget,
+  private val ways: WaySearches,
 ) {
 
   /** What [plan] came to. */
@@ -38,104 +40,184 @@ class RoutePlanner(
     /** The knower knows no way there, or water cuts the waypoint off. */
     data object NoRoute : Planned
 
-    /** The way runs through country the grid has not surveyed yet. Ask again next tick. */
+    /** The way over the ground is still being searched for, off the tick. Ask again next tick. */
     data object NotYet : Planned
   }
 
-  /** A stretch off the graph, as [overGround] found it. */
+  /** A way over the ground, as [overGround] found it. */
   private sealed interface Leg {
-    class Corners(val stops: List<Stop>) : Leg
+    class Corners(val points: List<Vec3L>) : Leg
     data object CutOff : Leg
+    data object Unknown : Leg
     data object Surveying : Leg
   }
 
-  /** No plan yet, a new waypoint, or the knower learned something since it planned. */
-  fun needsPlan(journey: Journey, knower: Knower): Boolean {
+  /** No plan yet, a new waypoint, the knower learned something since it planned, or a stretch nearly walked. */
+  fun needsPlan(journey: Journey, knower: Knower, position: Vec3L): Boolean {
     val plan = journey.plan ?: return true
-    return plan.target != journey.target || plan.knowledgeRevision != knowledge.revisionOf(knower)
+    if (plan.target != journey.target || plan.knowledgeRevision != knowledge.revisionOf(knower)) return true
+
+    val end = plan.end ?: return false
+    return plan.isStretch && distance(position, end) < NEXT_STRETCH_METRES
   }
 
-  /** A plan from [from] to the journey's current waypoint. */
+  /** Whether the traveller may walk on along its plan while the next stretch is searched for. */
+  fun mayWalkOnWhileSurveying(journey: Journey, knower: Knower): Boolean {
+    return stretchBeingWalked(journey, knower)?.current != null
+  }
+
+  /**
+   * A plan from [from] to the journey's current waypoint.
+   *
+   * A stretch nearly walked is carried on from where it ends rather than from where the traveller is, which
+   * keeps the next stretch the same search however far the traveller walks while it is being made.
+   */
   fun plan(from: Vec3L, journey: Journey, knower: Knower): Planned {
+    val walking = stretchBeingWalked(journey, knower) ?: return planFrom(from, journey, knower)
+    val end = walking.end ?: return planFrom(from, journey, knower)
+
+    val next = when (val planned = planFrom(end, journey, knower)) {
+      is Planned.Ready -> planned
+      else -> return planned
+    }
+    val plan = TravelPlan(
+      journey.target, walking.remaining + next.plan.remaining, next.plan.knowledgeRevision,
+      next.plan.isStretch, next.plan.beyond,
+    )
+    return Planned.Ready(plan)
+  }
+
+  /** The journey's plan, if it is a stretch that still holds: the same waypoint, nothing learned since. */
+  private fun stretchBeingWalked(journey: Journey, knower: Knower): TravelPlan? {
+    val plan = journey.plan ?: return null
+    val holds = plan.target == journey.target && plan.knowledgeRevision == knowledge.revisionOf(knower)
+    return plan.takeIf { holds && it.isStretch }
+  }
+
+  private fun planFrom(from: Vec3L, journey: Journey, knower: Knower): Planned {
     val target = journey.target
     if (isCloseBy(from, target)) return ready(journey, knower, emptyList())
 
     val isBlocked = { edge: Int -> knowledge.believesBlocked(knower, edge) }
-    val course = navigation.planCourse(from, target, profileId = null, isBlocked)
-    if (course != null && course.nodes.isEmpty()) {
-      return when (val leg = overGround(from, target)) {
-        is Leg.Corners -> ready(journey, knower, leg.stops)
-        Leg.CutOff -> Planned.NoRoute
+    val avoid = navigation.blockedBridgeSpans(isBlocked)
+
+    val direct = if (isWithin(from, target, SEARCH_SPAN)) overGround(from, target, avoid) else null
+    when (direct) {
+      is Leg.Corners -> return ready(journey, knower, stopsOver(from, direct.points, keepLast = false))
+      Leg.Surveying -> return Planned.NotYet
+      Leg.CutOff, Leg.Unknown, null -> Unit
+    }
+
+    // Several ways onto the graph only where the grid cannot be asked: a straight line to one is blind to water.
+    val entries = if (direct == null) COURSE_ENTRIES else 1
+    val course = navigation.planCourse(from, target, profileId = null, entries, isBlocked)
+    if (course == null || course.nodes.isEmpty()) {
+      return when (val way = direct ?: overGround(from, target, avoid)) {
+        is Leg.Corners -> ready(journey, knower, stopsOver(from, way.points, keepLast = false))
         Leg.Surveying -> Planned.NotYet
+        Leg.CutOff -> Planned.NoRoute
+        Leg.Unknown -> if (course == null) Planned.NoRoute else ready(journey, knower, emptyList())
       }
     }
 
-    val viaGraph = when (val leg = course?.let { alongCourse(from, target, it) }) {
-      is Leg.Corners -> leg.stops
-      Leg.Surveying -> return Planned.NotYet
-      Leg.CutOff, null -> null
-    }
-    val isWorthBettering = viaGraph == null || lengthOf(from, viaGraph, target) > distance(from, target) * GRAPH_PREFERENCE
-    if (!isWorthBettering || !isWithin(from, target, DIRECT_SEARCH_SPAN)) {
-      return viaGraph?.let { ready(journey, knower, it) } ?: Planned.NoRoute
-    }
+    if (direct == null) stretchAlong(from, course, journey, knower, avoid)?.let { return it }
 
-    val direct = when (val way = grid.wayBetween(from, target, budget.surveys)) {
-      is RegionGrid.Way.Found -> way.points.takeUnless { navigation.crossesBlockedBridge(listOf(from) + it, isBlocked) }
-      RegionGrid.Way.Pending -> return Planned.NotYet
-      RegionGrid.Way.None, RegionGrid.Way.Unknown -> null
-    }?.let(::cornerStops)
-
-    val stops = when {
-      direct == null -> viaGraph ?: return Planned.NoRoute
-      viaGraph == null -> direct
-      lengthOf(from, viaGraph, target) > lengthOf(from, direct, target) * GRAPH_PREFERENCE -> direct
-      else -> viaGraph
-    }
-    return ready(journey, knower, stops)
+    return alongCourse(from, course, journey, knower, avoid)
   }
 
-  /** The course's own stops, with the ways onto it and off it to [target] round water. */
-  private fun alongCourse(from: Vec3L, target: Vec3L, course: MacroCourse): Leg {
+  /**
+   * The next stretch towards a waypoint beyond one search's reach: over the ground to the furthest node of
+   * [course] within [SEARCH_SPAN], never one nearer than twice [NEXT_STRETCH_METRES], which would only be
+   * planned again on the spot. Null when the grid finds no way to it.
+   */
+  private fun stretchAlong(
+    from: Vec3L,
+    course: MacroCourse,
+    journey: Journey,
+    knower: Knower,
+    avoid: List<Pair<Vec3L, Vec3L>>,
+  ): Planned? {
+    val positions = course.nodes.map(navigation::nodePosition)
+    val firstOutOfReach = positions.indexOfFirst { !isWithin(from, it, SEARCH_SPAN) }
+    var end = if (firstOutOfReach < 0) positions.lastIndex else maxOf(firstOutOfReach - 1, 0)
+    while (end < positions.lastIndex && distance(from, positions[end]) < NEXT_STRETCH_METRES * 2) end++
+
+    val node = positions[end]
+    return when (val way = overGround(from, node, avoid)) {
+      is Leg.Corners -> {
+        val corners = stopsOver(from, way.points.dropLast(1), keepLast = true)
+        val lastCorner = way.points.getOrNull(way.points.lastIndex - 1) ?: from
+        val arrival = Stop(node, navigation.bridgeCrossedBy(lastCorner, node), NODE_REACH)
+        val plan = TravelPlan(
+          journey.target, corners + arrival, knowledge.revisionOf(knower),
+          isStretch = true, beyond = positions.drop(end + 1),
+        )
+        Planned.Ready(plan)
+      }
+      Leg.Surveying -> Planned.NotYet
+      Leg.CutOff, Leg.Unknown -> null
+    }
+  }
+
+  /** The graph's course stop by stop, with the ways onto it and off it to the waypoint laid over the ground. */
+  private fun alongCourse(
+    from: Vec3L,
+    course: MacroCourse,
+    journey: Journey,
+    knower: Knower,
+    avoid: List<Pair<Vec3L, Vec3L>>,
+  ): Planned {
     val onCourse = ArrayList<Stop>()
     for ((node, edge) in course.nodes.zip(course.edges)) {
       navigation.bendsTowards(edge, node).mapTo(onCourse) { Stop(it, edge, BEND_REACH) }
       onCourse.add(Stop(navigation.nodePosition(node), edge, NODE_REACH))
     }
 
-    val legs = listOf(overGround(from, onCourse.first().position), overGround(onCourse.last().position, target))
-    if (legs.any { it == Leg.CutOff }) return Leg.CutOff
-    if (legs.any { it == Leg.Surveying }) return Leg.Surveying
+    val first = onCourse.first().position
+    val last = onCourse.last().position
+    val legs = listOf(overGround(from, first, avoid), overGround(last, journey.target, avoid))
+    if (legs.any { it == Leg.CutOff }) return Planned.NoRoute
+    if (legs.any { it == Leg.Surveying }) return Planned.NotYet
 
-    val (onto, offTo) = legs.map { (it as Leg.Corners).stops }
-    return Leg.Corners(onto + onCourse + offTo)
+    // A leg the grid cannot tell about is walked straight.
+    val (onto, offTo) = legs.map { (it as? Leg.Corners)?.points.orEmpty() }
+    val stops = stopsOver(from, onto, keepLast = false) + onCourse + stopsOver(last, offTo, keepLast = false)
+    return ready(journey, knower, stops)
   }
 
-  private fun ready(journey: Journey, knower: Knower, stops: List<Stop>): Planned {
-    return Planned.Ready(TravelPlan(journey.target, stops, knowledge.revisionOf(knower)))
-  }
+  /**
+   * The way over the ground from [from] to [to], its points ending on [to]; straight when the grid cannot tell
+   * at all, as when no world is loaded.
+   */
+  private fun overGround(from: Vec3L, to: Vec3L, avoid: List<Pair<Vec3L, Vec3L>>): Leg {
+    if (isCloseBy(from, to)) return Leg.Corners(listOf(to))
 
-  /** The corners round water from [from] to [to], [to] itself left out. */
-  private fun overGround(from: Vec3L, to: Vec3L): Leg {
-    if (isCloseBy(from, to)) return Leg.Corners(emptyList())
-
-    return when (val way = grid.wayBetween(from, to, budget.surveys)) {
-      is RegionGrid.Way.Found -> Leg.Corners(cornerStops(way.points))
+    return when (val way = ways.way(from, to, avoid)) {
+      is RegionGrid.Way.Found -> Leg.Corners(way.points)
       RegionGrid.Way.None -> Leg.CutOff
-      RegionGrid.Way.Unknown -> Leg.Corners(emptyList())
+      RegionGrid.Way.Unknown -> Leg.Unknown
       RegionGrid.Way.Pending -> Leg.Surveying
     }
   }
 
-  /** A [RegionGrid.Way.Found]'s points as stops, the destination it ends on left out. */
-  private fun cornerStops(points: List<Vec3L>): List<Stop> {
-    return points.dropLast(1).map { Stop(it, edge = null, CORNER_REACH) }
+  /**
+   * [points] walked from [from] as stops, each blaming the bridge the way to it crosses, if any. The last point
+   * is left out unless [keepLast] - it is the waypoint, which is walked to after the stops - but kept after all
+   * when a bridge leads to it, so that a traveller stuck there knows what to blame.
+   */
+  private fun stopsOver(from: Vec3L, points: List<Vec3L>, keepLast: Boolean): List<Stop> {
+    val stops = ArrayList<Stop>(points.size)
+    var previous = from
+    for ((i, point) in points.withIndex()) {
+      val bridge = navigation.bridgeCrossedBy(previous, point)
+      if (keepLast || i < points.lastIndex || bridge != null) stops.add(Stop(point, bridge, CORNER_REACH))
+      previous = point
+    }
+    return stops
   }
 
-  /** How far it is from [from] by each of [stops] to [to]. */
-  private fun lengthOf(from: Vec3L, stops: List<Stop>, to: Vec3L): Double {
-    val points = listOf(from) + stops.map { it.position } + to
-    return points.zipWithNext(::distance).sum()
+  private fun ready(journey: Journey, knower: Knower, stops: List<Stop>): Planned {
+    return Planned.Ready(TravelPlan(journey.target, stops, knowledge.revisionOf(knower)))
   }
 
   private fun distance(a: Vec3L, b: Vec3L): Double {
@@ -156,9 +238,13 @@ class RoutePlanner(
     }
   }
 
-  /** The way still ahead, coarsely: each corner, road bend and junction, then every waypoint still to visit. */
+  /**
+   * The way still ahead, coarsely: each corner, road bend and junction, the graph's course past the stretch
+   * being walked, then every waypoint still to visit.
+   */
   fun outline(journey: Journey): List<Vec3L> {
-    val ahead = journey.plan?.remaining.orEmpty().map { it.position }
+    val plan = journey.plan
+    val ahead = plan?.remaining.orEmpty().map { it.position } + plan?.beyond.orEmpty()
     return ahead + journey.waypoints.drop(journey.nextIndex)
   }
 
@@ -177,19 +263,20 @@ class RoutePlanner(
 
     const val BEND_REACH = 4L
 
-    /** A corner is the middle of a cell that is only mostly dry; a quarter of one is near enough. */
+    /** A corner is the middle of a cell the way crosses; a quarter of one is near enough. */
     const val CORNER_REACH = 8L
 
     /**
-     * How much longer than the way straight over the ground the graph's course may be and still be taken. Roads
-     * are graded and bridged where open country may climb, so a course a little longer is the better walk.
+     * The farthest apart, in either axis, the ends of one search of the grid may be. A search this long in new
+     * country surveys a hundred-odd kilometre blocks, some three seconds the traveller stands waiting for its
+     * first stretch; every stretch after is laid while it walks the one before.
      */
-    const val GRAPH_PREFERENCE = 1.25
+    const val SEARCH_SPAN = 16_000L
 
-    /**
-     * The farthest apart, in either axis, the ends may be for a way straight over the ground to be searched.
-     * The box round ends this far apart holds a few hundred kilometre blocks, if the search reaches them all.
-     */
-    const val DIRECT_SEARCH_SPAN = 8_000L
+    /** How many nodes nearest each end a long way's course may enter or leave the graph by. */
+    const val COURSE_ENTRIES = 4
+
+    /** How near the end of a stretch the next one is laid, so the traveller never stops to wait for it. */
+    const val NEXT_STRETCH_METRES = 1_500.0
   }
 }
