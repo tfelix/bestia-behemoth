@@ -31,8 +31,8 @@ func handle_object_clicked(mgr: MouseManager, object: Node3D, event: InputEvent,
 			mgr.request_interact(object, object.get_bestia_entity_id())
 
 		DefaultAction.Kind.LOOT:
-			mgr.cancel_steering()
-			ConnectionManager.loot_item(object.get_item_entity_id())
+			# Walked up to first: the server only hands over what lies next to us.
+			mgr.request_loot(object, object.get_item_entity_id())
 
 		DefaultAction.Kind.COLLECT, DefaultAction.Kind.MINE:
 			# Sends now if we are already close, otherwise walks there first. Both requests supersede any

@@ -48,10 +48,12 @@ const FORMAT_VERSION := 1
 ## sides.
 ##
 ## The shipped list denies what the server denies, plus the chunk payloads - the traffic that is
-## either per-tick or kilobytes at a time, and so worth asking for by name rather than receiving by
-## default.
+## either per-tick, kilobytes at a time or an empty keepalive, and so worth asking for by name rather
+## than receiving by default.
 @export var net_log_filter: PackedStringArray = PackedStringArray([
 	"!state_batch",
+	"!ping",
+	"!pong",
 	"!chunk_data",
 	"!chunk_patch",
 	"!chunk_static_entities",

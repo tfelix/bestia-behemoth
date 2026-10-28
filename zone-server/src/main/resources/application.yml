@@ -514,11 +514,14 @@ socket:
   # A client that stops reading is dropped after this long busy, or at once past this many unsent bytes.
   unwritable-timeout-seconds: 10
   max-write-backlog-bytes: 4194304
-  # The client pings every 10 s, so this is three missed pings.
+  # The client pings every 5 s, so this is six missed pings.
   read-idle-timeout-seconds: 30
   filter-log-messages:
     # Every tick's entity state for every client, mostly positions and paths.
     - "!state_batch"
+    # The keepalive and its answer, every few seconds per client and empty.
+    - "!ping"
+    - "!pong"
     # A few hundred entries per chunk, and one of these follows every chunk payload. It carries its own terse
     # toString, but the filter is what keeps it off the path entirely.
     - "!chunk_static_entities"

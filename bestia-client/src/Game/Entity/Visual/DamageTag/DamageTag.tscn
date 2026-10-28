@@ -10,7 +10,7 @@ linear_damp = 0.4
 script = ExtResource("1_v0usk")
 
 [node name="DamageLabel" type="Label3D" parent="."]
-pixel_size = 0.0012
+pixel_size = 0.0009
 billboard = 1
 no_depth_test = true
 fixed_size = true

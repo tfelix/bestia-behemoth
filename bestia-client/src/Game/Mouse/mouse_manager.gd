@@ -115,6 +115,12 @@ func request_attack(target: Node3D, entity_id: int) -> void:
 	MovementPilot.get_instance().attack(target, entity_id)
 
 
+## Picks up the item [param target] shows, walking to it first if it is out of reach. Supersedes any pending
+## goal itself, so clicking a second thing simply retargets.
+func request_loot(target: Node3D, entity_id: int) -> void:
+	MovementPilot.get_instance().loot(target, entity_id)
+
+
 ## Abandons whatever the pilot was walking towards. Named for what it does rather than for what asks
 ## for it, because a journey and a walk to a prop end the same way and through the same call.
 func cancel_steering() -> void:

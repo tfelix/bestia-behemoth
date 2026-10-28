@@ -12,4 +12,11 @@ sealed interface IncomingMessageHandler<T : CMSG> {
 
   val handles: KClass<T>
     get() = wire.type
+
+  /**
+   * Whether [InMessageProcessor] traces each handled message. Off for chatter like the keepalive, which
+   * `socket.filter-log-messages` keeps off the wire log but cannot reach here: that filter matches envelopes.
+   */
+  val traced: Boolean
+    get() = true
 }

@@ -82,7 +82,9 @@ class InMessageProcessor(
 
       if (handled) {
         meters.handled.increment()
-        LOG.trace { "Message ${msg::class.simpleName} handled by ${handler::class.java.simpleName}" }
+        if (handler.traced) {
+          LOG.trace { "Message ${msg::class.simpleName} handled by ${handler::class.java.simpleName}" }
+        }
       } else {
         meters.unhandled.increment()
         LOG.warn { "${handler::class.java.simpleName} did not handle message ${msg::class.java.simpleName}" }

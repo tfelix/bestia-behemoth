@@ -14,6 +14,9 @@ class PingHandler(
 ) : TickMessageHandler<PingCMSG> {
   override val wire = decoder(MessageCase.PING) { accountId, _ -> PingCMSG(accountId) }
 
+  /** A keepalive every few seconds per player says nothing worth a trace line. */
+  override val traced = false
+
   override fun handle(world: World, msg: PingCMSG): Boolean {
     outMessageProcessor.sendToPlayer(msg.playerId, PongSMSG)
 

@@ -92,6 +92,7 @@ class ObtainItemIntentSystem(
     // Claim the loot atomically inside a single lock-held scope: only destroy the ground stack
     // once we know it can actually be granted (in range, still there, fits the looter's carry
     // capacity), so a rejected loot leaves the stack on the ground instead of losing it.
+    var refusal = "the stack is gone"
     val claimed = world.modify(intent.sourceEntityItemStackId) { itemStackEntityId ->
       val stack = get(itemStackEntityId, GroundItemStack::class)
         ?: return@modify null
@@ -99,6 +100,7 @@ class ObtainItemIntentSystem(
         return@modify null
       }
       if (!mayLoot(this, entityId, itemStackEntityId)) {
+        refusal = "it is another account's protected kill loot"
         return@modify null
       }
       val lootPos = get(itemStackEntityId, Position::class)?.toVec3L()
@@ -108,7 +110,9 @@ class ObtainItemIntentSystem(
         return@modify null
       }
 
-      if (looterPosition.distance(lootPos) > MAX_LOOT_RANGE) {
+      val distance = looterPosition.distance(lootPos)
+      if (distance > MAX_LOOT_RANGE) {
+        refusal = "it is $distance tiles away, reach is $MAX_LOOT_RANGE"
         return@modify null
       }
 
@@ -120,7 +124,8 @@ class ObtainItemIntentSystem(
       }
 
       if (!canObtain(this, entityId, item.weight * stack.amount)) {
-        return@modify null // over capacity (or no inventory at all) - leave the stack on the ground
+        refusal = "it does not fit the looter's carry capacity"
+        return@modify null // leave the stack on the ground
       }
 
       // destroy() alone notifies clients: ZoneEngine broadcasts a vanish to whoever the stack's
@@ -131,7 +136,7 @@ class ObtainItemIntentSystem(
     }
 
     if (claimed == null) {
-      LOG.debug { "Entity $entityId could not loot ${intent.sourceEntityItemStackId} (missing, out of range, over capacity, or already looted)" }
+      LOG.debug { "Entity $entityId could not loot ${intent.sourceEntityItemStackId}: $refusal" }
       return
     }
 

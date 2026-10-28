@@ -70,6 +70,11 @@ func attack(target: Node3D, entity_id: int) -> void:
 	_start(AttackGoal.new(target, entity_id))
 
 
+## Picks up the item [param target] shows, walking to it first if it is out of reach.
+func loot(target: Node3D, entity_id: int) -> void:
+	_start(LootGoal.new(target, entity_id))
+
+
 ## Stops steering. Safe to call when idle, which is what lets every manual order call it without
 ## asking first.
 ##
