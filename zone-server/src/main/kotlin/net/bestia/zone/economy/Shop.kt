@@ -29,7 +29,7 @@ class Shop(
     val allowed: Boolean get() = refusal == null
   }
 
-  enum class Refusal { NOT_STOCKED, OUT_OF_STOCK, TREASURY_EMPTY, TREASURY_FULL }
+  enum class Refusal { NOT_STOCKED, OUT_OF_STOCK, TREASURY_EMPTY }
 
   /** One line of a basket. A null [commodity] is something this counter does not deal in. */
   class BasketLine(val commodity: Commodity?, val units: Int, val selling: Boolean)
@@ -73,6 +73,9 @@ class Shop(
   /**
    * Every line priced on its own, and the treasury checked against the **balance** alone: only the
    * difference changes hands, so a town with an empty purse can still take grain in exchange for flour.
+   *
+   * Only an empty purse refuses. A town takes any amount of coin, and what it holds above its reference
+   * drains back to the world reserve - see `EconomyStep` - so the goods on offer are the only limit on buying.
    */
   fun quoteBasket(lines: List<BasketLine>): BasketQuote {
     val lineCoins = ArrayList<Long>(lines.size)
@@ -89,9 +92,6 @@ class Shop(
 
     // I8: a shop that cannot pay refuses; it never pays with money it has not got.
     if (balance > 0 && treasuryAfter < 0.0) return BasketQuote(emptyList(), 0, Refusal.TREASURY_EMPTY)
-    // I9: the town cannot hold more than its ceiling, and refusing is honest where a collapsing price
-    // would still be an income.
-    if (balance < 0 && treasuryAfter > treasuryCap()) return BasketQuote(emptyList(), 0, Refusal.TREASURY_FULL)
 
     return BasketQuote(lineCoins, balance)
   }
@@ -159,10 +159,6 @@ class Shop(
     return 1.0 + IMPACT_PER_DAY_TRADED * (unitsSoFar / daily)
   }
 
-  private fun treasuryCap(): Double {
-    return reference.treasury * TREASURY_CAP_MULTIPLE
-  }
-
   companion object {
     /**
      * Half the gap between what a town pays and what it charges.
@@ -176,8 +172,5 @@ class Shop(
 
     /** How far the price moves when a trade takes a whole day of the town's flow. */
     const val IMPACT_PER_DAY_TRADED = 0.35
-
-    /** Times the reference, above which a town has no room to take on more coin. */
-    const val TREASURY_CAP_MULTIPLE = 3.0
   }
 }

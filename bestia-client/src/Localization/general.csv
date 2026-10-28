@@ -94,7 +94,6 @@ ERROR_SHOP_NOT_STOCKED,They do not deal in that.
 ERROR_SHOP_OUT_OF_STOCK,"They have none left to sell, or no room to take more."
 ERROR_SHOP_CANNOT_AFFORD,You cannot pay for that.
 ERROR_SHOP_TREASURY_EMPTY,The town has run out of coin. Try somewhere richer.
-ERROR_SHOP_TREASURY_FULL,The town has more coin than it knows what to do with.
 ERROR_SHOP_CLOSED,The shop is closed. Come back during opening hours.
 ERROR_SHOP_TOO_HEAVY,You could not carry all of that.
 ERROR_SHOP_PRICE_CHANGED,The prices have just changed. Check the new total.
