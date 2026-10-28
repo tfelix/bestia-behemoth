@@ -9,14 +9,18 @@ import net.bestia.bus.contract.ZoneQuery
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.ai.profile.IdleStance
+import net.bestia.zone.companion.query.MapPlane
 import net.bestia.zone.companion.query.NotebookCommands
 import net.bestia.zone.compendium.CompendiumStore
+import net.bestia.zone.travel.JourneyService
 import net.bestia.zone.travel.RoutesCollection
+import net.bestia.zone.world.WorldService
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.context.ActiveProfiles
+import kotlin.math.abs
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
@@ -40,6 +44,15 @@ class CompanionRequestDispatcherTest {
 
   @Autowired
   private lateinit var compendium: CompendiumStore
+
+  @Autowired
+  private lateinit var journeys: JourneyService
+
+  @Autowired
+  private lateinit var plane: MapPlane
+
+  @Autowired
+  private lateinit var worldService: WorldService
 
   @Test
   fun `an account sees its own masters and nobody else's`() {
@@ -143,7 +156,8 @@ class CompanionRequestDispatcherTest {
   fun `a bestia is in the world with nobody playing, is sent off and stopped, and a stranger's never`() {
     val master = masters.findAllByAccountIdOrderBySlot(1L).first()
     val bestia = playerBestias.findAllByMasterId(master.id).first()
-    val order = ZoneQuery.SendOnJourney(master.id, bestia.id, listOf(MapPoint(10.0, 10.0)))
+
+    val order = ZoneQuery.SendOnJourney(master.id, bestia.id, listOf(somewhereDry()))
 
     assertEquals(Status.NOT_FOUND, ask(2L, order).status)
 
@@ -187,6 +201,22 @@ class CompanionRequestDispatcherTest {
 
   private fun ask(accountId: Long, query: ZoneQuery): BusReply {
     return dispatcher.handle(BusRequest("c", "r", Long.MAX_VALUE, accountId, idempotencyKey = null, query = query))
+  }
+
+  /**
+   * Land nearest the middle of the world. A journey into deep water is refused before it starts, and the world's
+   * rim is ocean - so is the fixture's spawn point at the origin, which is why the walk is not aimed there.
+   */
+  private fun somewhereDry(): MapPoint {
+    val config = worldService.config
+    val steps = 16
+    val candidates = (1 until steps).flatMap { i ->
+      (1 until steps).map { j -> MapPoint(config.widthMetres * i / steps, config.heightMetres * j / steps) }
+    }
+
+    return candidates
+      .sortedBy { abs(it.east - config.widthMetres / 2) + abs(it.north - config.heightMetres / 2) }
+      .first { !journeys.isAnyInWater(listOf(plane.positionAt(it))) }
   }
 
   private companion object {
