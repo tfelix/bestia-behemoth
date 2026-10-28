@@ -28,6 +28,12 @@ static func color_of(slot: int) -> Color:
 	return _BESTIA_COLORS[(slot - 1) % _BESTIA_COLORS.size()]
 
 
+## Draws [param button]'s icon in a slot colour in every state but disabled, leaving its frame the theme's.
+static func tint_icon(button: Button, color: Color) -> void:
+	for state in ["icon_normal_color", "icon_hover_color", "icon_pressed_color", "icon_hover_pressed_color", "icon_focus_color"]:
+		button.add_theme_color_override(state, color)
+
+
 ## A bestia the player has not named goes by its species.
 static func name_of(bestia: BestiaInfo) -> String:
 	if bestia.Name != "":

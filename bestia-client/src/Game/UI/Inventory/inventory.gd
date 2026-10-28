@@ -19,6 +19,10 @@ signal sell_requested(item_id: int, amount: int)
 ## right-click menu - so the window has to come up.
 signal exchange_opened()
 
+## Which of the player's other own entities stand close enough to the driven one to swap goods with, each time
+## that set changes. The party panel offers an exchange on exactly these rows.
+signal partners_in_reach_changed(entity_ids: Array[int])
+
 ## Gold is carried as coins like any other item; items.yml `gold_coin`, the server's shop currency.
 const GOLD_COIN_ITEM_ID := 27
 
@@ -29,6 +33,9 @@ const _EXCHANGE_REACH_METRES := 5.0
 const _EXCHANGE_LEAVE_METRES := 6.0
 const _EXCHANGE_REACH_HEIGHT := 3.0
 const _REACH_POLL_SECONDS := 0.25
+
+const _EXCHANGE_ICON := preload("res://Theme/Icons/arrows-exchange.svg")
+const _PARTNER_ICON_WIDTH := 16
 
 var InventoryItem = preload("res://Game/UI/Inventory/InventoryItem/InventoryItem.tscn")
 var DropAmountDialogScn = preload("res://Game/UI/Inventory/DropAmountDialog/DropAmountDialog.tscn")
@@ -391,10 +398,8 @@ func open_exchange_with(entity_id: int) -> void:
 	exchange_opened.emit()
 
 
+## Polled while the window is closed too: the party panel shows who is in reach from the same answer.
 func _process(delta: float) -> void:
-	if not is_visible_in_tree():
-		return
-
 	_reach_poll -= delta
 	if _reach_poll > 0.0:
 		return
@@ -426,6 +431,21 @@ func _update_reach() -> void:
 	_in_reach = reach
 	_rebuild_partner_strip()
 	_render_partner()
+	partners_in_reach_changed.emit(partners_in_reach())
+
+
+## The own entities other than the driven one that stand within reach of it, in slot order.
+func partners_in_reach() -> Array[int]:
+	var near: Array[int] = []
+	var entity_manager := EntityManager.get_instance()
+	if entity_manager == null:
+		return near
+
+	for entity_id in entity_manager.get_owned_entity_ids():
+		if _in_reach.get(entity_id, false):
+			near.append(entity_id)
+
+	return near
 
 
 func _within_reach(one: Entity, other: Entity, was_near: bool) -> bool:
@@ -436,7 +456,8 @@ func _within_reach(one: Entity, other: Entity, was_near: bool) -> bool:
 	return Vector2(a.x - b.x, a.z - b.z).length() <= limit and absf(a.y - b.y) <= _EXCHANGE_REACH_HEIGHT
 
 
-## One button per other own entity, coloured by its slot; greyed out while it stands too far away.
+## One icon per own entity standing within reach, coloured by its slot and named in its tooltip; none for one
+## too far away, so the strip is empty - and hidden - once the player walks off.
 func _rebuild_partner_strip() -> void:
 	for child in _partner_strip.get_children():
 		_partner_strip.remove_child(child)
@@ -449,16 +470,17 @@ func _rebuild_partner_strip() -> void:
 	var owned := entity_manager.get_owned_entity_ids()
 	for slot in owned.size():
 		var entity_id: int = owned[slot]
-		if entity_id == selected_entity_id or entity_id == 0:
+		if entity_id == selected_entity_id or entity_id == 0 or not _in_reach.get(entity_id, false):
 			continue
 
 		var button := Button.new()
-		button.text = tr("EXCHANGE_WITH") % _name_of(entity_id)
+		button.icon = _EXCHANGE_ICON
+		button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		button.add_theme_constant_override("icon_max_width", _PARTNER_ICON_WIDTH)
+		OwnedSlots.tint_icon(button, OwnedSlots.color_of(slot))
 		button.toggle_mode = true
 		button.button_pressed = entity_id == _partner_id
-		button.disabled = not _in_reach.get(entity_id, false)
-		button.tooltip_text = tr("EXCHANGE_TOO_FAR") if button.disabled else tr("EXCHANGE_HINT")
-		button.modulate = OwnedSlots.color_of(slot)
+		button.tooltip_text = "%s\n%s" % [tr("EXCHANGE_WITH") % _name_of(entity_id), tr("EXCHANGE_HINT")]
 		button.pressed.connect(exchange_with.bind(entity_id))
 		_partner_strip.add_child(button)
 

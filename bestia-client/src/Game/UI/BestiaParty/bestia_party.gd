@@ -6,6 +6,12 @@ class_name BestiaParty
 ##
 ## Rows follow EntityManager rather than the wire: it already folds SelfSMSG and OwnedBestiasSMSG into one
 ## list and knows which entity is being driven.
+##
+## An owned entity standing close enough to the driven one to swap goods with gets an exchange icon beside its
+## row, which opens the inventory on both bags. The inventory decides who that is; see [method show_exchange_partners].
+
+## The exchange icon beside [param entity_id]'s row was clicked.
+signal exchange_requested(entity_id: int)
 
 ## How often the health bars are re-read off the entity cache. Polled for the reason MasterProfile polls its
 ## position: the rows exist for entities whose component pushes may have arrived before them.
@@ -20,8 +26,13 @@ const _HP_BAR_HEIGHT := 4.0
 ## Small enough that the master and four bestia rows end above the chat.
 const _FONT_SIZE := 13
 
-## entity id -> {"button": Button, "hp": ProgressBar}
+const _EXCHANGE_ICON := preload("res://Theme/Icons/arrows-exchange.svg")
+const _EXCHANGE_ICON_WIDTH := 14
+
+## entity id -> {"button": Button, "hp": ProgressBar, "exchange": Button}
 var _rows: Dictionary = {}
+## Kept across a rebuild, which a newly caught bestia causes while the others stand where they stood.
+var _exchange_partners: Array[int] = []
 var _since_refresh := 0.0
 
 
@@ -83,20 +94,28 @@ func _rebuild() -> void:
 	var master_name: String = tr("BESTIA_PARTY_MASTER")
 	if ConnectionManager.selected_master_info != null:
 		master_name = ConnectionManager.selected_master_info.Name
-	_add_owned_row(entity_manager.get_owned_master_entity_id(), master_name, OwnedSlots.color_of(0))
+	_add_owned_row(entity_manager.get_owned_master_entity_id(), master_name, master_name, OwnedSlots.color_of(0))
 
 	for i in bestias.size():
 		var bestia := bestias[i]
 		var label := "%s  Lv. %d" % [OwnedSlots.name_of(bestia), bestia.Level]
-		_add_owned_row(bestia.EntityId, label, OwnedSlots.color_of(i + 1))
+		_add_owned_row(bestia.EntityId, label, OwnedSlots.name_of(bestia), OwnedSlots.color_of(i + 1))
 
 	for i in maxi(entity_manager.get_bestia_slot_count() - bestias.size(), 0):
 		_add_empty_row()
 
 	_highlight()
+	show_exchange_partners(_exchange_partners)
 
 
-func _add_owned_row(entity_id: int, label: String, slot_color: Color) -> void:
+## Shows the exchange icon on the rows of [param entity_ids] and hides it on every other.
+func show_exchange_partners(entity_ids: Array[int]) -> void:
+	_exchange_partners = entity_ids
+	for entity_id in _rows:
+		_rows[entity_id]["exchange"].visible = entity_id in entity_ids
+
+
+func _add_owned_row(entity_id: int, label: String, entity_name: String, slot_color: Color) -> void:
 	var button := _make_slot_button(label)
 	button.pressed.connect(_on_row_pressed.bind(entity_id))
 
@@ -105,8 +124,24 @@ func _add_owned_row(entity_id: int, label: String, slot_color: Color) -> void:
 	hp.custom_minimum_size = Vector2(0, _HP_BAR_HEIGHT)
 	hp.modulate = Color(0.85, 0.25, 0.25)
 
-	_add_row(slot_color, button, hp)
-	_rows[entity_id] = {"button": button, "hp": hp}
+	var row := _add_row(slot_color, button, hp)
+	var exchange := _make_exchange_button(entity_name, slot_color)
+	exchange.pressed.connect(func() -> void: exchange_requested.emit(entity_id))
+	row.add_child(exchange)
+
+	_rows[entity_id] = {"button": button, "hp": hp, "exchange": exchange}
+
+
+## Outside the row rather than on it, so the row's own click still means "take control".
+func _make_exchange_button(entity_name: String, slot_color: Color) -> Button:
+	var button := Button.new()
+	button.icon = _EXCHANGE_ICON
+	button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	button.add_theme_constant_override("icon_max_width", _EXCHANGE_ICON_WIDTH)
+	OwnedSlots.tint_icon(button, slot_color)
+	button.tooltip_text = tr("EXCHANGE_WITH") % entity_name
+	button.visible = false
+	return button
 
 
 ## Disabled rather than a plain label so it has the same height and frame as an owned row, only greyed out.
@@ -129,7 +164,7 @@ func _make_slot_button(label: String) -> Button:
 	return button
 
 
-func _add_row(slot_color: Color, button: Button, below_button: Control) -> void:
+func _add_row(slot_color: Color, button: Button, below_button: Control) -> HBoxContainer:
 	var slot_bar := ColorRect.new()
 	slot_bar.color = slot_color
 	slot_bar.custom_minimum_size = Vector2(_SLOT_BAR_WIDTH, 0)
@@ -146,6 +181,7 @@ func _add_row(slot_color: Color, button: Button, below_button: Control) -> void:
 	row.add_child(slot_bar)
 	row.add_child(stack)
 	add_child(row)
+	return row
 
 
 func _highlight() -> void:

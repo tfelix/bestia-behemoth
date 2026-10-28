@@ -18,6 +18,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _invitations: InvitationTray = $Invitations
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
 @onready var _master_profile: MasterProfile = $TopLeftColumn/MasterProfile
+@onready var _bestia_party: BestiaParty = $TopLeftColumn/BestiaParty
 @onready var _shortcuts: Shortcuts = $Shortcuts
 @onready var _map_source: MapSource = $MapSource
 @onready var _minimap: Minimap = $Minimap
@@ -140,6 +141,9 @@ func _ready() -> void:
 	inventory.gold_changed.connect(_master_profile.show_gold)
 	# Swapping goods with an own bestia from the world's right-click menu needs the bags in view.
 	inventory.exchange_opened.connect(_on_exchange_opened)
+	# And from the party panel, whose rows offer it for whoever stands close enough - which the inventory works out.
+	inventory.partners_in_reach_changed.connect(_bestia_party.show_exchange_partners)
+	_bestia_party.exchange_requested.connect(inventory.open_exchange_with)
 	_master_profile.show_gold(inventory.gold())
 
 	# The map lives beside the game rather than inside it: both views draw from one MapSource, so panning
