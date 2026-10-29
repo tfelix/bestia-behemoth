@@ -14,7 +14,6 @@ import net.bestia.zone.movement.ecs.GroundHeight
 import net.bestia.zone.movement.ecs.Grounded
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.world.SafeGround
 import org.springframework.stereotype.Component as SpringComponent
 import net.bestia.zone.prop.ecs.construction.ConstructionSystem
@@ -59,7 +58,7 @@ class RespawnSystem(
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Respawn::class, Position::class).each { id ->
-      val savePoint = dryOrHome(get<Respawn>().position)
+      val savePoint = safeGround.dryOr(get<Respawn>().position)
       val position = get<Position>()
 
       position.x = savePoint.x
@@ -89,14 +88,6 @@ class RespawnSystem(
 
       LOG.debug { "Respawned entity $id at (${position.x},${position.y},${position.z})" }
     }
-  }
-
-  private fun dryOrHome(savePoint: Vec3L): Vec3L {
-    if (safeGround.isDry(savePoint.x, savePoint.y)) {
-      return savePoint
-    }
-    // With no dry home left, getting up wet still beats not getting up.
-    return safeGround.dryHome() ?: savePoint
   }
 
   companion object {

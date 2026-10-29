@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrSFAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqZFQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -84,9 +84,10 @@ namespace Bnet {
             "R0VfVE9PX0hFQVZZEF8SFgoSVFJBREVfTkVFRFNfTUFTVEVSEGASEgoOTk9U",
             "RUJPT0tfU1RBTEUQYRIUChBOT1RFQk9PS19JTlZBTElEEGISDwoLU0hPUF9D",
             "TE9TRUQQYxISCg5TSE9QX1RPT19IRUFWWRBkEhYKElNIT1BfUFJJQ0VfQ0hB",
-            "TkdFRBBlEhEKDUVNT1RFX05PVF9OT1cQZyIECC4QLioSU0hPUF9UUkVBU1VS",
-            "WV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJy",
-            "b3JQcm90b2IGcHJvdG8z"));
+            "TkdFRBBlEhEKDUVNT1RFX05PVF9OT1cQZxIWChJURUxFUE9SVF9OT1RfUkVB",
+            "RFkQaBIUChBURUxFUE9SVF9OT1RfTk9XEGkSFwoTVEVMRVBPUlRfTk9fTEFO",
+            "RElORxBqIgQILhAuKhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3Rp",
+            "YS5ibmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -491,6 +492,18 @@ namespace Bnet {
     /// An emote asked for while walking, casting or crafting. The player stops and asks again.
     /// </summary>
     [pbr::OriginalName("EMOTE_NOT_NOW")] EmoteNotNow = 103,
+    /// <summary>
+    /// A wing used again before the last one's lock ran out. The player waits a few seconds.
+    /// </summary>
+    [pbr::OriginalName("TELEPORT_NOT_READY")] TeleportNotReady = 104,
+    /// <summary>
+    /// A wing used while casting, trading or logging out. The player finishes that first.
+    /// </summary>
+    [pbr::OriginalName("TELEPORT_NOT_NOW")] TeleportNotNow = 105,
+    /// <summary>
+    /// A wing found no dry ground to land on, or no save point. It is spent and the body stays.
+    /// </summary>
+    [pbr::OriginalName("TELEPORT_NO_LANDING")] TeleportNoLanding = 106,
   }
 
   #endregion

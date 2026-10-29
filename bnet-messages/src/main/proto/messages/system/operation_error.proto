@@ -283,6 +283,13 @@ enum OpError {
 
   // An emote asked for while walking, casting or crafting. The player stops and asks again.
   EMOTE_NOT_NOW = 103;
+
+  // A wing used again before the last one's lock ran out. The player waits a few seconds.
+  TELEPORT_NOT_READY = 104;
+  // A wing used while casting, trading or logging out. The player finishes that first.
+  TELEPORT_NOT_NOW = 105;
+  // A wing found no dry ground to land on, or no save point. It is spent and the body stays.
+  TELEPORT_NO_LANDING = 106;
 }
 
 message OperationError {

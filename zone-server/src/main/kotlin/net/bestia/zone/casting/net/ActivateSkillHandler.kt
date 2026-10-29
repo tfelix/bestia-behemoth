@@ -9,6 +9,7 @@ import net.bestia.zone.battle.ecs.skill.Casting
 import net.bestia.zone.battle.net.HarmRefusal
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.movement.ecs.Teleporting
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.logout.ecs.LogoutCancelService
@@ -57,6 +58,12 @@ class ActivateSkillHandler(
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     if (deadActionGuard.refuses(world, activeEntityId, "activate a skill")) {
+      return true
+    }
+
+    // A body halfway through a teleport's vanish is not there to cast. The client froze it, so this is a
+    // hotkey pressed in the same half second, not a refusal worth telling.
+    if (world.has(activeEntityId, Teleporting::class)) {
       return true
     }
 
