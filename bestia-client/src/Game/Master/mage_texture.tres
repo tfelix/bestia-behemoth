@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://Game/Entity/Fx/Shader/entity_uber.gdshader" id="1_uber"]
+[ext_resource type="Texture2D" uid="uid://be55ieb0tlily" path="res://Game/Master/Mage_mage_texture.png" id="2_albedo"]
+
+[resource]
+resource_name = "mage_texture"
+shader = ExtResource("1_uber")
+shader_parameter/albedo_texture = ExtResource("2_albedo")

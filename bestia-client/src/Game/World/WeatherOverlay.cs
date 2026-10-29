@@ -13,6 +13,7 @@ namespace BestiaBehemothClient.Game.World
   public static class WeatherOverlay
   {
     private const string ShaderPath = "res://Game/World/Shader/weather_overlay.gdshader";
+    private const string EntityUberShaderPath = "res://Game/Entity/Fx/Shader/entity_uber.gdshader";
 
     private static readonly StringName Group = "weather_overlay";
     private static readonly StringName MovingMeta = "weather_overlay_moving";
@@ -28,10 +29,14 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>
     /// Lets every mesh under <paramref name="root"/> get wet and snowy.
     /// </summary>
+    /// <remarks>
+    /// A character body drawn with the entity uber material is skipped: that material draws its own weather in
+    /// the same pass, so an overlay would only cost a second draw.
+    /// </remarks>
     /// <param name="moving">For what walks through the snow: it gets a frost rather than a cap.</param>
     public static void Register(Node root, bool moving)
     {
-      if (root is GeometryInstance3D geometry)
+      if (root is GeometryInstance3D geometry && !DrawsOwnWeather(geometry))
       {
         geometry.AddToGroup(Group);
         geometry.SetMeta(MovingMeta, moving);
@@ -60,6 +65,17 @@ namespace BestiaBehemothClient.Game.World
           geometry.MaterialOverlay = active ? MaterialFor(geometry.GetMeta(MovingMeta).AsBool()) : null;
         }
       }
+    }
+
+    private static bool DrawsOwnWeather(GeometryInstance3D geometry)
+    {
+      if (geometry is not MeshInstance3D { Mesh: { } mesh } instance || mesh.GetSurfaceCount() == 0)
+      {
+        return false;
+      }
+
+      var material = instance.GetSurfaceOverrideMaterial(0) ?? mesh.SurfaceGetMaterial(0);
+      return material is ShaderMaterial { Shader: { } shader } && shader.ResourcePath == EntityUberShaderPath;
     }
 
     private static ShaderMaterial MaterialFor(bool moving)

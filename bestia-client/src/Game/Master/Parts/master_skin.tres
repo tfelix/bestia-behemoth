@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://Game/Entity/Fx/Shader/entity_uber.gdshader" id="1_uber"]
+[ext_resource type="Texture2D" uid="uid://ny8ihkdvgdvn" path="res://Game/Master/Parts/master_parts_master_parts.png" id="2_albedo"]
+
+[resource]
+resource_name = "master_skin"
+shader = ExtResource("1_uber")
+shader_parameter/albedo_texture = ExtResource("2_albedo")

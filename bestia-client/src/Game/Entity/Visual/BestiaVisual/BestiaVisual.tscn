@@ -1,20 +1,20 @@
-[gd_scene load_steps=16 format=3 uid="uid://dq2qxxr0sgm43"]
+[gd_scene format=3 uid="uid://dq2qxxr0sgm43"]
 
 [ext_resource type="Script" uid="uid://8nkwmodo4q61" path="res://Game/Entity/Visual/BestiaVisual/bestia_visual.gd" id="1_n7t7g"]
 [ext_resource type="PackedScene" uid="uid://doxvjridoygcr" path="res://Game/VFX/HealthBar/HealthBar.tscn" id="2_wtcd1"]
 [ext_resource type="PackedScene" uid="uid://g1nu1oan0ehe" path="res://Game/Entity/NameTag/NameTag.tscn" id="3_358an"]
 [ext_resource type="PackedScene" uid="uid://bq7cst1bar0ck" path="res://Game/VFX/CastBar/CastBar.tscn" id="4_castb"]
+[ext_resource type="Shader" path="res://Game/Entity/Fx/Shader/entity_uber.gdshader" id="5_uber"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x0ia3"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_uber"]
 resource_local_to_scene = true
-albedo_color = Color(0.8156863, 0.54509807, 0.101960786, 0)
-stencil_flags = 2
-stencil_color = Color(0.86025685, 0.5340028, 0.82494587, 1)
-stencil_outline_thickness = 0.096
+shader = ExtResource("5_uber")
+shader_parameter/albedo_colour = Color(0.8156863, 0.54509807, 0.101960786, 1)
+shader_parameter/roughness = 1.0
 
 [sub_resource type="SphereMesh" id="SphereMesh_h56g7"]
 resource_local_to_scene = true
-material = SubResource("StandardMaterial3D_x0ia3")
+material = SubResource("ShaderMaterial_uber")
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_j45w2"]
 points = PackedVector3Array(0.4578707, 0.19807906, 0.01578243, -0.48873997, -0.09168735, -0.04518683, -0.47150937, -0.1370268, -0.090701535, 0.07635914, -0.33327514, 0.36417928, 0.13656896, -0.33242497, -0.3469059, -0.15161654, 0.47198188, -0.060245913, -0.10534735, 0.21193622, 0.43966028, -0.045016855, 0.19809827, -0.4564163, 0.4090765, -0.15116782, 0.2425159, -0.27137637, -0.37776056, 0.18187061, 0.41147974, -0.07598096, -0.27324012, 0.19819722, -0.4561612, -0.04493101, -0.24064063, -0.33167413, -0.2857683, 0.22713655, 0.2567203, 0.36304116, 0.22752243, 0.42360392, -0.13548777, -0.37899047, 0.060702223, 0.31946206, -0.40674683, 0.18104935, -0.22569102, -0.014631338, -0.09176946, 0.49022886, -0.37785473, 0.30279276, 0.121712334, 0.046232317, 0.45601088, 0.19818504, -0.22746402, -0.060786348, -0.44034815, 0.22845526, 0.06072284, -0.43988743, -0.09113759, -0.48924586, -0.045174047, 0.44186506, -0.22821625, -0.044958085, 0.31717873, 0.24121423, -0.30081153, -0.044848714, 0.39473665, -0.30295488, -0.316348, -0.19622163, 0.33255145, 0.19844188, -0.03042933, 0.45723665, 0.061471395, -0.1522456, -0.47130713, 0.36308852, 0.25670764, 0.22707908, 0.15213433, -0.43948856, 0.18237916, -0.21072462, 0.36227608, 0.2722302)
@@ -30,26 +30,26 @@ length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Model:mesh:material:albedo_color")
+tracks/0/path = NodePath("Model:mesh:material:shader_parameter/albedo_colour")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.0009999999),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Color(0.8156863, 0.54509807, 0.101960786, 0), Color(0.8156863, 0.54509807, 0.101960786, 1)]
+"values": [Color(0.8156863, 0.54509807, 0.101960786, 1), Color(0.8156863, 0.54509807, 0.101960786, 1)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Model:mesh:material:transparency")
+tracks/1/path = NodePath("Model:instance_shader_parameters/fx_dissolve")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [0]
+"update": 0,
+"values": [0.0]
 }
 
 [sub_resource type="Animation" id="Animation_b5q2y"]
@@ -57,26 +57,26 @@ resource_name = "appear"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Model:mesh:material:albedo_color")
+tracks/0/path = NodePath("Model:mesh:material:shader_parameter/albedo_colour")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Color(0.8156863, 0.54509807, 0.101960786, 0), Color(0.8156863, 0.54509807, 0.101960786, 1)]
+"values": [Color(0.8156863, 0.54509807, 0.101960786, 1), Color(0.8156863, 0.54509807, 0.101960786, 1)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Model:mesh:material:transparency")
+tracks/1/path = NodePath("Model:instance_shader_parameters/fx_dissolve")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
-"update": 1,
-"values": [1, 0]
+"update": 0,
+"values": [1.0, 0.0]
 }
 
 [sub_resource type="Animation" id="Animation_h56g7"]
@@ -85,26 +85,26 @@ length = 2.0
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Model:mesh:material:albedo_color")
+tracks/0/path = NodePath("Model:mesh:material:shader_parameter/albedo_colour")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0, 1.4, 2),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [Color(0.8156863, 0.54509807, 0.101960786, 1), Color(0.93766236, 0.00039705462, 0.12404562, 1), Color(0, 0, 0, 0)]
+"values": [Color(0.8156863, 0.54509807, 0.101960786, 1), Color(0.93766236, 0.00039705462, 0.12404562, 1), Color(0, 0, 0, 1)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Model:mesh:material:transparency")
+tracks/1/path = NodePath("Model:instance_shader_parameters/fx_dissolve")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [1]
+"times": PackedFloat32Array(0, 1.4, 2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 1.0]
 }
 
 [sub_resource type="Animation" id="Animation_idle0"]

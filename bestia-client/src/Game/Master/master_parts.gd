@@ -82,7 +82,7 @@ func _fitted(part: String) -> String:
 
 func _tint(part: MeshInstance3D, hair_color: Color, skin_color: Color) -> void:
 	for surface in part.mesh.get_surface_count():
-		var material := part.mesh.surface_get_material(surface) as StandardMaterial3D
+		var material := part.mesh.surface_get_material(surface) as ShaderMaterial
 		match material.resource_name:
 			_HAIR_MATERIAL:
 				part.set_surface_override_material(surface, _tinted(material, hair_color))
@@ -90,10 +90,10 @@ func _tint(part: MeshInstance3D, hair_color: Color, skin_color: Color) -> void:
 				part.set_surface_override_material(surface, _tinted(material, skin_color))
 
 
-static func _tinted(material: StandardMaterial3D, color: Color) -> StandardMaterial3D:
+static func _tinted(material: ShaderMaterial, color: Color) -> ShaderMaterial:
 	var key := "%s#%s" % [material.resource_name, color.to_html(false)]
 	if not _tinted_materials.has(key):
-		var tinted := material.duplicate() as StandardMaterial3D
-		tinted.albedo_color = color
+		var tinted := material.duplicate() as ShaderMaterial
+		tinted.set_shader_parameter(&"albedo_colour", color)
 		_tinted_materials[key] = tinted
 	return _tinted_materials[key]
