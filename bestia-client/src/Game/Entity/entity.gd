@@ -1329,8 +1329,21 @@ func speed() -> float:
 
 
 func update_effects(msg: BuffListSMSG) -> void:
+	_show_status_looks(msg.Effects)
 	_effects = msg.Effects
 
+
+## A status effect with a look keeps it on the body for as long as it lasts.
+func _show_status_looks(effects: Array) -> void:
+	var before := _effects.map(func(effect): return effect.EffectId)
+	var now := effects.map(func(effect): return effect.EffectId)
+	for effect_id in before:
+		if effect_id not in now:
+			fx.release("status:%d" % effect_id)
+	for effect_id in now:
+		var look := EntityFxDB.get_instance().for_status(effect_id)
+		if effect_id not in before and look != null:
+			fx.sustain("status:%d" % effect_id, look)
 
 
 func get_effects() -> Array:
