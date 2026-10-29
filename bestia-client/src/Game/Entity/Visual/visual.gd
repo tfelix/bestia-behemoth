@@ -48,6 +48,19 @@ func set_selected(_selected: bool) -> void:
 	pass
 
 
+## Holds the body still while an [EntityFx] effect plays, so it dissolves in one pose.
+func set_frozen(frozen: bool) -> void:
+	for player: AnimationPlayer in find_children("*", "AnimationPlayer", true, false):
+		player.speed_scale = 0.0 if frozen else 1.0
+
+
+## How far an [EntityFx] effect has dissolved the body, 0 to 1, for what the uber material does not draw.
+func set_effect_fade(amount: float) -> void:
+	for child in get_children():
+		if child is CarriedLight:
+			child.set_effect_fade(amount)
+
+
 func show_chat(msg: ChatSMSG) -> void:
 	var chat_anchor = get_node("ChatAnchor")
 

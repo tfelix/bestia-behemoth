@@ -1,0 +1,45 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/Entity/Fx/Particles/entity_fx_particles.gd" id="1_burst"]
+
+[sub_resource type="Gradient" id="Gradient_fade"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_fade"]
+gradient = SubResource("Gradient_fade")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_rise"]
+emission_shape = 3
+emission_box_extents = Vector3(0.3, 0.8, 0.3)
+direction = Vector3(0, 1, 0)
+spread = 6.0
+initial_velocity_min = 1.5
+initial_velocity_max = 3.5
+gravity = Vector3(0, 2, 0)
+scale_min = 0.6
+scale_max = 1.2
+color_ramp = SubResource("GradientTexture1D_fade")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_streak"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(2.5, 2.5, 2.5, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_streak"]
+material = SubResource("StandardMaterial3D_streak")
+size = Vector2(0.035, 0.45)
+
+[node name="TeleportStreaks" type="GPUParticles3D"]
+emitting = false
+amount = 28
+lifetime = 0.6
+one_shot = true
+local_coords = false
+transform_align = 3
+process_material = SubResource("ParticleProcessMaterial_rise")
+draw_pass_1 = SubResource("QuadMesh_streak")
+script = ExtResource("1_burst")

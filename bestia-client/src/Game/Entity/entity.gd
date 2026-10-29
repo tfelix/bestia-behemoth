@@ -34,6 +34,9 @@ var _is_creature: bool = false
 # This entity's own name, for anything that labels it. Empty for a mob, which has only a species.
 var _display_name: String = ""
 
+## Plays effects on this entity's body: a teleport's dissolve, a status effect's tint.
+@onready var fx: EntityFx = $Fx
+
 # Latest state pushed by the server, cached because the window or HUD showing it may be closed.
 #
 # Buffs and debuffs (BuffListEntry).
@@ -700,6 +703,8 @@ func _seed_visual(visual: Node) -> void:
 		visual.update_worn_gear(_last_worn_gear_msg)
 	if _guild_tag != null and visual.has_method("set_guild_tag"):
 		visual.set_guild_tag(_guild_tag)
+	if visual is Visual:
+		fx.bind(visual)
 
 
 func set_selected(is_selected: bool) -> void:
@@ -1325,6 +1330,7 @@ func speed() -> float:
 
 func update_effects(msg: BuffListSMSG) -> void:
 	_effects = msg.Effects
+
 
 
 func get_effects() -> Array:

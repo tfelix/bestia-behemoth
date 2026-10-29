@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="EntityFxDef" format=3]
+
+[ext_resource type="Script" path="res://Game/Entity/Fx/entity_fx_def.gd" id="1_def"]
+
+[sub_resource type="Curve" id="Curve_silhouette"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.12, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_glow"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.12, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_dissolve"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.2, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[resource]
+script = ExtResource("1_def")
+kind = "WING_APPEAR"
+duration = 0.25
+reverse = true
+freeze = true
+hold_end = false
+silhouette = SubResource("Curve_silhouette")
+glow = SubResource("Curve_glow")
+dissolve = SubResource("Curve_dissolve")
+glow_colour = Color(0.62, 0.82, 1, 1)
