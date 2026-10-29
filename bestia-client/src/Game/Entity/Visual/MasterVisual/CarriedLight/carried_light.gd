@@ -25,6 +25,9 @@ var _lit := false
 ## How far the light has faded in, from 0 to 1.
 var _strength := 0.0
 var _elapsed := 0.0
+## How far an entity effect has dissolved the wearer. The torch cannot dissolve with the body, so it dims
+## with it and is gone halfway.
+var _effect_fade := 0.0
 
 
 func _ready() -> void:
@@ -44,8 +47,14 @@ func show_light(item: ItemResource, lit: bool) -> void:
 		_apply_item()
 
 
+func set_effect_fade(amount: float) -> void:
+	_effect_fade = amount
+	if is_node_ready():
+		_apply_item()
+
+
 func _apply_item() -> void:
-	visible = _item != null
+	visible = _item != null and _effect_fade < 0.5
 	if _item == null:
 		return
 	_light.light_color = _item.light_color
@@ -64,6 +73,6 @@ func _process(delta: float) -> void:
 	var flicker := 1.0 + (sin(_elapsed * _FLICKER_SPEED) + 0.5 * sin(_elapsed * _FLICKER_SPEED * 2.3)) * _FLICKER_DEPTH
 
 	_light.visible = _strength > 0.0
-	_light.light_energy = _item.light_energy * _strength * flicker
+	_light.light_energy = _item.light_energy * _strength * flicker * (1.0 - _effect_fade)
 	_flame.visible = _strength > 0.0
 	_flame.scale = Vector3.ONE * _strength * flicker
