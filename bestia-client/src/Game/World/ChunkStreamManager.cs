@@ -907,6 +907,30 @@ namespace BestiaBehemothClient.Game.World
     }
 
     /// <summary>
+    /// Whether the ground under a body standing at (<paramref name="worldX"/>, <paramref name="worldY"/>,
+    /// <paramref name="worldZ"/>) is already drawn.
+    /// </summary>
+    /// <remarks>
+    /// Held is not enough for a jump to land without a loading screen: a held chunk may still wait to be meshed,
+    /// and the body would stand on nothing until it is. The voxel under the feet decides, so a cave floor asks
+    /// about its own slab rather than the surface's.
+    /// </remarks>
+    public bool IsDrawnAt(float worldX, float worldY, float worldZ)
+    {
+      if (WorldInfo == null || _renderer == null)
+      {
+        return false;
+      }
+
+      var extent = WorldLayout.ChunkExtentMetres;
+      var floorVoxel = Math.Floor((worldY - 0.5) / WorldLayout.VoxelSizeMetres);
+      var slab = (int)Math.Floor(floorVoxel / WorldLayout.ChunkHeight);
+      var chunk = _wrap.Normalise(new ChunkKey((int)Math.Floor(worldX / extent), (int)Math.Floor(worldZ / extent), slab));
+
+      return _renderer.HasTile(chunk);
+    }
+
+    /// <summary>
     /// Where a step from one tile to the next lands, by the rule the server walks by - see <see cref="WalkRules"/>.
     /// </summary>
     /// <remarks>

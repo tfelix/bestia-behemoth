@@ -287,6 +287,9 @@ namespace BestiaBehemothClient.Game.World
 
     public int TileCount => _tiles.Count;
 
+    /// <summary>Whether the chunk at <paramref name="key"/> is meshed and on screen.</summary>
+    public bool HasTile(ChunkKey key) => _tiles.ContainsKey(key);
+
     public int PendingCount => _pending.Count;
 
     /// <summary>

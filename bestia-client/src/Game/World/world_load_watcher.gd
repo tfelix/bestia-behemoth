@@ -182,8 +182,14 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 	_last_server_position = position
 	_has_server_position = true
 
-	if jumped:
+	if jumped and not _is_drawn_at(position):
 		begin()
+
+
+## A jump onto ground already on screen - a fly wing's hop - has nothing to wait for.
+func _is_drawn_at(position: Vector3) -> bool:
+	var stream: Node = _connection.chunk_stream if _connection != null else null
+	return stream != null and stream.IsDrawnAt(position.x, position.y, position.z)
 
 
 ## INF until the world info has arrived, so nothing is taken for a jump before there is a world.
