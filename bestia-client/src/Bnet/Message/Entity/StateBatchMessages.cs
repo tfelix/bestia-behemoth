@@ -34,6 +34,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         case global::Bnet.ComponentDelta.ComponentOneofCase.Path: return PathComponentSMSG.FromProto(entityId, delta.Path);
         case global::Bnet.ComponentDelta.ComponentOneofCase.Health: return HealthComponentSMSG.FromProto(entityId, delta.Health);
         case global::Bnet.ComponentDelta.ComponentOneofCase.Animation: return AnimationComponentSMSG.FromProto(entityId, delta.Animation);
+        case global::Bnet.ComponentDelta.ComponentOneofCase.Fx: return EntityFxComponentSMSG.FromProto(entityId, delta.Fx);
         case global::Bnet.ComponentDelta.ComponentOneofCase.Speed: return SpeedComponentSMSG.FromProto(entityId, delta.Speed);
         case global::Bnet.ComponentDelta.ComponentOneofCase.Mana: return ManaComponentSMSG.FromProto(entityId, delta.Mana);
         case global::Bnet.ComponentDelta.ComponentOneofCase.Casting: return CastingComponentSMSG.FromProto(entityId, delta.Casting);

@@ -310,6 +310,8 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		entity.update_speed(msg)
 	elif msg is AnimationComponentSMSG:
 		entity.update_animation(msg)
+	elif msg is EntityFxComponentSMSG:
+		entity.fx.play(EntityFxDB.get_instance().get_fx(msg.Kind), msg.DurationMs / 1000.0)
 	elif msg is VanishEntitySMSG:
 		entity.vanish(msg)
 		_entities.erase(msg.EntityId)

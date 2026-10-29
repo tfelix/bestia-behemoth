@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "EntityFxComponentSMSGProto";
+
+/**
+ * A short visual effect the server times on an entity's body, such as a teleport's vanish. The client looks the
+ * kind up in its effect DB and plays it over duration_ms; an observer who comes into view mid-effect gets it with
+ * the entity's snapshot.
+ */
+enum EntityFxKind {
+  FX_NONE = 0;
+  /** A fly wing: the body turns into a blue-white glow and dissolves. */
+  WING_VANISH = 1;
+  WING_APPEAR = 2;
+  /** A butterfly wing: the same in orange, slower. */
+  HOME_VANISH = 3;
+  HOME_APPEAR = 4;
+}
+
+message EntityFxComponentSMSG {
+  EntityFxKind kind = 1;
+  uint32 duration_ms = 2;
+}
