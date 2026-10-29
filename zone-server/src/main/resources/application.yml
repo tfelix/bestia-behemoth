@@ -482,6 +482,16 @@ ambient-spawn:
   # AI profiles this layer never puts in the background tier.
   never-throttled-profiles: []
 
+teleport-items:
+  # Inside the client's 160 m view radius, so a fly wing lands on ground already drawn and shows no loading screen.
+  fly-wing-radius-metres: 150
+  fly-wing-min-metres: 20
+  # How long each half of the vanish/appear effect plays, in ms. The client stretches its effect to these.
+  fly-wing-vanish-ms: 250
+  fly-wing-appear-ms: 250
+  butterfly-wing-vanish-ms: 900
+  butterfly-wing-appear-ms: 600
+
 economy:
   # Every coin the world can ever hold. Derived, not chosen: it is what the gold the generator places on a
   # 128 km world mints at 10,000 coins per ore voxel, which is sized for ~300 concurrent players.

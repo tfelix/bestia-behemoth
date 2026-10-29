@@ -16,6 +16,7 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder
 import net.bestia.zone.movement.ecs.Path
+import net.bestia.zone.movement.ecs.Teleporting
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.travel.JourneyOrder
 import net.bestia.zone.travel.JourneyService
@@ -55,6 +56,9 @@ class MoveEntityHandler(
 
     // Before the cancels: a corpse expresses no intent, so it must not even abort its own logout.
     if (deadActionGuard.refuses(world, id, "move")) return true
+
+    // The body stands still while a teleport's vanish plays; walking would only be thrown away on landing.
+    if (world.has(id, Teleporting::class)) return true
 
     cancelWhatMovingInterrupts(world, msg.playerId, id)
 
