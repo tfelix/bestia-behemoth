@@ -1,20 +1,20 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" uid="uid://23p53v7tuqby" path="res://Game/Entity/Visual/TownsfolkVisual/townsfolk_visual.gd" id="1_n7t7g"]
 [ext_resource type="PackedScene" uid="uid://doxvjridoygcr" path="res://Game/VFX/HealthBar/HealthBar.tscn" id="2_wtcd1"]
 [ext_resource type="PackedScene" uid="uid://g1nu1oan0ehe" path="res://Game/Entity/NameTag/NameTag.tscn" id="3_358an"]
 [ext_resource type="PackedScene" uid="uid://bq7cst1bar0ck" path="res://Game/VFX/CastBar/CastBar.tscn" id="4_castb"]
+[ext_resource type="Shader" path="res://Game/Entity/Fx/Shader/entity_uber.gdshader" id="5_uber"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x0ia3"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_uber"]
 resource_local_to_scene = true
-albedo_color = Color(0.36078432, 0.44313726, 0.5803922, 0)
-stencil_flags = 2
-stencil_color = Color(0.86025685, 0.5340028, 0.82494587, 1)
-stencil_outline_thickness = 0.096
+shader = ExtResource("5_uber")
+shader_parameter/albedo_colour = Color(0.36078432, 0.44313726, 0.5803922, 1)
+shader_parameter/roughness = 1.0
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_town"]
 resource_local_to_scene = true
-material = SubResource("StandardMaterial3D_x0ia3")
+material = SubResource("ShaderMaterial_uber")
 radius = 0.3125
 height = 1.375
 
@@ -33,26 +33,26 @@ length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Model:mesh:material:albedo_color")
+tracks/0/path = NodePath("Model:mesh:material:shader_parameter/albedo_colour")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.0009999999),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Color(0.36078432, 0.44313726, 0.5803922, 0), Color(0.36078432, 0.44313726, 0.5803922, 1)]
+"values": [Color(0.36078432, 0.44313726, 0.5803922, 1), Color(0.36078432, 0.44313726, 0.5803922, 1)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Model:mesh:material:transparency")
+tracks/1/path = NodePath("Model:instance_shader_parameters/fx_dissolve")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [0]
+"update": 0,
+"values": [0.0]
 }
 
 [sub_resource type="Animation" id="Animation_b5q2y"]
@@ -60,26 +60,26 @@ resource_name = "appear"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Model:mesh:material:albedo_color")
+tracks/0/path = NodePath("Model:mesh:material:shader_parameter/albedo_colour")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Color(0.36078432, 0.44313726, 0.5803922, 0), Color(0.36078432, 0.44313726, 0.5803922, 1)]
+"values": [Color(0.36078432, 0.44313726, 0.5803922, 1), Color(0.36078432, 0.44313726, 0.5803922, 1)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Model:mesh:material:transparency")
+tracks/1/path = NodePath("Model:instance_shader_parameters/fx_dissolve")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
-"update": 1,
-"values": [1, 0]
+"update": 0,
+"values": [1.0, 0.0]
 }
 
 [sub_resource type="Animation" id="Animation_h56g7"]
@@ -88,26 +88,26 @@ length = 2.0
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Model:mesh:material:albedo_color")
+tracks/0/path = NodePath("Model:mesh:material:shader_parameter/albedo_colour")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0, 1.4, 2),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [Color(0.36078432, 0.44313726, 0.5803922, 1), Color(0.93766236, 0.00039705462, 0.12404562, 1), Color(0, 0, 0, 0)]
+"values": [Color(0.36078432, 0.44313726, 0.5803922, 1), Color(0.93766236, 0.00039705462, 0.12404562, 1), Color(0, 0, 0, 1)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Model:mesh:material:transparency")
+tracks/1/path = NodePath("Model:instance_shader_parameters/fx_dissolve")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [1]
+"times": PackedFloat32Array(0, 1.4, 2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 1.0]
 }
 
 [sub_resource type="Animation" id="Animation_idle0"]

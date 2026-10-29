@@ -1,4 +1,5 @@
-// Wet and snow on anything that is not terrain: props, trees, buildings and characters.
+// Wet and snow on anything that is not terrain or a character: props, trees, buildings and dropped items.
+// Characters draw their weather themselves, in `entity_uber.gdshader`.
 //
 // Drawn as a material overlay, a second pass over the object's own material, so it works on any mesh without
 // knowing its material. One pass carries both effects: snow as white on what faces up, wet as a dark, glossy
@@ -6,8 +7,7 @@
 shader_type spatial;
 render_mode blend_mix, depth_draw_never, cull_back, diffuse_burley, specular_schlick_ggx;
 
-global uniform float weather_wetness;
-#include "res://Game/World/Shader/weather_snow.gdshaderinc"
+#include "res://Game/World/Shader/weather_cover.gdshaderinc"
 
 // How much of the snow a surface keeps: everything for what stands still, a frost for what walks through it.
 uniform float snow_share : hint_range(0.0, 1.0) = 1.0;
@@ -37,10 +37,9 @@ void vertex() {
 void fragment() {
 	float up = normalize((INV_VIEW_MATRIX * vec4(NORMAL, 0.0)).xyz).y;
 
-	// A coarse speckle on the edge of the mask, so snow thins out in patches rather than along a clean line.
-	float speckle = fract(sin(dot(floor(v_world_pos.xz * 8.0 + v_world_pos.y * 3.0), vec2(12.9898, 78.233))) * 43758.5453);
-	float snow = snow_cover(v_world_pos.y) * smoothstep(0.15, 0.55, up + (speckle - 0.5) * 0.3);
-	float wet = clamp(weather_wetness, 0.0, 1.0) * (1.0 - snow) * (1.0 - wet_darkening);
+	vec2 cover = weather_cover(v_world_pos, up, snow_share, snow_melt_celsius);
+	float snow = cover.x;
+	float wet = cover.y * (1.0 - wet_darkening);
 
 	float coverage = snow + wet;
 	float snowy = snow / max(coverage, 0.0001);
