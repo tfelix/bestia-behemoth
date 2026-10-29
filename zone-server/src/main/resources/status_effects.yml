@@ -129,3 +129,11 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: EmergencyMoveEffect
+
+  # Bookkeeping after a fly wing or butterfly wing: the next one is refused until it runs out. Never shown.
+  - id: 16
+    identifier: TELEPORT_LOCK
+    polarity: NEUTRAL
+    showIcon: false
+    isSyncedToClient: false
+    script: TeleportLock

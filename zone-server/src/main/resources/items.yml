@@ -982,3 +982,30 @@ items:
       A tall oak pole and a banner in the guild's colours, its hem weighted with iron.
 
       Planted in the ground, it is where Rally to the Banner calls the guild. Enemies can cut it down.
+
+  # --- Travel ---------------------------------------------------------------------------------------
+  # A short hop to a random spot nearby, on ground already in view, so no loading screen - see FlyWingScript.
+  - id: 74
+    item-db-name: fly_wing
+    base-level: 1
+    weight: 5
+    type: USABLE
+    material: PAPER
+    script: FlyWingScript
+    description: |
+      A pale feather that never quite settles in the hand.
+
+      Crushed, it whisks its bearer to a random spot nearby. Companions are left behind.
+
+  # Home to the user's save point - see ButterflyWingScript.
+  - id: 75
+    item-db-name: butterfly_wing
+    base-level: 5
+    weight: 5
+    type: USABLE
+    material: PAPER
+    script: ButterflyWingScript
+    description: |
+      A butterfly's wing, dusted in amber scales that glow like embers.
+
+      Crushed, it carries its bearer home to where they last set out from. Companions are left behind.
