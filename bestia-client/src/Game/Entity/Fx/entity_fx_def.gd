@@ -7,6 +7,8 @@ enum ParticlesAt { NONE, START, END }
 
 ## The server's EntityFxId this def answers ("WING_VANISH"), or empty for an effect only the client plays.
 @export var kind := ""
+## A status effect id this look stays on for as long as the effect lasts, or 0. Fades in over [member duration].
+@export var status_effect_id := 0
 ## Seconds. A server-driven effect is stretched to the duration the server sends instead.
 @export var duration := 0.5
 ## Plays the curves from 1 back to 0, so one def can serve as both a vanish and an appear.

@@ -1,10 +1,12 @@
 class_name EntityFxDB
 
-## Loads every [EntityFxDef] under DB/ once and keys those the server can ask for by kind - the same singleton
-## + directory-scan shape as [EmoteDB]. Adding an effect is one more resource here, edited in the inspector.
+## Loads every [EntityFxDef] under DB/ once and keys them by the server kind or status effect they answer - the
+## same singleton + directory-scan shape as [EmoteDB]. Adding an effect is one more resource here, edited in the
+## inspector.
 
 static var _instance: EntityFxDB = null
 var _defs := {}
+var _status_looks := {}
 const _fx_db_dir = "res://Game/Entity/Fx/DB/"
 
 
@@ -25,6 +27,8 @@ func _load_defs() -> void:
 				var def = load(_fx_db_dir + file_name)
 				if def is EntityFxDef and def.kind != "":
 					_defs[def.kind] = def
+				if def is EntityFxDef and def.status_effect_id != 0:
+					_status_looks[def.status_effect_id] = def
 			file_name = dir.get_next()
 		dir.list_dir_end()
 	print("EntityFxDB: Loaded %s effects" % [_defs.size()])
@@ -33,6 +37,11 @@ func _load_defs() -> void:
 ## The effect of the server's EntityFxId [param kind] ("WING_VANISH"), or null when the client has none.
 func get_fx(kind: String) -> EntityFxDef:
 	return _defs.get(kind.to_upper(), null)
+
+
+## The look a status effect keeps on the body while it lasts, or null when it has none.
+func for_status(status_effect_id: int) -> EntityFxDef:
+	return _status_looks.get(status_effect_id, null)
 
 
 ## Every effect, for the harness's picker.
