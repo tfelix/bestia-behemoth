@@ -28,13 +28,15 @@ class Layer:
 	var time := 0.0
 	## Set for an effect that lasts until released, such as a status effect's look.
 	var sustain_key: Variant = null
+	## Held at [member time] rather than advancing, see [method EntityFx.pose].
+	var paused := false
 
 	func _init(fx_def: EntityFxDef, seconds: float) -> void:
 		def = fx_def
 		duration = maxf(seconds, 0.001)
 
 	func is_moving() -> bool:
-		return time < duration
+		return time < duration and not paused
 
 	func is_over() -> bool:
 		return not is_moving() and sustain_key == null and not def.hold_end
@@ -113,6 +115,18 @@ func release(key: Variant) -> void:
 ## Ends every effect at once, leaving the body as it is drawn without any.
 func clear() -> void:
 	_layers.clear()
+	_resume()
+
+
+## Shows [param def] frozen at [param progress], 0 to 1, in place of every other effect. For scrubbing
+## through an effect while tuning it.
+func pose(def: EntityFxDef, progress: float) -> void:
+	_layers.clear()
+	var layer := Layer.new(def, def.duration)
+	layer.time = clampf(progress, 0.0, 1.0) * layer.duration
+	layer.sustain_key = &"pose"
+	layer.paused = true
+	_layers.append(layer)
 	_resume()
 
 
