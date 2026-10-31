@@ -92,6 +92,13 @@ class BudgetedSkillWorld(
     return services.areaEffectSpawner.spawn(world, centre, visualId, effect)
   }
 
+  override fun dropItem(itemId: Long, amount: Int, at: Vec3L) {
+    budget.charge(SPAWN_OPS)
+
+    val ownerAccountId = world.get(casterId, Account::class)?.accountId
+    services.lootItems.spawnLootItem(world, itemId = itemId, amount = amount, pos = at, lootOwner = ownerAccountId)
+  }
+
   override fun placeStation(kind: StaticEntityKind, masterId: Long, at: Vec3L, yaw: Float): Boolean {
     budget.charge(SPAWN_OPS)
 

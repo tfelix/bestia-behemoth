@@ -72,6 +72,9 @@ interface SkillWorld {
    */
   fun spawnAreaEffect(centre: Vec3L, visualId: Long, effect: AreaEffect): EntityId
 
+  /** Drops [amount] of [itemId] on the ground at [at], for the caster's account to pick up first. */
+  fun dropItem(itemId: Long, amount: Int, at: Vec3L)
+
   /** Puts a station up at [at] for [masterId]. False when the ground already holds one of the same kind. */
   fun placeStation(kind: StaticEntityKind, masterId: Long, at: Vec3L, yaw: Float = 0f): Boolean
 
