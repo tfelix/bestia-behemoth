@@ -3,6 +3,7 @@ package net.bestia.zone.battle.attack
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ElementModifier
 import net.bestia.zone.battle.status.AttackSpeed
+import net.bestia.zone.skill.SkillArchetype
 import net.bestia.zone.skill.persistence.Skill
 
 /**
@@ -20,8 +21,8 @@ data class BattleAttack(
   val range: Long,
 
   /**
-   * Which basic-attack formula resolves this, per [AttackStrategyFactory]. Meaningless on the skill
-   * pathway, which never consults it.
+   * Which physical formula resolves this, per [AttackStrategyFactory]. On the skill pathway only a physical
+   * bestia skill reads it, to tell a shot from a strike.
    */
   val attackType: AttackType,
 
@@ -44,6 +45,9 @@ data class BattleAttack(
   val level: Int,
   val script: String?,
   val castTime: Float = 0f,
+
+  /** The skill's attack coefficient; 1 for a basic attack. */
+  val power: Float = 1f,
 ) {
 
   init {
@@ -100,18 +104,19 @@ data class BattleAttack(
     fun of(
       skill: Skill,
       level: Int,
-      attackElement: Element = Element.NORMAL
+      attackElement: Element = Element.valueOf(skill.element)
     ): BattleAttack = BattleAttack(
       strength = skill.strength ?: 0,
       manaCost = skill.manaCost,
       range = skill.range?.toLong() ?: 1L,
-      attackType = AttackType.MELEE_PHYSICAL,
+      attackType = if (skill.archetype == SkillArchetype.SHOT) AttackType.RANGED_PHYSICAL else AttackType.MELEE_PHYSICAL,
       needsLineOfSight = skill.needsLineOfSight,
       aoeRadius = skill.aoeRadius,
       attackElement = attackElement,
       level = level,
       script = skill.script,
-      castTime = skill.castTime
+      castTime = skill.castTime,
+      power = skill.power
     )
   }
 }
