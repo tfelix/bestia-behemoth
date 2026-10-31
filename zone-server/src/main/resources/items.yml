@@ -1009,3 +1009,186 @@ items:
       A butterfly's wing, dusted in amber scales that glow like embers.
 
       Crushed, it carries its bearer home to where they last set out from. Companions are left behind.
+
+  # --- Bestia materials -----------------------------------------------------------------------------
+  # Parts a bestia drops when it dies. Like a raw hide, none has a producer: a kill is the only source.
+  # The base level is roughly the level of the bestias that drop it.
+  - id: 76
+    item-db-name: feather
+    base-level: 1
+    weight: 5
+    type: ETC
+    material: PAPER
+    description: |
+      A long flight feather, light enough to lift on a breath.
+
+  - id: 77
+    item-db-name: sharp_fang
+    base-level: 5
+    weight: 10
+    type: ETC
+    material: STONE
+    description: |
+      A curved fang with an edge still keen enough to draw blood.
+
+  - id: 78
+    item-db-name: horn
+    base-level: 10
+    weight: 40
+    type: ETC
+    material: STONE
+    description: |
+      A ridged horn, broken off clean at the root.
+
+  - id: 79
+    item-db-name: soft_fur
+    base-level: 3
+    weight: 30
+    type: ETC
+    material: LEATHER
+    description: |
+      A tuft of soft fur, warm and thick.
+
+  - id: 80
+    item-db-name: chitin
+    base-level: 12
+    weight: 40
+    type: ETC
+    material: LEATHER
+    description: |
+      A plate of insect shell, hard as horn and light as bark.
+
+  - id: 81
+    item-db-name: silk_thread
+    base-level: 8
+    weight: 5
+    type: ETC
+    material: CLOTH
+    description: |
+      A skein of raw silk, finer than hair and stronger than it looks.
+
+  - id: 82
+    item-db-name: honeycomb
+    base-level: 8
+    weight: 30
+    type: ETC
+    material: FOOD
+    description: |
+      A slab of wax comb, still dripping with honey.
+
+  - id: 83
+    item-db-name: venom_sac
+    base-level: 15
+    weight: 15
+    type: ETC
+    material: FOOD
+    description: |
+      A small, swollen gland full of venom. Handle it with care.
+
+  - id: 84
+    item-db-name: spore_dust
+    base-level: 10
+    weight: 5
+    type: ETC
+    material: PLANT
+    description: |
+      A pinch of fine spores that makes the nose itch.
+
+  - id: 85
+    item-db-name: reptile_scale
+    base-level: 15
+    weight: 20
+    type: ETC
+    material: LEATHER
+    description: |
+      A tough, overlapping scale, cool and smooth to the touch.
+
+  - id: 86
+    item-db-name: dragon_scale
+    base-level: 70
+    weight: 60
+    type: ETC
+    material: METAL
+    description: |
+      A scale as wide as a palm. No blade has ever scratched it, and no fire has ever warmed it.
+
+  - id: 87
+    item-db-name: sea_pearl
+    base-level: 30
+    weight: 5
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A round pearl with a soft, sea-green sheen.
+
+  - id: 88
+    item-db-name: star_core
+    base-level: 80
+    weight: 20
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A small, heavy stone that glows like a star seen through mist.
+
+  - id: 89
+    item-db-name: frost_crystal
+    base-level: 40
+    weight: 20
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A crystal of blue ice that does not melt, not even in the hand.
+
+  - id: 90
+    item-db-name: ember_core
+    base-level: 45
+    weight: 30
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A smouldering core, too hot to hold for long.
+
+  - id: 91
+    item-db-name: ectoplasm
+    base-level: 25
+    weight: 10
+    type: ETC
+    material: GLASS
+    description: |
+      A cold, pale jelly that a spirit left behind.
+
+  - id: 92
+    item-db-name: bone_shard
+    base-level: 5
+    weight: 20
+    type: ETC
+    material: STONE
+    description: |
+      A splinter of old bone, dry and brittle.
+
+  - id: 93
+    item-db-name: old_bandage
+    base-level: 5
+    weight: 5
+    type: ETC
+    material: CLOTH
+    description: |
+      A strip of yellowed linen. Whatever it once wrapped is long gone.
+
+  - id: 94
+    item-db-name: shadow_shard
+    base-level: 55
+    weight: 10
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A black shard that seems to drink the light around it.
+
+  - id: 95
+    item-db-name: golden_carapace
+    base-level: 65
+    weight: 80
+    type: ETC
+    material: METAL
+    description: |
+      A curved shell plate that shines like beaten gold, and weighs nearly as much.
