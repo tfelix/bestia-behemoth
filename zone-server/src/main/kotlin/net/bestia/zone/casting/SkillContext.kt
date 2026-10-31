@@ -4,6 +4,7 @@ import net.bestia.zone.battle.BattleContext
 import net.bestia.zone.battle.GroundBattleContext
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.skill.persistence.Skill
 import net.bestia.zone.util.EntityId
 
 /**
@@ -23,6 +24,9 @@ class SkillContext(
   val targetPosition: Vec3L?,
   val skillId: Long,
   val skillLevel: Int,
+
+  /** The catalogue row, for a generic script that is configured by it. */
+  val skill: Skill,
 ) {
 
   /** Where the skill was aimed: the target's position for an entity cast, the aimed-at point otherwise. */

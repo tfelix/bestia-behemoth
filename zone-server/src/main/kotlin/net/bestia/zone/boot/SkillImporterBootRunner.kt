@@ -4,7 +4,10 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ElementModifier
 import net.bestia.zone.skill.SkillArchetype
+import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.skill.persistence.Skill
+import net.bestia.zone.skill.persistence.SkillYield
 import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.skill.SkillTargetType
 import org.springframework.boot.CommandLineRunner
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Component
 @Order(101)
 class SkillImporterBootRunner(
   skillRepository: SkillRepository,
+  private val itemRepository: ItemRepository,
 ) : CommandLineRunner,
   YmlImporterBootRunner<SkillImporterBootRunner.SkillYmlDto, Skill>(
     "Skill",
@@ -43,8 +47,16 @@ class SkillImporterBootRunner(
     val archetype: SkillArchetype? = null,
     val element: Element = Element.NORMAL,
     val power: Float = 1f,
-    val cooldown: Float = 0f
-  )
+    val cooldown: Float = 0f,
+    val status: StatusEffectId? = null,
+    val yields: List<YieldDto> = emptyList(),
+    val lines: List<String> = emptyList()
+  ) {
+    data class YieldDto(
+      val item: String,
+      val chance: Int
+    )
+  }
 
   /**
    * Wrapper for the single `skills.yml` file which holds all skills under a top-level `skills` list.
@@ -84,8 +96,19 @@ class SkillImporterBootRunner(
       archetype = dto.archetype,
       element = dto.element.name,
       power = dto.power,
-      cooldown = dto.cooldown
+      cooldown = dto.cooldown,
+      statusEffect = dto.status?.name,
+      yields = dto.yields.map { toYield(dto.identifier, it) }.toMutableList(),
+      lines = dto.lines.toMutableList()
     )
+  }
+
+  /** Items are imported first, so an unknown one is a typo and fails the boot. */
+  private fun toYield(skill: String, dto: SkillYmlDto.YieldDto): SkillYield {
+    val item = itemRepository.findByIdentifier(dto.item)
+      ?: throw IllegalArgumentException("Skill '$skill' yields unknown item '${dto.item}'")
+
+    return SkillYield(itemId = item.id, chance = dto.chance)
   }
 
   override fun getEntityIdentifier(entity: Skill): String {
