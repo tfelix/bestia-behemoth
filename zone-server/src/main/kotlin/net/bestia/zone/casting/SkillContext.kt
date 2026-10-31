@@ -28,6 +28,12 @@ class SkillContext(
   /** Where the skill was aimed: the target's position for an entity cast, the aimed-at point otherwise. */
   val aimedAt: Vec3L get() = battle.targetPosition()
 
+  /** The archetype formula's coefficient: the skill's own power times the caster species' attack power. */
+  val attackCoefficient: Float
+    get() {
+      return battle.usedAttack.power * battle.attacker.attackPower
+    }
+
   fun requireGroundContext(): GroundBattleContext = BattleContext.verifyGroundBattleContext(battle)
 
   /**

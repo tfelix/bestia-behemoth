@@ -137,3 +137,18 @@ statusEffects:
     showIcon: false
     isSyncedToClient: false
     script: TeleportLock
+
+  # The buff and debuff archetypes of bestia skills (bestia_blueprint.yaml `archetypes`).
+  - id: 17
+    identifier: EMPOWERED
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Empowered
+
+  - id: 18
+    identifier: WEAKENED
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Weakened
