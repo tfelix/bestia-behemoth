@@ -9,6 +9,6 @@ name = "Ember"
 description_key = "SKILL_1000_DESC"
 mana_cost = 6
 cooldown = 1.0
-max_level = 1
+max_level = 10
 target_type = "AOE_GROUND"
 aoe_radius = 1.0
