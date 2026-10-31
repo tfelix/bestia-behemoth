@@ -33,7 +33,7 @@ spring:
 # block for itself.
 wild-spawn:
   bands:
-    - max-level: 100
+    - max-level: 120
       den-share: 0.0
 
 # And no baseline wilderness either, for the reason above and more so.
