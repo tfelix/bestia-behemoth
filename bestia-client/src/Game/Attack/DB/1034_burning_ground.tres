@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 1034
+name = "Burning Ground"
+description_key = "SKILL_1034_DESC"
+mana_cost = 10
+cooldown = 12.0
+max_level = 10
+target_type = "AOE_GROUND"
+aoe_radius = 1.0
+cast_time = 1.0

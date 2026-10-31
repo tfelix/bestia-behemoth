@@ -273,3 +273,149 @@ SKILL_9021_DESC,"Members may plant a War Banner. Casting the skill calls every m
 banner - even into an enemy Stronghold. Enemies can cut the banner down.
 
 Cooldown 900s for the whole guild, separate from Emergency Recall."
+SKILL_1001_DESC,Recovers the health of a friendly a little bit. A essential spell for every adventurer.
+SKILL_1002_DESC,Recovers the health of a friendly for a fairly amount. Used to treat wounds.
+SKILL_1003_DESC,Recovers a great amount of health of a friendly unit. It can almost bring bad even the dead.
+SKILL_1004_DESC,Quick attack which uses the body weight in a short range melee attack. It does only little damage but is quick and cheap.
+SKILL_1005_DESC,"Lowers the head and drives the skull into the target. Crude, but it rattles anyone who takes it."
+SKILL_1006_DESC,Leaps at the target from a few steps away and lands with its full weight.
+SKILL_1007_DESC,"Throws its whole body against the target. The bigger the bestia, the harder it lands."
+SKILL_1008_DESC,"A wild flurry of blows that hits whatever is closest, again and again."
+SKILL_1009_DESC,"Takes a short run-up and rams the target. Slow to start, but it hits much harder than a tackle."
+SKILL_1010_DESC,A heavy blow aimed to crush rather than cut. Shields and bones bend under it.
+SKILL_1011_DESC,"Brings its full weight down in one blow, like a smith's hammer on the anvil."
+SKILL_1012_DESC,Grabs the target and tears at it with everything it has.
+SKILL_1013_DESC,Charges in a straight line and tramples the target into the ground.
+SKILL_1014_DESC,A blow to the head that leaves the target seeing stars.
+SKILL_1015_DESC,One blow with the strength of a landslide. Few survive it twice.
+SKILL_1016_DESC,Flings a small stone at the target. It stings more than it hurts.
+SKILL_1017_DESC,Shoots a single sharp quill from its back at a target in range.
+SKILL_1018_DESC,Releases a burst of spines that all fly at the same target.
+SKILL_1019_DESC,"Fires a long, hardened spike that punches through light armor."
+SKILL_1020_DESC,"A storm of barbed darts. Each one is small, together they shred."
+SKILL_1021_DESC,"A wave of thorns as long as daggers, shot with deadly aim."
+SKILL_1022_DESC,A small spark of raw mana. The first spell a young bestia learns.
+SKILL_1023_DESC,A bolt of pure force that knocks the air out of the target.
+SKILL_1024_DESC,Three small missiles of mana that seek out the same target.
+SKILL_1025_DESC,A lance of focused mana that hits hard and flies straight.
+SKILL_1026_DESC,"A heavy spear of mana, thrown with the whole mind behind it."
+SKILL_1027_DESC,Opens a wound that keeps bleeding for a while after the hit.
+SKILL_1028_DESC,Slams the ground and sends a wave of force through everyone close by.
+SKILL_1029_DESC,Raw mana rains down on an area and tears at everyone inside.
+SKILL_1030_DESC,Gathers all its mana and releases it in one blinding blast.
+SKILL_1031_DESC,The fury of the wild itself breaks loose. Only the oldest bestias know it.
+SKILL_1032_DESC,Spits a small dart of flame at a single target. Quick to cast and hard to dodge.
+SKILL_1033_DESC,Bites with jaws that glow like coals. The wound keeps smoking afterwards.
+SKILL_1034_DESC,Sets the ground ablaze. Anything that stands in the flames burns.
+SKILL_1035_DESC,A ball of fire that bursts on impact and scorches everyone around the target.
+SKILL_1036_DESC,Wraps itself in flame and crashes into the target.
+SKILL_1037_DESC,A thin ray of white-hot fire that burns straight through.
+SKILL_1038_DESC,Turns an area into a sea of fire that burns again and again.
+SKILL_1039_DESC,Flings a sharp shard of ice at a single target.
+SKILL_1040_DESC,Spits a jet of water hard enough to knock a target off its feet.
+SKILL_1041_DESC,A bite so cold it numbs the flesh around it.
+SKILL_1042_DESC,Breathes a cone of freezing air over everyone in front of it.
+SKILL_1043_DESC,A cold fog settles on the ground. Standing in it slowly freezes the blood.
+SKILL_1044_DESC,Strikes with the weight of a breaking wave.
+SKILL_1045_DESC,Hurls a hailstone the size of a fist. It hits hard and leaves the target shivering.
+SKILL_1046_DESC,A rushing stream of water that slams into the target.
+SKILL_1047_DESC,Calls a howling blizzard down on an area. The cold bites through any armor.
+SKILL_1048_DESC,Shoots a sharp splinter of stone out of the ground at a single target.
+SKILL_1049_DESC,Tears a rock out of the ground and throws it.
+SKILL_1050_DESC,A blow with a fist or hoof hardened like stone.
+SKILL_1051_DESC,Whirling sand traps the target and grinds at it.
+SKILL_1052_DESC,Stamps on the ground until it shakes. Everyone close by loses their footing and gets hurt.
+SKILL_1053_DESC,"Lifts a boulder, or becomes one, and brings it down on the target."
+SKILL_1054_DESC,A lance of stone shoots out of the ground and impales the target.
+SKILL_1055_DESC,The ground opens up under an area and swallows what stands on it.
+SKILL_1056_DESC,A small arc of lightning that jumps to a single target.
+SKILL_1057_DESC,A blade of wind that cuts at range.
+SKILL_1058_DESC,Beats its wings against the target with the force of a gust.
+SKILL_1059_DESC,Charges the air in an area. Anyone inside is shocked again and again.
+SKILL_1060_DESC,A spinning wind that sweeps over an area and throws everyone about.
+SKILL_1061_DESC,"Dives from above, carried by a howling wind."
+SKILL_1062_DESC,A bolt of lightning that jumps through the target with a roar.
+SKILL_1063_DESC,A hurricane breaks loose and tears at everything in its path.
+SKILL_1064_DESC,"Spits a glob of venom at the target. Not deadly, but it burns."
+SKILL_1065_DESC,A quick sting that leaves a little poison behind.
+SKILL_1066_DESC,A bolt of green venom that seeps into the skin.
+SKILL_1067_DESC,A cloud of foul gas that hangs over the ground. Breathing it hurts.
+SKILL_1068_DESC,Tears into the target with claws dripping with venom.
+SKILL_1069_DESC,Exhales a sickly haze that poisons everyone around.
+SKILL_1070_DESC,A stream of acid that eats through armor and flesh.
+SKILL_1071_DESC,Spreads a plague across an area. Even the grass withers.
+SKILL_1072_DESC,"Focuses light into a single, searing beam."
+SKILL_1073_DESC,A strike blessed with holy light. The unnatural fear it.
+SKILL_1074_DESC,Consecrates the ground. Undead and demons that stand on it burn.
+SKILL_1075_DESC,A heavy blow that falls like a verdict.
+SKILL_1076_DESC,A ring of holy light bursts out from the caster.
+SKILL_1077_DESC,A ray of pure light that burns away the unnatural. The undead fear it most.
+SKILL_1078_DESC,"A pillar of light erupts and sears everything in it, the undead and demons worst of all."
+SKILL_1079_DESC,A bolt of living darkness that chills the soul.
+SKILL_1080_DESC,Rakes the target with claws made of shadow.
+SKILL_1081_DESC,Darkness pools on the ground and gnaws at anyone inside.
+SKILL_1082_DESC,A wave of darkness rolls out and swallows the light.
+SKILL_1083_DESC,"For a moment the light goes out, and then the blow lands."
+SKILL_1084_DESC,A spear of darkness pulled from somewhere far below.
+SKILL_1085_DESC,"Night falls on an area, and everything in it is hunted."
+SKILL_1086_DESC,Hurls a fragment of spirit at the target. It passes through armor as if it were not there.
+SKILL_1087_DESC,A cold touch from a hand that is not quite there.
+SKILL_1088_DESC,Restless spirits cling to an area and claw at the living.
+SKILL_1089_DESC,A burst of spirit energy that tears at everyone close by.
+SKILL_1090_DESC,"Rushes through the target. Its body passes, the pain stays."
+SKILL_1091_DESC,Tears at the target's spirit and rips away some of its mana.
+SKILL_1092_DESC,Reaches for every soul in an area and pulls.
+SKILL_1093_DESC,Flings a sharp splinter of bone.
+SKILL_1094_DESC,"Grabs with a cold, rotting hand. The wound festers."
+SKILL_1095_DESC,A bolt of grave energy that withers what it touches.
+SKILL_1096_DESC,Rot spreads across the ground. The living sicken while they stand in it.
+SKILL_1097_DESC,A blow with a club of fused bones.
+SKILL_1098_DESC,A body bursts in a cloud of bone and rot.
+SKILL_1099_DESC,"Pulls the life out of the target, one heartbeat at a time."
+SKILL_1100_DESC,The dead rise for a moment and drag the living down with them.
+SKILL_1101_DESC,"Licks its own wounds. Not much, but it keeps a young bestia going."
+SKILL_1102_DESC,Knits its own flesh back together in a few breaths.
+SKILL_1103_DESC,A warm light surrounds it and slowly closes its wounds.
+SKILL_1104_DESC,A long howl that makes its blood run hot. It hits harder for a while.
+SKILL_1105_DESC,Works itself into a rage and stops caring about its wounds.
+SKILL_1106_DESC,A warm glow fills its body. It hits harder for a while.
+SKILL_1107_DESC,A wind at its back makes every step and swing quicker.
+SKILL_1108_DESC,A roar that fills it with the will to fight.
+SKILL_1109_DESC,The smell of blood drives it into a frenzy.
+SKILL_1110_DESC,"Gives up all defense for pure, raw strength."
+SKILL_1111_DESC,Wakes the oldest anger in its blood. Few things stand in its way then.
+SKILL_1112_DESC,A low growl that makes the target hesitate before it strikes.
+SKILL_1113_DESC,A piercing screech that throws off the target's aim.
+SKILL_1114_DESC,Bites at the target's legs. Its steps and swings get slower for a while.
+SKILL_1115_DESC,Turns the ground into thick mud. Anyone caught in it moves and strikes slower.
+SKILL_1116_DESC,A whispered curse that saps the target's strength.
+SKILL_1117_DESC,A roar so fierce that the target's hands start to shake.
+SKILL_1118_DESC,A stare that slowly turns the target's limbs to stone.
+SKILL_1119_DESC,Makes the target's body wither as if it had aged for years.
+SKILL_2000_DESC,"Snuffles through the undergrowth and turns up grain, berries or herbs at its feet. Works once every five minutes."
+SKILL_2001_DESC,"Shakes out a fleece of wool, and sometimes a tuft of soft fur. Works once every ten minutes."
+SKILL_2002_DESC,"Digs where it smells something buried: clay, a lost coin, now and then a rough gem."
+SKILL_2003_DESC,Dives in and comes back with a fish. Once in a long while the fish has swallowed a pearl.
+SKILL_2004_DESC,"Picks the herbs it knows are good to eat, and a few you would not have known about."
+SKILL_2005_DESC,Spins a spool of fine silk thread for tailors.
+SKILL_2006_DESC,"Raids a wild hive and brings back a dripping honeycomb, stings and all."
+SKILL_2007_DESC,Breaks a lump of ore out of the nearest rock. It never asks which rock is yours.
+SKILL_2008_DESC,Tears down a heavy branch for firewood or timber.
+SKILL_2009_DESC,Wobbles until a blob of jelly drips off. It does not seem to mind.
+SKILL_2010_DESC,Scrapes the salt that dries on its hide after a swim in the sea.
+SKILL_2011_DESC,"Huddles up against a friend. For five minutes and more, the cold has to be 15 °C colder before it hurts them."
+SKILL_2012_DESC,"Wraps a friend in cool mist. For five minutes and more, the heat has to be 15 °C hotter before it hurts them."
+SKILL_2013_DESC,"Puts the wind at a friend's back, so they run faster for a while."
+SKILL_2014_DESC,"Lays a blessing on a friend: more strength, dexterity and intelligence for a while."
+SKILL_2015_DESC,Hides under a leaf and is very sure nobody can see it. Wild bestia mostly agree and walk past.
+SKILL_2016_DESC,Sinks into its own shadow. Wild bestia look straight through it.
+SKILL_2017_DESC,Flops over with its feet in the air. Convincing enough for most wild bestia.
+SKILL_2018_DESC,"Puts its nose to the ground and reads the tracks there: who passed, how many and how long ago."
+SKILL_2019_DESC,Circles above and reads the tracks below from the air.
+SKILL_2020_DESC,"Breathes on dry grass until it catches. Good for a campfire, bad for a forest. It does no damage of its own."
+SKILL_2021_DESC,Splashes around with all its might. Nothing happens. Nothing ever happens.
+SKILL_2022_DESC,"Laughs out loud. Everyone nearby hears it, and nobody likes it."
+SKILL_2023_DESC,Makes rude faces and noises at whoever is looking.
+SKILL_2024_DESC,Wails in grief. It frightens nobody it is fond of.
+SKILL_2025_DESC,"Announces the doom of everyone nearby, at length. The doom never quite arrives."
+SKILL_2026_DESC,Patches up a friend's wounds. A body can only be tended once a minute.
