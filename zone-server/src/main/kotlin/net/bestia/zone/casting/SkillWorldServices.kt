@@ -34,4 +34,5 @@ class SkillWorldServices(
   val spoor: SpoorService,
   val chunkStream: ChunkStreamInbox,
   val lootItems: LootItemEntitySpawner,
+  val speech: Speech,
 )
