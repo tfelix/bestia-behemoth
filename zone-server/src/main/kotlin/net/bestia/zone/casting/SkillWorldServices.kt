@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.battle.ecs.effects.AreaEffectSpawner
@@ -32,4 +33,5 @@ class SkillWorldServices(
   val survey: Surveying,
   val spoor: SpoorService,
   val chunkStream: ChunkStreamInbox,
+  val lootItems: LootItemEntitySpawner,
 )
