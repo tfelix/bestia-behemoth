@@ -60,7 +60,8 @@ class SkillContextFactory(
       targetEntityId = targetEntityId,
       targetPosition = targetPosition,
       skillId = skill.id,
-      skillLevel = skillLevel
+      skillLevel = skillLevel,
+      skill = skill
     )
   }
 }

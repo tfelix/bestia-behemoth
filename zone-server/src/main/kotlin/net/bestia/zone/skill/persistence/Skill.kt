@@ -89,6 +89,23 @@ class Skill(
   /** Seconds before the same caster may use this skill again. 0 means no cooldown. */
   @Column(nullable = false)
   var cooldown: Float = 0f,
+
+  /** The `StatusEffectId` name a status-giving utility skill applies, by name for [element]'s reason. */
+  @Column(nullable = true)
+  var statusEffect: String? = null,
+
+  /** What a gathering skill may turn up. Eager, because the catalogue is read once and kept detached. */
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(name = "skill_yield", joinColumns = [JoinColumn(name = "skill_id")])
+  @OrderColumn(name = "position")
+  var yields: MutableList<SkillYield> = mutableListOf(),
+
+  /** What a speaking skill may say, one line picked per cast. Eager for the same reason as [yields]. */
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(name = "skill_line", joinColumns = [JoinColumn(name = "skill_id")])
+  @OrderColumn(name = "position")
+  @Column(name = "line", columnDefinition = "TEXT", nullable = false)
+  var lines: MutableList<String> = mutableListOf(),
 ) {
 
   init {
@@ -117,7 +134,10 @@ class Skill(
         archetype != other.archetype ||
         element != other.element ||
         power != other.power ||
-        cooldown != other.cooldown
+        cooldown != other.cooldown ||
+        statusEffect != other.statusEffect ||
+        yields != other.yields ||
+        lines != other.lines
 
     if (!changed) {
       return false
@@ -138,6 +158,9 @@ class Skill(
     element = other.element
     power = other.power
     cooldown = other.cooldown
+    statusEffect = other.statusEffect
+    yields = other.yields.toMutableList()
+    lines = other.lines.toMutableList()
 
     return true
   }
