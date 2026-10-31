@@ -8,7 +8,7 @@ import kotlin.test.assertTrue
  * That nothing inside a starter town's ring exceeds the cap, whichever path decided its level.
  *
  * The boss roll used to return before the clamp, so roughly one corrupted den in forty inside the ring came
- * out at [SpawnerParams.maxLevel]. `Invariants.checkSpawnersNearHomeAreGentle` does catch it, but only on a
+ * out at the boss cap. `Invariants.checkSpawnersNearHomeAreGentle` does catch it, but only on a
  * seed that puts corrupted ground within nine kilometres of a home - one of the four in
  * `StandardWorldTest`'s sweep does, and it took a world per case to say so. Asking the level curve directly
  * costs nothing and states the rule rather than sampling for it.
@@ -36,7 +36,7 @@ class SpawnerHomeRingTest {
   @Test
   fun `a boss outside the ring is still a boss`() {
     // The other half of the claim: the cap is the ring, not a nerf to bosses.
-    assertEquals(params.maxLevel, levelsAt(nearHome = false, boss = true).max)
+    assertEquals(params.bossMaxLevel, levelsAt(nearHome = false, boss = true).max)
   }
 
   @Test

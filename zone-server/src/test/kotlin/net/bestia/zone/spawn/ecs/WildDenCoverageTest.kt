@@ -25,8 +25,9 @@ import org.junit.jupiter.api.Test
  * ramp because nothing better exists yet.
  *
  * The assertions are deliberately weak in one direction and firm in the other: **some** den must be fillable
- * (or the whole path is dead), and the boss dens must find the boss (or the endgame is). The coverage figure
- * itself is printed rather than asserted, because pinning it would make adding a mob a test failure.
+ * (or the whole path is dead), and the corrupted boss dens must find the boss (or the endgame is). Boss dens
+ * in the plain wilds wait for a boss whose habitat admits them, so they are printed like the coverage figure.
+ * That figure is printed rather than asserted, because pinning it would make adding a mob a test failure.
  */
 class WildDenCoverageTest {
 
@@ -67,6 +68,8 @@ class WildDenCoverageTest {
     var fallbacks = 0
     var bossDens = 0
     var bossStocked = 0
+    var corruptedBossDens = 0
+    var corruptedBossStocked = 0
     val unfilledByBand = IntArray(4)
 
     for (feature in world.world.features.all()) {
@@ -76,13 +79,15 @@ class WildDenCoverageTest {
 
       val levelMax = marker.attribute(SpawnerChannels.LEVEL_MAX).toInt()
       val boss = marker.attribute(SpawnerChannels.BOSS) >= 0.5
+      val corrupted = marker.attribute(SpawnerChannels.CORRUPTION) >= 0.5
       if (boss) bossDens++
+      if (boss && corrupted) corruptedBossDens++
 
       val den = WildSpawnerService.DenFacts(
         levelMin = marker.attribute(SpawnerChannels.LEVEL_MIN).toInt(),
         levelMax = levelMax,
         biome = Biome.entries[marker.attribute(SpawnerChannels.BIOME).toInt()],
-        corrupted = marker.attribute(SpawnerChannels.CORRUPTION) >= 0.5,
+        corrupted = corrupted,
         boss = boss,
         temperature = marker.attribute(SpawnerChannels.TEMPERATURE)
       )
@@ -93,6 +98,7 @@ class WildDenCoverageTest {
         stocked++
         if (picked.levelMiss > 0) fallbacks++
         if (boss) bossStocked++
+        if (boss && corrupted) corruptedBossStocked++
       } else {
         unfilledByBand[WildSpawnerService.bandIndexOf(levelMax)]++
       }
@@ -102,18 +108,20 @@ class WildDenCoverageTest {
       "wild dens: $dens total, $stocked stocked by the shipped catalogue " +
           "(${"%.1f".format(stocked * 100.0 / dens)}%), of which $fallbacks hold a species from outside " +
           "their own level band; unstocked by band 1-8/9-40/41-79/80-100 = " +
-          "${unfilledByBand.joinToString("/")} (no species their biome admits), boss dens $bossStocked/$bossDens"
+          "${unfilledByBand.joinToString("/")} (no species their biome admits), boss dens $bossStocked/$bossDens " +
+          "($corruptedBossStocked/$corruptedBossDens corrupted)"
     )
 
     assertTrue(dens > 0, "the generator produced no dens at all")
     assertTrue(stocked > 0, "not one den on the world can be stocked - the wild spawn path is dead")
 
-    // The endgame is the one band two species *do* cover, so it must be complete. A boss den that finds no
-    // boss would mean `corrupted-only` or the boss flag is refusing the species authored for it.
-    if (bossDens > 0) {
+    // The corrupted endgame is the one place two species *do* cover, so it must be complete. A corrupted boss
+    // den that finds no boss would mean the boss flag is refusing the species authored for it.
+    if (corruptedBossDens > 0) {
       assertTrue(
-        bossStocked == bossDens,
-        "$bossStocked of $bossDens boss dens found a boss; the endgame species is being refused"
+        corruptedBossStocked == corruptedBossDens,
+        "$corruptedBossStocked of $corruptedBossDens corrupted boss dens found a boss; the endgame species is " +
+            "being refused"
       )
     }
   }
