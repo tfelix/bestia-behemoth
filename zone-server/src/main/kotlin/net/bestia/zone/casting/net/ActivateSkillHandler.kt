@@ -94,6 +94,12 @@ class ActivateSkillHandler(
       return true
     }
 
+    // The client greys the button out for the same span, so a press that gets here is a hotkey race.
+    if (!skillExecutionService.isReady(world, activeEntityId, skill.id)) {
+      LOG.debug { "Activation of ${skill.identifier} by $activeEntityId refused: still cooling down" }
+      return true
+    }
+
     LOG.info { "Skill activated: ${skill.identifier} Lv. ${msg.skillLevel} at ${msg.targetPosition}" }
 
     // Before the cast starts, so a skill whose reagent is missing is refused while the

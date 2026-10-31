@@ -14,8 +14,8 @@ import net.bestia.zone.util.EntityId
  * Casts a catalogued skill on [targetId] through [skills]. For a plain bite or swing use [BasicAttack]
  * instead — a basic attack is not a catalogue row and needs neither `KnownSkills` nor a script.
  *
- * The skill's own range and mana are enforced downstream by `SkillExecutionService`; rate limiting belongs
- * to the tree, so wrap this in a `cooldown { }` rather than tracking a timer here.
+ * The skill's own range and mana are enforced downstream by `SkillExecutionService`. Its catalogued
+ * cooldown is checked here as well, so the tree learns of it before the cast is handed off.
  *
  * SUCCESS once the skill has been handed off, FAILURE when the target is gone or the caster does not know
  * the skill — both of which the planner needs to hear so it can replan rather than keep swinging at
@@ -35,6 +35,9 @@ class UseSkill(
     // same refusal: this mob cannot cast this.
     val level = world.get(context.entityId, KnownSkills::class)?.levelOf(skillId) ?: 0
     if (level <= 0) return Status.FAILURE
+
+    // A skill still cooling down fails, so the attack falls back to the default swing meanwhile.
+    if (!skills.isReady(world, context.entityId, skillId)) return Status.FAILURE
 
     skills.execute(
       world = world,
