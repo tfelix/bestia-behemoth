@@ -33,6 +33,8 @@ func show_bestia(mob_id: int) -> void:
 	var species := BestiaDB.get_instance().get_bestia(mob_id)
 	var scene := species.get_bestia_visual() if species != null else BestiaResource.MISSING_VISUAL
 	_bestia_visual = scene.instantiate()
+	if _bestia_visual.has_method("apply_placeholder"):
+		_bestia_visual.apply_placeholder(species)
 	_master_visual.get_parent().add_child(_bestia_visual)
 	_finish_appear_animation(_bestia_visual)
 	_frame(VisualBounds.of_meshes(_bestia_visual))

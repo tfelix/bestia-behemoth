@@ -1,0 +1,377 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://8nkwmodo4q61" path="res://Game/Entity/Visual/BestiaVisual/bestia_visual.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://doxvjridoygcr" path="res://Game/VFX/HealthBar/HealthBar.tscn" id="2_health"]
+[ext_resource type="Shader" path="res://Game/Entity/Fx/Shader/entity_uber.gdshader" id="3_uber"]
+[ext_resource type="PackedScene" uid="uid://g1nu1oan0ehe" path="res://Game/Entity/NameTag/NameTag.tscn" id="4_name"]
+[ext_resource type="PackedScene" uid="uid://bq7cst1bar0ck" path="res://Game/VFX/CastBar/CastBar.tscn" id="5_cast"]
+
+[sub_resource type="ShaderMaterial" id="Mat_cloak"]
+shader = ExtResource("3_uber")
+shader_parameter/albedo_colour = Color(0.035, 0.03, 0.045, 1)
+shader_parameter/roughness = 0.9
+
+[sub_resource type="ShaderMaterial" id="Mat_bone"]
+shader = ExtResource("3_uber")
+shader_parameter/albedo_colour = Color(0.93, 0.64, 0.36, 1)
+shader_parameter/roughness = 0.7
+
+[sub_resource type="ShaderMaterial" id="Mat_void"]
+shader = ExtResource("3_uber")
+shader_parameter/albedo_colour = Color(0.01, 0, 0, 1)
+shader_parameter/roughness = 1.0
+
+[sub_resource type="ShaderMaterial" id="Mat_maw"]
+shader = ExtResource("3_uber")
+shader_parameter/albedo_colour = Color(0.15, 0, 0.01, 1)
+shader_parameter/roughness = 1.0
+shader_parameter/emission_colour = Color(0.7, 0.02, 0, 1)
+shader_parameter/emission_energy = 0.8
+
+[sub_resource type="ShaderMaterial" id="Mat_eye"]
+shader = ExtResource("3_uber")
+shader_parameter/albedo_colour = Color(1, 0.1, 0.05, 1)
+shader_parameter/roughness = 0.3
+shader_parameter/emission_colour = Color(1, 0.04, 0.02, 1)
+shader_parameter/emission_energy = 7.0
+
+[sub_resource type="ShaderMaterial" id="Mat_fang"]
+shader = ExtResource("3_uber")
+shader_parameter/albedo_colour = Color(0.96, 0.93, 0.82, 1)
+shader_parameter/roughness = 0.4
+
+[sub_resource type="CylinderMesh" id="Mesh_cloak"]
+material = SubResource("Mat_cloak")
+top_radius = 0.16
+bottom_radius = 0.64
+height = 1.55
+radial_segments = 24
+
+[sub_resource type="SphereMesh" id="Mesh_shoulders"]
+material = SubResource("Mat_cloak")
+radius = 0.36
+height = 0.72
+
+[sub_resource type="CylinderMesh" id="Mesh_sleeve"]
+material = SubResource("Mat_cloak")
+top_radius = 0.09
+bottom_radius = 0.21
+height = 0.85
+radial_segments = 16
+
+[sub_resource type="SphereMesh" id="Mesh_hood"]
+material = SubResource("Mat_cloak")
+radius = 0.28
+height = 0.56
+
+[sub_resource type="CylinderMesh" id="Mesh_hood_peak"]
+material = SubResource("Mat_cloak")
+top_radius = 0.0
+bottom_radius = 0.24
+height = 0.5
+radial_segments = 16
+
+[sub_resource type="SphereMesh" id="Mesh_skull"]
+material = SubResource("Mat_bone")
+radius = 0.2
+height = 0.44
+
+[sub_resource type="SphereMesh" id="Mesh_socket"]
+material = SubResource("Mat_void")
+radius = 0.05
+height = 0.1
+
+[sub_resource type="SphereMesh" id="Mesh_eye"]
+material = SubResource("Mat_eye")
+radius = 0.035
+height = 0.07
+
+[sub_resource type="BoxMesh" id="Mesh_maw"]
+material = SubResource("Mat_maw")
+size = Vector3(0.21, 0.08, 0.05)
+
+[sub_resource type="PrismMesh" id="Mesh_fang"]
+material = SubResource("Mat_fang")
+size = Vector3(0.032, 0.07, 0.025)
+
+[sub_resource type="PrismMesh" id="Mesh_canine"]
+material = SubResource("Mat_fang")
+size = Vector3(0.036, 0.11, 0.028)
+
+[sub_resource type="PrismMesh" id="Mesh_low_fang"]
+material = SubResource("Mat_fang")
+size = Vector3(0.026, 0.045, 0.02)
+
+[sub_resource type="CapsuleShape3D" id="Shape_click"]
+radius = 0.55
+height = 2.1
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_health"]
+viewport_path = NodePath("SubViewport")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_cast"]
+viewport_path = NodePath("SubViewport")
+
+[sub_resource type="Animation" id="Anim_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:body_fade")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:body_tint")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="Animation" id="Anim_appear"]
+resource_name = "appear"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:body_fade")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 0.0]
+}
+
+[sub_resource type="Animation" id="Anim_death"]
+resource_name = "death"
+length = 2.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:body_tint")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1.4, 2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(0.94, 0, 0.12, 0.85), Color(0, 0, 0, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:body_fade")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1.4, 2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 1.0]
+}
+
+[sub_resource type="Animation" id="Anim_idle"]
+resource_name = "Idle"
+length = 3.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Body/Model:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1.5, 3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0.775, 0), Vector3(0, 0.835, 0), Vector3(0, 0.775, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Body/Model:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Anim_sleep"]
+resource_name = "Sleep"
+length = 3.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Body/Model:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1.5, 3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0.55, 0), Vector3(0, 0.52, 0), Vector3(0, 0.55, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Body/Model:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1.5, 3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(1.1, 0.7, 1.1), Vector3(1.12, 0.67, 1.12), Vector3(1.1, 0.7, 1.1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimLib"]
+_data = {
+&"Idle": SubResource("Anim_idle"),
+&"RESET": SubResource("Anim_reset"),
+&"Sleep": SubResource("Anim_sleep"),
+&"appear": SubResource("Anim_appear"),
+&"death": SubResource("Anim_death")
+}
+
+[node name="DoommasterVisual" type="Node3D"]
+script = ExtResource("1_script")
+draws_placeholder = false
+
+[node name="Body" type="Node3D" parent="."]
+
+[node name="Model" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.775, 0)
+mesh = SubResource("Mesh_cloak")
+
+[node name="Area3D" type="Area3D" parent="Body/Model"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Body/Model/Area3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+shape = SubResource("Shape_click")
+
+[node name="Shoulders" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(1.6, 0, 0, 0, 0.55, 0, 0, 0, 1, 0, 0.44, 0)
+mesh = SubResource("Mesh_shoulders")
+
+[node name="SleeveLeft" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(0.970296, -0.241922, 0, 0.241922, 0.970296, 0, 0, 0, 1, 0.44, 0.12, 0.06)
+mesh = SubResource("Mesh_sleeve")
+
+[node name="SleeveRight" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(0.970296, 0.241922, 0, -0.241922, 0.970296, 0, 0, 0, 1, -0.44, 0.12, 0.06)
+mesh = SubResource("Mesh_sleeve")
+
+[node name="Hood" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, -0.12)
+mesh = SubResource("Mesh_hood")
+
+[node name="HoodPeak" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(1, 0, 0, 0, 0.951057, 0.309017, 0, -0.309017, 0.951057, 0, 1.22, -0.16)
+mesh = SubResource("Mesh_hood_peak")
+
+[node name="Skull" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.86, 0.1)
+mesh = SubResource("Mesh_skull")
+
+[node name="SocketLeft" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.075, 0.9, 0.265)
+mesh = SubResource("Mesh_socket")
+
+[node name="EyeLeft" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.075, 0.9, 0.29)
+mesh = SubResource("Mesh_eye")
+
+[node name="SocketRight" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.075, 0.9, 0.265)
+mesh = SubResource("Mesh_socket")
+
+[node name="EyeRight" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.075, 0.9, 0.29)
+mesh = SubResource("Mesh_eye")
+
+[node name="Maw" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.77, 0.27)
+mesh = SubResource("Mesh_maw")
+
+[node name="Fang1" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(-1, -0, 0, 0, -1, 0, 0, 0, 1, -0.082, 0.755, 0.3)
+mesh = SubResource("Mesh_canine")
+
+[node name="Fang2" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(-1, -0, 0, 0, -1, 0, 0, 0, 1, -0.049, 0.775, 0.3)
+mesh = SubResource("Mesh_fang")
+
+[node name="Fang3" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(-1, -0, 0, 0, -1, 0, 0, 0, 1, -0.016, 0.775, 0.3)
+mesh = SubResource("Mesh_fang")
+
+[node name="Fang4" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(-1, -0, 0, 0, -1, 0, 0, 0, 1, 0.016, 0.775, 0.3)
+mesh = SubResource("Mesh_fang")
+
+[node name="Fang5" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(-1, -0, 0, 0, -1, 0, 0, 0, 1, 0.049, 0.775, 0.3)
+mesh = SubResource("Mesh_fang")
+
+[node name="Fang6" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(-1, -0, 0, 0, -1, 0, 0, 0, 1, 0.082, 0.755, 0.3)
+mesh = SubResource("Mesh_canine")
+
+[node name="LowFang1" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.045, 0.7525, 0.298)
+mesh = SubResource("Mesh_low_fang")
+
+[node name="LowFang2" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.015, 0.7525, 0.298)
+mesh = SubResource("Mesh_low_fang")
+
+[node name="LowFang3" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.015, 0.7525, 0.298)
+mesh = SubResource("Mesh_low_fang")
+
+[node name="LowFang4" type="MeshInstance3D" parent="Body/Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.045, 0.7525, 0.298)
+mesh = SubResource("Mesh_low_fang")
+
+[node name="HealthBar" parent="." instance=ExtResource("2_health")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6437862, 0)
+texture = SubResource("ViewportTexture_health")
+
+[node name="CastBar" parent="." instance=ExtResource("5_cast")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.51, 0)
+texture = SubResource("ViewportTexture_cast")
+
+[node name="NameTag" parent="." instance=ExtResource("4_name")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.35, 0)
+visible = false
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimLib")
+}
+
+[node name="DamageTagAnchor" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.25, 0)
+
+[node name="LightAnchor" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 0.9, 0.15)
+
+[connection signal="input_event" from="Body/Model/Area3D" to="." method="_on_area_3d_input_event"]
+[connection signal="mouse_entered" from="Body/Model/Area3D" to="." method="_on_area_3d_mouse_entered"]
+[connection signal="mouse_exited" from="Body/Model/Area3D" to="." method="_on_area_3d_mouse_exited"]

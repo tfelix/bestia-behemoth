@@ -60,6 +60,8 @@ func show_species(species: BestiaResource) -> void:
 	clear()
 	_species_id = species.bestia_id
 	_model = species.get_bestia_visual().instantiate()
+	if _model.has_method("apply_placeholder"):
+		_model.apply_placeholder(species)
 	for world_only in _WORLD_ONLY_NODES:
 		var node := _model.get_node_or_null(world_only)
 		if node != null:
