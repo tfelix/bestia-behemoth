@@ -142,8 +142,13 @@ data class WildSpawnConfig(
   val maxRange: Int get() = SpawnerSystem.MAX_ACTIVATION_RANGE - activationMargin
 
   companion object {
-    /** The cap `SpawnerParams.maxLevel` also uses; a band set that stops short of it is a config error. */
-    const val TOP_LEVEL = 100
+    /**
+     * The cap `SpawnerParams.bossMaxLevel` also uses; a band set that stops short of it is a config error.
+     *
+     * The boss cap, not the ordinary `SpawnerParams.maxLevel` of 100: a boss den in deep corruption reaches
+     * this, and the last band has to cover it.
+     */
+    const val TOP_LEVEL = 120
 
     /**
      * The shipped banding, matching `Invariants.spawnerCensus`' `1-8 / 9-40 / 41-79 / 80-100`.

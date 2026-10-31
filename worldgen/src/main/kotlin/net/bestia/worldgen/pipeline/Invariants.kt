@@ -3432,12 +3432,14 @@ object Invariants {
 
   /** Every channel inside the range its consumer assumes. */
   private fun checkSpawnersAreWellFormed(generated: GeneratedWorld, fail: (String, String) -> Unit) {
-    val maxLevel = generated.params.spawner.maxLevel
+    val params = generated.params.spawner
 
     for (feature in generated.world.features.all()) {
       if (feature.kind != FeatureKind.BESTIA_SPAWN) continue
       val marker = feature as? PointMarker ?: continue
 
+      val boss = marker.attribute(SpawnerChannels.BOSS) >= 0.5
+      val maxLevel = if (boss) params.bossMaxLevel else params.maxLevel
       val low = marker.attribute(SpawnerChannels.LEVEL_MIN).toInt()
       val high = marker.attribute(SpawnerChannels.LEVEL_MAX).toInt()
       val danger = marker.attribute(SpawnerChannels.DANGER)

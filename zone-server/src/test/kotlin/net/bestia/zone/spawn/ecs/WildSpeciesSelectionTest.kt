@@ -146,6 +146,44 @@ class WildSpeciesSelectionTest {
   }
 
   @Test
+  fun `a boss den in the clean wilds holds the boss of its biome`() {
+    // A wild boss den spans its country's levels and a bonus above them, so it holds whichever boss of its
+    // biome fits that span - here the lake boss, not the grassland one at the same level.
+    val undine = candidate(1, level = 62, habitat = "LAKE", boss = true)
+    val behemoth = candidate(2, level = 120, habitat = "GRASSLAND", boss = true)
+    val lakeside = den(48, 76, Biome.LAKE, corrupted = false, boss = true)
+
+    val choice = WildSpawnerService.pick(listOf(undine, behemoth), 1L, 1L, lakeside, config)
+
+    assertEquals(1L, choice!!.species.id)
+    assertEquals(0, choice.levelMiss)
+  }
+
+  @Test
+  fun `a corrupted-only boss never holds a boss den in the clean wilds`() {
+    // Even as the only boss of the den's biome and an exact level fit: the den stays empty instead.
+    val blightLord = candidate(1, level = 70, habitat = "LAKE", corruptedOnly = true, boss = true)
+
+    val clean = den(48, 76, Biome.LAKE, boss = true)
+    val corrupted = den(48, 76, Biome.LAKE, corrupted = true, boss = true)
+
+    assertNull(WildSpawnerService.pick(listOf(blightLord), 1L, 1L, clean, config))
+    assertNotNull(WildSpawnerService.pick(listOf(blightLord), 1L, 1L, corrupted, config))
+  }
+
+  @Test
+  fun `a boss den above the ordinary cap holds a boss above it`() {
+    // Deep corruption reaches 120, past the 100 an ordinary den stops at, and nothing on the way may clamp it.
+    val behemoth = candidate(1, level = 120, habitat = "GRASSLAND", boss = true)
+    val deep = den(96, 120, Biome.GRASSLAND, corrupted = true, boss = true)
+
+    val choice = WildSpawnerService.pick(listOf(behemoth), 1L, 1L, deep, config)
+
+    assertEquals(0, choice!!.levelMiss)
+    assertEquals(WildSpawnConfig.TOP_LEVEL, config.bandFor(deep.levelMax).maxLevel)
+  }
+
+  @Test
   fun `an event-only species is refused by every kind of den`() {
     val raidBoss = candidate(1, level = 100, boss = true, eventOnly = true)
     val scripted = candidate(2, level = 10, eventOnly = true)
