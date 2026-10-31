@@ -10,6 +10,22 @@ const _APPEAR_ANIM = "appear"
 ## The server's poses that are not emotes, as this placeholder's clips. Emotes say their own clips in [EmoteDB].
 const _POSTURE_CLIPS = {"SLEEP": "Sleep"}
 
+## Off for a scene with its own authored body, which a species' placeholder look must not replace.
+@export var draws_placeholder := true
+
+## How far the body is faded out, 0 to 1. The appear and death clips animate this rather than a material,
+## so a body made of several meshes fades as one and a species' colour is never overwritten.
+var body_fade := 0.0:
+	set(value):
+		body_fade = value
+		_write_to_body(&"fx_dissolve", value)
+
+## A colour laid over the body, alpha is how much. The death clip darkens the body with it.
+var body_tint := Color(1, 1, 1, 0):
+	set(value):
+		body_tint = value
+		_write_to_body(&"fx_tint", value)
+
 var _bestia_id: int = 0
 var _bestia_entity_id: int = 0
 var _species_name: String = ""
@@ -45,7 +61,78 @@ func setup_visual(msg: VisualComponentSMSG) -> void:
 	var bestia_resource := BestiaDB.get_instance().get_bestia(_bestia_id)
 	if bestia_resource != null and not bestia_resource.name_key.is_empty():
 		_species_name = tr(bestia_resource.name_key)
+	apply_placeholder(bestia_resource)
 	_apply_name_tag()
+
+
+## Draws the body in [param species]' placeholder look. The compendium and the profile portrait call this
+## too, so a species looks the same everywhere. Call it once, before the visual enters the tree.
+func apply_placeholder(species: BestiaResource) -> void:
+	if not draws_placeholder or species == null:
+		return
+
+	var model := $Body/Model as MeshInstance3D
+	var material: ShaderMaterial = (model.mesh as PrimitiveMesh).material
+	material.set_shader_parameter("albedo_colour", species.placeholder_colour)
+	material.set_shader_parameter("emission_colour", species.placeholder_colour)
+	material.set_shader_parameter("emission_energy", species.placeholder_glow)
+
+	if species.placeholder_shape != BestiaResource.PlaceholderShape.SPHERE:
+		var mesh := _placeholder_mesh(species.placeholder_shape)
+		mesh.material = material
+		model.mesh = mesh
+		$Body/Model/Area3D/CollisionShape3D.shape = mesh.create_convex_shape()
+		# Standing up, a ring reads as a ring and touches the ground like the sphere does.
+		if species.placeholder_shape == BestiaResource.PlaceholderShape.TORUS:
+			model.rotation_degrees.x = 90.0
+
+	_scale_body(species.placeholder_scale)
+
+
+## Each shape about as tall as the 1 m sphere, so it stands on the ground the same way.
+func _placeholder_mesh(shape: BestiaResource.PlaceholderShape) -> PrimitiveMesh:
+	match shape:
+		BestiaResource.PlaceholderShape.CAPSULE:
+			var capsule := CapsuleMesh.new()
+			capsule.radius = 0.3
+			capsule.height = 1.0
+			return capsule
+		BestiaResource.PlaceholderShape.BOX:
+			var box := BoxMesh.new()
+			box.size = Vector3(0.9, 0.9, 0.9)
+			return box
+		BestiaResource.PlaceholderShape.CYLINDER:
+			var cylinder := CylinderMesh.new()
+			cylinder.top_radius = 0.35
+			cylinder.bottom_radius = 0.35
+			cylinder.height = 1.0
+			return cylinder
+		BestiaResource.PlaceholderShape.PRISM:
+			var prism := PrismMesh.new()
+			prism.size = Vector3(1.0, 1.0, 0.7)
+			return prism
+		BestiaResource.PlaceholderShape.TORUS:
+			var torus := TorusMesh.new()
+			torus.inner_radius = 0.22
+			torus.outer_radius = 0.5
+			return torus
+	return SphereMesh.new()
+
+
+## The Idle and Sleep clips animate Model:scale, so the size goes on its parent. What sits above the body
+## moves up with it, so a big species does not swallow its name tag.
+func _scale_body(factor: float) -> void:
+	$Body.scale = Vector3.ONE * factor
+	for anchor: Node3D in [$NameTag, $DamageTagAnchor, $LightAnchor]:
+		anchor.position *= factor
+
+
+func _write_to_body(knob: StringName, value: Variant) -> void:
+	var body := get_node_or_null("Body")
+	if body == null:
+		return
+	for mesh: GeometryInstance3D in body.find_children("*", "GeometryInstance3D", true, false):
+		mesh.set_instance_shader_parameter(knob, value)
 
 
 func set_display_name(display_name: String) -> void:
