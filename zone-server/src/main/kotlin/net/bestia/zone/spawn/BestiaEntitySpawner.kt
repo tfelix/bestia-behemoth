@@ -1,5 +1,6 @@
 package net.bestia.zone.spawn
 
+import net.bestia.zone.bestia.BestiaSkillLevel
 import net.bestia.zone.entity.GameMetrics
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.ecs.AiAgent
@@ -147,11 +148,11 @@ class BestiaEntitySpawner(
   }
 
   /**
-   * Like an owned bestia, a wild one knows its learnset up to its level, each skill at level 1. See
-   * `PlayerBestiaEntitySpawner`.
+   * Like an owned bestia, a wild one knows its learnset up to its level, each skill at the level it was learned
+   * with. See `PlayerBestiaEntitySpawner`.
    */
   private fun learnedSkills(bestia: Bestia): MutableMap<Long, Int> = bestiaCatalogue.learnsetUpTo(bestia.id, bestia.level)
-    .associate { it.skillId to 1 }
+    .associate { it.skillId to BestiaSkillLevel.forLearnLevel(it.requiredLevel) }
     .toMutableMap()
 
   /**
