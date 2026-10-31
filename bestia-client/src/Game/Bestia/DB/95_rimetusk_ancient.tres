@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 95
+name_key = "BESTIA_RIMETUSK_ANCIENT"
+description_key = "BESTIA_RIMETUSK_ANCIENT_DESC"
+kind = "BEAST"
+equip_slots = 397
+armor_types = 15
+non_combatant = false
+habitat = "ICE_SHEET"
+in_compendium = true
+placeholder_shape = 1
+placeholder_colour = Color(0.5451, 0.4902, 0.4196, 1)
+placeholder_scale = 2.4
+placeholder_glow = 0.6

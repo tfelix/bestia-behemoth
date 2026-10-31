@@ -1,0 +1,46 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 76
+identifier: rift_crawler
+level: 90
+name: "Rift Crawler"
+description: >-
+  A tangle of limbs from the other side of the Rift. It flickers between worlds; strike when it is solid.
+kind: FORMLESS
+element: GHOST_4
+size: BIG
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 0.03
+health: 4
+mana: 668
+experience: 381
+attributes: { strength: 1, intelligence: 120, vitality: 32, dexterity: 1, willpower: 80, agility: 32 }
+learnset:
+  - { skill: mana_spark, level: 1 }
+  - { skill: growl, level: 6 }
+  - { skill: soul_strike, level: 16 }
+  - { skill: enrage, level: 21 }
+  - { skill: force_bolt, level: 26 }
+  - { skill: shadow_meld, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: arcane_missile, level: 41 }
+  - { skill: haunt, level: 46 }
+  - { skill: arcane_lance, level: 51 }
+  - { skill: mending_light, level: 56 }
+  - { skill: spirit_burst, level: 61 }
+  - { skill: soul_rend, level: 66 }
+  - { skill: petrifying_gaze, level: 70 }
+  - { skill: mana_spear, level: 76 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: bleeding_wound, level: 88, active: true }
+  - { skill: soul_harvest, level: 100 }
+habitat: []
+spawn-weight: 100
+corrupted-only: true
+equip-slots: [GARMENT]
+armor-types: [CLOTH, LIGHT]
+loot:
+  - { item: ectoplasm, chance: 2500 }
+  - { item: void_essence, chance: 1200 }
+  - { item: aetherite_shard, chance: 500 }

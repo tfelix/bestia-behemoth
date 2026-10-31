@@ -1,0 +1,49 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 56
+identifier: stormstrider
+level: 56
+name: "Stormstrider"
+description: >-
+  A huge flightless bird that runs fastest in a thunderstorm. Riders dream of taming one; most only ever see its
+  tail.
+kind: BIRD
+element: WIND_3
+size: BIG
+default-attack: RANGED
+aspd: 80
+ai: passive_wanderer
+attack-power: 0.95
+health: 886
+mana: 147
+experience: 252
+attributes: { strength: 12, intelligence: 8, vitality: 16, dexterity: 20, willpower: 21, agility: 78 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: pebble_toss, level: 6 }
+  - { skill: gale_step, level: 11 }
+  - { skill: wing_buffet, level: 16 }
+  - { skill: enrage, level: 21 }
+  - { skill: wind_cutter, level: 26 }
+  - { skill: crushing_blow, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: spine_volley, level: 41 }
+  - { skill: body_slam, level: 46 }
+  - { skill: tailwind, level: 51 }
+  - { skill: piercing_spike, level: 56, active: true }
+  - { skill: tempest_dive, level: 61 }
+  - { skill: petrifying_gaze, level: 66 }
+  - { skill: barbed_barrage, level: 70 }
+  - { skill: skull_breaker, level: 76 }
+  - { skill: thorn_volley, level: 82 }
+  - { skill: primal_rage, level: 88 }
+  - { skill: cyclone, level: 94 }
+  - { skill: hurricane, level: 100 }
+habitat: [GRASSLAND, DRYLAND]
+temperature-min: -5
+temperature-max: 38
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, GARMENT, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT]
+loot:
+  - { item: feather, chance: 4000 }
+  - { item: raw_meat, chance: 2500 }

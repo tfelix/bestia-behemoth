@@ -1,0 +1,48 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 105
+identifier: giftbox_mimic
+level: 40
+name: "Giftbox Mimic"
+description: >-
+  A present with a bow that hops through the snow at midwinter. Open it gently; sometimes it bites.
+kind: FORMLESS
+element: WATER_2
+size: SMALL
+default-attack: MELEE
+aspd: 80
+ai: passive_wanderer
+attack-power: 1
+health: 610
+mana: 120
+experience: 183
+attributes: { strength: 10, intelligence: 11, vitality: 65, dexterity: 6, willpower: 26, agility: 9 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: howl, level: 6 }
+  - { skill: growl, level: 11 }
+  - { skill: minor_heal, level: 16 }
+  - { skill: frost_bite, level: 21 }
+  - { skill: crushing_blow, level: 26 }
+  - { skill: tailwind, level: 31 }
+  - { skill: curse, level: 36, active: true }
+  - { skill: regenerate, level: 41 }
+  - { skill: body_slam, level: 46 }
+  - { skill: frost_breath, level: 51 }
+  - { skill: bloodlust, level: 56 }
+  - { skill: tidal_slam, level: 61 }
+  - { skill: petrifying_gaze, level: 66 }
+  - { skill: renewal, level: 70 }
+  - { skill: berserk, level: 76 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: skull_breaker, level: 88 }
+  - { skill: greater_heal, level: 94 }
+  - { skill: blizzard, level: 100 }
+habitat: []
+spawn-weight: 100
+event-only: true
+equip-slots: [GARMENT]
+armor-types: [CLOTH, LIGHT]
+loot:
+  - { item: gold_coin, chance: 6000 }
+  - { item: apple, chance: 3000 }
+  - { item: gold_ring, chance: 500 }

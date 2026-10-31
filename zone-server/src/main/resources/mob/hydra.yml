@@ -1,0 +1,49 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 71
+identifier: hydra
+level: 76
+name: "Hydra"
+description: >-
+  A many-headed swamp lizard that bites with each head in turn. Burn the stumps, or the heads grow back.
+kind: REPTILE
+element: POISON_4
+size: BIG
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 1.17
+health: 6728
+mana: 193
+experience: 2975
+attributes: { strength: 30, intelligence: 14, vitality: 68, dexterity: 11, willpower: 23, agility: 46 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: ram, level: 6 }
+  - { skill: howl, level: 11 }
+  - { skill: poison_sting, level: 16 }
+  - { skill: hamstring, level: 21 }
+  - { skill: crushing_blow, level: 26 }
+  - { skill: pounce, level: 31 }
+  - { skill: tailwind, level: 36 }
+  - { skill: toxic_rend, level: 41 }
+  - { skill: curse, level: 46 }
+  - { skill: body_slam, level: 51 }
+  - { skill: savage_maul, level: 56 }
+  - { skill: miasma, level: 61 }
+  - { skill: bloodlust, level: 66, active: true }
+  - { skill: rampage, level: 70 }
+  - { skill: skull_breaker, level: 76, active: true }
+  - { skill: mana_storm, level: 82 }
+  - { skill: primal_rage, level: 88 }
+  - { skill: titan_blow, level: 94 }
+  - { skill: pestilence, level: 100 }
+habitat: [SWAMP, BOG]
+temperature-min: -10
+temperature-max: 38
+spawn-weight: 30
+equip-slots: [HEAD_UPPER, ARMOR, ACCESSORY_1, ACCESSORY_2]
+armor-types: [LIGHT, MEDIUM]
+loot:
+  - { item: reptile_scale, chance: 4000 }
+  - { item: venom_sac, chance: 3000 }
+  - { item: dragon_scale, chance: 300 }

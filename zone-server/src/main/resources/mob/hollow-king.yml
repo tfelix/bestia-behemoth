@@ -1,0 +1,48 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 99
+identifier: hollow_king
+level: 100
+name: "The Hollow King"
+description: >-
+  The king who ruled before the Rift and refused to die with his kingdom. He holds the corrupted land with an
+  army of the dead.
+kind: UNDEAD
+element: UNDEAD_4
+size: BIG
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 0.04
+health: 146636
+mana: 1058
+experience: 37894
+attributes: { strength: 1, intelligence: 216, vitality: 58, dexterity: 1, willpower: 144, agility: 58 }
+learnset:
+  - { skill: mana_spark, level: 1 }
+  - { skill: growl, level: 6 }
+  - { skill: enrage, level: 21 }
+  - { skill: necrotic_bolt, level: 26 }
+  - { skill: shockwave, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: arcane_missile, level: 41 }
+  - { skill: blight, level: 46 }
+  - { skill: arcane_lance, level: 51 }
+  - { skill: mending_light, level: 56 }
+  - { skill: corpse_explosion, level: 61 }
+  - { skill: drain_life, level: 66 }
+  - { skill: petrifying_gaze, level: 70 }
+  - { skill: mana_spear, level: 76 }
+  - { skill: mana_storm, level: 82, active: true }
+  - { skill: bleeding_wound, level: 88, active: true }
+  - { skill: force_bolt, level: 94, active: true }
+  - { skill: grave_tide, level: 100, active: true }
+habitat: []
+spawn-weight: 100
+boss: true
+corrupted-only: true
+equip-slots: [HEAD_UPPER, HEAD_MID, ARMOR, GARMENT, FOOTGEAR, RIGHT_HAND, LEFT_HAND, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
+loot:
+  - { item: bone_shard, chance: 8000 }
+  - { item: gold_bar, chance: 6000 }
+  - { item: void_essence, chance: 4000 }

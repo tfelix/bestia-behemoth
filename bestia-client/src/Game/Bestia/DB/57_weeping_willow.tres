@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 57
+name_key = "BESTIA_WEEPING_WILLOW"
+description_key = "BESTIA_WEEPING_WILLOW_DESC"
+kind = "PLANT"
+equip_slots = 393
+armor_types = 1
+non_combatant = false
+habitat = "RIPARIAN,SWAMP,TEMPERATE_RAINFOREST"
+in_compendium = true
+placeholder_shape = 3
+placeholder_colour = Color(0.4196, 0.5569, 0.1373, 1)
+placeholder_scale = 1.6
+placeholder_glow = 0

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 82
+name_key = "BESTIA_HIVE_QUEEN"
+description_key = "BESTIA_HIVE_QUEEN_DESC"
+kind = "INSECT"
+equip_slots = 389
+armor_types = 6
+non_combatant = false
+habitat = "TEMPERATE_FOREST,GRASSLAND"
+in_compendium = true
+placeholder_shape = 2
+placeholder_colour = Color(0.9569, 0.7686, 0.1882, 1)
+placeholder_scale = 2.4
+placeholder_glow = 0.6

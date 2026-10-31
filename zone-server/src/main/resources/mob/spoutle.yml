@@ -1,0 +1,49 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 49
+identifier: spoutle
+level: 31
+name: "Spoutle"
+description: >-
+  A turtle that sleeps in hot springs with only its nose above water. Startle it and it shoots a jet of scalding
+  water.
+kind: REPTILE
+element: WATER_2
+size: MEDIUM
+default-attack: MELEE
+aspd: 80
+ai: passive_wanderer
+attack-power: 1
+health: 558
+mana: 98
+experience: 145
+attributes: { strength: 5, intelligence: 9, vitality: 53, dexterity: 1, willpower: 21, agility: 7 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: howl, level: 6 }
+  - { skill: growl, level: 11 }
+  - { skill: cooling_mist, level: 16 }
+  - { skill: frost_bite, level: 21 }
+  - { skill: crushing_blow, level: 26 }
+  - { skill: tailwind, level: 31, active: true }
+  - { skill: curse, level: 36 }
+  - { skill: regenerate, level: 41 }
+  - { skill: body_slam, level: 46 }
+  - { skill: frost_breath, level: 51 }
+  - { skill: bloodlust, level: 56 }
+  - { skill: tidal_slam, level: 61 }
+  - { skill: petrifying_gaze, level: 66 }
+  - { skill: renewal, level: 70 }
+  - { skill: berserk, level: 76 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: skull_breaker, level: 88 }
+  - { skill: greater_heal, level: 94 }
+  - { skill: blizzard, level: 100 }
+habitat: [GEOTHERMAL_BASIN, LAKE]
+temperature-min: -10
+temperature-max: 50
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, ARMOR, ACCESSORY_1, ACCESSORY_2]
+armor-types: [LIGHT, MEDIUM]
+loot:
+  - { item: reptile_scale, chance: 2000 }
+  - { item: salt, chance: 1500 }

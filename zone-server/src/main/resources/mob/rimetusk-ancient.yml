@@ -1,0 +1,50 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 95
+identifier: rimetusk_ancient
+level: 86
+name: "Rimetusk Ancient"
+description: >-
+  A mammoth older than the ice it walks on. It sleeps frozen for years and wakes up hungry.
+kind: BEAST
+element: WATER_4
+size: BIG
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 2.46
+health: 73465
+mana: 273
+experience: 33595
+attributes: { strength: 32, intelligence: 33, vitality: 199, dexterity: 18, willpower: 79, agility: 26 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: howl, level: 6 }
+  - { skill: growl, level: 11 }
+  - { skill: minor_heal, level: 16 }
+  - { skill: warm_fur, level: 21 }
+  - { skill: crushing_blow, level: 26 }
+  - { skill: tailwind, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: regenerate, level: 41 }
+  - { skill: body_slam, level: 46 }
+  - { skill: frost_breath, level: 51 }
+  - { skill: bloodlust, level: 56 }
+  - { skill: tidal_slam, level: 61 }
+  - { skill: petrifying_gaze, level: 66, active: true }
+  - { skill: renewal, level: 70, active: true }
+  - { skill: berserk, level: 76, active: true }
+  - { skill: mana_storm, level: 82, active: true }
+  - { skill: skull_breaker, level: 88 }
+  - { skill: greater_heal, level: 94 }
+  - { skill: blizzard, level: 100 }
+habitat: [ICE_SHEET]
+temperature-min: -40
+temperature-max: -5
+spawn-weight: 100
+boss: true
+equip-slots: [HEAD_UPPER, ARMOR, GARMENT, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
+loot:
+  - { item: wool, chance: 8000 }
+  - { item: horn, chance: 8000 }
+  - { item: frost_crystal, chance: 5000 }

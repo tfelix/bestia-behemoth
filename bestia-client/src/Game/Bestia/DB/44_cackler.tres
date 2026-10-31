@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 44
+name_key = "BESTIA_CACKLER"
+description_key = "BESTIA_CACKLER_DESC"
+kind = "BEAST"
+equip_slots = 397
+armor_types = 15
+non_combatant = false
+habitat = "DRYLAND,BADLANDS"
+in_compendium = true
+placeholder_shape = 1
+placeholder_colour = Color(0.651, 0.5412, 0.3922, 1)
+placeholder_scale = 1
+placeholder_glow = 0

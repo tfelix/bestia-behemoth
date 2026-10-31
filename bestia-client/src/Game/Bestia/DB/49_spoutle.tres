@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 49
+name_key = "BESTIA_SPOUTLE"
+description_key = "BESTIA_SPOUTLE_DESC"
+kind = "REPTILE"
+equip_slots = 389
+armor_types = 6
+non_combatant = false
+habitat = "GEOTHERMAL_BASIN,LAKE"
+in_compendium = true
+placeholder_shape = 3
+placeholder_colour = Color(0.3725, 0.6196, 0.6275, 1)
+placeholder_scale = 1
+placeholder_glow = 0

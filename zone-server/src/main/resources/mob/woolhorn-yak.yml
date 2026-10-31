@@ -1,0 +1,49 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 33
+identifier: woolhorn_yak
+level: 26
+name: "Woolhorn Yak"
+description: >-
+  A shaggy yak whose wool never freezes. Nomads follow its herds, and its wool sells well in the warm south.
+kind: BEAST
+element: WATER_2
+size: BIG
+default-attack: MELEE
+aspd: 80
+ai: passive_wanderer
+attack-power: 1.04
+health: 482
+mana: 85
+experience: 120
+attributes: { strength: 1, intelligence: 8, vitality: 46, dexterity: 1, willpower: 18, agility: 6 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: shed_wool, level: 6 }
+  - { skill: growl, level: 11 }
+  - { skill: minor_heal, level: 16 }
+  - { skill: frost_bite, level: 21, active: true }
+  - { skill: warm_fur, level: 26 }
+  - { skill: tailwind, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: regenerate, level: 41 }
+  - { skill: body_slam, level: 46 }
+  - { skill: frost_breath, level: 51 }
+  - { skill: bloodlust, level: 56 }
+  - { skill: tidal_slam, level: 61 }
+  - { skill: petrifying_gaze, level: 66 }
+  - { skill: renewal, level: 70 }
+  - { skill: berserk, level: 76 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: skull_breaker, level: 88 }
+  - { skill: greater_heal, level: 94 }
+  - { skill: blizzard, level: 100 }
+habitat: [COLD_DESERT, TUNDRA, ALPINE]
+temperature-min: -30
+temperature-max: 20
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, ARMOR, GARMENT, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
+loot:
+  - { item: wool, chance: 4000 }
+  - { item: raw_meat, chance: 2500 }
+  - { item: horn, chance: 1000 }

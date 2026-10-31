@@ -1,0 +1,48 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 55
+identifier: kobold_scrapper
+level: 24
+name: "Kobold Scrapper"
+description: >-
+  Small dog-faced miners that dig for ore and fight over every scrap. Their camps are full of stolen tools.
+kind: HUMANOID
+element: NORMAL
+size: SMALL
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 1
+health: 421
+mana: 94
+experience: 109
+attributes: { strength: 4, intelligence: 18, vitality: 18, dexterity: 4, willpower: 18, agility: 18 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: mana_spark, level: 6 }
+  - { skill: mine_ore, level: 11 }
+  - { skill: ram, level: 16 }
+  - { skill: hamstring, level: 21, active: true }
+  - { skill: unearth, level: 26 }
+  - { skill: pounce, level: 31 }
+  - { skill: bleeding_wound, level: 36 }
+  - { skill: hammer_blow, level: 41 }
+  - { skill: regenerate, level: 46 }
+  - { skill: arcane_lance, level: 51 }
+  - { skill: shockwave, level: 56 }
+  - { skill: savage_maul, level: 61 }
+  - { skill: terrifying_roar, level: 66 }
+  - { skill: mana_spear, level: 70 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: skull_breaker, level: 88 }
+  - { skill: arcane_missile, level: 94 }
+  - { skill: wrath_of_the_wild, level: 100 }
+habitat: [COLD_DESERT, ALPINE, BADLANDS]
+temperature-min: -25
+temperature-max: 42
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, HEAD_MID, ARMOR, GARMENT, FOOTGEAR, RIGHT_HAND, LEFT_HAND, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
+loot:
+  - { item: iron_ore, chance: 2000 }
+  - { item: nails, chance: 1500 }
+  - { item: coal, chance: 1500 }

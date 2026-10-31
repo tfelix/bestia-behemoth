@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 28
+name_key = "BESTIA_ASHPELT_WOLF"
+description_key = "BESTIA_ASHPELT_WOLF_DESC"
+kind = "BEAST"
+equip_slots = 397
+armor_types = 15
+non_combatant = false
+habitat = "TAIGA,TEMPERATE_FOREST"
+in_compendium = true
+placeholder_shape = 1
+placeholder_colour = Color(0.4314, 0.4314, 0.4314, 1)
+placeholder_scale = 1
+placeholder_glow = 0

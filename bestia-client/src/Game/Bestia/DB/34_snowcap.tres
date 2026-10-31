@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 34
+name_key = "BESTIA_SNOWCAP"
+description_key = "BESTIA_SNOWCAP_DESC"
+kind = "ELEMENTAL"
+equip_slots = 384
+armor_types = 0
+non_combatant = false
+habitat = "TUNDRA,ICE_SHEET"
+in_compendium = true
+placeholder_shape = 2
+placeholder_colour = Color(1, 1, 1, 1)
+placeholder_scale = 1
+placeholder_glow = 0

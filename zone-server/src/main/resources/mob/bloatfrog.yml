@@ -1,0 +1,46 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 39
+identifier: bloatfrog
+level: 33
+name: "Bloatfrog"
+description: >-
+  A swollen toad with poison sacs in its cheeks. It puffs up before it spits; that is your moment to move.
+kind: AQUATIC
+element: POISON_2
+size: MEDIUM
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 0.21
+health: 668
+mana: 194
+experience: 152
+attributes: { strength: 1, intelligence: 53, vitality: 14, dexterity: 1, willpower: 35, agility: 14 }
+learnset:
+  - { skill: mana_spark, level: 1 }
+  - { skill: growl, level: 6 }
+  - { skill: venom_bolt, level: 16 }
+  - { skill: enrage, level: 21 }
+  - { skill: force_bolt, level: 26 }
+  - { skill: shockwave, level: 31, active: true }
+  - { skill: curse, level: 36 }
+  - { skill: arcane_missile, level: 41 }
+  - { skill: poison_cloud, level: 46 }
+  - { skill: arcane_lance, level: 51 }
+  - { skill: mending_light, level: 56 }
+  - { skill: miasma, level: 61 }
+  - { skill: acid_lance, level: 66 }
+  - { skill: petrifying_gaze, level: 70 }
+  - { skill: mana_spear, level: 76 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: bleeding_wound, level: 88 }
+  - { skill: pestilence, level: 100 }
+habitat: [SWAMP, BOG]
+temperature-min: -10
+temperature-max: 38
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, ARMOR, ACCESSORY_1, ACCESSORY_2]
+armor-types: [LIGHT, MEDIUM]
+loot:
+  - { item: venom_sac, chance: 2000 }
+  - { item: raw_meat, chance: 1500 }

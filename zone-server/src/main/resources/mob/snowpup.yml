@@ -1,0 +1,50 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 15
+identifier: snowpup
+level: 9
+name: "Snowpup"
+description: >-
+  A white fox cub that dives head-first into snowdrifts to catch mice. Its fur keeps it warm in deep frost, but
+  it pants in summer sun.
+kind: BEAST
+element: WATER
+size: SMALL
+default-attack: RANGED
+aspd: 80
+ai: passive_wanderer
+attack-power: 0.65
+health: 263
+mana: 44
+experience: 44
+attributes: { strength: 4, intelligence: 3, vitality: 5, dexterity: 8, willpower: 7, agility: 26 }
+learnset:
+  - { skill: tackle, level: 1, active: true }
+  - { skill: sniff_trail, level: 6 }
+  - { skill: growl, level: 11 }
+  - { skill: warm_fur, level: 16 }
+  - { skill: enrage, level: 21 }
+  - { skill: water_jet, level: 26 }
+  - { skill: crushing_blow, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: spine_volley, level: 41 }
+  - { skill: body_slam, level: 46 }
+  - { skill: war_cry, level: 51 }
+  - { skill: piercing_spike, level: 56 }
+  - { skill: tidal_slam, level: 61 }
+  - { skill: petrifying_gaze, level: 66 }
+  - { skill: barbed_barrage, level: 70 }
+  - { skill: skull_breaker, level: 76 }
+  - { skill: thorn_volley, level: 82 }
+  - { skill: primal_rage, level: 88 }
+  - { skill: frost_breath, level: 94 }
+  - { skill: blizzard, level: 100 }
+habitat: [TUNDRA, TAIGA]
+temperature-min: -30
+temperature-max: 15
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, ARMOR, GARMENT, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
+loot:
+  - { item: soft_fur, chance: 2500 }
+  - { item: raw_meat, chance: 1500 }
+  - { item: frost_crystal, chance: 300 }

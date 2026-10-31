@@ -1,0 +1,48 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 90
+identifier: rafflesia_queen
+level: 74
+name: "Rafflesia Queen"
+description: >-
+  A giant flower whose stench carries for miles. Its pollen poisons the air around it; fight upwind.
+kind: PLANT
+element: POISON_4
+size: BIG
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 0.11
+health: 74238
+mana: 669
+experience: 28975
+attributes: { strength: 1, intelligence: 163, vitality: 43, dexterity: 1, willpower: 109, agility: 43 }
+learnset:
+  - { skill: mana_spark, level: 1 }
+  - { skill: growl, level: 6 }
+  - { skill: gather_herbs, level: 16 }
+  - { skill: enrage, level: 21 }
+  - { skill: force_bolt, level: 26 }
+  - { skill: shockwave, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: arcane_missile, level: 41 }
+  - { skill: poison_cloud, level: 46 }
+  - { skill: arcane_lance, level: 51 }
+  - { skill: mending_light, level: 56, active: true }
+  - { skill: miasma, level: 61, active: true }
+  - { skill: acid_lance, level: 66, active: true }
+  - { skill: petrifying_gaze, level: 70, active: true }
+  - { skill: mana_spear, level: 76 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: bleeding_wound, level: 88 }
+  - { skill: pestilence, level: 100 }
+habitat: [SWAMP, TROPICAL_RAINFOREST]
+temperature-min: 10
+temperature-max: 40
+spawn-weight: 100
+boss: true
+equip-slots: [HEAD_UPPER, GARMENT, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH]
+loot:
+  - { item: spore_dust, chance: 8000 }
+  - { item: venom_sac, chance: 5000 }
+  - { item: medicine, chance: 3000 }

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 40
+name_key = "BESTIA_DROWNED_ONE"
+description_key = "BESTIA_DROWNED_ONE_DESC"
+kind = "UNDEAD"
+equip_slots = 511
+armor_types = 15
+non_combatant = false
+habitat = "BOG,SWAMP,LAKE"
+in_compendium = true
+placeholder_shape = 1
+placeholder_colour = Color(0.3725, 0.4353, 0.3529, 1)
+placeholder_scale = 1
+placeholder_glow = 0

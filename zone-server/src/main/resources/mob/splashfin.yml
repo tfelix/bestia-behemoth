@@ -1,0 +1,47 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 14
+identifier: splashfin
+level: 2
+name: "Splashfin"
+description: >-
+  A golden fish that leaps out of the water for no reason anyone can name. On land it only splashes, and it is
+  very proud of it.
+kind: AQUATIC
+element: WATER
+size: SMALL
+default-attack: MELEE
+aspd: 80
+ai: passive_wanderer
+attack-power: 1
+health: 96
+mana: 31
+experience: 6
+attributes: { strength: 1, intelligence: 5, vitality: 5, dexterity: 1, willpower: 5, agility: 5 }
+learnset:
+  - { skill: splash, level: 1 }
+  - { skill: ice_shard, level: 6 }
+  - { skill: hamstring, level: 21 }
+  - { skill: force_bolt, level: 26 }
+  - { skill: frost_bite, level: 31 }
+  - { skill: chilling_mist, level: 36 }
+  - { skill: hammer_blow, level: 41 }
+  - { skill: mending_light, level: 46 }
+  - { skill: hailstone, level: 51 }
+  - { skill: frost_breath, level: 56 }
+  - { skill: tidal_slam, level: 61 }
+  - { skill: petrifying_gaze, level: 66 }
+  - { skill: torrent, level: 70 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: skull_breaker, level: 88 }
+  - { skill: mana_spear, level: 94 }
+  - { skill: blizzard, level: 100 }
+habitat: [LAKE, RIPARIAN, GEOTHERMAL_BASIN]
+temperature-min: -10
+temperature-max: 50
+spawn-weight: 100
+non-combatant: true
+equip-slots: [HEAD_UPPER, ARMOR, ACCESSORY_1, ACCESSORY_2]
+armor-types: [LIGHT, MEDIUM]
+loot:
+  - { item: raw_fish, chance: 4000 }
+  - { item: sea_pearl, chance: 100 }

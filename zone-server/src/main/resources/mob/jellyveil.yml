@@ -1,0 +1,50 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 36
+identifier: jellyveil
+level: 27
+name: "Jellyveil"
+description: >-
+  A see-through jellyfish that washes up after storms. Its threads sting and numb the limbs, so do not wade in
+  after a storm.
+kind: AQUATIC
+element: WATER_2
+size: MEDIUM
+default-attack: MELEE
+aspd: 80
+ai: passive_wanderer
+attack-power: 1
+health: 475
+mana: 136
+experience: 140
+attributes: { strength: 1, intelligence: 32, vitality: 19, dexterity: 1, willpower: 41, agility: 10 }
+learnset:
+  - { skill: lick_wounds, level: 1 }
+  - { skill: growl, level: 6 }
+  - { skill: ice_shard, level: 11 }
+  - { skill: cooling_mist, level: 16 }
+  - { skill: minor_heal, level: 21 }
+  - { skill: hamstring, level: 26, active: true }
+  - { skill: arcane_missile, level: 31 }
+  - { skill: tailwind, level: 36 }
+  - { skill: regenerate, level: 41 }
+  - { skill: chilling_mist, level: 46 }
+  - { skill: hailstone, level: 51 }
+  - { skill: terrifying_roar, level: 56 }
+  - { skill: renewal, level: 61 }
+  - { skill: bloodlust, level: 66 }
+  - { skill: frost_breath, level: 70 }
+  - { skill: mending_light, level: 76 }
+  - { skill: berserk, level: 82 }
+  - { skill: torrent, level: 88 }
+  - { skill: mana_storm, level: 94 }
+  - { skill: blizzard, level: 100 }
+habitat: [OCEAN, BEACH]
+temperature-min: -10
+temperature-max: 38
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, ARMOR, ACCESSORY_1, ACCESSORY_2]
+armor-types: [LIGHT, MEDIUM]
+loot:
+  - { item: jelly, chance: 3000 }
+  - { item: venom_sac, chance: 800 }
+  - { item: sea_pearl, chance: 200 }

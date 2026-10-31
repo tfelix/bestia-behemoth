@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 74
+name_key = "BESTIA_DUNE_DEVOURER"
+description_key = "BESTIA_DUNE_DEVOURER_DESC"
+kind = "REPTILE"
+equip_slots = 389
+armor_types = 6
+non_combatant = false
+habitat = "DESERT,COLD_DESERT"
+in_compendium = true
+placeholder_shape = 3
+placeholder_colour = Color(0.7608, 0.6588, 0.4706, 1)
+placeholder_scale = 1.6
+placeholder_glow = 0

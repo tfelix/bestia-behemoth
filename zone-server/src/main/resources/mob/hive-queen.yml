@@ -1,0 +1,50 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 82
+identifier: hive_queen
+level: 54
+name: "Hive Queen"
+description: >-
+  Queen of a hive the size of a house. She never fights alone; a cloud of guards follows her.
+kind: INSECT
+element: WIND_4
+size: BIG
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 0.04
+health: 64273
+mana: 343
+experience: 21290
+attributes: { strength: 1, intelligence: 89, vitality: 53, dexterity: 1, willpower: 111, agility: 27 }
+learnset:
+  - { skill: lick_wounds, level: 1 }
+  - { skill: growl, level: 6 }
+  - { skill: shock, level: 11 }
+  - { skill: collect_honey, level: 16 }
+  - { skill: minor_heal, level: 21 }
+  - { skill: hamstring, level: 26 }
+  - { skill: arcane_missile, level: 31 }
+  - { skill: tailwind, level: 36, active: true }
+  - { skill: regenerate, level: 41, active: true }
+  - { skill: static_field, level: 46, active: true }
+  - { skill: arcane_lance, level: 51, active: true }
+  - { skill: terrifying_roar, level: 56 }
+  - { skill: renewal, level: 61 }
+  - { skill: bloodlust, level: 66 }
+  - { skill: cyclone, level: 70 }
+  - { skill: mending_light, level: 76 }
+  - { skill: berserk, level: 82 }
+  - { skill: chain_lightning, level: 88 }
+  - { skill: mana_storm, level: 94 }
+  - { skill: hurricane, level: 100 }
+habitat: [TEMPERATE_FOREST, GRASSLAND]
+temperature-min: -5
+temperature-max: 30
+spawn-weight: 100
+boss: true
+equip-slots: [HEAD_UPPER, ARMOR, ACCESSORY_1, ACCESSORY_2]
+armor-types: [LIGHT, MEDIUM]
+loot:
+  - { item: honeycomb, chance: 8000 }
+  - { item: chitin, chance: 6000 }
+  - { item: venom_sac, chance: 3000 }

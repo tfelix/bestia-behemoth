@@ -1,0 +1,50 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 12
+identifier: shellsnip
+level: 5
+name: "Shellsnip"
+description: >-
+  Scuttles sideways along the tideline and snaps at bare toes. Its shell turns blows from the front; strike it
+  from the side.
+kind: AQUATIC
+element: WATER
+size: SMALL
+default-attack: MELEE
+aspd: 80
+ai: passive_wanderer
+attack-power: 0.98
+health: 199
+mana: 36
+experience: 27
+attributes: { strength: 1, intelligence: 4, vitality: 22, dexterity: 2, willpower: 9, agility: 3 }
+learnset:
+  - { skill: tackle, level: 1, active: true }
+  - { skill: howl, level: 6 }
+  - { skill: go_fishing, level: 11 }
+  - { skill: minor_heal, level: 16 }
+  - { skill: frost_bite, level: 21 }
+  - { skill: crushing_blow, level: 26 }
+  - { skill: tailwind, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: regenerate, level: 41 }
+  - { skill: body_slam, level: 46 }
+  - { skill: frost_breath, level: 51 }
+  - { skill: bloodlust, level: 56 }
+  - { skill: tidal_slam, level: 61 }
+  - { skill: petrifying_gaze, level: 66 }
+  - { skill: renewal, level: 70 }
+  - { skill: berserk, level: 76 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: skull_breaker, level: 88 }
+  - { skill: greater_heal, level: 94 }
+  - { skill: blizzard, level: 100 }
+habitat: [BEACH, OCEAN]
+temperature-min: -10
+temperature-max: 38
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, ARMOR, ACCESSORY_1, ACCESSORY_2]
+armor-types: [LIGHT, MEDIUM]
+loot:
+  - { item: raw_fish, chance: 2000 }
+  - { item: chitin, chance: 1500 }
+  - { item: salt, chance: 1000 }

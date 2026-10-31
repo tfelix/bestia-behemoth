@@ -1,0 +1,49 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 86
+identifier: ninefold_vixen
+level: 66
+name: "Ninefold Vixen"
+description: >-
+  A fox with nine flaming tails who jumps between old shrines. Each tail is a spell; count them as they go out.
+kind: BEAST
+element: FIRE_4
+size: MEDIUM
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 0.06
+health: 78919
+mana: 569
+experience: 25914
+attributes: { strength: 1, intelligence: 148, vitality: 39, dexterity: 1, willpower: 99, agility: 39 }
+learnset:
+  - { skill: mana_spark, level: 1 }
+  - { skill: growl, level: 6 }
+  - { skill: kindle, level: 11 }
+  - { skill: flame_dart, level: 16 }
+  - { skill: enrage, level: 21 }
+  - { skill: force_bolt, level: 26 }
+  - { skill: shockwave, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: arcane_missile, level: 41 }
+  - { skill: burning_ground, level: 46, active: true }
+  - { skill: arcane_lance, level: 51 }
+  - { skill: mending_light, level: 56, active: true }
+  - { skill: fire_ball, level: 61, active: true }
+  - { skill: searing_ray, level: 66, active: true }
+  - { skill: petrifying_gaze, level: 70 }
+  - { skill: mana_spear, level: 76 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: bleeding_wound, level: 88 }
+  - { skill: inferno, level: 100 }
+habitat: [TEMPERATE_FOREST, ALPINE]
+temperature-min: -25
+temperature-max: 28
+spawn-weight: 100
+boss: true
+equip-slots: [HEAD_UPPER, ARMOR, GARMENT, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
+loot:
+  - { item: soft_fur, chance: 8000 }
+  - { item: ember_core, chance: 4000 }
+  - { item: mana_crystal, chance: 2000 }

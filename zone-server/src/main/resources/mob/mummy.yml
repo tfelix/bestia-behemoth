@@ -1,0 +1,49 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 42
+identifier: mummy
+level: 48
+name: "Mummy"
+description: >-
+  A wrapped corpse that guards tombs long after its masters turned to dust. Its loose bandages burn well.
+kind: UNDEAD
+element: UNDEAD_2
+size: MEDIUM
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 1.16
+health: 813
+mana: 140
+experience: 217
+attributes: { strength: 5, intelligence: 12, vitality: 74, dexterity: 3, willpower: 30, agility: 10 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: howl, level: 6 }
+  - { skill: growl, level: 11 }
+  - { skill: minor_heal, level: 16 }
+  - { skill: rotting_grasp, level: 21 }
+  - { skill: crushing_blow, level: 26 }
+  - { skill: tailwind, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: regenerate, level: 41 }
+  - { skill: body_slam, level: 46, active: true }
+  - { skill: shockwave, level: 51 }
+  - { skill: bloodlust, level: 56 }
+  - { skill: bone_crusher, level: 61 }
+  - { skill: petrifying_gaze, level: 66 }
+  - { skill: renewal, level: 70 }
+  - { skill: berserk, level: 76 }
+  - { skill: corpse_explosion, level: 82 }
+  - { skill: skull_breaker, level: 88 }
+  - { skill: greater_heal, level: 94 }
+  - { skill: grave_tide, level: 100 }
+habitat: [DESERT, BADLANDS]
+temperature-min: 0
+temperature-max: 48
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, HEAD_MID, ARMOR, GARMENT, FOOTGEAR, RIGHT_HAND, LEFT_HAND, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
+loot:
+  - { item: old_bandage, chance: 4000 }
+  - { item: cloth, chance: 1500 }
+  - { item: gold_coin, chance: 1000 }
