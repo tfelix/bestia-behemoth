@@ -260,8 +260,29 @@ data class SpawnerParams(
   val gentleRadius: Double = 220.0,
   val dangerousRadius: Double = 300.0,
 
-  /** Chance a corrupted spawner is a boss den instead of a pack. */
-  val bossChance: Double = 0.025,
+  /**
+   * Chance a den in wild country outside corruption is a boss den instead of a pack.
+   *
+   * Wild country is ground whose ordinary dens reach past [midMaxLevel]. About one den in a hundred there:
+   * on the dev world that is a few dozen boss dens over some four thousand square kilometres of wilds, rare
+   * enough to be a find rather than scenery.
+   */
+  val wildBossChance: Double = 0.01,
+
+  /** Chance a den on corrupted ground is a boss den instead of a pack. Higher than [wildBossChance]. */
+  val corruptedBossChance: Double = 0.025,
+
+  /**
+   * Levels a boss den reaches above the ordinary dens of its country.
+   *
+   * Added to the top of the range only, so a boss den spans `ordinary min .. ordinary max + this`. The low end
+   * lets a level-42 boss find a den where the wilds begin, and the high end lets the deepest corruption reach
+   * [bossMaxLevel].
+   */
+  val bossLevelBonus: Int = 20,
+
+  /** The cap for boss dens. Above [maxLevel], because a boss is harder than the hardest pack. */
+  val bossMaxLevel: Int = 120,
 
   /** Metres of clearance kept from a standing settlement's own centre. */
   val settlementClearance: Double = 250.0
@@ -301,7 +322,10 @@ data class SpawnerParams(
           "$starterPack/$midPack/$wildPack/$endgamePack"
     }
     require(gentleRadius > 0.0 && gentleRadius <= dangerousRadius) { "the radius range is empty" }
-    require(bossChance in 0.0..1.0) { "bossChance must be a share, was $bossChance" }
+    require(wildBossChance in 0.0..1.0) { "wildBossChance must be a share, was $wildBossChance" }
+    require(corruptedBossChance in 0.0..1.0) { "corruptedBossChance must be a share, was $corruptedBossChance" }
+    require(bossLevelBonus >= 0) { "bossLevelBonus must not be negative, was $bossLevelBonus" }
+    require(bossMaxLevel >= maxLevel) { "bossMaxLevel $bossMaxLevel must not be below maxLevel $maxLevel" }
     require(settlementClearance >= 0.0) { "settlementClearance must not be negative" }
   }
 
@@ -364,7 +388,10 @@ data class SpawnerParams(
     packCeiling = source.int("packCeiling", packCeiling),
     gentleRadius = source.double("gentleRadius", gentleRadius),
     dangerousRadius = source.double("dangerousRadius", dangerousRadius),
-    bossChance = source.double("bossChance", bossChance),
+    wildBossChance = source.double("wildBossChance", wildBossChance),
+    corruptedBossChance = source.double("corruptedBossChance", corruptedBossChance),
+    bossLevelBonus = source.int("bossLevelBonus", bossLevelBonus),
+    bossMaxLevel = source.int("bossMaxLevel", bossMaxLevel),
     settlementClearance = source.double("settlementClearance", settlementClearance)
   )
 
@@ -397,7 +424,10 @@ data class SpawnerParams(
     .put("packCeiling", packCeiling)
     .put("gentleRadius", gentleRadius)
     .put("dangerousRadius", dangerousRadius)
-    .put("bossChance", bossChance)
+    .put("wildBossChance", wildBossChance)
+    .put("corruptedBossChance", corruptedBossChance)
+    .put("bossLevelBonus", bossLevelBonus)
+    .put("bossMaxLevel", bossMaxLevel)
     .put("settlementClearance", settlementClearance)
 }
 
@@ -435,6 +465,14 @@ data class SpawnerParams(
  * could only express that by letting corruption dominate everywhere, which would flatten the other three
  * across the whole world to get one region right. Severity still counts *inside* the band, so a corrupted
  * mountain is worse than a corrupted plain.
+ *
+ * ### Boss dens
+ *
+ * Any den in wild country - ground whose ordinary dens reach past [SpawnerParams.midMaxLevel] - may roll to be
+ * a boss den instead: rarely in the plain wilds, more often on corrupted ground. A boss den keeps its
+ * country's level range and widens it upward by [SpawnerParams.bossLevelBonus], so the range says "a boss
+ * that belongs to this country" and the runtime picks the species. Bosses exist from level forty-two to one
+ * hundred and twenty, so the wilds hold the softer ones and only the deepest corruption reaches the top.
  *
  * ### The per-cell creature budget
  *
@@ -482,7 +520,9 @@ class SpawnerStage(
   //    handed back to a den that is no longer the same den.
   // 5: the home safety ring caps the boss roll as well. A stored world can hold a level-100 den inside a
   //    starter town's ring, which is the one thing the ring exists to prevent.
-  override val version = 5
+  // 6: boss dens roll in all wild country, not only on corrupted ground, and take their level from the
+  //    ground plus a bonus instead of a flat maxLevel. The roll consumes the RNG on new dens.
+  override val version = 6
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, SpawnHostility.catalogueDigest())
 
@@ -651,25 +691,26 @@ class SpawnerStage(
     nearHome: Boolean,
     boss: Boolean
   ): Levels {
-    val levels = if (boss) {
-      Levels(params.maxLevel, params.maxLevel)
-    } else {
-      val centre = when {
-        // Inside the band, severity and the ordinary danger share the say, so a corrupted mountain is worse
-        // than a corrupted plain rather than both being pinned to the same number.
-        corrupted -> lerp(
-          params.corruptedMinLevel.toDouble(),
-          params.maxLevel.toDouble(),
-          0.5 * severity + 0.5 * danger
-        )
-        // `levelCurve` bends this so low-level country is a region rather than a rounding error.
-        else -> lerp(1.0, params.wildMaxLevel.toDouble(), danger.pow(params.levelCurve))
-      }
-
-      Levels(
-        (centre - params.levelSpread).toInt().coerceIn(1, params.maxLevel),
-        (centre + params.levelSpread).toInt().coerceIn(1, params.maxLevel)
+    val centre = when {
+      // Inside the band, severity and the ordinary danger share the say, so a corrupted mountain is worse
+      // than a corrupted plain rather than both being pinned to the same number.
+      corrupted -> lerp(
+        params.corruptedMinLevel.toDouble(),
+        params.maxLevel.toDouble(),
+        0.5 * severity + 0.5 * danger
       )
+      // `levelCurve` bends this so low-level country is a region rather than a rounding error.
+      else -> lerp(1.0, params.wildMaxLevel.toDouble(), danger.pow(params.levelCurve))
+    }
+
+    val ordinary = Levels(
+      (centre - params.levelSpread).toInt().coerceIn(1, params.maxLevel),
+      (centre + params.levelSpread).toInt().coerceIn(1, params.maxLevel)
+    )
+    val levels = if (boss) {
+      Levels(ordinary.min, (ordinary.max + params.bossLevelBonus).coerceAtMost(params.bossMaxLevel))
+    } else {
+      ordinary
     }
 
     if (!nearHome) return levels
@@ -679,6 +720,18 @@ class SpawnerStage(
     // the top of the range rather than on its centre, for the same reason.
     val capped = minOf(levels.max, params.homeMaxLevel)
     return Levels(minOf(levels.min, capped), capped)
+  }
+
+  /**
+   * Chance a den is a boss den, given the levels an ordinary den in its place would have.
+   *
+   * Keyed on the ordinary levels rather than on danger, so the home ring's cap also keeps bosses out of
+   * starter country: a capped den never reaches wild country.
+   */
+  internal fun bossChanceOf(ordinary: Levels, corrupted: Boolean): Double = when {
+    ordinary.max <= params.midMaxLevel -> 0.0
+    corrupted -> params.corruptedBossChance
+    else -> params.wildBossChance
   }
 
   private fun marker(
@@ -695,8 +748,9 @@ class SpawnerStage(
     temperatureSwing: Double,
     rng: GenRng
   ): PointMarker {
-    val boss = corrupted && rng.nextDouble() < params.bossChance
-    val levels = levelsAt(danger, severity, corrupted, nearHome, boss)
+    val ordinary = levelsAt(danger, severity, corrupted, nearHome, boss = false)
+    val boss = rng.nextDouble() < bossChanceOf(ordinary, corrupted)
+    val levels = if (boss) levelsAt(danger, severity, corrupted, nearHome, boss = true) else ordinary
 
     val attributes = StationTable.Builder(stationCount = 1)
       .channel(SpawnerChannels.LEVEL_MIN) { levels.min.toDouble() }

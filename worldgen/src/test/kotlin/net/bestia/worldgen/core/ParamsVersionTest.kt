@@ -238,7 +238,7 @@ class ParamsVersionTest {
       "OrderInfluence" to 2_558_661_069_677_437_569L,
       "HistoryParams" to 2_362_190_350_999_628_922L,
       "CorruptionParams" to -8_182_278_140_807_375_004L,
-      "SpawnerParams" to 9_011_422_239_801_402_374L,
+      "SpawnerParams" to 5_079_634_965_732_130_795L,
       "VegetationStandParams" to -259_420_489_769_960_249L,
       // Both moved when `StreetPlanner.organic` became a real Parish-Muller expansion and the surveyed cross
       // streets it had needed were deleted: `StreetParams` lost `crossStreetsPerMainStreet`, `crossStreetNear`

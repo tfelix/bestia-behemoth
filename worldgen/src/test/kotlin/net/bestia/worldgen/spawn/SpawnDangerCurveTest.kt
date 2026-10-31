@@ -107,12 +107,14 @@ class SpawnDangerCurveTest {
    * Moved 4 -> 5 by the home ring coming to cap the boss roll: a stored world can hold a level-100 den
    * inside a starter town's ring, so it has to be regenerated. Extracting the curve into [SpawnDangerCurve]
    * is the pure refactor the tests above measure, and moves neither number.
+   *
+   * Moved 5 -> 6 by boss dens rolling in the wilds and taking their level from the ground.
    */
   @Test
-  fun `SpawnerStage declares version five and an unchanged params digest`() {
+  fun `SpawnerStage declares version six and an unchanged params digest`() {
     val stage = SpawnerStage()
 
-    assertEquals(5, stage.version)
+    assertEquals(6, stage.version)
     assertEquals(
       net.bestia.worldgen.core.GenRng.hash(
         SpawnerParams().digest().value,
