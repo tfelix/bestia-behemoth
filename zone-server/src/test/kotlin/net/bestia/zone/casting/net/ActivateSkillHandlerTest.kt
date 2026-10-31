@@ -60,6 +60,7 @@ class ActivateSkillHandlerTest {
     connectionInfoService.activateSession(ACCOUNT_ID, masterId = 1L, masterEntityId = caster)
 
     every { skillExecution.skillOf(skill.id) } returns skill
+    every { skillExecution.isReady(any(), any(), skill.id) } returns true
 
     return ActivateSkillHandler(
       connectionInfoService = connectionInfoService,
