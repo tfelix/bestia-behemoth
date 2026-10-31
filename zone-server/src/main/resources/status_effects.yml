@@ -152,3 +152,19 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: Weakened
+
+  # Applied by a bestia's Warm Fur and Cooling Mist. EnvironmentalExposureSystem widens the comfort band while
+  # one is on, so they need no stat change of their own.
+  - id: 19
+    identifier: WARMED
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Warmed
+
+  - id: 20
+    identifier: COOLED
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Cooled

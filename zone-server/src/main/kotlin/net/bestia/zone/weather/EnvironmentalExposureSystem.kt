@@ -2,7 +2,9 @@ package net.bestia.zone.weather
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.ecs.KnownSkills
+import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.config.WorldRulesConfig
@@ -56,7 +58,7 @@ class EnvironmentalExposureSystem(
 
   override val schedule: Schedule get() = Schedule.EveryTick
 
-  override val reads: ComponentClassSet = setOf(Position::class, KnownSkills::class) + DamageGate.READS
+  override val reads: ComponentClassSet = setOf(Position::class, KnownSkills::class, StatusEffects::class) + DamageGate.READS
 
   override val writes: ComponentClassSet = setOf(Stamina::class, Health::class, Dead::class)
 
@@ -110,8 +112,12 @@ class EnvironmentalExposureSystem(
 
       // How far outside the comfort band, in degrees. Zero inside it, which is most of the world most of the
       // year - the low-level country is meant to be comfortable, and `REMINDER.md` asks for exactly that.
-      val low = config.comfortLowCelsius - tolerance
-      val high = config.comfortHighCelsius + tolerance
+      // A bestia's Warm Fur or Cooling Mist widens one side only: it helps in the cold or in the heat, not both.
+      val effects = world.get(entityId, StatusEffects::class)
+      val warmth = if (effects?.hasEffect(StatusEffectId.WARMED.id) == true) config.toleranceFromStatus else 0.0
+      val coolness = if (effects?.hasEffect(StatusEffectId.COOLED.id) == true) config.toleranceFromStatus else 0.0
+      val low = config.comfortLowCelsius - tolerance - warmth
+      val high = config.comfortHighCelsius + tolerance + coolness
       val excess = when {
         air < low -> low - air
         air > high -> air - high
