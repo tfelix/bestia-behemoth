@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 98
+name_key = "BESTIA_JADE_SKY_SERPENT"
+description_key = "BESTIA_JADE_SKY_SERPENT_DESC"
+kind = "DRAGON"
+equip_slots = 389
+armor_types = 12
+non_combatant = false
+habitat = "TROPICAL_RAINFOREST"
+in_compendium = true
+placeholder_shape = 4
+placeholder_colour = Color(0, 0.6588, 0.4196, 1)
+placeholder_scale = 2.4
+placeholder_glow = 0.6

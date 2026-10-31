@@ -2,8 +2,8 @@ keys,en
 BESTIA_BLOB,Blob
 BESTIA_BLOB_DESC,"A quivering lump of jelly that rolls through grass and dunes. It is harmless unless provoked, and leaves sticky jelly behind when it bursts."
 BESTIA_KIND_FORMLESS,Formless
-BESTIA_DOOM_MASTER_OF_DOOM,Doom Master of Doom
-BESTIA_DOOM_MASTER_OF_DOOM_DESC,A towering shadow that rules the heart of the corruption. Light hurts it more than any blade.
+BESTIA_DOOM_MASTER_OF_DOOM,Doommaster of Doom
+BESTIA_DOOM_MASTER_OF_DOOM_DESC,"A towering figure in an oversized black cloak that hides its hands and feet. Its head is an orange skull with red glowing eyes and a mouth full of fangs. It is the master of doom, and also of more doom."
 BESTIA_KIND_DEMON,Demon
 BESTIA_TOWNSFOLK_COMMONER,Townsperson
 BESTIA_TOWNSFOLK_COMMONER_DESC,"An ordinary resident of a settlement, going about their day."
@@ -11,3 +11,217 @@ BESTIA_KIND_HUMANOID,Humanoid
 BESTIA_GM_BESTIA,GM Bestia
 BESTIA_GM_BESTIA_DESC,"A creature made for game masters to try things on. It is strong, wears every piece of gear and knows every attack a bestia can learn. It never appears in the wild."
 BESTIA_KIND_DRAGON,Dragon
+BESTIA_FIELDRAT,Fieldrat
+BESTIA_FIELDRAT_DESC,"A plump brown rat that lives in the furrows at the edge of fields. It bolts at the first footstep, so approach it from downwind."
+BESTIA_KIND_BEAST,Beast
+BESTIA_BURROW_BOAR,Burrow Boar
+BESTIA_BURROW_BOAR_DESC,"Roots up fields with its broad snout and charges whoever bothers it. Its thick hide shrugs off stones, but a sharp gust makes it stumble."
+BESTIA_MOONHOP,Moonhop
+BESTIA_MOONHOP_DESC,A long-eared hopper that comes out to graze at dusk. Tailors in every start town want its soft pelt.
+BESTIA_SPROUTLING,Sproutling
+BESTIA_SPROUTLING_DESC,"Buries itself so only its leaves show, then screams when stepped on. Watch for grass that grows in odd tufts."
+BESTIA_KIND_PLANT,Plant
+BESTIA_LEAFCRAWLER,Leafcrawler
+BESTIA_LEAFCRAWLER_DESC,A fat green caterpillar that chews leaves all day. It spits sticky silk that slows the legs of anyone who bothers it.
+BESTIA_KIND_INSECT,Insect
+BESTIA_BUZZLET,Buzzlet
+BESTIA_BUZZLET_DESC,A fly that swarms around anything that smells of fruit. Alone it is a nuisance; in a cloud it is a problem.
+BESTIA_PECKLET,Pecklet
+BESTIA_PECKLET_DESC,"A chick that hatches in sun-baked sand and still wears half its eggshell. Its pecks are warm, so it fears water more than swords."
+BESTIA_KIND_BIRD,Bird
+BESTIA_SHELLSNIP,Shellsnip
+BESTIA_SHELLSNIP_DESC,Scuttles sideways along the tideline and snaps at bare toes. Its shell turns blows from the front; strike it from the side.
+BESTIA_KIND_AQUATIC,Aquatic
+BESTIA_PUDDLEHOP,Puddlehop
+BESTIA_PUDDLEHOP_DESC,A round frog whose belly swirl hypnotises flies. It croaks loudest just before rain.
+BESTIA_SPLASHFIN,Splashfin
+BESTIA_SPLASHFIN_DESC,"A golden fish that leaps out of the water for no reason anyone can name. On land it only splashes, and it is very proud of it."
+BESTIA_SNOWPUP,Snowpup
+BESTIA_SNOWPUP_DESC,"A white fox cub that dives head-first into snowdrifts to catch mice. Its fur keeps it warm in deep frost, but it pants in summer sun."
+BESTIA_WADDLER,Waddler
+BESTIA_WADDLER_DESC,A proud penguin that slides on its belly faster than most can run. It guards the colony's ice holes and pecks anyone who comes close.
+BESTIA_STINGTAIL,Stingtail
+BESTIA_STINGTAIL_DESC,Hides under hot stones and stings whatever steps near. Carry an antidote before you lift a rock in the desert.
+BESTIA_MONKLING,Monkling
+BESTIA_MONKLING_DESC,A cheeky monkey that snatches shiny things and flees into the canopy. Keep a hand on your purse under the trees.
+BESTIA_BOGSNAIL,Bogsnail
+BESTIA_BOGSNAIL_DESC,A slow snail that leaves a toxic slime trail across the peat. Do not walk where the moss glistens.
+BESTIA_GLIMMERWING,Glimmerwing
+BESTIA_GLIMMERWING_DESC,"A butterfly with wings like stained glass. The dust it sheds makes eyes heavy, so do not fight it in a clearing full of them."
+BESTIA_PUFFCAP,Puffcap
+BESTIA_PUFFCAP_DESC,"A walking mushroom that puffs out spores when hit. Fire makes short work of it, and of the spores too."
+BESTIA_PEBBLIT,Pebblit
+BESTIA_PEBBLIT_DESC,A rock with arms that rolls downhill on purpose. It looks like any other stone until it gets up.
+BESTIA_KIND_ELEMENTAL,Elemental
+BESTIA_LANTERNWISP,Lanternwisp
+BESTIA_LANTERNWISP_DESC,A pale flame that bobs over the marsh at night and leads travellers astray. Plain blows pass through it; magic does not.
+BESTIA_BRISTLEHOG,Bristlehog
+BESTIA_BRISTLEHOG_DESC,Curls into a spiky ball when threatened and rolls at its attacker. Hit it before it curls up.
+BESTIA_SMOKIT,Smokit
+BESTIA_SMOKIT_DESC,A raccoon that balances a leaf on its head and swears it is a disguise. It hoards mushrooms and trinkets in hollow logs.
+BESTIA_HOOKBEAK,Hookbeak
+BESTIA_HOOKBEAK_DESC,"A ragged hawk that dives on anything smaller than itself, and some things that are not. It strikes out of the sun, so look up on open ground."
+BESTIA_TALLHORN,Tallhorn
+BESTIA_TALLHORN_DESC,Grazes in great herds that stamp the plains flat. Harm one calf and the whole herd turns on you.
+BESTIA_ASHPELT_WOLF,Ashpelt Wolf
+BESTIA_ASHPELT_WOLF_DESC,Grey wolves that hunt in packs under the pines. They circle before they bite; keep your back to a tree.
+BESTIA_CONEHURLER,Conehurler
+BESTIA_CONEHURLER_DESC,Looks like a pine cone on a branch until it drops on your head. It throws cones that burst into splinters.
+BESTIA_HONEYMAW,Honeymaw
+BESTIA_HONEYMAW_DESC,A huge bear that raids bee nests and sleeps it off in the sun. Wake it at your own risk; it is far quicker than it looks.
+BESTIA_CRAG_RAM,Crag Ram
+BESTIA_CRAG_RAM_DESC,Leaps from ledge to ledge where no path exists. It charges from above and tries to knock climbers off the cliff.
+BESTIA_HARPY,Harpy
+BESTIA_HARPY_DESC,"Half woman, half vulture, all temper. Harpies nest on cliff tops and shriek to call the flock."
+BESTIA_WOOLHORN_YAK,Woolhorn Yak
+BESTIA_WOOLHORN_YAK_DESC,"A shaggy yak whose wool never freezes. Nomads follow its herds, and its wool sells well in the warm south."
+BESTIA_SNOWCAP,Snowcap
+BESTIA_SNOWCAP_DESC,"A snowman that came alive in a blizzard and never thawed. Fire melts its grin off fast, and it knows to keep its distance."
+BESTIA_TUSKSEAL,Tuskseal
+BESTIA_TUSKSEAL_DESC,A walrus that dozes on ice floes in big groups. Mothers with pups attack anything that comes near.
+BESTIA_JELLYVEIL,Jellyveil
+BESTIA_JELLYVEIL_DESC,"A see-through jellyfish that washes up after storms. Its threads sting and numb the limbs, so do not wade in after a storm."
+BESTIA_STARDRIFT,Stardrift
+BESTIA_STARDRIFT_DESC,"A starfish with a glowing core that spins across the sand at night. The core is a crafting gem, and it knows it."
+BESTIA_MUDJAW,Mudjaw
+BESTIA_MUDJAW_DESC,"Lies as still as a log in shallow water. River folk say: if a log has eyes, walk the other way."
+BESTIA_KIND_REPTILE,Reptile
+BESTIA_BLOATFROG,Bloatfrog
+BESTIA_BLOATFROG_DESC,A swollen toad with poison sacs in its cheeks. It puffs up before it spits; that is your moment to move.
+BESTIA_DROWNED_ONE,Drowned One
+BESTIA_DROWNED_ONE_DESC,A peat-soaked corpse that crawls out of the bog when the mist is thick. Holy light and fire send it back down.
+BESTIA_KIND_UNDEAD,Undead
+BESTIA_DUNE_SCARAB,Dune Scarab
+BESTIA_DUNE_SCARAB_DESC,Rolls balls of dung across the dunes and buries them with lost coins inside. Dig where it digs.
+BESTIA_MUMMY,Mummy
+BESTIA_MUMMY_DESC,A wrapped corpse that guards tombs long after its masters turned to dust. Its loose bandages burn well.
+BESTIA_SIDEWINDER,Sidewinder
+BESTIA_SIDEWINDER_DESC,"A sand viper that moves sideways and leaves strange tracks on the dunes. Its venom slows the heart, so a cure is worth its weight in water."
+BESTIA_CACKLER,Cackler
+BESTIA_CACKLER_DESC,"A spotted scavenger whose laugh carries far. Where the cackling starts, something weak is about to die; make sure it is not you."
+BESTIA_BASKER,Basker
+BESTIA_BASKER_DESC,"A lizard that soaks up sun on hot rocks until its scales glow. Hunt it in the cold morning, before it has warmed up."
+BESTIA_BOULDERKIN,Boulderkin
+BESTIA_BOULDERKIN_DESC,"A walking hill of stone, slow to anger and slower to stop. Wind cuts into its cracks; blades just ring."
+BESTIA_CINDERPUP,Cinderpup
+BESTIA_CINDERPUP_DESC,A pup with an ember for a nose. Wild ones guard hot vents in packs; tamed ones make the best watchdogs alive.
+BESTIA_MAGMASLUG,Magmaslug
+BESTIA_MAGMASLUG_DESC,"A blob of living lava that oozes over cooling rock. It leaves a burning trail, so never follow it in light boots."
+BESTIA_SPOUTLE,Spoutle
+BESTIA_SPOUTLE_DESC,A turtle that sleeps in hot springs with only its nose above water. Startle it and it shoots a jet of scalding water.
+BESTIA_SULPHUR_IMP,Sulphur Imp
+BESTIA_SULPHUR_IMP_DESC,"A little horned trickster that smells of rotten eggs. It plays pranks on travellers by the vents, and some pranks explode."
+BESTIA_SUNMANE,Sunmane
+BESTIA_SUNMANE_DESC,"A lion with a mane that glows like dawn, leading its pride over the savanna. Shadow creatures avoid its land, and so should you."
+BESTIA_SCYTHID,Scythid
+BESTIA_SCYTHID_DESC,A mantis with sickle arms that waits motionless in tall grass. It is fast but light; heavy blows knock it flat.
+BESTIA_SNAPVINE,Snapvine
+BESTIA_SNAPVINE_DESC,"A rooted flytrap that bites anything in reach. It cannot move, so fight it from afar."
+BESTIA_MOSSBACK_STAG,Mossback Stag
+BESTIA_MOSSBACK_STAG_DESC,"A stag with ferns growing in its antlers. It is gentle, but in rutting season it fights anything with horns, and anything without."
+BESTIA_KOBOLD_SCRAPPER,Kobold Scrapper
+BESTIA_KOBOLD_SCRAPPER_DESC,Small dog-faced miners that dig for ore and fight over every scrap. Their camps are full of stolen tools.
+BESTIA_STORMSTRIDER,Stormstrider
+BESTIA_STORMSTRIDER_DESC,A huge flightless bird that runs fastest in a thunderstorm. Riders dream of taming one; most only ever see its tail.
+BESTIA_WEEPING_WILLOW,Weeping Willow
+BESTIA_WEEPING_WILLOW_DESC,An old willow that drags its branches through the water and drowns what it catches. Fire is the only thing it fears.
+BESTIA_NEEDLEWALKER,Needlewalker
+BESTIA_NEEDLEWALKER_DESC,"A cactus that walks to new water at night. It fires needles when touched, and its flesh holds water for thirsty travellers."
+BESTIA_DUSKSTALKER,Duskstalker
+BESTIA_DUSKSTALKER_DESC,A black lynx that hunts only in darkness and vanishes into its own shadow. Carry a light; it will not attack inside one.
+BESTIA_VINE_CONSTRICTOR,Vine Constrictor
+BESTIA_VINE_CONSTRICTOR_DESC,A giant snake the colour of jungle vines. It drops from the canopy and squeezes; a friend nearby is the best cure.
+BESTIA_RIMEHULK_YETI,Rimehulk Yeti
+BESTIA_RIMEHULK_YETI_DESC,"A shaggy giant whose roar starts avalanches. It hurls blocks of ice, so never let it take the high ground."
+BESTIA_GEYSER_DRAKE,Geyser Drake
+BESTIA_GEYSER_DRAKE_DESC,A slender drake that sleeps in boiling pools and breathes steam. Its scales stay warm long after it dies.
+BESTIA_MERROW_RAIDER,Merrow Raider
+BESTIA_MERROW_RAIDER_DESC,"Fish-folk with tridents who raid the coast at high tide. They flee to the sea when hurt, so finish the fight on the sand."
+BESTIA_DUSTWRAITH,Dustwraith
+BESTIA_DUSTWRAITH_DESC,A whirl of dust and an old grudge drifting over cold dunes. Ordinary weapons pass through it; enchanted ones do not.
+BESTIA_HILL_OGRE,Hill Ogre
+BESTIA_HILL_OGRE_DESC,A huge brute that clubs first and thinks never. Its swings are wide; stay close and keep moving.
+BESTIA_KELPIE,Kelpie
+BESTIA_KELPIE_DESC,"A water horse that waits by the shore, calm and saddled. Whoever climbs on is dragged into the lake."
+BESTIA_MOONMARE,Moonmare
+BESTIA_MOONMARE_DESC,A pale unicorn seen only on moonlit nights. It flees at the sight of drawn weapons; only a gentle master can tame it.
+BESTIA_STORMBACK_APE,Stormback Ape
+BESTIA_STORMBACK_APE_DESC,A silver-backed ape that beats its chest like thunder. It throws whole branches and fights harder when its troop is near.
+BESTIA_BRINESERPENT,Brineserpent
+BESTIA_BRINESERPENT_DESC,A sea serpent that rises from the surf during storms. Fishers wait for calm weather for a reason.
+BESTIA_BANSHEE,Banshee
+BESTIA_BANSHEE_DESC,A weeping ghost whose wail freezes the blood. Cover your ears and close in fast.
+BESTIA_HYDRA,Hydra
+BESTIA_HYDRA_DESC,"A many-headed swamp lizard that bites with each head in turn. Burn the stumps, or the heads grow back."
+BESTIA_FROST_WYVERN,Frost Wyvern
+BESTIA_FROST_WYVERN_DESC,A white wyvern that nests in glacier cracks and breathes freezing wind. It must land to breathe again; that is when you strike.
+BESTIA_SALAMANDER,Salamander
+BESTIA_SALAMANDER_DESC,A lizard of pure flame that swims through lava. Water hurts it badly; getting close enough to splash it is the hard part.
+BESTIA_DUNE_DEVOURER,Dune Devourer
+BESTIA_DUNE_DEVOURER_DESC,A sand serpent that hunts by feeling footsteps through the dunes. Stand still and it may pass you by.
+BESTIA_CANYON_WYVERN,Canyon Wyvern
+BESTIA_CANYON_WYVERN_DESC,A wyvern that rides the hot winds out of the canyons. Its screech knocks climbers off the walls.
+BESTIA_RIFT_CRAWLER,Rift Crawler
+BESTIA_RIFT_CRAWLER_DESC,A tangle of limbs from the other side of the Rift. It flickers between worlds; strike when it is solid.
+BESTIA_FALLEN_KNIGHT,Fallen Knight
+BESTIA_FALLEN_KNIGHT_DESC,Empty armour still holding the line it swore to hold before the Rift. It never retreats and never tires; holy blades break its oath.
+BESTIA_FALLEN_SERAPH,Fallen Seraph
+BESTIA_FALLEN_SERAPH_DESC,"An angel the corruption twisted into a mockery of itself. Its halo has turned black, and it hates light."
+BESTIA_BLOB_QUEEN,Blob Queen
+BESTIA_BLOB_QUEEN_DESC,"When enough blobs gather they merge into a quivering queen with a jelly crown. She splits off blobs when hurt, so clear the small ones fast."
+BESTIA_GOLDEN_SCARAB,Golden Scarab
+BESTIA_GOLDEN_SCARAB_DESC,A beetle with a shell of beaten gold that nests in buried treasure vaults. Magic slides off its shell; steel does not.
+BESTIA_FLAMESTRIPE,Flamestripe
+BESTIA_FLAMESTRIPE_DESC,"A tiger whose stripes burn like coals. The savanna burns where it hunts, and it waits for prey in the smoke."
+BESTIA_HIVE_QUEEN,Hive Queen
+BESTIA_HIVE_QUEEN_DESC,Queen of a hive the size of a house. She never fights alone; a cloud of guards follows her.
+BESTIA_ORC_OVERLORD,Orc Overlord
+BESTIA_ORC_OVERLORD_DESC,"Warlord of the forest clans, in armour made of trophies. His war horn calls every orc nearby."
+BESTIA_LAKESONG_UNDINE,Lakesong Undine
+BESTIA_LAKESONG_UNDINE_DESC,"A spirit of clear water who sings on still lakes at dawn. She is calm until the lake is fouled, then she floods the shore."
+BESTIA_DROWNED_CAPTAIN,Drowned Captain
+BESTIA_DROWNED_CAPTAIN_DESC,"The ghost captain of a wrecked ship, still giving orders to a dead crew. He comes with the fog, and his crew comes with him."
+BESTIA_NINEFOLD_VIXEN,Ninefold Vixen
+BESTIA_NINEFOLD_VIXEN_DESC,A fox with nine flaming tails who jumps between old shrines. Each tail is a spell; count them as they go out.
+BESTIA_ANCIENT_ROOTFATHER,Ancient Rootfather
+BESTIA_ANCIENT_ROOTFATHER_DESC,"The oldest tree in the forest, which walks only once in many years. Whole groves grow on its back, and it wakes angry when they are cut."
+BESTIA_LANTERN_MOTHER,Lantern Mother
+BESTIA_LANTERN_MOTHER_DESC,The great flame every lantern wisp comes from. Put out her wisps and she grows weak.
+BESTIA_SAND_PHARAOH,Sand Pharaoh
+BESTIA_SAND_PHARAOH_DESC,A buried king who rises when his tomb is disturbed. His curse follows whoever takes his gold.
+BESTIA_RAFFLESIA_QUEEN,Rafflesia Queen
+BESTIA_RAFFLESIA_QUEEN_DESC,A giant flower whose stench carries for miles. Its pollen poisons the air around it; fight upwind.
+BESTIA_FUMAROLE_DRAGON,Fumarole Dragon
+BESTIA_FUMAROLE_DRAGON_DESC,"A dragon that sleeps in sulphur vents and breathes poison gas. Where the hot springs turn yellow, it is near."
+BESTIA_ANTLERED_ANCIENT,Antlered Ancient
+BESTIA_ANTLERED_ANCIENT_DESC,"A white stag with antlers of light, the old guardian of the forest. Shadow creatures cannot stand near it."
+BESTIA_GARM,Garm
+BESTIA_GARM_DESC,A giant wolf of ice whose howl brings blizzards. The wolf packs of the north follow it.
+BESTIA_STORMCALLER_ROC,Stormcaller Roc
+BESTIA_STORMCALLER_ROC_DESC,A huge bird that nests on peaks and calls lightning with its wings. Earth magic grounds it.
+BESTIA_RIMETUSK_ANCIENT,Rimetusk Ancient
+BESTIA_RIMETUSK_ANCIENT_DESC,A mammoth older than the ice it walks on. It sleeps frozen for years and wakes up hungry.
+BESTIA_BAPHOR,"Baphor, the Horned Abbot"
+BESTIA_BAPHOR_DESC,A goat-headed demon with a huge scythe who preaches to the corrupted. Its sermons summon lesser demons.
+BESTIA_MAGMA_TITAN,Magma Titan
+BESTIA_MAGMA_TITAN_DESC,"A walking volcano that sleeps under the lava fields. When it wakes, the ground cracks and new vents open."
+BESTIA_JADE_SKY_SERPENT,Jade Sky Serpent
+BESTIA_JADE_SKY_SERPENT_DESC,A green dragon that circles above the rain clouds and rarely lands. It only comes down when the jungle burns.
+BESTIA_HOLLOW_KING,The Hollow King
+BESTIA_HOLLOW_KING_DESC,The king who ruled before the Rift and refused to die with his kingdom. He holds the corrupted land with an army of the dead.
+BESTIA_EMBER_PHOENIX,Ember Phoenix
+BESTIA_EMBER_PHOENIX_DESC,"A bird of living flame that rises from fresh lava once in a long while. It is reborn from its ashes, so the fight is never quite over."
+BESTIA_OSSUARY_WYRM,Ossuary Wyrm
+BESTIA_OSSUARY_WYRM_DESC,"The bones of an ancient dragon, raised by the corruption. It cannot be poisoned or frightened, but it can be broken."
+BESTIA_LEVIATHAN,Leviathan
+BESTIA_LEVIATHAN_DESC,A sea dragon as long as an island that surfaces only far out at sea. The waves it makes reach every coast.
+BESTIA_BEHEMOTH,Behemoth
+BESTIA_BEHEMOTH_DESC,A horned giant that walks the plains once in an age and leaves valleys in its tracks. The game is named after it; nobody has brought one down yet.
+BESTIA_GRINLANTERN,Grinlantern
+BESTIA_GRINLANTERN_DESC,A pumpkin with a candle inside and a grin nobody carved. It only grows on the night the dead walk.
+BESTIA_GIFTBOX_MIMIC,Giftbox Mimic
+BESTIA_GIFTBOX_MIMIC_DESC,A present with a bow that hops through the snow at midwinter. Open it gently; sometimes it bites.
+BESTIA_BLOOMHARE,Bloomhare
+BESTIA_BLOOMHARE_DESC,A hare with blossoms in its ears that hides painted eggs in spring meadows. Find its eggs and it may come to you.
+BESTIA_NOT_A_BLOB,Not-a-Blob
+BESTIA_NOT_A_BLOB_DESC,"It looks exactly like a blob. It is not a blob. Your sword passes right through it, which a real blob would never allow."

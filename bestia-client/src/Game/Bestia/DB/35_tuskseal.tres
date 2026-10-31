@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 35
+name_key = "BESTIA_TUSKSEAL"
+description_key = "BESTIA_TUSKSEAL_DESC"
+kind = "AQUATIC"
+equip_slots = 389
+armor_types = 6
+non_combatant = false
+habitat = "ICE_SHEET,OCEAN,BEACH"
+in_compendium = true
+placeholder_shape = 5
+placeholder_colour = Color(0.6118, 0.5608, 0.5176, 1)
+placeholder_scale = 1.6
+placeholder_glow = 0

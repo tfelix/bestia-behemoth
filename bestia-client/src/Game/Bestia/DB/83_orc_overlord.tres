@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 83
+name_key = "BESTIA_ORC_OVERLORD"
+description_key = "BESTIA_ORC_OVERLORD_DESC"
+kind = "HUMANOID"
+equip_slots = 511
+armor_types = 15
+non_combatant = false
+habitat = "TEMPERATE_RAINFOREST,TAIGA"
+in_compendium = true
+placeholder_shape = 1
+placeholder_colour = Color(0.3333, 0.4196, 0.1843, 1)
+placeholder_scale = 2.4
+placeholder_glow = 0.6

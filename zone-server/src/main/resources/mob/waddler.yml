@@ -1,0 +1,49 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 16
+identifier: waddler
+level: 11
+name: "Waddler"
+description: >-
+  A proud penguin that slides on its belly faster than most can run. It guards the colony's ice holes and pecks
+  anyone who comes close.
+kind: BIRD
+element: WATER
+size: MEDIUM
+default-attack: MELEE
+aspd: 80
+ai: passive_wanderer
+attack-power: 1
+health: 270
+mana: 50
+experience: 54
+attributes: { strength: 2, intelligence: 5, vitality: 29, dexterity: 1, willpower: 12, agility: 4 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: howl, level: 6, active: true }
+  - { skill: go_fishing, level: 11 }
+  - { skill: minor_heal, level: 16 }
+  - { skill: frost_bite, level: 21 }
+  - { skill: crushing_blow, level: 26 }
+  - { skill: tailwind, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: regenerate, level: 41 }
+  - { skill: body_slam, level: 46 }
+  - { skill: frost_breath, level: 51 }
+  - { skill: bloodlust, level: 56 }
+  - { skill: tidal_slam, level: 61 }
+  - { skill: petrifying_gaze, level: 66 }
+  - { skill: renewal, level: 70 }
+  - { skill: berserk, level: 76 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: skull_breaker, level: 88 }
+  - { skill: greater_heal, level: 94 }
+  - { skill: blizzard, level: 100 }
+habitat: [ICE_SHEET, TUNDRA]
+temperature-min: -40
+temperature-max: 5
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, GARMENT, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT]
+loot:
+  - { item: feather, chance: 2500 }
+  - { item: raw_fish, chance: 2500 }

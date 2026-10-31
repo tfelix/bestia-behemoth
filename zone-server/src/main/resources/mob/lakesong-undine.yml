@@ -1,0 +1,51 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 84
+identifier: lakesong_undine
+level: 62
+name: "Lakesong Undine"
+description: >-
+  A spirit of clear water who sings on still lakes at dawn. She is calm until the lake is fouled, then she
+  floods the shore.
+kind: ELEMENTAL
+element: WATER_4
+size: MEDIUM
+default-attack: MELEE
+aspd: 80
+ai: passive_wanderer
+attack-power: 0.07
+health: 56370
+mana: 407
+experience: 24354
+attributes: { strength: 1, intelligence: 99, vitality: 59, dexterity: 1, willpower: 124, agility: 30 }
+learnset:
+  - { skill: lick_wounds, level: 1 }
+  - { skill: growl, level: 6 }
+  - { skill: ice_shard, level: 11 }
+  - { skill: cooling_mist, level: 16 }
+  - { skill: minor_heal, level: 21 }
+  - { skill: hamstring, level: 26 }
+  - { skill: arcane_missile, level: 31 }
+  - { skill: tend_wounds, level: 36 }
+  - { skill: regenerate, level: 41 }
+  - { skill: chilling_mist, level: 46, active: true }
+  - { skill: hailstone, level: 51, active: true }
+  - { skill: terrifying_roar, level: 56, active: true }
+  - { skill: renewal, level: 61, active: true }
+  - { skill: bloodlust, level: 66 }
+  - { skill: frost_breath, level: 70 }
+  - { skill: mending_light, level: 76 }
+  - { skill: berserk, level: 82 }
+  - { skill: torrent, level: 88 }
+  - { skill: mana_storm, level: 94 }
+  - { skill: blizzard, level: 100 }
+habitat: [LAKE, RIPARIAN]
+temperature-min: -10
+temperature-max: 40
+spawn-weight: 100
+boss: true
+equip-slots: [ACCESSORY_1, ACCESSORY_2]
+armor-types: []
+loot:
+  - { item: sea_pearl, chance: 4000 }
+  - { item: mana_crystal, chance: 4000 }
+  - { item: aetherite_shard, chance: 1000 }

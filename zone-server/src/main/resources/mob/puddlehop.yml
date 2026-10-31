@@ -1,0 +1,48 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 13
+identifier: puddlehop
+level: 4
+name: "Puddlehop"
+description: >-
+  A round frog whose belly swirl hypnotises flies. It croaks loudest just before rain.
+kind: AQUATIC
+element: WATER
+size: SMALL
+default-attack: MELEE
+aspd: 80
+ai: passive_wanderer
+attack-power: 0.37
+health: 227
+mana: 44
+experience: 23
+attributes: { strength: 1, intelligence: 20, vitality: 5, dexterity: 1, willpower: 13, agility: 5 }
+learnset:
+  - { skill: mana_spark, level: 1, active: true }
+  - { skill: growl, level: 6 }
+  - { skill: cooling_mist, level: 11 }
+  - { skill: ice_shard, level: 16 }
+  - { skill: enrage, level: 21 }
+  - { skill: force_bolt, level: 26 }
+  - { skill: frost_breath, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: arcane_missile, level: 41 }
+  - { skill: chilling_mist, level: 46 }
+  - { skill: hailstone, level: 51 }
+  - { skill: mending_light, level: 56 }
+  - { skill: mana_storm, level: 61 }
+  - { skill: torrent, level: 66 }
+  - { skill: petrifying_gaze, level: 70 }
+  - { skill: mana_spear, level: 76 }
+  - { skill: shockwave, level: 82 }
+  - { skill: bleeding_wound, level: 88 }
+  - { skill: arcane_lance, level: 94 }
+  - { skill: blizzard, level: 100 }
+habitat: [RIPARIAN, LAKE, BOG]
+temperature-min: -10
+temperature-max: 40
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, ARMOR, ACCESSORY_1, ACCESSORY_2]
+armor-types: [LIGHT, MEDIUM]
+loot:
+  - { item: reed_stalk, chance: 3000 }
+  - { item: raw_meat, chance: 1000 }

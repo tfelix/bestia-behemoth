@@ -1,0 +1,48 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 91
+identifier: fumarole_dragon
+level: 78
+name: "Fumarole Dragon"
+description: >-
+  A dragon that sleeps in sulphur vents and breathes poison gas. Where the hot springs turn yellow, it is near.
+kind: DRAGON
+element: POISON_4
+size: BIG
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 0.11
+health: 75863
+mana: 723
+experience: 30538
+attributes: { strength: 1, intelligence: 171, vitality: 46, dexterity: 1, willpower: 114, agility: 46 }
+learnset:
+  - { skill: mana_spark, level: 1 }
+  - { skill: growl, level: 6 }
+  - { skill: venom_bolt, level: 16 }
+  - { skill: enrage, level: 21 }
+  - { skill: force_bolt, level: 26 }
+  - { skill: shockwave, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: arcane_missile, level: 41 }
+  - { skill: poison_cloud, level: 46 }
+  - { skill: arcane_lance, level: 51 }
+  - { skill: mending_light, level: 56, active: true }
+  - { skill: miasma, level: 61, active: true }
+  - { skill: acid_lance, level: 66 }
+  - { skill: petrifying_gaze, level: 70, active: true }
+  - { skill: mana_spear, level: 76, active: true }
+  - { skill: mana_storm, level: 82 }
+  - { skill: bleeding_wound, level: 88 }
+  - { skill: pestilence, level: 100 }
+habitat: [GEOTHERMAL_BASIN]
+temperature-min: 0
+temperature-max: 50
+spawn-weight: 100
+boss: true
+equip-slots: [HEAD_UPPER, ARMOR, ACCESSORY_1, ACCESSORY_2]
+armor-types: [MEDIUM, HEAVY]
+loot:
+  - { item: dragon_scale, chance: 5000 }
+  - { item: venom_sac, chance: 4000 }
+  - { item: coal, chance: 4000 }

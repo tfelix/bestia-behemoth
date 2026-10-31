@@ -1,0 +1,49 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 28
+identifier: ashpelt_wolf
+level: 28
+name: "Ashpelt Wolf"
+description: >-
+  Grey wolves that hunt in packs under the pines. They circle before they bite; keep your back to a tree.
+kind: BEAST
+element: NORMAL_2
+size: MEDIUM
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 0.98
+health: 588
+mana: 82
+experience: 129
+attributes: { strength: 5, intelligence: 5, vitality: 24, dexterity: 3, willpower: 8, agility: 16 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: ram, level: 6 }
+  - { skill: sniff_trail, level: 11 }
+  - { skill: headbutt, level: 16 }
+  - { skill: hamstring, level: 21 }
+  - { skill: crushing_blow, level: 26, active: true }
+  - { skill: pounce, level: 31 }
+  - { skill: enrage, level: 36 }
+  - { skill: hammer_blow, level: 41 }
+  - { skill: screech, level: 46 }
+  - { skill: body_slam, level: 51 }
+  - { skill: savage_maul, level: 56 }
+  - { skill: mana_storm, level: 61 }
+  - { skill: war_cry, level: 66 }
+  - { skill: rampage, level: 70 }
+  - { skill: skull_breaker, level: 76 }
+  - { skill: shockwave, level: 82 }
+  - { skill: primal_rage, level: 88 }
+  - { skill: titan_blow, level: 94 }
+  - { skill: wrath_of_the_wild, level: 100 }
+habitat: [TAIGA, TEMPERATE_FOREST]
+temperature-min: -25
+temperature-max: 28
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, ARMOR, GARMENT, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
+loot:
+  - { item: raw_hide, chance: 3000 }
+  - { item: raw_meat, chance: 2000 }
+  - { item: sharp_fang, chance: 1500 }

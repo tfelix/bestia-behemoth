@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 88
+name_key = "BESTIA_LANTERN_MOTHER"
+description_key = "BESTIA_LANTERN_MOTHER_DESC"
+kind = "FORMLESS"
+equip_slots = 8
+armor_types = 3
+non_combatant = false
+habitat = "BOG"
+in_compendium = true
+placeholder_shape = 0
+placeholder_colour = Color(0.6275, 1, 0.8784, 1)
+placeholder_scale = 1.5
+placeholder_glow = 0.8

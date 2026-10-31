@@ -1,0 +1,49 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 31
+identifier: crag_ram
+level: 30
+name: "Crag Ram"
+description: >-
+  Leaps from ledge to ledge where no path exists. It charges from above and tries to knock climbers off the
+  cliff.
+kind: BEAST
+element: EARTH_2
+size: MEDIUM
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 1
+health: 503
+mana: 86
+experience: 139
+attributes: { strength: 11, intelligence: 5, vitality: 25, dexterity: 5, willpower: 8, agility: 17 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: ram, level: 6 }
+  - { skill: howl, level: 11 }
+  - { skill: stone_fist, level: 16 }
+  - { skill: hamstring, level: 21, active: true }
+  - { skill: shed_wool, level: 26 }
+  - { skill: pounce, level: 31 }
+  - { skill: tailwind, level: 36 }
+  - { skill: hammer_blow, level: 41 }
+  - { skill: mud_trap, level: 46 }
+  - { skill: body_slam, level: 51 }
+  - { skill: boulder_slam, level: 56 }
+  - { skill: tremor, level: 61 }
+  - { skill: bloodlust, level: 66 }
+  - { skill: rampage, level: 70 }
+  - { skill: skull_breaker, level: 76 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: primal_rage, level: 88 }
+  - { skill: titan_blow, level: 94 }
+  - { skill: fissure, level: 100 }
+habitat: [ALPINE, BADLANDS]
+temperature-min: -25
+temperature-max: 42
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, ARMOR, GARMENT, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
+loot:
+  - { item: horn, chance: 2500 }
+  - { item: wool, chance: 2000 }

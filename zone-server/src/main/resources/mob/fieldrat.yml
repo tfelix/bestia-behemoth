@@ -1,0 +1,49 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 5
+identifier: fieldrat
+level: 1
+name: "Fieldrat"
+description: >-
+  A plump brown rat that lives in the furrows at the edge of fields. It bolts at the first footstep, so approach
+  it from downwind.
+kind: BEAST
+element: NORMAL
+size: SMALL
+default-attack: MELEE
+aspd: 80
+ai: passive_wanderer
+attack-power: 1
+health: 83
+mana: 28
+experience: 4
+attributes: { strength: 1, intelligence: 5, vitality: 5, dexterity: 1, willpower: 5, agility: 5 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: forage, level: 6 }
+  - { skill: play_dead, level: 11 }
+  - { skill: ram, level: 16 }
+  - { skill: hamstring, level: 21 }
+  - { skill: force_bolt, level: 26 }
+  - { skill: pounce, level: 31 }
+  - { skill: bleeding_wound, level: 36 }
+  - { skill: hammer_blow, level: 41 }
+  - { skill: regenerate, level: 46 }
+  - { skill: arcane_lance, level: 51 }
+  - { skill: shockwave, level: 56 }
+  - { skill: savage_maul, level: 61 }
+  - { skill: terrifying_roar, level: 66 }
+  - { skill: mana_spear, level: 70 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: skull_breaker, level: 88 }
+  - { skill: arcane_missile, level: 94 }
+  - { skill: wrath_of_the_wild, level: 100 }
+habitat: [GRASSLAND, DRYLAND]
+temperature-min: -5
+temperature-max: 38
+spawn-weight: 100
+non-combatant: true
+equip-slots: [HEAD_UPPER, ARMOR, GARMENT, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
+loot:
+  - { item: grain, chance: 3000 }
+  - { item: raw_hide, chance: 1000 }

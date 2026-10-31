@@ -1,0 +1,48 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 73
+identifier: salamander
+level: 79
+name: "Salamander"
+description: >-
+  A lizard of pure flame that swims through lava. Water hurts it badly; getting close enough to splash it is the
+  hard part.
+kind: ELEMENTAL
+element: FIRE_4
+size: MEDIUM
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 0.13
+health: 1516
+mana: 555
+experience: 347
+attributes: { strength: 1, intelligence: 106, vitality: 28, dexterity: 1, willpower: 71, agility: 28 }
+learnset:
+  - { skill: mana_spark, level: 1 }
+  - { skill: kindle, level: 6 }
+  - { skill: ember, level: 11 }
+  - { skill: flame_dart, level: 16 }
+  - { skill: enrage, level: 21 }
+  - { skill: force_bolt, level: 26 }
+  - { skill: shockwave, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: arcane_missile, level: 41 }
+  - { skill: burning_ground, level: 46 }
+  - { skill: arcane_lance, level: 51 }
+  - { skill: mending_light, level: 56 }
+  - { skill: fire_ball, level: 61 }
+  - { skill: searing_ray, level: 66 }
+  - { skill: petrifying_gaze, level: 70 }
+  - { skill: mana_spear, level: 76, active: true }
+  - { skill: mana_storm, level: 82 }
+  - { skill: bleeding_wound, level: 88 }
+  - { skill: inferno, level: 100 }
+habitat: [VOLCANIC_FIELD]
+temperature-min: 5
+temperature-max: 60
+spawn-weight: 100
+equip-slots: [ACCESSORY_1, ACCESSORY_2]
+armor-types: []
+loot:
+  - { item: ember_core, chance: 2500 }
+  - { item: reptile_scale, chance: 1500 }

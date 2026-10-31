@@ -1,0 +1,49 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 60
+identifier: vine_constrictor
+level: 61
+name: "Vine Constrictor"
+description: >-
+  A giant snake the colour of jungle vines. It drops from the canopy and squeezes; a friend nearby is the best
+  cure.
+kind: REPTILE
+element: EARTH_3
+size: BIG
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 0.9
+health: 1137
+mana: 153
+experience: 274
+attributes: { strength: 16, intelligence: 9, vitality: 45, dexterity: 5, willpower: 15, agility: 30 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: ram, level: 6 }
+  - { skill: howl, level: 11 }
+  - { skill: stone_fist, level: 16 }
+  - { skill: hamstring, level: 21 }
+  - { skill: crushing_blow, level: 26 }
+  - { skill: pounce, level: 31 }
+  - { skill: tailwind, level: 36 }
+  - { skill: hammer_blow, level: 41 }
+  - { skill: mud_trap, level: 46 }
+  - { skill: body_slam, level: 51 }
+  - { skill: boulder_slam, level: 56 }
+  - { skill: tremor, level: 61, active: true }
+  - { skill: bloodlust, level: 66 }
+  - { skill: rampage, level: 70 }
+  - { skill: skull_breaker, level: 76 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: primal_rage, level: 88 }
+  - { skill: titan_blow, level: 94 }
+  - { skill: fissure, level: 100 }
+habitat: [TROPICAL_RAINFOREST, SWAMP]
+temperature-min: 10
+temperature-max: 40
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, ARMOR, ACCESSORY_1, ACCESSORY_2]
+armor-types: [LIGHT, MEDIUM]
+loot:
+  - { item: reptile_scale, chance: 3500 }
+  - { item: raw_meat, chance: 2000 }

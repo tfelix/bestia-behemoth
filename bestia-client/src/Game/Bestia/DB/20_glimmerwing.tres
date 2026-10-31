@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 20
+name_key = "BESTIA_GLIMMERWING"
+description_key = "BESTIA_GLIMMERWING_DESC"
+kind = "INSECT"
+equip_slots = 389
+armor_types = 6
+non_combatant = false
+habitat = "TROPICAL_RAINFOREST,TROPICAL_SEASONAL_FOREST"
+in_compendium = true
+placeholder_shape = 2
+placeholder_colour = Color(1, 0.498, 0.8157, 1)
+placeholder_scale = 0.6
+placeholder_glow = 0

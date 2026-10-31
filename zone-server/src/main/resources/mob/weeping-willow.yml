@@ -1,0 +1,48 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 57
+identifier: weeping_willow
+level: 57
+name: "Weeping Willow"
+description: >-
+  An old willow that drags its branches through the water and drowns what it catches. Fire is the only thing it
+  fears.
+kind: PLANT
+element: EARTH_3
+size: BIG
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 1
+health: 563
+mana: 365
+experience: 259
+attributes: { strength: 6, intelligence: 81, vitality: 22, dexterity: 16, willpower: 54, agility: 22 }
+learnset:
+  - { skill: mana_spark, level: 1 }
+  - { skill: growl, level: 6 }
+  - { skill: stone_dart, level: 16 }
+  - { skill: enrage, level: 21 }
+  - { skill: fell_branches, level: 26 }
+  - { skill: shockwave, level: 31 }
+  - { skill: mud_trap, level: 36 }
+  - { skill: arcane_missile, level: 41 }
+  - { skill: sand_tomb, level: 46 }
+  - { skill: arcane_lance, level: 51 }
+  - { skill: mending_light, level: 56, active: true }
+  - { skill: tremor, level: 61 }
+  - { skill: stone_lance, level: 66 }
+  - { skill: petrifying_gaze, level: 70 }
+  - { skill: mana_spear, level: 76 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: bleeding_wound, level: 88 }
+  - { skill: fissure, level: 100 }
+habitat: [RIPARIAN, SWAMP, TEMPERATE_RAINFOREST]
+temperature-min: -5
+temperature-max: 40
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, GARMENT, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH]
+loot:
+  - { item: log, chance: 4000 }
+  - { item: wild_herb, chance: 2000 }
+  - { item: spore_dust, chance: 1000 }

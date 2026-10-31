@@ -1,0 +1,47 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 19
+identifier: bogsnail
+level: 7
+name: "Bogsnail"
+description: >-
+  A slow snail that leaves a toxic slime trail across the peat. Do not walk where the moss glistens.
+kind: AQUATIC
+element: POISON
+size: SMALL
+default-attack: MELEE
+aspd: 80
+ai: passive_wanderer
+attack-power: 1
+health: 228
+mana: 41
+experience: 34
+attributes: { strength: 2, intelligence: 4, vitality: 24, dexterity: 2, willpower: 9, agility: 3 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: howl, level: 6, active: true }
+  - { skill: growl, level: 11 }
+  - { skill: minor_heal, level: 16 }
+  - { skill: poison_sting, level: 21 }
+  - { skill: crushing_blow, level: 26 }
+  - { skill: tailwind, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: regenerate, level: 41 }
+  - { skill: body_slam, level: 46 }
+  - { skill: miasma, level: 51 }
+  - { skill: bloodlust, level: 56 }
+  - { skill: toxic_rend, level: 61 }
+  - { skill: petrifying_gaze, level: 66 }
+  - { skill: renewal, level: 70 }
+  - { skill: berserk, level: 76 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: skull_breaker, level: 88 }
+  - { skill: pestilence, level: 100 }
+habitat: [BOG, SWAMP]
+temperature-min: -10
+temperature-max: 38
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, ARMOR, ACCESSORY_1, ACCESSORY_2]
+armor-types: [LIGHT, MEDIUM]
+loot:
+  - { item: clay, chance: 2000 }
+  - { item: venom_sac, chance: 800 }

@@ -1,0 +1,48 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 62
+identifier: geyser_drake
+level: 63
+name: "Geyser Drake"
+description: >-
+  A slender drake that sleeps in boiling pools and breathes steam. Its scales stay warm long after it dies.
+kind: DRAGON
+element: WATER_3
+size: MEDIUM
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 0.2
+health: 1217
+mana: 414
+experience: 278
+attributes: { strength: 1, intelligence: 88, vitality: 24, dexterity: 1, willpower: 59, agility: 24 }
+learnset:
+  - { skill: mana_spark, level: 1 }
+  - { skill: growl, level: 6 }
+  - { skill: ice_shard, level: 16 }
+  - { skill: cooling_mist, level: 21 }
+  - { skill: force_bolt, level: 26 }
+  - { skill: frost_breath, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: arcane_missile, level: 41 }
+  - { skill: chilling_mist, level: 46 }
+  - { skill: hailstone, level: 51 }
+  - { skill: mending_light, level: 56 }
+  - { skill: mana_storm, level: 61, active: true }
+  - { skill: torrent, level: 66 }
+  - { skill: petrifying_gaze, level: 70 }
+  - { skill: mana_spear, level: 76 }
+  - { skill: shockwave, level: 82 }
+  - { skill: bleeding_wound, level: 88 }
+  - { skill: arcane_lance, level: 94 }
+  - { skill: blizzard, level: 100 }
+habitat: [GEOTHERMAL_BASIN, VOLCANIC_FIELD]
+temperature-min: 0
+temperature-max: 60
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, ARMOR, ACCESSORY_1, ACCESSORY_2]
+armor-types: [MEDIUM, HEAVY]
+loot:
+  - { item: reptile_scale, chance: 2500 }
+  - { item: salt, chance: 1000 }
+  - { item: dragon_scale, chance: 300 }

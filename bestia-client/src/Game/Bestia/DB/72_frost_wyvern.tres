@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 72
+name_key = "BESTIA_FROST_WYVERN"
+description_key = "BESTIA_FROST_WYVERN_DESC"
+kind = "DRAGON"
+equip_slots = 389
+armor_types = 12
+non_combatant = false
+habitat = "ICE_SHEET,ALPINE"
+in_compendium = true
+placeholder_shape = 4
+placeholder_colour = Color(0.8745, 0.9647, 1, 1)
+placeholder_scale = 1.6
+placeholder_glow = 0

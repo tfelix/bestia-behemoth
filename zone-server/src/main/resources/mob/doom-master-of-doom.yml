@@ -1,37 +1,48 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 2
 identifier: doom_master_of_doom
 level: 100
-name: Doom Master of Doom
+name: "Doommaster of Doom"
 description: >-
-  A towering shadow that rules the heart of the corruption. Light hurts it more than any blade.
+  A towering figure in an oversized black cloak that hides its hands and feet. Its head is an orange skull with
+  red glowing eyes and a mouth full of fangs. It is the master of doom, and also of more doom.
 kind: DEMON
-# A level 100 boss of the corrupted land: shadow at its strongest, so only holy weapons cut deep.
 element: SHADOW_4
 size: BIG
-# Statuswerte
-health: 4000
-mana: 900
-experience: 12000
-# AI setup - deliberately none. It had none before the spawn work and a wandering boss is not the intent.
-# Endgame: only the corrupted provinces, and only where a boss den asked for it.
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 0.04
+health: 146636
+mana: 1058
+experience: 38956
+attributes: { strength: 1, intelligence: 216, vitality: 58, dexterity: 1, willpower: 144, agility: 58 }
+learnset:
+  - { skill: proclaim_doom, level: 1 }
+  - { skill: growl, level: 6 }
+  - { skill: shadow_bolt, level: 16 }
+  - { skill: enrage, level: 21 }
+  - { skill: force_bolt, level: 26 }
+  - { skill: shockwave, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: arcane_missile, level: 41 }
+  - { skill: creeping_dark, level: 46 }
+  - { skill: arcane_lance, level: 51 }
+  - { skill: mending_light, level: 56 }
+  - { skill: umbral_wave, level: 61 }
+  - { skill: abyssal_lance, level: 66 }
+  - { skill: petrifying_gaze, level: 70 }
+  - { skill: mana_spear, level: 76, active: true }
+  - { skill: mana_storm, level: 82, active: true }
+  - { skill: bleeding_wound, level: 88, active: true }
+  - { skill: endless_night, level: 100, active: true }
 habitat: []
-corrupted-only: true
+spawn-weight: 100
 boss: true
-spawn-weight: 1
-equip-slots:
-  - HEAD_UPPER
-  - ARMOR
-  - GARMENT
-  - FOOTGEAR
-  - RIGHT_HAND
-  - LEFT_HAND
-armor-types:
-  - CLOTH
-  - LIGHT
-  - MEDIUM
-  - HEAVY
+event-only: true
+equip-slots: [HEAD_UPPER, HEAD_MID, ARMOR, GARMENT, FOOTGEAR, RIGHT_HAND, LEFT_HAND, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
 loot:
-  - item: jelly
-    chance: 2000
-  - item: apple
-    chance: 2000
+  - { item: shadow_shard, chance: 8000 }
+  - { item: void_essence, chance: 4000 }
+  - { item: gold_coin, chance: 10000 }

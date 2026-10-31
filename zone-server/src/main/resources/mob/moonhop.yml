@@ -1,0 +1,50 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 7
+identifier: moonhop
+level: 4
+name: "Moonhop"
+description: >-
+  A long-eared hopper that comes out to graze at dusk. Tailors in every start town want its soft pelt.
+kind: BEAST
+element: NORMAL
+size: SMALL
+default-attack: RANGED
+aspd: 80
+ai: passive_wanderer
+attack-power: 0.57
+health: 202
+mana: 33
+experience: 23
+attributes: { strength: 4, intelligence: 2, vitality: 4, dexterity: 7, willpower: 5, agility: 20 }
+learnset:
+  - { skill: tackle, level: 1, active: true }
+  - { skill: pebble_toss, level: 6 }
+  - { skill: play_dead, level: 11 }
+  - { skill: headbutt, level: 16 }
+  - { skill: enrage, level: 21 }
+  - { skill: quill_shot, level: 26 }
+  - { skill: gale_step, level: 30 }
+  - { skill: crushing_blow, level: 31 }
+  - { skill: hamstring, level: 36 }
+  - { skill: spine_volley, level: 41 }
+  - { skill: body_slam, level: 46 }
+  - { skill: war_cry, level: 51 }
+  - { skill: piercing_spike, level: 56 }
+  - { skill: savage_maul, level: 61 }
+  - { skill: terrifying_roar, level: 66 }
+  - { skill: barbed_barrage, level: 70 }
+  - { skill: skull_breaker, level: 76 }
+  - { skill: thorn_volley, level: 82 }
+  - { skill: primal_rage, level: 88 }
+  - { skill: mana_storm, level: 94 }
+  - { skill: wrath_of_the_wild, level: 100 }
+habitat: [GRASSLAND, TEMPERATE_FOREST]
+temperature-min: -5
+temperature-max: 30
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, ARMOR, GARMENT, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
+loot:
+  - { item: soft_fur, chance: 2000 }
+  - { item: raw_meat, chance: 2000 }
+  - { item: apple, chance: 1000 }

@@ -1,0 +1,49 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 77
+identifier: fallen_knight
+level: 92
+name: "Fallen Knight"
+description: >-
+  Empty armour still holding the line it swore to hold before the Rift. It never retreats and never tires; holy
+  blades break its oath.
+kind: UNDEAD
+element: UNDEAD_4
+size: MEDIUM
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 1.06
+health: 1620
+mana: 266
+experience: 410
+attributes: { strength: 22, intelligence: 22, vitality: 130, dexterity: 12, willpower: 52, agility: 17 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: howl, level: 6 }
+  - { skill: growl, level: 11 }
+  - { skill: minor_heal, level: 16 }
+  - { skill: rotting_grasp, level: 21 }
+  - { skill: crushing_blow, level: 26 }
+  - { skill: tailwind, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: regenerate, level: 41 }
+  - { skill: body_slam, level: 46 }
+  - { skill: shockwave, level: 51 }
+  - { skill: bloodlust, level: 56 }
+  - { skill: bone_crusher, level: 61 }
+  - { skill: petrifying_gaze, level: 66 }
+  - { skill: renewal, level: 70 }
+  - { skill: berserk, level: 76 }
+  - { skill: corpse_explosion, level: 82 }
+  - { skill: skull_breaker, level: 88, active: true }
+  - { skill: greater_heal, level: 94 }
+  - { skill: grave_tide, level: 100 }
+habitat: []
+spawn-weight: 100
+corrupted-only: true
+equip-slots: [HEAD_UPPER, HEAD_MID, ARMOR, GARMENT, FOOTGEAR, RIGHT_HAND, LEFT_HAND, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
+loot:
+  - { item: iron_ingot, chance: 2500 }
+  - { item: bone_shard, chance: 2500 }
+  - { item: iron_helmet, chance: 100 }

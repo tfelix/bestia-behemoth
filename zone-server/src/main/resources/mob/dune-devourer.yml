@@ -1,0 +1,49 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 74
+identifier: dune_devourer
+level: 82
+name: "Dune Devourer"
+description: >-
+  A sand serpent that hunts by feeling footsteps through the dunes. Stand still and it may pass you by.
+kind: REPTILE
+element: EARTH_4
+size: BIG
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 0.75
+health: 1636
+mana: 202
+experience: 363
+attributes: { strength: 33, intelligence: 12, vitality: 58, dexterity: 12, willpower: 19, agility: 39 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: ram, level: 6 }
+  - { skill: howl, level: 11 }
+  - { skill: unearth, level: 16 }
+  - { skill: hamstring, level: 21 }
+  - { skill: crushing_blow, level: 26 }
+  - { skill: pounce, level: 31 }
+  - { skill: tailwind, level: 36 }
+  - { skill: hammer_blow, level: 41 }
+  - { skill: mud_trap, level: 46 }
+  - { skill: body_slam, level: 51 }
+  - { skill: boulder_slam, level: 56 }
+  - { skill: tremor, level: 61 }
+  - { skill: bloodlust, level: 66 }
+  - { skill: rampage, level: 70 }
+  - { skill: skull_breaker, level: 76 }
+  - { skill: mana_storm, level: 82, active: true }
+  - { skill: primal_rage, level: 88 }
+  - { skill: titan_blow, level: 94 }
+  - { skill: fissure, level: 100 }
+habitat: [DESERT, COLD_DESERT]
+temperature-min: -20
+temperature-max: 48
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, ARMOR, ACCESSORY_1, ACCESSORY_2]
+armor-types: [LIGHT, MEDIUM]
+loot:
+  - { item: reptile_scale, chance: 3500 }
+  - { item: gold_coin, chance: 1500 }
+  - { item: rough_gem, chance: 800 }

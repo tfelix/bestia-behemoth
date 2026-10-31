@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 26
+name_key = "BESTIA_HOOKBEAK"
+description_key = "BESTIA_HOOKBEAK_DESC"
+kind = "BIRD"
+equip_slots = 393
+armor_types = 3
+non_combatant = false
+habitat = "GRASSLAND,DRYLAND,ALPINE"
+in_compendium = true
+placeholder_shape = 4
+placeholder_colour = Color(0.5451, 0.3529, 0.1686, 1)
+placeholder_scale = 1
+placeholder_glow = 0

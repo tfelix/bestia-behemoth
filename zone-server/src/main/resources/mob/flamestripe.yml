@@ -1,0 +1,50 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 81
+identifier: flamestripe
+level: 50
+name: "Flamestripe"
+description: >-
+  A tiger whose stripes burn like coals. The savanna burns where it hunts, and it waits for prey in the smoke.
+kind: BEAST
+element: FIRE_3
+size: BIG
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 1.77
+health: 70157
+mana: 134
+experience: 18865
+attributes: { strength: 21, intelligence: 12, vitality: 61, dexterity: 8, willpower: 20, agility: 41 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: ram, level: 6 }
+  - { skill: kindle, level: 11 }
+  - { skill: flame_fang, level: 16 }
+  - { skill: hamstring, level: 21 }
+  - { skill: crushing_blow, level: 26 }
+  - { skill: pounce, level: 31, active: true }
+  - { skill: tailwind, level: 36, active: true }
+  - { skill: hammer_blow, level: 41, active: true }
+  - { skill: curse, level: 46, active: true }
+  - { skill: body_slam, level: 51 }
+  - { skill: blazing_charge, level: 56 }
+  - { skill: fire_ball, level: 61 }
+  - { skill: bloodlust, level: 66 }
+  - { skill: rampage, level: 70 }
+  - { skill: skull_breaker, level: 76 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: primal_rage, level: 88 }
+  - { skill: titan_blow, level: 94 }
+  - { skill: inferno, level: 100 }
+habitat: [TROPICAL_SEASONAL_FOREST, DRYLAND]
+temperature-min: 0
+temperature-max: 40
+spawn-weight: 100
+boss: true
+equip-slots: [HEAD_UPPER, ARMOR, GARMENT, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
+loot:
+  - { item: raw_hide, chance: 6000 }
+  - { item: sharp_fang, chance: 4000 }
+  - { item: ember_core, chance: 4000 }

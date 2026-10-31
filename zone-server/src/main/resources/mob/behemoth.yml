@@ -1,0 +1,52 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 103
+identifier: behemoth
+level: 120
+name: "Behemoth"
+description: >-
+  A horned giant that walks the plains once in an age and leaves valleys in its tracks. The game is named after
+  it; nobody has brought one down yet.
+kind: BEAST
+element: EARTH_4
+size: BIG
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 1.77
+health: 165548
+mana: 321
+experience: 46687
+attributes: { strength: 79, intelligence: 27, vitality: 134, dexterity: 33, willpower: 45, agility: 89 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: ram, level: 6 }
+  - { skill: howl, level: 11 }
+  - { skill: stone_fist, level: 16 }
+  - { skill: hamstring, level: 21 }
+  - { skill: crushing_blow, level: 26 }
+  - { skill: pounce, level: 31 }
+  - { skill: tailwind, level: 36 }
+  - { skill: hammer_blow, level: 41 }
+  - { skill: mud_trap, level: 46 }
+  - { skill: body_slam, level: 51 }
+  - { skill: boulder_slam, level: 56 }
+  - { skill: tremor, level: 61 }
+  - { skill: bloodlust, level: 66 }
+  - { skill: rampage, level: 70 }
+  - { skill: skull_breaker, level: 76 }
+  - { skill: mana_storm, level: 82, active: true }
+  - { skill: primal_rage, level: 88, active: true }
+  - { skill: titan_blow, level: 94, active: true }
+  - { skill: fissure, level: 100, active: true }
+habitat: [GRASSLAND, DRYLAND]
+temperature-min: -5
+temperature-max: 38
+spawn-weight: 100
+boss: true
+equip-slots: [HEAD_UPPER, ARMOR, GARMENT, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
+loot:
+  - { item: raw_meat, chance: 10000 }
+  - { item: raw_hide, chance: 10000 }
+  - { item: horn, chance: 10000 }
+  - { item: aetherite_shard, chance: 3000 }

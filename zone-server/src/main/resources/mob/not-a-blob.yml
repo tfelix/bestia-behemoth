@@ -1,0 +1,48 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 107
+identifier: not_a_blob
+level: 50
+name: "Not-a-Blob"
+description: >-
+  It looks exactly like a blob. It is not a blob. Your sword passes right through it, which a real blob would
+  never allow.
+kind: FORMLESS
+element: GHOST_2
+size: SMALL
+default-attack: RANGED
+aspd: 80
+ai: passive_wanderer
+attack-power: 0.83
+health: 191
+mana: 133
+experience: 226
+attributes: { strength: 12, intelligence: 7, vitality: 14, dexterity: 20, willpower: 19, agility: 71 }
+learnset:
+  - { skill: splash, level: 1 }
+  - { skill: pebble_toss, level: 6 }
+  - { skill: play_dead, level: 11 }
+  - { skill: headbutt, level: 16 }
+  - { skill: enrage, level: 21 }
+  - { skill: quill_shot, level: 26 }
+  - { skill: crushing_blow, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: spine_volley, level: 41 }
+  - { skill: spectral_touch, level: 46, active: true }
+  - { skill: war_cry, level: 51 }
+  - { skill: piercing_spike, level: 56 }
+  - { skill: phantom_rush, level: 61 }
+  - { skill: petrifying_gaze, level: 66 }
+  - { skill: barbed_barrage, level: 70 }
+  - { skill: skull_breaker, level: 76 }
+  - { skill: thorn_volley, level: 82 }
+  - { skill: primal_rage, level: 88 }
+  - { skill: spirit_burst, level: 94 }
+  - { skill: soul_harvest, level: 100 }
+habitat: []
+spawn-weight: 100
+event-only: true
+equip-slots: [GARMENT]
+armor-types: [CLOTH, LIGHT]
+loot:
+  - { item: jelly, chance: 5000 }
+  - { item: ectoplasm, chance: 2000 }

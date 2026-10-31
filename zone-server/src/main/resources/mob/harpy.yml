@@ -1,0 +1,48 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 32
+identifier: harpy
+level: 44
+name: "Harpy"
+description: >-
+  Half woman, half vulture, all temper. Harpies nest on cliff tops and shriek to call the flock.
+kind: BIRD
+element: WIND_2
+size: MEDIUM
+default-attack: RANGED
+aspd: 80
+ai: aggressive_melee
+attack-power: 1.14
+health: 717
+mana: 119
+experience: 199
+attributes: { strength: 11, intelligence: 6, vitality: 13, dexterity: 18, willpower: 17, agility: 64 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: pebble_toss, level: 6 }
+  - { skill: growl, level: 11 }
+  - { skill: wing_buffet, level: 16 }
+  - { skill: enrage, level: 21 }
+  - { skill: wind_cutter, level: 26 }
+  - { skill: keen_eye, level: 31 }
+  - { skill: curse, level: 36 }
+  - { skill: spine_volley, level: 41, active: true }
+  - { skill: body_slam, level: 46 }
+  - { skill: tailwind, level: 51 }
+  - { skill: piercing_spike, level: 56 }
+  - { skill: tempest_dive, level: 61 }
+  - { skill: petrifying_gaze, level: 66 }
+  - { skill: barbed_barrage, level: 70 }
+  - { skill: skull_breaker, level: 76 }
+  - { skill: thorn_volley, level: 82 }
+  - { skill: primal_rage, level: 88 }
+  - { skill: cyclone, level: 94 }
+  - { skill: hurricane, level: 100 }
+habitat: [ALPINE, BADLANDS]
+temperature-min: -25
+temperature-max: 42
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, GARMENT, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT]
+loot:
+  - { item: feather, chance: 4000 }
+  - { item: sharp_fang, chance: 1000 }

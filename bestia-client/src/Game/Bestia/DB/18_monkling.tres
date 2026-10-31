@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 18
+name_key = "BESTIA_MONKLING"
+description_key = "BESTIA_MONKLING_DESC"
+kind = "BEAST"
+equip_slots = 397
+armor_types = 15
+non_combatant = false
+habitat = "TROPICAL_SEASONAL_FOREST,TROPICAL_RAINFOREST"
+in_compendium = true
+placeholder_shape = 1
+placeholder_colour = Color(0.6275, 0.3216, 0.1765, 1)
+placeholder_scale = 0.6
+placeholder_glow = 0

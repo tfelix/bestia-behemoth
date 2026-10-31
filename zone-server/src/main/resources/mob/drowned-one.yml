@@ -1,0 +1,49 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 40
+identifier: drowned_one
+level: 42
+name: "Drowned One"
+description: >-
+  A peat-soaked corpse that crawls out of the bog when the mist is thick. Holy light and fire send it back down.
+kind: UNDEAD
+element: UNDEAD_2
+size: MEDIUM
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 1.03
+health: 818
+mana: 112
+experience: 190
+attributes: { strength: 9, intelligence: 7, vitality: 33, dexterity: 4, willpower: 11, agility: 22 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: ram, level: 6 }
+  - { skill: howl, level: 11 }
+  - { skill: rotting_grasp, level: 16 }
+  - { skill: hamstring, level: 21 }
+  - { skill: crushing_blow, level: 26 }
+  - { skill: pounce, level: 31 }
+  - { skill: tailwind, level: 36 }
+  - { skill: hammer_blow, level: 41, active: true }
+  - { skill: curse, level: 46 }
+  - { skill: body_slam, level: 51 }
+  - { skill: bone_crusher, level: 56 }
+  - { skill: corpse_explosion, level: 61 }
+  - { skill: bloodlust, level: 66 }
+  - { skill: rampage, level: 70 }
+  - { skill: skull_breaker, level: 76 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: primal_rage, level: 88 }
+  - { skill: titan_blow, level: 94 }
+  - { skill: grave_tide, level: 100 }
+habitat: [BOG, SWAMP, LAKE]
+temperature-min: -10
+temperature-max: 38
+spawn-weight: 100
+equip-slots: [HEAD_UPPER, HEAD_MID, ARMOR, GARMENT, FOOTGEAR, RIGHT_HAND, LEFT_HAND, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
+loot:
+  - { item: bone_shard, chance: 2500 }
+  - { item: old_bandage, chance: 1000 }
+  - { item: ectoplasm, chance: 800 }

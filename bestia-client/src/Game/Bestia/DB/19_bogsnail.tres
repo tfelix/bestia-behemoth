@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 19
+name_key = "BESTIA_BOGSNAIL"
+description_key = "BESTIA_BOGSNAIL_DESC"
+kind = "AQUATIC"
+equip_slots = 389
+armor_types = 6
+non_combatant = false
+habitat = "BOG,SWAMP"
+in_compendium = true
+placeholder_shape = 5
+placeholder_colour = Color(0.3333, 0.4196, 0.1843, 1)
+placeholder_scale = 0.6
+placeholder_glow = 0

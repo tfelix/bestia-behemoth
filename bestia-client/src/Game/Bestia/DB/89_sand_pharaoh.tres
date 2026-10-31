@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 89
+name_key = "BESTIA_SAND_PHARAOH"
+description_key = "BESTIA_SAND_PHARAOH_DESC"
+kind = "UNDEAD"
+equip_slots = 511
+armor_types = 15
+non_combatant = false
+habitat = "DESERT"
+in_compendium = true
+placeholder_shape = 1
+placeholder_colour = Color(0.8549, 0.6471, 0.1255, 1)
+placeholder_scale = 2.4
+placeholder_glow = 0.6
