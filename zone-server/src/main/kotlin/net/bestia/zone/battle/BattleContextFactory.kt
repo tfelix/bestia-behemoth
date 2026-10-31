@@ -77,6 +77,8 @@ class BattleContextFactory(
     val combat = world.get(entityId, CombatStats::class)?.values ?: return null
     val level = world.get(entityId, Level::class)?.level ?: 1
 
+    val nature = world.get(entityId, Nature::class)
+
     return BattleEntity(
       id = entityId,
       position = position,
@@ -85,13 +87,14 @@ class BattleContextFactory(
       statusValues = combat.attributes,
       derivedStatusValues = combat.derived,
       // Armour and buffs that change it do not exist yet, so the species' own element is the whole answer.
-      assumedElement = world.get(entityId, Nature::class)?.element ?: Element.NORMAL,
+      assumedElement = nature?.element ?: Element.NORMAL,
       elementResistance = combat.elementResistance,
       maxHealth = world.get(entityId, Health::class)?.max ?: 0,
       activeEffectIds = world.get(entityId, StatusEffects::class)
         ?.activeEffects
         ?.mapTo(mutableSetOf()) { it.definitionId }
-        ?: emptySet()
+        ?: emptySet(),
+      attackPower = nature?.attackPower ?: 1f
     )
   }
 

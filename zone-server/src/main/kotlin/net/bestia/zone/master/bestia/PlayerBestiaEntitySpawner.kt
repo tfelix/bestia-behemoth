@@ -13,6 +13,7 @@ import net.bestia.zone.battle.ecs.status.FormulaDrivenVitals
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.ecs.status.Mana
+import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.ecs.status.OwnerCombatStats
 import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.battle.ecs.status.StatusValues
@@ -171,6 +172,8 @@ class PlayerBestiaEntitySpawner(
     add(id, Exp(0, levelUpExpCalculator.getRequiredExperience(playerBestia.level)))
     add(id, Speed())
     add(id, EntityVisual(VisualKind.BESTIA, playerBestia.bestia.id))
+    // A caught bestia keeps the element and the skill power of its species.
+    add(id, Nature(playerBestia.bestia.element, playerBestia.bestia.size, playerBestia.bestia.attackPower))
     // Rendered by the same visual as a wild mob, so it gets the same posture channel: an owned bestia left
     // on a FORAGE stance sleeps, and its owner should be able to see that it is asleep.
     add(id, Animation())

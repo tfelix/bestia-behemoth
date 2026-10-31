@@ -97,7 +97,7 @@ class BestiaEntitySpawner(
       add(id, Level(bestia.level))
       add(id, Stamina(current = 10, max = 10))
       add(id, Speed())
-      add(id, Nature(bestia.element, bestia.size))
+      add(id, Nature(bestia.element, bestia.size, bestia.attackPower))
       val skills = learnedSkills(bestia)
       if (skills.isNotEmpty()) add(id, KnownSkills(skills))
       // Deliberately no FormulaDrivenVitals marker, which is what keeps the authored Bestia.health above
