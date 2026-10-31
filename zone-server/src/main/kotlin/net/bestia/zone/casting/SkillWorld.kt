@@ -72,6 +72,9 @@ interface SkillWorld {
    */
   fun spawnAreaEffect(centre: Vec3L, visualId: Long, effect: AreaEffect): EntityId
 
+  /** The caster says [text] out loud, see [Speech]. */
+  fun say(text: String)
+
   /** Drops [amount] of [itemId] on the ground at [at], for the caster's account to pick up first. */
   fun dropItem(itemId: Long, amount: Int, at: Vec3L)
 

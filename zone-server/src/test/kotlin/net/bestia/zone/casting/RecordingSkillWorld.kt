@@ -109,6 +109,12 @@ class RecordingSkillWorld(
     return true
   }
 
+  val spoken = mutableListOf<String>()
+
+  override fun say(text: String) {
+    spoken += text
+  }
+
   val droppedItems = mutableListOf<DroppedItem>()
 
   data class DroppedItem(val itemId: Long, val amount: Int, val at: Vec3L)

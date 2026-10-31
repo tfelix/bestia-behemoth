@@ -92,6 +92,12 @@ class BudgetedSkillWorld(
     return services.areaEffectSpawner.spawn(world, centre, visualId, effect)
   }
 
+  override fun say(text: String) {
+    budget.charge()
+
+    services.speech.say(world, casterId, text)
+  }
+
   override fun dropItem(itemId: Long, amount: Int, at: Vec3L) {
     budget.charge(SPAWN_OPS)
 
