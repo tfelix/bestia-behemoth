@@ -508,7 +508,11 @@ skills:
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000
     identifier: ember
+    name: Ember
     script: Ember
+    archetype: DOT
+    element: FIRE
+    cooldown: 12
     targetType: AOE_GROUND
     aoeRadius: 1.0
     needsLineOfSight: true

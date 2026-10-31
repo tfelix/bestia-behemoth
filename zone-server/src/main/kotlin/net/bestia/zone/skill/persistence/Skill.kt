@@ -2,6 +2,7 @@ package net.bestia.zone.skill.persistence
 
 import jakarta.persistence.*
 import net.bestia.zone.util.requireValidIdentifier
+import net.bestia.zone.skill.SkillArchetype
 import net.bestia.zone.skill.SkillTargetType
 
 @Entity
@@ -66,7 +67,28 @@ class Skill(
    * `./gradlew syncSkillDb` - see `.claude/skills/skill-system/SKILL.md`.
    */
   @Column(columnDefinition = "TEXT", nullable = true)
-  var description: String? = null
+  var description: String? = null,
+
+  /** English display name. Synced to the client's Attack DB by `./gradlew syncSkillDb`. */
+  @Column(nullable = true)
+  var name: String? = null,
+
+  /** Set for bestia skills; a generic script reads it to pick its formula. */
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = true)
+  var archetype: SkillArchetype? = null,
+
+  /** An `Element` name, by name because the skill slice sits below battle; `BattleAttack.of` reads it. */
+  @Column(nullable = false)
+  var element: String = "NORMAL",
+
+  /** The attack coefficient of the archetype formula, see `bestia_blueprint.yaml`. */
+  @Column(nullable = false)
+  var power: Float = 1f,
+
+  /** Seconds before the same caster may use this skill again. 0 means no cooldown. */
+  @Column(nullable = false)
+  var cooldown: Float = 0f,
 ) {
 
   init {
@@ -90,7 +112,12 @@ class Skill(
         needsLineOfSight != other.needsLineOfSight ||
         castTime != other.castTime ||
         requiredLevel != other.requiredLevel ||
-        description != other.description
+        description != other.description ||
+        name != other.name ||
+        archetype != other.archetype ||
+        element != other.element ||
+        power != other.power ||
+        cooldown != other.cooldown
 
     if (!changed) {
       return false
@@ -106,6 +133,11 @@ class Skill(
     castTime = other.castTime
     requiredLevel = other.requiredLevel
     description = other.description
+    name = other.name
+    archetype = other.archetype
+    element = other.element
+    power = other.power
+    cooldown = other.cooldown
 
     return true
   }
@@ -117,6 +149,14 @@ class Skill(
 
     require(castTime >= 0f) {
       "Skill $identifier: castTime must be >= 0"
+    }
+
+    require(cooldown >= 0f) {
+      "Skill $identifier: cooldown must be >= 0"
+    }
+
+    require(power > 0f) {
+      "Skill $identifier: power must be > 0"
     }
 
     val radius = aoeRadius

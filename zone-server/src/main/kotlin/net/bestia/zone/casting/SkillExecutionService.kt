@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * ### What is still checked here rather than in the script
  *
- * Mana and liveness, because every skill pays them the same way. Everything else - who may be targeted,
+ * Mana, cooldown and liveness, because every skill pays them the same way. Everything else - who may be targeted,
  * what the skill does, what it leaves behind - is the script's.
  */
 @Service
@@ -31,6 +31,7 @@ class SkillExecutionService(
   private val skillRepository: SkillRepository,
   private val skillStrategyFactory: SkillStrategyFactory,
   private val skillContextFactory: SkillContextFactory,
+  private val cooldowns: SkillCooldownService,
 ) {
 
   /** Skills never change after the import, and resolution runs on the tick, so they are read once at boot. */
@@ -44,6 +45,13 @@ class SkillExecutionService(
   /** The catalogue row for [skillId], from memory, or null for an id the catalogue does not know. */
   fun skillOf(skillId: Long): Skill? {
     return skillCache[skillId]
+  }
+
+  /** Whether [casterId] may use [skillId] now; false for a skill the catalogue does not know. */
+  fun isReady(world: World, casterId: EntityId, skillId: Long): Boolean {
+    val skill = skillOf(skillId) ?: return false
+
+    return cooldowns.isReady(world, casterId, skill)
   }
 
   /** Queues [skillId] for resolution on the tick thread and returns immediately, from any thread. */
@@ -87,6 +95,11 @@ class SkillExecutionService(
       return
     }
 
+    if (!cooldowns.isReady(world, casterId, skill)) {
+      LOG.debug { "Skill $skillId by $casterId fizzled: still cooling down" }
+      return
+    }
+
     try {
       // Checked here rather than at activation on purpose: for a channelled skill the caster may have
       // drifted out of range or lost line of sight while casting, which must make the skill fizzle.
@@ -103,6 +116,7 @@ class SkillExecutionService(
       }
 
       val result = strategy.execute(ctx)
+      cooldowns.start(world, casterId, skill)
 
       // A skill whose whole effect is a patch of ground, a station or a chart has no number to show, and
       // a ground-targeted one has no entity to show it on.

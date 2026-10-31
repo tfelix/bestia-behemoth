@@ -67,6 +67,8 @@ class MobImporterBootRunner(
     @JsonProperty("default-attack")
     val defaultAttack: DefaultAttack = DefaultAttack.MELEE,
     val aspd: Int = AttackSpeed.DEFAULT_SPECIES_ASPD,
+    @JsonProperty("attack-power")
+    val attackPower: Float = 1f,
 
     /**
      * The species' primary attributes. Omit the block and every one of them stays at the flat 10 that was
@@ -107,11 +109,13 @@ class MobImporterBootRunner(
   ) {
     init {
       require(aspd in 0..AttackSpeed.aspd(AttackSpeed.MIN_MOTION_MS)) { "$identifier: aspd $aspd is outside 0..190" }
+      require(attackPower > 0f) { "$identifier: attack-power must be > 0" }
     }
 
     data class LearnedAttack(
       val skill: String,
-      val level: Int
+      val level: Int,
+      val active: Boolean = false
     )
 
     data class Loot(
@@ -145,6 +149,7 @@ class MobImporterBootRunner(
       size = dto.size,
       defaultAttack = dto.defaultAttack,
       aspd = dto.aspd,
+      attackPower = dto.attackPower,
       strength = dto.attributes.strength,
       intelligence = dto.attributes.intelligence,
       vitality = dto.attributes.vitality,
@@ -208,6 +213,7 @@ class MobImporterBootRunner(
         entity.size != dto.size ||
         entity.defaultAttack != dto.defaultAttack ||
         entity.aspd != dto.aspd ||
+        entity.attackPower != dto.attackPower ||
         entity.strength != dto.attributes.strength ||
         entity.intelligence != dto.attributes.intelligence ||
         entity.vitality != dto.attributes.vitality ||
@@ -240,6 +246,7 @@ class MobImporterBootRunner(
     entity.size = dto.size
     entity.defaultAttack = dto.defaultAttack
     entity.aspd = dto.aspd
+    entity.attackPower = dto.attackPower
     entity.strength = dto.attributes.strength
     entity.intelligence = dto.attributes.intelligence
     entity.vitality = dto.attributes.vitality
@@ -356,18 +363,20 @@ class MobImporterBootRunner(
     val skills = wanted.map { attack ->
       val skill = skillRepository.findByIdentifier(attack.skill)
         ?: throw IllegalArgumentException("Mob '${bestia.identifier}' learns unknown skill '${attack.skill}'")
-      skill to attack.level
+      BestiaSkill(bestia, skill, attack.level, attack.active)
     }
 
     val stored = bestiaSkillRepository.findAllByBestiaId(bestia.id)
-    val storedPairs = stored.map { it.skill.id to it.requiredLevel }.toSet()
-    val wantedPairs = skills.map { (skill, level) -> skill.id to level }.toSet()
-    if (storedPairs == wantedPairs) {
+    if (stored.map { it.key() }.toSet() == skills.map { it.key() }.toSet()) {
       return
     }
 
     bestiaSkillRepository.deleteAll(stored)
-    bestiaSkillRepository.saveAll(skills.map { (skill, level) -> BestiaSkill(bestia, skill, level) })
+    bestiaSkillRepository.saveAll(skills)
+  }
+
+  private fun BestiaSkill.key(): Triple<Long, Int, Boolean> {
+    return Triple(skill.id, requiredLevel, active)
   }
 
   override fun getEntityIdentifier(entity: Bestia): String {

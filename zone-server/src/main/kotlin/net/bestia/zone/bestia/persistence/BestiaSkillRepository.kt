@@ -7,9 +7,16 @@ interface BestiaSkillRepository : JpaRepository<BestiaSkill, Long> {
 
   fun findAllByBestiaId(bestiaId: Long): List<BestiaSkill>
 
-  @Query("select new net.bestia.zone.bestia.persistence.LearnedSkill(s.bestia.id, s.skill.id, s.requiredLevel) from BestiaSkill s")
+  @Query("select new net.bestia.zone.bestia.persistence.LearnedSkill(s.bestia.id, s.skill.id, s.requiredLevel, s.active, s.skill.range) from BestiaSkill s")
   fun findAllLearned(): List<LearnedSkill>
 }
 
 /** One learnset row as plain values, safe to keep after the session that loaded it is gone. */
-data class LearnedSkill(val bestiaId: Long, val skillId: Long, val requiredLevel: Int)
+/** [active] and [range] are what the wild AI needs to fight with the skill, see [BestiaSkill.active]. */
+data class LearnedSkill(
+  val bestiaId: Long,
+  val skillId: Long,
+  val requiredLevel: Int,
+  val active: Boolean = false,
+  val range: Int? = null,
+)

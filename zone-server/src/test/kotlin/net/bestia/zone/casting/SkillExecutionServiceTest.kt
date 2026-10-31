@@ -22,6 +22,10 @@ import org.junit.jupiter.api.Test
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.skill.SkillTargetType
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZoneOffset
 
 class SkillExecutionServiceTest {
 
@@ -45,6 +49,8 @@ class SkillExecutionServiceTest {
   }
 
   private val world = testWorld()
+
+  private val clock = SteppedClock()
 
   private val propPromotion = PropPromotionService(mockk(relaxed = true))
 
@@ -146,6 +152,7 @@ class SkillExecutionServiceTest {
       repository,
       SkillStrategyFactory(emptyList()),
       contextFactory(),
+      SkillCooldownService(clock),
     ).also { it.warmUp() }
 
     service.executeNow(world, caster, 9999L, 1, null, Vec3L(1, 0, 0))
@@ -189,14 +196,31 @@ class SkillExecutionServiceTest {
     assertTrue(script.casts == 1)
   }
 
-  private fun serviceFor(script: SkillStrategy, manaCost: Int = 0) =
-    service(skill(manaCost = manaCost), SkillStrategyFactory(listOf(script)))
+  @Test
+  fun `a skill cooling down fizzles until its cooldown has passed`() {
+    val script = TestScript(result = HitDamage(1))
+    val caster = world.spawnFighter()
+    val target = world.spawnFighter()
+    val service = serviceFor(script, cooldown = 4f)
+
+    service.executeNow(world, caster, SKILL_ID, 1, target, null)
+    clock.advanceSeconds(3)
+    assertFalse(service.isReady(world, caster, SKILL_ID))
+    service.executeNow(world, caster, SKILL_ID, 1, target, null)
+    clock.advanceSeconds(1)
+    service.executeNow(world, caster, SKILL_ID, 1, target, null)
+
+    assertEquals(2, script.casts, "the cast inside the cooldown must not resolve")
+  }
+
+  private fun serviceFor(script: SkillStrategy, manaCost: Int = 0, cooldown: Float = 0f) =
+    service(skill(manaCost = manaCost, cooldown = cooldown), SkillStrategyFactory(listOf(script)))
 
   private fun service(skill: Skill, strategies: SkillStrategyFactory): SkillExecutionService {
     val repository = mockk<SkillRepository>()
     every { repository.findAll() } returns listOf(skill)
 
-    return SkillExecutionService(repository, strategies, contextFactory()).also { it.warmUp() }
+    return SkillExecutionService(repository, strategies, contextFactory(), SkillCooldownService(clock)).also { it.warmUp() }
   }
 
   /** Resolution is posted to the tick thread; a tick runs it. */
@@ -231,7 +255,7 @@ class SkillExecutionServiceTest {
   )
 
   /** [script] defaults to `TestScript`, the simple name a `SkillStrategyFactory` keys the test script under. */
-  private fun skill(manaCost: Int = 0, script: String = "TestScript") = Skill(
+  private fun skill(manaCost: Int = 0, script: String = "TestScript", cooldown: Float = 0f) = Skill(
     id = SKILL_ID,
     identifier = "TEST_SKILL",
     strength = null,
@@ -240,7 +264,8 @@ class SkillExecutionServiceTest {
     range = 100,
     targetType = SkillTargetType.ENEMY,
     needsLineOfSight = false,
-    requiredLevel = 0
+    requiredLevel = 0,
+    cooldown = cooldown
   )
 
   private fun World.spawnFighter(mana: Int = 0, at: Vec3L = Vec3L(1, 0, 0)): EntityId = createEntity { id ->
@@ -252,6 +277,24 @@ class SkillExecutionServiceTest {
   private fun World.manaOf(id: EntityId): Int = get(id, Mana::class)?.current ?: 0
 
   private fun World.stagedDamageOn(id: EntityId): Int = get(id, IncomingDamage::class)?.total() ?: 0
+
+  private class SteppedClock(private var now: Instant = Instant.EPOCH) : Clock() {
+    fun advanceSeconds(seconds: Long) {
+      now = now.plusSeconds(seconds)
+    }
+
+    override fun instant(): Instant {
+      return now
+    }
+
+    override fun getZone(): ZoneId {
+      return ZoneOffset.UTC
+    }
+
+    override fun withZone(zone: ZoneId): Clock {
+      return this
+    }
+  }
 
   private companion object {
     const val SKILL_ID = 1L

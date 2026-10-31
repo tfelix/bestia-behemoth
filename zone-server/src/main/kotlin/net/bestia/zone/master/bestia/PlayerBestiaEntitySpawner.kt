@@ -1,5 +1,6 @@
 package net.bestia.zone.master.bestia
 
+import net.bestia.zone.bestia.BestiaSkillLevel
 import net.bestia.zone.item.stat.ItemStatCatalog
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.ecs.AiAgentFactory
@@ -13,6 +14,7 @@ import net.bestia.zone.battle.ecs.status.FormulaDrivenVitals
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.ecs.status.Mana
+import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.ecs.status.OwnerCombatStats
 import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.battle.ecs.status.StatusValues
@@ -150,7 +152,7 @@ class PlayerBestiaEntitySpawner(
   private fun load(playerBestia: PlayerBestia): LoadedBestia {
     val fixedAttackIds = playerBestia.bestia.skills
       .filter { it.requiredLevel <= playerBestia.level }
-      .associate { it.skill.id to 1 }
+      .associate { it.skill.id to BestiaSkillLevel.forLearnLevel(it.requiredLevel) }
     val customAttackIds = playerBestia.learnedSkills.associate { it.skill.id to it.level }
 
     return LoadedBestia(
@@ -171,6 +173,8 @@ class PlayerBestiaEntitySpawner(
     add(id, Exp(0, levelUpExpCalculator.getRequiredExperience(playerBestia.level)))
     add(id, Speed())
     add(id, EntityVisual(VisualKind.BESTIA, playerBestia.bestia.id))
+    // A caught bestia keeps the element and the skill power of its species.
+    add(id, Nature(playerBestia.bestia.element, playerBestia.bestia.size, playerBestia.bestia.attackPower))
     // Rendered by the same visual as a wild mob, so it gets the same posture channel: an owned bestia left
     // on a FORAGE stance sleeps, and its owner should be able to see that it is asleep.
     add(id, Animation())

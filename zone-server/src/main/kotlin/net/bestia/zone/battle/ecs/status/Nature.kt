@@ -15,5 +15,8 @@ import net.bestia.zone.ecs.core.Component
  */
 data class Nature(
   val element: Element,
-  val size: Size
+  val size: Size,
+
+  /** Scales the damage of its skills, as the Bestia Blueprint calculator fitted it for the species. */
+  val attackPower: Float = 1f,
 ) : Component

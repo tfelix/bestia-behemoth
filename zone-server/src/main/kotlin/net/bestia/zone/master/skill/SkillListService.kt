@@ -1,5 +1,6 @@
 package net.bestia.zone.master.skill
 
+import net.bestia.zone.bestia.BestiaSkillLevel
 import net.bestia.zone.account.persistence.LearnedSkillRepository
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
@@ -59,7 +60,8 @@ class SkillListService(
     // A custom row teaches a species skill ahead of its level, so the two sources are merged, not either/or.
     val fixedEntries = playerBestia.bestia.skills.map { bestiaSkill ->
       val skillId = bestiaSkill.skill.id
-      val levelByTable = if (playerBestia.level >= bestiaSkill.requiredLevel) 1 else 0
+      val levelByTable =
+        if (playerBestia.level >= bestiaSkill.requiredLevel) BestiaSkillLevel.forLearnLevel(bestiaSkill.requiredLevel) else 0
 
       SkillListSMSG.SkillListEntry(
         skillId = skillId,
