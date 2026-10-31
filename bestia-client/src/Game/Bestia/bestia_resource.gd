@@ -9,8 +9,8 @@ class_name BestiaResource
 ## into Localization/bestias.csv, where it is translated. Anything else here is pure presentation with no
 ## server equivalent and is hand-authored.
 
-## The body to spawn for a species whose art is not authored yet - the orange placeholder every mob used
-## to get. Read it through [method get_bestia_visual] rather than [member bestia_visual] directly, so the
+## The body to spawn for a species whose art is not authored yet: a primitive drawn in the species'
+## placeholder look. Read it through [method get_bestia_visual] rather than [member bestia_visual] directly, so the
 ## fallback lives in one place; without it an unknown species gets no visual child at all, and since the
 ## clickable Area3D lives on the visual it would be invisible *and* unclickable.
 const MISSING_VISUAL: PackedScene = preload("res://Game/Entity/Visual/BestiaVisual/BestiaVisual.tscn")
@@ -18,6 +18,8 @@ const MISSING_VISUAL: PackedScene = preload("res://Game/Entity/Visual/BestiaVisu
 ## The Bestia Compendium picture of a species with no art yet. Drawn on a transparent ground, so a black
 ## modulate turns it into the silhouette an unseen species shows.
 const MISSING_PORTRAIT: Texture2D = preload("res://Game/Bestia/missing_portrait.png")
+
+enum PlaceholderShape { SPHERE, CAPSULE, BOX, CYLINDER, PRISM, TORUS }
 
 @export var bestia_id: int
 
@@ -58,6 +60,16 @@ const MISSING_PORTRAIT: Texture2D = preload("res://Game/Bestia/missing_portrait.
 ## The hand-drawn picture in the Bestia Compendium. Read it through [method get_portrait]. Kept as
 ## DB/<bestia_id>_<identifier>.png, the name the companion app finds it by.
 @export var portrait: Texture2D
+
+@export_group("Placeholder")
+## How [constant MISSING_VISUAL] draws this species, so species without art still tell apart. The defaults
+## are the orange sphere every species had before.
+@export var placeholder_shape: PlaceholderShape = PlaceholderShape.SPHERE
+@export var placeholder_colour: Color = Color(0.8156863, 0.54509807, 0.101960786)
+@export var placeholder_scale: float = 1.0
+## Emission strength in [member placeholder_colour], to make a boss stand out. 0 does not glow.
+@export var placeholder_glow: float = 0.0
+@export_group("")
 
 
 ## The scene to spawn for this species' body. Always prefer this over [member bestia_visual], for the
