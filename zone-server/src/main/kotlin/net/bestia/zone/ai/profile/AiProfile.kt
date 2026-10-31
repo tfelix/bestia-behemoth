@@ -33,6 +33,11 @@ data class AiProfile(
   fun armedWith(defaultAttack: DefaultAttack, aspd: Int): AiProfile =
     copy(attacks = attacks + DefaultAttackDefinition.of(defaultAttack, aspd))
 
+  /** This profile plus the attack skills a species fights with, which no shared profile can list. */
+  fun withSkillAttacks(skillAttacks: List<SkillAttack>): AiProfile {
+    return copy(attacks = attacks + skillAttacks)
+  }
+
   data class Perception(
     val sightRadius: Int,
     /** See [AiProfileDto.PerceptionDto.aggroMemorySeconds]. Exposed in millis, which is what the ledger uses. */

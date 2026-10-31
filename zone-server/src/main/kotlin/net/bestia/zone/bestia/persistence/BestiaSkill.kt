@@ -21,7 +21,11 @@ class BestiaSkill(
   val skill: Skill,
 
   @Column(name = "required_level", nullable = false)
-  val requiredLevel: Int
+  val requiredLevel: Int,
+
+  /** Whether a wild one fights with it. The docs pick the newest attack of each archetype, more for a higher tier. */
+  @Column(nullable = false)
+  val active: Boolean = false,
 ) {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
