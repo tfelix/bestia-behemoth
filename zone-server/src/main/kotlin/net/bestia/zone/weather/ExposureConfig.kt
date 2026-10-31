@@ -70,7 +70,10 @@ data class ExposureConfig(
    * between "the ice sheet is lethal" and "the ice sheet is a place you can work". Widening the band rather
    * than reducing the damage is deliberate; see the system.
    */
-  val tolerancePerResistanceLevel: Double = 3.0
+  val tolerancePerResistanceLevel: Double = 3.0,
+
+  /** How far WARMED lowers, and COOLED raises, the edge of the comfort band. */
+  val toleranceFromStatus: Double = 15.0
 ) {
   init {
     require(comfortLowCelsius < comfortHighCelsius) { "the comfort band is inverted" }
@@ -78,5 +81,6 @@ data class ExposureConfig(
     require(staminaPerDegree > 0.0) { "staminaPerDegree must be positive" }
     require(healthShare > 0.0) { "healthShare must be positive" }
     require(tolerancePerResistanceLevel >= 0.0) { "tolerancePerResistanceLevel must not be negative" }
+    require(toleranceFromStatus >= 0.0) { "toleranceFromStatus must not be negative" }
   }
 }

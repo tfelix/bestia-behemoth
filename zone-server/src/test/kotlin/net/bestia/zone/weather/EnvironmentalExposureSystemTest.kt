@@ -4,7 +4,11 @@ import io.mockk.every
 import io.mockk.mockk
 import net.bestia.worldgen.climate.Temperature
 import net.bestia.worldgen.core.WorldConfig
+import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.status.StackBehavior
+import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.core.testWorld
@@ -50,11 +54,33 @@ class EnvironmentalExposureSystemTest {
     assertTrue(world.getOrThrow(traveller, Dead::class).resolved, "the death penalty would be charged again")
   }
 
+  @Test
+  fun `a bestia's warm fur keeps its master unhurt in a cold that would hurt them`() {
+    val chilly = EnvironmentalExposureSystem(coldAt(-15.0), readyChunks(), ExposureConfig(), mockk(relaxed = true), WorldRulesConfig(tickRate = 20))
+    val coldWorld = testWorld(systems = listOf(chilly))
+    val warmed = coldWorld.exhausted(StatusEffectId.WARMED)
+    val cooled = coldWorld.exhausted(StatusEffectId.COOLED)
+
+    repeat(chilly.periodTicks.toInt()) { coldWorld.tick(DELTA) }
+
+    assertEquals(HEALTH, coldWorld.getOrThrow(warmed, Health::class).current)
+    assertTrue(coldWorld.getOrThrow(cooled, Health::class).current < HEALTH, "cooling must not help in the cold")
+  }
+
   private fun exhausted(): EntityId {
-    return world.createEntity { id ->
+    return world.exhausted()
+  }
+
+  private fun World.exhausted(status: StatusEffectId? = null): EntityId {
+    return createEntity { id ->
       add(id, Position.fromVec3(Vec3L(10, 10, 0)))
       add(id, Health(HEALTH, HEALTH))
       add(id, Stamina(current = 0, max = 10))
+      status?.let {
+        add(id, StatusEffects().apply {
+          applyEffect(it.id, StackBehavior.REFRESH_DURATION, 1, null, durationSeconds = 600.0, isSyncedToClient = false)
+        })
+      }
     }
   }
 
@@ -67,11 +93,15 @@ class EnvironmentalExposureSystemTest {
 
   /** Far below the comfort band, whatever it is tuned to. */
   private fun deepColdEverywhere(): WeatherService {
+    return coldAt(-40.0)
+  }
+
+  private fun coldAt(celsius: Double): WeatherService {
     val weather = mockk<WeatherService>()
     every { weather.at(any(), any(), any()) } returns WeatherAt(
       regionId = 0,
       state = mockk(relaxed = true),
-      temperature = Temperature(airCelsius = -40.0)
+      temperature = Temperature(airCelsius = celsius)
     )
 
     return weather
