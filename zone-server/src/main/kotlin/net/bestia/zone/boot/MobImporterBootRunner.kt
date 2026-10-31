@@ -67,6 +67,8 @@ class MobImporterBootRunner(
     @JsonProperty("default-attack")
     val defaultAttack: DefaultAttack = DefaultAttack.MELEE,
     val aspd: Int = AttackSpeed.DEFAULT_SPECIES_ASPD,
+    @JsonProperty("attack-power")
+    val attackPower: Float = 1f,
 
     /**
      * The species' primary attributes. Omit the block and every one of them stays at the flat 10 that was
@@ -107,6 +109,7 @@ class MobImporterBootRunner(
   ) {
     init {
       require(aspd in 0..AttackSpeed.aspd(AttackSpeed.MIN_MOTION_MS)) { "$identifier: aspd $aspd is outside 0..190" }
+      require(attackPower > 0f) { "$identifier: attack-power must be > 0" }
     }
 
     data class LearnedAttack(
@@ -145,6 +148,7 @@ class MobImporterBootRunner(
       size = dto.size,
       defaultAttack = dto.defaultAttack,
       aspd = dto.aspd,
+      attackPower = dto.attackPower,
       strength = dto.attributes.strength,
       intelligence = dto.attributes.intelligence,
       vitality = dto.attributes.vitality,
@@ -208,6 +212,7 @@ class MobImporterBootRunner(
         entity.size != dto.size ||
         entity.defaultAttack != dto.defaultAttack ||
         entity.aspd != dto.aspd ||
+        entity.attackPower != dto.attackPower ||
         entity.strength != dto.attributes.strength ||
         entity.intelligence != dto.attributes.intelligence ||
         entity.vitality != dto.attributes.vitality ||
@@ -240,6 +245,7 @@ class MobImporterBootRunner(
     entity.size = dto.size
     entity.defaultAttack = dto.defaultAttack
     entity.aspd = dto.aspd
+    entity.attackPower = dto.attackPower
     entity.strength = dto.attributes.strength
     entity.intelligence = dto.attributes.intelligence
     entity.vitality = dto.attributes.vitality

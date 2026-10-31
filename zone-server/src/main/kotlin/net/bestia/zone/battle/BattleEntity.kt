@@ -27,5 +27,8 @@ data class BattleEntity(
    * Ids of the status effects currently on this entity, so a script can refuse a cast the target is
    * not eligible for - First Aid's once-a-minute limit is exactly this and nothing else.
    */
-  val activeEffectIds: Set<Long> = emptySet()
+  val activeEffectIds: Set<Long> = emptySet(),
+
+  /** See [net.bestia.zone.battle.ecs.status.Nature.attackPower]. */
+  val attackPower: Float = 1f,
 )

@@ -47,6 +47,10 @@ class Bestia(
   @Column(nullable = false)
   var aspd: Int = AttackSpeed.DEFAULT_SPECIES_ASPD,
 
+  /** See `Nature.attackPower`. */
+  @Column(nullable = false)
+  var attackPower: Float = 1f,
+
   /**
    * The species' primary attributes - the mob counterpart of a master's six, seeded into
    * [net.bestia.zone.battle.status.CombatValues.base] by `BestiaEntitySpawner` and from there into every
