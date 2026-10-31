@@ -1,5 +1,6 @@
 package net.bestia.zone.master.bestia
 
+import net.bestia.zone.bestia.BestiaSkillLevel
 import net.bestia.zone.item.stat.ItemStatCatalog
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.ecs.AiAgentFactory
@@ -151,7 +152,7 @@ class PlayerBestiaEntitySpawner(
   private fun load(playerBestia: PlayerBestia): LoadedBestia {
     val fixedAttackIds = playerBestia.bestia.skills
       .filter { it.requiredLevel <= playerBestia.level }
-      .associate { it.skill.id to 1 }
+      .associate { it.skill.id to BestiaSkillLevel.forLearnLevel(it.requiredLevel) }
     val customAttackIds = playerBestia.learnedSkills.associate { it.skill.id to it.level }
 
     return LoadedBestia(
