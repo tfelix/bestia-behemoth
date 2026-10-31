@@ -3,6 +3,9 @@ package net.bestia.zone.spawn
 import net.bestia.zone.battle.status.CombatValuesPool
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
+import net.bestia.zone.ai.domain.bestia.SkillAttack
+import net.bestia.zone.ai.profile.AiProfile
 import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.skill.ecs.KnownSkills
@@ -56,6 +59,45 @@ class BestiaEntitySpawnerLearnsetTest {
   }
 
   @Test
+  fun `a mob knows a later skill at a higher level`() {
+    every { bestiaRepository.findAll() } returns listOf(
+      Bestia(id = 1L, identifier = "blob", level = 30, experienceReward = 5, health = 10, mana = 8)
+    )
+    every { bestiaSkillRepository.findAllLearned() } returns listOf(LearnedSkill(1, EMBER, 21))
+
+    val id = sut.spawnMob(testWorld().also { world = it }, bestiaId = 1L, pos = Vec3L(0, 0, 0))
+
+    assertEquals(3, world.get(id, KnownSkills::class)?.levelOf(EMBER))
+  }
+
+  @Test
+  fun `a wild mob fights with the skills its learnset marks active`() {
+    every { bestiaRepository.findAll() } returns listOf(
+      Bestia(id = 1L, identifier = "blob", level = 3, experienceReward = 5, health = 10, mana = 8, aiProfile = "wild")
+    )
+    every { bestiaSkillRepository.findAllLearned() } returns listOf(
+      LearnedSkill(1, EMBER, 1, active = true, range = 6),
+      LearnedSkill(1, LATER, 2)
+    )
+    val profile = mockk<AiProfile>()
+    val given = slot<List<SkillAttack>>()
+    every { profile.withSkillAttacks(capture(given)) } returns profile
+    val registry = mockk<AiProfileRegistry>()
+    every { registry.get("wild") } returns profile
+
+    BestiaEntitySpawner(
+      bestiaCatalogue = catalogue,
+      aiProfileRegistry = registry,
+      aiAgentFactory = mockk<AiAgentFactory>(relaxed = true),
+      movementProfileRegistry = MovementProfileRegistry().apply { load() },
+      statusEffectService = mockk(relaxed = true),
+      combatValuesPool = CombatValuesPool()
+    ).spawnMob(testWorld(), bestiaId = 1L, pos = Vec3L(0, 0, 0))
+
+    assertEquals(listOf(SkillAttack(id = "skill-$EMBER", range = 6, skillId = EMBER)), given.captured)
+  }
+
+  @Test
   fun `a mob without a learnset gets no KnownSkills at all`() {
     every { bestiaSkillRepository.findAllLearned() } returns emptyList()
     val world = testWorld()
@@ -64,6 +106,8 @@ class BestiaEntitySpawnerLearnsetTest {
 
     assertNull(world.get(id, KnownSkills::class))
   }
+
+  private var world = testWorld()
 
   private companion object {
     const val EMBER = 1000L

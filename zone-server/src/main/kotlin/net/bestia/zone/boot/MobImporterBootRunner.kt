@@ -114,7 +114,8 @@ class MobImporterBootRunner(
 
     data class LearnedAttack(
       val skill: String,
-      val level: Int
+      val level: Int,
+      val active: Boolean = false
     )
 
     data class Loot(
@@ -362,18 +363,20 @@ class MobImporterBootRunner(
     val skills = wanted.map { attack ->
       val skill = skillRepository.findByIdentifier(attack.skill)
         ?: throw IllegalArgumentException("Mob '${bestia.identifier}' learns unknown skill '${attack.skill}'")
-      skill to attack.level
+      BestiaSkill(bestia, skill, attack.level, attack.active)
     }
 
     val stored = bestiaSkillRepository.findAllByBestiaId(bestia.id)
-    val storedPairs = stored.map { it.skill.id to it.requiredLevel }.toSet()
-    val wantedPairs = skills.map { (skill, level) -> skill.id to level }.toSet()
-    if (storedPairs == wantedPairs) {
+    if (stored.map { it.key() }.toSet() == skills.map { it.key() }.toSet()) {
       return
     }
 
     bestiaSkillRepository.deleteAll(stored)
-    bestiaSkillRepository.saveAll(skills.map { (skill, level) -> BestiaSkill(bestia, skill, level) })
+    bestiaSkillRepository.saveAll(skills)
+  }
+
+  private fun BestiaSkill.key(): Triple<Long, Int, Boolean> {
+    return Triple(skill.id, requiredLevel, active)
   }
 
   override fun getEntityIdentifier(entity: Bestia): String {

@@ -1,5 +1,6 @@
 package net.bestia.zone.spawn
 
+import net.bestia.zone.ai.domain.bestia.SkillAttack
 import net.bestia.zone.bestia.BestiaSkillLevel
 import net.bestia.zone.entity.GameMetrics
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -160,8 +161,8 @@ class BestiaEntitySpawner(
    * implement `Dirtyable`, which is what keeps AI internals off the wire. [spawnPosition] becomes the home
    * position it wanders around and returns to.
    *
-   * Its default attack is not a catalogued skill and needs no [KnownSkills] entry. The attack skills its AI
-   * profile lists are cast only if they are in its learnset, see [learnedSkills].
+   * Its default attack is not a catalogued skill and needs no [KnownSkills] entry. It fights with the learnset
+   * skills marked active, and with whatever its AI profile lists if that is in its learnset, see [learnedSkills].
    */
   private fun World.attachAi(id: EntityId, bestia: Bestia, spawnPosition: Vec3L, memory: Blackboard?) {
     val profileId = bestia.aiProfile ?: return
@@ -172,7 +173,22 @@ class BestiaEntitySpawner(
       return
     }
 
-    add(id, aiAgentFactory.create(profile, bestia.defaultAttack, bestia.aspd, homePosition = spawnPosition, memory = memory ?: Blackboard()))
+    add(
+      id,
+      aiAgentFactory.create(
+        profile.withSkillAttacks(activeSkillAttacks(bestia)),
+        bestia.defaultAttack,
+        bestia.aspd,
+        homePosition = spawnPosition,
+        memory = memory ?: Blackboard()
+      )
+    )
+  }
+
+  private fun activeSkillAttacks(bestia: Bestia): List<SkillAttack> {
+    return bestiaCatalogue.learnsetUpTo(bestia.id, bestia.level)
+      .filter { it.active }
+      .map { SkillAttack(id = "skill-${it.skillId}", range = (it.range ?: 1).toLong(), skillId = it.skillId) }
   }
 
   fun spawnMob(
