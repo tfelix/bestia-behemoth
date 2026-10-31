@@ -21,7 +21,7 @@ import java.io.File
  *
  * Only `skill_id`/`max_level`/`description_key`/`target_type`/`aoe_radius`/`cast_time`/`tree`/
  * `sub_tree`/`is_passive` are touched on a `.tres` file — every other field (icon, name, mana_cost, cooldown) is hand-authored client
- * presentation with no server equivalent and is left alone. `aoe_radius` is only checked/patched
+ * presentation and is left alone. A new stub takes name, mana cost and cooldown from `skills.yml` when it has them. `aoe_radius` is only checked/patched
  * when `target_type` is `AOE_GROUND` - non-AOE skills never need the line at all. `cast_time` is
  * likewise only checked/patched for skills that declare a non-zero `castTime` server-side; an
  * instant-cast skill never needs the line.
@@ -41,6 +41,8 @@ abstract class SkillDbSyncTask : DefaultTask() {
   private companion object {
     /** Mirrors the `@export` defaults in `attack_resource.gd`. */
     const val DEFAULT_MAX_LEVEL = 1
+    val BESTIA_SKILL_IDS = 1000L..8999L
+    const val BESTIA_MAX_SKILL_LEVEL = 10
     const val DEFAULT_TARGET_TYPE = "GROUND"
     const val DEFAULT_IS_PASSIVE = false
     const val GUILD_TREE = "GUILD"
@@ -72,7 +74,10 @@ abstract class SkillDbSyncTask : DefaultTask() {
     val script: String? = null,
     val targetType: String,
     val aoeRadius: Double? = null,
-    val castTime: Double = 0.0
+    val castTime: Double = 0.0,
+    val name: String? = null,
+    val manaCost: Int = 0,
+    val cooldown: Double = 0.0
   )
   private data class SkillsFile(val skills: List<SkillDto> = emptyList())
   private data class TreeNodeDto(
@@ -107,7 +112,12 @@ abstract class SkillDbSyncTask : DefaultTask() {
      * while the server refuses the cast. That is the unimplemented-skill case, and `SkillScriptBootValidator`
      * is what reports it.
      */
-    val isPassive: Boolean
+    val isPassive: Boolean,
+
+    /** Only for a new stub: once the `.tres` exists, these are the client's to tune. */
+    val name: String,
+    val manaCost: Int,
+    val cooldown: Double
   )
 
   @TaskAction
@@ -123,20 +133,24 @@ abstract class SkillDbSyncTask : DefaultTask() {
     val nodeByIdentifier = (tree + guildTree).associateBy { it.skill }
 
     val expectedById = skills.associate { skill ->
-      // A skill absent from both trees is not investable (e.g. a bestia-only
-      // skill) and is always single-rank client-side.
+      // A skill absent from both trees is not investable. A bestia knows its skills at up to level 10 (the level
+      // it learned them at), any other such skill is single-rank client-side.
       val node = nodeByIdentifier[skill.identifier]
+      val untreedMaxLevel = if (skill.id in BESTIA_SKILL_IDS) BESTIA_MAX_SKILL_LEVEL else 1
 
       skill.id to Expected(
         skill.identifier,
-        node?.maxLevel ?: 1,
+        node?.maxLevel ?: untreedMaxLevel,
         skill.description?.trim()?.takeIf { it.isNotEmpty() },
         skill.targetType,
         skill.aoeRadius,
         skill.castTime,
         node?.tree.orEmpty(),
         node?.subTree.orEmpty(),
-        skill.script == null
+        skill.script == null,
+        skill.name ?: skill.identifier,
+        skill.manaCost,
+        skill.cooldown
       )
     }
 
@@ -397,10 +411,10 @@ abstract class SkillDbSyncTask : DefaultTask() {
     [resource]
     script = ExtResource("1_script")
     skill_id = $id
-    name = "${expected.identifier}"
+    name = "${expected.name}"
     description_key = "$descriptionKey"
-    mana_cost = 0
-    cooldown = 0.0
+    mana_cost = ${expected.manaCost}
+    cooldown = ${expected.cooldown}
     """.trimIndent() + maxLevelLine + targetTypeLine + aoeRadiusLine + castTimeLine +
       treeLine + subTreeLine + isPassiveLine + "\n"
   }
