@@ -369,7 +369,7 @@ wild-spawn:
   # about the same four groups.
   #
   # Spring REPLACES this list rather than merging into it, so a block here must be complete; a partial one
-  # would silently drop the bands it omits. `WildSpawnConfig`'s init refuses a set that stops below 100.
+  # would silently drop the bands it omits. `WildSpawnConfig`'s init refuses a set that stops below 120.
   #
   # Every multiplier is neutral, and that is deliberate. The density curve lives in the generator now, stated
   # per band as creatures per square kilometre (`SpawnerParams.starterDensity` and its siblings), so anything
@@ -390,8 +390,9 @@ wild-spawn:
       pack-multiplier: 1.0
       radius-multiplier: 1.0
     # The endgame, already sparse when it arrives: a level-ninety pack is a fight rather than scenery. Boss
-    # dens are exempt from den-share - dropping one of those drops content, not density.
-    - max-level: 100
+    # dens are exempt from den-share - dropping one of those drops content, not density. Up to 120, because
+    # a boss den in deep corruption reaches past the ordinary cap of 100.
+    - max-level: 120
       den-share: 1.0
       pack-multiplier: 1.0
       radius-multiplier: 1.0
