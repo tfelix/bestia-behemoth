@@ -1,6 +1,9 @@
 package net.bestia.zone.boot
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.ElementModifier
+import net.bestia.zone.skill.SkillArchetype
 import net.bestia.zone.skill.persistence.Skill
 import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.skill.SkillTargetType
@@ -35,7 +38,12 @@ class SkillImporterBootRunner(
     val needsLineOfSight: Boolean = false,
     val castTime: Float = 0f,
     val requiredLevel: Int = 0,
-    val description: String? = null
+    val description: String? = null,
+    val name: String? = null,
+    val archetype: SkillArchetype? = null,
+    val element: Element = Element.NORMAL,
+    val power: Float = 1f,
+    val cooldown: Float = 0f
   )
 
   /**
@@ -54,6 +62,10 @@ class SkillImporterBootRunner(
   }
 
   override fun newEntity(dto: SkillYmlDto): Skill {
+    // Here rather than in Skill: a fight would only find out on the tick thread, see BattleAttack.
+    require(ElementModifier.isLegalAttackElement(dto.element)) {
+      "Skill ${dto.identifier}: ${dto.element} cannot be an attack element - only level 1 elements can be"
+    }
 
     return Skill(
       id = dto.id,
@@ -67,7 +79,12 @@ class SkillImporterBootRunner(
       needsLineOfSight = dto.needsLineOfSight,
       castTime = dto.castTime,
       requiredLevel = dto.requiredLevel,
-      description = dto.description
+      description = dto.description,
+      name = dto.name,
+      archetype = dto.archetype,
+      element = dto.element.name,
+      power = dto.power,
+      cooldown = dto.cooldown
     )
   }
 
