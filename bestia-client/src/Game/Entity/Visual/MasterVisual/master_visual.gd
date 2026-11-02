@@ -184,8 +184,8 @@ func update_animation(msg: AnimationComponentSMSG) -> void:
 		_anim_player.play(mapped_animation)
 
 
-## Called by [Entity] every frame it is walking, so it has to be cheap and idempotent - the guard below
-## is what keeps it from restarting the walk clip on each of those frames.
+## Called by [Entity] only when the pose changes, never per frame: Walking_A is told once at the first step,
+## so it is set to loop in Mage.glb's import settings, or it would play one stride and freeze on the last frame.
 func update_animation_from_client(animation_name: String) -> void:
 	# The heuristic only speaks once no pose is asserted, so whatever emote was showing is over.
 	_emote_clips = null
