@@ -39,6 +39,8 @@ var _metres_per_voxel := 1.0
 @onready var _stamina_bar: ProgressBar = %StaminaBar
 @onready var _stamina_value: Label = %StaminaValue
 @onready var _exp_ring: Range = %ExpRing
+## Hovering it shows the exp the ring only draws.
+@onready var _portrait: Control = %Portrait
 @onready var _weight_label: Label = %WeightLabel
 @onready var _gold_label: Label = %GoldLabel
 @onready var _profile_portrait = %ProfileImage
@@ -94,6 +96,7 @@ func _clear_entity_values() -> void:
 	for bar in [[_health_bar, _hp_value], [_mana_bar, _mana_value], [_stamina_bar, _stamina_value]]:
 		_clear_bar(bar[0], bar[1])
 	_clear_bar(_exp_ring, null)
+	_portrait.tooltip_text = ""
 
 
 ## A maximum of 0 would draw the bar full.
@@ -251,6 +254,7 @@ func _group_digits(amount: int) -> String:
 func _update_exp(exp: int, required_exp_next_level: int) -> void:
 	_exp_ring.max_value = required_exp_next_level
 	_exp_ring.value = exp
+	_portrait.tooltip_text = "EXP %s / %s" % [_group_digits(exp), _group_digits(required_exp_next_level)]
 
 
 func _name_hotkeys_in_tooltips() -> void:
@@ -258,7 +262,8 @@ func _name_hotkeys_in_tooltips() -> void:
 		var hotkey := Hotkeys.label_of(_MENU_HOTKEYS[button_name])
 		if hotkey.is_empty():
 			continue
-		var button: Button = _menu.get_node(button_name)
+		# Not all under the menu: the options button sits apart at the far end of the row.
+		var button: Button = find_child(button_name)
 		button.tooltip_text = "%s (%s)" % [button.tooltip_text, hotkey]
 
 

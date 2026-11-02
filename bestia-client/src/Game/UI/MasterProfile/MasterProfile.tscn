@@ -92,9 +92,10 @@ layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="Portrait" type="Control" parent="Margin/Layout/Top" unique_id=1309442871]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(68, 73)
 layout_mode = 2
-mouse_filter = 2
+mouse_filter = 1
 
 [node name="ExpRing" type="Range" parent="Margin/Layout/Top/Portrait" unique_id=1448991662]
 unique_name_in_owner = true
@@ -331,14 +332,6 @@ theme_override_constants/icon_max_width = 14
 icon = ExtResource("9_skil")
 icon_alignment = 1
 
-[node name="Option" type="Button" parent="Margin/Layout/Bottom/Menu" unique_id=404043903]
-custom_minimum_size = Vector2(22, 22)
-layout_mode = 2
-tooltip_text = "Option"
-theme_override_constants/icon_max_width = 14
-icon = ExtResource("10_opti")
-icon_alignment = 1
-
 [node name="Party" type="Button" parent="Margin/Layout/Bottom/Menu" unique_id=2000562676]
 custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
@@ -419,6 +412,15 @@ mouse_filter = 1
 text = "0"
 label_settings = SubResource("LabelSettings_small")
 
+[node name="Option" type="Button" parent="Margin/Layout/Bottom" unique_id=404043903]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+tooltip_text = "Option"
+theme_override_constants/icon_max_width = 14
+icon = ExtResource("10_opti")
+icon_alignment = 1
+
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Items" to="." method="_on_inventory_pressed"]
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Equip" to="." method="_on_equipment_pressed"]
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Skills" to="." method="_on_skills_pressed"]
@@ -427,4 +429,4 @@ label_settings = SubResource("LabelSettings_small")
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Guild" to="." method="_on_guild_pressed"]
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Compendium" to="." method="_on_compendium_pressed"]
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Emotes" to="." method="_on_emotes_pressed"]
-[connection signal="pressed" from="Margin/Layout/Bottom/Menu/Option" to="." method="_on_options_pressed"]
+[connection signal="pressed" from="Margin/Layout/Bottom/Option" to="." method="_on_options_pressed"]
