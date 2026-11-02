@@ -14,7 +14,8 @@ import net.bestia.zone.message.EntitySMSG
  *
  * Deliberately narrow, for the reason [net.bestia.zone.ai.core.action.Posture] gives: anything an observer can
  * read off ordinary components does not belong here. Walking is the client's own, off its movement prediction.
- * An emote belongs because nothing else about a cheering master says it is cheering.
+ * An emote belongs because nothing else about a cheering master says it is cheering, and a pickup because nothing
+ * else says the looter bent down for the stack that just vanished.
  */
 data class Animation(
   private var _currentAnimation: AnimationKind = AnimationKind.IDLE
@@ -37,11 +38,24 @@ data class Animation(
    */
   var emoteSecondsLeft: Float = 0f
 
-  val isEmoting: Boolean get() = _currentAnimation.isEmote
+  /** Showing an emote, or an [AnimationKind.isGesture] like a pickup that is ended the same way. */
+  val isEmoting: Boolean get() = _currentAnimation.isGesture
 
   /** Plays [kind], an emote, replacing whatever pose was showing. */
   fun startEmote(kind: AnimationKind) {
     require(kind.isEmote) { "$kind is not an emote" }
+    play(kind)
+  }
+
+  /**
+   * Bends down for something on the ground, for everyone who sees it. A second pickup while the first is still held
+   * only holds it longer: the pose does not change, so no client replays it.
+   */
+  fun startPickUp() {
+    play(AnimationKind.PICK_UP)
+  }
+
+  private fun play(kind: AnimationKind) {
     currentAnimation = kind
     emoteSecondsLeft = kind.holdSeconds
   }
@@ -70,12 +84,18 @@ data class Animation(
     POINT(isEmote = true, holdSeconds = 1.5f),
     FLOURISH(isEmote = true, holdSeconds = 2f),
     SIT(isEmote = true),
-    LIE(isEmote = true);
+    LIE(isEmote = true),
+
+    /** Picking up loot, about as long as the clip. A gesture rather than an emote: no player asks for it. */
+    PICK_UP(holdSeconds = 1.3f);
 
     /** What a player types after the slash to ask for this emote. */
     val command: String get() = name.lowercase()
 
     val lasts: Boolean get() = isEmote && holdSeconds == 0f
+
+    /** Played and ended by the server like an emote: held, then dropped on a step, a hit, a cast or death. */
+    val isGesture: Boolean get() = isEmote || holdSeconds > 0f
 
     companion object {
       val EMOTES: List<AnimationKind> = entries.filter { it.isEmote }

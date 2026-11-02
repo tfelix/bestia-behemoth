@@ -34,6 +34,9 @@ enum AnimationKind {
   // Emotes that last until the entity walks, casts, is hit or dies.
   SIT = 7;
   LIE = 8;
+
+  /** Bending down for a loot stack, played once. Ended like an emote, but no player can ask for it. */
+  PICK_UP = 9;
 }
 
 message AnimationComponentSMSG {

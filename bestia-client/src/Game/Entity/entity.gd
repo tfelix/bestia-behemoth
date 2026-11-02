@@ -155,6 +155,8 @@ var _driven_pose: String = ""
 # The server's posture, outranked only by death. "IDLE" means it asserts nothing and the local
 # walk/idle heuristic owns the pose. Walk and idle never arrive here - sleeping and the like do.
 const _POSTURE_NONE = "IDLE"
+# Played once like an emote, but no player asks for it, so EmoteDB does not know it.
+const _POSTURE_PICK_UP = "PICK_UP"
 var _posture: String = _POSTURE_NONE
 # The message that set _posture, replayed onto a visual that arrives later or a body that gets back up.
 var _last_animation_msg: AnimationComponentSMSG = null
@@ -242,9 +244,10 @@ func _update_movement(delta: float) -> void:
 	if _is_dead:
 		return
 
-	# An emote never survives a step: the server ends it on the move that starts the walk, so the walk is not held
-	# back waiting for that to arrive.
-	if _is_moving and _posture != _POSTURE_NONE and EmoteDB.get_instance().get_emote(_posture) != null:
+	# An emote or a pickup never survives a step: the server ends it on the move that starts the walk, so the walk
+	# is not held back waiting for that to arrive.
+	if _is_moving and _posture != _POSTURE_NONE \
+			and (_posture == _POSTURE_PICK_UP or EmoteDB.get_instance().get_emote(_posture) != null):
 		_posture = _POSTURE_NONE
 
 	# Likewise an asserted posture (asleep, say). Movement still runs, so it slides rather than sits.

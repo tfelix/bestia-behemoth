@@ -57,6 +57,20 @@ class EmoteSystemTest {
   }
 
   @Test
+  fun `a pickup is held like a once emote and a step ends it early`() {
+    val picker = world.createEntity { id -> add(id, Animation().also { it.startPickUp() }) }
+    val walker = world.createEntity { id -> add(id, Animation().also { it.startPickUp() }) }
+    world.add(walker, Path(mutableListOf(Vec3L(1, 0, 0))))
+
+    world.tick(AnimationKind.PICK_UP.holdSeconds / 2)
+    assertEquals(AnimationKind.PICK_UP, poseOf(picker))
+    assertEquals(AnimationKind.IDLE, poseOf(walker))
+
+    world.tick(AnimationKind.PICK_UP.holdSeconds)
+    assertEquals(AnimationKind.IDLE, poseOf(picker))
+  }
+
+  @Test
   fun `the AI's sleep is not an emote and is left alone`() {
     val sleeper = world.createEntity { id -> add(id, Animation(AnimationKind.SLEEP)) }
     world.add(sleeper, Path(mutableListOf(Vec3L(1, 0, 0))))

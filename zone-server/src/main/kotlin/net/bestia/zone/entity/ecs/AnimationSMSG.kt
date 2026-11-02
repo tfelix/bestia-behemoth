@@ -26,6 +26,7 @@ data class AnimationSMSG(
         Animation.AnimationKind.FLOURISH -> AnimationComponentSMSGProto.AnimationKind.FLOURISH
         Animation.AnimationKind.SIT -> AnimationComponentSMSGProto.AnimationKind.SIT
         Animation.AnimationKind.LIE -> AnimationComponentSMSGProto.AnimationKind.LIE
+        Animation.AnimationKind.PICK_UP -> AnimationComponentSMSGProto.AnimationKind.PICK_UP
       }
 
     /** Null for a value this server does not know, which only a client built against a newer schema sends. */
@@ -39,6 +40,7 @@ data class AnimationSMSG(
         AnimationComponentSMSGProto.AnimationKind.FLOURISH -> Animation.AnimationKind.FLOURISH
         AnimationComponentSMSGProto.AnimationKind.SIT -> Animation.AnimationKind.SIT
         AnimationComponentSMSGProto.AnimationKind.LIE -> Animation.AnimationKind.LIE
+        AnimationComponentSMSGProto.AnimationKind.PICK_UP -> Animation.AnimationKind.PICK_UP
         AnimationComponentSMSGProto.AnimationKind.UNRECOGNIZED -> null
       }
   }

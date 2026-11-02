@@ -19,6 +19,7 @@ import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.persistence.Item
@@ -97,8 +98,11 @@ class ObtainItemIntentSystemTest {
       add(id, Account(ACCOUNT_ID))
       add(id, Master(MASTER_ID))
       add(id, Position.fromVec3(pos))
+      add(id, Animation())
     }
   }
+
+  private fun poseOf(id: EntityId) = world.getOrThrow(id, Animation::class).currentAnimation
 
   @Test
   fun `create item intent adds the item to the ecs inventory and persists it asynchronously`() {
@@ -292,6 +296,7 @@ class ObtainItemIntentSystemTest {
     assertFalse(world.isAlive(groundStack))
     assertEquals(2, world.get(looter, Inventory::class)!!.getItem(sword.id.toInt())?.amount)
     assertFalse(world.has(looter, ObtainItemIntent.LootItemIntent::class))
+    assertEquals(Animation.AnimationKind.PICK_UP, poseOf(looter))
 
     verify(timeout = 1000) { inventoryService.grantToOwner(MASTER_ID, null, sword.id, 2, 0L) }
   }
@@ -405,6 +410,7 @@ class ObtainItemIntentSystemTest {
 
     assertTrue(world.isAlive(groundStack))
     assertTrue(world.get(looter, Inventory::class)!!.isEmpty())
+    assertEquals(Animation.AnimationKind.IDLE, poseOf(looter))
     verifyNoItemGranted()
   }
 

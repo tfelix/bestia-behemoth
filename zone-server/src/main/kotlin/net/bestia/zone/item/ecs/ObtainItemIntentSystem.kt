@@ -14,6 +14,7 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.PlayerItemIds
 import net.bestia.zone.item.container.InventoryService
@@ -59,7 +60,7 @@ class ObtainItemIntentSystem(
   )
   override val writes: ComponentClassSet = setOf(
     ObtainItemIntent.LootItemIntent::class, ObtainItemIntent.CreateItemIntent::class,
-    ObtainItemIntent.CreateItemsIntent::class, Inventory::class
+    ObtainItemIntent.CreateItemsIntent::class, Inventory::class, Animation::class
   )
 
   override fun update(world: World, deltaTime: Float) {
@@ -141,6 +142,8 @@ class ObtainItemIntentSystem(
     }
 
     grantItem(world, entityId, claimed.item, claimed.amount, claimed.uniqueId, claimed.roll, claimed.provenance)
+    // Only a loot that worked: a refused one leaves the stack lying there, which says enough.
+    world.get(entityId, Animation::class)?.startPickUp()
   }
 
   /** Protected kill loot is its killer's alone; a master and its bestias share one account. */

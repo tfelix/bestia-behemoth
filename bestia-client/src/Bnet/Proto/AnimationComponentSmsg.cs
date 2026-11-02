@@ -26,11 +26,11 @@ namespace Bnet {
           string.Concat(
             "CjFtZXNzYWdlcy9jb21wb25lbnQvYW5pbWF0aW9uX2NvbXBvbmVudF9zbXNn",
             "LnByb3RvEgRibmV0IkEKFkFuaW1hdGlvbkNvbXBvbmVudFNNU0cSIQoEa2lu",
-            "ZBgCIAEoDjITLmJuZXQuQW5pbWF0aW9uS2luZEoECAEQAipqCg1BbmltYXRp",
+            "ZBgCIAEoDjITLmJuZXQuQW5pbWF0aW9uS2luZEoECAEQAip3Cg1BbmltYXRp",
             "b25LaW5kEggKBElETEUQABIJCgVTTEVFUBACEgkKBUNIRUVSEAMSCAoESlVN",
             "UBAEEgkKBVBPSU5UEAUSDAoIRkxPVVJJU0gQBhIHCgNTSVQQBxIHCgNMSUUQ",
-            "CCIECAEQAUI0ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CG0FuaW1hdGlvbkNv",
-            "bXBvbmVudFNNU0dQcm90b2IGcHJvdG8z"));
+            "CBILCgdQSUNLX1VQEAkiBAgBEAFCNAoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
+            "QhtBbmltYXRpb25Db21wb25lbnRTTVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.AnimationKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -75,6 +75,10 @@ namespace Bnet {
     /// </summary>
     [pbr::OriginalName("SIT")] Sit = 7,
     [pbr::OriginalName("LIE")] Lie = 8,
+    /// <summary>
+    ///* Bending down for a loot stack, played once. Ended like an emote, but no player can ask for it. 
+    /// </summary>
+    [pbr::OriginalName("PICK_UP")] PickUp = 9,
   }
 
   #endregion

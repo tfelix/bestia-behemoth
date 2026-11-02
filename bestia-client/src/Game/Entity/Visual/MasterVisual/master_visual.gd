@@ -29,6 +29,17 @@ var _emote_clips: EmoteClips = null
 
 const _IDLE_CLIP := &"Idle"
 
+## The server's gestures - poses played once like an emote, but no player asks for them, so they are not in [EmoteDB].
+static var _GESTURE_CLIPS := {
+	"PICK_UP": _once(&"PickUp"),
+}
+
+
+static func _once(clip: StringName) -> EmoteClips:
+	var clips := EmoteClips.new()
+	clips.enter = clip
+	return clips
+
 
 ## Every body type is a set of parts on the Mage's rig, so the Mage's skeleton and animations serve all.
 func setup_visual(msg: MasterVisualComponentSMSG) -> void:
@@ -164,10 +175,11 @@ func set_dead(dead: bool) -> void:
 			_anim_player.queue("Death_A_Pose")
 
 
-## A master's only server poses are emotes; IDLE ends the one showing, through its way back up.
+## A master's server poses are emotes and gestures like a pickup; IDLE ends the one showing, through its way back
+## up, and lets a once clip still playing finish.
 func update_animation(msg: AnimationComponentSMSG) -> void:
 	var emote := EmoteDB.get_instance().get_emote(msg.Kind)
-	var clips := emote.clips_for(self) if emote != null else null
+	var clips: EmoteClips = emote.clips_for(self) if emote != null else _GESTURE_CLIPS.get(msg.Kind.to_upper())
 	if clips != null:
 		_emote_clips = clips
 		clips.start_on(_anim_player)
@@ -193,6 +205,8 @@ func update_animation_from_client(animation_name: String) -> void:
 	if _anim_player.current_animation == mapped_animation:
 		return
 
+	# A walk that cuts a pickup short must not stand back up into the Idle queued behind it.
+	_anim_player.clear_queue()
 	if _anim_player.has_animation(mapped_animation):
 		_anim_player.play(mapped_animation)
 
