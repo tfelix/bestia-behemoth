@@ -30,7 +30,7 @@ STATUS_EFFECT_14,"Regeneration: HP, Mana and stamina recover faster."
 STATUS_EFFECT_15,Emergency Move: you move 25% faster.
 ERROR_CHAT_WHISPER_TARGET_UNAVAILABLE,No player named %s is online.
 DEATH_TITLE,You have died.
-DEATH_TEXT,Your body lies where it fell. Return to your save point, or stay a while longer.
+DEATH_TEXT,"Your body lies where it fell. Return to your save point, or stay a while longer."
 DEATH_RESPAWN,Respawn
 DEATH_DISMISS,Not yet
 POI_LOST_GRAVE,Lost Grave

@@ -50,10 +50,14 @@ layout_mode = 2
 text = "DEATH_TITLE"
 horizontal_alignment = 1
 
+[node name="Separator" type="HSeparator" parent="Panel/CenterContainer/PanelContainer/VBoxContainer" unique_id=110000110]
+layout_mode = 2
+
 [node name="TextLabel" type="Label" parent="Panel/CenterContainer/PanelContainer/VBoxContainer" unique_id=110000107]
 layout_mode = 2
 text = "DEATH_TEXT"
 horizontal_alignment = 1
+autowrap_mode = 3
 
 [node name="RespawnButton" type="Button" parent="Panel/CenterContainer/PanelContainer/VBoxContainer" unique_id=110000108]
 layout_mode = 2
