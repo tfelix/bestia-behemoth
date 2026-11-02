@@ -19,7 +19,6 @@ attributes: { strength: 4, intelligence: 2, vitality: 4, dexterity: 7, willpower
 learnset:
   - { skill: tackle, level: 1, active: true }
   - { skill: pebble_toss, level: 6 }
-  - { skill: play_dead, level: 11 }
   - { skill: headbutt, level: 16 }
   - { skill: enrage, level: 21 }
   - { skill: quill_shot, level: 26 }

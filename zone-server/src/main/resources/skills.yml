@@ -2581,17 +2581,6 @@ skills:
     manaCost: 10
     description: Sinks into its own shadow. Wild bestia look straight through it.
 
-  - id: 2017
-    identifier: play_dead
-    name: Play Dead
-    script: PlayDead
-    archetype: UTILITY
-    cooldown: 60
-    targetType: FRIENDLY
-    range: 5
-    manaCost: 2
-    description: Flops over with its feet in the air. Convincing enough for most wild bestia.
-
   - id: 2018
     identifier: sniff_trail
     name: Sniff Trail

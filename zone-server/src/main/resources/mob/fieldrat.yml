@@ -20,7 +20,6 @@ attributes: { strength: 1, intelligence: 5, vitality: 5, dexterity: 1, willpower
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: forage, level: 6 }
-  - { skill: play_dead, level: 11 }
   - { skill: ram, level: 16 }
   - { skill: hamstring, level: 21 }
   - { skill: force_bolt, level: 26 }

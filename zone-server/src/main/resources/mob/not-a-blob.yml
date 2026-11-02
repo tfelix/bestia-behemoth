@@ -20,7 +20,6 @@ attributes: { strength: 12, intelligence: 7, vitality: 14, dexterity: 20, willpo
 learnset:
   - { skill: splash, level: 1 }
   - { skill: pebble_toss, level: 6 }
-  - { skill: play_dead, level: 11 }
   - { skill: headbutt, level: 16 }
   - { skill: enrage, level: 21 }
   - { skill: quill_shot, level: 26 }

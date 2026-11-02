@@ -185,7 +185,6 @@ learnset:
   - { skill: benediction, level: 1 }
   - { skill: leaf_disguise, level: 1 }
   - { skill: shadow_meld, level: 1 }
-  - { skill: play_dead, level: 1 }
   - { skill: sniff_trail, level: 1 }
   - { skill: keen_eye, level: 1 }
   - { skill: kindle, level: 1 }

@@ -97,6 +97,22 @@ abstract class YmlImporterBootRunner<T, EntityT : Any>(
       .groupBy { getYmlId(it) }
       .filterValues { it.size > 1 }
 
+    // MariaDB's unique key on the identifier is case-insensitive, so `PLAY_DEAD` and `play_dead` pass the
+    // Java-side lookup but collide on insert, which only surfaces as a bare constraint error mid-boot.
+    val clashingIdentifiers = yamlItems
+      .groupBy { getYmlIdentifier(it).lowercase() }
+      .filterValues { it.size > 1 }
+
+    if (clashingIdentifiers.isNotEmpty()) {
+      val details = clashingIdentifiers.values.joinToString("; ") { items ->
+        "[${items.joinToString(", ") { "${getYmlIdentifier(it)} (id ${getYmlId(it)})" }}]"
+      }
+
+      throw IllegalStateException(
+        "$importItemName import found identifiers differing only in case in classpath:$classpathFolder/*.yml: $details"
+      )
+    }
+
     if (duplicates.isNotEmpty()) {
       val details = duplicates.entries.joinToString("; ") { (id, items) ->
         "id $id used by [${items.joinToString(", ") { getYmlIdentifier(it) }}]"
