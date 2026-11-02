@@ -9,8 +9,12 @@ import net.bestia.zone.battle.ecs.level.LevelUpListener
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
+import net.bestia.zone.battle.ecs.status.RefillVitals
 import net.bestia.zone.persistence.EntityWriteBehind
 import net.bestia.zone.util.EntityId
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class GainExpSystemTest {
@@ -67,6 +71,18 @@ class GainExpSystemTest {
     world.tick(0.05f)
 
     verify(exactly = 1) { levelUps.leveledUp(ACCOUNT, 7L, true) }
+  }
+
+  @Test
+  fun `a level-up asks the recalc to refill health and mana, a smaller gain does not`() {
+    val leveled = world.masterGaining(masterId = 7L, exp = 2_500)
+    val short = world.masterGaining(masterId = 8L, exp = 10)
+
+    world.tick(0.05f)
+
+    assertTrue(world.has(leveled, RefillVitals::class))
+    assertTrue(world.has(leveled, IsStatusValueDirty::class))
+    assertFalse(world.has(short, RefillVitals::class))
   }
 
   @Test

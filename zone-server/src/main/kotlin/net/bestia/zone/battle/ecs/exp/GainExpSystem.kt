@@ -12,6 +12,7 @@ import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.level.LevelUpExperienceCalculator
 import net.bestia.zone.battle.ecs.level.LevelUpListener
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
+import net.bestia.zone.battle.ecs.status.RefillVitals
 import net.bestia.zone.battle.ecs.status.SkillPoints
 import net.bestia.zone.battle.ecs.status.StatusPoints
 import net.bestia.zone.persistence.EntityWriteBehind
@@ -38,7 +39,8 @@ class GainExpSystem(
     Level::class,
     SkillPoints::class,
     StatusPoints::class,
-    IsStatusValueDirty::class
+    IsStatusValueDirty::class,
+    RefillVitals::class
   )
 
   override fun update(world: World, deltaTime: Float) {
@@ -77,9 +79,11 @@ class GainExpSystem(
       }
 
       // A higher level raises the formula-driven condition pools; flag a recalc so
-      // StatusValueRecalcSystem rebuilds max HP/Mana/Stamina from the new level next tick.
+      // StatusValueRecalcSystem rebuilds max HP/Mana/Stamina from the new level next tick, and
+      // then fills HP and Mana to it.
       if (leveledUp) {
         world.add(entityId, IsStatusValueDirty)
+        world.add(entityId, RefillVitals)
         announceLevelUp(world, entityId, isMaster)
       }
 

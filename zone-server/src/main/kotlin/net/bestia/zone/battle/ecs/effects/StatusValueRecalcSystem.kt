@@ -19,6 +19,8 @@ import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.battle.ecs.status.Nature
+import net.bestia.zone.battle.ecs.status.RefillVitals
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.battle.status.CombatValues
@@ -79,12 +81,14 @@ class StatusValueRecalcSystem(
     Account::class,
     Master::class,
     // ... and may weigh what the entity is made of (Blessing turns on Undead).
-    Nature::class
+    Nature::class,
+    Dead::class
   ) + equipment.reads
   override val writes: ComponentClassSet = setOf(
     StatusValues::class,
     Speed::class,
     IsStatusValueDirty::class,
+    RefillVitals::class,
     Health::class,
     Mana::class,
     Stamina::class,
@@ -100,6 +104,7 @@ class StatusValueRecalcSystem(
         ?: world.get(id, CombatStats::class)?.values?.base
         ?: run {
           world.remove(id, IsStatusValueDirty::class)
+          world.remove(id, RefillVitals::class)
           return@each
         }
       val baseSpeed = world.get(id, Speed::class)?.baseSpeed ?: 0f
@@ -135,9 +140,24 @@ class StatusValueRecalcSystem(
       publishCombatValues(world, id, CombatValues.fromContext(level, base, context))
 
       recomputeConditionMaxima(world, id, context)
+      refillVitals(world, id)
 
       world.remove(id, IsStatusValueDirty::class)
     }
+  }
+
+  /**
+   * Fills HP and Mana to the maxima just rebuilt, for an entity asking for it with [RefillVitals] (a level-up). The
+   * dead stay at zero: a level gained from a share of exp must not stand them back up.
+   */
+  private fun refillVitals(world: World, id: EntityId) {
+    if (!world.has(id, RefillVitals::class)) return
+    world.remove(id, RefillVitals::class)
+
+    if (world.has(id, Dead::class)) return
+
+    world.get(id, Health::class)?.let { it.current = it.max }
+    world.get(id, Mana::class)?.let { it.current = it.max }
   }
 
   /**

@@ -3,8 +3,13 @@ package net.bestia.zone.battle.ecs.effects
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
 import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.ecs.status.FormulaDrivenVitals
+import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
+import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.battle.ecs.status.OwnerCombatStats
+import net.bestia.zone.battle.ecs.status.RefillVitals
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.battle.passive.PassiveSkillScriptRegistry
 import net.bestia.zone.battle.status.CombatValues
@@ -70,6 +75,12 @@ class CombatStatsRecalcTest {
     add(id, OwnerCombatStats(values))
   }
 
+  private fun spawnOwnerWithVitals(): EntityId = spawnOwner().also { id ->
+    world.add(id, FormulaDrivenVitals)
+    world.add(id, Health(10, 50))
+    world.add(id, Mana(5, 30))
+  }
+
   private fun recalc(id: EntityId) {
     world.add(id, IsStatusValueDirty)
     world.tick(0.1f)
@@ -121,6 +132,49 @@ class CombatStatsRecalcTest {
     assertEquals(before + 1, world.get(owner, CombatStats::class)!!.atk(), "four levels is one more BaseLv/4")
     assertSame(world.get(owner, CombatStats::class)!!.values, world.get(owner, OwnerCombatStats::class)!!.values)
     assertTrue(world.get(owner, OwnerCombatStats::class)!!.isDirty())
+  }
+
+  @Test
+  fun `a level up fills health and mana to the new maxima`() {
+    val owner = spawnOwnerWithVitals()
+    recalc(owner)
+    val health = world.get(owner, Health::class)!!
+    val mana = world.get(owner, Mana::class)!!
+    val (maxHpBefore, maxManaBefore) = health.max to mana.max
+
+    repeat(4) { world.get(owner, Level::class)!!.inc() }
+    world.add(owner, RefillVitals)
+    recalc(owner)
+
+    assertTrue(health.max > maxHpBefore && mana.max > maxManaBefore, "the maxima were rebuilt from the new level first")
+    assertEquals(health.max, health.current)
+    assertEquals(mana.max, mana.current)
+    assertFalse(world.has(owner, RefillVitals::class))
+  }
+
+  @Test
+  fun `a recalc that is no level up leaves health and mana where they were`() {
+    val owner = spawnOwnerWithVitals()
+
+    world.get(owner, Level::class)!!.inc()
+    recalc(owner)
+
+    assertEquals(10, world.get(owner, Health::class)!!.current)
+    assertEquals(5, world.get(owner, Mana::class)!!.current)
+  }
+
+  @Test
+  fun `a level up does not stand the dead back up`() {
+    val owner = spawnOwnerWithVitals()
+    world.get(owner, Health::class)!!.current = 0
+    world.add(owner, Dead())
+
+    world.get(owner, Level::class)!!.inc()
+    world.add(owner, RefillVitals)
+    recalc(owner)
+
+    assertEquals(0, world.get(owner, Health::class)!!.current)
+    assertFalse(world.has(owner, RefillVitals::class))
   }
 
   @Test
