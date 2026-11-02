@@ -3,9 +3,10 @@
 [ext_resource type="Script" path="res://Game/UI/StatusPoints/StatusRow/status_row.gd" id="1_st_row"]
 
 [node name="StatusRow" type="HBoxContainer"]
-offset_right = 145.0
-offset_bottom = 31.0
-theme_override_constants/separation = 8
+offset_right = 190.0
+offset_bottom = 26.0
+mouse_filter = 1
+theme_override_constants/separation = 6
 script = ExtResource("1_st_row")
 
 [node name="AttributeLabel" type="Label" parent="."]
@@ -15,9 +16,24 @@ text = "STR"
 
 [node name="ValueLabel" type="Label" parent="."]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 text = "10"
+
+[node name="PendingLabel" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "+1"
+
+[node name="Spacer" type="Control" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="CostLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "1 pt"
 
 [node name="SpendPointButton" type="Button" parent="."]
 unique_name_in_owner = true

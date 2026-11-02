@@ -31,8 +31,11 @@ const _NO_VALUE := "-"
 @onready var _rows: Array = _collect_rows()
 @onready var _stats_grid: GridContainer = %StatsGrid
 @onready var _status_points_label: Label = %StatusPointsLabel
+@onready var _status_points_value: Label = %StatusPointsValue
+@onready var _pending_cost_label: Label = %PendingCostLabel
 @onready var _confirm_button: Button = %ConfirmButton
 @onready var _cancel_button: Button = %CancelButton
+@onready var _close_button: Button = %CloseButton
 
 # The account's own master entity id - status points and base status values only ever belong to
 # the master, mirroring Skills._master_entity_id.
@@ -46,6 +49,7 @@ var _combat_value_labels: Dictionary = {}
 func _ready() -> void:
 	_confirm_button.visible = false
 	_cancel_button.visible = false
+	_style_window()
 	ConnectionManager.connect("self_received", _on_self_received)
 	ConnectionManager.connect("entity_received", _on_entity_received)
 
@@ -54,6 +58,36 @@ func _ready() -> void:
 
 	_build_combat_rows()
 	_update_row_buttons()
+
+
+## Dresses the window in [UiStyle]'s colours, like the party and guild windows; the scene only places the nodes.
+func _style_window() -> void:
+	for header: Label in [%AttributesHeader, %CombatHeader]:
+		header.add_theme_font_size_override("font_size", 11)
+		header.add_theme_color_override("font_color", UiStyle.MUTED)
+
+	var divider_style := StyleBoxLine.new()
+	divider_style.color = UiStyle.ROW_BG
+	divider_style.thickness = 1
+	%FooterDivider.add_theme_stylebox_override("separator", divider_style)
+
+	_status_points_label.add_theme_color_override("font_color", UiStyle.MUTED)
+	_status_points_value.add_theme_color_override("font_color", UiStyle.ACCENT)
+	_status_points_value.add_theme_font_size_override("font_size", 18)
+	_pending_cost_label.add_theme_color_override("font_color", UiStyle.MUTED)
+	_pending_cost_label.add_theme_font_size_override("font_size", 12)
+	for label in [_status_points_label, _status_points_value, _pending_cost_label]:
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
+	for button: Button in [_confirm_button, _cancel_button, _close_button]:
+		button.custom_minimum_size = Vector2(64, 28)
+		button.focus_mode = Control.FOCUS_NONE
+		button.add_theme_font_size_override("font_size", 13)
+	_confirm_button.add_theme_color_override("font_color", UiStyle.ACCENT)
+	_confirm_button.add_theme_color_override("font_hover_color", UiStyle.ACCENT)
+	# The title bar's own cross closes the window too, so this one stays quiet.
+	_close_button.flat = true
+	_close_button.add_theme_color_override("font_color", UiStyle.MUTED)
 
 
 func _collect_rows() -> Array:
@@ -118,11 +152,11 @@ func _seed_from_cache() -> void:
 ## every row is the same two labels and the table above is already the list of what is shown.
 func _build_combat_rows() -> void:
 	for row in _COMBAT_ROWS:
-		var name_label := Label.new()
-		name_label.text = row["label"]
-		var value_label := Label.new()
-		value_label.text = _NO_VALUE
-		value_label.custom_minimum_size = Vector2(70, 0)
+		var name_label := UiStyle.label(row["label"], 13, UiStyle.MUTED)
+		name_label.custom_minimum_size = Vector2(44, 22)
+		var value_label := UiStyle.label(_NO_VALUE, 16)
+		value_label.custom_minimum_size = Vector2(76, 0)
+		value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 
 		# A Label ignores the mouse by default, which would swallow its tooltip.
 		for label in [name_label, value_label]:
@@ -203,10 +237,10 @@ func _update_row_buttons() -> void:
 	var pending_cost = _get_pending_cost_total()
 	var remaining = _available_status_points - pending_cost
 
-	if pending_total > 0:
-		_status_points_label.text = "Status Points: %s (%s spent on +%s)" % [remaining, pending_cost, pending_total]
-	else:
-		_status_points_label.text = "Status Points: %s" % [_available_status_points]
+	_status_points_value.text = "%s" % remaining
+	# Kept short: the footer is as wide as the window, and Confirm and Cancel join it at the same moment.
+	_pending_cost_label.text = "-%s for +%s" % [pending_cost, pending_total] if pending_total > 0 else ""
+	_pending_cost_label.tooltip_text = "%s status points spent on %s attribute points" % [pending_cost, pending_total]
 
 	_confirm_button.visible = pending_total > 0
 	_cancel_button.visible = pending_total > 0

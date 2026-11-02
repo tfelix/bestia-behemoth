@@ -7,76 +7,109 @@
 bg_color = Color(0.11, 0.11, 0.13, 1)
 
 [node name="StatusPoints" type="PanelContainer"]
-offset_right = 460.0
-offset_bottom = 253.0
+offset_right = 430.0
+offset_bottom = 240.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
 script = ExtResource("1_st_pts")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2
+theme_override_constants/separation = 8
 
 [node name="RowsMargin" type="MarginContainer" parent="VBoxContainer"]
 layout_mode = 2
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 6
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 16
 
 [node name="Columns" type="HBoxContainer" parent="VBoxContainer/RowsMargin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 20
 
-[node name="Rows" type="VBoxContainer" parent="VBoxContainer/RowsMargin/Columns"]
-custom_minimum_size = Vector2(170, 0)
+[node name="AttributeColumn" type="VBoxContainer" parent="VBoxContainer/RowsMargin/Columns"]
 layout_mode = 2
 
-[node name="StrengthRow" parent="VBoxContainer/RowsMargin/Columns/Rows" instance=ExtResource("2_st_row")]
+[node name="AttributesHeader" type="Label" parent="VBoxContainer/RowsMargin/Columns/AttributeColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ATTRIBUTES"
+
+[node name="Rows" type="VBoxContainer" parent="VBoxContainer/RowsMargin/Columns/AttributeColumn"]
+custom_minimum_size = Vector2(176, 0)
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="StrengthRow" parent="VBoxContainer/RowsMargin/Columns/AttributeColumn/Rows" instance=ExtResource("2_st_row")]
 layout_mode = 2
 attribute = 0
 
-[node name="AgilityRow" parent="VBoxContainer/RowsMargin/Columns/Rows" instance=ExtResource("2_st_row")]
+[node name="AgilityRow" parent="VBoxContainer/RowsMargin/Columns/AttributeColumn/Rows" instance=ExtResource("2_st_row")]
 layout_mode = 2
 attribute = 1
 
-[node name="VitalityRow" parent="VBoxContainer/RowsMargin/Columns/Rows" instance=ExtResource("2_st_row")]
+[node name="VitalityRow" parent="VBoxContainer/RowsMargin/Columns/AttributeColumn/Rows" instance=ExtResource("2_st_row")]
 layout_mode = 2
 attribute = 2
 
-[node name="IntelligenceRow" parent="VBoxContainer/RowsMargin/Columns/Rows" instance=ExtResource("2_st_row")]
+[node name="IntelligenceRow" parent="VBoxContainer/RowsMargin/Columns/AttributeColumn/Rows" instance=ExtResource("2_st_row")]
 layout_mode = 2
 attribute = 3
 
-[node name="DexterityRow" parent="VBoxContainer/RowsMargin/Columns/Rows" instance=ExtResource("2_st_row")]
+[node name="DexterityRow" parent="VBoxContainer/RowsMargin/Columns/AttributeColumn/Rows" instance=ExtResource("2_st_row")]
 layout_mode = 2
 attribute = 4
 
-[node name="WillpowerRow" parent="VBoxContainer/RowsMargin/Columns/Rows" instance=ExtResource("2_st_row")]
+[node name="WillpowerRow" parent="VBoxContainer/RowsMargin/Columns/AttributeColumn/Rows" instance=ExtResource("2_st_row")]
 layout_mode = 2
 attribute = 5
 
-[node name="Divider" type="VSeparator" parent="VBoxContainer/RowsMargin/Columns"]
+[node name="CombatColumn" type="VBoxContainer" parent="VBoxContainer/RowsMargin/Columns"]
 layout_mode = 2
+size_flags_horizontal = 3
 
-[node name="StatsGrid" type="GridContainer" parent="VBoxContainer/RowsMargin/Columns"]
+[node name="CombatHeader" type="Label" parent="VBoxContainer/RowsMargin/Columns/CombatColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "COMBAT"
+
+[node name="StatsGrid" type="GridContainer" parent="VBoxContainer/RowsMargin/Columns/CombatColumn"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 4
 columns = 2
+
+[node name="FooterDivider" type="HSeparator" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
 
 [node name="FooterMargin" type="MarginContainer" parent="VBoxContainer"]
 layout_mode = 2
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 6
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
 
 [node name="FooterRow" type="HBoxContainer" parent="VBoxContainer/FooterMargin"]
+unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 8
 
 [node name="StatusPointsLabel" type="Label" parent="VBoxContainer/FooterMargin/FooterRow"]
 unique_name_in_owner = true
 layout_mode = 2
+text = "Status Points"
+
+[node name="StatusPointsValue" type="Label" parent="VBoxContainer/FooterMargin/FooterRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+
+[node name="PendingCostLabel" type="Label" parent="VBoxContainer/FooterMargin/FooterRow"]
+unique_name_in_owner = true
+layout_mode = 2
 size_flags_horizontal = 3
-text = "Status Points: 0"
+text = ""
 
 [node name="ConfirmButton" type="Button" parent="VBoxContainer/FooterMargin/FooterRow"]
 unique_name_in_owner = true
@@ -89,6 +122,7 @@ layout_mode = 2
 text = "Cancel"
 
 [node name="CloseButton" type="Button" parent="VBoxContainer/FooterMargin/FooterRow"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Close"
 

@@ -11,6 +11,10 @@ signal investment_changed(row)
 @onready var _attribute_label: Label = %AttributeLabel
 @onready var _value_label: Label = %ValueLabel
 @onready var _spend_point_button: Button = %SpendPointButton
+@onready var _pending_label: Label = %PendingLabel
+@onready var _cost_label: Label = %CostLabel
+
+var _hovered: bool = false
 
 # The unbuffed value the server last confirmed (from the last BaseStatusValuesComponentSMSG or the
 # seeded Entity cache) - this, not _base_value + _pending_points, is what's actually persisted; a
@@ -40,7 +44,48 @@ var pending_points: int:
 
 func _ready() -> void:
 	_attribute_label.text = StatusAttribute.short_code(attribute)
+	_style_row()
+	mouse_entered.connect(_set_hovered.bind(true))
+	mouse_exited.connect(_set_hovered.bind(false))
 	_refresh_display()
+
+
+## Dresses the row; the scene only places the nodes. The background is drawn rather than a PanelContainer
+## wrapped around us, because StatusPoints finds its rows by their being HBoxContainers.
+func _style_row() -> void:
+	custom_minimum_size = Vector2(0, 26)
+	_attribute_label.custom_minimum_size = Vector2(34, 0)
+	_attribute_label.add_theme_color_override("font_color", UiStyle.MUTED)
+	_attribute_label.add_theme_font_size_override("font_size", 13)
+	_value_label.add_theme_color_override("font_color", UiStyle.TEXT)
+	_pending_label.add_theme_color_override("font_color", UiStyle.ACCENT)
+	_cost_label.add_theme_color_override("font_color", UiStyle.MUTED)
+	_cost_label.add_theme_font_size_override("font_size", 11)
+
+	for label in [_attribute_label, _value_label, _pending_label, _cost_label]:
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
+	_spend_point_button.custom_minimum_size = Vector2(22, 22)
+	_spend_point_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_spend_point_button.focus_mode = Control.FOCUS_NONE
+	_spend_point_button.add_theme_font_size_override("font_size", 14)
+	_spend_point_button.add_theme_color_override("font_color", UiStyle.ACCENT)
+	_spend_point_button.add_theme_color_override("font_hover_color", UiStyle.TEXT)
+	_spend_point_button.add_theme_stylebox_override("normal", UiStyle.flat(UiStyle.BAR_BG, 4, 0, UiStyle.ACCENT.darkened(0.5), 1))
+	_spend_point_button.add_theme_stylebox_override("hover", UiStyle.flat(UiStyle.ROW_HOVER_BG, 4, 0, UiStyle.ACCENT, 1))
+	_spend_point_button.add_theme_stylebox_override("pressed", UiStyle.flat(UiStyle.BAR_BG, 4, 0, UiStyle.ACCENT, 1))
+
+
+func _draw() -> void:
+	var background := UiStyle.ROW_HOVER_BG if _hovered else UiStyle.ROW_BG
+	# Reaching past our own rect gives the labels an inset without a MarginContainer between the row and
+	# the list; the list leaves room for it.
+	draw_style_box(UiStyle.flat(background, 4, 0), Rect2(Vector2(-6, 0), size + Vector2(12, 0)))
+
+
+func _set_hovered(hovered: bool) -> void:
+	_hovered = hovered
+	queue_redraw()
 
 
 ## Sets the server-confirmed base value, clearing any pending investment - a fresh push always
@@ -106,12 +151,15 @@ func _on_spend_point_button_pressed() -> void:
 
 
 func _refresh_display() -> void:
-	if _pending_points > 0:
-		_value_label.text = "%s (+%s)" % [_base_value, _pending_points]
-	else:
-		_value_label.text = "%s" % _base_value
+	_value_label.text = "%s" % _base_value
+	_pending_label.text = "+%s" % _pending_points
+	_pending_label.visible = _pending_points > 0
 
 	# What the next point costs, so the escalating curve is visible before spending rather than only
 	# as a pool that suddenly drains faster.
-	_spend_point_button.text = "+ (%s)" % StatusAttribute.step_cost(next_value())
+	var cost := StatusAttribute.step_cost(next_value())
+	_cost_label.text = "%s pt" % cost
+	_cost_label.visible = _can_spend_globally
 	_spend_point_button.visible = _can_spend_globally
+	tooltip_text = "%s\nNext point costs %s status point%s." % [
+		StatusAttribute.summary(attribute), cost, "" if cost == 1 else "s"]
