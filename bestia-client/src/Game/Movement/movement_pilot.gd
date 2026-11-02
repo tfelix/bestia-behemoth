@@ -109,6 +109,13 @@ func _process(delta: float) -> void:
 	var here := _horizontal(entity.get_logical_position())
 	var gap := here.distance_to(_goal.destination())
 
+	if _goal.arrives_on_server_position():
+		# Nothing before the server is done walking: until then it stands somewhere behind the drawn body, and
+		# a walk sent on top of its own would only replace it.
+		if not entity.is_server_walk_over():
+			return
+		gap = _horizontal(entity.get_server_position()).distance_to(_goal.destination())
+
 	# Tested before the cast hold below, so a prop already in reach is collected while channelling
 	# rather than waiting out a cast that walking would only have cancelled.
 	if gap <= _goal.arrival_tiles():

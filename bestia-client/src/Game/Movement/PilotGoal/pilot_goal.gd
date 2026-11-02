@@ -17,6 +17,13 @@ extends RefCounted
 @abstract func arrival_tiles() -> float
 
 
+## Whether arrival waits for the server to finish the walk and is measured from where it says the body stands.
+## For a one-shot action the server checks once against its own position; one sent while our drawing of the walk
+## is a trip ahead is refused, and nothing sends it again.
+func arrives_on_server_position() -> bool:
+	return false
+
+
 ## False once this can no longer be reached at all, whatever the player does.
 func is_alive() -> bool:
 	return true

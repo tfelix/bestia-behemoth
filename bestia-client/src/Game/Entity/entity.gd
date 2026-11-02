@@ -189,6 +189,10 @@ var _logical_position: Vector3 = Vector3.ZERO
 # prediction that is never answered has no stop message to land on - see _abandon_prediction.
 var _server_position: Vector3 = Vector3.ZERO
 
+# Whether the server has a walk under way for this entity: set by a path, cleared by the empty path that ends
+# every walk. Unlike _is_moving it does not follow our interpolation, which runs a trip ahead of the server.
+var _server_walking: bool = false
+
 # Height correction that puts the feet on the drawn terrain - see _update_ground_offset.
 var _ground_offset: float = 0.0
 
@@ -799,6 +803,8 @@ func update_path(msg: PathComponentSMSG) -> void:
 		_stop_at(msg)
 		return
 
+	_server_walking = true
+
 	# A path can come in before the first position does - an entity introduced mid-walk. Anchored where it has no
 	# position yet, at the origin, its first segment was 47 km long and the next report snapped it across all of
 	# them. The path's own first tile is next to where the entity stands, which is all the anchor needs to be.
@@ -1103,6 +1109,7 @@ func _stop_at(msg: PathComponentSMSG) -> void:
 			"stop position differs from where we stand")
 
 	_is_moving = false
+	_server_walking = false
 	_predicted_path.clear()
 	_is_predicted_walk = false
 	_awaiting_arrival = false
@@ -1311,6 +1318,18 @@ func is_casting() -> bool:
 ## for detecting arrival - measure the distance for that.
 func is_moving() -> bool:
 	return _is_moving
+
+
+## Whether the server has finished walking this entity: no walk of its own under way, and no click of ours
+## still waiting for its answer. [method is_moving] turns false a trip earlier, when our drawing of the walk
+## ends, which is too soon for anything the server checks against where the body stands.
+func is_server_walk_over() -> bool:
+	return not _server_walking and _predicted_path.is_empty()
+
+
+## The last position the server stated, rather than the one drawn towards it.
+func get_server_position() -> Vector3:
+	return _server_position
 
 
 ## The last tile of the walk, or where the entity stands when it is not walking.

@@ -8,6 +8,9 @@ extends PilotGoal
 ## tile under the same truncating distance, so 1.5 admits exactly the eight neighbours and the tile itself.
 ## Without the walk a click from further away was refused outright, and nothing on screen said why.
 ##
+## The pickup waits for the server to end the walk. Sent from our drawing of it, which runs a trip ahead, it
+## reached the server while the body was still a tile or two out, and was refused.
+##
 ## Nothing is removed locally on arrival - the stack vanishes when the server says so, the way a collected prop
 ## does in CollectGoal.
 
@@ -40,6 +43,10 @@ func destination() -> Vector2:
 
 func arrival_tiles() -> float:
 	return _REACH_TILES
+
+
+func arrives_on_server_position() -> bool:
+	return true
 
 
 func is_alive() -> bool:
