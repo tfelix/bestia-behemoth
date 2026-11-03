@@ -99,7 +99,7 @@ class BestiaEntitySpawner(
       add(id, Level(bestia.level))
       add(id, Stamina(current = 10, max = 10))
       add(id, Speed())
-      add(id, Nature(bestia.element, bestia.size, bestia.attackPower))
+      add(id, Nature(bestia.element, bestia.size, bestia.attackPower, statusImmunitiesOf(bestia)))
       val skills = learnedSkills(bestia)
       if (skills.isNotEmpty()) add(id, KnownSkills(skills))
       // Deliberately no FormulaDrivenVitals marker, which is what keeps the authored Bestia.health above
@@ -152,6 +152,10 @@ class BestiaEntitySpawner(
    * Like an owned bestia, a wild one knows its learnset up to its level, each skill at the level it was learned
    * with. See `PlayerBestiaEntitySpawner`.
    */
+  private fun statusImmunitiesOf(bestia: Bestia): Set<StatusEffectId> {
+    return bestia.statusImmunities.split(",").filter { it.isNotBlank() }.map { StatusEffectId.valueOf(it) }.toSet()
+  }
+
   private fun learnedSkills(bestia: Bestia): MutableMap<Long, Int> = bestiaCatalogue.learnsetUpTo(bestia.id, bestia.level)
     .associate { it.skillId to BestiaSkillLevel.forLearnLevel(it.requiredLevel) }
     .toMutableMap()

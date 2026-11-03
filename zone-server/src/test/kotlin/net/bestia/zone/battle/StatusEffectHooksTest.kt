@@ -3,6 +3,7 @@ package net.bestia.zone.battle
 import net.bestia.zone.battle.ecs.effects.StatusEffectDurationSystem
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.status.RemovalReason
 import net.bestia.zone.battle.status.ResistStat
@@ -14,6 +15,8 @@ import net.bestia.zone.battle.status.StatusEffectPolarity
 import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.status.StatusValues
+import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.Size
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.util.EntityId
 import java.util.Random
@@ -54,7 +57,7 @@ class StatusEffectHooksTest {
       listOf(
         StatusEffectDefinition(
           id = EFFECT.id, identifier = EFFECT.name, isSyncedToClient = true, script = "Recording",
-          polarity = StatusEffectPolarity.NEUTRAL, resist = listOf(ResistStat.VIT, ResistStat.STR)
+          polarity = StatusEffectPolarity.DEBUFF, resist = listOf(ResistStat.VIT, ResistStat.STR)
         )
       )
     )
@@ -128,6 +131,16 @@ class StatusEffectHooksTest {
     assertFalse(service(roll = 0.55).tryInflict(world, sturdy, EFFECT, 1, sourceEntityId = null, chancePercent = 100))
     assertTrue(service(roll = 0.45).tryInflict(world, sturdy, EFFECT, 1, sourceEntityId = null, chancePercent = 100))
     assertEquals(7.5f, remainingSecondsOf(sturdy))
+  }
+
+  @Test
+  fun `an immune species never takes the effect`() {
+    val immune = world.createEntity { id ->
+      add(id, Nature(Element.NORMAL, Size.MEDIUM, statusImmunities = setOf(EFFECT)))
+    }
+
+    assertFalse(service().tryInflict(world, immune, EFFECT, level = 1, sourceEntityId = null, chancePercent = 100))
+    assertTrue(script.applied.isEmpty())
   }
 
   private fun withVitality(vitality: Int): EntityId {

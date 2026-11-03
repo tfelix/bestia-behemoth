@@ -15,6 +15,7 @@ import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
+import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.status.RemovalReason
 import net.bestia.zone.battle.status.StatusEffectHookContext
 import net.bestia.zone.battle.status.StatusResistance
@@ -38,7 +39,7 @@ class StatusEffectService(
 ) : DamageReactions {
 
   /**
-   * Returns false when the damage gate turns a harmful effect away.
+   * Returns false when the damage gate turns a harmful effect away or the target's species is immune.
    * [durationSeconds] replaces the script's own duration, for a skill that says how long its effect lasts.
    */
   fun applyEffect(
@@ -52,6 +53,9 @@ class StatusEffectService(
     val definition = statusEffectDefinitionRegistry.getOrThrow(definitionId)
     if (isTurnedAway(world, definition, sourceEntityId, targetId)) {
       LOG.debug { "${definition.identifier} from $sourceEntityId turned away from $targetId" }
+      return false
+    }
+    if (isImmune(world, definition, targetId)) {
       return false
     }
 
@@ -151,6 +155,15 @@ class StatusEffectService(
   ): Boolean {
     return definition.polarity == StatusEffectPolarity.DEBUFF &&
         DamageGate.verdict(world, sourceEntityId, targetId) != DamageGate.Verdict.ADMITTED
+  }
+
+  /** Only harm is turned away: a help never needed it, and an aura applied from a system need not read Nature. */
+  private fun isImmune(world: World, definition: StatusEffectDefinition, targetId: EntityId): Boolean {
+    if (definition.polarity != StatusEffectPolarity.DEBUFF) return false
+
+    val immunities = world.get(targetId, Nature::class)?.statusImmunities ?: return false
+
+    return immunities.any { it.id == definition.id }
   }
 
   private fun resistanceOf(

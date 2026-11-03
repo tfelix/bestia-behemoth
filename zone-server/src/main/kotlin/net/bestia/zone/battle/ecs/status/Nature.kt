@@ -2,6 +2,7 @@ package net.bestia.zone.battle.ecs.status
 
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.Size
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.Component
 
 /**
@@ -19,4 +20,7 @@ data class Nature(
 
   /** Scales the damage of its skills, as the Bestia Blueprint calculator fitted it for the species. */
   val attackPower: Float = 1f,
+
+  /** Effects that never land on this species, whatever the roll. */
+  val statusImmunities: Set<StatusEffectId> = emptySet(),
 ) : Component
