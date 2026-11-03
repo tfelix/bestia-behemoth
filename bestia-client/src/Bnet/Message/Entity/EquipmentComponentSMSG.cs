@@ -13,6 +13,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
   {
     [Export] public Godot.Collections.Array<EquippedItem> Items { get; set; } = [];
 
+    /// <summary>
+    /// Ammo item ids in the order they are shot. Pointers at the bag: count each from the inventory.
+    /// </summary>
+    [Export] public Godot.Collections.Array<long> QuiverItemIds { get; set; } = [];
+
     public EquipmentComponentSMSG()
     {
     }
@@ -32,6 +37,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
       foreach (var protoItem in protoEquipment.Items)
       {
         equipment.Items.Add(EquippedItem.FromProto(protoItem));
+      }
+
+      foreach (var itemId in protoEquipment.QuiverItemIds)
+      {
+        equipment.QuiverItemIds.Add(itemId);
       }
 
       return equipment;

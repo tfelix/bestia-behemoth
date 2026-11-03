@@ -47,6 +47,7 @@ var _skill_points: int = 0
 
 # Worn items by EquipmentSlot ordinal: {slot: {"item_id": int, "unique_id": int}}.
 var _equipment: Dictionary = {}
+var _quiver: Array[int] = []
 
 # Effective base status values: {"strength": int, ...}.
 var _status_values: Dictionary = {}
@@ -1401,10 +1402,15 @@ func update_equipment(msg: EquipmentComponentSMSG) -> void:
 			"crafted_in": equipped.CraftedIn,
 		}
 	_equipment = by_slot
+	_quiver.assign(Array(msg.QuiverItemIds))
 
 
 func get_equipment() -> Dictionary:
 	return _equipment
+
+
+func get_quiver() -> Array[int]:
+	return _quiver
 
 
 func update_worn_gear(msg: WornGearComponentSMSG) -> void:
@@ -1469,6 +1475,7 @@ static func combat_stats_of(msg: CombatStatsComponentSMSG) -> Dictionary:
 		"soft_defense": msg.SoftDefense,
 		"hard_defense": msg.HardDefense,
 		"aspd": msg.Aspd,
+		"attack_range": msg.AttackRange,
 	}
 
 

@@ -40,6 +40,10 @@ const MISSING_VISUAL: PackedScene = preload("res://Game/Entity/Visual/ItemVisual
 ## "not armor", which anyone with the slot may wear. Kept in sync with items.yml by './gradlew syncItemDb'.
 @export var armor_type: int = 0
 
+## How many tiles a ranged weapon shoots; 0 for anything swung. Kept in sync with items.yml by
+## './gradlew syncItemDb'.
+@export var attack_range: int = 0
+
 ## The part of master_parts.glb a master shows while wearing this item; empty for gear not drawn yet.
 @export var worn_part: String = ""
 

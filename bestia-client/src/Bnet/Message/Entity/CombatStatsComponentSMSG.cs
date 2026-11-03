@@ -30,6 +30,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// <summary>Attack speed as displayed, 0-190. Higher is faster.</summary>
     [Export] public int Aspd { get; set; }
 
+    /// <summary>Tiles the basic attack reaches: 1 for a swing, the weapon's range for a shot.</summary>
+    [Export] public int AttackRange { get; set; }
+
     public CombatStatsComponentSMSG()
     {
     }
@@ -53,7 +56,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         Crit = protoCombatStats.Crit,
         SoftDefense = protoCombatStats.SoftDefense,
         HardDefense = protoCombatStats.HardDefense,
-        Aspd = protoCombatStats.Aspd
+        Aspd = protoCombatStats.Aspd,
+        AttackRange = protoCombatStats.AttackRange
       };
     }
 

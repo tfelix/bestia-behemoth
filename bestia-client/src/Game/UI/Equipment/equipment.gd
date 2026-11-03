@@ -10,7 +10,17 @@ class_name Equipment
 
 signal equipment_updated()
 
+## The server's Equipment.QUIVER_SIZE.
+const QUIVER_SIZE := 5
+
 @onready var _slot_nodes: Array = _collect_slot_nodes()
+@onready var _quiver_nodes: Array = find_children("*", "Panel", true, false).filter(func(node): return node is QuiverSlot)
+
+## Where the quiver counts come from: the arrows stay in the bag. Set by the UI root.
+var inventory: Inventory:
+	set(value):
+		inventory = value
+		inventory.inventory_updated.connect(_render_quiver)
 
 var _master_entity_id: int = 0
 var _selected_entity_id: int = 0
@@ -28,6 +38,9 @@ var _bestia_id_by_entity: Dictionary = {}
 ## Skills._seed_skill_points_from_cache / BuffList._on_controlled_entity_changed.
 var _worn: Dictionary = {}
 
+## Ammo item ids of the shown entity, in the order they are shot. Seeded and kept like [member _worn].
+var _quiver: Array[int] = []
+
 
 func _ready() -> void:
 	ConnectionManager.connect("self_received", _on_self_received)
@@ -40,6 +53,11 @@ func _ready() -> void:
 	for slot_node in _slot_nodes:
 		slot_node.equip_requested.connect(_on_equip_requested)
 		slot_node.unequip_requested.connect(_on_unequip_requested)
+
+	for quiver_node in _quiver_nodes:
+		quiver_node.ammo_dropped.connect(_on_ammo_dropped)
+		quiver_node.moved.connect(_on_quiver_moved)
+		quiver_node.clear_requested.connect(_on_quiver_clear_requested)
 
 	_render()
 
@@ -69,6 +87,7 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 	if msg is EquipmentComponentSMSG:
 		if msg.EntityId == _selected_entity_id:
 			_worn = _to_worn_by_slot(msg.Items)
+			_quiver.assign(Array(msg.QuiverItemIds))
 			_render()
 		equipment_updated.emit()
 	elif msg is VisualComponentSMSG and msg.Kind == VisualKind.BESTIA:
@@ -84,6 +103,7 @@ func _seed_worn_from_cache() -> void:
 	var entity_manager := EntityManager.get_instance()
 	var entity: Entity = entity_manager.get_entity(_selected_entity_id) if entity_manager else null
 	_worn = entity.get_equipment() if entity else {}
+	_quiver = entity.get_quiver().duplicate() if entity else []
 
 
 func _to_worn_by_slot(items: Array) -> Dictionary:
@@ -123,6 +143,8 @@ func _worn_by_slot() -> Dictionary:
 
 
 func _render() -> void:
+	_render_quiver()
+
 	var mask := _available_mask()
 	var by_slot: Dictionary = _worn_by_slot()
 	var item_db = ItemDB.get_instance()
@@ -159,6 +181,59 @@ func _render() -> void:
 			equipped.get("durability", 0),
 			equipped.get("max_durability", 0)
 		)
+
+
+func _render_quiver() -> void:
+	var item_db = ItemDB.get_instance()
+	for quiver_node in _quiver_nodes:
+		var item_id: int = _quiver[quiver_node.index] if quiver_node.index < _quiver.size() else 0
+		var held := inventory.get_item_count(item_id) if inventory != null and item_id != 0 else 0
+		quiver_node.set_ammo(item_db.get_item(item_id) if item_id != 0 else null, held)
+
+
+## Puts [param item_id] at [param index], moving it there if it is already in the quiver. A full quiver
+## pushes its last entry out.
+func _on_ammo_dropped(item_id: int, index: int) -> void:
+	var changed := _quiver.duplicate()
+	changed.erase(item_id)
+	changed.insert(mini(index, changed.size()), item_id)
+	_send_quiver(changed.slice(0, QUIVER_SIZE))
+
+
+func _on_quiver_moved(from_index: int, to_index: int) -> void:
+	if from_index >= _quiver.size():
+		return
+
+	var changed := _quiver.duplicate()
+	var item_id: int = changed.pop_at(from_index)
+	changed.insert(mini(to_index, changed.size()), item_id)
+	_send_quiver(changed)
+
+
+func _on_quiver_clear_requested(index: int) -> void:
+	if index >= _quiver.size():
+		return
+
+	var changed := _quiver.duplicate()
+	changed.remove_at(index)
+	_send_quiver(changed)
+
+
+## Puts [param item_id] in the first free quiver entry; the inventory's double click. False when the quiver is
+## full or already holds it.
+func add_to_quiver(item_id: int) -> bool:
+	if _quiver.has(item_id) or _quiver.size() >= QUIVER_SIZE:
+		return false
+
+	var changed := _quiver.duplicate()
+	changed.append(item_id)
+	_send_quiver(changed)
+	return true
+
+
+func _send_quiver(item_ids: Array[int]) -> void:
+	if ConnectionManager.is_ready_to_send():
+		ConnectionManager.set_quiver(item_ids)
 
 
 func _on_equip_requested(player_item_id: int, slot: int) -> void:

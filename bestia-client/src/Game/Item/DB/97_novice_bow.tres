@@ -10,3 +10,4 @@ description_key = "NOVICE_BOW_DESC"
 weight = 50
 type = 1
 equip_slot = 6
+attack_range = 5
