@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.prop.ecs.CollectPropIntent
+import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.entity.ecs.WorldObjectIdentity
@@ -73,7 +74,7 @@ class CollectPropIntentSystem(
    * one this system queries - it is what keeps this out of the same scheduler wave as `ObtainItemIntentSystem`.
    */
   override val writes: ComponentClassSet = setOf(
-    CollectPropIntent::class, ObtainItemIntent.CreateItemIntent::class
+    CollectPropIntent::class, ObtainItemIntent.CreateItemIntent::class, Animation::class
   )
 
   override fun update(world: World, deltaTime: Float) {
@@ -122,6 +123,8 @@ class CollectPropIntentSystem(
 
     residency.remove(world, propId)
     world.add(collectorId, ObtainItemIntent.CreateItemIntent(collect.itemId, collect.amount))
+    // Bends down for it, as for a stack off the ground: nothing else says who took the crystal that just vanished.
+    world.get(collectorId, Animation::class)?.startPickUp()
 
     LOG.debug { "Entity $collectorId collected ${visual.kind} (prop ${identity.propId})" }
   }

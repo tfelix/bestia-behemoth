@@ -7,6 +7,10 @@ extends PilotGoal
 ## Nothing is hidden locally on arrival - the prop disappears when the server says so, via
 ## StaticEntityRemovedSMSG. Optimistic removal would need an un-hide path for all three ways the
 ## server can refuse, and the client is genuinely able to be wrong about each of them.
+##
+## The collect waits for the server to end the walk, as [LootGoal]'s pickup does. Sent from our drawing of it,
+## the crystal vanished while the body was still walking up to it, and the walk swallowed the pickup pose the
+## server answered with.
 
 
 ## How close the player has to be for the collect to be worth sending, in tiles.
@@ -41,6 +45,10 @@ func destination() -> Vector2:
 
 func arrival_tiles() -> float:
 	return _REACH_TILES
+
+
+func arrives_on_server_position() -> bool:
+	return true
 
 
 func is_alive() -> bool:

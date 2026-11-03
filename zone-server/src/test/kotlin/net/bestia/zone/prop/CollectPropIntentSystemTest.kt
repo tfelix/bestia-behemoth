@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.prop.ecs.CollectPropIntent
+import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.entity.ecs.WorldObjectIdentity
@@ -93,6 +94,7 @@ class CollectPropIntentSystemTest {
   ): EntityId = createEntity { id ->
     add(id, Account(accountId))
     add(id, Position.fromVec3(at))
+    add(id, Animation())
     add(id, CollectPropIntent(propEntityId))
   }
 
@@ -214,6 +216,17 @@ class CollectPropIntentSystemTest {
     verify { out.sendToPlayer(1L, OperationErrorSMSG(OperationErrorProto.OpError.COLLECT_OUT_OF_RANGE)) }
     assertNull(divergence.of(7004L))
     verify(exactly = 0) { residency.remove(any(), any()) }
+    assertEquals(Animation.AnimationKind.IDLE, world.get(collector, Animation::class)!!.currentAnimation)
+  }
+
+  @Test
+  fun `the collector bends down for the crystal`() {
+    val world = worldWith(newSystem())
+    val collector = world.addCollector(world.addProp())
+
+    world.tick(0f)
+
+    assertEquals(Animation.AnimationKind.PICK_UP, world.get(collector, Animation::class)!!.currentAnimation)
   }
 
   @Test
