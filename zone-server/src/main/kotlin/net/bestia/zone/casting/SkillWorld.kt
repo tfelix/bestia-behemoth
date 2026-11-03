@@ -3,6 +3,7 @@ package net.bestia.zone.casting
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.battle.ecs.effects.AreaEffect
+import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.GuildMembership
@@ -154,4 +155,28 @@ interface SkillWorld {
    * the service that owns the row, which hands it to `AsyncJobExecutor` under its own ordering key - as
    * `SurveyService` does for a chart.
    */
+
+  /**
+   * Walks [entityId] in a straight line towards [towards] at once, up to [maxTiles] tiles and stopping
+   * [keepDistance] tiles short, or at the first step it could not take. Returns the tiles it moved.
+   */
+  fun forceMove(entityId: EntityId, towards: Vec3L, maxTiles: Int, keepDistance: Int = 0): Int
+
+  /** Rolls [status], a `StatusEffectId` name, on [targetEntityId] against its resistance; whether it landed. */
+  fun inflict(targetEntityId: EntityId, status: String, chancePercent: Int, durationSeconds: Double?, level: Int): Boolean
+
+  /** Breaks off whatever [targetEntityId] was casting or crafting. */
+  fun interrupt(targetEntityId: EntityId)
+
+  /** Whether the caster may hurt [entityId]: alive, hurtable, on the other side and past the damage gate. */
+  fun isFoe(entityId: EntityId): Boolean
+
+  /** What [entityId] is made of, or null for something with no nature, like a master. */
+  fun natureOf(entityId: EntityId): Nature?
+
+  /** What [entityId] carries, in kilograms. */
+  fun carriedKilogramsOf(entityId: EntityId): Int
+
+  /** Adds mana to [entityId], up to its pool. */
+  fun restoreMana(entityId: EntityId, amount: Int)
 }

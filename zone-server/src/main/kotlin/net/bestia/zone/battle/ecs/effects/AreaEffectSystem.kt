@@ -1,11 +1,13 @@
 package net.bestia.zone.battle.ecs.effects
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.battle.Sides
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
+import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.status.CombatStats
@@ -42,6 +44,7 @@ class AreaEffectSystem(
   private val outMessageProcessor: OutMessageProcessor,
   private val propPromotionService: CombatTargetPromotion,
   private val areaDamageReceiver: AreaDamageReceiver,
+  private val riderEffects: AreaRiderEffects? = null,
 ) : System {
   override val phase = Phase.COMBAT
 
@@ -49,7 +52,8 @@ class AreaEffectSystem(
 
   /** [EntityAudience.READS] address the damage message; see [OutMessageProcessor.sendToObserversOf]. */
   override val reads: ComponentClassSet =
-    setOf(Position::class, Health::class, Dead::class, StatusEffects::class) + EntityAudience.READS + DamageGate.READS +
+    setOf(Position::class, Health::class, Dead::class, StatusEffects::class, Nature::class) + EntityAudience.READS +
+      DamageGate.READS + Sides.READS +
       areaDamageReceiver.reads
   /**
    * Includes what `PropPromotionService` adds to a *victim*, not just what this touches on the effect.
@@ -72,6 +76,7 @@ class AreaEffectSystem(
       val center = get<Position>().toVec3L()
 
       effect.sinceLastTick += deltaTime
+      if (effect.riders.drifts) drift(get<Position>(), effect, deltaTime)
 
       // A while loop rather than an if, so a long frame delivers every tick it swallowed instead of
       // silently dropping them.
@@ -90,6 +95,31 @@ class AreaEffectSystem(
       LOG.debug { "Area effect $id burnt out" }
       world.destroy(id)
     }
+  }
+
+  /** Moves the area by whole tiles as its drift adds up; a fraction waits for the next tick. */
+  private fun drift(position: Position, effect: AreaEffect, deltaTime: Float) {
+    effect.driftCarryX += effect.riders.driftX * deltaTime
+    effect.driftCarryY += effect.riders.driftY * deltaTime
+    val stepX = effect.driftCarryX.toInt()
+    val stepY = effect.driftCarryY.toInt()
+    if (stepX == 0 && stepY == 0) return
+
+    effect.driftCarryX -= stepX
+    effect.driftCarryY -= stepY
+    position.x += stepX
+    position.y += stepY
+  }
+
+  /** An area limited to undead, say, leaves the living in it alone. */
+  private fun touches(world: World, effect: AreaEffect, victimId: EntityId): Boolean {
+    val riders = effect.riders
+    if (riders.affectsKinds.isEmpty() && riders.affectsElements.isEmpty()) return true
+
+    val nature = world.get(victimId, Nature::class) ?: return false
+    val element = (world.get(victimId, CombatStats::class)?.values?.elementOverride ?: nature.element).base
+
+    return nature.kind in riders.affectsKinds || element in riders.affectsElements
   }
 
   private fun applyTick(world: World, effectEntityId: EntityId, effect: AreaEffect, center: Vec3L) {
@@ -115,6 +145,14 @@ class AreaEffectSystem(
         if (world.has(victimId, Dead::class)) continue
         // Dug in: an area passes over it. A cloak does not shield, and the blow reveals the wearer.
         if (world.get(victimId, StatusEffects::class)?.hasEffect(StatusEffectId.HIDDEN.id) == true) continue
+        if (!touches(world, effect, victimId)) continue
+
+        riderEffects?.onAnyone(world, victimId, effect)
+        if (Sides.areAllied(world, effect.casterId, victimId)) {
+          riderEffects?.onAlly(world, victimId, effect)
+          // A ward, a heal or a debuff zone spares its own side. A plain burning patch keeps the damage gate's say.
+          if (effect.riders != AreaRiders.NONE) continue
+        }
         // Items on the ground have no health, show no number, and weigh the element.
         if (areaDamageReceiver.receive(world, victimId, effect.damagePerTick, effect.element)) continue
 
@@ -131,6 +169,9 @@ class AreaEffectSystem(
         if (!world.has(victimId, Health::class)) continue
         // Asked here as well as at the drain: a burn the drain drops would still be reported to the client.
         if (DamageGate.verdict(world, effect.casterId, victimId, effect.casterAccountId) != DamageGate.Verdict.ADMITTED) continue
+
+        riderEffects?.onFoe(world, victimId, effect, center)
+        if (effect.damagePerTick == 0) continue
 
         val damage = world.get(victimId, IncomingDamage::class) ?: world.add(victimId, IncomingDamage())
         damage.add(effect.damagePerTick, effect.casterId)

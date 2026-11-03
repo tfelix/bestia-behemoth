@@ -53,13 +53,22 @@ data class AreaEffect(
 
   /** Stamped by [AreaEffectSpawner], so the damage gate still knows whose effect this is once the caster is gone. */
   val casterAccountId: AccountId? = null,
+
+  val riders: AreaRiders = AreaRiders.NONE,
 ) : Component {
+
+  /** The part of a tile the area has drifted but not yet moved, see [AreaRiders.driftX]. */
+  var driftCarryX: Float = 0f
+  var driftCarryY: Float = 0f
 
   init {
     require(radiusTiles >= 0) { "radiusTiles must be >= 0" }
     require(tickIntervalSeconds > 0f) { "tickIntervalSeconds must be > 0" }
     require(remainingTicks > 0) { "an area effect with no ticks left would never do anything" }
-    require(damagePerTick >= 1) { "damagePerTick must be at least 1" }
+    // A tick dealing nothing would show a "0" on the client; only a ward or a healing zone may, and it shows none.
+    require(damagePerTick >= 1 || (damagePerTick == 0 && riders != AreaRiders.NONE)) {
+      "damagePerTick must be at least 1, or 0 for an area that only carries riders"
+    }
     require(ElementModifier.isLegalAttackElement(element)) {
       "$element cannot be an attack element - only level 1 elements can be"
     }
@@ -79,7 +88,8 @@ data class AreaEffect(
       damagePerTick: Int,
       tickIntervalSeconds: Float,
       durationSeconds: Float,
-      element: Element = Element.NORMAL
+      element: Element = Element.NORMAL,
+      riders: AreaRiders = AreaRiders.NONE
     ): AreaEffect = AreaEffect(
       casterId = casterId,
       skillId = skillId,
@@ -88,7 +98,8 @@ data class AreaEffect(
       damagePerTick = damagePerTick,
       tickIntervalSeconds = tickIntervalSeconds,
       remainingTicks = (durationSeconds / tickIntervalSeconds).roundToInt(),
-      element = element
+      element = element,
+      riders = riders
     )
   }
 }

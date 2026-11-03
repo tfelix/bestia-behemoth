@@ -3,6 +3,7 @@ package net.bestia.zone.casting
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.battle.ecs.effects.AreaEffect
+import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.message.SMSG
@@ -43,6 +44,12 @@ class RecordingSkillWorld(
   val guildEffects = mutableListOf<GuildEffect>()
   val guildRestorations = mutableListOf<GuildRestoration>()
   val guildMessages = mutableListOf<Pair<Long, SMSG>>()
+  val inflicted = mutableListOf<Inflicted>()
+  val interrupted = mutableListOf<EntityId>()
+  val forcedMoves = mutableListOf<ForcedMove>()
+  val natures = mutableMapOf<EntityId, Nature>()
+  val foes = mutableSetOf<EntityId>()
+  val manaRestored = mutableListOf<Pair<EntityId, Int>>()
 
   override val remainingOps: Int = Int.MAX_VALUE
 
@@ -68,6 +75,52 @@ class RecordingSkillWorld(
   }
 
   val summons = mutableListOf<Summon>()
+
+  override fun forceMove(entityId: EntityId, towards: Vec3L, maxTiles: Int, keepDistance: Int): Int {
+    forcedMoves.add(ForcedMove(entityId, towards, maxTiles, keepDistance))
+    return maxTiles
+  }
+
+  override fun inflict(
+    targetEntityId: EntityId,
+    status: String,
+    chancePercent: Int,
+    durationSeconds: Double?,
+    level: Int
+  ): Boolean {
+    inflicted.add(Inflicted(targetEntityId, status, chancePercent, durationSeconds, level))
+    return true
+  }
+
+  override fun interrupt(targetEntityId: EntityId) {
+    interrupted.add(targetEntityId)
+  }
+
+  override fun isFoe(entityId: EntityId): Boolean {
+    return entityId in foes
+  }
+
+  override fun natureOf(entityId: EntityId): Nature? {
+    return natures[entityId]
+  }
+
+  override fun carriedKilogramsOf(entityId: EntityId): Int {
+    return 0
+  }
+
+  override fun restoreMana(entityId: EntityId, amount: Int) {
+    manaRestored.add(entityId to amount)
+  }
+
+  data class Inflicted(
+    val targetEntityId: EntityId,
+    val status: String,
+    val chancePercent: Int,
+    val durationSeconds: Double?,
+    val level: Int
+  )
+
+  data class ForcedMove(val entityId: EntityId, val towards: Vec3L, val maxTiles: Int, val keepDistance: Int)
 
   data class Summon(val guildId: Long, val to: Vec3L, val includeCaster: Boolean)
 

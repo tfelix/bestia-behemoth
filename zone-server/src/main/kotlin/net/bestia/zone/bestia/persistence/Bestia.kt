@@ -51,6 +51,11 @@ class Bestia(
   @Column(nullable = false)
   var attackPower: Float = 1f,
 
+  /** Body weight in kilograms, see `Nature.weight`. */
+  @Column(nullable = false)
+  @ColumnDefault("0")
+  var weight: Int = 0,
+
   /** `StatusEffectId` names this species is immune to, comma-separated. See `Nature.statusImmunities`. */
   @Column(name = "status_immunities", nullable = false)
   @ColumnDefault("''")

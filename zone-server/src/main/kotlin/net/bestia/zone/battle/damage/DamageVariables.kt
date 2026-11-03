@@ -34,6 +34,8 @@ data class DamageVariables(
   // Defenses
   var physicalDefenseMod: Float = 1f,
   var magicDefenseMod: Float = 1f,
+  /** A piercing blow: both defence terms are skipped as on a crit, without the crit's bonus. */
+  var ignoreDefense: Boolean = false,
 
   // Misc
   var neededManaMod: Float = 1f,

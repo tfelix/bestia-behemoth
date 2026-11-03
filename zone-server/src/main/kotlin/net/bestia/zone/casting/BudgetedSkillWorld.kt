@@ -1,12 +1,14 @@
 package net.bestia.zone.casting
 
 import net.bestia.zone.battle.Healing
+import net.bestia.zone.battle.Sides
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.aoi.AoiLayer
+import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.status.RemovalReason
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.identity.ecs.Account
@@ -18,6 +20,7 @@ import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.SMSG
@@ -164,6 +167,61 @@ class BudgetedSkillWorld(
     if (landed) {
       broadcastDamage(receiver, damage)
     }
+  }
+
+  override fun forceMove(entityId: EntityId, towards: Vec3L, maxTiles: Int, keepDistance: Int): Int {
+    budget.charge()
+
+    return services.forcedMovement.towards(world, entityId, towards, maxTiles, keepDistance)
+  }
+
+  override fun inflict(
+    targetEntityId: EntityId,
+    status: String,
+    chancePercent: Int,
+    durationSeconds: Double?,
+    level: Int
+  ): Boolean {
+    budget.charge()
+
+    val effect = StatusEffectId.valueOf(status)
+
+    return onEntity(targetEntityId) { target ->
+      services.statusEffects.tryInflict(this, target, effect, level, casterId, chancePercent, durationSeconds)
+    } == true
+  }
+
+  override fun interrupt(targetEntityId: EntityId) {
+    budget.charge()
+
+    services.castCancel.interrupt(world, targetEntityId)
+  }
+
+  override fun isFoe(entityId: EntityId): Boolean {
+    budget.charge()
+
+    return entityId != casterId && world.isAlive(entityId) && world.has(entityId, Health::class) &&
+        !world.has(entityId, Dead::class) &&
+        !Sides.areAllied(world, casterId, entityId) &&
+        DamageGate.verdict(world, casterId, entityId) == DamageGate.Verdict.ADMITTED
+  }
+
+  override fun natureOf(entityId: EntityId): Nature? {
+    budget.charge()
+
+    return world.get(entityId, Nature::class)
+  }
+
+  override fun carriedKilogramsOf(entityId: EntityId): Int {
+    budget.charge()
+
+    return (world.get(entityId, Inventory::class)?.totalWeight ?: 0) / WEIGHT_UNITS_PER_KILOGRAM
+  }
+
+  override fun restoreMana(entityId: EntityId, amount: Int) {
+    budget.charge()
+
+    world.get(entityId, Mana::class)?.let { it.current += amount }
   }
 
   /**
@@ -323,7 +381,7 @@ class BudgetedSkillWorld(
         entityId = targetEntityId,
         sourceEntityId = casterId,
         attackId = skillId.toInt(),
-        div = 1,
+        div = damage.hits,
         damage = damage.amount,
         skillLevel = skillLevel,
         type = DamageEntitySMSG.DamageType.of(damage)
@@ -334,6 +392,9 @@ class BudgetedSkillWorld(
   private companion object {
     /** Off the target, then off the caster's own reflect; after that the blow lands whatever. */
     const val MAX_REFLECTIONS = 2
+
+    /** Item weights are authored in tenths of a kilogram, as in Ragnarok Online. */
+    const val WEIGHT_UNITS_PER_KILOGRAM = 10
 
     /**
      * Creating an entity is a structural change plus several component adds, so it costs more than a read -

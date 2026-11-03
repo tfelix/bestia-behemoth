@@ -23,4 +23,14 @@ data class Nature(
 
   /** Effects that never land on this species, whatever the roll. */
   val statusImmunities: Set<StatusEffectId> = emptySet(),
+
+  /**
+   * The species' `BestiaKind` by name, which a holy skill reads to find the undead. A name because the kind belongs
+   * to the bestia slice, which battle may not depend on; `Skill.element` is kept the same way.
+   */
+  val kind: String = "",
+  val boss: Boolean = false,
+
+  /** Body weight in kilograms; a body slam lands harder from a heavier body. */
+  val weight: Int = 0,
 ) : Component
