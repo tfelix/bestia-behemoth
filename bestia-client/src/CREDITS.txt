@@ -27,3 +27,8 @@ Title: Stylized Nature MegaKit [Standard] (CommonTree_1-5, Pine_1-5)
 Author: Quaternius
 Source: https://quaternius.com
 License: CC0 1.0
+
+Title: Lilita One (damage numbers)
+Author: Juan Montoreano
+Source: https://github.com/google/fonts/tree/main/ofl/lilitaone
+License: SIL Open Font License 1.1 (Theme/LilitaOne-OFL.txt)
