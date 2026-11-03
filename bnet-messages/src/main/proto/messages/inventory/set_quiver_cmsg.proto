@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SetQuiverCMSGProto";
+
+/**
+ * Points the active entity's quiver at these ammo items, in the order they are shot. Replaces the whole
+ * list, so reordering and clearing a slot are the same message.
+ */
+message SetQuiverCMSG {
+  repeated uint32 item_ids = 1;
+}

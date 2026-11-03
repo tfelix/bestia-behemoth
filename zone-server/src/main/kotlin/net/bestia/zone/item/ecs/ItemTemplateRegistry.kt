@@ -1,6 +1,9 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.ammo.AmmoType
 import net.bestia.zone.item.material.ItemMaterial
+import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.item.persistence.ItemRepository
 import org.springframework.stereotype.Component
 
@@ -27,12 +30,22 @@ class ItemTemplateRegistry(
     val stackable: Boolean,
     val maxDurability: Int,
     val material: ItemMaterial,
-  )
+    val type: Item.ItemType = Item.ItemType.ETC,
+    val ammoType: AmmoType? = null,
+    val element: Element? = null,
+  ) {
+    val isAmmo: Boolean
+      get() {
+        return type == Item.ItemType.AMMO
+      }
+  }
 
   // Lazy: the importer writes the table after this bean exists, so an eager read finds a fresh database empty.
   private val byItemId: Map<Long, Template> by lazy {
     itemRepository.findAll().associate {
-      it.id to Template(it.id, it.baseLevel, it.weight, it.stackable, it.maxDurability, it.material)
+      it.id to Template(
+        it.id, it.baseLevel, it.weight, it.stackable, it.maxDurability, it.material, it.type, it.ammoType, it.element
+      )
     }
   }
 

@@ -16,7 +16,8 @@ enum class AuctionCategory {
 
     fun of(item: Item): AuctionCategory {
       return when (item.type) {
-        Item.ItemType.USABLE -> CONSUMABLE
+        // Arrows are shot away like potions are drunk.
+        Item.ItemType.USABLE, Item.ItemType.AMMO -> CONSUMABLE
         Item.ItemType.ETC -> MATERIAL
         Item.ItemType.EQUIP -> when (item.equipSlot) {
           EquipmentSlot.RIGHT_HAND -> WEAPON

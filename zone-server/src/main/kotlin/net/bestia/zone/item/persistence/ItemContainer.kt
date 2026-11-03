@@ -1,14 +1,19 @@
 package net.bestia.zone.item.persistence
 
 import jakarta.persistence.CascadeType
+import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
+import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
+import jakarta.persistence.OrderColumn
 import jakarta.persistence.Table
 import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.equip.EquipmentSlot
@@ -50,6 +55,20 @@ class ItemContainer(
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   val id: Long = 0
+
+  /** The live quiver's durable twin, see [net.bestia.zone.item.ecs.Equipment.getQuiver]. */
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(name = "item_container_quiver", joinColumns = [JoinColumn(name = "container_id")])
+  @OrderColumn(name = "position")
+  @Column(name = "item_id", nullable = false)
+  private val _quiver: MutableList<Long> = mutableListOf()
+
+  val quiver: List<Long> get() = _quiver.toList()
+
+  fun setQuiver(itemIds: List<Long>) {
+    _quiver.clear()
+    _quiver.addAll(itemIds)
+  }
 
   /**
    * Adds a plain, stackable item: merges into the existing pile of the same template and [provenance] if one
