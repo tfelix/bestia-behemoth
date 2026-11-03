@@ -479,3 +479,11 @@ statusEffects:
     showIcon: false
     isSyncedToClient: true
     script: Channeling
+
+  # What Strip Armor does to a wild bestia, which has no armour to take off.
+  - id: 59
+    identifier: EXPOSED
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Exposed
