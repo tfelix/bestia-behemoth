@@ -19,7 +19,7 @@ class Bleeding : StatusEffectScript {
   override val tickIntervalSeconds: Float = 1f
 
   override fun durationSeconds(level: Int): Double {
-    return 10.0
+    return 30.0
   }
 
   override fun onTick(context: StatusEffectTickContext) {
