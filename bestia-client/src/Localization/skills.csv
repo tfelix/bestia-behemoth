@@ -381,7 +381,6 @@ SKILL_1114_DESC,Bites at the target's legs. Its swings come much slower for a wh
 SKILL_1115_DESC,"Turns a 5×5 patch into a mire. Whoever stands in it is clumsy, slow and loses any haste."
 SKILL_1116_DESC,"The target starts turning to stone. If nothing cures it within ten seconds, it is stone for thirty."
 SKILL_1117_DESC,A roar so fierce that foes close by may run away in fear.
-SKILL_1118_DESC,A stare that stiffens every foe in front of it. A foe already stiff turns to stone for a moment.
 SKILL_1119_DESC,"Ages the target's body by years: less health, less vitality, slower healing."
 SKILL_2000_DESC,"Snuffles through the undergrowth and turns up grain, berries or herbs at its feet. Works once every five minutes."
 SKILL_2001_DESC,"Shakes out a fleece of wool, and sometimes a tuft of soft fur. Works once every ten minutes."
@@ -428,8 +427,8 @@ SKILL_1140_DESC,A friend is wrapped in wind: hits on it are weighed as against W
 SKILL_1141_DESC,A 3×3 wall of wind for ten seconds. Shots and arrows at anyone inside miss.
 SKILL_1142_DESC,Muddles the target's head. It may walk the wrong way for a while.
 SKILL_1143_DESC,Strips the target of its buffs.
-SKILL_1144_DESC,Knocks the weapon out of the target's hand. A wild bestia hits softer for a while instead.
-SKILL_1145_DESC,Tears the target's armour off. A wild bestia's hide guards less for a while instead.
+SKILL_1144_DESC,"Knocks the weapon out of the target's hand, and it stays empty for a while. A wild bestia hits softer instead."
+SKILL_1145_DESC,Tears the target's armour off. Nothing can be worn in its place for a while.
 SKILL_1146_DESC,A blow with acid on its claws. The target's weapon and armour lose a good part of their durability.
 SKILL_2027_DESC,"Blessing 10 on a friend: much more strength, dexterity and intelligence for a while."
 SKILL_2028_DESC,"Senses masters and their bestia within fifteen tiles, hidden ones too, and marks them on the map for thirty seconds."

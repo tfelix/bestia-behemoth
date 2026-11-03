@@ -32,7 +32,7 @@ learnset:
   - { skill: fire_ball, level: 51 }
   - { skill: flame_weapon, level: 56 }
   - { skill: blazing_charge, level: 61 }
-  - { skill: petrifying_gaze, level: 66 }
+  - { skill: control_undead, level: 66 }
   - { skill: renewal, level: 70 }
   - { skill: berserk, level: 76 }
   - { skill: mana_storm, level: 82 }

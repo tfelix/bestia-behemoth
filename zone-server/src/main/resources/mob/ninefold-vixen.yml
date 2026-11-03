@@ -27,7 +27,7 @@ learnset:
   - { skill: mending_light, level: 56, active: true }
   - { skill: fire_ball, level: 61, active: true }
   - { skill: searing_ray, level: 66, active: true }
-  - { skill: petrifying_gaze, level: 70 }
+  - { skill: control_undead, level: 70 }
   - { skill: mana_storm, level: 82 }
   - { skill: bleeding_wound, level: 88 }
   - { skill: inferno, level: 100 }

@@ -29,7 +29,7 @@ learnset:
   - { skill: mending_light, level: 56, active: true }
   - { skill: tremor, level: 61 }
   - { skill: stone_lance, level: 66 }
-  - { skill: petrifying_gaze, level: 70 }
+  - { skill: stone_curse, level: 70 }
   - { skill: mana_storm, level: 82 }
   - { skill: bleeding_wound, level: 88 }
   - { skill: fissure, level: 100 }

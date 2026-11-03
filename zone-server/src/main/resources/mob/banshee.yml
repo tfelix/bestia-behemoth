@@ -13,25 +13,24 @@ aspd: 80
 ai: aggressive_melee
 attack-power: 1
 weight: 60
-health: 4
+health: 1204
 mana: 508
-experience: 338
+experience: 328
 attributes: { strength: 17, intelligence: 100, vitality: 27, dexterity: 58, willpower: 67, agility: 27 }
 learnset:
   - { skill: growl, level: 6 }
   - { skill: wail, level: 11 }
-  - { skill: soul_strike, level: 16 }
   - { skill: flame_weapon, level: 21 }
+  - { skill: necrotic_bolt, level: 26 }
   - { skill: shockwave, level: 31 }
   - { skill: bewilder, level: 36 }
-  - { skill: haunt, level: 46 }
+  - { skill: blight, level: 46 }
   - { skill: mending_light, level: 56 }
-  - { skill: spirit_burst, level: 61 }
-  - { skill: soul_rend, level: 66 }
-  - { skill: petrifying_gaze, level: 70, active: true }
-  - { skill: mana_storm, level: 82 }
+  - { skill: mana_storm, level: 61 }
+  - { skill: drain_life, level: 66 }
+  - { skill: control_undead, level: 70, active: true }
   - { skill: bleeding_wound, level: 88 }
-  - { skill: ultima, level: 100 }
+  - { skill: grave_tide, level: 100 }
 habitat: [BOG, SWAMP]
 temperature-min: -10
 temperature-max: 38

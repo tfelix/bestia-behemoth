@@ -32,7 +32,7 @@ learnset:
   - { skill: wind_ward, level: 51 }
   - { skill: piercing_spike, level: 56 }
   - { skill: tempest_dive, level: 61 }
-  - { skill: petrifying_gaze, level: 66 }
+  - { skill: control_undead, level: 66 }
   - { skill: barbed_barrage, level: 70 }
   - { skill: rampage, level: 76 }
   - { skill: tailwind, level: 88 }

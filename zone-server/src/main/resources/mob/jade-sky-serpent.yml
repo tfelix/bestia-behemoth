@@ -13,9 +13,9 @@ aspd: 80
 ai: passive_wanderer
 attack-power: 0.04
 weight: 500
-health: 126809
+health: 136303
 mana: 974
-experience: 37004
+experience: 37118
 attributes: { strength: 1, intelligence: 205, vitality: 55, dexterity: 1, willpower: 137, agility: 55 }
 learnset:
   - { skill: growl, level: 6 }
@@ -27,7 +27,7 @@ learnset:
   - { skill: mending_light, level: 56 }
   - { skill: cyclone, level: 61 }
   - { skill: chain_lightning, level: 66, active: true }
-  - { skill: petrifying_gaze, level: 70, active: true }
+  - { skill: control_undead, level: 70, active: true }
   - { skill: mana_storm, level: 82, active: true }
   - { skill: bleeding_wound, level: 88, active: true }
   - { skill: hurricane, level: 100 }

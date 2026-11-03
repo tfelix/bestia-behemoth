@@ -30,7 +30,7 @@ learnset:
   - { skill: mending_light, level: 56 }
   - { skill: frost_nova, level: 61 }
   - { skill: torrent, level: 66 }
-  - { skill: petrifying_gaze, level: 70 }
+  - { skill: control_undead, level: 70 }
   - { skill: mana_storm, level: 82 }
   - { skill: bleeding_wound, level: 88 }
   - { skill: blizzard, level: 100 }

@@ -30,7 +30,7 @@ learnset:
   - { skill: mending_light, level: 46, active: true }
   - { skill: shockwave, level: 56, active: true }
   - { skill: bone_crusher, level: 61, active: true }
-  - { skill: petrifying_gaze, level: 66 }
+  - { skill: control_undead, level: 66 }
   - { skill: drain_life, level: 70 }
   - { skill: mana_storm, level: 82 }
   - { skill: skull_breaker, level: 88 }

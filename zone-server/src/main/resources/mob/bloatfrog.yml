@@ -27,7 +27,7 @@ learnset:
   - { skill: mending_light, level: 56 }
   - { skill: miasma, level: 61 }
   - { skill: acid_lance, level: 66 }
-  - { skill: petrifying_gaze, level: 70 }
+  - { skill: control_undead, level: 70 }
   - { skill: mana_storm, level: 82 }
   - { skill: bleeding_wound, level: 88 }
   - { skill: pestilence, level: 100 }

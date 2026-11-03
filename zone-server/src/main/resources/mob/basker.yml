@@ -30,7 +30,7 @@ learnset:
   - { skill: mending_light, level: 46 }
   - { skill: fire_ball, level: 56 }
   - { skill: blazing_charge, level: 61 }
-  - { skill: petrifying_gaze, level: 66 }
+  - { skill: control_undead, level: 66 }
   - { skill: searing_ray, level: 70 }
   - { skill: mana_storm, level: 82 }
   - { skill: skull_breaker, level: 88 }

@@ -157,7 +157,6 @@ learnset:
   - { skill: quagmire, level: 1 }
   - { skill: stone_curse, level: 1 }
   - { skill: terrifying_roar, level: 1 }
-  - { skill: petrifying_gaze, level: 1 }
   - { skill: withering_curse, level: 1 }
   - { skill: frost_diver, level: 1 }
   - { skill: frost_nova, level: 1 }

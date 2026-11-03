@@ -31,7 +31,7 @@ learnset:
   - { skill: stone_coat, level: 51 }
   - { skill: piercing_spike, level: 56 }
   - { skill: boulder_slam, level: 61 }
-  - { skill: petrifying_gaze, level: 66 }
+  - { skill: stone_curse, level: 66 }
   - { skill: barbed_barrage, level: 70 }
   - { skill: rampage, level: 76 }
   - { skill: thorn_volley, level: 82 }

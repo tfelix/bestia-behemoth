@@ -11,12 +11,12 @@ size: BIG
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 1.73
+attack-power: 1.19
 weight: 500
-health: 73873
+health: 73754
 mana: 273
-experience: 33595
-attributes: { strength: 32, intelligence: 33, vitality: 199, dexterity: 18, willpower: 79, agility: 26 }
+experience: 33570
+attributes: { strength: 30, intelligence: 33, vitality: 199, dexterity: 15, willpower: 79, agility: 26 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: howl, level: 6 }
@@ -31,7 +31,7 @@ learnset:
   - { skill: frost_nova, level: 51 }
   - { skill: frost_weapon, level: 56 }
   - { skill: tidal_slam, level: 61 }
-  - { skill: petrifying_gaze, level: 66, active: true }
+  - { skill: control_undead, level: 66, active: true }
   - { skill: renewal, level: 70, active: true }
   - { skill: berserk, level: 76, active: true }
   - { skill: frost_breath, level: 82, active: true }

@@ -11,7 +11,7 @@ size: MEDIUM
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.28
+attack-power: 0.27
 weight: 120
 health: 17
 mana: 621
@@ -27,7 +27,7 @@ learnset:
   - { skill: mending_light, level: 56, active: true }
   - { skill: spirit_burst, level: 61, active: true }
   - { skill: soul_rend, level: 66, active: true }
-  - { skill: petrifying_gaze, level: 70, active: true }
+  - { skill: control_undead, level: 70, active: true }
   - { skill: mana_storm, level: 82 }
   - { skill: bleeding_wound, level: 88 }
   - { skill: ultima, level: 100 }
