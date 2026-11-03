@@ -124,6 +124,23 @@ class StarterGearTest {
     }
   }
 
+  @Test
+  fun `a new master carries a bow and a hundred arrows the quiver already points at`() {
+    withFreshMaster { master ->
+      val (carried, quiver) = transactionTemplate.execute {
+        val container = masterRepository.findByIdOrThrow(master.id).container
+        val carried = container.slots
+          .filter { it.template.identifier in setOf("novice_bow", "arrow") }
+          .associate { it.template.identifier to (it.amount to it.isEquipped) }
+
+        carried to container.quiver.map { itemId -> container.slots.first { it.template.id == itemId }.template.identifier }
+      }!!
+
+      assertEquals(mapOf("novice_bow" to (1 to false), "arrow" to (100 to false)), carried)
+      assertEquals(listOf("arrow"), quiver)
+    }
+  }
+
   /**
    * The container's slots are a lazy collection, so reading them needs a session - the same reason
    * `MasterDeletionServiceTest` reaches for a [TransactionTemplate]. Resolved into plain values inside the
