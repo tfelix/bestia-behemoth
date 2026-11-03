@@ -175,7 +175,7 @@ class PlayerBestiaEntitySpawner(
     add(id, EntityVisual(VisualKind.BESTIA, playerBestia.bestia.id))
     // A caught bestia keeps the element and the skill power of its species.
     val species = playerBestia.bestia
-    add(id, Nature(species.element, species.size, species.attackPower, kind = species.kind.name, weight = species.weight))
+    add(id, Nature(species.element, species.size, species.attackPower, kind = species.kind, weight = species.weight))
     // Rendered by the same visual as a wild mob, so it gets the same posture channel: an owned bestia left
     // on a FORAGE stance sleeps, and its owner should be able to see that it is asleep.
     add(id, Animation())

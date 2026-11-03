@@ -6,7 +6,7 @@ import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.Size
 import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.util.requireValidIdentifier
-import net.bestia.zone.bestia.BestiaKind
+import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.bestia.DefaultAttack
 
 @Entity

@@ -6,7 +6,7 @@ name: "Sand Pharaoh"
 description: >-
   A buried king who rises when his tomb is disturbed. His curse follows whoever takes his gold.
 kind: UNDEAD
-element: SHADOW_4
+element: UNDEAD_4
 size: BIG
 default-attack: MELEE
 aspd: 80

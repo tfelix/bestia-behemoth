@@ -103,7 +103,7 @@ class BestiaEntitySpawner(
         id,
         Nature(
           bestia.element, bestia.size, bestia.attackPower, statusImmunitiesOf(bestia),
-          kind = bestia.kind.name, boss = bestia.boss, weight = bestia.weight
+          kind = bestia.kind, boss = bestia.boss, weight = bestia.weight
         )
       )
       val skills = learnedSkills(bestia)
