@@ -30,17 +30,33 @@ func _enter_tree() -> void:
 
 func show_damage(msg: DamageEntitySMSG, at: Vector3) -> void:
 	var entities := EntityManager.get_instance()
-	var attacker: Entity = entities.get_entity(msg.SourceEntityId) if entities != null else null
-	spawn(msg, at, attacker.global_position if attacker != null else null)
+	if entities == null:
+		spawn(msg, at, null, 0, DamageTag.Involvement.DEALT)
+		return
+	var attacker := entities.get_entity(msg.SourceEntityId)
+	var health := entities.get_health_of(msg.EntityId)
+	spawn(
+		msg,
+		at,
+		attacker.global_position if attacker != null else null,
+		health.maximum if health != null else 0,
+		_involvement_of(msg, entities),
+	)
 
 
-## [param attacker_at] is null when the attacker is unknown here.
-func spawn(msg: DamageEntitySMSG, at: Vector3, attacker_at: Variant) -> void:
+## [param attacker_at] is null and [param max_hp] 0 when they are unknown here.
+func spawn(
+	msg: DamageEntitySMSG, at: Vector3, attacker_at: Variant, max_hp: int, involvement: DamageTag.Involvement
+) -> void:
 	var camera := get_viewport().get_camera_3d()
 	if camera == null or not _is_seen(camera, at):
 		return
-	var tag := DamageTag.new(_claim_label())
-	tag.start(msg, at, _side_away_from(attacker_at, at, camera, msg.EntityId), camera)
+	var label := _claim_label(involvement)
+	if label == null:
+		return
+	var tag := DamageTag.new(label)
+	var side := _side_away_from(attacker_at, at, camera, msg.EntityId)
+	tag.start(msg, at, side, max_hp, involvement, camera)
 	_push_up_older(tag)
 	_live.append(tag)
 
@@ -75,18 +91,40 @@ func _side_away_from(attacker_at: Variant, at: Vector3, camera: Camera3D, target
 func _push_up_older(tag: DamageTag) -> void:
 	for older in _live:
 		if older.target_id == tag.target_id and older.side == tag.side:
-			older.push_up(tag.line_height())
+			# Half of each: both are centred on their position.
+			older.push_up((tag.line_height() + older.line_height()) * 0.5)
 
 
-## A pooled label, or the oldest tag's once all are in use.
-func _claim_label() -> Label3D:
+static func _involvement_of(msg: DamageEntitySMSG, entities: EntityManager) -> DamageTag.Involvement:
+	if entities.is_owned_entity_id(msg.EntityId):
+		return DamageTag.Involvement.TAKEN
+	if entities.is_owned_entity_id(msg.SourceEntityId):
+		return DamageTag.Involvement.DEALT
+	return DamageTag.Involvement.BYSTANDER
+
+
+## A pooled label, or the label of the oldest tag that matters less once all are in use. Null when
+## every live tag matters more than the new one.
+func _claim_label(involvement: DamageTag.Involvement) -> Label3D:
 	if _live.size() >= _MAX_TAGS:
-		_release(0)
+		var replaceable := _oldest_bystander()
+		if replaceable < 0 and involvement != DamageTag.Involvement.BYSTANDER:
+			replaceable = 0
+		if replaceable < 0:
+			return null
+		_release(replaceable)
 	if not _idle_labels.is_empty():
 		return _idle_labels.pop_back()
 	var label: Label3D = DamageTagScn.instantiate()
 	add_child(label)
 	return label
+
+
+func _oldest_bystander() -> int:
+	for i in _live.size():
+		if _live[i].involvement == DamageTag.Involvement.BYSTANDER:
+			return i
+	return -1
 
 
 func _release(index: int) -> void:
