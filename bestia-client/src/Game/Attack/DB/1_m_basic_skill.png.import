@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cdo62wfsbx48p"
-path="res://.godot/imported/7_play_dead.png-9a09d70d317442d013884c93a3d39567.ctex"
+uid="uid://bendirv6dms3t"
+path="res://.godot/imported/1_m_basic_skill.png-62bb67de6fdb15b8c5cc2d09602579b3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Game/Attack/DB/7_play_dead.png"
-dest_files=["res://.godot/imported/7_play_dead.png-9a09d70d317442d013884c93a3d39567.ctex"]
+source_file="res://Game/Attack/DB/1_m_basic_skill.png"
+dest_files=["res://.godot/imported/1_m_basic_skill.png-62bb67de6fdb15b8c5cc2d09602579b3.ctex"]
 
 [params]
 

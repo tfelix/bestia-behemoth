@@ -49,7 +49,7 @@ class EnvironmentalExposureSystem(
   val periodTicks: Long = (config.intervalSeconds * zoneConfig.tickRate).toLong().coerceAtLeast(1)
 
   /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
-  private val resistanceId: Long? by lazy { skills.findByIdentifier(SkillId.WEATHER_RESISTANCE)?.id }
+  private val resistanceId: Long? by lazy { skills.findByIdentifier(SkillId.M_WEATHER_RESISTANCE)?.id }
 
   /** Resolves the skill id now, at boot, so the first sweep on the tick does not reach the database. */
   fun warmUp() {

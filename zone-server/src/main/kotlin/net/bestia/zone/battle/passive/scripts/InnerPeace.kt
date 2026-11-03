@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component
 @Component
 class InnerPeace : PassiveSkillScript {
 
-  override val skill = SkillId.INNER_PEACE
+  override val skill = SkillId.M_INNER_PEACE
 
   override fun apply(context: StatusValueRecalcContext, level: Int) {
     context.addHpRegen(percent = PERCENT_PER_LEVEL * level)

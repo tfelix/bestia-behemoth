@@ -1,6 +1,6 @@
 skills:
   - id: 1
-    identifier: BASIC_SKILL
+    identifier: M_BASIC_SKILL
     targetType: FRIENDLY
     description: |
       Enables the use of the basic user interface.
@@ -12,11 +12,11 @@ skills:
       Lv.5 Allows to join and create parties, and unlocks every other skill tree.
 
   - id: 2
-    identifier: DIVINE_PROTECTION
+    identifier: M_DIVINE_PROTECTION
     targetType: FRIENDLY
 
   - id: 3
-    identifier: COOKING
+    identifier: M_COOKING
     script: Cooking
     targetType: GROUND
     range: 2
@@ -29,13 +29,13 @@ skills:
       `+20%/lv` success chance
 
   - id: 4
-    identifier: HEAL
+    identifier: M_HEAL
     script: Heal
     targetType: FRIENDLY
     needsLineOfSight: false
 
   - id: 5
-    identifier: FIREBOLT
+    identifier: M_FIREBOLT
     script: Firebolt
     targetType: ENEMY
     needsLineOfSight: true
@@ -48,7 +48,7 @@ skills:
       Must be channelled - moving or taking damage interrupts the cast.
 
   - id: 6
-    identifier: BLESSING
+    identifier: M_BLESSING
     script: Blessing
     targetType: FRIENDLY
     needsLineOfSight: true
@@ -63,7 +63,7 @@ skills:
       [cell]1[/cell][cell]1[/cell][cell]2[/cell][cell]60s[/cell][cell]28[/cell][cell]2[/cell][cell]2[/cell][cell]4[/cell][cell]80s[/cell][cell]32[/cell][cell]3[/cell][cell]3[/cell][cell]6[/cell][cell]100s[/cell][cell]36[/cell][cell]4[/cell][cell]4[/cell][cell]8[/cell][cell]120s[/cell][cell]40[/cell][cell]5[/cell][cell]5[/cell][cell]10[/cell][cell]140s[/cell][cell]44[/cell][cell]6[/cell][cell]6[/cell][cell]12[/cell][cell]160s[/cell][cell]48[/cell][cell]7[/cell][cell]7[/cell][cell]14[/cell][cell]180s[/cell][cell]52[/cell][cell]8[/cell][cell]8[/cell][cell]16[/cell][cell]200s[/cell][cell]56[/cell][cell]9[/cell][cell]9[/cell][cell]18[/cell][cell]220s[/cell][cell]60[/cell][cell]10[/cell][cell]10[/cell][cell]20[/cell][cell]240s[/cell][cell]64[/cell][/table]
 
   - id: 7
-    identifier: PLAY_DEAD
+    identifier: M_PLAY_DEAD
     script: PlayDead
     targetType: FRIENDLY
     needsLineOfSight: false
@@ -72,7 +72,7 @@ skills:
       Feigns death to avoid menace of nearby enemies. This skill can be switched on and off.
 
   - id: 8
-    identifier: FIRST_AID
+    identifier: M_FIRST_AID
     script: FirstAid
     targetType: FRIENDLY
     needsLineOfSight: true
@@ -89,7 +89,7 @@ skills:
 
 # --- Craftsman Tree ---
   - id: 10
-    identifier: CARPENTRY
+    identifier: M_CARPENTRY
     script: Carpentry
     targetType: GROUND
     range: 2
@@ -103,9 +103,9 @@ skills:
       `+10 item lv/lv` of items that can be produced, up to item level 100+ at max rank
 
   # Called "Master Craftsman" in the design docs, and shown under that name in the client. The
-  # identifier stays TINKERER: renaming it makes the importer delete a row LearnedSkill points at.
+  # identifier predates that name.
   - id: 11
-    identifier: TINKERER
+    identifier: M_TINKERER
     targetType: FRIENDLY
     description: |
       You are very skilled in working with tools and raw material. Building structures in the
@@ -115,7 +115,7 @@ skills:
       `+2%/lv` construction success chance
 
   - id: 12
-    identifier: ITEM_CUSTOMIZATION
+    identifier: M_ITEM_CUSTOMIZATION
     script: ItemCustomization
     targetType: GROUND
     range: 2
@@ -130,7 +130,7 @@ skills:
 
 # Blacksmith
   - id: 13
-    identifier: ORE_REFINEMENT
+    identifier: M_ORE_REFINEMENT
     script: OreRefinement
     targetType: GROUND
     range: 2
@@ -144,7 +144,7 @@ skills:
       `+30%/lv` refinement success chance
 
   - id: 14
-    identifier: FORGE_WEAPON
+    identifier: M_FORGE_WEAPON
     script: ForgeWeapon
     targetType: GROUND
     range: 2
@@ -157,7 +157,7 @@ skills:
       Level 1 enables you to place a Forge
 
   - id: 15
-    identifier: FORGE_ARMOR
+    identifier: M_FORGE_ARMOR
     script: ForgeArmor
     targetType: GROUND
     range: 2
@@ -170,7 +170,7 @@ skills:
       Level 1 enables you to place a Forge
 
   - id: 16
-    identifier: WEAPON_REPAIR
+    identifier: M_WEAPON_REPAIR
     script: WeaponRepair
     targetType: GROUND
     range: 2
@@ -183,7 +183,7 @@ skills:
       `+20 item lv/lv` of equipment that can be repaired, up to item level 100+ at max rank
 
   - id: 17
-    identifier: WEAPONRY_RESEARCH
+    identifier: M_WEAPONRY_RESEARCH
     targetType: FRIENDLY
     description: |
       Deeper knowledge of weapons and armor that raises the odds of successfully refining
@@ -193,7 +193,7 @@ skills:
       `+1%/lv` success chance when forging
 
   - id: 18
-    identifier: MASTER_SMITH
+    identifier: M_MASTER_SMITH
     targetType: FRIENDLY
     description: |
       The capstone of the forge. Makes a Blacksmith's hands steady enough to trust with the
@@ -204,7 +204,7 @@ skills:
 
 # Artificer
   - id: 19
-    identifier: MANA_HARVESTER
+    identifier: M_MANA_HARVESTER
     script: ManaHarvester
     targetType: GROUND
     description: |
@@ -216,7 +216,7 @@ skills:
       `+3%/lv` crystal yield
 
   - id: 20
-    identifier: MANAFLOW_EXPERT
+    identifier: M_MANAFLOW_EXPERT
     script: ManaflowExpert
     targetType: GROUND
     description: |
@@ -227,7 +227,7 @@ skills:
       Higher levels unlock refining higher-grade crystals
 
   - id: 21
-    identifier: RUNIC_ETCHING
+    identifier: M_RUNIC_ETCHING
     script: RunicEtching
     targetType: FRIENDLY
     needsLineOfSight: true
@@ -239,7 +239,7 @@ skills:
       `+5%/lv` chance of success
 
   - id: 22
-    identifier: MAGIC_ARTISAN
+    identifier: M_MAGIC_ARTISAN
     script: MagicArtisan
     targetType: GROUND
     description: |
@@ -251,7 +251,7 @@ skills:
 
 # Alchemist
   - id: 23
-    identifier: HERBALISM
+    identifier: M_HERBALISM
     targetType: FRIENDLY
     description: |
       Teaches which roots, herbs and mana-touched growth are worth the harvest, and how to
@@ -264,7 +264,7 @@ skills:
       Lv.5 Can collect herbs up to level 100+
 
   - id: 24
-    identifier: ALCHEMY
+    identifier: M_ALCHEMY
     script: Alchemy
     targetType: GROUND
     description: |
@@ -285,7 +285,7 @@ skills:
       and elixir blueprints.
 
   - id: 25
-    identifier: TRANSMUTATION
+    identifier: M_TRANSMUTATION
     script: Transmutation
     targetType: GROUND
     description: |
@@ -296,14 +296,14 @@ skills:
       Higher levels unlock transmuting higher-grade infused resources
 
   - id: 26
-    identifier: ALCHEMY_MASTERY
+    identifier: M_ALCHEMY_MASTERY
     targetType: FRIENDLY
     description: |
       Increased yield and success chance for Alchemy.
 
 # --- Survival Tree ---
   - id: 27
-    identifier: INNER_PEACE
+    identifier: M_INNER_PEACE
     targetType: FRIENDLY
     description: |
       Your Bestia and Master gain an increased HP and Mana regeneration rate.
@@ -311,7 +311,7 @@ skills:
       `+3% effect/lv`
 
   - id: 28
-    identifier: WEATHER_RESISTANCE
+    identifier: M_WEATHER_RESISTANCE
     targetType: FRIENDLY
     description: |
       Your Bestia and Master gain an increased tolerance against high and low environment
@@ -320,7 +320,7 @@ skills:
       `+3%` higher tolerance/lv
 
   - id: 29
-    identifier: QUICK_TRAVEL
+    identifier: M_QUICK_TRAVEL
     targetType: FRIENDLY
     description: |
       You and your Bestia know every kind of terrain.
@@ -328,7 +328,7 @@ skills:
       `+3%` higher movement speed/lv
 
   - id: 30
-    identifier: FISHING
+    identifier: M_FISHING
     script: Fishing
     targetType: GROUND
     description: |
@@ -339,7 +339,7 @@ skills:
 
 # Forester
   - id: 31
-    identifier: LUMBERJACK
+    identifier: M_LUMBERJACK
     targetType: FRIENDLY
     description: |
       The player is able to gather wood resources faster.
@@ -348,7 +348,7 @@ skills:
       `+2%/lv` resource drop chance
 
   - id: 32
-    identifier: TRAPPING
+    identifier: M_TRAPPING
     script: Trapping
     targetType: GROUND
     description: |
@@ -360,7 +360,7 @@ skills:
       Higher levels unlock snares for larger game
 
   - id: 33
-    identifier: EXPERT_TAMING
+    identifier: M_EXPERT_TAMING
     targetType: FRIENDLY
     description: |
       Bestia under your control gain faster experience and require less food to maintain their
@@ -370,7 +370,7 @@ skills:
       `-2%/lv` stamina loss
 
   - id: 34
-    identifier: BEASTFRIEND
+    identifier: M_BEASTFRIEND
     targetType: FRIENDLY
     description: |
       Detailed knowledge of the Bestia and their behavior makes it easier for you to tame and
@@ -380,7 +380,7 @@ skills:
 
 # Prospector
   - id: 35
-    identifier: MAXIMIZE_CARRY_CAPACITY
+    identifier: M_MAXIMIZE_CARRY_CAPACITY
     targetType: FRIENDLY
     description: |
       Raises the carrying capacity of your own Master.
@@ -388,7 +388,7 @@ skills:
       `+10%/lv` weight limit
 
   - id: 36
-    identifier: ENLARGE_WEIGHT_LIMIT
+    identifier: M_ENLARGE_WEIGHT_LIMIT
     targetType: FRIENDLY
     description: |
       Raises the carrying capacity of every Bestia under your control.
@@ -396,7 +396,7 @@ skills:
       `+10%/lv` weight limit
 
   - id: 37
-    identifier: CARTOGRAPHY
+    identifier: M_CARTOGRAPHY
     script: Cartography
     targetType: GROUND
     range: 4
@@ -412,7 +412,7 @@ skills:
       point. Each level reaches a kilometre further, up to five at full rank.
 
   - id: 38
-    identifier: WILDERNESS_SURVIVAL
+    identifier: M_WILDERNESS_SURVIVAL
     targetType: FRIENDLY
     description: |
       Hardens the master and their Bestia against travel through hostile terrain, far from the
@@ -423,7 +423,7 @@ skills:
       `-10%/lv` environmental hazard damage
 
   - id: 39
-    identifier: WEATHER_SENSE
+    identifier: M_WEATHER_SENSE
     targetType: FRIENDLY
     description: |
       An instinct for reading the sky and wind well before a storm ever arrives, letting the
@@ -434,7 +434,7 @@ skills:
 
 # Miner
   - id: 40
-    identifier: MINING
+    identifier: M_MINING
     script: Mining
     targetType: GROUND
     description: |
@@ -445,7 +445,7 @@ skills:
       `+20 resource lv/lv` that can be mined, up to resource level 100+ at max rank
 
   - id: 41
-    identifier: GEM_CUTTING
+    identifier: M_GEM_CUTTING
     script: GemCutting
     targetType: GROUND
     description: |
@@ -457,7 +457,7 @@ skills:
       `-8%/lv` chance to shatter a gem while cutting
 
   - id: 42
-    identifier: DEEP_DELVER
+    identifier: M_DEEP_DELVER
     targetType: FRIENDLY
     description: |
       Lets a Miner push shafts deeper than good sense would recommend, into ground that pays
@@ -467,7 +467,7 @@ skills:
       `+10% more resources/lv`
 
   - id: 43
-    identifier: RESOURCE_SONAR
+    identifier: M_RESOURCE_SONAR
     targetType: FRIENDLY
     description: |
       The Miner's capstone: a feel for what's underfoot precise enough to map a shaft before
@@ -477,7 +477,7 @@ skills:
 
   # Craftsman tree - see the tree grouping in master_skill_tree.yml.
   - id: 44
-    identifier: UPGRADE_EQUIPMENT
+    identifier: M_UPGRADE_EQUIPMENT
     script: UpgradeEquipment
     targetType: GROUND
     range: 2
@@ -489,7 +489,7 @@ skills:
       Weaponry Research raises the odds; Master Smith raises them further.
 
   - id: 45
-    identifier: READ_TRACKS
+    identifier: M_READ_TRACKS
     script: ReadTracks
     targetType: GROUND
     range: 4

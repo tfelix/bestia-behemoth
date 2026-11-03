@@ -31,7 +31,7 @@ class BasicSkillGateTest {
   private val skillTree = MasterSkillTreeRegistry().apply {
     val basicSkill = MasterSkillTreeNode(
       skillId = BASIC_SKILL_ID,
-      identifier = "BASIC_SKILL",
+      identifier = "M_BASIC_SKILL",
       maxLevel = 5,
       tree = MasterSkillTreeRegistry.NOVICE_TREE,
     )

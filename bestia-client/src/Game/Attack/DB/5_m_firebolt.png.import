@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b5c0yc8ids27"
-path="res://.godot/imported/40_mining.png-1cbf46109c07e27e8dd6bb50800d4eab.ctex"
+uid="uid://bb3d1el18r16q"
+path="res://.godot/imported/5_m_firebolt.png-3505bed29fb18138ae976799f16faa97.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Game/Attack/DB/40_mining.png"
-dest_files=["res://.godot/imported/40_mining.png-1cbf46109c07e27e8dd6bb50800d4eab.ctex"]
+source_file="res://Game/Attack/DB/5_m_firebolt.png"
+dest_files=["res://.godot/imported/5_m_firebolt.png-3505bed29fb18138ae976799f16faa97.ctex"]
 
 [params]
 

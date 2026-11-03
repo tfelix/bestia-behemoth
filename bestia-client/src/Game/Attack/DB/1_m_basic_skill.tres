@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AttackResource" format=3 uid="uid://cla3bqdt0eqkc"]
 
-[ext_resource type="Texture2D" uid="uid://bendirv6dms3t" path="res://Game/Attack/DB/1_basic_skill.png" id="1_4c8c5"]
+[ext_resource type="Texture2D" uid="uid://bendirv6dms3t" path="res://Game/Attack/DB/1_m_basic_skill.png" id="1_4c8c5"]
 [ext_resource type="Script" uid="uid://cusu6un1ro3qh" path="res://Game/Attack/attack_resource.gd" id="1_script"]
 
 [resource]

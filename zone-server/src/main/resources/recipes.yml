@@ -31,7 +31,7 @@ recipes:
     inputs:
       - { item: apple, amount: 2 }
       - { item: jelly, amount: 1 }
-    skill: { skill: COOKING, level: 1 }
+    skill: { skill: M_COOKING, level: 1 }
     craftSeconds: 6.0
     baseSuccessChance: 0.5
 
@@ -44,7 +44,7 @@ recipes:
     inputs:
       - { item: iron_ingot, amount: 1 }
       - { item: clay, amount: 2 }
-    skill: { skill: CARPENTRY, level: 1 }
+    skill: { skill: M_CARPENTRY, level: 1 }
     station: WORKBENCH
     craftSeconds: 8.0
     baseSuccessChance: 0.6
@@ -58,7 +58,7 @@ recipes:
     inputs:
       - { item: clay, amount: 2 }
       - { item: mana_dust, amount: 1 }
-    skill: { skill: CARPENTRY, level: 2 }
+    skill: { skill: M_CARPENTRY, level: 2 }
     station: WORKBENCH
     craftSeconds: 10.0
     baseSuccessChance: 0.55
@@ -70,7 +70,7 @@ recipes:
     inputs:
       - { item: clay, amount: 3 }
       - { item: mana_dust, amount: 1 }
-    skill: { skill: CARPENTRY, level: 2 }
+    skill: { skill: M_CARPENTRY, level: 2 }
     station: WORKBENCH
     craftSeconds: 10.0
     baseSuccessChance: 0.55
@@ -82,7 +82,7 @@ recipes:
     inputs:
       - { item: engraving_set, amount: 1 }
       - { item: mana_dust, amount: 2 }
-    skill: { skill: ITEM_CUSTOMIZATION, level: 1 }
+    skill: { skill: M_ITEM_CUSTOMIZATION, level: 1 }
     station: WORKBENCH
     craftSeconds: 12.0
     baseSuccessChance: 0.25
@@ -98,7 +98,7 @@ recipes:
     inputs:
       - { item: iron_ore, amount: 2 }
       - { item: coal, amount: 1 }
-    skill: { skill: ORE_REFINEMENT, level: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 1 }
     station: FURNACE
     craftSeconds: 10.0
     baseSuccessChance: 0.4
@@ -112,7 +112,7 @@ recipes:
     inputs:
       - { item: gold_ore, amount: 2 }
       - { item: coal, amount: 1 }
-    skill: { skill: ORE_REFINEMENT, level: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 1 }
     station: FURNACE
     craftSeconds: 14.0
     baseSuccessChance: 0.4
@@ -128,7 +128,7 @@ recipes:
     output: { item: gold_coin, amount: 10000 }
     inputs:
       - { item: gold_bar, amount: 1 }
-    skill: { skill: ORE_REFINEMENT, level: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 1 }
     station: WORKBENCH
     craftSeconds: 20.0
     baseSuccessChance: 1.0
@@ -141,7 +141,7 @@ recipes:
       - { item: iron_ingot, amount: 3 }
       - { item: coal, amount: 2 }
       - { item: weapon_blueprint, amount: 1 }
-    skill: { skill: FORGE_WEAPON, level: 1 }
+    skill: { skill: M_FORGE_WEAPON, level: 1 }
     station: FORGE
     craftSeconds: 20.0
     baseSuccessChance: 0.35
@@ -154,7 +154,7 @@ recipes:
       - { item: iron_ingot, amount: 4 }
       - { item: coal, amount: 2 }
       - { item: armor_blueprint, amount: 1 }
-    skill: { skill: FORGE_ARMOR, level: 1 }
+    skill: { skill: M_FORGE_ARMOR, level: 1 }
     station: FORGE
     craftSeconds: 20.0
     baseSuccessChance: 0.35
@@ -165,7 +165,7 @@ recipes:
     inputs:
       - { item: iron_ingot, amount: 1 }
       - { item: coal, amount: 1 }
-    skill: { skill: WEAPON_REPAIR, level: 1 }
+    skill: { skill: M_WEAPON_REPAIR, level: 1 }
     station: FORGE
     craftSeconds: 6.0
     baseSuccessChance: 0.8
@@ -178,7 +178,7 @@ recipes:
     inputs:
       - { item: iron_ingot, amount: 2 }
       - { item: mana_dust, amount: 1 }
-    skill: { skill: UPGRADE_EQUIPMENT, level: 1 }
+    skill: { skill: M_UPGRADE_EQUIPMENT, level: 1 }
     craftSeconds: 8.0
     baseSuccessChance: 0.3
 
@@ -192,7 +192,7 @@ recipes:
       - { item: cloth, amount: 3 }
       - { item: dye, amount: 1 }
       - { item: iron_ingot, amount: 1 }
-    skill: { skill: FORGE_WEAPON, level: 3 }
+    skill: { skill: M_FORGE_WEAPON, level: 3 }
     station: FORGE
     craftSeconds: 30.0
     baseSuccessChance: 0.6

@@ -37,17 +37,17 @@ class CraftBonusService(
   private val skills: SkillRepository
 ) {
 
-  private val carpentryId: Long? by lazy { skills.findByIdentifier(SkillId.CARPENTRY)?.id }
-  private val tinkererId: Long? by lazy { skills.findByIdentifier(SkillId.TINKERER)?.id }
-  private val itemCustomizationId: Long? by lazy { skills.findByIdentifier(SkillId.ITEM_CUSTOMIZATION)?.id }
-  private val oreRefinementId: Long? by lazy { skills.findByIdentifier(SkillId.ORE_REFINEMENT)?.id }
-  private val weaponryResearchId: Long? by lazy { skills.findByIdentifier(SkillId.WEAPONRY_RESEARCH)?.id }
-  private val masterSmithId: Long? by lazy { skills.findByIdentifier(SkillId.MASTER_SMITH)?.id }
-  private val cookingId: Long? by lazy { skills.findByIdentifier(SkillId.COOKING)?.id }
-  private val weaponRepairId: Long? by lazy { skills.findByIdentifier(SkillId.WEAPON_REPAIR)?.id }
-  private val forgeWeaponId: Long? by lazy { skills.findByIdentifier(SkillId.FORGE_WEAPON)?.id }
-  private val forgeArmorId: Long? by lazy { skills.findByIdentifier(SkillId.FORGE_ARMOR)?.id }
-  private val upgradeEquipmentId: Long? by lazy { skills.findByIdentifier(SkillId.UPGRADE_EQUIPMENT)?.id }
+  private val carpentryId: Long? by lazy { skills.findByIdentifier(SkillId.M_CARPENTRY)?.id }
+  private val tinkererId: Long? by lazy { skills.findByIdentifier(SkillId.M_TINKERER)?.id }
+  private val itemCustomizationId: Long? by lazy { skills.findByIdentifier(SkillId.M_ITEM_CUSTOMIZATION)?.id }
+  private val oreRefinementId: Long? by lazy { skills.findByIdentifier(SkillId.M_ORE_REFINEMENT)?.id }
+  private val weaponryResearchId: Long? by lazy { skills.findByIdentifier(SkillId.M_WEAPONRY_RESEARCH)?.id }
+  private val masterSmithId: Long? by lazy { skills.findByIdentifier(SkillId.M_MASTER_SMITH)?.id }
+  private val cookingId: Long? by lazy { skills.findByIdentifier(SkillId.M_COOKING)?.id }
+  private val weaponRepairId: Long? by lazy { skills.findByIdentifier(SkillId.M_WEAPON_REPAIR)?.id }
+  private val forgeWeaponId: Long? by lazy { skills.findByIdentifier(SkillId.M_FORGE_WEAPON)?.id }
+  private val forgeArmorId: Long? by lazy { skills.findByIdentifier(SkillId.M_FORGE_ARMOR)?.id }
+  private val upgradeEquipmentId: Long? by lazy { skills.findByIdentifier(SkillId.M_UPGRADE_EQUIPMENT)?.id }
 
   /** Resolves the skill ids now, at boot, so the first craft on the tick does not reach the database. */
   fun warmUp() {

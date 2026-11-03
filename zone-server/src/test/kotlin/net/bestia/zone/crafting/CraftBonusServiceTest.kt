@@ -218,16 +218,16 @@ class CraftBonusServiceTest {
   private companion object {
     const val TOLERANCE = 0.0001f
 
-    const val CARPENTRY = "CARPENTRY"
-    const val TINKERER = "TINKERER"
-    const val ITEM_CUSTOMIZATION = "ITEM_CUSTOMIZATION"
-    const val ORE_REFINEMENT = "ORE_REFINEMENT"
-    const val WEAPONRY_RESEARCH = "WEAPONRY_RESEARCH"
-    const val MASTER_SMITH = "MASTER_SMITH"
-    const val COOKING = "COOKING"
-    const val FORGE_WEAPON = "FORGE_WEAPON"
-    const val WEAPON_REPAIR = "WEAPON_REPAIR"
-    const val UPGRADE_EQUIPMENT = "UPGRADE_EQUIPMENT"
+    const val CARPENTRY = "M_CARPENTRY"
+    const val TINKERER = "M_TINKERER"
+    const val ITEM_CUSTOMIZATION = "M_ITEM_CUSTOMIZATION"
+    const val ORE_REFINEMENT = "M_ORE_REFINEMENT"
+    const val WEAPONRY_RESEARCH = "M_WEAPONRY_RESEARCH"
+    const val MASTER_SMITH = "M_MASTER_SMITH"
+    const val COOKING = "M_COOKING"
+    const val FORGE_WEAPON = "M_FORGE_WEAPON"
+    const val WEAPON_REPAIR = "M_WEAPON_REPAIR"
+    const val UPGRADE_EQUIPMENT = "M_UPGRADE_EQUIPMENT"
 
     /** Arbitrary but distinct, since the service only ever compares them. */
     val SKILL_IDS = mapOf(

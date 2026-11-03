@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d3mkwwyqrn2gh"
-path="res://.godot/imported/3_cooking.png-b141458e9b3ae4d20e49f230c69c7056.ctex"
+uid="uid://b5c0yc8ids27"
+path="res://.godot/imported/40_m_mining.png-bc5ff987623015c4655d63ff11bb6580.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Game/Attack/DB/3_cooking.png"
-dest_files=["res://.godot/imported/3_cooking.png-b141458e9b3ae4d20e49f230c69c7056.ctex"]
+source_file="res://Game/Attack/DB/40_m_mining.png"
+dest_files=["res://.godot/imported/40_m_mining.png-bc5ff987623015c4655d63ff11bb6580.ctex"]
 
 [params]
 
@@ -37,4 +37,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=128
-detect_3d/compress_to=1
+detect_3d/compress_to=0

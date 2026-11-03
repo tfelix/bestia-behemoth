@@ -33,13 +33,13 @@ class SkillCatalogBootValidatorTest {
 
   @Test
   fun `a SkillId with no catalogue row fails the boot`() {
-    val withoutCarpentry = shippedIdentifiers() - SkillId.CARPENTRY.name
+    val withoutCarpentry = shippedIdentifiers() - SkillId.M_CARPENTRY.name
 
     val e = assertThrows<SkillCatalogMismatchException> {
       validatorOver(withoutCarpentry).validate()
     }
 
-    assertTrue(e.message!!.contains("SkillId.CARPENTRY"), "should name the orphaned constant: ${e.message}")
+    assertTrue(e.message!!.contains("SkillId.M_CARPENTRY"), "should name the orphaned constant: ${e.message}")
   }
 
   /** Every constant is named, not only the first one to miss - one boot should report all the drift. */

@@ -19,7 +19,7 @@ game (master-castable, bestia-species, item-taught) gets one entry here, loaded 
 - `id` (Long) — the numeric id used **everywhere downstream**, including the wire
   protocol (`SkillListSMSG.SkillListEntry.skillId`) and the client. Ids are
   hand-assigned in the YML and never reassigned by the DB.
-- `identifier` — string name (e.g. `BLESSING`), used to cross-reference from
+- `identifier` — string name (e.g. `M_BLESSING`), used to cross-reference from
   `master_skill_tree.yml` (below) instead of hardcoding ids there.
 - `script` / `needsLineOfSight` / `manaCost` / `range` / `targetType` — behaviour. **`script`
   is also what decides whether the skill can be cast at all**; there is no `type` field. See
@@ -33,6 +33,11 @@ game (master-castable, bestia-species, item-taught) gets one entry here, loaded 
   `syncSkillDb` into `bestia-client/src/Localization/skills.csv` (see the translation
   pipeline below). Skills without a `description` here are still hand-authored directly
   in `skills.csv` until someone backfills one.
+
+**A master skill's identifier starts with `M_`** (`M_BLESSING`, `M_HEAL`), so the plain name stays free for a
+bestia skill. It is not cosmetic: the `skill` table's unique key on `identifier` is case-insensitive in MariaDB,
+so a master `BLESSING` and a bestia `blessing` cannot coexist. The importers refuse such a pair at boot.
+The `SkillId` constant carries the prefix too, and so does the client file (`6_m_blessing.tres`).
 
 Convention in the file: master skills are grouped first under `# MASTER SKILLS`, bestia
 skills after under `# BESTIA SKILLS`, by ascending id (**bestia-species/item skills are
@@ -50,7 +55,7 @@ master's Skills window never lists; the guild window's Skills tab draws them.
 
 **Two ids are load-bearing outside the content files, so renumbering is no longer free:**
 
-- `BASIC_SKILL` is **pinned at id 1**. The Skills window has to name it to draw the tree
+- `M_BASIC_SKILL` is **pinned at id 1**. The Skills window has to name it to draw the tree
   gate (`skills.gd`'s `BASIC_SKILL_ID`), and an id is the only handle the client has —
   the wire carries ids and the Attack DB is keyed by them. Moving it means editing that
   constant too.
@@ -59,7 +64,7 @@ master's Skills window never lists; the guild window's Skills tab draws them.
 
 Everywhere else, code resolves a skill by `identifier` through `SkillRepository`, and the
 identifier itself comes from the **`SkillId` enum** (`zone-server/.../skill/SkillId.kt`) —
-`skills.findByIdentifier(SkillId.CARPENTRY)`, via the typed overload in `SkillRepository.kt`.
+`skills.findByIdentifier(SkillId.M_CARPENTRY)`, via the typed overload in `SkillRepository.kt`.
 Prefer that; never a string literal. And note that renumbering an **existing** id needs a
 database wipe: `YmlImporterBootRunner` matches rows by identifier and
 `Skill.updateContentFrom` deliberately does not copy `id`, so an edit here silently leaves
@@ -67,7 +72,7 @@ the old id in the `skill` table while every other file says the new one.
 
 ### `SkillId` — the identifiers code names
 
-`SkillId` holds one constant per skill that *code* has to name (15 today: `BASIC_SKILL`, the
+`SkillId` holds one constant per skill that *code* has to name (15 today: `M_BASIC_SKILL`, the
 eleven crafting skills `MasterCraftBonusService` reads, the two weather skills, and
 `INNER_PEACE`). It carries **no numeric id** — unlike `DialogId` and `StatusEffectId`, which do —
 because a skill's id is content owned by this file and copying it into code would give a
@@ -185,10 +190,10 @@ subset of `skills.yml` entries. This file lists exactly that subset, referencing
 by `identifier`.
 
 ```yaml
-- skill: BLESSING
+- skill: M_BLESSING
   maxLevel: 10
   prerequisites:
-    - skill: DIVINE_PROTECTION
+    - skill: M_DIVINE_PROTECTION
       level: 5
 ```
 
@@ -207,7 +212,7 @@ by `identifier`.
 - Two gates beyond `prerequisites` are enforced in `MasterSkillTreeService` and have **no
   representation in this file** — they are code, read off `tree`/`subTree`:
   - **Basic Skill 5 opens every tree but Novice** (`TREE_UNLOCK_BASIC_SKILL_LEVEL`). The
-    Novice tree is always investable; anything else needs `BASIC_SKILL` maxed first. Checked
+    Novice tree is always investable; anything else needs `M_BASIC_SKILL` maxed first. Checked
     per level, not once per batch, so one request can take Basic Skill to 5 and then spend
     into another tree.
   - **5+ points anywhere in a tree open its sub-trees** (`SUB_TREE_UNLOCK_THRESHOLD`), but

@@ -25,7 +25,7 @@ class SkillListServiceTest {
   private val playerBestiaRepository = mockk<PlayerBestiaRepository>()
   private val learnedSkillRepository = mockk<LearnedSkillRepository>()
   private val masterSkillTree = MasterSkillTreeRegistry().apply {
-    load(listOf(MasterSkillTreeNode(skillId = BLESSING, identifier = "BLESSING", maxLevel = 10, tree = "NOVICE")))
+    load(listOf(MasterSkillTreeNode(skillId = BLESSING, identifier = "M_BLESSING", maxLevel = 10, tree = "NOVICE")))
   }
 
   private val sut = SkillListService(

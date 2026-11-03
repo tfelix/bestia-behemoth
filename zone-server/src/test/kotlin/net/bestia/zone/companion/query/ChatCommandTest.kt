@@ -47,7 +47,7 @@ class ChatCommandTest {
   private val sessions = mockk<ConnectionInfoService>()
   private val learnedSkills = mockk<LearnedSkillRepository>()
   private val skillTree = MasterSkillTreeRegistry().apply {
-    load(listOf(MasterSkillTreeNode(BASIC_SKILL, "BASIC_SKILL", maxLevel = 5, tree = MasterSkillTreeRegistry.NOVICE_TREE)))
+    load(listOf(MasterSkillTreeNode(BASIC_SKILL, "M_BASIC_SKILL", maxLevel = 5, tree = MasterSkillTreeRegistry.NOVICE_TREE)))
   }
 
   private val command =

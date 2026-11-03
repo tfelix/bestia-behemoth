@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="AttackResource" format=3 uid="uid://cutsh7mgkvje2"]
 
-[ext_resource type="Texture2D" uid="uid://cdo62wfsbx48p" path="res://Game/Attack/DB/7_play_dead.png" id="1_0w2fe"]
+[ext_resource type="Texture2D" uid="uid://cdo62wfsbx48p" path="res://Game/Attack/DB/7_m_play_dead.png" id="1_0w2fe"]
 [ext_resource type="Script" uid="uid://cusu6un1ro3qh" path="res://Game/Attack/attack_resource.gd" id="1_script"]
 
 [resource]
