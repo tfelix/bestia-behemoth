@@ -172,6 +172,12 @@ const _SNAP_METRES: float = 8.0          # desync this large just snaps; anythin
 # computed before the stall, which reads as the client being ahead although nothing is wrong with it.
 const _CORRECTION_SLOWDOWN: float = 0.5
 const _WARN_CORRECTION_METRES: float = 1.0  # a correction this large is logged, see _warn_correction
+# When the last path message was handled, by the server's tick and the client's two clocks, so a stop that lands
+# far from where we stand says whether the path came late or the walk ran slow - see _path_timing.
+const _SERVER_TICK_MSEC: int = 50   # zone-server tick-rate 20
+var _path_at_tick: int = -1
+var _path_at_msec: int = 0
+var _frame_time_since_path: float = 0.0
 # Shortest an unconfirmed prediction may be given, whatever the measured round trip says. A local server
 # reports well under a millisecond, and letting the grace follow it down would abandon a good prediction
 # over one hitched frame.
@@ -219,6 +225,7 @@ func _process(delta: float) -> void:
 	if delta >= _worst_frame or now_msec - _worst_frame_at_msec > _HITCH_WINDOW_MSEC:
 		_worst_frame = delta
 		_worst_frame_at_msec = now_msec
+	_frame_time_since_path += delta
 
 	# Where the last frame left the body rather than where this one starts: a network message between frames moves
 	# it too, and that is exactly the kind of jump this is looking for.
@@ -380,6 +387,28 @@ func _warn_correction(kind: String, metres: float, detail: String = "") -> void:
 			Time.get_time_string_from_system(), entity_id, kind, metres, detail, _speed, _is_moving, _is_predicted_walk,
 			not _predicted_path.is_empty(), _awaiting_arrival, _travelled, total, _nodes.size(),
 			_server_position, _logical_position, worst_ms, _HITCH_WINDOW_MSEC / 1000])
+
+
+## Notes when a path message was handled, for [method _path_timing].
+func _note_path_arrival() -> void:
+	_path_at_tick = ConnectionManager.server_tick()
+	_path_at_msec = Time.get_ticks_msec()
+	_frame_time_since_path = 0.0
+
+
+## The time since the last path message by three clocks: the server's ticks between it and the batch being handled
+## now, the client's wall clock between handling the two, and the frame deltas the walk was given in between.
+##
+## Server longer than wall: the path reached us late, or this message early - delivery. Wall and server agree but
+## the frames add up to less: the walk was not given the time.
+func _path_timing() -> String:
+	if _path_at_tick < 0:
+		return "no path message seen"
+
+	# Annotated: the analyser cannot infer through an autoload member, see _prediction_grace_msec.
+	var ticks: int = ConnectionManager.server_tick() - _path_at_tick
+	return "since the path message: server %d ticks (%d ms), client wall %d ms, frames %.0f ms" % [
+		ticks, ticks * _SERVER_TICK_MSEC, Time.get_ticks_msec() - _path_at_msec, _frame_time_since_path * 1000.0]
 
 
 ## Logs a frame in which the player's own body moved in a way a steady walk does not: faster than its pace
@@ -731,6 +760,7 @@ func on_interact() -> void:
 
 func update_position(msg: PositionComponent) -> void:
 	var new_position: Vector3 = msg.Position
+	var had_position := _has_position
 	_server_position = new_position
 	_has_position = true
 
@@ -750,9 +780,11 @@ func update_position(msg: PositionComponent) -> void:
 				_awaiting_arrival = false
 			return
 
-		# Nothing to reconcile against, just snap.
-		_warn_correction("snap while standing", _ground_distance(_logical_position, new_position),
-			"position push with no walk to reconcile against")
+		# Nothing to reconcile against, just snap. The first position is not a correction: measured from the origin
+		# it read as a snap of tens of kilometres for every entity coming into view.
+		if had_position:
+			_warn_correction("snap while standing", _ground_distance(_logical_position, new_position),
+				"position push with no walk to reconcile against")
 		_note_cause("snap while standing")
 		_logical_position = new_position
 		_error = 0.0
@@ -800,7 +832,8 @@ func update_position(msg: PositionComponent) -> void:
 		return
 
 	# e is where the server is minus where we are, so a negative one has us past it.
-	_warn_correction("catch-up", absf(e), "server node %d, we are %s it" % [idx, "ahead of" if e < 0.0 else "behind"])
+	_warn_correction("catch-up", absf(e), "server node %d, we are %s it; %s" % [
+		idx, "ahead of" if e < 0.0 else "behind", _path_timing()])
 	_note_cause("catch-up")
 	_error = e
 
@@ -813,6 +846,7 @@ func update_path(msg: PathComponentSMSG) -> void:
 		return
 
 	_server_walking = true
+	_note_path_arrival()
 
 	# A path can come in before the first position does - an entity introduced mid-walk. Anchored where it has no
 	# position yet, at the origin, its first segment was 47 km long and the next report snapped it across all of
@@ -1115,7 +1149,7 @@ func _stop_at(msg: PathComponentSMSG) -> void:
 	if msg.HasStopPosition:
 		# Before the state below is cleared, which is the context the warning is for.
 		_warn_correction("snap to stop", _ground_distance(_logical_position, msg.StopPosition),
-			"stop position differs from where we stand")
+			"stop position differs from where we stand; %s" % _path_timing())
 
 	_is_moving = false
 	_server_walking = false

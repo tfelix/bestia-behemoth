@@ -174,6 +174,12 @@ var latency_jitter_msec: float = 0.0
 
 const _LATENCY_SMOOTHING: float = 0.2
 
+
+## The server tick of the state batch being handled, or of the last one; 0 before the first. Lets a correction
+## line set the server's time between two messages beside the client's.
+func server_tick() -> int:
+	return _socket.LastServerTick
+
 ## Client-side terrain streaming: reconciles chunk manifests, decodes payloads, applies patches.
 ##
 ## Created here in code rather than added to ConnectionManager.tscn, because a scene node needs a
