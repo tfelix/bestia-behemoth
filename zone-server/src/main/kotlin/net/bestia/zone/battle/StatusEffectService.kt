@@ -5,6 +5,7 @@ import net.bestia.zone.battle.attack.ThreadLocalRandomSource
 import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.ecs.damage.DamageReactions
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
+import net.bestia.zone.battle.status.EntityAction
 import net.bestia.zone.battle.status.StatusEffectDefinition
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.status.StatusEffectPolarity
@@ -19,6 +20,7 @@ import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.status.RemovalReason
 import net.bestia.zone.battle.status.StatusEffectHookContext
 import net.bestia.zone.battle.status.StatusResistance
+import net.bestia.zone.battle.status.scripts.Lifesteal
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
@@ -36,7 +38,7 @@ class StatusEffectService(
   private val statusEffectDefinitionRegistry: StatusEffectDefinitionRegistry,
   private val statusEffectScriptRegistry: StatusEffectScriptRegistry,
   private val random: Random = ThreadLocalRandomSource,
-) : DamageReactions {
+) : DamageReactions, ActionReactions {
 
   /**
    * Returns false when the damage gate turns a harmful effect away or the target's species is immune.
@@ -145,6 +147,20 @@ class StatusEffectService(
     return active.toList().fold(amount) { landing, effect ->
       scriptOf(effect)?.onDamageTaken(hookContext(world, targetId, effect), landing) ?: landing
     }
+  }
+
+  override fun onDamageDealt(world: World, sourceId: EntityId, landed: Int) {
+    if (landed <= 0 || world.get(sourceId, StatusEffects::class)?.hasEffect(StatusEffectId.LIFESTEAL.id) != true) {
+      return
+    }
+
+    Healing.heal(world, sourceId, landed * Lifesteal.HEAL_PERCENT_OF_DAMAGE / 100)
+  }
+
+  override fun notifyActed(world: World, entityId: EntityId, action: EntityAction) {
+    val active = world.get(entityId, StatusEffects::class)?.activeEffects ?: return
+
+    active.toList().forEach { effect -> scriptOf(effect)?.onActed(hookContext(world, entityId, effect), action) }
   }
 
   /** A harmful effect is harm like a blow, so the gate that stops a blow stops it too. */

@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.damage
 
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.entity.GameMetrics
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.ecs.attack.AttackSystem
@@ -33,7 +34,8 @@ class ReceivedDamageSystem(
   override val phase = Phase.COMBAT
   override val after = setOf(AttackSystem::class)
 
-  override val reads: ComponentClassSet = DamageGate.READS
+  // A lifesteal heals the dealer, weighing its heal-received modifier.
+  override val reads: ComponentClassSet = DamageGate.READS + CombatStats::class
   override val writes: ComponentClassSet =
     setOf(
       Health::class, TakenDamage::class, Dead::class, LogoutIntent::class, Casting::class, Crafting::class,
@@ -70,6 +72,7 @@ class ReceivedDamageSystem(
       val total = hits.sumOf { it.amount }
       metrics.hits(hits.size, total.toLong())
       health.current -= total
+      hits.forEach { reactions.onDamageDealt(world, it.sourceEntityId, it.amount) }
 
       // Taking damage aborts a pending logout and interrupts a running cast or craft. Removing the
       // component is what notifies the client (via the generic component-removed message); done inline

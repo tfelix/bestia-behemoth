@@ -5,6 +5,7 @@ import net.bestia.zone.battle.ecs.skill.CastCancelService
 import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.status.ActionLock
 import net.bestia.zone.battle.status.StatusEffectHookContext
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.ecs.core.World
@@ -31,6 +32,7 @@ class Frozen(private val castCancelService: CastCancelService) : StatusEffectScr
     }
 
     castCancelService.interrupt(context.world, context.hostId)
+    context.removeEffect(StatusEffectId.BURNING)
   }
 
   override fun onDamageTaken(context: StatusEffectHookContext, amount: Int): Int {

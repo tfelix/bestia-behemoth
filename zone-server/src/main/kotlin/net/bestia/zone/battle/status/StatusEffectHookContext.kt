@@ -1,6 +1,7 @@
 package net.bestia.zone.battle.status
 
 import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
@@ -21,6 +22,19 @@ class StatusEffectHookContext(
     statusEffectService.applyEffect(
       world, targetId, effect.id, level, sourceEntityId = this.effect.sourceEntityId, durationSeconds = durationSeconds
     )
+  }
+
+  /** Puts out another effect on the host, as fire puts out ice. */
+  fun removeEffect(effect: StatusEffectId) {
+    statusEffectService.removeEffect(world, hostId, effect.id, RemovalReason.CANCELLED)
+  }
+
+  /** Hurts the host the way [StatusEffectTickContext.dealDamage] does. */
+  fun dealDamage(amount: Int) {
+    if (amount <= 0) return
+
+    val staged = world.get(hostId, IncomingDamage::class) ?: world.add(hostId, IncomingDamage())
+    staged.add(amount, effect.sourceEntityId ?: hostId)
   }
 
   fun removeSelf() {

@@ -47,7 +47,15 @@ enum class StatusEffectId(val id: Long) {
   CONFUSED(30),
   FEARED(31),
   BLIND(32),
-  STIFFENED(33);
+  STIFFENED(33),
+  POISON(34),
+  BLEEDING(35),
+  BURNING(36),
+  SICK(37),
+  WITHERED(38),
+  REGENERATING(39),
+  LIFESTEAL(40),
+  MANA_SEALED(41);
 
   companion object {
     private val byId = entries.associateBy { it.id }

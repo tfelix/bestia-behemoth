@@ -66,7 +66,7 @@ class StatusEffectDurationSystem(
     effect.sinceLastTick += deltaTime
     while (effect.sinceLastTick >= interval) {
       effect.sinceLastTick -= interval
-      due.add(DueTick(hostId, effect.level, script))
+      due.add(DueTick(hostId, effect, script))
     }
   }
 
@@ -82,11 +82,11 @@ class StatusEffectDurationSystem(
         continue
       }
 
-      tick.script.onTick(StatusEffectTickContext(world, tick.hostId, tick.level, statusEffectService))
+      tick.script.onTick(StatusEffectTickContext(world, tick.hostId, tick.effect, statusEffectService))
     }
   }
 
-  private class DueTick(val hostId: EntityId, val level: Int, val script: StatusEffectScript)
+  private class DueTick(val hostId: EntityId, val effect: ActiveStatusEffect, val script: StatusEffectScript)
 
   private class Expiry(val hostId: EntityId, val effect: ActiveStatusEffect)
 }

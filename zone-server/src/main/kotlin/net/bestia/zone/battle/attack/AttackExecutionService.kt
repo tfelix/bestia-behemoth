@@ -3,6 +3,7 @@ package net.bestia.zone.battle.attack
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.ActionGuard
+import net.bestia.zone.battle.ActionReactions
 import net.bestia.zone.battle.BattleContextFactory
 import net.bestia.zone.battle.ammo.AmmoSupply
 import net.bestia.zone.battle.ammo.Ammunition
@@ -16,6 +17,7 @@ import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.battle.status.ActionLock
 import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.battle.ecs.attack.AttackDelay
+import net.bestia.zone.battle.status.EntityAction
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.level.Level
@@ -56,6 +58,7 @@ class AttackExecutionService(
   private val basicAttacks: BasicAttackResolver,
   private val ammoSupply: AmmoSupply,
   private val actionGuard: ActionGuard = ActionGuard(),
+  private val actionReactions: ActionReactions = ActionReactions.NONE,
 ) {
 
   /** [READS] plus what spending an arrow reads, which only the item slice can name. */
@@ -143,6 +146,7 @@ class AttackExecutionService(
     }
 
     apply(world, attackerId, targetId, result, ammunition)
+    actionReactions.notifyActed(world, attackerId, EntityAction.ATTACKED)
 
     return AttackOutcome.SWUNG
   }

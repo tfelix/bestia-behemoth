@@ -57,6 +57,10 @@ interface StatusEffectScript {
   fun onRemove(context: StatusEffectHookContext, reason: RemovalReason) {
   }
 
+  /** Answers something the bearer did, like a wound that opens with every swing. */
+  fun onActed(context: StatusEffectHookContext, action: EntityAction) {
+  }
+
   /** Returns how much of [amount] the effect lets through to the bearer's health. */
   fun onDamageTaken(context: StatusEffectHookContext, amount: Int): Int {
     return amount

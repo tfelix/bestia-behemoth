@@ -81,6 +81,9 @@ class RegenerationCalculator {
     if (modifier == null) {
       return baseRegen
     }
+    if (modifier.blocked) {
+      return 0
+    }
 
     return max(0, (baseRegen + modifier.flat) * (100 + modifier.percent) / 100)
   }
