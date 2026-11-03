@@ -2,6 +2,7 @@ package net.bestia.zone.cartography.render
 
 import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.core.GenRng
+import net.bestia.worldgen.fields.Noise
 import net.bestia.worldgen.render.Viewport
 import net.bestia.worldgen.vector.Aabb
 import net.bestia.worldgen.vector.AreaFeature
@@ -477,11 +478,43 @@ object GlyphScatter {
       inputs.biome[floor(worldX / metresPerCell).toInt(), floor(worldY / metresPerCell).toInt()]
     )
 
-    val canopy = inputs.canopyCover.sampleBilinear(worldX, worldY).let { if (it.isNaN()) 0.0 else it }
+    // Vegetation is read at a warped point, so a wood's outline wanders instead of tracing the kilometre cells
+    // its rasters are stored on. Seeded from the world alone, never the level's salt: the wood has to keep the
+    // same edge at every zoom and on every tile, only its symbols are drawn again per level.
+    val warped = Noise.warp(
+      GenRng.hash(inputs.seed, WARP_SALT),
+      worldX / WARP_WAVELENGTH, worldY / WARP_WAVELENGTH,
+      WARP_AMPLITUDE / WARP_WAVELENGTH, octaves = WARP_OCTAVES
+    )
+    val coverX = warped[0] * WARP_WAVELENGTH
+    val coverY = warped[1] * WARP_WAVELENGTH
+    val coverBiome = Biome.entries.getOrNull(
+      inputs.biome[floor(coverX / metresPerCell).toInt(), floor(coverY / metresPerCell).toInt()]
+    )
+
+    // The treeline too, and in temperate hill country it is the edge that shows: cover there sits above the
+    // canopy ramp everywhere, so the wood stops where the slope crosses [TREELINE_SLOPE] - a contour of a
+    // bicubic kilometre field, which runs dead straight for a cell or two at a time.
+    val elevation = inputs.elevation
+    val coverGround = elevation.sampleBicubic(coverX, coverY)
+    val coverDzdx = (elevation.sampleBicubic(coverX + step, coverY) - elevation.sampleBicubic(coverX - step, coverY)) /
+        (2.0 * step)
+    val coverDzdy = (elevation.sampleBicubic(coverX, coverY + step) - elevation.sampleBicubic(coverX, coverY - step)) /
+        (2.0 * step)
+    // Off the edge of the field the warped read has nothing to say, and the point's own ground stands in for it.
+    val coverSlope = hypot(coverDzdx, coverDzdy).let { if (it.isNaN()) hypot(dzdx, dzdy) else it }
+
+    val fray = EDGE_NOISE * Noise.fbm(
+      GenRng.hash(inputs.seed, EDGE_SALT), worldX / EDGE_WAVELENGTH, worldY / EDGE_WAVELENGTH, EDGE_OCTAVES
+    )
+    val canopy = inputs.canopyCover.sampleBilinear(coverX, coverY).let { if (it.isNaN()) 0.0 else it } + fray
     val ice = inputs.iceThickness.sampleBilinear(worldX, worldY).let { if (it.isNaN()) 0.0 else it }
     val curvature = ridgeAt(inputs, worldX, worldY)?.get(0) ?: 0.0
 
-    return Site(ground, dzdx, dzdy, hypot(dzdx, dzdy), curvature, biome, canopy, ice)
+    return Site(
+      ground, dzdx, dzdy, hypot(dzdx, dzdy), curvature, biome,
+      coverGround.let { if (it.isNaN()) ground else it }, coverSlope, coverBiome, canopy, ice
+    )
   }
 
   /**
@@ -520,10 +553,13 @@ object GlyphScatter {
    * the trees off most of a temperate world. [isMountainous] answers "is this symbol a peak or a rounded
    * rise", which wants a low threshold because a drawn map gives a peak to any real ridge; this answers "does
    * anything grow here", which is a question about the treeline and wants a high one.
+   *
+   * Read entirely at the warped point - see [Site.coverSlope] - since this is a wood's edge as much as thin
+   * cover is, and an edge read off the raster as it stands follows the raster's cells.
    */
   private fun isAboveTreeline(site: Site): Boolean =
-    site.slope >= TREELINE_SLOPE || site.ground >= TREELINE_ELEVATION ||
-        site.biome == Biome.ALPINE || site.biome == Biome.ICE_SHEET
+    site.coverSlope >= TREELINE_SLOPE || site.coverGround >= TREELINE_ELEVATION ||
+        site.coverBiome == Biome.ALPINE || site.coverBiome == Biome.ICE_SHEET
 
   /**
    * Slides a candidate sideways onto the crest line above it, without letting it run along that line.
@@ -628,13 +664,17 @@ object GlyphScatter {
    * A canopy cut-off draws a hard edge around every wood at exactly the contour where cover crosses it, which
    * is the one thing a scattered symbol is supposed to avoid. Comparing a per-cell hash against the cover
    * share instead makes the wood thin out towards its margin, so the edge is ragged and reads as a treeline.
+   *
+   * Which symbol stands comes from [Site.coverBiome], the warped lookup, so a wood's kind and its extent change
+   * along the same wandering line. Whether anything may stand still comes from the unwarped [Site.biome]: the
+   * warp would otherwise carry a forest cell out over the lake beside it and plant trees in the water.
    */
   private fun coverKind(site: Site, salt: Long, cellX: Long, cellY: Long, openGround: Boolean): GlyphKind? {
     if (site.biome == null || site.biome == Biome.OCEAN || site.biome == Biome.LAKE) return null
 
     if (site.ice >= ICE_GLYPH_METRES) return GlyphKind.ICE
 
-    when (site.biome) {
+    when (site.coverBiome) {
       Biome.BOG, Biome.SWAMP -> return GlyphKind.MARSH
       Biome.DESERT -> return if (site.slope < DUNE_MAX_SLOPE) GlyphKind.DUNE else null
       else -> Unit
@@ -652,7 +692,7 @@ object GlyphScatter {
     val wood = canopyShare(site.canopy)
 
     if (roll <= wood) {
-      return when (site.biome) {
+      return when (site.coverBiome) {
         Biome.TAIGA, Biome.ALPINE, Biome.TUNDRA -> GlyphKind.CONIFER
         // A palm is a coastal symbol, not a tropical one. Giving it every tropical forest covered a third of
         // a warm world in one repeated umbrella, which reads as a printed pattern rather than as woodland -
@@ -664,7 +704,7 @@ object GlyphScatter {
 
     if (!openGround || roll > wood + OPEN_GROUND_SHARE) return null
 
-    return openKind(site.biome)
+    return openKind(site.coverBiome)
   }
 
   /** The mark for ground with no wood on it, or null where the biome is better left bare. */
@@ -689,6 +729,11 @@ object GlyphScatter {
    * A deliberate reversal of the reasoning that stood here before, which was that a cut-off draws a hard
    * contour around every wood. It does, and a drawn map wants one: the reference plates outline their forests
    * rather than fading them out.
+   *
+   * The contour is only as good as the field it is cut from, and cover is a kilometre raster: cut as it is, the
+   * edge follows the cells and a close-zoom wood comes out as a staircase. So [siteAt] warps where cover is
+   * read and frays it with [EDGE_NOISE] before it gets here, and the ramp itself stays narrow. The treeline,
+   * the other edge a wood has, is read at the same warped point - see [isAboveTreeline].
    */
   private fun canopyShare(canopy: Double): Double {
     if (canopy < CANOPY_FLOOR) return 0.0
@@ -739,7 +784,17 @@ object GlyphScatter {
     val slope: Double,
     /** Cross-ridge curvature: negative on a crest, near zero on a flank, positive in a trough. */
     val curvature: Double,
+    /** The biome under the point itself: what decides water, and what relief reads. */
     val biome: Biome?,
+    /**
+     * Ground height and slope at the warped point [canopy] was read at, for the treeline. Relief keeps [ground]
+     * and [slope]: a peak stands where the land actually rises.
+     */
+    val coverGround: Double,
+    val coverSlope: Double,
+    /** The biome at the warped point: what decides which cover symbol stands. */
+    val coverBiome: Biome?,
+    /** Canopy cover at the warped point, frayed - see [canopyShare]. */
     val canopy: Double,
     val ice: Double
   )
@@ -838,6 +893,27 @@ object GlyphScatter {
   private const val CANOPY_FLOOR = 0.24
   private const val CANOPY_CLOSED = 0.30
 
+  /** Wavelength of the cover warp: under the 1 km raster cell, so every cell edge gets bent within itself. */
+  private const val WARP_WAVELENGTH = 800.0
+
+  /**
+   * The warp's amplitude, which is not how far it moves a lookup: [Noise.warp] scales fbm, whose median is near
+   * a quarter, so this moves the median lookup about 170 m. 300 m moved an edge 70 m and left the staircase
+   * standing. Large enough against [WARP_WAVELENGTH] that the warp folds at a wood's edge, which draws as
+   * outlying stands and clearings, and the interior of a wood is uniform enough not to show it.
+   */
+  private const val WARP_AMPLITUDE = 700.0
+
+  /** Octaves of the warp: three, so the bent edge has a wobble on it and not one smooth swing per cell. */
+  private const val WARP_OCTAVES = 3
+
+  /** Cover added or taken at the edge. Near the ramp's width, so the edge frays without the wood dissolving. */
+  private const val EDGE_NOISE = 0.07
+
+  /** Wavelength of the fray: a few lattice cells at town-plan zoom, so it reads as clearings and tongues. */
+  private const val EDGE_WAVELENGTH = 220.0
+  private const val EDGE_OCTAVES = 2
+
   /** Share of the cells a wood does not take that open ground marks, where the biome has one. */
   private const val OPEN_GROUND_SHARE = 0.42
 
@@ -909,4 +985,6 @@ object GlyphScatter {
   private const val LEAN_SALT = 4L
   private const val COVER_SALT = 5L
   private const val VARIANT_SALT = 6L
+  private const val WARP_SALT = 7L
+  private const val EDGE_SALT = 8L
 }

@@ -226,7 +226,7 @@ class PlanStyle(
   companion object {
 
     /** Bumped whenever any pass changes what it draws. Part of the tile cache key; see [AtlasStyle.VERSION]. */
-    const val VERSION = 3
+    const val VERSION = 4
 
     /**
      * Coarsest zoom the plan style is used at. Above this the atlas draws instead.
