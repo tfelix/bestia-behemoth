@@ -19,6 +19,10 @@ interface StatusEffectScript {
 
   fun durationSeconds(level: Int): Double
 
+  /** What the bearer may not do while the effect lasts. See [ActionLock]. */
+  val actionLocks: Set<ActionLock>
+    get() = emptySet()
+
   /** What harm the effect turns away while it is active. See [HarmShield]. */
   val shield: HarmShield?
     get() = null

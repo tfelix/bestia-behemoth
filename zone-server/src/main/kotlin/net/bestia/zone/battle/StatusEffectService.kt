@@ -73,7 +73,8 @@ class StatusEffectService(
         isSyncedToClient = definition.isSyncedToClient,
         shield = script.shield,
         polarity = definition.polarity,
-        showsCountdown = script.showsCountdown
+        showsCountdown = script.showsCountdown,
+        locks = script.actionLocks
       )
       landed = effects.activeEffects.lastOrNull { it.definitionId == definition.id }
     }

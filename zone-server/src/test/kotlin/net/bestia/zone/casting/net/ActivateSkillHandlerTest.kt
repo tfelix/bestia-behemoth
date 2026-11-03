@@ -4,6 +4,7 @@ import io.mockk.mockk
 import io.mockk.every
 import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.battle.ActionGuard
 import net.bestia.zone.battle.damage.ownByPlayer
 import net.bestia.zone.battle.damage.wardPlayer
 import net.bestia.zone.message.OperationErrorSMSG
@@ -69,6 +70,7 @@ class ActivateSkillHandlerTest {
       skillExecutionService = skillExecution,
       logoutCancelService = LogoutCancelService(),
       deadActionGuard = DeadActionGuard(),
+      actionGuard = ActionGuard(),
       propPromotion = PropPromotionService(mockk(relaxed = true)),
       outMessageProcessor = messages,
     )

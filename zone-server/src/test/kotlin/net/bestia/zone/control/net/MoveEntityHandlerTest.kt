@@ -4,6 +4,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.worldgen.vector.Aabb
+import net.bestia.zone.battle.ActionGuard
 import net.bestia.zone.battle.ecs.attack.AttackCancelService
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
@@ -90,6 +91,7 @@ class MoveEntityHandlerTest {
       castCancelService = CastCancelService(),
       attackCancelService = AttackCancelService(),
       deadActionGuard = DeadActionGuard(),
+      actionGuard = ActionGuard(),
       rateLimit = rateLimit,
       journeys = JourneyService(TravelConfig(), AttackCancelService(), RegionGrid(water)),
       clientLeg = ClientLeg(walkQuery, WorldRulesConfig(tickRate = 20)),

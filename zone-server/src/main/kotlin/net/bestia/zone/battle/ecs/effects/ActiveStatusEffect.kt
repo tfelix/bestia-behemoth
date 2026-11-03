@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.battle.status.ActionLock
 import net.bestia.zone.battle.status.HarmShield
 import net.bestia.zone.battle.status.StatusEffectPolarity
 import net.bestia.zone.util.EntityId
@@ -27,7 +28,9 @@ data class ActiveStatusEffect(
   /** Denormalized like [isSyncedToClient], so the client is told a debuff without a registry lookup at sync time. */
   val polarity: StatusEffectPolarity = StatusEffectPolarity.NEUTRAL,
   /** Denormalized like [isSyncedToClient], for the same reason. */
-  val showsCountdown: Boolean = true
+  val showsCountdown: Boolean = true,
+  /** Denormalized like [shield], because every move and swing asks. */
+  val locks: Set<ActionLock> = emptySet()
 ) {
   /** Runtime only, so it is kept out of `equals`, `copy` and storage. */
   var sinceLastTick: Float = 0f

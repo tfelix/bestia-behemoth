@@ -2,6 +2,8 @@ package net.bestia.zone.casting.net
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
+import net.bestia.zone.battle.ActionGuard
+import net.bestia.zone.battle.status.ActionLock
 import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.battle.damage.DamageGate
@@ -47,6 +49,7 @@ class ActivateSkillHandler(
   private val skillExecutionService: SkillExecutionService,
   private val logoutCancelService: LogoutCancelService,
   private val deadActionGuard: DeadActionGuard,
+  private val actionGuard: ActionGuard,
   private val propPromotion: CombatTargetPromotion,
   private val outMessageProcessor: OutMessageProcessor,
 ) : TickMessageHandler<ActivateSkillCMSG> {
@@ -58,6 +61,10 @@ class ActivateSkillHandler(
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     if (deadActionGuard.refuses(world, activeEntityId, "activate a skill")) {
+      return true
+    }
+
+    if (actionGuard.refuses(world, activeEntityId, ActionLock.CAST)) {
       return true
     }
 
