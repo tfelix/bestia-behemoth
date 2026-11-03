@@ -399,6 +399,7 @@ func setup(map_source: MapSource, entities: Node) -> void:
 	source.meta_ready.connect(_on_meta_ready)
 	entities.journey_changed.connect(_on_journey_changed)
 	ConnectionManager.journey_ended.connect(_on_journey_ended)
+	entities.detection_changed.connect(_on_detection_changed)
 
 	if not source.meta.is_empty():
 		_on_meta_ready(source.meta)
@@ -589,6 +590,7 @@ func _draw() -> void:
 	_draw_draft()
 	_draw_failures()
 	_draw_guild_members()
+	_draw_detected()
 	_draw_owned_entities()
 	_draw_player()
 	_draw_pin()
@@ -1403,6 +1405,34 @@ func _draw_guild_members() -> void:
 
 		draw_circle(at, _DOT_OUTLINE_RADIUS * marker_scale, _MARKER_OUTLINE)
 		draw_circle(at, _DOT_FILL_RADIUS * marker_scale, UiStyle.GUILD)
+
+
+func _on_detection_changed(_entity_id: int) -> void:
+	queue_redraw()
+
+
+## A master is a ring, a bestia a dot: the player tells at a glance who is coming.
+func _draw_detected() -> void:
+	if entity_manager == null:
+		return
+
+	var bounds := Rect2(Vector2.ZERO, size)
+
+	for detection in entity_manager.get_detections().values():
+		for i in detection.Positions.size():
+			var found: Vector3 = detection.Positions[i]
+			_draw_detected_mark(_to_screen(Vector2(found.x, found.z) * _metres_per_voxel), detection.Masters[i], bounds)
+
+
+func _draw_detected_mark(at: Vector2, master: bool, bounds: Rect2) -> void:
+	if not bounds.has_point(at):
+		return
+
+	draw_circle(at, _DOT_OUTLINE_RADIUS * marker_scale, _MARKER_OUTLINE)
+	if master:
+		draw_arc(at, _DOT_FILL_RADIUS * marker_scale, 0.0, TAU, 12, UiStyle.DANGER, 1.5 * marker_scale)
+	else:
+		draw_circle(at, _DOT_FILL_RADIUS * marker_scale, UiStyle.DANGER)
 
 
 ## Every other guild member being played, in world metres, as its beacon last said: a few metres behind at
