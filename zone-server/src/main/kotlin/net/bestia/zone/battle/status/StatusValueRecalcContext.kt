@@ -78,11 +78,17 @@ class StatusValueRecalcContext(
   /** The element every hit on this entity is weighed against instead of its own, like a freeze's Water 1. */
   var elementOverride: Element? = null
 
+  /** The element a plain melee blow hits with instead of Normal, like a blessed weapon's Holy. */
+  var weaponElement: Element? = null
+
   /** Damage reduction points added to both hard defences, see [DefenseValues.withHardDefenseRaisedBy]. */
   var defensePercent: Int = 0
     private set
 
-  /** Percentage points on top of the resolved hit rate and attack speed. */
+  /** Percentage points on top of the resolved attack, hit rate and attack speed. */
+  var attackPercent: Int = 0
+    private set
+
   var hitPercent: Int = 0
     private set
 
@@ -160,7 +166,8 @@ class StatusValueRecalcContext(
     elementResistance = elementResistance + (base to (elementResistance[base] ?: 0) + percent)
   }
 
-  fun addPercent(defense: Int = 0, hit: Int = 0, aspd: Int = 0, healReceived: Int = 0) {
+  fun addPercent(attack: Int = 0, defense: Int = 0, hit: Int = 0, aspd: Int = 0, healReceived: Int = 0) {
+    attackPercent += attack
     defensePercent += defense
     hitPercent += hit
     aspdPercent += aspd

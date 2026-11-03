@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.status
 
+import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 
@@ -64,6 +65,11 @@ interface StatusEffectScript {
   /** Returns how much of [amount] the effect lets through to the bearer's health. */
   fun onDamageTaken(context: StatusEffectHookContext, amount: Int): Int {
     return amount
+  }
+
+  /** What the recalc calls. An effect that reads its own instance, like an endowment's element, overrides this. */
+  fun apply(world: World, entityId: EntityId, context: StatusValueRecalcContext, effect: ActiveStatusEffect) {
+    apply(world, entityId, context, effect.level, effect.sourceEntityId)
   }
 
   fun apply(

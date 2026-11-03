@@ -1,5 +1,6 @@
 package net.bestia.zone.battle
 
+import net.bestia.zone.battle.attack.AttackType
 import net.bestia.zone.battle.attack.BattleAttack
 import net.bestia.zone.battle.damage.DamageVariables
 import net.bestia.zone.battle.ecs.effects.StatusEffects
@@ -39,6 +40,7 @@ class BattleContextFactory(
     targetPosition: Vec3L?
   ): BattleContext? {
     val attacker = battleEntity(world, attackerId) ?: return null
+    val attack = endowed(world, attackerId, usedAttack)
 
     if (targetEntityId != null) {
       // A defensive, idempotent no-op for anything already promoted or never a prop; the call site that
@@ -50,7 +52,7 @@ class BattleContextFactory(
       val defender = battleEntity(world, targetEntityId) ?: return null
 
       return EntityBattleContext(
-        usedAttack = usedAttack,
+        usedAttack = attack,
         attacker = attacker,
         weapon = equippedWeapon(world, attackerId),
         damageVariables = DamageVariables(),
@@ -59,12 +61,20 @@ class BattleContextFactory(
     }
 
     return GroundBattleContext(
-      usedAttack = usedAttack,
+      usedAttack = attack,
       attacker = attacker,
       weapon = equippedWeapon(world, attackerId),
       damageVariables = DamageVariables(),
       targetPosition = targetPosition ?: return null
     )
+  }
+
+  /** A plain melee blow from an endowed weapon hits with the weapon's element; anything elemental keeps its own. */
+  private fun endowed(world: World, attackerId: EntityId, attack: BattleAttack): BattleAttack {
+    val element = world.get(attackerId, CombatStats::class)?.values?.weaponElement ?: return attack
+    if (attack.attackType != AttackType.MELEE_PHYSICAL || attack.attackElement != Element.NORMAL) return attack
+
+    return attack.copy(attackElement = element)
   }
 
   private fun battleEntity(world: World, entityId: EntityId): BattleEntity? {
