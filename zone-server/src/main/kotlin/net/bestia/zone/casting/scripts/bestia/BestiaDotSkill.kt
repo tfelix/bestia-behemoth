@@ -27,7 +27,7 @@ class BestiaDotSkill(
     val matk = caster.derivedStatusValues.matk + ctx.battle.weapon.matk
     val perTick = ((base + matk / 4) * ctx.battle.usedAttack.level * ctx.attackCoefficient).toInt()
 
-    val centre = SkillRiders.centreOf(ctx)
+    val centre = BestiaSkillMechanics.centreOf(ctx)
     ctx.world.spawnAreaEffect(
       centre = centre,
       visualId = BestiaPatchVisual.idOf(element),
@@ -40,7 +40,7 @@ class BestiaDotSkill(
         tickIntervalSeconds = TICK_INTERVAL_SECONDS,
         durationSeconds = DURATION_SECONDS,
         element = element,
-        riders = SkillRiders.areaRiders(ctx, centre)
+        mechanics = BestiaSkillMechanics.areaMechanics(ctx, centre)
       )
     )
 

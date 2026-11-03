@@ -6,7 +6,7 @@ import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.HitDamage
 import net.bestia.zone.battle.damage.Miss
-import net.bestia.zone.battle.ecs.effects.AreaRiders
+import net.bestia.zone.battle.ecs.effects.AreaMechanics
 import net.bestia.zone.battle.ecs.effects.AreaStatus
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.casting.SkillContext
@@ -21,7 +21,7 @@ import kotlin.math.sqrt
  * What the generic bestia scripts share of a skill's [SkillMechanics]: rolling its blows, and what a landed hit
  * leaves behind. The archetype scripts decide only how much a blow is worth.
  */
-object SkillRiders {
+object BestiaSkillMechanics {
 
   /** Rolls [SkillMechanics.hitsMin]..[SkillMechanics.hitsMax] blows and adds them up; a crit among them shows. */
   fun strike(mechanics: SkillMechanics, random: Random, blow: () -> Damage): Damage {
@@ -53,26 +53,26 @@ object SkillRiders {
     }
   }
 
-  /** Rolls each of the skill's statuses on [targetId], at the skill's level unless a rider names its own. */
+  /** Rolls each of the skill's statuses on [targetId], at the skill's level unless the status names its own. */
   fun inflict(ctx: SkillContext, targetId: EntityId) {
-    ctx.skill.mechanics.onHit.forEach { rider ->
-      val level = if (rider.level > 0) rider.level else ctx.skillLevel
-      val seconds = rider.durationSeconds.takeIf { it > 0.0 }
-      ctx.world.inflict(targetId, rider.status, rider.chance, seconds, level)
+    ctx.skill.mechanics.onHit.forEach { hitStatus ->
+      val level = if (hitStatus.level > 0) hitStatus.level else ctx.skillLevel
+      val seconds = hitStatus.durationSeconds.takeIf { it > 0.0 }
+      ctx.world.inflict(targetId, hitStatus.status, hitStatus.chance, seconds, level)
     }
   }
 
-  /** The skill's mechanics as an area's riders, centred on [centre]. */
-  fun areaRiders(ctx: SkillContext, centre: Vec3L): AreaRiders {
+  /** The skill's mechanics as an area's mechanics, centred on [centre]. */
+  fun areaMechanics(ctx: SkillContext, centre: Vec3L): AreaMechanics {
     val mechanics = ctx.skill.mechanics
 
-    return AreaRiders(
-      statuses = mechanics.onHit.map { rider ->
+    return AreaMechanics(
+      statuses = mechanics.onHit.map { hitStatus ->
         AreaStatus(
-          effect = StatusEffectId.valueOf(rider.status),
-          chancePercent = rider.chance,
-          durationSeconds = rider.durationSeconds.takeIf { it > 0.0 },
-          level = if (rider.level > 0) rider.level else ctx.skillLevel
+          effect = StatusEffectId.valueOf(hitStatus.status),
+          chancePercent = hitStatus.chance,
+          durationSeconds = hitStatus.durationSeconds.takeIf { it > 0.0 },
+          level = if (hitStatus.level > 0) hitStatus.level else ctx.skillLevel
         )
       },
       zoneStatus = mechanics.zoneStatus?.let { StatusEffectId.valueOf(it) },
@@ -100,7 +100,7 @@ object SkillRiders {
   }
 
   /** A storm drifts off the way it was thrown, from the caster towards where it landed. */
-  private fun AreaRiders.withDrift(ctx: SkillContext, centre: Vec3L, tilesPerSecond: Float): AreaRiders {
+  private fun AreaMechanics.withDrift(ctx: SkillContext, centre: Vec3L, tilesPerSecond: Float): AreaMechanics {
     if (tilesPerSecond <= 0f) return this
     val from = ctx.world.positionOf(ctx.casterId) ?: return this
     val (dx, dy) = unit(from, centre) ?: (1.0 to 0.0)

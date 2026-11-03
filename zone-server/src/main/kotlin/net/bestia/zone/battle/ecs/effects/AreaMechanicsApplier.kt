@@ -9,41 +9,41 @@ import net.bestia.zone.movement.ForcedMovement
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
-/** Carries out an area's [AreaRiders] on one entity inside it. */
+/** Carries out an area's [AreaMechanics] on one entity inside it. */
 @Component
-class AreaRiderEffects(
+class AreaMechanicsApplier(
   private val statusEffects: StatusEffectService,
   private val forcedMovement: ForcedMovement,
 ) {
 
   fun onFoe(world: World, victimId: EntityId, effect: AreaEffect, centre: Vec3L) {
-    val riders = effect.riders
+    val mechanics = effect.mechanics
 
-    riders.statuses.forEach { status ->
+    mechanics.statuses.forEach { status ->
       statusEffects.tryInflict(
         world, victimId, status.effect, status.level, effect.casterId, status.chancePercent, status.durationSeconds
       )
     }
-    if (!riders.forAllies) {
-      riders.zoneStatus?.let { statusEffects.applyEffect(world, victimId, it, effect.skillLevel, effect.casterId) }
+    if (!mechanics.forAllies) {
+      mechanics.zoneStatus?.let { statusEffects.applyEffect(world, victimId, it, effect.skillLevel, effect.casterId) }
     }
-    if (riders.knockbackTiles > 0) {
-      forcedMovement.awayFrom(world, victimId, centre, riders.knockbackTiles)
+    if (mechanics.knockbackTiles > 0) {
+      forcedMovement.awayFrom(world, victimId, centre, mechanics.knockbackTiles)
     }
   }
 
   fun onAlly(world: World, allyId: EntityId, effect: AreaEffect) {
-    val riders = effect.riders
-    if (!riders.forAllies) return
+    val mechanics = effect.mechanics
+    if (!mechanics.forAllies) return
 
-    riders.zoneStatus?.let { statusEffects.applyEffect(world, allyId, it, effect.skillLevel, effect.casterId) }
-    if (riders.healPerTick > 0) {
-      Healing.heal(world, allyId, riders.healPerTick)
+    mechanics.zoneStatus?.let { statusEffects.applyEffect(world, allyId, it, effect.skillLevel, effect.casterId) }
+    if (mechanics.healPerTick > 0) {
+      Healing.heal(world, allyId, mechanics.healPerTick)
     }
   }
 
   fun onAnyone(world: World, id: EntityId, effect: AreaEffect) {
-    val percent = effect.riders.manaPercentPerTick
+    val percent = effect.mechanics.manaPercentPerTick
     if (percent <= 0) return
 
     world.get(id, Mana::class)?.let { it.current += it.max * percent / 100 }

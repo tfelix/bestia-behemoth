@@ -7,7 +7,7 @@ import net.bestia.zone.battle.status.StatusEffectId
  * What an area does besides its damage, applied by [AreaEffectSystem] on every tick to whoever stands inside.
  * Statuses and knockback hit the caster's foes; a zone status and a heal reach its own side when [forAllies].
  */
-data class AreaRiders(
+data class AreaMechanics(
   val statuses: List<AreaStatus> = emptyList(),
 
   /** Refreshed on every tick, so it falls off soon after the bearer walks out. */
@@ -34,6 +34,6 @@ data class AreaRiders(
     get() = driftX != 0f || driftY != 0f
 
   companion object {
-    val NONE = AreaRiders()
+    val NONE = AreaMechanics()
   }
 }

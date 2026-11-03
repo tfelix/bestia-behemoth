@@ -40,10 +40,10 @@ class BestiaPhysicalSkill(
     battle.damageVariables.criticalChanceMod *= 1f + mechanics.critBonus / 100f
 
     val strategy = attackStrategies.getAttackStrategy(battle)
-    val damage = SkillRiders.strike(mechanics, random) { strategy.execute(battle) }
+    val damage = BestiaSkillMechanics.strike(mechanics, random) { strategy.execute(battle) }
 
     if (mechanics.leap > 0) landOn(ctx, mechanics)
-    SkillRiders.afterHit(ctx, target, damage, random)
+    BestiaSkillMechanics.afterHit(ctx, target, damage, random)
 
     return damage
   }
@@ -64,7 +64,7 @@ class BestiaPhysicalSkill(
 
     ctx.world.entitiesInCube(landing, mechanics.landingRadius * 2L)
       .filter { it != ctx.targetEntityId && ctx.world.isFoe(it) }
-      .forEach { SkillRiders.inflict(ctx, it) }
+      .forEach { BestiaSkillMechanics.inflict(ctx, it) }
   }
 
   /**

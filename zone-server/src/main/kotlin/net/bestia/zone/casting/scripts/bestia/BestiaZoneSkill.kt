@@ -10,7 +10,7 @@ import kotlin.math.roundToLong
 
 /**
  * A ward or a mire laid on the ground: no damage, only the status its area keeps refreshing on whoever stands
- * inside, like Quagmire's on foes or Wind Ward's on friends. See [SkillRiders.areaRiders].
+ * inside, like Quagmire's on foes or Wind Ward's on friends. See [BestiaSkillMechanics.areaMechanics].
  */
 @Component
 class BestiaZoneSkill(
@@ -18,7 +18,7 @@ class BestiaZoneSkill(
 ) : BasicMagicSkillStrategy(losService) {
 
   override fun execute(ctx: SkillContext): Damage? {
-    val centre = SkillRiders.centreOf(ctx)
+    val centre = BestiaSkillMechanics.centreOf(ctx)
     val seconds = ctx.skill.mechanics.areaSeconds.takeIf { it > 0f } ?: DEFAULT_SECONDS
 
     ctx.world.spawnAreaEffect(
@@ -33,7 +33,7 @@ class BestiaZoneSkill(
         tickIntervalSeconds = TICK_SECONDS,
         durationSeconds = seconds,
         element = ctx.battle.usedAttack.attackElement,
-        riders = SkillRiders.areaRiders(ctx, centre)
+        mechanics = BestiaSkillMechanics.areaMechanics(ctx, centre)
       )
     )
 

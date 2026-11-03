@@ -39,8 +39,8 @@ class BestiaMagicSkill(
     // A landed bolt always chips at least a point off, as Firebolt does.
     val perHit = (raw * elementMod - defence).toInt().coerceAtLeast(MIN_DAMAGE)
 
-    val damage = SkillRiders.strike(mechanics, random) { HitDamage(perHit) }
-    SkillRiders.afterHit(ctx, target, damage, random)
+    val damage = BestiaSkillMechanics.strike(mechanics, random) { HitDamage(perHit) }
+    BestiaSkillMechanics.afterHit(ctx, target, damage, random)
     chain(ctx, target, damage)
 
     return damage
@@ -69,7 +69,7 @@ class BestiaMagicSkill(
       amount *= CHAIN_FALLOFF
       val jump = HitDamage(amount.toInt().coerceAtLeast(MIN_DAMAGE))
       ctx.world.apply(next, jump)
-      SkillRiders.afterHit(ctx, next, jump, random)
+      BestiaSkillMechanics.afterHit(ctx, next, jump, random)
       hit.add(next)
       from = next
     }

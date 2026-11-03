@@ -26,7 +26,7 @@ class BestiaAreaSkill(
 ) : BasicMagicSkillStrategy(losService) {
 
   override fun execute(ctx: SkillContext): Damage? {
-    val centre = SkillRiders.centreOf(ctx)
+    val centre = BestiaSkillMechanics.centreOf(ctx)
     burst(ctx, centre, radiusOf(ctx), durationOf(ctx))
 
     val ignite = ctx.skill.mechanics.igniteChance
@@ -38,7 +38,7 @@ class BestiaAreaSkill(
   }
 
   override fun onChannelTick(ctx: SkillContext, tick: Int) {
-    val centre = SkillRiders.centreOf(ctx)
+    val centre = BestiaSkillMechanics.centreOf(ctx)
     val radius = radiusOf(ctx)
 
     if (ctx.skill.mechanics.pillars) {
@@ -68,7 +68,7 @@ class BestiaAreaSkill(
         tickIntervalSeconds = minOf(seconds, TICK_SECONDS),
         durationSeconds = seconds,
         element = ctx.battle.usedAttack.attackElement,
-        riders = SkillRiders.areaRiders(ctx, centre)
+        mechanics = BestiaSkillMechanics.areaMechanics(ctx, centre)
       )
     )
   }
