@@ -51,6 +51,9 @@ class ChunkEntityVisibility(
    * [EntityVisibility.reannounce].
    */
   private val pendingReannounce = ConcurrentLinkedQueue<AccountId>()
+
+  /** Hidden entities, each with the accounts that still see it. See [EntityVisibility.conceal]. */
+  private val concealed = HashMap<EntityId, Set<AccountId>>()
   private val pendingIntroductions = ConcurrentLinkedQueue<Pair<AccountId, List<EntityId>>>()
 
   override fun moved(entityId: EntityId, position: Vec3L) {
@@ -66,6 +69,7 @@ class ChunkEntityVisibility(
   }
 
   override fun forgot(entityId: EntityId) {
+    concealed.remove(entityId)
     val from = chunkOfEntity.remove(entityId) ?: return
     detach(entityId, from)
 
@@ -77,8 +81,24 @@ class ChunkEntityVisibility(
 
   override fun observersOf(entityId: EntityId): Set<AccountId> {
     val chunk = chunkOfEntity[entityId] ?: return emptySet()
+    val seeing = subscriptions.subscribersOf(chunk)
+    val allowed = concealed[entityId] ?: return seeing
 
-    return subscriptions.subscribersOf(chunk)
+    return seeing.filterTo(HashSet()) { it in allowed }
+  }
+
+  override fun conceal(entityId: EntityId, keepVisibleTo: Set<AccountId>) {
+    concealed[entityId] = keepVisibleTo
+    holdersOf(entityId).filter { it !in keepVisibleTo }.forEach { vanish(it, entityId) }
+  }
+
+  override fun reveal(entityId: EntityId) {
+    val allowed = concealed.remove(entityId) ?: return
+    holdersOf(entityId).filter { it !in allowed }.forEach { appear(it, entityId) }
+  }
+
+  private fun holdersOf(entityId: EntityId): Set<AccountId> {
+    return chunkOfEntity[entityId]?.let { subscriptions.subscribersOf(it) } ?: emptySet()
   }
 
   override fun reannounce(accountId: AccountId) {
@@ -138,6 +158,9 @@ class ChunkEntityVisibility(
   }
 
   private fun appear(accountId: AccountId, entityId: EntityId) {
+    // A hidden entity arrives for nobody, so walking into view or a fresh subscription cannot betray it.
+    if (concealed[entityId]?.contains(accountId) == false) return
+
     pendingVanish[accountId]?.remove(entityId)
     pendingAppear.getOrPut(accountId) { LinkedHashSet() }.add(entityId)
   }

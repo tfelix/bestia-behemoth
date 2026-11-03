@@ -2,6 +2,7 @@ package net.bestia.zone.world.stream
 
 import io.mockk.every
 import io.mockk.mockk
+import kotlin.test.assertTrue
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.zone.aoi.EntityVisibility
@@ -243,5 +244,38 @@ class ChunkEntityVisibilityTest {
 
     assertEquals(1, visibility.drain().size)
     assertEquals(emptyList(), visibility.drain())
+  }
+
+  @Test
+  fun `a concealed entity vanishes for everyone but whom it is kept visible to, and stays gone`() {
+    val owner = 7L
+    hold(observer, ChunkPos(0, 0, 0))
+    hold(owner, ChunkPos(0, 0, 0))
+    visibility.moved(1L, Vec3L(5, 5, 0))
+    visibility.drain()
+
+    visibility.conceal(1L, keepVisibleTo = setOf(owner))
+    val hiding = visibility.drain()
+
+    assertEquals(listOf(observer), hiding.filter { 1L in it.vanished }.map { it.accountId })
+    assertEquals(setOf(owner), visibility.observersOf(1L))
+
+    // A fresh subscription must not betray it either.
+    hold(43L, ChunkPos(0, 0, 0))
+    visibility.reannounce(43L)
+    assertTrue(visibility.drain().none { 1L in it.appeared })
+  }
+
+  @Test
+  fun `revealing brings it back for everyone who holds its chunk`() {
+    hold(observer, ChunkPos(0, 0, 0))
+    visibility.moved(1L, Vec3L(5, 5, 0))
+    visibility.conceal(1L, keepVisibleTo = emptySet())
+    visibility.drain()
+
+    visibility.reveal(1L)
+
+    assertEquals(listOf(observer), visibility.drain().filter { 1L in it.appeared }.map { it.accountId })
+    assertEquals(setOf(observer), visibility.observersOf(1L))
   }
 }
