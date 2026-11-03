@@ -116,6 +116,8 @@ ERROR_TALK_OUT_OF_RANGE,They are too far away to hear you.
 ITEM_OBTAINED_AMOUNT,%dx %s
 ITEM_OBTAINED,Obtained %s
 CHAT_ITEM_OBTAINED,You obtain %s.
+CHAT_ITEM_EQUIPPED,%s equipped.
+CHAT_ITEM_UNEQUIPPED,%s unequipped.
 DIRECTION_EAST,east
 DIRECTION_NORTHEAST,north-east
 DIRECTION_NORTH,north

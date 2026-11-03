@@ -10,6 +10,11 @@ class_name Equipment
 
 signal equipment_updated()
 
+## Gear the driven entity took off and put on since its last snapshot, as
+## [code]{item: ItemResource, upgrade_level: int}[/code] per piece. Whoever moved it: the player, or a skill
+## that strips it off them.
+signal gear_changed(taken_off: Array[Dictionary], put_on: Array[Dictionary])
+
 ## The server's Equipment.QUIVER_SIZE.
 const QUIVER_SIZE := 5
 
@@ -40,6 +45,10 @@ var _worn: Dictionary = {}
 
 ## Ammo item ids of the shown entity, in the order they are shot. Seeded and kept like [member _worn].
 var _quiver: Array[int] = []
+
+## What each owned entity wore in its last snapshot, as worn entries by unique id - kept for every entity
+## rather than just the shown one, so taking control of a bestia does not make its gear read as new.
+var _last_worn: Dictionary[int, Dictionary] = {}
 
 
 func _ready() -> void:
@@ -85,10 +94,12 @@ func _on_controlled_entity_changed(_previous_id: int, entity_id: int) -> void:
 
 func _on_entity_received(msg: EntitySMSG) -> void:
 	if msg is EquipmentComponentSMSG:
+		var worn := _to_worn_by_slot(msg.Items)
 		if msg.EntityId == _selected_entity_id:
-			_worn = _to_worn_by_slot(msg.Items)
+			_worn = worn
 			_quiver.assign(Array(msg.QuiverItemIds))
 			_render()
+		_announce_gear_change(msg.EntityId, worn)
 		equipment_updated.emit()
 	elif msg is VisualComponentSMSG and msg.Kind == VisualKind.BESTIA:
 		_bestia_id_by_entity[msg.EntityId] = int(msg.VisualId)
@@ -122,6 +133,47 @@ func _to_worn_by_slot(items: Array) -> Dictionary:
 			"crafted_in": equipped.CraftedIn,
 		}
 	return by_slot
+
+
+## Reports what [param entity_id] took off and put on between its last snapshot and [param worn].
+##
+## Compared by unique id rather than by slot - the server splits even stackable gear into its own instance to
+## wear it, so every worn piece has one. That way a resend finds nothing to say: the server answers a refused
+## equip with the unchanged set, and resyncs it whenever the entity is seen afresh. The first snapshot of an
+## entity is what it already wore, so it only seeds, the way the inventory's first bag does.
+func _announce_gear_change(entity_id: int, worn: Dictionary) -> void:
+	var now: Dictionary = {}
+	for equipped in worn.values():
+		now[equipped["unique_id"]] = equipped
+
+	var seeded := _last_worn.has(entity_id)
+	var before: Dictionary = _last_worn.get(entity_id, {})
+	_last_worn[entity_id] = now
+
+	# Only the driven entity's: that is the one the equipment window works on, so its changes are the ones the
+	# player just made.
+	if not seeded or entity_id != _selected_entity_id:
+		return
+
+	var taken_off := _gear_missing_from(before, now)
+	var put_on := _gear_missing_from(now, before)
+	if not taken_off.is_empty() or not put_on.is_empty():
+		gear_changed.emit(taken_off, put_on)
+
+
+## The pieces in [param worn] that [param other] lacks, as [signal gear_changed] carries them.
+func _gear_missing_from(worn: Dictionary, other: Dictionary) -> Array[Dictionary]:
+	var item_db = ItemDB.get_instance()
+	var missing: Array[Dictionary] = []
+	for unique_id in worn:
+		if other.has(unique_id):
+			continue
+
+		var item_resource = item_db.get_item(worn[unique_id]["item_id"])
+		if item_resource != null:
+			missing.append({"item": item_resource, "upgrade_level": worn[unique_id]["upgrade_level"]})
+
+	return missing
 
 
 ## The slot mask of the currently shown entity. A master physically has every slot (whether it may

@@ -176,15 +176,38 @@ func error_line(text: String) -> void:
 
 ## The player came into possession of something. The item is named in its own colour and answers to a hover.
 ##
-## Takes the item rather than a finished line for the reason the colour is not a parameter either: this is
-## the only line rendered as markup, and a caller free to pass markup is free to pass anything.
+## Takes the item rather than a finished line for the reason the colour is not a parameter either: the item
+## lines are the only ones rendered as markup, and a caller free to pass markup is free to pass anything.
 func obtained_line(item: ItemResource, amount: int) -> void:
 	# The count is inside the link as well as the name. At chat font size a bare item name is a small thing
 	# to have to hit with the cursor.
-	var named := tr("ITEM_OBTAINED_AMOUNT") % [amount, tr(item.name_key)]
+	_add_item_line(tr("CHAT_ITEM_OBTAINED"), item, tr("ITEM_OBTAINED_AMOUNT") % [amount, tr(item.name_key)])
+
+
+## A piece of gear went onto the entity the player drives, named and hoverable like an obtained item.
+func equipped_line(item: ItemResource, upgrade_level: int) -> void:
+	_add_item_line(tr("CHAT_ITEM_EQUIPPED"), item, _gear_name(item, upgrade_level))
+
+
+## A piece of gear came off the entity the player drives - taken off by the player, or stripped by a skill.
+func unequipped_line(item: ItemResource, upgrade_level: int) -> void:
+	_add_item_line(tr("CHAT_ITEM_UNEQUIPPED"), item, _gear_name(item, upgrade_level))
+
+
+## The name the item's details give it, upgrade and all, so the line says which of two swords it was.
+func _gear_name(item: ItemResource, upgrade_level: int) -> String:
+	var named := tr(item.name_key)
+	if upgrade_level > 0:
+		named += " +%d" % upgrade_level
+
+	return named
+
+
+## Writes [param template] with [param named] filled in as a link to [param item].
+func _add_item_line(template: String, item: ItemResource, named: String) -> void:
 	var link := "[url=%d][color=#%s]%s[/color][/url]" % [item.item_id, _ITEM_COLOR.to_html(false), named]
 
-	var line := _add_rich_chat_line(tr("CHAT_ITEM_OBTAINED") % link)
+	var line := _add_rich_chat_line(template % link)
 	line.meta_hover_started.connect(_begin_item_hover.bind(line))
 	line.meta_hover_ended.connect(func(_meta: Variant) -> void: _end_item_hover(line))
 	line.tree_exiting.connect(func() -> void: _end_item_hover(line))
@@ -224,7 +247,7 @@ func _add_chat_line(text: String, color: Color = Color.WHITE) -> void:
 	_append_line(new_line)
 
 
-## A line that carries markup, for the only kind of line this window writes itself.
+## A line that carries markup, for the item lines - the only kind this window writes itself.
 ##
 ## Deliberately not offered to callers outside, and deliberately not what [method _add_chat_line] became:
 ## every other line holds text a player or the server typed, and with BBCode enabled markup in that is markup

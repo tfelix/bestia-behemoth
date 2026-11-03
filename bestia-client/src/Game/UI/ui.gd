@@ -93,6 +93,7 @@ func _ready() -> void:
 	equipment.inventory = inventory
 	inventory.equipment_window = _equipment_win
 	equipment.equipment_updated.connect(inventory.refresh)
+	equipment.gear_changed.connect(_on_gear_changed)
 
 	# The crafting window has no toggle of its own: there is nothing to show until the server answers a
 	# crafting-skill activation with what can be made, so the message is what opens it.
@@ -418,6 +419,15 @@ func _on_items_gained(gains: Array) -> void:
 
 	for gain in gains:
 		_chat.obtained_line(gain["item"], gain["amount"])
+
+
+## Taken off before put on, so a swap reads in the order it happened.
+func _on_gear_changed(taken_off: Array[Dictionary], put_on: Array[Dictionary]) -> void:
+	for piece in taken_off:
+		_chat.unequipped_line(piece["item"], piece["upgrade_level"])
+
+	for piece in put_on:
+		_chat.equipped_line(piece["item"], piece["upgrade_level"])
 
 
 func _on_master_profile_inventory_win_toggled() -> void:
