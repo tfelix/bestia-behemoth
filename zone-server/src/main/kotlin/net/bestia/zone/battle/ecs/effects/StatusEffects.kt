@@ -3,6 +3,7 @@ package net.bestia.zone.battle.ecs.effects
 import net.bestia.zone.battle.status.ActionLock
 import net.bestia.zone.battle.status.HarmShield
 import net.bestia.zone.battle.status.StackBehavior
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusEffectPolarity
 import net.bestia.zone.sync.Dirtyable
 import net.bestia.zone.sync.SyncTargets
@@ -89,6 +90,11 @@ class StatusEffects(
   }
 
   fun hasEffect(definitionId: Long): Boolean = activeEffects.any { it.definitionId == definitionId }
+
+  /** Hidden or cloaked: nothing may pick the bearer out as a target. */
+  fun isConcealed(): Boolean {
+    return activeEffects.any { it.definitionId == StatusEffectId.HIDDEN.id || it.definitionId == StatusEffectId.CLOAKED.id }
+  }
 
   fun isLocked(lock: ActionLock): Boolean {
     return activeEffects.any { lock in it.locks }

@@ -6,6 +6,7 @@ import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
@@ -48,7 +49,7 @@ class AreaEffectSystem(
 
   /** [EntityAudience.READS] address the damage message; see [OutMessageProcessor.sendToObserversOf]. */
   override val reads: ComponentClassSet =
-    setOf(Position::class, Health::class, Dead::class) + EntityAudience.READS + DamageGate.READS +
+    setOf(Position::class, Health::class, Dead::class, StatusEffects::class) + EntityAudience.READS + DamageGate.READS +
       areaDamageReceiver.reads
   /**
    * Includes what `PropPromotionService` adds to a *victim*, not just what this touches on the effect.
@@ -112,6 +113,8 @@ class AreaEffectSystem(
         if (victimId == effectEntityId) continue
         if (!world.isAlive(victimId)) continue
         if (world.has(victimId, Dead::class)) continue
+        // Dug in: an area passes over it. A cloak does not shield, and the blow reveals the wearer.
+        if (world.get(victimId, StatusEffects::class)?.hasEffect(StatusEffectId.HIDDEN.id) == true) continue
         // Items on the ground have no health, show no number, and weigh the element.
         if (areaDamageReceiver.receive(world, victimId, effect.damagePerTick, effect.element)) continue
 

@@ -455,3 +455,18 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: Controlled
+
+  # Concealment: other players hear nothing of the bearer while it lasts, see EntityVisibility.conceal.
+  - id: 56
+    identifier: HIDDEN
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Hidden
+
+  - id: 57
+    identifier: CLOAKED
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Cloaked

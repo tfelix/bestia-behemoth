@@ -99,6 +99,11 @@ class AttackExecutionService(
       return AttackOutcome.IMPOSSIBLE
     }
 
+    // A client that names a hidden target saw it through no window the server gave it.
+    if (world.get(targetId, StatusEffects::class)?.isConcealed() == true) {
+      return AttackOutcome.IMPOSSIBLE
+    }
+
     // Not ready rather than refused: a standing attack order resumes once the stun wears off.
     if (actionGuard.refuses(world, attackerId, ActionLock.ATTACK)) {
       return AttackOutcome.NOT_READY

@@ -185,11 +185,14 @@ class PerceptionSystem(
   }
 
   /**
-   * Someone playing dead is not seen and not remembered - dropping them from `recentAttacker` too is
+   * Someone playing dead or hiding is not seen and not remembered - dropping them from `recentAttacker` too is
    * what makes the skill an escape rather than a pause, since a grudge outlives being out of sight.
    */
-  private fun isFeigningDeath(world: World, entityId: Long): Boolean =
-    world.get(entityId, StatusEffects::class)?.hasEffect(StatusEffectId.PLAY_DEAD.id) == true
+  private fun isFeigningDeath(world: World, entityId: Long): Boolean {
+    val effects = world.get(entityId, StatusEffects::class) ?: return false
+
+    return effects.hasEffect(StatusEffectId.PLAY_DEAD.id) || effects.isConcealed()
+  }
 
   private fun healthPct(world: World, entityId: Long): Int {
     val health = world.get(entityId, Health::class) ?: return 100

@@ -3,6 +3,7 @@ package net.bestia.zone.casting
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.ActionGuard
 import net.bestia.zone.battle.ActionReactions
+import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.ActionLock
 import net.bestia.zone.battle.status.EntityAction
 import net.bestia.zone.ecs.core.World
@@ -98,6 +99,13 @@ class SkillExecutionService(
       skillStrategyFactory.getSkillStrategy(skill)
     } catch (e: Exception) {
       LOG.warn(e) { "No usable strategy for skill $skillId (script=${skill.script}), ignoring activation" }
+      return
+    }
+
+    if (targetEntityId != null && targetEntityId != casterId &&
+      world.get(targetEntityId, StatusEffects::class)?.isConcealed() == true
+    ) {
+      LOG.debug { "Skill $skillId by $casterId fizzled: its target is hidden" }
       return
     }
 
