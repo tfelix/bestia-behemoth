@@ -1,23 +1,29 @@
 package net.bestia.zone.control.net
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import java.util.Random
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.ActionGuard
+import net.bestia.zone.battle.attack.ThreadLocalRandomSource
 import net.bestia.zone.battle.ecs.attack.AttackCancelService
+import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.skill.CastCancelService
 import net.bestia.zone.battle.status.ActionLock
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.control.ClientLeg
 import net.bestia.zone.control.MoveRequestRateLimit
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.entity.ecs.DeadActionGuard
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.logout.ecs.LogoutCancelService
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder
 import net.bestia.zone.movement.ecs.Path
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.Teleporting
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.travel.JourneyOrder
@@ -44,16 +50,17 @@ class MoveEntityHandler(
   private val journeys: JourneyService,
   private val clientLeg: ClientLeg,
   private val outMessageProcessor: OutMessageProcessor,
+  private val random: Random = ThreadLocalRandomSource,
 ) : TickMessageHandler<MoveEntityCMSG> {
   override val wire = decoder(MessageCase.MOVE_ENTITY) { accountId, envelope ->
     MoveEntityCMSG.fromBnet(accountId, envelope.moveEntity)
   }
 
-  override fun handle(world: World, msg: MoveEntityCMSG): Boolean {
-    val id = msg.entityId
+  override fun handle(world: World, request: MoveEntityCMSG): Boolean {
+    val id = request.entityId
 
-    if (!isOwnedBy(msg.playerId, id)) {
-      LOG.warn { "Account ${msg.playerId} tried to move entity $id, which it does not own" }
+    if (!isOwnedBy(request.playerId, id)) {
+      LOG.warn { "Account ${request.playerId} tried to move entity $id, which it does not own" }
       return true
     }
 
@@ -65,6 +72,8 @@ class MoveEntityHandler(
 
     // Before the cancels too: a stunned body keeps the cast its stun already broke off, and no more.
     if (actionGuard.refuses(world, id, ActionLock.MOVE)) return true
+
+    val msg = if (isConfused(world, id)) strayed(world, request) else request
 
     cancelWhatMovingInterrupts(world, msg.playerId, id)
 
@@ -103,6 +112,24 @@ class MoveEntityHandler(
     world.get(id, Animation::class)?.endEmote()
   }
 
+  private fun isConfused(world: World, id: EntityId): Boolean {
+    return world.get(id, StatusEffects::class)?.hasEffect(StatusEffectId.CONFUSED.id) ?: false
+  }
+
+  /** A confused body sets off for a random tile nearby, whatever was asked, and the client's own steps are void. */
+  private fun strayed(world: World, request: MoveEntityCMSG): MoveEntityCMSG {
+    if (request.waypoints.isEmpty()) return request
+    val from = world.get(request.entityId, Position::class)?.toVec3L() ?: return request
+
+    val stray = Vec3L(
+      from.x + random.nextInt(-CONFUSED_STRAY_TILES, CONFUSED_STRAY_TILES + 1),
+      from.y + random.nextInt(-CONFUSED_STRAY_TILES, CONFUSED_STRAY_TILES + 1),
+      from.z
+    )
+
+    return request.copy(waypoints = listOf(stray), append = false, firstLeg = emptyList(), routeKey = null)
+  }
+
   /** @return whether it set off */
   private fun startJourney(world: World, msg: MoveEntityCMSG): Boolean {
     val name = msg.name.trim().take(MAX_NAME_LENGTH).ifEmpty { null }
@@ -120,10 +147,12 @@ class MoveEntityHandler(
     return connectionInfoService.getOwnedEntitiesByMaster(accountId, masterId).any { it.entityId == id }
   }
 
-  private companion object {
+  companion object {
     private val LOG = KotlinLogging.logger { }
 
     /** Matches what a saved route may be called. */
-    const val MAX_NAME_LENGTH = 40
+    private const val MAX_NAME_LENGTH = 40
+
+    const val CONFUSED_STRAY_TILES = 4
   }
 }
