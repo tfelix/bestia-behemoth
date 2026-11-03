@@ -58,6 +58,16 @@ class EquipmentServiceTest {
   }
 
   @Test
+  fun `a broken item is refused until it is repaired`() {
+    val broken = held(boots).apply { maxDurability = 100 }
+
+    assertEquals(
+      EquipmentService.Denial.BROKEN,
+      check(boots, EquipmentSlot.FOOTGEAR, inventory = inventoryOf(broken))
+    )
+  }
+
+  @Test
   fun `a slot outside the wearer's mask is refused`() {
     // A species with armor and garment only, no footgear.
     val equipment = Equipment(EquipmentSlots.maskOf(EquipmentSlot.ARMOR, EquipmentSlot.GARMENT))

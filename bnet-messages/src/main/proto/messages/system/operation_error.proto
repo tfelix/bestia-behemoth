@@ -297,6 +297,8 @@ enum OpError {
   EQUIP_HANDS_FULL = 108;
   // A shot with no ammo in the quiver that fits the weapon. The attack stops until the quiver is filled.
   ATTACK_OUT_OF_AMMO = 109;
+  // Gear worn down to no durability. The player has it repaired before wearing it again.
+  EQUIP_ITEM_BROKEN = 110;
 }
 
 message OperationError {

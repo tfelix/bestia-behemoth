@@ -59,6 +59,7 @@ data class Inventory(
     val playerItemId: Long = if (uniqueId != 0L) uniqueId else PlayerItemIds.next()
 
     val isStackable: Boolean get() = stackable && uniqueId == 0L
+    val isBroken: Boolean get() = maxDurability > 0 && durability <= 0
     val totalWeight get() = amount * weight
   }
 

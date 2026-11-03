@@ -17,5 +17,6 @@ fun EquipmentService.Denial.toOpError(): OperationErrorProto.OpError {
     EquipmentService.Denial.LEVEL_TOO_LOW -> OperationErrorProto.OpError.EQUIP_LEVEL_TOO_LOW
     EquipmentService.Denial.NOVICE_ONLY -> OperationErrorProto.OpError.EQUIP_NOVICE_ONLY
     EquipmentService.Denial.HANDS_FULL -> OperationErrorProto.OpError.EQUIP_HANDS_FULL
+    EquipmentService.Denial.BROKEN -> OperationErrorProto.OpError.EQUIP_ITEM_BROKEN
   }
 }
