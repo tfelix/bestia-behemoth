@@ -51,6 +51,11 @@ class Bestia(
   @Column(nullable = false)
   var attackPower: Float = 1f,
 
+  /** `StatusEffectId` names this species is immune to, comma-separated. See `Nature.statusImmunities`. */
+  @Column(name = "status_immunities", nullable = false)
+  @ColumnDefault("''")
+  var statusImmunities: String = "",
+
   /**
    * The species' primary attributes - the mob counterpart of a master's six, seeded into
    * [net.bestia.zone.battle.status.CombatValues.base] by `BestiaEntitySpawner` and from there into every
