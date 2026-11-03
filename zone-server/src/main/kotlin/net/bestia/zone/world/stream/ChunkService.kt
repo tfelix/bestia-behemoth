@@ -1072,10 +1072,11 @@ class ChunkService(
 
       if (!buildDerivedOnWorker(chunk)) {
         derived.finishBuild(chunk, derived.buildTile(chunk, loaded.store::merged))
-
-        // Only the builds done here cost the tick anything; the rest are on their way to a worker.
-        if (System.nanoTime() - started >= maxNanos) break
       }
+
+      // Checked after a handoff too: without workers (tests) the "worker" build ran right here on the tick.
+      // With them a handoff costs next to nothing, so only the builds done here move the clock.
+      if (System.nanoTime() - started >= maxNanos) break
     }
 
     return begun
