@@ -55,7 +55,7 @@ func spawn(
 	if label == null:
 		return
 	var tag := DamageTag.new(label)
-	var side := _side_away_from(attacker_at, at, camera, msg.EntityId)
+	var side := _side_away_from(attacker_at, at, camera, msg.EntityId) if DamageTag.is_hit(msg.Type) else 0.0
 	tag.start(msg, at, side, max_hp, involvement, camera)
 	_push_up_older(tag)
 	_live.append(tag)
