@@ -43,7 +43,6 @@ STATUS_EFFECT_29,Slowed: you move slower.
 STATUS_EFFECT_30,Confused: you walk the wrong way.
 STATUS_EFFECT_31,Feared: you run away and cannot attack or cast. Potions still work.
 STATUS_EFFECT_32,Blind: you see little and hit less often.
-STATUS_EFFECT_33,Stiffened: you move and attack slower.
 STATUS_EFFECT_34,Poisoned: you lose health over time and do not regenerate. It never takes your last hit point.
 STATUS_EFFECT_35,"Bleeding: walking, attacking and casting cost health. Stand still or heal to stop it."
 STATUS_EFFECT_36,Burning: you take fire damage every second. Water or ice put it out.
@@ -54,7 +53,7 @@ STATUS_EFFECT_40,Lifesteal: your blows heal you by half the damage they deal.
 STATUS_EFFECT_41,Mana sealed: your mana does not come back on its own.
 STATUS_EFFECT_42,Enraged: you hit harder and take less damage. Fatigue follows.
 STATUS_EFFECT_43,Fatigued: you are weaker for a moment.
-STATUS_EFFECT_44,"Berserk: much stronger and quicker, but with no defence."
+STATUS_EFFECT_44,"Berserk: much stronger and quicker, but your armor guards nothing."
 STATUS_EFFECT_45,Tailwind: you move and attack quicker.
 STATUS_EFFECT_46,Endowed weapon: your plain blows hit with an element.
 STATUS_EFFECT_47,Elemental coat: hits on you count against another element.
@@ -68,7 +67,8 @@ STATUS_EFFECT_54,Corrosive: weapons that hit you wear down.
 STATUS_EFFECT_55,Controlled: fighting for another side.
 STATUS_EFFECT_56,Hidden: other players cannot see you. You cannot move. Acting reveals you.
 STATUS_EFFECT_57,Cloaked: other players cannot see you. You move slower. Acting or being hit reveals you.
-STATUS_EFFECT_59,Exposed: your hide guards less.
+STATUS_EFFECT_59,Armor stripped: you cannot put armor on until this ends.
+STATUS_EFFECT_60,Disarmed: you cannot take up a weapon until this ends.
 ERROR_CHAT_WHISPER_TARGET_UNAVAILABLE,No player named %s is online.
 DEATH_TITLE,You have died.
 DEATH_TEXT,"Your body lies where it fell. Return to your save point, or stay a while longer."
