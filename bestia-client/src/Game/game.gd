@@ -33,6 +33,11 @@ func _ready() -> void:
 	_pilot.name = "MovementPilot"
 	add_child(_pilot)
 
+	# Damage numbers outlive the entity they were shown over, so they belong to the world, not to it.
+	var damage_tags := DamageTagLayer.new()
+	damage_tags.name = "DamageTags"
+	add_child(damage_tags)
+
 	_terrain = TerrainRendererScript.new()
 	_terrain.name = "Terrain"
 	add_child(_terrain)
