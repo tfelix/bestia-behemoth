@@ -3,16 +3,32 @@ class_name DamageTag
 ## One damage number over its life: what it reads, how it arcs and how it fades. [DamageTagLayer] owns the
 ## label and advances every live tag once a frame.
 
-## Fade timings in seconds. Together they are the tag's whole life.
-const _FADE_IN := 0.1
-const _HOLD := 1.7
-const _FADE_OUT := 0.4
+## Lives in seconds. A crit stays longer to be read; a miss is gone before it competes with anything.
+const _LIFE := 0.9
+const _CRIT_LIFE := 1.3
+const _HEAL_LIFE := 1.1
+const _MISS_LIFE := 0.6
+## The share of its life after which a tag fades.
+const _FADE_FROM := 0.7
+## What is left of the size when the fade ends.
+const _FADED_SCALE := 0.8
 
-## The label starts and ends at this fraction of its peak size, so a tag pops rather than blinks.
-const _SMALL := 0.6
+## A hit lands oversized and snaps to its size, undershooting a little on the way. Shown at full alpha
+## from the first frame: fading in is what made the old tags feel soft.
+const _POP_TIME := 0.12
+const _POP := 1.6
+const _CRIT_POP := 2.4
 
-## A crit has to land visibly harder than an ordinary hit, without earning its own animation.
+## A crit has to land visibly harder than an ordinary hit.
 const _CRIT_SCALE := 1.35
+## A crit starts white and turns to its colour, and jolts sideways for a few frames.
+const _CRIT_FLASH_TIME := 0.12
+const _CRIT_SHAKE_TIME := 0.15
+const _CRIT_SHAKE := 0.006
+const _CRIT_SHAKE_SPEED := 120.0
+
+## The outline is the fill colour, nearly black: a hint of the hue keeps a crit warm at its edge.
+const _OUTLINE_DARKEN := 0.88
 
 ## The flight, in screen heights: offsets scale with the distance to the camera, so the motion reads the
 ## same at every zoom, like the fixed-size label it moves. A short burst away from the hit, then a slow
@@ -38,7 +54,10 @@ var label: Label3D
 var _type := DamageType.NORMAL
 var _start := Vector3.ZERO
 var _age := 0.0
+var _life := _LIFE
 var _peak := 1.0
+var _pop := _POP
+var _colour := Color.WHITE
 
 
 func _init(tag_label: Label3D) -> void:
@@ -48,8 +67,12 @@ func _init(tag_label: Label3D) -> void:
 func start(msg: DamageEntitySMSG, at: Vector3, camera: Camera3D) -> void:
 	_type = msg.Type
 	_start = at
+	_age = 0.0
+	_life = _life_of(_type)
 	_peak = _CRIT_SCALE if _type == DamageType.CRIT else 1.0
-	label.modulate = _text_colour()
+	_pop = _pop_of(_type)
+	_colour = _text_colour()
+	_paint(Color.WHITE if _type == DamageType.CRIT else _colour)
 	label.text = _label_text(msg)
 	label.show()
 	advance(0.0, camera)
@@ -58,31 +81,42 @@ func start(msg: DamageEntitySMSG, at: Vector3, camera: Camera3D) -> void:
 ## False once the tag has run its course.
 func advance(delta: float, camera: Camera3D) -> bool:
 	_age += delta
-	if _age >= _FADE_IN + _HOLD + _FADE_OUT:
+	if _age >= _life:
 		return false
 
-	var visibility := _visibility_at(_age)
+	var fade := clampf((_age / _life - _FADE_FROM) / (1.0 - _FADE_FROM), 0.0, 1.0)
 	label.global_position = _start + _flight_offset_at(_age, camera)
-	label.scale = Vector3.ONE * _peak * lerpf(_SMALL, 1.0, visibility)
+	label.scale = Vector3.ONE * _peak * _pop_scale_at(_age) * lerpf(1.0, _FADED_SCALE, fade)
 	# Fades through transparency, not modulate: a Label3D rebuilds its mesh on every modulate change.
-	label.transparency = 1.0 - visibility
+	label.transparency = fade * fade
+	if _type == DamageType.CRIT and _age < _CRIT_FLASH_TIME + delta:
+		_paint(Color.WHITE.lerp(_colour, minf(_age / _CRIT_FLASH_TIME, 1.0)))
 	return true
 
 
-## 0 to 1 over the fade in, 1 while holding, back to 0 over the fade out.
-func _visibility_at(age: float) -> float:
-	if age < _FADE_IN:
-		return age / _FADE_IN
-	var fading_for := age - _FADE_IN - _HOLD
-	return 1.0 - clampf(fading_for / _FADE_OUT, 0.0, 1.0)
+func _pop_scale_at(age: float) -> float:
+	if age >= _POP_TIME:
+		return 1.0
+	return Tween.interpolate_value(_pop, 1.0 - _pop, age, _POP_TIME, Tween.TRANS_BACK, Tween.EASE_OUT)
+
+
+func _paint(colour: Color) -> void:
+	label.modulate = colour
+	label.outline_modulate = colour.darkened(_OUTLINE_DARKEN)
 
 
 func _flight_offset_at(age: float, camera: Camera3D) -> Vector3:
 	var burst := 1.0 - exp(-age / _BURST_TIME)
-	var sideways := _SIDE * _BURST_SIDE * burst
+	var sideways := _SIDE * _BURST_SIDE * burst + _shake_at(age)
 	var upwards := _BURST_RISE * burst + _DRIFT * age
 	var screen := camera.global_basis.x * sideways + camera.global_basis.y * upwards
 	return screen * _screen_height_at(camera, _start)
+
+
+func _shake_at(age: float) -> float:
+	if _type != DamageType.CRIT or age >= _CRIT_SHAKE_TIME:
+		return 0.0
+	return sin(age * _CRIT_SHAKE_SPEED) * _CRIT_SHAKE * (1.0 - age / _CRIT_SHAKE_TIME)
 
 
 ## How many world units one screen height spans at [param point].
@@ -90,6 +124,29 @@ static func _screen_height_at(camera: Camera3D, point: Vector3) -> float:
 	if camera.projection == Camera3D.PROJECTION_ORTHOGONAL:
 		return camera.size
 	return 2.0 * camera.global_position.distance_to(point) * tan(deg_to_rad(camera.fov) * 0.5)
+
+
+static func _life_of(type: int) -> float:
+	match type:
+		DamageType.CRIT:
+			return _CRIT_LIFE
+		DamageType.HEAL:
+			return _HEAL_LIFE
+		DamageType.MISS, DamageType.DODGE:
+			return _MISS_LIFE
+		_:
+			return _LIFE
+
+
+## Nothing landed on a miss, so nothing pops.
+static func _pop_of(type: int) -> float:
+	match type:
+		DamageType.CRIT:
+			return _CRIT_POP
+		DamageType.MISS, DamageType.DODGE:
+			return 1.0
+		_:
+			return _POP
 
 
 ## The outcome words are hardcoded rather than translated for the reason [code]weather.gd[/code]
@@ -109,7 +166,7 @@ func _label_text(msg: DamageEntitySMSG) -> String:
 			return str(msg.Damage)
 
 
-## A tag is legible for barely two seconds while it arcs away, so the outcome has to carry in the
+## A tag is legible for barely a second while it flies off, so the outcome has to carry in the
 ## colour before the number is read at all.
 func _text_colour() -> Color:
 	match _type:
