@@ -36,4 +36,4 @@ License: SIL Open Font License 1.1 (Theme/LilitaOne-OFL.txt)
 Title: Open Sans SemiBold (UI font)
 Author: Steve Matteson, The Open Sans Project Authors
 Source: https://github.com/google/fonts/tree/main/ofl/opensans
-License: SIL Open Font License 1.1
+License: SIL Open Font License 1.1 (Theme/OpenSans-OFL.txt)
