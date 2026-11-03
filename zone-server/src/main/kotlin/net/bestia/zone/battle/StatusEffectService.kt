@@ -2,13 +2,18 @@ package net.bestia.zone.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.damage.DamageGate
+import net.bestia.zone.battle.ecs.damage.DamageReactions
+import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.status.StatusEffectDefinition
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.status.StatusEffectPolarity
 import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
+import net.bestia.zone.battle.status.RemovalReason
+import net.bestia.zone.battle.status.StatusEffectHookContext
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
@@ -23,16 +28,20 @@ import net.bestia.zone.ecs.core.update
 @Service
 class StatusEffectService(
   private val statusEffectDefinitionRegistry: StatusEffectDefinitionRegistry,
-  private val statusEffectScriptRegistry: StatusEffectScriptRegistry
-) {
+  private val statusEffectScriptRegistry: StatusEffectScriptRegistry,
+) : DamageReactions {
 
-  /** Returns false when the damage gate turns a harmful effect away. */
+  /**
+   * Returns false when the damage gate turns a harmful effect away.
+   * [durationSeconds] replaces the script's own duration, for a skill that says how long its effect lasts.
+   */
   fun applyEffect(
     world: World,
     targetId: EntityId,
     definitionId: Long,
     level: Int,
-    sourceEntityId: EntityId? = null
+    sourceEntityId: EntityId? = null,
+    durationSeconds: Double? = null
   ): Boolean {
     val definition = statusEffectDefinitionRegistry.getOrThrow(definitionId)
     if (isTurnedAway(world, definition, sourceEntityId, targetId)) {
@@ -41,28 +50,62 @@ class StatusEffectService(
     }
 
     val script = statusEffectScriptRegistry.getOrThrow(definition.script)
-    val durationSeconds = script.durationSeconds(level)
 
     var change = StatusEffects.Change.UNCHANGED
+    var landed: ActiveStatusEffect? = null
     world.update(targetId, default = { StatusEffects() }) { effects ->
       change = effects.applyEffect(
         definitionId = definition.id,
         stackBehavior = script.stackBehavior,
         level = level,
         sourceEntityId = sourceEntityId,
-        durationSeconds = durationSeconds,
+        durationSeconds = durationSeconds ?: script.durationSeconds(level),
         isSyncedToClient = definition.isSyncedToClient,
         shield = script.shield,
         polarity = definition.polarity,
         showsCountdown = script.showsCountdown
       )
+      landed = effects.activeEffects.lastOrNull { it.definitionId == definition.id }
     }
 
     if (change == StatusEffects.Change.CHANGED) {
       world.add(targetId, IsStatusValueDirty)
+      landed?.let { script.onApply(hookContext(world, targetId, it)) }
     }
 
     return true
+  }
+
+  /** Drops [definitionId] from [targetId] and tells its script why. Returns whether it was there. */
+  fun removeEffect(world: World, targetId: EntityId, definitionId: Long, reason: RemovalReason): Boolean {
+    val effects = world.get(targetId, StatusEffects::class) ?: return false
+    val removed = effects.activeEffects.filter { it.definitionId == definitionId }
+    if (removed.isEmpty() || !effects.removeEffect(definitionId)) {
+      return false
+    }
+
+    world.add(targetId, IsStatusValueDirty)
+    removed.forEach { notifyRemoved(world, targetId, it, reason) }
+
+    return true
+  }
+
+  /** Runs the script's [StatusEffectScript.onRemove] for an effect already taken off its bearer. */
+  fun notifyRemoved(world: World, hostId: EntityId, effect: ActiveStatusEffect, reason: RemovalReason) {
+    if (!world.isAlive(hostId)) {
+      return
+    }
+
+    scriptOf(effect)?.onRemove(hookContext(world, hostId, effect), reason)
+  }
+
+  override fun onDamageTaken(world: World, targetId: EntityId, amount: Int): Int {
+    val active = world.get(targetId, StatusEffects::class)?.activeEffects ?: return amount
+
+    // Copied, because a freeze removes itself from the list it is being asked from.
+    return active.toList().fold(amount) { landing, effect ->
+      scriptOf(effect)?.onDamageTaken(hookContext(world, targetId, effect), landing) ?: landing
+    }
   }
 
   /** A harmful effect is harm like a blow, so the gate that stops a blow stops it too. */
@@ -76,6 +119,16 @@ class StatusEffectService(
         DamageGate.verdict(world, sourceEntityId, targetId) != DamageGate.Verdict.ADMITTED
   }
 
+  private fun scriptOf(effect: ActiveStatusEffect): StatusEffectScript? {
+    val definition = statusEffectDefinitionRegistry.findById(effect.definitionId) ?: return null
+
+    return statusEffectScriptRegistry.get(definition.script)
+  }
+
+  private fun hookContext(world: World, hostId: EntityId, effect: ActiveStatusEffect): StatusEffectHookContext {
+    return StatusEffectHookContext(world, hostId, effect, this)
+  }
+
   /**
    * Preferred overload for server-side call sites: the effect is named, not a magic id, and
    * [net.bestia.zone.battle.status.StatusEffectCatalogBootValidator] guarantees the constant
@@ -87,8 +140,9 @@ class StatusEffectService(
     targetId: EntityId,
     effect: StatusEffectId,
     level: Int,
-    sourceEntityId: EntityId? = null
-  ) = applyEffect(world, targetId, effect.id, level, sourceEntityId)
+    sourceEntityId: EntityId? = null,
+    durationSeconds: Double? = null
+  ) = applyEffect(world, targetId, effect.id, level, sourceEntityId, durationSeconds)
 
   private companion object {
     val LOG = KotlinLogging.logger { }

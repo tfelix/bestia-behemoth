@@ -46,6 +46,18 @@ interface StatusEffectScript {
     // Most effects only change values during recalc.
   }
 
+  /** Runs once when the effect lands, not on a refresh. [apply] runs on every recalc instead. */
+  fun onApply(context: StatusEffectHookContext) {
+  }
+
+  fun onRemove(context: StatusEffectHookContext, reason: RemovalReason) {
+  }
+
+  /** Returns how much of [amount] the effect lets through to the bearer's health. */
+  fun onDamageTaken(context: StatusEffectHookContext, amount: Int): Int {
+    return amount
+  }
+
   fun apply(
     world: World,
     entityId: EntityId,

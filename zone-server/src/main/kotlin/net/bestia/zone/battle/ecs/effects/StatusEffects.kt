@@ -119,10 +119,10 @@ class StatusEffects(
     return removed
   }
 
-  /** Ticks down every active instance by [deltaTime] and removes any that expired. Returns whether anything expired. */
-  fun tickDown(deltaTime: Float): Boolean {
+  /** Ticks down every active instance by [deltaTime], removes any that expired and returns them. */
+  fun tickDown(deltaTime: Float): List<ActiveStatusEffect> {
     val iterator = activeEffects.iterator()
-    var expired = false
+    val expired = mutableListOf<ActiveStatusEffect>()
 
     while (iterator.hasNext()) {
       val effect = iterator.next()
@@ -130,7 +130,7 @@ class StatusEffects(
       if (effect.remainingSeconds <= 0f) {
         iterator.remove()
         markDirty()
-        expired = true
+        expired.add(effect)
       }
     }
 
