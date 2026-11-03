@@ -9,6 +9,7 @@ import net.bestia.zone.battle.ammo.AmmoSupply
 import net.bestia.zone.battle.ammo.Ammunition
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.battle.GearWear
 import net.bestia.zone.battle.Healing
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.damage.DamageGate
@@ -18,6 +19,8 @@ import net.bestia.zone.battle.status.ActionLock
 import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.battle.ecs.attack.AttackDelay
 import net.bestia.zone.battle.status.EntityAction
+import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.battle.status.scripts.Corrosive
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.level.Level
@@ -59,6 +62,7 @@ class AttackExecutionService(
   private val ammoSupply: AmmoSupply,
   private val actionGuard: ActionGuard = ActionGuard(),
   private val actionReactions: ActionReactions = ActionReactions.NONE,
+  private val gearWear: GearWear = GearWear.NONE,
 ) {
 
   /** [READS] plus what spending an arrow reads, which only the item slice can name. */
@@ -147,6 +151,7 @@ class AttackExecutionService(
 
     apply(world, attackerId, targetId, result, ammunition)
     actionReactions.notifyActed(world, attackerId, EntityAction.ATTACKED)
+    corrode(world, attackerId, targetId, attack, result)
 
     return AttackOutcome.SWUNG
   }
@@ -157,6 +162,14 @@ class AttackExecutionService(
     }
 
     return AttackOutcome.OUT_OF_AMMO
+  }
+
+  /** A melee blow that lands on a corrosive hide costs the weapon some durability. */
+  private fun corrode(world: World, attackerId: EntityId, targetId: EntityId, attack: BattleAttack, result: DamageResult) {
+    if (result is Miss || attack.attackType != AttackType.MELEE_PHYSICAL) return
+    if (world.get(targetId, StatusEffects::class)?.hasEffect(StatusEffectId.CORROSIVE.id) != true) return
+
+    gearWear.wearWeapon(world, attackerId, Corrosive.WEAR_PER_HIT)
   }
 
   private fun apply(

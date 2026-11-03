@@ -1,5 +1,7 @@
 package net.bestia.zone.ai.perception
 
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.identity.ecs.Master
@@ -14,12 +16,23 @@ import net.bestia.zone.util.EntityId
  */
 object Hostility {
 
-  val READS: ComponentClassSet = setOf(Master::class, OwnedBestia::class)
+  val READS: ComponentClassSet = setOf(Master::class, OwnedBestia::class, StatusEffects::class)
 
   fun isHostile(world: World, self: EntityId, candidate: EntityId): Boolean {
+    // A controlled creature has changed sides: it hunts the wild it came from and spares its controller's side.
+    if (isControlled(world, self)) return isWild(world, candidate) && !isControlled(world, candidate)
+    if (isControlled(world, candidate)) return isWild(world, self)
+
     if (world.has(candidate, Master::class)) return true
 
-    val isWild = !world.has(self, OwnedBestia::class)
-    return isWild && world.has(candidate, OwnedBestia::class)
+    return isWild(world, self) && world.has(candidate, OwnedBestia::class)
+  }
+
+  private fun isWild(world: World, id: EntityId): Boolean {
+    return !world.has(id, OwnedBestia::class) && !world.has(id, Master::class)
+  }
+
+  private fun isControlled(world: World, id: EntityId): Boolean {
+    return world.get(id, StatusEffects::class)?.hasEffect(StatusEffectId.CONTROLLED.id) ?: false
   }
 }

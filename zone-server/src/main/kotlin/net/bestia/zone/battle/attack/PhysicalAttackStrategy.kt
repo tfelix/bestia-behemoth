@@ -9,6 +9,7 @@ import net.bestia.zone.battle.damage.CriticalHit
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.damage.HitDamage
 import net.bestia.zone.battle.damage.Miss
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.util.clamp
 import java.util.Random
 
@@ -47,7 +48,7 @@ class PhysicalAttackStrategy(
       return Miss
     }
 
-    if (isMiss(ctx)) {
+    if (isMiss(ctx) || isShelteredFrom(ctx)) {
       return Miss
     }
 
@@ -57,6 +58,12 @@ class PhysicalAttackStrategy(
     LOG.trace { "physical attack: ${if (critical) "critical " else ""}damage $amount" }
 
     return if (critical) CriticalHit(amount) else HitDamage(amount)
+  }
+
+  /** A wind ward turns every shot aside, whatever the hit roll said. */
+  private fun isShelteredFrom(ctx: EntityBattleContext): Boolean {
+    return ctx.usedAttack.attackType == AttackType.RANGED_PHYSICAL &&
+        StatusEffectId.SHELTERED.id in ctx.defender.activeEffectIds
   }
 
   private fun isAttackInRange(ctx: BattleContext): Boolean =
