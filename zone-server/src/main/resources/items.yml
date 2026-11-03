@@ -1220,7 +1220,7 @@ items:
     equip-slot: RIGHT_HAND
     two-handed: true
     ammo-type: ARROW
-    attack-range: 5
+    attack-range: 12
     max-durability: 80
     novice-only: true
     attack: 7
