@@ -43,6 +43,8 @@ var _metres_per_voxel := 1.0
 @onready var _portrait: Control = %Portrait
 @onready var _weight_label: Label = %WeightLabel
 @onready var _gold_label: Label = %GoldLabel
+## The master's global honor, red below zero where townsfolk turn cold.
+@onready var _honor_label: Label = %HonorLabel
 @onready var _profile_portrait = %ProfileImage
 @onready var _menu: Container = %Menu
 
@@ -159,6 +161,10 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 	if msg is MasterVisualComponentSMSG and msg.EntityId == _owned_master_entity_id():
 		_profile_portrait.apply_visual(msg)
 		return
+	# Honor is the master's, so it stays in view while a bestia is driven.
+	if msg is HonorComponentSMSG and msg.EntityId == _owned_master_entity_id():
+		_update_honor(msg.GlobalHonor)
+		return
 
 	if msg.EntityId != _shown_entity_id:
 		return
@@ -235,6 +241,11 @@ func _update_weight(current: int, max_weight: int) -> void:
 	_weight_label.text = "%.1f/%.1f" % [
 		current / WEIGHT_UNITS_PER_KG, max_weight / WEIGHT_UNITS_PER_KG
 	]
+
+
+func _update_honor(honor: int) -> void:
+	_honor_label.text = "Honor %d" % honor
+	_honor_label.modulate = Color(1.0, 0.45, 0.45) if honor < 0 else Color.WHITE
 
 
 func show_gold(amount: int) -> void:

@@ -595,12 +595,13 @@ func update_visual(msg: VisualComponentSMSG) -> void:
 	_seed_visual(visual)
 
 
-## True when nothing may damage this entity - a townsperson. Anything that is not a bestia answers
-## false: a master is not a non-combatant, it is simply not one of these.
+## True when a click on this entity means talking rather than fighting - a townsperson, or a species the
+## server makes unhittable. Anything that is not a bestia answers false: a master is not a non-combatant,
+## it is simply not one of these.
 ##
 ## Townsfolk are answered from the flag rather than the bestia DB because they send no species id at
-## all. Only a UI hint either way - the server enforces invulnerability - so being wrong here costs a
-## cursor, not a rule.
+## all. A townsperson can be killed, but a click means talking to them: attacking one is a deliberate
+## choice in the right-click menu, because it costs honor.
 func is_non_combatant() -> bool:
 	if _is_townsfolk:
 		return true
@@ -611,6 +612,10 @@ func is_non_combatant() -> bool:
 
 func is_creature() -> bool:
 	return _is_creature
+
+
+func is_townsfolk() -> bool:
+	return _is_townsfolk
 
 
 ## Whether a ward stone keeps other players from harming this entity right now.

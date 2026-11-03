@@ -28,6 +28,9 @@ STATUS_EFFECT_12,Guild aura: your guild master is near and lends you strength.
 STATUS_EFFECT_13,"Battle Orders: +5 STR, DEX and INT."
 STATUS_EFFECT_14,"Regeneration: HP, Mana and stamina recover faster."
 STATUS_EFFECT_15,Emergency Move: you move 25% faster.
+STATUS_EFFECT_21,"Aggressor: started a fight with a player. Fighting back costs no honor."
+STATUS_EFFECT_22,"Dishonored: honor below zero. Killing them earns honor."
+STATUS_EFFECT_23,"Thief: stole something recently. Killing them earns extra honor."
 ERROR_CHAT_WHISPER_TARGET_UNAVAILABLE,No player named %s is online.
 DEATH_TITLE,You have died.
 DEATH_TEXT,"Your body lies where it fell. Return to your save point, or stay a while longer."
@@ -464,6 +467,7 @@ ERROR_TELEPORT_NOT_READY,Your wings need a moment before they carry you again.
 ERROR_TELEPORT_NOT_NOW,You cannot fly off in the middle of that.
 ERROR_TELEPORT_NO_LANDING,The wing found nowhere to set you down and crumbles to dust.
 CONTEXT_EXCHANGE_ITEMS,Exchange items
+CONTEXT_ATTACK,Attack
 EXCHANGE_WITH,Exchange with %s
 EXCHANGE_HINT,"Show their bag beside yours. Drag between the two, Shift-click to move a whole stack, hold Ctrl on the drop to choose how many."
 EXCHANGE_WEIGHT,Weight %.1f / %.1f kg
