@@ -25,7 +25,7 @@ const _CRIT_POP := 2.4
 ## A crit has to land visibly harder than an ordinary hit.
 const _CRIT_SCALE := 1.35
 ## The height of one plain number, in screen heights, at the label's font size.
-const _LINE_HEIGHT := 0.045
+const _LINE_HEIGHT := 0.035
 ## A hit grows with the share of the target's health it took: 1x at a tenth, these at the ends.
 const _SMALLEST_IMPACT := 0.85
 const _LARGEST_IMPACT := 1.4
