@@ -85,6 +85,17 @@ class HonorServiceTest {
     assertEquals(23, globalOf(helper))
   }
 
+  @Test
+  fun `a town turns cold below zero and afraid below -60`() {
+    val baker = fixture.townsperson(WILDS + Vec3L(5, 0, 0))
+    val honest = fixture.master(WILDS)
+    val murderer = fixture.master(WILDS, HonorLedger(debt = 95, lastLossAt = fixture.now))
+
+    assertFalse(service.isUnfriendly(world, honest, HonorFixture.VILLAGE, baker))
+    assertTrue(service.isUnfriendly(world, murderer, HonorFixture.VILLAGE, baker))
+    assertTrue(service.isFeared(world, murderer, HonorFixture.VILLAGE, baker))
+  }
+
   private fun globalOf(entity: Long): Int {
     return world.get(entity, Honor::class)!!.shownValue
   }

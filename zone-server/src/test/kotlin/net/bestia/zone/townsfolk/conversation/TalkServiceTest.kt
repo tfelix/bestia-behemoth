@@ -28,7 +28,8 @@ class TalkServiceTest {
   private val shops = mockk<ShopCounter>()
   private val out = mockk<OutMessageProcessor>(relaxed = true)
 
-  private val sut = TalkService(speakers, conversation, merchants, shops, worldViewOf(world), out)
+  private val reception = mockk<HonorReception> { every { coldShoulder(any(), any(), any()) } returns null }
+  private val sut = TalkService(speakers, conversation, merchants, shops, worldViewOf(world), out, reception)
 
   private val player = world.createEntity { id -> add(id, Position(0, 0, 0)) }
   private val merchant = world.createEntity { id -> add(id, Position(2, 0, 0)) }

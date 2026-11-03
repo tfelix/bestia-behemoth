@@ -98,6 +98,8 @@ conversation:
   TALK_ABOUT_TOWN: { variants: 4, slots: [town, trade] }
   TALK_NEWS_NONE: { variants: 4, slots: [] }
   TALK_NOT_YET: { variants: 4, slots: [] }
+  # Said instead of a conversation to a Master this person, or their town, thinks badly of.
+  TALK_COLD_SHOULDER: { variants: 3, slots: [] }
   # Said as the counter opens, so an action does not leave the conversation looking broken.
   TALK_SHOP_OPENED: { variants: 4, slots: [] }
   # An off-shift merchant asked when they open.

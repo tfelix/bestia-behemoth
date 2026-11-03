@@ -57,13 +57,16 @@ object ConversationKeys {
   /** What a stubbed action answers with. One key, so removing it later is one grep. */
   const val NOT_YET = "TALK_NOT_YET"
 
+  /** All a townsperson says to a Master whose honor with them is below zero. */
+  const val COLD_SHOULDER = "TALK_COLD_SHOULDER"
+
   /**
    * Every key whose phrasings are counted in `dialogue.yml`, so that the boot can check the two agree.
    *
    * A list rather than a convention over the constants above, because half of them are deliberately
    * single - a key added here with no count fails the boot, and a count with no key does too.
    */
-  val VARIED = setOf(GOODBYE, ABOUT_TOWN, NEWS_NONE, NOT_YET, SHOP_OPENED, SHOP_HOURS)
+  val VARIED = setOf(GOODBYE, ABOUT_TOWN, NEWS_NONE, NOT_YET, SHOP_OPENED, SHOP_HOURS, COLD_SHOULDER)
 
   const val SLOT_NAME = "name"
   const val SLOT_TOWN = "town"

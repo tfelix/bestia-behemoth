@@ -54,6 +54,9 @@ TALK_NOT_YET_1,Not today. Come back another time.
 TALK_NOT_YET_2,Not yet. Ask me again when I have something to show you.
 TALK_NOT_YET_3,I have nothing ready. Another day.
 TALK_NOT_YET_4,Not just now. There will be more here before long.
+TALK_COLD_SHOULDER_1,"I know who you are. Go away."
+TALK_COLD_SHOULDER_2,"We have heard what you did. Nobody here has anything to say to you."
+TALK_COLD_SHOULDER_3,(They turn their back on you.)
 ERA_RECENT,only a few years back
 ERA_LIVING,within living memory
 ERA_GENERATIONS,a few generations back
