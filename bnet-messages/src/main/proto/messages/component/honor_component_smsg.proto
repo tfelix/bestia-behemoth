@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "HonorComponentSMSGProto";
+
+// A Master's global honor, sent to its owner only.
+message HonorComponentSMSG {
+  sint32 global_honor = 1;
+}

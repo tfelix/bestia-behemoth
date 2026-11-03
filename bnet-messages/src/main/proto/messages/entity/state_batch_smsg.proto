@@ -16,6 +16,7 @@ import "messages/component/exp_component_smsg.proto";
 import "messages/component/guild_member_beacon_smsg.proto";
 import "messages/component/guild_tag_component_smsg.proto";
 import "messages/component/health_component_smsg.proto";
+import "messages/component/honor_component_smsg.proto";
 import "messages/component/inventory_component_smsg.proto";
 import "messages/component/journey_component_smsg.proto";
 import "messages/component/level_component_smsg.proto";
@@ -96,5 +97,6 @@ message ComponentDelta {
     GuildTagComponentSMSG guild_tag = 31;
     JourneyComponentSMSG journey = 32;
     EntityFxComponentSMSG fx = 33;
+    HonorComponentSMSG honor = 34;
   }
 }

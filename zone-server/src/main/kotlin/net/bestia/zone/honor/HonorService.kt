@@ -1,0 +1,197 @@
+package net.bestia.zone.honor
+
+import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.honor.ecs.Honor
+import net.bestia.zone.honor.persistence.LocalHonor.Scope
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.townsfolk.ecs.Townsfolk
+import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.settlement.SettlementSiteIndex
+import org.springframework.stereotype.Service
+import java.time.Clock
+import kotlin.math.roundToInt
+
+/**
+ * The one place an act turns into honor: who saw it, which layers it reaches, and what a Master's honor adds up
+ * to when somebody deals with them. Rules are in bestia-docs `server/honor.md`.
+ */
+@Service
+class HonorService(
+  catalog: HonorCatalog,
+  private val localHonor: LocalHonorRegistry,
+  private val sites: SettlementSiteIndex,
+  private val clock: Clock = Clock.systemUTC(),
+) {
+
+  private val rules = catalog.rules
+
+  /** What happened to one act, for logs, the GM command and tests. */
+  data class Recorded(
+    val seen: Boolean,
+    val globalChange: Int = 0,
+    val grudges: List<Long> = emptyList(),
+    val settlement: Int? = null,
+  )
+
+  fun componentFor(ledger: HonorLedger): Honor {
+    return Honor(ledger, ledger.valueAt(clock.instant(), rules.global))
+  }
+
+  /**
+   * Charges or rewards [actor], a Master entity, for [act] done at [at].
+   *
+   * Townsfolk who saw it hold a personal grudge; with nobody of the town in sight, an act inside a settlement
+   * reaches the settlement directly. Player witnesses only make the global part count.
+   */
+  fun record(world: World, act: HonorAct, actor: EntityId, at: Vec3L): Recorded {
+    val honor = world.get(actor, Honor::class) ?: return Recorded(seen = false)
+    val masterId = world.get(actor, Master::class)?.masterId ?: return Recorded(seen = false)
+
+    val warded = world.get(actor, StatusEffects::class)?.hasEffect(StatusEffectId.WARDED.id) == true
+    val townsfolk = townsfolkWitnesses(world, at)
+    val settlement = sites.siteCovering(at.x, at.y)?.index
+    val seen = warded || townsfolk.isNotEmpty() || settlement != null || anyPlayerSees(world, actor, at)
+
+    if (!seen) {
+      LOG.debug { "$act by master $masterId at $at went unseen" }
+      return Recorded(seen = false)
+    }
+
+    val amount = rules.amountOf(act)
+    val global = scaled(amount.global, warded)
+    val local = scaled(amount.local, warded)
+
+    val now = clock.instant()
+    val before = honor.shownValue
+    val ledger = honor.ledger.apply(global, now, rules.global)
+    honor.update(ledger, ledger.valueAt(now, rules.global))
+
+    val reachedSettlement = settlement.takeIf { townsfolk.isEmpty() }
+    townsfolk.forEach { changeLocal(masterId, Scope.GRUDGE, it, local) }
+    reachedSettlement?.let { changeLocal(masterId, Scope.SETTLEMENT, it.toLong(), local) }
+
+    LOG.debug { "$act by master $masterId: global $global, local $local on ${townsfolk.size} witness(es)" }
+
+    return Recorded(
+      seen = true,
+      globalChange = honor.shownValue - before,
+      grudges = townsfolk,
+      settlement = reachedSettlement,
+    )
+  }
+
+  /**
+   * What [actor] is worth to the people of [settlement], and to [townsperson] in particular: the sum the
+   * effect thresholds and shop prices are measured against.
+   */
+  fun combined(world: World, actor: EntityId, settlement: Int?, townsperson: Long? = null): Int {
+    val honor = world.get(actor, Honor::class) ?: return 0
+    val masterId = world.get(actor, Master::class)?.masterId ?: return 0
+    val now = clock.instant()
+
+    val global = honor.ledger.valueAt(now, rules.global)
+    val town = settlement?.let { localValue(masterId, Scope.SETTLEMENT, it.toLong(), rules.settlement) } ?: 0
+    val grudge = townsperson?.let { localValue(masterId, Scope.GRUDGE, it, rules.grudge) } ?: 0
+
+    return global + town + grudge
+  }
+
+  fun settlementValue(masterId: Long, settlement: Int): Int {
+    return localValue(masterId, Scope.SETTLEMENT, settlement.toLong(), rules.settlement)
+  }
+
+  /** Replaces [actor]'s global honor outright, for GMs. */
+  fun setGlobal(world: World, actor: EntityId, value: Int) {
+    val honor = world.get(actor, Honor::class) ?: return
+    val offset = value - rules.global.start
+    val ledger = HonorLedger(
+      earned = offset.coerceAtLeast(0),
+      debt = (-offset).coerceAtLeast(0),
+      lastLossAt = clock.instant().takeIf { offset < 0 },
+    )
+
+    honor.update(ledger, ledger.valueAt(clock.instant(), rules.global))
+  }
+
+  private fun changeLocal(masterId: Long, scope: Scope, holder: Long, amount: Int) {
+    if (amount == 0) {
+      return
+    }
+
+    val layer = layerOf(scope)
+    val current = localHonor.ledgerOf(masterId, scope, holder) ?: HonorLedger()
+
+    localHonor.store(masterId, scope, holder, current.apply(amount, clock.instant(), layer))
+  }
+
+  private fun localValue(masterId: Long, scope: Scope, holder: Long, layer: HonorLayer): Int {
+    val ledger = localHonor.ledgerOf(masterId, scope, holder) ?: return layer.start
+
+    return ledger.valueAt(clock.instant(), layer)
+  }
+
+  private fun layerOf(scope: Scope): HonorLayer {
+    return when (scope) {
+      Scope.SETTLEMENT -> rules.settlement
+      Scope.GRUDGE -> rules.grudge
+    }
+  }
+
+  private fun scaled(amount: Int, warded: Boolean): Int {
+    if (!warded) {
+      return amount
+    }
+    val factor = if (amount < 0) rules.lossFactorWarded else rules.gainFactorWarded
+
+    return (amount * factor).roundToInt()
+  }
+
+  private fun townsfolkWitnesses(world: World, at: Vec3L): List<Long> {
+    val seenBy = mutableListOf<Long>()
+    world.each(Townsfolk::class) { id, townsfolk ->
+      if (isInSight(world, id, at)) {
+        seenBy.add(townsfolk.identity)
+      }
+    }
+
+    return seenBy
+  }
+
+  private fun anyPlayerSees(world: World, actor: EntityId, at: Vec3L): Boolean {
+    val actorAccount = world.get(actor, Account::class)?.accountId
+    var seen = false
+    world.each(Master::class) { id, _ ->
+      if (!seen && world.get(id, Account::class)?.accountId != actorAccount && isInSight(world, id, at)) {
+        seen = true
+      }
+    }
+
+    return seen
+  }
+
+  /** Height is ignored, as the ward field ignores it. */
+  private fun isInSight(world: World, id: EntityId, at: Vec3L): Boolean {
+    val position = world.get(id, Position::class) ?: return false
+    val dx = position.x - at.x
+    val dy = position.y - at.y
+
+    return dx * dx + dy * dy <= rules.witnessRange * rules.witnessRange
+  }
+
+  companion object {
+    private val LOG = KotlinLogging.logger { }
+
+    /** What [record] touches, for a system that calls it from inside the tick. */
+    val READS: ComponentClassSet = setOf(
+      Master::class, Account::class, StatusEffects::class, Townsfolk::class, Position::class,
+    )
+    val WRITES: ComponentClassSet = setOf(Honor::class)
+  }
+}

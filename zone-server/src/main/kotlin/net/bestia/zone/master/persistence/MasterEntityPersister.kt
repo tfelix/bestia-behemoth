@@ -22,6 +22,8 @@ import net.bestia.zone.persistence.EntitySnapshot
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.account.persistence.LearnedSkill
 import net.bestia.zone.account.persistence.LearnedSkillRepository
+import net.bestia.zone.honor.HonorLedger
+import net.bestia.zone.honor.ecs.Honor
 import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
@@ -50,6 +52,7 @@ data class MasterSnapshot(
   val died: Boolean,
   /** Skill id to invested level, from `KnownSkills`. */
   val learnedSkills: Map<Long, Int>,
+  val honor: HonorLedger,
 ) : EntitySnapshot {
 
   /** Keyed like every other write about this master, inventory included, so they land in order. */
@@ -79,6 +82,7 @@ class MasterEntityPersister(
   override val reads: ComponentClassSet = setOf(
     MasterComponent::class, Position::class, Level::class, Exp::class, SkillPoints::class,
     StatusPoints::class, BaseStatusValues::class, Health::class, Mana::class, Dead::class, KnownSkills::class,
+    Honor::class,
   )
 
   override fun supports(world: World, id: EntityId): Boolean =
@@ -110,6 +114,7 @@ class MasterEntityPersister(
       currentMana = world.get(id, Mana::class)?.current,
       died = world.has(id, Dead::class),
       learnedSkills = world.get(id, KnownSkills::class)?.levels().orEmpty(),
+      honor = world.get(id, Honor::class)?.ledger ?: HonorLedger(),
     )
   }
 
@@ -143,6 +148,9 @@ class MasterEntityPersister(
       master.dexterity = snap.dexterity
       master.willpower = snap.willpower
       master.agility = snap.agility
+      master.honorEarned = snap.honor.earned
+      master.honorDebt = snap.honor.debt
+      master.honorLastLossAt = snap.honor.lastLossAt
       master.persistedAtEpochMs = System.currentTimeMillis()
       masterRepository.save(master)
       saveLearnedSkills(master, snap.learnedSkills)
