@@ -35,6 +35,9 @@ data class CombatValues(
 
   /** Percentage points on top of the attack speed, see [AttackSpeed.delaySeconds]. */
   val aspdPercent: Int = 0,
+
+  /** Percentage points on every heal received, see `Healing`. */
+  val healReceivedPercent: Int = 0,
 ) {
 
   companion object {
@@ -83,7 +86,8 @@ data class CombatValues(
         elementOverride = context.elementOverride,
         defensePercent = context.defensePercent,
         hitPercent = context.hitPercent,
-        aspdPercent = context.aspdPercent
+        aspdPercent = context.aspdPercent,
+        healReceivedPercent = context.healReceivedPercent
       )
     }
 
@@ -102,7 +106,8 @@ data class CombatValues(
       elementOverride: Element? = null,
       defensePercent: Int = 0,
       hitPercent: Int = 0,
-      aspdPercent: Int = 0
+      aspdPercent: Int = 0,
+      healReceivedPercent: Int = 0
     ): CombatValues {
       val derived = DerivedStatusValues.fromStatusValues(level, attributes, hitBonus, fleeBonus, critBonus)
       val defense = DefenseValues.fromStatusValues(level, attributes, hardDefense, hardMagicDefense)
@@ -116,7 +121,8 @@ data class CombatValues(
         elementResistance = elementResistance,
         castTimeReduction = castTimeReduction,
         elementOverride = elementOverride,
-        aspdPercent = aspdPercent
+        aspdPercent = aspdPercent,
+        healReceivedPercent = healReceivedPercent
       )
     }
 

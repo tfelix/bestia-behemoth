@@ -89,6 +89,10 @@ class StatusValueRecalcContext(
   var aspdPercent: Int = 0
     private set
 
+  /** Percentage points on every heal this entity receives, see `Healing`. */
+  var healReceivedPercent: Int = 0
+    private set
+
   /** Refinement of the weapon in hand. It scales the weapon term of the damage formula, not the total. */
   var weaponUpgradeLevel: Int = 0
 
@@ -150,10 +154,11 @@ class StatusValueRecalcContext(
     elementResistance = elementResistance + (base to (elementResistance[base] ?: 0) + percent)
   }
 
-  fun addPercent(defense: Int = 0, hit: Int = 0, aspd: Int = 0) {
+  fun addPercent(defense: Int = 0, hit: Int = 0, aspd: Int = 0, healReceived: Int = 0) {
     defensePercent += defense
     hitPercent += hit
     aspdPercent += aspd
+    healReceivedPercent += healReceived
   }
 
   fun addCastTimeReduction(percent: Int) {
