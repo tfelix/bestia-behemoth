@@ -55,8 +55,18 @@ class HonorService(
    * Townsfolk who saw it hold a personal grudge; with nobody of the town in sight, an act inside a settlement
    * reaches the settlement directly. Player witnesses only make the global part count.
    */
-  /** @param maxGain caps what a good deed earns globally, for a reward that depends on its victim */
-  fun record(world: World, act: HonorAct, actor: EntityId, at: Vec3L, maxGain: Int? = null): Recorded {
+  /**
+   * @param maxGain caps what a good deed earns globally, for a reward that depends on its victim
+   * @param lossFactor scales a loss, for a victim whose skills make the offence weigh more
+   */
+  fun record(
+    world: World,
+    act: HonorAct,
+    actor: EntityId,
+    at: Vec3L,
+    maxGain: Int? = null,
+    lossFactor: Double = 1.0,
+  ): Recorded {
     val honor = world.get(actor, Honor::class) ?: return Recorded(seen = false)
     val master = world.get(actor, Master::class) ?: return Recorded(seen = false)
     val masterId = master.masterId
@@ -74,8 +84,8 @@ class HonorService(
     }
 
     val amount = rules.amountOf(act)
-    val global = scaled(amount.global, warded).let { if (maxGain != null) it.coerceAtMost(maxGain) else it }
-    val local = scaled(amount.local, warded)
+    val global = scaled(amount.global, warded, lossFactor).let { if (maxGain != null) it.coerceAtMost(maxGain) else it }
+    val local = scaled(amount.local, warded, lossFactor)
 
     val now = clock.instant()
     val before = honor.shownValue
@@ -172,6 +182,21 @@ class HonorService(
     honor.update(ledger, ledger.valueAt(clock.instant(), rules.global))
   }
 
+  /**
+   * Charges or rewards [actor] for [act] towards one [townsperson], whether or not anybody saw it: a broker
+   * knows whose contract was dropped without having to watch.
+   */
+  fun recordAgainst(world: World, act: HonorAct, actor: EntityId, townsperson: Long) {
+    val honor = world.get(actor, Honor::class) ?: return
+    val master = world.get(actor, Master::class) ?: return
+    val amount = rules.amountOf(act)
+    val now = clock.instant()
+
+    val ledger = honor.ledger.apply(amount.global, now, rules.global)
+    honor.update(ledger, ledger.valueAt(now, rules.global))
+    changeLocal(master.masterId, master.name, Scope.GRUDGE, townsperson, amount.local)
+  }
+
   /** Changes what [settlement] thinks of a Master, as news reaches it rather than as somebody there saw it. */
   fun changeSettlement(masterId: Long, masterName: String, settlement: Int, amount: Int) {
     changeLocal(masterId, masterName, Scope.SETTLEMENT, settlement.toLong(), amount)
@@ -206,11 +231,13 @@ class HonorService(
     }
   }
 
-  private fun scaled(amount: Int, warded: Boolean): Int {
-    if (!warded) {
-      return amount
+  private fun scaled(amount: Int, warded: Boolean, lossFactor: Double): Int {
+    val wardFactor = when {
+      !warded -> 1.0
+      amount < 0 -> rules.lossFactorWarded
+      else -> rules.gainFactorWarded
     }
-    val factor = if (amount < 0) rules.lossFactorWarded else rules.gainFactorWarded
+    val factor = if (amount < 0) wardFactor * lossFactor else wardFactor
 
     return (amount * factor).roundToInt()
   }
