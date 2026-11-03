@@ -34,84 +34,86 @@ namespace Bnet {
             "ZW50L2Nhc3RpbmdfY29tcG9uZW50X3Ntc2cucHJvdG8aNG1lc3NhZ2VzL2Nv",
             "bXBvbmVudC9jb25zdHJ1Y3Rpb25fY29tcG9uZW50X3Ntc2cucHJvdG8aLG1l",
             "c3NhZ2VzL2NvbXBvbmVudC9kZWFkX2NvbXBvbmVudF9zbXNnLnByb3RvGjFt",
-            "ZXNzYWdlcy9jb21wb25lbnQvZW50aXR5X2Z4X2NvbXBvbmVudF9zbXNnLnBy",
-            "b3RvGjFtZXNzYWdlcy9jb21wb25lbnQvZXF1aXBtZW50X2NvbXBvbmVudF9z",
-            "bXNnLnByb3RvGittZXNzYWdlcy9jb21wb25lbnQvZXhwX2NvbXBvbmVudF9z",
-            "bXNnLnByb3RvGjFtZXNzYWdlcy9jb21wb25lbnQvZ3VpbGRfbWVtYmVyX2Jl",
-            "YWNvbl9zbXNnLnByb3RvGjFtZXNzYWdlcy9jb21wb25lbnQvZ3VpbGRfdGFn",
-            "X2NvbXBvbmVudF9zbXNnLnByb3RvGi5tZXNzYWdlcy9jb21wb25lbnQvaGVh",
-            "bHRoX2NvbXBvbmVudF9zbXNnLnByb3RvGi1tZXNzYWdlcy9jb21wb25lbnQv",
-            "aG9ub3JfY29tcG9uZW50X3Ntc2cucHJvdG8aMW1lc3NhZ2VzL2NvbXBvbmVu",
-            "dC9pbnZlbnRvcnlfY29tcG9uZW50X3Ntc2cucHJvdG8aL21lc3NhZ2VzL2Nv",
-            "bXBvbmVudC9qb3VybmV5X2NvbXBvbmVudF9zbXNnLnByb3RvGi1tZXNzYWdl",
-            "cy9jb21wb25lbnQvbGV2ZWxfY29tcG9uZW50X3Ntc2cucHJvdG8aK21lc3Nh",
-            "Z2VzL2NvbXBvbmVudC9sb2dvdXRfaW50ZW50X3Ntc2cucHJvdG8aLG1lc3Nh",
-            "Z2VzL2NvbXBvbmVudC9tYW5hX2NvbXBvbmVudF9zbXNnLnByb3RvGjVtZXNz",
-            "YWdlcy9jb21wb25lbnQvbWFzdGVyX3Zpc3VhbF9jb21wb25lbnRfc21zZy5w",
-            "cm90bxosbWVzc2FnZXMvY29tcG9uZW50L3BhdGhfY29tcG9uZW50X3Ntc2cu",
-            "cHJvdG8aLW1lc3NhZ2VzL2NvbXBvbmVudC9wbGFjZV9jb21wb25lbnRfc21z",
-            "Zy5wcm90bxorbWVzc2FnZXMvY29tcG9uZW50L3Bvc2l0aW9uX2NvbXBvbmVu",
-            "dC5wcm90bxoobWVzc2FnZXMvY29tcG9uZW50L3NraWxsX2xpc3Rfc21zZy5w",
-            "cm90bxoqbWVzc2FnZXMvY29tcG9uZW50L3NraWxsX3BvaW50c19zbXNnLnBy",
-            "b3RvGi1tZXNzYWdlcy9jb21wb25lbnQvc3BlZWRfY29tcG9uZW50X3Ntc2cu",
-            "cHJvdG8aL21lc3NhZ2VzL2NvbXBvbmVudC9zdGFtaW5hX2NvbXBvbmVudF9z",
-            "bXNnLnByb3RvGjBtZXNzYWdlcy9jb21wb25lbnQvc3RhdHVzX2VmZmVjdF9s",
-            "aXN0X3Ntc2cucHJvdG8aK21lc3NhZ2VzL2NvbXBvbmVudC9zdGF0dXNfcG9p",
-            "bnRzX3Ntc2cucHJvdG8aK21lc3NhZ2VzL2NvbXBvbmVudC9zdGF0dXNfdmFs",
-            "dWVzX3Ntc2cucHJvdG8aOG1lc3NhZ2VzL2NvbXBvbmVudC90b3duc2ZvbGtf",
-            "dmlzdWFsX2NvbXBvbmVudF9zbXNnLnByb3RvGiltZXNzYWdlcy9jb21wb25l",
-            "bnQvdmlzdWFsX2NvbXBvbmVudC5wcm90bxoxbWVzc2FnZXMvY29tcG9uZW50",
-            "L3dvcm5fZ2Vhcl9jb21wb25lbnRfc21zZy5wcm90bxoobWVzc2FnZXMvZW50",
-            "aXR5L3ZhbmlzaF9lbnRpdHlfc21zZy5wcm90byJKCg5TdGF0ZUJhdGNoU01T",
-            "RxITCgtzZXJ2ZXJfdGljaxgBIAEoBBIjCgd1cGRhdGVzGAIgAygLMhIuYm5l",
-            "dC5FbnRpdHlVcGRhdGUicwoMRW50aXR5VXBkYXRlEhEKCWVudGl0eV9pZBgB",
-            "IAEoBhIoCgpjb21wb25lbnRzGAIgAygLMhQuYm5ldC5Db21wb25lbnREZWx0",
-            "YRImCgZ2YW5pc2gYAyABKAsyFi5ibmV0LlZhbmlzaEVudGl0eVNNU0cihQ0K",
-            "DkNvbXBvbmVudERlbHRhEisKCHBvc2l0aW9uGAEgASgLMhcuYm5ldC5Qb3Np",
-            "dGlvbkNvbXBvbmVudEgAEicKBHBhdGgYAiABKAsyFy5ibmV0LlBhdGhDb21w",
-            "b25lbnRTTVNHSAASKwoGaGVhbHRoGAMgASgLMhkuYm5ldC5IZWFsdGhDb21w",
-            "b25lbnRTTVNHSAASMQoJYW5pbWF0aW9uGAQgASgLMhwuYm5ldC5BbmltYXRp",
-            "b25Db21wb25lbnRTTVNHSAASKQoFc3BlZWQYBSABKAsyGC5ibmV0LlNwZWVk",
-            "Q29tcG9uZW50U01TR0gAEicKBG1hbmEYBiABKAsyFy5ibmV0Lk1hbmFDb21w",
-            "b25lbnRTTVNHSAASLQoHY2FzdGluZxgHIAEoCzIaLmJuZXQuQ2FzdGluZ0Nv",
-            "bXBvbmVudFNNU0dIABInCgRkZWFkGAggASgLMhcuYm5ldC5EZWFkQ29tcG9u",
-            "ZW50U01TR0gAEicKBnZpc3VhbBgJIAEoCzIVLmJuZXQuVmlzdWFsQ29tcG9u",
-            "ZW50SAASLQoHZWZmZWN0cxgKIAEoCzIaLmJuZXQuU3RhdHVzRWZmZWN0TGlz",
-            "dFNNU0dIABItCgdzdGFtaW5hGAsgASgLMhouYm5ldC5TdGFtaW5hQ29tcG9u",
-            "ZW50U01TR0gAEjgKDW1hc3Rlcl92aXN1YWwYDCABKAsyHy5ibmV0Lk1hc3Rl",
-            "clZpc3VhbENvbXBvbmVudFNNU0dIABI+ChB0b3duc2ZvbGtfdmlzdWFsGA0g",
-            "ASgLMiIuYm5ldC5Ub3duc2ZvbGtWaXN1YWxDb21wb25lbnRTTVNHSAASKQoF",
-            "bGV2ZWwYDiABKAsyGC5ibmV0LkxldmVsQ29tcG9uZW50U01TR0gAEjAKCWFy",
-            "ZWFfbmFtZRgPIAEoCzIbLmJuZXQuQXJlYU5hbWVDb21wb25lbnRTTVNHSAAS",
-            "JQoDZXhwGBAgASgLMhYuYm5ldC5FeHBDb21wb25lbnRTTVNHSAASMQoJaW52",
-            "ZW50b3J5GBEgASgLMhwuYm5ldC5JbnZlbnRvcnlDb21wb25lbnRTTVNHSAAS",
-            "LQoMc2tpbGxfcG9pbnRzGBIgASgLMhUuYm5ldC5Ta2lsbFBvaW50c1NNU0dI",
-            "ABIpCgpza2lsbF9saXN0GBMgASgLMhMuYm5ldC5Ta2lsbExpc3RTTVNHSAAS",
-            "LwoNbG9nb3V0X2ludGVudBgUIAEoCzIWLmJuZXQuTG9nb3V0SW50ZW50U01T",
-            "R0gAEjoKDmNhcnJ5X2NhcGFjaXR5GBUgASgLMiAuYm5ldC5DYXJyeUNhcGFj",
-            "aXR5Q29tcG9uZW50U01TR0gAEjEKCWVxdWlwbWVudBgWIAEoCzIcLmJuZXQu",
-            "RXF1aXBtZW50Q29tcG9uZW50U01TR0gAEi8KDXN0YXR1c192YWx1ZXMYFyAB",
-            "KAsyFi5ibmV0LlN0YXR1c1ZhbHVlc1NNU0dIABIvCg1zdGF0dXNfcG9pbnRz",
-            "GBggASgLMhYuYm5ldC5TdGF0dXNQb2ludHNTTVNHSAASOAoSYmFzZV9zdGF0",
-            "dXNfdmFsdWVzGBkgASgLMhouYm5ldC5CYXNlU3RhdHVzVmFsdWVzU01TR0gA",
-            "EikKBXBsYWNlGBogASgLMhguYm5ldC5QbGFjZUNvbXBvbmVudFNNU0dIABI3",
-            "Cgxjb25zdHJ1Y3Rpb24YGyABKAsyHy5ibmV0LkNvbnN0cnVjdGlvbkNvbXBv",
-            "bmVudFNNU0dIABItCgxjb21iYXRfc3RhdHMYHCABKAsyFS5ibmV0LkNvbWJh",
-            "dFN0YXRzU01TR0gAEjAKCXdvcm5fZ2VhchgdIAEoCzIbLmJuZXQuV29ybkdl",
-            "YXJDb21wb25lbnRTTVNHSAASOgoTZ3VpbGRfbWVtYmVyX2JlYWNvbhgeIAEo",
-            "CzIbLmJuZXQuR3VpbGRNZW1iZXJCZWFjb25TTVNHSAASMAoJZ3VpbGRfdGFn",
-            "GB8gASgLMhsuYm5ldC5HdWlsZFRhZ0NvbXBvbmVudFNNU0dIABItCgdqb3Vy",
-            "bmV5GCAgASgLMhouYm5ldC5Kb3VybmV5Q29tcG9uZW50U01TR0gAEikKAmZ4",
-            "GCEgASgLMhsuYm5ldC5FbnRpdHlGeENvbXBvbmVudFNNU0dIABIpCgVob25v",
-            "chgiIAEoCzIYLmJuZXQuSG9ub3JDb21wb25lbnRTTVNHSABCCwoJY29tcG9u",
-            "ZW50QiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITU3RhdGVCYXRjaFNtc2dQ",
-            "cm90b2IGcHJvdG8z"));
+            "ZXNzYWdlcy9jb21wb25lbnQvZGV0ZWN0aW5nX2NvbXBvbmVudF9zbXNnLnBy",
+            "b3RvGjFtZXNzYWdlcy9jb21wb25lbnQvZW50aXR5X2Z4X2NvbXBvbmVudF9z",
+            "bXNnLnByb3RvGjFtZXNzYWdlcy9jb21wb25lbnQvZXF1aXBtZW50X2NvbXBv",
+            "bmVudF9zbXNnLnByb3RvGittZXNzYWdlcy9jb21wb25lbnQvZXhwX2NvbXBv",
+            "bmVudF9zbXNnLnByb3RvGjFtZXNzYWdlcy9jb21wb25lbnQvZ3VpbGRfbWVt",
+            "YmVyX2JlYWNvbl9zbXNnLnByb3RvGjFtZXNzYWdlcy9jb21wb25lbnQvZ3Vp",
+            "bGRfdGFnX2NvbXBvbmVudF9zbXNnLnByb3RvGi5tZXNzYWdlcy9jb21wb25l",
+            "bnQvaGVhbHRoX2NvbXBvbmVudF9zbXNnLnByb3RvGi1tZXNzYWdlcy9jb21w",
+            "b25lbnQvaG9ub3JfY29tcG9uZW50X3Ntc2cucHJvdG8aMW1lc3NhZ2VzL2Nv",
+            "bXBvbmVudC9pbnZlbnRvcnlfY29tcG9uZW50X3Ntc2cucHJvdG8aL21lc3Nh",
+            "Z2VzL2NvbXBvbmVudC9qb3VybmV5X2NvbXBvbmVudF9zbXNnLnByb3RvGi1t",
+            "ZXNzYWdlcy9jb21wb25lbnQvbGV2ZWxfY29tcG9uZW50X3Ntc2cucHJvdG8a",
+            "K21lc3NhZ2VzL2NvbXBvbmVudC9sb2dvdXRfaW50ZW50X3Ntc2cucHJvdG8a",
+            "LG1lc3NhZ2VzL2NvbXBvbmVudC9tYW5hX2NvbXBvbmVudF9zbXNnLnByb3Rv",
+            "GjVtZXNzYWdlcy9jb21wb25lbnQvbWFzdGVyX3Zpc3VhbF9jb21wb25lbnRf",
+            "c21zZy5wcm90bxosbWVzc2FnZXMvY29tcG9uZW50L3BhdGhfY29tcG9uZW50",
+            "X3Ntc2cucHJvdG8aLW1lc3NhZ2VzL2NvbXBvbmVudC9wbGFjZV9jb21wb25l",
+            "bnRfc21zZy5wcm90bxorbWVzc2FnZXMvY29tcG9uZW50L3Bvc2l0aW9uX2Nv",
+            "bXBvbmVudC5wcm90bxoobWVzc2FnZXMvY29tcG9uZW50L3NraWxsX2xpc3Rf",
+            "c21zZy5wcm90bxoqbWVzc2FnZXMvY29tcG9uZW50L3NraWxsX3BvaW50c19z",
+            "bXNnLnByb3RvGi1tZXNzYWdlcy9jb21wb25lbnQvc3BlZWRfY29tcG9uZW50",
+            "X3Ntc2cucHJvdG8aL21lc3NhZ2VzL2NvbXBvbmVudC9zdGFtaW5hX2NvbXBv",
+            "bmVudF9zbXNnLnByb3RvGjBtZXNzYWdlcy9jb21wb25lbnQvc3RhdHVzX2Vm",
+            "ZmVjdF9saXN0X3Ntc2cucHJvdG8aK21lc3NhZ2VzL2NvbXBvbmVudC9zdGF0",
+            "dXNfcG9pbnRzX3Ntc2cucHJvdG8aK21lc3NhZ2VzL2NvbXBvbmVudC9zdGF0",
+            "dXNfdmFsdWVzX3Ntc2cucHJvdG8aOG1lc3NhZ2VzL2NvbXBvbmVudC90b3du",
+            "c2ZvbGtfdmlzdWFsX2NvbXBvbmVudF9zbXNnLnByb3RvGiltZXNzYWdlcy9j",
+            "b21wb25lbnQvdmlzdWFsX2NvbXBvbmVudC5wcm90bxoxbWVzc2FnZXMvY29t",
+            "cG9uZW50L3dvcm5fZ2Vhcl9jb21wb25lbnRfc21zZy5wcm90bxoobWVzc2Fn",
+            "ZXMvZW50aXR5L3ZhbmlzaF9lbnRpdHlfc21zZy5wcm90byJKCg5TdGF0ZUJh",
+            "dGNoU01TRxITCgtzZXJ2ZXJfdGljaxgBIAEoBBIjCgd1cGRhdGVzGAIgAygL",
+            "MhIuYm5ldC5FbnRpdHlVcGRhdGUicwoMRW50aXR5VXBkYXRlEhEKCWVudGl0",
+            "eV9pZBgBIAEoBhIoCgpjb21wb25lbnRzGAIgAygLMhQuYm5ldC5Db21wb25l",
+            "bnREZWx0YRImCgZ2YW5pc2gYAyABKAsyFi5ibmV0LlZhbmlzaEVudGl0eVNN",
+            "U0ciuA0KDkNvbXBvbmVudERlbHRhEisKCHBvc2l0aW9uGAEgASgLMhcuYm5l",
+            "dC5Qb3NpdGlvbkNvbXBvbmVudEgAEicKBHBhdGgYAiABKAsyFy5ibmV0LlBh",
+            "dGhDb21wb25lbnRTTVNHSAASKwoGaGVhbHRoGAMgASgLMhkuYm5ldC5IZWFs",
+            "dGhDb21wb25lbnRTTVNHSAASMQoJYW5pbWF0aW9uGAQgASgLMhwuYm5ldC5B",
+            "bmltYXRpb25Db21wb25lbnRTTVNHSAASKQoFc3BlZWQYBSABKAsyGC5ibmV0",
+            "LlNwZWVkQ29tcG9uZW50U01TR0gAEicKBG1hbmEYBiABKAsyFy5ibmV0Lk1h",
+            "bmFDb21wb25lbnRTTVNHSAASLQoHY2FzdGluZxgHIAEoCzIaLmJuZXQuQ2Fz",
+            "dGluZ0NvbXBvbmVudFNNU0dIABInCgRkZWFkGAggASgLMhcuYm5ldC5EZWFk",
+            "Q29tcG9uZW50U01TR0gAEicKBnZpc3VhbBgJIAEoCzIVLmJuZXQuVmlzdWFs",
+            "Q29tcG9uZW50SAASLQoHZWZmZWN0cxgKIAEoCzIaLmJuZXQuU3RhdHVzRWZm",
+            "ZWN0TGlzdFNNU0dIABItCgdzdGFtaW5hGAsgASgLMhouYm5ldC5TdGFtaW5h",
+            "Q29tcG9uZW50U01TR0gAEjgKDW1hc3Rlcl92aXN1YWwYDCABKAsyHy5ibmV0",
+            "Lk1hc3RlclZpc3VhbENvbXBvbmVudFNNU0dIABI+ChB0b3duc2ZvbGtfdmlz",
+            "dWFsGA0gASgLMiIuYm5ldC5Ub3duc2ZvbGtWaXN1YWxDb21wb25lbnRTTVNH",
+            "SAASKQoFbGV2ZWwYDiABKAsyGC5ibmV0LkxldmVsQ29tcG9uZW50U01TR0gA",
+            "EjAKCWFyZWFfbmFtZRgPIAEoCzIbLmJuZXQuQXJlYU5hbWVDb21wb25lbnRT",
+            "TVNHSAASJQoDZXhwGBAgASgLMhYuYm5ldC5FeHBDb21wb25lbnRTTVNHSAAS",
+            "MQoJaW52ZW50b3J5GBEgASgLMhwuYm5ldC5JbnZlbnRvcnlDb21wb25lbnRT",
+            "TVNHSAASLQoMc2tpbGxfcG9pbnRzGBIgASgLMhUuYm5ldC5Ta2lsbFBvaW50",
+            "c1NNU0dIABIpCgpza2lsbF9saXN0GBMgASgLMhMuYm5ldC5Ta2lsbExpc3RT",
+            "TVNHSAASLwoNbG9nb3V0X2ludGVudBgUIAEoCzIWLmJuZXQuTG9nb3V0SW50",
+            "ZW50U01TR0gAEjoKDmNhcnJ5X2NhcGFjaXR5GBUgASgLMiAuYm5ldC5DYXJy",
+            "eUNhcGFjaXR5Q29tcG9uZW50U01TR0gAEjEKCWVxdWlwbWVudBgWIAEoCzIc",
+            "LmJuZXQuRXF1aXBtZW50Q29tcG9uZW50U01TR0gAEi8KDXN0YXR1c192YWx1",
+            "ZXMYFyABKAsyFi5ibmV0LlN0YXR1c1ZhbHVlc1NNU0dIABIvCg1zdGF0dXNf",
+            "cG9pbnRzGBggASgLMhYuYm5ldC5TdGF0dXNQb2ludHNTTVNHSAASOAoSYmFz",
+            "ZV9zdGF0dXNfdmFsdWVzGBkgASgLMhouYm5ldC5CYXNlU3RhdHVzVmFsdWVz",
+            "U01TR0gAEikKBXBsYWNlGBogASgLMhguYm5ldC5QbGFjZUNvbXBvbmVudFNN",
+            "U0dIABI3Cgxjb25zdHJ1Y3Rpb24YGyABKAsyHy5ibmV0LkNvbnN0cnVjdGlv",
+            "bkNvbXBvbmVudFNNU0dIABItCgxjb21iYXRfc3RhdHMYHCABKAsyFS5ibmV0",
+            "LkNvbWJhdFN0YXRzU01TR0gAEjAKCXdvcm5fZ2VhchgdIAEoCzIbLmJuZXQu",
+            "V29ybkdlYXJDb21wb25lbnRTTVNHSAASOgoTZ3VpbGRfbWVtYmVyX2JlYWNv",
+            "bhgeIAEoCzIbLmJuZXQuR3VpbGRNZW1iZXJCZWFjb25TTVNHSAASMAoJZ3Vp",
+            "bGRfdGFnGB8gASgLMhsuYm5ldC5HdWlsZFRhZ0NvbXBvbmVudFNNU0dIABIt",
+            "Cgdqb3VybmV5GCAgASgLMhouYm5ldC5Kb3VybmV5Q29tcG9uZW50U01TR0gA",
+            "EikKAmZ4GCEgASgLMhsuYm5ldC5FbnRpdHlGeENvbXBvbmVudFNNU0dIABIp",
+            "CgVob25vchgiIAEoCzIYLmJuZXQuSG9ub3JDb21wb25lbnRTTVNHSAASMQoJ",
+            "ZGV0ZWN0aW5nGCMgASgLMhwuYm5ldC5EZXRlY3RpbmdDb21wb25lbnRTTVNH",
+            "SABCCwoJY29tcG9uZW50QiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITU3Rh",
+            "dGVCYXRjaFNtc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.AnimationComponentSmsgReflection.Descriptor, global::Bnet.AreaNameComponentSmsgReflection.Descriptor, global::Bnet.BaseStatusValuesSmsgReflection.Descriptor, global::Bnet.CarryCapacityComponentSmsgReflection.Descriptor, global::Bnet.CombatStatsSmsgReflection.Descriptor, global::Bnet.CastingComponentSmsgReflection.Descriptor, global::Bnet.ConstructionComponentSmsgReflection.Descriptor, global::Bnet.DeadComponentSmsgReflection.Descriptor, global::Bnet.EntityFxComponentSmsgReflection.Descriptor, global::Bnet.EquipmentComponentSmsgReflection.Descriptor, global::Bnet.ExpComponentSmsgReflection.Descriptor, global::Bnet.GuildMemberBeaconSmsgReflection.Descriptor, global::Bnet.GuildTagComponentSmsgReflection.Descriptor, global::Bnet.HealthComponentSmsgReflection.Descriptor, global::Bnet.HonorComponentSmsgReflection.Descriptor, global::Bnet.InventoryComponentSmsgReflection.Descriptor, global::Bnet.JourneyComponentSmsgReflection.Descriptor, global::Bnet.LevelComponentSmsgReflection.Descriptor, global::Bnet.LogoutIntentSmsgReflection.Descriptor, global::Bnet.ManaComponentSmsgReflection.Descriptor, global::Bnet.MasterVisualComponentSmsgReflection.Descriptor, global::Bnet.PathComponentSmsgReflection.Descriptor, global::Bnet.PlaceComponentSmsgReflection.Descriptor, global::Bnet.PositionComponentReflection.Descriptor, global::Bnet.SkillListSmsgReflection.Descriptor, global::Bnet.SkillPointsSmsgReflection.Descriptor, global::Bnet.SpeedComponentSmsgReflection.Descriptor, global::Bnet.StaminaComponentSmsgReflection.Descriptor, global::Bnet.StatusEffectListSmsgReflection.Descriptor, global::Bnet.StatusPointsSmsgReflection.Descriptor, global::Bnet.StatusValuesSmsgReflection.Descriptor, global::Bnet.TownsfolkVisualComponentSmsgReflection.Descriptor, global::Bnet.VisualComponentReflection.Descriptor, global::Bnet.WornGearComponentSmsgReflection.Descriptor, global::Bnet.VanishEntitySmsgReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.AnimationComponentSmsgReflection.Descriptor, global::Bnet.AreaNameComponentSmsgReflection.Descriptor, global::Bnet.BaseStatusValuesSmsgReflection.Descriptor, global::Bnet.CarryCapacityComponentSmsgReflection.Descriptor, global::Bnet.CombatStatsSmsgReflection.Descriptor, global::Bnet.CastingComponentSmsgReflection.Descriptor, global::Bnet.ConstructionComponentSmsgReflection.Descriptor, global::Bnet.DeadComponentSmsgReflection.Descriptor, global::Bnet.DetectingComponentSmsgReflection.Descriptor, global::Bnet.EntityFxComponentSmsgReflection.Descriptor, global::Bnet.EquipmentComponentSmsgReflection.Descriptor, global::Bnet.ExpComponentSmsgReflection.Descriptor, global::Bnet.GuildMemberBeaconSmsgReflection.Descriptor, global::Bnet.GuildTagComponentSmsgReflection.Descriptor, global::Bnet.HealthComponentSmsgReflection.Descriptor, global::Bnet.HonorComponentSmsgReflection.Descriptor, global::Bnet.InventoryComponentSmsgReflection.Descriptor, global::Bnet.JourneyComponentSmsgReflection.Descriptor, global::Bnet.LevelComponentSmsgReflection.Descriptor, global::Bnet.LogoutIntentSmsgReflection.Descriptor, global::Bnet.ManaComponentSmsgReflection.Descriptor, global::Bnet.MasterVisualComponentSmsgReflection.Descriptor, global::Bnet.PathComponentSmsgReflection.Descriptor, global::Bnet.PlaceComponentSmsgReflection.Descriptor, global::Bnet.PositionComponentReflection.Descriptor, global::Bnet.SkillListSmsgReflection.Descriptor, global::Bnet.SkillPointsSmsgReflection.Descriptor, global::Bnet.SpeedComponentSmsgReflection.Descriptor, global::Bnet.StaminaComponentSmsgReflection.Descriptor, global::Bnet.StatusEffectListSmsgReflection.Descriptor, global::Bnet.StatusPointsSmsgReflection.Descriptor, global::Bnet.StatusValuesSmsgReflection.Descriptor, global::Bnet.TownsfolkVisualComponentSmsgReflection.Descriptor, global::Bnet.VisualComponentReflection.Descriptor, global::Bnet.WornGearComponentSmsgReflection.Descriptor, global::Bnet.VanishEntitySmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StateBatchSMSG), global::Bnet.StateBatchSMSG.Parser, new[]{ "ServerTick", "Updates" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EntityUpdate), global::Bnet.EntityUpdate.Parser, new[]{ "EntityId", "Components", "Vanish" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ComponentDelta), global::Bnet.ComponentDelta.Parser, new[]{ "Position", "Path", "Health", "Animation", "Speed", "Mana", "Casting", "Dead", "Visual", "Effects", "Stamina", "MasterVisual", "TownsfolkVisual", "Level", "AreaName", "Exp", "Inventory", "SkillPoints", "SkillList", "LogoutIntent", "CarryCapacity", "Equipment", "StatusValues", "StatusPoints", "BaseStatusValues", "Place", "Construction", "CombatStats", "WornGear", "GuildMemberBeacon", "GuildTag", "Journey", "Fx", "Honor" }, new[]{ "Component" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ComponentDelta), global::Bnet.ComponentDelta.Parser, new[]{ "Position", "Path", "Health", "Animation", "Speed", "Mana", "Casting", "Dead", "Visual", "Effects", "Stamina", "MasterVisual", "TownsfolkVisual", "Level", "AreaName", "Exp", "Inventory", "SkillPoints", "SkillList", "LogoutIntent", "CarryCapacity", "Equipment", "StatusValues", "StatusPoints", "BaseStatusValues", "Place", "Construction", "CombatStats", "WornGear", "GuildMemberBeacon", "GuildTag", "Journey", "Fx", "Honor", "Detecting" }, new[]{ "Component" }, null, null, null)
           }));
     }
     #endregion
@@ -767,6 +769,9 @@ namespace Bnet {
         case ComponentOneofCase.Honor:
           Honor = other.Honor.Clone();
           break;
+        case ComponentOneofCase.Detecting:
+          Detecting = other.Detecting.Clone();
+          break;
       }
 
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -1186,6 +1191,18 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "detecting" field.</summary>
+    public const int DetectingFieldNumber = 35;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.DetectingComponentSMSG Detecting {
+      get { return componentCase_ == ComponentOneofCase.Detecting ? (global::Bnet.DetectingComponentSMSG) component_ : null; }
+      set {
+        component_ = value;
+        componentCase_ = value == null ? ComponentOneofCase.None : ComponentOneofCase.Detecting;
+      }
+    }
+
     private object component_;
     /// <summary>Enum of possible cases for the "component" oneof.</summary>
     public enum ComponentOneofCase {
@@ -1224,6 +1241,7 @@ namespace Bnet {
       Journey = 32,
       Fx = 33,
       Honor = 34,
+      Detecting = 35,
     }
     private ComponentOneofCase componentCase_ = ComponentOneofCase.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1288,6 +1306,7 @@ namespace Bnet {
       if (!object.Equals(Journey, other.Journey)) return false;
       if (!object.Equals(Fx, other.Fx)) return false;
       if (!object.Equals(Honor, other.Honor)) return false;
+      if (!object.Equals(Detecting, other.Detecting)) return false;
       if (ComponentCase != other.ComponentCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -1330,6 +1349,7 @@ namespace Bnet {
       if (componentCase_ == ComponentOneofCase.Journey) hash ^= Journey.GetHashCode();
       if (componentCase_ == ComponentOneofCase.Fx) hash ^= Fx.GetHashCode();
       if (componentCase_ == ComponentOneofCase.Honor) hash ^= Honor.GetHashCode();
+      if (componentCase_ == ComponentOneofCase.Detecting) hash ^= Detecting.GetHashCode();
       hash ^= (int) componentCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -1485,6 +1505,10 @@ namespace Bnet {
         output.WriteRawTag(146, 2);
         output.WriteMessage(Honor);
       }
+      if (componentCase_ == ComponentOneofCase.Detecting) {
+        output.WriteRawTag(154, 2);
+        output.WriteMessage(Detecting);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1631,6 +1655,10 @@ namespace Bnet {
         output.WriteRawTag(146, 2);
         output.WriteMessage(Honor);
       }
+      if (componentCase_ == ComponentOneofCase.Detecting) {
+        output.WriteRawTag(154, 2);
+        output.WriteMessage(Detecting);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1742,6 +1770,9 @@ namespace Bnet {
       }
       if (componentCase_ == ComponentOneofCase.Honor) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(Honor);
+      }
+      if (componentCase_ == ComponentOneofCase.Detecting) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(Detecting);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1959,6 +1990,12 @@ namespace Bnet {
             Honor = new global::Bnet.HonorComponentSMSG();
           }
           Honor.MergeFrom(other.Honor);
+          break;
+        case ComponentOneofCase.Detecting:
+          if (Detecting == null) {
+            Detecting = new global::Bnet.DetectingComponentSMSG();
+          }
+          Detecting.MergeFrom(other.Detecting);
           break;
       }
 
@@ -2287,6 +2324,15 @@ namespace Bnet {
             Honor = subBuilder;
             break;
           }
+          case 282: {
+            global::Bnet.DetectingComponentSMSG subBuilder = new global::Bnet.DetectingComponentSMSG();
+            if (componentCase_ == ComponentOneofCase.Detecting) {
+              subBuilder.MergeFrom(Detecting);
+            }
+            input.ReadMessage(subBuilder);
+            Detecting = subBuilder;
+            break;
+          }
         }
       }
     #endif
@@ -2610,6 +2656,15 @@ namespace Bnet {
             }
             input.ReadMessage(subBuilder);
             Honor = subBuilder;
+            break;
+          }
+          case 282: {
+            global::Bnet.DetectingComponentSMSG subBuilder = new global::Bnet.DetectingComponentSMSG();
+            if (componentCase_ == ComponentOneofCase.Detecting) {
+              subBuilder.MergeFrom(Detecting);
+            }
+            input.ReadMessage(subBuilder);
+            Detecting = subBuilder;
             break;
           }
         }

@@ -11,7 +11,6 @@ import net.bestia.zone.battle.attack.AttackStrategyFactory
 import net.bestia.zone.battle.damage.TrueDamage
 import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.status.StatusEffectId
-import net.bestia.zone.casting.DetectedEntitiesSMSG
 import net.bestia.zone.casting.RecordingSkillWorld
 import net.bestia.zone.casting.SkillContext
 import net.bestia.zone.casting.SkillContextFixture
@@ -100,13 +99,12 @@ class SpecialSkillsTest {
   }
 
   @Test
-  fun `detect marks what it found on its player's map`() {
-    val found = DetectedEntitiesSMSG.Detected(9L, Vec3L(3, 3, 0), isMaster = true)
-    val world = RecordingSkillWorld().putPosition(ATTACKER_ID, Vec3L(0, 0, 0)).apply { players.add(found) }
+  fun `detect lets the caster sense for half a minute`() {
+    val world = RecordingSkillWorld()
 
     Detect().execute(ctx(world))
 
-    assertEquals(listOf(listOf(found)), world.detections)
+    assertEquals(listOf(30f), world.detections)
   }
 
   @Test

@@ -17,7 +17,6 @@ import "messages/crafting/material_axes_smsg.proto";
 import "messages/entity/move_entity.proto";
 import "messages/entity/journey_ended_smsg.proto";
 import "messages/notebook/notebook.proto";
-import "messages/map/detected_entities_smsg.proto";
 import "messages/entity/select_active_entity.proto";
 import "messages/system/authentication_success.proto";
 import "messages/system/disconnected.proto";
@@ -309,9 +308,6 @@ message Envelope {
     NotebookPutCMSG notebook_put = 902;
     NotebookDeleteCMSG notebook_delete = 903;
     NotebookChangedSMSG notebook_changed = 904;
-
-    // SKILLS
-    DetectedEntitiesSMSG detected_entities = 910;
 
     // MISC
   }

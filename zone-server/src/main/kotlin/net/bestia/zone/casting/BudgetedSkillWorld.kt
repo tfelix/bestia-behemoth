@@ -10,6 +10,7 @@ import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.status.RemovalReason
+import net.bestia.zone.casting.detect.Detecting
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.GuildMembership
@@ -20,7 +21,6 @@ import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.movement.ecs.Position
@@ -311,26 +311,15 @@ class BudgetedSkillWorld(
     return services.gear.wear(world, entityId, percent)
   }
 
-  override fun playersNear(centre: Vec3L, radiusTiles: Long): List<DetectedEntitiesSMSG.Detected> {
+  override fun detect(seconds: Float) {
     budget.charge()
 
-    val found = mutableListOf<DetectedEntitiesSMSG.Detected>()
-    services.aoi.forEachInCube(centre, radiusTiles * 2, AoiLayer.DYNAMIC_ONLY) { id, x, y, z ->
-      val isMaster = world.has(id, Master::class)
-      if (id != casterId && (isMaster || world.has(id, OwnedBestia::class))) {
-        found.add(DetectedEntitiesSMSG.Detected(id, Vec3L(x, y, z), isMaster))
-      }
+    val detecting = world.get(casterId, Detecting::class)
+    if (detecting != null) {
+      detecting.remainingSeconds = seconds
+    } else {
+      world.add(casterId, Detecting(seconds))
     }
-    budget.chargeQueryResults(found.size)
-
-    return found
-  }
-
-  override fun reportDetected(found: List<DetectedEntitiesSMSG.Detected>, seconds: Float) {
-    budget.charge()
-
-    val accountId = world.get(casterId, Account::class)?.accountId ?: return
-    services.messages.sendToPlayer(accountId, DetectedEntitiesSMSG(found, seconds))
   }
 
   override fun applyStatusEffectIfAbsent(targetEntityId: EntityId, effectId: Long, level: Int): Boolean {
