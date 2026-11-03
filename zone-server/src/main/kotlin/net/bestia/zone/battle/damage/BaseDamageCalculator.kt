@@ -36,8 +36,6 @@ import kotlin.math.max
  *
  * ### What is missing, and why it is missing rather than approximated
  *
- * - **Ammunition attack** is read but always zero: nothing is shot yet. The term is wired so ammunition
- *   starts mattering the day a quiver exists, rather than needing this formula reopened.
  * - **The size modifier.** `SizeModifier` exists and is exactly RO's table, but neither `Weapon` nor
  *   `BattleEntity` carries a [net.bestia.zone.battle.Size], so there is nothing to look up. Left out rather
  *   than defaulted to a guess.

@@ -1,5 +1,7 @@
 package net.bestia.zone.battle.ecs.status
 
+import net.bestia.zone.battle.RangedWeapon
+import net.bestia.zone.battle.attack.BattleAttack
 import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.ecs.core.Component
@@ -29,6 +31,11 @@ class OwnerCombatStats(values: CombatValues) : Component, Dirtyable {
       return AttackSpeed.aspd(AttackSpeed.motionMs(AttackSpeed.BARE_HANDED_MOTION_MS, values.attributes))
     }
 
+  private val ranged: RangedWeapon?
+    get() {
+      return values.weapon.ranged
+    }
+
   fun update(resolved: CombatValues) {
     if (resolved == values) {
       return
@@ -41,7 +48,8 @@ class OwnerCombatStats(values: CombatValues) : Component, Dirtyable {
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return CombatStatsComponentSMSG(
       entityId = entityId,
-      atk = values.derived.atk,
+      // The ATK a basic attack spends: a bow shoots with the DEX-heavy one.
+      atk = if (ranged == null) values.derived.atk else values.derived.rangedAtk,
       weaponAtk = values.weapon.physicalAtk,
       matk = values.derived.matk,
       weaponMatk = values.weapon.matk,
@@ -50,7 +58,8 @@ class OwnerCombatStats(values: CombatValues) : Component, Dirtyable {
       crit = values.derived.crit,
       softDefense = values.defense.defense,
       hardDefense = values.defense.hardDefense,
-      aspd = aspd
+      aspd = aspd,
+      attackRange = ranged?.range?.toInt() ?: BattleAttack.MELEE_REACH.toInt()
     )
   }
 

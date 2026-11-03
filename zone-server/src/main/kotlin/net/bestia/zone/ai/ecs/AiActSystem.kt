@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.ecs
 
+import net.bestia.zone.item.ammo.QuiverAmmoSupply
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.core.action.Action
 import net.bestia.zone.ai.core.action.Posture
@@ -61,7 +62,7 @@ class AiActSystem(
 
   override val reads: ComponentClassSet = setOf(
     Position::class, Dead::class, KnownSkills::class
-  ) + PlayerHold.READS + AttackExecutionService.READS + runtimes.flatMap { it.reads }
+  ) + PlayerHold.READS + AttackExecutionService.READS + QuiverAmmoSupply.READS + runtimes.flatMap { it.reads }
 
   /**
    * Everything the behaviour trees can touch, directly or through the services their leaves hold.
@@ -82,7 +83,7 @@ class AiActSystem(
     Health::class,
     Mana::class,
     Animation::class,
-  ) + AttackExecutionService.WRITES + JourneyService.WRITES
+  ) + AttackExecutionService.WRITES + QuiverAmmoSupply.WRITES + JourneyService.WRITES
 
   override fun update(world: World, deltaTime: Float) {
     val worldBoard = sharedMemory.worldBoard()

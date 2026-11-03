@@ -1,7 +1,12 @@
 package net.bestia.zone.battle.attack
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.BattleContextFactory
+import net.bestia.zone.battle.ammo.AmmoSupply
+import net.bestia.zone.battle.ammo.Ammunition
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.damage.Heal
@@ -45,7 +50,26 @@ class AttackExecutionService(
   private val battleContextFactory: BattleContextFactory,
   private val attackStrategyFactory: AttackStrategyFactory,
   private val outMessageProcessor: OutMessageProcessor,
+  private val basicAttacks: BasicAttackResolver,
+  private val ammoSupply: AmmoSupply,
 ) {
+
+  /** [READS] plus what spending an arrow reads, which only the item slice can name. */
+  val reads: ComponentClassSet = READS + ammoSupply.reads
+
+  val writes: ComponentClassSet = WRITES + ammoSupply.writes
+
+  /** Attacks with whatever [attackerId] holds: a shot from a ranged weapon, else [fallback]. */
+  fun attackWithHeldWeapon(
+    world: World,
+    attackerId: EntityId,
+    targetId: EntityId,
+    fallback: BattleAttack = BattleAttack.getBasicMeleeAttack(),
+  ): AttackOutcome {
+    val attack = basicAttacks.resolve(world, attackerId, fallback) ?: return outOfAmmo(world, attackerId)
+
+    return attack(world, attackerId, targetId, attack)
+  }
 
   /**
    * Swings [attack] at [targetId]. Callable from anywhere that has the world to itself: the tick thread
@@ -90,6 +114,15 @@ class AttackExecutionService(
       return AttackOutcome.OUT_OF_RANGE
     }
 
+    // Spent only for a shot that will be fired, so stepping out of reach costs no arrow.
+    val ammunition = attack.ammunition
+    if (ammunition != null) {
+      if (!ammoSupply.draw(world, attackerId, ammunition)) {
+        return outOfAmmo(world, attackerId)
+      }
+      ammunition.effect.beforeHit(ctx)
+    }
+
     val result = strategy.execute(ctx)
 
     // Armed only once the swing is real, so stepping out of reach neither costs the attacker its delay nor
@@ -98,12 +131,26 @@ class AttackExecutionService(
       it.remainingSeconds = AttackSpeed.delaySeconds(attack.baseAttackMotionMs, ctx.attacker.statusValues)
     }
 
-    apply(world, attackerId, targetId, result)
+    apply(world, attackerId, targetId, result, ammunition)
 
     return AttackOutcome.SWUNG
   }
 
-  private fun apply(world: World, attackerId: EntityId, targetId: EntityId, result: DamageResult) {
+  private fun outOfAmmo(world: World, attackerId: EntityId): AttackOutcome {
+    world.get(attackerId, Account::class)?.let {
+      outMessageProcessor.sendToPlayer(it.accountId, OperationErrorSMSG(OpError.ATTACK_OUT_OF_AMMO))
+    }
+
+    return AttackOutcome.OUT_OF_AMMO
+  }
+
+  private fun apply(
+    world: World,
+    attackerId: EntityId,
+    targetId: EntityId,
+    result: DamageResult,
+    ammunition: Ammunition?,
+  ) {
     if (!world.has(targetId, Position::class)) return
 
     val msg = DamageEntitySMSG(
@@ -145,6 +192,7 @@ class AttackExecutionService(
 
           val staged = world.get(targetId, IncomingDamage::class) ?: world.add(targetId, IncomingDamage())
           staged.add(result.amount, attackerId)
+          ammunition?.effect?.onHit(world, attackerId, targetId, result)
         }
       }
 
@@ -160,6 +208,8 @@ class AttackExecutionService(
       Position::class, Dead::class, Level::class, Nature::class, StatusEffects::class, CombatStats::class,
       Health::class, AttackDelay::class,
       WorldObjectIdentity::class, PropPose::class, PropVitality::class,
+      // Who is told the quiver is empty.
+      Account::class,
     ) + DamageGate.READS
 
     /** What [attack] writes: the staged damage, the attacker's delay, and a prop promoted on its first hit. */

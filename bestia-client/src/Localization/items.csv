@@ -306,3 +306,7 @@ ARROW,Arrow
 ARROW_DESC,"A reed shaft with a fire-hardened point and three goose feathers.
 
 Put it in the quiver and any bow will shoot it."
+NOVICE_BOW,Novice Bow
+NOVICE_BOW_DESC,"A short bow of bent ash, strung with waxed gut.
+
+Needs both hands and arrows in the quiver."

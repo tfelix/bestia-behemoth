@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.damage
 
+import net.bestia.zone.battle.attack.BasicAttackResolver
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.battle.BattleContextFactory
@@ -42,7 +43,9 @@ class ReceivedDamageSystemTest {
     val attacks = AttackExecutionService(
       BattleContextFactory(PropPromotionService(mockk(relaxed = true))),
       AttackStrategyFactory(LineOfSightService(), FixedRandom(0f)),
-      messages
+      messages,
+      BasicAttackResolver(mockk(relaxed = true)),
+      mockk(relaxed = true)
     )
     val world = testWorld(systems = listOf(AttackSystem(attacks), sut))
     val target = world.spawnFighter(at = Vec3L(1, 0, 0))

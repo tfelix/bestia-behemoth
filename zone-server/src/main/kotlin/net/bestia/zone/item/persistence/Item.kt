@@ -115,7 +115,18 @@ class Item(
   @Column(name = "material", nullable = false, length = 16)
   var material: ItemMaterial,
 
-  /** For [ItemType.AMMO], the kind of ammunition it is. */
+  /**
+   * How many tiles a ranged weapon shoots. Set together with [ammoType], which for a weapon is the kind it fires;
+   * together they are what makes a weapon ranged.
+   */
+  @Column(name = "attack_range", nullable = true)
+  var attackRange: Int? = null,
+
+  /** A weapon that needs both hands: nothing may be worn in [EquipmentSlot.LEFT_HAND] beside it. */
+  @Column(name = "two_handed", nullable = false)
+  var twoHanded: Boolean = false,
+
+  /** For [ItemType.AMMO], the kind of ammunition it is. For a ranged weapon, the kind it fires. */
   @Enumerated(EnumType.STRING)
   @JdbcTypeCode(SqlTypes.VARCHAR)
   @Column(name = "ammo_type", nullable = true, length = 16)
@@ -182,8 +193,20 @@ class Item(
       "Item $identifier is $type and must not declare an armor-type"
     }
 
-    require((type == ItemType.AMMO) == (ammoType != null)) {
-      "Item $identifier is $type: only AMMO, and every AMMO item, declares an ammo-type"
+    require(type != ItemType.AMMO || ammoType != null) {
+      "Item $identifier is AMMO and must declare its ammo-type"
+    }
+
+    require(type == ItemType.AMMO || (ammoType == null) == (attackRange == null)) {
+      "Item $identifier is a ranged weapon only with both an ammo-type and an attack-range"
+    }
+
+    require(attackRange == null || (type == ItemType.EQUIP && equipSlot == EquipmentSlot.RIGHT_HAND)) {
+      "Item $identifier declares an attack-range but is no RIGHT_HAND weapon"
+    }
+
+    require(!twoHanded || equipSlot == EquipmentSlot.RIGHT_HAND) {
+      "Item $identifier is two-handed but is not worn in the RIGHT_HAND"
     }
 
     require(element == null || type == ItemType.AMMO) {

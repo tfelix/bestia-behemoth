@@ -1,5 +1,6 @@
 package net.bestia.zone.item.equip
 
+import net.bestia.zone.item.ecs.itemTemplatesOf
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.ecs.core.testWorld
@@ -19,7 +20,8 @@ class EquipmentStatusContributorTest {
   private val catalog = ItemStatCatalog()
   private val sut = EquipmentStatusContributor(
     EquipmentScriptRegistry(listOf(StatBonusEquipmentScript(), IronSwordScript())),
-    catalog
+    catalog,
+    itemTemplatesOf()
   )
   private val world = testWorld()
   private val context = StatusValueRecalcContext(BaseStatusValues(1, 1, 1, 1, 1, 1), baseSpeed = 1f)

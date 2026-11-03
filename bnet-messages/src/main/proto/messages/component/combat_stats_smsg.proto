@@ -32,4 +32,7 @@ message CombatStatsSMSG {
 
   // Attack speed as displayed, 0-190: the reading of the swing interval, higher is faster.
   int32 aspd = 11;
+
+  // Tiles the basic attack reaches: 1 for a swing, the weapon's range for a shot. The client walks this close.
+  int32 attack_range = 12;
 }
