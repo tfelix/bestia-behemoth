@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component
  * on to further foes, each jump a little weaker.
  */
 @Component
-class BestiaMagicSkill(
+open class BestiaMagicSkill(
   losService: LineOfSightService,
   private val random: Random = ThreadLocalRandomSource,
 ) : BasicMagicSkillStrategy(losService) {
