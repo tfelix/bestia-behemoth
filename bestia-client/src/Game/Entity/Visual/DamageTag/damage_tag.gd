@@ -21,6 +21,8 @@ const _CRIT_POP := 2.4
 
 ## A crit has to land visibly harder than an ordinary hit.
 const _CRIT_SCALE := 1.35
+## The height of one plain number, in screen heights, at the label's font size.
+const _LINE_HEIGHT := 0.045
 ## A crit starts white and turns to its colour, and jolts sideways for a few frames.
 const _CRIT_FLASH_TIME := 0.12
 const _CRIT_SHAKE_TIME := 0.15
@@ -34,13 +36,16 @@ const _OUTLINE_DARKEN := 0.88
 ## same at every zoom, like the fixed-size label it moves. A short burst away from the hit, then a slow
 ## drift, so a tag never doubles back over the younger ones below it.
 const _BURST_RISE := 0.07
-const _BURST_SIDE := 0.05
+const _BURST_SIDE := 0.07
 ## Seconds until the burst has covered two thirds of its way.
 const _BURST_TIME := 0.12
 ## Per second, after the burst.
 const _DRIFT := 0.04
-## Screen left, where every tag flew before it knew who struck it.
-const _SIDE := -1.0
+## No two hits fly quite alike, so a flurry spreads out instead of tracing one line.
+const _BURST_JITTER := 0.15
+const _START_JITTER := 0.012
+## A tag pushed up by a younger one glides there over about this many seconds.
+const _PUSH_TIME := 0.05
 
 const _CRIT_COLOUR := Color(1, 0.72, 0.25)
 const _HEAL_COLOUR := Color(0.45, 0.95, 0.5)
@@ -58,15 +63,29 @@ var _life := _LIFE
 var _peak := 1.0
 var _pop := _POP
 var _colour := Color.WHITE
+var target_id := 0
+## -1 flies to screen left, 1 to the right.
+var side := 1.0
+## Screen heights younger tags have pushed this one up, and how far it has got there.
+var _pushed := 0.0
+var _pushed_shown := 0.0
+var _burst := Vector2(_BURST_SIDE, _BURST_RISE)
+var _start_shift := 0.0
 
 
 func _init(tag_label: Label3D) -> void:
 	label = tag_label
 
 
-func start(msg: DamageEntitySMSG, at: Vector3, camera: Camera3D) -> void:
+func start(msg: DamageEntitySMSG, at: Vector3, fly_side: float, camera: Camera3D) -> void:
 	_type = msg.Type
+	target_id = msg.EntityId
 	_start = at
+	side = fly_side
+	_pushed = 0.0
+	_pushed_shown = 0.0
+	_burst = Vector2(_BURST_SIDE, _BURST_RISE) * Vector2(_jitter(), _jitter())
+	_start_shift = randf_range(-_START_JITTER, _START_JITTER)
 	_age = 0.0
 	_life = _life_of(_type)
 	_peak = _CRIT_SCALE if _type == DamageType.CRIT else 1.0
@@ -78,12 +97,23 @@ func start(msg: DamageEntitySMSG, at: Vector3, camera: Camera3D) -> void:
 	advance(0.0, camera)
 
 
+## Makes room above the hit for a younger tag of [param height] screen heights.
+func push_up(height: float) -> void:
+	_pushed += height
+
+
+## How much room this tag takes above the hit, in screen heights.
+func line_height() -> float:
+	return _LINE_HEIGHT * _peak
+
+
 ## False once the tag has run its course.
 func advance(delta: float, camera: Camera3D) -> bool:
 	_age += delta
 	if _age >= _life:
 		return false
 
+	_pushed_shown = lerpf(_pushed, _pushed_shown, exp(-delta / _PUSH_TIME))
 	var fade := clampf((_age / _life - _FADE_FROM) / (1.0 - _FADE_FROM), 0.0, 1.0)
 	label.global_position = _start + _flight_offset_at(_age, camera)
 	label.scale = Vector3.ONE * _peak * _pop_scale_at(_age) * lerpf(1.0, _FADED_SCALE, fade)
@@ -107,10 +137,14 @@ func _paint(colour: Color) -> void:
 
 func _flight_offset_at(age: float, camera: Camera3D) -> Vector3:
 	var burst := 1.0 - exp(-age / _BURST_TIME)
-	var sideways := _SIDE * _BURST_SIDE * burst + _shake_at(age)
-	var upwards := _BURST_RISE * burst + _DRIFT * age
+	var sideways := _start_shift + side * _burst.x * burst + _shake_at(age)
+	var upwards := _pushed_shown + _burst.y * burst + _DRIFT * age
 	var screen := camera.global_basis.x * sideways + camera.global_basis.y * upwards
 	return screen * _screen_height_at(camera, _start)
+
+
+static func _jitter() -> float:
+	return randf_range(1.0 - _BURST_JITTER, 1.0 + _BURST_JITTER)
 
 
 func _shake_at(age: float) -> float:
