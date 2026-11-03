@@ -51,6 +51,14 @@ class LocalHonor(
   @Column(nullable = false)
   var permanent: Boolean = false,
 
+  /** For a grudge: the loss the witness has not yet told their town about. */
+  @Column(nullable = false)
+  var untold: Int = 0,
+
+  /** The Master's name when the row last changed, for the rumour that names them once a town has had enough. */
+  @Column(name = "master_name", nullable = false, length = 64)
+  var masterName: String = "",
+
   @Column(name = "world_shape_version", nullable = false)
   var worldShapeVersion: Long = 0,
 
@@ -63,7 +71,8 @@ class LocalHonor(
   /** A detached copy for the write-behind, so the tick can keep changing this row while it is saved. */
   fun copy(): LocalHonor {
     return LocalHonor(
-      id, masterId, scope, holder, earned, debt, lastLossAt, permanent, worldShapeVersion, pipelineVersion,
+      id, masterId, scope, holder, earned, debt, lastLossAt, permanent, untold, masterName, worldShapeVersion,
+      pipelineVersion,
     )
   }
 

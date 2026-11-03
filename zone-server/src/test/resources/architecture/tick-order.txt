@@ -65,6 +65,7 @@
  - UPKEEP wave 40: EnvironmentalExposureSystem [EveryTick]
  - UPKEEP wave 40: GroundLevelDecaySystem [EveryTick]
  - UPKEEP wave 40: GuildTagSystem [EverySeconds(seconds=1.0)]
+ - UPKEEP wave 40: HonorGossipSystem [EverySeconds(seconds=60.0)]
  - UPKEEP wave 40: LightSourceSystem [EverySeconds(seconds=10.0)]
  - UPKEEP wave 40: LogoutSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 40: RumourExpirySystem [EverySeconds(seconds=180.0)]

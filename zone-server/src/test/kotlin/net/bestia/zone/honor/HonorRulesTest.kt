@@ -21,6 +21,7 @@ class HonorRulesTest {
         KILL_NPC: { global: -10, local: -60 }
       protected-zone: { loss-factor: 2.0, gain-factor: 1.5 }
       witness-range: 30
+      gossip: { delay-hours: 8, share: 0.5, rumour-loss: 30 }
       layers:
         global: { start: 20, cap: 100, recovery-per-day: 1, grace-days: 1 }
         settlement: { start: 10, cap: 100, recovery-per-day: 2, grace-days: 1 }

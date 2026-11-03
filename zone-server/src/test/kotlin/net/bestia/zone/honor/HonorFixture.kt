@@ -18,6 +18,7 @@ import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.honor.persistence.LocalHonorRepository
 import net.bestia.zone.identity.ecs.Account
@@ -43,9 +44,13 @@ class HonorFixture(systems: (HonorFixture) -> List<System> = { emptyList() }) {
   /** Which settlement covers a position; out in the country by default. */
   var settlementAt: (Vec3L) -> Int? = { null }
 
+  /** Where each settlement's centre is, in metres. */
+  val centres = HashMap<Int, Vec2d>()
+
   private val clock = mockk<Clock>().also { every { it.instant() } answers { now } }
 
-  private val worldService = mockk<WorldService>().also {
+  val worldService = mockk<WorldService>().also {
+    every { it.config.voxelSize } returns 1.0
     every { it.record } returns mockk<PersistedWorld>().also { record ->
       every { record.shapeVersion } returns 1L
       every { record.pipelineVersion } returns 1L
@@ -55,7 +60,16 @@ class HonorFixture(systems: (HonorFixture) -> List<System> = { emptyList() }) {
   private val jobs = mockk<AsyncJobExecutor>(relaxed = true)
   private val repository = mockk<LocalHonorRepository>(relaxed = true)
 
-  private val sites = mockk<SettlementSiteIndex>().also {
+  val sites = mockk<SettlementSiteIndex>().also {
+    every { it.siteOf(any()) } answers {
+      val index = firstArg<Int>()
+      centres[index]?.let { centre ->
+        mockk<SettlementSite> {
+          every { this@mockk.index } returns index
+          every { this@mockk.centre } returns centre
+        }
+      }
+    }
     every { it.siteCovering(any(), any()) } answers {
       val index = settlementAt(Vec3L(firstArg<Long>(), secondArg<Long>(), 0L))
       index?.let { site -> mockk<SettlementSite> { every { this@mockk.index } returns site } }
@@ -83,7 +97,7 @@ class HonorFixture(systems: (HonorFixture) -> List<System> = { emptyList() }) {
     val masterId = account * 100
     val entity = world.createEntity { id ->
       add(id, Account(accountId = account))
-      add(id, Master(masterId = masterId))
+      add(id, Master(masterId = masterId, name = "Griefer$account"))
       add(id, Position.fromVec3(at))
       add(id, Level(level))
       add(id, StatusEffects())

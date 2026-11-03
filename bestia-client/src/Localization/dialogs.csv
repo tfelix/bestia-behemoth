@@ -507,6 +507,9 @@ RUMOUR_BOSS_SLAIN_2,"There was a thing out there. Somebody put it down. I have n
 RUMOUR_TOWN_FELL_ASK,Is something wrong?
 RUMOUR_TOWN_FELL_1,"A town not far from here is gone. Not a house left standing, they say."
 RUMOUR_TOWN_FELL_2,"People are talking about a town that fell. Nobody knows who will take in the ones who got out."
+RUMOUR_MISDEED_SEEN_ASK,Is there anybody I should watch out for?
+RUMOUR_MISDEED_SEEN_1,"{name}. They did something terrible in a town not far from here, and people there will not forget it."
+RUMOUR_MISDEED_SEEN_2,"Word came from down the road: keep away from {name}. Folk there saw what they did."
 DIALOG_4_TITLE,Tracks
 DIALOG_4_TEXT,"{what}, level {level}.
 {passages} prints, heading {heading}.

@@ -42,7 +42,8 @@ class LocalHonorRegistry(
     return rows.values.filter { it.scope == scope }
   }
 
-  fun store(masterId: Long, scope: Scope, holder: Long, ledger: HonorLedger) {
+  /** @param untoldLoss added to what a witness has yet to tell their town; only meaningful for a grudge */
+  fun store(masterId: Long, scope: Scope, holder: Long, ledger: HonorLedger, masterName: String, untoldLoss: Int = 0) {
     val row = rows.getOrPut(Key(masterId, scope, holder)) {
       LocalHonor(
         id = nextId.getAndIncrement(),
@@ -54,9 +55,21 @@ class LocalHonorRegistry(
       )
     }
     row.ledger = ledger
+    row.masterName = masterName
+    row.untold += untoldLoss
 
+    save(row)
+  }
+
+  /** The witness has told their town everything they saw. */
+  fun told(row: LocalHonor) {
+    row.untold = 0
+    save(row)
+  }
+
+  private fun save(row: LocalHonor) {
     val detached = row.copy()
-    asyncJobExecutor.submit(masterId) { repository.save(detached) }
+    asyncJobExecutor.submit(row.masterId) { repository.save(detached) }
   }
 
   /** Boot-time only. Discards rows of a different world, as `RumourRegistry.loadAll` does. */

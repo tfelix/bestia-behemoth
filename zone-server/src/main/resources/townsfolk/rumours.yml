@@ -20,3 +20,5 @@ rumours:
   # No slots either: naming the town needs a slot whose value is a generated name, which the build check
   # cannot see. A survivor would say "a town" before they said its name anyway.
   TOWN_FELL: { variants: 2, slots: [] }
+  # The Master's name: what a town warns its neighbours about is who, not what.
+  MISDEED_SEEN: { variants: 2, slots: [name] }
