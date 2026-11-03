@@ -48,7 +48,7 @@ class UseItemHandlerTest {
   private val novicePotions = Inventory.Item(NOVICE_POTION.id, amount = 3)
 
   private val skillTree = MasterSkillTreeRegistry().apply {
-    load(listOf(MasterSkillTreeNode(skillId = CARPENTRY_ID, identifier = "CARPENTRY", maxLevel = 5, tree = "CRAFTSMAN")))
+    load(listOf(MasterSkillTreeNode(skillId = CARPENTRY_ID, identifier = "M_CARPENTRY", maxLevel = 5, tree = "CRAFTSMAN")))
   }
 
   private val inlineJobs = mockk<AsyncJobExecutor> {

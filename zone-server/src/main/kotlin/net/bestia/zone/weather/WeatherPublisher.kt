@@ -54,7 +54,7 @@ class WeatherPublisher(
    * Visible because both callers resolve a player's level against it before calling [publish]: that level
    * lives in a `KnownSkills` component, and reading components is the caller's business - see the class note.
    */
-  val weatherSenseSkillId: Long? by lazy { skills.findByIdentifier(SkillId.WEATHER_SENSE)?.id }
+  val weatherSenseSkillId: Long? by lazy { skills.findByIdentifier(SkillId.M_WEATHER_SENSE)?.id }
 
   private val lastSent = ConcurrentHashMap<Long, WeatherSMSG>()
   private val lastSentAt = ConcurrentHashMap<Long, Long>()

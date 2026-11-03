@@ -62,7 +62,7 @@ class BestiaTrapSystem(
   override val writes: ComponentClassSet = setOf(BestiaTrap::class, TakenDamage::class)
 
   /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
-  private val beastfriendSkillId: Long? by lazy { skills.findByIdentifier(SkillId.BEASTFRIEND)?.id }
+  private val beastfriendSkillId: Long? by lazy { skills.findByIdentifier(SkillId.M_BEASTFRIEND)?.id }
 
   private class Sprung(val trapId: EntityId, val trap: BestiaTrap, val at: Vec3L, val targetId: EntityId)
 

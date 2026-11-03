@@ -71,8 +71,8 @@ class ScenarioDataSetup(
    * same grant, and two copies of it would drift - see `MultiPlayerJourneyScenario`.
    */
   fun grantFullBasicSkill(masterId: Long) {
-    val basicSkill = skillRepository.findByIdentifier(SkillId.BASIC_SKILL)
-      ?: error("skills.yml has no ${SkillId.BASIC_SKILL}; the scenario fixtures cannot open the chat gate")
+    val basicSkill = skillRepository.findByIdentifier(SkillId.M_BASIC_SKILL)
+      ?: error("skills.yml has no ${SkillId.M_BASIC_SKILL}; the scenario fixtures cannot open the chat gate")
 
     learnedSkillRepository.save(
       LearnedSkill(

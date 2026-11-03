@@ -2,7 +2,7 @@ package net.bestia.zone.skill
 
 /**
  * Every skill that *code* names, by identifier. Call sites use this -
- * `skills.findByIdentifier(SkillId.CARPENTRY)` - so naming a skill is a symbol lookup with
+ * `skills.findByIdentifier(SkillId.M_CARPENTRY)` - so naming a skill is a symbol lookup with
  * autocompletion rather than a string literal re-declared in whichever service happens to need it,
  * which is what a typo used to cost: a silently inert bonus or gate rather than a compiler error.
  *
@@ -32,38 +32,34 @@ enum class SkillId {
    * effect ([net.bestia.zone.skill.BasicSkillGate]), and it is also the gate on every
    * skill tree but Novice. Pinned at catalogue id 1, which the client hardcodes.
    */
-  BASIC_SKILL,
+  M_BASIC_SKILL,
 
   // Crafting: each one's invested level buys a success chance, a craft time, an item tier or a rune
   // slot in net.bestia.zone.crafting.CraftBonusService.
-  CARPENTRY,
+  M_CARPENTRY,
 
-  /**
-   * The docs' "Master Craftsman". Kept as `TINKERER` because that is the identifier `skills.yml`
-   * shipped and `LearnedSkill` has a foreign key to it - renaming would try to delete a referenced
-   * row.
-   */
-  TINKERER,
-  ITEM_CUSTOMIZATION,
-  ORE_REFINEMENT,
-  FORGE_WEAPON,
-  FORGE_ARMOR,
-  WEAPON_REPAIR,
-  WEAPONRY_RESEARCH,
-  MASTER_SMITH,
-  COOKING,
-  UPGRADE_EQUIPMENT,
+  /** The docs' "Master Craftsman"; the identifier predates that name. */
+  M_TINKERER,
+  M_ITEM_CUSTOMIZATION,
+  M_ORE_REFINEMENT,
+  M_FORGE_WEAPON,
+  M_FORGE_ARMOR,
+  M_WEAPON_REPAIR,
+  M_WEAPONRY_RESEARCH,
+  M_MASTER_SMITH,
+  M_COOKING,
+  M_UPGRADE_EQUIPMENT,
 
   // Weather: EnvironmentalExposureSystem widens the comfortable band with one, WeatherPublisher
   // buys forecast reach with the other.
-  WEATHER_RESISTANCE,
-  WEATHER_SENSE,
+  M_WEATHER_RESISTANCE,
+  M_WEATHER_SENSE,
 
   // Passives with a stat effect, named by their PassiveSkillScript bean rather than from the yml.
-  INNER_PEACE,
+  M_INNER_PEACE,
 
   // Capture: its level adds to every catch roll in net.bestia.zone.capture.BestiaTrapSystem.
-  BEASTFRIEND,
+  M_BEASTFRIEND,
 
   // Guild skills a guild learns, not a master: net.bestia.zone.guild reads the guild's level of each.
   GUILD_EMBLEM,

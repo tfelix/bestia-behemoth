@@ -64,11 +64,11 @@ class MasterSkillTreeServiceTest {
   init {
     masterSkillTreeRegistry.load(
       listOf(
-        MasterSkillTreeNode(skillId = BASIC_SKILL_ID, identifier = "BASIC_SKILL", maxLevel = 5, tree = "NOVICE"),
-        MasterSkillTreeNode(skillId = CARPENTRY_ID, identifier = "CARPENTRY", maxLevel = 10, tree = "CRAFTSMAN"),
+        MasterSkillTreeNode(skillId = BASIC_SKILL_ID, identifier = "M_BASIC_SKILL", maxLevel = 5, tree = "NOVICE"),
+        MasterSkillTreeNode(skillId = CARPENTRY_ID, identifier = "M_CARPENTRY", maxLevel = 10, tree = "CRAFTSMAN"),
         MasterSkillTreeNode(
           skillId = ORE_REFINEMENT_ID,
-          identifier = "ORE_REFINEMENT",
+          identifier = "M_ORE_REFINEMENT",
           maxLevel = 3,
           tree = "CRAFTSMAN",
           subTree = "BLACKSMITH",

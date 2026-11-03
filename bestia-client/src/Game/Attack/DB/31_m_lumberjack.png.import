@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bb3d1el18r16q"
-path="res://.godot/imported/5_firebolt.png-9fd6edf33c1751bf8afc5e854c76a380.ctex"
+uid="uid://drta8f3hyuoqk"
+path="res://.godot/imported/31_m_lumberjack.png-a71c4a5c8e203eb70c1d3b5e0588be8f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Game/Attack/DB/5_firebolt.png"
-dest_files=["res://.godot/imported/5_firebolt.png-9fd6edf33c1751bf8afc5e854c76a380.ctex"]
+source_file="res://Game/Attack/DB/31_m_lumberjack.png"
+dest_files=["res://.godot/imported/31_m_lumberjack.png-a71c4a5c8e203eb70c1d3b5e0588be8f.ctex"]
 
 [params]
 

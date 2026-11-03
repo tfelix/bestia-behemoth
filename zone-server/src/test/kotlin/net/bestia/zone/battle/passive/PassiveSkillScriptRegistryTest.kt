@@ -17,18 +17,18 @@ import org.junit.jupiter.api.assertThrows
 class PassiveSkillScriptRegistryTest {
 
   private class InnerPeaceStub : PassiveSkillScript {
-    override val skill = SkillId.INNER_PEACE
+    override val skill = SkillId.M_INNER_PEACE
     override fun apply(context: StatusValueRecalcContext, level: Int) = context.addHpRegen(percent = 3 * level)
   }
 
   /** Names a real constant that the catalogue handed to `bind` does not contain. */
   private class MissingSkillScript : PassiveSkillScript {
-    override val skill = SkillId.WEATHER_SENSE
+    override val skill = SkillId.M_WEATHER_SENSE
     override fun apply(context: StatusValueRecalcContext, level: Int) = Unit
   }
 
   private class CastableSkillScript : PassiveSkillScript {
-    override val skill = SkillId.COOKING
+    override val skill = SkillId.M_COOKING
     override fun apply(context: StatusValueRecalcContext, level: Int) = Unit
   }
 
@@ -52,15 +52,15 @@ class PassiveSkillScriptRegistryTest {
     requiredLevel = 0
   )
 
-  private val innerPeace = skill(27L, "INNER_PEACE")
+  private val innerPeace = skill(27L, "M_INNER_PEACE")
 
   /**
    * A passive nobody has written a script for. Most of the catalogue looks like this: with `Skill.type` gone,
    * "no castable script" is exactly what makes a skill passive, so binding must stay indifferent to it.
    */
-  private val divineProtection = skill(2L, "DIVINE_PROTECTION")
+  private val divineProtection = skill(2L, "M_DIVINE_PROTECTION")
 
-  private val cooking = skill(3L, "COOKING", script = "Cooking")
+  private val cooking = skill(3L, "M_COOKING", script = "Cooking")
 
   private fun registry(vararg scripts: PassiveSkillScript) =
     PassiveSkillScriptRegistry(scripts.toList())
@@ -102,7 +102,7 @@ class PassiveSkillScriptRegistryTest {
       registry.bind(listOf(innerPeace), strategies::isCastable)
     }
 
-    assertEquals(true, ex.message!!.contains("WEATHER_SENSE"))
+    assertEquals(true, ex.message!!.contains("M_WEATHER_SENSE"))
   }
 
   @Test
@@ -115,7 +115,7 @@ class PassiveSkillScriptRegistryTest {
       registry.bind(listOf(cooking), strategies::isCastable)
     }
 
-    assertEquals(true, ex.message!!.contains("COOKING"))
+    assertEquals(true, ex.message!!.contains("M_COOKING"))
   }
 
   @Test

@@ -23,7 +23,7 @@ class MasterSkillTreeRegistry {
 
   fun load(nodes: List<MasterSkillTreeNode>) {
     nodesBySkillId = nodes.associateBy { it.skillId }
-    basicSkill = nodes.firstOrNull { it.identifier == SkillId.BASIC_SKILL.name }?.skillId
+    basicSkill = nodes.firstOrNull { it.identifier == SkillId.M_BASIC_SKILL.name }?.skillId
   }
 
   fun findBySkillId(skillId: Long): MasterSkillTreeNode? {

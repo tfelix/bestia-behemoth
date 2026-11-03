@@ -348,7 +348,7 @@ class CraftingServiceTest {
   @Test
   fun `a slot cut is refused once the crafters Item Customization cap is reached`() {
     val cut = recipe(id = 8, identifier = "CUT", effect = RecipeEffect.ADD_SLOT, requiredSkillId = CUSTOMIZATION_ID)
-    val fixture = CraftingFixture(listOf(cut), skillIds = mapOf("ITEM_CUSTOMIZATION" to CUSTOMIZATION_ID))
+    val fixture = CraftingFixture(listOf(cut), skillIds = mapOf("M_ITEM_CUSTOMIZATION" to CUSTOMIZATION_ID))
     val crafter = fixture.givenCrafter(
       items = listOf(stack(INPUT_ITEM, 9), instance(TARGET_ITEM, uniqueId = 1, slots = 1)),
       knownSkills = mapOf(CUSTOMIZATION_ID to 3)
@@ -363,7 +363,7 @@ class CraftingServiceTest {
   @Test
   fun `a slot cut at level four is allowed on an item that already has one`() {
     val cut = recipe(id = 9, identifier = "CUT", effect = RecipeEffect.ADD_SLOT, requiredSkillId = CUSTOMIZATION_ID)
-    val fixture = CraftingFixture(listOf(cut), skillIds = mapOf("ITEM_CUSTOMIZATION" to CUSTOMIZATION_ID))
+    val fixture = CraftingFixture(listOf(cut), skillIds = mapOf("M_ITEM_CUSTOMIZATION" to CUSTOMIZATION_ID))
     val crafter = fixture.givenCrafter(
       items = listOf(stack(INPUT_ITEM, 9), instance(TARGET_ITEM, uniqueId = 1, slots = 1)),
       knownSkills = mapOf(CUSTOMIZATION_ID to 4)
@@ -383,7 +383,7 @@ class CraftingServiceTest {
       id = 10, identifier = "CUT", effect = RecipeEffect.ADD_SLOT,
       requiredSkillId = CUSTOMIZATION_ID, baseSuccessChance = 0f
     )
-    val fixture = CraftingFixture(listOf(cut), skillIds = mapOf("ITEM_CUSTOMIZATION" to CUSTOMIZATION_ID))
+    val fixture = CraftingFixture(listOf(cut), skillIds = mapOf("M_ITEM_CUSTOMIZATION" to CUSTOMIZATION_ID))
 
     var destroyed = false
     repeat(60) { attempt ->
@@ -434,7 +434,7 @@ class CraftingServiceTest {
     )
     val fixture = CraftingFixture(
       listOf(repair),
-      skillIds = mapOf("WEAPON_REPAIR" to REPAIR_ID),
+      skillIds = mapOf("M_WEAPON_REPAIR" to REPAIR_ID),
       itemLevels = mapOf(TARGET_ITEM to 21)
     )
     val crafter = fixture.givenCrafter(
@@ -460,7 +460,7 @@ class CraftingServiceTest {
     )
     val fixture = CraftingFixture(
       listOf(repair),
-      skillIds = mapOf("WEAPON_REPAIR" to REPAIR_ID),
+      skillIds = mapOf("M_WEAPON_REPAIR" to REPAIR_ID),
       itemLevels = mapOf(TARGET_ITEM to 20)
     )
     val crafter = fixture.givenCrafter(
@@ -486,7 +486,7 @@ class CraftingServiceTest {
     val beyond = recipe(id = 22, identifier = "BEYOND", requiredSkillId = CARPENTRY_ID)
     val fixture = CraftingFixture(
       listOf(beyond),
-      skillIds = mapOf("CARPENTRY" to CARPENTRY_ID),
+      skillIds = mapOf("M_CARPENTRY" to CARPENTRY_ID),
       itemLevels = mapOf(OUTPUT_ITEM to 11)
     )
     val crafter = fixture.givenCrafter(knownSkills = mapOf(CARPENTRY_ID to 1))

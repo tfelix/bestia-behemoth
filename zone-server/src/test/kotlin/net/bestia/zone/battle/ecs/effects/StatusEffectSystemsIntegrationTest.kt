@@ -168,7 +168,7 @@ class StatusEffectSystemsIntegrationTest {
 
   /** A stand-in [PassiveSkillScript] in the shape of the real `InnerPeace`. */
   private class TestPassiveScript : PassiveSkillScript {
-    override val skill = SkillId.INNER_PEACE
+    override val skill = SkillId.M_INNER_PEACE
     override fun apply(context: StatusValueRecalcContext, level: Int) {
       context.addHpRegen(percent = 20 * level)
     }
@@ -180,7 +180,7 @@ class StatusEffectSystemsIntegrationTest {
 
   private val passiveSkill = Skill(
     id = PASSIVE_SKILL_ID,
-    identifier = SkillId.INNER_PEACE.name,
+    identifier = SkillId.M_INNER_PEACE.name,
     strength = null,
     script = null,
     manaCost = 0,

@@ -59,8 +59,8 @@ class EquipmentRevalidationServiceTest {
   private val registry = MasterSkillTreeRegistry().apply {
     load(
       listOf(
-        MasterSkillTreeNode(skillId = BASIC_SKILL_ID, identifier = "BASIC_SKILL", maxLevel = 5, tree = "NOVICE"),
-        MasterSkillTreeNode(skillId = CARPENTRY_ID, identifier = "CARPENTRY", maxLevel = 10, tree = "CRAFTSMAN")
+        MasterSkillTreeNode(skillId = BASIC_SKILL_ID, identifier = "M_BASIC_SKILL", maxLevel = 5, tree = "NOVICE"),
+        MasterSkillTreeNode(skillId = CARPENTRY_ID, identifier = "M_CARPENTRY", maxLevel = 10, tree = "CRAFTSMAN")
       )
     )
   }

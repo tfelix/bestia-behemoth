@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="AttackResource" format=3]
 
 [ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://Game/Attack/DB/5_firebolt.png" id="1_v44l0"]
+[ext_resource type="Texture2D" path="res://Game/Attack/DB/5_m_firebolt.png" id="1_v44l0"]
 
 [resource]
 script = ExtResource("1_script")
