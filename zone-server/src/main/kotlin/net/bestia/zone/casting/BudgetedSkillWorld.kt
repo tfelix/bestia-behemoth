@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.Healing
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.damage.DamageGate
@@ -138,8 +139,7 @@ class BudgetedSkillWorld(
     // but has no Health to heal" - a `when` returning Unit? would conflate the two.
     val landed = onEntity(targetEntityId) { target ->
       when (damage) {
-        // CurMax.current clamps to [0, max] itself.
-        is Heal -> get(target, Health::class)?.let { it.current += damage.amount }
+        is Heal -> Healing.heal(this, target, damage.amount)
 
         else -> {
           // This branch only: a miss and a heal stay true of a target the gate shields.
@@ -207,7 +207,7 @@ class BudgetedSkillWorld(
       if (world.has(member, Dead::class)) {
         continue
       }
-      world.get(member, Health::class)?.let { it.current += it.max * percent / 100 }
+      world.get(member, Health::class)?.let { Healing.heal(world, member, it.max * percent / 100) }
       world.get(member, Mana::class)?.let { it.current += it.max * percent / 100 }
     }
   }

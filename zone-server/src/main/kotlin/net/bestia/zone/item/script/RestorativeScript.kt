@@ -1,5 +1,6 @@
 package net.bestia.zone.item.script
 
+import net.bestia.zone.battle.Healing
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.status.CurMax
 import net.bestia.zone.battle.ecs.status.Health
@@ -37,7 +38,11 @@ abstract class RestorativeScript(
   }
 
   override fun execute(world: World, userId: EntityId, args: ScriptArgs): Boolean {
-    val healed = restore(world.get(userId, Health::class), health)
+    // Through Healing, so sickness halves a potion too and it closes a bleeding wound.
+    val healed = health != 0 && world.has(userId, Health::class)
+    if (healed) {
+      Healing.heal(world, userId, health)
+    }
     val fed = restore(world.get(userId, Stamina::class), stamina)
     val refilled = restore(world.get(userId, Mana::class), mana)
 

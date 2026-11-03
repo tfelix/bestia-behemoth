@@ -8,6 +8,7 @@ import net.bestia.zone.battle.ammo.AmmoSupply
 import net.bestia.zone.battle.ammo.Ammunition
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.battle.Healing
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.damage.Heal
@@ -191,8 +192,7 @@ class AttackExecutionService(
       when (result) {
         is Miss -> Unit
 
-        // CurMax.current clamps to [0, max] itself.
-        is Heal -> world.get(targetId, Health::class)?.let { it.current += result.amount }
+        is Heal -> Healing.heal(world, targetId, result.amount)
 
         // ReceivedDamageSystem drains this into Health, and handles death, threat and cast interruption.
         else -> {
