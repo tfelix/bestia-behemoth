@@ -13,6 +13,7 @@ class HonorRules(
   val lossFactorWarded: Double,
   val gainFactorWarded: Double,
   val witnessRange: Long,
+  val gossip: Gossip,
   val global: HonorLayer,
   val settlement: HonorLayer,
   val grudge: HonorLayer,
@@ -22,6 +23,17 @@ class HonorRules(
 
   data class Amount(val global: Int, val local: Int)
 
+  data class Gossip(
+    @JsonProperty("delay-hours") val delayHours: Long,
+    val share: Double,
+    @JsonProperty("rumour-loss") val rumourLoss: Int,
+  ) {
+    val delay: Duration
+      get() {
+        return Duration.ofHours(delayHours)
+      }
+  }
+
   fun amountOf(act: HonorAct): Amount {
     return acts.getValue(act)
   }
@@ -30,6 +42,7 @@ class HonorRules(
     val acts: Map<HonorAct, Amount> = emptyMap(),
     @JsonProperty("protected-zone") val protectedZone: ProtectedZone,
     @JsonProperty("witness-range") val witnessRange: Long,
+    val gossip: Gossip,
     val layers: Layers,
     val thresholds: Thresholds,
   )
@@ -73,6 +86,7 @@ class HonorRules(
         lossFactorWarded = file.protectedZone.lossFactor,
         gainFactorWarded = file.protectedZone.gainFactor,
         witnessRange = file.witnessRange,
+        gossip = file.gossip,
         global = file.layers.global.toLayer(),
         settlement = file.layers.settlement.toLayer(),
         grudge = file.layers.grudge.toLayer(),

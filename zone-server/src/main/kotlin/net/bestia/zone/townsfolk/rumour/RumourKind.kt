@@ -22,4 +22,7 @@ enum class RumourKind(
 
   /** A town nearby is gone: its last building fell, to water, fire, beasts or people. */
   TOWN_FELL(baseImportance = 75, lifetimeDays = 60),
+
+  /** A town nearby will never forgive a Master for what they did there. Posted by `HonorGossipSystem`. */
+  MISDEED_SEEN(baseImportance = 60, lifetimeDays = 30),
 }

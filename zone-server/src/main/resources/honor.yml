@@ -30,6 +30,14 @@ protected-zone:
 # Townsfolk and players this close to the offender saw it, in metres.
 witness-range: 30
 
+# How a grudge travels. After `delay-hours` (about one Bestia day) a witness has told their town `share` of
+# what they saw. A town that never forgets spreads the word: towns that hear it lose up to `rumour-loss`,
+# less the further away they are.
+gossip:
+  delay-hours: 8
+  share: 0.5
+  rumour-loss: 30
+
 # Initial values for balancing.
 layers:
   global:

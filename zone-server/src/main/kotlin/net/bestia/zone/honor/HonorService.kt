@@ -29,6 +29,7 @@ class HonorService(
   private val localHonor: LocalHonorRegistry,
   private val sites: SettlementSiteIndex,
   private val clock: Clock = Clock.systemUTC(),
+  private val outcry: WitnessOutcry? = null,
 ) {
 
   private val rules = catalog.rules
@@ -53,10 +54,13 @@ class HonorService(
    */
   fun record(world: World, act: HonorAct, actor: EntityId, at: Vec3L): Recorded {
     val honor = world.get(actor, Honor::class) ?: return Recorded(seen = false)
-    val masterId = world.get(actor, Master::class)?.masterId ?: return Recorded(seen = false)
+    val master = world.get(actor, Master::class) ?: return Recorded(seen = false)
+    val masterId = master.masterId
+    val masterName = master.name
 
     val warded = world.get(actor, StatusEffects::class)?.hasEffect(StatusEffectId.WARDED.id) == true
-    val townsfolk = townsfolkWitnesses(world, at)
+    val townsfolkInSight = townsfolkWitnesses(world, at)
+    val townsfolk = townsfolkInSight.values.toList()
     val settlement = sites.siteCovering(at.x, at.y)?.index
     val seen = warded || townsfolk.isNotEmpty() || settlement != null || anyPlayerSees(world, actor, at)
 
@@ -75,8 +79,12 @@ class HonorService(
     honor.update(ledger, ledger.valueAt(now, rules.global))
 
     val reachedSettlement = settlement.takeIf { townsfolk.isEmpty() }
-    townsfolk.forEach { changeLocal(masterId, Scope.GRUDGE, it, local) }
-    reachedSettlement?.let { changeLocal(masterId, Scope.SETTLEMENT, it.toLong(), local) }
+    townsfolk.forEach { changeLocal(masterId, masterName, Scope.GRUDGE, it, local) }
+    reachedSettlement?.let { changeLocal(masterId, masterName, Scope.SETTLEMENT, it.toLong(), local) }
+
+    if (local < 0) {
+      townsfolkInSight.keys.firstOrNull()?.let { outcry?.cryOut(world, it, act, masterName) }
+    }
 
     LOG.debug { "$act by master $masterId: global $global, local $local on ${townsfolk.size} witness(es)" }
 
@@ -121,15 +129,25 @@ class HonorService(
     honor.update(ledger, ledger.valueAt(clock.instant(), rules.global))
   }
 
-  private fun changeLocal(masterId: Long, scope: Scope, holder: Long, amount: Int) {
+  /** Changes what [settlement] thinks of a Master, as news reaches it rather than as somebody there saw it. */
+  fun changeSettlement(masterId: Long, masterName: String, settlement: Int, amount: Int) {
+    changeLocal(masterId, masterName, Scope.SETTLEMENT, settlement.toLong(), amount)
+  }
+
+  fun isRememberedForever(masterId: Long, settlement: Int): Boolean {
+    return localHonor.ledgerOf(masterId, Scope.SETTLEMENT, settlement.toLong())?.permanent == true
+  }
+
+  private fun changeLocal(masterId: Long, masterName: String, scope: Scope, holder: Long, amount: Int) {
     if (amount == 0) {
       return
     }
 
     val layer = layerOf(scope)
     val current = localHonor.ledgerOf(masterId, scope, holder) ?: HonorLedger()
+    val untold = if (scope == Scope.GRUDGE && amount < 0) -amount else 0
 
-    localHonor.store(masterId, scope, holder, current.apply(amount, clock.instant(), layer))
+    localHonor.store(masterId, scope, holder, current.apply(amount, clock.instant(), layer), masterName, untold)
   }
 
   private fun localValue(masterId: Long, scope: Scope, holder: Long, layer: HonorLayer): Int {
@@ -155,11 +173,12 @@ class HonorService(
   }
 
   /** A killed townsperson tells nobody; a killed player still remembers who did it. */
-  private fun townsfolkWitnesses(world: World, at: Vec3L): List<Long> {
-    val seenBy = mutableListOf<Long>()
+  /** Each witness's entity to who they are. */
+  private fun townsfolkWitnesses(world: World, at: Vec3L): Map<EntityId, Long> {
+    val seenBy = LinkedHashMap<EntityId, Long>()
     world.each(Townsfolk::class) { id, townsfolk ->
       if (!world.has(id, Dead::class) && isInSight(world, id, at)) {
-        seenBy.add(townsfolk.identity)
+        seenBy[id] = townsfolk.identity
       }
     }
 
