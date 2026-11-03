@@ -33,7 +33,7 @@ class AreaEffectTest {
       damagePerTick = 0,
       tickIntervalSeconds = 1f,
       durationSeconds = 1f,
-      riders = AreaRiders(zoneStatus = StatusEffectId.SHELTERED, forAllies = true)
+      mechanics = AreaMechanics(zoneStatus = StatusEffectId.SHELTERED, forAllies = true)
     )
   }
 

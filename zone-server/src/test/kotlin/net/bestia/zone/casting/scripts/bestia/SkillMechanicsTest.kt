@@ -14,7 +14,7 @@ import net.bestia.zone.casting.SkillContext
 import net.bestia.zone.casting.SkillContextFixture
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.persistence.SkillMechanics
-import net.bestia.zone.skill.persistence.SkillStatusRider
+import net.bestia.zone.skill.persistence.OnHitStatus
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -64,7 +64,7 @@ class SkillMechanicsTest {
       .putPosition(ATTACKER_ID, Vec3L(0, 0, 0))
       .putPosition(DEFENDER_ID, Vec3L(1, 0, 0))
     val mechanics = SkillMechanics(
-      onHit = listOf(SkillStatusRider(StatusEffectId.STUN.name, chance = 70, durationSeconds = 2.5)),
+      onHit = listOf(OnHitStatus(StatusEffectId.STUN.name, chance = 70, durationSeconds = 2.5)),
       knockback = 3,
       lifesteal = 0.5f
     )
@@ -97,11 +97,11 @@ class SkillMechanicsTest {
   @Test
   fun `an area carries the skill's statuses to everyone it covers`() {
     val world = RecordingSkillWorld()
-    val mechanics = SkillMechanics(onHit = listOf(SkillStatusRider(StatusEffectId.POISON.name, chance = 70)))
+    val mechanics = SkillMechanics(onHit = listOf(OnHitStatus(StatusEffectId.POISON.name, chance = 70)))
 
     BestiaAreaSkill(LineOfSightService(), HalfRandom()).execute(ctx(mechanics, world, aoeRadius = 2.0))
 
-    val status = world.spawnedAreaEffects.single().effect.riders.statuses.single()
+    val status = world.spawnedAreaEffects.single().effect.mechanics.statuses.single()
     assertEquals(StatusEffectId.POISON, status.effect)
     assertEquals(70, status.chancePercent)
   }
@@ -115,7 +115,7 @@ class SkillMechanicsTest {
 
     val zone = world.spawnedAreaEffects.single().effect
     assertEquals(0, zone.damagePerTick)
-    assertEquals(StatusEffectId.QUAGMIRED, zone.riders.zoneStatus)
+    assertEquals(StatusEffectId.QUAGMIRED, zone.mechanics.zoneStatus)
     assertEquals(20, zone.remainingTicks)
   }
 

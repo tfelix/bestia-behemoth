@@ -22,7 +22,7 @@ data class SkillMechanics(
   /** Extra coefficient per tile rushed, so a long run-up hits harder. */
   val dashBonusPerTile: Float = 0f,
 
-  /** Tiles the caster jumps to its target, and the radius around the landing the rider rolls on. */
+  /** Tiles the caster jumps to its target, and the radius around the landing its statuses roll on. */
   val leap: Int = 0,
   val landingRadius: Int = 0,
 
@@ -75,7 +75,7 @@ data class SkillMechanics(
   val weightScaling: Boolean = false,
 
   /** Statuses a hit may leave on its target. */
-  val onHit: List<SkillStatusRider> = emptyList(),
+  val onHit: List<OnHitStatus> = emptyList(),
 ) {
 
   companion object {
