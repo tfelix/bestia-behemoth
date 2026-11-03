@@ -167,6 +167,14 @@ text = "Master Name"
 clip_text = true
 text_overrun_behavior = 3
 
+[node name="HonorLabel" type="Label" parent="Margin/Layout/Top/Vitals/Header" unique_id=162226529]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Honor"
+mouse_filter = 1
+text = "Honor 0"
+label_settings = SubResource("LabelSettings_small")
+
 [node name="PositionIcon" type="TextureRect" parent="Margin/Layout/Top/Vitals/Header" unique_id=1092384756]
 self_modulate = Color(0.66, 0.66, 0.66, 1)
 custom_minimum_size = Vector2(14, 14)
@@ -410,14 +418,6 @@ layout_mode = 2
 tooltip_text = "Gold"
 mouse_filter = 1
 text = "0"
-label_settings = SubResource("LabelSettings_small")
-
-[node name="HonorLabel" type="Label" parent="Margin/Layout/Bottom" unique_id=162226529]
-unique_name_in_owner = true
-layout_mode = 2
-tooltip_text = "Honor"
-mouse_filter = 1
-text = "Honor 0"
 label_settings = SubResource("LabelSettings_small")
 
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Items" to="." method="_on_inventory_pressed"]
