@@ -31,7 +31,7 @@ learnset:
   - { skill: frost_nova, level: 51 }
   - { skill: frost_weapon, level: 56 }
   - { skill: tidal_slam, level: 61 }
-  - { skill: petrifying_gaze, level: 66 }
+  - { skill: control_undead, level: 66 }
   - { skill: renewal, level: 70 }
   - { skill: berserk, level: 76 }
   - { skill: frost_breath, level: 82 }

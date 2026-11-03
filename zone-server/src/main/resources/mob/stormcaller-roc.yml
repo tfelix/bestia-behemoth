@@ -11,12 +11,12 @@ size: BIG
 default-attack: RANGED
 aspd: 80
 ai: aggressive_melee
-attack-power: 3.1
+attack-power: 3.21
 weight: 500
-health: 86174
+health: 86996
 mana: 227
 experience: 32825
-attributes: { strength: 16, intelligence: 18, vitality: 37, dexterity: 28, willpower: 49, agility: 183 }
+attributes: { strength: 16, intelligence: 18, vitality: 37, dexterity: 27, willpower: 49, agility: 183 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: pebble_toss, level: 6 }
@@ -31,7 +31,7 @@ learnset:
   - { skill: wind_ward, level: 51, active: true }
   - { skill: piercing_spike, level: 56 }
   - { skill: tempest_dive, level: 61 }
-  - { skill: petrifying_gaze, level: 66, active: true }
+  - { skill: control_undead, level: 66, active: true }
   - { skill: barbed_barrage, level: 70 }
   - { skill: rampage, level: 76, active: true }
   - { skill: thorn_volley, level: 82, active: true }

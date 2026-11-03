@@ -31,7 +31,7 @@ learnset:
   - { skill: acid_skin, level: 51 }
   - { skill: piercing_spike, level: 56 }
   - { skill: toxic_rend, level: 61 }
-  - { skill: petrifying_gaze, level: 66 }
+  - { skill: control_undead, level: 66 }
   - { skill: barbed_barrage, level: 70 }
   - { skill: rampage, level: 76 }
   - { skill: thorn_volley, level: 82 }

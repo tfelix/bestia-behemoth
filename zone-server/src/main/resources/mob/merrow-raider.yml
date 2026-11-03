@@ -31,7 +31,7 @@ learnset:
   - { skill: hailstone, level: 51 }
   - { skill: frost_nova, level: 56 }
   - { skill: tidal_slam, level: 61, active: true }
-  - { skill: petrifying_gaze, level: 66 }
+  - { skill: control_undead, level: 66 }
   - { skill: torrent, level: 70 }
   - { skill: frost_breath, level: 82 }
   - { skill: skull_breaker, level: 88 }

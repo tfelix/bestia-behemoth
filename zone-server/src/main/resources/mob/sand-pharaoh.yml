@@ -13,24 +13,23 @@ aspd: 80
 ai: aggressive_melee
 attack-power: 0.11
 weight: 500
-health: 79309
+health: 80817
 mana: 645
-experience: 27414
+experience: 27667
 attributes: { strength: 1, intelligence: 160, vitality: 43, dexterity: 1, willpower: 107, agility: 43 }
 learnset:
   - { skill: growl, level: 6 }
-  - { skill: shadow_bolt, level: 16 }
   - { skill: flame_weapon, level: 21 }
+  - { skill: necrotic_bolt, level: 26 }
   - { skill: shockwave, level: 31 }
   - { skill: bewilder, level: 36 }
-  - { skill: creeping_dark, level: 46 }
+  - { skill: blight, level: 46 }
   - { skill: mending_light, level: 56, active: true }
-  - { skill: umbral_wave, level: 61, active: true }
-  - { skill: abyssal_lance, level: 66, active: true }
+  - { skill: mana_storm, level: 61, active: true }
+  - { skill: drain_life, level: 66, active: true }
   - { skill: control_undead, level: 70, active: true }
-  - { skill: mana_storm, level: 82 }
   - { skill: bleeding_wound, level: 88 }
-  - { skill: endless_night, level: 100 }
+  - { skill: grave_tide, level: 100 }
 habitat: [DESERT]
 temperature-min: 8
 temperature-max: 48

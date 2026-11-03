@@ -32,7 +32,7 @@ learnset:
   - { skill: tremor, level: 51 }
   - { skill: quake_weapon, level: 56 }
   - { skill: boulder_slam, level: 61 }
-  - { skill: petrifying_gaze, level: 66 }
+  - { skill: stone_curse, level: 66 }
   - { skill: renewal, level: 70 }
   - { skill: berserk, level: 76 }
   - { skill: mana_storm, level: 82 }

@@ -31,7 +31,7 @@ learnset:
   - { skill: shockwave, level: 51 }
   - { skill: bone_armor, level: 56 }
   - { skill: bone_crusher, level: 61 }
-  - { skill: petrifying_gaze, level: 66 }
+  - { skill: control_undead, level: 66 }
   - { skill: renewal, level: 70 }
   - { skill: berserk, level: 76 }
   - { skill: mana_storm, level: 82 }

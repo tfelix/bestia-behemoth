@@ -14,9 +14,9 @@ aspd: 80
 ai: aggressive_melee
 attack-power: 0.03
 weight: 500
-health: 131743
+health: 140943
 mana: 1058
-experience: 37923
+experience: 37894
 attributes: { strength: 1, intelligence: 216, vitality: 58, dexterity: 1, willpower: 144, agility: 58 }
 learnset:
   - { skill: growl, level: 6 }
@@ -28,7 +28,7 @@ learnset:
   - { skill: mending_light, level: 56 }
   - { skill: mana_storm, level: 61 }
   - { skill: drain_life, level: 66, active: true }
-  - { skill: petrifying_gaze, level: 70, active: true }
+  - { skill: control_undead, level: 70, active: true }
   - { skill: bleeding_wound, level: 88, active: true }
   - { skill: grave_tide, level: 100, active: true }
 habitat: []
