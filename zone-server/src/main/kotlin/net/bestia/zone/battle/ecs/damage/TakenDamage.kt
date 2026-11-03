@@ -64,13 +64,18 @@ class TakenDamage(): Component {
    * entity without an account, such as a mob, counts for nobody.
    */
   fun topAccount(world: World): Long? {
+    return damageByAccount(world).maxByOrNull { it.value }?.key
+  }
+
+  /** Damage dealt per account, a master and its bestias together; damage without an account is left out. */
+  fun damageByAccount(world: World): Map<Long, Int> {
     val damageByAccount = HashMap<Long, Int>()
     value.forEach { (sourceId, entry) ->
       val accountId = world.get(sourceId, Account::class)?.accountId ?: return@forEach
       damageByAccount.merge(accountId, entry.damage, Int::plus)
     }
 
-    return damageByAccount.maxByOrNull { it.value }?.key
+    return damageByAccount
   }
 
   fun removeOldEntries() {
