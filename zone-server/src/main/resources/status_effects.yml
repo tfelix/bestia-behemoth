@@ -177,3 +177,20 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: Aggressor
+
+  # Kept on a master by HonorStandingSystem while their global honor is below zero, so other players can see
+  # whom they may hunt for honor.
+  - id: 22
+    identifier: DISHONORED
+    polarity: NEUTRAL
+    showIcon: true
+    isSyncedToClient: true
+    script: Dishonored
+
+  # Put on a master who stole, for six real hours. Whoever kills them earns extra honor.
+  - id: 23
+    identifier: THIEF
+    polarity: NEUTRAL
+    showIcon: true
+    isSyncedToClient: true
+    script: Thief

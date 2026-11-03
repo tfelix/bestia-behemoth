@@ -76,6 +76,7 @@
  - UPKEEP wave 40: WorldStateSampler [EverySeconds(seconds=5.0)]
  - UPKEEP wave 41: CompendiumSightingSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 41: GuildMemberBeaconSystem [EverySeconds(seconds=1.0)]
+ - UPKEEP wave 41: HonorStandingSystem [EverySeconds(seconds=10.0)]
  - PERSIST wave 42: ChunkEditPersistSystem [EverySeconds(seconds=10.0)]
  - PERSIST wave 42: EntityPersistenceSystem [EverySeconds(seconds=1.0)]
  - PERSIST wave 42: PersistAndRemoveSystem [EveryTick]

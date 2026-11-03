@@ -17,6 +17,7 @@ acts:
   DESTROY_WARD_STONE: { global: -20, local: -100 }
   ABANDON_COMMISSION: { global: -5, local: -20 }
   KILL_OUTLAW: { global: 5, local: 5 }
+  KILL_THIEF: { global: 5, local: 5 }
   DEFEND_FROM_AGGRESSOR: { global: 3, local: 5 }
   HELP_NPC: { global: 2, local: 10 }
   COMPLETE_COMMISSION: { global: 1, local: 5 }

@@ -2,6 +2,7 @@ package net.bestia.zone.honor
 
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.battle.ecs.damage.TakenDamage
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.update
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.geometry.Vec3L
@@ -66,14 +67,32 @@ class PlayerKillHonorTest {
   }
 
   @Test
-  fun `a third player who kills the aggressor is defending too`() {
+  fun `a third player who kills the aggressor is defending and earns honor`() {
     val bystander = fixture.master(HERE + Vec3L(8, 0, 0))
     hit(attacker, victim)
     hit(bystander, attacker)
     kill(bystander, attacker)
 
     assertFalse(fixture.aggression.isAggressor(world, bystander))
-    assertEquals(20, globalOf(bystander))
+    assertEquals(23, globalOf(bystander))
+  }
+
+  @Test
+  fun `killing an outlaw earns no more than they owe, once a day`() {
+    val outlaw = fixture.master(HERE + Vec3L(3, 0, 0), HonorLedger(debt = 23, lastLossAt = fixture.now))
+    kill(attacker, outlaw)
+    world.remove(outlaw, Dead::class)
+    kill(attacker, outlaw)
+
+    assertEquals(23, globalOf(attacker))
+  }
+
+  @Test
+  fun `killing a thief earns the thief's bounty`() {
+    fixture.statusEffects.applyEffect(world, victim, StatusEffectId.THIEF, level = 1)
+    kill(attacker, victim)
+
+    assertEquals(25, globalOf(attacker))
   }
 
   @Test

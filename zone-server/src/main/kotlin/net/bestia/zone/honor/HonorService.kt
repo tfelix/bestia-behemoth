@@ -55,7 +55,8 @@ class HonorService(
    * Townsfolk who saw it hold a personal grudge; with nobody of the town in sight, an act inside a settlement
    * reaches the settlement directly. Player witnesses only make the global part count.
    */
-  fun record(world: World, act: HonorAct, actor: EntityId, at: Vec3L): Recorded {
+  /** @param maxGain caps what a good deed earns globally, for a reward that depends on its victim */
+  fun record(world: World, act: HonorAct, actor: EntityId, at: Vec3L, maxGain: Int? = null): Recorded {
     val honor = world.get(actor, Honor::class) ?: return Recorded(seen = false)
     val master = world.get(actor, Master::class) ?: return Recorded(seen = false)
     val masterId = master.masterId
@@ -73,7 +74,7 @@ class HonorService(
     }
 
     val amount = rules.amountOf(act)
-    val global = scaled(amount.global, warded)
+    val global = scaled(amount.global, warded).let { if (maxGain != null) it.coerceAtMost(maxGain) else it }
     val local = scaled(amount.local, warded)
 
     val now = clock.instant()
@@ -149,6 +150,13 @@ class HonorService(
 
   fun settlementValue(masterId: Long, settlement: Int): Int {
     return localValue(masterId, Scope.SETTLEMENT, settlement.toLong(), rules.settlement)
+  }
+
+  /** Heals what has healed since [honor] last changed. @return the value the owner now sees */
+  fun refresh(honor: Honor): Int {
+    honor.update(honor.ledger, honor.ledger.valueAt(clock.instant(), rules.global))
+
+    return honor.shownValue
   }
 
   /** Replaces [actor]'s global honor outright, for GMs. */

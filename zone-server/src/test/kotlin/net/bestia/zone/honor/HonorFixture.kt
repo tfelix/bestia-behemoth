@@ -8,6 +8,8 @@ import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.status.scripts.Aggressor
+import net.bestia.zone.battle.status.scripts.Dishonored
+import net.bestia.zone.battle.status.scripts.Thief
 import net.bestia.zone.battle.status.scripts.Warded
 import net.bestia.zone.boot.StatusEffectImporterBootRunner
 import net.bestia.zone.identity.MasterEntityResolver
@@ -86,7 +88,7 @@ class HonorFixture(systems: (HonorFixture) -> List<System> = { emptyList() }) {
   val aggression = Aggression(masters)
 
   private val effectCatalogue = StatusEffectDefinitionRegistry().also { StatusEffectImporterBootRunner(it).run() }
-  val statusEffects = StatusEffectService(effectCatalogue, StatusEffectScriptRegistry(listOf(Aggressor(), Warded())))
+  val statusEffects = StatusEffectService(effectCatalogue, StatusEffectScriptRegistry(listOf(Aggressor(), Warded(), Dishonored(), Thief())))
 
   val world: EcsWorld = testWorld(systems = systems(this))
 

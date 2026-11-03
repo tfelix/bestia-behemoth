@@ -57,7 +57,8 @@ class AggressorSystem(
         }
         val attackerMaster = masters.masterEntityOf(world, attacker) ?: continue
 
-        statusEffects.applyEffect(world, attackerMaster, StatusEffectId.AGGRESSOR, level = 1)
+        // The victim as source, so whoever comes to their help can be told apart from them.
+        statusEffects.applyEffect(world, attackerMaster, StatusEffectId.AGGRESSOR, level = 1, sourceEntityId = victim)
       }
     }
   }

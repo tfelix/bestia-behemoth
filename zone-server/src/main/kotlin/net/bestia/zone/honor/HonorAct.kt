@@ -16,7 +16,11 @@ enum class HonorAct {
   DISPEL_WARD_STONE,
   DESTROY_WARD_STONE,
   ABANDON_COMMISSION,
+  /** A master whose global honor is below zero. Never earns more than the victim's honor is below zero. */
   KILL_OUTLAW,
+
+  /** A master who carries the THIEF mark. */
+  KILL_THIEF,
   DEFEND_FROM_AGGRESSOR,
   HELP_NPC,
   COMPLETE_COMMISSION,
