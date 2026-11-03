@@ -23,7 +23,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
 
     public static AnimationKind ToKind(string name)
     {
-      if (Enum.TryParse(name, ignoreCase: true, out AnimationKind kind) && Enum.IsDefined(kind))
+      // The C# member drops the proto's underscores: PICK_UP is PickUp.
+      if (Enum.TryParse(name.Replace("_", ""), ignoreCase: true, out AnimationKind kind) && Enum.IsDefined(kind))
       {
         return kind;
       }

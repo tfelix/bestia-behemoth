@@ -29,10 +29,14 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
       };
     }
 
-    /// <summary>A value from a newer server reads as IDLE, which plays nothing rather than something wrong.</summary>
+    /// <summary>
+    /// The proto's own spelling: "PICK_UP", not the "PICKUP" that upper-casing the C# member <c>PickUp</c> welds
+    /// together, which no visual matched, so nobody was ever seen bending down - see <see cref="EnumName"/>. A value
+    /// from a newer server reads as IDLE, which plays nothing rather than something wrong.
+    /// </summary>
     public static string KindName(global::Bnet.AnimationKind kind)
     {
-      return Enum.IsDefined(kind) ? kind.ToString().ToUpperInvariant() : None;
+      return Enum.IsDefined(kind) ? EnumName.Of(kind).ToUpperInvariant() : None;
     }
   }
 }

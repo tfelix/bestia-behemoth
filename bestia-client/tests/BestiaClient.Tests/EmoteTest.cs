@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using BestiaBehemothClient.Bnet.Message.Entity;
+using Google.Protobuf.Reflection;
 using AnimationKind = Bnet.AnimationKind;
 using Xunit;
 
@@ -21,6 +23,20 @@ namespace BestiaBehemothClient.Tests
       foreach (var kind in Enum.GetValues<AnimationKind>())
       {
         Assert.Equal(kind, EmoteCMSG.ToKind(AnimationComponentSMSG.KindName(kind)));
+      }
+    }
+
+    /// <summary>
+    /// GDScript keys its clips by the proto's name. The trip above cannot catch a misspelling, since parsing ignores
+    /// case and underscores: PICK_UP once arrived as "PICKUP" and no master ever bent down.
+    /// </summary>
+    [Fact]
+    public void EveryKindReachesGdscriptAsTheProtoSpellsIt()
+    {
+      foreach (var kind in Enum.GetValues<AnimationKind>())
+      {
+        var proto = typeof(AnimationKind).GetField(kind.ToString())!.GetCustomAttribute<OriginalNameAttribute>()!.Name;
+        Assert.Equal(proto, AnimationComponentSMSG.KindName(kind));
       }
     }
 
