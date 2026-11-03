@@ -34,4 +34,7 @@ data class ActiveStatusEffect(
 ) {
   /** Runtime only, so it is kept out of `equals`, `copy` and storage. */
   var sinceLastTick: Float = 0f
+
+  /** Runtime only like [sinceLastTick]: seconds on the bearer, counted on the duration system's beat. */
+  var ageSeconds: Float = 0f
 }

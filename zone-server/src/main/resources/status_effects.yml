@@ -204,3 +204,83 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: Thief
+
+  # Crowd control. `resist` pairs are spread so every attribute guards about as many effects as the others.
+  - id: 24
+    identifier: STUN
+    polarity: DEBUFF
+    resist: [VIT, STR]
+    showIcon: true
+    isSyncedToClient: true
+    script: Stun
+
+  - id: 25
+    identifier: FROZEN
+    polarity: DEBUFF
+    resist: [VIT, WIL]
+    showIcon: true
+    isSyncedToClient: true
+    script: Frozen
+
+  - id: 26
+    identifier: STONING
+    polarity: DEBUFF
+    resist: [WIL, INT]
+    showIcon: true
+    isSyncedToClient: true
+    script: Stoning
+
+  # Follows STONING on its own, so it is never rolled and needs no resist.
+  - id: 27
+    identifier: STONE
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Stone
+
+  - id: 28
+    identifier: IMMOBILIZED
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Immobilized
+
+  - id: 29
+    identifier: SLOWED
+    polarity: DEBUFF
+    resist: [AGI, STR]
+    showIcon: true
+    isSyncedToClient: true
+    script: Slowed
+
+  - id: 30
+    identifier: CONFUSED
+    polarity: DEBUFF
+    resist: [INT, DEX]
+    showIcon: true
+    isSyncedToClient: true
+    script: Confused
+
+  - id: 31
+    identifier: FEARED
+    polarity: DEBUFF
+    resist: [WIL, STR]
+    showIcon: true
+    isSyncedToClient: true
+    script: Feared
+
+  - id: 32
+    identifier: BLIND
+    polarity: DEBUFF
+    resist: [INT, DEX]
+    showIcon: true
+    isSyncedToClient: true
+    script: Blind
+
+  - id: 33
+    identifier: STIFFENED
+    polarity: DEBUFF
+    resist: [DEX, AGI]
+    showIcon: true
+    isSyncedToClient: true
+    script: Stiffened

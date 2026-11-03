@@ -134,6 +134,7 @@ class StatusEffects(
     while (iterator.hasNext()) {
       val effect = iterator.next()
       effect.remainingSeconds -= deltaTime
+      effect.ageSeconds += deltaTime
       if (effect.remainingSeconds <= 0f) {
         iterator.remove()
         markDirty()
