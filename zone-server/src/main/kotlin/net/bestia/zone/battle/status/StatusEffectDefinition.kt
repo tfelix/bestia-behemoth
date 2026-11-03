@@ -13,4 +13,8 @@ data class StatusEffectDefinition(
   val isSyncedToClient: Boolean,
   val script: String,
   val polarity: StatusEffectPolarity = StatusEffectPolarity.NEUTRAL,
+  /** The attributes that shake the effect off, see [StatusResistance]. Empty means it cannot be resisted. */
+  val resist: List<ResistStat> = emptyList(),
+  /** False for an effect no dispel may strip, like a ward's protection. */
+  val dispellable: Boolean = true,
 )

@@ -9,6 +9,9 @@
 # stored and how long it lasts are the script's to say, not this file's.
 #
 # `polarity: DEBUFF` makes an effect harm, which the damage gate weighs like a blow. Bookkeeping is NEUTRAL.
+#
+# `resist` names the two attributes that shake an effect off (STR, VIT, INT, DEX, WIL, AGI), see StatusResistance.
+# Without it the effect always lands when a skill rolls it. `dispellable: false` keeps a buff from being dispelled.
 statusEffects:
   - id: 1
     identifier: SWIFTNESS
@@ -78,6 +81,7 @@ statusEffects:
   - id: 9
     identifier: INVULNERABLE
     polarity: BUFF
+    dispellable: false
     showIcon: false
     isSyncedToClient: false
     script: InvulnerableEffect
@@ -87,6 +91,7 @@ statusEffects:
   - id: 10
     identifier: WARDED
     polarity: BUFF
+    dispellable: false
     showIcon: true
     isSyncedToClient: true
     script: Warded
@@ -95,6 +100,7 @@ statusEffects:
   - id: 11
     identifier: WARD_AURA
     polarity: NEUTRAL
+    dispellable: false
     showIcon: false
     isSyncedToClient: false
     script: WardAura
@@ -104,6 +110,7 @@ statusEffects:
   - id: 12
     identifier: GUILD_AURA
     polarity: BUFF
+    dispellable: false
     showIcon: true
     isSyncedToClient: true
     script: GuildAura
@@ -112,6 +119,7 @@ statusEffects:
   - id: 13
     identifier: BATTLE_ORDERS
     polarity: BUFF
+    dispellable: false
     showIcon: true
     isSyncedToClient: true
     script: BattleOrdersEffect
@@ -119,6 +127,7 @@ statusEffects:
   - id: 14
     identifier: GUILD_REGENERATION
     polarity: BUFF
+    dispellable: false
     showIcon: true
     isSyncedToClient: true
     script: GuildRegenerationEffect
@@ -134,6 +143,7 @@ statusEffects:
   - id: 16
     identifier: TELEPORT_LOCK
     polarity: NEUTRAL
+    dispellable: false
     showIcon: false
     isSyncedToClient: false
     script: TeleportLock
