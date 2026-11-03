@@ -1,0 +1,52 @@
+[gd_scene load_steps=7 format=3 uid="uid://cq1arrowtracer"]
+
+[ext_resource type="Script" path="res://Game/Entity/Visual/Projectile/arrow_tracer.gd" id="1_arrow"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_shaft"]
+albedo_color = Color(0.62, 0.45, 0.26, 1)
+roughness = 0.8
+
+[sub_resource type="CylinderMesh" id="Mesh_shaft"]
+material = SubResource("Mat_shaft")
+top_radius = 0.012
+bottom_radius = 0.012
+height = 0.7
+radial_segments = 6
+rings = 1
+
+[sub_resource type="StandardMaterial3D" id="Mat_tip"]
+albedo_color = Color(0.25, 0.25, 0.27, 1)
+metallic = 0.6
+roughness = 0.4
+
+[sub_resource type="CylinderMesh" id="Mesh_tip"]
+material = SubResource("Mat_tip")
+top_radius = 0.0
+bottom_radius = 0.03
+height = 0.09
+radial_segments = 6
+rings = 1
+
+[sub_resource type="BoxMesh" id="Mesh_fletching"]
+size = Vector3(0.07, 0.004, 0.12)
+
+[node name="ArrowTracer" type="Node3D"]
+script = ExtResource("1_arrow")
+
+[node name="Shaft" type="MeshInstance3D" parent="."]
+rotation = Vector3(-1.5707964, 0, 0)
+mesh = SubResource("Mesh_shaft")
+
+[node name="Tip" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0, -0.39)
+rotation = Vector3(-1.5707964, 0, 0)
+mesh = SubResource("Mesh_tip")
+
+[node name="Fletching" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0, 0.3)
+mesh = SubResource("Mesh_fletching")
+
+[node name="Fletching2" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0, 0.3)
+rotation = Vector3(0, 0, 1.5707964)
+mesh = SubResource("Mesh_fletching")

@@ -7,6 +7,11 @@ class_name EntityManager
 ##   node into the Game node.
 
 var EntityScn = preload("res://Game/Entity/Entity.tscn")
+var ArrowTracerScn = preload("res://Game/Entity/Visual/Projectile/ArrowTracer.tscn")
+
+## Above the feet: where an arrow leaves the bow arm and where it lands on a body.
+const _SHOT_FROM_HEIGHT := 1.2
+const _SHOT_AT_HEIGHT := 0.8
 
 # TODO not sure if int is enough here. Sadly we can not seem to be able to use long for
 #   entity IDs. Maybe we need to convert into a string.
@@ -361,7 +366,10 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 	elif msg is BuffListSMSG:
 		entity.update_effects(msg)
 	elif msg is DamageEntitySMSG:
-		entity.show_damage(msg)
+		if msg.ProjectileItemId != 0:
+			_shoot_then_show(entity, msg)
+		else:
+			entity.show_damage(msg)
 	elif msg is InventoryComponentSMSG:
 		# no handling so far. The inventory of our entity is handled via a own handler
 		# directly in the inventory node. On an per entity level it is not handled.
@@ -437,3 +445,23 @@ func resync_entities() -> void:
 	_detached_vitals.clear()
 	for child in get_children():
 		child.queue_free()
+
+
+## Draws the arrow first and the damage tag once it lands. A shooter this client does not see still lands
+## its hit, only without the flight.
+func _shoot_then_show(target: Entity, msg: DamageEntitySMSG) -> void:
+	var shooter: Entity = _entities.get(int(msg.SourceEntityId))
+	if shooter == null:
+		target.show_damage(msg)
+		return
+
+	var arrow: ArrowTracer = ArrowTracerScn.instantiate()
+	add_child(arrow)
+	arrow.fly(
+		shooter.global_position + Vector3.UP * _SHOT_FROM_HEIGHT,
+		target.global_position + Vector3.UP * _SHOT_AT_HEIGHT
+	)
+	arrow.arrived.connect(func() -> void:
+		if is_instance_valid(target):
+			target.show_damage(msg)
+	)

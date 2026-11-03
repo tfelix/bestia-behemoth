@@ -29,6 +29,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export] public uint SkillLevel { get; set; }
     [Export] public DamageType Type { get; set; }
 
+    /// <summary>The ammo item a shot spent, drawn flying from the source; 0 for anything not shot.</summary>
+    [Export] public uint ProjectileItemId { get; set; }
+
     public DamageEntitySMSG()
     {
     }
@@ -48,7 +51,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         Damage = protoDamageEntity.Damage,
         Div = protoDamageEntity.Div,
         SkillLevel = protoDamageEntity.SkillLevel,
-        Type = MapDamageTypeFromProto(protoDamageEntity.Type)
+        Type = MapDamageTypeFromProto(protoDamageEntity.Type),
+        ProjectileItemId = protoDamageEntity.ProjectileItemId
       };
     }
 

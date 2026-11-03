@@ -162,7 +162,8 @@ class AttackExecutionService(
       div = 1,
       damage = result.amount,
       skillLevel = 1,
-      type = DamageEntitySMSG.DamageType.of(result)
+      type = DamageEntitySMSG.DamageType.of(result),
+      projectileItemId = ammunition?.itemId ?: 0
     )
 
     // Deferred because this is called from inside a system: `World.add` is itself deferred while a system

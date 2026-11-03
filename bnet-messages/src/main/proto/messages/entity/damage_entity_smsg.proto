@@ -27,4 +27,8 @@ message DamageEntitySMSG {
   uint32 div = 5;
   uint32 skill_level = 6;
   DamageType type = 7;
+  /**
+   * The ammo item a shot spent, so the client can draw it flying from the source; 0 for anything not shot.
+   */
+  uint32 projectile_item_id = 8;
 }
