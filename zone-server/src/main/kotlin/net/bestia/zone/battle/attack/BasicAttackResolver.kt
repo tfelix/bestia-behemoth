@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.attack
 
+import net.bestia.zone.battle.RangedWeapon
 import net.bestia.zone.battle.ammo.AmmoSupply
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.ecs.core.World
@@ -18,9 +19,22 @@ class BasicAttackResolver(
 
   /** Null when a ranged weapon is held but the quiver has nothing left it can fire. */
   fun resolve(world: World, entityId: EntityId, fallback: BattleAttack): BattleAttack? {
-    val weapon = world.get(entityId, CombatStats::class)?.values?.weapon?.ranged ?: return fallback
+    if (rangedWeaponOf(world, entityId) == null) {
+      return fallback
+    }
+
+    return shotOf(world, entityId, fallback.baseAttackMotionMs)
+  }
+
+  /** The shot [entityId] can fire right now, or null without a ranged weapon or the ammo for it. */
+  fun shotOf(world: World, entityId: EntityId, baseAttackMotionMs: Int): BattleAttack? {
+    val weapon = rangedWeaponOf(world, entityId) ?: return null
     val ammunition = ammoSupply.nextFor(world, entityId, weapon) ?: return null
 
-    return BattleAttack.shotWith(weapon, ammunition, fallback.baseAttackMotionMs)
+    return BattleAttack.shotWith(weapon, ammunition, baseAttackMotionMs)
+  }
+
+  private fun rangedWeaponOf(world: World, entityId: EntityId): RangedWeapon? {
+    return world.get(entityId, CombatStats::class)?.values?.weapon?.ranged
   }
 }

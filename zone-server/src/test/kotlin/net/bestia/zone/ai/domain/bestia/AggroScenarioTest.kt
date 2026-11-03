@@ -120,6 +120,18 @@ class AggroScenarioTest {
     assertEquals(listOf("attack(ranged)"), away?.actions?.map { it.name })
   }
 
+  @Test
+  fun `a bestia whose bow can shoot shoots from the bow's reach instead of biting`() {
+    val inReach = aggroMemory(targetPosition = Vec3L(4, 0, 0)).apply { set(BestiaDomain.SHOT_REACH, 5L) }
+    val far = aggroMemory(targetPosition = Vec3L(9, 0, 0)).apply { set(BestiaDomain.SHOT_REACH, 5L) }
+
+    val shoots = planner.makePlanForAgent(wolf(inReach, listOf(melee)), Blackboard())
+    val closesIn = planner.makePlanForAgent(wolf(far, listOf(melee)), Blackboard())
+
+    assertEquals(listOf("attack(shot)"), shoots?.actions?.map { it.name })
+    assertEquals(listOf("approachTarget", "attack(shot)"), closesIn?.actions?.map { it.name })
+  }
+
   private fun wolf(memory: Blackboard, attacks: List<AttackDefinition>) = SimpleAgent(
     name = "wolf",
     goals = combatGoals,
