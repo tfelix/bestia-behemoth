@@ -24,9 +24,10 @@ namespace BestiaBehemothClient.Game.World
     {
       var appearance = PropAppearance.Of(kind);
 
+      // No prop id here, so a scene kind gets its first variant.
       if (appearance.HasScene)
       {
-        return ResourceLoader.Load<PackedScene>(appearance.ScenePath).Instantiate<Node3D>();
+        return ResourceLoader.Load<PackedScene>(appearance.Scenes[0].Path).Instantiate<Node3D>();
       }
 
       var instance = new MeshInstance3D { Mesh = MeshFor(appearance) };

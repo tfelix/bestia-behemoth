@@ -32,11 +32,16 @@ namespace BestiaBehemothClient.Game.World
     /// <remarks>
     /// A character body drawn with the entity uber material is skipped: that material draws its own weather in
     /// the same pass, so an overlay would only cost a second draw.
+    ///
+    /// <para>
+    /// So is a mesh with an alpha-scissored surface, such as a tree's leaf cards. The overlay is a second pass
+    /// that cannot see the first one's cutout, so it would paint every leaf card as a whole rectangle.
+    /// </para>
     /// </remarks>
     /// <param name="moving">For what walks through the snow: it gets a frost rather than a cap.</param>
     public static void Register(Node root, bool moving)
     {
-      if (root is GeometryInstance3D geometry && !DrawsOwnWeather(geometry))
+      if (root is GeometryInstance3D geometry && !DrawsOwnWeather(geometry) && !HasCutout(geometry))
       {
         geometry.AddToGroup(Group);
         geometry.SetMeta(MovingMeta, moving);
@@ -76,6 +81,25 @@ namespace BestiaBehemothClient.Game.World
 
       var material = instance.GetSurfaceOverrideMaterial(0) ?? mesh.SurfaceGetMaterial(0);
       return material is ShaderMaterial { Shader: { } shader } && shader.ResourcePath == EntityUberShaderPath;
+    }
+
+    private static bool HasCutout(GeometryInstance3D geometry)
+    {
+      if (geometry is not MeshInstance3D { Mesh: { } mesh } instance)
+      {
+        return false;
+      }
+
+      for (var surface = 0; surface < mesh.GetSurfaceCount(); surface++)
+      {
+        var material = instance.GetSurfaceOverrideMaterial(surface) ?? mesh.SurfaceGetMaterial(surface);
+        if (material is BaseMaterial3D { Transparency: BaseMaterial3D.TransparencyEnum.AlphaScissor })
+        {
+          return true;
+        }
+      }
+
+      return false;
     }
 
     private static ShaderMaterial MaterialFor(bool moving)

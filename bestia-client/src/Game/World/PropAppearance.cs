@@ -21,7 +21,7 @@ namespace BestiaBehemothClient.Game.World
   ///
   /// <list type="bullet">
   /// <item>
-  /// A kind with a <see cref="Kind.ScenePath"/> is instantiated per prop, so it can be a real model with a
+  /// A kind with <see cref="Kind.Scenes"/> is instantiated per prop, so it can be a real model with a
   /// trunk, a canopy and eventually an animation. One node and one draw call each, which is why only the
   /// trees have it.
   /// </item>
@@ -87,19 +87,33 @@ namespace BestiaBehemothClient.Game.World
 
     public static string ActionName(PropAction action) => ActionNames[(int)action];
 
+    /// <summary>One model a scene kind can be drawn as, and the height it is authored at.</summary>
+    /// <remarks>
+    /// The height travels with the model rather than on the kind because the variants of one kind are not
+    /// drawn at one size: the tallest tree model carries its crown nearly twice as high as the shortest, and
+    /// each has to be scaled to the server's height on its own measure.
+    /// </remarks>
+    public readonly struct SceneVariant
+    {
+      public string Path { get; init; }
+
+      /// <summary>What <see cref="Kind.NaturalHeight"/> is for a mesh kind, for this one model.</summary>
+      public float NaturalHeight { get; init; }
+    }
+
     public readonly struct Kind
     {
-      /// <summary>The scene to instantiate per prop, or null while this kind has no art.</summary>
-      public string ScenePath { get; init; }
+      /// <summary>The scenes to instantiate per prop, one picked per prop, or null while this kind has none.</summary>
+      public SceneVariant[] Scenes { get; init; }
 
       /// <summary>
-      /// The mesh to batch into a multimesh, or null. Ignored when this kind has a <see cref="ScenePath"/>.
+      /// The mesh to batch into a multimesh, or null. Ignored when this kind has <see cref="Scenes"/>.
       /// </summary>
       /// <remarks>
       /// A mesh resource rather than a scene, and the difference is what makes the batching possible: a
       /// <c>MultiMesh</c> draws one mesh many times, so a kind that wants this path has to be a single
       /// surface with nothing hanging off it. That is a real constraint - a prop needing two materials or a
-      /// child node has to take <see cref="ScenePath"/> and pay a draw call each - and it is why the field is
+      /// child node has to take <see cref="Scenes"/> and pay a draw call each - and it is why the field is
       /// separate rather than the renderer sniffing a scene for a lone <c>MeshInstance3D</c>.
       /// </remarks>
       public string MeshPath { get; init; }
@@ -117,8 +131,8 @@ namespace BestiaBehemothClient.Game.World
       public string MaterialPath { get; init; }
 
       /// <summary>
-      /// The height, in metres, that <see cref="ScenePath"/>'s scene or <see cref="MeshPath"/>'s mesh is
-      /// authored at.
+      /// The height, in metres, that <see cref="MeshPath"/>'s mesh is authored at. A scene kind carries one
+      /// per variant instead - see <see cref="SceneVariant.NaturalHeight"/>.
       /// </summary>
       /// <remarks>
       /// The divisor that turns the server's height into a scale factor, and it has to be measured off the
@@ -205,7 +219,23 @@ namespace BestiaBehemothClient.Game.World
       /// </remarks>
       public PropAction Action { get; init; }
 
-      public bool HasScene => !string.IsNullOrEmpty(ScenePath);
+      public bool HasScene => Scenes is { Length: > 0 };
+
+      /// <summary>The variant prop <paramref name="entityId"/> is drawn as. Only meaningful when <see cref="HasScene"/>.</summary>
+      /// <remarks>
+      /// Off the id so that a tree keeps its model when its chunk is streamed out and back in. Hashed rather
+      /// than taken modulo the count, because the generator hands out ids in scan order and a plain modulo
+      /// would plant the variants in rows.
+      /// </remarks>
+      public SceneVariant SceneFor(long entityId)
+      {
+        var z = unchecked((ulong)entityId + 0x9E3779B97F4A7C15UL);
+        z = unchecked((z ^ (z >> 30)) * 0xBF58476D1CE4E5B9UL);
+        z = unchecked((z ^ (z >> 27)) * 0x94D049BB133111EBUL);
+        z ^= z >> 31;
+
+        return Scenes[(int)(z % (ulong)Scenes.Length)];
+      }
 
       public bool HasMesh => !string.IsNullOrEmpty(MeshPath);
     }
@@ -225,6 +255,8 @@ namespace BestiaBehemothClient.Game.World
 
     private const string GrassMaterial = "res://Game/Terrain/Grass/grass.tres";
 
+    private const string TreeDir = "res://Game/Terrain/Trees/";
+
     /// <summary>
     /// Every kind the server can send, in <c>StaticEntityKind</c> ordinal order.
     /// </summary>
@@ -237,14 +269,26 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     private static readonly Kind[] Kinds =
     {
-      // TREE. The one kind with real art. Its natural height is the y of the canopy centre in TreeVisual.tscn
-      // (trunk node at 3.5063 plus canopy at 3.9816 in trunk-local space), *not* the trunk mesh's own 8 m
-      // length, because the server's height for a tree is "clear bole plus crown centre" - see
-      // VegetationParams.minTrunkHeight. Dividing by the trunk length instead would grow every tree by about
-      // a tenth and put its crown where the generator did not.
+      // TREE. The one kind with real art: Quaternius' common trees and pines, one picked per tree. Each
+      // natural height is the y of that model's canopy centre - the middle of its leaf surface's vertical
+      // extent - *not* the model's full height, because the server's height for a tree is "clear bole plus
+      // crown centre" (see VegetationParams.minTrunkHeight). Dividing by the full height would shrink every
+      // tree and put its crown below where the generator did.
       new Kind
       {
-        ScenePath = "res://Game/Entity/Visual/TreeVisual/TreeVisual.tscn", NaturalHeight = 7.4878f,
+        Scenes = new[]
+        {
+          new SceneVariant { Path = TreeDir + "CommonTree_1.gltf", NaturalHeight = 4.6843f },
+          new SceneVariant { Path = TreeDir + "CommonTree_2.gltf", NaturalHeight = 5.1433f },
+          new SceneVariant { Path = TreeDir + "CommonTree_3.gltf", NaturalHeight = 5.8794f },
+          new SceneVariant { Path = TreeDir + "CommonTree_4.gltf", NaturalHeight = 7.5021f },
+          new SceneVariant { Path = TreeDir + "CommonTree_5.gltf", NaturalHeight = 4.5600f },
+          new SceneVariant { Path = TreeDir + "Pine_1.gltf", NaturalHeight = 4.6203f },
+          new SceneVariant { Path = TreeDir + "Pine_2.gltf", NaturalHeight = 4.1294f },
+          new SceneVariant { Path = TreeDir + "Pine_3.gltf", NaturalHeight = 5.1723f },
+          new SceneVariant { Path = TreeDir + "Pine_4.gltf", NaturalHeight = 6.2203f },
+          new SceneVariant { Path = TreeDir + "Pine_5.gltf", NaturalHeight = 4.9712f },
+        },
         Action = PropAction.Chop
       },
 

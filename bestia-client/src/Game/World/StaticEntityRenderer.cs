@@ -18,9 +18,9 @@ namespace BestiaBehemothClient.Game.World
   /// </para>
   ///
   /// <para>
-  /// <b>A prop is an entity with a visual on it, drawn without being one.</b> The scenes under
-  /// <c>Game/Entity/Visual/</c> are what a prop looks like, and a kind with a scene gets one instantiated per
-  /// prop - so a tree here is the same <c>TreeVisual</c> an entity would carry. What it deliberately does
+  /// <b>A prop is an entity with a visual on it, drawn without being one.</b> A kind with scenes gets one
+  /// instantiated per prop - a tree is one of the imported models under <c>Game/Terrain/Trees/</c>, picked per
+  /// tree by <see cref="PropAppearance.Kind.SceneFor"/>. What it deliberately does
   /// <i>not</i> get is the rest of an entity: props never go through <c>EntityManager</c>, which instantiates
   /// a full <c>Entity.tscn</c> - health bar, nameplate, chat bubble, damage numbers, movement prediction -
   /// per entity, and whose <c>get_closest_entity</c> is a linear scan written on the assumption that entity
@@ -94,8 +94,8 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     private readonly Dictionary<ChunkKey, Node3D> _byChunk = new();
 
-    /// <summary>Kind -> its visual scene, loaded once. Only holds kinds that have one.</summary>
-    private readonly Dictionary<int, PackedScene> _scenes = new();
+    /// <summary>Scene path -> the scene, loaded once. Keyed by path because a scene kind has several.</summary>
+    private readonly Dictionary<string, PackedScene> _scenes = new();
 
     /// <summary>Kind -> its batched art mesh, loaded once. Only holds kinds that have one.</summary>
     private readonly Dictionary<int, Godot.Mesh> _art = new();
@@ -301,7 +301,8 @@ namespace BestiaBehemothClient.Game.World
     private void AddSceneProp(
       Node3D container, ChunkKey key, ChunkStaticEntitiesSMSG.Entry entry, PropAppearance.Kind appearance)
     {
-      var scene = SceneFor(entry.Kind, appearance);
+      var variant = appearance.SceneFor(entry.EntityId);
+      var scene = SceneFor(entry.Kind, variant.Path);
       if (scene == null)
       {
         return;
@@ -309,7 +310,7 @@ namespace BestiaBehemothClient.Game.World
 
       var node = scene.Instantiate<Node3D>();
 
-      var scale = appearance.NaturalHeight > 0f ? entry.Height / appearance.NaturalHeight : 1f;
+      var scale = variant.NaturalHeight > 0f ? entry.Height / variant.NaturalHeight : 1f;
       var basis = new Basis(Vector3.Up, entry.Yaw).Scaled(new Vector3(scale, scale, scale));
 
       node.Transform = new Transform3D(basis, GroundedPositionOf(entry));
@@ -531,7 +532,7 @@ namespace BestiaBehemothClient.Game.World
     /// </summary>
     /// <remarks>
     /// Surgical rather than re-running <see cref="Apply"/> for the chunk, because <see cref="Apply"/> replaces
-    /// the whole container: collecting one herb would free and re-instantiate every <c>TreeVisual</c> in the
+    /// the whole container: collecting one herb would free and re-instantiate every tree model in the
     /// column, which is a visible hitch for a change to a single prop.
     ///
     /// <para>
@@ -596,25 +597,25 @@ namespace BestiaBehemothClient.Game.World
       }
     }
 
-    /// <summary>The visual scene for a kind, loaded once, or null if it could not be loaded.</summary>
+    /// <summary>One of a kind's visual scenes, loaded once, or null if it could not be loaded.</summary>
     /// <remarks>
     /// A failed load is cached as null too. Retrying it per prop would put a file-not-found error on the log
-    /// for every tree in the view rather than once for the kind.
+    /// for every tree in the view rather than once for the model.
     /// </remarks>
-    private PackedScene SceneFor(int kind, PropAppearance.Kind appearance)
+    private PackedScene SceneFor(int kind, string path)
     {
-      if (_scenes.TryGetValue(kind, out var cached))
+      if (_scenes.TryGetValue(path, out var cached))
       {
         return cached;
       }
 
-      var scene = ResourceLoader.Load<PackedScene>(appearance.ScenePath);
+      var scene = ResourceLoader.Load<PackedScene>(path);
       if (scene == null)
       {
-        GD.PushError($"[props] kind {kind} names {appearance.ScenePath}, which did not load; it will not be drawn.");
+        GD.PushError($"[props] kind {kind} names {path}, which did not load; the props given it will not be drawn.");
       }
 
-      _scenes[kind] = scene;
+      _scenes[path] = scene;
       return scene;
     }
 

@@ -22,3 +22,8 @@ Title: Stylized Grass and Dirt (Stylized_HandpaintedDirt_01, terrain soil slot)
 Author: Julio Sillet (juliovii)
 Source: https://juliovii.itch.io/ftpgrass-dirt
 License: CC-BY
+
+Title: Stylized Nature MegaKit [Standard] (CommonTree_1-5, Pine_1-5)
+Author: Quaternius
+Source: https://quaternius.com
+License: CC0 1.0
