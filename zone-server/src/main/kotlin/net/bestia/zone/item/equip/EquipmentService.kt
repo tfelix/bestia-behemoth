@@ -50,7 +50,10 @@ class EquipmentService(
     HANDS_FULL,
 
     /** Worn down to nothing; it has to be repaired first. */
-    BROKEN
+    BROKEN,
+
+    /** A strip skill emptied the slot a moment ago, see [SlotLock]. */
+    SLOT_STRIPPED
   }
 
   /**
@@ -70,7 +73,8 @@ class EquipmentService(
     slot: EquipmentSlot,
     heldUniqueId: Long,
     wearerLevel: Int,
-    wearerIsNovice: Boolean
+    wearerIsNovice: Boolean,
+    lockedSlots: Set<EquipmentSlot> = emptySet()
   ): Denial? {
     if (item.type != Item.ItemType.EQUIP || item.equipSlot != slot) {
       return Denial.NOT_ALLOWED
@@ -78,6 +82,10 @@ class EquipmentService(
 
     if (!equipment.isSlotAvailable(slot)) {
       return Denial.SLOT_NOT_AVAILABLE
+    }
+
+    if (slot in lockedSlots) {
+      return Denial.SLOT_STRIPPED
     }
 
     if (!equipment.canWearArmorType(item.armorType)) {

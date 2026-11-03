@@ -5,6 +5,7 @@ import net.bestia.zone.item.ItemProvenance
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.skill.NoviceGate
+import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.persistence.AsyncJobExecutor
@@ -23,6 +24,7 @@ import net.bestia.zone.message.decoder
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import net.bestia.zone.item.equip.EquipmentService
+import net.bestia.zone.item.equip.SlotLock
 import net.bestia.zone.item.equip.toOpError
 
 /**
@@ -94,7 +96,8 @@ class EquipItemHandler(
         // Zero for an entity with no Level component at all, which the service reads as unqualified rather
         // than as exempt.
         wearerLevel = get(id, Level::class)?.level ?: 0,
-        wearerIsNovice = noviceGate.isNovice(this, id)
+        wearerIsNovice = noviceGate.isNovice(this, id),
+        lockedSlots = SlotLock.lockedSlots(get(id, StatusEffects::class))
       )
 
       if (denial != null) {

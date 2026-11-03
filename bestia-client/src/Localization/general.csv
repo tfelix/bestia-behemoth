@@ -9,6 +9,7 @@ ERROR_EQUIP_NOVICE_ONLY,Only a novice may wear that. Your training has taken you
 ERROR_EQUIP_HANDS_FULL,That needs both hands. Take off what is in the other hand first.
 ERROR_EQUIP_ARMOR_TYPE_NOT_WEARABLE,Your bestia cannot wear that kind of armor.
 ERROR_EQUIP_ITEM_BROKEN,That is broken. Have it repaired before you use it again.
+ERROR_EQUIP_SLOT_STRIPPED,That was just torn off you. Wait a moment before you put something there again.
 ERROR_ITEM_NOVICE_ONLY,Only a novice may use that. Your training has taken you past it.
 ERROR_CHART_NEEDS_BLANK,You have no blank vellum to draw on.
 ERROR_CHART_NOT_FOUND,You are not carrying that chart.

@@ -18,5 +18,6 @@ fun EquipmentService.Denial.toOpError(): OperationErrorProto.OpError {
     EquipmentService.Denial.NOVICE_ONLY -> OperationErrorProto.OpError.EQUIP_NOVICE_ONLY
     EquipmentService.Denial.HANDS_FULL -> OperationErrorProto.OpError.EQUIP_HANDS_FULL
     EquipmentService.Denial.BROKEN -> OperationErrorProto.OpError.EQUIP_ITEM_BROKEN
+    EquipmentService.Denial.SLOT_STRIPPED -> OperationErrorProto.OpError.EQUIP_SLOT_STRIPPED
   }
 }

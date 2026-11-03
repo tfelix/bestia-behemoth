@@ -36,22 +36,26 @@ class GearOperations(
     return true
   }
 
-  /** Takes [percent] of the maximum off the durability of the weapon and the armour worn. */
+  /**
+   * Takes [percent] of the maximum off the durability of the weapon and the armour worn. What breaks comes off, as
+   * a weapon broken in a fight does in `EquipmentWear`.
+   */
   fun wear(world: World, entityId: EntityId, percent: Int): Boolean {
     val equipment = world.get(entityId, Equipment::class) ?: return false
     val owner = ItemOwner.of(world, entityId)
 
     val worn = WORN_SLOTS.mapNotNull { slot ->
-      val item = equipment.get(slot)?.takeIf { it.maxDurability > 0 && it.durability > 0 } ?: return@mapNotNull null
+      val item = equipment.get(slot)?.takeIf { it.maxDurability > 0 && !it.isBroken } ?: return@mapNotNull null
       val loss = (item.maxDurability * percent / 100).coerceAtLeast(1)
-      item.copy(durability = (item.durability - loss).coerceAtLeast(0)).also { equipment.replace(slot, it) }
+      slot to item.copy(durability = (item.durability - loss).coerceAtLeast(0)).also { equipment.replace(slot, it) }
     }
 
     if (owner != null) {
       asyncJobExecutor.submit(key = owner.masterId) {
-        worn.forEach { inventoryService.recordWear(it.uniqueId, it.durability) }
+        worn.forEach { (_, item) -> inventoryService.recordWear(item.uniqueId, item.durability) }
       }
     }
+    worn.filter { (_, item) -> item.isBroken }.forEach { (slot, _) -> strip(world, entityId, slot) }
 
     return worn.isNotEmpty()
   }

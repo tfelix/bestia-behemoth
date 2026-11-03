@@ -299,6 +299,8 @@ enum OpError {
   ATTACK_OUT_OF_AMMO = 109;
   // Gear worn down to no durability. The player has it repaired before wearing it again.
   EQUIP_ITEM_BROKEN = 110;
+  // A strip skill emptied the slot a moment ago. The player waits until its status runs out.
+  EQUIP_SLOT_STRIPPED = 111;
 }
 
 message OperationError {
