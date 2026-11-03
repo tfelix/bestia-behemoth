@@ -23,4 +23,10 @@ class CastCancelService {
   fun cancelCraft(world: World, entityId: EntityId) {
     world.remove(entityId, Crafting::class)
   }
+
+  /** Breaks off whatever the entity was busy with, for a stun or a freeze. */
+  fun interrupt(world: World, entityId: EntityId) {
+    cancelCast(world, entityId)
+    cancelCraft(world, entityId)
+  }
 }
