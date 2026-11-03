@@ -3,6 +3,9 @@ class_name DamageTag
 ## One damage number over its life: what it reads, how it arcs and how it fades. [DamageTagLayer] owns the
 ## label and advances every live tag once a frame.
 
+## Whose fight a hit belongs to, seen from this player.
+enum Involvement { DEALT, TAKEN, BYSTANDER }
+
 ## Lives in seconds. A crit stays longer to be read; a miss is gone before it competes with anything.
 const _LIFE := 0.9
 const _CRIT_LIFE := 1.3
@@ -23,6 +26,14 @@ const _CRIT_POP := 2.4
 const _CRIT_SCALE := 1.35
 ## The height of one plain number, in screen heights, at the label's font size.
 const _LINE_HEIGHT := 0.045
+## A hit grows with the share of the target's health it took: 1x at a tenth, these at the ends.
+const _SMALLEST_IMPACT := 0.85
+const _LARGEST_IMPACT := 1.4
+const _IMPACT_GROWTH := 0.57
+## Strangers' fights stay in the background, so the player's own numbers carry.
+const _BYSTANDER_SCALE := 0.75
+const _BYSTANDER_ALPHA := 0.7
+const _MISS_SCALE := 0.8
 ## A crit starts white and turns to its colour, and jolts sideways for a few frames.
 const _CRIT_FLASH_TIME := 0.12
 const _CRIT_SHAKE_TIME := 0.15
@@ -41,7 +52,9 @@ const _BURST_SIDE := 0.07
 const _BURST_TIME := 0.12
 ## Per second, after the burst.
 const _DRIFT := 0.04
-## No two hits fly quite alike, so a flurry spreads out instead of tracing one line.
+## Every outcome takes this flight: a younger tag pushes the older ones on its side up a line, and one
+## that rose faster or slower would cross into them. Jitter varies it only a little, so a flurry does
+## not trace one line, and only sideways, where it cannot close the gap to the tag above.
 const _BURST_JITTER := 0.15
 const _START_JITTER := 0.012
 ## A tag pushed up by a younger one glides there over about this many seconds.
@@ -49,6 +62,9 @@ const _PUSH_TIME := 0.05
 
 const _CRIT_COLOUR := Color(1, 0.72, 0.25)
 const _HEAL_COLOUR := Color(0.45, 0.95, 0.5)
+## Damage to the player's own entities reads as a warning.
+const _TAKEN_COLOUR := Color(1, 0.36, 0.3)
+const _TAKEN_CRIT_COLOUR := Color(1, 0.16, 0.12)
 
 ## Miss and dodge recede rather than announce themselves: nothing happened, and the tag should not
 ## compete with the hits around it.
@@ -62,7 +78,9 @@ var _age := 0.0
 var _life := _LIFE
 var _peak := 1.0
 var _pop := _POP
+var _alpha := 1.0
 var _colour := Color.WHITE
+var involvement := Involvement.DEALT
 var target_id := 0
 ## -1 flies to screen left, 1 to the right.
 var side := 1.0
@@ -77,27 +95,35 @@ func _init(tag_label: Label3D) -> void:
 	label = tag_label
 
 
-func start(msg: DamageEntitySMSG, at: Vector3, fly_side: float, camera: Camera3D) -> void:
+## [param max_hp] is 0 when the target's health is unknown here.
+func start(
+	msg: DamageEntitySMSG, at: Vector3, fly_side: float, max_hp: int, whose: Involvement, camera: Camera3D
+) -> void:
 	_type = msg.Type
 	target_id = msg.EntityId
+	involvement = whose
 	_start = at
 	side = fly_side
 	_pushed = 0.0
 	_pushed_shown = 0.0
-	_burst = Vector2(_BURST_SIDE, _BURST_RISE) * Vector2(_jitter(), _jitter())
+	_burst = Vector2(_BURST_SIDE * _jitter(), _BURST_RISE)
 	_start_shift = randf_range(-_START_JITTER, _START_JITTER)
 	_age = 0.0
 	_life = _life_of(_type)
-	_peak = _CRIT_SCALE if _type == DamageType.CRIT else 1.0
+	_peak = _size_of(msg, max_hp)
 	_pop = _pop_of(_type)
+	_alpha = _BYSTANDER_ALPHA if whose == Involvement.BYSTANDER else 1.0
 	_colour = _text_colour()
 	_paint(Color.WHITE if _type == DamageType.CRIT else _colour)
 	label.text = _label_text(msg)
+	# Above strangers' numbers where they cross; the outline stays below its own text.
+	label.render_priority = 0 if whose == Involvement.BYSTANDER else 2
+	label.outline_render_priority = label.render_priority - 1
 	label.show()
 	advance(0.0, camera)
 
 
-## Makes room above the hit for a younger tag of [param height] screen heights.
+## Moves this tag up by [param height] screen heights, to make room for a younger one below.
 func push_up(height: float) -> void:
 	_pushed += height
 
@@ -118,7 +144,7 @@ func advance(delta: float, camera: Camera3D) -> bool:
 	label.global_position = _start + _flight_offset_at(_age, camera)
 	label.scale = Vector3.ONE * _peak * _pop_scale_at(_age) * lerpf(1.0, _FADED_SCALE, fade)
 	# Fades through transparency, not modulate: a Label3D rebuilds its mesh on every modulate change.
-	label.transparency = fade * fade
+	label.transparency = 1.0 - _alpha * (1.0 - fade * fade)
 	if _type == DamageType.CRIT and _age < _CRIT_FLASH_TIME + delta:
 		_paint(Color.WHITE.lerp(_colour, minf(_age / _CRIT_FLASH_TIME, 1.0)))
 	return true
@@ -158,6 +184,18 @@ static func _screen_height_at(camera: Camera3D, point: Vector3) -> float:
 	if camera.projection == Camera3D.PROJECTION_ORTHOGONAL:
 		return camera.size
 	return 2.0 * camera.global_position.distance_to(point) * tan(deg_to_rad(camera.fov) * 0.5)
+
+
+func _size_of(msg: DamageEntitySMSG, max_hp: int) -> float:
+	var size := _CRIT_SCALE if _type == DamageType.CRIT else 1.0
+	if _type == DamageType.MISS or _type == DamageType.DODGE:
+		size = _MISS_SCALE
+	elif max_hp > 0 and msg.Damage > 0:
+		var share := float(msg.Damage) / max_hp
+		size *= clampf(1.0 + _IMPACT_GROWTH * log(share * 10.0) / log(10.0), _SMALLEST_IMPACT, _LARGEST_IMPACT)
+	if involvement == Involvement.BYSTANDER:
+		size *= _BYSTANDER_SCALE
+	return size
 
 
 static func _life_of(type: int) -> float:
@@ -203,9 +241,12 @@ func _label_text(msg: DamageEntitySMSG) -> String:
 ## A tag is legible for barely a second while it flies off, so the outcome has to carry in the
 ## colour before the number is read at all.
 func _text_colour() -> Color:
+	var taken := involvement == Involvement.TAKEN
 	match _type:
 		DamageType.CRIT:
-			return _CRIT_COLOUR
+			return _TAKEN_CRIT_COLOUR if taken else _CRIT_COLOUR
+		DamageType.NORMAL:
+			return _TAKEN_COLOUR if taken else Color.WHITE
 		DamageType.HEAL:
 			return _HEAL_COLOUR
 		DamageType.MISS, DamageType.DODGE:
