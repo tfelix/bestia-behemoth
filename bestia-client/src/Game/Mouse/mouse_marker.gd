@@ -6,6 +6,11 @@ extends Node3D
 ## mouse. Lives as a permanent node in Game.tscn instead of being instantiated
 ## per-state, since it should be visible for most of a play session rather
 ## than only for the lifetime of one cast.
+##
+## Its material skips the depth test: grass blades stand taller than the marker
+## and are drawn opaque, so a depth-tested marker vanishes in a meadow. The
+## marker only shows when the floor is the first collider under the mouse, so
+## what it draws over is what has no collision: grass and foliage.
 
 
 func _process(_delta: float) -> void:
