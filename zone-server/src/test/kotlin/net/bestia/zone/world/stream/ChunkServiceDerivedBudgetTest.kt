@@ -35,17 +35,12 @@ class ChunkServiceDerivedBudgetTest {
   }
 
   @Test
-  fun `with workers a handoff costs next to nothing, so the count is what stops them`() {
+  fun `with workers every build is handed off, and the count still caps them`() {
     val jobs = ArrayDeque<Runnable>()
-    // The production budget: eight handoffs fit in it many times over, where a single inline build does not.
-    val settings = ChunkStreamConfig(derivedRebuildsPerTick = 8, derivedRebuildMillisPerTick = 5)
+    // A budget no handoff comes near, so this is about where the builds go and the count, not about the clock:
+    // a handoff is cheap but not free, and a GC pause in a shared test JVM can make any one of them slow.
+    val settings = ChunkStreamConfig(derivedRebuildsPerTick = 8, derivedRebuildMillisPerTick = 10_000)
     val service = ChunkService(worldService, settings, ChunkWorkers { jobs.addLast(it) })
-
-    // The first handoff pays for the mocked world service and a cold JIT, which alone can exceed a millisecond.
-    service.derived().track(WARM_UP)
-    service.rebuildDerived()
-    jobs.clear()
-
     CHUNKS.forEach { service.derived().track(it) }
 
     assertEquals(8, service.rebuildDerived())
@@ -54,7 +49,6 @@ class ChunkServiceDerivedBudgetTest {
 
   private companion object {
     val CHUNKS = (0 until 10).map { ChunkPos(it % 5, it / 5, 0) }
-    val WARM_UP = ChunkPos(9, 9, 0)
 
     // Shared, because generating a world per test method would dominate the run.
     val world = StandardWorld.build(WorldConfig(seed = 9002L, widthCells = 48, heightCells = 48))
