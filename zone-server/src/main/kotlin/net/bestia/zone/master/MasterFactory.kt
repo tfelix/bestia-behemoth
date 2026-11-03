@@ -150,6 +150,7 @@ class MasterFactory(
     grantStarterChart(savedMaster, spawnPoint)
     grantStarterGear(savedMaster)
     grantStarterSupplies(savedMaster)
+    fillStarterQuiver(savedMaster)
 
     return savedMaster
   }
@@ -202,6 +203,12 @@ class MasterFactory(
 
       inventoryService.grantToMaster(master.id, item.id, amount)
     }
+  }
+
+  /** Points the quiver at the starter arrows, so putting the bow on is all it takes to shoot. */
+  private fun fillStarterQuiver(master: Master) {
+    val itemIds = STARTER_QUIVER.mapNotNull { itemRepository.findByIdentifier(it)?.id }
+    inventoryService.setQuiver(master.id, playerBestiaId = null, itemIds)
   }
 
   /**
@@ -323,14 +330,18 @@ class MasterFactory(
     )
 
     /**
-     * What a new master is created carrying, by `items.yml` identifier and amount. The torches are carried, not
-     * worn: a master who never puts one in the light slot never burns one.
+     * What a new master is created carrying, by `items.yml` identifier and amount. The torches and the bow are
+     * carried, not worn: the knife stays in hand until the player picks the bow.
      */
     private val STARTER_SUPPLIES = listOf(
       "novice_health_potion" to 20,
       "novice_mana_potion" to 10,
-      "torch" to 5
+      "torch" to 5,
+      "novice_bow" to 1,
+      "arrow" to 100
     )
+
+    private val STARTER_QUIVER = listOf("arrow")
 
     /**
      * Every attribute at [EffortValueCostCalculator.BALANCED_EFFORT_VALUE], which costs exactly
