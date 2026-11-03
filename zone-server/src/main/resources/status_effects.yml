@@ -348,3 +348,110 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: ManaSealed
+
+  # Fighting buffs and debuffs, and the effects of wards and mirrors.
+  - id: 42
+    identifier: ENRAGED
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Enraged
+
+  # Follows ENRAGED however it ends, and cannot be dispelled to cut the price short.
+  - id: 43
+    identifier: FATIGUE
+    polarity: DEBUFF
+    dispellable: false
+    showIcon: true
+    isSyncedToClient: true
+    script: Fatigue
+
+  - id: 44
+    identifier: BERSERK
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Berserk
+
+  - id: 45
+    identifier: TAILWIND
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Tailwind
+
+  - id: 46
+    identifier: ENDOWED
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Endowed
+
+  - id: 47
+    identifier: ARMOR_ENDOWED
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: ArmorEndowed
+
+  - id: 48
+    identifier: HIT_DOWN
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: HitDown
+
+  - id: 49
+    identifier: ASPD_DOWN
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: AspdDown
+
+  # Zone-bound: the quagmire and the wind ward refresh these on everyone inside, so no dispel can lift them.
+  - id: 50
+    identifier: QUAGMIRED
+    polarity: DEBUFF
+    dispellable: false
+    showIcon: true
+    isSyncedToClient: true
+    script: Quagmired
+
+  - id: 51
+    identifier: SHELTERED
+    polarity: BUFF
+    dispellable: false
+    showIcon: true
+    isSyncedToClient: true
+    script: Sheltered
+
+  - id: 52
+    identifier: REFLECT
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Reflect
+
+  - id: 53
+    identifier: BARRIER
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Barrier
+
+  - id: 54
+    identifier: CORROSIVE
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Corrosive
+
+  # A wild undead fighting for the caster. Only the controller's dispel would make sense, so none may.
+  - id: 55
+    identifier: CONTROLLED
+    polarity: DEBUFF
+    resist: [INT, WIL]
+    dispellable: false
+    showIcon: true
+    isSyncedToClient: true
+    script: Controlled

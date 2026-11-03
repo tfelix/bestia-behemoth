@@ -7,6 +7,8 @@ import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.aoi.AoiLayer
+import net.bestia.zone.battle.status.RemovalReason
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.entity.ecs.Dead
@@ -135,20 +137,22 @@ class BudgetedSkillWorld(
       return
     }
 
+    val (receiver, dealer) = if (damage is Heal) targetEntityId to casterId else reflected(targetEntityId)
+
     // `true` only from inside the scope, so it distinguishes "the entity is gone" from "the entity is here
     // but has no Health to heal" - a `when` returning Unit? would conflate the two.
-    val landed = onEntity(targetEntityId) { target ->
+    val landed = onEntity(receiver) { target ->
       when (damage) {
         is Heal -> Healing.heal(this, target, damage.amount)
 
         else -> {
           // This branch only: a miss and a heal stay true of a target the gate shields.
-          if (DamageGate.verdict(this, casterId, target) != DamageGate.Verdict.ADMITTED) {
+          if (DamageGate.verdict(this, dealer, target) != DamageGate.Verdict.ADMITTED) {
             return@onEntity false
           }
 
           val staged = get(target, IncomingDamage::class) ?: add(target, IncomingDamage())
-          staged.add(damage.amount, casterId)
+          staged.add(damage.amount, dealer)
         }
       }
 
@@ -158,8 +162,37 @@ class BudgetedSkillWorld(
     // False means the blow never landed: the target died between the snapshot and now, which off-thread
     // resolution makes possible, or it cannot be hurt at all.
     if (landed) {
-      broadcastDamage(targetEntityId, damage)
+      broadcastDamage(receiver, damage)
     }
+  }
+
+  /**
+   * Bounces a blow off whoever wears a reflect, at most [MAX_REFLECTIONS] times, so two mirrors facing each other
+   * still let it land. Returns who takes it and whom it counts as coming from.
+   */
+  private fun reflected(targetEntityId: EntityId): Pair<EntityId, EntityId> {
+    var receiver = targetEntityId
+    var dealer = casterId
+
+    repeat(MAX_REFLECTIONS) {
+      if (receiver == dealer || !spendReflection(receiver)) return receiver to dealer
+      receiver = dealer.also { dealer = receiver }
+    }
+
+    return receiver to dealer
+  }
+
+  private fun spendReflection(id: EntityId): Boolean {
+    val reflect = world.get(id, StatusEffects::class)?.activeEffects
+      ?.firstOrNull { it.definitionId == StatusEffectId.REFLECT.id && it.count > 0 }
+      ?: return false
+
+    reflect.count -= 1
+    if (reflect.count <= 0) {
+      services.statusEffects.removeEffect(world, id, StatusEffectId.REFLECT.id, RemovalReason.CANCELLED)
+    }
+
+    return true
   }
 
   override fun applyStatusEffect(targetEntityId: EntityId, effectId: Long, level: Int) {
@@ -299,6 +332,9 @@ class BudgetedSkillWorld(
   }
 
   private companion object {
+    /** Off the target, then off the caster's own reflect; after that the blow lands whatever. */
+    const val MAX_REFLECTIONS = 2
+
     /**
      * Creating an entity is a structural change plus several component adds, so it costs more than a read -
      * not because it holds the tick much longer, but so a script that spawns in a loop runs out of budget an

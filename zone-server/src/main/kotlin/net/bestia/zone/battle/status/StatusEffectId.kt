@@ -55,7 +55,21 @@ enum class StatusEffectId(val id: Long) {
   WITHERED(38),
   REGENERATING(39),
   LIFESTEAL(40),
-  MANA_SEALED(41);
+  MANA_SEALED(41),
+  ENRAGED(42),
+  FATIGUE(43),
+  BERSERK(44),
+  TAILWIND(45),
+  ENDOWED(46),
+  ARMOR_ENDOWED(47),
+  HIT_DOWN(48),
+  ASPD_DOWN(49),
+  QUAGMIRED(50),
+  SHELTERED(51),
+  REFLECT(52),
+  BARRIER(53),
+  CORROSIVE(54),
+  CONTROLLED(55);
 
   companion object {
     private val byId = entries.associateBy { it.id }

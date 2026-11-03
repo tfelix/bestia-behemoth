@@ -7,8 +7,8 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
 /**
- * Registered under `status_effects.yml` id 18 (`WEAKENED`), the debuff archetype of bestia skills: the target
- * deals about a fifth less damage. Lowered through the attributes, like [Empowered].
+ * Registered under `status_effects.yml` id 18 (`WEAKENED`), from a bestia's Growl: the target deals a fifth less
+ * damage.
  */
 @Component
 class Weakened : StatusEffectScript {
@@ -24,13 +24,11 @@ class Weakened : StatusEffectScript {
     level: Int,
     sourceEntityId: EntityId?
   ) {
-    context.strength = (context.strength * DAMAGE_FACTOR).toInt()
-    context.dexterity = (context.dexterity * DAMAGE_FACTOR).toInt()
-    context.intelligence = (context.intelligence * DAMAGE_FACTOR).toInt()
+    context.addPercent(attack = ATTACK_PERCENT)
   }
 
   private companion object {
     const val DURATION_SECONDS = 10.0
-    const val DAMAGE_FACTOR = 0.8f
+    const val ATTACK_PERCENT = -20
   }
 }
