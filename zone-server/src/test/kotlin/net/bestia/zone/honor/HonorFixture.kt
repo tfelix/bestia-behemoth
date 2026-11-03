@@ -2,7 +2,17 @@ package net.bestia.zone.honor
 
 import io.mockk.every
 import io.mockk.mockk
+import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.ecs.level.Level
+import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
+import net.bestia.zone.battle.status.StatusEffectScriptRegistry
+import net.bestia.zone.battle.status.scripts.Aggressor
+import net.bestia.zone.battle.status.scripts.Warded
+import net.bestia.zone.boot.StatusEffectImporterBootRunner
+import net.bestia.zone.identity.MasterEntityResolver
+import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.battle.status.StackBehavior
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.EcsWorld
@@ -26,7 +36,7 @@ import java.time.Duration
 import java.time.Instant
 
 /** A world with the real honor rules, a settlement wherever [settlementAt] says, and a clock tests can move. */
-class HonorFixture(systems: (HonorService) -> List<System> = { emptyList() }) {
+class HonorFixture(systems: (HonorFixture) -> List<System> = { emptyList() }) {
 
   var now: Instant = Instant.parse("2026-11-03T12:00:00Z")
 
@@ -56,18 +66,44 @@ class HonorFixture(systems: (HonorService) -> List<System> = { emptyList() }) {
   val catalog = HonorCatalog()
   val rules: HonorRules = catalog.rules
   val service = HonorService(catalog, localHonor, sites, clock)
-  val world: EcsWorld = testWorld(systems = systems(service))
+
+  val sessions = ConnectionInfoService()
+  val masters = MasterEntityResolver(sessions)
+  val aggression = Aggression(masters)
+
+  private val effectCatalogue = StatusEffectDefinitionRegistry().also { StatusEffectImporterBootRunner(it).run() }
+  val statusEffects = StatusEffectService(effectCatalogue, StatusEffectScriptRegistry(listOf(Aggressor(), Warded())))
+
+  val world: EcsWorld = testWorld(systems = systems(this))
 
   private var nextAccount = 1L
 
-  fun master(at: Vec3L, ledger: HonorLedger = HonorLedger()): EntityId {
+  fun master(at: Vec3L, ledger: HonorLedger = HonorLedger(), level: Int = 10): EntityId {
     val account = nextAccount++
-    return world.createEntity { id ->
+    val masterId = account * 100
+    val entity = world.createEntity { id ->
       add(id, Account(accountId = account))
-      add(id, Master(masterId = account * 100))
+      add(id, Master(masterId = masterId))
       add(id, Position.fromVec3(at))
+      add(id, Level(level))
       add(id, StatusEffects())
       add(id, service.componentFor(ledger))
+    }
+    sessions.activateSession(account, masterId, entity)
+
+    return entity
+  }
+
+  fun bestiaOf(master: EntityId): EntityId {
+    val account = world.get(master, Account::class)!!.accountId
+    val masterId = masterIdOf(master)
+    val at = world.get(master, Position::class)!!.toVec3L()
+
+    return world.createEntity { id ->
+      add(id, Account(accountId = account))
+      add(id, OwnedBestia(masterId, playerBestiaId = masterId + 1))
+      add(id, Position.fromVec3(at))
+      add(id, StatusEffects())
     }
   }
 

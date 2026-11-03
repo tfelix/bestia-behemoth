@@ -168,3 +168,12 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: Cooled
+
+  # Put on a master by AggressorSystem when they harm a player who was not an aggressor. Synced so everybody can
+  # see whom they may fight back against without losing honor.
+  - id: 21
+    identifier: AGGRESSOR
+    polarity: NEUTRAL
+    showIcon: true
+    isSyncedToClient: true
+    script: Aggressor

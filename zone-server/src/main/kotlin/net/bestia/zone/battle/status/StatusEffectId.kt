@@ -34,7 +34,8 @@ enum class StatusEffectId(val id: Long) {
   EMPOWERED(17),
   WEAKENED(18),
   WARMED(19),
-  COOLED(20);
+  COOLED(20),
+  AGGRESSOR(21);
 
   companion object {
     private val byId = entries.associateBy { it.id }
