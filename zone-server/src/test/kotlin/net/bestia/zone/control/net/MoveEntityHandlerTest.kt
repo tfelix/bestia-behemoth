@@ -6,6 +6,10 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.worldgen.vector.Aabb
 import net.bestia.zone.battle.ActionGuard
 import net.bestia.zone.battle.ecs.attack.AttackCancelService
+import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.status.ActionLock
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.navigation.region.RegionGrid
@@ -132,6 +136,38 @@ class MoveEntityHandlerTest {
     handler.handle(world, moveAlong(id, path))
 
     assertEquals(path, world.get(id, Path::class)?.path)
+  }
+
+  @Test
+  fun `a stunned body ignores the click`() {
+    val world = testWorld()
+    val id = world.createEntity { }
+    world.add(id, Position(0, 0, 0))
+    world.add(id, StatusEffects(mutableListOf(effect(StatusEffectId.STUN, ActionLock.ALL))))
+    val handler = handlerFor(world, id, OpenWalkQuery())
+
+    handler.handle(world, moveAlong(id, listOf(Vec3L(1, 0, 0), Vec3L(2, 0, 0))))
+
+    assertFalse(world.has(id, Journey::class))
+    assertFalse(world.has(id, Path::class))
+  }
+
+  @Test
+  fun `a confused body sets off for a tile nearby instead of the one clicked`() {
+    val world = testWorld()
+    val id = world.createEntity { }
+    world.add(id, Position(0, 0, 0))
+    world.add(id, StatusEffects(mutableListOf(effect(StatusEffectId.CONFUSED, emptySet()))))
+    val handler = handlerFor(world, id, OpenWalkQuery())
+
+    handler.handle(world, moveAlong(id, listOf(Vec3L(20, 0, 0))))
+
+    val stray = world.getOrThrow(id, Journey::class).waypoints.single()
+    assertTrue(abs(stray.x) <= MoveEntityHandler.CONFUSED_STRAY_TILES && abs(stray.y) <= MoveEntityHandler.CONFUSED_STRAY_TILES)
+  }
+
+  private fun effect(id: StatusEffectId, locks: Set<ActionLock>): ActiveStatusEffect {
+    return ActiveStatusEffect(definitionId = id.id, level = 1, remainingSeconds = 5f, locks = locks)
   }
 
   /** A walk east from the origin, one waypoint per tile, as the server holds it once a click is accepted. */

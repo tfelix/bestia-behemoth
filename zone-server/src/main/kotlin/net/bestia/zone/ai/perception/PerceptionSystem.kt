@@ -7,6 +7,7 @@ import net.bestia.zone.ai.ecs.AiThrottle
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
+import net.bestia.zone.battle.status.scripts.Blind
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.ecs.damage.TakenDamage
@@ -100,7 +101,7 @@ class PerceptionSystem(
         memory.remove(CommonKeys.RESTED)
       }
 
-      val nearestHostile = nearestHostile(world, id, selfPos, profile.perception.sightRadius)
+      val nearestHostile = nearestHostile(world, id, selfPos, sightRadiusOf(world, id, profile.perception.sightRadius))
       val attacker = recentAttacker(world, id, profile.perception.aggroMemoryMs)
 
       // Retaliation outranks opportunistic aggression: whoever is actually hitting us is the target,
@@ -130,6 +131,12 @@ class PerceptionSystem(
       // planned from a memory that has no observations in it at all.
       agent.hasPerceived = true
     }
+  }
+
+  private fun sightRadiusOf(world: World, self: Long, sightRadius: Int): Int {
+    val blind = world.get(self, StatusEffects::class)?.hasEffect(StatusEffectId.BLIND.id) ?: false
+
+    return if (blind) minOf(sightRadius, Blind.SIGHT_RADIUS) else sightRadius
   }
 
   /** Nearest [Hostility.isHostile] candidate within [sightRadius]. */
