@@ -3,6 +3,7 @@ package net.bestia.zone.economy.shop
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.economy.CommodityItems
+import net.bestia.zone.economy.PersonalPrice
 import net.bestia.zone.economy.Shop
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
@@ -21,14 +22,15 @@ class ShopOfferPublisher(
   private val outMessageProcessor: OutMessageProcessor,
 ) {
 
-  fun publish(world: World, viewerId: EntityId, settlement: Int, shop: Shop, counter: Counter) {
+  fun publish(world: World, viewerId: EntityId, settlement: Int, shop: Shop, counter: Counter, personal: PersonalPrice) {
     val accountId = world.get(viewerId, Account::class)?.accountId ?: return
 
-    publishTo(accountId, settlement, shop, counter)
+    publishTo(accountId, settlement, shop, counter, personal)
   }
 
-  fun publishTo(accountId: Long, settlement: Int, shop: Shop, counter: Counter) {
-    val entries = shop.offers().filter { it.commodity.id in counter.stocked }.mapNotNull { offer ->
+  /** [personal] is the trader's own price, so the window shows what they will actually pay. */
+  fun publishTo(accountId: Long, settlement: Int, shop: Shop, counter: Counter, personal: PersonalPrice) {
+    val entries = shop.offers(personal).filter { it.commodity.id in counter.stocked }.mapNotNull { offer ->
       // A commodity whose item never made it into the catalogue is dropped rather than sent with a
       // meaningless id. `EconomyCoverage` fails the boot over it, so this cannot happen in a booted
       // server - what it protects is a test wiring a partial catalogue.

@@ -19,9 +19,16 @@ class HonorRules(
   val grudge: HonorLayer,
   val unfriendlyBelow: Int,
   val hostileBelow: Int,
+  val prices: Prices,
 ) {
 
   data class Amount(val global: Int, val local: Int)
+
+  data class Prices(
+    @JsonProperty("discount-above") val discountAbove: Int,
+    @JsonProperty("discount-per-honor") val discountPerHonor: Double,
+    @JsonProperty("max-discount") val maxDiscount: Double,
+  )
 
   data class Gossip(
     @JsonProperty("delay-hours") val delayHours: Long,
@@ -45,6 +52,7 @@ class HonorRules(
     val gossip: Gossip,
     val layers: Layers,
     val thresholds: Thresholds,
+    val prices: Prices,
   )
 
   private data class ProtectedZone(
@@ -92,6 +100,7 @@ class HonorRules(
         grudge = file.layers.grudge.toLayer(),
         unfriendlyBelow = file.thresholds.unfriendlyBelow,
         hostileBelow = file.thresholds.hostileBelow,
+        prices = file.prices,
       )
     }
   }

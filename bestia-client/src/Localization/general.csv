@@ -97,6 +97,7 @@ ERROR_SHOP_TREASURY_EMPTY,The town has run out of coin. Try somewhere richer.
 ERROR_SHOP_CLOSED,The shop is closed. Come back during opening hours.
 ERROR_SHOP_TOO_HEAVY,You could not carry all of that.
 ERROR_SHOP_PRICE_CHANGED,The prices have just changed. Check the new total.
+ERROR_SHOP_REFUSES_YOU,They will not trade with you. Not after what you did.
 SHOP_WARES,Merchant sells
 SHOP_YOU_SELL,You sell
 SHOP_SELL_HINT,Double-click or drag items from your bag.

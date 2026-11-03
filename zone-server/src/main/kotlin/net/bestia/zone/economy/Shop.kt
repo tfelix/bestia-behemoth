@@ -49,13 +49,13 @@ class Shop(
 
   class Offer(val commodity: Commodity, val offered: Int, val buyPrice: Long, val sellPrice: Long)
 
-  fun offers(): List<Offer> {
+  fun offers(personal: PersonalPrice = PersonalPrice.NEUTRAL): List<Offer> {
     return catalogue.topological.map { commodity ->
       Offer(
         commodity = commodity,
         offered = floor(market.offerableOf(commodity.id)).toInt(),
-        buyPrice = buyTotal(commodity, 1),
-        sellPrice = sellTotal(commodity, 1),
+        buyPrice = buyTotal(commodity, 1, personal),
+        sellPrice = sellTotal(commodity, 1, personal),
       )
     }
   }
@@ -77,14 +77,14 @@ class Shop(
    * Only an empty purse refuses. A town takes any amount of coin, and what it holds above its reference
    * drains back to the world reserve - see `EconomyStep` - so the goods on offer are the only limit on buying.
    */
-  fun quoteBasket(lines: List<BasketLine>): BasketQuote {
+  fun quoteBasket(lines: List<BasketLine>, personal: PersonalPrice = PersonalPrice.NEUTRAL): BasketQuote {
     val lineCoins = ArrayList<Long>(lines.size)
 
     lines.forEachIndexed { index, line ->
       val refusal = stockRefusal(line)
       if (refusal != null) return BasketQuote(emptyList(), 0, refusal, index)
 
-      lineCoins += line.coins()
+      lineCoins += line.coins(personal)
     }
 
     val balance = lines.indices.sumOf { if (lines[it].selling) lineCoins[it] else -lineCoins[it] }
@@ -116,10 +116,10 @@ class Shop(
     }
   }
 
-  private fun BasketLine.coins(): Long {
+  private fun BasketLine.coins(personal: PersonalPrice): Long {
     val good = commodity ?: return 0
 
-    return if (selling) sellTotal(good, units) else buyTotal(good, units)
+    return if (selling) sellTotal(good, units, personal) else buyTotal(good, units, personal)
   }
 
   /**
@@ -132,16 +132,16 @@ class Shop(
    * Both roundings go the town's way. A sub-coin gap between the two directions would be an arbitrage
    * of exactly the kind the spread exists to close, and free is not a price.
    */
-  private fun buyTotal(commodity: Commodity, units: Int): Long {
-    val price = market.priceOf(commodity.id) * (1.0 + SPREAD)
+  private fun buyTotal(commodity: Commodity, units: Int, personal: PersonalPrice): Long {
+    val price = market.priceOf(commodity.id) * (1.0 + SPREAD) * personal.buyFactor
     val total = (0 until units).sumOf { price * impactOf(commodity, it) }
 
     return max(units.toLong(), ceil(total).toLong())
   }
 
   /** Rounded down, and never below nothing: a town pays no coin at all for something worthless. */
-  private fun sellTotal(commodity: Commodity, units: Int): Long {
-    val price = market.priceOf(commodity.id) * (1.0 - SPREAD)
+  private fun sellTotal(commodity: Commodity, units: Int, personal: PersonalPrice): Long {
+    val price = market.priceOf(commodity.id) * (1.0 - SPREAD) * personal.sellFactor
     val total = (0 until units).sumOf { price / impactOf(commodity, it) }
 
     return max(0L, floor(total).toLong())

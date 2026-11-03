@@ -27,6 +27,7 @@ class HonorRulesTest {
         settlement: { start: 10, cap: 100, recovery-per-day: 2, grace-days: 1 }
         grudge: { start: 0, cap: 50, recovery-per-day: 2, grace-days: 1 }
       thresholds: { unfriendly-below: 0, hostile-below: -60 }
+      prices: { discount-above: 30, discount-per-honor: 0.0005, max-discount: 0.05 }
     """.trimIndent()
 
     assertFailsWith<IllegalArgumentException> { HonorRules.read(partial.byteInputStream()) }

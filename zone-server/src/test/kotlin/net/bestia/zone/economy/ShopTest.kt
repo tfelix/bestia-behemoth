@@ -95,6 +95,20 @@ class ShopTest {
   }
 
   @Test
+  fun `a trader's own price scales what they pay and what they are paid`() {
+    val shop = shop()
+    val disliked = PersonalPrice(buyFactor = 1.5, sellFactor = 0.5)
+
+    val neutral = shop.quoteBasket(listOf(Shop.BasketLine(bread, 10, selling = false)))
+    val dear = shop.quoteBasket(listOf(Shop.BasketLine(bread, 10, selling = false)), disliked)
+    val paid = shop.quoteBasket(listOf(Shop.BasketLine(grain, 10, selling = true)))
+    val cheap = shop.quoteBasket(listOf(Shop.BasketLine(grain, 10, selling = true)), disliked)
+
+    assertTrue(dear.lineCoins.single() > neutral.lineCoins.single())
+    assertTrue(cheap.lineCoins.single() < paid.lineCoins.single())
+  }
+
+  @Test
   fun `a basket's balance is what is sold less what is bought`() {
     val shop = shop()
     val sold = shop.quoteSell(grain, 4).coins
