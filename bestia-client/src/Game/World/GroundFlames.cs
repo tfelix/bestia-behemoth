@@ -186,8 +186,8 @@ namespace BestiaBehemothClient.Game.World
         }
 
         var coarse = slab * (double)WorldLayout.ChunkHeight + top;
-        var drawn = SurfaceProbe.SurfaceAt(
-          _store, BlockAppearance.Current, voxelX + 0.5, voxelY + 0.5, coarse,
+        var drawn = SurfaceProbe.ShapedSurfaceAt(
+          _store, BlockAppearance.Current, _store.Shores, voxelX + 0.5, voxelY + 0.5, coarse,
           WorldLayout.ChunkSize, WorldLayout.ChunkHeight, _wrap);
 
         return double.IsNaN(drawn) ? coarse : drawn;

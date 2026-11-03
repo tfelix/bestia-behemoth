@@ -883,8 +883,8 @@ namespace BestiaBehemothClient.Game.World
 
       const float voxelSize = (float)WorldLayout.VoxelSizeMetres;
 
-      var surface = SurfaceProbe.SurfaceAt(
-        Store, BlockAppearance.Current,
+      var surface = SurfaceProbe.ShapedSurfaceAt(
+        Store, BlockAppearance.Current, Store.Shores,
         worldX / voxelSize, worldZ / voxelSize, nearY / voxelSize,
         WorldLayout.ChunkSize, WorldLayout.ChunkHeight, _wrap);
 

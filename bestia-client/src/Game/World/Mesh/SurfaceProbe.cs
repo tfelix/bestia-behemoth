@@ -133,6 +133,51 @@ namespace BestiaBehemothClient.Game.World.Mesh
     }
 
     /// <summary>
+    /// <see cref="SurfaceAt"/>, laid onto the beach the mesher draws where the ground meets water.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="SurfaceNets"/> reshapes the ground near a shoreline (<see cref="ShoreField.ShapeHeight"/>), so
+    /// near water the voxels' surface and the drawn one part - by up to <see cref="ShoreField.Lift"/> on the beach,
+    /// further on the bed - and a body stood on the voxels sinks into the beach as it walks toward the sea. This
+    /// shapes the probed height the same way, with the field of the chunk whose mesh draws that height.
+    ///
+    /// <para>
+    /// The mesh shapes its vertices and draws straight lines between them, while this shapes the point itself, so
+    /// the two can differ by the bend of the profile across one triangle: millimetres.
+    /// </para>
+    /// </remarks>
+    /// <param name="shores">Where the fields come from; <c>null</c> for the voxels' surface alone.</param>
+    public static double ShapedSurfaceAt(
+      IChunkSource source, BlockAppearance appearance, ShoreFieldCache shores,
+      double voxelX, double voxelY, double nearZ, int chunkSize, int chunkHeight, ChunkWrap wrap)
+    {
+      var surface = SurfaceAt(source, appearance, voxelX, voxelY, nearZ, chunkSize, chunkHeight, wrap);
+      if (double.IsNaN(surface) || shores == null)
+      {
+        return surface;
+      }
+
+      var named = new ChunkKey(
+        (int)Math.Floor(voxelX / chunkSize),
+        (int)Math.Floor(voxelY / chunkSize),
+        (int)Math.Floor(surface / chunkHeight));
+      var key = wrap.Normalise(named);
+      var field = shores.Get(source, key, wrap, appearance);
+
+      // Read in the chunk's own frame, which is where its mesh's vertices are: a point named past a seam is moved
+      // back across it.
+      var x = voxelX + (key.X - named.X) * (double)chunkSize;
+      var y = voxelY + (key.Y - named.Y) * (double)chunkSize;
+      if (field == null || !field.TryRead((float)x, (float)y, out var distance, out var level))
+      {
+        return surface;
+      }
+
+      var shaped = ShoreField.ShapeHeight((float)surface, distance, level);
+      return shaped == (float)surface ? surface : shaped;
+    }
+
+    /// <summary>
     /// The raw id of the highest block at one tile within <see cref="SearchVoxels"/> of
     /// <paramref name="nearZ"/>, or -1 if a chunk the search needs is not held or the tile is all air there.
     /// </summary>

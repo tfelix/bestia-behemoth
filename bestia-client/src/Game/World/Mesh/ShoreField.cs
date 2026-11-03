@@ -33,6 +33,35 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// <summary>Columns searched for the nearest column of the other kind. Distances beyond are clamped.</summary>
     public const int Reach = 4;
 
+    /// <summary>Voxels either side of the shoreline over which the ground is laid to the beach profile.</summary>
+    public const float Band = 2.5f;
+
+    /// <summary>Rise of the beach profile per voxel out of the water.</summary>
+    public const float Slope = 0.12f;
+
+    /// <summary>Fall of the bed per voxel under the water.</summary>
+    /// <remarks>
+    /// Steeper than <see cref="Slope"/>, because a river is only a few voxels across: a bed sloping at a beach's
+    /// gradient from both banks would leave it a hand deep and white with foam from bank to bank.
+    /// </remarks>
+    public const float Fall = 0.4f;
+
+    /// <summary>The most the profile lifts the ground above the water, in voxels.</summary>
+    /// <remarks>
+    /// Enough to stand a few centimetres over the water's edge where <see cref="SheetReach"/> carries it, and no
+    /// more: a coastal shelf rises a centimetre per metre, so anything the beach rises by is a berm it then has to
+    /// come back down from.
+    /// </remarks>
+    public const float Lift = 0.08f;
+
+    /// <summary>Voxels inland of the shoreline to which the water sheet's edge is carried, under the bank.</summary>
+    /// <remarks>
+    /// The sheet ends in a staircase on the voxel grid, from a third of a voxel to a voxel and a quarter short of
+    /// the curve, so the line a player saw was the staircase wherever it fell short. Carried past the curve, the
+    /// edge is under the beach, and the waterline is where the beach crosses the water: the curve.
+    /// </remarks>
+    public const float SheetReach = 0.5f;
+
     /// <summary>Columns past the chunk's own edge a vertex can be read at: the patch apron, plus one to interpolate.</summary>
     private const int VertexMargin = TerrainPatch.ApronLow + 1;
 
@@ -255,6 +284,50 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
       level = weightSum > 0.0f ? levelSum / weightSum : float.NaN;
       return weightSum > 0.0f;
+    }
+
+    /// <summary>
+    /// The height the ground is drawn at, given the height the voxels put it at and what <see cref="TryRead"/>
+    /// says about the shore there. All in voxels.
+    /// </summary>
+    /// <remarks>
+    /// The profile crosses the water on the shoreline. Below the water it falls at <see cref="Fall"/>, so the bed
+    /// is plainly under it; above it rises at <see cref="Slope"/> and levels off at <see cref="Lift"/>, and only
+    /// ever raises the land, so a steep bank keeps its own shape. It is blended back to the voxel ground over the
+    /// outer part of <see cref="Band"/>, and ground standing well clear of the water - a cliff above it, a deep
+    /// bed below - is left alone.
+    ///
+    /// <para>
+    /// "Deep" starts lower than "clear" does. The materialiser leaves every submerged column at least a voxel of
+    /// water, so a bed stands a voxel to a voxel and a half under the waterline right up to the bank, in a step
+    /// whose outline is the voxel grid. That step is exactly what the profile is for, so the bed is shaped in
+    /// full down to two voxels and let go by three.
+    /// </para>
+    ///
+    /// <para>
+    /// One function for the mesher and <see cref="SurfaceProbe"/> both, so what stands on the beach stands on the
+    /// beach that is drawn.
+    /// </para>
+    /// </remarks>
+    public static float ShapeHeight(float height, float distance, float level)
+    {
+      var near = 1.0f - Mathf.SmoothStep(Band * 0.6f, Band, Mathf.Abs(distance));
+      var close = height < level
+        ? 1.0f - Mathf.SmoothStep(2.0f, 3.0f, level - height)
+        : 1.0f - Mathf.SmoothStep(1.0f, 2.0f, height - level);
+      var weight = near * close;
+      if (weight <= 0.0f)
+      {
+        return height;
+      }
+
+      if (distance < 0.0f)
+      {
+        return Mathf.Lerp(height, level + Fall * distance, weight);
+      }
+
+      var profile = level + Lift * MathF.Tanh(Slope * distance / Lift);
+      return height + weight * Mathf.Max(0.0f, profile - height);
     }
 
     private static float[] BuildOffsets()

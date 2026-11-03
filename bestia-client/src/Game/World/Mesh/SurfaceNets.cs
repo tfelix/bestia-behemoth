@@ -148,6 +148,9 @@ namespace BestiaBehemothClient.Game.World.Mesh
       var corner = new float[8];
       var backingCorner = backing == null ? null : new float[8];
 
+      // Whether each vertex of a water sheet lies on its rim, for carrying the edge to the shore.
+      var rim = shore != null && kind == BlockAppearance.SurfaceKind.Water ? new List<bool>(2048) : null;
+
       // Vertices for cells [1, Width-2] on each horizontal axis and [1, Depth-2] vertically: this chunk's own
       // cells plus the one just below each low edge, which the quads on that edge are built from.
       for (var py = 1; py <= width - 2; py++)
@@ -191,6 +194,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
                 vertices, normals, colours, slotWeights))
             {
               vertexAt[(py * width + px) * depth + pz] = vertices.Count - 1;
+              rim?.Add(IsRim(corner));
             }
           }
         }
@@ -206,6 +210,10 @@ namespace BestiaBehemothClient.Game.World.Mesh
       if (shore != null && drawsTheBed)
       {
         ShapeShore(shore, voxelSize, vertices);
+      }
+      else if (rim != null)
+      {
+        CarrySheetToShore(shore, voxelSize, vertices, rim);
       }
 
       if (indices.Count == 0)
@@ -228,33 +236,25 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
     private static int Lattice(int width, int depth, int px, int py, int pz) => (py * width + px) * depth + pz;
 
-    /// <summary>Voxels either side of the shoreline over which the ground is laid to the beach profile.</summary>
-    private const float ShoreBand = 2.5f;
-
-    /// <summary>Rise of the beach profile per voxel across the shoreline: a little over one in nine.</summary>
-    private const float ShoreSlope = 0.12f;
-
     /// <summary>
     /// Lays the ground near a shoreline onto a beach profile that crosses the water at a clear slope, along the
-    /// smooth curve <see cref="ShoreField"/> found.
+    /// smooth curve <see cref="ShoreField"/> found - see <see cref="ShoreField.ShapeHeight"/> for the profile.
     /// </summary>
     /// <remarks>
-    /// The profile is the water's level plus <see cref="ShoreSlope"/> times the distance from the curve, so the
-    /// ground is under the water on one side and out of it on the other by a margin the depth buffer resolves,
-    /// and the waterline a player sees is the curve itself rather than wherever four-millimetre occupancy steps
-    /// happen to put the ground a hair above or below the water. It is blended back to the voxel ground over the
-    /// outer part of <see cref="ShoreBand"/>, and left alone where the ground stands well clear of the water - a
-    /// cliff above it, a deep bed below - which keeps a sea cliff a cliff.
+    /// The ground is under the water on one side and out of it on the other by a margin the depth buffer
+    /// resolves, so the waterline a player sees is the curve rather than wherever four-millimetre occupancy steps
+    /// happen to put the ground a hair above or below the water.
     ///
     /// <para>
-    /// The water is not touched. Its sheet still stops in the middle of the last wet cell, half a voxel short of
-    /// the curve, and the strip of profile between is drawn as wet beach rather than under water - which reads as
-    /// the swash line it is, where carrying the sheet on under the bank laid slivers of it over the sand.
+    /// The water's sheet stops short of the curve in a staircase on the voxel grid, so it is carried on under the
+    /// bank by <see cref="CarrySheetToShore"/>. That once laid slivers of water over the sand, when the sand stood
+    /// millimetres over the water; the profile now lifts it clear.
     /// </para>
     ///
     /// <para>
-    /// What is drawn here can stand up to about three tenths of a metre off the ground the server walks on. That
-    /// is accepted: the collision mesh is this mesh, so a player stands on the beach they see.
+    /// What is drawn here stands off the ground the server walks on: up to <see cref="ShoreField.Lift"/> on land,
+    /// more on the bed. Entities, props and flames are stood on it through
+    /// <see cref="SurfaceProbe.ShapedSurfaceAt"/>, which shapes the probed height the same way.
     /// </para>
     /// </remarks>
     private static void ShapeShore(ShoreField shore, float voxelSize, List<Vector3> vertices)
@@ -268,16 +268,91 @@ namespace BestiaBehemothClient.Game.World.Mesh
         }
 
         var height = position.Y / voxelSize;
-        var near = 1.0f - Mathf.SmoothStep(ShoreBand * 0.6f, ShoreBand, Mathf.Abs(distance));
-        var close = 1.0f - Mathf.SmoothStep(1.0f, 2.0f, Mathf.Abs(height - level));
-        var weight = near * close;
-        if (weight <= 0.0f)
+        var shaped = ShoreField.ShapeHeight(height, distance, level);
+        if (shaped != height)
+        {
+          vertices[i] = new Vector3(position.X, shaped * voxelSize, position.Z);
+        }
+      }
+    }
+
+    /// <summary>Voxels out from the shore within which a rim vertex is the sheet's edge against the bank.</summary>
+    /// <remarks>The sheet's edge stops at most a voxel and a quarter short of the shore.</remarks>
+    private const float RimReach = 1.6f;
+
+    /// <summary>
+    /// Whether a cell's vertex lies on the rim of a sheet: some vertical edge of the cell does not cross the
+    /// surface, so no quad is built across it and the sheet ends there.
+    /// </summary>
+    private static bool IsRim(float[] corner)
+    {
+      for (var c = 0; c < 4; c++)
+      {
+        if (corner[c] >= Iso == corner[c + 4] >= Iso)
+        {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    /// <summary>The furthest a vertex of the water's edge is carried, in voxels.</summary>
+    /// <remarks>
+    /// Where the field's slope is shallow, in the crook of a tight bay, the step it asks for runs wild.
+    /// </remarks>
+    private const float MaxCarry = 2.0f;
+
+    /// <summary>
+    /// Carries the vertices along the water sheet's edge out to <see cref="ShoreField.SheetReach"/> past the
+    /// shoreline, under the bank <see cref="ShapeShore"/> lays there.
+    /// </summary>
+    /// <remarks>
+    /// The sheet ends at the vertices of the last wet column, which form a staircase on the voxel grid wherever
+    /// the coast runs. Each is moved up the shore field's gradient by as far as takes it to the same distance past
+    /// the curve, so the edge runs along a contour of the field rather than the grid, and the line a player sees is
+    /// where the beach crosses the water.
+    ///
+    /// <para>
+    /// Which vertices move is decided by their cell's corners alone (<see cref="IsRim"/>), and where they go by
+    /// the field alone, so a vertex two chunks both emit on their shared border moves the same in both. Only the
+    /// sheet's top moves: a vertex well off the water's level belongs to a face down the side, and one far out in
+    /// the water is on the rim of a step in a river's level, not of its bank.
+    /// </para>
+    /// </remarks>
+    private static void CarrySheetToShore(ShoreField shore, float voxelSize, List<Vector3> vertices, List<bool> rim)
+    {
+      const float Probe = 0.25f;
+
+      for (var i = 0; i < vertices.Count; i++)
+      {
+        var position = vertices[i];
+        var x = position.X / voxelSize;
+        var z = position.Z / voxelSize;
+        if (!rim[i] || !shore.TryRead(x, z, out var distance, out var level) || distance < -RimReach
+            || distance >= ShoreField.SheetReach || Mathf.Abs(position.Y / voxelSize - level) > 0.5f)
         {
           continue;
         }
 
-        var profile = level + ShoreSlope * distance;
-        vertices[i] = new Vector3(position.X, Mathf.Lerp(height, profile, weight) * voxelSize, position.Z);
+        shore.TryRead(x + Probe, z, out var east, out _);
+        shore.TryRead(x - Probe, z, out var west, out _);
+        shore.TryRead(x, z + Probe, out var south, out _);
+        shore.TryRead(x, z - Probe, out var north, out _);
+        var gradient = new Vector2(east - west, south - north) / (2.0f * Probe);
+        var steepness = gradient.LengthSquared();
+        if (steepness < 0.04f)
+        {
+          continue;
+        }
+
+        var carry = gradient * ((ShoreField.SheetReach - distance) / steepness);
+        if (carry.Length() > MaxCarry)
+        {
+          carry = carry.Normalized() * MaxCarry;
+        }
+
+        vertices[i] = new Vector3(position.X + carry.X * voxelSize, position.Y, position.Z + carry.Y * voxelSize);
       }
     }
 

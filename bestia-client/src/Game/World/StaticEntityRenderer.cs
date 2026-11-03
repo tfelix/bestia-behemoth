@@ -225,8 +225,8 @@ namespace BestiaBehemothClient.Game.World
         return placed;
       }
 
-      var surface = Mesh.SurfaceProbe.SurfaceAt(
-        _store, Mesh.BlockAppearance.Current,
+      var surface = Mesh.SurfaceProbe.ShapedSurfaceAt(
+        _store, Mesh.BlockAppearance.Current, _store.Shores,
         centre.X, centre.Z, entry.Position.Y, ChunkSize, ChunkHeight, _wrap);
 
       return double.IsNaN(surface)

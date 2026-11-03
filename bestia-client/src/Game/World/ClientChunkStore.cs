@@ -141,6 +141,10 @@ namespace BestiaBehemothClient.Game.World
 
     public ChunkBands BandsOf(ChunkKey key) => _held.TryGetValue(key, out var held) ? held.Bands : null;
 
+    /// <summary>The shorelines of the chunks held, for standing things on the beach the mesher draws.</summary>
+    /// <remarks>Main thread only; see <see cref="ShoreFieldCache"/>.</remarks>
+    public ShoreFieldCache Shores { get; } = new();
+
     public bool Holds(ChunkKey key, uint revision) =>
       _held.TryGetValue(key, out var held) && held.Revision == revision;
 
@@ -276,6 +280,7 @@ namespace BestiaBehemothClient.Game.World
     {
       _held.Clear();
       _announced.Clear();
+      Shores.Clear();
     }
 
     /// <summary>
