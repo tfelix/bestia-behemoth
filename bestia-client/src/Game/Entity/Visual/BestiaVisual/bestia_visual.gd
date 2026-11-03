@@ -3,6 +3,8 @@ class_name BestiaVisual extends Visual
 ## Loaded when the first light is worn, not preloaded: this script is in a load cycle (BestiaDB ->
 ## BestiaResource -> BestiaVisual.tscn -> here), and a preload inside it came back as an empty scene.
 const _CARRIED_LIGHT_PATH := "res://Game/Entity/Visual/MasterVisual/CarriedLight/CarriedLight.tscn"
+## Between two numbers of one flurry.
+const _BLOW_INTERVAL_SECONDS := 0.12
 
 const _IDLE_ANIM = "Idle"
 const _APPEAR_ANIM = "appear"
@@ -174,10 +176,40 @@ func update_worn_gear(msg: WornGearComponentSMSG) -> void:
 	_carried_light.show_light(light, msg.LightLit)
 
 
+## A flurry shows one number per blow, a moment apart, adding up to the total the server sent.
 func show_damage(msg: DamageEntitySMSG) -> void:
+	var blows := maxi(1, msg.Div)
+	if blows == 1:
+		_spawn_damage_tag(msg)
+		return
+
+	for i in blows:
+		if i > 0:
+			await get_tree().create_timer(_BLOW_INTERVAL_SECONDS).timeout
+			if not is_inside_tree():
+				return
+		_spawn_damage_tag(_blow_of(msg, i, blows))
+
+
+func _spawn_damage_tag(msg: DamageEntitySMSG) -> void:
 	var layer := DamageTagLayer.get_instance()
 	if layer != null:
 		layer.show_damage(msg, _damage_tag_anchor.global_position)
+
+
+## One blow's share of [param msg]; the last one carries what does not divide evenly.
+func _blow_of(msg: DamageEntitySMSG, index: int, blows: int) -> DamageEntitySMSG:
+	var share := msg.Damage / blows
+	var blow := DamageEntitySMSG.new()
+	blow.EntityId = msg.EntityId
+	blow.SourceEntityId = msg.SourceEntityId
+	blow.AttackId = msg.AttackId
+	blow.SkillLevel = msg.SkillLevel
+	blow.Type = msg.Type
+	blow.ProjectileItemId = msg.ProjectileItemId
+	blow.Div = 1
+	blow.Damage = share + (msg.Damage - share * blows if index == blows - 1 else 0)
+	return blow
 
 
 func update_health(msg: HealthComponentSMSG) -> void:
