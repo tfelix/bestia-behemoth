@@ -22,10 +22,12 @@ import kotlin.math.roundToInt
  *
  * It is where a journey's way is laid. A way over it keeps to the valleys and the roads, because a step costs
  * what walking it costs: uphill dearer than on the flat, downhill no cheaper, a road a little cheaper than open
- * country. The macro graph only says which way to head when the destination is further than one search spans.
+ * country, a shore or a ford dearer. The macro graph only says which way to head when the destination is further
+ * than one search spans.
  *
  * Built [BLOCK] cells at a time, the first time a way is asked through them, and kept. A block is two bytes of
- * height per cell and two bits of flags, so even [MAX_BLOCKS] of them are under ten megabytes.
+ * height and one of wetness per cell and two bits of flags, so even [MAX_BLOCKS] of them are under fifteen
+ * megabytes.
  */
 @Service
 class RegionGrid(private val water: WaterSource) {
@@ -52,8 +54,9 @@ class RegionGrid(private val water: WaterSource) {
    * @property heights the mean height of each cell's ground, in [HEIGHT_UNIT]s
    * @property closed water too deep to wade, or ground too steep to climb
    * @property roads a road or a street runs through, or a bridge deck spans
+   * @property wet how many of each cell's [SAMPLES] by [SAMPLES] samples stand in water, wadeable or not
    */
-  private class Block(val heights: ShortArray, val closed: BitSet, val roads: BitSet)
+  private class Block(val heights: ShortArray, val closed: BitSet, val roads: BitSet, val wet: ByteArray)
 
   private val blocks = object : LinkedHashMap<Long, Block>(64, 0.75f, true) {
     override fun removeEldestEntry(eldest: MutableMap.MutableEntry<Long, Block>) = size > MAX_BLOCKS
@@ -180,30 +183,36 @@ class RegionGrid(private val water: WaterSource) {
    *
    * It is too steep when the plane through its samples rises more than [MAX_GRADE]: a cliff a whole cell high,
    * not a bank or a boulder the local tier walks round.
+   *
+   * An open cell's wet samples, shallows and the deep water short of a majority alike, are counted too: see
+   * [WET_SURFACE] for what they cost.
    */
   private fun survey(bx: Int, by: Int): Block {
     val minX = bx.toDouble() * BLOCK * CELL
     val minY = by.toDouble() * BLOCK * CELL
     val size = BLOCK.toDouble() * CELL
     val survey = water.survey(Aabb(minX, minY, minX + size, minY + size), exact = false)
-    val block = Block(ShortArray(BLOCK * BLOCK), BitSet(BLOCK * BLOCK), BitSet(BLOCK * BLOCK))
+    val block = Block(ShortArray(BLOCK * BLOCK), BitSet(BLOCK * BLOCK), BitSet(BLOCK * BLOCK), ByteArray(BLOCK * BLOCK))
     val ground = DoubleArray(SAMPLES * SAMPLES)
     val spacing = CELL.toDouble() / SAMPLES
 
     for (cy in 0 until BLOCK) {
       for (cx in 0 until BLOCK) {
         var deep = 0
+        var wet = 0
         for (sy in 0 until SAMPLES) {
           for (sx in 0 until SAMPLES) {
             val x = minX + (cx + (sx + 0.5) / SAMPLES) * CELL
             val y = minY + (cy + (sy + 0.5) / SAMPLES) * CELL
             ground[sy * SAMPLES + sx] = survey.groundAt(x, y)
             if (survey.isDeep(x, y)) deep++
+            if (survey.isWet(x, y)) wet++
           }
         }
 
         val index = cy * BLOCK + cx
         block.heights[index] = heightOf(ground.average())
+        block.wet[index] = wet.toByte()
         val isSteep = gradeOf(ground, spacing) > MAX_GRADE
         if (deep * 2 > SAMPLES * SAMPLES || isSteep) block.closed.set(index)
       }
@@ -222,6 +231,7 @@ class RegionGrid(private val water: WaterSource) {
       forEachCellAlong(a, b, minX, minY) { index, t ->
         block.closed.clear(index)
         block.roads.set(index)
+        block.wet[index] = 0
         block.heights[index] = heightOf(fromBank + (toBank - fromBank) * t)
       }
     }
@@ -336,7 +346,7 @@ class RegionGrid(private val water: WaterSource) {
 
     /**
      * What stepping from [from] to the neighbouring [to] costs, in cells walked on the flat: dearer uphill,
-     * no cheaper downhill, a little cheaper on a road. Infinite up or down a cliff.
+     * no cheaper downhill, a little cheaper on a road, dearer through water. Infinite up or down a cliff.
      */
     fun stepCost(from: Long, to: Long): Double {
       val fromBlock = blockOf(from)
@@ -581,6 +591,17 @@ class RegionGrid(private val water: WaterSource) {
     const val ROAD_SURFACE = 0.85
 
     /**
+     * What a cell all of water costs over a dry one, on top of it: four times the going in all.
+     *
+     * Without it a wadeable shallow was dry ground and a shore cell short of a deep majority was open country, so
+     * a way hugged the waterline and its corners were pulled straight across the shallows - drawn on the map as a
+     * route over the lake, and walked as one. Dear enough that a way keeps a cell or two back from the water and a
+     * line over it costs more than the dry cells it would replace; not so dear that a ford is walked kilometres
+     * round. A road keeps its own cost, wet or not: a causeway or a ford's approach is the way across.
+     */
+    const val WET_SURFACE = 3.0
+
+    /**
      * How sharply climbing costs, after Tobler's hiking function: walking pace falls by e^(3.5 |grade + 0.05|).
      * A ten percent climb costs half as much again as the flat, a thirty percent one nearly three times as much.
      */
@@ -616,7 +637,11 @@ class RegionGrid(private val water: WaterSource) {
 
     fun metresOf(height: Short) = height * HEIGHT_UNIT
 
-    fun surfaceOf(block: Block, index: Int) = if (block.roads[index]) ROAD_SURFACE else 1.0
+    /** What a cell's going costs on the flat: a road's, or open country's and dearer the more of it is water. */
+    fun surfaceOf(block: Block, index: Int): Double {
+      if (block.roads[index]) return ROAD_SURFACE
+      return 1.0 + WET_SURFACE * block.wet[index] / (SAMPLES * SAMPLES)
+    }
 
     /**
      * The cost of walking a grade, as a multiple of the flat: never below one, since a way that ran downhill for

@@ -44,10 +44,13 @@ interface WaterSource {
  * @property groundAt the height of the ground at a column, in metres. Asked for a column just before [isDeep]
  *   is asked for the same one, which lets a source measure the ground once for both.
  * @property roads the centre lines of the roads and streets through it, which are the easy going
+ * @property isWet whether a column stands under any water or lava at all, wadeable or not. Asked after [isDeep]
+ *   for the same column. Without one, only deep water is wet: a test's lake has no shallows unless it draws them.
  */
 class WaterSurvey(
   val isDeep: (worldX: Double, worldY: Double) -> Boolean,
   val crossings: List<Pair<Vec2d, Vec2d>>,
   val groundAt: (worldX: Double, worldY: Double) -> Double = { _, _ -> 0.0 },
   val roads: List<List<Vec2d>> = emptyList(),
+  val isWet: (worldX: Double, worldY: Double) -> Boolean = isDeep,
 )

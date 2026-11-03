@@ -35,6 +35,16 @@ class RegionGridTest {
   }
 
   @Test
+  fun `a lake's wadeable shallows are walked round, not waded`() {
+    val deep = { x: Double, y: Double -> Math.hypot(x - 300.0, y) <= LAKE_RADIUS - SHALLOWS }
+    val wet = { x: Double, y: Double -> Math.hypot(x - 300.0, y) <= LAKE_RADIUS }
+    val way = assertIs<RegionGrid.Way.Found>(RegionGrid(water(deep, isWet = wet)).wayBetween(ORIGIN, FAR_SHORE))
+
+    assertEquals(FAR_SHORE, way.points.last())
+    (listOf(ORIGIN) + way.points).zipWithNext().forEach { (a, b) -> assertDry(a, b) }
+  }
+
+  @Test
   fun `an island is no way at all`() {
     val ring = { x: Double, y: Double -> Math.hypot(x - 300.0, y) in 100.0..260.0 }
 
@@ -155,9 +165,10 @@ class RegionGridTest {
     crossings: List<Pair<Vec2d, Vec2d>> = emptyList(),
     ground: (Double, Double) -> Double = { _, _ -> 0.0 },
     roads: List<List<Vec2d>> = emptyList(),
+    isWet: (Double, Double) -> Boolean = isDeep,
   ) = object : WaterSource {
     override val isReady get() = true
-    override fun survey(area: Aabb, exact: Boolean) = WaterSurvey(isDeep, crossings, ground, roads)
+    override fun survey(area: Aabb, exact: Boolean) = WaterSurvey(isDeep, crossings, ground, roads, isWet)
   }
 
   private companion object {
@@ -167,6 +178,9 @@ class RegionGridTest {
     val FAR_SHORE = Vec3L(600, 0, 0)
 
     const val LAKE_RADIUS = 200.0
+
+    /** How far in from the waterline a lake stays wadeable, where one is given shallows. */
+    const val SHALLOWS = 120.0
 
     /** A cell that is mostly dry counts as dry, so a way may clip the shore by up to a cell's half diagonal. */
     const val CELL_SLACK = 23.0

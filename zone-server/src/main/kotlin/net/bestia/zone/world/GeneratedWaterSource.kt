@@ -78,12 +78,13 @@ class GeneratedWaterSource(private val worlds: WorldService) : WaterSource {
         lastGround
       }
 
-      val isDeep = { x: Double, y: Double ->
+      // How much stands over a column: infinitely much under lava, which nobody wades, and nothing on dry land.
+      val depthAt = { x: Double, y: Double ->
         val ground = groundAt(x, y)
 
         val molten = lava.surfaceAt(x, y)
         if (!molten.isNaN() && molten > ground) {
-          true
+          Double.POSITIVE_INFINITY
         } else {
           var water = surface.waterLevelAt(x, y)
           val flowing = rivers.surfaceAt(x, y)
@@ -91,11 +92,30 @@ class GeneratedWaterSource(private val worlds: WorldService) : WaterSource {
           if (!flowing.isNaN() && flowing > water) water = flowing
           if (!impounded.isNaN() && impounded > water) water = impounded
 
-          water - ground > wadeable
+          water - ground
         }
       }
 
-      return WaterSurvey(isDeep, crossings(features), groundAt, roads(features))
+      // The grid asks whether a column is deep and then whether it is wet; one depth answers both.
+      var lastDepthX = Double.NaN
+      var lastDepthY = Double.NaN
+      var lastDepth = 0.0
+      val cachedDepthAt = { x: Double, y: Double ->
+        if (x != lastDepthX || y != lastDepthY) {
+          lastDepth = depthAt(x, y)
+          lastDepthX = x
+          lastDepthY = y
+        }
+        lastDepth
+      }
+
+      return WaterSurvey(
+        isDeep = { x, y -> cachedDepthAt(x, y) > wadeable },
+        crossings = crossings(features),
+        groundAt = groundAt,
+        roads = roads(features),
+        isWet = { x, y -> cachedDepthAt(x, y) > 0.0 },
+      )
     }
 
     private fun roads(features: List<VectorFeature>): List<List<Vec2d>> {

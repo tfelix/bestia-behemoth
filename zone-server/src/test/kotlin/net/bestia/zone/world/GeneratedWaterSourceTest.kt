@@ -55,8 +55,8 @@ class GeneratedWaterSourceTest {
   }
 
   /**
-   * At most a cell's worth of water along a stretch: a cell that is mostly dry is open, so a way may clip a shore
-   * or ford a stream, but never swims the lake.
+   * At most half a cell of water along a stretch, shallows included: a way may clip a shore or ford a stream, but
+   * neither swims the lake nor wades its margin. It once waded 167 m of it, the shallows being free going.
    */
   private fun assertMostlyDry(a: Vec3L, b: Vec3L) {
     val survey = water.survey(Aabb(
@@ -69,7 +69,7 @@ class GeneratedWaterSourceTest {
       val t = if (length == 0) 0.0 else i.toDouble() / length
       val x = a.x + (b.x - a.x) * t
       val y = a.y + (b.y - a.y) * t
-      wetRun = if (survey.isDeep(x, y)) wetRun + 1 else 0
+      wetRun = if (survey.isWet(x, y)) wetRun + 1 else 0
       if (wetRun > MAX_WET_RUN_METRES) fail("$a -> $b runs through ${wetRun} m of water at ($x, $y)")
     }
   }
@@ -85,7 +85,7 @@ class GeneratedWaterSourceTest {
     val GRAFDELVE = Vec3L(45071, 34065, 0)
     val STANHOLD = Vec3L(46220, 25810, 0)
 
-    const val MAX_WET_RUN_METRES = 32
+    const val MAX_WET_RUN_METRES = 16
 
     private val settings = WorldGenConfig()
 
