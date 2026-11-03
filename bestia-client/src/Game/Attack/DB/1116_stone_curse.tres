@@ -5,9 +5,9 @@
 [resource]
 script = ExtResource("1_script")
 skill_id = 1116
-name = "Curse"
+name = "Stone Curse"
 description_key = "SKILL_1116_DESC"
-mana_cost = 12
+mana_cost = 18
 cooldown = 20.0
 max_level = 10
 target_type = "ENEMY"

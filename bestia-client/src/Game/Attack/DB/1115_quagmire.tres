@@ -5,10 +5,11 @@
 [resource]
 script = ExtResource("1_script")
 skill_id = 1115
-name = "Mud Trap"
+name = "Quagmire"
 description_key = "SKILL_1115_DESC"
 mana_cost = 11
 cooldown = 20.0
 max_level = 10
-target_type = "ENEMY"
+target_type = "AOE_GROUND"
 cast_time = 1.0
+aoe_radius = 2.0

@@ -13,29 +13,25 @@ default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
 attack-power: 0.3
+weight: 60
 health: 5
 mana: 438
 experience: 308
 attributes: { strength: 1, intelligence: 91, vitality: 24, dexterity: 1, willpower: 61, agility: 24 }
 learnset:
-  - { skill: mana_spark, level: 1 }
   - { skill: growl, level: 6 }
   - { skill: soul_strike, level: 16 }
-  - { skill: enrage, level: 21 }
-  - { skill: force_bolt, level: 26 }
+  - { skill: flame_weapon, level: 21 }
   - { skill: shockwave, level: 31 }
-  - { skill: curse, level: 36 }
-  - { skill: arcane_missile, level: 41 }
+  - { skill: bewilder, level: 36 }
   - { skill: haunt, level: 46 }
-  - { skill: arcane_lance, level: 51 }
   - { skill: mending_light, level: 56 }
   - { skill: spirit_burst, level: 61 }
   - { skill: soul_rend, level: 66, active: true }
   - { skill: petrifying_gaze, level: 70 }
-  - { skill: mana_spear, level: 76 }
   - { skill: mana_storm, level: 82 }
   - { skill: bleeding_wound, level: 88 }
-  - { skill: soul_harvest, level: 100 }
+  - { skill: ultima, level: 100 }
 habitat: [COLD_DESERT, DESERT]
 temperature-min: -20
 temperature-max: 48

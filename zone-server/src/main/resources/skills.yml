@@ -537,10 +537,10 @@ skills:
     cooldown: 20
     castTime: 1.5
     targetType: FRIENDLY
-    range: 0
-    needsLineOfSight: false
+    range: 5
+    needsLineOfSight: true
     manaCost: 10
-    description: Recovers the health of a friendly a little bit. A essential spell for every adventurer.
+    description: Heals a friend a little. The first spell every healer learns.
 
   - id: 1002
     identifier: mending_light
@@ -552,10 +552,10 @@ skills:
     cooldown: 20
     castTime: 1.5
     targetType: FRIENDLY
-    range: 0
-    needsLineOfSight: false
+    range: 5
+    needsLineOfSight: true
     manaCost: 25
-    description: Recovers the health of a friendly for a fairly amount. Used to treat wounds.
+    description: Heals a friend for a fair amount. Used to treat wounds.
 
   - id: 1003
     identifier: greater_heal
@@ -567,10 +567,10 @@ skills:
     cooldown: 20
     castTime: 1.5
     targetType: FRIENDLY
-    range: 0
-    needsLineOfSight: false
+    range: 5
+    needsLineOfSight: true
     manaCost: 49
-    description: Recovers a great amount of health of a friendly unit. It can almost bring bad even the dead.
+    description: Heals a friend for a great amount.
 
   - id: 1004
     identifier: tackle
@@ -598,10 +598,12 @@ skills:
     cooldown: 4
     castTime: 0
     targetType: ENEMY
-    range: 1
-    needsLineOfSight: false
-    manaCost: 4
-    description: Lowers the head and drives the skull into the target. Crude, but it rattles anyone who takes it.
+    range: 3
+    needsLineOfSight: true
+    manaCost: 5
+    mechanics:
+      dash: 3
+    description: Rushes up to three tiles at the target and drives the skull into it.
 
   - id: 1006
     identifier: pounce
@@ -609,14 +611,22 @@ skills:
     script: BestiaPhysicalSkill
     archetype: STRIKE
     element: NORMAL
-    power: 1.3
+    power: 1.0
     cooldown: 4
     castTime: 0
     targetType: ENEMY
-    range: 1
-    needsLineOfSight: false
-    manaCost: 5
-    description: Leaps at the target from a few steps away and lands with its full weight.
+    range: 5
+    needsLineOfSight: true
+    manaCost: 7
+    mechanics:
+      leap: 5
+      landingRadius: 1
+      onHit:
+      - status: STUN
+        chance: 30
+        durationSeconds: 1.5
+    description: Leaps up to five tiles onto the target. Everything within a tile of the landing may be stunned for
+      a moment.
 
   - id: 1007
     identifier: body_slam
@@ -631,7 +641,9 @@ skills:
     range: 1
     needsLineOfSight: false
     manaCost: 7
-    description: Throws its whole body against the target. The bigger the bestia, the harder it lands.
+    mechanics:
+      weightScaling: true
+    description: Throws its whole body against the target. The heavier the bestia and its load, the harder it lands.
 
   - id: 1008
     identifier: thrash
@@ -639,14 +651,17 @@ skills:
     script: BestiaPhysicalSkill
     archetype: STRIKE
     element: NORMAL
-    power: 1.3
+    power: 0.35
     cooldown: 4
     castTime: 0
     targetType: ENEMY
     range: 1
     needsLineOfSight: false
     manaCost: 9
-    description: A wild flurry of blows that hits whatever is closest, again and again.
+    mechanics:
+      hitsMin: 5
+      hitsMax: 5
+    description: Five quick, light blows on the target, one after the other.
 
   - id: 1009
     identifier: ram
@@ -656,12 +671,15 @@ skills:
     element: NORMAL
     power: 2.0
     cooldown: 8
-    castTime: 0.5
+    castTime: 0
     targetType: ENEMY
-    range: 1
-    needsLineOfSight: false
-    manaCost: 6
-    description: Takes a short run-up and rams the target. Slow to start, but it hits much harder than a tackle.
+    range: 10
+    needsLineOfSight: true
+    manaCost: 7
+    mechanics:
+      dash: 10
+      dashBonusPerTile: 0.1
+    description: Charges up to ten tiles at the target. The longer the run-up, the harder it hits.
 
   - id: 1010
     identifier: crushing_blow
@@ -671,7 +689,7 @@ skills:
     element: NORMAL
     power: 2.0
     cooldown: 8
-    castTime: 0.5
+    castTime: 0
     targetType: ENEMY
     range: 1
     needsLineOfSight: false
@@ -686,7 +704,7 @@ skills:
     element: NORMAL
     power: 2.0
     cooldown: 8
-    castTime: 0.5
+    castTime: 0
     targetType: ENEMY
     range: 1
     needsLineOfSight: false
@@ -701,7 +719,7 @@ skills:
     element: NORMAL
     power: 2.0
     cooldown: 8
-    castTime: 0.5
+    castTime: 0
     targetType: ENEMY
     range: 1
     needsLineOfSight: false
@@ -716,7 +734,7 @@ skills:
     element: NORMAL
     power: 2.0
     cooldown: 8
-    castTime: 0.5
+    castTime: 0
     targetType: ENEMY
     range: 1
     needsLineOfSight: false
@@ -731,12 +749,17 @@ skills:
     element: NORMAL
     power: 2.0
     cooldown: 8
-    castTime: 0.5
+    castTime: 0
     targetType: ENEMY
     range: 1
     needsLineOfSight: false
-    manaCost: 17
-    description: A blow to the head that leaves the target seeing stars.
+    manaCost: 26
+    mechanics:
+      onHit:
+      - status: STUN
+        chance: 70
+        durationSeconds: 2.5
+    description: A blow to the head that very likely leaves the target stunned.
 
   - id: 1015
     identifier: titan_blow
@@ -746,12 +769,14 @@ skills:
     element: NORMAL
     power: 2.0
     cooldown: 8
-    castTime: 0.5
+    castTime: 0
     targetType: ENEMY
     range: 1
     needsLineOfSight: false
-    manaCost: 20
-    description: One blow with the strength of a landslide. Few survive it twice.
+    manaCost: 23
+    mechanics:
+      knockback: 3
+    description: One blow with the strength of a landslide. It throws the target three tiles back.
 
   - id: 1016
     identifier: pebble_toss
@@ -760,13 +785,15 @@ skills:
     archetype: SHOT
     element: NORMAL
     power: 1.4
-    cooldown: 5
+    cooldown: 2
     castTime: 0.5
     targetType: ENEMY
-    range: 7
+    range: 6
     needsLineOfSight: true
     manaCost: 4
-    description: Flings a small stone at the target. It stings more than it hurts.
+    mechanics:
+      interruptChance: 30
+    description: Flings a small stone. Weak, but quick, and it often breaks off what the target was casting.
 
   - id: 1017
     identifier: quill_shot
@@ -778,10 +805,12 @@ skills:
     cooldown: 5
     castTime: 0.5
     targetType: ENEMY
-    range: 7
+    range: 9
     needsLineOfSight: true
     manaCost: 5
-    description: Shoots a single sharp quill from its back at a target in range.
+    mechanics:
+      critBonus: 20
+    description: A long, aimed shot with a single quill. It reaches far and finds weak spots.
 
   - id: 1018
     identifier: spine_volley
@@ -789,14 +818,17 @@ skills:
     script: BestiaPhysicalSkill
     archetype: SHOT
     element: NORMAL
-    power: 1.4
+    power: 0.6
     cooldown: 5
     castTime: 0.5
     targetType: ENEMY
     range: 7
     needsLineOfSight: true
     manaCost: 7
-    description: Releases a burst of spines that all fly at the same target.
+    mechanics:
+      hitsMin: 2
+      hitsMax: 3
+    description: Two or three spines at the same target, each weaker than a single shot.
 
   - id: 1019
     identifier: piercing_spike
@@ -810,8 +842,10 @@ skills:
     targetType: ENEMY
     range: 7
     needsLineOfSight: true
-    manaCost: 9
-    description: Fires a long, hardened spike that punches through light armor.
+    manaCost: 11
+    mechanics:
+      ignoreDefense: true
+    description: A long, hardened spike that goes straight through armour.
 
   - id: 1020
     identifier: barbed_barrage
@@ -825,8 +859,12 @@ skills:
     targetType: ENEMY
     range: 7
     needsLineOfSight: true
-    manaCost: 10
-    description: A storm of barbed darts. Each one is small, together they shred.
+    manaCost: 11
+    mechanics:
+      onHit:
+      - status: BLEEDING
+        chance: 15
+    description: A storm of barbed darts. Now and then one sticks and leaves a bleeding wound.
 
   - id: 1021
     identifier: thorn_volley
@@ -843,96 +881,24 @@ skills:
     manaCost: 12
     description: A wave of thorns as long as daggers, shot with deadly aim.
 
-  - id: 1022
-    identifier: mana_spark
-    name: Mana Spark
-    script: BestiaMagicSkill
-    archetype: BOLT
-    element: NORMAL
-    power: 1.0
-    cooldown: 4
-    castTime: 1.5
-    targetType: ENEMY
-    range: 8
-    needsLineOfSight: true
-    manaCost: 10
-    description: A small spark of raw mana. The first spell a young bestia learns.
-
-  - id: 1023
-    identifier: force_bolt
-    name: Force Bolt
-    script: BestiaMagicSkill
-    archetype: BOLT
-    element: NORMAL
-    power: 1.0
-    cooldown: 4
-    castTime: 1.5
-    targetType: ENEMY
-    range: 8
-    needsLineOfSight: true
-    manaCost: 12
-    description: A bolt of pure force that knocks the air out of the target.
-
-  - id: 1024
-    identifier: arcane_missile
-    name: Arcane Missile
-    script: BestiaMagicSkill
-    archetype: BOLT
-    element: NORMAL
-    power: 1.0
-    cooldown: 4
-    castTime: 1.5
-    targetType: ENEMY
-    range: 8
-    needsLineOfSight: true
-    manaCost: 16
-    description: Three small missiles of mana that seek out the same target.
-
-  - id: 1025
-    identifier: arcane_lance
-    name: Arcane Lance
-    script: BestiaMagicSkill
-    archetype: BOLT
-    element: NORMAL
-    power: 1.0
-    cooldown: 4
-    castTime: 1.5
-    targetType: ENEMY
-    range: 8
-    needsLineOfSight: true
-    manaCost: 18
-    description: A lance of focused mana that hits hard and flies straight.
-
-  - id: 1026
-    identifier: mana_spear
-    name: Mana Spear
-    script: BestiaMagicSkill
-    archetype: BOLT
-    element: NORMAL
-    power: 1.0
-    cooldown: 4
-    castTime: 1.5
-    targetType: ENEMY
-    range: 8
-    needsLineOfSight: true
-    manaCost: 22
-    description: A heavy spear of mana, thrown with the whole mind behind it.
-
   - id: 1027
     identifier: bleeding_wound
     name: Bleeding Wound
-    script: BestiaDotSkill
+    script: BestiaPhysicalSkill
     archetype: DOT
     element: NORMAL
     power: 1.0
     cooldown: 12
-    castTime: 1.0
-    targetType: AOE_GROUND
-    range: 6
-    needsLineOfSight: true
-    manaCost: 9
-    aoeRadius: 1.0
-    description: Opens a wound that keeps bleeding for a while after the hit.
+    castTime: 0
+    targetType: ENEMY
+    range: 1
+    needsLineOfSight: false
+    manaCost: 12
+    mechanics:
+      onHit:
+      - status: BLEEDING
+        chance: 80
+    description: A deep cut that very likely keeps bleeding while the target moves or fights.
 
   - id: 1028
     identifier: shockwave
@@ -946,9 +912,12 @@ skills:
     targetType: AOE_GROUND
     range: 6
     needsLineOfSight: true
-    manaCost: 20
+    manaCost: 23
     aoeRadius: 2.0
-    description: Slams the ground and sends a wave of force through everyone close by.
+    mechanics:
+      selfCentred: true
+      knockback: 3
+    description: Slams the ground and throws everyone close by three tiles away.
 
   - id: 1029
     identifier: mana_storm
@@ -964,37 +933,9 @@ skills:
     needsLineOfSight: true
     manaCost: 26
     aoeRadius: 2.0
-    description: Raw mana rains down on an area and tears at everyone inside.
-
-  - id: 1030
-    identifier: arcane_nova
-    name: Arcane Nova
-    script: BestiaMagicSkill
-    archetype: ULTIMATE
-    element: NORMAL
-    power: 2.5
-    cooldown: 30
-    castTime: 3.0
-    targetType: ENEMY
-    range: 8
-    needsLineOfSight: true
-    manaCost: 66
-    description: Gathers all its mana and releases it in one blinding blast.
-
-  - id: 1031
-    identifier: wrath_of_the_wild
-    name: Wrath of the Wild
-    script: BestiaMagicSkill
-    archetype: ULTIMATE
-    element: NORMAL
-    power: 2.5
-    cooldown: 30
-    castTime: 3.0
-    targetType: ENEMY
-    range: 8
-    needsLineOfSight: true
-    manaCost: 70
-    description: The fury of the wild itself breaks loose. Only the oldest bestias know it.
+    mechanics:
+      manaPercentPerTick: 3
+    description: Raw mana rains down on an area. It hurts everyone inside and fills their mana a little.
 
   - id: 1032
     identifier: flame_dart
@@ -1038,9 +979,13 @@ skills:
     targetType: AOE_GROUND
     range: 6
     needsLineOfSight: true
-    manaCost: 10
+    manaCost: 11
     aoeRadius: 1.0
-    description: Sets the ground ablaze. Anything that stands in the flames burns.
+    mechanics:
+      onHit:
+      - status: BURNING
+        chance: 3
+    description: Sets the ground ablaze. Whatever stands in the flames burns, and may catch fire itself.
 
   - id: 1035
     identifier: fire_ball
@@ -1056,7 +1001,9 @@ skills:
     needsLineOfSight: true
     manaCost: 20
     aoeRadius: 2.0
-    description: A ball of fire that bursts on impact and scorches everyone around the target.
+    mechanics:
+      igniteChance: 35
+    description: A ball of fire that bursts on impact. It may set the ground alight.
 
   - id: 1036
     identifier: blazing_charge
@@ -1066,7 +1013,7 @@ skills:
     element: FIRE
     power: 2.0
     cooldown: 8
-    castTime: 0.5
+    castTime: 0
     targetType: ENEMY
     range: 1
     needsLineOfSight: false
@@ -1085,8 +1032,10 @@ skills:
     targetType: ENEMY
     range: 8
     needsLineOfSight: true
-    manaCost: 22
-    description: A thin ray of white-hot fire that burns straight through.
+    manaCost: 28
+    mechanics:
+      ignoreDefense: true
+    description: A thin ray of white-hot fire that burns straight through any magic guard.
 
   - id: 1038
     identifier: inferno
@@ -1096,12 +1045,16 @@ skills:
     element: FIRE
     power: 2.5
     cooldown: 30
-    castTime: 3.0
+    castTime: 2
     targetType: ENEMY
     range: 8
     needsLineOfSight: true
     manaCost: 66
-    description: Turns an area into a sea of fire that burns again and again.
+    mechanics:
+      channelSeconds: 4
+      channelInterval: 0.5
+      pillars: true
+    description: While the caster holds the spell, pillars of fire strike the area one after another.
 
   - id: 1039
     identifier: ice_shard
@@ -1130,8 +1083,14 @@ skills:
     targetType: ENEMY
     range: 7
     needsLineOfSight: true
-    manaCost: 5
-    description: Spits a jet of water hard enough to knock a target off its feet.
+    manaCost: 6
+    mechanics:
+      onHit:
+      - status: SLOWED
+        chance: 35
+        durationSeconds: 2
+        level: 3
+    description: Spits a hard jet of water. It may slow the target for a moment.
 
   - id: 1041
     identifier: frost_bite
@@ -1176,9 +1135,13 @@ skills:
     targetType: AOE_GROUND
     range: 6
     needsLineOfSight: true
-    manaCost: 10
+    manaCost: 12
     aoeRadius: 1.0
-    description: A cold fog settles on the ground. Standing in it slowly freezes the blood.
+    mechanics:
+      onHit:
+      - status: FROZEN
+        chance: 8
+    description: A cold fog settles on the ground. Whatever stands in it may freeze solid.
 
   - id: 1044
     identifier: tidal_slam
@@ -1188,7 +1151,7 @@ skills:
     element: WATER
     power: 2.0
     cooldown: 8
-    castTime: 0.5
+    castTime: 0
     targetType: ENEMY
     range: 1
     needsLineOfSight: false
@@ -1238,7 +1201,10 @@ skills:
     range: 8
     needsLineOfSight: true
     manaCost: 66
-    description: Calls a howling blizzard down on an area. The cold bites through any armor.
+    mechanics:
+      channelSeconds: 4
+      channelInterval: 1
+    description: While the caster holds the spell, a howling blizzard batters the area.
 
   - id: 1048
     identifier: stone_dart
@@ -1297,9 +1263,14 @@ skills:
     targetType: AOE_GROUND
     range: 6
     needsLineOfSight: true
-    manaCost: 10
+    manaCost: 11
     aoeRadius: 1.0
-    description: Whirling sand traps the target and grinds at it.
+    mechanics:
+      onHit:
+      - status: IMMOBILIZED
+        chance: 3
+        durationSeconds: 3
+    description: Whirling sand grinds at the target and may trap it in place.
 
   - id: 1052
     identifier: tremor
@@ -1313,9 +1284,16 @@ skills:
     targetType: AOE_GROUND
     range: 6
     needsLineOfSight: true
-    manaCost: 22
+    manaCost: 30
     aoeRadius: 2.0
-    description: Stamps on the ground until it shakes. Everyone close by loses their footing and gets hurt.
+    mechanics:
+      selfCentred: true
+      onHit:
+      - status: SLOWED
+        chance: 100
+        durationSeconds: 3
+        level: 5
+    description: Stamps until the ground shakes. Everyone close by is hurt and slowed to half speed.
 
   - id: 1053
     identifier: boulder_slam
@@ -1325,7 +1303,7 @@ skills:
     element: EARTH
     power: 2.0
     cooldown: 8
-    castTime: 0.5
+    castTime: 0
     targetType: ENEMY
     range: 1
     needsLineOfSight: false
@@ -1344,8 +1322,13 @@ skills:
     targetType: ENEMY
     range: 8
     needsLineOfSight: true
-    manaCost: 22
-    description: A lance of stone shoots out of the ground and impales the target.
+    manaCost: 26
+    mechanics:
+      onHit:
+      - status: IMMOBILIZED
+        chance: 35
+        durationSeconds: 3
+    description: A lance of stone impales the target and may pin it in place for three seconds.
 
   - id: 1055
     identifier: fissure
@@ -1447,7 +1430,7 @@ skills:
     element: WIND
     power: 2.0
     cooldown: 8
-    castTime: 0.5
+    castTime: 0
     targetType: ENEMY
     range: 1
     needsLineOfSight: false
@@ -1466,8 +1449,11 @@ skills:
     targetType: ENEMY
     range: 8
     needsLineOfSight: true
-    manaCost: 22
-    description: A bolt of lightning that jumps through the target with a roar.
+    manaCost: 31
+    mechanics:
+      chainTargets: 2
+      chainHop: 4
+    description: A bolt of lightning that jumps on to up to two more foes close to each other.
 
   - id: 1063
     identifier: hurricane
@@ -1482,7 +1468,10 @@ skills:
     range: 8
     needsLineOfSight: true
     manaCost: 66
-    description: A hurricane breaks loose and tears at everything in its path.
+    mechanics:
+      drift: 1
+      areaSeconds: 6
+    description: A hurricane breaks loose and moves away from its caster, tearing at everything in its path.
 
   - id: 1064
     identifier: venom_spit
@@ -1496,8 +1485,12 @@ skills:
     targetType: ENEMY
     range: 7
     needsLineOfSight: true
-    manaCost: 4
-    description: Spits a glob of venom at the target. Not deadly, but it burns.
+    manaCost: 5
+    mechanics:
+      onHit:
+      - status: BLIND
+        chance: 35
+    description: Spits venom into the target's eyes. It may blind it.
 
   - id: 1065
     identifier: poison_sting
@@ -1512,6 +1505,10 @@ skills:
     range: 1
     needsLineOfSight: false
     manaCost: 3
+    mechanics:
+      onHit:
+      - status: POISON
+        chance: 15
     description: A quick sting that leaves a little poison behind.
 
   - id: 1066
@@ -1526,8 +1523,12 @@ skills:
     targetType: ENEMY
     range: 8
     needsLineOfSight: true
-    manaCost: 12
-    description: A bolt of green venom that seeps into the skin.
+    manaCost: 14
+    mechanics:
+      onHit:
+      - status: POISON
+        chance: 35
+    description: A bolt of green venom that may poison the target.
 
   - id: 1067
     identifier: poison_cloud
@@ -1541,9 +1542,13 @@ skills:
     targetType: AOE_GROUND
     range: 6
     needsLineOfSight: true
-    manaCost: 9
+    manaCost: 10
     aoeRadius: 1.0
-    description: A cloud of foul gas that hangs over the ground. Breathing it hurts.
+    mechanics:
+      onHit:
+      - status: POISON
+        chance: 3
+    description: A cloud of foul gas hangs over the ground and may poison whoever breathes it.
 
   - id: 1068
     identifier: toxic_rend
@@ -1553,12 +1558,16 @@ skills:
     element: POISON
     power: 2.0
     cooldown: 8
-    castTime: 0.5
+    castTime: 0
     targetType: ENEMY
     range: 1
     needsLineOfSight: false
-    manaCost: 12
-    description: Tears into the target with claws dripping with venom.
+    manaCost: 16
+    mechanics:
+      onHit:
+      - status: POISON
+        chance: 70
+    description: Tears into the target with claws dripping with venom. It is very likely poisoned.
 
   - id: 1069
     identifier: miasma
@@ -1572,9 +1581,14 @@ skills:
     targetType: AOE_GROUND
     range: 6
     needsLineOfSight: true
-    manaCost: 22
+    manaCost: 30
     aoeRadius: 2.0
-    description: Exhales a sickly haze that poisons everyone around.
+    mechanics:
+      selfCentred: true
+      onHit:
+      - status: POISON
+        chance: 70
+    description: Exhales a sickly haze around itself. Everyone in it is very likely poisoned.
 
   - id: 1070
     identifier: acid_lance
@@ -1603,8 +1617,12 @@ skills:
     targetType: ENEMY
     range: 8
     needsLineOfSight: true
-    manaCost: 66
-    description: Spreads a plague across an area. Even the grass withers.
+    manaCost: 89
+    mechanics:
+      onHit:
+      - status: POISON
+        chance: 70
+    description: Spreads a plague across an area. Everyone in it is very likely poisoned.
 
   - id: 1072
     identifier: sunbeam
@@ -1648,9 +1666,18 @@ skills:
     targetType: AOE_GROUND
     range: 6
     needsLineOfSight: true
-    manaCost: 10
+    manaCost: 12
     aoeRadius: 1.0
-    description: Consecrates the ground. Undead and demons that stand on it burn.
+    mechanics:
+      onHit:
+      - status: BURNING
+        chance: 20
+      affectsKinds:
+      - UNDEAD
+      - DEMON
+      affectsElements:
+      - UNDEAD
+    description: Consecrates the ground. Only the undead and demons on it are hurt, and they often catch fire.
 
   - id: 1075
     identifier: judgement
@@ -1660,7 +1687,7 @@ skills:
     element: HOLY
     power: 2.0
     cooldown: 8
-    castTime: 0.5
+    castTime: 0
     targetType: ENEMY
     range: 1
     needsLineOfSight: false
@@ -1783,7 +1810,7 @@ skills:
     element: SHADOW
     power: 2.0
     cooldown: 8
-    castTime: 0.5
+    castTime: 0
     targetType: ENEMY
     range: 1
     needsLineOfSight: false
@@ -1817,8 +1844,13 @@ skills:
     targetType: ENEMY
     range: 8
     needsLineOfSight: true
-    manaCost: 66
-    description: Night falls on an area, and everything in it is hunted.
+    manaCost: 79
+    mechanics:
+      areaSeconds: 6
+      onHit:
+      - status: BLIND
+        chance: 30
+    description: Night falls on an area. Everything in it is hurt and blinded while it lasts.
 
   - id: 1086
     identifier: soul_strike
@@ -1890,7 +1922,7 @@ skills:
     element: GHOST
     power: 2.0
     cooldown: 8
-    castTime: 0.5
+    castTime: 0
     targetType: ENEMY
     range: 1
     needsLineOfSight: false
@@ -1924,8 +1956,10 @@ skills:
     targetType: ENEMY
     range: 8
     needsLineOfSight: true
-    manaCost: 66
-    description: Reaches for every soul in an area and pulls.
+    manaCost: 86
+    mechanics:
+      lifesteal: 0.3
+    description: Reaches for every soul in an area. The caster heals for part of what it takes.
 
   - id: 1093
     identifier: bone_shard
@@ -1955,7 +1989,11 @@ skills:
     range: 1
     needsLineOfSight: false
     manaCost: 4
-    description: Grabs with a cold, rotting hand. The wound festers.
+    mechanics:
+      onHit:
+      - status: POISON
+        chance: 10
+    description: Grabs with a cold, rotting hand. Now and then the wound festers into poison.
 
   - id: 1095
     identifier: necrotic_bolt
@@ -1984,9 +2022,13 @@ skills:
     targetType: AOE_GROUND
     range: 6
     needsLineOfSight: true
-    manaCost: 10
+    manaCost: 11
     aoeRadius: 1.0
-    description: Rot spreads across the ground. The living sicken while they stand in it.
+    mechanics:
+      onHit:
+      - status: SICK
+        chance: 8
+    description: Rot spreads across the ground. Whatever stands in it may sicken, and heals do it only half the good.
 
   - id: 1097
     identifier: bone_crusher
@@ -1996,28 +2038,12 @@ skills:
     element: UNDEAD
     power: 2.0
     cooldown: 8
-    castTime: 0.5
+    castTime: 0
     targetType: ENEMY
     range: 1
     needsLineOfSight: false
     manaCost: 12
     description: A blow with a club of fused bones.
-
-  - id: 1098
-    identifier: corpse_explosion
-    name: Corpse Explosion
-    script: BestiaAreaSkill
-    archetype: AOE
-    element: UNDEAD
-    power: 0.7
-    cooldown: 12
-    castTime: 2.0
-    targetType: AOE_GROUND
-    range: 6
-    needsLineOfSight: true
-    manaCost: 24
-    aoeRadius: 2.0
-    description: A body bursts in a cloud of bone and rot.
 
   - id: 1099
     identifier: drain_life
@@ -2059,40 +2085,41 @@ skills:
     cooldown: 20
     castTime: 1.5
     targetType: FRIENDLY
-    range: 0
-    needsLineOfSight: false
+    range: 5
+    needsLineOfSight: true
     manaCost: 12
     description: Licks its own wounds. Not much, but it keeps a young bestia going.
 
   - id: 1102
     identifier: regenerate
     name: Regenerate
-    script: BestiaHealSkill
+    script: BestiaBuffSkill
     archetype: HEAL
     element: NORMAL
     power: 1.0
     cooldown: 20
     castTime: 1.5
     targetType: FRIENDLY
-    range: 0
-    needsLineOfSight: false
+    range: 5
+    needsLineOfSight: true
     manaCost: 16
-    description: Knits its own flesh back together in a few breaths.
+    status: REGENERATING
+    description: Knits its own flesh together over the next seconds.
 
   - id: 1103
     identifier: renewal
     name: Renewal
-    script: BestiaHealSkill
+    script: BestiaCleansingHeal
     archetype: HEAL
     element: HOLY
     power: 1.0
     cooldown: 20
     castTime: 1.5
     targetType: FRIENDLY
-    range: 0
-    needsLineOfSight: false
+    range: 5
+    needsLineOfSight: true
     manaCost: 24
-    description: A warm light surrounds it and slowly closes its wounds.
+    description: Heals a friend and washes out poison, wounds, fire, sickness and blindness.
 
   - id: 1104
     identifier: howl
@@ -2104,9 +2131,10 @@ skills:
     cooldown: 30
     castTime: 0.5
     targetType: FRIENDLY
-    range: 0
-    needsLineOfSight: false
+    range: 5
+    needsLineOfSight: true
     manaCost: 9
+    status: EMPOWERED
     description: A long howl that makes its blood run hot. It hits harder for a while.
 
   - id: 1105
@@ -2119,14 +2147,15 @@ skills:
     cooldown: 30
     castTime: 0.5
     targetType: FRIENDLY
-    range: 0
-    needsLineOfSight: false
+    range: 5
+    needsLineOfSight: true
     manaCost: 10
-    description: Works itself into a rage and stops caring about its wounds.
+    status: ENRAGED
+    description: Hits harder and shrugs off blows for a while. Afterwards it is worn out for a few seconds.
 
   - id: 1106
-    identifier: holy_vigor
-    name: Holy Vigor
+    identifier: bless_weapon
+    name: Bless Weapon
     script: BestiaBuffSkill
     archetype: BUFF
     element: HOLY
@@ -2134,10 +2163,11 @@ skills:
     cooldown: 30
     castTime: 0.5
     targetType: FRIENDLY
-    range: 0
-    needsLineOfSight: false
+    range: 5
+    needsLineOfSight: true
     manaCost: 11
-    description: A warm glow fills its body. It hits harder for a while.
+    status: ENDOWED
+    description: Blesses a friend's weapon. Its plain blows hit as Holy for a while.
 
   - id: 1107
     identifier: tailwind
@@ -2149,10 +2179,11 @@ skills:
     cooldown: 30
     castTime: 0.5
     targetType: FRIENDLY
-    range: 0
-    needsLineOfSight: false
+    range: 5
+    needsLineOfSight: true
     manaCost: 12
-    description: A wind at its back makes every step and swing quicker.
+    status: TAILWIND
+    description: A wind at its back makes every step and every swing quicker.
 
   - id: 1108
     identifier: war_cry
@@ -2164,10 +2195,14 @@ skills:
     cooldown: 30
     castTime: 0.5
     targetType: FRIENDLY
-    range: 0
-    needsLineOfSight: false
+    range: 5
+    needsLineOfSight: true
     manaCost: 13
-    description: A roar that fills it with the will to fight.
+    status: EMPOWERED
+    mechanics:
+      selfCentred: true
+      reach: 10
+    description: A roar that makes every friend within ten tiles hit harder.
 
   - id: 1109
     identifier: bloodlust
@@ -2179,10 +2214,11 @@ skills:
     cooldown: 30
     castTime: 0.5
     targetType: FRIENDLY
-    range: 0
-    needsLineOfSight: false
+    range: 5
+    needsLineOfSight: true
     manaCost: 14
-    description: The smell of blood drives it into a frenzy.
+    status: LIFESTEAL
+    description: For a while every blow heals it by half the damage it deals.
 
   - id: 1110
     identifier: berserk
@@ -2194,25 +2230,11 @@ skills:
     cooldown: 30
     castTime: 0.5
     targetType: FRIENDLY
-    range: 0
-    needsLineOfSight: false
+    range: 5
+    needsLineOfSight: true
     manaCost: 16
-    description: Gives up all defense for pure, raw strength.
-
-  - id: 1111
-    identifier: primal_rage
-    name: Primal Rage
-    script: BestiaBuffSkill
-    archetype: BUFF
-    element: NORMAL
-    power: 1.0
-    cooldown: 30
-    castTime: 0.5
-    targetType: FRIENDLY
-    range: 0
-    needsLineOfSight: false
-    manaCost: 17
-    description: Wakes the oldest anger in its blood. Few things stand in its way then.
+    status: BERSERK
+    description: Drops all defence for raw strength and quicker swings.
 
   - id: 1112
     identifier: growl
@@ -2226,8 +2248,14 @@ skills:
     targetType: ENEMY
     range: 6
     needsLineOfSight: true
-    manaCost: 9
-    description: A low growl that makes the target hesitate before it strikes.
+    manaCost: 12
+    mechanics:
+      selfCentred: true
+      reach: 3
+      onHit:
+      - status: WEAKENED
+        chance: 100
+    description: A low growl that makes every foe close by hit softer.
 
   - id: 1113
     identifier: screech
@@ -2241,8 +2269,14 @@ skills:
     targetType: ENEMY
     range: 6
     needsLineOfSight: true
-    manaCost: 10
-    description: A piercing screech that throws off the target's aim.
+    manaCost: 14
+    mechanics:
+      selfCentred: true
+      reach: 3
+      onHit:
+      - status: HIT_DOWN
+        chance: 100
+    description: A piercing screech that throws off the aim of every foe close by.
 
   - id: 1114
     identifier: hamstring
@@ -2252,16 +2286,39 @@ skills:
     element: NORMAL
     power: 1.0
     cooldown: 20
-    castTime: 1.0
+    castTime: 0
     targetType: ENEMY
+    range: 1
+    needsLineOfSight: false
+    manaCost: 15
+    mechanics:
+      onHit:
+      - status: ASPD_DOWN
+        chance: 100
+    description: Bites at the target's legs. Its swings come much slower for a while.
+
+  - id: 1115
+    identifier: quagmire
+    name: Quagmire
+    script: BestiaZoneSkill
+    archetype: DEBUFF
+    element: EARTH
+    power: 1.0
+    cooldown: 20
+    castTime: 1.0
+    targetType: AOE_GROUND
     range: 6
     needsLineOfSight: true
     manaCost: 11
-    description: Bites at the target's legs. Its steps and swings get slower for a while.
+    aoeRadius: 2.0
+    mechanics:
+      zoneStatus: QUAGMIRED
+      areaSeconds: 10
+    description: Turns a 5×5 patch into a mire. Whoever stands in it is clumsy, slow and loses any haste.
 
-  - id: 1115
-    identifier: mud_trap
-    name: Mud Trap
+  - id: 1116
+    identifier: stone_curse
+    name: Stone Curse
     script: BestiaDebuffSkill
     archetype: DEBUFF
     element: EARTH
@@ -2271,23 +2328,12 @@ skills:
     targetType: ENEMY
     range: 6
     needsLineOfSight: true
-    manaCost: 11
-    description: Turns the ground into thick mud. Anyone caught in it moves and strikes slower.
-
-  - id: 1116
-    identifier: curse
-    name: Curse
-    script: BestiaDebuffSkill
-    archetype: DEBUFF
-    element: SHADOW
-    power: 1.0
-    cooldown: 20
-    castTime: 1.0
-    targetType: ENEMY
-    range: 6
-    needsLineOfSight: true
-    manaCost: 12
-    description: A whispered curse that saps the target's strength.
+    manaCost: 18
+    mechanics:
+      onHit:
+      - status: STONING
+        chance: 60
+    description: The target starts turning to stone. If nothing cures it within ten seconds, it is stone for thirty.
 
   - id: 1117
     identifier: terrifying_roar
@@ -2301,13 +2347,20 @@ skills:
     targetType: ENEMY
     range: 6
     needsLineOfSight: true
-    manaCost: 14
-    description: A roar so fierce that the target's hands start to shake.
+    manaCost: 21
+    mechanics:
+      selfCentred: true
+      reach: 4
+      onHit:
+      - status: FEARED
+        chance: 60
+        durationSeconds: 3
+    description: A roar so fierce that foes close by may run away in fear.
 
   - id: 1118
     identifier: petrifying_gaze
     name: Petrifying Gaze
-    script: BestiaDebuffSkill
+    script: PetrifyingGaze
     archetype: DEBUFF
     element: EARTH
     power: 1.0
@@ -2317,7 +2370,7 @@ skills:
     range: 6
     needsLineOfSight: true
     manaCost: 15
-    description: A stare that slowly turns the target's limbs to stone.
+    description: A stare that stiffens every foe in front of it. A foe already stiff turns to stone for a moment.
 
   - id: 1119
     identifier: withering_curse
@@ -2331,8 +2384,476 @@ skills:
     targetType: ENEMY
     range: 6
     needsLineOfSight: true
+    manaCost: 22
+    mechanics:
+      onHit:
+      - status: WITHERED
+        chance: 70
+        durationSeconds: 30
+    description: 'Ages the target''s body by years: less health, less vitality, slower healing.'
+
+  - id: 1120
+    identifier: frost_diver
+    name: Frost Diver
+    script: BestiaMagicSkill
+    archetype: BOLT
+    element: WATER
+    power: 0.6
+    cooldown: 4
+    castTime: 1.5
+    targetType: ENEMY
+    range: 8
+    needsLineOfSight: true
+    manaCost: 18
+    mechanics:
+      onHit:
+      - status: FROZEN
+        chance: 50
+    description: A shard of ice that does little harm but often freezes the target solid.
+
+  - id: 1121
+    identifier: frost_nova
+    name: Frost Nova
+    script: BestiaAreaSkill
+    archetype: AOE
+    element: WATER
+    power: 0.5
+    cooldown: 12
+    castTime: 2.0
+    targetType: AOE_GROUND
+    range: 6
+    needsLineOfSight: true
+    manaCost: 24
+    aoeRadius: 2.0
+    mechanics:
+      selfCentred: true
+      onHit:
+      - status: FROZEN
+        chance: 30
+    description: A burst of frost around the caster that may freeze everyone close by.
+
+  - id: 1122
+    identifier: turn_undead
+    name: Turn Undead
+    script: TurnUndead
+    archetype: BOLT
+    element: HOLY
+    power: 1.0
+    cooldown: 4
+    castTime: 1.5
+    targetType: ENEMY
+    range: 8
+    needsLineOfSight: true
+    manaCost: 20
+    description: 'Only for the undead: it may destroy one outright, else it burns with holy light. Bosses are never
+      destroyed.'
+
+  - id: 1123
+    identifier: great_exorcism
+    name: Great Exorcism
+    script: BestiaAreaSkill
+    archetype: AOE
+    element: HOLY
+    power: 1.2
+    cooldown: 30
+    castTime: 3
+    targetType: AOE_GROUND
+    range: 6
+    needsLineOfSight: true
+    manaCost: 60
+    aoeRadius: 2.0
+    mechanics:
+      channelSeconds: 3
+      channelInterval: 1
+      affectsKinds:
+      - UNDEAD
+      - DEMON
+      affectsElements:
+      - GHOST
+      - UNDEAD
+      reagent:
+        item: mana_crystal
+        amount: 1
+    description: While the caster holds the spell, holy light strikes the area again and again. It hurts only the
+      undead, ghosts and demons. Uses up a mana crystal.
+
+  - id: 1124
+    identifier: control_undead
+    name: Control Undead
+    script: ControlUndead
+    archetype: DEBUFF
+    element: SHADOW
+    power: 1.0
+    cooldown: 60
+    castTime: 1.0
+    targetType: ENEMY
+    range: 6
+    needsLineOfSight: true
+    manaCost: 30
+    description: Bends a wild undead to fight its own kind for a while. Bosses and the much stronger resist.
+
+  - id: 1125
+    identifier: ultima
+    name: Ultima
+    script: Ultima
+    archetype: ULTIMATE
+    element: GHOST
+    power: 2.5
+    cooldown: 120
+    castTime: 4
+    targetType: ENEMY
+    range: 8
+    needsLineOfSight: true
+    manaCost: 90
+    description: Takes a quarter of the target's health, whatever its guard. A boss loses a twentieth.
+
+  - id: 1126
+    identifier: ultima_fist
+    name: Ultima Fist
+    script: UltimaFist
+    archetype: POWER_STRIKE
+    element: NORMAL
+    power: 2.0
+    cooldown: 60
+    castTime: 0
+    targetType: ENEMY
+    range: 1
+    needsLineOfSight: false
+    manaCost: 10
+    description: 'Only while berserk and with half its mana: pours all of it into one devastating blow. Afterwards
+      the mana does not come back for five minutes.'
+
+  - id: 1127
+    identifier: divine_heal
+    name: Divine Heal
+    script: BestiaHealSkill
+    archetype: HEAL
+    element: HOLY
+    power: 1.6
+    cooldown: 20
+    castTime: 1.5
+    targetType: FRIENDLY
+    range: 5
+    needsLineOfSight: true
+    manaCost: 60
+    description: Heals a friend for a huge amount.
+
+  - id: 1128
+    identifier: healing_circle
+    name: Healing Circle
+    script: BestiaAreaHealSkill
+    archetype: HEAL
+    element: HOLY
+    power: 1.0
+    cooldown: 20
+    castTime: 1.5
+    targetType: AOE_GROUND
+    range: 6
+    needsLineOfSight: true
+    manaCost: 30
+    aoeRadius: 2.0
+    description: Heals every friend in a small circle.
+
+  - id: 1129
+    identifier: sanctuary
+    name: Sanctuary
+    script: BestiaAreaHealSkill
+    archetype: HEAL
+    element: HOLY
+    power: 1.0
+    cooldown: 60
+    castTime: 1.5
+    targetType: AOE_GROUND
+    range: 6
+    needsLineOfSight: true
+    manaCost: 50
+    aoeRadius: 3.0
+    mechanics:
+      areaSeconds: 10
+      reagent:
+        item: mana_crystal
+        amount: 1
+    description: Hallows a large patch of ground that heals every friend in it for ten seconds. Uses up a mana crystal.
+
+  - id: 1130
+    identifier: mirror_veil
+    name: Mirror Veil
+    script: BestiaBuffSkill
+    archetype: BUFF
+    element: GHOST
+    power: 1.0
+    cooldown: 60
+    castTime: 0.5
+    targetType: FRIENDLY
+    range: 5
+    needsLineOfSight: true
+    manaCost: 20
+    status: REFLECT
+    description: A friend turns single-target skills back on their caster, a few times.
+
+  - id: 1131
+    identifier: bone_armor
+    name: Bone Armor
+    script: BestiaBuffSkill
+    archetype: BUFF
+    element: UNDEAD
+    power: 1.0
+    cooldown: 60
+    castTime: 0.5
+    targetType: FRIENDLY
+    range: 5
+    needsLineOfSight: true
     manaCost: 16
-    description: Makes the target's body wither as if it had aged for years.
+    status: BARRIER
+    mechanics:
+      reagent:
+        item: bone_shard
+        amount: 1
+    description: Wraps a friend in plates of bone that soak up the next few blows. Uses up a bone shard.
+
+  - id: 1132
+    identifier: acid_skin
+    name: Acid Skin
+    script: BestiaBuffSkill
+    archetype: BUFF
+    element: POISON
+    power: 1.0
+    cooldown: 30
+    castTime: 0.5
+    targetType: FRIENDLY
+    range: 5
+    needsLineOfSight: true
+    manaCost: 12
+    status: CORROSIVE
+    description: Its hide turns acid. Weapons that hit it wear down.
+
+  - id: 1133
+    identifier: flame_weapon
+    name: Flame Weapon
+    script: BestiaBuffSkill
+    archetype: BUFF
+    element: FIRE
+    power: 1.0
+    cooldown: 30
+    castTime: 0.5
+    targetType: FRIENDLY
+    range: 5
+    needsLineOfSight: true
+    manaCost: 12
+    status: ENDOWED
+    description: 'A friend''s weapon burns: its plain blows hit as Fire.'
+
+  - id: 1134
+    identifier: frost_weapon
+    name: Frost Weapon
+    script: BestiaBuffSkill
+    archetype: BUFF
+    element: WATER
+    power: 1.0
+    cooldown: 30
+    castTime: 0.5
+    targetType: FRIENDLY
+    range: 5
+    needsLineOfSight: true
+    manaCost: 12
+    status: ENDOWED
+    description: 'A friend''s weapon freezes over: its plain blows hit as Water.'
+
+  - id: 1135
+    identifier: quake_weapon
+    name: Quake Weapon
+    script: BestiaBuffSkill
+    archetype: BUFF
+    element: EARTH
+    power: 1.0
+    cooldown: 30
+    castTime: 0.5
+    targetType: FRIENDLY
+    range: 5
+    needsLineOfSight: true
+    manaCost: 12
+    status: ENDOWED
+    description: 'A friend''s weapon grows heavy as stone: its plain blows hit as Earth.'
+
+  - id: 1136
+    identifier: storm_weapon
+    name: Storm Weapon
+    script: BestiaBuffSkill
+    archetype: BUFF
+    element: WIND
+    power: 1.0
+    cooldown: 30
+    castTime: 0.5
+    targetType: FRIENDLY
+    range: 5
+    needsLineOfSight: true
+    manaCost: 12
+    status: ENDOWED
+    description: 'A friend''s weapon crackles: its plain blows hit as Wind.'
+
+  - id: 1137
+    identifier: flame_coat
+    name: Flame Coat
+    script: BestiaBuffSkill
+    archetype: BUFF
+    element: FIRE
+    power: 1.0
+    cooldown: 30
+    castTime: 0.5
+    targetType: FRIENDLY
+    range: 5
+    needsLineOfSight: true
+    manaCost: 12
+    status: ARMOR_ENDOWED
+    description: 'A friend is wrapped in fire: hits on it are weighed as against Fire.'
+
+  - id: 1138
+    identifier: frost_coat
+    name: Frost Coat
+    script: BestiaBuffSkill
+    archetype: BUFF
+    element: WATER
+    power: 1.0
+    cooldown: 30
+    castTime: 0.5
+    targetType: FRIENDLY
+    range: 5
+    needsLineOfSight: true
+    manaCost: 12
+    status: ARMOR_ENDOWED
+    description: 'A friend is wrapped in frost: hits on it are weighed as against Water.'
+
+  - id: 1139
+    identifier: stone_coat
+    name: Stone Coat
+    script: BestiaBuffSkill
+    archetype: BUFF
+    element: EARTH
+    power: 1.0
+    cooldown: 30
+    castTime: 0.5
+    targetType: FRIENDLY
+    range: 5
+    needsLineOfSight: true
+    manaCost: 12
+    status: ARMOR_ENDOWED
+    description: 'A friend is wrapped in stone: hits on it are weighed as against Earth.'
+
+  - id: 1140
+    identifier: storm_coat
+    name: Storm Coat
+    script: BestiaBuffSkill
+    archetype: BUFF
+    element: WIND
+    power: 1.0
+    cooldown: 30
+    castTime: 0.5
+    targetType: FRIENDLY
+    range: 5
+    needsLineOfSight: true
+    manaCost: 12
+    status: ARMOR_ENDOWED
+    description: 'A friend is wrapped in wind: hits on it are weighed as against Wind.'
+
+  - id: 1141
+    identifier: wind_ward
+    name: Wind Ward
+    script: BestiaZoneSkill
+    archetype: BUFF
+    element: WIND
+    power: 1.0
+    cooldown: 30
+    castTime: 0.5
+    targetType: AOE_GROUND
+    range: 6
+    needsLineOfSight: true
+    manaCost: 20
+    aoeRadius: 1.0
+    mechanics:
+      zoneStatus: SHELTERED
+      areaSeconds: 10
+    description: A 3×3 wall of wind for ten seconds. Shots and arrows at anyone inside miss.
+
+  - id: 1142
+    identifier: bewilder
+    name: Bewilder
+    script: BestiaDebuffSkill
+    archetype: DEBUFF
+    element: GHOST
+    power: 1.0
+    cooldown: 20
+    castTime: 1.0
+    targetType: ENEMY
+    range: 6
+    needsLineOfSight: true
+    manaCost: 14
+    mechanics:
+      onHit:
+      - status: CONFUSED
+        chance: 60
+    description: Muddles the target's head. It may walk the wrong way for a while.
+
+  - id: 1143
+    identifier: dispel
+    name: Dispel
+    script: Dispel
+    archetype: DEBUFF
+    element: HOLY
+    power: 1.0
+    cooldown: 20
+    castTime: 1.0
+    targetType: ENEMY
+    range: 6
+    needsLineOfSight: true
+    manaCost: 20
+    description: Strips the target of its buffs.
+
+  - id: 1144
+    identifier: disarm
+    name: Disarm
+    script: Disarm
+    archetype: DEBUFF
+    element: NORMAL
+    power: 1.0
+    cooldown: 20
+    castTime: 0
+    targetType: ENEMY
+    range: 1
+    needsLineOfSight: false
+    manaCost: 16
+    description: Knocks the weapon out of the target's hand. A wild bestia hits softer for a while instead.
+
+  - id: 1145
+    identifier: strip_armor
+    name: Strip Armor
+    script: StripArmor
+    archetype: DEBUFF
+    element: NORMAL
+    power: 1.0
+    cooldown: 20
+    castTime: 0
+    targetType: ENEMY
+    range: 1
+    needsLineOfSight: false
+    manaCost: 16
+    description: Tears the target's armour off. A wild bestia's hide guards less for a while instead.
+
+  - id: 1146
+    identifier: corrode
+    name: Corrode
+    script: BestiaPhysicalSkill
+    archetype: STRIKE
+    element: POISON
+    power: 1.3
+    cooldown: 4
+    castTime: 0
+    targetType: ENEMY
+    range: 1
+    needsLineOfSight: false
+    manaCost: 6
+    mechanics:
+      gearWearPercent: 15
+    description: A blow with acid on its claws. The target's weapon and armour lose a good part of their durability.
 
   - id: 2000
     identifier: forage
@@ -2386,22 +2907,6 @@ skills:
     - item: rough_gem
       chance: 800
     description: 'Digs where it smells something buried: clay, a lost coin, now and then a rough gem.'
-
-  - id: 2003
-    identifier: go_fishing
-    name: Go Fishing
-    script: Gather
-    archetype: UTILITY
-    cooldown: 300
-    targetType: FRIENDLY
-    range: 5
-    manaCost: 4
-    yields:
-    - item: raw_fish
-      chance: 7000
-    - item: sea_pearl
-      chance: 300
-    description: Dives in and comes back with a fish. Once in a long while the fish has swallowed a pearl.
 
   - id: 2004
     identifier: gather_herbs
@@ -2468,8 +2973,8 @@ skills:
     description: Breaks a lump of ore out of the nearest rock. It never asks which rock is yours.
 
   - id: 2008
-    identifier: fell_branches
-    name: Fell Branches
+    identifier: uproot
+    name: Uproot
     script: Gather
     archetype: UTILITY
     cooldown: 300
@@ -2479,7 +2984,7 @@ skills:
     yields:
     - item: log
       chance: 10000
-    description: Tears down a heavy branch for firewood or timber.
+    description: Tears a young tree out by its roots for firewood or timber.
 
   - id: 2009
     identifier: drip_jelly
@@ -2549,37 +3054,19 @@ skills:
 
   - id: 2014
     identifier: benediction
-    name: Benediction
+    name: Blessing
     script: ApplyStatus
     archetype: UTILITY
     cooldown: 120
     targetType: FRIENDLY
     range: 5
     manaCost: 16
-    status: BLESSING
-    description: 'Lays a blessing on a friend: more strength, dexterity and intelligence for a while.'
-
-  - id: 2015
-    identifier: leaf_disguise
-    name: Leaf Disguise
-    script: PlayDead
-    archetype: UTILITY
-    cooldown: 60
-    targetType: FRIENDLY
-    range: 5
-    manaCost: 4
-    description: Hides under a leaf and is very sure nobody can see it. Wild bestia mostly agree and walk past.
-
-  - id: 2016
-    identifier: shadow_meld
-    name: Shadow Meld
-    script: PlayDead
-    archetype: UTILITY
-    cooldown: 60
-    targetType: FRIENDLY
-    range: 5
-    manaCost: 10
-    description: Sinks into its own shadow. Wild bestia look straight through it.
+    mechanics:
+      onHit:
+      - status: BLESSING
+        chance: 100
+        level: 5
+    description: 'Blessing 5 on a friend: more strength, dexterity and intelligence for a while.'
 
   - id: 2018
     identifier: sniff_trail
@@ -2602,18 +3089,6 @@ skills:
     range: 6
     manaCost: 8
     description: Circles above and reads the tracks below from the air.
-
-  - id: 2020
-    identifier: kindle
-    name: Kindle
-    script: Kindle
-    archetype: UTILITY
-    cooldown: 30
-    targetType: GROUND
-    range: 6
-    manaCost: 3
-    description: Breathes on dry grass until it catches. Good for a campfire, bad for a forest. It does no damage
-      of its own.
 
   - id: 2021
     identifier: splash
@@ -2692,16 +3167,58 @@ skills:
     - Kneel before the Doommaster of Doom!
     description: Announces the doom of everyone nearby, at length. The doom never quite arrives.
 
-  - id: 2026
-    identifier: tend_wounds
-    name: Tend Wounds
-    script: FirstAid
+  - id: 2027
+    identifier: greater_blessing
+    name: Greater Blessing
+    script: ApplyStatus
+    archetype: UTILITY
+    cooldown: 120
+    targetType: FRIENDLY
+    range: 5
+    manaCost: 30
+    mechanics:
+      onHit:
+      - status: BLESSING
+        chance: 100
+        level: 10
+    description: 'Blessing 10 on a friend: much more strength, dexterity and intelligence for a while.'
+
+  - id: 2028
+    identifier: detect
+    name: Detect
+    script: Detect
     archetype: UTILITY
     cooldown: 60
     targetType: FRIENDLY
     range: 5
-    manaCost: 12
-    description: Patches up a friend's wounds. A body can only be tended once a minute.
+    manaCost: 10
+    description: Senses masters and their bestia within fifteen tiles, hidden ones too, and marks them on the map
+      for thirty seconds.
+
+  - id: 2029
+    identifier: burrow
+    name: Burrow
+    script: ApplyStatus
+    archetype: UTILITY
+    cooldown: 30
+    targetType: FRIENDLY
+    range: 5
+    manaCost: 8
+    status: HIDDEN
+    description: Digs in out of sight. It cannot move, but area attacks pass over it. Staying hidden costs mana, and
+      any action gives it away.
+
+  - id: 2030
+    identifier: shadow_cloak
+    name: Shadow Cloak
+    script: ApplyStatus
+    archetype: UTILITY
+    cooldown: 30
+    targetType: FRIENDLY
+    range: 5
+    manaCost: 14
+    status: CLOAKED
+    description: Moves unseen and slower. Any blow, an area one too, gives it away. Staying hidden costs mana.
 
   # END generated bestia skills
 

@@ -12,36 +12,35 @@ size: MEDIUM
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.62
+attack-power: 0.2
+weight: 120
 health: 78354
 mana: 282
-experience: 24420
+experience: 24439
 attributes: { strength: 5, intelligence: 64, vitality: 64, dexterity: 5, willpower: 64, agility: 64 }
 learnset:
   - { skill: tackle, level: 1 }
-  - { skill: mana_spark, level: 6 }
   - { skill: howl, level: 11 }
   - { skill: ram, level: 16 }
   - { skill: hamstring, level: 21 }
   - { skill: necrotic_bolt, level: 26 }
   - { skill: rotting_grasp, level: 31 }
-  - { skill: blight, level: 36 }
+  - { skill: blight, level: 36, active: true }
   - { skill: hammer_blow, level: 41 }
   - { skill: mending_light, level: 46, active: true }
-  - { skill: arcane_lance, level: 51, active: true }
-  - { skill: corpse_explosion, level: 56, active: true }
+  - { skill: shockwave, level: 56, active: true }
   - { skill: bone_crusher, level: 61, active: true }
   - { skill: petrifying_gaze, level: 66 }
   - { skill: drain_life, level: 70 }
   - { skill: mana_storm, level: 82 }
   - { skill: skull_breaker, level: 88 }
-  - { skill: mana_spear, level: 94 }
   - { skill: grave_tide, level: 100 }
 habitat: [OCEAN, BEACH]
 temperature-min: -10
 temperature-max: 38
 spawn-weight: 100
 boss: true
+status-immunities: [STUN, FROZEN, STONING, FEARED, CONFUSED, CONTROLLED]
 equip-slots: [HEAD_UPPER, HEAD_MID, ARMOR, GARMENT, FOOTGEAR, RIGHT_HAND, LEFT_HAND, ACCESSORY_1, ACCESSORY_2]
 armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
 loot:

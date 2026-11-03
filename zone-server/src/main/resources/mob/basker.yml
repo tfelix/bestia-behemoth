@@ -12,30 +12,28 @@ size: MEDIUM
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
-attack-power: 0.44
-health: 571
+attack-power: 1
+weight: 60
+health: 476
 mana: 110
-experience: 133
-attributes: { strength: 1, intelligence: 21, vitality: 21, dexterity: 1, willpower: 21, agility: 21 }
+experience: 135
+attributes: { strength: 5, intelligence: 21, vitality: 21, dexterity: 5, willpower: 21, agility: 21 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: flame_dart, level: 6 }
   - { skill: howl, level: 11 }
-  - { skill: kindle, level: 16 }
-  - { skill: hamstring, level: 21 }
-  - { skill: force_bolt, level: 26, active: true }
+  - { skill: flame_weapon, level: 16 }
+  - { skill: hamstring, level: 21, active: true }
   - { skill: flame_fang, level: 31 }
   - { skill: burning_ground, level: 36 }
   - { skill: hammer_blow, level: 41 }
   - { skill: mending_light, level: 46 }
-  - { skill: arcane_lance, level: 51 }
   - { skill: fire_ball, level: 56 }
   - { skill: blazing_charge, level: 61 }
   - { skill: petrifying_gaze, level: 66 }
   - { skill: searing_ray, level: 70 }
   - { skill: mana_storm, level: 82 }
   - { skill: skull_breaker, level: 88 }
-  - { skill: mana_spear, level: 94 }
   - { skill: inferno, level: 100 }
 habitat: [BADLANDS, DESERT, VOLCANIC_FIELD]
 temperature-min: 0

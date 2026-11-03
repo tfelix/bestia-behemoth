@@ -13,6 +13,7 @@ default-attack: RANGED
 aspd: 80
 ai: passive_wanderer
 attack-power: 0.65
+weight: 15
 health: 253
 mana: 41
 experience: 41
@@ -33,11 +34,11 @@ learnset:
   - { skill: savage_maul, level: 61 }
   - { skill: terrifying_roar, level: 66 }
   - { skill: barbed_barrage, level: 70 }
-  - { skill: skull_breaker, level: 76 }
+  - { skill: rampage, level: 76 }
   - { skill: thorn_volley, level: 82 }
-  - { skill: primal_rage, level: 88 }
-  - { skill: mana_storm, level: 94 }
-  - { skill: wrath_of_the_wild, level: 100 }
+  - { skill: berserk, level: 88 }
+  - { skill: tremor, level: 94 }
+  - { skill: fissure, level: 100 }
 habitat: [TROPICAL_SEASONAL_FOREST, TROPICAL_RAINFOREST]
 temperature-min: 15
 temperature-max: 40

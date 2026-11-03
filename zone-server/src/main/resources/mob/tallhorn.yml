@@ -12,6 +12,7 @@ default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
 attack-power: 1
+weight: 250
 health: 360
 mana: 71
 experience: 93
@@ -27,15 +28,15 @@ learnset:
   - { skill: hamstring, level: 36 }
   - { skill: regenerate, level: 41 }
   - { skill: body_slam, level: 46 }
-  - { skill: shockwave, level: 51 }
+  - { skill: cyclone, level: 51 }
   - { skill: war_cry, level: 56 }
   - { skill: savage_maul, level: 61 }
   - { skill: terrifying_roar, level: 66 }
   - { skill: renewal, level: 70 }
   - { skill: berserk, level: 76 }
   - { skill: mana_storm, level: 82 }
-  - { skill: greater_heal, level: 94 }
-  - { skill: wrath_of_the_wild, level: 100 }
+  - { skill: divine_heal, level: 94 }
+  - { skill: hurricane, level: 100 }
 habitat: [GRASSLAND, DRYLAND, TROPICAL_SEASONAL_FOREST]
 temperature-min: -5
 temperature-max: 40

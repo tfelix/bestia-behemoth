@@ -13,6 +13,7 @@ default-attack: RANGED
 aspd: 80
 ai: aggressive_melee
 attack-power: 1
+weight: 60
 health: 537
 mana: 104
 experience: 170
@@ -25,17 +26,17 @@ learnset:
   - { skill: sniff_trail, level: 21 }
   - { skill: quill_shot, level: 26 }
   - { skill: crushing_blow, level: 31 }
-  - { skill: curse, level: 36, active: true }
+  - { skill: bewilder, level: 36, active: true }
   - { skill: spine_volley, level: 41 }
-  - { skill: body_slam, level: 46 }
-  - { skill: war_cry, level: 51 }
+  - { skill: corrode, level: 46 }
+  - { skill: acid_skin, level: 51 }
   - { skill: piercing_spike, level: 56 }
   - { skill: toxic_rend, level: 61 }
   - { skill: petrifying_gaze, level: 66 }
   - { skill: barbed_barrage, level: 70 }
-  - { skill: skull_breaker, level: 76 }
+  - { skill: rampage, level: 76 }
   - { skill: thorn_volley, level: 82 }
-  - { skill: primal_rage, level: 88 }
+  - { skill: berserk, level: 88 }
   - { skill: miasma, level: 94 }
   - { skill: pestilence, level: 100 }
 habitat: [DESERT, DRYLAND]

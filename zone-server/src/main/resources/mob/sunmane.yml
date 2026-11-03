@@ -13,6 +13,7 @@ default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
 attack-power: 1.2
+weight: 250
 health: 4050
 mana: 120
 experience: 1781
@@ -25,17 +26,17 @@ learnset:
   - { skill: hamstring, level: 21 }
   - { skill: crushing_blow, level: 26 }
   - { skill: smite, level: 31, active: true }
-  - { skill: holy_vigor, level: 36, active: true }
+  - { skill: bless_weapon, level: 36, active: true }
   - { skill: benediction, level: 41 }
-  - { skill: curse, level: 46 }
+  - { skill: dispel, level: 46 }
   - { skill: body_slam, level: 51 }
   - { skill: judgement, level: 56 }
   - { skill: divine_nova, level: 61 }
   - { skill: bloodlust, level: 66 }
   - { skill: rampage, level: 70 }
-  - { skill: skull_breaker, level: 76 }
-  - { skill: mana_storm, level: 82 }
-  - { skill: primal_rage, level: 88 }
+  - { skill: savage_maul, level: 76 }
+  - { skill: great_exorcism, level: 82 }
+  - { skill: berserk, level: 88 }
   - { skill: titan_blow, level: 94 }
   - { skill: pillar_of_dawn, level: 100 }
 habitat: [TROPICAL_SEASONAL_FOREST, DRYLAND]

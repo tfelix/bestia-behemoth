@@ -13,6 +13,7 @@ default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
 attack-power: 1.32
+weight: 60
 health: 1139
 mana: 239
 experience: 284
@@ -21,21 +22,20 @@ learnset:
   - { skill: tackle, level: 1 }
   - { skill: ice_shard, level: 6 }
   - { skill: howl, level: 11 }
-  - { skill: go_fishing, level: 16 }
+  - { skill: forage, level: 16 }
   - { skill: hamstring, level: 21 }
-  - { skill: force_bolt, level: 26 }
   - { skill: frost_bite, level: 31 }
   - { skill: chilling_mist, level: 36 }
   - { skill: hammer_blow, level: 41 }
   - { skill: mending_light, level: 46 }
   - { skill: hailstone, level: 51 }
-  - { skill: frost_breath, level: 56 }
+  - { skill: frost_nova, level: 56 }
   - { skill: tidal_slam, level: 61, active: true }
   - { skill: petrifying_gaze, level: 66 }
   - { skill: torrent, level: 70 }
-  - { skill: mana_storm, level: 82 }
+  - { skill: frost_breath, level: 82 }
   - { skill: skull_breaker, level: 88 }
-  - { skill: mana_spear, level: 94 }
+  - { skill: frost_diver, level: 94 }
   - { skill: blizzard, level: 100 }
 habitat: [BEACH, OCEAN]
 temperature-min: -10

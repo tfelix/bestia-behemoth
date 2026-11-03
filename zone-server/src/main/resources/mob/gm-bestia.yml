@@ -70,16 +70,9 @@ learnset:
   - { skill: piercing_spike, level: 1 }
   - { skill: barbed_barrage, level: 1 }
   - { skill: thorn_volley, level: 1 }
-  - { skill: mana_spark, level: 1 }
-  - { skill: force_bolt, level: 1 }
-  - { skill: arcane_missile, level: 1 }
-  - { skill: arcane_lance, level: 1 }
-  - { skill: mana_spear, level: 1 }
   - { skill: bleeding_wound, level: 1 }
   - { skill: shockwave, level: 1 }
   - { skill: mana_storm, level: 1 }
-  - { skill: arcane_nova, level: 1 }
-  - { skill: wrath_of_the_wild, level: 1 }
   - { skill: flame_dart, level: 1 }
   - { skill: flame_fang, level: 1 }
   - { skill: burning_ground, level: 1 }
@@ -146,7 +139,6 @@ learnset:
   - { skill: necrotic_bolt, level: 1 }
   - { skill: blight, level: 1 }
   - { skill: bone_crusher, level: 1 }
-  - { skill: corpse_explosion, level: 1 }
   - { skill: drain_life, level: 1 }
   - { skill: grave_tide, level: 1 }
   - { skill: lick_wounds, level: 1 }
@@ -154,44 +146,69 @@ learnset:
   - { skill: renewal, level: 1 }
   - { skill: howl, level: 1 }
   - { skill: enrage, level: 1 }
-  - { skill: holy_vigor, level: 1 }
+  - { skill: bless_weapon, level: 1 }
   - { skill: tailwind, level: 1 }
   - { skill: war_cry, level: 1 }
   - { skill: bloodlust, level: 1 }
   - { skill: berserk, level: 1 }
-  - { skill: primal_rage, level: 1 }
   - { skill: growl, level: 1 }
   - { skill: screech, level: 1 }
   - { skill: hamstring, level: 1 }
-  - { skill: mud_trap, level: 1 }
-  - { skill: curse, level: 1 }
+  - { skill: quagmire, level: 1 }
+  - { skill: stone_curse, level: 1 }
   - { skill: terrifying_roar, level: 1 }
   - { skill: petrifying_gaze, level: 1 }
   - { skill: withering_curse, level: 1 }
+  - { skill: frost_diver, level: 1 }
+  - { skill: frost_nova, level: 1 }
+  - { skill: turn_undead, level: 1 }
+  - { skill: great_exorcism, level: 1 }
+  - { skill: control_undead, level: 1 }
+  - { skill: ultima, level: 1 }
+  - { skill: ultima_fist, level: 1 }
+  - { skill: divine_heal, level: 1 }
+  - { skill: healing_circle, level: 1 }
+  - { skill: sanctuary, level: 1 }
+  - { skill: mirror_veil, level: 1 }
+  - { skill: bone_armor, level: 1 }
+  - { skill: acid_skin, level: 1 }
+  - { skill: flame_weapon, level: 1 }
+  - { skill: frost_weapon, level: 1 }
+  - { skill: quake_weapon, level: 1 }
+  - { skill: storm_weapon, level: 1 }
+  - { skill: flame_coat, level: 1 }
+  - { skill: frost_coat, level: 1 }
+  - { skill: stone_coat, level: 1 }
+  - { skill: storm_coat, level: 1 }
+  - { skill: wind_ward, level: 1 }
+  - { skill: bewilder, level: 1 }
+  - { skill: dispel, level: 1 }
+  - { skill: disarm, level: 1 }
+  - { skill: strip_armor, level: 1 }
+  - { skill: corrode, level: 1 }
   - { skill: forage, level: 1 }
   - { skill: shed_wool, level: 1 }
   - { skill: unearth, level: 1 }
-  - { skill: go_fishing, level: 1 }
   - { skill: gather_herbs, level: 1 }
   - { skill: spin_silk, level: 1 }
   - { skill: collect_honey, level: 1 }
   - { skill: mine_ore, level: 1 }
-  - { skill: fell_branches, level: 1 }
+  - { skill: uproot, level: 1 }
   - { skill: drip_jelly, level: 1 }
   - { skill: salt_crust, level: 1 }
   - { skill: warm_fur, level: 1 }
   - { skill: cooling_mist, level: 1 }
   - { skill: gale_step, level: 1 }
   - { skill: benediction, level: 1 }
-  - { skill: leaf_disguise, level: 1 }
-  - { skill: shadow_meld, level: 1 }
   - { skill: sniff_trail, level: 1 }
   - { skill: keen_eye, level: 1 }
-  - { skill: kindle, level: 1 }
   - { skill: splash, level: 1 }
   - { skill: cackle, level: 1 }
   - { skill: mock, level: 1 }
   - { skill: wail, level: 1 }
   - { skill: proclaim_doom, level: 1 }
-  - { skill: tend_wounds, level: 1 }
+  - { skill: greater_blessing, level: 1 }
+  - { skill: detect, level: 1 }
+  - { skill: burrow, level: 1 }
+  - { skill: shadow_cloak, level: 1 }
 loot: []

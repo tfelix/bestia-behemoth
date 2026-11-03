@@ -12,36 +12,37 @@ default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
 attack-power: 0.22
-health: 68302
+weight: 500
+health: 83987
 mana: 575
-experience: 31237
+experience: 31285
 attributes: { strength: 1, intelligence: 124, vitality: 74, dexterity: 1, willpower: 155, agility: 37 }
 learnset:
   - { skill: lick_wounds, level: 1 }
   - { skill: growl, level: 6 }
-  - { skill: mana_spark, level: 11 }
   - { skill: enrage, level: 16 }
   - { skill: benediction, level: 21 }
   - { skill: hamstring, level: 26 }
   - { skill: sunbeam, level: 31 }
-  - { skill: holy_vigor, level: 36 }
-  - { skill: tend_wounds, level: 41 }
+  - { skill: bless_weapon, level: 36 }
+  - { skill: gale_step, level: 41 }
   - { skill: hallowed_ground, level: 46 }
-  - { skill: arcane_lance, level: 51 }
-  - { skill: terrifying_roar, level: 56, active: true }
+  - { skill: turn_undead, level: 51 }
+  - { skill: dispel, level: 56, active: true }
   - { skill: renewal, level: 61 }
   - { skill: bloodlust, level: 66, active: true }
   - { skill: divine_nova, level: 70, active: true }
-  - { skill: mending_light, level: 76, active: true }
+  - { skill: sanctuary, level: 76, active: true }
   - { skill: berserk, level: 82 }
   - { skill: purifying_ray, level: 88 }
-  - { skill: mana_storm, level: 94 }
+  - { skill: great_exorcism, level: 94 }
   - { skill: pillar_of_dawn, level: 100 }
 habitat: [TAIGA, TEMPERATE_RAINFOREST]
 temperature-min: -25
 temperature-max: 25
 spawn-weight: 100
 boss: true
+status-immunities: [STUN, FROZEN, STONING, FEARED, CONFUSED, CONTROLLED]
 equip-slots: [HEAD_UPPER, ARMOR, GARMENT, ACCESSORY_1, ACCESSORY_2]
 armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
 loot:

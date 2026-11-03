@@ -12,26 +12,22 @@ default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
 attack-power: 0.03
+weight: 250
 health: 9323
 mana: 835
 experience: 3745
 attributes: { strength: 1, intelligence: 159, vitality: 42, dexterity: 1, willpower: 106, agility: 42 }
 learnset:
-  - { skill: mana_spark, level: 1 }
   - { skill: growl, level: 6 }
   - { skill: shadow_bolt, level: 16 }
-  - { skill: enrage, level: 21 }
-  - { skill: force_bolt, level: 26 }
+  - { skill: flame_weapon, level: 21 }
   - { skill: shockwave, level: 31 }
-  - { skill: curse, level: 36 }
-  - { skill: arcane_missile, level: 41 }
+  - { skill: bewilder, level: 36 }
   - { skill: creeping_dark, level: 46 }
-  - { skill: arcane_lance, level: 51 }
   - { skill: mending_light, level: 56 }
   - { skill: umbral_wave, level: 61 }
   - { skill: abyssal_lance, level: 66 }
-  - { skill: petrifying_gaze, level: 70 }
-  - { skill: mana_spear, level: 76 }
+  - { skill: control_undead, level: 70 }
   - { skill: mana_storm, level: 82, active: true }
   - { skill: bleeding_wound, level: 88, active: true }
   - { skill: endless_night, level: 100 }

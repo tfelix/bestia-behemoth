@@ -13,6 +13,7 @@ default-attack: RANGED
 aspd: 80
 ai: passive_wanderer
 attack-power: 0.65
+weight: 15
 health: 263
 mana: 44
 experience: 44
@@ -22,21 +23,21 @@ learnset:
   - { skill: sniff_trail, level: 6 }
   - { skill: growl, level: 11 }
   - { skill: warm_fur, level: 16 }
-  - { skill: enrage, level: 21 }
+  - { skill: frost_weapon, level: 21 }
   - { skill: water_jet, level: 26 }
   - { skill: crushing_blow, level: 31 }
-  - { skill: curse, level: 36 }
+  - { skill: bewilder, level: 36 }
   - { skill: spine_volley, level: 41 }
   - { skill: body_slam, level: 46 }
-  - { skill: war_cry, level: 51 }
+  - { skill: frost_coat, level: 51 }
   - { skill: piercing_spike, level: 56 }
   - { skill: tidal_slam, level: 61 }
   - { skill: petrifying_gaze, level: 66 }
   - { skill: barbed_barrage, level: 70 }
-  - { skill: skull_breaker, level: 76 }
+  - { skill: rampage, level: 76 }
   - { skill: thorn_volley, level: 82 }
-  - { skill: primal_rage, level: 88 }
-  - { skill: frost_breath, level: 94 }
+  - { skill: berserk, level: 88 }
+  - { skill: frost_nova, level: 94 }
   - { skill: blizzard, level: 100 }
 habitat: [TUNDRA, TAIGA]
 temperature-min: -30

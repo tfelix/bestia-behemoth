@@ -12,6 +12,7 @@ default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
 attack-power: 1.16
+weight: 60
 health: 813
 mana: 140
 experience: 217
@@ -24,18 +25,18 @@ learnset:
   - { skill: rotting_grasp, level: 21 }
   - { skill: crushing_blow, level: 26 }
   - { skill: tailwind, level: 31 }
-  - { skill: curse, level: 36 }
-  - { skill: regenerate, level: 41 }
+  - { skill: bewilder, level: 36 }
+  - { skill: healing_circle, level: 41 }
   - { skill: body_slam, level: 46, active: true }
   - { skill: shockwave, level: 51 }
-  - { skill: bloodlust, level: 56 }
+  - { skill: bone_armor, level: 56 }
   - { skill: bone_crusher, level: 61 }
   - { skill: petrifying_gaze, level: 66 }
   - { skill: renewal, level: 70 }
   - { skill: berserk, level: 76 }
-  - { skill: corpse_explosion, level: 82 }
+  - { skill: mana_storm, level: 82 }
   - { skill: skull_breaker, level: 88 }
-  - { skill: greater_heal, level: 94 }
+  - { skill: divine_heal, level: 94 }
   - { skill: grave_tide, level: 100 }
 habitat: [DESERT, BADLANDS]
 temperature-min: 0

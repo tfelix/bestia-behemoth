@@ -13,6 +13,7 @@ default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
 attack-power: 1
+weight: 250
 health: 465
 mana: 123
 experience: 186
@@ -24,19 +25,19 @@ learnset:
   - { skill: gather_herbs, level: 16 }
   - { skill: stone_fist, level: 21 }
   - { skill: crushing_blow, level: 26 }
-  - { skill: tailwind, level: 31 }
-  - { skill: mud_trap, level: 36 }
-  - { skill: regenerate, level: 41, active: true }
+  - { skill: stone_coat, level: 31 }
+  - { skill: quagmire, level: 36 }
+  - { skill: healing_circle, level: 41, active: true }
   - { skill: body_slam, level: 46 }
   - { skill: tremor, level: 51 }
-  - { skill: bloodlust, level: 56 }
+  - { skill: quake_weapon, level: 56 }
   - { skill: boulder_slam, level: 61 }
   - { skill: petrifying_gaze, level: 66 }
   - { skill: renewal, level: 70 }
   - { skill: berserk, level: 76 }
   - { skill: mana_storm, level: 82 }
   - { skill: skull_breaker, level: 88 }
-  - { skill: greater_heal, level: 94 }
+  - { skill: divine_heal, level: 94 }
   - { skill: fissure, level: 100 }
 habitat: [TEMPERATE_RAINFOREST, TAIGA]
 temperature-min: -25

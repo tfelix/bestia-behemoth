@@ -11,4 +11,4 @@ mana_cost = 11
 cooldown = 8.0
 max_level = 10
 target_type = "ENEMY"
-cast_time = 0.5
+cast_time = 0.0
