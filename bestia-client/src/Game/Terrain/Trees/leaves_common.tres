@@ -1,12 +1,14 @@
 [gd_resource type="ShaderMaterial" format=3]
 
 [ext_resource type="Shader" path="res://Game/Terrain/Trees/tree_leaves.gdshader" id="1"]
-[ext_resource type="Texture2D" uid="uid://cd0yj5bodqndh" path="res://Game/Terrain/Trees/Leaves_NormalTree_C.png" id="2"]
+[ext_resource type="Texture2D" path="res://Game/Terrain/Trees/Leaves_NormalTree.png" id="2"]
 
 [resource]
 resource_name = "Leaves_NormalTree"
 render_priority = 0
 shader = ExtResource("1")
-shader_parameter/leaf_texture = ExtResource("2")
+shader_parameter/leaf_mask = ExtResource("2")
 shader_parameter/crown_low = 2.5
 shader_parameter/crown_high = 8.5
+shader_parameter/colour_low = Color(0.24, 0.42, 0.1, 1)
+shader_parameter/colour_high = Color(0.62, 0.8, 0.22, 1)
