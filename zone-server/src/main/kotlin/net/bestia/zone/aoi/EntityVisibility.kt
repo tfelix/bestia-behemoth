@@ -42,6 +42,17 @@ interface EntityVisibility {
   fun observersOf(entityId: EntityId): Set<AccountId>
 
   /**
+   * Hides [entityId] from every account but [keepVisibleTo]: they are told it left, and hear nothing more of it
+   * until [reveal]. The server stops the updates, so a client cannot undo a hiding by ignoring an effect.
+   */
+  fun conceal(entityId: EntityId, keepVisibleTo: Set<AccountId>) {
+  }
+
+  /** Undoes [conceal]: every account that holds the entity's chunk sees it arrive again. */
+  fun reveal(entityId: EntityId) {
+  }
+
+  /**
    * Asks for [accountId] to be told again about every entity it can already see, as if each had just come
    * into view.
    *
