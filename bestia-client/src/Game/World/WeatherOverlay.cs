@@ -14,6 +14,7 @@ namespace BestiaBehemothClient.Game.World
   {
     private const string ShaderPath = "res://Game/World/Shader/weather_overlay.gdshader";
     private const string EntityUberShaderPath = "res://Game/Entity/Fx/Shader/entity_uber.gdshader";
+    private const string TreeLeavesShaderPath = "res://Game/Terrain/Trees/tree_leaves.gdshader";
 
     private static readonly StringName Group = "weather_overlay";
     private static readonly StringName MovingMeta = "weather_overlay_moving";
@@ -35,7 +36,9 @@ namespace BestiaBehemothClient.Game.World
     ///
     /// <para>
     /// So is a mesh with an alpha-scissored surface, such as a tree's leaf cards. The overlay is a second pass
-    /// that cannot see the first one's cutout, so it would paint every leaf card as a whole rectangle.
+    /// that cannot see the first one's cutout, so it would paint every leaf card as a whole rectangle. The
+    /// tree leaf shader cuts out in a shader of its own, which no material flag shows, so it is named; it draws
+    /// its own weather instead.
     /// </para>
     /// </remarks>
     /// <param name="moving">For what walks through the snow: it gets a frost rather than a cap.</param>
@@ -93,7 +96,8 @@ namespace BestiaBehemothClient.Game.World
       for (var surface = 0; surface < mesh.GetSurfaceCount(); surface++)
       {
         var material = instance.GetSurfaceOverrideMaterial(surface) ?? mesh.SurfaceGetMaterial(surface);
-        if (material is BaseMaterial3D { Transparency: BaseMaterial3D.TransparencyEnum.AlphaScissor })
+        if (material is BaseMaterial3D { Transparency: BaseMaterial3D.TransparencyEnum.AlphaScissor }
+            or ShaderMaterial { Shader.ResourcePath: TreeLeavesShaderPath })
         {
           return true;
         }

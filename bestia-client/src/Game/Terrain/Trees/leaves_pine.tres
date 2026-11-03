@@ -1,0 +1,12 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://Game/Terrain/Trees/tree_leaves.gdshader" id="1"]
+[ext_resource type="Texture2D" uid="uid://blhu28pxolpdn" path="res://Game/Terrain/Trees/Leaf_Pine_C.png" id="2"]
+
+[resource]
+resource_name = "Leaves_Pine"
+render_priority = 0
+shader = ExtResource("1")
+shader_parameter/leaf_texture = ExtResource("2")
+shader_parameter/crown_low = 1.5
+shader_parameter/crown_high = 9.0
