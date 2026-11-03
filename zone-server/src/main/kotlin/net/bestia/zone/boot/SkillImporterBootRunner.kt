@@ -7,6 +7,7 @@ import net.bestia.zone.skill.SkillArchetype
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.skill.persistence.Skill
+import net.bestia.zone.skill.persistence.SkillMechanics
 import net.bestia.zone.skill.persistence.SkillYield
 import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.skill.SkillTargetType
@@ -50,7 +51,8 @@ class SkillImporterBootRunner(
     val cooldown: Float = 0f,
     val status: StatusEffectId? = null,
     val yields: List<YieldDto> = emptyList(),
-    val lines: List<String> = emptyList()
+    val lines: List<String> = emptyList(),
+    val mechanics: SkillMechanics = SkillMechanics.NONE
   ) {
     data class YieldDto(
       val item: String,
@@ -99,8 +101,22 @@ class SkillImporterBootRunner(
       cooldown = dto.cooldown,
       statusEffect = dto.status?.name,
       yields = dto.yields.map { toYield(dto.identifier, it) }.toMutableList(),
-      lines = dto.lines.toMutableList()
+      lines = dto.lines.toMutableList(),
+      mechanics = resolved(dto.identifier, dto.mechanics)
     )
+  }
+
+  /** Status names must be real effects and a reagent a real item, or the boot fails on the typo. */
+  private fun resolved(skill: String, mechanics: SkillMechanics): SkillMechanics {
+    (mechanics.onHit.map { it.status } + listOfNotNull(mechanics.zoneStatus)).forEach { name ->
+      requireNotNull(StatusEffectId.entries.firstOrNull { it.name == name }) { "Skill '$skill' names unknown status '$name'" }
+    }
+
+    val reagent = mechanics.reagent ?: return mechanics
+    val item = itemRepository.findByIdentifier(reagent.item)
+      ?: throw IllegalArgumentException("Skill '$skill' uses up unknown item '${reagent.item}'")
+
+    return mechanics.copy(reagent = reagent.copy(itemId = item.id))
   }
 
   /** Items are imported first, so an unknown one is a typo and fails the boot. */
