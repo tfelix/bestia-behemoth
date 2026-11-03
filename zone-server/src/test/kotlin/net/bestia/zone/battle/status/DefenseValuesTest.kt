@@ -31,6 +31,24 @@ class DefenseValuesTest {
     assertEquals(low.defenseSpread, high.defenseSpread)
   }
 
+  @Test
+  fun `a status adds its points to both hard defences instead of scaling them`() {
+    val worn = DefenseValues(magicDefense = 20, defense = 30, hardDefense = 80, hardMagicDefense = 10)
+
+    val frozen = worn.withHardDefenseRaisedBy(10)
+
+    assertEquals(90, frozen.hardDefense)
+    assertEquals(20, frozen.hardMagicDefense)
+    assertEquals(30, frozen.defense)
+  }
+
+  @Test
+  fun `lowered armour stops at none`() {
+    val worn = DefenseValues(magicDefense = 0, defense = 0, hardDefense = 15, hardMagicDefense = 0)
+
+    assertEquals(0, worn.withHardDefenseRaisedBy(-100).hardDefense)
+  }
+
   private fun statusValues(vitality: Int, strength: Int = 10, agility: Int = 10) = StatusValues(
     agility = agility,
     strength = strength,

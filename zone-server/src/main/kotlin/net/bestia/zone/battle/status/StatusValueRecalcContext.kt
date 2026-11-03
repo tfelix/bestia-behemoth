@@ -78,10 +78,11 @@ class StatusValueRecalcContext(
   /** The element every hit on this entity is weighed against instead of its own, like a freeze's Water 1. */
   var elementOverride: Element? = null
 
-  /** Percentage points on top of the resolved defences, hit rate and attack speed. */
+  /** Damage reduction points added to both hard defences, see [DefenseValues.withHardDefenseRaisedBy]. */
   var defensePercent: Int = 0
     private set
 
+  /** Percentage points on top of the resolved hit rate and attack speed. */
   var hitPercent: Int = 0
     private set
 
