@@ -88,22 +88,6 @@ class SpecialSkillsTest {
   }
 
   @Test
-  fun `a gaze stiffens a foe in front, and stuns one already stiff`() {
-    val world = RecordingSkillWorld(entitiesNearby = setOf(DEFENDER_ID, BEHIND))
-      .putPosition(ATTACKER_ID, Vec3L(0, 0, 0))
-      .putPosition(DEFENDER_ID, Vec3L(2, 0, 0))
-      .putPosition(BEHIND, Vec3L(-2, 0, 0))
-    world.foes.addAll(listOf(DEFENDER_ID, BEHIND))
-
-    PetrifyingGaze(LineOfSightService()).execute(ctx(world))
-    assertEquals(listOf(DEFENDER_ID to StatusEffectId.STIFFENED.name), world.inflicted.map { it.targetEntityId to it.status })
-
-    world.effectsOn[DEFENDER_ID] = mutableSetOf(StatusEffectId.STIFFENED.id)
-    PetrifyingGaze(LineOfSightService()).execute(ctx(world))
-    assertEquals(StatusEffectId.STUN.name, world.inflicted.last().status)
-  }
-
-  @Test
   fun `detect marks what it found on its player's map`() {
     val found = DetectedEntitiesSMSG.Detected(9L, Vec3L(3, 3, 0), isMaster = true)
     val world = RecordingSkillWorld().putPosition(ATTACKER_ID, Vec3L(0, 0, 0)).apply { players.add(found) }
@@ -152,6 +136,5 @@ class SpecialSkillsTest {
 
   private companion object {
     const val MAX_HEALTH = 4000
-    const val BEHIND = 5L
   }
 }

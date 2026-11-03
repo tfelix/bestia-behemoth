@@ -277,14 +277,6 @@ statusEffects:
     isSyncedToClient: true
     script: Blind
 
-  - id: 33
-    identifier: STIFFENED
-    polarity: DEBUFF
-    resist: [DEX, AGI]
-    showIcon: true
-    isSyncedToClient: true
-    script: Stiffened
-
   # Damage over time and what changes healing.
   - id: 34
     identifier: POISON
