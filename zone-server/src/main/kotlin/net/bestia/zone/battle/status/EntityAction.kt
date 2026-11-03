@@ -4,4 +4,5 @@ package net.bestia.zone.battle.status
 enum class EntityAction {
   ATTACKED,
   CAST,
+  USED_ITEM,
 }

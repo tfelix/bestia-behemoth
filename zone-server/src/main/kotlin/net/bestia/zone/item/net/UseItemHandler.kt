@@ -3,7 +3,9 @@ package net.bestia.zone.item.net
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.battle.ActionGuard
+import net.bestia.zone.battle.ActionReactions
 import net.bestia.zone.battle.status.ActionLock
+import net.bestia.zone.battle.status.EntityAction
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.item.ecs.Inventory
@@ -34,7 +36,8 @@ class UseItemHandler(
   private val actionGuard: ActionGuard,
   private val noviceGate: NoviceGate,
   private val outMessageProcessor: OutMessageProcessor,
-  private val world: WorldView
+  private val world: WorldView,
+  private val actionReactions: ActionReactions = ActionReactions.NONE,
 ) : IoMessageHandler<UseItemCMSG> {
   override val wire = decoder(MessageCase.USE_ITEM) { accountId, envelope ->
     UseItemCMSG.fromBnet(accountId, envelope.useItem)
@@ -89,7 +92,11 @@ class UseItemHandler(
 
     // `this` is the full World, valid only within this lock-held scope.
     val consumed = runCatching {
-      world.modify(activeEntityId) { id -> itemScriptExecutionService.useItem(this, id, item, held.playerItemId, msg.args) }
+      world.modify(activeEntityId) { id ->
+        itemScriptExecutionService.useItem(this, id, item, held.playerItemId, msg.args).also { used ->
+          if (used) actionReactions.notifyActed(this, id, EntityAction.USED_ITEM)
+        }
+      }
     }
 
     if (consumed.getOrNull() != true) {
