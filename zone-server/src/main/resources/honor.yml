@@ -1,0 +1,55 @@
+# What every act costs or earns in honor. The player-facing table is in bestia-docs
+# content/docs/mechanics/pvp.md; keep the numbers in step with it.
+#
+# `global` changes the Master's own honor; `local` falls on each townsperson who saw it, or on the
+# settlement when it happens inside one with nobody in sight. A loss is negative, a gain positive.
+acts:
+  KILL_NPC: { global: -10, local: -60 }
+  KILL_PLAYER: { global: -10, local: -50 }
+  KILL_WEAK_OPPOSING_PLAYER: { global: -5, local: -10 }
+  KILL_PLAYER_BESTIA: { global: 0, local: -2 }
+  STEAL_MUNDANE: { global: 0, local: -10 }
+  STEAL_SUPERIOR: { global: -5, local: -20 }
+  STEAL_RARE: { global: -10, local: -30 }
+  STEAL_LEGENDARY: { global: -15, local: -40 }
+  DAMAGE_BUILDING: { global: -2, local: -10 }
+  DISPEL_WARD_STONE: { global: -5, local: -20 }
+  DESTROY_WARD_STONE: { global: -20, local: -100 }
+  ABANDON_COMMISSION: { global: -5, local: -20 }
+  KILL_OUTLAW: { global: 5, local: 5 }
+  DEFEND_FROM_AGGRESSOR: { global: 3, local: 5 }
+  HELP_NPC: { global: 2, local: 10 }
+  COMPLETE_COMMISSION: { global: 1, local: 5 }
+  RETURN_STOLEN_ITEM: { global: 2, local: 10 }
+
+# Inside a ward stone's field every act counts without a witness.
+protected-zone:
+  loss-factor: 2.0
+  gain-factor: 1.5
+
+# Townsfolk and players this close to the offender saw it, in metres.
+witness-range: 30
+
+# Initial values for balancing.
+layers:
+  global:
+    start: 20
+    cap: 100
+    recovery-per-day: 1
+    grace-days: 1
+  settlement:
+    start: 10
+    cap: 100
+    recovery-per-day: 2
+    grace-days: 1
+    permanent-below: -100
+  grudge:
+    start: 0
+    cap: 50
+    recovery-per-day: 2
+    grace-days: 1
+    permanent-below: -100
+
+thresholds:
+  unfriendly-below: 0
+  hostile-below: -60

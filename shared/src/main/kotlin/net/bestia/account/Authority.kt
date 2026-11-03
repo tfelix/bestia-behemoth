@@ -50,5 +50,8 @@ enum class Authority {
    * Charting the whole world, or a disc of it, without a survey or a blank. Separate from [MAP_MOVE] because it
    * hands out an item - a chart that can be dropped, traded or copied like any other.
    */
-  MAP_REVEAL
+  MAP_REVEAL,
+
+  /** Reading and setting a Master's honor, and committing an act for them, to test the honor rules. */
+  HONOR
 }

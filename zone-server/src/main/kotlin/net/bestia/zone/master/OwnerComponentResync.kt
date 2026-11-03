@@ -11,6 +11,7 @@ import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.battle.ecs.status.StatusPoints
 import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.honor.ecs.Honor
 import net.bestia.zone.item.ecs.CarryCapacity
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
@@ -45,5 +46,6 @@ object OwnerComponentResync {
     world.get(entityId, Inventory::class)?.markDirty()
     world.get(entityId, Place::class)?.markDirty()
     world.get(entityId, Journey::class)?.markDirty()
+    world.get(entityId, Honor::class)?.markDirty()
   }
 }

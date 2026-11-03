@@ -1,6 +1,8 @@
 package net.bestia.zone.master
 
 import net.bestia.zone.item.stat.ItemStatCatalog
+import net.bestia.zone.honor.HonorLedger
+import net.bestia.zone.honor.HonorService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.persistence.LearnedSkillRepository
 import net.bestia.zone.skill.ecs.KnownSkills
@@ -85,6 +87,7 @@ class MasterEntitySpawner(
   private val itemStats: ItemStatCatalog,
   private val guildMemberships: GuildMemberships,
   private val knownRecipeStore: KnownRecipeStore,
+  private val honorService: HonorService,
 ) {
 
   /**
@@ -154,6 +157,7 @@ class MasterEntitySpawner(
       add(id, Living)
       add(id, Level(master.level))
       add(id, Exp(master.exp, levelUpExpCalculator.getRequiredExperience(master.level)))
+      add(id, honorService.componentFor(HonorLedger(master.honorEarned, master.honorDebt, master.honorLastLossAt)))
       add(id, Speed())
       add(id, KnownSkills(learnedSkillIds.toMutableMap()))
       add(id, KnownRecipes(knownRecipeIds.toMutableSet()))

@@ -173,6 +173,18 @@ class Master(
   @Column(name = "current_mana")
   var currentMana: Int? = null
 
+  /** Global honor as a [net.bestia.zone.honor.HonorLedger]; the three columns are only ever read together. */
+  @Column(name = "honor_earned", nullable = false)
+  @ColumnDefault("0")
+  var honorEarned: Int = 0
+
+  @Column(name = "honor_debt", nullable = false)
+  @ColumnDefault("0")
+  var honorDebt: Int = 0
+
+  @Column(name = "honor_last_loss_at")
+  var honorLastLossAt: java.time.Instant? = null
+
   @OneToMany(mappedBy = "master", cascade = [CascadeType.ALL], orphanRemoval = true)
   val learnedSkills: MutableSet<LearnedSkill> = mutableSetOf()
 
