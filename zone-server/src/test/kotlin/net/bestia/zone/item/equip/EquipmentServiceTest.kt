@@ -47,14 +47,25 @@ class EquipmentServiceTest {
     inventory: Inventory = inventoryOf(held(item)),
     heldUniqueId: Long = 77L,
     wearerLevel: Int = WELL_ABOVE_ITEM_LEVEL,
-    wearerIsNovice: Boolean = true
+    wearerIsNovice: Boolean = true,
+    lockedSlots: Set<EquipmentSlot> = emptySet()
   ): EquipmentService.Denial? {
-    return service.checkEquip(equipment, inventory, item, item.baseLevel, slot, heldUniqueId, wearerLevel, wearerIsNovice)
+    return service.checkEquip(
+      equipment, inventory, item, item.baseLevel, slot, heldUniqueId, wearerLevel, wearerIsNovice, lockedSlots
+    )
   }
 
   @Test
   fun `a held item going into an available slot is accepted`() {
     assertNull(check(boots, EquipmentSlot.FOOTGEAR))
+  }
+
+  @Test
+  fun `a slot a strip skill emptied is refused while it is locked`() {
+    assertEquals(
+      EquipmentService.Denial.SLOT_STRIPPED,
+      check(ironCuirass, EquipmentSlot.ARMOR, lockedSlots = setOf(EquipmentSlot.ARMOR))
+    )
   }
 
   @Test

@@ -78,14 +78,25 @@ class SpecialSkillsTest {
   }
 
   @Test
-  fun `strip takes the gear, or weakens a bestia that wears none`() {
+  fun `strip takes the gear and locks its slot`() {
     val world = RecordingSkillWorld()
-    Disarm(LineOfSightService()).execute(ctx(world))
-    assertEquals(listOf(DEFENDER_ID to EquipmentSlot.RIGHT_HAND), world.stripped)
 
-    world.strippable = false
     StripArmor(LineOfSightService()).execute(ctx(world))
-    assertEquals(StatusEffectId.EXPOSED.name, world.inflicted.single().status)
+
+    assertEquals(listOf(DEFENDER_ID to EquipmentSlot.ARMOR), world.stripped)
+    assertEquals(listOf(StatusEffectId.ARMOR_STRIPPED.name), world.inflicted.map { it.status })
+  }
+
+  @Test
+  fun `disarm weakens a bestia that holds no weapon`() {
+    val world = RecordingSkillWorld().apply { strippable = false }
+
+    Disarm(LineOfSightService()).execute(ctx(world))
+
+    assertEquals(
+      listOf(StatusEffectId.DISARMED.name, StatusEffectId.WEAKENED.name),
+      world.inflicted.map { it.status }
+    )
   }
 
   @Test

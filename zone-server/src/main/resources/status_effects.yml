@@ -472,10 +472,17 @@ statusEffects:
     isSyncedToClient: true
     script: Channeling
 
-  # What Strip Armor does to a wild bestia, which has no armour to take off.
+  # Left by Strip Armor and Disarm: the stripped slot stays empty while they last, see `SlotLock`.
   - id: 59
-    identifier: EXPOSED
+    identifier: ARMOR_STRIPPED
     polarity: DEBUFF
     showIcon: true
     isSyncedToClient: true
-    script: Exposed
+    script: StrippedGear
+
+  - id: 60
+    identifier: DISARMED
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: StrippedGear
