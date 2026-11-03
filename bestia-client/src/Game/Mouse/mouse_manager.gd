@@ -16,6 +16,10 @@ const _GROUP: String = "mouse_manager"
 const _UI_PANEL_GROUP: String = "world_blocking_ui"
 const _ContextMenuScene := preload("res://Game/UI/ContextMenu/ContextMenu.tscn")
 
+## How many bodies [method find_loot_behind_creatures] steps through before it gives up. A master, a bestia
+## or two and something unpickable is already a crowd standing on one drop.
+const _MAX_CREATURES_LOOKED_PAST: int = 6
+
 ## Emitted whenever the selected entity changes, carrying the newly selected entity's
 ## id (0 if the selection was cleared). UI panels that show per-entity state (e.g.
 ## BuffList) listen to this instead of polling selected_entity every frame.
@@ -316,6 +320,62 @@ func get_floor_hit_at_mouse() -> Variant:
 	if is_pointer_over_ui():
 		return null
 
+	var query := _mouse_ray_query()
+	if query == null:
+		return null
+
+	var result := get_viewport().get_camera_3d().get_world_3d().direct_space_state.intersect_ray(query)
+
+	if result.is_empty():
+		return null
+
+	var collider = result["collider"]
+	if collider is Node and collider.is_in_group(_FLOOR_GROUP):
+		return result["position"]
+	return null
+
+
+## The loot under the cursor once every creature in front of it is looked past, or null. Physics picking
+## hands a click to the nearest collider only, so a body standing on loot hides the loot at its feet from
+## the pointer entirely. Only creatures are seen through: a prop, a wall or the ground ends the look, so
+## nothing that really stands in front of the loot is skipped.
+func find_loot_behind_creatures() -> ItemVisual:
+	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		return null
+
+	var query := _mouse_ray_query()
+	if query == null:
+		return null
+
+	query.collide_with_areas = true
+	var space_state := get_viewport().get_camera_3d().get_world_3d().direct_space_state
+	var looked_past: Array[RID] = []
+	for _i in _MAX_CREATURES_LOOKED_PAST:
+		query.exclude = looked_past
+		var result := space_state.intersect_ray(query)
+		if result.is_empty():
+			return null
+
+		var collider := result["collider"] as CollisionObject3D
+		if collider == null:
+			return null
+
+		var visual := _visual_of(collider)
+		if visual is ItemVisual:
+			return visual
+
+		# Physics picking skips what is not ray-pickable, and this has to agree with it about what is there.
+		if visual is BestiaVisual or visual is MasterVisual or not collider.input_ray_pickable:
+			looked_past.append(collider.get_rid())
+			continue
+
+		return null
+
+	return null
+
+
+## A ray from the camera through the cursor, out to the far plane. Null when there is no camera yet.
+func _mouse_ray_query() -> PhysicsRayQueryParameters3D:
 	var viewport := get_viewport()
 	var camera := viewport.get_camera_3d()
 	if camera == null:
@@ -324,14 +384,13 @@ func get_floor_hit_at_mouse() -> Variant:
 	var mouse_pos := viewport.get_mouse_position()
 	var from := camera.project_ray_origin(mouse_pos)
 	var to := from + camera.project_ray_normal(mouse_pos) * camera.far
-	var space_state := camera.get_world_3d().direct_space_state
-	var query := PhysicsRayQueryParameters3D.create(from, to)
-	var result := space_state.intersect_ray(query)
+	return PhysicsRayQueryParameters3D.create(from, to)
 
-	if result.is_empty():
-		return null
 
-	var collider = result["collider"]
-	if collider is Node and collider.is_in_group(_FLOOR_GROUP):
-		return result["position"]
+## The visual a collider belongs to - its Area3D sits somewhere below it, not always as a direct child.
+static func _visual_of(node: Node) -> Visual:
+	while node != null:
+		if node is Visual:
+			return node
+		node = node.get_parent()
 	return null

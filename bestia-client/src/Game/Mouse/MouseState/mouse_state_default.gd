@@ -9,12 +9,21 @@ class_name MouseStateDefault
 
 
 func enter(mgr: MouseManager) -> void:
-	mgr.set_cursor_for_action(_action_for(mgr.hovered_object))
+	mgr.set_cursor_for_action(_action_for(_click_target(mgr, mgr.hovered_object)))
+
+
+func process_state(mgr: MouseManager, _delta: float) -> void:
+	# Sliding the cursor down a creature onto the loot at its feet crosses no collider edge, so no hover event
+	# says the click target changed. Looked up every frame instead - but only while a creature is hovered.
+	if _is_creature(mgr.hovered_object):
+		mgr.set_cursor_for_action(_action_for(_click_target(mgr, mgr.hovered_object)))
 
 
 func handle_object_clicked(mgr: MouseManager, object: Node3D, event: InputEvent, _click_position: Vector3) -> void:
 	if not event.is_action_pressed("normal_action"):
 		return
+
+	object = _click_target(mgr, object)
 
 	# Clicking a creature is how you look at it, whether or not the click also does something.
 	if object is BestiaVisual or object is MasterVisual:
@@ -57,7 +66,7 @@ func handle_object_hover(mgr: MouseManager, _object: Node3D, _entered: bool) -> 
 	# Read back what the manager settled on instead of trusting this one event: sliding from one target
 	# straight onto another delivers the second's enter before the first's exit, and honouring that exit
 	# would blank a cursor that had already changed.
-	mgr.set_cursor_for_action(_action_for(mgr.hovered_object))
+	mgr.set_cursor_for_action(_action_for(_click_target(mgr, mgr.hovered_object)))
 
 
 func handle_ground_input_event(mgr: MouseManager, click_position: Vector3, event: InputEvent) -> void:
@@ -82,6 +91,25 @@ func handle_right_click(mgr: MouseManager, screen_position: Vector2) -> void:
 		return
 
 	mgr.open_context_menu_for(target, screen_position)
+
+
+## What a left-click on [param object] actually lands on. Loot wins over a creature standing on it - our own
+## body above all, since we stand on what we are about to pick up - unless the click would attack that
+## creature: a swing at what we are fighting must not turn into a walk to its drop.
+func _click_target(mgr: MouseManager, object: Node3D) -> Node3D:
+	if not _is_creature(object) or _action_for(object) == DefaultAction.Kind.ATTACK:
+		return object
+
+	var loot := mgr.find_loot_behind_creatures()
+	if loot != null:
+		return loot
+	return object
+
+
+## Guarded: nothing clears [member MouseManager.hovered_object] when its entity vanishes, and this is asked
+## every frame.
+func _is_creature(object: Node3D) -> bool:
+	return is_instance_valid(object) and (object is BestiaVisual or object is MasterVisual)
 
 
 ## What a left-click on [param object] would do. Null - nothing hovered - is [constant
