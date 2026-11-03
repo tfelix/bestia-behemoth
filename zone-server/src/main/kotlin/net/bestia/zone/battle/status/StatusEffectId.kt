@@ -47,7 +47,6 @@ enum class StatusEffectId(val id: Long) {
   CONFUSED(30),
   FEARED(31),
   BLIND(32),
-  STIFFENED(33),
   POISON(34),
   BLEEDING(35),
   BURNING(36),
