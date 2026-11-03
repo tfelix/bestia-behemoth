@@ -38,6 +38,7 @@
  - COMBAT wave 22: AttackSystem [EveryTick]
  - COMBAT wave 23: AggressorSystem [EveryTick]
  - COMBAT wave 24: ReceivedDamageSystem [EveryTick]
+ - COMBAT wave 25: BuildingDamageHonorSystem [EveryTick]
  - COMBAT wave 25: InCombatSystem [EverySeconds(seconds=1.0)]
  - RECOVERY wave 26: HealthRegenSystem [EverySeconds(seconds=0.1)]
  - RECOVERY wave 26: HpRegenSystem [EverySeconds(seconds=6.0)]
