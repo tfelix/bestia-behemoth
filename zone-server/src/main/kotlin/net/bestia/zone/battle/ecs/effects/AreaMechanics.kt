@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.status.StatusEffectId
 
@@ -21,8 +22,8 @@ data class AreaMechanics(
   /** Tiles a foe is pushed away from the centre on each tick. */
   val knockbackTiles: Int = 0,
 
-  /** Only creatures of these kind names or base elements are touched; empty sets mean everyone. */
-  val affectsKinds: Set<String> = emptySet(),
+  /** Only creatures of these kinds or base elements are touched; empty sets mean everyone. */
+  val affectsKinds: Set<BestiaKind> = emptySet(),
   val affectsElements: Set<Element> = emptySet(),
 
   /** Tiles per second the area drifts, like a hurricane moving off from its caster. */

@@ -7,7 +7,7 @@ import net.bestia.zone.battle.Size
 import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.bestia.persistence.Bestia
-import net.bestia.zone.bestia.BestiaKind
+import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.bestia.persistence.BestiaRepository
 import net.bestia.zone.bestia.persistence.BestiaSkill
 import net.bestia.zone.bestia.persistence.BestiaSkillRepository

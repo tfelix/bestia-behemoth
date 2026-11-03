@@ -6,7 +6,7 @@ name: "Banshee"
 description: >-
   A weeping ghost whose wail freezes the blood. Cover your ears and close in fast.
 kind: UNDEAD
-element: GHOST_3
+element: UNDEAD_3
 size: MEDIUM
 default-attack: MELEE
 aspd: 80

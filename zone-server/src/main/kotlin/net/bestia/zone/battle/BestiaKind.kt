@@ -1,4 +1,4 @@
-package net.bestia.zone.bestia
+package net.bestia.zone.battle
 
 /**
  * What a species is: what it is made of and how it lives. Two bestias only breed when they share a kind, see

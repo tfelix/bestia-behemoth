@@ -3,6 +3,7 @@ package net.bestia.zone.casting.scripts.bestia
 import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.BattleContextFixture.ATTACKER_ID
 import net.bestia.zone.battle.BattleContextFixture.DEFENDER_ID
+import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.Size
@@ -37,17 +38,17 @@ class SpecialSkillsTest {
     val turn = TurnUndead(LineOfSightService(), LowRandom())
     val world = RecordingSkillWorld()
 
-    world.natures[DEFENDER_ID] = Nature(Element.UNDEAD, Size.MEDIUM, kind = "UNDEAD")
+    world.natures[DEFENDER_ID] = Nature(Element.UNDEAD, Size.MEDIUM, kind = BestiaKind.UNDEAD)
     assertEquals(TrueDamage(MAX_HEALTH), turn.execute(ctx(world)))
 
-    world.natures[DEFENDER_ID] = Nature(Element.UNDEAD, Size.MEDIUM, kind = "UNDEAD", boss = true)
+    world.natures[DEFENDER_ID] = Nature(Element.UNDEAD, Size.MEDIUM, kind = BestiaKind.UNDEAD, boss = true)
     assertFalse(turn.execute(ctx(world)) is TrueDamage)
   }
 
   @Test
   fun `turn undead cannot be cast on the living`() {
     val world = RecordingSkillWorld()
-    world.natures[DEFENDER_ID] = Nature(Element.EARTH, Size.MEDIUM, kind = "BEAST")
+    world.natures[DEFENDER_ID] = Nature(Element.EARTH, Size.MEDIUM, kind = BestiaKind.BEAST)
 
     assertFalse(TurnUndead(LineOfSightService()).isCastPossible(ctx(world)))
   }

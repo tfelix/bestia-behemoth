@@ -1,5 +1,6 @@
 package net.bestia.zone.casting.scripts.bestia
 
+import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.damage.CriticalHit
 import net.bestia.zone.battle.damage.Damage
@@ -82,7 +83,7 @@ object BestiaSkillMechanics {
       forAllies = ctx.skill.archetype in FRIENDLY_ARCHETYPES,
       manaPercentPerTick = mechanics.manaPercentPerTick,
       knockbackTiles = mechanics.knockback,
-      affectsKinds = mechanics.affectsKinds.toSet(),
+      affectsKinds = mechanics.affectsKinds.map { BestiaKind.valueOf(it) }.toSet(),
       affectsElements = mechanics.affectsElements.map { Element.valueOf(it) }.toSet(),
     ).withDrift(ctx, centre, mechanics.drift)
   }
