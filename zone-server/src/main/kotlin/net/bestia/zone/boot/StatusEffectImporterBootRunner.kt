@@ -7,6 +7,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.status.StatusEffectDefinition
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.status.StatusEffectPolarity
+import net.bestia.zone.battle.status.ResistStat
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.core.io.ClassPathResource
@@ -33,6 +34,8 @@ class StatusEffectImporterBootRunner(
       val isSyncedToClient: Boolean = true,
       val script: String,
       val polarity: StatusEffectPolarity = StatusEffectPolarity.NEUTRAL,
+      val resist: List<ResistStat> = emptyList(),
+      val dispellable: Boolean = true,
       // Not read into StatusEffectDefinition - zone-server has no runtime use for icon visibility, but it
       // stays parseable here for a possible future Godot-resource generation step (same relationship
       // skills.yml has to the client Attack DB).
@@ -60,7 +63,9 @@ class StatusEffectImporterBootRunner(
       identifier = dto.identifier,
       isSyncedToClient = dto.isSyncedToClient,
       script = dto.script,
-      polarity = dto.polarity
+      polarity = dto.polarity,
+      resist = dto.resist,
+      dispellable = dto.dispellable
     )
   }
 
