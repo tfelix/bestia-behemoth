@@ -7,11 +7,7 @@ import org.springframework.stereotype.Component
 
 /**
  * `status_effects.yml` id 9 (`INVULNERABLE`): nothing may harm the bearer. The [shield] is what the damage gate
- * reads; the rest of the script says it lasts forever.
- *
- * Townsfolk carry it because they are non-combatant this release. A settlement's roster comes from the world
- * generator and nothing puts a person back, so a killable baker is a bakery that closes forever the first
- * time somebody idly swings at it.
+ * reads; the rest of the script says it lasts forever. Carried by every `non-combatant` species.
  */
 @Component
 class InvulnerableEffect : StatusEffectScript {

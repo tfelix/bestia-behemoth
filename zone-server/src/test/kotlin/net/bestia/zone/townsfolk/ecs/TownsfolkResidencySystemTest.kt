@@ -103,6 +103,17 @@ class TownsfolkResidencySystemTest {
   }
 
   @Test
+  fun `a killed townsperson stays away until somebody takes their place`() {
+    hour = 22
+    player(HOME)
+    val deaths = mockk<TownsfolkDeaths> { every { isDead(any()) } answers { firstArg<Long>() == child.identity } }
+
+    TownsfolkResidencySystem(roster, sites, indoors, spawner, clock, config, deaths = deaths).update(world, DT)
+
+    assertEquals(setOf(farmer.identity), built.keys)
+  }
+
+  @Test
   fun `a farmer is built for the player standing in his field`() {
     // Nobody is anywhere near the village, and the farmer still has to be there - he is not at home at
     // noon, and a ring drawn round his house would leave the field empty for the player standing in it.
