@@ -3,7 +3,9 @@ package net.bestia.zone.economy.shop
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.economy.SettlementEconomyService
+import net.bestia.zone.economy.PersonalPrice
 import net.bestia.zone.economy.Shop
+import net.bestia.zone.economy.TraderStanding
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.movement.ecs.Position
@@ -25,6 +27,7 @@ class ShopCounter(
   private val commodities: CommodityItems,
   private val out: OutMessageProcessor,
   private val clock: BestiaClock,
+  private val standing: TraderStanding,
 ) {
 
   fun isOpen(counter: Counter): Boolean {
@@ -35,8 +38,9 @@ class ShopCounter(
   fun open(accountId: AccountId, viewerId: EntityId, counter: Counter): OpError? {
     if (!isOpen(counter)) return OpError.SHOP_CLOSED
     val (settlement, shop) = shopFor(viewerId, counter) ?: return OpError.SHOP_NONE_HERE
+    val personal = personalPrice(viewerId, settlement, counter) ?: return OpError.SHOP_REFUSES_YOU
 
-    offers.publishTo(accountId, settlement, shop, counter)
+    offers.publishTo(accountId, settlement, shop, counter, personal)
 
     return null
   }
@@ -44,9 +48,11 @@ class ShopCounter(
   /** Quotes [lines] without trading, and answers with a [ShopQuoteSMSG]. */
   fun quote(accountId: AccountId, viewerId: EntityId, counter: Counter, lines: List<ShopTradeLine>) {
     if (!isOpen(counter)) return refuse(accountId, counter, OpError.SHOP_CLOSED)
-    val (_, shop) = shopFor(viewerId, counter) ?: return refuse(accountId, counter, OpError.SHOP_NONE_HERE)
+    val (settlement, shop) = shopFor(viewerId, counter) ?: return refuse(accountId, counter, OpError.SHOP_NONE_HERE)
+    val personal = personalPrice(viewerId, settlement, counter)
+      ?: return refuse(accountId, counter, OpError.SHOP_REFUSES_YOU)
 
-    val quote = shop.quoteBasket(ShopTradeLine.basketOf(lines, counter, commodities))
+    val quote = shop.quoteBasket(ShopTradeLine.basketOf(lines, counter, commodities), personal)
     val answer = ShopQuoteSMSG(
       merchantEntityId = counter.merchantId,
       lineCoins = quote.lineCoins,
@@ -65,6 +71,10 @@ class ShopCounter(
 
       if (ShopReach.withinReach(position, merchant)) economy.shopAt(position.x, position.y) else null
     }
+  }
+
+  private fun personalPrice(viewerId: EntityId, settlement: Int, counter: Counter): PersonalPrice? {
+    return world.read { standing.priceFor(this, viewerId, settlement, counter.merchantId) }
   }
 
   private fun refuse(accountId: AccountId, counter: Counter, code: OpError) {

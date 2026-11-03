@@ -20,6 +20,7 @@ import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.economy.SettlementEconomyService
+import net.bestia.zone.economy.TraderStanding
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
@@ -56,13 +57,15 @@ class ShopTradeIntentSystem(
   private val offers: ShopOfferPublisher,
   private val outMessageProcessor: OutMessageProcessor,
   private val itemTemplates: ItemTemplateRegistry,
+  private val standing: TraderStanding,
   private val metrics: GameMetrics = GameMetrics(),
 ) : System {
   override val phase = Phase.ITEMS
   override val after = setOf(CarryCapacitySystem::class)
   override val before = setOf(CollectPropIntentSystem::class)
 
-  override val reads: ComponentClassSet = setOf(Account::class, Master::class, Position::class, CarryCapacity::class)
+  override val reads: ComponentClassSet =
+    setOf(Account::class, Master::class, Position::class, CarryCapacity::class) + standing.reads
 
   /**
    * [ObtainItemIntent.CreateItemsIntent] is declared although it lands on the same entity this queries -
@@ -93,8 +96,11 @@ class ShopTradeIntentSystem(
     val (settlement, shop) = economy.shopAt(position.x, position.y)
       ?: return deny(world, traderId, OperationErrorProto.OpError.SHOP_NONE_HERE)
 
+    val personal = standing.priceFor(world, traderId, settlement, intent.counter.merchantId)
+      ?: return deny(world, traderId, OperationErrorProto.OpError.SHOP_REFUSES_YOU)
+
     val basket = ShopTradeLine.basketOf(intent.lines, intent.counter, commodities)
-    val quote = shop.quoteBasket(basket)
+    val quote = shop.quoteBasket(basket, personal)
 
     quote.refusal?.let {
       metrics.shopRefused(it.name)
@@ -104,7 +110,7 @@ class ShopTradeIntentSystem(
     if (quote.balance < intent.expectedBalance) {
       metrics.shopRefused("PRICE_CHANGED")
       deny(world, traderId, OperationErrorProto.OpError.SHOP_PRICE_CHANGED)
-      return offers.publish(world, traderId, settlement, shop, intent.counter)
+      return offers.publish(world, traderId, settlement, shop, intent.counter, personal)
     }
 
     // Prices are summed in Long, but coins are counted in Int.
@@ -129,7 +135,7 @@ class ShopTradeIntentSystem(
       economy.settle(settlement, good.id, line.units, quote.lineCoins[index], line.selling)
       metrics.shopTrade(line.selling, line.units, quote.lineCoins[index])
     }
-    offers.publish(world, traderId, settlement, shop, intent.counter)
+    offers.publish(world, traderId, settlement, shop, intent.counter, personal)
 
     LOG.debug { "Entity $traderId traded ${intent.lines} for a balance of ${quote.balance} in settlement $settlement" }
   }

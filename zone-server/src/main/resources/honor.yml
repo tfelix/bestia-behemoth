@@ -61,3 +61,11 @@ layers:
 thresholds:
   unfriendly-below: 0
   hostile-below: -60
+
+# Below 0 a merchant charges `-5/3 * honor` percent more and pays as much less; below `hostile-below` they
+# refuse. Above `discount-above` (what a new Master starts with) each point takes `discount-per-honor` off
+# what they pay, up to `max-discount`.
+prices:
+  discount-above: 30
+  discount-per-honor: 0.0005
+  max-discount: 0.05

@@ -17,7 +17,9 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.economy.Commodity
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.economy.SettlementEconomyService
+import net.bestia.zone.economy.PersonalPrice
 import net.bestia.zone.economy.Shop
+import net.bestia.zone.economy.TraderStanding
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
@@ -60,9 +62,14 @@ class ShopTradeIntentSystemTest {
     every { submit(any<Long>(), any()) } answers { secondArg<() -> Unit>().invoke() }
   }
 
+  private val standing = mockk<TraderStanding> {
+    every { reads } returns emptySet()
+    every { priceFor(any(), any(), any(), any()) } returns PersonalPrice.NEUTRAL
+  }
+
   private val world = testWorld(
     systems = listOf(
-      ShopTradeIntentSystem(economy, commodities, inventoryService, inlineJobs, offers, out, itemTemplates)
+      ShopTradeIntentSystem(economy, commodities, inventoryService, inlineJobs, offers, out, itemTemplates, standing)
     )
   )
 
@@ -148,7 +155,7 @@ class ShopTradeIntentSystemTest {
 
     assertEquals(100, held(buyer, COIN_ITEM))
     verify { out.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OpError.SHOP_PRICE_CHANGED)) }
-    verify { offers.publish(any(), buyer, SETTLEMENT, shop, any()) }
+    verify { offers.publish(any(), buyer, SETTLEMENT, shop, any(), any()) }
   }
 
   @Test
@@ -192,7 +199,7 @@ class ShopTradeIntentSystemTest {
 
     trade(trader, listOf(BUY_BREAD, ShopTradeLine(BREAD_ITEM, 1, selling = true)), expectedBalance = 0)
 
-    verify(exactly = 0) { shop.quoteBasket(any()) }
+    verify(exactly = 0) { shop.quoteBasket(any(), any()) }
   }
 
   /** Opening the window checks the distance, but a hand-made packet can trade without ever opening it. */
@@ -209,7 +216,7 @@ class ShopTradeIntentSystemTest {
   }
 
   private fun quote(balance: Long, vararg lineCoins: Long) {
-    every { shop.quoteBasket(any()) } returns Shop.BasketQuote(lineCoins.toList(), balance)
+    every { shop.quoteBasket(any(), any()) } returns Shop.BasketQuote(lineCoins.toList(), balance)
   }
 
   private fun trader(vararg held: Inventory.Item): EntityId {

@@ -280,6 +280,8 @@ enum OpError {
   // Prices moved since the last quote and the trade would now come out worse than it was shown. The client
   // asks for a fresh quote.
   SHOP_PRICE_CHANGED = 101;
+  // The merchant thinks so little of the trader's honor that they will not trade at all.
+  SHOP_REFUSES_YOU = 107;
 
   // An emote asked for while walking, casting or crafting. The player stops and asks again.
   EMOTE_NOT_NOW = 103;

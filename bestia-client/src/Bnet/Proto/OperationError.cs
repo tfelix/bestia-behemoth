@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqZFQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqvFQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -84,10 +84,11 @@ namespace Bnet {
             "R0VfVE9PX0hFQVZZEF8SFgoSVFJBREVfTkVFRFNfTUFTVEVSEGASEgoOTk9U",
             "RUJPT0tfU1RBTEUQYRIUChBOT1RFQk9PS19JTlZBTElEEGISDwoLU0hPUF9D",
             "TE9TRUQQYxISCg5TSE9QX1RPT19IRUFWWRBkEhYKElNIT1BfUFJJQ0VfQ0hB",
-            "TkdFRBBlEhEKDUVNT1RFX05PVF9OT1cQZxIWChJURUxFUE9SVF9OT1RfUkVB",
-            "RFkQaBIUChBURUxFUE9SVF9OT1RfTk9XEGkSFwoTVEVMRVBPUlRfTk9fTEFO",
-            "RElORxBqIgQILhAuKhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3Rp",
-            "YS5ibmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "TkdFRBBlEhQKEFNIT1BfUkVGVVNFU19ZT1UQaxIRCg1FTU9URV9OT1RfTk9X",
+            "EGcSFgoSVEVMRVBPUlRfTk9UX1JFQURZEGgSFAoQVEVMRVBPUlRfTk9UX05P",
+            "VxBpEhcKE1RFTEVQT1JUX05PX0xBTkRJTkcQaiIECC4QLioSU0hPUF9UUkVB",
+            "U1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9u",
+            "RXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -488,6 +489,10 @@ namespace Bnet {
     /// asks for a fresh quote.
     /// </summary>
     [pbr::OriginalName("SHOP_PRICE_CHANGED")] ShopPriceChanged = 101,
+    /// <summary>
+    /// The merchant thinks so little of the trader's honor that they will not trade at all.
+    /// </summary>
+    [pbr::OriginalName("SHOP_REFUSES_YOU")] ShopRefusesYou = 107,
     /// <summary>
     /// An emote asked for while walking, casting or crafting. The player stops and asks again.
     /// </summary>

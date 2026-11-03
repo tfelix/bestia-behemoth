@@ -5,6 +5,8 @@ import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.economy.PersonalPrice
+import net.bestia.zone.economy.TraderStanding
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.honor.ecs.Honor
@@ -30,7 +32,7 @@ class HonorService(
   private val sites: SettlementSiteIndex,
   private val clock: Clock = Clock.systemUTC(),
   private val outcry: WitnessOutcry? = null,
-) {
+) : TraderStanding {
 
   private val rules = catalog.rules
 
@@ -110,6 +112,30 @@ class HonorService(
     val grudge = townsperson?.let { localValue(masterId, Scope.GRUDGE, it, rules.grudge) } ?: 0
 
     return global + town + grudge
+  }
+
+  override val reads: ComponentClassSet
+    get() {
+      return PRICE_READS
+    }
+
+  /** The formula is the one in pvp.md: `-5/3 * honor` percent below 0. */
+  override fun priceFor(world: World, trader: EntityId, settlement: Int, merchant: EntityId): PersonalPrice? {
+    val townsperson = world.get(merchant, Townsfolk::class)?.identity
+    val honor = combined(world, trader, settlement, townsperson)
+    val prices = rules.prices
+
+    return when {
+      honor < rules.hostileBelow -> null
+      honor < 0 -> {
+        val markup = -5.0 / 3.0 * honor / 100.0
+        PersonalPrice(buyFactor = 1.0 + markup, sellFactor = 1.0 - markup)
+      }
+      else -> {
+        val discount = ((honor - prices.discountAbove) * prices.discountPerHonor).coerceIn(0.0, prices.maxDiscount)
+        PersonalPrice(buyFactor = 1.0 - discount, sellFactor = 1.0)
+      }
+    }
   }
 
   fun settlementValue(masterId: Long, settlement: Int): Int {
@@ -214,5 +240,8 @@ class HonorService(
       Master::class, Account::class, StatusEffects::class, Townsfolk::class, Position::class, Dead::class,
     )
     val WRITES: ComponentClassSet = setOf(Honor::class)
+
+    /** What [priceFor] reads. */
+    val PRICE_READS: ComponentClassSet = setOf(Honor::class, Master::class, Townsfolk::class)
   }
 }
