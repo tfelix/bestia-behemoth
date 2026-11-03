@@ -1,14 +1,15 @@
-[gd_scene load_steps=4 format=3 uid="uid://cq1eqwin0001"]
+[gd_scene load_steps=5 format=3 uid="uid://cq1eqwin0001"]
 
 [ext_resource type="Script" path="res://Game/UI/Equipment/equipment.gd" id="1_equip"]
 [ext_resource type="PackedScene" uid="uid://cq1eqslot0001" path="res://Game/UI/Equipment/EquipSlot/EquipSlot.tscn" id="2_eqslot"]
+[ext_resource type="PackedScene" uid="uid://cq1quiverslot1" path="res://Game/UI/Equipment/QuiverSlot/QuiverSlot.tscn" id="3_quiver"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eqbg"]
 bg_color = Color(0.11, 0.11, 0.13, 1)
 
 [node name="Equipment" type="PanelContainer"]
 offset_right = 340.0
-offset_bottom = 380.0
+offset_bottom = 470.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_eqbg")
 script = ExtResource("1_equip")
 
@@ -19,41 +20,45 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="Columns" type="HBoxContainer" parent="MarginContainer"]
+[node name="Layout" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Columns" type="HBoxContainer" parent="MarginContainer/Layout"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="LeftColumn" type="VBoxContainer" parent="MarginContainer/Columns"]
+[node name="LeftColumn" type="VBoxContainer" parent="MarginContainer/Layout/Columns"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="HeadUpper" parent="MarginContainer/Columns/LeftColumn" instance=ExtResource("2_eqslot")]
+[node name="HeadUpper" parent="MarginContainer/Layout/Columns/LeftColumn" instance=ExtResource("2_eqslot")]
 layout_mode = 2
 slot = 0
 
-[node name="HeadMid" parent="MarginContainer/Columns/LeftColumn" instance=ExtResource("2_eqslot")]
+[node name="HeadMid" parent="MarginContainer/Layout/Columns/LeftColumn" instance=ExtResource("2_eqslot")]
 layout_mode = 2
 slot = 1
 
-[node name="Armor" parent="MarginContainer/Columns/LeftColumn" instance=ExtResource("2_eqslot")]
+[node name="Armor" parent="MarginContainer/Layout/Columns/LeftColumn" instance=ExtResource("2_eqslot")]
 layout_mode = 2
 slot = 2
 
-[node name="Garment" parent="MarginContainer/Columns/LeftColumn" instance=ExtResource("2_eqslot")]
+[node name="Garment" parent="MarginContainer/Layout/Columns/LeftColumn" instance=ExtResource("2_eqslot")]
 layout_mode = 2
 slot = 3
 
-[node name="Center" type="VBoxContainer" parent="MarginContainer/Columns"]
+[node name="Center" type="VBoxContainer" parent="MarginContainer/Layout/Columns"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="Title" type="Label" parent="MarginContainer/Columns/Center"]
+[node name="Title" type="Label" parent="MarginContainer/Layout/Columns/Center"]
 layout_mode = 2
 text = "Equipment"
 horizontal_alignment = 1
 
-[node name="Hint" type="Label" parent="MarginContainer/Columns/Center"]
+[node name="Hint" type="Label" parent="MarginContainer/Layout/Columns/Center"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_font_sizes/font_size = 11
@@ -64,31 +69,67 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="LightSource" parent="MarginContainer/Columns/Center" instance=ExtResource("2_eqslot")]
+[node name="LightSource" parent="MarginContainer/Layout/Columns/Center" instance=ExtResource("2_eqslot")]
 layout_mode = 2
 size_flags_horizontal = 4
 slot = 9
 
-[node name="RightColumn" type="VBoxContainer" parent="MarginContainer/Columns"]
+[node name="RightColumn" type="VBoxContainer" parent="MarginContainer/Layout/Columns"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="RightHand" parent="MarginContainer/Columns/RightColumn" instance=ExtResource("2_eqslot")]
+[node name="RightHand" parent="MarginContainer/Layout/Columns/RightColumn" instance=ExtResource("2_eqslot")]
 layout_mode = 2
 slot = 5
 
-[node name="LeftHand" parent="MarginContainer/Columns/RightColumn" instance=ExtResource("2_eqslot")]
+[node name="LeftHand" parent="MarginContainer/Layout/Columns/RightColumn" instance=ExtResource("2_eqslot")]
 layout_mode = 2
 slot = 6
 
-[node name="Footgear" parent="MarginContainer/Columns/RightColumn" instance=ExtResource("2_eqslot")]
+[node name="Footgear" parent="MarginContainer/Layout/Columns/RightColumn" instance=ExtResource("2_eqslot")]
 layout_mode = 2
 slot = 4
 
-[node name="Accessory1" parent="MarginContainer/Columns/RightColumn" instance=ExtResource("2_eqslot")]
+[node name="Accessory1" parent="MarginContainer/Layout/Columns/RightColumn" instance=ExtResource("2_eqslot")]
 layout_mode = 2
 slot = 7
 
-[node name="Accessory2" parent="MarginContainer/Columns/RightColumn" instance=ExtResource("2_eqslot")]
+[node name="Accessory2" parent="MarginContainer/Layout/Columns/RightColumn" instance=ExtResource("2_eqslot")]
 layout_mode = 2
 slot = 8
+
+[node name="Quiver" type="VBoxContainer" parent="MarginContainer/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="MarginContainer/Layout/Quiver"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "Quiver - shot from the left"
+horizontal_alignment = 1
+
+[node name="Slots" type="HBoxContainer" parent="MarginContainer/Layout/Quiver"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="Quiver1" parent="MarginContainer/Layout/Quiver/Slots" instance=ExtResource("3_quiver")]
+layout_mode = 2
+index = 0
+
+[node name="Quiver2" parent="MarginContainer/Layout/Quiver/Slots" instance=ExtResource("3_quiver")]
+layout_mode = 2
+index = 1
+
+[node name="Quiver3" parent="MarginContainer/Layout/Quiver/Slots" instance=ExtResource("3_quiver")]
+layout_mode = 2
+index = 2
+
+[node name="Quiver4" parent="MarginContainer/Layout/Quiver/Slots" instance=ExtResource("3_quiver")]
+layout_mode = 2
+index = 3
+
+[node name="Quiver5" parent="MarginContainer/Layout/Quiver/Slots" instance=ExtResource("3_quiver")]
+layout_mode = 2
+index = 4

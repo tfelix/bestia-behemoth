@@ -91,6 +91,7 @@ func _ready() -> void:
 
 	var equipment := _equipment_win.get_content() as Equipment
 	inventory.equipment = equipment
+	equipment.inventory = inventory
 	inventory.equipment_window = _equipment_win
 	equipment.equipment_updated.connect(inventory.refresh)
 

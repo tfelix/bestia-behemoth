@@ -364,11 +364,13 @@ func _shop_value_of(held) -> int:
 
 
 ## Double-clicking an equipment item while the equipment window is open equips it into the slot the
-## item itself declares, instead of falling through to "use". Returns false when that didn't apply,
+## item itself declares, and ammo into the quiver, instead of falling through to "use". Returns false when that didn't apply,
 ## so the caller can do the normal use-item thing.
 func try_quick_equip(item: ItemResource, player_item_id: int) -> bool:
 	if equipment == null or equipment_window == null or not equipment_window.visible:
 		return false
+	if item.type == ItemResource.ItemType.AMMO:
+		return equipment.add_to_quiver(item.item_id)
 	if item.type != ItemResource.ItemType.EQUIP:
 		return false
 
@@ -620,16 +622,14 @@ func first_held(item_id: int) -> int:
 	return 0
 
 
+## Summed over every pile, since copies made by different crafters do not merge.
 func get_item_count(item_id: int) -> int:
-	if !_items.has(selected_entity_id):
-		return 0
-	
-	var selected_entity_items = _items[selected_entity_id]
-
-	for inv_item in selected_entity_items:
+	var count := 0
+	for inv_item in _items.get(selected_entity_id, []):
 		if inv_item.item.item_id == item_id:
-			return inv_item.amount
-	return 0
+			count += inv_item.amount
+
+	return count
 
 
 func add_item(item_resource: ItemResource, amount: int) -> void:

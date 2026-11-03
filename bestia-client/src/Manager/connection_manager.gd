@@ -106,6 +106,7 @@ var TransferItemCMSG = load("res://Bnet/Message/Inventory/TransferItemCMSG.cs")
 var LootItemCMSG = load("res://Bnet/Message/Inventory/LootItemCMSG.cs")
 var EquipItemCMSG = load("res://Bnet/Message/Inventory/EquipItemCMSG.cs")
 var UnequipItemCMSG = load("res://Bnet/Message/Inventory/UnequipItemCMSG.cs")
+var SetQuiverCMSG = load("res://Bnet/Message/Inventory/SetQuiverCMSG.cs")
 var RequestLogoutCMSG = load("res://Bnet/Message/System/RequestLogoutCMSG.cs")
 var RespawnCMSG = load("res://Bnet/Message/System/RespawnCMSG.cs")
 var InteractCMSG = load("res://Bnet/Message/System/InteractCMSG.cs")
@@ -631,6 +632,16 @@ func unequip_item(slot: int) -> void:
 	assert(is_ready_to_send())
 	var msg = UnequipItemCMSG.new()
 	msg.Slot = slot
+	_socket.SendMessage(msg)
+
+
+## Points the quiver at [param item_ids], shot in this order. The server answers with a fresh
+## EquipmentComponentSMSG either way.
+func set_quiver(item_ids: Array[int]) -> void:
+	assert(is_ready_to_send())
+	var msg = SetQuiverCMSG.new()
+	for item_id in item_ids:
+		msg.ItemIds.append(item_id)
 	_socket.SendMessage(msg)
 
 
