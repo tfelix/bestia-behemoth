@@ -3,8 +3,10 @@ package net.bestia.zone.control.net
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.battle.ActionGuard
 import net.bestia.zone.battle.ecs.attack.AttackCancelService
 import net.bestia.zone.battle.ecs.skill.CastCancelService
+import net.bestia.zone.battle.status.ActionLock
 import net.bestia.zone.control.ClientLeg
 import net.bestia.zone.control.MoveRequestRateLimit
 import net.bestia.zone.ecs.core.World
@@ -37,6 +39,7 @@ class MoveEntityHandler(
   private val castCancelService: CastCancelService,
   private val attackCancelService: AttackCancelService,
   private val deadActionGuard: DeadActionGuard,
+  private val actionGuard: ActionGuard,
   private val rateLimit: MoveRequestRateLimit,
   private val journeys: JourneyService,
   private val clientLeg: ClientLeg,
@@ -59,6 +62,9 @@ class MoveEntityHandler(
 
     // The body stands still while a teleport's vanish plays; walking would only be thrown away on landing.
     if (world.has(id, Teleporting::class)) return true
+
+    // Before the cancels too: a stunned body keeps the cast its stun already broke off, and no more.
+    if (actionGuard.refuses(world, id, ActionLock.MOVE)) return true
 
     cancelWhatMovingInterrupts(world, msg.playerId, id)
 

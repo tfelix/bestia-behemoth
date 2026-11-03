@@ -1,6 +1,8 @@
 package net.bestia.zone.casting
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.battle.ActionGuard
+import net.bestia.zone.battle.status.ActionLock
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.persistence.Skill
@@ -32,6 +34,7 @@ class SkillExecutionService(
   private val skillStrategyFactory: SkillStrategyFactory,
   private val skillContextFactory: SkillContextFactory,
   private val cooldowns: SkillCooldownService,
+  private val actionGuard: ActionGuard = ActionGuard(),
 ) {
 
   /** Skills never change after the import, and resolution runs on the tick, so they are read once at boot. */
@@ -79,6 +82,12 @@ class SkillExecutionService(
     val skill = skillOf(skillId)
     if (skill == null) {
       LOG.warn { "Skill $skillId activated by $casterId is not in the catalogue, ignoring" }
+      return
+    }
+
+    // A cast that started before a stun is cancelled by it; this catches the AI, which casts without a bar.
+    if (actionGuard.refuses(world, casterId, ActionLock.CAST)) {
+      LOG.debug { "Skill $skillId by $casterId fizzled: the caster may not cast now" }
       return
     }
 

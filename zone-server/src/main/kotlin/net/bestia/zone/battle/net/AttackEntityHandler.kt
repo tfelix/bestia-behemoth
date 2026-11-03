@@ -1,10 +1,12 @@
 package net.bestia.zone.battle.net
 
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
+import net.bestia.zone.battle.ActionGuard
 import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.battle.attack.AttackOutcome
 import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.ecs.attack.AttackTarget
+import net.bestia.zone.battle.status.ActionLock
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
@@ -35,6 +37,7 @@ class AttackEntityHandler(
   private val attackExecutionService: AttackExecutionService,
   private val logoutCancelService: LogoutCancelService,
   private val deadActionGuard: DeadActionGuard,
+  private val actionGuard: ActionGuard,
   private val propPromotion: CombatTargetPromotion,
   private val outMessageProcessor: OutMessageProcessor,
 ) : TickMessageHandler<AttackEntityCMSG> {
@@ -48,6 +51,10 @@ class AttackEntityHandler(
     // AttackExecutionService refuses a dead attacker anyway; caught here too so a corpse does not
     // cancel its own pending logout on the way to being refused.
     if (deadActionGuard.refuses(world, attackerId, "attack")) {
+      return true
+    }
+
+    if (actionGuard.refuses(world, attackerId, ActionLock.ATTACK)) {
       return true
     }
 

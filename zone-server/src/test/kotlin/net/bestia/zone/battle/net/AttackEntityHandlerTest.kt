@@ -4,6 +4,7 @@ import net.bestia.zone.battle.attack.BasicAttackResolver
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.battle.ActionGuard
 import net.bestia.zone.battle.damage.ownByPlayer
 import net.bestia.zone.battle.damage.wardPlayer
 import net.bestia.zone.battle.ecs.attack.AttackTarget
@@ -58,6 +59,7 @@ class AttackEntityHandlerTest {
       ),
       logoutCancelService = LogoutCancelService(),
       deadActionGuard = DeadActionGuard(),
+      actionGuard = ActionGuard(),
       propPromotion = PropPromotionService(mockk(relaxed = true)),
       outMessageProcessor = messages,
     )

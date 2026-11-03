@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.battle.status.ActionLock
 import net.bestia.zone.battle.status.HarmShield
 import net.bestia.zone.battle.status.StackBehavior
 import net.bestia.zone.battle.status.StatusEffectPolarity
@@ -38,7 +39,8 @@ class StatusEffects(
     isSyncedToClient: Boolean,
     shield: HarmShield? = null,
     polarity: StatusEffectPolarity = StatusEffectPolarity.NEUTRAL,
-    showsCountdown: Boolean = true
+    showsCountdown: Boolean = true,
+    locks: Set<ActionLock> = emptySet()
   ): Change {
     fun newInstance() = ActiveStatusEffect(
       definitionId = definitionId,
@@ -48,7 +50,8 @@ class StatusEffects(
       isSyncedToClient = isSyncedToClient,
       shield = shield,
       polarity = polarity,
-      showsCountdown = showsCountdown
+      showsCountdown = showsCountdown,
+      locks = locks
     )
 
     val existing = activeEffects.firstOrNull { it.definitionId == definitionId }
@@ -86,6 +89,10 @@ class StatusEffects(
   }
 
   fun hasEffect(definitionId: Long): Boolean = activeEffects.any { it.definitionId == definitionId }
+
+  fun isLocked(lock: ActionLock): Boolean {
+    return activeEffects.any { lock in it.locks }
+  }
 
   fun hasShield(shield: HarmShield): Boolean {
     return activeEffects.any { it.shield == shield }

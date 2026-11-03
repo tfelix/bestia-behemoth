@@ -2,6 +2,8 @@ package net.bestia.zone.item.net
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
+import net.bestia.zone.battle.ActionGuard
+import net.bestia.zone.battle.status.ActionLock
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.item.ecs.Inventory
@@ -29,6 +31,7 @@ class UseItemHandler(
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val deadActionGuard: DeadActionGuard,
+  private val actionGuard: ActionGuard,
   private val noviceGate: NoviceGate,
   private val outMessageProcessor: OutMessageProcessor,
   private val world: WorldView
@@ -42,6 +45,10 @@ class UseItemHandler(
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     if (world.read { deadActionGuard.refuses(this, activeEntityId, "use an item") }) {
+      return true
+    }
+
+    if (world.read { actionGuard.refuses(this, activeEntityId, ActionLock.ITEM) }) {
       return true
     }
 

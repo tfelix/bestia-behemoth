@@ -2,6 +2,7 @@ package net.bestia.zone.battle.attack
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.battle.ActionGuard
 import net.bestia.zone.battle.BattleContextFactory
 import net.bestia.zone.battle.ammo.AmmoSupply
 import net.bestia.zone.battle.ammo.Ammunition
@@ -11,6 +12,7 @@ import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.Miss
+import net.bestia.zone.battle.status.ActionLock
 import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.battle.ecs.attack.AttackDelay
 import net.bestia.zone.entity.ecs.Dead
@@ -52,6 +54,7 @@ class AttackExecutionService(
   private val outMessageProcessor: OutMessageProcessor,
   private val basicAttacks: BasicAttackResolver,
   private val ammoSupply: AmmoSupply,
+  private val actionGuard: ActionGuard = ActionGuard(),
 ) {
 
   /** [READS] plus what spending an arrow reads, which only the item slice can name. */
@@ -86,6 +89,11 @@ class AttackExecutionService(
     if (world.has(attackerId, Dead::class) || world.has(targetId, Dead::class)) {
       LOG.debug { "Basic attack by $attackerId at $targetId fizzled: one of them is dead" }
       return AttackOutcome.IMPOSSIBLE
+    }
+
+    // Not ready rather than refused: a standing attack order resumes once the stun wears off.
+    if (actionGuard.refuses(world, attackerId, ActionLock.ATTACK)) {
+      return AttackOutcome.NOT_READY
     }
 
     // Before the context is built, and silently: with a standing attack order this is the answer on almost

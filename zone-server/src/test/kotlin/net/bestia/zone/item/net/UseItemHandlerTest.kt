@@ -3,6 +3,7 @@ package net.bestia.zone.item.net
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import net.bestia.zone.battle.ActionGuard
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.session.ConnectionInfoService
@@ -138,6 +139,7 @@ class UseItemHandlerTest {
       inventoryService = inventoryService,
       asyncJobExecutor = inlineJobs,
       deadActionGuard = DeadActionGuard(),
+      actionGuard = ActionGuard(),
       noviceGate = NoviceGate(skillTree),
       outMessageProcessor = messages,
       world = world
