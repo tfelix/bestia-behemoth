@@ -15,6 +15,8 @@ class_name WidgetWindow
 
 var _content_control: Control
 var _dragging: bool = false
+## Until the player drags the window somewhere, it stays centred on whatever size it settles at.
+var _placed_by_player: bool = false
 
 
 func _ready() -> void:
@@ -28,23 +30,27 @@ func _ready() -> void:
 	_close_button.pressed.connect(hide)
 
 	var content_scn = content.instantiate()
+	var authored_size := Vector2.ZERO
+	if content_scn is Control:
+		authored_size = content_scn.size
 	add_child(content_scn)
 	if content_scn is Control:
 		_content_control = content_scn
-		# Mirror the content's own rect, not its minimum size: containers
-		# like ScrollContainer deliberately don't report their scrollable
-		# content's minimum size, so relying on minimum size collapses
-		# the widget instead of matching the content's authored size.
-		_content_control.resized.connect(_update_size_to_content)
-	_update_size_to_content()
-	_center_in_viewport()
+		# The content's authored rect is the floor, not just its minimum size: containers like ScrollContainer
+		# deliberately don't report their scrollable content's minimum size, so relying on minimum size alone
+		# collapses the widget instead of matching the content's authored size.
+		_content_control.custom_minimum_size = authored_size.ceil()
+	minimum_size_changed.connect(_fit_to_content)
+	_fit_to_content()
 
 
-func _update_size_to_content() -> void:
-	if _content_control == null:
-		return
-	_content_control.custom_minimum_size = _content_control.size.ceil()
+## Follows the minimum size both ways. Keeping the largest rect the content ever had kept the one from its first
+## layout, where an autowrapped Label is measured at zero width and asks for a line per glyph: the party window
+## came up a screen tall.
+func _fit_to_content() -> void:
 	size = get_combined_minimum_size()
+	if not _placed_by_player:
+		_center_in_viewport()
 
 
 func _center_in_viewport() -> void:
@@ -61,6 +67,7 @@ func _on_title_bar_gui_input(event: InputEvent) -> void:
 		_dragging = event.pressed
 	elif event is InputEventMouseMotion and _dragging:
 		position += event.relative
+		_placed_by_player = true
 
 
 func _process(_delta: float) -> void:

@@ -16,6 +16,8 @@ signal membership_changed(in_party: bool)
 
 const _EXP_EACH_TAKE := 0
 const _EXP_EVEN_SHARE := 1
+## The fields and buttons, at the size of the member names rather than the theme's 16.
+const _FIELD_FONT_SIZE := 13
 
 ## Mirrors BasicSkillGate.PARTY_RANK: founding a party needs the master's Basic Skill this high. Joining one does not.
 const _FOUND_PARTY_BASIC_SKILL_LEVEL := 5
@@ -52,7 +54,7 @@ var _leave: Button
 
 func _ready() -> void:
 	add_theme_stylebox_override("panel", UiStyle.flat(UiStyle.PANEL_BG, 0, 0))
-	custom_minimum_size = Vector2(320, 380)
+	custom_minimum_size = Vector2(300, 340)
 	_build()
 	_show_no_party()
 
@@ -81,12 +83,14 @@ func _build() -> void:
 	_create_name = LineEdit.new()
 	_create_name.placeholder_text = tr("PARTY_NAME_PLACEHOLDER")
 	_create_name.max_length = 20
+	_create_name.add_theme_font_size_override("font_size", _FIELD_FONT_SIZE)
 	_create_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_create_name.text_submitted.connect(func(_text: String) -> void: _create_party())
 	create_row.add_child(_create_name)
 	_create = Button.new()
 	_create.text = tr("PARTY_CREATE")
 	_create.theme_type_variation = &"PrimaryButton"
+	_create.add_theme_font_size_override("font_size", _FIELD_FONT_SIZE)
 	_create.pressed.connect(_create_party)
 	create_row.add_child(_create)
 	no_party.add_child(create_row)
@@ -131,10 +135,12 @@ func _build() -> void:
 	_invite_name = LineEdit.new()
 	_invite_name.placeholder_text = tr("PARTY_INVITE_PLACEHOLDER")
 	_invite_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_invite_name.add_theme_font_size_override("font_size", _FIELD_FONT_SIZE)
 	_invite_name.text_submitted.connect(func(_text: String) -> void: _invite())
 	invite_row.add_child(_invite_name)
 	var invite := Button.new()
 	invite.text = tr("PARTY_INVITE")
+	invite.add_theme_font_size_override("font_size", _FIELD_FONT_SIZE)
 	invite.pressed.connect(_invite)
 	invite_row.add_child(invite)
 	in_party.add_child(invite_row)
@@ -144,6 +150,7 @@ func _build() -> void:
 	footer.add_child(UiStyle.spacer())
 	_leave = Button.new()
 	_leave.pressed.connect(ConnectionManager.leave_party)
+	_leave.add_theme_font_size_override("font_size", _FIELD_FONT_SIZE)
 	footer.add_child(_leave)
 	in_party.add_child(footer)
 

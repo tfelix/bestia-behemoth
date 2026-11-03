@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://Game/UI/Party/party.gd" id="1_party"]
 
 [node name="Party" type="PanelContainer"]
-custom_minimum_size = Vector2(320, 380)
-offset_right = 320.0
-offset_bottom = 380.0
+custom_minimum_size = Vector2(300, 340)
+offset_right = 300.0
+offset_bottom = 340.0
 script = ExtResource("1_party")
