@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.status.scripts
 
+import net.bestia.zone.item.ecs.itemTemplatesOf
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.Size
 import net.bestia.zone.battle.StatusEffectService
@@ -39,7 +40,7 @@ class BlessingStatusEffectTest {
       StatusValueRecalcSystem(
         catalogue,
         scripts,
-        EquipmentStatusContributor(EquipmentScriptRegistry(emptyList()), ItemStatCatalog()),
+        EquipmentStatusContributor(EquipmentScriptRegistry(emptyList()), ItemStatCatalog(), itemTemplatesOf()),
         PassiveSkillScriptRegistry(emptyList()),
         ConditionValueCalculator(),
         CombatValuesPool()

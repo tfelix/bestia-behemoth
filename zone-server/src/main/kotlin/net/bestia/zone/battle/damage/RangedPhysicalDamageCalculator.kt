@@ -26,11 +26,10 @@ class RangedPhysicalDamageCalculator(
     return vars.attackRangedBonus + vars.attackPhysicalBonus
   }
 
-  /**
-   * Zero until ammunition is a thing one can carry. `RangedPhysicalAttackStrategy` does not check for it either,
-   * so an archer currently shoots for free - the arrow, when it exists, belongs in both places at once.
-   */
-  override fun getAmmoAttack(battleCtx: EntityBattleContext): Float = 0f
+  /** Zero for a mob's innate shot, which spends nothing. */
+  override fun getAmmoAttack(battleCtx: EntityBattleContext): Float {
+    return battleCtx.usedAttack.ammunition?.attack?.toFloat() ?: 0f
+  }
 
   /**
    * `SoftDEF + VIT/2 + STR/6`: the shared attribute defence, plus the extra that armour gives against something

@@ -3,7 +3,9 @@ package net.bestia.zone.battle
 data class Weapon(
   val atk: Int,
   val matk: Int,
-  val upgradeLevel: Int
+  val upgradeLevel: Int,
+  /** Null for anything swung rather than shot. */
+  val ranged: RangedWeapon? = null
 ) {
 
   /**

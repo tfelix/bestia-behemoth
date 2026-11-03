@@ -2,7 +2,7 @@ package net.bestia.zone.battle.net
 
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.battle.attack.AttackExecutionService
-import net.bestia.zone.battle.attack.BattleAttack
+import net.bestia.zone.battle.attack.AttackOutcome
 import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.ecs.attack.AttackTarget
 import net.bestia.zone.entity.ecs.DeadActionGuard
@@ -77,9 +77,11 @@ class AttackEntityHandler(
       // Swung here as well as left to AttackSystem so the hit the player is watching lands on this message
       // rather than a tick later. The attack delay makes the two agree: whichever swings first arms it, and
       // clicking faster changes nothing.
-      // TODO Take the weapon and its element off the attacker once an equipment system exists; until then
-      //  everyone swings the bare-handed attack, the same one BasicAttack gives a mob.
-      attackExecutionService.attack(this, id, msg.targetEntityId, BattleAttack.getBasicMeleeAttack())
+      // An empty quiver is answered once, here, rather than again by AttackSystem on the next tick.
+      val outcome = attackExecutionService.attackWithHeldWeapon(this, id, msg.targetEntityId)
+      if (outcome == AttackOutcome.OUT_OF_AMMO) {
+        remove(id, AttackTarget::class)
+      }
     }
 
     return true

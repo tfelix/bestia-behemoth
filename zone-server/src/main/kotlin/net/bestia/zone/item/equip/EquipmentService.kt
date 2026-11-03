@@ -2,6 +2,7 @@ package net.bestia.zone.item.equip
 
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.persistence.Item
 import org.springframework.stereotype.Service
 
@@ -22,7 +23,9 @@ import org.springframework.stereotype.Service
  * concerns and is directly unit-testable.
  */
 @Service
-class EquipmentService {
+class EquipmentService(
+  private val templates: ItemTemplateRegistry
+) {
 
   enum class Denial {
     /** The wearer physically has no such slot (bestia species mask). */
@@ -41,7 +44,10 @@ class EquipmentService {
     LEVEL_TOO_LOW,
 
     /** Novice-only gear on a wearer who has invested outside the Novice tree. */
-    NOVICE_ONLY
+    NOVICE_ONLY,
+
+    /** A two-handed weapon and something in the left hand at once. */
+    HANDS_FULL
   }
 
   /**
@@ -82,7 +88,22 @@ class EquipmentService {
       return Denial.ITEM_NOT_FOUND
     }
 
+    if (wouldOverfillHands(equipment, item, slot)) {
+      return Denial.HANDS_FULL
+    }
+
     return checkStillWearable(item, itemLevel, wearerLevel, wearerIsNovice)
+  }
+
+  /** Refused rather than taking the other hand off, so nothing leaves a slot the player did not touch. */
+  private fun wouldOverfillHands(equipment: Equipment, item: Item, slot: EquipmentSlot): Boolean {
+    if (item.twoHanded) {
+      return equipment.get(EquipmentSlot.LEFT_HAND) != null
+    }
+
+    val rightHand = equipment.get(EquipmentSlot.RIGHT_HAND) ?: return false
+
+    return slot == EquipmentSlot.LEFT_HAND && templates.templateOf(rightHand.itemId)?.twoHanded == true
   }
 
   /**

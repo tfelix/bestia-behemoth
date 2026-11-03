@@ -25,16 +25,17 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiptZXNzYWdlcy9jb21wb25lbnQvY29tYmF0X3N0YXRzX3Ntc2cucHJvdG8S",
-            "BGJuZXQivgEKD0NvbWJhdFN0YXRzU01TRxILCgNhdGsYAiABKAUSEgoKd2Vh",
+            "BGJuZXQi1AEKD0NvbWJhdFN0YXRzU01TRxILCgNhdGsYAiABKAUSEgoKd2Vh",
             "cG9uX2F0axgDIAEoBRIMCgRtYXRrGAQgASgFEhMKC3dlYXBvbl9tYXRrGAUg",
             "ASgFEgsKA2hpdBgGIAEoBRIMCgRmbGVlGAcgASgFEgwKBGNyaXQYCCABKAUS",
             "FAoMc29mdF9kZWZlbnNlGAkgASgFEhQKDGhhcmRfZGVmZW5zZRgKIAEoBRIM",
-            "CgRhc3BkGAsgASgFSgQIARACQi0KFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IU",
-            "Q29tYmF0U3RhdHNTTVNHUHJvdG9iBnByb3RvMw=="));
+            "CgRhc3BkGAsgASgFEhQKDGF0dGFja19yYW5nZRgMIAEoBUoECAEQAkItChVu",
+            "ZXQuYmVzdGlhLmJuZXQucHJvdG9CFENvbWJhdFN0YXRzU01TR1Byb3RvYgZw",
+            "cm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CombatStatsSMSG), global::Bnet.CombatStatsSMSG.Parser, new[]{ "Atk", "WeaponAtk", "Matk", "WeaponMatk", "Hit", "Flee", "Crit", "SoftDefense", "HardDefense", "Aspd" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CombatStatsSMSG), global::Bnet.CombatStatsSMSG.Parser, new[]{ "Atk", "WeaponAtk", "Matk", "WeaponMatk", "Hit", "Flee", "Crit", "SoftDefense", "HardDefense", "Aspd", "AttackRange" }, null, null, null, null)
           }));
     }
     #endregion
@@ -96,6 +97,7 @@ namespace Bnet {
       softDefense_ = other.softDefense_;
       hardDefense_ = other.hardDefense_;
       aspd_ = other.aspd_;
+      attackRange_ = other.attackRange_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -231,6 +233,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "attack_range" field.</summary>
+    public const int AttackRangeFieldNumber = 12;
+    private int attackRange_;
+    /// <summary>
+    /// Tiles the basic attack reaches: 1 for a swing, the weapon's range for a shot. The client walks this close.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int AttackRange {
+      get { return attackRange_; }
+      set {
+        attackRange_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -256,6 +273,7 @@ namespace Bnet {
       if (SoftDefense != other.SoftDefense) return false;
       if (HardDefense != other.HardDefense) return false;
       if (Aspd != other.Aspd) return false;
+      if (AttackRange != other.AttackRange) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -273,6 +291,7 @@ namespace Bnet {
       if (SoftDefense != 0) hash ^= SoftDefense.GetHashCode();
       if (HardDefense != 0) hash ^= HardDefense.GetHashCode();
       if (Aspd != 0) hash ^= Aspd.GetHashCode();
+      if (AttackRange != 0) hash ^= AttackRange.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -331,6 +350,10 @@ namespace Bnet {
         output.WriteRawTag(88);
         output.WriteInt32(Aspd);
       }
+      if (AttackRange != 0) {
+        output.WriteRawTag(96);
+        output.WriteInt32(AttackRange);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -381,6 +404,10 @@ namespace Bnet {
         output.WriteRawTag(88);
         output.WriteInt32(Aspd);
       }
+      if (AttackRange != 0) {
+        output.WriteRawTag(96);
+        output.WriteInt32(AttackRange);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -420,6 +447,9 @@ namespace Bnet {
       }
       if (Aspd != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Aspd);
+      }
+      if (AttackRange != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(AttackRange);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -462,6 +492,9 @@ namespace Bnet {
       }
       if (other.Aspd != 0) {
         Aspd = other.Aspd;
+      }
+      if (other.AttackRange != 0) {
+        AttackRange = other.AttackRange;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -522,6 +555,10 @@ namespace Bnet {
             Aspd = input.ReadInt32();
             break;
           }
+          case 96: {
+            AttackRange = input.ReadInt32();
+            break;
+          }
         }
       }
     #endif
@@ -579,6 +616,10 @@ namespace Bnet {
           }
           case 88: {
             Aspd = input.ReadInt32();
+            break;
+          }
+          case 96: {
+            AttackRange = input.ReadInt32();
             break;
           }
         }

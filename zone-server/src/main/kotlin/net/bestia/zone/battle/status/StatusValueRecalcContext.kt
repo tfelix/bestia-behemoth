@@ -1,6 +1,7 @@
 package net.bestia.zone.battle.status
 
 import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.RangedWeapon
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
 
 /**
@@ -76,6 +77,8 @@ class StatusValueRecalcContext(
 
   /** Refinement of the weapon in hand. It scales the weapon term of the damage formula, not the total. */
   var weaponUpgradeLevel: Int = 0
+
+  var rangedWeapon: RangedWeapon? = null
 
   var hpRegen: RegenModifier = RegenModifier()
     private set

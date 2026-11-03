@@ -1,6 +1,7 @@
 package net.bestia.zone.item.ecs
 
 import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.RangedWeapon
 import net.bestia.zone.battle.ammo.AmmoType
 import net.bestia.zone.item.material.ItemMaterial
 import net.bestia.zone.item.persistence.Item
@@ -33,10 +34,22 @@ class ItemTemplateRegistry(
     val type: Item.ItemType = Item.ItemType.ETC,
     val ammoType: AmmoType? = null,
     val element: Element? = null,
+    val attackRange: Int? = null,
+    val twoHanded: Boolean = false,
+    val script: String? = null,
   ) {
     val isAmmo: Boolean
       get() {
         return type == Item.ItemType.AMMO
+      }
+
+    val rangedWeapon: RangedWeapon?
+      get() {
+        if (isAmmo || ammoType == null || attackRange == null) {
+          return null
+        }
+
+        return RangedWeapon(range = attackRange.toLong(), ammoType = ammoType)
       }
   }
 
@@ -44,7 +57,8 @@ class ItemTemplateRegistry(
   private val byItemId: Map<Long, Template> by lazy {
     itemRepository.findAll().associate {
       it.id to Template(
-        it.id, it.baseLevel, it.weight, it.stackable, it.maxDurability, it.material, it.type, it.ammoType, it.element
+        it.id, it.baseLevel, it.weight, it.stackable, it.maxDurability, it.material, it.type, it.ammoType, it.element,
+        it.attackRange, it.twoHanded, it.script
       )
     }
   }

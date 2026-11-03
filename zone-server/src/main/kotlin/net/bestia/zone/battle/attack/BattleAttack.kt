@@ -2,6 +2,8 @@ package net.bestia.zone.battle.attack
 
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ElementModifier
+import net.bestia.zone.battle.RangedWeapon
+import net.bestia.zone.battle.ammo.Ammunition
 import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.skill.SkillArchetype
 import net.bestia.zone.skill.persistence.Skill
@@ -48,6 +50,9 @@ data class BattleAttack(
 
   /** The skill's attack coefficient; 1 for a basic attack. */
   val power: Float = 1f,
+
+  /** What a shot from a ranged weapon spends. Null for everything else, mobs' innate shots included. */
+  val ammunition: Ammunition? = null,
 ) {
 
   init {
@@ -68,7 +73,7 @@ data class BattleAttack(
     ): BattleAttack = BattleAttack(
       strength = 5,
       manaCost = 0,
-      range = 1,
+      range = MELEE_REACH,
       attackType = AttackType.MELEE_PHYSICAL,
       needsLineOfSight = false,
       baseAttackMotionMs = baseAttackMotionMs,
@@ -95,7 +100,17 @@ data class BattleAttack(
       level = 1
     )
 
+    const val MELEE_REACH = 1L
+
     const val BASIC_RANGED_REACH = 6L
+
+    /** A shot from a held [weapon], with the element and attack of the [ammunition] it spends. */
+    fun shotWith(weapon: RangedWeapon, ammunition: Ammunition, baseAttackMotionMs: Int): BattleAttack {
+      return getBasicRangedAttack(ammunition.element, baseAttackMotionMs).copy(
+        range = weapon.range,
+        ammunition = ammunition
+      )
+    }
 
     /**
      * Projects a catalogue row for a cast at [level]. [attackType] is filled in rather than derived: the

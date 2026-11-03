@@ -2,7 +2,6 @@ package net.bestia.zone.battle.ecs.attack
 
 import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.battle.attack.AttackOutcome
-import net.bestia.zone.battle.attack.BattleAttack
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.effects.AreaEffectSystem
@@ -37,17 +36,14 @@ class AttackSystem(
    * The three prop components are `PropPromotionService`'s, read off a target being hit for the first time.
    * `PropSupportSystem`, `WorldObjectResidencySystem` and `ConstructionSystem` all write them.
    */
-  override val reads: ComponentClassSet = AttackExecutionService.READS
+  override val reads: ComponentClassSet = attackExecutionService.reads
 
   /**
    * Includes what the swing writes to the *target* and what `PropPromotionService` adds to a prop being hit
    * for the first time, not just what this touches on the attacker. `SystemScheduler.conflicts()` looks at
    * nothing but these sets, and the store being mutated does not care whose entity it belongs to.
    */
-  override val writes: ComponentClassSet = setOf(AttackTarget::class) + AttackExecutionService.WRITES
-
-  // TODO Take the weapon and its element off the attacker once an equipment system exists.
-  private val basicAttack = BattleAttack.getBasicMeleeAttack()
+  override val writes: ComponentClassSet = setOf(AttackTarget::class) + attackExecutionService.writes
 
   override fun update(world: World, deltaTime: Float) {
     world.query(AttackDelay::class).each { _ ->
@@ -66,6 +62,10 @@ class AttackSystem(
     }
   }
 
+  private companion object {
+    val GIVE_UP_ON = setOf(AttackOutcome.IMPOSSIBLE, AttackOutcome.REFUSED, AttackOutcome.OUT_OF_AMMO)
+  }
+
   /**
    * A player-owned body stays alive in the ECS sense after it dies, so `isAlive` alone would keep an order
    * pointed at a corpse forever.
@@ -77,7 +77,7 @@ class AttackSystem(
 
     // Out of range and still on the attack delay both keep the order: the player asked for this target and
     // only they, or a death, may take it away.
-    val outcome = attackExecutionService.attack(world, attackerId, targetId, basicAttack)
-    return outcome == AttackOutcome.IMPOSSIBLE || outcome == AttackOutcome.REFUSED
+    val outcome = attackExecutionService.attackWithHeldWeapon(world, attackerId, targetId)
+    return outcome in GIVE_UP_ON
   }
 }

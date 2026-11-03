@@ -1208,3 +1208,23 @@ items:
       A reed shaft with a fire-hardened point and three goose feathers.
 
       Put it in the quiver and any bow will shoot it.
+
+  # A ranged weapon names the `ammo-type` it fires and how many tiles it shoots (`attack-range`). It needs both
+  # hands. Its `attack` adds to the shot like a sword's does to a swing, on top of the arrow's.
+  - id: 97
+    item-db-name: novice_bow
+    base-level: 1
+    weight: 50
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    two-handed: true
+    ammo-type: ARROW
+    attack-range: 5
+    max-durability: 80
+    novice-only: true
+    attack: 7
+    description: |
+      A short bow of bent ash, strung with waxed gut.
+
+      Needs both hands and arrows in the quiver.

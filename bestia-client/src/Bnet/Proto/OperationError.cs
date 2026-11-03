@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqZFQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrHFQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -86,8 +86,9 @@ namespace Bnet {
             "TE9TRUQQYxISCg5TSE9QX1RPT19IRUFWWRBkEhYKElNIT1BfUFJJQ0VfQ0hB",
             "TkdFRBBlEhEKDUVNT1RFX05PVF9OT1cQZxIWChJURUxFUE9SVF9OT1RfUkVB",
             "RFkQaBIUChBURUxFUE9SVF9OT1RfTk9XEGkSFwoTVEVMRVBPUlRfTk9fTEFO",
-            "RElORxBqIgQILhAuKhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3Rp",
-            "YS5ibmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "RElORxBqEhQKEEVRVUlQX0hBTkRTX0ZVTEwQbBIWChJBVFRBQ0tfT1VUX09G",
+            "X0FNTU8QbSIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0",
+            "aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -504,6 +505,14 @@ namespace Bnet {
     /// A wing found no dry ground to land on, or no save point. It is spent and the body stays.
     /// </summary>
     [pbr::OriginalName("TELEPORT_NO_LANDING")] TeleportNoLanding = 106,
+    /// <summary>
+    /// A two-handed weapon and a left-hand item at once. The player takes one of them off first.
+    /// </summary>
+    [pbr::OriginalName("EQUIP_HANDS_FULL")] EquipHandsFull = 108,
+    /// <summary>
+    /// A shot with no ammo in the quiver that fits the weapon. The attack stops until the quiver is filled.
+    /// </summary>
+    [pbr::OriginalName("ATTACK_OUT_OF_AMMO")] AttackOutOfAmmo = 109,
   }
 
   #endregion
