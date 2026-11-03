@@ -1,7 +1,7 @@
 extends Resource
 class_name ItemResource
 
-enum ItemType {USABLE, EQUIP, ETC}
+enum ItemType {USABLE, EQUIP, ETC, AMMO}
 
 ## Stand-in for an item whose art is not authored yet. [member icon] is left unset in the .tres until
 ## then (ItemDbSyncTask never writes the field), and every read goes through [method get_icon] so an

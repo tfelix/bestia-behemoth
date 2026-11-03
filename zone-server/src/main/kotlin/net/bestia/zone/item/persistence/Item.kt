@@ -3,6 +3,9 @@ package net.bestia.zone.item.persistence
 import jakarta.persistence.*
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
+import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.ElementModifier
+import net.bestia.zone.battle.ammo.AmmoType
 import net.bestia.zone.item.equip.ArmorType
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.material.ItemMaterial
@@ -112,6 +115,18 @@ class Item(
   @Column(name = "material", nullable = false, length = 16)
   var material: ItemMaterial,
 
+  /** For [ItemType.AMMO], the kind of ammunition it is. */
+  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.VARCHAR)
+  @Column(name = "ammo_type", nullable = true, length = 16)
+  var ammoType: AmmoType? = null,
+
+  /** The element an [ItemType.AMMO] item lends the shot. Level 1 only, as for every attack element. */
+  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.VARCHAR)
+  @Column(name = "element", nullable = true, length = 16)
+  var element: Element? = null,
+
   /**
    * Long-form flavor text, English only.
    */
@@ -166,11 +181,27 @@ class Item(
     require(armorType == null || type == ItemType.EQUIP) {
       "Item $identifier is $type and must not declare an armor-type"
     }
+
+    require((type == ItemType.AMMO) == (ammoType != null)) {
+      "Item $identifier is $type: only AMMO, and every AMMO item, declares an ammo-type"
+    }
+
+    require(element == null || type == ItemType.AMMO) {
+      "Item $identifier is $type and must not declare an element"
+    }
+
+    require(element == null || ElementModifier.isLegalAttackElement(element!!)) {
+      "Item $identifier declares element $element, but only a level 1 element can be shot"
+    }
   }
 
+  /** Stored by ordinal: append, never reorder. */
   enum class ItemType {
     USABLE,
     EQUIP,
-    ETC
+    ETC,
+
+    /** Pointed at from the quiver and spent per shot, never worn. */
+    AMMO
   }
 }

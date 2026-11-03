@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.item.persistence.ItemRepository
+import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.ammo.AmmoType
 import net.bestia.zone.item.equip.ArmorType
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.material.ItemMaterial
@@ -56,6 +58,9 @@ class ItemImporterBootRunner(
     @JsonProperty("armor-type")
     val armorType: ArmorType? = null,
     val material: ItemMaterial,
+    @JsonProperty("ammo-type")
+    val ammoType: AmmoType? = null,
+    val element: Element? = null,
     val description: String? = null,
 
     /**
@@ -185,6 +190,8 @@ class ItemImporterBootRunner(
       || entity.noviceOnly != dto.noviceOnly
       || entity.armorType != dto.armorType
       || entity.material != dto.material
+      || entity.ammoType != dto.ammoType
+      || entity.element != dto.element
       || entity.description != dto.description
       || entity.stackable != stackableOf(dto, type)
 
@@ -201,6 +208,8 @@ class ItemImporterBootRunner(
     entity.noviceOnly = dto.noviceOnly
     entity.armorType = dto.armorType
     entity.material = dto.material
+    entity.ammoType = dto.ammoType
+    entity.element = dto.element
     entity.description = dto.description
     // Follows the type unless the yml overrides it - an item changed from EQUIP to ETC that kept
     // `stackable = false` would silently stop merging in the inventory.
@@ -235,6 +244,8 @@ class ItemImporterBootRunner(
       noviceOnly = dto.noviceOnly,
       armorType = dto.armorType,
       material = dto.material,
+      ammoType = dto.ammoType,
+      element = dto.element,
       description = dto.description,
       stackable = stackableOf(dto, getType(dto))
     )

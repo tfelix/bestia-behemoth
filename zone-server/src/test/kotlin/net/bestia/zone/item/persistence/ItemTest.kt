@@ -1,5 +1,7 @@
 package net.bestia.zone.item.persistence
 
+import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.ammo.AmmoType
 import net.bestia.zone.item.equip.ArmorType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -74,6 +76,42 @@ class ItemTest {
         type = Item.ItemType.ETC,
         armorType = ArmorType.CLOTH,
         material = ItemMaterial.FOOD
+      )
+    }
+  }
+
+  @Test
+  fun `AMMO without an ammo type throws`() {
+    assertThrows<IllegalArgumentException> {
+      Item(id = 4, identifier = "arrow", weight = 1, type = Item.ItemType.AMMO, material = ItemMaterial.WOOD)
+    }
+  }
+
+  @Test
+  fun `an element on anything but ammo throws`() {
+    assertThrows<IllegalArgumentException> {
+      Item(
+        id = 2,
+        identifier = "jelly",
+        weight = 1,
+        type = Item.ItemType.ETC,
+        element = Element.FIRE,
+        material = ItemMaterial.FOOD
+      )
+    }
+  }
+
+  @Test
+  fun `ammo cannot carry a level 2 element`() {
+    assertThrows<IllegalArgumentException> {
+      Item(
+        id = 4,
+        identifier = "arrow",
+        weight = 1,
+        type = Item.ItemType.AMMO,
+        ammoType = AmmoType.ARROW,
+        element = Element.FIRE_2,
+        material = ItemMaterial.WOOD
       )
     }
   }

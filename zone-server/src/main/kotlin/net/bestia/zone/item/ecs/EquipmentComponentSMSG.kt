@@ -8,7 +8,8 @@ import net.bestia.zone.message.EntitySMSG
 
 data class EquipmentComponentSMSG(
   override val entityId: Long,
-  val items: List<EquippedItem>
+  val items: List<EquippedItem>,
+  val quiverItemIds: List<Long> = emptyList()
 ) : EntitySMSG {
 
   override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
@@ -30,6 +31,7 @@ data class EquipmentComponentSMSG(
 
     val equipmentComponent = EquipmentComponentSMSGProto.EquipmentComponentSMSG.newBuilder()
       .addAllItems(protoItems)
+      .addAllQuiverItemIds(quiverItemIds.map { it.toInt() })
       .build()
 
     update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setEquipment(equipmentComponent))

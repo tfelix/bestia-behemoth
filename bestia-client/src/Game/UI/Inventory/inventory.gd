@@ -263,7 +263,7 @@ func _render_items() -> void:
 		match item.item.type:
 			ItemResource.ItemType.USABLE:
 				_usable_grid.add_child(inv_item)
-			ItemResource.ItemType.EQUIP:
+			ItemResource.ItemType.EQUIP, ItemResource.ItemType.AMMO:
 				_equip_grid.add_child(inv_item)
 			ItemResource.ItemType.ETC:
 				_etc_grid.add_child(inv_item)

@@ -326,7 +326,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     private const val DEFAULT_ARMOR_TYPE = 0
 
     /** Must mirror `net.bestia.zone.item.Item.ItemType` and `ItemResource.ItemType`. */
-    private val TYPE_ORDER = listOf("USABLE", "EQUIP", "ETC")
+    private val TYPE_ORDER = listOf("USABLE", "EQUIP", "ETC", "AMMO")
 
     /** Must mirror `net.bestia.zone.item.equip.EquipmentSlot`'s declaration order exactly. */
     private val SLOT_ORDER = listOf(
