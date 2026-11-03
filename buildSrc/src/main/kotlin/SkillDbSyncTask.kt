@@ -21,10 +21,11 @@ import java.io.File
  *
  * Only `skill_id`/`max_level`/`description_key`/`target_type`/`aoe_radius`/`cast_time`/`tree`/
  * `sub_tree`/`is_passive` are touched on a `.tres` file — every other field (icon, name, mana_cost, cooldown) is hand-authored client
- * presentation and is left alone. A new stub takes name, mana cost and cooldown from `skills.yml` when it has them. `aoe_radius` is only checked/patched
- * when `target_type` is `AOE_GROUND` - non-AOE skills never need the line at all. `cast_time` is
- * likewise only checked/patched for skills that declare a non-zero `castTime` server-side; an
- * instant-cast skill never needs the line.
+ * presentation and is left alone. A new stub takes name, mana cost and cooldown from `skills.yml` when it has them. A bestia
+ * skill ([BESTIA_SKILL_IDS]) is generated from the docs' Attack List, so its name, mana cost and cooldown are kept in step
+ * too. `aoe_radius` is only checked/patched when `target_type` is `AOE_GROUND` - non-AOE skills never need the line at
+ * all. `cast_time` is likewise only checked/patched for skills that declare a non-zero `castTime` server-side, or whose
+ * resource still names one; an instant-cast skill never needs the line.
  *
  * A `.tres` saved from the Godot inspector - which is how `icon` gets authored - is rewritten whole,
  * and every property still equal to its script default is dropped. A missing line therefore reads as
@@ -114,7 +115,7 @@ abstract class SkillDbSyncTask : DefaultTask() {
      */
     val isPassive: Boolean,
 
-    /** Only for a new stub: once the `.tres` exists, these are the client's to tune. */
+    /** For a new stub, and for a generated bestia skill; any other `.tres` is the client's to tune once it exists. */
     val name: String,
     val manaCost: Int,
     val cooldown: Double
@@ -168,6 +169,9 @@ abstract class SkillDbSyncTask : DefaultTask() {
     val treePattern = Regex("^tree\\s*=\\s*\"([^\"]*)\"", RegexOption.MULTILINE)
     val subTreePattern = Regex("^sub_tree\\s*=\\s*\"([^\"]*)\"", RegexOption.MULTILINE)
     val isPassivePattern = Regex("""is_passive\s*=\s*(true|false)""")
+    val namePattern = Regex("^name\\s*=\\s*(\"[^\"]*\")", RegexOption.MULTILINE)
+    val manaCostPattern = Regex("^mana_cost\\s*=\\s*(\\d+)", RegexOption.MULTILINE)
+    val cooldownPattern = Regex("^cooldown\\s*=\\s*([\\d.]+)", RegexOption.MULTILINE)
     val iconPattern = Regex("^icon\\s*=", RegexOption.MULTILINE)
 
     val fileBySkillId = mutableMapOf<Long, File>()
@@ -279,7 +283,7 @@ abstract class SkillDbSyncTask : DefaultTask() {
 
       // cast_time only needs to exist client-side for skills that actually channel; an instant skill
       // is fine relying on the resource default of 0.0.
-      if (expected.castTime > 0.0) {
+      if (expected.castTime > 0.0 || castTimePattern.containsMatchIn(file.readText())) {
         val currentText = file.readText()
         val currentCastTime = castTimePattern.find(currentText)?.groupValues?.get(1)?.toDoubleOrNull()
 
@@ -294,6 +298,31 @@ abstract class SkillDbSyncTask : DefaultTask() {
             logger.lifecycle("SkillDbSync: patched ${file.name}: cast_time $currentCastTime -> ${expected.castTime}")
           } else {
             problems += "${file.name}: cast_time=$currentCastTime but skills.yml expects ${expected.castTime} (id=$id)"
+          }
+        }
+      }
+
+      if (id in BESTIA_SKILL_IDS) {
+        for ((field, pattern, expectedValue) in listOf(
+          Triple("name", namePattern, "\"${expected.name}\""),
+          Triple("mana_cost", manaCostPattern, expected.manaCost.toString()),
+          Triple("cooldown", cooldownPattern, expected.cooldown.toString())
+        )) {
+          val currentText = file.readText()
+          val current = pattern.find(currentText)?.groupValues?.get(1)
+
+          if (current != expectedValue) {
+            if (shouldFix) {
+              val newText = if (pattern.containsMatchIn(currentText)) {
+                pattern.replace(currentText) { "$field = $expectedValue" }
+              } else {
+                currentText.trimEnd('\n') + "\n$field = $expectedValue\n"
+              }
+              file.writeText(newText)
+              logger.lifecycle("SkillDbSync: patched ${file.name}: $field $current -> $expectedValue")
+            } else {
+              problems += "${file.name}: $field=$current but skills.yml expects $expectedValue (id=$id)"
+            }
           }
         }
       }
