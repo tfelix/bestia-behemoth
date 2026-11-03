@@ -31,4 +31,7 @@ data class BattleEntity(
 
   /** See [net.bestia.zone.battle.ecs.status.Nature.attackPower]. */
   val attackPower: Float = 1f,
+
+  /** See [net.bestia.zone.battle.status.CombatValues.aspdPercent]. */
+  val aspdPercent: Int = 0,
 )

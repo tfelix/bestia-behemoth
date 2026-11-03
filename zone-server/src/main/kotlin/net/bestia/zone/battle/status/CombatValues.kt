@@ -29,6 +29,12 @@ data class CombatValues(
 
   /** Percentage points taken off every cast time. */
   val castTimeReduction: Int = 0,
+
+  /** See [StatusValueRecalcContext.elementOverride]. */
+  val elementOverride: Element? = null,
+
+  /** Percentage points on top of the attack speed, see [AttackSpeed.delaySeconds]. */
+  val aspdPercent: Int = 0,
 ) {
 
   companion object {
@@ -73,7 +79,11 @@ data class CombatValues(
         fleeBonus = context.flee,
         critBonus = context.crit,
         elementResistance = context.elementResistance,
-        castTimeReduction = context.castTimeReduction
+        castTimeReduction = context.castTimeReduction,
+        elementOverride = context.elementOverride,
+        defensePercent = context.defensePercent,
+        hitPercent = context.hitPercent,
+        aspdPercent = context.aspdPercent
       )
     }
 
@@ -88,17 +98,30 @@ data class CombatValues(
       fleeBonus: Int = 0,
       critBonus: Int = 0,
       elementResistance: Map<Element, Int> = emptyMap(),
-      castTimeReduction: Int = 0
+      castTimeReduction: Int = 0,
+      elementOverride: Element? = null,
+      defensePercent: Int = 0,
+      hitPercent: Int = 0,
+      aspdPercent: Int = 0
     ): CombatValues {
+      val derived = DerivedStatusValues.fromStatusValues(level, attributes, hitBonus, fleeBonus, critBonus)
+      val defense = DefenseValues.fromStatusValues(level, attributes, hardDefense, hardMagicDefense)
+
       return CombatValues(
         base = base,
         attributes = attributes,
-        derived = DerivedStatusValues.fromStatusValues(level, attributes, hitBonus, fleeBonus, critBonus),
-        defense = DefenseValues.fromStatusValues(level, attributes, hardDefense, hardMagicDefense),
+        derived = if (hitPercent == 0) derived else derived.copy(hitrate = scaled(derived.hitrate, hitPercent)),
+        defense = if (defensePercent == 0) defense else defense.scaledBy(defensePercent),
         weapon = if (weapon == Weapon.NONE) Weapon.NONE else weapon,
         elementResistance = elementResistance,
-        castTimeReduction = castTimeReduction
+        castTimeReduction = castTimeReduction,
+        elementOverride = elementOverride,
+        aspdPercent = aspdPercent
       )
+    }
+
+    private fun scaled(value: Int, percent: Int): Int {
+      return (value * (100 + percent) / 100).coerceAtLeast(0)
     }
   }
 }

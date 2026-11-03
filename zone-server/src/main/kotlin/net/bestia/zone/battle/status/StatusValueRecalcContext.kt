@@ -75,6 +75,19 @@ class StatusValueRecalcContext(
   var castTimeReduction: Int = 0
     private set
 
+  /** The element every hit on this entity is weighed against instead of its own, like a freeze's Water 1. */
+  var elementOverride: Element? = null
+
+  /** Percentage points on top of the resolved defences, hit rate and attack speed. */
+  var defensePercent: Int = 0
+    private set
+
+  var hitPercent: Int = 0
+    private set
+
+  var aspdPercent: Int = 0
+    private set
+
   /** Refinement of the weapon in hand. It scales the weapon term of the damage formula, not the total. */
   var weaponUpgradeLevel: Int = 0
 
@@ -134,6 +147,12 @@ class StatusValueRecalcContext(
   fun addElementResistance(element: Element, percent: Int) {
     val base = element.base
     elementResistance = elementResistance + (base to (elementResistance[base] ?: 0) + percent)
+  }
+
+  fun addPercent(defense: Int = 0, hit: Int = 0, aspd: Int = 0) {
+    defensePercent += defense
+    hitPercent += hit
+    aspdPercent += aspd
   }
 
   fun addCastTimeReduction(percent: Int) {
