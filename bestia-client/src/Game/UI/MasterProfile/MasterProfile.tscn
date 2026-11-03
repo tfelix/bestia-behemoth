@@ -9,7 +9,6 @@
 [ext_resource type="Texture2D" path="res://Theme/Icons/backpack.svg" id="7_item"]
 [ext_resource type="Texture2D" path="res://Theme/Icons/shield.svg" id="8_equi"]
 [ext_resource type="Texture2D" path="res://Theme/Icons/flame.svg" id="9_skil"]
-[ext_resource type="Texture2D" path="res://Theme/Icons/settings.svg" id="10_opti"]
 [ext_resource type="Texture2D" path="res://Theme/Icons/users.svg" id="11_frie"]
 [ext_resource type="Texture2D" path="res://Theme/Icons/scale.svg" id="12_scal"]
 [ext_resource type="Texture2D" path="res://Theme/Icons/coin.svg" id="13_coin"]
@@ -170,7 +169,7 @@ text_overrun_behavior = 3
 
 [node name="PositionIcon" type="TextureRect" parent="Margin/Layout/Top/Vitals/Header" unique_id=1092384756]
 self_modulate = Color(0.66, 0.66, 0.66, 1)
-custom_minimum_size = Vector2(12, 12)
+custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
 size_flags_vertical = 4
 texture = ExtResource("5_pin")
@@ -180,7 +179,8 @@ stretch_mode = 5
 [node name="Position" type="Label" parent="Margin/Layout/Top/Vitals/Header" unique_id=303128313]
 unique_name_in_owner = true
 layout_mode = 2
-text = "100 200 300"
+mouse_filter = 1
+text = "A1 000 000"
 label_settings = SubResource("LabelSettings_small")
 
 [node name="HealthBar" type="ProgressBar" parent="Margin/Layout/Top/Vitals" unique_id=1891134381]
@@ -301,67 +301,67 @@ layout_mode = 2
 theme_override_constants/separation = 3
 
 [node name="Status" type="Button" parent="Margin/Layout/Bottom/Menu" unique_id=574212427]
-custom_minimum_size = Vector2(22, 22)
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 tooltip_text = "Status"
-theme_override_constants/icon_max_width = 14
+theme_override_constants/icon_max_width = 16
 icon = ExtResource("6_stat")
 icon_alignment = 1
 
 [node name="Items" type="Button" parent="Margin/Layout/Bottom/Menu" unique_id=764782362]
-custom_minimum_size = Vector2(22, 22)
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 tooltip_text = "Items"
-theme_override_constants/icon_max_width = 14
+theme_override_constants/icon_max_width = 16
 icon = ExtResource("7_item")
 icon_alignment = 1
 
 [node name="Equip" type="Button" parent="Margin/Layout/Bottom/Menu" unique_id=1407597260]
-custom_minimum_size = Vector2(22, 22)
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 tooltip_text = "Equip"
-theme_override_constants/icon_max_width = 14
+theme_override_constants/icon_max_width = 16
 icon = ExtResource("8_equi")
 icon_alignment = 1
 
 [node name="Skills" type="Button" parent="Margin/Layout/Bottom/Menu" unique_id=292675588]
-custom_minimum_size = Vector2(22, 22)
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 tooltip_text = "Skills"
-theme_override_constants/icon_max_width = 14
+theme_override_constants/icon_max_width = 16
 icon = ExtResource("9_skil")
 icon_alignment = 1
 
 [node name="Party" type="Button" parent="Margin/Layout/Bottom/Menu" unique_id=2000562676]
-custom_minimum_size = Vector2(22, 22)
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 tooltip_text = "Party"
-theme_override_constants/icon_max_width = 14
+theme_override_constants/icon_max_width = 16
 icon = ExtResource("11_frie")
 icon_alignment = 1
 
 [node name="Guild" type="Button" parent="Margin/Layout/Bottom/Menu" unique_id=2000562677]
-custom_minimum_size = Vector2(22, 22)
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 tooltip_text = "Guild"
 disabled = true
-theme_override_constants/icon_max_width = 14
+theme_override_constants/icon_max_width = 16
 icon = ExtResource("14_flag")
 icon_alignment = 1
 
 [node name="Compendium" type="Button" parent="Margin/Layout/Bottom/Menu"]
-custom_minimum_size = Vector2(22, 22)
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 tooltip_text = "Bestia Compendium"
-theme_override_constants/icon_max_width = 14
+theme_override_constants/icon_max_width = 16
 icon = ExtResource("15_book")
 icon_alignment = 1
 
 [node name="Emotes" type="Button" parent="Margin/Layout/Bottom/Menu"]
-custom_minimum_size = Vector2(22, 22)
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 tooltip_text = "Emotes"
-theme_override_constants/icon_max_width = 14
+theme_override_constants/icon_max_width = 16
 icon = ExtResource("16_mood")
 icon_alignment = 1
 
@@ -376,7 +376,7 @@ theme_override_constants/separation = 2
 
 [node name="WeightIcon" type="TextureRect" parent="Margin/Layout/Bottom/Carry" unique_id=1205763380]
 self_modulate = Color(0.66, 0.66, 0.66, 1)
-custom_minimum_size = Vector2(12, 12)
+custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
 size_flags_vertical = 4
 texture = ExtResource("12_scal")
@@ -397,7 +397,7 @@ theme_override_constants/separation = 2
 
 [node name="GoldIcon" type="TextureRect" parent="Margin/Layout/Bottom/Gold" unique_id=812736455]
 self_modulate = Color(0.66, 0.66, 0.66, 1)
-custom_minimum_size = Vector2(12, 12)
+custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
 size_flags_vertical = 4
 texture = ExtResource("13_coin")
@@ -420,15 +420,6 @@ mouse_filter = 1
 text = "Honor 0"
 label_settings = SubResource("LabelSettings_small")
 
-[node name="Option" type="Button" parent="Margin/Layout/Bottom" unique_id=404043903]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(22, 22)
-layout_mode = 2
-tooltip_text = "Option"
-theme_override_constants/icon_max_width = 14
-icon = ExtResource("10_opti")
-icon_alignment = 1
-
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Items" to="." method="_on_inventory_pressed"]
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Equip" to="." method="_on_equipment_pressed"]
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Skills" to="." method="_on_skills_pressed"]
@@ -437,4 +428,3 @@ icon_alignment = 1
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Guild" to="." method="_on_guild_pressed"]
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Compendium" to="." method="_on_compendium_pressed"]
 [connection signal="pressed" from="Margin/Layout/Bottom/Menu/Emotes" to="." method="_on_emotes_pressed"]
-[connection signal="pressed" from="Margin/Layout/Bottom/Option" to="." method="_on_options_pressed"]

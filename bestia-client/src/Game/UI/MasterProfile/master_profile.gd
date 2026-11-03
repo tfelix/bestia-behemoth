@@ -10,7 +10,6 @@ const _MENU_HOTKEYS := {
 	"Items": "toggle_inventory",
 	"Equip": "toggle_equipment",
 	"Skills": "toggle_skills",
-	"Option": "ui_cancel",
 	"Party": "toggle_party",
 	"Guild": "toggle_guild",
 	"Compendium": "toggle_compendium",
@@ -25,7 +24,7 @@ var _shown_tile: Vector3i = Vector3i.ZERO
 var _has_shown_tile: bool = false
 
 ## The world's size in metres and a voxel's edge, from the map's [code]/meta[/code]; zero until it answers, and
-## until then the position has no grid reference beside it.
+## until then the position shows no grid reference.
 var _world_metres := Vector2.ZERO
 var _metres_per_voxel := 1.0
 
@@ -56,7 +55,6 @@ signal party_win_toggled
 signal guild_win_toggled
 signal compendium_win_toggled
 signal emotes_win_toggled
-signal options_toggled
 
 func _ready() -> void:
 	add_to_group("world_blocking_ui")
@@ -191,21 +189,24 @@ func _update_level(level: int) -> void:
 	_level.text = "Lv. %s" % level
 
 
+## The grid reference only: the voxel triple ran the header far wider than the bars, so it moved into the
+## tooltip.
 func _update_position(pos: Vector3) -> void:
 	# In the server's axes, not Godot's y-up ones: x and y horizontal, z the height, in the order
-	# /carve takes them, so a player can paste the triple straight into it. Whole numbers because a
-	# position is a voxel index and /carve accepts integers only.
+	# /carve takes them. Whole numbers because a position is a voxel index and /carve accepts integers only.
 	var tile := Vector3i(TileSpace.to_server_axes(pos))
 	if _has_shown_tile and tile == _shown_tile:
 		return
 
 	_shown_tile = tile
 	_has_shown_tile = true
-	_position.text = "%s %s %s" % [tile.x, tile.y, tile.z]
+	_position.tooltip_text = "%s %s %s" % [tile.x, tile.y, tile.z]
 	if _world_metres.x > 0.0 and _world_metres.y > 0.0:
-		_position.text += "  ·  " + GridRef.format(
+		_position.text = GridRef.format(
 			tile.x * _metres_per_voxel, tile.y * _metres_per_voxel, _world_metres.x, _world_metres.y, 3
 		)
+	else:
+		_position.text = ""
 
 
 func set_world_metres(world: Vector2, metres_per_voxel: float) -> void:
@@ -273,8 +274,7 @@ func _name_hotkeys_in_tooltips() -> void:
 		var hotkey := Hotkeys.label_of(_MENU_HOTKEYS[button_name])
 		if hotkey.is_empty():
 			continue
-		# Not all under the menu: the options button sits apart at the far end of the row.
-		var button: Button = find_child(button_name)
+		var button: Button = _menu.get_node(button_name)
 		button.tooltip_text = "%s (%s)" % [button.tooltip_text, hotkey]
 
 
@@ -354,7 +354,3 @@ func _on_emotes_pressed() -> void:
 
 func _on_compendium_pressed() -> void:
 	compendium_win_toggled.emit()
-
-
-func _on_options_pressed() -> void:
-	options_toggled.emit()

@@ -284,6 +284,7 @@ PARTY_NONE_HINT,"You are in no party. Found one, or wait for an invitation."
 PARTY_NAME_PLACEHOLDER,Party name
 PARTY_DEFAULT_NAME,%s's party
 PARTY_CREATE,Create
+PARTY_CREATE_LOCKED,Founding a party needs Basic Skill Lv. 5. You can still join one when invited.
 PARTY_EXP_MODE,EXP
 PARTY_EXP_EACH_TAKE,Each take
 PARTY_EXP_EVEN_SHARE,Even share

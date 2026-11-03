@@ -31,7 +31,6 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _mark_delete_popup: MarkDeletePopup = $MarkDeletePopup
 @onready var _obtained_items: ObtainedItems = $ObtainedItems
 @onready var _item_info_popup: ItemInfoPopup = $ItemInfoPopup
-@onready var _options: Control = $Options
 
 ## Item ids of the map charts, from items.yml. The minimap exists exactly while one of these is carried.
 const _CHART_ENABLING_ITEM_IDS := [21]
@@ -521,11 +520,6 @@ func _on_master_profile_emotes_win_toggled() -> void:
 
 func _on_master_profile_compendium_win_toggled() -> void:
 	_compendium_win.visible = !_compendium_win.visible
-
-
-## The menu button does what ESC does.
-func _on_master_profile_options_toggled() -> void:
-	_options.toggle_menu()
 
 
 ## Opens the map on the species, which is what the player asked to see.

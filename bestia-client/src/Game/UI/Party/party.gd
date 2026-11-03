@@ -17,6 +17,9 @@ signal membership_changed(in_party: bool)
 const _EXP_EACH_TAKE := 0
 const _EXP_EVEN_SHARE := 1
 
+## Mirrors BasicSkillGate.PARTY_RANK: founding a party needs the master's Basic Skill this high. Joining one does not.
+const _FOUND_PARTY_BASIC_SKILL_LEVEL := 5
+
 ## Set by ui.gd; where an invitation is asked.
 var invitations: InvitationTray
 
@@ -30,9 +33,14 @@ var _known_members: Dictionary[int, String] = {}
 var _has_roster := false
 ## The name last typed into the invite field, to name in the "sent" notice.
 var _last_invited := ""
+## The master's Basic Skill level from their last skill list, or -1 before one arrived. Unknown leaves founding open:
+## the server refuses it anyway, and a missed list must not lock out a master who may.
+var _basic_skill_level := -1
 
 var _no_party: Control
 var _create_name: LineEdit
+var _create: Button
+var _create_locked: Label
 var _in_party: Control
 var _party_name: Label
 var _exp_share: OptionButton
@@ -74,15 +82,19 @@ func _build() -> void:
 	_create_name.placeholder_text = tr("PARTY_NAME_PLACEHOLDER")
 	_create_name.max_length = 20
 	_create_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_create_name.text_submitted.connect(func(_text: String) -> void: _create())
+	_create_name.text_submitted.connect(func(_text: String) -> void: _create_party())
 	create_row.add_child(_create_name)
-	var create := Button.new()
-	create.text = tr("PARTY_CREATE")
-	create.theme_type_variation = &"PrimaryButton"
-	create.pressed.connect(_create)
-	create_row.add_child(create)
+	_create = Button.new()
+	_create.text = tr("PARTY_CREATE")
+	_create.theme_type_variation = &"PrimaryButton"
+	_create.pressed.connect(_create_party)
+	create_row.add_child(_create)
 	no_party.add_child(create_row)
+	_create_locked = UiStyle.label(tr("PARTY_CREATE_LOCKED"), 12, UiStyle.ACCENT)
+	_create_locked.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	no_party.add_child(_create_locked)
 	body.add_child(no_party)
+	_update_create_lock()
 	_no_party = no_party
 
 	# Inside one.
@@ -139,11 +151,18 @@ func _build() -> void:
 	_in_party = in_party
 
 
-func _create() -> void:
+func _create_party() -> void:
 	var party_name := _create_name.text.strip_edges()
-	if party_name.is_empty():
+	if party_name.is_empty() or _create.disabled:
 		return
 	ConnectionManager.create_party(party_name)
+
+
+func _update_create_lock() -> void:
+	var locked := _basic_skill_level >= 0 and _basic_skill_level < _FOUND_PARTY_BASIC_SKILL_LEVEL
+	_create.disabled = locked
+	_create_name.editable = not locked
+	_create_locked.visible = locked
 
 
 func _invite() -> void:
@@ -287,11 +306,27 @@ func _show_no_party() -> void:
 
 
 func _on_entity_received(msg: EntitySMSG) -> void:
+	if msg is SkillListSMSG:
+		_on_skill_list(msg)
+		return
 	if not (msg is HealthComponentSMSG or msg is ManaComponentSMSG):
 		return
 	var row: PartyMemberRow = _rows_by_entity.get(msg.EntityId)
 	if row != null:
 		row.apply_vitals(msg)
+
+
+## Only the master's list counts: the server gates parties on the master's Basic Skill, whoever is driven.
+func _on_skill_list(msg: SkillListSMSG) -> void:
+	var entity_manager := EntityManager.get_instance()
+	if entity_manager == null or msg.EntityId != entity_manager.get_owned_master_entity_id():
+		return
+
+	_basic_skill_level = 0
+	for entry in msg.Skills:
+		if entry.SkillId == Skills.BASIC_SKILL_ID:
+			_basic_skill_level = entry.Level
+	_update_create_lock()
 
 
 func _own_master_id() -> int:
