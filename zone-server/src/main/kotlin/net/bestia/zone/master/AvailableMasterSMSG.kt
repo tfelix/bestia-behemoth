@@ -44,7 +44,8 @@ data class AvailableMasterSMSG(
     val settlementName: String,
     val tier: String,
     val population: Int,
-    val position: Vec3L,
+    /** The spawn point as a grid reference, see [net.bestia.geo.GridRef]. */
+    val gridRef: String,
     /** See [HomeFacts]. */
     val biomeToken: String,
     val history: List<Line>,
@@ -62,8 +63,7 @@ data class AvailableMasterSMSG(
           .setSettlementName(candidate.settlementName)
           .setTier(candidate.tier)
           .setPopulation(candidate.population)
-          .setX(candidate.position.x)
-          .setY(candidate.position.y)
+          .setGridRef(candidate.gridRef)
           .setBiomeToken(candidate.biomeToken)
           .addAllHistory(candidate.history.map { it.toBnet() })
           .build()

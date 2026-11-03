@@ -61,7 +61,7 @@ class AvailableMasterResolver(
         settlementName = it.settlementName,
         tier = it.tier,
         population = it.population,
-        position = it.position,
+        gridRef = gridRef.format(it.position.x * config.voxelSize, it.position.y * config.voxelSize),
         biomeToken = homeFacts.biomeTokenAt(it.position),
         history = homeFacts.historyOf(it.settlementIndex),
       )

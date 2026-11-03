@@ -24,7 +24,7 @@ func show_candidate(candidate: MasterSpawnPointCandidate, suggested: bool) -> vo
 	_suggested_label.visible = suggested
 	_tier_label.text = tr("SETTLEMENT_TIER_%s" % candidate.Tier.to_upper())
 	_population_label.text = str(candidate.Population)
-	_position_label.text = "%s / %s" % [candidate.X, candidate.Y]
+	_position_label.text = candidate.GridRef
 	_biome_label.text = tr(candidate.BiomeToken)
 
 	var history: Array = Array(candidate.History).map(

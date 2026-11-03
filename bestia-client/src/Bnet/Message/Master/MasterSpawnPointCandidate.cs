@@ -22,12 +22,9 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     [Export]
     public uint Population { get; set; }
 
-    /// <summary>Voxel coordinates of the spawn point.</summary>
+    /// <summary>The spawn point as a grid reference, like <c>H12 41 37</c>.</summary>
     [Export]
-    public long X { get; set; }
-
-    [Export]
-    public long Y { get; set; }
+    public string GridRef { get; set; } = string.Empty;
 
     /// <summary>A translation key, e.g. <c>BIOME_TEMPERATE_FOREST</c>.</summary>
     [Export]
@@ -54,8 +51,7 @@ namespace BestiaBehemothClient.Bnet.Message.Master
         SettlementName = protoCandidate.SettlementName,
         Tier = protoCandidate.Tier,
         Population = protoCandidate.Population,
-        X = protoCandidate.X,
-        Y = protoCandidate.Y,
+        GridRef = protoCandidate.GridRef,
         BiomeToken = protoCandidate.BiomeToken,
         History = history
       };
