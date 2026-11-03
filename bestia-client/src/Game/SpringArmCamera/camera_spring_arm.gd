@@ -3,10 +3,17 @@ extends Node3D
 # Inspired by https://www.youtube.com/watch?v=ZCb12AHKMfE
 
 @export var mouse_sensibility :=  0.0035
-@export_range(-90.0, 0.0, 0.1, "radians_as_degrees") var min_vertical_angle: float = -PI/2
-@export_range(-40, 0.0, 0.1, "radians_as_degrees") var max_vertical_angle: float = PI/4
-@export_range(1, 15, 1, "min_camera_distance_as_meter") var min_cam_distance: int = 3
-@export_range(15, 50, 1, "max_camera_distance_as_meter") var max_cam_distance: int = 36
+@export_range(-90.0, 0.0, 0.1, "radians_as_degrees") var min_vertical_angle: float = deg_to_rad(-80.0)
+@export_range(-90.0, 0.0, 0.1, "radians_as_degrees") var max_vertical_angle: float = deg_to_rad(-35.0)
+@export_range(1, 20, 0.5, "suffix:m") var min_cam_distance: float = 10.0
+@export_range(15, 80, 0.5, "suffix:m") var max_cam_distance: float = 45.0
+## Each wheel notch scales the distance by this factor, so a notch feels the same up close and far out.
+@export_range(1.01, 1.5, 0.01) var zoom_factor: float = 1.1
+## The pitch the camera leans towards at the nearest and the farthest zoom: shallow up close to see the
+## world, steep far out to read the field. Zooming moves the pitch by the difference between the two
+## points on this line, so a pitch the player dragged to keeps its offset rather than snapping back.
+@export_range(-90.0, 0.0, 0.1, "radians_as_degrees") var near_zoom_pitch: float = deg_to_rad(-35.0)
+@export_range(-90.0, 0.0, 0.1, "radians_as_degrees") var far_zoom_pitch: float = deg_to_rad(-70.0)
 
 
 @onready var spring_arm := $SpringArm3D
@@ -21,6 +28,9 @@ var _rmb_press_position: Vector2 = Vector2.ZERO
 
 
 func _ready() -> void:
+	# The scene leaves the pivot level, which is outside the pitch limits; without a saved camera this is
+	# where it starts.
+	rotation.x = _zoom_pitch(spring_arm.spring_length)
 	load_camera()
 
 
@@ -55,11 +65,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		zoom_suppressed = mouse_manager.is_placing() or mouse_manager.is_pointer_over_ui()
 
 	if event.is_action_pressed("camera_zoom_in") and not zoom_suppressed:
-		spring_arm.spring_length -= 1
-		spring_arm.spring_length = clamp(spring_arm.spring_length, min_cam_distance, max_cam_distance)
+		_zoom_to(spring_arm.spring_length / zoom_factor)
 	if event.is_action_pressed("camera_zoom_out") and not zoom_suppressed:
-		spring_arm.spring_length += 1
-		spring_arm.spring_length = clamp(spring_arm.spring_length, min_cam_distance, max_cam_distance)
+		_zoom_to(spring_arm.spring_length * zoom_factor)
 
 	if event.is_action_pressed("camera_mouse_capture"):
 		var mouse := MouseManager.get_instance()
@@ -80,6 +88,22 @@ func _unhandled_input(event: InputEvent) -> void:
 				get_viewport().warp_mouse(_rmb_press_position)
 		else:
 			MouseManager.get_instance().right_clicked(get_viewport().get_mouse_position())
+
+
+func _zoom_to(length: float) -> void:
+	var old_length: float = spring_arm.spring_length
+	var new_length: float = clamp(length, min_cam_distance, max_cam_distance)
+	spring_arm.spring_length = new_length
+	rotation.x = clamp(
+		rotation.x + _zoom_pitch(new_length) - _zoom_pitch(old_length),
+		min_vertical_angle,
+		max_vertical_angle
+	)
+
+
+func _zoom_pitch(length: float) -> float:
+	var t: float = clamp(inverse_lerp(min_cam_distance, max_cam_distance, length), 0.0, 1.0)
+	return lerp(near_zoom_pitch, far_zoom_pitch, t)
 
 
 func save_camera() -> void:
