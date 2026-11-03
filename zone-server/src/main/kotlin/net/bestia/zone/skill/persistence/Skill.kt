@@ -106,6 +106,10 @@ class Skill(
   @OrderColumn(name = "position")
   @Column(name = "line", columnDefinition = "TEXT", nullable = false)
   var lines: MutableList<String> = mutableListOf(),
+
+  @Convert(converter = SkillMechanicsConverter::class)
+  @Column(columnDefinition = "TEXT")
+  var mechanics: SkillMechanics = SkillMechanics.NONE,
 ) {
 
   init {
@@ -137,7 +141,8 @@ class Skill(
         cooldown != other.cooldown ||
         statusEffect != other.statusEffect ||
         yields != other.yields ||
-        lines != other.lines
+        lines != other.lines ||
+        mechanics != other.mechanics
 
     if (!changed) {
       return false
@@ -161,6 +166,7 @@ class Skill(
     statusEffect = other.statusEffect
     yields = other.yields.toMutableList()
     lines = other.lines.toMutableList()
+    mechanics = other.mechanics
 
     return true
   }
@@ -180,6 +186,13 @@ class Skill(
 
     require(power > 0f) {
       "Skill $identifier: power must be > 0"
+    }
+
+    require(mechanics.hitsMin in 1..mechanics.hitsMax) {
+      "Skill $identifier: hits must be at least 1 and the minimum no more than the maximum"
+    }
+    require(mechanics.onHit.all { it.chance in 0..100 }) {
+      "Skill $identifier: a status chance is a percentage"
     }
 
     val radius = aoeRadius
