@@ -6,5 +6,5 @@ enum class RemovalReason {
   DISPELLED,
 
   /** Its own rule ended it, like a freeze that shatters on the first hit. */
-  BROKEN,
+  CANCELLED,
 }

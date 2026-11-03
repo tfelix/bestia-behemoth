@@ -24,6 +24,6 @@ class StatusEffectHookContext(
   }
 
   fun removeSelf() {
-    statusEffectService.removeEffect(world, hostId, effect.definitionId, RemovalReason.BROKEN)
+    statusEffectService.removeEffect(world, hostId, effect.definitionId, RemovalReason.CANCELLED)
   }
 }
