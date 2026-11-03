@@ -51,6 +51,11 @@ const _ARROW_FILL_RATIO := 0.62
 const _DOT_OUTLINE_RADIUS := 4.0
 const _DOT_FILL_RADIUS := 2.5
 
+## How much larger the player's own marker is drawn than [member marker_scale] alone makes it. At the plain
+## scale it came out smaller than a route's stop pins and no bigger than an owned bestia's dot, so the one
+## thing on the map that is the player read as the least of them.
+const _PLAYER_MARKER_BOOST := 1.5
+
 ## The north mark. Warm rather than the marker's amber, so that the fixed thing and the moving thing are not
 ## the same colour at a glance.
 const _NORTH_COLOUR := Color(1.0, 0.94, 0.78)
@@ -1464,19 +1469,20 @@ func _draw_player() -> void:
 
 	var fill := _controlled_slot_color()
 	var forward := _player_forward()
+	var player_scale := marker_scale * _PLAYER_MARKER_BOOST
 
 	# A dot until the character has turned at all. An arrow needs a direction to be honest about, and a
 	# default one would point north on every spawn - which reads as a heading rather than as the absence of
 	# one.
 	if forward.is_zero_approx():
-		draw_circle(screen, _DOT_OUTLINE_RADIUS * marker_scale, _MARKER_OUTLINE)
-		draw_circle(screen, _DOT_FILL_RADIUS * marker_scale, fill)
+		draw_circle(screen, _DOT_OUTLINE_RADIUS * player_scale, _MARKER_OUTLINE)
+		draw_circle(screen, _DOT_FILL_RADIUS * player_scale, fill)
 		return
 
 	# Dark under light, the same two passes the dot used: a chart tile can be any brightness, and a
 	# single-colour marker disappears into half of them.
-	_draw_arrow(screen, forward, marker_scale, _MARKER_OUTLINE)
-	_draw_arrow(screen, forward, marker_scale * _ARROW_FILL_RATIO, fill)
+	_draw_arrow(screen, forward, player_scale, _MARKER_OUTLINE)
+	_draw_arrow(screen, forward, player_scale * _ARROW_FILL_RATIO, fill)
 
 
 func _controlled_slot_color() -> Color:
