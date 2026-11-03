@@ -251,6 +251,8 @@ class SkillExecutionServiceTest {
       chunkStream = mockk(relaxed = true),
       lootItems = mockk(relaxed = true),
       speech = mockk(relaxed = true),
+      forcedMovement = mockk(relaxed = true),
+      castCancel = mockk(relaxed = true),
     ),
     // A tight op budget so the runaway case is reached in a few hundred calls rather than the production 64.
     SkillExecutionConfig(worldOpsPerCast = 16, maxQueryResults = 8, maxMillisPerCast = 60_000)

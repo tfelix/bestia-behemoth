@@ -72,6 +72,8 @@ class MobImporterBootRunner(
     val attackPower: Float = 1f,
     @JsonProperty("status-immunities")
     val statusImmunities: List<StatusEffectId> = emptyList(),
+    /** Body weight in kilograms. */
+    val weight: Int = 0,
 
     /**
      * The species' primary attributes. Omit the block and every one of them stays at the flat 10 that was
@@ -154,6 +156,7 @@ class MobImporterBootRunner(
       aspd = dto.aspd,
       attackPower = dto.attackPower,
       statusImmunities = dto.statusImmunities.joinToString(","),
+      weight = dto.weight,
       strength = dto.attributes.strength,
       intelligence = dto.attributes.intelligence,
       vitality = dto.attributes.vitality,
@@ -219,6 +222,7 @@ class MobImporterBootRunner(
         entity.aspd != dto.aspd ||
         entity.attackPower != dto.attackPower ||
         entity.statusImmunities != dto.statusImmunities.joinToString(",") ||
+        entity.weight != dto.weight ||
         entity.strength != dto.attributes.strength ||
         entity.intelligence != dto.attributes.intelligence ||
         entity.vitality != dto.attributes.vitality ||
@@ -253,6 +257,7 @@ class MobImporterBootRunner(
     entity.aspd = dto.aspd
     entity.attackPower = dto.attackPower
     entity.statusImmunities = dto.statusImmunities.joinToString(",")
+    entity.weight = dto.weight
     entity.strength = dto.attributes.strength
     entity.intelligence = dto.attributes.intelligence
     entity.vitality = dto.attributes.vitality

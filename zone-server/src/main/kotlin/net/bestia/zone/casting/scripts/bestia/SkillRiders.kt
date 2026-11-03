@@ -1,0 +1,120 @@
+package net.bestia.zone.casting.scripts.bestia
+
+import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.damage.CriticalHit
+import net.bestia.zone.battle.damage.Damage
+import net.bestia.zone.battle.damage.Heal
+import net.bestia.zone.battle.damage.HitDamage
+import net.bestia.zone.battle.damage.Miss
+import net.bestia.zone.battle.ecs.effects.AreaRiders
+import net.bestia.zone.battle.ecs.effects.AreaStatus
+import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.casting.SkillContext
+import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.skill.SkillArchetype
+import net.bestia.zone.skill.persistence.SkillMechanics
+import net.bestia.zone.util.EntityId
+import java.util.Random
+import kotlin.math.sqrt
+
+/**
+ * What the generic bestia scripts share of a skill's [SkillMechanics]: rolling its blows, and what a landed hit
+ * leaves behind. The archetype scripts decide only how much a blow is worth.
+ */
+object SkillRiders {
+
+  /** Rolls [SkillMechanics.hitsMin]..[SkillMechanics.hitsMax] blows and adds them up; a crit among them shows. */
+  fun strike(mechanics: SkillMechanics, random: Random, blow: () -> Damage): Damage {
+    val count = random.nextInt(mechanics.hitsMin, mechanics.hitsMax + 1)
+    val landed = List(count) { blow() }.filter { it !is Miss }
+    if (landed.isEmpty()) return Miss
+
+    val total = landed.sumOf { it.amount }
+
+    return if (landed.any { it is CriticalHit }) CriticalHit(total, landed.size) else HitDamage(total, landed.size)
+  }
+
+  /** The statuses, interruption, push and drain a landed hit on [targetId] carries. */
+  fun afterHit(ctx: SkillContext, targetId: EntityId, damage: Damage, random: Random) {
+    if (damage is Miss) return
+    val mechanics = ctx.skill.mechanics
+
+    inflict(ctx, targetId)
+
+    if (mechanics.interruptChance > 0 && random.nextInt(100) < mechanics.interruptChance) {
+      ctx.world.interrupt(targetId)
+    }
+    if (mechanics.knockback > 0) {
+      ctx.world.positionOf(ctx.casterId)?.let { from -> pushAway(ctx, targetId, from, mechanics.knockback) }
+    }
+    if (mechanics.lifesteal > 0f) {
+      val drained = (damage.amount * mechanics.lifesteal).toInt()
+      if (drained > 0) ctx.world.apply(ctx.casterId, Heal(drained))
+    }
+  }
+
+  /** Rolls each of the skill's statuses on [targetId], at the skill's level unless a rider names its own. */
+  fun inflict(ctx: SkillContext, targetId: EntityId) {
+    ctx.skill.mechanics.onHit.forEach { rider ->
+      val level = if (rider.level > 0) rider.level else ctx.skillLevel
+      val seconds = rider.durationSeconds.takeIf { it > 0.0 }
+      ctx.world.inflict(targetId, rider.status, rider.chance, seconds, level)
+    }
+  }
+
+  /** The skill's mechanics as an area's riders, centred on [centre]. */
+  fun areaRiders(ctx: SkillContext, centre: Vec3L): AreaRiders {
+    val mechanics = ctx.skill.mechanics
+
+    return AreaRiders(
+      statuses = mechanics.onHit.map { rider ->
+        AreaStatus(
+          effect = StatusEffectId.valueOf(rider.status),
+          chancePercent = rider.chance,
+          durationSeconds = rider.durationSeconds.takeIf { it > 0.0 },
+          level = if (rider.level > 0) rider.level else ctx.skillLevel
+        )
+      },
+      zoneStatus = mechanics.zoneStatus?.let { StatusEffectId.valueOf(it) },
+      forAllies = ctx.skill.archetype in FRIENDLY_ARCHETYPES,
+      manaPercentPerTick = mechanics.manaPercentPerTick,
+      knockbackTiles = mechanics.knockback,
+      affectsKinds = mechanics.affectsKinds.toSet(),
+      affectsElements = mechanics.affectsElements.map { Element.valueOf(it) }.toSet(),
+    ).withDrift(ctx, centre, mechanics.drift)
+  }
+
+  /** Where an area lands: on the caster for a burst around itself, else where it was aimed. */
+  fun centreOf(ctx: SkillContext): Vec3L {
+    if (!ctx.skill.mechanics.selfCentred) return ctx.aimedAt
+
+    return ctx.world.positionOf(ctx.casterId) ?: ctx.aimedAt
+  }
+
+  private fun pushAway(ctx: SkillContext, targetId: EntityId, from: Vec3L, tiles: Int) {
+    val at = ctx.world.positionOf(targetId) ?: return
+    val (dx, dy) = unit(from, at) ?: return
+
+    val towards = Vec3L(at.x + Math.round(dx * tiles), at.y + Math.round(dy * tiles), at.z)
+    ctx.world.forceMove(targetId, towards, tiles)
+  }
+
+  /** A storm drifts off the way it was thrown, from the caster towards where it landed. */
+  private fun AreaRiders.withDrift(ctx: SkillContext, centre: Vec3L, tilesPerSecond: Float): AreaRiders {
+    if (tilesPerSecond <= 0f) return this
+    val from = ctx.world.positionOf(ctx.casterId) ?: return this
+    val (dx, dy) = unit(from, centre) ?: (1.0 to 0.0)
+
+    return copy(driftX = (dx * tilesPerSecond).toFloat(), driftY = (dy * tilesPerSecond).toFloat())
+  }
+
+  private fun unit(from: Vec3L, to: Vec3L): Pair<Double, Double>? {
+    val dx = (to.x - from.x).toDouble()
+    val dy = (to.y - from.y).toDouble()
+    val length = sqrt(dx * dx + dy * dy)
+
+    return if (length < 1e-6) null else dx / length to dy / length
+  }
+
+  private val FRIENDLY_ARCHETYPES = setOf(SkillArchetype.HEAL, SkillArchetype.BUFF)
+}

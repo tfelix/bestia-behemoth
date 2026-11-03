@@ -1,6 +1,7 @@
 package net.bestia.zone.battle.ecs.effects
 
 import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.status.StatusEffectId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -20,6 +21,20 @@ class AreaEffectTest {
         durationSeconds = 1f
       )
     }
+  }
+
+  @Test
+  fun `a ward that only carries a status may deal no damage`() {
+    AreaEffect.lasting(
+      casterId = 1,
+      skillId = 1,
+      skillLevel = 1,
+      radiusTiles = 1,
+      damagePerTick = 0,
+      tickIntervalSeconds = 1f,
+      durationSeconds = 1f,
+      riders = AreaRiders(zoneStatus = StatusEffectId.SHELTERED, forAllies = true)
+    )
   }
 
   /** The element table only knows level 1 elements on the attacking side. */

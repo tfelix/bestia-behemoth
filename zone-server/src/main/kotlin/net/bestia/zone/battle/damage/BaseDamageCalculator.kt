@@ -73,8 +73,9 @@ abstract class BaseDamageCalculator(
     // not exactly neutral. The same modifier also carries defence-*piercing*, above 1, and forcing it to 1
     // would make critting a stripped target deal a third of what an ordinary swing does.
     val defenseMod = getHardDefenseModifier(battleCtx)
-    val hardDefMod = if (isCritical) max(1f, defenseMod) else defenseMod
-    val softDef = if (isCritical) 0f else getSoftDefense(battleCtx)
+    val bypassesDefense = isCritical || vars.ignoreDefense
+    val hardDefMod = if (bypassesDefense) max(1f, defenseMod) else defenseMod
+    val softDef = if (bypassesDefense) 0f else getSoftDefense(battleCtx)
 
     val critMod = if (isCritical) CRITICAL_DAMAGE_BONUS * max(0f, vars.criticalDamageMod) else 1f
 

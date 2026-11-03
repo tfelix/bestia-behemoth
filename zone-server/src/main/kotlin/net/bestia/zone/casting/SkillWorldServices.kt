@@ -1,10 +1,12 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.ecs.skill.CastCancelService
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.battle.ecs.effects.AreaEffectSpawner
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.movement.ForcedMovement
 import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.spoor.SpoorService
 import net.bestia.zone.world.stream.ChunkStreamInbox
@@ -35,4 +37,6 @@ class SkillWorldServices(
   val chunkStream: ChunkStreamInbox,
   val lootItems: LootItemEntitySpawner,
   val speech: Speech,
+  val forcedMovement: ForcedMovement,
+  val castCancel: CastCancelService,
 )

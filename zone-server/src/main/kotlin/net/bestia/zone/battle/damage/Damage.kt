@@ -3,6 +3,10 @@ package net.bestia.zone.battle.damage
 sealed class Damage(amount: Int) {
   abstract val amount: Int
 
+  /** How many blows [amount] is the sum of, shown by the client as that many numbers. */
+  open val hits: Int
+    get() = 1
+
   // Guards the constructor parameter, not the property: a data subclass assigns its `amount` backing field
   // after this runs, so reading the property here saw 0 for every value - and let a negative reach the wire,
   // where `uint32` turns it into billions.
@@ -15,7 +19,8 @@ sealed class Damage(amount: Int) {
  * Normal hit damage.
  */
 data class HitDamage(
-  override val amount: Int
+  override val amount: Int,
+  override val hits: Int = 1
 ) : Damage(amount)
 
 /**
@@ -29,7 +34,8 @@ data class Heal(
  * This was a critical damage and will be displayed differently.
  */
 data class CriticalHit(
-  override val amount: Int
+  override val amount: Int,
+  override val hits: Int = 1
 ) : Damage(amount)
 
 /**
