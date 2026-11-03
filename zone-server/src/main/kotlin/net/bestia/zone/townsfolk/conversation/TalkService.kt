@@ -27,6 +27,7 @@ class TalkService(
   private val shops: ShopCounter,
   private val world: WorldView,
   private val out: OutMessageProcessor,
+  private val reception: HonorReception,
 ) {
 
   /** A merchant at work is asked for their counter rather than for a chat; the shop window offers the chat. */
@@ -34,13 +35,18 @@ class TalkService(
     val speaker = reachableSpeaker(accountId, actor, target) ?: return
     if (servedAtCounter(accountId, actor, speaker)) return
 
-    answer(accountId, speaker, conversation.open(speaker))
+    answer(accountId, speaker, coldShoulder(actor, speaker) ?: conversation.open(speaker))
   }
 
   fun choose(accountId: AccountId, actor: EntityId, target: EntityId, topicId: Int) {
     val speaker = reachableSpeaker(accountId, actor, target) ?: return
 
-    answer(accountId, speaker, conversation.nodeFor(Asker(accountId, actor), speaker, topicId))
+    val node = coldShoulder(actor, speaker) ?: conversation.nodeFor(Asker(accountId, actor), speaker, topicId)
+    answer(accountId, speaker, node)
+  }
+
+  private fun coldShoulder(actor: EntityId, speaker: Speaker): ConversationNode? {
+    return world.read { reception.coldShoulder(this, actor, speaker) }
   }
 
   private fun servedAtCounter(accountId: AccountId, actor: EntityId, speaker: Speaker): Boolean {

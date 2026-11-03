@@ -8,6 +8,9 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.townsfolk.ecs.Townsfolk
+import net.bestia.zone.townsfolk.ecs.TownsfolkIdentity
+import net.bestia.zone.townsfolk.TownsfolkRegard
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
@@ -25,11 +28,14 @@ import net.bestia.zone.ai.perception.SenseContext
  * nearby whose [TakenDamage] ledger has an entry inside [ALARM_MEMORY_MS]. It costs nothing new to
  * maintain, and it fires for a player fighting a boar and for a boar mauling a player alike.
  *
+ * A Master this person fears for what they did is a threat too, fight or not; see [TownsfolkRegard.isFeared].
+ *
  * Townsfolk only, rejected in one `has`. Creatures have their own answer to a fight and it is not a door.
  */
 @Component
 class ShelterSense(
   private val aoi: EntityAOIService,
+  private val regard: TownsfolkRegard = TownsfolkRegard.NONE,
   private val doors: ShelterDoors,
 ) : Sense {
 
@@ -41,12 +47,13 @@ class ShelterSense(
    */
   override val intervalSeconds = 1f
 
-  override val reads: ComponentClassSet = setOf(TakenDamage::class, Townsfolk::class)
+  override val reads: ComponentClassSet = setOf(TakenDamage::class, Townsfolk::class) + regard.reads
 
   override fun sense(context: SenseContext) {
-    if (!context.world.has(context.entityId, Townsfolk::class)) return
+    val identity = context.world.get(context.entityId, Townsfolk::class)?.identity ?: return
 
     val threat = nearestViolence(context.world, context.entityId, context.position)
+      ?: nearestFeared(context.world, identity, context.position)
     if (threat == null) {
       context.forget(TownsfolkDomain.THREAT_POSITION)
       context.forget(TownsfolkDomain.SHELTER_DOOR)
@@ -68,6 +75,17 @@ class ShelterSense(
       .asSequence()
       .filter { it != self }
       .filter { world.get(it, TakenDamage::class)?.mostRecentAttacker(ALARM_MEMORY_MS) != null }
+      .mapNotNull { world.get(it, Position::class)?.toVec3L() }
+      .filter { it.distance(at) <= ALARM_RADIUS }
+      .minByOrNull { it.distance(at) }
+  }
+
+  private fun nearestFeared(world: World, identity: Long, at: Vec3L): Vec3L? {
+    val settlement = TownsfolkIdentity.settlementOf(identity)
+
+    return aoi.queryEntitiesInCube(at, ALARM_RADIUS * 2, AoiLayer.DYNAMIC_ONLY)
+      .asSequence()
+      .filter { world.has(it, Master::class) && regard.isFeared(world, it, settlement, identity) }
       .mapNotNull { world.get(it, Position::class)?.toVec3L() }
       .filter { it.distance(at) <= ALARM_RADIUS }
       .minByOrNull { it.distance(at) }

@@ -14,6 +14,7 @@ import net.bestia.zone.honor.persistence.LocalHonor.Scope
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.townsfolk.TownsfolkRegard
 import net.bestia.zone.townsfolk.ecs.Townsfolk
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.settlement.SettlementSiteIndex
@@ -32,7 +33,7 @@ class HonorService(
   private val sites: SettlementSiteIndex,
   private val clock: Clock = Clock.systemUTC(),
   private val outcry: WitnessOutcry? = null,
-) : TraderStanding {
+) : TraderStanding, TownsfolkRegard {
 
   private val rules = catalog.rules
 
@@ -136,6 +137,14 @@ class HonorService(
         PersonalPrice(buyFactor = 1.0 - discount, sellFactor = 1.0)
       }
     }
+  }
+
+  override fun isUnfriendly(world: World, master: EntityId, settlement: Int, townsperson: Long): Boolean {
+    return combined(world, master, settlement, townsperson) < rules.unfriendlyBelow
+  }
+
+  override fun isFeared(world: World, master: EntityId, settlement: Int, townsperson: Long): Boolean {
+    return combined(world, master, settlement, townsperson) < rules.hostileBelow
   }
 
   fun settlementValue(masterId: Long, settlement: Int): Int {

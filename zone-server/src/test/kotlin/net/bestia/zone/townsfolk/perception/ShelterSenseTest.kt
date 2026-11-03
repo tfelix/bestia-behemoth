@@ -7,6 +7,9 @@ import net.bestia.zone.ai.core.state.StateKey
 import net.bestia.zone.ai.ecs.AiPipelineFixture
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
+import io.mockk.every
+import io.mockk.mockk
+import net.bestia.zone.townsfolk.TownsfolkRegard
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -24,7 +27,12 @@ class ShelterSenseTest {
   private val ai = AiPipelineFixture()
 
   private var doors = emptyList<Vec3L>()
-  private val sut = ShelterSense(ai.aoi) { at, reach -> doors.filter { it.distance(at) <= reach } }
+  private var feared = false
+  private val regard = mockk<TownsfolkRegard> {
+    every { reads } returns emptySet()
+    every { isFeared(any(), any(), any(), any()) } answers { feared }
+  }
+  private val sut = ShelterSense(ai.aoi, regard) { at, reach -> doors.filter { it.distance(at) <= reach } }
 
   private val square = Vec3L(100, 100, 0)
 
@@ -36,6 +44,18 @@ class ShelterSenseTest {
     val villager = sense(spawnVillager())
 
     assertNull(recall(villager, TownsfolkDomain.THREAT_POSITION), "a passer-by emptied the town")
+  }
+
+  @Test
+  fun `a master the town fears is a threat without a blow`() {
+    doors = listOf(Vec3L(110, 100, 0))
+    val murderer = Vec3L(104, 100, 0)
+    ai.spawnPlayer(murderer)
+    feared = true
+
+    val villager = sense(spawnVillager())
+
+    assertEquals(murderer, recall(villager, TownsfolkDomain.THREAT_POSITION))
   }
 
   @Test
