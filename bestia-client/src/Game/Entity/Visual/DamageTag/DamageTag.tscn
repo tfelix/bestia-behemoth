@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://c1ijix1euk62f"]
 
+[ext_resource type="FontFile" uid="uid://cinn3mxcv22um" path="res://Theme/LilitaOne-Regular.ttf" id="1_font"]
+
 [node name="DamageLabel" type="Label3D"]
 visible = false
 pixel_size = 0.0009
@@ -7,5 +9,6 @@ billboard = 1
 no_depth_test = true
 fixed_size = true
 text = "1234"
+font = ExtResource("1_font")
 font_size = 50
 outline_size = 16
