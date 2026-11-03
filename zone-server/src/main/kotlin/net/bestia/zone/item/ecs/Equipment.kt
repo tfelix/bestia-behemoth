@@ -52,7 +52,10 @@ data class Equipment(
     val itemLevel: Int = 0,
     val rolledStats: List<StatValue> = emptyList(),
     val provenance: ItemProvenance? = null
-  )
+  ) {
+    val isBroken: Boolean
+      get() = maxDurability > 0 && durability <= 0
+  }
 
   fun isSlotAvailable(slot: EquipmentSlot): Boolean = availableSlotMask.hasEquipSlot(slot)
 

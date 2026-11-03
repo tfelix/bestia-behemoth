@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrdFQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSr0FQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -87,9 +87,9 @@ namespace Bnet {
             "TkdFRBBlEhQKEFNIT1BfUkVGVVNFU19ZT1UQaxIRCg1FTU9URV9OT1RfTk9X",
             "EGcSFgoSVEVMRVBPUlRfTk9UX1JFQURZEGgSFAoQVEVMRVBPUlRfTk9UX05P",
             "VxBpEhcKE1RFTEVQT1JUX05PX0xBTkRJTkcQahIUChBFUVVJUF9IQU5EU19G",
-            "VUxMEGwSFgoSQVRUQUNLX09VVF9PRl9BTU1PEG0iBAguEC4qElNIT1BfVFJF",
-            "QVNVUllfRlVMTEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlv",
-            "bkVycm9yUHJvdG9iBnByb3RvMw=="));
+            "VUxMEGwSFgoSQVRUQUNLX09VVF9PRl9BTU1PEG0SFQoRRVFVSVBfSVRFTV9C",
+            "Uk9LRU4QbiIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0",
+            "aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -518,6 +518,10 @@ namespace Bnet {
     /// A shot with no ammo in the quiver that fits the weapon. The attack stops until the quiver is filled.
     /// </summary>
     [pbr::OriginalName("ATTACK_OUT_OF_AMMO")] AttackOutOfAmmo = 109,
+    /// <summary>
+    /// Gear worn down to no durability. The player has it repaired before wearing it again.
+    /// </summary>
+    [pbr::OriginalName("EQUIP_ITEM_BROKEN")] EquipItemBroken = 110,
   }
 
   #endregion

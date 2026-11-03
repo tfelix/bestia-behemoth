@@ -47,7 +47,10 @@ class EquipmentService(
     NOVICE_ONLY,
 
     /** A two-handed weapon and something in the left hand at once. */
-    HANDS_FULL
+    HANDS_FULL,
+
+    /** Worn down to nothing; it has to be repaired first. */
+    BROKEN
   }
 
   /**
@@ -81,11 +84,15 @@ class EquipmentService(
       return Denial.ARMOR_TYPE_NOT_WEARABLE
     }
 
-    val isHeld = inventory.getItems().any {
+    val held = inventory.getItems().firstOrNull {
       it.itemId == item.id && (heldUniqueId == 0L || it.uniqueId == heldUniqueId)
     }
-    if (!isHeld || equipment.isWorn(heldUniqueId)) {
+    if (held == null || equipment.isWorn(heldUniqueId)) {
       return Denial.ITEM_NOT_FOUND
+    }
+
+    if (held.isBroken) {
+      return Denial.BROKEN
     }
 
     if (wouldOverfillHands(equipment, item, slot)) {
