@@ -5,6 +5,7 @@ import net.bestia.zone.ai.core.behavior.BtNode
 import net.bestia.zone.ai.core.behavior.Status
 import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.battle.attack.AttackOutcome
+import net.bestia.zone.battle.attack.BasicAttackResolver
 import net.bestia.zone.battle.attack.BattleAttack
 import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.skill.ecs.KnownSkills
@@ -70,7 +71,6 @@ class UseSkill(
 class BasicAttack(
   private val targetId: EntityId,
   private val attacks: AttackExecutionService,
-  // TODO Take the weapon and its element off the attacker once an equipment system exists.
   private val attack: BattleAttack,
 ) : BtNode {
 
@@ -87,6 +87,35 @@ class BasicAttack(
   }
 
   override fun toString(): String = "BasicAttack(target=$targetId)"
+}
+
+/**
+ * Shoots [targetId] with the ranged weapon the entity holds, taking the shot fresh from its quiver each time.
+ *
+ * An empty quiver is FAILURE, and quietly: the agent replans and `HeldWeaponSense` hands it back its own attack,
+ * where a player clicking would be told.
+ */
+class ShootHeldWeapon(
+  private val targetId: EntityId,
+  private val attacks: AttackExecutionService,
+  private val basicAttacks: BasicAttackResolver,
+  private val baseAttackMotionMs: Int,
+) : BtNode {
+
+  override fun tick(context: BtContext): Status {
+    val world = context.world
+    if (!world.isAlive(targetId)) return Status.FAILURE
+
+    val shot = basicAttacks.shotOf(world, context.entityId, baseAttackMotionMs) ?: return Status.FAILURE
+
+    return when (attacks.attack(world, context.entityId, targetId, shot)) {
+      AttackOutcome.SWUNG -> Status.SUCCESS
+      AttackOutcome.NOT_READY, AttackOutcome.OUT_OF_RANGE -> Status.RUNNING
+      AttackOutcome.IMPOSSIBLE, AttackOutcome.REFUSED, AttackOutcome.OUT_OF_AMMO -> Status.FAILURE
+    }
+  }
+
+  override fun toString(): String = "ShootHeldWeapon(target=$targetId)"
 }
 
 /**

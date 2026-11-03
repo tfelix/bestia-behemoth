@@ -28,6 +28,18 @@ data class SkillAttack(
 ) : AttackDefinition
 
 /**
+ * A shot from the ranged weapon a player's bestia holds, offered in place of the species' default attacks while
+ * the quiver lasts. [baseAttackMotionMs] is the species' swing cadence, which the shot keeps.
+ */
+data class HeldWeaponShot(
+  override val range: Long,
+  val baseAttackMotionMs: Int,
+) : AttackDefinition {
+  override val id: String = "shot"
+  override val baseCost: Float = DefaultAttackDefinition.COST
+}
+
+/**
  * What a bestia attacks with when it uses no skill: the species' [DefaultAttack] at the species' ASPD, never
  * authored in a profile. It costs a little more than a skill, so a skill that can be used is preferred.
  */
@@ -39,7 +51,7 @@ data class DefaultAttackDefinition(
   override val baseCost: Float get() = COST
 
   companion object {
-    private const val COST = 6f
+    const val COST = 6f
 
     fun of(defaultAttack: DefaultAttack, aspd: Int): List<DefaultAttackDefinition> {
       val motionMs = AttackSpeed.baseMotionMs(aspd)

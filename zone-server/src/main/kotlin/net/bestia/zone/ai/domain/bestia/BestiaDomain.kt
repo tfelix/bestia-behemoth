@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.domain.bestia
 
+import net.bestia.zone.battle.attack.BasicAttackResolver
 import net.bestia.zone.ai.bt.Locomotion
 import net.bestia.zone.ai.core.action.ActionResolver
 import net.bestia.zone.ai.core.action.ActionTemplate
@@ -113,6 +114,9 @@ object BestiaDomain : AiDomainCatalogue {
 
   /** How close it gets before it attacks: the reach of its longest default attack. */
   val ATTACK_RANGE = StateKey<Long>("attackRange", retain = Blackboard.PERMANENT)
+
+  /** The reach of a shot its held weapon can fire now; absent without a ranged weapon or ammo for it. */
+  val SHOT_REACH = StateKey<Long>("shotReach", observed = true)
 
   /** 0..100 temperament knob; scales how strongly the kill goals are wanted. */
   val AGGRESSION = StateKey<Int>("aggression", retain = Blackboard.PERMANENT)
@@ -330,6 +334,7 @@ object BestiaDomain : AiDomainCatalogue {
     val locomotion: Locomotion,
     val skills: SkillExecutionService,
     val attackExecution: AttackExecutionService,
+    val basicAttacks: BasicAttackResolver,
     val attacks: List<AttackDefinition> = emptyList(),
   )
 
@@ -347,7 +352,7 @@ object BestiaDomain : AiDomainCatalogue {
     "eatVegetation" to { _ -> EatVegetationActionTemplate() },
     "sleep" to { _ -> SleepActionTemplate() },
     "approachTarget" to { c -> ApproachTargetActionTemplate(c.locomotion) },
-    "attack" to { c -> AttackActionTemplate(c.attacks, c.skills, c.attackExecution) },
+    "attack" to { c -> AttackActionTemplate(c.attacks, c.skills, c.attackExecution, c.basicAttacks) },
   )
 
   /** Every action id a profile may name, for fail-fast validation at boot without building anything. */

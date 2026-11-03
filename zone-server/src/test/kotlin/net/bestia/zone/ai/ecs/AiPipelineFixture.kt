@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.ecs
 
+import net.bestia.zone.battle.attack.BasicAttackResolver
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.movement.ecs.GroundTrample
 import io.mockk.every
@@ -161,6 +162,7 @@ class AiPipelineFixture(
     navigation = TestNavigation.service(),
     skills = skills,
     attackExecution = attackExecution,
+    basicAttacks = BasicAttackResolver(mockk(relaxed = true)),
     random = random,
   )
 
