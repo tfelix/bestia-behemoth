@@ -3,9 +3,12 @@ package net.bestia.zone.casting
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.ActionGuard
 import net.bestia.zone.battle.ActionReactions
+import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.ecs.skill.Channel
 import net.bestia.zone.battle.status.ActionLock
 import net.bestia.zone.battle.status.EntityAction
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.persistence.Skill
@@ -39,6 +42,8 @@ class SkillExecutionService(
   private val cooldowns: SkillCooldownService,
   private val actionGuard: ActionGuard = ActionGuard(),
   private val actionReactions: ActionReactions = ActionReactions.NONE,
+  private val reagents: ReagentPayment? = null,
+  private val statusEffects: StatusEffectService? = null,
 ) {
 
   /** Skills never change after the import, and resolution runs on the tick, so they are read once at boot. */
@@ -130,6 +135,11 @@ class SkillExecutionService(
 
       // After the possibility check and before the effect, so a refused cast costs nothing and a
       // resolved one is always paid for.
+      if (reagents?.pay(world, casterId, skill.mechanics.reagent) == false) {
+        LOG.debug { "Skill $skillId by $casterId fizzled: it lacks ${skill.mechanics.reagent?.item}" }
+        return
+      }
+
       if (!ctx.world.consumeCasterMana(skill.manaCost)) {
         LOG.debug { "Skill $skillId by $casterId fizzled: not enough mana" }
         return
@@ -138,6 +148,7 @@ class SkillExecutionService(
       val result = strategy.execute(ctx)
       cooldowns.start(world, casterId, skill)
       actionReactions.notifyActed(world, casterId, EntityAction.CAST)
+      startChannel(world, casterId, skill, skillLevel, targetEntityId, targetPosition)
 
       // A skill whose whole effect is a patch of ground, a station or a chart has no number to show, and
       // a ground-targeted one has no entity to show it on.
@@ -152,6 +163,40 @@ class SkillExecutionService(
       LOG.error(e) { "Skill $skillId (script=${skill.script}) by $casterId overran its execution budget" }
     } catch (e: Exception) {
       LOG.error(e) { "Skill $skillId (script=${skill.script}) by $casterId failed" }
+    }
+  }
+
+  /** Holds the caster in place while a channelled skill keeps acting, see [channelTick]. */
+  private fun startChannel(
+    world: World,
+    casterId: EntityId,
+    skill: Skill,
+    skillLevel: Int,
+    targetEntityId: EntityId?,
+    targetPosition: Vec3L?
+  ) {
+    val seconds = skill.mechanics.channelSeconds
+    if (seconds <= 0f) return
+
+    world.add(
+      casterId,
+      Channel(skill.id, skillLevel, targetEntityId, targetPosition, skill.mechanics.channelInterval, seconds)
+    )
+    statusEffects?.applyEffect(world, casterId, StatusEffectId.CHANNELING, skillLevel, durationSeconds = seconds.toDouble())
+  }
+
+  /** One beat of a channelled skill. A target that is gone ends the channel, as it would end a cast. */
+  fun channelTick(world: World, casterId: EntityId, channel: Channel) {
+    val skill = skillOf(channel.skillId) ?: return
+    val strategy = skillStrategyFactory.getSkillStrategy(skill)
+    val ctx = skillContextFactory.create(
+      world, casterId, skill, channel.skillLevel, channel.targetEntityId, channel.targetPosition
+    ) ?: return
+
+    try {
+      strategy.onChannelTick(ctx, channel.ticks)
+    } catch (e: SkillBudgetExceededException) {
+      LOG.error(e) { "Channel of skill ${skill.id} by $casterId overran its execution budget" }
     }
   }
 

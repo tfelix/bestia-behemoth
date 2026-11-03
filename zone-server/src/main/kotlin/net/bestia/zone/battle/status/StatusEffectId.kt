@@ -71,7 +71,8 @@ enum class StatusEffectId(val id: Long) {
   CORROSIVE(54),
   CONTROLLED(55),
   HIDDEN(56),
-  CLOAKED(57);
+  CLOAKED(57),
+  CHANNELING(58);
 
   companion object {
     private val byId = entries.associateBy { it.id }

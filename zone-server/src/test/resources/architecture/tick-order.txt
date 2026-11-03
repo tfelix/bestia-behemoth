@@ -13,6 +13,7 @@
  - ACTIONS wave 11: CastingSystem [EveryTick]
  - ACTIONS wave 11: CraftingSystem [EveryTick]
  - ACTIONS wave 11: RespawnSystem [EveryTick]
+ - ACTIONS wave 12: ChannelSystem [EveryTick]
  - ACTIONS wave 12: ConstructionSystem [EveryTick]
  - ACTIONS wave 13: BestiaTrapSystem [EveryTick]
  - ACTIONS wave 14: TeleportSystem [EveryTick]
