@@ -15,6 +15,7 @@ import net.bestia.zone.battle.Weapon
 import net.bestia.zone.battle.ammo.AmmoEffect
 import net.bestia.zone.battle.ammo.AmmoEffectRegistry
 import net.bestia.zone.battle.damage.Damage
+import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.ecs.attack.AttackDelay
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.battle.ecs.status.CombatStats
@@ -86,6 +87,16 @@ class RangedAttackTest {
     assertTrue(world.has(target, IncomingDamage::class))
     assertEquals(2, heldArrows(shooter, ARROW.id))
     verify { inventoryService.consumeAll(MASTER_ID, listOf(ARROW.id to 1), null) }
+  }
+
+  @Test
+  fun `the hit tells the client which arrow flew, so it can draw it`() {
+    val shooter = world.spawnArcher(quiver = listOf(ARROW.id), ARROW.id to 1)
+    val target = world.spawnTarget(at = Vec3L(3, 0, 0))
+
+    sut.attackWithHeldWeapon(world, shooter, target)
+
+    verify { messages.sendToObserversOf(world, target, match<DamageEntitySMSG> { it.projectileItemId == ARROW.id }) }
   }
 
   @Test

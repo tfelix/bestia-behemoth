@@ -25,17 +25,18 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CihtZXNzYWdlcy9lbnRpdHkvZGFtYWdlX2VudGl0eV9zbXNnLnByb3RvEgRi",
-            "bmV0IqQBChBEYW1hZ2VFbnRpdHlTTVNHEhEKCWVudGl0eV9pZBgBIAEoBBIY",
+            "bmV0IsABChBEYW1hZ2VFbnRpdHlTTVNHEhEKCWVudGl0eV9pZBgBIAEoBBIY",
             "ChBzb3VyY2VfZW50aXR5X2lkGAIgASgEEhEKCWF0dGFja19pZBgDIAEoBRIO",
             "CgZkYW1hZ2UYBCABKA0SCwoDZGl2GAUgASgNEhMKC3NraWxsX2xldmVsGAYg",
-            "ASgNEh4KBHR5cGUYByABKA4yEC5ibmV0LkRhbWFnZVR5cGUqQQoKRGFtYWdl",
-            "VHlwZRIICgRNSVNTEAASCgoGTk9STUFMEAESCAoEQ1JJVBACEgkKBURPREdF",
-            "EAMSCAoESEVBTBAEQi4KFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IVRGFtYWdl",
-            "RW50aXR5U01TR1Byb3RvYgZwcm90bzM="));
+            "ASgNEh4KBHR5cGUYByABKA4yEC5ibmV0LkRhbWFnZVR5cGUSGgoScHJvamVj",
+            "dGlsZV9pdGVtX2lkGAggASgNKkEKCkRhbWFnZVR5cGUSCAoETUlTUxAAEgoK",
+            "Bk5PUk1BTBABEggKBENSSVQQAhIJCgVET0RHRRADEggKBEhFQUwQBEIuChVu",
+            "ZXQuYmVzdGlhLmJuZXQucHJvdG9CFURhbWFnZUVudGl0eVNNU0dQcm90b2IG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.DamageType), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.DamageEntitySMSG), global::Bnet.DamageEntitySMSG.Parser, new[]{ "EntityId", "SourceEntityId", "AttackId", "Damage", "Div", "SkillLevel", "Type" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.DamageEntitySMSG), global::Bnet.DamageEntitySMSG.Parser, new[]{ "EntityId", "SourceEntityId", "AttackId", "Damage", "Div", "SkillLevel", "Type", "ProjectileItemId" }, null, null, null, null)
           }));
     }
     #endregion
@@ -99,6 +100,7 @@ namespace Bnet {
       div_ = other.div_;
       skillLevel_ = other.skillLevel_;
       type_ = other.type_;
+      projectileItemId_ = other.projectileItemId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -196,6 +198,22 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "projectile_item_id" field.</summary>
+    public const int ProjectileItemIdFieldNumber = 8;
+    private uint projectileItemId_;
+    /// <summary>
+    ///*
+    /// The ammo item a shot spent, so the client can draw it flying from the source; 0 for anything not shot.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint ProjectileItemId {
+      get { return projectileItemId_; }
+      set {
+        projectileItemId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -218,6 +236,7 @@ namespace Bnet {
       if (Div != other.Div) return false;
       if (SkillLevel != other.SkillLevel) return false;
       if (Type != other.Type) return false;
+      if (ProjectileItemId != other.ProjectileItemId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -232,6 +251,7 @@ namespace Bnet {
       if (Div != 0) hash ^= Div.GetHashCode();
       if (SkillLevel != 0) hash ^= SkillLevel.GetHashCode();
       if (Type != global::Bnet.DamageType.Miss) hash ^= Type.GetHashCode();
+      if (ProjectileItemId != 0) hash ^= ProjectileItemId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -278,6 +298,10 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteEnum((int) Type);
       }
+      if (ProjectileItemId != 0) {
+        output.WriteRawTag(64);
+        output.WriteUInt32(ProjectileItemId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -316,6 +340,10 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteEnum((int) Type);
       }
+      if (ProjectileItemId != 0) {
+        output.WriteRawTag(64);
+        output.WriteUInt32(ProjectileItemId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -346,6 +374,9 @@ namespace Bnet {
       }
       if (Type != global::Bnet.DamageType.Miss) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Type);
+      }
+      if (ProjectileItemId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ProjectileItemId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -379,6 +410,9 @@ namespace Bnet {
       }
       if (other.Type != global::Bnet.DamageType.Miss) {
         Type = other.Type;
+      }
+      if (other.ProjectileItemId != 0) {
+        ProjectileItemId = other.ProjectileItemId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -427,6 +461,10 @@ namespace Bnet {
             Type = (global::Bnet.DamageType) input.ReadEnum();
             break;
           }
+          case 64: {
+            ProjectileItemId = input.ReadUInt32();
+            break;
+          }
         }
       }
     #endif
@@ -472,6 +510,10 @@ namespace Bnet {
           }
           case 56: {
             Type = (global::Bnet.DamageType) input.ReadEnum();
+            break;
+          }
+          case 64: {
+            ProjectileItemId = input.ReadUInt32();
             break;
           }
         }

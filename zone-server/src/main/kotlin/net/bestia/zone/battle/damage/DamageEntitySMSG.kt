@@ -12,7 +12,8 @@ data class DamageEntitySMSG(
   val damage: Int,
   val div: Int,
   val skillLevel: Int,
-  val type: DamageType
+  val type: DamageType,
+  val projectileItemId: Long = 0
 ) : SMSG {
 
   enum class DamageType {
@@ -42,6 +43,7 @@ data class DamageEntitySMSG(
       .setDiv(div)
       .setSkillLevel(skillLevel)
       .setType(mapDamageTypeToProto(type))
+      .setProjectileItemId(projectileItemId.toInt())
       .build()
 
     return EnvelopeProto.Envelope.newBuilder()
