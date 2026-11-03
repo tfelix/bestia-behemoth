@@ -8,7 +8,10 @@ import net.bestia.zone.casting.BasicMagicSkillStrategy
 import net.bestia.zone.casting.SkillContext
 import org.springframework.stereotype.Component
 
-/** The debuff archetype: weakens the target, so it deals less damage for a while. */
+/**
+ * The debuff archetype: rolls its row's statuses on the target, WEAKENED when it names none. Centred on the caster
+ * with a reach, like Growl or a roar, it rolls them on every foe around instead.
+ */
 @Component
 class BestiaDebuffSkill(
   losService: LineOfSightService,
@@ -19,9 +22,23 @@ class BestiaDebuffSkill(
   }
 
   override fun execute(ctx: SkillContext): Damage? {
-    val target = ctx.targetEntityId ?: return null
-    ctx.applyStatusEffect(target, StatusEffectId.WEAKENED)
+    targetsOf(ctx).forEach { target ->
+      if (ctx.skill.mechanics.onHit.isEmpty()) {
+        ctx.applyStatusEffect(target, StatusEffectId.WEAKENED)
+      } else {
+        BestiaSkillMechanics.inflict(ctx, target)
+      }
+    }
 
     return null
+  }
+
+  private fun targetsOf(ctx: SkillContext): List<Long> {
+    val radius = ctx.skill.mechanics.reach.toLong()
+    if (!ctx.skill.mechanics.selfCentred || radius <= 0L) return listOfNotNull(ctx.targetEntityId)
+
+    val centre = ctx.world.positionOf(ctx.casterId) ?: return emptyList()
+
+    return ctx.world.entitiesInCube(centre, radius * 2).filter { ctx.world.isFoe(it) }
   }
 }

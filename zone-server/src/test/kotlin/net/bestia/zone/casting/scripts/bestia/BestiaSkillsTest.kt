@@ -85,7 +85,7 @@ class BestiaSkillsTest {
 
   @Test
   fun `heal and buff land on the caster even when an enemy was targeted`() {
-    val world = RecordingSkillWorld()
+    val world = RecordingSkillWorld().apply { foes.add(DEFENDER_ID) }
     val cast = ctx(world = world)
 
     assertNull(BestiaHealSkill().execute(cast))
