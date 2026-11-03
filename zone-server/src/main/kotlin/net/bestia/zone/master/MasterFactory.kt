@@ -321,10 +321,12 @@ class MasterFactory(
      *
      * The slot is named here rather than read off [net.bestia.zone.item.persistence.Item.equipSlot] so that a piece
      * which is re-homed in the catalogue shows up as a mismatch instead of silently being worn somewhere
-     * else - a starter kit is a specific set of three places on a body, not three arbitrary items.
+     * else - a starter kit is a specific set of places on a body, not a handful of arbitrary items.
      */
     private val STARTER_GEAR = listOf(
       "novice_knife" to EquipmentSlot.RIGHT_HAND,
+      "novice_shield" to EquipmentSlot.LEFT_HAND,
+      "novice_helmet" to EquipmentSlot.HEAD_UPPER,
       "novice_shirt" to EquipmentSlot.ARMOR,
       "novice_boots" to EquipmentSlot.FOOTGEAR
     )

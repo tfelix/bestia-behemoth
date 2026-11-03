@@ -59,11 +59,19 @@ class StarterGearTest {
       val worn = wornBy(master)
 
       assertEquals(
-        setOf(EquipmentSlot.RIGHT_HAND, EquipmentSlot.ARMOR, EquipmentSlot.FOOTGEAR),
+        setOf(
+          EquipmentSlot.RIGHT_HAND,
+          EquipmentSlot.LEFT_HAND,
+          EquipmentSlot.HEAD_UPPER,
+          EquipmentSlot.ARMOR,
+          EquipmentSlot.FOOTGEAR
+        ),
         worn.keys,
-        "a new master should start with all three pieces on"
+        "a new master should start with all five pieces on"
       )
       assertEquals("novice_knife", worn.getValue(EquipmentSlot.RIGHT_HAND).identifier)
+      assertEquals("novice_shield", worn.getValue(EquipmentSlot.LEFT_HAND).identifier)
+      assertEquals("novice_helmet", worn.getValue(EquipmentSlot.HEAD_UPPER).identifier)
       assertEquals("novice_shirt", worn.getValue(EquipmentSlot.ARMOR).identifier)
       assertEquals("novice_boots", worn.getValue(EquipmentSlot.FOOTGEAR).identifier)
     }

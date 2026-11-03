@@ -150,8 +150,8 @@ class BlobBalanceTest {
   private companion object {
     const val MASTER_LEVEL = 1
 
-    /** `novice_shirt` 3 plus `novice_boots` 2, in percentage points - see `items.yml`. */
-    const val STARTER_KIT_DEF = 5
+    /** `novice_shirt` 3, `novice_boots` 2, `novice_helmet` 3 and `novice_shield` 5, in percentage points - see `items.yml`. */
+    const val STARTER_KIT_DEF = 13
 
     const val NOVICE_KNIFE_ATK = 10
 

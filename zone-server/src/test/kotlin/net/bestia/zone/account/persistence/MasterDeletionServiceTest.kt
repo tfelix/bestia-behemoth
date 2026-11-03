@@ -110,7 +110,7 @@ class MasterDeletionServiceTest {
   @Test
   fun `deletes the unique items the master was carrying`() {
     // Measured before the master exists, so the baseline includes none of what a new master is created
-    // holding - the starter map chart, the three pieces of novice kit and the bow - all of which the delete has
+    // holding - the starter map chart, the five pieces of novice kit and the bow - all of which the delete has
     // to take with it.
     val instancesBefore = itemInstanceRepository.count()
     val master = createThrowawayMaster()
@@ -245,11 +245,11 @@ class MasterDeletionServiceTest {
     const val FREE_SLOT = 1
 
     /**
-     * How many `ItemInstance` rows `MasterFactory.create` mints: the starter map chart, the three pieces of
+     * How many `ItemInstance` rows `MasterFactory.create` mints: the starter map chart, the five pieces of
      * novice kit, and the novice bow. Named rather than inlined because this test is about the *delete* order, and
      * a change to what a master starts with should read as a new number here rather than as a broken cascade.
      */
-    const val CREATION_INSTANCES = 5
+    const val CREATION_INSTANCES = 7
 
     val NEXT_NAME = AtomicInteger(1)
   }

@@ -1228,3 +1228,39 @@ items:
       A short bow of bent ash, strung with waxed gut.
 
       Needs both hands and arrows in the quiver.
+
+  # Equipment `defense` and `magic-defense` are percentage reductions, so these are +3% and +5% of each.
+  - id: 98
+    item-db-name: novice_helmet
+    base-level: 1
+    weight: 40
+    type: EQUIP
+    material: LEATHER
+    equip-slot: HEAD_UPPER
+    armor-type: LIGHT
+    max-durability: 80
+    novice-only: true
+    defense: 3
+    magic-defense: 3
+    description: |
+      A boiled leather cap, laced under the chin.
+
+      It has stopped one falling branch already, and it has the dent to prove it.
+
+  # Worn in the left hand: it has to come off before the two-handed novice bow will go on.
+  - id: 99
+    item-db-name: novice_shield
+    base-level: 1
+    weight: 100
+    type: EQUIP
+    material: WOOD
+    equip-slot: LEFT_HAND
+    armor-type: LIGHT
+    max-durability: 100
+    novice-only: true
+    defense: 5
+    magic-defense: 5
+    description: |
+      A round of pine planks with an iron boss and a leather grip.
+
+      Heavier than it looks, and lighter than what it stops.
