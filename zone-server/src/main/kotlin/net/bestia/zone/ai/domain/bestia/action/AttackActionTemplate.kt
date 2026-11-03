@@ -8,14 +8,18 @@ import net.bestia.zone.ai.core.behavior.Status
 import net.bestia.zone.ai.core.effect.Effects
 import net.bestia.zone.ai.core.state.WorldState
 import net.bestia.zone.ai.bt.leaves.BasicAttack
+import net.bestia.zone.ai.bt.leaves.ShootHeldWeapon
 import net.bestia.zone.ai.bt.leaves.UseSkill
 import net.bestia.zone.ai.domain.bestia.AttackDefinition
 import net.bestia.zone.ai.domain.bestia.AttackEffectiveness
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.domain.bestia.DefaultAttackDefinition
 import net.bestia.zone.ai.domain.bestia.EffectivenessKey
+import net.bestia.zone.ai.domain.bestia.HeldWeaponShot
 import net.bestia.zone.ai.domain.bestia.SkillAttack
 import net.bestia.zone.battle.attack.AttackExecutionService
+import net.bestia.zone.battle.attack.BasicAttackResolver
+import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.casting.SkillExecutionService
 
 /**
@@ -30,6 +34,7 @@ class AttackActionTemplate(
   private val attacks: List<AttackDefinition>,
   private val skills: SkillExecutionService,
   private val attackExecution: AttackExecutionService,
+  private val basicAttacks: BasicAttackResolver,
 ) : ActionTemplate {
   override val id = "attack"
 
@@ -41,7 +46,7 @@ class AttackActionTemplate(
     val distance = position.distance(targetPosition)
     val effectiveness = state.get(BestiaDomain.ATTACK_EFFECTIVENESS) ?: emptyMap()
 
-    val inRange = attacks.filter { distance <= it.range }
+    val inRange = attacksAvailable(state).filter { distance <= it.range }
     val defaultAttack = closestDefaultAttack(inRange)
 
     return inRange
@@ -84,11 +89,21 @@ class AttackActionTemplate(
   private fun swing(targetId: Long, attack: AttackDefinition, defaultAttack: DefaultAttackDefinition?): BtNode =
     when (attack) {
       is DefaultAttackDefinition -> BasicAttack(targetId, attackExecution, attack.attack)
+      is HeldWeaponShot -> ShootHeldWeapon(targetId, attackExecution, basicAttacks, attack.baseAttackMotionMs)
       is SkillAttack -> selector {
         node(UseSkill(targetId, attack.skillId, skills))
         defaultAttack?.let { node(BasicAttack(targetId, attackExecution, it.attack)) }
       }
     }
+
+  /** While the held weapon can shoot, the shot stands in for the species' own default attacks. */
+  private fun attacksAvailable(state: WorldState): List<AttackDefinition> {
+    val reach = state.get(BestiaDomain.SHOT_REACH) ?: return attacks
+    val defaults = attacks.filterIsInstance<DefaultAttackDefinition>()
+    val motionMs = defaults.firstOrNull()?.attack?.baseAttackMotionMs ?: AttackSpeed.BARE_HANDED_MOTION_MS
+
+    return attacks - defaults.toSet() + HeldWeaponShot(reach, motionMs)
+  }
 
   /**
    * The default attack with the shortest reach that still reaches. A species that bites and shoots bites

@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.domain.bestia
 
+import net.bestia.zone.battle.attack.BasicAttackResolver
 import io.mockk.mockk
 import net.bestia.zone.ai.bt.Locomotion
 import net.bestia.zone.ai.core.action.ActionResolver
@@ -34,6 +35,6 @@ object BestiaDomainFixture {
     attacks: List<AttackDefinition> = emptyList(),
   ): ActionResolver = BestiaDomain.resolver(
     actionIds,
-    BestiaDomain.Collaborators(locomotion(), skills(), attackExecution(), attacks)
+    BestiaDomain.Collaborators(locomotion(), skills(), attackExecution(), BasicAttackResolver(mockk(relaxed = true)), attacks)
   )
 }

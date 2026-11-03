@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.domain.bestia
 
+import net.bestia.zone.battle.attack.BasicAttackResolver
 import net.bestia.zone.ai.bt.Locomotion
 import net.bestia.zone.ai.core.action.ActionResolver
 import net.bestia.zone.ai.core.state.Blackboard
@@ -27,6 +28,7 @@ class BestiaRuntime(
   navigation: NavigationService,
   private val skills: SkillExecutionService,
   private val attackExecution: AttackExecutionService,
+  private val basicAttacks: BasicAttackResolver,
   /** Where wandering draws from. Defaulted for the server; a test passes a seed to pin a walk. */
   random: Random = Random.Default,
 ) : AiDomainRuntime {
@@ -69,7 +71,7 @@ class BestiaRuntime(
   override fun resolver(profile: AiProfile): ActionResolver {
     return BestiaDomain.resolver(
       profile.actionIds,
-      BestiaDomain.Collaborators(locomotion, skills, attackExecution, profile.attacks)
+      BestiaDomain.Collaborators(locomotion, skills, attackExecution, basicAttacks, profile.attacks)
     )
   }
 

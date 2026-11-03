@@ -11,8 +11,8 @@ import net.bestia.zone.ai.domain.bestia.BestiaDomain
 /**
  * Walks into attack range of the current target. Only grounds when the bestia is further than
  * [BestiaDomain.ATTACK_RANGE] away, so an [AttackActionTemplate] naturally chains `approachTarget -> attack`,
- * while a target already in range skips this step entirely. The range is the reach of the species' default
- * attack, so a ranged creature stops at shooting distance.
+ * while a target already in range skips this step entirely. The range is the reach of a held bow while it can
+ * shoot, else of the species' default attack, so a ranged creature stops at shooting distance.
  */
 class ApproachTargetActionTemplate(private val locomotion: Locomotion) : ActionTemplate {
   override val id = "approachTarget"
@@ -20,7 +20,9 @@ class ApproachTargetActionTemplate(private val locomotion: Locomotion) : ActionT
   override fun ground(state: WorldState): List<Action> {
     val position = state.get(BestiaDomain.POSITION) ?: return emptyList()
     val targetPosition = state.get(BestiaDomain.TARGET_POSITION) ?: return emptyList()
-    val attackRange = state.get(BestiaDomain.ATTACK_RANGE) ?: BestiaDomain.DEFAULT_ATTACK_RANGE
+    val attackRange = state.get(BestiaDomain.SHOT_REACH)
+      ?: state.get(BestiaDomain.ATTACK_RANGE)
+      ?: BestiaDomain.DEFAULT_ATTACK_RANGE
     if (position.distance(targetPosition) <= attackRange) return emptyList()
 
     return listOf(
