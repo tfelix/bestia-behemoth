@@ -1,5 +1,6 @@
 package net.bestia.zone.honor
 
+import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.World
@@ -14,8 +15,19 @@ class Aggression(
 ) {
 
   fun isAggressor(world: World, entity: EntityId): Boolean {
-    val master = masters.masterEntityOf(world, entity) ?: return false
+    return aggressionOf(world, entity) != null
+  }
 
-    return world.get(master, StatusEffects::class)?.hasEffect(StatusEffectId.AGGRESSOR.id) == true
+  /** The entity the master behind [entity] first attacked, or null when they are no aggressor. */
+  fun victimOf(world: World, entity: EntityId): EntityId? {
+    return aggressionOf(world, entity)?.sourceEntityId
+  }
+
+  private fun aggressionOf(world: World, entity: EntityId): ActiveStatusEffect? {
+    val master = masters.masterEntityOf(world, entity) ?: return null
+
+    return world.get(master, StatusEffects::class)?.activeEffects?.firstOrNull {
+      it.definitionId == StatusEffectId.AGGRESSOR.id
+    }
   }
 }

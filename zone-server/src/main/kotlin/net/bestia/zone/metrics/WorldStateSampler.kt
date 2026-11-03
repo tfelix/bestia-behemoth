@@ -12,6 +12,7 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.honor.HonorStandingSystem
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.movement.ecs.Path
 import java.util.concurrent.ConcurrentHashMap
@@ -29,6 +30,9 @@ import org.springframework.stereotype.Component as SpringComponent
 @SpringComponent
 class WorldStateSampler(private val registry: MeterRegistry) : System {
   override val phase = Phase.UPKEEP
+
+  /** Both read status effects, and honor marks change them; samples the tick as it was. */
+  override val before = setOf(HonorStandingSystem::class)
 
   override val schedule: Schedule = Schedule.EverySeconds(SAMPLE_SECONDS)
 
