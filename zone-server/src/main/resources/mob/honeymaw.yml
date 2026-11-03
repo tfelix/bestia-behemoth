@@ -13,6 +13,7 @@ default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
 attack-power: 1.11
+weight: 250
 health: 700
 mana: 94
 experience: 155
@@ -24,18 +25,18 @@ learnset:
   - { skill: stone_fist, level: 16 }
   - { skill: collect_honey, level: 21 }
   - { skill: crushing_blow, level: 26 }
-  - { skill: pounce, level: 31, active: true }
-  - { skill: tailwind, level: 36 }
+  - { skill: headbutt, level: 31, active: true }
+  - { skill: stone_coat, level: 36 }
   - { skill: hammer_blow, level: 41 }
-  - { skill: mud_trap, level: 46 }
+  - { skill: stone_curse, level: 46 }
   - { skill: body_slam, level: 51 }
   - { skill: boulder_slam, level: 56 }
   - { skill: tremor, level: 61 }
-  - { skill: bloodlust, level: 66 }
+  - { skill: quake_weapon, level: 66 }
   - { skill: rampage, level: 70 }
-  - { skill: skull_breaker, level: 76 }
+  - { skill: savage_maul, level: 76 }
   - { skill: mana_storm, level: 82 }
-  - { skill: primal_rage, level: 88 }
+  - { skill: berserk, level: 88 }
   - { skill: titan_blow, level: 94 }
   - { skill: fissure, level: 100 }
 habitat: [TEMPERATE_FOREST, TAIGA]

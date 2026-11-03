@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 skill_id = 2008
-name = "Fell Branches"
+name = "Uproot"
 description_key = "SKILL_2008_DESC"
 mana_cost = 6
 cooldown = 300.0

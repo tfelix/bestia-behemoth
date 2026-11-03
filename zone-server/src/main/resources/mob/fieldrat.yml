@@ -13,6 +13,7 @@ default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
 attack-power: 1
+weight: 15
 health: 83
 mana: 28
 experience: 4
@@ -20,22 +21,20 @@ attributes: { strength: 1, intelligence: 5, vitality: 5, dexterity: 1, willpower
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: forage, level: 6 }
+  - { skill: burrow, level: 11 }
   - { skill: ram, level: 16 }
   - { skill: hamstring, level: 21 }
-  - { skill: force_bolt, level: 26 }
-  - { skill: pounce, level: 31 }
-  - { skill: bleeding_wound, level: 36 }
+  - { skill: headbutt, level: 31 }
+  - { skill: static_field, level: 36 }
   - { skill: hammer_blow, level: 41 }
   - { skill: regenerate, level: 46 }
-  - { skill: arcane_lance, level: 51 }
-  - { skill: shockwave, level: 56 }
+  - { skill: cyclone, level: 56 }
   - { skill: savage_maul, level: 61 }
   - { skill: terrifying_roar, level: 66 }
-  - { skill: mana_spear, level: 70 }
+  - { skill: chain_lightning, level: 70 }
   - { skill: mana_storm, level: 82 }
   - { skill: skull_breaker, level: 88 }
-  - { skill: arcane_missile, level: 94 }
-  - { skill: wrath_of_the_wild, level: 100 }
+  - { skill: hurricane, level: 100 }
 habitat: [GRASSLAND, DRYLAND]
 temperature-min: -5
 temperature-max: 38

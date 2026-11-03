@@ -12,11 +12,12 @@ size: BIG
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 2.44
-health: 42288
+attack-power: 2.23
+weight: 500
+health: 42938
 mana: 133
 experience: 13481
-attributes: { strength: 8, intelligence: 18, vitality: 108, dexterity: 6, willpower: 43, agility: 14 }
+attributes: { strength: 8, intelligence: 18, vitality: 108, dexterity: 5, willpower: 43, agility: 14 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: drip_jelly, level: 6 }
@@ -28,7 +29,7 @@ learnset:
   - { skill: hamstring, level: 36, active: true }
   - { skill: regenerate, level: 41, active: true }
   - { skill: body_slam, level: 46 }
-  - { skill: shockwave, level: 51 }
+  - { skill: cyclone, level: 51 }
   - { skill: war_cry, level: 56 }
   - { skill: savage_maul, level: 61 }
   - { skill: terrifying_roar, level: 66 }
@@ -36,13 +37,14 @@ learnset:
   - { skill: berserk, level: 76 }
   - { skill: mana_storm, level: 82 }
   - { skill: skull_breaker, level: 88 }
-  - { skill: greater_heal, level: 94 }
-  - { skill: wrath_of_the_wild, level: 100 }
+  - { skill: divine_heal, level: 94 }
+  - { skill: hurricane, level: 100 }
 habitat: [GRASSLAND, RIPARIAN]
 temperature-min: -5
 temperature-max: 40
 spawn-weight: 100
 boss: true
+status-immunities: [STUN, FROZEN, STONING, FEARED, CONFUSED, CONTROLLED]
 equip-slots: [GARMENT]
 armor-types: [CLOTH, LIGHT]
 loot:

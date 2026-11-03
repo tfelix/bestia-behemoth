@@ -12,6 +12,7 @@ default-attack: RANGED
 aspd: 80
 ai: aggressive_melee
 attack-power: 1
+weight: 15
 health: 460
 mana: 75
 experience: 111
@@ -21,20 +22,20 @@ learnset:
   - { skill: pebble_toss, level: 6 }
   - { skill: growl, level: 11 }
   - { skill: stone_fist, level: 16 }
-  - { skill: enrage, level: 21, active: true }
+  - { skill: quake_weapon, level: 21, active: true }
   - { skill: rock_throw, level: 26 }
   - { skill: crushing_blow, level: 31 }
-  - { skill: mud_trap, level: 36 }
+  - { skill: quagmire, level: 36 }
   - { skill: spine_volley, level: 41 }
   - { skill: body_slam, level: 46 }
-  - { skill: war_cry, level: 51 }
+  - { skill: stone_coat, level: 51 }
   - { skill: piercing_spike, level: 56 }
   - { skill: boulder_slam, level: 61 }
   - { skill: petrifying_gaze, level: 66 }
   - { skill: barbed_barrage, level: 70 }
-  - { skill: skull_breaker, level: 76 }
+  - { skill: rampage, level: 76 }
   - { skill: thorn_volley, level: 82 }
-  - { skill: primal_rage, level: 88 }
+  - { skill: berserk, level: 88 }
   - { skill: tremor, level: 94 }
   - { skill: fissure, level: 100 }
 habitat: [TAIGA]

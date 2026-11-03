@@ -37,6 +37,13 @@ class MobCatalogueTest {
   }
 
   @Test
+  fun `a species learns each skill once`() {
+    val repeated = species.filter { mob -> mob.learnset.map { it.skill }.toSet().size != mob.learnset.size }.map { it.identifier }
+
+    assertEquals(emptyList(), repeated)
+  }
+
+  @Test
   fun `every loot item is in items yml`() {
     val items = readItems().map { it.identifier }.toSet()
 

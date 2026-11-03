@@ -12,6 +12,7 @@ default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
 attack-power: 1.03
+weight: 60
 health: 818
 mana: 112
 experience: 190
@@ -23,18 +24,18 @@ learnset:
   - { skill: rotting_grasp, level: 16 }
   - { skill: hamstring, level: 21 }
   - { skill: crushing_blow, level: 26 }
-  - { skill: pounce, level: 31 }
-  - { skill: tailwind, level: 36 }
+  - { skill: headbutt, level: 31 }
+  - { skill: bone_armor, level: 36 }
   - { skill: hammer_blow, level: 41, active: true }
-  - { skill: curse, level: 46 }
+  - { skill: dispel, level: 46 }
   - { skill: body_slam, level: 51 }
   - { skill: bone_crusher, level: 56 }
-  - { skill: corpse_explosion, level: 61 }
+  - { skill: mana_storm, level: 61 }
   - { skill: bloodlust, level: 66 }
   - { skill: rampage, level: 70 }
-  - { skill: skull_breaker, level: 76 }
-  - { skill: mana_storm, level: 82 }
-  - { skill: primal_rage, level: 88 }
+  - { skill: savage_maul, level: 76 }
+  - { skill: shockwave, level: 82 }
+  - { skill: berserk, level: 88 }
   - { skill: titan_blow, level: 94 }
   - { skill: grave_tide, level: 100 }
 habitat: [BOG, SWAMP, LAKE]

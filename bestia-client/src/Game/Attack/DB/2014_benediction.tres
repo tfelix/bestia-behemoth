@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 skill_id = 2014
-name = "Benediction"
+name = "Blessing"
 description_key = "SKILL_2014_DESC"
 mana_cost = 16
 cooldown = 120.0

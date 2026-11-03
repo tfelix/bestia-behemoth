@@ -12,6 +12,7 @@ default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
 attack-power: 0.75
+weight: 250
 health: 1636
 mana: 202
 experience: 363
@@ -23,18 +24,18 @@ learnset:
   - { skill: unearth, level: 16 }
   - { skill: hamstring, level: 21 }
   - { skill: crushing_blow, level: 26 }
-  - { skill: pounce, level: 31 }
-  - { skill: tailwind, level: 36 }
+  - { skill: headbutt, level: 31 }
+  - { skill: stone_coat, level: 36 }
   - { skill: hammer_blow, level: 41 }
-  - { skill: mud_trap, level: 46 }
+  - { skill: stone_curse, level: 46 }
   - { skill: body_slam, level: 51 }
   - { skill: boulder_slam, level: 56 }
   - { skill: tremor, level: 61 }
-  - { skill: bloodlust, level: 66 }
+  - { skill: quake_weapon, level: 66 }
   - { skill: rampage, level: 70 }
-  - { skill: skull_breaker, level: 76 }
+  - { skill: savage_maul, level: 76 }
   - { skill: mana_storm, level: 82, active: true }
-  - { skill: primal_rage, level: 88 }
+  - { skill: berserk, level: 88 }
   - { skill: titan_blow, level: 94 }
   - { skill: fissure, level: 100 }
 habitat: [DESERT, COLD_DESERT]

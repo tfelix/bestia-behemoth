@@ -13,6 +13,7 @@ default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
 attack-power: 1
+weight: 250
 health: 1340
 mana: 378
 experience: 309
@@ -20,23 +21,22 @@ attributes: { strength: 6, intelligence: 68, vitality: 41, dexterity: 17, willpo
 learnset:
   - { skill: lick_wounds, level: 1 }
   - { skill: growl, level: 6 }
-  - { skill: mana_spark, level: 11 }
   - { skill: enrage, level: 16 }
   - { skill: minor_heal, level: 21 }
   - { skill: benediction, level: 26 }
   - { skill: sunbeam, level: 31 }
-  - { skill: holy_vigor, level: 36 }
-  - { skill: tend_wounds, level: 41 }
+  - { skill: bless_weapon, level: 36 }
+  - { skill: gale_step, level: 41 }
   - { skill: hallowed_ground, level: 46 }
-  - { skill: arcane_lance, level: 51 }
-  - { skill: terrifying_roar, level: 56 }
+  - { skill: turn_undead, level: 51 }
+  - { skill: dispel, level: 56 }
   - { skill: renewal, level: 61 }
   - { skill: bloodlust, level: 66, active: true }
   - { skill: divine_nova, level: 70 }
-  - { skill: mending_light, level: 76 }
+  - { skill: sanctuary, level: 76 }
   - { skill: berserk, level: 82 }
   - { skill: purifying_ray, level: 88 }
-  - { skill: mana_storm, level: 94 }
+  - { skill: great_exorcism, level: 94 }
   - { skill: pillar_of_dawn, level: 100 }
 habitat: [TEMPERATE_RAINFOREST, TEMPERATE_FOREST]
 temperature-min: -5

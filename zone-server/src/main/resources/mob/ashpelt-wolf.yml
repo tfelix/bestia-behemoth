@@ -12,6 +12,7 @@ default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
 attack-power: 0.98
+weight: 60
 health: 588
 mana: 82
 experience: 129
@@ -23,20 +24,18 @@ learnset:
   - { skill: headbutt, level: 16 }
   - { skill: hamstring, level: 21 }
   - { skill: crushing_blow, level: 26, active: true }
-  - { skill: pounce, level: 31 }
   - { skill: enrage, level: 36 }
   - { skill: hammer_blow, level: 41 }
-  - { skill: screech, level: 46 }
+  - { skill: strip_armor, level: 46 }
   - { skill: body_slam, level: 51 }
   - { skill: savage_maul, level: 56 }
-  - { skill: mana_storm, level: 61 }
+  - { skill: frost_nova, level: 61 }
   - { skill: war_cry, level: 66 }
   - { skill: rampage, level: 70 }
-  - { skill: skull_breaker, level: 76 }
-  - { skill: shockwave, level: 82 }
-  - { skill: primal_rage, level: 88 }
+  - { skill: frost_breath, level: 82 }
+  - { skill: berserk, level: 88 }
   - { skill: titan_blow, level: 94 }
-  - { skill: wrath_of_the_wild, level: 100 }
+  - { skill: blizzard, level: 100 }
 habitat: [TAIGA, TEMPERATE_FOREST]
 temperature-min: -25
 temperature-max: 28

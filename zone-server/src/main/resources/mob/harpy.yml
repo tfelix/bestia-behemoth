@@ -11,7 +11,8 @@ size: MEDIUM
 default-attack: RANGED
 aspd: 80
 ai: aggressive_melee
-attack-power: 1.14
+attack-power: 1.06
+weight: 60
 health: 717
 mana: 119
 experience: 199
@@ -21,20 +22,20 @@ learnset:
   - { skill: pebble_toss, level: 6 }
   - { skill: growl, level: 11 }
   - { skill: wing_buffet, level: 16 }
-  - { skill: enrage, level: 21 }
+  - { skill: storm_weapon, level: 21 }
   - { skill: wind_cutter, level: 26 }
   - { skill: keen_eye, level: 31 }
-  - { skill: curse, level: 36 }
+  - { skill: bewilder, level: 36 }
   - { skill: spine_volley, level: 41, active: true }
   - { skill: body_slam, level: 46 }
-  - { skill: tailwind, level: 51 }
+  - { skill: wind_ward, level: 51 }
   - { skill: piercing_spike, level: 56 }
   - { skill: tempest_dive, level: 61 }
   - { skill: petrifying_gaze, level: 66 }
   - { skill: barbed_barrage, level: 70 }
-  - { skill: skull_breaker, level: 76 }
+  - { skill: rampage, level: 76 }
   - { skill: thorn_volley, level: 82 }
-  - { skill: primal_rage, level: 88 }
+  - { skill: tailwind, level: 88 }
   - { skill: cyclone, level: 94 }
   - { skill: hurricane, level: 100 }
 habitat: [ALPINE, BADLANDS]

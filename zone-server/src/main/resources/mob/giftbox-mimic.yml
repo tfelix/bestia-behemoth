@@ -12,6 +12,7 @@ default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
 attack-power: 1
+weight: 15
 health: 610
 mana: 120
 experience: 183
@@ -23,19 +24,19 @@ learnset:
   - { skill: minor_heal, level: 16 }
   - { skill: frost_bite, level: 21 }
   - { skill: crushing_blow, level: 26 }
-  - { skill: tailwind, level: 31 }
-  - { skill: curse, level: 36, active: true }
-  - { skill: regenerate, level: 41 }
+  - { skill: frost_coat, level: 31 }
+  - { skill: bewilder, level: 36, active: true }
+  - { skill: healing_circle, level: 41 }
   - { skill: body_slam, level: 46 }
-  - { skill: frost_breath, level: 51 }
-  - { skill: bloodlust, level: 56 }
+  - { skill: frost_nova, level: 51 }
+  - { skill: frost_weapon, level: 56 }
   - { skill: tidal_slam, level: 61 }
   - { skill: petrifying_gaze, level: 66 }
   - { skill: renewal, level: 70 }
   - { skill: berserk, level: 76 }
-  - { skill: mana_storm, level: 82 }
+  - { skill: frost_breath, level: 82 }
   - { skill: skull_breaker, level: 88 }
-  - { skill: greater_heal, level: 94 }
+  - { skill: divine_heal, level: 94 }
   - { skill: blizzard, level: 100 }
 habitat: []
 spawn-weight: 100

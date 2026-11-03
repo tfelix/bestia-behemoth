@@ -13,6 +13,7 @@ default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
 attack-power: 1
+weight: 15
 health: 239
 mana: 60
 experience: 57
@@ -24,17 +25,15 @@ learnset:
   - { skill: spin_silk, level: 16 }
   - { skill: minor_heal, level: 21 }
   - { skill: hamstring, level: 26 }
-  - { skill: arcane_missile, level: 31 }
   - { skill: tailwind, level: 36 }
-  - { skill: regenerate, level: 41 }
+  - { skill: healing_circle, level: 41 }
   - { skill: static_field, level: 46 }
-  - { skill: arcane_lance, level: 51 }
   - { skill: terrifying_roar, level: 56 }
   - { skill: renewal, level: 61 }
-  - { skill: bloodlust, level: 66 }
+  - { skill: wind_ward, level: 66 }
   - { skill: cyclone, level: 70 }
-  - { skill: mending_light, level: 76 }
-  - { skill: berserk, level: 82 }
+  - { skill: sanctuary, level: 76 }
+  - { skill: storm_coat, level: 82 }
   - { skill: chain_lightning, level: 88 }
   - { skill: mana_storm, level: 94 }
   - { skill: hurricane, level: 100 }

@@ -13,6 +13,7 @@ default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
 attack-power: 0.95
+weight: 250
 health: 1360
 mana: 175
 experience: 318
@@ -22,20 +23,20 @@ learnset:
   - { skill: ram, level: 6 }
   - { skill: howl, level: 11 }
   - { skill: wing_buffet, level: 16 }
-  - { skill: fell_branches, level: 21 }
+  - { skill: uproot, level: 21 }
   - { skill: crushing_blow, level: 26 }
-  - { skill: pounce, level: 31 }
+  - { skill: headbutt, level: 31 }
   - { skill: tailwind, level: 36 }
   - { skill: hammer_blow, level: 41 }
-  - { skill: curse, level: 46 }
+  - { skill: dispel, level: 46 }
   - { skill: body_slam, level: 51 }
   - { skill: tempest_dive, level: 56 }
   - { skill: cyclone, level: 61 }
-  - { skill: bloodlust, level: 66 }
+  - { skill: wind_ward, level: 66 }
   - { skill: rampage, level: 70, active: true }
-  - { skill: skull_breaker, level: 76 }
+  - { skill: savage_maul, level: 76 }
   - { skill: mana_storm, level: 82 }
-  - { skill: primal_rage, level: 88 }
+  - { skill: storm_coat, level: 88 }
   - { skill: titan_blow, level: 94 }
   - { skill: hurricane, level: 100 }
 habitat: [TROPICAL_SEASONAL_FOREST, TROPICAL_RAINFOREST]

@@ -13,29 +13,26 @@ default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
 attack-power: 1
+weight: 15
 health: 527
 mana: 134
 experience: 109
 attributes: { strength: 1, intelligence: 40, vitality: 11, dexterity: 1, willpower: 27, agility: 11 }
 learnset:
-  - { skill: mana_spark, level: 1 }
   - { skill: growl, level: 6 }
   - { skill: ice_shard, level: 16 }
-  - { skill: enrage, level: 21, active: true }
-  - { skill: force_bolt, level: 26 }
+  - { skill: frost_weapon, level: 21, active: true }
   - { skill: frost_breath, level: 31 }
-  - { skill: curse, level: 36 }
-  - { skill: arcane_missile, level: 41 }
+  - { skill: bewilder, level: 36 }
+  - { skill: frost_diver, level: 41 }
   - { skill: chilling_mist, level: 46 }
   - { skill: hailstone, level: 51 }
   - { skill: mending_light, level: 56 }
-  - { skill: mana_storm, level: 61 }
+  - { skill: frost_nova, level: 61 }
   - { skill: torrent, level: 66 }
   - { skill: petrifying_gaze, level: 70 }
-  - { skill: mana_spear, level: 76 }
-  - { skill: shockwave, level: 82 }
+  - { skill: mana_storm, level: 82 }
   - { skill: bleeding_wound, level: 88 }
-  - { skill: arcane_lance, level: 94 }
   - { skill: blizzard, level: 100 }
 habitat: [BEACH, OCEAN]
 temperature-min: -10

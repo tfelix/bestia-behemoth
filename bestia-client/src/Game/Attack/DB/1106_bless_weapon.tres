@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 skill_id = 1106
-name = "Holy Vigor"
+name = "Bless Weapon"
 description_key = "SKILL_1106_DESC"
 mana_cost = 11
 cooldown = 30.0

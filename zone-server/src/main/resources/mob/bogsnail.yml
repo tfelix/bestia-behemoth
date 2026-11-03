@@ -12,6 +12,7 @@ default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
 attack-power: 1
+weight: 15
 health: 228
 mana: 41
 experience: 34
@@ -23,10 +24,10 @@ learnset:
   - { skill: minor_heal, level: 16 }
   - { skill: poison_sting, level: 21 }
   - { skill: crushing_blow, level: 26 }
-  - { skill: tailwind, level: 31 }
-  - { skill: curse, level: 36 }
-  - { skill: regenerate, level: 41 }
-  - { skill: body_slam, level: 46 }
+  - { skill: acid_skin, level: 31 }
+  - { skill: bewilder, level: 36 }
+  - { skill: healing_circle, level: 41 }
+  - { skill: corrode, level: 46 }
   - { skill: miasma, level: 51 }
   - { skill: bloodlust, level: 56 }
   - { skill: toxic_rend, level: 61 }

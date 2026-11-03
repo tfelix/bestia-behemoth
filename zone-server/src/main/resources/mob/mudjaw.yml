@@ -12,6 +12,7 @@ default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
 attack-power: 1
+weight: 250
 health: 755
 mana: 103
 experience: 173
@@ -22,19 +23,19 @@ learnset:
   - { skill: howl, level: 11 }
   - { skill: frost_bite, level: 16 }
   - { skill: hamstring, level: 21 }
-  - { skill: go_fishing, level: 26 }
-  - { skill: pounce, level: 31 }
-  - { skill: tailwind, level: 36, active: true }
+  - { skill: forage, level: 26 }
+  - { skill: headbutt, level: 31 }
+  - { skill: frost_coat, level: 36, active: true }
   - { skill: hammer_blow, level: 41 }
-  - { skill: curse, level: 46 }
+  - { skill: dispel, level: 46 }
   - { skill: body_slam, level: 51 }
   - { skill: tidal_slam, level: 56 }
-  - { skill: frost_breath, level: 61 }
-  - { skill: bloodlust, level: 66 }
+  - { skill: frost_nova, level: 61 }
+  - { skill: frost_weapon, level: 66 }
   - { skill: rampage, level: 70 }
-  - { skill: skull_breaker, level: 76 }
-  - { skill: mana_storm, level: 82 }
-  - { skill: primal_rage, level: 88 }
+  - { skill: savage_maul, level: 76 }
+  - { skill: frost_breath, level: 82 }
+  - { skill: berserk, level: 88 }
   - { skill: titan_blow, level: 94 }
   - { skill: blizzard, level: 100 }
 habitat: [RIPARIAN, SWAMP, LAKE]
