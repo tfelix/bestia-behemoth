@@ -379,11 +379,16 @@ void fragment() {
 
 	ALBEDO = mix(ALBEDO, burnt_colour, charred);
 
-	// Snow settles on the upper blade first; wet blades darken and catch the light.
+	// Snow settles on the upper blade first; wet blades darken and catch a little light.
+	//
+	// The sheen fades out over the same band as the colour, because the terrain canopy the far blades blend
+	// into stays matte outside its puddles: a gloss that ran to the edge of the field drew that edge as a line.
+	// And it stays a sheen rather than a mirror. Blade normals lean up, so a glossy field reflects the sun as
+	// one sheet; real wet grass is droplets on thin blades and reads darker, not shinier.
 	float snowed = weather_snow_cover(worldPos.y, snow_melt_celsius) * smoothstep(0.2, 0.9, blade_v);
 	float wet = clamp(weather_wetness, 0.0, 1.0) * (1.0 - snowed);
 	ALBEDO = mix(ALBEDO * mix(1.0, 0.75, wet), snow_colour, snowed);
-	ROUGHNESS = mix(1.0, 0.35, wet);
+	ROUGHNESS = mix(1.0, 0.6, wet * (1.0 - far));
 	EMISSION = ember_colour * ember_energy * edge * alight * flicker;
 	if (!FRONT_FACING) {
 		NORMAL = -NORMAL;

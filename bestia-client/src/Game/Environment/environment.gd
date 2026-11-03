@@ -166,6 +166,13 @@ signal lightning_struck(ground: Vector3)
 @export_range(0.2, 1.5, 0.01) var clear_ambient_energy: float = 0.65
 @export_range(0.2, 1.5, 0.01) var overcast_ambient_energy: float = 1.0
 
+## How much of the sun's specular highlight survives a closed deck, as a share of a clear day's.
+##
+## Dimming and widening the sun leave its highlight in place, and on rain-wet grass and puddles a wide sun
+## draws one broad white glare. A sun behind full cloud casts no highlight worth the name; the sky's reflection
+## is what wet ground shows instead. Driven from WeatherLook.Diffusion, like the energy and the disc.
+@export_range(0, 1, 0.01) var overcast_sun_specular: float = 0.15
+
 ## Where the fog closes to in a whiteout, in metres. The authored distances are the clear-day end.
 ##
 ## Floored well above where a blizzard would put them if visibility alone decided, and the camera is why:
@@ -335,6 +342,7 @@ func _apply_lights(daylight: float, twilight: float) -> void:
 
 	_sun.rotation = _light_rotation(elevation, azimuth)
 	_sun.light_energy = sun_energy * daylight * dimming
+	_sun.light_specular = lerpf(1.0, overcast_sun_specular, _diffusion())
 	_sun.light_color = _graded(sun_day_colour.lerp(sun_twilight_colour, twilight), &"light_tint")
 	_sun.light_angular_distance = softness
 
