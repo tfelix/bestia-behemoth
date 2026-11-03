@@ -47,7 +47,9 @@ const _OUTLINE_DARKEN := 0.88
 ## same at every zoom, like the fixed-size label it moves. A short burst away from the hit, then a slow
 ## drift, so a tag never doubles back over the younger ones below it.
 const _BURST_RISE := 0.07
-const _BURST_SIDE := 0.07
+const _BURST_SIDE := 0.085
+## A hit starts this far to its side already, so it never lands in the middle column of heals and misses.
+const _HIT_START_SIDE := 0.035
 ## Seconds until the burst has covered two thirds of its way.
 const _BURST_TIME := 0.12
 ## Per second, after the burst.
@@ -57,6 +59,9 @@ const _DRIFT := 0.04
 ## not trace one line, and only sideways, where it cannot close the gap to the tag above.
 const _BURST_JITTER := 0.15
 const _START_JITTER := 0.012
+## Heals and misses skip the burst and the pop: they rise straight up at this many screen heights a second,
+## in a column of their own between those of the hits. Quickly, to clear the spot where every hit starts.
+const _PLAIN_RISE := 0.2
 ## A tag pushed up by a younger one glides there over about this many seconds.
 const _PUSH_TIME := 0.05
 
@@ -103,11 +108,11 @@ func start(
 	target_id = msg.EntityId
 	involvement = whose
 	_start = at
-	side = fly_side
+	side = fly_side if is_hit(_type) else 0.0
 	_pushed = 0.0
 	_pushed_shown = 0.0
 	_burst = Vector2(_BURST_SIDE * _jitter(), _BURST_RISE)
-	_start_shift = randf_range(-_START_JITTER, _START_JITTER)
+	_start_shift = randf_range(-_START_JITTER, _START_JITTER) if is_hit(_type) else 0.0
 	_age = 0.0
 	_life = _life_of(_type)
 	_peak = _size_of(msg, max_hp)
@@ -161,10 +166,18 @@ func _paint(colour: Color) -> void:
 	label.outline_modulate = colour.darkened(_OUTLINE_DARKEN)
 
 
+## A hit bursts away from its attacker and pops; heals and misses only rise.
+static func is_hit(type: int) -> bool:
+	return type == DamageType.NORMAL or type == DamageType.CRIT
+
+
 func _flight_offset_at(age: float, camera: Camera3D) -> Vector3:
-	var burst := 1.0 - exp(-age / _BURST_TIME)
-	var sideways := _start_shift + side * _burst.x * burst + _shake_at(age)
-	var upwards := _pushed_shown + _burst.y * burst + _DRIFT * age
+	var sideways := 0.0
+	var upwards := _pushed_shown + _PLAIN_RISE * age
+	if is_hit(_type):
+		var burst := 1.0 - exp(-age / _BURST_TIME)
+		sideways = _start_shift + side * lerpf(_HIT_START_SIDE, _burst.x, burst) + _shake_at(age)
+		upwards = _pushed_shown + _burst.y * burst + _DRIFT * age
 	var screen := camera.global_basis.x * sideways + camera.global_basis.y * upwards
 	return screen * _screen_height_at(camera, _start)
 
@@ -210,15 +223,14 @@ static func _life_of(type: int) -> float:
 			return _LIFE
 
 
-## Nothing landed on a miss, so nothing pops.
 static func _pop_of(type: int) -> float:
 	match type:
 		DamageType.CRIT:
 			return _CRIT_POP
-		DamageType.MISS, DamageType.DODGE:
-			return 1.0
-		_:
+		DamageType.NORMAL:
 			return _POP
+		_:
+			return 1.0
 
 
 ## The outcome words are hardcoded rather than translated for the reason [code]weather.gd[/code]
