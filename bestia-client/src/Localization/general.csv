@@ -34,6 +34,41 @@ STATUS_EFFECT_15,Emergency Move: you move 25% faster.
 STATUS_EFFECT_21,"Aggressor: started a fight with a player. Fighting back costs no honor."
 STATUS_EFFECT_22,"Dishonored: honor below zero. Killing them earns honor."
 STATUS_EFFECT_23,"Thief: stole something recently. Killing them earns extra honor."
+STATUS_EFFECT_24,"Stunned: you cannot move, attack, cast or use items."
+STATUS_EFFECT_25,Frozen: you cannot act. You count as Water and break free on the next hit.
+STATUS_EFFECT_26,Stoning: you are turning to stone. A cure now stops it.
+STATUS_EFFECT_27,"Stone: you cannot act, count as Earth and take much less damage."
+STATUS_EFFECT_28,"Immobilized: you cannot move, but you can still fight."
+STATUS_EFFECT_29,Slowed: you move slower.
+STATUS_EFFECT_30,Confused: you walk the wrong way.
+STATUS_EFFECT_31,Feared: you run away and cannot attack or cast. Potions still work.
+STATUS_EFFECT_32,Blind: you see little and hit less often.
+STATUS_EFFECT_33,Stiffened: you move and attack slower.
+STATUS_EFFECT_34,Poisoned: you lose health over time and do not regenerate. It never takes your last hit point.
+STATUS_EFFECT_35,"Bleeding: walking, attacking and casting cost health. Stand still or heal to stop it."
+STATUS_EFFECT_36,Burning: you take fire damage every second. Water or ice put it out.
+STATUS_EFFECT_37,Sick: heals restore only half.
+STATUS_EFFECT_38,"Withered: less health and vitality, slower healing."
+STATUS_EFFECT_39,Regenerating: you heal every few seconds.
+STATUS_EFFECT_40,Lifesteal: your blows heal you by half the damage they deal.
+STATUS_EFFECT_41,Mana sealed: your mana does not come back on its own.
+STATUS_EFFECT_42,Enraged: you hit harder and take less damage. Fatigue follows.
+STATUS_EFFECT_43,Fatigued: you are weaker for a moment.
+STATUS_EFFECT_44,"Berserk: much stronger and quicker, but with no defence."
+STATUS_EFFECT_45,Tailwind: you move and attack quicker.
+STATUS_EFFECT_46,Endowed weapon: your plain blows hit with an element.
+STATUS_EFFECT_47,Elemental coat: hits on you count against another element.
+STATUS_EFFECT_48,Off balance: you hit less often.
+STATUS_EFFECT_49,Hamstrung: you attack much slower.
+STATUS_EFFECT_50,Quagmire: you are clumsy and slow while you stand in the mire.
+STATUS_EFFECT_51,Sheltered: shots and arrows miss you.
+STATUS_EFFECT_52,Mirror veil: single-target skills turn back on their caster.
+STATUS_EFFECT_53,Barrier: it soaks up the next blows.
+STATUS_EFFECT_54,Corrosive: weapons that hit you wear down.
+STATUS_EFFECT_55,Controlled: fighting for another side.
+STATUS_EFFECT_56,Hidden: other players cannot see you. You cannot move. Acting reveals you.
+STATUS_EFFECT_57,Cloaked: other players cannot see you. You move slower. Acting or being hit reveals you.
+STATUS_EFFECT_59,Exposed: your hide guards less.
 ERROR_CHAT_WHISPER_TARGET_UNAVAILABLE,No player named %s is online.
 DEATH_TITLE,You have died.
 DEATH_TEXT,"Your body lies where it fell. Return to your save point, or stay a while longer."

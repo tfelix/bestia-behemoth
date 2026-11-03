@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EntityFxDef" format=3]
+
+[ext_resource type="Script" path="res://Game/Entity/Fx/entity_fx_def.gd" id="1_def"]
+
+[sub_resource type="Curve" id="Curve_glow"]
+_data = [Vector2(0, 0.25), 0.0, 0.0, 0, 0, Vector2(1, 0.25), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_rim"]
+_data = [Vector2(0, 0.7), 0.0, 0.0, 0, 0, Vector2(1, 0.7), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[resource]
+script = ExtResource("1_def")
+status_effect_id = 58
+duration = 0.3
+glow = SubResource("Curve_glow")
+rim = SubResource("Curve_rim")
+glow_colour = Color(0.75, 0.55, 1.0, 1)
+rim_colour = Color(0.75, 0.55, 1.0, 1)

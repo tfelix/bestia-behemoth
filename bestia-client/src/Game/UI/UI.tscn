@@ -35,6 +35,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Compendium/Compendium.tscn" id="32_compendium"]
 [ext_resource type="PackedScene" path="res://Game/UI/Auction/AuctionHouse.tscn" id="33_auction"]
 [ext_resource type="PackedScene" path="res://Game/UI/Emotes/Emotes.tscn" id="34_emotes"]
+[ext_resource type="PackedScene" path="res://Game/UI/BlindVignette/BlindVignette.tscn" id="40_blind"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -45,6 +46,9 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("1_ob0eg")
+
+[node name="BlindVignette" parent="." instance=ExtResource("40_blind")]
+layout_mode = 1
 
 [node name="Minimap" parent="." unique_id=1254805221 instance=ExtResource("16_minimap")]
 visible = false
