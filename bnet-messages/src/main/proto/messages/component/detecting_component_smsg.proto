@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/vec3.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "DetectingComponentSMSGProto";
+
+// What a Detect skill lets its caster sense: masters and player bestia nearby, hidden ones included. Sent to the
+// owner only, whenever it changes; removed, with removed = true, when the skill runs out. Only the map shows
+// them; they are not revealed in the world.
+message DetectingComponentSMSG {
+  repeated DetectedEntity entities = 1;
+  bool removed = 2;
+}
+
+message DetectedEntity {
+  uint64 entity_id = 1;
+  Vec3 position = 2;
+  // A master rather than a bestia, so the map can draw them apart.
+  bool master = 3;
+}

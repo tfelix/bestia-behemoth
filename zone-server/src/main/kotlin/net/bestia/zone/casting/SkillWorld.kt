@@ -201,9 +201,6 @@ interface SkillWorld {
   /** Takes [percent] of the maximum off the durability of [entityId]'s weapon and armour. */
   fun wearGear(entityId: EntityId, percent: Int): Boolean
 
-  /** Masters and player bestia within [radiusTiles] of [centre], hidden ones too. */
-  fun playersNear(centre: Vec3L, radiusTiles: Long): List<DetectedEntitiesSMSG.Detected>
-
-  /** Shows [found] on the map of whoever plays the caster, for [seconds]. */
-  fun reportDetected(found: List<DetectedEntitiesSMSG.Detected>, seconds: Float)
+  /** Lets the caster sense masters and player bestia around it for [seconds], see `Detecting`. */
+  fun detect(seconds: Float)
 }

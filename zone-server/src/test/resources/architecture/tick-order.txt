@@ -31,6 +31,7 @@
  - WORLD wave 17: WorldObjectResidencySystem [EveryTick]
  - WORLD wave 18: GroundOverlaySystem [EveryTick]
  - WORLD wave 18: PropSupportSystem [EveryTick]
+ - STATUS wave 19: DetectingSystem [EverySeconds(seconds=1.0)]
  - STATUS wave 19: EmoteSystem [EveryTick]
  - STATUS wave 19: EntityFxSystem [EveryTick]
  - STATUS wave 19: StatusEffectDurationSystem [EverySeconds(seconds=1.0)]

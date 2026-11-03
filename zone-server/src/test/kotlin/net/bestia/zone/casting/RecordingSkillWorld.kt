@@ -56,8 +56,7 @@ class RecordingSkillWorld(
   val dispelled = mutableListOf<EntityId>()
   val stripped = mutableListOf<Pair<EntityId, EquipmentSlot>>()
   val gearWorn = mutableListOf<Pair<EntityId, Int>>()
-  val players = mutableListOf<DetectedEntitiesSMSG.Detected>()
-  val detections = mutableListOf<List<DetectedEntitiesSMSG.Detected>>()
+  val detections = mutableListOf<Float>()
   var manaFraction: Float = 1f
   var casterMana: Int = 0
   var strippable: Boolean = true
@@ -155,12 +154,8 @@ class RecordingSkillWorld(
     return true
   }
 
-  override fun playersNear(centre: Vec3L, radiusTiles: Long): List<DetectedEntitiesSMSG.Detected> {
-    return players
-  }
-
-  override fun reportDetected(found: List<DetectedEntitiesSMSG.Detected>, seconds: Float) {
-    detections.add(found)
+  override fun detect(seconds: Float) {
+    detections.add(seconds)
   }
 
   data class Inflicted(

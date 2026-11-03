@@ -17,15 +17,12 @@ class Detect : SkillStrategy {
   }
 
   override fun execute(ctx: SkillContext): Damage? {
-    val centre = ctx.world.positionOf(ctx.casterId) ?: return null
-
-    ctx.world.reportDetected(ctx.world.playersNear(centre, RADIUS_TILES), MARKER_SECONDS)
+    ctx.world.detect(SECONDS)
 
     return null
   }
 
   private companion object {
-    const val RADIUS_TILES = 15L
-    const val MARKER_SECONDS = 30f
+    const val SECONDS = 30f
   }
 }
