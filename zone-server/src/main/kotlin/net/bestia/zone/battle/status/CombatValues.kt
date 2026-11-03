@@ -111,7 +111,7 @@ data class CombatValues(
         base = base,
         attributes = attributes,
         derived = if (hitPercent == 0) derived else derived.copy(hitrate = scaled(derived.hitrate, hitPercent)),
-        defense = if (defensePercent == 0) defense else defense.scaledBy(defensePercent),
+        defense = if (defensePercent == 0) defense else defense.withHardDefenseRaisedBy(defensePercent),
         weapon = if (weapon == Weapon.NONE) Weapon.NONE else weapon,
         elementResistance = elementResistance,
         castTimeReduction = castTimeReduction,

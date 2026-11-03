@@ -22,18 +22,14 @@ data class DefenseValues(
   val hardMagicDefense: Int = 0
 ) {
 
-  /** Every defence raised or lowered by [percent] points, for a freeze's or a stone's hardened body. */
-  fun scaledBy(percent: Int): DefenseValues {
-    fun scaled(value: Int): Int {
-      return (value * (100 + percent) / 100).coerceAtLeast(0)
-    }
-
-    return DefenseValues(
-      magicDefense = scaled(magicDefense),
-      defense = scaled(defense),
-      defenseSpread = scaled(defenseSpread),
-      hardDefense = scaled(hardDefense),
-      hardMagicDefense = scaled(hardMagicDefense)
+  /**
+   * Both kinds of hard defence, physical and magic, moved by [points] of damage reduction, never below none.
+   * Added rather than scaled, so a freeze takes a body that stopped 80% of a hit to 90%.
+   */
+  fun withHardDefenseRaisedBy(points: Int): DefenseValues {
+    return copy(
+      hardDefense = (hardDefense + points).coerceAtLeast(0),
+      hardMagicDefense = (hardMagicDefense + points).coerceAtLeast(0)
     )
   }
 

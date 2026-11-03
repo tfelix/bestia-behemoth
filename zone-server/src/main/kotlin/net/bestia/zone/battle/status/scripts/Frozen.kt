@@ -12,8 +12,8 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
 /**
- * Encased in ice: locked like a stun, weighed as Water 1 and a little harder to hurt, until the next blow
- * shatters it. Fire creatures cannot be frozen at all.
+ * Encased in ice: locked like a stun, weighed as Water 1 and a little harder to hurt by blows and spells alike,
+ * until the next blow shatters it. Fire creatures cannot be frozen at all.
  */
 @Component
 class Frozen(private val castCancelService: CastCancelService) : StatusEffectScript {
