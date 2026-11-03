@@ -7,6 +7,7 @@ import net.bestia.zone.battle.status.StatusEffectTickContext
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.entity.ecs.WardProtected
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.movement.ecs.Position
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component
 
 /**
  * `status_effects.yml` id 11 (`WARD_AURA`): the spell on a ward stone. Every pulse it gives [Warded] to
- * everything a player owns within [RADIUS_METRES] of the stone.
+ * everything a player owns, and every townsperson, within [RADIUS_METRES] of the stone.
  */
 @Component
 class WardAura : StatusEffectScript {
@@ -40,7 +41,7 @@ class WardAura : StatusEffectScript {
   }
 
   /**
-   * Walks what players own rather than an area query: a few hundred entities, where a box this wide would visit
+   * Walks what players own and who lives in towns rather than an area query: a few hundred entities, where a box this wide would visit
    * tens of thousands of grid cells.
    */
   private fun playerOwnedNear(world: World, centre: Vec3L): List<EntityId> {
@@ -54,6 +55,7 @@ class WardAura : StatusEffectScript {
 
     world.each(Account::class) { id, _ -> collect(id) }
     world.each(PlayerStructureIdentity::class) { id, _ -> collect(id) }
+    world.each(WardProtected::class) { id, _ -> collect(id) }
 
     return near
   }

@@ -5,6 +5,7 @@ import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.honor.ecs.Honor
 import net.bestia.zone.honor.persistence.LocalHonor.Scope
@@ -153,10 +154,11 @@ class HonorService(
     return (amount * factor).roundToInt()
   }
 
+  /** A killed townsperson tells nobody; a killed player still remembers who did it. */
   private fun townsfolkWitnesses(world: World, at: Vec3L): List<Long> {
     val seenBy = mutableListOf<Long>()
     world.each(Townsfolk::class) { id, townsfolk ->
-      if (isInSight(world, id, at)) {
+      if (!world.has(id, Dead::class) && isInSight(world, id, at)) {
         seenBy.add(townsfolk.identity)
       }
     }
@@ -190,7 +192,7 @@ class HonorService(
 
     /** What [record] touches, for a system that calls it from inside the tick. */
     val READS: ComponentClassSet = setOf(
-      Master::class, Account::class, StatusEffects::class, Townsfolk::class, Position::class,
+      Master::class, Account::class, StatusEffects::class, Townsfolk::class, Position::class, Dead::class,
     )
     val WRITES: ComponentClassSet = setOf(Honor::class)
   }

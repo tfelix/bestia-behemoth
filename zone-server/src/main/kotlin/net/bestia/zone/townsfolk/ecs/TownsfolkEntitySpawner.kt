@@ -1,5 +1,6 @@
 package net.bestia.zone.townsfolk.ecs
 
+import net.bestia.zone.entity.ecs.WardProtected
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.pop.Kinship
 import net.bestia.worldgen.pop.Member
@@ -20,8 +21,8 @@ import org.springframework.stereotype.Service
  * mob with an ordinary AI agent, and everything that makes one different is either a fact in its memory or
  * one of two markers. Duplicating the spawn path to add two markers is how two spawners drift apart.
  *
- * Being unhittable is not one of them. That comes from `non-combatant` on the species, so the client can
- * read the same fact out of its own bestia DB and know a click here means talking rather than swinging.
+ * Being hard to harm is not one of them: a ward stone protects the townsfolk of a home village as it protects
+ * players, and anywhere else they can be killed, at a cost in honor.
  *
  * `persistent = false` is the point of the whole layer, for `AmbientSpawnerSystem`'s reason: a town's
  * population is regenerated from its seed whenever somebody comes near, so a database row per villager
@@ -101,6 +102,7 @@ class TownsfolkEntitySpawner(
     // adds its own markers and for the same reason - `World.tick` holds `iterating` for the scheduler
     // pass. Harmless here: teardown is driven from the residency record rather than from the marker.
     world.add(id, Townsfolk(identity))
+    world.add(id, WardProtected)
     world.add(id, AiThrottleable)
 
     LOG.trace { "Spawned ${occupation.id} ${TownsfolkIdentity.describe(identity)} as entity $id" }

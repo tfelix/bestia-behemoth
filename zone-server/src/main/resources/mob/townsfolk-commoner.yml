@@ -12,9 +12,6 @@ experience: 0
 # Never placed by a wild den or an ambient site: where a townsperson stands is a settlement's business, and
 # a commoner strolling through open moorland is exactly the thing this catalogue must not offer.
 event-only: true
-# Nothing may take a townsperson's health. The client reads this out of its own bestia DB and lets a click
-# open a conversation instead of a swing; the server spawns them Invulnerable from the same flag.
-non-combatant: true
 # Not a creature a master would study, so the Bestia Compendium leaves it out.
 compendium: false
 habitat: []
@@ -29,5 +26,5 @@ armor-types:
   - LIGHT
   - MEDIUM
   - HEAVY
-# Nothing. Townsfolk are not killable in this release, so there is no body to loot.
+# Nothing. A killed townsperson costs honor, and their goods stay with their shop.
 loot: []

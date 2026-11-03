@@ -10,6 +10,7 @@ import net.bestia.zone.boot.StatusEffectImporterBootRunner
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.entity.ecs.WardProtected
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.movement.ecs.Position
@@ -63,6 +64,18 @@ class WardAuraTest {
   }
 
   @Test
+  fun `townsfolk in the field cannot be hurt by players, and outside it they can`() {
+    val baker = townspersonAt(STONE.plus(800))
+    val traveller = townspersonAt(STONE.plus(5_000))
+
+    pulse()
+
+    val griefer = playerAt(STONE.plus(900))
+    assertEquals(DamageGate.Verdict.WARDED, DamageGate.verdict(world, griefer, baker))
+    assertEquals(DamageGate.Verdict.ADMITTED, DamageGate.verdict(world, griefer, traveller))
+  }
+
+  @Test
   fun `a station whose column loads again is warded by the next pulse`() {
     pulse()
 
@@ -104,6 +117,13 @@ class WardAuraTest {
   /** One whole aura interval on the duration system's one-second beat. */
   private fun pulse() {
     repeat(2) { world.tick(1f) }
+  }
+
+  private fun townspersonAt(at: Vec3L): EntityId {
+    return world.createEntity { id ->
+      add(id, Position.fromVec3(at))
+      add(id, WardProtected)
+    }
   }
 
   private fun playerAt(at: Vec3L): EntityId {

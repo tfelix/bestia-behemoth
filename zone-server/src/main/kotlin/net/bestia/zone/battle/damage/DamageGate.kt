@@ -5,6 +5,7 @@ import net.bestia.zone.battle.status.HarmShield
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.PlayerOwnership
+import net.bestia.zone.entity.ecs.WardProtected
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.identity.ecs.GuildOwned
@@ -18,7 +19,8 @@ import net.bestia.zone.util.EntityId
 object DamageGate {
 
   /** Folded into the reads of every system that asks, so the scheduler sees what the gate looks at. */
-  val READS: ComponentClassSet = setOf(StatusEffects::class, GuildMembership::class) + PlayerOwnership.READS
+  val READS: ComponentClassSet =
+    setOf(StatusEffects::class, GuildMembership::class, WardProtected::class) + PlayerOwnership.READS
 
   /**
    * Asked where damage is staged, not only where it is drained: by the drain the client has already been
@@ -84,11 +86,12 @@ object DamageGate {
   }
 
   /**
-   * Harm between two player-owned sides while either one carries [HarmShield.PLAYERS]. A source that is gone can
-   * carry no shield any more, so then only the target's counts.
+   * Harm from a player to another player's side, or to a townsperson, while either one carries
+   * [HarmShield.PLAYERS]. A source that is gone can carry no shield any more, so then only the target's counts.
    */
   private fun isWarded(world: World, sourceId: EntityId?, targetId: EntityId, sourceOwner: AccountId?): Boolean {
-    if (sourceOwner == null || !PlayerOwnership.isPlayerOwned(world, targetId)) {
+    val targetAnswersToWards = PlayerOwnership.isPlayerOwned(world, targetId) || world.has(targetId, WardProtected::class)
+    if (sourceOwner == null || !targetAnswersToWards) {
       return false
     }
 
