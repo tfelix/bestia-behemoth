@@ -38,6 +38,9 @@ data class CombatValues(
 
   /** Percentage points on every heal received, see `Healing`. */
   val healReceivedPercent: Int = 0,
+
+  /** See [StatusValueRecalcContext.weaponElement]. */
+  val weaponElement: Element? = null,
 ) {
 
   companion object {
@@ -87,7 +90,9 @@ data class CombatValues(
         defensePercent = context.defensePercent,
         hitPercent = context.hitPercent,
         aspdPercent = context.aspdPercent,
-        healReceivedPercent = context.healReceivedPercent
+        healReceivedPercent = context.healReceivedPercent,
+        attackPercent = context.attackPercent,
+        weaponElement = context.weaponElement
       )
     }
 
@@ -107,7 +112,9 @@ data class CombatValues(
       defensePercent: Int = 0,
       hitPercent: Int = 0,
       aspdPercent: Int = 0,
-      healReceivedPercent: Int = 0
+      healReceivedPercent: Int = 0,
+      attackPercent: Int = 0,
+      weaponElement: Element? = null
     ): CombatValues {
       val derived = DerivedStatusValues.fromStatusValues(level, attributes, hitBonus, fleeBonus, critBonus)
       val defense = DefenseValues.fromStatusValues(level, attributes, hardDefense, hardMagicDefense)
@@ -115,14 +122,24 @@ data class CombatValues(
       return CombatValues(
         base = base,
         attributes = attributes,
-        derived = if (hitPercent == 0) derived else derived.copy(hitrate = scaled(derived.hitrate, hitPercent)),
+        derived = derived.copy(
+          hitrate = scaled(derived.hitrate, hitPercent),
+          atk = scaled(derived.atk, attackPercent),
+          rangedAtk = scaled(derived.rangedAtk, attackPercent),
+          matk = scaled(derived.matk, attackPercent)
+        ),
         defense = if (defensePercent == 0) defense else defense.withHardDefenseRaisedBy(defensePercent),
-        weapon = if (weapon == Weapon.NONE) Weapon.NONE else weapon,
+        weapon = when {
+          weapon == Weapon.NONE -> Weapon.NONE
+          attackPercent == 0 -> weapon
+          else -> weapon.copy(atk = scaled(weapon.atk, attackPercent), matk = scaled(weapon.matk, attackPercent))
+        },
         elementResistance = elementResistance,
         castTimeReduction = castTimeReduction,
         elementOverride = elementOverride,
         aspdPercent = aspdPercent,
-        healReceivedPercent = healReceivedPercent
+        healReceivedPercent = healReceivedPercent,
+        weaponElement = weaponElement
       )
     }
 

@@ -43,6 +43,7 @@ class StatusEffectService(
   /**
    * Returns false when the damage gate turns a harmful effect away or the target's species is immune.
    * [durationSeconds] replaces the script's own duration, for a skill that says how long its effect lasts.
+   * [amount] goes to [ActiveStatusEffect.amount], so an endowment can name its element.
    */
   fun applyEffect(
     world: World,
@@ -50,7 +51,8 @@ class StatusEffectService(
     definitionId: Long,
     level: Int,
     sourceEntityId: EntityId? = null,
-    durationSeconds: Double? = null
+    durationSeconds: Double? = null,
+    amount: Int = 0
   ): Boolean {
     val definition = statusEffectDefinitionRegistry.getOrThrow(definitionId)
     if (isTurnedAway(world, definition, sourceEntityId, targetId)) {
@@ -79,6 +81,10 @@ class StatusEffectService(
         locks = script.actionLocks
       )
       landed = effects.activeEffects.lastOrNull { it.definitionId == definition.id }
+    }
+    // On a refresh too: endowing a weapon anew with another element replaces the old one.
+    if (amount != 0) {
+      landed?.amount = amount
     }
 
     if (change == StatusEffects.Change.CHANGED) {
@@ -224,8 +230,9 @@ class StatusEffectService(
     effect: StatusEffectId,
     level: Int,
     sourceEntityId: EntityId? = null,
-    durationSeconds: Double? = null
-  ) = applyEffect(world, targetId, effect.id, level, sourceEntityId, durationSeconds)
+    durationSeconds: Double? = null,
+    amount: Int = 0
+  ) = applyEffect(world, targetId, effect.id, level, sourceEntityId, durationSeconds, amount)
 
   private companion object {
     val LOG = KotlinLogging.logger { }

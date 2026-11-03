@@ -37,4 +37,13 @@ data class ActiveStatusEffect(
 
   /** Runtime only like [sinceLastTick]: seconds on the bearer, counted on the duration system's beat. */
   var ageSeconds: Float = 0f
+
+  /**
+   * Runtime only: what one instance carries beyond its level, like a barrier's pool or an endowed element's
+   * ordinal. An effect that needs these is not persisted, since a stored copy would come back without them.
+   */
+  var amount: Int = 0
+
+  /** Runtime only like [amount]: hits a barrier or a reflect has left. */
+  var count: Int = 0
 }

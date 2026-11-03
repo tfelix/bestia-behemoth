@@ -192,7 +192,7 @@ class StatusValueRecalcSystem(
     for (active in activeEffects) {
       val definition = statusEffectDefinitionRegistry.findById(active.definitionId) ?: continue
       val script = statusEffectScriptRegistry.get(definition.script) ?: continue
-      script.apply(world, id, context, active.level, active.sourceEntityId)
+      script.apply(world, id, context, active)
     }
   }
 
