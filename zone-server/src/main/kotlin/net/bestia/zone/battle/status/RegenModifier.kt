@@ -22,11 +22,14 @@ package net.bestia.zone.battle.status
  */
 data class RegenModifier(
   val flat: Int = 0,
-  val percent: Int = 0
+  val percent: Int = 0,
+  /** No regeneration at all, whatever the other terms add up to: a poison or a sealed mana pool. */
+  val blocked: Boolean = false
 ) {
 
   fun plus(flat: Int = 0, percent: Int = 0) = RegenModifier(
     flat = this.flat + flat,
-    percent = this.percent + percent
+    percent = this.percent + percent,
+    blocked = blocked
   )
 }

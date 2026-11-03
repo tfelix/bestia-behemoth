@@ -117,6 +117,12 @@ class StatusValueRecalcContext(
     hpRegen = hpRegen.plus(flat = flat, percent = percent)
   }
 
+  /** Stops natural regeneration outright; percentages add up, so -100% alone cannot promise that. */
+  fun blockRegen(hp: Boolean = false, mana: Boolean = false) {
+    if (hp) hpRegen = hpRegen.copy(blocked = true)
+    if (mana) manaRegen = manaRegen.copy(blocked = true)
+  }
+
   fun addManaRegen(flat: Int = 0, percent: Int = 0) {
     manaRegen = manaRegen.plus(flat = flat, percent = percent)
   }

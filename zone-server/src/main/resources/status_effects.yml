@@ -284,3 +284,67 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: Stiffened
+
+  # Damage over time and what changes healing.
+  - id: 34
+    identifier: POISON
+    polarity: DEBUFF
+    resist: [VIT, AGI]
+    showIcon: true
+    isSyncedToClient: true
+    script: Poison
+
+  - id: 35
+    identifier: BLEEDING
+    polarity: DEBUFF
+    resist: [STR, AGI]
+    showIcon: true
+    isSyncedToClient: true
+    script: Bleeding
+
+  - id: 36
+    identifier: BURNING
+    polarity: DEBUFF
+    resist: [AGI, DEX]
+    showIcon: true
+    isSyncedToClient: true
+    script: Burning
+
+  - id: 37
+    identifier: SICK
+    polarity: DEBUFF
+    resist: [VIT, INT]
+    showIcon: true
+    isSyncedToClient: true
+    script: Sick
+
+  - id: 38
+    identifier: WITHERED
+    polarity: DEBUFF
+    resist: [STR, WIL]
+    showIcon: true
+    isSyncedToClient: true
+    script: Withered
+
+  - id: 39
+    identifier: REGENERATING
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Regenerating
+
+  - id: 40
+    identifier: LIFESTEAL
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Lifesteal
+
+  # The price of Ultima Fist, so no dispel may lift it.
+  - id: 41
+    identifier: MANA_SEALED
+    polarity: DEBUFF
+    dispellable: false
+    showIcon: true
+    isSyncedToClient: true
+    script: ManaSealed

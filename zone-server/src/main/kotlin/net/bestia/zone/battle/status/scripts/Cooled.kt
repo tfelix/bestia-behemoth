@@ -1,5 +1,7 @@
 package net.bestia.zone.battle.status.scripts
 
+import net.bestia.zone.battle.status.StatusEffectHookContext
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusEffectScript
 import org.springframework.stereotype.Component
 
@@ -12,6 +14,10 @@ class Cooled : StatusEffectScript {
 
   override fun durationSeconds(level: Int): Double {
     return BASE_SECONDS + SECONDS_PER_LEVEL * level
+  }
+
+  override fun onApply(context: StatusEffectHookContext) {
+    context.removeEffect(StatusEffectId.BURNING)
   }
 
   private companion object {

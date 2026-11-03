@@ -2,7 +2,9 @@ package net.bestia.zone.casting
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.ActionGuard
+import net.bestia.zone.battle.ActionReactions
 import net.bestia.zone.battle.status.ActionLock
+import net.bestia.zone.battle.status.EntityAction
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.persistence.Skill
@@ -35,6 +37,7 @@ class SkillExecutionService(
   private val skillContextFactory: SkillContextFactory,
   private val cooldowns: SkillCooldownService,
   private val actionGuard: ActionGuard = ActionGuard(),
+  private val actionReactions: ActionReactions = ActionReactions.NONE,
 ) {
 
   /** Skills never change after the import, and resolution runs on the tick, so they are read once at boot. */
@@ -126,6 +129,7 @@ class SkillExecutionService(
 
       val result = strategy.execute(ctx)
       cooldowns.start(world, casterId, skill)
+      actionReactions.notifyActed(world, casterId, EntityAction.CAST)
 
       // A skill whose whole effect is a patch of ground, a station or a chart has no number to show, and
       // a ground-targeted one has no entity to show it on.
