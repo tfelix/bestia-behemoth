@@ -470,3 +470,12 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: Cloaked
+
+  # While a skill channels; the Channel component decides how long, this only holds the caster still.
+  - id: 58
+    identifier: CHANNELING
+    polarity: NEUTRAL
+    dispellable: false
+    showIcon: false
+    isSyncedToClient: true
+    script: Channeling

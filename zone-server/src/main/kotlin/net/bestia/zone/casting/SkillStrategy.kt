@@ -64,4 +64,8 @@ interface SkillStrategy {
    * chart or a status effect.
    */
   fun execute(ctx: SkillContext): Damage?
+
+  /** Acts again while the skill channels, see `SkillMechanics.channelSeconds`; [tick] counts from 0. */
+  fun onChannelTick(ctx: SkillContext, tick: Int) {
+  }
 }

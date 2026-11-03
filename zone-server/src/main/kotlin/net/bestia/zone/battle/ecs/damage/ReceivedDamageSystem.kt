@@ -1,6 +1,8 @@
 package net.bestia.zone.battle.ecs.damage
 
+import net.bestia.zone.battle.ecs.skill.Channel
 import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.entity.GameMetrics
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.ecs.attack.AttackSystem
@@ -38,7 +40,7 @@ class ReceivedDamageSystem(
   override val reads: ComponentClassSet = DamageGate.READS + CombatStats::class
   override val writes: ComponentClassSet =
     setOf(
-      Health::class, TakenDamage::class, Dead::class, LogoutIntent::class, Casting::class, Crafting::class,
+      Health::class, TakenDamage::class, Dead::class, LogoutIntent::class, Casting::class, Crafting::class, Channel::class,
       InCombat::class, IncomingDamage::class, Animation::class,
       // A barrier or a freeze reacts to the hit, and may leave.
       StatusEffects::class, IsStatusValueDirty::class
@@ -85,6 +87,11 @@ class ReceivedDamageSystem(
         }
         if (world.has(id, Casting::class)) {
           world.remove(id, Casting::class)
+        }
+        if (world.has(id, Channel::class)) {
+          world.remove(id, Channel::class)
+          world.get(id, StatusEffects::class)?.removeEffect(StatusEffectId.CHANNELING.id)
+          world.add(id, IsStatusValueDirty)
         }
         if (world.has(id, Crafting::class)) {
           world.remove(id, Crafting::class)
