@@ -9,6 +9,8 @@ import net.bestia.zone.battle.ecs.skill.Crafting
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.InCombat
 import net.bestia.zone.battle.damage.DamageGate
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -26,6 +28,7 @@ import net.bestia.zone.entity.ecs.Dead
 @SpringComponent
 class ReceivedDamageSystem(
   private val metrics: GameMetrics = GameMetrics(),
+  private val reactions: DamageReactions = DamageReactions.NONE,
 ) : System {
   override val phase = Phase.COMBAT
   override val after = setOf(AttackSystem::class)
@@ -34,13 +37,15 @@ class ReceivedDamageSystem(
   override val writes: ComponentClassSet =
     setOf(
       Health::class, TakenDamage::class, Dead::class, LogoutIntent::class, Casting::class, Crafting::class,
-      InCombat::class, IncomingDamage::class, Animation::class
+      InCombat::class, IncomingDamage::class, Animation::class,
+      // A barrier or a freeze reacts to the hit, and may leave.
+      StatusEffects::class, IsStatusValueDirty::class
     )
 
   override fun update(world: World, deltaTime: Float) {
     world.query(IncomingDamage::class, Health::class).each { id ->
       val receivedDamage = get<IncomingDamage>()
-      val hits = receivedDamage.drain()
+      val staged = receivedDamage.drain()
       val health = get<Health>()
 
       // Removed only if still empty: the deferred queue is FIFO, so a hit that an earlier system deferred
@@ -55,6 +60,8 @@ class ReceivedDamageSystem(
       // land again on the next tick, forever. Nothing else follows either - no aggro record, no combat
       // timer - because none of it means anything to something that cannot be hurt.
       if (DamageGate.isImmune(world, id)) return@each
+
+      val hits = staged.map { it.copy(amount = reactions.onDamageTaken(world, id, it.amount)) }
 
       val takenDamage = world.get(id, TakenDamage::class) ?: world.add(id, TakenDamage())
       hits.forEach { takenDamage.addDamage(it.sourceEntityId, it.amount) }

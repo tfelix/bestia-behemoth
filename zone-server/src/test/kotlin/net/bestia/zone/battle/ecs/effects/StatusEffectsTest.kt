@@ -77,14 +77,14 @@ class StatusEffectsTest {
   }
 
   @Test
-  fun `tickDown removes expired effects and reports whether anything expired`() {
+  fun `tickDown removes expired effects and returns them`() {
     val effects = StatusEffects()
     effects.applyEffect(1L, StackBehavior.REFRESH_DURATION, 1, null, 1.0, true)
 
-    assertFalse(effects.tickDown(0.5f))
+    assertTrue(effects.tickDown(0.5f).isEmpty())
     assertEquals(1, effects.activeEffects.size)
 
-    assertTrue(effects.tickDown(0.6f))
+    assertEquals(listOf(1L), effects.tickDown(0.6f).map { it.definitionId })
     assertTrue(effects.activeEffects.isEmpty())
   }
 

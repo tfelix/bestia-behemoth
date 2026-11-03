@@ -2,6 +2,7 @@ package net.bestia.zone.battle.ecs.effects
 
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
+import net.bestia.zone.battle.status.RemovalReason
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
@@ -32,14 +33,16 @@ class StatusEffectDurationSystem(
 
   override fun update(world: World, deltaTime: Float) {
     val due = mutableListOf<DueTick>()
+    val expiries = mutableListOf<Expiry>()
 
     world.query(StatusEffects::class).each { id ->
       val effects = get<StatusEffects>()
 
       // tickDown marks the component dirty itself if any effect expired.
       val expired = effects.tickDown(deltaTime)
-      if (expired) {
+      if (expired.isNotEmpty()) {
         world.add(id, IsStatusValueDirty)
+        expired.forEach { expiries.add(Expiry(id, it)) }
       }
 
       for (effect in effects.activeEffects) {
@@ -50,6 +53,9 @@ class StatusEffectDurationSystem(
     // After every system of this tick, because a script may touch any entity and no declared read covers that.
     if (due.isNotEmpty()) {
       world.defer { runTicks(world, due) }
+    }
+    if (expiries.isNotEmpty()) {
+      world.defer { expiries.forEach { statusEffectService.notifyRemoved(world, it.hostId, it.effect, RemovalReason.EXPIRED) } }
     }
   }
 
@@ -81,4 +87,6 @@ class StatusEffectDurationSystem(
   }
 
   private class DueTick(val hostId: EntityId, val level: Int, val script: StatusEffectScript)
+
+  private class Expiry(val hostId: EntityId, val effect: ActiveStatusEffect)
 }
