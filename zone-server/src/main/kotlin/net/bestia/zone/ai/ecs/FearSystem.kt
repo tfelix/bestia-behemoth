@@ -58,6 +58,7 @@ class FearSystem(
   }
 
   private companion object {
-    const val FLEE_TILES = 4.0
+    // Far enough that a fast walker is still running when the next beat picks a new spot.
+    const val FLEE_TILES = 6.0
   }
 }
