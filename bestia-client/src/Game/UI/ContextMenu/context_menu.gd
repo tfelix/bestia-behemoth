@@ -11,8 +11,10 @@ class_name ContextMenu
 const _ACTION_TRADE: int = 1
 const _ACTION_TALK: int = 2
 const _ACTION_EXCHANGE: int = 3
+const _ACTION_ATTACK: int = 4
 
 var _target_entity_id: int = 0
+var _target: Node3D = null
 
 
 func _ready() -> void:
@@ -25,6 +27,7 @@ func _ready() -> void:
 func open_for(target: Node3D, screen_position: Vector2) -> bool:
 	clear()
 	_target_entity_id = 0
+	_target = target
 
 	# One of the player's own bodies, other than the one they drive: the only thing to do to it is swap goods.
 	var entity_manager := EntityManager.get_instance()
@@ -43,6 +46,9 @@ func open_for(target: Node3D, screen_position: Vector2) -> bool:
 	elif target is BestiaVisual:
 		_target_entity_id = target.get_bestia_entity_id()
 		add_item(_talk_label(_target_entity_id), _ACTION_TALK)
+		# Only here: a click talks to a townsperson, and killing one costs honor, so it has to be meant.
+		if _can_attack_townsperson(_target_entity_id):
+			add_item(tr("CONTEXT_ATTACK"), _ACTION_ATTACK)
 
 	if item_count == 0:
 		return false
@@ -52,6 +58,13 @@ func open_for(target: Node3D, screen_position: Vector2) -> bool:
 	popup()
 
 	return true
+
+
+func _can_attack_townsperson(entity_id: int) -> bool:
+	var manager := EntityManager.get_instance()
+	var entity := manager.get_entity(entity_id) if manager != null else null
+
+	return entity != null and entity.is_townsfolk() and not entity.is_warded() and not entity.is_dead()
 
 
 func _talk_label(entity_id: int) -> String:
@@ -78,6 +91,9 @@ func _on_id_pressed(id: int) -> void:
 		_ACTION_TALK:
 			if _target_entity_id != 0:
 				ConnectionManager.interact(_target_entity_id)
+		_ACTION_ATTACK:
+			if _target_entity_id != 0 and is_instance_valid(_target):
+				MovementPilot.get_instance().attack(_target, _target_entity_id)
 		_ACTION_EXCHANGE:
 			var inventory = get_tree().get_first_node_in_group("inventory")
 			if inventory != null and _target_entity_id != 0:

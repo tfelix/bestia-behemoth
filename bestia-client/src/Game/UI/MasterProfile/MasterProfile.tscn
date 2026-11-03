@@ -412,6 +412,14 @@ mouse_filter = 1
 text = "0"
 label_settings = SubResource("LabelSettings_small")
 
+[node name="HonorLabel" type="Label" parent="Margin/Layout/Bottom" unique_id=162226529]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Honor"
+mouse_filter = 1
+text = "Honor 0"
+label_settings = SubResource("LabelSettings_small")
+
 [node name="Option" type="Button" parent="Margin/Layout/Bottom" unique_id=404043903]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(22, 22)
