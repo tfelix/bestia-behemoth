@@ -35,6 +35,8 @@ class AttackExecutionServiceTest {
   private fun serviceWith(random: Random) = AttackExecutionService(
     BattleContextFactory(PropPromotionService(mockk(relaxed = true))),
     AttackStrategyFactory(LineOfSightService(), random),
+    mockk(relaxed = true),
+    BasicAttackResolver(mockk(relaxed = true)),
     mockk(relaxed = true)
   )
 

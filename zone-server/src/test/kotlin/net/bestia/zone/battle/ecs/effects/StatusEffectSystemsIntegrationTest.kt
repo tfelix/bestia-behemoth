@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.item.ecs.itemTemplatesOf
 import net.bestia.zone.battle.status.CombatValuesPool
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.skill.SkillTargetType
@@ -206,7 +207,7 @@ class StatusEffectSystemsIntegrationTest {
         StatusValueRecalcSystem(
           definitionRegistry,
           scriptRegistry,
-          EquipmentStatusContributor(equipmentScriptRegistry, ItemStatCatalog()),
+          EquipmentStatusContributor(equipmentScriptRegistry, ItemStatCatalog(), itemTemplatesOf()),
           passiveSkillScriptRegistry,
           conditionValueCalculator,
           combatValuesPool

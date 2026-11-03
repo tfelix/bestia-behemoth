@@ -61,7 +61,12 @@ data class CombatValues(
         level = level,
         base = base,
         attributes = if (resolved == base) base else resolved,
-        weapon = Weapon(atk = context.attack, matk = context.magicAttack, upgradeLevel = context.weaponUpgradeLevel),
+        weapon = Weapon(
+          atk = context.attack,
+          matk = context.magicAttack,
+          upgradeLevel = context.weaponUpgradeLevel,
+          ranged = context.rangedWeapon
+        ),
         hardDefense = context.hardDefense,
         hardMagicDefense = context.hardMagicDefense,
         hitBonus = context.hit,

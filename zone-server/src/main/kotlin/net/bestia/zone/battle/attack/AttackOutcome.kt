@@ -15,5 +15,8 @@ enum class AttackOutcome {
   IMPOSSIBLE,
 
   /** The damage gate turned it away. Ends the order rather than swinging at a shielded target forever. */
-  REFUSED
+  REFUSED,
+
+  /** A ranged weapon with nothing in the quiver it can fire. Ends the order, and the player is told. */
+  OUT_OF_AMMO
 }

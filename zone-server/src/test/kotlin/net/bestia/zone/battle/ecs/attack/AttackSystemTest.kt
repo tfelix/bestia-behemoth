@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.attack
 
+import net.bestia.zone.battle.attack.BasicAttackResolver
 import io.mockk.mockk
 import net.bestia.zone.battle.BattleContextFactory
 import net.bestia.zone.battle.FixedRandom
@@ -29,6 +30,8 @@ class AttackSystemTest {
   private val attacks = AttackExecutionService(
     BattleContextFactory(PropPromotionService(mockk(relaxed = true))),
     AttackStrategyFactory(LineOfSightService(), FixedRandom(0f)),
+    mockk(relaxed = true),
+    BasicAttackResolver(mockk(relaxed = true)),
     mockk(relaxed = true)
   )
 

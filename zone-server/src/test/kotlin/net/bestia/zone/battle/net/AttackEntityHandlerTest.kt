@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.net
 
+import net.bestia.zone.battle.attack.BasicAttackResolver
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto.OpError
@@ -51,6 +52,8 @@ class AttackEntityHandlerTest {
       attackExecutionService = AttackExecutionService(
         BattleContextFactory(PropPromotionService(mockk(relaxed = true))),
         AttackStrategyFactory(LineOfSightService(), alwaysLands),
+        mockk(relaxed = true),
+        BasicAttackResolver(mockk(relaxed = true)),
         mockk(relaxed = true)
       ),
       logoutCancelService = LogoutCancelService(),

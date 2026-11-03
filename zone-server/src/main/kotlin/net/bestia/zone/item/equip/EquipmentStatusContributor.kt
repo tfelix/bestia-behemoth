@@ -5,6 +5,7 @@ import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.ecs.Equipment
+import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.item.stat.ItemStatCatalog
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component
 class EquipmentStatusContributor(
   private val equipmentScriptRegistry: EquipmentScriptRegistry,
   private val itemStatCatalog: ItemStatCatalog,
+  private val templates: ItemTemplateRegistry,
 ) : StatusValueContributor {
 
   override val reads: ComponentClassSet = setOf(Equipment::class)
@@ -26,7 +28,9 @@ class EquipmentStatusContributor(
       equipmentScriptRegistry.getByItemId(item.itemId).apply(context, slot, item.upgradeLevel, stats)
     }
 
-    // The damage formula prices refinement for the right hand only.
-    context.weaponUpgradeLevel = worn[EquipmentSlot.RIGHT_HAND]?.upgradeLevel ?: 0
+    // The damage formula prices refinement for the right hand only, and only the right hand can shoot.
+    val rightHand = worn[EquipmentSlot.RIGHT_HAND]
+    context.weaponUpgradeLevel = rightHand?.upgradeLevel ?: 0
+    context.rangedWeapon = rightHand?.let { templates.templateOf(it.itemId)?.rangedWeapon }
   }
 }

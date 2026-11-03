@@ -292,6 +292,11 @@ enum OpError {
   TELEPORT_NOT_NOW = 105;
   // A wing found no dry ground to land on, or no save point. It is spent and the body stays.
   TELEPORT_NO_LANDING = 106;
+
+  // A two-handed weapon and a left-hand item at once. The player takes one of them off first.
+  EQUIP_HANDS_FULL = 108;
+  // A shot with no ammo in the quiver that fits the weapon. The attack stops until the quiver is filled.
+  ATTACK_OUT_OF_AMMO = 109;
 }
 
 message OperationError {

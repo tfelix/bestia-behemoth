@@ -1,5 +1,6 @@
 package net.bestia.zone.item.equip
 
+import net.bestia.zone.item.ecs.itemTemplatesOf
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -68,7 +69,7 @@ class EquipmentRevalidationServiceTest {
   private val service = EquipmentRevalidationService(
     world = world,
     itemRepository = itemRepository,
-    equipmentService = EquipmentService(),
+    equipmentService = EquipmentService(itemTemplatesOf()),
     equipmentChanges = EquipmentChanges(ItemTemplateRegistry(mockk { every { findAll() } answers { listOf(noviceShirt, shoes) } })),
     noviceGate = NoviceGate(registry),
     inventoryService = inventoryService,

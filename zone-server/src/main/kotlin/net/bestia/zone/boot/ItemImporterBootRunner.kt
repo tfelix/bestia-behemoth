@@ -58,6 +58,10 @@ class ItemImporterBootRunner(
     @JsonProperty("armor-type")
     val armorType: ArmorType? = null,
     val material: ItemMaterial,
+    @JsonProperty("attack-range")
+    val attackRange: Int? = null,
+    @JsonProperty("two-handed")
+    val twoHanded: Boolean = false,
     @JsonProperty("ammo-type")
     val ammoType: AmmoType? = null,
     val element: Element? = null,
@@ -190,6 +194,8 @@ class ItemImporterBootRunner(
       || entity.noviceOnly != dto.noviceOnly
       || entity.armorType != dto.armorType
       || entity.material != dto.material
+      || entity.attackRange != dto.attackRange
+      || entity.twoHanded != dto.twoHanded
       || entity.ammoType != dto.ammoType
       || entity.element != dto.element
       || entity.description != dto.description
@@ -208,6 +214,8 @@ class ItemImporterBootRunner(
     entity.noviceOnly = dto.noviceOnly
     entity.armorType = dto.armorType
     entity.material = dto.material
+    entity.attackRange = dto.attackRange
+    entity.twoHanded = dto.twoHanded
     entity.ammoType = dto.ammoType
     entity.element = dto.element
     entity.description = dto.description
@@ -244,6 +252,8 @@ class ItemImporterBootRunner(
       noviceOnly = dto.noviceOnly,
       armorType = dto.armorType,
       material = dto.material,
+      attackRange = dto.attackRange,
+      twoHanded = dto.twoHanded,
       ammoType = dto.ammoType,
       element = dto.element,
       description = dto.description,

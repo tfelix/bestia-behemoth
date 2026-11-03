@@ -1,5 +1,7 @@
 package net.bestia.zone.item.equip
 
+import net.bestia.zone.battle.ammo.AmmoType
+import net.bestia.zone.item.ecs.itemTemplatesOf
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.persistence.Item
@@ -10,7 +12,7 @@ import net.bestia.zone.item.material.ItemMaterial
 
 class EquipmentServiceTest {
 
-  private val service = EquipmentService()
+  private val service = EquipmentService(itemTemplatesOf(BOW))
 
   private val boots = Item(
     id = 4L, identifier = "boots", weight = 8, type = Item.ItemType.EQUIP,
@@ -187,8 +189,39 @@ class EquipmentServiceTest {
     assertNull(service.checkStillWearable(noviceBoots, itemLevel = 1, WELL_ABOVE_ITEM_LEVEL, wearerIsNovice = true))
   }
 
+  @Test
+  fun `a two-handed weapon is refused while the left hand holds something`() {
+    val equipment = Equipment(EquipmentSlots.ALL)
+    equipment.equip(EquipmentSlot.LEFT_HAND, Equipment.EquippedItem(itemId = SHIELD.id, uniqueId = 5L))
+
+    assertEquals(EquipmentService.Denial.HANDS_FULL, check(BOW, EquipmentSlot.RIGHT_HAND, equipment = equipment))
+  }
+
+  @Test
+  fun `nothing goes into the left hand beside a two-handed weapon`() {
+    val equipment = Equipment(EquipmentSlots.ALL)
+    equipment.equip(EquipmentSlot.RIGHT_HAND, Equipment.EquippedItem(itemId = BOW.id, uniqueId = 5L))
+
+    assertEquals(EquipmentService.Denial.HANDS_FULL, check(SHIELD, EquipmentSlot.LEFT_HAND, equipment = equipment))
+  }
+
+  @Test
+  fun `a two-handed weapon goes on when the left hand is free`() {
+    assertNull(check(BOW, EquipmentSlot.RIGHT_HAND))
+  }
+
   private companion object {
     const val BOOTS_LEVEL = 10
+
+    val BOW = Item(
+      id = 97L, identifier = "novice_bow", weight = 50, type = Item.ItemType.EQUIP,
+      equipSlot = EquipmentSlot.RIGHT_HAND, twoHanded = true, ammoType = AmmoType.ARROW, attackRange = 5,
+      material = ItemMaterial.WOOD
+    )
+    val SHIELD = Item(
+      id = 98L, identifier = "shield", weight = 100, type = Item.ItemType.EQUIP,
+      equipSlot = EquipmentSlot.LEFT_HAND, material = ItemMaterial.WOOD
+    )
 
     /** High enough that the structural cases never trip the level rule as well. */
     const val WELL_ABOVE_ITEM_LEVEL = 99
