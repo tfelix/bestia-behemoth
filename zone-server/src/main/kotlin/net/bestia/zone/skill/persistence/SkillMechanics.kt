@@ -50,6 +50,9 @@ data class SkillMechanics(
   /** An area centred on the caster instead of the aimed-at point. */
   val selfCentred: Boolean = false,
 
+  /** Tiles around the caster a self-centred buff or debuff reaches, like a war cry heard by every friend near. */
+  val reach: Int = 0,
+
   /** Seconds a ward or a lingering zone stays on the ground; 0 leaves it to the archetype. */
   val areaSeconds: Float = 0f,
 
@@ -70,6 +73,9 @@ data class SkillMechanics(
 
   /** Percent chance a hit breaks off the target's cast. */
   val interruptChance: Int = 0,
+
+  /** Percent of its maximum durability a hit takes off the target's weapon and armour. */
+  val gearWearPercent: Int = 0,
 
   /** The coefficient grows with the caster's body weight and what it carries. */
   val weightScaling: Boolean = false,

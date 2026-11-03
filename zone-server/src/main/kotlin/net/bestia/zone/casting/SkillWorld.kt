@@ -7,6 +7,7 @@ import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.GuildMembership
+import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
@@ -96,7 +97,8 @@ interface SkillWorld {
   /** Lands [damage] on [targetEntityId] and shows the number to everyone who can see it. */
   fun apply(targetEntityId: EntityId, damage: Damage)
 
-  fun applyStatusEffect(targetEntityId: EntityId, effectId: Long, level: Int)
+  /** [amount] goes to the effect instance, like the element an endowment gives a weapon. */
+  fun applyStatusEffect(targetEntityId: EntityId, effectId: Long, level: Int, amount: Int = 0)
 
   /**
    * Applies [effectId] only if [targetEntityId] does not already carry it, and answers whether it did.
@@ -179,4 +181,29 @@ interface SkillWorld {
 
   /** Adds mana to [entityId], up to its pool. */
   fun restoreMana(entityId: EntityId, amount: Int)
+
+  fun hasEffect(entityId: EntityId, effectId: Long): Boolean
+
+  fun removeEffect(entityId: EntityId, effectId: Long)
+
+  /** Strips every buff a dispel may lift from [entityId]; returns how many went. */
+  fun dispel(entityId: EntityId): Int
+
+  /** How full [entityId]'s mana pool is, from 0 to 1; 0 for something with no pool. */
+  fun manaFractionOf(entityId: EntityId): Float
+
+  /** Empties the caster's mana pool and returns what it held. */
+  fun spendAllCasterMana(): Int
+
+  /** Takes off what [entityId] wears in [slot]; false when nothing was there. */
+  fun strip(entityId: EntityId, slot: EquipmentSlot): Boolean
+
+  /** Takes [percent] of the maximum off the durability of [entityId]'s weapon and armour. */
+  fun wearGear(entityId: EntityId, percent: Int): Boolean
+
+  /** Masters and player bestia within [radiusTiles] of [centre], hidden ones too. */
+  fun playersNear(centre: Vec3L, radiusTiles: Long): List<DetectedEntitiesSMSG.Detected>
+
+  /** Shows [found] on the map of whoever plays the caster, for [seconds]. */
+  fun reportDetected(found: List<DetectedEntitiesSMSG.Detected>, seconds: Float)
 }

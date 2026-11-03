@@ -47,6 +47,9 @@ object BestiaSkillMechanics {
     if (mechanics.knockback > 0) {
       ctx.world.positionOf(ctx.casterId)?.let { from -> pushAway(ctx, targetId, from, mechanics.knockback) }
     }
+    if (mechanics.gearWearPercent > 0) {
+      ctx.world.wearGear(targetId, mechanics.gearWearPercent)
+    }
     if (mechanics.lifesteal > 0f) {
       val drained = (damage.amount * mechanics.lifesteal).toInt()
       if (drained > 0) ctx.world.apply(ctx.casterId, Heal(drained))

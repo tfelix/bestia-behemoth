@@ -39,4 +39,5 @@ class SkillWorldServices(
   val speech: Speech,
   val forcedMovement: ForcedMovement,
   val castCancel: CastCancelService,
+  val gear: GearOperations,
 )
