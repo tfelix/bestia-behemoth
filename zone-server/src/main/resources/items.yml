@@ -1192,3 +1192,19 @@ items:
     material: METAL
     description: |
       A curved shell plate that shines like beaten gold, and weighs nearly as much.
+
+  # Ammo is never worn: the quiver points at it and each shot takes one from the bag. `attack` is added to the
+  # shot, and `element` decides the shot's element. A `script` later gives special ammo its effect.
+  - id: 96
+    item-db-name: arrow
+    base-level: 1
+    weight: 1
+    type: AMMO
+    ammo-type: ARROW
+    element: NORMAL
+    material: WOOD
+    attack: 3
+    description: |
+      A reed shaft with a fire-hardened point and three goose feathers.
+
+      Put it in the quiver and any bow will shoot it.

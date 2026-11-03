@@ -302,7 +302,8 @@ class PlayerBestiaEntitySpawner(
           rolledStats = slot.rolledStats,
           provenance = slot.heldProvenance
         )
-      }.toMutableMap()
+      }.toMutableMap(),
+      quiver = playerBestia.container.quiver.toMutableList()
     )
   }
 

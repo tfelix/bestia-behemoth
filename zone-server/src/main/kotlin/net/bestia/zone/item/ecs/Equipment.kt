@@ -25,7 +25,9 @@ import net.bestia.zone.util.EntityId
 data class Equipment(
   val availableSlotMask: Int,
   val wearableArmorTypeMask: Int = ArmorType.ALL,
-  private val worn: MutableMap<EquipmentSlot, EquippedItem> = mutableMapOf()
+  private val worn: MutableMap<EquipmentSlot, EquippedItem> = mutableMapOf(),
+  /** Ammo item ids in the order they are shot. The ammo itself stays in the bag. */
+  private val quiver: MutableList<Long> = mutableListOf()
 ) : Component, Dirtyable {
   override val dirtyFlag = DirtyFlag()
 
@@ -63,6 +65,10 @@ data class Equipment(
 
   fun getWorn(): Map<EquipmentSlot, EquippedItem> = worn.toMap()
 
+  fun getQuiver(): List<Long> {
+    return quiver.toList()
+  }
+
   fun isWorn(uniqueId: Long): Boolean = uniqueId != 0L && worn.values.any { it.uniqueId == uniqueId }
 
   /**
@@ -95,6 +101,22 @@ data class Equipment(
     return removed
   }
 
+  /**
+   * Points the quiver at [itemIds]. Returns false without changing anything for more than [QUIVER_SIZE] entries
+   * or a repeated one. Whether each id is ammo is the caller's question, it needs the catalogue.
+   */
+  fun setQuiver(itemIds: List<Long>): Boolean {
+    if (itemIds.size > QUIVER_SIZE || itemIds.toSet().size != itemIds.size) {
+      return false
+    }
+
+    quiver.clear()
+    quiver.addAll(itemIds)
+    markDirty()
+
+    return true
+  }
+
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return EquipmentComponentSMSG(
       entityId = entityId,
@@ -111,9 +133,14 @@ data class Equipment(
           rolledStats = item.rolledStats,
           provenance = item.provenance
         )
-      }
+      },
+      quiverItemIds = quiver.toList()
     )
   }
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets = SyncTargets.OwnerOnly
+
+  companion object {
+    const val QUIVER_SIZE = 5
+  }
 }

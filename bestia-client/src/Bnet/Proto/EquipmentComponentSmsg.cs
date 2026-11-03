@@ -26,19 +26,20 @@ namespace Bnet {
           string.Concat(
             "CjFtZXNzYWdlcy9jb21wb25lbnQvZXF1aXBtZW50X2NvbXBvbmVudF9zbXNn",
             "LnByb3RvEgRibmV0GihtZXNzYWdlcy9jb21wb25lbnQvaXRlbV9zdGF0X3Zh",
-            "bHVlLnByb3RvIkEKFkVxdWlwbWVudENvbXBvbmVudFNNU0cSIQoFaXRlbXMY",
-            "AiADKAsyEi5ibmV0LkVxdWlwcGVkSXRlbUoECAEQAiL5AQoMRXF1aXBwZWRJ",
-            "dGVtEgwKBHNsb3QYASABKA0SDwoHaXRlbV9pZBgCIAEoDRIRCgl1bmlxdWVf",
-            "aWQYAyABKAQSEgoKZHVyYWJpbGl0eRgEIAEoDRIWCg5tYXhfZHVyYWJpbGl0",
-            "eRgFIAEoDRINCgVzbG90cxgGIAEoDRIVCg11cGdyYWRlX2xldmVsGAcgASgN",
-            "EhIKCml0ZW1fbGV2ZWwYCCABKA0SKQoMcm9sbGVkX3N0YXRzGAkgAygLMhMu",
-            "Ym5ldC5JdGVtU3RhdFZhbHVlEhIKCmNyYWZ0ZWRfYnkYCiABKAkSEgoKY3Jh",
-            "ZnRlZF9pbhgLIAEoCUI0ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CG0VxdWlw",
-            "bWVudENvbXBvbmVudFNNU0dQcm90b2IGcHJvdG8z"));
+            "bHVlLnByb3RvIloKFkVxdWlwbWVudENvbXBvbmVudFNNU0cSIQoFaXRlbXMY",
+            "AiADKAsyEi5ibmV0LkVxdWlwcGVkSXRlbRIXCg9xdWl2ZXJfaXRlbV9pZHMY",
+            "AyADKA1KBAgBEAIi+QEKDEVxdWlwcGVkSXRlbRIMCgRzbG90GAEgASgNEg8K",
+            "B2l0ZW1faWQYAiABKA0SEQoJdW5pcXVlX2lkGAMgASgEEhIKCmR1cmFiaWxp",
+            "dHkYBCABKA0SFgoObWF4X2R1cmFiaWxpdHkYBSABKA0SDQoFc2xvdHMYBiAB",
+            "KA0SFQoNdXBncmFkZV9sZXZlbBgHIAEoDRISCgppdGVtX2xldmVsGAggASgN",
+            "EikKDHJvbGxlZF9zdGF0cxgJIAMoCzITLmJuZXQuSXRlbVN0YXRWYWx1ZRIS",
+            "CgpjcmFmdGVkX2J5GAogASgJEhIKCmNyYWZ0ZWRfaW4YCyABKAlCNAoVbmV0",
+            "LmJlc3RpYS5ibmV0LnByb3RvQhtFcXVpcG1lbnRDb21wb25lbnRTTVNHUHJv",
+            "dG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EquipmentComponentSMSG), global::Bnet.EquipmentComponentSMSG.Parser, new[]{ "Items" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EquipmentComponentSMSG), global::Bnet.EquipmentComponentSMSG.Parser, new[]{ "Items", "QuiverItemIds" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EquippedItem), global::Bnet.EquippedItem.Parser, new[]{ "Slot", "ItemId", "UniqueId", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "CraftedBy", "CraftedIn" }, null, null, null, null)
           }));
     }
@@ -90,6 +91,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public EquipmentComponentSMSG(EquipmentComponentSMSG other) : this() {
       items_ = other.items_.Clone();
+      quiverItemIds_ = other.quiverItemIds_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -110,6 +112,21 @@ namespace Bnet {
       get { return items_; }
     }
 
+    /// <summary>Field number for the "quiver_item_ids" field.</summary>
+    public const int QuiverItemIdsFieldNumber = 3;
+    private static readonly pb::FieldCodec<uint> _repeated_quiverItemIds_codec
+        = pb::FieldCodec.ForUInt32(26);
+    private readonly pbc::RepeatedField<uint> quiverItemIds_ = new pbc::RepeatedField<uint>();
+    /// <summary>
+    /// Ammo item ids in the order they are shot, at most five. A pointer at the bag, not a worn copy: the
+    /// client counts each entry from its inventory, and an entry whose arrows ran out stays.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<uint> QuiverItemIds {
+      get { return quiverItemIds_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -126,6 +143,7 @@ namespace Bnet {
         return true;
       }
       if(!items_.Equals(other.items_)) return false;
+      if(!quiverItemIds_.Equals(other.quiverItemIds_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -134,6 +152,7 @@ namespace Bnet {
     public override int GetHashCode() {
       int hash = 1;
       hash ^= items_.GetHashCode();
+      hash ^= quiverItemIds_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -153,6 +172,7 @@ namespace Bnet {
       output.WriteRawMessage(this);
     #else
       items_.WriteTo(output, _repeated_items_codec);
+      quiverItemIds_.WriteTo(output, _repeated_quiverItemIds_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -164,6 +184,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
       items_.WriteTo(ref output, _repeated_items_codec);
+      quiverItemIds_.WriteTo(ref output, _repeated_quiverItemIds_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -175,6 +196,7 @@ namespace Bnet {
     public int CalculateSize() {
       int size = 0;
       size += items_.CalculateSize(_repeated_items_codec);
+      size += quiverItemIds_.CalculateSize(_repeated_quiverItemIds_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -188,6 +210,7 @@ namespace Bnet {
         return;
       }
       items_.Add(other.items_);
+      quiverItemIds_.Add(other.quiverItemIds_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -211,6 +234,11 @@ namespace Bnet {
             items_.AddEntriesFrom(input, _repeated_items_codec);
             break;
           }
+          case 26:
+          case 24: {
+            quiverItemIds_.AddEntriesFrom(input, _repeated_quiverItemIds_codec);
+            break;
+          }
         }
       }
     #endif
@@ -232,6 +260,11 @@ namespace Bnet {
             break;
           case 18: {
             items_.AddEntriesFrom(ref input, _repeated_items_codec);
+            break;
+          }
+          case 26:
+          case 24: {
+            quiverItemIds_.AddEntriesFrom(ref input, _repeated_quiverItemIds_codec);
             break;
           }
         }

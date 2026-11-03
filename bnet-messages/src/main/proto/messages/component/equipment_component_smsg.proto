@@ -17,6 +17,10 @@ option java_outer_classname = "EquipmentComponentSMSGProto";
 message EquipmentComponentSMSG {
   reserved 1; // entity_id, now on EntityUpdate
   repeated EquippedItem items = 2;
+
+  // Ammo item ids in the order they are shot, at most five. A pointer at the bag, not a worn copy: the
+  // client counts each entry from its inventory, and an entry whose arrows ran out stays.
+  repeated uint32 quiver_item_ids = 3;
 }
 
 message EquippedItem {

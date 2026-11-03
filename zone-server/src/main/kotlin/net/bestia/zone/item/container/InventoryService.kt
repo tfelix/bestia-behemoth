@@ -266,6 +266,11 @@ class InventoryService(
    * caller's job key orders it after the equip that made the copy.
    */
   @Transactional
+  fun setQuiver(masterId: Long, playerBestiaId: PlayerBestiaId?, itemIds: List<Long>) {
+    withOwnerContainer(masterId, playerBestiaId) { container -> container.setQuiver(itemIds) }
+  }
+
+  @Transactional
   fun recordWear(uniqueId: Long, durability: Int) {
     itemInstanceRepository.updateDurability(uniqueId, durability)
   }
