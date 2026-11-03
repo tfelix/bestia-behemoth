@@ -6,6 +6,7 @@ ERROR_BASIC_SKILL_EMOTE_LOCKED,Emotes need Basic Skill Lv. 2.
 ERROR_EMOTE_NOT_NOW,Stand still to do that - you cannot emote while walking or casting.
 ERROR_EQUIP_LEVEL_TOO_LOW,You are not high enough level to wear that yet.
 ERROR_EQUIP_NOVICE_ONLY,Only a novice may wear that. Your training has taken you past it.
+ERROR_EQUIP_HANDS_FULL,That needs both hands. Take off what is in the other hand first.
 ERROR_EQUIP_ARMOR_TYPE_NOT_WEARABLE,Your bestia cannot wear that kind of armor.
 ERROR_ITEM_NOVICE_ONLY,Only a novice may use that. Your training has taken you past it.
 ERROR_CHART_NEEDS_BLANK,You have no blank vellum to draw on.
@@ -133,6 +134,8 @@ BESTIA_PARTY_EMPTY_SLOT,Empty
 BESTIA_PARTY_EMPTY_SLOT_HINT,Catch a Bestia to fill the empty slot.
 ITEM_CRAFTED_BY,Crafted by {crafter} in {world}
 ITEM_MATERIAL_AXES,Material: {axes}
+ITEM_ATTACK_RANGE,Range: {tiles} tiles
+QUIVER_SLOT_EMPTY,Drop arrows here. The leftmost is shot first; double click to take one out.
 CRAFT_HINT_TOO,too {pole}
 CRAFT_POLE_STATE_NEG,fluid
 CRAFT_POLE_STATE_POS,solid
@@ -419,6 +422,7 @@ ERROR_AUCTION_CANNOT_AFFORD_FEE,You cannot pay the listing fee.
 ERROR_AUCTION_LISTING_GONE,That listing is no longer for sale.
 ERROR_AUCTION_CANNOT_AFFORD,You cannot afford that.
 ERROR_LIGHT_SOURCE_BURNT_OUT,Your last torch burnt out.
+ERROR_ATTACK_OUT_OF_AMMO,Your quiver has nothing left for this weapon.
 ERROR_TRAVEL_DESTINATION_IN_WATER,You cannot walk there: it is under water.
 AUCTION_TITLE,Auction House of %s
 AUCTION_LINKED,"Shared market: %s"

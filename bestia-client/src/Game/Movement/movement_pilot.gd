@@ -65,9 +65,20 @@ func interact(target: Node3D, entity_id: int) -> void:
 
 
 ## Swings at [param target], walking to it first if it is out of reach. One message is sent on arrival and the
-## server keeps swinging from there, so the goal is done the moment it lands.
+## server keeps swinging from there, so the goal is done the moment it lands. A held bow stops the walk at its
+## range rather than at the target's side.
 func attack(target: Node3D, entity_id: int) -> void:
-	_start(AttackGoal.new(target, entity_id))
+	_start(AttackGoal.new(target, entity_id, _controlled_attack_range()))
+
+
+## 1 until the server has sent combat stats, which is the reach of a swing.
+func _controlled_attack_range() -> int:
+	var entity_manager := EntityManager.get_instance()
+	var entity: Entity = entity_manager.get_controlled_entity() if entity_manager else null
+	if entity == null:
+		return 1
+
+	return entity.get_combat_stats().get("attack_range", 1)
 
 
 ## Picks up the item [param target] shows, walking to it first if it is out of reach.

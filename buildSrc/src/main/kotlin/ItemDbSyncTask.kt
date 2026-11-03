@@ -19,10 +19,11 @@ import java.io.File
  * against the Godot client's Item DB (the `.tres` files under `bestia-client/src/Game/Item/DB/`),
  * the exact check/sync split [SkillDbSyncTask] uses for skills.
  *
- * `item_id`, `type`, `weight`, `level`, `equip_slot`, `armor_type`, `name_key` and `description_key` are
- * touched - every other field (`icon`, `item_script`, `item_visual`) is hand-authored client presentation
- * with no server equivalent and is left alone. `equip_slot` and `armor_type` are only checked/patched when
- * set; anything else is fine relying on the resource default of 0 ("not equipment", "not armor").
+ * `item_id`, `type`, `weight`, `level`, `equip_slot`, `armor_type`, `attack_range`, `name_key` and
+ * `description_key` are touched - every other field (`icon`, `item_script`, `item_visual`) is hand-authored
+ * client presentation with no server equivalent and is left alone. `equip_slot`, `armor_type` and
+ * `attack_range` are only checked/patched when set; anything else is fine relying on the resource default of 0
+ * ("not equipment", "not armor", "not ranged").
  *
  * A `.tres` saved from the Godot inspector - which is how `icon` gets authored - is rewritten whole,
  * and every property still equal to its script default is dropped. A missing line therefore reads as
@@ -69,6 +70,8 @@ abstract class ItemDbSyncTask : DefaultTask() {
     val equipSlot: String? = null,
     @JsonProperty("armor-type")
     val armorType: String? = null,
+    @JsonProperty("attack-range")
+    val attackRange: Int = 0,
     val description: String? = null
   )
 
@@ -81,6 +84,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     val type: Int,
     val equipSlot: Int,
     val armorType: Int,
+    val attackRange: Int,
     val description: String?
   )
 
@@ -99,6 +103,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
         type = typeOrdinalOf(item),
         equipSlot = equipSlotValueOf(item),
         armorType = armorTypeValueOf(item),
+        attackRange = item.attackRange,
         description = item.description?.trim()?.takeIf { it.isNotEmpty() }
       )
     }
@@ -114,6 +119,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     val typePattern = Regex("""^type\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val equipSlotPattern = Regex("""^equip_slot\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val armorTypePattern = Regex("""^armor_type\s*=\s*(\d+)""", RegexOption.MULTILINE)
+    val attackRangePattern = Regex("""^attack_range\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val nameKeyPattern = Regex("""^name_key\s*=\s*"([^"]*)"""", RegexOption.MULTILINE)
     val descriptionKeyPattern = Regex("""^description_key\s*=\s*"([^"]*)"""", RegexOption.MULTILINE)
 
@@ -165,6 +171,11 @@ abstract class ItemDbSyncTask : DefaultTask() {
       if (expected.armorType != DEFAULT_ARMOR_TYPE) {
         patchNumericField(
           file, "armor_type", armorTypePattern, expected.armorType, DEFAULT_ARMOR_TYPE, id, shouldFix, problems
+        )
+      }
+      if (expected.attackRange != DEFAULT_ATTACK_RANGE) {
+        patchNumericField(
+          file, "attack_range", attackRangePattern, expected.attackRange, DEFAULT_ATTACK_RANGE, id, shouldFix, problems
         )
       }
 
@@ -304,6 +315,8 @@ abstract class ItemDbSyncTask : DefaultTask() {
       if (expected.equipSlot != DEFAULT_EQUIP_SLOT) "\nequip_slot = ${expected.equipSlot}" else ""
     val armorTypeLine =
       if (expected.armorType != DEFAULT_ARMOR_TYPE) "\narmor_type = ${expected.armorType}" else ""
+    val attackRangeLine =
+      if (expected.attackRange != DEFAULT_ATTACK_RANGE) "\nattack_range = ${expected.attackRange}" else ""
     return """
     [gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
 
@@ -314,7 +327,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     item_id = $id
     name_key = "$nameKey"
     description_key = "$descriptionKey"
-    """.trimIndent() + weightLine + levelLine + typeLine + equipSlotLine + armorTypeLine + "\n"
+    """.trimIndent() + weightLine + levelLine + typeLine + equipSlotLine + armorTypeLine + attackRangeLine + "\n"
   }
 
   companion object {
@@ -324,6 +337,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     private const val DEFAULT_TYPE = 0
     private const val DEFAULT_EQUIP_SLOT = 0
     private const val DEFAULT_ARMOR_TYPE = 0
+    private const val DEFAULT_ATTACK_RANGE = 0
 
     /** Must mirror `net.bestia.zone.item.Item.ItemType` and `ItemResource.ItemType`. */
     private val TYPE_ORDER = listOf("USABLE", "EQUIP", "ETC", "AMMO")

@@ -12,13 +12,10 @@ extends PilotGoal
 ## something ends it - so this goal does not follow a target that wanders off afterwards.
 
 
-## How close the player has to be, in tiles.
-##
-## The server's basic attack reaches one tile, measured between tile coordinates with a truncating Euclidean
-## distance - so every one of the eight neighbours counts as adjacent, and nothing further does. 1.5 is what
-## admits exactly those: above [MovementPilot]'s own sqrt(2) floor, and below the 2.0 that would let the walk
-## stop a tile short and swing at nothing.
-const _REACH_TILES := 1.5
+## The server measures reach between tile coordinates with a truncating Euclidean distance, so a reach of N
+## tiles admits every tile closer than N + 1. Half a tile over N admits exactly those: for a swing that is 1.5,
+## the eight neighbours and nothing further, and above [MovementPilot]'s own sqrt(2) floor.
+const _TILE_SLACK := 0.5
 
 ## What we are walking to. Freed when its entity vanishes or its chunk unloads, which is the whole liveness
 ## check - the same one CollectGoal and InteractGoal rely on.
@@ -26,10 +23,14 @@ var _target: Node3D
 
 var _entity_id: int
 
+## How close the player has to be, in tiles: the reach of what the controlled entity holds.
+var _reach_tiles: float
 
-func _init(target: Node3D, entity_id: int) -> void:
+
+func _init(target: Node3D, entity_id: int, attack_range: int) -> void:
 	_target = target
 	_entity_id = entity_id
+	_reach_tiles = maxi(attack_range, 1) + _TILE_SLACK
 
 
 func destination() -> Vector2:
@@ -41,7 +42,7 @@ func destination() -> Vector2:
 
 
 func arrival_tiles() -> float:
-	return _REACH_TILES
+	return _reach_tiles
 
 
 func is_alive() -> bool:

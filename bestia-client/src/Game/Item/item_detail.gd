@@ -33,6 +33,9 @@ static func as_bbcode(
 	if level > 1:
 		lines.append("Lv. %d" % level)
 
+	if item.attack_range > 0:
+		lines.append(_translate("ITEM_ATTACK_RANGE").format({"tiles": item.attack_range}))
+
 	for rolled in rolled_stats:
 		lines.append(_stat_line(rolled.Stat, rolled.Value))
 
