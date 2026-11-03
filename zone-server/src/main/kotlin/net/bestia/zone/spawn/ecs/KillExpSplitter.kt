@@ -4,6 +4,7 @@ import net.bestia.zone.config.PartyRulesConfig
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.identity.MasterEntityResolver
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.identity.ecs.OwnedBestia
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Component
 class KillExpSplitter(
   private val sessions: ConnectionInfoService,
   private val rules: PartyRulesConfig,
+  private val masters: MasterEntityResolver = MasterEntityResolver(sessions),
 ) {
 
   /** [amount] EXP for [entityId]. [masterEntityId] is the master behind it, which a levy taxes, or null. */
@@ -54,7 +56,8 @@ class KillExpSplitter(
         continue
       }
 
-      val masterEntityId = masterEntityOf(world, attacker)
+      // Null for an attacker no master answers for, which keeps its EXP untaxed and unshared.
+      val masterEntityId = masters.masterEntityOf(world, attacker)
       val sharers = if (killedAt == null || masterEntityId == null) null else sharersOf(world, attacker, masterEntityId, killedAt)
 
       if (sharers == null || sharers.size < 2) {
@@ -70,24 +73,6 @@ class KillExpSplitter(
     }
 
     return credits
-  }
-
-  /**
-   * The master entity behind [entityId]: a master is its own, and a bestia's is its owner's while the owner
-   * plays the master it belongs to. Null for anything else, which keeps its EXP untaxed and unshared.
-   */
-  fun masterEntityOf(world: World, entityId: EntityId): EntityId? {
-    if (world.has(entityId, Master::class)) {
-      return entityId
-    }
-
-    val accountId = world.get(entityId, Account::class)?.accountId ?: return null
-    val ownedBestia = world.get(entityId, OwnedBestia::class) ?: return null
-    if (!sessions.isPlaying(accountId, ownedBestia.masterId)) {
-      return null
-    }
-
-    return selectedMasterEntityOf(accountId)
   }
 
   /** The master entities sharing [attacker]'s portion, or null when its party takes each their own. */
@@ -112,7 +97,7 @@ class KillExpSplitter(
         continue
       }
 
-      val memberMaster = selectedMasterEntityOf(member.accountId) ?: continue
+      val memberMaster = masters.selectedMasterEntityOf(member.accountId) ?: continue
       val played = activeEntityOf(member.accountId) ?: memberMaster
 
       if (isNear(world, memberMaster, killedAt) || (played != memberMaster && isNear(world, played, killedAt))) {
@@ -130,14 +115,6 @@ class KillExpSplitter(
     val range = rules.expShareRangeMetres.toLong()
 
     return dx * dx + dy * dy <= range * range
-  }
-
-  private fun selectedMasterEntityOf(accountId: AccountId): EntityId? {
-    return try {
-      sessions.getSelectedMasterEntityId(accountId)
-    } catch (_: NoActiveSessionException) {
-      null
-    }
   }
 
   private fun activeEntityOf(accountId: AccountId): EntityId? {
