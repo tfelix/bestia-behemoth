@@ -137,6 +137,17 @@ class StatusEffectService(
     return true
   }
 
+  /** Lifts every buff from [targetId] that its catalogue row lets a dispel lift. Returns how many went. */
+  fun dispel(world: World, targetId: EntityId): Int {
+    val active = world.get(targetId, StatusEffects::class)?.activeEffects?.toList() ?: return 0
+    val lifted = active.filter { effect ->
+      val definition = statusEffectDefinitionRegistry.findById(effect.definitionId)
+      definition != null && definition.polarity == StatusEffectPolarity.BUFF && definition.dispellable
+    }
+
+    return lifted.count { removeEffect(world, targetId, it.definitionId, RemovalReason.DISPELLED) }
+  }
+
   /** Runs the script's [StatusEffectScript.onRemove] for an effect already taken off its bearer. */
   fun notifyRemoved(world: World, hostId: EntityId, effect: ActiveStatusEffect, reason: RemovalReason) {
     if (!world.isAlive(hostId)) {

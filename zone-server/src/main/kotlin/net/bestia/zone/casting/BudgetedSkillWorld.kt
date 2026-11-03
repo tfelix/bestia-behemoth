@@ -20,7 +20,9 @@ import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.SMSG
@@ -253,12 +255,82 @@ class BudgetedSkillWorld(
     return true
   }
 
-  override fun applyStatusEffect(targetEntityId: EntityId, effectId: Long, level: Int) {
+  override fun applyStatusEffect(targetEntityId: EntityId, effectId: Long, level: Int, amount: Int) {
     budget.charge()
 
     onEntity(targetEntityId) { target ->
-      services.statusEffects.applyEffect(this, target, effectId, level, casterId)
+      services.statusEffects.applyEffect(this, target, effectId, level, casterId, amount = amount)
     }
+  }
+
+  override fun hasEffect(entityId: EntityId, effectId: Long): Boolean {
+    budget.charge()
+
+    return world.get(entityId, StatusEffects::class)?.hasEffect(effectId) ?: false
+  }
+
+  override fun removeEffect(entityId: EntityId, effectId: Long) {
+    budget.charge()
+
+    services.statusEffects.removeEffect(world, entityId, effectId, RemovalReason.DISPELLED)
+  }
+
+  override fun dispel(entityId: EntityId): Int {
+    budget.charge()
+
+    return services.statusEffects.dispel(world, entityId)
+  }
+
+  override fun manaFractionOf(entityId: EntityId): Float {
+    budget.charge()
+
+    val mana = world.get(entityId, Mana::class) ?: return 0f
+
+    return if (mana.max <= 0) 0f else mana.current.toFloat() / mana.max
+  }
+
+  override fun spendAllCasterMana(): Int {
+    budget.charge()
+
+    val mana = world.get(casterId, Mana::class) ?: return 0
+    val spent = mana.current
+    mana.current = 0
+
+    return spent
+  }
+
+  override fun strip(entityId: EntityId, slot: EquipmentSlot): Boolean {
+    budget.charge()
+
+    return services.gear.strip(world, entityId, slot)
+  }
+
+  override fun wearGear(entityId: EntityId, percent: Int): Boolean {
+    budget.charge()
+
+    return services.gear.wear(world, entityId, percent)
+  }
+
+  override fun playersNear(centre: Vec3L, radiusTiles: Long): List<DetectedEntitiesSMSG.Detected> {
+    budget.charge()
+
+    val found = mutableListOf<DetectedEntitiesSMSG.Detected>()
+    services.aoi.forEachInCube(centre, radiusTiles * 2, AoiLayer.DYNAMIC_ONLY) { id, x, y, z ->
+      val isMaster = world.has(id, Master::class)
+      if (id != casterId && (isMaster || world.has(id, OwnedBestia::class))) {
+        found.add(DetectedEntitiesSMSG.Detected(id, Vec3L(x, y, z), isMaster))
+      }
+    }
+    budget.chargeQueryResults(found.size)
+
+    return found
+  }
+
+  override fun reportDetected(found: List<DetectedEntitiesSMSG.Detected>, seconds: Float) {
+    budget.charge()
+
+    val accountId = world.get(casterId, Account::class)?.accountId ?: return
+    services.messages.sendToPlayer(accountId, DetectedEntitiesSMSG(found, seconds))
   }
 
   override fun applyStatusEffectIfAbsent(targetEntityId: EntityId, effectId: Long, level: Int): Boolean {

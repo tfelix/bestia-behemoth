@@ -6,6 +6,7 @@ import net.bestia.zone.battle.ecs.effects.AreaEffect
 import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.GuildMembership
+import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
@@ -50,6 +51,16 @@ class RecordingSkillWorld(
   val natures = mutableMapOf<EntityId, Nature>()
   val foes = mutableSetOf<EntityId>()
   val manaRestored = mutableListOf<Pair<EntityId, Int>>()
+  val effectsOn = mutableMapOf<EntityId, MutableSet<Long>>()
+  val removedEffects = mutableListOf<Pair<EntityId, Long>>()
+  val dispelled = mutableListOf<EntityId>()
+  val stripped = mutableListOf<Pair<EntityId, EquipmentSlot>>()
+  val gearWorn = mutableListOf<Pair<EntityId, Int>>()
+  val players = mutableListOf<DetectedEntitiesSMSG.Detected>()
+  val detections = mutableListOf<List<DetectedEntitiesSMSG.Detected>>()
+  var manaFraction: Float = 1f
+  var casterMana: Int = 0
+  var strippable: Boolean = true
 
   override val remainingOps: Int = Int.MAX_VALUE
 
@@ -110,6 +121,46 @@ class RecordingSkillWorld(
 
   override fun restoreMana(entityId: EntityId, amount: Int) {
     manaRestored.add(entityId to amount)
+  }
+
+  override fun hasEffect(entityId: EntityId, effectId: Long): Boolean {
+    return effectsOn[entityId]?.contains(effectId) == true
+  }
+
+  override fun removeEffect(entityId: EntityId, effectId: Long) {
+    removedEffects.add(entityId to effectId)
+    effectsOn[entityId]?.remove(effectId)
+  }
+
+  override fun dispel(entityId: EntityId): Int {
+    dispelled.add(entityId)
+    return 0
+  }
+
+  override fun manaFractionOf(entityId: EntityId): Float {
+    return manaFraction
+  }
+
+  override fun spendAllCasterMana(): Int {
+    return casterMana.also { casterMana = 0 }
+  }
+
+  override fun strip(entityId: EntityId, slot: EquipmentSlot): Boolean {
+    if (strippable) stripped.add(entityId to slot)
+    return strippable
+  }
+
+  override fun wearGear(entityId: EntityId, percent: Int): Boolean {
+    gearWorn.add(entityId to percent)
+    return true
+  }
+
+  override fun playersNear(centre: Vec3L, radiusTiles: Long): List<DetectedEntitiesSMSG.Detected> {
+    return players
+  }
+
+  override fun reportDetected(found: List<DetectedEntitiesSMSG.Detected>, seconds: Float) {
+    detections.add(found)
   }
 
   data class Inflicted(
@@ -186,8 +237,8 @@ class RecordingSkillWorld(
     appliedDamage += targetEntityId to damage
   }
 
-  override fun applyStatusEffect(targetEntityId: EntityId, effectId: Long, level: Int) {
-    appliedEffects += AppliedEffect(targetEntityId, effectId, level)
+  override fun applyStatusEffect(targetEntityId: EntityId, effectId: Long, level: Int, amount: Int) {
+    appliedEffects += AppliedEffect(targetEntityId, effectId, level, amount)
   }
 
   /** Models the real atomic claim: the first caller wins the effect and every later one is refused. */
@@ -234,7 +285,7 @@ class RecordingSkillWorld(
 
   data class PlacedStation(val kind: StaticEntityKind, val masterId: Long, val at: Vec3L)
 
-  data class AppliedEffect(val targetEntityId: EntityId, val effectId: Long, val level: Int)
+  data class AppliedEffect(val targetEntityId: EntityId, val effectId: Long, val level: Int, val amount: Int = 0)
 
   data class GuildEffect(val guildId: Long, val centre: Vec3L, val radiusMetres: Long, val effectId: Long, val level: Int)
 
