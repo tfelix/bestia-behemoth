@@ -136,7 +136,9 @@ class AttackExecutionService(
     // Armed only once the swing is real, so stepping out of reach neither costs the attacker its delay nor
     // offers a way to sidestep it.
     world.update(attackerId, { AttackDelay() }) {
-      it.remainingSeconds = AttackSpeed.delaySeconds(attack.baseAttackMotionMs, ctx.attacker.statusValues)
+      it.remainingSeconds = AttackSpeed.delaySeconds(
+        attack.baseAttackMotionMs, ctx.attacker.statusValues, ctx.attacker.aspdPercent
+      )
     }
 
     apply(world, attackerId, targetId, result, ammunition)

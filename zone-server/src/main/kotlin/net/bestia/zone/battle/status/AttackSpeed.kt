@@ -26,6 +26,9 @@ object AttackSpeed {
    */
   const val DEFAULT_SPECIES_ASPD = 80
 
+  /** However slowed, a swing still comes; at most ten times as slow. */
+  const val MIN_HASTE_PERCENT = 10
+
   /** The base motion a species' authored ASPD stands for, before its AGI and DEX shorten it. */
   fun baseMotionMs(aspd: Int): Int {
     return ZERO_ASPD_MOTION_MS - aspd * MS_PER_ASPD_POINT
@@ -43,8 +46,10 @@ object AttackSpeed {
     return (ZERO_ASPD_MOTION_MS - motionMs) / MS_PER_ASPD_POINT
   }
 
-  /** Seconds from one swing to the next: twice the motion. */
-  fun delaySeconds(baseMotionMs: Int, sv: StatusValues): Float {
-    return 2f * motionMs(baseMotionMs, sv) / 1000f
+  /** Seconds from one swing to the next: twice the motion, shortened by [aspdPercent] points of haste. */
+  fun delaySeconds(baseMotionMs: Int, sv: StatusValues, aspdPercent: Int = 0): Float {
+    val haste = (100 + aspdPercent).coerceAtLeast(MIN_HASTE_PERCENT) / 100f
+
+    return 2f * motionMs(baseMotionMs, sv) / 1000f / haste
   }
 }

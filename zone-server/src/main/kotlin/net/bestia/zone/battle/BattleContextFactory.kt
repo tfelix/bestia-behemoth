@@ -86,15 +86,16 @@ class BattleContextFactory(
       defense = combat.defense,
       statusValues = combat.attributes,
       derivedStatusValues = combat.derived,
-      // Armour and buffs that change it do not exist yet, so the species' own element is the whole answer.
-      assumedElement = nature?.element ?: Element.NORMAL,
+      // An effect like a freeze turns the body into another element for as long as it lasts.
+      assumedElement = combat.elementOverride ?: nature?.element ?: Element.NORMAL,
       elementResistance = combat.elementResistance,
       maxHealth = world.get(entityId, Health::class)?.max ?: 0,
       activeEffectIds = world.get(entityId, StatusEffects::class)
         ?.activeEffects
         ?.mapTo(mutableSetOf()) { it.definitionId }
         ?: emptySet(),
-      attackPower = nature?.attackPower ?: 1f
+      attackPower = nature?.attackPower ?: 1f,
+      aspdPercent = combat.aspdPercent
     )
   }
 
