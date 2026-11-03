@@ -35,6 +35,8 @@ var _guild_beacons: Dictionary[int, GuildMemberBeaconComponentSMSG] = {}
 ## Where the player's own entities are travelling, by entity id. Apart from the nodes as well: a bestia sent
 ## far off has a route on the map and no body in the scene.
 var _journeys: Dictionary[int, JourneyComponentSMSG] = {}
+## What a Detect skill lets the player's own entities sense, by entity id, while it lasts.
+var _detections: Dictionary[int, DetectingComponentSMSG] = {}
 
 ## The player took control of another of their entities. [param previous_id] is 0 on the first one.
 signal controlled_entity_changed(previous_id: int, entity_id: int)
@@ -44,6 +46,8 @@ signal owned_bestias_changed(bestias: Array[BestiaInfo])
 signal guild_beacon_changed(entity_id: int)
 ## One of the player's own entities set off, got on, or ended a journey; see [method get_journey].
 signal journey_changed(entity_id: int)
+## What one of the player's own entities senses through Detect changed or ran out; see [method get_detections].
+signal detection_changed(entity_id: int)
 
 
 ## EntityManager isn't an autoload (see the TODO above - its lifecycle is tied to the
@@ -296,6 +300,14 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		journey_changed.emit(msg.EntityId)
 		return
 
+	if msg is DetectingComponentSMSG:
+		if msg.Removed:
+			_detections.erase(msg.EntityId)
+		else:
+			_detections[msg.EntityId] = msg
+		detection_changed.emit(msg.EntityId)
+		return
+
 	if _keep_detached(msg):
 		return
 
@@ -408,6 +420,10 @@ func get_journey(entity_id: int) -> JourneyComponentSMSG:
 
 func get_journeys() -> Dictionary[int, JourneyComponentSMSG]:
 	return _journeys
+
+
+func get_detections() -> Dictionary[int, DetectingComponentSMSG]:
+	return _detections
 
 
 ## The name the player knows one of its own bestias by: its own or its species'. Empty for anything else.
