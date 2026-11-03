@@ -39,7 +39,6 @@ habitat: [LAKE, RIPARIAN, GEOTHERMAL_BASIN]
 temperature-min: -10
 temperature-max: 50
 spawn-weight: 100
-non-combatant: true
 equip-slots: [HEAD_UPPER, ARMOR, ACCESSORY_1, ACCESSORY_2]
 armor-types: [LIGHT, MEDIUM]
 loot:
