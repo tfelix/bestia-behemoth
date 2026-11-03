@@ -1,8 +1,9 @@
-extends RigidBody3D
+extends RefCounted
 class_name DamageTag
+## One damage number over its life: what it reads, how it arcs and how it fades. [DamageTagLayer] owns the
+## label and advances every live tag once a frame.
 
-## Fade timings in seconds. Together with [code]_FADE_OUT[/code] they are the tag's whole lifetime,
-## after which it frees itself.
+## Fade timings in seconds. Together they are the tag's whole life.
 const _FADE_IN := 0.1
 const _HOLD := 1.7
 const _FADE_OUT := 0.4
@@ -13,6 +14,18 @@ const _SMALL := 0.6
 ## A crit has to land visibly harder than an ordinary hit, without earning its own animation.
 const _CRIT_SCALE := 1.35
 
+## The flight, in screen heights: offsets scale with the distance to the camera, so the motion reads the
+## same at every zoom, like the fixed-size label it moves. A short burst away from the hit, then a slow
+## drift, so a tag never doubles back over the younger ones below it.
+const _BURST_RISE := 0.07
+const _BURST_SIDE := 0.05
+## Seconds until the burst has covered two thirds of its way.
+const _BURST_TIME := 0.12
+## Per second, after the burst.
+const _DRIFT := 0.04
+## Screen left, where every tag flew before it knew who struck it.
+const _SIDE := -1.0
+
 const _CRIT_COLOUR := Color(1, 0.72, 0.25)
 const _HEAL_COLOUR := Color(0.45, 0.95, 0.5)
 
@@ -20,22 +33,70 @@ const _HEAL_COLOUR := Color(0.45, 0.95, 0.5)
 ## compete with the hits around it.
 const _NOTHING_HAPPENED_COLOUR := Color(0.75, 0.75, 0.78)
 
-var damage_msg: DamageEntitySMSG
+var label: Label3D
 
-@onready var _damage_label: Label3D = $DamageLabel
+var _type := DamageType.NORMAL
+var _start := Vector3.ZERO
+var _age := 0.0
+var _peak := 1.0
 
 
-func _ready() -> void:
-	_damage_label.text = _label_text()
-	_damage_label.modulate = _text_colour()
-	_play_fade()
+func _init(tag_label: Label3D) -> void:
+	label = tag_label
+
+
+func start(msg: DamageEntitySMSG, at: Vector3, camera: Camera3D) -> void:
+	_type = msg.Type
+	_start = at
+	_peak = _CRIT_SCALE if _type == DamageType.CRIT else 1.0
+	label.modulate = _text_colour()
+	label.text = _label_text(msg)
+	label.show()
+	advance(0.0, camera)
+
+
+## False once the tag has run its course.
+func advance(delta: float, camera: Camera3D) -> bool:
+	_age += delta
+	if _age >= _FADE_IN + _HOLD + _FADE_OUT:
+		return false
+
+	var visibility := _visibility_at(_age)
+	label.global_position = _start + _flight_offset_at(_age, camera)
+	label.scale = Vector3.ONE * _peak * lerpf(_SMALL, 1.0, visibility)
+	# Fades through transparency, not modulate: a Label3D rebuilds its mesh on every modulate change.
+	label.transparency = 1.0 - visibility
+	return true
+
+
+## 0 to 1 over the fade in, 1 while holding, back to 0 over the fade out.
+func _visibility_at(age: float) -> float:
+	if age < _FADE_IN:
+		return age / _FADE_IN
+	var fading_for := age - _FADE_IN - _HOLD
+	return 1.0 - clampf(fading_for / _FADE_OUT, 0.0, 1.0)
+
+
+func _flight_offset_at(age: float, camera: Camera3D) -> Vector3:
+	var burst := 1.0 - exp(-age / _BURST_TIME)
+	var sideways := _SIDE * _BURST_SIDE * burst
+	var upwards := _BURST_RISE * burst + _DRIFT * age
+	var screen := camera.global_basis.x * sideways + camera.global_basis.y * upwards
+	return screen * _screen_height_at(camera, _start)
+
+
+## How many world units one screen height spans at [param point].
+static func _screen_height_at(camera: Camera3D, point: Vector3) -> float:
+	if camera.projection == Camera3D.PROJECTION_ORTHOGONAL:
+		return camera.size
+	return 2.0 * camera.global_position.distance_to(point) * tan(deg_to_rad(camera.fov) * 0.5)
 
 
 ## The outcome words are hardcoded rather than translated for the reason [code]weather.gd[/code]
 ## hardcodes its sky names: [code]general.csv[/code] is for sentences, and a single word belongs to
 ## whatever prints it.
-func _label_text() -> String:
-	match damage_msg.Type:
+func _label_text(msg: DamageEntitySMSG) -> String:
+	match msg.Type:
 		DamageType.MISS:
 			return "Miss"
 		# Nothing on the server emits DODGE yet; it exists only in the wire enum. Naming it costs one
@@ -43,15 +104,15 @@ func _label_text() -> String:
 		DamageType.DODGE:
 			return "Dodge"
 		DamageType.HEAL:
-			return "+%d" % damage_msg.Damage
+			return "+%d" % msg.Damage
 		_:
-			return str(damage_msg.Damage)
+			return str(msg.Damage)
 
 
 ## A tag is legible for barely two seconds while it arcs away, so the outcome has to carry in the
 ## colour before the number is read at all.
 func _text_colour() -> Color:
-	match damage_msg.Type:
+	match _type:
 		DamageType.CRIT:
 			return _CRIT_COLOUR
 		DamageType.HEAL:
@@ -60,28 +121,3 @@ func _text_colour() -> Color:
 			return _NOTHING_HAPPENED_COLOUR
 		_:
 			return Color.WHITE
-
-
-## Owned here rather than by an AnimationPlayer because its tracks pinned [code]modulate[/code] to
-## white on every keyframe - the one property the outcome colour needs. Alpha and colour have to
-## live in the same place for a crit to be orange and still fade.
-##
-## One parallel step sequenced by delays, rather than parallel groups either side of an interval:
-## re-enabling parallel after a sequential tweener appends to that same step instead of a new one,
-## which would fade the tag out while it is still meant to be holding.
-func _play_fade() -> void:
-	var peak := Vector3.ONE * (_CRIT_SCALE if damage_msg.Type == DamageType.CRIT else 1.0)
-	var out_delay := _FADE_IN + _HOLD
-
-	_damage_label.modulate.a = 0.0
-	_damage_label.outline_modulate.a = 0.0
-	_damage_label.scale = peak * _SMALL
-
-	var tween := create_tween().set_parallel()
-	tween.tween_property(_damage_label, "modulate:a", 1.0, _FADE_IN)
-	tween.tween_property(_damage_label, "outline_modulate:a", 1.0, _FADE_IN)
-	tween.tween_property(_damage_label, "scale", peak, _FADE_IN)
-	tween.tween_property(_damage_label, "modulate:a", 0.0, _FADE_OUT).set_delay(out_delay)
-	tween.tween_property(_damage_label, "outline_modulate:a", 0.0, _FADE_OUT).set_delay(out_delay)
-	tween.tween_property(_damage_label, "scale", peak * _SMALL, _FADE_OUT).set_delay(out_delay)
-	tween.tween_callback(queue_free).set_delay(out_delay + _FADE_OUT)

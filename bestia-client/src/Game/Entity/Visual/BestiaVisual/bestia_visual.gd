@@ -1,6 +1,5 @@
 class_name BestiaVisual extends Visual
 
-var DamageTagScn = preload("res://Game/Entity/Visual/DamageTag/DamageTag.tscn")
 ## Loaded when the first light is worn, not preloaded: this script is in a load cycle (BestiaDB ->
 ## BestiaResource -> BestiaVisual.tscn -> here), and a preload inside it came back as an empty scene.
 const _CARRIED_LIGHT_PATH := "res://Game/Entity/Visual/MasterVisual/CarriedLight/CarriedLight.tscn"
@@ -176,9 +175,9 @@ func update_worn_gear(msg: WornGearComponentSMSG) -> void:
 
 
 func show_damage(msg: DamageEntitySMSG) -> void:
-	var damage_tag: DamageTag = DamageTagScn.instantiate()
-	damage_tag.damage_msg = msg
-	_damage_tag_anchor.add_child(damage_tag)
+	var layer := DamageTagLayer.get_instance()
+	if layer != null:
+		layer.show_damage(msg, _damage_tag_anchor.global_position)
 
 
 func update_health(msg: HealthComponentSMSG) -> void:

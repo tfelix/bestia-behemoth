@@ -1,15 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://c1ijix1euk62f"]
+[gd_scene format=3 uid="uid://c1ijix1euk62f"]
 
-[ext_resource type="Script" uid="uid://kox0tnqtxowu" path="res://Game/Entity/Visual/DamageTag/damage_tag.gd" id="1_v0usk"]
-
-[node name="DamageTag" type="RigidBody3D"]
-collision_layer = 0
-collision_mask = 0
-linear_velocity = Vector3(-8, 15, 0)
-linear_damp = 0.4
-script = ExtResource("1_v0usk")
-
-[node name="DamageLabel" type="Label3D" parent="."]
+[node name="DamageLabel" type="Label3D"]
+visible = false
 pixel_size = 0.0009
 billboard = 1
 no_depth_test = true
