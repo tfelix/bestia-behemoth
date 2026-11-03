@@ -76,6 +76,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			_rmb_dragged = false
 			if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 				Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+				# Capturing parks the pointer at the window centre; put it back where the drag began.
+				get_viewport().warp_mouse(_rmb_press_position)
 		else:
 			MouseManager.get_instance().right_clicked(get_viewport().get_mouse_position())
 
