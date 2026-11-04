@@ -49,7 +49,7 @@ class InventoryServiceNamedDropTest {
 
   private val tx: TransactionTemplate get() = TransactionTemplate(transactionManager)
 
-  private fun master() = testFixture.account1.masterIds.first()
+  private fun master() = testFixture.itemTestMasterIds[0]
 
   private fun chartId(): Long = tx.execute { itemRepository.findByIdentifierOrThrow("chart").id }!!
 

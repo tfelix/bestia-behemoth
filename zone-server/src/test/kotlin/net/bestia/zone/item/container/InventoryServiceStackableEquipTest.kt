@@ -49,7 +49,7 @@ class InventoryServiceStackableEquipTest {
 
   private val tx: TransactionTemplate get() = TransactionTemplate(transactionManager)
 
-  private val master get() = testFixture.account1.masterIds.first()
+  private val master get() = testFixture.itemTestMasterIds[0]
 
   private val torchId: Long get() = tx.execute { itemRepository.findByIdentifierOrThrow("torch").id }!!
 

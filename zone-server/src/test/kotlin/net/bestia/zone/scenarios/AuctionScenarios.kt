@@ -149,7 +149,7 @@ class AuctionScenarios : BestiaNoSocketScenario() {
     val coinsBefore = liveAmount(coin)
     val reserveBefore = world.read { reserve.available() }
 
-    clientPlayer1.sendMessage(ListAuctionItemCMSG(player, house, heldPileOf(apple), amount = 3, price = price))
+    clientPlayer1.sendMessage(ListAuctionItemCMSG(player, house, heldPileOf(apple, 3), amount = 3, price = price))
 
     val mine = awaitListings { it.mine }
     val listed = mine.listings.single()
@@ -171,7 +171,7 @@ class AuctionScenarios : BestiaNoSocketScenario() {
     val apple = itemRepository.findByIdentifierOrThrow("apple").id
     grant(apple, 1)
     grant(commodityItems.coinItemId()!!, 10)
-    clientPlayer1.sendMessage(ListAuctionItemCMSG(player, house, heldPileOf(apple), amount = 1, price = 50L))
+    clientPlayer1.sendMessage(ListAuctionItemCMSG(player, house, heldPileOf(apple, 1), amount = 1, price = 50L))
     awaitListings { it.mine }
 
     assertEquals(1, search(AuctionCategory.CONSUMABLE, itemIds = emptyList()).listings.size)
@@ -187,7 +187,7 @@ class AuctionScenarios : BestiaNoSocketScenario() {
     val coins = liveAmount(commodityItems.coinItemId()!!)
 
     clientPlayer1.sendMessage(
-      ListAuctionItemCMSG(player, house, heldPileOf(apple), amount = 1, price = (coins + 1) * 100L)
+      ListAuctionItemCMSG(player, house, heldPileOf(apple, 1), amount = 1, price = (coins + 1) * 100L)
     )
 
     val error = awaitValue { assertNotNull(clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class)) }
@@ -269,7 +269,8 @@ class AuctionScenarios : BestiaNoSocketScenario() {
     grant(commodityItems.coinItemId()!!, AuctionFees.listingFee(price).toInt())
     clientPlayer1.clearMessages()
 
-    clientPlayer1.sendMessage(ListAuctionItemCMSG(player, house, heldPileOf(apple), amount = amount, price = price))
+    val pile = heldPileOf(apple, amount)
+    clientPlayer1.sendMessage(ListAuctionItemCMSG(player, house, pile, amount = amount, price = price))
 
     return awaitListings { it.mine && it.listings.isNotEmpty() }.listings.single().listingId
   }
@@ -309,9 +310,15 @@ class AuctionScenarios : BestiaNoSocketScenario() {
     }
   }
 
-  /** The pile or copy of [itemId] the player would drag into the window: the first one held. */
-  private fun heldPileOf(itemId: Long): Long {
-    return world.read { get(masterEntity(), Inventory::class)!!.getItems().first { it.itemId == itemId }.playerItemId }
+  /**
+   * The pile or copy of [itemId] the player would drag into the window: the first one that holds [amount]. The
+   * master is shared with earlier classes, so smaller piles of the same item may come first.
+   */
+  private fun heldPileOf(itemId: Long, amount: Int): Long {
+    return world.read {
+      val items = get(masterEntity(), Inventory::class)!!.getItems()
+      items.first { it.itemId == itemId && it.amount >= amount }.playerItemId
+    }
   }
 
   private fun durableAmount(itemId: Long, accountId: Long = player): Int {
