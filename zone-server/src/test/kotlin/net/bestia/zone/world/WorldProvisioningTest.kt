@@ -43,6 +43,9 @@ class WorldProvisioningTest {
   @Autowired
   private lateinit var streamSettings: ChunkStreamConfig
 
+  @Autowired
+  private lateinit var worlds: WorldBuilder
+
   /**
    * Records what was published instead of delivering it.
    *
@@ -75,7 +78,7 @@ class WorldProvisioningTest {
    */
   private fun refusingService() =
     WorldService(
-      provisioning, settings.copy(onMismatch = WorldGenConfig.OnMismatch.REFUSE), streamSettings, events
+      provisioning, settings.copy(onMismatch = WorldGenConfig.OnMismatch.REFUSE), streamSettings, events, worlds
     )
 
   @Test
@@ -186,7 +189,8 @@ class WorldProvisioningTest {
       provisioning,
       settings.copy(onMismatch = WorldGenConfig.OnMismatch.REGENERATE),
       streamSettings,
-      events
+      events,
+      worlds
     )
 
     val failure = assertFailsWith<IncompleteWorldRecordException> { service.load() }
@@ -207,7 +211,8 @@ class WorldProvisioningTest {
       provisioning,
       settings.copy(enforceClientLayout = true, onMismatch = WorldGenConfig.OnMismatch.REFUSE),
       streamSettings,
-      events
+      events,
+      worlds
     )
 
     val failure = assertFailsWith<ClientLayoutMismatchException> { service.load() }
@@ -222,7 +227,7 @@ class WorldProvisioningTest {
     // test profile turns enforcement off, so this asks the question the profile is suppressing.
     val enforced = settings.copy(enforceClientLayout = true)
 
-    WorldService(provisioning, enforced, streamSettings, events).load()
+    WorldService(provisioning, enforced, streamSettings, events, worlds).load()
   }
 
   @Test
@@ -234,7 +239,8 @@ class WorldProvisioningTest {
       provisioning,
       settings.copy(onMismatch = WorldGenConfig.OnMismatch.REGENERATE),
       streamSettings,
-      events
+      events,
+      worlds
     )
     service.load()
 
