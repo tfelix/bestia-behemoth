@@ -1,6 +1,5 @@
 package net.bestia.zone.persistence
 
-import net.bestia.zone.SpringContextLock
 import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.EcsWorld
@@ -18,7 +17,6 @@ import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -47,7 +45,6 @@ import kotlin.test.assertTrue
  * took the rest of the cycle with it.
  */
 @SpringBootTest
-@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class PersistedEntityDeletionTest {
 

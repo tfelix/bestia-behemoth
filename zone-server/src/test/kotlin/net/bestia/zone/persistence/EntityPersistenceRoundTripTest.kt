@@ -1,7 +1,6 @@
 package net.bestia.zone.persistence
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import net.bestia.zone.SpringContextLock
 import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
@@ -18,7 +17,6 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -33,7 +31,6 @@ import kotlin.test.assertTrue
  * so the running tick loop (which would let the blob wander) can't make the assertions flaky.
  */
 @SpringBootTest
-@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class EntityPersistenceRoundTripTest {
 

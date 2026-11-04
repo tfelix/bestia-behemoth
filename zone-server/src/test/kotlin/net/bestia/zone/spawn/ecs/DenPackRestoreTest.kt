@@ -1,7 +1,6 @@
 package net.bestia.zone.spawn.ecs
 
 import io.mockk.mockk
-import net.bestia.zone.SpringContextLock
 import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
@@ -14,7 +13,6 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -35,7 +33,6 @@ import kotlin.test.assertTrue
  * cannot wander a blob mid-assertion, and a second fresh world standing in for the restart.
  */
 @SpringBootTest
-@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class DenPackRestoreTest {
 

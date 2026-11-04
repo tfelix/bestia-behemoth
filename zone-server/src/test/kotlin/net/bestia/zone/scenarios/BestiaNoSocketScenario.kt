@@ -1,6 +1,5 @@
 package net.bestia.zone.scenarios
 
-import net.bestia.zone.SpringContextLock
 import net.bestia.zone.engine.NoSqlOnTickExtension
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.mocks.GameClientMockFactory
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestMethodOrder
 import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
@@ -30,7 +28,6 @@ import kotlin.test.assertTrue
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(NoSqlOnTickExtension::class)
 @SpringBootTest
-@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 abstract class BestiaNoSocketScenario(

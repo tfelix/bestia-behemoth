@@ -1,6 +1,5 @@
 package net.bestia.zone.item.container
 
-import net.bestia.zone.SpringContextLock
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.PlayerBestia
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -30,7 +28,6 @@ import org.springframework.transaction.support.TransactionTemplate
  * container afterwards, arrive as the same goods they left as, and never reach a bestia of another master.
  */
 @SpringBootTest
-@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class InventoryServiceTransferTest {
 

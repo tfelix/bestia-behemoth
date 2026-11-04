@@ -1,7 +1,6 @@
 package net.bestia.zone.cartography.chart
 
 import net.bestia.bnet.proto.OperationErrorProto.OpError
-import net.bestia.zone.SpringContextLock
 import net.bestia.zone.account.BodyType
 import net.bestia.zone.account.Face
 import net.bestia.zone.account.Hairstyle
@@ -19,7 +18,6 @@ import net.bestia.zone.world.MasterSpawnPointService
 import net.bestia.zone.world.WorldService
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -46,7 +44,6 @@ import net.bestia.zone.cartography.persistence.MapChartRepository
  * `REQUIRES_NEW`), so a shared one would carry the previous test's charts.
  */
 @SpringBootTest
-@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class ChartServiceTest {
 

@@ -1,6 +1,5 @@
 package net.bestia.zone.account.persistence
 
-import net.bestia.zone.SpringContextLock
 import net.bestia.zone.account.BodyType
 import net.bestia.zone.account.Face
 import net.bestia.zone.account.Hairstyle
@@ -9,7 +8,6 @@ import net.bestia.zone.master.MasterFactory
 import net.bestia.zone.party.findByIdOrThrow
 import net.bestia.zone.world.MasterSpawnPointService
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -25,7 +23,6 @@ import kotlin.test.assertEquals
  * Uses throwaway masters on the fixture's account 3, like `MasterDeletionServiceTest`, and deletes them again.
  */
 @SpringBootTest
-@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class PartySizeTest {
 

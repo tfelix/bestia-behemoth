@@ -1,6 +1,5 @@
 package net.bestia.zone.battle.persistence
 
-import net.bestia.zone.SpringContextLock
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.ecs.effects.StatusEffects
@@ -10,7 +9,6 @@ import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -25,7 +23,6 @@ import kotlin.test.assertTrue
  * the remaining seconds the assertions are about.
  */
 @SpringBootTest
-@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class StatusEffectPersistenceRoundTripTest {
 
