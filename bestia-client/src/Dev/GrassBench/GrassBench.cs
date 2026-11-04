@@ -190,7 +190,7 @@ namespace BestiaBehemothClient.Dev
 
       // The render-debug readout is an overlay on the viewport, so it would land in the image - unless the
       // image is meant to show its frame times.
-      var debug = GetNodeOrNull("/root/RenderDebug");
+      var debug = GetNodeOrNull("RenderDebug");
       if (_args.ContainsKey("gi-off"))
       {
         debug?.Call("_toggle_all_gi");
@@ -396,7 +396,7 @@ namespace BestiaBehemothClient.Dev
 
       Directory.CreateDirectory(frameDir);
 
-      if (GetNodeOrNull("/root/RenderDebug")?.Get("_layer").As<CanvasLayer>() is { } readout)
+      if (GetNodeOrNull("RenderDebug")?.Get("_layer").As<CanvasLayer>() is { } readout)
       {
         readout.Visible = false;
       }

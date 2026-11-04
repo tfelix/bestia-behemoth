@@ -76,7 +76,7 @@ const FORMAT_VERSION := 1
 
 @export_group("Video")
 
-## Borderless fullscreen rather than a window, applied by the DisplayManager autoload.
+## Borderless fullscreen rather than a window, applied by [DisplaySettings].
 @export var fullscreen: bool = false
 
 @export var vsync: bool = true

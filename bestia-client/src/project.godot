@@ -28,10 +28,7 @@ buses/default_bus_layout="res://Manager/AudioManager/default_bus_layout.tres"
 SceneManager="*res://Manager/scene_manager.gd"
 ConnectionManager="*res://Manager/ConnectionManager.tscn"
 DialogManager="*res://Manager/dialog_manager.gd"
-ConversationPresenter="*res://Game/UI/Conversation/conversation_presenter.gd"
-RenderDebug="*res://Dev/RenderDebug/render_debug.gd"
 AudioManager="*res://Manager/AudioManager/AudioManager.gd"
-DisplayManager="*res://Manager/display_manager.gd"
 
 [display]
 

@@ -1,5 +1,7 @@
 extends Node
 
+## Swaps scenes behind a fade and the loading screen. An autoload, because it has to outlive every scene it swaps.
+
 ## Emitted once a transition has swapped in its new scene, with the path it was loaded from.
 signal scene_changed(path: String)
 

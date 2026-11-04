@@ -42,13 +42,16 @@ Callers outside the world (menu previews reuse entity visuals) get null and must
 
 ## 3. A `class_name` with static functions and constants
 
-Stateless helpers need no node at all: `MouseCursor`, `GuildTagLine`, `TileSpace`.
+Stateless helpers need no node at all: `MouseCursor`, `GuildTagLine`, `DisplaySettings` (applied once from the
+main menu at launch, guarded by a `static var`). A dev tool that only walks the current scene, like `RenderDebug`,
+is just a node dropped into each scene that wants it.
 
 ## 4. An autoload - last resort
 
-Only for something that must outlive scene changes **and** is needed before or between them: the connection
-(`ConnectionManager`), scene switching (`SceneManager`), audio buses and music (`AudioManager`). The script's
-doc states that reason.
+Only for something that must outlive scene changes **and** is needed before or between them. The whole list is
+`SceneManager` (swaps the scenes), `ConnectionManager` (the connection), `DialogManager` (buffers server dialogs
+that arrive before the game UI exists) and `AudioManager` (music across menus and world). Each script's doc states
+its reason; a new entry needs one just as good.
 
 **The tell that an autoload is wrong:** a `forget()`, `reset()` or `clear()` called whenever a scene is
 entered. That state belongs to the scene - move it to rung 1 or 2 and the reset disappears.

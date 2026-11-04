@@ -11,9 +11,8 @@ extends Node
 ## option id is a topic id, the server keeps no conversation state, and a stale click resolves to
 ## whatever it would have resolved to anyway.
 ##
-## An autoload, and declares no [code]class_name[/code] because of it: a global class sharing a name
-## with a singleton is an error, which is why [code]dialog_manager.gd[/code] has none either. It is an
-## autoload for that file's reason as well - a conversation can arrive before the game UI exists.
+## A node in [code]UI.tscn[/code]: the server only ever sends a conversation in answer to the player talking to
+## someone, so there is always a world, and [code]dialog_manager.gd[/code] buffers the rest.
 
 ## Who the current conversation is with, so a chosen option can be sent back to them.
 var _speaker_entity_id: int = 0

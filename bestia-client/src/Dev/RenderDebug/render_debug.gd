@@ -11,10 +11,9 @@ extends Node
 ## running game. So the keys below are an A/B rig rather than a settings menu, and the readout exists so that
 ## a screenshot of a flicker records which of them were on when it was taken.
 ##
-## [b]An autoload, so that it works wherever there is a 3D world[/b] - the game scene and
-## [code]Dev/TerrainTestbed[/code] alike - and so that nothing in a gameplay scene has to know it exists. It
-## resolves the nodes it touches by walking the current scene on each keypress rather than caching them at
-## startup, because the scene it is looking at changes when the player logs in.
+## [b]A node in each scene where a flicker gets chased[/b] - [code]Game.tscn[/code], [code]Dev/TerrainTestbed[/code]
+## and [code]Dev/GrassBench[/code] - and nothing in the game calls it. It resolves the nodes it touches by walking the
+## current scene on each keypress rather than caching them, so it needs no wiring.
 ##
 ## [b]Inert outside a debug build.[/b] The whole node switches itself off under
 ## [method OS.is_debug_build], so an exported release carries a few hundred bytes of script and no input

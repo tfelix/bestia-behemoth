@@ -326,11 +326,6 @@ func _build_water() -> void:
 func _capture(camera: Camera3D, name: String) -> void:
 	camera.current = true
 
-	# The render-debug readout is an overlay on the viewport, so it would land in every image.
-	var readout: CanvasLayer = RenderDebug.get("_layer")
-	if readout != null:
-		readout.visible = false
-
 	await _frames(3)
 
 	var path := _out_dir.path_join(name + ".png")

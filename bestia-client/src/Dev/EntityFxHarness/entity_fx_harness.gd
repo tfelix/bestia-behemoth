@@ -296,10 +296,6 @@ func _apply_manual() -> void:
 
 func _run_shots(out_dir: String, shots: PackedStringArray) -> void:
 	DirAccess.make_dir_recursive_absolute(out_dir)
-	var readout: CanvasLayer = RenderDebug.get("_layer")
-	if readout != null:
-		readout.visible = false
-
 	# The placeholder bestia fades in on its own first.
 	await get_tree().create_timer(1.2).timeout
 	for shot in shots:

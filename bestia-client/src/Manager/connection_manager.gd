@@ -4,6 +4,8 @@ extends Node
 ## Orchestrates login procedure and handles connection state and message translation
 ## and filtering to the various subsystems.
 ##
+## An autoload: the connection outlives every scene, from login to the world and back.
+##
 
 signal master_info_received(master: MasterSMSG)
 signal entity_received(message: EntitySMSG)

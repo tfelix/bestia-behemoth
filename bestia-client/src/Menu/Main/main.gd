@@ -8,6 +8,7 @@ extends Control
 
 
 func _ready() -> void:
+	DisplaySettings.apply_at_launch()
 	ConnectionManager.disconnect_from_server()
 	_version_label.text = SettingsManager.VERSION
 	_reset_buttons()

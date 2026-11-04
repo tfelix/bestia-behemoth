@@ -129,7 +129,7 @@ func _build_video_tab() -> Control:
 	var fullscreen := _toggle(settings.fullscreen)
 	fullscreen.toggled.connect(func(on: bool):
 		settings.fullscreen = on
-		DisplayManager.apply()
+		DisplaySettings.apply()
 		SettingsManager.save()
 	)
 	grid.add_child(fullscreen)
@@ -138,7 +138,7 @@ func _build_video_tab() -> Control:
 	var vsync := _toggle(settings.vsync)
 	vsync.toggled.connect(func(on: bool):
 		settings.vsync = on
-		DisplayManager.apply()
+		DisplaySettings.apply()
 		SettingsManager.save()
 	)
 	grid.add_child(vsync)

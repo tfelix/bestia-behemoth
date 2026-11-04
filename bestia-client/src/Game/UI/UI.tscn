@@ -37,6 +37,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Emotes/Emotes.tscn" id="34_emotes"]
 [ext_resource type="PackedScene" path="res://Game/UI/BlindVignette/BlindVignette.tscn" id="40_blind"]
 [ext_resource type="Script" uid="uid://1u024aahembd" path="res://Game/UI/Map/notebook.gd" id="41_notebook"]
+[ext_resource type="Script" uid="uid://bq7e7aqobe3ro" path="res://Game/UI/Conversation/conversation_presenter.gd" id="42_convpres"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -209,6 +210,9 @@ notebook = NodePath("../Notebook")
 
 [node name="ItemInfoPopup" parent="." unique_id=1390602607 instance=ExtResource("27_iteminfo")]
 layout_mode = 1
+
+[node name="ConversationPresenter" type="Node" parent="."]
+script = ExtResource("42_convpres")
 
 [node name="MessageDialog" parent="." unique_id=1957725178 instance=ExtResource("13_dialog")]
 oversampling_override = 1.0

@@ -2,8 +2,10 @@ extends Node
 
 ## Owns the audio buses: their volumes, and the music that plays on one of them.
 ##
-## The buses come from `res://default_bus_layout.tres`. Each has a `<bus>_volume` setting in
+## The buses come from `res://Manager/AudioManager/default_bus_layout.tres`. Each has a `<bus>_volume` setting in
 ## [ClientSettings], stored linear so a slider maps onto it directly.
+##
+## An autoload: music and volumes carry on across the menus and the world.
 
 const MASTER := &"Master"
 const MUSIC := &"Music"
