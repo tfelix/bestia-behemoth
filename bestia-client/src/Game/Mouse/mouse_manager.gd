@@ -75,6 +75,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_drop_freed_hover()
 	current_state.process_state(self, delta)
 
 	# Polled rather than read off an event: physics picking delivers the press through input_event, but a
@@ -103,6 +104,7 @@ func change_state(new_state: MouseState) -> void:
 	# Deliberately does not stop the walk. Every cast enters and leaves targeting through here, so
 	# cancelling would mean a hotbar key ended a journey - and the orders that really do supersede
 	# movement (attack, loot, a ground click) cancel it themselves. See MouseStateDefault.
+	_drop_freed_hover()
 	current_state.exit(self)
 	current_state = new_state
 	current_state.enter(self)
@@ -220,12 +222,29 @@ func object_clicked(object: Node3D, event: InputEvent, click_position: Vector3) 
 
 
 func on_object_hover(object: Node3D, entered: bool) -> void:
+	_drop_freed_hover()
 	if entered:
 		hovered_object = object
 	elif hovered_object == object:
 		hovered_object = null
 
 	current_state.handle_object_hover(self, object, entered)
+
+
+## Most of what can sit under the cursor is freed without a word to us - a body walking out of sight, an item
+## picked up, a prop with its chunk - and a freed node cannot even be handed to a typed parameter, so the
+## states would fail on it. Run before anything hands [member hovered_object] to a state: each frame, and
+## ahead of the input events that arrive before the frame does.
+##
+## A freed node compares equal to null, so this cannot tell a freed hover from no hover at all; checking the
+## cursor's action instead keeps it from undoing a targeting state's own art every frame.
+func _drop_freed_hover() -> void:
+	if is_instance_valid(hovered_object):
+		return
+
+	hovered_object = null
+	if _cursor_follows_action and _hover_action != DefaultAction.Kind.NONE:
+		set_cursor_for_action(DefaultAction.Kind.NONE)
 
 
 ## Lets go of [param object] for good: no longer hovered, no longer selected. For a body leaving the world - one

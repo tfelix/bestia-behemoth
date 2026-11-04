@@ -106,8 +106,8 @@ func _click_target(mgr: MouseManager, object: Node3D) -> Node3D:
 	return object
 
 
-## Guarded: nothing clears [member MouseManager.hovered_object] when its entity vanishes, and this is asked
-## every frame.
+## Null-safe, for nothing hovered. A freed [member MouseManager.hovered_object] never gets this far: the
+## manager drops it before the frame's state runs, since the typed parameter alone would already fail on it.
 func _is_creature(object: Node3D) -> bool:
 	return is_instance_valid(object) and (object is BestiaVisual or object is MasterVisual)
 
