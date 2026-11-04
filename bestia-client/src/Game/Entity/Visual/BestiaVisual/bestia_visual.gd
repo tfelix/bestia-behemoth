@@ -11,6 +11,13 @@ const _POSTURE_CLIPS = {"SLEEP": "Sleep"}
 
 ## Off for a scene with its own authored body, which a species' placeholder look must not replace.
 @export var draws_placeholder := true
+## What scales and fades as the creature. A placeholder hangs its [member model] below it; a townsperson's
+## capsule is the body itself.
+@export var body: Node3D
+@export var model: MeshInstance3D
+## Takes the clicks and hovers; switched off while the body vanishes.
+@export var pick_area: Area3D
+@export var pick_shape: CollisionShape3D
 
 ## How far the body is faded out, 0 to 1. The appear and death clips animate this rather than a material,
 ## so a body made of several meshes fades as one and a species' colour is never overwritten.
@@ -70,7 +77,6 @@ func apply_placeholder(species: BestiaResource) -> void:
 	if not draws_placeholder or species == null:
 		return
 
-	var model := $Body/Model as MeshInstance3D
 	var material: ShaderMaterial = (model.mesh as PrimitiveMesh).material
 	material.set_shader_parameter("albedo_colour", species.placeholder_colour)
 	material.set_shader_parameter("emission_colour", species.placeholder_colour)
@@ -80,7 +86,7 @@ func apply_placeholder(species: BestiaResource) -> void:
 		var mesh := _placeholder_mesh(species.placeholder_shape)
 		mesh.material = material
 		model.mesh = mesh
-		$Body/Model/Area3D/CollisionShape3D.shape = mesh.create_convex_shape()
+		pick_shape.shape = mesh.create_convex_shape()
 		# Standing up, a ring reads as a ring and touches the ground like the sphere does.
 		if species.placeholder_shape == BestiaResource.PlaceholderShape.TORUS:
 			model.rotation_degrees.x = 90.0
@@ -121,15 +127,16 @@ func _placeholder_mesh(shape: BestiaResource.PlaceholderShape) -> PrimitiveMesh:
 ## The Idle and Sleep clips animate Model:scale, so the size goes on its parent. What sits above the body
 ## moves up with it, so a big species does not swallow its name tag.
 func _scale_body(factor: float) -> void:
-	$Body.scale = Vector3.ONE * factor
+	body.scale = Vector3.ONE * factor
 	for anchor: Node3D in [$NameTag, $DamageTagAnchor, $LightAnchor]:
 		anchor.position *= factor
 
 
 func _write_to_body(knob: StringName, value: Variant) -> void:
-	var body := get_node_or_null("Body")
 	if body == null:
 		return
+	if body is GeometryInstance3D:
+		(body as GeometryInstance3D).set_instance_shader_parameter(knob, value)
 	for mesh: GeometryInstance3D in body.find_children("*", "GeometryInstance3D", true, false):
 		mesh.set_instance_shader_parameter(knob, value)
 
@@ -283,7 +290,7 @@ func vanish(msg: VanishEntitySMSG) -> void:
 		return
 
 	# Clicks pass through to the loot or the ground behind the body for as long as it takes to go.
-	$Body/Model/Area3D.input_ray_pickable = false
+	pick_area.input_ray_pickable = false
 	var mouse := MouseManager.get_instance()
 	if mouse != null:
 		mouse.release(self)

@@ -174,8 +174,12 @@ _data = {
 &"death": SubResource("Animation_h56g7")
 }
 
-[node name="TownsfolkVisual" type="Node3D"]
+[node name="TownsfolkVisual" type="Node3D" node_paths=PackedStringArray("body", "model", "pick_area", "pick_shape")]
 script = ExtResource("1_n7t7g")
+body = NodePath("Model")
+model = NodePath("Model")
+pick_area = NodePath("Model/Area3D")
+pick_shape = NodePath("Model/Area3D/CollisionShape3D")
 
 [node name="Model" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6875, 0)

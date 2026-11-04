@@ -159,8 +159,12 @@ _data = {
 &"death": SubResource("Animation_h56g7")
 }
 
-[node name="BestiaVisual" type="Node3D"]
+[node name="BestiaVisual" type="Node3D" node_paths=PackedStringArray("body", "model", "pick_area", "pick_shape")]
 script = ExtResource("1_n7t7g")
+body = NodePath("Body")
+model = NodePath("Body/Model")
+pick_area = NodePath("Body/Model/Area3D")
+pick_shape = NodePath("Body/Model/Area3D/CollisionShape3D")
 
 [node name="Body" type="Node3D" parent="."]
 

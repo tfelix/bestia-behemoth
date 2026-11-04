@@ -246,8 +246,12 @@ _data = {
 &"death": SubResource("Anim_death")
 }
 
-[node name="DoommasterVisual" type="Node3D"]
+[node name="DoommasterVisual" type="Node3D" node_paths=PackedStringArray("body", "model", "pick_area", "pick_shape")]
 script = ExtResource("1_script")
+body = NodePath("Body")
+model = NodePath("Body/Model")
+pick_area = NodePath("Body/Model/Area3D")
+pick_shape = NodePath("Body/Model/Area3D/CollisionShape3D")
 draws_placeholder = false
 
 [node name="Body" type="Node3D" parent="."]
