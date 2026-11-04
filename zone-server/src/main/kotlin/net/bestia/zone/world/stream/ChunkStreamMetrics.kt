@@ -1,6 +1,7 @@
 package net.bestia.zone.world.stream
 
 import io.micrometer.core.instrument.Counter
+import io.micrometer.core.instrument.FunctionCounter
 import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Timer
@@ -43,6 +44,11 @@ class ChunkStreamMetrics(private val registry: MeterRegistry = SimpleMeterRegist
 
     /** [ChunkStreamConfig.chunksPerTickPerPlayer]: one connection's share of the tick's sends. */
     PER_PLAYER,
+  }
+
+  /** Where a base chunk came from: the decoded hot tier, the stored revision-0 payload, or generating it again. */
+  enum class BaseSource {
+    HOT, STORED, GENERATED
   }
 
   /** What was sent: a chunk the client asked for, the one under their feet, a patch, or a snapshot instead of one. */
@@ -132,6 +138,13 @@ class ChunkStreamMetrics(private val registry: MeterRegistry = SimpleMeterRegist
       .register(registry)
   }
 
+  private val baseLookups = BaseSource.entries.associateWith { source ->
+    Counter.builder("zone.chunk.base.lookups")
+      .tag("source", source.name.lowercase())
+      .description("Base chunks read, by where they came from; generated means no cache had them")
+      .register(registry)
+  }
+
   private val journalFlushed = Counter.builder("zone.chunk.journal.flushed")
     .description("Edited chunks handed to the database")
     .register(registry)
@@ -143,6 +156,11 @@ class ChunkStreamMetrics(private val registry: MeterRegistry = SimpleMeterRegist
 
   /** When the oldest unsaved edit was made, in [System.nanoTime], or 0 when none waits. */
   private val journalSince = AtomicLong()
+
+  private val hotChunks = AtomicInteger()
+  private val encodedPayloads = AtomicInteger()
+  private val encodedBytes = AtomicLong()
+  private val encodedEvictions = AtomicLong()
 
   init {
     Gauge.builder("zone.chunk.manifests.unsettled", unsettled) { it.get().toDouble() }
@@ -160,6 +178,20 @@ class ChunkStreamMetrics(private val registry: MeterRegistry = SimpleMeterRegist
     Gauge.builder("zone.chunk.journal.oldest.age", journalSince) { age(it.get()) }
       .baseUnit("seconds")
       .description("How long the oldest edit not yet handed to the database has been waiting; 0 when none is")
+      .register(registry)
+    Gauge.builder("zone.chunk.cached", hotChunks) { it.get().toDouble() }
+      .tag("cache", "hot")
+      .description("Chunks held: decoded in the hot cache, or as encoded payloads, one per chunk and revision")
+      .register(registry)
+    Gauge.builder("zone.chunk.cached", encodedPayloads) { it.get().toDouble() }
+      .tag("cache", "encoded")
+      .register(registry)
+    Gauge.builder("zone.chunk.encoded.size", encodedBytes) { it.get().toDouble() }
+      .baseUnit("bytes")
+      .description("Heap the encoded payloads take, against chunk-stream.encoded-cache-size")
+      .register(registry)
+    FunctionCounter.builder("zone.chunk.encoded.evictions", encodedEvictions) { it.get().toDouble() }
+      .description("Encoded payloads dropped to keep the cache inside its size")
       .register(registry)
   }
 
@@ -216,6 +248,18 @@ class ChunkStreamMetrics(private val registry: MeterRegistry = SimpleMeterRegist
 
   fun slabComputed() {
     slabsComputed.increment()
+  }
+
+  fun baseLookups(source: BaseSource, count: Int = 1) {
+    if (count > 0) baseLookups.getValue(source).increment(count.toDouble())
+  }
+
+  /** The chunk caches as the tick last saw them; [encodedEvictions] counts since boot. */
+  fun cached(hotChunks: Int, encodedPayloads: Int, encodedBytes: Long, encodedEvictions: Long) {
+    this.hotChunks.set(hotChunks)
+    this.encodedPayloads.set(encodedPayloads)
+    this.encodedBytes.set(encodedBytes)
+    this.encodedEvictions.set(encodedEvictions)
   }
 
   fun encodedCache(hit: Boolean) {

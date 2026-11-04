@@ -525,7 +525,9 @@ has shipped to make the bumps so far mean anything.
 - **`store/ChunkCache`** (`store/ChunkCache.kt:63`) — in-process LRU (`hot`, default 512) → chained
   `ChunkBlobStore` tiers → `generate` fallback. `ChunkKey` folds `(seed, pipelineVersion, chunk)`. Encodes
   a fresh chunk only when it has tiers to write it to. `peek` never generates; `adopt` takes a base
-  generated on another thread, which is how zone-server's chunk workers fill it.
+  generated on another thread, which is how zone-server's chunk workers fill it. zone-server passes no
+  tiers: its `generate` is `ChunkService.loadBase`, which first decodes the chunk's revision-0 wire payload
+  from `EncodedChunkCache` (bounded by `chunk-stream.encoded-cache-size`) and only generates without one.
 - **`store/ChunkStore`** (`store/ChunkStore.kt:51`) — `merged()` (base ⊕ delta, or a baked blob) is the
   *only* read path, enforcing server-authoritative geometry. `carve()` is batch-only and enforces
   occupancy-never-rises. **`bakedKeyOf` (`:288-289`) now folds in `pipelineVersion`** — a reversal of an
