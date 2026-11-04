@@ -30,8 +30,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  *   second - inside the 17 to 170 m/min real grass fires run at.
  * @property windGain how much a full-strength downwind bearing multiplies ignition. Three means a gale-driven
  *   front runs about four times as fast downwind as across it, which is what makes wind worth reading.
- * @property windReferenceSpeed metres per second at which [windGain] is fully applied. 18 sits inside the
- *   model's 3-to-25 range, so an ordinary day gets part of the effect and a storm saturates it.
+ * @property windReferenceSpeed metres per second at which [windGain] is fully applied. 12 is above all but about
+ *   one ordinary hour in a hundred (the model's median is about 5), so a breeze gets part of the effect and a
+ *   storm, 14 m/s and up, saturates it.
  * @property rainGain how much falling rain suppresses ignition. One means intensity 1.0 stops spread dead,
  *   which is the behaviour worth having: standing in a downpour should be a way to survive a grass fire.
  * @property downpourIntensity rain at or above which every burning cell is put out at once, rather than
@@ -59,7 +60,7 @@ data class GroundFireConfig(
 
   val baseIgnition: Double = 0.35,
   val windGain: Double = 3.0,
-  val windReferenceSpeed: Double = 18.0,
+  val windReferenceSpeed: Double = 12.0,
   val rainGain: Double = 1.0,
   val downpourIntensity: Double = 0.5,
 

@@ -39,6 +39,16 @@ class StormWindTest {
     assertTrue(calm.any { it.windSpeed < WeatherModel.STORM_WIND }, "every day is as windy as a storm")
   }
 
+  @Test
+  fun `an ordinary hour blows a breeze, not a gale`() {
+    val winds = warmYear().filter { it.kind !in WeatherModel.CONVECTIVE_STORMS }.map { it.windSpeed }.sorted()
+
+    val median = winds[winds.size / 2]
+    assertTrue(median in 3.0..7.0, "the median hour blows $median m/s")
+    val galeShare = winds.count { it >= WeatherModel.STORM_WIND }.toDouble() / winds.size
+    assertTrue(galeShare < 0.01, "a near gale blows in %.1f%% of ordinary hours".format(galeShare * 100))
+  }
+
   private companion object {
     private const val WARM_CELSIUS = 22.0
   }

@@ -17,9 +17,9 @@ import net.bestia.worldgen.core.ParamsText
  * ### Measured, over a Bestia year on all 35 land regions of the 128 km reference world
  *
  * ```
- * clear        49.5%    rain          13.6%    snow        1.2%    sandstorm   1.0%
- * cloudy       23.6%    heavy rain     4.9%    blizzard    0.3%    mana storm  4.3%
- * fog           0.1%    thunderstorm   1.4%                       tornado     0.1%
+ * clear        48.8%    rain          13.6%    snow        1.2%    sandstorm   1.9%
+ * cloudy       23.2%    heavy rain     4.9%    blizzard    0.3%    mana storm  4.3%
+ * fog           0.2%    thunderstorm   1.4%                       tornado     0.1%
  * ```
  *
  * About a fifth of days precipitate, which is what the world's own rainfall asks for. Rank correlation between
@@ -107,8 +107,11 @@ data class WeatherParams(
   /** Intensity at or above which frozen precipitation is a [WeatherKind.BLIZZARD]. */
   val blizzardIntensity: Double = 0.55,
 
-  /** Wind in m/s at or above which loose ground lifts into a [WeatherKind.SANDSTORM]. */
-  val sandstormWind: Double = 16.0,
+  /**
+   * Wind in m/s at or above which loose ground lifts into a [WeatherKind.SANDSTORM]: a fresh breeze, Beaufort 5,
+   * which about one hour in sixteen reaches. Also what a calm is measured against for [WeatherKind.FOG].
+   */
+  val sandstormWind: Double = 10.0,
 
   /** Share of a region that must be loose ground before a sandstorm is possible. */
   val sandstormSurfaceShare: Double = 0.40,

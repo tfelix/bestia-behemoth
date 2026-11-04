@@ -7,7 +7,9 @@ import net.bestia.worldgen.fields.Tables
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.vector.Vec2d
 import kotlin.math.cos
+import kotlin.math.ln
 import kotlin.math.pow
+import kotlin.math.sqrt
 
 /** The weather in one region at one moment. */
 data class WeatherState(
@@ -310,7 +312,7 @@ class WeatherModel(
     val veer = (drifted(veerSeed, region, dayOfWorld, synopticWavelength, params.synopticPeriodDays) - 0.5) *
         2.0 * params.windVeerRadians
     return Wind(
-      speed = BASE_WIND + gust * GUST_WIND,
+      speed = surfaceWind(gust),
       direction = Math.atan2(prevailing.y, prevailing.x) + veer
     )
   }
@@ -412,8 +414,20 @@ class WeatherModel(
 
     private const val FOG_MARITIME_FLOOR = 0.35
 
-    private const val BASE_WIND = 3.0
-    private const val GUST_WIND = 22.0
+    /**
+     * Metres per second: a uniform gust share made into a surface wind with Rayleigh's distribution, a Weibull of
+     * shape 2, which is how measured surface winds fall - mostly a breeze, with a thin tail toward a gale. The
+     * median is [WIND_SCALE]·√ln 2, about 5 m/s; one hour in ten blows above 9, one in a hundred above 13, and
+     * [MAX_GUST_SHARE] caps the tail near 16. Storms bring their own on top, see [STORM_WIND].
+     *
+     * It used to be `3 + 22·gust`, uniform, which made the median 14 m/s: a near gale half of every day, and a
+     * front that stays put for a play session read as "always 23 m/s".
+     */
+    internal fun surfaceWind(gust: Double): Double =
+      WIND_SCALE * sqrt(-ln(1.0 - gust.coerceIn(0.0, MAX_GUST_SHARE)))
+
+    private const val WIND_SCALE = 6.0
+    private const val MAX_GUST_SHARE = 0.999
 
     /** Metres per second. The least wind a thunderstorm brings: a near gale, Beaufort 7. */
     internal const val STORM_WIND = 14.0

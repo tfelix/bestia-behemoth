@@ -31,7 +31,7 @@ class EntityLoaderBootRunner(
 
     startupPersisters.forEach { it.loadAll(world) }
 
-    LOG.info { "Finished loading persisted entities; world now holds ${world.entityCount} entity/entities." }
+    LOG.info { "Finished loading persisted entities; world now holds ${world.entityCount} entities." }
   }
 
   companion object {
