@@ -8,7 +8,7 @@
 [ext_resource type="Script" uid="uid://ddv6ljagsrg87" path="res://Game/Entity/NameTag/emblem_cache.gd" id="12_emblem"]
 [ext_resource type="Script" uid="uid://cxxwsgl6fa6iq" path="res://Game/Mouse/Selection/selection_marker.gd" id="13_selmrk"]
 [ext_resource type="Texture2D" uid="uid://bp0vtb8sk1qwd" path="res://Game/Mouse/Selection/navigation_s.png" id="14_selarw"]
-[ext_resource type="Script" uid="uid://bcr0akrckej61" path="res://Dev/RenderDebug/render_debug.gd" id="15_rdebug"]
+[ext_resource type="PackedScene" uid="uid://c4rdbgpanel7qk" path="res://Dev/RenderDebug/RenderDebug.tscn" id="15_rdebug"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oscxy"]
 transparency = 1
@@ -51,5 +51,4 @@ fixed_size = true
 texture_filter = 0
 texture = ExtResource("14_selarw")
 
-[node name="RenderDebug" type="Node" parent="."]
-script = ExtResource("15_rdebug")
+[node name="RenderDebug" parent="." instance=ExtResource("15_rdebug")]

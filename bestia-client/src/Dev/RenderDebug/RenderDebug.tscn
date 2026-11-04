@@ -1,0 +1,123 @@
+[gd_scene format=3 uid="uid://c4rdbgpanel7qk"]
+
+[ext_resource type="Script" uid="uid://bcr0akrckej61" path="res://Dev/RenderDebug/render_debug.gd" id="1_rdebug"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rdebug"]
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+bg_color = Color(0, 0, 0, 0.55)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rdmenu"]
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+bg_color = Color(0.08, 0.08, 0.1, 0.85)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="RenderDebug" type="Node" node_paths=PackedStringArray("readout", "readout_label", "menu", "view_mode", "sdfgi", "ssil", "ssao", "grass_budget", "blend_splits", "cloud_shadows", "frame_times", "dump_chunks")]
+script = ExtResource("1_rdebug")
+readout = NodePath("Layer/Readout")
+readout_label = NodePath("Layer/Readout/Label")
+menu = NodePath("Layer/Menu")
+view_mode = NodePath("Layer/Menu/Items/ViewMode")
+sdfgi = NodePath("Layer/Menu/Items/Sdfgi")
+ssil = NodePath("Layer/Menu/Items/Ssil")
+ssao = NodePath("Layer/Menu/Items/Ssao")
+grass_budget = NodePath("Layer/Menu/Items/GrassBudget")
+blend_splits = NodePath("Layer/Menu/Items/BlendSplits")
+cloud_shadows = NodePath("Layer/Menu/Items/CloudShadows")
+frame_times = NodePath("Layer/Menu/Items/FrameTimes")
+dump_chunks = NodePath("Layer/Menu/Items/DumpChunks")
+
+[node name="Layer" type="CanvasLayer" parent="."]
+layer = 128
+
+[node name="Readout" type="PanelContainer" parent="Layer"]
+visible = false
+offset_left = 8.0
+offset_top = 8.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_rdebug")
+
+[node name="Label" type="Label" parent="Layer/Readout"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Menu" type="PanelContainer" parent="Layer"]
+visible = false
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -268.0
+offset_top = 8.0
+offset_right = -8.0
+grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_rdmenu")
+
+[node name="Items" type="VBoxContainer" parent="Layer/Menu"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Layer/Menu/Items"]
+layout_mode = 2
+text = "Render debug   (F1 closes)"
+
+[node name="ViewMode" type="OptionButton" parent="Layer/Menu/Items"]
+layout_mode = 2
+focus_mode = 0
+tooltip_text = "Viewport debug draw. Unshaded first: if dark patches still churn without lights, it is the grass and not a shadow."
+
+[node name="Lighting" type="HSeparator" parent="Layer/Menu/Items"]
+layout_mode = 2
+
+[node name="Sdfgi" type="CheckButton" parent="Layer/Menu/Items"]
+layout_mode = 2
+focus_mode = 0
+text = "SDFGI"
+
+[node name="Ssil" type="CheckButton" parent="Layer/Menu/Items"]
+layout_mode = 2
+focus_mode = 0
+text = "SSIL"
+
+[node name="Ssao" type="CheckButton" parent="Layer/Menu/Items"]
+layout_mode = 2
+focus_mode = 0
+text = "SSAO"
+
+[node name="BlendSplits" type="CheckButton" parent="Layer/Menu/Items"]
+layout_mode = 2
+focus_mode = 0
+tooltip_text = "Off trades a sizzling shadow edge for a hard seam that travels with the camera."
+text = "Shadow cascade blending"
+
+[node name="CloudShadows" type="CheckButton" parent="Layer/Menu/Items"]
+layout_mode = 2
+focus_mode = 0
+text = "Cloud shadow decals"
+
+[node name="GrassBudget" type="CheckButton" parent="Layer/Menu/Items"]
+layout_mode = 2
+focus_mode = 0
+tooltip_text = "Off draws every tuft the field wants and stops its level-of-detail loop. Costs frames on purpose."
+text = "Grass draw budget"
+
+[node name="Tools" type="HSeparator" parent="Layer/Menu/Items"]
+layout_mode = 2
+
+[node name="FrameTimes" type="CheckButton" parent="Layer/Menu/Items"]
+layout_mode = 2
+focus_mode = 0
+tooltip_text = "Frame rate, CPU and GPU time, primitives, draw calls and the grass budget, top left."
+text = "Frame times"
+
+[node name="DumpChunks" type="Button" parent="Layer/Menu/Items"]
+layout_mode = 2
+focus_mode = 0
+tooltip_text = "Writes the chunks around the camera to user://chunk_dumps for the water harness."
+text = "Dump chunks"

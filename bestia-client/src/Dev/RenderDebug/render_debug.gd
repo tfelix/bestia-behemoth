@@ -1,23 +1,29 @@
 extends Node
 
-## Runtime switches for the things that can make a shadow appear to flicker while the camera moves, so that
-## each one can be taken out of the picture without a restart, a scene edit or a rebuild.
+## A debug panel of runtime switches for the things that can make a shadow appear to flicker while the camera
+## moves, and of the frame-time readout, so that each one can be taken out of the picture without a restart, a
+## scene edit or a rebuild. F1 opens and closes the panel.
 ##
 ## [b]Why this is a tool and not a fix.[/b] A shadow that flickers only while you move has several candidate
 ## causes in this client and they live in different files: the environment's SDFGI and its two screen-space
 ## passes, the sun's PSSM cascade blending, the grass field's per-frame level of detail, and the cloud shadow
 ## decals. Every one of them is still when the camera is still, which is what makes reading the code
 ## insufficient - the question is which one stops when you switch it off, and that is a question about a
-## running game. So the keys below are an A/B rig rather than a settings menu, and the readout exists so that
-## a screenshot of a flicker records which of them were on when it was taken.
+## running game. So the panel is an A/B rig rather than a settings menu, and the readout in the top left exists
+## so that a screenshot of a flicker records which of them were off when it was taken - it stays up with the
+## panel closed.
 ##
-## [b]A node in each scene where a flicker gets chased[/b] - [code]Game.tscn[/code], [code]Dev/TerrainTestbed[/code]
-## and [code]Dev/GrassBench[/code] - and nothing in the game calls it. It resolves the nodes it touches by walking the
-## current scene on each keypress rather than caching them, so it needs no wiring.
+## [b]F1 and nothing else.[/b] The rig once had a key per switch, F1 to F12. F5 to F8 belong to the editor's run
+## bar in a game started from the editor - F8 stopped the game instead of showing frame times - and a dozen keys
+## nobody remembers are worse than one panel that names its switches.
 ##
-## [b]Inert outside a debug build.[/b] The whole node switches itself off under
-## [method OS.is_debug_build], so an exported release carries a few hundred bytes of script and no input
-## handler, no overlay and no per-frame cost.
+## [b]An instance of [code]RenderDebug.tscn[/code] in each scene where a flicker gets chased[/b] -
+## [code]Game.tscn[/code], [code]Dev/TerrainTestbed[/code] and [code]Dev/GrassBench[/code] - and nothing in the
+## game calls it. The panel's controls are wired as exports; the world nodes it switches are found by walking the
+## current scene each time, since the scene under it is a different one in each of the three.
+##
+## [b]Gone outside a debug build.[/b] The node frees itself unless [method OS.is_debug_build], so an exported
+## release has no input handler, no panel and no per-frame cost.
 
 ## The script that draws the decorative grass field, found by path rather than by class name.
 ##
@@ -30,7 +36,7 @@ const _CLOUD_SCRIPT := "res://Game/Environment/CloudShadows/cloud_shadows.gd"
 
 const _TERRAIN_SCRIPT := "res://Game/World/TerrainRenderer.cs"
 
-## The view modes F1 walks through, in the order they answer questions.
+## The view modes the panel offers, in the order they answer questions.
 ##
 ## A curated list rather than the whole of [enum Viewport.DebugDraw], most of which is about lights and
 ## occluders this world does not use. What each one here is for:
@@ -76,144 +82,110 @@ const _DRAW_NAMES: Array[String] = [
 	"no LOD",
 ]
 
-var _on := false
 
-var _draw := 0
+@export var readout: Control
+@export var readout_label: Label
+@export var menu: Control
+@export var view_mode: OptionButton
+@export var sdfgi: BaseButton
+@export var ssil: BaseButton
+@export var ssao: BaseButton
+@export var grass_budget: BaseButton
+@export var blend_splits: BaseButton
+@export var cloud_shadows: BaseButton
+@export var frame_times: BaseButton
+@export var dump_chunks: BaseButton
 
-## What F9 took away, so that restoring puts back what the scene authored rather than a guess at it. Empty
-## whenever the three are as the environment left them.
-var _saved_gi := {}
-
-## The grass budget F10 took away, or -1 while the field is running on its own.
+## The grass budget the switch took away, or -1 while the field is running on its own.
 var _saved_budget := -1
 
-## Whether shift+F9's frame-time line is showing. It is the one line here that is a measurement, not a switch.
+## Whether the frame-time line is showing. It is the one line here that is a measurement, not a switch.
 var _stats := false
 
-## Seconds since the frame-time line was last rewritten. A number that changes every frame cannot be read.
-var _stats_age := 0.0
+## Seconds since the readout and the panel were last brought up to date. A number that changes every frame
+## cannot be read.
+var _since_refresh := 0.0
 
-var _layer: CanvasLayer = null
-var _panel: PanelContainer = null
-var _label: Label = null
+## The scene [member _found] was filled from, and what [method _find] found in it by key.
+var _scene: Node = null
+var _found := {}
 
 
 func _ready() -> void:
-	# Nothing here should survive into a release export - not the input handler, and not an overlay that
-	# could be brought up in front of a player.
-	_on = OS.is_debug_build()
-	if not _on:
-		set_process_input(false)
+	# Nothing here should survive into a release export - not the input handler, and not a panel that could be
+	# brought up in front of a player.
+	if not OS.is_debug_build():
+		queue_free()
 		return
 
-	# Printed rather than only shown, because the readout is hidden until something is off its default and a
-	# key nobody knows about is a key nobody presses.
-	print("[render debug] F1 / shift+F1 cycle view mode, F2 sdfgi, F3 ssil, F4 ssao, shift+F9 frame times, ",
-		"shift+F10 dump chunks, F9 all three off, F10 grass draw budget, F11 shadow cascade blending, ",
-		"F12 cloud shadow decals")
+	# Printed rather than only shown, because the panel starts closed and a key nobody knows about is a key
+	# nobody presses.
+	print("[render debug] F1 opens the render debug panel")
+
+	for mode_name in _DRAW_NAMES:
+		view_mode.add_item(mode_name)
+
+	view_mode.item_selected.connect(_set_draw)
+	sdfgi.toggled.connect(_set_gi.bind("sdfgi_enabled", "sdfgi"))
+	ssil.toggled.connect(_set_gi.bind("ssil_enabled", "ssil"))
+	ssao.toggled.connect(_set_gi.bind("ssao_enabled", "ssao"))
+	grass_budget.toggled.connect(_set_grass_budget)
+	blend_splits.toggled.connect(_set_blend_splits)
+	cloud_shadows.toggled.connect(_set_cloud_shadows)
+	frame_times.toggled.connect(_set_stats)
+	dump_chunks.pressed.connect(_dump_chunks)
 
 	set_process(false)
+	_refresh()
 
-	_build_readout()
 
-
-## Only the keys below are claimed, and each of them is marked handled.
+## F1 is the only key claimed, and it is marked handled.
 ##
-## [method Node._input] rather than [method Node._unhandled_input], which is the one deliberate rudeness
-## here: [code]_unhandled_input[/code] runs after the UI has had its turn, so a focused chat box would eat
-## every one of these. Debugging a flicker while the chat happens to be open is exactly when that would be
-## most annoying to discover.
+## [method Node._input] rather than [method Node._unhandled_input], which is the one deliberate rudeness here:
+## [code]_unhandled_input[/code] runs after the UI has had its turn, so a focused chat box would eat it.
+## Debugging a flicker while the chat happens to be open is exactly when that would be most annoying to discover.
 func _input(event: InputEvent) -> void:
-	if not _on:
-		return
-
 	var key := event as InputEventKey
 	if key == null or not key.pressed or key.echo:
 		return
 
 	# Physical, so the rig works on a keyboard layout this repo has not been opened on.
-	#
-	# F5 to F8 are left alone: a game started from the editor hands them to the editor's run bar, where F7 pauses
-	# the game and F8 stops it - so a rig key there closes the game instead of measuring it.
-	match key.physical_keycode:
-		KEY_F1:
-			_cycle_draw(-1 if key.shift_pressed else 1)
-		KEY_F2:
-			_toggle_gi("sdfgi_enabled", "sdfgi")
-		KEY_F3:
-			_toggle_gi("ssil_enabled", "ssil")
-		KEY_F4:
-			_toggle_gi("ssao_enabled", "ssao")
-		KEY_F9:
-			if key.shift_pressed:
-				_toggle_stats()
-			else:
-				_toggle_all_gi()
-		KEY_F10:
-			if key.shift_pressed:
-				_dump_chunks()
-			else:
-				_toggle_grass_budget()
-		KEY_F11:
-			_toggle_blend_splits()
-		KEY_F12:
-			_toggle_cloud_shadows()
-		_:
-			return
+	if key.physical_keycode != KEY_F1:
+		return
 
 	get_viewport().set_input_as_handled()
+	menu.visible = not menu.visible
+	_update_processing()
 	_refresh()
 
 
-func _cycle_draw(step: int) -> void:
-	_draw = wrapi(_draw + step, 0, _DRAW_MODES.size())
-	get_viewport().debug_draw = _DRAW_MODES[_draw]
-	print("[render debug] view mode: %s" % _DRAW_NAMES[_draw])
+## Runs [method _process] only while something in it is live: the panel, so its switches follow what the scene
+## did on its own, or the frame-time line.
+func _update_processing() -> void:
+	set_process(menu.visible or _stats)
 
 
-func _toggle_gi(property: StringName, label: String) -> void:
+func _process(delta: float) -> void:
+	_since_refresh += delta
+	if _since_refresh >= 0.25:
+		_since_refresh = 0.0
+		_refresh()
+
+
+func _set_draw(index: int) -> void:
+	get_viewport().debug_draw = _DRAW_MODES[index]
+	print("[render debug] view mode: %s" % _DRAW_NAMES[index])
+	_refresh()
+
+
+func _set_gi(on: bool, property: StringName, label: String) -> void:
 	var env := _environment()
 	if env == null:
-		push_warning("[render debug] no Environment in this scene; %s cannot be switched." % label)
 		return
 
-	# Flipping one of the three by hand leaves F9 with a stale idea of what it took away, so it gives up its
-	# saved state rather than restoring the wrong thing later.
-	_saved_gi.clear()
-
-	var value: bool = not bool(env.get(property))
-	env.set(property, value)
-	print("[render debug] %s: %s" % [label, "on" if value else "off"])
-
-
-## Switches SDFGI and both screen-space passes off together, and back on to what the scene authored.
-##
-## The one-key form of the whole first hypothesis. All three are only visible where ambient light is the
-## dominant term, which in a sunlit world means inside the shadows - so if a flicker in the shadows survives
-## this, it is not any of them and the search moves to the shadow map itself.
-func _toggle_all_gi() -> void:
-	var env := _environment()
-	if env == null:
-		push_warning("[render debug] no Environment in this scene; the GI passes cannot be switched.")
-		return
-
-	if _saved_gi.is_empty():
-		_saved_gi = {
-			"sdfgi_enabled": env.sdfgi_enabled,
-			"ssil_enabled": env.ssil_enabled,
-			"ssao_enabled": env.ssao_enabled,
-		}
-		env.sdfgi_enabled = false
-		env.ssil_enabled = false
-		env.ssao_enabled = false
-		print("[render debug] sdfgi, ssil and ssao: off")
-		return
-
-	for property in _saved_gi:
-		env.set(property, _saved_gi[property])
-
-	_saved_gi.clear()
-	print("[render debug] sdfgi, ssil and ssao: restored")
+	env.set(property, on)
+	print("[render debug] %s: %s" % [label, "on" if on else "off"])
+	_refresh()
 
 
 ## Takes the grass field's draw budget away, which takes its whole level-of-detail controller with it.
@@ -227,37 +199,31 @@ func _toggle_all_gi() -> void:
 ## switched off entirely what is left is what the terrain shader draws in its place.
 ##
 ## It costs frames, and is meant to: every tuft the field wanted is now drawn.
-func _toggle_grass_budget() -> void:
-	var grass := _find(func(node: Node) -> bool: return _has_script(node, _GRASS_SCRIPT))
+func _set_grass_budget(on: bool) -> void:
+	var grass := _grass()
 	if grass == null:
-		push_warning("[render debug] no TerrainGrass in this scene; the grass budget cannot be switched.")
 		return
 
-	if _saved_budget < 0:
+	if not on and _saved_budget < 0:
 		_saved_budget = grass.MaxVisibleTriangles
 		grass.MaxVisibleTriangles = 0
 		print("[render debug] grass draw budget: off (was %d)" % _saved_budget)
-		return
+	elif on and _saved_budget >= 0:
+		grass.MaxVisibleTriangles = _saved_budget
+		print("[render debug] grass draw budget: %d" % _saved_budget)
+		_saved_budget = -1
 
-	grass.MaxVisibleTriangles = _saved_budget
-	print("[render debug] grass draw budget: %d" % _saved_budget)
-	_saved_budget = -1
+	_refresh()
 
 
 ## Shows what a frame costs and what the grass field is spending, so that its settings can be judged by the
 ## frame time on the machine at hand rather than by a triangle count.
-func _toggle_stats() -> void:
-	_stats = not _stats
+func _set_stats(on: bool) -> void:
+	_stats = on
 	RenderingServer.viewport_set_measure_render_time(get_viewport().get_viewport_rid(), _stats)
-	set_process(_stats)
+	_update_processing()
 	print("[render debug] frame times: %s" % ("on" if _stats else "off"))
-
-
-func _process(delta: float) -> void:
-	_stats_age += delta
-	if _stats_age >= 0.25:
-		_stats_age = 0.0
-		_refresh()
+	_refresh()
 
 
 func _stats_lines() -> Array[String]:
@@ -276,7 +242,7 @@ func _stats_lines() -> Array[String]:
 				Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME)],
 	]
 
-	var grass := _find(func(node: Node) -> bool: return _has_script(node, _GRASS_SCRIPT))
+	var grass := _grass()
 	if grass != null:
 		lines.append("grass %.2f M wanted / %.2f M budget   %.2f M on screen   exponent %.1f   fade %d m" % [
 			grass.WantedTriangles / 1.0e6, grass.MaxVisibleTriangles / 1.0e6,
@@ -290,15 +256,14 @@ func _stats_lines() -> Array[String]:
 ## Each cascade snaps to its own texel grid as the camera moves, so inside a blend band two lookups at two
 ## texel sizes disagree about where an edge is. Turning the blend off should trade a sizzling edge for a
 ## visible hard seam that travels with the camera - and that trade is the tell.
-func _toggle_blend_splits() -> void:
+func _set_blend_splits(on: bool) -> void:
 	var sun := _sun()
 	if sun == null:
-		push_warning("[render debug] no shadow-casting DirectionalLight3D; the splits cannot be switched.")
 		return
 
-	sun.directional_shadow_blend_splits = not sun.directional_shadow_blend_splits
-	print("[render debug] shadow cascade blending: %s"
-		% ("on" if sun.directional_shadow_blend_splits else "off"))
+	sun.directional_shadow_blend_splits = on
+	print("[render debug] shadow cascade blending: %s" % ("on" if on else "off"))
+	_refresh()
 
 
 ## Stops the cloud shadow decals, [method Node.set_process] and all.
@@ -307,18 +272,17 @@ func _toggle_blend_splits() -> void:
 ## [member Node3D.visible] from the weather every frame, so it would be back the frame after. Taking its
 ## [code]_process[/code] away is what makes the switch hold, and giving it back lets the script work its own
 ## visibility out again.
-func _toggle_cloud_shadows() -> void:
-	var clouds := _find(func(node: Node) -> bool: return _has_script(node, _CLOUD_SCRIPT))
+func _set_cloud_shadows(on: bool) -> void:
+	var clouds := _clouds()
 	if clouds == null:
-		push_warning("[render debug] no CloudShadows in this scene; the decals cannot be switched.")
 		return
 
-	var running := clouds.is_processing()
-	clouds.set_process(not running)
-	if running:
+	clouds.set_process(on)
+	if not on:
 		clouds.visible = false
 
-	print("[render debug] cloud shadow decals: %s" % ("off" if running else "on"))
+	print("[render debug] cloud shadow decals: %s" % ("on" if on else "off"))
+	_refresh()
 
 
 ## Writes the streamed chunks around the camera, and the camera, to [code]user://chunk_dumps[/code].
@@ -327,7 +291,7 @@ func _toggle_cloud_shadows() -> void:
 ## from this same view, so a fault only the world's own ground shows can be worked on without a server. Two
 ## columns each way is five chunks across, which covers everything the camera sees at the spring arm's reach.
 func _dump_chunks() -> void:
-	var terrain := _find(func(node: Node) -> bool: return _has_script(node, _TERRAIN_SCRIPT))
+	var terrain := _find("terrain", func(node: Node) -> bool: return _has_script(node, _TERRAIN_SCRIPT))
 	if terrain == null:
 		push_warning("[render debug] no terrain in this scene; there is nothing to dump.")
 		return
@@ -345,7 +309,7 @@ func _dump_chunks() -> void:
 ## The [WorldEnvironment] node is preferred over [member World3D.environment] so that what is switched is the
 ## resource a scene authored, which is where anyone reading this afterwards will look for it.
 func _environment() -> Environment:
-	var node := _find(func(child: Node) -> bool: return child is WorldEnvironment)
+	var node := _find("environment", func(child: Node) -> bool: return child is WorldEnvironment)
 	if node != null:
 		return (node as WorldEnvironment).environment
 
@@ -360,7 +324,7 @@ func _environment() -> Environment:
 ## the lightning flash's off in its [method Node._ready] and never turns either back on. Found by that
 ## rather than by the node name, because it is the property that matters here.
 func _sun() -> DirectionalLight3D:
-	var node := _find(func(child: Node) -> bool:
+	var node := _find("sun", func(child: Node) -> bool:
 		return child is DirectionalLight3D and (child as DirectionalLight3D).shadow_enabled)
 
 	return node as DirectionalLight3D
@@ -372,21 +336,34 @@ func _has_script(node: Node, path: String) -> bool:
 	return script != null and script.resource_path == path
 
 
-## The first node in the current scene that [param matches], or null.
+## The first node in the current scene that [param matches], or null, remembered under [param key].
 ##
-## Walked on demand rather than cached, because the scene under this autoload is the menu before login and
-## the game after it. A depth-first walk over a few thousand nodes, once per keypress, is not worth being
-## clever about.
-func _find(matches: Callable) -> Node:
+## Remembered because the open panel and the frame-time line ask for four of these four times a second, and a
+## walk over a few thousand nodes that often would show up in the very frame times it is there to measure. A
+## remembered node is dropped once it is freed or leaves the tree, and the lot when the current scene changes -
+## the scene under this node is the menu before login and the game after it. A miss is not remembered: the
+## grass and the clouds arrive with the world, after the panel may already have asked.
+func _find(key: String, matches: Callable) -> Node:
 	var root := get_tree().current_scene
+	if root != _scene:
+		_scene = root
+		_found.clear()
 
-	return null if root == null else _walk(root, matches)
+	# Untyped, because a typed Node variable refuses a freed instance before is_instance_valid can look at it.
+	var node = _found.get(key)
+	if is_instance_valid(node) and (node as Node).is_inside_tree():
+		return node
+
+	node = null if root == null else _walk(root, matches)
+	_found[key] = node
+
+	return node
 
 
 ## Depth-first, and it stops at a [SubViewport] rather than descending into one.
 ##
 ## The portraits, the health bars and the cast bars each render a little scene of their own inside one,
-## complete with a [DirectionalLight3D] - so a walk that went in could hand F11 the light that lights a
+## complete with a [DirectionalLight3D] - so a walk that went in could hand the cascade blending switch the light that lights a
 ## character portrait instead of the sun. Nothing inside a sub-viewport is part of the world this rig is
 ## about. None of those lights casts a shadow today, which is what keeps this a guard rather than a fix.
 func _walk(node: Node, matches: Callable) -> Node:
@@ -404,50 +381,44 @@ func _walk(node: Node, matches: Callable) -> Node:
 	return null
 
 
-func _build_readout() -> void:
-	_layer = CanvasLayer.new()
-	_layer.layer = 128
-	add_child(_layer)
-
-	_panel = PanelContainer.new()
-	_panel.offset_left = 8.0
-	_panel.offset_top = 8.0
-	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	var box := StyleBoxFlat.new()
-	box.bg_color = Color(0.0, 0.0, 0.0, 0.55)
-	box.content_margin_left = 8.0
-	box.content_margin_right = 8.0
-	box.content_margin_top = 4.0
-	box.content_margin_bottom = 4.0
-	_panel.add_theme_stylebox_override("panel", box)
-
-	_label = Label.new()
-	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_panel.add_child(_label)
-
-	_layer.add_child(_panel)
-	_refresh()
+func _grass() -> Node:
+	return _find("grass", func(node: Node) -> bool: return _has_script(node, _GRASS_SCRIPT))
 
 
-## Redraws the readout, and hides it whenever everything is as authored.
+func _clouds() -> Node3D:
+	return _find("clouds", func(node: Node) -> bool: return _has_script(node, _CLOUD_SCRIPT)) as Node3D
+
+
+## Brings the readout and the panel up to date with the scene.
 ##
-## Hidden rather than merely quiet, so that the overlay is not sitting over the HUD for a session that never
-## touches these keys - and so that "is anything switched" is answerable at a glance rather than by reading
-## five lines to check they all say the default.
+## The readout is hidden whenever everything is as authored, so that it is not sitting over the HUD for a
+## session that never touches the panel - and so that "is anything switched" is answerable at a glance rather
+## than by reading five lines to check they all say the default. The panel's switches are set from the scene
+## rather than remembered, and one whose target this scene does not have is greyed out.
 func _refresh() -> void:
-	if _label == null:
-		return
+	var env := _environment()
+	var grass := _grass()
+	var sun := _sun()
+	var clouds := _clouds()
+
+	if menu.visible:
+		view_mode.select(_draw_index())
+		_show(sdfgi, env != null and env.sdfgi_enabled, env != null)
+		_show(ssil, env != null and env.ssil_enabled, env != null)
+		_show(ssao, env != null and env.ssao_enabled, env != null)
+		_show(grass_budget, _saved_budget < 0, grass != null)
+		_show(blend_splits, sun != null and sun.directional_shadow_blend_splits, sun != null)
+		_show(cloud_shadows, clouds != null and clouds.is_processing(), clouds != null)
+		_show(frame_times, _stats, true)
 
 	var lines: Array[String] = []
 
 	if _stats:
 		lines.append_array(_stats_lines())
 
-	if _draw != 0:
-		lines.append("view mode: %s" % _DRAW_NAMES[_draw])
+	if _draw_index() != 0:
+		lines.append("view mode: %s" % _DRAW_NAMES[_draw_index()])
 
-	var env := _environment()
 	if env != null and not (env.sdfgi_enabled and env.ssil_enabled and env.ssao_enabled):
 		lines.append("sdfgi %s   ssil %s   ssao %s" % [
 			_state(env.sdfgi_enabled), _state(env.ssil_enabled), _state(env.ssao_enabled)])
@@ -455,11 +426,9 @@ func _refresh() -> void:
 	if _saved_budget >= 0:
 		lines.append("grass draw budget off (was %d)" % _saved_budget)
 
-	var sun := _sun()
 	if sun != null and not sun.directional_shadow_blend_splits:
 		lines.append("shadow cascade blending off")
 
-	var clouds := _find(func(node: Node) -> bool: return _has_script(node, _CLOUD_SCRIPT))
 	if clouds != null and not clouds.is_processing():
 		lines.append("cloud shadow decals off")
 
@@ -471,8 +440,19 @@ func _refresh() -> void:
 	if sun != null and sun.light_angular_distance > 0.0 and not lines.is_empty():
 		lines.append("sun angular size %.2f deg (soft shadow filter active)" % sun.light_angular_distance)
 
-	_label.text = "\n".join(lines)
-	_layer.visible = not lines.is_empty()
+	readout_label.text = "\n".join(lines)
+	readout.visible = not lines.is_empty()
+
+
+## Where the viewport's debug draw sits in [constant _DRAW_MODES]; 0 for one set from outside the list.
+func _draw_index() -> int:
+	return maxi(_DRAW_MODES.find(get_viewport().debug_draw), 0)
+
+
+## Sets a switch without firing it, so that showing the scene's state does not write it back.
+func _show(button: BaseButton, pressed: bool, available: bool) -> void:
+	button.set_pressed_no_signal(pressed)
+	button.disabled = not available
 
 
 func _state(enabled: bool) -> String:

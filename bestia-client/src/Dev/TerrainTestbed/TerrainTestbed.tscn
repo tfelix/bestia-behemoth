@@ -5,7 +5,7 @@
 [ext_resource type="ShaderMaterial" path="res://Dev/TerrainTestbed/terrain_testbed_debug.tres" id="3_debug"]
 [ext_resource type="PackedScene" uid="uid://ykdxpspi6cly" path="res://Game/Environment/Environment.tscn" id="4_environment"]
 [ext_resource type="Script" path="res://Dev/TerrainTestbed/fly_camera.gd" id="5_camera"]
-[ext_resource type="Script" uid="uid://bcr0akrckej61" path="res://Dev/RenderDebug/render_debug.gd" id="6_rdebug"]
+[ext_resource type="PackedScene" uid="uid://c4rdbgpanel7qk" path="res://Dev/RenderDebug/RenderDebug.tscn" id="6_rdebug"]
 
 [node name="TerrainTestbed" type="Node3D"]
 script = ExtResource("1_testbed")
@@ -28,5 +28,4 @@ fov = 58.0
 far = 800.0
 script = ExtResource("5_camera")
 
-[node name="RenderDebug" type="Node" parent="."]
-script = ExtResource("6_rdebug")
+[node name="RenderDebug" parent="." instance=ExtResource("6_rdebug")]
