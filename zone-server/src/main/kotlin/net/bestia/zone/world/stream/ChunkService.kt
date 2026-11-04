@@ -19,13 +19,16 @@ import net.bestia.worldgen.store.MemoryBlobStore
 import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.worldgen.voxel.CarveRules
+import net.bestia.worldgen.voxel.ChunkMaterializer
 import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.worldgen.voxel.RleCodec
 import net.bestia.worldgen.voxel.VoxelChunk
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.stream.ChunkStreamMetrics.BaseSource
 import org.springframework.stereotype.Service
 import java.io.ByteArrayOutputStream
 import java.util.zip.Deflater
+import java.util.zip.Inflater
 
 /**
  * The zone-server's view of the voxel world: the authoritative merged state, its derived structures, and the
@@ -42,13 +45,16 @@ import java.util.zip.Deflater
  * owning node, and here that means one owning *thread*. Everything in this class runs on `zone-tick`. The
  * only work that leaves it is the Netty write, which takes an already-built buffer.
  *
- * ### Two caches, different jobs
+ * ### Two caches, one behind the other
  *
  * [ChunkCache]'s hot tier holds *decoded* chunks, half a megabyte each, for the server's own voxel queries.
- * [encoded] holds *encoded and compressed* payloads, three kilobytes each, for the wire. Keeping them apart
- * is what makes thirty players entering the same area cost one materialise, one encode and one deflate
- * between them instead of thirty of each - and it means a chunk the server is reasoning about does not have
- * to be one it is also sending.
+ * [encoded] holds *encoded and compressed* payloads, a few kilobytes each, for the wire. That is what makes
+ * thirty players entering the same area cost one materialise, one encode and one deflate between them
+ * instead of thirty of each.
+ *
+ * Revision 0 of a chunk is its generated base, and a base never changes within a world version. So the
+ * revision-0 payload is also what the hot tier decodes on a miss ([loadBase]), instead of generating the
+ * chunk again: 0.2 ms against 20.
  */
 @Service
 class ChunkService(
@@ -152,13 +158,41 @@ class ChunkService(
     val baseHash: Long,
     /** Size before compression, for logging and for the patch-versus-snapshot decision. */
     val encodedBytes: Int
-  )
+  ) {
+
+    /** The voxels this payload carries. Pure, so any thread may call it. */
+    fun voxels(): VoxelChunk {
+      val raw = when (compression) {
+        ChunkDataSMSG.Compression.NONE -> payload
+        ChunkDataSMSG.Compression.DEFLATE -> inflated()
+      }
+      return RleCodec.decode(chunk, raw)
+    }
+
+    private fun inflated(): ByteArray {
+      val inflater = Inflater()
+      try {
+        inflater.setInput(payload)
+        val raw = ByteArray(encodedBytes)
+        var filled = 0
+        while (filled < raw.size) {
+          val n = inflater.inflate(raw, filled, raw.size - filled)
+          check(n > 0) { "The payload of $chunk at revision $revision is truncated or corrupt" }
+          filled += n
+        }
+        return raw
+      } finally {
+        inflater.end()
+      }
+    }
+  }
 
   private class Lru<K, V>(private val capacity: Int) : LinkedHashMap<K, V>(16, 0.75f, true) {
     override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>?) = size > capacity
   }
 
-  private val loaded by lazy { build() }
+  private val loading = lazy { build() }
+  private val loaded by loading
 
   private class Loaded(
     val config: WorldConfig,
@@ -188,9 +222,6 @@ class ChunkService(
   private val unsaved = LinkedHashSet<ChunkPos>()
 
   private val encoded = EncodedChunkCache(settings.encodedCacheSize.toBytes())
-
-  /** Base hashes are keyed on position alone: the base of a coordinate does not change with its revision. */
-  private val baseHashes = Lru<ChunkPos, Long>(BASE_HASH_CAPACITY)
 
   /**
    * The *generated* vertical slabs per horizontal chunk column. See [surfaceSlabsOf] for why this cache is
@@ -259,7 +290,7 @@ class ChunkService(
     val cache = ChunkCache(
       seed = config.seed,
       pipelineVersion = generated.world.pipelineVersion,
-      generate = { generated.materializer.materialize(it) },
+      generate = { loadBase(it, generated.materializer) },
       hotCapacity = settings.hotChunkCapacity
     )
 
@@ -567,10 +598,35 @@ class ChunkService(
     }
     metrics.encodedCache(hit = false)
 
-    val result = encode(chunk, revision, loaded.store.merged(chunk), baseHashOf(chunk))
+    if (revision == 0) return storeBase(chunk, loaded.store.base(chunk))
 
+    val result = encode(chunk, revision, loaded.store.merged(chunk), baseHashOf(chunk))
     encoded.put(result)
     return result
+  }
+
+  /**
+   * What the hot tier calls on a miss: the stored revision-0 payload, decoded, or else a freshly generated
+   * base, stored so that the next miss is cheap. Gives the same chunk either way, as `ChunkCache` requires.
+   */
+  private fun loadBase(chunk: ChunkPos, materializer: ChunkMaterializer): VoxelChunk {
+    encoded[chunk, 0]?.let {
+      metrics.baseLookups(BaseSource.STORED)
+      return it.voxels()
+    }
+
+    metrics.baseLookups(BaseSource.GENERATED)
+    val voxels = materializer.materialize(chunk)
+    // Encoding costs about a millisecond here, on top of the twenty the generation took.
+    storeBase(chunk, voxels)
+    return voxels
+  }
+
+  /** The stored revision-0 payload of [chunk], encoded from [voxels], its base, only if there is none yet. */
+  private fun storeBase(chunk: ChunkPos, voxels: VoxelChunk): Encoded {
+    encoded[chunk, 0]?.let { return it }
+
+    return encodeBase(chunk, voxels).encoded.also { encoded.put(it) }
   }
 
   private fun encode(chunk: ChunkPos, revision: Int, voxels: VoxelChunk, baseHash: Long): Encoded {
@@ -615,11 +671,11 @@ class ChunkService(
     if (revision > 0) return dataMessageFor(chunk)
 
     inFlight.add(chunk)
-    val hotBase = loaded.cache.peek(chunk)
-    val materializer = worldService.generated.materializer
+    // Nothing is stored for revision 0 - that was the miss above - so the worker has the hot chunk or generates.
+    val base = workerBaseOf(chunk)
     workers.submit(
-      work = { metrics.worked(generated = hotBase == null) { encodeBase(chunk, hotBase ?: materializer.materialize(chunk)) } },
-      deliver = { result -> takeEncoded(chunk, generated = hotBase == null, result) }
+      work = { metrics.worked(generated = base.generates) { encodeBase(chunk, base.voxels) } },
+      deliver = { result -> takeEncoded(chunk, generated = base.generates, result) }
     )
 
     return readyCached(chunk)
@@ -628,6 +684,24 @@ class ChunkService(
   /** Resets the per-tick budget of [readyDataMessage]. Called once at the start of every tick. */
   fun beginTick() {
     encodesLeft = settings.encodesPerTick
+    publishCacheStatistics()
+  }
+
+  /** Hands the tick-owned cache counts to the meters, which the scrape reads on its own thread. */
+  private fun publishCacheStatistics() {
+    if (!loading.isInitialized()) return
+
+    // Only the hot hits: a miss there is [loadBase], which counts what it did itself.
+    val cache = loaded.cache
+    metrics.baseLookups(BaseSource.HOT, cache.hits)
+    cache.resetStatistics()
+
+    metrics.cached(
+      hotChunks = cache.hotSize,
+      encodedPayloads = encoded.size,
+      encodedBytes = encoded.bytes,
+      encodedEvictions = encoded.evictions
+    )
   }
 
   /** The size of [chunk]'s payload at [revision], if one is cached; for choosing between a patch and a snapshot. */
@@ -637,6 +711,36 @@ class ChunkService(
 
   private fun readyCached(chunk: ChunkPos): ChunkDataSMSG? {
     return encoded[chunk, revisionOf(chunk)]?.let { messageOf(it) }
+  }
+
+  /**
+   * Where a worker gets [chunk]'s base from: the hot chunk, the stored payload, or else by generating it. Taken
+   * on the tick, because neither cache is safe to read from another thread.
+   */
+  private class WorkerBase(
+    val chunk: ChunkPos,
+    private val hot: VoxelChunk?,
+    private val stored: Encoded?,
+    private val materializer: ChunkMaterializer
+  ) {
+    val generates get() = hot == null && stored == null
+
+    /** Read on the worker. */
+    val voxels by lazy { hot ?: stored?.voxels() ?: materializer.materialize(chunk) }
+  }
+
+  private fun workerBaseOf(chunk: ChunkPos): WorkerBase {
+    val hot = loaded.cache.peek(chunk)
+    val stored = if (hot == null) encoded[chunk, 0] else null
+
+    metrics.baseLookups(
+      when {
+        hot != null -> BaseSource.HOT
+        stored != null -> BaseSource.STORED
+        else -> BaseSource.GENERATED
+      }
+    )
+    return WorkerBase(chunk, hot, stored, worldService.generated.materializer)
   }
 
   private class EncodedBase(val encoded: Encoded, val voxels: VoxelChunk)
@@ -654,11 +758,10 @@ class ChunkService(
       return
     }
 
-    baseHashes[chunk] = base.encoded.baseHash
     if (generated) loaded.cache.adopt(chunk, base.voxels)
 
-    // A carve that landed meanwhile made this stale; the next request encodes the new revision here.
-    if (revisionOf(chunk) == 0) encoded.put(base.encoded)
+    // Kept even if a carve landed meanwhile: it is still the base, and the wire asks for the new revision.
+    encoded.put(base.encoded)
   }
 
   private val inFlight = HashSet<ChunkPos>()
@@ -679,7 +782,12 @@ class ChunkService(
     )
   }
 
-  private fun baseHashOf(chunk: ChunkPos): Long = baseHashes.getOrPut(chunk) { loaded.store.baseHash(chunk) }
+  /** Read off the stored base payload, so an edited chunk does not hash its base again at every revision. */
+  private fun baseHashOf(chunk: ChunkPos): Long {
+    encoded[chunk, 0]?.let { return it.baseHash }
+
+    return storeBase(chunk, loaded.store.base(chunk)).baseHash
+  }
 
   /**
    * Removes rock in the shape of [brush], bumping each affected chunk's revision and queueing the change.
@@ -1086,8 +1194,8 @@ class ChunkService(
    * A tile takes a pass over 262 144 voxels, and the chunk first has to be generated if nobody has asked for it
    * yet: 30 to 180 ms in dense ground, which on the tick is a stall for every client in the world. Neither half
    * needs the tick, but the store is not safe to read from another thread, so the inputs are taken here: the
-   * hot base chunk if there is one, and otherwise the worker generates it from the same pure materializer the
-   * encoding workers use, and the tick adopts the result so the next reader finds it hot.
+   * hot base chunk or its stored payload if there is one, and otherwise the worker generates it from the same
+   * pure materializer the encoding workers use, and the tick adopts the result so the next reader finds it hot.
    *
    * Only for a chunk and a slab above it that nobody has dug in. An edit lives in the store's delta, which the
    * tick mutates, so those few build here as they always did.
@@ -1096,26 +1204,29 @@ class ChunkService(
     val upper = chunk.copy(z = chunk.z + 1)
     if (isEdited(chunk) || isEdited(upper)) return false
 
-    val lowerBase = loaded.cache.peek(chunk)
-    val upperBase = loaded.cache.peek(upper)
+    val lowerBase = workerBaseOf(chunk)
+    val upperBase = workerBaseOf(upper)
     val derived = loaded.derived
     val materializer = worldService.generated.materializer
 
     workers.submit(
       work = {
-        var generated: VoxelChunk? = null
         val tile = derived.buildTile(chunk) { wanted ->
-          when {
-            wanted == chunk && lowerBase != null -> lowerBase
-            wanted == upper && upperBase != null -> upperBase
-            else -> materializer.materialize(wanted).also { if (wanted == chunk) generated = it }
+          when (wanted) {
+            chunk -> lowerBase.voxels
+            upper -> upperBase.voxels
+            else -> materializer.materialize(wanted)
           }
         }
-        tile to generated
+        // Encoded here, so the tick only has to store it.
+        tile to if (lowerBase.generates) encodeBase(chunk, lowerBase.voxels) else null
       },
       deliver = { result ->
         result.onSuccess { (tile, generated) ->
-          generated?.let { loaded.cache.adopt(chunk, it) }
+          generated?.let {
+            loaded.cache.adopt(chunk, it.voxels)
+            encoded.put(it.encoded)
+          }
           derived.finishBuild(chunk, tile)
         }.onFailure {
           LOG.warn(it) { "Walkable tile of $chunk failed to build; it stays queued for the next try" }
@@ -1149,9 +1260,6 @@ class ChunkService(
 
   private companion object {
     private val LOG = KotlinLogging.logger { }
-
-    /** Base hashes kept for encoding edited chunks; eight bytes each. */
-    private const val BASE_HASH_CAPACITY = 1024
 
     /** Chunk columns of ground heights kept for movement, weather and fire; about 8 KB each. */
     private const val COLUMN_HEIGHT_CAPACITY = 1024
