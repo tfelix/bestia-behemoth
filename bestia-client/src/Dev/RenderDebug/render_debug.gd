@@ -106,6 +106,27 @@ var _stats := false
 ## cannot be read.
 var _since_refresh := 0.0
 
+## The frames counted since the last refresh, and the clocks they are averaged against: wall time, and the
+## engine's physics steps. A frame's own delta cannot be used for the frame time - once a frame takes longer
+## than [code]max_physics_steps_per_frame[/code] physics ticks, Godot clamps the delta to those ticks and the
+## game runs slow instead.
+var _window_frames := 0
+var _window_start_usec := 0
+var _window_start_physics := 0
+
+## The monitors summed over the window. Each monitor holds only the last frame, so read once it is a sample
+## that one hitch can make or hide.
+var _sum_process_ms := 0.0
+var _sum_physics_ms := 0.0
+var _sum_render_ms := 0.0
+
+## What the last window averaged to, per frame: its wall time, physics steps, and the three timed parts.
+var _frame_ms := 0.0
+var _physics_steps := 0.0
+var _process_ms := 0.0
+var _physics_ms := 0.0
+var _render_ms := 0.0
+
 ## The scene [member _found] was filled from, and what [method _find] found in it by key.
 var _scene: Node = null
 var _found := {}
@@ -166,10 +187,35 @@ func _update_processing() -> void:
 
 
 func _process(delta: float) -> void:
+	_window_frames += 1
+	if _stats:
+		_sum_process_ms += Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0
+		_sum_physics_ms += Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0
+		_sum_render_ms += RenderingServer.viewport_get_measured_render_time_cpu(get_viewport().get_viewport_rid())
 	_since_refresh += delta
 	if _since_refresh >= 0.25:
 		_since_refresh = 0.0
+		_close_window()
 		_refresh()
+
+
+## Averages the frames since the last call into [member _frame_ms] and its kin, and starts the next window.
+func _close_window() -> void:
+	var now_usec := Time.get_ticks_usec()
+	var physics := Engine.get_physics_frames()
+	if _window_frames > 0 and _window_start_usec > 0:
+		_frame_ms = (now_usec - _window_start_usec) / 1000.0 / _window_frames
+		_physics_steps = float(physics - _window_start_physics) / _window_frames
+		_process_ms = _sum_process_ms / _window_frames
+		_physics_ms = _sum_physics_ms / _window_frames
+		_render_ms = _sum_render_ms / _window_frames
+
+	_window_frames = 0
+	_sum_process_ms = 0.0
+	_sum_physics_ms = 0.0
+	_sum_render_ms = 0.0
+	_window_start_usec = now_usec
+	_window_start_physics = physics
 
 
 func _set_draw(index: int) -> void:
@@ -221,25 +267,38 @@ func _set_grass_budget(on: bool) -> void:
 func _set_stats(on: bool) -> void:
 	_stats = on
 	RenderingServer.viewport_set_measure_render_time(get_viewport().get_viewport_rid(), _stats)
+	_window_frames = 0
+	_window_start_usec = 0
 	_update_processing()
 	print("[render debug] frame times: %s" % ("on" if _stats else "off"))
 	_refresh()
 
 
+## The frame, and what it is spent on.
+##
+## The second line is what the frame's wall time is spent on, as far as Godot times it: the scripts'
+## [code]_process[/code] (GDScript and C#, the network messages they handle included), the physics steps, and
+## the CPU side of drawing this viewport. Whatever the frame takes beyond their sum is untimed - waiting on the
+## GPU, other viewports, engine work no monitor covers. The difference is not printed: on an idle vsync'd
+## scene the process monitor reads above the frame time itself, and a negative remainder misleads.
+## The last line counts the draws of every viewport against this one's, which is where a sub-viewport that
+## renders every frame shows itself.
 func _stats_lines() -> Array[String]:
 	var viewport := get_viewport()
 	var rid := viewport.get_viewport_rid()
 	var lines: Array[String] = [
-		"%d fps   cpu %.1f ms   gpu %.1f ms" % [
-			Engine.get_frames_per_second(),
-			RenderingServer.viewport_get_measured_render_time_cpu(rid)
-				+ Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
-			RenderingServer.viewport_get_measured_render_time_gpu(rid)],
-		"%.2f M primitives   %d draw calls" % [
+		"%d fps   frame %.1f ms   gpu %.1f ms" % [
+			Engine.get_frames_per_second(), _frame_ms, RenderingServer.viewport_get_measured_render_time_gpu(rid)],
+		"cpu: process %.1f   physics %.1f x %.1f steps   render %.1f ms" % [
+			_process_ms, _physics_ms, _physics_steps, _render_ms],
+		"%.2f M primitives   %d draw calls here,   %.2f M   %d in all viewports   %d nodes" % [
 			viewport.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE,
 				Viewport.RENDER_INFO_PRIMITIVES_IN_FRAME) / 1.0e6,
 			viewport.get_render_info(Viewport.RENDER_INFO_TYPE_VISIBLE,
-				Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME)],
+				Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
+			RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME) / 1.0e6,
+			RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME),
+			Performance.get_monitor(Performance.OBJECT_NODE_COUNT)],
 	]
 
 	var grass := _grass()
