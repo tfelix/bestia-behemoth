@@ -9,12 +9,14 @@ import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.resource.DepositChannels
 import net.bestia.worldgen.resource.ResourceType
 import net.bestia.worldgen.vector.FeatureKind
+import net.bestia.worldgen.vector.FootprintFeature
 import net.bestia.worldgen.vector.Intersections
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.Polyline
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
 import net.bestia.worldgen.vector.Vec2d
+import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -24,6 +26,9 @@ import kotlin.test.assertTrue
 class CivilisationStageTest {
 
   private companion object {
+    /** Metres from a river's line within which a road need not be on a street: it is fording or bridging. */
+    const val RIVER_EXCUSE = 60.0
+
     /**
      * Big enough for a proper trade network: several cities, towns between them, and enough road mileage that
      * some of it has to cross a river.
@@ -295,6 +300,145 @@ class CivilisationStageTest {
       val by = bridge.attribute(BridgeChannels.BEARING_Y)
       assertEquals(1.0, kotlin.math.sqrt(bx * bx + by * by), 1e-6, "bearing is not a unit vector")
     }
+  }
+
+  // --- Road classes, and roads into towns ----------------------------------------------------------
+
+  private val roads by lazy {
+    world.world.features.all().filter { it.kind == FeatureKind.ROAD }.filterIsInstance<PolylineFeature>()
+  }
+
+  private val settlements by lazy {
+    world.world.features.all().filter { it.kind == FeatureKind.SETTLEMENT }.filterIsInstance<PointMarker>()
+  }
+
+  private fun tierAt(at: Vec2d): SettlementTier? = settlements
+    .firstOrNull { it.position.distanceTo(at) < 1e-6 }
+    ?.let { SettlementTier.entries[it.attribute(SettlementChannels.TIER).toInt()] }
+
+  private val small = setOf(SettlementTier.VILLAGE, SettlementTier.HAMLET)
+
+  @Test
+  fun `every road carries its class, and the classes are where they belong`() {
+    assertTrue(roads.isNotEmpty(), "no roads were built")
+
+    for (road in roads) {
+      val roadClass = assertNotNull(RoadClass.of(road), "a road carries no class")
+      val from = tierAt(road.centerline.points.first())
+      val to = tierAt(road.centerline.points.last())
+
+      // A village's way out is a trail; a way between two towns never is.
+      if (from in small) assertEquals(RoadClass.TRAIL, roadClass, "a spur from a $from is a $roadClass")
+      if (from != null && to != null && from !in small && to !in small) {
+        assertTrue(roadClass != RoadClass.TRAIL, "a way between a $from and a $to is only a trail")
+      }
+    }
+
+    // The point of the classes: the busiest ways out of the cities are paved.
+    assertTrue(
+      roads.any { RoadClass.of(it) == RoadClass.COBBLED &&
+          (tierAt(it.centerline.points.first()) == SettlementTier.CITY ||
+              tierAt(it.centerline.points.last()) == SettlementTier.CITY) },
+      "no cobbled road leaves a city"
+    )
+  }
+
+  @Test
+  fun `a trunk ends exactly at the settlements it joins and a spur exactly on its trunk`() {
+    // Both ends are where something else joins on - a town's high street, a spur's junction - so the meander
+    // must have faded to nothing there.
+    var spurs = 0
+    for (road in roads) {
+      val from = tierAt(road.centerline.points.first())
+      assertNotNull(from, "a road starts somewhere that is not a settlement: ${road.centerline.points.first()}")
+
+      if (from in small) {
+        val end = road.centerline.points.last()
+        val gap = roads.filter { it !== road }.minOf { it.centerline.project(end).distance }
+        assertTrue(gap < 1.0, "a spur ends ${"%.1f".format(gap)} m short of the road it joins, at $end")
+        spurs++
+      } else {
+        assertNotNull(tierAt(road.centerline.points.last()), "a trunk ends somewhere that is not a settlement")
+      }
+    }
+    assertTrue(spurs > 0, "no village spurs were built, so nothing was tested")
+  }
+
+  @Test
+  fun `roads meander rather than running ruled straight`() {
+    // The routed line is kilometre cells with their corners cut, which leaves long runs at exactly 0, 45 and 90
+    // degrees: interior vertices with no curvature at all. Meandered, almost none of them are straight.
+    for (road in roads) {
+      if (RoadClass.of(road) == RoadClass.COBBLED || road.centerline.length < 2_000.0) continue
+      val line = road.centerline
+      val straight = (1 until line.vertexCount - 1).count { abs(line.signedCurvatureAt(it)) < 1e-9 }
+      assertTrue(
+        straight < (line.vertexCount - 2) * 0.1,
+        "$straight of ${line.vertexCount - 2} vertices of a ${RoadClass.of(road)} run dead straight"
+      )
+    }
+  }
+
+  @Test
+  fun `no building stands on a road`() {
+    val buildings = world.world.features.all().filter { it.kind == FeatureKind.BUILDING }.filterIsInstance<FootprintFeature>()
+    assertTrue(buildings.isNotEmpty(), "no buildings were placed, so nothing was tested")
+
+    for (building in buildings) {
+      for (road in roads) {
+        if (!road.bbox.contains(building.center.x, building.center.y)) continue
+        for (corner in building.corners() + building.center) {
+          val distance = road.centerline.project(corner).distance
+          assertTrue(distance >= 4.0, "a building stands ${"%.1f".format(distance)} m from a road's line at $corner")
+        }
+      }
+    }
+  }
+
+  @Test
+  fun `a road into a town carries on as its high street`() {
+    // Through the core of every town and city that was laid out, the road is a rank-0 street - the widest - and
+    // not a line the town's own streets wander away from. River crossings are excused: a street stops at the
+    // bank and the road fords or bridges it.
+    val streets = world.world.features.all().filter { it.kind == FeatureKind.STREET }.filterIsInstance<PolylineFeature>()
+    val rivers = world.world.features.all().filter { it.kind == FeatureKind.RIVER_CHANNEL }.filterIsInstance<PolylineFeature>()
+    val highStreetHalfWidth = TownParams().streets.halfWidthOfRank(0)
+
+    var sampled = 0
+    var onAHighStreet = 0
+    for (site in settlements) {
+      val tier = SettlementTier.entries[site.attribute(SettlementChannels.TIER).toInt()]
+      if (tier in small) continue
+      val reach = tier.footprintRadius * 0.4
+      val near = streets.filter { it.bbox.expanded(reach).contains(site.position.x, site.position.y) }
+      // A settlement history abandoned has no streets at all, and nothing to continue the road.
+      if (near.isEmpty()) continue
+
+      for (road in roads) {
+        var s = 0.0
+        while (s < road.centerline.length) {
+          val at = road.centerline.pointAt(s)
+          s += 20.0
+          if (at.distanceTo(site.position) > reach) continue
+          if (rivers.any { it.bbox.contains(at.x, at.y) && it.centerline.project(at).distance < RIVER_EXCUSE }) continue
+
+          sampled++
+          val onStreet = near.any { street ->
+            val hit = street.centerline.project(at)
+            hit.distance < 3.0 &&
+                street.stations.sample(street.stations.channel(Profiles.CHANNEL_HALF_WIDTH), hit.u) >=
+                highStreetHalfWidth - 0.5
+          }
+          if (onStreet) onAHighStreet++
+        }
+      }
+    }
+
+    assertTrue(sampled > 100, "only $sampled road samples fell in a town core, so nothing much was tested")
+    assertTrue(
+      onAHighStreet >= sampled * 0.9,
+      "only $onAHighStreet of $sampled road samples in town cores lie on a high street"
+    )
   }
 
   // --- Route finding -------------------------------------------------------------------------------

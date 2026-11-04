@@ -573,7 +573,7 @@ class ChunkStoreTest {
     // never to update the number alone: bump `ChunkEngine.VERSION` on both sides, mirror the change into the
     // client's `BlockAppearance.Palette`, and then re-pin here.
     assertEquals(
-      2_430_615_180_319_028_482L, PipelineVersion.paletteVersion(),
+      -5_869_598_906_967_434_559L, PipelineVersion.paletteVersion(),
       "BlockType changed. Bump ChunkEngine.VERSION here and in the client, mirror the change into the " +
           "client's BlockAppearance.Palette, then update this pin."
     )
@@ -581,9 +581,10 @@ class ChunkStoreTest {
     // Both pins moved together here for the palette cleanup, which is the largest change either has seen: the
     // building materials left for props, the four sedimentary rocks became STONE plus LIMESTONE, peat and clay
     // became MUD, four gems arrived, and every id was renumbered densely from zero. A codec-only bump, like the
-    // patch format carrying block ids (3), moves the version pin below without moving this one.
+    // patch format carrying block ids (3), moves the version pin below without moving this one. PACKED_EARTH, the
+    // tread of a road, moved both again (4).
     assertEquals(
-      3, ChunkEngine.VERSION,
+      4, ChunkEngine.VERSION,
       "ChunkEngine.VERSION moved - re-pin this and check the client's constant matches. Both this and the " +
           "palette pin above move together whenever BlockType changes; only a codec-only bump moves this alone."
     )

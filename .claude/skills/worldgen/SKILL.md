@@ -77,7 +77,7 @@ Declared construction order, with the load-bearing reason from each stage's own 
 | 12 | `CaveStage` | `karst/` | — | `CAVE_SYSTEM`, `CAVE_PASSAGE`, `CAVE_ENTRANCE` | reads the chunk tier's own rock tuning (`StrataParams`), not a copy of it |
 | 13 | `ManaStage` | `mana/` | `MANA_DENSITY` | — | must precede history (history reacts to it); corruption must *follow* history, which is why mana/corruption are two stages, not one |
 | 14 | `HabitabilityStage` | `civ/` | `HABITABILITY`, `MOVEMENT_COST` | — | scores settleability |
-| 15 | `SettlementStage` | `civ/` | — | `SETTLEMENT`, `SETTLEMENT_GRADING`, `ROAD`, `BRIDGE`, `SEA_LANE` | places settlements/roads before history judges them. Only cities and towns join the trunk network; `buildTracks` then gives each village one spur to the nearest way, which is what `TownStage` lays it along |
+| 15 | `SettlementStage` | `civ/` | — | `SETTLEMENT`, `SETTLEMENT_GRADING`, `ROAD`, `BRIDGE`, `SEA_LANE` | places settlements/roads before history judges them. Only cities and towns join the trunk network; `buildTracks` then gives each village one spur ending exactly on the nearest trunk, which is what `TownStage` lays it along. Each road stores its `RoadClass` (`road_class` channel: TRAIL spurs, DIRT_ROAD trunks, the busiest fifth of trunk length COBBLED) and is `meandered` off the routed line |
 | 16 | `HistoryStage` | `history/` | — | `SETTLEMENT_HISTORY`, `RUIN`, `ASH_RUIN`, `BATTLEFIELD`, `TOMB`, `MONUMENT`, `MINE`, `MONASTERY`, `FORT`, `LIGHTHOUSE`, `CAVE_HOARD`, `WOUND`, `SHRINE` | dates/holds/burns settlements already placed — **does not place them** |
 | 17 | `CorruptionStage` | `mana/` | `CORRUPTION`, `CIVILISATION_DISTANCE` | — | the settlements it suppresses by are the ones history left standing |
 | 18 | `SpawnerStage` | `spawn/` | — | `BESTIA_SPAWN` | last in dependency terms: reads corruption + settlements + what history left standing |
@@ -124,7 +124,9 @@ decides the frame's own boundary:
 - **`StreetPlanner.organic` / `.grid`** — towns and cities, chosen by `Culture.layout`, plus every village too
   big for the roadside model. A `TownPatches` core is added at `TOWN` and above. `organic` is a
   Parish-Müller expansion: a priority queue of proposals, each aimed by a `Suitability` field and then
-  cut, snapped or refused by the three local constraints. **The cut and the snap are what close a block** —
+  cut, snapped or refused by the three local constraints. Roads into the town are laid first as rank-0 streets along
+  their own line (`roadStreets`) and arterials are grown only where no road runs, so the road *is* the high street;
+  `WorldGround.Roadside` refuses any building on a road. **The cut and the snap are what close a block** —
   a growth that only branches is a tree and encloses nothing.
 
 Two things are decided *after* the whole graph exists, because neither is knowable to the producer that drew a
@@ -504,10 +506,11 @@ has shipped to make the bumps so far mean anything.
 
 ### Encoding & storage (`voxel/`, `store/`)
 
-- **`BlockType`** — 63 declared types, `id` explicit (never ordinal-derived) and **dense, 0-62**: fluids
+- **`BlockType`** — 64 declared types, `id` explicit (never ordinal-derived) and **dense, 0-63**: fluids
   0-3, rock 4-8 (`GRANITE`, `BASALT`, `OBSIDIAN`, `STONE`, `LIMESTONE`), unconsolidated 9-12
   (incl. `MUD`), surface cover 13-15, blighted twins 16-18, worked stone 19-20 (`MASONRY`,
-  `COBBLESTONE`), ore/gem 21-62 in fourteen contiguous grade-triples. The ids were sparse in bands of
+  `COBBLESTONE`), ore/gem 21-62 in fourteen contiguous grade-triples, then `PACKED_EARTH` 63 (a road's tread,
+  laid by `voxel/RoadSurfaces`). The ids were sparse in bands of
   ten until the palette cleanup, which deleted the building materials (a building is a
   `PropKind.BUILDING` now, not voxels), folded four sedimentary rocks into `STONE` + `LIMESTONE`
   (limestone kept *only* because `Stratigraphy.SOLUBLE` gates every cave on it), folded `PEAT`/`CLAY`

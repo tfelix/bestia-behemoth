@@ -151,14 +151,26 @@ namespace BestiaBehemothClient.Game.World.Mesh
       /// Ground walked bare: packed earth with the grain of a path rather than of a ploughed field.
       /// </summary>
       /// <remarks>
-      /// No <c>BlockType</c> maps here, and none ever will - like <see cref="Scorched"/> this is a ground
-      /// layer, substituted by the mark texture rather than by a voxel. It is its own slot for
+      /// Two things draw from it, and they are the same thing arrived at two ways. Ground a player has worn
+      /// arrives as a ground layer, like <see cref="Scorched"/>, substituted by the mark texture; the tread of a
+      /// generated road arrives as the <c>PACKED_EARTH</c> block. A path the players made and a path the
+      /// generator laid should look alike, so they share the grain. It is its own slot for
       /// <see cref="Wetland"/>'s reason: trodden earth is its own grain, not a browner <see cref="Soil"/>.
       /// </remarks>
       Trodden = 9,
 
       /// <summary>Spilled where something died. A ground layer, like <see cref="Trodden"/>.</summary>
-      Bloodied = 10
+      Bloodied = 10,
+
+      /// <summary>
+      /// Rounded stones set in earth: <c>COBBLESTONE</c>, the town streets and the cobbled roads between cities.
+      /// </summary>
+      /// <remarks>
+      /// It drew from <see cref="Rock"/> under a grey tint, which made a street a strip of cliff face. A paved
+      /// surface is mostly geometry - stones, the joints between them - and the joints are what the height blend
+      /// lets the grass settle into at a road's edge, which no grain borrowed from a rock face has.
+      /// </remarks>
+      Cobblestone = 11
     }
 
     /// <summary>
@@ -310,10 +322,10 @@ namespace BestiaBehemothClient.Game.World.Mesh
       //
       // MASONRY stays on Neutral, which is a holding position rather than a judgement - it is flat colour until
       // somebody authors a texture for it, and flat colour reads as unfinished art where a borrowed grain would
-      // read as a rendering fault. Cobblestone is the exception and takes rock's grain, because broken stone is
-      // what it is made of.
+      // read as a rendering fault. Cobblestone has a slot of its own: stones and joints, which rock's grain is not.
+      // Lighter than it was on Rock, because the joints in its own texture already darken it.
       Terrain(19, "MASONRY", SurfaceSlot.Neutral, 0.62f, 0.60f, 0.56f),
-      Terrain(20, "COBBLESTONE", SurfaceSlot.Rock, 0.42f, 0.41f, 0.40f),
+      Terrain(20, "COBBLESTONE", SurfaceSlot.Cobblestone, 0.50f, 0.48f, 0.45f),
 
       // Ore, placed per voxel at chunk generation, three grades per metal. The grade is not decoration: it
       // decides what a broken voxel drops, so a player has to be able to see the difference between the rim
@@ -405,7 +417,12 @@ namespace BestiaBehemothClient.Game.World.Mesh
       // rest. At 300 to 800 metres nothing else here is in the same gallery.
       Terrain(60, "GEM_DIAMOND_SMALL", SurfaceSlot.Rock, 0.50f, 0.58f, 0.64f),
       Terrain(61, "GEM_DIAMOND_MEDIUM", SurfaceSlot.Rock, 0.68f, 0.80f, 0.88f),
-      Terrain(62, "GEM_DIAMOND_RICH", SurfaceSlot.Rock, 0.84f, 0.95f, 1.00f)
+      Terrain(62, "GEM_DIAMOND_RICH", SurfaceSlot.Rock, 0.84f, 0.95f, 1.00f),
+
+      // The tread of a road between settlements: earth beaten hard. On the Trodden slot, with the paths players
+      // wear themselves, and a lighter, greyer brown than DIRT, so a trail reads against the bare patches that
+      // grassland wears through to beside it rather than as one more of them.
+      Terrain(63, "PACKED_EARTH", SurfaceSlot.Trodden, 0.50f, 0.41f, 0.31f)
     };
 
     /// <summary>

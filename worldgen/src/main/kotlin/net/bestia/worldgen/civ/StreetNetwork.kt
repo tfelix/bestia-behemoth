@@ -50,7 +50,15 @@ internal class TownFrame(
   /** False over water, over ground too steep to build on, or outside the world. */
   val buildable: (Vec2d) -> Boolean,
   /** Unit directions from which roads arrive. Empty for a place no road reaches. */
-  val approaches: List<Vec2d>
+  val approaches: List<Vec2d>,
+  /**
+   * The roads themselves, for a settlement whose high streets are laid along them.
+   *
+   * [approaches] alone is a compass bearing, and a street grown towards a bearing drifts off the road it was meant
+   * to continue - the road then ran on into the town on its own and the houses were built across it. Empty for a
+   * village, whose spine is already the road (see [RoadsideVillage]), and in tests that lay out a bare frame.
+   */
+  val roads: List<Polyline> = emptyList()
 ) {
 
   /** Whether a position is inside the built-up area. Replaces `distanceTo(centre) <= builtRadius`. */
@@ -742,10 +750,11 @@ internal object StreetPlanner {
      */
     grow: Boolean = true
   ): StreetGraph {
+    val roads = if (grow) roadStreets(frame, params) else emptyList()
     val raw = when {
       !grow -> emptyList()
-      layout == TownLayout.GRID -> grid(frame, roll, params)
-      else -> organic(frame, roll, params)
+      layout == TownLayout.GRID -> grid(frame, roll, params) + roads
+      else -> organic(frame, roll, params, roads)
     }
 
     val planar = planarise((raw + extra).filter { inside(frame, it) && passable(frame, it) })
@@ -779,6 +788,59 @@ internal object StreetPlanner {
    */
   private fun passable(frame: TownFrame, segment: StreetSegment): Boolean =
     (0..4).all { frame.buildable(segment.a.lerp(segment.b, it / 4.0)) }
+
+  /**
+   * The roads through a settlement, cut into high street: rank 0, along the road's own line, inside the town.
+   *
+   * ### Why the road itself and not its bearing
+   *
+   * A town used to know only *which way* each road arrived from, and grew a main street from the market towards
+   * that bearing. The bearing is a weak pull against slope and a rolled fan, so the street drifted, and the road
+   * - which runs on to the market regardless - was left crossing the town on a line nothing had reserved.
+   * `LotPlanner` keeps plots off streets and has never heard of roads, so it built houses across it: from the
+   * ground, the road ran into the town and stopped at somebody's front wall.
+   *
+   * Laying the street *on* the road is what a village already did ([RoadsideVillage]), and it is what a town
+   * was: the way in became the high street, the market sat where the ways met, and the rest grew off them. The
+   * grown streets now meet these as streets already standing, so they cut and snap onto them like any other.
+   *
+   * Walked at the street segment length and kept in runs, like a grid line in [addLine], because the boundary is
+   * a warped ring and a road may leave the town and come back.
+   */
+  private fun roadStreets(frame: TownFrame, params: StreetParams): List<StreetSegment> {
+    val out = ArrayList<StreetSegment>()
+
+    for (road in frame.roads) {
+      val steps = max(1, Math.ceil(road.length / params.segmentLength).toInt())
+      var previous = road.pointAt(0.0)
+      for (i in 1..steps) {
+        val next = road.pointAt(road.length * i / steps)
+        if (frame.encloses(previous) && frame.encloses(next)) out.add(StreetSegment(previous, next, ROAD_RANK))
+        previous = next
+      }
+    }
+
+    return out
+  }
+
+  /**
+   * The bearing each road leaves the market on: from the centre to the outermost point of its street.
+   *
+   * These are main streets already drawn, so [organic] grows no arterial along them, and the gaps between them
+   * are where its inward streets go.
+   */
+  private fun servedBearings(frame: TownFrame, roads: List<StreetSegment>): List<Vec2d> {
+    val out = ArrayList<Vec2d>()
+    for (segment in roads) {
+      for (end in arrayOf(segment.a, segment.b)) {
+        val offset = end - frame.centre
+        if (offset.length < frame.builtRadius * SERVED_REACH) continue
+        val bearing = offset.normalized()
+        if (out.none { it dot bearing > APPROACH_SAME }) out.add(bearing)
+      }
+    }
+    return out
+  }
 
   // --- Organic --------------------------------------------------------------------------------------
 
@@ -836,14 +898,24 @@ internal object StreetPlanner {
   private fun organic(
     frame: TownFrame,
     roll: (Long, Long) -> Double,
-    params: StreetParams
+    params: StreetParams,
+    /** The high streets [roadStreets] laid along the roads: standing before anything grows. */
+    roads: List<StreetSegment> = emptyList()
   ): List<StreetSegment> {
-    val out = ArrayList<StreetSegment>()
+    val out = ArrayList<StreetSegment>(roads)
     val nodes = ArrayList<Vec2d>()
     nodes.add(frame.centre)
+    for (segment in roads) {
+      for (end in arrayOf(segment.a, segment.b)) {
+        if (nodes.none { it.distanceTo(end) < JOINT }) nodes.add(end)
+      }
+    }
 
-    val directions = radialDirections(frame, roll, params)
-    val wanted = Suitability(frame, directions)
+    // Arterials are grown only where no road already runs; every main street, grown or laid, steers the rest.
+    val served = servedBearings(frame, roads)
+    val directions = radialDirections(frame, roll, params, served)
+    val mains = served + directions
+    val wanted = Suitability(frame, mains)
 
     // The queue holds indices into `pending`, keyed by delay. `DoubleIntHeap` breaks ties on the value, so
     // two proposals at the same delay pop in the order they were offered and the layout stays a pure
@@ -866,12 +938,13 @@ internal object StreetPlanner {
     }
 
     // Delayed past the longest an arterial can run, so the ground these grow into is already committed.
-    for ((i, direction) in betweenBearings(directions).withIndex()) {
+    for ((i, direction) in betweenBearings(mains).withIndex()) {
       val edge = edgeAlong(frame, direction) ?: continue
       offer(Proposal(edge, -direction, rank = 1, steps = depth, delay = depth + 1.0, salt = INWARD_SALT + i))
     }
 
-    val budget = ((frame.builtRadius / params.segmentLength).pow(2.0) * SEGMENT_DENSITY).toInt()
+    // The roads are not counted against it: the budget is how much street the town grows, and they were given.
+    val budget = ((frame.builtRadius / params.segmentLength).pow(2.0) * SEGMENT_DENSITY).toInt() + roads.size
     var taken = 0L
 
     while (!queue.isEmpty && out.size < budget) {
@@ -899,7 +972,7 @@ internal object StreetPlanner {
             fit.end,
             turned,
             growth.rank + 1,
-            spanFor(frame, fit.end, directions.size, step, depth),
+            spanFor(frame, fit.end, mains.size, step, depth),
             growth.delay + 1.0 + BRANCH_DELAY,
             salt
           )
@@ -1199,24 +1272,32 @@ internal object StreetPlanner {
    *
    * Aligning on the approaches is what ties a town to its region: the high street points at the next town,
    * so the road, the gate and the market are on one line, which is how it worked and how it reads.
+   *
+   * Only the bearings still to be *grown*: an approach a road already runs along as a laid street ([served]) is
+   * not grown a second time, though it counts towards [StreetParams.minRadials] - a town with three roads in
+   * has its crossroads. The roads are not capped by [StreetParams.maxRadials]; that bounds what is invented.
    */
   private fun radialDirections(
     frame: TownFrame,
     roll: (Long, Long) -> Double,
-    params: StreetParams
+    params: StreetParams,
+    served: List<Vec2d> = emptyList()
   ): List<Vec2d> {
-    val out = ArrayList<Vec2d>(frame.approaches)
+    val out = ArrayList<Vec2d>(served)
+    for (approach in frame.approaches) {
+      if (out.none { it dot approach > APPROACH_SAME }) out.add(approach)
+    }
 
     var attempt = 0L
     while (out.size < params.minRadials && attempt < 64) {
       val angle = roll(attempt, RADIAL_SALT) * 2.0 * PI
       val candidate = Vec2d(cos(angle), sin(angle))
       // Not too close to one already chosen, or two "radials" leave as one wide street.
-      if (out.none { it dot candidate > 0.94 }) out.add(candidate)
+      if (out.none { it dot candidate > APPROACH_SAME }) out.add(candidate)
       attempt++
     }
 
-    return out.take(params.maxRadials)
+    return out.drop(served.size).take(params.maxRadials)
   }
 
   // --- Grid -----------------------------------------------------------------------------------------
@@ -1420,6 +1501,20 @@ internal object StreetPlanner {
   private const val GRID_SALT = 0x36L
 
   // 0x38 is TownBoundary.ASPECT_SALT. The salts in this file share one keyed roll, so they share one space.
+
+  // --- Roads ----------------------------------------------------------------------------------------
+
+  /** A road laid as street is a high street, and [StreetTraffic] keeps it one. */
+  private const val ROAD_RANK = 0
+
+  /** Dot product above which two main-street bearings count as one. About twenty degrees. */
+  private const val APPROACH_SAME = 0.94
+
+  /**
+   * How far out, as a share of the built radius, a road's street must reach to count as serving its bearing.
+   * A stub that the boundary or a river cut short near the market does not; the arterial is grown as before.
+   */
+  private const val SERVED_REACH = 0.5
 
   // --- Growth ---------------------------------------------------------------------------------------
 

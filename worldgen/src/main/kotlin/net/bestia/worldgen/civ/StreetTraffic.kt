@@ -54,7 +54,30 @@ internal object StreetTraffic {
       if (market >= 0) walk(graph, came, market, load)
     }
 
-    return StreetGraph(graph.nodes, rankedBy(graph, load))
+    return StreetGraph(graph.nodes, onTheRoads(graph, rankedBy(graph, load), frame))
+  }
+
+  /**
+   * [edges] with every street that lies along one of [TownFrame.roads] put back at rank 0.
+   *
+   * The traffic here is the town's own, routed between its outermost junctions, and those need not be where the
+   * roads come in - a sector's furthest node can be a lane end beside the road. Left to that, a road could come
+   * out as a back lane, and a back lane is narrower than the road it continues, gets no gate where it crosses the
+   * wall, and lets plots stand closer to it. A road is a high street because the region uses it, which is
+   * traffic this pass cannot see.
+   *
+   * By geometry rather than by a flag carried through planarisation: a road street is cut at every crossing and
+   * welded at every junction on the way here, and both ends of each piece still lie on the road's line.
+   */
+  private fun onTheRoads(graph: StreetGraph, edges: List<StreetGraph.Edge>, frame: TownFrame): List<StreetGraph.Edge> {
+    if (frame.roads.isEmpty()) return edges
+
+    return edges.map { edge ->
+      val a = graph.nodes[edge.a]
+      val b = graph.nodes[edge.b]
+      val onARoad = frame.roads.any { it.project(a).distance < ON_ROAD && it.project(b).distance < ON_ROAD }
+      if (onARoad && edge.rank > 0) StreetGraph.Edge(edge.a, edge.b, 0) else edge
+    }
   }
 
   /** The junction standing nearest the middle: where everything that is not passing through is going. */
@@ -191,4 +214,10 @@ internal object StreetTraffic {
 
   /** Ranks stop here: nothing a town emits reaches `StreetParams.RANK_SPAN`. */
   private const val LANE_RANK = 2
+
+  /**
+   * Metres from a road's line within which a street's end counts as on it. The pieces are chords of the road
+   * between points on it, so this needs only to cover the chord's sag over one street segment and the weld.
+   */
+  private const val ON_ROAD = 1.5
 }

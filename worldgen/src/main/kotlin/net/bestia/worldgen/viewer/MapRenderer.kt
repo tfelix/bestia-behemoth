@@ -1,5 +1,6 @@
 package net.bestia.worldgen.viewer
 
+import net.bestia.worldgen.civ.RoadClass
 import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.core.ChunkSeamCheck
@@ -10,6 +11,7 @@ import net.bestia.worldgen.render.Viewport
 import net.bestia.worldgen.render.optionalAttribute
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
+import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.VectorFeature
 import java.awt.BasicStroke
 import java.awt.Color
@@ -455,6 +457,12 @@ class MapRenderer(
 
       g.color = colorOf(feature.kind)
       g.stroke = BasicStroke(1.6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+      // A road says which class it is, by weight and shade: a trail thin and pale, a cobbled road heavy and dark.
+      val roadClass = (feature as? PolylineFeature)?.let { RoadClass.of(it) }
+      if (roadClass != null) {
+        g.color = ROAD_COLORS[roadClass.ordinal]
+        g.stroke = BasicStroke(ROAD_WEIGHTS[roadClass.ordinal], BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+      }
 
       for (line in outlines) {
         val path = Path2D.Double()
@@ -567,6 +575,10 @@ class MapRenderer(
     private val CELL_GRID_COLOR = Color(255, 255, 255, 36)
     private val CHUNK_GRID_COLOR = Color(255, 220, 120, 90)
     private val SEAM_COLOR = Color(255, 40, 40)
+
+    /** Per [RoadClass], lightest first: [colorOf]'s road orange, paler for a trail and darker for cobbles. */
+    private val ROAD_COLORS = arrayOf(Color(240, 205, 150), Color(230, 170, 90), Color(190, 110, 50))
+    private val ROAD_WEIGHTS = floatArrayOf(1.0f, 1.6f, 2.6f)
 
     /** Enough contrast to read a dot on any biome colour without hiding the dot's own hue. */
     private val MARKER_OUTLINE = Color(20, 20, 26, 200)

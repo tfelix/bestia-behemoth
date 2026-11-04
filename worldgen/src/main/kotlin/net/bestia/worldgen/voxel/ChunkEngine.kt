@@ -37,6 +37,8 @@ object ChunkEngine {
    * Version 3 is the patch format: a patch carries each voxel's block and occupancy instead of only how much is
    * left, so water can appear where there was air.
    *
+   * Version 4 is `PACKED_EARTH` (63), the tread of a road between settlements.
+   *
    * `BlockType.passability` is deliberately **not** in that list. It decides what a server-side pathfinder
    * will walk into; no client receives it and none could act on it, so bumping for it would force a client
    * release for a number no client can observe. `carvable` is out for the same reason.
@@ -51,5 +53,5 @@ object ChunkEngine {
    * counterparty. **From the first client release onwards it is append-only**, and the discipline above is
    * what it always was until then. The git history holds the old changelog.
    */
-  const val VERSION = 3
+  const val VERSION = 4
 }

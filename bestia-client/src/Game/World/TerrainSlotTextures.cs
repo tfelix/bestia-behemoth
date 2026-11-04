@@ -43,7 +43,7 @@ namespace BestiaBehemothClient.Game.World
   /// </para>
   ///
   /// <para>
-  /// <b>Every slot renders from the first day, and that is the point of the generated ones.</b> Fourteen of the
+  /// <b>Every slot renders from the first day, and that is the point of the generated ones.</b> Most of the
   /// sixteen have no art, and the alternative to inventing something is a black world or a shader that has to
   /// branch on whether a layer exists. A neutral grey with structure in it is neither, and it is honest about
   /// being unfinished in a way a wrong-but-detailed texture would not be.
@@ -99,7 +99,7 @@ namespace BestiaBehemothClient.Game.World
     /// harmlessly in place because nobody had drawn the texture yet.
     ///
     /// <para>
-    /// Slots 9 to 15 are unnamed on purpose. They exist because the enum went to sixteen for
+    /// Slots 12 to 15 are unnamed on purpose. They exist because the enum went to sixteen for
     /// <c>Scorched</c>, and naming them now would invite art for materials nobody has decided on; an unnamed
     /// slot loads as generated grey and no block maps to it, so it costs a texture layer and nothing else.
     /// </para>
@@ -108,7 +108,7 @@ namespace BestiaBehemothClient.Game.World
     {
       "neutral", "grass", "dry_grass", "sand", "soil", "rock", "snow", "wetland", "scorched",
       "trodden", "bloodied",
-      "slot11", "slot12", "slot13", "slot14", "slot15"
+      "cobblestone", "slot12", "slot13", "slot14", "slot15"
     };
 
     /// <summary>The two arrays, and the mean colour of each albedo layer.</summary>

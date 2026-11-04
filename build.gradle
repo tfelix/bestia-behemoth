@@ -51,6 +51,18 @@ tasks.register('testTiming', TestTimingReportTask) {
 	csv = layout.buildDirectory.file('reports/test-timing.csv')
 }
 
+/**
+ * The packed-earth and cobblestone terrain textures the roads are drawn with. Generated rather than drawn; the
+ * output is committed, so run this only after changing the generator. See
+ * buildSrc/src/main/kotlin/RoadTextureTask.kt.
+ */
+tasks.register('genRoadTextures', RoadTextureTask) {
+	group = 'build'
+	description = 'Regenerates the road surface terrain textures in the Godot client.'
+
+	slotDirectory = layout.projectDirectory.dir('bestia-client/src/Game/World/Shader/Slots')
+}
+
 // --- Godot client -----------------------------------------------------------------------------------------
 //
 // bestia-client is not a Gradle subproject: it is a Godot .NET project, built by the dotnet SDK. These tasks

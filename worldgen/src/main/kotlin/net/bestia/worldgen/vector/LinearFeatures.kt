@@ -202,10 +202,15 @@ object LinearFeatures {
      * river intersected one of the two lines and not the other, so the gap that should stop the
      * carriageway damming the channel was cut into a road that no longer had that crossing.
      */
-    preResampled: Boolean = false
+    preResampled: Boolean = false,
+    /**
+     * The `civ.RoadClass` ordinal, stored as [Profiles.CHANNEL_ROAD_CLASS]; null for a street, which has none.
+     * An ordinal rather than the enum because `vector` sits below `civ`.
+     */
+    roadClass: Int? = null
   ): PolylineFeature {
     val line = if (preResampled) centerline else centerline.resample(stationSpacing)
-    val stations = StationTable.Builder(line.vertexCount)
+    val builder = StationTable.Builder(line.vertexCount)
       .channel(Profiles.CHANNEL_SURFACE_ELEVATION) { surfaceElevation(line.arcLengthAt(it)) }
       .channel(Profiles.CHANNEL_HALF_WIDTH) { halfWidth(line.arcLengthAt(it)) }
       .channel(Profiles.CHANNEL_SHOULDER) { shoulder(line.arcLengthAt(it)) }
@@ -213,7 +218,8 @@ object LinearFeatures {
         val s = line.arcLengthAt(it)
         halfWidth(s) + shoulder(s)
       }
-      .build()
+    if (roadClass != null) builder.channel(Profiles.CHANNEL_ROAD_CLASS) { roadClass.toDouble() }
+    val stations = builder.build()
 
     return PolylineFeature(
       id = id,

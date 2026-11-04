@@ -1,12 +1,12 @@
 package net.bestia.zone.cartography.render
 
 import net.bestia.worldgen.civ.BridgeChannels
+import net.bestia.worldgen.civ.RoadClass
 import net.bestia.worldgen.render.Viewport
 import net.bestia.worldgen.render.optionalAttribute
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.PolylineFeature
-import net.bestia.worldgen.vector.Profiles
 import net.bestia.worldgen.vector.VectorFeature
 import java.awt.BasicStroke
 import java.awt.Graphics2D
@@ -18,17 +18,19 @@ import kotlin.math.max
 /**
  * Roads, bridges and sea lanes: the dashed lines that turn a terrain map into a map of a settled country.
  *
- * Drawn as dashes rather than solid strokes, which is the convention that keeps a road distinguishable from a
- * river at a glance when both are one pixel wide and neither has room for a colour to help.
+ * ### One style per road class
  *
- * ### Road class has to be inferred
+ * - **Cobbled road**: a cased line - dark edges with paper showing down the middle - which is how a map says
+ *   "built". It is the one road drawn without dashes, and the casing is what keeps it from reading as a river.
+ * - **Dirt road**: a dashed line, the convention that keeps a way distinguishable from a river at a glance when
+ *   both are one pixel wide and neither has room for a colour to help.
+ * - **Trail**: a fine dotted line.
  *
- * The generator classifies routes into track, road and highway - `civ/SettlementStage.RoadTier` - and then
- * throws the classification away: the enum is `private` and the tier is not written to any station channel.
- * What survives is `half_width`, which the tiers set to 1.6, 3.0 and 11.0 metres respectively, so the class is
- * recoverable from the geometry even though it is not recorded. [TRACK_MAX_HALF_WIDTH] and
- * [ROAD_MAX_HALF_WIDTH] sit between those figures rather than on them, so the inference survives a retune of
- * the road profile that does not reorder the tiers.
+ * ### The class is read, not inferred
+ *
+ * It used to be guessed from `half_width`, because the generator threw its classification away, and the
+ * thresholds went stale when the widths were retuned: no road was ever inked as a track and almost every road as
+ * a highway. The class is now stored on the road - [RoadClass.of] - and this reads it.
  */
 object RouteInk {
 
@@ -67,7 +69,7 @@ object RouteInk {
    * instead as a river, which is the one thing the dashes exist to prevent.
    *
    * So a segment is claimed by the first way to use it and skipped by the rest. Heaviest first, so where a
-   * track runs along a highway the ground is inked as a highway rather than as whatever happened to be
+   * trail runs along a cobbled road the ground is inked as the cobbled road rather than as whatever happened to be
    * sorted first.
    *
    * Two tiles agree about this without sharing anything: a way that shares a segment inside a tile must
@@ -79,23 +81,64 @@ object RouteInk {
     val ways = features
       .filterIsInstance<PolylineFeature>()
       .filter { it.kind == FeatureKind.ROAD }
-      .sortedByDescending { halfWidthOf(it) }
+      // Heaviest first; a road with no class (none the generator emits) is drawn as a trail, last.
+      .sortedByDescending { RoadClass.of(it)?.ordinal ?: -1 }
 
     for (way in ways) {
-      val halfWidth = halfWidthOf(way)
-      val weight = when {
-        halfWidth <= TRACK_MAX_HALF_WIDTH -> TRACK_PIXELS
-        halfWidth <= ROAD_MAX_HALF_WIDTH -> ROAD_PIXELS
-        else -> HIGHWAY_PIXELS
+      when (RoadClass.of(way) ?: RoadClass.TRAIL) {
+        RoadClass.COBBLED -> {
+          // Casing first, then the paper down the middle: two strokes over one claimed run, so the inner one
+          // never shows where the casing was skipped.
+          val runs = claimedRuns(view, way, claimed)
+          g.color = WaterInk.rgba(palette.roadInk, CASING_ALPHA)
+          for (run in runs) solid(g, run, COBBLED_CASING_PIXELS)
+          g.color = WaterInk.rgba(palette.paper, 1.0)
+          for (run in runs) solid(g, run, COBBLED_INNER_PIXELS)
+        }
+
+        RoadClass.DIRT_ROAD -> {
+          g.color = WaterInk.rgba(palette.roadInk, ROAD_ALPHA)
+          way(g, view, way, claimed, ROAD_PIXELS, ROAD_DASH, BasicStroke.CAP_BUTT)
+        }
+
+        // Round caps on a dash shorter than the pen is wide: a row of dots, which no other line on the map is.
+        RoadClass.TRAIL -> {
+          g.color = WaterInk.rgba(palette.roadInk, ROAD_ALPHA)
+          way(g, view, way, claimed, TRAIL_PIXELS, TRAIL_DASH, BasicStroke.CAP_ROUND)
+        }
       }
-
-      // A track is drawn with shorter dashes as well as a thinner pen, so the three classes stay apart even
-      // where the pen widths round to the same number of pixels.
-      val dash = if (halfWidth <= TRACK_MAX_HALF_WIDTH) TRACK_DASH else ROAD_DASH
-
-      g.color = WaterInk.rgba(palette.roadInk, ROAD_ALPHA)
-      way(g, view, way, claimed, weight, dash)
     }
+  }
+
+  /** The runs of a way no heavier way has claimed, as screen paths. [way]'s claiming without its dashes. */
+  private fun claimedRuns(view: Viewport, feature: PolylineFeature, claimed: MutableSet<Long>): List<Path2D.Double> {
+    val cell = max(view.metresPerPixel * CLAIM_PIXELS, MIN_CLAIM_METRES)
+    val points = feature.centerline.points
+    val out = ArrayList<Path2D.Double>()
+    var run: Path2D.Double? = null
+
+    for (i in 0 until points.size - 1) {
+      val from = points[i]
+      val to = points[i + 1]
+
+      if (claim(claimed, cell, from.x, from.y, to.x, to.y)) {
+        if (run == null) {
+          run = Path2D.Double()
+          run.moveTo(view.screenX(from.x), view.screenY(from.y))
+          out.add(run)
+        }
+        run.lineTo(view.screenX(to.x), view.screenY(to.y))
+      } else {
+        run = null
+      }
+    }
+
+    return out
+  }
+
+  private fun solid(g: Graphics2D, run: Path2D.Double, weight: Float) {
+    g.stroke = BasicStroke(weight, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND)
+    g.draw(run)
   }
 
   /**
@@ -119,7 +162,8 @@ object RouteInk {
     feature: PolylineFeature,
     claimed: MutableSet<Long>,
     weight: Float,
-    dash: FloatArray
+    dash: FloatArray,
+    cap: Int
   ) {
     val cell = max(view.metresPerPixel * CLAIM_PIXELS, MIN_CLAIM_METRES)
     val period = (dash[0] + dash[1]).toDouble()
@@ -141,20 +185,20 @@ object RouteInk {
         }
         run.lineTo(view.screenX(to.x), view.screenY(to.y))
       } else {
-        stroke(g, run, weight, dash, phase)
+        stroke(g, run, weight, dash, phase, cap)
         run = null
       }
 
       travelled += hypot(to.x - from.x, to.y - from.y) / view.metresPerPixel
     }
 
-    stroke(g, run, weight, dash, phase)
+    stroke(g, run, weight, dash, phase, cap)
   }
 
-  private fun stroke(g: Graphics2D, run: Path2D.Double?, weight: Float, dash: FloatArray, phase: Double) {
+  private fun stroke(g: Graphics2D, run: Path2D.Double?, weight: Float, dash: FloatArray, phase: Double, cap: Int) {
     if (run == null) return
 
-    g.stroke = BasicStroke(weight, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 1.0f, dash, phase.toFloat())
+    g.stroke = BasicStroke(weight, cap, BasicStroke.JOIN_ROUND, 1.0f, dash, phase.toFloat())
     g.draw(run)
   }
 
@@ -222,14 +266,6 @@ object RouteInk {
     g.draw(pathOf(view, feature))
   }
 
-  private fun halfWidthOf(feature: PolylineFeature): Double {
-    val channel = feature.stations.channel(Profiles.CHANNEL_HALF_WIDTH)
-    if (channel < 0) return 0.0
-
-    // Midway along, so a road that widens as it nears a town is classified by what it mostly is.
-    return feature.stations.sample(channel, 0.5)
-  }
-
   private fun pathOf(view: Viewport, feature: PolylineFeature): Path2D.Double {
     val path = Path2D.Double()
     val points = feature.centerline.points
@@ -257,17 +293,22 @@ object RouteInk {
   /** How far apart a segment is sampled when claiming, in cells. Under one, or it claims a dotted line. */
   private const val CLAIM_STEP = 0.5
 
-  /** Between the generator's 1.6 and 3.0 metre half-widths, and between 3.0 and 11.0. */
-  private const val TRACK_MAX_HALF_WIDTH = 2.2
-  private const val ROAD_MAX_HALF_WIDTH = 6.5
-
-  private const val TRACK_PIXELS = 0.7f
+  /** A dirt road: the dashed line every class used to get. */
   private const val ROAD_PIXELS = 1.0f
-  private const val HIGHWAY_PIXELS = 1.5f
   private const val ROAD_ALPHA = 0.8
-
-  private val TRACK_DASH = floatArrayOf(1.6f, 2.0f)
   private val ROAD_DASH = floatArrayOf(3.4f, 2.2f)
+
+  /**
+   * A trail: dots, from a dash far shorter than the round cap the pen puts on each end. A full pixel wide
+   * rather than the 0.7 a track used to get, because a dot that thin antialiases away to nothing.
+   */
+  private const val TRAIL_PIXELS = 1.0f
+  private val TRAIL_DASH = floatArrayOf(0.2f, 2.4f)
+
+  /** A cobbled road: the dark casing, and the paper stroke inside it that makes it a double line. */
+  private const val COBBLED_CASING_PIXELS = 2.4f
+  private const val COBBLED_INNER_PIXELS = 1.0f
+  private const val CASING_ALPHA = 0.9
 
   private const val BRIDGE_PIXELS = 2.6f
   private const val BRIDGE_ALPHA = 0.9

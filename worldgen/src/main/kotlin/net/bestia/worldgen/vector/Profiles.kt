@@ -31,6 +31,9 @@ object Profiles {
   const val CHANNEL_SHOULDER = "shoulder"
   const val CHANNEL_RIDGE_HEIGHT = "ridge_height"
 
+  /** A road's `civ.RoadClass` ordinal, the same at every station. Read it with `RoadClass.of`. */
+  const val CHANNEL_ROAD_CLASS = "road_class"
+
   /**
    * How a river channel departs from a perfect extruded parabola. See [riverChannel].
    *

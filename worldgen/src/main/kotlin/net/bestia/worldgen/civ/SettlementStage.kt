@@ -252,9 +252,13 @@ class SettlementStage(
   override val id = ID
   // 2: roads are routed on grade rather than on the isotropic cost field alone, are stamped against the
   // surface the chunk tier actually builds, and are the width of a road rather than of a footpath.
-  override val version = 2
+  // 3: roads carry their `RoadClass`, meander off the routed line, and a village spur ends on the trunk it
+  // joins rather than at a cell centre beside it.
+  override val version = 3
 
-  override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
+  override val paramsVersion get() = GenRng.hash(
+    params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest(), RoadClass.catalogueDigest()
+  )
   override val dependencies = listOf(
     ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID,
     ResourceStage.ID, HabitabilityStage.ID
@@ -718,6 +722,7 @@ class SettlementStage(
     if (routes.isEmpty()) return emptyList()
 
     val traffic = simulateTraffic(nodes, routes)
+    val classes = classesOf(routes.filter { (pair, route) -> pair !in lanes && route.length >= 3 }, traffic)
     val out = ArrayList<VectorFeature>()
 
     for ((pair, lane) in lanes) {
@@ -731,6 +736,9 @@ class SettlementStage(
 
     // Cells the trunk network occupies, so a village's spur can aim at the nearest way rather than at a town.
     val onTheWay = HashSet<Int>()
+    // The line each trunk finally took, so a spur can end *on* one: the cells above are only where to aim.
+    val trunks = ArrayList<Polyline>()
+    val wet = wetness(region, submerged, ground, ctx.config.seaLevel)
 
     for ((pair, route) in routes) {
       if (pair in lanes) continue
@@ -740,20 +748,23 @@ class SettlementStage(
 
       val points = route.cells.map { centreOf(region, it, metres) }
       val raw = runCatching { Polyline(points) }.getOrNull() ?: continue
-      // Corner cutting for the same reason rivers need it: an eight-direction cell path reads as a canal.
-      val centerline = raw.chaikin(ROAD_SMOOTHING).resample(params.roadSpacing)
 
-      val tier = roadTierOf(traffic[pair] ?: 0.0)
+      val roadClass = classes.getValue(pair)
+      val id = nextId()
+      // Corner cutting for the same reason rivers need it: an eight-direction cell path reads as a canal. Then
+      // the meander, before the crossings are looked for, so the gaps and decks are cut into the line as built.
+      val centerline = meandered(raw.chaikin(ROAD_SMOOTHING).resample(params.roadSpacing), roadClass, id, sites, wet)
       val crossings = riverCrossings(centerline, rivers)
 
-      out.add(roadFeature(nextId(), centerline, tier, ground, crossings))
+      trunks.add(centerline)
+      out.add(roadFeature(id, centerline, roadClass, ground, crossings))
       for (crossing in crossings) {
         if (!crossing.bridgeable) continue
-        out.add(bridgeMarker(nextId(), centerline, crossing, tier, ground))
+        out.add(bridgeMarker(nextId(), centerline, crossing, roadClass, ground))
       }
     }
 
-    out.addAll(buildTracks(region, sites, onTheWay, finder, submerged, rivers, ground, nextId))
+    out.addAll(buildTracks(region, sites, onTheWay, trunks, finder, submerged, wet, rivers, ground, nextId))
 
     return out
   }
@@ -765,21 +776,34 @@ class SettlementStage(
    * lane did and far the cheaper search - a village sits close to the way that serves it, so each of these is
    * a short A* beside the trunk routes' long ones.
    *
-   * Emitted at [RoadTier.TRACK] and through the same [roadFeature] as a highway, so a track is a way the
-   * chunk tier stamps, the nav graph routes over and `TownStage` can lay a village along. A village whose
-   * track cannot be found is left unconnected rather than given a straight line through a mountain.
+   * Emitted as a [RoadClass.TRAIL] and through the same [roadFeature] as a cobbled road, so a trail is a way
+   * the chunk tier stamps, the nav graph routes over and `TownStage` can lay a village along. A village whose
+   * trail cannot be found is left unconnected rather than given a straight line through a mountain.
+   *
+   * ### It ends on the trunk, not beside it
+   *
+   * The search ends at a trunk *cell*, and the trunk does not pass through that cell's centre: it was cut
+   * round its corners and has since meandered. A spur that ran to the cell centre stopped up to a couple of
+   * hundred metres short of the road it was meant to join, in open country. So the last cell is dropped and the
+   * spur runs from the cell before it to the nearest point of the trunk as built - a T-junction on the road.
+   *
+   * A village too close for a search of three cells used to get no spur at all, which left `TownStage` to
+   * invent an unconnected lane for it. It now gets a short straight one to the same nearest point, unless the
+   * trunk already passes close enough for the village to sit on it.
    */
   private fun buildTracks(
     region: CellRegion,
     sites: List<Site>,
     onTheWay: Set<Int>,
+    trunks: List<Polyline>,
     finder: RouteFinder,
     submerged: BooleanArray,
+    wet: (Vec2d) -> Boolean,
     rivers: List<PolylineFeature>,
     ground: BaseHeightField,
     nextId: () -> FeatureId
   ): List<VectorFeature> {
-    if (onTheWay.isEmpty()) return emptyList()
+    if (onTheWay.isEmpty() || trunks.isEmpty()) return emptyList()
 
     val metres = region.resolution.metresPerCell
     val offNetwork = sites.filter { it.tier == SettlementTier.VILLAGE || it.tier == SettlementTier.HAMLET }
@@ -790,23 +814,183 @@ class SettlementStage(
     }
 
     val out = ArrayList<VectorFeature>()
-    for (route in found) {
-      if (route == null || route.length < 3) continue
+    for ((i, route) in found.withIndex()) {
+      if (route == null) continue
       if (route.cells.any { submerged[it] }) continue
 
-      val points = route.cells.map { centreOf(region, it, metres) }
+      val village = offNetwork[i]
+      val points = spurPoints(region, village, route, trunks, wet) ?: continue
       val raw = runCatching { Polyline(points) }.getOrNull() ?: continue
-      val centerline = raw.chaikin(ROAD_SMOOTHING).resample(params.roadSpacing)
 
+      val id = nextId()
+      val centerline = meandered(raw.chaikin(ROAD_SMOOTHING).resample(params.roadSpacing), RoadClass.TRAIL, id, sites, wet)
       val crossings = riverCrossings(centerline, rivers)
-      out.add(roadFeature(nextId(), centerline, RoadTier.TRACK, ground, crossings))
+      out.add(roadFeature(id, centerline, RoadClass.TRAIL, ground, crossings))
       for (crossing in crossings) {
         if (!crossing.bridgeable) continue
-        out.add(bridgeMarker(nextId(), centerline, crossing, RoadTier.TRACK, ground))
+        out.add(bridgeMarker(nextId(), centerline, crossing, RoadClass.TRAIL, ground))
       }
     }
 
     return out
+  }
+
+  /**
+   * A spur's points, from the village to the nearest point of the trunk it reached; null when it needs none.
+   *
+   * The route runs village first and ends on the first trunk cell it found (`routeToAny`).
+   */
+  private fun spurPoints(
+    region: CellRegion,
+    village: Site,
+    route: RouteFinder.Route,
+    trunks: List<Polyline>,
+    wet: (Vec2d) -> Boolean
+  ): List<Vec2d>? {
+    val metres = region.resolution.metresPerCell
+    val body = route.cells.dropLast(1).map { centreOf(region, it, metres) }.ifEmpty { listOf(village.position) }
+    val end = nearestOn(trunks, body.last())
+
+    if (body.size == 1) {
+      // Too close to search: the trunk is within a cell or two. Already on it, or a short straight lane to it.
+      val reach = village.position.distanceTo(end)
+      if (reach < village.tier.footprintRadius * ON_THE_ROAD_SHARE) return null
+      if (reach > metres * DIRECT_SPUR_CELLS) return null
+
+      val steps = (reach / params.roadSpacing).toInt() + 1
+      if ((0..steps).any { wet(village.position.lerp(end, it.toDouble() / steps)) }) return null
+
+      return listOf(village.position, end)
+    }
+
+    return body + end
+  }
+
+  /** The point nearest [from] on any of [lines]. */
+  private fun nearestOn(lines: List<Polyline>, from: Vec2d): Vec2d {
+    var best = lines[0].project(from)
+    for (k in 1 until lines.size) {
+      val line = lines[k]
+      if (!line.bbox.expanded(best.distance).contains(from.x, from.y)) continue
+      val candidate = line.project(from)
+      if (candidate.distance < best.distance) best = candidate
+    }
+    return best.point
+  }
+
+  /**
+   * Whether a point is no place for a road: below the sea, or in a cell the routing already called submerged.
+   *
+   * The cell test catches lakes, whose surface is above sea level; the height test catches the coast at a finer
+   * grain than a kilometre cell can.
+   */
+  private fun wetness(
+    region: CellRegion,
+    submerged: BooleanArray,
+    ground: BaseHeightField,
+    seaLevel: Double
+  ): (Vec2d) -> Boolean {
+    val metres = region.resolution.metresPerCell
+    return { p ->
+      val cell = cellOf(region, p, metres)
+      (cell != null && submerged[cell]) || sampleElevation(ground, p) < seaLevel + DRY_MARGIN
+    }
+  }
+
+  /**
+   * The routed line, swung off course the way a road that was walked into existence is.
+   *
+   * ### Why the routed line is not good enough
+   *
+   * The router works on kilometre cells in eight directions, and two rounds of corner cutting only round the
+   * corners: what is left is kilometres of dead straight road at 0, 45 and 90 degrees, which is the tell of a
+   * survey rather than of a cart track. A medieval way went round the boulder, the boggy patch and the old
+   * boundary oak, and the trace of all that is a line that swings gently from side to side and never runs
+   * straight for long.
+   *
+   * ### What it is
+   *
+   * A lateral offset along the line's normal: one long swing ([RoadClass.meander]) plus a shorter one on top
+   * ([RoadClass.wobble]), both smooth noise along the arc length seeded from the feature id - so two roads never
+   * swing alike, and the shape is a pure function of the road. Large for a trail and almost nothing for a cobbled
+   * road, which somebody paid to lay straight.
+   *
+   * The finer wiggle a player sees underfoot is not here: it is the tread wandering inside the flattened bed,
+   * drawn per column by `voxel/RoadSurfaces`, which costs no vertices. The wavelengths here are long enough that
+   * the sixty metre stations follow them.
+   *
+   * ### Where it holds back
+   *
+   * - **To nothing at both ends.** A trunk ends at a town's centre and a spur on its trunk, and both of those
+   *   points are what something else joins on to.
+   * - **To [IN_TOWN_SHARE] inside a settlement's footprint**, so a high street curves rather than wobbles.
+   *   `TownStage` lays the street along this very line, so nothing has to be kept straight for it to follow.
+   * - **Off the water.** A swing that would put a vertex below the sea or into a lake is halved, and dropped if
+   *   that is still wet, so a road along a shore cannot be pushed into it.
+   */
+  private fun meandered(
+    line: Polyline,
+    roadClass: RoadClass,
+    id: FeatureId,
+    sites: List<Site>,
+    wet: (Vec2d) -> Boolean
+  ): Polyline {
+    if (roadClass.meander <= 0.0 && roadClass.wobble <= 0.0) return line
+
+    val swingSeed = GenRng.mix64(id.value xor MEANDER_SALT)
+    val wobbleSeed = GenRng.mix64(swingSeed)
+    val points = line.points
+    val length = line.length
+
+    val out = ArrayList<Vec2d>(points.size)
+    for (i in points.indices) {
+      val p = points[i]
+      val s = line.arcLengthAt(i)
+
+      val ends = PolylineFeature.smoothstep((min(s, length - s) / MEANDER_END_TAPER).coerceIn(0.0, 1.0))
+      val share = ends * settledShare(p, sites)
+      if (share <= 0.0) {
+        out.add(p)
+        continue
+      }
+
+      val swing = roadClass.meander * Noise.gradient2d(swingSeed, s / roadClass.meanderWavelength, LATTICE_OFFSET) +
+          roadClass.wobble * Noise.gradient2d(wobbleSeed, s / roadClass.wobbleWavelength, LATTICE_OFFSET)
+
+      // The normal of the chord through both neighbours rather than of either segment, so a vertex at a corner
+      // is pushed along the bisector instead of along whichever leg it happened to be indexed with.
+      val before = points[max(0, i - 1)]
+      val after = points[min(points.size - 1, i + 1)]
+      val normal = (after - before).normalized().perpendicular()
+
+      val full = p + normal * (swing * share)
+      val half = p + normal * (swing * share * 0.5)
+      out.add(
+        when {
+          !wet(full) -> full
+          !wet(half) -> half
+          else -> p
+        }
+      )
+    }
+
+    return runCatching { Polyline(out) }.getOrDefault(line)
+  }
+
+  /**
+   * How much of the meander a point keeps: all of it in open country, [IN_TOWN_SHARE] inside a settlement's
+   * footprint, and a smooth ramp over [TOWN_FADE] metres between the two.
+   */
+  private fun settledShare(p: Vec2d, sites: List<Site>): Double {
+    var share = 1.0
+    for (site in sites) {
+      val beyond = p.distanceTo(site.position) - site.tier.footprintRadius
+      if (beyond >= TOWN_FADE) continue
+
+      val t = PolylineFeature.smoothstep((beyond / TOWN_FADE).coerceIn(0.0, 1.0))
+      share = min(share, IN_TOWN_SHARE + (1.0 - IN_TOWN_SHARE) * t)
+    }
+    return share
   }
 
   // --- Sea lanes -----------------------------------------------------------------------------------
@@ -1178,39 +1362,41 @@ class SettlementStage(
     return traffic
   }
 
-  private fun roadTierOf(traffic: Double): RoadTier = when {
-    traffic >= HIGHWAY_TRAFFIC -> RoadTier.HIGHWAY
-    traffic >= ROAD_TRAFFIC -> RoadTier.ROAD
-    else -> RoadTier.TRACK
-  }
-
   /**
-   * Road surface class: width, and how much earthwork it justifies.
+   * The class each trunk earns: the busiest [COBBLED_SHARE] of the network's length is cobbled, and every other
+   * trunk is a dirt road. Trails are the village spurs, which [buildTracks] lays on its own.
    *
-   * ### Why these are wider than a cart is
+   * ### By rank, not by a traffic threshold
    *
-   * A medieval road is not a carriageway with kerbs; it is a right of way. The Statute of Winchester's answer
-   * to highway robbery was to clear two hundred feet either side of the king's roads, and what a traveller
-   * saw was a worn strip wide enough for carts to pass, with the beaten ground spreading wherever the middle
-   * had turned to mud. The first numbers here - a 3.2 m track, a 6 m road - were the *vehicle's* width rather
-   * than the way's, and at a metre per voxel that draws a footpath through the trees.
+   * This was two thresholds on `simulateTraffic`'s number, 4 and 30, and measured on the civilisation test world
+   * they made sixteen of eighteen trunks a track and none a highway - the gravity model divides by a million and
+   * by the distance, so its scale moves with population and with how far apart the cities stand, and a fixed
+   * threshold means something different in every world. Ranking by traffic and cutting at a share of the length
+   * is the argument `StreetTraffic` makes for a town's streets, made for a country's roads: the same fraction of
+   * the network is paved wherever it is, and it is always the fraction that carries the most.
    *
-   * So the carriageway is 10 m, 13 m and 16 m across by tier, and [roadFeature] varies each of them along its
-   * length rather than extruding one number end to end.
-   *
-   * ### And why the shoulder grew with them
-   *
-   * The shoulder is the verge: the band over which the profile eases from the running surface back to
-   * whatever the ground was doing. Its width is what sets the batter of every cut and fill the road makes,
-   * because `Profiles.road` smoothsteps across it - so the steepest slope it can produce is one and a half
-   * times the height it has to make up, divided by this. Three metres of it was why a mismatch of any size at
-   * all arrived as a wall. Ten to eighteen metres turns the same mismatch into a bank you can walk up, and it
-   * is what a road cut into a hillside has either side of it in any case.
+   * And no trunk is a trail. A way between two towns is a road somebody keeps up, however little it carries; a
+   * trail is the lane out to a village.
    */
-  private enum class RoadTier(val halfWidth: Double, val shoulder: Double) {
-    TRACK(5.0, 10.0),
-    ROAD(6.5, 14.0),
-    HIGHWAY(8.0, 18.0)
+  private fun classesOf(
+    trunks: Map<Pair<Int, Int>, RouteFinder.Route>,
+    traffic: Map<Pair<Int, Int>, Double>
+  ): Map<Pair<Int, Int>, RoadClass> {
+    val total = trunks.values.sumOf { it.length }.toDouble()
+    val out = HashMap<Pair<Int, Int>, RoadClass>()
+    var walked = 0.0
+
+    // Ties broken by the pair, so the classes do not depend on map iteration order.
+    for ((pair, route) in trunks.entries.sortedWith(
+      compareByDescending<Map.Entry<Pair<Int, Int>, RouteFinder.Route>> { traffic[it.key] ?: 0.0 }
+        .thenBy { it.key.first }
+        .thenBy { it.key.second }
+    )) {
+      out[pair] = if (walked < total * COBBLED_SHARE) RoadClass.COBBLED else RoadClass.DIRT_ROAD
+      walked += route.length
+    }
+
+    return out
   }
 
   /**
@@ -1282,7 +1468,7 @@ class SettlementStage(
   private fun roadFeature(
     id: FeatureId,
     centerline: Polyline,
-    tier: RoadTier,
+    roadClass: RoadClass,
     ground: BaseHeightField,
     crossings: List<Crossing>
   ): PolylineFeature {
@@ -1325,12 +1511,13 @@ class SettlementStage(
       centerline = centerline,
       stationSpacing = params.roadSpacing,
       surfaceElevation = { s -> sampleElevation(ground, centerline.pointAt(s)) },
-      halfWidth = { s -> if (inGap(s)) 0.0 else tier.halfWidth * widthShare(s) },
-      shoulder = { s -> if (inGap(s)) 0.0 else tier.shoulder * widthShare(s) },
-      endTaper = tier.shoulder * 2.0,
+      halfWidth = { s -> if (inGap(s)) 0.0 else roadClass.halfWidth * widthShare(s) },
+      shoulder = { s -> if (inGap(s)) 0.0 else roadClass.shoulder * widthShare(s) },
+      endTaper = roadClass.shoulder * 2.0,
       // The caller already resampled, and the crossings above were found on *that* line. Letting the
       // feature resample again would give it a centerline the crossings were not measured against.
-      preResampled = true
+      preResampled = true,
+      roadClass = roadClass.ordinal
     )
   }
 
@@ -1338,7 +1525,7 @@ class SettlementStage(
     id: FeatureId,
     road: Polyline,
     crossing: Crossing,
-    tier: RoadTier,
+    roadClass: RoadClass,
     ground: BaseHeightField
   ): PointMarker {
     val bearing = road.tangentAt(crossing.roadArcLength)
@@ -1355,7 +1542,7 @@ class SettlementStage(
         .channel(BridgeChannels.SPAN) {
           max(crossing.channelWidth + BRIDGE_GAP * 2.0, params.roadSpacing * MIN_GAP_STATIONS * 2.0)
         }
-        .channel(BridgeChannels.HALF_WIDTH) { tier.halfWidth }
+        .channel(BridgeChannels.HALF_WIDTH) { roadClass.halfWidth }
         // Stored rather than recomputed, so that a chunk laying the deck needs only the marker.
         .channel(BridgeChannels.BEARING_X) { bearing.x }
         .channel(BridgeChannels.BEARING_Y) { bearing.y }
@@ -1519,8 +1706,37 @@ class SettlementStage(
     /** Relief across a saddle at which it counts as a fully fledged pass, in metres. */
     private const val PASS_RELIEF = 320.0
 
-    private const val ROAD_TRAFFIC = 4.0
-    private const val HIGHWAY_TRAFFIC = 30.0
+    /**
+     * Share of the trunk network's length, busiest first, that is cobbled. See `classesOf`.
+     *
+     * A fifth: enough that the main ways between the cities are paved, few enough that paving still means the
+     * road everybody uses rather than the road there happens to be.
+     */
+    private const val COBBLED_SHARE = 0.2
+
+    /** Salted into the feature id for the meander, so it does not swing in step with the width wobble. */
+    private const val MEANDER_SALT = 0x6d65616e646572L
+
+    /** Metres over which the meander fades out at each end of a road. See `meandered`. */
+    private const val MEANDER_END_TAPER = 250.0
+
+    /** Share of the meander a road keeps inside a settlement's footprint, so a high street curves gently. */
+    private const val IN_TOWN_SHARE = 0.4
+
+    /** Metres beyond a settlement's footprint over which the meander comes back to full. */
+    private const val TOWN_FADE = 300.0
+
+    /** Metres above the sea a meandered vertex must stay. A road on the strand would be awash at every tide. */
+    private const val DRY_MARGIN = 0.5
+
+    /**
+     * Share of a village's footprint radius within which a trunk counts as running through it, so it needs no
+     * spur. Half, because that is how close `RoadsideVillage` looks for a road to lay the village along.
+     */
+    private const val ON_THE_ROAD_SHARE = 0.5
+
+    /** Longest straight spur, in cells, for a village too close to the trunk for a search. */
+    private const val DIRECT_SPUR_CELLS = 3.0
 
     /** East, north, north-east, north-west: two axes and two diagonals. */
     private val PASS_DX = intArrayOf(1, 0, 1, 1)

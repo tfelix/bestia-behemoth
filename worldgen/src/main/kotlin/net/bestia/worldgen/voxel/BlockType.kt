@@ -340,7 +340,18 @@ enum class BlockType(
    */
   GEM_DIAMOND_SMALL(60, solid = true),
   GEM_DIAMOND_MEDIUM(61, solid = true),
-  GEM_DIAMOND_RICH(62, solid = true);
+  GEM_DIAMOND_RICH(62, solid = true),
+
+  /**
+   * Earth beaten hard by feet, hooves and wheels: the tread of a trail or a dirt road, and the verge of a
+   * cobbled one. Laid by `RoadSurfaces`.
+   *
+   * Not [DIRT], which is what it would have been for free, because grassland already wears through to dirt in
+   * random patches (`SurfaceSampler.isBarePatchAt`) - so a dirt trail read as one more bare patch that happened
+   * to be long. A path has its own grain, and the client draws this on the slot the ground marks of a player's
+   * own wear already use. Appended at the end because ids are permanent; it belongs with the soils by kind.
+   */
+  PACKED_EARTH(63, solid = true);
 
   companion object {
     private val BY_ID = arrayOfNulls<BlockType>(entries.maxOf { it.id } + 1).also { table ->

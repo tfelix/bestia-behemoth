@@ -339,7 +339,9 @@ class TownStage(
   // 13: streets are grown by a Parish-Muller expansion rather than a random walk - see `StreetPlanner`.
   // 14: the surveyed cross streets are gone - the expansion closes its own cycles and they cost plots.
   // 15: nothing stands, and nothing is sown, in the sea or a pond - see `Shoreline`.
-  override val version = 15
+  // 16: a town's high streets are laid along the roads into it, and no building stands on a road - see
+  // `StreetPlanner.roadStreets` and `WorldGround.Roadside`.
+  override val version = 16
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**
@@ -470,8 +472,13 @@ class TownStage(
       ),
       groundAt = { grading.groundAt(it) },
       buildable = { world.buildable(it) },
-      approaches = approaches
+      approaches = approaches,
+      // A village's spine already is its road, and it lays nothing else along one.
+      roads = if (village == null) world.roadsNear(town.position, builtRadius) else emptyList()
     )
+
+    // Every road that comes near, village or town, for the last word on where a building may not stand.
+    val roadside = world.roadsideOf(town.position, builtRadius + params.lotDepth * MAX_BLOCK_PLOT * 2.0)
 
     // A patched core, for the settlements big enough to have quarters. Below `TOWN` a settlement is one to three
     // patches across, so a partition of it is a partition of nothing - and the grown streets it already had are
@@ -612,12 +619,13 @@ class TownStage(
       // and not a running count - renumbering here would change every building in the town.
       val building = zoning.buildingFor(lots[index], functions[index], index)
       if (!standsLevel(building, grading)) continue
+      if (roadside.blocks(building)) continue
       placed.add(building)
 
       // The barn across the yard. Outside the limit because that counts the households a settlement houses and
       // a barn is not one, and after the house because a farmstead with no farmhouse is a shed in a field.
       zoning.outbuildingFor(lots[index], functions[index], index)
-        ?.takeIf { standsLevel(it, grading) }
+        ?.takeIf { standsLevel(it, grading) && !roadside.blocks(it) }
         ?.let { outbuildings.add(it) }
     }
     placed.addAll(outbuildings)
@@ -1928,6 +1936,46 @@ internal class WorldGround(
   fun roadsNear(at: Vec2d, reach: Double): List<Polyline> = roads
     .filter { it.bbox.expanded(reach).contains(at.x, at.y) && it.centerline.project(at).distance <= reach }
     .map { it.centerline }
+
+  /** The roads within [reach] of a settlement, as a test for where a building may not stand. See [Roadside]. */
+  fun roadsideOf(at: Vec2d, reach: Double): Roadside = Roadside(
+    roads.filter { it.bbox.expanded(reach).contains(at.x, at.y) && it.centerline.project(at).distance <= reach },
+    params.streets.halfWidthOfRank(0)
+  )
+
+  /**
+   * Whether a building would stand on a road.
+   *
+   * The street graph keeps plots off every street, and since roads are laid as high streets that covers most of
+   * every road through a town. Not all of it: a road street is dropped where it crosses unbuildable ground, a
+   * patch-core block is cut from a Voronoi cell that knows only its own edges, and a village's lanes do not
+   * follow every road that passes. Each of those left ground on the road that nothing reserved, and a house was
+   * built on it - the road ran into the settlement and ended at somebody's wall.
+   *
+   * So this is the last test a building passes. Its footprint is sampled on a three-by-three grid, and any
+   * sample within [keep] of a road's line refuses it. [keep] is a high street's half-width rather than the road's
+   * flattened bed, because a plot fronting the street is set back from *that*, and the bed is a right of way that
+   * a frontage may well stand on the edge of.
+   */
+  internal class Roadside(private val near: List<PolylineFeature>, private val keep: Double) {
+
+    fun blocks(building: Building): Boolean {
+      if (near.isEmpty()) return false
+
+      val along = building.bearing * building.halfLength
+      val across = building.bearing.perpendicular() * building.halfWidth
+      for (i in -1..1) {
+        for (j in -1..1) {
+          val at = building.centre + along * i.toDouble() + across * j.toDouble()
+          for (road in near) {
+            if (!road.bbox.contains(at.x, at.y)) continue
+            if (road.centerline.project(at).distance < keep) return true
+          }
+        }
+      }
+      return false
+    }
+  }
 
   fun channelsNear(at: Vec2d, reach: Double): List<Polyline> = rivers
     .filter { it.bbox.expanded(reach).contains(at.x, at.y) && it.centerline.project(at).distance <= reach }

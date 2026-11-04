@@ -5,6 +5,7 @@ import net.bestia.worldgen.bio.BiomeStage
 import net.bestia.worldgen.civ.BuildingChannels
 import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.civ.Culture
+import net.bestia.worldgen.civ.RoadClass
 import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.civ.SettlementStage
 import net.bestia.worldgen.civ.SettlementTier
@@ -38,7 +39,6 @@ import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.FootprintFeature
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.PolylineFeature
-import net.bestia.worldgen.vector.Profiles
 import net.bestia.worldgen.vector.StationTable
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.vector.VectorFeature
@@ -188,7 +188,9 @@ class EconomyStage(
 ) : Stage {
 
   override val id = ID
-  override val version = 1
+  // 2: road traffic is read from the stored `RoadClass` instead of guessed from the width, which had counted
+  // every road in the world as a highway.
+  override val version = 2
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest(), BusinessCatalogue.digest())
   override val dependencies = listOf(
@@ -623,44 +625,26 @@ class EconomyStage(
 }
 
 /**
- * Road traffic, inferred from the width the settlement stage gave the road.
+ * Road traffic, as a weight per [RoadClass].
  *
  * The settlement stage simulates traffic with a gravity model and then *discards the number*, keeping only
- * the tier it chose - a track, a road or a highway. So this reads the tier back out of the carriageway
- * half-width, which is exact because there are three discrete values, and maps it to a traffic weight.
+ * the class it chose - a trail, a dirt road or a cobbled road. This maps that class to a traffic weight.
  *
- * It is a proxy and it is worth naming as one: what survives into the vector tier is the tier, not the
- * traffic, so "how busy is this road" is answered to three levels rather than continuously. That is enough
- * for the two questions asked of it - is this a trunk route, and is this settlement a crossroads - and the
- * fix if it stops being enough is a `traffic` station channel on the road, not a better guess here.
+ * It is a proxy and it is worth naming as one: "how busy is this road" is answered to three levels rather than
+ * continuously. That is enough for the two questions asked of it - is this a trunk route, and is this settlement
+ * a crossroads - and the fix if it stops being enough is a `traffic` station channel on the road.
+ *
+ * This used to read the class back out of the carriageway half-width, against thresholds of 4.0 and 2.4 m
+ * that were set when the widths were a cart's rather than a right of way's. Once they were retuned to 5, 6.5
+ * and 8 m every road in the world - every village trail - counted as a highway.
  */
 internal object TrafficProxy {
 
-  fun fromHalfWidth(halfWidth: Double): Double = when {
-    halfWidth >= 4.0 -> HIGHWAY
-    halfWidth >= 2.4 -> ROAD
-    halfWidth > 0.0 -> TRACK
-    else -> 0.0
-  }
-
-  /**
-   * A road's tier, from the widest carriageway anywhere along it.
-   *
-   * The widest, not the first station's, and the difference is not academic. A road's half-width is driven to
-   * *zero* over a bridged river crossing - that gap is what stops the road damming the channel - so a road
-   * that happens to cross a river within a station or two of its start reports a half-width of nothing at
-   * station zero. Reading it there made the largest city in a test world report no road traffic at all, and
-   * therefore no market traders and no bank.
-   */
-  fun of(road: PolylineFeature): Double {
-    val stations = road.stations
-    val channel = runCatching { stations.channel(Profiles.CHANNEL_HALF_WIDTH) }.getOrNull() ?: return 0.0
-
-    var widest = 0.0
-    for (station in 0 until stations.stationCount) {
-      widest = max(widest, stations.valueAt(channel, station))
-    }
-    return fromHalfWidth(widest)
+  fun of(road: PolylineFeature): Double = when (RoadClass.of(road)) {
+    RoadClass.COBBLED -> HIGHWAY
+    RoadClass.DIRT_ROAD -> ROAD
+    RoadClass.TRAIL -> TRACK
+    null -> 0.0
   }
 
   const val TRACK = 1.0

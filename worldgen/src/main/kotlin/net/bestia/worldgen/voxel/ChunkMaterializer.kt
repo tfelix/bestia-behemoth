@@ -188,6 +188,7 @@ class ChunkMaterializer(
     val ore = OreVeins(nearby, config.seed, grades, corruption, aetheriteCorruption)
     val bridges = BridgeDecks(nearby)
     val structures = TownStructures(nearby, config.seed)
+    val roads = RoadSurfaces(nearby, config.chunkBounds(chunk).expanded(ROAD_MARGIN))
     val caves = CaveNetwork(nearby, config.seed, caveParams)
     // One buffer for the whole chunk, refilled per column, and shared by both producers. See StructureSpans.
     val spans = if (structures.isEmpty && caves.isEmpty) null else StructureSpans()
@@ -208,7 +209,7 @@ class ChunkMaterializer(
         fillColumn(
           out, out.columnOffset(localX, localY), baseZ, worldX, worldY,
           heights[localX, localY], gradientAt(heights, localX, localY),
-          rivers, ponds, lava, shores, ore, bridges, structures, caves, spans
+          rivers, ponds, lava, shores, ore, bridges, structures, caves, spans, roads
         )
       }
     }
@@ -270,7 +271,9 @@ class ChunkMaterializer(
     val caves = CaveNetwork(nearby, config.seed, caveParams)
     val bridges = BridgeDecks(nearby)
 
-    val site = trunkSite(chunk, heights, structures, caves, bridges)
+    val roads = RoadSurfaces(nearby, config.chunkBounds(chunk).expanded(ROAD_MARGIN))
+
+    val site = trunkSite(chunk, heights, structures, caves, bridges, roads)
     val into = PropInstances()
 
     // How many trees civilisation leaves, which is a different question from whether one may stand here -
@@ -331,7 +334,8 @@ class ChunkMaterializer(
     heights: ColumnHeights,
     structures: TownStructures,
     caves: CaveNetwork,
-    bridges: BridgeDecks
+    bridges: BridgeDecks,
+    roads: RoadSurfaces
   ) = PropSite { worldX, worldY ->
     val localX = config.voxelOf(worldX).toInt() - chunk.x * config.chunkSize
     val localY = config.voxelOf(worldY).toInt() - chunk.y * config.chunkSize
@@ -342,6 +346,8 @@ class ChunkMaterializer(
     when {
       // A street is ground somebody swept. Checked before anything else because it is one query.
       structures.pavingAt(worldX, worldY) != null -> Double.NaN
+      // Nor in the tread of a road between settlements, which is ground somebody walks every day.
+      roads.surfaceAt(worldX, worldY) != null -> Double.NaN
 
       // Nor through a carriageway. This one is an *entity's* veto and was not in the voxel path's set: a
       // crown was written into air only, so it stopped at the decking and read as a tree beside a bridge.
@@ -510,6 +516,7 @@ class ChunkMaterializer(
     structures: TownStructures,
     caves: CaveNetwork,
     spans: StructureSpans?,
+    roads: RoadSurfaces,
   ) {
     // Three water surfaces, and the highest wins. The raster one is level - sea, or a lake priority-flood
     // found; the river one descends along its channel; the pond one is level too but is not in the raster at
@@ -586,7 +593,12 @@ class ChunkMaterializer(
       (strandSoil?.let { SurfaceCover.blight(it, blighted) } ?: SurfaceCover.soil(biome, blighted)).id.toByte()
     // A paved street replaces the surface cap rather than sitting on it - the paving *is* the ground here.
     // Never under water, because a ford is a ford and a cobbled riverbed is not a thing.
-    val paving = if (spans != null && !flooded) structures.pavingAt(worldX, worldY) else null
+    // Then a road, where no street claims the column: the street is the town's, and a road through a town is
+    // laid as one (`StreetPlanner.roadStreets`), so the cobbles of the high street carry on where the track met them.
+    val paving =
+      if (flooded) null
+      else (if (spans != null) structures.pavingAt(worldX, worldY) else null)
+        ?: roads.surfaceAt(worldX, worldY, RoadSurfaces.puddlesIn(biome, temperature, FREEZING))
 
 
     val height = config.chunkHeight
@@ -967,7 +979,9 @@ class ChunkMaterializer(
     // 6: grassland wears through to dirt in patches (`SurfaceSampler.isBarePatchAt`).
     // 7: a submerged column always keeps a voxel of its water, its bed rounded down to make room (`capTop`), so
     // every shore within half a voxel of its waterline is wet where it was dry.
-    const val VERSION = 7
+    // 8: the roads between settlements are surfaced - packed earth, mud in the ruts, cobbles - by `RoadSurfaces`,
+    // which also keeps trees off them.
+    const val VERSION = 8
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.
@@ -980,6 +994,12 @@ class ChunkMaterializer(
      * `Invariants.checkStructuralMarkersFitTheQueryMargin` is the tripwire.
      */
     const val MARKER_MARGIN = 320.0
+
+    /**
+     * Metres past a chunk's bounds the roads are clipped to. A trunk site may sit a few metres outside the chunk
+     * whose props it belongs to, and it must hear about a road tread there too.
+     */
+    private const val ROAD_MARGIN = 16.0
 
     private val AIR = BlockType.AIR.id.toByte()
     private val WATER = BlockType.WATER.id.toByte()

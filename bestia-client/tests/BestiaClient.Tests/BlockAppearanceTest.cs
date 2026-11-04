@@ -53,7 +53,7 @@ namespace BestiaBehemothClient.Tests
     ///
     /// <para>
     /// The shape of the numbers is the interesting part and worth checking by eye when this fails. Rock carries
-    /// forty-nine of the sixty-two because forty-two of those are ore and gem - both are host rock with
+    /// forty-eight of the sixty-three because forty-two of those are ore and gem - both are host rock with
     /// something in it, and the grade is carried by the tint rather than by a texture of its own.
     /// </para>
     /// </remarks>
@@ -64,7 +64,7 @@ namespace BestiaBehemothClient.Tests
         .GroupBy(b => b.Slot)
         .ToDictionary(g => g.Key, g => g.Count());
 
-      Assert.Equal(62, BlockAppearance.Palette.Count);
+      Assert.Equal(63, BlockAppearance.Palette.Count);
 
       // Water, lava, and masonry - the last worked material with no texture of its own yet. It was five
       // worked materials until the building ones left the palette for props.
@@ -77,21 +77,25 @@ namespace BestiaBehemothClient.Tests
       // still lands here, because MUD's blighted twin is BLIGHTED_DIRT.
       Assert.Equal(2, Count(BlockAppearance.SurfaceSlot.Soil));
 
-      // Five beds, gravel and cobblestone, plus forty-two grades of ore and gem.
-      Assert.Equal(49, Count(BlockAppearance.SurfaceSlot.Rock));
+      // Five beds and gravel, plus forty-two grades of ore and gem. Cobblestone left for a slot of its own.
+      Assert.Equal(48, Count(BlockAppearance.SurfaceSlot.Rock));
+      Assert.Equal(1, Count(BlockAppearance.SurfaceSlot.Cobblestone));
       Assert.Equal(2, Count(BlockAppearance.SurfaceSlot.Snow));
 
       // MUD, and it is the whole reason the slot stopped being Reserved: wet ground is not dry ground in a
       // darker tint. See SurfaceSlot.Wetland.
       Assert.Equal(1, Count(BlockAppearance.SurfaceSlot.Wetland));
 
-      // None, and none for the two below either. A ground layer is not a block and cannot be one - the chunk
-      // wire format can only remove a voxel - so each reaches the shader through the mark texture and no
-      // palette row maps to it. A row appearing here means somebody tried to make a lasting mark a BlockType,
-      // which cannot be delivered.
+      // None, and none for Bloodied either. A ground layer is not a block and cannot be one - the chunk wire
+      // format can only remove a voxel - so each reaches the shader through the mark texture and no palette row
+      // maps to it. A row appearing here means somebody tried to make a lasting mark a BlockType, which cannot
+      // be delivered.
       Assert.Equal(0, Count(BlockAppearance.SurfaceSlot.Scorched));
-      Assert.Equal(0, Count(BlockAppearance.SurfaceSlot.Trodden));
       Assert.Equal(0, Count(BlockAppearance.SurfaceSlot.Bloodied));
+
+      // PACKED_EARTH, and it is not a mark: it is the generated road's tread, which shares the grain of the
+      // paths players wear rather than being one. See SurfaceSlot.Trodden.
+      Assert.Equal(1, Count(BlockAppearance.SurfaceSlot.Trodden));
 
       int Count(BlockAppearance.SurfaceSlot slot) => census.GetValueOrDefault(slot, 0);
     }
@@ -114,11 +118,13 @@ namespace BestiaBehemothClient.Tests
     // Ore and gem are both host rock. The grade lives in the tint, which is the only reason it stays legible.
     [InlineData(21, BlockAppearance.SurfaceSlot.Rock)]      // ORE_COPPER_SMALL, first of the band
     [InlineData(32, BlockAppearance.SurfaceSlot.Rock)]      // ORE_GOLD_RICH
-    [InlineData(62, BlockAppearance.SurfaceSlot.Rock)]      // GEM_DIAMOND_RICH, last of the palette
+    [InlineData(62, BlockAppearance.SurfaceSlot.Rock)]      // GEM_DIAMOND_RICH, last of the gems
     // Gravel is what scree and river beds are made of; loose earth under it would read as mud.
     [InlineData(9, BlockAppearance.SurfaceSlot.Rock)]       // GRAVEL
-    // Cobblestone is worked, but it is worked *stone*.
-    [InlineData(20, BlockAppearance.SurfaceSlot.Rock)]      // COBBLESTONE
+    // Cobblestone is worked stone, but its stones and joints are a grain of their own, not a cliff face's.
+    [InlineData(20, BlockAppearance.SurfaceSlot.Cobblestone)] // COBBLESTONE
+    // A road's tread looks like the paths players wear, because it is one.
+    [InlineData(63, BlockAppearance.SurfaceSlot.Trodden)]   // PACKED_EARTH, last of the palette
     // Masonry waits for a texture of its own rather than share one that fits it badly. The last of the worked
     // materials to be in this position - the other five left the palette when buildings became props.
     [InlineData(19, BlockAppearance.SurfaceSlot.Neutral)]   // MASONRY

@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service
  *
  * [CAP_WEAR] is the whole rule, so rock, gravel, ice, every ore, water, and the cobblestone and masonry a road
  * or a bridge is made of are unwearable **by construction** rather than by an exclusion list somebody has to
- * remember to extend. A paved road not turning into a dirt track is the case that matters: it is already the
- * path, and wearing it would be drawing a desire line along the thing people desired.
+ * remember to extend. A road not wearing - cobbles, or the packed earth of a trail - is the case that matters:
+ * it is already the path, and wearing it would be drawing a desire line along the thing people desired.
  *
  * ### Sand and snow are deliberately not in [CAP_WEAR]
  *
@@ -71,6 +71,8 @@ class SurfaceTrampleableGround(
       BlockType.SAND to 0.8,
       BlockType.BLIGHTED_SAND to 0.8,
       BlockType.DIRT to 0.5,
+      // The hard track itself: it is in here at all only because a heavy beast still dents it.
+      BlockType.PACKED_EARTH to 0.2,
       BlockType.BLIGHTED_DIRT to 0.5,
       BlockType.GRAVEL to 0.3,
       BlockType.GRASS to 0.35,

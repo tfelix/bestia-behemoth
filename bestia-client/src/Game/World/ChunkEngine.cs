@@ -36,6 +36,8 @@ namespace BestiaBehemothClient.Game.World
     //
     // 3: the patch format. A patch carries each voxel's block and occupancy instead of only how much is left, so
     // water can appear where there was air.
-    public const uint Version = 3;
+    //
+    // 4: PACKED_EARTH (63), the tread of a road between settlements.
+    public const uint Version = 4;
   }
 }

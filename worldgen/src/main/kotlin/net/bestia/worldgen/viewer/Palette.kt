@@ -347,6 +347,8 @@ class BlockPalette : Palette {
 
       put(BlockType.MASONRY.id, Colors.rgb(168, 160, 148))
       put(BlockType.COBBLESTONE.id, Colors.rgb(107, 105, 102))
+      // Lighter and warmer than DIRT, so a trail reads against the bare patches beside it.
+      put(BlockType.PACKED_EARTH.id, Colors.rgb(150, 122, 88))
 
       // Ore, one hue per metal and three steps of it. The steps are what a slice through a body has to show:
       // the point of grading ore was that the dense middle is worth more than the rim, and a single colour
