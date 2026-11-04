@@ -11,6 +11,13 @@ extends Node3D
 ## and are drawn opaque, so a depth-tested marker vanishes in a meadow. The
 ## marker only shows when the floor is the first collider under the mouse, so
 ## what it draws over is what has no collision: grass and foliage.
+##
+## It raycasts after everything else has moved this frame - the entities, and the camera that follows one - so
+## the ray leaves from where the camera is drawn, not from where it stood a frame ago.
+
+
+func _ready() -> void:
+	process_priority = 1000
 
 
 func _process(_delta: float) -> void:

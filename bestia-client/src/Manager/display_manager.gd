@@ -13,6 +13,9 @@ func apply() -> void:
 	DisplayServer.window_set_mode(
 		DisplayServer.WINDOW_MODE_FULLSCREEN if settings.fullscreen else DisplayServer.WINDOW_MODE_WINDOWED
 	)
+	# Mailbox rather than plain vsync: it still never tears, but shows the newest finished frame instead of queueing
+	# them, which takes frames of lag off anything that follows the mouse, like the move marker. A driver without it
+	# falls back to plain vsync.
 	DisplayServer.window_set_vsync_mode(
-		DisplayServer.VSYNC_ENABLED if settings.vsync else DisplayServer.VSYNC_DISABLED
+		DisplayServer.VSYNC_MAILBOX if settings.vsync else DisplayServer.VSYNC_DISABLED
 	)
