@@ -32,7 +32,8 @@ class WorldService(
   private val provisioning: WorldProvisioning,
   private val settings: WorldGenConfig,
   private val streamSettings: ChunkStreamConfig,
-  private val events: ApplicationEventPublisher
+  private val events: ApplicationEventPublisher,
+  private val builder: WorldBuilder = WorldBuilder.STANDARD
 ) {
 
   private class Loaded(
@@ -108,7 +109,7 @@ class WorldService(
     val startedAt = System.nanoTime()
     // The *row's* previous victor, never the config's. See `WorldGenConfig.paramsFor`: the tuning has to be a
     // pure function of the stored world, or the boot gate above compares a version nothing generated.
-    var generated = StandardWorld.build(
+    var generated = builder.build(
       config, LoggingStageListener, settings.paramsFor(record.previousWinningFaction)
     )
     val millis = (System.nanoTime() - startedAt) / 1_000_000
@@ -182,7 +183,7 @@ class WorldService(
 
       record = provisioning.recreate()
       onReroll(record)
-      generated = StandardWorld.build(
+      generated = builder.build(
         record.toWorldConfig(), LoggingStageListener, settings.paramsFor(record.previousWinningFaction)
       )
     }
