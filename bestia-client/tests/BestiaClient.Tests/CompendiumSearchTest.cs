@@ -13,9 +13,9 @@ namespace BestiaBehemothClient.Tests
     }
 
     [Fact]
-    public void AnEmptyQueryShowsEverySpeciesOnTheAllTab()
+    public void AnEmptyQueryShowsEverySeenSpeciesOnTheAllTab()
     {
-      Assert.True(CompendiumSearch.Matches(1, "Blob", seen: false, caught: false, CompendiumSearch.TabAll, "  "));
+      Assert.True(CompendiumSearch.Matches(1, "Blob", seen: true, caught: false, CompendiumSearch.TabAll, "  "));
     }
 
     [Theory]
@@ -33,17 +33,18 @@ namespace BestiaBehemothClient.Tests
       Assert.True(CompendiumSearch.Matches(1, "Blob", seen: true, caught: false, CompendiumSearch.TabAll, "bL"));
     }
 
-    [Fact]
-    public void AnUnseenSpeciesDoesNotGiveItsNameAway()
+    [Theory]
+    [InlineData("")]
+    [InlineData("#001")]
+    [InlineData("blob")]
+    public void AnUnseenSpeciesIsNeverListed(string query)
     {
-      Assert.False(CompendiumSearch.Matches(1, "Blob", seen: false, caught: false, CompendiumSearch.TabAll, "blob"));
+      Assert.False(CompendiumSearch.Matches(1, "Blob", seen: false, caught: false, CompendiumSearch.TabAll, query));
     }
 
     [Fact]
-    public void TabsFilterBySeenAndCaught()
+    public void TheCaughtTabShowsOnlyCaughtSpecies()
     {
-      Assert.False(CompendiumSearch.Matches(1, "Blob", seen: false, caught: false, CompendiumSearch.TabSeen, ""));
-      Assert.True(CompendiumSearch.Matches(1, "Blob", seen: true, caught: false, CompendiumSearch.TabSeen, ""));
       Assert.False(CompendiumSearch.Matches(1, "Blob", seen: true, caught: false, CompendiumSearch.TabCaught, ""));
       Assert.True(CompendiumSearch.Matches(1, "Blob", seen: true, caught: true, CompendiumSearch.TabCaught, ""));
     }

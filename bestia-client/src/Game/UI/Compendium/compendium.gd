@@ -1,8 +1,9 @@
 class_name CompendiumPanel
 extends PanelContainer
 
-## The Bestia Compendium: every species number, blacked out until the master or one of its bestias has seen
-## one. The species come from the local [BestiaDB]; the server only says which of them this master knows.
+## The Bestia Compendium: every species the master or one of its bestias has seen, by number. A species never
+## seen is not listed at all. The species come from the local [BestiaDB]; the server only says which of them
+## this master knows.
 ##
 ## Built in code, like [PartyPanel].
 
@@ -12,8 +13,6 @@ signal notice(text: String)
 signal habitat_requested(species_id: int)
 
 const PARCHMENT := Color(0.91, 0.86, 0.74)
-## An unseen species' portrait is modulated to this, which leaves its outline on the parchment.
-const SILHOUETTE := Color(0.0, 0.0, 0.0, 0.85)
 
 const _DETAIL_PORTRAIT_SIZE := 150
 
@@ -34,6 +33,8 @@ var _search: LineEdit
 var _tabs: TabBar
 var _counter: Label
 var _no_match: Label
+## The right-hand column, hidden while no species is selected.
+var _detail: Control
 ## The portrait, and beside it the live model.
 var _pictures: HBoxContainer
 var _model_view: CompendiumModelView
@@ -48,12 +49,11 @@ var _habitat_button: Button
 
 func _ready() -> void:
 	add_theme_stylebox_override("panel", UiStyle.flat(UiStyle.PANEL_BG, 0, 0))
-	custom_minimum_size = Vector2(640, 460)
+	custom_minimum_size = Vector2(640, 580)
 	_species = BestiaDB.get_instance().listed_species()
 	_build()
 	_refresh_rows()
-	if not _species.is_empty():
-		_select(_species[0].bestia_id)
+	_show_detail()
 
 	ConnectionManager.compendium_received.connect(_on_compendium)
 	visibility_changed.connect(_on_visibility_changed)
@@ -79,7 +79,6 @@ func _build() -> void:
 	_tabs = TabBar.new()
 	_tabs.clip_tabs = false
 	_tabs.add_tab(tr("COMPENDIUM_TAB_ALL"))
-	_tabs.add_tab(tr("COMPENDIUM_TAB_SEEN"))
 	_tabs.add_tab(tr("COMPENDIUM_TAB_CAUGHT"))
 	_tabs.tab_changed.connect(func(_tab: int) -> void: _refresh_rows())
 	header.add_child(_tabs)
@@ -105,10 +104,12 @@ func _build() -> void:
 		list.add_child(row)
 		_rows[species.bestia_id] = row
 
-	_no_match = UiStyle.label(tr("COMPENDIUM_NO_MATCH"), 12, UiStyle.MUTED)
+	_no_match = UiStyle.label("", 12, UiStyle.MUTED)
+	_no_match.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	list.add_child(_no_match)
 
-	columns.add_child(_build_detail())
+	_detail = _build_detail()
+	columns.add_child(_detail)
 
 
 func _build_detail() -> Control:
@@ -205,7 +206,18 @@ func _on_compendium(message: CompendiumSMSG) -> void:
 	_has_book = true
 
 	_refresh_rows()
+	var first := _first_listed_id()
+	if not _known.has(_selected_id) and first != 0:
+		_select(first)
 	_show_detail()
+
+
+## The lowest-numbered species this master has seen.
+func _first_listed_id() -> int:
+	for species in _species:
+		if _known.has(species.bestia_id):
+			return species.bestia_id
+	return 0
 
 
 func _announce_new(known: Dictionary[int, CompendiumEntry]) -> void:
@@ -229,11 +241,12 @@ func _refresh_rows() -> void:
 		var caught := seen and entry.Caught
 		var number_label := _searcher.NumberLabel(species.bestia_id)
 
-		row.show_species(species, number_label, seen, caught)
+		row.show_species(species, number_label, caught)
 		row.visible = _searcher.Matches(species.bestia_id, tr(species.name_key), seen, caught, tab, query)
 		any_shown = any_shown or row.visible
 
 	_no_match.visible = not any_shown
+	_no_match.text = tr("COMPENDIUM_EMPTY") if _known.is_empty() else tr("COMPENDIUM_NO_MATCH")
 	_counter.text = tr("COMPENDIUM_COUNT") % [_known.size(), _caught_count(), _species.size()]
 
 
@@ -255,29 +268,19 @@ func _select(species_id: int) -> void:
 
 func _show_detail() -> void:
 	var species := BestiaDB.get_instance().get_bestia(_selected_id)
-	if species == null:
+	var entry: CompendiumEntry = _known.get(_selected_id)
+	_detail.visible = species != null and entry != null
+	if not _detail.visible:
+		_model_view.clear()
 		return
 
-	var entry: CompendiumEntry = _known.get(_selected_id)
 	var number_label := _searcher.NumberLabel(_selected_id)
 	_detail_portrait.texture = species.get_portrait()
 
-	_habitat_button.visible = entry != null
 	_habitat_button.disabled = not _has_chart
 	_habitat_button.tooltip_text = "" if _has_chart else tr("COMPENDIUM_HABITAT_NEEDS_CHART")
 	_habitat_button.set_pressed_no_signal(_habitat_species == _selected_id)
 
-	if entry == null:
-		_model_view.clear()
-		_detail_portrait.modulate = SILHOUETTE
-		_detail_name.text = tr("COMPENDIUM_UNKNOWN")
-		_detail_subtitle.text = number_label
-		_detail_caught.text = ""
-		_detail_habitat.text = ""
-		_detail_description.text = tr("COMPENDIUM_UNSEEN_HINT")
-		return
-
-	_detail_portrait.modulate = Color.WHITE
 	if _model_view.shown_species_id() != _selected_id:
 		_model_view.show_species(species)
 	_detail_name.text = tr(species.name_key)

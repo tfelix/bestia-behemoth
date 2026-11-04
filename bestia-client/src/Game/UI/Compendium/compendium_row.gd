@@ -1,8 +1,7 @@
 class_name CompendiumRow
 extends PanelContainer
 
-## One species in the compendium list: its number, a small portrait, its name and a caught mark. An unseen
-## species keeps its number and shows a silhouette and "???".
+## One seen species in the compendium list: its number, a small portrait, its name and a caught mark.
 
 signal picked(species_id: int)
 
@@ -57,13 +56,11 @@ func _init() -> void:
 
 
 
-func show_species(species: BestiaResource, number_label: String, seen: bool, caught: bool) -> void:
+func show_species(species: BestiaResource, number_label: String, caught: bool) -> void:
 	species_id = species.bestia_id
 	_number.text = number_label
 	_portrait.texture = species.get_portrait()
-	_portrait.modulate = Color.WHITE if seen else CompendiumPanel.SILHOUETTE
-	_name.text = tr(species.name_key) if seen else tr("COMPENDIUM_UNKNOWN")
-	_name.add_theme_color_override("font_color", UiStyle.TEXT if seen else UiStyle.MUTED)
+	_name.text = tr(species.name_key)
 	_caught.visible = caught
 
 

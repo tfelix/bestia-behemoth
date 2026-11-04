@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://Game/UI/Compendium/compendium.gd" id="1_compendium"]
 
 [node name="Compendium" type="PanelContainer"]
-custom_minimum_size = Vector2(600, 440)
-offset_right = 600.0
-offset_bottom = 440.0
+custom_minimum_size = Vector2(640, 580)
+offset_right = 640.0
+offset_bottom = 580.0
 script = ExtResource("1_compendium")
