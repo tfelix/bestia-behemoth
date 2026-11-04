@@ -149,6 +149,19 @@ class ItemContainerTradeReservationTest {
     assertTrue(container.hasItem(sword.id))
   }
 
+  /** The slots are a set, so a loaded container may list the released slot before the pile it belongs in. */
+  @Test
+  fun `a released stack folds into a pile listed after it`() {
+    container.addStackable(apple, 3)
+    container.reserveStackable(apple.id, 3, tradeId)
+    container.addStackable(apple, 5)
+
+    container.releaseAllReservations(tradeId)
+
+    val piles = container.slots.filter { it.template.id == apple.id }
+    assertEquals(listOf(8), piles.map { it.amount }, "one pile, so a later offer of more than 3 finds them all")
+  }
+
   @Test
   fun `releasing one trade leaves another trade's reservations alone`() {
     container.addStackable(apple, 10)
