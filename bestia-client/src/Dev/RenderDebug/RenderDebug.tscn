@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://c4rdbgpanel7qk"]
+[gd_scene format=3 uid="uid://45jpbbdakcsg"]
 
 [ext_resource type="Script" uid="uid://bcr0akrckej61" path="res://Dev/RenderDebug/render_debug.gd" id="1_rdebug"]
 

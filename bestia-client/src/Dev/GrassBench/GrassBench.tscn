@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://Dev/GrassBench/GrassBench.cs" id="1_bench"]
 [ext_resource type="PackedScene" uid="uid://ykdxpspi6cly" path="res://Game/Environment/Environment.tscn" id="2_environment"]
-[ext_resource type="PackedScene" uid="uid://c4rdbgpanel7qk" path="res://Dev/RenderDebug/RenderDebug.tscn" id="3_rdebug"]
+[ext_resource type="PackedScene" uid="uid://45jpbbdakcsg" path="res://Dev/RenderDebug/RenderDebug.tscn" id="3_rdebug"]
 
 [node name="GrassBench" type="Node3D"]
 script = ExtResource("1_bench")
