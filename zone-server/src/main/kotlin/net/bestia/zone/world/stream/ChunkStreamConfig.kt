@@ -2,6 +2,7 @@ package net.bestia.zone.world.stream
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
+import org.springframework.util.unit.DataSize
 
 /**
  * Runtime settings for chunk streaming.
@@ -31,9 +32,10 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
  * @property deflateMinimumBytes payloads smaller than this are not compressed at all. Deflate has a fixed
  *   overhead and loses outright on the very smallest chunks: a uniform underground chunk is thirteen bytes
  *   encoded and nineteen deflated, and most of the world is that chunk.
- * @property encodedCacheCapacity how many encoded, compressed chunk payloads to keep. This is the entry
- *   that makes thirty players walking into the same place cost one encode between them rather than thirty,
- *   so it wants to comfortably exceed one view volume.
+ * @property encodedCacheSize heap for encoded, compressed chunk payloads. This is the entry that makes thirty
+ *   players walking into the same place cost one encode between them rather than thirty, so it wants to
+ *   comfortably exceed one view volume. A payload is a few kilobytes at the surface and often a hundred bytes
+ *   or less, so 64 MB holds at least twenty thousand.
  */
 @ConfigurationProperties(prefix = "chunk-stream")
 @ConfigurationPropertiesScan
@@ -45,7 +47,7 @@ data class ChunkStreamConfig(
   val requestBurst: Int = 512,
   val requestRefillPerTick: Int = 2,
   val deflateMinimumBytes: Int = 64,
-  val encodedCacheCapacity: Int = 1024,
+  val encodedCacheSize: DataSize = DataSize.ofMegabytes(64),
 
   /**
    * Deflate level for chunk payloads, 0..9.
@@ -68,8 +70,8 @@ data class ChunkStreamConfig(
 
   /**
    * Decoded chunks held for the server's own voxel queries. Half a megabyte each, so this is the setting
-   * that decides the memory footprint: 128 is about 64 MB. Distinct from [encodedCacheCapacity], which
-   * counts three-kilobyte wire payloads.
+   * that decides the memory footprint: 128 is about 64 MB. Distinct from [encodedCacheSize], which holds
+   * wire payloads of a few kilobytes.
    */
   val hotChunkCapacity: Int = 128,
 
@@ -175,7 +177,7 @@ data class ChunkStreamConfig(
     require(viewRadiusChunksVertical >= 0) { "Vertical view radius cannot be negative" }
     require(chunksPerTickPerPlayer > 0) { "A send budget of zero would never stream anything" }
     require(requestBurst > 0 && requestRefillPerTick > 0) { "The request bucket must be able to refill" }
-    require(encodedCacheCapacity > 0) { "The encoded cache must hold at least one chunk" }
+    require(encodedCacheSize.toBytes() > 0) { "The encoded cache must hold something, was $encodedCacheSize" }
     require(hotChunkCapacity > 0) { "The hot chunk cache must hold at least one chunk" }
     require(slabCacheCapacity > 0) { "The slab cache must hold at least one column" }
     require(slabMillisPerTick > 0) { "A slab time budget of zero would still compute one slab a tick" }
