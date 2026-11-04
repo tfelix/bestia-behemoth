@@ -59,7 +59,9 @@ class OwnerCombatStats(values: CombatValues) : Component, Dirtyable {
       softDefense = values.defense.defense,
       hardDefense = values.defense.hardDefense,
       aspd = aspd,
-      attackRange = ranged?.range?.toInt() ?: BattleAttack.MELEE_REACH.toInt()
+      attackRange = ranged?.range?.toInt() ?: BattleAttack.MELEE_REACH.toInt(),
+      softMagicDefense = values.defense.magicDefense,
+      hardMagicDefense = values.defense.hardMagicDefense
     )
   }
 

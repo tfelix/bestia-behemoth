@@ -9,7 +9,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
   ///
   /// Resolved by the server rather than computed here, so the numbers are the ones a swing actually spends.
   /// Sent to the owner only. ATK and MATK come split into the part the attributes give and the part the
-  /// weapon adds; DEF into the flat soft part and the worn hard part (percentage points of damage removed).
+  /// weapon adds; DEF into the flat soft part and the worn hard part (percentage points of damage removed), and
+  /// MDEF the same way.
   /// </summary>
   [GlobalClass]
   public partial class CombatStatsComponentSMSG : EntitySMSG
@@ -32,6 +33,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
 
     /// <summary>Tiles the basic attack reaches: 1 for a swing, the weapon's range for a shot.</summary>
     [Export] public int AttackRange { get; set; }
+
+    [Export] public int SoftMagicDefense { get; set; }
+    [Export] public int HardMagicDefense { get; set; }
 
     public CombatStatsComponentSMSG()
     {
@@ -57,7 +61,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         SoftDefense = protoCombatStats.SoftDefense,
         HardDefense = protoCombatStats.HardDefense,
         Aspd = protoCombatStats.Aspd,
-        AttackRange = protoCombatStats.AttackRange
+        AttackRange = protoCombatStats.AttackRange,
+        SoftMagicDefense = protoCombatStats.SoftMagicDefense,
+        HardMagicDefense = protoCombatStats.HardMagicDefense
       };
     }
 

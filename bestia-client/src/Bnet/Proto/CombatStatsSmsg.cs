@@ -25,17 +25,18 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiptZXNzYWdlcy9jb21wb25lbnQvY29tYmF0X3N0YXRzX3Ntc2cucHJvdG8S",
-            "BGJuZXQi1AEKD0NvbWJhdFN0YXRzU01TRxILCgNhdGsYAiABKAUSEgoKd2Vh",
+            "BGJuZXQijAIKD0NvbWJhdFN0YXRzU01TRxILCgNhdGsYAiABKAUSEgoKd2Vh",
             "cG9uX2F0axgDIAEoBRIMCgRtYXRrGAQgASgFEhMKC3dlYXBvbl9tYXRrGAUg",
             "ASgFEgsKA2hpdBgGIAEoBRIMCgRmbGVlGAcgASgFEgwKBGNyaXQYCCABKAUS",
             "FAoMc29mdF9kZWZlbnNlGAkgASgFEhQKDGhhcmRfZGVmZW5zZRgKIAEoBRIM",
-            "CgRhc3BkGAsgASgFEhQKDGF0dGFja19yYW5nZRgMIAEoBUoECAEQAkItChVu",
-            "ZXQuYmVzdGlhLmJuZXQucHJvdG9CFENvbWJhdFN0YXRzU01TR1Byb3RvYgZw",
-            "cm90bzM="));
+            "CgRhc3BkGAsgASgFEhQKDGF0dGFja19yYW5nZRgMIAEoBRIaChJzb2Z0X21h",
+            "Z2ljX2RlZmVuc2UYDSABKAUSGgoSaGFyZF9tYWdpY19kZWZlbnNlGA4gASgF",
+            "SgQIARACQi0KFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IUQ29tYmF0U3RhdHNT",
+            "TVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CombatStatsSMSG), global::Bnet.CombatStatsSMSG.Parser, new[]{ "Atk", "WeaponAtk", "Matk", "WeaponMatk", "Hit", "Flee", "Crit", "SoftDefense", "HardDefense", "Aspd", "AttackRange" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CombatStatsSMSG), global::Bnet.CombatStatsSMSG.Parser, new[]{ "Atk", "WeaponAtk", "Matk", "WeaponMatk", "Hit", "Flee", "Crit", "SoftDefense", "HardDefense", "Aspd", "AttackRange", "SoftMagicDefense", "HardMagicDefense" }, null, null, null, null)
           }));
     }
     #endregion
@@ -50,7 +51,8 @@ namespace Bnet {
   ///
   /// Sent to the owner only. ATK and MATK are split the way RO shows them: the part the attributes give, and the
   /// part the weapon in hand adds on top. DEF is split too, but into unlike halves - [soft_defense] is flat and
-  /// comes from attributes, [hard_defense] is the worn kind, percentage points of damage removed.
+  /// comes from attributes, [hard_defense] is the worn kind, percentage points of damage removed. MDEF is split the
+  /// same way, for spells.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class CombatStatsSMSG : pb::IMessage<CombatStatsSMSG>
@@ -98,6 +100,8 @@ namespace Bnet {
       hardDefense_ = other.hardDefense_;
       aspd_ = other.aspd_;
       attackRange_ = other.attackRange_;
+      softMagicDefense_ = other.softMagicDefense_;
+      hardMagicDefense_ = other.hardMagicDefense_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -248,6 +252,30 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "soft_magic_defense" field.</summary>
+    public const int SoftMagicDefenseFieldNumber = 13;
+    private int softMagicDefense_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int SoftMagicDefense {
+      get { return softMagicDefense_; }
+      set {
+        softMagicDefense_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "hard_magic_defense" field.</summary>
+    public const int HardMagicDefenseFieldNumber = 14;
+    private int hardMagicDefense_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int HardMagicDefense {
+      get { return hardMagicDefense_; }
+      set {
+        hardMagicDefense_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -274,6 +302,8 @@ namespace Bnet {
       if (HardDefense != other.HardDefense) return false;
       if (Aspd != other.Aspd) return false;
       if (AttackRange != other.AttackRange) return false;
+      if (SoftMagicDefense != other.SoftMagicDefense) return false;
+      if (HardMagicDefense != other.HardMagicDefense) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -292,6 +322,8 @@ namespace Bnet {
       if (HardDefense != 0) hash ^= HardDefense.GetHashCode();
       if (Aspd != 0) hash ^= Aspd.GetHashCode();
       if (AttackRange != 0) hash ^= AttackRange.GetHashCode();
+      if (SoftMagicDefense != 0) hash ^= SoftMagicDefense.GetHashCode();
+      if (HardMagicDefense != 0) hash ^= HardMagicDefense.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -354,6 +386,14 @@ namespace Bnet {
         output.WriteRawTag(96);
         output.WriteInt32(AttackRange);
       }
+      if (SoftMagicDefense != 0) {
+        output.WriteRawTag(104);
+        output.WriteInt32(SoftMagicDefense);
+      }
+      if (HardMagicDefense != 0) {
+        output.WriteRawTag(112);
+        output.WriteInt32(HardMagicDefense);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -408,6 +448,14 @@ namespace Bnet {
         output.WriteRawTag(96);
         output.WriteInt32(AttackRange);
       }
+      if (SoftMagicDefense != 0) {
+        output.WriteRawTag(104);
+        output.WriteInt32(SoftMagicDefense);
+      }
+      if (HardMagicDefense != 0) {
+        output.WriteRawTag(112);
+        output.WriteInt32(HardMagicDefense);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -450,6 +498,12 @@ namespace Bnet {
       }
       if (AttackRange != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(AttackRange);
+      }
+      if (SoftMagicDefense != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(SoftMagicDefense);
+      }
+      if (HardMagicDefense != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(HardMagicDefense);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -495,6 +549,12 @@ namespace Bnet {
       }
       if (other.AttackRange != 0) {
         AttackRange = other.AttackRange;
+      }
+      if (other.SoftMagicDefense != 0) {
+        SoftMagicDefense = other.SoftMagicDefense;
+      }
+      if (other.HardMagicDefense != 0) {
+        HardMagicDefense = other.HardMagicDefense;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -559,6 +619,14 @@ namespace Bnet {
             AttackRange = input.ReadInt32();
             break;
           }
+          case 104: {
+            SoftMagicDefense = input.ReadInt32();
+            break;
+          }
+          case 112: {
+            HardMagicDefense = input.ReadInt32();
+            break;
+          }
         }
       }
     #endif
@@ -620,6 +688,14 @@ namespace Bnet {
           }
           case 96: {
             AttackRange = input.ReadInt32();
+            break;
+          }
+          case 104: {
+            SoftMagicDefense = input.ReadInt32();
+            break;
+          }
+          case 112: {
+            HardMagicDefense = input.ReadInt32();
             break;
           }
         }

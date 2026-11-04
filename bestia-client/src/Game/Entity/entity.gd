@@ -1508,6 +1508,8 @@ static func combat_stats_of(msg: CombatStatsComponentSMSG) -> Dictionary:
 		"crit": msg.Crit,
 		"soft_defense": msg.SoftDefense,
 		"hard_defense": msg.HardDefense,
+		"soft_magic_defense": msg.SoftMagicDefense,
+		"hard_magic_defense": msg.HardMagicDefense,
 		"aspd": msg.Aspd,
 		"attack_range": msg.AttackRange,
 	}

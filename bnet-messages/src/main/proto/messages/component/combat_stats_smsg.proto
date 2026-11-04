@@ -12,7 +12,8 @@ option java_outer_classname = "CombatStatsSMSGProto";
  *
  * Sent to the owner only. ATK and MATK are split the way RO shows them: the part the attributes give, and the
  * part the weapon in hand adds on top. DEF is split too, but into unlike halves - [soft_defense] is flat and
- * comes from attributes, [hard_defense] is the worn kind, percentage points of damage removed.
+ * comes from attributes, [hard_defense] is the worn kind, percentage points of damage removed. MDEF is split the
+ * same way, for spells.
  */
 message CombatStatsSMSG {
   reserved 1; // entity_id, now on EntityUpdate
@@ -35,4 +36,7 @@ message CombatStatsSMSG {
 
   // Tiles the basic attack reaches: 1 for a swing, the weapon's range for a shot. The client walks this close.
   int32 attack_range = 12;
+
+  int32 soft_magic_defense = 13;
+  int32 hard_magic_defense = 14;
 }

@@ -2,8 +2,8 @@ extends PanelContainer
 class_name StatusPoints
 
 ## The combat stats shown beside the attributes, in the order of Ragnarok Online's status window. [code]id[/code]
-## is the row (and, for all but ATK/MATK/DEF, the key in Entity.get_combat_stats()), [code]tip[/code] says what the
-## number does, since the abbreviations are not self-explanatory.
+## is the row (and, for all but ATK/MATK/DEF/MDEF, the key in Entity.get_combat_stats()), [code]tip[/code] says
+## what the number does, since the abbreviations are not self-explanatory.
 ##
 ## All of it is resolved by the server (CombatStats): the client holds no formulas, so what is shown is what a
 ## swing actually spends.
@@ -12,8 +12,12 @@ const _COMBAT_ROWS: Array[Dictionary] = [
 	{"id": "matk", "label": "MATK", "tip": "Magic attack: what your attributes give + what your weapon adds."},
 	{
 		"id": "def", "label": "DEF",
-		"tip": "Defense: flat damage taken off every physical hit, plus the share of damage your armor blocks. "
+		"tip": "Defense: the share of every physical hit your armor blocks, then flat damage taken off what is left. "
 			+ "Critical hits ignore both.",
+	},
+	{
+		"id": "mdef", "label": "MDEF",
+		"tip": "Magic defense: the share of every spell your armor blocks, then flat damage taken off what is left.",
 	},
 	{"id": "hit", "label": "HIT", "tip": "Accuracy. The higher it is above the target's FLEE, the more of your attacks land."},
 	{"id": "flee", "label": "FLEE", "tip": "Evasion. The higher it is above the attacker's HIT, the more attacks miss you."},
@@ -178,8 +182,9 @@ func _show_combat_stats(stats: Dictionary) -> void:
 		value_label.text = _format_combat_stat(row["id"], stats)
 
 
-## ATK and MATK read "from attributes + from weapon" the way RO shows them. DEF is flat soft defense, with the
-## armor's percentage appended only when something is worn, so a bare fighter is not shown a "+ 0%".
+## ATK and MATK read "from attributes + from weapon" the way RO shows them. DEF and MDEF read in the order a hit
+## meets them: the armor's percentage first, then the flat soft part taken off what is left. The percentage is only
+## shown when something is worn, so a bare fighter is not shown a "0% +".
 func _format_combat_stat(id: String, stats: Dictionary) -> String:
 	match id:
 		"atk":
@@ -187,13 +192,19 @@ func _format_combat_stat(id: String, stats: Dictionary) -> String:
 		"matk":
 			return "%d + %d" % [stats["matk"], stats["weapon_matk"]]
 		"def":
-			if stats["hard_defense"] != 0:
-				return "%d + %d%%" % [stats["soft_defense"], stats["hard_defense"]]
-			return "%d" % stats["soft_defense"]
+			return _defense_text(stats["hard_defense"], stats["soft_defense"])
+		"mdef":
+			return _defense_text(stats["hard_magic_defense"], stats["soft_magic_defense"])
 		"crit":
 			return "%d%%" % stats["crit"]
 		_:
 			return "%d" % stats[id]
+
+
+func _defense_text(hard: int, soft: int) -> String:
+	if hard != 0:
+		return "%d%% + %d" % [hard, soft]
+	return "%d" % soft
 
 
 func _apply_base_status_values(msg: BaseStatusValuesComponentSMSG) -> void:

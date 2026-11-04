@@ -20,7 +20,7 @@ class OwnerCombatStatsTest {
   private fun geared(): CombatValues {
     val context = StatusValueRecalcContext(base, baseSpeed = 1f)
     context.addAttack(atk = 10, matk = 7)
-    context.addDefense(hardDefense = 4)
+    context.addDefense(hardDefense = 4, hardMagicDefense = 2)
     context.weaponUpgradeLevel = 3
     return CombatValues.fromContext(level = 20, base = base, context = context)
   }
@@ -41,6 +41,8 @@ class OwnerCombatStatsTest {
     assertEquals(bare.derived.crit, msg.crit)
     assertEquals(bare.defense.defense, msg.softDefense)
     assertEquals(4, msg.hardDefense)
+    assertEquals(bare.defense.magicDefense, msg.softMagicDefense)
+    assertEquals(2, msg.hardMagicDefense)
   }
 
   @Test

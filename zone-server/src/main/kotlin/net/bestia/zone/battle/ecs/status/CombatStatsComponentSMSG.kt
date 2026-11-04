@@ -16,7 +16,9 @@ data class CombatStatsComponentSMSG(
   val softDefense: Int,
   val hardDefense: Int,
   val aspd: Int,
-  val attackRange: Int = 1
+  val attackRange: Int = 1,
+  val softMagicDefense: Int,
+  val hardMagicDefense: Int
 ) : EntitySMSG {
 
   override fun writeTo(update: StateBatchSmsgProto.EntityUpdate.Builder) {
@@ -32,6 +34,8 @@ data class CombatStatsComponentSMSG(
       .setHardDefense(hardDefense)
       .setAspd(aspd)
       .setAttackRange(attackRange)
+      .setSoftMagicDefense(softMagicDefense)
+      .setHardMagicDefense(hardMagicDefense)
 
     update.addComponents(StateBatchSmsgProto.ComponentDelta.newBuilder().setCombatStats(combatStats))
   }
