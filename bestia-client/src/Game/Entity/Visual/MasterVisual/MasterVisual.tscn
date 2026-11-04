@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://3d10kmwvr52c" path="res://Game/Master/Mage.glb" id="2_1txkv"]
 [ext_resource type="PackedScene" uid="uid://bq7cst1bar0ck" path="res://Game/VFX/CastBar/CastBar.tscn" id="3_castb"]
 [ext_resource type="PackedScene" uid="uid://g1nu1oan0ehe" path="res://Game/Entity/NameTag/NameTag.tscn" id="4_nmtag"]
+[ext_resource type="PackedScene" uid="uid://doxvjridoygcr" path="res://Game/VFX/HealthBar/HealthBar.tscn" id="5_hpbar"]
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_g4jv4"]
 viewport_path = NodePath("SubViewport")
@@ -134,6 +135,12 @@ texture = SubResource("ViewportTexture_g4jv4")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5100465, 0)
 visible = false
 text = "Master"
+
+[node name="HealthBar" parent="." instance=ExtResource("5_hpbar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.4, 0)
+
+[node name="DamageTagAnchor" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9, 0)
 
 [node name="Area3D" type="Area3D" parent="." unique_id=2039661180]
 

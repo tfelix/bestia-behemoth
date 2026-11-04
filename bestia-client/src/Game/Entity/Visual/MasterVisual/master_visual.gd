@@ -16,6 +16,8 @@ var _selected: bool = false
 @onready var _anim_player: AnimationPlayer = $Mage/AnimationPlayer
 @onready var _cast_bar: CastBar = $CastBar
 @onready var _name_tag = $NameTag
+@onready var _health_bar: HealthBar = $HealthBar
+@onready var _damage_tag_anchor: Node3D = $DamageTagAnchor
 @onready var _skeleton: Skeleton3D = $Mage/Rig/Skeleton3D
 @onready var _left_hand: Node3D = $Mage/Rig/Skeleton3D/handslot_l
 
@@ -149,6 +151,24 @@ func _on_area_3d_mouse_exited() -> void:
 	_hovered = false
 	_name_tag.visible = _selected
 	MouseManager.get_instance().on_object_hover(self, false)
+
+
+func show_damage(msg: DamageEntitySMSG) -> void:
+	var layer := DamageTagLayer.get_instance()
+	if layer != null:
+		layer.show_damage_over(msg, _damage_tag_anchor)
+
+
+func update_health(msg: HealthComponentSMSG) -> void:
+	_health_bar.update_health(msg)
+
+
+func update_mana(msg: ManaComponentSMSG) -> void:
+	_health_bar.update_mana(msg)
+
+
+func enter_combat() -> void:
+	_health_bar.enter_combat()
 
 
 func update_casting(msg: CastingComponentSMSG) -> void:

@@ -378,6 +378,8 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 	elif msg is BuffListSMSG:
 		entity.update_effects(msg)
 	elif msg is DamageEntitySMSG:
+		_enter_combat(msg.EntityId)
+		_enter_combat(msg.SourceEntityId)
 		if msg.ProjectileItemId != 0:
 			_shoot_then_show(entity, msg)
 		else:
@@ -461,6 +463,15 @@ func resync_entities() -> void:
 	_detached_vitals.clear()
 	for child in get_children():
 		child.queue_free()
+
+
+## The player's own entities show their health and mana while they fight, whether they strike or are struck.
+func _enter_combat(entity_id: int) -> void:
+	if not is_owned_entity_id(entity_id):
+		return
+	var entity: Entity = _entities.get(entity_id)
+	if entity != null:
+		entity.enter_combat()
 
 
 ## Draws the arrow first and the damage tag once it lands. A shooter this client does not see still lands

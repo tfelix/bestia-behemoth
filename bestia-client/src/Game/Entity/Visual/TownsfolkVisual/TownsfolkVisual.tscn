@@ -22,9 +22,6 @@ height = 1.375
 radius = 0.3125
 height = 1.375
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_b5q2y"]
-viewport_path = NodePath("SubViewport")
-
 [sub_resource type="ViewportTexture" id="ViewportTexture_castb"]
 viewport_path = NodePath("SubViewport")
 
@@ -191,7 +188,6 @@ shape = SubResource("CapsuleShape3D_town")
 
 [node name="HealthBar" parent="." instance=ExtResource("2_wtcd1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6437862, 0)
-texture = SubResource("ViewportTexture_b5q2y")
 
 [node name="CastBar" parent="." instance=ExtResource("4_castb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.51, 0)

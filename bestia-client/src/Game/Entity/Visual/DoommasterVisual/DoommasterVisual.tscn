@@ -106,9 +106,6 @@ size = Vector3(0.026, 0.045, 0.02)
 radius = 0.55
 height = 2.1
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_health"]
-viewport_path = NodePath("SubViewport")
-
 [sub_resource type="ViewportTexture" id="ViewportTexture_cast"]
 viewport_path = NodePath("SubViewport")
 
@@ -351,7 +348,6 @@ mesh = SubResource("Mesh_low_fang")
 
 [node name="HealthBar" parent="." instance=ExtResource("2_health")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6437862, 0)
-texture = SubResource("ViewportTexture_health")
 
 [node name="CastBar" parent="." instance=ExtResource("5_cast")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.51, 0)

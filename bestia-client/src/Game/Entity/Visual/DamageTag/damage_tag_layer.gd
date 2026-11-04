@@ -10,6 +10,8 @@ const DamageTagScn = preload("res://Game/Entity/Visual/DamageTag/DamageTag.tscn"
 ## Each live tag costs two draw calls (text and outline), as transparent labels are never batched.
 const _MAX_TAGS := 200
 const _MAX_DISTANCE := 60.0
+## Between two numbers of one flurry.
+const _BLOW_INTERVAL_SECONDS := 0.12
 
 ## In spawn order, so the oldest comes first.
 var _live: Array[DamageTag] = []
@@ -26,6 +28,33 @@ static func get_instance() -> DamageTagLayer:
 
 func _enter_tree() -> void:
 	add_to_group("damage_tag_layer")
+
+
+## Shows [param msg] over [param anchor], which a visual places above its body. A flurry shows one number per
+## blow, a moment apart, adding up to the total the server sent; each lands where the anchor is by then.
+func show_damage_over(msg: DamageEntitySMSG, anchor: Node3D) -> void:
+	var blows := maxi(1, msg.Div)
+	for i in blows:
+		if i > 0:
+			await get_tree().create_timer(_BLOW_INTERVAL_SECONDS).timeout
+			if not is_instance_valid(anchor) or not anchor.is_inside_tree():
+				return
+		show_damage(msg if blows == 1 else _blow_of(msg, i, blows), anchor.global_position)
+
+
+## One blow's share of [param msg]; the last one carries what does not divide evenly.
+static func _blow_of(msg: DamageEntitySMSG, index: int, blows: int) -> DamageEntitySMSG:
+	var share := msg.Damage / blows
+	var blow := DamageEntitySMSG.new()
+	blow.EntityId = msg.EntityId
+	blow.SourceEntityId = msg.SourceEntityId
+	blow.AttackId = msg.AttackId
+	blow.SkillLevel = msg.SkillLevel
+	blow.Type = msg.Type
+	blow.ProjectileItemId = msg.ProjectileItemId
+	blow.Div = 1
+	blow.Damage = share + (msg.Damage - share * blows if index == blows - 1 else 0)
+	return blow
 
 
 func show_damage(msg: DamageEntitySMSG, at: Vector3) -> void:

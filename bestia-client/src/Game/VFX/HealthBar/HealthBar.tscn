@@ -1,75 +1,17 @@
-[gd_scene load_steps=5 format=3 uid="uid://doxvjridoygcr"]
+[gd_scene format=3 uid="uid://doxvjridoygcr"]
 
 [ext_resource type="Script" uid="uid://cl53mpaq20m76" path="res://Game/VFX/HealthBar/health_bar.gd" id="1_krqqp"]
-
-[sub_resource type="ViewportTexture" id="ViewportTexture_drj2e"]
-viewport_path = NodePath("SubViewport")
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_krqqp"]
-content_margin_left = 3.0
-content_margin_top = 3.0
-content_margin_right = 3.0
-content_margin_bottom = 3.0
-bg_color = Color(0.19434929, 0.19434926, 0.19434926, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0, 0, 1)
-corner_detail = 6
-expand_margin_left = 2.0
-expand_margin_top = 2.0
-expand_margin_right = 2.0
-expand_margin_bottom = 2.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b8sk5"]
-content_margin_left = 0.0
-content_margin_top = 0.0
-content_margin_right = 0.0
-content_margin_bottom = 0.0
-bg_color = Color(2.1376576e-07, 0.68376464, 0.3395266, 1)
-border_color = Color(0, 0, 0, 1)
-corner_detail = 6
 
 [node name="HealthBar" type="Sprite3D"]
 pixel_size = 0.001
 billboard = 1
 no_depth_test = true
 fixed_size = true
-texture = SubResource("ViewportTexture_drj2e")
+texture_filter = 0
 script = ExtResource("1_krqqp")
-
-[node name="SubViewport" type="SubViewport" parent="."]
-transparent_bg = true
-size = Vector2i(60, 10)
-
-[node name="Control" type="Control" parent="SubViewport"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 2.0
-offset_top = 2.0
-offset_right = -2.0
-offset_bottom = -2.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 3
-
-[node name="ProgressBar" type="ProgressBar" parent="SubViewport/Control"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 0
-theme_override_styles/background = SubResource("StyleBoxFlat_krqqp")
-theme_override_styles/fill = SubResource("StyleBoxFlat_b8sk5")
-value = 90.0
-show_percentage = false
 
 [node name="FadeTriggerTimer" type="Timer" parent="."]
 wait_time = 20.0
+one_shot = true
 
 [connection signal="timeout" from="FadeTriggerTimer" to="." method="_on_fade_trigger_timer_timeout"]

@@ -68,9 +68,10 @@ var _health: ConditionPool = null
 var _mana: ConditionPool = null
 var _stamina: ConditionPool = null
 
-# The last health, worn gear and guild tag pushes, replayed into a visual that was built after they arrived - see
+# The last health, mana, worn gear and guild tag pushes, replayed into a visual that was built after they arrived - see
 # _seed_visual. The guild tag is null while the entity's master is in no guild.
 var _last_health_msg: HealthComponentSMSG = null
+var _last_mana_msg: ManaComponentSMSG = null
 var _last_worn_gear_msg: WornGearComponentSMSG = null
 var _guild_tag: GuildTagComponentSMSG = null
 
@@ -741,6 +742,8 @@ func _seed_visual(visual: Node) -> void:
 		ConnectionManager.weather.ExposeToWeather(visual, not visual is StructureVisual)
 	if _last_health_msg != null and visual.has_method("update_health"):
 		visual.update_health(_last_health_msg)
+	if _last_mana_msg != null and _is_owned() and visual.has_method("update_mana"):
+		visual.update_mana(_last_mana_msg)
 	if _last_worn_gear_msg != null and visual.has_method("update_worn_gear"):
 		visual.update_worn_gear(_last_worn_gear_msg)
 	if _guild_tag != null and visual.has_method("set_guild_tag"):
@@ -1298,11 +1301,28 @@ func update_health(msg: HealthComponentSMSG) -> void:
 		visual.update_health(msg)
 
 
-## Mana and stamina have no visual of their own; cached only so the owner's HUD can seed itself.
+## The player's own entities show their mana under them, beneath their health. Cached for the owner's HUD too.
 func update_mana(msg: ManaComponentSMSG) -> void:
 	_mana = ConditionPool.new(msg.Current, msg.Max)
+	_last_mana_msg = msg
+	var visual = get_node_or_null(_VISUAL_NODE_NAME)
+	if visual != null and _is_owned() and visual.has_method("update_mana"):
+		visual.update_mana(msg)
 
 
+## This entity, one of the player's own, struck or was struck at.
+func enter_combat() -> void:
+	var visual = get_node_or_null(_VISUAL_NODE_NAME)
+	if visual != null and visual.has_method("enter_combat"):
+		visual.enter_combat()
+
+
+func _is_owned() -> bool:
+	var entities := EntityManager.get_instance()
+	return entities != null and entities.is_owned_entity_id(entity_id)
+
+
+## Stamina has no visual of its own; cached only so the owner's HUD can seed itself.
 func update_stamina(msg: StaminaComponentSMSG) -> void:
 	_stamina = ConditionPool.new(msg.Current, msg.Max)
 

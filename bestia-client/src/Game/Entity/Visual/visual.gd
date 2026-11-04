@@ -14,6 +14,16 @@ func update_health(_msg: HealthComponentSMSG) -> void:
 	pass
 
 
+## Only for the player's own entities: [Entity] keeps everyone else's mana off their bar.
+func update_mana(_msg: ManaComponentSMSG) -> void:
+	pass
+
+
+## One of the player's own entities struck or was struck at, so its bar should show.
+func enter_combat() -> void:
+	pass
+
+
 func update_animation(_msg: AnimationComponentSMSG) -> void:
 	pass
 
