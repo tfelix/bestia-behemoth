@@ -335,15 +335,13 @@ class ItemContainer(
   }
 
   private fun release(slot: ContainerSlot) {
+    // Fold the split pile back into whatever free one is already there, so retracting an offer does not
+    // leave the inventory carrying two half stacks of the same thing. Looked up while the slot is still
+    // promised, so the search cannot find the slot itself.
+    val target = if (slot.isStackable) freePile(slot.template.id, slot.provenance) else null
+
     slot.reservedByTradeId = null
 
-    if (!slot.isStackable) {
-      return
-    }
-
-    // Fold the split pile back into whatever free one is already there, so retracting an offer does not
-    // leave the inventory carrying two half stacks of the same thing.
-    val target = freePile(slot.template.id, slot.provenance)?.takeIf { it !== slot }
     if (target != null) {
       target.amount += slot.amount
       _slots.remove(slot)
