@@ -154,9 +154,9 @@ chunk-stream:
   encode-workers: 2
   # Chunk payloads started per tick across all players; the rest wait in their send queues.
   encodes-per-tick: 16
-  # Encoded wire payloads kept (~3 kB each). This is what makes thirty players entering the same area cost one
-  # encode between them rather than thirty, so it should exceed one view volume comfortably.
-  encoded-cache-capacity: 1024
+  # Heap for encoded wire payloads (a few kB at the surface, often ~100 B). This is what makes thirty players
+  # entering the same area cost one encode between them rather than thirty.
+  encoded-cache-size: 64MB
   # Decoded chunks kept for the server's own voxel queries. Half a megabyte each, so this sets the footprint:
   # 128 is about 64 MB.
   hot-chunk-capacity: 128

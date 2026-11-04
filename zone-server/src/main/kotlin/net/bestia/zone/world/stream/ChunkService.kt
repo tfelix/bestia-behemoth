@@ -187,10 +187,10 @@ class ChunkService(
   /** Chunks edited since the last [drainUnsaved]. */
   private val unsaved = LinkedHashSet<ChunkPos>()
 
-  private val encoded = Lru<EncodedKey, Encoded>(settings.encodedCacheCapacity)
+  private val encoded = EncodedChunkCache(settings.encodedCacheSize.toBytes())
 
   /** Base hashes are keyed on position alone: the base of a coordinate does not change with its revision. */
-  private val baseHashes = Lru<ChunkPos, Long>(settings.encodedCacheCapacity)
+  private val baseHashes = Lru<ChunkPos, Long>(BASE_HASH_CAPACITY)
 
   /**
    * The *generated* vertical slabs per horizontal chunk column. See [surfaceSlabsOf] for why this cache is
@@ -236,8 +236,6 @@ class ChunkService(
   val slabEpoch: Long get() = slabChanges
 
   private var slabChanges = 0L
-
-  private data class EncodedKey(val chunk: ChunkPos, val revision: Int)
 
   /**
    * True while [editFluid] is inside the store. [onChunkChanged] is the store's callback, so this is how it
@@ -563,7 +561,7 @@ class ChunkService(
    */
   fun encodedOf(chunk: ChunkPos): Encoded {
     val revision = revisionOf(chunk)
-    encoded[EncodedKey(chunk, revision)]?.let {
+    encoded[chunk, revision]?.let {
       metrics.encodedCache(hit = true)
       return it
     }
@@ -571,7 +569,7 @@ class ChunkService(
 
     val result = encode(chunk, revision, loaded.store.merged(chunk), baseHashOf(chunk))
 
-    encoded[EncodedKey(chunk, revision)] = result
+    encoded.put(result)
     return result
   }
 
@@ -600,7 +598,7 @@ class ChunkService(
    */
   fun readyDataMessage(chunk: ChunkPos): ChunkDataSMSG? {
     val revision = revisionOf(chunk)
-    encoded[EncodedKey(chunk, revision)]?.let {
+    encoded[chunk, revision]?.let {
       metrics.encodedCache(hit = true)
       return messageOf(it)
     }
@@ -634,11 +632,11 @@ class ChunkService(
 
   /** The size of [chunk]'s payload at [revision], if one is cached; for choosing between a patch and a snapshot. */
   fun cachedPayloadSize(chunk: ChunkPos, revision: Int): Int? {
-    return encoded[EncodedKey(chunk, revision)]?.payload?.size
+    return encoded[chunk, revision]?.payload?.size
   }
 
   private fun readyCached(chunk: ChunkPos): ChunkDataSMSG? {
-    return encoded[EncodedKey(chunk, revisionOf(chunk))]?.let { messageOf(it) }
+    return encoded[chunk, revisionOf(chunk)]?.let { messageOf(it) }
   }
 
   private class EncodedBase(val encoded: Encoded, val voxels: VoxelChunk)
@@ -660,7 +658,7 @@ class ChunkService(
     if (generated) loaded.cache.adopt(chunk, base.voxels)
 
     // A carve that landed meanwhile made this stale; the next request encodes the new revision here.
-    if (revisionOf(chunk) == 0) encoded[EncodedKey(chunk, 0)] = base.encoded
+    if (revisionOf(chunk) == 0) encoded.put(base.encoded)
   }
 
   private val inFlight = HashSet<ChunkPos>()
@@ -1151,6 +1149,9 @@ class ChunkService(
 
   private companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** Base hashes kept for encoding edited chunks; eight bytes each. */
+    private const val BASE_HASH_CAPACITY = 1024
 
     /** Chunk columns of ground heights kept for movement, weather and fire; about 8 KB each. */
     private const val COLUMN_HEIGHT_CAPACITY = 1024
