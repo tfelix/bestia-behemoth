@@ -140,7 +140,7 @@ class WorldOwnership {
     posted.add { lend(lease) }
 
     val started = java.lang.System.nanoTime()
-    while (!lease.granted.await(POLL_MILLIS, TimeUnit.MILLISECONDS)) {
+    while (!awaitGrant(lease)) {
       // The tick stopped while we waited: nobody will grant, so fall back to the monitor like before binding.
       if (tickThread == null && lease.cancel()) {
         return synchronized(unboundMonitor) { block() }
@@ -162,6 +162,19 @@ class WorldOwnership {
       // holds the world and run without a lease.
       lentTo = null
       lease.returned.countDown()
+    }
+  }
+
+  private fun awaitGrant(lease: Lease): Boolean {
+    try {
+      return lease.granted.await(POLL_MILLIS, TimeUnit.MILLISECONDS)
+    } catch (e: InterruptedException) {
+      // Leaving without the world: withdraw the lease, or hand the world straight back if the tick lent it
+      // meanwhile. Either way the tick must not wait for a return that never comes - that stops the zone.
+      if (!lease.cancel()) {
+        lease.returned.countDown()
+      }
+      throw e
     }
   }
 
