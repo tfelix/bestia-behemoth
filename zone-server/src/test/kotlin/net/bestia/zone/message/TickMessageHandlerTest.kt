@@ -1,8 +1,6 @@
 package net.bestia.zone.message
 
-import net.bestia.zone.SpringContextLock
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.aop.support.AopUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -16,7 +14,6 @@ import kotlin.test.assertEquals
  * This catches the direct case at build time; `TickSqlGuard` catches the indirect ones at run time.
  */
 @SpringBootTest
-@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class TickMessageHandlerTest {
 

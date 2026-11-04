@@ -1,10 +1,8 @@
 package net.bestia.zone.account.persistence
 
-import net.bestia.zone.SpringContextLock
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.scenarios.ScenarioDataSetup
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -13,7 +11,6 @@ import org.springframework.transaction.support.TransactionTemplate
 import kotlin.test.assertEquals
 
 @SpringBootTest
-@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class MasterRehomeTest {
 

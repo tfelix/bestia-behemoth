@@ -6,7 +6,6 @@ import net.bestia.bus.contract.BusRequest
 import net.bestia.bus.contract.MapPoint
 import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.ZoneQuery
-import net.bestia.zone.SpringContextLock
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.ai.profile.IdleStance
@@ -17,7 +16,6 @@ import net.bestia.zone.travel.JourneyService
 import net.bestia.zone.travel.RoutesCollection
 import net.bestia.zone.world.WorldService
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.repository.findByIdOrNull
@@ -32,7 +30,6 @@ import kotlin.test.assertTrue
  * three bestias, account 2 one master.
  */
 @SpringBootTest
-@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class CompanionRequestDispatcherTest {
 

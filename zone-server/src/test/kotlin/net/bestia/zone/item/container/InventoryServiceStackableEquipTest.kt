@@ -1,6 +1,5 @@
 package net.bestia.zone.item.container
 
-import net.bestia.zone.SpringContextLock
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.item.PlayerItemIds
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -28,7 +26,6 @@ import org.springframework.transaction.support.TransactionTemplate
  * flush shows whether the rows go in an order the foreign keys accept.
  */
 @SpringBootTest
-@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class InventoryServiceStackableEquipTest {
 
