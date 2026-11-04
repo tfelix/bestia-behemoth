@@ -1,5 +1,6 @@
 package net.bestia.zone.item.persistence
 
+import net.bestia.zone.SpringContextLock
 import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.stat.ItemStat
 import net.bestia.zone.item.stat.StatValue
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.repository.findByIdOrNull
@@ -15,6 +17,7 @@ import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
 
 @SpringBootTest
+@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class ItemInstanceStatPersistenceTest {
 

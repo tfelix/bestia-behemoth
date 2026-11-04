@@ -1,5 +1,6 @@
 package net.bestia.zone.account.persistence
 
+import net.bestia.zone.SpringContextLock
 import net.bestia.zone.master.bestia.PlayerBestiaFactory
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.InventoryService
@@ -13,6 +14,7 @@ import net.bestia.zone.party.PartyService
 import net.bestia.zone.scenarios.ScenarioDataSetup
 import net.bestia.zone.world.MasterSpawnPointService
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.repository.findByIdOrNull
@@ -38,6 +40,7 @@ import net.bestia.zone.master.MasterFactory
  * master still standing tidies it away itself - the account only has so many slots.
  */
 @SpringBootTest
+@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class MasterDeletionServiceTest {
 

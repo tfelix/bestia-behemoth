@@ -1,7 +1,9 @@
 package net.bestia.zone.message
 
 import net.bestia.bnet.proto.EnvelopeProto.Envelope
+import net.bestia.zone.SpringContextLock
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -9,6 +11,7 @@ import kotlin.test.assertEquals
 
 /** Every handler's decoder reads its own envelope case into the message type the handler takes. */
 @SpringBootTest
+@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class WireDecoderTest {
 
