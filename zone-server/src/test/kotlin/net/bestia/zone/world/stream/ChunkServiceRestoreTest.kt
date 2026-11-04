@@ -5,6 +5,7 @@ import io.mockk.mockk
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.zone.world.GeneratedWorlds
 import net.bestia.zone.world.WorldService
@@ -103,6 +104,9 @@ class ChunkServiceRestoreTest {
     const val DEPTH = 6
     const val CARVE_RADIUS = CarveBrush.MIN_RADIUS + 0.4
 
-    val world = GeneratedWorlds.of(seed = 9001L, cells = 48)
+    val world: GeneratedWorld
+      get() {
+        return GeneratedWorlds.of(seed = 9001L, cells = 48)
+      }
   }
 }

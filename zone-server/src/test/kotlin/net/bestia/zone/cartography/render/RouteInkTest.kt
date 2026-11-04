@@ -8,6 +8,7 @@ import net.bestia.worldgen.vector.Polyline
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.world.GeneratedWorlds
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import kotlin.test.assertTrue
@@ -19,7 +20,10 @@ import kotlin.test.assertTrue
  * road widths and every road came out in one style, which no seam test or golden image would have caught -
  * the map simply had one kind of road on it.
  */
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RouteInkTest {
+
+  private val world: TileInputs by lazy { TileInputs.of(GeneratedWorlds.of(GeneratedWorlds.SEEDS.first())) }
 
   @Test
   fun `a cobbled road is a solid double line, a dirt road dashed, and a trail dotted`() {
@@ -95,7 +99,5 @@ class RouteInkTest {
 
     /** Close enough that a road is drawn at all (`MapVisibility`), far enough that the dashes repeat. */
     const val METRES_PER_PIXEL = 8.0
-
-    val world: TileInputs by lazy { TileInputs.of(GeneratedWorlds.of(GeneratedWorlds.SEEDS.first())) }
   }
 }

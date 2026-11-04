@@ -2,7 +2,7 @@ package net.bestia.zone.world.stream
 
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.WorldConfig
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.voxel.RleCodec
 import org.junit.jupiter.api.Disabled
 import java.io.ByteArrayOutputStream
@@ -18,7 +18,7 @@ class ChunkDeflateCalibrationTest {
 
   @Test
   fun `bytes and time per deflate level`() {
-    val world = StandardWorld.build(WorldConfig(seed = 9003L, widthCells = 48, heightCells = 48))
+    val world = TestWorlds.get(WorldConfig(seed = 9003L, widthCells = 48, heightCells = 48))
     val config = world.config
 
     // Surface chunks are where the bytes are; deep ones are mostly uniform and tiny either way.

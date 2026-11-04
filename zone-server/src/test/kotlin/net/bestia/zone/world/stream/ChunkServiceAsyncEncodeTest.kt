@@ -4,7 +4,8 @@ import io.mockk.every
 import io.mockk.mockk
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.WorldConfig
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.GeneratedWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.zone.world.WorldService
 import org.awaitility.Awaitility.await
@@ -121,8 +122,11 @@ class ChunkServiceAsyncEncodeTest {
   private companion object {
     val CHUNK = ChunkPos(1, 1, 0)
 
-    // Shared, because generating a world per test method would dominate the run.
-    val world = StandardWorld.build(WorldConfig(seed = 9002L, widthCells = 48, heightCells = 48))
-    val config = world.config
+    val config = WorldConfig(seed = 9002L, widthCells = 48, heightCells = 48)
+
+    val world: GeneratedWorld
+      get() {
+        return TestWorlds.get(config)
+      }
   }
 }

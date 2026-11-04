@@ -5,7 +5,7 @@ import io.mockk.mockk
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.zone.world.WorldService
@@ -68,7 +68,7 @@ class ChunkServiceCaveStreamingTest {
    */
   private fun findColumnWithACaveBeyondTerrain(): Pair<GeneratedWorld, ChunkPos>? {
     for (seed in 1L..SEED_SCAN_LIMIT) {
-      val world = StandardWorld.build(WorldConfig(seed = seed, widthCells = WORLD_CELLS, heightCells = WORLD_CELLS))
+      val world = TestWorlds.get(WorldConfig(seed = seed, widthCells = WORLD_CELLS, heightCells = WORLD_CELLS))
       val config = world.config
 
       val passages = world.world.features.all().filter { it.kind == FeatureKind.CAVE_PASSAGE }

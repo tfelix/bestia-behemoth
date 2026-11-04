@@ -1,5 +1,7 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm'
+    // `TestWorlds`, so zone-server's tests share the worlds this module's tests already share.
+    id 'java-test-fixtures'
 }
 
 description = 'worldgen'

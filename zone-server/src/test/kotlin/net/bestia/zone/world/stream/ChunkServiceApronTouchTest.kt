@@ -4,7 +4,8 @@ import io.mockk.every
 import io.mockk.mockk
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.WorldConfig
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.GeneratedWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.zone.world.WorldService
 import kotlin.test.Test
@@ -249,9 +250,11 @@ class ChunkServiceApronTouchTest {
     const val SAFETY_MARGIN_METRES = 10.0
     const val CARVE_RADIUS = CarveBrush.MIN_RADIUS + 0.4
 
-    // In the companion rather than in a property: JUnit builds a fresh test instance per method, so a world
-    // held per-instance is generated again for every test in the class. Read-only here, as everywhere.
-    val world = StandardWorld.build(WorldConfig(seed = SEED, widthCells = WORLD_CELLS, heightCells = WORLD_CELLS))
-    val config = world.config
+    val config = WorldConfig(seed = SEED, widthCells = WORLD_CELLS, heightCells = WORLD_CELLS)
+
+    val world: GeneratedWorld
+      get() {
+        return TestWorlds.get(config)
+      }
   }
 }

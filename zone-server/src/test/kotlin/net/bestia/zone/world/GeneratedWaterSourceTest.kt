@@ -1,12 +1,10 @@
 package net.bestia.zone.world
 
-import net.bestia.worldgen.core.Resolution
-import net.bestia.worldgen.core.WorldConfig
-import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.vector.Aabb
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.region.RegionGrid
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
@@ -24,7 +22,12 @@ import kotlin.test.fail
  *                 o  <- and clicked here, across it
  * ```
  */
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GeneratedWaterSourceTest {
+
+  // One grid for the class: it caches what it has surveyed, and the dev world is the same in every test.
+  private val water = GeneratedWaterSource.of(GeneratedWorlds.dev())
+  private val grid = RegionGrid(water)
 
   @Test
   fun `the lake south of Trestein is water and the town is not`() {
@@ -75,9 +78,6 @@ class GeneratedWaterSourceTest {
   }
 
   private companion object {
-    /** `application.yml`'s pinned seed, as `TownClearanceTest` uses: the world the dev server runs. */
-    const val DEV_SEED = 11_753_242L
-
     /** From the client log of the walk in question. */
     val STOOD = Vec3L(35392, 31416, 0)
     val CLICKED = Vec3L(34800, 30600, 0)
@@ -86,26 +86,5 @@ class GeneratedWaterSourceTest {
     val STANHOLD = Vec3L(46220, 25810, 0)
 
     const val MAX_WET_RUN_METRES = 16
-
-    private val settings = WorldGenConfig()
-
-    // Once per class, not per test: the world takes seconds to build. Read-only here, as everywhere.
-    val water = GeneratedWaterSource.of(
-      StandardWorld.build(
-        WorldConfig(
-          seed = DEV_SEED,
-          widthCells = settings.widthCells,
-          heightCells = settings.heightCells,
-          baseResolution = Resolution(settings.cellSizeMetres),
-          seaLevel = settings.seaLevelMetres,
-          chunkSize = settings.chunkSize,
-          chunkHeight = settings.chunkHeight,
-          voxelSize = settings.voxelSizeMetres,
-          wrapX = settings.wrapX,
-          wrapY = settings.wrapY
-        )
-      )
-    )
-    val grid = RegionGrid(water)
   }
 }

@@ -6,7 +6,8 @@ import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.WorldConfig
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.GeneratedWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.world.WorldService
@@ -273,9 +274,11 @@ class ChunkWalkQueryTest {
      */
     const val TOLERANCE_VOXELS = 1L
 
-    // In the companion rather than in a property: JUnit builds a fresh test instance per method, so a world
-    // held per-instance is generated again for every test in the class. Read-only here, as everywhere.
-    val world = StandardWorld.build(WorldConfig(seed = SEED, widthCells = WORLD_CELLS, heightCells = WORLD_CELLS))
-    val config = world.config
+    val config = WorldConfig(seed = SEED, widthCells = WORLD_CELLS, heightCells = WORLD_CELLS)
+
+    val world: GeneratedWorld
+      get() {
+        return TestWorlds.get(config)
+      }
   }
 }

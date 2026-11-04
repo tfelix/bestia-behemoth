@@ -47,6 +47,7 @@ dependencies {
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+	testImplementation testFixtures(project(':worldgen'))
 	testImplementation 'org.awaitility:awaitility:4.2.2'
     testImplementation 'io.mockk:mockk:1.14.5'
 	// Plain JUnit tests over imported classes (see the architecture package); not in Boot's BOM.

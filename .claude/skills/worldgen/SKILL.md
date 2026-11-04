@@ -354,8 +354,8 @@ mode this module has shipped more than once.
 **How `:worldgen:test` stays near five minutes** (it was seventeen). Nearly all of its time is generating worlds,
 so the suite is shaped around not doing that twice, and a new test should follow the same conventions:
 
-- **A test that reads a world asks `TestWorlds.get(config, params)`** (`src/test/.../pipeline/TestWorlds.kt`), not
-  `StandardWorld.build`. A world is a pure function of its config and params and is never mutated, so ten classes
+- **A test that reads a world asks `TestWorlds.get(config, params)`** (`src/testFixtures/.../pipeline/TestWorlds.kt`,
+  which zone-server's tests use too), not `StandardWorld.build`. A world is a pure function of its config and params and is never mutated, so ten classes
   that all wanted seed 7 at 128 cells were generating it ten times. `getAll` builds a seed list side by side and
   `sweep` reduces each world to a summary without keeping it. **The exception is a test whose claim is that two builds
   agree** (`the world is reproducible from its seed`, `ParallelDeterminismTest`): given a cached world it would

@@ -1,15 +1,13 @@
 package net.bestia.zone.spawn.ecs.ambient
 
-import net.bestia.worldgen.core.Resolution
-import net.bestia.worldgen.core.WorldConfig
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.zone.world.GeneratedWorlds
 import net.bestia.zone.world.WorldGenConfig
+import net.bestia.zone.world.settlement.StandingSettlements
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import kotlin.math.cos
 import kotlin.math.sin
-import net.bestia.zone.world.settlement.StandingSettlements
 
 /**
  * That the ring around a town follows the town rather than a radius.
@@ -24,6 +22,9 @@ import net.bestia.zone.world.settlement.StandingSettlements
  * a circular fallback would pass every other assertion here perfectly.
  */
 class TownClearanceTest {
+
+  private val generated = GeneratedWorlds.dev()
+  private val settlements = StandingSettlements.of(generated)
 
   private val sut = TownClearance(generated, settlements, CLEARANCE_TILES)
 
@@ -116,9 +117,6 @@ class TownClearanceTest {
   }
 
   private companion object {
-    /** `application.yml`'s pinned seed, so this measures the world the dev server actually runs. */
-    const val DEV_SEED = 11_753_242L
-
     /** `application.yml`'s own `ambient-spawn.town-clearance-tiles`. */
     const val CLEARANCE_TILES = 100L
 
@@ -131,23 +129,5 @@ class TownClearanceTest {
     const val PROBE_METRES = 250.0
 
     private val settings = WorldGenConfig()
-
-    val config = WorldConfig(
-      seed = DEV_SEED,
-      widthCells = settings.widthCells,
-      heightCells = settings.heightCells,
-      baseResolution = Resolution(settings.cellSizeMetres),
-      seaLevel = settings.seaLevelMetres,
-      chunkSize = settings.chunkSize,
-      chunkHeight = settings.chunkHeight,
-      voxelSize = settings.voxelSizeMetres,
-      wrapX = settings.wrapX,
-      wrapY = settings.wrapY
-    )
-
-    // In the companion rather than in a property: JUnit builds a fresh test instance per method, so a world
-    // held per-instance is generated again for every test in the class. Read-only here, as everywhere.
-    val generated = StandardWorld.build(config)
-    val settlements = StandingSettlements.of(generated)
   }
 }

@@ -122,8 +122,9 @@ class WorldProvisioningTest {
     val world = provisioning.findOrCreate()
     val config = world.toWorldConfig()
 
-    // Small, because this generates two worlds and the point is reproducibility rather than size.
-    val small = config.copy(widthCells = 64, heightCells = 64)
+    // Small, because this generates two worlds and the point is reproducibility rather than size. Built directly
+    // rather than through TestWorlds, which would hand back the same world twice.
+    val small = config.copy(widthCells = 32, heightCells = 32)
     val a = StandardWorld.build(small)
     val b = StandardWorld.build(small)
 
