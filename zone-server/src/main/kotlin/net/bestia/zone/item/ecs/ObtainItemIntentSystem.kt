@@ -174,14 +174,17 @@ class ObtainItemIntentSystem(
       return
     }
 
-    lootItemEntitySpawner.spawnLootItem(
-      world = world,
-      itemId = item.id,
-      amount = intent.amount,
-      pos = pos,
-      provenance = intent.provenance,
-      roll = intent.roll,
-    )
+    // Deferred: a new ground item is a structural change, and its components are none of this system's.
+    world.defer {
+      lootItemEntitySpawner.spawnLootItem(
+        world = world,
+        itemId = item.id,
+        amount = intent.amount,
+        pos = pos,
+        provenance = intent.provenance,
+        roll = intent.roll,
+      )
+    }
   }
 
   /**
