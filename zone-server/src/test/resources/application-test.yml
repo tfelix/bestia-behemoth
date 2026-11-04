@@ -65,8 +65,12 @@ chunk-stream:
   hot-chunk-capacity: 32
 
 # A system that touches a component it did not declare breaks the wave scheduler's ordering silently.
+#
+# The logout window is 1.5 s rather than 20 s so the logout scenarios wait seconds, not minutes. It is set here
+# and not per class: a property override gives a class its own Spring context, with its own world and tick.
 world:
   undeclared-access: fail
+  logout-protection-seconds: 1.5
 
 # Every Spring context in the suite would otherwise bind the same port; PrometheusEndpointTest starts its own.
 metrics:

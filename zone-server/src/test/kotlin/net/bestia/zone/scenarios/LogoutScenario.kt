@@ -12,15 +12,14 @@ import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.TestPropertySource
 
 /**
  * Exercises the delayed-logout flow end-to-end through the ECS: requesting a logout, the countdown
  * elapsing into a despawn (which the client sees as a vanish), and cancellation by player activity.
  *
- * The logout window is shortened to keep the test fast; the tick loop is real, so timing is genuine.
+ * The test profile shortens the logout window to keep the test fast; the tick loop is real, so timing is
+ * genuine.
  */
-@TestPropertySource(properties = ["world.logout-protection-seconds=1.5"])
 class LogoutScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
   @Autowired
