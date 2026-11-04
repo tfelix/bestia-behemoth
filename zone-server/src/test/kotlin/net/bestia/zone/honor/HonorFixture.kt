@@ -20,6 +20,7 @@ import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.honor.persistence.LocalHonorRepository
@@ -65,12 +66,8 @@ class HonorFixture(systems: (HonorFixture) -> List<System> = { emptyList() }) {
   val sites = mockk<SettlementSiteIndex>().also {
     every { it.siteOf(any()) } answers {
       val index = firstArg<Int>()
-      centres[index]?.let { centre ->
-        mockk<SettlementSite> {
-          every { this@mockk.index } returns index
-          every { this@mockk.centre } returns centre
-        }
-      }
+      // A real site: stubbing `centre` would make MockK rewrite Vec2d, see NoVec2dMocksExtension.
+      centres[index]?.let { centre -> SettlementSite(index, centre, SettlementTier.VILLAGE, null, emptyList()) }
     }
     every { it.siteCovering(any(), any()) } answers {
       val index = settlementAt(Vec3L(firstArg<Long>(), secondArg<Long>(), 0L))

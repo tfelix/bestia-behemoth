@@ -1,1 +1,2 @@
 net.bestia.zone.mocks.ClearMocksExtension
+net.bestia.zone.mocks.NoVec2dMocksExtension
