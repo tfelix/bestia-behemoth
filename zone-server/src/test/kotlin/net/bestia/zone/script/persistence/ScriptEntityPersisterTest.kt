@@ -1,5 +1,6 @@
 package net.bestia.zone.script.persistence
 
+import net.bestia.zone.SpringContextLock
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.World
@@ -10,6 +11,7 @@ import net.bestia.zone.world.MasterSpawnPointService
 import net.bestia.zone.world.persistence.MasterSpawnPointRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -23,6 +25,7 @@ import kotlin.test.assertTrue
  * [net.bestia.zone.persistence.EntityPersistenceRoundTripTest].
  */
 @SpringBootTest
+@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class ScriptEntityPersisterTest {
 

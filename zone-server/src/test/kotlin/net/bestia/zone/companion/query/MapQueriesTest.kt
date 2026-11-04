@@ -6,6 +6,7 @@ import net.bestia.bus.contract.BusRequest
 import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.ZoneQuery
 import net.bestia.worldgen.vector.Aabb
+import net.bestia.zone.SpringContextLock
 import net.bestia.zone.account.BodyType
 import net.bestia.zone.account.Face
 import net.bestia.zone.account.Hairstyle
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -48,6 +50,7 @@ import kotlin.test.assertTrue
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
+@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class MapQueriesTest {
 

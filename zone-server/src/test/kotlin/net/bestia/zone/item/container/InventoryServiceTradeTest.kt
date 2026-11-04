@@ -1,5 +1,6 @@
 package net.bestia.zone.item.container
 
+import net.bestia.zone.SpringContextLock
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.item.persistence.ItemRepository
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -27,6 +29,7 @@ import org.springframework.transaction.support.TransactionTemplate
  * and an item that changes hands arrives as the same item it left as.
  */
 @SpringBootTest
+@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class InventoryServiceTradeTest {
 

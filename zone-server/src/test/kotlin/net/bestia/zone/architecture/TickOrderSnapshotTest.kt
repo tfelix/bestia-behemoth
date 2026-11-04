@@ -1,8 +1,10 @@
 package net.bestia.zone.architecture
 
+import net.bestia.zone.SpringContextLock
 import net.bestia.zone.ecs.core.EcsWorld
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -14,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles
  * change that is meant to reorder the tick updates `tick-order.txt` in the same commit.
  */
 @SpringBootTest
+@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class TickOrderSnapshotTest {
 

@@ -4,9 +4,11 @@ import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.store.PipelineVersion
 import net.bestia.worldgen.voxel.RleCodec
+import net.bestia.zone.SpringContextLock
 import net.bestia.zone.world.stream.ChunkStreamConfig
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationEventPublisher
@@ -28,6 +30,7 @@ import net.bestia.zone.world.persistence.WorldRepository
  * on every boot, so the *found* branch never runs there. These tests run it.
  */
 @SpringBootTest
+@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class WorldProvisioningTest {
 

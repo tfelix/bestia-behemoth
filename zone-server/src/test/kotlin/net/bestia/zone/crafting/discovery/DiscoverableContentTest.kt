@@ -1,14 +1,17 @@
 package net.bestia.zone.crafting.discovery
 
+import net.bestia.zone.SpringContextLock
 import net.bestia.zone.crafting.RecipeRegistry
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 
 /** Every recipe outside the starter kit has to be findable, or nobody can ever make it. */
 @SpringBootTest
+@ResourceLock(SpringContextLock.NAME)
 @ActiveProfiles("no-socket", "test")
 class DiscoverableContentTest {
 
