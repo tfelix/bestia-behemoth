@@ -8,6 +8,8 @@ const _IDLE_ANIM = "Idle"
 const _APPEAR_ANIM = "appear"
 ## The server's poses that are not emotes, as this placeholder's clips. Emotes say their own clips in [EmoteDB].
 const _POSTURE_CLIPS = {"SLEEP": "Sleep"}
+## The hover name of a species that attacks on sight.
+const _AGGRESSIVE_NAME_COLOUR := Color(1.0, 0.36, 0.32)
 
 ## Off for a scene with its own authored body, which a species' placeholder look must not replace.
 @export var draws_placeholder := true
@@ -39,6 +41,10 @@ var _species_name: String = ""
 ## An individual's name, which wins over the species when there is one. Only townsfolk have one; a
 ## wolf is a Wolf.
 var _display_name: String = ""
+## 0 until the server sends it, and the tag then leaves it out.
+var _level: int = 0
+## Whether the species hunts on sight, from the bestia DB. Its name shows red, unless it is the player's own.
+var _aggressive: bool = false
 var _guild_line: String = ""
 var _emblem_hash: String = ""
 var _emblem: NameTagEmblem = null
@@ -68,6 +74,7 @@ func setup_visual(msg: VisualComponentSMSG) -> void:
 	var bestia_resource := BestiaDB.get_instance().get_bestia(_bestia_id)
 	if bestia_resource != null and not bestia_resource.name_key.is_empty():
 		_species_name = tr(bestia_resource.name_key)
+	_aggressive = bestia_resource != null and bestia_resource.aggressive
 	apply_placeholder(bestia_resource)
 	_apply_name_tag()
 
@@ -154,12 +161,29 @@ func set_guild_tag(tag: GuildTagComponentSMSG) -> void:
 	_apply_name_tag()
 
 
+func set_level(level: int) -> void:
+	_level = level
+	_apply_name_tag()
+
+
 func _apply_name_tag() -> void:
 	if _name_tag == null:
 		return
 	var bestia_name := _display_name if not _display_name.is_empty() else _species_name
+	if _level > 0:
+		bestia_name = "%s  %s" % [bestia_name, tr("NAME_TAG_LEVEL") % _level]
 	_name_tag.text = GuildTagLine.under(bestia_name, _guild_line)
 	_emblem = GuildTagLine.show_emblem(_name_tag, _emblem, _emblem_hash)
+	_tint_name_tag()
+
+
+## Red for a species that attacks on sight, so a player can tell a wolf from a rat before walking up to it.
+## Asked again on every hover, because which entities are the player's own can be learnt after the tag was
+## written - and a tamed wolf is no threat.
+func _tint_name_tag() -> void:
+	var entities := EntityManager.get_instance()
+	var owned := entities != null and entities.is_owned_entity_id(_bestia_entity_id)
+	_name_tag.modulate = _AGGRESSIVE_NAME_COLOUR if _aggressive and not owned else Color.WHITE
 
 
 ## An owned bestia wears gear too, but this placeholder draws none of it yet, only the light it carries.
@@ -322,6 +346,7 @@ func _on_area_3d_input_event(_camera: Node, event: InputEvent, event_position: V
 
 func _on_area_3d_mouse_entered() -> void:
 	_hovered = true
+	_tint_name_tag()
 	_name_tag.visible = true
 	MouseManager.get_instance().on_object_hover(self, true)
 

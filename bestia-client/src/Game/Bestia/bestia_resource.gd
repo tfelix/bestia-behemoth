@@ -5,7 +5,7 @@ class_name BestiaResource
 ##
 ## Generated/kept in sync from zone-server's mob YMLs by './gradlew syncBestiaDb', which owns [member
 ## bestia_id], the two text keys, [member kind], [member equip_slots], [member armor_types], [member
-## non_combatant], [member habitat] and [member in_compendium]. The English text behind the keys is synced
+## non_combatant], [member habitat], [member in_compendium] and [member aggressive]. The English text behind the keys is synced
 ## into Localization/bestias.csv, where it is translated. Anything else here is pure presentation with no
 ## server equivalent and is hand-authored.
 
@@ -49,6 +49,10 @@ enum PlaceholderShape { SPHERE, CAPSULE, BOX, CYLINDER, PRISM, TORUS }
 ## click means talking rather than swinging; the server enforces the same thing with its own component,
 ## so a hand-crafted attack gets nowhere either.
 @export var non_combatant: bool = false
+
+## True for a species that attacks on sight rather than only when it is hit: its server AI profile lists the
+## KillEnemy goal. Its hover name shows red so a player can tell before walking up to it.
+@export var aggressive: bool = false
 
 ## The biomes this species spawns in, comma-separated as the mob YAML names them. Empty means anywhere on
 ## land. Read it through [method get_habitat].

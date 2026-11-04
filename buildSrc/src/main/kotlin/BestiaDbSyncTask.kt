@@ -26,6 +26,10 @@ import java.io.File
  * out the rest, whether it is a non-combatant, so a click can mean talking rather than swinging, its kind, and
  * what the Bestia Compendium shows: its habitat and whether it is listed at all.
  *
+ * It also exports whether a species **hunts on sight**, so its hover name can warn in red. The mob YML does not
+ * say that itself: it names an AI profile (`ai:`), and a species is aggressive exactly when that profile under
+ * `zone-server/src/main/resources/ai/` lists the `KillEnemy` goal, which is the same test the server's AI makes.
+ *
  * A species' **text** lives in the client, because that is where it is translated. The mob YML holds the
  * English source (`name`, `description`) beside the stats, and this task writes it into the `en` column of
  * `bestias.csv` under `BESTIA_<IDENT>` and `BESTIA_<IDENT>_DESC`, the same way [SkillDbSyncTask] feeds
@@ -51,6 +55,10 @@ abstract class BestiaDbSyncTask : DefaultTask() {
   @get:InputFile
   abstract val bestiasCsv: RegularFileProperty
 
+  /** The AI profile YMLs a mob's `ai:` names, read only to tell which of them hunt on sight. */
+  @get:InputDirectory
+  abstract val aiProfileDir: DirectoryProperty
+
   /** If true, patch/create files. If false, only report drift and fail the build on any. */
   @get:Input
   abstract val fix: Property<Boolean>
@@ -68,7 +76,9 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     val compendium: Boolean = true,
     val kind: String,
     val name: String,
-    val description: String? = null
+    val description: String? = null,
+    /** The AI profile's identifier. None spawns without AI, which never attacks first. */
+    val ai: String? = null
   ) {
     val nameKey get() = "BESTIA_${identifier.uppercase()}"
     val descriptionKey get() = "${nameKey}_DESC"
@@ -81,13 +91,23 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     }
   }
 
+  private data class AiGoalDto(val name: String)
+
+  private data class AiProfileDto(
+    val identifier: String,
+    val goals: List<AiGoalDto> = emptyList()
+  ) {
+    /** Mirrors `BestiaDomain`: only a profile that lists `KillEnemy` attacks what it has not been hit by. */
+    val huntsOnSight get() = goals.any { it.name == KILL_ENEMY_GOAL }
+  }
+
   /**
    * What this task owns in a `.tres`, keyed by the name Godot spells it with.
    *
    * Written even when the value matches `BestiaResource`'s own default, so "absent" is always drift
    * rather than sometimes meaning agreement.
    */
-  private fun exportedFields(mob: MobDto): Map<String, String> = mapOf(
+  private fun exportedFields(mob: MobDto, profiles: Map<String, AiProfileDto>): Map<String, String> = mapOf(
     "name_key" to quoted(mob.nameKey),
     "description_key" to quoted(mob.descriptionKey),
     "kind" to quoted(mob.kind.uppercase()),
@@ -96,8 +116,16 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     "non_combatant" to mob.nonCombatant.toString(),
     // Joined without spaces: a field value is matched up to the first whitespace.
     "habitat" to quoted(mob.habitat.joinToString(",") { it.uppercase() }),
-    "in_compendium" to mob.compendium.toString()
+    "in_compendium" to mob.compendium.toString(),
+    "aggressive" to aggressive(mob, profiles).toString()
   )
+
+  private fun aggressive(mob: MobDto, profiles: Map<String, AiProfileDto>): Boolean {
+    val ai = mob.ai ?: return false
+    val profile = profiles[ai]
+      ?: throw GradleException("Mob '${mob.identifier}' names AI profile '$ai', which no ai/*.yml declares. Known: ${profiles.keys.sorted()}")
+    return profile.huntsOnSight
+  }
 
   private fun quoted(value: String) = "\"$value\""
 
@@ -110,6 +138,9 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     val mobs = ymlFiles.map { mapper.readValue(it, MobDto::class.java) }
 
     val mobById = mobs.associateBy { it.id }
+
+    val profileFiles = aiProfileDir.get().asFile.listFiles { f -> f.isFile && f.extension == "yml" }?.toList() ?: emptyList()
+    val profiles = profileFiles.map { mapper.readValue(it, AiProfileDto::class.java) }.associateBy { it.identifier }
 
     val dbDir = clientDbDir.get().asFile
     if (!dbDir.exists()) {
@@ -159,7 +190,7 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     }
 
     for ((id, mob) in mobById) {
-      val expected = exportedFields(mob)
+      val expected = exportedFields(mob, profiles)
       val file = fileByBestiaId[id]
 
       if (file == null) {
@@ -255,6 +286,9 @@ abstract class BestiaDbSyncTask : DefaultTask() {
   }
 
   companion object {
+    /** The goal name in an AI profile's `goals:` that makes it attack on sight, as `BestiaDomain` spells it. */
+    private const val KILL_ENEMY_GOAL = "KillEnemy"
+
     /** Must mirror `net.bestia.zone.item.equip.EquipmentSlot`'s declaration order exactly. */
     private val SLOT_ORDER = listOf(
       "HEAD_UPPER",

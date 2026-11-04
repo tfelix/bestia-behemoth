@@ -333,8 +333,7 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		entity.vanish(msg)
 		_entities.erase(msg.EntityId)
 	elif msg is LevelComponentSMSG:
-		# no handling so far
-		pass
+		entity.update_level(msg)
 	elif msg is ExpComponentSMSG:
 		# no handling so far
 		pass

@@ -75,6 +75,9 @@ var _last_mana_msg: ManaComponentSMSG = null
 var _last_worn_gear_msg: WornGearComponentSMSG = null
 var _guild_tag: GuildTagComponentSMSG = null
 
+# Base level, 0 until the first push. Sent for everything in range, so a stranger's mob shows it on hover too.
+var _level: int = 0
+
 # True while lying dead awaiting respawn (player bodies only; mobs vanish). Gates the walk/idle pose.
 var _is_dead: bool = false
 
@@ -748,6 +751,8 @@ func _seed_visual(visual: Node) -> void:
 		visual.update_worn_gear(_last_worn_gear_msg)
 	if _guild_tag != null and visual.has_method("set_guild_tag"):
 		visual.set_guild_tag(_guild_tag)
+	if _level > 0 and visual.has_method("set_level"):
+		visual.set_level(_level)
 	if visual is Visual:
 		fx.bind(visual)
 
@@ -1308,6 +1313,18 @@ func update_mana(msg: ManaComponentSMSG) -> void:
 	var visual = get_node_or_null(_VISUAL_NODE_NAME)
 	if visual != null and _is_owned() and visual.has_method("update_mana"):
 		visual.update_mana(msg)
+
+
+func update_level(msg: LevelComponentSMSG) -> void:
+	_level = msg.Level
+	var visual = get_node_or_null(_VISUAL_NODE_NAME)
+	if visual != null and visual.has_method("set_level"):
+		visual.set_level(_level)
+
+
+## 0 until the server has sent it.
+func get_level() -> int:
+	return _level
 
 
 ## This entity, one of the player's own, struck or was struck at.

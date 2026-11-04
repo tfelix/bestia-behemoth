@@ -15,3 +15,4 @@ kind = "DEMON"
 armor_types = 15
 habitat = ""
 in_compendium = true
+aggressive = true

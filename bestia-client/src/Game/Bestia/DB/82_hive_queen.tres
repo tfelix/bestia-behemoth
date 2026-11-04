@@ -17,3 +17,4 @@ placeholder_shape = 2
 placeholder_colour = Color(0.9569, 0.7686, 0.1882, 1)
 placeholder_scale = 2.4
 placeholder_glow = 0.6
+aggressive = true

@@ -151,8 +151,9 @@ tasks.register('syncItemDb', ItemDbSyncTask) {
 
 /**
  * Exports the per-species facts the client decides things with - its equipment slot and armor type masks,
- * and whether it may be fought at all - into the client's static bestia DB. Static content that is deliberately
- * never sent over the wire. See buildSrc/src/main/kotlin/BestiaDbSyncTask.kt.
+ * whether it may be fought at all, and whether its AI profile hunts on sight - into the client's static bestia
+ * DB. Static content that is deliberately never sent over the wire. See
+ * buildSrc/src/main/kotlin/BestiaDbSyncTask.kt.
  */
 tasks.register('checkBestiaDb', BestiaDbSyncTask) {
     group = 'verification'
@@ -160,6 +161,7 @@ tasks.register('checkBestiaDb', BestiaDbSyncTask) {
     mobYmlDir = layout.projectDirectory.dir('src/main/resources/mob')
     clientDbDir = rootProject.layout.projectDirectory.dir('bestia-client/src/Game/Bestia/DB')
     bestiasCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/bestias.csv')
+    aiProfileDir = layout.projectDirectory.dir('src/main/resources/ai')
     fix = false
 }
 
@@ -171,6 +173,7 @@ tasks.register('syncBestiaDb', BestiaDbSyncTask) {
     mobYmlDir = layout.projectDirectory.dir('src/main/resources/mob')
     clientDbDir = rootProject.layout.projectDirectory.dir('bestia-client/src/Game/Bestia/DB')
     bestiasCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/bestias.csv')
+    aiProfileDir = layout.projectDirectory.dir('src/main/resources/ai')
     fix = true
 }
 

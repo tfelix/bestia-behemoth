@@ -13,3 +13,4 @@ armor_types = 15
 non_combatant = false
 habitat = ""
 in_compendium = false
+aggressive = false

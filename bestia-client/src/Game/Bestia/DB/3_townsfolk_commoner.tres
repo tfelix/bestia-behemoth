@@ -15,3 +15,4 @@ kind = "HUMANOID"
 armor_types = 15
 habitat = ""
 in_compendium = false
+aggressive = false
