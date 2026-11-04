@@ -68,18 +68,7 @@ class ZoneEngine(
 
   private val syncableComponentTypes = dirtyableComponentTypes
 
-  /**
-   * The tick runs at the highest thread priority, so a machine whose cores are all busy delays someone else.
-   *
-   * At normal priority the tick waits its turn behind every runnable thread on the box. A game client on the same
-   * machine saturating all sixteen cores while it meshed chunks made the zone overrun every second or two, with
-   * each slow tick blamed on whichever system it happened to be in - and dropped steps the client then had to
-   * catch up on. Under the same saturation a maximum-priority thread woke a median 6 ms late against 47 ms. The
-   * tick is one thread that is idle most of the time, so it cannot starve anything in return.
-   */
-  private val tickExecutor = Executors.newSingleThreadExecutor { r ->
-    Thread(r, TICK_THREAD_NAME).apply { priority = Thread.MAX_PRIORITY }
-  }
+  private val tickExecutor = Executors.newSingleThreadExecutor { r -> Thread(r, TICK_THREAD_NAME) }
   private val removedComponentOutbox = ConcurrentLinkedQueue<RemovedComponentRecord>()
 
   /** A destroyed entity's vanish, with its audience taken while the entity could still be read. */
