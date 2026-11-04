@@ -26,6 +26,7 @@ import net.bestia.zone.logout.ecs.LogoutIntentComponentSMSG
 import net.bestia.zone.logout.net.RequestLogoutCMSG
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.PathSMSG
+import net.bestia.zone.navigation.local.LocalWalkQuery
 import net.bestia.zone.control.net.MoveEntityCMSG
 import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.extensions.test
@@ -90,6 +91,9 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
 
   @Autowired
   private lateinit var masterSpawnPointService: MasterSpawnPointService
+
+  @Autowired
+  private lateinit var walkQuery: LocalWalkQuery
 
   @Autowired
   private lateinit var scenarioDataSetup: ScenarioDataSetup
@@ -174,8 +178,9 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     )
 
     // Waypoints carry absolute world coordinates, so the step has to be read off the entity rather than
-    // written down: a master spawns in the middle of the map, not at the origin.
-    val step = start.copy(y = start.y + 1)
+    // written down: a master spawns in the middle of the map, not at the origin. The spawn is scattered, so a
+    // fixed direction sometimes faces a cliff or a tree the zone rightly refuses to walk into.
+    val step = walkableNeighbourOf(start)
 
     clientPlayer1.sendMessage(
       MoveEntityCMSG(
@@ -656,6 +661,21 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
    * The pile or copy the player would drag: the first unworn one their inventory shows. Asked for afresh, because
    * the buffer is cleared between steps.
    */
+  /**
+   * Waits for the ground around [start] to load first: the walk query only judges loaded ground. Read inside
+   * the world lease, because the walk query is the tick's and the tick waits while the test reads.
+   */
+  private fun walkableNeighbourOf(start: Vec3L): Vec3L {
+    val neighbours = listOf(0L to 1L, 1L to 0L, 0L to -1L, -1L to 0L, 1L to 1L, 1L to -1L, -1L to 1L, -1L to -1L)
+      .map { (dx, dy) -> start.copy(x = start.x + dx, y = start.y + dy) }
+
+    await { assertTrue(world.read { (neighbours + start).all { walkQuery.isResident(it) } }, "ground not loaded") }
+
+    return world.read {
+      assertNotNull(neighbours.firstOrNull { walkQuery.canStep(start, it) }, "the master spawned boxed in")
+    }
+  }
+
   private fun heldPlayerItemIdOf(itemId: Long): Long {
     clientPlayer1.sendMessage(GetInventoryCMSG(clientPlayer1.connectedPlayerId))
 
