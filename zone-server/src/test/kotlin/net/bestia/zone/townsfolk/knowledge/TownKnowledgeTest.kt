@@ -1,6 +1,7 @@
 package net.bestia.zone.townsfolk.knowledge
 
 import net.bestia.worldgen.core.EventKind
+import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pop.EconomyProbe
 import net.bestia.worldgen.pop.Household
@@ -342,7 +343,7 @@ class TownKnowledgeTest {
   }
 
   private fun positionsOf(world: GeneratedWorld): Map<Int, Vec2d> {
-    return POSITIONS.getOrPut(world) { SettlementLoreService.settlementPositions(world) }
+    return POSITIONS.getOrPut(world.config) { SettlementLoreService.settlementPositions(world) }
   }
 
   private fun build(seed: Long): GeneratedWorld {
@@ -362,7 +363,8 @@ class TownKnowledgeTest {
 
   private companion object {
 
-    val POSITIONS = HashMap<GeneratedWorld, Map<Int, Vec2d>>()
+    /** By config, not by world: a world as key would keep it for the rest of the run. */
+    val POSITIONS = HashMap<WorldConfig, Map<Int, Vec2d>>()
 
     /** Below this a town cannot tell "one household" from "most of them", so the tier tests skip it. */
     const val MEANINGFUL_TOWN = 20

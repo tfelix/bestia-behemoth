@@ -1,9 +1,14 @@
 package net.bestia.zone.architecture
 
 import com.tngtech.archunit.base.DescribedPredicate.describe
+import com.tngtech.archunit.core.domain.JavaField
+import com.tngtech.archunit.core.domain.JavaGenericArrayType
 import com.tngtech.archunit.core.domain.JavaMethodCall
-import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields
+import com.tngtech.archunit.core.domain.JavaParameterizedType
+import com.tngtech.archunit.core.domain.JavaType
+import com.tngtech.archunit.core.domain.JavaWildcardType
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
+import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.zone.world.GeneratedWorlds
@@ -50,11 +55,23 @@ class TestWorldRulesTest {
     assertEquals(emptyList(), unmarked)
   }
 
+  private val holdsAWorld = describe<JavaField>("hold a GeneratedWorld") { field -> mentionsAWorld(field.type) }
+
+  /** [GeneratedWorlds] pins the large worlds on purpose; its group lets them go. */
   @Test
   fun `no test holds a generated world in a static field`() {
-    fields().that().haveRawType(GeneratedWorld::class.java)
-      .should().notBeStatic()
+    noFields().that(holdsAWorld).and().areNotDeclaredIn(GeneratedWorlds::class.java).should().beStatic()
       .allowEmptyShould(true)
       .check(ZoneClasses.tests)
+  }
+
+  /** The world itself, or a world inside a map, list or array: a static cache keyed by worlds pins them too. */
+  private fun mentionsAWorld(type: JavaType): Boolean {
+    return when (type) {
+      is JavaParameterizedType -> mentionsAWorld(type.toErasure()) || type.actualTypeArguments.any { mentionsAWorld(it) }
+      is JavaWildcardType -> (type.upperBounds + type.lowerBounds).any { mentionsAWorld(it) }
+      is JavaGenericArrayType -> mentionsAWorld(type.componentType)
+      else -> type.toErasure().baseComponentType.isEquivalentTo(GeneratedWorld::class.java)
+    }
   }
 }
