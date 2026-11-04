@@ -56,8 +56,8 @@ class InventoryServiceTransferTest {
 
   private val created = mutableListOf<PlayerBestiaId>()
 
-  private fun masterA() = testFixture.account1.masterIds.first()
-  private fun masterB() = testFixture.account2.masterIds.first()
+  private fun masterA() = testFixture.itemTestMasterIds[0]
+  private fun masterB() = testFixture.itemTestMasterIds[1]
 
   private fun bestiaOf(masterId: Long): PlayerBestiaId = tx.execute {
     val master = masterRepository.findByIdOrThrow(masterId)

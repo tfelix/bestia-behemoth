@@ -115,7 +115,12 @@ class ScenarioDataSetup(
     val account1: AccountData,
     val account2: AccountData,
     val account3: AccountData,
-    val bestia1: Bestia
+    val bestia1: Bestia,
+    /**
+     * Two masters on two accounts that no scenario logs in with, for tests that change a bag in the database.
+     * Scenarios play the other accounts' masters; grants left in their bags made a later scenario's grant overflow.
+     */
+    val itemTestMasterIds: List<Long>
   ) {
     data class AccountData(
       val account: Account,
@@ -142,7 +147,11 @@ class ScenarioDataSetup(
       account1,
       account2,
       account3,
-      bestiaRepository.findByIdOrThrow(1)
+      bestiaRepository.findByIdOrThrow(1),
+      listOf(
+        createItemTestMaster(ITEM_TEST_ACCOUNT_A, "itemtesta"),
+        createItemTestMaster(ITEM_TEST_ACCOUNT_B, "itemtestb")
+      )
     )
 
     // Register TestFixture as a singleton bean for injection in tests
@@ -282,9 +291,32 @@ class ScenarioDataSetup(
     )
   }
 
+  private fun createItemTestMaster(accountId: Long, name: String): Long {
+    val account = accountFactory.createAccount(accountId)
+    val master = masterFactory.create(
+      account.id,
+      MasterFactory.CreateMasterData(
+        name = name,
+        hairColor = Color.BLUE,
+        skinColor = Color.BLUE,
+        hair = Hairstyle.HAIR_1,
+        face = Face.FACE_1,
+        body = BodyType.BODY_M_1,
+        spawnPointId = defaultSpawnPointId(),
+        slot = 0
+      )
+    )
+
+    return master.id
+  }
+
   companion object {
     /** Full rank, so no scenario has to know which of the five unlocks it happens to need. */
     private const val FIXTURE_BASIC_SKILL_LEVEL = 5
+
+    /** Clear of the accounts `MasterCreateScenario` creates. */
+    private const val ITEM_TEST_ACCOUNT_A = 101L
+    private const val ITEM_TEST_ACCOUNT_B = 102L
 
     private val LOG = KotlinLogging.logger { }
   }

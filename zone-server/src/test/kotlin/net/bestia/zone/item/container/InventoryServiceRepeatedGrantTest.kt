@@ -42,7 +42,7 @@ class InventoryServiceRepeatedGrantTest {
 
   @Test
   fun `granting three items across separate calls does not duplicate earlier grants`() {
-    val masterId = testFixture.account1.masterIds.first()
+    val masterId = testFixture.itemTestMasterIds[0]
     val transactionTemplate = TransactionTemplate(transactionManager)
 
     // Each call below is its own top-level transaction: this test method itself is not @Transactional.
@@ -73,7 +73,7 @@ class InventoryServiceRepeatedGrantTest {
   /** The live inventory already shows these ids, so the rows have to carry them too. */
   @Test
   fun `fresh copies are saved under the ids the live inventory minted`() {
-    val masterId = testFixture.account1.masterIds.first()
+    val masterId = testFixture.itemTestMasterIds[0]
     val transactionTemplate = TransactionTemplate(transactionManager)
     val boots = transactionTemplate.execute { itemRepository.findByIdentifierOrThrow("boots") }!!
     val minted = listOf(PlayerItemIds.next(), PlayerItemIds.next())

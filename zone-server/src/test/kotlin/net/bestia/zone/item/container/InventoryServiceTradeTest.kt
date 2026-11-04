@@ -50,8 +50,8 @@ class InventoryServiceTradeTest {
 
   private val tx: TransactionTemplate get() = TransactionTemplate(transactionManager)
 
-  private fun masterA() = testFixture.account1.masterIds.first()
-  private fun masterB() = testFixture.account2.masterIds.first()
+  private fun masterA() = testFixture.itemTestMasterIds[0]
+  private fun masterB() = testFixture.itemTestMasterIds[1]
 
   private fun heldAmount(masterId: Long, identifier: String): Int = tx.execute {
     val itemId = itemRepository.findByIdentifierOrThrow(identifier).id

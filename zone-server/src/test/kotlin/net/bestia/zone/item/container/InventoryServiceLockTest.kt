@@ -42,7 +42,7 @@ class InventoryServiceLockTest {
 
   @Test
   fun `a grant waits while another transaction holds the master row`() {
-    val masterId = testFixture.account2.masterIds.first()
+    val masterId = testFixture.itemTestMasterIds[1]
     val apple = itemRepository.findByIdentifierOrThrow("apple")
     val holderLocked = CountDownLatch(1)
     val releaseHolder = CountDownLatch(1)
