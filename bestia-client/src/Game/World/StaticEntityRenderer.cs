@@ -477,10 +477,14 @@ namespace BestiaBehemothClient.Game.World
       Node3D container, ChunkStaticEntitiesSMSG.Entry entry, Vector3 position, Vector2 size,
       PropAppearance.Kind appearance)
     {
+      // Picked by the mouse ray only, which reads the layer. Monitoring would have the physics step test every
+      // picker against the terrain under it for overlaps nothing listens to - the entity visuals switch it off too.
       var area = new Area3D
       {
         Name = $"prop {entry.EntityId}",
-        Transform = new Transform3D(new Basis(Vector3.Up, entry.Yaw), position)
+        Transform = new Transform3D(new Basis(Vector3.Up, entry.Yaw), position),
+        Monitoring = false,
+        CollisionMask = 0
       };
 
       // Before AddChild, so the script is attached by the time the node enters the tree - the same ordering

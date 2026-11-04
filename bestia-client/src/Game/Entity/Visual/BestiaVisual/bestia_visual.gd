@@ -15,9 +15,10 @@ const _POSTURE_CLIPS = {"SLEEP": "Sleep"}
 ## capsule is the body itself.
 @export var body: Node3D
 @export var model: MeshInstance3D
-## Takes the clicks and hovers; switched off while the body vanishes.
+## Takes the clicks and hovers; switched off while the body vanishes. Its shape is the scene's 1 m sphere for
+## every placeholder, whatever shape the species draws: it only catches the mouse ray, so a sphere about the
+## body's size aims as well as an exact outline, and costs nothing to build or to test.
 @export var pick_area: Area3D
-@export var pick_shape: CollisionShape3D
 
 ## How far the body is faded out, 0 to 1. The appear and death clips animate this rather than a material,
 ## so a body made of several meshes fades as one and a species' colour is never overwritten.
@@ -86,7 +87,6 @@ func apply_placeholder(species: BestiaResource) -> void:
 		var mesh := _placeholder_mesh(species.placeholder_shape)
 		mesh.material = material
 		model.mesh = mesh
-		pick_shape.shape = _placeholder_pick_shape(species.placeholder_shape)
 		# Standing up, a ring reads as a ring and touches the ground like the sphere does.
 		if species.placeholder_shape == BestiaResource.PlaceholderShape.TORUS:
 			model.rotation_degrees.x = 90.0
@@ -122,47 +122,6 @@ func _placeholder_mesh(shape: BestiaResource.PlaceholderShape) -> PrimitiveMesh:
 			torus.outer_radius = 0.5
 			return torus
 	return SphereMesh.new()
-
-
-## The click target for [param shape]: a physics primitive the size of [method _placeholder_mesh]'s mesh.
-##
-## Not [method Mesh.create_convex_shape]. A capsule or torus mesh has over a thousand vertices and its hull
-## kept them all, and the pick area tests its shape against the terrain's triangles every physics step: 80
-## capsule hulls cost 40 ms a step against 0.25 ms for spheres, and with Godot running up to eight steps
-## into a slow frame that took every core and the zone's tick with it.
-func _placeholder_pick_shape(shape: BestiaResource.PlaceholderShape) -> Shape3D:
-	match shape:
-		BestiaResource.PlaceholderShape.CAPSULE:
-			var capsule := CapsuleShape3D.new()
-			capsule.radius = 0.3
-			capsule.height = 1.0
-			return capsule
-		BestiaResource.PlaceholderShape.BOX:
-			var box := BoxShape3D.new()
-			box.size = Vector3(0.9, 0.9, 0.9)
-			return box
-		BestiaResource.PlaceholderShape.CYLINDER:
-			var cylinder := CylinderShape3D.new()
-			cylinder.radius = 0.35
-			cylinder.height = 1.0
-			return cylinder
-		BestiaResource.PlaceholderShape.PRISM:
-			# The six corners of the 1 x 1 x 0.7 prism, apex centred, which is all its hull ever needed.
-			var prism := ConvexPolygonShape3D.new()
-			prism.points = PackedVector3Array([
-				Vector3(-0.5, -0.5, -0.35), Vector3(0.5, -0.5, -0.35), Vector3(0.0, 0.5, -0.35),
-				Vector3(-0.5, -0.5, 0.35), Vector3(0.5, -0.5, 0.35), Vector3(0.0, 0.5, 0.35),
-			])
-			return prism
-		BestiaResource.PlaceholderShape.TORUS:
-			# A disc as wide as the ring and as thick as its tube; the hole is too small to aim through.
-			var torus := CylinderShape3D.new()
-			torus.radius = 0.5
-			torus.height = 0.28
-			return torus
-	var sphere := SphereShape3D.new()
-	sphere.radius = 0.5
-	return sphere
 
 
 ## The Idle and Sleep clips animate Model:scale, so the size goes on its parent. What sits above the body

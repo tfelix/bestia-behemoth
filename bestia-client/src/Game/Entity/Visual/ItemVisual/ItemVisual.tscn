@@ -54,6 +54,8 @@ process_material = SubResource("ParticleProcessMaterial_n0gxs")
 draw_pass_1 = SubResource("QuadMesh_iygyh")
 
 [node name="Area3D" type="Area3D" parent="."]
+monitoring = false
+collision_mask = 0
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

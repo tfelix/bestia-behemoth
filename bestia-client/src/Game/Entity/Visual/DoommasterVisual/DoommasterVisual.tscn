@@ -246,12 +246,11 @@ _data = {
 &"death": SubResource("Anim_death")
 }
 
-[node name="DoommasterVisual" type="Node3D" node_paths=PackedStringArray("body", "model", "pick_area", "pick_shape")]
+[node name="DoommasterVisual" type="Node3D" node_paths=PackedStringArray("body", "model", "pick_area")]
 script = ExtResource("1_script")
 body = NodePath("Body")
 model = NodePath("Body/Model")
 pick_area = NodePath("Body/Model/Area3D")
-pick_shape = NodePath("Body/Model/Area3D/CollisionShape3D")
 draws_placeholder = false
 
 [node name="Body" type="Node3D" parent="."]
@@ -261,6 +260,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.775, 0)
 mesh = SubResource("Mesh_cloak")
 
 [node name="Area3D" type="Area3D" parent="Body/Model"]
+monitoring = false
+collision_mask = 0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Body/Model/Area3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
