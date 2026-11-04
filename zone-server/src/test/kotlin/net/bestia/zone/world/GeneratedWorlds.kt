@@ -9,6 +9,9 @@ import net.bestia.worldgen.pipeline.TestWorlds
  *
  * A test reads these and never mutates them. Hold one in an instance property or a local, never in a companion:
  * a static reference keeps the world for the rest of the run, and [TestWorlds] can only free what nobody holds.
+ *
+ * [of] pins its worlds until [releaseLarge]: a soft reference alone let a full heap drop them between two classes,
+ * and rebuilding three of them took minutes. See [ReadsLargeWorlds].
  */
 object GeneratedWorlds {
 
@@ -29,8 +32,17 @@ object GeneratedWorlds {
   /** The world the dev server runs, from the birth settings' defaults. The Spring test context runs it too. */
   val devConfig: WorldConfig = WorldGenConfig().toWorldConfig(DEV_SEED)
 
+  private val pinned = HashMap<WorldConfig, GeneratedWorld>()
+
+  @Synchronized
   fun of(seed: Long, cells: Int = CELLS): GeneratedWorld {
-    return TestWorlds.get(WorldConfig(seed = seed, widthCells = cells, heightCells = cells))
+    val config = WorldConfig(seed = seed, widthCells = cells, heightCells = cells)
+    return pinned.getOrPut(config) { TestWorlds.get(config) }
+  }
+
+  @Synchronized
+  fun releaseLarge() {
+    pinned.clear()
   }
 
   fun dev(): GeneratedWorld {

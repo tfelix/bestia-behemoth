@@ -5,6 +5,7 @@ import net.bestia.worldgen.vector.Aabb
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.zone.world.GeneratedWorlds
+import net.bestia.zone.world.ReadsLargeWorlds
 import org.junit.jupiter.api.Test
 import kotlin.test.assertTrue
 
@@ -21,6 +22,7 @@ import kotlin.test.assertTrue
  * nothing to check. So the two tests here cover each other: the closed set catches a kind classified as a place
  * with no word for it, and the sweep catches a kind that turns out to reach the client after all.
  */
+@ReadsLargeWorlds
 class PlaceLabelTest {
 
   @Test

@@ -7,6 +7,7 @@ import net.bestia.worldgen.vector.LinearFeatures
 import net.bestia.worldgen.vector.Polyline
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.world.GeneratedWorlds
+import net.bestia.zone.world.ReadsLargeWorlds
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.awt.RenderingHints
@@ -21,6 +22,7 @@ import kotlin.test.assertTrue
  * the map simply had one kind of road on it.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ReadsLargeWorlds
 class RouteInkTest {
 
   private val world: TileInputs by lazy { TileInputs.of(GeneratedWorlds.of(GeneratedWorlds.SEEDS.first())) }

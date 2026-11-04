@@ -18,6 +18,7 @@ import kotlin.test.assertTrue
  * Wetness is read off materialised voxels rather than off the samplers [ArrivalScatter] uses, so the test
  * does not agree with the code merely by sharing its mistakes.
  */
+@ReadsLargeWorlds
 class ArrivalScatterTest {
 
   private val generated = GeneratedWorlds.of(GeneratedWorlds.SEEDS.first())

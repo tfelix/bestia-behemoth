@@ -2,6 +2,7 @@ package net.bestia.zone.townsfolk.knowledge
 
 import net.bestia.worldgen.core.EventKind
 import net.bestia.zone.world.GeneratedWorlds
+import net.bestia.zone.world.ReadsLargeWorlds
 import org.junit.jupiter.api.Test
 import kotlin.test.assertTrue
 
@@ -17,6 +18,7 @@ import kotlin.test.assertTrue
  * would like to. Several kinds are like that, and a few more carry an actor only sometimes - the
  * abandon family attaches a civilisation only where one still held the place.
  */
+@ReadsLargeWorlds
 class HistoryLineTest {
 
   @Test

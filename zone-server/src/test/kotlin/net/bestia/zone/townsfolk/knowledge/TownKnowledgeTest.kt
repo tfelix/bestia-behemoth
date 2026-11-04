@@ -9,6 +9,7 @@ import net.bestia.worldgen.pop.PopulationSummary
 import net.bestia.worldgen.pop.Sector
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.world.GeneratedWorlds
+import net.bestia.zone.world.ReadsLargeWorlds
 import net.bestia.zone.world.SettlementLoreService
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -28,6 +29,7 @@ import kotlin.test.assertTrue
  * nothing, so a per-seed assertion would either flake or be pinned to a lucky seed - and neither tells a
  * rare thing working apart from a dead one. `SettlementLoreTest` makes the same argument one tier down.
  */
+@ReadsLargeWorlds
 class TownKnowledgeTest {
 
   /**

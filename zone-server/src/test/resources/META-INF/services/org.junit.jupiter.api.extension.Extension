@@ -1,2 +1,3 @@
 net.bestia.zone.mocks.ClearMocksExtension
 net.bestia.zone.mocks.NoVec2dMocksExtension
+net.bestia.zone.world.ReleaseLargeWorldsExtension

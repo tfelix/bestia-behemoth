@@ -6,11 +6,13 @@ import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.civ.SettlementSpawnPoints
 import net.bestia.zone.world.GeneratedWorlds
 import net.bestia.zone.world.MasterSpawnPointService
+import net.bestia.zone.world.ReadsLargeWorlds
 import net.bestia.zone.world.WorldService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
+@ReadsLargeWorlds
 class StartTownMarketsTest {
 
   private val generated = GeneratedWorlds.of(42L)
