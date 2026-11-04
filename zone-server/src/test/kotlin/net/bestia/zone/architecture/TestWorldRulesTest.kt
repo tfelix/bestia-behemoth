@@ -11,8 +11,8 @@ import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.zone.fixtures.HeavyFixture
 import net.bestia.zone.world.GeneratedWorlds
-import net.bestia.zone.world.ReadsLargeWorlds
 import net.bestia.zone.world.WorldProvisioningTest
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -22,6 +22,7 @@ import kotlin.test.assertEquals
  * short. A test that builds its own, or pins one in a static field, brings back the full heap these rules exist
  * to prevent.
  */
+@ReadsZoneClasses
 class TestWorldRulesTest {
 
   /** Classes whose claim is that two builds agree; a cached world would compare a world with itself. */
@@ -38,21 +39,23 @@ class TestWorldRulesTest {
       .check(ZoneClasses.tests)
   }
 
-  private val readsALargeWorld = describe<JavaMethodCall>("GeneratedWorlds.of") { call ->
-    call.targetOwner.isEquivalentTo(GeneratedWorlds::class.java) && call.name.startsWith("of")
-  }
-
-  /** Unmarked, a class would run outside the group, after the large worlds were let go, and build them again. */
+  /** Unmarked, a class would run outside its group, after the fixture was let go, and build it again. */
   @Test
-  fun `a test that reads a large world is marked so it runs in the group`() {
-    val unmarked = ZoneClasses.tests
-      .filter { type -> type.methodCallsFromSelf.any { readsALargeWorld.test(it) } }
-      .map { type -> generateSequence(type) { it.enclosingClass.orElse(null) }.last() }
-      .filterNot { it.isEquivalentTo(GeneratedWorlds::class.java) || it.isAnnotatedWith(ReadsLargeWorlds::class.java) }
-      .map { it.simpleName }
-      .distinct()
+  fun `a test that reads a heavy fixture is marked so it runs in the group`() {
+    val unmarked = HeavyFixture.entries.flatMap { fixture ->
+      ZoneClasses.tests
+        .filter { type -> type.methodCallsFromSelf.any { it.reads(fixture) } }
+        .map { type -> generateSequence(type) { it.enclosingClass.orElse(null) }.last() }
+        .filterNot { it.isEquivalentTo(fixture.holder) || it.isAnnotatedWith(fixture.marker) }
+        .map { "${it.simpleName} reads ${fixture.name}" }
+    }.distinct()
 
     assertEquals(emptyList(), unmarked)
+  }
+
+  private fun JavaMethodCall.reads(fixture: HeavyFixture): Boolean {
+    // Kotlin calls `of$default` for a call that leaves out a default argument.
+    return targetOwner.isEquivalentTo(fixture.holder) && name.substringBefore('$') in fixture.readers
   }
 
   private val holdsAWorld = describe<JavaField>("hold a GeneratedWorld") { field -> mentionsAWorld(field.type) }

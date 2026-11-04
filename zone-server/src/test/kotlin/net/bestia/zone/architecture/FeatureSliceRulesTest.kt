@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.data.repository.Repository
 
 /** What each part of the zone may depend on. The packages at the bottom depend on nothing above them. */
+@ReadsZoneClasses
 class FeatureSliceRulesTest {
 
   @Test

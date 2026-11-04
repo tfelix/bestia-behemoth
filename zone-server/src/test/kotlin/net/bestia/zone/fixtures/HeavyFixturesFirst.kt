@@ -1,14 +1,14 @@
-package net.bestia.zone.world
+package net.bestia.zone.fixtures
 
 import org.junit.jupiter.api.ClassOrderer
 import org.junit.jupiter.api.ClassOrdererContext
 
-/** Runs every [ReadsLargeWorlds] class first, so each large world is built once and then freed. Others keep their order. */
-class LargeWorldsFirst : ClassOrderer {
+/** Runs the classes of each [HeavyFixture] back to back, in the enum's order, before all others. Others keep their order. */
+class HeavyFixturesFirst : ClassOrderer {
 
   override fun orderClasses(context: ClassOrdererContext) {
     context.classDescriptors.sortBy { descriptor ->
-      if (descriptor.isAnnotated(ReadsLargeWorlds::class.java)) 0 else 1
+      HeavyFixture.readBy(descriptor.testClass)?.ordinal ?: HeavyFixture.entries.size
     }
   }
 }

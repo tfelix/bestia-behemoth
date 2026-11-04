@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
  * A `@Lob` without a length becomes a 255-byte `tinyblob` or `tinytext` on MariaDB, and a larger value then
  * fails to insert. The tests run on H2, which does not care, so the length is checked here instead.
  */
+@ReadsZoneClasses
 class LobColumnRulesTest {
 
   @Test
