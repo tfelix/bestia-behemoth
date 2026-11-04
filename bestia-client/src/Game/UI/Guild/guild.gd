@@ -27,6 +27,7 @@ var _rank_rows: Dictionary[int, GuildRankRow] = {}
 var _last_invited := ""
 ## A loading screen ended before the first guild arrived, so the message of the day is shown when it does.
 var _motd_due := false
+var _emblems: EmblemCache
 
 var _header_emblem: TextureRect
 var _name: Label
@@ -95,10 +96,12 @@ func _ready() -> void:
 	ConnectionManager.operation_success.connect(_on_operation_success)
 	visibility_changed.connect(_refresh_log)
 	SceneManager.loading_finished.connect(_on_loading_finished)
-	EmblemCache.emblem_ready.connect(func(hash: String) -> void:
-		if _info != null and hash == _info.EmblemHash:
-			_show_emblem(hash)
-	)
+	_emblems = EmblemCache.get_instance()
+	if _emblems != null:
+		_emblems.emblem_ready.connect(func(hash: String) -> void:
+			if _info != null and hash == _info.EmblemHash:
+				_show_emblem(hash)
+		)
 	var entities := EntityManager.get_instance()
 	if entities != null:
 		entities.guild_beacon_changed.connect(_on_guild_beacon_changed)
@@ -667,7 +670,7 @@ func _show_emblem_controls(info: GuildInfoSMSG, is_leader: bool) -> void:
 
 ## Until the picture arrives, the frames stay empty rather than showing the previous guild's.
 func _show_emblem(hash: String) -> void:
-	var texture := EmblemCache.texture_of(hash)
+	var texture: ImageTexture = _emblems.texture_of(hash) if _emblems != null else null
 	_header_emblem.texture = texture
 	_header_emblem.visible = not hash.is_empty()
 	_emblem_preview.texture = texture

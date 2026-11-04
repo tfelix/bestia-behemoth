@@ -34,6 +34,7 @@ signal mark_rename_requested(index: int)
 
 const _ROUTES := "routes"
 
+@export var notebook: Notebook
 
 @onready var _view: MapView = $Panel/Margin/Rows/Body/View
 @onready var _travel: TravelPanel = $Panel/Margin/Rows/Body/Travel
@@ -126,13 +127,13 @@ func _wire_travel(entities: EntityManager) -> void:
 	_travel.route_sent.connect(_send_along_route)
 	_travel.route_renamed.connect(_rename_route)
 	_travel.route_deleted.connect(func(route: Dictionary) -> void:
-		Notebook.delete(_ROUTES, route["key"], route["revision"])
+		notebook.delete(_ROUTES, route["key"], route["revision"])
 	)
-	Notebook.collection_changed.connect(func(collection: String) -> void:
+	notebook.collection_changed.connect(func(collection: String) -> void:
 		if collection == _ROUTES:
-			_travel.show_routes(Notebook.entries(_ROUTES))
+			_travel.show_routes(notebook.entries(_ROUTES))
 	)
-	Notebook.watch(_ROUTES)
+	notebook.watch(_ROUTES)
 	entities.journey_changed.connect(func(entity_id: int) -> void:
 		if entity_id == _travel.chosen_entity_id():
 			_travel.show_journey(entities.get_journey(entity_id))
@@ -150,14 +151,14 @@ func _save_draft_as_route() -> void:
 
 	var points: Array[Vector2] = [from]
 	points.append_array(_view.draft)
-	Notebook.put(_ROUTES, "", {"name": "", "waypoints": _points_json(points)}, 0)
+	notebook.put(_ROUTES, "", {"name": "", "waypoints": _points_json(points)}, 0)
 	_leave_route_mode()
 
 
 ## An empty name gives the route its made name back.
 func _rename_route(route: Dictionary, new_name: String) -> void:
 	var value: Dictionary = route["value"]
-	Notebook.put(_ROUTES, route["key"], {"name": new_name, "waypoints": value.get("waypoints", [])}, route["revision"])
+	notebook.put(_ROUTES, route["key"], {"name": new_name, "waypoints": value.get("waypoints", [])}, route["revision"])
 
 
 func _send_along_route(route: Dictionary, backwards: bool) -> void:

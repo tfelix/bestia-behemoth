@@ -25,19 +25,21 @@ const MAX_MARKS := 200
 const MAX_NAME_LENGTH := 32
 const ICONS: Array[String] = ["pin", "star", "danger", "treasure", "camp", "resource"]
 
+@export var notebook: Notebook
+
 var _marks: Array[Dictionary] = []
 var _hidden_services: Array[String] = []
 var _grid_overlay := false
 
 
 func _ready() -> void:
-	Notebook.collection_changed.connect(_on_collection_changed)
+	notebook.collection_changed.connect(_on_collection_changed)
 
 
 ## Asks for the marks and preferences of the master now played.
 func watch() -> void:
-	Notebook.watch(MARKS)
-	Notebook.watch(PREFS)
+	notebook.watch(MARKS)
+	notebook.watch(PREFS)
 
 
 ## The service kinds switched off in the legend. Empty - everything shown - for a master who never touched it.
@@ -81,7 +83,7 @@ func add(mark_name: String, at: Vector2, icon: String = "pin") -> bool:
 	if trimmed.is_empty() or _marks.size() >= MAX_MARKS:
 		return false
 
-	Notebook.put(MARKS, "", _body(trimmed, at, icon, ""), 0)
+	notebook.put(MARKS, "", _body(trimmed, at, icon, ""), 0)
 	return true
 
 
@@ -92,7 +94,7 @@ func rename(index: int, mark_name: String) -> bool:
 
 	var mark := _marks[index]
 	var at := Vector2(float(mark["x"]), float(mark["y"]))
-	Notebook.put(MARKS, mark["key"], _body(trimmed, at, mark["icon"], mark["note"]), mark["revision"])
+	notebook.put(MARKS, mark["key"], _body(trimmed, at, mark["icon"], mark["note"]), mark["revision"])
 	return true
 
 
@@ -100,7 +102,7 @@ func remove(index: int) -> bool:
 	if index < 0 or index >= _marks.size():
 		return false
 
-	Notebook.delete(MARKS, _marks[index]["key"], _marks[index]["revision"])
+	notebook.delete(MARKS, _marks[index]["key"], _marks[index]["revision"])
 	return true
 
 
@@ -127,7 +129,7 @@ static func _body(mark_name: String, at: Vector2, icon: String, note: String) ->
 
 
 func _write_prefs(hidden: Array[String], grid: bool) -> void:
-	Notebook.put(PREFS, Notebook.SINGLE_KEY, {"hiddenServiceKinds": hidden, "gridOverlay": grid})
+	notebook.put(PREFS, Notebook.SINGLE_KEY, {"hiddenServiceKinds": hidden, "gridOverlay": grid})
 
 
 func _on_collection_changed(collection: String) -> void:
@@ -142,7 +144,7 @@ func _on_collection_changed(collection: String) -> void:
 ## one must cost one mark rather than a crash per frame.
 func _read_marks() -> void:
 	_marks = []
-	for held in Notebook.entries(MARKS):
+	for held in notebook.entries(MARKS):
 		var value: Variant = held["value"]
 		if not value is Dictionary:
 			continue
@@ -164,7 +166,7 @@ func _read_marks() -> void:
 ## Shown and gridless are the defaults to fall back to: a legend that lost its settings costs a click, one that
 ## came back hiding everything would look like a map with no services on it.
 func _read_prefs() -> void:
-	var prefs := Notebook.document(PREFS)
+	var prefs := notebook.document(PREFS)
 
 	var hidden: Array[String] = []
 	var kinds: Variant = prefs.get("hiddenServiceKinds", [])

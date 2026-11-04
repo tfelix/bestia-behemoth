@@ -153,15 +153,19 @@ func _action_for_bestia(visual: BestiaVisual) -> int:
 	var entity_manager := EntityManager.get_instance()
 	var entity := entity_manager.get_entity(visual.get_bestia_entity_id())
 
+	# Already gone from the world - a mob playing its death on the way out - so there is nothing left to do to it.
+	if entity == null:
+		return DefaultAction.Kind.NONE
+
 	# One of our own bestia: switching to it is the party panel's job, so a click only selects it.
 	if entity_manager.is_owned_entity_id(visual.get_bestia_entity_id()):
 		return DefaultAction.Kind.SELECT
 
-	if entity != null and entity_manager.is_entity_friendly(entity):
+	if entity_manager.is_entity_friendly(entity):
 		return DefaultAction.Kind.TALK
 
 	# Warded or dead: the server would refuse the blow, so a click only looks.
-	if entity != null and not entity_manager.can_be_harmed(entity):
+	if not entity_manager.can_be_harmed(entity):
 		return DefaultAction.Kind.SELECT
 
 	return DefaultAction.Kind.ATTACK

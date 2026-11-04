@@ -20,10 +20,13 @@ func _init() -> void:
 
 
 func _ready() -> void:
-	EmblemCache.emblem_ready.connect(func(ready_hash: String) -> void:
-		if ready_hash == _hash:
-			_refresh()
-	)
+	# None outside the world: menu previews draw the same visuals.
+	var cache := EmblemCache.get_instance()
+	if cache != null:
+		cache.emblem_ready.connect(func(ready_hash: String) -> void:
+			if ready_hash == _hash:
+				_refresh()
+		)
 	# The window may have been resized since the last time, which changes what one screen pixel is.
 	visibility_changed.connect(func() -> void:
 		if is_visible_in_tree():
@@ -39,7 +42,8 @@ func show_beside(label: Label3D, hash: String) -> void:
 
 
 func _refresh() -> void:
-	texture = EmblemCache.texture_of(_hash)
+	var cache := EmblemCache.get_instance()
+	texture = cache.texture_of(_hash) if cache != null else null
 	visible = texture != null and _label != null
 	if visible:
 		_place()
@@ -50,7 +54,7 @@ func _place() -> void:
 	if texture == null or _label == null:
 		return
 
-	pixel_size = _one_texel_per_screen_pixel()
+	pixel_size = one_texel_per_screen_pixel(get_viewport(), _label.pixel_size)
 	render_priority = _label.render_priority + 1
 	var label_to_screen := _label.pixel_size / pixel_size
 	var font: Font = _label.font if _label.font != null else ThemeDB.fallback_font
@@ -60,11 +64,12 @@ func _place() -> void:
 	offset = Vector2(-(widest * label_to_screen + texture.get_width()) / 2.0 - _GAP_PIXELS, 0)
 
 
-## What [member pixel_size] makes a texel one pixel high on screen. A fixed-size sprite is drawn as if one unit
-## from a perspective camera, which spans 2·tan(fov/2) units over the viewport's height.
-func _one_texel_per_screen_pixel() -> float:
-	var camera := get_viewport().get_camera_3d()
-	var height := get_viewport().get_visible_rect().size.y
+## What [member pixel_size] makes a texel one pixel high on screen, or [param fallback] without a perspective
+## camera. A fixed-size sprite is drawn as if one unit from the camera, which spans 2·tan(fov/2) units over the
+## viewport's height.
+static func one_texel_per_screen_pixel(viewport: Viewport, fallback: float) -> float:
+	var camera := viewport.get_camera_3d()
+	var height := viewport.get_visible_rect().size.y
 	if camera == null or camera.projection != Camera3D.PROJECTION_PERSPECTIVE or height <= 0.0:
-		return _label.pixel_size
+		return fallback
 	return 2.0 * tan(deg_to_rad(camera.fov) / 2.0) / height

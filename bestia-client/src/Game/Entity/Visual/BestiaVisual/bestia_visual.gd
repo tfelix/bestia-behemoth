@@ -282,6 +282,12 @@ func vanish(msg: VanishEntitySMSG) -> void:
 		get_parent().queue_free()
 		return
 
+	# Clicks pass through to the loot or the ground behind the body for as long as it takes to go.
+	$Body/Model/Area3D.input_ray_pickable = false
+	var mouse := MouseManager.get_instance()
+	if mouse != null:
+		mouse.release(self)
+
 	if msg.IsDead():
 		_anim_player.play("death")
 	else:

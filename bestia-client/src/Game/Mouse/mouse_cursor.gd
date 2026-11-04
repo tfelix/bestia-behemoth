@@ -7,7 +7,7 @@ extends RefCounted
 ## Hotspots are in the 32x32 the icons import at - `process/size_limit` in each .import halves the
 ## 64x64 sources - so they are half the coordinates an image editor shows.
 
-const _POINT := preload("res://Game/Mouse/Icons/hand_point.png")
+const _POINTER := preload("res://Game/Mouse/Icons/pointer_c_shaded.png")
 const _TALK := preload("res://Game/Mouse/Icons/message_dots_square.png")
 const _SWORD := preload("res://Game/Mouse/Icons/tool_sword_a.png")
 const _HAND_OPEN := preload("res://Game/Mouse/Icons/hand_open.png")
@@ -16,8 +16,8 @@ const _PICKAXE := preload("res://Game/Mouse/Icons/tool_pickaxe.png")
 const _AXE := preload("res://Game/Mouse/Icons/tool_axe.png")
 const _HAMMER := preload("res://Game/Mouse/Icons/tool_hammer.png")
 
-## Fingertip, and the cursor for anything with no action of its own.
-const _POINTING := {&"texture": _POINT, &"hotspot": Vector2(10, 5)}
+## The arrow's tip: the cursor for the ground, the GUI and anything with no action of its own.
+const _POINTING := {&"texture": _POINTER, &"hotspot": Vector2(5, 5)}
 
 ## Palm centre, shared by both hands so that closing one does not shift the pointer.
 const _OPEN_HAND := {&"texture": _HAND_OPEN, &"hotspot": Vector2(16, 16)}

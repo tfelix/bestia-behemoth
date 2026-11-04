@@ -36,6 +36,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Auction/AuctionHouse.tscn" id="33_auction"]
 [ext_resource type="PackedScene" path="res://Game/UI/Emotes/Emotes.tscn" id="34_emotes"]
 [ext_resource type="PackedScene" path="res://Game/UI/BlindVignette/BlindVignette.tscn" id="40_blind"]
+[ext_resource type="Script" uid="uid://1u024aahembd" path="res://Game/UI/Map/notebook.gd" id="41_notebook"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -185,11 +186,15 @@ layout_mode = 1
 [node name="Death" parent="." unique_id=1824369575 instance=ExtResource("20_death")]
 layout_mode = 1
 
+[node name="Notebook" type="Node" parent="."]
+script = ExtResource("41_notebook")
+
 [node name="MapSource" type="Node" parent="." unique_id=456323444]
 script = ExtResource("18_mapsrc")
 
-[node name="MapMarks" type="Node" parent="." unique_id=1192329381]
+[node name="MapMarks" type="Node" parent="." unique_id=1192329381 node_paths=PackedStringArray("notebook")]
 script = ExtResource("23_mapmarks")
+notebook = NodePath("../Notebook")
 
 [node name="MarkNamePopup" parent="." unique_id=183566451 instance=ExtResource("24_markpopup")]
 oversampling_override = 1.0
@@ -197,9 +202,10 @@ oversampling_override = 1.0
 [node name="MarkDeletePopup" parent="." unique_id=38783233 instance=ExtResource("25_markdelpopup")]
 oversampling_override = 1.0
 
-[node name="MapOverlay" parent="." unique_id=28217583 instance=ExtResource("17_mapovl")]
+[node name="MapOverlay" parent="." unique_id=28217583 node_paths=PackedStringArray("notebook") instance=ExtResource("17_mapovl")]
 visible = false
 layout_mode = 1
+notebook = NodePath("../Notebook")
 
 [node name="ItemInfoPopup" parent="." unique_id=1390602607 instance=ExtResource("27_iteminfo")]
 layout_mode = 1

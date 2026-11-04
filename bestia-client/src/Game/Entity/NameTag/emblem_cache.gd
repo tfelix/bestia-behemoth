@@ -1,20 +1,34 @@
+class_name EmblemCache
 extends Node
+
 ## Guild emblems by the hash that names them: in memory, then on disk under [constant CACHE_DIR], then asked of
 ## the api-server once. A hash names one picture forever, so no copy is ever checked again.
 ##
-## An autoload, because name tags and the guild window both draw emblems and either may ask first.
+## One node in [code]Game.tscn[/code], shared by every name tag and the guild window, so that a crowd of one guild
+## asks once. Found with [method get_instance], like [EntityManager].
 
 ## Emitted once the emblem named [param hash] is here; [method texture_of] then has it.
 signal emblem_ready(hash: String)
 
 const CACHE_DIR := "user://emblems/"
 const _PARALLEL_REQUESTS := 2
+const _GROUP := "emblem_cache"
 
 var _textures: Dictionary[String, ImageTexture] = {}
 var _queued: Array[String] = []
-## Asked or queued; also hashes that failed, which are not asked again until the next session.
+## Asked or queued; also hashes that failed, which are not asked again while this world lasts.
 var _asked: Dictionary[String, bool] = {}
 var _idle: Array[HTTPRequest] = []
+
+
+## The one in the world, or null outside it.
+static func get_instance() -> EmblemCache:
+	return (Engine.get_main_loop() as SceneTree).get_first_node_in_group(_GROUP) as EmblemCache
+
+
+## In _enter_tree, not _ready: the name tags and the guild window ask from their own _ready.
+func _enter_tree() -> void:
+	add_to_group(_GROUP)
 
 
 func _ready() -> void:

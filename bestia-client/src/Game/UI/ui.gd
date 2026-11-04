@@ -159,8 +159,6 @@ func _ready() -> void:
 		# stuck on the world origin, showing fog and no player marker, for the whole session.
 		push_error("No EntityManager for the map views; the map cannot follow the player.")
 
-	# A notebook still held is the master played before this scene; the views below ask for this one's.
-	Notebook.forget()
 	_minimap.setup(_map_source, entities)
 	_map_overlay.setup(_map_source, entities)
 

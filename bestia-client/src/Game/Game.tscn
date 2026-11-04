@@ -5,6 +5,9 @@
 [ext_resource type="PackedScene" uid="uid://ykdxpspi6cly" path="res://Game/Environment/Environment.tscn" id="3_jxerj"]
 [ext_resource type="Script" uid="uid://cnjm7a2eprhpj" path="res://Game/entity_manager.gd" id="9_eqev2"]
 [ext_resource type="Script" uid="uid://q7faijbdj6o4" path="res://Game/Mouse/mouse_marker.gd" id="11_msmrk"]
+[ext_resource type="Script" uid="uid://ddv6ljagsrg87" path="res://Game/Entity/NameTag/emblem_cache.gd" id="12_emblem"]
+[ext_resource type="Script" uid="uid://cxxwsgl6fa6iq" path="res://Game/Mouse/Selection/selection_marker.gd" id="13_selmrk"]
+[ext_resource type="Texture2D" uid="uid://bp0vtb8sk1qwd" path="res://Game/Mouse/Selection/navigation_s.png" id="14_selarw"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oscxy"]
 transparency = 1
@@ -22,6 +25,9 @@ script = ExtResource("1_oscxy")
 
 [node name="Environment" parent="." unique_id=47354015 instance=ExtResource("3_jxerj")]
 
+[node name="EmblemCache" type="Node" parent="."]
+script = ExtResource("12_emblem")
+
 [node name="UI" parent="." unique_id=426573470 instance=ExtResource("2_eqev2")]
 
 [node name="EntityManager" type="Node" parent="." unique_id=432959366]
@@ -34,3 +40,12 @@ script = ExtResource("11_msmrk")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.118, 0.5)
 cast_shadow = 0
 mesh = SubResource("BoxMesh_eqev2")
+
+[node name="SelectionMarker" type="Sprite3D" parent="."]
+script = ExtResource("13_selmrk")
+visible = false
+billboard = 1
+no_depth_test = true
+fixed_size = true
+texture_filter = 0
+texture = ExtResource("14_selarw")

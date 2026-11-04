@@ -35,9 +35,11 @@ var hovered_object: Node3D = null
 
 var _context_menu: ContextMenu = null
 
-## What the cursor currently names, and whether the button is down - the two inputs to _apply_cursor.
+## What the cursor currently names, whether the button is down and whether a panel is under it - the inputs
+## to _apply_cursor.
 var _hover_action: int = DefaultAction.Kind.NONE
 var _pressed: bool = false
+var _over_ui: bool = false
 
 ## Whether the cursor is the hovered target's, as opposed to art a targeting state set for itself. Only
 ## the first kind follows the button; the second would otherwise be swapped out on the next press.
@@ -79,8 +81,12 @@ func _process(delta: float) -> void:
 	# release after the mouse has slid off the collider is not promised to come back to the same node - and
 	# a cursor stuck closed is worse than a frame of latency. _apply_cursor no-ops unless the art changed.
 	var pressed := Input.is_action_pressed("normal_action")
-	if pressed != _pressed:
+	# Polled too: a panel opening under a still mouse, or the mouse sliding off a creature onto a panel, moves
+	# no collider edge, so no hover event would take the creature's cursor away.
+	var over_ui := is_pointer_over_ui()
+	if pressed != _pressed or over_ui != _over_ui:
 		_pressed = pressed
+		_over_ui = over_ui
 		if _cursor_follows_action:
 			_apply_cursor()
 
@@ -222,6 +228,15 @@ func on_object_hover(object: Node3D, entered: bool) -> void:
 	current_state.handle_object_hover(self, object, entered)
 
 
+## Lets go of [param object] for good: no longer hovered, no longer selected. For a body leaving the world - one
+## playing its death is still on screen, but nothing about it is the player's to click any more.
+func release(object: Node3D) -> void:
+	if hovered_object == object:
+		on_object_hover(object, false)
+	if selected_entity == object:
+		select_entity(null)
+
+
 func on_ground_input_event(position: Vector3, event: InputEvent) -> void:
 	# print_debug("on_ground_input_event: position: %s" % [position])
 	current_state.handle_ground_input_event(self, position, event)
@@ -274,7 +289,7 @@ func set_os_cursor(texture: Texture2D, hotspot: Vector2 = Vector2.ZERO) -> void:
 
 
 ## Hands the pointer back to the OS. For leaving the world - a menu, a loading screen - not for leaving
-## a target: in game the cursor over nothing in particular is DefaultAction.Kind.NONE, a finger.
+## a target: in game the cursor over nothing in particular is DefaultAction.Kind.NONE, an arrow.
 func reset_os_cursor() -> void:
 	set_os_cursor(null)
 
@@ -287,7 +302,9 @@ func set_cursor_for_action(action: int) -> void:
 
 
 func _apply_cursor() -> void:
-	var cursor := MouseCursor.resolve(_hover_action, _pressed)
+	# A panel is what is being pointed at, not whatever stands behind it.
+	var action: int = DefaultAction.Kind.NONE if _over_ui else _hover_action
+	var cursor := MouseCursor.resolve(action, _pressed)
 	_set_os_cursor(cursor[&"texture"], cursor[&"hotspot"])
 
 

@@ -1,7 +1,9 @@
+class_name Notebook
 extends Node
 
-## The player's notebook as this client last heard it: routes, map marks, map preferences - one store, kept on the
-## server and shared with the companion app. Each collection is a set of entries by key, each entry a
+## The notebook of the master now played, as this client last heard it: routes, map marks, map preferences - one
+## store, kept on the server and shared with the companion app. A node in [code]UI.tscn[/code], handed to the map
+## views that use it, so it starts empty with every world. Each collection is a set of entries by key, each entry a
 ## [code]{key, revision, value}[/code] where [code]value[/code] is the parsed JSON its collection shows.
 ##
 ## [b]Changes arrive as they happen, whichever app made them.[/b] The server numbers every write to a collection,
@@ -10,13 +12,13 @@ extends Node
 ## collection is asked for again. A write of this client's is applied only when it comes back that way, so there is
 ## one path by which anything changes.
 
-## [param collection] changed: listed, an entry written or deleted, or forgotten.
+## [param collection] changed: listed, or an entry written or deleted.
 signal collection_changed(collection: String)
 
 ## The key of a collection that holds one document, such as preferences.
 const SINGLE_KEY := "_"
 
-## Revision held per collection; a collection with none has not been listed since [method forget].
+## Revision held per collection; a collection with none has not been listed yet.
 var _revisions: Dictionary[String, int] = {}
 
 ## Entries per collection, by key.
@@ -32,15 +34,6 @@ func _ready() -> void:
 func watch(collection: String) -> void:
 	if ConnectionManager.is_ready_to_send():
 		ConnectionManager.notebook_list(collection)
-
-
-## Drops everything held, for a change of master: its collections are another master's notebook.
-func forget() -> void:
-	var held := _entries.keys()
-	_revisions.clear()
-	_entries.clear()
-	for collection in held:
-		collection_changed.emit(collection)
 
 
 func is_loaded(collection: String) -> bool:

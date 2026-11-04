@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cxnjseoqhl3x3"
-path="res://.godot/imported/hand_point.png-fbf41fba48253061adf905dceb63c683.ctex"
+uid="uid://bp0vtb8sk1qwd"
+path="res://.godot/imported/navigation_s.png-f5ead7030b63c9e0ada7ce44043269a7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Game/Mouse/Icons/hand_point.png"
-dest_files=["res://.godot/imported/hand_point.png-fbf41fba48253061adf905dceb63c683.ctex"]
+source_file="res://Game/Mouse/Selection/navigation_s.png"
+dest_files=["res://.godot/imported/navigation_s.png-f5ead7030b63c9e0ada7ce44043269a7.ctex"]
 
 [params]
 
@@ -36,5 +36,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=32
+process/size_limit=0
 detect_3d/compress_to=1
