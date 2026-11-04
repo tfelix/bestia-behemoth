@@ -36,6 +36,9 @@ const _CLOUD_SCRIPT := "res://Game/Environment/CloudShadows/cloud_shadows.gd"
 
 const _TERRAIN_SCRIPT := "res://Game/World/TerrainRenderer.cs"
 
+## The .NET runtime's counters, loaded by path like the grass script above.
+const _MANAGED_SCRIPT := "res://Dev/RenderDebug/ManagedStats.cs"
+
 ## The view modes the panel offers, in the order they answer questions.
 ##
 ## A curated list rather than the whole of [enum Viewport.DebugDraw], most of which is about lights and
@@ -127,6 +130,14 @@ var _process_ms := 0.0
 var _physics_ms := 0.0
 var _render_ms := 0.0
 
+## The .NET counters, and their totals when the window opened. Read as rates, because a total since the process
+## started says nothing about the frame in front of you. Null if the C# side did not build.
+var _managed: RefCounted = null
+var _managed_start := {}
+
+## What the last window's .NET counters came to: a [code]".NET: ..."[/code] line, or empty.
+var _managed_line := ""
+
 ## The scene [member _found] was filled from, and what [method _find] found in it by key.
 var _scene: Node = null
 var _found := {}
@@ -155,6 +166,10 @@ func _ready() -> void:
 	cloud_shadows.toggled.connect(_set_cloud_shadows)
 	frame_times.toggled.connect(_set_stats)
 	dump_chunks.pressed.connect(_dump_chunks)
+
+	var managed_script := load(_MANAGED_SCRIPT) as Script
+	if managed_script != null:
+		_managed = managed_script.new()
 
 	set_process(false)
 	_refresh()
@@ -209,6 +224,7 @@ func _close_window() -> void:
 		_process_ms = _sum_process_ms / _window_frames
 		_physics_ms = _sum_physics_ms / _window_frames
 		_render_ms = _sum_render_ms / _window_frames
+		_managed_line = _managed_rates((now_usec - _window_start_usec) / 1.0e6)
 
 	_window_frames = 0
 	_sum_process_ms = 0.0
@@ -216,6 +232,43 @@ func _close_window() -> void:
 	_sum_render_ms = 0.0
 	_window_start_usec = now_usec
 	_window_start_physics = physics
+	_managed_start = _managed_totals()
+
+
+## The .NET counters' running totals now, or empty without them.
+func _managed_totals() -> Dictionary:
+	if _managed == null:
+		return {}
+
+	return {
+		"allocated": _managed.AllocatedBytes(),
+		"gen0": _managed.Collections(0),
+		"gen1": _managed.Collections(1),
+		"gen2": _managed.Collections(2),
+		"paused": _managed.PausedMilliseconds(),
+		"locks": _managed.LockContentions(),
+	}
+
+
+## The .NET line for a window of [param seconds]: allocation per second, collections per second by generation,
+## the share of the window every managed thread spent paused for them, lock waits, and the thread pool's backlog.
+##
+## The pause share is the number to read first. A frame that is long with no script, draw or physics to show for
+## it, and a pause share near the frame's own excess, is the runtime collecting garbage with the main thread
+## stopped.
+func _managed_rates(seconds: float) -> String:
+	var now := _managed_totals()
+	if now.is_empty() or _managed_start.is_empty() or seconds <= 0.0:
+		return ""
+
+	var per_second := func(key: String) -> float: return (now[key] - _managed_start[key]) / seconds
+	return ".NET: alloc %.0f MB/s   gc %.1f / %.1f / %.1f per s   paused %.0f%%   heap %.0f MB   lock waits %.0f/s   pool %d queued, %d threads" % [
+		per_second.call("allocated") / 1.0e6,
+		per_second.call("gen0"), per_second.call("gen1"), per_second.call("gen2"),
+		per_second.call("paused") / 10.0,
+		_managed.HeapBytes() / 1.0e6,
+		per_second.call("locks"),
+		_managed.PoolQueue(), _managed.PoolThreads()]
 
 
 func _set_draw(index: int) -> void:
@@ -300,6 +353,9 @@ func _stats_lines() -> Array[String]:
 			RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME),
 			Performance.get_monitor(Performance.OBJECT_NODE_COUNT)],
 	]
+
+	if not _managed_line.is_empty():
+		lines.append(_managed_line)
 
 	var grass := _grass()
 	if grass != null:
