@@ -54,7 +54,6 @@ import net.bestia.zone.world.MasterSpawnPointService
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.TestPropertySource
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -72,7 +71,6 @@ import net.bestia.zone.chat.ChatType
  * harness as every other scenario test (calls the handler pipeline directly, skipping the real
  * TCP socket and protobuf wire).
  */
-@TestPropertySource(properties = ["world.logout-protection-seconds=1.5"])
 class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
   @Autowired
