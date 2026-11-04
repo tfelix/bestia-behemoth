@@ -4,15 +4,33 @@ import com.tngtech.archunit.core.domain.JavaClasses
 import com.tngtech.archunit.core.importer.ClassFileImporter
 import com.tngtech.archunit.core.importer.ImportOption
 
-/** The zone's main and test classes, each imported once for every architecture rule. */
+/**
+ * The zone's main and test classes, imported once for the [ReadsZoneClasses] group. Each import holds a few
+ * hundred megabytes, so [release] lets them go when the group is done.
+ */
 object ZoneClasses {
   const val ROOT = "net.bestia.zone"
 
-  val main: JavaClasses by lazy {
-    ClassFileImporter().withImportOption(ImportOption.DoNotIncludeTests()).importPackages(ROOT)
+  private var mainClasses: JavaClasses? = null
+  private var testClasses: JavaClasses? = null
+
+  val main: JavaClasses
+    @Synchronized get() {
+      return mainClasses ?: importZone(ImportOption.DoNotIncludeTests()).also { mainClasses = it }
+    }
+
+  val tests: JavaClasses
+    @Synchronized get() {
+      return testClasses ?: importZone(ImportOption.OnlyIncludeTests()).also { testClasses = it }
+    }
+
+  @Synchronized
+  fun release() {
+    mainClasses = null
+    testClasses = null
   }
 
-  val tests: JavaClasses by lazy {
-    ClassFileImporter().withImportOption(ImportOption.OnlyIncludeTests()).importPackages(ROOT)
+  private fun importZone(option: ImportOption): JavaClasses {
+    return ClassFileImporter().withImportOption(option).importPackages(ROOT)
   }
 }
