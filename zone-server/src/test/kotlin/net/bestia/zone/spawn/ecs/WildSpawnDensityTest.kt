@@ -2,15 +2,13 @@ package net.bestia.zone.spawn.ecs
 
 import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.civ.SettlementSpawnPoints
-import net.bestia.worldgen.core.Resolution
-import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.spawn.SpawnerChannels
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.spawn.ecs.WildSpawnerService.Candidate
+import net.bestia.zone.world.GeneratedWorlds
 import net.bestia.zone.world.WorldGenConfig
 import net.bestia.zone.world.stream.ChunkStreamConfig
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -89,19 +87,8 @@ class WildSpawnDensityTest {
   @Test
   fun `the den layer is thick enough to walk into and not so thick it runs away`() {
     val settings = WorldGenConfig()
-    val config = WorldConfig(
-      seed = DEV_SEED,
-      widthCells = settings.widthCells,
-      heightCells = settings.heightCells,
-      baseResolution = Resolution(settings.cellSizeMetres),
-      seaLevel = settings.seaLevelMetres,
-      chunkSize = settings.chunkSize,
-      chunkHeight = settings.chunkHeight,
-      voxelSize = settings.voxelSizeMetres,
-      wrapX = settings.wrapX,
-      wrapY = settings.wrapY
-    )
-    val generated = StandardWorld.build(config)
+    val generated = GeneratedWorlds.dev()
+    val config = generated.config
     val spawnConfig = WildSpawnConfig()
 
     val stocking = WildSpawnerService.stock(

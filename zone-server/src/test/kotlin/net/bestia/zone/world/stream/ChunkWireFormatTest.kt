@@ -4,10 +4,12 @@ import net.bestia.bnet.proto.ChunkProto
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.derived.VoxelEdit
+import net.bestia.worldgen.pipeline.GeneratedWorld
+import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
+import net.bestia.worldgen.store.BaseHash
 import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.Occupancy
-import net.bestia.worldgen.pipeline.StandardWorld
-import net.bestia.worldgen.store.BaseHash
 import net.bestia.worldgen.voxel.RleCodec
 import net.bestia.worldgen.voxel.VoxelChunk
 import org.junit.jupiter.api.Test
@@ -32,11 +34,10 @@ import kotlin.test.assertTrue
 class ChunkWireFormatTest {
 
   private companion object {
-    // In the companion rather than in a property: JUnit builds a fresh test instance per method, so a world
-    // held per-instance is generated again for every test in the class. Read-only here, as everywhere.
-    val world by lazy {
-      StandardWorld.build(StandardWorld.demoConfig().copy(widthCells = 160, heightCells = 160))
-    }
+    val world: GeneratedWorld
+      get() {
+        return TestWorlds.get(StandardWorld.demoConfig().copy(widthCells = 160, heightCells = 160))
+      }
 
     /** A chunk with terrain in it. Column 1600 of a 160 km world is well inside the land, past the ocean margin. */
     val surfaceChunk: VoxelChunk by lazy {

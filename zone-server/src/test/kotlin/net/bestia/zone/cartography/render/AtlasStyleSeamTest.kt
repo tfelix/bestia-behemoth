@@ -2,8 +2,10 @@ package net.bestia.zone.cartography.render
 
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.render.Viewport
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.awt.image.BufferedImage
 import java.awt.image.DataBufferInt
 import kotlin.test.assertEquals
@@ -24,7 +26,11 @@ import kotlin.test.assertTrue
  * instead of the sheet, a distance transform whose halo is too narrow to see the shore outside its tile, a
  * glyph lattice seeded per frame, a feature query with too small a margin.
  */
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AtlasStyleSeamTest {
+
+  // Once for the class: every test renders the same world, the point is to compare renders of it.
+  private val inputs: TileInputs by lazy { TileInputs.of(TestWorlds.get(CONFIG)) }
 
   @Test
   fun `the same viewport renders identically twice`() {
@@ -158,12 +164,6 @@ class AtlasStyleSeamTest {
 
     /** Small enough to generate quickly, large enough to contain a coast, a wood and some relief. */
     val CONFIG = WorldConfig(seed = StandardWorld.DEFAULT_SEED, widthCells = 128, heightCells = 128)
-
-    /**
-     * Built once for the class. Generating a world is a second or two, and every test here wants the same
-     * one - the point is to compare renders of it, not to compare worlds.
-     */
-    val inputs: TileInputs by lazy { TileInputs.of(StandardWorld.build(CONFIG)) }
 
     val style = AtlasStyle()
 

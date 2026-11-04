@@ -1,11 +1,9 @@
 package net.bestia.zone.spawn.ecs.ambient
 
 import net.bestia.worldgen.civ.SettlementSpawnPoints
-import net.bestia.worldgen.core.Resolution
-import net.bestia.worldgen.core.WorldConfig
-import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.spawn.ecs.WildSpawnConfig
+import net.bestia.zone.world.GeneratedWorlds
 import net.bestia.zone.world.WorldGenConfig
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -69,19 +67,8 @@ class AmbientSpawnDensityTest {
   @Test
   fun `a player can see something, and the wilderness has not run away`() {
     val settings = WorldGenConfig()
-    val config = WorldConfig(
-      seed = DEV_SEED,
-      widthCells = settings.widthCells,
-      heightCells = settings.heightCells,
-      baseResolution = Resolution(settings.cellSizeMetres),
-      seaLevel = settings.seaLevelMetres,
-      chunkSize = settings.chunkSize,
-      chunkHeight = settings.chunkHeight,
-      voxelSize = settings.voxelSizeMetres,
-      wrapX = settings.wrapX,
-      wrapY = settings.wrapY
-    )
-    val generated = StandardWorld.build(config)
+    val generated = GeneratedWorlds.dev()
+    val config = generated.config
 
     val ambientConfig = AmbientSpawnConfig()
     val wildConfig = WildSpawnConfig()

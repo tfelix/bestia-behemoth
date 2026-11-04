@@ -2,28 +2,13 @@ package net.bestia.zone.world
 
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 
 /**
- * Generated worlds, built once per test run and shared by every test that wants one.
+ * The worlds zone-server's tests agree on, built once through [TestWorlds] and shared by every test that asks.
  *
- * ### Why this is worth a file
- *
- * Several suites assert against real worlds rather than fixtures, which is the right call - a
- * knowledge model or a lore query tested against a hand-built chronicle is testing the fixture. The
- * cost is that each of them was generating its own, and JUnit builds a fresh instance per test method,
- * so one class with six tests over three seeds generated eighteen worlds.
- *
- * That is slow, and it is worse than slow: it shares a JVM with the rest of the suite, and the memory
- * churn was enough to fail a timing-sensitive chunk-streaming scenario in a completely unrelated
- * package. Twice, reproducibly, and never when that scenario ran on its own. Sharing the worlds fixed
- * it; the same three seeds now cost three generations for the whole run instead of nine or more.
- *
- * ### Read-only, and that is not enforced
- *
- * A [GeneratedWorld] is immutable in practice - the world tier is computed once and read forever - but
- * nothing stops a test mutating something reachable from one. Do not. A test that needs to change a
- * world needs its own, through [StandardWorld.build] directly.
+ * A test reads these and never mutates them. Hold one in an instance property or a local, never in a companion:
+ * a static reference keeps the world for the rest of the run, and [TestWorlds] can only free what nobody holds.
  */
 object GeneratedWorlds {
 
@@ -38,12 +23,17 @@ object GeneratedWorlds {
   /** The seeds those suites agree on. Sharing them is what makes one cache serve all of them. */
   val SEEDS = listOf(1L, 3L, 42L)
 
-  private val cache = HashMap<Pair<Long, Int>, GeneratedWorld>()
+  /** `application.yml`'s pinned seed. */
+  const val DEV_SEED = 11_753_242L
 
-  @Synchronized
+  /** The world the dev server runs, from the birth settings' defaults. The Spring test context runs it too. */
+  val devConfig: WorldConfig = WorldGenConfig().toWorldConfig(DEV_SEED)
+
   fun of(seed: Long, cells: Int = CELLS): GeneratedWorld {
-    return cache.getOrPut(seed to cells) {
-      StandardWorld.build(WorldConfig(seed = seed, widthCells = cells, heightCells = cells))
-    }
+    return TestWorlds.get(WorldConfig(seed = seed, widthCells = cells, heightCells = cells))
+  }
+
+  fun dev(): GeneratedWorld {
+    return TestWorlds.get(devConfig)
   }
 }

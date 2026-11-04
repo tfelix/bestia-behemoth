@@ -2,10 +2,8 @@ package net.bestia.zone.world.settlement
 
 import io.mockk.every
 import io.mockk.mockk
-import net.bestia.worldgen.core.Resolution
-import net.bestia.worldgen.core.WorldConfig
-import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.pop.BusinessCatalogue
+import net.bestia.zone.world.GeneratedWorlds
 import net.bestia.zone.world.WorldGenConfig
 import net.bestia.zone.world.WorldService
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -24,9 +22,12 @@ import org.junit.jupiter.api.Test
  */
 class SettlementSiteIndexTest {
 
+  private val generated = GeneratedWorlds.dev()
+  private val settlements = StandingSettlements.of(generated)
+
   private val worldService: WorldService = mockk<WorldService>().also {
     every { it.generated } returns generated
-    every { it.config } returns config
+    every { it.config } returns generated.config
   }
 
   private val sut = SettlementSiteIndex(worldService)
@@ -140,30 +141,9 @@ class SettlementSiteIndexTest {
   }
 
   private companion object {
-    /** `application.yml`'s pinned seed, so this measures the world the dev server actually runs. */
-    const val DEV_SEED = 11_753_242L
-
     /** Coarse enough to sweep a 128 km world quickly, fine enough to land inside a village's footprint. */
     const val PROBE_METRES = 250.0
 
     private val settings = WorldGenConfig()
-
-    val config = WorldConfig(
-      seed = DEV_SEED,
-      widthCells = settings.widthCells,
-      heightCells = settings.heightCells,
-      baseResolution = Resolution(settings.cellSizeMetres),
-      seaLevel = settings.seaLevelMetres,
-      chunkSize = settings.chunkSize,
-      chunkHeight = settings.chunkHeight,
-      voxelSize = settings.voxelSizeMetres,
-      wrapX = settings.wrapX,
-      wrapY = settings.wrapY
-    )
-
-    // In the companion rather than in a property: JUnit builds a fresh test instance per method, so a world
-    // held per-instance is generated again for every test in the class. Read-only here, as everywhere.
-    val generated = StandardWorld.build(config)
-    val settlements = StandingSettlements.of(generated)
   }
 }

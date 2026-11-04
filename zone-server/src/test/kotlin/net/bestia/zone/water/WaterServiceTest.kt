@@ -4,7 +4,8 @@ import io.mockk.every
 import io.mockk.mockk
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.WorldConfig
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.GeneratedWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.zone.world.WorldService
@@ -117,8 +118,11 @@ class WaterServiceTest {
     const val STEP_SECONDS = 0.1f
     val WATER = BlockType.WATER.id.toByte()
 
-    // In the companion so JUnit's per-method instances share one generated world. Read-only here.
-    val world = StandardWorld.build(WorldConfig(seed = SEED, widthCells = WORLD_CELLS, heightCells = WORLD_CELLS))
-    val config = world.config
+    val config = WorldConfig(seed = SEED, widthCells = WORLD_CELLS, heightCells = WORLD_CELLS)
+
+    val world: GeneratedWorld
+      get() {
+        return TestWorlds.get(config)
+      }
   }
 }

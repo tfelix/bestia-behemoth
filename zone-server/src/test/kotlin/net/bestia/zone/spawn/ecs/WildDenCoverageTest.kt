@@ -1,12 +1,11 @@
 package net.bestia.zone.spawn.ecs
 
 import net.bestia.worldgen.bio.Biome
-import net.bestia.worldgen.core.WorldConfig
-import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.spawn.SpawnerChannels
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.zone.bestia.persistence.Bestia
+import net.bestia.zone.world.GeneratedWorlds
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -58,8 +57,8 @@ class WildDenCoverageTest {
 
   @Test
   fun `the shipped catalogue fills the dens it can, and the gap is reported`() {
-    // The seed the dev server actually runs, so this measures the world somebody will walk around in.
-    val world = StandardWorld.build(WorldConfig(seed = 11_753_242L, widthCells = 128, heightCells = 128))
+    // The world the dev server actually runs, so this measures the world somebody will walk around in.
+    val world = GeneratedWorlds.dev()
     val config = WildSpawnConfig()
     val catalogue = shipped.map(WildSpawnerService::Candidate)
 

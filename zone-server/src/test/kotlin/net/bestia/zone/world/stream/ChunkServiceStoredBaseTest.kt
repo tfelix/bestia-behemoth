@@ -5,7 +5,8 @@ import io.mockk.every
 import io.mockk.mockk
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.WorldConfig
-import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.GeneratedWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.zone.world.WorldService
 import org.springframework.util.unit.DataSize
 import java.util.concurrent.Executor
@@ -116,7 +117,10 @@ class ChunkServiceStoredBaseTest {
     val B = ChunkPos(2, 1, 0)
     val C = ChunkPos(3, 1, 0)
 
-    // Shared, because generating a world per test method would dominate the run.
-    val world = StandardWorld.build(WorldConfig(seed = 9002L, widthCells = 48, heightCells = 48))
+    // ChunkServiceRestoreTest's world, so the two share one build.
+    val world: GeneratedWorld
+      get() {
+        return TestWorlds.get(WorldConfig(seed = 9001L, widthCells = 48, heightCells = 48))
+      }
   }
 }
