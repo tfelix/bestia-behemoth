@@ -538,7 +538,7 @@ class VegetationScatter(
         // the one place deciding what the top of a column is made of also decides whether anything can
         // root in it. Blighted ground is neither, so a corrupted wood keeps its trees.
         val cap = SurfaceCover.cap(
-          surface.biomeAt(tree.x, tree.y), surface.temperatureAt(tree.x, tree.y), 0.0, isBlighted
+          surface.biomeAt(tree.x, tree.y), surface.coverTemperatureAt(tree.x, tree.y), 0.0, isBlighted
         )
         if (cap == BlockType.ICE || cap == BlockType.SNOW) continue
 

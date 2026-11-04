@@ -326,6 +326,8 @@ tasks.register('probe', JavaExec) {
     if (cli('nth') != null) args '--nth', cli('nth')
     if (cli('channels') != null) args '--channels'
     if (cli('ecotone') != null) args '--ecotone'
+    // How straight every biome, snow, shore, ice and blight boundary is at player scale. See ProbeMain.edges.
+    if (cli('edges') != null) args '--edges'
     // Props - trees, crystals, wound spires. The only view of them: they are not in the voxel grid, so the
     // plan view and the section both print the bare ground they stand on. See ProbeMain.props.
     if (cli('props') != null) args '--props'

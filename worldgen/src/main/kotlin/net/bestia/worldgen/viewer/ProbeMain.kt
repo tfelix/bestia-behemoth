@@ -17,6 +17,8 @@ import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
 import net.bestia.worldgen.voxel.BlockType
+import net.bestia.worldgen.voxel.ChunkMaterializer
+import net.bestia.worldgen.voxel.SurfaceCover
 import net.bestia.worldgen.poi.PoiKind
 import net.bestia.worldgen.voxel.PropKind
 import net.bestia.worldgen.voxel.SurfaceColumns
@@ -27,6 +29,9 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.zip.GZIPOutputStream
 import java.util.Locale
+import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 /**
  * Dumps what one small patch of ground actually looks like, voxel by voxel.
@@ -89,6 +94,11 @@ object ProbeMain {
 
     if (cli.has(ECOTONE)) {
       probe.ecotone()
+      return
+    }
+
+    if (cli.has(EDGES)) {
+      probe.edges()
       return
     }
 
@@ -712,6 +722,282 @@ object ProbeMain {
       println("  reading as the runner-up, of cells that have one  ${percent(asRunnerUp, candidates)}")
     }
 
+    /**
+     * How straight the world's surface boundaries are at the scale a player sees them.
+     *
+     * Every boundary the surface draws is a decision read off a kilometre raster - the biome by nearest cell, the
+     * snow line, cold shore and lake ice by a threshold on bilinear temperature, blight by a threshold on
+     * corruption - and each of them can be a curve on the map and a ruler line on the ground. One screenshot of
+     * one bad edge says nothing about how many there are, so this finds them across the whole world and measures
+     * each one on a [EDGE_WINDOW] metre window at a metre per column, through the sampler the materialiser uses.
+     *
+     * Three numbers per window, all from the binary field "which side of this boundary is the column on":
+     *
+     * - **straightness**, the RMS distance of the boundary's columns from the straight line that fits them best,
+     *   with the boundary read through an [EDGE_SMOOTH] metre blur so the patches of a dithered side do not count
+     *   as raggedness. A ruler edge is under a metre; a ragged one is several.
+     * - **two-sidedness**, in the [EDGE_STRIP] metre strip either side of that line, the share of each side held
+     *   by the other material - the smaller of the two. An edge one side of which mixes and the other does not
+     *   scores zero, which is how a dithered edge still reads as a line.
+     * - **speckle**, the share of neighbouring columns in the strip that differ; above about a tenth the mixing is
+     *   display noise rather than ground.
+     *
+     * Candidates are pairs of neighbouring cells whose raster values fall either side of the boundary, so the
+     * edge is somewhere on the segment between their centres; the window is centred where the decision flips
+     * nearest that segment's middle. Water draws its own edge, so biome pairs with the sea or a lake are left out.
+     */
+    fun edges() {
+      val surface = generated.materializer.surface
+      val layers = generated.world.layers
+      val biome = layers.require<IntLayer>(LayerId.BIOME)
+      val temperature = layers.require<FloatLayer>(LayerId.TEMPERATURE)
+      val corruption = layers[LayerId.CORRUPTION] as? FloatLayer
+      val region = biome.region
+      val metres = region.resolution.metresPerCell
+
+      class Kind(val name: String, val decide: (Double, Double) -> Boolean) {
+        val sites = ArrayList<Pair<Double, Double>>()
+      }
+
+      val kinds = LinkedHashMap<String, Kind>()
+      fun kind(name: String, decide: (Double, Double) -> Boolean) = kinds.getOrPut(name) { Kind(name, decide) }
+
+      val thresholds = listOf(
+        "snow line" to SurfaceCover.SNOW_TEMPERATURE,
+        "cold shore" to SurfaceCover.COLD_SHORE_TEMPERATURE,
+        "lake ice" to ChunkMaterializer.FREEZING
+      )
+      val water = setOf(Biome.OCEAN, Biome.LAKE)
+
+      for (cy in region.minY..region.maxY) {
+        for (cx in region.minX..region.maxX) {
+          for ((nx, ny) in listOf(cx + 1 to cy, cx to cy + 1)) {
+            if (nx > region.maxX || ny > region.maxY) continue
+            val ax = (cx + 0.5) * metres
+            val ay = (cy + 0.5) * metres
+            val bx = (nx + 0.5) * metres
+            val by = (ny + 0.5) * metres
+
+            val a = Biome.entries[biome[cx, cy]]
+            val b = Biome.entries[biome[nx, ny]]
+            if (a != b && a !in water && b !in water) {
+              val (first, second) = if (a.ordinal < b.ordinal) a to b else b to a
+              val decide = { x: Double, y: Double -> surface.biomeAt(x, y) == first }
+              flipNear(ax, ay, bx, by, decide)?.let { kind("${first.name}|${second.name}", decide).sites += it }
+            }
+
+            val ta = temperature[cx, cy]
+            val tb = temperature[nx, ny]
+            for ((name, threshold) in thresholds) {
+              if ((ta < threshold) == (tb < threshold)) continue
+              val decide = { x: Double, y: Double -> surface.coverTemperatureAt(x, y) < threshold }
+              flipNear(ax, ay, bx, by, decide)?.let { kind(name, decide).sites += it }
+            }
+
+            if (corruption != null && (corruption[cx, cy] < 0.5f) != (corruption[nx, ny] < 0.5f)) {
+              val decide = { x: Double, y: Double -> surface.isBlightedAt(x, y) }
+              flipNear(ax, ay, bx, by, decide)?.let { kind("blight", decide).sites += it }
+            }
+          }
+        }
+      }
+
+      class Measured(val kind: String, val x: Double, val y: Double, val rms: Double, val twoSided: Double, val speckle: Double)
+
+      val started = System.nanoTime()
+      val results = ArrayList<Measured>()
+      for (kind in kinds.values) {
+        val cap = if ('|' in kind.name) EDGES_PER_PAIR else EDGES_PER_KIND
+        val stride = maxOf(1, kind.sites.size / cap)
+        for (i in kind.sites.indices step stride) {
+          val (x, y) = kind.sites[i]
+          measureEdge(x, y, kind.decide)?.let { (rms, twoSided, speckle) ->
+            results += Measured(kind.name, x, y, rms, twoSided, speckle)
+          }
+        }
+      }
+
+      println()
+      println("${results.size} boundary windows of ${EDGE_WINDOW.toInt()} m, measured in " +
+          "${(System.nanoTime() - started) / 1_000_000} ms")
+      println("  straightness: RMS metres off the best straight line (ruler < $STRAIGHT_METRES m)")
+      println("  two-sided: the weaker side's share of the other material within ${EDGE_STRIP.toInt()} m")
+      println()
+      println("%-44s %4s %6s %6s %6s %8s %9s %8s".format(
+        Locale.ROOT, "edge", "n", "rms10", "rms50", "rms90", "ruler", "2-sided", "speckle"
+      ))
+
+      fun row(name: String, of: List<Measured>) {
+        if (of.isEmpty()) return
+        val rms = of.map { it.rms }.sorted()
+        val twoSided = of.map { it.twoSided }.sorted()
+        val speckle = of.map { it.speckle }.sorted()
+        val ruler = of.count { it.rms < STRAIGHT_METRES }
+        println("%-44s %4d %6.1f %6.1f %6.1f %7.0f%% %8.1f%% %7.1f%%".format(
+          Locale.ROOT, name, of.size, quantile(rms, 0.1), quantile(rms, 0.5), quantile(rms, 0.9),
+          100.0 * ruler / of.size, 100 * quantile(twoSided, 0.5), 100 * quantile(speckle, 0.5)
+        ))
+      }
+
+      val biomeEdges = results.filter { '|' in it.kind }
+      row("every biome pair", biomeEdges)
+      for ((name, _) in thresholds) row(name, results.filter { it.kind == name })
+      row("blight", results.filter { it.kind == "blight" })
+      println()
+      biomeEdges.groupBy { it.kind }.entries.sortedByDescending { it.value.size }.forEach { (name, of) -> row(name, of) }
+
+      println()
+      println("straightest windows, as -Px/-Py and as the map's grid reference:")
+      results.sortedBy { it.rms }.take(EDGE_WORST).forEach {
+        println("  %-40s rms %4.1f m  2-sided %4.1f%%  -Px=%d -Py=%d  %s".format(
+          Locale.ROOT, it.kind, it.rms, 100 * it.twoSided, it.x.toInt(), it.y.toInt(), gridRef(it.x, it.y)
+        ))
+      }
+    }
+
+    /**
+     * Where [decide] flips along the segment from `a` to `b`, nearest its middle, or null if it never does.
+     *
+     * The middle because that is where the raster says the boundary is; a warp may move it most of the way to
+     * either end, and a flip further out still belongs to this pair.
+     */
+    private fun flipNear(
+      ax: Double, ay: Double, bx: Double, by: Double, decide: (Double, Double) -> Boolean
+    ): Pair<Double, Double>? {
+      val steps = 1_000
+      var best: Pair<Double, Double>? = null
+      var bestFromMiddle = Int.MAX_VALUE
+      var previous = decide(ax, ay)
+      for (i in 1..steps) {
+        val t = i.toDouble() / steps
+        val x = ax + (bx - ax) * t
+        val y = ay + (by - ay) * t
+        val here = decide(x, y)
+        if (here != previous && abs(i - steps / 2) < bestFromMiddle) {
+          bestFromMiddle = abs(i - steps / 2)
+          best = x to y
+        }
+        previous = here
+      }
+      return best
+    }
+
+    /** Straightness, two-sidedness and speckle of the boundary in the window around a point; see [edges]. */
+    private fun measureEdge(
+      centreX: Double, centreY: Double, decide: (Double, Double) -> Boolean
+    ): Triple<Double, Double, Double>? {
+      val n = EDGE_WINDOW.toInt()
+      val half = EDGE_WINDOW / 2
+      val field = Array(n) { i -> BooleanArray(n) { j -> decide(centreX - half + i, centreY - half + j) } }
+
+      // The main edge is read off the field blurred over [EDGE_SMOOTH] metres, not off the field itself. A
+      // runner-up dither scatters patches over the whole of one side, and a line fitted through every patch
+      // boundary measures the patches - a ruler edge with a dithered side then scores as the most ragged edge in
+      // the world. The blur keeps the edge's shape at its own scale; the patches are what two-sidedness counts.
+      val sums = Array(n + 1) { IntArray(n + 1) }
+      for (i in 0 until n) {
+        for (j in 0 until n) {
+          sums[i + 1][j + 1] = (if (field[i][j]) 1 else 0) + sums[i][j + 1] + sums[i + 1][j] - sums[i][j]
+        }
+      }
+      val radius = (EDGE_SMOOTH / 2).toInt()
+      val major = Array(n) { i ->
+        BooleanArray(n) { j ->
+          val i0 = maxOf(0, i - radius)
+          val i1 = minOf(n, i + radius + 1)
+          val j0 = maxOf(0, j - radius)
+          val j1 = minOf(n, j + radius + 1)
+          val held = sums[i1][j1] - sums[i0][j1] - sums[i1][j0] + sums[i0][j0]
+          2 * held >= (i1 - i0) * (j1 - j0)
+        }
+      }
+
+      // The boundary's columns, and the line that fits them: the principal axis of their scatter, so an edge at
+      // any angle is measured the same.
+      var count = 0
+      var sumX = 0.0
+      var sumY = 0.0
+      var sumXX = 0.0
+      var sumYY = 0.0
+      var sumXY = 0.0
+      for (i in 0 until n - 1) {
+        for (j in 0 until n - 1) {
+          if (major[i][j] == major[i + 1][j] && major[i][j] == major[i][j + 1]) continue
+          count++
+          sumX += i
+          sumY += j
+          sumXX += i.toDouble() * i
+          sumYY += j.toDouble() * j
+          sumXY += i.toDouble() * j
+        }
+      }
+      if (count < n / 2) return null
+
+      val meanX = sumX / count
+      val meanY = sumY / count
+      val cxx = sumXX / count - meanX * meanX
+      val cyy = sumYY / count - meanY * meanY
+      val cxy = sumXY / count - meanX * meanY
+      val trace = cxx + cyy
+      val spread = sqrt(((cxx - cyy) / 2).pow(2) + cxy * cxy)
+      val minor = (trace / 2 - spread).coerceAtLeast(0.0)
+
+      // The normal is the eigenvector of the smaller eigenvalue.
+      var normalX = cxy
+      var normalY = minor - cxx
+      if (abs(normalX) + abs(normalY) < 1e-9) {
+        normalX = if (cxx < cyy) 1.0 else 0.0
+        normalY = if (cxx < cyy) 0.0 else 1.0
+      }
+      val length = sqrt(normalX * normalX + normalY * normalY)
+      normalX /= length
+      normalY /= length
+
+      val held = IntArray(2)
+      val total = IntArray(2)
+      var differing = 0
+      var compared = 0
+      for (i in 0 until n) {
+        for (j in 0 until n) {
+          val distance = (i - meanX) * normalX + (j - meanY) * normalY
+          if (abs(distance) > EDGE_STRIP) continue
+          val side = if (distance < 0) 0 else 1
+          total[side]++
+          if (field[i][j]) held[side]++
+          if (i + 1 < n) { compared++; if (field[i][j] != field[i + 1][j]) differing++ }
+          if (j + 1 < n) { compared++; if (field[i][j] != field[i][j + 1]) differing++ }
+        }
+      }
+      if (total[0] == 0 || total[1] == 0) return null
+
+      val minority = (0..1).map { side ->
+        val share = held[side].toDouble() / total[side]
+        minOf(share, 1 - share)
+      }
+
+      return Triple(sqrt(minor), minority.min(), differing.toDouble() / compared)
+    }
+
+    /**
+     * The map's grid reference for a world position, three digits a side.
+     *
+     * `net.bestia.geo.GridRef` in `shared` is the real one; this module cannot depend on it, and the convention
+     * is three lines: 8 km squares, columns lettered from the west, rows numbered from the south.
+     */
+    private fun gridRef(x: Double, y: Double): String {
+      val column = (x / GRID_SQUARE).toInt()
+      val row = (y / GRID_SQUARE).toInt()
+      var name = ""
+      var c = column + 1
+      while (c > 0) {
+        name = ('A' + (c - 1) % 26) + name
+        c = (c - 1) / 26
+      }
+      val east = ((x - column * GRID_SQUARE) / 10).toInt()
+      val north = ((y - row * GRID_SQUARE) / 10).toInt()
+      return "%s%d %03d %03d".format(Locale.ROOT, name, row + 1, east, north)
+    }
+
     private fun quantiles(sorted: List<Double>): String {
       fun at(q: Double) = sorted[((sorted.size - 1) * q).toInt()]
       return listOf(0.0, 0.25, 0.5, 0.75, 1.0)
@@ -1044,6 +1330,30 @@ object ProbeMain {
 
   private const val ECOTONE = "--ecotone"
 
+  /** See [Probe.edges]. */
+  private const val EDGES = "--edges"
+
+  /** Side of the square an edge is measured on, in metres: about what a player sees at once. */
+  private const val EDGE_WINDOW = 150.0
+
+  /** Width in metres of the blur the main edge is read through; see [Probe.measureEdge]. */
+  private const val EDGE_SMOOTH = 25.0
+
+  /** Half-width of the band either side of an edge that two-sidedness and speckle are read in, in metres. */
+  private const val EDGE_STRIP = 10.0
+
+  /** RMS residual in metres under which an edge is counted as a ruler line. */
+  private const val STRAIGHT_METRES = 2.0
+
+  /** Windows per biome pair and per threshold, spread over the world by taking every n-th candidate. */
+  private const val EDGES_PER_PAIR = 12
+  private const val EDGES_PER_KIND = 60
+
+  private const val EDGE_WORST = 10
+
+  /** `net.bestia.geo.GridRef.SQUARE_METRES`. */
+  private const val GRID_SQUARE = 8_000.0
+
   private const val STEEPNESS = "--steepness"
 
   /** Candidate thresholds for `ChunkMaterializer.BARE_ROCK_GRADIENT`, from a gentle bank to a sheer face. */
@@ -1099,6 +1409,6 @@ object ProbeMain {
 
   private val PROBE_FLAGS = setOf(
     "--x", "--y", "--span", "--at", "--survey", "--on", "--nth", "--channels", BELOW,
-    DROPLETS, ECOTONE, PROPS, SECTION, STEEPNESS, CHUNK_DUMP
+    DROPLETS, ECOTONE, EDGES, PROPS, SECTION, STEEPNESS, CHUNK_DUMP
   )
 }

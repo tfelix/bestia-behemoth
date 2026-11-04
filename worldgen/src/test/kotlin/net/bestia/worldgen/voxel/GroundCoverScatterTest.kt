@@ -151,7 +151,7 @@ class GroundCoverScatterTest {
 
       val cap = SurfaceCover.cap(
         surface.biomeAt(plant.x, plant.y),
-        surface.temperatureAt(plant.x, plant.y),
+        surface.coverTemperatureAt(plant.x, plant.y),
         0.0,
         surface.isBlightedAt(plant.x, plant.y)
       )

@@ -315,6 +315,13 @@ class SurfaceSampler(
     temperature.sampleBilinear(worldX, worldY)
 
   /**
+   * The temperature the surface cover is decided at: what [SurfaceCover.cap], [SurfaceCover.shoreMaterial] and
+   * the materialiser's ice compare against their thresholds. Every caller deciding what a column is made of
+   * reads this one rather than [temperatureAt], so the materialiser and the prop vetoes agree about it.
+   */
+  fun coverTemperatureAt(worldX: Double, worldY: Double): Double = temperatureAt(worldX, worldY)
+
+  /**
    * Elevation of the standing water surface over this column.
    *
    * Constant per water body rather than interpolated, and that is the point: a lake's surface is level by
@@ -757,10 +764,10 @@ object SurfaceCover {
     if (temperature < COLD_SHORE_TEMPERATURE) BlockType.GRAVEL else BlockType.SAND
 
   /** Mean annual temperature below which a shore weathers to shingle rather than to sand. */
-  private const val COLD_SHORE_TEMPERATURE = 2.0
+  const val COLD_SHORE_TEMPERATURE = 2.0
 
   /** Mean annual temperature below which the surface holds permanent snow. */
-  private const val SNOW_TEMPERATURE = -1.5
+  const val SNOW_TEMPERATURE = -1.5
 
   /** Water depth beyond which the bed is fine mud rather than sand. */
   const val DEEP_WATER = 60.0

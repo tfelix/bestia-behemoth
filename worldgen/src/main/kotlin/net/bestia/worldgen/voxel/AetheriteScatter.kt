@@ -178,7 +178,7 @@ class AetheriteScatter(
 
     val cap = SurfaceCover.cap(
       surface.biomeAt(x, y),
-      surface.temperatureAt(x, y),
+      surface.coverTemperatureAt(x, y),
       0.0,
       // True by construction here; see the flags in `propsIn`.
       blighted = true

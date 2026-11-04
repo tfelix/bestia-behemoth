@@ -128,7 +128,7 @@ class AetheriteOutcropTest {
 
         val cap = SurfaceCover.cap(
           world.materializer.surface.biomeAt(x, y),
-          world.materializer.surface.temperatureAt(x, y),
+          world.materializer.surface.coverTemperatureAt(x, y),
           0.0,
           blighted = true
         )

@@ -241,7 +241,7 @@ class CrystalScatter(
 
     val cap = SurfaceCover.cap(
       surface.biomeAt(crystal.x, crystal.y),
-      surface.temperatureAt(crystal.x, crystal.y),
+      surface.coverTemperatureAt(crystal.x, crystal.y),
       0.0,
       crystal.blighted
     )

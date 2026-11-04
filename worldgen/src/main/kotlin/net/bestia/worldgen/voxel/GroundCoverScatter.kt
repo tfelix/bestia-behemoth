@@ -321,7 +321,7 @@ class GroundCoverScatter(
         // that the upper beach scatters at its biome's density rather than a beach's, which reads as dune
         // vegetation and has been left alone. Closing it wants the strand's own steepness, which this scatter
         // is not given; see `SurfaceSampler.shoreCoverAt`.
-        val cap = SurfaceCover.cap(biome, surface.temperatureAt(plant.x, plant.y), 0.0, blighted)
+        val cap = SurfaceCover.cap(biome, surface.coverTemperatureAt(plant.x, plant.y), 0.0, blighted)
         if (cap == BlockType.ICE || cap == BlockType.SNOW) continue
 
         val (kind, nominalHeight) = when {

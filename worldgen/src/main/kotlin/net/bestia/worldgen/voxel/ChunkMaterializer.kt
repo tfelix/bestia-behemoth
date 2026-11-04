@@ -562,7 +562,7 @@ class ChunkMaterializer(
     val flooded = waterDepth > 0.0 || moltenDepth > 0.0
 
     val biome = surface.biomeAt(worldX, worldY)
-    val temperature = surface.temperatureAt(worldX, worldY)
+    val temperature = surface.coverTemperatureAt(worldX, worldY)
 
     // Steep, dry ground carries no soil and shows what it is made of. Measured on the materialised surface
     // rather than read off a biome, which is what this used to do - see `Biome` on why `CLIFF` is gone.
