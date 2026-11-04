@@ -87,7 +87,7 @@ var _saved_gi := {}
 ## The grass budget F10 took away, or -1 while the field is running on its own.
 var _saved_budget := -1
 
-## Whether F8's frame-time line is showing. It is the one line here that is a measurement, not a switch.
+## Whether shift+F9's frame-time line is showing. It is the one line here that is a measurement, not a switch.
 var _stats := false
 
 ## Seconds since the frame-time line was last rewritten. A number that changes every frame cannot be read.
@@ -108,8 +108,9 @@ func _ready() -> void:
 
 	# Printed rather than only shown, because the readout is hidden until something is off its default and a
 	# key nobody knows about is a key nobody presses.
-	print("[render debug] F1 / shift+F1 cycle view mode, F2 sdfgi, F3 ssil, F4 ssao, F7 dump chunks, F8 frame times, ",
-		"F9 all three off, F10 grass draw budget, F11 shadow cascade blending, F12 cloud shadow decals")
+	print("[render debug] F1 / shift+F1 cycle view mode, F2 sdfgi, F3 ssil, F4 ssao, shift+F9 frame times, ",
+		"shift+F10 dump chunks, F9 all three off, F10 grass draw budget, F11 shadow cascade blending, ",
+		"F12 cloud shadow decals")
 
 	set_process(false)
 
@@ -131,6 +132,9 @@ func _input(event: InputEvent) -> void:
 		return
 
 	# Physical, so the rig works on a keyboard layout this repo has not been opened on.
+	#
+	# F5 to F8 are left alone: a game started from the editor hands them to the editor's run bar, where F7 pauses
+	# the game and F8 stops it - so a rig key there closes the game instead of measuring it.
 	match key.physical_keycode:
 		KEY_F1:
 			_cycle_draw(-1 if key.shift_pressed else 1)
@@ -140,14 +144,16 @@ func _input(event: InputEvent) -> void:
 			_toggle_gi("ssil_enabled", "ssil")
 		KEY_F4:
 			_toggle_gi("ssao_enabled", "ssao")
-		KEY_F7:
-			_dump_chunks()
-		KEY_F8:
-			_toggle_stats()
 		KEY_F9:
-			_toggle_all_gi()
+			if key.shift_pressed:
+				_toggle_stats()
+			else:
+				_toggle_all_gi()
 		KEY_F10:
-			_toggle_grass_budget()
+			if key.shift_pressed:
+				_dump_chunks()
+			else:
+				_toggle_grass_budget()
 		KEY_F11:
 			_toggle_blend_splits()
 		KEY_F12:

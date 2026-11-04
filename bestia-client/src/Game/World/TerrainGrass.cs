@@ -352,7 +352,7 @@ namespace BestiaBehemothClient.Game.World
     ///
     /// <para>
     /// <b>The count is an upper bound, not what the GPU draws.</b> Godot's own mesh LOD thins the near tufts
-    /// further, so it draws about half of what is counted here. Judge the setting by frame time - F8 in
+    /// further, so it draws about half of what is counted here. Judge the setting by frame time - shift+F9 in
     /// <c>RenderDebug</c>, or <c>Dev/GrassBench</c> - not by this number.
     /// </para>
     ///
