@@ -10,6 +10,7 @@ import net.bestia.worldgen.voxel.BuildingProps
 import net.bestia.zone.cartography.render.MapService
 import net.bestia.zone.townsfolk.domain.OccupationCatalogue
 import net.bestia.zone.world.GeneratedWorlds
+import net.bestia.zone.world.ReadsLargeWorlds
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -20,6 +21,7 @@ import kotlin.test.assertTrue
  * Swept over all three shared seeds, because a gate that drops everything passes a test that only asks "is
  * everything listed allowed". So each test also insists on having found something to check.
  */
+@ReadsLargeWorlds
 class ServiceCandidatesTest {
 
   private val occupations = OccupationCatalogue().apply { load() }

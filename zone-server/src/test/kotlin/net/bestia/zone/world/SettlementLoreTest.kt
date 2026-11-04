@@ -22,6 +22,7 @@ import kotlin.test.assertTrue
  * assertion would either flake or be pinned to a lucky seed - and neither distinguishes a rare thing working from
  * a dead one. `VolcanicHistoryTest` in `worldgen` makes the same argument about the same rolls one tier down.
  */
+@ReadsLargeWorlds
 class SettlementLoreTest {
 
   @Test

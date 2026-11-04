@@ -10,6 +10,7 @@ import net.bestia.zone.townsfolk.knowledge.Locality
 import net.bestia.zone.townsfolk.knowledge.TownKnowledge
 import net.bestia.zone.townsfolk.conversation.Topics
 import net.bestia.zone.world.GeneratedWorlds
+import net.bestia.zone.world.ReadsLargeWorlds
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -23,6 +24,7 @@ import net.bestia.zone.townsfolk.rumour.RumourKind
  * topic ids must never collide - an option id is the only thing a conversation stores, so a rumour that
  * answered to an event's id would show a player the wrong memory entirely.
  */
+@ReadsLargeWorlds
 class RumourKnowledgeTest {
 
   @Test

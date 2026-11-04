@@ -5,9 +5,10 @@ import io.mockk.mockk
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
+import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.voxel.CarveBrush
-import net.bestia.zone.world.GeneratedWorlds
 import net.bestia.zone.world.WorldService
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
@@ -106,7 +107,7 @@ class ChunkServiceRestoreTest {
 
     val world: GeneratedWorld
       get() {
-        return GeneratedWorlds.of(seed = 9001L, cells = 48)
+        return TestWorlds.get(WorldConfig(seed = 9001L, widthCells = 48, heightCells = 48))
       }
   }
 }

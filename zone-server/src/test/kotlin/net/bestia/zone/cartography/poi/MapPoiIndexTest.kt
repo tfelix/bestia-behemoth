@@ -13,6 +13,7 @@ import net.bestia.zone.prop.WorldObjectDivergenceRegistry
 import net.bestia.zone.prop.persistence.DivergenceState
 import net.bestia.zone.townsfolk.domain.OccupationCatalogue
 import net.bestia.zone.world.GeneratedWorlds
+import net.bestia.zone.world.ReadsLargeWorlds
 import net.bestia.zone.world.WorldService
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -27,6 +28,7 @@ import kotlin.test.assertTrue
  * The divergence registry is mocked only to capture the listener the index registers - the listener is the
  * whole contract between the two, and calling it is exactly what a felled building does on the tick.
  */
+@ReadsLargeWorlds
 class MapPoiIndexTest {
 
   private val generated = GeneratedWorlds.of(SEED)
