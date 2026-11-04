@@ -26,6 +26,7 @@ import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.loot.LootItemEntitySpawner
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -62,9 +63,9 @@ class ObtainItemIntentSystemTest {
     every { modify<Any?>(any(), any()) } answers { world.modify(firstArg(), secondArg()) }
   }
 
-  private fun newSystem() = ObtainItemIntentSystem(
+  private fun newSystem(spawner: LootItemEntitySpawner = lootItemEntitySpawner) = ObtainItemIntentSystem(
     itemTemplates = ItemTemplateRegistry(itemRepository),
-    lootItemEntitySpawner = lootItemEntitySpawner,
+    lootItemEntitySpawner = spawner,
     inventoryService = inventoryService,
     asyncJobExecutor = asyncJobExecutor,
     groundStackRemoval = GroundStackRemoval(PersistedEntityDeletionQueue()),
@@ -72,8 +73,8 @@ class ObtainItemIntentSystemTest {
     worldView = worldView,
   )
 
-  private fun setUp() {
-    world = testWorld(systems = listOf(newSystem()))
+  private fun setUp(spawner: LootItemEntitySpawner = lootItemEntitySpawner) {
+    world = testWorld(systems = listOf(newSystem(spawner)))
     every { itemRepository.findAll() } answers { catalogue.toList() }
   }
 
@@ -205,6 +206,20 @@ class ObtainItemIntentSystemTest {
       )
     }
     verifyNoItemGranted()
+  }
+
+  /** The mocked spawner above adds nothing; a real ground item is a new entity with components of its own. */
+  @Test
+  fun `an item that overflows lands on the ground through the real spawner`() {
+    setUp(spawner = LootItemEntitySpawner(WorldRulesConfig(tickRate = 20)))
+    stub(boulder)
+    val entity = createCarrier(capacityMax = 50, pos = Vec3L(3, 4, 0))
+
+    world.modify(entity) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId = boulder.id, amount = 1)) }
+    world.tick(0.1f)
+
+    assertEquals(1, world.componentCount(GroundItemStack::class))
+    assertTrue(world.get(entity, Inventory::class)!!.isEmpty())
   }
 
   /** A copy forged by a smith with a full bag is still the copy they forged, by them, once picked up. */
