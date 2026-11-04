@@ -135,6 +135,8 @@ class Stratigraphy(
   private val bedSeed = GenRng.mix64(seed xor BED_SALT)
   private val foldSeed = GenRng.mix64(seed xor FOLD_SALT)
   private val faciesSalt = GenRng.mix64(seed xor FACIES_SALT)
+  private val plateSeed = GenRng.mix64(seed xor PLATE_SALT)
+  private val plateEdgeSeed = GenRng.mix64(seed xor PLATE_EDGE_SALT)
 
   fun columnAt(worldX: Double, worldY: Double): RockColumn {
     val coarse = coarseElevation.sampleBicubic(worldX, worldY)
@@ -151,9 +153,28 @@ class Stratigraphy(
         foldSeed, worldX / params.foldWavelength, worldY / params.foldWavelength, FOLD_OCTAVES
       ) * params.foldAmplitude,
       bedThickness = bedThicknessAt(worldX, worldY),
-      plate = plateId.sampleNearest(worldX, worldY),
+      plate = plateAt(worldX, worldY),
       faciesSalt = faciesSalt
     )
+  }
+
+  /**
+   * The plate whose stratigraphic column this column's beds come from, looked up through a warp.
+   *
+   * [RockColumn.faciesOf] keys each plate's own column on it to avoid "a spatial grid, which would leave a visible
+   * rectangular seam" - and then read the plate off a kilometre raster by nearest cell, which is that grid. Every
+   * cliff a plate boundary crossed changed from one bed sequence to the next along a straight kilometre line. The
+   * cure is [SurfaceSampler.biomeAt]'s: a warp at map scale and one at the scale a player sees. A pure function of
+   * world position, so a chunk and the cave stage still agree about which beds are limestone.
+   */
+  private fun plateAt(worldX: Double, worldY: Double): Int {
+    val coarse = Noise.warp(
+      plateSeed, worldX, worldY, PLATE_WARP_AMPLITUDE, 1.0 / PLATE_WARP_WAVELENGTH, PLATE_WARP_OCTAVES
+    )
+    val shaped = Noise.warp(
+      plateEdgeSeed, coarse[0], coarse[1], PLATE_EDGE_AMPLITUDE, 1.0 / PLATE_EDGE_WAVELENGTH, PLATE_WARP_OCTAVES
+    )
+    return plateId.sampleNearest(shaped[0], shaped[1])
   }
 
   /**
@@ -228,6 +249,15 @@ class Stratigraphy(
     private const val BED_SALT = 0x1D9C4A7E35B2F80L
     private const val FOLD_SALT = 0x5B27E1D93C4A6F0L
     private const val FACIES_SALT = 0x38F5A2C7E91D46BL
+    private const val PLATE_SALT = 0x6A13D8F2B947C05L
+    private const val PLATE_EDGE_SALT = 0x19E7C4A05D3B82FL
+
+    /** [plateAt]'s two warps: `SurfaceSampler.biomeAt`'s coarse warp and its edge shape, for the same reasons. */
+    private const val PLATE_WARP_WAVELENGTH = 1_100.0
+    private const val PLATE_WARP_AMPLITUDE = 420.0
+    private const val PLATE_EDGE_WAVELENGTH = 160.0
+    private const val PLATE_EDGE_AMPLITUDE = 160.0
+    private const val PLATE_WARP_OCTAVES = 2
 
     private const val FOLD_OCTAVES = 3
   }

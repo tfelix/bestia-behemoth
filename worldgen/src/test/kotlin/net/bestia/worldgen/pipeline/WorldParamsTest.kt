@@ -131,10 +131,11 @@ class WorldParamsTest {
     // Only the world tier moved when the nav lattice went to 4 km and learned to count climbing: `NavParams`.
     // And again when boss dens came to the wilds: `SpawnerParams` gained the wild chance and the level bonus.
     // Only the chunk tier moved when the roads were surfaced: `ChunkMaterializer.VERSION` 8.
+    // And again when surface boundaries stopped being ruler lines at player scale: `ChunkMaterializer.VERSION` 9.
     assertEquals(8_685_732_347_550_207_823L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Pinned as a pair so each half stays checkable: a world-tier retune has to move the number above and
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
-    assertEquals(3_636_167_691_813_148_357L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
+    assertEquals(6_772_342_949_734_140_087L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
   }
 
   private fun config() = StandardWorld.demoConfig().copy(widthCells = 64, heightCells = 64)

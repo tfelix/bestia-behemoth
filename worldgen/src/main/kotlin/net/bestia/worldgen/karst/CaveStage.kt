@@ -273,6 +273,10 @@ class CaveStage(
 ) : Stage {
 
   override val id = ID
+
+  // Deliberately not bumped for `Stratigraphy.plateAt` (chunk tier 8), which moves which beds are limestone near
+  // plate boundaries and so the caves there. This version reaches the RNG, so a bump would move every cave in the
+  // world to record a change near a few of them; `pipelineVersion` moves through the chunk tier regardless.
   override val version = 1
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, strata.digest().value)

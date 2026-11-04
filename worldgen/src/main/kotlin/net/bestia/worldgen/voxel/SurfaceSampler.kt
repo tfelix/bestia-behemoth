@@ -22,6 +22,16 @@ import kotlin.math.exp
  * Sampling at a position displaced by a smooth noise field breaks those edges into an irregular
  * transition without needing a blend between categories that cannot be blended, and it stays a pure
  * function of world position, so two chunks either side of a border still agree.
+ *
+ * **One displacement was not enough, and only at the scale it had no octaves at.** A kilometre warp bends an edge
+ * over kilometres; over the 150 m a player sees, the same edge is a smooth curve indistinguishable from a ruler
+ * line, and `probe -Pedges` measured half of all biome edges within 2 m of one. So [biomeAt] displaces three
+ * times, at three scales - see [frayed].
+ *
+ * The same failure has a second form wherever a cover rule compares a bilinear kilometre field against a
+ * constant: the contour is all but straight inside every cell. The snow line, the cold shore and lake ice did
+ * that nine times in ten; [coverTemperatureAt] is their fix, and [isBlightedAt] ranks its field for the same
+ * reason.
  */
 class SurfaceSampler(
   private val biome: IntLayer,
@@ -33,6 +43,12 @@ class SurfaceSampler(
   private val seaLevel: Double = 0.0,
   /** Amplitude of the biome-boundary dither in metres. Roughly how ragged a transition looks. */
   private val boundaryJitter: Double = 420.0,
+
+  /**
+   * Scale on the two finer boundary warps, 1 in every real world. Zero turns them off, which is what a test
+   * measuring their effect compares against; see [frayed].
+   */
+  private val edgeFray: Double = 1.0,
 
   /**
    * The runner-up biome and how clearly it lost, for the transition dither. Optional together: a partial
@@ -60,6 +76,9 @@ class SurfaceSampler(
 ) {
 
   private val jitterSeed = GenRng.mix64(seed xor JITTER_SALT)
+  private val edgeSeed = GenRng.mix64(seed xor EDGE_SALT)
+  private val fraySeed = GenRng.mix64(seed xor FRAY_SALT)
+  private val coverSeed = GenRng.mix64(seed xor COVER_SALT)
   private val ditherSeed = GenRng.mix64(seed xor DITHER_SALT)
   private val blightSeed = GenRng.mix64(seed xor BLIGHT_SALT)
   private val shoreSeed = GenRng.mix64(seed xor SHORE_SALT)
@@ -106,9 +125,10 @@ class SurfaceSampler(
    * it - two prototypes that scored identically have equal claim, and neither has a claim on *more* than half.
    */
   fun biomeAt(worldX: Double, worldY: Double): Biome {
-    val displaced = Noise.warp(
+    val coarse = Noise.warp(
       jitterSeed, worldX, worldY, boundaryJitter, 1.0 / JITTER_WAVELENGTH, JITTER_OCTAVES
     )
+    val displaced = frayed(coarse[0], coarse[1])
     val winner = Biome.entries[biome.sampleNearest(displaced[0], displaced[1])]
 
     val secondary = secondaryBiome ?: return winner
@@ -131,6 +151,42 @@ class SurfaceSampler(
     val patch = (Noise.fbm(ditherSeed, worldX / PATCH_WAVELENGTH, worldY / PATCH_WAVELENGTH, 1) + 1.0) / 2.0
 
     return if (patch < threshold) runnerUp else winner
+  }
+
+  /**
+   * The biome lookup position after the coarse warp, moved again at the scales that warp has no octaves at.
+   *
+   * - **The edge's shape**, [EDGE_WAVELENGTH]: a warp that bends the boundary over the tens to hundreds of metres
+   *   a player looks along, where the kilometre warp leaves it straight.
+   * - **The fray**: each column reads either its own position or one [FRAY_REACH] metres to either side of it,
+   *   a third of the ground each, chosen by a patch field. In a cell's interior all three name the same biome and
+   *   nothing changes. Within reach of an edge one of the two always lies across it, so a third of the patches
+   *   there come out the neighbour - on **both** sides. The confidence dither cannot do that: a cell's runner-up
+   *   is its nearest rival in climate, not the biome next door, so across most edges one side mixes and the other
+   *   never does.
+   *
+   * **The fray picks among positions rather than warping to one**, and that was measured. A warp strong enough to
+   * throw ground across a line folds, and a fold draws filaments: `probe` at L5 496 465 showed dry slivers a metre
+   * wide and fifteen long running into the grass. Choosing whole patches keeps the islands the shape of the
+   * patch field - blobs - which is the shape an ecotone has.
+   *
+   * Both are pure functions of world position, and tens of metres against kilometre cells, so they reshape only
+   * the ground near an edge.
+   */
+  private fun frayed(x: Double, y: Double): DoubleArray {
+    if (edgeFray <= 0.0) return doubleArrayOf(x, y)
+    val shaped = Noise.warp(edgeSeed, x, y, EDGE_AMPLITUDE * edgeFray, 1.0 / EDGE_WAVELENGTH, EDGE_OCTAVES)
+
+    val patch = rankOf(Noise.fbm(fraySeed, x / FRAY_PATCH_WAVELENGTH, y / FRAY_PATCH_WAVELENGTH, FRAY_OCTAVES))
+    if (patch in FRAY_THIRD..(1.0 - FRAY_THIRD)) return shaped
+
+    // The offset is a smooth field, so how far the fray reaches - and which way across the edge each third
+    // looks - wanders along a boundary rather than being one constant band.
+    val reach = Noise.warp(
+      fraySeed xor REACH_SALT, x, y, FRAY_REACH * edgeFray, 1.0 / FRAY_REACH_WAVELENGTH, FRAY_OCTAVES
+    )
+    val sign = if (patch < FRAY_THIRD) 1.0 else -1.0
+    return doubleArrayOf(shaped[0] + sign * (reach[0] - x), shaped[1] + sign * (reach[1] - y))
   }
 
   fun soilDepthAt(worldX: Double, worldY: Double): Double =
@@ -166,9 +222,12 @@ class SurfaceSampler(
     if (severity <= 0.0) return false
     if (severity >= 1.0) return true
 
-    val patch = (Noise.fbm(
+    // Ranked, as [shorePatchAt] explains. The raw field crowds around a half, so compared against the severity
+    // directly almost nothing went over below 0.4 and almost everything above 0.6: the dither collapsed back
+    // into a contour of the corruption raster, which is the line it was written to remove.
+    val patch = rankOf(Noise.fbm(
       blightSeed, worldX / BLIGHT_PATCH_WAVELENGTH, worldY / BLIGHT_PATCH_WAVELENGTH, BLIGHT_OCTAVES
-    ) + 1.0) / 2.0
+    ))
 
     return patch < severity
   }
@@ -269,8 +328,8 @@ class SurfaceSampler(
    * A logistic at 1.702 standard deviations approximates the normal CDF to about a hundredth, and 1.702 / 0.113
    * is [PATCH_RANK_SCALE] - so the constant below is the measurement rather than a tuned number. This is the
    * missing step in the recipe `biomeAt` describes: that one is handed a percentile rank by `BiomeStage` and says
-   * so ("a rank is uniform, so `1 - rank` is already a share"). `isBlightedAt` computes its field the raw way and
-   * has the same sharpening in it, which has not been touched here.
+   * so ("a rank is uniform, so `1 - rank` is already a share"). `isBlightedAt` and `coverTemperatureAt` rank their
+   * fields the same way, for the same reason.
    */
   private fun shorePatchAt(worldX: Double, worldY: Double): Double {
     val raw = (Noise.fbm(
@@ -318,8 +377,25 @@ class SurfaceSampler(
    * The temperature the surface cover is decided at: what [SurfaceCover.cap], [SurfaceCover.shoreMaterial] and
    * the materialiser's ice compare against their thresholds. Every caller deciding what a column is made of
    * reads this one rather than [temperatureAt], so the materialiser and the prop vetoes agree about it.
+   *
+   * **The raster plus a patch offset of up to [COVER_BAND] degrees either way**, which turns every threshold on it
+   * into a dither without any of them knowing. With the offset uniform over `±band`, `t + offset < threshold`
+   * holds with probability `(threshold - t) / 2 band + 1/2` - a ramp from none to all across the band, the same
+   * recipe [isBlightedAt] uses, and the offset has to be ranked for the same reason [shorePatchAt] gives.
+   *
+   * Without it the snow line, the sand-to-shingle change on a cold coast and the edge of lake ice were contours of
+   * a bilinear kilometre field - straight inside every cell, and `probe -Pedges` found them within 2 m of a ruler
+   * nine times in ten. One field for all three rather than a salt each, because they are one fact about the
+   * ground: a cold patch is cold for the snow on it and for the pond beside it alike.
+   *
+   * Not for anything but cover. A spawn's climate or a weather roll wants the honest raster, [temperatureAt].
    */
-  fun coverTemperatureAt(worldX: Double, worldY: Double): Double = temperatureAt(worldX, worldY)
+  fun coverTemperatureAt(worldX: Double, worldY: Double): Double {
+    val patch = rankOf(Noise.fbm(
+      coverSeed, worldX / COVER_PATCH_WAVELENGTH, worldY / COVER_PATCH_WAVELENGTH, COVER_OCTAVES
+    ))
+    return temperatureAt(worldX, worldY) + COVER_BAND * (2.0 * patch - 1.0)
+  }
 
   /**
    * Elevation of the standing water surface over this column.
@@ -393,6 +469,54 @@ class SurfaceSampler(
     private const val JITTER_SALT = 0x2A6C1F953D8E470L
     private const val JITTER_WAVELENGTH = 1_100.0
     private const val JITTER_OCTAVES = 2
+
+    /** Its own salt for each of [frayed]'s two warps, so neither is the coarse warp's field at another scale. */
+    private const val EDGE_SALT = 0x5B1E93C07A24D6L
+    private const val FRAY_SALT = 0x37D04AE96C15B2L
+
+    /**
+     * The edge's shape, in metres. A gradient-noise warp moves about a quarter of its amplitude, so this bends an
+     * edge by about forty metres over a hundred and sixty - the scale `probe -Pedges` found straight.
+     */
+    private const val EDGE_WAVELENGTH = 160.0
+    private const val EDGE_AMPLITUDE = 160.0
+    private const val EDGE_OCTAVES = 2
+
+    /** Separates the fray's reach field from its patch field, which share [FRAY_SALT]'s seed. */
+    private const val REACH_SALT = 0x2D96B1F04E7A3CL
+
+    /**
+     * Amplitude of the fray's reach field, in metres. A gradient-noise warp moves about a third of its amplitude
+     * as a vector, so the neighbour is looked for about twenty-five metres away: islands reach that far into the
+     * other biome, which is about what a player sees as a ragged edge rather than a line.
+     */
+    private const val FRAY_REACH = 80.0
+
+    /** How quickly the reach wanders along an edge, in metres. */
+    private const val FRAY_REACH_WAVELENGTH = 90.0
+
+    /** Fray patches, in metres: near [PATCH_WAVELENGTH], so the fray and the confidence dither read as one ground. */
+    private const val FRAY_PATCH_WAVELENGTH = 16.0
+    private const val FRAY_OCTAVES = 2
+
+    /** The share of the ground that looks each way across an edge. A third each, so its own position keeps a third. */
+    private const val FRAY_THIRD = 1.0 / 3.0
+
+    /** Its own salt, so cold patches do not land on the blight's or the shore's. */
+    private const val COVER_SALT = 0x4C8F21D7B03E95L
+
+    /**
+     * Half-width in degrees of the band every cover threshold is dithered across; see [coverTemperatureAt].
+     *
+     * On a mountainside, where the raster falls six degrees a kilometre, this is a mixed zone a couple of hundred
+     * metres deep; on a plateau a few hundred more. Either way it is wider than a player sees, so the line itself
+     * is never in view.
+     */
+    private const val COVER_BAND = 0.6
+
+    /** Cold patches about the blight's size: snow lying on ground is the ground, not individual plants. */
+    private const val COVER_PATCH_WAVELENGTH = 24.0
+    private const val COVER_OCTAVES = 2
 
     /** Separate from [JITTER_SALT] so the dither is independent of the warp rather than correlated with it. */
     private const val DITHER_SALT = 0x24B7E0C3A159D8L

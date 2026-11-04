@@ -615,7 +615,7 @@ meshes — functional, no art yet.
 | Task | Entry point | Purpose |
 |---|---|---|
 | `:worldgen:viewer` / `:worldgen:viewerExport` | `ViewerMain` | interactive Swing layer/feature/voxel inspector; export mode renders every layer to PNG (CI-safe) |
-| `:worldgen:probe` | `ProbeMain` | prints a small window as text, one char per voxel column — fine enough to see individual river channels |
+| `:worldgen:probe` | `ProbeMain` | prints a small window as text, one char per voxel column — fine enough to see individual river channels; `-Pedges` measures how straight every biome, snow, shore, ice and blight boundary in the world is at player scale |
 | `:worldgen:diff` | `DiffMain` | two worlds (two seeds *or* two params files, never both) → table of mean/worst difference per layer, loudest first |
 | `:worldgen:bench` | `BenchMain` | serial vs. parallel world-tier build timing |
 | `:worldgen:chronicle` | `ChronicleMain` | prints generated history: events, figures, artifacts, sites, `-Pyear` scrubbing |

@@ -58,7 +58,10 @@ class VegetationStage(
 ) : Stage {
 
   override val id = ID
-  override val version = 1
+
+  // 2: `SurfaceSampler.biomeAt` frays biome edges, and the canopy averages it. This stage draws no random
+  // numbers, so the bump reseeds nothing.
+  override val version = 2
 
   /**
    * The catalogue is folded as well as the params, and it is not optional.

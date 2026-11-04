@@ -981,7 +981,11 @@ class ChunkMaterializer(
     // every shore within half a voxel of its waterline is wet where it was dry.
     // 8: the roads between settlements are surfaced - packed earth, mud in the ruts, cobbles - by `RoadSurfaces`,
     // which also keeps trees off them.
-    const val VERSION = 8
+    // 9: surface boundaries stopped being ruler lines at player scale. Biome edges are bent at 160 m and frayed in
+    // patches from both sides (`SurfaceSampler.frayed`); snow, cold-shore shingle and lake ice are dithered across
+    // a band (`coverTemperatureAt`); blight's dither is ranked; plate facies are read through a warp
+    // (`Stratigraphy.plateAt`). Every column near any of those boundaries may cap, or bed, differently.
+    const val VERSION = 9
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.
