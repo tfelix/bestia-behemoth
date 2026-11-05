@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Mail/post_office_panel.gd" id="1_post"]
+
+[node name="PostOfficePanel" type="PanelContainer"]
+custom_minimum_size = Vector2(560, 380)
+offset_right = 560.0
+offset_bottom = 380.0
+script = ExtResource("1_post")

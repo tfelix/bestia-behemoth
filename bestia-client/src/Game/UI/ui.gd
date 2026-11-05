@@ -16,6 +16,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _compendium_win: WidgetWindow = $CompendiumWin
 @onready var _emotes_win: WidgetWindow = $EmotesWin
 @onready var _letters_win: WidgetWindow = $LettersWin
+@onready var _post_office_win: WidgetWindow = $PostOfficeWin
 @onready var _auction_win: WidgetWindow = $AuctionWin
 @onready var _invitations: InvitationTray = $Invitations
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
@@ -145,6 +146,11 @@ func _ready() -> void:
 
 	(_letters_win.get_content() as LetterPanel).notice.connect(_chat.system_line)
 	ConnectionManager.letter_arrived.connect(_on_letter_arrived)
+
+	# Talking to a postmaster at work is what opens it, as a merchant opens the shop.
+	var post_office := _post_office_win.get_content() as PostOfficePanel
+	post_office.post_office_opened.connect(func() -> void: _post_office_win.visible = true)
+	post_office.post_office_closed.connect(func() -> void: _post_office_win.visible = false)
 
 	# Gold is coins in the bag, so the inventory is what knows how much the profile should show.
 	inventory.gold_changed.connect(_master_profile.show_gold)
