@@ -17,6 +17,7 @@ enum class ApiRoute {
   CATALOG,
   CHAT,
   STANCE,
+  LETTERS,
   PUSH,
   WS,
   OTHER,
@@ -58,6 +59,7 @@ enum class ApiRoute {
         rest.startsWith("masters") -> when {
           rest.endsWith("/chat") -> CHAT
           rest.endsWith("/stance") -> STANCE
+          rest.contains("/letters") -> LETTERS
           else -> MASTERS
         }
 
