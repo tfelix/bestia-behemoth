@@ -13,6 +13,7 @@ script = ExtResource("2_bfic0")
 custom_minimum_size = Vector2(32, 32)
 custom_maximum_size = Vector2(32, 32)
 layout_mode = 2
+size_flags_horizontal = 4
 ignore_texture_size = true
 texture_normal = ExtResource("1_mtpa7")
 texture_pressed = ExtResource("1_mtpa7")
@@ -20,6 +21,9 @@ stretch_mode = 5
 
 [node name="DurationLabel" type="Label" parent="." unique_id=695985219]
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 11
-text = "2m"
+text = "2 min"
 horizontal_alignment = 1
