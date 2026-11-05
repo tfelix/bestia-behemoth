@@ -55,6 +55,8 @@ signal letters_received(message: LettersSMSG)
 ## A pigeon brought a letter to the played master.
 signal letter_arrived(message: LetterArrivedSMSG)
 signal letter_sent(message: LetterSentSMSG)
+## A postmaster at work opened the post office, or answered a change of home office.
+signal post_office_opened(message: PostOfficeOpenSMSG)
 ## Every party message: the roster, an invitation, the party ending for us. The party window listens.
 signal party_message_received(message: PartySMSG)
 ## Every guild message: the guild, an invitation, leaving it. The guild window listens.
@@ -139,6 +141,7 @@ var SendLetterCMSG = load("res://Bnet/Message/Postal/SendLetterCMSG.cs")
 var RequestLettersCMSG = load("res://Bnet/Message/Postal/RequestLettersCMSG.cs")
 var ReadLetterCMSG = load("res://Bnet/Message/Postal/ReadLetterCMSG.cs")
 var DeleteLetterCMSG = load("res://Bnet/Message/Postal/DeleteLetterCMSG.cs")
+var SetHomePostOfficeCMSG = load("res://Bnet/Message/Postal/SetHomePostOfficeCMSG.cs")
 var RequestPartyInfoCMSG = load("res://Bnet/Message/Party/RequestPartyInfoCMSG.cs")
 var CreatePartyCMSG = load("res://Bnet/Message/Party/CreatePartyCMSG.cs")
 var RequestPartyInvitationCMSG = load("res://Bnet/Message/Party/RequestPartyInvitationCMSG.cs")
@@ -843,6 +846,14 @@ func delete_letter(letter_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Answered by a PostOfficeOpenSMSG that names the new home office.
+func set_home_post_office(postmaster_entity_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = SetHomePostOfficeCMSG.new()
+	msg.PostmasterEntityId = postmaster_entity_id
+	_socket.SendMessage(msg)
+
+
 ## Locks or unlocks our side. Any change to either offer clears both locks again.
 func set_trade_lock(trade_id: int, locked: bool) -> void:
 	assert(is_ready_to_send())
@@ -1225,6 +1236,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		letter_arrived.emit(message)
 	elif message is LetterSentSMSG:
 		letter_sent.emit(message)
+	elif message is PostOfficeOpenSMSG:
+		post_office_opened.emit(message)
 	elif message is PartySMSG:
 		party_message_received.emit(message)
 	elif message is GuildSMSG:

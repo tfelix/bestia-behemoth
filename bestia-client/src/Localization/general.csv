@@ -549,3 +549,10 @@ LETTERS_RE,Re: %s
 LETTERS_NO_SUBJECT,(no subject)
 LETTERS_SENT,The pigeon flies off to %s.
 LETTERS_ARRIVED,A pigeon brings a letter from %s.
+POST_OFFICE_TITLE,%s post office
+POST_OFFICE_COACH,The coach leaves every %d hours.
+POST_OFFICE_HOME,Your parcels go to: %s
+POST_OFFICE_NO_HOME,You have no home post office yet.
+POST_OFFICE_MAKE_HOME,Make this my home
+POST_OFFICE_IS_HOME,Your home office
+POST_OFFICE_NO_PARCELS,No parcels wait for you here.
