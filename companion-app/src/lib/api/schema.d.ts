@@ -260,6 +260,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/parcels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_3"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/masters/{masterId}/map/t/{level}/{x}/{y}.png": {
         parameters: {
             query?: never;
@@ -497,6 +513,7 @@ export interface components {
             timeZone: string;
             journeyEnded: boolean;
             letterArrived: boolean;
+            parcelArrived: boolean;
         };
         JsonNode: Record<string, never>;
         Write: {
@@ -619,6 +636,22 @@ export interface components {
         };
         PartyView: {
             party?: components["schemas"]["Party"];
+        };
+        Parcel: {
+            /** Format: int64 */
+            parcelId: number;
+            senderName: string;
+            destinationName: string;
+            /** Format: int64 */
+            latestArrivalEpochMs: number;
+            arrived: boolean;
+            returning: boolean;
+            goods: components["schemas"]["ParcelGoods"][];
+        };
+        ParcelGoods: {
+            item: string;
+            /** Format: int32 */
+            amount: number;
         };
         Service: {
             /** Format: int64 */
@@ -1348,6 +1381,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PartyView"];
+                };
+            };
+        };
+    };
+    list_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                masterId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Parcel"][];
                 };
             };
         };
