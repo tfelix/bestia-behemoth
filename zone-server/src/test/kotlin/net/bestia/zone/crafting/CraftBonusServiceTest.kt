@@ -31,7 +31,7 @@ class CraftBonusServiceTest {
   /** The crafter's own DEX and WIL count for every craft, so a deft bestia is a good crafter. */
   @Test
   fun `dexterity and willpower raise every craft's chance`() {
-    val recipe = recipeRequiring(WEAPON_REPAIR, baseSuccessChance = 0.5f)
+    val recipe = recipeRequiring(EQUIPMENT_REPAIR, baseSuccessChance = 0.5f)
     val deft = StatusValues(strength = 0, vitality = 0, intelligence = 0, agility = 0, willpower = 25, dexterity = 34)
 
     assertEquals(0.5f + 3 * 0.02f + 2 * 0.01f, service.successChance(known(), recipe, deft), TOLERANCE)
@@ -80,10 +80,10 @@ class CraftBonusServiceTest {
 
   /** A repair has no documented success table, so nothing may be invented for it. */
   @Test
-  fun `weapon repair gets no bonus at all`() {
-    val recipe = recipeRequiring(WEAPON_REPAIR, baseSuccessChance = 0.8f)
+  fun `equipment repair gets no bonus at all`() {
+    val recipe = recipeRequiring(EQUIPMENT_REPAIR, baseSuccessChance = 0.8f)
 
-    assertEquals(0.8f, service.successChance(known(WEAPON_REPAIR to 5), recipe, null), TOLERANCE)
+    assertEquals(0.8f, service.successChance(known(EQUIPMENT_REPAIR to 5), recipe, null), TOLERANCE)
   }
 
   @Test
@@ -161,14 +161,14 @@ class CraftBonusServiceTest {
   }
 
   @Test
-  fun `weapon repair reaches item tier twenty a level and loses the ceiling at full rank`() {
-    val recipe = recipeRequiring(WEAPON_REPAIR)
+  fun `equipment repair reaches item tier twenty a level and loses the ceiling at full rank`() {
+    val recipe = recipeRequiring(EQUIPMENT_REPAIR)
 
-    assertEquals(20, service.maxItemLevel(known(WEAPON_REPAIR to 1), recipe))
-    assertEquals(80, service.maxItemLevel(known(WEAPON_REPAIR to 4), recipe))
+    assertEquals(20, service.maxItemLevel(known(EQUIPMENT_REPAIR to 1), recipe))
+    assertEquals(80, service.maxItemLevel(known(EQUIPMENT_REPAIR to 4), recipe))
     assertEquals(
       CraftBonusService.NO_ITEM_LEVEL_CAP,
-      service.maxItemLevel(known(WEAPON_REPAIR to 5), recipe)
+      service.maxItemLevel(known(EQUIPMENT_REPAIR to 5), recipe)
     )
   }
 
@@ -226,7 +226,7 @@ class CraftBonusServiceTest {
     const val MASTER_SMITH = "M_MASTER_SMITH"
     const val COOKING = "M_COOKING"
     const val FORGE_WEAPON = "M_FORGE_WEAPON"
-    const val WEAPON_REPAIR = "M_WEAPON_REPAIR"
+    const val EQUIPMENT_REPAIR = "M_EQUIPMENT_REPAIR"
     const val UPGRADE_EQUIPMENT = "M_UPGRADE_EQUIPMENT"
 
     /** Arbitrary but distinct, since the service only ever compares them. */
@@ -236,7 +236,7 @@ class CraftBonusServiceTest {
       ITEM_CUSTOMIZATION to 11L,
       ORE_REFINEMENT to 12L,
       FORGE_WEAPON to 13L,
-      WEAPON_REPAIR to 15L,
+      EQUIPMENT_REPAIR to 15L,
       WEAPONRY_RESEARCH to 16L,
       MASTER_SMITH to 17L,
       COOKING to 3L,

@@ -135,11 +135,12 @@ skills:
     manaCost: 18
     castTime: 10.0
     description: |
-      Enables the smith to refine the finest ores into ingots. A must have to produce the raw
-      materials for weapon or armor forging. Burns Coal as fuel.
+      Feeds raw ore to the roar of the furnace, coaxing out the pure ingots every weapon and
+      suit of armor is ultimately built from. Burns Coal as fuel. A failed smelt loses both
+      the ore and the fuel.
 
       Level 1 enables you to place a Furnace
-      `+30%/lv` refinement success chance
+      `+30%/lv` refinement success chance, no ore level cap
 
   - id: 14
     identifier: M_FORGE_WEAPON
@@ -149,10 +150,13 @@ skills:
     manaCost: 23
     castTime: 10.0
     description: |
-      Able to forge weaponry from raw ingredients. Higher skill level unlocks forging
-      higher-level weapons.
+      Discovers and forges weapon blueprints from smelted ingots - the Blacksmith's bread and
+      butter. Higher skill levels reliably reach higher-level weapons.
 
       Level 1 enables you to place a Forge
+      `+5%/lv` success chance
+      `+10 item lv/lv` reliable item level, 100+ at max rank
+      `-5%` success chance per item level above the reliable one, no hard cap
 
   - id: 15
     identifier: M_FORGE_ARMOR
@@ -162,21 +166,25 @@ skills:
     manaCost: 23
     castTime: 10.0
     description: |
-      The counterpart to Forge Weapon: forges plate, mail and shields from smelted ingots.
-      Higher skill level unlocks forging higher-level armor.
+      The counterpart to Forge Weapon: discovers and forges armor blueprints - plate, mail and
+      shields - from smelted ingots. Higher skill levels reliably reach higher-level armor.
 
       Level 1 enables you to place a Forge
+      `+5%/lv` success chance
+      `+10 item lv/lv` reliable item level, 100+ at max rank
+      `-5%` success chance per item level above the reliable one, no hard cap
 
   - id: 16
-    identifier: M_WEAPON_REPAIR
-    script: WeaponRepair
+    identifier: M_EQUIPMENT_REPAIR
+    script: EquipmentRepair
     targetType: GROUND
     range: 2
     manaCost: 33
     castTime: 3.0
     description: |
-      You can repair damaged or broken equipment to refurbish and make it usable again.
-      Higher levels unlock repairing equipment of a higher item level.
+      Hammers dents from armor and sets a fresh edge to broken blades, coaxing worn-out
+      equipment back into fighting shape. Only weapons and armor wear out and can be repaired.
+      The burnt time of a light source is gone for good.
 
       `+20 item lv/lv` of equipment that can be repaired, up to item level 100+ at max rank
 

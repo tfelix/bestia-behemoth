@@ -425,7 +425,7 @@ class CraftingServiceTest {
 
   /**
    * The whole point of item tiers: a repair a smith can do all day on a plain sword is beyond them on a
-   * high-tier one, and Weapon Repair rank 1 reaches tier 20 exactly.
+   * high-tier one, and Equipment Repair rank 1 reaches tier 20 exactly.
    */
   @Test
   fun `a target above the crafters reach is refused with something they can act on`() {
@@ -434,7 +434,7 @@ class CraftingServiceTest {
     )
     val fixture = CraftingFixture(
       listOf(repair),
-      skillIds = mapOf("M_WEAPON_REPAIR" to REPAIR_ID),
+      skillIds = mapOf("M_EQUIPMENT_REPAIR" to REPAIR_ID),
       itemLevels = mapOf(TARGET_ITEM to 21)
     )
     val crafter = fixture.givenCrafter(
@@ -460,7 +460,7 @@ class CraftingServiceTest {
     )
     val fixture = CraftingFixture(
       listOf(repair),
-      skillIds = mapOf("M_WEAPON_REPAIR" to REPAIR_ID),
+      skillIds = mapOf("M_EQUIPMENT_REPAIR" to REPAIR_ID),
       itemLevels = mapOf(TARGET_ITEM to 20)
     )
     val crafter = fixture.givenCrafter(

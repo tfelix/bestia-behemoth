@@ -14,7 +14,7 @@ import net.bestia.zone.entity.StaticEntityKind
  *
  * The "place one if there is none" rule is what makes a single activation discoverable: a player who has taken
  * Carpentry and aims it at bare ground gets a workbench, and aiming it at their workbench gets the menu. A
- * skill that only *uses* a station never places one, so aiming Weapon Repair at empty ground offers an empty
+ * skill that only *uses* a station never places one, so aiming Equipment Repair at empty ground offers an empty
  * list rather than building a forge out of nothing.
  *
  * Range comes from the catalogue through [BasicMagicSkillStrategy], so the two-tile reach the client enforces

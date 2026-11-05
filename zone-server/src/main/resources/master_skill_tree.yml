@@ -85,7 +85,7 @@ skills:
       - skill: M_ITEM_CUSTOMIZATION
         level: 5
 
-  - skill: M_WEAPON_REPAIR
+  - skill: M_EQUIPMENT_REPAIR
     tree: CRAFTSMAN
     subTree: BLACKSMITH
     maxLevel: 5
@@ -98,7 +98,7 @@ skills:
     subTree: BLACKSMITH
     maxLevel: 10
     prerequisites:
-      - skill: M_WEAPON_REPAIR
+      - skill: M_EQUIPMENT_REPAIR
         level: 3
       - skill: M_UPGRADE_EQUIPMENT
         level: 1
