@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "LettersSmsgProto";
+
+import "messages/postal/letter.proto";
+
+// The played master's mailbox, newest first.
+message LettersSMSG {
+  repeated Letter letters = 1;
+}

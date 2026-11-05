@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "LetterProto";
+
+// A letter in a master's mailbox, as LettersSMSG and LetterArrivedSMSG carry it.
+message Letter {
+  uint64 letter_id = 1;
+  string sender_name = 2;
+  string subject = 3;
+  string body = 4;
+  int64 sent_at_epoch_seconds = 5;
+
+  // The letter is gone from the mailbox after this.
+  int64 expires_at_epoch_seconds = 6;
+  bool read = 7;
+}

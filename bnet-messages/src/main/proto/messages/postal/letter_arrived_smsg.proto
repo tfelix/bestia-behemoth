@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "LetterArrivedSmsgProto";
+
+import "messages/postal/letter.proto";
+
+// A pigeon brought a letter to the played master.
+message LetterArrivedSMSG {
+  Letter letter = 1;
+}

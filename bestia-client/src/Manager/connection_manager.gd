@@ -50,6 +50,11 @@ signal auction_house_opened(message: AuctionHouseOpenSMSG)
 signal auction_listings_received(message: AuctionListingsSMSG)
 signal auction_claims_received(message: AuctionClaimsSMSG)
 signal auction_purchased(message: AuctionPurchasedSMSG)
+## The played master's whole mailbox, on request and after a letter was thrown away.
+signal letters_received(message: LettersSMSG)
+## A pigeon brought a letter to the played master.
+signal letter_arrived(message: LetterArrivedSMSG)
+signal letter_sent(message: LetterSentSMSG)
 ## Every party message: the roster, an invitation, the party ending for us. The party window listens.
 signal party_message_received(message: PartySMSG)
 ## Every guild message: the guild, an invitation, leaving it. The guild window listens.
@@ -130,6 +135,10 @@ var ShopTradeCMSG = load("res://Bnet/Message/Shop/ShopTradeCMSG.cs")
 var ShopQuoteCMSG = load("res://Bnet/Message/Shop/ShopQuoteCMSG.cs")
 var SearchAuctionsCMSG = load("res://Bnet/Message/Auction/SearchAuctionsCMSG.cs")
 var BuyAuctionListingCMSG = load("res://Bnet/Message/Auction/BuyAuctionListingCMSG.cs")
+var SendLetterCMSG = load("res://Bnet/Message/Postal/SendLetterCMSG.cs")
+var RequestLettersCMSG = load("res://Bnet/Message/Postal/RequestLettersCMSG.cs")
+var ReadLetterCMSG = load("res://Bnet/Message/Postal/ReadLetterCMSG.cs")
+var DeleteLetterCMSG = load("res://Bnet/Message/Postal/DeleteLetterCMSG.cs")
 var RequestPartyInfoCMSG = load("res://Bnet/Message/Party/RequestPartyInfoCMSG.cs")
 var CreatePartyCMSG = load("res://Bnet/Message/Party/CreatePartyCMSG.cs")
 var RequestPartyInvitationCMSG = load("res://Bnet/Message/Party/RequestPartyInvitationCMSG.cs")
@@ -803,6 +812,37 @@ func buy_auction_listing(house_entity_id: int, listing_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Sends a letter by pigeon. Answered by a LetterSentSMSG, or an OperationError when it cannot go.
+func send_letter(recipient_name: String, subject: String, body: String) -> void:
+	assert(is_ready_to_send())
+	var msg = SendLetterCMSG.new()
+	msg.RecipientName = recipient_name
+	msg.Subject = subject
+	msg.Body = body
+	_socket.SendMessage(msg)
+
+
+## Asks for the played master's mailbox. Answered by a LettersSMSG.
+func request_letters() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(RequestLettersCMSG.new())
+
+
+func read_letter(letter_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = ReadLetterCMSG.new()
+	msg.LetterId = letter_id
+	_socket.SendMessage(msg)
+
+
+## Throws a letter away. Answered by a LettersSMSG.
+func delete_letter(letter_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = DeleteLetterCMSG.new()
+	msg.LetterId = letter_id
+	_socket.SendMessage(msg)
+
+
 ## Locks or unlocks our side. Any change to either offer clears both locks again.
 func set_trade_lock(trade_id: int, locked: bool) -> void:
 	assert(is_ready_to_send())
@@ -1179,6 +1219,12 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		auction_claims_received.emit(message)
 	elif message is AuctionPurchasedSMSG:
 		auction_purchased.emit(message)
+	elif message is LettersSMSG:
+		letters_received.emit(message)
+	elif message is LetterArrivedSMSG:
+		letter_arrived.emit(message)
+	elif message is LetterSentSMSG:
+		letter_sent.emit(message)
 	elif message is PartySMSG:
 		party_message_received.emit(message)
 	elif message is GuildSMSG:

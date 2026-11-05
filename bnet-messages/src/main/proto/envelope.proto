@@ -114,6 +114,13 @@ import "messages/auction/request_auction_claims_cmsg.proto";
 import "messages/auction/collect_auction_claim_cmsg.proto";
 import "messages/auction/auction_claims_smsg.proto";
 import "messages/auction/auction_purchased_smsg.proto";
+import "messages/postal/send_letter_cmsg.proto";
+import "messages/postal/letter_sent_smsg.proto";
+import "messages/postal/request_letters_cmsg.proto";
+import "messages/postal/letters_smsg.proto";
+import "messages/postal/read_letter_cmsg.proto";
+import "messages/postal/delete_letter_cmsg.proto";
+import "messages/postal/letter_arrived_smsg.proto";
 import "messages/shop/shop_trade_cmsg.proto";
 import "messages/map/weather_smsg.proto";
 import "messages/map/world_time_smsg.proto";
@@ -301,6 +308,15 @@ message Envelope {
     CollectAuctionClaimCMSG collect_auction_claim = 847;
     AuctionClaimsSMSG auction_claims = 848;
     AuctionPurchasedSMSG auction_purchased = 849;
+
+    // POSTAL 860
+    SendLetterCMSG send_letter = 860;
+    LetterSentSMSG letter_sent = 861;
+    RequestLettersCMSG request_letters = 862;
+    LettersSMSG letters = 863;
+    ReadLetterCMSG read_letter = 864;
+    DeleteLetterCMSG delete_letter = 865;
+    LetterArrivedSMSG letter_arrived = 866;
 
     // NOTEBOOK 900
     NotebookListCMSG notebook_list = 900;

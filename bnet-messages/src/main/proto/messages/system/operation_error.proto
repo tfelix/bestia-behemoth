@@ -301,6 +301,13 @@ enum OpError {
   EQUIP_ITEM_BROKEN = 110;
   // A strip skill emptied the slot a moment ago. The player waits until its status runs out.
   EQUIP_SLOT_STRIPPED = 111;
+
+  // No master has the name a letter was addressed to. The player checks the name. Args: the name.
+  MAIL_RECIPIENT_UNKNOWN = 112;
+  // The sender cannot pay a letter's postage. The player brings gold.
+  MAIL_CANNOT_AFFORD = 113;
+  // The recipient's mailbox is full. The player waits until they throw letters away. Args: the name.
+  MAIL_RECIPIENT_FULL = 114;
 }
 
 message OperationError {
