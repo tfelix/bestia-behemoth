@@ -39,7 +39,7 @@ enum class SkillId {
   M_CARPENTRY,
 
   /** The docs' "Master Craftsman"; the identifier predates that name. */
-  M_TINKERER,
+  M_MASTER_CRAFTSMAN,
   M_ITEM_CUSTOMIZATION,
   M_ORE_REFINEMENT,
   M_FORGE_WEAPON,

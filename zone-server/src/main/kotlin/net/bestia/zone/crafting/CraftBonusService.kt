@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
  *
  * [net.bestia.zone.battle.passive.PassiveSkillScript] can only mutate a
  * [net.bestia.zone.battle.status.StatusValueRecalcContext] - six attributes, speed and the regeneration
- * modifiers. `TINKERER`, `WEAPONRY_RESEARCH` and `MASTER_SMITH` change none of those; they change a
+ * modifiers. `MASTER_CRAFTSMAN`, `WEAPONRY_RESEARCH` and `MASTER_SMITH` change none of those; they change a
  * *success chance*, which lives nowhere near a status value. Binding them as passives would give each a
  * script whose `apply` did nothing, which reads as "implemented" and is the failure worth not shipping.
  *
@@ -38,7 +38,7 @@ class CraftBonusService(
 ) {
 
   private val carpentryId: Long? by lazy { skills.findByIdentifier(SkillId.M_CARPENTRY)?.id }
-  private val tinkererId: Long? by lazy { skills.findByIdentifier(SkillId.M_TINKERER)?.id }
+  private val masterCraftsmanId: Long? by lazy { skills.findByIdentifier(SkillId.M_MASTER_CRAFTSMAN)?.id }
   private val itemCustomizationId: Long? by lazy { skills.findByIdentifier(SkillId.M_ITEM_CUSTOMIZATION)?.id }
   private val oreRefinementId: Long? by lazy { skills.findByIdentifier(SkillId.M_ORE_REFINEMENT)?.id }
   private val weaponryResearchId: Long? by lazy { skills.findByIdentifier(SkillId.M_WEAPONRY_RESEARCH)?.id }
@@ -52,7 +52,7 @@ class CraftBonusService(
   /** Resolves the skill ids now, at boot, so the first craft on the tick does not reach the database. */
   fun warmUp() {
     listOf(
-      carpentryId, tinkererId, itemCustomizationId, oreRefinementId, weaponryResearchId, masterSmithId,
+      carpentryId, masterCraftsmanId, itemCustomizationId, oreRefinementId, weaponryResearchId, masterSmithId,
       cookingId, weaponRepairId, forgeWeaponId, forgeArmorId, upgradeEquipmentId,
     )
   }
@@ -117,7 +117,7 @@ class CraftBonusService(
     val reduction = if (recipe.requiredSkillId == cookingId) {
       at(COOKING_TIME_REDUCTION, known.levelIn(cookingId))
     } else {
-      at(MASTER_CRAFTSMAN_TIME_REDUCTION, known.levelIn(tinkererId))
+      at(MASTER_CRAFTSMAN_TIME_REDUCTION, known.levelIn(masterCraftsmanId))
     }
 
     // Floored rather than allowed to reach zero: a craft resolving in the tick it started would never show a
@@ -197,7 +197,7 @@ class CraftBonusService(
 
   /** Master Craftsman's flat success contribution, which every workbench craft gets. */
   private fun masterCraftsmanSuccess(known: KnownSkills) =
-    at(MASTER_CRAFTSMAN_SUCCESS, known.levelIn(tinkererId))
+    at(MASTER_CRAFTSMAN_SUCCESS, known.levelIn(masterCraftsmanId))
 
   private fun forgingBonus(known: KnownSkills) =
     at(RESEARCH_FORGING, known.levelIn(weaponryResearchId)) + at(SMITH_FORGING, known.levelIn(masterSmithId))

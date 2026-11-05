@@ -94,21 +94,19 @@ skills:
     range: 2
     manaCost: 20
     description: |
-      Allows you to construct useful items of daily use and structures which can be placed in
-      the world.
+      Turns raw timber and honest labor into the workbenches, furniture and structures every
+      settlement needs to stand on its own.
 
       Level 1 enables you to place a Workbench
       `+5%/lv` success chance
       `+10 item lv/lv` of items that can be produced, up to item level 100+ at max rank
 
-  # Called "Master Craftsman" in the design docs, and shown under that name in the client. The
-  # identifier predates that name.
   - id: 11
-    identifier: M_TINKERER
+    identifier: M_MASTER_CRAFTSMAN
     targetType: FRIENDLY
     description: |
-      You are very skilled in working with tools and raw material. Building structures in the
-      world is very quick for you and the Bestia under your command.
+      A lifetime of calluses paid off - tools answer faster and structures rise quicker under
+      this Craftsman's hand, and the Bestia working alongside them keep pace.
 
       `-10%/lv` construction time of structures
       `+2%/lv` construction success chance
@@ -120,12 +118,13 @@ skills:
     range: 2
     manaCost: 23
     description: |
-      You are able to rework items to put slots in them in which runes can be slotted.
-      Requires an Engraving Set which will be consumed in the process.
+      A meticulous rework that opens sockets in an item's frame, letting a Runic Etcher's runes
+      be slotted into it later. Requires an Engraving Set which will be consumed in the process.
 
       `+10%/lv` success chance
       `-2%/lv` chance to destroy the item when the engraving fails, from 30% down to 12%
       1 rune slot, rising to 2 at Lv.4 and 3 at Lv.7
+      Every slot beyond the first lowers the success chance by 40%
 
 # Blacksmith
   - id: 13
@@ -482,8 +481,9 @@ skills:
     range: 2
     manaCost: 18
     description: |
-      Adapt and improvise weapons and armor to better suit your needs and protect you. Each
-      attempt can fail, and a failed attempt can destroy the equipment outright.
+      Time spent far from settlements teaches a Craftsman to adapt and improvise, reworking
+      weapons and armor in the field to better suit their needs. Each attempt can fail, and a
+      failed attempt can destroy the equipment outright.
 
       Weaponry Research raises the odds; Master Smith raises them further.
 

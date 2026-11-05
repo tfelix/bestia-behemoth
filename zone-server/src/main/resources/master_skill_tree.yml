@@ -41,7 +41,7 @@ skills:
     tree: CRAFTSMAN
     maxLevel: 10
 
-  - skill: M_TINKERER
+  - skill: M_MASTER_CRAFTSMAN
     tree: CRAFTSMAN
     maxLevel: 5
     prerequisites:
