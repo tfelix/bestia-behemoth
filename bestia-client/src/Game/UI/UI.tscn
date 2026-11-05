@@ -35,6 +35,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Compendium/Compendium.tscn" id="32_compendium"]
 [ext_resource type="PackedScene" path="res://Game/UI/Auction/AuctionHouse.tscn" id="33_auction"]
 [ext_resource type="PackedScene" path="res://Game/UI/Emotes/Emotes.tscn" id="34_emotes"]
+[ext_resource type="PackedScene" path="res://Game/UI/Mail/LetterPanel.tscn" id="35_letters"]
 [ext_resource type="PackedScene" path="res://Game/UI/BlindVignette/BlindVignette.tscn" id="40_blind"]
 [ext_resource type="Script" uid="uid://1u024aahembd" path="res://Game/UI/Map/notebook.gd" id="41_notebook"]
 [ext_resource type="Script" uid="uid://bq7e7aqobe3ro" path="res://Game/UI/Conversation/conversation_presenter.gd" id="42_convpres"]
@@ -168,6 +169,12 @@ layout_mode = 1
 content = ExtResource("34_emotes")
 window_title = "Emotes"
 
+[node name="LettersWin" parent="." instance=ExtResource("8_wdgtw")]
+visible = false
+layout_mode = 1
+content = ExtResource("35_letters")
+window_title = "Letters"
+
 [node name="Invitations" parent="." instance=ExtResource("31_invites")]
 layout_mode = 1
 
@@ -224,4 +231,5 @@ oversampling_override = 1.0
 [connection signal="party_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_party_win_toggled"]
 [connection signal="guild_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_guild_win_toggled"]
 [connection signal="compendium_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_compendium_win_toggled"]
+[connection signal="letters_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_letters_win_toggled"]
 [connection signal="emotes_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_emotes_win_toggled"]

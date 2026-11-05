@@ -27,6 +27,7 @@ const _WINDOW_KEYS := [
 	["Guild", &"toggle_guild"],
 	["Compendium", &"toggle_compendium"],
 	["Emotes", &"toggle_emotes"],
+	["Letters", &"toggle_letters"],
 	["Map", &"toggle_map"],
 	["Menu", &"ui_cancel"],
 ]

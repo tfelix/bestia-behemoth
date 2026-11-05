@@ -15,6 +15,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _guild_win: WidgetWindow = $GuildWin
 @onready var _compendium_win: WidgetWindow = $CompendiumWin
 @onready var _emotes_win: WidgetWindow = $EmotesWin
+@onready var _letters_win: WidgetWindow = $LettersWin
 @onready var _auction_win: WidgetWindow = $AuctionWin
 @onready var _invitations: InvitationTray = $Invitations
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
@@ -34,6 +35,8 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 
 ## Item ids of the map charts, from items.yml. The minimap exists exactly while one of these is carried.
 const _CHART_ENABLING_ITEM_IDS := [21]
+
+const _LETTER_ICON := preload("res://Theme/Icons/mail.svg")
 
 ## Said once when the map server stops accepting this session. Worded here rather than in [MapSource] for the
 ## reason the chat refusals are worded in [code]chat.gd[/code]: the code that detects a thing should not be
@@ -139,6 +142,9 @@ func _ready() -> void:
 	compendium.notice.connect(_chat.system_line)
 	compendium.habitat_requested.connect(_on_habitat_requested)
 	_map_source.habitat_species_changed.connect(compendium.show_habitat_species)
+
+	(_letters_win.get_content() as LetterPanel).notice.connect(_chat.system_line)
+	ConnectionManager.letter_arrived.connect(_on_letter_arrived)
 
 	# Gold is coins in the bag, so the inventory is what knows how much the profile should show.
 	inventory.gold_changed.connect(_master_profile.show_gold)
@@ -528,6 +534,17 @@ func _on_master_profile_emotes_win_toggled() -> void:
 
 func _on_master_profile_compendium_win_toggled() -> void:
 	_compendium_win.visible = !_compendium_win.visible
+
+
+func _on_master_profile_letters_win_toggled() -> void:
+	_letters_win.visible = !_letters_win.visible
+
+
+## Said over the world as well as in chat: a letter is easy to miss in a busy chat log.
+func _on_letter_arrived(msg: LetterArrivedSMSG) -> void:
+	var text := tr("LETTERS_ARRIVED") % msg.Letter.SenderName
+	_chat.system_line(text)
+	_obtained_items.show_notice(_LETTER_ICON, text)
 
 
 ## Opens the map on the species, which is what the player asked to see.

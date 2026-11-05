@@ -535,3 +535,17 @@ EMOTE_BODY_CANNOT,The body you control has no %s emote.
 EMOTE_BAR_TITLE,Emote bar - Alt+1 to Alt+0
 EMOTE_WINDOW_HINT,"Click an emote to play it, or drag it onto the bar. Typing /cheer, /sit and the rest works too; /help lists them."
 NAME_TAG_LEVEL,Lv. %d
+LETTERS_WRITE,Write a letter
+LETTERS_EMPTY,"No letters. A pigeon brings them to you, wherever you are."
+LETTERS_FROM,From %s on %s
+LETTERS_KEPT,Kept for %s
+LETTERS_TO,To (a master's name)
+LETTERS_SUBJECT,Subject
+LETTERS_SEND,Send (%d gold)
+LETTERS_CANCEL,Cancel
+LETTERS_REPLY,Reply
+LETTERS_DELETE,Throw away
+LETTERS_RE,Re: %s
+LETTERS_NO_SUBJECT,(no subject)
+LETTERS_SENT,The pigeon flies off to %s.
+LETTERS_ARRIVED,A pigeon brings a letter from %s.
