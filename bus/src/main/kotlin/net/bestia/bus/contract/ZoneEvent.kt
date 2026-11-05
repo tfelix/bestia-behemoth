@@ -96,4 +96,13 @@ sealed interface ZoneEvent {
     val senderName: String,
     val subject: String,
   ) : ZoneEvent
+
+  /** A parcel to [masterId] waits at [officeName]. */
+  data class ParcelArrived(
+    override val accountId: Long,
+    val masterId: Long,
+    val parcelId: Long,
+    val senderName: String,
+    val officeName: String,
+  ) : ZoneEvent
 }
