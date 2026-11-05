@@ -11,7 +11,8 @@
 		{ href: `/m/${masterId}/bag`, label: 'Bag', icon: 'backpack' },
 		{ href: `/m/${masterId}/map`, label: 'Map', icon: 'map-pin' },
 		{ href: `/m/${masterId}/compendium`, label: 'Book', icon: 'book' },
-		{ href: `/m/${masterId}/chat`, label: 'Chat', icon: 'message-circle' }
+		{ href: `/m/${masterId}/chat`, label: 'Chat', icon: 'message-circle' },
+		{ href: `/m/${masterId}/mail`, label: 'Mail', icon: 'mail' }
 	]);
 </script>
 
@@ -37,7 +38,7 @@
 		inset: auto 0 0 0;
 		z-index: 1000;
 		display: grid;
-		grid-template-columns: repeat(6, 1fr);
+		grid-template-columns: repeat(7, 1fr);
 		height: calc(var(--nav-height) + env(safe-area-inset-bottom));
 		padding-bottom: env(safe-area-inset-bottom);
 		border-top: 1px solid var(--edge);

@@ -14,6 +14,8 @@ export function describe(event: LiveEvent): { title: string; body: string } | nu
 			return { title: 'Construction finished', body: `Your ${String(d.kind).toLowerCase().replace(/_/g, ' ')} is standing.` };
 		case 'JourneyEnded':
 			return journeyEnded(d);
+		case 'LetterArrived':
+			return { title: `A letter from ${d.senderName}`, body: String(d.subject || 'A pigeon brought it.') };
 		case 'StanceChanged':
 			return { title: 'Standing order received', body: `${STANCE_TEXT[String(d.stance)]?.name ?? d.stance}, aggression ${d.aggression}.` };
 		default:
