@@ -397,6 +397,42 @@ class ApiServerScenarioTest : ApiScenarioTestBase() {
   }
 
   @Test
+  fun `a letter from the app is sent by the zone, and its refusals become statuses`() {
+    var refusal: String? = null
+    answer = { BusReply.ok(it.correlationId, ZoneAnswer.LetterSent(refusal)) }
+    val letter = mapOf("recipientName" to "Mira", "subject" to "Bridge", "body" to "It is down.")
+    fun send() = post("/v1/companion/masters/5/letters", letter, accountId = 53, idempotencyKey = UUID.randomUUID().toString())
+
+    assertEquals(204, send().statusCode.value())
+    assertEquals(ZoneQuery.SendLetter(5, "Mira", "Bridge", "It is down."), asked.single().query)
+
+    val statuses = mapOf(
+      ZoneAnswer.LetterSent.CHAT_LOCKED to 403,
+      ZoneAnswer.LetterSent.RECIPIENT_UNKNOWN to 422,
+      ZoneAnswer.LetterSent.RECIPIENT_FULL to 409,
+      ZoneAnswer.LetterSent.CANNOT_AFFORD to 402,
+    )
+    for ((why, status) in statuses) {
+      refusal = why
+      assertEquals(status, send().statusCode.value(), why)
+    }
+  }
+
+  @Test
+  fun `a letter wakes an account away from the game`() {
+    val subscription = mapOf(
+      "endpoint" to "https://fcm.googleapis.com/fcm/send/${UUID.randomUUID()}",
+      "keys" to mapOf("p256dh" to "BPC8EVmzvqSQvPRBDi7FjAQqyAJGZsxH9jKT16aTDbUK79Vg4h1rwiPXhadB5_X6i1fOj0--Na1QGZJdQgNlfko", "auth" to "AAAAAAAAAAAAAAAAAAAAAA"),
+    )
+    assertEquals(201, post("/v1/companion/push/subscriptions", subscription, accountId = 54).statusCode.value())
+
+    events.publish(ZoneEvent.LetterArrived(accountId = 54, masterId = 5, letterId = 3, senderName = "Mira", subject = "Bridge"))
+
+    await().atMost(Duration.ofSeconds(10)).until { push.sent.any { it.first == 54L } }
+    assertTrue(push.sent.single { it.first == 54L }.second.contains("A letter from Mira"))
+  }
+
+  @Test
   fun `a notebook write reaches the app's socket with its entry, and is replayed to one that was away`() {
     val frames = CopyOnWriteArrayList<JsonNode>()
     val socket = connect(52, lastEventId = null, frames)
