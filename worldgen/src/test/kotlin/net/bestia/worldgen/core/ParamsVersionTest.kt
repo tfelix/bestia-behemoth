@@ -176,7 +176,7 @@ class ParamsVersionTest {
       // Moved when `footprintRadius` was raised by `StreetParams.boundaryReachFactor`, so that a town could be a
       // shape rather than a disc without also becoming a smaller one. See `SettlementTier.footprintRadius`.
       "SettlementTier" to 4_668_433_068_619_246_677L,
-      "BusinessCatalogue" to -2_565_285_581_581_779_829L,
+      "BusinessCatalogue" to -4_134_603_911_680_592_775L,
       "Names" to -9_118_719_711_542_149_956L,
       "EventKind" to 1_616_518_775_768_109_607L,
       "Order" to -2_417_387_423_981_603_910L,

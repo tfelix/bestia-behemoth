@@ -1,5 +1,6 @@
 package net.bestia.worldgen.pop
 
+import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.resource.ResourceType
@@ -105,6 +106,17 @@ class EconomyStageTest {
       crossroads.count > quiet.count,
       "a crossroads (${crossroads.count} inns) has no more inns than a backwater (${quiet.count})"
     )
+  }
+
+  @Test
+  fun `every village has a post office, and a hamlet has none`() {
+    val postOffice = { population: Int ->
+      BusinessCatalogue.evaluate(setting(population = population)).first { it.type.id == "post_office" }
+    }
+
+    assertTrue(postOffice(SettlementTier.VILLAGE.minPopulation).exists, "a village has no post office")
+    assertTrue(postOffice(SettlementTier.CITY.minPopulation).exists, "a city has no post office")
+    assertTrue(!postOffice(SettlementTier.VILLAGE.minPopulation - 1).exists, "a hamlet has a post office")
   }
 
   @Test
