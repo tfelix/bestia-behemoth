@@ -8,13 +8,6 @@ skills:
     tree: NOVICE
     maxLevel: 5
 
-  - skill: M_PLAY_DEAD
-    tree: NOVICE
-    maxLevel: 1
-    prerequisites:
-      - skill: M_BASIC_SKILL
-        level: 2
-
   - skill: M_FIRST_AID
     tree: NOVICE
     maxLevel: 3

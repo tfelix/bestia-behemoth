@@ -1,18 +1,24 @@
 keys,en
-SKILL_1_DESC,"Enables the use of the basic user interface.
+SKILL_1_DESC,"The first lessons every wanderer learns before mana ever answers their call - how to speak
+with others, strike a fair trade, and hold their own among strangers.
 
 Lv.1 Allows to trade with other players.
 Lv.2 Allows to chat with other players via public and whisper chat.
 Lv.3 Allows to use trade posts.
 Lv.4 Allows sitting to double HP & Mana recovery.
-Lv.5 Allows to join and create parties, and unlocks every other skill tree."
+Lv.5 Allows to create parties and invite players into them. Joining a party needs no rank.
+Unlocks all the other skill trees."
 SKILL_2_DESC,A passive ward that shields the master from harm.
-SKILL_3_DESC,"The Master and his Bestia can start to cook meals on fire places. These meals apply
-certain buff effects when they are eaten.
+SKILL_3_DESC,"The Master and his Bestia can learn recipes and start to cook meals on fire places. Food
+helps a Bestia to keep its health and stamina up and usually applies buff effects when it
+is eaten.
 
-Level 1 enables you to cook at a camp fire
-`-20%/lv` cooking time
-`+20%/lv` success chance"
+Level 1 enables you to place a campfire to cook at. What you can cook grows with the
+recipes you discover, not with the rank.
+
+Lv.1 `-0%` cooking time, `+0%` success chance, 5 stamina
+Lv.2 `-20%` cooking time, `+20%` success chance, 8 stamina
+Lv.3 `-40%` cooking time, `+40%` success chance, 11 stamina"
 SKILL_4_DESC,Restores a small amount of health to the target.
 SKILL_1000_DESC,"Sets a patch of ground alight. Everything standing in the flames is burnt every 1.2s for
 9.6s - eight times in all.
@@ -30,14 +36,14 @@ Bestia halves their DEX and INT instead.
 [table=5]
 [cell]Level[/cell][cell]Stat Increase[/cell][cell]HIT Increase[/cell][cell]Duration[/cell][cell]Mana[/cell]
 [cell]1[/cell][cell]1[/cell][cell]2[/cell][cell]60s[/cell][cell]28[/cell][cell]2[/cell][cell]2[/cell][cell]4[/cell][cell]80s[/cell][cell]32[/cell][cell]3[/cell][cell]3[/cell][cell]6[/cell][cell]100s[/cell][cell]36[/cell][cell]4[/cell][cell]4[/cell][cell]8[/cell][cell]120s[/cell][cell]40[/cell][cell]5[/cell][cell]5[/cell][cell]10[/cell][cell]140s[/cell][cell]44[/cell][cell]6[/cell][cell]6[/cell][cell]12[/cell][cell]160s[/cell][cell]48[/cell][cell]7[/cell][cell]7[/cell][cell]14[/cell][cell]180s[/cell][cell]52[/cell][cell]8[/cell][cell]8[/cell][cell]16[/cell][cell]200s[/cell][cell]56[/cell][cell]9[/cell][cell]9[/cell][cell]18[/cell][cell]220s[/cell][cell]60[/cell][cell]10[/cell][cell]10[/cell][cell]20[/cell][cell]240s[/cell][cell]64[/cell][/table]"
-SKILL_7_DESC,Feigns death to avoid menace of nearby enemies. This skill can be switched on and off.
-SKILL_8_DESC,"Apply bandages to a Bestia and channel a healing effect over 10s. The cooldown of this
-skill is 3 minutes. A Bestia can only receive a single First Aid every 60 secs.
+SKILL_8_DESC,"Apply bandages to yourself or to a friendly Bestia or master and channel a healing effect
+over 10s. The cooldown of this skill is 3 minutes. A target can only receive a single
+First Aid every 60 secs.
 
-Whichever is greater, a share of the maximum health of the target or a flat amount:
-Lv.1 `+30%` max HP or `+100 HP`
-Lv.2 `+60%` max HP or `+200 HP`
-Lv.3 `+100%` max HP or `+350 HP`"
+Whichever is smaller, a share of the maximum health of the target or a flat amount:
+Lv.1 `+30%` max HP or `+100 HP`, 12 mana
+Lv.2 `+60%` max HP or `+200 HP`, 16 mana
+Lv.3 `+100%` max HP or `+350 HP`, 20 mana"
 SKILL_10_DESC,"Allows you to construct useful items of daily use and structures which can be placed in
 the world.
 
