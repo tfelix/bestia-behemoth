@@ -489,6 +489,8 @@ class EconomyStage(
 
   private fun preferredFunctions(type: BusinessType): List<BuildingFunction> = when {
     type.id == "temple" -> listOf(BuildingFunction.TEMPLE, BuildingFunction.CIVIC)
+    // On the market square, where the design docs put it and where a player looks first.
+    type.id == "post_office" -> listOf(BuildingFunction.MARKET, BuildingFunction.CIVIC, BuildingFunction.SHOP)
     type.id == "inn" -> listOf(BuildingFunction.INN, BuildingFunction.SHOP)
     type.id == "barracks" -> listOf(BuildingFunction.FORTIFICATION, BuildingFunction.CIVIC)
     type.id == "scribe" || type.id == "banker" -> listOf(BuildingFunction.CIVIC, BuildingFunction.SHOP)

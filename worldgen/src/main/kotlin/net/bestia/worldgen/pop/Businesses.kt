@@ -1,5 +1,6 @@
 package net.bestia.worldgen.pop
 
+import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.resource.ResourceType
 import java.util.Locale
@@ -170,11 +171,16 @@ object BusinessCatalogue {
     BusinessType(
       "barracks", "barracks", Sector.MILITARY, 1_800.0, 600,
       listOf(Precondition.NEEDS_GARRISON)
+    ),
+    // Every village and town has one, so a parcel can be sent and collected anywhere above a hamlet.
+    BusinessType(
+      "post_office", "post office", Sector.ADMIN, 3_000.0, SettlementTier.VILLAGE.minPopulation,
+      alwaysAtLeastOne = true
     )
   )
 
   /**
-   * Fingerprint of the roster: thirty trades, their ratios, their thresholds and their preconditions.
+   * Fingerprint of the roster: thirty-one trades, their ratios, their thresholds and their preconditions.
    *
    * Folded by trade **id** rather than by list position, and the position is not folded at all - unlike the
    * culture and tier tables, nothing stores an index into this list. What a settlement stores is its economy
