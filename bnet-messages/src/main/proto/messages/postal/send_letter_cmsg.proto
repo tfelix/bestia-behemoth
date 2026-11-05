@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SendLetterCmsgProto";
+
+// Sends a letter by pigeon to the master with this name. Answered by LetterSentSMSG or an OperationError.
+message SendLetterCMSG {
+  string recipient_name = 1;
+  string subject = 2;
+  string body = 3;
+}

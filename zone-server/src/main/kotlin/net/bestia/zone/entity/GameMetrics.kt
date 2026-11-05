@@ -46,6 +46,9 @@ class GameMetrics(private val registry: MeterRegistry = SimpleMeterRegistry()) {
 
     /** An auction listing fee. */
     AUCTION_FEE,
+
+    /** The postage of a letter. */
+    POSTAGE,
   }
 
   private val hits = Counter.builder("zone.combat.hits")

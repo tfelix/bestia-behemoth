@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqNFgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSraFgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -88,9 +88,11 @@ namespace Bnet {
             "EGcSFgoSVEVMRVBPUlRfTk9UX1JFQURZEGgSFAoQVEVMRVBPUlRfTk9UX05P",
             "VxBpEhcKE1RFTEVQT1JUX05PX0xBTkRJTkcQahIUChBFUVVJUF9IQU5EU19G",
             "VUxMEGwSFgoSQVRUQUNLX09VVF9PRl9BTU1PEG0SFQoRRVFVSVBfSVRFTV9C",
-            "Uk9LRU4QbhIXChNFUVVJUF9TTE9UX1NUUklQUEVEEG8iBAguEC4qElNIT1Bf",
-            "VFJFQVNVUllfRlVMTEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJh",
-            "dGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
+            "Uk9LRU4QbhIXChNFUVVJUF9TTE9UX1NUUklQUEVEEG8SGgoWTUFJTF9SRUNJ",
+            "UElFTlRfVU5LTk9XThBwEhYKEk1BSUxfQ0FOTk9UX0FGRk9SRBBxEhcKE01B",
+            "SUxfUkVDSVBJRU5UX0ZVTEwQciIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxM",
+            "QiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90",
+            "b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -527,6 +529,18 @@ namespace Bnet {
     /// A strip skill emptied the slot a moment ago. The player waits until its status runs out.
     /// </summary>
     [pbr::OriginalName("EQUIP_SLOT_STRIPPED")] EquipSlotStripped = 111,
+    /// <summary>
+    /// No master has the name a letter was addressed to. The player checks the name. Args: the name.
+    /// </summary>
+    [pbr::OriginalName("MAIL_RECIPIENT_UNKNOWN")] MailRecipientUnknown = 112,
+    /// <summary>
+    /// The sender cannot pay a letter's postage. The player brings gold.
+    /// </summary>
+    [pbr::OriginalName("MAIL_CANNOT_AFFORD")] MailCannotAfford = 113,
+    /// <summary>
+    /// The recipient's mailbox is full. The player waits until they throw letters away. Args: the name.
+    /// </summary>
+    [pbr::OriginalName("MAIL_RECIPIENT_FULL")] MailRecipientFull = 114,
   }
 
   #endregion
