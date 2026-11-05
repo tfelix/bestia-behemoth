@@ -98,26 +98,34 @@ rarest ore.
 `+5%/lv` Weapon/Armor forging chance
 `+5%/lv` upgrade chance"
 SKILL_19_DESC,"Build and operate Mana Harvesters which channel mana from the environment into raw
-crystals - the source of magic for many use cases.
+crystals - the source of magic for many use cases. Yield follows the local mana
+concentration, so where a harvester stands matters as much as its rank.
 
 Level 1 enables you to place a Mana Harvester
 `-5%/lv` harvesting time
-`+3%/lv` crystal yield"
+`+3%/lv` crystal yield
+One more active harvester at Lv.4, Lv.7 and Lv.10"
 SKILL_20_DESC,"Refine the raw and unstable mana crystals harvested by a Mana Harvester into the finest
-arcane raw materials used to build powerful magic artifacts.
+arcane raw materials used to build powerful magic artifacts. A crystal above your max
+crystal level cannot be refined.
 
-`-4%/lv` chance a crystal shatters during refinement
-Higher levels unlock refining higher-grade crystals"
+Level 1 enables you to place a Crystal Lathe
+`+4%/lv` success chance
+`+20 crystal lv/lv` max crystal level, 100+ at max rank"
 SKILL_21_DESC,"Create runes from Bestia essences. These runes are imbued with the power of the Bestia
 and can be slotted into a weapon or piece of equipment that has been prepared with Item
 Customization. An attempt to convert a Bestia into an essence destroys the Bestia.
 
-`+5%/lv` chance of success"
-SKILL_22_DESC,"Can create magic artefacts by binding sustained enchantments to an item, going well
-beyond what a single etched rune can hold.
+Level 1 enables you to place a Carving Table, the Bestia must stand next to it
+`+5%/lv` success chance
+`+10 Bestia lv/lv` reliable Bestia level, 100+ at max rank
+`-5%` success chance per Bestia level above the reliable one, no hard cap"
+SKILL_22_DESC,"Can create magic artifacts by binding sustained enchantments to an item, going well
+beyond what a single etched rune can hold. Every binding needs refined mana crystals.
 
+Level 1 enables you to place an Enchantment Altar
 `+4%/lv` enchantment chance
-`-7%/lv` chance to destroy the item if the binding fails"
+`-3%/lv` chance to destroy the item if the binding fails, from 40% down to 13%"
 SKILL_23_DESC,"Teaches which roots, herbs and mana-touched growth are worth the harvest, and how to
 keep them potent until they reach the cauldron. A herb above your max level cannot be
 gathered.
