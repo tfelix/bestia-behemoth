@@ -50,8 +50,9 @@ class ChatCommandTest {
     load(listOf(MasterSkillTreeNode(BASIC_SKILL, "M_BASIC_SKILL", maxLevel = 5, tree = MasterSkillTreeRegistry.NOVICE_TREE)))
   }
 
-  private val command =
-    ChatCommand(owned, skillGate, partyAudience, guildAudience, groupChat, inbox, sessions, skillTree, learnedSkills)
+  private val command = ChatCommand(
+    owned, MasterBasicSkill(skillGate, sessions, skillTree, learnedSkills), partyAudience, guildAudience, groupChat, inbox,
+  )
 
   private val master = mockk<Master> { every { name } returns "Ayla" }
 

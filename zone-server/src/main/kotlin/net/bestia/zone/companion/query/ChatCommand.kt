@@ -5,16 +5,12 @@ import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.BusReply.Status
 import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.ZoneQuery
-import net.bestia.zone.account.persistence.LearnedSkillRepository
 import net.bestia.zone.chat.ChatText
 import net.bestia.zone.chat.ChatType
 import net.bestia.zone.chat.GroupChat
 import net.bestia.zone.guild.GuildAudience
 import net.bestia.zone.message.AccountTaskExecutor
 import net.bestia.zone.party.PartyAudience
-import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.skill.BasicSkillGate
-import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
 import org.springframework.stereotype.Service
 
 /**
@@ -25,14 +21,11 @@ import org.springframework.stereotype.Service
 @Service
 class ChatCommand(
   private val owned: OwnedMasters,
-  private val skillGate: BasicSkillGate,
+  private val basicSkill: MasterBasicSkill,
   private val partyAudience: PartyAudience,
   private val guildAudience: GuildAudience,
   private val groupChat: GroupChat,
   private val inbox: AccountTaskExecutor,
-  private val sessions: ConnectionInfoService,
-  private val skillTree: MasterSkillTreeRegistry,
-  private val learnedSkills: LearnedSkillRepository,
 ) {
 
   fun send(correlationId: String, accountId: Long, query: ZoneQuery.SendChat): BusReply {
@@ -64,7 +57,7 @@ class ChatCommand(
   private fun sendOwned(correlationId: String, accountId: Long, masterId: Long, type: ChatType, text: String): BusReply {
     val master = owned.find(accountId, masterId) ?: return BusReply.of(correlationId, Status.NOT_FOUND)
 
-    if (basicSkillRank(accountId, masterId) < BasicSkillGate.CHAT_RANK) {
+    if (!basicSkill.mayChat(accountId, masterId)) {
       return BusReply.ok(correlationId, ZoneAnswer.ChatSent(ZoneAnswer.ChatSent.CHAT_LOCKED))
     }
 
@@ -78,22 +71,6 @@ class ChatCommand(
     groupChat.deliver(type, master.name, text, members)
 
     return BusReply.ok(correlationId, ZoneAnswer.ChatSent(null))
-  }
-
-  /**
-   * [masterId]'s Basic Skill rank. [BasicSkillGate] answers off the live master, which only exists while it is
-   * played, and then it is the one to ask: a rank bought this session is not stored yet. Otherwise the master's
-   * stored rank, as of its last save.
-   */
-  private fun basicSkillRank(accountId: Long, masterId: Long): Int {
-    if (sessions.isPlaying(accountId, masterId)) {
-      return skillGate.rankOf(accountId)
-    }
-
-    // No Basic Skill in the tree: the gate's own answer, which fails open.
-    val skillId = skillTree.basicSkillId ?: return skillGate.rankOf(accountId)
-
-    return learnedSkills.findByMasterIdAndSkillId(masterId, skillId)?.level ?: 0
   }
 
   private companion object {
