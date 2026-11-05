@@ -504,6 +504,37 @@ skills:
       Level 3 names what made it, and how strong it was
       Level 4 names another master by name
 
+  - id: 46
+    identifier: M_SPRINT
+    script: Sprint
+    targetType: FRIENDLY
+    needsLineOfSight: false
+    description: |
+      A burst of speed for when walking away is not fast enough - the first escape every
+      wanderer learns, and the one they never stop using.
+
+      Lasts 5s and costs 20 stamina instead of mana. Ends early when you attack or cast a
+      skill. Cooldown 30s.
+
+      Lv.1 `+30%` movement speed
+      Lv.2 `+40%` movement speed
+      Lv.3 `+50%` movement speed
+
+  - id: 47
+    identifier: M_CALL_BESTIA
+    script: CallBestia
+    targetType: FRIENDLY
+    needsLineOfSight: false
+    manaCost: 10
+    castTime: 5.0
+    description: |
+      A whistle every Bestia learns to answer. Calls your Bestias back from wherever they
+      wandered off to.
+
+      Every Bestia you own that is out in the world, and not in storage, appears next to you
+      when the channel ends. Taking damage breaks the channel. A Bestia that is fighting does
+      not answer. Cooldown 5min.
+
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000
     identifier: ember

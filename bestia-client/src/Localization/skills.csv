@@ -440,3 +440,18 @@ SKILL_2027_DESC,"Blessing 10 on a friend: much more strength, dexterity and inte
 SKILL_2028_DESC,"Senses masters and their bestia within fifteen tiles, hidden ones too, and marks them on the map for thirty seconds."
 SKILL_2029_DESC,"Digs in out of sight. It cannot move, but area attacks pass over it. Staying hidden costs mana, and any action gives it away."
 SKILL_2030_DESC,"Moves unseen and slower. Any blow, an area one too, gives it away. Staying hidden costs mana."
+SKILL_46_DESC,"A burst of speed for when walking away is not fast enough - the first escape every
+wanderer learns, and the one they never stop using.
+
+Lasts 5s and costs 20 stamina instead of mana. Ends early when you attack or cast a
+skill. Cooldown 30s.
+
+Lv.1 `+30%` movement speed
+Lv.2 `+40%` movement speed
+Lv.3 `+50%` movement speed"
+SKILL_47_DESC,"A whistle every Bestia learns to answer. Calls your Bestias back from wherever they
+wandered off to.
+
+Every Bestia you own that is out in the world, and not in storage, appears next to you
+when the channel ends. Taking damage breaks the channel. A Bestia that is fighting does
+not answer. Cooldown 5min."
