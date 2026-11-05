@@ -190,7 +190,7 @@ recipes:
     inputs:
       - { item: iron_ingot, amount: 1 }
       - { item: coal, amount: 1 }
-    skill: { skill: M_WEAPON_REPAIR, level: 1 }
+    skill: { skill: M_EQUIPMENT_REPAIR, level: 1 }
     station: FORGE
     craftSeconds: 6.0
     baseSuccessChance: 0.8

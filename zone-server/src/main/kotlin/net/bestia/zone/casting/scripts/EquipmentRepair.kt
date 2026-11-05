@@ -6,7 +6,7 @@ import net.bestia.zone.entity.StaticEntityKind
 import org.springframework.stereotype.Component
 
 /**
- * Weapon Repair (`skills.yml` id 15): puts a worn item back to full durability, at a forge.
+ * Equipment Repair (`skills.yml` id 16): puts a worn item back to full durability, at a forge.
  *
  * The first thing in the game to read `ItemInstance.durability`, and the reason it exists. Refuses an item that
  * does not wear at all and one that is already whole - both would take the materials for nothing.
@@ -16,5 +16,5 @@ import org.springframework.stereotype.Component
  * adds nothing here rather than inventing a curve.
  */
 @Component
-class WeaponRepair(losService: LineOfSightService) :
+class EquipmentRepair(losService: LineOfSightService) :
   CraftingSkillStrategy(losService, StaticEntityKind.FORGE)

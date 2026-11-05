@@ -61,7 +61,7 @@ items:
       Heals a modest amount of health when consumed.
 
   # `max-durability` is only meaningful on gear: a material and a consumable are gone before they could
-  # wear. Set here so Weapon Repair has something to act on - see `ItemInstance.maxDurability`.
+  # wear. Set here so Equipment Repair has something to act on - see `ItemInstance.maxDurability`.
   - id: 4
     item-db-name: shoes
     base-level: 1
@@ -234,7 +234,7 @@ items:
   # --- Forged gear --------------------------------------------------------------------------------
   # What Forge Weapon and Forge Armor produce, and the reason they exist: the catalogue had only two
   # pieces of footgear, so a forge had nothing it could plausibly make. Both wear, both take an upgrade
-  # level, and both are what Weapon Repair and Upgrade Equipment act on.
+  # level, and both are what Equipment Repair and Upgrade Equipment act on.
   - id: 19
     item-db-name: iron_sword
     base-level: 20

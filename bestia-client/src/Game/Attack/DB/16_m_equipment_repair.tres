@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 skill_id = 16
-name = "Weapon Repair"
+name = "Equipment Repair"
 description_key = "SKILL_16_DESC"
 mana_cost = 33
 cooldown = 0.0

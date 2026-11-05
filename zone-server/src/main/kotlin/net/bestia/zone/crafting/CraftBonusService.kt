@@ -44,7 +44,7 @@ class CraftBonusService(
   private val weaponryResearchId: Long? by lazy { skills.findByIdentifier(SkillId.M_WEAPONRY_RESEARCH)?.id }
   private val masterSmithId: Long? by lazy { skills.findByIdentifier(SkillId.M_MASTER_SMITH)?.id }
   private val cookingId: Long? by lazy { skills.findByIdentifier(SkillId.M_COOKING)?.id }
-  private val weaponRepairId: Long? by lazy { skills.findByIdentifier(SkillId.M_WEAPON_REPAIR)?.id }
+  private val equipmentRepairId: Long? by lazy { skills.findByIdentifier(SkillId.M_EQUIPMENT_REPAIR)?.id }
   private val forgeWeaponId: Long? by lazy { skills.findByIdentifier(SkillId.M_FORGE_WEAPON)?.id }
   private val forgeArmorId: Long? by lazy { skills.findByIdentifier(SkillId.M_FORGE_ARMOR)?.id }
   private val upgradeEquipmentId: Long? by lazy { skills.findByIdentifier(SkillId.M_UPGRADE_EQUIPMENT)?.id }
@@ -53,7 +53,7 @@ class CraftBonusService(
   fun warmUp() {
     listOf(
       carpentryId, masterCraftsmanId, itemCustomizationId, oreRefinementId, weaponryResearchId, masterSmithId,
-      cookingId, weaponRepairId, forgeWeaponId, forgeArmorId, upgradeEquipmentId,
+      cookingId, equipmentRepairId, forgeWeaponId, forgeArmorId, upgradeEquipmentId,
     )
   }
 
@@ -89,7 +89,7 @@ class CraftBonusService(
 
       upgradeEquipmentId -> upgradeBonus(known)
 
-      // A repair's chance is the recipe's own. The docs give Weapon Repair a max item level and no success
+      // A repair's chance is the recipe's own. The docs give Equipment Repair a max item level and no success
       // table, and inventing one here would be inventing content.
       else -> 0f
     }
@@ -130,7 +130,7 @@ class CraftBonusService(
    * put no ceiling on.
    *
    * Two skills have a ceiling and the rest do not, which is exactly what the docs say - Carpentry climbs from
-   * 10 to "100+" and Weapon Repair from 20 to "100+". The `+` is the interesting part and is read literally: at
+   * 10 to "100+" and Equipment Repair from 20 to "100+". The `+` is the interesting part and is read literally: at
    * full rank the ceiling is gone rather than sitting at a hundred, because a table that ends in a plus sign is
    * saying the master has stopped being the limit.
    *
@@ -141,8 +141,8 @@ class CraftBonusService(
     carpentryId ->
       ceilingAt(CARPENTRY_ITEM_LEVEL_STEP, CARPENTRY_UNCAPPED_AT, rankIn(known, carpentryId))
 
-    weaponRepairId ->
-      ceilingAt(REPAIR_ITEM_LEVEL_STEP, REPAIR_UNCAPPED_AT, rankIn(known, weaponRepairId))
+    equipmentRepairId ->
+      ceilingAt(REPAIR_ITEM_LEVEL_STEP, REPAIR_UNCAPPED_AT, rankIn(known, equipmentRepairId))
 
     else -> NO_ITEM_LEVEL_CAP
   }
@@ -281,7 +281,7 @@ class CraftBonusService(
     private const val ROLL_UNCAPPED_AT = 10
     private const val MATERIAL_ROLL_HEADROOM = 20
 
-    /** Weapon Repair Lv.1-5: item tier 20 rising to "100+", so twenty a level and no ceiling at full rank. */
+    /** Equipment Repair Lv.1-5: item tier 20 rising to "100+", so twenty a level and no ceiling at full rank. */
     private const val REPAIR_ITEM_LEVEL_STEP = 20
     private const val REPAIR_UNCAPPED_AT = 5
   }
