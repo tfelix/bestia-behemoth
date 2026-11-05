@@ -121,7 +121,7 @@ class RegenerationCalculatorTest {
   fun `a small percentage of a small base is swallowed by integer truncation`() {
     // A deliberate, documented property rather than a bug: the docs floor this result, and the
     // placeholder base values keep low-level pools tiny. A level-1 master regenerates 2 HP a tick,
-    // so INNER_PEACE (+3%/level, maxLevel 10) is worth nothing at all until +50% - which the skill
+    // so MEDITATION (+6%/level, maxLevel 5) is worth nothing at all until +50% - which the skill
     // cannot reach. A percentage passive is inherently a late-game passive while this holds.
     val levelOneBase = calculator.hpRegen(pools.computeMaxHp(level = 1, vitality = 9), vitality = 9)
     assertEquals(2, levelOneBase)

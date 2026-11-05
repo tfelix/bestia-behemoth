@@ -151,18 +151,22 @@ reliably under this Alchemist's hand.
 
 `+5%/lv` Alchemy success chance
 `+10%/lv` Alchemy crafting speed"
-SKILL_27_DESC,"Your Bestia and Master gain an increased HP and Mana regeneration rate.
+SKILL_27_DESC,"A calm, centered breathing that quickens the natural mending of both Master and Bestia
+alike.
 
-`+3% effect/lv`"
-SKILL_28_DESC,"Your Bestia and Master gain an increased tolerance against high and low environment
-temperatures.
+`+6%/lv` HP and Mana regeneration"
+SKILL_28_DESC,"Nights in the snow and noons in the desert teach a Master and their Bestia to shrug off
+the weather. Widens the band of temperatures they can bear, on the cold side and the hot
+side alike.
 
-`+3%` higher tolerance/lv"
-SKILL_29_DESC,"You and your Bestia know every kind of terrain.
+`+3 °C/lv` temperature tolerance"
+SKILL_29_DESC,"Years on the road teach a Master and their Bestia how to cross any terrain without losing
+a step.
 
-`+3%` higher movement speed/lv"
-SKILL_30_DESC,"With this skill you are able to catch fish. Fish can be cooked and are used for food and
-trading.
+`+3%/lv` movement speed"
+SKILL_30_DESC,"A patient hand with rod and net that pulls fish from any water worth casting into - as
+good on the plate as it is at the trade post. Anyone with a fishing rod can fish, but an
+untrained angler only catches fish and loot up to level 10.
 
 `+20 fish lv/lv` that can be caught, up to fish level 100+ at max rank"
 SKILL_31_DESC,"The player is able to gather wood resources faster.
@@ -469,3 +473,9 @@ wandered off to.
 Every Bestia you own that is out in the world, and not in storage, appears next to you
 when the channel ends. Taking damage breaks the channel. A Bestia that is fighting does
 not answer. Cooldown 5min."
+SKILL_48_DESC,"An instinct for the direction and distance of nearby physical resources - ore veins,
+herb patches, timber stands and game trails - long before they come into view. Each
+cast points to the nearest resources of every kind within reach. Cooldown 60s.
+
+`+1 km/lv` detection distance
+`+10%/lv` detection accuracy"

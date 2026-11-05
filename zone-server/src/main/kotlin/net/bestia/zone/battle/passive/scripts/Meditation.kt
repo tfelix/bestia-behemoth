@@ -6,8 +6,8 @@ import net.bestia.zone.skill.SkillId
 import org.springframework.stereotype.Component
 
 /**
- * `INNER_PEACE` (`skills.yml` id 27, `maxLevel: 10`): *"Your Bestia and Master gain an increased HP
- * and Mana regeneration rate. `+3% effect/lv`"*.
+ * `MEDITATION` (`skills.yml` id 27, `maxLevel: 5`): *"A calm, centered breathing that quickens the
+ * natural mending of both Master and Bestia alike. `+6%/lv` HP and Mana regeneration"*.
  *
  * HP and mana only - the authored description does not mention stamina, and
  * `WILDERNESS_SURVIVAL` is the stamina-facing passive (phrased as a drain reduction, which belongs
@@ -18,9 +18,9 @@ import org.springframework.stereotype.Component
  * pools of a higher-level character. See `RegenerationCalculator.applyModifier`.
  */
 @Component
-class InnerPeace : PassiveSkillScript {
+class Meditation : PassiveSkillScript {
 
-  override val skill = SkillId.M_INNER_PEACE
+  override val skill = SkillId.M_MEDITATION
 
   override fun apply(context: StatusValueRecalcContext, level: Int) {
     context.addHpRegen(percent = PERCENT_PER_LEVEL * level)
@@ -28,7 +28,7 @@ class InnerPeace : PassiveSkillScript {
   }
 
   private companion object {
-    /** The `+3% effect/lv` from the skill's own description. */
-    const val PERCENT_PER_LEVEL = 3
+    /** The `+6%/lv` from the skill's own description. */
+    const val PERCENT_PER_LEVEL = 6
   }
 }

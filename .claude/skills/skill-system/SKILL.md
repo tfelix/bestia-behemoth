@@ -41,7 +41,7 @@ The `SkillId` constant carries the prefix too, and so does the client file (`6_m
 
 Convention in the file: master skills are grouped first under `# MASTER SKILLS`, bestia
 skills after under `# BESTIA SKILLS`, by ascending id (**bestia-species/item skills are
-reserved at id 1000-8999**; master skills use the open range below that, currently 1-47, with
+reserved at id 1000-8999**; master skills use the open range below that, currently 1-48, with
 ids 7 and 9 holes where `M_PLAY_DEAD` and `MASTER_RITUAL` used to be) — not enforced by code, just keep following
 it. The 1000+ split was chosen when the master skill tree grew past the original
 "masters 1-99" convention (see `docs/mechanics/master.md` for the full master skill tree
@@ -74,7 +74,7 @@ the old id in the `skill` table while every other file says the new one.
 
 `SkillId` holds one constant per skill that *code* has to name (15 today: `M_BASIC_SKILL`, the
 eleven crafting skills `MasterCraftBonusService` reads, the two weather skills, and
-`INNER_PEACE`). It carries **no numeric id** — unlike `DialogId` and `StatusEffectId`, which do —
+`MEDITATION`). It carries **no numeric id** — unlike `DialogId` and `StatusEffectId`, which do —
 because a skill's id is content owned by this file and copying it into code would give a
 renumbering a second place to be right.
 

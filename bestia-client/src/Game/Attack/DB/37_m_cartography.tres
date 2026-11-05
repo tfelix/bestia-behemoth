@@ -14,3 +14,5 @@ target_type = "GROUND"
 tree = "SURVIVAL"
 sub_tree = "PROSPECTOR"
 cast_time = 5.0
+prerequisite_ids = PackedInt32Array(48)
+prerequisite_levels = PackedInt32Array(1)
