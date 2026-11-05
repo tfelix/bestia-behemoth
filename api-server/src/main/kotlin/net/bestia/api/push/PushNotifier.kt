@@ -83,6 +83,7 @@ class PushNotifier(
       is ZoneEvent.ConstructionDone -> preference.constructionDone
       is ZoneEvent.JourneyEnded -> preference.journeyEnded
       is ZoneEvent.LetterArrived -> preference.letterArrived
+      is ZoneEvent.ParcelArrived -> preference.parcelArrived
       else -> false
     }
   }

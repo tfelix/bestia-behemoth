@@ -32,6 +32,9 @@ class PushPreference(
   @Column(name = "letter_arrived", nullable = false, columnDefinition = "BIT(1)")
   var letterArrived: Boolean = true,
 
+  @Column(name = "parcel_arrived", nullable = false, columnDefinition = "BIT(1)")
+  var parcelArrived: Boolean = true,
+
   /** Minutes after midnight in [timeZone]. May wrap past midnight: 22:00 to 07:00 is 1320 to 420. */
   @Column(name = "quiet_from", nullable = true)
   var quietFrom: Short? = null,
