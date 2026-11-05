@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ParcelSentSmsgProto";
+
+// The parcel is in the sack. The goods and the fee have left the bag.
+message ParcelSentSMSG {
+  string recipient_name = 1;
+  string destination_name = 2;
+  int64 latest_arrival_epoch_seconds = 3;
+}

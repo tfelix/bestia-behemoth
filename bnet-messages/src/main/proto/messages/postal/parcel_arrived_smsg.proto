@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ParcelArrivedSmsgProto";
+
+// A pigeon says a parcel waits for the played master.
+message ParcelArrivedSMSG {
+  string sender_name = 1;
+  string office_name = 2;
+}

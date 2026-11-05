@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ParcelsSmsgProto";
+
+import "messages/postal/parcel.proto";
+
+// Every parcel to the played master, soonest first, as seen from one post office.
+message ParcelsSMSG {
+  uint64 postmaster_entity_id = 1;
+  repeated Parcel parcels = 2;
+}

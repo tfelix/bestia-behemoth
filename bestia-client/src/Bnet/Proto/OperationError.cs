@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSraFgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrPFwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -90,9 +90,11 @@ namespace Bnet {
             "VUxMEGwSFgoSQVRUQUNLX09VVF9PRl9BTU1PEG0SFQoRRVFVSVBfSVRFTV9C",
             "Uk9LRU4QbhIXChNFUVVJUF9TTE9UX1NUUklQUEVEEG8SGgoWTUFJTF9SRUNJ",
             "UElFTlRfVU5LTk9XThBwEhYKEk1BSUxfQ0FOTk9UX0FGRk9SRBBxEhcKE01B",
-            "SUxfUkVDSVBJRU5UX0ZVTEwQciIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxM",
-            "QiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90",
-            "b2IGcHJvdG8z"));
+            "SUxfUkVDSVBJRU5UX0ZVTEwQchIUChBQQVJDRUxfVE9PX0hFQVZZEHMSGAoU",
+            "UEFSQ0VMX0NBTk5PVF9BRkZPUkQQdBITCg9QQVJDRUxfTk9UX0hFUkUQdRIW",
+            "ChJQQVJDRUxfTk9UX0FSUklWRUQQdhIWChJQT1NUX09GRklDRV9DTE9TRUQQ",
+            "dyIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5l",
+            "dC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -541,6 +543,26 @@ namespace Bnet {
     /// The recipient's mailbox is full. The player waits until they throw letters away. Args: the name.
     /// </summary>
     [pbr::OriginalName("MAIL_RECIPIENT_FULL")] MailRecipientFull = 114,
+    /// <summary>
+    /// A parcel over 10 kg. The player sends less, or hires a Transport commission.
+    /// </summary>
+    [pbr::OriginalName("PARCEL_TOO_HEAVY")] ParcelTooHeavy = 115,
+    /// <summary>
+    /// The sender cannot pay a parcel's freight fee. The player brings gold.
+    /// </summary>
+    [pbr::OriginalName("PARCEL_CANNOT_AFFORD")] ParcelCannotAfford = 116,
+    /// <summary>
+    /// A parcel waits at an office too far from this one. Args: that office's name.
+    /// </summary>
+    [pbr::OriginalName("PARCEL_NOT_HERE")] ParcelNotHere = 117,
+    /// <summary>
+    /// A parcel is still on the road. The player waits for its latest arrival time.
+    /// </summary>
+    [pbr::OriginalName("PARCEL_NOT_ARRIVED")] ParcelNotArrived = 118,
+    /// <summary>
+    /// The postmaster has gone home. The player comes back during their hours.
+    /// </summary>
+    [pbr::OriginalName("POST_OFFICE_CLOSED")] PostOfficeClosed = 119,
   }
 
   #endregion

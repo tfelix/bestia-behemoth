@@ -308,6 +308,16 @@ enum OpError {
   MAIL_CANNOT_AFFORD = 113;
   // The recipient's mailbox is full. The player waits until they throw letters away. Args: the name.
   MAIL_RECIPIENT_FULL = 114;
+  // A parcel over 10 kg. The player sends less, or hires a Transport commission.
+  PARCEL_TOO_HEAVY = 115;
+  // The sender cannot pay a parcel's freight fee. The player brings gold.
+  PARCEL_CANNOT_AFFORD = 116;
+  // A parcel waits at an office too far from this one. Args: that office's name.
+  PARCEL_NOT_HERE = 117;
+  // A parcel is still on the road. The player waits for its latest arrival time.
+  PARCEL_NOT_ARRIVED = 118;
+  // The postmaster has gone home. The player comes back during their hours.
+  POST_OFFICE_CLOSED = 119;
 }
 
 message OperationError {

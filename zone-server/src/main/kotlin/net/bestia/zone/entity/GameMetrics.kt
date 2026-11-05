@@ -49,6 +49,9 @@ class GameMetrics(private val registry: MeterRegistry = SimpleMeterRegistry()) {
 
     /** The postage of a letter. */
     POSTAGE,
+
+    /** The freight fee of a parcel. */
+    FREIGHT,
   }
 
   private val hits = Counter.builder("zone.combat.hits")

@@ -5,6 +5,7 @@ import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.zone.cartography.render.PlaceNames
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.settlement.SettlementSiteIndex
 import net.bestia.zone.world.settlement.StartTownMarkets
@@ -46,6 +47,19 @@ class PostOffices(
     val level = if (startTowns.isStartTown(settlement)) START_TOWN_LEVEL else GENERATED_LEVEL
 
     return Office(settlement, name, level)
+  }
+
+  /** Where the coach stops: the doorstep of the office's building. */
+  fun doorOf(settlement: Int): Vec3L? {
+    val building = siteIndex.siteOf(settlement)?.buildingsFor(POST_OFFICE_TYPE)?.firstOrNull() ?: return null
+    return siteIndex.doorstepOf(building)
+  }
+
+  /** Straight-line kilometres between two offices' settlements, for the docs' "within 10 km of home". */
+  fun kmBetween(one: Int, other: Int): Double? {
+    val a = siteIndex.siteOf(one)?.centre ?: return null
+    val b = siteIndex.siteOf(other)?.centre ?: return null
+    return a.distanceTo(b) / 1000.0
   }
 
   /** The settlement a master's parcels go to: the one picked, else the one the master started in. */
