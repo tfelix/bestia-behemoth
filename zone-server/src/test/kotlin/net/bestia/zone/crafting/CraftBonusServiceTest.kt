@@ -49,8 +49,8 @@ class CraftBonusServiceTest {
   fun `master craftsman adds two percent a level on top of carpentry`() {
     val recipe = recipeRequiring(CARPENTRY)
 
-    assertEquals(0.05f + 0.02f, service.successChance(known(CARPENTRY to 1, TINKERER to 1), recipe, null), TOLERANCE)
-    assertEquals(0.50f + 0.10f, service.successChance(known(CARPENTRY to 10, TINKERER to 5), recipe, null), TOLERANCE)
+    assertEquals(0.05f + 0.02f, service.successChance(known(CARPENTRY to 1, MASTER_CRAFTSMAN to 1), recipe, null), TOLERANCE)
+    assertEquals(0.50f + 0.10f, service.successChance(known(CARPENTRY to 10, MASTER_CRAFTSMAN to 5), recipe, null), TOLERANCE)
   }
 
   @Test
@@ -90,15 +90,15 @@ class CraftBonusServiceTest {
   fun `a chance never leaves zero to one`() {
     val certain = recipeRequiring(CARPENTRY, baseSuccessChance = 1f)
 
-    assertEquals(1f, service.successChance(known(CARPENTRY to 10, TINKERER to 5), certain, null), TOLERANCE)
+    assertEquals(1f, service.successChance(known(CARPENTRY to 10, MASTER_CRAFTSMAN to 5), certain, null), TOLERANCE)
   }
 
   @Test
   fun `master craftsman shortens a craft by ten percent a level`() {
     val recipe = recipeRequiring(CARPENTRY, craftSeconds = 10f)
 
-    assertEquals(9f, service.craftSeconds(known(TINKERER to 1), recipe), TOLERANCE)
-    assertEquals(5f, service.craftSeconds(known(TINKERER to 5), recipe), TOLERANCE)
+    assertEquals(9f, service.craftSeconds(known(MASTER_CRAFTSMAN to 1), recipe), TOLERANCE)
+    assertEquals(5f, service.craftSeconds(known(MASTER_CRAFTSMAN to 5), recipe), TOLERANCE)
   }
 
   /**
@@ -109,8 +109,8 @@ class CraftBonusServiceTest {
   fun `cooking uses its own reduction and does not stack with master craftsman`() {
     val recipe = recipeRequiring(COOKING, craftSeconds = 10f)
 
-    assertEquals(10f, service.craftSeconds(known(COOKING to 1, TINKERER to 5), recipe), TOLERANCE)
-    assertEquals(6f, service.craftSeconds(known(COOKING to 3, TINKERER to 5), recipe), TOLERANCE)
+    assertEquals(10f, service.craftSeconds(known(COOKING to 1, MASTER_CRAFTSMAN to 5), recipe), TOLERANCE)
+    assertEquals(6f, service.craftSeconds(known(COOKING to 3, MASTER_CRAFTSMAN to 5), recipe), TOLERANCE)
   }
 
   @Test
@@ -119,7 +119,7 @@ class CraftBonusServiceTest {
 
     assertEquals(
       CraftBonusService.MIN_CRAFT_SECONDS,
-      service.craftSeconds(known(TINKERER to 5), instant),
+      service.craftSeconds(known(MASTER_CRAFTSMAN to 5), instant),
       TOLERANCE
     )
   }
@@ -219,7 +219,7 @@ class CraftBonusServiceTest {
     const val TOLERANCE = 0.0001f
 
     const val CARPENTRY = "M_CARPENTRY"
-    const val TINKERER = "M_TINKERER"
+    const val MASTER_CRAFTSMAN = "M_MASTER_CRAFTSMAN"
     const val ITEM_CUSTOMIZATION = "M_ITEM_CUSTOMIZATION"
     const val ORE_REFINEMENT = "M_ORE_REFINEMENT"
     const val WEAPONRY_RESEARCH = "M_WEAPONRY_RESEARCH"
@@ -232,7 +232,7 @@ class CraftBonusServiceTest {
     /** Arbitrary but distinct, since the service only ever compares them. */
     val SKILL_IDS = mapOf(
       CARPENTRY to 9L,
-      TINKERER to 10L,
+      MASTER_CRAFTSMAN to 10L,
       ITEM_CUSTOMIZATION to 11L,
       ORE_REFINEMENT to 12L,
       FORGE_WEAPON to 13L,
