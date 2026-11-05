@@ -149,8 +149,10 @@ func _ready() -> void:
 
 	# Talking to a postmaster at work is what opens it, as a merchant opens the shop.
 	var post_office := _post_office_win.get_content() as PostOfficePanel
-	post_office.post_office_opened.connect(func() -> void: _post_office_win.visible = true)
+	post_office.notice.connect(_chat.system_line)
+	post_office.post_office_opened.connect(_on_post_office_opened)
 	post_office.post_office_closed.connect(func() -> void: _post_office_win.visible = false)
+	ConnectionManager.parcel_arrived.connect(_on_parcel_arrived)
 
 	# Gold is coins in the bag, so the inventory is what knows how much the profile should show.
 	inventory.gold_changed.connect(_master_profile.show_gold)
@@ -544,6 +546,18 @@ func _on_master_profile_compendium_win_toggled() -> void:
 
 func _on_master_profile_letters_win_toggled() -> void:
 	_letters_win.visible = !_letters_win.visible
+
+
+## Packing a parcel needs the bag in view, as selling at the auction house does.
+func _on_post_office_opened() -> void:
+	_post_office_win.visible = true
+	_inventory_win.visible = true
+
+
+func _on_parcel_arrived(msg: ParcelArrivedSMSG) -> void:
+	var text := tr("PARCEL_ARRIVED") % [msg.SenderName, msg.OfficeName]
+	_chat.system_line(text)
+	_obtained_items.show_notice(_LETTER_ICON, text)
 
 
 ## Said over the world as well as in chat: a letter is easy to miss in a busy chat log.

@@ -57,6 +57,12 @@ signal letter_arrived(message: LetterArrivedSMSG)
 signal letter_sent(message: LetterSentSMSG)
 ## A postmaster at work opened the post office, or answered a change of home office.
 signal post_office_opened(message: PostOfficeOpenSMSG)
+## The parcels to the played master, as seen from the post office the window is open at.
+signal parcels_received(message: ParcelsSMSG)
+signal parcel_quote_received(message: ParcelQuoteSMSG)
+signal parcel_sent(message: ParcelSentSMSG)
+## A pigeon says a parcel waits at an office.
+signal parcel_arrived(message: ParcelArrivedSMSG)
 ## Every party message: the roster, an invitation, the party ending for us. The party window listens.
 signal party_message_received(message: PartySMSG)
 ## Every guild message: the guild, an invitation, leaving it. The guild window listens.
@@ -142,6 +148,10 @@ var RequestLettersCMSG = load("res://Bnet/Message/Postal/RequestLettersCMSG.cs")
 var ReadLetterCMSG = load("res://Bnet/Message/Postal/ReadLetterCMSG.cs")
 var DeleteLetterCMSG = load("res://Bnet/Message/Postal/DeleteLetterCMSG.cs")
 var SetHomePostOfficeCMSG = load("res://Bnet/Message/Postal/SetHomePostOfficeCMSG.cs")
+var QuoteParcelCMSG = load("res://Bnet/Message/Postal/QuoteParcelCMSG.cs")
+var SendParcelCMSG = load("res://Bnet/Message/Postal/SendParcelCMSG.cs")
+var CollectParcelCMSG = load("res://Bnet/Message/Postal/CollectParcelCMSG.cs")
+var RefuseParcelCMSG = load("res://Bnet/Message/Postal/RefuseParcelCMSG.cs")
 var RequestPartyInfoCMSG = load("res://Bnet/Message/Party/RequestPartyInfoCMSG.cs")
 var CreatePartyCMSG = load("res://Bnet/Message/Party/CreatePartyCMSG.cs")
 var RequestPartyInvitationCMSG = load("res://Bnet/Message/Party/RequestPartyInvitationCMSG.cs")
@@ -854,6 +864,49 @@ func set_home_post_office(postmaster_entity_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Weighs a parcel. Answered by a ParcelQuoteSMSG, or an OperationError when it cannot go.
+func quote_parcel(postmaster_entity_id: int, recipient_name: String, player_item_ids: Array[int], amounts: Array[int]) -> void:
+	assert(is_ready_to_send())
+	var msg = QuoteParcelCMSG.new()
+	msg.PostmasterEntityId = postmaster_entity_id
+	msg.RecipientName = recipient_name
+	msg.PlayerItemIds.assign(player_item_ids)
+	msg.Amounts.assign(amounts)
+	_socket.SendMessage(msg)
+
+
+## Answered by a ParcelSentSMSG, or an OperationError when it cannot go.
+func send_parcel(
+	postmaster_entity_id: int, recipient_name: String, player_item_ids: Array[int], amounts: Array[int], coach_only: bool
+) -> void:
+	assert(is_ready_to_send())
+	var msg = SendParcelCMSG.new()
+	msg.PostmasterEntityId = postmaster_entity_id
+	msg.RecipientName = recipient_name
+	msg.PlayerItemIds.assign(player_item_ids)
+	msg.Amounts.assign(amounts)
+	msg.CoachOnly = coach_only
+	_socket.SendMessage(msg)
+
+
+## Answered by a ParcelsSMSG.
+func collect_parcel(postmaster_entity_id: int, parcel_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = CollectParcelCMSG.new()
+	msg.PostmasterEntityId = postmaster_entity_id
+	msg.ParcelId = parcel_id
+	_socket.SendMessage(msg)
+
+
+## Answered by a ParcelsSMSG.
+func refuse_parcel(postmaster_entity_id: int, parcel_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = RefuseParcelCMSG.new()
+	msg.PostmasterEntityId = postmaster_entity_id
+	msg.ParcelId = parcel_id
+	_socket.SendMessage(msg)
+
+
 ## Locks or unlocks our side. Any change to either offer clears both locks again.
 func set_trade_lock(trade_id: int, locked: bool) -> void:
 	assert(is_ready_to_send())
@@ -1238,6 +1291,14 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		letter_sent.emit(message)
 	elif message is PostOfficeOpenSMSG:
 		post_office_opened.emit(message)
+	elif message is ParcelsSMSG:
+		parcels_received.emit(message)
+	elif message is ParcelQuoteSMSG:
+		parcel_quote_received.emit(message)
+	elif message is ParcelSentSMSG:
+		parcel_sent.emit(message)
+	elif message is ParcelArrivedSMSG:
+		parcel_arrived.emit(message)
 	elif message is PartySMSG:
 		party_message_received.emit(message)
 	elif message is GuildSMSG:
