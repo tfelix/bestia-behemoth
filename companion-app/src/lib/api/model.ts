@@ -22,6 +22,7 @@ export type StanceOrder = Schemas['StanceOrder'];
 export type ChatOrder = Schemas['ChatOrder'];
 export type Letter = Schemas['Letter'];
 export type LetterOrder = Schemas['LetterOrder'];
+export type Parcel = Schemas['Parcel'];
 export type Preferences = Schemas['Preferences'];
 export type CompendiumEntry = Schemas['CompendiumEntry'];
 export type Position = Schemas['Position'];

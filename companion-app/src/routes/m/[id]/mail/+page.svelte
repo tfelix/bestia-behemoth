@@ -2,14 +2,16 @@
 	import { page } from '$app/state';
 	import { age } from '#lib/age.ts';
 	import { ApiError, getJson, sendJson } from '#lib/api/client.ts';
-	import type { Letter, LetterOrder } from '#lib/api/model.ts';
+	import type { Letter, LetterOrder, Parcel } from '#lib/api/model.ts';
 	import { guarded } from '#lib/guard.ts';
 	import { live } from '#lib/live.svelte.ts';
 	import { keptFor, letterRefusal, MAX_BODY_LENGTH, MAX_SUBJECT_LENGTH, POSTAGE, replySubject } from '#lib/mail.ts';
+	import { itemName } from '#lib/names.ts';
 
 	const masterId = $derived(Number(page.params.id));
 
 	let letters = $state<Letter[] | null>(null);
+	let parcels = $state<Parcel[]>([]);
 	let failure = $state<string | null>(null);
 	let openId = $state<number | null>(null);
 	let now = $state(Date.now());
@@ -27,8 +29,13 @@
 
 	async function load(id: number) {
 		try {
-			const mailbox = await guarded(() => getJson<Letter[]>(`/v1/companion/masters/${id}/letters`));
-			if (id === masterId) letters = mailbox;
+			const [mailbox, waiting] = await guarded(() =>
+				Promise.all([getJson<Letter[]>(`/v1/companion/masters/${id}/letters`), getJson<Parcel[]>(`/v1/companion/masters/${id}/parcels`)])
+			);
+			if (id === masterId) {
+				letters = mailbox;
+				parcels = waiting;
+			}
 			failure = null;
 		} catch (e) {
 			failure = String((e as Error).message);
@@ -39,7 +46,7 @@
 		const id = masterId;
 		letters = null;
 		void load(id);
-		return live.on((event) => event.type === 'LetterArrived' && event.data.masterId === id && void load(id));
+		return live.on((event) => (event.type === 'LetterArrived' || event.type === 'ParcelArrived') && event.data.masterId === id && void load(id));
 	});
 
 	$effect(() => {
@@ -120,6 +127,25 @@
 	{/if}
 	{#if note}<p class="muted small">{note}</p>{/if}
 
+	{#if parcels.length > 0}
+		<section class="panel">
+			<h2 class="label">Parcels</h2>
+			{#each parcels as parcel (parcel.parcelId)}
+				<article class="parcel">
+					<strong>{parcel.returning ? `Returned from ${parcel.senderName}` : `From ${parcel.senderName}`}</strong>
+					<span class="muted small">
+						{parcel.goods.map((g) => `${g.amount} × ${itemName(g.item)}`).join(', ')}
+					</span>
+					<span class="muted small">
+						{parcel.arrived
+							? `Waits at ${parcel.destinationName}`
+							: `On the road to ${parcel.destinationName}, arrives by ${new Date(parcel.latestArrivalEpochMs).toLocaleString()}`}
+					</span>
+				</article>
+			{/each}
+		</section>
+	{/if}
+
 	{#if failure}
 		<p class="muted">{failure}</p>
 	{:else if letters === null}
@@ -185,6 +211,15 @@
 
 	.actions .muted {
 		margin-right: auto;
+	}
+
+	.parcel {
+		display: grid;
+		padding: 0.4rem 0;
+	}
+
+	.parcel + .parcel {
+		border-top: 1px solid var(--edge);
 	}
 
 	.letter + .letter {
