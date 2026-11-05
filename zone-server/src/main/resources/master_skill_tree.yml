@@ -142,6 +142,8 @@ skills:
     prerequisites:
       - skill: M_RUNIC_ETCHING
         level: 5
+      - skill: M_MANAFLOW_EXPERT
+        level: 3
 
   # Alchemist (unlocked at 5+ pts in Craftsman Tree)
   - skill: M_HERBALISM

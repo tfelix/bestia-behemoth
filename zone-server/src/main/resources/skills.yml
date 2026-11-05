@@ -213,47 +213,66 @@ skills:
     identifier: M_MANA_HARVESTER
     script: ManaHarvester
     targetType: GROUND
+    range: 2
+    manaCost: 19
+    castTime: 10.0
     description: |
       Build and operate Mana Harvesters which channel mana from the environment into raw
-      crystals - the source of magic for many use cases.
+      crystals - the source of magic for many use cases. Yield follows the local mana
+      concentration, so where a harvester stands matters as much as its rank.
 
       Level 1 enables you to place a Mana Harvester
       `-5%/lv` harvesting time
       `+3%/lv` crystal yield
+      One more active harvester at Lv.4, Lv.7 and Lv.10
 
   - id: 20
     identifier: M_MANAFLOW_EXPERT
     script: ManaflowExpert
     targetType: GROUND
+    range: 2
+    manaCost: 22
+    castTime: 10.0
     description: |
       Refine the raw and unstable mana crystals harvested by a Mana Harvester into the finest
-      arcane raw materials used to build powerful magic artifacts.
+      arcane raw materials used to build powerful magic artifacts. A crystal above your max
+      crystal level cannot be refined.
 
-      `-4%/lv` chance a crystal shatters during refinement
-      Higher levels unlock refining higher-grade crystals
+      Level 1 enables you to place a Crystal Lathe
+      `+4%/lv` success chance
+      `+20 crystal lv/lv` max crystal level, 100+ at max rank
 
   - id: 21
     identifier: M_RUNIC_ETCHING
     script: RunicEtching
-    targetType: FRIENDLY
-    needsLineOfSight: true
+    targetType: GROUND
+    range: 2
+    manaCost: 25
+    castTime: 10.0
     description: |
       Create runes from Bestia essences. These runes are imbued with the power of the Bestia
       and can be slotted into a weapon or piece of equipment that has been prepared with Item
       Customization. An attempt to convert a Bestia into an essence destroys the Bestia.
 
-      `+5%/lv` chance of success
+      Level 1 enables you to place a Carving Table, the Bestia must stand next to it
+      `+5%/lv` success chance
+      `+10 Bestia lv/lv` reliable Bestia level, 100+ at max rank
+      `-5%` success chance per Bestia level above the reliable one, no hard cap
 
   - id: 22
     identifier: M_MAGIC_ARTISAN
     script: MagicArtisan
     targetType: GROUND
+    range: 2
+    manaCost: 38
+    castTime: 10.0
     description: |
-      Can create magic artefacts by binding sustained enchantments to an item, going well
-      beyond what a single etched rune can hold.
+      Can create magic artifacts by binding sustained enchantments to an item, going well
+      beyond what a single etched rune can hold. Every binding needs refined mana crystals.
 
+      Level 1 enables you to place an Enchantment Altar
       `+4%/lv` enchantment chance
-      `-7%/lv` chance to destroy the item if the binding fails
+      `-3%/lv` chance to destroy the item if the binding fails, from 40% down to 13%
 
 # Alchemist
   - id: 23
