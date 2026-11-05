@@ -261,51 +261,53 @@ skills:
     targetType: FRIENDLY
     description: |
       Teaches which roots, herbs and mana-touched growth are worth the harvest, and how to
-      keep them potent until they reach the cauldron.
+      keep them potent until they reach the cauldron. A herb above your max level cannot be
+      gathered.
 
-      Lv.1 Can collect herbs up to level 20
-      Lv.2 Can collect herbs up to level 40
-      Lv.3 Can collect herbs up to level 60
-      Lv.4 Can collect herbs up to level 80
-      Lv.5 Can collect herbs up to level 100+
+      `+20 herb lv/lv` max herb level, 100+ at max rank
 
   - id: 24
     identifier: M_ALCHEMY
     script: Alchemy
     targetType: GROUND
+    range: 2
+    manaCost: 24
+    castTime: 10.0
     description: |
       The core craft of the Alchemist: brewing reagents down into potions, tonics and other
       consumables. Builds directly on what Herbalism teaches about picking the right ingredient.
 
-      Lv.1 Can craft basic potions and elixirs up to level 10 at a workbench cauldron.
-      Lv.2 Can craft potions and elixirs up to level 20.
-      Lv.3 Can craft potions and elixirs up to level 30.
-      Lv.4 Can craft potions and elixirs up to level 40.
-      Lv.5 Can craft potions and elixirs up to level 50. Failed brews return half of the raw
-      reagents used instead of losing them entirely.
-      Lv.6 Can craft potions and elixirs up to level 60.
-      Lv.7 Can craft potions and elixirs up to level 70.
-      Lv.8 Can craft potions and elixirs up to level 80.
-      Lv.9 Can craft potions and elixirs up to level 90.
-      Lv.10 Can craft potions and elixirs up to level 100+, unlocking the highest-level potion
-      and elixir blueprints.
+      Level 1 enables you to place an Alchemy Laboratory
+      `+5%/lv` success chance
+      `+10 item lv/lv` reliable item level, 100+ at max rank
+      `-5%` success chance per item level above the reliable one, no hard cap
 
   - id: 25
     identifier: M_TRANSMUTATION
     script: Transmutation
     targetType: GROUND
+    range: 2
+    manaCost: 34
+    castTime: 10.0
     description: |
       The Alchemist's capstone. Where Alchemy brews what nature already provides,
       Transmutation reshapes mundane matter itself into the rare magically-infused resources
       needed for strong artifact creation and weapon refinements.
 
-      Higher levels unlock transmuting higher-grade infused resources
+      Level 1 enables you to place a Transmutation Workbench
+      `+5%/lv` success chance
+      `+10 item lv/lv` reliable item level, 100+ at max rank
+      `-5%` success chance per item level above the reliable one, no hard cap
 
   - id: 26
     identifier: M_ALCHEMY_MASTERY
     targetType: FRIENDLY
     description: |
-      Increased yield and success chance for Alchemy.
+      A deeper feel for the cauldron - reagents stretch further and brews take hold more
+      reliably under this Alchemist's hand.
+
+      `+5%/lv` Alchemy success chance
+      `+10%/lv` Alchemy crafting speed
 
 # --- Survival Tree ---
   - id: 27

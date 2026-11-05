@@ -119,34 +119,30 @@ beyond what a single etched rune can hold.
 `+4%/lv` enchantment chance
 `-7%/lv` chance to destroy the item if the binding fails"
 SKILL_23_DESC,"Teaches which roots, herbs and mana-touched growth are worth the harvest, and how to
-keep them potent until they reach the cauldron.
+keep them potent until they reach the cauldron. A herb above your max level cannot be
+gathered.
 
-Lv.1 Can collect herbs up to level 20
-Lv.2 Can collect herbs up to level 40
-Lv.3 Can collect herbs up to level 60
-Lv.4 Can collect herbs up to level 80
-Lv.5 Can collect herbs up to level 100+"
+`+20 herb lv/lv` max herb level, 100+ at max rank"
 SKILL_24_DESC,"The core craft of the Alchemist: brewing reagents down into potions, tonics and other
 consumables. Builds directly on what Herbalism teaches about picking the right ingredient.
 
-Lv.1 Can craft basic potions and elixirs up to level 10 at a workbench cauldron.
-Lv.2 Can craft potions and elixirs up to level 20.
-Lv.3 Can craft potions and elixirs up to level 30.
-Lv.4 Can craft potions and elixirs up to level 40.
-Lv.5 Can craft potions and elixirs up to level 50. Failed brews return half of the raw
-reagents used instead of losing them entirely.
-Lv.6 Can craft potions and elixirs up to level 60.
-Lv.7 Can craft potions and elixirs up to level 70.
-Lv.8 Can craft potions and elixirs up to level 80.
-Lv.9 Can craft potions and elixirs up to level 90.
-Lv.10 Can craft potions and elixirs up to level 100+, unlocking the highest-level potion
-and elixir blueprints."
+Level 1 enables you to place an Alchemy Laboratory
+`+5%/lv` success chance
+`+10 item lv/lv` reliable item level, 100+ at max rank
+`-5%` success chance per item level above the reliable one, no hard cap"
 SKILL_25_DESC,"The Alchemist's capstone. Where Alchemy brews what nature already provides,
 Transmutation reshapes mundane matter itself into the rare magically-infused resources
 needed for strong artifact creation and weapon refinements.
 
-Higher levels unlock transmuting higher-grade infused resources"
-SKILL_26_DESC,Increased yield and success chance for Alchemy.
+Level 1 enables you to place a Transmutation Workbench
+`+5%/lv` success chance
+`+10 item lv/lv` reliable item level, 100+ at max rank
+`-5%` success chance per item level above the reliable one, no hard cap"
+SKILL_26_DESC,"A deeper feel for the cauldron - reagents stretch further and brews take hold more
+reliably under this Alchemist's hand.
+
+`+5%/lv` Alchemy success chance
+`+10%/lv` Alchemy crafting speed"
 SKILL_27_DESC,"Your Bestia and Master gain an increased HP and Mana regeneration rate.
 
 `+3% effect/lv`"
