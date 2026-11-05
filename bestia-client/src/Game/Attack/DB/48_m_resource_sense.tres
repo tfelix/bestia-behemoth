@@ -4,12 +4,12 @@
 
 [resource]
 script = ExtResource("1_script")
-skill_id = 27
-name = "Inner Peace"
-description_key = "SKILL_27_DESC"
-mana_cost = 0
-cooldown = 0.0
-max_level = 10
+skill_id = 48
+name = "Resource Sense"
+description_key = "SKILL_48_DESC"
+mana_cost = 15
+cooldown = 60.0
+max_level = 5
 target_type = "FRIENDLY"
+cast_time = 2.0
 tree = "SURVIVAL"
-is_passive = true

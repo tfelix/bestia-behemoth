@@ -56,7 +56,7 @@ enum class SkillId {
   M_WEATHER_SENSE,
 
   // Passives with a stat effect, named by their PassiveSkillScript bean rather than from the yml.
-  M_INNER_PEACE,
+  M_MEDITATION,
 
   // Capture: its level adds to every catch roll in net.bestia.zone.capture.BestiaTrapSystem.
   M_BEASTFRIEND,

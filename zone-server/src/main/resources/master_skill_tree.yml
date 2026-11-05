@@ -176,10 +176,6 @@ skills:
         level: 5
 
   # --- Survival Tree ---
-  - skill: M_INNER_PEACE
-    tree: SURVIVAL
-    maxLevel: 10
-
   - skill: M_WEATHER_RESISTANCE
     tree: SURVIVAL
     maxLevel: 5
@@ -189,6 +185,10 @@ skills:
     maxLevel: 5
 
   - skill: M_FISHING
+    tree: SURVIVAL
+    maxLevel: 5
+
+  - skill: M_RESOURCE_SENSE
     tree: SURVIVAL
     maxLevel: 5
 
@@ -237,6 +237,9 @@ skills:
     tree: SURVIVAL
     subTree: PROSPECTOR
     maxLevel: 5
+    prerequisites:
+      - skill: M_RESOURCE_SENSE
+        level: 1
 
   - skill: M_WILDERNESS_SURVIVAL
     tree: SURVIVAL
@@ -310,6 +313,11 @@ skills:
     tree: SCHOLAR
     subTree: PRIEST
     maxLevel: 10
+
+  # --- Warrior Tree ---
+  - skill: M_MEDITATION
+    tree: WARRIOR
+    maxLevel: 5
 
   - skill: M_FIREBOLT
     tree: WARRIOR

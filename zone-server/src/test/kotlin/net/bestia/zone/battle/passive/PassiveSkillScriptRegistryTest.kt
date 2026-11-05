@@ -16,8 +16,8 @@ import org.junit.jupiter.api.assertThrows
 
 class PassiveSkillScriptRegistryTest {
 
-  private class InnerPeaceStub : PassiveSkillScript {
-    override val skill = SkillId.M_INNER_PEACE
+  private class MeditationStub : PassiveSkillScript {
+    override val skill = SkillId.M_MEDITATION
     override fun apply(context: StatusValueRecalcContext, level: Int) = context.addHpRegen(percent = 3 * level)
   }
 
@@ -52,7 +52,7 @@ class PassiveSkillScriptRegistryTest {
     requiredLevel = 0
   )
 
-  private val innerPeace = skill(27L, "M_INNER_PEACE")
+  private val meditation = skill(27L, "M_MEDITATION")
 
   /**
    * A passive nobody has written a script for. Most of the catalogue looks like this: with `Skill.type` gone,
@@ -67,14 +67,14 @@ class PassiveSkillScriptRegistryTest {
 
   @Test
   fun `a script binds to the skill it names`() {
-    val script = InnerPeaceStub()
+    val script = MeditationStub()
     val registry = registry(script)
 
-    registry.bind(listOf(innerPeace, divineProtection, cooking), strategies::isCastable)
+    registry.bind(listOf(meditation, divineProtection, cooking), strategies::isCastable)
 
     assertEquals(1, registry.bound().size)
-    assertSame(script, registry.bound()[innerPeace.id])
-    assertSame(script, registry.get("InnerPeaceStub"))
+    assertSame(script, registry.bound()[meditation.id])
+    assertSame(script, registry.get("MeditationStub"))
     assertNull(registry.get("NotARegisteredScript"))
   }
 
@@ -83,9 +83,9 @@ class PassiveSkillScriptRegistryTest {
     // Deliberately only validated in one direction. Roughly twenty catalogued passives have no
     // implementation, and failing boot on them would make the server unbootable against any real
     // database - the same reason SkillScriptBootValidator warns rather than throws.
-    val registry = registry(InnerPeaceStub())
+    val registry = registry(MeditationStub())
 
-    registry.bind(listOf(innerPeace, divineProtection), strategies::isCastable)
+    registry.bind(listOf(meditation, divineProtection), strategies::isCastable)
 
     assertEquals(1, registry.bound().size)
     assertNull(registry.bound()[divineProtection.id])
@@ -99,7 +99,7 @@ class PassiveSkillScriptRegistryTest {
     val registry = registry(MissingSkillScript())
 
     val ex = assertThrows<PassiveSkillScriptBindingException> {
-      registry.bind(listOf(innerPeace), strategies::isCastable)
+      registry.bind(listOf(meditation), strategies::isCastable)
     }
 
     assertEquals(true, ex.message!!.contains("M_WEATHER_SENSE"))
@@ -122,6 +122,6 @@ class PassiveSkillScriptRegistryTest {
   fun `binding is empty before it has run`() {
     // The registry is a bean long before PassiveSkillScriptBinderBootRunner fires; anything reading
     // it in that window must see nothing rather than a half-built map.
-    assertEquals(emptyMap<Long, PassiveSkillScript>(), registry(InnerPeaceStub()).bound())
+    assertEquals(emptyMap<Long, PassiveSkillScript>(), registry(MeditationStub()).bound())
   }
 }
