@@ -4,8 +4,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
-import net.bestia.zone.auction.persistence.AuctionClaim
-import net.bestia.zone.auction.persistence.AuctionClaimRepository
 import net.bestia.zone.auction.persistence.AuctionListing
 import net.bestia.zone.auction.persistence.AuctionListingRepository
 import net.bestia.zone.ecs.core.WorldView
@@ -22,10 +20,12 @@ import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.postal.parcel.ParcelService
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.util.AccountId
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionTemplate
 import java.time.Clock
@@ -43,7 +43,7 @@ class AuctionService(
   private val connectionInfoService: ConnectionInfoService,
   private val houses: AuctionHouses,
   private val listings: AuctionListingRepository,
-  private val claims: AuctionClaimRepository,
+  private val parcels: ParcelService,
   private val inventoryService: InventoryService,
   private val itemRepository: ItemRepository,
   private val masterRepository: MasterRepository,
@@ -147,6 +147,7 @@ class AuctionService(
         anyItem = itemIds.isEmpty(),
         itemIds = itemIds.ifEmpty { listOf(NO_ITEM) },
         sellerMasterId = seller,
+        now = clock.instant(),
         pageable = PageRequest.of(query.page.coerceAtLeast(0), PAGE_SIZE),
       )
 
@@ -188,7 +189,23 @@ class AuctionService(
     return Listed(goods)
   }
 
-  /** The seller is paid through a claim: they are rarely standing at a house when somebody buys. */
+  /**
+   * Goods whose listing ran out unsold go back to their seller's mailbox, as the sale's coins do. The fee does not
+   * come back, as the docs say of any listing that did not sell.
+   */
+  @Scheduled(fixedDelay = 5 * 60 * 1000L)
+  fun returnExpired() {
+    transactions.execute {
+      for (listing in listings.findByExpiresAtBefore(clock.instant())) {
+        parcels.postInstant(listing.sellerMasterId, SENDER_NAME) { parcel ->
+          inventoryService.moveBetweenEscrows(listing.container, parcel)
+        }
+        listings.delete(listing)
+      }
+    }
+  }
+
+  /** The seller is paid by post: they are rarely standing at a house when somebody buys. */
   private fun purchase(buyerId: Long, listingId: Long, coinId: Long): Outcome {
     val listing = listings.findLockedById(listingId) ?: return Refused(OpError.AUCTION_LISTING_GONE)
 
@@ -202,16 +219,8 @@ class AuctionService(
 
     val goods = inventoryService.moveFromEscrow(listing.container, buyerId)
 
-    claims.save(
-      AuctionClaim(
-        masterId = listing.sellerMasterId,
-        reason = AuctionClaim.Reason.SOLD,
-        coins = listing.price,
-        itemId = listing.itemId,
-        amount = listing.amount,
-        createdAt = clock.instant(),
-      )
-    )
+    val coin = itemRepository.findByIdOrNull(coinId) ?: return Refused(OpError.REQUEST_REFUSED)
+    parcels.postInstant(listing.sellerMasterId, SENDER_NAME) { it.addStackable(coin, listing.price.toInt()) }
     listings.delete(listing)
 
     return Bought(goods, listing.price)
@@ -245,6 +254,9 @@ class AuctionService(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** Who auction mail is from, as the mailbox shows it. */
+    const val SENDER_NAME = "Auction House"
 
     /** The docs give fixed-price listings no length; the longest auction's keeps the board from silting up. */
     val FIXED_PRICE_DURATION: Duration = Duration.ofDays(5)

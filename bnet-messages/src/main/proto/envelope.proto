@@ -110,9 +110,6 @@ import "messages/auction/search_auctions_cmsg.proto";
 import "messages/auction/auction_listings_smsg.proto";
 import "messages/auction/buy_auction_listing_cmsg.proto";
 import "messages/auction/cancel_auction_listing_cmsg.proto";
-import "messages/auction/request_auction_claims_cmsg.proto";
-import "messages/auction/collect_auction_claim_cmsg.proto";
-import "messages/auction/auction_claims_smsg.proto";
 import "messages/auction/auction_purchased_smsg.proto";
 import "messages/postal/send_letter_cmsg.proto";
 import "messages/postal/letter_sent_smsg.proto";
@@ -159,6 +156,8 @@ message Envelope {
   reserved 504, 505, 510 to 541;
   // 501 was move_active_entity, which could only move the entity being driven.
   reserved 501;
+  // 846-848 were the auction house's Collect tab. What the market owes now comes by post.
+  reserved 846 to 848;
 
   oneof message {
     // SYSTEM & ACCOUNT 100
@@ -314,9 +313,6 @@ message Envelope {
     AuctionListingsSMSG auction_listings = 843;
     BuyAuctionListingCMSG buy_auction_listing = 844;
     CancelAuctionListingCMSG cancel_auction_listing = 845;
-    RequestAuctionClaimsCMSG request_auction_claims = 846;
-    CollectAuctionClaimCMSG collect_auction_claim = 847;
-    AuctionClaimsSMSG auction_claims = 848;
     AuctionPurchasedSMSG auction_purchased = 849;
 
     // POSTAL 860

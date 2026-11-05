@@ -48,7 +48,6 @@ signal shop_offer_received(message: ShopOfferSMSG)
 signal shop_quote_received(message: ShopQuoteSMSG)
 signal auction_house_opened(message: AuctionHouseOpenSMSG)
 signal auction_listings_received(message: AuctionListingsSMSG)
-signal auction_claims_received(message: AuctionClaimsSMSG)
 signal auction_purchased(message: AuctionPurchasedSMSG)
 ## The played master's whole mailbox, on request and after a letter was thrown away.
 signal letters_received(message: LettersSMSG)
@@ -1279,8 +1278,6 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		auction_house_opened.emit(message)
 	elif message is AuctionListingsSMSG:
 		auction_listings_received.emit(message)
-	elif message is AuctionClaimsSMSG:
-		auction_claims_received.emit(message)
 	elif message is AuctionPurchasedSMSG:
 		auction_purchased.emit(message)
 	elif message is LettersSMSG:

@@ -72,6 +72,10 @@ class Parcel(
   @Column(nullable = false)
   var returning: Boolean = false
 
+  /** Auction mail: in the mailbox at once, and handed out at any post office. */
+  @Column(name = "collect_anywhere", nullable = false)
+  var collectAnywhere: Boolean = false
+
   /** Whether its recipient was told it arrived. */
   @Column(nullable = false)
   var announced: Boolean = false

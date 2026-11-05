@@ -11,6 +11,7 @@ import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.container.ReservedItem
 import net.bestia.zone.item.ecs.grantToLive
 import net.bestia.zone.item.ecs.takeFromLive
+import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.postal.office.PostOffices
 import net.bestia.zone.postal.persistence.Parcel
@@ -138,7 +139,7 @@ class ParcelService(
         destinationName = officeName(parcel.destinationOffice),
         latestArrival = parcel.latestArrival,
         arrived = parcel.hasArrived(now),
-        collectableHere = at != null && parcel.hasArrived(now) && isNear(at.settlement, parcel.destinationOffice),
+        collectableHere = at != null && parcel.hasArrived(now) && mayCollectAt(at, parcel),
         returning = parcel.returning,
         goods = parcel.container.slots.map { ReservedItem.of(it, it.itemInstance?.itemLevel ?: 0) },
       )
@@ -153,7 +154,7 @@ class ParcelService(
       val parcel = parcels.findLockedById(parcelId)?.takeIf { it.recipientMasterId == customer.masterId }
         ?: return@execute Escrow.Refused(Outcome.Refused(OpError.REQUEST_REFUSED))
       if (!parcel.hasArrived(now)) return@execute Escrow.Refused(Outcome.Refused(OpError.PARCEL_NOT_ARRIVED))
-      if (!isNear(at.settlement, parcel.destinationOffice)) {
+      if (!mayCollectAt(at, parcel)) {
         val waitsAt = officeName(parcel.destinationOffice)
         return@execute Escrow.Refused(Outcome.Refused(OpError.PARCEL_NOT_HERE, listOf(waitsAt)))
       }
@@ -180,6 +181,32 @@ class ParcelService(
       sendBack(parcel)
       null
     }
+  }
+
+  /**
+   * Mail that needs no coach: what an auction house owes a master. [fill] puts the goods into the parcel. Call it
+   * inside the transaction that took them from where they were.
+   */
+  fun postInstant(recipientMasterId: Long, senderName: String, fill: (ItemContainer) -> Unit) {
+    val recipient = masters.findByIdOrThrow(recipientMasterId)
+    val home = offices.homeOf(recipient.homePostOffice, recipient.homeSettlementName) ?: 0
+    val now = clock.instant()
+
+    val parcel = Parcel(
+      senderMasterId = 0,
+      senderName = senderName,
+      recipientMasterId = recipientMasterId,
+      originOffice = home,
+      destinationOffice = home,
+      weightUnits = 0,
+      freightFee = 0,
+      coachOnly = true,
+      sentAt = now,
+      latestArrival = now,
+    )
+    parcel.collectAnywhere = true
+    fill(parcel.container)
+    parcels.save(parcel)
   }
 
   /** Tells each recipient once that a parcel waits for them. */
@@ -265,6 +292,10 @@ class ParcelService(
     parcel.latestArrival = CoachTimetable.latestArrival(level, km, clock.instant())
     parcel.returning = true
     parcel.announced = false
+  }
+
+  private fun mayCollectAt(at: PostOffices.Office, parcel: Parcel): Boolean {
+    return parcel.collectAnywhere || isNear(at.settlement, parcel.destinationOffice)
   }
 
   private fun isNear(office: Int, destination: Int): Boolean {
