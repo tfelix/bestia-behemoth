@@ -75,6 +75,7 @@ enum class MapService {
       "alchemist" to MERCHANT,
       "banker" to null,
       "barracks" to GUARD,
+      "post_office" to null,
     )
 
     /** The kind a trade is drawn as, or null for one kept off the map or one nobody has decided about. */

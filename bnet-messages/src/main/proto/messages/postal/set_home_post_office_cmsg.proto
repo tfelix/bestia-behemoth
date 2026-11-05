@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SetHomePostOfficeCmsgProto";
+
+// Makes the office of this postmaster the master's home post office. Answered by PostOfficeOpenSMSG.
+message SetHomePostOfficeCMSG {
+  uint64 postmaster_entity_id = 1;
+}

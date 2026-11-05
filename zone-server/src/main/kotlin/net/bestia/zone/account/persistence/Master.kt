@@ -229,6 +229,13 @@ class Master(
   @Column(nullable = false, length = 64)
   var homeSettlementName: String = ""
 
+  /**
+   * Settlement index of the post office every parcel to this master goes to. Null until the master picks one,
+   * and then it is the office of [homeSettlementName].
+   */
+  @Column(name = "home_post_office")
+  var homePostOffice: Int? = null
+
   /** When the write-behind last saved the live state into this row, in epoch milliseconds; 0 until it first has. */
   @Column(name = "persisted_at", nullable = false)
   // A database default, so a server built from older code can still insert rows into a schema that has it.

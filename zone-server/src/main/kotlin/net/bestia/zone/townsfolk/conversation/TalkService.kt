@@ -28,14 +28,24 @@ class TalkService(
   private val world: WorldView,
   private val out: OutMessageProcessor,
   private val reception: HonorReception,
+  private val counters: List<ServiceCounter>,
 ) {
 
-  /** A merchant at work is asked for their counter rather than for a chat; the shop window offers the chat. */
+  /**
+   * A merchant at work is asked for their counter rather than for a chat; the shop window offers the chat. Anybody
+   * else who serves at a counter, like a postmaster, is asked for theirs the same way.
+   */
   fun open(accountId: AccountId, actor: EntityId, target: EntityId) {
     val speaker = reachableSpeaker(accountId, actor, target) ?: return
     if (servedAtCounter(accountId, actor, speaker)) return
+    if (counters.any { it.serve(accountId, speaker) }) return
 
     answer(accountId, speaker, coldShoulder(actor, speaker) ?: conversation.open(speaker))
+  }
+
+  /** Whoever [target] is, if they are a townsperson in talking range; else the player is told why not. */
+  fun speakerInReach(accountId: AccountId, actor: EntityId, target: EntityId): Speaker? {
+    return reachableSpeaker(accountId, actor, target)
   }
 
   fun choose(accountId: AccountId, actor: EntityId, target: EntityId, topicId: Int) {

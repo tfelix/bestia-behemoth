@@ -29,7 +29,9 @@ class TalkServiceTest {
   private val out = mockk<OutMessageProcessor>(relaxed = true)
 
   private val reception = mockk<HonorReception> { every { coldShoulder(any(), any(), any()) } returns null }
-  private val sut = TalkService(speakers, conversation, merchants, shops, worldViewOf(world), out, reception)
+  private val postOffice = mockk<ServiceCounter> { every { serve(any(), any()) } returns false }
+  private val sut =
+    TalkService(speakers, conversation, merchants, shops, worldViewOf(world), out, reception, listOf(postOffice))
 
   private val player = world.createEntity { id -> add(id, Position(0, 0, 0)) }
   private val merchant = world.createEntity { id -> add(id, Position(2, 0, 0)) }
@@ -73,6 +75,16 @@ class TalkServiceTest {
 
     verify(exactly = 0) { shops.open(any(), any(), any()) }
     verify { out.sendToPlayer(ACCOUNT, ConversationSMSG(merchant, "Mira", greeting)) }
+  }
+
+  @Test
+  fun `a postmaster at work opens the post office instead of a conversation`() {
+    every { merchants.counterOf(merchant, any()) } returns null
+    every { postOffice.serve(ACCOUNT, speaker) } returns true
+
+    sut.open(ACCOUNT, player, merchant)
+
+    verify(exactly = 0) { out.sendToPlayer(ACCOUNT, ConversationSMSG(merchant, "Mira", greeting)) }
   }
 
   @Test

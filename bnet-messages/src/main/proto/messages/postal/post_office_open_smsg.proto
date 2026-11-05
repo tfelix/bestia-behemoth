@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "PostOfficeOpenSmsgProto";
+
+// The postmaster at work opens the post office window.
+message PostOfficeOpenSMSG {
+  uint64 postmaster_entity_id = 1;
+  string office_name = 2;
+
+  // 1 to 3. Sets how often the coach leaves.
+  int32 level = 3;
+
+  // Where the master's parcels go. Empty when the master has none yet.
+  string home_office_name = 4;
+  bool is_home = 5;
+}
