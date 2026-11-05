@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Mail/letter_panel.gd" id="1_letters"]
+
+[node name="LetterPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(640, 420)
+offset_right = 640.0
+offset_bottom = 420.0
+script = ExtResource("1_letters")

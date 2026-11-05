@@ -24,17 +24,23 @@ const _FONT_SIZE := 16
 ## Puts up one row per gain, each entry [code]{item: ItemResource, amount: int}[/code].
 func show_gains(gains: Array) -> void:
 	for gain in gains:
-		_add_row(gain["item"], gain["amount"])
+		var item: ItemResource = gain["item"]
+		_add_row(item.get_icon(), tr("ITEM_OBTAINED") % (tr("ITEM_OBTAINED_AMOUNT") % [gain["amount"], tr(item.name_key)]))
+
+
+## Puts up one row for something that came without an item, like a letter.
+func show_notice(icon: Texture2D, text: String) -> void:
+	_add_row(icon, text)
 
 
 ## Rows are built here rather than instanced from a scene of their own: two controls and a label do not earn
 ## a scene, a script and a uid. The same call chat.gd makes for its lines.
-func _add_row(item: ItemResource, amount: int) -> void:
+func _add_row(icon: Texture2D, text: String) -> void:
 	var row := HBoxContainer.new()
 	row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(_icon_of(item))
-	row.add_child(_label_for(item, amount))
+	row.add_child(_icon_of(icon))
+	row.add_child(_label_for(text))
 	add_child(row)
 
 	# Removed before it is freed, so a second gain in the same frame already counts one row fewer.
@@ -49,10 +55,10 @@ func _add_row(item: ItemResource, amount: int) -> void:
 ## Click-through, like every node here: this is drawn over the world and the ground behind it is still the
 ## player's to click, which is also why the widget stays out of "world_blocking_ui". A [TextureRect] defaults
 ## to stopping the mouse, so it is the one that would silently start eating clicks.
-func _icon_of(item: ItemResource) -> TextureRect:
+func _icon_of(texture: Texture2D) -> TextureRect:
 	var icon := TextureRect.new()
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon.texture = item.get_icon()
+	icon.texture = texture
 	icon.custom_minimum_size = _ICON_SIZE
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -60,10 +66,10 @@ func _icon_of(item: ItemResource) -> TextureRect:
 	return icon
 
 
-func _label_for(item: ItemResource, amount: int) -> Label:
+func _label_for(text: String) -> Label:
 	var label := Label.new()
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.text = tr("ITEM_OBTAINED") % (tr("ITEM_OBTAINED_AMOUNT") % [amount, tr(item.name_key)])
+	label.text = text
 	label.add_theme_font_size_override("font_size", _FONT_SIZE)
 	label.add_theme_constant_override("outline_size", _OUTLINE_SIZE)
 	label.add_theme_color_override("font_outline_color", Color.BLACK)
