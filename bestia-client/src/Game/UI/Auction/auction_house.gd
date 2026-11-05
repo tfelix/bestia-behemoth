@@ -1,7 +1,7 @@
 class_name AuctionHousePanel
 extends PanelContainer
 
-## The auction house: browse the shared market, sell, and collect what is owed.
+## The auction house: browse the shared market and sell. What the market owes comes by post.
 ##
 ## Opened by the server when the player clicks a house in reach, and closed by walking away, like the shop.
 ## Built in code, like [CompendiumPanel].
@@ -13,7 +13,7 @@ signal auction_closed()
 ## player stood within reach of a wall and may walk along a sixteen-metre hall without meaning to leave.
 const _WALK_AWAY_METRES := 10.0
 
-enum Tab { BROWSE, SELL, COLLECT }
+enum Tab { BROWSE, SELL }
 
 ## Assigned by ui.gd, like the shop's: the window only exists once its WidgetWindow is ready.
 var inventory: Inventory = null:
@@ -113,10 +113,8 @@ func _build() -> void:
 	_browse = AuctionBrowsePage.new()
 	_tabs.add_child(_browse)
 	_tabs.add_child(_placeholder_page(tr("AUCTION_SELL_EMPTY")))
-	_tabs.add_child(_placeholder_page(tr("AUCTION_COLLECT_EMPTY")))
 	_tabs.set_tab_title(Tab.BROWSE, tr("AUCTION_TAB_BROWSE"))
 	_tabs.set_tab_title(Tab.SELL, tr("AUCTION_TAB_SELL"))
-	_tabs.set_tab_title(Tab.COLLECT, tr("AUCTION_TAB_COLLECT"))
 
 
 func _placeholder_page(text: String) -> Control:

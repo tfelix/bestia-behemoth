@@ -6,18 +6,15 @@ import net.bestia.worldgen.civ.SettlementSpawnPoints
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.auction.AuctionCategory
-import net.bestia.zone.auction.AuctionClaimsSMSG
 import net.bestia.zone.auction.AuctionPurchasedSMSG
 import net.bestia.zone.auction.AuctionFees
 import net.bestia.zone.auction.AuctionListingsSMSG
 import net.bestia.zone.auction.AuctionQuery
+import net.bestia.zone.auction.AuctionService
 import net.bestia.zone.auction.net.BuyAuctionListingCMSG
 import net.bestia.zone.auction.net.CancelAuctionListingCMSG
-import net.bestia.zone.auction.net.CollectAuctionClaimCMSG
 import net.bestia.zone.auction.net.ListAuctionItemCMSG
-import net.bestia.zone.auction.net.RequestAuctionClaimsCMSG
 import net.bestia.zone.auction.net.SearchAuctionsCMSG
-import net.bestia.zone.auction.persistence.AuctionClaimRepository
 import net.bestia.zone.auction.persistence.AuctionListingRepository
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.economy.CommodityItems
@@ -32,6 +29,9 @@ import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.persistence.findByIdentifierOrThrow
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.postal.persistence.ParcelRepository
+import jakarta.persistence.EntityManager
+import java.time.Instant
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.MasterSpawnPointService
@@ -76,7 +76,13 @@ class AuctionScenarios : BestiaNoSocketScenario() {
   private lateinit var listings: AuctionListingRepository
 
   @Autowired
-  private lateinit var claims: AuctionClaimRepository
+  private lateinit var parcels: ParcelRepository
+
+  @Autowired
+  private lateinit var auctionService: AuctionService
+
+  @Autowired
+  private lateinit var entityManager: EntityManager
 
   @Autowired
   private lateinit var commodityItems: CommodityItems
@@ -126,7 +132,7 @@ class AuctionScenarios : BestiaNoSocketScenario() {
   fun clearListings() {
     TransactionTemplate(transactionManager).execute {
       listings.deleteAll()
-      claims.deleteAll()
+      parcels.deleteAll()
     }
   }
 
@@ -207,7 +213,7 @@ class AuctionScenarios : BestiaNoSocketScenario() {
   }
 
   @Test
-  fun `a buyer gets the goods and the seller collects the price`() {
+  fun `a buyer gets the goods and the seller is paid by post`() {
     val apple = itemRepository.findByIdentifierOrThrow("apple").id
     val coin = commodityItems.coinItemId()!!
     val listingId = listApples(amount = 2, price = 30L)
@@ -224,16 +230,36 @@ class AuctionScenarios : BestiaNoSocketScenario() {
     assertEquals(buyerCoins - 30, durableAmount(coin, buyer))
     await { assertEquals(buyerCoins - 30, liveAmount(coin, buyer)) }
 
-    clientPlayer1.sendMessage(RequestAuctionClaimsCMSG(player, house))
-    val owed = awaitValue { assertNotNull(clientPlayer1.tryGetLastReceived(AuctionClaimsSMSG::class)) }
-    assertEquals(30L, owed.claims.single().coins)
+    val mail = mailOf(player).single()
+    assertEquals(coin to 30, mail.first)
+    assertTrue(mail.second, "auction mail is collected at any post office")
+  }
 
-    val sellerCoins = durableAmount(coin)
-    clientPlayer1.clearMessages()
-    clientPlayer1.sendMessage(CollectAuctionClaimCMSG(player, house, claimId = 0L))
+  @Test
+  fun `goods whose listing ran out go back to the seller by post`() {
+    val apple = itemRepository.findByIdentifierOrThrow("apple").id
+    val listingId = listApples(amount = 2, price = 10L)
+    TransactionTemplate(transactionManager).execute {
+      entityManager.createQuery("UPDATE AuctionListing l SET l.expiresAt = :past WHERE l.id = :id")
+        .setParameter("past", Instant.now().minusSeconds(60))
+        .setParameter("id", listingId)
+        .executeUpdate()
+    }
 
-    await { assertTrue(assertNotNull(clientPlayer1.tryGetLastReceived(AuctionClaimsSMSG::class)).claims.isEmpty()) }
-    assertEquals(sellerCoins + 30, durableAmount(coin))
+    auctionService.returnExpired()
+
+    assertEquals(0L, listings.count())
+    assertEquals(apple to 2, mailOf(player).single().first)
+  }
+
+  /** Each parcel to [accountId]'s master: its one pile, and whether it may be collected anywhere. */
+  private fun mailOf(accountId: Long): List<Pair<Pair<Long, Int>, Boolean>> {
+    return TransactionTemplate(transactionManager).execute {
+      parcels.findByRecipientMasterIdOrderByLatestArrival(connectionInfoService.getMasterId(accountId)).map { parcel ->
+        val pile = parcel.container.slots.single()
+        (pile.template.id to pile.amount) to parcel.collectAnywhere
+      }
+    }!!
   }
 
   @Test

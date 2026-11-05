@@ -633,6 +633,12 @@ class InventoryService(
     }
   }
 
+  /** Moves everything held in one escrow into another, as an expired listing's goods become a parcel's. */
+  @Transactional
+  fun moveBetweenEscrows(from: ItemContainer, to: ItemContainer) {
+    from.removeAllFree().forEach { add(to, it) }
+  }
+
   /** Moves everything held in [escrow] to a master. @return what arrived, for the live inventory */
   @Transactional
   fun moveFromEscrow(escrow: ItemContainer, masterId: Long): List<ReservedItem> {

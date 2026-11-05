@@ -7,10 +7,13 @@ import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Query
+import java.time.Instant
 
 interface AuctionListingRepository : JpaRepository<AuctionListing, Long> {
 
   fun countBySellerMasterId(sellerMasterId: Long): Long
+
+  fun findByExpiresAtBefore(now: Instant): List<AuctionListing>
 
   /** Locked, so two buyers of one listing are served one after the other and the second finds it gone. */
   @Lock(LockModeType.PESSIMISTIC_WRITE)
@@ -28,6 +31,7 @@ interface AuctionListingRepository : JpaRepository<AuctionListing, Long> {
         AND l.itemLevel BETWEEN :minLevel AND :maxLevel
         AND (:anyItem = true OR l.itemId IN :itemIds)
         AND (:sellerMasterId IS NULL OR l.sellerMasterId = :sellerMasterId)
+        AND l.expiresAt > :now
       ORDER BY (l.price * 1.0 / l.amount), l.id
     """,
     countQuery = """
@@ -36,6 +40,7 @@ interface AuctionListingRepository : JpaRepository<AuctionListing, Long> {
         AND l.itemLevel BETWEEN :minLevel AND :maxLevel
         AND (:anyItem = true OR l.itemId IN :itemIds)
         AND (:sellerMasterId IS NULL OR l.sellerMasterId = :sellerMasterId)
+        AND l.expiresAt > :now
     """
   )
   fun search(
@@ -45,6 +50,7 @@ interface AuctionListingRepository : JpaRepository<AuctionListing, Long> {
     anyItem: Boolean,
     itemIds: Collection<Long>,
     sellerMasterId: Long?,
+    now: Instant,
     pageable: Pageable,
   ): Page<AuctionListing>
 }
