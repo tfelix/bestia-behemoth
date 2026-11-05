@@ -13,6 +13,7 @@ import net.bestia.zone.companion.query.GuildEmblemQueries
 import net.bestia.zone.companion.query.GuildQueries
 import net.bestia.zone.companion.query.InventoryQueries
 import net.bestia.zone.companion.query.JourneyCommand
+import net.bestia.zone.companion.query.LetterCommands
 import net.bestia.zone.companion.query.MapQueries
 import net.bestia.zone.companion.query.MasterQueries
 import net.bestia.zone.companion.query.PartyQueries
@@ -38,6 +39,7 @@ class CompanionRequestDispatcher(
   private val guilds: GuildQueries,
   private val journeys: JourneyCommand,
   private val notebook: NotebookCommands,
+  private val letters: LetterCommands,
 ) : RequestHandler {
 
   override fun handle(request: BusRequest): BusReply {
@@ -69,6 +71,10 @@ class CompanionRequestDispatcher(
       is ZoneQuery.NotebookList -> notebook.list(id, account, query)
       is ZoneQuery.NotebookPut -> notebook.put(id, account, query)
       is ZoneQuery.NotebookDelete -> notebook.delete(id, account, query)
+      is ZoneQuery.Letters -> letters.list(id, account, query)
+      is ZoneQuery.SendLetter -> letters.send(id, account, query)
+      is ZoneQuery.ReadLetter -> letters.read(id, account, query)
+      is ZoneQuery.DeleteLetter -> letters.delete(id, account, query)
     }
   }
 

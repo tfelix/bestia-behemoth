@@ -28,6 +28,10 @@ class BusFrameTest {
       ZoneQuery.NotebookList(masterId = null, collection = "keybindings"),
       ZoneQuery.NotebookPut(7, "routes", key = null, json = """{"name":"Ore run"}""", baseRevision = 4),
       ZoneQuery.NotebookDelete(7, "marks", key = "k3", baseRevision = null),
+      ZoneQuery.Letters(7),
+      ZoneQuery.SendLetter(7, recipientName = "Ayla", subject = "Bridge", body = "It is down.\nTake the ford."),
+      ZoneQuery.ReadLetter(7, letterId = 3),
+      ZoneQuery.DeleteLetter(7, letterId = 3),
     )
 
     for (query in queries) {
@@ -69,6 +73,8 @@ class BusFrameTest {
       ZoneAnswer.Stance(2, "HOLD", 20),
       ZoneAnswer.ChatSent(null),
       ZoneAnswer.ChatSent(ZoneAnswer.ChatSent.NOT_IN_GUILD),
+      ZoneAnswer.Letters(listOf(ZoneAnswer.Letters.Letter(3, "Ayla", "Bridge", "It is down.", 5, 6, read = true))),
+      ZoneAnswer.LetterSent(ZoneAnswer.LetterSent.RECIPIENT_UNKNOWN),
       ZoneAnswer.Roster(
         listOf(
           ZoneAnswer.Roster.Bestia(
@@ -93,6 +99,7 @@ class BusFrameTest {
     val events = listOf(
       ZoneEvent.BestiaDiedAway(accountId = 1, masterId = 2, playerBestiaId = 3, bestiaName = null, species = "blob"),
       ZoneEvent.ChatLine(accountId = 1, masterId = 2, channel = "GUILD", senderName = "Ayla", text = "hi", sentAtEpochMs = 5),
+      ZoneEvent.LetterArrived(accountId = 1, masterId = 2, letterId = 3, senderName = "Ayla", subject = "Bridge"),
       ZoneEvent.CompendiumChanged(accountId = 1, masterId = 2),
       ZoneEvent.NotebookChanged(1, masterId = null, collection = "keybindings", key = "_", revision = 3, deleted = false, json = "{}"),
       ZoneEvent.JourneyEnded(1, 2, 3, "Rex", "wolf", "Ore run", "STUCK", MapPoint(1.0, 2.0), whilePlaying = false),

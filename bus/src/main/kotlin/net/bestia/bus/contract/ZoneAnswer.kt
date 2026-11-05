@@ -229,4 +229,30 @@ sealed interface ZoneAnswer {
       const val NOT_IN_GUILD = "NOT_IN_GUILD"
     }
   }
+
+  /** A mailbox, newest first. */
+  data class Letters(val letters: List<Letter>) : ZoneAnswer {
+    data class Letter(
+      val letterId: Long,
+      val senderName: String,
+      val subject: String,
+      val body: String,
+      val sentAtEpochMs: Long,
+      val expiresAtEpochMs: Long,
+      val read: Boolean,
+    )
+  }
+
+  /**
+   * Whether a letter went out. [refusal] is null when it did, else why not: CHAT_LOCKED (Basic Skill below the chat
+   * rank), RECIPIENT_UNKNOWN, RECIPIENT_FULL or CANNOT_AFFORD.
+   */
+  data class LetterSent(val refusal: String?) : ZoneAnswer {
+    companion object {
+      const val CHAT_LOCKED = "CHAT_LOCKED"
+      const val RECIPIENT_UNKNOWN = "RECIPIENT_UNKNOWN"
+      const val RECIPIENT_FULL = "RECIPIENT_FULL"
+      const val CANNOT_AFFORD = "CANNOT_AFFORD"
+    }
+  }
 }

@@ -87,4 +87,13 @@ sealed interface ZoneEvent {
     val position: MapPoint,
     val whilePlaying: Boolean,
   ) : ZoneEvent
+
+  /** A pigeon brought a letter to [masterId]. */
+  data class LetterArrived(
+    override val accountId: Long,
+    val masterId: Long,
+    val letterId: Long,
+    val senderName: String,
+    val subject: String,
+  ) : ZoneEvent
 }

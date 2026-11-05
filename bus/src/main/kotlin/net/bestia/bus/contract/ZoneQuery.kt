@@ -108,4 +108,16 @@ sealed interface ZoneQuery {
 
   /** Answered with [ZoneAnswer.NotebookWritten]. A write. */
   data class NotebookDelete(val masterId: Long?, val collection: String, val key: String, val baseRevision: Long?) : ZoneQuery
+
+  /** [masterId]'s mailbox. Answered with [ZoneAnswer.Letters]. */
+  data class Letters(val masterId: Long) : ZoneQuery
+
+  /** A letter by pigeon from [masterId]. Answered with [ZoneAnswer.LetterSent]. A write: send it with an idempotency key. */
+  data class SendLetter(val masterId: Long, val recipientName: String, val subject: String, val body: String) : ZoneQuery
+
+  /** Answered with [ZoneAnswer.Done]. A write. */
+  data class ReadLetter(val masterId: Long, val letterId: Long) : ZoneQuery
+
+  /** Answered with [ZoneAnswer.Done]. A write. */
+  data class DeleteLetter(val masterId: Long, val letterId: Long) : ZoneQuery
 }

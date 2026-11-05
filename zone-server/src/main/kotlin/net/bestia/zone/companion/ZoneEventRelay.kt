@@ -10,6 +10,7 @@ import net.bestia.zone.compendium.CompendiumChangedEvent
 import net.bestia.zone.master.HomeFellEvent
 import net.bestia.zone.master.bestia.BestiaAiConfigChangedEvent
 import net.bestia.zone.notebook.NotebookChangedEvent
+import net.bestia.zone.postal.LetterArrivedEvent
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.prop.StructureCompletedEvent
 import net.bestia.zone.session.ConnectionInfoService
@@ -125,5 +126,15 @@ class ZoneEventRelay(
       val master = masters.findByIdOrNull(event.masterId) ?: return@submit
       events.publish(ZoneEvent.ChartsChanged(master.account.id, master.id))
     }
+  }
+
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  fun onLetterArrived(event: LetterArrivedEvent) {
+    events.publish(
+      ZoneEvent.LetterArrived(
+        event.recipientAccountId, event.recipientMasterId, event.letter.letterId, event.letter.senderName,
+        event.letter.subject,
+      )
+    )
   }
 }

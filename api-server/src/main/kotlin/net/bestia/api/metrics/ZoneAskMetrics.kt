@@ -35,6 +35,10 @@ enum class ZoneQueryKind {
   NOTEBOOK_LIST,
   NOTEBOOK_PUT,
   NOTEBOOK_DELETE,
+  LETTERS,
+  SEND_LETTER,
+  READ_LETTER,
+  DELETE_LETTER,
   ;
 
   companion object {
@@ -64,6 +68,10 @@ enum class ZoneQueryKind {
         is ZoneQuery.NotebookList -> NOTEBOOK_LIST
         is ZoneQuery.NotebookPut -> NOTEBOOK_PUT
         is ZoneQuery.NotebookDelete -> NOTEBOOK_DELETE
+        is ZoneQuery.Letters -> LETTERS
+        is ZoneQuery.SendLetter -> SEND_LETTER
+        is ZoneQuery.ReadLetter -> READ_LETTER
+        is ZoneQuery.DeleteLetter -> DELETE_LETTER
       }
     }
   }
