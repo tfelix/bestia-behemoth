@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "CollectParcelCmsgProto";
+
+// Takes a parcel's goods into the bag. Answered by ParcelsSMSG or an OperationError.
+message CollectParcelCMSG {
+  uint64 postmaster_entity_id = 1;
+  uint64 parcel_id = 2;
+}

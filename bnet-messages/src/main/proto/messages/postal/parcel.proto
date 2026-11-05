@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ParcelProto";
+
+import "messages/component/item_stat_value.proto";
+
+// A parcel to the played master, on the road or waiting at its office.
+message Parcel {
+  uint64 parcel_id = 1;
+  string sender_name = 2;
+
+  // The office it goes to, where it waits once it arrived.
+  string destination_name = 3;
+  int64 latest_arrival_epoch_seconds = 4;
+  bool arrived = 5;
+
+  // Whether the office the window is open at may hand it out.
+  bool collectable_here = 6;
+
+  // On its way back to its sender, who is now the one to collect it.
+  bool returning = 7;
+  repeated ParcelGoods goods = 8;
+}
+
+// One pile or copy in a parcel, with the copy's own state for its tooltip. Zero for a plain stack.
+message ParcelGoods {
+  uint64 item_id = 1;
+  int32 amount = 2;
+  int32 item_level = 3;
+  int32 upgrade_level = 4;
+  int32 durability = 5;
+  int32 max_durability = 6;
+  int32 slots = 7;
+  repeated ItemStatValue rolled_stats = 8;
+}
+
+// One pile or copy from the bag, for a parcel being weighed or sent.
+message ParcelItem {
+  uint64 player_item_id = 1;
+  int32 amount = 2;
+}

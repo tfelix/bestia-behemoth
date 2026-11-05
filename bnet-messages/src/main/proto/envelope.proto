@@ -123,6 +123,14 @@ import "messages/postal/delete_letter_cmsg.proto";
 import "messages/postal/letter_arrived_smsg.proto";
 import "messages/postal/post_office_open_smsg.proto";
 import "messages/postal/set_home_post_office_cmsg.proto";
+import "messages/postal/parcels_smsg.proto";
+import "messages/postal/quote_parcel_cmsg.proto";
+import "messages/postal/parcel_quote_smsg.proto";
+import "messages/postal/send_parcel_cmsg.proto";
+import "messages/postal/parcel_sent_smsg.proto";
+import "messages/postal/collect_parcel_cmsg.proto";
+import "messages/postal/refuse_parcel_cmsg.proto";
+import "messages/postal/parcel_arrived_smsg.proto";
 import "messages/shop/shop_trade_cmsg.proto";
 import "messages/map/weather_smsg.proto";
 import "messages/map/world_time_smsg.proto";
@@ -321,6 +329,14 @@ message Envelope {
     LetterArrivedSMSG letter_arrived = 866;
     PostOfficeOpenSMSG post_office_open = 867;
     SetHomePostOfficeCMSG set_home_post_office = 868;
+    SendParcelCMSG send_parcel = 869;
+    QuoteParcelCMSG quote_parcel = 870;
+    ParcelQuoteSMSG parcel_quote = 871;
+    ParcelSentSMSG parcel_sent = 872;
+    ParcelsSMSG parcels = 873;
+    CollectParcelCMSG collect_parcel = 874;
+    RefuseParcelCMSG refuse_parcel = 875;
+    ParcelArrivedSMSG parcel_arrived = 876;
 
     // NOTEBOOK 900
     NotebookListCMSG notebook_list = 900;

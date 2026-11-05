@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SendParcelCmsgProto";
+
+import "messages/postal/parcel.proto";
+
+// Sends the items as one parcel. Answered by ParcelSentSMSG or an OperationError.
+message SendParcelCMSG {
+  uint64 postmaster_entity_id = 1;
+  string recipient_name = 2;
+  repeated ParcelItem items = 3;
+
+  // Never with a player courier, so it cannot be robbed.
+  bool coach_only = 4;
+}

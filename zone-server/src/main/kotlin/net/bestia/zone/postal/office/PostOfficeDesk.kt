@@ -1,9 +1,16 @@
 package net.bestia.zone.postal.office
 
+import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.bnet.proto.ParcelProto
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
+import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.item.ecs.Equipment
+import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.persistence.AsyncJobExecutor
+import net.bestia.zone.postal.parcel.ParcelService
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.townsfolk.conversation.ServiceCounter
 import net.bestia.zone.townsfolk.conversation.Speaker
@@ -25,7 +32,18 @@ class PostOfficeDesk(
   private val jobs: AsyncJobExecutor,
   private val transactions: TransactionTemplate,
   private val out: OutMessageProcessor,
+  private val parcels: ParcelService,
+  private val world: WorldView,
 ) : ServiceCounter {
+
+  /** One line of a parcel being weighed or sent: what the bag shows, not what the database holds. */
+  data class Line(val playerItemId: Long, val amount: Int) {
+    companion object {
+      fun allOf(items: List<ParcelProto.ParcelItem>): List<Line> {
+        return items.map { Line(it.playerItemId, it.amount) }
+      }
+    }
+  }
 
   /** @return true when the window is on its way, false when this is not a postmaster at work. */
   override fun serve(accountId: AccountId, speaker: Speaker): Boolean {
@@ -44,6 +62,83 @@ class PostOfficeDesk(
     jobs.submit(masterId) { answer(accountId, masterId, postmaster, office, newHome = office.settlement) }
   }
 
+  fun quote(accountId: AccountId, postmaster: Speaker, recipientName: String, lines: List<Line>) {
+    val office = officeAtWork(postmaster) ?: return closed(accountId)
+    val goods = goodsOf(accountId, lines) ?: return refuse(accountId, OpError.REQUEST_REFUSED)
+
+    jobs.submit(connections.getMasterId(accountId)) {
+      when (val outcome = parcels.quote(office, recipientName, goods)) {
+        is ParcelService.Outcome.Quoted -> out.sendToPlayer(accountId, ParcelQuoteSMSG(outcome.quote))
+        is ParcelService.Outcome.Refused -> refuse(accountId, outcome.code, outcome.args)
+      }
+    }
+  }
+
+  fun send(accountId: AccountId, postmaster: Speaker, recipientName: String, lines: List<Line>, coachOnly: Boolean) {
+    val office = officeAtWork(postmaster) ?: return closed(accountId)
+    val goods = goodsOf(accountId, lines) ?: return refuse(accountId, OpError.REQUEST_REFUSED)
+    val customer = customerOf(accountId)
+
+    jobs.submit(customer.masterId) {
+      when (val outcome = parcels.send(customer, office, recipientName, goods, coachOnly)) {
+        is ParcelService.Outcome.Quoted -> out.sendToPlayer(accountId, ParcelSentSMSG(outcome.quote))
+        is ParcelService.Outcome.Refused -> refuse(accountId, outcome.code, outcome.args)
+      }
+    }
+  }
+
+  fun collect(accountId: AccountId, postmaster: Speaker, parcelId: Long) {
+    val office = officeAtWork(postmaster) ?: return closed(accountId)
+    val customer = customerOf(accountId)
+
+    jobs.submit(customer.masterId) {
+      parcels.collect(customer, office, parcelId)?.let { refuse(accountId, it.code, it.args) }
+      showParcels(accountId, customer.masterId, postmaster, office)
+    }
+  }
+
+  fun refuseParcel(accountId: AccountId, postmaster: Speaker, parcelId: Long) {
+    val office = officeAtWork(postmaster) ?: return closed(accountId)
+    val customer = customerOf(accountId)
+
+    jobs.submit(customer.masterId) {
+      parcels.refuse(customer, parcelId)?.let { refuse(accountId, it.code, it.args) }
+      showParcels(accountId, customer.masterId, postmaster, office)
+    }
+  }
+
+  /** What [lines] name in the live bag, worn gear left out. Null when any of it is not there. */
+  private fun goodsOf(accountId: AccountId, lines: List<Line>): List<ParcelService.Goods>? {
+    val entityId = connections.getSelectedMasterEntityId(accountId)
+
+    return world.read {
+      val bag = get(entityId, Inventory::class) ?: return@read null
+      val worn = get(entityId, Equipment::class)
+      lines.map { line ->
+        val held = bag.byPlayerItemId(line.playerItemId)
+          ?.takeUnless { it.equipped || worn?.isWorn(it.uniqueId) == true || it.amount < line.amount }
+          ?: return@read null
+        ParcelService.Goods(held.itemId, held.uniqueId, line.amount, held.weight, held.provenance)
+      }
+    }
+  }
+
+  private fun customerOf(accountId: AccountId): ParcelService.Customer {
+    return ParcelService.Customer(connections.getMasterId(accountId), connections.getSelectedMasterEntityId(accountId))
+  }
+
+  private fun showParcels(accountId: AccountId, masterId: Long, postmaster: Speaker, office: PostOffices.Office) {
+    out.sendToPlayer(accountId, ParcelsSMSG(postmaster.entityId, parcels.parcelsOf(masterId, office)))
+  }
+
+  private fun closed(accountId: AccountId) {
+    refuse(accountId, OpError.POST_OFFICE_CLOSED)
+  }
+
+  private fun refuse(accountId: AccountId, code: OpError, args: List<String> = emptyList()) {
+    out.sendToPlayer(accountId, OperationErrorSMSG(code, args))
+  }
+
   private fun officeAtWork(postmaster: Speaker): PostOffices.Office? {
     if (postmaster.business != PostOffices.POST_OFFICE) return null
     if (!postmaster.merchant.hours.isOpenAt(clock.now().minuteOfDay)) return null
@@ -51,7 +146,13 @@ class PostOfficeDesk(
     return offices.officeOf(postmaster.settlement)
   }
 
-  private fun answer(accountId: AccountId, masterId: Long, postmaster: Speaker, office: PostOffices.Office, newHome: Int?) {
+  private fun answer(
+    accountId: AccountId,
+    masterId: Long,
+    postmaster: Speaker,
+    office: PostOffices.Office,
+    newHome: Int?,
+  ) {
     val home = transactions.execute {
       val master = masters.findByIdOrThrow(masterId)
       newHome?.let { master.homePostOffice = it }
@@ -63,5 +164,6 @@ class PostOfficeDesk(
       accountId,
       PostOfficeOpenSMSG(postmaster.entityId, office.name, office.level, homeName, isHome = home == office.settlement)
     )
+    showParcels(accountId, masterId, postmaster, office)
   }
 }
