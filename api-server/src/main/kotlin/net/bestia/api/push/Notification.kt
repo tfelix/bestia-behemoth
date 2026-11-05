@@ -36,6 +36,14 @@ data class Notification(val title: String, val body: String, val url: String, va
         // Told in the game already when the player was in it.
         is ZoneEvent.JourneyEnded -> if (event.whilePlaying) null else journeyEnded(event)
 
+        // A letter waits 30 days, so unlike chat it is worth waking somebody for.
+        is ZoneEvent.LetterArrived -> Notification(
+          title = "A letter from ${event.senderName}",
+          body = event.subject.ifEmpty { "A pigeon brought it." },
+          url = "/m/${event.masterId}/mail",
+          tag = "letter-${event.letterId}",
+        )
+
         // Chat is read in the app, never pushed: a busy guild would spend the hourly budget in a minute.
         is ZoneEvent.StanceChanged, is ZoneEvent.Presence, is ZoneEvent.ChartsChanged, is ZoneEvent.ChatLine,
         is ZoneEvent.CompendiumChanged, is ZoneEvent.NotebookChanged -> null
