@@ -39,6 +39,7 @@ enum class ZoneQueryKind {
   SEND_LETTER,
   READ_LETTER,
   DELETE_LETTER,
+  PARCELS,
   ;
 
   companion object {
@@ -72,6 +73,7 @@ enum class ZoneQueryKind {
         is ZoneQuery.SendLetter -> SEND_LETTER
         is ZoneQuery.ReadLetter -> READ_LETTER
         is ZoneQuery.DeleteLetter -> DELETE_LETTER
+        is ZoneQuery.Parcels -> PARCELS
       }
     }
   }

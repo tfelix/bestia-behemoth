@@ -120,4 +120,7 @@ sealed interface ZoneQuery {
 
   /** Answered with [ZoneAnswer.Done]. A write. */
   data class DeleteLetter(val masterId: Long, val letterId: Long) : ZoneQuery
+
+  /** Every parcel to [masterId], on the road or waiting. Answered with [ZoneAnswer.Parcels]. */
+  data class Parcels(val masterId: Long) : ZoneQuery
 }

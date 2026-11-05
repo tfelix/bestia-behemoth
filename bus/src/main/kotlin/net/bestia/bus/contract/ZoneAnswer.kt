@@ -243,6 +243,22 @@ sealed interface ZoneAnswer {
     )
   }
 
+  /** Parcels to a master, soonest first. Collecting needs the master at a post office, so the app only shows them. */
+  data class Parcels(val parcels: List<Parcel>) : ZoneAnswer {
+    data class Parcel(
+      val parcelId: Long,
+      val senderName: String,
+      val destinationName: String,
+      val latestArrivalEpochMs: Long,
+      val arrived: Boolean,
+      val returning: Boolean,
+      val goods: List<Goods>,
+    )
+
+    /** [item] is the item's identifier, as a bag slot names it. */
+    data class Goods(val item: String, val amount: Int)
+  }
+
   /**
    * Whether a letter went out. [refusal] is null when it did, else why not: CHAT_LOCKED (Basic Skill below the chat
    * rank), RECIPIENT_UNKNOWN, RECIPIENT_FULL or CANNOT_AFFORD.

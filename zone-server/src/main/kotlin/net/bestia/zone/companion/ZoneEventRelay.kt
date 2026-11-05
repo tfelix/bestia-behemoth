@@ -11,6 +11,7 @@ import net.bestia.zone.master.HomeFellEvent
 import net.bestia.zone.master.bestia.BestiaAiConfigChangedEvent
 import net.bestia.zone.notebook.NotebookChangedEvent
 import net.bestia.zone.postal.LetterArrivedEvent
+import net.bestia.zone.postal.parcel.ParcelArrivedEvent
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.prop.StructureCompletedEvent
 import net.bestia.zone.session.ConnectionInfoService
@@ -134,6 +135,15 @@ class ZoneEventRelay(
       ZoneEvent.LetterArrived(
         event.recipientAccountId, event.recipientMasterId, event.letter.letterId, event.letter.senderName,
         event.letter.subject,
+      )
+    )
+  }
+
+  @EventListener
+  fun onParcelArrived(event: ParcelArrivedEvent) {
+    events.publish(
+      ZoneEvent.ParcelArrived(
+        event.recipientAccountId, event.recipientMasterId, event.parcelId, event.senderName, event.officeName,
       )
     )
   }
