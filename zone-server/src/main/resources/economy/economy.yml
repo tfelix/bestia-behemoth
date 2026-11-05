@@ -81,6 +81,7 @@ unbound:
   - { business: temple, reason: "a service, and inventing an abstract one buys an item nobody can hold" }
   - { business: healer, reason: "a service" }
   - { business: scribe, reason: "a service" }
+  - { business: post_office, reason: "a service" }
   - { business: banker, reason: "a service" }
   - { business: barracks, reason: "a service" }
   - { business: inn, reason: "sells lodging, which is not a good" }

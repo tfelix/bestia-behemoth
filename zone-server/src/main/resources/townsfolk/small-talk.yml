@@ -63,6 +63,11 @@ lines:
     variants: 4
     occupations: [shopkeeper]
 
+  # --- Postmaster ----------------------------------------------------------------------------------
+  - key: TALK_SMALL_POSTMASTER_COACH
+    variants: 4
+    occupations: [postmaster]
+
   # --- Baker ---------------------------------------------------------------------------------------
   - key: TALK_SMALL_BAKER_OVEN
     variants: 4

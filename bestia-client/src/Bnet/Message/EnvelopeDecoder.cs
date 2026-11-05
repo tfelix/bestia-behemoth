@@ -70,6 +70,7 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.Letters] = e => Postal.LettersSMSG.FromProto(e.Letters),
       [Envelope.MessageOneofCase.LetterArrived] = e => Postal.LetterArrivedSMSG.FromProto(e.LetterArrived),
       [Envelope.MessageOneofCase.LetterSent] = e => Postal.LetterSentSMSG.FromProto(e.LetterSent),
+      [Envelope.MessageOneofCase.PostOfficeOpen] = e => Postal.PostOfficeOpenSMSG.FromProto(e.PostOfficeOpen),
       [Envelope.MessageOneofCase.PartyInvitation] = e => Party.PartyInvitationSMSG.FromProto(e.PartyInvitation),
       [Envelope.MessageOneofCase.PartyInfo] = e => Party.PartyInfoSMSG.FromProto(e.PartyInfo),
       [Envelope.MessageOneofCase.DisbandParty] = e => Party.DisbandPartySMSG.FromProto(e.DisbandParty),

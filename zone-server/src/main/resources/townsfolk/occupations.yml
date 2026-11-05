@@ -54,6 +54,12 @@ occupations:
       curiosity: 1.3
       interests: [TECHNOLOGY, FAMINE, TRAVELLER_LOST]
 
+  # Keeps the post office: takes in parcels, hands them out, and runs the route board. See the postal docs.
+  - id: postmaster
+    dialog: { greetings: 3, trade: 3 }
+    business: post_office
+    shift: { from: 8, to: 18 }
+
   - id: baker
     dialog: { greetings: 5, trade: 5 }
     business: baker

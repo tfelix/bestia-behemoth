@@ -121,6 +121,8 @@ import "messages/postal/letters_smsg.proto";
 import "messages/postal/read_letter_cmsg.proto";
 import "messages/postal/delete_letter_cmsg.proto";
 import "messages/postal/letter_arrived_smsg.proto";
+import "messages/postal/post_office_open_smsg.proto";
+import "messages/postal/set_home_post_office_cmsg.proto";
 import "messages/shop/shop_trade_cmsg.proto";
 import "messages/map/weather_smsg.proto";
 import "messages/map/world_time_smsg.proto";
@@ -317,6 +319,8 @@ message Envelope {
     ReadLetterCMSG read_letter = 864;
     DeleteLetterCMSG delete_letter = 865;
     LetterArrivedSMSG letter_arrived = 866;
+    PostOfficeOpenSMSG post_office_open = 867;
+    SetHomePostOfficeCMSG set_home_post_office = 868;
 
     // NOTEBOOK 900
     NotebookListCMSG notebook_list = 900;
