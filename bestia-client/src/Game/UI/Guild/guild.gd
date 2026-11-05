@@ -84,7 +84,7 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	add_theme_stylebox_override("panel", UiStyle.flat(UiStyle.PANEL_BG, 0, 0))
-	custom_minimum_size = Vector2(800, 620)
+	custom_minimum_size = Vector2(970, 766)
 	_build()
 	_build_found_popup()
 	_build_disband_dialog()
