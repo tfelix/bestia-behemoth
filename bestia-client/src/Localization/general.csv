@@ -375,6 +375,7 @@ GUILD_DISBAND_TITLE,Disband the guild
 GUILD_DISBAND_TEXT,"This ends %s for every member and cannot be undone. Type the guild's name to confirm."
 GUILD_FOUND_TITLE,Found a guild
 GUILD_FOUND_PROMPT,Name your guild. The Founder's Seal is spent when the guild is founded.
+GUILD_FOUND_NAME_PLACEHOLDER,Guild name
 GUILD_FOUND_CONFIRM,Found
 GUILD_FOUND_CANCEL,Cancel
 GUILD_ALREADY_IN_GUILD,You are already in a guild.

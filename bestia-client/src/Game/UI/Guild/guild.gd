@@ -65,6 +65,7 @@ var _leave: Button
 var _disband: Button
 var _found_popup: PopupPanel
 var _found_name: LineEdit
+var _found_confirm: Button
 var _disband_dialog: ConfirmationDialog
 var _disband_name: LineEdit
 var _hand_over_dialog: ConfirmationDialog
@@ -121,7 +122,9 @@ func ask_to_found() -> void:
 		refused.emit(tr("GUILD_ALREADY_IN_GUILD"))
 		return
 
+	# Setting the text from here does not fire text_changed, so the button is greyed out by hand.
 	_found_name.text = ""
+	_found_confirm.disabled = true
 	_found_popup.popup_centered()
 
 
@@ -299,13 +302,16 @@ func _build_found_popup() -> void:
 	_found_popup = PopupPanel.new()
 	_found_popup.add_theme_stylebox_override("panel", UiStyle.flat(UiStyle.PANEL_BG, 6, 12, UiStyle.ACCENT, 1))
 	var rows := UiStyle.vbox(8)
-	rows.custom_minimum_size = Vector2(280, 0)
 	rows.add_child(UiStyle.label(tr("GUILD_FOUND_TITLE"), 15, UiStyle.ACCENT))
 	var prompt := UiStyle.label(tr("GUILD_FOUND_PROMPT"), 12, UiStyle.MUTED)
 	prompt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# The wrapping label needs a width of its own, as the kick prompt does: a minimum on the rows is not enough,
+	# the label still measures itself a word wide and the popup grows as tall as the screen.
+	prompt.custom_minimum_size = Vector2(280, 0)
 	rows.add_child(prompt)
 	_found_name = LineEdit.new()
 	_found_name.max_length = 24
+	_found_name.placeholder_text = tr("GUILD_FOUND_NAME_PLACEHOLDER")
 	_found_name.text_submitted.connect(func(_text: String) -> void: _found())
 	rows.add_child(_found_name)
 	var buttons := UiStyle.hbox(8)
@@ -314,12 +320,15 @@ func _build_found_popup() -> void:
 	cancel.text = tr("GUILD_FOUND_CANCEL")
 	cancel.pressed.connect(_found_popup.hide)
 	buttons.add_child(cancel)
-	var confirm := Button.new()
-	confirm.text = tr("GUILD_FOUND_CONFIRM")
-	confirm.theme_type_variation = &"PrimaryButton"
-	confirm.pressed.connect(_found)
-	buttons.add_child(confirm)
+	_found_confirm = Button.new()
+	_found_confirm.text = tr("GUILD_FOUND_CONFIRM")
+	_found_confirm.theme_type_variation = &"PrimaryButton"
+	_found_confirm.pressed.connect(_found)
+	buttons.add_child(_found_confirm)
 	rows.add_child(buttons)
+	_found_name.text_changed.connect(
+		func(text: String) -> void: _found_confirm.disabled = text.strip_edges().is_empty()
+	)
 	_found_popup.add_child(rows)
 	# Focus when shown, not when built, so a second founding attempt can be typed into straight away.
 	_found_popup.about_to_popup.connect(func() -> void: _found_name.call_deferred("grab_focus"))
