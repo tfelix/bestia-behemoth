@@ -174,12 +174,10 @@ to bring both down efficiently.
 
 `-10%/lv` wood gathering time
 `+20%/lv` resource drop chance"
-SKILL_32_DESC,"Sets snares and deadfalls that keep working for the master even while they're off doing
-something else, passively catching small game over time for meat and pelts on a later
-check-in. Each cast places a snare.
+SKILL_32_DESC,"Knowing where to set a trap, how to bait it and when to spring it. Raises the catch chance
+of every Bestia trap the master throws.
 
-`+6%/lv` chance a snare yields a catch
-`+1/lv` snares out at once"
+`+6%/lv` catch chance"
 SKILL_33_DESC,"A Forester's patient hand with wild Bestia rubs off on them, sharpening how fast they learn
 and how little they need to keep going out in the open.
 
@@ -481,10 +479,6 @@ cast points to the nearest resources of every kind within reach. Cooldown 60s.
 
 `+1 km/lv` detection distance
 `+10%/lv` detection accuracy"
-SKILL_49_DESC,"Special traps and lures empowered with mana dust to catch Bestia. Raises the chance of
-every Bestia trap the master throws.
-
-`+6%/lv` catch chance"
 SKILL_50_DESC,"Knowing which pair of Bestia is worth putting in a Breeder, and why the last clutch came
 out the way it did. Applies to every Breeder the master owns.
 

@@ -24,7 +24,7 @@ class CaptureChanceCalculatorTest {
   @ParameterizedTest(name = "Master Trap, maxed Forester, WIL 150 vs Lv. {0}: {1}%")
   @CsvSource("100, 95", "110, 95", "120, 88", "140, 28", "150, 0")
   fun `a master trap with maxed forester skills`(level: Int, expectedPercent: Int) {
-    val input = nearlyDead(TrapTier.MASTER_TRAP, level, willpower = 150, bestiaTrapping = 5, beastfriend = 5)
+    val input = nearlyDead(TrapTier.MASTER_TRAP, level, willpower = 150, trapping = 5, beastfriend = 5)
 
     assertEquals(expectedPercent / 100.0, sut.chance(input), TOLERANCE)
   }
@@ -38,7 +38,7 @@ class CaptureChanceCalculatorTest {
       targetHp = 100,
       targetMaxHp = 100,
       trapperWillpower = 0,
-      bestiaTrappingLevel = 0,
+      trappingLevel = 0,
       beastfriendLevel = 0,
     )
 
@@ -53,7 +53,7 @@ class CaptureChanceCalculatorTest {
       targetHp = 50,
       targetMaxHp = 100,
       trapperWillpower = 0,
-      bestiaTrappingLevel = 0,
+      trappingLevel = 0,
       beastfriendLevel = 0,
     )
 
@@ -64,7 +64,7 @@ class CaptureChanceCalculatorTest {
     tier: TrapTier,
     level: Int,
     willpower: Int,
-    bestiaTrapping: Int = 0,
+    trapping: Int = 0,
     beastfriend: Int = 0,
   ): CaptureChanceCalculator.Input {
     return CaptureChanceCalculator.Input(
@@ -73,7 +73,7 @@ class CaptureChanceCalculatorTest {
       targetHp = 1,
       targetMaxHp = 10_000,
       trapperWillpower = willpower,
-      bestiaTrappingLevel = bestiaTrapping,
+      trappingLevel = trapping,
       beastfriendLevel = beastfriend,
     )
   }
