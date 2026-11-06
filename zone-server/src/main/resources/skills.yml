@@ -373,29 +373,33 @@ skills:
     identifier: M_LUMBERJACK
     targetType: FRIENDLY
     description: |
-      The player is able to gather wood resources faster.
+      An axeman's read of the forest - which trunks fell clean, which grain splits true, and how
+      to bring both down efficiently.
 
-      `-3%/lv` wood gathering time
-      `+2%/lv` resource drop chance
+      `-10%/lv` wood gathering time
+      `+20%/lv` resource drop chance
 
   - id: 32
     identifier: M_TRAPPING
     script: Trapping
     targetType: GROUND
+    range: 2
+    manaCost: 10
+    castTime: 3.0
     description: |
       Sets snares and deadfalls that keep working for the master even while they're off doing
       something else, passively catching small game over time for meat and pelts on a later
-      check-in.
+      check-in. Each cast places a snare.
 
-      `+4%/lv` chance a snare yields a catch
-      Higher levels unlock snares for larger game
+      `+6%/lv` chance a snare yields a catch
+      `+1/lv` snares out at once
 
   - id: 33
     identifier: M_EXPERT_TAMING
     targetType: FRIENDLY
     description: |
-      Bestia under your control gain faster experience and require less food to maintain their
-      stamina out in the open.
+      A Forester's patient hand with wild Bestia rubs off on them, sharpening how fast they learn
+      and how little they need to keep going out in the open.
 
       `+5%/lv` EXP gain
       `-2%/lv` stamina loss
@@ -404,8 +408,8 @@ skills:
     identifier: M_BEASTFRIEND
     targetType: FRIENDLY
     description: |
-      Detailed knowledge of the Bestia and their behavior makes it easier for you to tame and
-      catch them.
+      A lifetime studying Bestia behavior down to the last twitch of an ear, making both the
+      taming and the trapping of them that much easier.
 
       `+5%/lv` chance to tame
 
@@ -521,7 +525,7 @@ skills:
       Weaponry Research raises the odds; Master Smith raises them further.
 
   - id: 45
-    identifier: M_READ_TRACKS
+    identifier: M_TRACK_READING
     script: ReadTracks
     targetType: GROUND
     range: 4
@@ -536,6 +540,7 @@ skills:
       Level 2 reads which way the trail led
       Level 3 names what made it, and how strong it was
       Level 4 names another master by name
+      Level 5 only searches further
 
   - id: 46
     identifier: M_SPRINT
@@ -582,6 +587,25 @@ skills:
 
       `+1 km/lv` detection distance
       `+10%/lv` detection accuracy
+
+  - id: 49
+    identifier: M_BESTIA_TRAPPING
+    targetType: FRIENDLY
+    description: |
+      Special traps and lures empowered with mana dust to catch Bestia. Raises the chance of
+      every Bestia trap the master throws.
+
+      `+6%/lv` catch chance
+
+  - id: 50
+    identifier: M_BLOODLINE_STUDY
+    targetType: FRIENDLY
+    description: |
+      Knowing which pair of Bestia is worth putting in a Breeder, and why the last clutch came
+      out the way it did. Applies to every Breeder the master owns.
+
+      `-5%/lv` breeding and hatch time, within the same 50% floor as upgrades and feed
+      Level 4 draws a fourth dominant IV per clutch
 
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000

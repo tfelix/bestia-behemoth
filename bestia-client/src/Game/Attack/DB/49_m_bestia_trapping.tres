@@ -4,14 +4,15 @@
 
 [resource]
 script = ExtResource("1_script")
-skill_id = 45
-name = "Read Tracks"
-description_key = "SKILL_45_DESC"
-mana_cost = 8
+skill_id = 49
+name = "Bestia Trapping"
+description_key = "SKILL_49_DESC"
+mana_cost = 0
 cooldown = 0.0
-max_level = 4
-target_type = "GROUND"
+max_level = 5
+target_type = "FRIENDLY"
 tree = "SURVIVAL"
-sub_tree = "PROSPECTOR"
-prerequisite_ids = PackedInt32Array(38)
-prerequisite_levels = PackedInt32Array(2)
+sub_tree = "FORESTER"
+is_passive = true
+prerequisite_ids = PackedInt32Array(32)
+prerequisite_levels = PackedInt32Array(3)

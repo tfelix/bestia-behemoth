@@ -169,23 +169,24 @@ good on the plate as it is at the trade post. Anyone with a fishing rod can fish
 untrained angler only catches fish and loot up to level 10.
 
 `+20 fish lv/lv` that can be caught, up to fish level 100+ at max rank"
-SKILL_31_DESC,"The player is able to gather wood resources faster.
+SKILL_31_DESC,"An axeman's read of the forest - which trunks fell clean, which grain splits true, and how
+to bring both down efficiently.
 
-`-3%/lv` wood gathering time
-`+2%/lv` resource drop chance"
+`-10%/lv` wood gathering time
+`+20%/lv` resource drop chance"
 SKILL_32_DESC,"Sets snares and deadfalls that keep working for the master even while they're off doing
 something else, passively catching small game over time for meat and pelts on a later
-check-in.
+check-in. Each cast places a snare.
 
-`+4%/lv` chance a snare yields a catch
-Higher levels unlock snares for larger game"
-SKILL_33_DESC,"Bestia under your control gain faster experience and require less food to maintain their
-stamina out in the open.
+`+6%/lv` chance a snare yields a catch
+`+1/lv` snares out at once"
+SKILL_33_DESC,"A Forester's patient hand with wild Bestia rubs off on them, sharpening how fast they learn
+and how little they need to keep going out in the open.
 
 `+5%/lv` EXP gain
 `-2%/lv` stamina loss"
-SKILL_34_DESC,"Detailed knowledge of the Bestia and their behavior makes it easier for you to tame and
-catch them.
+SKILL_34_DESC,"A lifetime studying Bestia behavior down to the last twitch of an ear, making both the
+taming and the trapping of them that much easier.
 
 `+5%/lv` chance to tame"
 SKILL_35_DESC,"Raises the carrying capacity of your own Master.
@@ -241,7 +242,8 @@ no print - rock, paving, ice - keeps no tracks at all, at any rank.
 `+3 tiles/lv` how far around the read point you can search
 Level 2 reads which way the trail led
 Level 3 names what made it, and how strong it was
-Level 4 names another master by name"
+Level 4 names another master by name
+Level 5 only searches further"
 SKILL_9001_DESC,"The guild may carry an emblem. It shows on its members, its Stronghold and its banners."
 SKILL_9002_DESC,"The guild is recognised by the realm. It may found a Guild Stronghold and attack the
 installations of other guilds - and its own Stronghold may be attacked in turn."
@@ -479,3 +481,12 @@ cast points to the nearest resources of every kind within reach. Cooldown 60s.
 
 `+1 km/lv` detection distance
 `+10%/lv` detection accuracy"
+SKILL_49_DESC,"Special traps and lures empowered with mana dust to catch Bestia. Raises the chance of
+every Bestia trap the master throws.
+
+`+6%/lv` catch chance"
+SKILL_50_DESC,"Knowing which pair of Bestia is worth putting in a Breeder, and why the last clutch came
+out the way it did. Applies to every Breeder the master owns.
+
+`-5%/lv` breeding and hatch time, within the same 50% floor as upgrades and feed
+Level 4 draws a fourth dominant IV per clutch"
