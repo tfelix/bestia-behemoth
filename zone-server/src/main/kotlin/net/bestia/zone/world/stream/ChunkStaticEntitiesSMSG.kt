@@ -4,6 +4,7 @@ import net.bestia.bnet.proto.ChunkStaticEntitiesSMSGProto
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.zone.message.SMSG
+import net.bestia.zone.entity.GrowthStage
 import net.bestia.zone.entity.StaticEntityKind
 
 /**
@@ -24,6 +25,7 @@ data class ChunkStaticEntitiesSMSG(
    * @property halfLengthDm footprint half-extent along the facing, or 0 for a kind that takes its size from
    *   `prop-kinds.yml`. Nonzero only for a building, whose size is decided by the lot it stands on.
    * @property halfWidthDm the same across the facing; travels with [halfLengthDm] or not at all
+   * @property growth how far a removed tree has grown back; [GrowthStage.GROWN] for everything else
    */
   data class Entry(
     val entityId: Long,
@@ -35,7 +37,8 @@ data class ChunkStaticEntitiesSMSG(
     val heightDm: Int,
     val yawCentiradians: Int,
     val halfLengthDm: Int = 0,
-    val halfWidthDm: Int = 0
+    val halfWidthDm: Int = 0,
+    val growth: GrowthStage = GrowthStage.GROWN
   )
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -55,6 +58,7 @@ data class ChunkStaticEntitiesSMSG(
           .setYawCentiradians(entry.yawCentiradians)
           .setHalfLengthDm(entry.halfLengthDm)
           .setHalfWidthDm(entry.halfWidthDm)
+          .setGrowthValue(entry.growth.ordinal)
           .build()
       )
     }

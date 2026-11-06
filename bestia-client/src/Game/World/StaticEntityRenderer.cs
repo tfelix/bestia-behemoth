@@ -143,6 +143,12 @@ namespace BestiaBehemothClient.Game.World
     private static readonly StringName BladeBase = "color2";
     private static readonly StringName UvVAtTip = "uv_v_at_tip";
 
+    /// <summary>The most a stump model is stretched upwards, whatever its tree's scale. See AddSceneProp.</summary>
+    private const float MaxStumpRise = 1.3f;
+
+    /// <summary>Metres, for a kind that has no stump art and draws its stump as a box.</summary>
+    private const float StumpPlaceholderHeight = 0.6f;
+
     /// <summary>
     /// Metres per voxel, so that a prop stands where the ground it was grounded against was drawn.
     /// </summary>
@@ -258,14 +264,23 @@ namespace BestiaBehemothClient.Game.World
       // Only allocated once this chunk turns out to hold something that is not a tree, which most do.
       Dictionary<int, List<ChunkStaticEntitiesSMSG.Entry>> batched = null;
 
-      foreach (var entry in batch.Entries)
+      foreach (var batchEntry in batch.Entries)
       {
+        var entry = batchEntry;
         var appearance = PropAppearance.Of(entry.Kind);
+        var stump = entry.Growth == global::Bnet.GrowthStage.Stump;
 
-        if (appearance.HasScene)
+        if (appearance.HasScene && (!stump || appearance.HasStumps))
         {
           AddSceneProp(container, batch.Key, entry, appearance);
           continue;
+        }
+
+        // A stump arrives with its tree's full height, which on a placeholder box would stand a tree-sized
+        // block where the tree was removed.
+        if (stump)
+        {
+          entry = entry with { Height = StumpPlaceholderHeight };
         }
 
         batched ??= new Dictionary<int, List<ChunkStaticEntitiesSMSG.Entry>>();
@@ -297,11 +312,18 @@ namespace BestiaBehemothClient.Game.World
     /// reading of a height; a real model is proportioned, and the generator draws a tree's trunk height and
     /// crown radius off the same roll specifically so that a big tree has a big crown. Scaling one axis would
     /// give a tall tree a sapling's canopy.
+    ///
+    /// <para>
+    /// A stump is the exception. It takes its tree's scale across, so it is as wide as the trunk that stood
+    /// there, but its rise is capped: a woodcutter cuts a big tree as low as a small one, and the big trees
+    /// are scaled up so far that a uniform scale would leave them a waist-high stump.
+    /// </para>
     /// </remarks>
     private void AddSceneProp(
       Node3D container, ChunkKey key, ChunkStaticEntitiesSMSG.Entry entry, PropAppearance.Kind appearance)
     {
-      var variant = appearance.SceneFor(entry.Variant);
+      var stump = entry.Growth == global::Bnet.GrowthStage.Stump;
+      var variant = stump ? appearance.StumpFor(entry.Variant) : appearance.SceneFor(entry.Variant);
       var scene = SceneFor(entry.Kind, variant.Path);
       if (scene == null)
       {
@@ -311,7 +333,9 @@ namespace BestiaBehemothClient.Game.World
       var node = scene.Instantiate<Node3D>();
 
       var scale = variant.NaturalHeight > 0f ? entry.Height / variant.NaturalHeight : 1f;
-      var basis = new Basis(Vector3.Up, entry.Yaw).Scaled(new Vector3(scale, scale, scale));
+      var rise = stump ? Mathf.Min(scale, MaxStumpRise) : scale;
+      // In the prop's own frame, as AddBatch explains: a non-uniform world-axis scale would shear it.
+      var basis = new Basis(Vector3.Up, entry.Yaw) * Basis.FromScale(new Vector3(scale, rise, scale));
 
       node.Transform = new Transform3D(basis, GroundedPositionOf(entry));
       container.AddChild(node);
