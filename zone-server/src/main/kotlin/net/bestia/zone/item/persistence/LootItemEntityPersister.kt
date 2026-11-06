@@ -58,6 +58,7 @@ class LootItemEntityPersister(
       roll = stack.roll,
       enchantments = enchanted?.enchantments.orEmpty(),
       enchantedSince = enchanted?.since,
+      heldWeight = stack.heldWeight,
     )
   }
 
@@ -96,6 +97,7 @@ class LootItemEntityPersister(
         roll = snap.roll,
         enchantments = snap.enchantments,
         enchantedSince = snap.enchantedSince,
+        heldWeight = snap.heldWeight,
       )
       loaded++
     }
