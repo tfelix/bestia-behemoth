@@ -69,3 +69,16 @@ blender -b --factory-startup --python tools/client/build_master_parts.py -- ~/Do
 It writes `bestia-client/src/Game/Master/Parts/master_parts.glb`. Open the Godot editor once (or run
 `godot --headless --import`) so it re-imports the file. New faces and hairstyles go at the end of
 `FACE_SOURCES` and `HAIR_SOURCES`, so stored masters keep theirs.
+
+## client/build_tree_stumps.py
+
+Cuts each tree model in `bestia-client/src/Game/Terrain/Trees/` down to the stump a removed tree leaves
+behind. Runs inside Blender and needs no download:
+
+```bash
+blender -b --factory-startup --python tools/client/build_tree_stumps.py
+```
+
+It writes `Stump_<Tree>.gltf` and `.bin` next to each tree, and `Stump_EndGrain.png`, the cut face they share.
+Each stump keeps its tree's model space, so the client scales it with the tree's natural height. Change a cut
+in `CUT_HEIGHTS`. Then run `godot --headless --import` so Godot re-imports the files.
