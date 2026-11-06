@@ -113,6 +113,12 @@ namespace BestiaBehemothClient.Game.World
       public SceneVariant[] Scenes { get; init; }
 
       /// <summary>
+      /// What is left of each of <see cref="Scenes"/> once it is removed, index for index, or null for a kind
+      /// that leaves no stump.
+      /// </summary>
+      public SceneVariant[] Stumps { get; init; }
+
+      /// <summary>
       /// The mesh to batch into a multimesh, or null. Ignored when this kind has <see cref="Scenes"/>.
       /// </summary>
       /// <remarks>
@@ -235,6 +241,11 @@ namespace BestiaBehemothClient.Game.World
       /// </remarks>
       public SceneVariant SceneFor(int variant) => Scenes[variant % Scenes.Length];
 
+      public bool HasStumps => Stumps is { Length: > 0 };
+
+      /// <summary>The stump left by the model <see cref="SceneFor"/> picks for the same <paramref name="variant"/>.</summary>
+      public SceneVariant StumpFor(int variant) => Stumps[variant % Stumps.Length];
+
       public bool HasMesh => !string.IsNullOrEmpty(MeshPath);
     }
 
@@ -259,6 +270,25 @@ namespace BestiaBehemothClient.Game.World
 
     private const string LanternScene = "res://Game/World/Fixtures/Lantern/Lantern.tscn";
 
+    /// <summary>The ten tree models, or with <paramref name="prefix"/> <c>Stump_</c> the stumps cut from them.</summary>
+    /// <remarks>
+    /// A stump is its tree cut down in the same model space, so it scales by the same natural height and its
+    /// trunk is as wide as the tree that stood there.
+    /// </remarks>
+    private static SceneVariant[] TreeModels(string prefix) => new[]
+    {
+      new SceneVariant { Path = TreeDir + prefix + "CommonTree_1.gltf", NaturalHeight = 4.6843f },
+      new SceneVariant { Path = TreeDir + prefix + "CommonTree_2.gltf", NaturalHeight = 5.1433f },
+      new SceneVariant { Path = TreeDir + prefix + "CommonTree_3.gltf", NaturalHeight = 5.8794f },
+      new SceneVariant { Path = TreeDir + prefix + "CommonTree_4.gltf", NaturalHeight = 7.5021f },
+      new SceneVariant { Path = TreeDir + prefix + "CommonTree_5.gltf", NaturalHeight = 4.5600f },
+      new SceneVariant { Path = TreeDir + prefix + "Pine_1.gltf", NaturalHeight = 4.6203f },
+      new SceneVariant { Path = TreeDir + prefix + "Pine_2.gltf", NaturalHeight = 4.1294f },
+      new SceneVariant { Path = TreeDir + prefix + "Pine_3.gltf", NaturalHeight = 5.1723f },
+      new SceneVariant { Path = TreeDir + prefix + "Pine_4.gltf", NaturalHeight = 6.2203f },
+      new SceneVariant { Path = TreeDir + prefix + "Pine_5.gltf", NaturalHeight = 4.9712f },
+    };
+
     /// <summary>
     /// Every kind the server can send, in <c>StaticEntityKind</c> ordinal order.
     /// </summary>
@@ -278,19 +308,8 @@ namespace BestiaBehemothClient.Game.World
       // tree and put its crown below where the generator did.
       new Kind
       {
-        Scenes = new[]
-        {
-          new SceneVariant { Path = TreeDir + "CommonTree_1.gltf", NaturalHeight = 4.6843f },
-          new SceneVariant { Path = TreeDir + "CommonTree_2.gltf", NaturalHeight = 5.1433f },
-          new SceneVariant { Path = TreeDir + "CommonTree_3.gltf", NaturalHeight = 5.8794f },
-          new SceneVariant { Path = TreeDir + "CommonTree_4.gltf", NaturalHeight = 7.5021f },
-          new SceneVariant { Path = TreeDir + "CommonTree_5.gltf", NaturalHeight = 4.5600f },
-          new SceneVariant { Path = TreeDir + "Pine_1.gltf", NaturalHeight = 4.6203f },
-          new SceneVariant { Path = TreeDir + "Pine_2.gltf", NaturalHeight = 4.1294f },
-          new SceneVariant { Path = TreeDir + "Pine_3.gltf", NaturalHeight = 5.1723f },
-          new SceneVariant { Path = TreeDir + "Pine_4.gltf", NaturalHeight = 6.2203f },
-          new SceneVariant { Path = TreeDir + "Pine_5.gltf", NaturalHeight = 4.9712f },
-        },
+        Scenes = TreeModels(""),
+        Stumps = TreeModels("Stump_"),
         Action = PropAction.Chop
       },
 
