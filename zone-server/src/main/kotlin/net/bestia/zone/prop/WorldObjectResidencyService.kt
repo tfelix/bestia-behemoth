@@ -227,7 +227,8 @@ class WorldObjectResidencyService(
               heightDm = visual.heightDm,
               yawCentiradians = Math.round(pose.yaw * 100f),
               halfLengthDm = visual.halfLengthDm,
-              halfWidthDm = visual.halfWidthDm
+              halfWidthDm = visual.halfWidthDm,
+              growth = visual.growth
             )
           )
         }

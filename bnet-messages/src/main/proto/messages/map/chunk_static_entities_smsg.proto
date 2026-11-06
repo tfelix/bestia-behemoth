@@ -8,6 +8,21 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "ChunkStaticEntitiesSMSGProto";
 
 /**
+ * A removed tree leaves a stump, and the stump grows back through two smaller stages.
+ *
+ * A sapling and a young tree arrive with their reduced height already in `height_dm`. A stump arrives with the
+ * height of the tree it was cut from, so the client can scale it to that trunk.
+ *
+ * Mirrors `net.bestia.zone.entity.GrowthStage`. Appending is safe; renumbering is not.
+ */
+enum GrowthStage {
+  GROWTH_STAGE_GROWN = 0;
+  GROWTH_STAGE_STUMP = 1;
+  GROWTH_STAGE_SAPLING = 2;
+  GROWTH_STAGE_YOUNG = 3;
+}
+
+/**
  * Every static entity standing in one chunk column, in one message.
  *
  * ### Why these do not travel as entities
@@ -82,6 +97,12 @@ message ChunkStaticEntitiesSMSG {
      */
     uint32 half_length_dm = 9;
     uint32 half_width_dm = 10;
+
+    /**
+     * How far a tree has grown back since it was removed. Grown for every other kind, and for every tree
+     * that was never removed, so it costs nothing on the wire.
+     */
+    GrowthStage growth = 11;
   }
 
   repeated Entry entries = 2;

@@ -1,6 +1,7 @@
 package net.bestia.zone.entity.ecs
 
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.entity.GrowthStage
 import net.bestia.zone.entity.StaticEntityKind
 
 /**
@@ -32,5 +33,8 @@ data class StaticVisual(
    * cut the plot, and no per-kind number can stand in for it because a temple and a barn are both buildings.
    */
   val halfLengthDm: Int = 0,
-  val halfWidthDm: Int = 0
+  val halfWidthDm: Int = 0,
+
+  /** A removed tree's way back. [heightDm] stays the grown tree's, so a stump can be scaled to its trunk. */
+  val growth: GrowthStage = GrowthStage.GROWN
 ) : Component
