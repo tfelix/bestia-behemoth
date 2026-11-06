@@ -3,6 +3,8 @@ package net.bestia.zone.item.persistence
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import net.bestia.zone.item.ItemProvenance
+import net.bestia.zone.item.enchant.ActiveItemEnchantment
+import net.bestia.zone.item.enchant.ItemEnchantmentId
 import net.bestia.zone.item.stat.ItemRoll
 import net.bestia.zone.item.stat.ItemStat
 import net.bestia.zone.item.stat.StatValue
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.json.JsonTest
+import java.time.Instant
 
 /** A ground item survives a restart as JSON, so its maker and roll have to as well. */
 @JsonTest
@@ -24,6 +27,18 @@ class LootSnapshotJsonTest {
       entityId = 1L, itemId = 2L, amount = 1, uniqueId = 0L, x = 3, y = 4, z = 5,
       provenance = ItemProvenance(crafterName = "Alice", worldName = "Genesis"),
       roll = ItemRoll(stats = listOf(StatValue(ItemStat.STR, 3)), sockets = 1, itemLevel = 30),
+    )
+
+    assertEquals(snapshot, objectMapper.readValue<LootSnapshot>(objectMapper.writeValueAsString(snapshot)))
+  }
+
+  @Test
+  fun `a sealed ground item keeps its seal and its time on the ground through a save`() {
+    val since = Instant.parse("2026-11-06T12:00:00Z")
+    val snapshot = LootSnapshot(
+      entityId = 1L, itemId = 2L, amount = 1, uniqueId = 7L, x = 3, y = 4, z = 5,
+      enchantments = listOf(ActiveItemEnchantment(ItemEnchantmentId.POSTAL_SEAL, 70, endsAt = since.plusSeconds(30))),
+      enchantedSince = since,
     )
 
     assertEquals(snapshot, objectMapper.readValue<LootSnapshot>(objectMapper.writeValueAsString(snapshot)))

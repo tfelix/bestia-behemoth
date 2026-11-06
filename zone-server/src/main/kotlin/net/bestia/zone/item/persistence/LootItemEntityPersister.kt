@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.ecs.GroundItemDecay
 import net.bestia.zone.item.ecs.GroundItemIntegrity
 import net.bestia.zone.item.ecs.GroundItemStack
+import net.bestia.zone.item.ecs.ItemEnchantments
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.EntityPersister
 import net.bestia.zone.persistence.EntitySnapshot
@@ -35,7 +36,7 @@ class LootItemEntityPersister(
   override val loadsAtStartup = true
 
   override val reads: ComponentClassSet =
-    setOf(GroundItemStack::class, Position::class, GroundItemDecay::class, GroundItemIntegrity::class)
+    setOf(GroundItemStack::class, Position::class, GroundItemDecay::class, GroundItemIntegrity::class, ItemEnchantments::class)
 
   override fun supports(world: World, id: EntityId): Boolean =
     world.has(id, GroundItemStack::class)
@@ -43,6 +44,7 @@ class LootItemEntityPersister(
   override fun snapshot(world: World, id: EntityId): EntitySnapshot? {
     val stack = world.get(id, GroundItemStack::class) ?: return null
     val pos = world.get(id, Position::class) ?: return null
+    val enchanted = world.get(id, ItemEnchantments::class)
 
     return LootSnapshot(
       entityId = id,
@@ -54,6 +56,8 @@ class LootItemEntityPersister(
       integrityLost = world.get(id, GroundItemIntegrity::class)?.lost ?: 0,
       provenance = stack.provenance,
       roll = stack.roll,
+      enchantments = enchanted?.enchantments.orEmpty(),
+      enchantedSince = enchanted?.since,
     )
   }
 
@@ -90,6 +94,8 @@ class LootItemEntityPersister(
         integrityLost = snap.integrityLost,
         provenance = snap.provenance,
         roll = snap.roll,
+        enchantments = snap.enchantments,
+        enchantedSince = snap.enchantedSince,
       )
       loaded++
     }

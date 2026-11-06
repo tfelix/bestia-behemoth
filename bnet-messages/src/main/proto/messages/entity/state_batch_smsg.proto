@@ -19,6 +19,7 @@ import "messages/component/guild_tag_component_smsg.proto";
 import "messages/component/health_component_smsg.proto";
 import "messages/component/honor_component_smsg.proto";
 import "messages/component/inventory_component_smsg.proto";
+import "messages/component/item_enchantments_component_smsg.proto";
 import "messages/component/journey_component_smsg.proto";
 import "messages/component/level_component_smsg.proto";
 import "messages/component/logout_intent_smsg.proto";
@@ -100,5 +101,6 @@ message ComponentDelta {
     EntityFxComponentSMSG fx = 33;
     HonorComponentSMSG honor = 34;
     DetectingComponentSMSG detecting = 35;
+    ItemEnchantmentsComponentSMSG item_enchantments = 36;
   }
 }
