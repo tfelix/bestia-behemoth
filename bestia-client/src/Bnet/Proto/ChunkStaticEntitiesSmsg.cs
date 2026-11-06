@@ -25,24 +25,47 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci1tZXNzYWdlcy9tYXAvY2h1bmtfc3RhdGljX2VudGl0aWVzX3Ntc2cucHJv",
-            "dG8SBGJuZXQaGG1lc3NhZ2VzL21hcC9jaHVuay5wcm90byKxAgoXQ2h1bmtT",
+            "dG8SBGJuZXQaGG1lc3NhZ2VzL21hcC9jaHVuay5wcm90byLUAgoXQ2h1bmtT",
             "dGF0aWNFbnRpdGllc1NNU0cSGwoDcG9zGAEgASgLMg4uYm5ldC5DaHVua1Bv",
             "cxI0CgdlbnRyaWVzGAIgAygLMiMuYm5ldC5DaHVua1N0YXRpY0VudGl0aWVz",
-            "U01TRy5FbnRyeRrCAQoFRW50cnkSEQoJZW50aXR5X2lkGAEgASgGEgwKBGtp",
+            "U01TRy5FbnRyeRrlAQoFRW50cnkSEQoJZW50aXR5X2lkGAEgASgGEgwKBGtp",
             "bmQYAiABKA0SDwoHdmFyaWFudBgDIAEoDRIPCgdsb2NhbF94GAQgASgNEg8K",
             "B2xvY2FsX3kYBSABKA0SCQoBehgGIAEoERIRCgloZWlnaHRfZG0YByABKA0S",
             "GAoQeWF3X2NlbnRpcmFkaWFucxgIIAEoDRIWCg5oYWxmX2xlbmd0aF9kbRgJ",
-            "IAEoDRIVCg1oYWxmX3dpZHRoX2RtGAogASgNQjUKFW5ldC5iZXN0aWEuYm5l",
-            "dC5wcm90b0IcQ2h1bmtTdGF0aWNFbnRpdGllc1NNU0dQcm90b2IGcHJvdG8z"));
+            "IAEoDRIVCg1oYWxmX3dpZHRoX2RtGAogASgNEiEKBmdyb3d0aBgLIAEoDjIR",
+            "LmJuZXQuR3Jvd3RoU3RhZ2UqbwoLR3Jvd3RoU3RhZ2USFgoSR1JPV1RIX1NU",
+            "QUdFX0dST1dOEAASFgoSR1JPV1RIX1NUQUdFX1NUVU1QEAESGAoUR1JPV1RI",
+            "X1NUQUdFX1NBUExJTkcQAhIWChJHUk9XVEhfU1RBR0VfWU9VTkcQA0I1ChVu",
+            "ZXQuYmVzdGlhLmJuZXQucHJvdG9CHENodW5rU3RhdGljRW50aXRpZXNTTVNH",
+            "UHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.ChunkReflection.Descriptor, },
-          new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkStaticEntitiesSMSG), global::Bnet.ChunkStaticEntitiesSMSG.Parser, new[]{ "Pos", "Entries" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkStaticEntitiesSMSG.Types.Entry), global::Bnet.ChunkStaticEntitiesSMSG.Types.Entry.Parser, new[]{ "EntityId", "Kind", "Variant", "LocalX", "LocalY", "Z", "HeightDm", "YawCentiradians", "HalfLengthDm", "HalfWidthDm" }, null, null, null, null)})
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.GrowthStage), }, null, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkStaticEntitiesSMSG), global::Bnet.ChunkStaticEntitiesSMSG.Parser, new[]{ "Pos", "Entries" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkStaticEntitiesSMSG.Types.Entry), global::Bnet.ChunkStaticEntitiesSMSG.Types.Entry.Parser, new[]{ "EntityId", "Kind", "Variant", "LocalX", "LocalY", "Z", "HeightDm", "YawCentiradians", "HalfLengthDm", "HalfWidthDm", "Growth" }, null, null, null, null)})
           }));
     }
     #endregion
 
   }
+  #region Enums
+  /// <summary>
+  ///*
+  /// A removed tree leaves a stump, and the stump grows back through two smaller stages.
+  ///
+  /// A sapling and a young tree arrive with their reduced height already in `height_dm`. A stump arrives with the
+  /// height of the tree it was cut from, so the client can scale it to that trunk.
+  ///
+  /// Mirrors `net.bestia.zone.entity.GrowthStage`. Appending is safe; renumbering is not.
+  /// </summary>
+  public enum GrowthStage {
+    [pbr::OriginalName("GROWTH_STAGE_GROWN")] Grown = 0,
+    [pbr::OriginalName("GROWTH_STAGE_STUMP")] Stump = 1,
+    [pbr::OriginalName("GROWTH_STAGE_SAPLING")] Sapling = 2,
+    [pbr::OriginalName("GROWTH_STAGE_YOUNG")] Young = 3,
+  }
+
+  #endregion
+
   #region Messages
   /// <summary>
   ///*
@@ -364,6 +387,7 @@ namespace Bnet {
           yawCentiradians_ = other.yawCentiradians_;
           halfLengthDm_ = other.halfLengthDm_;
           halfWidthDm_ = other.halfWidthDm_;
+          growth_ = other.growth_;
           _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
         }
 
@@ -525,6 +549,23 @@ namespace Bnet {
           }
         }
 
+        /// <summary>Field number for the "growth" field.</summary>
+        public const int GrowthFieldNumber = 11;
+        private global::Bnet.GrowthStage growth_ = global::Bnet.GrowthStage.Grown;
+        /// <summary>
+        ///*
+        /// How far a tree has grown back since it was removed. Grown for every other kind, and for every tree
+        /// that was never removed, so it costs nothing on the wire.
+        /// </summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public global::Bnet.GrowthStage Growth {
+          get { return growth_; }
+          set {
+            growth_ = value;
+          }
+        }
+
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
         public override bool Equals(object other) {
@@ -550,6 +591,7 @@ namespace Bnet {
           if (YawCentiradians != other.YawCentiradians) return false;
           if (HalfLengthDm != other.HalfLengthDm) return false;
           if (HalfWidthDm != other.HalfWidthDm) return false;
+          if (Growth != other.Growth) return false;
           return Equals(_unknownFields, other._unknownFields);
         }
 
@@ -567,6 +609,7 @@ namespace Bnet {
           if (YawCentiradians != 0) hash ^= YawCentiradians.GetHashCode();
           if (HalfLengthDm != 0) hash ^= HalfLengthDm.GetHashCode();
           if (HalfWidthDm != 0) hash ^= HalfWidthDm.GetHashCode();
+          if (Growth != global::Bnet.GrowthStage.Grown) hash ^= Growth.GetHashCode();
           if (_unknownFields != null) {
             hash ^= _unknownFields.GetHashCode();
           }
@@ -625,6 +668,10 @@ namespace Bnet {
             output.WriteRawTag(80);
             output.WriteUInt32(HalfWidthDm);
           }
+          if (Growth != global::Bnet.GrowthStage.Grown) {
+            output.WriteRawTag(88);
+            output.WriteEnum((int) Growth);
+          }
           if (_unknownFields != null) {
             _unknownFields.WriteTo(output);
           }
@@ -675,6 +722,10 @@ namespace Bnet {
             output.WriteRawTag(80);
             output.WriteUInt32(HalfWidthDm);
           }
+          if (Growth != global::Bnet.GrowthStage.Grown) {
+            output.WriteRawTag(88);
+            output.WriteEnum((int) Growth);
+          }
           if (_unknownFields != null) {
             _unknownFields.WriteTo(ref output);
           }
@@ -714,6 +765,9 @@ namespace Bnet {
           }
           if (HalfWidthDm != 0) {
             size += 1 + pb::CodedOutputStream.ComputeUInt32Size(HalfWidthDm);
+          }
+          if (Growth != global::Bnet.GrowthStage.Grown) {
+            size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Growth);
           }
           if (_unknownFields != null) {
             size += _unknownFields.CalculateSize();
@@ -756,6 +810,9 @@ namespace Bnet {
           }
           if (other.HalfWidthDm != 0) {
             HalfWidthDm = other.HalfWidthDm;
+          }
+          if (other.Growth != global::Bnet.GrowthStage.Grown) {
+            Growth = other.Growth;
           }
           _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
         }
@@ -816,6 +873,10 @@ namespace Bnet {
                 HalfWidthDm = input.ReadUInt32();
                 break;
               }
+              case 88: {
+                Growth = (global::Bnet.GrowthStage) input.ReadEnum();
+                break;
+              }
             }
           }
         #endif
@@ -873,6 +934,10 @@ namespace Bnet {
               }
               case 80: {
                 HalfWidthDm = input.ReadUInt32();
+                break;
+              }
+              case 88: {
+                Growth = (global::Bnet.GrowthStage) input.ReadEnum();
                 break;
               }
             }

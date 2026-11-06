@@ -68,6 +68,12 @@ namespace BestiaBehemothClient.Bnet.Message.Map
 
       public float HalfWidth { get; init; }
 
+      /// <summary>
+      /// How far a removed tree has grown back. A sapling's <see cref="Height"/> is already its own; a stump's
+      /// is the tree it was cut from, so the stump can be scaled to that trunk.
+      /// </summary>
+      public global::Bnet.GrowthStage Growth { get; init; }
+
       /// <summary>Whether this entry carries a footprint of its own rather than taking its kind's.</summary>
       public bool HasFootprint => HalfLength > 0f && HalfWidth > 0f;
     }
@@ -94,7 +100,8 @@ namespace BestiaBehemothClient.Bnet.Message.Map
           Height = entry.HeightDm / 10f,
           Yaw = entry.YawCentiradians / 100f,
           HalfLength = entry.HalfLengthDm / 10f,
-          HalfWidth = entry.HalfWidthDm / 10f
+          HalfWidth = entry.HalfWidthDm / 10f,
+          Growth = entry.Growth
         });
       }
 
