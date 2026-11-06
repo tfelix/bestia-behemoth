@@ -448,12 +448,12 @@ skills:
 # Miner
   - id: 40
     identifier: M_MINING
-    script: Mining
-    targetType: GROUND
+    targetType: FRIENDLY
     description: |
-      Specialized in digging mine shafts and gathering mineral resources.
+      A pickaxe, a steady lamp, and the nose for where the rock is worth breaking. Anyone with a
+      pickaxe can mine, but an untrained miner only gets resources up to level 10.
 
-      Level 1 enables you to place a mining shaft
+      Level 1 lets you craft a pickaxe
       `-10%/lv` mining time
       `+20 resource lv/lv` that can be mined, up to resource level 100+ at max rank
 
@@ -461,13 +461,17 @@ skills:
     identifier: M_GEM_CUTTING
     script: GemCutting
     targetType: GROUND
+    range: 2
+    manaCost: 20
+    castTime: 10.0
     description: |
       Turns the rough gemstones a Miner digs up into cut stones fit for an Artificer's socket
-      or a Trader's scale. Can cut raw gems recovered from mining into faceted gemstones,
-      increasing their value and unlocking their use in socketed equipment.
+      or a Trader's sale. A failed cut shatters the gem.
 
-      Higher levels unlock cutting higher-grade gems
-      `-8%/lv` chance to shatter a gem while cutting
+      Level 1 enables you to place a Gem Cut Station
+      `+8%/lv` success chance
+      `+20 gem lv/lv` reliable gem level, 100+ at max rank
+      `-5%` success chance per gem level above the reliable one, no hard cap
 
   - id: 42
     identifier: M_DEEP_DELVER
