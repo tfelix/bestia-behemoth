@@ -62,6 +62,7 @@ signal parcel_quote_received(message: ParcelQuoteSMSG)
 signal parcel_sent(message: ParcelSentSMSG)
 ## A pigeon says a parcel waits at an office.
 signal parcel_arrived(message: ParcelArrivedSMSG)
+signal route_board_received(message: RouteBoardSMSG)
 ## Every party message: the roster, an invitation, the party ending for us. The party window listens.
 signal party_message_received(message: PartySMSG)
 ## Every guild message: the guild, an invitation, leaving it. The guild window listens.
@@ -151,6 +152,7 @@ var QuoteParcelCMSG = load("res://Bnet/Message/Postal/QuoteParcelCMSG.cs")
 var SendParcelCMSG = load("res://Bnet/Message/Postal/SendParcelCMSG.cs")
 var CollectParcelCMSG = load("res://Bnet/Message/Postal/CollectParcelCMSG.cs")
 var RefuseParcelCMSG = load("res://Bnet/Message/Postal/RefuseParcelCMSG.cs")
+var TakeParcelsCMSG = load("res://Bnet/Message/Postal/TakeParcelsCMSG.cs")
 var RequestPartyInfoCMSG = load("res://Bnet/Message/Party/RequestPartyInfoCMSG.cs")
 var CreatePartyCMSG = load("res://Bnet/Message/Party/CreatePartyCMSG.cs")
 var RequestPartyInvitationCMSG = load("res://Bnet/Message/Party/RequestPartyInvitationCMSG.cs")
@@ -897,6 +899,15 @@ func collect_parcel(postmaster_entity_id: int, parcel_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Puts parcels for one office into a sealed mail sack. Answered by a RouteBoardSMSG, or an OperationError.
+func take_parcels(postmaster_entity_id: int, parcel_ids: Array[int]) -> void:
+	assert(is_ready_to_send())
+	var msg = TakeParcelsCMSG.new()
+	msg.PostmasterEntityId = postmaster_entity_id
+	msg.ParcelIds.assign(parcel_ids)
+	_socket.SendMessage(msg)
+
+
 ## Answered by a ParcelsSMSG.
 func refuse_parcel(postmaster_entity_id: int, parcel_id: int) -> void:
 	assert(is_ready_to_send())
@@ -1296,6 +1307,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		parcel_sent.emit(message)
 	elif message is ParcelArrivedSMSG:
 		parcel_arrived.emit(message)
+	elif message is RouteBoardSMSG:
+		route_board_received.emit(message)
 	elif message is PartySMSG:
 		party_message_received.emit(message)
 	elif message is GuildSMSG:
