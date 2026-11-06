@@ -17,7 +17,7 @@ class CaptureChanceCalculator {
     val targetHp: Int,
     val targetMaxHp: Int,
     val trapperWillpower: Int,
-    val bestiaTrappingLevel: Int,
+    val trappingLevel: Int,
     val beastfriendLevel: Int,
   )
 
@@ -26,7 +26,7 @@ class CaptureChanceCalculator {
     val points = input.tier.baseChance(input.targetLevel) +
         hpBonus(input.targetHp, input.targetMaxHp) +
         input.trapperWillpower / WILLPOWER_PER_POINT +
-        BESTIA_TRAPPING_PER_LEVEL * input.bestiaTrappingLevel +
+        TRAPPING_PER_LEVEL * input.trappingLevel +
         BEASTFRIEND_PER_LEVEL * input.beastfriendLevel
 
     return (points / 100.0).coerceIn(0.0, MAX_CHANCE)
@@ -44,7 +44,7 @@ class CaptureChanceCalculator {
   private companion object {
     const val MAX_HP_BONUS = 30.0
     const val WILLPOWER_PER_POINT = 50.0
-    const val BESTIA_TRAPPING_PER_LEVEL = 6
+    const val TRAPPING_PER_LEVEL = 6
     const val BEASTFRIEND_PER_LEVEL = 5
 
     /** Even a perfect setup can fail. */

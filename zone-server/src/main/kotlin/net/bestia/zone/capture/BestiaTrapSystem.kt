@@ -62,6 +62,7 @@ class BestiaTrapSystem(
   override val writes: ComponentClassSet = setOf(BestiaTrap::class, TakenDamage::class)
 
   /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
+  private val trappingSkillId: Long? by lazy { skills.findByIdentifier(SkillId.M_TRAPPING)?.id }
   private val beastfriendSkillId: Long? by lazy { skills.findByIdentifier(SkillId.M_BEASTFRIEND)?.id }
 
   private class Sprung(val trapId: EntityId, val trap: BestiaTrap, val at: Vec3L, val targetId: EntityId)
@@ -141,9 +142,9 @@ class BestiaTrapSystem(
 
     // A trapper who has logged out since setting it adds nothing but the trap itself.
     val willpower = world.get(trap.trapperEntityId, CombatStats::class)?.values?.attributes?.willpower ?: 0
-    val beastfriend = beastfriendSkillId
-      ?.let { world.get(trap.trapperEntityId, KnownSkills::class)?.levelOf(it) }
-      ?: 0
+    val trapperSkills = world.get(trap.trapperEntityId, KnownSkills::class)
+    val trapping = trappingSkillId?.let { trapperSkills?.levelOf(it) } ?: 0
+    val beastfriend = beastfriendSkillId?.let { trapperSkills?.levelOf(it) } ?: 0
 
     return captureChanceCalculator.chance(
       CaptureChanceCalculator.Input(
@@ -152,8 +153,7 @@ class BestiaTrapSystem(
         targetHp = health.current,
         targetMaxHp = health.max,
         trapperWillpower = willpower,
-        // Not in the skill catalogue yet.
-        bestiaTrappingLevel = 0,
+        trappingLevel = trapping,
         beastfriendLevel = beastfriend,
       )
     )

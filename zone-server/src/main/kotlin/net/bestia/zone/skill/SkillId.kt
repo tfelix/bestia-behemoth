@@ -58,7 +58,8 @@ enum class SkillId {
   // Passives with a stat effect, named by their PassiveSkillScript bean rather than from the yml.
   M_MEDITATION,
 
-  // Capture: its level adds to every catch roll in net.bestia.zone.capture.BestiaTrapSystem.
+  // Capture: their levels add to every catch roll in net.bestia.zone.capture.BestiaTrapSystem.
+  M_TRAPPING,
   M_BEASTFRIEND,
 
   // Guild skills a guild learns, not a master: net.bestia.zone.guild reads the guild's level of each.

@@ -211,14 +211,6 @@ skills:
       - skill: M_TRAPPING
         level: 3
 
-  - skill: M_BESTIA_TRAPPING
-    tree: SURVIVAL
-    subTree: FORESTER
-    maxLevel: 5
-    prerequisites:
-      - skill: M_TRAPPING
-        level: 3
-
   - skill: M_EXPERT_TAMING
     tree: SURVIVAL
     subTree: FORESTER
