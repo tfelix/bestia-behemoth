@@ -4,6 +4,8 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.bnet.proto.ParcelProto
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.item.ecs.CarryCapacity
@@ -119,6 +121,9 @@ class PostOfficeDesk(
   fun takeParcels(world: World, accountId: AccountId, postmaster: Speaker, parcelIds: List<Long>) {
     val office = officeAtWork(postmaster) ?: return closed(accountId)
     val entityId = connections.getSelectedMasterEntityId(accountId)
+    if (world.get(entityId, StatusEffects::class)?.hasEffect(StatusEffectId.STRUCK_OFF.id) == true) {
+      return refuse(accountId, OpError.COURIER_STRUCK_OFF)
+    }
     val bag = world.get(entityId, Inventory::class) ?: return
     val capacity = world.get(entityId, CarryCapacity::class) ?: return
     val courier = CourierService.Courier(connections.getMasterId(accountId), entityId, capacity.max - bag.totalWeight)
