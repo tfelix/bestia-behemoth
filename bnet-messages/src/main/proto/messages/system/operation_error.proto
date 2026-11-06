@@ -320,6 +320,8 @@ enum OpError {
   POST_OFFICE_CLOSED = 119;
   // A bound item, like a mail sack, never leaves its holder's bag by hand. The player delivers it instead.
   ITEM_BOUND = 120;
+  // Parcels from the route board that weigh more than the courier can still carry. The courier takes fewer.
+  ROUTE_TOO_HEAVY = 121;
 }
 
 message OperationError {

@@ -1,0 +1,159 @@
+package net.bestia.zone.postal.courier
+
+import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.economy.CommodityItems
+import net.bestia.zone.economy.WorldReserve
+import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.entity.GameMetrics.CoinSource
+import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.container.ReservedItem
+import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.ecs.grantToLive
+import net.bestia.zone.item.enchant.ActiveItemEnchantment
+import net.bestia.zone.item.enchant.ItemEnchantmentId
+import net.bestia.zone.item.persistence.ItemRepository
+import net.bestia.zone.item.persistence.findByIdentifierOrThrow
+import net.bestia.zone.postal.office.PostOffices
+import net.bestia.zone.postal.parcel.Freight
+import net.bestia.zone.postal.parcel.ParcelService.Outcome
+import net.bestia.zone.postal.persistence.Parcel
+import net.bestia.zone.postal.persistence.ParcelRepository
+import net.bestia.zone.postal.seal.PostalSeal
+import net.bestia.zone.util.EntityId
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionTemplate
+import java.time.Clock
+import java.time.Instant
+
+/**
+ * Player couriers: the route board, the sealed mail sack and its delivery. See "Carrying the Mail" on the postal
+ * page of the design docs. Off the tick, like [net.bestia.zone.postal.parcel.ParcelService].
+ */
+@Service
+class CourierService(
+  private val parcels: ParcelRepository,
+  private val offices: PostOffices,
+  private val inventoryService: InventoryService,
+  private val itemRepository: ItemRepository,
+  private val commodityItems: CommodityItems,
+  private val reserve: WorldReserve,
+  private val world: WorldView,
+  private val transactions: TransactionTemplate,
+  private val clock: Clock = Clock.systemUTC(),
+) {
+
+  /** A master at a route board, with what its bag can still take. */
+  data class Courier(val masterId: Long, val liveEntityId: EntityId, val freeWeight: Int)
+
+  data class BoardLine(
+    val parcelId: Long,
+    val destinationName: String,
+    val weightUnits: Int,
+    val pay: Long,
+    val latestArrival: Instant,
+  )
+
+  /** What a courier was paid for the parcels it brought. */
+  data class Delivery(val parcels: Int, val pay: Long)
+
+  @Transactional(readOnly = true)
+  fun routeBoard(at: PostOffices.Office): List<BoardLine> {
+    val now = clock.instant()
+
+    return parcels.findByOriginOfficeAndSackInstanceIdIsNullOrderByLatestArrival(at.settlement)
+      .filter { it.isOnBoard(now) }
+      .map { BoardLine(it.id, officeName(it.destinationOffice), it.weightUnits, Freight.courierPay(it.freightFee), it.latestArrival) }
+  }
+
+  /** Puts [parcelIds], all bound for one office, into a new sealed sack. @return why not, or null once it is in the bag */
+  fun take(courier: Courier, at: PostOffices.Office, parcelIds: List<Long>): Outcome.Refused? {
+    val now = clock.instant()
+
+    val taken = transactions.execute {
+      val wanted = parcelIds.distinct().map { parcels.findLockedById(it) ?: return@execute HAND_MADE }
+      // The board only shows parcels that are on it, so anything else is a hand-made packet.
+      if (wanted.isEmpty() || wanted.any { !it.isOnBoard(now) || it.originOffice != at.settlement }) return@execute HAND_MADE
+      if (wanted.map { it.destinationOffice }.distinct().size != 1) return@execute HAND_MADE
+
+      val weight = wanted.sumOf { it.weightUnits }
+      if (weight > courier.freeWeight) return@execute Outcome.Refused(OpError.ROUTE_TOO_HEAVY)
+
+      Sacked(sealSack(courier.masterId, wanted, weight))
+    }
+
+    val sack = (taken as? Sacked)?.sack ?: return taken as? Outcome.Refused ?: HAND_MADE
+    world.grantToLive(courier.liveEntityId, listOf(sack))
+
+    return null
+  }
+
+  /**
+   * Hands over every sack [courier] carries to [at], before the deadline, and pays the courier its share.
+   * @return null when it carries nothing for here
+   */
+  fun deliver(courier: Courier, at: PostOffices.Office): Delivery? {
+    val now = clock.instant()
+    val coinId = commodityItems.coinItemId() ?: return null
+
+    val delivered = transactions.execute {
+      val carried = parcels.findByCourierMasterIdAndDestinationOffice(courier.masterId, at.settlement)
+        .filter { it.sackInstanceId != null && !it.hasArrived(now) }
+      if (carried.isEmpty()) return@execute null
+
+      val sacks = carried.mapNotNull { it.sackInstanceId }.distinct()
+      sacks.forEach { inventoryService.destroyInstance(courier.masterId, it) }
+      val pay = carried.sumOf { Freight.courierPay(it.freightFee) }
+      carried.forEach { it.deliver(now) }
+      if (pay > 0) inventoryService.grantToMaster(courier.masterId, coinId, pay.toInt())
+
+      Handed(Delivery(carried.size, pay), sacks)
+    } ?: return null
+
+    // Past the commit, like every move between the database and a live bag.
+    removeFromLiveBag(courier.liveEntityId, delivered.sacks)
+    world.grantToLive(courier.liveEntityId, listOf(ReservedItem.stack(coinId, delivered.delivery.pay.toInt(), weight = 0)))
+    world.read { reserve.charge(delivered.delivery.pay.toDouble(), CoinSource.COURIER) }
+
+    return delivered.delivery
+  }
+
+  private data class Sacked(val sack: ReservedItem)
+
+  private data class Handed(val delivery: Delivery, val sacks: List<Long>)
+
+  private fun removeFromLiveBag(entityId: EntityId, sacks: List<Long>) {
+    world.modify(entityId) { id ->
+      val bag = get(id, Inventory::class) ?: return@modify
+      sacks.forEach { bag.removeByUniqueId(it) }
+    }
+  }
+
+  private fun sealSack(courierMasterId: Long, wanted: List<Parcel>, weight: Int): ReservedItem {
+    val template = itemRepository.findByIdentifierOrThrow(MAIL_SACK)
+    val sack = inventoryService.mintInstanceForMaster(courierMasterId, template)
+    sack.heldWeight = weight
+    sack.enchant(ActiveItemEnchantment(ItemEnchantmentId.POSTAL_SEAL, PostalSeal.STRENGTH))
+
+    wanted.forEach { parcel ->
+      parcel.sackInstanceId = sack.id
+      parcel.courierMasterId = courierMasterId
+    }
+
+    return ReservedItem(
+      offerSlotId = 0L, itemId = template.id, amount = 1, weight = weight, uniqueId = sack.id, stackable = false,
+      durability = 0, maxDurability = 0, slots = 0, upgradeLevel = 0, itemLevel = template.baseLevel,
+      rolledStats = emptyList(),
+    )
+  }
+
+  private fun officeName(settlement: Int): String {
+    return world.read { offices.officeOf(settlement)?.name }.orEmpty()
+  }
+
+  companion object {
+    const val MAIL_SACK = "mail_sack"
+
+    private val HAND_MADE = Outcome.Refused(OpError.REQUEST_REFUSED)
+  }
+}

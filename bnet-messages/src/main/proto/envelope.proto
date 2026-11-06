@@ -128,6 +128,8 @@ import "messages/postal/parcel_sent_smsg.proto";
 import "messages/postal/collect_parcel_cmsg.proto";
 import "messages/postal/refuse_parcel_cmsg.proto";
 import "messages/postal/parcel_arrived_smsg.proto";
+import "messages/postal/route_board_smsg.proto";
+import "messages/postal/take_parcels_cmsg.proto";
 import "messages/shop/shop_trade_cmsg.proto";
 import "messages/map/weather_smsg.proto";
 import "messages/map/world_time_smsg.proto";
@@ -333,6 +335,8 @@ message Envelope {
     CollectParcelCMSG collect_parcel = 874;
     RefuseParcelCMSG refuse_parcel = 875;
     ParcelArrivedSMSG parcel_arrived = 876;
+    RouteBoardSMSG route_board = 877;
+    TakeParcelsCMSG take_parcels = 878;
 
     // NOTEBOOK 900
     NotebookListCMSG notebook_list = 900;
