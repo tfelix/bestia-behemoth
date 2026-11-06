@@ -24,6 +24,7 @@ import net.bestia.zone.item.persistence.ItemInstance
 import net.bestia.zone.item.persistence.ItemInstanceRepository
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.postal.office.PostOffices
+import net.bestia.zone.postal.parcel.ParcelService
 import net.bestia.zone.postal.parcel.ParcelService.Outcome
 import net.bestia.zone.postal.persistence.Parcel
 import net.bestia.zone.postal.persistence.ParcelRepository
@@ -65,6 +66,7 @@ class CourierServiceTest {
   private val storedEffects = mockk<StatusEffectPersistenceService>(relaxed = true)
 
   private val itemInstances = mockk<ItemInstanceRepository>(relaxed = true)
+  private val parcelService = mockk<ParcelService>(relaxed = true)
   private val lootItems = mockk<LootItemEntitySpawner>(relaxed = true)
 
   private val service = CourierService(
@@ -77,6 +79,7 @@ class CourierServiceTest {
     lootItems = lootItems,
     commodityItems = mockk<CommodityItems> { every { coinItemId() } returns COIN },
     reserve = reserve,
+    parcelService = parcelService,
     statusEffects = mockk(relaxed = true),
     storedEffects = storedEffects,
     world = world,
@@ -206,6 +209,22 @@ class CourierServiceTest {
     assertEquals(9L, fallen.courierMasterId)
   }
 
+  @Test
+  fun `a broken seal spills the goods as stolen mail and pays each sender back the fee`() {
+    val apple = mockk<Item>(relaxed = true) { every { id } returns APPLE; every { baseLevel } returns 3 }
+    val robbed = parcel(fee = 40).also { it.sackInstanceId = 555L; it.container.addStackable(apple, 4, null) }
+    every { parcels.findBySackInstanceId(555L) } returns listOf(robbed)
+    every { items.findById(COIN) } returns Optional.of(mockk(relaxed = true))
+
+    service.spill(555L, Vec3L(1, 2, 3))
+
+    verify { lootItems.spawnLootItem(any(), APPLE, 4, Vec3L(1, 2, 3), 0L, provenance = null) }
+    verify { parcelService.postInstant(3, CourierService.POST, any()) }
+    verify { reserve.charge(40.0, CoinSource.FREIGHT) }
+    verify { parcels.delete(robbed) }
+    verify { itemInstances.deleteById(555L) }
+  }
+
   private val seal = ActiveItemEnchantment(ItemEnchantmentId.POSTAL_SEAL, PostalSeal.STRENGTH)
 
   private fun parcel(
@@ -223,6 +242,7 @@ class CourierServiceTest {
 
   private companion object {
     const val COIN = 27L
+    const val APPLE = 4L
     const val SACK = 100L
     const val COURIER = 8L
     const val ASHFEN = 1

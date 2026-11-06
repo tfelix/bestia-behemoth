@@ -70,7 +70,7 @@ class SealReturnSystemTest {
       add(id, GroundItemStack(itemId = 100L, amount = 1, uniqueId = SACK_ID))
       add(id, ItemEnchantments(listOf(seal), now))
     }
-    PostalSeal(clock).onDropped(world, sack, seal)
+    PostalSeal(mockk(), jobs, couriers, clock).onDropped(world, sack, seal)
 
     return sack
   }
