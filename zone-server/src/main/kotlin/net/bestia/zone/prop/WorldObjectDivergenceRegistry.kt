@@ -122,6 +122,15 @@ class WorldObjectDivergenceRegistry(
     for (listener in depletedListeners) listener(propId, entry)
   }
 
+  /** Growing trees whose next stage is due by [now], at most [limit] of them. Tick thread. */
+  fun due(now: Instant, limit: Int): List<Pair<Long, DivergenceEntry>> {
+    return byPropId.entries.asSequence()
+      .filter { (_, entry) -> entry.isGrowing && entry.resumeAt?.isAfter(now) == false }
+      .take(limit)
+      .map { it.key to it.value }
+      .toList()
+  }
+
   /** A `resumeAt`-passed entry has grown back; forget it so `materialise()` emits it again. */
   fun evictRegrown(propId: Long) {
     byPropId.remove(propId)
