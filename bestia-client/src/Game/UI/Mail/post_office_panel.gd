@@ -1,8 +1,8 @@
 class_name PostOfficePanel
 extends PanelContainer
 
-## The post office: parcels waiting or on the road, sending one, and the home office. Letters need no office
-## and live in [LetterPanel].
+## The post office: parcels waiting or on the road, sending one, the route board for couriers, and the home
+## office. Letters need no office and live in [LetterPanel].
 ##
 ## Opened by the server when the player talks to a postmaster at work, and closed by walking away, like the
 ## shop. Built in code, like [AuctionHousePanel].
@@ -24,7 +24,7 @@ const _UNITS_PER_KG := 100.0
 ## Waits for typing to settle before weighing again, so a name is not quoted a letter at a time.
 const _QUOTE_DELAY := 0.4
 
-enum Tab { MAILBOX, SEND }
+enum Tab { MAILBOX, SEND, ROUTES }
 
 var _drop_amount_dialog := preload("res://Game/UI/Inventory/DropAmountDialog/DropAmountDialog.tscn")
 
@@ -49,6 +49,8 @@ var _coach_only: CheckBox
 var _quote: Label
 var _send: Button
 var _quote_timer: Timer
+var _routes: VBoxContainer
+var _no_routes: Label
 
 
 func _ready() -> void:
@@ -60,6 +62,7 @@ func _ready() -> void:
 	ConnectionManager.parcels_received.connect(_on_parcels)
 	ConnectionManager.parcel_quote_received.connect(_on_quote)
 	ConnectionManager.parcel_sent.connect(_on_sent)
+	ConnectionManager.route_board_received.connect(_on_route_board)
 	ConnectionManager.operation_error.connect(func(_msg: OperationError) -> void: _update_send())
 	visibility_changed.connect(_on_visibility_changed)
 	set_process(false)
@@ -284,6 +287,64 @@ func _update_send() -> void:
 	_send.disabled = _packed.is_empty() or _recipient.text.strip_edges().is_empty()
 
 
+# ----------------------------------------------------------------- route board
+
+func _on_route_board(msg: RouteBoardSMSG) -> void:
+	if msg.DeliveredParcels > 0:
+		notice.emit(tr("ROUTE_DELIVERED") % [msg.DeliveredParcels, UiStyle.group_digits(msg.DeliveredPay)])
+
+	for row in _routes.get_children():
+		row.queue_free()
+
+	_no_routes.visible = msg.Parcels.is_empty()
+	var by_destination := {}
+	for parcel in msg.Parcels:
+		if not by_destination.has(parcel.DestinationName):
+			by_destination[parcel.DestinationName] = []
+		by_destination[parcel.DestinationName].append(parcel)
+	for destination in by_destination:
+		_routes.add_child(_route_group(destination, by_destination[destination]))
+
+
+## One sack goes to one office, so the parcels are grouped by where they go.
+func _route_group(destination: String, parcels: Array) -> Control:
+	var group := UiStyle.vbox(4)
+
+	var header := UiStyle.hbox(8)
+	var title := UiStyle.label(tr("ROUTE_TO") % destination, 14, UiStyle.ACCENT)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(title)
+	if parcels.size() > 1:
+		var all_ids: Array[int] = []
+		for parcel in parcels:
+			all_ids.append(parcel.ParcelId)
+		header.add_child(_take_button(tr("ROUTE_TAKE_ALL"), all_ids))
+	group.add_child(header)
+
+	for parcel in parcels:
+		var row := UiStyle.hbox(8)
+		var text := UiStyle.label(tr("ROUTE_PARCEL") % [
+			parcel.Weight / _UNITS_PER_KG, UiStyle.group_digits(parcel.Pay),
+			AuctionFormat.time_left(parcel.LatestArrivalEpochSeconds),
+		], 12, UiStyle.MUTED)
+		text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(text)
+		var one: Array[int] = [parcel.ParcelId]
+		row.add_child(_take_button(tr("ROUTE_TAKE"), one))
+		group.add_child(row)
+
+	return group
+
+
+func _take_button(text: String, parcel_ids: Array[int]) -> Button:
+	var take := Button.new()
+	take.text = text
+	take.pressed.connect(func() -> void:
+		take.disabled = true
+		ConnectionManager.take_parcels(_postmaster_id, parcel_ids))
+	return take
+
+
 # ----------------------------------------------------------------- layout
 
 func _build() -> void:
@@ -309,8 +370,10 @@ func _build() -> void:
 	body.add_child(_tabs)
 	_tabs.add_child(_build_mailbox())
 	_tabs.add_child(_build_send())
+	_tabs.add_child(_build_routes())
 	_tabs.set_tab_title(Tab.MAILBOX, tr("POST_OFFICE_TAB_MAILBOX"))
 	_tabs.set_tab_title(Tab.SEND, tr("POST_OFFICE_TAB_SEND"))
+	_tabs.set_tab_title(Tab.ROUTES, tr("POST_OFFICE_TAB_ROUTES"))
 
 	_quote_timer = Timer.new()
 	_quote_timer.one_shot = true
@@ -334,6 +397,27 @@ func _build_mailbox() -> Control:
 	stack.add_child(_parcels)
 	_no_parcels = UiStyle.label(tr("POST_OFFICE_NO_PARCELS"), 13, UiStyle.MUTED)
 	stack.add_child(_no_parcels)
+	return scroll
+
+
+func _build_routes() -> Control:
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+
+	var stack := UiStyle.vbox(10)
+	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var padded := UiStyle.margin(stack, 4, 6, 4, 4)
+	padded.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(padded)
+
+	var hint := UiStyle.label(tr("ROUTE_BOARD_HINT"), 11, UiStyle.MUTED)
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	stack.add_child(hint)
+	_routes = UiStyle.vbox(10)
+	_routes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stack.add_child(_routes)
+	_no_routes = UiStyle.label(tr("ROUTE_BOARD_EMPTY"), 13, UiStyle.MUTED)
+	stack.add_child(_no_routes)
 	return scroll
 
 
