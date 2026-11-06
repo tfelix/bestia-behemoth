@@ -42,6 +42,8 @@ class SettlementFateServiceTest {
     every { entitiesIn(any(), any()) } returns LongArray(0)
   }
 
+  private val removal = PropRemoval(PropKindRegistry().also { it.load() }, divergence, residency)
+
   private val village = SettlementSite(
     index = VILLAGE,
     centre = Vec2d(10.0, 10.0),
@@ -69,7 +71,7 @@ class SettlementFateServiceTest {
 
   @Test
   fun `a settlement falls with its last building, and a fortification never counts`() {
-    val sut = SettlementFateService(divergence, sites, residency, worldService)
+    val sut = SettlementFateService(divergence, sites, residency, removal, worldService)
     val fell = ArrayList<Int>()
     sut.onFell { fell.add(it) }
 
@@ -83,7 +85,7 @@ class SettlementFateServiceTest {
 
   @Test
   fun `a building that will grow back has not fallen`() {
-    val sut = SettlementFateService(divergence, sites, residency, worldService)
+    val sut = SettlementFateService(divergence, sites, residency, removal, worldService)
 
     destroy(HOUSE_A)
     divergence.recordDepletion(HOUSE_B, StaticEntityKind.BUILDING_RESIDENCE, resumeAt = Instant.now())
@@ -96,7 +98,7 @@ class SettlementFateServiceTest {
     destroy(HOUSE_A)
     destroy(HOUSE_B)
 
-    val sut = SettlementFateService(divergence, sites, residency, worldService)
+    val sut = SettlementFateService(divergence, sites, residency, removal, worldService)
     sut.deriveAll()
 
     assertEquals(setOf(VILLAGE), sut.fallen())
@@ -104,7 +106,7 @@ class SettlementFateServiceTest {
 
   @Test
   fun `razing destroys every standing building and the settlement falls`() {
-    val sut = SettlementFateService(divergence, sites, residency, worldService)
+    val sut = SettlementFateService(divergence, sites, residency, removal, worldService)
     destroy(HOUSE_A)
 
     assertEquals(1, sut.raze(testWorld(), VILLAGE))

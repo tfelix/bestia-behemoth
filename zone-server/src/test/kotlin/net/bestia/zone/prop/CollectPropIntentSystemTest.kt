@@ -66,9 +66,8 @@ class CollectPropIntentSystemTest {
     residency = mockk(relaxed = true)
     out = mockk(relaxed = true)
 
-    return CollectPropIntentSystem(
-      PropKindRegistry().also { it.load() }, divergence, residency, out
-    )
+    val kinds = PropKindRegistry().also { it.load() }
+    return CollectPropIntentSystem(kinds, divergence, PropRemoval(kinds, divergence, residency), out)
   }
 
   /**
