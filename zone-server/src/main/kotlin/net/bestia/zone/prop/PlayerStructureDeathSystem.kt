@@ -38,8 +38,7 @@ class PlayerStructureDeathSystem(
   override val reads: ComponentClassSet =
     setOf(Dead::class, PlayerStructureIdentity::class, PropPose::class, Position::class)
 
-  // Empty for the reason PropDeathDivergenceSystem's is: the only mutation is to the registry's own map, which
-  // is off the ECS entirely.
+  // Empty: the only mutation is to the registry's own map, which is off the ECS entirely.
   override val writes: ComponentClassSet = emptySet()
 
   override fun update(world: World, deltaTime: Float) {
