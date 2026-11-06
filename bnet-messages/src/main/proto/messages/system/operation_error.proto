@@ -322,6 +322,8 @@ enum OpError {
   ITEM_BOUND = 120;
   // Parcels from the route board that weigh more than the courier can still carry. The courier takes fewer.
   ROUTE_TOO_HEAVY = 121;
+  // The courier missed a mail deadline and is struck off. The player waits until STRUCK_OFF runs out.
+  COURIER_STRUCK_OFF = 122;
 }
 
 message OperationError {
