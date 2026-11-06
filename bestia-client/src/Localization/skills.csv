@@ -215,11 +215,10 @@ Level 1 enables you to place a Gem Cut Station
 `+8%/lv` success chance
 `+20 gem lv/lv` reliable gem level, 100+ at max rank
 `-5%` success chance per gem level above the reliable one, no hard cap"
-SKILL_42_DESC,"Lets a Miner push shafts deeper than good sense would recommend, into ground that pays
-off precisely because nobody else risks it. Grants access to deeper, more dangerous mine
-shafts holding rarer ore veins and the odd buried structure.
+SKILL_42_DESC,"A Miner learns to follow a vein instead of hacking at it, and the rock gives up more for
+every swing.
 
-`+10% more resources/lv`"
+`+10%/lv` chance that a mined ore or gem block drops a second piece"
 SKILL_43_DESC,"The Miner's capstone: a feel for what's underfoot precise enough to map a shaft before
 the first swing of the pick.
 

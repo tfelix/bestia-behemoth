@@ -474,14 +474,13 @@ skills:
       `-5%` success chance per gem level above the reliable one, no hard cap
 
   - id: 42
-    identifier: M_DEEP_DELVER
+    identifier: M_RICH_VEINS
     targetType: FRIENDLY
     description: |
-      Lets a Miner push shafts deeper than good sense would recommend, into ground that pays
-      off precisely because nobody else risks it. Grants access to deeper, more dangerous mine
-      shafts holding rarer ore veins and the odd buried structure.
+      A Miner learns to follow a vein instead of hacking at it, and the rock gives up more for
+      every swing.
 
-      `+10% more resources/lv`
+      `+10%/lv` chance that a mined ore or gem block drops a second piece
 
   - id: 43
     identifier: M_RESOURCE_SONAR

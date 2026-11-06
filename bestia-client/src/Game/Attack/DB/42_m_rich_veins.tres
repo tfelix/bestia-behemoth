@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 skill_id = 42
-name = "Deep Delver"
+name = "Rich Veins"
 description_key = "SKILL_42_DESC"
 mana_cost = 0
 cooldown = 0.0
