@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "RouteBoardSmsgProto";
+
+// The parcels that wait at this office for a courier, soonest deadline first. Sent when the window opens, and after
+// every take.
+message RouteBoardSMSG {
+  uint64 postmaster_entity_id = 1;
+  repeated RouteBoardParcel parcels = 2;
+
+  // What the courier just delivered here when the window opened, and was paid for it. Zero otherwise.
+  int32 delivered_parcels = 3;
+  int64 delivered_pay = 4;
+}
+
+// A sealed parcel: where it goes, what it weighs and what its courier is paid. Never what is inside.
+message RouteBoardParcel {
+  uint64 parcel_id = 1;
+  string destination_name = 2;
+  // In item weight units, 100 per kg.
+  int32 weight = 3;
+  int64 pay = 4;
+  int64 latest_arrival_epoch_seconds = 5;
+}

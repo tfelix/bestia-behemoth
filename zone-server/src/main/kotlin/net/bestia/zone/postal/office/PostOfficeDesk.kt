@@ -4,13 +4,16 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.bnet.proto.ParcelProto
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.item.ecs.CarryCapacity
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.persistence.AsyncJobExecutor
+import net.bestia.zone.postal.courier.CourierService
 import net.bestia.zone.postal.parcel.ParcelService
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.townsfolk.conversation.ServiceCounter
@@ -36,6 +39,7 @@ class PostOfficeDesk(
   private val parcels: ParcelService,
   private val world: WorldView,
   private val itemTemplates: ItemTemplateRegistry,
+  private val couriers: CourierService,
 ) : ServiceCounter {
 
   /** One line of a parcel being weighed or sent: what the bag shows, not what the database holds. */
@@ -111,6 +115,20 @@ class PostOfficeDesk(
     }
   }
 
+  /** On the tick, which knows what the courier's bag can still take. */
+  fun takeParcels(world: World, accountId: AccountId, postmaster: Speaker, parcelIds: List<Long>) {
+    val office = officeAtWork(postmaster) ?: return closed(accountId)
+    val entityId = connections.getSelectedMasterEntityId(accountId)
+    val bag = world.get(entityId, Inventory::class) ?: return
+    val capacity = world.get(entityId, CarryCapacity::class) ?: return
+    val courier = CourierService.Courier(connections.getMasterId(accountId), entityId, capacity.max - bag.totalWeight)
+
+    jobs.submit(courier.masterId) {
+      couriers.take(courier, office, parcelIds)?.let { refuse(accountId, it.code, it.args) }
+      showRouteBoard(accountId, postmaster, office)
+    }
+  }
+
   /** What [lines] name in the live bag, worn gear left out. Null when any of it is not there. */
   private fun goodsOf(accountId: AccountId, lines: List<Line>): List<ParcelService.Goods>? {
     val entityId = connections.getSelectedMasterEntityId(accountId)
@@ -133,6 +151,15 @@ class PostOfficeDesk(
 
   private fun showParcels(accountId: AccountId, masterId: Long, postmaster: Speaker, office: PostOffices.Office) {
     out.sendToPlayer(accountId, ParcelsSMSG(postmaster.entityId, parcels.parcelsOf(masterId, office)))
+  }
+
+  private fun showRouteBoard(
+    accountId: AccountId,
+    postmaster: Speaker,
+    office: PostOffices.Office,
+    delivered: CourierService.Delivery? = null,
+  ) {
+    out.sendToPlayer(accountId, RouteBoardSMSG(postmaster.entityId, couriers.routeBoard(office), delivered))
   }
 
   private fun closed(accountId: AccountId) {
@@ -168,6 +195,9 @@ class PostOfficeDesk(
       accountId,
       PostOfficeOpenSMSG(postmaster.entityId, office.name, office.level, homeName, isHome = home == office.settlement)
     )
+    val courier = CourierService.Courier(masterId, connections.getSelectedMasterEntityId(accountId), freeWeight = 0)
+    val delivered = couriers.deliver(courier, office)
     showParcels(accountId, masterId, postmaster, office)
+    showRouteBoard(accountId, postmaster, office, delivered)
   }
 }

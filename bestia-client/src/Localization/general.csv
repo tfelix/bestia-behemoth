@@ -579,6 +579,7 @@ ERROR_PARCEL_NOT_HERE,That parcel waits at %s. Collect it there.
 ERROR_PARCEL_NOT_ARRIVED,That parcel is still on the road.
 ERROR_POST_OFFICE_CLOSED,The postmaster has gone home. Come back during their hours.
 ERROR_ITEM_BOUND,This stays with you until you deliver it.
+ERROR_ROUTE_TOO_HEAVY,You cannot carry that much mail. Take fewer parcels.
 =======
 SKILLS_TITLE,Skills
 SKILLS_TAB_OTHER,Other
