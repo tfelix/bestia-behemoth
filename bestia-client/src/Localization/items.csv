@@ -338,3 +338,7 @@ STONE_HATCHET,Stone Hatchet
 STONE_HATCHET_DESC,"A knapped stone wedged into a stick.
 
 It chops slowly and bruises more than it cuts, but it chops."
+MAIL_SACK,Mail Sack
+MAIL_SACK_DESC,"A canvas sack under the postal seal. Nobody may open it, the courier included.
+
+Bring it to the post office it is addressed to before its deadline."
