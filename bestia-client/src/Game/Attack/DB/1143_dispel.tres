@@ -12,3 +12,4 @@ cooldown = 20.0
 max_level = 10
 target_type = "ENEMY"
 cast_time = 1.0
+targets_enchanted_items = true
