@@ -107,7 +107,9 @@ signal lightning_struck(ground: Vector3)
 @export var sky_horizon_twilight: Color = Color(0.92, 0.48, 0.26)
 @export var sky_horizon_night: Color = Color(0.050, 0.080, 0.180)
 
-@export var ground_day: Color = Color(0.36, 0.40, 0.36)
+## The sky below the horizon. Terrain and fog hide it, but it is the light from below for every surface that faces
+## down or away from the sun. A dark day ground leaves the underside of every tree crown in black patches.
+@export var ground_day: Color = Color(0.75, 0.75, 0.66)
 @export var ground_twilight: Color = Color(0.33, 0.22, 0.20)
 @export var ground_night: Color = Color(0.026, 0.030, 0.048)
 
