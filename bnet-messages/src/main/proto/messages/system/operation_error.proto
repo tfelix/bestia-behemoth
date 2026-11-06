@@ -318,6 +318,8 @@ enum OpError {
   PARCEL_NOT_ARRIVED = 118;
   // The postmaster has gone home. The player comes back during their hours.
   POST_OFFICE_CLOSED = 119;
+  // A bound item, like a mail sack, never leaves its holder's bag by hand. The player delivers it instead.
+  ITEM_BOUND = 120;
 }
 
 message OperationError {

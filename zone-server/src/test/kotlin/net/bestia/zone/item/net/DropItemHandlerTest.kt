@@ -16,6 +16,10 @@ import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.item.loot.LootItemEntitySpawner
+import net.bestia.zone.item.ecs.ItemTemplateRegistry
+import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.bnet.proto.OperationErrorProto.OpError
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -50,7 +54,10 @@ class DropItemHandlerTest {
     it.activateSession(ACCOUNT_ID, masterId = MASTER_ID, masterEntityId = entity)
   }
 
-  private val sut = DropItemHandler(inventoryService, spawner, connections, DeadActionGuard(), executor, world)
+  private val itemTemplates = mockk<ItemTemplateRegistry> { every { isBound(any()) } returns false }
+  private val outMessages = mockk<OutMessageProcessor>(relaxed = true)
+
+  private val sut = DropItemHandler(inventoryService, spawner, connections, DeadActionGuard(), executor, world, itemTemplates, outMessages)
 
   private val drop = DropItemCMSG(playerId = ACCOUNT_ID, playerItemId = arrows.playerItemId, amount = 4)
 
@@ -61,6 +68,16 @@ class DropItemHandlerTest {
     assertNotNull(pending)
     verify(exactly = 0) { inventoryService.removeNamedFromOwner(any(), any(), any(), any(), any(), any()) }
     verify(exactly = 0) { spawner.spawnLootItem(any(), any(), any(), any(), any(), any()) }
+  }
+
+  @Test
+  fun `a bound item stays in the bag and the player is told why`() {
+    every { itemTemplates.isBound(ARROW) } returns true
+
+    sut.handle(world, drop)
+
+    assertNull(pending)
+    verify { outMessages.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OpError.ITEM_BOUND)) }
   }
 
   @Test

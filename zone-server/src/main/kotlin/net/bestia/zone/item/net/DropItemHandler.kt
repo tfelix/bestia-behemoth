@@ -2,6 +2,10 @@ package net.bestia.zone.item.net
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
+import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.item.ecs.ItemTemplateRegistry
+import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.ecs.Equipment
@@ -32,6 +36,8 @@ class DropItemHandler(
   private val deadActionGuard: DeadActionGuard,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val worldView: WorldView,
+  private val itemTemplates: ItemTemplateRegistry,
+  private val outMessageProcessor: OutMessageProcessor,
 ) : TickMessageHandler<DropItemCMSG> {
   override val wire = decoder(MessageCase.DROP_ITEM) { accountId, envelope ->
     DropItemCMSG.fromBnet(accountId, envelope.dropItem)
@@ -53,6 +59,10 @@ class DropItemHandler(
     val held = world.get(activeEntityId, Inventory::class)?.byPlayerItemId(msg.playerItemId)
     if (held == null || !mayDrop(held, world.get(activeEntityId, Equipment::class), msg.amount)) {
       LOG.warn { "Entity $activeEntityId does not hold ${msg.amount}x of item ${msg.playerItemId} to drop" }
+      return true
+    }
+    if (itemTemplates.isBound(held.itemId)) {
+      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(OpError.ITEM_BOUND))
       return true
     }
 

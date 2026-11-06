@@ -37,6 +37,7 @@ class ItemTemplateRegistry(
     val attackRange: Int? = null,
     val twoHanded: Boolean = false,
     val script: String? = null,
+    val bound: Boolean = false,
   ) {
     val isAmmo: Boolean
       get() {
@@ -58,13 +59,17 @@ class ItemTemplateRegistry(
     itemRepository.findAll().associate {
       it.id to Template(
         it.id, it.baseLevel, it.weight, it.stackable, it.maxDurability, it.material, it.type, it.ammoType, it.element,
-        it.attackRange, it.twoHanded, it.script
+        it.attackRange, it.twoHanded, it.script, it.bound
       )
     }
   }
 
   private val idByIdentifier: Map<String, Long> by lazy {
     itemRepository.findAll().associate { it.identifier to it.id }
+  }
+
+  fun isBound(itemId: Long): Boolean {
+    return templateOf(itemId)?.bound == true
   }
 
   /** Null for an id the catalogue does not know. */
