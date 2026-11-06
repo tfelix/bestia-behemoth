@@ -267,7 +267,7 @@ skills:
       - skill: M_MINING
         level: 3
 
-  - skill: M_DEEP_DELVER
+  - skill: M_RICH_VEINS
     tree: SURVIVAL
     subTree: MINER
     maxLevel: 5
@@ -280,7 +280,7 @@ skills:
     subTree: MINER
     maxLevel: 3
     prerequisites:
-      - skill: M_DEEP_DELVER
+      - skill: M_RICH_VEINS
         level: 3
 
   # --- Scholar Tree (Priest sub-tree partially catalogued below; Trader/Sage/Warrior tree
