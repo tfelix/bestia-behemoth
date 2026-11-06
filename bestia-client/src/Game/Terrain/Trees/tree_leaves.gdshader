@@ -146,6 +146,10 @@ void fragment() {
 	float up = (INV_VIEW_MATRIX * vec4(NORMAL, 0.0)).y;
 	vec2 cover = weather_cover(world_pos, up, 1.0, snow_melt_celsius);
 	ALBEDO = mix(ALBEDO * mix(1.0, wet_darkening, cover.y), snow_colour, cover.x);
+
+	// specular_disabled drops only the sun's highlight. The sky's reflection still lands on every card, and on the
+	// shaded side of a crown it outshines the green and turns it slate blue.
+	SPECULAR = 0.0;
 }
 
 void light() {
