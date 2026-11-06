@@ -31,7 +31,8 @@ kinds:
   - kind: TREE
     max-hp: 120
     collider: { half-x: 1, half-y: 1, height: 8 }
-    variants: 4
+    # One per model in the client's tree table, which picks by this number so a tree keeps its model.
+    variants: 10
     regrow-seconds: 1800
 
   - kind: BLIGHTED_TREE
@@ -76,7 +77,7 @@ kinds:
   # The points of interest: one row per entry in worldgen's `PoiKind`, and mandatory - a landmark added to the
   # catalogue with no row here fails the boot rather than the first world that rolls it.
   #
-  # `variants: 1` throughout, and unlike the rows above that is not a placeholder. A tree has four models so a
+  # `variants: 1` throughout, and unlike the rows above that is not a placeholder. A tree has ten models so a
   # wood does not look stamped; each of these is *one object* that exists at most once in a world, so a second
   # model of it would be a second answer to a question with one answer.
   - kind: POI_LOST_GRAVE

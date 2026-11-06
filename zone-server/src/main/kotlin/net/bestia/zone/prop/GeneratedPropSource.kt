@@ -2,6 +2,7 @@ package net.bestia.zone.prop
 
 import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.core.ChunkPos
+import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.poi.PoiKind
 import net.bestia.worldgen.voxel.PropKind
 import net.bestia.worldgen.voxel.PropFlags
@@ -121,8 +122,11 @@ class GeneratedPropSource(
    * Reduced against the kind's variant count by the caller rather than here, because this source does not know
    * how many meshes a kind has - `PropKindRegistry` does, and a source that had to be injected with it to emit
    * a number would be the wrong shape.
+   *
+   * Mixed, because a propId is a packed lattice cell: neighbouring trees differ in their low bits only, and
+   * an unmixed modulo would plant the variants in rows.
    */
-  private fun variantOf(propId: Long): Int = (abs(propId.hashCode()) ushr 3)
+  private fun variantOf(propId: Long): Int = (GenRng.mix64(propId) ushr 33).toInt()
 
   private fun yawOf(propId: Long): Float =
     (abs((propId * 0x9E3779B97F4A7C15uL.toLong()) ushr 40) % 3600) / 3600f * TWO_PI

@@ -301,7 +301,7 @@ namespace BestiaBehemothClient.Game.World
     private void AddSceneProp(
       Node3D container, ChunkKey key, ChunkStaticEntitiesSMSG.Entry entry, PropAppearance.Kind appearance)
     {
-      var variant = appearance.SceneFor(entry.EntityId);
+      var variant = appearance.SceneFor(entry.Variant);
       var scene = SceneFor(entry.Kind, variant.Path);
       if (scene == null)
       {
