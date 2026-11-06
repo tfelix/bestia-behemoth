@@ -192,6 +192,10 @@ skills:
     tree: SURVIVAL
     maxLevel: 5
 
+  - skill: M_MAXIMIZE_CARRY_CAPACITY
+    tree: SURVIVAL
+    maxLevel: 5
+
   # Forester (unlocked at 5+ pts in Survival Tree)
   - skill: M_LUMBERJACK
     tree: SURVIVAL
@@ -233,22 +237,6 @@ skills:
         level: 3
 
   # Prospector (unlocked at 5+ pts in Survival Tree)
-  - skill: M_MAXIMIZE_CARRY_CAPACITY
-    tree: SURVIVAL
-    subTree: PROSPECTOR
-    maxLevel: 5
-
-  # Note: master.md's "Enlarge Weight Limit" lists its requirement as "Power Maximize Lv. 3",
-  # which doesn't match any skill name in this tree - treated as Maximize Carry Capacity per
-  # the doc's own note.
-  - skill: M_ENLARGE_WEIGHT_LIMIT
-    tree: SURVIVAL
-    subTree: PROSPECTOR
-    maxLevel: 5
-    prerequisites:
-      - skill: M_MAXIMIZE_CARRY_CAPACITY
-        level: 3
-
   - skill: M_CARTOGRAPHY
     tree: SURVIVAL
     subTree: PROSPECTOR
@@ -257,18 +245,13 @@ skills:
       - skill: M_RESOURCE_SENSE
         level: 1
 
-  - skill: M_WILDERNESS_SURVIVAL
-    tree: SURVIVAL
-    subTree: PROSPECTOR
-    maxLevel: 5
-    prerequisites:
-      - skill: M_ENLARGE_WEIGHT_LIMIT
-        level: 3
-
   - skill: M_WEATHER_SENSE
     tree: SURVIVAL
     subTree: PROSPECTOR
     maxLevel: 3
+    prerequisites:
+      - skill: M_CARTOGRAPHY
+        level: 2
 
   # Miner (unlocked at 5+ pts in Survival Tree)
   - skill: M_MINING

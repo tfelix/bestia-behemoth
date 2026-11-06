@@ -12,5 +12,4 @@ cooldown = 0.0
 max_level = 5
 target_type = "FRIENDLY"
 tree = "SURVIVAL"
-sub_tree = "PROSPECTOR"
 is_passive = true

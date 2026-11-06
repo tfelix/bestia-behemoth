@@ -9,9 +9,7 @@ import org.springframework.stereotype.Component
  * `MEDITATION` (`skills.yml` id 27, `maxLevel: 5`): *"A calm, centered breathing that quickens the
  * natural mending of both Master and Bestia alike. `+6%/lv` HP and Mana regeneration"*.
  *
- * HP and mana only - the authored description does not mention stamina, and
- * `WILDERNESS_SURVIVAL` is the stamina-facing passive (phrased as a drain reduction, which belongs
- * to `EnvironmentalExposureSystem` rather than here).
+ * HP and mana only - the authored description does not mention stamina.
  *
  * Note the interaction with integer regeneration: at the level-1 base rate of 2 HP per tick every
  * rank below +50% floors straight back to 2, so this passive only becomes visible on the larger
