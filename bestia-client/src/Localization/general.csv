@@ -578,3 +578,4 @@ ERROR_PARCEL_CANNOT_AFFORD,You cannot pay the freight fee.
 ERROR_PARCEL_NOT_HERE,That parcel waits at %s. Collect it there.
 ERROR_PARCEL_NOT_ARRIVED,That parcel is still on the road.
 ERROR_POST_OFFICE_CLOSED,The postmaster has gone home. Come back during their hours.
+ERROR_ITEM_BOUND,This stays with you until you deliver it.

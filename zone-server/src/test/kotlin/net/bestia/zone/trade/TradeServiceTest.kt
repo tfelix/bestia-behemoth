@@ -50,6 +50,7 @@ class TradeServiceTest {
     basicSkillGate = mockk<BasicSkillGate> { every { mayTrade(any()) } returns true },
     asyncJobExecutor = mockk(relaxed = true),
     deadActionGuard = DeadActionGuard(),
+    itemTemplates = mockk(relaxed = true),
   )
 
   @Test

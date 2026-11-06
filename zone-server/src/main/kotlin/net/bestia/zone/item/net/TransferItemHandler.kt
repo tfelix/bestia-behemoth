@@ -12,6 +12,7 @@ import net.bestia.zone.item.ecs.CarryCapacity
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemOwner
+import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.ecs.grantToLive
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
@@ -42,6 +43,7 @@ class TransferItemHandler(
   private val asyncJobExecutor: AsyncJobExecutor,
   private val outMessageProcessor: OutMessageProcessor,
   private val worldView: WorldView,
+  private val itemTemplates: ItemTemplateRegistry,
 ) : TickMessageHandler<TransferItemCMSG> {
 
   override val wire = decoder(MessageCase.TRANSFER_ITEM) { accountId, envelope ->
@@ -78,6 +80,10 @@ class TransferItemHandler(
     if (inventory == null || held == null || !mayHandOver(held, world.get(msg.fromEntityId, Equipment::class), msg.amount)) {
       LOG.warn { "Entity ${msg.fromEntityId} does not freely hold ${msg.amount}x of item ${msg.playerItemId} to hand over" }
       resendBags(world, msg)
+      return true
+    }
+    if (itemTemplates.isBound(held.itemId)) {
+      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(OpError.ITEM_BOUND))
       return true
     }
 

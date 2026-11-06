@@ -7,6 +7,7 @@ import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.persistence.AsyncJobExecutor
@@ -34,6 +35,7 @@ class PostOfficeDesk(
   private val out: OutMessageProcessor,
   private val parcels: ParcelService,
   private val world: WorldView,
+  private val itemTemplates: ItemTemplateRegistry,
 ) : ServiceCounter {
 
   /** One line of a parcel being weighed or sent: what the bag shows, not what the database holds. */
@@ -65,6 +67,7 @@ class PostOfficeDesk(
   fun quote(accountId: AccountId, postmaster: Speaker, recipientName: String, lines: List<Line>) {
     val office = officeAtWork(postmaster) ?: return closed(accountId)
     val goods = goodsOf(accountId, lines) ?: return refuse(accountId, OpError.REQUEST_REFUSED)
+    if (goods.any { itemTemplates.isBound(it.itemId) }) return refuse(accountId, OpError.ITEM_BOUND)
 
     jobs.submit(connections.getMasterId(accountId)) {
       when (val outcome = parcels.quote(office, recipientName, goods)) {
@@ -77,6 +80,7 @@ class PostOfficeDesk(
   fun send(accountId: AccountId, postmaster: Speaker, recipientName: String, lines: List<Line>, coachOnly: Boolean) {
     val office = officeAtWork(postmaster) ?: return closed(accountId)
     val goods = goodsOf(accountId, lines) ?: return refuse(accountId, OpError.REQUEST_REFUSED)
+    if (goods.any { itemTemplates.isBound(it.itemId) }) return refuse(accountId, OpError.ITEM_BOUND)
     val customer = customerOf(accountId)
 
     jobs.submit(customer.masterId) {

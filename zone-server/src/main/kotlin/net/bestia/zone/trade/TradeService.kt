@@ -3,6 +3,7 @@ package net.bestia.zone.trade
 import net.bestia.zone.entity.GameMetrics
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.session.AccountDisconnectedEvent
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
@@ -69,6 +70,7 @@ class TradeService(
   private val basicSkillGate: BasicSkillGate,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val deadActionGuard: DeadActionGuard,
+  private val itemTemplates: ItemTemplateRegistry,
   private val metrics: GameMetrics = GameMetrics(),
 ) {
 
@@ -249,6 +251,10 @@ class TradeService(
     if (held == null || held.amount < amount) {
       LOG.warn { "Trade $tradeId: master ${side.masterId} offered ${amount}x of item $playerItemId it does not hold unworn" }
       resendTo(session, accountId)
+      return
+    }
+    if (itemTemplates.isBound(held.itemId)) {
+      deny(accountId, OpError.ITEM_BOUND)
       return
     }
 
