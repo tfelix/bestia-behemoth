@@ -80,7 +80,28 @@ class Parcel(
   @Column(nullable = false)
   var announced: Boolean = false
 
+  /** The sealed sack it travels in, from the route board until it arrives. */
+  @Column(name = "sack_instance_id")
+  var sackInstanceId: Long? = null
+
+  /** Who carries that sack. Null while it lies on the ground after its courier fell. */
+  @Column(name = "courier_master_id")
+  var courierMasterId: Long? = null
+
   fun hasArrived(now: Instant): Boolean {
     return !now.isBefore(latestArrival)
+  }
+
+  /** A courier brought it before its latest arrival, so it has arrived now. */
+  fun deliver(now: Instant) {
+    latestArrival = now
+    sackInstanceId = null
+    courierMasterId = null
+  }
+
+  /** Waits at its origin's route board for a courier. Whatever nobody takes goes by coach. */
+  fun isOnBoard(now: Instant): Boolean {
+    return !coachOnly && !returning && !collectAnywhere && sackInstanceId == null &&
+      originOffice != destinationOffice && !hasArrived(now)
   }
 }

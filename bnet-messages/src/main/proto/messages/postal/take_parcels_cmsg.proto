@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "TakeParcelsCmsgProto";
+
+// Takes parcels from the route board into one sealed mail sack. They must all go to the same office. Answered by
+// RouteBoardSMSG or an OperationError.
+message TakeParcelsCMSG {
+  uint64 postmaster_entity_id = 1;
+  repeated uint64 parcel_ids = 2;
+}
