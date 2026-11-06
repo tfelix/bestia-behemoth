@@ -4,6 +4,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.account.persistence.Master
+import net.bestia.zone.account.persistence.MasterRepository
+import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.economy.CommodityItems
@@ -27,6 +31,7 @@ import org.springframework.transaction.support.TransactionTemplate
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
+import java.util.Optional
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -52,9 +57,12 @@ class CourierServiceTest {
     }
   }
 
+  private val masters = mockk<MasterRepository>()
+  private val storedEffects = mockk<StatusEffectPersistenceService>(relaxed = true)
+
   private val service = CourierService(
-    parcels, offices, inventory, items, mockk<CommodityItems> { every { coinItemId() } returns COIN }, reserve, world,
-    transactions, Clock.fixed(now, ZoneOffset.UTC),
+    parcels, masters, offices, inventory, items, mockk<CommodityItems> { every { coinItemId() } returns COIN }, reserve,
+    mockk(relaxed = true), storedEffects, world, transactions, Clock.fixed(now, ZoneOffset.UTC),
   )
 
   private val ashfen = PostOffices.Office(settlement = ASHFEN, name = "Ashfen", level = 2)
@@ -126,6 +134,21 @@ class CourierServiceTest {
     every { parcels.findByCourierMasterIdAndDestinationOffice(COURIER, IRONHILL) } returns emptyList()
 
     assertNull(service.deliver(courier, ironhill))
+  }
+
+  @Test
+  fun `a courier past the deadline loses the sack and is struck off, even when away`() {
+    val late = parcel().also { it.sackInstanceId = 555L; it.courierMasterId = COURIER; it.latestArrival = now }
+    every { parcels.findByCourierMasterIdIsNotNullAndLatestArrivalLessThanEqual(now) } returns listOf(late)
+    every { masters.findById(COURIER) } returns Optional.of(mockk<Master> { every { entityId } returns 77L })
+    every { world.modify<Any?>(77L, any()) } returns null
+
+    service.strikeOffLate()
+
+    verify { inventory.destroyInstance(COURIER, 555L) }
+    verify { storedEffects.seed(77L, StatusEffectId.STRUCK_OFF) }
+    assertNull(late.courierMasterId)
+    assertTrue(late.hasArrived(now))
   }
 
   private fun parcel(

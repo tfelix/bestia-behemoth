@@ -1,6 +1,12 @@
 package net.bestia.zone.postal.courier
 
 import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.account.persistence.MasterRepository
+import net.bestia.zone.account.persistence.findByIdOrThrow
+import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.economy.WorldReserve
 import net.bestia.zone.ecs.core.WorldView
@@ -20,6 +26,7 @@ import net.bestia.zone.postal.persistence.Parcel
 import net.bestia.zone.postal.persistence.ParcelRepository
 import net.bestia.zone.postal.seal.PostalSeal
 import net.bestia.zone.util.EntityId
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.TransactionTemplate
@@ -33,11 +40,14 @@ import java.time.Instant
 @Service
 class CourierService(
   private val parcels: ParcelRepository,
+  private val masters: MasterRepository,
   private val offices: PostOffices,
   private val inventoryService: InventoryService,
   private val itemRepository: ItemRepository,
   private val commodityItems: CommodityItems,
   private val reserve: WorldReserve,
+  private val statusEffects: StatusEffectService,
+  private val storedEffects: StatusEffectPersistenceService,
   private val world: WorldView,
   private val transactions: TransactionTemplate,
   private val clock: Clock = Clock.systemUTC(),
@@ -116,6 +126,42 @@ class CourierService(
     world.read { reserve.charge(delivered.delivery.pay.toDouble(), CoinSource.COURIER) }
 
     return delivered.delivery
+  }
+
+  /**
+   * A courier who missed the deadline is paid nothing and struck off; the seal already sent the parcels on, as
+   * their latest arrival has passed. This happens whether the courier is in the world or not.
+   */
+  @Scheduled(fixedDelay = 60_000L)
+  fun strikeOffLate() {
+    val now = clock.instant()
+
+    val late = transactions.execute {
+      parcels.findByCourierMasterIdIsNotNullAndLatestArrivalLessThanEqual(now)
+        .groupBy { it.courierMasterId!! }
+        .map { (courierMasterId, carried) ->
+          val sacks = carried.mapNotNull { it.sackInstanceId }.distinct()
+          sacks.forEach { inventoryService.destroyInstance(courierMasterId, it) }
+          carried.forEach { it.sackInstanceId = null; it.courierMasterId = null }
+          LateCourier(masters.findByIdOrThrow(courierMasterId).entityId, sacks)
+        }
+    }.orEmpty()
+
+    late.forEach(::strikeOff)
+  }
+
+  private data class LateCourier(val masterEntityId: EntityId, val sacks: List<Long>)
+
+  private fun strikeOff(late: LateCourier) {
+    removeFromLiveBag(late.masterEntityId, late.sacks)
+    val inWorld = world.modify(late.masterEntityId) { id ->
+      if (!has(id, StatusEffects::class)) return@modify false
+      statusEffects.applyEffect(this, id, StatusEffectId.STRUCK_OFF, level = 1)
+    } == true
+
+    if (!inWorld) {
+      storedEffects.seed(late.masterEntityId, StatusEffectId.STRUCK_OFF)
+    }
   }
 
   private data class Sacked(val sack: ReservedItem)

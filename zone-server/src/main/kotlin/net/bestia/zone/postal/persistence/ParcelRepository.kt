@@ -22,4 +22,6 @@ interface ParcelRepository : JpaRepository<Parcel, Long> {
   fun findByOriginOfficeAndSackInstanceIdIsNullOrderByLatestArrival(originOffice: Int): List<Parcel>
 
   fun findByCourierMasterIdAndDestinationOffice(courierMasterId: Long, destinationOffice: Int): List<Parcel>
+
+  fun findByCourierMasterIdIsNotNullAndLatestArrivalLessThanEqual(now: Instant): List<Parcel>
 }

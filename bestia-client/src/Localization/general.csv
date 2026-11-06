@@ -69,6 +69,7 @@ STATUS_EFFECT_56,Hidden: other players cannot see you. You cannot move. Acting r
 STATUS_EFFECT_57,Cloaked: other players cannot see you. You move slower. Acting or being hit reveals you.
 STATUS_EFFECT_59,Armor stripped: you cannot put armor on until this ends.
 STATUS_EFFECT_60,Disarmed: you cannot take up a weapon until this ends.
+STATUS_EFFECT_61,"Struck off: missed a mail deadline. No post work until this ends."
 ERROR_CHAT_WHISPER_TARGET_UNAVAILABLE,No player named %s is online.
 DEATH_TITLE,You have died.
 DEATH_TEXT,"Your body lies where it fell. Return to your save point, or stay a while longer."
@@ -580,3 +581,4 @@ ERROR_PARCEL_NOT_ARRIVED,That parcel is still on the road.
 ERROR_POST_OFFICE_CLOSED,The postmaster has gone home. Come back during their hours.
 ERROR_ITEM_BOUND,This stays with you until you deliver it.
 ERROR_ROUTE_TOO_HEAVY,You cannot carry that much mail. Take fewer parcels.
+ERROR_COURIER_STRUCK_OFF,You missed a mail deadline. The post gives you no work until you are no longer struck off.
