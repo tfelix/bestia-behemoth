@@ -14,6 +14,7 @@ import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.container.ReservedItem
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.ecs.grantToLive
 import net.bestia.zone.item.ecs.takeFromLive
 import net.bestia.zone.item.persistence.ItemContainer
@@ -51,6 +52,7 @@ class AuctionService(
   private val reserve: WorldReserve,
   private val outMessageProcessor: OutMessageProcessor,
   private val transactions: TransactionTemplate,
+  private val itemTemplates: ItemTemplateRegistry,
   private val clock: Clock = Clock.systemUTC(),
 ) {
 
@@ -69,6 +71,9 @@ class AuctionService(
     if (held == null || held.itemId == coinId || amount <= 0 || held.amount < amount || price <= 0 || price > MAX_PRICE) {
       LOG.warn { "Master $masterId sent an impossible listing: item $playerItemId x$amount for $price" }
       return deny(accountId, OpError.REQUEST_REFUSED)
+    }
+    if (itemTemplates.isBound(held.itemId)) {
+      return deny(accountId, OpError.ITEM_BOUND)
     }
 
     if (listings.countBySellerMasterId(masterId) >= MAX_LISTINGS_PER_MASTER) {

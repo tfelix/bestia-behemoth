@@ -27,4 +27,7 @@ data class GroundItemStack(
    * up makes the row with this roll.
    */
   val roll: ItemRoll? = null,
+
+  /** Of one unit, for a copy that weighs what it holds, like a mail sack. Null: the template's weight. */
+  val heldWeight: Int? = null,
 ) : Component

@@ -97,6 +97,10 @@ class Item(
   @Column(name = "novice_only", nullable = false)
   var noviceOnly: Boolean = false,
 
+  /** Never leaves its holder's bag by hand: not dropped, traded, sold or sent. A mail sack is one. */
+  @Column(nullable = false)
+  var bound: Boolean = false,
+
   /**
    * How heavy this armor is, checked against the species of a bestia that puts it on. Null for gear that is
    * not armor, such as weapons and accessories: anyone with the slot may wear it.

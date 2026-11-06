@@ -52,6 +52,9 @@ class GameMetrics(private val registry: MeterRegistry = SimpleMeterRegistry()) {
 
     /** The freight fee of a parcel. */
     FREIGHT,
+
+    /** A courier's share of the freight fees of the parcels it delivered, paid back out of the reserve. */
+    COURIER,
   }
 
   private val hits = Counter.builder("zone.combat.hits")

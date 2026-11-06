@@ -313,7 +313,7 @@ class PlayerBestiaEntitySpawner(
         Inventory.Item(
           itemId = slot.template.id,
           amount = slot.amount,
-          weight = slot.template.weight,
+          weight = slot.weight,
           uniqueId = slot.uniqueId,
           stackable = slot.isStackable,
           equipped = slot.isEquipped,

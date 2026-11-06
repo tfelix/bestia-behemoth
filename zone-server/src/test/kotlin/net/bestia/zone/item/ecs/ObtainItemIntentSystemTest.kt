@@ -63,7 +63,10 @@ class ObtainItemIntentSystemTest {
     every { modify<Any?>(any(), any()) } answers { world.modify(firstArg(), secondArg()) }
   }
 
-  private fun newSystem(spawner: LootItemEntitySpawner = lootItemEntitySpawner) = ObtainItemIntentSystem(
+  private fun newSystem(
+    spawner: LootItemEntitySpawner = lootItemEntitySpawner,
+    pickupRules: List<GroundPickupRule> = emptyList(),
+  ) = ObtainItemIntentSystem(
     itemTemplates = ItemTemplateRegistry(itemRepository),
     lootItemEntitySpawner = spawner,
     inventoryService = inventoryService,
@@ -71,10 +74,14 @@ class ObtainItemIntentSystemTest {
     groundStackRemoval = GroundStackRemoval(PersistedEntityDeletionQueue()),
     itemStats = ItemStatCatalog(),
     worldView = worldView,
+    pickupRules = pickupRules,
   )
 
-  private fun setUp(spawner: LootItemEntitySpawner = lootItemEntitySpawner) {
-    world = testWorld(systems = listOf(newSystem(spawner)))
+  private fun setUp(
+    spawner: LootItemEntitySpawner = lootItemEntitySpawner,
+    pickupRules: List<GroundPickupRule> = emptyList(),
+  ) {
+    world = testWorld(systems = listOf(newSystem(spawner, pickupRules)))
     every { itemRepository.findAll() } answers { catalogue.toList() }
   }
 
@@ -427,6 +434,54 @@ class ObtainItemIntentSystemTest {
     assertTrue(world.get(looter, Inventory::class)!!.isEmpty())
     assertEquals(Animation.AnimationKind.IDLE, poseOf(looter))
     verifyNoItemGranted()
+  }
+
+  @Test
+  fun `a copy that weighs what it holds is weighed so, and carried at that weight`() {
+    setUp()
+    stub(sword)
+    val looter = createCarrier(capacityMax = 2475, pos = Vec3L(0, 0, 0))
+    val heavy = groundStack(GroundItemStack(itemId = sword.id, amount = 1, uniqueId = 77L, heldWeight = 3000))
+    val light = groundStack(GroundItemStack(itemId = sword.id, amount = 1, uniqueId = 78L, heldWeight = 600))
+
+    loot(looter, heavy)
+    loot(looter, light)
+
+    assertTrue(world.isAlive(heavy))
+    assertEquals(600, world.get(looter, Inventory::class)!!.byPlayerItemId(78L)?.weight)
+  }
+
+  @Test
+  fun `a pickup rule can keep an item on the ground, and hears the pickups it allows`() {
+    val rule = mockk<GroundPickupRule>(relaxed = true) {
+      every { reads } returns emptySet()
+      every { writes } returns emptySet()
+      every { mayPickUp(any(), any(), any()) } returns false
+    }
+    setUp(pickupRules = listOf(rule))
+    stub(sword)
+    val looter = createCarrier(capacityMax = 2475, pos = Vec3L(0, 0, 0))
+    val kept = groundStack(GroundItemStack(itemId = sword.id, amount = 1))
+
+    loot(looter, kept)
+    assertTrue(world.isAlive(kept))
+
+    every { rule.mayPickUp(any(), any(), any()) } returns true
+    loot(looter, kept)
+    assertFalse(world.isAlive(kept))
+    verify { rule.onPickUp(any(), looter, kept) }
+  }
+
+  private fun groundStack(stack: GroundItemStack): EntityId {
+    return world.createEntity { id ->
+      add(id, Position.fromVec3(Vec3L(0, 0, 0)))
+      add(id, stack)
+    }
+  }
+
+  private fun loot(looter: EntityId, stack: EntityId) {
+    world.modify(looter) { id -> add(id, ObtainItemIntent.LootItemIntent(sourceEntityItemStackId = stack)) }
+    world.tick(0.1f)
   }
 
   @Test

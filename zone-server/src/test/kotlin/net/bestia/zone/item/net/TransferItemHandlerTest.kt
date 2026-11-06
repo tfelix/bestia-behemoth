@@ -62,7 +62,7 @@ class TransferItemHandlerTest {
     it.activateSession(ACCOUNT_ID, masterId = MASTER_ID, masterEntityId = master)
   }
 
-  private val sut = TransferItemHandler(inventoryService, connections, DeadActionGuard(), executor, outMessages, world)
+  private val sut = TransferItemHandler(inventoryService, connections, DeadActionGuard(), executor, outMessages, world, mockk(relaxed = true))
 
   private val handOver = TransferItemCMSG(ACCOUNT_ID, master, bestia, arrows.playerItemId, amount = 4)
 

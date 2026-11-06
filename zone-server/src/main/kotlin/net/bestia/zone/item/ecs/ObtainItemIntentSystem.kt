@@ -1,5 +1,6 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.battle.ecs.exp.GainExpSystem
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.entity.GameMetrics
 import net.bestia.zone.item.stat.ItemStatCatalog
@@ -40,13 +41,18 @@ class ObtainItemIntentSystem(
   private val groundStackRemoval: GroundStackRemoval,
   private val itemStats: ItemStatCatalog,
   private val worldView: WorldView,
+  private val pickupRules: List<GroundPickupRule> = emptyList(),
   private val metrics: GameMetrics = GameMetrics(),
 ) : System {
   override val phase = Phase.ITEMS
 
+  // A pickup rule may cost honor or set a status, which experience gains touch too.
+  override val after = setOf(GainExpSystem::class)
+
   private data class ClaimedLoot(
     val item: ItemTemplateRegistry.Template,
     val amount: Int,
+    val weight: Int,
     val uniqueId: Long,
     val provenance: ItemProvenance?,
     val roll: ItemRoll?,
@@ -57,11 +63,11 @@ class ObtainItemIntentSystem(
     ObtainItemIntent.LootItemIntent::class, ObtainItemIntent.CreateItemIntent::class,
     ObtainItemIntent.CreateItemsIntent::class, Position::class, Account::class, Master::class, OwnedBestia::class, GroundItemStack::class, CarryCapacity::class,
     Inventory::class, GroundItemIntegrity::class, LootProtection::class
-  )
+  ) + pickupRules.flatMap { it.reads }
   override val writes: ComponentClassSet = setOf(
     ObtainItemIntent.LootItemIntent::class, ObtainItemIntent.CreateItemIntent::class,
     ObtainItemIntent.CreateItemsIntent::class, Inventory::class, Animation::class
-  )
+  ) + pickupRules.flatMap { it.writes }
 
   override fun update(world: World, deltaTime: Float) {
     // Separate queries, not one query(ObtainItemIntent::class): components are stored keyed by
@@ -124,16 +130,22 @@ class ObtainItemIntentSystem(
         return@modify null
       }
 
-      if (!canObtain(this, entityId, item.weight * stack.amount)) {
+      val weight = stack.heldWeight ?: item.weight
+      if (!canObtain(this, entityId, weight * stack.amount)) {
         refusal = "it does not fit the looter's carry capacity"
         return@modify null // leave the stack on the ground
       }
+      if (pickupRules.any { !it.mayPickUp(this, entityId, itemStackEntityId) }) {
+        refusal = "a rule of its own keeps it on the ground"
+        return@modify null
+      }
+      pickupRules.forEach { it.onPickUp(this, entityId, itemStackEntityId) }
 
       // destroy() alone notifies clients: ZoneEngine broadcasts a vanish to whoever the stack's
       // EntityVisual was synced to.
       groundStackRemoval.remove(this, itemStackEntityId)
 
-      ClaimedLoot(item, stack.amount, stack.uniqueId, stack.provenance, stack.roll)
+      ClaimedLoot(item, stack.amount, weight, stack.uniqueId, stack.provenance, stack.roll)
     }
 
     if (claimed == null) {
@@ -141,7 +153,7 @@ class ObtainItemIntentSystem(
       return
     }
 
-    grantItem(world, entityId, claimed.item, claimed.amount, claimed.uniqueId, claimed.roll, claimed.provenance)
+    grantItem(world, entityId, claimed.item, claimed.amount, claimed.uniqueId, claimed.roll, claimed.provenance, claimed.weight)
     // Only a loot that worked: a refused one leaves the stack lying there, which says enough.
     world.get(entityId, Animation::class)?.startPickUp()
   }
@@ -213,6 +225,7 @@ class ObtainItemIntentSystem(
     uniqueId: Long = 0L,
     roll: ItemRoll? = null,
     provenance: ItemProvenance? = null,
+    weight: Int = item.weight,
   ) {
     val inventory = world.get(entityId, Inventory::class)
     if (inventory == null) {
@@ -229,7 +242,7 @@ class ObtainItemIntentSystem(
         Inventory.Item(
           itemId = item.id,
           amount = if (freshInstanceIds.isEmpty()) amount else 1,
-          weight = item.weight,
+          weight = weight,
           uniqueId = heldId,
           stackable = item.stackable,
           // Mirrors what InventoryService.grant is about to mint: a fresh instance starts unworn, and a

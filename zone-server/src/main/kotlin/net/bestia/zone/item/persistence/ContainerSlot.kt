@@ -103,6 +103,9 @@ class ContainerSlot(
 
   val isStackable: Boolean get() = itemInstance == null
 
+  /** Of one unit: a copy may weigh more than its template, see [ItemInstance.heldWeight]. */
+  val weight: Int get() = itemInstance?.weight ?: template.weight
+
   /** Who crafted what this slot holds, whether it is a pile or an instance. */
   val heldProvenance: ItemProvenance? get() = itemInstance?.provenance ?: provenance
 

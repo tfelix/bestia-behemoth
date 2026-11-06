@@ -293,7 +293,7 @@ class MasterEntitySpawner(
       items = master.container.slots.map { slot ->
         Inventory.Item(
           itemId = slot.template.id,
-          weight = slot.template.weight,
+          weight = slot.weight,
           amount = slot.amount,
           uniqueId = slot.uniqueId,
           stackable = slot.isStackable,

@@ -486,3 +486,13 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: StrippedGear
+
+  # Put on a courier who missed a mail deadline. No post work until it ends. Not dispellable, since a Dispel would
+  # undo the post's own penalty.
+  - id: 61
+    identifier: STRUCK_OFF
+    polarity: NEUTRAL
+    showIcon: true
+    isSyncedToClient: true
+    dispellable: false
+    script: StruckOff

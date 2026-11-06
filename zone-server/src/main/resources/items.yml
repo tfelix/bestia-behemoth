@@ -1264,3 +1264,18 @@ items:
       A round of pine planks with an iron boss and a leather grip.
 
       Heavier than it looks, and lighter than what it stops.
+
+  # Handed to a courier at a post office's route board, under the postal seal. Each copy weighs the parcels in it,
+  # so its own weight is only the canvas. `bound` keeps it in the courier's bag until it is delivered.
+  - id: 100
+    item-db-name: mail_sack
+    base-level: 1
+    weight: 50
+    type: ETC
+    material: CLOTH
+    stackable: false
+    bound: true
+    description: |
+      A canvas sack under the postal seal. Nobody may open it, the courier included.
+
+      Bring it to the post office it is addressed to before its deadline.

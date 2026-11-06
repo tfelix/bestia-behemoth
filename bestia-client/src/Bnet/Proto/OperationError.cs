@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrPFwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqMGAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -93,8 +93,10 @@ namespace Bnet {
             "SUxfUkVDSVBJRU5UX0ZVTEwQchIUChBQQVJDRUxfVE9PX0hFQVZZEHMSGAoU",
             "UEFSQ0VMX0NBTk5PVF9BRkZPUkQQdBITCg9QQVJDRUxfTk9UX0hFUkUQdRIW",
             "ChJQQVJDRUxfTk9UX0FSUklWRUQQdhIWChJQT1NUX09GRklDRV9DTE9TRUQQ",
-            "dyIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5l",
-            "dC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
+            "dxIOCgpJVEVNX0JPVU5EEHgSEwoPUk9VVEVfVE9PX0hFQVZZEHkSFgoSQ09V",
+            "UklFUl9TVFJVQ0tfT0ZGEHoiBAguEC4qElNIT1BfVFJFQVNVUllfRlVMTEIs",
+            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9i",
+            "BnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -563,6 +565,18 @@ namespace Bnet {
     /// The postmaster has gone home. The player comes back during their hours.
     /// </summary>
     [pbr::OriginalName("POST_OFFICE_CLOSED")] PostOfficeClosed = 119,
+    /// <summary>
+    /// A bound item, like a mail sack, never leaves its holder's bag by hand. The player delivers it instead.
+    /// </summary>
+    [pbr::OriginalName("ITEM_BOUND")] ItemBound = 120,
+    /// <summary>
+    /// Parcels from the route board that weigh more than the courier can still carry. The courier takes fewer.
+    /// </summary>
+    [pbr::OriginalName("ROUTE_TOO_HEAVY")] RouteTooHeavy = 121,
+    /// <summary>
+    /// The courier missed a mail deadline and is struck off. The player waits until STRUCK_OFF runs out.
+    /// </summary>
+    [pbr::OriginalName("COURIER_STRUCK_OFF")] CourierStruckOff = 122,
   }
 
   #endregion

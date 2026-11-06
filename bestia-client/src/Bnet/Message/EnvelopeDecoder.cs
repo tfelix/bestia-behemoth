@@ -74,6 +74,7 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.ParcelQuote] = e => Postal.ParcelQuoteSMSG.FromProto(e.ParcelQuote),
       [Envelope.MessageOneofCase.ParcelSent] = e => Postal.ParcelSentSMSG.FromProto(e.ParcelSent),
       [Envelope.MessageOneofCase.ParcelArrived] = e => Postal.ParcelArrivedSMSG.FromProto(e.ParcelArrived),
+      [Envelope.MessageOneofCase.RouteBoard] = e => Postal.RouteBoardSMSG.FromProto(e.RouteBoard),
       [Envelope.MessageOneofCase.PartyInvitation] = e => Party.PartyInvitationSMSG.FromProto(e.PartyInvitation),
       [Envelope.MessageOneofCase.PartyInfo] = e => Party.PartyInfoSMSG.FromProto(e.PartyInfo),
       [Envelope.MessageOneofCase.DisbandParty] = e => Party.DisbandPartySMSG.FromProto(e.DisbandParty),

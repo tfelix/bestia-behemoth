@@ -318,3 +318,7 @@ NOVICE_SHIELD,Novice Shield
 NOVICE_SHIELD_DESC,"A round of pine planks with an iron boss and a leather grip.
 
 Heavier than it looks, and lighter than what it stops."
+MAIL_SACK,Mail Sack
+MAIL_SACK_DESC,"A canvas sack under the postal seal. Nobody may open it, the courier included.
+
+Bring it to the post office it is addressed to before its deadline."

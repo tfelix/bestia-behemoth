@@ -69,6 +69,7 @@ STATUS_EFFECT_56,Hidden: other players cannot see you. You cannot move. Acting r
 STATUS_EFFECT_57,Cloaked: other players cannot see you. You move slower. Acting or being hit reveals you.
 STATUS_EFFECT_59,Armor stripped: you cannot put armor on until this ends.
 STATUS_EFFECT_60,Disarmed: you cannot take up a weapon until this ends.
+STATUS_EFFECT_61,"Struck off: missed a mail deadline. No post work until this ends."
 ERROR_CHAT_WHISPER_TARGET_UNAVAILABLE,No player named %s is online.
 DEATH_TITLE,You have died.
 DEATH_TEXT,"Your body lies where it fell. Return to your save point, or stay a while longer."
@@ -573,8 +574,19 @@ PARCEL_QUOTE,"%.1f kg, %s gold, to %s. Arrives in %s at the latest."
 PARCEL_SEND,Send
 PARCEL_SENT,The parcel to %s is in the sack. It arrives in %s at the latest.
 PARCEL_ARRIVED,A pigeon says: a parcel from %s waits at %s.
+POST_OFFICE_TAB_ROUTES,Route board
+ROUTE_BOARD_HINT,"Carry sealed parcels to their office before the deadline, and get 60% of the fee. Nobody may open them."
+ROUTE_BOARD_EMPTY,No parcel waits for a courier here.
+ROUTE_TO,To %s
+ROUTE_PARCEL,"%.1f kg, %s gold, deliver within %s"
+ROUTE_TAKE,Take
+ROUTE_TAKE_ALL,Take all
+ROUTE_DELIVERED,You delivered %d parcels and were paid %s gold.
 ERROR_PARCEL_TOO_HEAVY,A parcel weighs at most 10 kg.
 ERROR_PARCEL_CANNOT_AFFORD,You cannot pay the freight fee.
 ERROR_PARCEL_NOT_HERE,That parcel waits at %s. Collect it there.
 ERROR_PARCEL_NOT_ARRIVED,That parcel is still on the road.
 ERROR_POST_OFFICE_CLOSED,The postmaster has gone home. Come back during their hours.
+ERROR_ITEM_BOUND,This stays with you until you deliver it.
+ERROR_ROUTE_TOO_HEAVY,You cannot carry that much mail. Take fewer parcels.
+ERROR_COURIER_STRUCK_OFF,You missed a mail deadline. The post gives you no work until you are no longer struck off.

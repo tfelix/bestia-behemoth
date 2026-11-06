@@ -24,4 +24,5 @@ data class LootSnapshot(
   val roll: ItemRoll? = null,
   val enchantments: List<ActiveItemEnchantment> = emptyList(),
   val enchantedSince: Instant? = null,
+  val heldWeight: Int? = null,
 ) : EntitySnapshot
