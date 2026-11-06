@@ -9,6 +9,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PostConstruct
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
+import net.bestia.zone.entity.GrowthStage
 import net.bestia.zone.entity.StaticEntityKind
 
 /** A collider's half-extents and height, in position units. */
@@ -28,6 +29,42 @@ data class PropLootEntryDto(val itemId: Long, val amount: Int = 1, val dropChanc
  */
 data class PropCollectDto(val itemId: Long, val amount: Int = 1)
 
+/**
+ * One stage of a tree growing back, against the grown tree.
+ *
+ * @property size its share of the grown tree's height and max HP
+ * @property yield its share of the grown tree's loot amount, rounded down. A sapling is too thin for a log.
+ */
+data class PropGrowthStageDto(val size: Double, val yield: Double)
+
+/**
+ * How a removed tree comes back: as a stump, which then tries every [stageSeconds] to sprout and grows back
+ * through [sapling] and [young]. It only sprouts while a grown tree stands within [neighbourRadius], so a wood
+ * that was cleared completely stays cleared.
+ */
+data class PropRegrowthDto(
+  val stageSeconds: Long,
+  val neighbourRadius: Long,
+  val sapling: PropGrowthStageDto,
+  val young: PropGrowthStageDto
+) {
+
+  /** Share of the grown tree's height and max HP. A stump is drawn from the grown tree's height. */
+  fun sizeOf(stage: GrowthStage): Double = when (stage) {
+    GrowthStage.SAPLING -> sapling.size
+    GrowthStage.YOUNG -> young.size
+    GrowthStage.GROWN, GrowthStage.STUMP -> 1.0
+  }
+
+  /** Share of the grown tree's loot amount. */
+  fun yieldOf(stage: GrowthStage): Double = when (stage) {
+    GrowthStage.SAPLING -> sapling.yield
+    GrowthStage.YOUNG -> young.yield
+    GrowthStage.GROWN -> 1.0
+    GrowthStage.STUMP -> 0.0
+  }
+}
+
 data class PropKindDto(
   val kind: StaticEntityKind,
   val maxHp: Int,
@@ -35,6 +72,8 @@ data class PropKindDto(
   val variants: Int = 1,
   /** Present means this kind regrows this many seconds after being depleted; absent means terminal. */
   val regrowSeconds: Long? = null,
+  /** Present means this kind leaves a stump and grows back in stages instead. Never together with [regrowSeconds]. */
+  val regrowth: PropRegrowthDto? = null,
   val loot: List<PropLootEntryDto> = emptyList(),
   /**
    * Present means this kind is taken with a click rather than by being felled; absent means it is not.
@@ -92,6 +131,7 @@ class PropKindRegistry {
       require(kind.regrowSeconds == null || kind.regrowSeconds > 0) {
         "${kind.kind} has regrow-seconds ${kind.regrowSeconds}"
       }
+      kind.regrowth?.let { validateRegrowth(kind.kind, kind.regrowSeconds, it) }
       kind.loot.forEach {
         require(it.dropChance in 1..10_000) { "${kind.kind} has a loot entry with drop-chance ${it.dropChance}" }
         require(it.amount > 0) { "${kind.kind} has a loot entry with amount ${it.amount}" }
@@ -110,6 +150,17 @@ class PropKindRegistry {
 
   fun of(kind: StaticEntityKind): PropKindDto =
     byKind[kind] ?: throw IllegalStateException("no prop kind registered for $kind")
+
+  private fun validateRegrowth(kind: StaticEntityKind, regrowSeconds: Long?, regrowth: PropRegrowthDto) {
+    require(regrowSeconds == null) { "$kind has both regrow-seconds and regrowth" }
+    require(regrowth.stageSeconds > 0) { "$kind has regrowth stage-seconds ${regrowth.stageSeconds}" }
+    require(regrowth.neighbourRadius > 0) { "$kind has regrowth neighbour-radius ${regrowth.neighbourRadius}" }
+    for ((name, stage) in listOf("sapling" to regrowth.sapling, "young" to regrowth.young)) {
+      require(stage.size > 0.0 && stage.size < 1.0) { "$kind has a $name size of ${stage.size}" }
+      require(stage.yield in 0.0..1.0) { "$kind has a $name yield of ${stage.yield}" }
+    }
+    require(regrowth.sapling.size < regrowth.young.size) { "$kind has a sapling no smaller than its young tree" }
+  }
 
   private companion object {
     val LOG = KotlinLogging.logger { }

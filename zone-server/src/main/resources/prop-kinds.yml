@@ -11,12 +11,18 @@
 # entity colliders yet, and the seam for it is `ChunkWalkQuery.canStep`. Recorded here so that when it does,
 # the numbers are in one place rather than in the factory.
 #
-# `regrow-seconds`, present only on the two tree kinds, is how long after being felled `PropDeathDivergenceSystem`
-# lets the same spot stand a tree again; every other kind is terminal (absent) - a claimed landmark or a
-# mined-out crystal never comes back.
+# `regrow-seconds` is how long after being used up the same spot stands the prop again; a kind without it or
+# `regrowth` is terminal - a claimed landmark or a mined-out crystal never comes back.
 #
-# `loot` is set only where an item fits what the thing is made of - the boulder drops stone. Everywhere else it is
-# left empty rather than invented, and `PropDeathDivergenceSystem` still records the depletion and drops nothing.
+# `regrowth`, on the two tree kinds only, replaces it: a removed tree leaves a stump, which tries every
+# `stage-seconds` to sprout and then grows back as a sapling and a young tree. It only sprouts while a grown
+# tree stands within `neighbour-radius`, so a wood that was cleared completely stays cleared. `size` scales a
+# stage's height and max HP, `yield` its loot. Removed means anything but its ground being carved away:
+# `PropRemoval` decides what each removal leaves.
+#
+# `loot` is chance-rolled when the prop is killed. It is set only where an item fits what the thing is made of -
+# the tree drops logs, the boulder stone. A claimed landmark has no item that fits it, and inventing an id would
+# be worse than leaving it unset.
 #
 # `collect` is the other half of that, and deliberately not the same field. A kind with one is picked up with
 # a click - `CollectPropIntentSystem` grants the item straight into the inventory and records the depletion,
@@ -33,13 +39,23 @@ kinds:
     collider: { half-x: 1, half-y: 1, height: 8 }
     # One per model in the client's tree table, which picks by this number so a tree keeps its model.
     variants: 10
-    regrow-seconds: 1800
+    regrowth:
+      stage-seconds: 604800 # a real week
+      neighbour-radius: 12
+      sapling: { size: 0.35, yield: 0 }
+      young: { size: 0.65, yield: 0.5 }
+    loot:
+      - { item-id: 43, amount: 4, drop-chance: 10000 } # log
 
   - kind: BLIGHTED_TREE
     max-hp: 90
     collider: { half-x: 1, half-y: 1, height: 8 }
     variants: 3
-    regrow-seconds: 1800
+    regrowth:
+      stage-seconds: 604800
+      neighbour-radius: 12
+      sapling: { size: 0.35, yield: 0 }
+      young: { size: 0.65, yield: 0.5 }
 
   # The four collectible kinds. Size maps to amount rather than to a second item, so a large crystal is worth
   # walking to without doubling the catalogue.

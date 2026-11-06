@@ -70,14 +70,14 @@ class PropSupportSystemTest {
     }
   }
 
-  /** Records depletions rather than writing them, and answers `of` from what it recorded. */
+  /** Records divergences rather than writing them, and answers `of` from what it recorded. */
   private class RecordingDivergence : WorldObjectDivergenceRegistry(mockk(), mockk(), mockk(relaxed = true)) {
     val recorded = HashMap<Long, DivergenceEntry>()
 
     override fun of(propId: Long): DivergenceEntry? = recorded[propId]
 
-    override fun recordDepletion(propId: Long, kind: StaticEntityKind, resumeAt: Instant?) {
-      recorded[propId] = DivergenceEntry(kind, DivergenceState.DEPLETED, resumeAt)
+    override fun record(propId: Long, kind: StaticEntityKind, state: DivergenceState, resumeAt: Instant?) {
+      recorded[propId] = DivergenceEntry(kind, state, resumeAt)
     }
   }
 
@@ -98,9 +98,10 @@ class PropSupportSystemTest {
       every { record } returns mockk { every { pipelineVersion } returns 1L }
     }
 
+    val kinds = PropKindRegistry().also { it.load() }
     residency = WorldObjectResidencyService(
       listOf(StubSource(kind, treeZ)),
-      PropKindRegistry().also { it.load() },
+      kinds,
       EntityAOIService(),
       fanOut,
       worldService,
@@ -118,7 +119,7 @@ class PropSupportSystemTest {
 
     val ground = GroundHeight { groundZ }
 
-    val system = PropSupportSystem(residency, divergence, ground, chunkService)
+    val system = PropSupportSystem(residency, divergence, PropRemoval(kinds, divergence, residency), ground, chunkService)
     onChanged = listener.captured
 
     return system
@@ -158,6 +159,25 @@ class PropSupportSystemTest {
       entry?.resumeAt,
       "terminal on purpose: a tree that grew back over an open shaft would be the same bug on a timer"
     )
+  }
+
+  @Test
+  fun `an undermined stump leaves nothing and never grows back`() {
+    val system = systemFor()
+    val world = testWorld()
+    divergence.record(77L, StaticEntityKind.TREE, DivergenceState.STUMP, Instant.now().plusSeconds(600))
+
+    subscriptions.markSent(1L, column)
+    residency.drain(world, budget = 8)
+    assertEquals(1, residency.residentEntities, "a stump stands where its tree stood")
+
+    groundZ = treeZ - 10
+    onChanged(column)
+    system.update(world, 0.05f)
+
+    assertEquals(0, residency.residentEntities)
+    assertEquals(DivergenceState.DEPLETED, divergence.recorded[77L]?.state)
+    assertNull(divergence.recorded[77L]?.resumeAt, "a stump over an open shaft must not sprout either")
   }
 
   @Test

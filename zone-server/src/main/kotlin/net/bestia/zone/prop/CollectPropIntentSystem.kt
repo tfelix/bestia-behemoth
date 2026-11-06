@@ -18,7 +18,6 @@ import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
-import java.time.Instant
 
 /**
  * Resolves a [CollectPropIntent]: claims the prop, grants its item, and takes it out of the world.
@@ -60,7 +59,7 @@ import java.time.Instant
 class CollectPropIntentSystem(
   private val kinds: PropKindRegistry,
   private val divergence: WorldObjectDivergenceRegistry,
-  private val residency: WorldObjectResidencyService,
+  private val removal: PropRemoval,
   private val outMessageProcessor: OutMessageProcessor,
 ) : System {
   override val phase = Phase.ITEMS
@@ -72,10 +71,11 @@ class CollectPropIntentSystem(
   /**
    * [ObtainItemIntent.CreateItemIntent] is declared even though it is added to a *different* entity than the
    * one this system queries - it is what keeps this out of the same scheduler wave as `ObtainItemIntentSystem`.
+   * The prop components because a removed prop may leave another in its place.
    */
   override val writes: ComponentClassSet = setOf(
     CollectPropIntent::class, ObtainItemIntent.CreateItemIntent::class, Animation::class
-  )
+  ) + PropRemoval.WRITES
 
   override fun update(world: World, deltaTime: Float) {
     world.query(CollectPropIntent::class).each { collectorId ->
@@ -116,12 +116,8 @@ class CollectPropIntentSystem(
     }
 
     // The claim. Synchronous in memory, which is the whole reason the race above resolves - see the class note.
-    // resumeAt is derived rather than hardcoded to null: every collectible kind is terminal today, and a
-    // future one that regrows should need no change here.
-    val resumeAt = spec.regrowSeconds?.let { Instant.now().plusSeconds(it) }
-    divergence.recordDepletion(identity.propId, visual.kind, resumeAt)
-
-    residency.remove(world, propId)
+    // Whether it comes back is the kind's call, which PropRemoval reads.
+    removal.removed(world, propId, PropRemoval.Cause.USED_UP)
     world.add(collectorId, ObtainItemIntent.CreateItemIntent(collect.itemId, collect.amount))
     // Bends down for it, as for a stack off the ground: nothing else says who took the crystal that just vanished.
     world.get(collectorId, Animation::class)?.startPickUp()

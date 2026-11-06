@@ -48,14 +48,16 @@ class PropPromotionService(
    *
    * @return true if [entityId] is now (or already was) a combat-capable entity; false if it is a static prop
    *   that refuses promotion because it is out of reach, or its divergence is terminal (a claimed POI, a
-   *   mined-out crystal) or not yet regrown - in which case the caller proceeds exactly as it does for any
-   *   other unresolvable target.
+   *   mined-out crystal), not yet regrown, or a stump - in which case the caller proceeds exactly as it does for
+   *   any other unresolvable target.
    */
   override fun promoteIfNeeded(world: World, entityId: EntityId, from: Vec3L, reach: Long): Boolean {
     if (world.has(entityId, Position::class)) return true
 
     val identity = world.get(entityId, WorldObjectIdentity::class) ?: return true
-    if (divergence.of(identity.propId) != null) return false
+    // A sapling or a young tree stands again and can be felled again; a stump never can.
+    val standing = divergence.of(identity.propId)
+    if (standing != null && !standing.isFellable) return false
 
     val pose = world.get(entityId, PropPose::class) ?: return false
     val vitality = world.get(entityId, PropVitality::class) ?: return false

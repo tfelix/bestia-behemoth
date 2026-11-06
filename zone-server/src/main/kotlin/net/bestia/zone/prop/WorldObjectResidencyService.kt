@@ -4,6 +4,7 @@ import net.bestia.worldgen.core.ChunkPos
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.entity.GrowthStage
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.PropVitality
@@ -16,7 +17,7 @@ import net.bestia.zone.world.stream.ChunkStaticEntitiesSMSG
 import net.bestia.zone.world.stream.ChunkSubscriptionService
 import net.bestia.zone.world.stream.StaticEntityRemovedSMSG
 import org.springframework.stereotype.Service
-import java.time.Instant
+import java.time.Clock
 import net.bestia.zone.util.inClassNameOrder
 
 /**
@@ -60,7 +61,8 @@ class WorldObjectResidencyService(
   private val fanOut: ChunkFanOut,
   private val worldService: WorldService,
   private val divergence: WorldObjectDivergenceRegistry,
-  private val subscriptions: ChunkSubscriptionService
+  private val subscriptions: ChunkSubscriptionService,
+  private val clock: Clock = Clock.systemUTC()
 ) {
 
   private val sources = foundSources.inClassNameOrder()
@@ -224,7 +226,7 @@ class WorldObjectResidencyService(
               localX = (pose.position.x - chunkX.toLong() * chunkSize).toInt(),
               localY = (pose.position.y - chunkY.toLong() * chunkSize).toInt(),
               z = pose.position.z.toInt(),
-              heightDm = visual.heightDm,
+              heightDm = drawnHeightDm(visual),
               yawCentiradians = Math.round(pose.yaw * 100f),
               halfLengthDm = visual.halfLengthDm,
               halfWidthDm = visual.halfWidthDm,
@@ -236,6 +238,12 @@ class WorldObjectResidencyService(
 
       fanOut.fanOut(accounts, ChunkStaticEntitiesSMSG(ChunkPos(chunkX, chunkY, 0), entries))
     }
+  }
+
+  /** A growing tree's own height. The visual keeps the grown tree's, which is what its stump is scaled by. */
+  private fun drawnHeightDm(visual: StaticVisual): Int {
+    val size = kinds.of(visual.kind).regrowth?.sizeOf(visual.growth) ?: return visual.heightDm
+    return Math.round(visual.heightDm * size).toInt()
   }
 
   /** The entities of one column, for the sync channel to batch. Empty when the column is not resident. */
@@ -253,7 +261,7 @@ class WorldObjectResidencyService(
    * [resident] here means the batch that goes out later in the same tick has already forgotten it.
    *
    * The message is an optimisation, not the mechanism. [flushBatches] rebuilds a column from the live
-   * entities and [materialise] re-runs [shouldEmit], so a lost removal converges the next time the column
+   * entities and [materialise] re-runs [stageOf], so a lost removal converges the next time the column
    * reloads. Nothing may be built on this arriving.
    *
    * @return false if [entityId] was not a resident static entity, which callers treat as "already gone"
@@ -287,7 +295,7 @@ class WorldObjectResidencyService(
     if (resident.containsKey(column)) return
 
     val chunk = ChunkPos(unpackX(column), unpackY(column), 0)
-    val sites = sources.flatMap { it.sitesIn(chunk) }.filter { shouldEmit(it.propId) }
+    val sites = sources.flatMap { it.sitesIn(chunk) }.mapNotNull { site -> stageOf(site.propId)?.let { site to it } }
 
     if (sites.isEmpty()) {
       // Recorded as resident anyway, so a chunk with no trees on it is not re-asked on every tick it is held.
@@ -297,7 +305,7 @@ class WorldObjectResidencyService(
 
     val ids = LongArray(sites.size)
 
-    sites.forEachIndexed { i, site -> ids[i] = spawn(world, site) }
+    sites.forEachIndexed { i, (site, growth) -> ids[i] = spawn(world, site, growth) }
 
     resident[column] = ids
   }
@@ -307,8 +315,9 @@ class WorldObjectResidencyService(
    * player-built station is assembled exactly the way a generated tree is - a second copy of this would be
    * the place a new prop component silently failed to appear on half the props.
    */
-  private fun spawn(world: World, site: WorldObjectSite): Long {
+  private fun spawn(world: World, site: WorldObjectSite, growth: GrowthStage = GrowthStage.GROWN): Long {
     val spec = kinds.of(site.kind)
+    val size = spec.regrowth?.sizeOf(growth) ?: 1.0
 
     val id = world.createEntity { id ->
       add(id, PropPose(site.position, site.yaw))
@@ -316,10 +325,10 @@ class WorldObjectResidencyService(
         id,
         StaticVisual(
           site.kind, site.variant % spec.variants, site.heightDm,
-          site.halfLengthDm, site.halfWidthDm
+          site.halfLengthDm, site.halfWidthDm, growth
         )
       )
-      add(id, PropVitality(spec.maxHp))
+      add(id, PropVitality(Math.round(spec.maxHp * size).toInt().coerceAtLeast(1)))
       add(id, WorldObjectIdentity(site.propId, latticeVersion))
       // Only for something a player built, so a tree carries no half-empty second identity.
       if (site.structureId != 0L) add(id, PlayerStructureIdentity(site.structureId, site.ownerAccountId))
@@ -366,18 +375,65 @@ class WorldObjectResidencyService(
   }
 
   /**
-   * Whether a generated site should still stand: no recorded divergence, or a temporary one (a felled tree
-   * with a `regrowSeconds`) whose regrowth clock has passed - evicted right here, since a chunk becoming
-   * resident is exactly the moment anyone would notice it grew back. A terminal divergence (`resumeAt ==
-   * null` - a claimed POI, a mined-out crystal) never emits again.
+   * Swaps the resident prop [entityId] for the same site at stage [growth], and re-announces its column.
+   *
+   * A new entity rather than a changed one, because the old one may be dying: a felled tree is destroyed by
+   * `DeathSystem` later in the same tick. The destroy here comes first, which is harmless, and drops the
+   * old id from the interest index at once.
+   *
+   * @return the new entity's id, or null when [entityId] is not a resident prop
    */
-  private fun shouldEmit(propId: Long): Boolean {
-    val entry = divergence.of(propId) ?: return true
-    val resumeAt = entry.resumeAt ?: return false
-    if (resumeAt.isAfter(Instant.now())) return false
+  fun replace(world: World, entityId: Long, growth: GrowthStage): Long? {
+    val pose = world.get(entityId, PropPose::class) ?: return null
+    val visual = world.get(entityId, StaticVisual::class) ?: return null
+    val identity = world.get(entityId, WorldObjectIdentity::class) ?: return null
+
+    val chunkX = Math.floorDiv(pose.position.x, chunkSize.toLong()).toInt()
+    val chunkY = Math.floorDiv(pose.position.y, chunkSize.toLong()).toInt()
+    val column = pack(chunkX, chunkY)
+
+    val ids = resident[column] ?: return null
+    if (!ids.contains(entityId)) return null
+
+    val site = WorldObjectSite(
+      kind = visual.kind,
+      propId = identity.propId,
+      position = pose.position,
+      variant = visual.variant,
+      heightDm = visual.heightDm,
+      yaw = pose.yaw,
+      halfLengthDm = visual.halfLengthDm,
+      halfWidthDm = visual.halfWidthDm
+    )
+    val replacement = spawn(world, site, growth)
+    resident[column] = ids.filter { it != entityId }.toLongArray() + replacement
+
+    aoi.removeEntityPosition(entityId)
+    world.destroy(entityId)
+
+    // A whole-column batch, as placeNow sends, so a client draws the stump and stops drawing the tree at once.
+    awaitingBatch.getOrPut(column) { HashSet() }.addAll(subscriptions.subscribersOfColumn(chunkX, chunkY))
+
+    return replacement
+  }
+
+  /**
+   * What a generated site stands as now, or null if nothing stands there.
+   *
+   * No recorded divergence is the grown prop. A growing tree stands at its stage, even when its next stage is
+   * overdue - growing it on is not a column load's job. A temporary depletion whose clock has passed is evicted
+   * right here, since a chunk becoming resident is exactly the moment anyone would notice it grew back. A
+   * terminal one (`resumeAt == null` - a claimed POI, a mined-out crystal) never stands again.
+   */
+  private fun stageOf(propId: Long): GrowthStage? {
+    val entry = divergence.of(propId) ?: return GrowthStage.GROWN
+    entry.growth?.let { return it }
+
+    val resumeAt = entry.resumeAt ?: return null
+    if (resumeAt.isAfter(clock.instant())) return null
 
     divergence.evictRegrown(propId)
-    return true
+    return GrowthStage.GROWN
   }
 
   private fun dematerialise(world: World, column: Long) {
