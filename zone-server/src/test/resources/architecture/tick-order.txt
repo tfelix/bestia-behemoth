@@ -78,6 +78,7 @@
  - UPKEEP wave 44: SettlementEconomySystem [EverySeconds(seconds=30.0)]
  - UPKEEP wave 44: SpawnPointWatchSystem [EverySeconds(seconds=30.0)]
  - UPKEEP wave 44: TradeRangeSystem [EverySeconds(seconds=0.5)]
+ - UPKEEP wave 44: TreeRegrowthSystem [EverySeconds(seconds=60.0)]
  - UPKEEP wave 44: WorldStateSampler [EverySeconds(seconds=5.0)]
  - UPKEEP wave 45: CompendiumSightingSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 45: GuildMemberBeaconSystem [EverySeconds(seconds=1.0)]
