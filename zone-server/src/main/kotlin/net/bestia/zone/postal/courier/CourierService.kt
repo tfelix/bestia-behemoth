@@ -11,12 +11,15 @@ import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.economy.WorldReserve
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.entity.GameMetrics.CoinSource
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.container.ReservedItem
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.grantToLive
 import net.bestia.zone.item.enchant.ActiveItemEnchantment
 import net.bestia.zone.item.enchant.ItemEnchantmentId
+import net.bestia.zone.item.loot.LootItemEntitySpawner
+import net.bestia.zone.item.persistence.ItemInstanceRepository
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.persistence.findByIdentifierOrThrow
 import net.bestia.zone.postal.office.PostOffices
@@ -44,6 +47,8 @@ class CourierService(
   private val offices: PostOffices,
   private val inventoryService: InventoryService,
   private val itemRepository: ItemRepository,
+  private val itemInstances: ItemInstanceRepository,
+  private val lootItems: LootItemEntitySpawner,
   private val commodityItems: CommodityItems,
   private val reserve: WorldReserve,
   private val statusEffects: StatusEffectService,
@@ -149,6 +154,44 @@ class CourierService(
 
     late.forEach(::strikeOff)
   }
+
+  /**
+   * The sacks of a killed courier fall where it died, still sealed, and the seal starts its return. Nobody carries
+   * their parcels until somebody picks a sack up.
+   */
+  fun dropSacks(courierMasterId: Long, sacks: List<Long>, fellAt: Vec3L) {
+    val now = clock.instant()
+
+    val fallen = transactions.execute {
+      val sackItemId = itemRepository.findByIdentifierOrThrow(MAIL_SACK).id
+      sacks.mapNotNull { sackId ->
+        val removed = inventoryService.removeNamedFromOwner(courierMasterId, null, sackItemId, 1, sackId, null)
+        val sack = removed?.instance ?: return@mapNotNull null
+        parcels.findBySackInstanceId(sackId).forEach { it.courierMasterId = null }
+        FallenSack(sackItemId, sackId, sack.enchantments(now))
+      }
+    }.orEmpty()
+
+    world.read {
+      fallen.forEach { sack ->
+        lootItems.spawnLootItem(
+          this, itemId = sack.itemId, amount = 1, pos = fellAt, uniqueId = sack.sackId, enchantments = sack.seal,
+        )
+      }
+    }
+  }
+
+  /** A fallen sack nobody picked up: its parcels wait at their origin again, due at the same latest arrival. */
+  @Transactional
+  fun returnToBoard(sackId: Long) {
+    parcels.findBySackInstanceId(sackId).forEach { parcel ->
+      parcel.sackInstanceId = null
+      parcel.courierMasterId = null
+    }
+    itemInstances.deleteById(sackId)
+  }
+
+  private data class FallenSack(val itemId: Long, val sackId: Long, val seal: List<ActiveItemEnchantment>)
 
   private data class LateCourier(val masterEntityId: EntityId, val sacks: List<Long>)
 
