@@ -421,7 +421,7 @@ class WorldObjectResidencyService(
    * What a generated site stands as now, or null if nothing stands there.
    *
    * No recorded divergence is the grown prop. A growing tree stands at its stage, even when its next stage is
-   * overdue - growing it on is not a column load's job. A temporary depletion whose clock has passed is evicted
+   * overdue - growing it on is [TreeRegrowthSystem]'s job. A temporary depletion whose clock has passed is evicted
    * right here, since a chunk becoming resident is exactly the moment anyone would notice it grew back. A
    * terminal one (`resumeAt == null` - a claimed POI, a mined-out crystal) never stands again.
    */
