@@ -62,7 +62,7 @@ data class ReservedItem(
         offerSlotId = slot.id,
         itemId = template.id,
         amount = slot.amount,
-        weight = template.weight,
+        weight = slot.weight,
         uniqueId = slot.uniqueId,
         stackable = slot.isStackable,
         durability = slot.durability,

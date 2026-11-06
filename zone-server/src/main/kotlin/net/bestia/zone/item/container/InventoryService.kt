@@ -680,7 +680,7 @@ class InventoryService(
       offerSlotId = slotId,
       itemId = detached.template.id,
       amount = detached.amount,
-      weight = detached.template.weight,
+      weight = detached.instance?.weight ?: detached.template.weight,
       uniqueId = detached.instance?.id ?: 0L,
       stackable = detached.instance == null,
       durability = detached.instance?.durability ?: 0,
