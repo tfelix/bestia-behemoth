@@ -12,7 +12,10 @@ import jakarta.persistence.OrderBy
 import jakarta.persistence.Table
 import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.PlayerItemIds
+import net.bestia.zone.item.enchant.ActiveItemEnchantment
+import net.bestia.zone.item.enchant.ItemEnchantmentId
 import net.bestia.zone.item.stat.StatValue
+import java.time.Instant
 
 /**
  * A single, uniquely identifiable item that carries per-instance state (an upgrade level, the
@@ -86,6 +89,27 @@ class ItemInstance(
     stats.forEachIndexed { ordinal, rolled ->
       rolledStatRows.add(ItemInstanceStat(this, ordinal, rolled.stat, rolled.value))
     }
+  }
+
+  @OneToMany(mappedBy = "itemInstance", cascade = [CascadeType.ALL], orphanRemoval = true)
+  private val enchantmentRows: MutableList<ItemInstanceEnchantment> = mutableListOf()
+
+  fun enchantments(now: Instant): List<ActiveItemEnchantment> {
+    return enchantmentRows.mapNotNull { it.toActive() }.filterNot { it.hasEnded(now) }
+  }
+
+  /** Replaces an enchantment of the same kind, so sealing a sealed item renews the seal. */
+  fun enchant(enchantment: ActiveItemEnchantment) {
+    val sameKind = enchantmentRows.find { it.enchantmentId == enchantment.enchantment.id }
+    if (sameKind != null) {
+      sameKind.renew(enchantment)
+    } else {
+      enchantmentRows.add(ItemInstanceEnchantment(this, enchantment))
+    }
+  }
+
+  fun disenchant(enchantment: ItemEnchantmentId) {
+    enchantmentRows.removeIf { it.enchantmentId == enchantment.id }
   }
 
   val wears: Boolean get() = maxDurability > 0

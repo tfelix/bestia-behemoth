@@ -54,6 +54,7 @@ class RecordingSkillWorld(
   val effectsOn = mutableMapOf<EntityId, MutableSet<Long>>()
   val removedEffects = mutableListOf<Pair<EntityId, Long>>()
   val dispelled = mutableListOf<EntityId>()
+  val dispelledGroundItems = mutableListOf<Pair<EntityId, Int>>()
   val stripped = mutableListOf<Pair<EntityId, EquipmentSlot>>()
   val gearWorn = mutableListOf<Pair<EntityId, Int>>()
   val detections = mutableListOf<Float>()
@@ -133,6 +134,11 @@ class RecordingSkillWorld(
 
   override fun dispel(entityId: EntityId): Int {
     dispelled.add(entityId)
+    return 0
+  }
+
+  override fun dispelGroundItem(entityId: EntityId, baseChancePercent: Int): Int {
+    dispelledGroundItems.add(entityId to baseChancePercent)
     return 0
   }
 

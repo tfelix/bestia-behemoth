@@ -1,6 +1,7 @@
-[gd_scene load_steps=9 format=3 uid="uid://coo3pwtr7jc6e"]
+[gd_scene load_steps=10 format=3 uid="uid://coo3pwtr7jc6e"]
 
 [ext_resource type="Script" uid="uid://cx7nxcrglgel7" path="res://Game/Entity/Visual/ItemVisual/item_visual.gd" id="1_oy7wx"]
+[ext_resource type="PackedScene" uid="uid://c8cdnrng0ring" path="res://Game/VFX/CountdownRing/CountdownRing.tscn" id="2_ring"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ah5xf"]
 vertex_color_use_as_albedo = true
@@ -52,6 +53,9 @@ amount = 6
 lifetime = 1.5
 process_material = SubResource("ParticleProcessMaterial_n0gxs")
 draw_pass_1 = SubResource("QuadMesh_iygyh")
+
+[node name="CountdownRing" parent="." instance=ExtResource("2_ring")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 
 [node name="Area3D" type="Area3D" parent="."]
 monitoring = false

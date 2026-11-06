@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=3 uid="uid://c8cdnrng0ring"]
+
+[ext_resource type="Script" path="res://Game/VFX/CountdownRing/countdown_ring.gd" id="1_ring"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_ring"]
+viewport_path = NodePath("SubViewport")
+
+[node name="CountdownRing" type="Sprite3D"]
+pixel_size = 0.0035
+billboard = 1
+no_depth_test = true
+fixed_size = true
+texture = SubResource("ViewportTexture_ring")
+script = ExtResource("1_ring")
+
+[node name="SubViewport" type="SubViewport" parent="."]
+transparent_bg = true
+size = Vector2i(48, 48)
+
+[node name="Canvas" type="Control" parent="SubViewport"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

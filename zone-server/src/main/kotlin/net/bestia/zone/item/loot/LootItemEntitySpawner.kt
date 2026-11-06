@@ -8,6 +8,9 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.item.ecs.GroundItemDecay
+import net.bestia.zone.item.ecs.ItemEnchantments
+import net.bestia.zone.item.enchant.ActiveItemEnchantment
+import net.bestia.zone.item.enchant.ItemEnchantmentScripts
 import net.bestia.zone.item.ecs.GroundItemIntegrity
 import net.bestia.zone.item.ecs.GroundItemStack
 import net.bestia.zone.item.ecs.LootProtection
@@ -24,6 +27,7 @@ import java.time.Instant
 @Component
 class LootItemEntitySpawner(
   private val zoneConfig: WorldRulesConfig,
+  private val enchantmentScripts: ItemEnchantmentScripts,
   private val clock: Clock = Clock.systemUTC()
 ) {
 
@@ -31,6 +35,9 @@ class LootItemEntitySpawner(
    * Spawns a single ground item entity at the given position which can be picked up. A rehydrated item passes
    * the [despawnAt] and [integrityLost] it was persisted with; a fresh drop gets the full time and is unharmed.
    * Kill loot names the [lootOwner] account, which alone may pick it up for a few seconds.
+   *
+   * The [enchantments] are the instance's own rows. A rehydrated item passes [enchantedSince] too, and its
+   * enchantments are not told again that they were dropped.
    */
   fun spawnLootItem(
     world: World,
@@ -44,6 +51,8 @@ class LootItemEntitySpawner(
     lootOwner: Long? = null,
     provenance: ItemProvenance? = null,
     roll: ItemRoll? = null,
+    enchantments: List<ActiveItemEnchantment> = emptyList(),
+    enchantedSince: Instant? = null,
   ): EntityId {
     val configure: World.(EntityId) -> Unit = { id ->
       add(id, Position.fromVec3(pos))
@@ -61,6 +70,9 @@ class LootItemEntitySpawner(
       add(id, GroundItemIntegrity(lost = integrityLost))
       lootOwner?.let { add(id, LootProtection(it, zoneConfig.lootProtectionSeconds)) }
       add(id, Persistent)
+      if (enchantments.isNotEmpty()) {
+        add(id, ItemEnchantments(enchantments, enchantedSince ?: clock.instant()))
+      }
       // A unique item is one of a kind, and its instance would be lost with it, so only plain items decay.
       if (uniqueId == 0L) {
         add(id, GroundItemDecay(despawnAt ?: clock.instant().plus(zoneConfig.groundItemDespawnAfter)))
@@ -68,6 +80,13 @@ class LootItemEntitySpawner(
     }
 
     // Rehydrated ground items keep their persisted id; freshly dropped ones get a new one.
-    return if (entityId != null) world.createEntity(entityId, configure) else world.createEntity(configure)
+    if (entityId != null) {
+      return world.createEntity(entityId, configure)
+    }
+
+    val dropped = world.createEntity(configure)
+    enchantments.forEach { enchantmentScripts.of(it.enchantment).onDropped(world, dropped, it) }
+
+    return dropped
   }
 }
