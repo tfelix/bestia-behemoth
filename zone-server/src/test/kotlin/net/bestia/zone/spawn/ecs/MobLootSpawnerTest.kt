@@ -23,7 +23,7 @@ class MobLootSpawnerTest {
     )
   }
 
-  private val sut = MobLootSpawner(repository, LootItemEntitySpawner(WorldRulesConfig(tickRate = 20)))
+  private val sut = MobLootSpawner(repository, LootItemEntitySpawner(WorldRulesConfig(tickRate = 20), mockk(relaxed = true)))
 
   @Test
   fun `the drop table is read once, not once per kill`() {

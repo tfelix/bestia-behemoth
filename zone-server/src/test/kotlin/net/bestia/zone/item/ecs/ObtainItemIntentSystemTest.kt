@@ -211,7 +211,7 @@ class ObtainItemIntentSystemTest {
   /** The mocked spawner above adds nothing; a real ground item is a new entity with components of its own. */
   @Test
   fun `an item that overflows lands on the ground through the real spawner`() {
-    setUp(spawner = LootItemEntitySpawner(WorldRulesConfig(tickRate = 20)))
+    setUp(spawner = LootItemEntitySpawner(WorldRulesConfig(tickRate = 20), mockk(relaxed = true)))
     stub(boulder)
     val entity = createCarrier(capacityMax = 50, pos = Vec3L(3, 4, 0))
 

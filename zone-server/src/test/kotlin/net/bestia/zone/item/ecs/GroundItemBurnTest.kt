@@ -56,7 +56,7 @@ class GroundItemBurnTest {
     )
   )
 
-  private val spawner = LootItemEntitySpawner(WorldRulesConfig(tickRate = 20))
+  private val spawner = LootItemEntitySpawner(WorldRulesConfig(tickRate = 20), mockk(relaxed = true))
 
   private fun onTheGround(item: Item, lootOwner: Long? = null): EntityId {
     return spawner.spawnLootItem(world, itemId = item.id, amount = 3, pos = CENTER, lootOwner = lootOwner)

@@ -47,7 +47,7 @@ class GroundItemDamageTest {
     looseInstanceDisposal = instanceDisposal,
   )
 
-  private val spawner = LootItemEntitySpawner(WorldRulesConfig(tickRate = 20))
+  private val spawner = LootItemEntitySpawner(WorldRulesConfig(tickRate = 20), mockk(relaxed = true))
 
   private fun EcsWorld.stackOf(item: Item): EntityId {
     return spawner.spawnLootItem(this, itemId = item.id, amount = 5, pos = Vec3L(0, 0, 0))
