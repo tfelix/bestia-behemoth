@@ -9,7 +9,8 @@ class_name MouseStateSkillTargeting
 ##   skill.aoe_radius) that confirms at the raycast hit point.
 ## - ENEMY / FRIENDLY: snaps onto the closest matching entity within
 ##   SettingsManager.skill_target_snap_distance of the mouse's floor position (Shift
-##   inverts the enemy/friendly filter) and only confirms while snapped.
+##   inverts the enemy/friendly filter) and only confirms while snapped. A skill that
+##   targets enchanted items, like Dispel, also snaps onto a sealed item on the ground.
 
 const _DEFAULT_GROUND_INDICATOR_SCENE := preload("res://Game/VFX/AOECastIndicator/AOECastIndicator.tscn")
 const _ENTITY_SNAP_INDICATOR_SCENE := preload("res://Game/VFX/EntitySnapIndicator/EntitySnapIndicator.tscn")
@@ -84,6 +85,8 @@ func _update_entity_snap(mgr: MouseManager) -> void:
 	var effective_filter := base_filter
 	if shift_held:
 		effective_filter = "friendly" if base_filter == "enemy" else "enemy"
+	if effective_filter == "enemy" and skill.targets_enchanted_items:
+		effective_filter = "enemy_or_enchanted_item"
 
 	var entity_manager := EntityManager.get_instance()
 	if entity_manager == null:

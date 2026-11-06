@@ -177,7 +177,7 @@ func can_be_harmed(entity: Entity) -> bool:
 ## DEPRECATED We need to come up with a better solution this can not work and scale. We need certain
 ##    mouse over fields that send their position so this then decides what is the closes, best entity.
 ## Closest Entity to world_position within max_distance whose disposition matches
-## filter ("enemy" or "friendly"), or null if none qualify. Used by
+## filter ("enemy", "enemy_or_enchanted_item" or "friendly"), or null if none qualify. Used by
 ## MouseStateSkillTargeting to snap an entity-target skill onto a nearby valid target.
 ## Simple O(n) scan over all known entities - matches this codebase's existing style
 ## (no spatial partitioning exists anywhere) and entity counts are small.
@@ -187,6 +187,8 @@ func get_closest_entity(world_position: Vector3, max_distance: float, filter: St
 	for value in _entities.values():
 		var entity: Entity = value
 		if filter == "enemy" and not can_be_harmed(entity):
+			continue
+		if filter == "enemy_or_enchanted_item" and not (can_be_harmed(entity) or entity.get_item_enchantments() != null):
 			continue
 		if filter == "friendly" and not is_entity_friendly(entity):
 			continue
