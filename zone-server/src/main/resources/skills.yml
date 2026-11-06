@@ -408,55 +408,39 @@ skills:
       `+5%/lv` chance to tame
 
 # Prospector
+  # Maximize Carry Capacity sits on the Survival trunk, but keeps the id it had in this tree.
   - id: 35
     identifier: M_MAXIMIZE_CARRY_CAPACITY
     targetType: FRIENDLY
     description: |
-      Raises the carrying capacity of your own Master.
+      Smarter packing, better-fitted saddlebags and a stronger back. Everything a Master and
+      their Bestia can shoulder gets easier to shoulder.
 
-      `+10%/lv` weight limit
-
-  - id: 36
-    identifier: M_ENLARGE_WEIGHT_LIMIT
-    targetType: FRIENDLY
-    description: |
-      Raises the carrying capacity of every Bestia under your control.
-
-      `+10%/lv` weight limit
+      `+15%/lv` weight limit of the Master and of every Bestia under their command
 
   - id: 37
     identifier: M_CARTOGRAPHY
     script: Cartography
     targetType: GROUND
     range: 4
-    manaCost: 15
+    manaCost: 50
     # Surveying channels, so it runs through the existing Casting/CastingSystem and can be interrupted by
     # taking a hit. A survey that resolved instantly would be a map drawn while running away from something.
-    castTime: 5.0
+    castTime: 30.0
     description: |
       Enables the player to chart unexplored land, revealing terrain that can be shared,
       traded on, or built on.
 
-      Spends one sheet of blank vellum and produces a chart of the ground around the surveyed
-      point. Each level reaches a kilometre further, up to five at full rank.
+      Spends one sheet of blank vellum and produces a chart of the surveyed ground.
 
-  - id: 38
-    identifier: M_WILDERNESS_SURVIVAL
-    targetType: FRIENDLY
-    description: |
-      Hardens the master and their Bestia against travel through hostile terrain, far from the
-      comfort of a settlement. Reduces the stamina and HP drain caused by hostile terrain and
-      environmental hazards.
-
-      `-10%/lv` stamina drain in hostile terrain
-      `-10%/lv` environmental hazard damage
+      `-10/lv` survey difficulty
 
   - id: 39
     identifier: M_WEATHER_SENSE
     targetType: FRIENDLY
     description: |
-      An instinct for reading the sky and wind well before a storm ever arrives, letting the
-      Prospector plan a route or a dig around what's coming.
+      Charting the same valley through a dozen seasons teaches a Prospector to read the sky
+      above it. An instinct for what the wind is about to do, well before the storm arrives.
 
       `+5min/lv` how far ahead upcoming weather changes can be sensed. Level 1 shows you the
       current wind direction and speed.
