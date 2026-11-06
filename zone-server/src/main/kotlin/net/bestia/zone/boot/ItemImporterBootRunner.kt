@@ -55,6 +55,7 @@ class ItemImporterBootRunner(
     val maxDurability: Int = 0,
     @JsonProperty("novice-only")
     val noviceOnly: Boolean = false,
+    val bound: Boolean = false,
     @JsonProperty("armor-type")
     val armorType: ArmorType? = null,
     val material: ItemMaterial,
@@ -192,6 +193,7 @@ class ItemImporterBootRunner(
       || entity.baseLevel != dto.baseLevel
       || entity.maxDurability != dto.maxDurability
       || entity.noviceOnly != dto.noviceOnly
+      || entity.bound != dto.bound
       || entity.armorType != dto.armorType
       || entity.material != dto.material
       || entity.attackRange != dto.attackRange
@@ -212,6 +214,7 @@ class ItemImporterBootRunner(
     entity.baseLevel = dto.baseLevel
     entity.maxDurability = dto.maxDurability
     entity.noviceOnly = dto.noviceOnly
+    entity.bound = dto.bound
     entity.armorType = dto.armorType
     entity.material = dto.material
     entity.attackRange = dto.attackRange
@@ -250,6 +253,7 @@ class ItemImporterBootRunner(
       baseLevel = dto.baseLevel,
       maxDurability = dto.maxDurability,
       noviceOnly = dto.noviceOnly,
+      bound = dto.bound,
       armorType = dto.armorType,
       material = dto.material,
       attackRange = dto.attackRange,
