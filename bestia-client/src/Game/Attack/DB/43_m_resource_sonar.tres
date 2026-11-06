@@ -14,5 +14,5 @@ target_type = "FRIENDLY"
 tree = "SURVIVAL"
 sub_tree = "MINER"
 is_passive = true
-prerequisite_ids = PackedInt32Array(41, 42)
-prerequisite_levels = PackedInt32Array(3, 3)
+prerequisite_ids = PackedInt32Array(42)
+prerequisite_levels = PackedInt32Array(3)

@@ -221,3 +221,18 @@ recipes:
     station: FORGE
     craftSeconds: 30.0
     baseSuccessChance: 0.6
+
+  # --- Miner sub-tree ------------------------------------------------------------------------------
+
+  # Mining is passive, so no cast opens this recipe yet: passive skills still need a way into the
+  # crafting window. Mining has no success table, so the pick cannot fail.
+  - id: 30
+    identifier: PICKAXE
+    effect: PRODUCE
+    output: { item: pickaxe, amount: 1 }
+    inputs:
+      - { item: iron_ingot, amount: 2 }
+      - { item: log, amount: 1 }
+    skill: { skill: M_MINING, level: 1 }
+    craftSeconds: 10.0
+    baseSuccessChance: 1.0

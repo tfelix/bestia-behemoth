@@ -12,3 +12,5 @@ description_key = "SKILL_40_DESC"
 max_level = 5
 tree = "SURVIVAL"
 sub_tree = "MINER"
+target_type = "FRIENDLY"
+is_passive = true
