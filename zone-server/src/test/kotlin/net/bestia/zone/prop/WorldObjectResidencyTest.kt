@@ -24,6 +24,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import net.bestia.zone.entity.GrowthStage
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.prop.persistence.DivergenceState
 
@@ -476,6 +477,62 @@ class WorldObjectResidencyTest {
 
     assertEquals(3, service.residentEntities, "a regrown tree must stand again like the other two")
     assertTrue(evicted, "the stale divergence must be forgotten once the tree has regrown")
+  }
+
+  /**
+   * A removed tree on its way back stands at its stage. A stump is sent at its tree's height, which is what the
+   * client scales it by; a sapling at its own, smaller one, with less health to fell it by.
+   */
+  @Test
+  fun `a growing tree stands at its stage and is sent at its own height`() {
+    val stumpId = (4L shl 40) or (5L shl 8) or 0L
+    val saplingId = (4L shl 40) or (5L shl 8) or 1L
+    val divergence: WorldObjectDivergenceRegistry = mockk {
+      every { of(any()) } answers {
+        when (firstArg<Long>()) {
+          stumpId -> DivergenceEntry(StaticEntityKind.TREE, DivergenceState.STUMP, java.time.Instant.now())
+          saplingId -> DivergenceEntry(StaticEntityKind.TREE, DivergenceState.SAPLING, java.time.Instant.now())
+          else -> null
+        }
+      }
+    }
+    val service = WorldObjectResidencyService(
+      listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), divergence, subscriptions
+    )
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(4, 5, 0))
+    service.drain(world, budget = 8)
+    service.drain(world, budget = 8)
+
+    assertEquals(3, service.residentEntities, "a stump and a sapling stand like the grown tree")
+    val entries = sent.single().entries
+    assertEquals(listOf(GrowthStage.STUMP, GrowthStage.SAPLING, GrowthStage.GROWN), entries.map { it.growth })
+    assertEquals(listOf(80, 28, 80), entries.map { it.heightDm }, "a sapling is 0.35 of its 8 m tree")
+
+    val sapling = service.entitiesIn(4, 5)[1]
+    assertEquals(42, world.get(sapling, net.bestia.zone.entity.ecs.PropVitality::class)?.maxHp)
+  }
+
+  /** What a felled tree becomes: a stump in the same place, re-announced to everyone holding the column. */
+  @Test
+  fun `replacing a tree with its stump re-announces the column`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(4, 5, 0))
+    residency.drain(world, budget = 8)
+    residency.drain(world, budget = 8)
+    val tree = residency.entitiesIn(4, 5).first()
+    sent.clear()
+
+    val stump = residency.replace(world, tree, GrowthStage.STUMP)
+    residency.drain(world, budget = 8)
+
+    assertEquals(3, residency.residentEntities)
+    assertFalse(residency.entitiesIn(4, 5).contains(tree), "the tree is gone")
+    assertTrue(residency.entitiesIn(4, 5).contains(stump!!))
+    assertEquals(GrowthStage.STUMP, world.get(stump, StaticVisual::class)?.growth)
+    assertEquals(GrowthStage.STUMP, sent.single().entries.single { it.entityId == stump }.growth)
   }
 
   /**

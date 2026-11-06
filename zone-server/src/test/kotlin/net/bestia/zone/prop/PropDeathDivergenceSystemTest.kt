@@ -11,18 +11,25 @@ import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import org.junit.jupiter.api.Test
+import java.time.Clock
+import java.time.Duration
 import java.time.Instant
+import java.time.ZoneOffset
+import net.bestia.zone.entity.GrowthStage
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.prop.persistence.DivergenceState
 
-/** What a promoted prop's death records about the durable object it was. */
+/** What a promoted prop's death records about the durable object it was, and what it drops. */
 class PropDeathDivergenceSystemTest {
 
-  private fun system(divergence: WorldObjectDivergenceRegistry) = PropDeathDivergenceSystem(
-    kindRegistry(), mockk<LootItemEntitySpawner>(), divergence
-  )
+  private val now = Instant.parse("2026-11-06T12:00:00Z")
+  private val kinds = PropKindRegistry().also { it.load() }
+  private val residency: WorldObjectResidencyService = mockk(relaxed = true)
+  private val loot: LootItemEntitySpawner = mockk(relaxed = true)
 
-  private fun kindRegistry() = PropKindRegistry().also { it.load() }
+  private fun system(divergence: WorldObjectDivergenceRegistry) = PropDeathDivergenceSystem(
+    kinds, loot, divergence, PropRemoval(kinds, divergence, residency, Clock.fixed(now, ZoneOffset.UTC))
+  )
 
   /**
    * A prop nothing has claimed yet - the state every test but the collect one below starts from.
@@ -35,36 +42,73 @@ class PropDeathDivergenceSystemTest {
     every { of(any()) } returns null
   }
 
-  @Test
-  fun `a felled tree is recorded with a future resumeAt`() {
-    val divergence = pristine()
-    val world = testWorld()
-    val propId = 123L
+  private fun growing(stage: DivergenceState): WorldObjectDivergenceRegistry = mockk(relaxed = true) {
+    every { of(any()) } returns DivergenceEntry(StaticEntityKind.TREE, stage, now)
+  }
 
-    world.createEntity { eid ->
+  private fun net.bestia.zone.ecs.core.World.deadTree(propId: Long, growth: GrowthStage = GrowthStage.GROWN) =
+    createEntity { eid ->
       add(eid, Position.fromVec3(Vec3L(1, 2, 3)))
-      add(eid, StaticVisual(StaticEntityKind.TREE, variant = 0, heightDm = 90))
+      add(eid, StaticVisual(StaticEntityKind.TREE, variant = 0, heightDm = 90, growth = growth))
       add(eid, WorldObjectIdentity(propId, latticeVersion = 1L))
       add(eid, Dead())
     }
 
+  @Test
+  fun `a felled tree leaves a stump that tries to sprout a week later`() {
+    val divergence = pristine()
+    val world = testWorld()
+    val tree = world.deadTree(propId = 123L)
+
     system(divergence).update(world, 0f)
 
     verify {
-      divergence.recordDepletion(
-        propId, StaticEntityKind.TREE,
-        match<Instant> { it.isAfter(Instant.now()) }
-      )
+      divergence.record(123L, StaticEntityKind.TREE, DivergenceState.STUMP, now.plus(Duration.ofDays(7)))
     }
+    verify { residency.replace(world, tree, GrowthStage.STUMP) }
   }
 
   @Test
-  fun `a claimed landmark is recorded as terminal`() {
+  fun `a grown tree drops four logs`() {
+    val world = testWorld()
+    world.deadTree(propId = 123L)
+
+    system(pristine()).update(world, 0f)
+
+    verify { loot.spawnLootItem(world, itemId = LOG, amount = 4, pos = Vec3L(1, 2, 3), lootOwner = any()) }
+  }
+
+  @Test
+  fun `a young tree can be felled again, for half the logs`() {
+    val divergence = growing(DivergenceState.YOUNG)
+    val world = testWorld()
+    world.deadTree(propId = 123L, growth = GrowthStage.YOUNG)
+
+    system(divergence).update(world, 0f)
+
+    verify { loot.spawnLootItem(world, itemId = LOG, amount = 2, pos = any(), lootOwner = any()) }
+    verify { divergence.record(123L, StaticEntityKind.TREE, DivergenceState.STUMP, any()) }
+  }
+
+  @Test
+  fun `a felled sapling goes back to a stump and drops nothing`() {
+    val divergence = growing(DivergenceState.SAPLING)
+    val world = testWorld()
+    world.deadTree(propId = 123L, growth = GrowthStage.SAPLING)
+
+    system(divergence).update(world, 0f)
+
+    verify(exactly = 0) { loot.spawnLootItem(any(), any(), any(), any(), lootOwner = any()) }
+    verify { divergence.record(123L, StaticEntityKind.TREE, DivergenceState.STUMP, any()) }
+  }
+
+  @Test
+  fun `a claimed landmark is recorded as terminal and taken off the column`() {
     val divergence = pristine()
     val world = testWorld()
     val propId = 456L
 
-    world.createEntity { eid ->
+    val landmark = world.createEntity { eid ->
       add(eid, Position.fromVec3(Vec3L(1, 2, 3)))
       add(eid, StaticVisual(StaticEntityKind.POI_LOST_GRAVE, variant = 0, heightDm = 12))
       add(eid, WorldObjectIdentity(propId, latticeVersion = 1L))
@@ -74,6 +118,7 @@ class PropDeathDivergenceSystemTest {
     system(divergence).update(world, 0f)
 
     verify { divergence.recordDepletion(propId, StaticEntityKind.POI_LOST_GRAVE, null) }
+    verify { residency.remove(world, landmark) }
   }
 
   /**
@@ -97,6 +142,7 @@ class PropDeathDivergenceSystemTest {
 
     system(divergence).update(world, 0f)
 
+    verify(exactly = 0) { divergence.record(any(), any(), any(), any()) }
     verify(exactly = 0) { divergence.recordDepletion(any(), any(), any()) }
   }
 
@@ -110,5 +156,10 @@ class PropDeathDivergenceSystemTest {
     system(divergence).update(world, 0f)
 
     verify(exactly = 0) { divergence.recordDepletion(any(), any(), any()) }
+  }
+
+  private companion object {
+    /** `log` in `items.yml`. */
+    const val LOG = 43L
   }
 }

@@ -13,11 +13,14 @@ import org.hibernate.Length
 /**
  * Depleted, or a divergence otherwise, and never rolled again from a pristine `propsIn()` result.
  *
+ * [DEPLETED] is gone: until `resumeAt`, or for good when that is null. The other three are a removed tree on
+ * its way back - see `net.bestia.zone.entity.GrowthStage` - and stand where the tree stood. A grown tree has
+ * no row.
+ *
  * Append-only: a structure kind (`BUILT`, `DAMAGED`, ...) belongs here once players can build on the same
- * static-entity channel `StaticEntityKind`'s own KDoc already anticipates - triggered by something other
- * than combat depletion, unlike this one value.
+ * static-entity channel `StaticEntityKind`'s own KDoc already anticipates.
  */
-enum class DivergenceState { DEPLETED }
+enum class DivergenceState { DEPLETED, STUMP, SAPLING, YOUNG }
 
 /**
  * A generated static entity whose state no longer matches what `propsIn()` alone would produce - keyed on
@@ -85,11 +88,11 @@ class WorldObjectDivergence(
   @Column(nullable = false)
   var occurredAt: Instant = Instant.now()
 
-  /** Non-null: regrows at this instant. Null: terminal - never re-emitted again. */
+  /** Non-null: regrows, or for a growing tree reaches its next stage, at this instant. Null: terminal. */
   @Column
   var resumeAt: Instant? = null
 
-  /** Unused today; an escape hatch for who claimed it, a regrowth stage, or similar, never queried on. */
+  /** Unused today; an escape hatch for who claimed it, or similar, never queried on. */
   @Lob
   @Column(length = Length.LONG32)
   var payload: String? = null

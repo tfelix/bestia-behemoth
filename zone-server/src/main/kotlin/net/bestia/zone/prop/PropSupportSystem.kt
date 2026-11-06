@@ -8,8 +8,6 @@ import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.GroundHeight
 import net.bestia.zone.entity.ecs.PropPose
-import net.bestia.zone.entity.ecs.PropVitality
-import net.bestia.zone.entity.ecs.StaticSync
 import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.world.stream.ChunkService
@@ -17,7 +15,7 @@ import org.springframework.stereotype.Component
 import net.bestia.zone.ecs.core.System as EcsSystem
 
 /**
- * Destroys a generated prop whose ground has been dug out from under it.
+ * Destroys a generated prop whose ground has been dug out from under it, a stump or a growing tree included.
  *
  * A prop's height comes from the generator's own column - `GeneratedPropSource` says so, and says the two
  * agree - and a carve is exactly what breaks that agreement. Nothing used to notice: no prop code listened for
@@ -26,20 +24,22 @@ import net.bestia.zone.ecs.core.System as EcsSystem
  *
  * ### Terminal, whatever the kind's regrowth says
  *
- * `recordDepletion` is given a null `resumeAt` even for a tree with a `regrowSeconds`, because the ground it
- * would grow back onto is not there. A regrown tree over an open shaft is the same bug with a delay on it.
+ * A tree undermined leaves no stump and never grows back, because the ground it would grow back onto is not
+ * there. A regrown tree over an open shaft is the same bug with a delay on it. That is
+ * [PropRemoval.Cause.GONE_FOR_GOOD].
  *
  * ### After the chunk stream and the residency
  *
  * After `ChunkStreamSystem`, whose last step rebuilds the walkability tiles this reads - before them the
  * ground still reads as it was, and no prop looks unsupported. After `WorldObjectResidencySystem`, so a
  * column materialised this tick is judged this tick rather than next. The prop component types are declared as
- * `writes` because `WorldObjectResidencyService.remove` destroys the entity carrying them.
+ * `writes` because removing a prop destroys the entity carrying them.
  */
 @Component
 class PropSupportSystem(
   private val residency: WorldObjectResidencyService,
   private val divergence: WorldObjectDivergenceRegistry,
+  private val removal: PropRemoval,
   private val ground: GroundHeight,
   private val chunkService: ChunkService
 ) : EcsSystem {
@@ -50,13 +50,7 @@ class PropSupportSystem(
 
   override val reads: ComponentClassSet = setOf(PropPose::class, StaticVisual::class)
 
-  override val writes: ComponentClassSet = setOf(
-    PropPose::class,
-    StaticVisual::class,
-    PropVitality::class,
-    WorldObjectIdentity::class,
-    StaticSync::class
-  )
+  override val writes: ComponentClassSet = PropRemoval.WRITES
 
   /**
    * Columns an edit has touched whose props have not been re-checked.
@@ -102,13 +96,14 @@ class PropSupportSystem(
       if (visual.kind.isBuilding) continue
 
       // Whichever of the two ways a prop is used up got there first wins, exactly as the collect and death
-      // paths guard against each other. A prop felled and undermined in one tick yields once.
-      if (divergence.of(identity.propId) != null) continue
+      // paths guard against each other. A prop felled and undermined in one tick yields once. A tree growing
+      // back has a row too, and still stands on ground that can be carved away.
+      val standing = divergence.of(identity.propId)
+      if (standing != null && !standing.isGrowing) continue
 
       if (isSupported(pose)) continue
 
-      divergence.recordDepletion(identity.propId, visual.kind, resumeAt = null)
-      residency.remove(world, entityId)
+      removal.removed(world, entityId, PropRemoval.Cause.GONE_FOR_GOOD)
 
       LOG.debug {
         "Destroyed ${visual.kind} (prop ${identity.propId}) at ${pose.position}: its ground was carved away"

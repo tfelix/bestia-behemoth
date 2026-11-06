@@ -5,13 +5,38 @@ import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
 import java.time.Instant
+import net.bestia.zone.entity.GrowthStage
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.prop.persistence.DivergenceState
 import net.bestia.zone.prop.persistence.WorldObjectDivergence
 import net.bestia.zone.prop.persistence.WorldObjectDivergenceRepository
 
 /** In-memory mirror of one [WorldObjectDivergence] row, for the tick thread to read without a DB hit. */
-data class DivergenceEntry(val kind: StaticEntityKind, val state: DivergenceState, val resumeAt: Instant?)
+data class DivergenceEntry(val kind: StaticEntityKind, val state: DivergenceState, val resumeAt: Instant?) {
+
+  /** What stands at the prop's place on its way back, or null when nothing stands there. */
+  val growth: GrowthStage?
+    get() = when (state) {
+      DivergenceState.STUMP -> GrowthStage.STUMP
+      DivergenceState.SAPLING -> GrowthStage.SAPLING
+      DivergenceState.YOUNG -> GrowthStage.YOUNG
+      DivergenceState.DEPLETED -> null
+    }
+
+  /** A removed tree on its way back. It stands, but it has not grown back yet. */
+  val isGrowing: Boolean get() = growth != null
+
+  /** A tree on its way back that is big enough to fell again. A stump is not. */
+  val isFellable: Boolean get() = growth == GrowthStage.SAPLING || growth == GrowthStage.YOUNG
+}
+
+/** The row state that stores [this] stage. */
+fun GrowthStage.asDivergence(): DivergenceState = when (this) {
+  GrowthStage.STUMP -> DivergenceState.STUMP
+  GrowthStage.SAPLING -> DivergenceState.SAPLING
+  GrowthStage.YOUNG -> DivergenceState.YOUNG
+  GrowthStage.GROWN -> throw IllegalArgumentException("a grown prop has no divergence row")
+}
 
 /**
  * Which generated static entities have diverged from what `propsIn()` alone would produce, and the only
@@ -19,9 +44,8 @@ data class DivergenceEntry(val kind: StaticEntityKind, val state: DivergenceStat
  *
  * ### Tick-thread only, same convention [WorldObjectResidencyService] documents for its own maps
  *
- * [of] is read, and [recordDepletion]/[evictRegrown] mutate [byPropId], exclusively from
- * [WorldObjectResidencyService.materialise] and `PropDeathDivergenceSystem`, both of which only ever run on
- * the tick thread. [loadAll] runs once at boot, before the tick loop starts. A plain `HashMap` is therefore
+ * [of] is read, and [record]/[evictRegrown] mutate [byPropId], only from systems and from
+ * [WorldObjectResidencyService.materialise], all of which run on the tick thread. [loadAll] runs once at boot, before the tick loop starts. A plain `HashMap` is therefore
  * correct, not merely convenient - there is never a second thread to race against.
  *
  * ### Durable writes without blocking the tick
@@ -68,11 +92,20 @@ class WorldObjectDivergenceRegistry(
    *  or a claimed landmark. Also null for `propId == 0` (a not-yet-generated future non-generated source). */
   fun of(propId: Long): DivergenceEntry? = if (propId == 0L) null else byPropId[propId]
 
-  /** [resumeAt] non-null means temporary (a tree with a `regrowSeconds`); null means terminal. */
+  /** [resumeAt] non-null means temporary (a herb with a `regrowSeconds`); null means terminal. */
   fun recordDepletion(propId: Long, kind: StaticEntityKind, resumeAt: Instant?) {
+    record(propId, kind, DivergenceState.DEPLETED, resumeAt)
+  }
+
+  /**
+   * Stores what has become of [propId]. For a growing tree, [resumeAt] is when it reaches its next stage.
+   *
+   * Every record reaches the [onDepleted] listeners, a tree that was a sapling a moment ago included.
+   */
+  fun record(propId: Long, kind: StaticEntityKind, state: DivergenceState, resumeAt: Instant?) {
     if (propId == 0L) return
 
-    val entry = DivergenceEntry(kind, DivergenceState.DEPLETED, resumeAt)
+    val entry = DivergenceEntry(kind, state, resumeAt)
     byPropId[propId] = entry
 
     // Read here rather than inside the job, so the row is stamped with the world as it was when the prop was
@@ -81,9 +114,7 @@ class WorldObjectDivergenceRegistry(
     val worldShapeVersion = worldService.record.shapeVersion
 
     asyncJobExecutor.submit(propId) {
-      val row = WorldObjectDivergence(
-        propId, kind.name, DivergenceState.DEPLETED, latticeVersion, worldShapeVersion
-      )
+      val row = WorldObjectDivergence(propId, kind.name, state, latticeVersion, worldShapeVersion)
       row.resumeAt = resumeAt
       repository.save(row)
     }

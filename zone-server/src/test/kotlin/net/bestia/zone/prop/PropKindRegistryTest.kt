@@ -76,6 +76,22 @@ class PropKindRegistryTest {
     }
   }
 
+  /** Only a tree leaves a stump and grows back in stages, a week each, from a grown tree within 12 m. */
+  @Test
+  fun `trees grow back in week-long stages and nothing else does`() {
+    val registry = PropKindRegistry().also { it.load() }
+
+    val regrowing = StaticEntityKind.entries.filter { registry.of(it).regrowth != null }
+    assertEquals(setOf(StaticEntityKind.TREE, StaticEntityKind.BLIGHTED_TREE), regrowing.toSet())
+
+    for (kind in regrowing) {
+      val regrowth = registry.of(kind).regrowth!!
+      assertEquals(7 * 24 * 3600L, regrowth.stageSeconds, "$kind")
+      assertEquals(12L, regrowth.neighbourRadius, "$kind")
+      assertEquals(null, registry.of(kind).regrowSeconds, "$kind would also regrow the old way")
+    }
+  }
+
   /**
    * A grass fire kills a plant it passes over.
    *

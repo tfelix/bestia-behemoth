@@ -24,6 +24,7 @@ class SettlementFateService(
   private val divergence: WorldObjectDivergenceRegistry,
   private val sites: SettlementSiteIndex,
   private val residency: WorldObjectResidencyService,
+  private val removal: PropRemoval,
   private val worldService: WorldService,
 ) : SettlementFates {
 
@@ -70,11 +71,15 @@ class SettlementFateService(
     for (building in propsOf(site)) {
       if (isDestroyed(building.propId)) continue
 
-      // Removed first: the entity's own pose is what locates it, and a resident prop with a divergence row
-      // would otherwise linger until its column next unloads.
-      residentEntityOf(world, building.propId)?.let { residency.remove(world, it) }
-      val kind = StaticEntityKind.of(PropKind.BUILDING, blighted = false, large = false, building.function.ordinal)
-      divergence.recordDepletion(building.propId, kind, resumeAt = null)
+      // A resident one is taken down where people can see it; a resident prop with a divergence row would
+      // otherwise linger until its column next unloads.
+      val resident = residentEntityOf(world, building.propId)
+      if (resident != null) {
+        removal.removed(world, resident, PropRemoval.Cause.GONE_FOR_GOOD)
+      } else {
+        val kind = StaticEntityKind.of(PropKind.BUILDING, blighted = false, large = false, building.function.ordinal)
+        removal.removedUnseen(building.propId, kind, PropRemoval.Cause.GONE_FOR_GOOD)
+      }
       razed++
     }
 

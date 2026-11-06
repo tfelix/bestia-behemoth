@@ -103,6 +103,29 @@ class PropPromotionServiceTest {
     assertFalse(world.has(id, Position::class))
   }
 
+  @Test
+  fun `a stump refuses promotion`() {
+    val world = testWorld()
+    val service = PropPromotionService(standingAs(DivergenceState.STUMP))
+    val id = propEntity(world, propId = 7L)
+
+    assertFalse(service.promoteIfNeeded(world, id, NEXT_TO_PROP, REACH), "there is nothing left of it to fell")
+  }
+
+  @Test
+  fun `a sapling growing back can be felled again`() {
+    val world = testWorld()
+    val service = PropPromotionService(standingAs(DivergenceState.SAPLING))
+    val id = propEntity(world, propId = 7L)
+
+    assertTrue(service.promoteIfNeeded(world, id, NEXT_TO_PROP, REACH))
+    assertTrue(world.has(id, Position::class))
+  }
+
+  private fun standingAs(state: DivergenceState): WorldObjectDivergenceRegistry = mockk {
+    every { of(7L) } returns DivergenceEntry(StaticEntityKind.TREE, state, java.time.Instant.now())
+  }
+
   private companion object {
     val NEXT_TO_PROP = Vec3L(1, 2, 3)
     const val REACH = 10L
