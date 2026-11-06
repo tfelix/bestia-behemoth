@@ -55,7 +55,8 @@ signal lightning_struck(ground: Vector3)
 
 @export_range(0, 300, 1) var update_delay_seconds: int = 10
 
-@export var sun_energy: float = 1.0
+## The clear-day peak. Daylight and cloud scale it down, so only a bright day gets all of it.
+@export var sun_energy: float = 1.3
 
 ## How bright the moon is. Small, but never zero.
 ##
@@ -63,7 +64,7 @@ signal lightning_struck(ground: Vector3)
 ## is what keeps a hillside at midnight readable as a hillside.
 @export var moon_energy: float = 0.16
 
-@export var sun_day_colour: Color = Color(1.0, 0.96, 0.88)
+@export var sun_day_colour: Color = Color(1.0, 0.90, 0.76)
 
 ## What the sun goes as it nears the horizon, and what dawn and dusk take their cast from.
 @export var sun_twilight_colour: Color = Color(1.0, 0.52, 0.26)
