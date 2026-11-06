@@ -1,6 +1,7 @@
 package net.bestia.zone.casting
 
 import net.bestia.zone.battle.ecs.skill.CastCancelService
+import net.bestia.zone.item.enchant.GroundItemDispel
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.aoi.EntityAOIService
@@ -40,4 +41,5 @@ class SkillWorldServices(
   val forcedMovement: ForcedMovement,
   val castCancel: CastCancelService,
   val gear: GearOperations,
+  val groundItemDispel: GroundItemDispel,
 )
