@@ -67,6 +67,10 @@ class ItemInstance(
   @Column(name = "item_level", nullable = true)
   var itemLevel: Int? = null,
 
+  /** For a copy that weighs what it holds, like a mail sack. Null: the template's weight. */
+  @Column(name = "held_weight", nullable = true)
+  var heldWeight: Int? = null,
+
   /**
    * Minted by the zone, not by the database: the live inventory shows a new copy in the tick it is granted,
    * and the player can only act on a copy whose id they know. See [PlayerItemIds].
@@ -111,6 +115,8 @@ class ItemInstance(
   fun disenchant(enchantment: ItemEnchantmentId) {
     enchantmentRows.removeIf { it.enchantmentId == enchantment.id }
   }
+
+  val weight: Int get() = heldWeight ?: item.weight
 
   val wears: Boolean get() = maxDurability > 0
 
