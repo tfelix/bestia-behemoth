@@ -1,6 +1,9 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.BattleContext
 import net.bestia.zone.battle.BattleContextFactory
+import net.bestia.zone.item.ecs.ItemEnchantments
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.persistence.Skill
@@ -38,6 +41,7 @@ class SkillContextFactory(
     val usedAttack = BattleAttack.of(skill, skillLevel)
 
     val battle = battleContextFactory.create(world, casterId, usedAttack, targetEntityId, targetPosition)
+      ?: enchantedGroundItemContext(world, casterId, usedAttack, targetEntityId)
       ?: return null
 
     val budget = SkillBudget(
@@ -63,5 +67,21 @@ class SkillContextFactory(
       skillLevel = skillLevel,
       skill = skill
     )
+  }
+
+  /**
+   * An item has no combat stats, so an enchanted one on the ground is aimed at as the ground it lies on. The target
+   * id stays on the [SkillContext], which is how Dispel tells it from a plain ground cast.
+   */
+  private fun enchantedGroundItemContext(
+    world: World,
+    casterId: EntityId,
+    usedAttack: BattleAttack,
+    targetEntityId: EntityId?,
+  ): BattleContext? {
+    val item = targetEntityId?.takeIf { world.has(it, ItemEnchantments::class) } ?: return null
+    val lyingAt = world.get(item, Position::class)?.toVec3L() ?: return null
+
+    return battleContextFactory.create(world, casterId, usedAttack, targetEntityId = null, targetPosition = lyingAt)
   }
 }

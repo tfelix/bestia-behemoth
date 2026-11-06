@@ -189,6 +189,9 @@ interface SkillWorld {
   /** Strips every buff a dispel may lift from [entityId]; returns how many went. */
   fun dispel(entityId: EntityId): Int
 
+  /** Tries to break each enchantment on a ground item at `baseChancePercent - strength`; returns how many broke. */
+  fun dispelGroundItem(entityId: EntityId, baseChancePercent: Int): Int
+
   /** How full [entityId]'s mana pool is, from 0 to 1; 0 for something with no pool. */
   fun manaFractionOf(entityId: EntityId): Float
 
