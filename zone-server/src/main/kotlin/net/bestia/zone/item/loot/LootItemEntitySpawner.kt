@@ -53,6 +53,7 @@ class LootItemEntitySpawner(
     roll: ItemRoll? = null,
     enchantments: List<ActiveItemEnchantment> = emptyList(),
     enchantedSince: Instant? = null,
+    heldWeight: Int? = null,
   ): EntityId {
     val configure: World.(EntityId) -> Unit = { id ->
       add(id, Position.fromVec3(pos))
@@ -64,7 +65,8 @@ class LootItemEntitySpawner(
           amount = amount,
           uniqueId = uniqueId,
           provenance = provenance,
-          roll = roll
+          roll = roll,
+          heldWeight = heldWeight,
         )
       )
       add(id, GroundItemIntegrity(lost = integrityLost))

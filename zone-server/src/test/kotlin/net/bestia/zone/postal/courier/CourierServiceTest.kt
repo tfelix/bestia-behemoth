@@ -173,7 +173,7 @@ class CourierServiceTest {
   @Test
   fun `a killed courier's sack falls sealed, and nobody carries its parcels until it is picked up`() {
     val carried = parcel().also { it.sackInstanceId = 555L; it.courierMasterId = COURIER }
-    val sack = ItemInstance(item = sackTemplate, id = 555L).also { it.enchant(seal) }
+    val sack = ItemInstance(item = sackTemplate, id = 555L, heldWeight = 300).also { it.enchant(seal) }
     every { inventory.removeNamedFromOwner(COURIER, null, SACK, 1, 555L, null) } returns ItemContainer.RemovedItem(555L, sack)
     every { parcels.findBySackInstanceId(555L) } returns listOf(carried)
 
@@ -181,7 +181,7 @@ class CourierServiceTest {
 
     assertNull(carried.courierMasterId)
     verify {
-      lootItems.spawnLootItem(any(), SACK, 1, Vec3L(1, 2, 3), 555L, enchantments = listOf(seal))
+      lootItems.spawnLootItem(any(), SACK, 1, Vec3L(1, 2, 3), 555L, enchantments = listOf(seal), heldWeight = 300)
     }
   }
 
@@ -194,6 +194,16 @@ class CourierServiceTest {
 
     assertTrue(fallen.isOnBoard(now))
     verify { itemInstances.deleteById(555L) }
+  }
+
+  @Test
+  fun `whoever picks up a fallen sack carries it now`() {
+    val fallen = parcel().also { it.sackInstanceId = 555L }
+    every { parcels.findBySackInstanceId(555L) } returns listOf(fallen)
+
+    service.takeOver(555L, courierMasterId = 9L)
+
+    assertEquals(9L, fallen.courierMasterId)
   }
 
   private val seal = ActiveItemEnchantment(ItemEnchantmentId.POSTAL_SEAL, PostalSeal.STRENGTH)

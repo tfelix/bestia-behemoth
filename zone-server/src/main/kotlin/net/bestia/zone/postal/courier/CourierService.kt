@@ -168,7 +168,7 @@ class CourierService(
         val removed = inventoryService.removeNamedFromOwner(courierMasterId, null, sackItemId, 1, sackId, null)
         val sack = removed?.instance ?: return@mapNotNull null
         parcels.findBySackInstanceId(sackId).forEach { it.courierMasterId = null }
-        FallenSack(sackItemId, sackId, sack.enchantments(now))
+        FallenSack(sackItemId, sackId, sack.enchantments(now), sack.heldWeight)
       }
     }.orEmpty()
 
@@ -176,9 +176,16 @@ class CourierService(
       fallen.forEach { sack ->
         lootItems.spawnLootItem(
           this, itemId = sack.itemId, amount = 1, pos = fellAt, uniqueId = sack.sackId, enchantments = sack.seal,
+          heldWeight = sack.heldWeight,
         )
       }
     }
+  }
+
+  /** Whoever picked up a fallen sack carries it now, with the same deadline and the full pay. */
+  @Transactional
+  fun takeOver(sackId: Long, courierMasterId: Long) {
+    parcels.findBySackInstanceId(sackId).forEach { it.courierMasterId = courierMasterId }
   }
 
   /** A fallen sack nobody picked up: its parcels wait at their origin again, due at the same latest arrival. */
@@ -191,7 +198,12 @@ class CourierService(
     itemInstances.deleteById(sackId)
   }
 
-  private data class FallenSack(val itemId: Long, val sackId: Long, val seal: List<ActiveItemEnchantment>)
+  private data class FallenSack(
+    val itemId: Long,
+    val sackId: Long,
+    val seal: List<ActiveItemEnchantment>,
+    val heldWeight: Int?,
+  )
 
   private data class LateCourier(val masterEntityId: EntityId, val sacks: List<Long>)
 
