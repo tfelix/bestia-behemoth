@@ -17,7 +17,11 @@ import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.enchant.ActiveItemEnchantment
 import net.bestia.zone.item.enchant.ItemEnchantmentId
 import net.bestia.zone.item.persistence.Item
+import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.loot.LootItemEntitySpawner
+import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.item.persistence.ItemInstance
+import net.bestia.zone.item.persistence.ItemInstanceRepository
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.postal.office.PostOffices
 import net.bestia.zone.postal.parcel.ParcelService.Outcome
@@ -60,9 +64,24 @@ class CourierServiceTest {
   private val masters = mockk<MasterRepository>()
   private val storedEffects = mockk<StatusEffectPersistenceService>(relaxed = true)
 
+  private val itemInstances = mockk<ItemInstanceRepository>(relaxed = true)
+  private val lootItems = mockk<LootItemEntitySpawner>(relaxed = true)
+
   private val service = CourierService(
-    parcels, masters, offices, inventory, items, mockk<CommodityItems> { every { coinItemId() } returns COIN }, reserve,
-    mockk(relaxed = true), storedEffects, world, transactions, Clock.fixed(now, ZoneOffset.UTC),
+    parcels = parcels,
+    masters = masters,
+    offices = offices,
+    inventoryService = inventory,
+    itemRepository = items,
+    itemInstances = itemInstances,
+    lootItems = lootItems,
+    commodityItems = mockk<CommodityItems> { every { coinItemId() } returns COIN },
+    reserve = reserve,
+    statusEffects = mockk(relaxed = true),
+    storedEffects = storedEffects,
+    world = world,
+    transactions = transactions,
+    clock = Clock.fixed(now, ZoneOffset.UTC),
   )
 
   private val ashfen = PostOffices.Office(settlement = ASHFEN, name = "Ashfen", level = 2)
@@ -150,6 +169,34 @@ class CourierServiceTest {
     assertNull(late.courierMasterId)
     assertTrue(late.hasArrived(now))
   }
+
+  @Test
+  fun `a killed courier's sack falls sealed, and nobody carries its parcels until it is picked up`() {
+    val carried = parcel().also { it.sackInstanceId = 555L; it.courierMasterId = COURIER }
+    val sack = ItemInstance(item = sackTemplate, id = 555L).also { it.enchant(seal) }
+    every { inventory.removeNamedFromOwner(COURIER, null, SACK, 1, 555L, null) } returns ItemContainer.RemovedItem(555L, sack)
+    every { parcels.findBySackInstanceId(555L) } returns listOf(carried)
+
+    service.dropSacks(COURIER, listOf(555L), Vec3L(1, 2, 3))
+
+    assertNull(carried.courierMasterId)
+    verify {
+      lootItems.spawnLootItem(any(), SACK, 1, Vec3L(1, 2, 3), 555L, enchantments = listOf(seal))
+    }
+  }
+
+  @Test
+  fun `a sack the seal sent back puts its parcels on the board again, still due when they were`() {
+    val fallen = parcel().also { it.sackInstanceId = 555L }
+    every { parcels.findBySackInstanceId(555L) } returns listOf(fallen)
+
+    service.returnToBoard(555L)
+
+    assertTrue(fallen.isOnBoard(now))
+    verify { itemInstances.deleteById(555L) }
+  }
+
+  private val seal = ActiveItemEnchantment(ItemEnchantmentId.POSTAL_SEAL, PostalSeal.STRENGTH)
 
   private fun parcel(
     weight: Int = 200,
