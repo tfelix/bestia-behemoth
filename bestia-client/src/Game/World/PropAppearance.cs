@@ -221,21 +221,13 @@ namespace BestiaBehemothClient.Game.World
 
       public bool HasScene => Scenes is { Length: > 0 };
 
-      /// <summary>The variant prop <paramref name="entityId"/> is drawn as. Only meaningful when <see cref="HasScene"/>.</summary>
+      /// <summary>The model a prop with the wire <paramref name="variant"/> is drawn as. Only meaningful when <see cref="HasScene"/>.</summary>
       /// <remarks>
-      /// Off the id so that a tree keeps its model when its chunk is streamed out and back in. Hashed rather
-      /// than taken modulo the count, because the generator hands out ids in scan order and a plain modulo
-      /// would plant the variants in rows.
+      /// Off the server's variant, not the entity id: the server mints a new entity id every time a chunk
+      /// streams back in, while the variant comes from the prop's durable name. So a tree keeps its model, and
+      /// a stump can match the tree it was cut from.
       /// </remarks>
-      public SceneVariant SceneFor(long entityId)
-      {
-        var z = unchecked((ulong)entityId + 0x9E3779B97F4A7C15UL);
-        z = unchecked((z ^ (z >> 30)) * 0xBF58476D1CE4E5B9UL);
-        z = unchecked((z ^ (z >> 27)) * 0x94D049BB133111EBUL);
-        z ^= z >> 31;
-
-        return Scenes[(int)(z % (ulong)Scenes.Length)];
-      }
+      public SceneVariant SceneFor(int variant) => Scenes[variant % Scenes.Length];
 
       public bool HasMesh => !string.IsNullOrEmpty(MeshPath);
     }
