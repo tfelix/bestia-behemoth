@@ -74,6 +74,7 @@ var _last_health_msg: HealthComponentSMSG = null
 var _last_mana_msg: ManaComponentSMSG = null
 var _last_worn_gear_msg: WornGearComponentSMSG = null
 var _guild_tag: GuildTagComponentSMSG = null
+var _item_enchantments: ItemEnchantmentsComponentSMSG = null
 
 # Base level, 0 until the first push. Sent for everything in range, so a stranger's mob shows it on hover too.
 var _level: int = 0
@@ -751,6 +752,8 @@ func _seed_visual(visual: Node) -> void:
 		visual.update_worn_gear(_last_worn_gear_msg)
 	if _guild_tag != null and visual.has_method("set_guild_tag"):
 		visual.set_guild_tag(_guild_tag)
+	if _item_enchantments != null and visual.has_method("set_item_enchantments"):
+		visual.set_item_enchantments(_item_enchantments)
 	if _level > 0 and visual.has_method("set_level"):
 		visual.set_level(_level)
 	if visual is Visual:
@@ -1489,6 +1492,18 @@ func update_worn_gear(msg: WornGearComponentSMSG) -> void:
 	var visual = _get_visual_for_method("update_worn_gear")
 	if visual != null:
 		visual.update_worn_gear(msg)
+
+
+func update_item_enchantments(msg: ItemEnchantmentsComponentSMSG) -> void:
+	_item_enchantments = null if msg.Removed else msg
+	var visual = _get_visual_for_method("set_item_enchantments")
+	if visual != null:
+		visual.set_item_enchantments(_item_enchantments)
+
+
+## Null unless this is an item on the ground that carries an enchantment.
+func get_item_enchantments() -> ItemEnchantmentsComponentSMSG:
+	return _item_enchantments
 
 
 func update_guild_tag(msg: GuildTagComponentSMSG) -> void:
