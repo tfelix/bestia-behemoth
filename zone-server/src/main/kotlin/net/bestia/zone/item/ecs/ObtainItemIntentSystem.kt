@@ -1,5 +1,6 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.battle.ecs.exp.GainExpSystem
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.entity.GameMetrics
 import net.bestia.zone.item.stat.ItemStatCatalog
@@ -44,6 +45,9 @@ class ObtainItemIntentSystem(
   private val metrics: GameMetrics = GameMetrics(),
 ) : System {
   override val phase = Phase.ITEMS
+
+  // A pickup rule may cost honor or set a status, which experience gains touch too.
+  override val after = setOf(GainExpSystem::class)
 
   private data class ClaimedLoot(
     val item: ItemTemplateRegistry.Template,

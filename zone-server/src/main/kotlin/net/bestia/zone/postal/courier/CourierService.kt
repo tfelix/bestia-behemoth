@@ -12,6 +12,7 @@ import net.bestia.zone.economy.WorldReserve
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.entity.GameMetrics.CoinSource
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.container.ReservedItem
 import net.bestia.zone.item.ecs.Inventory
@@ -19,16 +20,20 @@ import net.bestia.zone.item.ecs.grantToLive
 import net.bestia.zone.item.enchant.ActiveItemEnchantment
 import net.bestia.zone.item.enchant.ItemEnchantmentId
 import net.bestia.zone.item.loot.LootItemEntitySpawner
+import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.item.persistence.ItemInstanceRepository
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.persistence.findByIdentifierOrThrow
 import net.bestia.zone.postal.office.PostOffices
 import net.bestia.zone.postal.parcel.Freight
+import net.bestia.zone.postal.parcel.ParcelService
 import net.bestia.zone.postal.parcel.ParcelService.Outcome
 import net.bestia.zone.postal.persistence.Parcel
 import net.bestia.zone.postal.persistence.ParcelRepository
 import net.bestia.zone.postal.seal.PostalSeal
+import net.bestia.zone.postal.seal.SpilledMail
 import net.bestia.zone.util.EntityId
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -51,6 +56,7 @@ class CourierService(
   private val lootItems: LootItemEntitySpawner,
   private val commodityItems: CommodityItems,
   private val reserve: WorldReserve,
+  private val parcelService: ParcelService,
   private val statusEffects: StatusEffectService,
   private val storedEffects: StatusEffectPersistenceService,
   private val world: WorldView,
@@ -188,6 +194,61 @@ class CourierService(
     parcels.findBySackInstanceId(sackId).forEach { it.courierMasterId = courierMasterId }
   }
 
+  /**
+   * A Dispel broke the seal of a fallen sack. Its goods spill around [at] as plain ground items, and taking them is
+   * stealing. The goods are lost to the senders, but each gets the freight fee back, since no courier earned it.
+   */
+  fun spill(sackId: Long, at: Vec3L) {
+    val coinId = commodityItems.coinItemId() ?: return
+
+    val spilled = transactions.execute {
+      val coin = itemRepository.findByIdOrNull(coinId) ?: return@execute null
+      val robbed = parcels.findBySackInstanceId(sackId)
+      val goods = robbed.flatMap { parcel -> parcel.container.removeAllFree().map(::spilledGoods) }
+
+      robbed.forEach { parcel ->
+        parcelService.postInstant(parcel.senderMasterId, POST) { it.addStackable(coin, parcel.freightFee.toInt()) }
+        parcels.delete(parcel)
+      }
+      itemInstances.deleteById(sackId)
+
+      Spill(goods, refunds = robbed.sumOf { it.freightFee })
+    } ?: return
+
+    world.read {
+      spilled.goods.forEach { goods ->
+        val lying = lootItems.spawnLootItem(
+          this, itemId = goods.itemId, amount = goods.amount, pos = at, uniqueId = goods.uniqueId,
+          provenance = goods.provenance,
+        )
+        add(lying, SpilledMail(goods.itemLevel))
+      }
+      reserve.charge(spilled.refunds.toDouble(), CoinSource.FREIGHT)
+    }
+  }
+
+  private data class Spill(val goods: List<SpilledGoods>, val refunds: Long)
+
+  private data class SpilledGoods(
+    val itemId: Long,
+    val amount: Int,
+    val uniqueId: Long,
+    val provenance: ItemProvenance?,
+    val itemLevel: Int,
+  )
+
+  private fun spilledGoods(detached: ItemContainer.DetachedItem): SpilledGoods {
+    val instance = detached.instance
+
+    return SpilledGoods(
+      itemId = detached.template.id,
+      amount = detached.amount,
+      uniqueId = instance?.id ?: 0L,
+      provenance = instance?.provenance ?: detached.provenance,
+      itemLevel = instance?.itemLevel ?: detached.template.baseLevel,
+    )
+  }
+
   /** A fallen sack nobody picked up: its parcels wait at their origin again, due at the same latest arrival. */
   @Transactional
   fun returnToBoard(sackId: Long) {
@@ -254,6 +315,9 @@ class CourierService(
 
   companion object {
     const val MAIL_SACK = "mail_sack"
+
+    /** Who a refund comes from, as the auction house signs its own mail. */
+    const val POST = "Postal Service"
 
     private val HAND_MADE = Outcome.Refused(OpError.REQUEST_REFUSED)
   }
