@@ -1,0 +1,13 @@
+# Catalog of every enchantment an item instance can carry. See the item-enchantments page of the server docs.
+#
+# Every entry needs a matching constant in net.bestia.zone.item.enchant.ItemEnchantmentId, and `script` names the
+# simple class name of the ItemEnchantmentScript bean that implements it. ItemEnchantmentCatalogBootValidator
+# fails the boot if either drifts.
+#
+# Strength is not set here: it belongs to the instance, which is sealed or endowed with a strength of its own.
+itemEnchantments:
+  # Bound to a parcel's mail sack by the post office. Nobody may open it, and it sends the sack on.
+  - id: 1
+    identifier: POSTAL_SEAL
+    dispellable: true
+    script: PostalSeal
