@@ -1,6 +1,7 @@
 package net.bestia.zone.item.persistence
 
 import net.bestia.zone.item.ItemProvenance
+import net.bestia.zone.item.enchant.ActiveItemEnchantment
 import net.bestia.zone.item.stat.ItemRoll
 import net.bestia.zone.persistence.EntitySnapshot
 import net.bestia.zone.util.EntityId
@@ -21,4 +22,6 @@ data class LootSnapshot(
   val integrityLost: Int = 0,
   val provenance: ItemProvenance? = null,
   val roll: ItemRoll? = null,
+  val enchantments: List<ActiveItemEnchantment> = emptyList(),
+  val enchantedSince: Instant? = null,
 ) : EntitySnapshot
