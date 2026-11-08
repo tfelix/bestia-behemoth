@@ -69,6 +69,12 @@ namespace BestiaBehemothClient.Game.World
 
       /// <summary>A station a click uses. Sends <c>InteractEntityCMSG</c>.</summary>
       Use,
+
+      /// <summary>
+      /// Broken by damaging it, like <see cref="Chop"/>, but read as rock: a boulder. Sends the same
+      /// <c>AttackEntityCMSG</c>; only the cursor differs.
+      /// </summary>
+      Break,
     }
 
     /// <summary>The name <see cref="PropAction"/> travels to <c>PropPicker.action</c> under.</summary>
@@ -256,6 +262,8 @@ namespace BestiaBehemothClient.Game.World
     private const string GrassMaterial = "res://Game/Terrain/Grass/grass.tres";
 
     private const string TreeDir = "res://Game/Terrain/Trees/";
+
+    private const string RockDir = "res://Game/Terrain/Rocks/";
 
     /// <summary>
     /// Every kind the server can send, in <c>StaticEntityKind</c> ordinal order.
@@ -462,7 +470,37 @@ namespace BestiaBehemothClient.Game.World
       new Kind
       {
         PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.78f, 0.16f, 0.16f), StructureHeight = 3f
-      }  // WAR_BANNER
+      }, // WAR_BANNER
+
+      // What lies on the ground (worldgen's LootScatter). A boulder is one size drawn as one of Quaternius'
+      // three medium rocks, picked per boulder like a tree's model; each natural height is that model's top
+      // above its origin. Broken rather than picked, so it gets Break and no Collectible.
+      new Kind
+      {
+        Scenes = new[]
+        {
+          new SceneVariant { Path = RockDir + "Rock_Medium_1.gltf", NaturalHeight = 1.989f },
+          new SceneVariant { Path = RockDir + "Rock_Medium_2.gltf", NaturalHeight = 1.848f },
+          new SceneVariant { Path = RockDir + "Rock_Medium_3.gltf", NaturalHeight = 2.001f },
+        },
+        PlaceholderWidth = 1.8f, PlaceholderColour = new Color(0.52f, 0.50f, 0.47f), Action = PropAction.Break
+      }, // BOULDER
+
+      // A loose stone: always the same pebble, because it is loot rather than scenery. Collectible, from its
+      // `collect` block in prop-kinds.yml.
+      new Kind
+      {
+        Scenes = new[] { new SceneVariant { Path = RockDir + "Pebble_Round_3.gltf", NaturalHeight = 0.097f } },
+        PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.60f, 0.58f, 0.54f), Collectible = true,
+        Action = PropAction.Collect
+      }, // LOOSE_STONE
+
+      // A fallen stick. A long, low box in bark brown until it has a model: the free MegaKit has none.
+      new Kind
+      {
+        PlaceholderWidth = 0.7f, PlaceholderColour = new Color(0.40f, 0.29f, 0.18f), Collectible = true,
+        Action = PropAction.Collect
+      }  // STICK
     };
 
     /// <summary>

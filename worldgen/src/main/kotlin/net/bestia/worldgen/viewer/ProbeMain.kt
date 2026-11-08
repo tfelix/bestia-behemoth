@@ -516,10 +516,30 @@ object ProbeMain {
         }
       )
 
+      // A river's two ends: the width it starts at, half way, and at its mouth, and - for the reaches that
+      // reach the sea - how much the last stretch opens out, which is the estuary flare HydrologyStage draws
+      // per reach. A flare that came out the same on every river would show here as a narrow spread.
+      val headWidths = ArrayList<Double>()
+      val midWidths = ArrayList<Double>()
+      val mouthWidths = ArrayList<Double>()
+      val flares = ArrayList<Double>()
+
       generated.world.features.all().filterIsInstance<PolylineFeature>()
         .filter { it.kind.name == "RIVER_CHANNEL" }
         .forEach { river ->
           val widthChannel = river.stations.channel(Profiles.CHANNEL_WIDTH)
+          val waterChannel = river.stations.channel(Profiles.CHANNEL_WATER_ELEVATION)
+          val ends = river.centerline
+          fun widthAtLength(s: Double) =
+            river.stations.sample(widthChannel, ends.stationParamAt(s.coerceIn(0.0, ends.length)))
+          headWidths.add(widthAtLength(0.0))
+          midWidths.add(widthAtLength(ends.length * 0.5))
+          mouthWidths.add(widthAtLength(ends.length))
+          val reachesSea = river.stations.sample(waterChannel, ends.stationParamAt(ends.length)) <=
+              config.seaLevel + SEA_MOUTH_TOLERANCE
+          if (reachesSea && ends.length > FLARE_REFERENCE_METRES) {
+            flares.add(widthAtLength(ends.length) / widthAtLength(ends.length - FLARE_REFERENCE_METRES))
+          }
           val depthChannel = river.stations.channel(Profiles.CHANNEL_DEPTH)
           val bedChannel = river.stations.channel(Profiles.CHANNEL_BED_ELEVATION)
           val curvatureChannel = runCatching {
@@ -581,6 +601,21 @@ object ProbeMain {
       println("                   min      p25      p50      p75      max")
       println("  width m     ${quantiles(widths)}")
       println("  depth m     ${quantiles(depths)}")
+
+      headWidths.sort()
+      midWidths.sort()
+      mouthWidths.sort()
+      println()
+      println("width along each of ${headWidths.size} reaches")
+      println("                   min      p25      p50      p75      max")
+      println("  at head     ${quantiles(headWidths)}")
+      println("  half way    ${quantiles(midWidths)}")
+      println("  at mouth    ${quantiles(mouthWidths)}")
+      if (flares.isNotEmpty()) {
+        flares.sort()
+        println("  sea mouths, width over width ${FLARE_REFERENCE_METRES.toInt()} m upstream (${flares.size} reaches)")
+        println("  flare       ${quantiles(flares)}")
+      }
 
       if (incision.isNotEmpty()) {
         incision.sort()
@@ -1321,6 +1356,12 @@ object ProbeMain {
    * Priority-Flood epsilon showing through rather than a gentle river.
    */
   private const val DEAD_FLAT_PER_KM = 0.01
+
+  /** Metres above sea level a river's mouth water may stand and still count as reaching the sea. */
+  private const val SEA_MOUTH_TOLERANCE = 3.0
+
+  /** How far upstream of a sea mouth the flare is measured against. */
+  private const val FLARE_REFERENCE_METRES = 2_000.0
 
   /** Distinct at a glance in a terminal, quietest glyph first so the commonest material recedes. */
   private const val GLYPHS = ".:oO#*+=%@$&~"

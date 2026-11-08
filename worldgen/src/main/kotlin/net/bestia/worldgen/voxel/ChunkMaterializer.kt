@@ -143,7 +143,10 @@ class ChunkMaterializer(
   private val aetheriteParams: AetheriteParams = AetheriteParams(),
 
   /** Where the herbs, shrubs and reeds are. Forwarded from the params object, like the crystal tuning. */
-  groundCoverParams: GroundCoverParams = GroundCoverParams()
+  groundCoverParams: GroundCoverParams = GroundCoverParams(),
+
+  /** Where the boulders, stones and sticks lie. Forwarded from the params object, like the crystal tuning. */
+  lootParams: LootScatterParams = LootScatterParams()
 ) {
 
   /**
@@ -171,6 +174,9 @@ class ChunkMaterializer(
    * runtime that wants to answer it should not have to build a chunk first.
    */
   val groundCover = GroundCoverScatter(config, surface, config.seed, groundCoverParams)
+
+  /** Where the boulders, loose stones and sticks lie. Public for [groundCover]'s reason. */
+  val loot = LootScatter(config, surface, config.seed, lootParams)
 
   /** Materialises one chunk volume. */
   fun materialize(chunk: ChunkPos): VoxelChunk {
@@ -287,6 +293,9 @@ class ChunkMaterializer(
     // Shares the trees' `site`, which is what keeps a herb off a paved road, out of a building's footprint
     // and off a cave mouth without asking any of those questions again.
     groundCover.propsIn(chunk, site, into)
+    // The same `site`, for the same reason, plus the chunk's features: a boulder field follows a moraine, and
+    // nothing is left lying in a worked field.
+    loot.propsIn(chunk, site, nearby, into)
     crystals.propsIn(chunk, site, into)
     structures.spireProps(config, chunk, site, into)
     // Built here from `nearby` rather than held in a field like `crystals` and `vegetation`, because its input
@@ -985,7 +994,9 @@ class ChunkMaterializer(
     // patches from both sides (`SurfaceSampler.frayed`); snow, cold-shore shingle and lake ice are dithered across
     // a band (`coverTemperatureAt`); blight's dither is ranked; plate facies are read through a warp
     // (`Stratigraphy.plateAt`). Every column near any of those boundaries may cap, or bed, differently.
-    const val VERSION = 9
+    // 10: boulders, loose stones and fallen sticks lie on the ground (`LootScatter`), so every chunk emits props
+    // it did not emit before.
+    const val VERSION = 10
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

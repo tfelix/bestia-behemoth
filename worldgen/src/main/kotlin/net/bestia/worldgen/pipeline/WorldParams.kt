@@ -32,6 +32,7 @@ import net.bestia.worldgen.voxel.ChunkMaterializer
 import net.bestia.worldgen.voxel.AetheriteParams
 import net.bestia.worldgen.voxel.CrystalParams
 import net.bestia.worldgen.voxel.GroundCoverParams
+import net.bestia.worldgen.voxel.LootScatterParams
 import net.bestia.worldgen.voxel.StrataParams
 import net.bestia.worldgen.voxel.VegetationParams
 
@@ -188,6 +189,9 @@ data class WorldParams(
    */
   val groundCover: GroundCoverParams = GroundCoverParams(),
 
+  /** Boulders, loose stones and fallen sticks. Chunk tier only, for [groundCover]'s reason. */
+  val loot: LootScatterParams = LootScatterParams(),
+
   /**
    * The weather model.
    *
@@ -309,7 +313,8 @@ data class WorldParams(
       r.resource.grades.digest().value,
       r.crystal.digest().value,
       r.aetherite.digest().value,
-      r.groundCover.digest().value
+      r.groundCover.digest().value,
+      r.loot.digest().value
     )
   }
 
@@ -333,7 +338,7 @@ data class WorldParams(
      */
     val NOT_YET_LOADABLE = setOf(
       "glacial", "hydrology", "pond", "alluvium", "biome", "vegetation", "detail", "strata", "crystal",
-      "aetherite", "vegetationStand", "groundCover"
+      "aetherite", "vegetationStand", "groundCover", "loot"
     )
 
     /**

@@ -106,7 +106,21 @@ enum class PropKind {
    * Placed off the *water surface* rather than off the biome, because a biome is a kilometre cell and a pond
    * edge is not. See [GroundCoverScatter].
    */
-  REED
+  REED,
+
+  /**
+   * A boulder: one size, several models, broken for stone. See [LootScatter].
+   *
+   * A kind rather than a [FIXTURE] sub-kind because it is a scatter with its own lattice and its own yield, for
+   * [HERB]'s reason: everything downstream dispatches on the kind.
+   */
+  BOULDER,
+
+  /** A loose stone, picked up as it lies: a first crafting material. See [LootScatter]. */
+  LOOSE_STONE,
+
+  /** A fallen stick under the trees, picked up as it lies: the other half of the first crafts. */
+  STICK
 }
 
 /**

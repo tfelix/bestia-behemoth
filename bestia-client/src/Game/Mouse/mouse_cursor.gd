@@ -36,6 +36,8 @@ const _BY_ACTION := {
 	DefaultAction.Kind.COLLECT: _OPEN_HAND,
 	DefaultAction.Kind.MINE: {&"texture": _PICKAXE, &"hotspot": Vector2(10, 7)},
 	DefaultAction.Kind.CHOP: {&"texture": _AXE, &"hotspot": Vector2(6, 10)},
+	# Breaking a boulder is a swing like felling a tree, but at rock, so it shows the pick.
+	DefaultAction.Kind.BREAK: {&"texture": _PICKAXE, &"hotspot": Vector2(10, 7)},
 	DefaultAction.Kind.BUILD: _HAMMERING,
 	DefaultAction.Kind.USE_STATION: _HAMMERING,
 }

@@ -86,7 +86,13 @@ enum class StaticEntityKind {
   WARD_STONE,
 
   // A guild's War Banner, drawn like the ward stone: an ordinary entity, never on the static channel.
-  WAR_BANNER;
+  WAR_BANNER,
+
+  // What lies on the ground: worldgen's BOULDER, LOOSE_STONE and STICK. No blighted split - a stone on corrupted
+  // ground is the same stone, and a twin model would be art for nothing.
+  BOULDER,
+  LOOSE_STONE,
+  STICK;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.
@@ -143,6 +149,9 @@ enum class StaticEntityKind {
       PropKind.HERB -> if (blighted) BLIGHTED_HERB else HERB
       PropKind.SHRUB -> if (blighted) BLIGHTED_SHRUB else SHRUB
       PropKind.REED -> if (blighted) BLIGHTED_REED else REED
+      PropKind.BOULDER -> BOULDER
+      PropKind.LOOSE_STONE -> LOOSE_STONE
+      PropKind.STICK -> STICK
     }
 
     /**

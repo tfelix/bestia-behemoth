@@ -18,6 +18,7 @@ enum Kind {
 	CHOP,
 	BUILD,
 	USE_STATION,
+	BREAK,
 }
 
 ## The names StaticEntityRenderer writes onto a PropPicker. Names rather than the C# enum's ordinals,
@@ -28,6 +29,7 @@ const _BY_PROP_NAME := {
 	&"mine": Kind.MINE,
 	&"chop": Kind.CHOP,
 	&"use": Kind.USE_STATION,
+	&"break": Kind.BREAK,
 }
 
 

@@ -318,3 +318,23 @@ NOVICE_SHIELD,Novice Shield
 NOVICE_SHIELD_DESC,"A round of pine planks with an iron boss and a leather grip.
 
 Heavier than it looks, and lighter than what it stops."
+LOOSE_STONE,Loose Stone
+LOOSE_STONE_DESC,"A fist-sized stone that fits the hand.
+
+Good for knocking, better for knapping."
+FLINT,Flint
+FLINT_DESC,"A nodule of flint, glassy where it has broken.
+
+Struck right, it leaves an edge sharper than steel."
+STICK,Stick
+STICK_DESC,"A dry branch fallen from a tree.
+
+A handle, a kindling, a walking aid."
+STONE_KNIFE,Stone Knife
+STONE_KNIFE_DESC,"A flake of flint lashed into a split stick.
+
+It cuts until it does not, and then you make another."
+STONE_HATCHET,Stone Hatchet
+STONE_HATCHET_DESC,"A knapped stone wedged into a stick.
+
+It chops slowly and bruises more than it cuts, but it chops."

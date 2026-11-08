@@ -416,6 +416,48 @@ data class HydrologyParams(
   val poolDepthShare: Double = 0.40,
 
   /**
+   * Metres from a channel head over which a headwater is held at a stream's shape. See [RiverEnds].
+   *
+   * Over this stretch the pool-riffle opening out ([channelWidthVariation]) is faded in from nothing and the
+   * floodplain narrows towards [sourceShoulderShare], so a river visibly begins as a stream in a tight valley.
+   * It cannot begin *narrower* than [minChannelWidthVoxels]: below that the water flickers, for the reason
+   * [ChannelGauge] gives. Only reaches that start at a channel head taper; one below a confluence keeps the
+   * width of the water it was handed.
+   */
+  val sourceTaperLength: Double = 3_000.0,
+
+  /** Floodplain half-width at a channel head, as a share of what its discharge would give it. */
+  val sourceShoulderShare: Double = 0.45,
+
+  /**
+   * Range of an estuary's flare: width at the mouth over the width without it. See [RiverEnds.mouthFor].
+   *
+   * Every sea-ending reach draws its own flare inside this range, skewed by [estuarySkew] towards the bottom,
+   * so most mouths open modestly and a few open into a broad funnel. A maximum of one turns estuaries off.
+   */
+  val estuaryFlareMin: Double = 1.3,
+  val estuaryFlareMax: Double = 5.0,
+
+  /** How strongly the flare draw favours the bottom of its range. One is uniform. */
+  val estuarySkew: Double = 2.2,
+
+  /** Length of the opening out as a multiple of the flared mouth width, drawn per reach inside this range. */
+  val estuaryLengthFactorMin: Double = 15.0,
+  val estuaryLengthFactorMax: Double = 45.0,
+
+  /** Bounds on that length in metres, whatever the multiple gives. */
+  val estuaryMinLength: Double = 250.0,
+  val estuaryMaxLength: Double = 4_000.0,
+
+  /**
+   * Fall per metre over a reach's last kilometres at which the ground leans neither way on the flare.
+   *
+   * Steeper than this leans towards a wide, drowned-valley mouth; flatter leans towards a small flare, because
+   * a flat mouth is where a delta forms instead.
+   */
+  val estuaryReferenceGradient: Double = 0.004,
+
+  /**
    * The chunk tier's detail noise, because this stage now cuts its channels into the surface a chunk
    * will actually build.
    *
@@ -489,6 +531,23 @@ data class HydrologyParams(
       "channelWidthWavelength must be positive, was $channelWidthWavelength"
     }
     require(poolDepthShare >= 0.0) { "poolDepthShare must not be negative, was $poolDepthShare" }
+    require(sourceTaperLength >= 0.0) { "sourceTaperLength must not be negative, was $sourceTaperLength" }
+    require(sourceShoulderShare in 0.0..1.0) {
+      "sourceShoulderShare must be in [0,1], was $sourceShoulderShare"
+    }
+    require(estuaryFlareMin >= 1.0 && estuaryFlareMax >= estuaryFlareMin) {
+      "estuary flare range must be 1 <= min <= max, was $estuaryFlareMin..$estuaryFlareMax"
+    }
+    require(estuarySkew > 0.0) { "estuarySkew must be positive, was $estuarySkew" }
+    require(estuaryLengthFactorMin >= 0.0 && estuaryLengthFactorMax >= estuaryLengthFactorMin) {
+      "estuary length factor range is inverted: $estuaryLengthFactorMin..$estuaryLengthFactorMax"
+    }
+    require(estuaryMinLength >= 0.0 && estuaryMaxLength >= estuaryMinLength) {
+      "estuary length bounds are inverted: $estuaryMinLength..$estuaryMaxLength"
+    }
+    require(estuaryReferenceGradient > 0.0) {
+      "estuaryReferenceGradient must be positive, was $estuaryReferenceGradient"
+    }
   }
 
 
@@ -526,6 +585,16 @@ data class HydrologyParams(
     .put("channelWidthVariation", channelWidthVariation)
     .put("channelWidthWavelength", channelWidthWavelength)
     .put("poolDepthShare", poolDepthShare)
+    .put("sourceTaperLength", sourceTaperLength)
+    .put("sourceShoulderShare", sourceShoulderShare)
+    .put("estuaryFlareMin", estuaryFlareMin)
+    .put("estuaryFlareMax", estuaryFlareMax)
+    .put("estuarySkew", estuarySkew)
+    .put("estuaryLengthFactorMin", estuaryLengthFactorMin)
+    .put("estuaryLengthFactorMax", estuaryLengthFactorMax)
+    .put("estuaryMinLength", estuaryMinLength)
+    .put("estuaryMaxLength", estuaryMaxLength)
+    .put("estuaryReferenceGradient", estuaryReferenceGradient)
     .nested("detail", detail.digest().value)
 }
 
@@ -752,6 +821,18 @@ class HydrologyStage(
       (region.minY + cell / region.width + 0.5) * metres
     )
 
+    // A reach is a headwater when nothing flows into it. Only those taper: one below a confluence carries the
+    // width of the water it was handed from the moment it begins.
+    val fedReaches = HashSet<Int>()
+    for (reach in graph.reaches) if (reach.downstream >= 0) fedReaches.add(reach.downstream)
+
+    // What "a large discharge" means in this world, for the estuary lean: the median mouth of a sea-ending reach.
+    val referenceDischarge = graph.reaches
+      .filter { it.endsInSea }
+      .map { discharge.data[it.cells[(it.cells.size - 2).coerceAtLeast(0)]] }
+      .sorted()
+      .let { if (it.isEmpty()) 0.0 else it[it.size / 2] }
+
     for (reach in graph.reaches) {
       val raw = runCatching { Polyline(reach.cells.map(::centreOf)) }.getOrNull() ?: continue
       if (raw.length < params.minReachLength) continue
@@ -849,10 +930,43 @@ class HydrologyStage(
       // entire, and separate fields would give a channel widest where its floodplain is narrowest. Depth
       // takes the *inverse*, because a pool is deep and narrow where a riffle is wide and shallow - which
       // is what makes the two read as one structure rather than as two unrelated noises.
+      //
+      // Both ends then bend that: a headwater fades the riffle in from nothing and starts in a narrow
+      // floodplain, and a sea-ending reach opens out into its own mouth. See RiverEnds. Neither ever takes
+      // the width under the gauge's floor - the source holds *at* it and the mouth only widens.
+      val isHeadwater = reach.id !in fedReaches
+      fun sourceAt(s: Double) =
+        if (isHeadwater) RiverEnds.sourceProgress(s, params.sourceTaperLength) else 1.0
+
+      val mouth = if (reach.endsInSea) {
+        val last = (cellCount - 2).coerceAtLeast(0)
+        val first = (last - MOUTH_GRADIENT_CELLS).coerceAtLeast(0)
+        val run = (last - first) * metres
+        val gradient = if (run > 0.0) ((coarseBed[first] - coarseBed[last]) / run).coerceAtLeast(0.0) else 0.0
+        val mouthFlow = flowAt(line.length)
+        RiverEnds.mouthFor(
+          seed = GenRng.hash(ctx.seed, id.hash),
+          reachId = reach.id,
+          widthAtMouth = gauge.widthOf(mouthFlow),
+          reachLength = line.length,
+          mouthGradient = gradient,
+          discharge = mouthFlow,
+          referenceDischarge = referenceDischarge,
+          params = params
+        )
+      } else {
+        RiverEnds.Mouth.NONE
+      }
+      fun mouthAt(s: Double) = mouth.factorAt(line.length - s)
+
       fun widthAt(s: Double) =
-        gauge.widthOf(flowAt(s)) * (1.0 + params.channelWidthVariation * riffle(s))
-      fun shoulderAt(s: Double) =
-        gauge.shoulderOf(flowAt(s)) * (1.0 + params.channelWidthVariation * riffle(s))
+        gauge.widthOf(flowAt(s)) * (1.0 + params.channelWidthVariation * riffle(s) * sourceAt(s)) * mouthAt(s)
+      fun shoulderAt(s: Double): Double {
+        val source = sourceAt(s)
+        val narrowing = params.sourceShoulderShare + (1.0 - params.sourceShoulderShare) * source
+        val open = gauge.shoulderOf(flowAt(s)) * (1.0 + params.channelWidthVariation * riffle(s) * source)
+        return max(widthAt(s), open * narrowing * mouthAt(s))
+      }
       fun depthAt(s: Double) =
         gauge.depthOf(flowAt(s)) * (1.0 + params.poolDepthShare * (1.0 - riffle(s)))
 
@@ -1201,6 +1315,9 @@ class HydrologyStage(
 
     /** Stations either side of a station over which the bed slope is measured. See `bedSlopeAt`. */
     private const val SLOPE_WINDOW_STATIONS = 5.0
+
+    /** Coarse cells above the mouth over which the run to the sea is measured, for the estuary lean. */
+    private const val MOUTH_GRADIENT_CELLS = 3
 
     /** Specific weight of water in N/m3, for unit stream power. */
     private const val WATER_SPECIFIC_WEIGHT = 9810.0

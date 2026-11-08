@@ -35,6 +35,31 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 0.5
 
+  # Stick and stone: the first two tools, from what lies on the ground (`LootScatter`'s loose stones, sticks,
+  # and the flint a broken boulder drops). No station - there is nothing to build one with yet - and only the
+  # basic skill, because these are what a player does before they have any other.
+  - id: 28
+    identifier: STONE_KNIFE
+    effect: PRODUCE
+    output: { item: stone_knife, amount: 1 }
+    inputs:
+      - { item: flint, amount: 1 }
+      - { item: stick, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    craftSeconds: 4.0
+    baseSuccessChance: 0.8
+
+  - id: 29
+    identifier: STONE_HATCHET
+    effect: PRODUCE
+    output: { item: stone_hatchet, amount: 1 }
+    inputs:
+      - { item: loose_stone, amount: 2 }
+      - { item: stick, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    craftSeconds: 5.0
+    baseSuccessChance: 0.8
+
   # --- Craftsman tree, at a workbench --------------------------------------------------------------
 
   - id: 10

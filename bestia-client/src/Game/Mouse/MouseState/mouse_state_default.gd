@@ -48,7 +48,7 @@ func handle_object_clicked(mgr: MouseManager, object: Node3D, event: InputEvent,
 			# pending goal themselves, so clicking a second thing simply retargets.
 			mgr.request_collect(object)
 
-		DefaultAction.Kind.CHOP:
+		DefaultAction.Kind.CHOP, DefaultAction.Kind.BREAK:
 			# Felling is damage: PropPromotionService gives the prop Health off its prop-kinds.yml max-hp
 			# the first time something names it as a target, so this is the same order as a swing, and keeps
 			# going by itself until the tree is down.

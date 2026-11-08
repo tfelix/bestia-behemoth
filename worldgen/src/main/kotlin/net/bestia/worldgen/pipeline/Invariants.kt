@@ -244,6 +244,21 @@ object Invariants {
   /** Most the near-town mean corruption may be, as a fraction of the mean over all land. */
   private const val CIVILISATION_SUPPRESSION_RATIO = 0.25
 
+  /** How far upstream of a sea mouth its flare is measured against. See `checkRiversWidenToTheirMouths`. */
+  private const val MOUTH_FLARE_REFERENCE = 2_000.0
+
+  /** Metres above sea level a mouth's water may stand and still count as reaching the sea. */
+  private const val MOUTH_SEA_TOLERANCE = 3.0
+
+  /** Fewest sea mouths a world needs before the flare is judged at all. */
+  private const val MIN_SEA_MOUTHS = 4
+
+  /** Least the median sea mouth may open out by. The draw's floor is 1.3 before the pool-riffle term. */
+  private const val MIN_MEDIAN_MOUTH_FLARE = 1.15
+
+  /** Least ratio between the widest and the narrowest flare in one world, so mouths are not all alike. */
+  private const val MIN_MOUTH_FLARE_SPREAD = 1.4
+
   /** Every check against one world. [props] decides how many chunks the two prop-scanning checks read. */
   fun check(generated: GeneratedWorld, props: PropScan = PropScan.EXHAUSTIVE): List<Violation> {
     val out = ArrayList<Violation>()
@@ -262,6 +277,7 @@ object Invariants {
     checkSeasonalPrecipitationSumsToTheAnnualField(generated, ::fail)
     checkRiverBedsDescend(generated, ::fail)
     checkRiverBanksHoldTheirWater(generated, ::fail)
+    checkRiversWidenToTheirMouths(generated, ::fail)
     checkFeatureBoundsContainTheirGeometry(generated, ::fail)
     checkNoSettlementInTheSea(generated, ::fail)
     checkSettlementsAreSeparated(generated, ::fail)
@@ -2936,6 +2952,56 @@ object Invariants {
    * A river that flows uphill is the classic worldgen bug, and the one most likely to survive visual
    * inspection - at map scale a channel looks the same whichever way the water is going.
    */
+  /**
+   * Rivers that reach the sea open out into a mouth, and not all by the same amount.
+   *
+   * Two claims over the world's sea mouths, and both are tripwires rather than physics. The first is habit 6:
+   * the flare is drawn per reach inside `HydrologyStage`, and a wiring slip there - the mouth measured from the
+   * wrong end, the flare applied to the shoulder only - would leave every river exactly as wide at the sea as
+   * two kilometres up, with every test green. The second is the reason the flare is drawn per reach at all:
+   * mouths that all came out alike would read as a stamp.
+   *
+   * Only with enough sea mouths to say anything: a world with three has no spread worth measuring.
+   */
+  private fun checkRiversWidenToTheirMouths(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val seaLevel = generated.config.seaLevel
+    val flares = ArrayList<Double>()
+
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.RIVER_CHANNEL) continue
+      val river = feature as? PolylineFeature ?: continue
+      val line = river.centerline
+      if (line.length <= MOUTH_FLARE_REFERENCE) continue
+
+      val water = river.stations.channel(Profiles.CHANNEL_WATER_ELEVATION)
+      if (river.stations.sample(water, line.stationParamAt(line.length)) > seaLevel + MOUTH_SEA_TOLERANCE) continue
+
+      val width = river.stations.channel(Profiles.CHANNEL_WIDTH)
+      val atMouth = river.stations.sample(width, line.stationParamAt(line.length))
+      val upstream = river.stations.sample(width, line.stationParamAt(line.length - MOUTH_FLARE_REFERENCE))
+      if (upstream > 0.0) flares.add(atMouth / upstream)
+    }
+
+    if (flares.size < MIN_SEA_MOUTHS) return
+    flares.sort()
+
+    val median = flares[flares.size / 2]
+    if (median < MIN_MEDIAN_MOUTH_FLARE) {
+      fail(
+        "rivers widen to their mouths",
+        "median sea mouth is ${"%.2f".format(median)}x its width ${MOUTH_FLARE_REFERENCE.toInt()} m upstream " +
+            "over ${flares.size} mouths; expected at least $MIN_MEDIAN_MOUTH_FLARE"
+      )
+    }
+    if (flares.last() < flares.first() * MIN_MOUTH_FLARE_SPREAD) {
+      fail(
+        "rivers widen to their mouths",
+        "every sea mouth flares alike: ${"%.2f".format(flares.first())}..${"%.2f".format(flares.last())} " +
+            "over ${flares.size} mouths"
+      )
+    }
+  }
+
   private fun checkRiverBedsDescend(generated: GeneratedWorld, fail: (String, String) -> Unit) {
     for (feature in generated.world.features.all()) {
       if (feature.kind != FeatureKind.RIVER_CHANNEL) continue

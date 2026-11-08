@@ -325,7 +325,8 @@ object StandardWorld {
       aetheriteCorruption = p.corruption.aetheriteCorruption,
       crystalParams = p.crystal,
       aetheriteParams = p.aetherite,
-      groundCoverParams = p.groundCover
+      groundCoverParams = p.groundCover,
+      lootParams = p.loot
     )
 
     return GeneratedWorld(world, base, columns, materializer, p)

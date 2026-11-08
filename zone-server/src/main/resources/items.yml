@@ -1264,3 +1264,65 @@ items:
       A round of pine planks with an iron boss and a leather grip.
 
       Heavier than it looks, and lighter than what it stops.
+
+  # What lies on the ground and is picked up as it lies - worldgen's LOOSE_STONE and STICK props, see
+  # `prop-kinds.yml` - and the two crude tools they make. The first crafts a new player can do with nothing.
+  - id: 100
+    item-db-name: loose_stone
+    base-level: 1
+    weight: 40
+    type: ETC
+    material: STONE
+    description: |
+      A fist-sized stone that fits the hand.
+
+      Good for knocking, better for knapping.
+
+  - id: 101
+    item-db-name: flint
+    base-level: 1
+    weight: 30
+    type: ETC
+    material: STONE
+    description: |
+      A nodule of flint, glassy where it has broken.
+
+      Struck right, it leaves an edge sharper than steel.
+
+  - id: 102
+    item-db-name: stick
+    base-level: 1
+    weight: 20
+    type: ETC
+    material: WOOD
+    description: |
+      A dry branch fallen from a tree.
+
+      A handle, a kindling, a walking aid.
+
+  - id: 103
+    item-db-name: stone_knife
+    base-level: 1
+    weight: 50
+    type: EQUIP
+    material: STONE
+    equip-slot: RIGHT_HAND
+    max-durability: 40
+    attack: 7
+    description: |
+      A flake of flint lashed into a split stick.
+
+      It cuts until it does not, and then you make another.
+
+  - id: 104
+    item-db-name: stone_hatchet
+    base-level: 1
+    weight: 180
+    type: EQUIP
+    material: STONE
+    equip-slot: RIGHT_HAND
+    max-durability: 60
+    description: |
+      A knapped stone wedged into a stick.
+
+      It chops slowly and bruises more than it cuts, but it chops.

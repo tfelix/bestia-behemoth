@@ -39,12 +39,12 @@ class PropKindRegistryTest {
    * is a drift the server answers with `COLLECT_NOT_COLLECTIBLE` rather than an item.
    */
   @Test
-  fun `exactly the minerals and the plants are collectible, and each names an item`() {
+  fun `exactly the minerals, the plants and the ground loot are collectible, and each names an item`() {
     val registry = PropKindRegistry().also { it.load() }
 
     val collectible = StaticEntityKind.entries.filter { registry.of(it).collect != null }
 
-    assertEquals(MINERALS + PLANTS, collectible.toSet())
+    assertEquals(MINERALS + PLANTS + GROUND_LOOT, collectible.toSet())
 
     for (kind in collectible) {
       val collect = registry.of(kind).collect!!
@@ -70,10 +70,25 @@ class PropKindRegistryTest {
       assertEquals(null, registry.of(kind).regrowSeconds, "$kind would regrow after being mined out")
     }
 
-    for (kind in PLANTS) {
+    for (kind in PLANTS + GROUND_LOOT) {
       val regrow = registry.of(kind).regrowSeconds
       assertTrue(regrow != null && regrow > 0, "$kind is picked once and never comes back")
     }
+  }
+
+  /**
+   * A boulder is broken for stone, not picked up, and a broken one comes back.
+   *
+   * The one generated kind whose `loot` is set, so this is also what keeps that field from going back to empty
+   * by accident: a boulder that dropped nothing would be three hundred hit points of scenery.
+   */
+  @Test
+  fun `a boulder is broken for stone and comes back`() {
+    val boulder = PropKindRegistry().also { it.load() }.of(StaticEntityKind.BOULDER)
+
+    assertEquals(null, boulder.collect, "a boulder is not picked up")
+    assertTrue(boulder.loot.any { it.itemId == QUARRIED_STONE && it.dropChance == 10_000 }, "no certain stone")
+    assertTrue((boulder.regrowSeconds ?: 0) > 0, "a broken boulder never comes back")
   }
 
   /**
@@ -157,6 +172,12 @@ class PropKindRegistryTest {
       StaticEntityKind.REED,
       StaticEntityKind.BLIGHTED_REED
     )
+
+    /** Picked up as it lies, and back after a while: worldgen's loose stones and sticks. See `LootScatter`. */
+    val GROUND_LOOT = setOf(StaticEntityKind.LOOSE_STONE, StaticEntityKind.STICK)
+
+    /** `quarried_stone` in `items.yml`. */
+    const val QUARRIED_STONE = 46L
 
     /** How many ticks of fire a plant may survive before a burnt meadow looks untouched. */
     const val FIRE_TICKS_TO_KILL_A_PLANT = 3

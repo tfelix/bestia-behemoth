@@ -47,7 +47,7 @@ class GroundCoverScatterTest {
   )
 
   @Test
-  fun `nine prop kinds still fit a prop id`() {
+  fun `every prop kind still fits a prop id`() {
     // Four bits of kind, and PropId's own `init` is what fails at seventeen. What this adds is that the three
     // appended kinds round-trip rather than aliasing onto an existing one.
     assertTrue(PropKind.entries.size <= 16, "${PropKind.entries.size} kinds no longer fit four bits")

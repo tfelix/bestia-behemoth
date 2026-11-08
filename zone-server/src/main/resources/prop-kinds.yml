@@ -15,9 +15,8 @@
 # lets the same spot stand a tree again; every other kind is terminal (absent) - a claimed landmark or a
 # mined-out crystal never comes back.
 #
-# `loot` is left empty everywhere: there is no item yet that fits a felled tree or a claimed landmark
-# (`items.yml` has an apple, a potion, footgear), so inventing an id here would be worse than leaving it
-# unset - `PropDeathDivergenceSystem` still records the depletion and drops nothing.
+# `loot` is set only where an item fits what the thing is made of - the boulder drops stone. Everywhere else it is
+# left empty rather than invented, and `PropDeathDivergenceSystem` still records the depletion and drops nothing.
 #
 # `collect` is the other half of that, and deliberately not the same field. A kind with one is picked up with
 # a click - `CollectPropIntentSystem` grants the item straight into the inventory and records the depletion,
@@ -265,3 +264,36 @@ kinds:
     max-hp: 1
     collider: { half-x: 1, half-y: 1, height: 3 }
     variants: 1
+
+  # What lies on the ground - see worldgen's `LootScatter`. A boulder is broken, not picked: it drops dressed
+  # stone and, now and then, the flint and the odd rough gem that were inside it. A loose stone and a stick are
+  # picked up as they lie, and both come back, because they are the first crafting material a new player has
+  # and a spawn meadow picked bare would end the tutorial.
+  #
+  # Three boulder models, one size: the variant is rolled off the identity, so a boulder field does not look
+  # stamped. One model each for the stone and the stick, which are loot rather than scenery.
+  - kind: BOULDER
+    max-hp: 300
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 3
+    regrow-seconds: 3600
+    loot:
+      - { item-id: 46, amount: 2, drop-chance: 10000 }
+      - { item-id: 46, amount: 2, drop-chance: 5000 }
+      - { item-id: 100, amount: 1, drop-chance: 6000 }
+      - { item-id: 101, amount: 1, drop-chance: 3500 }
+      - { item-id: 60, amount: 1, drop-chance: 150 }
+
+  - kind: LOOSE_STONE
+    max-hp: 10
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+    regrow-seconds: 900
+    collect: { item-id: 100, amount: 1 }
+
+  - kind: STICK
+    max-hp: 5
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+    regrow-seconds: 900
+    collect: { item-id: 102, amount: 1 }

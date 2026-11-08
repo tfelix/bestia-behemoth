@@ -212,7 +212,7 @@ class ParamsVersionTest {
       "ErosionParams" to 454_983_928_578_723_392L,
       "ClosedBasinParams" to 5_389_246_153_518_852_453L,
       "GlacialParams" to -1_266_272_442_885_291_278L,
-      "HydrologyParams" to 7_583_445_510_351_446_770L,
+      "HydrologyParams" to -4_321_128_520_861_355_962L,
       "PondParams" to 8_297_690_367_138_694_458L,
       "AlluviumParams" to -2_759_034_807_589_268_237L,
       "CoastParams" to 991_316_927_533_791_172L,
@@ -256,7 +256,7 @@ class ParamsVersionTest {
       // The pickable plants. Chunk tier only, so it moves `chunkTierVersion` and no stage version.
       "GroundCoverParams" to 9_016_082_839_178_701_101L,
       // Re-pinned when `windVeerRadians` was added, so a region's wind could back and veer over time.
-      "WeatherParams" to 874_725_757_913_884_383L,
+      "WeatherParams" to 7_021_021_729_926_617_752L,
       "Culture" to -8_541_605_725_367_154_968L
     )
 
