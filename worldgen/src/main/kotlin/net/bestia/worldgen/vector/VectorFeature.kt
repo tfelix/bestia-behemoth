@@ -334,7 +334,18 @@ enum class FeatureKind(val defaultPriority: Int) {
    * world-wide count, and everything `history/` places has to be *earned* by a simulated civilisation. See
    * `poi/PoiKind`.
    */
-  POI(684)
+  POI(684),
+
+  /**
+   * A hill: a low rounded knoll piled on the open country, one of a wandering cluster. See `geo/KnollStage`.
+   *
+   * Blended `ADD`, at a priority above the river cuts and below the roads: it lands on ground a river has already
+   * shaped (and keeps clear of the floodplain anyway), and a road stamps over it, flattening its tread through
+   * whatever flank it crosses. Declared last in the enum rather than beside the river kinds because the ordinal
+   * is nobody's business but appending is everyone's habit here; the stamp order is the priority, not the
+   * position.
+   */
+  KNOLL(260)
 }
 
 /**

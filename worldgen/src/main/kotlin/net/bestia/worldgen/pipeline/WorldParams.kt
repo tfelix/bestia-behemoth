@@ -22,6 +22,7 @@ import net.bestia.worldgen.hydro.AlluviumParams
 import net.bestia.worldgen.hydro.PondParams
 import net.bestia.worldgen.karst.CaveParams
 import net.bestia.worldgen.poi.PoiParams
+import net.bestia.worldgen.geo.KnollParams
 import net.bestia.worldgen.pop.EconomyParams
 import net.bestia.worldgen.mana.CorruptionParams
 import net.bestia.worldgen.mana.ManaParams
@@ -140,6 +141,9 @@ data class WorldParams(
    * `PoiStage.paramsVersion` directly, because a table in an enum is a tunable in everything but its storage.
    */
   val poi: PoiParams = PoiParams(),
+
+  /** The hills woven into the open country, around every way and building. World tier, like [poi]. */
+  val knoll: KnollParams = KnollParams(),
 
   /**
    * The macro navigation graph NPCs plan journeys over. Last, because it reads everything before it.
@@ -283,6 +287,7 @@ data class WorldParams(
       r.town.digest().value,
       r.economy.digest().value,
       r.poi.digest().value,
+      r.knoll.digest().value,
       r.nav.digest().value
     )
   }
@@ -338,7 +343,7 @@ data class WorldParams(
      */
     val NOT_YET_LOADABLE = setOf(
       "glacial", "hydrology", "pond", "alluvium", "biome", "vegetation", "detail", "strata", "crystal",
-      "aetherite", "vegetationStand", "groundCover", "loot"
+      "aetherite", "vegetationStand", "groundCover", "loot", "knoll"
     )
 
     /**

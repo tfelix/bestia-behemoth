@@ -94,6 +94,9 @@ enum class MapVisibility(
       // already traces a delta's mouth and a fjord's walls, because both are shapes in the ground.
       FeatureKind.DELTA -> OMITTED
       FeatureKind.FJORD -> OMITTED
+      // A hill is a shape in the ground, and the map draws the ground from the kilometre raster, which has no
+      // hills in it. Drawing the feature as a symbol would be a landmark nobody named.
+      FeatureKind.KNOLL -> OMITTED
       FeatureKind.COASTLINE -> WATER
 
       // A confluence is a smoothing patch where two channels meet, not a place. The channels are drawn.

@@ -23,6 +23,7 @@ import net.bestia.worldgen.civ.SettlementStage
 import net.bestia.worldgen.civ.TownStage
 import net.bestia.worldgen.history.HistoryStage
 import net.bestia.worldgen.poi.PoiStage
+import net.bestia.worldgen.geo.KnollStage
 import net.bestia.worldgen.pop.EconomyStage
 import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.geo.GlacialStage
@@ -251,6 +252,9 @@ object StandardWorld {
       // rather than by the land: one roll per catalogue entry says whether this world holds that landmark at
       // all. Reads the settlements, the sites and the cave mouths in order to keep away from them.
       PoiStage(base, p.poi),
+      // After everything that stands on the ground, because the hills go round the ways rather than the ways
+      // round the hills - see `geo/KnollStage.kt`.
+      KnollStage(base, p.knoll),
       // Last, and it has to be: the routes NPCs walk are read off the roads, bridges, gates and cave mouths
       // every stage above put down, so it can only run once all of them are final. Nothing reads it back.
       NavGraphStage(base, p.nav)

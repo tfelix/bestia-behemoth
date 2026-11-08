@@ -259,6 +259,9 @@ object Invariants {
   /** Least ratio between the widest and the narrowest flare in one world, so mouths are not all alike. */
   private const val MIN_MOUTH_FLARE_SPREAD = 1.4
 
+  /** Metres a hill may reach into a keep-out before the check calls it, for rounding in the placement. */
+  private const val KNOLL_TOLERANCE = 5.0
+
   /** Every check against one world. [props] decides how many chunks the two prop-scanning checks read. */
   fun check(generated: GeneratedWorld, props: PropScan = PropScan.EXHAUSTIVE): List<Violation> {
     val out = ArrayList<Violation>()
@@ -278,6 +281,7 @@ object Invariants {
     checkRiverBedsDescend(generated, ::fail)
     checkRiverBanksHoldTheirWater(generated, ::fail)
     checkRiversWidenToTheirMouths(generated, ::fail)
+    checkKnollsStandClearOfWhatIsBuilt(generated, ::fail)
     checkFeatureBoundsContainTheirGeometry(generated, ::fail)
     checkNoSettlementInTheSea(generated, ::fail)
     checkSettlementsAreSeparated(generated, ::fail)
@@ -2999,6 +3003,59 @@ object Invariants {
         "every sea mouth flares alike: ${"%.2f".format(flares.first())}..${"%.2f".format(flares.last())} " +
             "over ${flares.size} mouths"
       )
+    }
+  }
+
+  /**
+   * No hill stands on anything built, worked or wet.
+   *
+   * `KnollStage` keeps every hill's foot clear of these when it places it, and this re-asks the question of the
+   * finished world by a different route - per hill, against the feature index, by plain geometry - so a keep-out
+   * that silently stopped matching (a renamed kind, a feature class that changed) shows up as a hill standing
+   * in a field rather than as nothing at all. A hill on a building lifts the ground through the floor; one on a
+   * river bank walls the water in; one on a street humps the paving.
+   *
+   * Roads are deliberately absent: a hill may straddle one, lowered so the road's own profile cuts it, and that
+   * is the design rather than a defect.
+   */
+  private fun checkKnollsStandClearOfWhatIsBuilt(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.KNOLL) continue
+      val hill = feature as? PointFeature ?: continue
+      val box = hill.bbox
+      for (other in generated.world.features.query(box)) {
+        val clash = when (other.kind) {
+          FeatureKind.RIVER_CHANNEL, FeatureKind.STREET -> {
+            val line = (other as? PolylineFeature)?.centerline ?: continue
+            line.project(hill.center).distance < hill.radius + other.corridorWidthMax - KNOLL_TOLERANCE
+          }
+          FeatureKind.LAKE, FeatureKind.OXBOW_LAKE, FeatureKind.FIELD -> {
+            val area = other as? AreaFeature ?: continue
+            area.contains(hill.center.x, hill.center.y) ||
+                area.ring.project(hill.center).distance < hill.radius - KNOLL_TOLERANCE
+          }
+          FeatureKind.SETTLEMENT_GRADING -> {
+            val disc = other as? PointFeature ?: continue
+            disc.center.distanceTo(hill.center) < disc.radius + hill.radius - KNOLL_TOLERANCE
+          }
+          FeatureKind.BUILDING -> {
+            val building = other as? net.bestia.worldgen.vector.FootprintFeature ?: continue
+            building.center.distanceTo(hill.center) < hill.radius + building.halfLength - KNOLL_TOLERANCE
+          }
+          FeatureKind.BRIDGE -> {
+            val bridge = other as? PointMarker ?: continue
+            bridge.position.distanceTo(hill.center) < hill.radius - KNOLL_TOLERANCE
+          }
+          else -> false
+        }
+        if (clash) {
+          fail(
+            "knolls stand clear of what is built",
+            "${hill.id} (r ${"%.0f".format(hill.radius)} m at ${hill.center}) overlaps ${other.kind} ${other.id}"
+          )
+          return
+        }
+      }
     }
   }
 

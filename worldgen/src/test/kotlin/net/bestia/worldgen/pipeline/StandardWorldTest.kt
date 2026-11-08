@@ -34,6 +34,7 @@ import net.bestia.worldgen.poi.PoiStage
 import net.bestia.worldgen.resource.ResourceStage
 import net.bestia.worldgen.spawn.SpawnerStage
 import net.bestia.worldgen.spawn.VegetationStandStage
+import net.bestia.worldgen.geo.KnollStage
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.voxel.BlockType
@@ -144,7 +145,10 @@ class StandardWorldTest {
         // "towns". Nothing reads a stand either, so where in the tail it lands does not matter - and this
         // position was read off the failure rather than predicted, which is the only reliable way to write
         // one of these down.
-        VegetationStandStage.ID
+        VegetationStandStage.ID,
+        // The hills go round everything built, so they wait for the last stage that builds anything: economy's
+        // inns and the points of interest.
+        KnollStage.ID
       ),
       order
     )

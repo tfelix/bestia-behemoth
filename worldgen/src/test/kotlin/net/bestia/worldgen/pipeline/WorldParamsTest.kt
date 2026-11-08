@@ -134,7 +134,8 @@ class WorldParamsTest {
     // And again when surface boundaries stopped being ruler lines at player scale: `ChunkMaterializer.VERSION` 9.
     // Both moved when rivers began tapering at the source and opening into estuaries (`HydrologyParams`, world
     // tier) and boulders, stones and sticks were scattered (`LootScatterParams`, `ChunkMaterializer.VERSION` 10).
-    assertEquals(3_992_621_432_779_450_022L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
+    // Only the world tier moved when hills were woven into the open country: `KnollParams`.
+    assertEquals(4_803_559_530_342_135_777L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Pinned as a pair so each half stays checkable: a world-tier retune has to move the number above and
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
     assertEquals(-6_060_832_946_932_324_078L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
