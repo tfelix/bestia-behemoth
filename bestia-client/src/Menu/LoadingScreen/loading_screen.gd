@@ -15,7 +15,12 @@ const FADE_IN_SECONDS := 0.15
 ## Longer on the way out, because this one is revealing what the player has been waiting for.
 const REVEAL_SECONDS := 0.4
 
+## The artworks to show behind the bar. Each raise of the screen picks one of them at random, so
+## adding a picture to the loading screens is adding it to this list in LoadingScreen.tscn.
+@export var artworks: Array[Texture2D] = []
+
 @onready var _fade: Control = %Fade
+@onready var _art: TextureRect = %Art
 @onready var _bar: ProgressBar = %Progress
 @onready var _caption: Label = %Caption
 
@@ -33,6 +38,11 @@ func _ready() -> void:
 ## instant that fade lands means the black is never actually drawn - the screen replaces it in the
 ## same frame - so the transition reads as the outgoing scene popping into artwork.
 func appear(caption: String) -> void:
+	# Only when coming up, not when an already raised screen is given a new caption, or the picture
+	# would change under the player mid-wait.
+	if not visible:
+		_pick_artwork()
+
 	_caption.text = caption
 	_bar.indeterminate = true
 	_bar.show_percentage = false
@@ -85,6 +95,14 @@ func _input(_event: InputEvent) -> void:
 	# Everything, so a click behind the screen cannot walk the player or open a window.
 	if visible:
 		get_viewport().set_input_as_handled()
+
+
+## Leaves the scene's own texture in place when no artworks are declared.
+func _pick_artwork() -> void:
+	if artworks.is_empty():
+		return
+
+	_art.texture = artworks.pick_random()
 
 
 func _finish_reveal() -> void:
