@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://g1nu1oan0ehe" path="res://Game/Entity/NameTag/NameTag.tscn" id="3_358an"]
 [ext_resource type="PackedScene" uid="uid://bq7cst1bar0ck" path="res://Game/VFX/CastBar/CastBar.tscn" id="4_castb"]
 [ext_resource type="Shader" path="res://Game/Entity/Fx/Shader/entity_uber.gdshader" id="5_uber"]
+[ext_resource type="PackedScene" path="res://Game/Entity/NameTag/LevelLine.tscn" id="6_level"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_uber"]
 resource_local_to_scene = true
@@ -159,11 +160,12 @@ _data = {
 &"death": SubResource("Animation_h56g7")
 }
 
-[node name="BestiaVisual" type="Node3D" node_paths=PackedStringArray("body", "model", "pick_area")]
+[node name="BestiaVisual" type="Node3D" node_paths=PackedStringArray("body", "model", "pick_area", "level_line")]
 script = ExtResource("1_n7t7g")
 body = NodePath("Body")
 model = NodePath("Body/Model")
 pick_area = NodePath("Body/Model/Area3D")
+level_line = NodePath("NameTag/LevelLine")
 
 [node name="Body" type="Node3D" parent="."]
 
@@ -188,6 +190,8 @@ texture = SubResource("ViewportTexture_castb")
 [node name="NameTag" parent="." instance=ExtResource("3_358an")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3281729, 0)
 visible = false
+
+[node name="LevelLine" parent="NameTag" instance=ExtResource("6_level")]
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

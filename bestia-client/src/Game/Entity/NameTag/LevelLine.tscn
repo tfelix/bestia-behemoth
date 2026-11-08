@@ -1,0 +1,13 @@
+[gd_scene format=3]
+
+[node name="LevelLine" type="Label3D"]
+visible = false
+pixel_size = 0.0005
+billboard = 1
+no_depth_test = true
+fixed_size = true
+modulate = Color(0.6, 0.6, 0.66, 1)
+texture_filter = 1
+text = "Lv. 1"
+font_size = 22
+outline_size = 8

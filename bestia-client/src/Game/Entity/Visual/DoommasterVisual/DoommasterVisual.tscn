@@ -5,6 +5,7 @@
 [ext_resource type="Shader" path="res://Game/Entity/Fx/Shader/entity_uber.gdshader" id="3_uber"]
 [ext_resource type="PackedScene" uid="uid://g1nu1oan0ehe" path="res://Game/Entity/NameTag/NameTag.tscn" id="4_name"]
 [ext_resource type="PackedScene" uid="uid://bq7cst1bar0ck" path="res://Game/VFX/CastBar/CastBar.tscn" id="5_cast"]
+[ext_resource type="PackedScene" path="res://Game/Entity/NameTag/LevelLine.tscn" id="6_level"]
 
 [sub_resource type="ShaderMaterial" id="Mat_cloak"]
 shader = ExtResource("3_uber")
@@ -246,11 +247,12 @@ _data = {
 &"death": SubResource("Anim_death")
 }
 
-[node name="DoommasterVisual" type="Node3D" node_paths=PackedStringArray("body", "model", "pick_area")]
+[node name="DoommasterVisual" type="Node3D" node_paths=PackedStringArray("body", "model", "pick_area", "level_line")]
 script = ExtResource("1_script")
 body = NodePath("Body")
 model = NodePath("Body/Model")
 pick_area = NodePath("Body/Model/Area3D")
+level_line = NodePath("NameTag/LevelLine")
 draws_placeholder = false
 
 [node name="Body" type="Node3D" parent="."]
@@ -361,6 +363,8 @@ texture = SubResource("ViewportTexture_cast")
 [node name="NameTag" parent="." instance=ExtResource("4_name")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.35, 0)
 visible = false
+
+[node name="LevelLine" parent="NameTag" instance=ExtResource("6_level")]
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

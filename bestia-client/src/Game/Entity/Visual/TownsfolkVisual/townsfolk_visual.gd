@@ -20,12 +20,6 @@ func setup_townsfolk(msg: TownsfolkVisualComponentSMSG) -> void:
 	_apply_body(msg.Body)
 
 
-## A townsperson is somebody to talk to, so its tag stays a name: a level beside it would only read as how
-## hard it is to fight.
-func set_level(_level_value: int) -> void:
-	pass
-
-
 ## Scaled rather than swapped because only the adult is modelled; a match keeps a real child body a
 ## branch away and off the wire.
 ##

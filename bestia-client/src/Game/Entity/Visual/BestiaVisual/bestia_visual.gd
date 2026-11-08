@@ -21,6 +21,10 @@ const _AGGRESSIVE_NAME_COLOUR := Color(1.0, 0.36, 0.32)
 ## every placeholder, whatever shape the species draws: it only catches the mouse ray, so a sphere about the
 ## body's size aims as well as an exact outline, and costs nothing to build or to test.
 @export var pick_area: Area3D
+## The level under the name, smaller and muted, so the name reads first. A child of the name tag, so it shows
+## and hides with it. A townsperson's scene leaves it out: somebody to talk to, whose level would only read as
+## how hard they are to fight.
+@export var level_line: Label3D
 
 ## How far the body is faded out, 0 to 1. The appear and death clips animate this rather than a material,
 ## so a body made of several meshes fades as one and a species' colour is never overwritten.
@@ -170,11 +174,28 @@ func _apply_name_tag() -> void:
 	if _name_tag == null:
 		return
 	var bestia_name := _display_name if not _display_name.is_empty() else _species_name
-	if _level > 0:
-		bestia_name = "%s  %s" % [bestia_name, tr("NAME_TAG_LEVEL") % _level]
 	_name_tag.text = GuildTagLine.under(bestia_name, _guild_line)
 	_emblem = GuildTagLine.show_emblem(_name_tag, _emblem, _emblem_hash)
 	_tint_name_tag()
+	_apply_level_line()
+
+
+## Placed in the tag's own pixels, as the emblem is, so it stays right under the name at any camera distance.
+## Both labels centre on the same point, so it is pushed down by half of each: past the name's lines, then its
+## own half.
+func _apply_level_line() -> void:
+	if level_line == null:
+		return
+	level_line.visible = _level > 0
+	if not level_line.visible:
+		return
+
+	level_line.text = tr("NAME_TAG_LEVEL") % _level
+	var name_font: Font = _name_tag.font if _name_tag.font != null else ThemeDB.fallback_font
+	var level_font: Font = level_line.font if level_line.font != null else ThemeDB.fallback_font
+	var name_height: float = _name_tag.text.split("\n").size() * name_font.get_height(_name_tag.font_size)
+	var level_height: float = level_font.get_height(level_line.font_size)
+	level_line.offset = Vector2(0, -(name_height + level_height) / 2.0)
 
 
 ## Red for a species that attacks on sight, so a player can tell a wolf from a rat before walking up to it.
