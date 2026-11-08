@@ -40,6 +40,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 8
+mouse_filter = 2
 
 [node name="MInner" type="MarginContainer" parent="MOuter/ShortcutBg"]
 layout_mode = 2
@@ -59,6 +60,7 @@ text = "99"
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8
+mouse_filter = 2
 
 [node name="MShortcut" type="MarginContainer" parent="MOuter/PanelShortcut"]
 layout_mode = 2

@@ -32,6 +32,8 @@ const SHARED_MARK := "★"
 var _prompt_action: String = ""
 var _shortcut_data: ShortcutData = ShortcutData.new()
 var _is_dragging_self: bool = false
+## The left button went down on this slot and has not come up yet.
+var _click_pending: bool = false
 var _disabled: bool = false
 ## Shows the shared layer's slot because this layer's own slot is empty. Such a slot is edited on the shared layer
 ## only, so a drag here cannot move it away.
@@ -98,6 +100,24 @@ func _shortcut_input(event: InputEvent) -> void:
 	if event.is_action_pressed(_prompt_action, false, true):
 		trigger_shortcut()
 		get_viewport().set_input_as_handled()
+
+
+## A left click fires the slot as its key would. On release, like a button, because pressing and moving picks the
+## slot up instead: once a drag starts the viewport takes the mouse, and the release never arrives here.
+func _gui_input(event: InputEvent) -> void:
+	if not listens_to_key:
+		return
+	var button := event as InputEventMouseButton
+	if button == null or button.button_index != MOUSE_BUTTON_LEFT:
+		return
+	if button.pressed:
+		_click_pending = true
+		accept_event()
+	elif _click_pending:
+		_click_pending = false
+		accept_event()
+		if Rect2(Vector2.ZERO, size).has_point(button.position):
+			trigger_shortcut()
 
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:
@@ -189,6 +209,8 @@ func _to_shortcut_dict(data: ShortcutData) -> Dictionary:
 # react when this container was the one that started the drag. If it wasn't
 # dropped onto a valid target (e.g. dropped on the game background), remove it.
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_DRAG_BEGIN:
+		_click_pending = false
 	if what == NOTIFICATION_DRAG_END and _is_dragging_self:
 		_is_dragging_self = false
 		if not get_viewport().gui_is_drag_successful():
