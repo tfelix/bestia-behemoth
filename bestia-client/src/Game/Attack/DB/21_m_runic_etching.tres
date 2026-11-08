@@ -13,3 +13,5 @@ max_level = 10
 target_type = "FRIENDLY"
 tree = "CRAFTSMAN"
 sub_tree = "ARTIFICER"
+prerequisite_ids = PackedInt32Array(12)
+prerequisite_levels = PackedInt32Array(3)

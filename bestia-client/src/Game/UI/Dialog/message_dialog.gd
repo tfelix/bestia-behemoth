@@ -20,7 +20,7 @@ class_name MessageDialog
 const _DEFAULT_TITLE_KEY := "DIALOG_DEFAULT_TITLE"
 
 ## BBCode and sizing live in MessageDialog.tscn, so dialog text can use the same markup as skill
-## descriptions (see skill_row.gd) without this script re-asserting layout.
+## descriptions (see skills.csv) without this script re-asserting layout.
 @onready var _body: RichTextLabel = %Body
 
 ## Buttons for a conversation's options, rebuilt per dialog. Empty for everything else.

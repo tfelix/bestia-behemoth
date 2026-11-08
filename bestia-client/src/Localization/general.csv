@@ -578,3 +578,47 @@ ERROR_PARCEL_CANNOT_AFFORD,You cannot pay the freight fee.
 ERROR_PARCEL_NOT_HERE,That parcel waits at %s. Collect it there.
 ERROR_PARCEL_NOT_ARRIVED,That parcel is still on the road.
 ERROR_POST_OFFICE_CLOSED,The postmaster has gone home. Come back during their hours.
+=======
+SKILLS_TITLE,Skills
+SKILLS_TAB_OTHER,Other
+SKILL_TREE_NOVICE,Novice
+SKILL_TREE_CRAFTSMAN,Craftsman
+SKILL_TREE_SURVIVAL,Survival
+SKILL_TREE_SCHOLAR,Scholar
+SKILL_TREE_WARRIOR,Warrior
+SKILL_SUB_TREE_BLACKSMITH,Blacksmith
+SKILL_SUB_TREE_ARTIFICER,Artificer
+SKILL_SUB_TREE_ALCHEMIST,Alchemist
+SKILL_SUB_TREE_FORESTER,Forester
+SKILL_SUB_TREE_PROSPECTOR,Prospector
+SKILL_SUB_TREE_MINER,Miner
+SKILL_SUB_TREE_PRIEST,Priest
+SKILL_SUB_TREE_WIZARD,Wizard
+SKILLS_POINTS,Skill points
+SKILLS_PICK,Pick a skill to see what it does.
+SKILLS_LEVEL,Lv. %d / %d
+SKILLS_LEVEL_QUEUED,(+%d queued)
+SKILLS_PASSIVE,Passive: always on once learned
+SKILLS_ACTIVE,Active
+SKILLS_TARGET_GROUND,Active: aimed at the ground
+SKILLS_TARGET_AOE_GROUND,Active: hits an area on the ground
+SKILLS_TARGET_ENEMY,Active: aimed at an enemy
+SKILLS_TARGET_FRIENDLY,Active: aimed at yourself or an ally
+SKILLS_MANA,%d mana
+SKILLS_COOLDOWN,%s s cooldown
+SKILLS_CAST_TIME,%s s cast
+SKILLS_REQUIRES,Requires %s
+SKILLS_LEADS_TO,Leads to %s
+SKILLS_TREE_LOCKED,Opens at %s Lv. %d (now %d)
+SKILLS_SUB_TREE_LOCKED,Opens at %d points in %s (now %d)
+SKILLS_USE_AT_LEVEL,Use at level
+SKILLS_USE,Use
+SKILLS_DRAG_HINT,"Drag it onto the shortcut bar, or double-click it to use it."
+SKILLS_UNQUEUE,Take back the last queued point
+SKILLS_ADD_POINT,Add a point (Lv. %d)
+SKILLS_MAXED,Mastered
+SKILLS_NO_POINTS,No skill points left
+SKILLS_RESET,Reset
+SKILLS_APPLY,Apply
+SKILLS_NOTHING_QUEUED,"Add points, then Apply to learn them."
+SKILLS_QUEUED,Points queued: %d

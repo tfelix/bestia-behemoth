@@ -12,3 +12,5 @@ cooldown = 0.0
 max_level = 10
 target_type = "GROUND"
 tree = "CRAFTSMAN"
+prerequisite_ids = PackedInt32Array(10)
+prerequisite_levels = PackedInt32Array(3)

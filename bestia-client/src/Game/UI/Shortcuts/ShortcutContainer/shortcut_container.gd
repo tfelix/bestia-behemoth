@@ -119,7 +119,7 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 
 
 # Accepts items as well as skills, except for passive ones - those are always on and have no
-# activation to bind a key to. Checked here and not only at the drag source (SkillRow) because a
+# activation to bind a key to. Checked here and not only at the drag source (the Skills window) because a
 # shortcut assigned before a skill became passive can still be dragged from slot to slot.
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	if typeof(data) != TYPE_DICTIONARY:

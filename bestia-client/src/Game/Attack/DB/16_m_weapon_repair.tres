@@ -14,3 +14,5 @@ target_type = "GROUND"
 cast_time = 3.0
 tree = "CRAFTSMAN"
 sub_tree = "BLACKSMITH"
+prerequisite_ids = PackedInt32Array(13)
+prerequisite_levels = PackedInt32Array(3)

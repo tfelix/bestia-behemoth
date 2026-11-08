@@ -14,3 +14,5 @@ target_type = "FRIENDLY"
 tree = "CRAFTSMAN"
 sub_tree = "ALCHEMIST"
 is_passive = true
+prerequisite_ids = PackedInt32Array(24)
+prerequisite_levels = PackedInt32Array(5)

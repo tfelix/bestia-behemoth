@@ -235,9 +235,9 @@ One `AttackResource` (`bestia-client/src/Game/Attack/attack_resource.gd`) per fi
 auto-loaded by `AttackDB` (`bestia-client/src/Game/Attack/attack_db.gd`) from every
 `.tres` in that folder, keyed by `skill_id` — named to match `skills.yml`'s `id` and
 `SkillListSMSG.SkillListEntry.skillId` on the wire, instead of the older, inconsistent
-`attack_id`. `Skills.gd` / `skill_row.gd` look up an incoming `SkillListSMSG` entry's
-`skillId` via `AttackDB.get_instance().get_attack(id)` and print an error to the console
-(not a crash) if it's missing — so an unsynced skill silently shows as "Unknown Skill"
+`attack_id`. `skills.gd` (the Skills window) looks up an incoming `SkillListSMSG` entry's
+`skillId` via `AttackDB.get_instance().get_attack(id)`; a skill missing there shows in the Other
+tab under its bare id with a placeholder icon - so an unsynced skill shows up wrong
 instead of failing loudly.
 
 File naming convention: `<id>_<identifier lowercased>.tres` (e.g. `1000_ember.tres`),
@@ -245,10 +245,11 @@ matching `skills.yml`'s `id`/`identifier` — not required by any loader code (o
 `skill_id` inside the file matters), but keep it for greppability.
 
 Field provenance — the fields `SkillDbSyncTask` mirrors from the server are `skill_id`,
-`max_level`, `description_key`, `target_type`, `aoe_radius`, `cast_time`, `tree`, `sub_tree`
-and `is_passive`. `is_passive` is derived from whether `skills.yml` gives the skill a `script`,
+`max_level`, `description_key`, `target_type`, `aoe_radius`, `cast_time`, `tree`, `sub_tree`,
+`is_passive` and `prerequisite_ids`/`prerequisite_levels` (master tree only; the window lays the
+tree out and names missing requirements from them). `is_passive` is derived from whether `skills.yml` gives the skill a `script`,
 which is the server's own definition of castable: a skill the client cannot activate is refused
-by the Skills window as a hotbar drag (`skill_row.gd`) and by `ShortcutContainer` as a drop.
+by the Skills window as a hotbar drag (`skills.gd`) and by `ShortcutContainer` as a drop.
 The build cannot see Spring beans, so a script name with no bean behind it still reads as
 castable here while the server refuses the cast — that is the unimplemented case, and
 `SkillScriptBootValidator` is what reports it. Everything else (`icon`, `name`, `mana_cost`, `cooldown`) is client-only

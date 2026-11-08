@@ -13,3 +13,5 @@ max_level = 4
 target_type = "GROUND"
 tree = "SURVIVAL"
 sub_tree = "PROSPECTOR"
+prerequisite_ids = PackedInt32Array(38)
+prerequisite_levels = PackedInt32Array(2)

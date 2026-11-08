@@ -12,3 +12,5 @@ cast_time = 10.0
 max_level = 3
 target_type = "FRIENDLY"
 tree = "NOVICE"
+prerequisite_ids = PackedInt32Array(1)
+prerequisite_levels = PackedInt32Array(3)

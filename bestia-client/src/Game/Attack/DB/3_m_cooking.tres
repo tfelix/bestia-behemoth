@@ -11,3 +11,5 @@ name = "Cooking"
 description_key = "SKILL_3_DESC"
 max_level = 3
 tree = "NOVICE"
+prerequisite_ids = PackedInt32Array(1)
+prerequisite_levels = PackedInt32Array(3)

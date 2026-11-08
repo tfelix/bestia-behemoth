@@ -35,6 +35,12 @@ const MISSING_ICON: Texture2D = preload("res://Game/UI/Inventory/InventoryItem/i
 @export var tree: String = ""
 @export var sub_tree: String = ""
 
+## The master tree skills this one needs, each at the level at the same index of [member prerequisite_levels].
+## Mirrors master_skill_tree.yml's `prerequisites` and is synced by SkillDbSyncTask, so the Skills window can
+## draw the tree and say what is missing before the server refuses the point. Empty outside the master tree.
+@export var prerequisite_ids: PackedInt32Array = PackedInt32Array()
+@export var prerequisite_levels: PackedInt32Array = PackedInt32Array()
+
 ## True for a skills.yml SkillType.PASSIVE - an always-on effect the master only invests points into,
 ## never casts. The server has no cast path for one at all (SkillStrategyFactory throws on a PASSIVE),
 ## so the client must not offer it either: a passive can't be dragged onto the hotbar and can't be

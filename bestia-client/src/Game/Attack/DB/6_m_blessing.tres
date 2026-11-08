@@ -13,3 +13,5 @@ max_level = 10
 target_type = "FRIENDLY"
 tree = "SCHOLAR"
 sub_tree = "PRIEST"
+prerequisite_ids = PackedInt32Array(2)
+prerequisite_levels = PackedInt32Array(5)

@@ -20,7 +20,7 @@ import java.io.File
  * `.claude/skills/skill-system/SKILL.md` for the full relationship between these files.
  *
  * Only `skill_id`/`max_level`/`description_key`/`target_type`/`aoe_radius`/`cast_time`/`tree`/
- * `sub_tree`/`is_passive` are touched on a `.tres` file — every other field (icon, name, mana_cost, cooldown) is hand-authored client
+ * `sub_tree`/`is_passive`/`prerequisite_ids`/`prerequisite_levels` are touched on a `.tres` file — every other field (icon, name, mana_cost, cooldown) is hand-authored client
  * presentation and is left alone. A new stub takes name, mana cost and cooldown from `skills.yml` when it has them. A bestia
  * skill ([BESTIA_SKILL_IDS]) is generated from the docs' Attack List, so its name, mana cost and cooldown are kept in step
  * too. `aoe_radius` is only checked/patched when `target_type` is `AOE_GROUND` - non-AOE skills never need the line at
@@ -81,11 +81,13 @@ abstract class SkillDbSyncTask : DefaultTask() {
     val cooldown: Double = 0.0
   )
   private data class SkillsFile(val skills: List<SkillDto> = emptyList())
+  private data class PrerequisiteDto(val skill: String, val level: Int)
   private data class TreeNodeDto(
     val skill: String,
     val maxLevel: Int,
     val tree: String? = null,
-    val subTree: String? = null
+    val subTree: String? = null,
+    val prerequisites: List<PrerequisiteDto> = emptyList()
   )
   private data class TreeFile(val skills: List<TreeNodeDto> = emptyList())
   private data class Expected(
@@ -115,6 +117,14 @@ abstract class SkillDbSyncTask : DefaultTask() {
      */
     val isPassive: Boolean,
 
+    /**
+     * The skill ids this one needs, each at the level at the same index of [prerequisiteLevels], so the Skills
+     * window can draw the tree's lines and name what is missing. Empty outside the master tree: the guild tree
+     * sends its own prerequisites over the wire.
+     */
+    val prerequisiteIds: List<Long>,
+    val prerequisiteLevels: List<Int>,
+
     /** For a new stub, and for a generated bestia skill; any other `.tres` is the client's to tune once it exists. */
     val name: String,
     val manaCost: Int,
@@ -128,10 +138,12 @@ abstract class SkillDbSyncTask : DefaultTask() {
 
     val skills = mapper.readValue(skillsYml.get().asFile, SkillsFile::class.java).skills
     val tree = mapper.readValue(masterSkillTreeYml.get().asFile, TreeFile::class.java).skills
-    // A guild node is grouped under GUILD, which the master's Skills window never lists.
+    // A guild node is grouped under GUILD, which the master's Skills window never lists. Its prerequisites
+    // reach the client over the wire with the guild's levels, so none are written into its resource.
     val guildTree = mapper.readValue(guildSkillTreeYml.get().asFile, TreeFile::class.java).skills
-      .map { it.copy(tree = GUILD_TREE) }
+      .map { it.copy(tree = GUILD_TREE, prerequisites = emptyList()) }
     val nodeByIdentifier = (tree + guildTree).associateBy { it.skill }
+    val idByIdentifier = skills.associate { it.identifier to it.id }
 
     val expectedById = skills.associate { skill ->
       // A skill absent from both trees is not investable. A bestia knows its skills at up to level 10 (the level
@@ -149,6 +161,12 @@ abstract class SkillDbSyncTask : DefaultTask() {
         node?.tree.orEmpty(),
         node?.subTree.orEmpty(),
         skill.script == null,
+        node?.prerequisites.orEmpty().map { prerequisite ->
+          idByIdentifier[prerequisite.skill] ?: throw GradleException(
+            "master_skill_tree.yml: ${skill.identifier} requires ${prerequisite.skill}, which skills.yml does not define"
+          )
+        },
+        node?.prerequisites.orEmpty().map { it.level },
         skill.name ?: skill.identifier,
         skill.manaCost,
         skill.cooldown
@@ -169,6 +187,10 @@ abstract class SkillDbSyncTask : DefaultTask() {
     val treePattern = Regex("^tree\\s*=\\s*\"([^\"]*)\"", RegexOption.MULTILINE)
     val subTreePattern = Regex("^sub_tree\\s*=\\s*\"([^\"]*)\"", RegexOption.MULTILINE)
     val isPassivePattern = Regex("""is_passive\s*=\s*(true|false)""")
+    // The whole line, newline included, so an empty expected list can remove it.
+    val prerequisiteIdsPattern = Regex("^prerequisite_ids\\s*=\\s*PackedInt32Array\\(([^)]*)\\)\\R?", RegexOption.MULTILINE)
+    val prerequisiteLevelsPattern =
+      Regex("^prerequisite_levels\\s*=\\s*PackedInt32Array\\(([^)]*)\\)\\R?", RegexOption.MULTILINE)
     val namePattern = Regex("^name\\s*=\\s*(\"[^\"]*\")", RegexOption.MULTILINE)
     val manaCostPattern = Regex("^mana_cost\\s*=\\s*(\\d+)", RegexOption.MULTILINE)
     val cooldownPattern = Regex("^cooldown\\s*=\\s*([\\d.]+)", RegexOption.MULTILINE)
@@ -371,6 +393,31 @@ abstract class SkillDbSyncTask : DefaultTask() {
         }
       }
 
+      // An empty list is the resource default, which a Godot save drops, so it is written as no line at all.
+      for ((field, pattern, expectedValues) in listOf(
+        Triple("prerequisite_ids", prerequisiteIdsPattern, expected.prerequisiteIds.map { it.toString() }),
+        Triple("prerequisite_levels", prerequisiteLevelsPattern, expected.prerequisiteLevels.map { it.toString() })
+      )) {
+        val currentText = file.readText()
+        val current = pattern.find(currentText)?.groupValues?.get(1).orEmpty()
+          .split(',').map { it.trim() }.filter { it.isNotEmpty() }
+
+        if (current != expectedValues) {
+          if (shouldFix) {
+            val line = if (expectedValues.isEmpty()) "" else packedIntLine(field, expectedValues)
+            val newText = if (pattern.containsMatchIn(currentText)) {
+              pattern.replace(currentText) { line }
+            } else {
+              currentText.trimEnd('\n') + "\n" + line
+            }
+            file.writeText(newText)
+            logger.lifecycle("SkillDbSync: patched ${file.name}: $field $current -> $expectedValues")
+          } else {
+            problems += "${file.name}: $field=$current but master_skill_tree.yml expects $expectedValues (id=$id)"
+          }
+        }
+      }
+
       // The English text itself is only server-sourced (and thus only checked/patched here) once
       // skills.yml actually declares a description for this skill - until then it's hand-authored
       // straight in skills.csv, same as every other still-unsynced client field.
@@ -432,6 +479,10 @@ abstract class SkillDbSyncTask : DefaultTask() {
     val treeLine = if (expected.tree.isNotEmpty()) "\ntree = \"${expected.tree}\"" else ""
     val subTreeLine = if (expected.subTree.isNotEmpty()) "\nsub_tree = \"${expected.subTree}\"" else ""
     val isPassiveLine = if (expected.isPassive != DEFAULT_IS_PASSIVE) "\nis_passive = ${expected.isPassive}" else ""
+    val prerequisiteLines = if (expected.prerequisiteIds.isEmpty()) "" else {
+      "\n" + packedIntLine("prerequisite_ids", expected.prerequisiteIds.map { it.toString() }).trimEnd('\n') +
+        "\n" + packedIntLine("prerequisite_levels", expected.prerequisiteLevels.map { it.toString() }).trimEnd('\n')
+    }
     return """
     [gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
 
@@ -445,6 +496,10 @@ abstract class SkillDbSyncTask : DefaultTask() {
     mana_cost = ${expected.manaCost}
     cooldown = ${expected.cooldown}
     """.trimIndent() + maxLevelLine + targetTypeLine + aoeRadiusLine + castTimeLine +
-      treeLine + subTreeLine + isPassiveLine + "\n"
+      treeLine + subTreeLine + isPassiveLine + prerequisiteLines + "\n"
   }
+
+  /** One `PackedInt32Array` property line the way a Godot save writes it, newline included. */
+  private fun packedIntLine(field: String, values: List<String>): String =
+    "$field = PackedInt32Array(${values.joinToString(", ")})\n"
 }

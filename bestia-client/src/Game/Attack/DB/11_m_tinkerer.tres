@@ -13,3 +13,5 @@ max_level = 5
 target_type = "FRIENDLY"
 tree = "CRAFTSMAN"
 is_passive = true
+prerequisite_ids = PackedInt32Array(10)
+prerequisite_levels = PackedInt32Array(3)

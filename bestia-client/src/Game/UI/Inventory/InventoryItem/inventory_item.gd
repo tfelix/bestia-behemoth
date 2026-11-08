@@ -101,9 +101,9 @@ func _show_trade_price() -> void:
 
 
 ## The text is BBCode from [ItemDetail], so the default Label-based tooltip would render the markup
-## literally - swap in a RichTextLabel, the way [code]skill_row.gd[/code] does for skill descriptions.
+## literally - swap in a RichTextLabel.
 ##
-## No empty-text guard, unlike that one: an item always has at least a name.
+## No empty-text guard: an item always has at least a name.
 func _make_custom_tooltip(for_text: String) -> Object:
 	var label := RichTextLabel.new()
 	label.bbcode_enabled = true

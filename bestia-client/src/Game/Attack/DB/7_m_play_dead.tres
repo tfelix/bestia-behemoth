@@ -13,3 +13,5 @@ mana_cost = 8
 cooldown = 10.0
 target_type = "FRIENDLY"
 tree = "NOVICE"
+prerequisite_ids = PackedInt32Array(1)
+prerequisite_levels = PackedInt32Array(2)

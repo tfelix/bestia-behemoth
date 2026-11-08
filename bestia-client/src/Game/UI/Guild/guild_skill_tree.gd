@@ -2,23 +2,12 @@ class_name GuildSkillTree
 extends Control
 
 ## The guild skill tree as tiles on a grid, with a line from every prerequisite to the skill that needs it.
-## The server sends the tree and its rules; where each tile sits is decided here.
+## The server sends the tree and its rules; where each tile sits is decided here. The tiles are the same
+## [SkillTile]s the master's Skills window draws, so both trees read alike.
 
 signal skill_selected(skill_id: int)
 
-const TILE_SIZE := Vector2(132, 64)
 const GAP := Vector2(14, 6)
-
-## Inside a tile: the icon on the left, the name beside it in up to two lines, and under the name its own row
-## for the level strip and the level, kept clear of the name by [constant FOOTER_GAP].
-const PAD := 6.0
-const ICON_SIZE := 40.0
-## Two lines of the 11 px name, with the label's own line spacing taken out.
-const NAME_HEIGHT := 32.0
-const FOOTER_GAP := 6.0
-const LEVEL_WIDTH := 30.0
-const LEVEL_HEIGHT := 14.0
-const BAR_HEIGHT := 4.0
 
 ## Skill id to grid cell (column, row). Prerequisites always sit in a column further left, so every line
 ## runs rightwards. A skill missing here goes into a row of its own below the rest.
@@ -41,23 +30,9 @@ var selected_skill_id := 0
 
 var _skills: Array = []
 var _levels: Dictionary[int, int] = {}
-var _tiles: Dictionary[int, Button] = {}
+var _tiles: Dictionary[int, SkillTile] = {}
 var _cells: Dictionary[int, Vector2i] = {}
 var _may_cast := false
-
-
-## A recovering skill shows its seconds left where its level would be.
-func _process(_delta: float) -> void:
-	if not is_visible_in_tree():
-		return
-	for skill in _skills:
-		var tile: Button = _tiles.get(skill.SkillId)
-		if tile == null:
-			continue
-		var left := SkillCooldowns.remaining_seconds(skill.SkillId)
-		var level := tile.get_node("Level") as Label
-		level.text = ("%ds" % ceili(left)) if left > 0.0 else "%d/%d" % [skill.Level, skill.MaxLevel]
-		level.add_theme_color_override("font_color", UiStyle.ACCENT if left > 0.0 else UiStyle.MUTED)
 
 
 ## [param may_raise] answers for one [GuildSkillInfo] whether the viewer could spend a point on it now;
@@ -73,11 +48,13 @@ func show_tree(skills: Array, may_raise: Callable, may_cast: bool) -> void:
 	var seen: Dictionary[int, bool] = {}
 	for skill in skills:
 		seen[skill.SkillId] = true
-		var tile: Button = _tiles.get(skill.SkillId)
+		var tile: SkillTile = _tiles.get(skill.SkillId)
 		if tile == null:
 			tile = _new_tile(skill.SkillId)
 		tile.position = _tile_origin(_cells[skill.SkillId])
-		_style_tile(tile, skill, may_raise.call(skill))
+		var locked: bool = skill.Level == 0 and not prerequisites_met(skill)
+		tile.show_skill(skill.Level, skill.MaxLevel, 0, may_raise.call(skill), locked)
+		tile.button_pressed = skill.SkillId == selected_skill_id
 
 	for skill_id in _tiles.keys():
 		if not seen.has(skill_id):
@@ -121,57 +98,11 @@ func _place_cells() -> void:
 			unplaced_column += 1
 
 
-func _new_tile(skill_id: int) -> Button:
-	var tile := Button.new()
-	tile.toggle_mode = true
-	tile.focus_mode = Control.FOCUS_NONE
-	tile.size = TILE_SIZE
+func _new_tile(skill_id: int) -> SkillTile:
+	var tile := SkillTile.new(skill_id)
 	tile.pressed.connect(select.bind(skill_id))
 	tile.set_drag_forwarding(_drag_data.bind(skill_id), Callable(), Callable())
-	# In the tree before its labels are sized: until then a label measures with the default 16 px font, and a
-	# size set then keeps that taller height, which pushed the level text below the bar.
 	add_child(tile)
-
-	var icon := TextureRect.new()
-	icon.name = "Icon"
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon.position = Vector2(PAD, (TILE_SIZE.y - ICON_SIZE) / 2)
-	icon.size = Vector2(ICON_SIZE, ICON_SIZE)
-	tile.add_child(icon)
-
-	var text_x := PAD + ICON_SIZE + PAD
-	var text_width := TILE_SIZE.x - text_x - PAD
-
-	# A label rather than the button's own text, which would grow the tile to fit a long name.
-	var title := UiStyle.label("", 11)
-	title.name = "Title"
-	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	title.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	title.clip_text = true
-	title.add_theme_constant_override("line_spacing", 0)
-	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tile.add_child(title)
-	title.position = Vector2(text_x, PAD - 2)
-	title.size = Vector2(text_width, NAME_HEIGHT)
-
-	var footer_y := title.position.y + NAME_HEIGHT + FOOTER_GAP
-	var bar := UiStyle.bar(UiStyle.ACCENT, int(BAR_HEIGHT))
-	bar.name = "Bar"
-	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	bar.position = Vector2(text_x, footer_y + (LEVEL_HEIGHT - BAR_HEIGHT) / 2)
-	bar.size = Vector2(text_width - LEVEL_WIDTH - 4, BAR_HEIGHT)
-	tile.add_child(bar)
-
-	var level := UiStyle.label("", 10, UiStyle.MUTED)
-	level.name = "Level"
-	level.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	level.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tile.add_child(level)
-	level.position = Vector2(TILE_SIZE.x - PAD - LEVEL_WIDTH, footer_y)
-	level.size = Vector2(LEVEL_WIDTH, LEVEL_HEIGHT)
-
 	_tiles[skill_id] = tile
 	return tile
 
@@ -190,39 +121,15 @@ func _drag_data(_at_position: Vector2, skill_id: int) -> Variant:
 	return {"type": "skill", "id": skill_id, "level": level_of(skill_id)}
 
 
-func _style_tile(tile: Button, skill: GuildSkillInfo, raisable: bool) -> void:
-	var attack := AttackDB.get_instance().get_attack(skill.SkillId)
-	var title := tile.get_node("Title") as Label
-	title.text = attack.name if attack != null else str(skill.SkillId)
-	(tile.get_node("Level") as Label).text = "%d/%d" % [skill.Level, skill.MaxLevel]
-	UiStyle.set_bar(tile.get_node("Bar") as ProgressBar, skill.Level, skill.MaxLevel)
-	var icon := tile.get_node("Icon") as TextureRect
-	icon.texture = attack.get_icon() if attack != null else AttackResource.MISSING_ICON
-
-	var learned := skill.Level > 0
-	var locked := not learned and not prerequisites_met(skill)
-	var border := UiStyle.ACCENT if learned else (UiStyle.SELF_BORDER if raisable else UiStyle.OFFLINE)
-	var bg := UiStyle.BAR_BG if locked else UiStyle.ROW_BG
-	var text := UiStyle.MUTED if locked else UiStyle.TEXT
-
-	tile.add_theme_stylebox_override("normal", UiStyle.flat(bg, 4, 6, border, 1))
-	tile.add_theme_stylebox_override("hover", UiStyle.flat(UiStyle.ROW_HOVER_BG, 4, 6, border, 1))
-	tile.add_theme_stylebox_override("pressed", UiStyle.flat(UiStyle.ROW_HOVER_BG, 4, 6, UiStyle.TEXT, 2))
-	tile.add_theme_stylebox_override("hover_pressed", UiStyle.flat(UiStyle.ROW_HOVER_BG, 4, 6, UiStyle.TEXT, 2))
-	title.add_theme_color_override("font_color", text)
-	icon.modulate.a = 0.45 if locked else 1.0
-	tile.button_pressed = skill.SkillId == selected_skill_id
-
-
 func _tile_origin(cell: Vector2i) -> Vector2:
-	return Vector2(cell) * (TILE_SIZE + GAP)
+	return Vector2(cell) * (SkillTile.SIZE + GAP)
 
 
 func _canvas_size() -> Vector2:
 	var far := Vector2i.ZERO
 	for cell in _cells.values():
 		far = Vector2i(maxi(far.x, cell.x), maxi(far.y, cell.y))
-	return _tile_origin(far) + TILE_SIZE
+	return _tile_origin(far) + SkillTile.SIZE
 
 
 ## Each line leaves its prerequisite's right edge, turns in the gap before the skill's column and enters the
@@ -230,14 +137,14 @@ func _canvas_size() -> Vector2:
 func _draw() -> void:
 	for skill in _skills:
 		var to := _tile_origin(_cells[skill.SkillId])
-		var entry := to + Vector2(0, TILE_SIZE.y / 2)
+		var entry := to + Vector2(0, SkillTile.SIZE.y / 2)
 		var turn_x := to.x - GAP.x / 2
 
 		for i in skill.PrerequisiteSkillIds.size():
 			var from_id: int = skill.PrerequisiteSkillIds[i]
 			if not _cells.has(from_id):
 				continue
-			var exit := _tile_origin(_cells[from_id]) + Vector2(TILE_SIZE.x, TILE_SIZE.y / 2)
+			var exit := _tile_origin(_cells[from_id]) + Vector2(SkillTile.SIZE.x, SkillTile.SIZE.y / 2)
 			var met: bool = level_of(from_id) >= skill.PrerequisiteLevels[i]
 			var points := PackedVector2Array([exit, Vector2(turn_x, exit.y), Vector2(turn_x, entry.y), entry])
 			draw_polyline(points, LINE_MET if met else LINE_UNMET, 2.0)
