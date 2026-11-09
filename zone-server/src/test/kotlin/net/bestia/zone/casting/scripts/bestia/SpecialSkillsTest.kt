@@ -84,6 +84,7 @@ class SpecialSkillsTest {
 
     assertEquals(listOf(DEFENDER_ID to EquipmentSlot.ARMOR), world.stripped)
     assertEquals(listOf(StatusEffectId.ARMOR_STRIPPED.name), world.inflicted.map { it.status })
+    assertEquals(15.0, world.inflicted.single().durationSeconds)
   }
 
   @Test

@@ -472,7 +472,8 @@ statusEffects:
     isSyncedToClient: true
     script: Channeling
 
-  # Left by Strip Armor and Disarm: the stripped slot stays empty while they last, see `SlotLock`.
+  # Left by Strip Equipment and the bestia skills Strip Armor and Disarm: the stripped slot stays empty while they
+  # last, see `SlotLock`.
   - id: 59
     identifier: ARMOR_STRIPPED
     polarity: DEBUFF
@@ -505,3 +506,32 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: Silenced
+
+  # The other slots Strip Equipment can hit, beside ARMOR_STRIPPED and DISARMED.
+  - id: 63
+    identifier: HEADGEAR_STRIPPED
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: StrippedGear
+
+  - id: 64
+    identifier: GARMENT_STRIPPED
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: StrippedGear
+
+  - id: 65
+    identifier: FOOTGEAR_STRIPPED
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: StrippedGear
+
+  - id: 66
+    identifier: SHIELD_STRIPPED
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: StrippedGear

@@ -26,11 +26,16 @@ abstract class Strip(
     val target = ctx.targetEntityId ?: return null
 
     val tookGear = ctx.world.strip(target, lock.slot)
-    ctx.world.inflict(target, lock.status.name, chancePercent = 100, durationSeconds = null, ctx.skillLevel)
+    ctx.world.inflict(target, lock.status.name, chancePercent = 100, durationSeconds = LOCK_SECONDS, ctx.skillLevel)
     if (!tookGear && fallback != null) {
       ctx.world.inflict(target, fallback.name, chancePercent = 100, durationSeconds = null, ctx.skillLevel)
     }
 
     return null
+  }
+
+  private companion object {
+    /** A bestia's strip does not grow with its level; the per-level table belongs to the master's Strip Equipment. */
+    const val LOCK_SECONDS = 15.0
   }
 }

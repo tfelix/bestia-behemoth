@@ -7,7 +7,8 @@ import org.springframework.stereotype.Component
 @Component
 class StrippedGear : StatusEffectScript {
 
+  /** Strip Equipment's table: 5 s a level. */
   override fun durationSeconds(level: Int): Double {
-    return 15.0
+    return 5.0 * level
   }
 }
