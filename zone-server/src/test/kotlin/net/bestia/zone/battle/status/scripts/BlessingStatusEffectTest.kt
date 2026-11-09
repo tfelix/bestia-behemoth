@@ -1,6 +1,7 @@
 package net.bestia.zone.battle.status.scripts
 
 import net.bestia.zone.item.ecs.itemTemplatesOf
+import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.Size
 import net.bestia.zone.battle.StatusEffectService
@@ -15,6 +16,7 @@ import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
+import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.boot.StatusEffectImporterBootRunner
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.item.equip.EquipmentStatusContributor
@@ -74,6 +76,26 @@ class BlessingStatusEffectTest {
     bless(target, level = 10)
 
     assertEquals(StatusValues(strength = 20, intelligence = 15, vitality = 10, dexterity = 20, willpower = 50, agility = 60), statsOf(target))
+  }
+
+  @Test
+  fun `blessing raises hit by two per level`() {
+    val target = creature()
+    val context = StatusValueRecalcContext(world.get(target, BaseStatusValues::class)!!, baseSpeed = 1f)
+
+    blessing.apply(world, target, context, level = 4, sourceEntityId = null)
+
+    assertEquals(8, context.hit)
+  }
+
+  @Test
+  fun `a demon is cursed like the undead`() {
+    val target = creature(Nature(Element.SHADOW, Size.MEDIUM, kind = BestiaKind.DEMON))
+
+    bless(target, level = 10)
+
+    assertEquals(20, statsOf(target).strength)
+    assertEquals(20, statsOf(target).dexterity)
   }
 
   @Test

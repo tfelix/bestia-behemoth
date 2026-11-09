@@ -3,6 +3,7 @@ package net.bestia.zone.casting.scripts
 import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.casting.SkillContextFixture
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -35,6 +36,12 @@ class HealTest {
         assertTrue(it >= amount, "INT $int->${int * 10} at rank $skillLv/Lv$charLv went $amount -> $it")
       }
     }
+  }
+
+  @Test
+  fun `heal follows the ragnarok formula`() {
+    // [(50 + 30) / 8] * (4 + 8 * 10) = 10 * 84
+    assertEquals(840, healed(skillLevel = 10, level = 50, intelligence = 30))
   }
 
   private fun healed(skillLevel: Int, level: Int, intelligence: Int): Int {

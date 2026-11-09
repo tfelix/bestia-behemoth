@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.status.scripts
 
+import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.status.StatusEffectScript
@@ -14,14 +15,9 @@ import org.springframework.stereotype.Component
  * script registry; named differently here since Spring's default bean name is the decapitalised
  * simple class name regardless of package, and both scripts being called plain `Blessing` collided).
  *
- * Ragnarok Online's Blessing: +level STR, DEX and INT for 40 s plus 20 s per level, the numbers the table in
- * `skills.yml` gives. On an Undead-element target it turns on them instead - their DEX and INT are halved and
- * their STR is left alone.
- *
- * Two things the description names are not modeled. Its "HIT Increase" column has no channel: HIT is derived
- * from effective DEX (`DerivedStatusValues`), so the +level DEX already raises it by that much, and the flat
- * extra would need a new term carried from the recalc context to the hit roll. And "Demon race" has nothing to
- * test, since no creature carries a race.
+ * Ragnarok Online's Blessing: +level STR, DEX and INT and +2 HIT per level, for 40 s plus 20 s per level. On an
+ * Undead-element or Demon-kind target it turns on them instead - their DEX and INT are halved and their STR is left
+ * alone.
  */
 @Component
 class BlessingStatusEffect : StatusEffectScript {
@@ -35,10 +31,7 @@ class BlessingStatusEffect : StatusEffectScript {
     level: Int,
     sourceEntityId: EntityId?
   ) {
-    // An entity with no Nature - a master, a prop - counts as Normal, as everywhere else.
-    val element = world.get(entityId, Nature::class)?.element
-
-    if (element in UNDEAD_ELEMENTS) {
+    if (isCursedBy(world.get(entityId, Nature::class))) {
       context.dexterity /= 2
       context.intelligence /= 2
       return
@@ -47,9 +40,16 @@ class BlessingStatusEffect : StatusEffectScript {
     context.strength += level
     context.dexterity += level
     context.intelligence += level
+    context.addAccuracy(hit = HIT_PER_LEVEL * level)
   }
 
+  /** An entity with no Nature - a master, a prop - counts as Normal, as everywhere else. */
+  private fun isCursedBy(nature: Nature?): Boolean =
+    nature != null && (nature.element in UNDEAD_ELEMENTS || nature.kind == BestiaKind.DEMON)
+
   private companion object {
+    const val HIT_PER_LEVEL = 2
+
     val UNDEAD_ELEMENTS = setOf(Element.UNDEAD, Element.UNDEAD_2, Element.UNDEAD_3, Element.UNDEAD_4)
   }
 }
