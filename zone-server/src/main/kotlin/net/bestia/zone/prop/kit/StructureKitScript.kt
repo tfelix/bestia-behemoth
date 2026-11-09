@@ -39,7 +39,10 @@ abstract class StructureKitScript(
   private val kind: StaticEntityKind,
 
   /** How much work the finished thing takes, in seconds, before any skill or buff is applied. */
-  private val buildSeconds: Float
+  private val buildSeconds: Float,
+
+  /** How far from the builder it may be put down, in tiles. */
+  private val reach: Long = PlayerStructureService.RANGE_TILES
 ) : ItemScript {
 
   override fun execute(world: World, userId: EntityId, args: ScriptArgs): Boolean {
@@ -59,7 +62,7 @@ abstract class StructureKitScript(
     // Re-checked rather than trusted: the client only offers a spot within reach, so this is the case where
     // the player walked between aiming and the packet landing - and the case where they did not use a client.
     val userAt = world.get(userId, Position::class)?.toVec3L()
-    if (userAt == null || userAt.distance(at) > PlayerStructureService.RANGE_TILES) {
+    if (userAt == null || userAt.distance(at) > reach) {
       LOG.debug { "Entity $userId aimed a $kind kit at $at, out of reach from $userAt" }
       return false
     }
