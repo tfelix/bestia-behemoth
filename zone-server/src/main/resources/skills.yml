@@ -376,6 +376,7 @@ skills:
       An axeman's read of the forest - which trunks fell clean, which grain splits true, and how
       to bring both down efficiently.
 
+      Level 1 lets you build a Lumberjack Cabin
       `-10%/lv` wood gathering time
       `+20%/lv` resource drop chance
 
@@ -453,7 +454,7 @@ skills:
       A pickaxe, a steady lamp, and the nose for where the rock is worth breaking. Anyone with a
       pickaxe can mine, but an untrained miner only gets resources up to level 10.
 
-      Level 1 lets you craft a pickaxe
+      Level 1 lets you craft a pickaxe and build a Mining Shaft
       `-10%/lv` mining time
       `+20 resource lv/lv` that can be mined, up to resource level 100+ at max rank
 
@@ -578,6 +579,75 @@ skills:
 
       `-5%/lv` breeding and hatch time, within the same 50% floor as upgrades and feed
       Level 4 draws a fourth dominant IV per clutch
+
+# Scholar trunk
+  - id: 51
+    identifier: M_MAGIC_SENSE
+    script: MagicSense
+    targetType: FRIENDLY
+    needsLineOfSight: false
+    manaCost: 12
+    castTime: 2.0
+    description: |
+      A prickle at the back of the mind that flags mana at work nearby, and picks apart what
+      spell an item or entity carries bound to it. Each cast sweeps the area once. Local mana
+      concentration widens the range in a mana-rich region and shrinks it in a drained one.
+      Cooldown 10s.
+
+      `+10m/lv` range
+      Lv.1 shows that something nearby carries mana
+      Lv.2 shows the direction and rough strength of each source
+      Lv.3 shows the element of the mana
+      Lv.4 shows the exact spell bound to an item or place
+      Lv.5 shows who bound it, and what trigger a Spell Binding waits for
+
+  - id: 52
+    identifier: M_SENSE
+    script: Sense
+    targetType: ENEMY
+    range: 12
+    manaCost: 6
+    castTime: 1.0
+    description: |
+      Cast on a monster to read what mana and instinct alone can tell about it. Reveals its
+      status values, element, HP and mana. Cooldown 3s.
+
+  - id: 53
+    identifier: M_RUWACH
+    script: Ruwach
+    targetType: FRIENDLY
+    needsLineOfSight: false
+    manaCost: 14
+    description: |
+      A pulse of second sight that peels back concealment. For 10s, hidden traps, camouflaged
+      Hunters and cloaked Assassins within 10m of the caster stand out for what they are.
+      Detection resistance does not help against it. Cooldown 10s.
+
+  - id: 54
+    identifier: M_OBSERVATION
+    script: Observation
+    targetType: FRIENDLY
+    needsLineOfSight: false
+    manaCost: 20
+    castTime: 5.0
+    description: |
+      The Scholar's ear to the ground - a sense for the direction and distance of world-changing
+      events long before word of them travels. Only works at an Observation Outpost. Level 1
+      lets you build one from an outpost kit. Cooldown 60s.
+
+      `+1 km/lv` detection distance around the outpost
+
+  # Founder sits in the Prospector sub-tree.
+  - id: 55
+    identifier: M_FOUNDER
+    script: Founder
+    targetType: GROUND
+    range: 0
+    manaCost: 100
+    castTime: 60.0
+    description: |
+      The founding rite that plants a city sign in the ground and calls a settlement into being
+      around it. Only one settlement can be active at a time. Cooldown 24h.
 
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000

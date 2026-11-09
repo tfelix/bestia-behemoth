@@ -115,6 +115,7 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     private const val DIVINE_PROTECTION_ID = 2L
     private const val HEAL_ID = 4L
     private const val BLESSING_ID = 6L
+    private const val MAGIC_SENSE_ID = 51L
     private const val APPLE_ITEM_ID = 1L
     private const val SHOES_ITEM_ID = 4L
     private const val BOOTS_ITEM_ID = 5L
@@ -356,8 +357,9 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
 
     await {
       val points = clientPlayer1.getLastReceived(SkillPointsComponentSMSG::class)
-      // 5 for DIVINE_PROTECTION (BLESSING's prerequisite) + 1 for HEAL + 1 for BLESSING.
-      assertTrue(points.points >= 7, "expected at least 7 skill points, got ${points.points}")
+      // 5 for MAGIC_SENSE (the Priest gate) + 5 for DIVINE_PROTECTION (BLESSING's prerequisite)
+      // + 1 for HEAL + 1 for BLESSING.
+      assertTrue(points.points >= 12, "expected at least 12 skill points, got ${points.points}")
     }
   }
 
@@ -366,13 +368,13 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
   fun `investing skill points levels up heal and unlocks blessing in one batched request`() {
     // Heal/Blessing sit in the Scholar tree, which stays shut until Basic Skill is at 5 - already
     // satisfied here by the grantFullBasicSkill in Order(1), which the chat and party orders need
-    // anyway. Nothing extra to set up: this order is about the batched-investment mechanics, and
-    // the master has nowhere near the 12 points buying the unlock outright would cost.
+    // anyway. The Priest sub-tree then needs 5 trunk points, bought first in the same batch.
 
     clientPlayer1.sendMessage(
       InvestSkillPointCMSG(
         playerId = clientPlayer1.connectedPlayerId,
         investedPoints = listOf(
+          InvestSkillPointCMSG.InvestedSkillPoint(attackId = MAGIC_SENSE_ID, amount = 5),
           // Satisfies BLESSING's prerequisite (DIVINE_PROTECTION level 5) within the same batch.
           InvestSkillPointCMSG.InvestedSkillPoint(attackId = DIVINE_PROTECTION_ID, amount = 5),
           InvestSkillPointCMSG.InvestedSkillPoint(attackId = HEAL_ID, amount = 1),

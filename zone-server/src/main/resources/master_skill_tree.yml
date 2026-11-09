@@ -253,6 +253,14 @@ skills:
       - skill: M_CARTOGRAPHY
         level: 2
 
+  - skill: M_FOUNDER
+    tree: SURVIVAL
+    subTree: PROSPECTOR
+    maxLevel: 1
+    prerequisites:
+      - skill: M_CARTOGRAPHY
+        level: 3
+
   # Miner (unlocked at 5+ pts in Survival Tree)
   - skill: M_MINING
     tree: SURVIVAL
@@ -283,8 +291,33 @@ skills:
       - skill: M_RICH_VEINS
         level: 3
 
-  # --- Scholar Tree (Priest sub-tree partially catalogued below; Trader/Sage/Warrior tree
-  # skills from master.md are not yet added - see docs/mechanics/master.md for the full design) ---
+  # --- Scholar Tree (Trader/Sage skills from master.md are not yet added - see docs/mechanics/master.md) ---
+  - skill: M_MAGIC_SENSE
+    tree: SCHOLAR
+    maxLevel: 5
+
+  - skill: M_SENSE
+    tree: SCHOLAR
+    maxLevel: 1
+    prerequisites:
+      - skill: M_MAGIC_SENSE
+        level: 1
+
+  - skill: M_RUWACH
+    tree: SCHOLAR
+    maxLevel: 1
+    prerequisites:
+      - skill: M_MAGIC_SENSE
+        level: 2
+
+  - skill: M_OBSERVATION
+    tree: SCHOLAR
+    maxLevel: 5
+    prerequisites:
+      - skill: M_MAGIC_SENSE
+        level: 3
+
+  # Priest (unlocked at 5+ pts in Scholar Tree)
   - skill: M_BLESSING
     tree: SCHOLAR
     subTree: PRIEST
