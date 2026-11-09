@@ -562,7 +562,12 @@ namespace BestiaBehemothClient.Game.World
         },
         PlaceholderWidth = 3.0f, PlaceholderColour = new Color(0.62f, 0.44f, 0.32f)
       }, // FIXTURE_OUTCROP
-      new Kind { PlaceholderWidth = 5.0f, PlaceholderColour = new Color(0.70f, 0.56f, 0.36f) }  // FIXTURE_INN
+      new Kind { PlaceholderWidth = 5.0f, PlaceholderColour = new Color(0.70f, 0.56f, 0.36f) }, // FIXTURE_INN
+
+      // Building pieces, drawn from the cells they block - see StaticEntityRenderer.AddStructurePiece.
+      new Kind { PlaceholderWidth = 1.0f, PlaceholderColour = new Color(0.62f, 0.50f, 0.36f) }, // STRUCTURE_WALL
+      new Kind { PlaceholderWidth = 1.0f, PlaceholderColour = new Color(0.55f, 0.42f, 0.28f) }, // STRUCTURE_FLOOR
+      new Kind { PlaceholderWidth = 1.0f, PlaceholderColour = new Color(0.48f, 0.38f, 0.26f) }  // STRUCTURE_STAIRS
     };
 
     /// <summary>
