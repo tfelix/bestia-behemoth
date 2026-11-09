@@ -958,3 +958,7 @@ to hand; a thrown weapon is used up like ammunition. Cooldown 3s.
 SKILL_174_DESC,"The Hunter's Bestias learn whom to go for. They hit the target of Hunter's Mark harder.
 
 `+10%/lv` damage of the master's Bestias against the marked target"
+SKILL_175_DESC,"Throws a potion from the bag onto an ally up to 7 tiles away, so it works as if the ally had
+drunk it. Cooldown 1s.
+
+`+10%/lv` effect of the thrown potion"
