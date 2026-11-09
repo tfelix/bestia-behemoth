@@ -210,6 +210,14 @@ skills:
     subTree: FORESTER
     maxLevel: 5
 
+  - skill: M_REPLANTING
+    tree: SURVIVAL
+    subTree: FORESTER
+    maxLevel: 3
+    prerequisites:
+      - skill: M_LUMBERJACK
+        level: 2
+
   - skill: M_TRAPPING
     tree: SURVIVAL
     subTree: FORESTER
