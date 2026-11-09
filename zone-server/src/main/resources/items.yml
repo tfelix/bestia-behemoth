@@ -1341,3 +1341,41 @@ items:
       A canvas sack under the postal seal. Nobody may open it, the courier included.
 
       Bring it to the post office it is addressed to before its deadline.
+
+  # Building pieces. Each is put down like the workbench kit and holds its place the moment its site goes up -
+  # see `StructureCollision`. Nothing may hang in the air: a piece needs the ground or other pieces under it.
+  - id: 106
+    item-db-name: wall_kit
+    base-level: 1
+    weight: 400
+    type: USABLE
+    material: WOOD
+    script: WallKitScript
+    description: |
+      Planks pegged into a frame two metres wide and three high.
+
+      Set it on the ground or on a floor, and it stands as a wall.
+
+  - id: 107
+    item-db-name: floor_kit
+    base-level: 1
+    weight: 300
+    type: USABLE
+    material: WOOD
+    script: FloorKitScript
+    description: |
+      Boards laid on two beams, two metres square.
+
+      Lay it on the ground, or across the top of walls for the storey above.
+
+  - id: 108
+    item-db-name: stairs_kit
+    base-level: 1
+    weight: 350
+    type: USABLE
+    material: WOOD
+    script: StairsKitScript
+    description: |
+      Six treads on a pair of stringers.
+
+      Climbs one storey, three metres, over six paces.
