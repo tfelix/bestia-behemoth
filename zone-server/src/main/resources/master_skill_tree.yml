@@ -96,7 +96,7 @@ skills:
   - skill: M_WEAPONRY_RESEARCH
     tree: CRAFTSMAN
     subTree: BLACKSMITH
-    maxLevel: 10
+    maxLevel: 5
     prerequisites:
       - skill: M_EQUIPMENT_REPAIR
         level: 3
