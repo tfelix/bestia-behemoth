@@ -15,14 +15,14 @@ import org.springframework.stereotype.Component
  * script registry; named differently here since Spring's default bean name is the decapitalised
  * simple class name regardless of package, and both scripts being called plain `Blessing` collided).
  *
- * Ragnarok Online's Blessing: +level STR, DEX and INT and +2 HIT per level, for 40 s plus 20 s per level. On an
- * Undead-element or Demon-kind target it turns on them instead - their DEX and INT are halved and their STR is left
- * alone.
+ * Ragnarok Online's Blessing with Impositio Manus folded in, over 5 levels instead of 10, so every level counts
+ * twice. On an Undead-element or Demon-kind target it turns on them instead - their DEX and INT are halved and their
+ * STR is left alone.
  */
 @Component
 class BlessingStatusEffect : StatusEffectScript {
 
-  override fun durationSeconds(level: Int): Double = 40.0 + 20.0 * level
+  override fun durationSeconds(level: Int): Double = 40.0 + 40.0 * level
 
   override fun apply(
     world: World,
@@ -37,10 +37,11 @@ class BlessingStatusEffect : StatusEffectScript {
       return
     }
 
-    context.strength += level
-    context.dexterity += level
-    context.intelligence += level
+    context.strength += STAT_PER_LEVEL * level
+    context.dexterity += STAT_PER_LEVEL * level
+    context.intelligence += STAT_PER_LEVEL * level
     context.addAccuracy(hit = HIT_PER_LEVEL * level)
+    context.addAttack(atk = ATTACK_PER_LEVEL * level, matk = ATTACK_PER_LEVEL * level)
   }
 
   /** An entity with no Nature - a master, a prop - counts as Normal, as everywhere else. */
@@ -48,7 +49,9 @@ class BlessingStatusEffect : StatusEffectScript {
     nature != null && (nature.element in UNDEAD_ELEMENTS || nature.kind == BestiaKind.DEMON)
 
   private companion object {
-    const val HIT_PER_LEVEL = 2
+    const val STAT_PER_LEVEL = 2
+    const val HIT_PER_LEVEL = 4
+    const val ATTACK_PER_LEVEL = 3
 
     val UNDEAD_ELEMENTS = setOf(Element.UNDEAD, Element.UNDEAD_2, Element.UNDEAD_3, Element.UNDEAD_4)
   }

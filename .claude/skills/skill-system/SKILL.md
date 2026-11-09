@@ -192,10 +192,10 @@ by `identifier`.
 
 ```yaml
 - skill: M_BLESSING
-  maxLevel: 10
+  maxLevel: 5
   prerequisites:
-    - skill: M_DIVINE_PROTECTION
-      level: 5
+    - skill: M_HEAL
+      level: 3
 ```
 
 - `maxLevel` — highest level a master can invest in this node.
