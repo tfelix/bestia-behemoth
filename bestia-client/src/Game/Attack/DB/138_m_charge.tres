@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 138
+name = "Charge"
+description_key = "SKILL_138_DESC"
+mana_cost = 22
+cooldown = 14.5
+max_level = 5
+target_type = "ENEMY"
+tree = "WARRIOR"
+sub_tree = "KNIGHT"
+prerequisite_ids = PackedInt32Array(136)
+prerequisite_levels = PackedInt32Array(3)

@@ -41,7 +41,7 @@ The `SkillId` constant carries the prefix too, and so does the client file (`6_m
 
 Convention in the file: master skills are grouped first under `# MASTER SKILLS`, bestia
 skills after under `# BESTIA SKILLS`, by ascending id (**bestia-species/item skills are
-reserved at id 1000-8999**; master skills use the open range below that, currently 1-131, with
+reserved at id 1000-8999**; master skills use the open range below that, currently 1-139, with
 ids 7, 9, 36, 38 and 49 holes where `M_PLAY_DEAD`, `MASTER_RITUAL`, `M_ENLARGE_WEIGHT_LIMIT`,
 `M_WILDERNESS_SURVIVAL` and `M_BESTIA_TRAPPING` used to be) — not enforced by code, just keep following
 it. The 1000+ split was chosen when the master skill tree grew past the original

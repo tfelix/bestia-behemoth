@@ -1635,6 +1635,96 @@ skills:
 
       `+2m/lv` range, from 4m at Lv.1
 
+# Knight
+  - id: 132
+    identifier: M_HEAVY_WEAPON_MASTERY
+    targetType: FRIENDLY
+    description: |
+      Years spent drilling with sword, axe, mace and spear until the weight stops mattering. Counts
+      for swords, greatswords, axes, greataxes, maces, hammers, spears and polearms.
+
+      `+3/lv` ATK
+
+  - id: 133
+    identifier: M_HEAVY_ARMOR_MASTERY
+    targetType: FRIENDLY
+    description: |
+      Teaches the body to carry plate and mail, complementing the protection of Iron Skin.
+
+      `+2/lv` hard DEF while wearing heavy armor
+
+  - id: 134
+    identifier: M_PROVOKE
+    script: Provoke
+    targetType: ENEMY
+    range: 6
+    manaCost: 14
+    description: |
+      A shout or a slammed shield that forces a monster or wild Bestia to attack only the Knight.
+      It has no effect on masters. Cooldown 10s.
+
+      `3s + 1s/lv` duration
+
+  - id: 135
+    identifier: M_SHIELD_WALL
+    script: ShieldWall
+    targetType: FRIENDLY
+    manaCost: 25
+    description: |
+      Plants the Knight's feet and raises their shield into a proper wall. Needs a shield.
+      Toggle. Cooldown 15s.
+
+      `-5%/lv` physical damage taken, from 15% at Lv.1
+      `-50%` movement speed at Lv.1, `-40%` at Lv.2, `-30%` from Lv.3
+      Lv.5 returns 10% of the blocked damage to the attacker
+
+  - id: 136
+    identifier: M_BASH
+    script: Bash
+    targetType: ENEMY
+    range: 2
+    manaCost: 18
+    description: |
+      A single committed swing that trades finesse for raw impact, with a chance to stun what it
+      lands on for 1s. Cooldown 6s.
+
+      `+20%/lv` bonus damage
+      `+5%/lv` stun chance
+
+  - id: 137
+    identifier: M_AUTO_GUARD
+    targetType: FRIENDLY
+    description: |
+      A trained reflex that raises the shield on its own the instant a blow lands, sometimes fast
+      enough to stop it cold. Needs a shield.
+
+      `+4%/lv` chance to block a hit fully
+
+  - id: 138
+    identifier: M_CHARGE
+    script: Charge
+    targetType: ENEMY
+    range: 12
+    manaCost: 22
+    description: |
+      Closes the distance to a target in an instant, weapon first. The impact deals 150% ATK and
+      provokes the target for 3s.
+
+      `15s - 0.5s/lv` cooldown
+
+  - id: 139
+    identifier: M_JUGGERNAUT
+    script: Juggernaut
+    targetType: FRIENDLY
+    manaCost: 60
+    description: |
+      The Knight's capstone. For a short time the line between wall and weapon stops meaning
+      anything: +20% DEF and +20% ATK.
+
+      Lv.1 10s, cooldown 120s
+      Lv.2 15s, and immune to stun and knockback
+      Lv.3 cooldown 90s, and a hit fully blocked by Auto Guard refreshes the duration
+
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000
     identifier: ember
