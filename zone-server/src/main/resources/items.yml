@@ -777,7 +777,7 @@ items:
     type: ETC
     material: CRYSTAL
     description: |
-      An uncut stone still held in the rock it came out of.
+      An uncut stone still held in the rock it came out of. Which gem it is, only the cut tells.
 
       Worth guessing about until a jeweller says otherwise.
 
@@ -1413,3 +1413,127 @@ items:
       A small vial of murky green liquid that smells of bitter almonds.
 
       Worked into a blade with Enchant Poison, every cut may leave it behind.
+
+  # Gems are vessels, not bonuses: a cut gem holds a Bestia essence, and the rarer the gem, the stronger the
+  # essence it can hold. Its base level is the highest Bestia level it holds. See `mechanics/forging.md`.
+  - id: 112
+    item-db-name: rough_amethyst
+    base-level: 20
+    weight: 20
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A violet crystal out of a shallow geode. The commonest gem in the world. It is still caught in rock.
+
+      Gem Cutting turns it into a cut amethyst.
+
+  - id: 113
+    item-db-name: rough_emerald
+    base-level: 40
+    weight: 20
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A green crystal out of deep granite. It is still caught in rock.
+
+      Gem Cutting turns it into a cut emerald.
+
+  - id: 114
+    item-db-name: rough_ruby
+    base-level: 60
+    weight: 20
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A deep red crystal out of marble. It is still caught in rock.
+
+      Gem Cutting turns it into a cut ruby.
+
+  - id: 115
+    item-db-name: rough_pyrelith
+    base-level: 80
+    weight: 20
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A gem that grew in the gas pockets of a cooled lava flow. It is warm to the touch. It is still caught in rock.
+
+      Gem Cutting turns it into a cut pyrelith.
+
+  - id: 116
+    item-db-name: rough_diamond
+    base-level: 100
+    weight: 20
+    type: ETC
+    material: CRYSTAL
+    description: |
+      The hardest stone there is, from the roots of the oldest land. It is still caught in rock.
+
+      Gem Cutting turns it into a cut diamond.
+
+  - id: 117
+    item-db-name: cut_amethyst
+    base-level: 20
+    weight: 10
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A faceted amethyst. It has no power of its own.
+
+      Runic Etching binds an essence of a Bestia up to level 20 into it.
+
+  - id: 118
+    item-db-name: cut_emerald
+    base-level: 40
+    weight: 10
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A faceted emerald. It has no power of its own.
+
+      Runic Etching binds an essence of a Bestia up to level 40 into it.
+
+  - id: 119
+    item-db-name: cut_ruby
+    base-level: 60
+    weight: 10
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A faceted ruby. It has no power of its own.
+
+      Runic Etching binds an essence of a Bestia up to level 60 into it.
+
+  - id: 120
+    item-db-name: cut_pyrelith
+    base-level: 80
+    weight: 10
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A faceted pyrelith. It has no power of its own.
+
+      Runic Etching binds an essence of a Bestia up to level 80 into it.
+
+  - id: 121
+    item-db-name: cut_diamond
+    base-level: 100
+    weight: 10
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A faceted diamond. It has no power of its own.
+
+      Runic Etching binds the essence of a Bestia of any level into it.
+
+  # One item for every essence: which Bestia and which gem it holds is per copy, like a forged item's rolls.
+  - id: 122
+    item-db-name: essence_gem
+    base-level: 1
+    weight: 10
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A cut gem with the essence of a Bestia bound inside. It glows with the creature's power.
+
+      It fits into any socket.

@@ -10,3 +10,5 @@ name_key = "WALL_KIT"
 description_key = "WALL_KIT_DESC"
 weight = 400
 item_script = ExtResource("2_kit_use")
+type = 0
+level = 1
