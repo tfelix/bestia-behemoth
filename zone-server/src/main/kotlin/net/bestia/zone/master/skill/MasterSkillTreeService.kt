@@ -145,11 +145,8 @@ class MasterSkillTreeService(
       }
     }
 
-    // Only gated when the tree actually has trunk skills to spend those points on first. Scholar
-    // and Warrior today are nothing but a sub-tree (Priest/Wizard) with no trunk yet - unlike
-    // Blacksmith/Artificer/Alchemist/Forester/Prospector/Miner, `master_skill_tree.yml` never
-    // comments them "(unlocked at 5+ pts in ... Tree)", and gating them the same way would make
-    // Priest/Wizard permanently unreachable rather than just unfinished.
+    // Only gated when the tree has trunk skills to spend those points on first. A tree that is
+    // nothing but sub-trees would otherwise have none of them reachable.
     if (node.subTree != null && hasTrunkSkills(node.tree)) {
       val treePoints = pointsInvestedInTree(levels, node.tree)
       if (treePoints < SUB_TREE_UNLOCK_THRESHOLD) {

@@ -172,6 +172,7 @@ untrained angler only catches fish and loot up to level 10.
 SKILL_31_DESC,"An axeman's read of the forest - which trunks fell clean, which grain splits true, and how
 to bring both down efficiently.
 
+Level 1 lets you build a Lumberjack Cabin
 `-10%/lv` wood gathering time
 `+20%/lv` resource drop chance"
 SKILL_32_DESC,"Knowing where to set a trap, how to bait it and when to spring it. Raises the catch chance
@@ -205,7 +206,7 @@ current wind direction and speed."
 SKILL_40_DESC,"A pickaxe, a steady lamp, and the nose for where the rock is worth breaking. Anyone with a
 pickaxe can mine, but an untrained miner only gets resources up to level 10.
 
-Level 1 lets you craft a pickaxe
+Level 1 lets you craft a pickaxe and build a Mining Shaft
 `-10%/lv` mining time
 `+20 resource lv/lv` that can be mined, up to resource level 100+ at max rank"
 SKILL_41_DESC,"Turns the rough gemstones a Miner digs up into cut stones fit for an Artificer's socket
@@ -478,3 +479,26 @@ out the way it did. Applies to every Breeder the master owns.
 
 `-5%/lv` breeding and hatch time, within the same 50% floor as upgrades and feed
 Level 4 draws a fourth dominant IV per clutch"
+SKILL_51_DESC,"A prickle at the back of the mind that flags mana at work nearby, and picks apart what
+spell an item or entity carries bound to it. Each cast sweeps the area once. Local mana
+concentration widens the range in a mana-rich region and shrinks it in a drained one.
+Cooldown 10s.
+
+`+10m/lv` range
+Lv.1 shows that something nearby carries mana
+Lv.2 shows the direction and rough strength of each source
+Lv.3 shows the element of the mana
+Lv.4 shows the exact spell bound to an item or place
+Lv.5 shows who bound it, and what trigger a Spell Binding waits for"
+SKILL_52_DESC,"Cast on a monster to read what mana and instinct alone can tell about it. Reveals its
+status values, element, HP and mana. Cooldown 3s."
+SKILL_53_DESC,"A pulse of second sight that peels back concealment. For 10s, hidden traps, camouflaged
+Hunters and cloaked Assassins within 10m of the caster stand out for what they are.
+Detection resistance does not help against it. Cooldown 10s."
+SKILL_54_DESC,"The Scholar's ear to the ground - a sense for the direction and distance of world-changing
+events long before word of them travels. Only works at an Observation Outpost. Level 1
+lets you build one from an outpost kit. Cooldown 60s.
+
+`+1 km/lv` detection distance around the outpost"
+SKILL_55_DESC,"The founding rite that plants a city sign in the ground and calls a settlement into being
+around it. Only one settlement can be active at a time. Cooldown 24h."

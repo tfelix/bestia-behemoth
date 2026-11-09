@@ -41,7 +41,7 @@ The `SkillId` constant carries the prefix too, and so does the client file (`6_m
 
 Convention in the file: master skills are grouped first under `# MASTER SKILLS`, bestia
 skills after under `# BESTIA SKILLS`, by ascending id (**bestia-species/item skills are
-reserved at id 1000-8999**; master skills use the open range below that, currently 1-50, with
+reserved at id 1000-8999**; master skills use the open range below that, currently 1-55, with
 ids 7, 9, 36, 38 and 49 holes where `M_PLAY_DEAD`, `MASTER_RITUAL`, `M_ENLARGE_WEIGHT_LIMIT`,
 `M_WILDERNESS_SURVIVAL` and `M_BESTIA_TRAPPING` used to be) — not enforced by code, just keep following
 it. The 1000+ split was chosen when the master skill tree grew past the original
@@ -61,7 +61,7 @@ master's Skills window never lists; the guild window's Skills tab draws them.
   the wire carries ids and the Attack DB is keyed by them. Moving it means editing that
   constant too.
 - `MultiPlayerJourneyScenario` hardcodes real ids from this file
-  (`BLESSING_ID`, `HEAL_ID`, `DIVINE_PROTECTION_ID`) to drive an end-to-end investment.
+  (`BLESSING_ID`, `HEAL_ID`, `DIVINE_PROTECTION_ID`, `MAGIC_SENSE_ID`) to drive an end-to-end investment.
 
 Everywhere else, code resolves a skill by `identifier` through `SkillRepository`, and the
 identifier itself comes from the **`SkillId` enum** (`zone-server/.../skill/SkillId.kt`) —
@@ -217,9 +217,8 @@ by `identifier`.
     per level, not once per batch, so one request can take Basic Skill to 5 and then spend
     into another tree.
   - **5+ points anywhere in a tree open its sub-trees** (`SUB_TREE_UNLOCK_THRESHOLD`), but
-    only for a tree that has a trunk skill at all — Scholar and Warrior are nothing but a
-    sub-tree today, so gating them would make Priest/Wizard unreachable rather than merely
-    unfinished.
+    only for a tree that has a trunk skill at all, so a tree made only of sub-trees keeps them
+    reachable.
 
   `master.md`'s remaining "tree mastery" idea (a master capping out at 3 tree masteries) is
   still unimplemented, in this file and in code.

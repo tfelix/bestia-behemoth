@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 55
+name = "Founder"
+description_key = "SKILL_55_DESC"
+mana_cost = 100
+cooldown = 86400.0
+cast_time = 60.0
+tree = "SURVIVAL"
+sub_tree = "PROSPECTOR"
+prerequisite_ids = PackedInt32Array(37)
+prerequisite_levels = PackedInt32Array(3)

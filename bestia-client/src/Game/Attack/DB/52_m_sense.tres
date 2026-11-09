@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 52
+name = "Sense"
+description_key = "SKILL_52_DESC"
+mana_cost = 6
+cooldown = 3.0
+target_type = "ENEMY"
+cast_time = 1.0
+tree = "SCHOLAR"
+prerequisite_ids = PackedInt32Array(51)
+prerequisite_levels = PackedInt32Array(1)
