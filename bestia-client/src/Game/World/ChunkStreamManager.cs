@@ -159,6 +159,9 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     private readonly Dictionary<ChunkKey, ChunkStaticEntitiesSMSG> _staticBatches = new();
 
+    /// <summary>The cells of the building pieces held, so a step is predicted the way the server walks it.</summary>
+    private readonly StructureCells _structures = new();
+
     /// <summary>
     /// How many of a column's prop slabs were decoded when its batch was last handed to the renderer.
     /// </summary>
@@ -480,6 +483,7 @@ namespace BestiaBehemothClient.Game.World
           // The key is already a column: the server addresses a batch `ChunkPos(x, y, 0)`. See ApplyStatics
           // for why that must not be handed to the slab-keyed store as it stands.
           _staticBatches[statics.Key.Column] = statics;
+          _structures.ReplaceColumn(statics.Key.Column, statics.Entries);
           ApplyStatics(statics.Key.Column);
           break;
 
@@ -600,6 +604,7 @@ namespace BestiaBehemothClient.Game.World
       }
 
       _staticBatches[column] = pruned;
+      _structures.Remove(column, removed.EntityId);
       StaticEntities?.RemoveEntity(column, removed.EntityId);
     }
 
@@ -706,6 +711,7 @@ namespace BestiaBehemothClient.Game.World
       Store.Clear();
       _toDecode.Clear();
       _staticBatches.Clear();
+      _structures.Clear();
       _appliedStatics.Clear();
       _fire.Clear();
       _marks.Clear();
@@ -748,6 +754,7 @@ namespace BestiaBehemothClient.Game.World
         }
 
         _staticBatches.Remove(column);
+        _structures.DropColumn(column);
         _fire.Drop(column);
         _appliedStatics.Remove(column);
         StaticEntities?.Remove(column);
@@ -948,7 +955,7 @@ namespace BestiaBehemothClient.Game.World
       var step = WalkRules.Check(
         Store, _wrap, WorldLayout.ChunkSize, WorldLayout.ChunkHeight,
         (long)Math.Round(fromX), (long)Math.Round(fromZ), fromY / WorldLayout.VoxelSizeMetres,
-        (long)Math.Round(toX), (long)Math.Round(toZ), out var landing);
+        (long)Math.Round(toX), (long)Math.Round(toZ), out var landing, _structures);
 
       return step switch
       {

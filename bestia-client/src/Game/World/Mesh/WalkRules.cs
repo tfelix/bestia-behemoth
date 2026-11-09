@@ -37,6 +37,12 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// <summary>Rise or drop one step may take, in voxels: one voxel times tan(60°), as the server's default.</summary>
     public static readonly double MaxStep = Math.Tan(60.0 * Math.PI / 180.0);
 
+    /// <summary>
+    /// Rise or drop of a step onto or off a built cell: the server's <c>AgentProfile.maxStructureStep</c>, plus the one
+    /// fill quantum by which a half cell is taller than half.
+    /// </summary>
+    public const double MaxStructureStep = 0.5 + 1.0 / 255.0;
+
     /// <summary>How far from the walker's z the floor under it is looked for, in voxels.</summary>
     /// <remarks>The server's <c>standingZ</c> rounds a surface and lifts it to sea level, so the floor under a
     /// standing z can be a few voxels below it in the sea's margin; a step only ever looks within a voxel or two of
@@ -91,34 +97,36 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// onto which floor.
     /// </summary>
     /// <param name="landing">The surface the step lands on, in voxels, when it is <see cref="Step.Allowed"/>.</param>
+    /// <param name="cells">The building pieces held here, or null for terrain alone.</param>
     /// <remarks>A diagonal also needs both straight steps beside it, as on the server, or it cuts a corner.</remarks>
     public static Step Check(
       IChunkSource source, ChunkWrap wrap, int chunkSize, int chunkHeight,
-      long fromX, long fromY, double fromZ, long toX, long toY, out double landing)
+      long fromX, long fromY, double fromZ, long toX, long toY, out double landing, StructureCells cells = null)
     {
       landing = double.NaN;
 
       var isDiagonal = fromX != toX && fromY != toY;
       if (isDiagonal)
       {
-        var besideX = StraightCheck(source, wrap, chunkSize, chunkHeight, fromX, fromY, fromZ, toX, fromY, out _);
-        var besideY = StraightCheck(source, wrap, chunkSize, chunkHeight, fromX, fromY, fromZ, fromX, toY, out _);
+        var besideX = StraightCheck(source, wrap, chunkSize, chunkHeight, cells, fromX, fromY, fromZ, toX, fromY, out _);
+        var besideY = StraightCheck(source, wrap, chunkSize, chunkHeight, cells, fromX, fromY, fromZ, fromX, toY, out _);
         if (besideX == Step.Refused || besideY == Step.Refused)
         {
           return Step.Refused;
         }
       }
 
-      return StraightCheck(source, wrap, chunkSize, chunkHeight, fromX, fromY, fromZ, toX, toY, out landing);
+      return StraightCheck(source, wrap, chunkSize, chunkHeight, cells, fromX, fromY, fromZ, toX, toY, out landing);
     }
 
     private static Step StraightCheck(
-      IChunkSource source, ChunkWrap wrap, int chunkSize, int chunkHeight,
+      IChunkSource source, ChunkWrap wrap, int chunkSize, int chunkHeight, StructureCells cells,
       long fromX, long fromY, double fromZ, long toX, long toY, out double landing)
     {
       landing = double.NaN;
 
-      var origin = NearestFloor(source, wrap, chunkSize, chunkHeight, fromX, fromY, fromZ, FootingSearch, out var held);
+      var origin = NearestFloor(
+        source, wrap, chunkSize, chunkHeight, cells, fromX, fromY, fromZ, FootingSearch, out var held, out var fromBuilt);
       if (!held)
       {
         return Step.Unknown;
@@ -126,6 +134,12 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
       // The server finds no footing either and refuses; there is no floor to step off.
       if (double.IsNaN(origin))
+      {
+        return Step.Refused;
+      }
+
+      var crossing = StructurePieces.EdgesCrossedBy(toX - fromX, toY - fromY);
+      if ((WallsAround(cells, fromX, fromY, origin) & crossing) != 0)
       {
         return Step.Refused;
       }
@@ -138,7 +152,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
       for (var z = top; z >= bottom; z--)
       {
-        var floor = FloorAt(source, wrap, chunkSize, chunkHeight, toX, toY, z, out var targetHeld);
+        var floor = FloorAt(source, wrap, chunkSize, chunkHeight, cells, toX, toY, z, out var targetHeld, out var toBuilt);
         if (!targetHeld)
         {
           return Step.Unknown;
@@ -150,7 +164,8 @@ namespace BestiaBehemothClient.Game.World.Mesh
         }
 
         var rise = Math.Abs(floor - origin);
-        if (rise <= MaxStep && rise < bestRise)
+        var limit = fromBuilt || toBuilt ? Math.Min(MaxStep, MaxStructureStep) : MaxStep;
+        if (rise <= limit && rise < bestRise)
         {
           bestRise = rise;
           best = floor;
@@ -162,23 +177,52 @@ namespace BestiaBehemothClient.Game.World.Mesh
         return Step.Refused;
       }
 
+      if ((WallsAround(cells, toX, toY, best) & StructurePieces.OppositeEdges(crossing)) != 0)
+      {
+        return Step.Refused;
+      }
+
       landing = best;
       return Step.Allowed;
     }
 
+    /// <summary>
+    /// The walls a body standing on <paramref name="surface"/> overlaps, from its feet to the top of its head: the
+    /// server's <c>WalkableTile</c> span walls.
+    /// </summary>
+    private static int WallsAround(StructureCells cells, long x, long y, double surface)
+    {
+      if (cells == null)
+      {
+        return 0;
+      }
+
+      var feet = (long)Math.Floor(surface);
+      var head = (long)Math.Ceiling(surface + AgentHeight) - 1;
+      var walls = 0;
+      for (var z = feet; z <= head; z++)
+      {
+        walls |= cells.EdgesAt(x, y, z);
+      }
+
+      return walls;
+    }
+
     /// <summary>The floor in a column nearest <paramref name="nearZ"/>, within <paramref name="search"/> voxels.</summary>
+    /// <param name="built">Whether that floor is a built cell rather than terrain.</param>
     private static double NearestFloor(
-      IChunkSource source, ChunkWrap wrap, int chunkSize, int chunkHeight,
-      long x, long y, double nearZ, int search, out bool held)
+      IChunkSource source, ChunkWrap wrap, int chunkSize, int chunkHeight, StructureCells cells,
+      long x, long y, double nearZ, int search, out bool held, out bool built)
     {
       held = true;
+      built = false;
       var centre = (int)Math.Round(nearZ);
       var best = double.NaN;
       var bestGap = double.MaxValue;
 
       for (var z = centre + search; z >= centre - search; z--)
       {
-        var floor = FloorAt(source, wrap, chunkSize, chunkHeight, x, y, z, out held);
+        var floor = FloorAt(source, wrap, chunkSize, chunkHeight, cells, x, y, z, out held, out var floorBuilt);
         if (!held)
         {
           return double.NaN;
@@ -194,6 +238,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
         {
           bestGap = gap;
           best = floor;
+          built = floorBuilt;
         }
       }
 
@@ -204,8 +249,10 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// The surface of the floor at voxel (<paramref name="x"/>, <paramref name="y"/>, <paramref name="z"/>), or NaN
     /// when that voxel is not one. <paramref name="held"/> is false when a chunk the answer needs is not streamed.
     /// </summary>
+    /// <remarks>A built cell is a floor and no headroom, and wins over the voxel it sits in, as on the server.</remarks>
     private static double FloorAt(
-      IChunkSource source, ChunkWrap wrap, int chunkSize, int chunkHeight, long x, long y, int z, out bool held)
+      IChunkSource source, ChunkWrap wrap, int chunkSize, int chunkHeight, StructureCells cells,
+      long x, long y, int z, out bool held, out bool built)
     {
       held = true;
 
@@ -213,10 +260,13 @@ namespace BestiaBehemothClient.Game.World.Mesh
       if (block < 0)
       {
         held = false;
+        built = false;
         return double.NaN;
       }
 
-      if (!Solid[block])
+      var builtFill = cells?.FillAt(x, y, z) ?? 0;
+      built = builtFill > 0;
+      if (!built && !Solid[block])
       {
         return double.NaN;
       }
@@ -228,6 +278,11 @@ namespace BestiaBehemothClient.Game.World.Mesh
         if (headroom < 0)
         {
           held = false;
+          return double.NaN;
+        }
+
+        if ((cells?.FillAt(x, y, above) ?? 0) > 0)
+        {
           return double.NaN;
         }
 
@@ -248,7 +303,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
         }
       }
 
-      return z + occupancy / 255.0;
+      return z + (built ? builtFill : occupancy) / 255.0;
     }
 
     /// <summary>The block id at a global voxel, or -1 when its chunk is not held.</summary>
