@@ -261,9 +261,9 @@ skills:
     manaCost: 25
     castTime: 10.0
     description: |
-      Create runes from Bestia essences. These runes are imbued with the power of the Bestia
-      and can be slotted into a weapon or piece of equipment that has been prepared with Item
-      Customization. An attempt to convert a Bestia into an essence destroys the Bestia.
+      Binds the essence of a Bestia into a cut gem. The Essence Gem carries the power of the
+      Bestia and fits into any socket. The rarer the gem, the higher the Bestia level it can hold.
+      Converting a Bestia destroys it, and a failed etching shatters the gem too.
 
       Level 1 enables you to place a Carving Table, the Bestia must stand next to it
       `+5%/lv` success chance
@@ -480,8 +480,8 @@ skills:
     manaCost: 20
     castTime: 10.0
     description: |
-      Turns the rough gemstones a Miner digs up into cut stones fit for an Artificer's socket
-      or a Trader's sale. A failed cut shatters the gem.
+      Turns the rough gemstones a Miner digs up into cut gems. A cut gem holds a Bestia essence
+      for an Artificer; the rarer the gem, the stronger the essence. A failed cut shatters the gem.
 
       Level 1 enables you to place a Gem Cut Station
       `+8%/lv` success chance
@@ -1987,8 +1987,8 @@ skills:
     identifier: M_GEM_LORE
     targetType: FRIENDLY
     description: |
-      A Miner who has cut enough stones sees what a rough gem holds before the first cut. Shows a
-      rough gem's quality.
+      A Miner who has cut enough stones sees what a rough gem holds before the first cut. Shows
+      which gem an unknown Rough Gemstone is.
 
       `+5%/lv` Gem Cutting success chance
 

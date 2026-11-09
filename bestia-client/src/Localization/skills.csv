@@ -118,9 +118,9 @@ crystal level cannot be refined.
 Level 1 enables you to place a Crystal Lathe
 `+4%/lv` success chance
 `+20 crystal lv/lv` max crystal level, 100+ at max rank"
-SKILL_21_DESC,"Create runes from Bestia essences. These runes are imbued with the power of the Bestia
-and can be slotted into a weapon or piece of equipment that has been prepared with Item
-Customization. An attempt to convert a Bestia into an essence destroys the Bestia.
+SKILL_21_DESC,"Binds the essence of a Bestia into a cut gem. The Essence Gem carries the power of the
+Bestia and fits into any socket. The rarer the gem, the higher the Bestia level it can hold.
+Converting a Bestia destroys it, and a failed etching shatters the gem too.
 
 Level 1 enables you to place a Carving Table, the Bestia must stand next to it
 `+5%/lv` success chance
@@ -218,8 +218,8 @@ pickaxe can mine, but an untrained miner only gets resources up to level 10.
 Level 1 lets you craft a pickaxe and build a Mining Shaft
 `-10%/lv` mining time
 `+20 resource lv/lv` that can be mined, up to resource level 100+ at max rank"
-SKILL_41_DESC,"Turns the rough gemstones a Miner digs up into cut stones fit for an Artificer's socket
-or a Trader's sale. A failed cut shatters the gem.
+SKILL_41_DESC,"Turns the rough gemstones a Miner digs up into cut gems. A cut gem holds a Bestia essence
+for an Artificer; the rarer the gem, the stronger the essence. A failed cut shatters the gem.
 
 Level 1 enables you to place a Gem Cut Station
 `+8%/lv` success chance
@@ -979,8 +979,8 @@ SKILL_179_DESC,"Sets a blasting charge that breaks every block around it 3s late
 brewed with Alchemy. Nobody should stand too close.
 
 `+1m/lv` radius, from 1m at Lv.1"
-SKILL_180_DESC,"A Miner who has cut enough stones sees what a rough gem holds before the first cut. Shows a
-rough gem's quality.
+SKILL_180_DESC,"A Miner who has cut enough stones sees what a rough gem holds before the first cut. Shows
+which gem an unknown Rough Gemstone is.
 
 `+5%/lv` Gem Cutting success chance"
 SKILL_181_DESC,"Turns a campfire into a camp. Party members and their Bestias within 5m bear the weather

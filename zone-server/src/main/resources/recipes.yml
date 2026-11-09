@@ -253,3 +253,57 @@ recipes:
     skill: { skill: M_ARROW_CRAFTING, level: 1 }
     craftSeconds: 5.0
     baseSuccessChance: 1.0
+
+  # --- Gem cutting ---------------------------------------------------------------------------------
+
+  # Unstationed until a gem cut station kind exists, like GOLD_COIN waits for a mint. Gem Cutting has no script
+  # yet, so no cast offers these. A failed cut shatters the gem: the inputs are spent either way.
+  - id: 32
+    identifier: CUT_AMETHYST
+    effect: PRODUCE
+    output: { item: cut_amethyst, amount: 1 }
+    inputs:
+      - { item: rough_amethyst, amount: 1 }
+    skill: { skill: M_GEM_CUTTING, level: 1 }
+    craftSeconds: 10.0
+    baseSuccessChance: 0.9
+
+  - id: 33
+    identifier: CUT_EMERALD
+    effect: PRODUCE
+    output: { item: cut_emerald, amount: 1 }
+    inputs:
+      - { item: rough_emerald, amount: 1 }
+    skill: { skill: M_GEM_CUTTING, level: 2 }
+    craftSeconds: 20.0
+    baseSuccessChance: 0.75
+
+  - id: 34
+    identifier: CUT_RUBY
+    effect: PRODUCE
+    output: { item: cut_ruby, amount: 1 }
+    inputs:
+      - { item: rough_ruby, amount: 1 }
+    skill: { skill: M_GEM_CUTTING, level: 3 }
+    craftSeconds: 30.0
+    baseSuccessChance: 0.6
+
+  - id: 35
+    identifier: CUT_PYRELITH
+    effect: PRODUCE
+    output: { item: cut_pyrelith, amount: 1 }
+    inputs:
+      - { item: rough_pyrelith, amount: 1 }
+    skill: { skill: M_GEM_CUTTING, level: 4 }
+    craftSeconds: 40.0
+    baseSuccessChance: 0.5
+
+  - id: 36
+    identifier: CUT_DIAMOND
+    effect: PRODUCE
+    output: { item: cut_diamond, amount: 1 }
+    inputs:
+      - { item: rough_diamond, amount: 1 }
+    skill: { skill: M_GEM_CUTTING, level: 5 }
+    craftSeconds: 50.0
+    baseSuccessChance: 0.4

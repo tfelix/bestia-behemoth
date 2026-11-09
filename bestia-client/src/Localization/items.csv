@@ -211,7 +211,7 @@ NAILS_DESC,"A twist of hand-forged iron nails, no two quite alike.
 
 Dull work to make, and it holds everything else together."
 ROUGH_GEM,Rough Gem
-ROUGH_GEM_DESC,"An uncut stone still held in the rock it came out of.
+ROUGH_GEM_DESC,"An uncut stone still held in the rock it came out of. Which gem it is, only the cut tells.
 
 Worth guessing about until a jeweller says otherwise."
 GOLD_RING,Gold Ring
@@ -366,3 +366,47 @@ BASIC_POISON,Basic Poison
 BASIC_POISON_DESC,"A small vial of murky green liquid that smells of bitter almonds.
 
 Worked into a blade with Enchant Poison, every cut may leave it behind."
+ROUGH_AMETHYST,Rough Amethyst
+ROUGH_AMETHYST_DESC,"A violet crystal out of a shallow geode. The commonest gem in the world. It is still caught in rock.
+
+Gem Cutting turns it into a cut amethyst."
+ROUGH_EMERALD,Rough Emerald
+ROUGH_EMERALD_DESC,"A green crystal out of deep granite. It is still caught in rock.
+
+Gem Cutting turns it into a cut emerald."
+ROUGH_RUBY,Rough Ruby
+ROUGH_RUBY_DESC,"A deep red crystal out of marble. It is still caught in rock.
+
+Gem Cutting turns it into a cut ruby."
+ROUGH_PYRELITH,Rough Pyrelith
+ROUGH_PYRELITH_DESC,"A gem that grew in the gas pockets of a cooled lava flow. It is warm to the touch. It is still caught in rock.
+
+Gem Cutting turns it into a cut pyrelith."
+ROUGH_DIAMOND,Rough Diamond
+ROUGH_DIAMOND_DESC,"The hardest stone there is, from the roots of the oldest land. It is still caught in rock.
+
+Gem Cutting turns it into a cut diamond."
+CUT_AMETHYST,Cut Amethyst
+CUT_AMETHYST_DESC,"A faceted amethyst. It has no power of its own.
+
+Runic Etching binds an essence of a Bestia up to level 20 into it."
+CUT_EMERALD,Cut Emerald
+CUT_EMERALD_DESC,"A faceted emerald. It has no power of its own.
+
+Runic Etching binds an essence of a Bestia up to level 40 into it."
+CUT_RUBY,Cut Ruby
+CUT_RUBY_DESC,"A faceted ruby. It has no power of its own.
+
+Runic Etching binds an essence of a Bestia up to level 60 into it."
+CUT_PYRELITH,Cut Pyrelith
+CUT_PYRELITH_DESC,"A faceted pyrelith. It has no power of its own.
+
+Runic Etching binds an essence of a Bestia up to level 80 into it."
+CUT_DIAMOND,Cut Diamond
+CUT_DIAMOND_DESC,"A faceted diamond. It has no power of its own.
+
+Runic Etching binds the essence of a Bestia of any level into it."
+ESSENCE_GEM,Essence Gem
+ESSENCE_GEM_DESC,"A cut gem with the essence of a Bestia bound inside. It glows with the creature's power.
+
+It fits into any socket."
