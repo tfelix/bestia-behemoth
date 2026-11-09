@@ -154,21 +154,6 @@ signal lightning_struck(ground: Vector3)
 ## because at night there is nothing overhead for it to scatter back down.
 @export_range(0, 1, 0.01) var overcast_night_darkening: float = 0.35
 
-## How much of the sky's light reaches a shadowed surface, clear sky to closed deck.
-##
-## A pair rather than the single authored 1.0, because a shadow reads as crisp from two things - how narrow
-## its edge is and how deep its interior goes - and only the first was ever driven. Ambient here is sampled
-## from the sky dome: blue under a clear sky, so shadows go blue, and a bright grey under a closed deck.
-##
-## Driven from WeatherLook.Diffusion, like the sun's disc and its energy, so the fill rises exactly as the
-## direct light is taken away. Moving light out of one direction and into every direction is what cloud
-## does; doing only half of it is what made an overcast noon and a clear one look alike.
-##
-## Turn sun_energy up with the clear end if lit surfaces now read dark. What is wanted here is the ratio
-## between sun and fill, not the overall level.
-@export_range(0.2, 1.5, 0.01) var clear_ambient_energy: float = 0.65
-@export_range(0.2, 1.5, 0.01) var overcast_ambient_energy: float = 1.0
-
 ## How much of the sun's specular highlight survives a closed deck, as a share of a clear day's.
 ##
 ## Dimming and widening the sun leave its highlight in place, and on rain-wet grass and puddles a wide sun
@@ -485,10 +470,6 @@ func _apply_sky(daylight: float, twilight: float, overcast: float, visibility: f
 	# effect at different strengths and all of them belong here rather than in a per-kind branch.
 	_environment.fog_depth_begin = lerpf(whiteout_fog_begin, _clear_fog_begin, visibility)
 	_environment.fog_depth_end = lerpf(whiteout_fog_end, _clear_fog_end, visibility)
-
-	# Here with the sky rather than with the lights, because this is the sky's own contribution: ambient is
-	# sampled from the dome set above, and this only says how much of it arrives.
-	_environment.ambient_light_energy = lerpf(clear_ambient_energy, overcast_ambient_energy, _diffusion())
 
 
 ## A colour with the mood's grade applied, using the mood's tint of that name.

@@ -63,7 +63,7 @@ namespace BestiaBehemothClient.Dev
         ? Groups.ToHashSet()
         : plain.Split(',', System.StringSplitOptions.RemoveEmptyEntries).ToHashSet();
 
-      // environment.gd writes the sun, the ambient energy and the sky on its own pass. Running after it every frame
+      // environment.gd writes the sun and the sky on its own pass. Running after it every frame
       // keeps the plain and the --set values on screen.
       ProcessPriority = 100;
 
@@ -110,11 +110,6 @@ namespace BestiaBehemothClient.Dev
       {
         _sun.LightColor = Colors.White;
         _sun.LightEnergy = 1.0f;
-      }
-
-      if (_plain.Contains("ambient"))
-      {
-        _environment.AmbientLightEnergy = 1.0f;
       }
     }
 
