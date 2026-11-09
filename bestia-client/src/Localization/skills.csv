@@ -157,8 +157,7 @@ reliably under this Alchemist's hand.
 
 `+5%/lv` Alchemy success chance
 `+10%/lv` Alchemy crafting speed"
-SKILL_27_DESC,"A calm, centered breathing that quickens the natural mending of both Master and Bestia
-alike.
+SKILL_27_DESC,"A calm, centered breathing that quickens the master's natural mending.
 
 `+6%/lv` HP and Mana regeneration"
 SKILL_28_DESC,"Nights in the snow and noons in the desert teach a Master and their Bestia to shrug off
@@ -688,3 +687,14 @@ burns Demons and the Undead for the same amount. Cooldown 30s.
 `+5%/lv` max HP healed per second"
 SKILL_95_DESC,"Calls a fallen Bestia or Master back over the threshold with part of their HP. Can not be
 used on the caster. Cooldown 10min."
+SKILL_96_DESC,"A warrior's steadied breath - the body keeps mending itself even in the thick of a fight.
+HP and mana regeneration does not stop during combat."
+SKILL_97_DESC,"Hide toughened by nothing more than sheer stubbornness. Unlike Magic Armor it costs no
+mana, but the reduction is more modest.
+
+`-3%/lv` physical damage taken"
+SKILL_98_DESC,"A shimmering ward of raw mana wrapped around the caster for 5min, turning aside blade and
+spell alike. Each hit costs 2% of the current mana, and the ward ends when mana drops
+below 20%. Cooldown 10s.
+
+`-10%/lv` damage taken"
