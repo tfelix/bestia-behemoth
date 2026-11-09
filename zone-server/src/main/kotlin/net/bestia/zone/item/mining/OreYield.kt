@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service
 /**
  * What a broken ore voxel puts in a pack.
  *
- * The caller `OreBlocks.yieldOf` was written for and never had. Only two resources have an item to come
- * out as; the rest of the palette is in the rock with nowhere to go, and is left there rather than given
+ * The caller `OreBlocks.yieldOf` was written for and never had. Only iron, gold and the gems have an item to
+ * come out as; the rest of the palette is in the rock with nowhere to go, and is left there rather than given
  * a placeholder item nobody can use.
  */
 @Service
@@ -53,6 +53,11 @@ class OreYield(private val items: ItemTemplateRegistry) {
     private val ITEM_BY_RESOURCE = mapOf(
       ResourceType.IRON to "iron_ore",
       ResourceType.GOLD_LODE to "gold_ore",
+      ResourceType.AMETHYST to "rough_amethyst",
+      ResourceType.EMERALD to "rough_emerald",
+      ResourceType.RUBY to "rough_ruby",
+      ResourceType.PYRELITH to "rough_pyrelith",
+      ResourceType.DIAMOND to "rough_diamond",
     )
   }
 }

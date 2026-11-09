@@ -20,6 +20,8 @@ class OreYieldTest {
     every { it.idOf("gold_ore") } returns GOLD_ORE
     every { it.idOf("iron_ore") } returns IRON_ORE
     every { it.idOf(neq("gold_ore")) } returns null
+    // Declared after the catch-all, because MockK lets the most recent matching stub win.
+    every { it.idOf("rough_ruby") } returns ROUGH_RUBY
   }
 
   private val yields = OreYield(items)
@@ -53,6 +55,12 @@ class OreYieldTest {
   }
 
   @Test
+  fun `gem blocks come out as their rough gem, at their grade`() {
+    assertEquals(ROUGH_RUBY, yields.of(BlockType.GEM_RUBY_SMALL)?.itemId)
+    assertEquals(7, yields.of(BlockType.GEM_RUBY_RICH)?.amount)
+  }
+
+  @Test
   fun `rock yields nothing rather than an empty stack`() {
     assertNull(yields.of(BlockType.STONE), "plain rock handed something over")
   }
@@ -67,5 +75,6 @@ class OreYieldTest {
   private companion object {
     const val GOLD_ORE = 31L
     const val IRON_ORE = 8L
+    const val ROUGH_RUBY = 114L
   }
 }
