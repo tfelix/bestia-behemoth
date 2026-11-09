@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 131
+name = "Shadow Step"
+description_key = "SKILL_131_DESC"
+mana_cost = 15
+cooldown = 20.0
+max_level = 3
+target_type = "ENEMY"
+tree = "WARRIOR"
+sub_tree = "ASSASSIN"
+prerequisite_ids = PackedInt32Array(128, 123)
+prerequisite_levels = PackedInt32Array(3, 1)

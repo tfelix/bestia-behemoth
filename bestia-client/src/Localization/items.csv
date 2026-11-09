@@ -362,3 +362,7 @@ HOLY_WATER,Holy Water
 HOLY_WATER_DESC,"Plain water, blessed by a Priest and stoppered in a small bottle.
 
 It burns the undead and anoints a weapon with the holy element."
+BASIC_POISON,Basic Poison
+BASIC_POISON_DESC,"A small vial of murky green liquid that smells of bitter almonds.
+
+Worked into a blade with Enchant Poison, every cut may leave it behind."

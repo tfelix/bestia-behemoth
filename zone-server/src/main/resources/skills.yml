@@ -1485,6 +1485,156 @@ skills:
       `+20%/lv` MATK
       `-20%/lv` SMDEF
 
+# Assassin
+  - id: 119
+    identifier: M_STRIP_EQUIPMENT
+    script: StripEquipment
+    targetType: ENEMY
+    range: 2
+    manaCost: 22
+    description: |
+      Knocks a random piece of equipment off the target and keeps its slot empty for a while.
+      Accessories cannot be stripped. Stripping a dual wielder's weapon or shield takes both
+      weapons. Fails against Equipment Coating. Cooldown 12s.
+
+      `+10%/lv` strip chance, from 20% at Lv.1
+      `+5s/lv` slot blocked
+
+  - id: 120
+    identifier: M_DUAL_WIELD
+    targetType: FRIENDLY
+    description: |
+      Lets the Assassin carry a one-handed weapon in each hand. Without this skill no master can
+      hold a weapon in the left hand. The off-hand weapon always swings for less.
+
+      `+10%/lv` off-hand damage, from 30% at Lv.1
+      `-5%/lv` attack speed penalty, from 25% at Lv.1
+
+  - id: 121
+    identifier: M_EQUIPMENT_COATING
+    script: EquipmentCoating
+    targetType: FRIENDLY
+    manaCost: 26
+    castTime: 2.0
+    description: |
+      A thin, oiled coating worked into weapons and armor for 10min. While it holds, Strip
+      Equipment cannot take any coated piece.
+
+      `-20%/lv` durability wear of the coated equipment
+
+  - id: 122
+    identifier: M_HIDE
+    script: Hide
+    targetType: FRIENDLY
+    manaCost: 18
+    description: |
+      Drops the Assassin flat against whatever cover is at hand. Nothing hostile can see them
+      while they stay put. Breaks on moving or attacking. Ruwach always reveals. Cooldown 5s.
+
+      `-0.5/lv` mana drain per second, from 3 at Lv.1
+      `+10%/lv` detection resistance
+
+  - id: 123
+    identifier: M_CLOAK
+    script: Cloak
+    targetType: FRIENDLY
+    manaCost: 30
+    description: |
+      What Hide is for standing still, Cloak is for walking. Still breaks on attacking. Ruwach
+      strips it outright. Cooldown 8s.
+
+      `+20%/lv` movement speed kept, from 50% at Lv.1
+      `-1/lv` mana drain per second, from 6 at Lv.1
+
+  - id: 124
+    identifier: M_POISON_RESEARCH
+    targetType: FRIENDLY
+    description: |
+      A long, unhealthy familiarity with everything that should not be swallowed.
+
+      `+10%/lv` damage of the Assassin's own poisons
+      `+5%/lv` poison resistance
+
+  - id: 125
+    identifier: M_ENCHANT_POISON
+    script: EnchantPoison
+    targetType: FRIENDLY
+    range: 2
+    manaCost: 24
+    castTime: 2.0
+    description: |
+      Works a brewed poison into the edge of a weapon for 5min, so every strike can leave it
+      behind. Consumes one poison, such as Basic Poison. The poison decides how hard it bites.
+
+      `+5%/lv` poison chance per hit
+
+  - id: 126
+    identifier: M_PLAGIARISM
+    targetType: FRIENDLY
+    description: |
+      When an enemy spell strikes the Assassin, they may memorize it well enough to cast it back
+      once. Bestia attacks can be copied too. Casting the copy consumes it, and a new copy
+      overwrites the old one. A master's spell counts 10 attack levels per skill level.
+
+      `+5%/lv` copy chance
+      `+10/lv` highest attack level copied, 100+ at max rank
+
+  - id: 127
+    identifier: M_PRESERVE
+    script: Preserve
+    targetType: FRIENDLY
+    manaCost: 10
+    description: |
+      Toggle. While active, a spell memorized via Plagiarism is not lost to a fresh copy.
+      Cooldown 2s.
+
+  - id: 128
+    identifier: M_BACKSTAB
+    script: Backstab
+    targetType: ENEMY
+    range: 1
+    manaCost: 16
+    description: |
+      A blade driven in from behind. Only works from Hide or Cloak, and only from behind the
+      target. The strike ends the hiding. Cooldown 8s.
+
+      `+50%/lv` ATK, from 200% at Lv.1
+
+  - id: 129
+    identifier: M_GUT_PUNCH
+    script: GutPunch
+    targetType: ENEMY
+    range: 1
+    manaCost: 20
+    description: |
+      A short, vicious blow below the ribs that leaves the target stunned and gasping. A boss
+      recovers twice as fast. Cooldown 30s.
+
+      `+1s/lv` stun, from 4s at Lv.1
+
+  - id: 130
+    identifier: M_SONIC_BLOW
+    script: SonicBlow
+    targetType: ENEMY
+    range: 1
+    manaCost: 20
+    description: |
+      Eight strikes in a heartbeat, split across both blades. Cooldown 5s.
+
+      `+40%/lv` ATK over all eight hits, from 340% at Lv.1
+
+  - id: 131
+    identifier: M_SHADOW_STEP
+    script: ShadowStep
+    targetType: ENEMY
+    range: 8
+    manaCost: 15
+    description: |
+      Slips through the shadows to stand right behind a target, still hidden, so a Backstab can
+      follow. Cooldown 20s.
+
+      `+2m/lv` range, from 4m at Lv.1
+
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000
     identifier: ember

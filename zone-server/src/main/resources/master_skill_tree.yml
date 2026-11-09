@@ -824,3 +824,98 @@ skills:
     prerequisites:
       - skill: M_SOUL_BREAK
         level: 3
+
+  # Assassin (unlocked at 5+ pts in Warrior Tree)
+  - skill: M_STRIP_EQUIPMENT
+    tree: WARRIOR
+    subTree: ASSASSIN
+    maxLevel: 5
+
+  - skill: M_DUAL_WIELD
+    tree: WARRIOR
+    subTree: ASSASSIN
+    maxLevel: 5
+    prerequisites:
+      - skill: M_STRIP_EQUIPMENT
+        level: 2
+
+  - skill: M_EQUIPMENT_COATING
+    tree: WARRIOR
+    subTree: ASSASSIN
+    maxLevel: 5
+    prerequisites:
+      - skill: M_STRIP_EQUIPMENT
+        level: 3
+
+  - skill: M_GUT_PUNCH
+    tree: WARRIOR
+    subTree: ASSASSIN
+    maxLevel: 3
+    prerequisites:
+      - skill: M_STRIP_EQUIPMENT
+        level: 2
+
+  - skill: M_SONIC_BLOW
+    tree: WARRIOR
+    subTree: ASSASSIN
+    maxLevel: 5
+    prerequisites:
+      - skill: M_DUAL_WIELD
+        level: 3
+
+  - skill: M_HIDE
+    tree: WARRIOR
+    subTree: ASSASSIN
+    maxLevel: 5
+
+  - skill: M_CLOAK
+    tree: WARRIOR
+    subTree: ASSASSIN
+    maxLevel: 3
+    prerequisites:
+      - skill: M_HIDE
+        level: 3
+
+  - skill: M_BACKSTAB
+    tree: WARRIOR
+    subTree: ASSASSIN
+    maxLevel: 5
+    prerequisites:
+      - skill: M_HIDE
+        level: 2
+
+  - skill: M_SHADOW_STEP
+    tree: WARRIOR
+    subTree: ASSASSIN
+    maxLevel: 3
+    prerequisites:
+      - skill: M_BACKSTAB
+        level: 3
+      - skill: M_CLOAK
+        level: 1
+
+  - skill: M_POISON_RESEARCH
+    tree: WARRIOR
+    subTree: ASSASSIN
+    maxLevel: 10
+
+  - skill: M_ENCHANT_POISON
+    tree: WARRIOR
+    subTree: ASSASSIN
+    maxLevel: 5
+    prerequisites:
+      - skill: M_POISON_RESEARCH
+        level: 3
+
+  - skill: M_PLAGIARISM
+    tree: WARRIOR
+    subTree: ASSASSIN
+    maxLevel: 10
+
+  - skill: M_PRESERVE
+    tree: WARRIOR
+    subTree: ASSASSIN
+    maxLevel: 1
+    prerequisites:
+      - skill: M_PLAGIARISM
+        level: 5
