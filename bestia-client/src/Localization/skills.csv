@@ -540,7 +540,7 @@ SKILL_61_DESC,"Trains a spell from a scroll into a Bestia's memory, the first st
 education. Consumes the scroll, also when the training fails. The base chance depends on the
 level of the spell, as with Spell Inscription.
 
-`+5%/lv` success chance"
+`+10%/lv` success chance"
 SKILL_62_DESC,"Trains a Sage to keep moving through an incantation instead of rooting to the spot.
 
 `+20%/lv` movement speed kept while casting, all of it at max rank
@@ -568,10 +568,6 @@ Cooldown 15s.
 `+2m/lv` range
 `+1%/lv` max mana drained per second
 `+10s/lv` duration"
-SKILL_67_DESC,"A gamble of a rite that trades the caster's own pool of mana for the target's, wholesale.
-Cooldown 60s.
-
-`+33%/lv` swap success chance, sure at max rank"
 SKILL_68_DESC,"Consecrates a patch of ground against hostile magic. While it holds, no area-of-effect or
 ground-targeted spell can take root inside its bounds - friend and foe alike. Cooldown 40s.
 
@@ -591,30 +587,12 @@ SKILL_72_DESC,"The Sage's capstone. Tears a standing hole that anyone can walk t
 directions, for 30s. Consumes a Portal Rune. Cooldown 120s.
 
 `+2/lv` users who may pass"
-SKILL_73_DESC,"Temporarily infuses an ally's weapon with the fire element, so its strikes burn as well as bite. The
-weapon takes on the element, and the bonus damage comes on top. Consumes a Blue Mana Crystal.
-Cooldown 5s.
+SKILL_73_DESC,"Temporarily infuses an ally's weapon with fire, water, wind or earth; the caster picks the
+element when casting. The weapon takes on the element, and the bonus damage comes on top.
+Consumes a Blue Mana Crystal. Cooldown 5s.
 
 `+60s/lv` duration
-`+5%/lv` bonus fire damage"
-SKILL_74_DESC,"Temporarily infuses an ally's weapon with the water element, wreathing each strike in biting cold. The
-weapon takes on the element, and the bonus damage comes on top. Consumes a Blue Mana Crystal.
-Cooldown 5s.
-
-`+60s/lv` duration
-`+5%/lv` bonus water damage"
-SKILL_75_DESC,"Temporarily infuses an ally's weapon with the wind element, so its strikes crack like lightning. The
-weapon takes on the element, and the bonus damage comes on top. Consumes a Blue Mana Crystal.
-Cooldown 5s.
-
-`+60s/lv` duration
-`+5%/lv` bonus wind damage"
-SKILL_76_DESC,"Temporarily infuses an ally's weapon with the earth element, so its strikes land with the weight of stone. The
-weapon takes on the element, and the bonus damage comes on top. Consumes a Blue Mana Crystal.
-Cooldown 5s.
-
-`+60s/lv` duration
-`+5%/lv` bonus earth damage"
+`+5%/lv` bonus damage of the element"
 SKILL_77_DESC,"A murmured rite that lightens the burden of spellcasting. Applies to the next spell the
 target casts within 30s. Cooldown 20s.
 

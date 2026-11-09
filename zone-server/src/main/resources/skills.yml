@@ -739,7 +739,7 @@ skills:
       education. Consumes the scroll, also when the training fails. The base chance depends on the
       level of the spell, as with Spell Inscription.
 
-      `+5%/lv` success chance
+      `+10%/lv` success chance
 
   - id: 62
     identifier: M_FREE_CAST
@@ -806,19 +806,6 @@ skills:
       `+1%/lv` max mana drained per second
       `+10s/lv` duration
 
-  - id: 67
-    identifier: M_MANA_SWAP
-    script: ManaSwap
-    targetType: ENEMY
-    range: 6
-    manaCost: 45
-    castTime: 3.0
-    description: |
-      A gamble of a rite that trades the caster's own pool of mana for the target's, wholesale.
-      Cooldown 60s.
-
-      `+33%/lv` swap success chance, sure at max rank
-
   - id: 68
     identifier: M_LAND_PROTECTOR
     script: LandProtector
@@ -883,64 +870,19 @@ skills:
       `+2/lv` users who may pass
 
   - id: 73
-    identifier: M_ENDOW_FIRE
-    script: EndowFire
+    identifier: M_ENDOW
+    script: Endow
     targetType: FRIENDLY
     range: 5
     manaCost: 28
     castTime: 2.0
     description: |
-      Temporarily infuses an ally's weapon with the fire element, so its strikes burn as well as bite. The
-      weapon takes on the element, and the bonus damage comes on top. Consumes a Blue Mana Crystal.
-      Cooldown 5s.
+      Temporarily infuses an ally's weapon with fire, water, wind or earth; the caster picks the
+      element when casting. The weapon takes on the element, and the bonus damage comes on top.
+      Consumes a Blue Mana Crystal. Cooldown 5s.
 
       `+60s/lv` duration
-      `+5%/lv` bonus fire damage
-
-  - id: 74
-    identifier: M_ENDOW_ICE
-    script: EndowIce
-    targetType: FRIENDLY
-    range: 5
-    manaCost: 28
-    castTime: 2.0
-    description: |
-      Temporarily infuses an ally's weapon with the water element, wreathing each strike in biting cold. The
-      weapon takes on the element, and the bonus damage comes on top. Consumes a Blue Mana Crystal.
-      Cooldown 5s.
-
-      `+60s/lv` duration
-      `+5%/lv` bonus water damage
-
-  - id: 75
-    identifier: M_ENDOW_WIND
-    script: EndowWind
-    targetType: FRIENDLY
-    range: 5
-    manaCost: 28
-    castTime: 2.0
-    description: |
-      Temporarily infuses an ally's weapon with the wind element, so its strikes crack like lightning. The
-      weapon takes on the element, and the bonus damage comes on top. Consumes a Blue Mana Crystal.
-      Cooldown 5s.
-
-      `+60s/lv` duration
-      `+5%/lv` bonus wind damage
-
-  - id: 76
-    identifier: M_ENDOW_EARTH
-    script: EndowEarth
-    targetType: FRIENDLY
-    range: 5
-    manaCost: 28
-    castTime: 2.0
-    description: |
-      Temporarily infuses an ally's weapon with the earth element, so its strikes land with the weight of stone. The
-      weapon takes on the element, and the bonus damage comes on top. Consumes a Blue Mana Crystal.
-      Cooldown 5s.
-
-      `+60s/lv` duration
-      `+5%/lv` bonus earth damage
+      `+5%/lv` bonus damage of the element
 
 # Priest (Heal, Divine Protection and Blessing keep their low ids above)
   - id: 77
