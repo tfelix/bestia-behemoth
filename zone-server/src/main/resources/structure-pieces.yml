@@ -1,0 +1,42 @@
+# The cells each building piece fills, relative to where it is placed, before it is turned.
+#
+# Cells are 1 m voxels. `x` and `y` are across and `z` is up, with 0 the voxel the piece is placed in. `fill` is how
+# full a cell is from the bottom up, and a filled cell is floor to stand on and no headroom. `walls` are walls on
+# the cell's borders: they block a step across that border at their height, but nobody stands on them.
+#
+# A step onto or off a built cell may rise half a metre (`AgentProfile.maxStructureStep`), so floors are half
+# cells and stairs rise half a metre per tile. A storey is three metres: a stair of six tiles.
+pieces:
+  # Two metres wide along y, three high, on the x+ border of the cells it is placed in.
+  - kind: STRUCTURE_WALL
+    cells:
+      - { x: 0, y: 0, z: 0, walls: [X_PLUS] }
+      - { x: 0, y: 0, z: 1, walls: [X_PLUS] }
+      - { x: 0, y: 0, z: 2, walls: [X_PLUS] }
+      - { x: 0, y: 1, z: 0, walls: [X_PLUS] }
+      - { x: 0, y: 1, z: 1, walls: [X_PLUS] }
+      - { x: 0, y: 1, z: 2, walls: [X_PLUS] }
+
+  # Two by two metres, half a metre thick.
+  - kind: STRUCTURE_FLOOR
+    cells:
+      - { x: 0, y: 0, z: 0, fill: 0.5 }
+      - { x: 1, y: 0, z: 0, fill: 0.5 }
+      - { x: 0, y: 1, z: 0, fill: 0.5 }
+      - { x: 1, y: 1, z: 0, fill: 0.5 }
+
+  # One metre wide, six long towards x+, rising half a metre per tile up to three metres.
+  - kind: STRUCTURE_STAIRS
+    cells:
+      - { x: 0, y: 0, z: 0, fill: 0.5 }
+      - { x: 1, y: 0, z: 0, fill: 1.0 }
+      - { x: 2, y: 0, z: 0, fill: 1.0 }
+      - { x: 2, y: 0, z: 1, fill: 0.5 }
+      - { x: 3, y: 0, z: 0, fill: 1.0 }
+      - { x: 3, y: 0, z: 1, fill: 1.0 }
+      - { x: 4, y: 0, z: 0, fill: 1.0 }
+      - { x: 4, y: 0, z: 1, fill: 1.0 }
+      - { x: 4, y: 0, z: 2, fill: 0.5 }
+      - { x: 5, y: 0, z: 0, fill: 1.0 }
+      - { x: 5, y: 0, z: 1, fill: 1.0 }
+      - { x: 5, y: 0, z: 2, fill: 1.0 }

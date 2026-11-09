@@ -112,7 +112,13 @@ enum class StaticEntityKind {
   FIXTURE_GRAVESTONE,
   FIXTURE_NAMED_GRAVE,
   FIXTURE_OUTCROP,
-  FIXTURE_INN;
+  FIXTURE_INN,
+
+  // Modular building pieces a player puts up. Unlike a station, each one blocks movement with the cells
+  // `structure-pieces.yml` gives it.
+  STRUCTURE_WALL,
+  STRUCTURE_FLOOR,
+  STRUCTURE_STAIRS;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.
