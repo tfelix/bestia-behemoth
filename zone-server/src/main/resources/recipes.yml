@@ -240,3 +240,16 @@ recipes:
     skill: { skill: M_MINING, level: 1 }
     craftSeconds: 10.0
     baseSuccessChance: 1.0
+
+  # --- Hunter sub-tree -----------------------------------------------------------------------------
+
+  - id: 31
+    identifier: ARROW
+    effect: PRODUCE
+    output: { item: arrow, amount: 20 }
+    inputs:
+      - { item: reed_stalk, amount: 2 }
+      - { item: feather, amount: 1 }
+    skill: { skill: M_ARROW_CRAFTING, level: 1 }
+    craftSeconds: 5.0
+    baseSuccessChance: 1.0

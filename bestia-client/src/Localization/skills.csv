@@ -504,8 +504,8 @@ Lv.4 shows the exact spell bound to an item or place
 Lv.5 shows who bound it, and what trigger a Spell Binding waits for"
 SKILL_52_DESC,"Cast on a monster to read what mana and instinct alone can tell about it. Reveals its
 status values, element, HP and mana. Cooldown 3s."
-SKILL_53_DESC,"A pulse of second sight that peels back concealment. For 10s, hidden traps, camouflaged
-Hunters and cloaked Assassins within 10m of the caster stand out for what they are.
+SKILL_53_DESC,"A pulse of second sight that peels back concealment. For 10s, hidden traps, hiding
+Bestia and cloaked Assassins within 10m of the caster stand out for what they are.
 Detection resistance does not help against it. Cooldown 10s."
 SKILL_54_DESC,"The Scholar's ear to the ground - a sense for the direction and distance of world-changing
 events long before word of them travels. Only works at an Observation Outpost. Level 1
@@ -923,3 +923,35 @@ ATK * (4 + mana spent / 10). Afterwards the Berserk ends and the mana is sealed 
 
 `+10%/lv` damage"
 SKILL_149_DESC,Dashes up to 6m to a target. Cooldown 10s.
+SKILL_150_DESC,"Teaches the Hunter to read the land well enough to disappear into it. Wild Bestia
+notice the master later. It does not hide the master.
+
+`-10%/lv` notice range of wild Bestia"
+SKILL_151_DESC,"A Hunter's sure footing, at home where the road ends. Faster on any ground that is not
+a made road or paving.
+
+`+3%/lv` walk speed off roads"
+SKILL_152_DESC,"Marks one target for 30s. It shows on the master's map, and its Hide and Cloak do not
+work against the master. A new mark ends the old one. Cooldown 10s.
+
+`+3%/lv` critical rate against the target"
+SKILL_153_DESC,"Eyes trained on far and small things, until the aim follows them by itself.
+
+`+1/lv` DEX"
+SKILL_154_DESC,"Patience on the draw, until the arrow lands where the eye already is. Only with a bow.
+
+`+1/lv` bow range in tiles
+`+2/lv` HIT"
+SKILL_155_DESC,"Needs a bow. Shoots two arrows at the target but takes only one out of the quiver.
+
+`100% + 10%/lv` ATK per arrow"
+SKILL_156_DESC,"Needs a bow. A volley that hits every enemy in a 3x3 area and knocks them back 1m. Takes
+one arrow out of the quiver.
+
+`80% + 10%/lv` ATK"
+SKILL_157_DESC,Needs a bow. One shot for 150% ATK that knocks the target back 6m. Cooldown 10s.
+SKILL_158_DESC,"The Hunter's senses, sharpened to a point. Lasts 60s. When cast, it reveals everything
+hidden within 3m of the master.
+
+`+2/lv` AGI and DEX"
+SKILL_159_DESC,Opens the crafting window with the arrow recipes. Needs no station.
