@@ -1924,6 +1924,115 @@ skills:
     description: |
       Opens the crafting window with the arrow recipes. Needs no station.
 
+  - id: 160
+    identifier: M_INSTRUMENT_MASTERY
+    targetType: FRIENDLY
+    description: |
+      Training with lute, flute and whip until each one is as much a weapon as an instrument.
+
+      `+2/lv` ATK with an instrument or a whip
+
+  - id: 161
+    identifier: M_NIMBLE_STEPS
+    targetType: FRIENDLY
+    description: |
+      A Bard trusts footwork over plate and simply is not where the hit lands.
+
+      `+2/lv` FLEE in light armor, cloth or no armor
+
+  - id: 162
+    identifier: M_HOBBLING_LASH
+    script: HobblingLash
+    targetType: ENEMY
+    range: 4
+    manaCost: 15
+    description: |
+      Needs a whip. A strike at the footing that leaves the target Slowed (-20% move speed).
+      Cooldown 6s.
+
+      `120% + 20%/lv` ATK
+      `3s + 1s/lv` Slowed
+
+  - id: 163
+    identifier: M_DISCORD_STRIKE
+    script: DiscordStrike
+    targetType: ENEMY
+    range: 9
+    manaCost: 18
+    description: |
+      Needs an instrument. One sharp, ugly note that hits the target as a sound wave.
+      Cooldown 2s.
+
+      `150% + 30%/lv` ATK
+
+  - id: 164
+    identifier: M_DISSONANT_CHORD
+    script: DissonantChord
+    targetType: FRIENDLY
+    manaCost: 30
+    description: |
+      Needs an instrument. Every enemy within 3 tiles gets ASPD Down and loses HIT for 20s.
+      Cooldown 20s.
+
+      `-3%/lv` HIT
+
+  - id: 165
+    identifier: M_VOICE_TRAINING
+    targetType: FRIENDLY
+    description: |
+      A trained voice reaches further and holds a note longer.
+
+      `+1/lv` song radius in tiles
+      `+10%/lv` song duration
+
+  - id: 166
+    identifier: M_BATTLE_HYMN
+    script: BattleHymn
+    targetType: FRIENDLY
+    manaCost: 30
+    description: |
+      A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 60s.
+
+      `+3%/lv` ATK and MATK
+
+  - id: 167
+    identifier: M_WAR_MARCH
+    script: WarMarch
+    targetType: FRIENDLY
+    manaCost: 30
+    description: |
+      A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 60s.
+
+      `+2%/lv` movement and attack speed
+
+  - id: 168
+    identifier: M_MIRAGE_DANCE
+    script: MirageDance
+    targetType: FRIENDLY
+    manaCost: 30
+    description: |
+      A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 60s.
+
+      `+3/lv` FLEE
+
+  - id: 169
+    identifier: M_WANDERERS_TUNE
+    script: WanderersTune
+    targetType: FRIENDLY
+    manaCost: 20
+    description: |
+      A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 10min. Made for long journeys with a Bestia team.
+
+      `-10%/lv` stamina drain
+
+  - id: 170
+    identifier: M_GRAND_PERFORMANCE
+    targetType: FRIENDLY
+    description: |
+      The Bard's capstone. Every song lands a little harder.
+
+      `+10%/lv` effect of every song
+
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000
     identifier: ember
