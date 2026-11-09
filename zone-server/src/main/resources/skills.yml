@@ -1971,6 +1971,27 @@ skills:
 
       `+2/lv` listings, from 3 at Lv.1
 
+  - id: 179
+    identifier: M_BLASTING
+    script: Blasting
+    targetType: GROUND
+    range: 3
+    manaCost: 10
+    description: |
+      Sets a blasting charge that breaks every block around it 3s later. Consumes a Blasting Charge,
+      brewed with Alchemy. Nobody should stand too close.
+
+      `+1m/lv` radius, from 1m at Lv.1
+
+  - id: 180
+    identifier: M_GEM_LORE
+    targetType: FRIENDLY
+    description: |
+      A Miner who has cut enough stones sees what a rough gem holds before the first cut. Shows a
+      rough gem's quality.
+
+      `+5%/lv` Gem Cutting success chance
+
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000
     identifier: ember
