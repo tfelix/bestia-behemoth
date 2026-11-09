@@ -888,9 +888,10 @@ work against the master. A new mark ends the old one. Cooldown 10s.
 SKILL_153_DESC,"Eyes trained on far and small things, until the aim follows them by itself.
 
 `+1/lv` DEX"
-SKILL_154_DESC,"Patience on the draw, until the arrow lands where the eye already is. Only with a bow.
+SKILL_154_DESC,"Patience on the draw, until the shot lands where the eye already is. Works with every ranged
+weapon: bow, crossbow and thrown weapons.
 
-`+1/lv` bow range in tiles
+`+1/lv` range in tiles
 `+2/lv` HIT"
 SKILL_155_DESC,"Needs a bow. Shoots two arrows at the target but takes only one out of the quiver.
 

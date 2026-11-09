@@ -1717,9 +1717,10 @@ skills:
     identifier: M_VULTURES_EYE
     targetType: FRIENDLY
     description: |
-      Patience on the draw, until the arrow lands where the eye already is. Only with a bow.
+      Patience on the draw, until the shot lands where the eye already is. Works with every ranged
+      weapon: bow, crossbow and thrown weapons.
 
-      `+1/lv` bow range in tiles
+      `+1/lv` range in tiles
       `+2/lv` HIT
 
   - id: 155
