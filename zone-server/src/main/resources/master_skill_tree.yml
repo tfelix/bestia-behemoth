@@ -675,32 +675,32 @@ skills:
   - skill: M_FIREBOLT
     tree: WARRIOR
     subTree: WIZARD
-    maxLevel: 10
+    maxLevel: 5
 
   - skill: M_ICE_BOLT
     tree: WARRIOR
     subTree: WIZARD
-    maxLevel: 10
+    maxLevel: 5
 
   - skill: M_THUNDER_BOLT
     tree: WARRIOR
     subTree: WIZARD
-    maxLevel: 10
+    maxLevel: 5
 
   - skill: M_EARTH_SPIKE
     tree: WARRIOR
     subTree: WIZARD
-    maxLevel: 10
+    maxLevel: 5
 
   - skill: M_ARCANE_MASTERY
     tree: WARRIOR
     subTree: WIZARD
-    maxLevel: 5
+    maxLevel: 3
 
   - skill: M_FIRE_WALL
     tree: WARRIOR
     subTree: WIZARD
-    maxLevel: 5
+    maxLevel: 3
     prerequisites:
       - skill: M_FIREBOLT
         level: 3
@@ -708,47 +708,31 @@ skills:
   - skill: M_METEOR_STORM
     tree: WARRIOR
     subTree: WIZARD
-    maxLevel: 5
+    maxLevel: 3
     prerequisites:
       - skill: M_FIREBOLT
-        level: 10
+        level: 5
 
   - skill: M_FROST_NOVA
     tree: WARRIOR
     subTree: WIZARD
-    maxLevel: 5
+    maxLevel: 3
     prerequisites:
       - skill: M_ICE_BOLT
         level: 1
 
-  - skill: M_WATER_BALL
-    tree: WARRIOR
-    subTree: WIZARD
-    maxLevel: 5
-    prerequisites:
-      - skill: M_ICE_BOLT
-        level: 8
-
   - skill: M_STORM_GUST
     tree: WARRIOR
     subTree: WIZARD
-    maxLevel: 5
+    maxLevel: 3
     prerequisites:
       - skill: M_ICE_BOLT
-        level: 10
-
-  - skill: M_FROST_ORB
-    tree: WARRIOR
-    subTree: WIZARD
-    maxLevel: 5
-    prerequisites:
-      - skill: M_FROST_NOVA
-        level: 2
+        level: 5
 
   - skill: M_QUAGMIRE
     tree: WARRIOR
     subTree: WIZARD
-    maxLevel: 5
+    maxLevel: 3
     prerequisites:
       - skill: M_THUNDER_BOLT
         level: 2
@@ -756,23 +740,15 @@ skills:
   - skill: M_THUNDER_STORM
     tree: WARRIOR
     subTree: WIZARD
-    maxLevel: 5
+    maxLevel: 3
     prerequisites:
       - skill: M_THUNDER_BOLT
-        level: 3
-
-  - skill: M_THUNDER_OF_JUPITER
-    tree: WARRIOR
-    subTree: WIZARD
-    maxLevel: 5
-    prerequisites:
-      - skill: M_THUNDER_STORM
         level: 3
 
   - skill: M_EARTHQUAKE
     tree: WARRIOR
     subTree: WIZARD
-    maxLevel: 5
+    maxLevel: 3
     prerequisites:
       - skill: M_EARTH_SPIKE
         level: 3
@@ -780,7 +756,7 @@ skills:
   - skill: M_SAFETY_WALL
     tree: WARRIOR
     subTree: WIZARD
-    maxLevel: 5
+    maxLevel: 3
     prerequisites:
       - skill: M_MAGIC_ARMOR
         level: 3
@@ -788,7 +764,7 @@ skills:
   - skill: M_STONE_CURSE
     tree: WARRIOR
     subTree: WIZARD
-    maxLevel: 5
+    maxLevel: 3
     prerequisites:
       - skill: M_SAFETY_WALL
         level: 3
@@ -796,23 +772,15 @@ skills:
   - skill: M_SUPPRESS_MAGIC
     tree: WARRIOR
     subTree: WIZARD
-    maxLevel: 5
-    prerequisites:
-      - skill: M_STONE_CURSE
-        level: 2
-
-  - skill: M_SUPPRESS_AURA
-    tree: WARRIOR
-    subTree: WIZARD
     maxLevel: 3
     prerequisites:
-      - skill: M_SUPPRESS_MAGIC
+      - skill: M_STONE_CURSE
         level: 2
 
   - skill: M_SOUL_BREAK
     tree: WARRIOR
     subTree: WIZARD
-    maxLevel: 5
+    maxLevel: 3
     prerequisites:
       - skill: M_ARCANE_MASTERY
         level: 2
@@ -820,7 +788,7 @@ skills:
   - skill: M_MINDBREAK
     tree: WARRIOR
     subTree: WIZARD
-    maxLevel: 5
+    maxLevel: 3
     prerequisites:
       - skill: M_SOUL_BREAK
         level: 3
