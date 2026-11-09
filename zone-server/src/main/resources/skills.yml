@@ -671,7 +671,7 @@ skills:
       A scrapper's eye for what's still worth keeping - coaxes more usable components out of
       anything broken down for parts.
 
-      `+5%/lv` recycle success chance
+      `+10%/lv` recycle success chance
 
   - id: 57
     identifier: M_MINTING
@@ -1949,6 +1949,27 @@ skills:
 
       `-25%/lv` regrowth time
       Lv.3 the grown tree gives one more log
+
+  - id: 177
+    identifier: M_HAGGLING
+    targetType: FRIENDLY
+    description: |
+      A Trader never pays the price on the sign. Better prices at every merchant.
+
+      `-2%/lv` price when buying from a merchant
+      `+2%/lv` price when selling to a merchant
+
+  - id: 178
+    identifier: M_STREET_STALL
+    script: StreetStall
+    targetType: GROUND
+    range: 1
+    manaCost: 10
+    description: |
+      Sets up a market stall where the Trader stands. Other players buy the listed items from it.
+      The stall closes when the Trader walks away or after 1h.
+
+      `+2/lv` listings, from 3 at Lv.1
 
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000
