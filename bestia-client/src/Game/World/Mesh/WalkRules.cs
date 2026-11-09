@@ -91,7 +91,28 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// onto which floor.
     /// </summary>
     /// <param name="landing">The surface the step lands on, in voxels, when it is <see cref="Step.Allowed"/>.</param>
+    /// <remarks>A diagonal also needs both straight steps beside it, as on the server, or it cuts a corner.</remarks>
     public static Step Check(
+      IChunkSource source, ChunkWrap wrap, int chunkSize, int chunkHeight,
+      long fromX, long fromY, double fromZ, long toX, long toY, out double landing)
+    {
+      landing = double.NaN;
+
+      var isDiagonal = fromX != toX && fromY != toY;
+      if (isDiagonal)
+      {
+        var besideX = StraightCheck(source, wrap, chunkSize, chunkHeight, fromX, fromY, fromZ, toX, fromY, out _);
+        var besideY = StraightCheck(source, wrap, chunkSize, chunkHeight, fromX, fromY, fromZ, fromX, toY, out _);
+        if (besideX == Step.Refused || besideY == Step.Refused)
+        {
+          return Step.Refused;
+        }
+      }
+
+      return StraightCheck(source, wrap, chunkSize, chunkHeight, fromX, fromY, fromZ, toX, toY, out landing);
+    }
+
+    private static Step StraightCheck(
       IChunkSource source, ChunkWrap wrap, int chunkSize, int chunkHeight,
       long fromX, long fromY, double fromZ, long toX, long toY, out double landing)
     {

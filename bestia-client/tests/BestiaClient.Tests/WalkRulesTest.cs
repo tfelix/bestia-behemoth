@@ -24,6 +24,11 @@ namespace BestiaBehemothClient.Tests
     /// </summary>
     private static VoxelChunk Chunk(Func<int, int> ground, Func<int, int> fluid = null, byte fluidBlock = Water)
     {
+      return Chunk((x, _) => ground(x), fluid, fluidBlock);
+    }
+
+    private static VoxelChunk Chunk(Func<int, int, int> ground, Func<int, int> fluid = null, byte fluidBlock = Water)
+    {
       var blocks = new byte[Size * Size * Height];
       var occupancy = new byte[Size * Size * Height];
 
@@ -32,7 +37,7 @@ namespace BestiaBehemothClient.Tests
         for (var x = 0; x < Size; x++)
         {
           var offset = (y * Size + x) * Height;
-          var top = ground(x);
+          var top = ground(x, y);
           for (var z = 0; z < top; z++)
           {
             blocks[offset + z] = Granite;
@@ -99,6 +104,16 @@ namespace BestiaBehemothClient.Tests
     public void LavaIsNoHeadroom()
     {
       Assert.Equal(WalkRules.Step.Refused, Check(Chunk(_ => 40, x => x < 6 ? 0 : 1, Lava), 5, 40, 6, out _));
+    }
+
+    [Fact]
+    public void ADiagonalPastTheCornerOfAPillarIsRefused()
+    {
+      var source = new FakeChunkSource();
+      source.Put(Chunk((x, y) => x == 6 && y == 5 ? 43 : 40));
+
+      Assert.Equal(WalkRules.Step.Refused, WalkRules.Check(source, ChunkWrap.None, Size, Height, 5, 5, 40, 6, 6, out _));
+      Assert.Equal(WalkRules.Step.Allowed, WalkRules.Check(source, ChunkWrap.None, Size, Height, 5, 5, 40, 4, 6, out _));
     }
 
     [Fact]
