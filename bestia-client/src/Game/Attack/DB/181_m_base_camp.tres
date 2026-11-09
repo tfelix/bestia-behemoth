@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 181
+name = "Base Camp"
+description_key = "SKILL_181_DESC"
+mana_cost = 30
+cooldown = 300.0
+max_level = 3
+tree = "SURVIVAL"
+sub_tree = "PROSPECTOR"
+prerequisite_ids = PackedInt32Array(39)
+prerequisite_levels = PackedInt32Array(1)

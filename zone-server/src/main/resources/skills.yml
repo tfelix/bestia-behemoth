@@ -1992,6 +1992,67 @@ skills:
 
       `+5%/lv` Gem Cutting success chance
 
+  - id: 181
+    identifier: M_BASE_CAMP
+    script: BaseCamp
+    targetType: GROUND
+    range: 2
+    manaCost: 30
+    description: |
+      Turns a campfire into a camp. Party members and their Bestias within 5m bear the weather
+      better: `+-5` degrees temperature tolerance, in both directions. Only one camp per master.
+      Cooldown 5min.
+
+      `+30min/lv` duration
+      Lv.2 +50% HP and stamina regeneration, and storms and mana storms do not reach inside
+      Lv.3 party members who die respawn at the camp
+
+  - id: 182
+    identifier: M_TREASURE_SENSE
+    script: TreasureSense
+    targetType: FRIENDLY
+    manaCost: 15
+    description: |
+      A Prospector's nose for what someone buried and never came back for. Senses treasure caches
+      nearby. Cooldown 30s.
+
+      `+20m/lv` radius, from 20m at Lv.1
+      Lv.3 also how deep the cache lies
+      Lv.5 also how rich it is
+
+  - id: 183
+    identifier: M_ECHO_SOUNDING
+    script: EchoSounding
+    targetType: FRIENDLY
+    manaCost: 20
+    description: |
+      A sound pulse that marks hollow spaces nearby on the map: cave openings, hollows and buried
+      chambers. Cooldown 20s.
+
+      `+5m/lv` radius, from 10m at Lv.1
+      Lv.3 also how deep and how large a hollow is
+
+  - id: 184
+    identifier: M_TREASURE_MAP
+    script: TreasureMap
+    targetType: GROUND
+    range: 2
+    manaCost: 20
+    description: |
+      Charts a sensed treasure cache onto a sheet of blank vellum. The map is an item that can be
+      traded or sold, so whoever holds it can dig the cache up.
+
+      `-25m/lv` uncertainty of the marked spot, exact at max rank
+
+  - id: 185
+    identifier: M_EXCAVATION
+    targetType: FRIENDLY
+    description: |
+      Knowing where to dig and how not to break what lies below.
+
+      `-20%/lv` time to dig out a treasure cache
+      `+5%/lv` chance for the cache's best item
+
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000
     identifier: ember
