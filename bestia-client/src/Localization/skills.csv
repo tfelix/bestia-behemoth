@@ -962,3 +962,8 @@ SKILL_175_DESC,"Throws a potion from the bag onto an ally up to 7 tiles away, so
 drunk it. Cooldown 1s.
 
 `+10%/lv` effect of the thrown potion"
+SKILL_176_DESC,"Plants a sapling in a tree stump. The new tree grows back faster than one left to nature.
+Consumes a log.
+
+`-25%/lv` regrowth time
+Lv.3 the grown tree gives one more log"
