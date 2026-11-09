@@ -60,13 +60,16 @@ skills:
     script: Firebolt
     targetType: ENEMY
     needsLineOfSight: true
-    range: 8
-    manaCost: 12
+    range: 9
+    manaCost: 18
     castTime: 2.0
     description: |
-      Hurls a bolt of searing fire at a single enemy.
+      A quick bolt of flame hurled at a single target. The first spell most Wizards ever learn,
+      and the one they cast the most often. Must be channelled - moving or taking damage
+      interrupts the cast.
 
-      Must be channelled - moving or taking damage interrupts the cast.
+      `+10%/lv` MATK
+      `-0.1s/lv` cast time
 
   - id: 6
     identifier: M_BLESSING
@@ -1210,6 +1213,277 @@ skills:
       below 20%. Cooldown 10s.
 
       `-10%/lv` damage taken
+
+# Wizard (Fire Bolt keeps id 5 above)
+  - id: 99
+    identifier: M_ICE_BOLT
+    script: IceBolt
+    targetType: ENEMY
+    needsLineOfSight: true
+    range: 9
+    manaCost: 18
+    castTime: 2.0
+    description: |
+      A shard of hardened cold flung at a single target - the water-elemental counterpart to
+      Fire Bolt.
+
+      `+10%/lv` MATK
+      `-0.1s/lv` cast time
+
+  - id: 100
+    identifier: M_THUNDER_BOLT
+    script: ThunderBolt
+    targetType: ENEMY
+    needsLineOfSight: true
+    range: 9
+    manaCost: 18
+    castTime: 2.0
+    description: |
+      A crack of lightning called down onto a single target - the wind-elemental counterpart to
+      Fire Bolt.
+
+      `+10%/lv` MATK
+      `-0.1s/lv` cast time
+
+  - id: 101
+    identifier: M_EARTH_SPIKE
+    script: EarthSpike
+    targetType: ENEMY
+    needsLineOfSight: true
+    range: 9
+    manaCost: 18
+    castTime: 2.0
+    description: |
+      A jagged spar of stone erupts beneath a single target - the earth-elemental counterpart to
+      Fire Bolt.
+
+      `+10%/lv` MATK
+      `-0.1s/lv` cast time
+
+  - id: 102
+    identifier: M_ARCANE_MASTERY
+    targetType: FRIENDLY
+    description: |
+      A deeper communion with raw mana beyond the elements, sharpening the spells that draw on
+      it: Soul Break and Mindbreak.
+
+      `+5%/lv` damage of raw-mana spells
+
+  - id: 103
+    identifier: M_SAFETY_WALL
+    script: SafetyWall
+    targetType: FRIENDLY
+    range: 6
+    manaCost: 30
+    castTime: 1.0
+    description: |
+      Conjures a barrier of solidified mana in front of a target. It blocks projectiles and
+      melee strikes until it has absorbed enough hits or its time runs out. Cooldown 10s.
+
+      `+2/lv` hits absorbed
+      `+8s/lv` duration, from 20s at Lv.1
+
+  - id: 104
+    identifier: M_STONE_CURSE
+    script: StoneCurse
+    targetType: ENEMY
+    range: 6
+    manaCost: 25
+    castTime: 1.0
+    description: |
+      Encases a target in stone. It applies Stoning, which turns into Stone unless it is cured
+      first. Consumes a Red Mana Crystal. Cooldown 15s.
+
+      `+10%/lv` chance, from 20% at Lv.1
+      `+3s/lv` duration, from 5s at Lv.1
+
+  - id: 105
+    identifier: M_SUPPRESS_MAGIC
+    script: SuppressMagic
+    targetType: ENEMY
+    range: 9
+    manaCost: 30
+    description: |
+      A ward of counter-mana thrown over a target mid-incantation. It can interrupt the spell
+      being woven and leaves the target Silenced. Cooldown 20s.
+
+      `+10%/lv` interrupt chance, from 20% at Lv.1
+      `+1s/lv` silence, from 3s at Lv.1
+
+  - id: 106
+    identifier: M_SUPPRESS_AURA
+    script: SuppressAura
+    targetType: FRIENDLY
+    range: 2
+    manaCost: 35
+    castTime: 3.0
+    description: |
+      Mutes the mana clinging to an object, Bestia or Master for 5min, hiding it from wards,
+      Magic Sense and similar senses. Cooldown 30s.
+
+      Lv.1 40%, Lv.2 70%, Lv.3 100% of the mana suppressed
+
+  - id: 107
+    identifier: M_FIRE_WALL
+    script: FireWall
+    targetType: GROUND
+    range: 6
+    manaCost: 35
+    castTime: 2.0
+    description: |
+      Conjures a wall of roaring flame for 20s. Anything that tries to push through is burned
+      and shoved back. Cooldown 10s.
+
+      `+10%/lv` MATK per tick
+      Lv.1-2 1m, Lv.3-4 2m, Lv.5 3m knockback
+
+  - id: 108
+    identifier: M_METEOR_STORM
+    script: MeteorStorm
+    targetType: GROUND
+    range: 12
+    manaCost: 70
+    castTime: 6.0
+    description: |
+      Calls down a rain of blazing meteors onto an area for 10s. Cooldown 30s.
+
+      `+10%/lv` MATK per meteor
+      `+1/lv` meteors, from 3 at Lv.1
+
+  - id: 109
+    identifier: M_STORM_GUST
+    script: StormGust
+    targetType: GROUND
+    range: 12
+    manaCost: 65
+    castTime: 5.0
+    description: |
+      A freezing gale that batters an area with waves of ice for 10s, each one able to freeze
+      what it hits. Cooldown 25s.
+
+      `+8%/lv` MATK per tick
+      `+5%/lv` freeze chance per tick
+
+  - id: 110
+    identifier: M_WATER_BALL
+    script: WaterBall
+    targetType: ENEMY
+    range: 9
+    manaCost: 45
+    castTime: 3.0
+    description: |
+      Gathers the water in a 5x5 area around the caster into a crashing orb hurled at a target.
+      The caster must stand in water. It hits once for every water tile around the caster, up to
+      the cap of its level. Cooldown 15s.
+
+      `+5/lv` hits per cast at most
+
+  - id: 111
+    identifier: M_FROST_NOVA
+    script: FrostNova
+    targetType: FRIENDLY
+    manaCost: 40
+    castTime: 2.0
+    description: |
+      A burst of subzero cold erupts outward from the caster. Cooldown 15s.
+
+      `+1m/lv` radius, from 2m at Lv.1
+      `+10%/lv` freeze chance, from 15% at Lv.1
+
+  - id: 112
+    identifier: M_QUAGMIRE
+    script: Quagmire
+    targetType: GROUND
+    range: 9
+    manaCost: 30
+    castTime: 2.0
+    description: |
+      Turns the ground into clinging mud for 30s. It strips AGI-increasing buffs and drags down
+      AGI and DEX, at most 25% against Masters and 50% against wild Bestias. Cooldown 20s.
+
+      `-10%/lv` AGI and DEX
+
+  - id: 113
+    identifier: M_THUNDER_STORM
+    script: ThunderStorm
+    targetType: GROUND
+    range: 12
+    manaCost: 60
+    castTime: 4.0
+    description: |
+      Wind churns into a storm overhead for 8s, calling down lightning across the area at
+      random. Cooldown 20s.
+
+      `+10%/lv` MATK per strike
+      `+1/lv` strikes, from 3 at Lv.1
+
+  - id: 114
+    identifier: M_EARTHQUAKE
+    script: Earthquake
+    targetType: FRIENDLY
+    manaCost: 60
+    castTime: 4.0
+    description: |
+      Splits the ground around the caster for 8s, dealing repeated damage to everything standing
+      on it. Cooldown 25s.
+
+      `+10%/lv` MATK per tick
+      `+1m/lv` radius, from 2m at Lv.1
+
+  - id: 115
+    identifier: M_FROST_ORB
+    script: FrostOrb
+    targetType: ENEMY
+    range: 9
+    manaCost: 40
+    castTime: 3.0
+    description: |
+      A dense orb of packed ice hurled at a single target, hitting hard and likely to freeze it.
+      Cooldown 12s.
+
+      `+15%/lv` MATK
+      `+10%/lv` freeze chance, from 30% at Lv.1
+
+  - id: 116
+    identifier: M_SOUL_BREAK
+    script: SoulBreak
+    targetType: ENEMY
+    range: 9
+    manaCost: 45
+    castTime: 2.0
+    description: |
+      Tears into a target with raw mana that ignores elemental resistance, ripping away part of
+      its mana. Cooldown 15s.
+
+      `+20%/lv` MATK
+      `+5%/lv` of the target's mana drained
+
+  - id: 117
+    identifier: M_THUNDER_OF_JUPITER
+    script: ThunderOfJupiter
+    targetType: ENEMY
+    range: 9
+    manaCost: 55
+    castTime: 4.0
+    description: |
+      A column of lightning that strikes a single target over and over. Cooldown 20s.
+
+      `+1/lv` hits per cast
+      `+20%` MATK per hit
+
+  - id: 118
+    identifier: M_MINDBREAK
+    script: Mindbreak
+    targetType: FRIENDLY
+    range: 5
+    manaCost: 50
+    castTime: 3.0
+    description: |
+      Channels so much raw magic through one of the master's Bestias for 60s that its armor is
+      the first thing to give: magic attack rises and soft magic defense falls. Cooldown 60s.
+
+      `+20%/lv` MATK
+      `-20%/lv` SMDEF
 
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000
