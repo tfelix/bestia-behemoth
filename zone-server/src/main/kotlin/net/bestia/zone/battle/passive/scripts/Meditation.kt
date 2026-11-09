@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 
 /**
  * `MEDITATION` (`skills.yml` id 27, `maxLevel: 5`): *"A calm, centered breathing that quickens the
- * natural mending of both Master and Bestia alike. `+6%/lv` HP and Mana regeneration"*.
+ * master's natural mending. `+6%/lv` HP and Mana regeneration"*.
  *
  * HP and mana only - the authored description does not mention stamina.
  *

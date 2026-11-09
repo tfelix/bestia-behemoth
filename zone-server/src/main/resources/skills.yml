@@ -350,8 +350,7 @@ skills:
     identifier: M_MEDITATION
     targetType: FRIENDLY
     description: |
-      A calm, centered breathing that quickens the natural mending of both Master and Bestia
-      alike.
+      A calm, centered breathing that quickens the master's natural mending.
 
       `+6%/lv` HP and Mana regeneration
 
@@ -1181,6 +1180,36 @@ skills:
     description: |
       Calls a fallen Bestia or Master back over the threshold with part of their HP. Can not be
       used on the caster. Cooldown 10min.
+
+# Warrior trunk (Meditation keeps id 27 above)
+  - id: 96
+    identifier: M_ENDURE
+    targetType: FRIENDLY
+    description: |
+      A warrior's steadied breath - the body keeps mending itself even in the thick of a fight.
+      HP and mana regeneration does not stop during combat.
+
+  - id: 97
+    identifier: M_IRON_SKIN
+    targetType: FRIENDLY
+    description: |
+      Hide toughened by nothing more than sheer stubbornness. Unlike Magic Armor it costs no
+      mana, but the reduction is more modest.
+
+      `-3%/lv` physical damage taken
+
+  - id: 98
+    identifier: M_MAGIC_ARMOR
+    script: MagicArmor
+    targetType: FRIENDLY
+    manaCost: 30
+    castTime: 5.0
+    description: |
+      A shimmering ward of raw mana wrapped around the caster for 5min, turning aside blade and
+      spell alike. Each hit costs 2% of the current mana, and the ward ends when mana drops
+      below 20%. Cooldown 10s.
+
+      `-10%/lv` damage taken
 
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000

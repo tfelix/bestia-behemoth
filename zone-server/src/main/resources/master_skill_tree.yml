@@ -660,6 +660,18 @@ skills:
     tree: WARRIOR
     maxLevel: 5
 
+  - skill: M_ENDURE
+    tree: WARRIOR
+    maxLevel: 1
+
+  - skill: M_IRON_SKIN
+    tree: WARRIOR
+    maxLevel: 5
+
+  - skill: M_MAGIC_ARMOR
+    tree: WARRIOR
+    maxLevel: 3
+
   - skill: M_FIREBOLT
     tree: WARRIOR
     subTree: WIZARD
