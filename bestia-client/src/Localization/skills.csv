@@ -96,8 +96,8 @@ The burnt time of a light source is gone for good.
 SKILL_17_DESC,"Deeper knowledge of weapons and armor that raises the odds of successfully refining
 either one further after forging. If an upgrade fails the equipment can be destroyed.
 
-`+4%/lv` success chance when upgrading a weapon or armor
-`+1%/lv` success chance when forging"
+`+8%/lv` success chance when upgrading a weapon or armor
+`+2%/lv` success chance when forging"
 SKILL_18_DESC,"The capstone of the forge. Makes a Blacksmith's hands steady enough to trust with the
 rarest ore.
 

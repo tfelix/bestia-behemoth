@@ -264,9 +264,9 @@ class CraftBonusService(
     /** Forge Weapon / Forge Armor Lv.1-10, the docs being silent - see [successChance]. */
     private val FORGE_SUCCESS = (1..10).map { it * 0.02f }
 
-    /** Weaponry Research Lv.1-10: +4% a level on upgrades, +1% a level on forging. */
-    private val RESEARCH_UPGRADE = (1..10).map { it * 0.04f }
-    private val RESEARCH_FORGING = (1..10).map { it * 0.01f }
+    /** Weaponry Research Lv.1-5: +8% a level on upgrades, +2% a level on forging. */
+    private val RESEARCH_UPGRADE = (1..5).map { it * 0.08f }
+    private val RESEARCH_FORGING = (1..5).map { it * 0.02f }
 
     /** Master Smith Lv.1-5: +5% a level on both forging and upgrading. */
     private val SMITH_FORGING = (1..5).map { it * 0.05f }

@@ -206,8 +206,8 @@ skills:
       Deeper knowledge of weapons and armor that raises the odds of successfully refining
       either one further after forging. If an upgrade fails the equipment can be destroyed.
 
-      `+4%/lv` success chance when upgrading a weapon or armor
-      `+1%/lv` success chance when forging
+      `+8%/lv` success chance when upgrading a weapon or armor
+      `+2%/lv` success chance when forging
 
   - id: 18
     identifier: M_MASTER_SMITH

@@ -66,16 +66,16 @@ class CraftBonusServiceTest {
   fun `forging adds weaponry research and master smith`() {
     val recipe = recipeRequiring(FORGE_WEAPON)
 
-    val maxed = known(FORGE_WEAPON to 10, WEAPONRY_RESEARCH to 10, MASTER_SMITH to 5)
+    val maxed = known(FORGE_WEAPON to 10, WEAPONRY_RESEARCH to 5, MASTER_SMITH to 5)
     assertEquals((0.10f + 0.25f + 0.20f).coerceAtMost(1f), service.successChance(maxed, recipe, null), TOLERANCE)
   }
 
   @Test
-  fun `upgrading adds four percent a level of research and five of master smith`() {
+  fun `upgrading adds eight percent a level of research and five of master smith`() {
     val recipe = recipeRequiring(UPGRADE_EQUIPMENT, baseSuccessChance = 0f)
 
-    assertEquals(0.04f, service.successChance(known(WEAPONRY_RESEARCH to 1), recipe, null), TOLERANCE)
-    assertEquals(0.40f + 0.25f, service.successChance(known(WEAPONRY_RESEARCH to 10, MASTER_SMITH to 5), recipe, null), TOLERANCE)
+    assertEquals(0.08f, service.successChance(known(WEAPONRY_RESEARCH to 1), recipe, null), TOLERANCE)
+    assertEquals(0.40f + 0.25f, service.successChance(known(WEAPONRY_RESEARCH to 5, MASTER_SMITH to 5), recipe, null), TOLERANCE)
   }
 
   /** A repair has no documented success table, so nothing may be invented for it. */
