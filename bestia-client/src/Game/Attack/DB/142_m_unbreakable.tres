@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 142
+name = "Unbreakable"
+description_key = "SKILL_142_DESC"
+mana_cost = 0
+cooldown = 0.0
+max_level = 3
+target_type = "FRIENDLY"
+tree = "WARRIOR"
+sub_tree = "BRAWLER"
+is_passive = true
+prerequisite_ids = PackedInt32Array(97, 141)
+prerequisite_levels = PackedInt32Array(3, 2)

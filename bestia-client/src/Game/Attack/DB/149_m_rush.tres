@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 149
+name = "Rush"
+description_key = "SKILL_149_DESC"
+mana_cost = 12
+cooldown = 10.0
+target_type = "ENEMY"
+tree = "WARRIOR"
+sub_tree = "BRAWLER"
+prerequisite_ids = PackedInt32Array(146)
+prerequisite_levels = PackedInt32Array(2)
