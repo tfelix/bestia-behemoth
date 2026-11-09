@@ -760,7 +760,7 @@ hold a weapon in the left hand. The off-hand weapon always swings for less.
 SKILL_121_DESC,"A thin, oiled coating worked into weapons and armor for 10min. While it holds, Strip
 Equipment cannot take any coated piece.
 
-`-20%/lv` durability wear of the coated equipment"
+`-40%/lv` durability wear of the coated equipment, from 20% at Lv.1"
 SKILL_122_DESC,"Drops the Assassin flat against whatever cover is at hand. Nothing hostile can see them
 while they stay put. Breaks on moving or attacking. Ruwach always reveals. Cooldown 5s.
 
@@ -773,8 +773,8 @@ strips it outright. Cooldown 8s.
 `-1/lv` mana drain per second, from 6 at Lv.1"
 SKILL_124_DESC,"A long, unhealthy familiarity with everything that should not be swallowed.
 
-`+10%/lv` damage of the Assassin's own poisons
-`+5%/lv` poison resistance"
+`+20%/lv` damage of the Assassin's own poisons
+`+10%/lv` poison resistance"
 SKILL_125_DESC,"Works a brewed poison into the edge of a weapon for 5min, so every strike can leave it
 behind. Consumes one poison, such as Basic Poison. The poison decides how hard it bites.
 
@@ -783,10 +783,9 @@ SKILL_126_DESC,"When an enemy spell strikes the Assassin, they may memorize it w
 once. Bestia attacks can be copied too. Casting the copy consumes it, and a new copy
 overwrites the old one. A master's spell counts 10 attack levels per skill level.
 
-`+5%/lv` copy chance
-`+10/lv` highest attack level copied, 100+ at max rank"
-SKILL_127_DESC,"Toggle. While active, a spell memorized via Plagiarism is not lost to a fresh copy.
-Cooldown 2s."
+`+10%/lv` copy chance
+`+20/lv` highest attack level copied, 100+ at max rank
+Lv.5 a new copy no longer overwrites the old one"
 SKILL_128_DESC,"A blade driven in from behind. Only works from Hide or Cloak, and only from behind the
 target. The strike ends the hiding. Cooldown 8s.
 

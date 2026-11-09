@@ -1377,7 +1377,7 @@ skills:
       A thin, oiled coating worked into weapons and armor for 10min. While it holds, Strip
       Equipment cannot take any coated piece.
 
-      `-20%/lv` durability wear of the coated equipment
+      `-40%/lv` durability wear of the coated equipment, from 20% at Lv.1
 
   - id: 122
     identifier: M_HIDE
@@ -1409,8 +1409,8 @@ skills:
     description: |
       A long, unhealthy familiarity with everything that should not be swallowed.
 
-      `+10%/lv` damage of the Assassin's own poisons
-      `+5%/lv` poison resistance
+      `+20%/lv` damage of the Assassin's own poisons
+      `+10%/lv` poison resistance
 
   - id: 125
     identifier: M_ENCHANT_POISON
@@ -1433,17 +1433,9 @@ skills:
       once. Bestia attacks can be copied too. Casting the copy consumes it, and a new copy
       overwrites the old one. A master's spell counts 10 attack levels per skill level.
 
-      `+5%/lv` copy chance
-      `+10/lv` highest attack level copied, 100+ at max rank
-
-  - id: 127
-    identifier: M_PRESERVE
-    script: Preserve
-    targetType: FRIENDLY
-    manaCost: 10
-    description: |
-      Toggle. While active, a spell memorized via Plagiarism is not lost to a fresh copy.
-      Cooldown 2s.
+      `+10%/lv` copy chance
+      `+20/lv` highest attack level copied, 100+ at max rank
+      Lv.5 a new copy no longer overwrites the old one
 
   - id: 128
     identifier: M_BACKSTAB
