@@ -755,7 +755,7 @@ skills:
   - skill: M_EQUIPMENT_COATING
     tree: WARRIOR
     subTree: ASSASSIN
-    maxLevel: 5
+    maxLevel: 3
     prerequisites:
       - skill: M_STRIP_EQUIPMENT
         level: 3
@@ -810,7 +810,7 @@ skills:
   - skill: M_POISON_RESEARCH
     tree: WARRIOR
     subTree: ASSASSIN
-    maxLevel: 10
+    maxLevel: 5
 
   - skill: M_ENCHANT_POISON
     tree: WARRIOR
@@ -823,15 +823,8 @@ skills:
   - skill: M_PLAGIARISM
     tree: WARRIOR
     subTree: ASSASSIN
-    maxLevel: 10
+    maxLevel: 5
 
-  - skill: M_PRESERVE
-    tree: WARRIOR
-    subTree: ASSASSIN
-    maxLevel: 1
-    prerequisites:
-      - skill: M_PLAGIARISM
-        level: 5
 
   # Knight (unlocked at 5+ pts in Warrior Tree)
   - skill: M_HEAVY_WEAPON_MASTERY
