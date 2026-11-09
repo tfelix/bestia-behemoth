@@ -979,3 +979,79 @@ skills:
         level: 3
       - skill: M_AUTO_GUARD
         level: 3
+
+  # Brawler (unlocked at 5+ pts in Warrior Tree)
+  - skill: M_TOUGH_GUY
+    tree: WARRIOR
+    subTree: BRAWLER
+    maxLevel: 5
+
+  - skill: M_SECOND_WIND
+    tree: WARRIOR
+    subTree: BRAWLER
+    maxLevel: 3
+    prerequisites:
+      - skill: M_TOUGH_GUY
+        level: 3
+
+  - skill: M_UNBREAKABLE
+    tree: WARRIOR
+    subTree: BRAWLER
+    maxLevel: 3
+    prerequisites:
+      - skill: M_IRON_SKIN
+        level: 3
+      - skill: M_SECOND_WIND
+        level: 2
+
+  - skill: M_IRON_FIST
+    tree: WARRIOR
+    subTree: BRAWLER
+    maxLevel: 10
+
+  - skill: M_TRIPLE_BLOW
+    tree: WARRIOR
+    subTree: BRAWLER
+    maxLevel: 10
+    prerequisites:
+      - skill: M_IRON_FIST
+        level: 3
+
+  - skill: M_CHAIN_COMBO
+    tree: WARRIOR
+    subTree: BRAWLER
+    maxLevel: 5
+    prerequisites:
+      - skill: M_TRIPLE_BLOW
+        level: 5
+
+  - skill: M_STAFF_SWEEP
+    tree: WARRIOR
+    subTree: BRAWLER
+    maxLevel: 5
+
+  - skill: M_RUSH
+    tree: WARRIOR
+    subTree: BRAWLER
+    maxLevel: 1
+    prerequisites:
+      - skill: M_STAFF_SWEEP
+        level: 2
+
+  - skill: M_BATTLE_FURY
+    tree: WARRIOR
+    subTree: BRAWLER
+    maxLevel: 3
+    prerequisites:
+      - skill: M_TOUGH_GUY
+        level: 3
+
+  - skill: M_ULTIMA_FIST
+    tree: WARRIOR
+    subTree: BRAWLER
+    maxLevel: 5
+    prerequisites:
+      - skill: M_BATTLE_FURY
+        level: 3
+      - skill: M_CHAIN_COMBO
+        level: 3

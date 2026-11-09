@@ -887,3 +887,39 @@ anything: +20% DEF and +20% ATK.
 Lv.1 10s, cooldown 120s
 Lv.2 15s, and immune to stun and knockback
 Lv.3 cooldown 90s, and a hit fully blocked by Auto Guard refreshes the duration"
+SKILL_140_DESC,"A Brawler's conditioning - stamina holds out longer under strain and comes back quicker once
+it's spent.
+
+`-10%/lv` stamina cost
+`+10%/lv` stamina regeneration"
+SKILL_141_DESC,"A Brawler's answer to running on empty: dig deep once, and get back up. Restores 50% of
+the stamina at once.
+
+Lv.2 also restores 20% HP
+Lv.3 cooldown 120s instead of 180s"
+SKILL_142_DESC,"The Brawler's capstone. Once per cooldown, an otherwise lethal hit leaves the master at
+1 HP instead. Cooldown 10min.
+
+Lv.2 Stun and knockback last half as long while above 50% HP
+Lv.3 cooldown 6min"
+SKILL_143_DESC,"Knuckles hardened on posts, walls and the occasional jaw.
+
+`+3/lv` ATK with fist weapons"
+SKILL_144_DESC,"Every basic attack may become three in a row, for 200% ATK in all.
+
+`+3%/lv` chance per basic attack"
+SKILL_145_DESC,"Follows a Triple Blow at once with four more hits.
+
+`250% + 50%/lv` ATK over all hits"
+SKILL_146_DESC,"A wide sweep of the staff that hits every enemy within 2m and knocks them back 1m. Needs a
+staff. Cooldown 6s.
+
+`100% + 20%/lv` ATK"
+SKILL_147_DESC,"Works the Brawler into a Berserk: +60% ATK and +30% attack speed, but no DEF. Cooldown 60s.
+
+`+10s/lv` duration"
+SKILL_148_DESC,"Only while Berserk and with at least half the mana: pours all of it into one blow of
+ATK * (4 + mana spent / 10). Afterwards the Berserk ends and the mana is sealed for 5min.
+
+`+10%/lv` damage"
+SKILL_149_DESC,Dashes up to 6m to a target. Cooldown 10s.

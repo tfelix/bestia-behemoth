@@ -1725,6 +1725,107 @@ skills:
       Lv.2 15s, and immune to stun and knockback
       Lv.3 cooldown 90s, and a hit fully blocked by Auto Guard refreshes the duration
 
+# Brawler
+  - id: 140
+    identifier: M_TOUGH_GUY
+    targetType: FRIENDLY
+    description: |
+      A Brawler's conditioning - stamina holds out longer under strain and comes back quicker once
+      it's spent.
+
+      `-10%/lv` stamina cost
+      `+10%/lv` stamina regeneration
+
+  - id: 141
+    identifier: M_SECOND_WIND
+    script: SecondWind
+    targetType: FRIENDLY
+    description: |
+      A Brawler's answer to running on empty: dig deep once, and get back up. Restores 50% of
+      the stamina at once.
+
+      Lv.2 also restores 20% HP
+      Lv.3 cooldown 120s instead of 180s
+
+  - id: 142
+    identifier: M_UNBREAKABLE
+    targetType: FRIENDLY
+    description: |
+      The Brawler's capstone. Once per cooldown, an otherwise lethal hit leaves the master at
+      1 HP instead. Cooldown 10min.
+
+      Lv.2 Stun and knockback last half as long while above 50% HP
+      Lv.3 cooldown 6min
+
+  - id: 143
+    identifier: M_IRON_FIST
+    targetType: FRIENDLY
+    description: |
+      Knuckles hardened on posts, walls and the occasional jaw.
+
+      `+3/lv` ATK with fist weapons
+
+  - id: 144
+    identifier: M_TRIPLE_BLOW
+    targetType: FRIENDLY
+    description: |
+      Every basic attack may become three in a row, for 200% ATK in all.
+
+      `+3%/lv` chance per basic attack
+
+  - id: 145
+    identifier: M_CHAIN_COMBO
+    script: ChainCombo
+    targetType: ENEMY
+    range: 1
+    manaCost: 15
+    description: |
+      Follows a Triple Blow at once with four more hits.
+
+      `250% + 50%/lv` ATK over all hits
+
+  - id: 146
+    identifier: M_STAFF_SWEEP
+    script: StaffSweep
+    targetType: FRIENDLY
+    manaCost: 20
+    description: |
+      A wide sweep of the staff that hits every enemy within 2m and knocks them back 1m. Needs a
+      staff. Cooldown 6s.
+
+      `100% + 20%/lv` ATK
+
+  - id: 147
+    identifier: M_BATTLE_FURY
+    script: BattleFury
+    targetType: FRIENDLY
+    manaCost: 20
+    description: |
+      Works the Brawler into a Berserk: +60% ATK and +30% attack speed, but no DEF. Cooldown 60s.
+
+      `+10s/lv` duration
+
+  - id: 148
+    identifier: M_ULTIMA_FIST
+    script: MasterUltimaFist
+    targetType: ENEMY
+    range: 1
+    manaCost: 10
+    description: |
+      Only while Berserk and with at least half the mana: pours all of it into one blow of
+      ATK * (4 + mana spent / 10). Afterwards the Berserk ends and the mana is sealed for 5min.
+
+      `+10%/lv` damage
+
+  - id: 149
+    identifier: M_RUSH
+    script: Rush
+    targetType: ENEMY
+    range: 6
+    manaCost: 12
+    description: |
+      Dashes up to 6m to a target. Cooldown 10s.
+
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000
     identifier: ember
