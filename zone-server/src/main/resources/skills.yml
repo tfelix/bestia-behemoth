@@ -649,6 +649,69 @@ skills:
       The founding rite that plants a city sign in the ground and calls a settlement into being
       around it. Only one settlement can be active at a time. Cooldown 24h.
 
+# Trader
+  - id: 56
+    identifier: M_SCAVENGER
+    targetType: FRIENDLY
+    description: |
+      A scrapper's eye for what's still worth keeping - coaxes more usable components out of
+      anything broken down for parts.
+
+      `+5%/lv` recycle success chance
+
+  - id: 57
+    identifier: M_MINTING
+    script: Minting
+    targetType: GROUND
+    range: 2
+    manaCost: 15
+    castTime: 10.0
+    description: |
+      The final step between a fistful of raw gold and coin that actually spends. Allows the
+      master to mint gold bars into gold coins. The gold a mint does not recover goes back to
+      the world reserve.
+
+      Level 1 enables you to place a Mint
+      `60%` of a bar's gold becomes coin at Lv.1, `+10%/lv`, all of it at max rank
+
+  - id: 58
+    identifier: M_TRADE_POST_OWNER
+    script: TradePostOwner
+    targetType: GROUND
+    range: 2
+    manaCost: 40
+    castTime: 10.0
+    description: |
+      Builds an auction house where other citizens can buy and sell their wares, turning any
+      settlement into a proper marketplace. Only one auction house can stand in a settlement.
+
+      `+1/lv` auction houses the master may run
+      `+5%/lv` highest owner fee
+
+  - id: 59
+    identifier: M_TRADE_AGREEMENT
+    script: TradeAgreement
+    targetType: FRIENDLY
+    range: 10
+    manaCost: 30
+    castTime: 5.0
+    description: |
+      Weaves this Trader's auction house into those of other consenting players, merging their
+      listings into a single, wider marketplace. To be linked, the other player needs at least
+      level 1 of this skill too. Cooldown 60s.
+
+      `+1/lv` linked players
+
+  - id: 60
+    identifier: M_HONORABLE_CITIZEN
+    targetType: FRIENDLY
+    description: |
+      A quiet ledger of who's been caught with sticky fingers. Anyone caught stealing from this
+      Trader's stock, mint or linked auction listings suffers a steeper honor penalty than they
+      otherwise would.
+
+      `+20%/lv` honor penalty for robbers
+
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000
     identifier: ember

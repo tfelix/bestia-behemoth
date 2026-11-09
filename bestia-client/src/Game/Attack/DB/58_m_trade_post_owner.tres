@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 58
+name = "Trade Post Owner"
+description_key = "SKILL_58_DESC"
+mana_cost = 40
+cooldown = 0.0
+max_level = 5
+cast_time = 10.0
+tree = "SCHOLAR"
+sub_tree = "TRADER"

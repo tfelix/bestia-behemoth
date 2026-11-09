@@ -145,6 +145,9 @@ recipes:
   # The mint. Every coin in the world is struck here and nowhere else, out of the world reserve - so this
   # is the one recipe whose output is money, and the one that can be refused because the world has run out.
   #
+  # The output is what Minting Lv. 5 strikes. A lower level recovers less, and the rest of the bar's gold
+  # stays in the reserve.
+  #
   # It cannot fail. Inputs are spent before the roll and never returned, so a failed mint would destroy the
   # bar's gold outside the reserve and the supply would quietly shrink every time somebody was unlucky.
   - id: 26
@@ -153,7 +156,8 @@ recipes:
     output: { item: gold_coin, amount: 10000 }
     inputs:
       - { item: gold_bar, amount: 1 }
-    skill: { skill: M_ORE_REFINEMENT, level: 1 }
+    skill: { skill: M_MINTING, level: 1 }
+    # A workbench until the Mint exists as a station.
     station: WORKBENCH
     craftSeconds: 20.0
     baseSuccessChance: 1.0
