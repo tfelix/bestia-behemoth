@@ -291,7 +291,7 @@ skills:
       - skill: M_RICH_VEINS
         level: 3
 
-  # --- Scholar Tree (Trader/Sage skills from master.md are not yet added - see docs/mechanics/master.md) ---
+  # --- Scholar Tree (Sage skills from master.md are not yet added - see docs/mechanics/master.md) ---
   - skill: M_MAGIC_SENSE
     tree: SCHOLAR
     maxLevel: 5
@@ -316,6 +316,43 @@ skills:
     prerequisites:
       - skill: M_MAGIC_SENSE
         level: 3
+
+  # Trader (unlocked at 5+ pts in Scholar Tree)
+  - skill: M_SCAVENGER
+    tree: SCHOLAR
+    subTree: TRADER
+    maxLevel: 10
+
+  - skill: M_MINTING
+    tree: SCHOLAR
+    subTree: TRADER
+    maxLevel: 5
+    prerequisites:
+      - skill: M_SCAVENGER
+        level: 3
+
+  - skill: M_TRADE_POST_OWNER
+    tree: SCHOLAR
+    subTree: TRADER
+    maxLevel: 5
+
+  - skill: M_TRADE_AGREEMENT
+    tree: SCHOLAR
+    subTree: TRADER
+    maxLevel: 5
+    prerequisites:
+      - skill: M_TRADE_POST_OWNER
+        level: 3
+
+  - skill: M_HONORABLE_CITIZEN
+    tree: SCHOLAR
+    subTree: TRADER
+    maxLevel: 5
+    prerequisites:
+      - skill: M_MINTING
+        level: 2
+      - skill: M_TRADE_AGREEMENT
+        level: 1
 
   # Priest (unlocked at 5+ pts in Scholar Tree)
   - skill: M_BLESSING

@@ -502,3 +502,28 @@ lets you build one from an outpost kit. Cooldown 60s.
 `+1 km/lv` detection distance around the outpost"
 SKILL_55_DESC,"The founding rite that plants a city sign in the ground and calls a settlement into being
 around it. Only one settlement can be active at a time. Cooldown 24h."
+SKILL_56_DESC,"A scrapper's eye for what's still worth keeping - coaxes more usable components out of
+anything broken down for parts.
+
+`+5%/lv` recycle success chance"
+SKILL_57_DESC,"The final step between a fistful of raw gold and coin that actually spends. Allows the
+master to mint gold bars into gold coins. The gold a mint does not recover goes back to
+the world reserve.
+
+Level 1 enables you to place a Mint
+`60%` of a bar's gold becomes coin at Lv.1, `+10%/lv`, all of it at max rank"
+SKILL_58_DESC,"Builds an auction house where other citizens can buy and sell their wares, turning any
+settlement into a proper marketplace. Only one auction house can stand in a settlement.
+
+`+1/lv` auction houses the master may run
+`+5%/lv` highest owner fee"
+SKILL_59_DESC,"Weaves this Trader's auction house into those of other consenting players, merging their
+listings into a single, wider marketplace. To be linked, the other player needs at least
+level 1 of this skill too. Cooldown 60s.
+
+`+1/lv` linked players"
+SKILL_60_DESC,"A quiet ledger of who's been caught with sticky fingers. Anyone caught stealing from this
+Trader's stock, mint or linked auction listings suffers a steeper honor penalty than they
+otherwise would.
+
+`+20%/lv` honor penalty for robbers"
