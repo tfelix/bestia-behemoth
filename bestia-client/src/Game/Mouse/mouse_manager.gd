@@ -371,6 +371,20 @@ func get_floor_hit_at_mouse() -> Variant:
 	return null
 
 
+## The ray under the cursor as [code][from, direction][/code], or null when the pointer is not on the world -
+## for the same reasons [method get_floor_hit_at_mouse] gives none.
+func get_mouse_ray() -> Variant:
+	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED or is_pointer_over_ui():
+		return null
+
+	var camera := get_viewport().get_camera_3d()
+	if camera == null:
+		return null
+
+	var mouse_pos := get_viewport().get_mouse_position()
+	return [camera.project_ray_origin(mouse_pos), camera.project_ray_normal(mouse_pos)]
+
+
 ## The loot under the cursor once every creature in front of it is looked past, or null. Physics picking
 ## hands a click to the nearest collider only, so a body standing on loot hides the loot at its feet from
 ## the pointer entirely. Only creatures are seen through: a prop, a wall or the ground ends the look, so

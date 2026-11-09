@@ -84,6 +84,9 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// <summary>How full a cell is from the bottom up, 0 to 255; 0 where nothing is built.</summary>
     public int FillAt(long x, long y, long z) => _merged.TryGetValue(new Position(x, y, z), out var cell) ? cell.Fill : 0;
 
+    /// <summary>Whether any piece fills the cell or has a wall on its border.</summary>
+    public bool IsBuilt(long x, long y, long z) => _merged.ContainsKey(new Position(x, y, z));
+
     /// <summary>The walls on a cell's borders, as <c>StructurePieces.Edge*</c> bits.</summary>
     public int EdgesAt(long x, long y, long z) => _merged.TryGetValue(new Position(x, y, z), out var cell) ? cell.Edges : 0;
 

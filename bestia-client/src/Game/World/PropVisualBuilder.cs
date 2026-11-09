@@ -57,6 +57,11 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     public Node3D BuildConstruction(int kind)
     {
+      if (Mesh.StructurePieces.IsPiece(kind))
+      {
+        return BuildPieceGhost(kind);
+      }
+
       var node = Build(kind);
 
       if (node is not MeshInstance3D instance || instance.Mesh == null)
@@ -78,6 +83,26 @@ namespace BestiaBehemothClient.Game.World
     }
 
     /// <summary>
+    /// A see-through building piece to place, drawn from its cells around the bottom centre of its first cell.
+    /// </summary>
+    /// <remarks>Its one material is kept as the <c>piece_material</c> meta, so the placement can tint it.</remarks>
+    private static Node3D BuildPieceGhost(int kind)
+    {
+      var material = new StandardMaterial3D
+      {
+        AlbedoColor = PieceGhostColour,
+        Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+        ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded
+      };
+      var node = StructurePieceVisual.Build(kind, material, (float)WorldLayout.VoxelSizeMetres);
+      node.SetMeta("piece_material", material);
+
+      return node;
+    }
+
+    private static readonly Color PieceGhostColour = new(0.4f, 0.9f, 0.4f, 0.5f);
+
+    /// <summary>
     /// The <c>StaticEntityKind</c> ordinal of a station a player can build, or -1 for a name this client does
     /// not know.
     /// </summary>
@@ -94,6 +119,9 @@ namespace BestiaBehemothClient.Game.World
         "WORKBENCH" => 22,
         "FURNACE" => 23,
         "FORGE" => 24,
+        "STRUCTURE_WALL" => Mesh.StructurePieces.Wall,
+        "STRUCTURE_FLOOR" => Mesh.StructurePieces.Floor,
+        "STRUCTURE_STAIRS" => Mesh.StructurePieces.Stairs,
         _ => -1
       };
 
@@ -105,7 +133,7 @@ namespace BestiaBehemothClient.Game.World
 
       // Every buildable kind carries a StructureHeight and only the ward stone besides, which makes this a real check
       // on the number above rather than a restatement of it.
-      if (PropAppearance.Of(ordinal).StructureHeight <= 0f)
+      if (!Mesh.StructurePieces.IsPiece(ordinal) && PropAppearance.Of(ordinal).StructureHeight <= 0f)
       {
         GD.PushError($"PropVisualBuilder: ordinal {ordinal} is not a buildable kind; StaticEntityKind has drifted");
       }

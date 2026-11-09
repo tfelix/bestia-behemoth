@@ -159,9 +159,6 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     private const float VoxelSize = (float)WorldLayout.VoxelSizeMetres;
 
-    /// <summary>How thick a wall is drawn, in voxels. It blocks the whole border either way.</summary>
-    private const float WallThickness = 0.15f;
-
     /// <summary>
     /// The terrain a prop is standing on, so its base can be put where that terrain is drawn.
     /// </summary>
@@ -353,53 +350,19 @@ namespace BestiaBehemothClient.Game.World
       Record(key, entry.EntityId, new Drawn { Node = node });
     }
 
-    /// <summary>
-    /// Draws a building piece as the cells it blocks: a box for each filled cell and a thin panel for each wall.
-    /// </summary>
-    /// <remarks>
-    /// A placeholder until the pieces have models, and an honest one: what is drawn is exactly what the server and
-    /// <see cref="Mesh.WalkRules"/> walk by. Placed at the piece's own cells rather than on the terrain under it,
-    /// because an upper floor does not stand on the ground. Each wall is drawn once, from its x+ or y+ side.
-    /// </remarks>
+    /// <summary>Draws a building piece at its own cells rather than on the terrain: an upper floor is not on the ground.</summary>
     private void AddStructurePiece(
       Node3D container, ChunkKey key, ChunkStaticEntitiesSMSG.Entry entry, PropAppearance.Kind appearance)
     {
       var material = new StandardMaterial3D { AlbedoColor = appearance.PlaceholderColour };
-      var node = new Node3D { Name = $"Piece_{entry.EntityId}" };
-      var cells = Mesh.StructurePieces.Rasterize(
-        entry.Kind, entry.Position.X, entry.Position.Z, entry.Position.Y, Mesh.StructurePieces.QuarterTurnsOf(entry.Yaw));
-
-      foreach (var cell in cells)
-      {
-        if (cell.Fill > 0)
-        {
-          var fill = cell.Fill / 255f;
-          AddPieceBox(node, material, new Vector3(cell.X + 0.5f, cell.Z + fill / 2f, cell.Y + 0.5f), new Vector3(1f, fill, 1f));
-        }
-
-        if ((cell.Edges & Mesh.StructurePieces.EdgeXPlus) != 0)
-        {
-          AddPieceBox(node, material, new Vector3(cell.X + 1f, cell.Z + 0.5f, cell.Y + 0.5f), new Vector3(WallThickness, 1f, 1f));
-        }
-
-        if ((cell.Edges & Mesh.StructurePieces.EdgeYPlus) != 0)
-        {
-          AddPieceBox(node, material, new Vector3(cell.X + 0.5f, cell.Z + 0.5f, cell.Y + 1f), new Vector3(1f, 1f, WallThickness));
-        }
-      }
+      var node = StructurePieceVisual.Build(entry.Kind, material, VoxelSize);
+      node.Name = $"Piece_{entry.EntityId}";
+      // Entry.Position is in Godot's axis order: its z is the server's y.
+      node.Transform = StructurePieceVisual.TransformOf(
+        entry.Position.X, entry.Position.Z, entry.Position.Y, entry.Yaw, VoxelSize);
 
       container.AddChild(node);
       Record(key, entry.EntityId, new Drawn { Node = node });
-    }
-
-    /// <param name="centre">In voxels, in Godot's axis order.</param>
-    private static void AddPieceBox(Node3D piece, Material material, Vector3 centre, Vector3 size)
-    {
-      piece.AddChild(new MeshInstance3D
-      {
-        Mesh = new BoxMesh { Size = size * VoxelSize, Material = material },
-        Position = centre * VoxelSize
-      });
     }
 
     /// <summary>

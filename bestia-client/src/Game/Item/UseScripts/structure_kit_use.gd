@@ -13,6 +13,9 @@ const PropVisualBuilderScript = preload("res://Game/World/PropVisualBuilder.cs")
 ## that enum is mirrored - see PropVisualBuilder.KindByName. A subclass for a furnace kit overrides this.
 var kind_name: String = "WORKBENCH"
 
+## [member kind_name] as an ordinal, once the kit is in use.
+var kind: int = -1
+
 
 func on_item_used(item: ItemResource) -> void:
 	var mouse := MouseManager.get_instance()
@@ -21,7 +24,7 @@ func on_item_used(item: ItemResource) -> void:
 		return
 
 	var builder = PropVisualBuilderScript.new()
-	var kind: int = builder.KindByName(kind_name)
+	kind = builder.KindByName(kind_name)
 	if kind < 0:
 		return
 
