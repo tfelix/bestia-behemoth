@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 86
+name = "Holy Light"
+description_key = "SKILL_86_DESC"
+mana_cost = 24
+cooldown = 0.0
+max_level = 5
+target_type = "ENEMY"
+cast_time = 1.5
+tree = "SCHOLAR"
+sub_tree = "PRIEST"
+prerequisite_ids = PackedInt32Array(85)
+prerequisite_levels = PackedInt32Array(2)

@@ -8,7 +8,10 @@ Lv.3 Allows to use trade posts.
 Lv.4 Allows sitting to double HP & Mana recovery.
 Lv.5 Allows to create parties and invite players into them. Joining a party needs no rank.
 Unlocks all the other skill trees."
-SKILL_2_DESC,A passive ward that shields the master from harm.
+SKILL_2_DESC,"The defensive twin of Demon Bane - a standing ward that dulls what comes back the other way
+from anything unholy.
+
+`-10%/lv` damage taken from Demon and Undead Bestias"
 SKILL_3_DESC,"The Master and his Bestia can learn recipes and start to cook meals on fire places. Food
 helps a Bestia to keep its health and stamina up and usually applies buff effects when it
 is eaten.
@@ -19,7 +22,12 @@ recipes you discover, not with the rank.
 Lv.1 `-0%` cooking time, `+0%` success chance, 5 stamina
 Lv.2 `-20%` cooking time, `+20%` success chance, 8 stamina
 Lv.3 `-40%` cooking time, `+40%` success chance, 11 stamina"
-SKILL_4_DESC,Restores a small amount of health to the target.
+SKILL_4_DESC,"Channels mana directly into a target's wounds, restoring HP in an instant. The Priest's
+bread and butter - simple, reliable, and the first rite every Priest learns.
+
+Heals `[(BaseLv + INT) / 8] * (4 + 8 * SkillLv)` HP. Against an Undead target it is a holy
+attack for half that amount.
+`+3/lv` mana cost, from 13 at Lv.1"
 SKILL_1000_DESC,"Sets a patch of ground alight. Everything standing in the flames is burnt every 1.2s for
 9.6s - eight times in all.
 
@@ -28,14 +36,12 @@ the flames burn the caster too."
 SKILL_5_DESC,"Hurls a bolt of searing fire at a single enemy.
 
 Must be channelled - moving or taking damage interrupts the cast."
-SKILL_6_DESC,"Blesses the target with divine power.
+SKILL_6_DESC,"A benediction that steadies body and mind. On an Undead or Demon target it turns into a
+curse that halves DEX and INT instead.
 
-Temporary increase of STR, DEX, INT and HIT. Versus Undead property and Demon race
-Bestia halves their DEX and INT instead.
-
-[table=5]
-[cell]Level[/cell][cell]Stat Increase[/cell][cell]HIT Increase[/cell][cell]Duration[/cell][cell]Mana[/cell]
-[cell]1[/cell][cell]1[/cell][cell]2[/cell][cell]60s[/cell][cell]28[/cell][cell]2[/cell][cell]2[/cell][cell]4[/cell][cell]80s[/cell][cell]32[/cell][cell]3[/cell][cell]3[/cell][cell]6[/cell][cell]100s[/cell][cell]36[/cell][cell]4[/cell][cell]4[/cell][cell]8[/cell][cell]120s[/cell][cell]40[/cell][cell]5[/cell][cell]5[/cell][cell]10[/cell][cell]140s[/cell][cell]44[/cell][cell]6[/cell][cell]6[/cell][cell]12[/cell][cell]160s[/cell][cell]48[/cell][cell]7[/cell][cell]7[/cell][cell]14[/cell][cell]180s[/cell][cell]52[/cell][cell]8[/cell][cell]8[/cell][cell]16[/cell][cell]200s[/cell][cell]56[/cell][cell]9[/cell][cell]9[/cell][cell]18[/cell][cell]220s[/cell][cell]60[/cell][cell]10[/cell][cell]10[/cell][cell]20[/cell][cell]240s[/cell][cell]64[/cell][/table]"
+`+1/lv` STR, DEX and INT
+`+2/lv` HIT
+`40s + 20s/lv` duration"
 SKILL_8_DESC,"Apply bandages to yourself or to a friendly Bestia or master and channel a healing effect
 over 10s. The cooldown of this skill is 3 minutes. A target can only receive a single
 First Aid every 60 secs.
@@ -610,3 +616,75 @@ Cooldown 5s.
 
 `+60s/lv` duration
 `+5%/lv` bonus earth damage"
+SKILL_77_DESC,"A murmured rite that lightens the burden of spellcasting. Applies to the next spell the
+target casts within 30s. Cooldown 20s.
+
+`-10%/lv` cast time"
+SKILL_78_DESC,"A quiet benediction that lets a crafter's hands find the better cut. Every item the party
+starts crafting while it holds rolls its random stats with better odds. Cooldown 30s.
+
+`+5%/lv` chance for every random stat slot and socket
+`+30s/lv` duration"
+SKILL_79_DESC,"Clears the mind of a target. Lifts Blind, Confused and Feared in a single rite. Cooldown
+10s."
+SKILL_80_DESC,"The rite of blessing plain water into Holy Water. The Priest must stand in water and needs
+an Empty Bottle. Cast 3s, cooldown 5s."
+SKILL_81_DESC,"Lightens a target's limbs with borrowed haste, quickening step and swing alike.
+
+`+15%` movement speed at every level
+`+1/lv` AGI, from +4 at Lv.1
+`+1%/lv` attack speed
+`+20s/lv` duration, from 80s at Lv.1"
+SKILL_82_DESC,"A mote of leaden mana that slows an enemy's step and swing for 30s. Cooldown 5s.
+
+`-4%/lv` movement and attack speed"
+SKILL_83_DESC,"A shimmering ward that stands between a target and harm for 60s, soaking up hits until it
+gives out. Cooldown 15s.
+
+`+1/lv` hits absorbed
+`+10%/lv` of the target's max HP absorbed per hit"
+SKILL_84_DESC,"Lays a veil of still air 3m wide over the ground for 20s. Anything standing in it cannot
+be hit by arrows, bolts or thrown weapons. Cooldown 10s."
+SKILL_85_DESC,"Burns a sigil onto a target that pries its guard open, and bites hardest into Demons and
+the Undead. Cooldown 8s.
+
+`-10%/lv` DEF
+`+10%/lv` extra against Demon and Undead
+`+15s/lv` duration, from 30s at Lv.1"
+SKILL_86_DESC,"Condenses raw holy mana into a single searing beam.
+
+`+10%/lv` MATK"
+SKILL_87_DESC,"Years spent studying the weak points of the unholy pay off - every strike against a Demon
+or Undead lands harder.
+
+`+8%/lv` damage against Demon and Undead Bestias"
+SKILL_88_DESC,"The laying on of hands, channeling striking power into a single ally for 60s. Cooldown
+20s.
+
+`+5/lv` ATK and MATK"
+SKILL_89_DESC,"Anoints a weapon with Holy Water, so its strikes carry the holy element. Consumes one Holy
+Water. Cooldown 10s.
+
+`+60s/lv` duration"
+SKILL_90_DESC,"A judgment of pure holy mana that punches through armor. Against an Undead target it can
+end its existence outright, more likely the more it is wounded. The damage is that of a Holy
+Light of the same level. Cooldown 5s.
+
+`+8%/lv` base chance to destroy an Undead"
+SKILL_91_DESC,"Marks a single target so that the very next hit it takes lands twice as hard. The mark
+lasts 20s. Cooldown 15s."
+SKILL_92_DESC,"A hymn of thanksgiving that quickens the natural recovery of the party for 90s. Cooldown
+60s.
+
+`+10%/lv` HP and mana regeneration"
+SKILL_93_DESC,"A pillar of holy mana erupts around the target spot for 15s, searing everything caught in
+it and Demons and the Undead worst of all. Cooldown 30s.
+
+`+15%/lv` MATK
+`+10%/lv` extra against Demon and Undead"
+SKILL_94_DESC,"Consecrates a patch of ground for 30s. Every second it heals allies standing in it, and
+burns Demons and the Undead for the same amount. Cooldown 30s.
+
+`+5%/lv` max HP healed per second"
+SKILL_95_DESC,"Calls a fallen Bestia or Master back over the threshold with part of their HP. Can not be
+used on the caster. Cooldown 10min."

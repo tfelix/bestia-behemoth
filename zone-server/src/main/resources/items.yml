@@ -1379,3 +1379,25 @@ items:
       Six treads on a pair of stringers.
 
       Climbs one storey, three metres, over six paces.
+  # The Priest's reagents: Aqua Benedicta fills an empty bottle with holy water, and Aspersio spends it.
+  - id: 109
+    item-db-name: empty_bottle
+    base-level: 1
+    weight: 10
+    type: ETC
+    material: GLASS
+    description: |
+      A small glass bottle with a cork stopper.
+
+      Empty, and waiting to be filled with something better.
+
+  - id: 110
+    item-db-name: holy_water
+    base-level: 5
+    weight: 15
+    type: ETC
+    material: GLASS
+    description: |
+      Plain water, blessed by a Priest and stoppered in a small bottle.
+
+      It burns the undead and anoints a weapon with the holy element.

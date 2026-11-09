@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 79
+name = "Status Recovery"
+description_key = "SKILL_79_DESC"
+mana_cost = 20
+cooldown = 10.0
+target_type = "FRIENDLY"
+tree = "SCHOLAR"
+sub_tree = "PRIEST"
+prerequisite_ids = PackedInt32Array(4)
+prerequisite_levels = PackedInt32Array(2)

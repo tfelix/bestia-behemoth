@@ -481,23 +481,179 @@ skills:
         level: 2
 
   # Priest (unlocked at 5+ pts in Scholar Tree)
-  - skill: M_BLESSING
-    tree: SCHOLAR
-    subTree: PRIEST
-    maxLevel: 10
-    prerequisites:
-      - skill: M_DIVINE_PROTECTION
-        level: 5
-
   - skill: M_HEAL
     tree: SCHOLAR
     subTree: PRIEST
     maxLevel: 10
 
-  - skill: M_DIVINE_PROTECTION
+  - skill: M_SUFFRAGIUM
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 3
+    prerequisites:
+      - skill: M_MAGIC_SENSE
+        level: 2
+
+  - skill: M_GLORIA
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 3
+    prerequisites:
+      - skill: M_MAGIC_SENSE
+        level: 2
+
+  - skill: M_STATUS_RECOVERY
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 1
+    prerequisites:
+      - skill: M_HEAL
+        level: 2
+
+  - skill: M_AQUA_BENEDICTA
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 1
+    prerequisites:
+      - skill: M_STATUS_RECOVERY
+        level: 1
+
+  - skill: M_ASPERSIO
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 3
+    prerequisites:
+      - skill: M_AQUA_BENEDICTA
+        level: 1
+
+  - skill: M_RESURRECTION
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 1
+    prerequisites:
+      - skill: M_HEAL
+        level: 8
+      - skill: M_STATUS_RECOVERY
+        level: 1
+
+  - skill: M_BLESSING
     tree: SCHOLAR
     subTree: PRIEST
     maxLevel: 10
+    prerequisites:
+      - skill: M_HEAL
+        level: 3
+
+  - skill: M_INCREASE_AGI
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 5
+
+  - skill: M_DECREASE_AGI
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 3
+    prerequisites:
+      - skill: M_INCREASE_AGI
+        level: 2
+
+  - skill: M_KYRIE_ELEISON
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 3
+
+  - skill: M_PNEUMA
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 1
+    prerequisites:
+      - skill: M_KYRIE_ELEISON
+        level: 2
+
+  - skill: M_IMPOSITIO_MANUS
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 3
+    prerequisites:
+      - skill: M_BLESSING
+        level: 3
+
+  - skill: M_MAGNIFICAT
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 3
+    prerequisites:
+      - skill: M_KYRIE_ELEISON
+        level: 3
+      - skill: M_BLESSING
+        level: 3
+
+  - skill: M_SANCTUARY
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 3
+    prerequisites:
+      - skill: M_MAGNIFICAT
+        level: 3
+      - skill: M_PNEUMA
+        level: 1
+
+  - skill: M_SIGNUM_CRUCIS
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 3
+
+  - skill: M_HOLY_LIGHT
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 5
+    prerequisites:
+      - skill: M_SIGNUM_CRUCIS
+        level: 2
+
+  - skill: M_DEMON_BANE
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 3
+    prerequisites:
+      - skill: M_SIGNUM_CRUCIS
+        level: 2
+
+  - skill: M_DIVINE_PROTECTION
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 3
+    prerequisites:
+      - skill: M_SIGNUM_CRUCIS
+        level: 2
+
+  - skill: M_LEX_AETERNA
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 1
+    prerequisites:
+      - skill: M_HOLY_LIGHT
+        level: 3
+
+  - skill: M_TURN_UNDEAD
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 5
+    prerequisites:
+      - skill: M_DEMON_BANE
+        level: 3
+      - skill: M_HOLY_LIGHT
+        level: 3
+
+  - skill: M_MAGNUS_EXORCISMUS
+    tree: SCHOLAR
+    subTree: PRIEST
+    maxLevel: 3
+    prerequisites:
+      - skill: M_TURN_UNDEAD
+        level: 3
+      - skill: M_HOLY_LIGHT
+        level: 5
 
   # --- Warrior Tree ---
   - skill: M_MEDITATION

@@ -112,7 +112,6 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
   private var bootsUniqueId: Long = 0
 
   companion object {
-    private const val DIVINE_PROTECTION_ID = 2L
     private const val HEAL_ID = 4L
     private const val BLESSING_ID = 6L
     private const val MAGIC_SENSE_ID = 51L
@@ -357,9 +356,8 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
 
     await {
       val points = clientPlayer1.getLastReceived(SkillPointsComponentSMSG::class)
-      // 5 for MAGIC_SENSE (the Priest gate) + 5 for DIVINE_PROTECTION (BLESSING's prerequisite)
-      // + 1 for HEAL + 1 for BLESSING.
-      assertTrue(points.points >= 12, "expected at least 12 skill points, got ${points.points}")
+      // 5 for MAGIC_SENSE (the Priest gate) + 3 for HEAL (BLESSING's prerequisite) + 1 for BLESSING.
+      assertTrue(points.points >= 9, "expected at least 9 skill points, got ${points.points}")
     }
   }
 
@@ -375,9 +373,8 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
         playerId = clientPlayer1.connectedPlayerId,
         investedPoints = listOf(
           InvestSkillPointCMSG.InvestedSkillPoint(attackId = MAGIC_SENSE_ID, amount = 5),
-          // Satisfies BLESSING's prerequisite (DIVINE_PROTECTION level 5) within the same batch.
-          InvestSkillPointCMSG.InvestedSkillPoint(attackId = DIVINE_PROTECTION_ID, amount = 5),
-          InvestSkillPointCMSG.InvestedSkillPoint(attackId = HEAL_ID, amount = 1),
+          // Satisfies BLESSING's prerequisite (HEAL level 3) within the same batch.
+          InvestSkillPointCMSG.InvestedSkillPoint(attackId = HEAL_ID, amount = 3),
           InvestSkillPointCMSG.InvestedSkillPoint(attackId = BLESSING_ID, amount = 1)
         )
       )
