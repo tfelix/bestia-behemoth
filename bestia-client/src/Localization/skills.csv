@@ -983,3 +983,29 @@ SKILL_180_DESC,"A Miner who has cut enough stones sees what a rough gem holds be
 rough gem's quality.
 
 `+5%/lv` Gem Cutting success chance"
+SKILL_181_DESC,"Turns a campfire into a camp. Party members and their Bestias within 5m bear the weather
+better: `+-5` degrees temperature tolerance, in both directions. Only one camp per master.
+Cooldown 5min.
+
+`+30min/lv` duration
+Lv.2 +50% HP and stamina regeneration, and storms and mana storms do not reach inside
+Lv.3 party members who die respawn at the camp"
+SKILL_182_DESC,"A Prospector's nose for what someone buried and never came back for. Senses treasure caches
+nearby. Cooldown 30s.
+
+`+20m/lv` radius, from 20m at Lv.1
+Lv.3 also how deep the cache lies
+Lv.5 also how rich it is"
+SKILL_183_DESC,"A sound pulse that marks hollow spaces nearby on the map: cave openings, hollows and buried
+chambers. Cooldown 20s.
+
+`+5m/lv` radius, from 10m at Lv.1
+Lv.3 also how deep and how large a hollow is"
+SKILL_184_DESC,"Charts a sensed treasure cache onto a sheet of blank vellum. The map is an item that can be
+traded or sold, so whoever holds it can dig the cache up.
+
+`-25m/lv` uncertainty of the marked spot, exact at max rank"
+SKILL_185_DESC,"Knowing where to dig and how not to break what lies below.
+
+`-20%/lv` time to dig out a treasure cache
+`+5%/lv` chance for the cache's best item"
