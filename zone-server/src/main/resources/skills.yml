@@ -1882,6 +1882,50 @@ skills:
 
       `+10%/lv` effect of every song
 
+  - id: 171
+    identifier: M_DEVOTION
+    script: Devotion
+    targetType: FRIENDLY
+    range: 7
+    manaCost: 25
+    description: |
+      Takes the hits meant for one party member. While it lasts, all damage the ally takes goes to
+      the Knight instead. It ends early when the ally moves more than 7m away. Cooldown 30s.
+
+      `+15s/lv` duration
+
+  - id: 172
+    identifier: M_BRANDISH_SPEAR
+    script: BrandishSpear
+    targetType: ENEMY
+    range: 1
+    manaCost: 12
+    description: |
+      Needs a spear or a polearm. A wide sweep that hits every enemy in a 3x3 area in front of the
+      Knight. Cooldown 4s.
+
+      `120% + 40%/lv` ATK
+
+  - id: 173
+    identifier: M_JAVELIN
+    script: Javelin
+    targetType: ENEMY
+    range: 7
+    manaCost: 14
+    description: |
+      Needs a spear or a thrown weapon. Hurls it at a target up to 7 tiles away. A spear comes back
+      to hand; a thrown weapon is used up like ammunition. Cooldown 3s.
+
+      `150% + 30%/lv` ATK
+
+  - id: 174
+    identifier: M_PACK_HUNT
+    targetType: FRIENDLY
+    description: |
+      The Hunter's Bestias learn whom to go for. They hit the target of Hunter's Mark harder.
+
+      `+10%/lv` damage of the master's Bestias against the marked target
+
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000
     identifier: ember
