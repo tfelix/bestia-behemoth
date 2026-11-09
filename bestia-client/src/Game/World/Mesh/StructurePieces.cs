@@ -56,6 +56,34 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
     public static bool IsPiece(int kind) => Pieces.ContainsKey(kind);
 
+    /// <summary>A piece's cells before it is placed or turned, or none for a kind that is not a piece.</summary>
+    public static IReadOnlyList<Cell> CellsOf(int kind) => Pieces.TryGetValue(kind, out var cells) ? cells : Array.Empty<Cell>();
+
+    /// <summary>
+    /// Whether a piece fills nothing in its lowest layer, like a wall: it then stands in the cell of a floor rather
+    /// than on top of it.
+    /// </summary>
+    public static bool StandsInFloor(int kind)
+    {
+      var stands = false;
+      foreach (var cell in CellsOf(kind))
+      {
+        if (cell.Z != 0)
+        {
+          continue;
+        }
+
+        if (cell.Fill > 0)
+        {
+          return false;
+        }
+
+        stands = true;
+      }
+
+      return stands;
+    }
+
     /// <summary>The nearest quarter turn to a yaw in radians, halves rounded up as the server's <c>roundToInt</c>.</summary>
     public static int QuarterTurnsOf(float yaw) => FloorMod((int)Math.Floor(yaw / (Math.PI / 2) + 0.5), 4);
 

@@ -80,6 +80,18 @@ WORKBENCH_KIT,Workbench Kit
 WORKBENCH_KIT_DESC,"A bundle of planks, pegs and a folded vice, tied with cord.
 
 Set it down somewhere flat and it becomes a workbench - once somebody puts the work in."
+WALL_KIT,Wall Kit
+WALL_KIT_DESC,"Planks pegged into a frame two metres wide and three high.
+
+Set it on the ground or on a floor, and it stands as a wall."
+FLOOR_KIT,Floor Kit
+FLOOR_KIT_DESC,"Boards laid on two beams, two metres square.
+
+Lay it on the ground, or across the top of walls for the storey above."
+STAIRS_KIT,Stairs Kit
+STAIRS_KIT_DESC,"Six treads on a pair of stringers.
+
+Climbs one storey, three metres, over six paces."
 GOLD_COIN,Gold Coin
 GOLD_COIN_DESC,"A milled coin of soft gold, worn smooth by hands that were glad of it."
 GRAIN,Grain

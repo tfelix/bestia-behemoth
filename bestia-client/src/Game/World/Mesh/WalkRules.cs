@@ -306,8 +306,11 @@ namespace BestiaBehemothClient.Game.World.Mesh
       return z + (built ? builtFill : occupancy) / 255.0;
     }
 
+    /// <summary>Whether a block id bears weight: the server's <c>BlockType.solid</c>.</summary>
+    public static bool IsSolid(int block) => Solid[block];
+
     /// <summary>The block id at a global voxel, or -1 when its chunk is not held.</summary>
-    private static int BlockAt(
+    internal static int BlockAt(
       IChunkSource source, ChunkWrap wrap, int chunkSize, int chunkHeight, long x, long y, int z, out int occupancy)
     {
       occupancy = 0;

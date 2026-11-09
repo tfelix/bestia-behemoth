@@ -966,6 +966,39 @@ namespace BestiaBehemothClient.Game.World
     }
 
     /// <summary>
+    /// Where a building piece snaps to under a ray from the camera - see <see cref="StructurePlacement"/>.
+    /// </summary>
+    /// <remarks>
+    /// In Godot's axes like <see cref="StepLanding"/>. Returns the piece's first cell in x, y and z, and in w 1 where
+    /// it would be taken, 0 where it would be refused, and -1 when the ray meets nothing held to snap to.
+    /// </remarks>
+    public Vector4 SnapStructure(int kind, Vector3 rayFrom, Vector3 rayDirection, float yaw)
+    {
+      if (WorldInfo == null)
+      {
+        return new Vector4(0f, 0f, 0f, -1f);
+      }
+
+      var voxel = WorldLayout.VoxelSizeMetres;
+      var spot = StructurePlacement.Solve(
+        Store, _wrap, WorldLayout.ChunkSize, WorldLayout.ChunkHeight, _structures, kind,
+        rayFrom.X / voxel, rayFrom.Z / voxel, rayFrom.Y / voxel,
+        rayDirection.X, rayDirection.Z, rayDirection.Y,
+        StructurePieces.QuarterTurnsOf(yaw), MaxPlacementDistance / voxel);
+
+      if (spot == null)
+      {
+        return new Vector4(0f, 0f, 0f, -1f);
+      }
+
+      var at = spot.Value;
+      return new Vector4(at.X, at.Z, at.Y, at.Valid ? 1f : 0f);
+    }
+
+    /// <summary>How far from the camera a building piece is looked for, in metres.</summary>
+    private const double MaxPlacementDistance = 80.0;
+
+    /// <summary>
     /// Lays what one footstep leaves on the ground: a print, and wear on the tile and the four beside it.
     /// </summary>
     /// <remarks>
