@@ -8,6 +8,8 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.structure.StructureCollision
+import net.bestia.zone.structure.StructureRasterizer
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
@@ -33,6 +35,7 @@ class PlayerStructureService(
   private val aoi: EntityAOIService,
   private val worldService: WorldService,
   private val events: ApplicationEventPublisher,
+  private val collision: StructureCollision,
 ) {
 
   /**
@@ -53,7 +56,8 @@ class PlayerStructureService(
    * between the two leaves a structure that appears the next time somebody walks up to it, where the reverse
    * would leave one standing that no restart brings back.
    *
-   * @return null when the ground is already occupied by a station of the same kind
+   * @return null when the ground is already occupied by a station of the same kind, or a building piece does not
+   *   fit
    */
   fun place(
     world: World,
@@ -61,10 +65,16 @@ class PlayerStructureService(
     ownerMasterId: Long,
     ownerAccountId: AccountId,
     position: Vec3L,
-    yaw: Float
+    requestedYaw: Float
   ): StructureEntry? {
-    if (stationNear(world, position, kind) != null) {
-      LOG.debug { "Master $ownerMasterId tried to place a second $kind next to one at $position" }
+    val yaw = yawOf(kind, requestedYaw)
+    val isTaken = if (collision.isPiece(kind)) {
+      !collision.fits(kind, position, yaw)
+    } else {
+      stationNear(world, position, kind) != null
+    }
+    if (isTaken) {
+      LOG.debug { "Master $ownerMasterId tried to place a $kind where the ground is taken at $position" }
       return null
     }
 
@@ -78,6 +88,8 @@ class PlayerStructureService(
       chunkX = Math.floorDiv(position.x, chunkSize).toInt(),
       chunkY = Math.floorDiv(position.y, chunkSize).toInt()
     )
+
+    if (collision.isPiece(kind)) collision.stand(entry.id, kind, position, yaw)
 
     // Null when nobody holds the column, which needs nothing: the row is written, and `PlayerStructureSource`
     // will produce it the next time that ground materialises.
@@ -110,6 +122,8 @@ class PlayerStructureService(
    * Unlike [place] there is no residency call: a site is an ordinary entity, so nothing has to be waiting on
    * that column for it to appear.
    *
+   * A building piece holds its cells from the start, so nothing else is built into them while it goes up.
+   *
    * @return the new site's entity id, or null when the ground is taken
    */
   fun beginConstruction(
@@ -118,11 +132,17 @@ class PlayerStructureService(
     ownerMasterId: Long,
     ownerAccountId: AccountId,
     position: Vec3L,
-    yaw: Float,
+    requestedYaw: Float,
     buildSeconds: Float
   ): EntityId? {
-    if (stationNear(world, position, kind) != null || siteNear(world, position, kind) != null) {
-      LOG.debug { "Master $ownerMasterId tried to start a $kind next to one at $position" }
+    val yaw = yawOf(kind, requestedYaw)
+    val isTaken = if (collision.isPiece(kind)) {
+      !collision.fits(kind, position, yaw)
+    } else {
+      stationNear(world, position, kind) != null || siteNear(world, position, kind) != null
+    }
+    if (isTaken) {
+      LOG.debug { "Master $ownerMasterId tried to start a $kind where the ground is taken at $position" }
       return null
     }
 
@@ -137,6 +157,8 @@ class PlayerStructureService(
       chunkY = Math.floorDiv(position.y, chunkSize).toInt(),
       buildSeconds = buildSeconds
     )
+
+    if (collision.isPiece(kind)) collision.stand(entry.id, kind, position, yaw)
 
     val entityId = sites.spawn(world, entry)
 
@@ -156,8 +178,14 @@ class PlayerStructureService(
    * deferred to the end of the tick, and `placeNow` queues its column batch for the same reason.
    */
   fun completeConstruction(world: World, siteEntityId: EntityId, site: ConstructionSite) {
-    // Where it actually stands rather than where it was placed - see `PlayerStructureRegistry.finish`.
-    val settled = world.get(siteEntityId, Position::class)?.toVec3L()
+    // Where it actually stands rather than where it was placed - see `PlayerStructureRegistry.finish`. A building
+    // piece stands where it was placed and holds its cells there, though its site was grounded: an upper floor is
+    // not on the ground.
+    val settled = if (collision.isPiece(site.kind)) {
+      structures.of(site.structureId)?.position
+    } else {
+      world.get(siteEntityId, Position::class)?.toVec3L()
+    }
     if (settled == null) {
       LOG.warn { "Construction site $siteEntityId has no position and cannot be completed" }
       return
@@ -177,6 +205,13 @@ class PlayerStructureService(
     LOG.info { "Master ${site.ownerMasterId} finished a ${site.kind} at $settled (structure ${entry.id})" }
 
     entry.ownerAccountId?.let { events.publishEvent(StructureCompletedEvent(this, it, site.ownerMasterId, site.kind.name)) }
+  }
+
+  /** A building piece turns in quarter turns only, and is stored that way so it is drawn the way it blocks. */
+  private fun yawOf(kind: StaticEntityKind, requested: Float): Float {
+    if (!collision.isPiece(kind)) return requested
+
+    return StructureRasterizer.snappedYaw(requested)
   }
 
   companion object {

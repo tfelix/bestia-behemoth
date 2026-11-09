@@ -9,6 +9,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.structure.StructureCollision
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Component as SpringComponent
 import net.bestia.zone.battle.ecs.damage.PlayerDeathSystem
@@ -30,7 +31,8 @@ import net.bestia.zone.battle.ecs.damage.PlayerDeathSystem
 @SpringComponent
 class PlayerStructureDeathSystem(
   private val structures: PlayerStructureRegistry,
-  private val worldService: WorldService
+  private val worldService: WorldService,
+  private val collision: StructureCollision
 ) : System {
   override val phase = Phase.DEATH
   override val before = setOf(PlayerDeathSystem::class)
@@ -60,6 +62,7 @@ class PlayerStructureDeathSystem(
         chunkX = Math.floorDiv(position.x, chunkSize).toInt(),
         chunkY = Math.floorDiv(position.y, chunkSize).toInt()
       )
+      collision.fall(identity.structureId)
 
       LOG.info { "Player structure ${identity.structureId} was destroyed at $position" }
     }

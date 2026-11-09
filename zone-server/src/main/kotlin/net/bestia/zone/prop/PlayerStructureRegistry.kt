@@ -69,6 +69,10 @@ class PlayerStructureRegistry(
 
   fun of(structureId: Long): StructureEntry? = byId[structureId]
 
+  fun all(): Collection<StructureEntry> {
+    return byId.values
+  }
+
   /**
    * Persists a structure and indexes it, returning the entry the caller should stamp onto the world.
    *
