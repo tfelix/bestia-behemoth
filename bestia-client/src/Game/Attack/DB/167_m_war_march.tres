@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 167
+name = "War March"
+description_key = "SKILL_167_DESC"
+mana_cost = 30
+cooldown = 5.0
+max_level = 5
+target_type = "FRIENDLY"
+tree = "WARRIOR"
+sub_tree = "BARD"
+prerequisite_ids = PackedInt32Array(166)
+prerequisite_levels = PackedInt32Array(2)

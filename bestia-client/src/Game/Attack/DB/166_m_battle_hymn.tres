@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 166
+name = "Battle Hymn"
+description_key = "SKILL_166_DESC"
+mana_cost = 30
+cooldown = 5.0
+max_level = 5
+target_type = "FRIENDLY"
+tree = "WARRIOR"
+sub_tree = "BARD"

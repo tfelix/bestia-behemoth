@@ -955,3 +955,41 @@ hidden within 3m of the master.
 
 `+2/lv` AGI and DEX"
 SKILL_159_DESC,Opens the crafting window with the arrow recipes. Needs no station.
+SKILL_160_DESC,"Training with lute, flute and whip until each one is as much a weapon as an instrument.
+
+`+2/lv` ATK with an instrument or a whip"
+SKILL_161_DESC,"A Bard trusts footwork over plate and simply is not where the hit lands.
+
+`+2/lv` FLEE in light armor, cloth or no armor"
+SKILL_162_DESC,"Needs a whip. A strike at the footing that leaves the target Slowed (-20% move speed).
+Cooldown 6s.
+
+`120% + 20%/lv` ATK
+`3s + 1s/lv` Slowed"
+SKILL_163_DESC,"Needs an instrument. One sharp, ugly note that hits the target as a sound wave.
+Cooldown 2s.
+
+`150% + 30%/lv` ATK"
+SKILL_164_DESC,"Needs an instrument. Every enemy within 3 tiles gets ASPD Down and loses HIT for 20s.
+Cooldown 20s.
+
+`-3%/lv` HIT"
+SKILL_165_DESC,"A trained voice reaches further and holds a note longer.
+
+`+1/lv` song radius in tiles
+`+10%/lv` song duration"
+SKILL_166_DESC,"A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 60s.
+
+`+3%/lv` ATK and MATK"
+SKILL_167_DESC,"A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 60s.
+
+`+2%/lv` movement and attack speed"
+SKILL_168_DESC,"A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 60s.
+
+`+3/lv` FLEE"
+SKILL_169_DESC,"A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 10min. Made for long journeys with a Bestia team.
+
+`-10%/lv` stamina drain"
+SKILL_170_DESC,"The Bard's capstone. Every song lands a little harder.
+
+`+10%/lv` effect of every song"

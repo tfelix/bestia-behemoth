@@ -1124,3 +1124,79 @@ skills:
     tree: WARRIOR
     subTree: HUNTER
     maxLevel: 1
+
+  # Bard (unlocked at 5+ pts in Warrior Tree)
+  - skill: M_INSTRUMENT_MASTERY
+    tree: WARRIOR
+    subTree: BARD
+    maxLevel: 10
+
+  - skill: M_NIMBLE_STEPS
+    tree: WARRIOR
+    subTree: BARD
+    maxLevel: 5
+
+  - skill: M_HOBBLING_LASH
+    tree: WARRIOR
+    subTree: BARD
+    maxLevel: 5
+    prerequisites:
+      - skill: M_INSTRUMENT_MASTERY
+        level: 3
+
+  - skill: M_DISCORD_STRIKE
+    tree: WARRIOR
+    subTree: BARD
+    maxLevel: 5
+    prerequisites:
+      - skill: M_INSTRUMENT_MASTERY
+        level: 3
+
+  - skill: M_DISSONANT_CHORD
+    tree: WARRIOR
+    subTree: BARD
+    maxLevel: 5
+    prerequisites:
+      - skill: M_DISCORD_STRIKE
+        level: 3
+
+  - skill: M_VOICE_TRAINING
+    tree: WARRIOR
+    subTree: BARD
+    maxLevel: 5
+
+  - skill: M_BATTLE_HYMN
+    tree: WARRIOR
+    subTree: BARD
+    maxLevel: 5
+
+  - skill: M_WAR_MARCH
+    tree: WARRIOR
+    subTree: BARD
+    maxLevel: 5
+    prerequisites:
+      - skill: M_BATTLE_HYMN
+        level: 2
+
+  - skill: M_MIRAGE_DANCE
+    tree: WARRIOR
+    subTree: BARD
+    maxLevel: 5
+    prerequisites:
+      - skill: M_VOICE_TRAINING
+        level: 3
+
+  - skill: M_WANDERERS_TUNE
+    tree: WARRIOR
+    subTree: BARD
+    maxLevel: 5
+
+  - skill: M_GRAND_PERFORMANCE
+    tree: WARRIOR
+    subTree: BARD
+    maxLevel: 3
+    prerequisites:
+      - skill: M_BATTLE_HYMN
+        level: 5
+      - skill: M_WAR_MARCH
+        level: 5
