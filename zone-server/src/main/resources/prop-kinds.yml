@@ -210,6 +210,22 @@ kinds:
     collider: { half-x: 2, half-y: 1, height: 2 }
     variants: 1
 
+  # Building pieces. What they block comes from `structure-pieces.yml`, not from `collider`.
+  - kind: STRUCTURE_WALL
+    max-hp: 300
+    collider: { half-x: 1, half-y: 1, height: 3 }
+    variants: 1
+
+  - kind: STRUCTURE_FLOOR
+    max-hp: 200
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+
+  - kind: STRUCTURE_STAIRS
+    max-hp: 200
+    collider: { half-x: 3, half-y: 1, height: 3 }
+    variants: 1
+
   # The ground cover: worldgen's herbs, shrubs and reeds, each with its blighted twin. See `GroundCoverScatter`
   # for why these are props at all while the grass you walk on is not.
   #

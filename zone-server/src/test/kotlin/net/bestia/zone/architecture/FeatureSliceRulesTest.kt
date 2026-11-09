@@ -137,7 +137,7 @@ class FeatureSliceRulesTest {
     /** The slices from the bottom up. `ecs` is the kernel `ecs.core`. */
     val TIERS = listOf(
       "root", "util", "geometry", "ecs", "config", "bus", "message", "session", "sync", "persistence", "notebook",
-      "identity", "aoi", "entity", "logout", "navigation", "movement", "world", "water", "script", "place", "skill",
+      "identity", "aoi", "entity", "logout", "navigation", "movement", "world", "structure", "water", "script", "place", "skill",
       "dialog", "battle", "weather", "ground", "item", "bestia", "spoor", "prop", "casting", "emote", "travel", "ai", "spawn",
       "account", "party", "guild", "compendium", "economy", "crafting", "cartography", "townsfolk", "honor", "postal", "master", "respawn", "trade", "auction",
       "capture", "teleport", "chat", "control", "companion", "socket", "metrics", "engine", "boot",
