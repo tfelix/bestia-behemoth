@@ -337,7 +337,7 @@ skills:
   - skill: M_SCAVENGER
     tree: SCHOLAR
     subTree: TRADER
-    maxLevel: 10
+    maxLevel: 5
 
   - skill: M_MINTING
     tree: SCHOLAR
@@ -369,6 +369,19 @@ skills:
         level: 2
       - skill: M_TRADE_AGREEMENT
         level: 1
+  - skill: M_HAGGLING
+    tree: SCHOLAR
+    subTree: TRADER
+    maxLevel: 5
+
+  - skill: M_STREET_STALL
+    tree: SCHOLAR
+    subTree: TRADER
+    maxLevel: 5
+    prerequisites:
+      - skill: M_HAGGLING
+        level: 2
+
 
   # Sage (unlocked at 5+ pts in Scholar Tree)
   - skill: M_SPELL_TRAINING

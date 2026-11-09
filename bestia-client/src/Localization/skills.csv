@@ -514,7 +514,7 @@ around it. Only one settlement can be active at a time. Cooldown 24h."
 SKILL_56_DESC,"A scrapper's eye for what's still worth keeping - coaxes more usable components out of
 anything broken down for parts.
 
-`+5%/lv` recycle success chance"
+`+10%/lv` recycle success chance"
 SKILL_57_DESC,"The final step between a fistful of raw gold and coin that actually spends. Allows the
 master to mint gold bars into gold coins. The gold a mint does not recover goes back to
 the world reserve.
@@ -967,3 +967,11 @@ Consumes a log.
 
 `-25%/lv` regrowth time
 Lv.3 the grown tree gives one more log"
+SKILL_177_DESC,"A Trader never pays the price on the sign. Better prices at every merchant.
+
+`-2%/lv` price when buying from a merchant
+`+2%/lv` price when selling to a merchant"
+SKILL_178_DESC,"Sets up a market stall where the Trader stands. Other players buy the listed items from it.
+The stall closes when the Trader walks away or after 1h.
+
+`+2/lv` listings, from 3 at Lv.1"
