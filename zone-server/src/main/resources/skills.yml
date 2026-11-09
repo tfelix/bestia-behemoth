@@ -641,8 +641,8 @@ skills:
     needsLineOfSight: false
     manaCost: 14
     description: |
-      A pulse of second sight that peels back concealment. For 10s, hidden traps, camouflaged
-      Hunters and cloaked Assassins within 10m of the caster stand out for what they are.
+      A pulse of second sight that peels back concealment. For 10s, hidden traps, hiding
+      Bestia and cloaked Assassins within 10m of the caster stand out for what they are.
       Detection resistance does not help against it. Cooldown 10s.
 
   - id: 54
@@ -1825,6 +1825,104 @@ skills:
     manaCost: 12
     description: |
       Dashes up to 6m to a target. Cooldown 10s.
+
+  - id: 150
+    identifier: M_CAMOUFLAGE
+    targetType: FRIENDLY
+    description: |
+      Teaches the Hunter to read the land well enough to disappear into it. Wild Bestia
+      notice the master later. It does not hide the master.
+
+      `-10%/lv` notice range of wild Bestia
+
+  - id: 151
+    identifier: M_TRAILBLAZER
+    targetType: FRIENDLY
+    description: |
+      A Hunter's sure footing, at home where the road ends. Faster on any ground that is not
+      a made road or paving.
+
+      `+3%/lv` walk speed off roads
+
+  - id: 152
+    identifier: M_HUNTERS_MARK
+    script: HuntersMark
+    targetType: ENEMY
+    range: 9
+    manaCost: 15
+    description: |
+      Marks one target for 30s. It shows on the master's map, and its Hide and Cloak do not
+      work against the master. A new mark ends the old one. Cooldown 10s.
+
+      `+3%/lv` critical rate against the target
+
+  - id: 153
+    identifier: M_OWLS_EYE
+    targetType: FRIENDLY
+    description: |
+      Eyes trained on far and small things, until the aim follows them by itself.
+
+      `+1/lv` DEX
+
+  - id: 154
+    identifier: M_VULTURES_EYE
+    targetType: FRIENDLY
+    description: |
+      Patience on the draw, until the arrow lands where the eye already is. Only with a bow.
+
+      `+1/lv` bow range in tiles
+      `+2/lv` HIT
+
+  - id: 155
+    identifier: M_DOUBLE_STRAFE
+    script: DoubleStrafe
+    targetType: ENEMY
+    range: 5
+    manaCost: 12
+    description: |
+      Needs a bow. Shoots two arrows at the target but takes only one out of the quiver.
+
+      `100% + 10%/lv` ATK per arrow
+
+  - id: 156
+    identifier: M_ARROW_SHOWER
+    script: ArrowShower
+    targetType: GROUND
+    range: 5
+    manaCost: 15
+    description: |
+      Needs a bow. A volley that hits every enemy in a 3x3 area and knocks them back 1m. Takes
+      one arrow out of the quiver.
+
+      `80% + 10%/lv` ATK
+
+  - id: 157
+    identifier: M_CHARGE_ARROW
+    script: ChargeArrow
+    targetType: ENEMY
+    range: 5
+    manaCost: 15
+    description: |
+      Needs a bow. One shot for 150% ATK that knocks the target back 6m. Cooldown 10s.
+
+  - id: 158
+    identifier: M_IMPROVE_CONCENTRATION
+    script: ImproveConcentration
+    targetType: FRIENDLY
+    manaCost: 25
+    description: |
+      The Hunter's senses, sharpened to a point. Lasts 60s. When cast, it reveals everything
+      hidden within 3m of the master.
+
+      `+2/lv` AGI and DEX
+
+  - id: 159
+    identifier: M_ARROW_CRAFTING
+    script: ArrowCrafting
+    targetType: GROUND
+    range: 2
+    description: |
+      Opens the crafting window with the arrow recipes. Needs no station.
 
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000

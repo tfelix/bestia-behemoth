@@ -1055,3 +1055,72 @@ skills:
         level: 3
       - skill: M_CHAIN_COMBO
         level: 3
+
+  # Hunter (unlocked at 5+ pts in Warrior Tree)
+  - skill: M_CAMOUFLAGE
+    tree: WARRIOR
+    subTree: HUNTER
+    maxLevel: 3
+
+  - skill: M_TRAILBLAZER
+    tree: WARRIOR
+    subTree: HUNTER
+    maxLevel: 5
+
+  - skill: M_HUNTERS_MARK
+    tree: WARRIOR
+    subTree: HUNTER
+    maxLevel: 5
+    prerequisites:
+      - skill: M_CAMOUFLAGE
+        level: 2
+
+  - skill: M_OWLS_EYE
+    tree: WARRIOR
+    subTree: HUNTER
+    maxLevel: 5
+
+  - skill: M_VULTURES_EYE
+    tree: WARRIOR
+    subTree: HUNTER
+    maxLevel: 5
+    prerequisites:
+      - skill: M_OWLS_EYE
+        level: 3
+
+  - skill: M_DOUBLE_STRAFE
+    tree: WARRIOR
+    subTree: HUNTER
+    maxLevel: 10
+    prerequisites:
+      - skill: M_OWLS_EYE
+        level: 3
+
+  - skill: M_ARROW_SHOWER
+    tree: WARRIOR
+    subTree: HUNTER
+    maxLevel: 5
+    prerequisites:
+      - skill: M_DOUBLE_STRAFE
+        level: 5
+
+  - skill: M_CHARGE_ARROW
+    tree: WARRIOR
+    subTree: HUNTER
+    maxLevel: 1
+    prerequisites:
+      - skill: M_VULTURES_EYE
+        level: 3
+
+  - skill: M_IMPROVE_CONCENTRATION
+    tree: WARRIOR
+    subTree: HUNTER
+    maxLevel: 5
+    prerequisites:
+      - skill: M_VULTURES_EYE
+        level: 1
+
+  - skill: M_ARROW_CRAFTING
+    tree: WARRIOR
+    subTree: HUNTER
+    maxLevel: 1
