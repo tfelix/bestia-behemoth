@@ -1,10 +1,12 @@
 package net.bestia.zone.world.stream
 
 import net.bestia.worldgen.core.ChunkPos
+import net.bestia.worldgen.derived.Edges
 import net.bestia.worldgen.derived.WalkableTile
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.local.LocalWalkQuery
 import org.springframework.stereotype.Service
+import kotlin.math.sign
 
 /**
  * Answers [LocalWalkQuery] from the derived walkability tiles.
@@ -43,9 +45,26 @@ class ChunkWalkQuery(private val chunkService: ChunkService) : LocalWalkQuery {
     val surface: Double
   )
 
+  /**
+   * A diagonal step also needs both straight steps beside it, or it cuts through the corner of whatever stands
+   * there: two walls meeting, a pillar, a cliff edge.
+   */
   override fun canStep(from: Vec3L, to: Vec3L): Boolean {
     if (!chunkService.isReady) return false
 
+    val dx = (to.x - from.x).sign
+    val dy = (to.y - from.y).sign
+    val isDiagonal = dx != 0 && dy != 0
+    if (isDiagonal) {
+      if (!straightStep(from, Vec3L(to.x, from.y, from.z), Edges.crossedBy(dx, 0))) return false
+      if (!straightStep(from, Vec3L(from.x, to.y, from.z), Edges.crossedBy(0, dy))) return false
+    }
+
+    return straightStep(from, to, Edges.crossedBy(dx, dy))
+  }
+
+  /** One step with no corner to cut: [crossing] are the borders of [from]'s column it leaves through. */
+  private fun straightStep(from: Vec3L, to: Vec3L, crossing: Int): Boolean {
     val config = chunkService.config
     val derived = chunkService.derived()
 
@@ -71,7 +90,8 @@ class ChunkWalkQuery(private val chunkService: ChunkService) : LocalWalkQuery {
         to = targetChunk,
         toLocalX = target.localX,
         toLocalY = target.localY,
-        slabShift = (config.voxelBaseOf(origin.chunk) - config.voxelBaseOf(targetChunk)).toDouble()
+        slabShift = (config.voxelBaseOf(origin.chunk) - config.voxelBaseOf(targetChunk)).toDouble(),
+        crossing = crossing
       )
       if (stepped) return true
     }
