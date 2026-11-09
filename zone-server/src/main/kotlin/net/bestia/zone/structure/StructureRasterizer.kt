@@ -43,6 +43,11 @@ object StructureRasterizer {
     return Math.floorMod((yaw / (PI / 2)).roundToInt(), 4)
   }
 
+  /** [yaw] turned to the quarter turn it stands at, so a piece is drawn the way it blocks. */
+  fun snappedYaw(yaw: Float): Float {
+    return (quarterTurnsOf(yaw) * PI / 2).toFloat()
+  }
+
   private fun turned(x: Int, y: Int, quarterTurns: Int): Pair<Int, Int> {
     return when (Math.floorMod(quarterTurns, 4)) {
       0 -> x to y

@@ -10,6 +10,7 @@ import net.bestia.worldgen.core.WorldWrap
 import net.bestia.worldgen.derived.AgentProfile
 import net.bestia.worldgen.derived.ChunkDelta
 import net.bestia.worldgen.derived.DerivedStore
+import net.bestia.worldgen.derived.StructureCells
 import net.bestia.worldgen.derived.VoxelEdit
 import net.bestia.worldgen.store.BaseHash
 import net.bestia.worldgen.store.ChunkCache
@@ -299,7 +300,7 @@ class ChunkService(
     // Reads merged voxels, never a base: a walkable span or an opacity cell computed from terrain that
     // ignores what players built would be wrong in exactly the places it matters most.
     val agent = AgentProfile.forMaxSlope(config.voxelSize, settings.maxWalkSlopeDegrees)
-    val derived = DerivedStore(voxels = store::merged, agent = agent)
+    val derived = DerivedStore(voxels = store::merged, agent = agent, structures = ::structureCellsOf)
 
     LOG.info {
       "Chunk streaming ready: ${config.chunkSize}x${config.chunkSize}x${config.chunkHeight} chunks, " +
@@ -307,6 +308,28 @@ class ChunkService(
     }
 
     return Loaded(config, WorldWrap(config), generated.columns, cache, store, derived)
+  }
+
+  /** Where the walk tables read player-built cells from. Null until the structure layer registers. */
+  private var structures: StructureCellSource? = null
+
+  fun useStructures(source: StructureCellSource) {
+    structures = source
+  }
+
+  private fun structureCellsOf(chunk: ChunkPos): StructureCells? {
+    return structures?.cellsOf(chunk)
+  }
+
+  /**
+   * Rebuilds the walk tables of [chunks] after building pieces in them changed. Unlike a carve this changes no
+   * voxel, so nothing is journaled and no client is sent a patch: the pieces reach clients as static entities.
+   */
+  fun structuresChanged(chunks: Collection<ChunkPos>) {
+    for (chunk in chunks) {
+      loaded.derived.track(chunk)
+      loaded.derived.invalidate(chunk)
+    }
   }
 
   /** Normalises a client-supplied or computed address across the world seam. Never wraps z; up is not a loop. */
@@ -1177,7 +1200,7 @@ class ChunkService(
       begun++
 
       if (!buildDerivedOnWorker(chunk)) {
-        derived.finishBuild(chunk, derived.buildTile(chunk, voxelsOf = loaded.store::merged))
+        derived.finishBuild(chunk, derived.buildTile(chunk, ::structureCellsOf, loaded.store::merged))
       }
 
       // Checked after a handoff too: without workers (tests) the "worker" build ran right here on the tick.
@@ -1206,12 +1229,15 @@ class ChunkService(
 
     val lowerBase = workerBaseOf(chunk)
     val upperBase = workerBaseOf(upper)
+    val lowerCells = structureCellsOf(chunk)
+    val upperCells = structureCellsOf(upper)
     val derived = loaded.derived
     val materializer = worldService.generated.materializer
 
     workers.submit(
       work = {
-        val tile = derived.buildTile(chunk) { wanted ->
+        val cellsOf = { wanted: ChunkPos -> if (wanted == chunk) lowerCells else upperCells }
+        val tile = derived.buildTile(chunk, cellsOf) { wanted ->
           when (wanted) {
             chunk -> lowerBase.voxels
             upper -> upperBase.voxels

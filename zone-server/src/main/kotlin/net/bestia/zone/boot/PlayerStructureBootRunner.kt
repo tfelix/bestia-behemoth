@@ -3,6 +3,7 @@ package net.bestia.zone.boot
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.prop.PlayerStructureRegistry
 import net.bestia.zone.prop.persistence.PlayerStructureRepository
+import net.bestia.zone.structure.StructureCollision
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
@@ -23,12 +24,21 @@ class PlayerStructureBootRunner(
   private val registry: PlayerStructureRegistry,
   private val structures: PlayerStructureRepository,
   private val masters: MasterRepository,
+  private val collision: StructureCollision,
 ) : CommandLineRunner {
 
   @Transactional
   override fun run(vararg args: String?) {
     nameOwnerAccounts()
     registry.loadAll()
+    standBuildingPieces()
+  }
+
+  /** Sites too: a piece being built already holds its cells, so nothing else is built into them meanwhile. */
+  private fun standBuildingPieces() {
+    registry.all()
+      .filter { collision.isPiece(it.kind) }
+      .forEach { collision.stand(it.id, it.kind, it.position, it.yaw) }
   }
 
   /** A structure is given its owner's account when it is placed; rows written before that are named here. */
