@@ -358,7 +358,7 @@ skills:
   - skill: M_SPELL_TRAINING
     tree: SCHOLAR
     subTree: SAGE
-    maxLevel: 10
+    maxLevel: 5
     prerequisites:
       - skill: M_MAGIC_SENSE
         level: 3
@@ -400,14 +400,6 @@ skills:
       - skill: M_MAGIC_ROD
         level: 1
 
-  - skill: M_MANA_SWAP
-    tree: SCHOLAR
-    subTree: SAGE
-    maxLevel: 3
-    prerequisites:
-      - skill: M_MANA_DRAIN
-        level: 2
-
   - skill: M_LAND_PROTECTOR
     tree: SCHOLAR
     subTree: SAGE
@@ -419,7 +411,7 @@ skills:
   - skill: M_SPELL_INSCRIPTION
     tree: SCHOLAR
     subTree: SAGE
-    maxLevel: 10
+    maxLevel: 5
     prerequisites:
       - skill: M_SPELL_TRAINING
         level: 3
@@ -427,7 +419,7 @@ skills:
   - skill: M_SPELL_BINDING
     tree: SCHOLAR
     subTree: SAGE
-    maxLevel: 10
+    maxLevel: 5
     prerequisites:
       - skill: M_SPELL_INSCRIPTION
         level: 3
@@ -448,7 +440,7 @@ skills:
       - skill: M_TELEPORT
         level: 2
 
-  - skill: M_ENDOW_FIRE
+  - skill: M_ENDOW
     tree: SCHOLAR
     subTree: SAGE
     maxLevel: 3
@@ -456,29 +448,6 @@ skills:
       - skill: M_FREE_CAST
         level: 2
 
-  - skill: M_ENDOW_ICE
-    tree: SCHOLAR
-    subTree: SAGE
-    maxLevel: 3
-    prerequisites:
-      - skill: M_FREE_CAST
-        level: 2
-
-  - skill: M_ENDOW_WIND
-    tree: SCHOLAR
-    subTree: SAGE
-    maxLevel: 3
-    prerequisites:
-      - skill: M_FREE_CAST
-        level: 2
-
-  - skill: M_ENDOW_EARTH
-    tree: SCHOLAR
-    subTree: SAGE
-    maxLevel: 3
-    prerequisites:
-      - skill: M_FREE_CAST
-        level: 2
 
   # Priest (unlocked at 5+ pts in Scholar Tree)
   - skill: M_HEAL

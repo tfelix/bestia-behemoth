@@ -4,15 +4,15 @@
 
 [resource]
 script = ExtResource("1_script")
-skill_id = 67
-name = "Mana Swap"
-description_key = "SKILL_67_DESC"
-mana_cost = 45
-cooldown = 60.0
+skill_id = 73
+name = "Endow"
+description_key = "SKILL_73_DESC"
+mana_cost = 28
+cooldown = 5.0
 max_level = 3
-target_type = "ENEMY"
-cast_time = 3.0
+target_type = "FRIENDLY"
+cast_time = 2.0
 tree = "SCHOLAR"
 sub_tree = "SAGE"
-prerequisite_ids = PackedInt32Array(66)
+prerequisite_ids = PackedInt32Array(62)
 prerequisite_levels = PackedInt32Array(2)
