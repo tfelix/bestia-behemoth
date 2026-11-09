@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 84
+name = "Pneuma"
+description_key = "SKILL_84_DESC"
+mana_cost = 25
+cooldown = 10.0
+cast_time = 1.0
+tree = "SCHOLAR"
+sub_tree = "PRIEST"
+prerequisite_ids = PackedInt32Array(83)
+prerequisite_levels = PackedInt32Array(2)

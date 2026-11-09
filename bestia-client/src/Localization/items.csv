@@ -354,3 +354,11 @@ MAIL_SACK,Mail Sack
 MAIL_SACK_DESC,"A canvas sack under the postal seal. Nobody may open it, the courier included.
 
 Bring it to the post office it is addressed to before its deadline."
+EMPTY_BOTTLE,Empty Bottle
+EMPTY_BOTTLE_DESC,"A small glass bottle with a cork stopper.
+
+Empty, and waiting to be filled with something better."
+HOLY_WATER,Holy Water
+HOLY_WATER_DESC,"Plain water, blessed by a Priest and stoppered in a small bottle.
+
+It burns the undead and anoints a weapon with the holy element."

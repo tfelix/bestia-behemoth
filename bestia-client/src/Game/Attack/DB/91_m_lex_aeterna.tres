@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 91
+name = "Lex Aeterna"
+description_key = "SKILL_91_DESC"
+mana_cost = 18
+cooldown = 15.0
+target_type = "ENEMY"
+tree = "SCHOLAR"
+sub_tree = "PRIEST"
+prerequisite_ids = PackedInt32Array(86)
+prerequisite_levels = PackedInt32Array(3)
