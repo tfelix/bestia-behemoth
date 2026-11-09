@@ -850,6 +850,14 @@ skills:
       - skill: M_HEAVY_WEAPON_MASTERY
         level: 3
 
+  - skill: M_BRANDISH_SPEAR
+    tree: WARRIOR
+    subTree: KNIGHT
+    maxLevel: 5
+    prerequisites:
+      - skill: M_HEAVY_WEAPON_MASTERY
+        level: 3
+
   - skill: M_CHARGE
     tree: WARRIOR
     subTree: KNIGHT
@@ -870,6 +878,14 @@ skills:
     tree: WARRIOR
     subTree: KNIGHT
     maxLevel: 5
+    prerequisites:
+      - skill: M_SHIELD_WALL
+        level: 2
+
+  - skill: M_DEVOTION
+    tree: WARRIOR
+    subTree: KNIGHT
+    maxLevel: 3
     prerequisites:
       - skill: M_SHIELD_WALL
         level: 2
@@ -980,6 +996,22 @@ skills:
     prerequisites:
       - skill: M_CAMOUFLAGE
         level: 2
+
+  - skill: M_JAVELIN
+    tree: WARRIOR
+    subTree: HUNTER
+    maxLevel: 5
+    prerequisites:
+      - skill: M_TRAILBLAZER
+        level: 2
+
+  - skill: M_PACK_HUNT
+    tree: WARRIOR
+    subTree: HUNTER
+    maxLevel: 3
+    prerequisites:
+      - skill: M_HUNTERS_MARK
+        level: 3
 
   - skill: M_OWLS_EYE
     tree: WARRIOR

@@ -943,3 +943,18 @@ SKILL_169_DESC,"A song: needs an instrument and buffs every party member and the
 SKILL_170_DESC,"The Bard's capstone. Every song lands a little harder.
 
 `+10%/lv` effect of every song"
+SKILL_171_DESC,"Takes the hits meant for one party member. While it lasts, all damage the ally takes goes to
+the Knight instead. It ends early when the ally moves more than 7m away. Cooldown 30s.
+
+`+15s/lv` duration"
+SKILL_172_DESC,"Needs a spear or a polearm. A wide sweep that hits every enemy in a 3x3 area in front of the
+Knight. Cooldown 4s.
+
+`120% + 40%/lv` ATK"
+SKILL_173_DESC,"Needs a spear or a thrown weapon. Hurls it at a target up to 7 tiles away. A spear comes back
+to hand; a thrown weapon is used up like ammunition. Cooldown 3s.
+
+`150% + 30%/lv` ATK"
+SKILL_174_DESC,"The Hunter's Bestias learn whom to go for. They hit the target of Hunter's Mark harder.
+
+`+10%/lv` damage of the master's Bestias against the marked target"
