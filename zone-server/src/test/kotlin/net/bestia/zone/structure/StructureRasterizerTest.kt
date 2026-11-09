@@ -12,7 +12,8 @@ class StructureRasterizerTest {
 
   private val post = StructurePiece(
     StaticEntityKind.STRUCTURE_WALL,
-    listOf(StructurePiece.Cell(x = 1, y = 0, z = 0, fill = Occupancy.FULL, edges = Edges.X_PLUS))
+    listOf(StructurePiece.Cell(x = 1, y = 0, z = 0, fill = Occupancy.FULL, edges = Edges.X_PLUS)),
+    StructureMaterial("WOOD", verticalLoss = 0.125, horizontalLoss = 0.2, minStability = 0.1)
   )
 
   @Test
