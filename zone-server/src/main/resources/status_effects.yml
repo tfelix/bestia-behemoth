@@ -496,3 +496,12 @@ statusEffects:
     isSyncedToClient: true
     dispellable: false
     script: StruckOff
+
+  # Left by Suppress Magic.
+  - id: 62
+    identifier: SILENCED
+    polarity: DEBUFF
+    resist: [INT, WIL]
+    showIcon: true
+    isSyncedToClient: true
+    script: Silenced
