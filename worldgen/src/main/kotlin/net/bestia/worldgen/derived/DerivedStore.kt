@@ -22,7 +22,9 @@ class DerivedStore(
   /** Produces the *merged* voxels for a chunk: generated base with any delta already applied. */
   private val voxels: (ChunkPos) -> VoxelChunk,
   private val agent: AgentProfile = AgentProfile(),
-  private val opacityFactor: Int = OpacityGrid.DEFAULT_FACTOR
+  private val opacityFactor: Int = OpacityGrid.DEFAULT_FACTOR,
+  /** The player-built cells of a chunk, or null where nobody built. Changes reach here through [invalidate]. */
+  private val structures: (ChunkPos) -> StructureCells? = { null }
 ) {
 
   /**
@@ -157,8 +159,11 @@ class DerivedStore(
   }
 
   /** The walkable surfaces of [merged], whose topmost floors take their headroom from the slab above. */
-  private fun walkableTileOf(chunk: ChunkPos, merged: VoxelChunk): WalkableTile =
-    WalkableTile.of(merged, agent) { voxels(chunk.copy(z = chunk.z + 1)) }
+  private fun walkableTileOf(chunk: ChunkPos, merged: VoxelChunk): WalkableTile {
+    val upper = chunk.copy(z = chunk.z + 1)
+
+    return WalkableTile.of(merged, agent, structures(chunk), structures(upper)) { voxels(upper) }
+  }
 
   fun forget(chunk: ChunkPos) {
     entries.remove(chunk)
@@ -212,12 +217,19 @@ class DerivedStore(
   }
 
   /**
-   * The walkable tile of [chunk] from [voxelsOf], which has to answer for [chunk] and the slab above it.
+   * The walkable tile of [chunk] from [voxelsOf] and [cellsOf], which have to answer for [chunk] and the slab above it.
    *
-   * Pure: it reads nothing of this store, so it may run on any thread as long as [voxelsOf] is safe there.
+   * Pure: it reads nothing of this store, so it may run on any thread as long as both lookups are safe there.
    */
-  fun buildTile(chunk: ChunkPos, voxelsOf: (ChunkPos) -> VoxelChunk): WalkableTile =
-    WalkableTile.of(voxelsOf(chunk), agent) { voxelsOf(chunk.copy(z = chunk.z + 1)) }
+  fun buildTile(
+    chunk: ChunkPos,
+    cellsOf: (ChunkPos) -> StructureCells? = { null },
+    voxelsOf: (ChunkPos) -> VoxelChunk
+  ): WalkableTile {
+    val upper = chunk.copy(z = chunk.z + 1)
+
+    return WalkableTile.of(voxelsOf(chunk), agent, cellsOf(chunk), cellsOf(upper)) { voxelsOf(upper) }
+  }
 
   /**
    * Puts a tile built after [beginBuild] into the store.
@@ -277,6 +289,7 @@ class DerivedStore(
    * @param slabShift what turns [fromSurface] into a height in [to]'s own frame: 0 when both are one slab, a slab's
    *   height when [to] is the slab below, minus that when it is the one above. Each tile measures its surfaces
    *   from its own floor, so a step across a slab boundary compares nothing until one side is moved.
+   * @param crossing the [Edges] the step leaves [from]'s column through. A wall on any of them refuses it.
    */
   fun canStep(
     from: ChunkPos,
@@ -286,11 +299,19 @@ class DerivedStore(
     to: ChunkPos,
     toLocalX: Int,
     toLocalY: Int,
-    slabShift: Double = 0.0
+    slabShift: Double = 0.0,
+    crossing: Int = Edges.NONE
   ): Boolean {
-    val target = walkableOf(to).stepTarget(toLocalX, toLocalY, fromSurface + slabShift)
-    if (target < 0.0) return false
-    return walkableOf(from).isWalkable(fromLocalX, fromLocalY, ColumnSummary.voxelOf(fromSurface))
+    val origin = walkableOf(from)
+    val fromSpan = origin.spanAt(fromLocalX, fromLocalY, ColumnSummary.voxelOf(fromSurface))
+    if (fromSpan == WalkableTile.NO_SPAN) return false
+    if (origin.wallsOf(fromSpan) and crossing != Edges.NONE) return false
+
+    val target = walkableOf(to)
+    val toSpan = target.stepTargetSpan(toLocalX, toLocalY, fromSurface + slabShift, origin.isStructure(fromSpan))
+    if (toSpan == WalkableTile.NO_SPAN) return false
+
+    return target.wallsOf(toSpan) and Edges.opposite(crossing) == Edges.NONE
   }
 
   /**

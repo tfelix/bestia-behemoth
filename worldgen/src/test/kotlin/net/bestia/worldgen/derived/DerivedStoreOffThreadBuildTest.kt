@@ -41,7 +41,7 @@ class DerivedStoreOffThreadBuildTest {
     assertEquals(1, store.pendingRebuilds)
     assertNull(store.beginBuild(), "it left the queue, so nobody else builds it")
 
-    assertTrue(store.finishBuild(chunk, store.buildTile(chunk, ::ground)))
+    assertTrue(store.finishBuild(chunk, store.buildTile(chunk, voxelsOf = ::ground)))
 
     assertFalse(store.isStale(chunk))
     assertTrue(store.isTracked(chunk))
@@ -53,7 +53,7 @@ class DerivedStoreOffThreadBuildTest {
     val store = store()
     store.track(chunk)
     store.beginBuild()
-    val tile = store.buildTile(chunk, ::ground)
+    val tile = store.buildTile(chunk, voxelsOf = ::ground)
 
     store.invalidate(chunk)
 
@@ -67,7 +67,7 @@ class DerivedStoreOffThreadBuildTest {
     val store = store()
     store.track(chunk)
     store.beginBuild()
-    val tile = store.buildTile(chunk, ::ground)
+    val tile = store.buildTile(chunk, voxelsOf = ::ground)
 
     store.forget(chunk)
 

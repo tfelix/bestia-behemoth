@@ -1177,7 +1177,7 @@ class ChunkService(
       begun++
 
       if (!buildDerivedOnWorker(chunk)) {
-        derived.finishBuild(chunk, derived.buildTile(chunk, loaded.store::merged))
+        derived.finishBuild(chunk, derived.buildTile(chunk, voxelsOf = loaded.store::merged))
       }
 
       // Checked after a handoff too: without workers (tests) the "worker" build ran right here on the tick.
