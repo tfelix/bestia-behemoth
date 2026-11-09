@@ -6,6 +6,10 @@ import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.worldgen.voxel.Passability
 import net.bestia.worldgen.voxel.VoxelChunk
 import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.tan
 
 /** How big the thing walking is, and how athletic. */
@@ -32,11 +36,19 @@ data class AgentProfile(
    * There is deliberately no equivalent for [net.bestia.worldgen.voxel.Passability.BLOCKED]: a wading limit
    * exists because water has a depth you can be partway into, and lava's only correct limit is zero.
    */
-  val maxWadeDepth: Double = 1.0
+  val maxWadeDepth: Double = 1.0,
+  /**
+   * How far a step onto or off a player-built surface may rise or fall, in voxels.
+   *
+   * Lower than [maxStep], which is a slope rule for natural ground: on a built floor it would let a walker climb
+   * onto a table, and stairs would not need to be stairs.
+   */
+  val maxStructureStep: Double = 0.5
 ) {
   init {
     require(height >= 1) { "height must be at least 1" }
     require(maxStep >= 0.0) { "maxStep must not be negative" }
+    require(maxStructureStep >= 0.0) { "maxStructureStep must not be negative" }
     require(maxWadeDepth >= 0.0) { "maxWadeDepth must not be negative" }
   }
 
@@ -54,14 +66,16 @@ data class AgentProfile(
       voxelSize: Double,
       degrees: Double,
       height: Int = 2,
-      maxWadeDepth: Double = 1.0
+      maxWadeDepth: Double = 1.0,
+      maxStructureStep: Double = 0.5
     ): AgentProfile {
       require(degrees > 0.0 && degrees < 90.0) { "degrees must be strictly between 0 and 90, was $degrees" }
 
       return AgentProfile(
         height = height,
         maxStep = voxelSize * tan(Math.toRadians(degrees)),
-        maxWadeDepth = maxWadeDepth
+        maxWadeDepth = maxWadeDepth,
+        maxStructureStep = maxStructureStep
       )
     }
   }
@@ -90,6 +104,10 @@ data class AgentProfile(
  * the agent's step height, which is a subtraction - cheaper to evaluate than to look up. Not storing them
  * has a second benefit that matters more: connectivity across a chunk border is computed from the two tiles
  * at query time, so a delta in one chunk never invalidates its neighbours' tiles.
+ *
+ * Player-built pieces come in as [StructureCells] beside the voxels. A span standing on a built cell is a
+ * *structure* span, held to [AgentProfile.maxStructureStep]. Every span also keeps the walls on the borders of its
+ * column that its walker's body would hit, as [Edges] bits.
  */
 class WalkableTile(
   val chunk: ChunkPos,
@@ -98,7 +116,9 @@ class WalkableTile(
   /** CSR offsets into [surfaces], length `size * size + 1`. */
   private val spanStart: IntArray,
   /** Height of each walkable surface in voxel units, ascending within a column. */
-  private val surfaces: DoubleArray
+  private val surfaces: DoubleArray,
+  /** Per span: the [Edges] its walker cannot leave through, and [STRUCTURE_SPAN]. */
+  private val spanFlags: ByteArray = ByteArray(surfaces.size)
 ) {
 
   val spanCount get() = surfaces.size
@@ -134,11 +154,29 @@ class WalkableTile(
 
   /** Whether [localZ] is a voxel an agent can stand on top of. */
   fun isWalkable(localX: Int, localY: Int, localZ: Int): Boolean {
+    return spanAt(localX, localY, localZ) != NO_SPAN
+  }
+
+  /** The span standing on voxel [localZ] of a column, or [NO_SPAN]. Spans are numbered across the whole tile. */
+  fun spanAt(localX: Int, localY: Int, localZ: Int): Int {
     val column = localY * size + localX
     for (slot in spanStart[column] until spanStart[column + 1]) {
-      if (ColumnSummary.voxelOf(surfaces[slot]) == localZ) return true
+      if (ColumnSummary.voxelOf(surfaces[slot]) == localZ) return slot
     }
-    return false
+    return NO_SPAN
+  }
+
+  fun surfaceOf(span: Int): Double {
+    return surfaces[span]
+  }
+
+  fun isStructure(span: Int): Boolean {
+    return spanFlags[span].toInt() and STRUCTURE_SPAN != 0
+  }
+
+  /** The [Edges] a walker standing on [span] cannot step through. */
+  fun wallsOf(span: Int): Int {
+    return spanFlags[span].toInt() and Edges.ALL
   }
 
   /**
@@ -147,26 +185,48 @@ class WalkableTile(
    * Takes the closest candidate rather than the first, so a doorway with a floor above and below it
    * connects to the one actually at foot height.
    */
-  fun stepTarget(localX: Int, localY: Int, fromSurface: Double): Double {
+  fun stepTarget(localX: Int, localY: Int, fromSurface: Double, fromStructure: Boolean = false): Double {
+    val span = stepTargetSpan(localX, localY, fromSurface, fromStructure)
+    if (span == NO_SPAN) return -1.0
+
+    return surfaces[span]
+  }
+
+  /** As [stepTarget], but the span rather than its height. */
+  fun stepTargetSpan(localX: Int, localY: Int, fromSurface: Double, fromStructure: Boolean): Int {
     val column = localY * size + localX
-    var best = -1.0
+    var best = NO_SPAN
     var bestRise = Double.MAX_VALUE
 
     for (slot in spanStart[column] until spanStart[column + 1]) {
       val rise = abs(surfaces[slot] - fromSurface)
-      if (rise <= agent.maxStep && rise < bestRise) {
+      if (rise <= maxStepBetween(fromStructure, isStructure(slot)) && rise < bestRise) {
         bestRise = rise
-        best = surfaces[slot]
+        best = slot
       }
     }
 
     return best
   }
 
+  private fun maxStepBetween(fromStructure: Boolean, toStructure: Boolean): Double {
+    if (!fromStructure && !toStructure) return agent.maxStep
+
+    // A fill byte cannot hold exactly half a voxel, so a half step is one quantum taller than half.
+    return min(agent.maxStep, agent.maxStructureStep + FILL_QUANTUM)
+  }
+
   override fun toString() =
     "WalkableTile[$chunk, $spanCount spans over $walkableColumns of ${size * size} columns]"
 
   companion object {
+
+    const val NO_SPAN = -1
+
+    /** Set in a span's flags when it stands on a built cell rather than on terrain. */
+    private const val STRUCTURE_SPAN = 0x10
+
+    private const val FILL_QUANTUM = 1.0 / Occupancy.FULL
 
     /**
      * Finds every standable surface in a chunk.
@@ -182,21 +242,26 @@ class WalkableTile(
      * are answered by a declared property on [BlockType], so a new material's behaviour is decided where it
      * is declared rather than by whether somebody remembered to add it to a `when` in here.
      *
+     * A filled cell of [cells] is a floor and no headroom, like a solid voxel; it wins over the voxel it sits in.
+     *
      * [above] is the slab on top of this one, and it holds the headroom of every floor in this slab's last
      * [AgentProfile.height] voxels. Without it those floors had no headroom at all, and the slab above has no
      * floor of theirs either, so ground just under a slab boundary was walkable in neither. Sea level is one:
      * dry lowland a metre under it was drawn as ground and refused as a wall. Asked for only when such a floor
-     * comes up; null keeps the old answer, for a caller with no slab above to offer.
+     * comes up; null keeps the old answer, for a caller with no slab above to offer. [cellsAbove] is its pieces.
      */
     fun of(
       voxels: VoxelChunk,
       agent: AgentProfile = AgentProfile(),
+      cells: StructureCells? = null,
+      cellsAbove: StructureCells? = null,
       above: (() -> VoxelChunk)? = null
     ): WalkableTile {
       val size = voxels.size
       val columns = size * size
       val spanStart = IntArray(columns + 1)
       val found = ArrayList<Double>(columns)
+      val flags = ArrayList<Byte>(columns)
       val upper = above?.let { lazy(LazyThreadSafetyMode.NONE, it) }
 
       // The top voxel is a floor only when there is a slab above it to stand in.
@@ -207,17 +272,27 @@ class WalkableTile(
           val column = localY * size + localX
           spanStart[column] = found.size
           val offset = voxels.columnOffset(localX, localY)
+          val built = BuiltColumn.of(cells, cellsAbove, localX, localY, voxels.height)
 
           var z = 0
           while (z < floors) {
-            val here = BlockType.ofOrNull(voxels.blocks[offset + z].toInt() and 0xFF)
-            if (here == null || !here.solid) {
-              z++
-              continue
+            val builtFill = built?.fillAt(z) ?: Occupancy.EMPTY
+            val onStructure = builtFill != Occupancy.EMPTY
+            if (!onStructure) {
+              val here = BlockType.ofOrNull(voxels.blocks[offset + z].toInt() and 0xFF)
+              if (here == null || !here.solid) {
+                z++
+                continue
+              }
             }
 
-            if (hasClearance(voxels, offset, z + 1, agent, upper)) {
-              found.add(z + Occupancy.fractionOf(voxels.occupancy[offset + z].toInt() and 0xFF))
+            if (hasClearance(voxels, offset, z + 1, agent, upper, built)) {
+              val fill = if (onStructure) builtFill else Occupancy.unsigned(voxels.occupancy[offset + z])
+              val surface = z + Occupancy.fractionOf(fill)
+              val walls = built?.wallsAround(surface, agent.height) ?: Edges.NONE
+
+              found.add(surface)
+              flags.add((if (onStructure) walls or STRUCTURE_SPAN else walls).toByte())
               // Skip the clearance we just verified: the blocks inside an agent's own headroom cannot
               // themselves be floors, and re-testing them is the difference between one pass and several.
               z += agent.height
@@ -229,7 +304,7 @@ class WalkableTile(
       }
       spanStart[columns] = found.size
 
-      return WalkableTile(voxels.chunk, size, agent, spanStart, found.toDoubleArray())
+      return WalkableTile(voxels.chunk, size, agent, spanStart, found.toDoubleArray(), flags.toByteArray())
     }
 
     /**
@@ -242,7 +317,8 @@ class WalkableTile(
       offset: Int,
       fromZ: Int,
       agent: AgentProfile,
-      above: Lazy<VoxelChunk>?
+      above: Lazy<VoxelChunk>?,
+      built: BuiltColumn?
     ): Boolean {
       val top = fromZ + agent.height
       if (top > voxels.height && above == null) return false
@@ -252,6 +328,8 @@ class WalkableTile(
       // tell those apart.
       var wade = 0.0
       for (z in fromZ until top) {
+        if (built != null && built.fillAt(z) != Occupancy.EMPTY) return false
+
         val slab = if (z < voxels.height) voxels else above!!.value
         val index = offset + if (z < voxels.height) z else z - voxels.height
 
@@ -269,6 +347,53 @@ class WalkableTile(
       }
 
       return true
+    }
+  }
+
+  /** The built cells of one column, in this slab and the one above, read with this slab's z. */
+  private class BuiltColumn(
+    private val cells: StructureCells?,
+    private val cellsAbove: StructureCells?,
+    private val localX: Int,
+    private val localY: Int,
+    private val slabHeight: Int
+  ) {
+
+    fun fillAt(z: Int): Int {
+      if (z < slabHeight) return cells?.fillAt(localX, localY, z) ?: Occupancy.EMPTY
+
+      return cellsAbove?.fillAt(localX, localY, z - slabHeight) ?: Occupancy.EMPTY
+    }
+
+    /** The walls a body standing on [surface] overlaps: every voxel from its feet to the top of its head. */
+    fun wallsAround(surface: Double, bodyHeight: Int): Int {
+      val feet = floor(surface).toInt()
+      val head = ceil(surface + bodyHeight).toInt() - 1
+
+      var walls = cells?.edgesBetween(localX, localY, feet, min(head, slabHeight - 1)) ?: Edges.NONE
+      if (head >= slabHeight) {
+        val above = cellsAbove?.edgesBetween(localX, localY, max(feet - slabHeight, 0), head - slabHeight)
+        walls = walls or (above ?: Edges.NONE)
+      }
+
+      return walls
+    }
+
+    companion object {
+      /** Null for a column no piece touches, which is nearly all of them. */
+      fun of(
+        cells: StructureCells?,
+        cellsAbove: StructureCells?,
+        localX: Int,
+        localY: Int,
+        slabHeight: Int
+      ): BuiltColumn? {
+        val here = cells != null && cells.hasColumn(localX, localY)
+        val overhead = cellsAbove != null && cellsAbove.hasColumn(localX, localY)
+        if (!here && !overhead) return null
+
+        return BuiltColumn(cells, cellsAbove, localX, localY, slabHeight)
+      }
     }
   }
 }
