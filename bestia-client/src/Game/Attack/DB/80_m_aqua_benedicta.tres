@@ -13,5 +13,5 @@ target_type = "FRIENDLY"
 cast_time = 3.0
 tree = "SCHOLAR"
 sub_tree = "PRIEST"
-prerequisite_ids = PackedInt32Array(79)
+prerequisite_ids = PackedInt32Array(85)
 prerequisite_levels = PackedInt32Array(1)

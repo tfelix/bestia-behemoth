@@ -8,10 +8,6 @@ Lv.3 Allows to use trade posts.
 Lv.4 Allows sitting to double HP & Mana recovery.
 Lv.5 Allows to create parties and invite players into them. Joining a party needs no rank.
 Unlocks all the other skill trees."
-SKILL_2_DESC,"The defensive twin of Demon Bane - a standing ward that dulls what comes back the other way
-from anything unholy.
-
-`-10%/lv` damage taken from Demon and Undead Bestias"
 SKILL_3_DESC,"The Master and his Bestia can learn recipes and start to cook meals on fire places. Food
 helps a Bestia to keep its health and stamina up and usually applies buff effects when it
 is eaten.
@@ -42,9 +38,10 @@ interrupts the cast.
 SKILL_6_DESC,"A benediction that steadies body and mind. On an Undead or Demon target it turns into a
 curse that halves DEX and INT instead.
 
-`+1/lv` STR, DEX and INT
-`+2/lv` HIT
-`40s + 20s/lv` duration"
+`+2/lv` STR, DEX and INT
+`+4/lv` HIT
+`+3/lv` ATK and MATK
+`40s + 40s/lv` duration"
 SKILL_8_DESC,"Apply bandages to yourself or to a friendly Bestia or master and channel a healing effect
 over 10s. The cooldown of this skill is 3 minutes. A target can only receive a single
 First Aid every 60 secs.
@@ -621,12 +618,12 @@ Cooldown 5s.
 SKILL_77_DESC,"A murmured rite that lightens the burden of spellcasting. Applies to the next spell the
 target casts within 30s. Cooldown 20s.
 
-`-10%/lv` cast time"
+`-30%` cast time"
 SKILL_78_DESC,"A quiet benediction that lets a crafter's hands find the better cut. Every item the party
-starts crafting while it holds rolls its random stats with better odds. Cooldown 30s.
+starts crafting while it holds rolls its random stats with better odds. Lasts 90s.
+Cooldown 30s.
 
-`+5%/lv` chance for every random stat slot and socket
-`+30s/lv` duration"
+`+15%` chance for every random stat slot and socket"
 SKILL_79_DESC,"Clears the mind of a target. Lifts Blind, Confused and Feared in a single rite. Cooldown
 10s."
 SKILL_80_DESC,"The rite of blessing plain water into Holy Water. The Priest must stand in water and needs
@@ -634,12 +631,9 @@ an Empty Bottle. Cast 3s, cooldown 5s."
 SKILL_81_DESC,"Lightens a target's limbs with borrowed haste, quickening step and swing alike.
 
 `+15%` movement speed at every level
-`+1/lv` AGI, from +4 at Lv.1
-`+1%/lv` attack speed
-`+20s/lv` duration, from 80s at Lv.1"
-SKILL_82_DESC,"A mote of leaden mana that slows an enemy's step and swing for 30s. Cooldown 5s.
-
-`-4%/lv` movement and attack speed"
+`+2/lv` AGI, from +4 at Lv.1
+`+2%/lv` attack speed, from 1% at Lv.1
+`+40s/lv` duration, from 80s at Lv.1"
 SKILL_83_DESC,"A shimmering ward that stands between a target and harm for 60s, soaking up hits until it
 gives out. Cooldown 15s.
 
@@ -657,13 +651,10 @@ SKILL_86_DESC,"Condenses raw holy mana into a single searing beam.
 
 `+10%/lv` MATK"
 SKILL_87_DESC,"Years spent studying the weak points of the unholy pay off - every strike against a Demon
-or Undead lands harder.
+or Undead lands harder, and what they strike back with lands softer.
 
-`+8%/lv` damage against Demon and Undead Bestias"
-SKILL_88_DESC,"The laying on of hands, channeling striking power into a single ally for 60s. Cooldown
-20s.
-
-`+5/lv` ATK and MATK"
+`+5%/lv` damage against Demon and Undead Bestias
+`-6%/lv` damage taken from Demon and Undead Bestias"
 SKILL_89_DESC,"Anoints a weapon with Holy Water, so its strikes carry the holy element. Consumes one Holy
 Water. Cooldown 10s.
 
@@ -672,7 +663,7 @@ SKILL_90_DESC,"A judgment of pure holy mana that punches through armor. Against 
 end its existence outright, more likely the more it is wounded. The damage is that of a Holy
 Light of the same level. Cooldown 5s.
 
-`+8%/lv` base chance to destroy an Undead"
+`+16%/lv` base chance to destroy an Undead, from 8% at Lv.1"
 SKILL_91_DESC,"Marks a single target so that the very next hit it takes lands twice as hard. The mark
 lasts 20s. Cooldown 15s."
 SKILL_92_DESC,"A hymn of thanksgiving that quickens the natural recovery of the party for 90s. Cooldown

@@ -51,12 +51,12 @@ class BlessingStatusEffectTest {
   )
 
   @Test
-  fun `blessing adds its level to strength, dexterity and intelligence`() {
+  fun `blessing adds twice its level to strength, dexterity and intelligence`() {
     val target = creature()
 
     bless(target, level = 4)
 
-    assertEquals(StatusValues(strength = 24, intelligence = 34, vitality = 10, dexterity = 44, willpower = 50, agility = 60), statsOf(target))
+    assertEquals(StatusValues(strength = 28, intelligence = 38, vitality = 10, dexterity = 48, willpower = 50, agility = 60), statsOf(target))
   }
 
   @Test
@@ -65,34 +65,36 @@ class BlessingStatusEffectTest {
 
     bless(target, level = 4)
 
-    assertEquals(24, statsOf(target).strength)
-    assertEquals(44, statsOf(target).dexterity)
+    assertEquals(28, statsOf(target).strength)
+    assertEquals(48, statsOf(target).dexterity)
   }
 
   @Test
   fun `an undead target has its dexterity and intelligence halved and its strength left alone`() {
     val target = creature(Nature(Element.UNDEAD, Size.MEDIUM))
 
-    bless(target, level = 10)
+    bless(target, level = 5)
 
     assertEquals(StatusValues(strength = 20, intelligence = 15, vitality = 10, dexterity = 20, willpower = 50, agility = 60), statsOf(target))
   }
 
   @Test
-  fun `blessing raises hit by two per level`() {
+  fun `blessing raises hit by four and attack by three per level`() {
     val target = creature()
     val context = StatusValueRecalcContext(world.get(target, BaseStatusValues::class)!!, baseSpeed = 1f)
 
     blessing.apply(world, target, context, level = 4, sourceEntityId = null)
 
-    assertEquals(8, context.hit)
+    assertEquals(16, context.hit)
+    assertEquals(12, context.attack)
+    assertEquals(12, context.magicAttack)
   }
 
   @Test
   fun `a demon is cursed like the undead`() {
     val target = creature(Nature(Element.SHADOW, Size.MEDIUM, kind = BestiaKind.DEMON))
 
-    bless(target, level = 10)
+    bless(target, level = 5)
 
     assertEquals(20, statsOf(target).strength)
     assertEquals(20, statsOf(target).dexterity)
@@ -111,9 +113,8 @@ class BlessingStatusEffectTest {
 
   @Test
   fun `the blessing lasts longer with every level`() {
-    assertEquals(60.0, blessing.durationSeconds(1))
-    assertEquals(140.0, blessing.durationSeconds(5))
-    assertEquals(240.0, blessing.durationSeconds(10))
+    assertEquals(80.0, blessing.durationSeconds(1))
+    assertEquals(240.0, blessing.durationSeconds(5))
   }
 
   private fun creature(nature: Nature? = null): EntityId {

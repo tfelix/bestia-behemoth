@@ -13,15 +13,6 @@ skills:
       Lv.5 Allows to create parties and invite players into them. Joining a party needs no rank.
       Unlocks all the other skill trees.
 
-  - id: 2
-    identifier: M_DIVINE_PROTECTION
-    targetType: FRIENDLY
-    description: |
-      The defensive twin of Demon Bane - a standing ward that dulls what comes back the other way
-      from anything unholy.
-
-      `-10%/lv` damage taken from Demon and Undead Bestias
-
   - id: 3
     identifier: M_COOKING
     script: Cooking
@@ -83,9 +74,10 @@ skills:
       A benediction that steadies body and mind. On an Undead or Demon target it turns into a
       curse that halves DEX and INT instead.
 
-      `+1/lv` STR, DEX and INT
-      `+2/lv` HIT
-      `40s + 20s/lv` duration
+      `+2/lv` STR, DEX and INT
+      `+4/lv` HIT
+      `+3/lv` ATK and MATK
+      `40s + 40s/lv` duration
 
   - id: 8
     identifier: M_FIRST_AID
@@ -961,7 +953,7 @@ skills:
       A murmured rite that lightens the burden of spellcasting. Applies to the next spell the
       target casts within 30s. Cooldown 20s.
 
-      `-10%/lv` cast time
+      `-30%` cast time
 
   - id: 78
     identifier: M_GLORIA
@@ -972,10 +964,10 @@ skills:
     castTime: 2.0
     description: |
       A quiet benediction that lets a crafter's hands find the better cut. Every item the party
-      starts crafting while it holds rolls its random stats with better odds. Cooldown 30s.
+      starts crafting while it holds rolls its random stats with better odds. Lasts 90s.
+      Cooldown 30s.
 
-      `+5%/lv` chance for every random stat slot and socket
-      `+30s/lv` duration
+      `+15%` chance for every random stat slot and socket
 
   - id: 79
     identifier: M_STATUS_RECOVERY
@@ -1007,20 +999,9 @@ skills:
       Lightens a target's limbs with borrowed haste, quickening step and swing alike.
 
       `+15%` movement speed at every level
-      `+1/lv` AGI, from +4 at Lv.1
-      `+1%/lv` attack speed
-      `+20s/lv` duration, from 80s at Lv.1
-
-  - id: 82
-    identifier: M_DECREASE_AGI
-    script: DecreaseAgi
-    targetType: ENEMY
-    range: 9
-    manaCost: 20
-    description: |
-      A mote of leaden mana that slows an enemy's step and swing for 30s. Cooldown 5s.
-
-      `-4%/lv` movement and attack speed
+      `+2/lv` AGI, from +4 at Lv.1
+      `+2%/lv` attack speed, from 1% at Lv.1
+      `+40s/lv` duration, from 80s at Lv.1
 
   - id: 83
     identifier: M_KYRIE_ELEISON
@@ -1079,22 +1060,10 @@ skills:
     targetType: FRIENDLY
     description: |
       Years spent studying the weak points of the unholy pay off - every strike against a Demon
-      or Undead lands harder.
+      or Undead lands harder, and what they strike back with lands softer.
 
-      `+8%/lv` damage against Demon and Undead Bestias
-
-  - id: 88
-    identifier: M_IMPOSITIO_MANUS
-    script: ImpositioManus
-    targetType: FRIENDLY
-    range: 2
-    manaCost: 26
-    castTime: 1.0
-    description: |
-      The laying on of hands, channeling striking power into a single ally for 60s. Cooldown
-      20s.
-
-      `+5/lv` ATK and MATK
+      `+5%/lv` damage against Demon and Undead Bestias
+      `-6%/lv` damage taken from Demon and Undead Bestias
 
   - id: 89
     identifier: M_ASPERSIO
@@ -1121,7 +1090,7 @@ skills:
       end its existence outright, more likely the more it is wounded. The damage is that of a Holy
       Light of the same level. Cooldown 5s.
 
-      `+8%/lv` base chance to destroy an Undead
+      `+16%/lv` base chance to destroy an Undead, from 8% at Lv.1
 
   - id: 91
     identifier: M_LEX_AETERNA

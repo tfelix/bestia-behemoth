@@ -489,7 +489,7 @@ skills:
   - skill: M_SUFFRAGIUM
     tree: SCHOLAR
     subTree: PRIEST
-    maxLevel: 3
+    maxLevel: 1
     prerequisites:
       - skill: M_MAGIC_SENSE
         level: 2
@@ -497,7 +497,7 @@ skills:
   - skill: M_GLORIA
     tree: SCHOLAR
     subTree: PRIEST
-    maxLevel: 3
+    maxLevel: 1
     prerequisites:
       - skill: M_MAGIC_SENSE
         level: 2
@@ -515,7 +515,7 @@ skills:
     subTree: PRIEST
     maxLevel: 1
     prerequisites:
-      - skill: M_STATUS_RECOVERY
+      - skill: M_SIGNUM_CRUCIS
         level: 1
 
   - skill: M_ASPERSIO
@@ -539,7 +539,7 @@ skills:
   - skill: M_BLESSING
     tree: SCHOLAR
     subTree: PRIEST
-    maxLevel: 10
+    maxLevel: 5
     prerequisites:
       - skill: M_HEAL
         level: 3
@@ -547,15 +547,7 @@ skills:
   - skill: M_INCREASE_AGI
     tree: SCHOLAR
     subTree: PRIEST
-    maxLevel: 5
-
-  - skill: M_DECREASE_AGI
-    tree: SCHOLAR
-    subTree: PRIEST
     maxLevel: 3
-    prerequisites:
-      - skill: M_INCREASE_AGI
-        level: 2
 
   - skill: M_KYRIE_ELEISON
     tree: SCHOLAR
@@ -569,14 +561,6 @@ skills:
     prerequisites:
       - skill: M_KYRIE_ELEISON
         level: 2
-
-  - skill: M_IMPOSITIO_MANUS
-    tree: SCHOLAR
-    subTree: PRIEST
-    maxLevel: 3
-    prerequisites:
-      - skill: M_BLESSING
-        level: 3
 
   - skill: M_MAGNIFICAT
     tree: SCHOLAR
@@ -614,15 +598,7 @@ skills:
   - skill: M_DEMON_BANE
     tree: SCHOLAR
     subTree: PRIEST
-    maxLevel: 3
-    prerequisites:
-      - skill: M_SIGNUM_CRUCIS
-        level: 2
-
-  - skill: M_DIVINE_PROTECTION
-    tree: SCHOLAR
-    subTree: PRIEST
-    maxLevel: 3
+    maxLevel: 5
     prerequisites:
       - skill: M_SIGNUM_CRUCIS
         level: 2
@@ -638,7 +614,7 @@ skills:
   - skill: M_TURN_UNDEAD
     tree: SCHOLAR
     subTree: PRIEST
-    maxLevel: 5
+    maxLevel: 3
     prerequisites:
       - skill: M_DEMON_BANE
         level: 3
