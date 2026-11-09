@@ -443,8 +443,12 @@ skills:
       Charting the same valley through a dozen seasons teaches a Prospector to read the sky
       above it. An instinct for what the wind is about to do, well before the storm arrives.
 
+      It also reads the mana in the land: how strong it is where you stand, and where it grows
+      stronger or weaker.
+
       `+5min/lv` how far ahead upcoming weather changes can be sensed. Level 1 shows you the
-      current wind direction and speed.
+      current wind direction and speed, and the mana concentration where you stand.
+      `+1 km/lv` from Lv.2: the direction of the nearest stronger and weaker mana fields
 
 # Miner
   - id: 40
@@ -711,6 +715,222 @@ skills:
       otherwise would.
 
       `+20%/lv` honor penalty for robbers
+
+# Sage
+  - id: 61
+    identifier: M_SPELL_TRAINING
+    script: SpellTraining
+    targetType: FRIENDLY
+    range: 2
+    manaCost: 25
+    castTime: 10.0
+    description: |
+      Trains a spell from a scroll into a Bestia's memory, the first step of every Sage's
+      education. Consumes the scroll, also when the training fails. The base chance depends on the
+      level of the spell, as with Spell Inscription.
+
+      `+5%/lv` success chance
+
+  - id: 62
+    identifier: M_FREE_CAST
+    targetType: FRIENDLY
+    description: |
+      Trains a Sage to keep moving through an incantation instead of rooting to the spot.
+
+      `+20%/lv` movement speed kept while casting, all of it at max rank
+      `+10%/lv` resistance against a hit breaking the cast
+
+  - id: 63
+    identifier: M_SCRY
+    script: Scry
+    targetType: GROUND
+    needsLineOfSight: false
+    manaCost: 30
+    castTime: 5.0
+    description: |
+      Casts a Sage's sight far beyond their own eyes, scouting distant ground and the resources
+      hiding on it before ever setting foot there. Works on any charted location. The sight lasts
+      20s. Cooldown 60s.
+
+      `+20m/lv` view radius
+
+  - id: 64
+    identifier: M_DISPEL
+    script: Dispel
+    targetType: ENEMY
+    range: 9
+    manaCost: 40
+    castTime: 2.0
+    description: |
+      Unravels every magical effect clinging to a target in a single word, undoing buffs and
+      curses alike. The target's soft magic defense lowers the chance. Consumes a Yellow Mana
+      Crystal. Cooldown 15s.
+
+      `50% + 10%/lv` base success chance
+
+  - id: 65
+    identifier: M_MAGIC_ROD
+    script: MagicRod
+    targetType: FRIENDLY
+    manaCost: 20
+    description: |
+      A reactive ward raised at a gesture. The next single-target spell to strike the caster is
+      caught and unravelled instead of landing, its energy siphoned back as mana. Area spells wash
+      straight over it. Cooldown 20s.
+
+      `+25%/lv` of the spell's cost recovered as mana, from 50% at Lv.1
+      `+5s/lv` ward duration, from 10s at Lv.1
+
+  - id: 66
+    identifier: M_MANA_DRAIN
+    script: ManaDrain
+    targetType: FRIENDLY
+    manaCost: 25
+    castTime: 1.0
+    description: |
+      Opens a slow siphon on the mana of everything hostile standing too close, pulling it
+      steadily into the Sage's own reserves. Each second drains a share of each target's max mana.
+      Cooldown 15s.
+
+      `+2m/lv` range
+      `+1%/lv` max mana drained per second
+      `+10s/lv` duration
+
+  - id: 67
+    identifier: M_MANA_SWAP
+    script: ManaSwap
+    targetType: ENEMY
+    range: 6
+    manaCost: 45
+    castTime: 3.0
+    description: |
+      A gamble of a rite that trades the caster's own pool of mana for the target's, wholesale.
+      Cooldown 60s.
+
+      `+33%/lv` swap success chance, sure at max rank
+
+  - id: 68
+    identifier: M_LAND_PROTECTOR
+    script: LandProtector
+    targetType: GROUND
+    range: 6
+    manaCost: 55
+    castTime: 3.0
+    description: |
+      Consecrates a patch of ground against hostile magic. While it holds, no area-of-effect or
+      ground-targeted spell can take root inside its bounds - friend and foe alike. Cooldown 40s.
+
+      `+1m/lv` radius, from 3m at Lv.1
+      `+10s/lv` duration, from 15s at Lv.1
+
+  - id: 69
+    identifier: M_SPELL_INSCRIPTION
+    script: SpellInscription
+    targetType: FRIENDLY
+    range: 2
+    manaCost: 35
+    castTime: 15.0
+    description: |
+      Extracts an attack from the memory of a Bestia onto a scroll, which can then either trigger
+      the attack once or teach it to another Bestia. The extraction can destroy the Bestia's mind
+      and kill it. The base chance depends on the level of the attack.
+
+  - id: 70
+    identifier: M_SPELL_BINDING
+    script: SpellBinding
+    targetType: GROUND
+    range: 2
+    manaCost: 45
+    castTime: 10.0
+    description: |
+      Binds a spell to an object or place and ties it to a trigger, giving rise to enchanted
+      artifacts, standing alarms and hidden traps alike. The details are still to be designed.
+
+  - id: 71
+    identifier: M_TELEPORT
+    script: Teleport
+    targetType: FRIENDLY
+    manaCost: 35
+    castTime: 2.0
+    description: |
+      Moves the caster and their Bestias close by. Consumes a Teleport Rune. A teleported entity
+      cannot teleport again for 5min. Cooldown 30s.
+
+      Lv.1 a random spot within 150m
+      Lv.2 the home settlement
+
+  - id: 72
+    identifier: M_WARP_PORTAL
+    script: WarpPortal
+    targetType: GROUND
+    range: 3
+    manaCost: 70
+    castTime: 5.0
+    description: |
+      The Sage's capstone. Tears a standing hole that anyone can walk through, in both
+      directions, for 30s. Consumes a Portal Rune. Cooldown 120s.
+
+      `+2/lv` users who may pass
+
+  - id: 73
+    identifier: M_ENDOW_FIRE
+    script: EndowFire
+    targetType: FRIENDLY
+    range: 5
+    manaCost: 28
+    castTime: 2.0
+    description: |
+      Temporarily infuses an ally's weapon with the fire element, so its strikes burn as well as bite. The
+      weapon takes on the element, and the bonus damage comes on top. Consumes a Blue Mana Crystal.
+      Cooldown 5s.
+
+      `+60s/lv` duration
+      `+5%/lv` bonus fire damage
+
+  - id: 74
+    identifier: M_ENDOW_ICE
+    script: EndowIce
+    targetType: FRIENDLY
+    range: 5
+    manaCost: 28
+    castTime: 2.0
+    description: |
+      Temporarily infuses an ally's weapon with the water element, wreathing each strike in biting cold. The
+      weapon takes on the element, and the bonus damage comes on top. Consumes a Blue Mana Crystal.
+      Cooldown 5s.
+
+      `+60s/lv` duration
+      `+5%/lv` bonus water damage
+
+  - id: 75
+    identifier: M_ENDOW_WIND
+    script: EndowWind
+    targetType: FRIENDLY
+    range: 5
+    manaCost: 28
+    castTime: 2.0
+    description: |
+      Temporarily infuses an ally's weapon with the wind element, so its strikes crack like lightning. The
+      weapon takes on the element, and the bonus damage comes on top. Consumes a Blue Mana Crystal.
+      Cooldown 5s.
+
+      `+60s/lv` duration
+      `+5%/lv` bonus wind damage
+
+  - id: 76
+    identifier: M_ENDOW_EARTH
+    script: EndowEarth
+    targetType: FRIENDLY
+    range: 5
+    manaCost: 28
+    castTime: 2.0
+    description: |
+      Temporarily infuses an ally's weapon with the earth element, so its strikes land with the weight of stone. The
+      weapon takes on the element, and the bonus damage comes on top. Consumes a Blue Mana Crystal.
+      Cooldown 5s.
+
+      `+60s/lv` duration
+      `+5%/lv` bonus earth damage
 
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000

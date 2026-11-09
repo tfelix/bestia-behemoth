@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 67
+name = "Mana Swap"
+description_key = "SKILL_67_DESC"
+mana_cost = 45
+cooldown = 60.0
+max_level = 3
+target_type = "ENEMY"
+cast_time = 3.0
+tree = "SCHOLAR"
+sub_tree = "SAGE"
+prerequisite_ids = PackedInt32Array(66)
+prerequisite_levels = PackedInt32Array(2)

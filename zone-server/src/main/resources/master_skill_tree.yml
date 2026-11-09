@@ -291,7 +291,7 @@ skills:
       - skill: M_RICH_VEINS
         level: 3
 
-  # --- Scholar Tree (Sage skills from master.md are not yet added - see docs/mechanics/master.md) ---
+  # --- Scholar Tree ---
   - skill: M_MAGIC_SENSE
     tree: SCHOLAR
     maxLevel: 5
@@ -353,6 +353,132 @@ skills:
         level: 2
       - skill: M_TRADE_AGREEMENT
         level: 1
+
+  # Sage (unlocked at 5+ pts in Scholar Tree)
+  - skill: M_SPELL_TRAINING
+    tree: SCHOLAR
+    subTree: SAGE
+    maxLevel: 10
+    prerequisites:
+      - skill: M_MAGIC_SENSE
+        level: 3
+
+  - skill: M_FREE_CAST
+    tree: SCHOLAR
+    subTree: SAGE
+    maxLevel: 5
+
+  - skill: M_SCRY
+    tree: SCHOLAR
+    subTree: SAGE
+    maxLevel: 5
+    prerequisites:
+      - skill: M_OBSERVATION
+        level: 3
+
+  - skill: M_DISPEL
+    tree: SCHOLAR
+    subTree: SAGE
+    maxLevel: 5
+    prerequisites:
+      - skill: M_SPELL_TRAINING
+        level: 2
+
+  - skill: M_MAGIC_ROD
+    tree: SCHOLAR
+    subTree: SAGE
+    maxLevel: 3
+    prerequisites:
+      - skill: M_DISPEL
+        level: 2
+
+  - skill: M_MANA_DRAIN
+    tree: SCHOLAR
+    subTree: SAGE
+    maxLevel: 3
+    prerequisites:
+      - skill: M_MAGIC_ROD
+        level: 1
+
+  - skill: M_MANA_SWAP
+    tree: SCHOLAR
+    subTree: SAGE
+    maxLevel: 3
+    prerequisites:
+      - skill: M_MANA_DRAIN
+        level: 2
+
+  - skill: M_LAND_PROTECTOR
+    tree: SCHOLAR
+    subTree: SAGE
+    maxLevel: 3
+    prerequisites:
+      - skill: M_MAGIC_ROD
+        level: 2
+
+  - skill: M_SPELL_INSCRIPTION
+    tree: SCHOLAR
+    subTree: SAGE
+    maxLevel: 10
+    prerequisites:
+      - skill: M_SPELL_TRAINING
+        level: 3
+
+  - skill: M_SPELL_BINDING
+    tree: SCHOLAR
+    subTree: SAGE
+    maxLevel: 10
+    prerequisites:
+      - skill: M_SPELL_INSCRIPTION
+        level: 3
+
+  - skill: M_TELEPORT
+    tree: SCHOLAR
+    subTree: SAGE
+    maxLevel: 2
+    prerequisites:
+      - skill: M_SCRY
+        level: 5
+
+  - skill: M_WARP_PORTAL
+    tree: SCHOLAR
+    subTree: SAGE
+    maxLevel: 5
+    prerequisites:
+      - skill: M_TELEPORT
+        level: 2
+
+  - skill: M_ENDOW_FIRE
+    tree: SCHOLAR
+    subTree: SAGE
+    maxLevel: 3
+    prerequisites:
+      - skill: M_FREE_CAST
+        level: 2
+
+  - skill: M_ENDOW_ICE
+    tree: SCHOLAR
+    subTree: SAGE
+    maxLevel: 3
+    prerequisites:
+      - skill: M_FREE_CAST
+        level: 2
+
+  - skill: M_ENDOW_WIND
+    tree: SCHOLAR
+    subTree: SAGE
+    maxLevel: 3
+    prerequisites:
+      - skill: M_FREE_CAST
+        level: 2
+
+  - skill: M_ENDOW_EARTH
+    tree: SCHOLAR
+    subTree: SAGE
+    maxLevel: 3
+    prerequisites:
+      - skill: M_FREE_CAST
+        level: 2
 
   # Priest (unlocked at 5+ pts in Scholar Tree)
   - skill: M_BLESSING

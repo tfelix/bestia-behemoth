@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 70
+name = "Spell Binding"
+description_key = "SKILL_70_DESC"
+mana_cost = 45
+cooldown = 0.0
+max_level = 10
+cast_time = 10.0
+tree = "SCHOLAR"
+sub_tree = "SAGE"
+prerequisite_ids = PackedInt32Array(69)
+prerequisite_levels = PackedInt32Array(3)
