@@ -635,6 +635,8 @@ class MapRenderer(
       FeatureKind.ALLUVIAL_FAN, FeatureKind.DELTA -> Color(220, 200, 140)
       FeatureKind.MORAINE -> Color(190, 190, 120)
       FeatureKind.KNOLL -> Color(176, 150, 96)
+      FeatureKind.FIXTURE -> Color(120, 90, 60)
+      FeatureKind.CEMETERY -> Color(120, 130, 110)
       FeatureKind.LAKE, FeatureKind.OXBOW_LAKE -> Color(60, 110, 220)
       FeatureKind.ROAD, FeatureKind.ROAD_JUNCTION -> Color(230, 170, 90)
       // A road's hue moved onto water: the same trade network, so the eye should group them, and pale enough

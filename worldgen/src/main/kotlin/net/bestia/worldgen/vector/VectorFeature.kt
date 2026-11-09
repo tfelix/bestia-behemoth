@@ -345,7 +345,23 @@ enum class FeatureKind(val defaultPriority: Int) {
    * is nobody's business but appending is everyone's habit here; the stamp order is the priority, not the
    * position.
    */
-  KNOLL(260)
+  KNOLL(260),
+
+  /**
+   * Something people put up: a pier, a lantern, a signpost, a windmill, a named grave. See `dress/FixtureKind`.
+   *
+   * Geometry and attributes only, so the priority is inert - `SEA_LANE` makes the same point. One kind for the
+   * whole catalogue, with the specific fixture in `FixtureChannels.KIND`, for the reason `POI` is one kind.
+   */
+  FIXTURE(686),
+
+  /**
+   * A settlement's walled burial ground: a rectangle at the edge of the built ground, often beside the temple.
+   *
+   * Geometry and attributes only. The chunk tier walls it and fills its plots with headstones; the named graves
+   * in it are `FIXTURE` markers the dressing stage put on the first plots. See `dress/Plots`.
+   */
+  CEMETERY(688)
 }
 
 /**

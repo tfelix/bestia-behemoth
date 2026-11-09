@@ -1,6 +1,7 @@
 package net.bestia.zone.entity
 
 import net.bestia.worldgen.civ.BuildingFunction
+import net.bestia.worldgen.dress.FixtureKind
 import net.bestia.worldgen.poi.PoiKind
 import net.bestia.worldgen.voxel.PropKind
 
@@ -92,7 +93,26 @@ enum class StaticEntityKind {
   // ground is the same stone, and a twin model would be art for nothing.
   BOULDER,
   LOOSE_STONE,
-  STICK;
+  STICK,
+
+  // What people put up: one per entry in worldgen's `FixtureKind`, joined to it by name - see [FIXTURE_KINDS].
+  // A constant each for the POI block's reason: a client draws a pier and a lantern with nothing in common.
+  FIXTURE_PIER,
+  FIXTURE_BOAT,
+  FIXTURE_FENCE,
+  FIXTURE_CROP,
+  FIXTURE_HAYSTACK,
+  FIXTURE_SCARECROW,
+  FIXTURE_WINDMILL,
+  FIXTURE_WELL,
+  FIXTURE_SIGNPOST,
+  FIXTURE_MILESTONE,
+  FIXTURE_LANTERN,
+  FIXTURE_CAIRN,
+  FIXTURE_GRAVESTONE,
+  FIXTURE_NAMED_GRAVE,
+  FIXTURE_OUTCROP,
+  FIXTURE_INN;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.
@@ -152,6 +172,8 @@ enum class StaticEntityKind {
       PropKind.BOULDER -> BOULDER
       PropKind.LOOSE_STONE -> LOOSE_STONE
       PropKind.STICK -> STICK
+      // `FixtureKind`'s ordinal, on `subKind` for the POI arm's reason.
+      PropKind.FIXTURE -> FIXTURE_KINDS[subKind]
     }
 
     /**
@@ -162,6 +184,20 @@ enum class StaticEntityKind {
      * player rather than by a build - and the name join means the constant cannot be silently mismatched either.
      * `PropKindRegistry.load` fails the boot on a missing `prop-kinds.yml` row for the same reason.
      */
+    /**
+     * The runtime kind for each entry in worldgen's `FixtureKind`, indexed by its ordinal. Joined by name and
+     * checked at class load, as [POI_KINDS] is.
+     */
+    private val FIXTURE_KINDS: List<StaticEntityKind> = FixtureKind.entries.map { fixture ->
+      val name = "FIXTURE_${fixture.name}"
+      requireNotNull(entries.firstOrNull { it.name == name }) {
+        "worldgen's FixtureKind.${fixture.name} has no StaticEntityKind.$name; append one and give it a prop-kinds.yml row"
+      }
+    }
+
+    /** Whether this kind is one of the fixtures, whose style travels as its model variant. */
+    fun isFixture(kind: StaticEntityKind) = kind in FIXTURE_KINDS
+
     private val POI_KINDS: List<StaticEntityKind> = PoiKind.entries.map { poi ->
       val name = "POI_${poi.name}"
       requireNotNull(entries.firstOrNull { it.name == name }) {

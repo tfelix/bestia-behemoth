@@ -97,6 +97,9 @@ enum class MapVisibility(
       // A hill is a shape in the ground, and the map draws the ground from the kilometre raster, which has no
       // hills in it. Drawing the feature as a symbol would be a landmark nobody named.
       FeatureKind.KNOLL -> OMITTED
+      // Set dressing: a lantern or a fence is a thing to come across rather than a thing to find on a map.
+      FeatureKind.FIXTURE -> OMITTED
+      FeatureKind.CEMETERY -> TOWN_DETAIL
       FeatureKind.COASTLINE -> WATER
 
       // A confluence is a smoothing patch where two channels meet, not a place. The channels are drawn.

@@ -265,6 +265,8 @@ namespace BestiaBehemothClient.Game.World
 
     private const string RockDir = "res://Game/Terrain/Rocks/";
 
+    private const string LanternScene = "res://Game/World/Fixtures/Lantern/Lantern.tscn";
+
     /// <summary>
     /// Every kind the server can send, in <c>StaticEntityKind</c> ordinal order.
     /// </summary>
@@ -500,7 +502,56 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 0.7f, PlaceholderColour = new Color(0.40f, 0.29f, 0.18f), Collectible = true,
         Action = PropAction.Collect
-      }  // STICK
+      }, // STICK
+
+      // The set dressing - worldgen's FixtureKind, one row per entry in its order. Boxes until there is art, but
+      // boxes of the right footprint: a fence run, a pier, a crop tile and an inn all send their half-extents,
+      // so each draws as a slab the length and width of the thing. Placeholder widths are for the point-sized
+      // ones (a well, a signpost). The lantern is the one real scene, because its light is the point of it; the
+      // outcrops reuse the boulders' rocks, scaled up.
+      //
+      // The four readable kinds take Use, which sends the interact the server reads them on.
+      new Kind { PlaceholderWidth = 3.0f, PlaceholderColour = new Color(0.50f, 0.38f, 0.24f) }, // FIXTURE_PIER
+      new Kind { PlaceholderWidth = 1.8f, PlaceholderColour = new Color(0.44f, 0.30f, 0.18f) }, // FIXTURE_BOAT
+      new Kind { PlaceholderWidth = 0.2f, PlaceholderColour = new Color(0.46f, 0.36f, 0.24f) }, // FIXTURE_FENCE
+      new Kind { PlaceholderWidth = 4.0f, PlaceholderColour = new Color(0.78f, 0.68f, 0.30f) }, // FIXTURE_CROP
+      new Kind { PlaceholderWidth = 2.6f, PlaceholderColour = new Color(0.84f, 0.72f, 0.36f) }, // FIXTURE_HAYSTACK
+      new Kind { PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.55f, 0.42f, 0.26f) }, // FIXTURE_SCARECROW
+      new Kind { PlaceholderWidth = 5.0f, PlaceholderColour = new Color(0.80f, 0.76f, 0.66f) }, // FIXTURE_WINDMILL
+      new Kind { PlaceholderWidth = 1.8f, PlaceholderColour = new Color(0.56f, 0.55f, 0.52f) }, // FIXTURE_WELL
+      new Kind
+      {
+        PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.52f, 0.40f, 0.26f), Action = PropAction.Use
+      }, // FIXTURE_SIGNPOST
+      new Kind
+      {
+        PlaceholderWidth = 0.5f, PlaceholderColour = new Color(0.66f, 0.64f, 0.60f), Action = PropAction.Use
+      }, // FIXTURE_MILESTONE
+      new Kind
+      {
+        Scenes = new[] { new SceneVariant { Path = LanternScene, NaturalHeight = 2.8f } },
+        PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.35f, 0.95f, 0.90f)
+      }, // FIXTURE_LANTERN
+      new Kind { PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.58f, 0.57f, 0.54f) }, // FIXTURE_CAIRN
+      new Kind
+      {
+        PlaceholderWidth = 0.6f, PlaceholderColour = new Color(0.62f, 0.62f, 0.60f), Action = PropAction.Use
+      }, // FIXTURE_GRAVESTONE
+      new Kind
+      {
+        PlaceholderWidth = 0.8f, PlaceholderColour = new Color(0.74f, 0.73f, 0.70f), Action = PropAction.Use
+      }, // FIXTURE_NAMED_GRAVE
+      new Kind
+      {
+        Scenes = new[]
+        {
+          new SceneVariant { Path = RockDir + "Rock_Medium_1.gltf", NaturalHeight = 1.989f },
+          new SceneVariant { Path = RockDir + "Rock_Medium_2.gltf", NaturalHeight = 1.848f },
+          new SceneVariant { Path = RockDir + "Rock_Medium_3.gltf", NaturalHeight = 2.001f },
+        },
+        PlaceholderWidth = 3.0f, PlaceholderColour = new Color(0.62f, 0.44f, 0.32f)
+      }, // FIXTURE_OUTCROP
+      new Kind { PlaceholderWidth = 5.0f, PlaceholderColour = new Color(0.70f, 0.56f, 0.36f) }  // FIXTURE_INN
     };
 
     /// <summary>

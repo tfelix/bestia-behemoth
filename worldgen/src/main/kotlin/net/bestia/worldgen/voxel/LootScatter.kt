@@ -307,7 +307,7 @@ class LootScatter(
     }
 
     private companion object {
-      val WORKED = setOf(FeatureKind.FIELD, FeatureKind.SETTLEMENT_GRADING)
+      val WORKED = setOf(FeatureKind.FIELD, FeatureKind.SETTLEMENT_GRADING, FeatureKind.CEMETERY)
     }
   }
 

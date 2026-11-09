@@ -35,6 +35,7 @@ import net.bestia.worldgen.resource.ResourceStage
 import net.bestia.worldgen.spawn.SpawnerStage
 import net.bestia.worldgen.spawn.VegetationStandStage
 import net.bestia.worldgen.geo.KnollStage
+import net.bestia.worldgen.dress.DressingStage
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.voxel.BlockType
@@ -146,9 +147,11 @@ class StandardWorldTest {
         // position was read off the failure rather than predicted, which is the only reliable way to write
         // one of these down.
         VegetationStandStage.ID,
-        // The hills go round everything built, so they wait for the last stage that builds anything: economy's
-        // inns and the points of interest.
-        KnollStage.ID
+        // The hills go round everything built, so they wait for the last stage that builds anything (economy's
+        // inns, the points of interest); and the set dressing waits for the hills, because a windmill wants the
+        // highest one near the fields and a cairn wants a crest.
+        KnollStage.ID,
+        DressingStage.ID
       ),
       order
     )

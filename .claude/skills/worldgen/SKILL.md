@@ -1,6 +1,6 @@
 ---
 name: worldgen
-description: Explains the bestia-behemoth world generator (`worldgen/` Gradle module) — the 23-stage world-tier pipeline (tectonics/climate/hydrology/biomes/history/towns/...), the vector feature system (Ring/AreaFeature/PolylineFeature, blend modes, StationTable), the chunk/voxel tier (ChunkMaterializer, BlockType palette, RleCodec), the store/ caching+versioning tiers, and how it plugs into zone-server (PersistedWorld, boot-time version gate, chunk streaming) and the Godot client. Read this BEFORE touching any file under worldgen/, before adding/reordering a Stage, before changing a params class or a block type, or when investigating "why does this world look like X" / "how does a chunk get from the generator to the client". Triggers on: worldgen, Stage, GenContext, WorldGenPipeline, WorldParams, LayerId, FeatureKind, VectorFeature, Ring, AreaFeature, StationTable, ChunkMaterializer, VoxelChunk, BlockType, RleCodec, ChunkCache, ChunkStore, DerivedStore, PersistedWorld, WorldService, ChunkService, ChunkStreamSystem, pipelineVersion, paramsVersion.
+description: Explains the bestia-behemoth world generator (`worldgen/` Gradle module) — the 25-stage world-tier pipeline (tectonics/climate/hydrology/biomes/history/towns/...), the vector feature system (Ring/AreaFeature/PolylineFeature, blend modes, StationTable), the chunk/voxel tier (ChunkMaterializer, BlockType palette, RleCodec), the store/ caching+versioning tiers, and how it plugs into zone-server (PersistedWorld, boot-time version gate, chunk streaming) and the Godot client. Read this BEFORE touching any file under worldgen/, before adding/reordering a Stage, before changing a params class or a block type, or when investigating "why does this world look like X" / "how does a chunk get from the generator to the client". Triggers on: worldgen, Stage, GenContext, WorldGenPipeline, WorldParams, LayerId, FeatureKind, VectorFeature, Ring, AreaFeature, StationTable, ChunkMaterializer, VoxelChunk, BlockType, RleCodec, ChunkCache, ChunkStore, DerivedStore, PersistedWorld, WorldService, ChunkService, ChunkStreamSystem, pipelineVersion, paramsVersion.
 ---
 
 # worldgen: the world generator
@@ -40,7 +40,7 @@ vector/     geometry: Ring, AreaFeature, PolylineFeature, PointFeature, MarkerFe
 core/       Stage, GenContext, GenRng, LayerStore/FeatureStore, WorldGenPipeline, Chronicle, WorldWrap
 fields/     Noise, Grid, Points (Poisson disk), DistanceTransform, DoubleIntHeap
 
-geo/ climate/ hydro/ bio/ resource/ civ/ history/ pop/ mana/ karst/ spawn/ poi/   ← the 23 Stages, see below
+geo/ climate/ hydro/ bio/ resource/ civ/ history/ pop/ mana/ karst/ spawn/ poi/ dress/   ← the 25 Stages, see below
 place/      PlaceRegions: named 5-10 km areas covering the whole world. NOT a stage - see below
 
 voxel/      BlockType palette, Stratigraphy, ChunkMaterializer, RleCodec, CaveNetwork, VegetationScatter
@@ -52,7 +52,7 @@ viewer/     Swing tooling + CLI entry points; the only package allowed I/O
 
 ## The stage pipeline
 
-`StandardWorld.stages()` (`pipeline/StandardWorld.kt:204-256`) constructs **23 stages** in one order,
+`StandardWorld.stages()` (`pipeline/StandardWorld.kt:204-256`) constructs **25 stages** in one order,
 but that construction order is cosmetic — its own KDoc says so directly: *"in declaration order; the
 pipeline sorts them itself"* (`:195-196`). `WorldGenPipeline`'s constructor topologically sorts every
 stage by its declared `dependencies`, breaking ties **alphabetically by `StageId.name`**
@@ -86,6 +86,8 @@ Declared construction order, with the load-bearing reason from each stage's own 
 | 21 | `EconomyStage` | `pop/` | — | `SETTLEMENT_ECONOMY`, `BUSINESS`, `ROADSIDE_INN` | businesses/households |
 | 22 | `PoiStage` | `poi/` | — | `POI` | the only stage whose output is a coin toss per catalogue entry rather than derived from the land; reads settlements/sites/cave mouths to stay clear of them |
 | 23 | `NavGraphStage` | `civ/` | — | — (`StageOutput.Navigation`) | last: routes are read off roads/bridges/gates/cave mouths everything above placed; nothing reads it back |
+| 24 | `KnollStage` | `geo/` | — | `KNOLL` | hills (ADD smoothstep cones in wandering clusters) laid **after** every way, building, field and site, so they go round the ways: a hill reaching a road corridor is slid away, else lowered until the road's REPLACE cuts a climbable bank. The map hillshade reads the km raster and shows none |
+| 25 | `DressingStage` | `dress/` | — | `FIXTURE`, `CEMETERY` | set dressing: piers+boats, wells, windmills, walled cemeteries with the chronicle's named graves, signposts at spur junctions, milestones, lantern lines out of each settlement, cairns at trail crests, inn houses, hilltop outcrops. After knolls (windmills want the highest hill). See "Set dressing" below |
 
 `history` is the only stage declaring `StageOutput.History`; the pipeline requires there be at most one
 (`core/WorldGenPipeline.kt:106-108`) — two stages writing one world's history isn't resolvable.
@@ -97,7 +99,7 @@ that outrank their construction position:
 tectonics -> climate -> erosion -> glacial -> hydrology -> { alluvium, volcanism }
   -> { biomes, pond } -> { caves, mana, vegetation } -> resources -> habitability
   -> settlements -> history -> { corruption, poi } -> { spawners, towns, vegetation_stands }
-  -> economy -> nav_graph
+  -> economy -> { nav_graph, knolls } -> dressing
 ```
 
 `PoiStage.dependencies` is `{glacial, hydrology, biomes, caves, settlements, history}` — no dependency on
@@ -216,6 +218,16 @@ genuinely crosses ground standing a hundred metres over its own routed path. It 
 shape again - a stage deciding against a surface a later one changes - and it predates the corridor probe,
 because the old raster-derived bed had the same mismatch and simply expressed it as floating water instead.
 Do not re-try the two fixes above without reading this paragraph.
+
+**A river's two ends (`hydro/RiverEnds.kt`).** A headwater - a reach nothing flows into - holds the gauge floor for
+its first `sourceTaperLength` (3 km): the pool-riffle widening fades in from nothing and the floodplain starts at
+`sourceShoulderShare` of its width, so a river reads as starting small. It cannot start *narrower* than the 3-voxel
+floor, for `ChannelGauge`'s flicker reason - do not try. Every sea-ending reach draws its own estuary from a
+hashed per-reach stream (flare 1.3-5x skewed low, length 15-45x the mouth width, curve exponent), leaned towards a
+wide funnel by a steep run to the sea and a large discharge and away from one where a delta forms; the bed and
+water surface are untouched, so `AlluviumStage`'s delta predicate is unaffected. Measured on the default world:
+width at head p50 4.2 m, at mouth p50 14.8 m (max 58 m), sea flares 1.6-6.5x; `ProbeMain --channels` prints the
+spread and `checkRiversWidenToTheirMouths` holds it.
 
 **A town's grading cut the banks out from under the water.** `SETTLEMENT_GRADING` is a `REPLACE` terrace
 stamped after the river (priority 600 against 200), aimed at `Site.elevation` - the *kilometre* raster at the
@@ -495,7 +507,7 @@ Trees, crystals, and aetherite are **not written into the voxel grid** — `Vege
 there's no per-tree storage anywhere; `trunkSite` still vetoes placement against streets/bridges/
 buildings/caves so nothing spawns inside a wall.
 
-`ChunkMaterializer.VERSION` (currently **5**) is a hand-incremented tier version — separate from any
+`ChunkMaterializer.VERSION` (currently **11**) is a hand-incremented tier version — separate from any
 `Stage.version` — folded into `WorldParams.chunkTierVersion`. It climbed to 10 across the branch that
 built subtraction, vegetation, blighted cover, wounds, bare rock, lava, props and points of interest, and
 was reset to 1 in this cleanup pass alongside every `Stage.version` (see Cross-cutting mechanisms above)
@@ -503,6 +515,34 @@ for the same reason: still pre-release, so none of those ten bumps had a real co
 history holds the old changelog. Expect this number to climb again the moment a materialisation change
 actually ships to a client — it is not a promise that the tier will never change again, only that nothing
 has shipped to make the bumps so far mean anything.
+
+### Ground loot and set dressing (`voxel/LootScatter`, `dress/`, `voxel/FixtureProps`)
+
+**Ground loot** is three more scatters on their own lattices: `BOULDER` (by stoniness - thin soil, a rocky biome,
+glacial ground near a `MORAINE`/`GLACIAL_TROUGH` - broken in the zone for quarried stone and flint), `LOOSE_STONE`
+(the same stoniness with a high floor, so a new player always finds one) and `STICK` (by `Biome.canopy`). Nothing
+lies in a `FIELD`, a `SETTLEMENT_GRADING` disc or a `CEMETERY`. Seed 7: 3.1 / 8.4 / 6.2 per hectare.
+
+**Set dressing** is one `PropKind.FIXTURE` with `dress/FixtureKind`'s ordinal as sub-kind (the `POI` pattern - four
+kind bits are nearly spent: 13 of 16) and the style (`FenceStyle`, `CropStyle`, a model) in `PropFlags.fixture`'s
+bits, which the zone sends as the variant instead of a roll. The split that matters:
+
+- **Sparse things that need the whole world are `FIXTURE` markers** from `DressingStage`: piers (deck elevation on
+  the marker, the only fixtures standing on water) and their boats, wells, windmills, signposts and milestones
+  (settlement indices, distances and compass bearings per arm on the marker - the zone renders the text), lantern
+  lines (settlement + order, which the zone's lamplighter walks), cairns, inn houses, outcrops, and the
+  `NAMED_GRAVE`s of chronicle figures who died at home with no tomb.
+- **Dense things are derived per chunk** by `FixtureProps`: a fence run per `FIELD`/`CEMETERY` ring edge (gate gap on
+  one edge), 32 m crop tiles along the field's `bearing`, haystacks and scarecrows, and plain headstones on the
+  `dress/Plots` grid the named graves left free. Never stored, like trees.
+
+Two traps: `PropSite` answers only for its own chunk's columns, so ground is asked only after ownership is
+settled (a fence run's far end in the next chunk is that chunk's business); and a fixture's own clearance test
+(`DressingStage.World.isClear`) counts road treads, so a fixture placed *beside* a road must sit further out than
+`tread + ROAD_MARGIN` or it vetoes itself - milestones did, and came out zero on every world until counted.
+Settlements in this generator rarely stand on the shore, so most seeds have no pier; `DressingStageTest` pins
+piers to seed 3.
+
 
 ### Encoding & storage (`voxel/`, `store/`)
 

@@ -120,7 +120,16 @@ enum class PropKind {
   LOOSE_STONE,
 
   /** A fallen stick under the trees, picked up as it lies: the other half of the first crafts. */
-  STICK
+  STICK,
+
+  /**
+   * Something people put up: a pier, a fence, a lantern, a signpost, a grave. See `dress/FixtureKind`.
+   *
+   * One kind for the whole catalogue, with `FixtureKind`'s ordinal in [PropInstances.subKindAt], for [POI]'s
+   * arithmetic. Rectangular like a [BUILDING] wherever its producer gives it a half-width, and its style - which
+   * fence, which crop - rides in the flag bits [PropFlags.fixture] packs.
+   */
+  FIXTURE
 }
 
 /**
@@ -186,6 +195,23 @@ object PropFlags {
   fun wallMaterialOf(flags: Int) = (flags shr WALL_MATERIAL_SHIFT) and WALL_MATERIAL_MASK
 
   fun roofMaterialOf(flags: Int) = (flags shr ROOF_MATERIAL_SHIFT) and ROOF_MATERIAL_MASK
+
+  private const val FIXTURE_STYLE_SHIFT = 2
+  private const val FIXTURE_STYLE_MASK = 0b11111
+
+  /**
+   * Pack a [PropKind.FIXTURE]'s style - which fence, which crop, which model - into the bits a building uses.
+   *
+   * The same five bits, because a prop is one kind or the other and never both; read through [fixtureStyleOf]
+   * so no call site shifts. The zone sends this as the prop's model variant, in place of the roll off its name
+   * every other kind gets, because a fence's style is decided by the ground it stands on rather than by chance.
+   */
+  fun fixture(style: Int, blighted: Boolean = false): Int {
+    require(style in 0..FIXTURE_STYLE_MASK) { "fixture style $style does not fit five bits" }
+    return (style shl FIXTURE_STYLE_SHIFT) or (if (blighted) BLIGHTED else 0)
+  }
+
+  fun fixtureStyleOf(flags: Int) = (flags shr FIXTURE_STYLE_SHIFT) and FIXTURE_STYLE_MASK
 }
 
 /**

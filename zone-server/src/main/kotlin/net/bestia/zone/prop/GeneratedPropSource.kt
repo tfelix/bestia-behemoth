@@ -4,6 +4,8 @@ import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.poi.PoiKind
 import net.bestia.worldgen.voxel.PropKind
+import net.bestia.worldgen.voxel.PropFlags
+import net.bestia.worldgen.dress.FixtureKind
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.settlement.StartTownMarkets
@@ -51,6 +53,7 @@ class GeneratedPropSource(
         PropKind.BUILDING -> BuildingFunction.entries.indices.filter {
           BuildingFunction.entries[it] != BuildingFunction.FORTIFICATION
         }
+        PropKind.FIXTURE -> FixtureKind.entries.indices
         else -> 0..0
       }
       for (subKind in subKinds) {
@@ -72,7 +75,10 @@ class GeneratedPropSource(
       val kind = StaticEntityKind.of(props.kindAt(i), props.isBlighted(i), props.isLarge(i), props.subKindAt(i))
       if (kind == StaticEntityKind.AUCTION_HOUSE && !startTownMarkets.isAuctionHouse(props.identityAt(i))) continue
 
-      val rectangular = props.kindAt(i) == PropKind.BUILDING
+      // A building always has a footprint; a fixture has one when its producer gave it a width - a pier, a fence
+      // run, a crop tile - and is a point otherwise, like a lantern.
+      val fixture = props.kindAt(i) == PropKind.FIXTURE
+      val rectangular = props.kindAt(i) == PropKind.BUILDING || (fixture && props.halfWidthAt(i) > 0.0)
 
       // Metres to position units, and the height from the generator's own column rather than from
       // `GroundHeight`: the two agree, and this one cannot be asked off the tick thread.
@@ -89,7 +95,9 @@ class GeneratedPropSource(
           position = position,
           // Off the identity, so a tree keeps the same mesh across every re-materialisation of its chunk.
           // A fresh roll here would make a wood shimmer as a player walked in and out of view of it.
-          variant = variantOf(props.identityAt(i)),
+          // A fixture's style - which fence, which crop - was decided by the ground it stands on, so it is sent as
+          // is rather than rolled.
+          variant = if (fixture) PropFlags.fixtureStyleOf(props.flagsAt(i)) else variantOf(props.identityAt(i)),
           heightDm = Math.round(props.heightAt(i) * 10.0).toInt(),
           // The generator's own facing where it has one, and a stable roll where it does not. A building faces
           // the street its lot fronts, which is a fact about the town and not something to re-roll; a tree has

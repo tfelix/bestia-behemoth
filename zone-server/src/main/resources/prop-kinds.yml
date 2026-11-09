@@ -297,3 +297,93 @@ kinds:
     variants: 1
     regrow-seconds: 900
     collect: { item-id: 102, amount: 1 }
+
+  # What people put up - worldgen's `FixtureKind`, see `dress/DressingStage` and `voxel/FixtureProps`. One row per
+  # entry, mandatory like the landmarks'. `variants` is how many styles the generator chooses between, and the
+  # generator's choice arrives as the variant itself rather than a roll: a fence is dry-stone because of the ground
+  # it stands on. A wooden fence breaks for a log; nothing else here yields anything yet, for the reason at the top.
+  - kind: FIXTURE_PIER
+    max-hp: 800
+    collider: { half-x: 2, half-y: 15, height: 1 }
+    variants: 1
+
+  - kind: FIXTURE_BOAT
+    max-hp: 120
+    collider: { half-x: 1, half-y: 3, height: 1 }
+    variants: 2
+
+  # Styles: post-and-rail, dry-stone, hedge, wattle (`FenceStyle`).
+  - kind: FIXTURE_FENCE
+    max-hp: 40
+    collider: { half-x: 1, half-y: 15, height: 1 }
+    variants: 4
+    loot:
+      - { item-id: 43, amount: 1, drop-chance: 5000 }
+
+  # Styles: wheat, barley, cabbage (`CropStyle`).
+  - kind: FIXTURE_CROP
+    max-hp: 10
+    collider: { half-x: 16, half-y: 16, height: 1 }
+    variants: 3
+
+  - kind: FIXTURE_HAYSTACK
+    max-hp: 20
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 2
+
+  - kind: FIXTURE_SCARECROW
+    max-hp: 15
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1
+
+  - kind: FIXTURE_WINDMILL
+    max-hp: 900
+    collider: { half-x: 4, half-y: 4, height: 11 }
+    variants: 1
+
+  - kind: FIXTURE_WELL
+    max-hp: 400
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1
+
+  # Readable: a click names where each way leads. See `ReadFixtureService`.
+  - kind: FIXTURE_SIGNPOST
+    max-hp: 60
+    collider: { half-x: 1, half-y: 1, height: 3 }
+    variants: 1
+
+  - kind: FIXTURE_MILESTONE
+    max-hp: 300
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+
+  # The everflame: a lantern whose pale magic flame the client lights by the clock.
+  - kind: FIXTURE_LANTERN
+    max-hp: 80
+    collider: { half-x: 1, half-y: 1, height: 3 }
+    variants: 1
+
+  - kind: FIXTURE_CAIRN
+    max-hp: 250
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1
+
+  - kind: FIXTURE_GRAVESTONE
+    max-hp: 150
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 3
+
+  - kind: FIXTURE_NAMED_GRAVE
+    max-hp: 200
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+
+  - kind: FIXTURE_OUTCROP
+    max-hp: 2000
+    collider: { half-x: 4, half-y: 3, height: 4 }
+    variants: 3
+
+  - kind: FIXTURE_INN
+    max-hp: 450
+    collider: { half-x: 7, half-y: 5, height: 8 }
+    variants: 1

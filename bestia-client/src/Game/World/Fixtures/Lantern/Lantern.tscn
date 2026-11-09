@@ -1,0 +1,72 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://Game/World/Fixtures/Lantern/everflame.gd" id="1_flame"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_post"]
+size = Vector3(0.14, 2.45, 0.14)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_post"]
+albedo_color = Color(0.24, 0.17, 0.11, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="BoxMesh_arm"]
+size = Vector3(0.5, 0.08, 0.08)
+
+[sub_resource type="BoxMesh" id="BoxMesh_cage"]
+size = Vector3(0.32, 0.4, 0.32)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cage"]
+transparency = 1
+albedo_color = Color(0.2, 0.22, 0.24, 0.45)
+metallic = 0.7
+roughness = 0.45
+
+[sub_resource type="SphereMesh" id="SphereMesh_flame"]
+radius = 0.1
+height = 0.26
+radial_segments = 8
+rings = 4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flame"]
+shading_mode = 0
+albedo_color = Color(0.62, 1, 0.95, 1)
+emission_enabled = true
+emission = Color(0.35, 0.95, 0.9, 1)
+emission_energy_multiplier = 1.0
+
+[node name="Lantern" type="Node3D"]
+script = ExtResource("1_flame")
+
+[node name="Post" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.225, 0)
+mesh = SubResource("BoxMesh_post")
+surface_material_override/0 = SubResource("StandardMaterial3D_post")
+
+[node name="Arm" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22, 2.4, 0)
+mesh = SubResource("BoxMesh_arm")
+surface_material_override/0 = SubResource("StandardMaterial3D_post")
+
+[node name="Cage" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, 2.18, 0)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_cage")
+surface_material_override/0 = SubResource("StandardMaterial3D_cage")
+
+[node name="Flame" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, 2.16, 0)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_flame")
+surface_material_override/0 = SubResource("StandardMaterial3D_flame")
+
+[node name="Light" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, 2.3, 0)
+visible = false
+light_color = Color(0.55, 0.95, 0.9, 1)
+light_energy = 0.0
+shadow_enabled = false
+distance_fade_enabled = true
+distance_fade_begin = 45.0
+distance_fade_length = 15.0
+omni_range = 9.0
+omni_attenuation = 1.4

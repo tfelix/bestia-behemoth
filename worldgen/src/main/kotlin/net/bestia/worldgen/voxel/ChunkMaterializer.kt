@@ -308,6 +308,9 @@ class ChunkMaterializer(
     // No `site`, and it is the only source here without one: `trunkSite` refuses the ground a building stands
     // on, by design and by its own job. See `BuildingProps`.
     BuildingProps(config, nearby).propsIn(chunk, into)
+    // What people put up: the dressing stage's markers, and the fences, crops, haystacks and headstones that
+    // fields and cemeteries imply. On the trees' `site`, so nothing stands on a road or in a house.
+    FixtureProps(config, surface, nearby).propsIn(chunk, site, into)
 
     return into
   }
@@ -996,7 +999,9 @@ class ChunkMaterializer(
     // (`Stratigraphy.plateAt`). Every column near any of those boundaries may cap, or bed, differently.
     // 10: boulders, loose stones and fallen sticks lie on the ground (`LootScatter`), so every chunk emits props
     // it did not emit before.
-    const val VERSION = 10
+    // 11: fixtures - piers, boats, fences, crops, haystacks, scarecrows, windmills, wells, signposts, milestones,
+    // lanterns, cairns, headstones, outcrops, inn houses (`FixtureProps`) - so chunks emit props they did not.
+    const val VERSION = 11
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.
