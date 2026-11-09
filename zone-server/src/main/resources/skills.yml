@@ -1926,6 +1926,18 @@ skills:
 
       `+10%/lv` damage of the master's Bestias against the marked target
 
+  - id: 175
+    identifier: M_POTION_PITCHER
+    script: PotionPitcher
+    targetType: FRIENDLY
+    range: 7
+    manaCost: 1
+    description: |
+      Throws a potion from the bag onto an ally up to 7 tiles away, so it works as if the ally had
+      drunk it. Cooldown 1s.
+
+      `+10%/lv` effect of the thrown potion
+
 # BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000
     identifier: ember
