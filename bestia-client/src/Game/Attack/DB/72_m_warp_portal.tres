@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 72
+name = "Warp Portal"
+description_key = "SKILL_72_DESC"
+mana_cost = 70
+cooldown = 120.0
+max_level = 5
+cast_time = 5.0
+tree = "SCHOLAR"
+sub_tree = "SAGE"
+prerequisite_ids = PackedInt32Array(71)
+prerequisite_levels = PackedInt32Array(2)
