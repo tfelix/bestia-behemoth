@@ -37,8 +37,8 @@ SKILL_5_DESC,"A quick bolt of flame hurled at a single target. The first spell m
 and the one they cast the most often. Must be channelled - moving or taking damage
 interrupts the cast.
 
-`+10%/lv` MATK
-`-0.1s/lv` cast time"
+`+20%/lv` MATK
+`-0.2s/lv` cast time"
 SKILL_6_DESC,"A benediction that steadies body and mind. On an Undead or Demon target it turns into a
 curse that halves DEX and INT instead.
 
@@ -704,97 +704,79 @@ below 20%. Cooldown 10s.
 SKILL_99_DESC,"A shard of hardened cold flung at a single target - the water-elemental counterpart to
 Fire Bolt.
 
-`+10%/lv` MATK
-`-0.1s/lv` cast time"
+`+20%/lv` MATK
+`-0.2s/lv` cast time"
 SKILL_100_DESC,"A crack of lightning called down onto a single target - the wind-elemental counterpart to
 Fire Bolt.
 
-`+10%/lv` MATK
-`-0.1s/lv` cast time"
+`+20%/lv` MATK
+`-0.2s/lv` cast time"
 SKILL_101_DESC,"A jagged spar of stone erupts beneath a single target - the earth-elemental counterpart to
 Fire Bolt.
 
-`+10%/lv` MATK
-`-0.1s/lv` cast time"
+`+20%/lv` MATK
+`-0.2s/lv` cast time"
 SKILL_102_DESC,"A deeper communion with raw mana beyond the elements, sharpening the spells that draw on
 it: Soul Break and Mindbreak.
 
-`+5%/lv` damage of raw-mana spells"
+`+10%/lv` damage of raw-mana spells, from 5% at Lv.1"
 SKILL_103_DESC,"Conjures a barrier of solidified mana in front of a target. It blocks projectiles and
 melee strikes until it has absorbed enough hits or its time runs out. Cooldown 10s.
 
-`+2/lv` hits absorbed
-`+8s/lv` duration, from 20s at Lv.1"
+`+4/lv` hits absorbed, from 2 at Lv.1
+`+16s/lv` duration, from 20s at Lv.1"
 SKILL_104_DESC,"Encases a target in stone. It applies Stoning, which turns into Stone unless it is cured
 first. Consumes a Red Mana Crystal. Cooldown 15s.
 
-`+10%/lv` chance, from 20% at Lv.1
-`+3s/lv` duration, from 5s at Lv.1"
+`+20%/lv` chance, from 20% at Lv.1
+`+6s/lv` duration, from 5s at Lv.1"
 SKILL_105_DESC,"A ward of counter-mana thrown over a target mid-incantation. It can interrupt the spell
 being woven and leaves the target Silenced. Cooldown 20s.
 
-`+10%/lv` interrupt chance, from 20% at Lv.1
-`+1s/lv` silence, from 3s at Lv.1"
-SKILL_106_DESC,"Mutes the mana clinging to an object, Bestia or Master for 5min, hiding it from wards,
-Magic Sense and similar senses. Cooldown 30s.
-
-Lv.1 40%, Lv.2 70%, Lv.3 100% of the mana suppressed"
+`+20%/lv` interrupt chance, from 20% at Lv.1
+`+2s/lv` silence, from 3s at Lv.1"
 SKILL_107_DESC,"Conjures a wall of roaring flame for 20s. Anything that tries to push through is burned
 and shoved back. Cooldown 10s.
 
-`+10%/lv` MATK per tick
-Lv.1-2 1m, Lv.3-4 2m, Lv.5 3m knockback"
+`+20%/lv` MATK per tick, from 10% at Lv.1
+`+1m/lv` knockback, from 1m at Lv.1"
 SKILL_108_DESC,"Calls down a rain of blazing meteors onto an area for 10s. Cooldown 30s.
 
-`+10%/lv` MATK per meteor
-`+1/lv` meteors, from 3 at Lv.1"
+`+20%/lv` MATK per meteor, from 10% at Lv.1
+`+2/lv` meteors, from 3 at Lv.1"
 SKILL_109_DESC,"A freezing gale that batters an area with waves of ice for 10s, each one able to freeze
 what it hits. Cooldown 25s.
 
-`+8%/lv` MATK per tick
-`+5%/lv` freeze chance per tick"
-SKILL_110_DESC,"Gathers the water in a 5x5 area around the caster into a crashing orb hurled at a target.
-The caster must stand in water. It hits once for every water tile around the caster, up to
-the cap of its level. Cooldown 15s.
-
-`+5/lv` hits per cast at most"
+`+16%/lv` MATK per tick, from 8% at Lv.1
+`+10%/lv` freeze chance per tick, from 5% at Lv.1"
 SKILL_111_DESC,"A burst of subzero cold erupts outward from the caster. Cooldown 15s.
 
-`+1m/lv` radius, from 2m at Lv.1
-`+10%/lv` freeze chance, from 15% at Lv.1"
+`+2m/lv` radius, from 2m at Lv.1
+`+20%/lv` freeze chance, from 15% at Lv.1"
 SKILL_112_DESC,"Turns the ground into clinging mud for 30s. It strips AGI-increasing buffs and drags down
 AGI and DEX, at most 25% against Masters and 50% against wild Bestias. Cooldown 20s.
 
-`-10%/lv` AGI and DEX"
+`-20%/lv` AGI and DEX, from 10% at Lv.1"
 SKILL_113_DESC,"Wind churns into a storm overhead for 8s, calling down lightning across the area at
 random. Cooldown 20s.
 
-`+10%/lv` MATK per strike
-`+1/lv` strikes, from 3 at Lv.1"
+`+20%/lv` MATK per strike, from 10% at Lv.1
+`+2/lv` strikes, from 3 at Lv.1"
 SKILL_114_DESC,"Splits the ground around the caster for 8s, dealing repeated damage to everything standing
 on it. Cooldown 25s.
 
-`+10%/lv` MATK per tick
-`+1m/lv` radius, from 2m at Lv.1"
-SKILL_115_DESC,"A dense orb of packed ice hurled at a single target, hitting hard and likely to freeze it.
-Cooldown 12s.
-
-`+15%/lv` MATK
-`+10%/lv` freeze chance, from 30% at Lv.1"
+`+20%/lv` MATK per tick, from 10% at Lv.1
+`+2m/lv` radius, from 2m at Lv.1"
 SKILL_116_DESC,"Tears into a target with raw mana that ignores elemental resistance, ripping away part of
 its mana. Cooldown 15s.
 
-`+20%/lv` MATK
-`+5%/lv` of the target's mana drained"
-SKILL_117_DESC,"A column of lightning that strikes a single target over and over. Cooldown 20s.
-
-`+1/lv` hits per cast
-`+20%` MATK per hit"
+`+40%/lv` MATK, from 20% at Lv.1
+`+10%/lv` of the target's mana drained, from 5% at Lv.1"
 SKILL_118_DESC,"Channels so much raw magic through one of the master's Bestias for 60s that its armor is
 the first thing to give: magic attack rises and soft magic defense falls. Cooldown 60s.
 
-`+20%/lv` MATK
-`-20%/lv` SMDEF"
+`+40%/lv` MATK, from 20% at Lv.1
+`-40%/lv` SMDEF, from 20% at Lv.1"
 SKILL_119_DESC,"Knocks a random piece of equipment off the target and keeps its slot empty for a while.
 Accessories cannot be stripped. Stripping a dual wielder's weapon or shield takes both
 weapons. Fails against Equipment Coating. Cooldown 12s.
