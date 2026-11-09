@@ -75,7 +75,11 @@ enum class StatusEffectId(val id: Long) {
   ARMOR_STRIPPED(59),
   DISARMED(60),
   STRUCK_OFF(61),
-  SILENCED(62);
+  SILENCED(62),
+  HEADGEAR_STRIPPED(63),
+  GARMENT_STRIPPED(64),
+  FOOTGEAR_STRIPPED(65),
+  SHIELD_STRIPPED(66);
 
   companion object {
     private val byId = entries.associateBy { it.id }
