@@ -919,3 +919,63 @@ skills:
     prerequisites:
       - skill: M_PLAGIARISM
         level: 5
+
+  # Knight (unlocked at 5+ pts in Warrior Tree)
+  - skill: M_HEAVY_WEAPON_MASTERY
+    tree: WARRIOR
+    subTree: KNIGHT
+    maxLevel: 10
+
+  - skill: M_HEAVY_ARMOR_MASTERY
+    tree: WARRIOR
+    subTree: KNIGHT
+    maxLevel: 10
+
+  - skill: M_PROVOKE
+    tree: WARRIOR
+    subTree: KNIGHT
+    maxLevel: 5
+
+  - skill: M_BASH
+    tree: WARRIOR
+    subTree: KNIGHT
+    maxLevel: 5
+    prerequisites:
+      - skill: M_HEAVY_WEAPON_MASTERY
+        level: 3
+
+  - skill: M_CHARGE
+    tree: WARRIOR
+    subTree: KNIGHT
+    maxLevel: 5
+    prerequisites:
+      - skill: M_BASH
+        level: 3
+
+  - skill: M_SHIELD_WALL
+    tree: WARRIOR
+    subTree: KNIGHT
+    maxLevel: 5
+    prerequisites:
+      - skill: M_HEAVY_ARMOR_MASTERY
+        level: 2
+
+  - skill: M_AUTO_GUARD
+    tree: WARRIOR
+    subTree: KNIGHT
+    maxLevel: 5
+    prerequisites:
+      - skill: M_SHIELD_WALL
+        level: 2
+
+  - skill: M_JUGGERNAUT
+    tree: WARRIOR
+    subTree: KNIGHT
+    maxLevel: 3
+    prerequisites:
+      - skill: M_HEAVY_ARMOR_MASTERY
+        level: 5
+      - skill: M_CHARGE
+        level: 3
+      - skill: M_AUTO_GUARD
+        level: 3
