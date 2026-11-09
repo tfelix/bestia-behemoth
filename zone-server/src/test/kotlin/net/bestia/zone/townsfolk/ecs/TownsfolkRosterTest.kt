@@ -53,7 +53,7 @@ class TownsfolkRosterTest {
       homeBuilding = 11L,
       workplace = FIELD,
     )
-    every { placement.occupationFor(any(), any()) } answers {
+    every { placement.occupationFor(any(), any(), any()) } answers {
       if (secondArg<Member>().kinship == Kinship.CHILD) child else farmer
     }
     every { placement.dayOffsetOf(any(), any(), any()) } returns 0

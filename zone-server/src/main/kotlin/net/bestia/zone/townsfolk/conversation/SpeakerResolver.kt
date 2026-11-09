@@ -56,7 +56,7 @@ class SpeakerResolver(
       settlement = settlement,
       household = household,
       name = naming.nameOf(identity),
-      occupation = placement.occupationFor(expanded, person),
+      occupation = placement.occupationFor(expanded, person, settlement),
       // A child keeps no trade whatever the household does, exactly as `occupationFor` decides.
       business = expanded.business
         .takeIf { it >= 0 && person.kinship != Kinship.CHILD }

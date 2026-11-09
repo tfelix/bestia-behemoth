@@ -68,7 +68,7 @@ class TownsfolkEntitySpawner(
     at: Vec3L,
   ): EntityId? {
     val person = placed.household.members.getOrNull(member) ?: return null
-    val occupation = placement.occupationFor(placed.household, person)
+    val occupation = placement.occupationFor(placed.household, person, placed.settlement)
     val identity = TownsfolkIdentity.of(placed.settlement, placed.household.index, member)
 
     val memory = Blackboard().apply {

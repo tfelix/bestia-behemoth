@@ -89,6 +89,13 @@ occupations:
       # Whoever dug it, hauled it or raised it. A labourer's claim is on what the town built.
       interests: [MINE_OPENED, MONUMENT_BUILT, SETTLEMENT_WALLED, LIGHTHOUSE_LIT]
 
+  # Keeps the lanterns along the roads out of town (worldgen's `DressingStage`), walking one line of them at
+  # dusk on most evenings - see TownsfolkDomain.TEND_LANTERNS. No shop and no shift: the round is the work, and it
+  # is the head of the first labouring household in a settlement that has lanterns who takes it on.
+  - id: lamplighter
+    dialog: { greetings: 5, trade: 5 }
+    rest: { from: 23, to: 7 }
+
   - id: beggar
     dialog: { greetings: 5, trade: 5 }
     shift: { from: 9, to: 17 }

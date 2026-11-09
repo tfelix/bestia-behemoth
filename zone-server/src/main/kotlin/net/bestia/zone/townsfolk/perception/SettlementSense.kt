@@ -30,6 +30,7 @@ class SettlementSense(
   private val food: SettlementFood,
   private val work: SettlementWork,
   private val gathering: SettlementGathering,
+  private val lanterns: LanternRoutes = NoLanternRoutes,
 ) : Sense {
 
   override val name = "settlement"
@@ -49,6 +50,25 @@ class SettlementSense(
     senseWork(context, TownsfolkIdentity.settlementOf(townsfolk.identity))
     senseSupplier(context)
     senseGathering(context)
+    senseLanterns(context, TownsfolkIdentity.settlementOf(townsfolk.identity))
+  }
+
+  /**
+   * Tonight's lantern line, for the settlement's lamplighter and nobody else. Absent for everyone else, which
+   * is what keeps the round off their list - see [TownsfolkDomain.Goals.TEND_LANTERNS].
+   */
+  private fun senseLanterns(context: SenseContext, settlement: Int) {
+    if (context.recall(TownsfolkDomain.OCCUPATION)?.id != LAMPLIGHTER) {
+      context.forget(TownsfolkDomain.LANTERN_ROUTE)
+      return
+    }
+    val day = context.recall(TownsfolkDomain.DAY_INDEX) ?: 0L
+    val route = lanterns.routeFor(settlement, day)
+    if (route.isNullOrEmpty()) {
+      context.forget(TownsfolkDomain.LANTERN_ROUTE)
+      return
+    }
+    context.remember(TownsfolkDomain.LANTERN_ROUTE, route)
   }
 
   private fun senseGathering(context: SenseContext) {
@@ -99,3 +119,6 @@ class SettlementSense(
     context.remember(TownsfolkDomain.WORK_SUPPLIED, work.canSupply(settlement, trade))
   }
 }
+
+/** The occupation that keeps a settlement's lanterns. See `HouseholdPlacement.lamplighterOf`. */
+private const val LAMPLIGHTER = "lamplighter"

@@ -132,6 +132,11 @@ lines:
     occupations: [beggar]
     minWealth: 0.6
 
+  # --- Lamplighter ---------------------------------------------------------------------------------
+  - key: TALK_SMALL_LAMPLIGHTER_FLAME
+    variants: 4
+    occupations: [lamplighter]
+
   # --- Child ---------------------------------------------------------------------------------------
   - key: TALK_SMALL_CHILD_GAME
     variants: 4

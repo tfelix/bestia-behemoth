@@ -96,6 +96,11 @@ TALK_GREETING_BEGGAR_2,"{name} has been watching you since the corner."
 TALK_GREETING_BEGGAR_3,{name} makes room on the step without being asked.
 TALK_GREETING_BEGGAR_4,{name} says nothing and waits to see what you are.
 TALK_GREETING_BEGGAR_5,{name} has a greeting ready and has clearly used it all morning.
+TALK_GREETING_LAMPLIGHTER_1,{name} lowers the pole and nods.
+TALK_GREETING_LAMPLIGHTER_2,"{name} has a lantern-hook over one shoulder and soot on the other."
+TALK_GREETING_LAMPLIGHTER_3,{name} glances at the sky before answering you.
+TALK_GREETING_LAMPLIGHTER_4,"{name} stops, counts something under their breath, and turns to you."
+TALK_GREETING_LAMPLIGHTER_5,{name} smells faintly of the pale flame.
 TALK_GREETING_CHILD_1,"{name} stares at you without blinking."
 TALK_GREETING_CHILD_2,"{name} appears at your elbow from nowhere."
 TALK_GREETING_CHILD_3,"{name} runs up, stops short, and thinks better of it."
@@ -150,6 +155,11 @@ TALK_TRADE_BEGGAR_2,"I sit. People walk past. That is the whole of it."
 TALK_TRADE_BEGGAR_3,I keep the {trade} and the {trade} keeps me. Barely.
 TALK_TRADE_BEGGAR_4,The {trade}. Nobody is queueing to take it off me.
 TALK_TRADE_BEGGAR_5,This. What you are looking at. There is no second part to it.
+TALK_TRADE_LAMPLIGHTER_1,"I keep the {trade}. Every post out to the last one, and back before full dark."
+TALK_TRADE_LAMPLIGHTER_2,"The flame does not need me, if I am honest. The road likes to see somebody walk it."
+TALK_TRADE_LAMPLIGHTER_3,"One road a night. The others wait their turn, and the flame waits with them."
+TALK_TRADE_LAMPLIGHTER_4,The {trade}. Ask anyone who has walked home in the dark whether it is a trade.
+TALK_TRADE_LAMPLIGHTER_5,"Pale fire, old glass, and a long walk. That is all of it."
 TALK_TRADE_CHILD_1,"{trade}. That is what they tell me when I ask, anyway."
 TALK_TRADE_CHILD_2,"Nothing yet. I am meant to be helping but I am not."
 TALK_TRADE_CHILD_3,"{trade}, yet. When I am bigger I am going to be the one with the horses."
@@ -207,6 +217,7 @@ TRADE_WEAVER,weaving shed
 TRADE_FARMER,fields
 TRADE_LABOURER,work
 TRADE_BEGGAR,corner
+TRADE_LAMPLIGHTER,lanterns
 TRADE_CHILD,nothing much
 HISTORY_SETTLEMENT_FOUNDED_ASK,How old is {place}?
 HISTORY_SETTLEMENT_FOUNDED_1,"The {civ} laid the first stones of {place} {era}, around the year {year}. We have been here ever since."
@@ -391,6 +402,11 @@ TALK_SMALL_LABOURER_WINTER_1,"Ground is frozen hard as iron. We dig anyway, just
 TALK_SMALL_LABOURER_WINTER_2,"Cold does not stop the work, it only stops the hands."
 TALK_SMALL_LABOURER_WINTER_3,You warm up after the first hour. It is the first hour that is the trouble.
 TALK_SMALL_LABOURER_WINTER_4,I would rather this than the heat. You can put more on in winter.
+TALK_SMALL_LAMPLIGHTER_FLAME_ASK,What burns in those lanterns?
+TALK_SMALL_LAMPLIGHTER_FLAME_1,"Nobody quite knows. It was lit before my grandmother, and it has never needed oil."
+TALK_SMALL_LAMPLIGHTER_FLAME_2,"Old magic, the priests say. I say it is warm on the hands and that is enough to know."
+TALK_SMALL_LAMPLIGHTER_FLAME_3,"It sulks by day and wakes at dusk. Like most of the people I know."
+TALK_SMALL_LAMPLIGHTER_FLAME_4,"The pale fire. Do not put your face to it. It does not burn, but you will dream badly."
 TALK_SMALL_BEGGAR_CORNER_ASK,Good spot?
 TALK_SMALL_BEGGAR_CORNER_1,"Best corner in town. Everyone walks past it and nobody looks at it. Suits me."
 TALK_SMALL_BEGGAR_CORNER_2,"It is out of the wind, and that is most of what a spot is."

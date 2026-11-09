@@ -1,5 +1,7 @@
 package net.bestia.zone.townsfolk.ecs
 
+import net.bestia.zone.townsfolk.perception.NoLanternRoutes
+
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.worldgen.civ.BuildingFunction
@@ -65,7 +67,7 @@ class HouseholdPlacementTest {
     // door coordinate passing through unchanged is what makes the assertions below readable.
     every { sites.doorstepOf(any()) } answers { firstArg<SettlementSite.Building>().door.let { Vec3L(it.x.toLong(), it.y.toLong(), 0) } }
 
-    sut = HouseholdPlacement(sites, occupations, TownsfolkResidencyConfig())
+    sut = HouseholdPlacement(sites, occupations, TownsfolkResidencyConfig(), NoLanternRoutes)
   }
 
   @Test

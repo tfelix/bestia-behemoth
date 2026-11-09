@@ -13,6 +13,8 @@ import net.bestia.zone.townsfolk.domain.OccupationCatalogue
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.world.settlement.SettlementSite
 import net.bestia.zone.world.settlement.SettlementSiteIndex
+import net.bestia.zone.townsfolk.perception.LanternRoutes
+import java.util.concurrent.ConcurrentHashMap
 import org.springframework.stereotype.Service
 
 /**
@@ -28,7 +30,11 @@ class HouseholdPlacement(
   private val sites: SettlementSiteIndex,
   private val occupations: OccupationCatalogue,
   private val config: TownsfolkResidencyConfig,
+  private val lanterns: LanternRoutes,
 ) {
+
+  /** Settlement -> the household whose head lights its lanterns, or -1 for none. Derived once each. */
+  private val lamplighters = ConcurrentHashMap<Int, Int>()
 
   /**
    * @param household the expansion of the settlement's seed at this index
@@ -120,8 +126,20 @@ class HouseholdPlacement(
    * nothing to do at all reads worse than a town of people carrying things about, and the trade will get
    * its own occupation later.
    */
-  fun occupationFor(household: Household, member: Member): Occupation {
+  fun occupationFor(household: Household, member: Member, settlement: Int = NO_SETTLEMENT): Occupation {
     if (member.kinship == Kinship.CHILD) return occupations.getOrThrow(CHILD)
+
+    // One household in a settlement with lanterns keeps them: the first whose head would otherwise only be a
+    // labourer, so nobody's trade is taken from them to light the road.
+    if (settlement != NO_SETTLEMENT && member === household.head && household.index == lamplighterOf(settlement)) {
+      occupations.all().firstOrNull { it.id == LAMPLIGHTER }?.let { return it }
+    }
+
+    return tradeOf(household)
+  }
+
+  /** What a household's head does by trade, without the lamplighter rule. */
+  private fun tradeOf(household: Household): Occupation {
 
     val trade = household.business.takeIf { it >= 0 }?.let { BusinessCatalogue.ALL[it].id }
     val kept = trade?.let { id -> occupations.all().firstOrNull { it.businessType == id } }
@@ -137,6 +155,21 @@ class HouseholdPlacement(
    * of one trade are contiguous - `Households.one` walks the roster in catalogue order - so the modulo
    * spreads them over that trade's buildings without anybody having to expand the rest of the town.
    */
+  /**
+   * The household whose head is this settlement's lamplighter, or -1 when it has no lanterns or no labourer.
+   *
+   * The first labourer household by index, found by expanding households one at a time from the start: a
+   * town's first few are enough, since most households of a working town are labourers or farmers.
+   */
+  fun lamplighterOf(settlement: Int): Int = lamplighters.computeIfAbsent(settlement) { index ->
+    if (!lanterns.hasLanterns(index)) return@computeIfAbsent -1
+    val summary = sites.siteOf(index)?.population ?: return@computeIfAbsent -1
+    (0 until summary.householdCount).firstOrNull { i ->
+      val household = Households.one(summary, i)
+      tradeOf(household).id == LABOURER
+    } ?: -1
+  }
+
   private fun workplaceOf(site: SettlementSite, household: Household, index: Int): SettlementSite.Building? {
     val candidates = when {
       household.business >= 0 -> site.buildingsFor(household.business)
@@ -151,6 +184,10 @@ class HouseholdPlacement(
     const val CHILD = "child"
     const val FARMER = "farmer"
     const val LABOURER = "labourer"
+    const val LAMPLIGHTER = "lamplighter"
+
+    /** No settlement given: the lamplighter rule is skipped, and only the household's trade decides. */
+    const val NO_SETTLEMENT = -1
 
     /** `Households.membersOf` puts the head first, and `Household.head` reads it back that way. */
     const val HEAD = 0

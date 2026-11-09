@@ -17,6 +17,7 @@ goals:
   - { name: Eat }
   - { name: Restock }
   - { name: WorkShift }
+  - { name: TendLanterns }
   - { name: GoHome }
   - { name: Socialise }
   - { name: Loiter }
@@ -36,4 +37,5 @@ actions:
   - mingle
   - shelterAtDoor
   - sleepAtHome
+  - tendLanterns
   - workShift

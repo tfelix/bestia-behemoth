@@ -108,7 +108,7 @@ class KnowsChatCommand(
     }
 
     val expanded = Households.one(summary, household)
-    val occupation = placement.occupationFor(expanded, expanded.head)
+    val occupation = placement.occupationFor(expanded, expanded.head, site.index)
     val held = town.heldBy(household)
     val oldest = expanded.members.maxOfOrNull { it.age } ?: 0
 

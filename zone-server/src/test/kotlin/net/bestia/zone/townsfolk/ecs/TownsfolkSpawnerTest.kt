@@ -73,7 +73,7 @@ class TownsfolkSpawnerTest {
       homeBuilding = 7_777L,
       workplace = Vec3L(140, 100, 0),
     )
-    every { placement.occupationFor(any(), any()) } answers {
+    every { placement.occupationFor(any(), any(), any()) } answers {
       val member = secondArg<Member>()
       occupations.getOrThrow(if (member.kinship == Kinship.CHILD) "child" else "farmer")
     }

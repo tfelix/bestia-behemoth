@@ -88,7 +88,7 @@ class TownsfolkRoster(
         residents.add(
           Resident(
             identity = TownsfolkIdentity.of(settlement, household, member),
-            occupation = placement.occupationFor(placed.household, placed.household.members[member]),
+            occupation = placement.occupationFor(placed.household, placed.household.members[member], settlement),
             home = placed.home,
             homeBuilding = placed.homeBuilding,
             workplace = placed.workplace,

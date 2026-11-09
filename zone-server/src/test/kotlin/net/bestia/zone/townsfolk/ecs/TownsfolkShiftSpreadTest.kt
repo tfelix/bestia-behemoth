@@ -1,5 +1,7 @@
 package net.bestia.zone.townsfolk.ecs
 
+import net.bestia.zone.townsfolk.perception.NoLanternRoutes
+
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.worldgen.civ.BuildingFunction
@@ -25,7 +27,7 @@ class TownsfolkShiftSpreadTest {
   private val sites = mockk<SettlementSiteIndex>()
   private val occupations = OccupationCatalogue().apply { load() }
 
-  private val sut = TownsfolkRoster(sites, HouseholdPlacement(sites, occupations, TownsfolkResidencyConfig()))
+  private val sut = TownsfolkRoster(sites, HouseholdPlacement(sites, occupations, TownsfolkResidencyConfig(), NoLanternRoutes))
 
   init {
     every { sites.siteOf(SETTLEMENT) } returns site()

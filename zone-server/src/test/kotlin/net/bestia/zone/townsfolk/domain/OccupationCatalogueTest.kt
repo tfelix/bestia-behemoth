@@ -22,10 +22,11 @@ class OccupationCatalogueTest {
   private val catalogue = OccupationCatalogue().apply { load() }
 
   @Test
-  fun `the eleven occupations load`() {
+  fun `the twelve occupations load`() {
     assertEquals(
       listOf(
-        "baker", "beggar", "child", "farmer", "guard", "innkeeper", "labourer", "miller", "postmaster", "priest",
+        "baker", "beggar", "child", "farmer", "guard", "innkeeper", "labourer", "lamplighter", "miller",
+        "postmaster", "priest",
         "shopkeeper"
       ),
       catalogue.ids().sorted()

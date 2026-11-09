@@ -38,6 +38,7 @@ import net.bestia.zone.townsfolk.domain.action.LoiterActionTemplate
 import net.bestia.zone.townsfolk.domain.action.ShelterAtDoorActionTemplate
 import net.bestia.zone.townsfolk.domain.action.SleepAtHomeActionTemplate
 import net.bestia.zone.townsfolk.domain.action.WorkShiftActionTemplate
+import net.bestia.zone.townsfolk.domain.action.TendLanternsActionTemplate
 
 /**
  * The people who live in the towns the generator already builds.
@@ -135,6 +136,21 @@ object TownsfolkDomain : AiDomainCatalogue {
 
   /** Where off-duty townsfolk gather, from [net.bestia.zone.townsfolk.perception.SettlementSense]. */
   val SOCIAL_POSITION = StateKey<Vec3L>("socialPosition", observed = true, retain = Blackboard.PERMANENT)
+
+  /**
+   * Tonight's line of lanterns, for a lamplighter, from [net.bestia.zone.townsfolk.perception.SettlementSense].
+   * Absent for everybody else, which is what keeps [Goals.TEND_LANTERNS] off their list.
+   */
+  val LANTERN_ROUTE = StateKey<List<Vec3L>>("lanternRoute", observed = true, retain = Blackboard.PERMANENT)
+
+  /** The [DAY_INDEX] the lanterns were last walked on. [WORKED_ON_DAY]'s twin, and for the same reason. */
+  val LANTERNS_TENDED_ON_DAY = StateKey<Long>("lanternsTendedOnDay", retain = Blackboard.PERMANENT)
+
+  /** The hours the lamplighter goes out in: from a little before dusk until night has fallen. */
+  val TENDING_HOURS = HourWindow(19, 22)
+
+  /** Share of evenings the round is walked at all: a lamplighter is a person, not a timer. */
+  const val TENDING_SHARE = 0.6
 
   /**
    * Carrying goods, collected and not yet put on the shelf.
@@ -341,6 +357,25 @@ object TownsfolkDomain : AiDomainCatalogue {
     return position.distance(spot) <= DOORSTEP_RADIUS
   }
 
+  fun hasTendedToday(state: WorldState): Boolean {
+    val today = state.get(DAY_INDEX) ?: return true
+    return state.get(LANTERNS_TENDED_ON_DAY) == today
+  }
+
+  /** Whether tonight is one of the evenings the round is walked, off the day and the person's own house. */
+  fun tendsTonight(state: WorldState): Boolean {
+    val today = state.get(DAY_INDEX) ?: return false
+    val house = state.get(HOME_BUILDING) ?: 0L
+    return net.bestia.worldgen.core.GenRng.hashUnit(today, house, TENDING_SALT) < TENDING_SHARE
+  }
+
+  fun isTendingHour(state: WorldState): Boolean {
+    val minuteOfDay = state.get(MINUTE_OF_DAY) ?: return false
+    return TENDING_HOURS.coversMinute(minuteOfDay, dayOffsetOf(state))
+  }
+
+  private const val TENDING_SALT = 0x4C414D50L
+
   fun hasSocialisedToday(state: WorldState): Boolean {
     val today = state.get(DAY_INDEX) ?: return true
     return state.get(SOCIALISED_ON_DAY) == today
@@ -528,6 +563,22 @@ object TownsfolkDomain : AiDomainCatalogue {
     )
 
     /**
+     * The lantern round, at dusk on some evenings, for the one person in a settlement who keeps its lanterns.
+     *
+     * Above [SOCIALISE] and [GO_HOME] for [WORK_SHIFT]'s reason: the line runs kilometres out of town, so a
+     * lower rank would have the lamplighter turned round at the edge of the loiter radius. Below [SLEEP],
+     * which the hours keep clear of anyway, and below eating and shelter, which outrank everything.
+     */
+    val TEND_LANTERNS = Goal(
+      name = "TendLanterns",
+      priority = priority(base = 74f),
+      availability = Precondition { s ->
+        !s.get(LANTERN_ROUTE).isNullOrEmpty() && isTendingHour(s) && !hasTendedToday(s) && tendsTonight(s)
+      },
+      desiredState = listOf(Precondition { s -> hasTendedToday(s) }),
+    )
+
+    /**
      * The floor. Always available, so there is never a moment with no goal at all.
      *
      * That is not decoration: `Planner.selectCurrentGoal` returns null when nothing is both available and
@@ -580,6 +631,7 @@ object TownsfolkDomain : AiDomainCatalogue {
       SLEEP,
       SOCIALISE,
       TAKE_SHELTER,
+      TEND_LANTERNS,
       WORK_SHIFT,
     )
 
@@ -611,6 +663,7 @@ object TownsfolkDomain : AiDomainCatalogue {
     "enterHome" to { c -> EnterHomeActionTemplate(c.indoors) },
     "sleepAtHome" to { _ -> SleepAtHomeActionTemplate() },
     "workShift" to { c -> WorkShiftActionTemplate(c.work, c.production) },
+    "tendLanterns" to { c -> TendLanternsActionTemplate(c.locomotion) },
   )
 
   override val actionIds: Set<String> get() = TEMPLATE_FACTORIES.keys
