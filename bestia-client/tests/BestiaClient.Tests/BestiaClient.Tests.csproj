@@ -42,6 +42,7 @@
     <None Include="..\..\src\Game\Bestia\DB\*.tres" CopyToOutputDirectory="PreserveNewest" Link="BestiaDB\%(Filename)%(Extension)" />
     <None Include="..\..\src\Game\Emote\DB\*.tres" CopyToOutputDirectory="PreserveNewest" Link="EmoteDB\%(Filename)%(Extension)" />
     <None Include="..\..\..\zone-server\src\main\resources\prop-kinds.yml" CopyToOutputDirectory="PreserveNewest" Link="prop-kinds.yml" />
+    <None Include="..\..\..\zone-server\src\test\resources\structure-cells.golden.json" CopyToOutputDirectory="PreserveNewest" Link="structure-cells.golden.json" />
   </ItemGroup>
 
 </Project>
