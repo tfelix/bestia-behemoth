@@ -8,7 +8,7 @@ import net.bestia.zone.casting.BasicMagicSkillStrategy
 import net.bestia.zone.casting.SkillContext
 import org.springframework.stereotype.Component
 
-/** Heal (`skills.yml` id 4). */
+/** Heal (`skills.yml` id 4), with the Ragnarok Online formula: `[(BaseLv + INT) / 8] * (4 + 8 * SkillLv)`. */
 @Component
 class Heal(
   losService: LineOfSightService,
@@ -21,12 +21,9 @@ class Heal(
   override fun execute(ctx: SkillContext): Damage? {
     val battle = ctx.battle as? EntityBattleContext ?: return null
 
-    val effectFac = battle.damageVariables.healMod + battle.damageVariables.healMod
-    val baseAmount =
-      ((battle.attacker.level + battle.attacker.statusValues.intelligence) / 5) * battle.usedAttack.level * 3
-    val matk =
-      battle.weapon.upgradeLevel * battle.weapon.upgradeLevel + battle.weapon.matk + battle.attacker.derivedStatusValues.matk
+    val levelAndInt = battle.attacker.level + battle.attacker.statusValues.intelligence
+    val roHeal = (levelAndInt / 8) * (4 + 8 * battle.usedAttack.level)
 
-    return Heal(((baseAmount * effectFac) / 100 + matk).toInt())
+    return Heal((roHeal * battle.damageVariables.healMod).toInt())
   }
 }
