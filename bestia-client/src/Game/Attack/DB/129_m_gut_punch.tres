@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 129
+name = "Gut Punch"
+description_key = "SKILL_129_DESC"
+mana_cost = 20
+cooldown = 30.0
+max_level = 3
+target_type = "ENEMY"
+tree = "WARRIOR"
+sub_tree = "ASSASSIN"
+prerequisite_ids = PackedInt32Array(119)
+prerequisite_levels = PackedInt32Array(2)

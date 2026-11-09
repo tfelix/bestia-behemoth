@@ -1401,3 +1401,15 @@ items:
       Plain water, blessed by a Priest and stoppered in a small bottle.
 
       It burns the undead and anoints a weapon with the holy element.
+
+  # The first poison an Alchemist can brew. Enchant Poison works it into a blade; stronger poisons follow later.
+  - id: 111
+    item-db-name: basic_poison
+    base-level: 5
+    weight: 15
+    type: ETC
+    material: GLASS
+    description: |
+      A small vial of murky green liquid that smells of bitter almonds.
+
+      Worked into a blade with Enchant Poison, every cut may leave it behind.
