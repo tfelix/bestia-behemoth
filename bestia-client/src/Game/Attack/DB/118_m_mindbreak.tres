@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 118
+name = "Mindbreak"
+description_key = "SKILL_118_DESC"
+mana_cost = 50
+cooldown = 60.0
+max_level = 5
+target_type = "FRIENDLY"
+cast_time = 3.0
+tree = "WARRIOR"
+sub_tree = "WIZARD"
+prerequisite_ids = PackedInt32Array(116)
+prerequisite_levels = PackedInt32Array(3)

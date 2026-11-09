@@ -7,10 +7,10 @@
 script = ExtResource("1_script")
 skill_id = 5
 icon = ExtResource("1_v44l0")
-name = "Firebolt"
+name = "Fire Bolt"
 description_key = "SKILL_5_DESC"
-mana_cost = 12
-cooldown = 1.5
+mana_cost = 18
+cooldown = 0.0
 cast_time = 2.0
 max_level = 10
 target_type = "ENEMY"

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 109
+name = "Storm Gust"
+description_key = "SKILL_109_DESC"
+mana_cost = 65
+cooldown = 25.0
+max_level = 5
+cast_time = 5.0
+tree = "WARRIOR"
+sub_tree = "WIZARD"
+prerequisite_ids = PackedInt32Array(99)
+prerequisite_levels = PackedInt32Array(10)
