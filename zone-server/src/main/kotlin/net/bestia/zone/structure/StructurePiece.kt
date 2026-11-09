@@ -5,7 +5,8 @@ import net.bestia.zone.entity.StaticEntityKind
 /** The cells one kind of building piece fills, relative to where it is placed and before it is turned. */
 data class StructurePiece(
   val kind: StaticEntityKind,
-  val cells: List<Cell>
+  val cells: List<Cell>,
+  val material: StructureMaterial
 ) {
 
   /**

@@ -26,10 +26,21 @@ class StructurePieceCatalogue {
 
   private class PieceDto(
     val kind: StaticEntityKind,
+    val material: String,
     val cells: List<CellDto> = emptyList()
   )
 
-  private class CatalogueDto(val pieces: List<PieceDto> = emptyList())
+  private class MaterialDto(
+    val name: String,
+    val verticalLoss: Double,
+    val horizontalLoss: Double,
+    val minStability: Double
+  )
+
+  private class CatalogueDto(
+    val materials: List<MaterialDto> = emptyList(),
+    val pieces: List<PieceDto> = emptyList()
+  )
 
   private val byKind = HashMap<StaticEntityKind, StructurePiece>()
 
@@ -45,9 +56,13 @@ class StructurePieceCatalogue {
       mapper.readValue(it, CatalogueDto::class.java)
     }
 
+    val materials = dto.materials.associate { it.name to toMaterial(it) }
+    require(materials.size == dto.materials.size) { "$RESOURCE declares a material twice" }
+
     dto.pieces.forEach { piece ->
       require(piece.kind in PIECE_KINDS) { "$RESOURCE declares ${piece.kind}, which is not a building piece" }
-      require(byKind.put(piece.kind, toPiece(piece)) == null) { "$RESOURCE declares ${piece.kind} twice" }
+      val material = requireNotNull(materials[piece.material]) { "${piece.kind} is made of unknown ${piece.material}" }
+      require(byKind.put(piece.kind, toPiece(piece, material)) == null) { "$RESOURCE declares ${piece.kind} twice" }
     }
 
     val missing = PIECE_KINDS.filterNot { it in byKind }
@@ -64,7 +79,14 @@ class StructurePieceCatalogue {
     return byKind[kind] ?: throw IllegalStateException("no building piece registered for $kind")
   }
 
-  private fun toPiece(dto: PieceDto): StructurePiece {
+  private fun toMaterial(dto: MaterialDto): StructureMaterial {
+    require(dto.verticalLoss in 0.0..1.0 && dto.horizontalLoss in 0.0..1.0) { "${dto.name} loses more than it has" }
+    require(dto.minStability in 0.0..1.0) { "${dto.name} has min-stability ${dto.minStability}" }
+
+    return StructureMaterial(dto.name, dto.verticalLoss, dto.horizontalLoss, dto.minStability)
+  }
+
+  private fun toPiece(dto: PieceDto, material: StructureMaterial): StructurePiece {
     require(dto.cells.isNotEmpty()) { "${dto.kind} fills no cell" }
 
     val cells = dto.cells.map { cell ->
@@ -77,7 +99,7 @@ class StructurePieceCatalogue {
     val positions = cells.map { Triple(it.x, it.y, it.z) }
     require(positions.toSet().size == positions.size) { "${dto.kind} lists a cell twice" }
 
-    return StructurePiece(dto.kind, cells)
+    return StructurePiece(dto.kind, cells, material)
   }
 
   private companion object {

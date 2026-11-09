@@ -6,9 +6,21 @@
 #
 # A step onto or off a built cell may rise half a metre (`AgentProfile.maxStructureStep`), so floors are half
 # cells and stairs rise half a metre per tile. A storey is three metres: a stair of six tiles.
+#
+# Nothing hangs in the air. A piece on the ground has a stability of 1, and a piece touching another one has that
+# one's stability less its material's loss: `vertical-loss` when it rests on or hangs from it, `horizontal-loss` when
+# it is held only from the side. Below `min-stability` it cannot be placed. A wooden floor on a wall carries three
+# more floors out beside it, so a balcony or a short bridge stands and a long one does not.
+materials:
+  - name: WOOD
+    vertical-loss: 0.125
+    horizontal-loss: 0.2
+    min-stability: 0.1
+
 pieces:
   # Two metres wide along y, three high, on the x+ border of the cells it is placed in.
   - kind: STRUCTURE_WALL
+    material: WOOD
     cells:
       - { x: 0, y: 0, z: 0, walls: [X_PLUS] }
       - { x: 0, y: 0, z: 1, walls: [X_PLUS] }
@@ -19,6 +31,7 @@ pieces:
 
   # Two by two metres, half a metre thick.
   - kind: STRUCTURE_FLOOR
+    material: WOOD
     cells:
       - { x: 0, y: 0, z: 0, fill: 0.5 }
       - { x: 1, y: 0, z: 0, fill: 0.5 }
@@ -27,6 +40,7 @@ pieces:
 
   # One metre wide, six long towards x+, rising half a metre per tile up to three metres.
   - kind: STRUCTURE_STAIRS
+    material: WOOD
     cells:
       - { x: 0, y: 0, z: 0, fill: 0.5 }
       - { x: 1, y: 0, z: 0, fill: 1.0 }

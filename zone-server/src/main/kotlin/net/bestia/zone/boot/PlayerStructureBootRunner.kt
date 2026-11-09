@@ -36,9 +36,11 @@ class PlayerStructureBootRunner(
 
   /** Sites too: a piece being built already holds its cells, so nothing else is built into them meanwhile. */
   private fun standBuildingPieces() {
-    registry.all()
+    val pieces = registry.all()
       .filter { collision.isPiece(it.kind) }
-      .forEach { collision.stand(it.id, it.kind, it.position, it.yaw) }
+      .map { StructureCollision.Standing(it.id, it.kind, it.position, it.yaw) }
+
+    collision.standAll(pieces)
   }
 
   /** A structure is given its owner's account when it is placed; rows written before that are named here. */

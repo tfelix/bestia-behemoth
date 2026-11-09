@@ -74,6 +74,25 @@ class StructureCollisionTest {
   }
 
   @Test
+  fun `a floor in the air does not fit`() {
+    assertFalse(collision.fits(floor, Vec3L(4, 4, 5), 0f))
+  }
+
+  @Test
+  fun `a floor on top of a wall fits, and carries three more floors out beside it`() {
+    collision.stand(1, StaticEntityKind.STRUCTURE_WALL, Vec3L(4, 4, 1), 0f)
+    assertTrue(collision.fits(floor, Vec3L(4, 4, 4), 0f), "on the wall")
+    collision.stand(2, floor, Vec3L(4, 4, 4), 0f)
+
+    for ((pieceId, x) in listOf(3L to 6L, 4L to 8L, 5L to 10L)) {
+      assertTrue(collision.fits(floor, Vec3L(x, 4, 4), 0f), "floor at x $x")
+      collision.stand(pieceId, floor, Vec3L(x, 4, 4), 0f)
+    }
+
+    assertFalse(collision.fits(floor, Vec3L(12, 4, 4), 0f), "a fourth is too far from the wall")
+  }
+
+  @Test
   fun `standing and falling rebuild the walk tables of the chunk`() {
     collision.stand(1, floor, Vec3L(4, 4, 1), 0f)
     collision.fall(1)
