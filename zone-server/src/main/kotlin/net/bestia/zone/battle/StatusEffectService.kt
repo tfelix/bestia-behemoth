@@ -106,7 +106,8 @@ class StatusEffectService(
     level: Int,
     sourceEntityId: EntityId?,
     chancePercent: Int,
-    durationSeconds: Double? = null
+    durationSeconds: Double? = null,
+    amount: Int = 0,
   ): Boolean {
     val definition = statusEffectDefinitionRegistry.getOrThrow(effect.id)
     val resistance = resistanceOf(world, definition, targetId, sourceEntityId)
@@ -119,7 +120,7 @@ class StatusEffectService(
       ?: statusEffectScriptRegistry.getOrThrow(definition.script).durationSeconds(level)
 
     return applyEffect(
-      world, targetId, effect.id, level, sourceEntityId, StatusResistance.durationSeconds(baseSeconds, resistance)
+      world, targetId, effect.id, level, sourceEntityId, StatusResistance.durationSeconds(baseSeconds, resistance), amount
     )
   }
 

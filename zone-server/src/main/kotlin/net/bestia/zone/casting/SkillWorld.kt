@@ -93,8 +93,17 @@ interface SkillWorld {
   /** Lands [damage] on [targetEntityId] and shows the number to everyone who can see it. */
   fun apply(targetEntityId: EntityId, damage: Damage)
 
-  /** [amount] goes to the effect instance, like the element an endowment gives a weapon. */
-  fun applyStatusEffect(targetEntityId: EntityId, effectId: Long, level: Int, amount: Int = 0)
+  /**
+   * [amount] goes to the effect instance, like the element an endowment gives a weapon or the strength a skill's
+   * level table gives a debuff. [durationSeconds] replaces the effect's own, for a skill whose table says how long.
+   */
+  fun applyStatusEffect(
+    targetEntityId: EntityId,
+    effectId: Long,
+    level: Int,
+    amount: Int = 0,
+    durationSeconds: Double? = null,
+  )
 
   /**
    * Applies [effectId] only if [targetEntityId] does not already carry it, and answers whether it did.
@@ -164,7 +173,14 @@ interface SkillWorld {
   fun forceMove(entityId: EntityId, towards: Vec3L, maxTiles: Int, keepDistance: Int = 0): Int
 
   /** Rolls [status], a `StatusEffectId` name, on [targetEntityId] against its resistance; whether it landed. */
-  fun inflict(targetEntityId: EntityId, status: String, chancePercent: Int, durationSeconds: Double?, level: Int): Boolean
+  fun inflict(
+    targetEntityId: EntityId,
+    status: String,
+    chancePercent: Int,
+    durationSeconds: Double?,
+    level: Int,
+    amount: Int = 0,
+  ): Boolean
 
   /** Breaks off whatever [targetEntityId] was casting or crafting. */
   fun interrupt(targetEntityId: EntityId)

@@ -175,14 +175,15 @@ class BudgetedSkillWorld(
     status: String,
     chancePercent: Int,
     durationSeconds: Double?,
-    level: Int
+    level: Int,
+    amount: Int,
   ): Boolean {
     budget.charge()
 
     val effect = StatusEffectId.valueOf(status)
 
     return onEntity(targetEntityId) { target ->
-      services.statusEffects.tryInflict(this, target, effect, level, casterId, chancePercent, durationSeconds)
+      services.statusEffects.tryInflict(this, target, effect, level, casterId, chancePercent, durationSeconds, amount)
     } == true
   }
 
@@ -248,11 +249,17 @@ class BudgetedSkillWorld(
     return true
   }
 
-  override fun applyStatusEffect(targetEntityId: EntityId, effectId: Long, level: Int, amount: Int) {
+  override fun applyStatusEffect(
+    targetEntityId: EntityId,
+    effectId: Long,
+    level: Int,
+    amount: Int,
+    durationSeconds: Double?,
+  ) {
     budget.charge()
 
     onEntity(targetEntityId) { target ->
-      services.statusEffects.applyEffect(this, target, effectId, level, casterId, amount = amount)
+      services.statusEffects.applyEffect(this, target, effectId, level, casterId, durationSeconds, amount)
     }
   }
 

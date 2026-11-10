@@ -43,6 +43,17 @@ class StatusEffectsTest {
   }
 
   @Test
+  fun `REFRESH_DURATION takes the level of the newest cast`() {
+    val effects = StatusEffects()
+
+    effects.applyEffect(1L, StackBehavior.REFRESH_DURATION, 5, null, 10.0, true)
+    effects.applyEffect(1L, StackBehavior.REFRESH_DURATION, 3, null, 10.0, true)
+
+    assertEquals(1, effects.activeEffects.size)
+    assertEquals(3, effects.activeEffects.first().level)
+  }
+
+  @Test
   fun `STACK_INDEPENDENT allows multiple instances`() {
     val effects = StatusEffects()
 
