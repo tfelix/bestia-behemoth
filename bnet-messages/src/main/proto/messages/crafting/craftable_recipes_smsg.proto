@@ -26,6 +26,12 @@ message CraftableRecipesSMSG {
   uint32 station_kind = 2;
 
   repeated CraftableRecipe recipes = 3;
+
+  // The player structure the recipes are worked at, or 0 for Handiwork.
+  uint64 structure_id = 4;
+
+  // Seconds a campfire has left to burn, 0 once it is out or for a station that burns nothing.
+  uint32 fuel_seconds = 5;
 }
 
 message CraftableRecipe {
