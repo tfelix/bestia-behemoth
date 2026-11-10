@@ -40,8 +40,8 @@ data class SkillMechanics(
   val channelSeconds: Float = 0f,
   val channelInterval: Float = 0f,
 
-  /** An item the cast uses up; only a player's caster pays it. */
-  val reagent: SkillReagent? = null,
+  /** Items the cast uses up; only a player's caster pays them. */
+  val reagents: List<SkillReagent> = emptyList(),
 
   /** Limits a skill to targets of these kinds or elements, by name. Empty means everyone. */
   val affectsKinds: List<String> = emptyList(),

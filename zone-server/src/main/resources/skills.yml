@@ -90,9 +90,9 @@ skills:
     mechanics:
       channelSeconds: 10
       channelInterval: 2
-      reagent:
-        item: bandage
-        amount: 1
+      reagents:
+        - item: bandage
+          amount: 1
     description: |
       Put a bandage on yourself or on a friendly Bestia or master, then channel a healing effect
       over 10s, a pulse every 2s. A hit breaks the channel. The cooldown of this skill is 3
@@ -2032,9 +2032,9 @@ skills:
     castTime: 3
     manaCost: 5
     mechanics:
-      reagent:
-        item: log
-        amount: 1
+      reagents:
+        - item: log
+          amount: 1
     description: |
       Plants a sapling in a tree stump. The new tree grows back faster than one left to nature.
       Consumes a log.
@@ -4106,9 +4106,9 @@ skills:
       affectsElements:
       - GHOST
       - UNDEAD
-      reagent:
-        item: mana_crystal
-        amount: 1
+      reagents:
+        - item: mana_crystal
+          amount: 1
     description: While the caster holds the spell, holy light strikes the area again and again. It hurts only the
       undead, ghosts and demons. Uses up a mana crystal.
 
@@ -4205,9 +4205,9 @@ skills:
     aoeRadius: 3.0
     mechanics:
       areaSeconds: 10
-      reagent:
-        item: mana_crystal
-        amount: 1
+      reagents:
+        - item: mana_crystal
+          amount: 1
     description: Hallows a large patch of ground that heals every friend in it for ten seconds. Uses up a mana crystal.
 
   - id: 1130
@@ -4241,9 +4241,9 @@ skills:
     manaCost: 16
     status: BARRIER
     mechanics:
-      reagent:
-        item: bone_shard
-        amount: 1
+      reagents:
+        - item: bone_shard
+          amount: 1
     description: Wraps a friend in plates of bone that soak up the next few blows. Uses up a bone shard.
 
   - id: 1132
