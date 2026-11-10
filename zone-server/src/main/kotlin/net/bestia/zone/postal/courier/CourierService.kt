@@ -15,6 +15,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.container.ReservedItem
+import net.bestia.zone.item.ecs.SpilledProperty
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.grantToLive
 import net.bestia.zone.item.enchant.ActiveItemEnchantment
@@ -31,7 +32,6 @@ import net.bestia.zone.postal.parcel.ParcelService.Outcome
 import net.bestia.zone.postal.persistence.Parcel
 import net.bestia.zone.postal.persistence.ParcelRepository
 import net.bestia.zone.postal.seal.PostalSeal
-import net.bestia.zone.postal.seal.SpilledMail
 import net.bestia.zone.util.EntityId
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.scheduling.annotation.Scheduled
@@ -221,7 +221,7 @@ class CourierService(
           this, itemId = goods.itemId, amount = goods.amount, pos = at, uniqueId = goods.uniqueId,
           provenance = goods.provenance,
         )
-        add(lying, SpilledMail(goods.itemLevel))
+        add(lying, SpilledProperty(goods.itemLevel))
       }
       reserve.charge(spilled.refunds.toDouble(), CoinSource.FREIGHT)
     }

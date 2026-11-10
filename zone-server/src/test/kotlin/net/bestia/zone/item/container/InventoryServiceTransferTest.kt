@@ -267,7 +267,6 @@ class InventoryServiceTransferTest {
     val sword = inventoryService.mintInstanceForMaster(master, itemRepository.findByIdentifierOrThrow("iron_sword"))
 
     inventoryService.transferBetweenOwners(master, ItemHolder.Master, chest, sword.item.id, sword.id, 1)
-    chestStorages.forget(chest.structureId)
     tx.executeWithoutResult { chestStorages.loadAll() }
 
     assertEquals(listOf(sword.id), chestStorages.contentsOf(chest.structureId).getItems().map { it.uniqueId })
