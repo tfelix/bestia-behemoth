@@ -59,6 +59,8 @@ enum class SkillId {
   M_FOUNDER,
   M_TRADE_POST_OWNER,
   M_TRADE_AGREEMENT,
+  // FishingCatalogue: its rank raises the catch level cap.
+  M_FISHING,
 
   // Passives with a stat effect, named by their PassiveSkillScript bean rather than from the yml.
   M_MEDITATION,

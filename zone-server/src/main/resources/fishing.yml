@@ -1,0 +1,40 @@
+# Fishing: the rods, what bites, and how long it takes. The design is the Fishing page of the design docs.
+#
+# One table for every water. A catch's `level` defaults to its item's `base-level`; treasure names its own,
+# because a pearl is no harder to hook than a fish, only rarer.
+
+untrained-catch-level-cap: 10
+catch-level-cap-per-rank: 20
+# Above the master's cap, a catch's weight halves every this many levels.
+over-cap-halving-levels: 5
+
+reach-metres: 8
+min-wait-seconds: 3.0
+max-wait-seconds: 15.0
+strike-window-seconds: 1.5
+
+rods:
+  - { item: willow_rod, max-catch-level: 25 }
+  - { item: bamboo_rod, max-catch-level: 50 }
+  - { item: ash_rod, max-catch-level: 75 }
+  - { item: steel_rod, max-catch-level: 120 }
+
+catches:
+  - { item: old_boot, weight: 40 }
+  - { item: driftwood, weight: 40 }
+  - { item: tangled_net, weight: 40 }
+  - { item: raw_fish, weight: 100 }
+  - { item: perch, weight: 100 }
+  - { item: bream, weight: 100 }
+  - { item: sealed_bottle, weight: 4 }
+  - { item: pike, weight: 100 }
+  - { item: sea_pearl, level: 30, weight: 4 }
+  - { item: eel, weight: 100 }
+  - { item: rough_emerald, level: 40, weight: 4 }
+  - { item: salmon, weight: 100 }
+  - { item: sturgeon, weight: 100 }
+  - { item: rough_ruby, level: 60, weight: 4 }
+  - { item: swordfish, weight: 100 }
+  - { item: moonscale, weight: 100 }
+  - { item: deepmaw, weight: 100 }
+  - { item: abyssal_lanternfish, weight: 100 }

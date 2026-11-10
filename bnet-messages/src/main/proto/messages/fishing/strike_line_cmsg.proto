@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "StrikeLineCmsgProto";
+
+// Pulls the line in: a catch while the fish bites, nothing before. Carries nothing, a master fishes one line.
+message StrikeLineCMSG {
+}

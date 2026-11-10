@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqiIwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrnIwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -126,8 +126,10 @@ namespace Bnet {
             "Q1RJT05fSEFTX0JJRFMQxwISIAobVFJBREVfQUdSRUVNRU5UX05FRURTX0hP",
             "VVNFEMgCEhoKFVRSQURFX0FHUkVFTUVOVF9MSU1JVBDJAhIjCh5UUkFERV9B",
             "R1JFRU1FTlRfVEFSR0VUX0lOVkFMSUQQygISGAoTUElDS1VQX09VVF9PRl9S",
-            "QU5HRRDLAiIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0",
-            "aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
+            "QU5HRRDLAhIWChFGSVNISU5HX05PVF9XQVRFUhCYARIUCg9GSVNISU5HX1RP",
+            "T19GQVIQmQESFQoQRklTSElOR19HT1RfQVdBWRCaASIECC4QLioSU0hPUF9U",
+            "UkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0",
+            "aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -775,6 +777,18 @@ namespace Bnet {
     /// A purchase is collected at the house it waits at, by the master or one of their bestias.
     /// </summary>
     [pbr::OriginalName("PICKUP_OUT_OF_RANGE")] PickupOutOfRange = 331,
+    /// <summary>
+    /// There is no water deep enough to fish where the line was cast.
+    /// </summary>
+    [pbr::OriginalName("FISHING_NOT_WATER")] FishingNotWater = 152,
+    /// <summary>
+    /// The water is further away than a line reaches.
+    /// </summary>
+    [pbr::OriginalName("FISHING_TOO_FAR")] FishingTooFar = 153,
+    /// <summary>
+    /// The bite came and went without a strike.
+    /// </summary>
+    [pbr::OriginalName("FISHING_GOT_AWAY")] FishingGotAway = 154,
   }
 
   #endregion
