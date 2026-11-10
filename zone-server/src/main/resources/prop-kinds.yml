@@ -501,3 +501,8 @@ kinds:
     max-hp: 2000
     collider: { half-x: 1, half-y: 1, height: 3 }
     variants: 1
+
+  - kind: POST_OFFICE
+    max-hp: 800
+    collider: { half-x: 4, half-y: 3, height: 4 }
+    variants: 1

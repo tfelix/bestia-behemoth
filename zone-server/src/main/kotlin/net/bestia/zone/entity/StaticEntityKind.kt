@@ -149,7 +149,10 @@ enum class StaticEntityKind {
 
   // The sign a player settlement grows around. Drawn like the ward stone: an ordinary entity once it stands, never
   // on the static channel, because its health grows with the town.
-  CITY_SIGN;
+  CITY_SIGN,
+
+  // A post office players built in their town. The post runs it, see `PostOffices`.
+  POST_OFFICE;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.

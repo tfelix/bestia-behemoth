@@ -104,6 +104,12 @@ class InteractEntityHandler(
       return towns.openSign(world, actorId, targetId)
     }
 
+    // Before the structure branch: a building a player put up may answer a click of its own, like a post office.
+    val propInteraction = world.get(targetId, StaticVisual::class)?.kind?.let(propInteractionByKind::get)
+    if (propInteraction != null) {
+      return propInteraction.interact(world, actorId, targetId)
+    }
+
     // The component every player-built structure carries and nothing else does, so this needs no second
     // list of which kinds a player can build.
     val structure = world.get(targetId, PlayerStructureIdentity::class)

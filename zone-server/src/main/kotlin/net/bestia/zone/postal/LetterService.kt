@@ -65,6 +65,25 @@ class LetterService(
     return outcome
   }
 
+  /** A letter from the post itself, such as a notice that a home office closed. Free, and never turned back. */
+  @Transactional
+  fun postNotice(recipientMasterId: Long, senderName: String, subject: String, body: String) {
+    val recipient = masterRepository.findByIdOrThrow(recipientMasterId)
+    val now = clock.instant()
+    val letter = letters.save(
+      Letter(
+        recipientMasterId = recipient.id,
+        senderMasterId = NO_SENDER,
+        senderName = senderName,
+        subject = subject,
+        body = body,
+        sentAt = now,
+        expiresAt = now.plus(KEPT_FOR),
+      )
+    )
+    events.publishEvent(LetterArrivedEvent(recipient.account.id, recipient.id, LetterView.of(letter)))
+  }
+
   @Transactional(readOnly = true)
   fun mailbox(masterId: Long): List<LetterView> {
     return letters.findByRecipientMasterIdAndExpiresAtAfterOrderBySentAtDesc(masterId, clock.instant())
@@ -125,5 +144,8 @@ class LetterService(
 
     /** A pigeon finds a full mailbox and turns back. Keeps one master from being buried in letters. */
     const val MAX_LETTERS = 100
+
+    /** The sender id of a letter the post writes itself. */
+    const val NO_SENDER = 0L
   }
 }

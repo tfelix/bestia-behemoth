@@ -1437,6 +1437,19 @@ items:
       Six treads on a pair of stringers.
 
       Climbs one storey, three metres, over six paces.
+  # Buildings for a player town. Each one only goes up inside a standing town, see `PostOfficeKitScript`.
+  - id: 150
+    item-db-name: post_office_kit
+    base-level: 30
+    weight: 1500
+    type: USABLE
+    material: WOOD
+    script: PostOfficeKitScript
+    description: |
+      Beams, a counter, sorting shelves and a post horn, lashed onto a sledge.
+
+      Set it down inside a town without a post office, and the post will run it once it is built.
+
   # The Priest's reagents: Aqua Benedicta fills an empty bottle with holy water, and Aspersio spends it.
   - id: 109
     item-db-name: empty_bottle
