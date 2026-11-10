@@ -14,7 +14,11 @@ enum class DialogId(val id: Int) {
   EXAMPLE_NPC_GREETING(2),
   TRACKS_READING(4),
   TRACKS_FAINT(5),
-  TRACKS_NONE(6);
+  TRACKS_NONE(6),
+  TREASURE_SENSED(7),
+  TREASURE_SENSED_DEPTH(8),
+  TREASURE_SENSED_RICHNESS(9),
+  TREASURE_NONE(10);
 
   companion object {
     private val byId = entries.associateBy { it.id }

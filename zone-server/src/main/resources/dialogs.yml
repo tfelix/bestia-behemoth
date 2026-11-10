@@ -40,3 +40,24 @@ dialogs:
     identifier: TRACKS_NONE
     type: CONFIRM
     args: []
+
+  # What Treasure Sense finds. One entry per rank gate, for the reason the track readings have three.
+  - id: 7
+    identifier: TREASURE_SENSED
+    type: CONFIRM
+    args: [count, heading, distance]
+
+  - id: 8
+    identifier: TREASURE_SENSED_DEPTH
+    type: CONFIRM
+    args: [count, heading, distance, depth]
+
+  - id: 9
+    identifier: TREASURE_SENSED_RICHNESS
+    type: CONFIRM
+    args: [count, heading, distance, depth, richness]
+
+  - id: 10
+    identifier: TREASURE_NONE
+    type: CONFIRM
+    args: []

@@ -62,6 +62,7 @@ namespace BestiaBehemothClient.Bnet.Message
       // Also a MapSMSG, and for the same reason: it names a prop, not an entity the client ever spawned.
       [Envelope.MessageOneofCase.StaticEntityRemoved] =
         e => Map.StaticEntityRemovedSMSG.FromProto(e.StaticEntityRemoved),
+      [Envelope.MessageOneofCase.TreasureShimmer] = e => Map.TreasureShimmerSMSG.FromProto(e.TreasureShimmer),
       [Envelope.MessageOneofCase.TradeRequest] = e => Trade.TradeRequestSMSG.FromProto(e.TradeRequest),
       [Envelope.MessageOneofCase.TradeState] = e => Trade.TradeStateSMSG.FromProto(e.TradeState),
       [Envelope.MessageOneofCase.ShopOffer] = e => Shop.ShopOfferSMSG.FromProto(e.ShopOffer),

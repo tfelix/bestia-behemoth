@@ -38,6 +38,11 @@ func _ready() -> void:
 	damage_tags.name = "DamageTags"
 	add_child(damage_tags)
 
+	# Treasure Sense's shimmer marks the ground, so it belongs to the world like the damage numbers.
+	var treasure_shimmer := TreasureShimmerLayer.new()
+	treasure_shimmer.name = "TreasureShimmer"
+	add_child(treasure_shimmer)
+
 	_terrain = TerrainRendererScript.new()
 	_terrain.name = "Terrain"
 	add_child(_terrain)
