@@ -38,6 +38,7 @@ class SkillContextFactory(
     targetEntityId: EntityId?,
     targetPosition: Vec3L?,
     cost: SkillLevelCost = SkillLevelCost.of(skill),
+    args: List<Long> = emptyList(),
   ): SkillContext? {
     val usedAttack = BattleAttack.of(skill, skillLevel).copy(range = cost.rangeTiles, manaCost = cost.manaCost)
 
@@ -66,7 +67,8 @@ class SkillContextFactory(
       targetPosition = targetPosition,
       skillId = skill.id,
       skillLevel = skillLevel,
-      skill = skill
+      skill = skill,
+      args = args
     )
   }
 

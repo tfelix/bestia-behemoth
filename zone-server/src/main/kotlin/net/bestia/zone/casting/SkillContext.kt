@@ -27,6 +27,12 @@ class SkillContext(
 
   /** The catalogue row, for a generic script that is configured by it. */
   val skill: Skill,
+
+  /**
+   * The choice the player sent with the cast - an element, an item, a listing. User input: the script parses
+   * and checks it, the same way [SkillStrategy.checkCastStart] did at activation.
+   */
+  val args: List<Long> = emptyList(),
 ) {
 
   /** Where the skill was aimed: the target's position for an entity cast, the aimed-at point otherwise. */

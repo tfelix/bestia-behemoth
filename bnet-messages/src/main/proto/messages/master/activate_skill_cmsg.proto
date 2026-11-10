@@ -11,4 +11,7 @@ message ActivateSkillCMSG {
   uint32 skill_level = 2;
   Vec3 target_position = 3;
   uint64 target_entity_id = 4; // 0 = no entity target (ground/AOE skill, or unsnapped)
+  // A choice the skill asked for before the cast: an element, an item, a listing. Each skill script decides what
+  // the numbers mean and checks them as user input. Empty for most skills.
+  repeated int64 args = 5;
 }

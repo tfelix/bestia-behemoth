@@ -73,10 +73,11 @@ class SkillExecutionService(
     skillId: Long,
     skillLevel: Int,
     targetEntityId: EntityId?,
-    targetPosition: Vec3L?
+    targetPosition: Vec3L?,
+    args: List<Long> = emptyList(),
   ) {
     world.post {
-      resolve(world, casterId, skillId, skillLevel, targetEntityId, targetPosition)
+      resolve(world, casterId, skillId, skillLevel, targetEntityId, targetPosition, args)
     }
   }
 
@@ -86,7 +87,8 @@ class SkillExecutionService(
     skillId: Long,
     skillLevel: Int,
     targetEntityId: EntityId?,
-    targetPosition: Vec3L?
+    targetPosition: Vec3L?,
+    args: List<Long>,
   ) {
     val skill = skillOf(skillId)
     if (skill == null) {
@@ -115,7 +117,7 @@ class SkillExecutionService(
     }
 
     val cost = strategy.costOf(skill, skillLevel)
-    val ctx = skillContextFactory.create(world, casterId, skill, skillLevel, targetEntityId, targetPosition, cost)
+    val ctx = skillContextFactory.create(world, casterId, skill, skillLevel, targetEntityId, targetPosition, cost, args)
     if (ctx == null) {
       LOG.debug { "Skill $skillId by $casterId fizzled: caster or target no longer resolvable" }
       return
@@ -149,7 +151,7 @@ class SkillExecutionService(
       val result = strategy.execute(ctx)
       cooldowns.start(world, casterId, skill.id, cost.cooldownSeconds)
       actionReactions.notifyActed(world, casterId, EntityAction.CAST)
-      startChannel(world, casterId, skill, skillLevel, targetEntityId, targetPosition)
+      startChannel(world, casterId, skill, skillLevel, targetEntityId, targetPosition, args)
 
       // A skill whose whole effect is a patch of ground, a station or a chart has no number to show, and
       // a ground-targeted one has no entity to show it on.
@@ -174,14 +176,15 @@ class SkillExecutionService(
     skill: Skill,
     skillLevel: Int,
     targetEntityId: EntityId?,
-    targetPosition: Vec3L?
+    targetPosition: Vec3L?,
+    args: List<Long>,
   ) {
     val seconds = skill.mechanics.channelSeconds
     if (seconds <= 0f) return
 
     world.add(
       casterId,
-      Channel(skill.id, skillLevel, targetEntityId, targetPosition, skill.mechanics.channelInterval, seconds)
+      Channel(skill.id, skillLevel, targetEntityId, targetPosition, skill.mechanics.channelInterval, seconds, args)
     )
     statusEffects?.applyEffect(world, casterId, StatusEffectId.CHANNELING, skillLevel, durationSeconds = seconds.toDouble())
   }
@@ -192,7 +195,7 @@ class SkillExecutionService(
     val strategy = skillStrategyFactory.getSkillStrategy(skill)
     val ctx = skillContextFactory.create(
       world, casterId, skill, channel.skillLevel, channel.targetEntityId, channel.targetPosition,
-      strategy.costOf(skill, channel.skillLevel)
+      strategy.costOf(skill, channel.skillLevel), channel.args
     ) ?: return
 
     try {

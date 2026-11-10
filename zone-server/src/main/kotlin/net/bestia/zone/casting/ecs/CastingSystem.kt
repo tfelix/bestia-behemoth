@@ -43,7 +43,8 @@ class CastingSystem(
           skillId = casting.skillId,
           skillLevel = casting.skillLevel,
           targetEntityId = casting.targetEntityId,
-          targetPosition = casting.targetPosition
+          targetPosition = casting.targetPosition,
+          args = casting.args
         )
       }
     }

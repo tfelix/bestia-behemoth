@@ -157,11 +157,14 @@ func enter_item_targeting(
 	change_state(state)
 
 
-func enter_skill_targeting(skill: AttackResource, skill_level: int, indicator_scene: PackedScene = null) -> void:
+func enter_skill_targeting(
+	skill: AttackResource, skill_level: int, indicator_scene: PackedScene = null, args := PackedInt64Array()
+) -> void:
 	print_debug("MouseManager.enter_skill_targeting: %s" % [skill.name])
 	var state := MouseStateSkillTargeting.new()
 	state.skill = skill
 	state.skill_level = skill_level
+	state.args = args
 	if indicator_scene:
 		state.indicator_scene = indicator_scene
 	change_state(state)

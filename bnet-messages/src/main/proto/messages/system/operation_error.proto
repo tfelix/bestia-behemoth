@@ -327,6 +327,8 @@ enum OpError {
   // The caster has less mana or stamina than the skill costs at this level.
   SKILL_NOT_ENOUGH_MANA = 123;
   SKILL_NOT_ENOUGH_STAMINA = 124;
+  // The choice sent with a cast (an element, an item, a listing) is not one the skill accepts.
+  SKILL_INVALID_CHOICE = 125;
 }
 
 message OperationError {

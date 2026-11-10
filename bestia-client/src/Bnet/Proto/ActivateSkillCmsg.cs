@@ -25,15 +25,15 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiltZXNzYWdlcy9tYXN0ZXIvYWN0aXZhdGVfc2tpbGxfY21zZy5wcm90bxIE",
-            "Ym5ldBoTbWVzc2FnZXMvdmVjMy5wcm90byJ6ChFBY3RpdmF0ZVNraWxsQ01T",
-            "RxIRCglhdHRhY2tfaWQYASABKAQSEwoLc2tpbGxfbGV2ZWwYAiABKA0SIwoP",
-            "dGFyZ2V0X3Bvc2l0aW9uGAMgASgLMgouYm5ldC5WZWMzEhgKEHRhcmdldF9l",
-            "bnRpdHlfaWQYBCABKARCLwoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhZBY3Rp",
-            "dmF0ZVNraWxsQ21zZ1Byb3RvYgZwcm90bzM="));
+            "Ym5ldBoTbWVzc2FnZXMvdmVjMy5wcm90byKIAQoRQWN0aXZhdGVTa2lsbENN",
+            "U0cSEQoJYXR0YWNrX2lkGAEgASgEEhMKC3NraWxsX2xldmVsGAIgASgNEiMK",
+            "D3RhcmdldF9wb3NpdGlvbhgDIAEoCzIKLmJuZXQuVmVjMxIYChB0YXJnZXRf",
+            "ZW50aXR5X2lkGAQgASgEEgwKBGFyZ3MYBSADKANCLwoVbmV0LmJlc3RpYS5i",
+            "bmV0LnByb3RvQhZBY3RpdmF0ZVNraWxsQ21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ActivateSkillCMSG), global::Bnet.ActivateSkillCMSG.Parser, new[]{ "AttackId", "SkillLevel", "TargetPosition", "TargetEntityId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ActivateSkillCMSG), global::Bnet.ActivateSkillCMSG.Parser, new[]{ "AttackId", "SkillLevel", "TargetPosition", "TargetEntityId", "Args" }, null, null, null, null)
           }));
     }
     #endregion
@@ -79,6 +79,7 @@ namespace Bnet {
       skillLevel_ = other.skillLevel_;
       targetPosition_ = other.targetPosition_ != null ? other.targetPosition_.Clone() : null;
       targetEntityId_ = other.targetEntityId_;
+      args_ = other.args_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -139,6 +140,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "args" field.</summary>
+    public const int ArgsFieldNumber = 5;
+    private static readonly pb::FieldCodec<long> _repeated_args_codec
+        = pb::FieldCodec.ForInt64(42);
+    private readonly pbc::RepeatedField<long> args_ = new pbc::RepeatedField<long>();
+    /// <summary>
+    /// A choice the skill asked for before the cast: an element, an item, a listing. Each skill script decides what
+    /// the numbers mean and checks them as user input. Empty for most skills.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<long> Args {
+      get { return args_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -158,6 +174,7 @@ namespace Bnet {
       if (SkillLevel != other.SkillLevel) return false;
       if (!object.Equals(TargetPosition, other.TargetPosition)) return false;
       if (TargetEntityId != other.TargetEntityId) return false;
+      if(!args_.Equals(other.args_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -169,6 +186,7 @@ namespace Bnet {
       if (SkillLevel != 0) hash ^= SkillLevel.GetHashCode();
       if (targetPosition_ != null) hash ^= TargetPosition.GetHashCode();
       if (TargetEntityId != 0UL) hash ^= TargetEntityId.GetHashCode();
+      hash ^= args_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -203,6 +221,7 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteUInt64(TargetEntityId);
       }
+      args_.WriteTo(output, _repeated_args_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -229,6 +248,7 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteUInt64(TargetEntityId);
       }
+      args_.WriteTo(ref output, _repeated_args_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -251,6 +271,7 @@ namespace Bnet {
       if (TargetEntityId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(TargetEntityId);
       }
+      size += args_.CalculateSize(_repeated_args_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -278,6 +299,7 @@ namespace Bnet {
       if (other.TargetEntityId != 0UL) {
         TargetEntityId = other.TargetEntityId;
       }
+      args_.Add(other.args_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -316,6 +338,11 @@ namespace Bnet {
             TargetEntityId = input.ReadUInt64();
             break;
           }
+          case 42:
+          case 40: {
+            args_.AddEntriesFrom(input, _repeated_args_codec);
+            break;
+          }
         }
       }
     #endif
@@ -352,6 +379,11 @@ namespace Bnet {
           }
           case 32: {
             TargetEntityId = input.ReadUInt64();
+            break;
+          }
+          case 42:
+          case 40: {
+            args_.AddEntriesFrom(ref input, _repeated_args_codec);
             break;
           }
         }

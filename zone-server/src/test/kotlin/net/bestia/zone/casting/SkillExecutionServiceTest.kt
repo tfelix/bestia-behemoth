@@ -218,6 +218,21 @@ class SkillExecutionServiceTest {
   }
 
   @Test
+  fun `the choice sent with a cast reaches the script`() {
+    var seen: List<Long>? = null
+    val script = TestScript(body = { seen = it.args })
+    val caster = world.spawnFighter()
+    val target = world.spawnFighter()
+
+    serviceFor(script).run {
+      execute(world, caster, SKILL_ID, 1, target, null, args = listOf(3L, 42L))
+      world.tick(0f)
+    }
+
+    assertEquals(listOf(3L, 42L), seen)
+  }
+
+  @Test
   fun `a script's level table decides mana and cooldown`() {
     val script = LevelledScript()
     val caster = world.spawnFighter(mana = 100)

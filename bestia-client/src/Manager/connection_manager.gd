@@ -433,13 +433,22 @@ func get_skills() -> void:
 	_socket.SendMessage(msg)
 
 
-func activate_skill(attack_id: int, skill_level: int, target_position: Vector3 = Vector3.ZERO, target_entity_id: int = 0) -> void:
+## [param args] carries a choice the skill asked for before the cast - an element, an item, a listing. What the
+## numbers mean is the skill's own business; the server parses and checks them as user input.
+func activate_skill(
+	attack_id: int,
+	skill_level: int,
+	target_position: Vector3 = Vector3.ZERO,
+	target_entity_id: int = 0,
+	args := PackedInt64Array()
+) -> void:
 	assert(is_ready_to_send())
 	var msg = ActivateSkillCMSG.new()
 	msg.AttackId = attack_id
 	msg.SkillLevel = skill_level
 	msg.TargetPosition = target_position
 	msg.TargetEntityId = target_entity_id
+	msg.Args = args
 	_socket.SendMessage(msg)
 
 

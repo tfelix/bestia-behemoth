@@ -9,7 +9,9 @@ data class ActivateSkillCMSG(
   val attackId: Long,
   val skillLevel: Int,
   val targetPosition: Vec3L,
-  val targetEntityId: Long
+  val targetEntityId: Long,
+  /** A choice the skill asked for before the cast. User input: the skill's script parses and checks it. */
+  val args: List<Long> = emptyList(),
 ) : CMSG {
   companion object {
     fun fromBnet(
@@ -21,7 +23,8 @@ data class ActivateSkillCMSG(
         activateSkill.attackId,
         activateSkill.skillLevel,
         Vec3L(activateSkill.targetPosition.x, activateSkill.targetPosition.y, activateSkill.targetPosition.z),
-        activateSkill.targetEntityId
+        activateSkill.targetEntityId,
+        activateSkill.argsList.toList()
       )
     }
   }

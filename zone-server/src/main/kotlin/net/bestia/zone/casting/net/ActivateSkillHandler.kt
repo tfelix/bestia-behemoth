@@ -118,7 +118,7 @@ class ActivateSkillHandler(
     // SkillStrategy.checkCastStart.
     val cost = strategy.costOf(skill, msg.skillLevel)
     val denial = world.modify(activeEntityId) { id ->
-      unaffordable(this, id, cost) ?: strategy.checkCastStart(this, id, msg.skillLevel)
+      unaffordable(this, id, cost) ?: strategy.checkCastStart(this, id, msg.skillLevel, msg.args)
     }
     if (denial != null) {
       LOG.debug { "Activation of ${skill.identifier} by $activeEntityId refused: $denial" }
@@ -176,7 +176,8 @@ class ActivateSkillHandler(
             skillLevel = msg.skillLevel,
             targetEntityId = targetEntityId,
             targetPosition = targetPosition,
-            totalSeconds = reducedCastTime(cost.castTimeSeconds, get(id, CombatStats::class)?.values?.castTimeReduction ?: 0)
+            totalSeconds = reducedCastTime(cost.castTimeSeconds, get(id, CombatStats::class)?.values?.castTimeReduction ?: 0),
+            args = msg.args
           )
         )
       }
@@ -191,7 +192,8 @@ class ActivateSkillHandler(
         skillId = skill.id,
         skillLevel = msg.skillLevel,
         targetEntityId = targetEntityId,
-        targetPosition = targetPosition
+        targetPosition = targetPosition,
+        args = msg.args
       )
     }
 
