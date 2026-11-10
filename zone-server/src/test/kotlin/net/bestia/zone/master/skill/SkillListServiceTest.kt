@@ -3,6 +3,7 @@ package net.bestia.zone.master.skill
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.casting.SkillExecutionService
+import net.bestia.zone.account.persistence.InheritedAttack
 import net.bestia.zone.account.persistence.LearnedSkill
 import net.bestia.zone.account.persistence.LearnedSkillRepository
 import net.bestia.zone.account.persistence.PlayerBestia
@@ -41,6 +42,7 @@ class SkillListServiceTest {
   )
 
   private val species = Bestia(id = 1L, identifier = "blob", level = 3, experienceReward = 5, health = 10, mana = 8)
+  private val inherited = mutableSetOf<InheritedAttack>()
 
   init {
     every { connectionInfo.getSelectedMasterEntityId(ACCOUNT) } returns MASTER_ENTITY
@@ -63,6 +65,8 @@ class SkillListServiceTest {
       mockk<PlayerBestia> {
         every { bestia } returns species
         every { level } returns bestiaLevel
+        every { inheritedAttacks } returns inherited
+        every { attackLearnLevels() } answers { callOriginal() }
       }
     )
   }
@@ -123,6 +127,15 @@ class SkillListServiceTest {
     givenCustom(OTHER, 2)
 
     assertEquals(listOf(EMBER to 1, OTHER to 2), sut.entriesFor(ACCOUNT, BESTIA_ENTITY).map { it.skillId to it.level })
+  }
+
+  @Test
+  fun `a bred attack is learned at its inherited level, earlier than the species learns it`() {
+    givenBestia(bestiaLevel = 5, EMBER to 3, LATER to 40)
+    inherited.add(mockk { every { skillId } returns LATER; every { learnLevel } returns 4 })
+    inherited.add(mockk { every { skillId } returns OTHER; every { learnLevel } returns 9 })
+
+    assertEquals(listOf(EMBER to 1, LATER to 1, OTHER to 0), sut.entriesFor(ACCOUNT, BESTIA_ENTITY).map { it.skillId to it.level })
   }
 
   private companion object {

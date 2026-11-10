@@ -109,7 +109,20 @@ class PlayerBestia(
   @OneToMany(mappedBy = "playerBestia", cascade = [CascadeType.ALL], orphanRemoval = true)
   val learnedSkills: MutableSet<LearnedSkill> = mutableSetOf()
 
+  @OneToMany(mappedBy = "playerBestia", cascade = [CascadeType.ALL], orphanRemoval = true)
+  val inheritedAttacks: MutableSet<InheritedAttack> = mutableSetOf()
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   val id: Long = 0
+
+  /** Its species' learnset by skill id, with what it inherited merged in. An inherited attack may come earlier. */
+  fun attackLearnLevels(): Map<Long, Int> {
+    val learnLevels = bestia.skills.associateTo(LinkedHashMap()) { it.skill.id to it.requiredLevel }
+    for (inherited in inheritedAttacks) {
+      learnLevels.merge(inherited.skillId, inherited.learnLevel, ::minOf)
+    }
+
+    return learnLevels
+  }
 }

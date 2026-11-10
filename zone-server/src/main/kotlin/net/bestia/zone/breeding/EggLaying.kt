@@ -48,7 +48,7 @@ class EggLaying(
   }
 
   private fun parentOf(bestia: PlayerBestia, level: Int): ClutchParent {
-    val learned = learnsetOf(bestia.bestia.id).filterValues { it <= level }
+    val learned = bestia.attackLearnLevels().filterValues { it <= level }
     return ClutchParent(bestia.bestia.id, level, bestia.individualValues, learned)
   }
 

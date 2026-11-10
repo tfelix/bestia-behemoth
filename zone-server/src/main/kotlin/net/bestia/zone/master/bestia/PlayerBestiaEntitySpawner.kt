@@ -154,9 +154,9 @@ class PlayerBestiaEntitySpawner(
   }
 
   private fun load(playerBestia: PlayerBestia): LoadedBestia {
-    val fixedAttackIds = playerBestia.bestia.skills
-      .filter { it.requiredLevel <= playerBestia.level }
-      .associate { it.skill.id to BestiaSkillLevel.forLearnLevel(it.requiredLevel) }
+    val fixedAttackIds = playerBestia.attackLearnLevels()
+      .filterValues { it <= playerBestia.level }
+      .mapValues { (_, learnLevel) -> BestiaSkillLevel.forLearnLevel(learnLevel) }
     val customAttackIds = playerBestia.learnedSkills.associate { it.skill.id to it.level }
 
     return LoadedBestia(
