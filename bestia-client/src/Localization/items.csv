@@ -422,6 +422,10 @@ FORGE_KIT,Forge Kit
 FORGE_KIT_DESC,"An anvil horn, a bellows and a ring of hearth stones, roped together.
 
 Set it down and it becomes a forge - once somebody puts the work in."
+CHEST_KIT,Chest Kit
+CHEST_KIT_DESC,"Planks, two iron bands and a hasp, waiting to be a chest.
+
+Set it down and it becomes a chest only you can open. Whoever breaks it can take what spills."
 CAMPFIRE_KIT,Campfire Kit
 CAMPFIRE_KIT_DESC,"Kindling, a few stones and a lump of resin to get it going.
 

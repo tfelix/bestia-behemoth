@@ -386,6 +386,18 @@ items:
 
       Set it down and it becomes a forge - once somebody puts the work in.
 
+  - id: 127
+    item-db-name: chest_kit
+    base-level: 1
+    weight: 600
+    type: USABLE
+    material: WOOD
+    script: ChestKitScript
+    description: |
+      Planks, two iron bands and a hasp, waiting to be a chest.
+
+      Set it down and it becomes a chest only you can open. Whoever breaks it can take what spills.
+
   - id: 126
     item-db-name: campfire_kit
     base-level: 1

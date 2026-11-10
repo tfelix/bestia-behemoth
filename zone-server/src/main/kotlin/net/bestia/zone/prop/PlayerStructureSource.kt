@@ -32,7 +32,8 @@ class PlayerStructureSource(
     StaticEntityKind.WORKBENCH,
     StaticEntityKind.FURNACE,
     StaticEntityKind.FORGE,
-    StaticEntityKind.CAMPFIRE
+    StaticEntityKind.CAMPFIRE,
+    StaticEntityKind.CHEST,
   )
 
   /** A station near a bestia has to be there for a roaming NPC to attack, with or without its master online. */

@@ -121,6 +121,17 @@ recipes:
     craftSeconds: 5.0
     baseSuccessChance: 1.0
 
+  - id: 42
+    identifier: CHEST_KIT
+    effect: PRODUCE
+    output: { item: chest_kit, amount: 1 }
+    inputs:
+      - { item: log, amount: 3 }
+      - { item: iron_ingot, amount: 1 }
+    skill: { skill: M_CARPENTRY, level: 1 }
+    craftSeconds: 10.0
+    baseSuccessChance: 1.0
+
   # --- Craftsman tree, at a workbench --------------------------------------------------------------
 
   - id: 10

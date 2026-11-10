@@ -120,6 +120,7 @@ namespace BestiaBehemothClient.Game.World
         "FURNACE" => 23,
         "FORGE" => 24,
         "MANA_CIRCLE" => 57,
+        "CHEST" => 58,
         "STRUCTURE_WALL" => Mesh.StructurePieces.Wall,
         "STRUCTURE_FLOOR" => Mesh.StructurePieces.Floor,
         "STRUCTURE_STAIRS" => Mesh.StructurePieces.Stairs,

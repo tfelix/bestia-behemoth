@@ -593,7 +593,14 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 3.0f, PlaceholderColour = new Color(0.55f, 0.35f, 0.95f), StructureHeight = 0.1f,
         Action = PropAction.Use
-      } // MANA_CIRCLE
+      }, // MANA_CIRCLE
+
+      // A player's chest: a small dark box until it has a model. PropAction.Use, because clicking it opens it.
+      new Kind
+      {
+        PlaceholderWidth = 0.9f, PlaceholderColour = new Color(0.40f, 0.27f, 0.14f), StructureHeight = 0.7f,
+        Action = PropAction.Use
+      } // CHEST
     };
 
     /// <summary>
