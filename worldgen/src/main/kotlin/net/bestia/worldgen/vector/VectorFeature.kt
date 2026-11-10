@@ -361,7 +361,10 @@ enum class FeatureKind(val defaultPriority: Int) {
    * Geometry and attributes only. The chunk tier walls it and fills its plots with headstones; the named graves
    * in it are `FIXTURE` markers the dressing stage put on the first plots. See `dress/Plots`.
    */
-  CEMETERY(688)
+  CEMETERY(688),
+
+  /** A buried treasure cache at a history site. Geometry and attributes only. See `treasure/TreasureStage`. */
+  TREASURE_CACHE(690)
 }
 
 /**

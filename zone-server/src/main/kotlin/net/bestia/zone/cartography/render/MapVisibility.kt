@@ -147,6 +147,7 @@ enum class MapVisibility(
       // Prospecting, and what the generator needs to do it. None of this may reach a client.
       FeatureKind.ORE_DEPOSIT -> SECRET
       FeatureKind.CAVE_HOARD -> SECRET
+      FeatureKind.TREASURE_CACHE -> SECRET
       FeatureKind.CAVE_SYSTEM -> SECRET
       FeatureKind.CAVE_PASSAGE -> SECRET
       FeatureKind.CAVE_ENTRANCE -> SECRET
