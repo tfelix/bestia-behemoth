@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "RepairStructureCmsgProto";
+
+// Starts repairing a player structure in a town, paying in from the bag what the repair needs, or stops it.
+message RepairStructureCMSG {
+  uint64 entity_id = 1;
+}

@@ -37,10 +37,10 @@ abstract class StructureKitScript(
   private val structures: PlayerStructureService,
 
   /** What this kit turns into once it is built. */
-  private val kind: StaticEntityKind,
+  val kind: StaticEntityKind,
 
   /** How much work the finished thing takes, in seconds, before any skill or buff is applied. */
-  private val buildSeconds: Float,
+  val buildSeconds: Float,
 
   /** How far from the builder it may be put down, in tiles. */
   private val reach: Long = PlayerStructureService.RANGE_TILES

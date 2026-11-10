@@ -390,6 +390,11 @@ enum OpError {
   SETTLEMENT_NEEDS_TOWN = 308;
   // The town already has this building, finished or still being built.
   SETTLEMENT_ALREADY_HAS_ONE = 309;
+  // Repairs only happen inside a standing player town.
+  REPAIR_OUTSIDE_TOWN = 310;
+  REPAIR_NOT_NEEDED = 311;
+  // The repairer carries none of the materials the repair needs.
+  REPAIR_NEEDS_MATERIALS = 312;
 }
 
 message OperationError {

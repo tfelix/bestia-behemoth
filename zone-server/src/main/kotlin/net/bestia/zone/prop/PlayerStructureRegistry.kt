@@ -46,6 +46,11 @@ data class StructureEntry(
 
   /** Seconds of work the survey still needs; 0 when its chart is ready to collect. */
   val surveyRemainingSeconds: Float = 0f,
+  /** See [PlayerStructure.missingHp]. */
+  val missingHp: Int = 0,
+
+  /** See [PlayerStructure.repairStockHp]. */
+  val repairStockHp: Int = 0,
 ) {
 
   val isUnderConstruction: Boolean
@@ -223,6 +228,21 @@ class PlayerStructureRegistry(
     }
   }
 
+  /** Records damage and repair stock; called on a cadence rather than per hit. */
+  fun setWear(structureId: Long, missingHp: Int, repairStockHp: Int) {
+    val current = byId[structureId] ?: return
+    if (current.missingHp == missingHp && current.repairStockHp == repairStockHp) return
+    reindex(current.copy(missingHp = missingHp, repairStockHp = repairStockHp))
+
+    asyncJobExecutor.submit(structureId) {
+      repository.findById(structureId).ifPresent { row ->
+        row.missingHp = missingHp
+        row.repairStockHp = repairStockHp
+        repository.save(row)
+      }
+    }
+  }
+
   /** Starts, advances or ends ([radiusMetres] null) a theodolite's survey. */
   fun setSurvey(structureId: Long, radiusMetres: Int?, remainingSeconds: Float) {
     val current = byId[structureId] ?: return
@@ -301,7 +321,8 @@ class PlayerStructureRegistry(
         row.id, row.kind, row.ownerMasterId, row.ownerAccountId, Vec3L(row.x, row.y, row.z), row.yaw,
         row.totalBuildSeconds, row.remainingBuildSeconds, row.burnsOutAt,
         StationContents.decodeQueue(row.stationQueue), StationContents.decodeHeld(row.stationHeld),
-        row.workerBestiaId, row.takesAnyCrafter, row.surveyRadiusMetres, row.surveyRemainingSeconds ?: 0f
+        row.workerBestiaId, row.takesAnyCrafter, row.surveyRadiusMetres, row.surveyRemainingSeconds ?: 0f,
+        row.missingHp, row.repairStockHp
       )
       index(row.chunkX, row.chunkY, entry)
     }

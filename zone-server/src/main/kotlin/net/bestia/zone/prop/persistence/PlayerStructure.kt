@@ -122,6 +122,14 @@ class PlayerStructure(
   @Column(name = "survey_remaining_seconds")
   var surveyRemainingSeconds: Float? = null,
 
+  /** Health it lacks, kept so damage and decay outlast the column being unloaded. */
+  @Column(name = "missing_hp", nullable = false)
+  var missingHp: Int = 0,
+
+  /** Health the materials paid in for repairs can still restore. */
+  @Column(name = "repair_stock_hp", nullable = false)
+  var repairStockHp: Int = 0,
+
   /** What a chest holds; null for every other kind. */
   @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
   @JoinColumn(name = "storage_container_id")
