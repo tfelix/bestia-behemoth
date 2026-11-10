@@ -63,10 +63,12 @@ class BestiaRuntime(
     if (config != null) attachOrders(memory, config)
   }
 
-  /** The lines an owned bestia looks after itself at. */
+  /** The lines an owned bestia looks after itself and gets out of a fight at. */
   private fun attachOrders(memory: Blackboard, config: AiConfig) {
     memory.set(BestiaDomain.EAT_BELOW_STAMINA_PCT, BestiaDomain.DEFAULT_EAT_BELOW_STAMINA_PCT, Blackboard.PERMANENT)
     memory.set(BestiaDomain.HEAL_BELOW_HEALTH_PCT, BestiaDomain.DEFAULT_HEAL_BELOW_HEALTH_PCT, Blackboard.PERMANENT)
+    config.courage.retreatBelowHealthPct?.let { memory.set(BestiaDomain.RETREAT_BELOW_HEALTH_PCT, it, Blackboard.PERMANENT) }
+    memory.set(BestiaDomain.FLEES_ON_SIGHT, config.courage.fleesOnSight, Blackboard.PERMANENT)
   }
 
   // A ranged species stops at shooting distance; one that also bites lets the target come to it.

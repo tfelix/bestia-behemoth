@@ -103,9 +103,20 @@ class PlayerIdleAiTest {
   @Test
   fun `courage steps only ever grow bolder`() {
     val aggressions = Courage.entries.map { it.aggression }
+    val retreatLines = Courage.entries.map { it.retreatBelowHealthPct ?: 0 }
 
     assertEquals(aggressions.sorted(), aggressions)
     assertTrue(aggressions.all { it in 0..100 })
+    assertEquals(retreatLines.sortedDescending(), retreatLines)
+  }
+
+  @Test
+  fun `the retreat line reaches the agent's memory, and a brave bestia has none`() {
+    val careful = agentWith("aggressive_melee", AiConfig(courage = Courage.CAREFUL))
+    val brave = agentWith("aggressive_melee", AiConfig(courage = Courage.BRAVE))
+
+    assertEquals(50, careful.memory.get(BestiaDomain.RETREAT_BELOW_HEALTH_PCT))
+    assertEquals(null, brave.memory.get(BestiaDomain.RETREAT_BELOW_HEALTH_PCT))
   }
 
   @Test

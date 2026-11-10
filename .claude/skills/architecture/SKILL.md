@@ -316,7 +316,8 @@ id. Mobs get their profile from `mob/*.yml`'s `ai:` key via `BestiaEntitySpawner
 bestias get one from `PlayerBestiaEntitySpawner` narrowed by the owner's persisted `AiConfig`.
 
 Profiles today: `aggressive-melee` (hunts on sight), `passive-wanderer` (grazer that fights back),
-`passive-day-active` (diurnal grazer with a long grudge). **Nothing flees.** There was a `Flee` goal, a
+`passive-day-active` (diurnal grazer with a long grudge). **No wild mob flees** (an owned bestia retreats home
+when its orders' courage gives out: `Retreat`, added by `AiProfile.underOrders`, never by a profile). There was a `Flee` goal, a
 `flee` action, a `FleeFrom` leaf and a per-archetype `flee_threshold_pct`; all of it is gone, because a mob
 that bolted the moment its health dipped could not be fought at all. Two consequences worth knowing:
 `KillEnemy`'s availability is now the bare sighting (it used to also require *not* being wounded, paired
