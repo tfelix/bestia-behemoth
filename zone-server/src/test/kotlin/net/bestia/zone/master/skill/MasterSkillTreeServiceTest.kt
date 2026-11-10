@@ -1,5 +1,6 @@
 package net.bestia.zone.master.skill
 
+import net.bestia.zone.skill.NoviceTreeClosedException
 import net.bestia.zone.item.profession.ProfessionService
 import io.mockk.mockk
 import io.mockk.verify
@@ -168,6 +169,14 @@ class MasterSkillTreeServiceTest {
   }
 
   /** Checked per level rather than once per batch, the same promise made for a prerequisite. */
+  @Test
+  fun `the Novice tree closes with the first point spent in another tree`() {
+    val entityId = givenMaster()
+    invest(entityId, BASIC_SKILL_ID to 5, CARPENTRY_ID to 1)
+
+    assertThrows<NoviceTreeClosedException> { invest(entityId, BASIC_SKILL_ID to 1) }
+  }
+
   @Test
   fun `Basic Skill 5 and a point in another tree can be spent in one batch`() {
     val entityId = givenMaster()

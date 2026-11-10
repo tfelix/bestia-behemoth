@@ -15,11 +15,7 @@ import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
  * at 2, trade posts at 3, sitting recovery at 4, parties and every other skill tree at 5 - so unlike every
  * skill it does nothing on activation and is instead asked about by the subsystems it unlocks.
  *
- * ### Only three of the five are enforced
- *
- * Trading, chat and parties, because they are the only three of the five that exist. There are no trade posts
- * and sitting is not a mechanic - so ranks 3 and 4 have nothing to gate and are deliberately not represented
- * here. A constant for a subsystem that does not exist would read as an implemented rule.
+ * Rank 4's sitting recovery is not a permission and lives with regeneration, see `SittingRecovery`.
  *
  * ### It answers off the live master
  *
@@ -43,6 +39,9 @@ class BasicSkillGate(
 
   /** True once the account may emote. Body language is talking too, so it opens with chat. */
   fun mayEmote(accountId: AccountId): Boolean = rankOf(accountId) >= CHAT_RANK
+
+  /** True once the account may list and buy at a trade post (an auction house). Browsing needs no rank. */
+  fun mayUseTradePosts(accountId: AccountId): Boolean = rankOf(accountId) >= TRADE_POST_RANK
 
   /** True once the account may form or grow a party. */
   fun mayParty(accountId: AccountId): Boolean = rankOf(accountId) >= PARTY_RANK
@@ -83,6 +82,8 @@ class BasicSkillGate(
      */
     const val TRADE_RANK = 1
     const val CHAT_RANK = 2
+    const val TRADE_POST_RANK = 3
+    const val SITTING_RECOVERY_RANK = 4
     const val PARTY_RANK = 5
 
     private val LOG = KotlinLogging.logger { }

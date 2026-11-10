@@ -1,5 +1,6 @@
 package net.bestia.zone.master.skill
 
+import net.bestia.zone.skill.NoviceTreeClosedException
 import net.bestia.zone.item.profession.ProfessionService
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.account.MasterNotFoundException
@@ -139,6 +140,11 @@ class MasterSkillTreeService(
     val node = masterSkillTreeRegistry.findBySkillId(skillId)
       ?: throw SkillTreeNodeNotFoundException(skillId)
 
+    // The Novice tree is the first steps; once a master has stepped into another tree it closes behind them.
+    if (node.tree == MasterSkillTreeRegistry.NOVICE_TREE && hasInvestedOutsideNovice(levels)) {
+      throw NoviceTreeClosedException(masterId)
+    }
+
     if (node.tree != MasterSkillTreeRegistry.NOVICE_TREE) {
       // A tree without Basic Skill reads as level 0: failing open there would hand every tree to every novice.
       val basicSkillLevel = masterSkillTreeRegistry.basicSkillId?.let { levels[it] } ?: 0
@@ -191,6 +197,12 @@ class MasterSkillTreeService(
   private fun pointsInvestedInTree(levels: Map<Long, Int>, tree: String): Int {
     return levels.entries.sumOf { (skillId, level) ->
       if (masterSkillTreeRegistry.findBySkillId(skillId)?.tree == tree) level else 0
+    }
+  }
+
+  private fun hasInvestedOutsideNovice(levels: Map<Long, Int>): Boolean {
+    return levels.any { (skillId, level) ->
+      level > 0 && masterSkillTreeRegistry.findBySkillId(skillId)?.tree != MasterSkillTreeRegistry.NOVICE_TREE
     }
   }
 

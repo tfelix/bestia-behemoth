@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSr5GgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSq5GwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -102,9 +102,10 @@ namespace Bnet {
             "UEVOEIIBEhMKDlJJVFVBTF9SVU5OSU5HEIMBEhoKFVJJVFVBTF9BTFJFQURZ",
             "X0pPSU5FRBCEARIQCgtSSVRVQUxfRlVMTBCFARISCg1SSVRVQUxfRkFJTEVE",
             "EIYBEg8KCkNIRVNUX0ZVTEwQhwESFAoPQ0hFU1RfTk9UX1lPVVJTEIgBEhcK",
-            "EkNIRVNUX09VVF9PRl9SRUFDSBCJASIECC4QLioSU0hPUF9UUkVBU1VSWV9G",
-            "VUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQ",
-            "cm90b2IGcHJvdG8z"));
+            "EkNIRVNUX09VVF9PRl9SRUFDSBCJARIiCh1CQVNJQ19TS0lMTF9UUkFERV9Q",
+            "T1NUX0xPQ0tFRBCKARIaChVTS0lMTF9NSVNTSU5HX1JFQUdFTlQQiwEiBAgu",
+            "EC4qElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQuYmVzdGlhLmJuZXQucHJv",
+            "dG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -625,6 +626,14 @@ namespace Bnet {
     /// The chest is too far away to reach into. The player walks up to it.
     /// </summary>
     [pbr::OriginalName("CHEST_OUT_OF_REACH")] ChestOutOfReach = 137,
+    /// <summary>
+    /// Listing and buying at a trade post needs Basic Skill 3. Browsing does not.
+    /// </summary>
+    [pbr::OriginalName("BASIC_SKILL_TRADE_POST_LOCKED")] BasicSkillTradePostLocked = 138,
+    /// <summary>
+    /// A skill whose cast uses up an item (a bandage, a crystal) was started without one in the bag.
+    /// </summary>
+    [pbr::OriginalName("SKILL_MISSING_REAGENT")] SkillMissingReagent = 139,
   }
 
   #endregion

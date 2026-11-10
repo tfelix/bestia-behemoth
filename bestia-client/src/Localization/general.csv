@@ -607,12 +607,15 @@ ERROR_RITUAL_RUNNING,The ritual has already begun.
 ERROR_RITUAL_ALREADY_JOINED,You already have a helper in this ritual.
 ERROR_RITUAL_FULL,Five helpers already stand in this circle.
 ERROR_RITUAL_FAILED,The ritual broke: its leader stopped channeling.
+ERROR_BASIC_SKILL_TRADE_POST_LOCKED,You need Basic Skill 3 to list or buy at a trade post.
+ERROR_SKILL_MISSING_REAGENT,You lack the item this skill uses up.
 SUCCESS_RITUAL_OPENED,You opened the ritual. Helpers may join; use the focus stone again to begin.
 SUCCESS_RITUAL_JOINED,You joined the ritual.
 SUCCESS_RITUAL_STARTED,The ritual begins. Hold the channel for 30 seconds.
 SUCCESS_RITUAL_CHARGED,The ritual is complete: your next skill is charged.
 STATUS_EFFECT_200,Ritual Charge: your next skill takes the circle's power.
 STATUS_EFFECT_201,Ritual Fatigue: resting after a ritual. You cannot join or lead another yet.
+STATUS_EFFECT_202,Sprinting: much faster for a few seconds. Attacking or casting ends it.
 =======
 SKILLS_TITLE,Skills
 SKILLS_TAB_OTHER,Other
@@ -651,6 +654,7 @@ SKILLS_CAST_TIME,%s s cast
 SKILLS_REQUIRES,Requires %s
 SKILLS_LEADS_TO,Leads to %s
 SKILLS_TREE_LOCKED,Opens at %s Lv. %d (now %d)
+SKILLS_NOVICE_CLOSED,Closed: you have stepped into another tree.
 SKILLS_SUB_TREE_LOCKED,Opens at %d points in %s (now %d)
 SKILLS_USE_AT_LEVEL,Use at level
 SKILLS_USE,Use
