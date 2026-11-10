@@ -35,6 +35,9 @@ class PlayerStructureSource(
     StaticEntityKind.CAMPFIRE
   )
 
+  /** A station near a bestia has to be there for a roaming NPC to attack, with or without its master online. */
+  override val scope = WorldObjectScope.SIMULATED
+
   /**
    * Only what is actually standing. A structure still being built is an ordinary entity instead - see
    * [net.bestia.zone.prop.ecs.construction.ConstructionSite] - and emitting it here as well would leave a finished

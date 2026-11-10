@@ -11,6 +11,7 @@ import net.bestia.zone.entity.ecs.StaticSync
 import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.world.stream.ChunkStreamConfig
+import net.bestia.zone.world.anchor.AnchorResidencySystem
 import net.bestia.zone.world.stream.ChunkStreamSystem
 import org.springframework.stereotype.Component
 import net.bestia.zone.ecs.core.System as EcsSystem
@@ -42,7 +43,8 @@ class WorldObjectResidencySystem(
   private val settings: ChunkStreamConfig
 ) : EcsSystem {
   override val phase = Phase.WORLD
-  override val after = setOf(ChunkStreamSystem::class)
+  // After the anchors as well: their holds queue work in the service this drains, which is not thread safe.
+  override val after = setOf(ChunkStreamSystem::class, AnchorResidencySystem::class)
   override val before = setOf(GroundOverlaySystem::class)
 
   override val schedule: Schedule = Schedule.EveryTick

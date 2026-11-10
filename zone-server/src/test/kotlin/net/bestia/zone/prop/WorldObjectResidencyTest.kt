@@ -38,6 +38,7 @@ import net.bestia.zone.prop.persistence.DivergenceState
  */
 class WorldObjectResidencyTest {
 
+  private lateinit var chunkResidency: ChunkResidency
   private lateinit var subscriptions: ChunkSubscriptionService
   private lateinit var aoi: EntityAOIService
   private lateinit var source: StubSource
@@ -70,13 +71,15 @@ class WorldObjectResidencyTest {
 
   @BeforeEach
   fun setup() {
-    subscriptions = ChunkSubscriptionService(ChunkResidency())
+    chunkResidency = ChunkResidency()
+    subscriptions = ChunkSubscriptionService(chunkResidency)
     aoi = EntityAOIService()
     source = StubSource()
     sent = ArrayList()
     removals = ArrayList()
     residency = WorldObjectResidencyService(
-      listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), noDivergence(), subscriptions
+      listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), noDivergence(), subscriptions,
+      chunkResidency
     )
   }
 
@@ -296,7 +299,7 @@ class WorldObjectResidencyTest {
     }
     val service = WorldObjectResidencyService(
       listOf(empty), kindRegistry(), EntityAOIService(), recordingFanOut(), worldService(), noDivergence(),
-      subscriptions
+      subscriptions, chunkResidency
     )
     val world = testWorld()
 
@@ -441,7 +444,8 @@ class WorldObjectResidencyTest {
       }
     }
     val service = WorldObjectResidencyService(
-      listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), divergence, subscriptions
+      listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), divergence, subscriptions,
+      chunkResidency
     )
     val world = testWorld()
 
@@ -468,7 +472,8 @@ class WorldObjectResidencyTest {
       every { evictRegrown(regrownPropId) } answers { evicted = true }
     }
     val service = WorldObjectResidencyService(
-      listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), divergence, subscriptions
+      listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), divergence, subscriptions,
+      chunkResidency
     )
     val world = testWorld()
 
@@ -497,7 +502,8 @@ class WorldObjectResidencyTest {
       }
     }
     val service = WorldObjectResidencyService(
-      listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), divergence, subscriptions
+      listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), divergence, subscriptions,
+      chunkResidency
     )
     val world = testWorld()
 

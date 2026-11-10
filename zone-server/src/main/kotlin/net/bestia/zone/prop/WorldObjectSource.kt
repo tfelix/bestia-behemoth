@@ -53,6 +53,11 @@ interface WorldObjectSource {
   /** Which kinds this source can produce, so the registry can report what a chunk might hold without asking. */
   val kinds: Set<StaticEntityKind>
 
+  val scope: WorldObjectScope
+    get() {
+      return WorldObjectScope.VIEWED
+    }
+
   /**
    * The sites whose own position falls inside this chunk column.
    *
