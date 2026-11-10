@@ -53,7 +53,7 @@ data class AiConfig(
  * `KillAttacker` is in every job on purpose: self-defence is not an order a player gets to switch off, and an
  * owned creature that stood still while being killed would be a bug reported as one.
  *
- * Gather, Craft, Mine and Follow join once the goals that carry them exist.
+ * Craft, Mine and Follow join once the goals that carry them exist.
  */
 enum class BestiaJob(val goalNames: Set<String>) {
 
@@ -61,7 +61,10 @@ enum class BestiaJob(val goalNames: Set<String>) {
   GUARD(setOf("KillAttacker", "KillEnemy", "Wander", "ReturnHome")),
 
   /** Stay around home and look after itself: eat and sleep as needed. The default. */
-  REST(setOf("KillAttacker", "Wander", "ReturnHome", "EatVegetation", "Sleep"));
+  REST(setOf("KillAttacker", "Wander", "ReturnHome", "EatVegetation", "Sleep")),
+
+  /** Collect what grows and lies around home and carry it to the master's nearest chest. */
+  GATHER(setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"));
 
   companion object {
     fun fromNameOrNull(name: String): BestiaJob? = entries.firstOrNull { it.name.equals(name, ignoreCase = true) }

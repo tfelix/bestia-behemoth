@@ -28,6 +28,7 @@ message SetBestiaAiConfigCMSG {
     JOB_UNSPECIFIED = 0;
     GUARD = 1;
     REST = 2;
+    GATHER = 3;
   }
 
   enum Courage {
