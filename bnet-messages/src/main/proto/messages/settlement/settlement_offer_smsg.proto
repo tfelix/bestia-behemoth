@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SettlementOfferSmsgProto";
+
+// Asks the receiver whether they take over a town. Answered with AnswerSettlementOfferCMSG.
+message SettlementOfferSMSG {
+  uint64 settlement_id = 1;
+  string name = 2;
+  string from_name = 3;
+}

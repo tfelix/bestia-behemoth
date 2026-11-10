@@ -15,6 +15,7 @@ import net.bestia.zone.battle.ecs.effects.AreaEffectSpawner
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ForcedMovement
 import net.bestia.zone.prop.PlayerStructureService
+import net.bestia.zone.settlement.TownService
 import net.bestia.zone.spoor.SpoorService
 import net.bestia.zone.world.stream.ChunkStreamInbox
 import org.springframework.stereotype.Component
@@ -39,6 +40,7 @@ class SkillWorldServices(
   val statusEffects: StatusEffectService,
   val messages: OutMessageProcessor,
   val crafting: RecipeOffering,
+  val towns: TownService,
   val spoor: SpoorService,
   val chunkStream: ChunkStreamInbox,
   val lootItems: LootItemEntitySpawner,

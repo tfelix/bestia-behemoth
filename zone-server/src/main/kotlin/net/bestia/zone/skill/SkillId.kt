@@ -55,6 +55,11 @@ enum class SkillId {
   M_WEATHER_RESISTANCE,
   M_WEATHER_SENSE,
 
+  // Player settlements and their auction houses: the town code checks who may found, own or link.
+  M_FOUNDER,
+  M_TRADE_POST_OWNER,
+  M_TRADE_AGREEMENT,
+
   // Passives with a stat effect, named by their PassiveSkillScript bean rather than from the yml.
   M_MEDITATION,
   M_QUICK_TRAVEL,

@@ -14,6 +14,7 @@ import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.place.ecs.PlaceNameService
 import net.bestia.zone.util.AccountId
+import net.bestia.zone.settlement.ecs.TownUpkeepSystem
 import net.bestia.zone.weather.EnvironmentalExposureSystem
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -32,6 +33,9 @@ class GuildMemberBeaconSystem(
 
   /** Exposure takes its health in the same phase; the beacon reports what is left. */
   override val after = setOf(EnvironmentalExposureSystem::class)
+
+  // Declared here because the town slice sits below the guild one and may not name this system.
+  override val before = setOf(TownUpkeepSystem::class)
 
   override val schedule: Schedule = Schedule.EverySeconds(1f)
 

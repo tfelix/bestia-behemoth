@@ -370,6 +370,22 @@ enum OpError {
   STALL_GONE = 149;
   STALL_CANNOT_AFFORD = 150;
   STALL_OUT_OF_RANGE = 151;
+
+  // Player settlements, from 300 so other features can keep counting up from 122.
+  // The town name is blank, shorter than 3 or longer than 24 characters, or not printable.
+  SETTLEMENT_NAME_INVALID = 300;
+  SETTLEMENT_NAME_TAKEN = 301;
+  // The sender already holds a town or a sign site.
+  SETTLEMENT_ALREADY_HELD = 302;
+  // Another settlement, or a town that fell less than 48 h ago, is within 5 km.
+  SETTLEMENT_TOO_CLOSE = 303;
+  // A post office or auction house still stands in the sphere.
+  SETTLEMENT_NOT_EMPTY = 304;
+  // The named master is not nearby, has no Founder, or already holds a town. args[0] is the name.
+  SETTLEMENT_CANNOT_RECEIVE = 305;
+  // args[0] is who declined.
+  SETTLEMENT_OFFER_DECLINED = 306;
+  SETTLEMENT_OUT_OF_RANGE = 307;
 }
 
 message OperationError {

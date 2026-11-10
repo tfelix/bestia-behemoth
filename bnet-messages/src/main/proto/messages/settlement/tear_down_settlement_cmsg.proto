@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "TearDownSettlementCmsgProto";
+
+// The founder ends their town at its sign.
+message TearDownSettlementCMSG {
+  uint64 sign_entity_id = 1;
+}

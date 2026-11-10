@@ -227,6 +227,11 @@ interface SkillWorld {
    */
   fun readTracks(centre: Vec3L, radiusTiles: Long): TrackReading?
 
+  // ------------------------------------------------------------- settlements
+
+  /** Plants the sign site of the town the caster planned, where it stands. False when it may not. */
+  fun foundTown(): Boolean
+
   /**
    * There is deliberately no `async` here. A cast resolves on the tick thread, so relational work belongs to
    * the service that owns the row, which hands it to `AsyncJobExecutor` under its own ordering key.

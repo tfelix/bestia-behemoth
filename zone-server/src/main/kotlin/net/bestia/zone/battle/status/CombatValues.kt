@@ -73,6 +73,13 @@ data class CombatValues(
       base = StatusValues(strength = 1, vitality = 1, intelligence = 1, agility = 1, willpower = 1, dexterity = 1)
     )
 
+    /** A structure whose armour is all it has: [OBJECT_BASELINE] with [hardDefense]. */
+    fun ofStructure(hardDefense: Int): CombatValues {
+      val base = StatusValues(strength = 1, vitality = 1, intelligence = 1, agility = 1, willpower = 1, dexterity = 1)
+
+      return resolve(level = 1, base = base, attributes = base, weapon = Weapon.NONE, hardDefense = hardDefense, hardMagicDefense = 0)
+    }
+
     /**
      * Wearing and suffering nothing: the spawn seed, and an unbuffed mob's value for life. Equals [fromContext] on an
      * empty context, which a test pins so the seed cannot drift from the recalc.

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SettlementSignSmsgProto";
+
+// Opens the city sign window. The answer to clicking a standing sign.
+message SettlementSignSMSG {
+  uint64 sign_entity_id = 1;
+  uint64 settlement_id = 2;
+  string name = 3;
+  string founder_name = 4;
+  bool is_founder = 5;
+  uint32 radius_metres = 6;
+  // Building points times ten: a wall piece is worth a tenth.
+  uint32 building_points_tenths = 7;
+  uint32 sign_defense = 8;
+  // Whether no post office or auction house stands in the sphere, so the founder may tear the sign down.
+  bool can_tear_down = 9;
+}

@@ -353,6 +353,7 @@ class SkillExecutionServiceTest {
       statusEffects = mockk(relaxed = true),
       messages = mockk(relaxed = true),
       crafting = mockk(relaxed = true),
+      towns = mockk(relaxed = true),
       spoor = mockk(relaxed = true),
       chunkStream = mockk(relaxed = true),
       lootItems = mockk(relaxed = true),
