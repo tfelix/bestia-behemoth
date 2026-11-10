@@ -1,5 +1,7 @@
 package net.bestia.zone.master.bestia
 
+import net.bestia.zone.battle.status.IndividualValues
+import net.bestia.zone.bestia.Sex
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -17,7 +19,11 @@ class PlayerBestiaCreateOperation(
   class PlayerBestiaCreateData(
     val bestiaIdentifier: String,
     val spawnPosition: Vec3L,
-    val level: Int = 1
+    val level: Int = 1,
+    /** Hatched from an egg: what it was bred with. Null rolls them, as for a caught bestia. */
+    val sex: Sex? = null,
+    val individualValues: IndividualValues? = null,
+    val inheritedAttacks: Map<Long, Int> = emptyMap(),
   )
 
   /**
@@ -34,7 +40,10 @@ class PlayerBestiaCreateOperation(
       playerBestiaCreateData = PlayerBestiaFactory.PlayerBestiaCreateData(
         bestiaIdentifier = playerBestiaCreateData.bestiaIdentifier,
         spawnPosition = playerBestiaCreateData.spawnPosition,
-        level = playerBestiaCreateData.level
+        level = playerBestiaCreateData.level,
+        sex = playerBestiaCreateData.sex,
+        individualValues = playerBestiaCreateData.individualValues,
+        inheritedAttacks = playerBestiaCreateData.inheritedAttacks,
       )
     )
 

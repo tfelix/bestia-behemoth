@@ -17,8 +17,8 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 /**
- * Resolves the skill list of an account's active entity: the master's tree, or a bestia's species table merged
- * with its custom skills. Not part of the ECS dirty-sync pipeline, since the merged shape isn't backed by a single
+ * Resolves the skill list of an account's active entity: the master's tree, or a bestia's species table (with inherited
+ * attacks) merged with its custom skills. Not part of the ECS dirty-sync pipeline, since the merged shape isn't backed by a single
  * component, so whoever changes the skills pushes the result itself.
  */
 @Service
@@ -80,10 +80,8 @@ class SkillListService(
       .associate { it.skill.id to it.level }
 
     // A custom row teaches a species skill ahead of its level, so the two sources are merged, not either/or.
-    val fixedEntries = playerBestia.bestia.skills.map { bestiaSkill ->
-      val skillId = bestiaSkill.skill.id
-      val levelByTable =
-        if (playerBestia.level >= bestiaSkill.requiredLevel) BestiaSkillLevel.forLearnLevel(bestiaSkill.requiredLevel) else 0
+    val fixedEntries = playerBestia.attackLearnLevels().map { (skillId, learnLevel) ->
+      val levelByTable = if (playerBestia.level >= learnLevel) BestiaSkillLevel.forLearnLevel(learnLevel) else 0
 
       SkillListSMSG.SkillListEntry(
         skillId = skillId,

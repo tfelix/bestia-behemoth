@@ -1,6 +1,7 @@
 package net.bestia.zone.master.bestia
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.account.persistence.InheritedAttack
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.PlayerBestiaPolicy
 import net.bestia.zone.account.persistence.findByIdOrThrow
@@ -33,6 +34,8 @@ class PlayerBestiaFactory(
     val sex: Sex? = null,
     /** Null rolls them, as for a caught bestia. */
     val individualValues: IndividualValues? = null,
+    /** Bred attacks, skill id to learn level, from the egg. */
+    val inheritedAttacks: Map<Long, Int> = emptyMap(),
   )
 
   /**
@@ -63,6 +66,9 @@ class PlayerBestiaFactory(
     pb.entityId = entityIdGenerator.nextId()
     pb.sex = playerBestiaCreateData.sex ?: Sex.roll(Random.Default)
     pb.individualValues = playerBestiaCreateData.individualValues ?: IndividualValues.rollWild(Random.Default)
+    playerBestiaCreateData.inheritedAttacks.forEach { (skillId, learnLevel) ->
+      pb.inheritedAttacks.add(InheritedAttack(pb, skillId, learnLevel))
+    }
 
     return playerBestiaRepository.save(pb)
   }
