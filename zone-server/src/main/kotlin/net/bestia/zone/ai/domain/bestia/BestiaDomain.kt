@@ -23,6 +23,7 @@ import net.bestia.zone.ai.domain.AiDomainCatalogue
 import net.bestia.zone.ai.domain.bestia.action.ApproachTargetActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.AttackActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.EatVegetationActionTemplate
+import net.bestia.zone.ai.domain.bestia.action.RetreatHomeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.UseFromBagActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.ReturnHomeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.SleepActionTemplate
@@ -93,6 +94,9 @@ object BestiaDomain : AiDomainCatalogue {
   const val DEFAULT_EAT_BELOW_STAMINA_PCT = 40
   const val DEFAULT_HEAL_BELOW_HEALTH_PCT = 50
 
+  /** A retreat ends this close to home: near enough to be out of the fight, far enough not to be a single tile. */
+  const val RETREAT_ARRIVAL_RADIUS = 3L
+
   // ------------------------------------------------------------ shared with every domain
 
   // Re-exported rather than redeclared. Keys are equal by name, so these already addressed the same slots
@@ -134,9 +138,11 @@ object BestiaDomain : AiDomainCatalogue {
   val FOOD_IN_BAG = StateKey<Boolean>("foodInBag", observed = true)
   val HEAL_IN_BAG = StateKey<Boolean>("healInBag", observed = true)
 
-  /** An owned bestia's care lines, from its orders. Wild mobs have none. */
+  /** An owned bestia's care and courage lines, from its orders. Wild mobs have none. */
   val EAT_BELOW_STAMINA_PCT = StateKey<Int>("eatBelowStaminaPct", retain = Blackboard.PERMANENT)
   val HEAL_BELOW_HEALTH_PCT = StateKey<Int>("healBelowHealthPct", retain = Blackboard.PERMANENT)
+  val RETREAT_BELOW_HEALTH_PCT = StateKey<Int>("retreatBelowHealthPct", retain = Blackboard.PERMANENT)
+  val FLEES_ON_SIGHT = StateKey<Boolean>("fleesOnSight", retain = Blackboard.PERMANENT)
 
   /** When this species sleeps, against the world's day/night cycle. See [isRestingPhase]. */
   val ACTIVITY_CYCLE = StateKey<ActivityCycle>("activityCycle", retain = Blackboard.PERMANENT)
@@ -225,6 +231,20 @@ object BestiaDomain : AiDomainCatalogue {
   private fun healLineOf(state: WorldState): Int = state.get(HEAL_BELOW_HEALTH_PCT) ?: DEFAULT_HEAL_BELOW_HEALTH_PCT
 
   /**
+   * Whether courage says to get out: hurt below its retreat line, or a timid one seeing an enemy at all.
+   * Shared by [Goals.RETREAT] and its action, so the walk home is never planned for any other reason.
+   */
+  fun retreatWarranted(state: WorldState): Boolean {
+    val line = state.get(RETREAT_BELOW_HEALTH_PCT)
+    val hurt = line != null && healthPctOf(state) < line
+    val frightened = state.get(FLEES_ON_SIGHT) == true && enemyInSight(state)
+    return hurt || frightened
+  }
+
+  fun atRetreat(state: WorldState): Boolean =
+    (homeDistanceOrNull(state) ?: Long.MAX_VALUE) <= RETREAT_ARRIVAL_RADIUS
+
+  /**
    * How badly sleeping is wanted purely because of the hour, independent of how tired the creature is.
    *
    * The value is chosen against the other goals' bases rather than picked for feel: at 0.9 of [Goals.SLEEP]'s
@@ -291,9 +311,9 @@ object BestiaDomain : AiDomainCatalogue {
      * Available to any archetype, however peaceful — being attacked is not something a profile opts
      * into.
      *
-     * Since nothing runs away any more, this is the *whole* of what being attacked provokes, and its base
-     * outranks every other goal on purpose: a creature that is being hit fights back rather than wandering
-     * off to graze or lying down to sleep mid-fight. It stays available however badly hurt — there is no
+     * A wild mob never runs away, so for it this is the *whole* of what being attacked provokes, and its base
+     * outranks every goal a wild mob has on purpose: a creature that is being hit fights back rather than
+     * wandering off to graze or lying down to sleep mid-fight. Only an owned bestia's [RETREAT] outranks it. It stays available however badly hurt — there is no
      * health floor below which a cornered animal stops defending itself.
      */
     val KILL_ATTACKER = Goal(
@@ -362,8 +382,20 @@ object BestiaDomain : AiDomainCatalogue {
       desiredState = listOf(Precondition { s -> (s.get(STAMINA_PCT) ?: 100) >= eatLineOf(s) }),
     )
 
+    /**
+     * An owned bestia walking home out of a fight its courage says it is losing. Above every other goal,
+     * [KILL_ATTACKER] included, or it would never leave a fight. Satisfied once home: if the attacker follows
+     * it there, [KILL_ATTACKER] takes over again, and while it stays hurt it does not stray far.
+     */
+    val RETREAT = Goal(
+      name = "Retreat",
+      priority = priority(base = 97f),
+      availability = Precondition { s -> retreatWarranted(s) && !atRetreat(s) },
+      desiredState = listOf(Precondition { s -> atRetreat(s) }),
+    )
+
     val ALL = listOf(
-      EAT_VEGETATION, SLEEP, RETURN_HOME, KILL_ATTACKER, KILL_ENEMY, WANDER, HEAL_FROM_BAG, EAT_FROM_BAG,
+      EAT_VEGETATION, SLEEP, RETURN_HOME, KILL_ATTACKER, KILL_ENEMY, WANDER, HEAL_FROM_BAG, EAT_FROM_BAG, RETREAT,
     )
 
     val BY_NAME = ALL.associateBy { it.name }
@@ -400,6 +432,7 @@ object BestiaDomain : AiDomainCatalogue {
     "attack" to { c -> AttackActionTemplate(c.attacks, c.skills, c.attackExecution, c.basicAttacks) },
     "healFromBag" to { c -> UseFromBagActionTemplate.heal(c.care) },
     "eatFromBag" to { c -> UseFromBagActionTemplate.eat(c.care) },
+    "retreatHome" to { c -> RetreatHomeActionTemplate(c.locomotion) },
   )
 
   /** Every action id a profile may name, for fail-fast validation at boot without building anything. */

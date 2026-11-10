@@ -32,13 +32,14 @@ data class AiConfig(
 
   companion object {
     /**
-     * Goals every owned bestia gets on top of its job, whatever its species: looking after itself. They are the
-     * one place orders widen the archetype, and they add no way to hurt anybody.
+     * Goals every owned bestia gets on top of its job, whatever its species: looking after itself and getting
+     * out of a fight it is losing. They are the one place orders widen the archetype, and they add no way to
+     * hurt anybody. Wild mobs never get them: a mob that bolted could not be fought at all.
      */
-    val SELF_CARE_GOALS = listOf("HealFromBag", "EatFromBag")
+    val SELF_CARE_GOALS = listOf("HealFromBag", "EatFromBag", "Retreat")
 
     /** The actions that carry [SELF_CARE_GOALS]. */
-    val SELF_CARE_ACTIONS = listOf("healFromBag", "eatFromBag")
+    val SELF_CARE_ACTIONS = listOf("healFromBag", "eatFromBag", "retreatHome")
   }
 }
 
@@ -68,19 +69,23 @@ enum class BestiaJob(val goalNames: Set<String>) {
 }
 
 /**
- * How a bestia meets danger, as one slider of five steps.
- *
- * For now a step only sets how strongly the bestia wants its kill goals. Retreat lines and shelter join with the
- * goals that carry them, read from the same step, so the slider the player sees does not change meaning.
+ * How a bestia meets danger, as one slider of five steps: how strongly it wants its kill goals, and when it
+ * walks home out of a fight. Shelter from storms will read the same step once roofs protect.
  */
-enum class Courage(val aggression: Int) {
-  TIMID(10),
-  CAREFUL(30),
+enum class Courage(
+  val aggression: Int,
+  /** Below this share of its health it retreats home; null never. */
+  val retreatBelowHealthPct: Int?,
+  /** Retreats from any enemy it sees, not only once hurt. */
+  val fleesOnSight: Boolean = false,
+) {
+  TIMID(10, retreatBelowHealthPct = 70, fleesOnSight = true),
+  CAREFUL(30, retreatBelowHealthPct = 50),
 
   /** The archetype-neutral middle, and the default. */
-  STEADY(50),
-  BOLD(75),
-  BRAVE(100);
+  STEADY(50, retreatBelowHealthPct = 35),
+  BOLD(75, retreatBelowHealthPct = 20),
+  BRAVE(100, retreatBelowHealthPct = null);
 
   companion object {
     fun fromNameOrNull(name: String): Courage? = entries.firstOrNull { it.name.equals(name, ignoreCase = true) }
