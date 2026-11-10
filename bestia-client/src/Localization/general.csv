@@ -749,3 +749,5 @@ CONTEXT_REPAIR,Repair
 ERROR_REPAIR_OUTSIDE_TOWN,Only buildings inside a standing player town can be repaired.
 ERROR_REPAIR_NOT_NEEDED,It is not damaged.
 ERROR_REPAIR_NEEDS_MATERIALS,You carry none of the materials this repair needs.
+SERVICE_TOWN,Player Town
+SERVICE_POST_OFFICE,Post Office

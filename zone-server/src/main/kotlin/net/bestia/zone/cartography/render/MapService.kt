@@ -32,7 +32,13 @@ enum class MapService {
   GUARD,
 
   /** A ward stone at a home settlement. Not a business; it is an entity that can be broken. */
-  WARD_STONE;
+  WARD_STONE,
+
+  /** The sign of a player town, named after it. */
+  TOWN,
+
+  /** A post office players built in their town. A generated town's office is not on the map yet. */
+  POST_OFFICE;
 
   companion object {
 

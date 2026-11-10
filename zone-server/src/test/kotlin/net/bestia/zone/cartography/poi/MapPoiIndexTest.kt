@@ -104,4 +104,19 @@ class MapPoiIndexTest {
   private companion object {
     const val SEED = 42L
   }
+
+  @Test
+  fun `player towns are on the map until they are replaced`() {
+    val sign = MapPoi(-4L, MapService.TOWN, null, 1_000.0, 2_000.0, "Oakhold", null, null)
+    val before = index.revision
+
+    index.setPlayerTowns(listOf(sign))
+
+    assertEquals(sign, index.liveIn(Aabb(0.0, 0.0, 4_000.0, 4_000.0)).single { it.id == -4L })
+    assertNotEquals(before, index.revision)
+
+    val after = index.revision
+    index.setPlayerTowns(listOf(sign))
+    assertEquals(after, index.revision, "the same towns again changed nothing")
+  }
 }

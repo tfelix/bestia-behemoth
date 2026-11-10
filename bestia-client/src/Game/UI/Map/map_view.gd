@@ -140,7 +140,7 @@ const _PLACE_HIT_RADIUS := 14.0
 ## The service kinds there is a glyph for, in the order the legend lists them. The server's
 ## [code]MapService[/code] enum names; one it adds later still draws, as a plain dot, until it is given a
 ## glyph here.
-const SERVICE_KINDS: Array[String] = ["MERCHANT", "MARKET", "INN", "TEMPLE", "GUARD", "WARD_STONE"]
+const SERVICE_KINDS: Array[String] = ["MERCHANT", "MARKET", "INN", "TEMPLE", "GUARD", "WARD_STONE", "TOWN", "POST_OFFICE"]
 
 ## Ink per service kind. Each kind also has its own silhouette - see [constant _SERVICE_SHAPES] - so the
 ## colour is a second cue rather than the only one, and none of them is the cool blue that means "mine".
@@ -151,6 +151,8 @@ const _SERVICE_COLOURS := {
 	"TEMPLE": Color(0.96, 0.95, 0.88),
 	"GUARD": Color(0.86, 0.30, 0.28),
 	"WARD_STONE": Color(0.72, 0.58, 0.96),
+	"TOWN": Color(0.78, 0.60, 0.37),
+	"POST_OFFICE": Color(0.89, 0.84, 0.72),
 }
 
 ## Each kind's outline, as points around its centre at radius one, screen y down. A kind with no entry - the
@@ -173,6 +175,13 @@ const _SERVICE_SHAPES := {
 	],
 	# A standing stone, narrower at the top.
 	"WARD_STONE": [Vector2(-0.35, -1.2), Vector2(0.35, -1.2), Vector2(0.55, 1.0), Vector2(-0.55, 1.0)],
+	# A sign on a post.
+	"TOWN": [
+		Vector2(-1.0, -1.1), Vector2(1.0, -1.1), Vector2(1.0, 0.0), Vector2(0.2, 0.0), Vector2(0.2, 1.1),
+		Vector2(-0.2, 1.1), Vector2(-0.2, 0.0), Vector2(-1.0, 0.0),
+	],
+	# A letter.
+	"POST_OFFICE": [Vector2(-1.1, -0.7), Vector2(1.1, -0.7), Vector2(1.1, 0.7), Vector2(-1.1, 0.7)],
 }
 
 ## Glyph size in pixels, and the dark rim drawn under it so it reads over any tile - the player marker's trick.
