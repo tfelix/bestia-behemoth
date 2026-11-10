@@ -28,6 +28,7 @@ const _WINDOW_KEYS := [
 	["Compendium", &"toggle_compendium"],
 	["Emotes", &"toggle_emotes"],
 	["Letters", &"toggle_letters"],
+	["Crafting", &"toggle_crafting"],
 	["Map", &"toggle_map"],
 	["Menu", &"ui_cancel"],
 ]

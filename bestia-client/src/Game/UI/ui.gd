@@ -548,6 +548,14 @@ func _on_master_profile_letters_win_toggled() -> void:
 	_letters_win.visible = !_letters_win.visible
 
 
+## Opening asks the server what can be made here; the window comes up when the answer does.
+func _on_master_profile_crafting_win_toggled() -> void:
+	if _crafting_win.visible:
+		_crafting_win.visible = false
+	elif ConnectionManager.is_ready_to_send():
+		ConnectionManager.open_crafting()
+
+
 ## Packing a parcel needs the bag in view, as selling at the auction house does.
 func _on_post_office_opened() -> void:
 	_post_office_win.visible = true
