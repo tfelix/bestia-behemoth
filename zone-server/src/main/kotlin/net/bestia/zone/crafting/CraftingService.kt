@@ -33,6 +33,11 @@ import net.bestia.zone.message.OperationSuccessSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.prop.PlayerStructureService
+import net.bestia.zone.prop.PlayerStructureRegistry
+import net.bestia.zone.prop.StructureEntry
+import net.bestia.zone.prop.Campfire
+import net.bestia.zone.entity.ecs.PlayerStructureIdentity
+import java.time.Clock
 import net.bestia.zone.crafting.ecs.KnownRecipes
 import net.bestia.zone.crafting.discovery.BlueprintPoints
 import net.bestia.zone.battle.ecs.status.CombatStats
@@ -83,7 +88,9 @@ class CraftingService(
   private val worldService: WorldService,
   private val crafters: Crafters,
   private val blueprintPoints: BlueprintPoints,
+  private val structureRegistry: PlayerStructureRegistry,
   private val metrics: GameMetrics = GameMetrics(),
+  private val clock: Clock = Clock.systemUTC(),
 ) : RecipeOffering {
 
   /** A crafting skill was cast: open the window with that skill picked. */
@@ -100,13 +107,24 @@ class CraftingService(
   fun openCrafting(world: World, crafterId: EntityId, masterEntityId: EntityId, skillId: Long) {
     val position = world.get(crafterId, Position::class)?.toVec3L()
     val candidates = if (skillId == NO_SKILL) recipes.stations() else recipes.stationsOf(skillId)
-    val station = position?.let { at -> candidates.firstOrNull { structures.stationNear(world, at, it) != null } }
+    val stationId = position?.let { at -> candidates.firstNotNullOfOrNull { structures.stationNear(world, at, it) } }
+    val structureId = stationId?.let { world.get(it, PlayerStructureIdentity::class)?.structureId }
 
-    offer(world, crafterId, masterEntityId, station, skillId)
+    offer(world, crafterId, masterEntityId, structureId?.let(structureRegistry::of), skillId)
   }
 
-  /** Opens the window for a station the crafter clicked. */
-  fun openAtStation(world: World, crafterId: EntityId, masterEntityId: EntityId, station: StaticEntityKind) {
+  /**
+   * Opens the window for a station the crafter clicked or tended. Unlike [openCrafting] this opens at a cold
+   * campfire too, so the player sees that it needs wood. A station out of reach opens the window where the
+   * crafter stands instead.
+   */
+  fun openAtStructure(world: World, crafterId: EntityId, masterEntityId: EntityId, structureId: Long) {
+    val station = structureRegistry.of(structureId)
+    val at = world.get(crafterId, Position::class)?.toVec3L()
+    if (station == null || at == null || at.distance(station.position) > PlayerStructureService.RANGE_TILES) {
+      return openCrafting(world, crafterId, masterEntityId, NO_SKILL)
+    }
+
     offer(world, crafterId, masterEntityId, station, NO_SKILL)
   }
 
@@ -122,7 +140,7 @@ class CraftingService(
     world: World,
     crafterId: EntityId,
     masterEntityId: EntityId,
-    station: StaticEntityKind?,
+    station: StructureEntry?,
     selectedSkillId: Long
   ) {
     val accountId = world.get(crafterId, Account::class)?.accountId ?: return
@@ -130,7 +148,7 @@ class CraftingService(
     val known = crafter.skills
     val inventory = world.get(crafterId, Inventory::class)
 
-    val offered = recipes.forStation(station)
+    val offered = recipes.forStation(station?.kind)
       .filter { known?.knowsSkill(it.requiredSkillId, it.requiredSkillLevel) == true }
       .filter { crafter.knowsBlueprint(it) }
       // Only a producing recipe can be judged here: the tier that matters for the other three is the tier of
@@ -140,7 +158,13 @@ class CraftingService(
 
     outMessageProcessor.sendToPlayer(
       accountId,
-      CraftableRecipesSMSG(skillId = selectedSkillId, station = station, recipes = offered)
+      CraftableRecipesSMSG(
+        skillId = selectedSkillId,
+        station = station?.kind,
+        recipes = offered,
+        structureId = station?.id ?: 0,
+        fuelSeconds = station?.burnsOutAt?.let { Campfire.secondsLeft(it, clock.instant()) } ?: 0
+      )
     )
   }
 

@@ -19,12 +19,14 @@ class OpenCraftingHandler(
   }
 
   override fun handle(world: World, msg: OpenCraftingCMSG): Boolean {
-    craftingService.openCrafting(
-      world = world,
-      crafterId = connectionInfoService.getActiveEntityId(msg.playerId),
-      masterEntityId = connectionInfoService.getSelectedMasterEntityId(msg.playerId),
-      skillId = msg.skillId
-    )
+    val crafterId = connectionInfoService.getActiveEntityId(msg.playerId)
+    val masterEntityId = connectionInfoService.getSelectedMasterEntityId(msg.playerId)
+
+    if (msg.structureId != 0L) {
+      craftingService.openAtStructure(world, crafterId, masterEntityId, msg.structureId)
+    } else {
+      craftingService.openCrafting(world, crafterId, masterEntityId, msg.skillId)
+    }
 
     return true
   }

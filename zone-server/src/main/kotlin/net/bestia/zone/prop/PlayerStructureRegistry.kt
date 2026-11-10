@@ -1,5 +1,6 @@
 package net.bestia.zone.prop
 
+import java.time.Instant
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.geometry.Vec3L
@@ -20,13 +21,26 @@ data class StructureEntry(
 
   /** See [PlayerStructure.totalBuildSeconds]: 0 for something already standing. */
   val totalBuildSeconds: Float = 0f,
-  val remainingBuildSeconds: Float = 0f
+  val remainingBuildSeconds: Float = 0f,
+
+  /** See [PlayerStructure.burnsOutAt]. */
+  val burnsOutAt: Instant? = null
 ) {
 
   val isUnderConstruction: Boolean
     get() {
       return totalBuildSeconds > 0f
     }
+
+  /** Whether anybody can work here now. Only a campfire can stop: it has to be burning. */
+  fun canWorkAt(now: Instant): Boolean {
+    return burnsOutAt == null || now < burnsOutAt
+  }
+
+  /** Whether a campfire has been cold long enough to be gone. Never true for anything else. */
+  fun isGoneAt(now: Instant): Boolean {
+    return burnsOutAt != null && now >= burnsOutAt + Campfire.COLD_UNTIL_GONE
+  }
 }
 
 /**
@@ -131,6 +145,19 @@ class PlayerStructureRegistry(
     }
   }
 
+  /** Records when a campfire runs out of wood, so a restart keeps the fire it had. */
+  fun setBurnsOutAt(structureId: Long, burnsOutAt: Instant) {
+    val current = byId[structureId] ?: return
+    reindex(current.copy(burnsOutAt = burnsOutAt))
+
+    asyncJobExecutor.submit(structureId) {
+      repository.findById(structureId).ifPresent { row ->
+        row.burnsOutAt = burnsOutAt
+        repository.save(row)
+      }
+    }
+  }
+
   /**
    * Turns a site into a standing structure. Idempotent, and a no-op for one that was never a site.
    *
@@ -179,7 +206,7 @@ class PlayerStructureRegistry(
     repository.findAll().forEach { row ->
       val entry = StructureEntry(
         row.id, row.kind, row.ownerMasterId, row.ownerAccountId, Vec3L(row.x, row.y, row.z), row.yaw,
-        row.totalBuildSeconds, row.remainingBuildSeconds
+        row.totalBuildSeconds, row.remainingBuildSeconds, row.burnsOutAt
       )
       index(row.chunkX, row.chunkY, entry)
     }

@@ -79,10 +79,11 @@ class InteractEntityHandler(
 
     // The component every player-built structure carries and nothing else does, so this needs no second
     // list of which kinds a player can build.
-    if (world.has(targetId, PlayerStructureIdentity::class)) {
-      val station = world.get(targetId, StaticVisual::class)?.kind ?: return null
+    val structure = world.get(targetId, PlayerStructureIdentity::class)
+    if (structure != null) {
       val accountId = world.get(actorId, Account::class)?.accountId ?: return null
-      crafting.openAtStation(world, actorId, connectionInfoService.getSelectedMasterEntityId(accountId), station)
+      val masterEntityId = connectionInfoService.getSelectedMasterEntityId(accountId)
+      crafting.openAtStructure(world, actorId, masterEntityId, structure.structureId)
       return null
     }
 

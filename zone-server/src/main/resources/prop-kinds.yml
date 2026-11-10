@@ -211,6 +211,12 @@ kinds:
     collider: { half-x: 2, half-y: 1, height: 2 }
     variants: 1
 
+  # Cold and lit, which `Campfire` picks from how long it has left to burn.
+  - kind: CAMPFIRE
+    max-hp: 60
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 2
+
   # Building pieces. What they block comes from `structure-pieces.yml`, not from `collider`.
   - kind: STRUCTURE_WALL
     max-hp: 300

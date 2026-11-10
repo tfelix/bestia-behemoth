@@ -1,5 +1,7 @@
 package net.bestia.zone.prop
 
+import java.time.Clock
+import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
@@ -36,10 +38,11 @@ class PlayerStructureService(
   private val worldService: WorldService,
   private val events: ApplicationEventPublisher,
   private val collision: StructureCollision,
+  private val clock: Clock = Clock.systemUTC(),
 ) {
 
   /**
-   * The nearest station of [kind] within [RANGE_TILES] of [around], or null.
+   * The nearest working station of [kind] within [RANGE_TILES] of [around], or null. A cold campfire is not one.
    *
    * Goes through the interest index rather than the structure registry, and that is the point: a station is
    * only usable if it *exists in the world*, and a station whose column is not resident does not. Asking the
@@ -47,7 +50,13 @@ class PlayerStructureService(
    */
   fun stationNear(world: World, around: Vec3L, kind: StaticEntityKind): EntityId? =
     aoi.queryEntitiesInCube(around, RANGE_TILES * 2, setOf(AoiLayer.STATIC))
-      .firstOrNull { world.get(it, StaticVisual::class)?.kind == kind }
+      .firstOrNull { world.get(it, StaticVisual::class)?.kind == kind && canWork(world, it) }
+
+  private fun canWork(world: World, stationId: EntityId): Boolean {
+    val structureId = world.get(stationId, PlayerStructureIdentity::class)?.structureId ?: return true
+
+    return structures.of(structureId)?.canWorkAt(clock.instant()) != false
+  }
 
   /**
    * The nearest site of [kind] being built within [RANGE_TILES] of [around], or null.
@@ -138,6 +147,9 @@ class PlayerStructureService(
     }
 
     structures.finish(site.structureId, settled)
+    if (site.kind == StaticEntityKind.CAMPFIRE) {
+      structures.setBurnsOutAt(site.structureId, clock.instant() + Campfire.FIRST_BURN)
+    }
 
     val entry = structures.of(site.structureId)
     if (entry == null) {

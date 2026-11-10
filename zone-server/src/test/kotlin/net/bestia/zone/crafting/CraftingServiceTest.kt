@@ -1,5 +1,8 @@
 package net.bestia.zone.crafting
 
+import java.time.Instant
+import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.prop.StructureEntry
 import net.bestia.zone.item.material.ItemMaterial
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.stat.ItemStatSheet
@@ -454,6 +457,38 @@ class CraftingServiceTest {
     assertNull(sent().station)
     assertEquals(SKILL_ID, sent().skillId)
     assertEquals(listOf(anywhere.id), sent().recipes.map { it.recipeId })
+  }
+
+  /** A cold fire is still opened, so the player sees that it needs wood rather than a list of nothing. */
+  @Test
+  fun `a campfire opens with how long it has left to burn`() {
+    val stew = recipe(id = 19, identifier = "STEW", station = StaticEntityKind.CAMPFIRE)
+    val fixture = CraftingFixture(listOf(stew))
+    val crafter = fixture.givenCrafter(knownSkills = mapOf(SKILL_ID to 1))
+    val burnsOutAt = Instant.now().plusSeconds(600)
+    fixture.givenStructure(
+      StructureEntry(77L, StaticEntityKind.CAMPFIRE, MASTER_ID, ACCOUNT_ID, Vec3L(1, 0, 0), yaw = 0f, burnsOutAt = burnsOutAt)
+    )
+    val sent = fixture.captureOffer()
+
+    fixture.service.openAtStructure(fixture.world, crafter, crafter, 77L)
+
+    assertEquals(77L, sent().structureId)
+    assertEquals(listOf(stew.id), sent().recipes.map { it.recipeId })
+    assertTrue(sent().fuelSeconds in 590..600)
+  }
+
+  @Test
+  fun `a station out of reach opens the window where the crafter stands`() {
+    val stew = recipe(id = 20, identifier = "STEW", station = StaticEntityKind.CAMPFIRE)
+    val fixture = CraftingFixture(listOf(stew))
+    val crafter = fixture.givenCrafter(knownSkills = mapOf(SKILL_ID to 1))
+    fixture.givenStructure(StructureEntry(78L, StaticEntityKind.CAMPFIRE, MASTER_ID, ACCOUNT_ID, Vec3L(40, 0, 0), yaw = 0f))
+    val sent = fixture.captureOffer()
+
+    fixture.service.openAtStructure(fixture.world, crafter, crafter, 78L)
+
+    assertNull(sent().station)
   }
 
   @Test

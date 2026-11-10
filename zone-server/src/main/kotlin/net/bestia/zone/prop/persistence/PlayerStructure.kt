@@ -1,5 +1,6 @@
 package net.bestia.zone.prop.persistence
 
+import java.time.Instant
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -86,7 +87,11 @@ class PlayerStructure(
 
   /** Work still owed. Only meaningful while [totalBuildSeconds] is non-zero. */
   @Column(name = "remaining_build_seconds", nullable = false)
-  var remainingBuildSeconds: Float = 0f
+  var remainingBuildSeconds: Float = 0f,
+
+  /** When a campfire runs out of wood, or null for a structure that burns nothing. See [net.bestia.zone.prop.Campfire]. */
+  @Column(name = "burns_out_at")
+  var burnsOutAt: Instant? = null
 ) {
 
   @Id
