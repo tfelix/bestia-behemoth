@@ -25,14 +25,18 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci5tZXNzYWdlcy9hdWN0aW9uL2F1Y3Rpb25faG91c2Vfb3Blbl9zbXNnLnBy",
-            "b3RvEgRibmV0Il0KFEF1Y3Rpb25Ib3VzZU9wZW5TTVNHEhcKD2hvdXNlX2Vu",
-            "dGl0eV9pZBgBIAEoBBIRCgl0b3duX25hbWUYAiABKAkSGQoRbGlua2VkX3Rv",
-            "d25fbmFtZXMYAyADKAlCMgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhlBdWN0",
-            "aW9uSG91c2VPcGVuU21zZ1Byb3RvYgZwcm90bzM="));
+            "b3RvEgRibmV0IosCChRBdWN0aW9uSG91c2VPcGVuU01TRxIXCg9ob3VzZV9l",
+            "bnRpdHlfaWQYASABKAQSEQoJdG93bl9uYW1lGAIgASgJEhkKEWxpbmtlZF90",
+            "b3duX25hbWVzGAMgAygJEhIKCm93bmVyX25hbWUYBCABKAkSGQoRb3duZXJf",
+            "ZmVlX3BlcmNlbnQYBSABKAUSEAoIaXNfb3duZXIYBiABKAgSHQoVbWF4X293",
+            "bmVyX2ZlZV9wZXJjZW50GAcgASgFEgwKBHRpbGwYCCABKAMSJwofZmVlX2No",
+            "YW5nZWFibGVfYXRfZXBvY2hfc2Vjb25kcxgJIAEoAxIVCg1jYW5fdGVhcl9k",
+            "b3duGAogASgIQjIKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IZQXVjdGlvbkhv",
+            "dXNlT3BlblNtc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.AuctionHouseOpenSMSG), global::Bnet.AuctionHouseOpenSMSG.Parser, new[]{ "HouseEntityId", "TownName", "LinkedTownNames" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.AuctionHouseOpenSMSG), global::Bnet.AuctionHouseOpenSMSG.Parser, new[]{ "HouseEntityId", "TownName", "LinkedTownNames", "OwnerName", "OwnerFeePercent", "IsOwner", "MaxOwnerFeePercent", "Till", "FeeChangeableAtEpochSeconds", "CanTearDown" }, null, null, null, null)
           }));
     }
     #endregion
@@ -80,6 +84,13 @@ namespace Bnet {
       houseEntityId_ = other.houseEntityId_;
       townName_ = other.townName_;
       linkedTownNames_ = other.linkedTownNames_.Clone();
+      ownerName_ = other.ownerName_;
+      ownerFeePercent_ = other.ownerFeePercent_;
+      isOwner_ = other.isOwner_;
+      maxOwnerFeePercent_ = other.maxOwnerFeePercent_;
+      till_ = other.till_;
+      feeChangeableAtEpochSeconds_ = other.feeChangeableAtEpochSeconds_;
+      canTearDown_ = other.canTearDown_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -130,6 +141,105 @@ namespace Bnet {
       get { return linkedTownNames_; }
     }
 
+    /// <summary>Field number for the "owner_name" field.</summary>
+    public const int OwnerNameFieldNumber = 4;
+    private string ownerName_ = "";
+    /// <summary>
+    /// Empty at a start town's house, which has no owner.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string OwnerName {
+      get { return ownerName_; }
+      set {
+        ownerName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "owner_fee_percent" field.</summary>
+    public const int OwnerFeePercentFieldNumber = 5;
+    private int ownerFeePercent_;
+    /// <summary>
+    /// Charged on every new listing, on top of the listing fee.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int OwnerFeePercent {
+      get { return ownerFeePercent_; }
+      set {
+        ownerFeePercent_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "is_owner" field.</summary>
+    public const int IsOwnerFieldNumber = 6;
+    private bool isOwner_;
+    /// <summary>
+    /// Only for the owner: what they may set and what waits to be collected.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool IsOwner {
+      get { return isOwner_; }
+      set {
+        isOwner_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "max_owner_fee_percent" field.</summary>
+    public const int MaxOwnerFeePercentFieldNumber = 7;
+    private int maxOwnerFeePercent_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int MaxOwnerFeePercent {
+      get { return maxOwnerFeePercent_; }
+      set {
+        maxOwnerFeePercent_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "till" field.</summary>
+    public const int TillFieldNumber = 8;
+    private long till_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long Till {
+      get { return till_; }
+      set {
+        till_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "fee_changeable_at_epoch_seconds" field.</summary>
+    public const int FeeChangeableAtEpochSecondsFieldNumber = 9;
+    private long feeChangeableAtEpochSeconds_;
+    /// <summary>
+    /// When the owner may change the fee again. Zero when they may now.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long FeeChangeableAtEpochSeconds {
+      get { return feeChangeableAtEpochSeconds_; }
+      set {
+        feeChangeableAtEpochSeconds_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "can_tear_down" field.</summary>
+    public const int CanTearDownFieldNumber = 10;
+    private bool canTearDown_;
+    /// <summary>
+    /// Whether the owner may tear the house down: no listing is up in it.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool CanTearDown {
+      get { return canTearDown_; }
+      set {
+        canTearDown_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -148,6 +258,13 @@ namespace Bnet {
       if (HouseEntityId != other.HouseEntityId) return false;
       if (TownName != other.TownName) return false;
       if(!linkedTownNames_.Equals(other.linkedTownNames_)) return false;
+      if (OwnerName != other.OwnerName) return false;
+      if (OwnerFeePercent != other.OwnerFeePercent) return false;
+      if (IsOwner != other.IsOwner) return false;
+      if (MaxOwnerFeePercent != other.MaxOwnerFeePercent) return false;
+      if (Till != other.Till) return false;
+      if (FeeChangeableAtEpochSeconds != other.FeeChangeableAtEpochSeconds) return false;
+      if (CanTearDown != other.CanTearDown) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -158,6 +275,13 @@ namespace Bnet {
       if (HouseEntityId != 0UL) hash ^= HouseEntityId.GetHashCode();
       if (TownName.Length != 0) hash ^= TownName.GetHashCode();
       hash ^= linkedTownNames_.GetHashCode();
+      if (OwnerName.Length != 0) hash ^= OwnerName.GetHashCode();
+      if (OwnerFeePercent != 0) hash ^= OwnerFeePercent.GetHashCode();
+      if (IsOwner != false) hash ^= IsOwner.GetHashCode();
+      if (MaxOwnerFeePercent != 0) hash ^= MaxOwnerFeePercent.GetHashCode();
+      if (Till != 0L) hash ^= Till.GetHashCode();
+      if (FeeChangeableAtEpochSeconds != 0L) hash ^= FeeChangeableAtEpochSeconds.GetHashCode();
+      if (CanTearDown != false) hash ^= CanTearDown.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -185,6 +309,34 @@ namespace Bnet {
         output.WriteString(TownName);
       }
       linkedTownNames_.WriteTo(output, _repeated_linkedTownNames_codec);
+      if (OwnerName.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(OwnerName);
+      }
+      if (OwnerFeePercent != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(OwnerFeePercent);
+      }
+      if (IsOwner != false) {
+        output.WriteRawTag(48);
+        output.WriteBool(IsOwner);
+      }
+      if (MaxOwnerFeePercent != 0) {
+        output.WriteRawTag(56);
+        output.WriteInt32(MaxOwnerFeePercent);
+      }
+      if (Till != 0L) {
+        output.WriteRawTag(64);
+        output.WriteInt64(Till);
+      }
+      if (FeeChangeableAtEpochSeconds != 0L) {
+        output.WriteRawTag(72);
+        output.WriteInt64(FeeChangeableAtEpochSeconds);
+      }
+      if (CanTearDown != false) {
+        output.WriteRawTag(80);
+        output.WriteBool(CanTearDown);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -204,6 +356,34 @@ namespace Bnet {
         output.WriteString(TownName);
       }
       linkedTownNames_.WriteTo(ref output, _repeated_linkedTownNames_codec);
+      if (OwnerName.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(OwnerName);
+      }
+      if (OwnerFeePercent != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(OwnerFeePercent);
+      }
+      if (IsOwner != false) {
+        output.WriteRawTag(48);
+        output.WriteBool(IsOwner);
+      }
+      if (MaxOwnerFeePercent != 0) {
+        output.WriteRawTag(56);
+        output.WriteInt32(MaxOwnerFeePercent);
+      }
+      if (Till != 0L) {
+        output.WriteRawTag(64);
+        output.WriteInt64(Till);
+      }
+      if (FeeChangeableAtEpochSeconds != 0L) {
+        output.WriteRawTag(72);
+        output.WriteInt64(FeeChangeableAtEpochSeconds);
+      }
+      if (CanTearDown != false) {
+        output.WriteRawTag(80);
+        output.WriteBool(CanTearDown);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -221,6 +401,27 @@ namespace Bnet {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(TownName);
       }
       size += linkedTownNames_.CalculateSize(_repeated_linkedTownNames_codec);
+      if (OwnerName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(OwnerName);
+      }
+      if (OwnerFeePercent != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(OwnerFeePercent);
+      }
+      if (IsOwner != false) {
+        size += 1 + 1;
+      }
+      if (MaxOwnerFeePercent != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(MaxOwnerFeePercent);
+      }
+      if (Till != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(Till);
+      }
+      if (FeeChangeableAtEpochSeconds != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(FeeChangeableAtEpochSeconds);
+      }
+      if (CanTearDown != false) {
+        size += 1 + 1;
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -240,6 +441,27 @@ namespace Bnet {
         TownName = other.TownName;
       }
       linkedTownNames_.Add(other.linkedTownNames_);
+      if (other.OwnerName.Length != 0) {
+        OwnerName = other.OwnerName;
+      }
+      if (other.OwnerFeePercent != 0) {
+        OwnerFeePercent = other.OwnerFeePercent;
+      }
+      if (other.IsOwner != false) {
+        IsOwner = other.IsOwner;
+      }
+      if (other.MaxOwnerFeePercent != 0) {
+        MaxOwnerFeePercent = other.MaxOwnerFeePercent;
+      }
+      if (other.Till != 0L) {
+        Till = other.Till;
+      }
+      if (other.FeeChangeableAtEpochSeconds != 0L) {
+        FeeChangeableAtEpochSeconds = other.FeeChangeableAtEpochSeconds;
+      }
+      if (other.CanTearDown != false) {
+        CanTearDown = other.CanTearDown;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -271,6 +493,34 @@ namespace Bnet {
             linkedTownNames_.AddEntriesFrom(input, _repeated_linkedTownNames_codec);
             break;
           }
+          case 34: {
+            OwnerName = input.ReadString();
+            break;
+          }
+          case 40: {
+            OwnerFeePercent = input.ReadInt32();
+            break;
+          }
+          case 48: {
+            IsOwner = input.ReadBool();
+            break;
+          }
+          case 56: {
+            MaxOwnerFeePercent = input.ReadInt32();
+            break;
+          }
+          case 64: {
+            Till = input.ReadInt64();
+            break;
+          }
+          case 72: {
+            FeeChangeableAtEpochSeconds = input.ReadInt64();
+            break;
+          }
+          case 80: {
+            CanTearDown = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -300,6 +550,34 @@ namespace Bnet {
           }
           case 26: {
             linkedTownNames_.AddEntriesFrom(ref input, _repeated_linkedTownNames_codec);
+            break;
+          }
+          case 34: {
+            OwnerName = input.ReadString();
+            break;
+          }
+          case 40: {
+            OwnerFeePercent = input.ReadInt32();
+            break;
+          }
+          case 48: {
+            IsOwner = input.ReadBool();
+            break;
+          }
+          case 56: {
+            MaxOwnerFeePercent = input.ReadInt32();
+            break;
+          }
+          case 64: {
+            Till = input.ReadInt64();
+            break;
+          }
+          case 72: {
+            FeeChangeableAtEpochSeconds = input.ReadInt64();
+            break;
+          }
+          case 80: {
+            CanTearDown = input.ReadBool();
             break;
           }
         }

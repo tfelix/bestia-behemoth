@@ -1,7 +1,8 @@
 class_name AuctionHousePanel
 extends PanelContainer
 
-## The auction house: browse the shared market and sell. What the market owes comes by post.
+## The auction house: browse the market and sell. What the market owes comes by post. At a player's house its
+## owner also sets the fee and empties the till here.
 ##
 ## Opened by the server when the player clicks a house in reach, and closed by walking away, like the shop.
 ## Built in code, like [CompendiumPanel].
@@ -13,13 +14,14 @@ signal auction_closed()
 ## player stood within reach of a wall and may walk along a sixteen-metre hall without meaning to leave.
 const _WALK_AWAY_METRES := 10.0
 
-enum Tab { BROWSE, SELL }
+enum Tab { BROWSE, SELL, OWNER }
 
 ## Assigned by ui.gd, like the shop's: the window only exists once its WidgetWindow is ready.
 var inventory: Inventory = null:
 	set(value):
 		inventory = value
 		inventory.gold_changed.connect(_show_gold)
+		_sell.inventory = value
 
 ## The house the window is open at. Zero while closed. Every request names it.
 var _house_entity_id: int = 0
@@ -29,6 +31,8 @@ var _town: Label
 var _linked: Label
 var _tabs: TabContainer
 var _browse: AuctionBrowsePage
+var _sell: AuctionSellPage
+var _owner: AuctionOwnerPage
 
 
 func _ready() -> void:
@@ -69,9 +73,16 @@ func _on_opened(msg: AuctionHouseOpenSMSG) -> void:
 	set_process(player != null)
 
 	_town.text = tr("AUCTION_TITLE") % msg.TownName
+	if not msg.OwnerName.is_empty():
+		_town.text += "  ·  " + tr("AUCTION_OWNED_BY") % [msg.OwnerName, msg.OwnerFeePercent]
 	_linked.text = tr("AUCTION_LINKED") % ", ".join(msg.LinkedTownNames)
 
 	_browse.house_entity_id = _house_entity_id
+	_sell.house_entity_id = _house_entity_id
+	_sell.owner_fee_percent = msg.OwnerFeePercent
+	_tabs.set_tab_hidden(Tab.OWNER, not msg.IsOwner)
+	if msg.IsOwner:
+		_owner.show_house(msg)
 	_show_gold()
 
 	if not was_open:
@@ -112,12 +123,12 @@ func _build() -> void:
 
 	_browse = AuctionBrowsePage.new()
 	_tabs.add_child(_browse)
-	_tabs.add_child(_placeholder_page(tr("AUCTION_SELL_EMPTY")))
+	_sell = AuctionSellPage.new()
+	_tabs.add_child(_sell)
+	_owner = AuctionOwnerPage.new()
+	_tabs.add_child(_owner)
 	_tabs.set_tab_title(Tab.BROWSE, tr("AUCTION_TAB_BROWSE"))
 	_tabs.set_tab_title(Tab.SELL, tr("AUCTION_TAB_SELL"))
-
-
-func _placeholder_page(text: String) -> Control:
-	var page := CenterContainer.new()
-	page.add_child(UiStyle.label(text, 13, UiStyle.MUTED))
-	return page
+	_tabs.set_tab_title(Tab.OWNER, tr("AUCTION_TAB_OWNER"))
+	_tabs.set_tab_hidden(Tab.OWNER, true)
+	_tabs.tab_changed.connect(func(tab: int) -> void: if tab == Tab.SELL: _sell.refresh())

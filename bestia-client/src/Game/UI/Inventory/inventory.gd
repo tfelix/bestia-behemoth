@@ -666,6 +666,13 @@ func sellable_held() -> Array:
 	)
 
 
+## What can be put up at an auction: every pile and copy held and not worn, coins aside.
+func sellable_piles() -> Array:
+	return _items.get(selected_entity_id, []).filter(
+		func(held) -> bool: return not held.equipped and held.item != null and held.item.item_id != GOLD_COIN_ITEM_ID
+	)
+
+
 func gold() -> int:
 	return _count_by_item(_items.get(selected_entity_id, [])).get(GOLD_COIN_ITEM_ID, 0)
 

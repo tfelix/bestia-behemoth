@@ -3,18 +3,21 @@ extends PanelContainer
 
 ## One listing on the board: what it is, who sells it, how long it stays, and what it costs.
 
-signal buy_pressed(listing: AuctionListingEntry)
+## The row's one button: Buy on the board, Take down among the seller's own listings.
+signal action_pressed(listing: AuctionListingEntry)
 
 ## Column widths, shared with the header so the two line up.
 const COLUMNS := {"level": 36, "amount": 40, "seller": 110, "time": 56, "unit": 80, "price": 92, "action": 64}
 
 var _listing: AuctionListingEntry
 var _item: ItemResource
+var _action_key: String
 
 
-func _init(listing: AuctionListingEntry, item: ItemResource) -> void:
+func _init(listing: AuctionListingEntry, item: ItemResource, action_key: String = "AUCTION_BUY") -> void:
 	_listing = listing
 	_item = item
+	_action_key = action_key
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	add_theme_stylebox_override("panel", UiStyle.flat(UiStyle.ROW_BG, 3, 5))
 	mouse_entered.connect(func() -> void: add_theme_stylebox_override("panel", UiStyle.flat(UiStyle.ROW_HOVER_BG, 3, 5)))
@@ -74,11 +77,11 @@ func _build() -> void:
 	row.add_child(AuctionFormat.price(unit, COLUMNS["unit"], UiStyle.MUTED))
 	row.add_child(AuctionFormat.price(_listing.Price, COLUMNS["price"]))
 
-	var buy := Button.new()
-	buy.text = tr("AUCTION_BUY")
-	buy.custom_minimum_size = Vector2(COLUMNS["action"], 0)
-	buy.pressed.connect(func() -> void: buy_pressed.emit(_listing))
-	row.add_child(buy)
+	var action := Button.new()
+	action.text = tr(_action_key)
+	action.custom_minimum_size = Vector2(COLUMNS["action"], 0)
+	action.pressed.connect(func() -> void: action_pressed.emit(_listing))
+	row.add_child(action)
 
 
 static func _cell(control: Control, width: int) -> Control:

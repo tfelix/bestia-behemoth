@@ -535,3 +535,7 @@ POST_OFFICE_KIT,Post Office Kit
 POST_OFFICE_KIT_DESC,"Beams, a counter, sorting shelves and a post horn, lashed onto a sledge.
 
 Set it down inside a town without a post office, and the post will run it once it is built."
+AUCTION_HOUSE_KIT,Auction House Kit
+AUCTION_HOUSE_KIT_DESC,"A hall's worth of beams, a long counter and a ledger chained to it.
+
+Trade Post Owner raises it as an auction house, in a town with a post office."
