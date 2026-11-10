@@ -471,6 +471,18 @@ class BudgetedSkillWorld(
     }
   }
 
+  override fun replant(at: Vec3L, growthPercent: Int, bonusYield: Int): Boolean {
+    budget.charge()
+
+    return services.planting?.plant(world, at, growthPercent, bonusYield) == true
+  }
+
+  override fun pitchCamp(at: Vec3L, level: Int, durationSeconds: Long): Boolean {
+    budget.charge(SPAWN_OPS)
+
+    return services.camps?.pitch(world, casterId, skillId, at, level, durationSeconds) == true
+  }
+
   override fun isKnockbackImmune(entityId: EntityId): Boolean {
     budget.charge()
 

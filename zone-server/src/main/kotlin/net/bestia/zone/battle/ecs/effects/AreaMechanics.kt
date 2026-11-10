@@ -53,6 +53,9 @@ data class AreaMechanics(
 
   /** Pushes a foe back the way it came, against its facing, instead of away from the centre. */
   val knockbackAgainstFacing: Boolean = false,
+
+  /** Its ally side is the caster's party and their bestias only, as a camp is; other players get nothing. */
+  val partyOnly: Boolean = false,
 ) {
 
   val drifts: Boolean

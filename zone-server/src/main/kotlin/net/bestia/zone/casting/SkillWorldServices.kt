@@ -1,5 +1,7 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.casting.camp.BaseCamps
+import net.bestia.zone.prop.TreePlanting
 import net.bestia.zone.battle.ecs.skill.CastCancelService
 import net.bestia.zone.item.enchant.GroundItemDispel
 import net.bestia.zone.item.loot.LootItemEntitySpawner
@@ -43,4 +45,6 @@ class SkillWorldServices(
   val gear: GearOperations,
   val groundItemDispel: GroundItemDispel,
   val strikes: SkillStrikes? = null,
+  val planting: TreePlanting? = null,
+  val camps: BaseCamps? = null,
 )

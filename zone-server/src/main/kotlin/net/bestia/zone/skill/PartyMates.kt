@@ -37,6 +37,14 @@ object PartyMates {
     return near
   }
 
+  /** Whether [otherId] is [casterId] itself, one of its party, or a bestia either of them owns. */
+  fun isPartyOf(world: World, casterId: EntityId, otherId: EntityId): Boolean {
+    val casterMasterId = masterIdOf(world, casterId) ?: return otherId == casterId
+    val otherMasterId = masterIdOf(world, otherId) ?: return false
+
+    return otherMasterId == casterMasterId || otherMasterId in partyMasterIdsOf(world, casterMasterId)
+  }
+
   private fun masterIdOf(world: World, entityId: EntityId): Long? {
     return world.get(entityId, Master::class)?.masterId ?: world.get(entityId, OwnedBestia::class)?.masterId
   }

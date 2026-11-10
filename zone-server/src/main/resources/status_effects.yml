@@ -559,3 +559,11 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: Sprinting
+
+  - id: 203
+    identifier: CAMPED
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    dispellable: false
+    script: Camped

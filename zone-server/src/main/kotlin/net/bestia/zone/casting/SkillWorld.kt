@@ -162,6 +162,15 @@ interface SkillWorld {
    */
   fun callOwnBestias(): Int
 
+  /**
+   * Plants a sapling in the tree stump at [at], growing at [growthPercent] of the usual time and carrying
+   * [bonusYield] extra loot for when it is felled grown. False when no stump stands there. One operation.
+   */
+  fun replant(at: Vec3L, growthPercent: Int, bonusYield: Int): Boolean
+
+  /** Makes the burning campfire near [at] the caster's Base Camp for [durationSeconds]; false without one. One op. */
+  fun pitchCamp(at: Vec3L, level: Int, durationSeconds: Long): Boolean
+
   /** Whether a blow or a blast may not push [entityId] back, see [net.bestia.zone.battle.Knockback]. One operation. */
   fun isKnockbackImmune(entityId: EntityId): Boolean
 

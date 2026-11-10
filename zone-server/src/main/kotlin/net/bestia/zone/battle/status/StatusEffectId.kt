@@ -84,7 +84,8 @@ enum class StatusEffectId(val id: Long) {
   // The master skill tree's own effects, from id 200.
   RITUAL_CHARGE(200),
   RITUAL_FATIGUE(201),
-  SPRINTING(202);
+  SPRINTING(202),
+  CAMPED(203);
 
   companion object {
     private val byId = entries.associateBy { it.id }
