@@ -29,6 +29,7 @@ class CarryCapacity(
   var lastKnownStrength: Int = -1
   var lastKnownVitality: Int = -1
   var lastKnownLevel: Int = -1
+  var lastKnownExtraPercent: Int = -1
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return CarryCapacityComponentSMSG(

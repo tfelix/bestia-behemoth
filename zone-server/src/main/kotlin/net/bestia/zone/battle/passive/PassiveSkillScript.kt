@@ -50,4 +50,12 @@ interface PassiveSkillScript {
    * equipment, so the context already says what is held and worn.
    */
   fun apply(context: StatusValueRecalcContext, level: Int)
+
+  /**
+   * What a passive that [reachesOwnedBestias] does to a bestia at its master's [level]; the same as for the master
+   * unless a script says otherwise, like Expert Taming, which is for the bestias alone.
+   */
+  fun applyToBestia(context: StatusValueRecalcContext, level: Int) {
+    apply(context, level)
+  }
 }

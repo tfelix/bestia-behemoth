@@ -69,21 +69,27 @@ class CarryCapacitySystem(
    * there is nothing to see in between.
    */
   private fun recomputeMax(world: World, id: EntityId, capacity: CarryCapacity) {
-    val status = world.get(id, CombatStats::class)?.values?.attributes ?: return
+    val combat = world.get(id, CombatStats::class)?.values ?: return
+    val status = combat.attributes
     val level = world.get(id, Level::class)?.level ?: return
+    val extraPercent = combat.carryCapacityPercent
 
     if (capacity.lastKnownStrength == status.strength &&
       capacity.lastKnownVitality == status.vitality &&
-      capacity.lastKnownLevel == level
+      capacity.lastKnownLevel == level &&
+      capacity.lastKnownExtraPercent == extraPercent
     ) {
       return
     }
 
-    capacity.max = weightLimitCalculator.computeWeightLimit(
+    val base = weightLimitCalculator.computeWeightLimit(
       strength = status.strength,
       vitality = status.vitality,
       level = level
     )
+    // Better packing, as Maximize Carry Capacity teaches, on top of what the body carries.
+    capacity.max = base * (100 + extraPercent) / 100
+    capacity.lastKnownExtraPercent = extraPercent
     capacity.lastKnownStrength = status.strength
     capacity.lastKnownVitality = status.vitality
     capacity.lastKnownLevel = level

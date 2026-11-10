@@ -35,6 +35,7 @@ class EquipmentStatusContributor(
     context.rangedWeapon = rightHand?.let { templates.templateOf(it.itemId)?.rangedWeapon }
 
     context.heldWeaponType = rightHand?.let { templates.templateOf(it.itemId)?.weaponType }
+    context.heldTool = rightHand?.let { templates.templateOf(it.itemId)?.toolKind }
     context.offHandWeaponType = worn[EquipmentSlot.LEFT_HAND]?.let { templates.templateOf(it.itemId)?.weaponType }
     context.bodyArmorType = worn[EquipmentSlot.ARMOR]?.let { templates.templateOf(it.itemId)?.armorType }
     context.shieldArmorType = worn[EquipmentSlot.LEFT_HAND]?.let { templates.templateOf(it.itemId)?.armorType }
