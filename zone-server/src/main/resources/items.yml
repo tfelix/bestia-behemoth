@@ -1537,3 +1537,15 @@ items:
       A cut gem with the essence of a Bestia bound inside. It glows with the creature's power.
 
       It fits into any socket.
+
+  # What makes wood burn: it turns a stick into a torch and lights a campfire. Trees drop it when felled.
+  - id: 123
+    item-db-name: resin
+    base-level: 1
+    weight: 5
+    type: ETC
+    material: WOOD
+    description: |
+      A sticky lump of tree resin.
+
+      It catches fire easily and burns hot.

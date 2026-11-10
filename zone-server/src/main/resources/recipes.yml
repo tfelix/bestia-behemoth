@@ -60,6 +60,18 @@ recipes:
     craftSeconds: 5.0
     baseSuccessChance: 0.8
 
+  # The torch every master starts with five of, so the first ones a player makes are no harder than the knife.
+  - id: 37
+    identifier: TORCH
+    effect: PRODUCE
+    output: { item: torch, amount: 1 }
+    inputs:
+      - { item: stick, amount: 1 }
+      - { item: resin, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    craftSeconds: 3.0
+    baseSuccessChance: 0.9
+
   # --- Craftsman tree, at a workbench --------------------------------------------------------------
 
   - id: 10

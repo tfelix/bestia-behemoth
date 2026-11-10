@@ -14,3 +14,7 @@ blueprints:
   - IRON_CUIRASS
   - PICKAXE
   - ARROW
+  # The basics every master can make by hand, from what lies on the ground and what a felled tree drops.
+  - STONE_KNIFE
+  - STONE_HATCHET
+  - TORCH
