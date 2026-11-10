@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BidAuctionCmsgProto";
+
+// Bids on a timed auction. The coin leaves the bag at once; answered by the refreshed board.
+message BidAuctionCMSG {
+  uint64 house_entity_id = 1;
+  uint64 listing_id = 2;
+  int64 amount = 3;
+}

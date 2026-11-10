@@ -5,7 +5,8 @@ package bnet;
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "ListAuctionItemCmsgProto";
 
-// Puts goods up at a fixed price. Answered by the seller's own listings, or by an OperationError.
+// Puts goods up at a fixed price, or as a timed auction. Answered by the seller's own listings, or by an
+// OperationError.
 message ListAuctionItemCMSG {
   uint64 house_entity_id = 1;
 
@@ -13,6 +14,11 @@ message ListAuctionItemCMSG {
   uint64 player_item_id = 2;
   int32 amount = 3;
 
-  // Coins for the whole lot.
+  // Coins for the whole lot: the fixed price, or an auction's starting bid.
   int64 price = 4;
+
+  // 0 for a fixed price; 1, 2 or 5 for an auction that runs that many days.
+  int32 duration_days = 5;
+  // A bid of this much ends the auction at once. 0 for none.
+  int64 buyout = 6;
 }

@@ -38,4 +38,19 @@ class AuctionFeesTest {
     assertEquals(5, AuctionFees.maxOwnerFeePercent(1))
     assertEquals(25, AuctionFees.maxOwnerFeePercent(5))
   }
+
+  @Test
+  fun `an auction's fee grows with how long it runs`() {
+    assertEquals(60, AuctionFees.listingFee(1000, days = 1))
+    assertEquals(100, AuctionFees.listingFee(1000, days = 2))
+    assertEquals(200, AuctionFees.listingFee(1000, days = 5))
+  }
+
+  @Test
+  fun `only known lengths and a buyout above the start are valid terms`() {
+    assertEquals(true, ListingTerms(100, days = 5, buyout = 101).isValid)
+    assertEquals(false, ListingTerms(100, days = 3).isValid)
+    assertEquals(false, ListingTerms(100, days = 1, buyout = 100).isValid)
+    assertEquals(false, ListingTerms(100, days = 0, buyout = 200).isValid)
+  }
 }

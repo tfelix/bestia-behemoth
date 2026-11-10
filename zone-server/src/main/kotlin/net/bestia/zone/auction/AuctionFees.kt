@@ -14,9 +14,19 @@ object AuctionFees {
   const val MIN_OWNER_FEE_PERCENT = 1
   const val OWNER_FEE_PERCENT_PER_LEVEL = 5
 
-  /** Rounded up to whole coins, and never free. */
+  /** A fixed-price listing's fee. */
   fun listingFee(price: Long): Long {
-    return maxOf(1L, ceil(price * FIXED_PRICE_RATE).toLong())
+    return listingFee(price, days = 0)
+  }
+
+  /** An auction's listing fee by how many days it runs, on the starting bid. */
+  val AUCTION_RATE_BY_DAYS: Map<Int, Double> = mapOf(1 to 0.06, 2 to 0.10, 5 to 0.20)
+
+  /** [days] 0 is a fixed price. Rounded up, and never free. */
+  fun listingFee(price: Long, days: Int): Long {
+    val rate = if (days == 0) FIXED_PRICE_RATE else AUCTION_RATE_BY_DAYS.getValue(days)
+
+    return maxOf(1L, ceil(price * rate).toLong())
   }
 
   /** Rounded up like every fee; nothing at a house with no owner. */

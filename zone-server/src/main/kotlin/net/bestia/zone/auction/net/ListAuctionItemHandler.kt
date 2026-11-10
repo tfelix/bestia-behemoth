@@ -16,7 +16,7 @@ class ListAuctionItemHandler(
   }
 
   override fun handle(msg: ListAuctionItemCMSG): Boolean {
-    auctionService.list(msg.playerId, msg.houseEntityId, msg.playerItemId, msg.amount, msg.price)
+    auctionService.list(msg.playerId, msg.houseEntityId, msg.playerItemId, msg.amount, msg.terms)
 
     return true
   }
