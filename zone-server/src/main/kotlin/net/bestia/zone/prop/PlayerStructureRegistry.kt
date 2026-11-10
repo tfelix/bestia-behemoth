@@ -217,6 +217,15 @@ class PlayerStructureRegistry(
     }
   }
 
+  /** The owner's camp chest standing next to [station], which pays its queue; null without one. */
+  fun chestBeside(station: StructureEntry): StructureEntry? {
+    return byId.values
+      .filter { it.kind == StaticEntityKind.CHEST && it.ownerMasterId == station.ownerMasterId }
+      .filter { !it.isUnderConstruction }
+      .filter { it.position.distance(station.position) <= PlayerStructureService.RANGE_TILES }
+      .minByOrNull { it.position.distance(station.position) }
+  }
+
   /** The station [playerBestiaId] works at, if any. */
   fun workplaceOf(playerBestiaId: Long): StructureEntry? {
     return byId.values.firstOrNull { it.workerBestiaId == playerBestiaId }

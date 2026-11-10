@@ -22,6 +22,7 @@ import net.bestia.zone.item.material.ItemMaterial
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.prop.PlayerStructureRegistry
 import net.bestia.zone.prop.StructureEntry
+import net.bestia.zone.prop.chest.ChestStorages
 import net.bestia.zone.util.EntityId
 import java.time.Instant
 
@@ -40,6 +41,13 @@ class StationFixture(stationKind: StaticEntityKind = StaticEntityKind.WORKBENCH,
 
   var station = StructureEntry(STATION, stationKind, OWNER, ACCOUNT, Vec3L(0, 0, 0), yaw = 0f, burnsOutAt = burnsOutAt)
 
+  /** The owner's camp chest next to the station; none until a test puts one there with [givenChest]. */
+  var chest: StructureEntry? = null
+  val chestContents = Inventory(mutableListOf())
+  val chests = mockk<ChestStorages>().also {
+    every { it.contentsOf(CHEST) } returns chestContents
+  }
+
   /** Answers and records the way the real registry does, minus the database. */
   val structures = mockk<PlayerStructureRegistry>().also { registry ->
     every { registry.of(STATION) } answers { station }
@@ -50,6 +58,7 @@ class StationFixture(stationKind: StaticEntityKind = StaticEntityKind.WORKBENCH,
     every { registry.setWorker(STATION, any()) } answers { station = station.copy(workerBestiaId = secondArg()) }
     every { registry.setTakesAnyCrafter(STATION, any()) } answers { station = station.copy(takesAnyCrafter = secondArg()) }
     every { registry.workplaceOf(any()) } answers { station.takeIf { it.workerBestiaId == firstArg<Long>() } }
+    every { registry.chestBeside(any()) } answers { chest }
   }
 
   val crafters = Crafters(StarterKit())
@@ -87,8 +96,18 @@ class StationFixture(stationKind: StaticEntityKind = StaticEntityKind.WORKBENCH,
     }
   }
 
+  /** A camp chest of the owner's next to the station, holding [planks]. */
+  fun givenChest(planks: Int) {
+    chest = StructureEntry(CHEST, StaticEntityKind.CHEST, OWNER, ACCOUNT, Vec3L(2, 0, 0), yaw = 0f)
+    chestContents.addItem(Inventory.Item(itemId = PLANK, amount = planks, weight = 10))
+  }
+
   fun planksIn(entityId: EntityId): Int {
-    return world.get(entityId, Inventory::class)!!.getItems().filter { it.itemId == PLANK }.sumOf { it.amount }
+    return planksIn(world.get(entityId, Inventory::class)!!)
+  }
+
+  fun planksIn(inventory: Inventory): Int {
+    return inventory.getItems().filter { it.itemId == PLANK }.sumOf { it.amount }
   }
 
   companion object {
@@ -99,5 +118,6 @@ class StationFixture(stationKind: StaticEntityKind = StaticEntityKind.WORKBENCH,
     const val PLANK = 50L
     const val CHAIR = 51L
     const val PLAYER_BESTIA = 13L
+    const val CHEST = 8L
   }
 }

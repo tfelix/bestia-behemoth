@@ -7,11 +7,11 @@ import net.bestia.zone.crafting.CraftingService
 import net.bestia.zone.crafting.Crafters
 import net.bestia.zone.crafting.RecipeRegistry
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.container.ItemHolder
 import net.bestia.zone.item.ecs.CarryCheck
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
@@ -23,15 +23,17 @@ import net.bestia.zone.prop.PlayerStructureRegistry
 import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.prop.StructureEntry
 import net.bestia.zone.prop.StationSpill
+import net.bestia.zone.prop.chest.ChestStorages
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 
 /**
- * Filling and emptying a station's queue. Only its owner may, from next to it.
+ * Filling and emptying a station's queue. Only its owner may, from next to it, or from afar paying from the chest
+ * next to the station.
  *
- * Queuing pays the ingredients for the whole amount into the station at once: off the live bag now, out of the
- * database afterwards, the order `CraftingService` uses. So nothing runs short halfway, and whoever works the
- * queue needs none of it in their own bag.
+ * Queuing pays the ingredients for the whole amount into the station at once: off the live bag and chest now, out
+ * of the database afterwards, the order `CraftingService` uses. So nothing runs short halfway, and whoever works
+ * the queue needs none of it in their own bag.
  */
 @Service
 class StationQueueService(
@@ -39,7 +41,9 @@ class StationQueueService(
   private val recipes: RecipeRegistry,
   private val crafting: CraftingService,
   private val crafters: Crafters,
+  private val profiles: CrafterProfiles,
   private val workers: StationWorkers,
+  private val chests: ChestStorages,
   private val itemTemplates: ItemTemplateRegistry,
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
@@ -48,36 +52,103 @@ class StationQueueService(
   private val states: StationStateSender,
 ) : StationSpill {
 
-  /** @return the refusal to send back, or null when the entry is queued */
+  /**
+   * Queues from next to the station, paying from the master's bag first and the rest from the chest next to it.
+   *
+   * @return the refusal to send back, or null when the entry is queued
+   */
   fun enqueue(world: World, actorId: EntityId, structureId: Long, recipeId: Long, amount: Int): OpError? {
     val station = ownStationNear(world, actorId, structureId) ?: return OpError.CRAFT_NOT_POSSIBLE
+    val crafter = crafters.of(world, actorId, actorId) ?: return OpError.CRAFT_NOT_POSSIBLE
+    val bag = world.get(actorId, Inventory::class) ?: return OpError.CRAFT_NOT_POSSIBLE
+
+    val payers = listOfNotNull(Payer(ItemHolder.Master, bag), chestPayerOf(station))
+    return queue(world, station, crafter, recipeId, amount, payers)
+  }
+
+  /**
+   * Queues for a master away from the station, paying only from the chest next to it: nothing ever comes from the
+   * master's bag while they are away.
+   *
+   * @return the refusal to send back, or null when the entry is queued
+   */
+  fun enqueueFromChest(world: World, masterId: Long, structureId: Long, recipeId: Long, amount: Int): OpError? {
+    val station = structures.of(structureId)?.takeIf { it.ownerMasterId == masterId && !it.isUnderConstruction }
+      ?: return OpError.CRAFT_NOT_POSSIBLE
+    val crafter = profiles.knowledgeOf(masterId) ?: return OpError.CRAFT_NOT_POSSIBLE
+    val chest = chestPayerOf(station) ?: return OpError.CRAFT_MISSING_MATERIALS
+
+    return queue(world, station, crafter, recipeId, amount, listOf(chest))
+  }
+
+  /** One holder that pays a queue: its live [goods] now, its container in the database afterwards. */
+  private class Payer(val holder: ItemHolder, val goods: Inventory)
+
+  private fun chestPayerOf(station: StructureEntry): Payer? {
+    val chest = structures.chestBeside(station) ?: return null
+    return Payer(ItemHolder.Chest(chest.id), chests.contentsOf(chest.id))
+  }
+
+  private fun queue(
+    world: World,
+    station: StructureEntry,
+    crafter: Crafters.Crafter,
+    recipeId: Long,
+    amount: Int,
+    payers: List<Payer>,
+  ): OpError? {
     val recipe = recipes.of(recipeId)?.takeIf { it.station == station.kind } ?: return OpError.CRAFT_NOT_POSSIBLE
     if (station.queue.size >= MAX_ENTRIES) return OpError.CRAFT_ALREADY_IN_PROGRESS
-
-    val crafter = crafters.of(world, actorId, actorId) ?: return OpError.CRAFT_NOT_POSSIBLE
     crafting.refusalToQueue(crafter, recipe)?.let { return it }
 
     val count = amount.coerceIn(1, MAX_AMOUNT)
     val paid = recipe.inputTotals.mapValues { (_, each) -> each * count }
-    val inventory = world.get(actorId, Inventory::class) ?: return OpError.CRAFT_NOT_POSSIBLE
-    if (paid.any { (itemId, needed) -> heldAmount(inventory, itemId) < needed }) return OpError.CRAFT_MISSING_MATERIALS
+    val shares = sharesOf(paid, payers) ?: return OpError.CRAFT_MISSING_MATERIALS
 
-    val taken = paid.flatMap { (itemId, needed) -> checkNotNull(inventory.takeAcrossPiles(itemId, needed)) }
-    structures.setStationContents(structureId, station.queue + QueueEntry(recipeId, count), station.held + paid)
+    val taken = shares.mapValues { (payer, share) ->
+      share.flatMap { (itemId, amount) -> checkNotNull(payer.goods.takeAcrossPiles(itemId, amount)) }
+    }
+    structures.setStationContents(station.id, station.queue + QueueEntry(recipeId, count), station.held + paid)
 
     val masterId = station.ownerMasterId
     asyncJobExecutor.submit(masterId) {
-      if (!inventoryService.consumeAll(masterId, paid.toList())) {
-        LOG.warn { "Master $masterId lost the ingredients queued at station $structureId; giving them back" }
-        world.modify(actorId) { id ->
-          taken.forEach { get(id, Inventory::class)?.addItem(it) }
-          unpay(structureId, paid)
+      if (!payDurably(masterId, shares)) {
+        LOG.warn { "Master $masterId lost the ingredients queued at station ${station.id}; giving them back" }
+        world.post {
+          taken.forEach { (payer, items) -> payer.goods.addItems(items) }
+          unpay(station.id, paid)
         }
       }
     }
 
-    sendState(structureId)
+    sendState(station.id)
     return null
+  }
+
+  /** How much of each ingredient each payer gives, in their order, as far as it holds; null when they cannot pay. */
+  private fun sharesOf(paid: Map<Long, Int>, payers: List<Payer>): Map<Payer, Map<Long, Int>>? {
+    val shares = payers.associateWith { mutableMapOf<Long, Int>() }
+
+    for ((itemId, needed) in paid) {
+      var left = needed
+      for (payer in payers) {
+        val share = minOf(left, heldAmount(payer.goods, itemId))
+        if (share > 0) shares.getValue(payer)[itemId] = share
+        left -= share
+      }
+      if (left > 0) return null
+    }
+
+    return shares.filterValues { it.isNotEmpty() }
+  }
+
+  private fun payDurably(masterId: Long, shares: Map<Payer, Map<Long, Int>>): Boolean {
+    return try {
+      inventoryService.consumeAllFrom(masterId, shares.mapKeys { (payer, _) -> payer.holder })
+    } catch (e: Exception) {
+      LOG.error(e) { "Paying a station's queue for master $masterId rolled back" }
+      false
+    }
   }
 
   /**

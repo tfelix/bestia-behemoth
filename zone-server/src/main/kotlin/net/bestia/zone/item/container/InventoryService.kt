@@ -306,22 +306,43 @@ class InventoryService(
     val required = inputs.groupBy({ it.first }, { it.second }).mapValues { (_, amounts) -> amounts.sum() }
 
     return withOwnerContainer(masterId, playerBestiaId) { container ->
-      if (required.any { (itemId, amount) -> !container.hasItem(itemId, amount) }) {
-        return@withOwnerContainer false
-      }
+      if (!holdsAll(container, required)) return@withOwnerContainer false
 
-      required.forEach { (itemId, amount) ->
-        if (!container.removeStackable(itemId, amount)) {
-          // Reached only if an input is held solely as instance slots, which `hasItem` counts and
-          // `removeStackable` will not touch. Rolling back is the honest answer: the alternative is
-          // consuming part of the recipe.
-          throw IllegalStateException(
-            "Master $masterId holds item $itemId only as unique instances; recipe inputs must be stackable"
-          )
-        }
-      }
-
+      removeAll(masterId, container, required)
       true
+    }
+  }
+
+  /**
+   * [consumeAll] across several of a master's own holders, item id -> amount for each, in one transaction: a
+   * station's queue paid from the master's bag and the chest next to it.
+   *
+   * @return false, having changed nothing, when any holder is not the master's or does not hold its share in full
+   */
+  @Transactional
+  fun consumeAllFrom(masterId: Long, inputs: Map<ItemHolder, Map<Long, Int>>): Boolean {
+    val locked = inputs.keys.sortedWith(LOCK_ORDER).associateWith { holder -> lock(masterId, holder) ?: return false }
+    if (inputs.any { (holder, required) -> !holdsAll(locked.getValue(holder).container, required) }) return false
+
+    inputs.forEach { (holder, required) -> removeAll(masterId, locked.getValue(holder).container, required) }
+    locked.values.forEach(owners::save)
+    return true
+  }
+
+  private fun holdsAll(container: ItemContainer, required: Map<Long, Int>): Boolean {
+    return required.all { (itemId, amount) -> container.hasItem(itemId, amount) }
+  }
+
+  private fun removeAll(masterId: Long, container: ItemContainer, required: Map<Long, Int>) {
+    required.forEach { (itemId, amount) ->
+      if (!container.removeStackable(itemId, amount)) {
+        // Reached only if an input is held solely as instance slots, which `hasItem` counts and
+        // `removeStackable` will not touch. Rolling back is the honest answer: the alternative is
+        // consuming part of the recipe.
+        throw IllegalStateException(
+          "Master $masterId holds item $itemId only as unique instances; recipe inputs must be stackable"
+        )
+      }
     }
   }
 
