@@ -51,6 +51,15 @@ const _SHORT_COLOR := UiStyle.DANGER
 
 const _RAIL_ICON_SIZE := 24
 
+## Why a station's queue stands still, keyed by [member StationStateSMSG.PauseName].
+const _PAUSE_TEXTS := {
+	"worker_away": "Paused: the worker is too far away.",
+	"worker_offline": "Paused: the worker is not here.",
+	"bag_full": "Paused: the worker's bag is full.",
+	"station_out": "Paused: the fire is out.",
+	"cannot_craft": "Paused: the worker cannot make this.",
+}
+
 ## Assigned at runtime by Game/UI/ui.gd, for the same reason the Inventory <-> Equipment pair is: the Inventory
 ## node only exists once its WidgetWindow has instantiated its content, so no editor-wired NodePath can reach it.
 ## Untyped on purpose to avoid a load cycle through the Inventory class.
@@ -72,6 +81,10 @@ var inventory = null
 @onready var _target_picker: OptionButton = %TargetPicker
 @onready var _actions: HBoxContainer = %Actions
 @onready var _discover_page: Control = %DiscoverPage
+@onready var _queue_panel: Control = %QueuePanel
+@onready var _queue_rows: VBoxContainer = %QueueRows
+@onready var _pause_label: Label = %PauseLabel
+@onready var _held_label: Label = %HeldLabel
 @onready var _status: Label = %Status
 
 ## Skill id -> its recipes, in the order the server listed them.
@@ -91,6 +104,15 @@ var _rail_folded := false
 ## True between asking for a craft and hearing how it went, which is when a second request would be refused.
 var _awaiting_result: bool = false
 
+## True between changing a station's queue and its answer, after which the bag counts are stale.
+var _awaiting_queue: bool = false
+
+## The bar of the item in progress, which runs on between two station states.
+var _progress_bar: ProgressBar = null
+var _progress_millis: float = 0.0
+var _craft_millis: float = 0.0
+var _progress_running := false
+
 var _discovery: DiscoveryPanel
 
 
@@ -99,6 +121,7 @@ func _ready() -> void:
 	ConnectionManager.operation_error.connect(_on_operation_result)
 	ConnectionManager.operation_success.connect(_on_operation_result)
 	ConnectionManager.discovery_result_received.connect(_on_discovery_result)
+	ConnectionManager.station_state_received.connect(_on_station_state)
 	_target_picker.item_selected.connect(func(_index: int) -> void: _show_actions())
 	_discover_button.pressed.connect(_show_discovery)
 	%BackButton.pressed.connect(_show_recipes)
@@ -116,7 +139,10 @@ func _ready() -> void:
 func _on_craftable_recipes(msg: CraftableRecipesSMSG) -> void:
 	# The name is resolved on the C# side, which is where the StaticEntityKind ordinals are already mirrored.
 	_station_label.text = msg.StationName if not msg.StationName.is_empty() else _NO_STATION_TITLE
+	if int(msg.StructureId) != _structure_id:
+		_clear(_queue_rows)
 	_structure_id = int(msg.StructureId)
+	_queue_panel.visible = _at_station()
 	_show_fuel(msg)
 	_awaiting_result = false
 
@@ -339,12 +365,26 @@ func _show_actions() -> void:
 	_actions.add_child(UiStyle.spacer())
 
 	var make := Button.new()
-	make.text = "Make %d" % _amount if _amount > 1 else "Make"
+	make.text = _make_label(recipe)
 	make.focus_mode = Control.FOCUS_NONE
 	make.disabled = _awaiting_result or (recipe.NeedsTarget and _selected_target() == 0)
 	make.pressed.connect(_on_make_pressed)
 	_emphasize(make)
 	_actions.add_child(make)
+
+
+## At a station a recipe that makes something is queued there; everything else is made at once.
+func _queues(recipe: CraftableRecipe) -> bool:
+	return _at_station() and not recipe.NeedsTarget
+
+
+func _make_label(recipe: CraftableRecipe) -> String:
+	var verb := "Queue" if _queues(recipe) else "Make"
+	return "%s %d" % [verb, _amount] if _amount > 1 else verb
+
+
+func _at_station() -> bool:
+	return _structure_id != 0
 
 
 func _set_amount(amount: int) -> void:
@@ -389,6 +429,11 @@ func _on_make_pressed() -> void:
 	if _selected_recipe == null or not ConnectionManager.is_ready_to_send():
 		return
 
+	if _queues(_selected_recipe):
+		ConnectionManager.queue_craft(_structure_id, int(_selected_recipe.RecipeId), _amount)
+		_awaiting_queue = true
+		return
+
 	ConnectionManager.craft_item(int(_selected_recipe.RecipeId), _selected_target(), _amount)
 
 	_awaiting_result = true
@@ -421,6 +466,90 @@ func _on_discovery_result(msg: DiscoveryResultSMSG) -> void:
 func _refresh_offer() -> void:
 	if is_visible_in_tree() and ConnectionManager.is_ready_to_send():
 		ConnectionManager.open_crafting(_selected_skill, _structure_id)
+
+
+# --- Station queue ------------------------------------------------------------------------------------------------
+
+func _on_station_state(msg: StationStateSMSG) -> void:
+	if int(msg.StructureId) != _structure_id:
+		return
+
+	_clear(_queue_rows)
+	_progress_bar = null
+	for index in msg.Entries.size():
+		_queue_rows.add_child(_queue_row(msg.Entries[index], index))
+
+	_pause_label.text = _PAUSE_TEXTS.get(msg.PauseName, "")
+	_progress_running = msg.PauseName == "none"
+	_held_label.text = _held_text(msg.Held)
+
+	if msg.Entries.is_empty():
+		_queue_rows.add_child(UiStyle.label("Nothing queued.", 12, UiStyle.MUTED))
+
+	# The ingredients just moved between the bag and the station, so the counts in the list are wrong now.
+	if _awaiting_queue:
+		_awaiting_queue = false
+		_refresh_offer()
+
+
+## "Chair   2 of 5   [=====-----]   x"
+func _queue_row(entry: StationQueueEntry, index: int) -> HBoxContainer:
+	var row := UiStyle.hbox(8)
+	var recipe := _recipe_by_id(int(entry.RecipeId))
+	var name_label := UiStyle.label(_title_of(recipe) if recipe else "?", 13)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(name_label)
+	row.add_child(UiStyle.label("%d of %d" % [entry.Done, entry.Amount], 12, UiStyle.MUTED))
+
+	if index == 0:
+		_progress_bar = UiStyle.bar(UiStyle.ACCENT, 6)
+		_progress_bar.custom_minimum_size = Vector2(120, 6)
+		_progress_bar.size_flags_horizontal = Control.SIZE_SHRINK_END
+		_progress_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		_progress_millis = entry.ProgressMillis
+		_craft_millis = entry.CraftMillis
+		_update_progress_bar()
+		row.add_child(_progress_bar)
+
+	var cancel := UiStyle.glyph_button("×", "Take off the queue")
+	cancel.pressed.connect(_on_cancel_pressed.bind(index))
+	row.add_child(cancel)
+	return row
+
+
+func _process(delta: float) -> void:
+	if _progress_running and _progress_bar != null:
+		_progress_millis = minf(_progress_millis + delta * 1000.0, _craft_millis)
+		_update_progress_bar()
+
+
+func _update_progress_bar() -> void:
+	if _progress_bar != null and _craft_millis > 0:
+		UiStyle.set_bar(_progress_bar, int(_progress_millis), int(_craft_millis))
+
+
+func _on_cancel_pressed(index: int) -> void:
+	if ConnectionManager.is_ready_to_send():
+		ConnectionManager.cancel_queue_entry(_structure_id, index)
+		_awaiting_queue = true
+
+
+func _held_text(held: Dictionary) -> String:
+	if held.is_empty():
+		return ""
+
+	var piles: Array[String] = []
+	for item_id in held:
+		piles.append("%d %s" % [held[item_id], _item_name(int(item_id))])
+	return "Held by the station: " + ", ".join(piles)
+
+
+func _recipe_by_id(recipe_id: int) -> CraftableRecipe:
+	for skill_id in _recipes_by_skill:
+		for recipe in _recipes_by_skill[skill_id]:
+			if int(recipe.RecipeId) == recipe_id:
+				return recipe
+	return null
 
 
 # --- Pages --------------------------------------------------------------------------------------------------------
