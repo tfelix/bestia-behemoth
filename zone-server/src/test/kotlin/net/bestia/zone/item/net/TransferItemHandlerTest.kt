@@ -12,6 +12,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.container.ItemHandover
 import net.bestia.zone.item.container.ItemHolder
 import net.bestia.zone.item.container.ReservedItem
 import net.bestia.zone.item.ecs.CarryCapacity
@@ -67,7 +68,9 @@ class TransferItemHandlerTest {
     it.activateSession(ACCOUNT_ID, masterId = MASTER_ID, masterEntityId = master)
   }
 
-  private val sut = TransferItemHandler(inventoryService, connections, DeadActionGuard(), executor, outMessages, world, mockk(relaxed = true))
+  private val sut = TransferItemHandler(
+    connections, DeadActionGuard(), outMessages, mockk(relaxed = true), ItemHandover(inventoryService, executor, world)
+  )
 
   private val handOver = TransferItemCMSG(ACCOUNT_ID, master, bestia, arrows.playerItemId, amount = 4)
 

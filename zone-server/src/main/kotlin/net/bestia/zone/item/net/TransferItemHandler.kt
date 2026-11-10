@@ -4,11 +4,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.entity.ecs.DeadActionGuard
-import net.bestia.zone.item.container.InventoryService
-import net.bestia.zone.item.container.ItemHolder
-import net.bestia.zone.item.container.ReservedItem
+import net.bestia.zone.item.container.ItemHandover
+import net.bestia.zone.item.container.ItemHandover.Party
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.CarryCheck
 import net.bestia.zone.item.ecs.ChestStorage
@@ -16,12 +14,10 @@ import net.bestia.zone.item.ecs.ExchangeReach
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemOwner
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
-import net.bestia.zone.item.ecs.grantToLive
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder
-import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
@@ -30,24 +26,18 @@ import org.springframework.stereotype.Component
  * Hands a held item from one of a master's own entities to another standing next to it, or into or out of a chest
  * the master built.
  *
- * The goods leave the giver's live bag on the tick that checks the move, so from then on nothing else - a second
- * move, a drop, a craft - can reach them. The durable move follows as one transaction on the master's job key,
- * the key every other write to these containers uses. Only that transaction failing gives the goods back: then
- * the database never changed. When it finds the giver no longer holds them, the live bag showed more than the
- * database had, and they stay gone. At no point do both bags hold the same goods.
+ * The goods leave the giver's live bag on the tick that checks the move; [ItemHandover] says what follows.
  *
  * Neither entity has to be the one the player drives, so both ids come from the message - and each is checked
  * to be this account's master, one of its bestias or one of its chests before anything is touched.
  */
 @Component
 class TransferItemHandler(
-  private val inventoryService: InventoryService,
   private val connectionInfoService: ConnectionInfoService,
   private val deadActionGuard: DeadActionGuard,
-  private val asyncJobExecutor: AsyncJobExecutor,
   private val outMessageProcessor: OutMessageProcessor,
-  private val worldView: WorldView,
   private val itemTemplates: ItemTemplateRegistry,
+  private val handover: ItemHandover,
 ) : TickMessageHandler<TransferItemCMSG> {
 
   override val wire = decoder(MessageCase.TRANSFER_ITEM) { accountId, envelope ->
@@ -97,52 +87,11 @@ class TransferItemHandler(
       return true
     }
 
-    val taken = held.portion(msg.amount)
-    inventory.take(msg.playerItemId, msg.amount)
-
-    val queued = asyncJobExecutor.trySubmit(masterId) {
-      transferDurably(msg, taken, masterId, giver, receiver)
-    }
-    if (!queued) {
-      LOG.warn { "Transfer of item ${taken.itemId} for master $masterId was not queued; the giver keeps it" }
-      inventory.addItem(taken)
-    }
+    handover.hand(
+      world, masterId, Party(msg.fromEntityId, giver), Party(msg.toEntityId, receiver), msg.playerItemId, msg.amount
+    )
 
     return true
-  }
-
-  private fun transferDurably(
-    msg: TransferItemCMSG,
-    taken: Inventory.Item,
-    masterId: Long,
-    giver: ItemHolder,
-    receiver: ItemHolder,
-  ) {
-    val moved: ReservedItem? = try {
-      inventoryService.transferBetweenOwners(
-        masterId = masterId,
-        from = giver,
-        to = receiver,
-        itemId = taken.itemId,
-        uniqueId = taken.uniqueId,
-        amount = taken.amount,
-        provenance = taken.provenance,
-      )
-    } catch (e: Exception) {
-      LOG.error(e) { "Transfer of item ${taken.itemId} for master $masterId rolled back; the giver gets it back" }
-      worldView.modify(msg.fromEntityId) { id -> get(id, Inventory::class)?.addItem(taken) }
-      return
-    }
-
-    if (moved == null) {
-      LOG.warn {
-        "Entity ${msg.fromEntityId} showed ${taken.amount}x item ${taken.itemId} its container does not freely hold; " +
-                "nothing is transferred"
-      }
-      return
-    }
-
-    worldView.grantToLive(msg.toEntityId, listOf(moved))
   }
 
   /** A chest counts slots, everything else carries by weight. */
@@ -169,24 +118,6 @@ class TransferItemHandler(
   private fun resendBags(world: World, msg: TransferItemCMSG) {
     world.get(msg.fromEntityId, Inventory::class)?.markDirty()
     world.get(msg.toEntityId, Inventory::class)?.markDirty()
-  }
-
-  /** A detached copy of [amount] of this held item, to give back or to name to the database. */
-  private fun Inventory.Item.portion(amount: Int): Inventory.Item {
-    return Inventory.Item(
-      itemId = itemId,
-      amount = amount,
-      weight = weight,
-      uniqueId = uniqueId,
-      stackable = stackable,
-      durability = durability,
-      maxDurability = maxDurability,
-      slots = slots,
-      upgradeLevel = upgradeLevel,
-      itemLevel = itemLevel,
-      rolledStats = rolledStats,
-      provenance = provenance,
-    )
   }
 
   companion object {

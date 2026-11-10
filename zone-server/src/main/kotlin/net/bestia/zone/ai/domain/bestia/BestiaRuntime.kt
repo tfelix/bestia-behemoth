@@ -10,6 +10,7 @@ import net.bestia.zone.ai.domain.AiDomainRuntime
 import net.bestia.zone.ai.domain.bestia.action.CollectPropActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.FellTreeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.GatherWork
+import net.bestia.zone.ai.domain.bestia.action.ChestExchange
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.AiProfile
 import net.bestia.zone.ai.profile.BestiaJob
@@ -20,6 +21,7 @@ import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.care.BagCare
+import net.bestia.zone.item.container.ItemHandover
 import net.bestia.zone.navigation.NavigationService
 import org.springframework.stereotype.Service
 import kotlin.random.Random
@@ -40,6 +42,7 @@ class BestiaRuntime(
   private val care: BagCare,
   private val promotion: CombatTargetPromotion,
   private val aoi: EntityAOIService,
+  private val handover: ItemHandover,
   /** Where wandering draws from. Defaulted for the server; a test passes a seed to pin a walk. */
   random: Random = Random.Default,
 ) : AiDomainRuntime {
@@ -49,7 +52,8 @@ class BestiaRuntime(
 
   override val catalogue = BestiaDomain
 
-  override val reads: ComponentClassSet = GatherWork.READS + FellTreeActionTemplate.READS
+  override val reads: ComponentClassSet =
+    GatherWork.READS + FellTreeActionTemplate.READS + ChestExchange.READS
 
   override val writes: ComponentClassSet = CollectPropActionTemplate.WRITES + FellTreeActionTemplate.WRITES
 
@@ -95,7 +99,9 @@ class BestiaRuntime(
   override fun resolver(profile: AiProfile): ActionResolver {
     return BestiaDomain.resolver(
       profile.actionIds,
-      BestiaDomain.Collaborators(locomotion, skills, attackExecution, basicAttacks, care, promotion, aoi, profile.attacks)
+      BestiaDomain.Collaborators(
+        locomotion, skills, attackExecution, basicAttacks, care, promotion, aoi, handover, profile.attacks
+      )
     )
   }
 

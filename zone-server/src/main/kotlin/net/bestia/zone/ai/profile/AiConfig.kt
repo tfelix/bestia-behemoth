@@ -73,8 +73,8 @@ enum class BestiaJob(
   /** Collect what grows and lies around home and carry it to the master's nearest chest. */
   GATHER(
     setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"),
-    workGoals = listOf("Gather"),
-    workActions = listOf("collectProp", "fellTree"),
+    workGoals = listOf("Gather", "HaulToChest"),
+    workActions = listOf("collectProp", "fellTree", "haulToChest"),
   );
 
   companion object {

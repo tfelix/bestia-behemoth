@@ -13,7 +13,10 @@ import net.bestia.zone.item.ecs.LootProtection
 import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.item.care.TestBagCare.BREAD
+import net.bestia.zone.item.care.TestBagCare.bagWith
 import net.bestia.zone.item.ecs.CarryCapacity
+import net.bestia.zone.item.ecs.ChestStorage
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -28,9 +31,15 @@ class GathererTest {
 
   private val home = Vec3L(0, 0, 0)
 
+  private val chestAt = Vec3L(-10, 0, 0)
+
   @BeforeEach
   fun setup() {
     ai = AiPipelineFixture()
+  }
+
+  private fun chest(): EntityId {
+    return ai.spawnChest(chestAt, structureId = CHEST)
   }
 
   private fun bestia(job: BestiaJob = BestiaJob.GATHER): EntityId {
@@ -44,6 +53,7 @@ class GathererTest {
   @Test
   fun `a gatherer collects what lies in its area and earns experience for it`() {
     val gatherer = bestia()
+    chest()
     ai.spawnProp(StaticEntityKind.STICK, Vec3L(5, 0, 0), propId = 1L)
     ai.spawnProp(StaticEntityKind.LOOSE_STONE, Vec3L(-6, 4, 0), propId = 2L)
     // The wanderer's area is 32 around home.
@@ -58,9 +68,10 @@ class GathererTest {
   }
 
   @Test
-  fun `a gatherer whose bag is nearly full gathers no more`() {
+  fun `a gatherer whose bag is nearly full of its own food gathers no more`() {
     val gatherer = bestia()
-    ai.world.add(gatherer, Inventory(mutableListOf(Inventory.Item(itemId = 43, amount = 8, weight = 1))))
+    chest()
+    ai.world.add(gatherer, Inventory(mutableListOf(Inventory.Item(itemId = BREAD, amount = 8, weight = 1))))
     ai.world.add(gatherer, CarryCapacity(8, 10))
     ai.spawnProp(StaticEntityKind.STICK, Vec3L(5, 0, 0), propId = 1L)
 
@@ -82,6 +93,7 @@ class GathererTest {
   @Test
   fun `a gatherer fells a tree and picks up what it drops`() {
     val gatherer = bestia()
+    chest()
     ai.world.add(gatherer, Account(ACCOUNT))
     val treeAt = Vec3L(4, 0, 0)
     val tree = ai.spawnProp(StaticEntityKind.TREE, treeAt, propId = 1L)
@@ -110,6 +122,7 @@ class GathererTest {
   @Test
   fun `a gatherer gives up on a tree it may not fell and takes the stick instead`() {
     val gatherer = bestia()
+    chest()
     val tree = ai.spawnProp(StaticEntityKind.TREE, Vec3L(3, 0, 0), propId = 1L)
     ai.spawnProp(StaticEntityKind.STICK, Vec3L(14, 0, 0), propId = 2L)
     every { ai.attackExecution.attack(any(), gatherer, tree, any()) } returns AttackOutcome.REFUSED
@@ -117,7 +130,58 @@ class GathererTest {
     ai.tickUntil(describe = { "it never got past the tree" }) { isTaken(2L) }
   }
 
+  @Test
+  fun `a gatherer with a nearly full bag carries it to its chest and keeps its food`() {
+    val gatherer = bestia()
+    val chest = chest()
+    ai.world.add(gatherer, Inventory(mutableListOf(Inventory.Item(LOG, 8, weight = 1), Inventory.Item(BREAD, 2))))
+    ai.world.add(gatherer, CarryCapacity(8, 10))
+    // Something left to gather, so it is the load that sends it.
+    ai.spawnProp(StaticEntityKind.STICK, Vec3L(5, 0, 0), propId = 1L)
+
+    ai.tickUntil(describe = { "the chest holds ${itemsIn(chest)}" }) { itemsIn(chest)[LOG] == 8 }
+
+    assertEquals(mapOf(BREAD to 2), itemsIn(gatherer))
+  }
+
+  @Test
+  fun `a gatherer hauls what it has once nothing is left to gather`() {
+    val gatherer = bestia()
+    val chest = chest()
+    ai.world.add(gatherer, bagWith(LOG to 1))
+
+    ai.tickUntil(describe = { "the chest holds ${itemsIn(chest)}" }) { itemsIn(chest)[LOG] == 1 }
+  }
+
+  @Test
+  fun `a gatherer whose chest is full stops gathering`() {
+    bestia()
+    val chest = chest()
+    repeat(ChestStorage.SLOTS) { ai.world.getOrThrow(chest, Inventory::class).addItem(Inventory.Item(1000L + it, 1)) }
+    ai.spawnProp(StaticEntityKind.STICK, Vec3L(5, 0, 0), propId = 1L)
+
+    ai.tick(times = 20 * 20)
+
+    assertNull(ai.divergence.of(1L))
+  }
+
+  @Test
+  fun `a gatherer without a chest gathers nothing`() {
+    bestia()
+    ai.spawnProp(StaticEntityKind.STICK, Vec3L(5, 0, 0), propId = 1L)
+
+    ai.tick(times = 20 * 20)
+
+    assertNull(ai.divergence.of(1L))
+  }
+
+  private fun itemsIn(id: EntityId): Map<Long, Int> {
+    return ai.world.getOrThrow(id, Inventory::class).getItems().associate { it.itemId to it.amount }
+  }
+
   private companion object {
     const val ACCOUNT = 77L
+    const val CHEST = 500L
+    const val LOG = 43L
   }
 }

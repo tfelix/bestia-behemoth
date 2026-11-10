@@ -13,16 +13,30 @@ data class ChestStorage(
   val ownerAccountId: AccountId?,
 ) : Component {
 
-  /** A pile that merges into one already in the chest takes no slot of its own. */
   fun hasRoomFor(contents: Inventory, item: Inventory.Item): Boolean {
-    val mergesIntoPile = item.isStackable && contents.getItems().any {
-      it.isStackable && it.itemId == item.itemId && it.provenance == item.provenance
-    }
-
-    return mergesIntoPile || contents.size() < SLOTS
+    return whatFits(contents, listOf(item)).isNotEmpty()
   }
 
   companion object {
     const val SLOTS = 20
+
+    /** Which of [goods] a chest holding [contents] takes. A pile that merges into one already in it takes no slot. */
+    fun whatFits(contents: Inventory, goods: List<Inventory.Item>): List<Inventory.Item> {
+      var freeSlots = SLOTS - contents.size()
+      val piles = contents.getItems().filter { it.isStackable }.mapTo(HashSet()) { it.itemId to it.provenance }
+
+      return goods.filter { item ->
+        val pile = item.itemId to item.provenance
+        when {
+          item.isStackable && pile in piles -> true
+          freeSlots <= 0 -> false
+          else -> {
+            freeSlots--
+            if (item.isStackable) piles.add(pile)
+            true
+          }
+        }
+      }
+    }
   }
 }
