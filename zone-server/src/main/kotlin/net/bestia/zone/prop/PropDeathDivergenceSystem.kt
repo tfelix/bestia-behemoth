@@ -92,11 +92,13 @@ class PropDeathDivergenceSystem(
         // Whoever dealt the most is who felled it, and earns the gathering EXP if it is a bestia.
         val feller = damage?.damagePercentages()?.maxByOrNull { it.value }?.key
         val extraChance = extraDropPercent(world, id, visual.kind)
+        // A tree its planter replanted with care gives more than one left to nature.
+        val bonusStacks = standing?.bonusYield ?: 0
         spec.loot.forEach { entry ->
           val amount = floor(entry.amount * yieldShare).toInt()
           if (amount > 0 && Random.nextInt(1, 10_001) <= entry.dropChance) {
             // A Lumberjack splits more out of the same trunk: a chance of the stack again.
-            val dropped = if (Random.nextInt(100) < extraChance) amount * 2 else amount
+            val dropped = (if (Random.nextInt(100) < extraChance) amount * 2 else amount) + amount * bonusStacks
             lootItemEntitySpawner.spawnLootItem(
               world, itemId = entry.itemId, amount = dropped, pos = position, lootOwner = killer
             )

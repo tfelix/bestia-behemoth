@@ -1,5 +1,6 @@
 package net.bestia.zone.weather
 
+import net.bestia.zone.battle.status.scripts.Camped
 import net.bestia.zone.skill.OwnerSkills
 import net.bestia.zone.battle.ecs.status.CombatStats
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -120,8 +121,12 @@ class EnvironmentalExposureSystem(
       val effects = world.get(entityId, StatusEffects::class)
       val warmth = if (effects?.hasEffect(StatusEffectId.WARMED.id) == true) config.toleranceFromStatus else 0.0
       val coolness = if (effects?.hasEffect(StatusEffectId.COOLED.id) == true) config.toleranceFromStatus else 0.0
-      val low = config.comfortLowCelsius - tolerance - warmth
-      val high = config.comfortHighCelsius + tolerance + coolness
+      // A Base Camp widens both sides; a good one (Lv.2+) keeps the storm out altogether.
+      val camp = effects?.activeEffects?.firstOrNull { it.definitionId == StatusEffectId.CAMPED.id }
+      if (camp != null && camp.level >= Camped.SHELTER_LEVEL) return@each
+      val camping = if (camp != null) Camped.TOLERANCE_CELSIUS else 0.0
+      val low = config.comfortLowCelsius - tolerance - warmth - camping
+      val high = config.comfortHighCelsius + tolerance + coolness + camping
       val excess = when {
         air < low -> low - air
         air > high -> air - high

@@ -281,6 +281,20 @@ class RecordingSkillWorld(
 
   override fun isBehind(targetEntityId: EntityId): Boolean = targetEntityId in behind
 
+  val replanted = mutableListOf<Triple<Vec3L, Int, Int>>()
+
+  override fun replant(at: Vec3L, growthPercent: Int, bonusYield: Int): Boolean {
+    replanted += Triple(at, growthPercent, bonusYield)
+    return true
+  }
+
+  val camps = mutableListOf<Triple<Vec3L, Int, Long>>()
+
+  override fun pitchCamp(at: Vec3L, level: Int, durationSeconds: Long): Boolean {
+    camps += Triple(at, level, durationSeconds)
+    return true
+  }
+
   var calledBestias = 0
 
   override fun callOwnBestias(): Int = calledBestias

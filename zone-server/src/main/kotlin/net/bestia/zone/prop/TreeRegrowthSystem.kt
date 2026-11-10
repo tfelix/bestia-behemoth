@@ -1,5 +1,6 @@
 package net.bestia.zone.prop
 
+import net.bestia.zone.prop.persistence.DivergenceState
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
@@ -66,10 +67,16 @@ class TreeRegrowthSystem(
         GrowthStage.YOUNG, GrowthStage.GROWN -> GrowthStage.GROWN
       }
 
-      if (next == GrowthStage.GROWN) {
+      // A replanted tree grows at its planter's pace, and keeps its row once grown only for the extra yield.
+      val stageSeconds = regrowth.stageSeconds * entry.growthPercent / 100
+      if (next == GrowthStage.GROWN && entry.bonusYield <= 0) {
         divergence.evictRegrown(propId)
+      } else if (next == GrowthStage.GROWN) {
+        divergence.record(propId, entry.kind, DivergenceState.GROWN, null, entry.growthPercent, entry.bonusYield)
       } else {
-        divergence.record(propId, entry.kind, next.asDivergence(), dueAt.plusSeconds(regrowth.stageSeconds))
+        divergence.record(
+          propId, entry.kind, next.asDivergence(), dueAt.plusSeconds(stageSeconds), entry.growthPercent, entry.bonusYield
+        )
       }
 
       if (standing != null && next != stage) residency.replace(world, standing, next)

@@ -2031,6 +2031,10 @@ skills:
     range: 2
     castTime: 3
     manaCost: 5
+    mechanics:
+      reagent:
+        item: log
+        amount: 1
     description: |
       Plants a sapling in a tree stump. The new tree grows back faster than one left to nature.
       Consumes a log.

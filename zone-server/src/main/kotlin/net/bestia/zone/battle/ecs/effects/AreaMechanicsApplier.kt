@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.skill.PartyMates
 import net.bestia.zone.battle.Knockback
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.movement.ecs.Position
@@ -46,6 +47,7 @@ class AreaMechanicsApplier(
   fun onAlly(world: World, allyId: EntityId, effect: AreaEffect) {
     val mechanics = effect.mechanics
     if (!mechanics.forAllies) return
+    if (mechanics.partyOnly && !PartyMates.isPartyOf(world, effect.casterId, allyId)) return
 
     mechanics.zoneStatus?.let { statusEffects.applyEffect(world, allyId, it, effect.skillLevel, effect.casterId) }
     if (mechanics.healPerTick > 0) {

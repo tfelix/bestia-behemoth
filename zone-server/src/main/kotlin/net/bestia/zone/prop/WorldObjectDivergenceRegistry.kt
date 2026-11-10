@@ -12,7 +12,15 @@ import net.bestia.zone.prop.persistence.WorldObjectDivergence
 import net.bestia.zone.prop.persistence.WorldObjectDivergenceRepository
 
 /** In-memory mirror of one [WorldObjectDivergence] row, for the tick thread to read without a DB hit. */
-data class DivergenceEntry(val kind: StaticEntityKind, val state: DivergenceState, val resumeAt: Instant?) {
+data class DivergenceEntry(
+  val kind: StaticEntityKind,
+  val state: DivergenceState,
+  val resumeAt: Instant?,
+  /** A replanted tree grows at this share of the usual stage time, in percent. */
+  val growthPercent: Int = 100,
+  /** Extra loot stacks a replanted tree drops when it is felled grown. */
+  val bonusYield: Int = 0,
+) {
 
   /** What stands at the prop's place on its way back, or null when nothing stands there. */
   val growth: GrowthStage?
@@ -20,14 +28,16 @@ data class DivergenceEntry(val kind: StaticEntityKind, val state: DivergenceStat
       DivergenceState.STUMP -> GrowthStage.STUMP
       DivergenceState.SAPLING -> GrowthStage.SAPLING
       DivergenceState.YOUNG -> GrowthStage.YOUNG
+      DivergenceState.GROWN -> GrowthStage.GROWN
       DivergenceState.DEPLETED -> null
     }
 
   /** A removed tree on its way back. It stands, but it has not grown back yet. */
-  val isGrowing: Boolean get() = growth != null
+  val isGrowing: Boolean get() = growth != null && growth != GrowthStage.GROWN
 
-  /** A tree on its way back that is big enough to fell again. A stump is not. */
-  val isFellable: Boolean get() = growth == GrowthStage.SAPLING || growth == GrowthStage.YOUNG
+  /** A tree that is big enough to fell again. A stump is not. */
+  val isFellable: Boolean
+    get() = growth == GrowthStage.SAPLING || growth == GrowthStage.YOUNG || growth == GrowthStage.GROWN
 }
 
 /** The row state that stores [this] stage. */
@@ -35,7 +45,7 @@ fun GrowthStage.asDivergence(): DivergenceState = when (this) {
   GrowthStage.STUMP -> DivergenceState.STUMP
   GrowthStage.SAPLING -> DivergenceState.SAPLING
   GrowthStage.YOUNG -> DivergenceState.YOUNG
-  GrowthStage.GROWN -> throw IllegalArgumentException("a grown prop has no divergence row")
+  GrowthStage.GROWN -> DivergenceState.GROWN
 }
 
 /**
@@ -102,10 +112,17 @@ class WorldObjectDivergenceRegistry(
    *
    * Every record reaches the [onDepleted] listeners, a tree that was a sapling a moment ago included.
    */
-  fun record(propId: Long, kind: StaticEntityKind, state: DivergenceState, resumeAt: Instant?) {
+  fun record(
+    propId: Long,
+    kind: StaticEntityKind,
+    state: DivergenceState,
+    resumeAt: Instant?,
+    growthPercent: Int = 100,
+    bonusYield: Int = 0,
+  ) {
     if (propId == 0L) return
 
-    val entry = DivergenceEntry(kind, state, resumeAt)
+    val entry = DivergenceEntry(kind, state, resumeAt, growthPercent, bonusYield)
     byPropId[propId] = entry
 
     // Read here rather than inside the job, so the row is stamped with the world as it was when the prop was
@@ -116,6 +133,8 @@ class WorldObjectDivergenceRegistry(
     asyncJobExecutor.submit(propId) {
       val row = WorldObjectDivergence(propId, kind.name, state, latticeVersion, worldShapeVersion)
       row.resumeAt = resumeAt
+      row.growthPercent = growthPercent
+      row.bonusYield = bonusYield
       repository.save(row)
     }
 
@@ -154,7 +173,8 @@ class WorldObjectDivergenceRegistry(
     }
 
     valid.forEach { row ->
-      byPropId[row.propId] = DivergenceEntry(StaticEntityKind.valueOf(row.kind), row.state, row.resumeAt)
+      byPropId[row.propId] =
+        DivergenceEntry(StaticEntityKind.valueOf(row.kind), row.state, row.resumeAt, row.growthPercent, row.bonusYield)
     }
 
     if (orphaned.isNotEmpty()) {

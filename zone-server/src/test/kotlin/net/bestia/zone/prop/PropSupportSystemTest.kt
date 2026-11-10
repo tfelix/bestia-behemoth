@@ -76,8 +76,15 @@ class PropSupportSystemTest {
 
     override fun of(propId: Long): DivergenceEntry? = recorded[propId]
 
-    override fun record(propId: Long, kind: StaticEntityKind, state: DivergenceState, resumeAt: Instant?) {
-      recorded[propId] = DivergenceEntry(kind, state, resumeAt)
+    override fun record(
+      propId: Long,
+      kind: StaticEntityKind,
+      state: DivergenceState,
+      resumeAt: Instant?,
+      growthPercent: Int,
+      bonusYield: Int,
+    ) {
+      recorded[propId] = DivergenceEntry(kind, state, resumeAt, growthPercent, bonusYield)
     }
   }
 

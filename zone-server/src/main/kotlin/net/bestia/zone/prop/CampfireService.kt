@@ -1,5 +1,6 @@
 package net.bestia.zone.prop
 
+import net.bestia.zone.geometry.Vec3L
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.ecs.core.World
@@ -34,6 +35,15 @@ class CampfireService(
   private val chests: ChestStorages,
   private val clock: Clock = Clock.systemUTC(),
 ) {
+
+  /** A burning campfire within [reach] tiles of [at], or null. */
+  fun burningNear(at: Vec3L, reach: Long): StructureEntry? {
+    val now = clock.instant()
+
+    return structures.all().firstOrNull {
+      it.kind == StaticEntityKind.CAMPFIRE && !it.isUnderConstruction && it.canWorkAt(now) && it.position.distance(at) <= reach
+    }
+  }
 
   /** @return the refusal to send back, or null when the log went on */
   fun addWood(world: World, actorId: EntityId, structureId: Long): OpError? {

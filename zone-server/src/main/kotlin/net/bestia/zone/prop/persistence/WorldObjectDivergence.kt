@@ -1,5 +1,6 @@
 package net.bestia.zone.prop.persistence
 
+import org.hibernate.annotations.ColumnDefault
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -20,7 +21,12 @@ import org.hibernate.Length
  * Append-only: a structure kind (`BUILT`, `DAMAGED`, ...) belongs here once players can build on the same
  * static-entity channel `StaticEntityKind`'s own KDoc already anticipates.
  */
-enum class DivergenceState { DEPLETED, STUMP, SAPLING, YOUNG }
+enum class DivergenceState {
+  DEPLETED, STUMP, SAPLING, YOUNG,
+
+  /** A replanted tree grown back that still carries what its planter added, see `DivergenceEntry.bonusYield`. */
+  GROWN,
+}
 
 /**
  * A generated static entity whose state no longer matches what `propsIn()` alone would produce - keyed on
@@ -91,6 +97,16 @@ class WorldObjectDivergence(
   /** Non-null: regrows, or for a growing tree reaches its next stage, at this instant. Null: terminal. */
   @Column
   var resumeAt: Instant? = null
+
+  /** A replanted tree's pace: its stages take this share of the usual time, in percent. */
+  @Column(name = "growth_percent", nullable = false)
+  @ColumnDefault("100")
+  var growthPercent: Int = 100
+
+  /** Extra stacks of the kind's loot the tree drops when it is felled grown, from its planter. */
+  @Column(name = "bonus_yield", nullable = false)
+  @ColumnDefault("0")
+  var bonusYield: Int = 0
 
   /** Unused today; an escape hatch for who claimed it, or similar, never queried on. */
   @Lob
