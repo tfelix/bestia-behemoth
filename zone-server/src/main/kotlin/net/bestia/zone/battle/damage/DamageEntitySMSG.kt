@@ -21,12 +21,14 @@ data class DamageEntitySMSG(
     NORMAL,
     CRIT,
     DODGE,
-    HEAL;
+    HEAL,
+    BLOCK;
 
     companion object {
       /** Exhaustive over [Damage], so a new result type is a compile error here rather than a silent NORMAL. */
       fun of(damage: Damage): DamageType = when (damage) {
         is Miss -> MISS
+        is Blocked -> BLOCK
         is CriticalHit -> CRIT
         is Heal -> HEAL
         is HitDamage, is TrueDamage -> NORMAL
@@ -58,6 +60,7 @@ data class DamageEntitySMSG(
       DamageType.CRIT -> DamageEntitySMSGProto.DamageType.CRIT
       DamageType.DODGE -> DamageEntitySMSGProto.DamageType.DODGE
       DamageType.HEAL -> DamageEntitySMSGProto.DamageType.HEAL
+      DamageType.BLOCK -> DamageEntitySMSGProto.DamageType.BLOCK
     }
   }
 

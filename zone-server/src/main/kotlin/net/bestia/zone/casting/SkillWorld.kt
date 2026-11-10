@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.damage.HitKind
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.battle.ecs.effects.AreaEffect
@@ -90,8 +91,11 @@ interface SkillWorld {
 
   // ----------------------------------------------------------------- effects
 
-  /** Lands [damage] on [targetEntityId] and shows the number to everyone who can see it. */
-  fun apply(targetEntityId: EntityId, damage: Damage)
+  /**
+   * Lands [damage] on [targetEntityId] and shows the number to everyone who can see it. A blow is weighed by both
+   * sides' damage modifiers first, as [kind] - the skill's own kind when null, see [HitKind.ofSkill].
+   */
+  fun apply(targetEntityId: EntityId, damage: Damage, kind: HitKind? = null)
 
   /**
    * [amount] goes to the effect instance, like the element an endowment gives a weapon or the strength a skill's

@@ -1,5 +1,9 @@
 package net.bestia.zone.battle.status
 
+import net.bestia.zone.battle.BestiaKind
+import net.bestia.zone.battle.damage.DamageModifiers
+import net.bestia.zone.battle.damage.HitForm
+import net.bestia.zone.battle.damage.HitReach
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.RangedWeapon
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
@@ -107,6 +111,10 @@ class StatusValueRecalcContext(
   var hpRegen: RegenModifier = RegenModifier()
     private set
 
+  /** See [DamageModifiers]: bonuses to damage dealt and reductions to damage taken, by the other side. */
+  var damageModifiers: DamageModifiers = DamageModifiers.NONE
+    private set
+
   var manaRegen: RegenModifier = RegenModifier()
     private set
 
@@ -172,6 +180,40 @@ class StatusValueRecalcContext(
     hitPercent += hit
     aspdPercent += aspd
     healReceivedPercent += healReceived
+  }
+
+  /** More damage dealt to a [kind], an [element] or a boss, in percent; see [DamageModifiers]. */
+  fun addDamageDealt(percent: Int, kind: BestiaKind? = null, element: Element? = null, boss: Boolean = false) {
+    val current = damageModifiers
+    damageModifiers = current.copy(
+      dealtVsKind = if (kind != null) current.dealtVsKind.plusPercent(kind, percent) else current.dealtVsKind,
+      dealtVsElement = if (element != null) current.dealtVsElement.plusPercent(element.base, percent) else current.dealtVsElement,
+      dealtVsBoss = if (boss) current.dealtVsBoss + percent else current.dealtVsBoss,
+    )
+  }
+
+  /**
+   * Less damage taken, in percent: from a [kind] or a boss, or of a [form] (physical, magic) or [reach] (melee,
+   * ranged). Iron Skin is `addDamageTaken(3 * level, form = HitForm.PHYSICAL)`. See [DamageModifiers].
+   */
+  fun addDamageTaken(
+    percent: Int,
+    kind: BestiaKind? = null,
+    boss: Boolean = false,
+    form: HitForm? = null,
+    reach: HitReach? = null,
+  ) {
+    val current = damageModifiers
+    damageModifiers = current.copy(
+      takenFromKind = if (kind != null) current.takenFromKind.plusPercent(kind, percent) else current.takenFromKind,
+      takenFromBoss = if (boss) current.takenFromBoss + percent else current.takenFromBoss,
+      takenByForm = if (form != null) current.takenByForm.plusPercent(form, percent) else current.takenByForm,
+      takenByReach = if (reach != null) current.takenByReach.plusPercent(reach, percent) else current.takenByReach,
+    )
+  }
+
+  private fun <K> Map<K, Int>.plusPercent(key: K, percent: Int): Map<K, Int> {
+    return this + (key to (this[key] ?: 0) + percent)
   }
 
   fun addCastTimeReduction(percent: Int) {

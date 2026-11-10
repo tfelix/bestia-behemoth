@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.status
 
+import net.bestia.zone.battle.damage.DamageModifiers
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.Weapon
 
@@ -41,6 +42,9 @@ data class CombatValues(
 
   /** See [StatusValueRecalcContext.weaponElement]. */
   val weaponElement: Element? = null,
+
+  /** See [DamageModifiers]. */
+  val damageModifiers: DamageModifiers = DamageModifiers.NONE,
 ) {
 
   companion object {
@@ -93,7 +97,7 @@ data class CombatValues(
         healReceivedPercent = context.healReceivedPercent,
         attackPercent = context.attackPercent,
         weaponElement = context.weaponElement
-      )
+      ).copy(damageModifiers = context.damageModifiers)
     }
 
     private fun resolve(

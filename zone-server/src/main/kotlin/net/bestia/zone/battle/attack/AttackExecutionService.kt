@@ -1,5 +1,10 @@
 package net.bestia.zone.battle.attack
 
+import net.bestia.zone.battle.damage.Blocked
+import net.bestia.zone.battle.damage.weighedTo
+import net.bestia.zone.battle.damage.DamageLanding
+import net.bestia.zone.battle.damage.HitReach
+import net.bestia.zone.battle.damage.HitKind
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.ActionGuard
@@ -154,7 +159,7 @@ class AttackExecutionService(
       )
     }
 
-    apply(world, attackerId, targetId, result, ammunition)
+    apply(world, attackerId, targetId, result, ammunition, hitKindOf(ctx.usedAttack))
     actionReactions.notifyActed(world, attackerId, EntityAction.ATTACKED)
     corrode(world, attackerId, targetId, attack, result)
 
@@ -177,16 +182,25 @@ class AttackExecutionService(
     gearWear.wearWeapon(world, attackerId, Corrosive.WEAR_PER_HIT)
   }
 
+  private fun hitKindOf(attack: BattleAttack): HitKind {
+    return when (attack.attackType) {
+      AttackType.MAGIC -> HitKind.magic(attack.attackElement)
+      AttackType.RANGED_PHYSICAL -> HitKind.physical(HitReach.RANGED, attack.attackElement)
+      AttackType.MELEE_PHYSICAL -> HitKind.physical(HitReach.MELEE, attack.attackElement)
+    }
+  }
+
   private fun apply(
     world: World,
     attackerId: EntityId,
     targetId: EntityId,
-    result: DamageResult,
+    swung: DamageResult,
     ammunition: Ammunition?,
+    kind: HitKind,
   ) {
     if (!world.has(targetId, Position::class)) return
 
-    val msg = DamageEntitySMSG(
+    fun messageOf(result: DamageResult) = DamageEntitySMSG(
       entityId = targetId,
       sourceEntityId = attackerId,
       // 0 is "no catalogue entry", which is what a basic attack is - the client falls back to its
@@ -211,8 +225,9 @@ class AttackExecutionService(
         return@defer
       }
 
+      val result = swung.weighedTo(DamageLanding.weigh(world, attackerId, targetId, kind, swung.amount))
       when (result) {
-        is Miss -> Unit
+        is Miss, is Blocked -> Unit
 
         is Heal -> Healing.heal(world, targetId, result.amount)
 
@@ -224,12 +239,12 @@ class AttackExecutionService(
           }
 
           val staged = world.get(targetId, IncomingDamage::class) ?: world.add(targetId, IncomingDamage())
-          staged.add(result.amount, attackerId)
+          staged.add(result.amount, attackerId, kind)
           ammunition?.effect?.onHit(world, attackerId, targetId, result)
         }
       }
 
-      outMessageProcessor.sendToObserversOf(world, targetId, msg)
+      outMessageProcessor.sendToObserversOf(world, targetId, messageOf(result))
     }
   }
 
@@ -243,7 +258,7 @@ class AttackExecutionService(
       WorldObjectIdentity::class, PropPose::class, PropVitality::class,
       // Who is told the quiver is empty.
       Account::class,
-    ) + DamageGate.READS
+    ) + DamageGate.READS + DamageLanding.READS
 
     /** What [attack] writes: the staged damage, the attacker's delay, and a prop promoted on its first hit. */
     val WRITES: ComponentClassSet = setOf(
