@@ -625,3 +625,7 @@ BESTIA_EGG,bestia egg
 BESTIA_EGG_DESC,"A bestia egg from a Breeding Farm, still warm.
 
 It only hatches in an Incubator."
+INCUBATOR_KIT,incubator kit
+INCUBATOR_KIT_DESC,"Fired bricks around an ember core, with a padded nest on top.
+
+Set it down and it becomes an Incubator, which keeps one egg warm until it hatches."
