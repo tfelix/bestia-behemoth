@@ -246,10 +246,11 @@ class MasterDeletionServiceTest {
 
     /**
      * How many `ItemInstance` rows `MasterFactory.create` mints: the starter map chart, the five pieces of
-     * novice kit, and the novice bow. Named rather than inlined because this test is about the *delete* order, and
-     * a change to what a master starts with should read as a new number here rather than as a broken cascade.
+     * novice kit, and the novice bow, sword and rod. Named rather than inlined because this test is about the
+     * *delete* order, and a change to what a master starts with should read as a new number here rather than as a
+     * broken cascade.
      */
-    const val CREATION_INSTANCES = 7
+    const val CREATION_INSTANCES = 9
 
     val NEXT_NAME = AtomicInteger(1)
   }
