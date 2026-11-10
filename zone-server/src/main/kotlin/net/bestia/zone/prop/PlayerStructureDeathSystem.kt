@@ -60,7 +60,7 @@ class PlayerStructureDeathSystem(
       }
 
       structures.of(identity.structureId)?.let { stations.spill(world, it, position) }
-      chests.forget(identity.structureId)
+      chests.spill(identity.structureId, identity.ownerAccountId, position)
 
       val chunkSize = worldService.config.chunkSize.toLong()
       structures.remove(
