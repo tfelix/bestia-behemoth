@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SetStationWorkerCmsgProto";
+
+/**
+ * Pick who works a station's queue: one of the owner's bestias, or the owner themselves. A bestia keeps working
+ * while its master is logged out. Answered with a StationStateSMSG, or an OperationError.
+ */
+message SetStationWorkerCMSG {
+  uint64 structure_id = 1;
+  // An owned bestia's entity id, or 0 for the master.
+  uint64 worker_entity_id = 2;
+}
