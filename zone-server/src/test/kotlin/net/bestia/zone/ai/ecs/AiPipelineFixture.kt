@@ -43,6 +43,7 @@ import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.prop.CollectPropIntentSystem
 import net.bestia.zone.prop.PropKindRegistry
 import net.bestia.zone.prop.PropPromotionService
+import net.bestia.zone.prop.HerbPicking
 import net.bestia.zone.prop.PropRemoval
 import net.bestia.zone.prop.WorldObjectDivergenceRegistry
 import net.bestia.zone.prop.WorldObjectResidencyService
@@ -339,7 +340,7 @@ class AiPipelineFixture(
     MoveSystem({ null }, GroundTrample.NONE, TestNavigation.flatGround()),
     CollectPropIntentSystem(
       propKinds, divergence, PropRemoval(propKinds, divergence, propResidency), mockk(relaxed = true),
-      GatheringExp(ItemStatCatalog()),
+      GatheringExp(ItemStatCatalog()), HerbPicking(mockk(relaxed = true), mockk(relaxed = true)),
     ),
   )
 

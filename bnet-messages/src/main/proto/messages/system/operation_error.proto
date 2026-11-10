@@ -361,6 +361,8 @@ enum OpError {
   SURVEY_MISSED = 143;
   SURVEY_NOT_YOURS = 144;
   SURVEY_IN_PROGRESS = 145;
+  // A herb above the level the picker's Herbalism allows.
+  HERB_TOO_RARE = 146;
 }
 
 message OperationError {

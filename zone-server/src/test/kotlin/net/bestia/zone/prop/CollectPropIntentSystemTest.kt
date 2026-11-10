@@ -65,14 +65,14 @@ class CollectPropIntentSystemTest {
     }
   }
 
-  private fun newSystem(): CollectPropIntentSystem {
+  private fun newSystem(herbs: HerbPicking = HerbPicking(mockk(relaxed = true), mockk(relaxed = true))): CollectPropIntentSystem {
     divergence = newDivergence()
     residency = mockk(relaxed = true)
     out = mockk(relaxed = true)
 
     val kinds = PropKindRegistry().also { it.load() }
     return CollectPropIntentSystem(
-      kinds, divergence, PropRemoval(kinds, divergence, residency), out, GatheringExp(ItemStatCatalog())
+      kinds, divergence, PropRemoval(kinds, divergence, residency), out, GatheringExp(ItemStatCatalog()), herbs
     )
   }
 
@@ -295,5 +295,21 @@ class CollectPropIntentSystemTest {
     // Two crystals at item level 1: 2 * 1 + 5 each.
     assertEquals(14, world.get(bestia, GainExp::class)?.value)
     assertNull(world.get(master, GainExp::class))
+  }
+
+  @Test
+  fun `a herb above the picker's Herbalism stays where it grows`() {
+    val herbs = HerbPicking(
+      skills = mockk { every { findByIdentifier("M_HERBALISM") } returns mockk { every { id } returns 23L } },
+      items = mockk { every { baseLevelOf(any()) } returns 20 },
+    )
+    val world = worldWith(newSystem(herbs))
+    val collector = world.addCollector(world.addProp(kind = StaticEntityKind.MEDICINAL_HERB))
+
+    world.tick(0f)
+
+    assertNull(world.grantOf(collector))
+    assertNull(divergence.of(7001L))
+    verify { out.sendToPlayer(1L, OperationErrorSMSG(OperationErrorProto.OpError.HERB_TOO_RARE)) }
   }
 }
