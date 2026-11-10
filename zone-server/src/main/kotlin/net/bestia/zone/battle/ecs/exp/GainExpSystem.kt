@@ -1,5 +1,10 @@
 package net.bestia.zone.battle.ecs.exp
 
+import net.bestia.zone.battle.passive.scripts.ExpertTaming
+import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.SkillId
+import net.bestia.zone.skill.OwnerSkills
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
@@ -24,10 +29,14 @@ class GainExpSystem(
   private val levelUpExpCalc: LevelUpExperienceCalculator,
   private val writeBehind: EntityWriteBehind,
   private val levelUpListeners: List<LevelUpListener> = emptyList(),
+  private val skills: SkillRepository? = null,
 ) : System {
   override val phase = Phase.ITEMS
 
-  override val reads: ComponentClassSet = setOf(
+  /** Resolved lazily: the catalogue is imported after this bean exists. */
+  private val expertTamingId: Long? by lazy { skills?.findByIdentifier(SkillId.M_EXPERT_TAMING)?.id }
+
+  override val reads: ComponentClassSet = OwnerSkills.READS + setOf(
     Master::class,
     Account::class,
     OwnedBestia::class,
@@ -52,7 +61,7 @@ class GainExpSystem(
       val levelComp = get<Level>()
       val isMaster = world.has(entityId, Master::class)
 
-      expComp.value += gainExpComp.value
+      expComp.value += withTamingBonus(world, entityId, gainExpComp.value)
       world.remove(entityId, GainExp::class)
 
       var leveledUp = false
@@ -96,6 +105,14 @@ class GainExpSystem(
     if (gainedMasters.isNotEmpty()) {
       writeBehind.persist(world, gainedMasters, withStatusEffects = false)
     }
+  }
+
+  /** A bestia learns faster under a master with Expert Taming: `+5%/lv` of what it gains. */
+  private fun withTamingBonus(world: World, entityId: EntityId, gained: Int): Int {
+    if (!world.has(entityId, OwnedBestia::class)) return gained
+    val tamingLevel = expertTamingId?.let { OwnerSkills.levelOf(world, entityId, it) } ?: 0
+
+    return gained * (100 + ExpertTaming.EXP_PERCENT_PER_LEVEL * tamingLevel) / 100
   }
 
   private fun announceLevelUp(world: World, entityId: EntityId, isMaster: Boolean) {

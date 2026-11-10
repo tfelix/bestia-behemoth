@@ -1,5 +1,7 @@
 package net.bestia.zone.battle.status
 
+import net.bestia.zone.battle.gear.WeaponType
+import net.bestia.zone.battle.gear.ToolKind
 import net.bestia.zone.battle.damage.DamageModifiers
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.Weapon
@@ -56,6 +58,11 @@ data class CombatValues(
   val castInterruptResistance: Int = 0,
   val statusImmunities: Set<StatusEffectId> = emptySet(),
   val knockbackImmune: Boolean = false,
+  val carryCapacityPercent: Int = 0,
+
+  /** What is held in the right hand, for a rule about it: a tree falls only to an axe or a felling tool. */
+  val heldWeaponType: WeaponType? = null,
+  val heldTool: ToolKind? = null,
 ) {
 
   companion object {
@@ -117,6 +124,9 @@ data class CombatValues(
         castInterruptResistance = context.castInterruptResistance,
         statusImmunities = context.statusImmunities,
         knockbackImmune = context.knockbackImmune,
+        carryCapacityPercent = context.carryCapacityPercent,
+        heldWeaponType = context.heldWeaponType,
+        heldTool = context.heldTool,
       )
     }
 

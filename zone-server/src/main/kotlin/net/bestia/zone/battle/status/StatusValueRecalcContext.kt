@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.status
 
+import net.bestia.zone.battle.gear.ToolKind
 import net.bestia.zone.battle.gear.ArmorType
 import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.battle.BestiaKind
@@ -115,6 +116,7 @@ class StatusValueRecalcContext(
    * weapons, Heavy Armor Mastery in plate. Filled by the equipment before the passives run.
    */
   var heldWeaponType: WeaponType? = null
+  var heldTool: ToolKind? = null
   var offHandWeaponType: WeaponType? = null
   var bodyArmorType: ArmorType? = null
 
@@ -169,6 +171,9 @@ class StatusValueRecalcContext(
   fun addStatusImmunities(vararg effects: StatusEffectId) {
     statusImmunities = statusImmunities + effects
   }
+
+  /** Percent more weight the entity can carry, beside what strength and vitality give. */
+  var carryCapacityPercent: Int = 0
 
   /** Cannot be pushed back by a blow or a blast. A dash of its own still moves it. */
   var knockbackImmune: Boolean = false

@@ -202,7 +202,7 @@ class StatusValueRecalcSystem(
     for ((skillId, script) in passiveSkillScriptRegistry.bound()) {
       val level = masterSkills.levelOf(skillId)
       if (script.reachesOwnedBestias && level > 0) {
-        script.apply(context, level)
+        script.applyToBestia(context, level)
       }
     }
   }

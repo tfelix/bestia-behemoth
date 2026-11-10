@@ -57,6 +57,12 @@ enum class SkillId {
 
   // Passives with a stat effect, named by their PassiveSkillScript bean rather than from the yml.
   M_MEDITATION,
+  M_QUICK_TRAVEL,
+  M_MAXIMIZE_CARRY_CAPACITY,
+  M_EXPERT_TAMING,
+
+  // Read by the systems they change: felling and its yield.
+  M_LUMBERJACK,
 
   // Capture: their levels add to every catch roll in net.bestia.zone.capture.BestiaTrapSystem.
   M_TRAPPING,

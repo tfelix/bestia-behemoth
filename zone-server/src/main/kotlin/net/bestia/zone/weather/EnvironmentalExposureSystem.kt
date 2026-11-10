@@ -1,5 +1,6 @@
 package net.bestia.zone.weather
 
+import net.bestia.zone.skill.OwnerSkills
 import net.bestia.zone.battle.ecs.status.CombatStats
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.ecs.KnownSkills
@@ -60,7 +61,7 @@ class EnvironmentalExposureSystem(
   override val schedule: Schedule get() = Schedule.EveryTick
 
   override val reads: ComponentClassSet =
-    setOf(Position::class, KnownSkills::class, StatusEffects::class, CombatStats::class) + DamageGate.READS
+    setOf(Position::class, StatusEffects::class, CombatStats::class) + OwnerSkills.READS + DamageGate.READS
 
   override val writes: ComponentClassSet = setOf(Stamina::class, Health::class, Dead::class)
 
@@ -108,8 +109,9 @@ class EnvironmentalExposureSystem(
       // indefinitely at a slower rate; a wider band means the ice sheet is simply *comfortable* until it is
       // not, which is what "increased tolerance against high and low environment temperatures" says. It also
       // means the skill can never make a survivable place lethal by being retuned.
+      // A master's bestias bear the weather as well as the master who learned it.
       val tolerance = resistanceId?.let { id ->
-        (world.get(entityId, KnownSkills::class)?.levelOf(id) ?: 0) * config.tolerancePerResistanceLevel
+        OwnerSkills.levelOf(world, entityId, id) * config.tolerancePerResistanceLevel
       } ?: 0.0
 
       // How far outside the comfort band, in degrees. Zero inside it, which is most of the world most of the
