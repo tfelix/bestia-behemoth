@@ -28,6 +28,10 @@ import net.bestia.zone.casting.NoSkillScriptException
 import net.bestia.zone.casting.SkillCheckService
 import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.casting.SkillStrategyFactory
+import net.bestia.zone.casting.SkillLevelCost
+import net.bestia.zone.battle.ecs.status.Mana
+import net.bestia.zone.battle.ecs.status.Stamina
+import net.bestia.bnet.proto.OperationErrorProto.OpError
 
 /**
  * Handles a player activating a learned skill from the UI (Skills window or hotbar), for whichever
@@ -112,7 +116,10 @@ class ActivateSkillHandler(
     // Before the cast starts, so a skill whose reagent is missing is refused while the
     // player is still looking at the button rather than after channelling for it. Nothing is spent here - see
     // SkillStrategy.checkCastStart.
-    val denial = world.modify(activeEntityId) { id -> strategy.checkCastStart(this, id, msg.skillLevel) }
+    val cost = strategy.costOf(skill, msg.skillLevel)
+    val denial = world.modify(activeEntityId) { id ->
+      unaffordable(this, id, cost) ?: strategy.checkCastStart(this, id, msg.skillLevel)
+    }
     if (denial != null) {
       LOG.debug { "Activation of ${skill.identifier} by $activeEntityId refused: $denial" }
       outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(denial))
@@ -161,7 +168,7 @@ class ActivateSkillHandler(
         propPromotion.promoteIfNeeded(this, targetEntityId, caster, CombatTargetPromotion.TARGETING_REACH)
       }
 
-      if (skill.castTime > 0f) {
+      if (cost.castTimeSeconds > 0f) {
         // Starting a new cast supersedes whatever was being cast before.
         add(
           id, Casting(
@@ -169,7 +176,7 @@ class ActivateSkillHandler(
             skillLevel = msg.skillLevel,
             targetEntityId = targetEntityId,
             targetPosition = targetPosition,
-            totalSeconds = reducedCastTime(skill.castTime, get(id, CombatStats::class)?.values?.castTimeReduction ?: 0)
+            totalSeconds = reducedCastTime(cost.castTimeSeconds, get(id, CombatStats::class)?.values?.castTimeReduction ?: 0)
           )
         )
       }
@@ -177,7 +184,7 @@ class ActivateSkillHandler(
       id
     } ?: return true
 
-    if (skill.castTime <= 0f) {
+    if (cost.castTimeSeconds <= 0f) {
       skillExecutionService.execute(
         world = world,
         casterId = started,
@@ -189,6 +196,21 @@ class ActivateSkillHandler(
     }
 
     return true
+  }
+
+  /**
+   * Refuses a cast its caster cannot pay for while the button is still under their finger. Only checked: the cost
+   * is paid when the cast resolves, and checked again there.
+   */
+  private fun unaffordable(world: World, casterId: EntityId, cost: SkillLevelCost): OpError? {
+    val mana = world.get(casterId, Mana::class)?.current ?: Int.MAX_VALUE
+    val stamina = world.get(casterId, Stamina::class)?.current ?: Int.MAX_VALUE
+
+    return when {
+      mana < cost.manaCost -> OpError.SKILL_NOT_ENOUGH_MANA
+      stamina < cost.staminaCost -> OpError.SKILL_NOT_ENOUGH_STAMINA
+      else -> null
+    }
   }
 
   private fun reducedCastTime(seconds: Float, reductionPercent: Int): Float {

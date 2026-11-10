@@ -2,6 +2,10 @@ package net.bestia.zone.casting
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import net.bestia.zone.battle.ecs.status.Stamina
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.battle.BattleContextFactory
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.damage.HitDamage
@@ -213,8 +217,69 @@ class SkillExecutionServiceTest {
     assertEquals(2, script.casts, "the cast inside the cooldown must not resolve")
   }
 
+  @Test
+  fun `a script's level table decides mana and cooldown`() {
+    val script = LevelledScript()
+    val caster = world.spawnFighter(mana = 100)
+    val target = world.spawnFighter()
+    val service = serviceFor(script)
+
+    service.executeNow(world, caster, SKILL_ID, 3, target, null)
+
+    assertEquals(70, world.manaOf(caster), "level 3 costs 10 mana per level")
+    clock.advanceSeconds(5)
+    assertFalse(service.isReady(world, caster, SKILL_ID), "level 3 cools down for 6 seconds")
+    clock.advanceSeconds(1)
+    assertTrue(service.isReady(world, caster, SKILL_ID))
+  }
+
+  @Test
+  fun `a cast it cannot pay stamina for fizzles and spends no mana`() {
+    val script = LevelledScript(staminaCost = 50)
+    val caster = world.spawnFighter(mana = 100, stamina = 20)
+    val target = world.spawnFighter()
+
+    serviceFor(script).executeNow(world, caster, SKILL_ID, 1, target, null)
+
+    assertEquals(0, script.casts)
+    assertEquals(100, world.manaOf(caster), "mana and stamina are paid together or not at all")
+    assertEquals(20, world.get(caster, Stamina::class)?.current)
+  }
+
+  @Test
+  fun `the owner is told how long a cast skill recovers`() {
+    val messages = mockk<OutMessageProcessor>(relaxed = true)
+    val caster = world.spawnFighter()
+    world.add(caster, Account(accountId = 7L))
+    val cooldowns = SkillCooldownService(clock, messages)
+
+    cooldowns.start(world, caster, SKILL_ID, seconds = 2.5f)
+
+    verify { messages.sendToPlayer(7L, SkillCooldownSMSG(caster, SKILL_ID, 2500L)) }
+  }
+
+  /** Costs 10 mana and cools down 2 seconds per level, the way a master skill's own table does. */
+  private class LevelledScript(private val staminaCost: Int = 0) : SkillStrategy {
+    var casts = 0
+      private set
+
+    override fun costOf(skill: Skill, level: Int) = SkillLevelCost.of(skill).copy(
+      manaCost = 10 * level,
+      staminaCost = staminaCost,
+      cooldownSeconds = 2f * level,
+    )
+
+    override fun isCastPossible(ctx: SkillContext) = true
+
+    override fun execute(ctx: SkillContext): Damage? {
+      casts++
+
+      return null
+    }
+  }
+
   private fun serviceFor(script: SkillStrategy, manaCost: Int = 0, cooldown: Float = 0f) =
-    service(skill(manaCost = manaCost, cooldown = cooldown), SkillStrategyFactory(listOf(script)))
+    service(skill(manaCost = manaCost, script = script::class.simpleName!!, cooldown = cooldown), SkillStrategyFactory(listOf(script)))
 
   private fun service(skill: Skill, strategies: SkillStrategyFactory): SkillExecutionService {
     val repository = mockk<SkillRepository>()
@@ -274,10 +339,11 @@ class SkillExecutionServiceTest {
     cooldown = cooldown
   )
 
-  private fun World.spawnFighter(mana: Int = 0, at: Vec3L = Vec3L(1, 0, 0)): EntityId = createEntity { id ->
+  private fun World.spawnFighter(mana: Int = 0, stamina: Int = 0, at: Vec3L = Vec3L(1, 0, 0)): EntityId = createEntity { id ->
     add(id, Position.fromVec3(at))
     add(id, BattleContextFixture.combatStats())
     if (mana > 0) add(id, Mana(mana, mana))
+    if (stamina > 0) add(id, Stamina(stamina, stamina))
   }
 
   private fun World.manaOf(id: EntityId): Int = get(id, Mana::class)?.current ?: 0

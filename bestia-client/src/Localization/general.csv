@@ -590,6 +590,8 @@ ERROR_POST_OFFICE_CLOSED,The postmaster has gone home. Come back during their ho
 ERROR_ITEM_BOUND,This stays with you until you deliver it.
 ERROR_ROUTE_TOO_HEAVY,You cannot carry that much mail. Take fewer parcels.
 ERROR_COURIER_STRUCK_OFF,You missed a mail deadline. The post gives you no work until you are no longer struck off.
+ERROR_SKILL_NOT_ENOUGH_MANA,You do not have enough mana for that skill.
+ERROR_SKILL_NOT_ENOUGH_STAMINA,You are too exhausted for that skill.
 =======
 SKILLS_TITLE,Skills
 SKILLS_TAB_OTHER,Other

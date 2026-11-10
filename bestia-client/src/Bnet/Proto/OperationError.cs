@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqMGAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrFGAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -94,9 +94,10 @@ namespace Bnet {
             "UEFSQ0VMX0NBTk5PVF9BRkZPUkQQdBITCg9QQVJDRUxfTk9UX0hFUkUQdRIW",
             "ChJQQVJDRUxfTk9UX0FSUklWRUQQdhIWChJQT1NUX09GRklDRV9DTE9TRUQQ",
             "dxIOCgpJVEVNX0JPVU5EEHgSEwoPUk9VVEVfVE9PX0hFQVZZEHkSFgoSQ09V",
-            "UklFUl9TVFJVQ0tfT0ZGEHoiBAguEC4qElNIT1BfVFJFQVNVUllfRlVMTEIs",
-            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9i",
-            "BnByb3RvMw=="));
+            "UklFUl9TVFJVQ0tfT0ZGEHoSGQoVU0tJTExfTk9UX0VOT1VHSF9NQU5BEHsS",
+            "HAoYU0tJTExfTk9UX0VOT1VHSF9TVEFNSU5BEHwiBAguEC4qElNIT1BfVFJF",
+            "QVNVUllfRlVMTEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlv",
+            "bkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -577,6 +578,11 @@ namespace Bnet {
     /// The courier missed a mail deadline and is struck off. The player waits until STRUCK_OFF runs out.
     /// </summary>
     [pbr::OriginalName("COURIER_STRUCK_OFF")] CourierStruckOff = 122,
+    /// <summary>
+    /// The caster has less mana or stamina than the skill costs at this level.
+    /// </summary>
+    [pbr::OriginalName("SKILL_NOT_ENOUGH_MANA")] SkillNotEnoughMana = 123,
+    [pbr::OriginalName("SKILL_NOT_ENOUGH_STAMINA")] SkillNotEnoughStamina = 124,
   }
 
   #endregion

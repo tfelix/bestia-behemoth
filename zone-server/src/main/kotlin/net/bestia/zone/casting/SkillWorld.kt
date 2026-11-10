@@ -124,8 +124,11 @@ interface SkillWorld {
   /** Sends [message] to every member of [guildId] being played. One operation. */
   fun tellGuild(guildId: Long, message: SMSG)
 
-  /** Drains the caster's mana, or false when it cannot pay - in which case nothing is spent. */
-  fun consumeCasterMana(cost: Int): Boolean
+  /**
+   * Drains the caster's [mana] and [stamina] together, or returns false when it cannot pay both - in which case
+   * nothing is spent. One operation.
+   */
+  fun payCasterCost(mana: Int, stamina: Int): Boolean
 
   // --------------------------------------------------------------- crafting
 

@@ -393,6 +393,9 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		# no handling so far. The skill list is handled via a own handler
 		# directly in the skills node. On an per entity level it is not handled.
 		pass
+	elif msg is SkillCooldownSMSG:
+		# Counted down by SkillCooldowns, which the hotbar reads; nothing on the entity shows it.
+		SkillCooldowns.start(msg.SkillId, msg.RemainingMs, msg.EntityId)
 	elif msg is SkillPointsComponentSMSG:
 		entity.update_skill_points(msg)
 	elif msg is EquipmentComponentSMSG:

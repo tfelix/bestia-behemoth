@@ -20,6 +20,7 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.Self] = e => Master.SelfSMSG.FromProto(e.Self),
       [Envelope.MessageOneofCase.OwnedBestias] = e => Master.OwnedBestiasSMSG.FromProto(e.OwnedBestias),
       [Envelope.MessageOneofCase.ActiveEntity] = e => Master.ActiveEntitySMSG.FromProto(e.ActiveEntity),
+      [Envelope.MessageOneofCase.SkillCooldown] = e => Entity.SkillCooldownSMSG.FromProto(e.SkillCooldown),
       [Envelope.MessageOneofCase.JourneyEnded] = e => Entity.JourneyEndedSMSG.FromProto(e.JourneyEnded),
       [Envelope.MessageOneofCase.Notebook] = e => Notebook.NotebookSMSG.FromProto(e.Notebook),
       [Envelope.MessageOneofCase.NotebookChanged] = e => Notebook.NotebookChangedSMSG.FromProto(e.NotebookChanged),

@@ -26,7 +26,7 @@ class RecordingSkillWorld(
   private val stations: MutableMap<StaticEntityKind, EntityId> = mutableMapOf(),
   private val entitiesNearby: Set<EntityId> = emptySet(),
 
-  /** What [consumeCasterMana] answers - false models a caster who cannot pay. */
+  /** What [payCasterCost] answers - false models a caster who cannot pay. */
   var manaAvailable: Boolean = true,
 
   private val memberships: MutableMap<EntityId, GuildMembership> = mutableMapOf(),
@@ -38,6 +38,7 @@ class RecordingSkillWorld(
   val recipeOffers = mutableListOf<Long>()
   val surveys = mutableListOf<Survey>()
   val manaSpent = mutableListOf<Int>()
+  val staminaSpent = mutableListOf<Int>()
   val guildEffects = mutableListOf<GuildEffect>()
   val guildRestorations = mutableListOf<GuildRestoration>()
   val guildMessages = mutableListOf<Pair<Long, SMSG>>()
@@ -243,12 +244,13 @@ class RecordingSkillWorld(
     return true
   }
 
-  override fun consumeCasterMana(cost: Int): Boolean {
+  override fun payCasterCost(mana: Int, stamina: Int): Boolean {
     if (!manaAvailable) {
       return false
     }
 
-    manaSpent += cost
+    manaSpent += mana
+    staminaSpent += stamina
 
     return true
   }
