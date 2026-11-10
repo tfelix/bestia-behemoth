@@ -74,11 +74,17 @@ var _reported_gold := 0
 ## the bag itself, which is always the newer of the two.
 var _carry_max: Dictionary[int, int]
 
-## The own entity whose bag the exchange column shows, or 0. Kept while it walks out of reach, so the column
-## comes back on its own when it returns.
+## The own entity or chest whose bag the exchange column shows, or 0. An own entity is kept while it walks out
+## of reach, so the column comes back on its own when it returns.
 var _partner_id := 0
 
-## Which own entities stand within reach of the driven one, with the hysteresis the constants describe.
+## The chest the player last opened, until they walk off or it vanishes; 0 for none. Unlike an own entity it
+## does not come back by itself: it has to be clicked again.
+var _chest_id := 0
+var _chest_slots := 0
+
+## Which own entities, and the open chest, stand within reach of the driven one, with the hysteresis the
+## constants describe.
 var _in_reach: Dictionary[int, bool]
 var _reach_poll := 0.0
 
@@ -86,6 +92,7 @@ func _ready() -> void:
 	# How the world's right-click menu, built long after this window, finds it.
 	add_to_group("inventory")
 	ConnectionManager.connect("entity_received", _on_entity_received)
+	ConnectionManager.chest_opened.connect(_on_chest_opened)
 	# Every change to a bag, and every switch of the controlled entity, already goes out as this signal.
 	inventory_updated.connect(_report_gold_change)
 	_exchange.item_dropped.connect(_on_dropped_on_partner)
@@ -133,6 +140,11 @@ func _on_controlled_entity_changed(previous_id: int, entity_id: int) -> void:
 
 
 func _on_entity_received(msg: EntitySMSG) -> void:
+	if msg is VanishEntitySMSG and msg.EntityId == _chest_id:
+		_close_chest()
+		_render_partner()
+		return
+
 	if msg is CarryCapacityComponentSMSG:
 		_carry_max[msg.EntityId] = msg.Max
 		if msg.EntityId == _partner_id:
@@ -425,7 +437,16 @@ func _update_reach() -> void:
 
 		var other := entity_manager.get_entity(entity_id)
 		var was_near: bool = _in_reach.get(entity_id, false)
-		reach[entity_id] = driven != null and other != null and _within_reach(driven, other, was_near)
+		reach[entity_id] = (
+			driven != null and other != null
+			and _within_reach(driven.get_logical_position(), other.get_logical_position(), was_near)
+		)
+
+	if _chest_id != 0:
+		if driven != null and _chest_in_reach(driven.get_logical_position()):
+			reach[_chest_id] = true
+		else:
+			_close_chest()
 
 	if reach == _in_reach:
 		return
@@ -450,12 +471,32 @@ func partners_in_reach() -> Array[int]:
 	return near
 
 
-func _within_reach(one: Entity, other: Entity, was_near: bool) -> bool:
-	var a := one.get_logical_position()
-	var b := other.get_logical_position()
+func _within_reach(a: Vector3, b: Vector3, was_near: bool) -> bool:
 	var limit := _EXCHANGE_LEAVE_METRES if was_near else _EXCHANGE_REACH_METRES
 
 	return Vector2(a.x - b.x, a.z - b.z).length() <= limit and absf(a.y - b.y) <= _EXCHANGE_REACH_HEIGHT
+
+
+## The server only opens a chest within reach, so it counts as near from the start. A chest whose chunk was
+## dropped has no position and counts as out of reach.
+func _chest_in_reach(driven_at: Vector3) -> bool:
+	var props: Node3D = ConnectionManager.chunk_stream.StaticEntities if ConnectionManager.chunk_stream != null else null
+	var chest_at = props.PositionOf(_chest_id) if props != null else null
+
+	return chest_at != null and _within_reach(driven_at, chest_at, true)
+
+
+func _on_chest_opened(msg: ChestOpenedSMSG) -> void:
+	_chest_id = msg.EntityId
+	_chest_slots = msg.Slots
+	open_exchange_with(_chest_id)
+
+
+func _close_chest() -> void:
+	if _partner_id == _chest_id:
+		_partner_id = 0
+	_items.erase(_chest_id)
+	_chest_id = 0
 
 
 ## One icon per own entity standing within reach, coloured by its slot and named in its tooltip; none for one
@@ -494,10 +535,21 @@ func _render_partner() -> void:
 	if not _exchange.visible:
 		return
 
-	_exchange.show_bag(_name_of(_partner_id), _items.get(_partner_id, []), _bag_weight(_partner_id), _carry_max.get(_partner_id, 0))
+	_exchange.show_bag(_name_of(_partner_id), _items.get(_partner_id, []), _capacity_of(_partner_id))
+
+
+func _capacity_of(entity_id: int) -> String:
+	if entity_id == _chest_id:
+		return tr("CHEST_SLOTS") % [_items.get(entity_id, []).size(), _chest_slots]
+
+	var limit: int = _carry_max.get(entity_id, 0)
+	return tr("EXCHANGE_WEIGHT") % [_bag_weight(entity_id) / 100.0, limit / 100.0] if limit > 0 else ""
 
 
 func _name_of(entity_id: int) -> String:
+	if entity_id == _chest_id:
+		return tr("CHEST")
+
 	var entity_manager := EntityManager.get_instance()
 	if entity_manager == null:
 		return "?"

@@ -620,6 +620,23 @@ namespace BestiaBehemothClient.Game.World
       return true;
     }
 
+    /// <summary>
+    /// Where a prop drawn with a node of its own stands - a scene, or the click target of a clickable prop.
+    /// Null once it is gone, or when it was only ever a slot in a batch.
+    /// </summary>
+    public Variant PositionOf(long entityId)
+    {
+      foreach (var byId in _drawn.Values)
+      {
+        if (byId.TryGetValue(entityId, out var drawn) && drawn.Node != null && IsInstanceValid(drawn.Node))
+        {
+          return drawn.Node.GlobalPosition;
+        }
+      }
+
+      return default;
+    }
+
     /// <summary>Drops everything drawn for a chunk. Safe to call for a chunk that was never drawn.</summary>
     public void Remove(ChunkKey key)
     {
