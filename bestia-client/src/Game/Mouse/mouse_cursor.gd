@@ -40,6 +40,7 @@ const _BY_ACTION := {
 	DefaultAction.Kind.BREAK: {&"texture": _PICKAXE, &"hotspot": Vector2(10, 7)},
 	DefaultAction.Kind.BUILD: _HAMMERING,
 	DefaultAction.Kind.USE_STATION: _HAMMERING,
+	DefaultAction.Kind.STRIKE: _OPEN_HAND,
 }
 
 

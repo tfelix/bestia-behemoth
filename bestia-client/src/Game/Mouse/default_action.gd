@@ -19,6 +19,7 @@ enum Kind {
 	BUILD,
 	USE_STATION,
 	BREAK,
+	STRIKE,
 }
 
 ## The names StaticEntityRenderer writes onto a PropPicker. Names rather than the C# enum's ordinals,

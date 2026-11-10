@@ -63,6 +63,9 @@ func handle_object_clicked(mgr: MouseManager, object: Node3D, event: InputEvent,
 			# A construction site: walking up to it and clicking is how you start building, and how you stop.
 			mgr.request_interact(object, object.get_structure_entity_id())
 
+		DefaultAction.Kind.STRIKE:
+			ConnectionManager.strike_line()
+
 
 func handle_object_hover(mgr: MouseManager, _object: Node3D, _entered: bool) -> void:
 	# Read back what the manager settled on instead of trusting this one event: sliding from one target
@@ -74,9 +77,10 @@ func handle_object_hover(mgr: MouseManager, _object: Node3D, _entered: bool) -> 
 func handle_ground_input_event(mgr: MouseManager, click_position: Vector3, event: InputEvent) -> void:
 	if event.is_action_pressed("normal_action"):
 		# An explicit walk order replaces whatever we were walking towards - the pilot is only ever the
-		# client steering, and so stops the moment the player steers themselves.
+		# client steering, and so stops the moment the player steers themselves. A cast is an order too.
 		mgr.cancel_steering()
-		ConnectionManager.move_to(click_position)
+		if not Angler.try_cast(click_position):
+			ConnectionManager.move_to(click_position)
 
 
 func handle_right_click(mgr: MouseManager, screen_position: Vector2) -> void:
@@ -139,6 +143,9 @@ func _action_for(object: Node3D) -> int:
 			return DefaultAction.Kind.COLLECT
 
 		return prop_action
+
+	if object is Bobber:
+		return DefaultAction.Kind.STRIKE if object.is_own() else DefaultAction.Kind.NONE
 
 	if object is StructureVisual:
 		if object.is_construction_site():

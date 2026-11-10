@@ -8,6 +8,7 @@ class_name EntityManager
 
 var EntityScn = preload("res://Game/Entity/Entity.tscn")
 var ArrowTracerScn = preload("res://Game/Entity/Visual/Projectile/ArrowTracer.tscn")
+var BobberScn = preload("res://Game/Fishing/Bobber.tscn")
 
 ## Above the feet: where an arrow leaves the bow arm and where it lands on a body.
 const _SHOT_FROM_HEIGHT := 1.2
@@ -37,6 +38,7 @@ var _guild_beacons: Dictionary[int, GuildMemberBeaconComponentSMSG] = {}
 var _journeys: Dictionary[int, JourneyComponentSMSG] = {}
 ## What a Detect skill lets the player's own entities sense, by entity id, while it lasts.
 var _detections: Dictionary[int, DetectingComponentSMSG] = {}
+var _bobbers: Dictionary[int, Bobber] = {}
 
 ## The player took control of another of their entities. [param previous_id] is 0 on the first one.
 signal controlled_entity_changed(previous_id: int, entity_id: int)
@@ -302,6 +304,10 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		journey_changed.emit(msg.EntityId)
 		return
 
+	if msg is FishingComponentSMSG:
+		_show_fishing_line(msg)
+		return
+
 	if msg is DetectingComponentSMSG:
 		if msg.Removed:
 			_detections.erase(msg.EntityId)
@@ -478,6 +484,24 @@ func _enter_combat(entity_id: int) -> void:
 	var entity: Entity = _entities.get(entity_id)
 	if entity != null:
 		entity.enter_combat()
+
+
+## One bobber per angler, kept until the line is pulled in.
+func _show_fishing_line(msg: FishingComponentSMSG) -> void:
+	var angler_id := int(msg.EntityId)
+	var bobber: Bobber = _bobbers.get(angler_id)
+
+	if msg.Removed:
+		if bobber != null:
+			bobber.queue_free()
+			_bobbers.erase(angler_id)
+		return
+
+	if bobber == null:
+		bobber = BobberScn.instantiate()
+		add_child(bobber)
+		_bobbers[angler_id] = bobber
+	bobber.show_line(msg)
 
 
 ## Draws the arrow first and the damage tag once it lands. A shooter this client does not see still lands

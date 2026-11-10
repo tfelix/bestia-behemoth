@@ -225,6 +225,8 @@ var SetGuildMotdCMSG = load("res://Bnet/Message/Guild/SetGuildMotdCMSG.cs")
 var SetGuildEmblemCMSG = load("res://Bnet/Message/Guild/SetGuildEmblemCMSG.cs")
 var TransferGuildLeadershipCMSG = load("res://Bnet/Message/Guild/TransferGuildLeadershipCMSG.cs")
 var LiftGuildExpulsionCMSG = load("res://Bnet/Message/Guild/LiftGuildExpulsionCMSG.cs")
+var CastLineCMSG = load("res://Bnet/Message/Fishing/CastLineCMSG.cs")
+var StrikeLineCMSG = load("res://Bnet/Message/Fishing/StrikeLineCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 var ChunkStreamManagerScript = load("res://Game/World/ChunkStreamManager.cs")
 var WeatherStateScript = load("res://Game/World/WeatherState.cs")
@@ -706,6 +708,21 @@ func collect_prop(entity_id: int) -> void:
 	var msg = CollectPropCMSG.new()
 	msg.EntityId = entity_id
 	_socket.SendMessage(msg)
+
+
+## Casts the active master's fishing line onto [param target], a water tile whose height is the water's top.
+## A refusal comes back as an OperationError; the bobber arrives as a FishingComponentSMSG.
+func cast_line(target: Vector3) -> void:
+	assert(is_ready_to_send())
+	var msg = CastLineCMSG.new()
+	msg.Target = target
+	_socket.SendMessage(msg)
+
+
+## Pulls the fishing line in. A catch arrives as an inventory gain.
+func strike_line() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(StrikeLineCMSG.new())
 
 
 ## Clicking on something in the world. What it means is decided by the server from what the target is, so
