@@ -1,5 +1,7 @@
 package net.bestia.zone.battle.attack
 
+import net.bestia.zone.skill.OwnerSkills
+import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.movement.ecs.Facing
 import net.bestia.zone.battle.damage.Blocked
 import net.bestia.zone.battle.damage.weighedTo
@@ -70,6 +72,7 @@ class AttackExecutionService(
   private val actionReactions: ActionReactions = ActionReactions.NONE,
   private val gearWear: GearWear = GearWear.NONE,
   private val swingProcs: List<SwingProc> = emptyList(),
+  private val felling: Felling? = null,
 ) {
 
   /** [READS] plus what spending an arrow reads, which only the item slice can name. */
@@ -185,6 +188,23 @@ class AttackExecutionService(
     gearWear.wearWeapon(world, attackerId, Corrosive.WEAR_PER_HIT)
   }
 
+  /**
+   * A blow on a tree: without an axe or a felling tool it does nothing and the attacker is told; with one,
+   * Lumberjack brings the tree down sooner. Null means the blow is spent on nothing.
+   */
+  private fun onTree(world: World, attackerId: EntityId, targetId: EntityId, result: DamageResult): DamageResult? {
+    val rules = felling ?: return result
+    if (!rules.isTree(world, targetId)) return result
+    if (!rules.canFell(world, attackerId)) {
+      world.get(attackerId, Account::class)?.let {
+        outMessageProcessor.sendToPlayer(it.accountId, OperationErrorSMSG(OpError.FELLING_NEEDS_AXE))
+      }
+      return null
+    }
+
+    return result.weighedTo(rules.felled(world, attackerId, result.amount))
+  }
+
   private fun hitKindOf(attack: BattleAttack): HitKind {
     return when (attack.attackType) {
       AttackType.MAGIC -> HitKind.magic(attack.attackElement)
@@ -228,7 +248,8 @@ class AttackExecutionService(
         return@defer
       }
 
-      val result = swung.weighedTo(DamageLanding.weigh(world, attackerId, targetId, kind, swung.amount))
+      val result = onTree(world, attackerId, targetId, swung.weighedTo(DamageLanding.weigh(world, attackerId, targetId, kind, swung.amount)))
+        ?: return@defer
       when (result) {
         is Miss, is Blocked -> Unit
 
@@ -262,7 +283,9 @@ class AttackExecutionService(
       WorldObjectIdentity::class, PropPose::class, PropVitality::class,
       // Who is told the quiver is empty.
       Account::class,
-    ) + DamageGate.READS + DamageLanding.READS
+      // A tree asks what is held and how well its feller knows the axe, see Felling.
+      StaticVisual::class,
+    ) + DamageGate.READS + DamageLanding.READS + OwnerSkills.READS
 
     /** What [attack] writes: the staged damage, the attacker's delay, and a prop promoted on its first hit. */
     val WRITES: ComponentClassSet = setOf(

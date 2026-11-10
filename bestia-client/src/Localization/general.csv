@@ -609,6 +609,7 @@ ERROR_RITUAL_FULL,Five helpers already stand in this circle.
 ERROR_RITUAL_FAILED,The ritual broke: its leader stopped channeling.
 ERROR_BASIC_SKILL_TRADE_POST_LOCKED,You need Basic Skill 3 to list or buy at a trade post.
 ERROR_SKILL_MISSING_REAGENT,You lack the item this skill uses up.
+ERROR_FELLING_NEEDS_AXE,You need an axe or a hatchet to fell a tree.
 SUCCESS_RITUAL_OPENED,You opened the ritual. Helpers may join; use the focus stone again to begin.
 SUCCESS_RITUAL_JOINED,You joined the ritual.
 SUCCESS_RITUAL_STARTED,The ritual begins. Hold the channel for 30 seconds.

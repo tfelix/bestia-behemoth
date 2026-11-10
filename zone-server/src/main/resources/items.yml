@@ -790,6 +790,7 @@ items:
     material: METAL
     equip-slot: RIGHT_HAND
     weapon-type: TOOL
+    tool: MINING
     max-durability: 180
     description: |
       A miner's pick, iron-headed on a straight ash haft.
@@ -804,6 +805,7 @@ items:
     material: METAL
     equip-slot: RIGHT_HAND
     weapon-type: TOOL
+    tool: FELLING
     max-durability: 150
     description: |
       A felling axe with a wide iron blade.
@@ -1376,6 +1378,7 @@ items:
     material: STONE
     equip-slot: RIGHT_HAND
     weapon-type: TOOL
+    tool: FELLING
     max-durability: 60
     description: |
       A knapped stone wedged into a stick.

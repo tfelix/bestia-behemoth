@@ -352,6 +352,8 @@ enum OpError {
   BASIC_SKILL_TRADE_POST_LOCKED = 138;
   // A skill whose cast uses up an item (a bandage, a crystal) was started without one in the bag.
   SKILL_MISSING_REAGENT = 139;
+  // A tree falls only to an axe or a felling tool like a hatchet.
+  FELLING_NEEDS_AXE = 140;
 }
 
 message OperationError {
