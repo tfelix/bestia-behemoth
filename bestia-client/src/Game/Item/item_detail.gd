@@ -20,9 +20,10 @@ static func as_bbcode(
 	item_level: int = 0,
 	rolled_stats: Array = [],
 	crafted_by: String = "",
-	crafted_in: String = ""
+	crafted_in: String = "",
+	own_name: String = ""
 ) -> String:
-	var title := "[b]%s[/b]" % _translate(item.name_key)
+	var title := "[b]%s[/b]" % (own_name if not own_name.is_empty() else _translate(item.name_key))
 	if upgrade_level > 0:
 		title += " +%d" % upgrade_level
 

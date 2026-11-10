@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 130
+name_key = "RELIC_BLADE"
+description_key = "RELIC_BLADE_DESC"
+weight = 350
+level = 50
+type = 1
+equip_slot = 6

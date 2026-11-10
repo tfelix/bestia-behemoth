@@ -100,6 +100,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export] public Vector2 MapCircleCentre { get; set; }
     [Export] public float MapCircleRadius { get; set; }
 
+    /// <summary>This copy's own name, like a relic's; empty for an item known only by its kind.</summary>
+    [Export] public string Title { get; set; } = "";
+
     /// <summary>
     /// Creates an InventoryItem from protobuf data
     /// </summary>
@@ -124,7 +127,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         MapCircleCentre = protoItem.MapCircle == null
           ? Vector2.Zero
           : new Vector2((float)protoItem.MapCircle.X, (float)protoItem.MapCircle.Y),
-        MapCircleRadius = (float)(protoItem.MapCircle?.Radius ?? 0.0)
+        MapCircleRadius = (float)(protoItem.MapCircle?.Radius ?? 0.0),
+        Title = protoItem.Title
       };
     }
   }

@@ -180,6 +180,7 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 			inv_item.unique_id = itemMsg.UniqueId
 			inv_item.crafted_by = itemMsg.CraftedBy
 			inv_item.crafted_in = itemMsg.CraftedIn
+			inv_item.title = itemMsg.Title
 			if itemMsg.HasMapCircle:
 				inv_item.map_circle = Vector3(itemMsg.MapCircleCentre.x, itemMsg.MapCircleCentre.y, itemMsg.MapCircleRadius)
 			inv_item.equipped = itemMsg.Equipped
@@ -265,6 +266,7 @@ func _render_items() -> void:
 		inv_item.unique_id = item.unique_id
 		inv_item.player_item_id = item.player_item_id
 		inv_item.crafted_by = item.crafted_by
+		inv_item.title = item.title
 		inv_item.crafted_in = item.crafted_in
 		inv_item.durability = item.durability
 		inv_item.max_durability = item.max_durability
@@ -312,7 +314,7 @@ func _by_name(a, b) -> bool:
 
 
 func _name_of_item(held) -> String:
-	return tr(held.item.name_key)
+	return held.title if not held.title.is_empty() else tr(held.item.name_key)
 
 
 func _weight_of(held) -> int:

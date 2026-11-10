@@ -48,6 +48,9 @@ message InventoryItem {
 
   // A circle this copy draws on its holder's map, like a treasure map's search area. Unset for most items.
   MapCircle map_circle = 14;
+
+  // This copy's own name, like a relic's. Empty for an item that has only its kind's name.
+  string title = 15;
 }
 
 // In world metres, x east and y north like the server's coordinates.

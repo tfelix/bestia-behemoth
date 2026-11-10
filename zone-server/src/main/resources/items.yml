@@ -325,6 +325,150 @@ items:
 
       Something is buried somewhere inside the circle. Whoever digs it up first keeps it.
 
+  # Relics: named gear from the world's chronicle, dug up from a cache where history buried one. Each copy is
+  # one artifact: its name is a `treasure_relic` row and its forger and forge town its provenance - see Relics.
+  - id: 130
+    item-db-name: relic_blade
+    base-level: 50
+    weight: 350
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    max-durability: 400
+    stackable: false
+    stats:
+      STR: 6
+      DEX: 3
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: OFFENSE
+        - pool: OFFENSE
+          chance: 50
+      sockets: [30, 10]
+    description: |
+      A blade from before the oldest town still standing, its edge still keen.
+
+      The chronicle knows who forged it and whose hands it passed through.
+
+  - id: 131
+    item-db-name: relic_crown
+    base-level: 50
+    weight: 120
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_UPPER
+    max-durability: 400
+    stackable: false
+    stats:
+      INT: 4
+      WIL: 4
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 50
+      sockets: [30, 10]
+    description: |
+      A circlet of worked metal, dented where it was taken from a fallen head.
+
+      Kings wore it. The chronicle remembers which.
+
+  - id: 132
+    item-db-name: relic_ring
+    base-level: 50
+    weight: 10
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 400
+    stackable: false
+    stats:
+      AGI: 3
+      DEX: 2
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+        - pool: RESIST
+          chance: 50
+      sockets: [30, 10]
+    description: |
+      A heavy signet ring, its seal worn smooth by generations of thumbs.
+
+      The chronicle remembers whose hand it sealed for.
+
+  - id: 133
+    item-db-name: relic_reliquary
+    base-level: 50
+    weight: 60
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 400
+    stackable: false
+    stats:
+      WIL: 5
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+        - pool: RESIST
+          chance: 50
+      sockets: [30, 10]
+    description: |
+      A small sealed casket on a chain, holding what someone thought holy.
+
+      Nobody has opened it. The chronicle says why it was made.
+
+  - id: 134
+    item-db-name: relic_tome
+    base-level: 50
+    weight: 90
+    type: EQUIP
+    material: PAPER
+    equip-slot: LEFT_HAND
+    max-durability: 400
+    stackable: false
+    stats:
+      INT: 6
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 50
+      sockets: [30, 10]
+    description: |
+      A thick book bound in boards, its pages brown but still legible.
+
+      What is written in it, the chronicle only hints at.
+
+  - id: 135
+    item-db-name: relic_banner
+    base-level: 50
+    weight: 200
+    type: EQUIP
+    material: CLOTH
+    equip-slot: GARMENT
+    max-durability: 400
+    stackable: false
+    stats:
+      VIT: 4
+      STR: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: ATTRIBUTE
+        - pool: RESIST
+          chance: 50
+      sockets: [30, 10]
+    description: |
+      A faded war banner, its device still clear, worn across the shoulders.
+
+      Armies marched under it. The chronicle names the battles.
+
   - id: 129
     item-db-name: crumbled_treasure_map
     base-level: 1
