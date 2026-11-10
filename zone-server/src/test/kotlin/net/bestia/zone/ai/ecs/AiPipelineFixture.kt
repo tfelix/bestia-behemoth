@@ -17,6 +17,21 @@ import net.bestia.zone.townsfolk.ecs.Townsfolk
 import net.bestia.zone.townsfolk.ecs.TownsfolkIdentity
 import net.bestia.zone.ai.perception.BagSense
 import net.bestia.zone.ai.perception.ForageSense
+import net.bestia.zone.ai.perception.GatherSense
+import net.bestia.zone.aoi.AoiLayer
+import net.bestia.zone.item.GatheringExp
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.entity.StaticEntityKind
+import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.entity.ecs.PropVitality
+import net.bestia.zone.entity.ecs.StaticVisual
+import net.bestia.zone.entity.ecs.WorldObjectIdentity
+import net.bestia.zone.item.stat.ItemStatCatalog
+import net.bestia.zone.prop.CollectPropIntentSystem
+import net.bestia.zone.prop.PropKindRegistry
+import net.bestia.zone.prop.PropRemoval
+import net.bestia.zone.prop.WorldObjectDivergenceRegistry
+import net.bestia.zone.prop.WorldObjectResidencyService
 import net.bestia.zone.ai.perception.PerceptionSystem
 import net.bestia.zone.ai.perception.SenseSystem
 import net.bestia.zone.ai.profile.AiConfig
@@ -160,6 +175,19 @@ class AiPipelineFixture(
   /** Where the evening happens. None by default, so an ordinary scenario's people stay in. */
   var square: Vec3L? = null
 
+  /** The real prop catalogue and claims, since whether a prop may be taken is their business, not the AI's. */
+  val propKinds = PropKindRegistry().also { it.load() }
+  val divergence = WorldObjectDivergenceRegistry(mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true))
+
+  /** Takes a used-up prop out of the world, as the real residency does. */
+  private val propResidency: WorldObjectResidencyService = mockk<WorldObjectResidencyService>().also {
+    every { it.remove(any(), any()) } answers {
+      aoi.removeEntityPosition(secondArg())
+      firstArg<World>().destroy(secondArg())
+      true
+    }
+  }
+
   /** Food, a bandage and a potion with their real scripts; see [TestBagCare]. */
   val bagCare = TestBagCare.create()
 
@@ -206,6 +234,7 @@ class AiPipelineFixture(
       listOf(
         ForageSense { grazeableGround },
         BagSense(bagCare),
+        GatherSense(aoi, propKinds, divergence),
         ShelterSense(aoi) { at, reach -> doorsteps.filter { it.distance(at) <= reach } },
         SettlementSense(
           food = { mealStall },
@@ -227,6 +256,10 @@ class AiPipelineFixture(
     // No terrain in these scenarios, so no ground to snap to; null keeps the waypoint's own z, which is what
     // the flat test navigation produces anyway.
     MoveSystem({ null }, GroundTrample.NONE, TestNavigation.flatGround()),
+    CollectPropIntentSystem(
+      propKinds, divergence, PropRemoval(propKinds, divergence, propResidency), mockk(relaxed = true),
+      GatheringExp(ItemStatCatalog()),
+    ),
   )
 
   val world: EcsWorld = testWorld(systems = systems)
@@ -329,6 +362,18 @@ class AiPipelineFixture(
       world.add(eid, OwnedBestia(masterId = masterId, playerBestiaId = eid))
     }
     aoi.setEntityPosition(id, pos)
+    return id
+  }
+
+  /** A generated prop standing at [pos], found by an area query as a resident one is. */
+  fun spawnProp(kind: StaticEntityKind, pos: Vec3L, propId: Long): EntityId {
+    val id = world.createEntity { eid ->
+      world.add(eid, PropPose(pos, yaw = 0f))
+      world.add(eid, StaticVisual(kind, variant = 0, heightDm = 10))
+      world.add(eid, PropVitality(propKinds.of(kind).maxHp))
+      world.add(eid, WorldObjectIdentity(propId, latticeVersion = 1L))
+    }
+    aoi.setEntityPosition(id, pos, AoiLayer.STATIC)
     return id
   }
 

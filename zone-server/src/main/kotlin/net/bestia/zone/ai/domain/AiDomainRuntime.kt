@@ -23,6 +23,10 @@ interface AiDomainRuntime {
   val reads: ComponentClassSet
     get() = emptySet()
 
+  /** What this domain's behaviour trees write beyond what every agent's do. `AiActSystem` declares it. */
+  val writes: ComponentClassSet
+    get() = emptySet()
+
   val catalogue: AiDomainCatalogue
 
   /** The appetites this domain's agents accumulate. See [net.bestia.zone.ai.ecs.AiDriveSystem]. */
