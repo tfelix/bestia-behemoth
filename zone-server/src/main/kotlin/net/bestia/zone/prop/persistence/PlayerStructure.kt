@@ -91,7 +91,15 @@ class PlayerStructure(
 
   /** When a campfire runs out of wood, or null for a structure that burns nothing. See [net.bestia.zone.prop.Campfire]. */
   @Column(name = "burns_out_at")
-  var burnsOutAt: Instant? = null
+  var burnsOutAt: Instant? = null,
+
+  /** A station's work queue, see [net.bestia.zone.prop.station.StationContents]. */
+  @Column(name = "station_queue", length = 1000)
+  var stationQueue: String? = null,
+
+  /** The ingredients paid into a station and not used yet, see [net.bestia.zone.prop.station.StationContents]. */
+  @Column(name = "station_held", length = 2000)
+  var stationHeld: String? = null
 ) {
 
   @Id
