@@ -32,5 +32,10 @@ class EquipmentStatusContributor(
     val rightHand = worn[EquipmentSlot.RIGHT_HAND]
     context.weaponUpgradeLevel = rightHand?.upgradeLevel ?: 0
     context.rangedWeapon = rightHand?.let { templates.templateOf(it.itemId)?.rangedWeapon }
+
+    context.heldWeaponType = rightHand?.let { templates.templateOf(it.itemId)?.weaponType }
+    context.offHandWeaponType = worn[EquipmentSlot.LEFT_HAND]?.let { templates.templateOf(it.itemId)?.weaponType }
+    context.bodyArmorType = worn[EquipmentSlot.ARMOR]?.let { templates.templateOf(it.itemId)?.armorType }
+    context.shieldArmorType = worn[EquipmentSlot.LEFT_HAND]?.let { templates.templateOf(it.itemId)?.armorType }
   }
 }

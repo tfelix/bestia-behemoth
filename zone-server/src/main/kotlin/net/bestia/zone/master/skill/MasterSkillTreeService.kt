@@ -1,6 +1,7 @@
 package net.bestia.zone.master.skill
 
 import net.bestia.zone.item.profession.ProfessionService
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.account.MasterNotFoundException
 import net.bestia.zone.identity.ecs.Master as MasterComponent
 import net.bestia.zone.skill.ecs.KnownSkills
@@ -117,8 +118,10 @@ class MasterSkillTreeService(
     changed.forEach { (skillId, level) -> known.learnOrUpdate(skillId, level) }
     // Before the event below: its listener takes off gear by the professions this spend may have changed.
     professions.refresh(world, entityId)
-    // A newly learned or levelled passive feeds the status recalc, so the effective values are now stale.
+    // A newly learned or levelled passive feeds the status recalc, so the effective values are now stale - the
+    // bestias' too, for a passive that reaches them.
     world.add(entityId, IsStatusValueDirty)
+    OwnedBestia.ownedBy(world, masterId).forEach { world.add(it.entityId, IsStatusValueDirty) }
 
     writeBehind.persist(world, listOf(entityId), withStatusEffects = false)
     // Off the tick: the listener takes off gear the master outgrew, and that reads the database.

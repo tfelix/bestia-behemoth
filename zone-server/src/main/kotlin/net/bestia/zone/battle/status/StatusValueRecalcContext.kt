@@ -1,5 +1,7 @@
 package net.bestia.zone.battle.status
 
+import net.bestia.zone.battle.gear.ArmorType
+import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.battle.damage.DamageModifiers
 import net.bestia.zone.battle.damage.HitForm
@@ -107,6 +109,17 @@ class StatusValueRecalcContext(
   var weaponUpgradeLevel: Int = 0
 
   var rangedWeapon: RangedWeapon? = null
+
+  /**
+   * What the entity holds and wears, for a passive that only counts with the right gear - Iron Fist with fist
+   * weapons, Heavy Armor Mastery in plate. Filled by the equipment before the passives run.
+   */
+  var heldWeaponType: WeaponType? = null
+  var offHandWeaponType: WeaponType? = null
+  var bodyArmorType: ArmorType? = null
+
+  /** The weight of a shield in the left hand, null for no shield. */
+  var shieldArmorType: ArmorType? = null
 
   var hpRegen: RegenModifier = RegenModifier()
     private set

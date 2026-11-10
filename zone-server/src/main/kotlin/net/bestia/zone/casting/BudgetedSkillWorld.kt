@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.skill.PartyMates
 import net.bestia.zone.battle.damage.Blocked
 import net.bestia.zone.battle.damage.weighedTo
 import net.bestia.zone.battle.damage.DamageLanding
@@ -398,6 +399,16 @@ class BudgetedSkillWorld(
     for (accountId in GuildMates.playedBy(world, guildId).keys) {
       services.messages.sendToPlayer(accountId, message)
     }
+  }
+
+  override fun partyNear(radiusMetres: Long): List<EntityId> {
+    budget.charge()
+
+    val centre = world.get(casterId, Position::class)?.toVec3L() ?: return listOf(casterId)
+    val reached = PartyMates.near(world, casterId, centre, radiusMetres)
+    budget.chargeQueryResults(reached.size)
+
+    return reached
   }
 
   override fun payCasterCost(mana: Int, stamina: Int): Boolean {
