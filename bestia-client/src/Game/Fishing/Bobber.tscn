@@ -1,0 +1,62 @@
+[gd_scene load_steps=8 format=3 uid="uid://b7fishbobber01"]
+
+[ext_resource type="Script" path="res://Game/Fishing/bobber.gd" id="1_bobber"]
+
+[sub_resource type="SphereShape3D" id="Shape_pick"]
+radius = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_cap"]
+albedo_color = Color(0.85, 0.12, 0.1, 1)
+roughness = 0.5
+
+[sub_resource type="SphereMesh" id="Mesh_cap"]
+material = SubResource("Mat_cap")
+radius = 0.07
+height = 0.14
+radial_segments = 10
+rings = 5
+
+[sub_resource type="StandardMaterial3D" id="Mat_body"]
+albedo_color = Color(0.95, 0.95, 0.92, 1)
+roughness = 0.5
+
+[sub_resource type="CylinderMesh" id="Mesh_body"]
+material = SubResource("Mat_body")
+top_radius = 0.05
+bottom_radius = 0.02
+height = 0.1
+radial_segments = 10
+rings = 1
+
+[sub_resource type="StandardMaterial3D" id="Mat_line"]
+shading_mode = 0
+albedo_color = Color(0.9, 0.9, 0.85, 0.7)
+transparency = 1
+
+[node name="Bobber" type="Area3D"]
+collision_mask = 0
+input_ray_pickable = true
+monitoring = false
+monitorable = false
+script = ExtResource("1_bobber")
+
+[node name="PickShape" type="CollisionShape3D" parent="."]
+shape = SubResource("Shape_pick")
+
+[node name="Float" type="Node3D" parent="."]
+
+[node name="Cap" type="MeshInstance3D" parent="Float"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+mesh = SubResource("Mesh_cap")
+
+[node name="Body" type="MeshInstance3D" parent="Float"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.02, 0)
+mesh = SubResource("Mesh_body")
+
+[node name="Line" type="MeshInstance3D" parent="."]
+material_override = SubResource("Mat_line")
+cast_shadow = 0
+
+[connection signal="input_event" from="." to="." method="_on_input_event"]
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

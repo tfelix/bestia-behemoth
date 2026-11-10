@@ -899,6 +899,29 @@ namespace BestiaBehemothClient.Game.World
     }
 
     /// <summary>
+    /// The height of the water's top over (<paramref name="worldX"/>, <paramref name="worldZ"/>), or <c>NaN</c>
+    /// where there is no water. <paramref name="bedY"/> is where a click on the water landed: its bed.
+    /// </summary>
+    public float WaterTopYAt(float worldX, float worldZ, float bedY)
+    {
+      if (WorldInfo == null)
+      {
+        return float.NaN;
+      }
+
+      const float voxelSize = (float)WorldLayout.VoxelSizeMetres;
+
+      // The voxel holding the bed's top face, which is the bed block itself.
+      var bedZ = (int)Math.Floor(bedY / voxelSize - 0.5);
+      var top = SurfaceProbe.WaterTopAt(
+        Store, BlockAppearance.Current,
+        (long)Math.Floor(worldX / voxelSize), (long)Math.Floor(worldZ / voxelSize), bedZ,
+        WorldLayout.ChunkSize, WorldLayout.ChunkHeight, _wrap);
+
+      return top < 0 ? float.NaN : top * voxelSize;
+    }
+
+    /// <summary>
     /// Whether the client holds the terrain column under (<paramref name="worldX"/>, <paramref name="worldZ"/>).
     /// </summary>
     /// <remarks>

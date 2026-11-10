@@ -51,6 +51,9 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// </remarks>
     public const int SearchVoxels = 4;
 
+    /// <summary>The deepest water <see cref="WaterTopAt"/> climbs through from its bed.</summary>
+    public const int MaxWaterDepthVoxels = 64;
+
     /// <summary>
     /// Voxel-space z of the drawn terrain surface at (<paramref name="voxelX"/>, <paramref name="voxelY"/>).
     /// </summary>
@@ -216,6 +219,50 @@ namespace BestiaBehemothClient.Game.World.Mesh
         {
           return block;
         }
+      }
+
+      return -1;
+    }
+
+    /// <summary>
+    /// The voxel height of the water's top over a tile, or -1 if the column above <paramref name="bedZ"/> is not
+    /// water up to air within <see cref="MaxWaterDepthVoxels"/>, or a chunk it needs is not held.
+    /// </summary>
+    /// <remarks>
+    /// Water has no collider, so a click on a lake lands on its bed: the search climbs from there.
+    /// </remarks>
+    public static int WaterTopAt(
+      IChunkSource source, BlockAppearance appearance, long voxelX, long voxelY, int bedZ,
+      int chunkSize, int chunkHeight, ChunkWrap wrap)
+    {
+      if (source == null || appearance == null || chunkSize <= 0 || chunkHeight <= 0)
+      {
+        return -1;
+      }
+
+      var x = (int)voxelX;
+      var y = (int)voxelY;
+      var chunkX = FloorDiv(x, chunkSize);
+      var chunkY = FloorDiv(y, chunkSize);
+      var cursor = new Cursor(wrap);
+      var belowIsWater = false;
+
+      for (var z = bedZ; z <= bedZ + MaxWaterDepthVoxels; z++)
+      {
+        var chunkZ = FloorDiv(z, chunkHeight);
+        var chunk = cursor.Get(source, new ChunkKey(chunkX, chunkY, chunkZ));
+        if (chunk == null)
+        {
+          return -1;
+        }
+
+        var block = chunk.BlockAt(x - chunkX * chunkSize, y - chunkY * chunkSize, z - chunkZ * chunkHeight);
+        if (block == VoxelChunk.AirBlockId)
+        {
+          return belowIsWater ? z : -1;
+        }
+
+        belowIsWater = appearance.SurfaceOf((byte)block) == BlockAppearance.SurfaceKind.Water;
       }
 
       return -1;
