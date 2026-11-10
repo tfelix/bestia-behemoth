@@ -15,3 +15,4 @@ tree = "WARRIOR"
 sub_tree = "BARD"
 prerequisite_ids = PackedInt32Array(166)
 prerequisite_levels = PackedInt32Array(2)
+cast_time = 2.0

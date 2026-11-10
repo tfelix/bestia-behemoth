@@ -15,3 +15,4 @@ tree = "SURVIVAL"
 sub_tree = "PROSPECTOR"
 prerequisite_ids = PackedInt32Array(182)
 prerequisite_levels = PackedInt32Array(2)
+cast_time = 2.0

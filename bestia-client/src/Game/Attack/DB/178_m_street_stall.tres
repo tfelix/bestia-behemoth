@@ -14,3 +14,4 @@ tree = "SCHOLAR"
 sub_tree = "TRADER"
 prerequisite_ids = PackedInt32Array(177)
 prerequisite_levels = PackedInt32Array(2)
+cast_time = 5.0
