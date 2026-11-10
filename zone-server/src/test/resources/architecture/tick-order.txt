@@ -12,6 +12,7 @@
  - MOVEMENT wave 10: MoveSystem [EveryTick]
  - ACTIONS wave 11: CastingSystem [EveryTick]
  - ACTIONS wave 11: CraftingSystem [EveryTick]
+ - ACTIONS wave 11: IncubatorSystem [EverySeconds(seconds=1.0)]
  - ACTIONS wave 11: RespawnSystem [EveryTick]
  - ACTIONS wave 11: RitualSystem [EveryTick]
  - ACTIONS wave 12: ChannelSystem [EveryTick]

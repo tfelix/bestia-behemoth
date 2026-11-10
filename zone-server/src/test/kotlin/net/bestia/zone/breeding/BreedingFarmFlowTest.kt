@@ -43,11 +43,8 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.time.Clock
 import java.time.Duration
 import java.time.Instant
-import java.time.ZoneId
-import java.time.ZoneOffset
 
 /** A Breeding Farm from sending a pair to taking the egg, against a real world and a real farm registry. */
 class BreedingFarmFlowTest {
@@ -219,16 +216,6 @@ class BreedingFarmFlowTest {
     tick(farms.of(FARM).clutchTime.seconds + 1)
 
     verify { lootItems.spawnLootItem(any(), itemId = EGG, amount = 1, pos = Vec3L(0, 0, 0), uniqueId = EGG_INSTANCE) }
-  }
-
-  private class MovableClock(private var now: Instant) : Clock() {
-    fun advance(by: Duration) {
-      now = now.plus(by)
-    }
-
-    override fun instant(): Instant = now
-    override fun getZone(): ZoneId = ZoneOffset.UTC
-    override fun withZone(zone: ZoneId?): Clock = this
   }
 
   private companion object {

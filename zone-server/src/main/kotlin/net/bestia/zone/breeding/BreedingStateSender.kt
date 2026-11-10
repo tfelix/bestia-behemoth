@@ -15,6 +15,7 @@ import java.time.Clock
 class BreedingStateSender(
   private val structures: PlayerStructureRegistry,
   private val farms: BreedingFarms,
+  private val incubators: Incubators,
   private val connections: ConnectionInfoService,
   private val skills: BreederSkills,
   private val out: OutMessageProcessor,
@@ -24,6 +25,11 @@ class BreedingStateSender(
   fun sendFarm(world: World, structureId: Long) {
     val accountId = onlineOwnerOf(structureId) ?: return
     out.sendToPlayer(accountId, BreedingFarmSMSG.of(farms.of(structureId), clock.instant(), readsExactIvs(world, accountId)))
+  }
+
+  fun sendIncubator(world: World, structureId: Long) {
+    val accountId = onlineOwnerOf(structureId) ?: return
+    out.sendToPlayer(accountId, IncubatorSMSG.of(incubators.of(structureId), clock.instant(), readsExactIvs(world, accountId)))
   }
 
   /** A notice for the owner, such as a failed clutch. */

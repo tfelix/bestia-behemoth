@@ -449,6 +449,8 @@ enum OpError {
   BREEDING_CLUTCH_FAILED = 221;
   // The egg does not fit in the master's bag. The player makes room.
   BREEDING_NO_ROOM_FOR_EGG = 222;
+  // An egg is ready to hatch, but its owner has no free bestia slot. It waits in the incubator until one frees up.
+  INCUBATOR_NO_FREE_SLOT = 223;
 }
 
 message OperationError {
