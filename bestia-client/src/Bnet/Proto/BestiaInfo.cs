@@ -25,14 +25,17 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiFtZXNzYWdlcy9tYXN0ZXIvYmVzdGlhX2luZm8ucHJvdG8SBGJuZXQaE21l",
-            "c3NhZ2VzL3ZlYzMucHJvdG8iagoKQmVzdGlhSW5mbxIRCgllbnRpdHlfaWQY",
-            "ASABKAYSDgoGbW9iX2lkGAIgASgNEgwKBG5hbWUYAyABKAkSDQoFbGV2ZWwY",
-            "BCABKA0SHAoIcG9zaXRpb24YBSABKAsyCi5ibmV0LlZlYzNCKAoVbmV0LmJl",
-            "c3RpYS5ibmV0LnByb3RvQg9CZXN0aWFJbmZvUHJvdG9iBnByb3RvMw=="));
+            "c3NhZ2VzL3ZlYzMucHJvdG8aJW1lc3NhZ2VzL21hc3Rlci9iZXN0aWFfZ2Vu",
+            "ZXRpY3MucHJvdG8ipgEKCkJlc3RpYUluZm8SEQoJZW50aXR5X2lkGAEgASgG",
+            "Eg4KBm1vYl9pZBgCIAEoDRIMCgRuYW1lGAMgASgJEg0KBWxldmVsGAQgASgN",
+            "EhwKCHBvc2l0aW9uGAUgASgLMgouYm5ldC5WZWMzEhwKA3NleBgGIAEoDjIP",
+            "LmJuZXQuQmVzdGlhU2V4EhwKA2l2cxgHIAEoCzIPLmJuZXQuSXZSZWFkaW5n",
+            "QigKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IPQmVzdGlhSW5mb1Byb3RvYgZw",
+            "cm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, global::Bnet.BestiaGeneticsReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaInfo), global::Bnet.BestiaInfo.Parser, new[]{ "EntityId", "MobId", "Name", "Level", "Position" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaInfo), global::Bnet.BestiaInfo.Parser, new[]{ "EntityId", "MobId", "Name", "Level", "Position", "Sex", "Ivs" }, null, null, null, null)
           }));
     }
     #endregion
@@ -79,6 +82,8 @@ namespace Bnet {
       name_ = other.name_;
       level_ = other.level_;
       position_ = other.position_ != null ? other.position_.Clone() : null;
+      sex_ = other.sex_;
+      ivs_ = other.ivs_ != null ? other.ivs_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -148,6 +153,30 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "sex" field.</summary>
+    public const int SexFieldNumber = 6;
+    private global::Bnet.BestiaSex sex_ = global::Bnet.BestiaSex.Unknown;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.BestiaSex Sex {
+      get { return sex_; }
+      set {
+        sex_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "ivs" field.</summary>
+    public const int IvsFieldNumber = 7;
+    private global::Bnet.IvReading ivs_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.IvReading Ivs {
+      get { return ivs_; }
+      set {
+        ivs_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -168,6 +197,8 @@ namespace Bnet {
       if (Name != other.Name) return false;
       if (Level != other.Level) return false;
       if (!object.Equals(Position, other.Position)) return false;
+      if (Sex != other.Sex) return false;
+      if (!object.Equals(Ivs, other.Ivs)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -180,6 +211,8 @@ namespace Bnet {
       if (Name.Length != 0) hash ^= Name.GetHashCode();
       if (Level != 0) hash ^= Level.GetHashCode();
       if (position_ != null) hash ^= Position.GetHashCode();
+      if (Sex != global::Bnet.BestiaSex.Unknown) hash ^= Sex.GetHashCode();
+      if (ivs_ != null) hash ^= Ivs.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -218,6 +251,14 @@ namespace Bnet {
         output.WriteRawTag(42);
         output.WriteMessage(Position);
       }
+      if (Sex != global::Bnet.BestiaSex.Unknown) {
+        output.WriteRawTag(48);
+        output.WriteEnum((int) Sex);
+      }
+      if (ivs_ != null) {
+        output.WriteRawTag(58);
+        output.WriteMessage(Ivs);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -248,6 +289,14 @@ namespace Bnet {
         output.WriteRawTag(42);
         output.WriteMessage(Position);
       }
+      if (Sex != global::Bnet.BestiaSex.Unknown) {
+        output.WriteRawTag(48);
+        output.WriteEnum((int) Sex);
+      }
+      if (ivs_ != null) {
+        output.WriteRawTag(58);
+        output.WriteMessage(Ivs);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -272,6 +321,12 @@ namespace Bnet {
       }
       if (position_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Position);
+      }
+      if (Sex != global::Bnet.BestiaSex.Unknown) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Sex);
+      }
+      if (ivs_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Ivs);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -302,6 +357,15 @@ namespace Bnet {
           Position = new global::Bnet.Vec3();
         }
         Position.MergeFrom(other.Position);
+      }
+      if (other.Sex != global::Bnet.BestiaSex.Unknown) {
+        Sex = other.Sex;
+      }
+      if (other.ivs_ != null) {
+        if (ivs_ == null) {
+          Ivs = new global::Bnet.IvReading();
+        }
+        Ivs.MergeFrom(other.Ivs);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -345,6 +409,17 @@ namespace Bnet {
             input.ReadMessage(Position);
             break;
           }
+          case 48: {
+            Sex = (global::Bnet.BestiaSex) input.ReadEnum();
+            break;
+          }
+          case 58: {
+            if (ivs_ == null) {
+              Ivs = new global::Bnet.IvReading();
+            }
+            input.ReadMessage(Ivs);
+            break;
+          }
         }
       }
     #endif
@@ -385,6 +460,17 @@ namespace Bnet {
               Position = new global::Bnet.Vec3();
             }
             input.ReadMessage(Position);
+            break;
+          }
+          case 48: {
+            Sex = (global::Bnet.BestiaSex) input.ReadEnum();
+            break;
+          }
+          case 58: {
+            if (ivs_ == null) {
+              Ivs = new global::Bnet.IvReading();
+            }
+            input.ReadMessage(Ivs);
             break;
           }
         }

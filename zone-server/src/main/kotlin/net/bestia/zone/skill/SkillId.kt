@@ -84,6 +84,9 @@ enum class SkillId {
   // The companion app starts a survey without a cast, so it reads the level and the reagents itself.
   M_CARTOGRAPHY,
 
+  // Breeding: net.bestia.zone.master.skill.BloodlineStudy reads its level for timers, dominant IVs and IV reading.
+  M_BLOODLINE_STUDY,
+
   // Guild skills a guild learns, not a master: net.bestia.zone.guild reads the guild's level of each.
   GUILD_EMBLEM,
   OFFICIAL_GUILD_APPROVAL,

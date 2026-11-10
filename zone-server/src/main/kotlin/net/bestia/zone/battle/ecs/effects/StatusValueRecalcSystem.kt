@@ -4,6 +4,7 @@ import net.bestia.zone.battle.ecs.skill.Casting
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.passive.PassiveSkillScriptRegistry
 import net.bestia.zone.battle.status.ConditionValueCalculator
+import net.bestia.zone.battle.status.IndividualValues
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.status.StatusValueContributor
@@ -77,6 +78,7 @@ class StatusValueRecalcSystem(
     StatusEffects::class,
     IsStatusValueDirty::class,
     Level::class,
+    IndividualValues::class,
     FormulaDrivenVitals::class,
     KnownSkills::class,
     // A status effect script may address the entity's owner (MasterIntroMarker greets them).
@@ -117,6 +119,7 @@ class StatusValueRecalcSystem(
 
       val context = StatusValueRecalcContext(base, baseSpeed)
 
+      world.get(id, IndividualValues::class)?.raise(context, level)
       equipment.contribute(context, world, id)
       applyPassiveSkills(context, world, id)
       applyOwnersPassiveSkills(context, world, id)
@@ -262,15 +265,18 @@ class StatusValueRecalcSystem(
     if (!world.has(id, FormulaDrivenVitals::class)) return
 
     val level = world.get(id, Level::class)?.level ?: 1
+    val ivs = world.get(id, IndividualValues::class)
 
     world.get(id, Health::class)?.let {
-      it.max = conditionValueCalculator.computeMaxHp(level, context.vitality, context.maxHpPercent)
+      it.max = conditionValueCalculator.computeMaxHp(level, context.vitality, context.maxHpPercent, ivs?.hp ?: 0)
     }
     world.get(id, Mana::class)?.let {
-      it.max = conditionValueCalculator.computeMaxMana(level, context.intelligence, context.maxManaPercent)
+      it.max = conditionValueCalculator.computeMaxMana(level, context.intelligence, context.maxManaPercent, ivs?.mana ?: 0)
     }
     world.get(id, Stamina::class)?.let {
-      it.max = conditionValueCalculator.computeMaxStamina(level, context.vitality, context.strength, context.willpower)
+      it.max = conditionValueCalculator.computeMaxStamina(
+        level, context.vitality, context.strength, context.willpower, ivs?.stamina ?: 0
+      )
     }
   }
 }

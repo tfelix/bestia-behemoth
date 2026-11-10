@@ -23,6 +23,12 @@ class ConditionValueCalculatorTest {
   }
 
   @Test
+  fun `a pool IV enters the level term before vitality scales it`() {
+    // floor((15 + (40 * 2 + 100) * 50 / 100 + 50) * 1.3), against floor((15 + 40 + 50) * 1.3) without the IV.
+    assertEquals(201, calculator.computeMaxHp(level = 50, vitality = 30, iv = 100))
+  }
+
+  @Test
   fun `max mana grows with intelligence and level`() {
     val base = calculator.computeMaxMana(level = 10, intelligence = 10)
 

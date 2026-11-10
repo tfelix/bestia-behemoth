@@ -1,5 +1,6 @@
 package net.bestia.zone.message
 
+import net.bestia.bnet.proto.BestiaGeneticsProto
 import net.bestia.bnet.proto.BestiaInfoProto
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.SelfSMSGProto
@@ -22,7 +23,10 @@ data class SelfSMSG(
      */
     val name: String?,
     val level: Int,
-    val position: Vec3L
+    val position: Vec3L,
+    val sex: BestiaGeneticsProto.BestiaSex = BestiaGeneticsProto.BestiaSex.BESTIA_SEX_UNKNOWN,
+    /** Null where the receiver has no business reading them. */
+    val ivs: BestiaGeneticsProto.IvReading? = null,
   ) {
 
     fun toBnet(): BestiaInfoProto.BestiaInfo {
@@ -33,13 +37,16 @@ data class SelfSMSG(
         .build()
 
       // Proto3 strings have no null: the empty string is the "no name" the client falls back from.
-      return BestiaInfoProto.BestiaInfo.newBuilder()
+      val info = BestiaInfoProto.BestiaInfo.newBuilder()
         .setEntityId(entityId)
         .setMobId(mobId)
         .setName(name ?: "")
         .setLevel(level)
         .setPosition(position)
-        .build()
+        .setSex(sex)
+      ivs?.let(info::setIvs)
+
+      return info.build()
     }
   }
 

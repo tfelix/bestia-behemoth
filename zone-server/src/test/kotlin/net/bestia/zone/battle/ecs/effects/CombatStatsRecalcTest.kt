@@ -16,6 +16,7 @@ import net.bestia.zone.battle.passive.PassiveSkillScriptRegistry
 import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.status.CombatValuesPool
 import net.bestia.zone.battle.status.ConditionValueCalculator
+import net.bestia.zone.battle.status.IndividualValues
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.ecs.core.EcsWorld
@@ -119,6 +120,19 @@ class CombatStatsRecalcTest {
 
     assertEquals(0, pool.size)
     assertEquals(CombatValues.ofBase(20, attributes), world.get(owner, CombatStats::class)!!.values)
+  }
+
+  @Test
+  fun `individual values raise an owner's attributes by IV times level over 100`() {
+    val owner = spawnOwner(level = 50)
+    world.add(owner, IndividualValues(strength = 100, agility = 41))
+
+    recalc(owner)
+
+    val values = world.get(owner, StatusValues::class)!!
+    assertEquals(6 + 50, values.strength)
+    assertEquals(6 + 20, values.agility)
+    assertEquals(8, values.intelligence)
   }
 
   @Test

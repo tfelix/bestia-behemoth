@@ -3,6 +3,7 @@ syntax = "proto3";
 package bnet;
 
 import "messages/vec3.proto";
+import "messages/master/bestia_genetics.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "BestiaInfoProto";
@@ -14,4 +15,6 @@ message BestiaInfo {
   string name = 3;
   uint32 level = 4;
   Vec3 position = 5;
+  BestiaSex sex = 6;
+  IvReading ivs = 7;
 }
