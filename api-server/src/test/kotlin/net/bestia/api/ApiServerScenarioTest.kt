@@ -124,21 +124,21 @@ class ApiServerScenarioTest : ApiScenarioTestBase() {
   }
 
   @Test
-  fun `a repeated standing order runs once in the zone`() {
+  fun `repeated orders run once in the zone`() {
     val runs = AtomicInteger()
     answer = { request ->
       runs.incrementAndGet()
-      val order = request.query as ZoneQuery.SetStance
-      BusReply.ok(request.correlationId, ZoneAnswer.Stance(order.playerBestiaId, order.stance.uppercase(), 100))
+      val orders = request.query as ZoneQuery.SetOrders
+      BusReply.ok(request.correlationId, ZoneAnswer.Orders(orders.playerBestiaId, orders.job.uppercase(), orders.courage.uppercase()))
     }
     val key = UUID.randomUUID().toString()
 
-    val first = put("/v1/companion/masters/5/bestias/7/stance", mapOf("stance" to "hold", "aggression" to 500), 43, key)
-    val second = put("/v1/companion/masters/5/bestias/7/stance", mapOf("stance" to "hold", "aggression" to 500), 43, key)
+    val first = put("/v1/companion/masters/5/bestias/7/orders", mapOf("job" to "guard", "courage" to "bold"), 43, key)
+    val second = put("/v1/companion/masters/5/bestias/7/orders", mapOf("job" to "guard", "courage" to "bold"), 43, key)
 
     assertEquals(200, first.statusCode.value())
     assertEquals(json(first), json(second))
-    assertEquals("HOLD", json(first)["stance"].asText())
+    assertEquals("GUARD", json(first)["job"].asText())
     assertEquals(1, runs.get())
   }
 
@@ -339,12 +339,12 @@ class ApiServerScenarioTest : ApiScenarioTestBase() {
     await().atMost(Duration.ofSeconds(5)).until { frames.any { it["type"].asText() == "ready" } }
     val lastSeen = frames.first { it["type"].asText() == "ready" }["lastEventId"].asText()
 
-    events.publish(ZoneEvent.StanceChanged(accountId = 45, masterId = 5, playerBestiaId = 7, stance = "HOLD", aggression = 20))
-    events.publish(ZoneEvent.StanceChanged(accountId = 99, masterId = 6, playerBestiaId = 8, stance = "HOLD", aggression = 20))
+    events.publish(ZoneEvent.OrdersChanged(accountId = 45, masterId = 5, playerBestiaId = 7, job = "GUARD", courage = "BOLD"))
+    events.publish(ZoneEvent.OrdersChanged(accountId = 99, masterId = 6, playerBestiaId = 8, job = "GUARD", courage = "BOLD"))
 
     await().atMost(Duration.ofSeconds(5)).until { frames.any { it["type"].asText() == "event" } }
     val event = frames.first { it["type"].asText() == "event" }["event"]
-    assertEquals("StanceChanged", event["type"].asText())
+    assertEquals("OrdersChanged", event["type"].asText())
     assertEquals(7, event["data"]["playerBestiaId"].asInt())
     assertTrue(event["data"]["accountId"] == null)
     socket.close()
@@ -367,7 +367,7 @@ class ApiServerScenarioTest : ApiScenarioTestBase() {
     assertEquals(400, post("/v1/companion/push/subscriptions", internal, accountId = 46).statusCode.value())
 
     events.publish(ZoneEvent.HomeFell(accountId = 46, masterId = 5, masterName = "Ayla", fallen = "Ashfen", newHome = "Brook"))
-    events.publish(ZoneEvent.StanceChanged(accountId = 46, masterId = 5, playerBestiaId = 7, stance = "HOLD", aggression = 1))
+    events.publish(ZoneEvent.OrdersChanged(accountId = 46, masterId = 5, playerBestiaId = 7, job = "GUARD", courage = "BOLD"))
     val stuck = MapPoint(1.0, 2.0)
     events.publish(ZoneEvent.JourneyEnded(46, 5, 7, "Rex", "wolf", null, "STUCK", stuck, whilePlaying = false))
     events.publish(ZoneEvent.JourneyEnded(46, 5, 7, "Rex", "wolf", null, null, stuck, whilePlaying = true))

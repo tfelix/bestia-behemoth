@@ -7,13 +7,7 @@ import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.util.PlayerBestiaId
 
-/**
- * The standing order now actually in force for one bestia.
- *
- * Sent after a successful change rather than assuming the client can predict the result: aggression is clamped
- * on the way in, so what was asked for and what was stored are not always the same, and the client should show
- * the latter.
- */
+/** The orders now in force for one bestia, sent after a successful change. */
 data class BestiaAiConfigSMSG(
   val playerBestiaId: PlayerBestiaId,
   val config: AiConfig,
@@ -22,10 +16,8 @@ data class BestiaAiConfigSMSG(
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val payload = BestiaAiConfigSmsgProto.BestiaAiConfigSMSG.newBuilder()
       .setPlayerBestiaId(playerBestiaId)
-      .setStance(
-        SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.IdleStance.valueOf(config.stance.name)
-      )
-      .setAggression(config.aggression)
+      .setJob(SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Job.valueOf(config.job.name))
+      .setCourage(SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Courage.valueOf(config.courage.name))
 
     return EnvelopeProto.Envelope.newBuilder()
       .setBestiaAiConfig(payload)

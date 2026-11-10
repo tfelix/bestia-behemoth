@@ -35,7 +35,7 @@ class ValkeyAclTest {
 
     val directory = ValkeyDirectory(zone)
     directory.register(listOf(7L), "acl-node", ttlSeconds = 30)
-    val server = ValkeyRequestServer(zone, "acl-node", { BusReply.ok(it.correlationId, ZoneAnswer.Stance(1, "HOLD", 5)) })
+    val server = ValkeyRequestServer(zone, "acl-node", { BusReply.ok(it.correlationId, ZoneAnswer.Orders(1, "GUARD", "TIMID")) })
     val publisher = ValkeyEventPublisher(zone)
 
     val bus = ValkeyNodeBus(api, ValkeyDirectory(api), defaultNode = "acl-node", instanceId = "acl-api")
@@ -43,7 +43,7 @@ class ValkeyAclTest {
     val consumed = CopyOnWriteArrayList<StreamEntry<ZoneEvent>>()
     reader.consume("acl-group", "c1") { consumed += it }
 
-    val write = ZoneQuery.SetStance(masterId = 1, playerBestiaId = 1, stance = "HOLD", aggression = 5)
+    val write = ZoneQuery.SetOrders(masterId = 1, playerBestiaId = 1, job = "GUARD", courage = "TIMID")
     assertEquals(BusReply.Status.OK, bus.ask(7L, write, idempotencyKey = "k").get(5, TimeUnit.SECONDS).status)
 
     Thread.sleep(500)

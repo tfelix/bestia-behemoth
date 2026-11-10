@@ -8,7 +8,9 @@ import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.ZoneQuery
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
-import net.bestia.zone.ai.profile.IdleStance
+import net.bestia.zone.ai.profile.AiConfig
+import net.bestia.zone.ai.profile.BestiaJob
+import net.bestia.zone.ai.profile.Courage
 import net.bestia.zone.companion.query.MapPlane
 import net.bestia.zone.companion.query.NotebookCommands
 import net.bestia.zone.compendium.CompendiumStore
@@ -106,20 +108,21 @@ class CompanionRequestDispatcherTest {
   }
 
   @Test
-  fun `a standing order is stored clamped, and refused for an unknown stance or a stranger`() {
+  fun `orders are stored, and refused for an unknown job or courage or a stranger`() {
     val master = masters.findAllByAccountIdOrderBySlot(1L).first()
     val bestia = playerBestias.findAllByMasterId(master.id).first()
     val before = bestia.aiConfig
 
     try {
-      val set = ask(1L, ZoneQuery.SetStance(master.id, bestia.id, "hold", aggression = 500))
-      assertEquals(ZoneAnswer.Stance(bestia.id, IdleStance.HOLD.name, 100), set.answer)
-      assertEquals(IdleStance.HOLD, playerBestias.findByIdOrNull(bestia.id)!!.aiConfig.stance)
+      val set = ask(1L, ZoneQuery.SetOrders(master.id, bestia.id, "guard", "bold"))
+      assertEquals(ZoneAnswer.Orders(bestia.id, BestiaJob.GUARD.name, Courage.BOLD.name), set.answer)
+      assertEquals(AiConfig(BestiaJob.GUARD, Courage.BOLD), playerBestias.findByIdOrNull(bestia.id)!!.aiConfig)
 
-      assertEquals(Status.INVALID, ask(1L, ZoneQuery.SetStance(master.id, bestia.id, "DANCE", 10)).status)
-      assertEquals(Status.NOT_FOUND, ask(2L, ZoneQuery.SetStance(master.id, bestia.id, "HOLD", 10)).status)
+      assertEquals(Status.INVALID, ask(1L, ZoneQuery.SetOrders(master.id, bestia.id, "DANCE", "BOLD")).status)
+      assertEquals(Status.INVALID, ask(1L, ZoneQuery.SetOrders(master.id, bestia.id, "GUARD", "RECKLESS")).status)
+      assertEquals(Status.NOT_FOUND, ask(2L, ZoneQuery.SetOrders(master.id, bestia.id, "GUARD", "BOLD")).status)
     } finally {
-      ask(1L, ZoneQuery.SetStance(master.id, bestia.id, before.stance.name, before.aggression))
+      ask(1L, ZoneQuery.SetOrders(master.id, bestia.id, before.job.name, before.courage.name))
     }
   }
 

@@ -18,7 +18,7 @@ enum OpError {
   MASTER_INVALID_SPAWN_POINT = 7;
 
   AI_CONFIG_BESTIA_NOT_OWNED = 8;
-  AI_CONFIG_INVALID_STANCE = 9;
+  AI_CONFIG_INVALID_ORDERS = 9;
 
   // Also answers "no such master": a client must not be able to tell an id that does not exist from
   // one that belongs to somebody else, or deleting becomes a way to probe for foreign master ids.

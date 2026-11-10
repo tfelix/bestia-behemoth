@@ -21,7 +21,7 @@ class ApiRouteTest {
       "/v1/companion/masters/5/letters" to ApiRoute.LETTERS,
       "/v1/companion/masters/5/letters/9/read" to ApiRoute.LETTERS,
       "/v1/companion/masters/5/parcels" to ApiRoute.PARCELS,
-      "/v1/companion/masters/5/bestias/7/stance" to ApiRoute.STANCE,
+      "/v1/companion/masters/5/bestias/7/orders" to ApiRoute.ORDERS,
       "/v1/companion/catalog" to ApiRoute.CATALOG,
       "/v1/companion/push/subscriptions" to ApiRoute.PUSH,
       "/v1/companion/ws" to ApiRoute.WS,

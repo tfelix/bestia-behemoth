@@ -4,7 +4,7 @@ import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.OperationErrorProto
 import net.bestia.zone.message.SMSG
 
-/** Why a standing-order change was refused. */
+/** Why a change of orders was refused. */
 data class AiConfigErrorSMSG(
   val error: AiConfigErrorCode,
 ) : SMSG {
@@ -14,18 +14,16 @@ data class AiConfigErrorSMSG(
     BESTIA_NOT_OWNED,
 
     /**
-     * The stance was unset or unknown to this server.
-     *
-     * Unlike the numeric knobs this cannot be clamped — there is no nearest valid stance — so it is refused
-     * rather than quietly turned into a default the player did not choose.
+     * The job or courage step was unset or unknown to this server. There is no nearest valid job, so it is
+     * refused rather than quietly turned into a default the player did not choose.
      */
-    INVALID_STANCE,
+    INVALID_ORDERS,
   }
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val mapped = when (error) {
       AiConfigErrorCode.BESTIA_NOT_OWNED -> OperationErrorProto.OpError.AI_CONFIG_BESTIA_NOT_OWNED
-      AiConfigErrorCode.INVALID_STANCE -> OperationErrorProto.OpError.AI_CONFIG_INVALID_STANCE
+      AiConfigErrorCode.INVALID_ORDERS -> OperationErrorProto.OpError.AI_CONFIG_INVALID_ORDERS
     }
 
     val opError = OperationErrorProto.OperationError.newBuilder().setCode(mapped)

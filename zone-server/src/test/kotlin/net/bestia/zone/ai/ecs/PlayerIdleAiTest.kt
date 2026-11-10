@@ -2,7 +2,8 @@ package net.bestia.zone.ai.ecs
 
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.profile.AiConfig
-import net.bestia.zone.ai.profile.IdleStance
+import net.bestia.zone.ai.profile.BestiaJob
+import net.bestia.zone.ai.profile.Courage
 import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.geometry.Vec3L
@@ -29,49 +30,43 @@ class PlayerIdleAiTest {
   private fun agentWith(profileId: String, config: AiConfig?) =
     ai.agentFactory.create(ai.profiles.getOrThrow(profileId), DefaultAttack.MELEE, AttackSpeed.DEFAULT_SPECIES_ASPD, homePosition = Vec3L.ZERO, config = config)
 
-  // ------------------------------------------------------------- stance narrows
+  // --------------------------------------------------------------- job narrows
 
   @Test
-  fun `a stance narrows the archetype's goals to the ones it permits`() {
-    val patrolling = agentWith("aggressive_melee", AiConfig(stance = IdleStance.PATROL))
-    val names = patrolling.goals.map { it.name }
+  fun `a job narrows the archetype's goals to the ones it permits`() {
+    val resting = agentWith("aggressive_melee", AiConfig(job = BestiaJob.REST))
+    val names = resting.goals.map { it.name }
 
-    assertTrue(names.containsAll(listOf("Wander", "ReturnHome", "KillAttacker")))
-    assertFalse(names.contains("KillEnemy"), "a patrolling bestia must not go hunting")
-    assertFalse(names.contains("EatVegetation"), "patrol is not forage")
+    assertTrue(names.containsAll(listOf("Wander", "ReturnHome", "KillAttacker", "EatVegetation", "Sleep")))
+    assertFalse(names.contains("KillEnemy"), "a resting bestia must not go hunting")
   }
 
   @Test
-  fun `holding leaves only self defence`() {
-    val holding = agentWith("aggressive_melee", AiConfig(stance = IdleStance.HOLD))
+  fun `guarding enables hunting for an archetype that can hunt`() {
+    val guarding = agentWith("aggressive_melee", AiConfig(job = BestiaJob.GUARD))
+    val names = guarding.goals.map { it.name }
 
-    assertEquals(setOf("KillAttacker"), holding.goals.map { it.name }.toSet())
+    assertTrue(names.contains("KillEnemy"))
+    assertFalse(names.contains("Sleep"), "a guard stays awake")
   }
 
   @Test
-  fun `defend enables hunting for an archetype that can hunt`() {
-    val defending = agentWith("aggressive_melee", AiConfig(stance = IdleStance.DEFEND))
-
-    assertTrue(defending.goals.any { it.name == "KillEnemy" })
-  }
-
-  @Test
-  fun `a stance cannot grant a behaviour the species does not have`() {
-    // The critter's profile has no KillEnemy goal at all, so telling it to DEFEND cannot make it a hunter. The
-    // stance intersects the archetype's goals rather than replacing them precisely so this is impossible.
-    val critter = agentWith("passive_wanderer", AiConfig(stance = IdleStance.DEFEND))
+  fun `a job cannot grant a behaviour the species does not have`() {
+    // The critter's profile has no KillEnemy goal at all, so telling it to GUARD cannot make it a hunter. The
+    // job intersects the archetype's goals rather than replacing them precisely so this is impossible.
+    val critter = agentWith("passive_wanderer", AiConfig(job = BestiaJob.GUARD))
 
     assertFalse(critter.goals.any { it.name == "KillEnemy" })
     assertTrue(critter.goals.any { it.name == "KillAttacker" }, "but it still defends itself")
   }
 
   @Test
-  fun `every stance keeps self defence`() {
-    IdleStance.entries.forEach { stance ->
-      val agent = agentWith("aggressive_melee", AiConfig(stance = stance))
+  fun `every job keeps self defence`() {
+    BestiaJob.entries.forEach { job ->
+      val agent = agentWith("aggressive_melee", AiConfig(job = job))
       assertTrue(
         agent.goals.any { it.name == "KillAttacker" },
-        "stance $stance must not be able to switch off self defence",
+        "job $job must not be able to switch off self defence",
       )
     }
   }
@@ -84,27 +79,29 @@ class PlayerIdleAiTest {
     assertTrue(wild.goals.any { it.name == "EatVegetation" })
   }
 
-  // ------------------------------------------------------------------ clamping
+  // ------------------------------------------------------------------- courage
 
   @Test
-  fun `player supplied numbers are clamped rather than trusted`() {
-    assertEquals(100, AiConfig(stance = IdleStance.DEFEND, aggression = 5_000).sanitised().aggression)
-    assertEquals(0, AiConfig(stance = IdleStance.DEFEND, aggression = -20).sanitised().aggression)
-  }
+  fun `the courage step reaches the agent's memory and overrides the archetype's aggression`() {
+    val agent = agentWith("aggressive_melee", AiConfig(job = BestiaJob.GUARD, courage = Courage.TIMID))
 
-  @Test
-  fun `the clamped knob reaches the agent's memory and overrides the archetype's`() {
-    val agent = agentWith("aggressive_melee", AiConfig(stance = IdleStance.DEFEND, aggression = 999))
-
-    // The archetype's own value was 80; the player's clamped 100 overrides it.
-    assertEquals(100, agent.memory.get(BestiaDomain.AGGRESSION))
+    // The archetype's own value was 80; the player's step overrides it.
+    assertEquals(Courage.TIMID.aggression, agent.memory.get(BestiaDomain.AGGRESSION))
     assertNotEquals(80, agent.memory.get(BestiaDomain.AGGRESSION))
   }
 
   @Test
-  fun `an unspecified stance has a sensible default rather than nothing`() {
-    // Rows written before the column existed read back as this, so it has to be a stance that behaves well.
-    assertEquals(IdleStance.PATROL, AiConfig().stance)
+  fun `courage steps only ever grow bolder`() {
+    val aggressions = Courage.entries.map { it.aggression }
+
+    assertEquals(aggressions.sorted(), aggressions)
+    assertTrue(aggressions.all { it in 0..100 })
+  }
+
+  @Test
+  fun `unset orders have a sensible default rather than nothing`() {
+    // Rows written before the columns existed read back as this, so it has to be orders that behave well.
+    assertEquals(AiConfig(BestiaJob.REST, Courage.STEADY), AiConfig())
   }
 
   // -------------------------------------------------------- player-controlled

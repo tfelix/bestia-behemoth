@@ -22,7 +22,7 @@ class BusReply(
     /** Absent, or not the asker's. The two are deliberately indistinguishable. */
     NOT_FOUND,
 
-    /** Malformed: a level outside the pyramid, an unknown stance. */
+    /** Malformed: a level outside the pyramid, an unknown job. */
     INVALID,
 
     /** The zone is at its limit; ask again shortly. */

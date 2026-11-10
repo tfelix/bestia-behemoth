@@ -54,13 +54,9 @@ class BestiaRuntime(
     memory.set(BestiaDomain.TIREDNESS_THRESHOLD, tuning.tirednessThreshold, Blackboard.PERMANENT)
     memory.set(BestiaDomain.RESTLESS_THRESHOLD, tuning.restlessThreshold, Blackboard.PERMANENT)
 
-    // The player's one numeric knob overrides the archetype's, always clamped. Everything else about the
-    // species is not theirs to change.
-    memory.set(
-      BestiaDomain.AGGRESSION,
-      config?.sanitised()?.aggression ?: tuning.aggression,
-      Blackboard.PERMANENT,
-    )
+    // The player's courage step overrides the archetype's aggression. Everything else about the species is not
+    // theirs to change.
+    memory.set(BestiaDomain.AGGRESSION, config?.courage?.aggression ?: tuning.aggression, Blackboard.PERMANENT)
   }
 
   // A ranged species stops at shooting distance; one that also bites lets the target come to it.

@@ -62,7 +62,7 @@ class PlayerBestia(
    * what this individual is currently told to do. Replayed at spawn by
    * [net.bestia.zone.master.bestia.PlayerBestiaEntitySpawner].
    *
-   * Defaulted, and every field of it defaulted, so rows written before the column existed read back as PATROL
+   * Defaulted, and every field of it defaulted, so rows written before the column existed read back as REST
    * rather than null. The schema is `ddl-auto: update` against a real database, so existing player bestias
    * survive the migration and must land somewhere sensible.
    */

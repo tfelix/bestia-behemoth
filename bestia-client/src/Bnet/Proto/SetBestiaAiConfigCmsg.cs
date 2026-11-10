@@ -25,17 +25,19 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci9tZXNzYWdlcy9tYXN0ZXIvc2V0X2Jlc3RpYV9haV9jb25maWdfY21zZy5w",
-            "cm90bxIEYm5ldCLcAQoVU2V0QmVzdGlhQWlDb25maWdDTVNHEhgKEHBsYXll",
-            "cl9iZXN0aWFfaWQYASABKAQSNgoGc3RhbmNlGAIgASgOMiYuYm5ldC5TZXRC",
-            "ZXN0aWFBaUNvbmZpZ0NNU0cuSWRsZVN0YW5jZRISCgphZ2dyZXNzaW9uGAMg",
-            "ASgNIlcKCklkbGVTdGFuY2USGwoXSURMRV9TVEFOQ0VfVU5TUEVDSUZJRUQQ",
-            "ABIICgRIT0xEEAESCgoGUEFUUk9MEAISCgoGRk9SQUdFEAMSCgoGREVGRU5E",
-            "EARKBAgEEAVCMwoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhpTZXRCZXN0aWFB",
-            "aUNvbmZpZ0Ntc2dQcm90b2IGcHJvdG8z"));
+            "cm90bxIEYm5ldCK1AgoVU2V0QmVzdGlhQWlDb25maWdDTVNHEhgKEHBsYXll",
+            "cl9iZXN0aWFfaWQYASABKAQSLAoDam9iGAUgASgOMh8uYm5ldC5TZXRCZXN0",
+            "aWFBaUNvbmZpZ0NNU0cuSm9iEjQKB2NvdXJhZ2UYBiABKA4yIy5ibmV0LlNl",
+            "dEJlc3RpYUFpQ29uZmlnQ01TRy5Db3VyYWdlIi8KA0pvYhITCg9KT0JfVU5T",
+            "UEVDSUZJRUQQABIJCgVHVUFSRBABEggKBFJFU1QQAiJbCgdDb3VyYWdlEhcK",
+            "E0NPVVJBR0VfVU5TUEVDSUZJRUQQABIJCgVUSU1JRBABEgsKB0NBUkVGVUwQ",
+            "AhIKCgZTVEVBRFkQAxIICgRCT0xEEAQSCQoFQlJBVkUQBUoECAIQA0oECAMQ",
+            "BEoECAQQBUIzChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGlNldEJlc3RpYUFp",
+            "Q29uZmlnQ21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG), global::Bnet.SetBestiaAiConfigCMSG.Parser, new[]{ "PlayerBestiaId", "Stance", "Aggression" }, null, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.IdleStance) }, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG), global::Bnet.SetBestiaAiConfigCMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage" }, null, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Job), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Courage) }, null, null)
           }));
     }
     #endregion
@@ -44,11 +46,11 @@ namespace Bnet {
   #region Messages
   /// <summary>
   ///*
-  /// Sets what one of the player's own bestias should do while they are not driving it.
+  /// Sets the orders of one of the player's own bestias: what it does while they are not driving it.
   ///
-  /// The vocabulary is deliberately narrow. A stance is an enum rather than a list of goals, and aggression is
-  /// clamped server-side, so the client can never author behaviour directly — it states an intent and the
-  /// server decides what that means. See AiConfig on the server for why.
+  /// The vocabulary is deliberately narrow. A job and a courage step are enums rather than a list of goals, so the
+  /// client can never author behaviour directly: it states an intent and the server decides what that means. See
+  /// AiConfig on the server for why.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class SetBestiaAiConfigCMSG : pb::IMessage<SetBestiaAiConfigCMSG>
@@ -86,8 +88,8 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public SetBestiaAiConfigCMSG(SetBestiaAiConfigCMSG other) : this() {
       playerBestiaId_ = other.playerBestiaId_;
-      stance_ = other.stance_;
-      aggression_ = other.aggression_;
+      job_ = other.job_;
+      courage_ = other.courage_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -112,30 +114,27 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "stance" field.</summary>
-    public const int StanceFieldNumber = 2;
-    private global::Bnet.SetBestiaAiConfigCMSG.Types.IdleStance stance_ = global::Bnet.SetBestiaAiConfigCMSG.Types.IdleStance.Unspecified;
+    /// <summary>Field number for the "job" field.</summary>
+    public const int JobFieldNumber = 5;
+    private global::Bnet.SetBestiaAiConfigCMSG.Types.Job job_ = global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Bnet.SetBestiaAiConfigCMSG.Types.IdleStance Stance {
-      get { return stance_; }
+    public global::Bnet.SetBestiaAiConfigCMSG.Types.Job Job {
+      get { return job_; }
       set {
-        stance_ = value;
+        job_ = value;
       }
     }
 
-    /// <summary>Field number for the "aggression" field.</summary>
-    public const int AggressionFieldNumber = 3;
-    private uint aggression_;
-    /// <summary>
-    ///* 0..100. Out-of-range values are clamped, not rejected. 
-    /// </summary>
+    /// <summary>Field number for the "courage" field.</summary>
+    public const int CourageFieldNumber = 6;
+    private global::Bnet.SetBestiaAiConfigCMSG.Types.Courage courage_ = global::Bnet.SetBestiaAiConfigCMSG.Types.Courage.Unspecified;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Aggression {
-      get { return aggression_; }
+    public global::Bnet.SetBestiaAiConfigCMSG.Types.Courage Courage {
+      get { return courage_; }
       set {
-        aggression_ = value;
+        courage_ = value;
       }
     }
 
@@ -155,8 +154,8 @@ namespace Bnet {
         return true;
       }
       if (PlayerBestiaId != other.PlayerBestiaId) return false;
-      if (Stance != other.Stance) return false;
-      if (Aggression != other.Aggression) return false;
+      if (Job != other.Job) return false;
+      if (Courage != other.Courage) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -165,8 +164,8 @@ namespace Bnet {
     public override int GetHashCode() {
       int hash = 1;
       if (PlayerBestiaId != 0UL) hash ^= PlayerBestiaId.GetHashCode();
-      if (Stance != global::Bnet.SetBestiaAiConfigCMSG.Types.IdleStance.Unspecified) hash ^= Stance.GetHashCode();
-      if (Aggression != 0) hash ^= Aggression.GetHashCode();
+      if (Job != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) hash ^= Job.GetHashCode();
+      if (Courage != global::Bnet.SetBestiaAiConfigCMSG.Types.Courage.Unspecified) hash ^= Courage.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -189,13 +188,13 @@ namespace Bnet {
         output.WriteRawTag(8);
         output.WriteUInt64(PlayerBestiaId);
       }
-      if (Stance != global::Bnet.SetBestiaAiConfigCMSG.Types.IdleStance.Unspecified) {
-        output.WriteRawTag(16);
-        output.WriteEnum((int) Stance);
+      if (Job != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) {
+        output.WriteRawTag(40);
+        output.WriteEnum((int) Job);
       }
-      if (Aggression != 0) {
-        output.WriteRawTag(24);
-        output.WriteUInt32(Aggression);
+      if (Courage != global::Bnet.SetBestiaAiConfigCMSG.Types.Courage.Unspecified) {
+        output.WriteRawTag(48);
+        output.WriteEnum((int) Courage);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -211,13 +210,13 @@ namespace Bnet {
         output.WriteRawTag(8);
         output.WriteUInt64(PlayerBestiaId);
       }
-      if (Stance != global::Bnet.SetBestiaAiConfigCMSG.Types.IdleStance.Unspecified) {
-        output.WriteRawTag(16);
-        output.WriteEnum((int) Stance);
+      if (Job != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) {
+        output.WriteRawTag(40);
+        output.WriteEnum((int) Job);
       }
-      if (Aggression != 0) {
-        output.WriteRawTag(24);
-        output.WriteUInt32(Aggression);
+      if (Courage != global::Bnet.SetBestiaAiConfigCMSG.Types.Courage.Unspecified) {
+        output.WriteRawTag(48);
+        output.WriteEnum((int) Courage);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -232,11 +231,11 @@ namespace Bnet {
       if (PlayerBestiaId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(PlayerBestiaId);
       }
-      if (Stance != global::Bnet.SetBestiaAiConfigCMSG.Types.IdleStance.Unspecified) {
-        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Stance);
+      if (Job != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Job);
       }
-      if (Aggression != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Aggression);
+      if (Courage != global::Bnet.SetBestiaAiConfigCMSG.Types.Courage.Unspecified) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Courage);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -253,11 +252,11 @@ namespace Bnet {
       if (other.PlayerBestiaId != 0UL) {
         PlayerBestiaId = other.PlayerBestiaId;
       }
-      if (other.Stance != global::Bnet.SetBestiaAiConfigCMSG.Types.IdleStance.Unspecified) {
-        Stance = other.Stance;
+      if (other.Job != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) {
+        Job = other.Job;
       }
-      if (other.Aggression != 0) {
-        Aggression = other.Aggression;
+      if (other.Courage != global::Bnet.SetBestiaAiConfigCMSG.Types.Courage.Unspecified) {
+        Courage = other.Courage;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -282,12 +281,12 @@ namespace Bnet {
             PlayerBestiaId = input.ReadUInt64();
             break;
           }
-          case 16: {
-            Stance = (global::Bnet.SetBestiaAiConfigCMSG.Types.IdleStance) input.ReadEnum();
+          case 40: {
+            Job = (global::Bnet.SetBestiaAiConfigCMSG.Types.Job) input.ReadEnum();
             break;
           }
-          case 24: {
-            Aggression = input.ReadUInt32();
+          case 48: {
+            Courage = (global::Bnet.SetBestiaAiConfigCMSG.Types.Courage) input.ReadEnum();
             break;
           }
         }
@@ -313,12 +312,12 @@ namespace Bnet {
             PlayerBestiaId = input.ReadUInt64();
             break;
           }
-          case 16: {
-            Stance = (global::Bnet.SetBestiaAiConfigCMSG.Types.IdleStance) input.ReadEnum();
+          case 40: {
+            Job = (global::Bnet.SetBestiaAiConfigCMSG.Types.Job) input.ReadEnum();
             break;
           }
-          case 24: {
-            Aggression = input.ReadUInt32();
+          case 48: {
+            Courage = (global::Bnet.SetBestiaAiConfigCMSG.Types.Courage) input.ReadEnum();
             break;
           }
         }
@@ -331,15 +330,25 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static partial class Types {
-      public enum IdleStance {
+      public enum Job {
         /// <summary>
-        ///* Never sent by a well-behaved client; present so an unset field is not silently a real stance. 
+        ///* Never sent by a well-behaved client; present so an unset field is not silently a real job. 
         /// </summary>
-        [pbr::OriginalName("IDLE_STANCE_UNSPECIFIED")] Unspecified = 0,
-        [pbr::OriginalName("HOLD")] Hold = 1,
-        [pbr::OriginalName("PATROL")] Patrol = 2,
-        [pbr::OriginalName("FORAGE")] Forage = 3,
-        [pbr::OriginalName("DEFEND")] Defend = 4,
+        [pbr::OriginalName("JOB_UNSPECIFIED")] Unspecified = 0,
+        [pbr::OriginalName("GUARD")] Guard = 1,
+        [pbr::OriginalName("REST")] Rest = 2,
+      }
+
+      public enum Courage {
+        /// <summary>
+        ///* Never sent by a well-behaved client; present so an unset field is not silently a real step. 
+        /// </summary>
+        [pbr::OriginalName("COURAGE_UNSPECIFIED")] Unspecified = 0,
+        [pbr::OriginalName("TIMID")] Timid = 1,
+        [pbr::OriginalName("CAREFUL")] Careful = 2,
+        [pbr::OriginalName("STEADY")] Steady = 3,
+        [pbr::OriginalName("BOLD")] Bold = 4,
+        [pbr::OriginalName("BRAVE")] Brave = 5,
       }
 
     }

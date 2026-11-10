@@ -51,8 +51,8 @@ sealed interface ZoneAnswer {
       val speciesId: Long,
       val species: String,
       val level: Int,
-      val stance: String,
-      val aggression: Int,
+      val job: String,
+      val courage: String,
       val inWorld: Boolean,
       val eastMetres: Double,
       val northMetres: Double,
@@ -215,8 +215,8 @@ sealed interface ZoneAnswer {
 
   data class TicketOwner(val accountId: Long) : ZoneAnswer
 
-  /** The config as stored, which may differ from the one asked for: aggression is clamped. */
-  data class Stance(val playerBestiaId: Long, val stance: String, val aggression: Int) : ZoneAnswer
+  /** The orders as stored. */
+  data class Orders(val playerBestiaId: Long, val job: String, val courage: String) : ZoneAnswer
 
   /**
    * Whether a chat line went out. [refusal] is null when it did, else why not: CHAT_LOCKED (Basic Skill below the

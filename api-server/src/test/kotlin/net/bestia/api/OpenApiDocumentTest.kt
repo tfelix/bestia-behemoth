@@ -41,7 +41,7 @@ class OpenApiDocumentTest : ApiScenarioTestBase() {
     /** The names companion-app/src/lib/api/model.ts refers to. */
     val APP_SCHEMAS = listOf(
       "MasterSummary", "MasterSheet", "Bestia", "Holder", "Slot", "PartyView", "Catalog", "MapMeta", "Place",
-      "StanceOrder", "ChatOrder", "Preferences", "CompendiumEntry", "Letter", "LetterOrder", "Parcel",
+      "BestiaOrders", "ChatOrder", "Preferences", "CompendiumEntry", "Letter", "LetterOrder", "Parcel",
     )
   }
 }

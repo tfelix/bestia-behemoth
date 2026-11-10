@@ -253,7 +253,7 @@ class ApiMetricsScenarioTest : ApiScenarioTestBase() {
     val accounts = value("api.ws.accounts")
     val opened = value("api.ws.auth", "result", "ok")
     val rejectedFrames = value("api.ws.auth", "result", "unauthorized")
-    val stance = value("api.fanout.events", "type", "StanceChanged")
+    val orders = value("api.fanout.events", "type", "OrdersChanged")
     val invalidated = value("api.fanout.invalidations", "target", "answers")
     val replayed = value("api.ws.replayed")
 
@@ -265,9 +265,9 @@ class ApiMetricsScenarioTest : ApiScenarioTestBase() {
     assertEquals(accounts + 1, value("api.ws.accounts"))
     assertEquals(opened + 1, value("api.ws.auth", "result", "ok"))
 
-    events.publish(ZoneEvent.StanceChanged(accountId = 77, masterId = 5, playerBestiaId = 7, stance = "HOLD", aggression = 20))
+    events.publish(ZoneEvent.OrdersChanged(accountId = 77, masterId = 5, playerBestiaId = 7, job = "GUARD", courage = "BOLD"))
     await().atMost(Duration.ofSeconds(5)).until { frames.any { it["type"].asText() == "event" } }
-    assertTrue(value("api.fanout.events", "type", "StanceChanged") >= stance + 1)
+    assertTrue(value("api.fanout.events", "type", "OrdersChanged") >= orders + 1)
     assertTrue(value("api.fanout.invalidations", "target", "answers") >= invalidated + 1)
     socket.close()
     await().atMost(Duration.ofSeconds(5)).untilAsserted { assertEquals(sockets, value("api.ws.sessions")) }
@@ -294,7 +294,7 @@ class ApiMetricsScenarioTest : ApiScenarioTestBase() {
     zoneClient.connect().use {
       it.sync().xadd(BusKeys.EVENTS, mapOf("account" to "78", "payload" to "{not json"))
     }
-    events.publish(ZoneEvent.StanceChanged(accountId = 78, masterId = 5, playerBestiaId = 7, stance = "HOLD", aggression = 1))
+    events.publish(ZoneEvent.OrdersChanged(accountId = 78, masterId = 5, playerBestiaId = 7, job = "GUARD", courage = "BOLD"))
 
     await().atMost(Duration.ofSeconds(5)).untilAsserted {
       assertTrue(value("api.bus.stream.failures", "stream", "events", "kind", "decode") >= failures + 1)

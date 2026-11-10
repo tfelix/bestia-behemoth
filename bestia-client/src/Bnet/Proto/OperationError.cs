@@ -32,7 +32,7 @@ namespace Bnet {
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
             "UF9JVEVNX05PVF9GT1VORBAFEhUKEUVRVUlQX05PVF9BTExPV0VEEAYSHgoa",
             "TUFTVEVSX0lOVkFMSURfU1BBV05fUE9JTlQQBxIeChpBSV9DT05GSUdfQkVT",
-            "VElBX05PVF9PV05FRBAIEhwKGEFJX0NPTkZJR19JTlZBTElEX1NUQU5DRRAJ",
+            "VElBX05PVF9PV05FRBAIEhwKGEFJX0NPTkZJR19JTlZBTElEX09SREVSUxAJ",
             "EhQKEE1BU1RFUl9OT1RfT1dORUQQChIYChRNQVNURVJfTkFNRV9NSVNNQVRD",
             "SBALEhEKDU1BU1RFUl9JTl9VU0UQDBIXChNDT0xMRUNUX1RBUkdFVF9HT05F",
             "EA0SGAoUQ09MTEVDVF9PVVRfT0ZfUkFOR0UQDhIbChdDT0xMRUNUX05PVF9D",
@@ -123,7 +123,7 @@ namespace Bnet {
     [pbr::OriginalName("EQUIP_NOT_ALLOWED")] EquipNotAllowed = 6,
     [pbr::OriginalName("MASTER_INVALID_SPAWN_POINT")] MasterInvalidSpawnPoint = 7,
     [pbr::OriginalName("AI_CONFIG_BESTIA_NOT_OWNED")] AiConfigBestiaNotOwned = 8,
-    [pbr::OriginalName("AI_CONFIG_INVALID_STANCE")] AiConfigInvalidStance = 9,
+    [pbr::OriginalName("AI_CONFIG_INVALID_ORDERS")] AiConfigInvalidOrders = 9,
     /// <summary>
     /// Also answers "no such master": a client must not be able to tell an id that does not exist from
     /// one that belongs to somebody else, or deleting becomes a way to probe for foreign master ids.

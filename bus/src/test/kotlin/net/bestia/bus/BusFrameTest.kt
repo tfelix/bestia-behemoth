@@ -18,7 +18,7 @@ class BusFrameTest {
       ZoneQuery.ListMasters,
       ZoneQuery.MapTile(masterId = 7, level = 3, x = -2, y = 9, ifNoneMatch = "\"w1-3/-2/9\""),
       ZoneQuery.HabitatTile(masterId = 7, speciesId = 1, level = 3, x = -2, y = 9, ifNoneMatch = null),
-      ZoneQuery.SetStance(masterId = 7, playerBestiaId = 11, stance = "HOLD", aggression = 20),
+      ZoneQuery.SetOrders(masterId = 7, playerBestiaId = 11, job = "GUARD", courage = "BOLD"),
       ZoneQuery.SendChat(masterId = 7, channel = "PARTY", text = "on my way"),
       ZoneQuery.Compendium(masterId = 7),
       ZoneQuery.SendOnJourney(masterId = 7, playerBestiaId = 11, waypoints = listOf(MapPoint(1.5, 2.5))),
@@ -61,7 +61,7 @@ class BusFrameTest {
     val answers = listOf(
       ZoneAnswer.Masters(listOf(ZoneAnswer.Masters.Master(1, 0, "Ayla", 3, "Ashfen", true))),
       ZoneAnswer.Sheet(1, "Ayla", 3, 40, 1, 2, 10, 11, 12, 13, 14, 15, 18, "Ashfen", 61134.0, 27383.0, false, 99),
-      ZoneAnswer.Roster(listOf(ZoneAnswer.Roster.Bestia(2, "Blobby", 1, "blob", 4, "HOLD", 20, true, 1.5, 2.5, 7, 4.0))),
+      ZoneAnswer.Roster(listOf(ZoneAnswer.Roster.Bestia(2, "Blobby", 1, "blob", 4, "GUARD", "BOLD", true, 1.5, 2.5, 7, 4.0))),
       ZoneAnswer.Bag(listOf(ZoneAnswer.Bag.Holder("MASTER", 1, "Ayla", listOf(ZoneAnswer.Bag.Slot(3, "apple", 5, null, 0, 0, 0))))),
       ZoneAnswer.PartyInfo(ZoneAnswer.PartyInfo.Party("P", 1, listOf(ZoneAnswer.PartyInfo.Member(1, "Ayla", 3, true)))),
       ZoneAnswer.CatalogData("v", listOf(ZoneAnswer.CatalogData.Item(1, "apple", "USABLE", 15, null, true)),
@@ -71,7 +71,7 @@ class BusFrameTest {
       ZoneAnswer.Places("\"e\"", false, listOf(ZoneAnswer.Places.Place(1, "SETTLEMENT", 3.5, 4.5, "Ashfen", "TOWN", null))),
       ZoneAnswer.Services("\"s\"", listOf(ZoneAnswer.Services.Service(9, "INN", "The Boar", 1.0, 2.0, "Ashfen", 6, 22))),
       ZoneAnswer.TicketOwner(42),
-      ZoneAnswer.Stance(2, "HOLD", 20),
+      ZoneAnswer.Orders(2, "GUARD", "BOLD"),
       ZoneAnswer.ChatSent(null),
       ZoneAnswer.ChatSent(ZoneAnswer.ChatSent.NOT_IN_GUILD),
       ZoneAnswer.Letters(listOf(ZoneAnswer.Letters.Letter(3, "Ayla", "Bridge", "It is down.", 5, 6, read = true))),
@@ -82,7 +82,7 @@ class BusFrameTest {
       ZoneAnswer.Roster(
         listOf(
           ZoneAnswer.Roster.Bestia(
-            2, "Blobby", 1, "blob", 4, "HOLD", 20, true, 1.5, 2.5, 7, 4.0,
+            2, "Blobby", 1, "blob", 4, "GUARD", "BOLD", true, 1.5, 2.5, 7, 4.0,
             ZoneAnswer.Journey("Ore run", listOf(MapPoint(9.0, 9.0)), 0, listOf(MapPoint(5.0, 5.0))),
           )
         )

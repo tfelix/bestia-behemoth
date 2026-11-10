@@ -5,7 +5,8 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 
 /**
- * What a bestia does while its owner is not driving it, and the only AI surface a player can change.
+ * A bestia's orders: what it does while its owner is not driving it, and the only AI surface a player can change.
+ * See `bestia-docs/content/docs/mechanics/bestias/bestia-orders.md`.
  *
  * ### Why a fixed vocabulary rather than the goal list
  *
@@ -13,8 +14,8 @@ import jakarta.persistence.Enumerated
  * names into the client, is impossible to balance, and gives no way to say "only while idling". Worse, priority
  * is an input to an A* search, so unconstrained values are unconstrained planner cost.
  *
- * A small enumerated vocabulary avoids all of that. Every [stance] compiles to a fixed, reviewed set of goals
- * (see [IdleStance.goalNames]), and [aggression] is clamped on the way in. The player expresses intent; the
+ * A small enumerated vocabulary avoids all of that. Every [job] compiles to a fixed, reviewed set of goals
+ * (see [BestiaJob.goalNames]), and every [courage] step to a fixed aggression. The player expresses intent; the
  * server decides what that means.
  *
  * Stored inline on `PlayerBestia`. All fields are defaulted, which is also what gives Kotlin the no-arg
@@ -23,53 +24,53 @@ import jakarta.persistence.Enumerated
 @Embeddable
 data class AiConfig(
   @Enumerated(EnumType.STRING)
-  val stance: IdleStance = IdleStance.PATROL,
+  val job: BestiaJob = BestiaJob.REST,
 
-  /** 0..100; how strongly the creature wants the kill goals it has. */
-  val aggression: Int = DEFAULT_AGGRESSION,
-) {
+  @Enumerated(EnumType.STRING)
+  val courage: Courage = Courage.STEADY,
+)
 
-  /**
-   * The same config with [aggression] forced into range.
-   *
-   * Clamping rather than rejecting is deliberate for values that arrive over the wire: a client sending 5000
-   * aggression is asking for "as aggressive as possible", and answering that with an error achieves nothing a
-   * clamp does not. Anything structural — an unknown stance — cannot be clamped and is refused at the handler
-   * instead.
-   */
-  fun sanitised(): AiConfig = copy(aggression = aggression.coerceIn(0, 100))
+/**
+ * What a bestia works at while its owner is away.
+ *
+ * Each job names the goals it permits. The set is *intersected* with the archetype's own goals rather than
+ * replacing them, so a job can never grant a creature a behaviour its species does not have — a critter told to
+ * GUARD still cannot hunt, because its profile has no kill-on-sight goal to enable.
+ *
+ * `KillAttacker` is in every job on purpose: self-defence is not an order a player gets to switch off, and an
+ * owned creature that stood still while being killed would be a bug reported as one.
+ *
+ * Gather, Craft, Mine and Follow join once the goals that carry them exist.
+ */
+enum class BestiaJob(val goalNames: Set<String>) {
+
+  /** Roam the area around home and engage anything hostile that comes near. */
+  GUARD(setOf("KillAttacker", "KillEnemy", "Wander", "ReturnHome")),
+
+  /** Stay around home and look after itself: eat and sleep as needed. The default. */
+  REST(setOf("KillAttacker", "Wander", "ReturnHome", "EatVegetation", "Sleep"));
 
   companion object {
-    const val DEFAULT_AGGRESSION = 50
+    fun fromNameOrNull(name: String): BestiaJob? = entries.firstOrNull { it.name.equals(name, ignoreCase = true) }
   }
 }
 
 /**
- * A player-chosen standing order for an idle bestia.
+ * How a bestia meets danger, as one slider of five steps.
  *
- * Each stance names the goals it permits. The set is *intersected* with the archetype's own goals rather than
- * replacing them, so a stance can never grant a creature a behaviour its species does not have — a critter told
- * to DEFEND still cannot hunt, because its profile has no kill-on-sight goal to enable.
- *
- * `KillAttacker` is in every stance on purpose: self-defence is not a standing order a player gets to switch
- * off, and an owned creature that stood still while being killed because it was told to HOLD would be a bug
- * reported as one. It is now the *only* response to being attacked, since nothing runs away.
+ * For now a step only sets how strongly the bestia wants its kill goals. Retreat lines and shelter join with the
+ * goals that carry them, read from the same step, so the slider the player sees does not change meaning.
  */
-enum class IdleStance(val goalNames: Set<String>) {
+enum class Courage(val aggression: Int) {
+  TIMID(10),
+  CAREFUL(30),
 
-  /** Stay put. Defends itself, but will not wander off, forage or pick fights. */
-  HOLD(setOf("KillAttacker")),
-
-  /** Roam around where it was left, and come back if it strays. The default. */
-  PATROL(setOf("KillAttacker", "Wander", "ReturnHome")),
-
-  /** Look after itself: eat and sleep as needed, roam meanwhile. */
-  FORAGE(setOf("KillAttacker", "Wander", "ReturnHome", "EatVegetation", "Sleep")),
-
-  /** Engage anything hostile that comes near, rather than waiting to be hit first. */
-  DEFEND(setOf("KillAttacker", "KillEnemy", "ReturnHome"));
+  /** The archetype-neutral middle, and the default. */
+  STEADY(50),
+  BOLD(75),
+  BRAVE(100);
 
   companion object {
-    fun fromNameOrNull(name: String): IdleStance? = entries.firstOrNull { it.name.equals(name, ignoreCase = true) }
+    fun fromNameOrNull(name: String): Courage? = entries.firstOrNull { it.name.equals(name, ignoreCase = true) }
   }
 }
