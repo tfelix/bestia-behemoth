@@ -448,6 +448,13 @@ namespace BestiaBehemothClient.Game.World
       get { return _temperature; }
     }
 
+    /// <summary>
+    /// The last reading as the server sent it, for what WEATHER_SENSE adds: the forecast and the mana field.
+    /// Unsmoothed, because both are readouts rather than something the world is drawn with. Null before the
+    /// first reading.
+    /// </summary>
+    public WeatherSMSG LastReading { get; private set; }
+
     public void Attach(BnetSocket socket)
     {
       if (socket == null)
@@ -478,6 +485,7 @@ namespace BestiaBehemothClient.Game.World
         return;
       }
 
+      LastReading = weather;
       _kind = weather.Weather;
       _intensity = weather.Intensity;
       _cloudCover = weather.CloudCover;

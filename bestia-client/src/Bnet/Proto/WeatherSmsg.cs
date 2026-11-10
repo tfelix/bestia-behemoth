@@ -25,7 +25,7 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ch9tZXNzYWdlcy9tYXAvd2VhdGhlcl9zbXNnLnByb3RvEgRibmV0GhptZXNz",
-            "YWdlcy9tYXAvd2VhdGhlci5wcm90byLVAwoLV2VhdGhlclNNU0cSEQoJcmVn",
+            "YWdlcy9tYXAvd2VhdGhlci5wcm90byKjBQoLV2VhdGhlclNNU0cSEQoJcmVn",
             "aW9uX2lkGAEgASgNEh8KBGtpbmQYCiABKA4yES5ibmV0LldlYXRoZXJLaW5k",
             "EhEKCWludGVuc2l0eRgLIAEoAhITCgtjbG91ZF9jb3ZlchgMIAEoAhISCgp3",
             "aW5kX3NwZWVkGA0gASgCEhYKDndpbmRfZGlyZWN0aW9uGA4gASgCEhsKE3Rl",
@@ -35,13 +35,17 @@ namespace Bnet {
             "CBIQCghoYXphcmRfeBgpIAEoEhIQCghoYXphcmRfeRgqIAEoEhIcChRoYXph",
             "cmRfcmFkaXVzX21ldHJlcxgrIAEoAhIWCg5ncm91bmRfd2V0bmVzcxgyIAEo",
             "AhIQCghoYXNfc25vdxgzIAEoCBIRCglzbm93X2xpbmUYNCABKAISEQoJc25v",
-            "d19mdWxsGDUgASgCSgQIFRAWUhhmZWx0X3RlbXBlcmF0dXJlX2NlbHNpdXNC",
-            "KQoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhBXZWF0aGVyU01TR1Byb3RvYgZw",
-            "cm90bzM="));
+            "d19mdWxsGDUgASgCEhAKCGhhc19tYW5hGDwgASgIEgwKBG1hbmEYPSABKAIS",
+            "GQoRaGFzX3N0cm9uZ2VyX21hbmEYPiABKAgSHwoXc3Ryb25nZXJfbWFuYV9k",
+            "aXJlY3Rpb24YPyABKAISHAoUc3Ryb25nZXJfbWFuYV9tZXRyZXMYQCABKAIS",
+            "FwoPaGFzX3dlYWtlcl9tYW5hGEEgASgIEh0KFXdlYWtlcl9tYW5hX2RpcmVj",
+            "dGlvbhhCIAEoAhIaChJ3ZWFrZXJfbWFuYV9tZXRyZXMYQyABKAJKBAgVEBZS",
+            "GGZlbHRfdGVtcGVyYXR1cmVfY2Vsc2l1c0IpChVuZXQuYmVzdGlhLmJuZXQu",
+            "cHJvdG9CEFdlYXRoZXJTTVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.WeatherReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WeatherSMSG), global::Bnet.WeatherSMSG.Parser, new[]{ "RegionId", "Kind", "Intensity", "CloudCover", "WindSpeed", "WindDirection", "TemperatureCelsius", "HasForecast", "ForecastKind", "ForecastInSeconds", "HasHazard", "HazardX", "HazardY", "HazardRadiusMetres", "GroundWetness", "HasSnow", "SnowLine", "SnowFull" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WeatherSMSG), global::Bnet.WeatherSMSG.Parser, new[]{ "RegionId", "Kind", "Intensity", "CloudCover", "WindSpeed", "WindDirection", "TemperatureCelsius", "HasForecast", "ForecastKind", "ForecastInSeconds", "HasHazard", "HazardX", "HazardY", "HazardRadiusMetres", "GroundWetness", "HasSnow", "SnowLine", "SnowFull", "HasMana", "Mana", "HasStrongerMana", "StrongerManaDirection", "StrongerManaMetres", "HasWeakerMana", "WeakerManaDirection", "WeakerManaMetres" }, null, null, null, null)
           }));
     }
     #endregion
@@ -118,6 +122,14 @@ namespace Bnet {
       hasSnow_ = other.hasSnow_;
       snowLine_ = other.snowLine_;
       snowFull_ = other.snowFull_;
+      hasMana_ = other.hasMana_;
+      mana_ = other.mana_;
+      hasStrongerMana_ = other.hasStrongerMana_;
+      strongerManaDirection_ = other.strongerManaDirection_;
+      strongerManaMetres_ = other.strongerManaMetres_;
+      hasWeakerMana_ = other.hasWeakerMana_;
+      weakerManaDirection_ = other.weakerManaDirection_;
+      weakerManaMetres_ = other.weakerManaMetres_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -392,6 +404,108 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "has_mana" field.</summary>
+    public const int HasManaFieldNumber = 60;
+    private bool hasMana_;
+    /// <summary>
+    ///*
+    /// What WEATHER_SENSE reads of the mana field: `mana` where the player stands, 0 to 1, from level 1. From level 2
+    /// the nearest clearly stronger and weaker field in range, as a direction like `wind_direction` and a distance.
+    /// Each `has_` flag is false when the skill is too low or nothing in range qualifies.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasMana {
+      get { return hasMana_; }
+      set {
+        hasMana_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "mana" field.</summary>
+    public const int ManaFieldNumber = 61;
+    private float mana_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float Mana {
+      get { return mana_; }
+      set {
+        mana_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "has_stronger_mana" field.</summary>
+    public const int HasStrongerManaFieldNumber = 62;
+    private bool hasStrongerMana_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasStrongerMana {
+      get { return hasStrongerMana_; }
+      set {
+        hasStrongerMana_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "stronger_mana_direction" field.</summary>
+    public const int StrongerManaDirectionFieldNumber = 63;
+    private float strongerManaDirection_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float StrongerManaDirection {
+      get { return strongerManaDirection_; }
+      set {
+        strongerManaDirection_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "stronger_mana_metres" field.</summary>
+    public const int StrongerManaMetresFieldNumber = 64;
+    private float strongerManaMetres_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float StrongerManaMetres {
+      get { return strongerManaMetres_; }
+      set {
+        strongerManaMetres_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "has_weaker_mana" field.</summary>
+    public const int HasWeakerManaFieldNumber = 65;
+    private bool hasWeakerMana_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasWeakerMana {
+      get { return hasWeakerMana_; }
+      set {
+        hasWeakerMana_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "weaker_mana_direction" field.</summary>
+    public const int WeakerManaDirectionFieldNumber = 66;
+    private float weakerManaDirection_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float WeakerManaDirection {
+      get { return weakerManaDirection_; }
+      set {
+        weakerManaDirection_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "weaker_mana_metres" field.</summary>
+    public const int WeakerManaMetresFieldNumber = 67;
+    private float weakerManaMetres_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float WeakerManaMetres {
+      get { return weakerManaMetres_; }
+      set {
+        weakerManaMetres_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -425,6 +539,14 @@ namespace Bnet {
       if (HasSnow != other.HasSnow) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(SnowLine, other.SnowLine)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(SnowFull, other.SnowFull)) return false;
+      if (HasMana != other.HasMana) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Mana, other.Mana)) return false;
+      if (HasStrongerMana != other.HasStrongerMana) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(StrongerManaDirection, other.StrongerManaDirection)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(StrongerManaMetres, other.StrongerManaMetres)) return false;
+      if (HasWeakerMana != other.HasWeakerMana) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(WeakerManaDirection, other.WeakerManaDirection)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(WeakerManaMetres, other.WeakerManaMetres)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -450,6 +572,14 @@ namespace Bnet {
       if (HasSnow != false) hash ^= HasSnow.GetHashCode();
       if (SnowLine != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(SnowLine);
       if (SnowFull != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(SnowFull);
+      if (HasMana != false) hash ^= HasMana.GetHashCode();
+      if (Mana != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Mana);
+      if (HasStrongerMana != false) hash ^= HasStrongerMana.GetHashCode();
+      if (StrongerManaDirection != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(StrongerManaDirection);
+      if (StrongerManaMetres != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(StrongerManaMetres);
+      if (HasWeakerMana != false) hash ^= HasWeakerMana.GetHashCode();
+      if (WeakerManaDirection != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(WeakerManaDirection);
+      if (WeakerManaMetres != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(WeakerManaMetres);
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -540,6 +670,38 @@ namespace Bnet {
         output.WriteRawTag(173, 3);
         output.WriteFloat(SnowFull);
       }
+      if (HasMana != false) {
+        output.WriteRawTag(224, 3);
+        output.WriteBool(HasMana);
+      }
+      if (Mana != 0F) {
+        output.WriteRawTag(237, 3);
+        output.WriteFloat(Mana);
+      }
+      if (HasStrongerMana != false) {
+        output.WriteRawTag(240, 3);
+        output.WriteBool(HasStrongerMana);
+      }
+      if (StrongerManaDirection != 0F) {
+        output.WriteRawTag(253, 3);
+        output.WriteFloat(StrongerManaDirection);
+      }
+      if (StrongerManaMetres != 0F) {
+        output.WriteRawTag(133, 4);
+        output.WriteFloat(StrongerManaMetres);
+      }
+      if (HasWeakerMana != false) {
+        output.WriteRawTag(136, 4);
+        output.WriteBool(HasWeakerMana);
+      }
+      if (WeakerManaDirection != 0F) {
+        output.WriteRawTag(149, 4);
+        output.WriteFloat(WeakerManaDirection);
+      }
+      if (WeakerManaMetres != 0F) {
+        output.WriteRawTag(157, 4);
+        output.WriteFloat(WeakerManaMetres);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -622,6 +784,38 @@ namespace Bnet {
         output.WriteRawTag(173, 3);
         output.WriteFloat(SnowFull);
       }
+      if (HasMana != false) {
+        output.WriteRawTag(224, 3);
+        output.WriteBool(HasMana);
+      }
+      if (Mana != 0F) {
+        output.WriteRawTag(237, 3);
+        output.WriteFloat(Mana);
+      }
+      if (HasStrongerMana != false) {
+        output.WriteRawTag(240, 3);
+        output.WriteBool(HasStrongerMana);
+      }
+      if (StrongerManaDirection != 0F) {
+        output.WriteRawTag(253, 3);
+        output.WriteFloat(StrongerManaDirection);
+      }
+      if (StrongerManaMetres != 0F) {
+        output.WriteRawTag(133, 4);
+        output.WriteFloat(StrongerManaMetres);
+      }
+      if (HasWeakerMana != false) {
+        output.WriteRawTag(136, 4);
+        output.WriteBool(HasWeakerMana);
+      }
+      if (WeakerManaDirection != 0F) {
+        output.WriteRawTag(149, 4);
+        output.WriteFloat(WeakerManaDirection);
+      }
+      if (WeakerManaMetres != 0F) {
+        output.WriteRawTag(157, 4);
+        output.WriteFloat(WeakerManaMetres);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -684,6 +878,30 @@ namespace Bnet {
         size += 2 + 4;
       }
       if (SnowFull != 0F) {
+        size += 2 + 4;
+      }
+      if (HasMana != false) {
+        size += 2 + 1;
+      }
+      if (Mana != 0F) {
+        size += 2 + 4;
+      }
+      if (HasStrongerMana != false) {
+        size += 2 + 1;
+      }
+      if (StrongerManaDirection != 0F) {
+        size += 2 + 4;
+      }
+      if (StrongerManaMetres != 0F) {
+        size += 2 + 4;
+      }
+      if (HasWeakerMana != false) {
+        size += 2 + 1;
+      }
+      if (WeakerManaDirection != 0F) {
+        size += 2 + 4;
+      }
+      if (WeakerManaMetres != 0F) {
         size += 2 + 4;
       }
       if (_unknownFields != null) {
@@ -751,6 +969,30 @@ namespace Bnet {
       }
       if (other.SnowFull != 0F) {
         SnowFull = other.SnowFull;
+      }
+      if (other.HasMana != false) {
+        HasMana = other.HasMana;
+      }
+      if (other.Mana != 0F) {
+        Mana = other.Mana;
+      }
+      if (other.HasStrongerMana != false) {
+        HasStrongerMana = other.HasStrongerMana;
+      }
+      if (other.StrongerManaDirection != 0F) {
+        StrongerManaDirection = other.StrongerManaDirection;
+      }
+      if (other.StrongerManaMetres != 0F) {
+        StrongerManaMetres = other.StrongerManaMetres;
+      }
+      if (other.HasWeakerMana != false) {
+        HasWeakerMana = other.HasWeakerMana;
+      }
+      if (other.WeakerManaDirection != 0F) {
+        WeakerManaDirection = other.WeakerManaDirection;
+      }
+      if (other.WeakerManaMetres != 0F) {
+        WeakerManaMetres = other.WeakerManaMetres;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -843,6 +1085,38 @@ namespace Bnet {
             SnowFull = input.ReadFloat();
             break;
           }
+          case 480: {
+            HasMana = input.ReadBool();
+            break;
+          }
+          case 493: {
+            Mana = input.ReadFloat();
+            break;
+          }
+          case 496: {
+            HasStrongerMana = input.ReadBool();
+            break;
+          }
+          case 509: {
+            StrongerManaDirection = input.ReadFloat();
+            break;
+          }
+          case 517: {
+            StrongerManaMetres = input.ReadFloat();
+            break;
+          }
+          case 520: {
+            HasWeakerMana = input.ReadBool();
+            break;
+          }
+          case 533: {
+            WeakerManaDirection = input.ReadFloat();
+            break;
+          }
+          case 541: {
+            WeakerManaMetres = input.ReadFloat();
+            break;
+          }
         }
       }
     #endif
@@ -932,6 +1206,38 @@ namespace Bnet {
           }
           case 429: {
             SnowFull = input.ReadFloat();
+            break;
+          }
+          case 480: {
+            HasMana = input.ReadBool();
+            break;
+          }
+          case 493: {
+            Mana = input.ReadFloat();
+            break;
+          }
+          case 496: {
+            HasStrongerMana = input.ReadBool();
+            break;
+          }
+          case 509: {
+            StrongerManaDirection = input.ReadFloat();
+            break;
+          }
+          case 517: {
+            StrongerManaMetres = input.ReadFloat();
+            break;
+          }
+          case 520: {
+            HasWeakerMana = input.ReadBool();
+            break;
+          }
+          case 533: {
+            WeakerManaDirection = input.ReadFloat();
+            break;
+          }
+          case 541: {
+            WeakerManaMetres = input.ReadFloat();
             break;
           }
         }

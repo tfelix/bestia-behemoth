@@ -93,4 +93,18 @@ message WeatherSMSG {
   bool has_snow = 51;
   float snow_line = 52;
   float snow_full = 53;
+
+  /**
+   * What WEATHER_SENSE reads of the mana field: `mana` where the player stands, 0 to 1, from level 1. From level 2
+   * the nearest clearly stronger and weaker field in range, as a direction like `wind_direction` and a distance.
+   * Each `has_` flag is false when the skill is too low or nothing in range qualifies.
+   */
+  bool has_mana = 60;
+  float mana = 61;
+  bool has_stronger_mana = 62;
+  float stronger_mana_direction = 63;
+  float stronger_mana_metres = 64;
+  bool has_weaker_mana = 65;
+  float weaker_mana_direction = 66;
+  float weaker_mana_metres = 67;
 }

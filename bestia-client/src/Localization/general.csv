@@ -616,6 +616,8 @@ ERROR_SURVEY_MISSED,"The needle slipped. The survey failed, and the paper and in
 ERROR_SURVEY_NOT_YOURS,This theodolite belongs to someone else.
 ERROR_SURVEY_IN_PROGRESS,The survey needs about %s more minutes of work at the theodolite.
 ERROR_HERB_TOO_RARE,You do not know enough Herbalism to pick this herb.
+WEATHER_SENSE_FORECAST,%s in %d min
+WEATHER_SENSE_MANA,Mana %d%%
 SUCCESS_SURVEY_STARTED,"The survey has begun. Stay at the theodolite, or leave a bestia there, for ten minutes."
 SUCCESS_SURVEY_READY,Your theodolite has finished its chart. Use it to collect the chart.
 SUCCESS_CHART_WRITTEN,You collected a new chart. It is in your bag.

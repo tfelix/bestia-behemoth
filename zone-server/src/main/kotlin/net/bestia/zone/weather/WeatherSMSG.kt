@@ -29,7 +29,10 @@ data class WeatherSMSG(
   /** What WEATHER_SENSE saw coming, or null when the player has no such skill or nothing changes. */
   val forecast: Forecast? = null,
 
-  val ground: GroundCover = GroundCover.BARE
+  val ground: GroundCover = GroundCover.BARE,
+
+  /** What WEATHER_SENSE reads of the mana field, or null without the skill. */
+  val mana: ManaReading? = null,
 ) : SMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -63,6 +66,20 @@ data class WeatherSMSG(
         .setHasSnow(true)
         .setSnowLine(ground.snowLine.toFloat())
         .setSnowFull(ground.snowFull.toFloat())
+    }
+
+    mana?.let {
+      weather.setHasMana(true).setMana(it.here.toFloat())
+      it.stronger?.let { pointer ->
+        weather.setHasStrongerMana(true)
+          .setStrongerManaDirection(pointer.directionRadians.toFloat())
+          .setStrongerManaMetres(pointer.distanceMetres.toFloat())
+      }
+      it.weaker?.let { pointer ->
+        weather.setHasWeakerMana(true)
+          .setWeakerManaDirection(pointer.directionRadians.toFloat())
+          .setWeakerManaMetres(pointer.distanceMetres.toFloat())
+      }
     }
 
     return EnvelopeProto.Envelope.newBuilder()
