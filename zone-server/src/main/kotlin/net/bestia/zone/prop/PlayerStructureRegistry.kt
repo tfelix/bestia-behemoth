@@ -39,7 +39,13 @@ data class StructureEntry(
   val workerBestiaId: Long? = null,
 
   /** See [PlayerStructure.takesAnyCrafter]. */
-  val takesAnyCrafter: Boolean = false
+  val takesAnyCrafter: Boolean = false,
+
+  /** A theodolite's survey: the radius it charts, or null when it surveys nothing. */
+  val surveyRadiusMetres: Int? = null,
+
+  /** Seconds of work the survey still needs; 0 when its chart is ready to collect. */
+  val surveyRemainingSeconds: Float = 0f,
 ) {
 
   val isUnderConstruction: Boolean
@@ -217,6 +223,20 @@ class PlayerStructureRegistry(
     }
   }
 
+  /** Starts, advances or ends ([radiusMetres] null) a theodolite's survey. */
+  fun setSurvey(structureId: Long, radiusMetres: Int?, remainingSeconds: Float) {
+    val current = byId[structureId] ?: return
+    reindex(current.copy(surveyRadiusMetres = radiusMetres, surveyRemainingSeconds = remainingSeconds))
+
+    asyncJobExecutor.submit(structureId) {
+      repository.findById(structureId).ifPresent { row ->
+        row.surveyRadiusMetres = radiusMetres
+        row.surveyRemainingSeconds = radiusMetres?.let { remainingSeconds }
+        repository.save(row)
+      }
+    }
+  }
+
   /** The owner's camp chest standing next to [station], which pays its queue; null without one. */
   fun chestBeside(station: StructureEntry): StructureEntry? {
     return byId.values
@@ -281,7 +301,7 @@ class PlayerStructureRegistry(
         row.id, row.kind, row.ownerMasterId, row.ownerAccountId, Vec3L(row.x, row.y, row.z), row.yaw,
         row.totalBuildSeconds, row.remainingBuildSeconds, row.burnsOutAt,
         StationContents.decodeQueue(row.stationQueue), StationContents.decodeHeld(row.stationHeld),
-        row.workerBestiaId, row.takesAnyCrafter
+        row.workerBestiaId, row.takesAnyCrafter, row.surveyRadiusMetres, row.surveyRemainingSeconds ?: 0f
       )
       index(row.chunkX, row.chunkY, entry)
     }

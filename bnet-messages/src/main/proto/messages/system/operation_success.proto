@@ -28,6 +28,10 @@ enum OpSuccess {
   RITUAL_JOINED = 8;
   RITUAL_STARTED = 9;
   RITUAL_CHARGED = 10;
+
+  // A won survey started its ten minutes of work at the theodolite, and those ten minutes are over.
+  SURVEY_STARTED = 11;
+  SURVEY_READY = 12;
 }
 
 message OperationSuccess {

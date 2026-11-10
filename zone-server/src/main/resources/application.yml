@@ -609,7 +609,6 @@ cartography:
   # deleting it costs render time and nothing else.
   cache-dir: ./build/map-cache
   starter-chart-radius-metres: 5000
-  survey-radius-per-level-metres: 1000
 
 # The Valkey bus (see bus/ and compose.yaml). The zone answers the api-server's questions about an account, keeps
 # the directory of who is in the world, appends events to the stream, and reads the login server's kicks.

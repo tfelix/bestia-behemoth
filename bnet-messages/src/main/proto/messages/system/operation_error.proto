@@ -354,6 +354,13 @@ enum OpError {
   SKILL_MISSING_REAGENT = 139;
   // A tree falls only to an axe or a felling tool like a hatchet.
   FELLING_NEEDS_AXE = 140;
+  // Cartography at a theodolite: none of yours idle within reach, a survey size your level has not opened, the
+  // needle missed (paper and ink are spent), not your theodolite, or still surveying (minutes left in args[0]).
+  SURVEY_NO_THEODOLITE = 141;
+  SURVEY_TIER_LOCKED = 142;
+  SURVEY_MISSED = 143;
+  SURVEY_NOT_YOURS = 144;
+  SURVEY_IN_PROGRESS = 145;
 }
 
 message OperationError {

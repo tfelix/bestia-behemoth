@@ -61,33 +61,22 @@ class ChartService(
   val grid: SurveyGrid get() = SurveyGrid(WorldWrap(worldService.config))
 
   /**
-   * Turns a completed survey into a chart in the master's inventory, consuming a blank.
-   *
-   * The blank is *taken* here and nowhere else, which is what makes a cancelled or interrupted survey free.
-   * It is also checked earlier, at cast start, by `SurveyService.checkBlank` - not instead of this one but
-   * before it, so a surveyor with nothing to draw on is told at the button rather than five seconds later.
-   * The check here is the one that decides: a sheet counted then can be dropped or traded away while the bar
-   * fills, and only this one shares a transaction with the write. `CraftingService` checks its inputs at
-   * `start` and takes them at `resolve` for the same reason.
+   * Turns a completed survey into a chart in the master's inventory. Takes no paper: the Cartography cast
+   * already spent its paper and ink on the needle game, whether it was won or not.
    */
   @Transactional
   fun mint(masterId: Long, centreX: Double, centreY: Double, radiusMetres: Double): Result {
-    val blank = itemRepository.findByIdentifier(BLANK_IDENTIFIER)
     val chartItem = itemRepository.findByIdentifier(CHART_IDENTIFIER)
-    if (blank == null || chartItem == null) {
+    if (chartItem == null) {
       // items.yml is imported at boot, so this is a broken deployment rather than anything a player did.
-      LOG.error { "items.yml is missing '$BLANK_IDENTIFIER' or '$CHART_IDENTIFIER'; nobody can chart anything" }
+      LOG.error { "items.yml is missing '$CHART_IDENTIFIER'; nobody can chart anything" }
       return Result.Refused(OpError.CHART_NOT_FOUND)
-    }
-
-    if (inventoryService.removeOneFromMaster(masterId, blank.id, 1) == null) {
-      return Result.Refused(OpError.CHART_NEEDS_BLANK)
     }
 
     val coverage = Coverage(grid)
     coverage.fillDisc(centreX, centreY, radiusMetres)
 
-    return Result.Ok(write(masterId, chartItem, coverage), chartItem, coverage.cellCount(), blank.id)
+    return Result.Ok(write(masterId, chartItem, coverage), chartItem, coverage.cellCount())
   }
 
   /**

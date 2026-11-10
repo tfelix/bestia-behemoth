@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrRGwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrJHAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -104,9 +104,11 @@ namespace Bnet {
             "EIYBEg8KCkNIRVNUX0ZVTEwQhwESFAoPQ0hFU1RfTk9UX1lPVVJTEIgBEhcK",
             "EkNIRVNUX09VVF9PRl9SRUFDSBCJARIiCh1CQVNJQ19TS0lMTF9UUkFERV9Q",
             "T1NUX0xPQ0tFRBCKARIaChVTS0lMTF9NSVNTSU5HX1JFQUdFTlQQiwESFgoR",
-            "RkVMTElOR19ORUVEU19BWEUQjAEiBAguEC4qElNIT1BfVFJFQVNVUllfRlVM",
-            "TEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJv",
-            "dG9iBnByb3RvMw=="));
+            "RkVMTElOR19ORUVEU19BWEUQjAESGQoUU1VSVkVZX05PX1RIRU9ET0xJVEUQ",
+            "jQESFwoSU1VSVkVZX1RJRVJfTE9DS0VEEI4BEhIKDVNVUlZFWV9NSVNTRUQQ",
+            "jwESFQoQU1VSVkVZX05PVF9ZT1VSUxCQARIXChJTVVJWRVlfSU5fUFJPR1JF",
+            "U1MQkQEiBAguEC4qElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQuYmVzdGlh",
+            "LmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -639,6 +641,15 @@ namespace Bnet {
     /// A tree falls only to an axe or a felling tool like a hatchet.
     /// </summary>
     [pbr::OriginalName("FELLING_NEEDS_AXE")] FellingNeedsAxe = 140,
+    /// <summary>
+    /// Cartography at a theodolite: none of yours idle within reach, a survey size your level has not opened, the
+    /// needle missed (paper and ink are spent), not your theodolite, or still surveying (minutes left in args[0]).
+    /// </summary>
+    [pbr::OriginalName("SURVEY_NO_THEODOLITE")] SurveyNoTheodolite = 141,
+    [pbr::OriginalName("SURVEY_TIER_LOCKED")] SurveyTierLocked = 142,
+    [pbr::OriginalName("SURVEY_MISSED")] SurveyMissed = 143,
+    [pbr::OriginalName("SURVEY_NOT_YOURS")] SurveyNotYours = 144,
+    [pbr::OriginalName("SURVEY_IN_PROGRESS")] SurveyInProgress = 145,
   }
 
   #endregion

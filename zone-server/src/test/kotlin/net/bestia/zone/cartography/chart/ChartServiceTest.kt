@@ -111,16 +111,7 @@ class ChartServiceTest {
   }
 
   @Test
-  fun `surveying with nothing to draw on is refused`() {
-    val master = givenMaster()
-
-    val result = chartService.mint(master.id, 40_000.0, 40_000.0, 1_000.0)
-
-    assertEquals(OpError.CHART_NEEDS_BLANK, assertIs<ChartService.Result.Refused>(result).error)
-  }
-
-  @Test
-  fun `surveying spends a blank and produces a chart of the surveyed ground`() {
+  fun `a finished survey produces a chart of the surveyed ground and takes no paper`() {
     val master = givenMaster()
     inventoryService.addItem(master.id, ChartService.BLANK_IDENTIFIER, 2)
 
@@ -132,8 +123,8 @@ class ChartServiceTest {
     val coverage = chartService.inventoryCoverage(master.id)
     assertTrue(coverage.contains(40_000.0, 40_000.0))
 
-    // One of the two blanks, and only one.
-    assertEquals(1, blanksHeld(master.id))
+    // The cast paid for the paper, so the chart takes none.
+    assertEquals(2, blanksHeld(master.id))
   }
 
   @Test
@@ -200,7 +191,7 @@ class ChartServiceTest {
   @Test
   fun `copying spends a blank, leaves the original and produces the same coverage`() {
     val master = givenMaster()
-    inventoryService.addItem(master.id, ChartService.BLANK_IDENTIFIER, 2)
+    inventoryService.addItem(master.id, ChartService.BLANK_IDENTIFIER, 1)
     val original = assertIs<ChartService.Result.Ok>(chartService.mint(master.id, 30_000.0, 30_000.0, 1_000.0))
 
     val copy = assertIs<ChartService.Result.Ok>(chartService.copy(master.id, original.uniqueId))
@@ -208,13 +199,12 @@ class ChartServiceTest {
     assertFalse(copy.uniqueId == original.uniqueId, "a copy has to be its own item")
     assertEquals(original.cells, copy.cells)
     assertNotNull(mapChartRepository.findByItemInstanceId(original.uniqueId), "copying consumed the original")
-    assertEquals(0, blanksHeld(master.id), "both blanks should be gone: one surveyed, one copied onto")
+    assertEquals(0, blanksHeld(master.id), "the blank should be gone: copied onto")
   }
 
   @Test
   fun `copying with no blank is refused and leaves the original alone`() {
     val master = givenMaster()
-    inventoryService.addItem(master.id, ChartService.BLANK_IDENTIFIER, 1)
     val original = assertIs<ChartService.Result.Ok>(chartService.mint(master.id, 30_000.0, 30_000.0, 1_000.0))
 
     val result = chartService.copy(master.id, original.uniqueId)

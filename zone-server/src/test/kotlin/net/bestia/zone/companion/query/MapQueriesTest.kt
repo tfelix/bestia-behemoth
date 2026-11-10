@@ -16,7 +16,6 @@ import net.bestia.zone.cartography.poi.MapPoiIndex
 import net.bestia.zone.cartography.tile.TileId
 import net.bestia.zone.companion.CompanionRequestDispatcher
 import net.bestia.zone.compendium.CompendiumStore
-import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.master.MasterDeletionService
 import net.bestia.zone.master.MasterFactory
 import net.bestia.zone.mocks.GameClientMock
@@ -56,9 +55,6 @@ class MapQueriesTest {
 
   @Autowired
   private lateinit var chartService: ChartService
-
-  @Autowired
-  private lateinit var inventoryService: InventoryService
 
   @Autowired
   private lateinit var testFixture: ScenarioDataSetup.TestFixture
@@ -364,7 +360,6 @@ class MapQueriesTest {
   }
 
   private fun chartedAt(centreX: Double, centreY: Double, radiusMetres: Double): Pair<Double, Double> {
-    inventoryService.addItem(masterId, ChartService.BLANK_IDENTIFIER, 1)
     val result = chartService.mint(masterId, centreX, centreY, radiusMetres)
     assertTrue(result is ChartService.Result.Ok, "could not chart the ground this test is about: $result")
     return centreX to centreY

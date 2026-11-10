@@ -114,6 +114,14 @@ class PlayerStructure(
   @Column(name = "takes_any_crafter", nullable = false)
   var takesAnyCrafter: Boolean = false,
 
+  /** A theodolite's survey in hand: the radius it charts, or null when it surveys nothing. */
+  @Column(name = "survey_radius_metres")
+  var surveyRadiusMetres: Int? = null,
+
+  /** Seconds of work the survey still needs; 0 means its chart waits to be collected. */
+  @Column(name = "survey_remaining_seconds")
+  var surveyRemainingSeconds: Float? = null,
+
   /** What a chest holds; null for every other kind. */
   @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
   @JoinColumn(name = "storage_container_id")

@@ -208,15 +208,9 @@ interface SkillWorld {
    */
   fun readTracks(centre: Vec3L, radiusTiles: Long): TrackReading?
 
-  // ------------------------------------------------------------- cartography
-
-  /** Charts a disc of [radiusMetres] around [centre] for [masterId], reporting the outcome to [accountId]. */
-  fun survey(masterId: Long, accountId: Long?, centre: Vec3L, radiusMetres: Double)
-
   /**
    * There is deliberately no `async` here. A cast resolves on the tick thread, so relational work belongs to
-   * the service that owns the row, which hands it to `AsyncJobExecutor` under its own ordering key - as
-   * `SurveyService` does for a chart.
+   * the service that owns the row, which hands it to `AsyncJobExecutor` under its own ordering key.
    */
 
   /**
