@@ -171,9 +171,9 @@ a step.
 `+3%/lv` movement speed"
 SKILL_30_DESC,"A patient hand with rod and net that pulls fish from any water worth casting into - as
 good on the plate as it is at the trade post. Anyone with a fishing rod can fish, but an
-untrained angler only catches fish and loot up to level 10.
+untrained angler mostly catches fish and loot up to level 10.
 
-`+20 fish lv/lv` that can be caught, up to fish level 100+ at max rank"
+Catch level cap `20/lv`, 10 untrained. Above the cap a catch's odds halve every 5 levels"
 SKILL_31_DESC,"An axeman's read of the forest - which trunks fell clean, which grain splits true, and how
 to bring both down efficiently.
 

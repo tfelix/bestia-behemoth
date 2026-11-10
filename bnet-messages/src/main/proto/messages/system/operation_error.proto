@@ -421,6 +421,12 @@ enum OpError {
   TRADE_AGREEMENT_TARGET_INVALID = 330;
   // A purchase is collected at the house it waits at, by the master or one of their bestias.
   PICKUP_OUT_OF_RANGE = 331;
+  // There is no water deep enough to fish where the line was cast.
+  FISHING_NOT_WATER = 152;
+  // The water is further away than a line reaches.
+  FISHING_TOO_FAR = 153;
+  // The bite came and went without a strike.
+  FISHING_GOT_AWAY = 154;
 }
 
 message OperationError {

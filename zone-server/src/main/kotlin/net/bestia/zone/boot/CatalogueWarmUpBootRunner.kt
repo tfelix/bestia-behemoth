@@ -4,6 +4,7 @@ import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.crafting.CraftBonusService
 import net.bestia.zone.economy.CommodityItems
+import net.bestia.zone.fishing.FishingCatalogue
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.weather.EnvironmentalExposureSystem
 import net.bestia.zone.weather.WeatherPublisher
@@ -27,6 +28,7 @@ class CatalogueWarmUpBootRunner(
   private val exposure: EnvironmentalExposureSystem,
   private val weather: WeatherPublisher,
   private val skills: SkillExecutionService,
+  private val fishing: FishingCatalogue,
 ) : CommandLineRunner {
 
   override fun run(vararg args: String?) {
@@ -38,5 +40,6 @@ class CatalogueWarmUpBootRunner(
     exposure.warmUp()
     weather.weatherSenseSkillId
     skills.warmUp()
+    fishing.warmUp()
   }
 }

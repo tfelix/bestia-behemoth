@@ -183,6 +183,8 @@ import "messages/trade/trade_state_smsg.proto";
 import "messages/system/interact_cmsg.proto";
 import "messages/system/conversation_smsg.proto";
 import "messages/system/conversation_choice_cmsg.proto";
+import "messages/fishing/cast_line_cmsg.proto";
+import "messages/fishing/strike_line_cmsg.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EnvelopeProto";
@@ -424,6 +426,10 @@ message Envelope {
     PickupsSMSG pickups = 969;
     CollectPickupCMSG collect_pickup = 970;
     PostPickupCMSG post_pickup = 971;
+
+    // FISHING 920
+    CastLineCMSG cast_line = 920;
+    StrikeLineCMSG strike_line = 921;
 
     // MISC
   }

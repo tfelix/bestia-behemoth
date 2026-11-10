@@ -667,6 +667,9 @@ STATUS_EFFECT_200,Ritual Charge: your next skill takes the circle's power.
 STATUS_EFFECT_201,Ritual Fatigue: resting after a ritual. You cannot join or lead another yet.
 STATUS_EFFECT_202,Sprinting: much faster for a few seconds. Attacking or casting ends it.
 STATUS_EFFECT_203,In camp: the weather bites less here, and a good camp keeps out storms and speeds recovery.
+ERROR_FISHING_NOT_WATER,There is no water deep enough to fish there.
+ERROR_FISHING_TOO_FAR,Your line does not reach that far.
+ERROR_FISHING_GOT_AWAY,It got away.
 =======
 SKILLS_TITLE,Skills
 SKILLS_TAB_OTHER,Other
