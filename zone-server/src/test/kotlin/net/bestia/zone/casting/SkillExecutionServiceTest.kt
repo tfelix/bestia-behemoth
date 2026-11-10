@@ -3,6 +3,8 @@ package net.bestia.zone.casting
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import net.bestia.zone.battle.ActionReactions
+import net.bestia.zone.battle.status.EntityAction
 import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.message.OutMessageProcessor
@@ -215,6 +217,31 @@ class SkillExecutionServiceTest {
     service.executeNow(world, caster, SKILL_ID, 1, target, null)
 
     assertEquals(2, script.casts, "the cast inside the cooldown must not resolve")
+  }
+
+  @Test
+  fun `a cast is reported as an action before its effect lands`() {
+    // A skill that hides its caster must not be undone by its own cast: concealment ends on any action.
+    val order = mutableListOf<String>()
+    val reactions = object : ActionReactions {
+      override fun notifyActed(world: World, entityId: EntityId, action: EntityAction) {
+        order += "acted"
+      }
+    }
+    val script = TestScript(body = { order += "effect" })
+    val caster = world.spawnFighter()
+    val target = world.spawnFighter()
+    val skill = skill(script = "TestScript")
+    val repository = mockk<SkillRepository>()
+    every { repository.findAll() } returns listOf(skill)
+    val service = SkillExecutionService(
+      repository, SkillStrategyFactory(listOf(script)), contextFactory(), SkillCooldownService(clock),
+      actionReactions = reactions
+    ).also { it.warmUp() }
+
+    service.executeNow(world, caster, SKILL_ID, 1, target, null)
+
+    assertEquals(listOf("acted", "effect"), order)
   }
 
   @Test
