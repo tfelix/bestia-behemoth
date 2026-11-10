@@ -296,6 +296,13 @@ class RecordingSkillWorld(
     resourceSenses += rangeMetres to accuracy
   }
 
+  /** Radius and depth reveal of each [soundForHollows]. */
+  val soundings = mutableListOf<Pair<Int, Boolean>>()
+
+  override fun soundForHollows(radiusMetres: Int, revealsDepth: Boolean) {
+    soundings += radiusMetres to revealsDepth
+  }
+
   override fun pitchCamp(at: Vec3L, level: Int, durationSeconds: Long): Boolean {
     camps += Triple(at, level, durationSeconds)
     return true
