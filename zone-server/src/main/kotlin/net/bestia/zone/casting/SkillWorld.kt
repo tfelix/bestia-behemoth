@@ -156,6 +156,12 @@ interface SkillWorld {
   /** Whether the caster stands in the half behind [targetEntityId], as it faces. One operation. */
   fun isBehind(targetEntityId: EntityId): Boolean
 
+  /**
+   * Brings the caster's bestias that are out in the world to stand around the caster, leaving out any that is
+   * fighting. Returns how many came. One operation plus one per bestia.
+   */
+  fun callOwnBestias(): Int
+
   /** Whether a blow or a blast may not push [entityId] back, see [net.bestia.zone.battle.Knockback]. One operation. */
   fun isKnockbackImmune(entityId: EntityId): Boolean
 
@@ -236,6 +242,9 @@ interface SkillWorld {
   fun restoreMana(entityId: EntityId, amount: Int)
 
   fun hasEffect(entityId: EntityId, effectId: Long): Boolean
+
+  /** Who gave [entityId] its [effectId], or null when it has none or nobody gave it. One operation. */
+  fun effectSourceOf(entityId: EntityId, effectId: Long): EntityId?
 
   fun removeEffect(entityId: EntityId, effectId: Long)
 

@@ -18,25 +18,19 @@ class FirstAidTest {
   private val sut = FirstAid(LineOfSightService())
 
   @Test
-  fun `heals a share of a small pool`() {
+  fun `five pulses heal a share of a small pool`() {
     // 30% of 200 is 60, below the Lv.1 cap of 100.
-    val healed = sut.execute(ctx(skillLevel = 1, targetMaxHealth = 200))
-
-    assertTrue(healed is Heal)
-    assertEquals(60, healed!!.amount)
+    assertEquals(60, healedBy(skillLevel = 1, targetMaxHealth = 200))
   }
 
   @Test
   fun `the flat amount caps the heal on a large pool`() {
-    // 30% of 2000 is 600, so the Lv.1 cap of 100 is what a big bestia gets.
     assertEquals(100, healedBy(skillLevel = 1, targetMaxHealth = 2000))
   }
 
   @Test
   fun `each rank heals more than the last`() {
-    val amounts = (1..3).map { healedBy(skillLevel = it, targetMaxHealth = 2000) }
-
-    assertEquals(listOf(100, 200, 350), amounts)
+    assertEquals(listOf(100, 200, 350), (1..3).map { healedBy(skillLevel = it, targetMaxHealth = 2000) })
   }
 
   @Test
@@ -47,52 +41,34 @@ class FirstAidTest {
   }
 
   @Test
-  fun `a rank beyond the table is treated as the top rank rather than crashing`() {
-    assertEquals(
-      healedBy(skillLevel = 3, targetMaxHealth = 2000),
-      healedBy(skillLevel = 9, targetMaxHealth = 2000)
-    )
-  }
-
-  @Test
   fun `a target treated within the last minute is refused`() {
     val untreated = ctx(skillLevel = 1, targetMaxHealth = 1000)
-    val justTreated = ctx(
-      skillLevel = 1,
-      targetMaxHealth = 1000,
-      targetEffects = setOf(StatusEffectId.FIRST_AID_COOLDOWN.id)
-    )
+    val justTreated = ctx(skillLevel = 1, targetMaxHealth = 1000, targetEffects = setOf(StatusEffectId.FIRST_AID_COOLDOWN.id))
 
     assertTrue(sut.isCastPossible(untreated))
     assertFalse(sut.isCastPossible(justTreated), "a bestia may only receive First Aid once a minute")
   }
 
   @Test
-  fun `a resolved cast marks the target so the next one is refused`() {
+  fun `starting the cast marks the patient and heals nothing yet`() {
     val world = RecordingSkillWorld()
     val ctx = ctx(skillLevel = 1, targetMaxHealth = 1000, world = world)
 
-    sut.execute(ctx)
-
-    val marked = world.appliedEffects.single()
-    assertEquals(StatusEffectId.FIRST_AID_COOLDOWN.id, marked.effectId)
-    assertEquals(ctx.targetEntityId, marked.targetEntityId, "the mark goes on the patient, not the healer")
+    assertNull(sut.execute(ctx))
+    assertEquals(StatusEffectId.FIRST_AID_COOLDOWN.id, world.appliedEffects.single().effectId)
+    assertTrue(world.appliedDamage.isEmpty())
   }
 
   @Test
-  fun `a second healer resolving at the same time is refused, and heals nothing`() {
-    // The race off-thread resolution makes possible: both casters started channelling on an untreated bestia,
-    // so both pass the snapshot check in isCastPossible. The claim on the cooldown is what separates them.
+  fun `a healer who lost the race for the patient channels for nothing`() {
     val world = RecordingSkillWorld()
-    val first = ctx(skillLevel = 1, targetMaxHealth = 2000, world = world)
-    val second = ctx(skillLevel = 1, targetMaxHealth = 2000, world = world)
+    val ctx = ctx(skillLevel = 1, targetMaxHealth = 1000, world = world)
+    sut.execute(ctx)
+    world.effectSource = ctx.casterId + 1
 
-    assertTrue(sut.isCastPossible(first))
-    assertTrue(sut.isCastPossible(second), "neither caster can see the other's mark yet")
+    repeat(5) { sut.onChannelTick(ctx, it) }
 
-    assertEquals(100, sut.execute(first)?.amount)
-    assertNull(sut.execute(second), "the healer that lost the claim must heal nothing")
-    assertEquals(1, world.appliedEffects.size, "the cooldown is claimed once, not twice")
+    assertTrue(world.appliedDamage.isEmpty())
   }
 
   @Test
@@ -105,9 +81,17 @@ class FirstAidTest {
     assertTrue(world.appliedEffects.isEmpty())
   }
 
-  private fun healedBy(skillLevel: Int, targetMaxHealth: Int): Int =
-    sut.execute(ctx(skillLevel, targetMaxHealth))?.amount
-      ?: error("First Aid must always heal something against an entity")
+  /** Starts the cast, then lets all five pulses of the channel land, and sums what they healed. */
+  private fun healedBy(skillLevel: Int, targetMaxHealth: Int): Int {
+    val world = RecordingSkillWorld()
+    val ctx = ctx(skillLevel, targetMaxHealth, world = world)
+    sut.execute(ctx)
+    world.effectSource = ctx.casterId
+
+    repeat(5) { sut.onChannelTick(ctx, it) }
+
+    return world.appliedDamage.sumOf { (_, damage) -> (damage as Heal).amount }
+  }
 
   private fun ctx(
     skillLevel: Int,

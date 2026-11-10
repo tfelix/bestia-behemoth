@@ -86,12 +86,17 @@ skills:
     needsLineOfSight: true
     range: 2
     manaCost: 12
-    castTime: 10.0
     cooldown: 180
+    mechanics:
+      channelSeconds: 10
+      channelInterval: 2
+      reagent:
+        item: bandage
+        amount: 1
     description: |
-      Apply bandages to yourself or to a friendly Bestia or master and channel a healing effect
-      over 10s. The cooldown of this skill is 3 minutes. A target can only receive a single
-      First Aid every 60 secs.
+      Put a bandage on yourself or on a friendly Bestia or master, then channel a healing effect
+      over 10s, a pulse every 2s. A hit breaks the channel. The cooldown of this skill is 3
+      minutes. A target can only receive a single First Aid every 60 secs.
 
       Whichever is smaller, a share of the maximum health of the target or a flat amount:
       Lv.1 `+30%` max HP or `+100 HP`, 12 mana

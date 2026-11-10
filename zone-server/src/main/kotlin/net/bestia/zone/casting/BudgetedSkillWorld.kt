@@ -1,5 +1,7 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.ecs.status.InCombat
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.Revival
 import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.battle.Knockback
@@ -290,6 +292,12 @@ class BudgetedSkillWorld(
     }
   }
 
+  override fun effectSourceOf(entityId: EntityId, effectId: Long): EntityId? {
+    budget.charge()
+
+    return world.get(entityId, StatusEffects::class)?.activeEffects?.firstOrNull { it.definitionId == effectId }?.sourceEntityId
+  }
+
   override fun hasEffect(entityId: EntityId, effectId: Long): Boolean {
     budget.charge()
 
@@ -447,6 +455,22 @@ class BudgetedSkillWorld(
     return facing.isBehind(targetAt, casterAt)
   }
 
+  override fun callOwnBestias(): Int {
+    budget.charge()
+
+    val masterId = world.get(casterId, Master::class)?.masterId ?: return 0
+    val at = world.get(casterId, Position::class)?.toVec3L() ?: return 0
+    val answering = OwnedBestia.ownedBy(world, masterId)
+      .map { it.entityId }
+      .filter { !world.has(it, InCombat::class) && !world.has(it, Dead::class) }
+    budget.chargeQueryResults(answering.size)
+
+    return answering.withIndex().count { (index, bestiaId) ->
+      val (dx, dy) = CALL_OFFSETS[index % CALL_OFFSETS.size]
+      services.forcedMovement.blinkTo(world, bestiaId, Vec3L(at.x + dx, at.y + dy, at.z))
+    }
+  }
+
   override fun isKnockbackImmune(entityId: EntityId): Boolean {
     budget.charge()
 
@@ -562,6 +586,9 @@ class BudgetedSkillWorld(
   }
 
   private companion object {
+    /** Where called bestias stand: in a ring around their master, one tile out. */
+    val CALL_OFFSETS = listOf(1L to 0L, -1L to 0L, 0L to 1L, 0L to -1L, 1L to 1L, -1L to -1L, 1L to -1L, -1L to 1L)
+
     /** Off the target, then off the caster's own reflect; after that the blow lands whatever. */
     const val MAX_REFLECTIONS = 2
 
