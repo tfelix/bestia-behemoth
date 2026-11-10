@@ -28,6 +28,7 @@ namespace BestiaBehemothClient.Bnet.Message
         Envelope.MessageOneofCase.BestiaAiConfig,
         Envelope.MessageOneofCase.BreedingFarm,
         Envelope.MessageOneofCase.BestiaEgg,
+        Envelope.MessageOneofCase.Incubator,
       };
 
     public static IEnumerable<Envelope.MessageOneofCase> SentByServer()

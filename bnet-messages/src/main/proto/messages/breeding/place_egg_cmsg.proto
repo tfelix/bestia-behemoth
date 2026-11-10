@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "PlaceEggCmsgProto";
+
+// Puts an egg from the master's bag into their Incubator. `unique_id` is the egg item's instance id.
+message PlaceEggCMSG {
+  fixed64 structure_id = 1;
+  fixed64 unique_id = 2;
+}

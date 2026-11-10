@@ -193,6 +193,8 @@ import "messages/breeding/take_egg_cmsg.proto";
 import "messages/breeding/inspect_egg_cmsg.proto";
 import "messages/breeding/breeding_farm_smsg.proto";
 import "messages/breeding/bestia_egg_smsg.proto";
+import "messages/breeding/place_egg_cmsg.proto";
+import "messages/breeding/incubator_smsg.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EnvelopeProto";
@@ -448,6 +450,8 @@ message Envelope {
     InspectEggCMSG inspect_egg = 933;
     BreedingFarmSMSG breeding_farm = 934;
     BestiaEggSMSG bestia_egg = 935;
+    PlaceEggCMSG place_egg = 936;
+    IncubatorSMSG incubator = 937;
 
     // MISC
   }

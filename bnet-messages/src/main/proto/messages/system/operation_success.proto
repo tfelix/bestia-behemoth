@@ -34,6 +34,8 @@ enum OpSuccess {
   SURVEY_READY = 12;
   // A Breeding Farm laid an egg. Sent to its owner when online; the farm window shows the egg itself.
   BREEDING_EGG_LAID = 13;
+  // An Incubator hatched an egg into a new bestia of its owner, next to it.
+  BESTIA_HATCHED = 14;
 }
 
 message OperationSuccess {

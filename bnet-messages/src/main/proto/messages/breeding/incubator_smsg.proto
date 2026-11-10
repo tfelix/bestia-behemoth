@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/breeding/bestia_egg.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "IncubatorSmsgProto";
+
+// An Incubator as its owner sees it. Sent when the owner clicks it and on every change while they are online.
+message IncubatorSMSG {
+  fixed64 structure_id = 1;
+  // Absent while the incubator is empty. Its hatch_done_ms is the progress right now.
+  BestiaEgg egg = 2;
+  // Real time left at this incubator's speed.
+  uint64 remaining_ms = 3;
+  // Ready, but the owner has no free bestia slot.
+  bool waiting_for_slot = 4;
+}

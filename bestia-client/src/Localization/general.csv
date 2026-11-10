@@ -684,6 +684,7 @@ ERROR_BREEDING_NEEDS_BUNDLE,You need a Nesting Bundle to breed.
 ERROR_BREEDING_PAIR_CANNOT_TRAVEL,Your pair cannot reach the Breeding Farm. Bring them closer.
 ERROR_BREEDING_CLUTCH_FAILED,A parent left the Breeding Farm. The clutch and its Nesting Bundle are lost.
 ERROR_BREEDING_NO_ROOM_FOR_EGG,The egg does not fit in your bag.
+ERROR_INCUBATOR_NO_FREE_SLOT,Your egg is ready to hatch. Free a bestia slot and it hatches.
 =======
 SKILLS_TITLE,Skills
 SKILLS_TAB_OTHER,Other
