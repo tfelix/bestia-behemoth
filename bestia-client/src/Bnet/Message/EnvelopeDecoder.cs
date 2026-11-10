@@ -34,6 +34,7 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.DiscoveryResult] = e => Crafting.DiscoveryResultSMSG.FromProto(e.DiscoveryResult),
       [Envelope.MessageOneofCase.MaterialAxes] = e => Crafting.MaterialAxesSMSG.FromProto(e.MaterialAxes),
       [Envelope.MessageOneofCase.StationState] = e => Crafting.StationStateSMSG.FromProto(e.StationState),
+      [Envelope.MessageOneofCase.ChestOpened] = e => Inventory.ChestOpenedSMSG.FromProto(e.ChestOpened),
       [Envelope.MessageOneofCase.WorldInfo] = e => Map.WorldInfoSMSG.FromProto(e.WorldInfo),
       [Envelope.MessageOneofCase.WorldTime] = e => Map.WorldTimeSMSG.FromProto(e.WorldTime),
       [Envelope.MessageOneofCase.ChunkManifest] = e => Map.ChunkManifestSMSG.FromProto(e.ChunkManifest),
