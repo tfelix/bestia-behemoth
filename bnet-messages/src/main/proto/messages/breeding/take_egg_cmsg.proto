@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "TakeEggCmsgProto";
+
+// Takes the egg out of a Breeding Farm or an Incubator into the master's bag.
+message TakeEggCMSG {
+  fixed64 structure_id = 1;
+}

@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ReleaseBreedingPairCmsgProto";
+
+// Lets the pair go. A clutch in progress is lost with its bundle.
+message ReleaseBreedingPairCMSG {
+  fixed64 structure_id = 1;
+}

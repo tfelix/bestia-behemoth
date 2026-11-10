@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/breeding/bestia_egg.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BestiaEggSmsgProto";
+
+message BestiaEggSMSG {
+  BestiaEgg egg = 1;
+}

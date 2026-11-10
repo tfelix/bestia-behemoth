@@ -93,6 +93,7 @@
  - UPKEEP wave 49: WorldStateSampler [EverySeconds(seconds=5.0)]
  - UPKEEP wave 50: CompendiumSightingSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 50: GuildMemberBeaconSystem [EverySeconds(seconds=1.0)]
+ - UPKEEP wave 50: BreedingFarmSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 50: HonorStandingSystem [EverySeconds(seconds=10.0)]
  - UPKEEP wave 51: TownUpkeepSystem [EverySeconds(seconds=10.0)]
  - UPKEEP wave 52: TownDecaySystem [EverySeconds(seconds=60.0)]

@@ -439,6 +439,16 @@ enum OpError {
   DIG_NOTHING_FOUND = 336;
   // Treasure Map found no cache the caster sensed in the last ten minutes. The player casts Treasure Sense first.
   TREASURE_MAP_NOTHING_SENSED = 337;
+  // A Breeding Farm cannot start a clutch the client should not have offered: wrong pair, busy farm, not the owner.
+  BREEDING_NOT_POSSIBLE = 218;
+  // Every clutch needs a Nesting Bundle. The player makes or buys one.
+  BREEDING_NEEDS_BUNDLE = 219;
+  // A parent cannot walk to the farm, for example from deep water. The player brings it closer.
+  BREEDING_PAIR_CANNOT_TRAVEL = 220;
+  // A parent left, was sent off or died before the egg was laid; the clutch and its bundle are lost.
+  BREEDING_CLUTCH_FAILED = 221;
+  // The egg does not fit in the master's bag. The player makes room.
+  BREEDING_NO_ROOM_FOR_EGG = 222;
 }
 
 message OperationError {

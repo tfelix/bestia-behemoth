@@ -26,14 +26,15 @@ namespace Bnet {
           string.Concat(
             "CidtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX3N1Y2Nlc3MucHJvdG8SBGJu",
             "ZXQiMQoQT3BlcmF0aW9uU3VjY2VzcxIdCgRjb2RlGAEgASgOMg8uYm5ldC5P",
-            "cFN1Y2Nlc3MqmwIKCU9wU3VjY2VzcxISCg5NQVNURVJfQ1JFQVRFRBAAEhIK",
+            "cFN1Y2Nlc3MqsgIKCU9wU3VjY2VzcxISCg5NQVNURVJfQ1JFQVRFRBAAEhIK",
             "Dk1BU1RFUl9ERUxFVEVEEAESEwoPQ1JBRlRfU1VDQ0VFREVEEAISFAoQU1RS",
             "VUNUVVJFX1BMQUNFRBADEhEKDUNIQVJUX1dSSVRURU4QBBIZChVQQVJUWV9J",
             "TlZJVEFUSU9OX1NFTlQQBRIZChVHVUlMRF9JTlZJVEFUSU9OX1NFTlQQBhIR",
             "Cg1SSVRVQUxfT1BFTkVEEAcSEQoNUklUVUFMX0pPSU5FRBAIEhIKDlJJVFVB",
             "TF9TVEFSVEVEEAkSEgoOUklUVUFMX0NIQVJHRUQQChISCg5TVVJWRVlfU1RB",
-            "UlRFRBALEhAKDFNVUlZFWV9SRUFEWRAMQi4KFW5ldC5iZXN0aWEuYm5ldC5w",
-            "cm90b0IVT3BlcmF0aW9uU3VjY2Vzc1Byb3RvYgZwcm90bzM="));
+            "UlRFRBALEhAKDFNVUlZFWV9SRUFEWRAMEhUKEUJSRUVESU5HX0VHR19MQUlE",
+            "EA1CLgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhVPcGVyYXRpb25TdWNjZXNz",
+            "UHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpSuccess), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -76,6 +77,10 @@ namespace Bnet {
     /// </summary>
     [pbr::OriginalName("SURVEY_STARTED")] SurveyStarted = 11,
     [pbr::OriginalName("SURVEY_READY")] SurveyReady = 12,
+    /// <summary>
+    /// A Breeding Farm laid an egg. Sent to its owner when online; the farm window shows the egg itself.
+    /// </summary>
+    [pbr::OriginalName("BREEDING_EGG_LAID")] BreedingEggLaid = 13,
   }
 
   #endregion

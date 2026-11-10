@@ -680,6 +680,10 @@ ERROR_DIG_NEEDS_SHOVEL,This ground is soil. Dig it with a shovel.
 ERROR_DIG_TOO_FAR,That spot is too far away to dig. Walk closer.
 ERROR_DIG_NOTHING_FOUND,You dig a little but find nothing buried here.
 ERROR_TREASURE_MAP_NOTHING_SENSED,You have sensed no treasure lately to draw a map of.
+ERROR_BREEDING_NEEDS_BUNDLE,You need a Nesting Bundle to breed.
+ERROR_BREEDING_PAIR_CANNOT_TRAVEL,Your pair cannot reach the Breeding Farm. Bring them closer.
+ERROR_BREEDING_CLUTCH_FAILED,A parent left the Breeding Farm. The clutch and its Nesting Bundle are lost.
+ERROR_BREEDING_NO_ROOM_FOR_EGG,The egg does not fit in your bag.
 =======
 SKILLS_TITLE,Skills
 SKILLS_TAB_OTHER,Other

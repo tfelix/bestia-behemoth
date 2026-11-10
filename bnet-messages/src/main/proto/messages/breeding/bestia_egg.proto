@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/master/bestia_genetics.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BestiaEggProto";
+
+// An egg as its holder may read it. `unique_id` is the egg item's instance id.
+message BestiaEgg {
+  fixed64 unique_id = 1;
+  uint32 mob_id = 2;
+  BestiaSex sex = 3;
+  IvReading ivs = 4;
+  uint64 hatch_total_ms = 5;
+  uint64 hatch_done_ms = 6;
+}

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "StartBreedingCmsgProto";
+
+// Sends the pair to the farm with one Nesting Bundle. Both are entity ids of the master's own bestias.
+message StartBreedingCMSG {
+  fixed64 structure_id = 1;
+  fixed64 mother_entity_id = 2;
+  fixed64 father_entity_id = 3;
+}

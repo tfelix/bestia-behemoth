@@ -2,6 +2,7 @@ package net.bestia.zone.master.skill
 
 import net.bestia.zone.account.persistence.LearnedSkillRepository
 import net.bestia.zone.skill.SkillId
+import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.skill.persistence.findByIdentifier
 import org.springframework.stereotype.Service
@@ -19,6 +20,17 @@ class BloodlineStudy(
 ) {
 
   private val skillId: Long? by lazy { skills.findByIdentifier(SkillId.M_BLOODLINE_STUDY)?.id }
+
+  /** Resolves the skill id now, so the first read on the tick does not reach the database. */
+  fun warmUp() {
+    skillId
+  }
+
+  /** For the tick: off the master's live skills. */
+  fun levelIn(known: KnownSkills?): Int {
+    val id = skillId ?: return 0
+    return known?.levelOf(id) ?: 0
+  }
 
   /** For a caller off the tick, whose master may be offline. */
   @Transactional(readOnly = true)
