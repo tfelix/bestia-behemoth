@@ -148,9 +148,11 @@ class SkillExecutionService(
         return
       }
 
+      // Before the effect lands, so what casting ends - a hiding, a sprint - ends before this cast begins, and a
+      // skill that hides its own caster is not undone by its own cast.
+      actionReactions.notifyActed(world, casterId, EntityAction.CAST)
       val result = strategy.execute(ctx)
       cooldowns.start(world, casterId, skill.id, cost.cooldownSeconds)
-      actionReactions.notifyActed(world, casterId, EntityAction.CAST)
       startChannel(world, casterId, skill, skillLevel, targetEntityId, targetPosition, args)
 
       // A skill whose whole effect is a patch of ground, a station or a chart has no number to show, and
