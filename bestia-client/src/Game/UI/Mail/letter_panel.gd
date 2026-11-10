@@ -7,6 +7,9 @@ extends PanelContainer
 
 signal notice(text: String)
 
+## The player wants the Won & Bought window, which lists auction goods waiting at linked houses.
+signal won_bought_requested()
+
 ## Must match Letter.MAX_SUBJECT_LENGTH and MAX_BODY_LENGTH on the server, which refuses anything longer.
 const MAX_SUBJECT_LENGTH := 60
 const MAX_BODY_LENGTH := 1000
@@ -219,6 +222,11 @@ func _build_mailbox() -> Control:
 	write.text = tr("LETTERS_WRITE")
 	write.pressed.connect(write_to.bind(""))
 	column.add_child(write)
+
+	var won_bought := Button.new()
+	won_bought.text = tr("WON_BOUGHT_TITLE")
+	won_bought.pressed.connect(func() -> void: won_bought_requested.emit())
+	column.add_child(won_bought)
 
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL

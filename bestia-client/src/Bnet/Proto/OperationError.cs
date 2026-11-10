@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqlIgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqiIwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -123,9 +123,11 @@ namespace Bnet {
             "SE9VU0VfTk9UX0VNUFRZEMICEhkKFFRSQURFX1BPU1RfTkVFRFNfS0lUEMMC",
             "EhUKEFRSQURFX1BPU1RfTElNSVQQxAISIQocVFJBREVfUE9TVF9ORUVEU19Q",
             "T1NUX09GRklDRRDFAhIYChNBVUNUSU9OX0JJRF9UT09fTE9XEMYCEhUKEEFV",
-            "Q1RJT05fSEFTX0JJRFMQxwIiBAguEC4qElNIT1BfVFJFQVNVUllfRlVMTEIs",
-            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9i",
-            "BnByb3RvMw=="));
+            "Q1RJT05fSEFTX0JJRFMQxwISIAobVFJBREVfQUdSRUVNRU5UX05FRURTX0hP",
+            "VVNFEMgCEhoKFVRSQURFX0FHUkVFTUVOVF9MSU1JVBDJAhIjCh5UUkFERV9B",
+            "R1JFRU1FTlRfVEFSR0VUX0lOVkFMSUQQygISGAoTUElDS1VQX09VVF9PRl9S",
+            "QU5HRRDLAiIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0",
+            "aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -757,6 +759,22 @@ namespace Bnet {
     /// An auction with a bid on it cannot be taken down.
     /// </summary>
     [pbr::OriginalName("AUCTION_HAS_BIDS")] AuctionHasBids = 327,
+    /// <summary>
+    /// Trade Agreement links auction houses, so the caster must own one.
+    /// </summary>
+    [pbr::OriginalName("TRADE_AGREEMENT_NEEDS_HOUSE")] TradeAgreementNeedsHouse = 328,
+    /// <summary>
+    /// The caster has as many partners as their Trade Agreement level allows.
+    /// </summary>
+    [pbr::OriginalName("TRADE_AGREEMENT_LIMIT")] TradeAgreementLimit = 329,
+    /// <summary>
+    /// args[0] owns no auction house, does not know Trade Agreement, has no free partner, or is linked already.
+    /// </summary>
+    [pbr::OriginalName("TRADE_AGREEMENT_TARGET_INVALID")] TradeAgreementTargetInvalid = 330,
+    /// <summary>
+    /// A purchase is collected at the house it waits at, by the master or one of their bestias.
+    /// </summary>
+    [pbr::OriginalName("PICKUP_OUT_OF_RANGE")] PickupOutOfRange = 331,
   }
 
   #endregion

@@ -14,6 +14,7 @@ var _fee_note: Label
 var _till: Label
 var _collect: Button
 var _tear_down: Button
+var _partners: VBoxContainer
 
 
 func _ready() -> void:
@@ -36,6 +37,22 @@ func show_house(msg: AuctionHouseOpenSMSG) -> void:
 	_collect.disabled = msg.Till <= 0
 	_tear_down.disabled = not msg.CanTearDown
 	_tear_down.tooltip_text = "" if msg.CanTearDown else tr("ERROR_AUCTION_HOUSE_NOT_EMPTY")
+
+	for child in _partners.get_children():
+		child.queue_free()
+	if msg.Partners.is_empty():
+		_partners.add_child(UiStyle.label(tr("AUCTION_OWNER_NO_PARTNERS"), 12, UiStyle.MUTED))
+	for partner in msg.Partners:
+		var row := UiStyle.hbox(6)
+		var name_label := UiStyle.label(partner.Name, 12)
+		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(name_label)
+		var cut := Button.new()
+		cut.text = tr("AUCTION_OWNER_CUT")
+		var partner_id: int = partner.MasterId
+		cut.pressed.connect(func() -> void: ConnectionManager.cut_trade_link(house_entity_id, partner_id))
+		row.add_child(cut)
+		_partners.add_child(row)
 
 
 func _build() -> void:
@@ -60,6 +77,10 @@ func _build() -> void:
 	_collect.text = tr("AUCTION_OWNER_COLLECT")
 	_collect.pressed.connect(func() -> void: ConnectionManager.collect_auction_till(house_entity_id))
 	till_row.add_child(_collect)
+
+	add_child(UiStyle.label(tr("AUCTION_OWNER_PARTNERS"), 13, UiStyle.ACCENT))
+	_partners = UiStyle.vbox(4)
+	add_child(_partners)
 
 	add_child(UiStyle.spacer())
 	_tear_down = Button.new()

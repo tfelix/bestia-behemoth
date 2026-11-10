@@ -781,3 +781,22 @@ AUCTION_SELL_BUYOUT,Buyout
 AUCTION_SELL_BUYOUT_HINT,"For an auction: a bid of this much ends it at once. 0 for none."
 ERROR_AUCTION_BID_TOO_LOW,Somebody bid at least as much. Look at the new least bid.
 ERROR_AUCTION_HAS_BIDS,This auction has a bid and cannot be taken down.
+WON_BOUGHT_TITLE,Won & Bought
+WON_BOUGHT_HELP,"Goods from a linked auction house wait there. Collect them in person, or have them posted home."
+WON_BOUGHT_WAITS,"Waits at %s, %s left"
+WON_BOUGHT_COLLECT,Collect
+WON_BOUGHT_COLLECT_HINT,Your master or one of your bestias must stand at the auction house.
+WON_BOUGHT_POST,Post (%s)
+WON_BOUGHT_EMPTY,Nothing waits for you.
+WON_BOUGHT_PURCHASED,"Bought %s. It waits at the auction house in %s, see Won & Bought."
+TRADE_AGREEMENT_OFFER_PROMPT,%s offers you a Trade Agreement: your auction houses would share their listings.
+TRADE_LINK_NOTICE_LINKED,Your auction houses now share their listings with %s.
+TRADE_LINK_NOTICE_CUT,The Trade Agreement with %s has ended.
+TRADE_LINK_NOTICE_DECLINED,%s declined your Trade Agreement.
+AUCTION_OWNER_PARTNERS,Trade Agreements
+AUCTION_OWNER_NO_PARTNERS,None yet. Cast Trade Agreement on another owner.
+AUCTION_OWNER_CUT,End
+ERROR_TRADE_AGREEMENT_NEEDS_HOUSE,You need an auction house of your own for a Trade Agreement.
+ERROR_TRADE_AGREEMENT_LIMIT,You have as many Trade Agreements as your skill level allows.
+ERROR_TRADE_AGREEMENT_TARGET_INVALID,"That master owns no auction house, does not know Trade Agreement, has no free agreement, or is linked already."
+ERROR_PICKUP_OUT_OF_RANGE,Stand at the auction house the goods wait at.
