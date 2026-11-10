@@ -43,6 +43,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Survey/SurveyGame.tscn" id="43_survey"]
 [ext_resource type="PackedScene" path="res://Game/UI/Stall/Stall.tscn" id="44_stall"]
 [ext_resource type="Script" path="res://Game/UI/Sense/monster_sense_popup.gd" id="45_sensepopup"]
+[ext_resource type="PackedScene" path="res://Game/UI/Settlement/CitySign.tscn" id="43_citysign"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -196,6 +197,12 @@ visible = false
 layout_mode = 1
 content = ExtResource("36_postoffice")
 window_title = "Post Office"
+
+[node name="CitySignWin" parent="." instance=ExtResource("8_wdgtw")]
+visible = false
+layout_mode = 1
+content = ExtResource("43_citysign")
+window_title = "City Sign"
 
 [node name="Invitations" parent="." instance=ExtResource("31_invites")]
 layout_mode = 1

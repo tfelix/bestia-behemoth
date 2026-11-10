@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrLHQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSq3HwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -110,8 +110,14 @@ namespace Bnet {
             "U1MQkQESEgoNSEVSQl9UT09fUkFSRRCSARIXChJTVEFMTF9BTFJFQURZX09Q",
             "RU4QkwESDwoKU1RBTExfRlVMTBCUARIPCgpTVEFMTF9HT05FEJUBEhgKE1NU",
             "QUxMX0NBTk5PVF9BRkZPUkQQlgESFwoSU1RBTExfT1VUX09GX1JBTkdFEJcB",
-            "IgQILhAuKhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0",
-            "LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "EhwKF1NFVFRMRU1FTlRfTkFNRV9JTlZBTElEEKwCEhoKFVNFVFRMRU1FTlRf",
+            "TkFNRV9UQUtFThCtAhIcChdTRVRUTEVNRU5UX0FMUkVBRFlfSEVMRBCuAhIZ",
+            "ChRTRVRUTEVNRU5UX1RPT19DTE9TRRCvAhIZChRTRVRUTEVNRU5UX05PVF9F",
+            "TVBUWRCwAhIeChlTRVRUTEVNRU5UX0NBTk5PVF9SRUNFSVZFELECEh4KGVNF",
+            "VFRMRU1FTlRfT0ZGRVJfREVDTElORUQQsgISHAoXU0VUVExFTUVOVF9PVVRf",
+            "T0ZfUkFOR0UQswIiBAguEC4qElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQu",
+            "YmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3Rv",
+            "Mw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -666,6 +672,33 @@ namespace Bnet {
     [pbr::OriginalName("STALL_GONE")] StallGone = 149,
     [pbr::OriginalName("STALL_CANNOT_AFFORD")] StallCannotAfford = 150,
     [pbr::OriginalName("STALL_OUT_OF_RANGE")] StallOutOfRange = 151,
+    /// <summary>
+    /// Player settlements, from 300 so other features can keep counting up from 122.
+    /// The town name is blank, shorter than 3 or longer than 24 characters, or not printable.
+    /// </summary>
+    [pbr::OriginalName("SETTLEMENT_NAME_INVALID")] SettlementNameInvalid = 300,
+    [pbr::OriginalName("SETTLEMENT_NAME_TAKEN")] SettlementNameTaken = 301,
+    /// <summary>
+    /// The sender already holds a town or a sign site.
+    /// </summary>
+    [pbr::OriginalName("SETTLEMENT_ALREADY_HELD")] SettlementAlreadyHeld = 302,
+    /// <summary>
+    /// Another settlement, or a town that fell less than 48 h ago, is within 5 km.
+    /// </summary>
+    [pbr::OriginalName("SETTLEMENT_TOO_CLOSE")] SettlementTooClose = 303,
+    /// <summary>
+    /// A post office or auction house still stands in the sphere.
+    /// </summary>
+    [pbr::OriginalName("SETTLEMENT_NOT_EMPTY")] SettlementNotEmpty = 304,
+    /// <summary>
+    /// The named master is not nearby, has no Founder, or already holds a town. args[0] is the name.
+    /// </summary>
+    [pbr::OriginalName("SETTLEMENT_CANNOT_RECEIVE")] SettlementCannotReceive = 305,
+    /// <summary>
+    /// args[0] is who declined.
+    /// </summary>
+    [pbr::OriginalName("SETTLEMENT_OFFER_DECLINED")] SettlementOfferDeclined = 306,
+    [pbr::OriginalName("SETTLEMENT_OUT_OF_RANGE")] SettlementOutOfRange = 307,
   }
 
   #endregion

@@ -721,3 +721,25 @@ SKILLS_NOTHING_QUEUED,"Add points, then Apply to learn them."
 SKILLS_QUEUED,Points queued: %d
 STATION_WORKER_ANY_FREE_CRAFTER,Any free crafter
 STATION_PAUSE_NO_FREE_CRAFTER,Paused: waiting for a free crafter.
+ERROR_SETTLEMENT_NAME_INVALID,"A town name has 3 to 24 letters, digits, spaces or simple punctuation."
+ERROR_SETTLEMENT_NAME_TAKEN,Another town already has that name.
+ERROR_SETTLEMENT_ALREADY_HELD,You already hold a town. Tear it down or hand it over first.
+ERROR_SETTLEMENT_TOO_CLOSE,Another settlement is less than 5 km away.
+ERROR_SETTLEMENT_NOT_EMPTY,A post office or auction house still stands in the town.
+ERROR_SETTLEMENT_CANNOT_RECEIVE,"%s is not nearby, does not know Founder, or already holds a town."
+ERROR_SETTLEMENT_OFFER_DECLINED,%s declined your town.
+ERROR_SETTLEMENT_OUT_OF_RANGE,You are too far away from the city sign.
+SETTLEMENT_NAME_TITLE,Found a Town
+SETTLEMENT_NAME_PLACEHOLDER,Name of the town
+SETTLEMENT_FOUNDER,Founded by %s
+SETTLEMENT_SIZE,"Reach %d m, %.1f building points, sign defense %d"
+SETTLEMENT_HAND_OVER_NAME,Master name
+SETTLEMENT_HAND_OVER,Hand over
+SETTLEMENT_TEAR_DOWN,Tear down the sign
+SETTLEMENT_OFFER_PROMPT,%s offers you the town %s.
+SETTLEMENT_NOTICE_FOUNDED,The sign of %s stands. Your town is founded.
+SETTLEMENT_NOTICE_FELL,The sign of %s was destroyed. The town has fallen.
+SETTLEMENT_NOTICE_TORN_DOWN,You tore down the sign of %s.
+SETTLEMENT_NOTICE_HANDED_OVER,You handed %s over.
+SETTLEMENT_NOTICE_RECEIVED,You are now the founder of %s.
+SETTLEMENT_NOTICE_SITE_LOST,The sign site of %s is gone.

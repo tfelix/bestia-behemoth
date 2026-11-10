@@ -11,6 +11,8 @@ const PropVisualBuilderScript = preload("res://Game/World/PropVisualBuilder.cs")
 
 const _ART_NODE_NAME = "Art"
 
+const _CITY_SIGN_KIND := 57
+
 ## StaticEntityKind ordinal. -1 until setup_visual runs.
 var _kind: int = -1
 
@@ -45,6 +47,11 @@ func get_structure_entity_id() -> int:
 ## A ward stone is never sent a ConstructionComponentSMSG.
 func is_construction_site() -> bool:
 	return _total_seconds > 0.0
+
+
+## A standing structure that opens a window when clicked, like a city sign. Kind ordinals from StaticEntityKind.
+func is_usable() -> bool:
+	return _kind == _CITY_SIGN_KIND
 
 
 func _ready() -> void:

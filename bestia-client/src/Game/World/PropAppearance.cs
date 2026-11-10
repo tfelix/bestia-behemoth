@@ -646,7 +646,14 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 1.5f, PlaceholderColour = new Color(0.72f, 0.36f, 0.30f), StructureHeight = 1f,
         Action = PropAction.Use
-      } // STREET_STALL
+      }, // STREET_STALL
+
+      // A player town's sign, an entity like the ward stone. Clicked to open the town's window.
+      new Kind
+      {
+        PlaceholderWidth = 0.5f, PlaceholderColour = new Color(0.66f, 0.50f, 0.30f), StructureHeight = 3f,
+        Action = PropAction.Use
+      } // CITY_SIGN
     };
 
     /// <summary>

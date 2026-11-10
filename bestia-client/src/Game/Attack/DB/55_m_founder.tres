@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+[ext_resource type="Script" path="res://Game/Attack/founder_use.gd" id="2_founder"]
 
 [resource]
 script = ExtResource("1_script")
@@ -14,3 +15,4 @@ tree = "SURVIVAL"
 sub_tree = "PROSPECTOR"
 prerequisite_ids = PackedInt32Array(37)
 prerequisite_levels = PackedInt32Array(3)
+attack_script = ExtResource("2_founder")

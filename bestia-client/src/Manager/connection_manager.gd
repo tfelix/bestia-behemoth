@@ -60,6 +60,12 @@ signal auction_listings_received(message: AuctionListingsSMSG)
 signal auction_purchased(message: AuctionPurchasedSMSG)
 ## A street stall as the viewer sees it: on pitching, on a click, and after every change.
 signal street_stall_received(message: StreetStallSMSG)
+## The name for the next Founder cast is free; the cast may start.
+signal settlement_planned(message: SettlementPlannedSMSG)
+## A standing city sign was clicked within reach.
+signal settlement_sign_opened(message: SettlementSignSMSG)
+signal settlement_offered(message: SettlementOfferSMSG)
+signal settlement_notice(message: SettlementNoticeSMSG)
 ## The played master's whole mailbox, on request and after a letter was thrown away.
 signal letters_received(message: LettersSMSG)
 ## A pigeon brought a letter to the played master.
@@ -164,6 +170,10 @@ var BuyAuctionListingCMSG = load("res://Bnet/Message/Auction/BuyAuctionListingCM
 var StallListCMSG = load("res://Bnet/Message/Stall/StallListCMSG.cs")
 var StallUnlistCMSG = load("res://Bnet/Message/Stall/StallUnlistCMSG.cs")
 var StallBuyCMSG = load("res://Bnet/Message/Stall/StallBuyCMSG.cs")
+var PlanSettlementCMSG = load("res://Bnet/Message/Settlement/PlanSettlementCMSG.cs")
+var TearDownSettlementCMSG = load("res://Bnet/Message/Settlement/TearDownSettlementCMSG.cs")
+var OfferSettlementCMSG = load("res://Bnet/Message/Settlement/OfferSettlementCMSG.cs")
+var AnswerSettlementOfferCMSG = load("res://Bnet/Message/Settlement/AnswerSettlementOfferCMSG.cs")
 var SendLetterCMSG = load("res://Bnet/Message/Postal/SendLetterCMSG.cs")
 var RequestLettersCMSG = load("res://Bnet/Message/Postal/RequestLettersCMSG.cs")
 var ReadLetterCMSG = load("res://Bnet/Message/Postal/ReadLetterCMSG.cs")
@@ -962,6 +972,38 @@ func buy_from_stall(stall_entity_id: int, listing_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Names the town the next Founder cast plants. Answered by a SettlementPlannedSMSG or an OperationError.
+func plan_settlement(town_name: String) -> void:
+	assert(is_ready_to_send())
+	var msg = PlanSettlementCMSG.new()
+	msg.Name = town_name
+	_socket.SendMessage(msg)
+
+
+func tear_down_settlement(sign_entity_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = TearDownSettlementCMSG.new()
+	msg.SignEntityId = sign_entity_id
+	_socket.SendMessage(msg)
+
+
+## Offers the town of the sign to a master standing nearby.
+func offer_settlement(sign_entity_id: int, master_name: String) -> void:
+	assert(is_ready_to_send())
+	var msg = OfferSettlementCMSG.new()
+	msg.SignEntityId = sign_entity_id
+	msg.MasterName = master_name
+	_socket.SendMessage(msg)
+
+
+func answer_settlement_offer(settlement_id: int, accept: bool) -> void:
+	assert(is_ready_to_send())
+	var msg = AnswerSettlementOfferCMSG.new()
+	msg.SettlementId = settlement_id
+	msg.Accept = accept
+	_socket.SendMessage(msg)
+
+
 ## Sends a letter by pigeon. Answered by a LetterSentSMSG, or an OperationError when it cannot go.
 func send_letter(recipient_name: String, subject: String, body: String) -> void:
 	assert(is_ready_to_send())
@@ -1439,6 +1481,14 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		auction_purchased.emit(message)
 	elif message is StreetStallSMSG:
 		street_stall_received.emit(message)
+	elif message is SettlementPlannedSMSG:
+		settlement_planned.emit(message)
+	elif message is SettlementSignSMSG:
+		settlement_sign_opened.emit(message)
+	elif message is SettlementOfferSMSG:
+		settlement_offered.emit(message)
+	elif message is SettlementNoticeSMSG:
+		settlement_notice.emit(message)
 	elif message is LettersSMSG:
 		letters_received.emit(message)
 	elif message is LetterArrivedSMSG:

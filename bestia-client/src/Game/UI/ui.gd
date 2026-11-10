@@ -20,6 +20,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _auction_win: WidgetWindow = $AuctionWin
 @onready var _survey_win: WidgetWindow = $SurveyWin
 @onready var _stall_win: WidgetWindow = $StallWin
+@onready var _city_sign_win: WidgetWindow = $CitySignWin
 @onready var _invitations: InvitationTray = $Invitations
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
 @onready var _master_profile: MasterProfile = $TopLeftColumn/MasterProfile
@@ -142,6 +143,12 @@ func _ready() -> void:
 	stall.inventory = inventory
 	stall.stall_opened.connect(_on_stall_opened)
 	stall.stall_closed.connect(func() -> void: _stall_win.visible = false)
+	# Clicking a standing city sign opens it; offers and notices about towns arrive whether it is open or not.
+	var city_sign := _city_sign_win.get_content() as CitySignPanel
+	city_sign.invitations = _invitations
+	city_sign.notice.connect(_chat.system_line)
+	city_sign.sign_opened.connect(func() -> void: _city_sign_win.visible = true)
+	city_sign.sign_closed.connect(func() -> void: _city_sign_win.visible = false)
 
 	# The party and guild windows exist from the start, hidden: they listen for their rosters and invitations
 	# whether open or not. Both speak through the chat, which is the client's one channel for notices.
