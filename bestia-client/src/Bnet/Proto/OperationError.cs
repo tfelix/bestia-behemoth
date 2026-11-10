@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqcGQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSq5GgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -97,9 +97,12 @@ namespace Bnet {
             "UklFUl9TVFJVQ0tfT0ZGEHoSGQoVU0tJTExfTk9UX0VOT1VHSF9NQU5BEHsS",
             "HAoYU0tJTExfTk9UX0VOT1VHSF9TVEFNSU5BEHwSGAoUU0tJTExfSU5WQUxJ",
             "RF9DSE9JQ0UQfRIdChlFUVVJUF9OT1RfWU9VUl9QUk9GRVNTSU9OEH4SHAoY",
-            "U0tJTExfV0VBS0VSX1RIQU5fQUNUSVZFEH8iBAguEC4qElNIT1BfVFJFQVNV",
-            "UllfRlVMTEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVy",
-            "cm9yUHJvdG9iBnByb3RvMw=="));
+            "U0tJTExfV0VBS0VSX1RIQU5fQUNUSVZFEH8SGAoTUklUVUFMX09VVF9PRl9S",
+            "QU5HRRCAARIUCg9SSVRVQUxfRkFUSUdVRUQQgQESFAoPUklUVUFMX05PVF9P",
+            "UEVOEIIBEhMKDlJJVFVBTF9SVU5OSU5HEIMBEhoKFVJJVFVBTF9BTFJFQURZ",
+            "X0pPSU5FRBCEARIQCgtSSVRVQUxfRlVMTBCFARISCg1SSVRVQUxfRkFJTEVE",
+            "EIYBIgQILhAuKhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5i",
+            "bmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -597,6 +600,17 @@ namespace Bnet {
     /// The effect already on the target came from a stronger cast; a weaker one cannot refresh it.
     /// </summary>
     [pbr::OriginalName("SKILL_WEAKER_THAN_ACTIVE")] SkillWeakerThanActive = 127,
+    /// <summary>
+    /// A Mana Circle's ritual refused a click: too far, resting from the last one, not opened by its owner yet,
+    /// already channeling, joined twice, or five helpers already. FAILED: the leader broke off the channel.
+    /// </summary>
+    [pbr::OriginalName("RITUAL_OUT_OF_RANGE")] RitualOutOfRange = 128,
+    [pbr::OriginalName("RITUAL_FATIGUED")] RitualFatigued = 129,
+    [pbr::OriginalName("RITUAL_NOT_OPEN")] RitualNotOpen = 130,
+    [pbr::OriginalName("RITUAL_RUNNING")] RitualRunning = 131,
+    [pbr::OriginalName("RITUAL_ALREADY_JOINED")] RitualAlreadyJoined = 132,
+    [pbr::OriginalName("RITUAL_FULL")] RitualFull = 133,
+    [pbr::OriginalName("RITUAL_FAILED")] RitualFailed = 134,
   }
 
   #endregion

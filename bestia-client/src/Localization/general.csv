@@ -595,6 +595,19 @@ ERROR_SKILL_NOT_ENOUGH_STAMINA,You are too exhausted for that skill.
 ERROR_SKILL_INVALID_CHOICE,That skill cannot be used with that choice.
 ERROR_EQUIP_NOT_YOUR_PROFESSION,Neither of your professions lets you use that.
 ERROR_SKILL_WEAKER_THAN_ACTIVE,A stronger spell of that kind already holds there.
+ERROR_RITUAL_OUT_OF_RANGE,Step into the Mana Circle to use its focus stone.
+ERROR_RITUAL_FATIGUED,You are still resting from the last ritual.
+ERROR_RITUAL_NOT_OPEN,The one who laid this circle has not opened the ritual yet.
+ERROR_RITUAL_RUNNING,The ritual has already begun.
+ERROR_RITUAL_ALREADY_JOINED,You already have a helper in this ritual.
+ERROR_RITUAL_FULL,Five helpers already stand in this circle.
+ERROR_RITUAL_FAILED,The ritual broke: its leader stopped channeling.
+SUCCESS_RITUAL_OPENED,You opened the ritual. Helpers may join; use the focus stone again to begin.
+SUCCESS_RITUAL_JOINED,You joined the ritual.
+SUCCESS_RITUAL_STARTED,The ritual begins. Hold the channel for 30 seconds.
+SUCCESS_RITUAL_CHARGED,The ritual is complete: your next skill is charged.
+STATUS_EFFECT_200,Ritual Charge: your next skill takes the circle's power.
+STATUS_EFFECT_201,Ritual Fatigue: resting after a ritual. You cannot join or lead another yet.
 =======
 SKILLS_TITLE,Skills
 SKILLS_TAB_OTHER,Other
@@ -623,6 +636,12 @@ SKILLS_TARGET_ENEMY,Active: aimed at an enemy
 SKILLS_TARGET_FRIENDLY,Active: aimed at yourself or an ally
 SKILLS_MANA,%d mana
 SKILLS_COOLDOWN,%s s cooldown
+SKILLS_POTENCY,%s potency
+POTENCY_BAND_1,Faint
+POTENCY_BAND_2,Steady
+POTENCY_BAND_3,Strong
+POTENCY_BAND_4,Mighty
+POTENCY_BAND_5,Overwhelming
 SKILLS_CAST_TIME,%s s cast
 SKILLS_REQUIRES,Requires %s
 SKILLS_LEADS_TO,Leads to %s

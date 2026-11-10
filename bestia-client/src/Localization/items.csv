@@ -500,3 +500,14 @@ LEATHER_JERKIN,Leather Jerkin
 LEATHER_JERKIN_DESC,Boiled leather over a padded shirt. It creaks.
 CHAIN_MAIL,Chain Mail
 CHAIN_MAIL_DESC,"Riveted rings over a gambeson. Heavy, but it moves with you."
+MANA_CONCENTRATE,Mana Concentrate
+MANA_CONCENTRATE_DESC,"Mana pressed into a heavy, glowing paste.
+
+Laid into the ground in a ring, it holds a ritual."
+FOCUS_STONE,Focus Stone
+FOCUS_STONE_DESC,"A smooth, carved stone. Set in the middle of a Mana Circle, it gathers what the ring holds."
+MANA_CIRCLE_KIT,Mana Circle Kit
+MANA_CIRCLE_KIT_DESC,"Five measures of Mana Concentrate and a focus stone, ready to be laid out.
+
+Placed on the ground it becomes a Mana Circle: up to five helpers join its leader, and after half a minute
+of channeling the leader's next skill is charged. The ring is used up by the ritual."

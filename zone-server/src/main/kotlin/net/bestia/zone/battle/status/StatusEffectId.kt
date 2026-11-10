@@ -79,7 +79,11 @@ enum class StatusEffectId(val id: Long) {
   HEADGEAR_STRIPPED(63),
   GARMENT_STRIPPED(64),
   FOOTGEAR_STRIPPED(65),
-  SHIELD_STRIPPED(66);
+  SHIELD_STRIPPED(66),
+
+  // The master skill tree's own effects, from id 200.
+  RITUAL_CHARGE(200),
+  RITUAL_FATIGUE(201);
 
   companion object {
     private val byId = entries.associateBy { it.id }

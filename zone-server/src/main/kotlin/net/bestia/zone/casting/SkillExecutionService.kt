@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.status.RemovalReason
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.ActionGuard
 import net.bestia.zone.battle.ActionReactions
@@ -117,7 +118,10 @@ class SkillExecutionService(
     }
 
     val cost = strategy.costOf(skill, skillLevel)
-    val ctx = skillContextFactory.create(world, casterId, skill, skillLevel, targetEntityId, targetPosition, cost, args)
+    val ritual = RitualBoost.heldBy(world, casterId)
+    val ctx = skillContextFactory.create(
+      world, casterId, skill, skillLevel, targetEntityId, targetPosition, cost, args, ritual
+    )
     if (ctx == null) {
       LOG.debug { "Skill $skillId by $casterId fizzled: caster or target no longer resolvable" }
       return
@@ -146,6 +150,11 @@ class SkillExecutionService(
       if (!ctx.world.payCasterCost(mana = cost.manaCost, stamina = cost.staminaCost)) {
         LOG.debug { "Skill $skillId by $casterId fizzled: not enough mana or stamina" }
         return
+      }
+
+      // Spent by the cast that is paid for, even if it misses or fails, as the ritual rules say.
+      if (ritual != null) {
+        statusEffects?.removeEffect(world, casterId, StatusEffectId.RITUAL_CHARGE.id, RemovalReason.CANCELLED)
       }
 
       // Before the effect lands, so what casting ends - a hiding, a sprint - ends before this cast begins, and a

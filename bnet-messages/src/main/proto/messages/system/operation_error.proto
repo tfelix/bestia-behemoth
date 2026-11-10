@@ -333,6 +333,15 @@ enum OpError {
   EQUIP_NOT_YOUR_PROFESSION = 126;
   // The effect already on the target came from a stronger cast; a weaker one cannot refresh it.
   SKILL_WEAKER_THAN_ACTIVE = 127;
+  // A Mana Circle's ritual refused a click: too far, resting from the last one, not opened by its owner yet,
+  // already channeling, joined twice, or five helpers already. FAILED: the leader broke off the channel.
+  RITUAL_OUT_OF_RANGE = 128;
+  RITUAL_FATIGUED = 129;
+  RITUAL_NOT_OPEN = 130;
+  RITUAL_RUNNING = 131;
+  RITUAL_ALREADY_JOINED = 132;
+  RITUAL_FULL = 133;
+  RITUAL_FAILED = 134;
 }
 
 message OperationError {

@@ -36,6 +36,9 @@ class SkillContext(
 
   /** How strong this cast is, see [net.bestia.zone.battle.potency.Potency]. What a contest weighs it by. */
   val potency: Int = 0,
+
+  /** The ritual charge this cast spends, or null. Its Potency bonus is already in [potency]. */
+  val ritual: RitualBoost? = null,
 ) {
 
   /** Where the skill was aimed: the target's position for an entity cast, the aimed-at point otherwise. */
