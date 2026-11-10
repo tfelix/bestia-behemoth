@@ -185,6 +185,11 @@ class Master(
   @Column(name = "honor_last_loss_at")
   var honorLastLossAt: java.time.Instant? = null
 
+  /** The professions held at the last save, strongest first, see `Profession.stored`. Breaks ties on login. */
+  @Column(name = "professions", nullable = false, length = 64)
+  @ColumnDefault("''")
+  var professions: String = ""
+
   @OneToMany(mappedBy = "master", cascade = [CascadeType.ALL], orphanRemoval = true)
   val learnedSkills: MutableSet<LearnedSkill> = mutableSetOf()
 

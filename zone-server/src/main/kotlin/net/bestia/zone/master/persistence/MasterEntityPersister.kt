@@ -1,5 +1,7 @@
 package net.bestia.zone.master.persistence
 
+import net.bestia.zone.item.profession.Professions
+import net.bestia.zone.item.profession.Profession
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.persistence.Master
 import net.bestia.zone.account.persistence.MasterRepository
@@ -53,6 +55,7 @@ data class MasterSnapshot(
   /** Skill id to invested level, from `KnownSkills`. */
   val learnedSkills: Map<Long, Int>,
   val honor: HonorLedger,
+  val professions: List<Profession>,
 ) : EntitySnapshot {
 
   /** Keyed like every other write about this master, inventory included, so they land in order. */
@@ -82,7 +85,7 @@ class MasterEntityPersister(
   override val reads: ComponentClassSet = setOf(
     MasterComponent::class, Position::class, Level::class, Exp::class, SkillPoints::class,
     StatusPoints::class, BaseStatusValues::class, Health::class, Mana::class, Dead::class, KnownSkills::class,
-    Honor::class,
+    Honor::class, Professions::class,
   )
 
   override fun supports(world: World, id: EntityId): Boolean =
@@ -115,6 +118,7 @@ class MasterEntityPersister(
       died = world.has(id, Dead::class),
       learnedSkills = world.get(id, KnownSkills::class)?.levels().orEmpty(),
       honor = world.get(id, Honor::class)?.ledger ?: HonorLedger(),
+      professions = world.get(id, Professions::class)?.held.orEmpty(),
     )
   }
 
@@ -151,6 +155,7 @@ class MasterEntityPersister(
       master.honorEarned = snap.honor.earned
       master.honorDebt = snap.honor.debt
       master.honorLastLossAt = snap.honor.lastLossAt
+      master.professions = Profession.stored(snap.professions)
       master.persistedAtEpochMs = System.currentTimeMillis()
       masterRepository.save(master)
       saveLearnedSkills(master, snap.learnedSkills)

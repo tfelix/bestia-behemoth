@@ -1,5 +1,6 @@
 package net.bestia.zone.master.skill
 
+import net.bestia.zone.item.profession.ProfessionService
 import net.bestia.zone.account.MasterNotFoundException
 import net.bestia.zone.identity.ecs.Master as MasterComponent
 import net.bestia.zone.skill.ecs.KnownSkills
@@ -35,7 +36,8 @@ class MasterSkillTreeService(
   private val masterSkillTreeRegistry: MasterSkillTreeRegistry,
   private val writeBehind: EntityWriteBehind,
   private val accountTasks: AccountTaskExecutor,
-  private val events: ApplicationEventPublisher
+  private val events: ApplicationEventPublisher,
+  private val professions: ProfessionService,
 ) {
 
   /**
@@ -113,6 +115,8 @@ class MasterSkillTreeService(
     changed: Map<Long, Int>
   ) {
     changed.forEach { (skillId, level) -> known.learnOrUpdate(skillId, level) }
+    // Before the event below: its listener takes off gear by the professions this spend may have changed.
+    professions.refresh(world, entityId)
     // A newly learned or levelled passive feeds the status recalc, so the effective values are now stale.
     world.add(entityId, IsStatusValueDirty)
 

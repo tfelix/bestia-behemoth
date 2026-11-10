@@ -329,6 +329,8 @@ enum OpError {
   SKILL_NOT_ENOUGH_STAMINA = 124;
   // The choice sent with a cast (an element, an item, a listing) is not one the skill accepts.
   SKILL_INVALID_CHOICE = 125;
+  // Neither of the master's two professions allows this weapon type or armor weight.
+  EQUIP_NOT_YOUR_PROFESSION = 126;
 }
 
 message OperationError {

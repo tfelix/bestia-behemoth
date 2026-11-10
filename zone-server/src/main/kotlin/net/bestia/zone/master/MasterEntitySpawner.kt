@@ -1,5 +1,8 @@
 package net.bestia.zone.master
 
+import net.bestia.zone.item.profession.Profession
+import net.bestia.zone.item.profession.Professions
+import net.bestia.zone.item.profession.ProfessionService
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.honor.HonorLedger
 import net.bestia.zone.honor.HonorService
@@ -88,6 +91,7 @@ class MasterEntitySpawner(
   private val guildMemberships: GuildMemberships,
   private val knownRecipeStore: KnownRecipeStore,
   private val honorService: HonorService,
+  private val professions: ProfessionService,
 ) {
 
   /**
@@ -160,6 +164,9 @@ class MasterEntitySpawner(
       add(id, honorService.componentFor(HonorLedger(master.honorEarned, master.honorDebt, master.honorLastLossAt)))
       add(id, Speed())
       add(id, KnownSkills(learnedSkillIds.toMutableMap()))
+      add(id, Professions(Profession.listOf(master.professions)))
+      // The stored pair only breaks ties: a content edit to the tree since the last save is caught here.
+      professions.refresh(this, id)
       add(id, KnownRecipes(knownRecipeIds.toMutableSet()))
       add(id, SkillPoints(master.skillPoints))
       add(id, StatusPoints(master.statusPoints))

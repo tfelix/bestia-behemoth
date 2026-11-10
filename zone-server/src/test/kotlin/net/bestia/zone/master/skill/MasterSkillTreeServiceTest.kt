@@ -1,5 +1,6 @@
 package net.bestia.zone.master.skill
 
+import net.bestia.zone.item.profession.ProfessionService
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.identity.ecs.Master as MasterComponent
@@ -59,7 +60,9 @@ class MasterSkillTreeServiceTest {
     }
   }
 
-  private val service = MasterSkillTreeService(masterSkillTreeRegistry, writeBehind, accountTasks, events)
+  private val service = MasterSkillTreeService(
+    masterSkillTreeRegistry, writeBehind, accountTasks, events, ProfessionService(masterSkillTreeRegistry)
+  )
 
   init {
     masterSkillTreeRegistry.load(

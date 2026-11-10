@@ -1,5 +1,6 @@
 package net.bestia.zone.item.net
 
+import net.bestia.zone.item.profession.Professions
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.ItemProvenance
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -97,7 +98,8 @@ class EquipItemHandler(
         // than as exempt.
         wearerLevel = get(id, Level::class)?.level ?: 0,
         wearerIsNovice = noviceGate.isNovice(this, id),
-        lockedSlots = SlotLock.lockedSlots(get(id, StatusEffects::class))
+        lockedSlots = SlotLock.lockedSlots(get(id, StatusEffects::class)),
+        allowance = get(id, Professions::class)?.allowance
       )
 
       if (denial != null) {

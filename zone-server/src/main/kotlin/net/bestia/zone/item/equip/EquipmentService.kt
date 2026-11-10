@@ -1,6 +1,7 @@
 package net.bestia.zone.item.equip
 
 import net.bestia.zone.battle.gear.ArmorType
+import net.bestia.zone.item.profession.GearAllowance
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
@@ -54,7 +55,10 @@ class EquipmentService(
     BROKEN,
 
     /** A strip skill emptied the slot a moment ago, see [SlotLock]. */
-    SLOT_STRIPPED
+    SLOT_STRIPPED,
+
+    /** Neither of the master's professions allows this weapon type or armor weight. */
+    NOT_YOUR_PROFESSION,
   }
 
   /**
@@ -75,7 +79,8 @@ class EquipmentService(
     heldUniqueId: Long,
     wearerLevel: Int,
     wearerIsNovice: Boolean,
-    lockedSlots: Set<EquipmentSlot> = emptySet()
+    lockedSlots: Set<EquipmentSlot> = emptySet(),
+    allowance: GearAllowance? = null,
   ): Denial? {
     if (item.type != Item.ItemType.EQUIP || item.equipSlot != slot) {
       return Denial.NOT_ALLOWED
@@ -108,7 +113,7 @@ class EquipmentService(
       return Denial.HANDS_FULL
     }
 
-    return checkStillWearable(item, itemLevel, wearerLevel, wearerIsNovice)
+    return checkStillWearable(item, itemLevel, wearerLevel, wearerIsNovice, allowance)
   }
 
   /** Refused rather than taking the other hand off, so nothing leaves a slot the player did not touch. */
@@ -129,7 +134,13 @@ class EquipmentService(
    * and cannot call [checkEquip]: that refuses an item it finds already equipped. Two definitions of "may this
    * be worn" would drift, and the one that drifted would be the one nobody tested.
    */
-  fun checkStillWearable(item: Item, itemLevel: Int, wearerLevel: Int, wearerIsNovice: Boolean): Denial? {
+  fun checkStillWearable(
+    item: Item,
+    itemLevel: Int,
+    wearerLevel: Int,
+    wearerIsNovice: Boolean,
+    allowance: GearAllowance? = null,
+  ): Denial? {
     // The copy's own level, stats included, but without its upgrade level: an upgrade makes a sword harder to
     // *work on*, not harder to hold, and taking gear away from the player who improved it would punish exactly
     // the thing the upgrade path is for.
@@ -139,6 +150,11 @@ class EquipmentService(
 
     if (item.noviceOnly && !wearerIsNovice) {
       return Denial.NOVICE_ONLY
+    }
+
+    // Null for a bestia, which only its species limits.
+    if (allowance != null && !allowance.allows(item)) {
+      return Denial.NOT_YOUR_PROFESSION
     }
 
     return null
