@@ -29,7 +29,7 @@ export type Position = Schemas['Position'];
 export type Journey = Schemas['Journey'];
 export type JourneyOrder = Schemas['JourneyOrder'];
 
-export const JOBS = ['GUARD', 'GATHER', 'REST'] as const;
+export const JOBS = ['GUARD', 'GATHER', 'CRAFT', 'REST'] as const;
 export type Job = (typeof JOBS)[number];
 
 /** From careful to brave, in the order the slider shows them. */
