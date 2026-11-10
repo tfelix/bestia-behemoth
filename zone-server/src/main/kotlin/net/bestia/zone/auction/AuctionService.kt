@@ -49,6 +49,7 @@ class AuctionService(
   private val houses: AuctionHouses,
   private val playerHouses: PlayerHouses,
   private val houseRows: PlayerAuctionHouseRepository,
+  private val pickups: PickupService,
   private val listings: AuctionListingRepository,
   private val parcels: ParcelService,
   private val inventoryService: InventoryService,
@@ -127,29 +128,36 @@ class AuctionService(
     }
 
     val buyerEntityId = connectionInfoService.getSelectedMasterEntityId(accountId)
-    world.grantToLive(buyerEntityId, bought.goods)
+    world.grantToLive(buyerEntityId, bought.handedOver)
     world.takeFromLive(buyerEntityId, ReservedItem.stack(coinId, bought.price.toInt(), weight = 0))
 
-    val goods = bought.goods.first()
-    outMessageProcessor.sendToPlayer(accountId, AuctionPurchasedSMSG(listingId, goods.itemId, goods.amount))
+    val goods = bought.goods
+    outMessageProcessor.sendToPlayer(accountId, AuctionPurchasedSMSG(listingId, goods.itemId, goods.amount, bought.waitingAt))
   }
 
   /** The goods come back; the fee does not, as the docs say of any listing that did not sell. */
   fun takeDown(accountId: AccountId, houseEntityId: Long, listingId: Long) {
     val sellerId = connectionInfoService.getMasterId(accountId)
-    houseInReach(accountId, houseEntityId) ?: return deny(accountId, OpError.AUCTION_OUT_OF_RANGE)
+    val at = houseInReach(accountId, houseEntityId) ?: return deny(accountId, OpError.AUCTION_OUT_OF_RANGE)
 
     val outcome = transactions.execute {
-      val listing = listings.findLockedById(listingId)?.takeIf { it.sellerMasterId == sellerId }
+      val listing = listings.findLockedById(listingId)?.takeIf { it.sellerMasterId == sellerId && shownAt(at).shows(it) }
         ?: return@execute Refused(OpError.AUCTION_LISTING_GONE)
       if (listing.currentBid != null) return@execute Refused(OpError.AUCTION_HAS_BIDS)
-      val goods = inventoryService.moveFromEscrow(listing.container, sellerId)
+      val shown = ReservedItem.of(listing.container.slots.single(), listing.itemLevel)
+      // At the house it was put up at, the goods are handed back; anywhere else that shows it, they go home by post.
+      val handedBack = if (listing.houseStructureId == (at as? AuctionHouses.At.Player)?.house?.structureId) {
+        inventoryService.moveFromEscrow(listing.container, sellerId)
+      } else {
+        parcels.postInstant(sellerId, SENDER_NAME) { inventoryService.moveBetweenEscrows(listing.container, it) }
+        emptyList()
+      }
       listings.delete(listing)
-      Bought(goods, price = 0)
+      Bought(shown, handedBack, price = 0)
     }
     if (outcome !is Bought) return deny(accountId, (outcome as? Refused)?.code ?: OpError.REQUEST_REFUSED)
 
-    world.grantToLive(connectionInfoService.getSelectedMasterEntityId(accountId), outcome.goods)
+    world.grantToLive(connectionInfoService.getSelectedMasterEntityId(accountId), outcome.handedOver)
 
     search(accountId, AuctionQuery(houseEntityId, null, 0, 0, emptyList(), mine = true, page = 0))
   }
@@ -292,15 +300,24 @@ class AuctionService(
         }
         listings.delete(listing)
       }
+      pickups.returnExpired()
     }
   }
 
-  /** Inside a transaction: the winner gets the goods and the seller the winning bid, both by post. */
+  /**
+   * Inside a transaction: the seller gets the winning bid by post. The winner's goods wait at a player house for
+   * them to collect; a start town's market posts them.
+   */
   private fun settle(listing: AuctionListing, coin: Item) {
     val winner = listing.bidderMasterId ?: return
     val bid = listing.currentBid ?: return
 
-    parcels.postInstant(winner, SENDER_NAME) { parcel -> inventoryService.moveBetweenEscrows(listing.container, parcel) }
+    val origin = listing.houseStructureId
+    if (origin != null) {
+      pickups.hold(listing.container, winner, listing.sellerMasterId, origin, listing.townName)
+    } else {
+      parcels.postInstant(winner, SENDER_NAME) { parcel -> inventoryService.moveBetweenEscrows(listing.container, parcel) }
+    }
     parcels.postInstant(listing.sellerMasterId, SENDER_NAME) { it.addStackable(coin, bid.toInt()) }
     listings.delete(listing)
   }
@@ -319,13 +336,21 @@ class AuctionService(
       return Refused(OpError.AUCTION_CANNOT_AFFORD)
     }
 
-    val goods = inventoryService.moveFromEscrow(listing.container, buyerId)
+    val goods = ReservedItem.of(listing.container.slots.single(), listing.itemLevel)
+    val origin = listing.houseStructureId
+    val waitsElsewhere = origin != null && origin != (at as? AuctionHouses.At.Player)?.house?.structureId
+    val handedOver = if (waitsElsewhere) {
+      pickups.hold(listing.container, buyerId, listing.sellerMasterId, origin!!, listing.townName)
+      emptyList()
+    } else {
+      inventoryService.moveFromEscrow(listing.container, buyerId)
+    }
 
     val coin = itemRepository.findByIdOrNull(coinId) ?: return Refused(OpError.REQUEST_REFUSED)
     parcels.postInstant(listing.sellerMasterId, SENDER_NAME) { it.addStackable(coin, listing.price.toInt()) }
     listings.delete(listing)
 
-    return Bought(goods, listing.price)
+    return Bought(goods, handedOver, listing.price, if (waitsElsewhere) listing.townName else "")
   }
 
   private fun rowOf(listing: AuctionListing, viewerId: Long): AuctionListingsSMSG.Row {
@@ -387,7 +412,13 @@ class AuctionService(
 
   private sealed interface Outcome
   private data class Listed(val goods: ReservedItem) : Outcome
-  private data class Bought(val goods: List<ReservedItem>, val price: Long) : Outcome
+  /** [goods] is what was sold; [handedOver] is the part of it now in the buyer's bag, empty when it waits elsewhere. */
+  private data class Bought(
+    val goods: ReservedItem,
+    val handedOver: List<ReservedItem>,
+    val price: Long,
+    val waitingAt: String = "",
+  ) : Outcome
   private data class Refused(val code: OpError) : Outcome
   private data class BidPlaced(val paid: Long) : Outcome
 

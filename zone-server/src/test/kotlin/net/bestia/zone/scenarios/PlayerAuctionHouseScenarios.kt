@@ -5,7 +5,12 @@ import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.auction.AuctionFees
 import net.bestia.zone.auction.ListingTerms
 import net.bestia.zone.auction.AuctionListingsSMSG
+import net.bestia.zone.auction.AuctionPurchasedSMSG
 import net.bestia.zone.auction.PlayerHouses
+import net.bestia.zone.auction.TradeLinks
+import net.bestia.zone.auction.net.BuyAuctionListingCMSG
+import net.bestia.zone.auction.net.PostPickupCMSG
+import net.bestia.zone.auction.persistence.AuctionPickupRepository
 import net.bestia.zone.auction.net.ListAuctionItemCMSG
 import net.bestia.zone.auction.persistence.AuctionListingRepository
 import net.bestia.zone.auction.persistence.PlayerAuctionHouseRepository
@@ -59,12 +64,18 @@ class PlayerAuctionHouseScenarios : BestiaNoSocketScenario() {
   @Autowired private lateinit var events: ApplicationEventPublisher
   @Autowired private lateinit var transactionManager: PlatformTransactionManager
   @Autowired private lateinit var masterRepository: MasterRepository
+  @Autowired private lateinit var links: TradeLinks
+  @Autowired private lateinit var pickups: AuctionPickupRepository
 
   private val player get() = clientPlayer1.connectedPlayerId
 
   private var townId = 0L
   private var structureId = 0L
   private var house: EntityId = 0L
+
+  private val buyer get() = clientPlayer2.connectedPlayerId
+  private var buyersStructureId = 0L
+  private var buyersHouse: EntityId = 0L
 
   @BeforeAll
   fun buildTownAndHouse() {
@@ -78,6 +89,20 @@ class PlayerAuctionHouseScenarios : BestiaNoSocketScenario() {
     structureId = structures.place(StaticEntityKind.AUCTION_HOUSE, masterId, player, at, 0f, 0, 0).id
     playerHouses.register(structureId, masterId, player, FEE_PERCENT)
     await { assertTrue(houseRows.findByIdOrNull(structureId) != null) }
+
+    // The buyer runs a house of their own, at the same town, which is linked to the seller's below.
+    val buyerMasterId = connectionInfoService.getMasterId(buyer)
+    val buyerAt = world.read { get(connectionInfoService.getSelectedMasterEntityId(buyer), Position::class)!!.toVec3L() }
+    buyersStructureId = structures.place(StaticEntityKind.AUCTION_HOUSE, buyerMasterId, buyer, buyerAt, 0f, 0, 0).id
+    playerHouses.register(buyersStructureId, buyerMasterId, buyer, FEE_PERCENT)
+    await { assertTrue(houseRows.findByIdOrNull(buyersStructureId) != null) }
+    buyersHouse = world.read {
+      createEntity { id ->
+        add(id, PropPose(buyerAt, yaw = 0f))
+        add(id, PlayerStructureIdentity(buyersStructureId, buyer))
+        add(id, StaticVisual(StaticEntityKind.AUCTION_HOUSE, variant = 0, heightDm = 40, halfLengthDm = 60, halfWidthDm = 40))
+      }
+    }
 
     house = world.read {
       createEntity { id ->
@@ -93,6 +118,7 @@ class PlayerAuctionHouseScenarios : BestiaNoSocketScenario() {
     TransactionTemplate(transactionManager).execute {
       listings.deleteAll()
       parcels.deleteAll()
+      pickups.deleteAll()
       houseRows.findByIdOrNull(structureId)?.let { it.till = 0 }
     }
   }
@@ -100,10 +126,17 @@ class PlayerAuctionHouseScenarios : BestiaNoSocketScenario() {
   @AfterAll
   fun removeTownAndHouse() {
     world.modify(house) { id -> destroy(id) }
+    world.modify(buyersHouse) { id -> destroy(id) }
     towns.remove(townId)
     structures.remove(structureId, 0, 0)
+    structures.remove(buyersStructureId, 0, 0)
     playerHouses.forget(structureId)
-    TransactionTemplate(transactionManager).execute { houseRows.deleteById(structureId) }
+    playerHouses.forget(buyersStructureId)
+    links.unlink(connectionInfoService.getMasterId(player), connectionInfoService.getMasterId(buyer))
+    TransactionTemplate(transactionManager).execute {
+      houseRows.deleteById(structureId)
+      houseRows.deleteById(buyersStructureId)
+    }
   }
 
   @Test
@@ -134,6 +167,29 @@ class PlayerAuctionHouseScenarios : BestiaNoSocketScenario() {
     }
   }
 
+  @Test
+  fun `a purchase from a linked house waits there, and the buyer can have it posted home`() {
+    links.link(
+      TradeLinks.Partner(connectionInfoService.getMasterId(player), "Seller"),
+      TradeLinks.Partner(connectionInfoService.getMasterId(buyer), "Buyer"),
+    )
+    listApples(100L, AuctionFees.listingFee(100L) + AuctionFees.ownerFee(100L, FEE_PERCENT))
+    val listingId = listings.findAll().single().id
+    grant(commodityItems.coinItemId()!!, 200, buyer)
+
+    clientPlayer2.sendMessage(BuyAuctionListingCMSG(buyer, buyersHouse, listingId))
+
+    val purchased = awaitValue { assertNotNull(clientPlayer2.tryGetLastReceived(AuctionPurchasedSMSG::class)) }
+    assertEquals("Scenario Hold", purchased.waitingAt)
+    val pickupId = pickups.findAll().single().id
+
+    clientPlayer2.sendMessage(PostPickupCMSG(buyer, pickupId))
+
+    await { assertEquals(0L, pickups.count()) }
+    val buyerMasterId = connectionInfoService.getMasterId(buyer)
+    assertTrue(TransactionTemplate(transactionManager).execute { parcels.findByRecipientMasterIdOrderByLatestArrival(buyerMasterId).isNotEmpty() }!!)
+  }
+
   private fun listApples(price: Long, fee: Long) {
     val apple = itemRepository.findByIdentifierOrThrow("apple").id
     grant(apple, 2)
@@ -153,16 +209,24 @@ class PlayerAuctionHouseScenarios : BestiaNoSocketScenario() {
   }
 
   /** Waits for the durable half, so the listing finds in the container what the live copy shows. */
-  private fun grant(itemId: Long, amount: Int) {
-    val before = durableAmount(itemId)
-    world.modify(masterEntity()) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId, amount)) }
+  private fun grant(itemId: Long, amount: Int, accountId: Long = player) {
+    val before = durableAmount(itemId, accountId)
+    world.modify(connectionInfoService.getSelectedMasterEntityId(accountId)) { id ->
+      add(id, ObtainItemIntent.CreateItemIntent(itemId, amount))
+    }
 
-    await { assertTrue(durableAmount(itemId) >= before + amount) }
+    await { assertTrue(durableAmount(itemId, accountId) >= before + amount) }
   }
 
-  private fun durableAmount(itemId: Long): Int {
+  private fun <T : Any> awaitValue(fn: () -> T): T {
+    var result: T? = null
+    await { result = fn() }
+    return result!!
+  }
+
+  private fun durableAmount(itemId: Long, accountId: Long = player): Int {
     return TransactionTemplate(transactionManager).execute {
-      masterRepository.findByIdOrThrow(connectionInfoService.getMasterId(player)).container.slots
+      masterRepository.findByIdOrThrow(connectionInfoService.getMasterId(accountId)).container.slots
         .filter { it.isFree && it.template.id == itemId }
         .sumOf { it.amount }
     }!!

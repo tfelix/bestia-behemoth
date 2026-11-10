@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "PickupsSmsgProto";
+
+// What the receiver bought or won and has not taken yet: the Won & Bought window.
+message PickupsSMSG {
+  repeated Pickup pickups = 1;
+}
+
+message Pickup {
+  uint64 pickup_id = 1;
+  uint64 item_id = 2;
+  int32 amount = 3;
+  // The town of the house it waits at.
+  string town_name = 4;
+  // After this it goes back to its seller.
+  int64 expires_at_epoch_seconds = 5;
+  // The parcel fee to send it to the receiver's home post office.
+  int64 post_fee = 6;
+}

@@ -28,4 +28,11 @@ message AuctionHouseOpenSMSG {
   int64 fee_changeable_at_epoch_seconds = 9;
   // Whether the owner may tear the house down: no listing is up in it.
   bool can_tear_down = 10;
+  // The owners this one has a Trade Agreement with.
+  repeated TradePartner partners = 11;
+}
+
+message TradePartner {
+  uint64 master_id = 1;
+  string name = 2;
 }

@@ -667,14 +667,24 @@ class InventoryService(
   /** Moves everything held in [escrow] to a master. @return what arrived, for the live inventory */
   @Transactional
   fun moveFromEscrow(escrow: ItemContainer, masterId: Long): List<ReservedItem> {
-    val master = owners.lockedMaster(masterId)
+    return moveFromEscrow(escrow, masterId, playerBestiaId = null)
+  }
+
+  /** [moveFromEscrow] into whichever body holds it: the master when [playerBestiaId] is null, else its own bestia. */
+  @Transactional
+  fun moveFromEscrow(escrow: ItemContainer, masterId: Long, playerBestiaId: PlayerBestiaId?): List<ReservedItem> {
+    val owner = if (playerBestiaId == null) {
+      owners.lockedMaster(masterId)
+    } else {
+      owners.lockedPlayerBestiaOf(masterId, playerBestiaId) ?: return emptyList()
+    }
 
     val arrived = escrow.removeAllFree().map { detached ->
-      add(master.container, detached)
+      add(owner.container, detached)
       arrivedAs(slotId = 0L, detached)
     }
 
-    owners.save(master)
+    owners.save(owner)
 
     return arrived
   }

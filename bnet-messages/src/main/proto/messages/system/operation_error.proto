@@ -413,6 +413,14 @@ enum OpError {
   AUCTION_BID_TOO_LOW = 326;
   // An auction with a bid on it cannot be taken down.
   AUCTION_HAS_BIDS = 327;
+  // Trade Agreement links auction houses, so the caster must own one.
+  TRADE_AGREEMENT_NEEDS_HOUSE = 328;
+  // The caster has as many partners as their Trade Agreement level allows.
+  TRADE_AGREEMENT_LIMIT = 329;
+  // args[0] owns no auction house, does not know Trade Agreement, has no free partner, or is linked already.
+  TRADE_AGREEMENT_TARGET_INVALID = 330;
+  // A purchase is collected at the house it waits at, by the master or one of their bestias.
+  PICKUP_OUT_OF_RANGE = 331;
 }
 
 message OperationError {

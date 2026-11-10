@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "TradeAgreementOfferSmsgProto";
+
+// An auction house owner offers the receiver a Trade Agreement. Answered with AnswerTradeAgreementCMSG.
+message TradeAgreementOfferSMSG {
+  uint64 offer_id = 1;
+  string from_name = 2;
+}
