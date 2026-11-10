@@ -113,6 +113,7 @@ var EmoteCMSG = load("res://Bnet/Message/Entity/EmoteCMSG.cs")
 var GetInventoryCMSG = load("res://Bnet/Message/Inventory/GetInventoryCMSG.cs")
 var GetSkillsCMSG = load("res://Bnet/Message/Master/GetSkillsCMSG.cs")
 var ActivateSkillCMSG = load("res://Bnet/Message/Master/ActivateSkillCMSG.cs")
+var CancelStatusEffectCMSG = load("res://Bnet/Message/Master/CancelStatusEffectCMSG.cs")
 var InvestSkillPointCMSG = load("res://Bnet/Message/Master/InvestSkillPointCMSG.cs")
 var UseItemCMSG = load("res://Bnet/Message/Inventory/UseItemCMSG.cs")
 ## Not a message: the argument bag a scripted item fills before one of the above is sent.
@@ -449,6 +450,14 @@ func activate_skill(
 	msg.TargetPosition = target_position
 	msg.TargetEntityId = target_entity_id
 	msg.Args = args
+	_socket.SendMessage(msg)
+
+
+## Drops a buff from the controlled entity. The server decides whether it is the bearer's to end.
+func cancel_status_effect(effect_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = CancelStatusEffectCMSG.new()
+	msg.EffectId = effect_id
 	_socket.SendMessage(msg)
 
 

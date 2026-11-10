@@ -2,6 +2,7 @@ package net.bestia.zone.casting
 
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.damage.Damage
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.skill.persistence.Skill
 import net.bestia.zone.util.EntityId
@@ -24,6 +25,13 @@ import net.bestia.zone.util.EntityId
  * Implementations are singletons shared by every cast, so they must be stateless.
  */
 interface SkillStrategy {
+
+  /**
+   * The status a toggle skill keeps on its caster, like Hide or Shield Wall: casting the skill while the status
+   * is on drops it instead, for free. Null for every other skill.
+   */
+  val toggledStatus: StatusEffectId?
+    get() = null
 
   /** What casting [skill] at [level] costs and how far it reaches; the catalogue's single values by default. */
   fun costOf(skill: Skill, level: Int): SkillLevelCost = SkillLevelCost.of(skill)

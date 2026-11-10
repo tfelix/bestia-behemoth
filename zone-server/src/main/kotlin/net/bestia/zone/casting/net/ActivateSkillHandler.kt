@@ -28,6 +28,7 @@ import net.bestia.zone.casting.NoSkillScriptException
 import net.bestia.zone.casting.SkillCheckService
 import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.casting.SkillStrategyFactory
+import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.casting.SkillLevelCost
 import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.battle.ecs.status.Stamina
@@ -56,6 +57,7 @@ class ActivateSkillHandler(
   private val actionGuard: ActionGuard,
   private val propPromotion: CombatTargetPromotion,
   private val outMessageProcessor: OutMessageProcessor,
+  private val statusEffects: StatusEffectService,
 ) : TickMessageHandler<ActivateSkillCMSG> {
   override val wire = decoder(MessageCase.ACTIVATE_SKILL) { accountId, envelope ->
     ActivateSkillCMSG.fromBnet(accountId, envelope.activateSkill)
@@ -102,6 +104,13 @@ class ActivateSkillHandler(
       // A passive, or an entry nobody has implemented. Refused here rather than at resolution so a
       // channelled one does not show a cast bar for a cast that was never going to happen.
       LOG.warn { "Activation by entity $activeEntityId refused: ${e.message}" }
+      return true
+    }
+
+    // Before the cooldown check: ending a toggle is always allowed, and costs nothing.
+    val toggled = strategy.toggledStatus
+    if (toggled != null && statusEffects.cancelByBearer(world, activeEntityId, toggled.id)) {
+      LOG.debug { "${skill.identifier} toggled off by $activeEntityId" }
       return true
     }
 

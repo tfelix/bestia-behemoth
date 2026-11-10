@@ -15,9 +15,17 @@ const _FADE_HALF_PERIOD_SECONDS: float = 0.9
 
 var _remaining_seconds: float = 0.0
 var _fade_tween: Tween = null
+var _effect_id: int = 0
+var _is_debuff: bool = false
+
+
+func _ready() -> void:
+	_button.gui_input.connect(_on_button_input)
 
 
 func setup(entry: StatusEffectListEntry) -> void:
+	_effect_id = entry.EffectId
+	_is_debuff = entry.Debuff
 	_button.modulate = Color(1.0, 0.55, 0.55) if entry.Debuff else Color(1.0, 1.0, 1.0)
 	_button.tooltip_text = _description_of(entry.EffectId)
 	_remaining_seconds = entry.RemainingSeconds
@@ -45,6 +53,17 @@ func _refresh() -> void:
 	else:
 		_duration_label.text = "%d s" % int(ceil(_remaining_seconds))
 		_set_fading(true)
+
+
+## A right-click drops a buff, the way a toggle skill's recast does. A debuff is not the player's to end, so the
+## click does nothing there; the server checks the same and also refuses buffs that must run their course.
+func _on_button_input(event: InputEvent) -> void:
+	var click := event as InputEventMouseButton
+	if click == null or not click.pressed or click.button_index != MOUSE_BUTTON_RIGHT or _is_debuff:
+		return
+	accept_event()
+	if ConnectionManager.is_ready_to_send():
+		ConnectionManager.cancel_status_effect(_effect_id)
 
 
 ## Empty for an effect with no description yet, so the icon shows no tooltip rather than a raw key.

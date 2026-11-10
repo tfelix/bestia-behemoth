@@ -61,6 +61,17 @@ class StatusEffectServiceTest {
     assertTrue(service.applyEffect(world, warded, HARM, level = 1, sourceEntityId = mob))
   }
 
+  @Test
+  fun `a player may drop a buff but not a debuff`() {
+    val bearer = player()
+    service.applyEffect(world, bearer, HELP, level = 1, sourceEntityId = bearer)
+    service.applyEffect(world, bearer, HARM, level = 1, sourceEntityId = world.createEntity { })
+
+    assertTrue(service.cancelByBearer(world, bearer, HELP))
+    assertFalse(service.cancelByBearer(world, bearer, HARM), "a debuff is not the bearer's to end")
+    assertTrue(world.getOrThrow(bearer, StatusEffects::class).hasEffect(HARM))
+  }
+
   private fun player(shield: HarmShield? = null): EntityId {
     val effect = ActiveStatusEffect(definitionId = 99L, level = 1, remainingSeconds = 10f, shield = shield)
 

@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "CancelStatusEffectCmsgProto";
+
+// The player drops a buff on the entity they control: right-clicking its icon. Only a buff its script lets the bearer
+// end goes; anything else is ignored.
+message CancelStatusEffectCMSG {
+  uint64 effect_id = 1;
+}
