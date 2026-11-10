@@ -676,7 +676,14 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 3.0f, PlaceholderColour = new Color(0.66f, 0.56f, 0.38f), StructureHeight = 1f,
         Action = PropAction.Use
-      } // BREEDING_FARM
+      }, // BREEDING_FARM
+
+      // A brick hearth with a nest on top, where one egg hatches. Clicking it opens its window.
+      new Kind
+      {
+        PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.64f, 0.38f, 0.28f), StructureHeight = 1f,
+        Action = PropAction.Use
+      } // INCUBATOR
     };
 
     /// <summary>

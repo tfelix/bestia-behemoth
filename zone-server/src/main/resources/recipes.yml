@@ -150,6 +150,19 @@ recipes:
     craftSeconds: 4.0
     baseSuccessChance: 0.9
 
+  - id: 44
+    identifier: INCUBATOR_KIT
+    effect: PRODUCE
+    output: { item: incubator_kit, amount: 1 }
+    inputs:
+      - { item: plank, amount: 6 }
+      - { item: brick, amount: 4 }
+      - { item: ember_core, amount: 2 }
+    skill: { skill: M_CARPENTRY, level: 3 }
+    station: WORKBENCH
+    craftSeconds: 15.0
+    baseSuccessChance: 1.0
+
   - id: 39
     identifier: FURNACE_KIT
     effect: PRODUCE

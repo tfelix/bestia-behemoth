@@ -616,6 +616,18 @@ items:
       A bestia egg from a Breeding Farm, still warm.
 
       It only hatches in an Incubator.
+
+  - id: 442
+    item-db-name: incubator_kit
+    base-level: 30
+    weight: 1200
+    type: USABLE
+    material: STONE
+    script: IncubatorKitScript
+    description: |
+      Fired bricks around an ember core, with a padded nest on top.
+
+      Set it down and it becomes an Incubator, which keeps one egg warm until it hatches.
   # --- The economy's first commodities ------------------------------------------------------------
   # farm -> mill -> bakery -> household, which is the shortest chain that exercises every part of the
   # settlement ledger at once: several stages, a capacity that player damage can take away at the farm
