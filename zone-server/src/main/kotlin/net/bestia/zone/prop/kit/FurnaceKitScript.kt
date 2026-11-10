@@ -1,0 +1,19 @@
+package net.bestia.zone.prop.kit
+
+import net.bestia.zone.prop.PlayerStructureService
+import net.bestia.zone.entity.StaticEntityKind
+import org.springframework.stereotype.Component
+
+/** The Furnace Kit (`items.yml` id 124), made in Handiwork with Ore Refinement. */
+@Component
+class FurnaceKitScript(
+  structures: PlayerStructureService
+) : StructureKitScript(structures, StaticEntityKind.FURNACE, BUILD_SECONDS) {
+
+  override val itemId = 124L
+
+  private companion object {
+    /** Long enough that a build is something you commit to, short enough to stand through. */
+    const val BUILD_SECONDS = 20f
+  }
+}
