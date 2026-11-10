@@ -26,6 +26,7 @@ import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.item.ecs.WeightLimitCalculator
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.ecs.toLiveInventory
 import net.bestia.zone.item.ecs.WornGear
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.Speed
@@ -161,7 +162,7 @@ class PlayerBestiaEntitySpawner(
     return LoadedBestia(
       row = playerBestia,
       knownSkills = KnownSkills((fixedAttackIds + customAttackIds).toMutableMap()),
-      inventory = buildInventory(playerBestia),
+      inventory = playerBestia.container.toLiveInventory(itemStats),
       equipment = buildEquipment(playerBestia),
       statusEffects = playerBestia.entityId?.let(statusEffectPersistenceService::load).orEmpty(),
     )
@@ -311,28 +312,6 @@ class PlayerBestiaEntitySpawner(
         )
       }.toMutableMap(),
       quiver = playerBestia.container.quiver.toMutableList()
-    )
-  }
-
-  private fun buildInventory(playerBestia: PlayerBestia): Inventory {
-    return Inventory(
-      items = playerBestia.container.slots.map { slot ->
-        Inventory.Item(
-          itemId = slot.template.id,
-          amount = slot.amount,
-          weight = slot.weight,
-          uniqueId = slot.uniqueId,
-          stackable = slot.isStackable,
-          equipped = slot.isEquipped,
-          durability = slot.durability,
-          maxDurability = slot.maxDurability,
-          slots = slot.slots,
-          upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0,
-          itemLevel = itemStats.itemLevelOf(slot),
-          rolledStats = slot.rolledStats,
-          provenance = slot.heldProvenance
-        )
-      }.toMutableList()
     )
   }
 

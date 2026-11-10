@@ -27,7 +27,7 @@ import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.master.bestia.PlayerBestiaEntitySpawner
 import net.bestia.zone.item.ecs.Equipment
-import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.ecs.toLiveInventory
 import net.bestia.zone.item.ecs.WornGear
 import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.movement.ecs.Position
@@ -141,7 +141,7 @@ class MasterEntitySpawner(
     // Read before the world scope: everything inside createEntity holds the world, and must not do I/O -
     // the container's slots are a lazy relation.
     val persistedStatusEffects = statusEffectPersistenceService.load(master.entityId)
-    val inventory = buildInventory(master)
+    val inventory = master.container.toLiveInventory(itemStats)
     val equipment = buildEquipment(master)
     val bestias = playerBestiaEntitySpawner.loadOwnedBy(masterId)
 
@@ -294,28 +294,6 @@ class MasterEntitySpawner(
         )
       }.toMutableMap(),
       quiver = master.container.quiver.toMutableList()
-    )
-  }
-
-  private fun buildInventory(master: Master): Inventory {
-    return Inventory(
-      items = master.container.slots.map { slot ->
-        Inventory.Item(
-          itemId = slot.template.id,
-          weight = slot.weight,
-          amount = slot.amount,
-          uniqueId = slot.uniqueId,
-          stackable = slot.isStackable,
-          equipped = slot.isEquipped,
-          durability = slot.durability,
-          maxDurability = slot.maxDurability,
-          slots = slot.slots,
-          upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0,
-          itemLevel = itemStats.itemLevelOf(slot),
-          rolledStats = slot.rolledStats,
-          provenance = slot.heldProvenance
-        )
-      }.toMutableList()
     )
   }
 
