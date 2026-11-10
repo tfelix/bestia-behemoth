@@ -559,18 +559,6 @@ class BudgetedSkillWorld(
     return services.spoor.read(centre, radiusTiles)
   }
 
-  override fun survey(masterId: Long, accountId: Long?, centre: Vec3L, radiusMetres: Double) {
-    budget.charge()
-
-    services.survey.survey(
-      masterId = masterId,
-      accountId = accountId,
-      entityId = casterId,
-      centre = centre,
-      radiusMetres = radiusMetres
-    )
-  }
-
   /** [block] against [id], or null if [id] is gone. */
   private inline fun <T> onEntity(id: EntityId, block: World.(EntityId) -> T): T? {
     return if (world.isAlive(id)) world.block(id) else null

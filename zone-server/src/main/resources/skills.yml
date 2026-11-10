@@ -439,17 +439,23 @@ skills:
   - id: 37
     identifier: M_CARTOGRAPHY
     script: Cartography
-    targetType: GROUND
-    range: 4
+    targetType: FRIENDLY
+    needsLineOfSight: false
     manaCost: 50
-    # Surveying channels, so it runs through the existing Casting/CastingSystem and can be interrupted by
-    # taking a hit. A survey that resolved instantly would be a map drawn while running away from something.
-    castTime: 30.0
+    # Short: the work is done at the theodolite afterwards, and a hit during the bar still interrupts.
+    castTime: 3.0
+    mechanics:
+      reagents:
+        - item: chart_blank
+          amount: 1
+        - item: ink
+          amount: 1
     description: |
       Enables the player to chart unexplored land, revealing terrain that can be shared,
       traded on, or built on.
 
-      Spends one sheet of blank vellum and produces a chart of the surveyed ground.
+      Used at your own theodolite. Spends one empty paper and one ink on a needle game; a won
+      game makes the theodolite draw a chart of 1 km, 3 km (Lv3) or 5 km (Lv5) around it.
 
       `-10/lv` survey difficulty
 
@@ -2141,7 +2147,7 @@ skills:
     manaCost: 20
     castTime: 5
     description: |
-      Charts a sensed treasure cache onto a sheet of blank vellum. The map is an item that can be
+      Charts a sensed treasure cache onto a sheet of empty paper. The map is an item that can be
       traded or sold, so whoever holds it can dig the cache up.
 
       `-25m/lv` uncertainty of the marked spot, exact at max rank

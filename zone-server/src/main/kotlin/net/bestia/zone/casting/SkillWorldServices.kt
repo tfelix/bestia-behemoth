@@ -35,7 +35,6 @@ class SkillWorldServices(
   val statusEffects: StatusEffectService,
   val messages: OutMessageProcessor,
   val crafting: RecipeOffering,
-  val survey: Surveying,
   val spoor: SpoorService,
   val chunkStream: ChunkStreamInbox,
   val lootItems: LootItemEntitySpawner,

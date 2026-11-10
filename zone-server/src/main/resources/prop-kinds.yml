@@ -358,6 +358,12 @@ kinds:
     collider: { half-x: 2, half-y: 2, height: 1 }
     variants: 1
 
+  # A surveyor's tripod and its scope.
+  - kind: THEODOLITE
+    max-hp: 60
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1
+
   # What people put up - worldgen's `FixtureKind`, see `dress/DressingStage` and `voxel/FixtureProps`. One row per
   # entry, mandatory like the landmarks'. `variants` is how many styles the generator chooses between, and the
   # generator's choice arrives as the variant itself rather than a roll: a fence is dry-stone because of the ground

@@ -39,7 +39,6 @@ class RecordingSkillWorld(
   val appliedDamage = mutableListOf<Pair<EntityId, Damage>>()
   val appliedEffects = mutableListOf<AppliedEffect>()
   val recipeOffers = mutableListOf<Long>()
-  val surveys = mutableListOf<Survey>()
   val manaSpent = mutableListOf<Int>()
   val staminaSpent = mutableListOf<Int>()
   val guildEffects = mutableListOf<GuildEffect>()
@@ -343,10 +342,6 @@ class RecordingSkillWorld(
     recipeOffers += skillId
   }
 
-  override fun survey(masterId: Long, accountId: Long?, centre: Vec3L, radiusMetres: Double) {
-    surveys += Survey(masterId, accountId, centre, radiusMetres)
-  }
-
   /** What the next [readTracks] answers with. Null - clean ground - is the useful default. */
   var tracks: TrackReading? = null
 
@@ -372,7 +367,6 @@ class RecordingSkillWorld(
 
   data class GuildRestoration(val guildId: Long, val centre: Vec3L, val radiusMetres: Long, val percent: Int)
 
-  data class Survey(val masterId: Long, val accountId: Long?, val centre: Vec3L, val radiusMetres: Double)
 
   data class TrackRead(val centre: Vec3L, val radiusTiles: Long)
 }

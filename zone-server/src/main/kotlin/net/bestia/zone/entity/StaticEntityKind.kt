@@ -130,7 +130,10 @@ enum class StaticEntityKind {
   MANA_CIRCLE,
 
   // A player's storage: holds items rather than working them. See `ChestKitScript`.
-  CHEST;
+  CHEST,
+
+  // A surveyor's instrument on its tripod: Cartography is cast at it, and its chart is collected from it.
+  THEODOLITE;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.

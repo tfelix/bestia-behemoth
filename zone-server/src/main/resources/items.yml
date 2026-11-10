@@ -298,7 +298,7 @@ items:
       A chart of surveyed land, drawn by hand.
 
       Shows the ground whoever made it walked. Two charts can be joined into one, and any chart can be
-      copied onto blank vellum.
+      copied onto empty paper.
 
   - id: 22
     item-db-name: chart_blank
@@ -307,9 +307,9 @@ items:
     type: ETC
     material: PAPER
     description: |
-      Blank vellum, ruled and ready to be drawn on.
+      An empty sheet of paper, ruled and ready to be drawn on.
 
-      Surveying spends one, and so does copying a chart.
+      Every try at a survey spends one, and so does copying a chart.
 
   # --- Foraged plants -----------------------------------------------------------------------------
   # What the three ground cover kinds yield - see `prop-kinds.yml`. All ETC: a material is only ever an
@@ -1949,3 +1949,24 @@ items:
 
       Placed on the ground it becomes a Mana Circle: up to five helpers join its leader, and after half a minute
       of channeling the leader's next skill is charged. The ring is used up by the ritual.
+
+  # The surveyor's instrument and what a survey is drawn with. The kit's recipe waits for the crafting window.
+  - id: 326
+    item-db-name: theodolite_kit
+    base-level: 10
+    weight: 150
+    type: USABLE
+    material: METAL
+    script: TheodoliteKitScript
+    description: |
+      A brass sighting scope and a folding tripod.
+
+      Set up on open ground, it is where Cartography surveys the land around it.
+
+  - id: 327
+    item-db-name: ink
+    base-level: 1
+    weight: 2
+    type: ETC
+    material: GLASS
+    description: A small bottle of black ink. Every try at a survey spends one.

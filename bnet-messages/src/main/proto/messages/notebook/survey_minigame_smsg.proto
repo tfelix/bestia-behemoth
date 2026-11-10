@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SurveyMinigameSmsgProto";
+
+// The needle game of a survey at a theodolite: one round per arc. The needle swings across -90..+90 degrees as
+// 90 * sin(2 pi t / swing_period_ms); a round is won by stopping it within arc_width_degrees / 2 of its centre.
+message SurveyMinigameSMSG {
+  uint64 structure_id = 1;
+  uint32 swing_period_ms = 2;
+  uint32 arc_width_degrees = 3;
+  repeated int32 arc_centres_degrees = 4;
+}
