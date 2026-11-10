@@ -1,7 +1,7 @@
 extends VBoxContainer
 class_name DiscoveryPanel
-## The "Discover" part of the crafting window: the player drops material piles in, sees the mix as a radar chart,
-## and tries it against the blueprints of the skill the window was opened with.
+## The "Discover" page of the crafting window: the player drops material piles in, sees the mix as a radar chart,
+## and tries it against the blueprints of the skill picked in the window.
 ##
 ## The chart is worked out here from [CraftAxes], because the mix only depends on what the player put in. Whether
 ## it finds anything is the server's to say: the answer names how close the mix came, and which way it is off.
@@ -10,7 +10,7 @@ class_name DiscoveryPanel
 const _RadarChart := preload("res://Game/UI/Crafting/RadarChart/radar_chart.gd")
 
 const _OUTCOME_TEXT := {
-	"learned": "You grasp the pattern - blueprint learned! Use the skill again to see it in the list.",
+	"learned": "You grasp the pattern - blueprint learned! It is in the list now.",
 	"slipped": "A pattern resonates here but slips away... The same mix can work next time.",
 	"beyond_skill": "Something faint lies beyond your skill. Raise the skill rather than change the mix.",
 	"nothing": "These materials resonate with nothing.",
@@ -19,7 +19,7 @@ const _OUTCOME_TEXT := {
 ## Every refusal a discovery can get. The crafting window shows the sentence; this only frees the Try button.
 const _REFUSALS := ["craft_missing_materials", "craft_not_possible"]
 
-## Set by [Crafting] from the last offer: which skill's blueprints a mix is tried against.
+## Set by [Crafting]: which skill's blueprints a mix is tried against.
 var _skill_id: int = 0
 
 ## player_item_id -> {"item_id": int, "amount": int, "held": int}, in the order they were dropped in.
@@ -88,9 +88,10 @@ func _ready() -> void:
 	_refresh()
 
 
-## Called by [Crafting] with every offer, so the panel knows the skill and the known blueprints to compare with.
-func set_offer(msg: CraftableRecipesSMSG) -> void:
-	_skill_id = int(msg.SkillId)
+## Called by [Crafting] whenever the picked skill or its known blueprints change, which are what a mix is tried
+## against and compared with.
+func set_offer(skill_id: int, recipes: Array) -> void:
+	_skill_id = skill_id
 	_result.text = ""
 	_awaiting_result = false
 
@@ -98,7 +99,7 @@ func set_offer(msg: CraftableRecipesSMSG) -> void:
 	_compare.add_item("Nothing")
 	_compare.set_item_metadata(0, PackedFloat32Array())
 	var item_db := ItemDB.get_instance()
-	for recipe in msg.Recipes:
+	for recipe in recipes:
 		if recipe.Point.size() != CraftAxes.AXES.size():
 			continue
 		var output = item_db.get_item(recipe.OutputItemId) if item_db else null
