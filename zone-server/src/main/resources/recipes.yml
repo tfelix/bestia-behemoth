@@ -72,6 +72,42 @@ recipes:
     craftSeconds: 3.0
     baseSuccessChance: 0.9
 
+  # Kits: every station is put down from one. Made by hand, so a skill whose station is not standing yet still
+  # has its first craft - casting it away from a station opens Handiwork, where these are.
+  - id: 38
+    identifier: WORKBENCH_KIT
+    effect: PRODUCE
+    output: { item: workbench_kit, amount: 1 }
+    inputs:
+      - { item: log, amount: 4 }
+      - { item: stick, amount: 4 }
+    skill: { skill: M_CARPENTRY, level: 1 }
+    craftSeconds: 10.0
+    baseSuccessChance: 1.0
+
+  - id: 39
+    identifier: FURNACE_KIT
+    effect: PRODUCE
+    output: { item: furnace_kit, amount: 1 }
+    inputs:
+      - { item: loose_stone, amount: 12 }
+      - { item: log, amount: 2 }
+    skill: { skill: M_ORE_REFINEMENT, level: 1 }
+    craftSeconds: 10.0
+    baseSuccessChance: 1.0
+
+  - id: 40
+    identifier: FORGE_KIT
+    effect: PRODUCE
+    output: { item: forge_kit, amount: 1 }
+    inputs:
+      - { item: loose_stone, amount: 10 }
+      - { item: iron_ingot, amount: 2 }
+      - { item: log, amount: 2 }
+    skill: { skill: M_FORGE_WEAPON, level: 1 }
+    craftSeconds: 10.0
+    baseSuccessChance: 1.0
+
   # --- Craftsman tree, at a workbench --------------------------------------------------------------
 
   - id: 10

@@ -360,6 +360,30 @@ items:
       A bundle of planks, pegs and a folded vice, tied with cord.
 
       Set it down somewhere flat and it becomes a workbench - once somebody puts the work in.
+
+  - id: 124
+    item-db-name: furnace_kit
+    base-level: 1
+    weight: 1200
+    type: USABLE
+    material: STONE
+    script: FurnaceKitScript
+    description: |
+      A sack of fitted stones and a clay flue, packed in straw.
+
+      Set it down and it becomes a furnace - once somebody puts the work in.
+
+  - id: 125
+    item-db-name: forge_kit
+    base-level: 1
+    weight: 1500
+    type: USABLE
+    material: METAL
+    script: ForgeKitScript
+    description: |
+      An anvil horn, a bellows and a ring of hearth stones, roped together.
+
+      Set it down and it becomes a forge - once somebody puts the work in.
   # --- The economy's first commodities ------------------------------------------------------------
   # farm -> mill -> bakery -> household, which is the shortest chain that exercises every part of the
   # settlement ledger at once: several stages, a capacity that player damage can take away at the farm
