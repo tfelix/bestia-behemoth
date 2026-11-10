@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.casting.sense.ResourceSensing
 import net.bestia.zone.casting.camp.BaseCamps
 import net.bestia.zone.prop.TreePlanting
 import net.bestia.zone.battle.ecs.skill.CastCancelService
@@ -46,4 +47,5 @@ class SkillWorldServices(
   val strikes: SkillStrikes? = null,
   val planting: TreePlanting? = null,
   val camps: BaseCamps? = null,
+  val resourceSensing: ResourceSensing? = null,
 )

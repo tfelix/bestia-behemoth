@@ -483,6 +483,12 @@ class BudgetedSkillWorld(
     return services.camps?.pitch(world, casterId, skillId, at, level, durationSeconds) == true
   }
 
+  override fun senseResources(rangeMetres: Double, accuracy: Double) {
+    budget.charge(SPAWN_OPS)
+
+    services.resourceSensing?.sense(world, casterId, rangeMetres, accuracy)
+  }
+
   override fun isKnockbackImmune(entityId: EntityId): Boolean {
     budget.charge()
 

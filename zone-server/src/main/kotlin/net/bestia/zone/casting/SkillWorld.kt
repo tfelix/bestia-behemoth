@@ -171,6 +171,12 @@ interface SkillWorld {
   /** Makes the burning campfire near [at] the caster's Base Camp for [durationSeconds]; false without one. One op. */
   fun pitchCamp(at: Vec3L, level: Int, durationSeconds: Long): Boolean
 
+  /**
+   * Shows the caster the nearest ore, rare herbs, timber and game within [rangeMetres], each blurred less the higher
+   * [accuracy] (0 to 1). A scan of the land: charged as a spawn.
+   */
+  fun senseResources(rangeMetres: Double, accuracy: Double)
+
   /** Whether a blow or a blast may not push [entityId] back, see [net.bestia.zone.battle.Knockback]. One operation. */
   fun isKnockbackImmune(entityId: EntityId): Boolean
 

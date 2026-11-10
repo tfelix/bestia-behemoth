@@ -72,6 +72,9 @@ var _chart_signature: String = ""
 
 var _compass_refresh_countdown: float = 0.0
 
+## What the master's sensing skills found, until it fades.
+var _sensed := SensedMarks.new()
+
 ## How often the hidden map overlay's first screen is topped up in the background - see [method MapOverlay.warm].
 const _MAP_WARM_SECONDS := 5.0
 var _map_warm_countdown: float = 0.0
@@ -159,6 +162,7 @@ func _ready() -> void:
 	post_office.post_office_opened.connect(_on_post_office_opened)
 	post_office.post_office_closed.connect(func() -> void: _post_office_win.visible = false)
 	ConnectionManager.parcel_arrived.connect(_on_parcel_arrived)
+	ConnectionManager.sense_marks_received.connect(_on_sense_marks)
 
 	# Gold is coins in the bag, so the inventory is what knows how much the profile should show.
 	inventory.gold_changed.connect(_master_profile.show_gold)
@@ -256,6 +260,7 @@ func _update_compass_marks() -> void:
 		compass.clear_marks(&"places")
 		compass.clear_marks(&"marks")
 		compass.clear_marks(&"service")
+		compass.clear_marks(&"sensed")
 		return
 
 	var here: Vector2 = at
@@ -290,6 +295,15 @@ func _update_compass_marks() -> void:
 	compass.set_marks(&"places", place_marks)
 	compass.set_marks(&"marks", own_marks)
 	compass.set_marks(&"service", service_marks)
+	compass.set_marks(&"sensed", _sensed.compass_marks(here))
+
+
+func _on_sense_marks(message: SenseMarksSMSG) -> void:
+	_sensed.add(message)
+	var at: Variant = _minimap.player_metres()
+	if at != null:
+		_chat.system_line(SensedMarks.summary(message, at))
+	_compass_refresh_countdown = 0.0
 
 
 ## One strip entry for something at a map position.
