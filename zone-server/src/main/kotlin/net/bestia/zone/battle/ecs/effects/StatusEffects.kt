@@ -60,7 +60,15 @@ class StatusEffects(
     return when (stackBehavior) {
       StackBehavior.STACK_INDEPENDENT -> add(newInstance())
       StackBehavior.IGNORE_IF_PRESENT -> if (existing == null) add(newInstance()) else Change.UNCHANGED
-      StackBehavior.REFRESH_DURATION -> if (existing == null) add(newInstance()) else refresh(existing, durationSeconds)
+      StackBehavior.REFRESH_DURATION -> when {
+        existing == null -> add(newInstance())
+        // The newest cast decides: a buff recast at another level takes that level's numbers.
+        existing.level != level -> {
+          activeEffects.remove(existing)
+          add(newInstance())
+        }
+        else -> refresh(existing, durationSeconds)
+      }
       StackBehavior.REPLACE_IF_STRONGER -> when {
         existing == null -> add(newInstance())
         level > existing.level -> {

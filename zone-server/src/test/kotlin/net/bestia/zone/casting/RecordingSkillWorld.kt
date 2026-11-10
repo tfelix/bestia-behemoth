@@ -94,9 +94,10 @@ class RecordingSkillWorld(
     status: String,
     chancePercent: Int,
     durationSeconds: Double?,
-    level: Int
+    level: Int,
+    amount: Int,
   ): Boolean {
-    inflicted.add(Inflicted(targetEntityId, status, chancePercent, durationSeconds, level))
+    inflicted.add(Inflicted(targetEntityId, status, chancePercent, durationSeconds, level, amount))
     return true
   }
 
@@ -166,7 +167,8 @@ class RecordingSkillWorld(
     val status: String,
     val chancePercent: Int,
     val durationSeconds: Double?,
-    val level: Int
+    val level: Int,
+    val amount: Int = 0,
   )
 
   data class ForcedMove(val entityId: EntityId, val towards: Vec3L, val maxTiles: Int, val keepDistance: Int)
@@ -229,8 +231,14 @@ class RecordingSkillWorld(
     appliedDamage += targetEntityId to damage
   }
 
-  override fun applyStatusEffect(targetEntityId: EntityId, effectId: Long, level: Int, amount: Int) {
-    appliedEffects += AppliedEffect(targetEntityId, effectId, level, amount)
+  override fun applyStatusEffect(
+    targetEntityId: EntityId,
+    effectId: Long,
+    level: Int,
+    amount: Int,
+    durationSeconds: Double?,
+  ) {
+    appliedEffects += AppliedEffect(targetEntityId, effectId, level, amount, durationSeconds)
   }
 
   /** Models the real atomic claim: the first caller wins the effect and every later one is refused. */
@@ -276,7 +284,13 @@ class RecordingSkillWorld(
 
   data class SpawnedAreaEffect(val centre: Vec3L, val visualId: Long, val effect: AreaEffect)
 
-  data class AppliedEffect(val targetEntityId: EntityId, val effectId: Long, val level: Int, val amount: Int = 0)
+  data class AppliedEffect(
+    val targetEntityId: EntityId,
+    val effectId: Long,
+    val level: Int,
+    val amount: Int = 0,
+    val durationSeconds: Double? = null,
+  )
 
   data class GuildEffect(val guildId: Long, val centre: Vec3L, val radiusMetres: Long, val effectId: Long, val level: Int)
 
