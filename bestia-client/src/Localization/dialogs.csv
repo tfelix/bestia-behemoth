@@ -553,3 +553,15 @@ DIALOG_5_TEXT,"Prints you cannot place.
 Distinct trails here: {walkers}"
 DIALOG_6_TITLE,Tracks
 DIALOG_6_TEXT,"Nothing has been over this ground."
+DIALOG_7_TITLE,Treasure
+DIALOG_7_TEXT,"You sense {count} buried caches here.
+The nearest lies {distance} m to the {heading}."
+DIALOG_8_TITLE,Treasure
+DIALOG_8_TEXT,"You sense {count} buried caches here.
+The nearest lies {distance} m to the {heading}, about {depth} m deep."
+DIALOG_9_TITLE,Treasure
+DIALOG_9_TEXT,"You sense {count} buried caches here.
+The nearest lies {distance} m to the {heading}, about {depth} m deep.
+{richness}"
+DIALOG_10_TITLE,Treasure
+DIALOG_10_TEXT,"You sense nothing buried nearby."

@@ -132,6 +132,10 @@ TRACK_SUBJECT_TRAVELLER,A traveller
 TRACK_AGE_FRESH,The trail is fresh.
 TRACK_AGE_RECENT,The trail is going cold.
 TRACK_AGE_COLD,The trail is cold.
+TREASURE_TIER_POOR,It feels like a poor cache.
+TREASURE_TIER_MODEST,It feels like a modest cache.
+TREASURE_TIER_RICH,It feels like a rich cache.
+TREASURE_TIER_SPLENDID,It feels like a splendid cache.
 ERROR_CRAFT_WORLD_OUT_OF_GOLD,There is no gold left in the world to mint. Somebody has to dig some up.
 ERROR_SHOP_NONE_HERE,There is nobody here keeping a shop.
 ERROR_SHOP_NOT_STOCKED,They do not deal in that.

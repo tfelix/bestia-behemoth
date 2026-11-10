@@ -20,6 +20,8 @@ signal journey_ended(message: JourneyEndedSMSG)
 signal notebook_received(message: NotebookSMSG)
 ## One notebook entry written or deleted, here or in the companion app.
 signal notebook_changed(message: NotebookChangedSMSG)
+## Treasure Sense found caches. See TreasureShimmerLayer.
+signal treasure_shimmer_received(message: TreasureShimmerSMSG)
 ## A trap was sprung near us and the catch was rolled.
 signal bestia_capture_received(message: BestiaCaptureSMSG)
 signal chat_received(message: ChatSMSG)
@@ -1580,6 +1582,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		notebook_received.emit(message)
 	elif message is NotebookChangedSMSG:
 		notebook_changed.emit(message)
+	elif message is TreasureShimmerSMSG:
+		treasure_shimmer_received.emit(message)
 	elif message is BestiaCaptureSMSG:
 		bestia_capture_received.emit(message)
 	elif message is ChatSMSG:

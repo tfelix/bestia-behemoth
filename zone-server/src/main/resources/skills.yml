@@ -2118,6 +2118,8 @@ skills:
     identifier: M_TREASURE_SENSE
     script: TreasureSense
     targetType: FRIENDLY
+    needsLineOfSight: false
+    cooldown: 30
     manaCost: 15
     cooldown: 30
     castTime: 2
