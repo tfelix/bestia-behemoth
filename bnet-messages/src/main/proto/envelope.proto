@@ -16,6 +16,9 @@ import "messages/crafting/discovery_result_smsg.proto";
 import "messages/crafting/material_axes_smsg.proto";
 import "messages/crafting/open_crafting_cmsg.proto";
 import "messages/crafting/add_wood_cmsg.proto";
+import "messages/crafting/queue_craft_cmsg.proto";
+import "messages/crafting/cancel_queue_entry_cmsg.proto";
+import "messages/crafting/station_state_smsg.proto";
 import "messages/entity/move_entity.proto";
 import "messages/entity/journey_ended_smsg.proto";
 import "messages/notebook/notebook.proto";
@@ -293,6 +296,9 @@ message Envelope {
     MaterialAxesSMSG material_axes = 705;
     OpenCraftingCMSG open_crafting = 706;
     AddWoodCMSG add_wood = 707;
+    QueueCraftCMSG queue_craft = 708;
+    CancelQueueEntryCMSG cancel_queue_entry = 709;
+    StationStateSMSG station_state = 710;
 
     // TRADE 800
     RequestTradeCMSG request_trade = 800;

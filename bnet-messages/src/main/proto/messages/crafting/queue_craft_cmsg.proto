@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "QueueCraftCmsgProto";
+
+/**
+ * Add a craft to a station's queue. The ingredients for the whole amount move from the player's bag into the
+ * station at once. Only the owner may, from next to it. Answered with a StationStateSMSG, or an OperationError.
+ */
+message QueueCraftCMSG {
+  uint64 structure_id = 1;
+  uint64 recipe_id = 2;
+  uint32 amount = 3;
+}

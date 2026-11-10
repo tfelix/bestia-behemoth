@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "CancelQueueEntryCmsgProto";
+
+/**
+ * Take an entry off a station's queue. Its unused ingredients go back into the owner's bag, as far as they fit;
+ * the rest stays in the station.
+ */
+message CancelQueueEntryCMSG {
+  uint64 structure_id = 1;
+  // Position in StationStateSMSG.entries.
+  uint32 index = 2;
+}
