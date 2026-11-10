@@ -41,3 +41,8 @@ static func name_of(bestia: BestiaInfo) -> String:
 
 	var species := BestiaDB.get_instance().get_bestia(bestia.MobId)
 	return str(TranslationServer.translate(species.name_key)) if species != null else "?"
+
+
+## [method name_of] with the bestia's sex mark, which matters for breeding.
+static func title_of(bestia: BestiaInfo) -> String:
+	return ("%s %s" % [name_of(bestia), BreedingText.sex_mark(bestia.Sex)]).strip_edges()

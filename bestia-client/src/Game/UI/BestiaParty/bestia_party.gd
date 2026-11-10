@@ -98,7 +98,7 @@ func _rebuild() -> void:
 
 	for i in bestias.size():
 		var bestia := bestias[i]
-		var label := "%s  Lv. %d" % [OwnedSlots.name_of(bestia), bestia.Level]
+		var label := "%s  Lv. %d" % [OwnedSlots.title_of(bestia), bestia.Level]
 		_add_owned_row(bestia.EntityId, label, OwnedSlots.name_of(bestia), OwnedSlots.color_of(i + 1))
 
 	for i in maxi(entity_manager.get_bestia_slot_count() - bestias.size(), 0):

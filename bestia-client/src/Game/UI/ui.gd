@@ -17,6 +17,8 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _emotes_win: WidgetWindow = $EmotesWin
 @onready var _letters_win: WidgetWindow = $LettersWin
 @onready var _post_office_win: WidgetWindow = $PostOfficeWin
+@onready var _breeding_farm_win: WidgetWindow = $BreedingFarmWin
+@onready var _incubator_win: WidgetWindow = $IncubatorWin
 @onready var _auction_win: WidgetWindow = $AuctionWin
 @onready var _survey_win: WidgetWindow = $SurveyWin
 @onready var _stall_win: WidgetWindow = $StallWin
@@ -187,6 +189,15 @@ func _ready() -> void:
 	post_office.post_office_closed.connect(func() -> void: _post_office_win.visible = false)
 	ConnectionManager.parcel_arrived.connect(_on_parcel_arrived)
 	ConnectionManager.sense_marks_received.connect(_on_sense_marks)
+
+	# Clicking an own Breeding Farm or Incubator is what opens it. Placing an egg picks it from the bag.
+	(_breeding_farm_win.get_content() as BreedingFarmPanel).farm_opened.connect(
+		func() -> void: _breeding_farm_win.visible = true
+	)
+	var incubator := _incubator_win.get_content() as IncubatorPanel
+	incubator.inventory = inventory
+	incubator.incubator_opened.connect(func() -> void: _incubator_win.visible = true)
+	ConnectionManager.operation_success.connect(_on_breeding_success)
 
 	# Gold is coins in the bag, so the inventory is what knows how much the profile should show.
 	inventory.gold_changed.connect(_master_profile.show_gold)
@@ -626,6 +637,12 @@ func _on_master_profile_crafting_win_toggled() -> void:
 		_crafting_win.visible = false
 	elif ConnectionManager.is_ready_to_send():
 		ConnectionManager.open_crafting()
+
+
+## An egg laid or hatched happens while the owner may be anywhere, so the chat says it.
+func _on_breeding_success(message: OperationSuccess) -> void:
+	if message.CodeName in ["breeding_egg_laid", "bestia_hatched"]:
+		_chat.system_line(tr("SUCCESS_%s" % message.CodeName.to_upper()))
 
 
 ## Packing a parcel needs the bag in view, as selling at the auction house does.
