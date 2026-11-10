@@ -1,6 +1,9 @@
 package net.bestia.zone.ai.domain.bestia.action
 
+import net.bestia.zone.ai.bt.selector
 import net.bestia.zone.ai.core.behavior.BtContext
+import net.bestia.zone.ai.core.behavior.BtNode
+import net.bestia.zone.ai.core.behavior.Status
 import net.bestia.zone.ai.core.effect.Effect
 import net.bestia.zone.ai.core.effect.Effects
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
@@ -22,16 +25,31 @@ object GatherWork {
     )
   }
 
-  /**
-   * Whether [prop]'s entity is still that prop. If somebody took it or its column reloaded, the gatherer forgets
-   * it now, rather than planning for it again until it next looks around.
-   */
+  /** Whether [prop]'s entity is still that prop: nobody took it, and its column did not reload. */
   fun stillStands(context: BtContext, prop: Gatherable): Boolean {
-    if (context.world.get(prop.entityId, WorldObjectIdentity::class)?.propId == prop.propId) return true
+    return context.world.get(prop.entityId, WorldObjectIdentity::class)?.propId == prop.propId
+  }
 
-    context.memory.get(BestiaDomain.GATHERABLES)?.let { seen ->
-      context.memory.set(BestiaDomain.GATHERABLES, seen - prop, BestiaDomain.GATHERABLES.retain)
+  /**
+   * Runs [work] on [prop], and gives up on the prop when it fails: taken, out of reach or warded. Left alone for a
+   * while, one prop it cannot take does not hold up the rest of the area.
+   */
+  fun attempt(prop: Gatherable, work: BtNode): BtNode {
+    return selector {
+      +work
+      run("give up on ${prop.propId}") { context ->
+        giveUp(context, prop)
+        Status.FAILURE
+      }
     }
-    return false
+  }
+
+  private fun giveUp(context: BtContext, prop: Gatherable) {
+    val memory = context.memory
+    memory.get(BestiaDomain.GATHERABLES)?.let { seen ->
+      memory.set(BestiaDomain.GATHERABLES, seen - prop, BestiaDomain.GATHERABLES.retain)
+    }
+    val givenUp = memory.get(BestiaDomain.GIVEN_UP).orEmpty() + prop.propId
+    memory.set(BestiaDomain.GIVEN_UP, givenUp, BestiaDomain.GIVEN_UP.retain)
   }
 }

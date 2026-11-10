@@ -40,22 +40,29 @@ class CollectPropActionTemplate(
           cost = { prop.position.distance(position).toFloat() + 1f },
           // The pause is the bending down, and gives the intent the tick it needs to land before the next plan.
           behavior = {
-            sequence {
+            GatherWork.attempt(prop, sequence {
               +MoveTo(prop.position, locomotion, arrivalRadius = REACH)
               +Collect(prop)
               +Wait(COLLECT_SECONDS)
-            }
+            })
           },
         )
       }
   }
 
-  /** Raises the same intent a player's click does; quiet, as nobody asked for it. */
+  /**
+   * Raises the same intent a player's click does; quiet, as nobody asked for it. Once only: the sequence ticks it
+   * again during the pause, when the prop is already gone.
+   */
   private class Collect(private val prop: Gatherable) : BtNode {
+    private var raised = false
+
     override fun tick(context: BtContext): Status {
+      if (raised) return Status.SUCCESS
       if (!GatherWork.stillStands(context, prop)) return Status.FAILURE
 
       context.world.add(context.entityId, CollectPropIntent(prop.entityId, quiet = true))
+      raised = true
       return Status.SUCCESS
     }
 

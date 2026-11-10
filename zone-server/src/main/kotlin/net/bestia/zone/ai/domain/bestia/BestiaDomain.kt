@@ -24,12 +24,15 @@ import net.bestia.zone.ai.domain.bestia.action.ApproachTargetActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.AttackActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.CollectPropActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.EatVegetationActionTemplate
+import net.bestia.zone.ai.domain.bestia.action.FellTreeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.RetreatHomeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.UseFromBagActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.ReturnHomeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.SleepActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.WalkToVegetationActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.WanderActionTemplate
+import net.bestia.zone.aoi.EntityAOIService
+import net.bestia.zone.battle.CombatTargetPromotion
 import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.geometry.Vec3L
@@ -153,6 +156,9 @@ object BestiaDomain : AiDomainCatalogue {
 
   /** The props a gatherer last saw in its area, nearest first. See `GatherSense`. */
   val GATHERABLES = StateKey<List<Gatherable>>("gatherables")
+
+  /** Props a gatherer failed to take, by prop id. It looks past them for a while. */
+  val GIVEN_UP = StateKey<Set<Long>>("givenUpProps", retain = 300f)
 
   /** Gathered something a moment ago: [Goals.GATHER] is met by one prop, and wanted again once this lapses. */
   val GATHERED = StateKey<Boolean>("gathered", retain = 1f)
@@ -444,6 +450,8 @@ object BestiaDomain : AiDomainCatalogue {
     val attackExecution: AttackExecutionService,
     val basicAttacks: BasicAttackResolver,
     val care: BagCare,
+    val promotion: CombatTargetPromotion,
+    val aoi: EntityAOIService,
     val attacks: List<AttackDefinition> = emptyList(),
   )
 
@@ -466,6 +474,7 @@ object BestiaDomain : AiDomainCatalogue {
     "eatFromBag" to { c -> UseFromBagActionTemplate.eat(c.care) },
     "retreatHome" to { c -> RetreatHomeActionTemplate(c.locomotion) },
     "collectProp" to { c -> CollectPropActionTemplate(c.locomotion) },
+    "fellTree" to { c -> FellTreeActionTemplate(c.locomotion, c.attackExecution, c.promotion, c.aoi, c.attacks) },
   )
 
   /** Every action id a profile may name, for fail-fast validation at boot without building anything. */

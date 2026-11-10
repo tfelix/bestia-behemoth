@@ -14,6 +14,7 @@ import kotlin.math.floor
 import kotlin.random.Random
 import net.bestia.zone.battle.ecs.damage.PlayerDeathSystem
 import net.bestia.zone.battle.ecs.damage.TakenDamage
+import net.bestia.zone.item.GatheringExp
 import net.bestia.zone.identity.ecs.Account
 
 /**
@@ -39,6 +40,7 @@ class PropDeathDivergenceSystem(
   private val lootItemEntitySpawner: LootItemEntitySpawner,
   private val divergence: WorldObjectDivergenceRegistry,
   private val removal: PropRemoval,
+  private val gatheringExp: GatheringExp,
 ) : System {
   override val phase = Phase.DEATH
   override val before = setOf(PlayerDeathSystem::class)
@@ -51,11 +53,11 @@ class PropDeathDivergenceSystem(
     setOf(
       Dead::class, WorldObjectIdentity::class, StaticVisual::class, Position::class, TakenDamage::class,
       Account::class
-    )
+    ) + GatheringExp.READS
 
   // The loot entity is brand new and needs nothing declared - DeathSystem's own spawnLoot has the same shape.
   // The stump a tree leaves is a prop entity, and the world refuses its components unless they are declared.
-  override val writes: ComponentClassSet = PropRemoval.WRITES
+  override val writes: ComponentClassSet = PropRemoval.WRITES + GatheringExp.WRITES
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Dead::class, WorldObjectIdentity::class, StaticVisual::class).each { id ->
@@ -76,13 +78,17 @@ class PropDeathDivergenceSystem(
       val spec = kinds.of(visual.kind)
       val yieldShare = spec.regrowth?.yieldOf(visual.growth) ?: 1.0
       if (position != null) {
-        val killer = world.get(id, TakenDamage::class)?.topAccount(world)
+        val damage = world.get(id, TakenDamage::class)
+        val killer = damage?.topAccount(world)
+        // Whoever dealt the most is who felled it, and earns the gathering EXP if it is a bestia.
+        val feller = damage?.damagePercentages()?.maxByOrNull { it.value }?.key
         spec.loot.forEach { entry ->
           val amount = floor(entry.amount * yieldShare).toInt()
           if (amount > 0 && Random.nextInt(1, 10_001) <= entry.dropChance) {
             lootItemEntitySpawner.spawnLootItem(
               world, itemId = entry.itemId, amount = amount, pos = position, lootOwner = killer
             )
+            feller?.let { gatheringExp.award(world, it, entry.itemId, amount) }
           }
         }
       }
