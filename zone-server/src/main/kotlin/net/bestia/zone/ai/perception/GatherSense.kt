@@ -7,6 +7,7 @@ import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.entity.ecs.WorldObjectIdentity
@@ -35,8 +36,10 @@ class GatherSense(
   override fun sense(context: SenseContext) {
     val area = context.recall(BestiaDomain.GATHER_AREA) ?: return
 
+    val givenUp = context.recall(BestiaDomain.GIVEN_UP).orEmpty()
     val nearest = aoi.queryEntitiesInCube(area.center, area.radius * 2, AoiLayer.STATIC_ONLY)
       .mapNotNull { gatherableOf(context.world, it, area) }
+      .filter { it.propId !in givenUp }
       .sortedBy { it.position.distance(context.position) }
       .take(MAX_REMEMBERED)
 
@@ -58,11 +61,18 @@ class GatherSense(
   }
 
   private fun workOn(visual: StaticVisual): Gatherable.Work? {
-    return if (kinds.of(visual.kind).collect != null) Gatherable.Work.COLLECT else null
+    return when {
+      kinds.of(visual.kind).collect != null -> Gatherable.Work.COLLECT
+      visual.kind in FELLED_KINDS -> Gatherable.Work.FELL
+      else -> null
+    }
   }
 
   private companion object {
     /** Enough for the planner to pick the nearest from; the rest is seen again once these are gone. */
     const val MAX_REMEMBERED = 8
+
+    /** A blighted tree drops nothing, so it is not worth the swings. */
+    val FELLED_KINDS = setOf(StaticEntityKind.TREE)
   }
 }

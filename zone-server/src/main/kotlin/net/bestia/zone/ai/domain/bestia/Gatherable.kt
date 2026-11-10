@@ -12,5 +12,8 @@ data class Gatherable(val entityId: EntityId, val propId: Long, val position: Ve
   enum class Work {
     /** Picked up whole, as a player clicks it. */
     COLLECT,
+
+    /** Felled, and what it drops picked up. */
+    FELL,
   }
 }

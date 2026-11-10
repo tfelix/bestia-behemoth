@@ -4,6 +4,12 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.entity.ecs.Dead
+import net.bestia.zone.battle.ecs.damage.TakenDamage
+import net.bestia.zone.battle.ecs.exp.GainExp
+import net.bestia.zone.item.GatheringExp
+import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.item.stat.ItemStatCatalog
+import org.junit.jupiter.api.Assertions.assertEquals
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.StaticVisual
@@ -28,7 +34,8 @@ class PropDeathDivergenceSystemTest {
   private val loot: LootItemEntitySpawner = mockk(relaxed = true)
 
   private fun system(divergence: WorldObjectDivergenceRegistry) = PropDeathDivergenceSystem(
-    kinds, loot, divergence, PropRemoval(kinds, divergence, residency, Clock.fixed(now, ZoneOffset.UTC))
+    kinds, loot, divergence, PropRemoval(kinds, divergence, residency, Clock.fixed(now, ZoneOffset.UTC)),
+    GatheringExp(ItemStatCatalog()),
   )
 
   /**
@@ -76,6 +83,23 @@ class PropDeathDivergenceSystemTest {
     system(pristine()).update(world, 0f)
 
     verify { loot.spawnLootItem(world, itemId = LOG, amount = 4, pos = Vec3L(1, 2, 3), lootOwner = any()) }
+  }
+
+  @Test
+  fun `the bestia that felled a tree earns experience for its logs and resin`() {
+    val world = testWorld()
+    val bestia = world.createEntity { eid -> add(eid, OwnedBestia(masterId = 1L, playerBestiaId = 9L)) }
+    val helper = world.createEntity { }
+    val tree = world.deadTree(propId = 123L)
+    world.add(tree, TakenDamage().apply {
+      addDamage(bestia, 100)
+      addDamage(helper, 20)
+    })
+
+    system(pristine()).update(world, 0f)
+
+    // Four logs and two resin at item level 1: 2 * 1 + 5 each.
+    assertEquals(42, world.get(bestia, GainExp::class)?.value)
   }
 
   @Test

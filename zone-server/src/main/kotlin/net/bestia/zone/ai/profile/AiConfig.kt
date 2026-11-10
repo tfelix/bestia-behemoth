@@ -74,7 +74,7 @@ enum class BestiaJob(
   GATHER(
     setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"),
     workGoals = listOf("Gather"),
-    workActions = listOf("collectProp"),
+    workActions = listOf("collectProp", "fellTree"),
   );
 
   companion object {

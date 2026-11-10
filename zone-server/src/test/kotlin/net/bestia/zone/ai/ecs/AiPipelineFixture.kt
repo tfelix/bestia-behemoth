@@ -29,6 +29,7 @@ import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.prop.CollectPropIntentSystem
 import net.bestia.zone.prop.PropKindRegistry
+import net.bestia.zone.prop.PropPromotionService
 import net.bestia.zone.prop.PropRemoval
 import net.bestia.zone.prop.WorldObjectDivergenceRegistry
 import net.bestia.zone.prop.WorldObjectResidencyService
@@ -198,6 +199,8 @@ class AiPipelineFixture(
     attackExecution = attackExecution,
     basicAttacks = BasicAttackResolver(mockk(relaxed = true)),
     care = bagCare,
+    promotion = PropPromotionService(divergence),
+    aoi = aoi,
     random = random,
   )
 

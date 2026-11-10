@@ -1,10 +1,17 @@
 package net.bestia.zone.ai.ecs
 
+import io.mockk.every
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.battle.ecs.exp.GainExp
 import net.bestia.zone.entity.StaticEntityKind
+import net.bestia.zone.battle.attack.AttackOutcome
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.item.ecs.GroundItemStack
+import net.bestia.zone.item.ecs.LootProtection
+import net.bestia.zone.item.ecs.ObtainItemIntent
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.item.ecs.CarryCapacity
 import net.bestia.zone.item.ecs.Inventory
@@ -70,5 +77,47 @@ class GathererTest {
     ai.tick(times = 20 * 20)
 
     assertNull(ai.divergence.of(1L))
+  }
+
+  @Test
+  fun `a gatherer fells a tree and picks up what it drops`() {
+    val gatherer = bestia()
+    ai.world.add(gatherer, Account(ACCOUNT))
+    val treeAt = Vec3L(4, 0, 0)
+    val tree = ai.spawnProp(StaticEntityKind.TREE, treeAt, propId = 1L)
+    var swings = 0
+    every { ai.attackExecution.attack(any(), gatherer, tree, any()) } answers {
+      swings++
+      AttackOutcome.SWUNG
+    }
+
+    ai.tickUntil(describe = { "it swung $swings times" }) { swings >= 3 }
+    // The tree falls, as the combat and death systems would have it, and drops its logs for the feller's master.
+    ai.world.destroy(tree)
+    ai.aoi.removeEntityPosition(tree)
+    val logs = ai.world.createEntity { id ->
+      ai.world.add(id, Position.fromVec3(treeAt))
+      ai.world.add(id, GroundItemStack(itemId = 43, amount = 4))
+      ai.world.add(id, LootProtection(ACCOUNT, remainingSeconds = 6f))
+    }
+    ai.aoi.setEntityPosition(logs, treeAt)
+
+    ai.tickUntil(describe = { "it never reached for the logs" }) {
+      ai.world.get(gatherer, ObtainItemIntent.LootItemIntent::class)?.sourceEntityItemStackId == logs
+    }
+  }
+
+  @Test
+  fun `a gatherer gives up on a tree it may not fell and takes the stick instead`() {
+    val gatherer = bestia()
+    val tree = ai.spawnProp(StaticEntityKind.TREE, Vec3L(3, 0, 0), propId = 1L)
+    ai.spawnProp(StaticEntityKind.STICK, Vec3L(14, 0, 0), propId = 2L)
+    every { ai.attackExecution.attack(any(), gatherer, tree, any()) } returns AttackOutcome.REFUSED
+
+    ai.tickUntil(describe = { "it never got past the tree" }) { isTaken(2L) }
+  }
+
+  private companion object {
+    const val ACCOUNT = 77L
   }
 }

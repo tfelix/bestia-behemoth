@@ -8,10 +8,13 @@ import net.bestia.zone.ai.core.state.Drive
 import net.bestia.zone.ai.core.state.RestingWindow
 import net.bestia.zone.ai.domain.AiDomainRuntime
 import net.bestia.zone.ai.domain.bestia.action.CollectPropActionTemplate
+import net.bestia.zone.ai.domain.bestia.action.FellTreeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.GatherWork
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.AiProfile
 import net.bestia.zone.ai.profile.BestiaJob
+import net.bestia.zone.aoi.EntityAOIService
+import net.bestia.zone.battle.CombatTargetPromotion
 import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -35,6 +38,8 @@ class BestiaRuntime(
   private val attackExecution: AttackExecutionService,
   private val basicAttacks: BasicAttackResolver,
   private val care: BagCare,
+  private val promotion: CombatTargetPromotion,
+  private val aoi: EntityAOIService,
   /** Where wandering draws from. Defaulted for the server; a test passes a seed to pin a walk. */
   random: Random = Random.Default,
 ) : AiDomainRuntime {
@@ -44,9 +49,9 @@ class BestiaRuntime(
 
   override val catalogue = BestiaDomain
 
-  override val reads: ComponentClassSet = GatherWork.READS
+  override val reads: ComponentClassSet = GatherWork.READS + FellTreeActionTemplate.READS
 
-  override val writes: ComponentClassSet = CollectPropActionTemplate.WRITES
+  override val writes: ComponentClassSet = CollectPropActionTemplate.WRITES + FellTreeActionTemplate.WRITES
 
   override val drives: List<Drive> = BestiaDomain.DRIVES
 
@@ -90,7 +95,7 @@ class BestiaRuntime(
   override fun resolver(profile: AiProfile): ActionResolver {
     return BestiaDomain.resolver(
       profile.actionIds,
-      BestiaDomain.Collaborators(locomotion, skills, attackExecution, basicAttacks, care, profile.attacks)
+      BestiaDomain.Collaborators(locomotion, skills, attackExecution, basicAttacks, care, promotion, aoi, profile.attacks)
     )
   }
 
