@@ -25,6 +25,7 @@ import net.bestia.zone.ai.domain.bestia.action.AttackActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.CollectPropActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.EatVegetationActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.FellTreeActionTemplate
+import net.bestia.zone.ai.domain.bestia.action.HaulToChestActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.RetreatHomeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.UseFromBagActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.ReturnHomeActionTemplate
@@ -37,6 +38,7 @@ import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.care.BagCare
+import net.bestia.zone.item.container.ItemHandover
 
 /**
  * The concrete GOAP domain for bestia mobs: state keys, the goal catalogue, and the catalogue of
@@ -162,6 +164,15 @@ object BestiaDomain : AiDomainCatalogue {
 
   /** Gathered something a moment ago: [Goals.GATHER] is met by one prop, and wanted again once this lapses. */
   val GATHERED = StateKey<Boolean>("gathered", retain = 1f)
+
+  /** The chest a gatherer fills; absent when its master has none near the area. See `JobChestSense`. */
+  val JOB_CHEST = StateKey<JobChest>("jobChest", observed = true)
+
+  /** Whether the job chest has a free slot, or takes some of what the bag holds. */
+  val CHEST_HAS_ROOM = StateKey<Boolean>("chestHasRoom", observed = true)
+
+  /** Whether the bag holds goods for the job chest that still fit in it. */
+  val GOODS_TO_HAUL = StateKey<Boolean>("goodsToHaul", observed = true)
 
   /** Where a bestia under GATHER orders works; absent under any other job. */
   val GATHER_AREA = StateKey<GatherArea>("gatherArea", retain = Blackboard.PERMANENT)
@@ -425,15 +436,29 @@ object BestiaDomain : AiDomainCatalogue {
     val GATHER = Goal(
       name = "Gather",
       priority = priority(base = 60f),
+      // Without room in its chest a gatherer stops, rather than gather what it could never put away.
       availability = Precondition { s ->
-        !s.get(GATHERABLES).isNullOrEmpty() && bagLoadOf(s) < HAUL_AT_LOAD_PCT
+        !s.get(GATHERABLES).isNullOrEmpty() && bagLoadOf(s) < HAUL_AT_LOAD_PCT && s.get(CHEST_HAS_ROOM) == true
       },
       desiredState = listOf(Preconditions.equalTo(GATHERED, true)),
     )
 
+    /**
+     * A gatherer carrying its finds to its chest, once its bag is nearly full or the area is picked clean. Over
+     * [RETURN_HOME], so a chest outside the area is reached rather than turned back from.
+     */
+    val HAUL_TO_CHEST = Goal(
+      name = "HaulToChest",
+      priority = priority(base = 75f),
+      availability = Precondition { s ->
+        s.get(GOODS_TO_HAUL) == true && (bagLoadOf(s) >= HAUL_AT_LOAD_PCT || s.get(GATHERABLES).isNullOrEmpty())
+      },
+      desiredState = listOf(Preconditions.equalTo(GOODS_TO_HAUL, false)),
+    )
+
     val ALL = listOf(
       EAT_VEGETATION, SLEEP, RETURN_HOME, KILL_ATTACKER, KILL_ENEMY, WANDER, HEAL_FROM_BAG, EAT_FROM_BAG, RETREAT,
-      GATHER,
+      GATHER, HAUL_TO_CHEST,
     )
 
     val BY_NAME = ALL.associateBy { it.name }
@@ -452,6 +477,7 @@ object BestiaDomain : AiDomainCatalogue {
     val care: BagCare,
     val promotion: CombatTargetPromotion,
     val aoi: EntityAOIService,
+    val handover: ItemHandover,
     val attacks: List<AttackDefinition> = emptyList(),
   )
 
@@ -475,6 +501,7 @@ object BestiaDomain : AiDomainCatalogue {
     "retreatHome" to { c -> RetreatHomeActionTemplate(c.locomotion) },
     "collectProp" to { c -> CollectPropActionTemplate(c.locomotion) },
     "fellTree" to { c -> FellTreeActionTemplate(c.locomotion, c.attackExecution, c.promotion, c.aoi, c.attacks) },
+    "haulToChest" to { c -> HaulToChestActionTemplate(c.locomotion, c.care, c.handover, c.aoi) },
   )
 
   /** Every action id a profile may name, for fail-fast validation at boot without building anything. */

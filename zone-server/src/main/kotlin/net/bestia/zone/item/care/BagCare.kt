@@ -36,6 +36,13 @@ class BagCare(
 
   fun hasFor(inventory: Inventory, need: Need): Boolean = bestFor(inventory, need) != null
 
+  /** What a working bestia carries for its master: everything but what it wears and its own care items. */
+  fun spareGoods(inventory: Inventory): List<Inventory.Item> {
+    return inventory.getItems().filter { held ->
+      !held.equipped && careScriptOf(held.itemId) == null && !templates.isBound(held.itemId)
+    }
+  }
+
   /** Uses the carried item that restores the most of [need]. False when there is none, or it changed nothing. */
   fun use(world: World, entityId: EntityId, need: Need): Boolean {
     val inventory = world.get(entityId, Inventory::class) ?: return false

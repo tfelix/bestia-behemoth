@@ -29,6 +29,7 @@ object TestBagCare {
 
   fun create(): BagCare {
     val templates = mockk<ItemTemplateRegistry>().also { registry ->
+      every { registry.isBound(any()) } returns false
       every { registry.templateOf(any()) } answers {
         val id = firstArg<Long>()
         MATERIALS[id]?.let { material ->

@@ -18,6 +18,17 @@ import net.bestia.zone.townsfolk.ecs.TownsfolkIdentity
 import net.bestia.zone.ai.perception.BagSense
 import net.bestia.zone.ai.perception.ForageSense
 import net.bestia.zone.ai.perception.GatherSense
+import net.bestia.zone.ai.perception.JobChestSense
+import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.container.ItemHandover
+import net.bestia.zone.item.container.ReservedItem
+import net.bestia.zone.item.ecs.ChestStorage
+import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.persistence.AsyncJobExecutor
+import net.bestia.zone.prop.PlayerStructureRegistry
+import net.bestia.zone.prop.StructureEntry
+import net.bestia.zone.prop.chest.ChestStorages
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.item.GatheringExp
 import net.bestia.zone.ecs.core.World
@@ -189,6 +200,52 @@ class AiPipelineFixture(
     }
   }
 
+  /** The players' structures, and what each chest holds. Empty, so a gatherer has no chest until a test builds one. */
+  val structures = mutableListOf<StructureEntry>()
+  val chestContents = mutableMapOf<Long, Inventory>()
+  private val structureRegistry: PlayerStructureRegistry = mockk<PlayerStructureRegistry>().also {
+    every { it.all() } answers { structures }
+  }
+  private val chests: ChestStorages = mockk<ChestStorages>().also {
+    every { it.contentsOf(any()) } answers { chestContents.getOrPut(firstArg()) { Inventory(mutableListOf()) } }
+  }
+
+  /** Database moves the test runs between ticks, as the job executor would off the tick thread. */
+  private val pendingJobs = ArrayDeque<() -> Unit>()
+  private val jobs: AsyncJobExecutor = mockk<AsyncJobExecutor>().also {
+    every { it.trySubmit(any(), any()) } answers { pendingJobs.add(secondArg()) }
+  }
+
+  /** The world, for the handover, which is built before the world is. */
+  private val worldView = object : WorldView {
+    override fun <T> read(block: World.() -> T): T {
+      return world.read(block)
+    }
+
+    override fun <T> modify(id: EntityId, block: World.(EntityId) -> T): T? {
+      return world.modify(id, block)
+    }
+
+    override fun createEntity(configure: World.(EntityId) -> Unit): EntityId {
+      return world.createEntity(configure)
+    }
+
+    override fun createEntity(id: EntityId, configure: World.(EntityId) -> Unit): EntityId {
+      return world.createEntity(id, configure)
+    }
+
+    override fun post(task: World.() -> Unit) {
+      world.post(task)
+    }
+  }
+
+  /** Hands over whatever the giver names, as the database would. */
+  val inventoryService: InventoryService = mockk<InventoryService>().also {
+    every { it.transferBetweenOwners(any(), any(), any(), any(), any(), any(), any()) } answers {
+      ReservedItem.stack(itemId = arg(3), amount = arg(5), weight = 1)
+    }
+  }
+
   /** Food, a bandage and a potion with their real scripts; see [TestBagCare]. */
   val bagCare = TestBagCare.create()
 
@@ -201,6 +258,7 @@ class AiPipelineFixture(
     care = bagCare,
     promotion = PropPromotionService(divergence),
     aoi = aoi,
+    handover = ItemHandover(inventoryService, jobs, worldView),
     random = random,
   )
 
@@ -238,6 +296,7 @@ class AiPipelineFixture(
         ForageSense { grazeableGround },
         BagSense(bagCare),
         GatherSense(aoi, propKinds, divergence),
+        JobChestSense(structureRegistry, chests, bagCare),
         ShelterSense(aoi) { at, reach -> doorsteps.filter { it.distance(at) <= reach } },
         SettlementSense(
           food = { mealStall },
@@ -380,6 +439,21 @@ class AiPipelineFixture(
     return id
   }
 
+  /** A finished chest of [masterId]'s at [pos], with its prop standing. */
+  fun spawnChest(pos: Vec3L, structureId: Long, masterId: Long = 1L): EntityId {
+    structures.add(StructureEntry(structureId, StaticEntityKind.CHEST, masterId, ownerAccountId = null, pos, yaw = 0f))
+    val contents = chests.contentsOf(structureId)
+
+    val id = world.createEntity { eid ->
+      world.add(eid, PropPose(pos, yaw = 0f))
+      world.add(eid, StaticVisual(StaticEntityKind.CHEST, variant = 0, heightDm = 8))
+      world.add(eid, ChestStorage(structureId, masterId, ownerAccountId = null))
+      world.add(eid, contents)
+    }
+    aoi.setEntityPosition(id, pos, AoiLayer.STATIC)
+    return id
+  }
+
   /** Puts an entity somewhere else with the AOI tree kept in step, which is what a walk does for real. */
   fun teleport(id: EntityId, to: Vec3L) {
     world.getOrThrow(id, Position::class).apply {
@@ -421,7 +495,12 @@ class AiPipelineFixture(
   }
 
   fun tick(times: Int = 1, dt: Float = 1f / 20) {
-    repeat(times) { world.tick(dt) }
+    repeat(times) { tickOnce(dt) }
+  }
+
+  private fun tickOnce(dt: Float) {
+    world.tick(dt)
+    while (pendingJobs.isNotEmpty()) pendingJobs.removeFirst().invoke()
   }
 
   /**
@@ -441,7 +520,7 @@ class AiPipelineFixture(
   ) {
     repeat(maxTicks) {
       if (condition()) return
-      world.tick(dt)
+      tickOnce(dt)
     }
     if (!condition()) throw AssertionError("${describe()} within $maxTicks ticks")
   }
