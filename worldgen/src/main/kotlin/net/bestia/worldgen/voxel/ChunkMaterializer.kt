@@ -1002,7 +1002,8 @@ class ChunkMaterializer(
     // 11: fixtures - piers, boats, fences, crops, haystacks, scarecrows, windmills, wells, signposts, milestones,
     // lanterns, cairns, headstones, outcrops, inn houses (`FixtureProps`) - so chunks emit props they did not.
     // 12: resin lies under the conifers (`LootScatter`), so forest chunks emit props they did not.
-    const val VERSION = 12
+    // 13: a herb carries its `HerbKind` on its sub-kind, so herbs in forests, mana, cold, desert and blight change.
+    const val VERSION = 13
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

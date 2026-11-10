@@ -4,6 +4,7 @@ import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.poi.PoiKind
+import net.bestia.worldgen.voxel.HerbKind
 import net.bestia.worldgen.voxel.PropKind
 import net.bestia.worldgen.voxel.PropFlags
 import net.bestia.worldgen.dress.FixtureKind
@@ -55,6 +56,7 @@ class GeneratedPropSource(
           BuildingFunction.entries[it] != BuildingFunction.FORTIFICATION
         }
         PropKind.FIXTURE -> FixtureKind.entries.indices
+        PropKind.HERB -> HerbKind.entries.indices
         else -> 0..0
       }
       for (subKind in subKinds) {

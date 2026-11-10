@@ -607,7 +607,39 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.78f, 0.62f, 0.30f), StructureHeight = 1.5f,
         Action = PropAction.Use
-      } // THEODOLITE
+      }, // THEODOLITE
+
+      // The rare herbs, boxes like the wild herb until they have models. Each has its own colour, because the point
+      // of a rare herb is to be told apart from a wild one at a glance.
+      new Kind
+      {
+        PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.20f, 0.55f, 0.30f), Collectible = true,
+        Action = PropAction.Collect
+      }, // MEDICINAL_HERB
+
+      new Kind
+      {
+        PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.35f, 0.45f, 0.95f), Collectible = true,
+        Action = PropAction.Collect
+      }, // MANA_HERB
+
+      new Kind
+      {
+        PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.70f, 0.88f, 0.95f), Collectible = true,
+        Action = PropAction.Collect
+      }, // FROST_HERB
+
+      new Kind
+      {
+        PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.95f, 0.75f, 0.20f), Collectible = true,
+        Action = PropAction.Collect
+      }, // SUN_HERB
+
+      new Kind
+      {
+        PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.85f, 0.85f, 0.90f), Collectible = true,
+        Action = PropAction.Collect
+      } // GHOST_HERB
     };
 
     /// <summary>

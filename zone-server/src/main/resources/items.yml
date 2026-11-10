@@ -1970,3 +1970,44 @@ items:
     type: ETC
     material: GLASS
     description: A small bottle of black ink. Every try at a survey spends one.
+
+  # The rare herbs, one per special land; see `HerbKind`. The base level is what Herbalism has to reach.
+  - id: 328
+    item-db-name: medicinal_herb
+    base-level: 20
+    weight: 5
+    type: ETC
+    material: PLANT
+    description: A healing herb of the forest floor. A base ingredient for many potions.
+
+  - id: 329
+    item-db-name: mana_herb
+    base-level: 40
+    weight: 5
+    type: ETC
+    material: PLANT
+    description: A mana-touched herb that only grows where the mana runs strong.
+
+  - id: 330
+    item-db-name: frost_herb
+    base-level: 60
+    weight: 5
+    type: ETC
+    material: PLANT
+    description: A tough little herb of the tundra, the taiga and the high mountains.
+
+  - id: 331
+    item-db-name: sun_herb
+    base-level: 80
+    weight: 5
+    type: ETC
+    material: PLANT
+    description: A sun-dried herb of the desert and the badlands.
+
+  - id: 332
+    item-db-name: ghost_herb
+    base-level: 100
+    weight: 5
+    type: ETC
+    material: PLANT
+    description: A pale herb that only grows on blighted ground.

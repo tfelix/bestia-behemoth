@@ -3,6 +3,7 @@ package net.bestia.zone.entity
 import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.dress.FixtureKind
 import net.bestia.worldgen.poi.PoiKind
+import net.bestia.worldgen.voxel.HerbKind
 import net.bestia.worldgen.voxel.PropKind
 
 /**
@@ -133,7 +134,15 @@ enum class StaticEntityKind {
   CHEST,
 
   // A surveyor's instrument on its tripod: Cartography is cast at it, and its chart is collected from it.
-  THEODOLITE;
+  THEODOLITE,
+
+  // The rare herbs: worldgen's HERB with a `HerbKind` other than WILD on its sub-kind. A wild herb stays HERB (or
+  // BLIGHTED_HERB); a ghost herb already grows only on blighted ground, so none of these has a blighted twin.
+  MEDICINAL_HERB,
+  MANA_HERB,
+  FROST_HERB,
+  SUN_HERB,
+  GHOST_HERB;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.
@@ -187,7 +196,14 @@ enum class StaticEntityKind {
       // dispatch on a *different* enum's ordinal - which a `when` cannot see, so they need a name join checked
       // at class load. `PropKind` is this `when`'s own subject, so a kind appended in worldgen without an arm
       // here is a compile error, which is the stronger guard.
-      PropKind.HERB -> if (blighted) BLIGHTED_HERB else HERB
+      PropKind.HERB -> when (HerbKind.entries[subKind]) {
+        HerbKind.WILD -> if (blighted) BLIGHTED_HERB else HERB
+        HerbKind.MEDICINAL -> MEDICINAL_HERB
+        HerbKind.MANA -> MANA_HERB
+        HerbKind.FROST -> FROST_HERB
+        HerbKind.SUN -> SUN_HERB
+        HerbKind.GHOST -> GHOST_HERB
+      }
       PropKind.SHRUB -> if (blighted) BLIGHTED_SHRUB else SHRUB
       PropKind.REED -> if (blighted) BLIGHTED_REED else REED
       PropKind.BOULDER -> BOULDER
