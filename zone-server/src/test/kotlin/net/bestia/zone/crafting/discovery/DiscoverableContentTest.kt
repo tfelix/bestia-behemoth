@@ -23,6 +23,6 @@ class DiscoverableContentTest {
     val discoverable = recipes.all().flatMap { blueprints.discoverable(it.requiredSkillId) }
       .map { it.recipe.identifier }.toSet()
 
-    assertEquals(setOf("WEAPON_BLUEPRINT", "ARMOR_BLUEPRINT", "WAR_BANNER"), discoverable)
+    assertEquals(setOf("WEAPON_BLUEPRINT", "ARMOR_BLUEPRINT", "WAR_BANNER", "BAMBOO_ROD", "ASH_ROD", "STEEL_ROD"), discoverable)
   }
 }

@@ -18,6 +18,7 @@ blueprints:
   - STONE_KNIFE
   - STONE_HATCHET
   - TORCH
+  - WILLOW_ROD
   # A station's kit, so nobody has to discover how to build the place they discover everything else at.
   - WORKBENCH_KIT
   - FURNACE_KIT

@@ -406,3 +406,56 @@ recipes:
     skill: { skill: M_GEM_CUTTING, level: 5 }
     craftSeconds: 50.0
     baseSuccessChance: 0.4
+
+  # --- Fishing rods --------------------------------------------------------------------------------
+  # A rod's max catch level is in `fishing.yml`. The willow rod is made from what lies on the ground, like the
+  # stone tools, so a master's first rod never waits on a shop. The better rods are discovered.
+
+  - id: 60
+    identifier: WILLOW_ROD
+    effect: PRODUCE
+    output: { item: willow_rod, amount: 1 }
+    inputs:
+      - { item: stick, amount: 2 }
+      - { item: resin, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    craftSeconds: 4.0
+    baseSuccessChance: 0.8
+
+  - id: 61
+    identifier: BAMBOO_ROD
+    effect: PRODUCE
+    output: { item: bamboo_rod, amount: 1 }
+    inputs:
+      - { item: plank, amount: 2 }
+      - { item: cloth, amount: 1 }
+    skill: { skill: M_CARPENTRY, level: 2 }
+    station: WORKBENCH
+    craftSeconds: 10.0
+    baseSuccessChance: 0.6
+
+  - id: 62
+    identifier: ASH_ROD
+    effect: PRODUCE
+    output: { item: ash_rod, amount: 1 }
+    inputs:
+      - { item: plank, amount: 3 }
+      - { item: cloth, amount: 1 }
+      - { item: iron_ingot, amount: 1 }
+    skill: { skill: M_CARPENTRY, level: 4 }
+    station: WORKBENCH
+    craftSeconds: 14.0
+    baseSuccessChance: 0.5
+
+  - id: 63
+    identifier: STEEL_ROD
+    effect: PRODUCE
+    output: { item: steel_rod, amount: 1 }
+    inputs:
+      - { item: iron_ingot, amount: 3 }
+      - { item: plank, amount: 1 }
+      - { item: cloth, amount: 1 }
+    skill: { skill: M_FORGE_WEAPON, level: 4 }
+    station: FORGE
+    craftSeconds: 20.0
+    baseSuccessChance: 0.45

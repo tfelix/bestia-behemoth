@@ -2035,3 +2035,169 @@ items:
     type: ETC
     material: PLANT
     description: A pale herb that only grows on blighted ground.
+
+  # ---------------------------------------------------------------------------------------------------------------
+  # Fishing: the rods and the catch table in `fishing.yml`. A rod's max catch level lives there too.
+  # ---------------------------------------------------------------------------------------------------------------
+
+  - id: 420
+    item-db-name: willow_rod
+    base-level: 1
+    weight: 60
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: TOOL
+    max-durability: 60
+    description: |
+      A bent willow switch with a line of twisted bark.
+
+      Good for perch and the odd boot.
+
+  - id: 421
+    item-db-name: bamboo_rod
+    base-level: 20
+    weight: 80
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: TOOL
+    max-durability: 120
+    description: |
+      A light, springy rod of jointed cane.
+
+  - id: 422
+    item-db-name: ash_rod
+    base-level: 40
+    weight: 110
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: TOOL
+    max-durability: 180
+    description: |
+      A tapered ash rod with iron guides. It bends a long way before it breaks.
+
+  - id: 423
+    item-db-name: steel_rod
+    base-level: 60
+    weight: 160
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: TOOL
+    max-durability: 260
+    description: |
+      A thin steel rod with a geared reel. Made for things that pull back.
+
+  - id: 424
+    item-db-name: perch
+    base-level: 8
+    weight: 20
+    type: ETC
+    material: FOOD
+    description: A striped little fish with a spiny back. Every pond seems to have one more.
+
+  - id: 425
+    item-db-name: bream
+    base-level: 15
+    weight: 40
+    type: ETC
+    material: FOOD
+    description: A flat, bronze fish that feeds along the bottom. Bony, but filling.
+
+  - id: 426
+    item-db-name: pike
+    base-level: 24
+    weight: 150
+    type: ETC
+    material: FOOD
+    description: A long green hunter with a mouth full of teeth. Mind your fingers when you take the hook out.
+
+  - id: 427
+    item-db-name: eel
+    base-level: 32
+    weight: 80
+    type: ETC
+    material: FOOD
+    description: A slick, snake-like fish that keeps wriggling long after it should have stopped.
+
+  - id: 428
+    item-db-name: salmon
+    base-level: 42
+    weight: 200
+    type: ETC
+    material: FOOD
+    description: A strong silver fish with pink flesh. Cooks pay well for a fresh one.
+
+  - id: 429
+    item-db-name: sturgeon
+    base-level: 55
+    weight: 600
+    type: ETC
+    material: FOOD
+    description: An old, armoured fish from the deep channels. Some say they live a hundred years.
+
+  - id: 430
+    item-db-name: swordfish
+    base-level: 68
+    weight: 1200
+    type: ETC
+    material: FOOD
+    description: A fast fish with a long, flat bill. It fights the line like a duelist.
+
+  - id: 431
+    item-db-name: moonscale
+    base-level: 82
+    weight: 300
+    type: ETC
+    material: FOOD
+    description: Its pale scales glow faintly at night. Alchemists grind them for their brews.
+
+  - id: 432
+    item-db-name: deepmaw
+    base-level: 98
+    weight: 900
+    type: ETC
+    material: FOOD
+    description: A dark fish that is mostly mouth. It rarely leaves the cold water at the bottom.
+
+  - id: 433
+    item-db-name: abyssal_lanternfish
+    base-level: 115
+    weight: 400
+    type: ETC
+    material: FOOD
+    description: A fish with a little light hanging over its head. Nobody knows how deep it lives.
+
+  - id: 434
+    item-db-name: old_boot
+    base-level: 1
+    weight: 60
+    type: ETC
+    material: CLOTH
+    description: Soaked, rotten and missing its partner. Every angler catches one sooner or later.
+
+  - id: 435
+    item-db-name: driftwood
+    base-level: 3
+    weight: 50
+    type: ETC
+    material: WOOD
+    description: A grey piece of wood, washed smooth by the water. It burns well once it dries.
+
+  - id: 436
+    item-db-name: tangled_net
+    base-level: 6
+    weight: 70
+    type: ETC
+    material: CLOTH
+    description: Somebody else's net, knotted beyond use. The cord can still be picked apart.
+
+  - id: 437
+    item-db-name: sealed_bottle
+    base-level: 18
+    weight: 30
+    type: ETC
+    material: GLASS
+    description: A bottle with a wax seal and a rolled paper inside. Collectors pay well for one unopened.
