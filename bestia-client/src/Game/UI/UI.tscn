@@ -239,4 +239,5 @@ oversampling_override = 1.0
 [connection signal="guild_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_guild_win_toggled"]
 [connection signal="compendium_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_compendium_win_toggled"]
 [connection signal="letters_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_letters_win_toggled"]
+[connection signal="crafting_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_crafting_win_toggled"]
 [connection signal="emotes_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_emotes_win_toggled"]

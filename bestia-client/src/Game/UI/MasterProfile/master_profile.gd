@@ -57,6 +57,7 @@ signal guild_win_toggled
 signal compendium_win_toggled
 signal emotes_win_toggled
 signal letters_win_toggled
+signal crafting_win_toggled
 
 func _ready() -> void:
 	add_to_group("world_blocking_ui")
@@ -305,6 +306,8 @@ func _process(_delta: float) -> void:
 		emotes_win_toggled.emit()
 	if Input.is_action_just_pressed("toggle_letters"):
 		letters_win_toggled.emit()
+	if Input.is_action_just_pressed("toggle_crafting"):
+		crafting_win_toggled.emit()
 
 
 ## The guild window has nothing to show outside a guild, so its button is only offered inside one.
