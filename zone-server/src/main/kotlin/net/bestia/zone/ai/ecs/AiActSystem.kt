@@ -1,6 +1,7 @@
 package net.bestia.zone.ai.ecs
 
 import net.bestia.zone.item.ammo.QuiverAmmoSupply
+import net.bestia.zone.item.care.BagCare
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.core.action.Action
 import net.bestia.zone.ai.core.action.Posture
@@ -83,7 +84,7 @@ class AiActSystem(
     Health::class,
     Mana::class,
     Animation::class,
-  ) + AttackExecutionService.WRITES + QuiverAmmoSupply.WRITES + JourneyService.WRITES
+  ) + AttackExecutionService.WRITES + QuiverAmmoSupply.WRITES + JourneyService.WRITES + BagCare.WRITES
 
   override fun update(world: World, deltaTime: Float) {
     val worldBoard = sharedMemory.worldBoard()

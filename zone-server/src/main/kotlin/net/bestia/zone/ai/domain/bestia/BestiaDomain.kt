@@ -23,6 +23,7 @@ import net.bestia.zone.ai.domain.AiDomainCatalogue
 import net.bestia.zone.ai.domain.bestia.action.ApproachTargetActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.AttackActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.EatVegetationActionTemplate
+import net.bestia.zone.ai.domain.bestia.action.UseFromBagActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.ReturnHomeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.SleepActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.WalkToVegetationActionTemplate
@@ -30,6 +31,7 @@ import net.bestia.zone.ai.domain.bestia.action.WanderActionTemplate
 import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.care.BagCare
 
 /**
  * The concrete GOAP domain for bestia mobs: state keys, the goal catalogue, and the catalogue of
@@ -87,6 +89,10 @@ object BestiaDomain : AiDomainCatalogue {
    */
   const val RESTED_TIREDNESS = 20
 
+  /** Care lines an owned bestia looks after itself at, until its orders can change them. */
+  const val DEFAULT_EAT_BELOW_STAMINA_PCT = 40
+  const val DEFAULT_HEAL_BELOW_HEALTH_PCT = 50
+
   // ------------------------------------------------------------ shared with every domain
 
   // Re-exported rather than redeclared. Keys are equal by name, so these already addressed the same slots
@@ -120,6 +126,17 @@ object BestiaDomain : AiDomainCatalogue {
 
   /** 0..100 temperament knob; scales how strongly the kill goals are wanted. */
   val AGGRESSION = StateKey<Int>("aggression", retain = Blackboard.PERMANENT)
+
+  /** Stamina left, 0..100. Only an owned bestia acts on it. */
+  val STAMINA_PCT = StateKey<Int>("staminaPct", observed = true, retain = Blackboard.PERMANENT)
+
+  /** Whether its own bag holds something it may eat for stamina, or put on for health. See [BagCare]. */
+  val FOOD_IN_BAG = StateKey<Boolean>("foodInBag", observed = true)
+  val HEAL_IN_BAG = StateKey<Boolean>("healInBag", observed = true)
+
+  /** An owned bestia's care lines, from its orders. Wild mobs have none. */
+  val EAT_BELOW_STAMINA_PCT = StateKey<Int>("eatBelowStaminaPct", retain = Blackboard.PERMANENT)
+  val HEAL_BELOW_HEALTH_PCT = StateKey<Int>("healBelowHealthPct", retain = Blackboard.PERMANENT)
 
   /** When this species sleeps, against the world's day/night cycle. See [isRestingPhase]. */
   val ACTIVITY_CYCLE = StateKey<ActivityCycle>("activityCycle", retain = Blackboard.PERMANENT)
@@ -202,6 +219,10 @@ object BestiaDomain : AiDomainCatalogue {
   private fun healthPctOf(state: WorldState): Int = state.get(HEALTH_PCT) ?: 100
 
   private fun enemyInSight(state: WorldState): Boolean = state.get(ENEMY_IN_SIGHT) == true
+
+  private fun eatLineOf(state: WorldState): Int = state.get(EAT_BELOW_STAMINA_PCT) ?: DEFAULT_EAT_BELOW_STAMINA_PCT
+
+  private fun healLineOf(state: WorldState): Int = state.get(HEAL_BELOW_HEALTH_PCT) ?: DEFAULT_HEAL_BELOW_HEALTH_PCT
 
   /**
    * How badly sleeping is wanted purely because of the hour, independent of how tired the creature is.
@@ -320,7 +341,30 @@ object BestiaDomain : AiDomainCatalogue {
       desiredState = listOf(Preconditions.atMost(RESTLESSNESS, 20)),
     )
 
-    val ALL = listOf(EAT_VEGETATION, SLEEP, RETURN_HOME, KILL_ATTACKER, KILL_ENEMY, WANDER)
+    /**
+     * An owned bestia putting on a bandage or eating something healing from its own bag. Above
+     * [KILL_ATTACKER] so it does so mid-fight, which is when it matters.
+     */
+    val HEAL_FROM_BAG = Goal(
+      name = "HealFromBag",
+      priority = priority(base = 96f),
+      availability = Precondition { s -> healthPctOf(s) < healLineOf(s) && s.get(HEAL_IN_BAG) == true },
+      desiredState = listOf(Precondition { s -> healthPctOf(s) >= healLineOf(s) }),
+    )
+
+    /** An owned bestia eating from its own bag once its stamina runs low. Not mid-fight: food can wait. */
+    val EAT_FROM_BAG = Goal(
+      name = "EatFromBag",
+      priority = priority(base = 88f),
+      availability = Precondition { s ->
+        (s.get(STAMINA_PCT) ?: 100) < eatLineOf(s) && s.get(FOOD_IN_BAG) == true
+      },
+      desiredState = listOf(Precondition { s -> (s.get(STAMINA_PCT) ?: 100) >= eatLineOf(s) }),
+    )
+
+    val ALL = listOf(
+      EAT_VEGETATION, SLEEP, RETURN_HOME, KILL_ATTACKER, KILL_ENEMY, WANDER, HEAL_FROM_BAG, EAT_FROM_BAG,
+    )
 
     val BY_NAME = ALL.associateBy { it.name }
   }
@@ -335,6 +379,7 @@ object BestiaDomain : AiDomainCatalogue {
     val skills: SkillExecutionService,
     val attackExecution: AttackExecutionService,
     val basicAttacks: BasicAttackResolver,
+    val care: BagCare,
     val attacks: List<AttackDefinition> = emptyList(),
   )
 
@@ -353,6 +398,8 @@ object BestiaDomain : AiDomainCatalogue {
     "sleep" to { _ -> SleepActionTemplate() },
     "approachTarget" to { c -> ApproachTargetActionTemplate(c.locomotion) },
     "attack" to { c -> AttackActionTemplate(c.attacks, c.skills, c.attackExecution, c.basicAttacks) },
+    "healFromBag" to { c -> UseFromBagActionTemplate.heal(c.care) },
+    "eatFromBag" to { c -> UseFromBagActionTemplate.eat(c.care) },
   )
 
   /** Every action id a profile may name, for fail-fast validation at boot without building anything. */

@@ -28,7 +28,19 @@ data class AiConfig(
 
   @Enumerated(EnumType.STRING)
   val courage: Courage = Courage.STEADY,
-)
+) {
+
+  companion object {
+    /**
+     * Goals every owned bestia gets on top of its job, whatever its species: looking after itself. They are the
+     * one place orders widen the archetype, and they add no way to hurt anybody.
+     */
+    val SELF_CARE_GOALS = listOf("HealFromBag", "EatFromBag")
+
+    /** The actions that carry [SELF_CARE_GOALS]. */
+    val SELF_CARE_ACTIONS = listOf("healFromBag", "eatFromBag")
+  }
+}
 
 /**
  * What a bestia works at while its owner is away.

@@ -42,7 +42,8 @@ class AiAgentFactory(
     config: AiConfig? = null,
     memory: Blackboard = Blackboard(),
   ): AiAgent {
-    val profile = archetype.armedWith(defaultAttack, aspd)
+    val armed = archetype.armedWith(defaultAttack, aspd)
+    val profile = if (config == null) armed else armed.underOrders(config)
 
     // `AiProfileRegistry` already refused any profile naming a domain that does not exist, so reaching this
     // means the runtime bean for a known domain is missing from the context rather than that a file is wrong.
@@ -55,9 +56,6 @@ class AiAgentFactory(
     runtime.attach(memory, profile, homePosition, config)
 
     val goals = profile.goals
-      // A job narrows the archetype's goals, never widens them: it can switch off foraging, but it cannot
-      // teach a creature to hunt if its species never could.
-      .filter { config == null || it.name in config.job.goalNames }
       .mapNotNull { tuning ->
         runtime.catalogue.goalsByName[tuning.name]?.let { goal ->
           tuning.basePriority?.let(goal::withBasePriority) ?: goal

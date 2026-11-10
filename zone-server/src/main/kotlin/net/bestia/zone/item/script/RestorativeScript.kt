@@ -25,8 +25,8 @@ import net.bestia.zone.util.EntityId
  */
 abstract class RestorativeScript(
   override val itemId: Long,
-  private val health: Int = 0,
-  private val stamina: Int = 0,
+  val health: Int = 0,
+  val stamina: Int = 0,
   private val mana: Int = 0,
   private val messages: OutMessageProcessor? = null,
 ) : ItemScript {
