@@ -94,7 +94,7 @@ class InteractEntityHandler(
       return toggleBuilding(world, actorId, targetId)
     }
 
-    // Ahead of the structures: a chest or a Mana Circle is one, but neither is a crafting station.
+    // Ahead of the structures: a chest, a Mana Circle or a Breeding Farm is one, but none is a crafting station.
     val propInteraction = kindOf(world, targetId)?.let(propInteractionByKind::get)
     if (propInteraction != null) {
       return propInteraction.interact(world, actorId, targetId)

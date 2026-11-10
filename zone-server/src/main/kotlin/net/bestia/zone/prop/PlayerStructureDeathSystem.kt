@@ -35,7 +35,7 @@ class PlayerStructureDeathSystem(
   private val structures: PlayerStructureRegistry,
   private val worldService: WorldService,
   private val collision: StructureCollision,
-  private val stations: StationSpill,
+  private val spills: List<StationSpill>,
   private val chests: ChestStorages,
   private val events: ApplicationEventPublisher,
 ) : System {
@@ -62,7 +62,7 @@ class PlayerStructureDeathSystem(
       }
 
       val entry = structures.of(identity.structureId)
-      entry?.let { stations.spill(world, it, position) }
+      entry?.let { found -> spills.forEach { it.spill(world, found, position) } }
       chests.spill(identity.structureId, identity.ownerAccountId, position)
 
       val chunkSize = worldService.config.chunkSize.toLong()
