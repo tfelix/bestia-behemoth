@@ -14,8 +14,10 @@ import net.bestia.zone.crafting.station.StationFixture.Companion.PLANK
 import net.bestia.zone.crafting.station.StationFixture.Companion.RECIPE
 import net.bestia.zone.crafting.station.StationFixture.Companion.STATION
 import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.prop.station.WorkAssignment
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.time.Clock
@@ -107,6 +109,22 @@ class StationWorkSystemTest {
 
     assertEquals(StationPause.NO_FREE_CRAFTER, work.of(STATION).pause)
     assertEquals(mapOf(PLANK to 4), fixture.station.held)
+  }
+
+  @Test
+  fun `a free crafter whose station has nothing left to do is let go, a picked bestia is not`() {
+    val fixture = StationFixture()
+    val bestia = fixture.givenBestia()
+    fixture.workers.assign(fixture.world, bestia, fixture.station)
+
+    system(fixture).update(fixture.world, 1f)
+    assertEquals(STATION, fixture.world.get(bestia, WorkAssignment::class)?.structureId)
+
+    fixture.station = fixture.station.copy(takesAnyCrafter = true)
+    system(fixture).update(fixture.world, 1f)
+
+    assertNull(fixture.world.get(bestia, WorkAssignment::class))
+    assertTrue(fixture.station.waitsForCrafter)
   }
 
   /** The whole point of a bestia worker: the queue goes on with nobody playing. */

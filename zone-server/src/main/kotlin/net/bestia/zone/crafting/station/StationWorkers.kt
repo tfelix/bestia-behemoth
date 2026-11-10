@@ -2,6 +2,7 @@ package net.bestia.zone.crafting.station
 
 import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
+import net.bestia.zone.ai.domain.bestia.StationClaims
 import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.identity.ecs.OwnedBestia
@@ -23,7 +24,7 @@ import org.springframework.stereotype.Component
 @Component
 class StationWorkers(
   private val structures: PlayerStructureRegistry,
-) {
+) : StationClaims {
 
   /** Structure id -> the entity working it, for every station a bestia works. */
   private val byStation = HashMap<Long, EntityId>()
@@ -41,6 +42,14 @@ class StationWorkers(
 
     attach(world, bestiaId, station)
     structures.setWorker(station.id, playerBestiaId)
+  }
+
+  /** A free crafter takes a station that waits for one and has work. */
+  override fun claim(world: World, bestiaId: EntityId, structureId: Long): Boolean {
+    val station = structures.of(structureId)?.takeIf { it.waitsForCrafter && it.queue.isNotEmpty() } ?: return false
+
+    assign(world, bestiaId, station)
+    return true
   }
 
   /** Takes the bestia working [structureId] off it, so its owner works it again. */
@@ -78,9 +87,11 @@ class StationWorkers(
     world.remove(bestiaId, WorkAssignment::class)
     byStation.remove(assignment.structureId)
 
-    // Home is where it stands now, as when its orders change: it does not walk back to where it lived before.
+    // Home is where it stands now, as when its orders change: it does not walk back to where it lived before. A
+    // crafter goes back to the area it crafts in.
     val memory = world.get(bestiaId, AiAgent::class)?.memory
-    world.get(bestiaId, Position::class)?.let { memory?.set(BestiaDomain.HOME_POSITION, it.toVec3L(), Blackboard.PERMANENT) }
+    val home = memory?.get(BestiaDomain.CRAFT_AREA)?.center ?: world.get(bestiaId, Position::class)?.toVec3L()
+    home?.let { memory?.set(BestiaDomain.HOME_POSITION, it, Blackboard.PERMANENT) }
     memory?.set(BestiaDomain.WANDER_RADIUS, assignment.formerWanderRadius, Blackboard.PERMANENT)
 
     world.get(bestiaId, SimulationAnchor::class)?.let { anchor ->

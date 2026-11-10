@@ -22,6 +22,7 @@ import net.bestia.zone.ai.core.state.WorldState
 import net.bestia.zone.ai.domain.AiDomainCatalogue
 import net.bestia.zone.ai.domain.bestia.action.ApproachTargetActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.AttackActionTemplate
+import net.bestia.zone.ai.domain.bestia.action.ClaimStationActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.CollectPropActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.EatVegetationActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.FellTreeActionTemplate
@@ -179,7 +180,16 @@ object BestiaDomain : AiDomainCatalogue {
   val GOODS_TO_HAUL = StateKey<Boolean>("goodsToHaul", observed = true)
 
   /** Where a bestia under GATHER orders works; absent under any other job. */
-  val GATHER_AREA = StateKey<GatherArea>("gatherArea", retain = Blackboard.PERMANENT)
+  val GATHER_AREA = StateKey<WorkArea>("gatherArea", retain = Blackboard.PERMANENT)
+
+  /** Where a bestia under CRAFT orders looks for stations to work; absent under any other job. */
+  val CRAFT_AREA = StateKey<WorkArea>("craftArea", retain = Blackboard.PERMANENT)
+
+  /** Its master's stations in its craft area that wait for a free crafter, nearest first. See `StationSense`. */
+  val OPEN_STATIONS = StateKey<List<OpenStation>>("openStations")
+
+  /** Whether it works a station now. */
+  val AT_WORK = StateKey<Boolean>("atWork")
 
   /** When this species sleeps, against the world's day/night cycle. See [isRestingPhase]. */
   val ACTIVITY_CYCLE = StateKey<ActivityCycle>("activityCycle", retain = Blackboard.PERMANENT)
@@ -470,9 +480,20 @@ object BestiaDomain : AiDomainCatalogue {
       desiredState = listOf(Preconditions.equalTo(GOODS_TO_HAUL, false)),
     )
 
+    /**
+     * A free crafter taking a station that waits for one. The station is then its home, so [RETURN_HOME] keeps it
+     * there; over [WANDER], so idling is what it does once no station waits.
+     */
+    val CRAFT = Goal(
+      name = "Craft",
+      priority = priority(base = 60f),
+      availability = Precondition { s -> s.get(AT_WORK) != true && !s.get(OPEN_STATIONS).isNullOrEmpty() },
+      desiredState = listOf(Preconditions.equalTo(AT_WORK, true)),
+    )
+
     val ALL = listOf(
       EAT_VEGETATION, SLEEP, RETURN_HOME, KILL_ATTACKER, KILL_ENEMY, WANDER, HEAL_FROM_BAG, EAT_FROM_BAG, RETREAT,
-      GATHER, HAUL_TO_CHEST, RESTOCK_FOOD,
+      GATHER, HAUL_TO_CHEST, RESTOCK_FOOD, CRAFT,
     )
 
     val BY_NAME = ALL.associateBy { it.name }
@@ -492,6 +513,7 @@ object BestiaDomain : AiDomainCatalogue {
     val promotion: CombatTargetPromotion,
     val aoi: EntityAOIService,
     val handover: ItemHandover,
+    val stations: StationClaims,
     val attacks: List<AttackDefinition> = emptyList(),
   )
 
@@ -517,6 +539,7 @@ object BestiaDomain : AiDomainCatalogue {
     "fellTree" to { c -> FellTreeActionTemplate(c.locomotion, c.attackExecution, c.promotion, c.aoi, c.attacks) },
     "haulToChest" to { c -> HaulToChestActionTemplate(c.locomotion, c.care, c.handover, c.aoi) },
     "takeFoodFromChest" to { c -> TakeFoodFromChestActionTemplate(c.locomotion, c.care, c.handover, c.aoi) },
+    "claimStation" to { c -> ClaimStationActionTemplate(c.locomotion, c.stations) },
   )
 
   /** Every action id a profile may name, for fail-fast validation at boot without building anything. */

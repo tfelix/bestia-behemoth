@@ -7,7 +7,7 @@ import net.bestia.worldgen.core.WorldConfig
 import net.bestia.zone.ai.core.action.CompositeActionResolver
 import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
-import net.bestia.zone.ai.domain.bestia.GatherArea
+import net.bestia.zone.ai.domain.bestia.WorkArea
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.StaticEntityKind
@@ -72,7 +72,7 @@ class GatherAreaResidencyTest {
     }
   }
 
-  private fun bestia(area: GatherArea?): EntityId {
+  private fun bestia(area: WorkArea?): EntityId {
     val memory = Blackboard()
     area?.let { memory.set(BestiaDomain.GATHER_AREA, it, Blackboard.PERMANENT) }
 
@@ -90,7 +90,7 @@ class GatherAreaResidencyTest {
   @Test
   fun `a gatherer loads the columns its area touches`() {
     // 20 around the middle of column (1, 1) reaches its four neighbours and none of its corners.
-    bestia(GatherArea(Vec3L(48, 48, 64), radius = 20))
+    bestia(WorkArea(Vec3L(48, 48, 64), radius = 20))
 
     tick()
 
@@ -109,7 +109,7 @@ class GatherAreaResidencyTest {
 
   @Test
   fun `the area leaves with the gatherer`() {
-    val gatherer = bestia(GatherArea(Vec3L(48, 48, 64), radius = 20))
+    val gatherer = bestia(WorkArea(Vec3L(48, 48, 64), radius = 20))
     tick()
 
     world.destroy(gatherer)
@@ -120,12 +120,12 @@ class GatherAreaResidencyTest {
 
   @Test
   fun `a new home moves the area and keeps what both share`() {
-    val gatherer = bestia(GatherArea(Vec3L(48, 48, 64), radius = 20))
+    val gatherer = bestia(WorkArea(Vec3L(48, 48, 64), radius = 20))
     tick()
     val sharedTree = residency.entitiesIn(2, 1).single()
 
     world.getOrThrow(gatherer, AiAgent::class).memory
-      .set(BestiaDomain.GATHER_AREA, GatherArea(Vec3L(80, 48, 64), radius = 20), Blackboard.PERMANENT)
+      .set(BestiaDomain.GATHER_AREA, WorkArea(Vec3L(80, 48, 64), radius = 20), Blackboard.PERMANENT)
     tick()
 
     assertEquals(5, residency.residentColumns)
@@ -135,7 +135,7 @@ class GatherAreaResidencyTest {
 
   @Test
   fun `a client leaving does not take a gatherer's column with it`() {
-    bestia(GatherArea(Vec3L(48, 48, 64), radius = 4))
+    bestia(WorkArea(Vec3L(48, 48, 64), radius = 4))
     subscriptions.markSent(1L, ChunkPos(1, 1, 0))
     tick()
 

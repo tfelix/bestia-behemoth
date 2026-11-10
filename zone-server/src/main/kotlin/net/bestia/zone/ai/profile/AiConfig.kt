@@ -78,7 +78,11 @@ enum class BestiaJob(
   ),
 
   /** Work the queues of the master's stations around home that take any free crafter. */
-  CRAFT(setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"));
+  CRAFT(
+    setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"),
+    workGoals = listOf("Craft"),
+    workActions = listOf("claimStation"),
+  );
 
   companion object {
     fun fromNameOrNull(name: String): BestiaJob? = entries.firstOrNull { it.name.equals(name, ignoreCase = true) }
