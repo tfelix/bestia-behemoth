@@ -150,8 +150,9 @@ class PerceptionSystem(
     return if (blind) minOf(sightRadius, Blind.SIGHT_RADIUS) else sightRadius
   }
 
-  /** Nearest [Hostility.isHostile] candidate within [sightRadius], and for a guard inside its area. */
+  /** Nearest [Hostility.isHostile] candidate within [sightRadius], or for a guard the nearest intruder in its area. */
   private fun nearestHostile(world: World, self: Long, selfPos: Vec3L, sightRadius: Int, guardArea: WorkArea?): Long? {
+    val isFoe = if (guardArea == null) Hostility::isHostile else Hostility::isIntruder
     // Dynamic only: a mob in a dense wood is inside the sight radius of hundreds of trees and has
     // nothing to think about any of them.
     val sightSize = sightRadius.toLong() * 2
@@ -159,7 +160,7 @@ class PerceptionSystem(
     var nearestDistance = Long.MAX_VALUE
 
     aoiService.forEachInCube(selfPos, sightSize, AoiLayer.DYNAMIC_ONLY) { candidate, _, _, _ ->
-      if (candidate == self || !Hostility.isHostile(world, self, candidate) || isOutOfReach(world, self, candidate)) {
+      if (candidate == self || !isFoe(world, self, candidate) || isOutOfReach(world, self, candidate)) {
         return@forEachInCube
       }
 

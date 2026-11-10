@@ -31,6 +31,13 @@ class GuardTest {
     return id
   }
 
+  /** A wild creature the guard can see, as the AOI index finds a spawned mob. */
+  private fun wild(profileId: String, pos: Vec3L): EntityId {
+    val id = ai.spawnMob(profileId, pos)
+    ai.aoi.setEntityPosition(id, pos)
+    return id
+  }
+
   private fun targetOf(id: EntityId): EntityId? {
     return ai.beliefOf(id, BestiaDomain.TARGET_ID)
   }
@@ -70,6 +77,39 @@ class GuardTest {
       ai.recordHit(guard, stranger)
       ai.tick()
       assertNotEquals(stranger, targetOf(guard), "it went after an attacker outside its area")
+    }
+  }
+
+  @Test
+  fun `a guard attacks a wild hunter inside its area`() {
+    val guard = guard()
+    val wolf = wild("aggressive_melee", Vec3L(5, 0, 0))
+
+    ai.tickUntilGoal(guard, "KillEnemy")
+
+    assertEquals(wolf, targetOf(guard))
+  }
+
+  @Test
+  fun `a guard leaves a grazer alone`() {
+    val guard = guard()
+    val deer = wild("passive_wanderer", Vec3L(5, 0, 0))
+
+    repeat(20 * 5) {
+      ai.tick()
+      assertNotEquals(deer, targetOf(guard), "it attacked a grazer that never attacked it")
+    }
+  }
+
+  @Test
+  fun `a guard ignores a wild hunter outside its area`() {
+    val guard = guard()
+    ai.teleport(guard, Vec3L(20, 0, 0))
+    val wolf = wild("aggressive_melee", Vec3L(27, 0, 0))
+
+    repeat(20 * 5) {
+      ai.tick()
+      assertNotEquals(wolf, targetOf(guard), "it went after a wolf outside its area")
     }
   }
 
