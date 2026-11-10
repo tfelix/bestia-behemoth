@@ -25,13 +25,13 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CidtZXNzYWdlcy9jcmFmdGluZy9jcmFmdF9pdGVtX2Ntc2cucHJvdG8SBGJu",
-            "ZXQiPAoNQ3JhZnRJdGVtQ01TRxIRCglyZWNpcGVfaWQYASABKAQSGAoQdGFy",
-            "Z2V0X3VuaXF1ZV9pZBgCIAEoBEIrChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
-            "EkNyYWZ0SXRlbUNtc2dQcm90b2IGcHJvdG8z"));
+            "ZXQiTAoNQ3JhZnRJdGVtQ01TRxIRCglyZWNpcGVfaWQYASABKAQSGAoQdGFy",
+            "Z2V0X3VuaXF1ZV9pZBgCIAEoBBIOCgZhbW91bnQYAyABKA1CKwoVbmV0LmJl",
+            "c3RpYS5ibmV0LnByb3RvQhJDcmFmdEl0ZW1DbXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftItemCMSG), global::Bnet.CraftItemCMSG.Parser, new[]{ "RecipeId", "TargetUniqueId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftItemCMSG), global::Bnet.CraftItemCMSG.Parser, new[]{ "RecipeId", "TargetUniqueId", "Amount" }, null, null, null, null)
           }));
     }
     #endregion
@@ -40,9 +40,8 @@ namespace Bnet {
   #region Messages
   /// <summary>
   ///*
-  /// Start one craft. Sent from the crafting window, which the player opened by activating a crafting
-  /// skill - activation and execution are deliberately separate messages, because ActivateSkillCMSG
-  /// carries no recipe and a skill that unlocks nine recipes cannot say which one is wanted.
+  /// Start a craft. Sent from the crafting window - opening it and crafting are deliberately separate
+  /// messages, because a window that lists nine recipes cannot say which one is wanted.
   ///
   /// The craft is validated on arrival and again when it resolves, and its inputs are consumed at the
   /// end - so walking away from a forge mid-craft costs nothing.
@@ -84,6 +83,7 @@ namespace Bnet {
     public CraftItemCMSG(CraftItemCMSG other) : this() {
       recipeId_ = other.recipeId_;
       targetUniqueId_ = other.targetUniqueId_;
+      amount_ = other.amount_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -121,6 +121,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "amount" field.</summary>
+    public const int AmountFieldNumber = 3;
+    private uint amount_;
+    /// <summary>
+    /// How many to make one after another; 0 means 1. Only a producing recipe repeats.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Amount {
+      get { return amount_; }
+      set {
+        amount_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -138,6 +153,7 @@ namespace Bnet {
       }
       if (RecipeId != other.RecipeId) return false;
       if (TargetUniqueId != other.TargetUniqueId) return false;
+      if (Amount != other.Amount) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -147,6 +163,7 @@ namespace Bnet {
       int hash = 1;
       if (RecipeId != 0UL) hash ^= RecipeId.GetHashCode();
       if (TargetUniqueId != 0UL) hash ^= TargetUniqueId.GetHashCode();
+      if (Amount != 0) hash ^= Amount.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -173,6 +190,10 @@ namespace Bnet {
         output.WriteRawTag(16);
         output.WriteUInt64(TargetUniqueId);
       }
+      if (Amount != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(Amount);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -191,6 +212,10 @@ namespace Bnet {
         output.WriteRawTag(16);
         output.WriteUInt64(TargetUniqueId);
       }
+      if (Amount != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(Amount);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -206,6 +231,9 @@ namespace Bnet {
       }
       if (TargetUniqueId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(TargetUniqueId);
+      }
+      if (Amount != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Amount);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -224,6 +252,9 @@ namespace Bnet {
       }
       if (other.TargetUniqueId != 0UL) {
         TargetUniqueId = other.TargetUniqueId;
+      }
+      if (other.Amount != 0) {
+        Amount = other.Amount;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -252,6 +283,10 @@ namespace Bnet {
             TargetUniqueId = input.ReadUInt64();
             break;
           }
+          case 24: {
+            Amount = input.ReadUInt32();
+            break;
+          }
         }
       }
     #endif
@@ -277,6 +312,10 @@ namespace Bnet {
           }
           case 16: {
             TargetUniqueId = input.ReadUInt64();
+            break;
+          }
+          case 24: {
+            Amount = input.ReadUInt32();
             break;
           }
         }
