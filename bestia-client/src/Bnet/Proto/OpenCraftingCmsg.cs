@@ -25,13 +25,13 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiptZXNzYWdlcy9jcmFmdGluZy9vcGVuX2NyYWZ0aW5nX2Ntc2cucHJvdG8S",
-            "BGJuZXQiJAoQT3BlbkNyYWZ0aW5nQ01TRxIQCghza2lsbF9pZBgBIAEoBEIu",
-            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CFU9wZW5DcmFmdGluZ0Ntc2dQcm90",
-            "b2IGcHJvdG8z"));
+            "BGJuZXQiOgoQT3BlbkNyYWZ0aW5nQ01TRxIQCghza2lsbF9pZBgBIAEoBBIU",
+            "CgxzdHJ1Y3R1cmVfaWQYAiABKARCLgoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
+            "QhVPcGVuQ3JhZnRpbmdDbXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.OpenCraftingCMSG), global::Bnet.OpenCraftingCMSG.Parser, new[]{ "SkillId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.OpenCraftingCMSG), global::Bnet.OpenCraftingCMSG.Parser, new[]{ "SkillId", "StructureId" }, null, null, null, null)
           }));
     }
     #endregion
@@ -79,6 +79,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public OpenCraftingCMSG(OpenCraftingCMSG other) : this() {
       skillId_ = other.skillId_;
+      structureId_ = other.structureId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -103,6 +104,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "structure_id" field.</summary>
+    public const int StructureIdFieldNumber = 2;
+    private ulong structureId_;
+    /// <summary>
+    /// The station the window is already open at, so a refresh stays there; 0 lets the server pick.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong StructureId {
+      get { return structureId_; }
+      set {
+        structureId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -119,6 +135,7 @@ namespace Bnet {
         return true;
       }
       if (SkillId != other.SkillId) return false;
+      if (StructureId != other.StructureId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -127,6 +144,7 @@ namespace Bnet {
     public override int GetHashCode() {
       int hash = 1;
       if (SkillId != 0UL) hash ^= SkillId.GetHashCode();
+      if (StructureId != 0UL) hash ^= StructureId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -149,6 +167,10 @@ namespace Bnet {
         output.WriteRawTag(8);
         output.WriteUInt64(SkillId);
       }
+      if (StructureId != 0UL) {
+        output.WriteRawTag(16);
+        output.WriteUInt64(StructureId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -163,6 +185,10 @@ namespace Bnet {
         output.WriteRawTag(8);
         output.WriteUInt64(SkillId);
       }
+      if (StructureId != 0UL) {
+        output.WriteRawTag(16);
+        output.WriteUInt64(StructureId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -175,6 +201,9 @@ namespace Bnet {
       int size = 0;
       if (SkillId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(SkillId);
+      }
+      if (StructureId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(StructureId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -190,6 +219,9 @@ namespace Bnet {
       }
       if (other.SkillId != 0UL) {
         SkillId = other.SkillId;
+      }
+      if (other.StructureId != 0UL) {
+        StructureId = other.StructureId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -214,6 +246,10 @@ namespace Bnet {
             SkillId = input.ReadUInt64();
             break;
           }
+          case 16: {
+            StructureId = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -235,6 +271,10 @@ namespace Bnet {
             break;
           case 8: {
             SkillId = input.ReadUInt64();
+            break;
+          }
+          case 16: {
+            StructureId = input.ReadUInt64();
             break;
           }
         }

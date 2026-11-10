@@ -57,6 +57,8 @@ const _RAIL_ICON_SIZE := 24
 var inventory = null
 
 @onready var _station_label: Label = %StationLabel
+@onready var _fuel_label: Label = %FuelLabel
+@onready var _add_wood_button: Button = %AddWoodButton
 @onready var _make_page: Control = %MakePage
 @onready var _skill_rail: VBoxContainer = %SkillRail
 @onready var _skill_title: Label = %SkillTitle
@@ -75,6 +77,9 @@ var inventory = null
 ## Skill id -> its recipes, in the order the server listed them.
 var _recipes_by_skill: Dictionary = {}
 var _skill_order: Array[int] = []
+
+## The player structure the window is open at, or 0 for Handiwork.
+var _structure_id: int = 0
 
 var _selected_skill: int = 0
 var _selected_recipe: CraftableRecipe = null
@@ -97,6 +102,7 @@ func _ready() -> void:
 	_target_picker.item_selected.connect(func(_index: int) -> void: _show_actions())
 	_discover_button.pressed.connect(_show_discovery)
 	%BackButton.pressed.connect(_show_recipes)
+	_add_wood_button.pressed.connect(_on_add_wood_pressed)
 
 	_emphasize(_discover_button)
 
@@ -110,6 +116,8 @@ func _ready() -> void:
 func _on_craftable_recipes(msg: CraftableRecipesSMSG) -> void:
 	# The name is resolved on the C# side, which is where the StaticEntityKind ordinals are already mirrored.
 	_station_label.text = msg.StationName if not msg.StationName.is_empty() else _NO_STATION_TITLE
+	_structure_id = int(msg.StructureId)
+	_show_fuel(msg)
 	_awaiting_result = false
 
 	var kept_recipe_id := int(_selected_recipe.RecipeId) if _selected_recipe != null else 0
@@ -156,6 +164,22 @@ func _rebuild() -> void:
 	_build_recipe_list()
 	_build_detail()
 	_discovery.set_offer(_selected_skill, _recipes_by_skill.get(_selected_skill, []))
+
+
+## A campfire says how long it burns and takes wood. The time is the server's at the moment it answered.
+func _show_fuel(msg: CraftableRecipesSMSG) -> void:
+	_fuel_label.visible = msg.BurnsFuel
+	_add_wood_button.visible = msg.BurnsFuel
+	if not msg.BurnsFuel:
+		return
+
+	var minutes := ceili(msg.FuelSeconds / 60.0)
+	_fuel_label.text = "Burns %d min more" % minutes if msg.FuelSeconds > 0 else "The fire is out"
+
+
+func _on_add_wood_pressed() -> void:
+	if _structure_id != 0 and ConnectionManager.is_ready_to_send():
+		ConnectionManager.add_wood(_structure_id)
 
 
 # --- Skill rail ---------------------------------------------------------------------------------------------------
@@ -396,7 +420,7 @@ func _on_discovery_result(msg: DiscoveryResultSMSG) -> void:
 ## Materials and odds are wrong the moment a craft resolves, and only the server can price them again.
 func _refresh_offer() -> void:
 	if is_visible_in_tree() and ConnectionManager.is_ready_to_send():
-		ConnectionManager.open_crafting(_selected_skill)
+		ConnectionManager.open_crafting(_selected_skill, _structure_id)
 
 
 # --- Pages --------------------------------------------------------------------------------------------------------

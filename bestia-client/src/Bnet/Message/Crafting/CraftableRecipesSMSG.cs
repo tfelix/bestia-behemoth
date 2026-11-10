@@ -32,6 +32,15 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
     /// </summary>
     [Export] public string StationName { get; set; } = string.Empty;
 
+    /// <summary>The player structure the recipes are worked at, or 0 for Handiwork.</summary>
+    [Export] public ulong StructureId { get; set; }
+
+    /// <summary>Whether the station burns wood, which is what the window offers to add.</summary>
+    [Export] public bool BurnsFuel { get; set; }
+
+    /// <summary>Seconds the fire has left; 0 once it is out.</summary>
+    [Export] public uint FuelSeconds { get; set; }
+
     [Export] public Godot.Collections.Array<CraftableRecipe> Recipes { get; set; } = [];
 
     public static CraftableRecipesSMSG FromProto(global::Bnet.CraftableRecipesSMSG proto)
@@ -40,7 +49,10 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
       {
         SkillId = proto.SkillId,
         StationKind = proto.StationKind,
-        StationName = NameOfStation(proto.StationKind)
+        StationName = NameOfStation(proto.StationKind),
+        StructureId = proto.StructureId,
+        FuelSeconds = proto.FuelSeconds,
+        BurnsFuel = proto.StationKind == CampfireKind
       };
 
       foreach (var recipe in proto.Recipes)
@@ -64,8 +76,12 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
     {
       { 23, "Workbench" },
       { 24, "Furnace" },
-      { 25, "Forge" }
+      { 25, "Forge" },
+      { CampfireKind, "Campfire" }
     };
+
+    /// <summary><c>StaticEntityKind.CAMPFIRE</c> ordinal + 1, the one station that burns fuel.</summary>
+    private const uint CampfireKind = 56;
 
     private static string NameOfStation(uint stationKind)
     {
