@@ -1,6 +1,8 @@
 package net.bestia.zone.item.net
 
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.util.EntityId
 import kotlin.math.abs
@@ -16,9 +18,14 @@ object ExchangeReach {
   const val VERTICAL = 3L
 
   fun within(world: World, one: EntityId, other: EntityId): Boolean {
-    val onePos = world.get(one, Position::class)?.toVec3L() ?: return false
-    val otherPos = world.get(other, Position::class)?.toVec3L() ?: return false
+    val onePos = standpointOf(world, one) ?: return false
+    val otherPos = standpointOf(world, other) ?: return false
 
     return onePos.distance(otherPos) <= HORIZONTAL && abs(onePos.z - otherPos.z) <= VERTICAL
+  }
+
+  /** A chest is a static prop, which stands at its [PropPose] until something attacks it. */
+  private fun standpointOf(world: World, entityId: EntityId): Vec3L? {
+    return world.get(entityId, Position::class)?.toVec3L() ?: world.get(entityId, PropPose::class)?.position
   }
 }

@@ -4,11 +4,15 @@ import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.PlayerBestia
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
+import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.item.persistence.ItemInstanceRepository
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.persistence.findByIdentifierOrThrow
+import net.bestia.zone.prop.chest.ChestStorages
+import net.bestia.zone.prop.persistence.PlayerStructure
+import net.bestia.zone.prop.persistence.PlayerStructureRepository
 import net.bestia.zone.scenarios.ScenarioDataSetup
 import net.bestia.zone.util.PlayerBestiaId
 import org.junit.jupiter.api.AfterEach
@@ -24,8 +28,8 @@ import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
 
 /**
- * Goods handed between a master and its own bestias, against a real database: they are in exactly one
- * container afterwards, arrive as the same goods they left as, and never reach a bestia of another master.
+ * Goods handed between a master, its own bestias and its chests, against a real database: they are in exactly one
+ * container afterwards, arrive as the same goods they left as, and never reach a bestia or chest of another master.
  */
 @SpringBootTest
 @ActiveProfiles("no-socket", "test")
@@ -47,6 +51,12 @@ class InventoryServiceTransferTest {
   private lateinit var itemInstanceRepository: ItemInstanceRepository
 
   @Autowired
+  private lateinit var playerStructureRepository: PlayerStructureRepository
+
+  @Autowired
+  private lateinit var chestStorages: ChestStorages
+
+  @Autowired
   private lateinit var testFixture: ScenarioDataSetup.TestFixture
 
   @Autowired
@@ -56,6 +66,8 @@ class InventoryServiceTransferTest {
 
   private val created = mutableListOf<PlayerBestiaId>()
 
+  private val createdChests = mutableListOf<Long>()
+
   private fun masterA() = testFixture.itemTestMasterIds[0]
   private fun masterB() = testFixture.itemTestMasterIds[1]
 
@@ -64,11 +76,30 @@ class InventoryServiceTransferTest {
     playerBestiaRepository.save(PlayerBestia(master = master, bestia = testFixture.bestia1)).id
   }!!.also { created += it }
 
+  private fun chestOf(masterId: Long): Long = tx.execute {
+    val chest = PlayerStructure(
+      kind = StaticEntityKind.CHEST, ownerMasterId = masterId, ownerAccountId = null, x = 0, y = 0, z = 0, yaw = 0f,
+      chunkX = 0, chunkY = 0, storage = ItemContainer(ItemContainer.Type.STORAGE)
+    )
+    playerStructureRepository.save(chest).id
+  }!!.also { createdChests += it }
+
   @AfterEach
   fun removeBestias() {
-    tx.executeWithoutResult { created.forEach { playerBestiaRepository.deleteById(it) } }
+    tx.executeWithoutResult {
+      created.forEach { playerBestiaRepository.deleteById(it) }
+      createdChests.forEach { playerStructureRepository.deleteById(it) }
+    }
     created.clear()
+    createdChests.clear()
   }
+
+  private fun heldInChest(structureId: Long, identifier: String) = tx.execute {
+    val itemId = itemRepository.findByIdentifierOrThrow(identifier).id
+    playerStructureRepository.findById(structureId).orElseThrow().container.slots
+      .filter { it.template.id == itemId }
+      .sumOf { it.amount }
+  }!!
 
   private fun container(masterId: Long, playerBestiaId: PlayerBestiaId?): ItemContainer =
     if (playerBestiaId == null) {
@@ -98,7 +129,7 @@ class InventoryServiceTransferTest {
     inventoryService.addItem(master, "apple", 10)
     val before = held(master, null, "apple")
 
-    val moved = inventoryService.transferBetweenOwners(master, null, bestia, appleId(), 0L, 4)
+    val moved = inventoryService.transferBetweenOwners(master, ItemHolder.Master, ItemHolder.Bestia(bestia), appleId(), 0L, 4)
 
     assertNotNull(moved)
     assertEquals(4, moved!!.amount)
@@ -114,8 +145,8 @@ class InventoryServiceTransferTest {
     inventoryService.grantToOwner(master, first, appleId(), 6)
     val masterBefore = held(master, null, "apple")
 
-    inventoryService.transferBetweenOwners(master, first, second, appleId(), 0L, 5)
-    inventoryService.transferBetweenOwners(master, second, null, appleId(), 0L, 2)
+    inventoryService.transferBetweenOwners(master, ItemHolder.Bestia(first), ItemHolder.Bestia(second), appleId(), 0L, 5)
+    inventoryService.transferBetweenOwners(master, ItemHolder.Bestia(second), ItemHolder.Master, appleId(), 0L, 2)
 
     assertEquals(1, held(master, first, "apple"))
     assertEquals(3, held(master, second, "apple"))
@@ -134,7 +165,7 @@ class InventoryServiceTransferTest {
       itemInstanceRepository.save(instance)
     }
 
-    val moved = inventoryService.transferBetweenOwners(master, null, bestia, sword.item.id, sword.id, 1)
+    val moved = inventoryService.transferBetweenOwners(master, ItemHolder.Master, ItemHolder.Bestia(bestia), sword.item.id, sword.id, 1)
 
     assertEquals(sword.id, moved!!.uniqueId)
     assertTrue(heldInstanceIds(master, null).none { it == sword.id }, "the sword left the master")
@@ -152,7 +183,7 @@ class InventoryServiceTransferTest {
     inventoryService.grantToOwner(master, null, appleId(), 3, provenance = alice)
     inventoryService.grantToOwner(master, bestia, appleId(), 2)
 
-    val moved = inventoryService.transferBetweenOwners(master, null, bestia, appleId(), 0L, 3, alice)
+    val moved = inventoryService.transferBetweenOwners(master, ItemHolder.Master, ItemHolder.Bestia(bestia), appleId(), 0L, 3, alice)
 
     assertEquals(alice, moved!!.provenance)
     assertEquals(3, held(master, bestia, "apple", alice))
@@ -166,7 +197,7 @@ class InventoryServiceTransferTest {
     inventoryService.grantToOwner(master, bestia, appleId(), 2)
     val masterBefore = held(master, null, "apple")
 
-    assertNull(inventoryService.transferBetweenOwners(master, bestia, null, appleId(), 0L, 3))
+    assertNull(inventoryService.transferBetweenOwners(master, ItemHolder.Bestia(bestia), ItemHolder.Master, appleId(), 0L, 3))
 
     assertEquals(2, held(master, bestia, "apple"))
     assertEquals(masterBefore, held(master, null, "apple"))
@@ -181,8 +212,8 @@ class InventoryServiceTransferTest {
     inventoryService.grantToOwner(stranger, strangersBestia, appleId(), 5)
     val ownerBefore = held(owner, null, "apple")
 
-    assertNull(inventoryService.transferBetweenOwners(owner, null, strangersBestia, appleId(), 0L, 1))
-    assertNull(inventoryService.transferBetweenOwners(owner, strangersBestia, null, appleId(), 0L, 1))
+    assertNull(inventoryService.transferBetweenOwners(owner, ItemHolder.Master, ItemHolder.Bestia(strangersBestia), appleId(), 0L, 1))
+    assertNull(inventoryService.transferBetweenOwners(owner, ItemHolder.Bestia(strangersBestia), ItemHolder.Master, appleId(), 0L, 1))
 
     assertEquals(ownerBefore, held(owner, null, "apple"))
     assertEquals(5, held(stranger, strangersBestia, "apple"))
@@ -196,9 +227,49 @@ class InventoryServiceTransferTest {
     val tradeId = 910_001L
     inventoryService.reserveForTrade(master, tradeId, sword.item.id, sword.id, 1)
 
-    assertNull(inventoryService.transferBetweenOwners(master, null, bestia, sword.item.id, sword.id, 1))
+    assertNull(inventoryService.transferBetweenOwners(master, ItemHolder.Master, ItemHolder.Bestia(bestia), sword.item.id, sword.id, 1))
     assertTrue(heldInstanceIds(master, bestia).isEmpty())
 
     inventoryService.releaseAllTradeReservations(master, tradeId)
+  }
+
+  @Test
+  fun `goods go into the master's chest and back out`() {
+    val master = masterA()
+    val chest = ItemHolder.Chest(chestOf(master))
+    inventoryService.addItem(master, "apple", 10)
+    val before = held(master, null, "apple")
+
+    assertNotNull(inventoryService.transferBetweenOwners(master, ItemHolder.Master, chest, appleId(), 0L, 4))
+    assertNotNull(inventoryService.transferBetweenOwners(master, chest, ItemHolder.Master, appleId(), 0L, 1))
+
+    assertEquals(3, heldInChest(chest.structureId, "apple"))
+    assertEquals(before - 3, held(master, null, "apple"))
+  }
+
+  @Test
+  fun `a chest of another master neither gives nor receives`() {
+    val owner = masterA()
+    val strangersChest = ItemHolder.Chest(chestOf(masterB()))
+    inventoryService.addItem(owner, "apple", 5)
+    val ownerBefore = held(owner, null, "apple")
+
+    assertNull(inventoryService.transferBetweenOwners(owner, ItemHolder.Master, strangersChest, appleId(), 0L, 1))
+
+    assertEquals(ownerBefore, held(owner, null, "apple"))
+    assertEquals(0, heldInChest(strangersChest.structureId, "apple"))
+  }
+
+  @Test
+  fun `a chest still holds a sword after a reload`() {
+    val master = masterA()
+    val chest = ItemHolder.Chest(chestOf(master))
+    val sword = inventoryService.mintInstanceForMaster(master, itemRepository.findByIdentifierOrThrow("iron_sword"))
+
+    inventoryService.transferBetweenOwners(master, ItemHolder.Master, chest, sword.item.id, sword.id, 1)
+    chestStorages.forget(chest.structureId)
+    tx.executeWithoutResult { chestStorages.loadAll() }
+
+    assertEquals(listOf(sword.id), chestStorages.contentsOf(chest.structureId).getItems().map { it.uniqueId })
   }
 }

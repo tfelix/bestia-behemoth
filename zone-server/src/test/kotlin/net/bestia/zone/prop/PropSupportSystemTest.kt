@@ -108,7 +108,8 @@ class PropSupportSystemTest {
       worldService,
       divergence,
       subscriptions,
-      chunkResidency
+      chunkResidency,
+      mockk(relaxed = true)
     )
 
     val derived: DerivedStore = mockk { every { isStale(any()) } answers { stale } }

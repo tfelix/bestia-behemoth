@@ -1,6 +1,7 @@
 package net.bestia.zone.prop.persistence
 
 import java.time.Instant
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -9,8 +10,12 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Index
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import net.bestia.zone.entity.StaticEntityKind
+import net.bestia.zone.item.container.ContainerOwner
+import net.bestia.zone.item.persistence.ItemContainer
 
 /**
  * One thing a player put up: a workbench, a furnace, a forge.
@@ -103,8 +108,18 @@ class PlayerStructure(
 
   /** The player bestia that works a station's queue, or null when its owner does. */
   @Column(name = "worker_bestia_id")
-  var workerBestiaId: Long? = null
-) {
+  var workerBestiaId: Long? = null,
+
+  /** What a chest holds; null for every other kind. */
+  @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
+  @JoinColumn(name = "storage_container_id")
+  val storage: ItemContainer? = null
+) : ContainerOwner {
+
+  override val container: ItemContainer
+    get() {
+      return checkNotNull(storage) { "Player structure $id ($kind) stores nothing" }
+    }
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

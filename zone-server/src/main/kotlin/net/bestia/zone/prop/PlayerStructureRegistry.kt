@@ -8,6 +8,7 @@ import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Service
 import net.bestia.zone.entity.StaticEntityKind
+import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.prop.persistence.PlayerStructure
 import net.bestia.zone.prop.persistence.PlayerStructureRepository
 import net.bestia.zone.util.AccountId
@@ -128,7 +129,8 @@ class PlayerStructureRegistry(
         chunkX = chunkX,
         chunkY = chunkY,
         totalBuildSeconds = buildSeconds,
-        remainingBuildSeconds = buildSeconds
+        remainingBuildSeconds = buildSeconds,
+        storage = if (kind == StaticEntityKind.CHEST) ItemContainer(ItemContainer.Type.STORAGE) else null
       )
     )
 

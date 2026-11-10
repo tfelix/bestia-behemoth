@@ -342,6 +342,8 @@ enum OpError {
   RITUAL_ALREADY_JOINED = 132;
   RITUAL_FULL = 133;
   RITUAL_FAILED = 134;
+  // Every slot of the chest is taken and the goods would need a new one. The player takes something out first.
+  CHEST_FULL = 135;
 }
 
 message OperationError {

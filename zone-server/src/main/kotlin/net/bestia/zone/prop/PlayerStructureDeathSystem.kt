@@ -9,6 +9,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.prop.chest.ChestStorages
 import net.bestia.zone.structure.StructureCollision
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Component as SpringComponent
@@ -34,6 +35,7 @@ class PlayerStructureDeathSystem(
   private val worldService: WorldService,
   private val collision: StructureCollision,
   private val stations: StationSpill,
+  private val chests: ChestStorages,
 ) : System {
   override val phase = Phase.DEATH
   override val before = setOf(PlayerDeathSystem::class)
@@ -58,6 +60,7 @@ class PlayerStructureDeathSystem(
       }
 
       structures.of(identity.structureId)?.let { stations.spill(world, it, position) }
+      chests.forget(identity.structureId)
 
       val chunkSize = worldService.config.chunkSize.toLong()
       structures.remove(

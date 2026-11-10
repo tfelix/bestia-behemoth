@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSq5GgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrKGgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -101,8 +101,9 @@ namespace Bnet {
             "QU5HRRCAARIUCg9SSVRVQUxfRkFUSUdVRUQQgQESFAoPUklUVUFMX05PVF9P",
             "UEVOEIIBEhMKDlJJVFVBTF9SVU5OSU5HEIMBEhoKFVJJVFVBTF9BTFJFQURZ",
             "X0pPSU5FRBCEARIQCgtSSVRVQUxfRlVMTBCFARISCg1SSVRVQUxfRkFJTEVE",
-            "EIYBIgQILhAuKhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5i",
-            "bmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "EIYBEg8KCkNIRVNUX0ZVTEwQhwEiBAguEC4qElNIT1BfVFJFQVNVUllfRlVM",
+            "TEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJv",
+            "dG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -611,6 +612,10 @@ namespace Bnet {
     [pbr::OriginalName("RITUAL_ALREADY_JOINED")] RitualAlreadyJoined = 132,
     [pbr::OriginalName("RITUAL_FULL")] RitualFull = 133,
     [pbr::OriginalName("RITUAL_FAILED")] RitualFailed = 134,
+    /// <summary>
+    /// Every slot of the chest is taken and the goods would need a new one. The player takes something out first.
+    /// </summary>
+    [pbr::OriginalName("CHEST_FULL")] ChestFull = 135,
   }
 
   #endregion

@@ -3,6 +3,7 @@ package net.bestia.zone.item.ecs
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.item.container.ItemHolder
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.util.PlayerBestiaId
 
@@ -21,6 +22,19 @@ data class ItemOwner(
       world.get(entityId, OwnedBestia::class)?.let { return ItemOwner(it.masterId, it.playerBestiaId) }
 
       return null
+    }
+
+    /**
+     * Which of [masterId]'s own holders [entityId] is, or null when it is not one. Unlike [of] it knows chests:
+     * a chest only takes and gives goods, and every caller of [of] reads a null bestia as the master's own bag.
+     */
+    fun holderOf(world: World, entityId: EntityId, masterId: Long): ItemHolder? {
+      world.get(entityId, ChestStorage::class)?.let { chest ->
+        return if (chest.ownerMasterId == masterId) ItemHolder.Chest(chest.structureId) else null
+      }
+      val owner = of(world, entityId)?.takeIf { it.masterId == masterId } ?: return null
+
+      return owner.playerBestiaId?.let(ItemHolder::Bestia) ?: ItemHolder.Master
     }
   }
 }

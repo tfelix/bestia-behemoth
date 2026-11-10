@@ -569,40 +569,36 @@ class InventoryService(
   }
 
   /**
-   * Hands goods from one of a master's own entities to another: master to bestia, bestia to master, or bestia to
-   * bestia. [fromBestia] or [toBestia] null names the master itself.
+   * Hands goods from one of a master's own holders to another: its own bag, a bestia's, or a chest it built.
    *
    * One transaction holds both containers, so the goods are in exactly one of them whenever anybody looks. Both
-   * rows are locked in a fixed order - the master first, then the bestias by id - and a bestia that is not
-   * [masterId]'s own is refused here too, not only on the tick. An instance moves as the same row, keeping its
-   * wear and its maker; a pile keeps its maker and so lands apart from another maker's.
+   * rows are locked in a fixed order - the master first, then the bestias by id, then the chests - and a bestia
+   * or a chest that is not [masterId]'s own is refused here too, not only on the tick. An instance moves as the
+   * same row, keeping its wear and its maker; a pile keeps its maker and so lands apart from another maker's.
    *
    * @return what arrived, for the receiver's live inventory, or null when the giver does not freely hold it
    */
   @Transactional
   fun transferBetweenOwners(
     masterId: Long,
-    fromBestia: PlayerBestiaId?,
-    toBestia: PlayerBestiaId?,
+    from: ItemHolder,
+    to: ItemHolder,
     itemId: Long,
     uniqueId: Long,
     amount: Int,
     provenance: ItemProvenance? = null,
   ): ReservedItem? {
     require(amount > 0) { "amount > 0 required, was $amount" }
-    require(fromBestia != toBestia) { "Giver and receiver are the same (bestia $fromBestia of master $masterId)" }
+    require(from != to) { "Giver and receiver are the same ($from of master $masterId)" }
 
-    val master = if (fromBestia == null || toBestia == null) owners.lockedMaster(masterId) else null
-    val bestias = mutableMapOf<PlayerBestiaId, ContainerOwner>()
-    for (playerBestiaId in listOfNotNull(fromBestia, toBestia).sorted()) {
-      bestias[playerBestiaId] = owners.lockedPlayerBestiaOf(masterId, playerBestiaId) ?: run {
-        LOG.warn { "Player bestia $playerBestiaId is not master $masterId's own; nothing is transferred" }
+    val locked = listOf(from, to).sortedWith(LOCK_ORDER).associateWith { holder ->
+      lock(masterId, holder) ?: run {
+        LOG.warn { "$holder is not master $masterId's own; nothing is transferred" }
         return null
       }
     }
-
-    val giver = fromBestia?.let(bestias::getValue) ?: master!!
-    val receiver = toBestia?.let(bestias::getValue) ?: master!!
+    val giver = locked.getValue(from)
+    val receiver = locked.getValue(to)
 
     val reserved = reserveInTransaction(giver.container, itemId, uniqueId, amount, provenance) ?: return null
     val moved = move(IN_TX_MARKER, setOf(reserved.id), from = giver.container, to = receiver.container).single()
@@ -611,6 +607,14 @@ class InventoryService(
     owners.save(receiver)
 
     return moved
+  }
+
+  private fun lock(masterId: Long, holder: ItemHolder): ContainerOwner? {
+    return when (holder) {
+      ItemHolder.Master -> owners.lockedMaster(masterId)
+      is ItemHolder.Bestia -> owners.lockedPlayerBestiaOf(masterId, holder.playerBestiaId)
+      is ItemHolder.Chest -> owners.lockedChestOf(masterId, holder.structureId)
+    }
   }
 
   /**
@@ -716,6 +720,24 @@ class InventoryService(
 
   private companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** Every writer locks in this order, so two hand-overs between the same holders cannot deadlock. */
+    private val LOCK_ORDER = compareBy<ItemHolder>(
+      { holder ->
+        when (holder) {
+          ItemHolder.Master -> 0
+          is ItemHolder.Bestia -> 1
+          is ItemHolder.Chest -> 2
+        }
+      },
+      { holder ->
+        when (holder) {
+          ItemHolder.Master -> 0L
+          is ItemHolder.Bestia -> holder.playerBestiaId
+          is ItemHolder.Chest -> holder.structureId
+        }
+      },
+    )
 
     /**
      * Stands in for a trade id while an escrow move or a transfer splits a stack within one transaction. Trade
