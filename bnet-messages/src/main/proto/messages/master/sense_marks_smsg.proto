@@ -1,0 +1,35 @@
+syntax = "proto3";
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SenseMarksSmsgProto";
+
+// What a sensing skill found: Resource Sense points at ore, herbs, timber and game, Echo Sounding at hollows. The
+// client shows the marks for visible_seconds and then forgets them; nothing is kept on the map.
+message SenseMarksSMSG {
+  repeated SenseMark marks = 1;
+  uint32 visible_seconds = 2;
+}
+
+message SenseMark {
+  SenseKind kind = 1;
+  // Where the skill says the thing is, in map metres (east, north). Resource Sense's spot is only as exact as its
+  // accuracy; Echo Sounding's is exact.
+  double east_metres = 2;
+  double north_metres = 3;
+  // An English name for what was found: "iron", "frost herbs", "taiga". Empty for game, which names its species
+  // by ref_id, the bestia id.
+  string label = 4;
+  int64 ref_id = 5;
+  // A hollow's depth below the surface and its size, in metres. Zero unless Echo Sounding is high enough to tell.
+  float depth_metres = 6;
+  float size_metres = 7;
+}
+
+enum SenseKind {
+  SENSE_ORE = 0;
+  SENSE_HERBS = 1;
+  SENSE_TIMBER = 2;
+  SENSE_GAME = 3;
+  SENSE_HOLLOW = 4;
+}

@@ -52,6 +52,8 @@ signal shop_quote_received(message: ShopQuoteSMSG)
 signal auction_house_opened(message: AuctionHouseOpenSMSG)
 ## A Cartography cast opened the needle game at a theodolite.
 signal survey_minigame_opened(message: SurveyMinigameSMSG)
+## Resource Sense or Echo Sounding found something.
+signal sense_marks_received(message: SenseMarksSMSG)
 signal auction_listings_received(message: AuctionListingsSMSG)
 signal auction_purchased(message: AuctionPurchasedSMSG)
 ## The played master's whole mailbox, on request and after a letter was thrown away.
@@ -1391,6 +1393,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		auction_house_opened.emit(message)
 	elif message is SurveyMinigameSMSG:
 		survey_minigame_opened.emit(message)
+	elif message is SenseMarksSMSG:
+		sense_marks_received.emit(message)
 	elif message is AuctionListingsSMSG:
 		auction_listings_received.emit(message)
 	elif message is AuctionPurchasedSMSG:

@@ -289,6 +289,13 @@ class RecordingSkillWorld(
 
   val camps = mutableListOf<Triple<Vec3L, Int, Long>>()
 
+  /** Range and accuracy of each [senseResources]. */
+  val resourceSenses = mutableListOf<Pair<Double, Double>>()
+
+  override fun senseResources(rangeMetres: Double, accuracy: Double) {
+    resourceSenses += rangeMetres to accuracy
+  }
+
   override fun pitchCamp(at: Vec3L, level: Int, durationSeconds: Long): Boolean {
     camps += Triple(at, level, durationSeconds)
     return true

@@ -43,6 +43,7 @@ import "messages/master/skill_cooldown_smsg.proto";
 import "messages/master/cancel_status_effect_cmsg.proto";
 import "messages/notebook/survey_minigame_smsg.proto";
 import "messages/notebook/survey_stops_cmsg.proto";
+import "messages/master/sense_marks_smsg.proto";
 import "messages/master/bestia_capture_smsg.proto";
 import "messages/master/owned_bestias_smsg.proto";
 import "messages/compendium/request_compendium_cmsg.proto";
@@ -366,6 +367,7 @@ message Envelope {
     NotebookChangedSMSG notebook_changed = 904;
     SurveyMinigameSMSG survey_minigame = 910;
     SurveyStopsCMSG survey_stops = 911;
+    SenseMarksSMSG sense_marks = 912;
 
     // MISC
   }
