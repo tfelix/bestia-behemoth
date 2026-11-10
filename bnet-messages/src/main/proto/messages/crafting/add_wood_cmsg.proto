@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "AddWoodCmsgProto";
+
+/**
+ * Put one log on a campfire: it burns 30 minutes longer, up to 2 hours, and a cold one is lit again. Only its owner
+ * may, from next to it. A refusal comes back as an OperationError; a success as a fresh CraftableRecipesSMSG.
+ */
+message AddWoodCMSG {
+  uint64 structure_id = 1;
+}

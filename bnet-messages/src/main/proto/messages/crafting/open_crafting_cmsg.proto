@@ -12,4 +12,7 @@ option java_outer_classname = "OpenCraftingCmsgProto";
 message OpenCraftingCMSG {
   // The skill to show first, which also picks its station when one is in range. 0 picks none.
   uint64 skill_id = 1;
+
+  // The station the window is already open at, so a refresh stays there; 0 lets the server pick.
+  uint64 structure_id = 2;
 }
