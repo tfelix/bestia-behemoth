@@ -44,6 +44,8 @@ var _available_skill_points: int = 0
 ## and the level the server confirmed for each.
 var _skill_ids: Array[int] = []
 var _levels: Dictionary[int, int] = {}
+## The Potency band each learned skill casts at now, from the server: 0 for none, 1 (Faint) to 5 (Overwhelming).
+var _potency_bands: Dictionary[int, int] = {}
 ## One entry per queued point, in the order they were queued.
 var _queued: Array[int] = []
 ## The level a skill is used at, from the picker in the details; a skill missing here uses its own level.
@@ -116,9 +118,11 @@ func _show_list(msg: SkillListSMSG) -> void:
 
 	_skill_ids.clear()
 	_levels.clear()
+	_potency_bands.clear()
 	for entry in msg.Skills:
 		_skill_ids.append(entry.SkillId)
 		_levels[entry.SkillId] = entry.Level
+		_potency_bands[entry.SkillId] = entry.PotencyBand
 	_queued.clear()
 	for id in _use_levels.keys():
 		if not _levels.has(id):
@@ -572,7 +576,7 @@ func _show_selected(levels: Dictionary, remaining: int) -> void:
 	_kind.text = _kind_text(attack)
 	_description.text = tr(attack.description_key) if not attack.description_key.is_empty() else ""
 	_description.visible = not _description.text.is_empty()
-	_stats.text = _stats_text(attack)
+	_stats.text = _stats_text(attack, _potency_bands.get(id, 0))
 	_stats.visible = not _stats.text.is_empty()
 	_requirements.text = _requirements_text(id, levels)
 	_requirements.visible = not _requirements.text.is_empty()
@@ -605,10 +609,12 @@ func _kind_text(attack: AttackResource) -> String:
 	return tr("SKILLS_TARGET_" + attack.target_type)
 
 
-func _stats_text(attack: AttackResource) -> String:
+func _stats_text(attack: AttackResource, potency_band: int = 0) -> String:
 	if attack.is_passive:
 		return ""
 	var parts: PackedStringArray = []
+	if potency_band > 0:
+		parts.append(tr("SKILLS_POTENCY") % tr("POTENCY_BAND_%d" % potency_band))
 	if attack.mana_cost > 0:
 		parts.append(tr("SKILLS_MANA") % attack.mana_cost)
 	if attack.cooldown > 0.0:

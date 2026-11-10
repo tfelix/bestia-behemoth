@@ -11,6 +11,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export] public ulong SkillId { get; set; }
     [Export] public uint Level { get; set; }
 
+    /// <summary>The Potency band of a learned skill: 0 for none, then Faint = 1 to Overwhelming = 5.</summary>
+    [Export] public uint PotencyBand { get; set; }
+
     /// <summary>
     /// Creates a SkillListEntry from protobuf data
     /// </summary>
@@ -19,7 +22,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
       return new SkillListEntry
       {
         SkillId = protoEntry.SkillId,
-        Level = protoEntry.Level
+        Level = protoEntry.Level,
+        PotencyBand = protoEntry.PotencyBand
       };
     }
   }

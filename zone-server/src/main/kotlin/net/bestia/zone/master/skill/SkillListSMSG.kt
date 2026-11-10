@@ -14,6 +14,7 @@ data class SkillListSMSG(
       SkillListSMSGProto.SkillListEntry.newBuilder()
         .setSkillId(skill.skillId)
         .setLevel(skill.level)
+        .setPotencyBand(skill.potencyBand)
         .build()
     }
 
@@ -27,5 +28,7 @@ data class SkillListSMSG(
   data class SkillListEntry(
     val skillId: Long,
     val level: Int,
+    /** [net.bestia.zone.battle.potency.Potency.Band] ordinal + 1 for a learned skill, 0 otherwise. */
+    val potencyBand: Int = 0,
   )
 }

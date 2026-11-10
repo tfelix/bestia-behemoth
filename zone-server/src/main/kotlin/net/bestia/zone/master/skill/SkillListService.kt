@@ -1,5 +1,8 @@
 package net.bestia.zone.master.skill
 
+import net.bestia.zone.casting.SkillExecutionService
+import net.bestia.zone.battle.potency.PotencyCalculator
+import net.bestia.zone.battle.potency.Potency
 import net.bestia.zone.bestia.BestiaSkillLevel
 import net.bestia.zone.account.persistence.LearnedSkillRepository
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
@@ -25,19 +28,38 @@ class SkillListService(
   private val learnedSkillRepository: LearnedSkillRepository,
   private val masterSkillListBuilder: MasterSkillListBuilder,
   private val world: WorldView,
+  private val potency: PotencyCalculator,
+  private val skills: SkillExecutionService,
 ) {
 
   @Transactional(readOnly = true)
   fun entriesFor(accountId: AccountId, activeEntityId: EntityId): List<SkillListSMSG.SkillListEntry> {
     val masterEntityId = connectionInfoService.getSelectedMasterEntityId(accountId)
 
-    if (activeEntityId == masterEntityId) {
+    val entries = if (activeEntityId == masterEntityId) {
       val levels = world.read { get(masterEntityId, KnownSkills::class)?.levels() }.orEmpty()
-
-      return masterSkillListBuilder.entriesFor(levels)
+      masterSkillListBuilder.entriesFor(levels)
+    } else {
+      bestiaEntries(accountId, connectionInfoService.getMasterId(accountId), activeEntityId)
     }
 
-    return bestiaEntries(accountId, connectionInfoService.getMasterId(accountId), activeEntityId)
+    return withPotencyBands(activeEntityId, entries)
+  }
+
+  /** The caster sees how strong each learned skill casts now, as a band, see the spell potency page. */
+  private fun withPotencyBands(
+    casterId: EntityId,
+    entries: List<SkillListSMSG.SkillListEntry>
+  ): List<SkillListSMSG.SkillListEntry> {
+    return world.read {
+      entries.map { entry ->
+        val skill = skills.skillOf(entry.skillId)
+        if (entry.level <= 0 || skill == null) return@map entry
+
+        val band = Potency.band(potency.castPotency(this, casterId, skill, entry.level))
+        entry.copy(potencyBand = band.ordinal + 1)
+      }
+    }
   }
 
   /**

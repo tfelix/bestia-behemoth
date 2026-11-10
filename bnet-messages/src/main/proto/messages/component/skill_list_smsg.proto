@@ -20,4 +20,7 @@ message SkillListSMSG {
 message SkillListEntry {
   uint64 skill_id = 1;
   uint32 level = 2;
+  // How strong a cast of this skill is now, as a Potency band: 0 for not learned, then FAINT = 1 to
+  // OVERWHELMING = 5. The number itself stays on the server; players read bands.
+  uint32 potency_band = 3;
 }
