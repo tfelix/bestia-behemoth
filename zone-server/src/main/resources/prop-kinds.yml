@@ -46,6 +46,7 @@ kinds:
       young: { size: 0.65, yield: 0.5 }
     loot:
       - { item-id: 43, amount: 4, drop-chance: 10000 } # log
+      - { item-id: 123, amount: 2, drop-chance: 10000 } # resin
 
   - kind: BLIGHTED_TREE
     max-hp: 90
