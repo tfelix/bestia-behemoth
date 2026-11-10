@@ -45,5 +45,15 @@ message InventoryItem {
   // Who crafted this pile or copy, and in which world. Both empty for an item nobody crafted.
   string crafted_by = 12;
   string crafted_in = 13;
+
+  // A circle this copy draws on its holder's map, like a treasure map's search area. Unset for most items.
+  MapCircle map_circle = 14;
+}
+
+// In world metres, x east and y north like the server's coordinates.
+message MapCircle {
+  double x = 1;
+  double y = 2;
+  double radius = 3;
 }
 

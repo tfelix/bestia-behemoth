@@ -93,6 +93,14 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export] public string CraftedIn { get; set; } = "";
 
     /// <summary>
+    /// The circle this copy draws on the map, like a treasure map's search area: its centre in world metres,
+    /// x east and y north as the map view takes them. Only meaningful when <see cref="HasMapCircle"/>.
+    /// </summary>
+    [Export] public bool HasMapCircle { get; set; }
+    [Export] public Vector2 MapCircleCentre { get; set; }
+    [Export] public float MapCircleRadius { get; set; }
+
+    /// <summary>
     /// Creates an InventoryItem from protobuf data
     /// </summary>
     public static InventoryItem FromProto(global::Bnet.InventoryItem protoItem)
@@ -111,7 +119,12 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         RolledStats = ItemStatValue.FromProto(protoItem.RolledStats),
         PlayerItemId = protoItem.PlayerItemId,
         CraftedBy = protoItem.CraftedBy,
-        CraftedIn = protoItem.CraftedIn
+        CraftedIn = protoItem.CraftedIn,
+        HasMapCircle = protoItem.MapCircle != null,
+        MapCircleCentre = protoItem.MapCircle == null
+          ? Vector2.Zero
+          : new Vector2((float)protoItem.MapCircle.X, (float)protoItem.MapCircle.Y),
+        MapCircleRadius = (float)(protoItem.MapCircle?.Radius ?? 0.0)
       };
     }
   }

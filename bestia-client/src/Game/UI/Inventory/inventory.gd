@@ -180,6 +180,8 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 			inv_item.unique_id = itemMsg.UniqueId
 			inv_item.crafted_by = itemMsg.CraftedBy
 			inv_item.crafted_in = itemMsg.CraftedIn
+			if itemMsg.HasMapCircle:
+				inv_item.map_circle = Vector3(itemMsg.MapCircleCentre.x, itemMsg.MapCircleCentre.y, itemMsg.MapCircleRadius)
 			inv_item.equipped = itemMsg.Equipped
 			inv_item.durability = itemMsg.Durability
 			inv_item.max_durability = itemMsg.MaxDurability

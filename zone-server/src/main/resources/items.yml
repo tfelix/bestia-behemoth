@@ -311,6 +311,32 @@ items:
 
       Every try at a survey spends one, and so does copying a chart.
 
+  # Drawn by Treasure Map. Never stacks: its circle lives on a `treasure_map` row keyed by this copy. Once the
+  # cache is dug up, every copy turns into a crumbled_treasure_map - see TreasureMapService.
+  - id: 128
+    item-db-name: treasure_map
+    base-level: 1
+    weight: 1
+    type: ETC
+    material: PAPER
+    stackable: false
+    description: |
+      A hand-drawn map with a circle inked on it.
+
+      Something is buried somewhere inside the circle. Whoever digs it up first keeps it.
+
+  - id: 129
+    item-db-name: crumbled_treasure_map
+    base-level: 1
+    weight: 1
+    type: ETC
+    material: PAPER
+    stackable: false
+    description: |
+      A treasure map gone brittle and blank.
+
+      Somebody has already dug up what it showed.
+
   # --- Foraged plants -----------------------------------------------------------------------------
   # What the three ground cover kinds yield - see `prop-kinds.yml`. All ETC: a material is only ever an
   # input, and none of these is worth a USABLE script of its own when Cooking already has one.

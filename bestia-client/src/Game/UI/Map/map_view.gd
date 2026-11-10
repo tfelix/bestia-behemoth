@@ -35,6 +35,8 @@ const _BORDER_PIXELS_SMALL := 8.0
 ## The player marker: a dark hull with a lighter one inside it, so it reads over any tile. The light one is the
 ## driven entity's slot colour from [OwnedSlots], as are the dots of the player's other entities.
 const _MARKER_OUTLINE := Color(0.15, 0.11, 0.08)
+## A treasure map's circle, in the gold the shimmer of Treasure Sense uses.
+const _TREASURE_INK := Color(0.9, 0.68, 0.2)
 
 ## The arrow head, in pixels from the player's own position at [member marker_scale] 1. The notch is what
 ## stops it reading as a plain triangle, which at this size is the difference between "facing" and "here".
@@ -311,6 +313,13 @@ var show_grid: bool = false:
 var pin: Variant = null:
 	set(value):
 		pin = value
+		queue_redraw()
+
+## The circles of the treasure maps in the bag: centre x, centre y and radius in metres. A cache lies somewhere
+## inside each.
+var treasure_circles: Array[Vector3] = []:
+	set(value):
+		treasure_circles = value
 		queue_redraw()
 
 ## Where the player's own marker is drawn, and what [member follow_player] follows.
@@ -600,6 +609,7 @@ func _draw() -> void:
 	_draw_places()
 	_draw_services()
 	_draw_marks()
+	_draw_treasure_circles()
 	_draw_journeys()
 	_draw_draft()
 	_draw_failures()
@@ -694,6 +704,16 @@ func _draw_grid(west: float, east: float, south: float, north: float) -> void:
 		var at := Vector2(4.0, _to_screen(Vector2(0.0, middle)).y + font.get_ascent(_GRID_LABEL_SIZE) * 0.5)
 		_draw_haloed(font, at, str(row + 1), _GRID_LABEL_SIZE, _LABEL_COLOUR)
 		row += 1
+
+
+func _draw_treasure_circles() -> void:
+	for circle in treasure_circles:
+		var at := _to_screen(Vector2(circle.x, circle.y))
+		# A map of rank three is exact; it still needs a mark a player can see.
+		var radius := maxf(circle.z / _metres_per_pixel(), _PIN_RADIUS)
+		for pass_ink: Color in [_MARKER_OUTLINE, _TREASURE_INK]:
+			var width := 4.0 if pass_ink == _MARKER_OUTLINE else 2.0
+			draw_arc(at, radius, 0.0, TAU, 48, pass_ink, width, true)
 
 
 func _draw_pin() -> void:

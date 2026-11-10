@@ -2148,10 +2148,14 @@ skills:
   - id: 184
     identifier: M_TREASURE_MAP
     script: TreasureMap
-    targetType: GROUND
-    range: 2
+    targetType: FRIENDLY
+    needsLineOfSight: false
     manaCost: 20
     castTime: 5
+    mechanics:
+      reagents:
+        - item: chart_blank
+          amount: 1
     description: |
       Charts a sensed treasure cache onto a sheet of empty paper. The map is an item that can be
       traded or sold, so whoever holds it can dig the cache up.

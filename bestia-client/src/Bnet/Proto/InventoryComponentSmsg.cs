@@ -27,20 +27,23 @@ namespace Bnet {
             "CjFtZXNzYWdlcy9jb21wb25lbnQvaW52ZW50b3J5X2NvbXBvbmVudF9zbXNn",
             "LnByb3RvEgRibmV0GihtZXNzYWdlcy9jb21wb25lbnQvaXRlbV9zdGF0X3Zh",
             "bHVlLnByb3RvIkIKFkludmVudG9yeUNvbXBvbmVudFNNU0cSIgoFaXRlbXMY",
-            "AiADKAsyEy5ibmV0LkludmVudG9yeUl0ZW1KBAgBEAIipgIKDUludmVudG9y",
+            "AiADKAsyEy5ibmV0LkludmVudG9yeUl0ZW1KBAgBEAIiywIKDUludmVudG9y",
             "eUl0ZW0SDwoHaXRlbV9pZBgBIAEoDRIRCgl1bmlxdWVfaWQYAiABKAQSDgoG",
             "YW1vdW50GAMgASgNEhAKCGVxdWlwcGVkGAQgASgIEhIKCmR1cmFiaWxpdHkY",
             "BSABKA0SFgoObWF4X2R1cmFiaWxpdHkYBiABKA0SDQoFc2xvdHMYByABKA0S",
             "FQoNdXBncmFkZV9sZXZlbBgIIAEoDRISCgppdGVtX2xldmVsGAkgASgNEikK",
             "DHJvbGxlZF9zdGF0cxgKIAMoCzITLmJuZXQuSXRlbVN0YXRWYWx1ZRIWCg5w",
             "bGF5ZXJfaXRlbV9pZBgLIAEoBBISCgpjcmFmdGVkX2J5GAwgASgJEhIKCmNy",
-            "YWZ0ZWRfaW4YDSABKAlCNAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhtJbnZl",
-            "bnRvcnlDb21wb25lbnRTTVNHUHJvdG9iBnByb3RvMw=="));
+            "YWZ0ZWRfaW4YDSABKAkSIwoKbWFwX2NpcmNsZRgOIAEoCzIPLmJuZXQuTWFw",
+            "Q2lyY2xlIjEKCU1hcENpcmNsZRIJCgF4GAEgASgBEgkKAXkYAiABKAESDgoG",
+            "cmFkaXVzGAMgASgBQjQKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IbSW52ZW50",
+            "b3J5Q29tcG9uZW50U01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryComponentSMSG), global::Bnet.InventoryComponentSMSG.Parser, new[]{ "Items" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "PlayerItemId", "CraftedBy", "CraftedIn" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "PlayerItemId", "CraftedBy", "CraftedIn", "MapCircle" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MapCircle), global::Bnet.MapCircle.Parser, new[]{ "X", "Y", "Radius" }, null, null, null, null)
           }));
     }
     #endregion
@@ -286,6 +289,7 @@ namespace Bnet {
       playerItemId_ = other.playerItemId_;
       craftedBy_ = other.craftedBy_;
       craftedIn_ = other.craftedIn_;
+      mapCircle_ = other.mapCircle_ != null ? other.mapCircle_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -475,6 +479,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "map_circle" field.</summary>
+    public const int MapCircleFieldNumber = 14;
+    private global::Bnet.MapCircle mapCircle_;
+    /// <summary>
+    /// A circle this copy draws on its holder's map, like a treasure map's search area. Unset for most items.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.MapCircle MapCircle {
+      get { return mapCircle_; }
+      set {
+        mapCircle_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -503,6 +522,7 @@ namespace Bnet {
       if (PlayerItemId != other.PlayerItemId) return false;
       if (CraftedBy != other.CraftedBy) return false;
       if (CraftedIn != other.CraftedIn) return false;
+      if (!object.Equals(MapCircle, other.MapCircle)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -523,6 +543,7 @@ namespace Bnet {
       if (PlayerItemId != 0UL) hash ^= PlayerItemId.GetHashCode();
       if (CraftedBy.Length != 0) hash ^= CraftedBy.GetHashCode();
       if (CraftedIn.Length != 0) hash ^= CraftedIn.GetHashCode();
+      if (mapCircle_ != null) hash ^= MapCircle.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -590,6 +611,10 @@ namespace Bnet {
         output.WriteRawTag(106);
         output.WriteString(CraftedIn);
       }
+      if (mapCircle_ != null) {
+        output.WriteRawTag(114);
+        output.WriteMessage(MapCircle);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -649,6 +674,10 @@ namespace Bnet {
         output.WriteRawTag(106);
         output.WriteString(CraftedIn);
       }
+      if (mapCircle_ != null) {
+        output.WriteRawTag(114);
+        output.WriteMessage(MapCircle);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -695,6 +724,9 @@ namespace Bnet {
       }
       if (CraftedIn.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(CraftedIn);
+      }
+      if (mapCircle_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(MapCircle);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -744,6 +776,12 @@ namespace Bnet {
       }
       if (other.CraftedIn.Length != 0) {
         CraftedIn = other.CraftedIn;
+      }
+      if (other.mapCircle_ != null) {
+        if (mapCircle_ == null) {
+          MapCircle = new global::Bnet.MapCircle();
+        }
+        MapCircle.MergeFrom(other.MapCircle);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -816,6 +854,13 @@ namespace Bnet {
             CraftedIn = input.ReadString();
             break;
           }
+          case 114: {
+            if (mapCircle_ == null) {
+              MapCircle = new global::Bnet.MapCircle();
+            }
+            input.ReadMessage(MapCircle);
+            break;
+          }
         }
       }
     #endif
@@ -885,6 +930,288 @@ namespace Bnet {
           }
           case 106: {
             CraftedIn = input.ReadString();
+            break;
+          }
+          case 114: {
+            if (mapCircle_ == null) {
+              MapCircle = new global::Bnet.MapCircle();
+            }
+            input.ReadMessage(MapCircle);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// In world metres, x east and y north like the server's coordinates.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class MapCircle : pb::IMessage<MapCircle>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<MapCircle> _parser = new pb::MessageParser<MapCircle>(() => new MapCircle());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<MapCircle> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Bnet.InventoryComponentSmsgReflection.Descriptor.MessageTypes[2]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public MapCircle() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public MapCircle(MapCircle other) : this() {
+      x_ = other.x_;
+      y_ = other.y_;
+      radius_ = other.radius_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public MapCircle Clone() {
+      return new MapCircle(this);
+    }
+
+    /// <summary>Field number for the "x" field.</summary>
+    public const int XFieldNumber = 1;
+    private double x_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public double X {
+      get { return x_; }
+      set {
+        x_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "y" field.</summary>
+    public const int YFieldNumber = 2;
+    private double y_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public double Y {
+      get { return y_; }
+      set {
+        y_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "radius" field.</summary>
+    public const int RadiusFieldNumber = 3;
+    private double radius_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public double Radius {
+      get { return radius_; }
+      set {
+        radius_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as MapCircle);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(MapCircle other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(X, other.X)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(Y, other.Y)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(Radius, other.Radius)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (X != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(X);
+      if (Y != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(Y);
+      if (Radius != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(Radius);
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (X != 0D) {
+        output.WriteRawTag(9);
+        output.WriteDouble(X);
+      }
+      if (Y != 0D) {
+        output.WriteRawTag(17);
+        output.WriteDouble(Y);
+      }
+      if (Radius != 0D) {
+        output.WriteRawTag(25);
+        output.WriteDouble(Radius);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (X != 0D) {
+        output.WriteRawTag(9);
+        output.WriteDouble(X);
+      }
+      if (Y != 0D) {
+        output.WriteRawTag(17);
+        output.WriteDouble(Y);
+      }
+      if (Radius != 0D) {
+        output.WriteRawTag(25);
+        output.WriteDouble(Radius);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (X != 0D) {
+        size += 1 + 8;
+      }
+      if (Y != 0D) {
+        size += 1 + 8;
+      }
+      if (Radius != 0D) {
+        size += 1 + 8;
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(MapCircle other) {
+      if (other == null) {
+        return;
+      }
+      if (other.X != 0D) {
+        X = other.X;
+      }
+      if (other.Y != 0D) {
+        Y = other.Y;
+      }
+      if (other.Radius != 0D) {
+        Radius = other.Radius;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 9: {
+            X = input.ReadDouble();
+            break;
+          }
+          case 17: {
+            Y = input.ReadDouble();
+            break;
+          }
+          case 25: {
+            Radius = input.ReadDouble();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 9: {
+            X = input.ReadDouble();
+            break;
+          }
+          case 17: {
+            Y = input.ReadDouble();
+            break;
+          }
+          case 25: {
+            Radius = input.ReadDouble();
             break;
           }
         }

@@ -679,6 +679,7 @@ ERROR_DIG_NEEDS_PICKAXE,This ground is rock. Dig it with a pickaxe.
 ERROR_DIG_NEEDS_SHOVEL,This ground is soil. Dig it with a shovel.
 ERROR_DIG_TOO_FAR,That spot is too far away to dig. Walk closer.
 ERROR_DIG_NOTHING_FOUND,You dig a little but find nothing buried here.
+ERROR_TREASURE_MAP_NOTHING_SENSED,You have sensed no treasure lately to draw a map of.
 =======
 SKILLS_TITLE,Skills
 SKILLS_TAB_OTHER,Other
