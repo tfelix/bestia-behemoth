@@ -105,10 +105,12 @@ class PlayerIdleAiTest {
   fun `courage steps only ever grow bolder`() {
     val aggressions = Courage.entries.map { it.aggression }
     val retreatLines = Courage.entries.map { it.retreatBelowHealthPct ?: 0 }
+    val takesOnStrongerFoes = Courage.entries.map { it.takesOnStrongerFoes }
 
     assertEquals(aggressions.sorted(), aggressions)
     assertTrue(aggressions.all { it in 0..100 })
     assertEquals(retreatLines.sortedDescending(), retreatLines)
+    assertEquals(takesOnStrongerFoes.sorted(), takesOnStrongerFoes)
   }
 
   @Test

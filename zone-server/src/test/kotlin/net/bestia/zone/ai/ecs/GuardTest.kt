@@ -3,6 +3,8 @@ package net.bestia.zone.ai.ecs
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.BestiaJob
+import net.bestia.zone.ai.profile.Courage
+import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.damage.wardPlayer
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Account
@@ -29,8 +31,9 @@ class GuardTest {
     ai = AiPipelineFixture()
   }
 
-  private fun guard(): EntityId {
-    val id = ai.spawnMob("aggressive_melee", home, orders = AiConfig(BestiaJob.GUARD))
+  private fun guard(courage: Courage = Courage.STEADY): EntityId {
+    val id = ai.spawnMob("aggressive_melee", home, orders = AiConfig(BestiaJob.GUARD, courage))
+    ai.world.add(id, Level(GUARD_LEVEL))
     ai.world.add(id, OwnedBestia(masterId = MASTER_ID, playerBestiaId = id))
     ai.world.add(id, Account(MASTER_ACCOUNT))
     return id
@@ -185,7 +188,38 @@ class GuardTest {
     assertNeverTargets(guard, stranger, "it attacked a warded master")
   }
 
+  @Test
+  fun `a careful guard leaves a stronger wolf alone but fights back when it attacks`() {
+    val guard = guard(Courage.CAREFUL)
+    val wolf = strongerWolf()
+
+    repeat(20 * 5) {
+      ai.tick()
+      assertNotEquals("KillEnemy", ai.goalNameOf(guard), "it started a fight with a stronger wolf")
+    }
+
+    ai.recordHit(guard, wolf)
+    ai.tickUntilGoal(guard, "KillAttacker")
+  }
+
+  @Test
+  fun `a bold guard takes on a stronger wolf`() {
+    val guard = guard(Courage.BOLD)
+    val wolf = strongerWolf()
+
+    ai.tickUntilGoal(guard, "KillEnemy")
+
+    assertEquals(wolf, targetOf(guard))
+  }
+
+  private fun strongerWolf(): EntityId {
+    val wolf = wild("aggressive_melee", Vec3L(5, 0, 0))
+    ai.world.add(wolf, Level(GUARD_LEVEL + BestiaDomain.STRONGER_FOE_LEVEL_LEAD))
+    return wolf
+  }
+
   private companion object {
+    const val GUARD_LEVEL = 10
     const val MASTER_ID = 7L
     const val MASTER_ACCOUNT = MASTER_ID * 10
     const val STRANGER_ID = 2L

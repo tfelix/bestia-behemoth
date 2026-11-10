@@ -91,6 +91,7 @@ class BestiaRuntime(
     memory.set(BestiaDomain.HEAL_BELOW_HEALTH_PCT, BestiaDomain.DEFAULT_HEAL_BELOW_HEALTH_PCT, Blackboard.PERMANENT)
     config.courage.retreatBelowHealthPct?.let { memory.set(BestiaDomain.RETREAT_BELOW_HEALTH_PCT, it, Blackboard.PERMANENT) }
     memory.set(BestiaDomain.FLEES_ON_SIGHT, config.courage.fleesOnSight, Blackboard.PERMANENT)
+    memory.set(BestiaDomain.TAKES_ON_STRONGER_FOES, config.courage.takesOnStrongerFoes, Blackboard.PERMANENT)
     if (config.job == BestiaJob.GATHER) {
       memory.set(BestiaDomain.GATHER_AREA, WorkArea(homePosition, wanderRadius), Blackboard.PERMANENT)
     }

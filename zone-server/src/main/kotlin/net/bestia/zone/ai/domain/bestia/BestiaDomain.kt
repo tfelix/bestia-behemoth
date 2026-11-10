@@ -128,6 +128,7 @@ object BestiaDomain : AiDomainCatalogue {
   val RESTLESSNESS = CommonKeys.RESTLESSNESS
   val RESTED = CommonKeys.RESTED
   val TARGET_DEAD = CommonKeys.TARGET_DEAD
+  val TARGET_LEVEL_LEAD = CommonKeys.TARGET_LEVEL_LEAD
 
   // ------------------------------------------------------------------ this domain
 
@@ -152,6 +153,10 @@ object BestiaDomain : AiDomainCatalogue {
   val HEAL_BELOW_HEALTH_PCT = StateKey<Int>("healBelowHealthPct", retain = Blackboard.PERMANENT)
   val RETREAT_BELOW_HEALTH_PCT = StateKey<Int>("retreatBelowHealthPct", retain = Blackboard.PERMANENT)
   val FLEES_ON_SIGHT = StateKey<Boolean>("fleesOnSight", retain = Blackboard.PERMANENT)
+  val TAKES_ON_STRONGER_FOES = StateKey<Boolean>("takesOnStrongerFoes", retain = Blackboard.PERMANENT)
+
+  /** A foe this many levels above a bestia is stronger, and its courage decides whether to start that fight. */
+  const val STRONGER_FOE_LEVEL_LEAD = 5
 
   /** How full its bag is, 0..100 of what it can carry. */
   val BAG_LOAD_PCT = StateKey<Int>("bagLoadPct", observed = true)
@@ -300,6 +305,13 @@ object BestiaDomain : AiDomainCatalogue {
     return hurt || frightened
   }
 
+  /** Wild mobs have no courage and take on anything. */
+  private fun courageHoldsBack(state: WorldState): Boolean {
+    val stronger = (state.get(TARGET_LEVEL_LEAD) ?: 0) >= STRONGER_FOE_LEVEL_LEAD
+
+    return stronger && state.get(TAKES_ON_STRONGER_FOES) == false
+  }
+
   fun atRetreat(state: WorldState): Boolean =
     (homeDistanceOrNull(state) ?: Long.MAX_VALUE) <= RETREAT_ARRIVAL_RADIUS
 
@@ -395,7 +407,8 @@ object BestiaDomain : AiDomainCatalogue {
      * [HEALTH_PCT] survives as a *consideration* rather than a gate, which is the part of the old behaviour
      * worth keeping: a badly hurt aggressor still wants the kill less than a healthy one, so it will drop a
      * fight it merely picked in favour of eating or sleeping. Being attacked is a different question and
-     * [KILL_ATTACKER] answers it, unscaled.
+     * [KILL_ATTACKER] answers it, unscaled. That is also why an owned bestia's courage may hold it back from a
+     * stronger foe here and still lets it fight back.
      */
     val KILL_ENEMY = Goal(
       name = "KillEnemy",
@@ -403,7 +416,7 @@ object BestiaDomain : AiDomainCatalogue {
         consider(AGGRESSION.linear())
         consider(HEALTH_PCT.linear())
       },
-      availability = Precondition { s -> enemyInSight(s) },
+      availability = Precondition { s -> enemyInSight(s) && !courageHoldsBack(s) },
       desiredState = listOf(Preconditions.equalTo(TARGET_DEAD, true)),
     )
 

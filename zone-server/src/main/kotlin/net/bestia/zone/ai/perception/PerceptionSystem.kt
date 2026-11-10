@@ -16,6 +16,7 @@ import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
@@ -61,6 +62,7 @@ class PerceptionSystem(
     TakenDamage::class,
     StatusEffects::class,
     Taunted::class,
+    Level::class,
   ) + Hostility.READS + DamageGate.READS
 
   /**
@@ -127,6 +129,8 @@ class PerceptionSystem(
         val targetPos = world.get(target, Position::class)?.toVec3L() ?: selfPos
         memory.set(CommonKeys.TARGET_ID, target)
         memory.set(CommonKeys.TARGET_POSITION, targetPos)
+        val levelLead = levelLead(world, id, target)
+        if (levelLead != null) memory.set(CommonKeys.TARGET_LEVEL_LEAD, levelLead) else memory.remove(CommonKeys.TARGET_LEVEL_LEAD)
         // Something is alive in front of it, so whatever it killed last is not the question any more. A kill
         // goal asks for `TARGET_DEAD` and the planner skips a goal whose desired state already holds, so a
         // belief carried over from the previous kill is an agent that stands and takes the beating.
@@ -136,6 +140,7 @@ class PerceptionSystem(
         memory.remove(CommonKeys.TARGET_ID)
         memory.remove(CommonKeys.TARGET_POSITION)
         memory.remove(CommonKeys.TARGET_ARCHETYPE)
+        memory.remove(CommonKeys.TARGET_LEVEL_LEAD)
       }
 
       // Unblocks planning. Until this is set the think stage leaves the agent alone, so nothing is ever
@@ -211,6 +216,13 @@ class PerceptionSystem(
     val effects = world.get(entityId, StatusEffects::class) ?: return false
 
     return effects.hasEffect(StatusEffectId.PLAY_DEAD.id) || effects.isConcealed()
+  }
+
+  private fun levelLead(world: World, self: Long, target: Long): Int? {
+    val ownLevel = world.get(self, Level::class)?.level ?: return null
+    val targetLevel = world.get(target, Level::class)?.level ?: return null
+
+    return targetLevel - ownLevel
   }
 
   private fun healthPct(world: World, entityId: Long): Int {

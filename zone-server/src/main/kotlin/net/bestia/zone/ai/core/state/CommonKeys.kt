@@ -30,6 +30,9 @@ object CommonKeys {
   val TARGET_ARCHETYPE = StateKey<String>("targetArchetype", observed = true)
   val TARGET_POSITION = StateKey<Vec3L>("targetPosition", observed = true)
 
+  /** How many levels the target stands above this agent, below zero when beneath it. Absent where either has none. */
+  val TARGET_LEVEL_LEAD = StateKey<Int>("targetLevelLead", observed = true)
+
   /** Flipped true by perception when this agent is attacked, gating retaliation. */
   val IS_AGGRO = StateKey<Boolean>("isAggro", observed = true)
 

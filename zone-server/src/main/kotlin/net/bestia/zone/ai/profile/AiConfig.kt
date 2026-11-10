@@ -106,14 +106,16 @@ enum class Courage(
   val retreatBelowHealthPct: Int?,
   /** Retreats from any enemy it sees, not only once hurt. */
   val fleesOnSight: Boolean = false,
+  /** Starts a fight with a foe [net.bestia.zone.ai.domain.bestia.BestiaDomain.STRONGER_FOE_LEVEL_LEAD] levels above it. */
+  val takesOnStrongerFoes: Boolean = false,
 ) {
   TIMID(10, retreatBelowHealthPct = 70, fleesOnSight = true),
   CAREFUL(30, retreatBelowHealthPct = 50),
 
-  /** The archetype-neutral middle, and the default. */
+  /** The archetype-neutral middle, and the default. Takes on a stronger foe only once it attacks. */
   STEADY(50, retreatBelowHealthPct = 35),
-  BOLD(75, retreatBelowHealthPct = 20),
-  BRAVE(100, retreatBelowHealthPct = null);
+  BOLD(75, retreatBelowHealthPct = 20, takesOnStrongerFoes = true),
+  BRAVE(100, retreatBelowHealthPct = null, takesOnStrongerFoes = true);
 
   companion object {
     fun fromNameOrNull(name: String): Courage? = entries.firstOrNull { it.name.equals(name, ignoreCase = true) }
