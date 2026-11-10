@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "OpenCraftingCmsgProto";
+
+/**
+ * Open the crafting window where the player stands: at a station in range, or as Handiwork when there is none.
+ * Answered with a CraftableRecipesSMSG.
+ */
+message OpenCraftingCMSG {
+  // The skill to show first, which also picks its station when one is in range. 0 picks none.
+  uint64 skill_id = 1;
+}

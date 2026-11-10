@@ -14,6 +14,7 @@ import "messages/crafting/craftable_recipes_smsg.proto";
 import "messages/crafting/discover_recipe_cmsg.proto";
 import "messages/crafting/discovery_result_smsg.proto";
 import "messages/crafting/material_axes_smsg.proto";
+import "messages/crafting/open_crafting_cmsg.proto";
 import "messages/entity/move_entity.proto";
 import "messages/entity/journey_ended_smsg.proto";
 import "messages/notebook/notebook.proto";
@@ -289,6 +290,7 @@ message Envelope {
     DiscoverRecipeCMSG discover_recipe = 703;
     DiscoveryResultSMSG discovery_result = 704;
     MaterialAxesSMSG material_axes = 705;
+    OpenCraftingCMSG open_crafting = 706;
 
     // TRADE 800
     RequestTradeCMSG request_trade = 800;
