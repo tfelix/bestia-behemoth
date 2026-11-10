@@ -25,23 +25,24 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiptZXNzYWdlcy9jcmFmdGluZy9zdGF0aW9uX3N0YXRlX3Ntc2cucHJvdG8S",
-            "BGJuZXQimgEKEFN0YXRpb25TdGF0ZVNNU0cSFAoMc3RydWN0dXJlX2lkGAEg",
+            "BGJuZXQitAEKEFN0YXRpb25TdGF0ZVNNU0cSFAoMc3RydWN0dXJlX2lkGAEg",
             "ASgEEigKB2VudHJpZXMYAiADKAsyFy5ibmV0LlN0YXRpb25RdWV1ZUVudHJ5",
             "EiMKBGhlbGQYAyADKAsyFS5ibmV0LlN0YXRpb25IZWxkSXRlbRIhCgVwYXVz",
-            "ZRgEIAEoDjISLmJuZXQuU3RhdGlvblBhdXNlInMKEVN0YXRpb25RdWV1ZUVu",
-            "dHJ5EhEKCXJlY2lwZV9pZBgBIAEoBBIOCgZhbW91bnQYAiABKA0SDAoEZG9u",
-            "ZRgDIAEoDRIXCg9wcm9ncmVzc19taWxsaXMYBCABKA0SFAoMY3JhZnRfbWls",
-            "bGlzGAUgASgNIjIKD1N0YXRpb25IZWxkSXRlbRIPCgdpdGVtX2lkGAEgASgN",
-            "Eg4KBmFtb3VudBgCIAEoDSrCAQoMU3RhdGlvblBhdXNlEhYKElNUQVRJT05f",
-            "UEFVU0VfTk9ORRAAEh0KGVNUQVRJT05fUEFVU0VfV09SS0VSX0FXQVkQARIg",
-            "ChxTVEFUSU9OX1BBVVNFX1dPUktFUl9PRkZMSU5FEAISGgoWU1RBVElPTl9Q",
-            "QVVTRV9CQUdfRlVMTBADEh0KGVNUQVRJT05fUEFVU0VfU1RBVElPTl9PVVQQ",
-            "BBIeChpTVEFUSU9OX1BBVVNFX0NBTk5PVF9DUkFGVBAFQi4KFW5ldC5iZXN0",
-            "aWEuYm5ldC5wcm90b0IVU3RhdGlvblN0YXRlU21zZ1Byb3RvYgZwcm90bzM="));
+            "ZRgEIAEoDjISLmJuZXQuU3RhdGlvblBhdXNlEhgKEHdvcmtlcl9lbnRpdHlf",
+            "aWQYBSABKAQicwoRU3RhdGlvblF1ZXVlRW50cnkSEQoJcmVjaXBlX2lkGAEg",
+            "ASgEEg4KBmFtb3VudBgCIAEoDRIMCgRkb25lGAMgASgNEhcKD3Byb2dyZXNz",
+            "X21pbGxpcxgEIAEoDRIUCgxjcmFmdF9taWxsaXMYBSABKA0iMgoPU3RhdGlv",
+            "bkhlbGRJdGVtEg8KB2l0ZW1faWQYASABKA0SDgoGYW1vdW50GAIgASgNKsIB",
+            "CgxTdGF0aW9uUGF1c2USFgoSU1RBVElPTl9QQVVTRV9OT05FEAASHQoZU1RB",
+            "VElPTl9QQVVTRV9XT1JLRVJfQVdBWRABEiAKHFNUQVRJT05fUEFVU0VfV09S",
+            "S0VSX09GRkxJTkUQAhIaChZTVEFUSU9OX1BBVVNFX0JBR19GVUxMEAMSHQoZ",
+            "U1RBVElPTl9QQVVTRV9TVEFUSU9OX09VVBAEEh4KGlNUQVRJT05fUEFVU0Vf",
+            "Q0FOTk9UX0NSQUZUEAVCLgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhVTdGF0",
+            "aW9uU3RhdGVTbXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.StationPause), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StationStateSMSG), global::Bnet.StationStateSMSG.Parser, new[]{ "StructureId", "Entries", "Held", "Pause" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StationStateSMSG), global::Bnet.StationStateSMSG.Parser, new[]{ "StructureId", "Entries", "Held", "Pause", "WorkerEntityId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StationQueueEntry), global::Bnet.StationQueueEntry.Parser, new[]{ "RecipeId", "Amount", "Done", "ProgressMillis", "CraftMillis" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StationHeldItem), global::Bnet.StationHeldItem.Parser, new[]{ "ItemId", "Amount" }, null, null, null, null)
           }));
@@ -106,6 +107,7 @@ namespace Bnet {
       entries_ = other.entries_.Clone();
       held_ = other.held_.Clone();
       pause_ = other.pause_;
+      workerEntityId_ = other.workerEntityId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -167,6 +169,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "worker_entity_id" field.</summary>
+    public const int WorkerEntityIdFieldNumber = 5;
+    private ulong workerEntityId_;
+    /// <summary>
+    /// The bestia that works the queue, or 0 when the owner does.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong WorkerEntityId {
+      get { return workerEntityId_; }
+      set {
+        workerEntityId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -186,6 +203,7 @@ namespace Bnet {
       if(!entries_.Equals(other.entries_)) return false;
       if(!held_.Equals(other.held_)) return false;
       if (Pause != other.Pause) return false;
+      if (WorkerEntityId != other.WorkerEntityId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -197,6 +215,7 @@ namespace Bnet {
       hash ^= entries_.GetHashCode();
       hash ^= held_.GetHashCode();
       if (Pause != global::Bnet.StationPause.None) hash ^= Pause.GetHashCode();
+      if (WorkerEntityId != 0UL) hash ^= WorkerEntityId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -225,6 +244,10 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteEnum((int) Pause);
       }
+      if (WorkerEntityId != 0UL) {
+        output.WriteRawTag(40);
+        output.WriteUInt64(WorkerEntityId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -245,6 +268,10 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteEnum((int) Pause);
       }
+      if (WorkerEntityId != 0UL) {
+        output.WriteRawTag(40);
+        output.WriteUInt64(WorkerEntityId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -262,6 +289,9 @@ namespace Bnet {
       size += held_.CalculateSize(_repeated_held_codec);
       if (Pause != global::Bnet.StationPause.None) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Pause);
+      }
+      if (WorkerEntityId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(WorkerEntityId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -282,6 +312,9 @@ namespace Bnet {
       held_.Add(other.held_);
       if (other.Pause != global::Bnet.StationPause.None) {
         Pause = other.Pause;
+      }
+      if (other.WorkerEntityId != 0UL) {
+        WorkerEntityId = other.WorkerEntityId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -318,6 +351,10 @@ namespace Bnet {
             Pause = (global::Bnet.StationPause) input.ReadEnum();
             break;
           }
+          case 40: {
+            WorkerEntityId = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -351,6 +388,10 @@ namespace Bnet {
           }
           case 32: {
             Pause = (global::Bnet.StationPause) input.ReadEnum();
+            break;
+          }
+          case 40: {
+            WorkerEntityId = input.ReadUInt64();
             break;
           }
         }

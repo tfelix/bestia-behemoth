@@ -19,11 +19,15 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
     /// </summary>
     [Export] public string PauseName { get; set; } = "none";
 
+    /// <summary>The bestia that works the queue, or 0 when the owner does.</summary>
+    [Export] public ulong WorkerEntityId { get; set; }
+
     public static StationStateSMSG FromProto(global::Bnet.StationStateSMSG proto)
     {
       var message = new StationStateSMSG
       {
         StructureId = proto.StructureId,
+        WorkerEntityId = proto.WorkerEntityId,
         PauseName = proto.Pause switch
         {
           global::Bnet.StationPause.WorkerAway => "worker_away",
