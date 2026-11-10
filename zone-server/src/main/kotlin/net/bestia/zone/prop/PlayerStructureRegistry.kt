@@ -1,6 +1,8 @@
 package net.bestia.zone.prop
 
 import java.time.Instant
+import net.bestia.zone.prop.station.QueueEntry
+import net.bestia.zone.prop.station.StationContents
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.geometry.Vec3L
@@ -24,7 +26,13 @@ data class StructureEntry(
   val remainingBuildSeconds: Float = 0f,
 
   /** See [PlayerStructure.burnsOutAt]. */
-  val burnsOutAt: Instant? = null
+  val burnsOutAt: Instant? = null,
+
+  /** A station's work queue, first entry first. */
+  val queue: List<QueueEntry> = emptyList(),
+
+  /** Item id -> amount paid into a station for its queue and not used yet. */
+  val held: Map<Long, Int> = emptyMap()
 ) {
 
   val isUnderConstruction: Boolean
@@ -158,6 +166,20 @@ class PlayerStructureRegistry(
     }
   }
 
+  /** Replaces a station's queue and what it holds, in memory now and in its row afterwards. */
+  fun setStationContents(structureId: Long, queue: List<QueueEntry>, held: Map<Long, Int>) {
+    val current = byId[structureId] ?: return
+    reindex(current.copy(queue = queue, held = held.filterValues { it > 0 }))
+
+    asyncJobExecutor.submit(structureId) {
+      repository.findById(structureId).ifPresent { row ->
+        row.stationQueue = StationContents.encodeQueue(queue)
+        row.stationHeld = StationContents.encodeHeld(held)
+        repository.save(row)
+      }
+    }
+  }
+
   /**
    * Turns a site into a standing structure. Idempotent, and a no-op for one that was never a site.
    *
@@ -206,7 +228,8 @@ class PlayerStructureRegistry(
     repository.findAll().forEach { row ->
       val entry = StructureEntry(
         row.id, row.kind, row.ownerMasterId, row.ownerAccountId, Vec3L(row.x, row.y, row.z), row.yaw,
-        row.totalBuildSeconds, row.remainingBuildSeconds, row.burnsOutAt
+        row.totalBuildSeconds, row.remainingBuildSeconds, row.burnsOutAt,
+        StationContents.decodeQueue(row.stationQueue), StationContents.decodeHeld(row.stationHeld)
       )
       index(row.chunkX, row.chunkY, entry)
     }
