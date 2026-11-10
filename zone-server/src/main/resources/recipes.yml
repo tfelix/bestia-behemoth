@@ -124,6 +124,32 @@ recipes:
     craftSeconds: 90.0
     baseSuccessChance: 1.0
 
+  - id: 65
+    identifier: BREEDING_FARM_KIT
+    effect: PRODUCE
+    output: { item: breeding_farm_kit, amount: 1 }
+    inputs:
+      - { item: plank, amount: 12 }
+      - { item: reed_stalk, amount: 6 }
+      - { item: soft_fur, amount: 4 }
+    skill: { skill: M_CARPENTRY, level: 2 }
+    station: WORKBENCH
+    craftSeconds: 12.0
+    baseSuccessChance: 1.0
+
+  - id: 43
+    identifier: NESTING_BUNDLE
+    effect: PRODUCE
+    output: { item: nesting_bundle, amount: 1 }
+    inputs:
+      - { item: reed_stalk, amount: 1 }
+      - { item: soft_fur, amount: 1 }
+      - { item: feather, amount: 1 }
+    skill: { skill: M_CARPENTRY, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 4.0
+    baseSuccessChance: 0.9
+
   - id: 39
     identifier: FURNACE_KIT
     effect: PRODUCE

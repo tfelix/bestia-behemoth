@@ -579,6 +579,43 @@ items:
       Kindling, a few stones and a lump of resin to get it going.
 
       Set it down to light a campfire. It burns half an hour, longer with more wood.
+
+  # Breeding, see https://docs.bestia-game.net/docs/mechanics/bestias/bestia/#breeding.
+  - id: 439
+    item-db-name: breeding_farm_kit
+    base-level: 20
+    weight: 1500
+    type: USABLE
+    material: WOOD
+    script: BreedingFarmKitScript
+    description: |
+      Fence posts, planks and a folded nesting hut, tied with cord.
+
+      Set it down and it becomes a Breeding Farm, where a pair of bestias lays an egg.
+
+  - id: 440
+    item-db-name: nesting_bundle
+    base-level: 1
+    weight: 50
+    type: ETC
+    material: PLANT
+    description: |
+      Reeds, fur and feathers bound into a nest.
+
+      A Breeding Farm uses up one for each clutch.
+
+  # Never stacks: what the egg will hatch into lives on a `bestia_egg` row keyed by this item's instance.
+  - id: 441
+    item-db-name: bestia_egg
+    base-level: 1
+    weight: 200
+    type: ETC
+    material: FOOD
+    stackable: false
+    description: |
+      A bestia egg from a Breeding Farm, still warm.
+
+      It only hatches in an Incubator.
   # --- The economy's first commodities ------------------------------------------------------------
   # farm -> mill -> bakery -> household, which is the shortest chain that exercises every part of the
   # settlement ledger at once: several stages, a capacity that player damage can take away at the farm

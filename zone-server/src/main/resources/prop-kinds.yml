@@ -217,6 +217,12 @@ kinds:
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
 
+  # A pen, not a station: nothing is crafted here. Wood like the bench, but a fence takes more breaking.
+  - kind: BREEDING_FARM
+    max-hp: 250
+    collider: { half-x: 2, half-y: 2, height: 1 }
+    variants: 1
+
   # Cold and lit, which `Campfire` picks from how long it has left to burn.
   - kind: CAMPFIRE
     max-hp: 60

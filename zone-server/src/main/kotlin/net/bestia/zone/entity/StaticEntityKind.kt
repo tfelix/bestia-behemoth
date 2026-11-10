@@ -155,7 +155,10 @@ enum class StaticEntityKind {
   POST_OFFICE,
 
   // Worldgen's FixtureKind.CAMP, appended here for the ordinal rather than beside the other fixtures.
-  FIXTURE_CAMP;
+  FIXTURE_CAMP,
+
+  // Breeding: a player structure like the stations, but it pairs bestias instead of crafting.
+  BREEDING_FARM;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.
