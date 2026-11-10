@@ -45,7 +45,7 @@ class WeatherPublisherTest {
 
     val groundWeather = mockk<GroundWeather> { every { at(any(), any(), any()) } returnsMany grounds }
 
-    return WeatherPublisher(weatherService, groundWeather, chunkService, out, WeatherConfig(), skills)
+    return WeatherPublisher(weatherService, groundWeather, chunkService, out, WeatherConfig(), skills, ManaSense(mockk()))
   }
 
   private fun sky(kind: WeatherKind, cloud: Double = 0.1, intensity: Double = 0.0) = WeatherState(
@@ -134,7 +134,7 @@ class WeatherPublisherTest {
       every { surfaceElevationAt(any(), any()) } returns null
     }
     val skills = mockk<SkillRepository> { every { findByIdentifier(any()) } returns null }
-    val publisher = WeatherPublisher(weatherService, mockk(), chunkService, out, WeatherConfig(), skills)
+    val publisher = WeatherPublisher(weatherService, mockk(), chunkService, out, WeatherConfig(), skills, ManaSense(mockk()))
 
     assertFalse(publisher.publish(accountId, voxelX, voxelY, 0))
 
@@ -147,7 +147,7 @@ class WeatherPublisherTest {
     val chunkService = mockk<ChunkService>()
     val skills = mockk<SkillRepository> { every { findByIdentifier(any()) } returns null }
     val publisher = WeatherPublisher(
-      weatherService, mockk(), chunkService, out, WeatherConfig(enabled = false), skills
+      weatherService, mockk(), chunkService, out, WeatherConfig(enabled = false), skills, ManaSense(mockk())
     )
 
     assertFalse(publisher.publish(accountId, voxelX, voxelY, 0))

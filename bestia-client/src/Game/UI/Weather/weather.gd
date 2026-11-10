@@ -37,15 +37,23 @@ const _CALM_SPEED := 0.5
 ## dictionary every frame.
 const _WIND_EPSILON := 0.0087
 
+## Weather Sense's mana pointers: violet towards stronger mana, grey towards weaker.
+const _STRONGER_MANA_COLOUR := Color(0.72, 0.52, 1.0)
+const _WEAKER_MANA_COLOUR := Color(0.6, 0.6, 0.66)
+
 @onready var _compass: CompassStrip = $Margin/Rows/Compass
 @onready var _temperature_label: Label = $Margin/Rows/Bottom/Temp
 @onready var _sky_label: Label = $Margin/Rows/Bottom/Right/Sky
 @onready var _wind_label: Label = $Margin/Rows/Bottom/Right/Wind
+@onready var _sense_label: Label = $Margin/Rows/Sense
 
 var _weather: Node = null
 
 ## The bearing the wind mark was last built at, or [constant NAN] while it is calm.
 var _wind_bearing: float = NAN
+
+## The Weather Sense reading the label and the mana marks were last built from.
+var _sensed: Object = null
 
 
 ## The strip itself, for the other things that put bearings on it.
@@ -85,6 +93,7 @@ func _process(_delta: float) -> void:
 	_sky_label.text = KIND_NAMES[kind] if kind >= 0 and kind < KIND_NAMES.size() else "Unknown"
 
 	_update_wind(wind, speed)
+	_update_sense(_weather.LastReading)
 
 
 ## Names and marks the wind by where it blows *from*, the way a forecast does.
@@ -114,3 +123,38 @@ func _update_wind(wind: Vector3, speed: float) -> void:
 
 	_wind_bearing = from
 	_compass.set_marks(&"wind", [{"bearing": from, "colour": _WIND_COLOUR, "label": ""}])
+
+
+## What Weather Sense adds: the coming weather, the mana here, and marks towards stronger and weaker mana. Rebuilt
+## only when a new reading arrives, which is at most a few times a minute.
+func _update_sense(reading: Object) -> void:
+	if reading == _sensed:
+		return
+	_sensed = reading
+
+	var parts: Array[String] = []
+	if reading != null and reading.HasForecast:
+		var kind: int = reading.ForecastWeather
+		var minutes := ceili(reading.ForecastInSeconds / 60.0)
+		parts.append(tr("WEATHER_SENSE_FORECAST") % [KIND_NAMES[kind] if kind < KIND_NAMES.size() else "?", minutes])
+	if reading != null and reading.HasMana:
+		parts.append(tr("WEATHER_SENSE_MANA") % roundi(reading.Mana * 100.0))
+	_sense_label.text = "  ·  ".join(parts)
+	_sense_label.visible = not parts.is_empty()
+
+	var marks: Array = []
+	if reading != null and reading.HasStrongerMana:
+		marks.append(_mana_mark(reading.StrongerManaDirection, reading.StrongerManaMetres, "+", _STRONGER_MANA_COLOUR))
+	if reading != null and reading.HasWeakerMana:
+		marks.append(_mana_mark(reading.WeakerManaDirection, reading.WeakerManaMetres, "−", _WEAKER_MANA_COLOUR))
+	if marks.is_empty():
+		_compass.clear_marks(&"mana")
+	else:
+		_compass.set_marks(&"mana", marks)
+
+
+## The server's direction is the wind's convention, so it becomes a vector the way WeatherState builds the wind.
+func _mana_mark(direction: float, metres: float, prefix: String, colour: Color) -> Dictionary:
+	var towards := Vector3(cos(direction), 0.0, sin(direction))
+	var label := "%s%.1fkm" % [prefix, metres / 1000.0]
+	return {"bearing": CompassStrip.bearing_of(towards), "colour": colour, "label": label}

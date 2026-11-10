@@ -1,5 +1,6 @@
 package net.bestia.zone.weather
 
+import net.bestia.zone.geometry.Vec3L
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.persistence.SkillRepository
@@ -42,6 +43,7 @@ class WeatherPublisher(
   private val out: OutMessageHandler,
   private val config: WeatherConfig,
   private val skills: SkillRepository,
+  private val manaSense: ManaSense,
 ) {
 
   /**
@@ -94,7 +96,8 @@ class WeatherPublisher(
     }
 
     val cover = groundWeather.at(voxelX, voxelY, ground)
-    val message = WeatherSMSG.of(at.regionId, at.state, at.temperature, hazardVoxel, forecast, cover)
+    val mana = manaSense.read(Vec3L(voxelX, voxelY, ground.toLong()), weatherSenseLevel)
+    val message = WeatherSMSG.of(at.regionId, at.state, at.temperature, hazardVoxel, forecast, cover).copy(mana = mana)
 
     val now = System.currentTimeMillis()
     val previous = lastSent[accountId]
@@ -146,12 +149,27 @@ class WeatherPublisher(
         abs(previous.temperatureCelsius - current.temperatureCelsius) >= config.temperatureBand ||
         abs(previous.windSpeed - current.windSpeed) >= config.windBand ||
         (previous.hazardX != current.hazardX || previous.hazardY != current.hazardY) ||
-        groundChanged(previous.ground, current.ground)
+        groundChanged(previous.ground, current.ground) ||
+        manaChanged(previous.mana, current.mana)
 
   private fun groundChanged(previous: GroundCover, current: GroundCover): Boolean {
     return abs(previous.wetness - current.wetness) >= config.wetnessBand ||
         elevationMoved(previous.snowLine, current.snowLine) ||
         elevationMoved(previous.snowFull, current.snowFull)
+  }
+
+  /** A pointer appearing, vanishing or turning counts; its distance shrinking as the player walks does not. */
+  private fun manaChanged(previous: ManaReading?, current: ManaReading?): Boolean {
+    if (previous == null || current == null) return previous != current
+
+    return abs(previous.here - current.here) >= MANA_BAND ||
+        pointerTurned(previous.stronger, current.stronger) ||
+        pointerTurned(previous.weaker, current.weaker)
+  }
+
+  private fun pointerTurned(previous: ManaPointer?, current: ManaPointer?): Boolean {
+    if (previous == null || current == null) return previous != current
+    return previous.directionRadians != current.directionRadians
   }
 
   private fun elevationMoved(previous: Double?, current: Double?): Boolean {
@@ -176,5 +194,8 @@ class WeatherPublisher(
 
     /** Real seconds of foresight each level of WEATHER_SENSE buys. From the skill's own description. */
     private const val FORESIGHT_SECONDS_PER_LEVEL = 300
+
+    /** Two percent of mana: the readout shows whole percent, and a smaller drift is not worth a message. */
+    private const val MANA_BAND = 0.02
   }
 }

@@ -84,6 +84,19 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     [Export] public float SnowLine { get; set; }
     [Export] public float SnowFull { get; set; }
 
+    /// <summary>
+    /// What WEATHER_SENSE reads of the mana field: <see cref="Mana"/> where the player stands, and the nearest
+    /// clearly stronger and weaker field, each as a direction like <see cref="WindDirection"/> and a distance.
+    /// </summary>
+    [Export] public bool HasMana { get; set; }
+    [Export] public float Mana { get; set; }
+    [Export] public bool HasStrongerMana { get; set; }
+    [Export] public float StrongerManaDirection { get; set; }
+    [Export] public float StrongerManaMetres { get; set; }
+    [Export] public bool HasWeakerMana { get; set; }
+    [Export] public float WeakerManaDirection { get; set; }
+    [Export] public float WeakerManaMetres { get; set; }
+
     public static WeatherSMSG FromProto(global::Bnet.WeatherSMSG proto)
     {
       return new WeatherSMSG
@@ -105,7 +118,15 @@ namespace BestiaBehemothClient.Bnet.Message.Map
         GroundWetness = proto.GroundWetness,
         HasSnow = proto.HasSnow,
         SnowLine = proto.SnowLine,
-        SnowFull = proto.SnowFull
+        SnowFull = proto.SnowFull,
+        HasMana = proto.HasMana,
+        Mana = proto.Mana,
+        HasStrongerMana = proto.HasStrongerMana,
+        StrongerManaDirection = proto.StrongerManaDirection,
+        StrongerManaMetres = proto.StrongerManaMetres,
+        HasWeakerMana = proto.HasWeakerMana,
+        WeakerManaDirection = proto.WeakerManaDirection,
+        WeakerManaMetres = proto.WeakerManaMetres
       };
     }
 
