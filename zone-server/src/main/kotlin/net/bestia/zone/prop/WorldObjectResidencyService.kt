@@ -12,6 +12,7 @@ import net.bestia.zone.entity.ecs.PropVitality
 import net.bestia.zone.entity.ecs.StaticSync
 import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.entity.ecs.WorldObjectIdentity
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.ChunkFanOut
 import net.bestia.zone.prop.chest.ChestStorages
 import net.bestia.zone.world.WorldService
@@ -28,10 +29,10 @@ import net.bestia.zone.util.inClassNameOrder
  *
  * ### The rule
  *
- * A chunk column's generated props exist while at least one client holds terrain for that column, and not
- * otherwise. On a 128 km world there are on the order of a million tree props; the ECS holds the few thousand
- * standing on ground somebody can see. Player structures follow [ChunkResidency] instead, which simulation
- * anchors hold too - see [WorldObjectScope]. Each scope is one [Layer].
+ * A chunk column's generated props exist while at least one client holds terrain for that column or a gatherer
+ * works it (see [holdArea]), and not otherwise. On a 128 km world there are on the order of a million tree props;
+ * the ECS holds the few thousand standing on ground somebody can see. Player structures follow [ChunkResidency]
+ * instead, which simulation anchors hold too - see [WorldObjectScope]. Each scope is one [Layer].
  *
  * ### Nothing here is a cache
  *
@@ -245,6 +246,37 @@ class WorldObjectResidencyService(
   private fun drawnHeightDm(visual: StaticVisual): Int {
     val size = kinds.of(visual.kind).regrowth?.sizeOf(visual.growth) ?: return visual.heightDm
     return Math.round(visual.heightDm * size).toInt()
+  }
+
+  /**
+   * Keeps the generated props of every column the circle touches resident as though a client held it, so a
+   * gatherer works them with nobody watching. Each call is one more hold, undone by [releaseArea].
+   */
+  fun holdArea(center: Vec3L, radius: Long) {
+    columnsTouching(center, radius).forEach(viewed::hold)
+  }
+
+  fun releaseArea(center: Vec3L, radius: Long) {
+    columnsTouching(center, radius).forEach(viewed::release)
+  }
+
+  private fun columnsTouching(center: Vec3L, radius: Long): List<Long> {
+    val size = chunkSize.toLong()
+    val columns = ArrayList<Long>()
+
+    for (chunkX in Math.floorDiv(center.x - radius, size)..Math.floorDiv(center.x + radius, size)) {
+      for (chunkY in Math.floorDiv(center.y - radius, size)..Math.floorDiv(center.y + radius, size)) {
+        // The column's point nearest the centre, so a corner column the circle misses stays unloaded.
+        val nearest = Vec3L(
+          center.x.coerceIn(chunkX * size, chunkX * size + size - 1),
+          center.y.coerceIn(chunkY * size, chunkY * size + size - 1),
+          center.z
+        )
+        if (nearest.distance(center) <= radius) columns.add(pack(chunkX.toInt(), chunkY.toInt()))
+      }
+    }
+
+    return columns
   }
 
   /** The entities of one column, for the sync channel to batch. Empty when the column is not resident. */

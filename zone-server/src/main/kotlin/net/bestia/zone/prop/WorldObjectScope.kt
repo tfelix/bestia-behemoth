@@ -3,7 +3,10 @@ package net.bestia.zone.prop
 /** Which holders keep a [WorldObjectSource]'s entities in the world. */
 enum class WorldObjectScope {
 
-  /** Only a client that holds the column. Generated props are far too many to load around every anchor. */
+  /**
+   * A client that holds the column, or a gatherer whose area touches it. Generated props are far too many to load
+   * around every anchor.
+   */
   VIEWED,
 
   /**

@@ -9,6 +9,7 @@ import net.bestia.zone.ai.core.state.RestingWindow
 import net.bestia.zone.ai.domain.AiDomainRuntime
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.AiProfile
+import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.geometry.Vec3L
@@ -60,15 +61,18 @@ class BestiaRuntime(
     // theirs to change.
     memory.set(BestiaDomain.AGGRESSION, config?.courage?.aggression ?: tuning.aggression, Blackboard.PERMANENT)
 
-    if (config != null) attachOrders(memory, config)
+    if (config != null) attachOrders(memory, config, homePosition, tuning.wanderRadius)
   }
 
-  /** The lines an owned bestia looks after itself and gets out of a fight at. */
-  private fun attachOrders(memory: Blackboard, config: AiConfig) {
+  /** The lines an owned bestia looks after itself and gets out of a fight at, and where it works. */
+  private fun attachOrders(memory: Blackboard, config: AiConfig, homePosition: Vec3L, wanderRadius: Long) {
     memory.set(BestiaDomain.EAT_BELOW_STAMINA_PCT, BestiaDomain.DEFAULT_EAT_BELOW_STAMINA_PCT, Blackboard.PERMANENT)
     memory.set(BestiaDomain.HEAL_BELOW_HEALTH_PCT, BestiaDomain.DEFAULT_HEAL_BELOW_HEALTH_PCT, Blackboard.PERMANENT)
     config.courage.retreatBelowHealthPct?.let { memory.set(BestiaDomain.RETREAT_BELOW_HEALTH_PCT, it, Blackboard.PERMANENT) }
     memory.set(BestiaDomain.FLEES_ON_SIGHT, config.courage.fleesOnSight, Blackboard.PERMANENT)
+    if (config.job == BestiaJob.GATHER) {
+      memory.set(BestiaDomain.GATHER_AREA, GatherArea(homePosition, wanderRadius), Blackboard.PERMANENT)
+    }
   }
 
   // A ranged species stops at shooting distance; one that also bites lets the target come to it.
