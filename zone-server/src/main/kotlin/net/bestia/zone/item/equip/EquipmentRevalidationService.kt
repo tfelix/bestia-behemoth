@@ -1,5 +1,7 @@
 package net.bestia.zone.item.equip
 
+import net.bestia.zone.item.profession.GearAllowance
+import net.bestia.zone.item.profession.Professions
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.NoviceGate
 import net.bestia.zone.identity.ecs.Account
@@ -74,7 +76,9 @@ class EquipmentRevalidationService(
 
     val refused = wearer.worn.mapNotNull { piece ->
       val template = templates[piece.itemId] ?: return@mapNotNull null
-      val denial = equipmentService.checkStillWearable(template, piece.itemLevel, wearer.level, wearer.isNovice)
+      val denial = equipmentService.checkStillWearable(
+        template, piece.itemLevel, wearer.level, wearer.isNovice, wearer.allowance
+      )
         ?: return@mapNotNull null
 
       Refused(piece, denial)
@@ -113,6 +117,7 @@ class EquipmentRevalidationService(
         // than as exempt - the same reading EquipItemHandler gives it.
         level = get(entityId, Level::class)?.level ?: 0,
         isNovice = noviceGate.isNovice(this, entityId),
+        allowance = get(entityId, Professions::class)?.allowance,
         worn = equipment.getWorn().map { (slot, item) -> WornPiece(slot, item.itemId, item.uniqueId, item.itemLevel) }
       )
     }
@@ -151,6 +156,8 @@ class EquipmentRevalidationService(
     val accountId: Long,
     val level: Int,
     val isNovice: Boolean,
+    /** Null for a bestia, which professions do not limit. */
+    val allowance: GearAllowance?,
     val worn: List<WornPiece>
   )
 

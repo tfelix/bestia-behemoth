@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrfGAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSr+GAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -96,8 +96,9 @@ namespace Bnet {
             "dxIOCgpJVEVNX0JPVU5EEHgSEwoPUk9VVEVfVE9PX0hFQVZZEHkSFgoSQ09V",
             "UklFUl9TVFJVQ0tfT0ZGEHoSGQoVU0tJTExfTk9UX0VOT1VHSF9NQU5BEHsS",
             "HAoYU0tJTExfTk9UX0VOT1VHSF9TVEFNSU5BEHwSGAoUU0tJTExfSU5WQUxJ",
-            "RF9DSE9JQ0UQfSIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5i",
-            "ZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
+            "RF9DSE9JQ0UQfRIdChlFUVVJUF9OT1RfWU9VUl9QUk9GRVNTSU9OEH4iBAgu",
+            "EC4qElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQuYmVzdGlhLmJuZXQucHJv",
+            "dG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -587,6 +588,10 @@ namespace Bnet {
     /// The choice sent with a cast (an element, an item, a listing) is not one the skill accepts.
     /// </summary>
     [pbr::OriginalName("SKILL_INVALID_CHOICE")] SkillInvalidChoice = 125,
+    /// <summary>
+    /// Neither of the master's two professions allows this weapon type or armor weight.
+    /// </summary>
+    [pbr::OriginalName("EQUIP_NOT_YOUR_PROFESSION")] EquipNotYourProfession = 126,
   }
 
   #endregion

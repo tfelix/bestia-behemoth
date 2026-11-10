@@ -1,6 +1,8 @@
 package net.bestia.zone.item.equip
 
 import net.bestia.zone.battle.gear.ArmorType
+import net.bestia.zone.item.profession.Profession
+import net.bestia.zone.item.profession.GearAllowance
 import net.bestia.zone.battle.ammo.AmmoType
 import net.bestia.zone.item.ecs.itemTemplatesOf
 import net.bestia.zone.item.ecs.Equipment
@@ -49,11 +51,30 @@ class EquipmentServiceTest {
     heldUniqueId: Long = 77L,
     wearerLevel: Int = WELL_ABOVE_ITEM_LEVEL,
     wearerIsNovice: Boolean = true,
-    lockedSlots: Set<EquipmentSlot> = emptySet()
+    lockedSlots: Set<EquipmentSlot> = emptySet(),
+    allowance: GearAllowance? = null,
   ): EquipmentService.Denial? {
     return service.checkEquip(
-      equipment, inventory, item, item.baseLevel, slot, heldUniqueId, wearerLevel, wearerIsNovice, lockedSlots
+      equipment, inventory, item, item.baseLevel, slot, heldUniqueId, wearerLevel, wearerIsNovice, lockedSlots,
+      allowance
     )
+  }
+
+  @Test
+  fun `armor heavier than the master's professions allow is refused`() {
+    val hunter = GearAllowance.of(listOf(Profession.HUNTER))
+    val knight = GearAllowance.of(listOf(Profession.KNIGHT))
+
+    assertEquals(
+      EquipmentService.Denial.NOT_YOUR_PROFESSION,
+      check(ironCuirass, EquipmentSlot.ARMOR, wearerIsNovice = false, allowance = hunter)
+    )
+    assertNull(check(ironCuirass, EquipmentSlot.ARMOR, wearerIsNovice = false, allowance = knight))
+  }
+
+  @Test
+  fun `a bestia, with no allowance, is limited only by its species`() {
+    assertNull(check(ironCuirass, EquipmentSlot.ARMOR, wearerIsNovice = false, allowance = null))
   }
 
   @Test
