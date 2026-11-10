@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSq3HwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSr0HwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -115,9 +115,10 @@ namespace Bnet {
             "ChRTRVRUTEVNRU5UX1RPT19DTE9TRRCvAhIZChRTRVRUTEVNRU5UX05PVF9F",
             "TVBUWRCwAhIeChlTRVRUTEVNRU5UX0NBTk5PVF9SRUNFSVZFELECEh4KGVNF",
             "VFRMRU1FTlRfT0ZGRVJfREVDTElORUQQsgISHAoXU0VUVExFTUVOVF9PVVRf",
-            "T0ZfUkFOR0UQswIiBAguEC4qElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQu",
-            "YmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3Rv",
-            "Mw=="));
+            "T0ZfUkFOR0UQswISGgoVU0VUVExFTUVOVF9ORUVEU19UT1dOELQCEh8KGlNF",
+            "VFRMRU1FTlRfQUxSRUFEWV9IQVNfT05FELUCIgQILhAuKhJTSE9QX1RSRUFT",
+            "VVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRpb25F",
+            "cnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -699,6 +700,14 @@ namespace Bnet {
     /// </summary>
     [pbr::OriginalName("SETTLEMENT_OFFER_DECLINED")] SettlementOfferDeclined = 306,
     [pbr::OriginalName("SETTLEMENT_OUT_OF_RANGE")] SettlementOutOfRange = 307,
+    /// <summary>
+    /// This building only goes up inside a standing player town.
+    /// </summary>
+    [pbr::OriginalName("SETTLEMENT_NEEDS_TOWN")] SettlementNeedsTown = 308,
+    /// <summary>
+    /// The town already has this building, finished or still being built.
+    /// </summary>
+    [pbr::OriginalName("SETTLEMENT_ALREADY_HAS_ONE")] SettlementAlreadyHasOne = 309,
   }
 
   #endregion

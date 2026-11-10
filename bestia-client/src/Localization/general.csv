@@ -743,3 +743,5 @@ SETTLEMENT_NOTICE_TORN_DOWN,You tore down the sign of %s.
 SETTLEMENT_NOTICE_HANDED_OVER,You handed %s over.
 SETTLEMENT_NOTICE_RECEIVED,You are now the founder of %s.
 SETTLEMENT_NOTICE_SITE_LOST,The sign site of %s is gone.
+ERROR_SETTLEMENT_NEEDS_TOWN,This can only be built inside a standing player town.
+ERROR_SETTLEMENT_ALREADY_HAS_ONE,This town already has one.

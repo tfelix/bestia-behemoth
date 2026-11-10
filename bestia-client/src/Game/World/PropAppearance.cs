@@ -653,7 +653,15 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 0.5f, PlaceholderColour = new Color(0.66f, 0.50f, 0.30f), StructureHeight = 3f,
         Action = PropAction.Use
-      } // CITY_SIGN
+      }, // CITY_SIGN
+
+      // A post office players built in their town. A plain civic box until it has a model; StructureHeight for
+      // its construction site, like a station.
+      new Kind
+      {
+        PlaceholderWidth = 7.0f, PlaceholderColour = new Color(0.70f, 0.66f, 0.58f), StructureHeight = 4f,
+        Action = PropAction.Use
+      } // POST_OFFICE
     };
 
     /// <summary>
