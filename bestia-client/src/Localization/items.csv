@@ -531,3 +531,7 @@ SUN_HERB,Sun Herb
 SUN_HERB_DESC,A sun-dried herb of the desert and the badlands.
 GHOST_HERB,Ghost Herb
 GHOST_HERB_DESC,A pale herb that only grows on blighted ground.
+POST_OFFICE_KIT,Post Office Kit
+POST_OFFICE_KIT_DESC,"Beams, a counter, sorting shelves and a post horn, lashed onto a sledge.
+
+Set it down inside a town without a post office, and the post will run it once it is built."
