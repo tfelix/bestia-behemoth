@@ -414,3 +414,11 @@ RESIN,Resin
 RESIN_DESC,"A sticky lump of tree resin.
 
 It catches fire easily and burns hot."
+FURNACE_KIT,Furnace Kit
+FURNACE_KIT_DESC,"A sack of fitted stones and a clay flue, packed in straw.
+
+Set it down and it becomes a furnace - once somebody puts the work in."
+FORGE_KIT,Forge Kit
+FORGE_KIT_DESC,"An anvil horn, a bellows and a ring of hearth stones, roped together.
+
+Set it down and it becomes a forge - once somebody puts the work in."
