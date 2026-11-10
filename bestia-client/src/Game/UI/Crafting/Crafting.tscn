@@ -6,9 +6,9 @@
 bg_color = Color(0.11, 0.11, 0.13, 1)
 
 [node name="Crafting" type="PanelContainer"]
-custom_minimum_size = Vector2(640, 440)
+custom_minimum_size = Vector2(640, 560)
 offset_right = 640.0
-offset_bottom = 440.0
+offset_bottom = 560.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
 script = ExtResource("1_craft")
 
@@ -148,6 +148,42 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 text = "‹ Back to the recipes"
+
+[node name="QueuePanel" type="VBoxContainer" parent="Margin/Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="QueueSeparator" type="HSeparator" parent="Margin/Body/QueuePanel"]
+layout_mode = 2
+
+[node name="QueueHeader" type="HBoxContainer" parent="Margin/Body/QueuePanel"]
+layout_mode = 2
+
+[node name="QueueTitle" type="Label" parent="Margin/Body/QueuePanel/QueueHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Queue"
+
+[node name="PauseLabel" type="Label" parent="Margin/Body/QueuePanel/QueueHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.35, 1)
+theme_override_font_sizes/font_size = 12
+
+[node name="QueueRows" type="VBoxContainer" parent="Margin/Body/QueuePanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="HeldLabel" type="Label" parent="Margin/Body/QueuePanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.66, 1)
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 3
 
 [node name="Status" type="Label" parent="Margin/Body"]
 unique_name_in_owner = true
