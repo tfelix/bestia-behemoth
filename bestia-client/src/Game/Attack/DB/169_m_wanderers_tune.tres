@@ -13,3 +13,4 @@ max_level = 5
 target_type = "FRIENDLY"
 tree = "WARRIOR"
 sub_tree = "BARD"
+cast_time = 2.0
