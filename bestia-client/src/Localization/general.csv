@@ -11,7 +11,7 @@ ERROR_EQUIP_ARMOR_TYPE_NOT_WEARABLE,Your bestia cannot wear that kind of armor.
 ERROR_EQUIP_ITEM_BROKEN,That is broken. Have it repaired before you use it again.
 ERROR_EQUIP_SLOT_STRIPPED,That was just torn off you. Wait a moment before you put something there again.
 ERROR_ITEM_NOVICE_ONLY,Only a novice may use that. Your training has taken you past it.
-ERROR_CHART_NEEDS_BLANK,You have no blank vellum to draw on.
+ERROR_CHART_NEEDS_BLANK,You have no empty paper to draw on.
 ERROR_CHART_NOT_FOUND,You are not carrying that chart.
 ERROR_CHART_MERGE_SAME,A chart cannot be joined with itself.
 ERROR_CHART_STALE_WORLD,That chart shows land that no longer exists.
@@ -610,6 +610,19 @@ ERROR_RITUAL_FAILED,The ritual broke: its leader stopped channeling.
 ERROR_BASIC_SKILL_TRADE_POST_LOCKED,You need Basic Skill 3 to list or buy at a trade post.
 ERROR_SKILL_MISSING_REAGENT,You lack the item this skill uses up.
 ERROR_FELLING_NEEDS_AXE,You need an axe or a hatchet to fell a tree.
+ERROR_SURVEY_NO_THEODOLITE,Stand at one of your own theodolites that is not surveying yet.
+ERROR_SURVEY_TIER_LOCKED,Your Cartography level is too low for a survey that wide.
+ERROR_SURVEY_MISSED,"The needle slipped. The survey failed, and the paper and ink are spent."
+ERROR_SURVEY_NOT_YOURS,This theodolite belongs to someone else.
+ERROR_SURVEY_IN_PROGRESS,The survey needs about %s more minutes of work at the theodolite.
+SUCCESS_SURVEY_STARTED,"The survey has begun. Stay at the theodolite, or leave a bestia there, for ten minutes."
+SUCCESS_SURVEY_READY,Your theodolite has finished its chart. Use it to collect the chart.
+SUCCESS_CHART_WRITTEN,You collected a new chart. It is in your bag.
+SURVEY_HINT,Stop the needle inside the green arc. Space or Enter stops it.
+SURVEY_STOP,Stop
+SURVEY_ROUND,Round %d of %d
+SURVEY_TIER,Survey %d km
+SURVEY_TIER_NEEDS_LEVEL,Needs Cartography Lv%d
 SUCCESS_RITUAL_OPENED,You opened the ritual. Helpers may join; use the focus stone again to begin.
 SUCCESS_RITUAL_JOINED,You joined the ritual.
 SUCCESS_RITUAL_STARTED,The ritual begins. Hold the channel for 30 seconds.

@@ -18,6 +18,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _letters_win: WidgetWindow = $LettersWin
 @onready var _post_office_win: WidgetWindow = $PostOfficeWin
 @onready var _auction_win: WidgetWindow = $AuctionWin
+@onready var _survey_win: WidgetWindow = $SurveyWin
 @onready var _invitations: InvitationTray = $Invitations
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
 @onready var _master_profile: MasterProfile = $TopLeftColumn/MasterProfile
@@ -126,6 +127,11 @@ func _ready() -> void:
 	auction.inventory = inventory
 	auction.auction_opened.connect(_on_auction_opened)
 	auction.auction_closed.connect(_on_auction_closed)
+
+	# A Cartography cast at a theodolite opens the needle game.
+	var survey := _survey_win.get_content() as SurveyGamePanel
+	survey.survey_opened.connect(func() -> void: _survey_win.visible = true)
+	survey.survey_closed.connect(func() -> void: _survey_win.visible = false)
 
 	# The party and guild windows exist from the start, hidden: they listen for their rosters and invitations
 	# whether open or not. Both speak through the chat, which is the client's one channel for notices.

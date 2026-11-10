@@ -50,6 +50,8 @@ signal trade_state_received(message: TradeStateSMSG)
 signal shop_offer_received(message: ShopOfferSMSG)
 signal shop_quote_received(message: ShopQuoteSMSG)
 signal auction_house_opened(message: AuctionHouseOpenSMSG)
+## A Cartography cast opened the needle game at a theodolite.
+signal survey_minigame_opened(message: SurveyMinigameSMSG)
 signal auction_listings_received(message: AuctionListingsSMSG)
 signal auction_purchased(message: AuctionPurchasedSMSG)
 ## The played master's whole mailbox, on request and after a letter was thrown away.
@@ -116,6 +118,7 @@ var GetInventoryCMSG = load("res://Bnet/Message/Inventory/GetInventoryCMSG.cs")
 var GetSkillsCMSG = load("res://Bnet/Message/Master/GetSkillsCMSG.cs")
 var ActivateSkillCMSG = load("res://Bnet/Message/Master/ActivateSkillCMSG.cs")
 var CancelStatusEffectCMSG = load("res://Bnet/Message/Master/CancelStatusEffectCMSG.cs")
+var SurveyStopsCMSG = load("res://Bnet/Message/Survey/SurveyStopsCMSG.cs")
 var InvestSkillPointCMSG = load("res://Bnet/Message/Master/InvestSkillPointCMSG.cs")
 var UseItemCMSG = load("res://Bnet/Message/Inventory/UseItemCMSG.cs")
 ## Not a message: the argument bag a scripted item fills before one of the above is sent.
@@ -460,6 +463,15 @@ func cancel_status_effect(effect_id: int) -> void:
 	assert(is_ready_to_send())
 	var msg = CancelStatusEffectCMSG.new()
 	msg.EffectId = effect_id
+	_socket.SendMessage(msg)
+
+
+## The player's stops in a survey's needle game, one per round, in milliseconds since that round began.
+func send_survey_stops(structure_id: int, stops_ms: PackedInt64Array) -> void:
+	assert(is_ready_to_send())
+	var msg = SurveyStopsCMSG.new()
+	msg.StructureId = structure_id
+	msg.StopsMs = stops_ms
 	_socket.SendMessage(msg)
 
 
@@ -1377,6 +1389,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		shop_quote_received.emit(message)
 	elif message is AuctionHouseOpenSMSG:
 		auction_house_opened.emit(message)
+	elif message is SurveyMinigameSMSG:
+		survey_minigame_opened.emit(message)
 	elif message is AuctionListingsSMSG:
 		auction_listings_received.emit(message)
 	elif message is AuctionPurchasedSMSG:

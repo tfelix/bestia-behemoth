@@ -61,11 +61,11 @@ CHART,Chart
 CHART_DESC,"A chart of surveyed land, drawn by hand.
 
 Shows the ground whoever made it walked. Two charts can be joined into one, and any chart can be
-copied onto blank vellum."
-CHART_BLANK,Blank Chart
-CHART_BLANK_DESC,"Blank vellum, ruled and ready to be drawn on.
+copied onto empty paper."
+CHART_BLANK,Empty Paper
+CHART_BLANK_DESC,"An empty sheet of paper, ruled and ready to be drawn on.
 
-Surveying spends one, and so does copying a chart."
+Every try at a survey spends one, and so does copying a chart."
 WILD_HERB,Wild Herb
 WILD_HERB_DESC,"A handful of leaves and roots, pulled up at the wayside.
 
@@ -515,3 +515,9 @@ MANA_CIRCLE_KIT_DESC,"Five measures of Mana Concentrate and a focus stone, ready
 
 Placed on the ground it becomes a Mana Circle: up to five helpers join its leader, and after half a minute
 of channeling the leader's next skill is charged. The ring is used up by the ritual."
+THEODOLITE_KIT,Theodolite Kit
+THEODOLITE_KIT_DESC,"A brass sighting scope and a folding tripod.
+
+Set up on open ground, it is where Cartography surveys the land around it."
+INK,Ink
+INK_DESC,A small bottle of black ink. Every try at a survey spends one.

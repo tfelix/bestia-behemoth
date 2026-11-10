@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+[ext_resource type="Script" path="res://Game/Attack/cartography_use.gd" id="2_use"]
 
 [resource]
 script = ExtResource("1_script")
@@ -10,9 +11,10 @@ description_key = "SKILL_37_DESC"
 mana_cost = 50
 cooldown = 0.0
 max_level = 5
-target_type = "GROUND"
+target_type = "FRIENDLY"
 tree = "SURVIVAL"
 sub_tree = "PROSPECTOR"
-cast_time = 30.0
+cast_time = 3.0
+attack_script = ExtResource("2_use")
 prerequisite_ids = PackedInt32Array(48)
 prerequisite_levels = PackedInt32Array(1)

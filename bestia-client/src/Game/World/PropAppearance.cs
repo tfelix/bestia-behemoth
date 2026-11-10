@@ -600,7 +600,14 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 0.9f, PlaceholderColour = new Color(0.40f, 0.27f, 0.14f), StructureHeight = 0.7f,
         Action = PropAction.Use
-      } // CHEST
+      }, // CHEST
+
+      // A sighting scope on a tripod, where Cartography surveys from: a thin brass post until it has a model.
+      new Kind
+      {
+        PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.78f, 0.62f, 0.30f), StructureHeight = 1.5f,
+        Action = PropAction.Use
+      } // THEODOLITE
     };
 
     /// <summary>
