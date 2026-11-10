@@ -30,6 +30,7 @@ signal dialog_received(message: DialogSMSG)
 ## for the reason [signal dialog_received] is: it opens a window, and a window belongs to a client.
 signal craftable_recipes_received(message: CraftableRecipesSMSG)
 signal discovery_result_received(message: DiscoveryResultSMSG)
+signal station_state_received(message: StationStateSMSG)
 ## Emitted when a townsperson says something and offers options back. Account-scoped for the reason
 ## [signal dialog_received] is: it opens a window, and a window belongs to a client rather than to an
 ## entity - the speaker travels inside the message as metadata.
@@ -133,6 +134,8 @@ var DiscoverRecipeCMSG = load("res://Bnet/Message/Crafting/DiscoverRecipeCMSG.cs
 var CancelCraftCMSG = load("res://Bnet/Message/Crafting/CancelCraftCMSG.cs")
 var OpenCraftingCMSG = load("res://Bnet/Message/Crafting/OpenCraftingCMSG.cs")
 var AddWoodCMSG = load("res://Bnet/Message/Crafting/AddWoodCMSG.cs")
+var QueueCraftCMSG = load("res://Bnet/Message/Crafting/QueueCraftCMSG.cs")
+var CancelQueueEntryCMSG = load("res://Bnet/Message/Crafting/CancelQueueEntryCMSG.cs")
 var RequestTradeCMSG = load("res://Bnet/Message/Trade/RequestTradeCMSG.cs")
 var AnswerTradeRequestCMSG = load("res://Bnet/Message/Trade/AnswerTradeRequestCMSG.cs")
 var OfferTradeItemCMSG = load("res://Bnet/Message/Trade/OfferTradeItemCMSG.cs")
@@ -724,6 +727,26 @@ func add_wood(structure_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Queues [param amount] of [param recipe_id] at the station [param structure_id]. The ingredients move into the
+## station at once; the answer is [signal station_state_received].
+func queue_craft(structure_id: int, recipe_id: int, amount: int) -> void:
+	assert(is_ready_to_send())
+	var msg = QueueCraftCMSG.new()
+	msg.StructureId = structure_id
+	msg.RecipeId = recipe_id
+	msg.Amount = amount
+	_socket.SendMessage(msg)
+
+
+## Takes entry [param index] off the queue of [param structure_id]; its unused ingredients come back.
+func cancel_queue_entry(structure_id: int, index: int) -> void:
+	assert(is_ready_to_send())
+	var msg = CancelQueueEntryCMSG.new()
+	msg.StructureId = structure_id
+	msg.Index = index
+	_socket.SendMessage(msg)
+
+
 ## Abandons the craft in progress. Nothing is refunded because nothing has been spent yet.
 func cancel_craft() -> void:
 	assert(is_ready_to_send())
@@ -1294,6 +1317,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		craftable_recipes_received.emit(message)
 	elif message is DiscoveryResultSMSG:
 		discovery_result_received.emit(message)
+	elif message is StationStateSMSG:
+		station_state_received.emit(message)
 	elif message is MaterialAxesSMSG:
 		CraftAxes.store(message.AxesByItemId)
 	elif message is OperationSuccess:
