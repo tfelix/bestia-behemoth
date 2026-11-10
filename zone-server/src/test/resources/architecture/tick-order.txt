@@ -85,6 +85,7 @@
  - UPKEEP wave 48: SpawnPointWatchSystem [EverySeconds(seconds=30.0)]
  - UPKEEP wave 48: StreetStallSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 48: TheodoliteWorkSystem [EverySeconds(seconds=10.0)]
+ - UPKEEP wave 48: TownMapSystem [EverySeconds(seconds=10.0)]
  - UPKEEP wave 48: TradeRangeSystem [EverySeconds(seconds=0.5)]
  - UPKEEP wave 48: TreeRegrowthSystem [EverySeconds(seconds=60.0)]
  - UPKEEP wave 48: WorldStateSampler [EverySeconds(seconds=5.0)]

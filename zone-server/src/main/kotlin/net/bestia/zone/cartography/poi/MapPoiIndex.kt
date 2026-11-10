@@ -56,6 +56,9 @@ class MapPoiIndex(
 
   private val wardStones = ConcurrentHashMap<EntityId, MapPoi>()
 
+  @Volatile
+  private var playerTowns: List<MapPoi> = emptyList()
+
   private val changes = AtomicLong()
 
   init {
@@ -73,6 +76,7 @@ class MapPoiIndex(
     for (stone in wardStones.values) {
       if (ServiceCandidates.inside(bounds, stone.x, stone.y)) live.add(stone)
     }
+    playerTowns.filterTo(live) { ServiceCandidates.inside(bounds, it.x, it.y) }
 
     return live
   }
@@ -100,6 +104,13 @@ class MapPoiIndex(
    */
   fun onWardStoneDestroyed(id: EntityId) {
     if (wardStones.remove(id) != null) changes.incrementAndGet()
+  }
+
+  /** Every player town's sign and its town buildings, replaced whole. Tick thread. */
+  fun setPlayerTowns(pois: List<MapPoi>) {
+    if (pois == playerTowns) return
+    playerTowns = pois
+    changes.incrementAndGet()
   }
 
   private fun onDepleted(propId: Long, entry: DivergenceEntry) {

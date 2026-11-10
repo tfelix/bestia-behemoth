@@ -709,6 +709,18 @@
 		border-radius: 30% 30% 10% 10%;
 	}
 
+	.map :global(.service-town span) {
+		background: #c79a5e;
+		border-radius: 0;
+		clip-path: polygon(10% 0, 90% 0, 90% 55%, 60% 55%, 60% 100%, 40% 100%, 40% 55%, 10% 55%);
+	}
+
+	.map :global(.service-post_office span) {
+		background: #e3d6b8;
+		border-radius: 0;
+		clip-path: polygon(0 15%, 100% 15%, 100% 85%, 0 85%);
+	}
+
 	.map :global(.mark span) {
 		display: block;
 		width: 100%;

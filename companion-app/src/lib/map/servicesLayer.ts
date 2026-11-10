@@ -7,7 +7,7 @@ import { inWorld } from './tiles';
 const SERVICES_MAX_LEVEL = 3;
 
 /** As the game draws them (`map_view.gd`): a colour and a silhouette per kind, so neither is the only cue. */
-export const SERVICE_KINDS = ['MERCHANT', 'MARKET', 'INN', 'TEMPLE', 'GUARD', 'WARD_STONE'] as const;
+export const SERVICE_KINDS = ['MERCHANT', 'MARKET', 'INN', 'TEMPLE', 'GUARD', 'WARD_STONE', 'TOWN', 'POST_OFFICE'] as const;
 
 export function serviceName(service: Service): string {
 	const what = service.business
