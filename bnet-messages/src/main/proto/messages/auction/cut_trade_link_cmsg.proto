@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "CutTradeLinkCmsgProto";
+
+// The owner ends a Trade Agreement, at one of their houses. Answered by the house window again.
+message CutTradeLinkCMSG {
+  uint64 house_entity_id = 1;
+  uint64 partner_master_id = 2;
+}

@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "CollectPickupCmsgProto";
+
+// Takes a waiting purchase. The master or one of their bestias must stand at the house it waits at.
+message CollectPickupCMSG {
+  uint64 pickup_id = 1;
+}

@@ -132,6 +132,14 @@ import "messages/auction/set_auction_fee_cmsg.proto";
 import "messages/auction/collect_auction_till_cmsg.proto";
 import "messages/auction/tear_down_auction_house_cmsg.proto";
 import "messages/auction/bid_auction_cmsg.proto";
+import "messages/auction/trade_agreement_offer_smsg.proto";
+import "messages/auction/answer_trade_agreement_cmsg.proto";
+import "messages/auction/cut_trade_link_cmsg.proto";
+import "messages/auction/trade_link_notice_smsg.proto";
+import "messages/auction/request_pickups_cmsg.proto";
+import "messages/auction/pickups_smsg.proto";
+import "messages/auction/collect_pickup_cmsg.proto";
+import "messages/auction/post_pickup_cmsg.proto";
 import "messages/settlement/plan_settlement_cmsg.proto";
 import "messages/settlement/settlement_planned_smsg.proto";
 import "messages/settlement/settlement_sign_smsg.proto";
@@ -408,6 +416,14 @@ message Envelope {
     CollectAuctionTillCMSG collect_auction_till = 961;
     TearDownAuctionHouseCMSG tear_down_auction_house = 962;
     BidAuctionCMSG bid_auction = 963;
+    TradeAgreementOfferSMSG trade_agreement_offer = 964;
+    AnswerTradeAgreementCMSG answer_trade_agreement = 965;
+    CutTradeLinkCMSG cut_trade_link = 966;
+    TradeLinkNoticeSMSG trade_link_notice = 967;
+    RequestPickupsCMSG request_pickups = 968;
+    PickupsSMSG pickups = 969;
+    CollectPickupCMSG collect_pickup = 970;
+    PostPickupCMSG post_pickup = 971;
 
     // MISC
   }

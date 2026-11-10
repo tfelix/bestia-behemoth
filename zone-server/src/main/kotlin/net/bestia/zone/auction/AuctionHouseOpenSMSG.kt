@@ -21,6 +21,7 @@ data class AuctionHouseOpenSMSG(
     val till: Long,
     val feeChangeableAt: Instant?,
     val canTearDown: Boolean,
+    val partners: List<TradeLinks.Partner> = emptyList(),
   )
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -37,6 +38,11 @@ data class AuctionHouseOpenSMSG(
         .setTill(it.till)
         .setFeeChangeableAtEpochSeconds(it.feeChangeableAt?.epochSecond ?: 0)
         .setCanTearDown(it.canTearDown)
+        .addAllPartners(
+          it.partners.map { partner ->
+            AuctionHouseOpenSmsgProto.TradePartner.newBuilder().setMasterId(partner.masterId).setName(partner.name).build()
+          }
+        )
     }
 
     return EnvelopeProto.Envelope.newBuilder()

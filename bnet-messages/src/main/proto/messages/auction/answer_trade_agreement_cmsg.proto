@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "AnswerTradeAgreementCmsgProto";
+
+message AnswerTradeAgreementCMSG {
+  uint64 offer_id = 1;
+  bool accept = 2;
+}

@@ -63,13 +63,20 @@ class PlayerHouseService(
   private val towns: TownRegistry,
   private val worldService: WorldService,
   private val skills: SkillRepository,
+  private val links: TradeLinks,
+  private val pickups: PickupService,
   private val out: OutMessageProcessor,
   private val jobs: AsyncJobExecutor,
   private val transactions: TransactionTemplate,
   private val clock: Clock = Clock.systemUTC(),
 ) {
 
-  private val tradePostOwnerSkillId: Long? by lazy { skills.findByIdentifier(SkillId.M_TRADE_POST_OWNER)?.id }
+  /** Resolved at boot, after the skills are imported. */
+  private var tradePostOwnerSkillId: Long? = null
+
+  fun resolveSkills() {
+    tradePostOwnerSkillId = skills.findByIdentifier(SkillId.M_TRADE_POST_OWNER)?.id
+  }
 
   /** Sends the window of [at], with the owner's part when [accountId] owns it. From the tick, so in a job. */
   fun open(accountId: AccountId, houseEntityId: EntityId, at: AuctionHouses.At.Player) {
@@ -140,6 +147,19 @@ class PlayerHouseService(
     LOG.info { "Master ${at.house.ownerMasterId} tore down auction house $structureId" }
   }
 
+  /** Ends a Trade Agreement, at one of the owner's houses. The partner is told if they are about. */
+  fun cutLink(accountId: AccountId, houseEntityId: EntityId, partnerMasterId: Long) {
+    val at = ownedHouseInReach(accountId, houseEntityId) ?: return
+    val partner = links.partnersOf(at.house.ownerMasterId).firstOrNull { it.masterId == partnerMasterId } ?: return
+
+    links.unlink(at.house.ownerMasterId, partnerMasterId)
+    playerHouses.ownedBy(partnerMasterId).firstOrNull()?.let {
+      out.sendToPlayer(it.ownerAccountId, TradeLinkNoticeSMSG(TradeLinkNoticeSMSG.Notice.CUT, at.house.ownerName))
+    }
+    out.sendToPlayer(accountId, TradeLinkNoticeSMSG(TradeLinkNoticeSMSG.Notice.CUT, partner.name))
+    sendWindow(accountId, houseEntityId, at)
+  }
+
   /** The house stays standing but closes: listings go home and the till is posted to the owner. */
   @EventListener
   fun onTownFell(event: TownFellEvent) {
@@ -174,6 +194,7 @@ class PlayerHouseService(
 
   /** Inside a transaction. */
   private fun close(structureId: Long, onTill: TillGoes) {
+    pickups.sendAllHome(structureId)
     for (listing in listings.findByHouseStructureId(structureId)) {
       parcels.postInstant(listing.sellerMasterId, AuctionService.SENDER_NAME) { parcel ->
         inventoryService.moveBetweenEscrows(listing.container, parcel)
@@ -220,6 +241,7 @@ class PlayerHouseService(
       till = row?.till ?: 0,
       feeChangeableAt = house.feeChangedAt?.plus(FEE_CHANGE_INTERVAL)?.takeIf { it.isAfter(clock.instant()) },
       canTearDown = listings.countByHouseStructureId(house.structureId) == 0L,
+      partners = links.partnersOf(house.ownerMasterId).sortedBy { it.name },
     )
   }
 

@@ -18,6 +18,7 @@ class PlayerHouses(
   private val repository: PlayerAuctionHouseRepository,
   private val masters: MasterRepository,
   private val jobs: AsyncJobExecutor,
+  private val links: TradeLinks,
 ) {
 
   data class House(
@@ -39,9 +40,11 @@ class PlayerHouses(
     return byStructure.values.filter { it.ownerMasterId == masterId }
   }
 
-  /** The houses whose listings [house] shows: its owner's. */
+  /** The houses whose listings [house] shows: its owner's, and those of every owner its owner has an agreement with. */
   fun sharingWith(house: House): Set<Long> {
-    return ownedBy(house.ownerMasterId).mapTo(HashSet()) { it.structureId }
+    val owners = links.partnersOf(house.ownerMasterId).map { it.masterId } + house.ownerMasterId
+
+    return owners.flatMap(::ownedBy).mapTo(HashSet()) { it.structureId }
   }
 
   /**

@@ -5,9 +5,11 @@ package bnet;
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "AuctionPurchasedSmsgProto";
 
-// The sender bought a listing; the goods are already in the inventory.
+// The sender bought a listing: the goods are in the inventory, or wait at a linked house.
 message AuctionPurchasedSMSG {
   uint64 listing_id = 1;
   uint64 item_id = 2;
   int32 amount = 3;
+  // The town of the linked house the goods wait at; empty when they were handed over.
+  string waiting_at = 4;
 }
