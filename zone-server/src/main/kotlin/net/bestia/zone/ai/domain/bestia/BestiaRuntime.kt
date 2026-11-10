@@ -97,6 +97,9 @@ class BestiaRuntime(
     if (config.job == BestiaJob.CRAFT) {
       memory.set(BestiaDomain.CRAFT_AREA, WorkArea(homePosition, wanderRadius), Blackboard.PERMANENT)
     }
+    if (config.job == BestiaJob.GUARD) {
+      memory.set(BestiaDomain.GUARD_AREA, WorkArea(homePosition, wanderRadius), Blackboard.PERMANENT)
+    }
   }
 
   // A ranged species stops at shooting distance; one that also bites lets the target come to it.

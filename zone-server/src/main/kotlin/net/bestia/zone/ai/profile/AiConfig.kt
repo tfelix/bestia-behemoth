@@ -64,8 +64,12 @@ enum class BestiaJob(
   val workActions: List<String> = emptyList(),
 ) {
 
-  /** Roam the area around home and engage anything hostile that comes near. */
-  GUARD(setOf("KillAttacker", "KillEnemy", "Wander", "ReturnHome")),
+  /** Roam the area around home, engage anything hostile inside it, and walk back to its middle after a fight. */
+  GUARD(
+    setOf("KillAttacker", "KillEnemy", "Wander", "ReturnHome"),
+    workGoals = listOf("ReturnToMiddle"),
+    workActions = listOf("returnToMiddle"),
+  ),
 
   /** Stay around home and look after itself: eat and sleep as needed. The default. */
   REST(setOf("KillAttacker", "Wander", "ReturnHome", "EatVegetation", "Sleep")),

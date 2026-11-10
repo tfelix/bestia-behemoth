@@ -2,6 +2,8 @@ package net.bestia.zone.ai.perception
 
 import net.bestia.zone.battle.ecs.status.Taunted
 import net.bestia.zone.ai.core.state.CommonKeys
+import net.bestia.zone.ai.domain.bestia.BestiaDomain
+import net.bestia.zone.ai.domain.bestia.WorkArea
 import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.ai.ecs.AiDetailSystem
 import net.bestia.zone.ai.ecs.AiThrottle
@@ -103,8 +105,12 @@ class PerceptionSystem(
         memory.remove(CommonKeys.RESTED)
       }
 
-      val nearestHostile = nearestHostile(world, id, selfPos, sightRadiusOf(world, id, profile.perception.sightRadius))
+      // A guard does not chase out of its area: whatever stands outside it is not its fight.
+      val guardArea = memory.get(BestiaDomain.GUARD_AREA)
+      val sightRadius = sightRadiusOf(world, id, profile.perception.sightRadius)
+      val nearestHostile = nearestHostile(world, id, selfPos, sightRadius, guardArea)
       val attacker = recentAttacker(world, id, profile.perception.aggroMemoryMs)
+        ?.takeIf { guardArea == null || isInside(world, it, guardArea) }
 
       // Retaliation outranks opportunistic aggression: whoever is actually hitting us is the target,
       // even if something else is closer. `TakenDamage` already records this for experience attribution,
@@ -125,6 +131,7 @@ class PerceptionSystem(
         // goal asks for `TARGET_DEAD` and the planner skips a goal whose desired state already holds, so a
         // belief carried over from the previous kill is an agent that stands and takes the beating.
         memory.remove(CommonKeys.TARGET_DEAD)
+        memory.remove(BestiaDomain.BACK_IN_MIDDLE)
       } else {
         memory.remove(CommonKeys.TARGET_ID)
         memory.remove(CommonKeys.TARGET_POSITION)
@@ -143,8 +150,8 @@ class PerceptionSystem(
     return if (blind) minOf(sightRadius, Blind.SIGHT_RADIUS) else sightRadius
   }
 
-  /** Nearest [Hostility.isHostile] candidate within [sightRadius]. */
-  private fun nearestHostile(world: World, self: Long, selfPos: Vec3L, sightRadius: Int): Long? {
+  /** Nearest [Hostility.isHostile] candidate within [sightRadius], and for a guard inside its area. */
+  private fun nearestHostile(world: World, self: Long, selfPos: Vec3L, sightRadius: Int, guardArea: WorkArea?): Long? {
     // Dynamic only: a mob in a dense wood is inside the sight radius of hundreds of trees and has
     // nothing to think about any of them.
     val sightSize = sightRadius.toLong() * 2
@@ -157,6 +164,7 @@ class PerceptionSystem(
       }
 
       val pos = world.get(candidate, Position::class)?.toVec3L() ?: return@forEachInCube
+      if (guardArea != null && !guardArea.contains(pos)) return@forEachInCube
       val distance = selfPos.distance(pos)
       if (distance < nearestDistance) {
         nearest = candidate
@@ -186,6 +194,12 @@ class PerceptionSystem(
   private fun isOutOfReach(world: World, self: Long, candidate: Long): Boolean {
     return isFeigningDeath(world, candidate) ||
         DamageGate.verdict(world, self, candidate) != DamageGate.Verdict.ADMITTED
+  }
+
+  private fun isInside(world: World, candidate: Long, area: WorkArea): Boolean {
+    val position = world.get(candidate, Position::class)?.toVec3L() ?: return false
+
+    return area.contains(position)
   }
 
   /**
