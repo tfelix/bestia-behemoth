@@ -125,6 +125,23 @@ class StationQueueService(
       if (owned?.masterId != station.ownerMasterId) return OpError.CRAFT_NOT_POSSIBLE
       workers.assign(world, workerEntityId, station)
     }
+    structures.setTakesAnyCrafter(structureId, false)
+
+    work.forget(structureId)
+    sendState(structureId)
+    return null
+  }
+
+  /**
+   * Lets the first idle crafter of the owner whose area covers the station take it. Whoever works it now stops.
+   *
+   * @return the refusal to send back, or null when the station waits for a crafter
+   */
+  fun takeAnyFreeCrafter(world: World, actorId: EntityId, structureId: Long): OpError? {
+    ownStationNear(world, actorId, structureId) ?: return OpError.CRAFT_NOT_POSSIBLE
+
+    workers.unassign(world, structureId)
+    structures.setTakesAnyCrafter(structureId, true)
 
     work.forget(structureId)
     sendState(structureId)

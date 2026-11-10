@@ -25,14 +25,14 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci9tZXNzYWdlcy9jcmFmdGluZy9zZXRfc3RhdGlvbl93b3JrZXJfY21zZy5w",
-            "cm90bxIEYm5ldCJGChRTZXRTdGF0aW9uV29ya2VyQ01TRxIUCgxzdHJ1Y3R1",
-            "cmVfaWQYASABKAQSGAoQd29ya2VyX2VudGl0eV9pZBgCIAEoBEIyChVuZXQu",
-            "YmVzdGlhLmJuZXQucHJvdG9CGVNldFN0YXRpb25Xb3JrZXJDbXNnUHJvdG9i",
-            "BnByb3RvMw=="));
+            "cm90bxIEYm5ldCJgChRTZXRTdGF0aW9uV29ya2VyQ01TRxIUCgxzdHJ1Y3R1",
+            "cmVfaWQYASABKAQSGAoQd29ya2VyX2VudGl0eV9pZBgCIAEoBBIYChBhbnlf",
+            "ZnJlZV9jcmFmdGVyGAMgASgIQjIKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IZ",
+            "U2V0U3RhdGlvbldvcmtlckNtc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetStationWorkerCMSG), global::Bnet.SetStationWorkerCMSG.Parser, new[]{ "StructureId", "WorkerEntityId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetStationWorkerCMSG), global::Bnet.SetStationWorkerCMSG.Parser, new[]{ "StructureId", "WorkerEntityId", "AnyFreeCrafter" }, null, null, null, null)
           }));
     }
     #endregion
@@ -41,8 +41,9 @@ namespace Bnet {
   #region Messages
   /// <summary>
   ///*
-  /// Pick who works a station's queue: one of the owner's bestias, or the owner themselves. A bestia keeps working
-  /// while its master is logged out. Answered with a StationStateSMSG, or an OperationError.
+  /// Pick who works a station's queue: one of the owner's bestias, the owner themselves, or any free crafter of the
+  /// owner. A bestia keeps working while its master is logged out. Answered with a StationStateSMSG, or an
+  /// OperationError.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class SetStationWorkerCMSG : pb::IMessage<SetStationWorkerCMSG>
@@ -81,6 +82,7 @@ namespace Bnet {
     public SetStationWorkerCMSG(SetStationWorkerCMSG other) : this() {
       structureId_ = other.structureId_;
       workerEntityId_ = other.workerEntityId_;
+      anyFreeCrafter_ = other.anyFreeCrafter_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -117,6 +119,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "any_free_crafter" field.</summary>
+    public const int AnyFreeCrafterFieldNumber = 3;
+    private bool anyFreeCrafter_;
+    /// <summary>
+    /// The first idle bestia with the CRAFT job whose area covers the station takes it; worker_entity_id is ignored.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool AnyFreeCrafter {
+      get { return anyFreeCrafter_; }
+      set {
+        anyFreeCrafter_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -134,6 +151,7 @@ namespace Bnet {
       }
       if (StructureId != other.StructureId) return false;
       if (WorkerEntityId != other.WorkerEntityId) return false;
+      if (AnyFreeCrafter != other.AnyFreeCrafter) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -143,6 +161,7 @@ namespace Bnet {
       int hash = 1;
       if (StructureId != 0UL) hash ^= StructureId.GetHashCode();
       if (WorkerEntityId != 0UL) hash ^= WorkerEntityId.GetHashCode();
+      if (AnyFreeCrafter != false) hash ^= AnyFreeCrafter.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -169,6 +188,10 @@ namespace Bnet {
         output.WriteRawTag(16);
         output.WriteUInt64(WorkerEntityId);
       }
+      if (AnyFreeCrafter != false) {
+        output.WriteRawTag(24);
+        output.WriteBool(AnyFreeCrafter);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -187,6 +210,10 @@ namespace Bnet {
         output.WriteRawTag(16);
         output.WriteUInt64(WorkerEntityId);
       }
+      if (AnyFreeCrafter != false) {
+        output.WriteRawTag(24);
+        output.WriteBool(AnyFreeCrafter);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -202,6 +229,9 @@ namespace Bnet {
       }
       if (WorkerEntityId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(WorkerEntityId);
+      }
+      if (AnyFreeCrafter != false) {
+        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -220,6 +250,9 @@ namespace Bnet {
       }
       if (other.WorkerEntityId != 0UL) {
         WorkerEntityId = other.WorkerEntityId;
+      }
+      if (other.AnyFreeCrafter != false) {
+        AnyFreeCrafter = other.AnyFreeCrafter;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -248,6 +281,10 @@ namespace Bnet {
             WorkerEntityId = input.ReadUInt64();
             break;
           }
+          case 24: {
+            AnyFreeCrafter = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -273,6 +310,10 @@ namespace Bnet {
           }
           case 16: {
             WorkerEntityId = input.ReadUInt64();
+            break;
+          }
+          case 24: {
+            AnyFreeCrafter = input.ReadBool();
             break;
           }
         }

@@ -21,6 +21,9 @@ message StationStateSMSG {
 
   // The bestia that works the queue, or 0 when the owner does.
   uint64 worker_entity_id = 5;
+
+  // Any free crafter of the owner may take the station; worker_entity_id is the one that did, or 0.
+  bool any_free_crafter = 6;
 }
 
 message StationQueueEntry {
@@ -45,4 +48,5 @@ enum StationPause {
   STATION_PAUSE_BAG_FULL = 3;
   STATION_PAUSE_STATION_OUT = 4;
   STATION_PAUSE_CANNOT_CRAFT = 5;
+  STATION_PAUSE_NO_FREE_CRAFTER = 6;
 }

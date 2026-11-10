@@ -110,6 +110,10 @@ class PlayerStructure(
   @Column(name = "worker_bestia_id")
   var workerBestiaId: Long? = null,
 
+  /** Whether any free crafter of the owner may take the station; [workerBestiaId] is then the one that did. */
+  @Column(name = "takes_any_crafter", nullable = false)
+  var takesAnyCrafter: Boolean = false,
+
   /** What a chest holds; null for every other kind. */
   @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
   @JoinColumn(name = "storage_container_id")

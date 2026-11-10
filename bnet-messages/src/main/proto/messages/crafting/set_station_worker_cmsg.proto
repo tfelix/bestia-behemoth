@@ -6,11 +6,14 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "SetStationWorkerCmsgProto";
 
 /**
- * Pick who works a station's queue: one of the owner's bestias, or the owner themselves. A bestia keeps working
- * while its master is logged out. Answered with a StationStateSMSG, or an OperationError.
+ * Pick who works a station's queue: one of the owner's bestias, the owner themselves, or any free crafter of the
+ * owner. A bestia keeps working while its master is logged out. Answered with a StationStateSMSG, or an
+ * OperationError.
  */
 message SetStationWorkerCMSG {
   uint64 structure_id = 1;
   // An owned bestia's entity id, or 0 for the master.
   uint64 worker_entity_id = 2;
+  // The first idle bestia with the CRAFT job whose area covers the station takes it; worker_entity_id is ignored.
+  bool any_free_crafter = 3;
 }

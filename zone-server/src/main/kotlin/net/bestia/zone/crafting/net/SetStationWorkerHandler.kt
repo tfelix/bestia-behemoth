@@ -23,8 +23,12 @@ class SetStationWorkerHandler(
   override fun handle(world: World, msg: SetStationWorkerCMSG): Boolean {
     val actorId = connectionInfoService.getActiveEntityId(msg.playerId)
 
-    stationQueues.setWorker(world, actorId, msg.structureId, msg.workerEntityId)
-      ?.let { outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(it)) }
+    val refusal = if (msg.anyFreeCrafter) {
+      stationQueues.takeAnyFreeCrafter(world, actorId, msg.structureId)
+    } else {
+      stationQueues.setWorker(world, actorId, msg.structureId, msg.workerEntityId)
+    }
+    refusal?.let { outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(it)) }
 
     return true
   }
