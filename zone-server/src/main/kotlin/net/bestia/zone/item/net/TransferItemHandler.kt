@@ -8,8 +8,8 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.container.ReservedItem
-import net.bestia.zone.item.ecs.CarryCapacity
 import net.bestia.zone.item.ecs.Equipment
+import net.bestia.zone.item.ecs.CarryCheck
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemOwner
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
@@ -87,7 +87,7 @@ class TransferItemHandler(
       return true
     }
 
-    if (!canCarry(world, msg.toEntityId, held.weight * msg.amount)) {
+    if (!CarryCheck.fits(world, msg.toEntityId, held.weight * msg.amount)) {
       outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(OpError.EXCHANGE_TOO_HEAVY))
       return true
     }
@@ -146,14 +146,6 @@ class TransferItemHandler(
     val wholeCopies = held.isStackable || amount == 1
 
     return !worn && wholeCopies && held.amount >= amount
-  }
-
-  /** The same rule a pickup obeys, against the live bag for the reasons `ObtainItemIntentSystem.canObtain` gives. */
-  private fun canCarry(world: World, entityId: EntityId, weight: Int): Boolean {
-    val inventory = world.get(entityId, Inventory::class) ?: return false
-    val capacity = world.get(entityId, CarryCapacity::class) ?: return false
-
-    return inventory.totalWeight + weight <= capacity.max
   }
 
   /** The client asked for something its bags do not show any more; send it both again rather than guess. */

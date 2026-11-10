@@ -131,7 +131,7 @@ class ObtainItemIntentSystem(
       }
 
       val weight = stack.heldWeight ?: item.weight
-      if (!canObtain(this, entityId, weight * stack.amount)) {
+      if (!CarryCheck.fits(this, entityId, weight * stack.amount)) {
         refusal = "it does not fit the looter's carry capacity"
         return@modify null // leave the stack on the ground
       }
@@ -172,7 +172,7 @@ class ObtainItemIntentSystem(
       return
     }
 
-    if (canObtain(world, entityId, item.weight * intent.amount)) {
+    if (CarryCheck.fits(world, entityId, item.weight * intent.amount)) {
       grantItem(world, entityId, item, intent.amount, roll = intent.roll, provenance = intent.provenance)
       return
     }
@@ -197,23 +197,6 @@ class ObtainItemIntentSystem(
         roll = intent.roll,
       )
     }
-  }
-
-  /**
-   * True if [entityId] has an inventory at all and adding [itemWeight] would still fit its carry capacity.
-   *
-   * Weighed against the live [Inventory] rather than [CarryCapacity.current], for two reasons that both
-   * bite. One pass of [update] can resolve a loot intent and a create intent on the same entity, and gating
-   * both on the same tick-old `current` would let both through and overfill by a whole stack; [grantItem]
-   * mutates the inventory synchronously, so reading it back here is self-consistent. And `CurMax` clamps
-   * `current` to `max`, so an entity that somehow ends up over its limit under-reports its load and the gate
-   * would let still more in. `Inventory.totalWeight` cannot lie about either.
-   */
-  private fun canObtain(world: World, entityId: EntityId, itemWeight: Int): Boolean {
-    val inventory = world.get(entityId, Inventory::class) ?: return false
-    val capacity = world.get(entityId, CarryCapacity::class) ?: return false
-
-    return inventory.totalWeight + itemWeight <= capacity.max
   }
 
   /** Adds [item] to [entityId]'s live ECS inventory and schedules the durable DB write. */
