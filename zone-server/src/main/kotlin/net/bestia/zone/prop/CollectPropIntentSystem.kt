@@ -63,12 +63,13 @@ class CollectPropIntentSystem(
   private val removal: PropRemoval,
   private val outMessageProcessor: OutMessageProcessor,
   private val gatheringExp: GatheringExp,
+  private val herbs: HerbPicking,
 ) : System {
   override val phase = Phase.ITEMS
 
   override val reads: ComponentClassSet = setOf(
     Account::class, Position::class, PropPose::class, StaticVisual::class, WorldObjectIdentity::class
-  ) + GatheringExp.READS
+  ) + GatheringExp.READS + herbs.reads
 
   /**
    * [ObtainItemIntent.CreateItemIntent] is declared even though it is added to a *different* entity than the
@@ -118,6 +119,10 @@ class CollectPropIntentSystem(
 
     if (collectorPosition.distance(pose.position) > MAX_COLLECT_RANGE) {
       return refuse(OperationErrorProto.OpError.COLLECT_OUT_OF_RANGE)
+    }
+
+    if (!herbs.mayPick(world, collectorId, visual.kind, collect.itemId)) {
+      return deny(world, collectorId, OperationErrorProto.OpError.HERB_TOO_RARE)
     }
 
     // The claim. Synchronous in memory, which is the whole reason the race above resolves - see the class note.

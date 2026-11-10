@@ -61,8 +61,9 @@ enum class SkillId {
   M_MAXIMIZE_CARRY_CAPACITY,
   M_EXPERT_TAMING,
 
-  // Read by the systems they change: felling and its yield.
+  // Read by the systems they change: felling and its yield, picking herbs.
   M_LUMBERJACK,
+  M_HERBALISM,
 
   // Capture: their levels add to every catch roll in net.bestia.zone.capture.BestiaTrapSystem.
   M_TRAPPING,
