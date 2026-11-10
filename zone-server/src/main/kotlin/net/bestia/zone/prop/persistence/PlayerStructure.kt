@@ -99,7 +99,11 @@ class PlayerStructure(
 
   /** The ingredients paid into a station and not used yet, see [net.bestia.zone.prop.station.StationContents]. */
   @Column(name = "station_held", length = 2000)
-  var stationHeld: String? = null
+  var stationHeld: String? = null,
+
+  /** The player bestia that works a station's queue, or null when its owner does. */
+  @Column(name = "worker_bestia_id")
+  var workerBestiaId: Long? = null
 ) {
 
   @Id

@@ -19,5 +19,8 @@ enum class AnchorPriority {
   /** On a journey, so the server keeps simulating the ones on the move. */
   TRAVELLER,
 
+  /** Working a station's queue, which goes on while its master is away and needs its ground for that. */
+  WORKER,
+
   RESTING
 }

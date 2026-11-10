@@ -78,7 +78,7 @@ class JourneyService(
 
     world.remove(entity, Journey::class)
     world.remove(entity, Path::class)
-    world.get(entity, SimulationAnchor::class)?.priority = AnchorPriority.RESTING
+    world.get(entity, SimulationAnchor::class)?.let { it.priority = it.atRest }
   }
 
   companion object {

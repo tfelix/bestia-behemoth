@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.ecs
 
+import net.bestia.zone.prop.station.WorkAssignment
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.core.planner.Planner
 import net.bestia.zone.ai.core.planner.PlanningBudget
@@ -47,6 +48,7 @@ class AiThinkSystem(
   override val reads: ComponentClassSet = setOf(
     Position::class,
     Dead::class,
+    WorkAssignment::class,
   ) + PlayerHold.READS
 
   /** Written: the goal/plan/behaviour-tree fields and the agent's memory snapshot. */
@@ -82,7 +84,7 @@ class AiThinkSystem(
 
       if (agent.wasLeftToPlayer) {
         agent.wasLeftToPlayer = false
-        PlayerHold.settleHome(agent, get<Position>().toVec3L())
+        PlayerHold.settleHome(agent, world.get(id, WorkAssignment::class)?.position ?: get<Position>().toVec3L())
       }
 
       // Never reason from a memory nothing has been observed into — see AiAgent.hasPerceived. The think tick
