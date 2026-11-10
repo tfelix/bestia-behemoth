@@ -174,6 +174,7 @@ var PlanSettlementCMSG = load("res://Bnet/Message/Settlement/PlanSettlementCMSG.
 var TearDownSettlementCMSG = load("res://Bnet/Message/Settlement/TearDownSettlementCMSG.cs")
 var OfferSettlementCMSG = load("res://Bnet/Message/Settlement/OfferSettlementCMSG.cs")
 var AnswerSettlementOfferCMSG = load("res://Bnet/Message/Settlement/AnswerSettlementOfferCMSG.cs")
+var RepairStructureCMSG = load("res://Bnet/Message/Settlement/RepairStructureCMSG.cs")
 var SendLetterCMSG = load("res://Bnet/Message/Postal/SendLetterCMSG.cs")
 var RequestLettersCMSG = load("res://Bnet/Message/Postal/RequestLettersCMSG.cs")
 var ReadLetterCMSG = load("res://Bnet/Message/Postal/ReadLetterCMSG.cs")
@@ -1001,6 +1002,14 @@ func answer_settlement_offer(settlement_id: int, accept: bool) -> void:
 	var msg = AnswerSettlementOfferCMSG.new()
 	msg.SettlementId = settlement_id
 	msg.Accept = accept
+	_socket.SendMessage(msg)
+
+
+## Starts or stops repairing [param entity_id]. A refusal comes back as an OperationError.
+func repair_structure(entity_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = RepairStructureCMSG.new()
+	msg.EntityId = entity_id
 	_socket.SendMessage(msg)
 
 

@@ -745,3 +745,7 @@ SETTLEMENT_NOTICE_RECEIVED,You are now the founder of %s.
 SETTLEMENT_NOTICE_SITE_LOST,The sign site of %s is gone.
 ERROR_SETTLEMENT_NEEDS_TOWN,This can only be built inside a standing player town.
 ERROR_SETTLEMENT_ALREADY_HAS_ONE,This town already has one.
+CONTEXT_REPAIR,Repair
+ERROR_REPAIR_OUTSIDE_TOWN,Only buildings inside a standing player town can be repaired.
+ERROR_REPAIR_NOT_NEEDED,It is not damaged.
+ERROR_REPAIR_NEEDS_MATERIALS,You carry none of the materials this repair needs.

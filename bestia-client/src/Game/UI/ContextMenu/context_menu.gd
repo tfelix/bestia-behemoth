@@ -12,6 +12,7 @@ const _ACTION_TRADE: int = 1
 const _ACTION_TALK: int = 2
 const _ACTION_EXCHANGE: int = 3
 const _ACTION_ATTACK: int = 4
+const _ACTION_REPAIR: int = 5
 
 var _target_entity_id: int = 0
 var _target: Node3D = null
@@ -49,6 +50,15 @@ func open_for(target: Node3D, screen_position: Vector2) -> bool:
 		# Only here: a click talks to a townsperson, and killing one costs honor, so it has to be meant.
 		if _can_attack_townsperson(_target_entity_id):
 			add_item(tr("CONTEXT_ATTACK"), _ACTION_ATTACK)
+
+	# Anything a player builds and clicks to use, and a standing city sign. The server says no to the rest.
+	elif target is PropPicker and target.action == &"use":
+		_target_entity_id = target.entity_id
+		add_item(tr("CONTEXT_REPAIR"), _ACTION_REPAIR)
+
+	elif target is StructureVisual and not target.is_construction_site():
+		_target_entity_id = target.get_structure_entity_id()
+		add_item(tr("CONTEXT_REPAIR"), _ACTION_REPAIR)
 
 	if item_count == 0:
 		return false
@@ -94,6 +104,9 @@ func _on_id_pressed(id: int) -> void:
 		_ACTION_ATTACK:
 			if _target_entity_id != 0 and is_instance_valid(_target):
 				MovementPilot.get_instance().attack(_target, _target_entity_id)
+		_ACTION_REPAIR:
+			if _target_entity_id != 0:
+				ConnectionManager.repair_structure(_target_entity_id)
 		_ACTION_EXCHANGE:
 			var inventory = get_tree().get_first_node_in_group("inventory")
 			if inventory != null and _target_entity_id != 0:

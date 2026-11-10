@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSr0HwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrDIAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -116,9 +116,11 @@ namespace Bnet {
             "TVBUWRCwAhIeChlTRVRUTEVNRU5UX0NBTk5PVF9SRUNFSVZFELECEh4KGVNF",
             "VFRMRU1FTlRfT0ZGRVJfREVDTElORUQQsgISHAoXU0VUVExFTUVOVF9PVVRf",
             "T0ZfUkFOR0UQswISGgoVU0VUVExFTUVOVF9ORUVEU19UT1dOELQCEh8KGlNF",
-            "VFRMRU1FTlRfQUxSRUFEWV9IQVNfT05FELUCIgQILhAuKhJTSE9QX1RSRUFT",
-            "VVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRpb25F",
-            "cnJvclByb3RvYgZwcm90bzM="));
+            "VFRMRU1FTlRfQUxSRUFEWV9IQVNfT05FELUCEhgKE1JFUEFJUl9PVVRTSURF",
+            "X1RPV04QtgISFgoRUkVQQUlSX05PVF9ORUVERUQQtwISGwoWUkVQQUlSX05F",
+            "RURTX01BVEVSSUFMUxC4AiIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwK",
+            "FW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -708,6 +710,15 @@ namespace Bnet {
     /// The town already has this building, finished or still being built.
     /// </summary>
     [pbr::OriginalName("SETTLEMENT_ALREADY_HAS_ONE")] SettlementAlreadyHasOne = 309,
+    /// <summary>
+    /// Repairs only happen inside a standing player town.
+    /// </summary>
+    [pbr::OriginalName("REPAIR_OUTSIDE_TOWN")] RepairOutsideTown = 310,
+    [pbr::OriginalName("REPAIR_NOT_NEEDED")] RepairNotNeeded = 311,
+    /// <summary>
+    /// The repairer carries none of the materials the repair needs.
+    /// </summary>
+    [pbr::OriginalName("REPAIR_NEEDS_MATERIALS")] RepairNeedsMaterials = 312,
   }
 
   #endregion
