@@ -72,11 +72,21 @@ class PlayerIdleAiTest {
   }
 
   @Test
+  fun `every job adds self care, whatever the species`() {
+    BestiaJob.entries.forEach { job ->
+      val names = agentWith("passive_wanderer", AiConfig(job = job)).goals.map { it.name }
+
+      assertTrue(names.containsAll(AiConfig.SELF_CARE_GOALS), "job $job lacks self care: $names")
+    }
+  }
+
+  @Test
   fun `a wild mob with no config runs its archetype unchanged`() {
     val wild = agentWith("aggressive_melee", config = null)
 
     assertTrue(wild.goals.any { it.name == "KillEnemy" })
     assertTrue(wild.goals.any { it.name == "EatVegetation" })
+    assertTrue(wild.goals.none { it.name in AiConfig.SELF_CARE_GOALS }, "a wild mob that bolted could not be fought")
   }
 
   // ------------------------------------------------------------------- courage

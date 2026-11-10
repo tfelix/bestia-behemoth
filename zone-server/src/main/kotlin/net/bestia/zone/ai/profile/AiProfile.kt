@@ -33,6 +33,17 @@ data class AiProfile(
   fun armedWith(defaultAttack: DefaultAttack, aspd: Int): AiProfile =
     copy(attacks = attacks + DefaultAttackDefinition.of(defaultAttack, aspd))
 
+  /**
+   * This profile as an owned bestia runs it under [orders]: the archetype's goals narrowed to the job, plus the
+   * self-care every owned bestia has. The job never widens: it cannot teach a creature to hunt if its species
+   * never could.
+   */
+  fun underOrders(orders: AiConfig): AiProfile = copy(
+    goals = goals.filter { it.name in orders.job.goalNames } +
+      AiConfig.SELF_CARE_GOALS.map { GoalTuning(it, basePriority = null) },
+    actionIds = (actionIds + AiConfig.SELF_CARE_ACTIONS).distinct(),
+  )
+
   /** This profile plus the attack skills a species fights with, which no shared profile can list. */
   fun withSkillAttacks(skillAttacks: List<SkillAttack>): AiProfile {
     return copy(attacks = attacks + skillAttacks)

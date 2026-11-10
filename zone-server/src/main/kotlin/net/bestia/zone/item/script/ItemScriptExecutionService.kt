@@ -24,6 +24,14 @@ class ItemScriptExecutionService(
     val itemScript = itemScriptsById[item.id]
       ?: throw ItemScriptNotFoundException(item)
 
+    return use(world, userId, itemScript, playerItemId, args)
+  }
+
+  /** The script bound to [itemId], or null for an item that does nothing when used. */
+  fun scriptOf(itemId: Long): ItemScript? = itemScriptsById[itemId]
+
+  /** As [useItem], for a caller on the tick that holds a script rather than a catalogue row. */
+  fun use(world: World, userId: EntityId, itemScript: ItemScript, playerItemId: Long, args: ScriptArgs): Boolean {
     val isSuccess = itemScript.execute(world, userId, args)
 
     if (isSuccess) {

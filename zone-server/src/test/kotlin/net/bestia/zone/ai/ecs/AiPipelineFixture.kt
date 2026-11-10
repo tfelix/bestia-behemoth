@@ -15,9 +15,12 @@ import net.bestia.zone.townsfolk.domain.TownsfolkRuntime
 import net.bestia.zone.townsfolk.ecs.IndoorRegistry
 import net.bestia.zone.townsfolk.ecs.Townsfolk
 import net.bestia.zone.townsfolk.ecs.TownsfolkIdentity
+import net.bestia.zone.ai.perception.BagSense
 import net.bestia.zone.ai.perception.ForageSense
 import net.bestia.zone.ai.perception.PerceptionSystem
 import net.bestia.zone.ai.perception.SenseSystem
+import net.bestia.zone.ai.profile.AiConfig
+import net.bestia.zone.item.care.TestBagCare
 import net.bestia.zone.townsfolk.domain.TownsfolkDomainFixture
 import net.bestia.zone.townsfolk.domain.TownsfolkProduction
 import net.bestia.zone.townsfolk.perception.SettlementFood
@@ -157,12 +160,16 @@ class AiPipelineFixture(
   /** Where the evening happens. None by default, so an ordinary scenario's people stay in. */
   var square: Vec3L? = null
 
+  /** Food, a bandage and a potion with their real scripts; see [TestBagCare]. */
+  val bagCare = TestBagCare.create()
+
   // Spring collects the domain runtimes in the live server; a test names them.
   val bestia = BestiaRuntime(
     navigation = TestNavigation.service(),
     skills = skills,
     attackExecution = attackExecution,
     basicAttacks = BasicAttackResolver(mockk(relaxed = true)),
+    care = bagCare,
     random = random,
   )
 
@@ -198,6 +205,7 @@ class AiPipelineFixture(
     SenseSystem(
       listOf(
         ForageSense { grazeableGround },
+        BagSense(bagCare),
         ShelterSense(aoi) { at, reach -> doorsteps.filter { it.distance(at) <= reach } },
         SettlementSense(
           food = { mealStall },
@@ -233,13 +241,15 @@ class AiPipelineFixture(
     maxHealth: Int = 10,
     memory: Blackboard = Blackboard(),
     defaultAttack: DefaultAttack = DefaultAttack.MELEE,
+    /** An owned bestia's orders; null for a wild mob. */
+    orders: AiConfig? = null,
   ): EntityId =
     world.createEntity { id ->
       world.add(id, Position.fromVec3(pos))
       world.add(id, Health(health, maxHealth))
       world.add(id, Speed())
       world.add(id, Animation())
-      world.add(id, agentFactory.create(profiles.getOrThrow(profileId), defaultAttack, AttackSpeed.DEFAULT_SPECIES_ASPD, homePosition = pos, memory = memory))
+      world.add(id, agentFactory.create(profiles.getOrThrow(profileId), defaultAttack, AttackSpeed.DEFAULT_SPECIES_ASPD, homePosition = pos, config = orders, memory = memory))
     }
 
   /**

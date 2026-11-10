@@ -12,6 +12,7 @@ import net.bestia.zone.ai.profile.AiProfile
 import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.care.BagCare
 import net.bestia.zone.navigation.NavigationService
 import org.springframework.stereotype.Service
 import kotlin.random.Random
@@ -29,6 +30,7 @@ class BestiaRuntime(
   private val skills: SkillExecutionService,
   private val attackExecution: AttackExecutionService,
   private val basicAttacks: BasicAttackResolver,
+  private val care: BagCare,
   /** Where wandering draws from. Defaulted for the server; a test passes a seed to pin a walk. */
   random: Random = Random.Default,
 ) : AiDomainRuntime {
@@ -57,6 +59,14 @@ class BestiaRuntime(
     // The player's courage step overrides the archetype's aggression. Everything else about the species is not
     // theirs to change.
     memory.set(BestiaDomain.AGGRESSION, config?.courage?.aggression ?: tuning.aggression, Blackboard.PERMANENT)
+
+    if (config != null) attachOrders(memory, config)
+  }
+
+  /** The lines an owned bestia looks after itself at. */
+  private fun attachOrders(memory: Blackboard, config: AiConfig) {
+    memory.set(BestiaDomain.EAT_BELOW_STAMINA_PCT, BestiaDomain.DEFAULT_EAT_BELOW_STAMINA_PCT, Blackboard.PERMANENT)
+    memory.set(BestiaDomain.HEAL_BELOW_HEALTH_PCT, BestiaDomain.DEFAULT_HEAL_BELOW_HEALTH_PCT, Blackboard.PERMANENT)
   }
 
   // A ranged species stops at shooting distance; one that also bites lets the target come to it.
@@ -67,7 +77,7 @@ class BestiaRuntime(
   override fun resolver(profile: AiProfile): ActionResolver {
     return BestiaDomain.resolver(
       profile.actionIds,
-      BestiaDomain.Collaborators(locomotion, skills, attackExecution, basicAttacks, profile.attacks)
+      BestiaDomain.Collaborators(locomotion, skills, attackExecution, basicAttacks, care, profile.attacks)
     )
   }
 
