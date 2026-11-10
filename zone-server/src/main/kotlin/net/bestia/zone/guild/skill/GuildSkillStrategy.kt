@@ -30,7 +30,7 @@ abstract class GuildSkillStrategy(
     return null
   }
 
-  override fun checkCastStart(world: World, casterId: EntityId, skillLevel: Int): OpError? {
+  override fun checkCastStart(world: World, casterId: EntityId, skillLevel: Int, args: List<Long>): OpError? {
     val membership = world.get(casterId, GuildMembership::class) ?: return OpError.GUILD_NOT_A_MEMBER
     val skillId = tree.find(skill)?.skillId ?: return OpError.REQUEST_REFUSED
 

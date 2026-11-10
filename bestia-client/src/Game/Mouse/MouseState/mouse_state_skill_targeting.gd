@@ -17,6 +17,8 @@ const _ENTITY_SNAP_INDICATOR_SCENE := preload("res://Game/VFX/EntitySnapIndicato
 
 var skill: AttackResource
 var skill_level: int = 1
+## The choice a picker made before targeting began, sent along with the target; empty for most skills.
+var args: PackedInt64Array = PackedInt64Array()
 var indicator_scene: PackedScene = null
 
 var _indicator: Node3D = null
@@ -123,7 +125,7 @@ func _try_confirm(mgr: MouseManager, event: InputEvent) -> void:
 		# round it to the neighbouring voxel. The indicator above deliberately uses the drawn one -
 		# that is a mark on the model, not a coordinate for the server.
 		ConnectionManager.activate_skill(
-			skill.skill_id, skill_level, _snap_target.get_logical_position(), _snap_target.entity_id)
+			skill.skill_id, skill_level, _snap_target.get_logical_position(), _snap_target.entity_id, args)
 	else:
 		if _last_ground_hit == null:
 			return
@@ -131,5 +133,5 @@ func _try_confirm(mgr: MouseManager, event: InputEvent) -> void:
 		# world position rounds to the tile whose *centre* is nearest, which is the neighbour of the one
 		# the indicator just drew for half of every tile. See TileSpace.
 		ConnectionManager.activate_skill(
-			skill.skill_id, skill_level, TileSpace.world_to_tile(_last_ground_hit))
+			skill.skill_id, skill_level, TileSpace.world_to_tile(_last_ground_hit), 0, args)
 	mgr.enter_default()

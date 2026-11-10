@@ -20,6 +20,7 @@ class Channel(
   val targetPosition: Vec3L?,
   val intervalSeconds: Float,
   val totalSeconds: Float,
+  val args: List<Long> = emptyList(),
 ) : Countdown(totalSeconds), Removable {
 
   var sinceLastTick: Float = 0f

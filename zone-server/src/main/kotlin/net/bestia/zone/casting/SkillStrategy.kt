@@ -47,9 +47,12 @@ interface SkillStrategy {
    * take. The world is the handler's for the duration, so an implementation may read live components - but it may not
    * do relational work, and having nothing to write it has no reason to.
    *
+   * [args] is the choice the player sent with the cast, if the skill asks for one. It is user input: a skill that
+   * reads it refuses what it does not accept here, with `SKILL_INVALID_CHOICE`, and checks it again on resolution.
+   *
    * @return the refusal to report to the player, or null when the cast may start
    */
-  fun checkCastStart(world: World, casterId: EntityId, skillLevel: Int): OpError? = null
+  fun checkCastStart(world: World, casterId: EntityId, skillLevel: Int, args: List<Long> = emptyList()): OpError? = null
 
   /**
    * Whether the cast may go ahead at all: range, line of sight, a target that is eligible. Nothing is

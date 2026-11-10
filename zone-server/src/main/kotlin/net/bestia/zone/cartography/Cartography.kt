@@ -36,7 +36,7 @@ class Cartography(
    * and checked again - and only then taken - by `ChartService.mint`, since the sheet counted here can be
    * dropped or traded away while the bar is still filling.
    */
-  override fun checkCastStart(world: World, casterId: EntityId, skillLevel: Int): OpError? =
+  override fun checkCastStart(world: World, casterId: EntityId, skillLevel: Int, args: List<Long>): OpError? =
     surveyService.checkBlank(world, casterId)
 
   override fun isCastPossible(ctx: SkillContext): Boolean {

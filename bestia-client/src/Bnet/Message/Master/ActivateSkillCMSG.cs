@@ -16,6 +16,9 @@ namespace BestiaBehemothClient.Bnet.Message.Master
 
     [Export] public ulong TargetEntityId { get; set; }
 
+    /// <summary>A choice the skill asked for before the cast; the server parses and checks it.</summary>
+    [Export] public long[] Args { get; set; } = [];
+
     public ActivateSkillCMSG()
     {
     }
@@ -29,6 +32,7 @@ namespace BestiaBehemothClient.Bnet.Message.Master
         TargetPosition = Vec3Convert.ToProto(TargetPosition),
         TargetEntityId = TargetEntityId
       };
+      activateSkillCmsg.Args.AddRange(Args);
 
       return new Envelope
       {

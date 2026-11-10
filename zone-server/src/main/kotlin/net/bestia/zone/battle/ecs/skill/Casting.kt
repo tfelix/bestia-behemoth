@@ -31,6 +31,8 @@ class Casting(
   val targetPosition: Vec3L?,
   val totalSeconds: Float,
   remainingSeconds: Float = totalSeconds,
+  /** The choice sent with the activation, kept for when the cast resolves. */
+  val args: List<Long> = emptyList(),
 ) : Countdown(remainingSeconds), Removable {
 
   init {
