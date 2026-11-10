@@ -17,9 +17,10 @@ import net.bestia.zone.entity.StaticEntityKind
  * second localized copy on the client.
  */
 data class CraftableRecipesSMSG(
+  /** The skill the window shows first, or `CraftingService.NO_SKILL`. */
   val skillId: Long,
 
-  /** The station actually found in range, or null when none was needed or none was there. */
+  /** The station the recipes are worked at, or null for Handiwork. */
   val station: StaticEntityKind?,
 
   val recipes: List<CraftableRecipe>
@@ -29,6 +30,7 @@ data class CraftableRecipesSMSG(
     val protoRecipes = recipes.map { recipe ->
       CraftableRecipesSmsgProto.CraftableRecipe.newBuilder()
         .setRecipeId(recipe.recipeId)
+        .setSkillId(recipe.skillId)
         .setEffect(recipe.effect.ordinal)
         .setOutputItemId(recipe.outputItemId)
         .setOutputAmount(recipe.outputAmount)
@@ -62,6 +64,7 @@ data class CraftableRecipesSMSG(
 
   data class CraftableRecipe(
     val recipeId: Long,
+    val skillId: Long,
     val effect: RecipeEffect,
 
     /** Both 0 for an effect that changes an item rather than making one. */

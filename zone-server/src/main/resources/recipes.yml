@@ -15,7 +15,7 @@
 # `inputs` are consumed on failure as well as on success. That is the whole risk in a craft, and the
 # reason the success tables in the design docs are worth anything.
 #
-# `station` names a `StaticEntityKind` that must be standing within `CraftingService.STATION_RANGE`
+# `station` names a `StaticEntityKind` that must be standing within `PlayerStructureService.RANGE_TILES`
 # tiles. Cooking deliberately has none: there is no camp-fire prop, so a meal is cooked anywhere.
 #
 # `baseSuccessChance` is before skill bonuses - see `CraftBonusService`, which applies the docs'

@@ -86,43 +86,61 @@ class CraftingService(
   private val metrics: GameMetrics = GameMetrics(),
 ) : RecipeOffering {
 
+  /** A crafting skill was cast: open the window with that skill picked. */
+  override fun offerRecipes(world: World, casterId: EntityId, skillId: Long) {
+    openCrafting(world, casterId, casterId, skillId)
+  }
+
   /**
-   * Answers "what can I make here" for the skill that was just activated.
+   * Opens the window where [crafterId] stands, with [skillId] shown first, or no skill when it is [NO_SKILL].
+   *
+   * A picked skill opens at its own station when one is in range, and as Handiwork otherwise, which is where
+   * the kit for that station is made. With no skill picked, any station in range will do.
+   */
+  fun openCrafting(world: World, crafterId: EntityId, masterEntityId: EntityId, skillId: Long) {
+    val position = world.get(crafterId, Position::class)?.toVec3L()
+    val candidates = if (skillId == NO_SKILL) recipes.stations() else recipes.stationsOf(skillId)
+    val station = position?.let { at -> candidates.firstOrNull { structures.stationNear(world, at, it) != null } }
+
+    offer(world, crafterId, masterEntityId, station, skillId)
+  }
+
+  /** Opens the window for a station the crafter clicked. */
+  fun openAtStation(world: World, crafterId: EntityId, masterEntityId: EntityId, station: StaticEntityKind) {
+    offer(world, crafterId, masterEntityId, station, NO_SKILL)
+  }
+
+  /**
+   * Sends every recipe this crafter can work at [station] (null: Handiwork), of every skill they know.
    *
    * Lists a recipe the crafter cannot currently afford, deliberately: a recipe you have no materials for is
    * what tells you what to go and gather, and hiding it would make the tree look empty. What it does *not* list
-   * is a recipe whose station is missing, whose skill rank is too low, or whose output is above the tier this
-   * crafter can reach - those are not near-misses, they are somewhere else entirely.
+   * is a recipe whose skill rank is too low, or whose output is above the tier this crafter can reach - those are
+   * not near-misses, they are somewhere else entirely.
    */
-  override fun offerRecipes(world: World, casterId: EntityId, skillId: Long) {
-    val accountId = world.get(casterId, Account::class)?.accountId ?: return
-    val crafter = crafters.of(world, casterId, casterId) ?: return
+  private fun offer(
+    world: World,
+    crafterId: EntityId,
+    masterEntityId: EntityId,
+    station: StaticEntityKind?,
+    selectedSkillId: Long
+  ) {
+    val accountId = world.get(crafterId, Account::class)?.accountId ?: return
+    val crafter = crafters.of(world, crafterId, masterEntityId) ?: return
     val known = crafter.skills
-    val inventory = world.get(casterId, Inventory::class)
-    val position = world.get(casterId, Position::class)?.toVec3L()
+    val inventory = world.get(crafterId, Inventory::class)
 
-    var stationFound: StaticEntityKind? = null
-
-    val offered = recipes.forSkill(skillId)
-      .filter { known?.knowsSkill(skillId, it.requiredSkillLevel) == true }
+    val offered = recipes.forStation(station)
+      .filter { known?.knowsSkill(it.requiredSkillId, it.requiredSkillLevel) == true }
       .filter { crafter.knowsBlueprint(it) }
       // Only a producing recipe can be judged here: the tier that matters for the other three is the tier of
       // the item the player has not picked yet, so those are checked when the craft is asked for.
       .filter { it.needsTarget || withinReach(known, it, outputLevelOf(it)) }
-      .filter { recipe ->
-        val station = recipe.station ?: return@filter true
-        if (position == null) return@filter false
-
-        val standing = structures.stationNear(world, position, station) != null
-        if (standing) stationFound = station
-
-        standing
-      }
-      .map { recipe -> describe(recipe, known, inventory, attributesOf(world, casterId)) }
+      .map { recipe -> describe(recipe, known, inventory, attributesOf(world, crafterId)) }
 
     outMessageProcessor.sendToPlayer(
       accountId,
-      CraftableRecipesSMSG(skillId = skillId, station = stationFound, recipes = offered)
+      CraftableRecipesSMSG(skillId = selectedSkillId, station = station, recipes = offered)
     )
   }
 
@@ -136,7 +154,8 @@ class CraftingService(
     entityId: EntityId,
     recipeId: Long,
     targetUniqueId: Long,
-    masterEntityId: EntityId = entityId
+    masterEntityId: EntityId = entityId,
+    repeats: Int = 0
   ): OpError? {
     val recipe = recipes.of(recipeId) ?: return OpError.CRAFT_NOT_POSSIBLE
 
@@ -185,7 +204,9 @@ class CraftingService(
         recipeId = recipe.id,
         targetUniqueId = if (recipe.needsTarget) targetUniqueId else 0L,
         totalSeconds = bonuses.craftSeconds(known, recipe),
-        masterEntityId = masterEntityId.takeIf { it != entityId }
+        masterEntityId = masterEntityId.takeIf { it != entityId },
+        // A failed upgrade or slot cut can destroy its target, so only a recipe that makes something repeats.
+        remainingRepeats = if (recipe.needsTarget) 0 else repeats.coerceIn(0, MAX_REPEATS)
       )
     )
 
@@ -199,6 +220,8 @@ class CraftingService(
    * materials can be dropped, the target traded away or the station knocked down. The inputs are spent *before*
    * the roll and are never returned, which is the entire risk in a craft and the reason the success tables in
    * the design docs are worth anything.
+   *
+   * A craft with repeats left starts the next one right away. A refusal ends the batch.
    */
   fun resolve(world: World, entityId: EntityId, crafting: Crafting) {
     val recipe = recipes.of(crafting.recipeId) ?: return
@@ -256,6 +279,22 @@ class CraftingService(
         LOG.warn { "Master $masterId left the world before ${recipe.identifier} resolved; its inputs are spent" }
       }
     }
+
+    if (crafting.remainingRepeats > 0) startNext(world, entityId, accountId, crafting)
+  }
+
+  /** The inputs of the craft just resolved are already off the live inventory, so this checks what is left. */
+  private fun startNext(world: World, entityId: EntityId, accountId: Long?, crafting: Crafting) {
+    val denial = start(
+      world = world,
+      entityId = entityId,
+      recipeId = crafting.recipeId,
+      targetUniqueId = crafting.targetUniqueId,
+      masterEntityId = crafting.masterEntityId ?: entityId,
+      repeats = crafting.remainingRepeats - 1
+    )
+
+    if (denial != null) refuse(accountId, denial)
   }
 
   private fun succeed(
@@ -490,6 +529,7 @@ class CraftingService(
     attributes: StatusValues?
   ): CraftableRecipesSMSG.CraftableRecipe = CraftableRecipesSMSG.CraftableRecipe(
     recipeId = recipe.id,
+    skillId = recipe.requiredSkillId,
     effect = recipe.effect,
     outputItemId = recipe.output?.itemId?.toInt() ?: 0,
     outputAmount = recipe.output?.amount ?: 0,
@@ -558,6 +598,12 @@ class CraftingService(
      * every other per-level table in the tree tops out at.
      */
     const val MAX_UPGRADE_LEVEL = 10
+
+    /** The skill id that picks no skill when the crafting window opens. */
+    const val NO_SKILL = 0L
+
+    /** How many crafts may follow the first in one batch, so one request cannot keep a crafter busy for days. */
+    const val MAX_REPEATS = 99
 
     private val LOG = KotlinLogging.logger { }
   }

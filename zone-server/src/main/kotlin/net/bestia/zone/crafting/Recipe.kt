@@ -29,7 +29,7 @@ data class Recipe(
   val requiredSkillLevel: Int,
 
   /**
-   * The station that must be standing within [net.bestia.zone.crafting.CraftingService.STATION_RANGE]
+   * The station that must be standing within [net.bestia.zone.prop.PlayerStructureService.RANGE_TILES]
    * tiles, or null for something that needs none - a meal over any fire, a ritual on bare ground.
    */
   val station: StaticEntityKind?,

@@ -23,12 +23,6 @@ dialogs:
     type: CONFIRM
     args: []
 
-  # A stand-in until a workbench has a crafting window of its own to open.
-  - id: 3
-    identifier: WORKBENCH_PLACEHOLDER
-    type: CONFIRM
-    args: []
-
   # What a tracker reads off the ground. Three entries rather than one with optional placeholders, because a
   # sentence with a hole where the creature should be does not translate - see ReadTracks for the level gates.
   - id: 4

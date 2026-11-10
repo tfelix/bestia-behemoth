@@ -218,10 +218,10 @@ class PlayerStructureService(
     /**
      * How far a crafter may stand from their station, in tiles, and how close two of a kind may be built.
      *
-     * Matches the `range: 2` the crafting skills carry in `skills.yml`, which is what the client uses to decide
-     * whether the cursor is close enough to activate at all.
+     * One more than the `range: 2` the crafting skills carry in `skills.yml`, so a crafter who could aim a skill
+     * at their station is also close enough to work at it.
      */
-    const val RANGE_TILES = 2L
+    const val RANGE_TILES = 3L
 
     private val LOG = KotlinLogging.logger { }
   }

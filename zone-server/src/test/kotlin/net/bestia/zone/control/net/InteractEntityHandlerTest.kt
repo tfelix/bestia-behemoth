@@ -5,8 +5,7 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto.OpError
-import net.bestia.zone.dialog.DialogId
-import net.bestia.zone.dialog.DialogService
+import net.bestia.zone.crafting.CraftingService
 import net.bestia.zone.townsfolk.conversation.TalkService
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.entity.ecs.DeadActionGuard
@@ -43,7 +42,7 @@ class InteractEntityHandlerTest {
 
   private lateinit var world: EcsWorld
   private lateinit var messages: OutMessageProcessor
-  private lateinit var dialogs: DialogService
+  private lateinit var crafting: CraftingService
   private lateinit var talk: TalkService
   private lateinit var hallInteraction: PropInteraction
   private lateinit var handler: InteractEntityHandler
@@ -53,7 +52,7 @@ class InteractEntityHandlerTest {
   fun setUp() {
     world = testWorld()
     messages = mockk(relaxed = true)
-    dialogs = mockk(relaxed = true)
+    crafting = mockk(relaxed = true)
     talk = mockk(relaxed = true)
     hallInteraction = mockk(relaxed = true)
     every { hallInteraction.kind } returns StaticEntityKind.AUCTION_HOUSE
@@ -70,8 +69,8 @@ class InteractEntityHandlerTest {
     handler = InteractEntityHandler(
       connectionInfoService = connectionInfoService,
       deadActionGuard = DeadActionGuard(),
-      dialogService = dialogs,
       talkService = talk,
+      crafting = crafting,
       outMessageProcessor = messages,
       propInteractions = listOf(hallInteraction),
     )
@@ -143,15 +142,16 @@ class InteractEntityHandlerTest {
   }
 
   @Test
-  fun `clicking a finished structure opens its placeholder`() {
+  fun `clicking a finished station opens its crafting window`() {
     val workbench = world.createEntity { id ->
-      add(id, Position.fromVec3(standingAt))
+      add(id, PropPose(standingAt, yaw = 0f))
+      add(id, StaticVisual(StaticEntityKind.WORKBENCH, variant = 0, heightDm = 40))
       add(id, PlayerStructureIdentity(7L, ownerAccountId = 70L))
     }
 
     handler.handle(world, interactWith(workbench))
 
-    verify { dialogs.send(accountId, DialogId.WORKBENCH_PLACEHOLDER, any(), workbench) }
+    verify { crafting.openAtStation(world, actor, actor, StaticEntityKind.WORKBENCH) }
   }
 
   @Test

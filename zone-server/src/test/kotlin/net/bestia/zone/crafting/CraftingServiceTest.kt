@@ -423,6 +423,68 @@ class CraftingServiceTest {
     assertFalse(sent!!.recipes.single().inputs.all { it.held >= it.amount })
   }
 
+  @Test
+  fun `a station lists the recipes of every known skill worked there and nothing else`() {
+    val forged = recipe(id = 13, identifier = "FORGED", station = StaticEntityKind.FORGE)
+    val repaired = recipe(id = 14, identifier = "REPAIRED", requiredSkillId = REPAIR_ID, station = StaticEntityKind.FORGE)
+    val anywhere = recipe(id = 15, identifier = "ANYWHERE")
+
+    val fixture = CraftingFixture(listOf(forged, repaired, anywhere)).withStation(StaticEntityKind.FORGE)
+    val crafter = fixture.givenCrafter(knownSkills = mapOf(SKILL_ID to 1, REPAIR_ID to 1))
+    val sent = fixture.captureOffer()
+
+    fixture.service.openCrafting(fixture.world, crafter, crafter, CraftingService.NO_SKILL)
+
+    assertEquals(StaticEntityKind.FORGE, sent().station)
+    assertEquals(listOf(forged.id to SKILL_ID, repaired.id to REPAIR_ID), sent().recipes.map { it.recipeId to it.skillId })
+  }
+
+  /** Handiwork is where a skill's kit is made, so a skill cast away from its station must still open. */
+  @Test
+  fun `a skill cast away from its station opens as Handiwork with that skill picked`() {
+    val forged = recipe(id = 16, identifier = "FORGED", station = StaticEntityKind.FORGE)
+    val anywhere = recipe(id = 17, identifier = "ANYWHERE")
+
+    val fixture = CraftingFixture(listOf(forged, anywhere))
+    val crafter = fixture.givenCrafter(knownSkills = mapOf(SKILL_ID to 1))
+    val sent = fixture.captureOffer()
+
+    fixture.service.offerRecipes(fixture.world, crafter, SKILL_ID)
+
+    assertNull(sent().station)
+    assertEquals(SKILL_ID, sent().skillId)
+    assertEquals(listOf(anywhere.id), sent().recipes.map { it.recipeId })
+  }
+
+  @Test
+  fun `a batch starts the next craft until the materials run out`() {
+    val fixture = CraftingFixture(listOf(produce))
+    val crafter = fixture.givenCrafter(items = listOf(stack(INPUT_ITEM, 5)), knownSkills = mapOf(SKILL_ID to 1))
+
+    assertNull(fixture.service.start(fixture.world, crafter, produce.id, targetUniqueId = 0, repeats = 9))
+
+    fixture.finishCraftOf(crafter)
+    assertEquals(8, fixture.world.get(crafter, Crafting::class)?.remainingRepeats)
+
+    fixture.finishCraftOf(crafter)
+    assertNull(fixture.world.get(crafter, Crafting::class), "one input is left, and the recipe takes two")
+    verify { fixture.outMessageProcessor.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OpError.CRAFT_MISSING_MATERIALS)) }
+  }
+
+  @Test
+  fun `a recipe that works on an item never repeats`() {
+    val repair = recipe(id = 18, identifier = "REPAIR", effect = RecipeEffect.REPAIR)
+    val fixture = CraftingFixture(listOf(repair))
+    val crafter = fixture.givenCrafter(
+      items = listOf(stack(INPUT_ITEM, 10), instance(TARGET_ITEM, uniqueId = 5L, durability = 1, maxDurability = 10)),
+      knownSkills = mapOf(SKILL_ID to 1)
+    )
+
+    assertNull(fixture.service.start(fixture.world, crafter, repair.id, targetUniqueId = 5L, repeats = 3))
+
+    assertEquals(0, fixture.world.get(crafter, Crafting::class)?.remainingRepeats)
+  }
+
   /**
    * The whole point of item tiers: a repair a smith can do all day on a plain sword is beyond them on a
    * high-tier one, and Equipment Repair rank 1 reaches tier 20 exactly.
