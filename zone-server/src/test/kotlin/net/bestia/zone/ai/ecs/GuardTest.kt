@@ -91,15 +91,19 @@ class GuardTest {
   }
 
   @Test
-  fun `a guard does not chase an attacker out of its area`() {
+  fun `a guard chases an attacker out of its area, then walks back to the middle`() {
     val guard = guard()
     val stranger = ai.spawnPlayer(Vec3L(27, 0, 0))
     ai.teleport(guard, Vec3L(20, 0, 0))
+    ai.recordHit(guard, stranger)
 
-    repeat(20 * 5) {
-      ai.recordHit(guard, stranger)
-      ai.tick()
-      assertNotEquals(stranger, targetOf(guard), "it went after an attacker outside its area")
+    // An archer beyond the edge must not wear a guard down for free.
+    ai.tickUntilGoal(guard, "KillAttacker")
+    assertEquals(stranger, targetOf(guard))
+
+    ai.world.destroy(stranger)
+    ai.tickUntil(describe = { "it stopped at ${ai.positionOf(guard)}" }) {
+      ai.positionOf(guard).distance(home) <= BestiaDomain.ARRIVAL_RADIUS
     }
   }
 

@@ -107,12 +107,12 @@ class PerceptionSystem(
         memory.remove(CommonKeys.RESTED)
       }
 
-      // A guard does not chase out of its area: whatever stands outside it is not its fight.
+      // A guard picks no fight outside its area. Whoever hits it is chased wherever they stand, or an archer could
+      // wear it down from beyond the edge; ReturnToMiddle brings it back afterwards.
       val guardArea = memory.get(BestiaDomain.GUARD_AREA)
       val sightRadius = sightRadiusOf(world, id, profile.perception.sightRadius)
       val nearestHostile = nearestHostile(world, id, selfPos, sightRadius, guardArea)
       val attacker = recentAttacker(world, id, profile.perception.aggroMemoryMs)
-        ?.takeIf { guardArea == null || isInside(world, it, guardArea) }
 
       // Retaliation outranks opportunistic aggression: whoever is actually hitting us is the target,
       // even if something else is closer. `TakenDamage` already records this for experience attribution,
@@ -200,12 +200,6 @@ class PerceptionSystem(
   private fun isOutOfReach(world: World, self: Long, candidate: Long): Boolean {
     return isFeigningDeath(world, candidate) ||
         DamageGate.verdict(world, self, candidate) != DamageGate.Verdict.ADMITTED
-  }
-
-  private fun isInside(world: World, candidate: Long, area: WorkArea): Boolean {
-    val position = world.get(candidate, Position::class)?.toVec3L() ?: return false
-
-    return area.contains(position)
   }
 
   /**
