@@ -11,7 +11,7 @@ import net.bestia.zone.util.EntityId
 
 /**
  * When a creature's own AI keeps its hands off: a player drives it, or it is on a journey a player ordered.
- * The bestia keeps walking even when attacked; its stance and aggression decide nothing until it arrives.
+ * The bestia keeps walking even when attacked; its orders decide nothing until it arrives.
  */
 object PlayerHold {
 

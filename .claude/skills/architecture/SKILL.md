@@ -263,7 +263,7 @@ each step out.** Layered so the bottom is domain-agnostic:
 | `ai/perception` | `PerceptionSystem` — the **only** writer of observation keys; `SenseSystem` + `Sense`/`SenseContext` — the agents' eyes and ears, a periodic sweep hosting pluggable senses; `ForageSense` + `ForageGround`/`BiomeForageGround` — the one sense today, writer of `KNOWN_VEGETATION` from the world's biome raster |
 | `ai/ecs` | `AiAgent` component, `AiDriveSystem`, `AiThinkSystem`, `AiActSystem`, `AiAgentFactory`, `SharedMemoryService`, `PlayerControlled` |
 | `ai/domain/bestia` | `BestiaDomain`: the keys, goals and action templates for mobs; `ActivityCycle` (diurnal/nocturnal/cathemeral) |
-| `ai/profile` | `AiProfileDto`/`AiProfile`/`AiProfileRegistry` + `AiConfig`/`IdleStance`, from `resources/ai/*.yml` |
+| `ai/profile` | `AiProfileDto`/`AiProfile`/`AiProfileRegistry` + `AiConfig`/`BestiaJob`/`Courage` (a bestia's orders), from `resources/ai/*.yml` |
 | `ai/message` | `SetBestiaAiConfigCMSG`, `BestiaAiConfigSMSG`, `AiConfigErrorSMSG` and the handler |
 
 Five ECS systems, each in its **own scheduler wave** (they conflict by declaring `AiAgent` as
@@ -444,7 +444,7 @@ Design and reasons: bestia-docs `server/api-server.md`. Where things are:
   routes: the client sends `Authorization: Ticket <http_ticket>` from its socket handshake, `CompanionAuthFilter`
   accepts a ticket on map routes only, and `TicketOwners` asks the zone whose it is (`ZoneQuery.WhoseTicket`,
   cached 30 s, dropped on `Presence(inWorld=false)`). The zone serves no HTTP.
-- **Stance.** `master/bestia/BestiaAiConfigService` is the one place a standing order is applied, for the socket
+- **Orders.** `master/bestia/BestiaAiConfigService` is the one place a bestia's orders are applied, for the socket
   handler and the bus alike; it finds the live entity by `player_bestia.entity_id`, not by session.
 - **Party and guild chat.** `chat/GroupChat.deliver` is the one place a group line goes out, for `ChatHandler` (game)
   and `companion/query/ChatCommand` (`ZoneQuery.SendChat`, app) alike: a `ChatSMSG` to every member being played,

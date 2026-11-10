@@ -78,7 +78,7 @@ class StationWorkers(
     world.remove(bestiaId, WorkAssignment::class)
     byStation.remove(assignment.structureId)
 
-    // Home is where it stands now, as when a stance changes: it does not walk back to where it lived before.
+    // Home is where it stands now, as when its orders change: it does not walk back to where it lived before.
     val memory = world.get(bestiaId, AiAgent::class)?.memory
     world.get(bestiaId, Position::class)?.let { memory?.set(BestiaDomain.HOME_POSITION, it.toVec3L(), Blackboard.PERMANENT) }
     memory?.set(BestiaDomain.WANDER_RADIUS, assignment.formerWanderRadius, Blackboard.PERMANENT)

@@ -28,7 +28,7 @@ enum class ZoneQueryKind {
   HABITAT_TILE,
   WHOSE_TICKET,
   GUILD_EMBLEM,
-  SET_STANCE,
+  SET_ORDERS,
   SEND_CHAT,
   SEND_ON_JOURNEY,
   STOP_JOURNEY,
@@ -62,7 +62,7 @@ enum class ZoneQueryKind {
         is ZoneQuery.HabitatTile -> HABITAT_TILE
         is ZoneQuery.WhoseTicket -> WHOSE_TICKET
         is ZoneQuery.GuildEmblem -> GUILD_EMBLEM
-        is ZoneQuery.SetStance -> SET_STANCE
+        is ZoneQuery.SetOrders -> SET_ORDERS
         is ZoneQuery.SendChat -> SEND_CHAT
         is ZoneQuery.SendOnJourney -> SEND_ON_JOURNEY
         is ZoneQuery.StopJourney -> STOP_JOURNEY

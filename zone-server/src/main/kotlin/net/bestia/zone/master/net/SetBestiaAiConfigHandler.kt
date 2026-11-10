@@ -13,7 +13,7 @@ import net.bestia.zone.master.bestia.BestiaAiConfigService
 import net.bestia.zone.master.bestia.BestiaAiConfigSMSG
 
 /**
- * Applies a player's standing order to one of their own bestias, through [BestiaAiConfigService].
+ * Applies a player's orders to one of their own bestias, through [BestiaAiConfigService].
  *
  * Ownership is checked against the *session*, not against a client-supplied account id, following the same rule
  * as every other handler that acts on behalf of a player's creature.
@@ -30,15 +30,14 @@ class SetBestiaAiConfigHandler(
   }
 
   override fun handle(msg: SetBestiaAiConfigCMSG): Boolean {
-    val stance = msg.stance ?: return deny(msg.playerId, AiConfigErrorSMSG.AiConfigErrorCode.INVALID_STANCE)
+    val orders = msg.orders ?: return deny(msg.playerId, AiConfigErrorSMSG.AiConfigErrorCode.INVALID_ORDERS)
 
     if (!ownsBestia(msg.playerId, msg.playerBestiaId)) {
       LOG.warn { "Account ${msg.playerId} tried to configure bestia ${msg.playerBestiaId} it does not own" }
       return deny(msg.playerId, AiConfigErrorSMSG.AiConfigErrorCode.BESTIA_NOT_OWNED)
     }
 
-    // The stored config, not the requested one — the numbers may have been clamped.
-    val stored = aiConfigs.apply(msg.playerBestiaId, msg.toConfig(stance))
+    val stored = aiConfigs.apply(msg.playerBestiaId, orders)
       ?: return deny(msg.playerId, AiConfigErrorSMSG.AiConfigErrorCode.BESTIA_NOT_OWNED)
 
     outMessageProcessor.sendToPlayer(msg.playerId, BestiaAiConfigSMSG(msg.playerBestiaId, stored))

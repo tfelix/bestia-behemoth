@@ -182,7 +182,7 @@ class PlayerBestiaEntitySpawner(
     val species = playerBestia.bestia
     add(id, Nature(species.element, species.size, species.attackPower, kind = species.kind, weight = species.weight))
     // Rendered by the same visual as a wild mob, so it gets the same posture channel: an owned bestia left
-    // on a FORAGE stance sleeps, and its owner should be able to see that it is asleep.
+    // to REST sleeps, and its owner should be able to see that it is asleep.
     add(id, Animation())
     add(id, Account(playerBestia.master.account.id))
     add(id, loaded.knownSkills)

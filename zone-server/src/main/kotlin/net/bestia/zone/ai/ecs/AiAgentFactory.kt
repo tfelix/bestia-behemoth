@@ -55,9 +55,9 @@ class AiAgentFactory(
     runtime.attach(memory, profile, homePosition, config)
 
     val goals = profile.goals
-      // A stance narrows the archetype's goals, never widens them: it can switch off foraging, but it cannot
+      // A job narrows the archetype's goals, never widens them: it can switch off foraging, but it cannot
       // teach a creature to hunt if its species never could.
-      .filter { config == null || it.name in config.stance.goalNames }
+      .filter { config == null || it.name in config.job.goalNames }
       .mapNotNull { tuning ->
         runtime.catalogue.goalsByName[tuning.name]?.let { goal ->
           tuning.basePriority?.let(goal::withBasePriority) ?: goal

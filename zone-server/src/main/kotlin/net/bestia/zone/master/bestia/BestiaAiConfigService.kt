@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 /**
- * Gives a bestia a new standing order: stores it, and rebuilds the live agent so it takes effect without a respawn.
+ * Gives a bestia new orders: stores them, and rebuilds the live agent so it takes effect without a respawn.
  * Callers check ownership first, each against its own source - the socket handler against the session, the
  * companion app against the database.
  *
@@ -32,11 +32,10 @@ class BestiaAiConfigService(
   private val stationWorkers: StationWorkers,
 ) {
 
-  /** The config as stored, which has its aggression clamped, or null when the bestia does not exist. */
+  /** The orders as stored, or null when the bestia does not exist. */
   @Transactional
-  fun apply(playerBestiaId: PlayerBestiaId, requested: AiConfig): AiConfig? {
+  fun apply(playerBestiaId: PlayerBestiaId, config: AiConfig): AiConfig? {
     val playerBestia = playerBestias.findByIdOrNull(playerBestiaId) ?: return null
-    val config = requested.sanitised()
 
     playerBestia.aiConfig = config
     playerBestias.save(playerBestia)
@@ -48,8 +47,8 @@ class BestiaAiConfigService(
   }
 
   /**
-   * Rebuilt rather than changed in place: a stance decides which goals the agent has, and those are resolved when
-   * it is constructed. Home is where the creature stands now, as at spawn: told to hold or patrol, it does so here.
+   * Rebuilt rather than changed in place: a job decides which goals the agent has, and those are resolved when
+   * it is constructed. Home is where the creature stands now, as at spawn: told to guard or rest, it does so here.
    */
   private fun rebuildAgent(entityId: Long, species: Bestia, config: AiConfig) {
     val profile = species.aiProfile?.let(aiProfileRegistry::get) ?: return

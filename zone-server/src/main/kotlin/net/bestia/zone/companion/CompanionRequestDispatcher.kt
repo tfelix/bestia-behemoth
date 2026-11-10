@@ -18,8 +18,8 @@ import net.bestia.zone.companion.query.MapQueries
 import net.bestia.zone.companion.query.MasterQueries
 import net.bestia.zone.companion.query.PartyQueries
 import net.bestia.zone.companion.query.NotebookCommands
+import net.bestia.zone.companion.query.OrdersCommand
 import net.bestia.zone.companion.query.ParcelQueries
-import net.bestia.zone.companion.query.StanceCommand
 import net.bestia.zone.companion.query.TicketQueries
 import org.springframework.stereotype.Component
 
@@ -32,7 +32,7 @@ class CompanionRequestDispatcher(
   private val parties: PartyQueries,
   private val catalog: CatalogQueries,
   private val map: MapQueries,
-  private val stance: StanceCommand,
+  private val orders: OrdersCommand,
   private val tickets: TicketQueries,
   private val chat: ChatCommand,
   private val compendium: CompendiumQueries,
@@ -66,7 +66,7 @@ class CompanionRequestDispatcher(
       is ZoneQuery.HabitatTile -> map.habitat(id, account, query)
       is ZoneQuery.WhoseTicket -> tickets.owner(id, query)
       is ZoneQuery.GuildEmblem -> emblems.emblem(id, query)
-      is ZoneQuery.SetStance -> stance.apply(id, account, query)
+      is ZoneQuery.SetOrders -> orders.apply(id, account, query)
       is ZoneQuery.SendChat -> chat.send(id, account, query)
       is ZoneQuery.SendOnJourney -> journeys.send(id, account, query)
       is ZoneQuery.StopJourney -> journeys.stop(id, account, query)

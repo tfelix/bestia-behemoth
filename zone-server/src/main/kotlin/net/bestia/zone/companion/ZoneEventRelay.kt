@@ -92,14 +92,14 @@ class ZoneEventRelay(
   }
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
-  fun onStanceChanged(event: BestiaAiConfigChangedEvent) {
+  fun onOrdersChanged(event: BestiaAiConfigChangedEvent) {
     events.publish(
-      ZoneEvent.StanceChanged(
+      ZoneEvent.OrdersChanged(
         event.accountId,
         event.masterId,
         event.playerBestiaId,
-        event.config.stance.name,
-        event.config.aggression,
+        event.config.job.name,
+        event.config.courage.name,
       )
     )
   }

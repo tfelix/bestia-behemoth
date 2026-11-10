@@ -6,32 +6,37 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "SetBestiaAiConfigCmsgProto";
 
 /**
- * Sets what one of the player's own bestias should do while they are not driving it.
+ * Sets the orders of one of the player's own bestias: what it does while they are not driving it.
  *
- * The vocabulary is deliberately narrow. A stance is an enum rather than a list of goals, and aggression is
- * clamped server-side, so the client can never author behaviour directly — it states an intent and the
- * server decides what that means. See AiConfig on the server for why.
+ * The vocabulary is deliberately narrow. A job and a courage step are enums rather than a list of goals, so the
+ * client can never author behaviour directly: it states an intent and the server decides what that means. See
+ * AiConfig on the server for why.
  */
 message SetBestiaAiConfigCMSG {
   /** Which of the player's bestias to configure. */
   uint64 player_bestia_id = 1;
 
-  IdleStance stance = 2;
+  // 2 and 3 were `stance` and `aggression`, replaced by job and courage. 4 was `flee_threshold_pct`. Reserved
+  // rather than recycled: an old client still sending them must not have them read as something else.
+  reserved 2, 3, 4;
 
-  /** 0..100. Out-of-range values are clamped, not rejected. */
-  uint32 aggression = 3;
+  Job job = 5;
+  Courage courage = 6;
 
-  // Was `flee_threshold_pct`, removed along with the flee mechanic — nothing runs away any more, so there is
-  // no threshold for a player to set. Reserved rather than recycled: an old client still sending field 4
-  // must not have it read as something else.
-  reserved 4;
+  enum Job {
+    /** Never sent by a well-behaved client; present so an unset field is not silently a real job. */
+    JOB_UNSPECIFIED = 0;
+    GUARD = 1;
+    REST = 2;
+  }
 
-  enum IdleStance {
-    /** Never sent by a well-behaved client; present so an unset field is not silently a real stance. */
-    IDLE_STANCE_UNSPECIFIED = 0;
-    HOLD = 1;
-    PATROL = 2;
-    FORAGE = 3;
-    DEFEND = 4;
+  enum Courage {
+    /** Never sent by a well-behaved client; present so an unset field is not silently a real step. */
+    COURAGE_UNSPECIFIED = 0;
+    TIMID = 1;
+    CAREFUL = 2;
+    STEADY = 3;
+    BOLD = 4;
+    BRAVE = 5;
   }
 }

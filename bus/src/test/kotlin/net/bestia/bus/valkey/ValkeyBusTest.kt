@@ -118,9 +118,9 @@ class ValkeyBusTest {
     val runs = AtomicInteger()
     val (bus, server) = pair("n6") { request ->
       runs.incrementAndGet()
-      BusReply.ok(request.correlationId, ZoneAnswer.Stance(11, "HOLD", 20))
+      BusReply.ok(request.correlationId, ZoneAnswer.Orders(11, "GUARD", "BOLD"))
     }
-    val write = ZoneQuery.SetStance(masterId = 1, playerBestiaId = 11, stance = "HOLD", aggression = 20)
+    val write = ZoneQuery.SetOrders(masterId = 1, playerBestiaId = 11, job = "GUARD", courage = "BOLD")
 
     server.use {
       val first = bus.ask(accountId, write, idempotencyKey = "same").get(5, TimeUnit.SECONDS)

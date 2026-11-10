@@ -14,18 +14,18 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * A bestia's standing order, given from the app. It takes effect at once, as in the game. A 504 means the zone
+ * A bestia's orders, given from the app. It takes effect at once, as in the game. A 504 means the zone
  * did not answer in time and the order may or may not have arrived: send it again with the same Idempotency-Key.
  */
 @RestController
-@RequestMapping("/v1/companion/masters/{masterId}/bestias/{bestiaId}/stance")
-class StanceController(
+@RequestMapping("/v1/companion/masters/{masterId}/bestias/{bestiaId}/orders")
+class OrdersController(
   private val zone: ZoneClient,
   private val cache: AnswerCache,
 ) {
 
-  /** [stance] is HOLD, PATROL, FORAGE or DEFEND; [aggression] 0..100, clamped by the zone. */
-  data class StanceOrder(val stance: String, val aggression: Int)
+  /** [job] is GUARD or REST; [courage] is TIMID, CAREFUL, STEADY, BOLD or BRAVE. */
+  data class BestiaOrders(val job: String, val courage: String)
 
   @PutMapping
   fun set(
@@ -33,13 +33,13 @@ class StanceController(
     @PathVariable masterId: Long,
     @PathVariable bestiaId: Long,
     @RequestHeader("Idempotency-Key") idempotencyKey: String,
-    @RequestBody order: StanceOrder,
-  ): StanceOrder {
-    val query = ZoneQuery.SetStance(masterId, bestiaId, order.stance, order.aggression)
-    val stored = zone.ask(accountId, query, idempotencyKey.take(MAX_KEY_LENGTH)).answerOrThrow<ZoneAnswer.Stance>()
+    @RequestBody orders: BestiaOrders,
+  ): BestiaOrders {
+    val query = ZoneQuery.SetOrders(masterId, bestiaId, orders.job, orders.courage)
+    val stored = zone.ask(accountId, query, idempotencyKey.take(MAX_KEY_LENGTH)).answerOrThrow<ZoneAnswer.Orders>()
 
     cache.forget(accountId)
-    return StanceOrder(stored.stance, stored.aggression)
+    return BestiaOrders(stored.job, stored.courage)
   }
 
   private companion object {

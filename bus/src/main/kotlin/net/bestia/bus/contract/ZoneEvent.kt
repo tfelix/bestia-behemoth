@@ -27,12 +27,12 @@ sealed interface ZoneEvent {
 
   data class ConstructionDone(override val accountId: Long, val masterId: Long, val kind: String) : ZoneEvent
 
-  data class StanceChanged(
+  data class OrdersChanged(
     override val accountId: Long,
     val masterId: Long,
     val playerBestiaId: Long,
-    val stance: String,
-    val aggression: Int,
+    val job: String,
+    val courage: String,
   ) : ZoneEvent
 
   /** The account entered the world with [masterId], or left it ([inWorld] false, [masterId] null). */
