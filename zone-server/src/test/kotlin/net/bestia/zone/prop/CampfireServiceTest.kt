@@ -10,13 +10,17 @@ import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.container.ItemHolder
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.AsyncJobExecutor
+import net.bestia.zone.prop.chest.ChestStorages
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.time.Clock
 import java.time.Duration
@@ -31,7 +35,9 @@ class CampfireServiceTest {
   private val structures = mockk<PlayerStructureRegistry>(relaxed = true)
   private val inventoryService = mockk<InventoryService>().also {
     every { it.consumeAll(any(), any(), any()) } returns true
+    every { it.consumeAllFrom(any(), any()) } returns true
   }
+  private val chestContents = Inventory(mutableListOf())
   private val service = CampfireService(
     structures = structures,
     itemTemplates = mockk<ItemTemplateRegistry> { every { idOf("log") } returns LOG },
@@ -39,6 +45,7 @@ class CampfireServiceTest {
     asyncJobExecutor = mockk<AsyncJobExecutor> {
       every { submit(any<Long>(), any()) } answers { secondArg<() -> Unit>().invoke() }
     },
+    chests = mockk<ChestStorages> { every { contentsOf(CHEST) } returns chestContents },
     clock = Clock.fixed(now, ZoneOffset.UTC)
   )
 
@@ -87,9 +94,42 @@ class CampfireServiceTest {
     assertEquals(OpError.CRAFT_NOT_POSSIBLE, service.addWood(world, owner, FIRE))
   }
 
-  private fun givenFire(burnsOutAt: Instant) {
-    every { structures.of(FIRE) } returns
+  @Test
+  fun `a fire that runs low gets a log from the chest next to it`() {
+    val fire = givenFire(burnsOutAt = now + Duration.ofMinutes(2))
+    givenChest(logs = 2)
+
+    assertTrue(service.addWoodFromChest(world, FIRE))
+
+    verify { structures.setBurnsOutAt(FIRE, now + Duration.ofMinutes(32)) }
+    assertEquals(1, chestContents.getItems().sumOf { it.amount })
+    verify { inventoryService.consumeAllFrom(OWNER, mapOf(ItemHolder.Chest(CHEST) to mapOf(LOG to 1))) }
+    verify { structures.chestBeside(fire) }
+  }
+
+  @Test
+  fun `a fire with time left or no wood in the chest gets no log`() {
+    givenFire(burnsOutAt = now + Duration.ofMinutes(20))
+    givenChest(logs = 2)
+    assertFalse(service.addWoodFromChest(world, FIRE))
+
+    givenFire(burnsOutAt = now)
+    chestContents.clearItems()
+    assertFalse(service.addWoodFromChest(world, FIRE))
+    verify(exactly = 0) { structures.setBurnsOutAt(any(), any()) }
+  }
+
+  private fun givenFire(burnsOutAt: Instant): StructureEntry {
+    val fire =
       StructureEntry(FIRE, StaticEntityKind.CAMPFIRE, OWNER, 1L, Vec3L(0, 0, 0), yaw = 0f, burnsOutAt = burnsOutAt)
+    every { structures.of(FIRE) } returns fire
+    return fire
+  }
+
+  private fun givenChest(logs: Int) {
+    every { structures.chestBeside(any()) } returns
+      StructureEntry(CHEST, StaticEntityKind.CHEST, OWNER, 1L, Vec3L(2, 0, 0), yaw = 0f)
+    chestContents.addItem(Inventory.Item(itemId = LOG, amount = logs, weight = 1))
   }
 
   private fun givenMaster(masterId: Long, logs: Int): EntityId {
@@ -105,5 +145,6 @@ class CampfireServiceTest {
     const val FIRE = 5L
     const val OWNER = 42L
     const val LOG = 43L
+    const val CHEST = 6L
   }
 }
