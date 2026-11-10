@@ -20,18 +20,24 @@ class ReagentPayment(
   private val asyncJobExecutor: AsyncJobExecutor,
 ) {
 
-  /** Returns false, taking nothing, when a player's caster lacks the reagent. */
-  fun pay(world: World, casterId: EntityId, reagent: SkillReagent?): Boolean {
-    if (reagent == null) return true
+  /** Returns false, taking nothing, when a player's caster lacks one of the reagents. */
+  fun pay(world: World, casterId: EntityId, reagents: List<SkillReagent>): Boolean {
+    if (reagents.isEmpty()) return true
     val owner = ItemOwner.of(world, casterId) ?: return true
     val inventory = world.get(casterId, Inventory::class) ?: return false
 
-    val taken = inventory.takeAcrossPiles(reagent.itemId, reagent.amount) ?: return false
+    val holdsAll = reagents.all { reagent ->
+      inventory.getItems().filter { it.itemId == reagent.itemId }.sumOf { it.amount } >= reagent.amount
+    }
+    if (!holdsAll) return false
+
+    reagents.forEach { inventory.takeAcrossPiles(it.itemId, it.amount) }
+    val spent = reagents.map { it.itemId to it.amount }
 
     asyncJobExecutor.submit(key = owner.masterId) {
-      if (!inventoryService.consumeAll(owner.masterId, listOf(reagent.itemId to reagent.amount), owner.playerBestiaId)) {
+      if (!inventoryService.consumeAll(owner.masterId, spent, owner.playerBestiaId)) {
         // Already spent in the world; the database only disagrees when something raced it, which the log shows.
-        LOG.warn { "Master ${owner.masterId} lost reagent ${reagent.item} x${taken.sumOf { it.amount }} in the database" }
+        LOG.warn { "Master ${owner.masterId} lost reagents ${reagents.map { it.item }} in the database" }
       }
     }
 

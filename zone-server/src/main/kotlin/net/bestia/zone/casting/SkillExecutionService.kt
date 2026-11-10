@@ -151,8 +151,8 @@ class SkillExecutionService(
 
       // After the possibility check and before the effect, so a refused cast costs nothing and a
       // resolved one is always paid for.
-      if (reagents?.pay(world, casterId, skill.mechanics.reagent) == false) {
-        LOG.debug { "Skill $skillId by $casterId fizzled: it lacks ${skill.mechanics.reagent?.item}" }
+      if (reagents?.pay(world, casterId, skill.mechanics.reagents) == false) {
+        LOG.debug { "Skill $skillId by $casterId fizzled: it lacks one of ${skill.mechanics.reagents.map { it.item }}" }
         return
       }
 

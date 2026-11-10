@@ -106,17 +106,19 @@ class SkillImporterBootRunner(
     )
   }
 
-  /** Status names must be real effects and a reagent a real item, or the boot fails on the typo. */
+  /** Status names must be real effects and reagents real items, or the boot fails on the typo. */
   private fun resolved(skill: String, mechanics: SkillMechanics): SkillMechanics {
     (mechanics.onHit.map { it.status } + listOfNotNull(mechanics.zoneStatus)).forEach { name ->
       requireNotNull(StatusEffectId.entries.firstOrNull { it.name == name }) { "Skill '$skill' names unknown status '$name'" }
     }
 
-    val reagent = mechanics.reagent ?: return mechanics
-    val item = itemRepository.findByIdentifier(reagent.item)
-      ?: throw IllegalArgumentException("Skill '$skill' uses up unknown item '${reagent.item}'")
+    val reagents = mechanics.reagents.map { reagent ->
+      val item = itemRepository.findByIdentifier(reagent.item)
+        ?: throw IllegalArgumentException("Skill '$skill' uses up unknown item '${reagent.item}'")
+      reagent.copy(itemId = item.id)
+    }
 
-    return mechanics.copy(reagent = reagent.copy(itemId = item.id))
+    return mechanics.copy(reagents = reagents)
   }
 
   /** Items are imported first, so an unknown one is a typo and fails the boot. */

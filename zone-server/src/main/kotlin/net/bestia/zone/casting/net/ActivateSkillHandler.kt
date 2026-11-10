@@ -228,13 +228,14 @@ class ActivateSkillHandler(
     }
   }
 
-  /** A skill that uses up an item is refused before its bar when the bag holds none; it is taken on resolution. */
+  /** A skill that uses up items is refused before its bar when the bag lacks one; they are taken on resolution. */
   private fun missingReagent(world: World, casterId: EntityId, skill: Skill): OpError? {
-    val reagent = skill.mechanics.reagent ?: return null
     val inventory = world.get(casterId, Inventory::class) ?: return null
-    val held = inventory.getItems().filter { it.itemId == reagent.itemId }.sumOf { it.amount }
+    val lacksOne = skill.mechanics.reagents.any { reagent ->
+      inventory.getItems().filter { it.itemId == reagent.itemId }.sumOf { it.amount } < reagent.amount
+    }
 
-    return if (held < reagent.amount) OpError.SKILL_MISSING_REAGENT else null
+    return if (lacksOne) OpError.SKILL_MISSING_REAGENT else null
   }
 
   private fun reducedCastTime(seconds: Float, reductionPercent: Int): Float {
