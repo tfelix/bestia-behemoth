@@ -116,6 +116,7 @@ import "messages/map/chunk_ground_stamps_smsg.proto";
 import "messages/map/ground_mark_rules_smsg.proto";
 import "messages/map/static_entity_removed_smsg.proto";
 import "messages/map/collect_prop_cmsg.proto";
+import "messages/map/dig_cmsg.proto";
 import "messages/map/interact_entity_cmsg.proto";
 import "messages/shop/open_shop_cmsg.proto";
 import "messages/shop/shop_offer_smsg.proto";
@@ -244,6 +245,7 @@ message Envelope {
     ChunkGroundLayersSMSG chunk_ground_layers = 212;
     ChunkGroundStampsSMSG chunk_ground_stamps = 213;
     GroundMarkRulesSMSG ground_mark_rules = 214;
+    DigCMSG dig = 215;
 
     // INVENTORY 300
     GetInventoryCMSG get_inventory = 301;

@@ -427,6 +427,16 @@ enum OpError {
   FISHING_TOO_FAR = 153;
   // The bite came and went without a strike.
   FISHING_GOT_AWAY = 154;
+  // Digging needs a shovel or a pickaxe in the right hand.
+  DIG_NEEDS_TOOL = 332;
+  // The ground under the spot is rock. The player digs it with a pickaxe.
+  DIG_NEEDS_PICKAXE = 333;
+  // The ground under the spot is soil. The player digs it with a shovel.
+  DIG_NEEDS_SHOVEL = 334;
+  // The spot is out of reach. The player walks closer.
+  DIG_TOO_FAR = 335;
+  // A metre of digging turned up nothing. Nothing is buried here.
+  DIG_NOTHING_FOUND = 336;
 }
 
 message OperationError {

@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrnIwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrVJAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -127,9 +127,11 @@ namespace Bnet {
             "VVNFEMgCEhoKFVRSQURFX0FHUkVFTUVOVF9MSU1JVBDJAhIjCh5UUkFERV9B",
             "R1JFRU1FTlRfVEFSR0VUX0lOVkFMSUQQygISGAoTUElDS1VQX09VVF9PRl9S",
             "QU5HRRDLAhIWChFGSVNISU5HX05PVF9XQVRFUhCYARIUCg9GSVNISU5HX1RP",
-            "T19GQVIQmQESFQoQRklTSElOR19HT1RfQVdBWRCaASIECC4QLioSU0hPUF9U",
-            "UkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0",
-            "aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
+            "T19GQVIQmQESFQoQRklTSElOR19HT1RfQVdBWRCaARITCg5ESUdfTkVFRFNf",
+            "VE9PTBDMAhIWChFESUdfTkVFRFNfUElDS0FYRRDNAhIVChBESUdfTkVFRFNf",
+            "U0hPVkVMEM4CEhAKC0RJR19UT09fRkFSEM8CEhYKEURJR19OT1RISU5HX0ZP",
+            "VU5EENACIgQILhAuKhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3Rp",
+            "YS5ibmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -789,6 +791,26 @@ namespace Bnet {
     /// The bite came and went without a strike.
     /// </summary>
     [pbr::OriginalName("FISHING_GOT_AWAY")] FishingGotAway = 154,
+    /// <summary>
+    /// Digging needs a shovel or a pickaxe in the right hand.
+    /// </summary>
+    [pbr::OriginalName("DIG_NEEDS_TOOL")] DigNeedsTool = 332,
+    /// <summary>
+    /// The ground under the spot is rock. The player digs it with a pickaxe.
+    /// </summary>
+    [pbr::OriginalName("DIG_NEEDS_PICKAXE")] DigNeedsPickaxe = 333,
+    /// <summary>
+    /// The ground under the spot is soil. The player digs it with a shovel.
+    /// </summary>
+    [pbr::OriginalName("DIG_NEEDS_SHOVEL")] DigNeedsShovel = 334,
+    /// <summary>
+    /// The spot is out of reach. The player walks closer.
+    /// </summary>
+    [pbr::OriginalName("DIG_TOO_FAR")] DigTooFar = 335,
+    /// <summary>
+    /// A metre of digging turned up nothing. Nothing is buried here.
+    /// </summary>
+    [pbr::OriginalName("DIG_NOTHING_FOUND")] DigNothingFound = 336,
   }
 
   #endregion

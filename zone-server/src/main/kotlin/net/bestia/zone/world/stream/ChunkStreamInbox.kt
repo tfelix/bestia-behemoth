@@ -2,6 +2,7 @@ package net.bestia.zone.world.stream
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.ChunkPos
+import net.bestia.worldgen.voxel.CarveBrush
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -34,15 +35,12 @@ class ChunkStreamInbox {
   data class Request(val accountId: Long, val chunks: List<ChunkPos>)
 
   /**
-   * Remove rock in a sphere around a world voxel.
+   * Remove rock in the shape of a brush.
    *
-   * A radius rather than a block id, because a carve only removes: what a request has to say is *how much* to
-   * take, not what to leave behind.
-   *
-   * The radius is validated on the tick thread rather than here. It is not a permission question - it is a
-   * question about what the client's mesher can draw, and the answer lives beside the terrain.
+   * A shape rather than a block id, because a carve only removes: what a request has to say is *how much* to
+   * take, not what to leave behind. The brush itself refuses a bore the client's mesher cannot draw.
    */
-  data class Carve(val accountId: Long, val x: Long, val y: Long, val z: Long, val radius: Double)
+  data class Carve(val accountId: Long, val brush: CarveBrush)
 
   /**
    * Put this account's active entity down at a horizontal position, on whatever the ground there is.

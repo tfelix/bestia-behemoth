@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+[ext_resource type="Script" path="res://Game/Item/UseScripts/dig_tool_use.gd" id="2_dig_use"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 438
+name_key = "SHOVEL"
+description_key = "SHOVEL_DESC"
+weight = 220
+type = 1
+equip_slot = 6
+item_script = ExtResource("2_dig_use")

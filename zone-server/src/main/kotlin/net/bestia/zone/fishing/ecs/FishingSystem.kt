@@ -21,6 +21,7 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.respawn.ecs.RespawnSystem
 import net.bestia.zone.teleport.TeleportSystem
+import net.bestia.zone.treasure.ecs.DiggingSystem
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -38,6 +39,7 @@ class FishingSystem(
   // Last in its phase, so a cast, craft, respawn or teleport this tick reels the line in on the same tick.
   override val after = setOf(
     CastingSystem::class, ChannelSystem::class, CraftingSystem::class, RespawnSystem::class, TeleportSystem::class,
+    DiggingSystem::class,
   )
 
   override val reads: ComponentClassSet = setOf(

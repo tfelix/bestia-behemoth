@@ -695,6 +695,23 @@ func first_held(item_id: int) -> int:
 	return 0
 
 
+## The worn copy of [param item_id], or 0 when none is worn. A tool's shortcut falls back to it.
+func first_worn(item_id: int) -> int:
+	for inv_item in _items.get(selected_entity_id, []):
+		if inv_item.item.item_id == item_id and inv_item.equipped:
+			return inv_item.player_item_id
+
+	return 0
+
+
+func is_worn(player_item_id: int) -> bool:
+	for inv_item in _items.get(selected_entity_id, []):
+		if inv_item.player_item_id == player_item_id:
+			return inv_item.equipped
+
+	return false
+
+
 ## Summed over every pile, since copies made by different crafters do not merge.
 func get_item_count(item_id: int) -> int:
 	var count := 0

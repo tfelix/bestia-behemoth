@@ -236,10 +236,6 @@ class ChunkStreamMetrics(private val registry: MeterRegistry = SimpleMeterRegist
     requests.getValue("unannounced").increment(unannounced.toDouble())
   }
 
-  fun carveRejected() {
-    carves.getValue("rejected").increment()
-  }
-
   fun carved(voxels: Int, chunks: Int) {
     carves.getValue("applied").increment()
     carvedVoxels.increment(voxels.toDouble())

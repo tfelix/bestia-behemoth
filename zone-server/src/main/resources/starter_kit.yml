@@ -17,6 +17,7 @@ blueprints:
   # The basics every master can make by hand, from what lies on the ground and what a felled tree drops.
   - STONE_KNIFE
   - STONE_HATCHET
+  - SHOVEL
   - TORCH
   - WILLOW_ROD
   # A station's kit, so nobody has to discover how to build the place they discover everything else at.
