@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.damage.HitKind
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.battle.ecs.effects.AreaEffect
@@ -227,7 +228,7 @@ class RecordingSkillWorld(
     droppedItems += DroppedItem(itemId, amount, at)
   }
 
-  override fun apply(targetEntityId: EntityId, damage: Damage) {
+  override fun apply(targetEntityId: EntityId, damage: Damage, kind: HitKind?) {
     appliedDamage += targetEntityId to damage
   }
 

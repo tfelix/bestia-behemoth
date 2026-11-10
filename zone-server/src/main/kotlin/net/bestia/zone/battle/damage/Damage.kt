@@ -16,6 +16,18 @@ sealed class Damage(amount: Int) {
 }
 
 /**
+ * The same kind of number for another [amount], once a modifier weighed it. Only a blow is weighed: a heal, a
+ * miss and true damage come back unchanged.
+ */
+fun Damage.weighedTo(amount: Int): Damage {
+  return when (this) {
+    is HitDamage -> copy(amount = amount)
+    is CriticalHit -> copy(amount = amount)
+    is Heal, is TrueDamage, Miss, Blocked -> this
+  }
+}
+
+/**
  * Normal hit damage.
  */
 data class HitDamage(
@@ -45,6 +57,12 @@ data class CriticalHit(
 data class TrueDamage(
   override val amount: Int
 ) : Damage(amount)
+
+/** The blow connected but a shield caught it, as Auto Guard does. Shown as "Block" rather than a miss. */
+data object Blocked : Damage(0) {
+  override val amount: Int
+    get() = 0
+}
 
 /**
  * No damage as the attack was a miss.

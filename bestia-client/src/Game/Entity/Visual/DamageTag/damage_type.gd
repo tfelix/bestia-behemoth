@@ -8,3 +8,4 @@ const NORMAL := 1
 const CRIT := 2
 const DODGE := 3
 const HEAL := 4
+const BLOCK := 5

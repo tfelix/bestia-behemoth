@@ -65,7 +65,7 @@ class ReceivedDamageSystem(
       // timer - because none of it means anything to something that cannot be hurt.
       if (DamageGate.isImmune(world, id)) return@each
 
-      val hits = staged.map { it.copy(amount = reactions.onDamageTaken(world, id, it.amount)) }
+      val hits = staged.map { it.copy(amount = reactions.onDamageTaken(world, id, it)) }
 
       val takenDamage = world.get(id, TakenDamage::class) ?: world.add(id, TakenDamage())
       hits.forEach { takenDamage.addDamage(it.sourceEntityId, it.amount) }

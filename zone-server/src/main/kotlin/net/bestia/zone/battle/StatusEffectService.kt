@@ -1,5 +1,6 @@
 package net.bestia.zone.battle
 
+import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.attack.ThreadLocalRandomSource
 import net.bestia.zone.battle.damage.DamageGate
@@ -172,12 +173,17 @@ class StatusEffectService(
     scriptOf(effect)?.onRemove(hookContext(world, hostId, effect), reason)
   }
 
-  override fun onDamageTaken(world: World, targetId: EntityId, amount: Int): Int {
-    val active = world.get(targetId, StatusEffects::class)?.activeEffects ?: return amount
+  /** An untyped hit of [amount] from nobody in particular, for a caller that only has a number. */
+  fun onDamageTaken(world: World, targetId: EntityId, amount: Int): Int {
+    return onDamageTaken(world, targetId, IncomingDamage.DamageAmount(amount, targetId))
+  }
+
+  override fun onDamageTaken(world: World, targetId: EntityId, hit: IncomingDamage.DamageAmount): Int {
+    val active = world.get(targetId, StatusEffects::class)?.activeEffects ?: return hit.amount
 
     // Copied, because a freeze removes itself from the list it is being asked from.
-    return active.toList().fold(amount) { landing, effect ->
-      scriptOf(effect)?.onDamageTaken(hookContext(world, targetId, effect), landing) ?: landing
+    return active.toList().fold(hit.amount) { landing, effect ->
+      scriptOf(effect)?.onDamageTaken(hookContext(world, targetId, effect), hit.copy(amount = landing)) ?: landing
     }
   }
 

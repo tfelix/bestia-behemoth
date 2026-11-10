@@ -29,10 +29,10 @@ namespace Bnet {
             "ChBzb3VyY2VfZW50aXR5X2lkGAIgASgEEhEKCWF0dGFja19pZBgDIAEoBRIO",
             "CgZkYW1hZ2UYBCABKA0SCwoDZGl2GAUgASgNEhMKC3NraWxsX2xldmVsGAYg",
             "ASgNEh4KBHR5cGUYByABKA4yEC5ibmV0LkRhbWFnZVR5cGUSGgoScHJvamVj",
-            "dGlsZV9pdGVtX2lkGAggASgNKkEKCkRhbWFnZVR5cGUSCAoETUlTUxAAEgoK",
-            "Bk5PUk1BTBABEggKBENSSVQQAhIJCgVET0RHRRADEggKBEhFQUwQBEIuChVu",
-            "ZXQuYmVzdGlhLmJuZXQucHJvdG9CFURhbWFnZUVudGl0eVNNU0dQcm90b2IG",
-            "cHJvdG8z"));
+            "dGlsZV9pdGVtX2lkGAggASgNKkwKCkRhbWFnZVR5cGUSCAoETUlTUxAAEgoK",
+            "Bk5PUk1BTBABEggKBENSSVQQAhIJCgVET0RHRRADEggKBEhFQUwQBBIJCgVC",
+            "TE9DSxAFQi4KFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IVRGFtYWdlRW50aXR5",
+            "U01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.DamageType), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -49,6 +49,10 @@ namespace Bnet {
     [pbr::OriginalName("CRIT")] Crit = 2,
     [pbr::OriginalName("DODGE")] Dodge = 3,
     [pbr::OriginalName("HEAL")] Heal = 4,
+    /// <summary>
+    /// A shield caught the blow; nothing landed.
+    /// </summary>
+    [pbr::OriginalName("BLOCK")] Block = 5,
   }
 
   #endregion

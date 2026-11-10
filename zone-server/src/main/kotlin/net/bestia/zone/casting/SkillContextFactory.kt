@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.damage.HitKind
 import net.bestia.zone.battle.BattleContext
 import net.bestia.zone.battle.BattleContextFactory
 import net.bestia.zone.item.ecs.ItemEnchantments
@@ -60,7 +61,8 @@ class SkillContextFactory(
         services = skillWorldServices,
         casterId = casterId,
         skillId = skill.id,
-        skillLevel = skillLevel
+        skillLevel = skillLevel,
+        skillHitKind = HitKind.ofSkill(skill)
       ),
       casterId = casterId,
       targetEntityId = targetEntityId,

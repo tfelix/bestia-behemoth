@@ -11,6 +11,8 @@ enum DamageType {
   CRIT = 2;
   DODGE = 3;
   HEAL = 4;
+  // A shield caught the blow; nothing landed.
+  BLOCK = 5;
 }
 
 /**

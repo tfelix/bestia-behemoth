@@ -13,7 +13,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     Normal = 1,
     Crit = 2,
     Dodge = 3,
-    Heal = 4
+    Heal = 4,
+    Block = 5
   }
 
   /// <summary>
@@ -70,6 +71,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         global::Bnet.DamageType.Crit => DamageType.Crit,
         global::Bnet.DamageType.Dodge => DamageType.Dodge,
         global::Bnet.DamageType.Heal => DamageType.Heal,
+        global::Bnet.DamageType.Block => DamageType.Block,
         // An unmapped future value is an ordinary hit, not a miss: Miss now renders as the word
         // "Miss", and claiming the attack missed is worse than showing its number.
         _ => DamageType.Normal

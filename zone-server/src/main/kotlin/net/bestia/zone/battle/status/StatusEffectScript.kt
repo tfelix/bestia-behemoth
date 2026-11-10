@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.status
 
+import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
@@ -72,6 +73,14 @@ interface StatusEffectScript {
   /** Returns how much of [amount] the effect lets through to the bearer's health. */
   fun onDamageTaken(context: StatusEffectHookContext, amount: Int): Int {
     return amount
+  }
+
+  /**
+   * The same, for an effect that needs to know who struck and how: a guard that blocks only physical blows, a
+   * devotion that passes the hit to someone else. Most effects only weigh the amount and override the other one.
+   */
+  fun onDamageTaken(context: StatusEffectHookContext, hit: IncomingDamage.DamageAmount): Int {
+    return onDamageTaken(context, hit.amount)
   }
 
   /** What the recalc calls. An effect that reads its own instance, like an endowment's element, overrides this. */

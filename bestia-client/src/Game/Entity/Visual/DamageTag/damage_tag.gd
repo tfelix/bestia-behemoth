@@ -201,7 +201,7 @@ static func _screen_height_at(camera: Camera3D, point: Vector3) -> float:
 
 func _size_of(msg: DamageEntitySMSG, max_hp: int) -> float:
 	var size := _CRIT_SCALE if _type == DamageType.CRIT else 1.0
-	if _type == DamageType.MISS or _type == DamageType.DODGE:
+	if _type == DamageType.MISS or _type == DamageType.DODGE or _type == DamageType.BLOCK:
 		size = _MISS_SCALE
 	elif max_hp > 0 and msg.Damage > 0:
 		var share := float(msg.Damage) / max_hp
@@ -217,7 +217,7 @@ static func _life_of(type: int) -> float:
 			return _CRIT_LIFE
 		DamageType.HEAL:
 			return _HEAL_LIFE
-		DamageType.MISS, DamageType.DODGE:
+		DamageType.MISS, DamageType.DODGE, DamageType.BLOCK:
 			return _MISS_LIFE
 		_:
 			return _LIFE
@@ -244,6 +244,8 @@ func _label_text(msg: DamageEntitySMSG) -> String:
 		# line and keeps an evaded swing from ever reading as a bare "0".
 		DamageType.DODGE:
 			return "Dodge"
+		DamageType.BLOCK:
+			return "Block"
 		DamageType.HEAL:
 			return "+%d" % msg.Damage
 		_:
@@ -261,7 +263,7 @@ func _text_colour() -> Color:
 			return _TAKEN_COLOUR if taken else Color.WHITE
 		DamageType.HEAL:
 			return _HEAL_COLOUR
-		DamageType.MISS, DamageType.DODGE:
+		DamageType.MISS, DamageType.DODGE, DamageType.BLOCK:
 			return _NOTHING_HAPPENED_COLOUR
 		_:
 			return Color.WHITE

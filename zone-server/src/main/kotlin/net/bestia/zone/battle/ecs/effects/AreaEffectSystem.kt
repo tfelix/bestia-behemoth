@@ -1,5 +1,7 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.battle.damage.DamageLanding
+import net.bestia.zone.battle.damage.HitKind
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.Sides
 import net.bestia.zone.battle.damage.DamageEntitySMSG
@@ -53,7 +55,7 @@ class AreaEffectSystem(
   /** [EntityAudience.READS] address the damage message; see [OutMessageProcessor.sendToObserversOf]. */
   override val reads: ComponentClassSet =
     setOf(Position::class, Health::class, Dead::class, StatusEffects::class, Nature::class) + EntityAudience.READS +
-      DamageGate.READS + Sides.READS +
+      DamageGate.READS + Sides.READS + DamageLanding.READS +
       areaDamageReceiver.reads
   /**
    * Includes what `PropPromotionService` adds to a *victim*, not just what this touches on the effect.
@@ -173,8 +175,11 @@ class AreaEffectSystem(
         mechanicsApplier?.onFoe(world, victimId, effect, center)
         if (effect.damagePerTick == 0) continue
 
+        // A patch is a spell: its blows are weighed like one, by both sides' damage modifiers.
+        val kind = HitKind.magic(effect.element)
+        val dealt = DamageLanding.weigh(world, effect.casterId, victimId, kind, effect.damagePerTick)
         val damage = world.get(victimId, IncomingDamage::class) ?: world.add(victimId, IncomingDamage())
-        damage.add(effect.damagePerTick, effect.casterId)
+        damage.add(dealt, effect.casterId, kind)
 
         outMessageProcessor.sendToObserversOf(
           world,
@@ -184,7 +189,7 @@ class AreaEffectSystem(
             sourceEntityId = effect.casterId,
             attackId = effect.skillId.toInt(),
             div = 1,
-            damage = effect.damagePerTick,
+            damage = dealt,
             skillLevel = effect.skillLevel,
             type = DamageEntitySMSG.DamageType.NORMAL
           )

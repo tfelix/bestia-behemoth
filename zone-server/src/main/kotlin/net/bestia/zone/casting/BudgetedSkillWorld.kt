@@ -1,5 +1,9 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.damage.Blocked
+import net.bestia.zone.battle.damage.weighedTo
+import net.bestia.zone.battle.damage.DamageLanding
+import net.bestia.zone.battle.damage.HitKind
 import net.bestia.zone.battle.Healing
 import net.bestia.zone.battle.Sides
 import net.bestia.zone.battle.damage.Damage
@@ -46,6 +50,8 @@ class BudgetedSkillWorld(
   private val casterId: EntityId,
   private val skillId: Long,
   private val skillLevel: Int,
+  /** How the skill's blows are weighed when a script names no kind of its own; see [HitKind.ofSkill]. */
+  private val skillHitKind: HitKind = HitKind.UNTYPED,
 ) : SkillWorld {
 
   override val remainingOps: Int get() = budget.remainingOps
@@ -127,21 +133,23 @@ class BudgetedSkillWorld(
    * Two casts landing on the same target share one component rather than one replacing the other: a cast
    * resolves between ticks, so no system is iterating and `World.add` applies immediately.
    */
-  override fun apply(targetEntityId: EntityId, damage: Damage) {
+  override fun apply(targetEntityId: EntityId, damage: Damage, kind: HitKind?) {
     budget.charge()
 
-    if (damage is Miss) {
+    if (damage is Miss || damage is Blocked) {
       broadcastDamage(targetEntityId, damage)
       return
     }
 
+    val hitKind = kind ?: skillHitKind
     val (receiver, dealer) = if (damage is Heal) targetEntityId to casterId else reflected(targetEntityId)
+    val landing = damage.weighedTo(DamageLanding.weigh(world, dealer, receiver, hitKind, damage.amount))
 
     // `true` only from inside the scope, so it distinguishes "the entity is gone" from "the entity is here
     // but has no Health to heal" - a `when` returning Unit? would conflate the two.
     val landed = onEntity(receiver) { target ->
-      when (damage) {
-        is Heal -> Healing.heal(this, target, damage.amount)
+      when (landing) {
+        is Heal -> Healing.heal(this, target, landing.amount)
 
         else -> {
           // This branch only: a miss and a heal stay true of a target the gate shields.
@@ -150,7 +158,7 @@ class BudgetedSkillWorld(
           }
 
           val staged = get(target, IncomingDamage::class) ?: add(target, IncomingDamage())
-          staged.add(damage.amount, dealer)
+          staged.add(landing.amount, dealer, hitKind)
         }
       }
 
@@ -160,7 +168,7 @@ class BudgetedSkillWorld(
     // False means the blow never landed: the target died between the snapshot and now, which off-thread
     // resolution makes possible, or it cannot be hurt at all.
     if (landed) {
-      broadcastDamage(receiver, damage)
+      broadcastDamage(receiver, landing)
     }
   }
 

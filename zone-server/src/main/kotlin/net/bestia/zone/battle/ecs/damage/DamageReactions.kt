@@ -9,15 +9,15 @@ import net.bestia.zone.util.EntityId
  */
 interface DamageReactions {
 
-  /** Returns how much of [amount] still reaches [targetId]'s health. */
-  fun onDamageTaken(world: World, targetId: EntityId, amount: Int): Int
+  /** Returns how much of [hit] still reaches [targetId]'s health. */
+  fun onDamageTaken(world: World, targetId: EntityId, hit: IncomingDamage.DamageAmount): Int
 
   fun onDamageDealt(world: World, sourceId: EntityId, landed: Int)
 
   companion object {
     val NONE = object : DamageReactions {
-      override fun onDamageTaken(world: World, targetId: EntityId, amount: Int): Int {
-        return amount
+      override fun onDamageTaken(world: World, targetId: EntityId, hit: IncomingDamage.DamageAmount): Int {
+        return hit.amount
       }
 
       override fun onDamageDealt(world: World, sourceId: EntityId, landed: Int) {
