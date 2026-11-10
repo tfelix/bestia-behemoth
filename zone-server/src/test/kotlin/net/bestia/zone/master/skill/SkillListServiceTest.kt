@@ -2,6 +2,7 @@ package net.bestia.zone.master.skill
 
 import io.mockk.every
 import io.mockk.mockk
+import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.account.persistence.LearnedSkill
 import net.bestia.zone.account.persistence.LearnedSkillRepository
 import net.bestia.zone.account.persistence.PlayerBestia
@@ -33,7 +34,10 @@ class SkillListServiceTest {
     playerBestiaRepository,
     learnedSkillRepository,
     MasterSkillListBuilder(masterSkillTree),
-    world
+    world,
+    mockk(relaxed = true),
+    // No catalogue row: these tests are about levels, so no band is computed.
+    mockk<SkillExecutionService> { every { skillOf(any()) } returns null }
   )
 
   private val species = Bestia(id = 1L, identifier = "blob", level = 3, experienceReward = 5, health = 10, mana = 8)
