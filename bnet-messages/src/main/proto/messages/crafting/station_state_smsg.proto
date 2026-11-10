@@ -18,6 +18,9 @@ message StationStateSMSG {
 
   // Why the first entry is not being worked, or STATION_PAUSE_NONE while it is.
   StationPause pause = 4;
+
+  // The bestia that works the queue, or 0 when the owner does.
+  uint64 worker_entity_id = 5;
 }
 
 message StationQueueEntry {
