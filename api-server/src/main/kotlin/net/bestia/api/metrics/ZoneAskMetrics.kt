@@ -40,6 +40,9 @@ enum class ZoneQueryKind {
   READ_LETTER,
   DELETE_LETTER,
   PARCELS,
+  THEODOLITES,
+  START_SURVEY,
+  SURVEY_STOPS,
   ;
 
   companion object {
@@ -74,6 +77,9 @@ enum class ZoneQueryKind {
         is ZoneQuery.ReadLetter -> READ_LETTER
         is ZoneQuery.DeleteLetter -> DELETE_LETTER
         is ZoneQuery.Parcels -> PARCELS
+        is ZoneQuery.Theodolites -> THEODOLITES
+        is ZoneQuery.StartSurvey -> START_SURVEY
+        is ZoneQuery.SurveyStops -> SURVEY_STOPS
       }
     }
   }

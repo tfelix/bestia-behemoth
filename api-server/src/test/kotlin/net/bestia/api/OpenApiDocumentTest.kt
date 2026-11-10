@@ -42,6 +42,7 @@ class OpenApiDocumentTest : ApiScenarioTestBase() {
     val APP_SCHEMAS = listOf(
       "MasterSummary", "MasterSheet", "Bestia", "Holder", "Slot", "PartyView", "Catalog", "MapMeta", "Place",
       "BestiaOrders", "ChatOrder", "Preferences", "CompendiumEntry", "Letter", "LetterOrder", "Parcel",
+      "Theodolite", "SurveyOrder", "SurveyGame", "SurveyStops", "SurveyResult",
     )
   }
 }

@@ -142,10 +142,21 @@
 				<p class="muted">In no guild.</p>
 			{/if}
 		</section>
+
+		<a class="panel rise link" href={`/m/${masterId}/survey`}>
+			<h2>Theodolites</h2>
+			<span class="muted">Survey new land ›</span>
+		</a>
 	{/if}
 </main>
 
 <style>
+	.link {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
 	.hero {
 		display: flex;
 		justify-content: space-between;

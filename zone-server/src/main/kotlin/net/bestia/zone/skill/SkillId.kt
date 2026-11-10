@@ -68,6 +68,9 @@ enum class SkillId {
   M_TRAPPING,
   M_BEASTFRIEND,
 
+  // The companion app starts a survey without a cast, so it reads the level and the reagents itself.
+  M_CARTOGRAPHY,
+
   // Guild skills a guild learns, not a master: net.bestia.zone.guild reads the guild's level of each.
   GUILD_EMBLEM,
   OFFICIAL_GUILD_APPROVAL,

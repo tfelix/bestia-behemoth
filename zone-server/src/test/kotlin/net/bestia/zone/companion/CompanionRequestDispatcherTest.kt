@@ -75,6 +75,8 @@ class CompanionRequestDispatcherTest {
       ZoneQuery.PartyRoster(foreign.id),
       ZoneQuery.Compendium(foreign.id),
       ZoneQuery.MapTile(foreign.id, level = 0, x = 0, y = 0, ifNoneMatch = null),
+      ZoneQuery.Theodolites(foreign.id),
+      ZoneQuery.StartSurvey(foreign.id, structureId = 1, km = 1),
     )) {
       assertEquals(Status.NOT_FOUND, ask(1L, query).status, "for $query")
     }

@@ -33,6 +33,9 @@ class BusFrameTest {
       ZoneQuery.ReadLetter(7, letterId = 3),
       ZoneQuery.DeleteLetter(7, letterId = 3),
       ZoneQuery.Parcels(7),
+      ZoneQuery.Theodolites(7),
+      ZoneQuery.StartSurvey(7, structureId = 3, km = 5),
+      ZoneQuery.SurveyStops(7, structureId = 3, stopsMs = listOf(120, 0, 2399)),
     )
 
     for (query in queries) {
@@ -90,6 +93,14 @@ class BusFrameTest {
       ZoneAnswer.Notebook(5, listOf(ZoneAnswer.Notebook.Entry("k3", 5, """{"name":"Ore run"}"""))),
       ZoneAnswer.NotebookWritten(6, "k3", null),
       ZoneAnswer.Done,
+      ZoneAnswer.Theodolites(
+        listOf(
+          ZoneAnswer.Theodolites.Theodolite(3, MapPoint(1.5, 2.5), "SURVEYING", radiusKm = 3, remainingSeconds = 420),
+          ZoneAnswer.Theodolites.Theodolite(4, MapPoint(3.0, 4.0), "IDLE", radiusKm = null, remainingSeconds = null),
+        )
+      ),
+      ZoneAnswer.SurveyGame(3, swingPeriodMs = 1800, arcWidthDegrees = 20, arcCentresDegrees = listOf(-40, 0, 65)),
+      ZoneAnswer.SurveyOutcome("WON"),
     )
 
     for (answer in answers) {

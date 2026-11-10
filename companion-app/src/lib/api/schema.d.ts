@@ -132,6 +132,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/theodolites/{structureId}/survey": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/companion/masters/{masterId}/theodolites/{structureId}/survey/stops": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["stops"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/masters/{masterId}/notebook/{collection}": {
         parameters: {
             query?: never;
@@ -244,6 +276,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/theodolites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_3"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/masters/{masterId}/party": {
         parameters: {
             query?: never;
@@ -267,7 +315,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["list_3"];
+        get: operations["list_4"];
         put?: never;
         post?: never;
         delete?: never;
@@ -550,6 +598,23 @@ export interface components {
             endpoint: string;
             keys: components["schemas"]["Keys"];
         };
+        SurveyOrder: {
+            /** Format: int32 */
+            km: number;
+        };
+        SurveyGame: {
+            /** Format: int32 */
+            swingPeriodMs: number;
+            /** Format: int32 */
+            arcWidthDegrees: number;
+            arcCentresDegrees: number[];
+        };
+        SurveyStops: {
+            stopsMs: number[];
+        };
+        SurveyResult: {
+            outcome: string;
+        };
         LetterOrder: {
             recipientName: string;
             subject: string;
@@ -618,6 +683,16 @@ export interface components {
             willpower: number;
             /** Format: int32 */
             agility: number;
+        };
+        Theodolite: {
+            /** Format: int64 */
+            structureId: number;
+            position: components["schemas"]["Position"];
+            state: string;
+            /** Format: int32 */
+            radiusKm?: number;
+            /** Format: int32 */
+            remainingSeconds?: number;
         };
         Party: {
             name: string;
@@ -1151,6 +1226,64 @@ export interface operations {
             };
         };
     };
+    start: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+                structureId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SurveyOrder"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SurveyGame"];
+                };
+            };
+        };
+    };
+    stops: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+                structureId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SurveyStops"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SurveyResult"];
+                };
+            };
+        };
+    };
     list: {
         parameters: {
             query?: never;
@@ -1361,6 +1494,28 @@ export interface operations {
             };
         };
     };
+    list_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                masterId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Theodolite"][];
+                };
+            };
+        };
+    };
     party: {
         parameters: {
             query?: never;
@@ -1383,7 +1538,7 @@ export interface operations {
             };
         };
     };
-    list_3: {
+    list_4: {
         parameters: {
             query?: never;
             header?: never;
