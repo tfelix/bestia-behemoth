@@ -1,7 +1,7 @@
 extends VBoxContainer
 class_name ExchangeColumn
 ## The other bag in the inventory window: one of the player's own entities standing next to the one they
-## drive. Items dragged here from the inventory are handed over; items dragged out of here land in the
+## drive, or a chest they opened. Items dragged here from the inventory are handed over; items dragged out of here land in the
 ## inventory. Nothing moves locally - the server answers with both bags.
 
 ## Something dragged from the driven entity's bag was dropped on this column.
@@ -15,7 +15,7 @@ const _COLUMNS := 5
 var InventoryItem = preload("res://Game/UI/Inventory/InventoryItem/InventoryItem.tscn")
 
 var _title: Label
-var _weight: Label
+var _capacity: Label
 var _grid: GridContainer
 var _flash: Tween
 
@@ -27,8 +27,8 @@ func _ready() -> void:
 	_title = UiStyle.label("", 15, UiStyle.ACCENT)
 	add_child(_title)
 
-	_weight = UiStyle.label("", 12, UiStyle.MUTED)
-	add_child(_weight)
+	_capacity = UiStyle.label("", 12, UiStyle.MUTED)
+	add_child(_capacity)
 
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -43,9 +43,10 @@ func _ready() -> void:
 
 
 ## [param items] are the partner's [InventoryItemResource]s; worn ones stay out, as they do in the inventory.
-func show_bag(title: String, items: Array, current_weight: int, max_weight: int) -> void:
+## [param capacity] is how full the bag is: its weight, or a chest's slots.
+func show_bag(title: String, items: Array, capacity: String) -> void:
 	_title.text = title
-	_weight.text = tr("EXCHANGE_WEIGHT") % [current_weight / 100.0, max_weight / 100.0] if max_weight > 0 else ""
+	_capacity.text = capacity
 
 	for child in _grid.get_children():
 		child.queue_free()
