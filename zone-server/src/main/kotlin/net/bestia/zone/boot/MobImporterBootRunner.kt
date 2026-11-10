@@ -13,7 +13,7 @@ import net.bestia.zone.bestia.persistence.BestiaSkill
 import net.bestia.zone.bestia.persistence.BestiaSkillRepository
 import net.bestia.zone.bestia.DefaultAttack
 import net.bestia.zone.item.persistence.ItemRepository
-import net.bestia.zone.item.equip.ArmorType
+import net.bestia.zone.battle.gear.ArmorType
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.bestia.persistence.LootItem

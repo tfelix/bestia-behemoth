@@ -1,12 +1,13 @@
 package net.bestia.zone.boot
 
+import net.bestia.zone.battle.gear.WeaponType
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ammo.AmmoType
-import net.bestia.zone.item.equip.ArmorType
+import net.bestia.zone.battle.gear.ArmorType
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.material.ItemMaterial
 import net.bestia.zone.item.stat.ItemStat
@@ -63,6 +64,8 @@ class ItemImporterBootRunner(
     val attackRange: Int? = null,
     @JsonProperty("two-handed")
     val twoHanded: Boolean = false,
+    @JsonProperty("weapon-type")
+    val weaponType: WeaponType? = null,
     @JsonProperty("ammo-type")
     val ammoType: AmmoType? = null,
     val element: Element? = null,
@@ -198,6 +201,7 @@ class ItemImporterBootRunner(
       || entity.material != dto.material
       || entity.attackRange != dto.attackRange
       || entity.twoHanded != dto.twoHanded
+      || entity.weaponType != dto.weaponType
       || entity.ammoType != dto.ammoType
       || entity.element != dto.element
       || entity.description != dto.description
@@ -219,6 +223,7 @@ class ItemImporterBootRunner(
     entity.material = dto.material
     entity.attackRange = dto.attackRange
     entity.twoHanded = dto.twoHanded
+    entity.weaponType = dto.weaponType
     entity.ammoType = dto.ammoType
     entity.element = dto.element
     entity.description = dto.description
@@ -258,6 +263,7 @@ class ItemImporterBootRunner(
       material = dto.material,
       attackRange = dto.attackRange,
       twoHanded = dto.twoHanded,
+      weaponType = dto.weaponType,
       ammoType = dto.ammoType,
       element = dto.element,
       description = dto.description,

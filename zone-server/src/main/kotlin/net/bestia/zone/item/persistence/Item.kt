@@ -1,12 +1,13 @@
 package net.bestia.zone.item.persistence
 
+import net.bestia.zone.battle.gear.WeaponType
 import jakarta.persistence.*
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ElementModifier
 import net.bestia.zone.battle.ammo.AmmoType
-import net.bestia.zone.item.equip.ArmorType
+import net.bestia.zone.battle.gear.ArmorType
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.material.ItemMaterial
 import net.bestia.zone.util.requireValidIdentifier
@@ -126,6 +127,11 @@ class Item(
   @Column(name = "attack_range", nullable = true)
   var attackRange: Int? = null,
 
+  /** What kind of weapon this is, for profession and skill checks; null for anything that is not a weapon. */
+  @Enumerated(EnumType.STRING)
+  @Column(name = "weapon_type", nullable = true, length = 16)
+  var weaponType: WeaponType? = null,
+
   /** A weapon that needs both hands: nothing may be worn in [EquipmentSlot.LEFT_HAND] beside it. */
   @Column(name = "two_handed", nullable = false)
   var twoHanded: Boolean = false,
@@ -209,6 +215,14 @@ class Item(
       "Item $identifier declares an attack-range but is no RIGHT_HAND weapon"
     }
 
+    require(weaponType == null || (type == ItemType.EQUIP && equipSlot == heldSlotOf(weaponType!!))) {
+      "Item $identifier is a ${weaponType} and must be equipment held in the ${weaponType?.let(::heldSlotOf)}"
+    }
+
+    require(weaponType == null || weaponType?.twoHanded == twoHanded) {
+      "Item $identifier is a ${weaponType}, which takes ${weaponType?.hands} hand(s), but two-handed is $twoHanded"
+    }
+
     require(!twoHanded || equipSlot == EquipmentSlot.RIGHT_HAND) {
       "Item $identifier is two-handed but is not worn in the RIGHT_HAND"
     }
@@ -220,6 +234,11 @@ class Item(
     require(element == null || ElementModifier.isLegalAttackElement(element!!)) {
       "Item $identifier declares element $element, but only a level 1 element can be shot"
     }
+  }
+
+  /** An off-hand weapon, a tome, is held in the left hand; every other weapon in the right. */
+  private fun heldSlotOf(weaponType: WeaponType): EquipmentSlot {
+    return if (weaponType.isOffHand) EquipmentSlot.LEFT_HAND else EquipmentSlot.RIGHT_HAND
   }
 
   /** Stored by ordinal: append, never reorder. */

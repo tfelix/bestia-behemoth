@@ -40,6 +40,10 @@ const MISSING_VISUAL: PackedScene = preload("res://Game/Entity/Visual/ItemVisual
 ## "not armor", which anyone with the slot may wear. Kept in sync with items.yml by './gradlew syncItemDb'.
 @export var armor_type: int = 0
 
+## The server's WeaponType name (SWORD, STAFF, ...), or empty for anything that is not a weapon. It decides which
+## professions may hold it. Kept in sync with items.yml by './gradlew syncItemDb'.
+@export var weapon_type: String = ""
+
 ## How many tiles a ranged weapon shoots; 0 for anything swung. Kept in sync with items.yml by
 ## './gradlew syncItemDb'.
 @export var attack_range: int = 0

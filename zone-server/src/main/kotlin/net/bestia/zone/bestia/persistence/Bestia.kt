@@ -108,7 +108,7 @@ class Bestia(
   var equipSlotMask: Int = 0,
 
   /**
-   * Which [net.bestia.zone.item.equip.ArmorType]s this species can wear, as a bitmask over `ArmorType.bit`.
+   * Which [net.bestia.zone.battle.gear.ArmorType]s this species can wear, as a bitmask over `ArmorType.bit`.
    * Authored and mirrored into the client like [equipSlotMask].
    */
   @Column(name = "armor_type_mask", nullable = false)

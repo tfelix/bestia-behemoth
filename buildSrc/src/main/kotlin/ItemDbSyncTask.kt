@@ -70,6 +70,8 @@ abstract class ItemDbSyncTask : DefaultTask() {
     val equipSlot: String? = null,
     @JsonProperty("armor-type")
     val armorType: String? = null,
+    @JsonProperty("weapon-type")
+    val weaponType: String? = null,
     @JsonProperty("attack-range")
     val attackRange: Int = 0,
     val description: String? = null
@@ -84,6 +86,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     val type: Int,
     val equipSlot: Int,
     val armorType: Int,
+    val weaponType: String?,
     val attackRange: Int,
     val description: String?
   )
@@ -103,6 +106,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
         type = typeOrdinalOf(item),
         equipSlot = equipSlotValueOf(item),
         armorType = armorTypeValueOf(item),
+        weaponType = item.weaponType,
         attackRange = item.attackRange,
         description = item.description?.trim()?.takeIf { it.isNotEmpty() }
       )
@@ -119,6 +123,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     val typePattern = Regex("""^type\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val equipSlotPattern = Regex("""^equip_slot\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val armorTypePattern = Regex("""^armor_type\s*=\s*(\d+)""", RegexOption.MULTILINE)
+    val weaponTypePattern = Regex("""^weapon_type\s*=\s*"([^"]*)"""", RegexOption.MULTILINE)
     val attackRangePattern = Regex("""^attack_range\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val nameKeyPattern = Regex("""^name_key\s*=\s*"([^"]*)"""", RegexOption.MULTILINE)
     val descriptionKeyPattern = Regex("""^description_key\s*=\s*"([^"]*)"""", RegexOption.MULTILINE)
@@ -172,6 +177,9 @@ abstract class ItemDbSyncTask : DefaultTask() {
         patchNumericField(
           file, "armor_type", armorTypePattern, expected.armorType, DEFAULT_ARMOR_TYPE, id, shouldFix, problems
         )
+      }
+      if (expected.weaponType != null) {
+        patchStringField(file, "weapon_type", weaponTypePattern, expected.weaponType, id, shouldFix, problems)
       }
       if (expected.attackRange != DEFAULT_ATTACK_RANGE) {
         patchNumericField(
@@ -315,6 +323,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
       if (expected.equipSlot != DEFAULT_EQUIP_SLOT) "\nequip_slot = ${expected.equipSlot}" else ""
     val armorTypeLine =
       if (expected.armorType != DEFAULT_ARMOR_TYPE) "\narmor_type = ${expected.armorType}" else ""
+    val weaponTypeLine = if (expected.weaponType != null) "\nweapon_type = \"${expected.weaponType}\"" else ""
     val attackRangeLine =
       if (expected.attackRange != DEFAULT_ATTACK_RANGE) "\nattack_range = ${expected.attackRange}" else ""
     return """
@@ -327,7 +336,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     item_id = $id
     name_key = "$nameKey"
     description_key = "$descriptionKey"
-    """.trimIndent() + weightLine + levelLine + typeLine + equipSlotLine + armorTypeLine + attackRangeLine + "\n"
+    """.trimIndent() + weightLine + levelLine + typeLine + equipSlotLine + armorTypeLine + weaponTypeLine + attackRangeLine + "\n"
   }
 
   companion object {

@@ -2,7 +2,7 @@ package net.bestia.zone.item.persistence
 
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ammo.AmmoType
-import net.bestia.zone.item.equip.ArmorType
+import net.bestia.zone.battle.gear.ArmorType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

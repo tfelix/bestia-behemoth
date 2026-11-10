@@ -1,5 +1,6 @@
 package net.bestia.zone.item.equip
 
+import net.bestia.zone.battle.gear.ArmorType
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemTemplateRegistry

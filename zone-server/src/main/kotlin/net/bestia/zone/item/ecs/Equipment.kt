@@ -7,7 +7,7 @@ import net.bestia.zone.sync.Dirtyable
 import net.bestia.zone.sync.SyncTargets
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.item.equip.ArmorType
+import net.bestia.zone.battle.gear.ArmorType
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.hasEquipSlot
 import net.bestia.zone.message.EntitySMSG

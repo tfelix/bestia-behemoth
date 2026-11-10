@@ -1,4 +1,4 @@
-package net.bestia.zone.item.equip
+package net.bestia.zone.battle.gear
 
 /**
  * How heavy a piece of armor is. A master wears every type; a bestia only the ones its species lists, because

@@ -426,3 +426,77 @@ CAMPFIRE_KIT,Campfire Kit
 CAMPFIRE_KIT_DESC,"Kindling, a few stones and a lump of resin to get it going.
 
 Set it down to light a campfire. It burns half an hour, longer with more wood."
+ITEM_WEAPON_DAGGER,Dagger
+ITEM_WEAPON_FIST,Fist weapon
+ITEM_WEAPON_WHIP,Whip
+ITEM_WEAPON_SWORD,Sword
+ITEM_WEAPON_GREATSWORD,Greatsword
+ITEM_WEAPON_AXE,Axe
+ITEM_WEAPON_GREATAXE,Greataxe
+ITEM_WEAPON_MACE,Mace
+ITEM_WEAPON_HAMMER,Hammer
+ITEM_WEAPON_SPEAR,Spear
+ITEM_WEAPON_POLEARM,Polearm
+ITEM_WEAPON_WAND,Wand
+ITEM_WEAPON_STAFF,Staff
+ITEM_WEAPON_TOME,Tome
+ITEM_WEAPON_BOW,Bow
+ITEM_WEAPON_CROSSBOW,Crossbow
+ITEM_WEAPON_SLING,Sling
+ITEM_WEAPON_THROWN,Thrown weapon
+ITEM_WEAPON_INSTRUMENT,Instrument
+ITEM_WEAPON_TOOL,Tool
+ITEM_ARMOR_TYPE_1,Cloth armor
+ITEM_ARMOR_TYPE_2,Light armor
+ITEM_ARMOR_TYPE_3,Medium armor
+ITEM_ARMOR_TYPE_4,Heavy armor
+NOVICE_SWORD,Novice Sword
+NOVICE_SWORD_DESC,"A plain short sword with a leather-wrapped grip.
+
+Every new master gets one, and most keep it longer than they admit."
+NOVICE_ROD,Novice Rod
+NOVICE_ROD_DESC,"A short rod of polished willow with a copper cap.
+
+It hits poorly, but mana runs down it like water down a gutter."
+WOODEN_CLUB,Wooden Club
+WOODEN_CLUB_DESC,"A knotted oak club. Nothing fancy, nothing to break."
+IRON_HAMMER,Iron Hammer
+IRON_HAMMER_DESC,A long-hafted hammer with an iron head. It needs both hands and a strong back.
+IRON_AXE,Iron Axe
+IRON_AXE_DESC,A bearded axe made for battle rather than for firewood.
+IRON_GREATAXE,Iron Greataxe
+IRON_GREATAXE_DESC,A broad two-handed axe. It swings slowly and ends arguments.
+IRON_GREATSWORD,Iron Greatsword
+IRON_GREATSWORD_DESC,"A blade as long as a man's leg, held in both hands."
+IRON_SPEAR,Iron Spear
+IRON_SPEAR_DESC,An ash shaft with a leaf-shaped iron head.
+IRON_HALBERD,Iron Halberd
+IRON_HALBERD_DESC,"An axe blade, a spike and a hook on one long pole."
+OAK_STAFF,Oak Staff
+OAK_STAFF_DESC,"A tall oak staff, worn smooth where the hands go."
+APPRENTICE_TOME,Apprentice Tome
+APPRENTICE_TOME_DESC,"A primer of the first spells, its margins full of someone else's notes."
+LEATHER_KNUCKLES,Leather Knuckles
+LEATHER_KNUCKLES_DESC,Stitched leather with iron studs over the knuckles.
+LEATHER_WHIP,Leather Whip
+LEATHER_WHIP_DESC,"A braided leather whip, quick and cruel."
+WOODEN_LUTE,Wooden Lute
+WOODEN_LUTE_DESC,A round-bellied lute with gut strings. It needs both hands to play.
+LIGHT_CROSSBOW,Light Crossbow
+LIGHT_CROSSBOW_DESC,A light crossbow with a goat's-foot lever. Shoots bolts from the quiver.
+IRON_BOLT,Iron Bolt
+IRON_BOLT_DESC,"A short, heavy crossbow bolt with an iron head."
+LEATHER_SLING,Leather Sling
+LEATHER_SLING_DESC,"A strap and a pouch. Every master can use one, and every child can."
+SLING_STONE,Sling Stone
+SLING_STONE_DESC,A smooth river stone the size of an egg.
+JAVELIN,Javelin
+JAVELIN_DESC,A light spear made to be thrown. Each throw spends one.
+IRON_KITE_SHIELD,Iron Kite Shield
+IRON_KITE_SHIELD_DESC,"A tall iron-rimmed shield, pointed at the bottom."
+TOWER_SHIELD,Tower Shield
+TOWER_SHIELD_DESC,A door of riveted plate. Only a knight carries one for long.
+LEATHER_JERKIN,Leather Jerkin
+LEATHER_JERKIN_DESC,Boiled leather over a padded shirt. It creaks.
+CHAIN_MAIL,Chain Mail
+CHAIN_MAIL_DESC,"Riveted rings over a gambeson. Heavy, but it moves with you."

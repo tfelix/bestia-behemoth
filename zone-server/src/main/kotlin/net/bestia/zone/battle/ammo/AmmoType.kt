@@ -5,5 +5,7 @@ package net.bestia.zone.battle.ammo
  * so a crossbow later skips the arrows in a shared quiver.
  */
 enum class AmmoType {
-  ARROW
+  ARROW,
+  BOLT,
+  STONE,
 }

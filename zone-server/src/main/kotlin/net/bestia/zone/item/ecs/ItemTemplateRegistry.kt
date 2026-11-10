@@ -1,5 +1,7 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.battle.gear.ArmorType
+import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.RangedWeapon
 import net.bestia.zone.battle.ammo.AmmoType
@@ -38,6 +40,8 @@ class ItemTemplateRegistry(
     val twoHanded: Boolean = false,
     val script: String? = null,
     val bound: Boolean = false,
+    val weaponType: WeaponType? = null,
+    val armorType: ArmorType? = null,
   ) {
     val isAmmo: Boolean
       get() {
@@ -59,7 +63,7 @@ class ItemTemplateRegistry(
     itemRepository.findAll().associate {
       it.id to Template(
         it.id, it.baseLevel, it.weight, it.stackable, it.maxDurability, it.material, it.type, it.ammoType, it.element,
-        it.attackRange, it.twoHanded, it.script, it.bound
+        it.attackRange, it.twoHanded, it.script, it.bound, it.weaponType, it.armorType
       )
     }
   }
