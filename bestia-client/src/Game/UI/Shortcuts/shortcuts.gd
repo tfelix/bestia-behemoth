@@ -165,6 +165,7 @@ func _connect_signals() -> void:
 
 func _on_controlled_entity_changed(_previous_id: int, entity_id: int) -> void:
 	_controlled_entity_id = entity_id
+	SkillCooldowns.controlled_entity_id = entity_id
 	_entity_key = ShortcutLayout.entity_key_of(entity_id, EntityManager.get_instance().get_owned_master_entity_id())
 	_show_active_layer()
 	emote_bar_changed.emit()

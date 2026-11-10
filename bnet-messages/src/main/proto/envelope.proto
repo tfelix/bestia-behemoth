@@ -39,6 +39,7 @@ import "messages/master/set_bestia_ai_config_cmsg.proto";
 import "messages/master/bestia_ai_config_smsg.proto";
 import "messages/master/get_skills_cmsg.proto";
 import "messages/master/activate_skill_cmsg.proto";
+import "messages/master/skill_cooldown_smsg.proto";
 import "messages/master/bestia_capture_smsg.proto";
 import "messages/master/owned_bestias_smsg.proto";
 import "messages/compendium/request_compendium_cmsg.proto";
@@ -240,6 +241,7 @@ message Envelope {
     ActiveEntitySMSG active_entity = 416;
     RequestCompendiumCMSG request_compendium = 417;
     CompendiumSMSG compendium = 418;
+    SkillCooldownSMSG skill_cooldown = 419;
 
     // ENTITY & COMPONENTS 500
     SelectActiveEntity select_active_entity = 500;

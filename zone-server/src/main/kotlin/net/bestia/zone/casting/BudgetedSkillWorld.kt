@@ -20,6 +20,7 @@ import net.bestia.zone.battle.ecs.effects.AreaEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.Mana
+import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.equip.EquipmentSlot
@@ -384,20 +385,28 @@ class BudgetedSkillWorld(
     }
   }
 
-  override fun consumeCasterMana(cost: Int): Boolean {
-    if (cost <= 0) {
+  override fun payCasterCost(mana: Int, stamina: Int): Boolean {
+    if (mana <= 0 && stamina <= 0) {
       return true
     }
 
     budget.charge()
 
     return onEntity(casterId) { caster ->
-      val mana = get(caster, Mana::class) ?: return@onEntity true
-      if (mana.current < cost) {
+      val manaPool = get(caster, Mana::class)
+      val staminaPool = get(caster, Stamina::class)
+      val canPayMana = mana <= 0 || manaPool == null || manaPool.current >= mana
+      val canPayStamina = stamina <= 0 || staminaPool == null || staminaPool.current >= stamina
+      if (!canPayMana || !canPayStamina) {
         return@onEntity false
       }
 
-      mana.current -= cost
+      if (mana > 0 && manaPool != null) {
+        manaPool.current -= mana
+      }
+      if (stamina > 0 && staminaPool != null) {
+        staminaPool.current -= stamina
+      }
       true
     } ?: false
   }

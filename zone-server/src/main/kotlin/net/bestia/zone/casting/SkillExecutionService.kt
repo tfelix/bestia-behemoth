@@ -63,7 +63,7 @@ class SkillExecutionService(
   fun isReady(world: World, casterId: EntityId, skillId: Long): Boolean {
     val skill = skillOf(skillId) ?: return false
 
-    return cooldowns.isReady(world, casterId, skill)
+    return cooldowns.isReady(world, casterId, skill.id)
   }
 
   /** Queues [skillId] for resolution on the tick thread and returns immediately, from any thread. */
@@ -114,13 +114,14 @@ class SkillExecutionService(
       return
     }
 
-    val ctx = skillContextFactory.create(world, casterId, skill, skillLevel, targetEntityId, targetPosition)
+    val cost = strategy.costOf(skill, skillLevel)
+    val ctx = skillContextFactory.create(world, casterId, skill, skillLevel, targetEntityId, targetPosition, cost)
     if (ctx == null) {
       LOG.debug { "Skill $skillId by $casterId fizzled: caster or target no longer resolvable" }
       return
     }
 
-    if (!cooldowns.isReady(world, casterId, skill)) {
+    if (!cooldowns.isReady(world, casterId, skill.id)) {
       LOG.debug { "Skill $skillId by $casterId fizzled: still cooling down" }
       return
     }
@@ -140,13 +141,13 @@ class SkillExecutionService(
         return
       }
 
-      if (!ctx.world.consumeCasterMana(skill.manaCost)) {
-        LOG.debug { "Skill $skillId by $casterId fizzled: not enough mana" }
+      if (!ctx.world.payCasterCost(mana = cost.manaCost, stamina = cost.staminaCost)) {
+        LOG.debug { "Skill $skillId by $casterId fizzled: not enough mana or stamina" }
         return
       }
 
       val result = strategy.execute(ctx)
-      cooldowns.start(world, casterId, skill)
+      cooldowns.start(world, casterId, skill.id, cost.cooldownSeconds)
       actionReactions.notifyActed(world, casterId, EntityAction.CAST)
       startChannel(world, casterId, skill, skillLevel, targetEntityId, targetPosition)
 
@@ -156,7 +157,7 @@ class SkillExecutionService(
         ctx.world.apply(targetEntityId, result)
       }
 
-      LOG.trace { "Skill $skillId by $casterId resolved, spending ${skill.manaCost} mana" }
+      LOG.trace { "Skill $skillId by $casterId resolved, spending ${cost.manaCost} mana, ${cost.staminaCost} stamina" }
     } catch (e: SkillBudgetExceededException) {
       // Not rolled back: the ECS has no transaction, so whatever the script already did stands. A script
       // that trips this has a bug, and the log is what surfaces it.
@@ -190,7 +191,8 @@ class SkillExecutionService(
     val skill = skillOf(channel.skillId) ?: return
     val strategy = skillStrategyFactory.getSkillStrategy(skill)
     val ctx = skillContextFactory.create(
-      world, casterId, skill, channel.skillLevel, channel.targetEntityId, channel.targetPosition
+      world, casterId, skill, channel.skillLevel, channel.targetEntityId, channel.targetPosition,
+      strategy.costOf(skill, channel.skillLevel)
     ) ?: return
 
     try {

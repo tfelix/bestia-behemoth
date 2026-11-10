@@ -36,9 +36,10 @@ class SkillContextFactory(
     skill: Skill,
     skillLevel: Int,
     targetEntityId: EntityId?,
-    targetPosition: Vec3L?
+    targetPosition: Vec3L?,
+    cost: SkillLevelCost = SkillLevelCost.of(skill),
   ): SkillContext? {
-    val usedAttack = BattleAttack.of(skill, skillLevel)
+    val usedAttack = BattleAttack.of(skill, skillLevel).copy(range = cost.rangeTiles, manaCost = cost.manaCost)
 
     val battle = battleContextFactory.create(world, casterId, usedAttack, targetEntityId, targetPosition)
       ?: enchantedGroundItemContext(world, casterId, usedAttack, targetEntityId)

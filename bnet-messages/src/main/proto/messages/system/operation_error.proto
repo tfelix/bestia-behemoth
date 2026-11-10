@@ -324,6 +324,9 @@ enum OpError {
   ROUTE_TOO_HEAVY = 121;
   // The courier missed a mail deadline and is struck off. The player waits until STRUCK_OFF runs out.
   COURIER_STRUCK_OFF = 122;
+  // The caster has less mana or stamina than the skill costs at this level.
+  SKILL_NOT_ENOUGH_MANA = 123;
+  SKILL_NOT_ENOUGH_STAMINA = 124;
 }
 
 message OperationError {
