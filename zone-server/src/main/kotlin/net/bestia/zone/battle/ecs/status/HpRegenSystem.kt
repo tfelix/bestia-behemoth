@@ -35,7 +35,8 @@ class HpRegenSystem(
       // A player body lies dead until it respawns, and InCombat lapses after ten seconds - without
       // this the corpse would quietly heal itself back to full while still tagged Dead.
       if (world.has(id, Dead::class)) return@each
-      if (world.has(id, InCombat::class)) return@each
+      val modifier = world.get(id, RegenerationModifiers::class)?.hp
+      if (world.has(id, InCombat::class) && modifier?.inCombat != true) return@each
 
       val health = get<Health>()
       if (health.current >= health.max) return@each
@@ -48,7 +49,6 @@ class HpRegenSystem(
       // Fetched rather than queried on: an entity with nothing modifying its regeneration has no
       // RegenerationModifiers at all, and joining it into the query above would restrict
       // regeneration to buffed entities only.
-      val modifier = world.get(id, RegenerationModifiers::class)?.hp
       val base = regenerationCalculator.hpRegen(health.max, vitality)
 
       health.current += regenerationCalculator.applyModifier(base, modifier)

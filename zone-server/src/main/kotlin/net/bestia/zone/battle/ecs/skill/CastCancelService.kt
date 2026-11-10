@@ -21,8 +21,19 @@ class CastCancelService {
 
   /** Also ends a channel and the stillness it holds its caster in: a channel is a cast that outlived its bar. */
   fun cancelCast(world: World, entityId: EntityId) {
-    world.remove(entityId, Casting::class)
+    Casting.end(world, entityId)
     // A ritual's channel breaks the same way a skill's does.
+    if (world.has(entityId, Channel::class) || world.has(entityId, RitualParticipant::class)) {
+      world.remove(entityId, Channel::class)
+      world.remove(entityId, RitualParticipant::class)
+      if (world.get(entityId, StatusEffects::class)?.removeEffect(StatusEffectId.CHANNELING.id) == true) {
+        world.add(entityId, IsStatusValueDirty)
+      }
+    }
+  }
+
+  /** Ends a channel and a ritual's channel but leaves a cast bar running, for a caster who may move while casting. */
+  fun cancelChannel(world: World, entityId: EntityId) {
     if (world.has(entityId, Channel::class) || world.has(entityId, RitualParticipant::class)) {
       world.remove(entityId, Channel::class)
       world.remove(entityId, RitualParticipant::class)

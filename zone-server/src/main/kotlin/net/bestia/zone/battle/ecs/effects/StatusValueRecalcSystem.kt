@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.battle.ecs.skill.Casting
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.passive.PassiveSkillScriptRegistry
 import net.bestia.zone.battle.status.ConditionValueCalculator
@@ -85,7 +86,8 @@ class StatusValueRecalcSystem(
     Nature::class,
     Dead::class,
     // A bestia reads its master's passives that reach it.
-    OwnedBestia::class
+    OwnedBestia::class,
+    Casting::class
   ) + equipment.reads
   override val writes: ComponentClassSet = setOf(
     StatusValues::class,
@@ -119,6 +121,10 @@ class StatusValueRecalcSystem(
       applyPassiveSkills(context, world, id)
       applyOwnersPassiveSkills(context, world, id)
       applyStatusEffects(context, world, id)
+      // A caster who may walk while casting does so at a share of its speed while the bar runs.
+      if (context.castMovePercent > 0 && world.has(id, Casting::class)) {
+        context.speed *= context.castMovePercent / 100f
+      }
 
       // Only an owner carries this outbound copy; nothing on the server reads it.
       world.get(id, StatusValues::class)?.let { values ->

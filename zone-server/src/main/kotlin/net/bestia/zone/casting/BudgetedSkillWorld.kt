@@ -1,5 +1,8 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.Revival
+import net.bestia.zone.item.ecs.ObtainItemIntent
+import net.bestia.zone.battle.Knockback
 import net.bestia.zone.movement.ecs.Facing
 import net.bestia.zone.battle.damage.HitReach
 import net.bestia.zone.battle.ammo.Ammunition
@@ -442,6 +445,27 @@ class BudgetedSkillWorld(
     val casterAt = world.get(casterId, Position::class)?.toVec3L() ?: return false
 
     return facing.isBehind(targetAt, casterAt)
+  }
+
+  override fun isKnockbackImmune(entityId: EntityId): Boolean {
+    budget.charge()
+
+    return Knockback.isImmune(world, entityId)
+  }
+
+  override fun giveItem(itemId: Long, amount: Int) {
+    budget.charge()
+
+    onEntity(casterId) { caster ->
+      val pending = get(caster, ObtainItemIntent.CreateItemsIntent::class)?.grants.orEmpty()
+      add(caster, ObtainItemIntent.CreateItemsIntent(pending + ObtainItemIntent.CreateItemIntent(itemId, amount)))
+    }
+  }
+
+  override fun revive(entityId: EntityId, healthPercent: Int): Boolean {
+    budget.charge()
+
+    return onEntity(entityId) { id -> Revival.revive(this, id, healthPercent) } == true
   }
 
   override fun blink(entityId: EntityId, to: Vec3L): Boolean {

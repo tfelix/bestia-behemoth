@@ -48,6 +48,14 @@ data class CombatValues(
 
   /** See [StatusValueRecalcContext.potencyFocus]. */
   val potencyFocus: Int = 0,
+
+  /** See [StatusValueRecalcContext.staminaCostReduction] and the fields below it. */
+  val staminaCostReduction: Int = 0,
+  val staminaDrainReduction: Int = 0,
+  val castMovePercent: Int = 0,
+  val castInterruptResistance: Int = 0,
+  val statusImmunities: Set<StatusEffectId> = emptySet(),
+  val knockbackImmune: Boolean = false,
 ) {
 
   companion object {
@@ -100,7 +108,16 @@ data class CombatValues(
         healReceivedPercent = context.healReceivedPercent,
         attackPercent = context.attackPercent,
         weaponElement = context.weaponElement
-      ).copy(damageModifiers = context.damageModifiers, potencyFocus = context.potencyFocus)
+      ).copy(
+        damageModifiers = context.damageModifiers,
+        potencyFocus = context.potencyFocus,
+        staminaCostReduction = context.staminaCostReduction,
+        staminaDrainReduction = context.staminaDrainReduction,
+        castMovePercent = context.castMovePercent,
+        castInterruptResistance = context.castInterruptResistance,
+        statusImmunities = context.statusImmunities,
+        knockbackImmune = context.knockbackImmune,
+      )
     }
 
     private fun resolve(

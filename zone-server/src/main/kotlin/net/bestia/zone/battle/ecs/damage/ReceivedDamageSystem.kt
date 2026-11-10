@@ -1,5 +1,7 @@
 package net.bestia.zone.battle.ecs.damage
 
+import net.bestia.zone.util.EntityId
+import kotlin.random.Random
 import net.bestia.zone.battle.ecs.skill.RitualParticipant
 import net.bestia.zone.battle.ecs.skill.Channel
 import net.bestia.zone.battle.ecs.status.CombatStats
@@ -33,6 +35,7 @@ import net.bestia.zone.entity.ecs.Dead
 class ReceivedDamageSystem(
   private val metrics: GameMetrics = GameMetrics(),
   private val reactions: DamageReactions = DamageReactions.NONE,
+  private val random: Random = Random.Default,
 ) : System {
   override val phase = Phase.COMBAT
   override val after = setOf(AttackSystem::class)
@@ -87,8 +90,8 @@ class ReceivedDamageSystem(
         if (world.has(id, LogoutIntent::class)) {
           world.remove(id, LogoutIntent::class)
         }
-        if (world.has(id, Casting::class)) {
-          world.remove(id, Casting::class)
+        if (world.has(id, Casting::class) && !resistsInterrupt(world, id)) {
+          Casting.end(world, id)
         }
         if (world.has(id, Channel::class) || world.has(id, RitualParticipant::class)) {
           world.remove(id, Channel::class)
@@ -107,6 +110,13 @@ class ReceivedDamageSystem(
         LOG.trace { "$id died due to damage." }
       }
     }
+  }
+
+  /** A focused caster may keep casting through a blow, see `CombatValues.castInterruptResistance`. */
+  private fun resistsInterrupt(world: World, id: EntityId): Boolean {
+    val resistance = world.get(id, CombatStats::class)?.values?.castInterruptResistance ?: 0
+
+    return resistance > 0 && random.nextInt(100) < resistance
   }
 
   companion object {

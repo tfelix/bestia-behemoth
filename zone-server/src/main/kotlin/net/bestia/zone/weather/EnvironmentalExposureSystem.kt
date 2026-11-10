@@ -1,5 +1,6 @@
 package net.bestia.zone.weather
 
+import net.bestia.zone.battle.ecs.status.CombatStats
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.battle.ecs.effects.StatusEffects
@@ -58,7 +59,8 @@ class EnvironmentalExposureSystem(
 
   override val schedule: Schedule get() = Schedule.EveryTick
 
-  override val reads: ComponentClassSet = setOf(Position::class, KnownSkills::class, StatusEffects::class) + DamageGate.READS
+  override val reads: ComponentClassSet =
+    setOf(Position::class, KnownSkills::class, StatusEffects::class, CombatStats::class) + DamageGate.READS
 
   override val writes: ComponentClassSet = setOf(Stamina::class, Health::class, Dead::class)
 
@@ -125,7 +127,9 @@ class EnvironmentalExposureSystem(
       }
       if (excess <= 0.0) return@each
 
-      val cost = (excess * config.staminaPerDegree).roundToInt().coerceAtLeast(1)
+      // A wanderer's tune or a tough body loses less to the weather.
+      val reduction = world.get(entityId, CombatStats::class)?.values?.staminaDrainReduction ?: 0
+      val cost = (excess * config.staminaPerDegree * (100 - reduction.coerceIn(0, 100)) / 100).roundToInt().coerceAtLeast(1)
 
       if (stamina.current > 0) {
         stamina.current -= cost

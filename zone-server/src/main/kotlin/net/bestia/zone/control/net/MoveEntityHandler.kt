@@ -1,5 +1,7 @@
 package net.bestia.zone.control.net
 
+import net.bestia.zone.battle.ecs.skill.Casting
+import net.bestia.zone.battle.ecs.status.CombatStats
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.Random
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
@@ -105,7 +107,12 @@ class MoveEntityHandler(
   private fun cancelWhatMovingInterrupts(world: World, accountId: Long, id: EntityId) {
     runCatching { connectionInfoService.getActiveEntityId(accountId) }.getOrNull()
       ?.let { logoutCancelService.cancelLogout(world, it) }
-    castCancelService.cancelCast(world, id)
+    // A caster who learned to move while casting keeps the cast; a channel and a craft still break.
+    if ((world.get(id, CombatStats::class)?.values?.castMovePercent ?: 0) > 0 && world.has(id, Casting::class)) {
+      castCancelService.cancelChannel(world, id)
+    } else {
+      castCancelService.cancelCast(world, id)
+    }
     castCancelService.cancelCraft(world, id)
     attackCancelService.cancelAttack(world, id)
     // Standing up from a sit, on this tick rather than when EmoteSystem sees the path.

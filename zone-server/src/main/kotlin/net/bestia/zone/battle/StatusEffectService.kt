@@ -249,9 +249,11 @@ class StatusEffectService(
   private fun isImmune(world: World, definition: StatusEffectDefinition, targetId: EntityId): Boolean {
     if (definition.polarity != StatusEffectPolarity.DEBUFF) return false
 
-    val immunities = world.get(targetId, Nature::class)?.statusImmunities ?: return false
+    // The species' own immunities, and whatever a buff or a passive grants for the time being (Juggernaut).
+    val species = world.get(targetId, Nature::class)?.statusImmunities.orEmpty()
+    val granted = world.get(targetId, CombatStats::class)?.values?.statusImmunities.orEmpty()
 
-    return immunities.any { it.id == definition.id }
+    return (species + granted).any { it.id == definition.id }
   }
 
   private fun resistanceOf(

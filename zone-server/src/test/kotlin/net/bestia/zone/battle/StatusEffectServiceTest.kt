@@ -1,5 +1,8 @@
 package net.bestia.zone.battle
 
+import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.battle.status.CombatValues
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.HarmShield
@@ -70,6 +73,22 @@ class StatusEffectServiceTest {
     assertTrue(service.cancelByBearer(world, bearer, HELP))
     assertFalse(service.cancelByBearer(world, bearer, HARM), "a debuff is not the bearer's to end")
     assertTrue(world.getOrThrow(bearer, StatusEffects::class).hasEffect(HARM))
+  }
+
+  @Test
+  fun `an immunity a buff grants turns a debuff away like a species' own`() {
+    val juggernaut = player()
+    world.add(juggernaut, CombatStats(CombatValues.OBJECT_BASELINE.copy(statusImmunities = setOf(StatusEffectId.SWIFTNESS))))
+    val stunLike = StatusEffectDefinition(
+      id = StatusEffectId.SWIFTNESS.id, identifier = "SWIFTNESS", isSyncedToClient = true, script = "Lingering",
+      polarity = StatusEffectPolarity.DEBUFF
+    )
+    val service = StatusEffectService(
+      StatusEffectDefinitionRegistry().apply { load(listOf(stunLike)) },
+      StatusEffectScriptRegistry(listOf(Lingering()))
+    )
+
+    assertFalse(service.applyEffect(world, juggernaut, StatusEffectId.SWIFTNESS.id, level = 1))
   }
 
   private fun player(shield: HarmShield? = null): EntityId {

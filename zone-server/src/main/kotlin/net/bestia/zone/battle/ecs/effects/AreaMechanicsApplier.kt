@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.battle.Knockback
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.Facing
@@ -30,7 +31,7 @@ class AreaMechanicsApplier(
     if (!mechanics.forAllies) {
       mechanics.zoneStatus?.let { statusEffects.applyEffect(world, victimId, it, effect.skillLevel, effect.casterId) }
     }
-    if (mechanics.knockbackTiles > 0) {
+    if (mechanics.knockbackTiles > 0 && !Knockback.isImmune(world, victimId)) {
       val facing = world.get(victimId, Facing::class)
       val at = world.get(victimId, Position::class)?.toVec3L()
       if (mechanics.knockbackAgainstFacing && facing != null && at != null) {

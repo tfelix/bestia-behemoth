@@ -34,7 +34,8 @@ class ManaRegenSystem(
     world.query(Mana::class).each { id ->
       // Nothing regenerates while dead - see HpRegenSystem.
       if (world.has(id, Dead::class)) return@each
-      if (world.has(id, InCombat::class)) return@each
+      val modifier = world.get(id, RegenerationModifiers::class)?.mana
+      if (world.has(id, InCombat::class) && modifier?.inCombat != true) return@each
 
       val mana = get<Mana>()
       if (mana.current >= mana.max) return@each
@@ -43,7 +44,6 @@ class ManaRegenSystem(
       // regeneration, and a missing RegenerationModifiers means an unmodified rate.
       val intelligence = world.get(id, CombatStats::class)?.values?.attributes?.intelligence ?: return@each
 
-      val modifier = world.get(id, RegenerationModifiers::class)?.mana
       val base = regenerationCalculator.manaRegen(mana.max, intelligence)
 
       mana.current += regenerationCalculator.applyModifier(base, modifier)

@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.movement.ecs.Facing
 import net.bestia.zone.battle.status.RemovalReason
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -155,7 +156,8 @@ class SkillExecutionService(
         return
       }
 
-      if (!ctx.world.payCasterCost(mana = cost.manaCost, stamina = cost.staminaCost)) {
+      val stamina = reducedStamina(world, casterId, cost.staminaCost)
+      if (!ctx.world.payCasterCost(mana = cost.manaCost, stamina = stamina)) {
         LOG.debug { "Skill $skillId by $casterId fizzled: not enough mana or stamina" }
         return
       }
@@ -187,6 +189,13 @@ class SkillExecutionService(
     } catch (e: Exception) {
       LOG.error(e) { "Skill $skillId (script=${skill.script}) by $casterId failed" }
     }
+  }
+
+  /** A tougher body pays less stamina for the same skill, see [net.bestia.zone.battle.status.CombatValues.staminaCostReduction]. */
+  private fun reducedStamina(world: World, casterId: EntityId, stamina: Int): Int {
+    val reduction = world.get(casterId, CombatStats::class)?.values?.staminaCostReduction ?: 0
+
+    return stamina * (100 - reduction.coerceIn(0, 100)) / 100
   }
 
   /** Holds the caster in place while a channelled skill keeps acting, see [channelTick]. */

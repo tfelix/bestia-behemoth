@@ -147,6 +147,32 @@ class StatusValueRecalcContext(
     hpRegen = hpRegen.plus(flat = flat, percent = percent)
   }
 
+  /** HP and mana keep regenerating in combat, where they would otherwise stop. */
+  fun regenerateInCombat() {
+    hpRegen = hpRegen.copy(inCombat = true)
+    manaRegen = manaRegen.copy(inCombat = true)
+  }
+
+  /** Percent less stamina a skill costs, and percent less the weather and the road drain. */
+  var staminaCostReduction: Int = 0
+  var staminaDrainReduction: Int = 0
+
+  /** Moving while casting at this share of the walking speed, in percent; 0 means a move breaks the cast. */
+  var castMovePercent: Int = 0
+
+  /** Percent chance a blow does not interrupt a cast. */
+  var castInterruptResistance: Int = 0
+
+  /** Statuses this entity shrugs off while the source of the immunity lasts, beside its species' own. */
+  var statusImmunities: Set<StatusEffectId> = emptySet()
+
+  fun addStatusImmunities(vararg effects: StatusEffectId) {
+    statusImmunities = statusImmunities + effects
+  }
+
+  /** Cannot be pushed back by a blow or a blast. A dash of its own still moves it. */
+  var knockbackImmune: Boolean = false
+
   /** Stops natural regeneration outright; percentages add up, so -100% alone cannot promise that. */
   fun blockRegen(hp: Boolean = false, mana: Boolean = false) {
     if (hp) hpRegen = hpRegen.copy(blocked = true)
