@@ -121,7 +121,10 @@ enum class StaticEntityKind {
   STRUCTURE_STAIRS,
 
   // The station of Cooking. Unlike the other stations it burns down, see `Campfire`.
-  CAMPFIRE;
+  CAMPFIRE,
+
+  // Worldgen's RESIN, under the conifers. With the ground loot above in spirit, appended here for the ordinal.
+  RESIN;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.
@@ -181,6 +184,7 @@ enum class StaticEntityKind {
       PropKind.BOULDER -> BOULDER
       PropKind.LOOSE_STONE -> LOOSE_STONE
       PropKind.STICK -> STICK
+      PropKind.RESIN -> RESIN
       // `FixtureKind`'s ordinal, on `subKind` for the POI arm's reason.
       PropKind.FIXTURE -> FIXTURE_KINDS[subKind]
     }

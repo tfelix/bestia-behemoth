@@ -338,6 +338,14 @@ kinds:
     regrow-seconds: 900
     collect: { item-id: 102, amount: 1 }
 
+  # Resin under the conifers. Rarer than a stick and slower to come back: a tree weeps it, nobody drops it.
+  - kind: RESIN
+    max-hp: 5
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+    regrow-seconds: 1800
+    collect: { item-id: 123, amount: 1 }
+
   # What people put up - worldgen's `FixtureKind`, see `dress/DressingStage` and `voxel/FixtureProps`. One row per
   # entry, mandatory like the landmarks'. `variants` is how many styles the generator chooses between, and the
   # generator's choice arrives as the variant itself rather than a roll: a fence is dry-stone because of the ground

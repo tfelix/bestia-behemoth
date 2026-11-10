@@ -579,7 +579,14 @@ namespace BestiaBehemothClient.Game.World
         },
         PlaceholderWidth = 0.8f, PlaceholderColour = new Color(0.62f, 0.30f, 0.16f), StructureHeight = 0.5f,
         Action = PropAction.Use
-      } // CAMPFIRE
+      }, // CAMPFIRE
+
+      // A lump of resin under the conifers, ground loot like the stick: a small amber box until it has a model.
+      new Kind
+      {
+        PlaceholderWidth = 0.25f, PlaceholderColour = new Color(0.85f, 0.55f, 0.15f), Collectible = true,
+        Action = PropAction.Collect
+      } // RESIN
     };
 
     /// <summary>
