@@ -31,6 +31,8 @@ signal dialog_received(message: DialogSMSG)
 signal craftable_recipes_received(message: CraftableRecipesSMSG)
 signal discovery_result_received(message: DiscoveryResultSMSG)
 signal station_state_received(message: StationStateSMSG)
+## One of the player's chests was opened. Its goods arrive as the chest's InventoryComponentSMSG.
+signal chest_opened(message: ChestOpenedSMSG)
 ## Emitted when a townsperson says something and offers options back. Account-scoped for the reason
 ## [signal dialog_received] is: it opens a window, and a window belongs to a client rather than to an
 ## entity - the speaker travels inside the message as metadata.
@@ -1348,6 +1350,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		discovery_result_received.emit(message)
 	elif message is StationStateSMSG:
 		station_state_received.emit(message)
+	elif message is ChestOpenedSMSG:
+		chest_opened.emit(message)
 	elif message is MaterialAxesSMSG:
 		CraftAxes.store(message.AxesByItemId)
 	elif message is OperationSuccess:
