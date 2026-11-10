@@ -25,3 +25,6 @@ blueprints:
   - FURNACE_KIT
   - FORGE_KIT
   - CAMPFIRE_KIT
+  # Breeding: the farm and what it uses up, so every master can breed without discovering anything first.
+  - BREEDING_FARM_KIT
+  - NESTING_BUNDLE

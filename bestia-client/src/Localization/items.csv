@@ -613,3 +613,15 @@ RELIC_BANNER,Old Banner
 RELIC_BANNER_DESC,"A faded war banner, its device still clear, worn across the shoulders.
 
 Armies marched under it. The chronicle names the battles."
+BREEDING_FARM_KIT,breeding farm kit
+BREEDING_FARM_KIT_DESC,"Fence posts, planks and a folded nesting hut, tied with cord.
+
+Set it down and it becomes a Breeding Farm, where a pair of bestias lays an egg."
+NESTING_BUNDLE,nesting bundle
+NESTING_BUNDLE_DESC,"Reeds, fur and feathers bound into a nest.
+
+A Breeding Farm uses up one for each clutch."
+BESTIA_EGG,bestia egg
+BESTIA_EGG_DESC,"A bestia egg from a Breeding Farm, still warm.
+
+It only hatches in an Incubator."

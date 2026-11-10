@@ -669,7 +669,14 @@ namespace BestiaBehemothClient.Game.World
       {
         Scenes = new[] { new SceneVariant { Path = "res://Game/World/Campfire/CampfireCold.tscn", NaturalHeight = 0.3f } },
         PlaceholderWidth = 0.8f, PlaceholderColour = new Color(0.40f, 0.36f, 0.32f)
-      } // FIXTURE_CAMP
+      }, // FIXTURE_CAMP
+
+      // A pen of planks and reed where a pair of bestias breeds. Clicking it opens its window.
+      new Kind
+      {
+        PlaceholderWidth = 3.0f, PlaceholderColour = new Color(0.66f, 0.56f, 0.38f), StructureHeight = 1f,
+        Action = PropAction.Use
+      } // BREEDING_FARM
     };
 
     /// <summary>
