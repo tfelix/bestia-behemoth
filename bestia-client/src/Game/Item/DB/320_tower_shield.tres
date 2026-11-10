@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 320
+name_key = "TOWER_SHIELD"
+description_key = "TOWER_SHIELD_DESC"
+weight = 400
+level = 20
+type = 1
+equip_slot = 7
+armor_type = 4

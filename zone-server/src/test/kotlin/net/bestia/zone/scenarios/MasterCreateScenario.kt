@@ -46,7 +46,7 @@ import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.item.ecs.Equipment
-import net.bestia.zone.item.equip.ArmorType
+import net.bestia.zone.battle.gear.ArmorType
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.master.bestia.GmBestiaGrant
 import net.bestia.zone.skill.ecs.KnownSkills

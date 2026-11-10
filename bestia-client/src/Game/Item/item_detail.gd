@@ -33,6 +33,12 @@ static func as_bbcode(
 	if level > 1:
 		lines.append("Lv. %d" % level)
 
+	# What decides which professions may use it: the weapon type, or the weight of the armor.
+	if not item.weapon_type.is_empty():
+		lines.append(_translate("ITEM_WEAPON_%s" % item.weapon_type))
+	elif item.armor_type > 0:
+		lines.append(_translate("ITEM_ARMOR_TYPE_%d" % item.armor_type))
+
 	if item.attack_range > 0:
 		lines.append(_translate("ITEM_ATTACK_RANGE").format({"tiles": item.attack_range}))
 

@@ -242,6 +242,7 @@ items:
     type: EQUIP
     material: METAL
     equip-slot: RIGHT_HAND
+    weapon-type: SWORD
     max-durability: 200
     script: IronSwordScript
     stats:
@@ -776,6 +777,7 @@ items:
     type: EQUIP
     material: METAL
     equip-slot: RIGHT_HAND
+    weapon-type: TOOL
     max-durability: 180
     description: |
       A miner's pick, iron-headed on a straight ash haft.
@@ -789,6 +791,7 @@ items:
     type: EQUIP
     material: METAL
     equip-slot: RIGHT_HAND
+    weapon-type: TOOL
     max-durability: 150
     description: |
       A felling axe with a wide iron blade.
@@ -890,6 +893,7 @@ items:
     type: EQUIP
     material: METAL
     equip-slot: RIGHT_HAND
+    weapon-type: DAGGER
     max-durability: 80
     novice-only: true
     attack: 10
@@ -1254,6 +1258,7 @@ items:
     type: EQUIP
     material: WOOD
     equip-slot: RIGHT_HAND
+    weapon-type: BOW
     two-handed: true
     ammo-type: ARROW
     attack-range: 12
@@ -1343,6 +1348,7 @@ items:
     type: EQUIP
     material: STONE
     equip-slot: RIGHT_HAND
+    weapon-type: DAGGER
     max-durability: 40
     attack: 7
     description: |
@@ -1357,6 +1363,7 @@ items:
     type: EQUIP
     material: STONE
     equip-slot: RIGHT_HAND
+    weapon-type: TOOL
     max-durability: 60
     description: |
       A knapped stone wedged into a stick.
@@ -1585,3 +1592,311 @@ items:
       A sticky lump of tree resin.
 
       It catches fire easily and burns hot.
+
+  # ---------------------------------------------------------------------------------------------------------------
+  # One weapon of every type a profession may need, and the armor weights the starter set lacks (ids 300+). Plain
+  # pieces: the forged and found variants come with crafting and loot.
+  # ---------------------------------------------------------------------------------------------------------------
+
+  # The rest of the novice set from the master basics page: a sword and a rod beside the knife and the bow.
+  - id: 300
+    item-db-name: novice_sword
+    base-level: 1
+    weight: 80
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SWORD
+    max-durability: 80
+    novice-only: true
+    attack: 12
+    description: |
+      A plain short sword with a leather-wrapped grip.
+
+      Every new master gets one, and most keep it longer than they admit.
+
+  - id: 301
+    item-db-name: novice_rod
+    base-level: 1
+    weight: 40
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: WAND
+    max-durability: 80
+    novice-only: true
+    attack: 3
+    magic-attack: 12
+    description: |
+      A short rod of polished willow with a copper cap.
+
+      It hits poorly, but mana runs down it like water down a gutter.
+
+  - id: 302
+    item-db-name: wooden_club
+    base-level: 5
+    weight: 90
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: MACE
+    max-durability: 120
+    attack: 18
+    description: A knotted oak club. Nothing fancy, nothing to break.
+
+  - id: 303
+    item-db-name: iron_hammer
+    base-level: 15
+    weight: 280
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: HAMMER
+    two-handed: true
+    max-durability: 220
+    attack: 45
+    description: A long-hafted hammer with an iron head. It needs both hands and a strong back.
+
+  - id: 304
+    item-db-name: iron_axe
+    base-level: 10
+    weight: 150
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: AXE
+    max-durability: 180
+    attack: 28
+    description: A bearded axe made for battle rather than for firewood.
+
+  - id: 305
+    item-db-name: iron_greataxe
+    base-level: 18
+    weight: 300
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATAXE
+    two-handed: true
+    max-durability: 220
+    attack: 52
+    description: A broad two-handed axe. It swings slowly and ends arguments.
+
+  - id: 306
+    item-db-name: iron_greatsword
+    base-level: 18
+    weight: 260
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATSWORD
+    two-handed: true
+    max-durability: 240
+    attack: 50
+    description: A blade as long as a man's leg, held in both hands.
+
+  - id: 307
+    item-db-name: iron_spear
+    base-level: 10
+    weight: 140
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SPEAR
+    max-durability: 180
+    attack: 26
+    description: An ash shaft with a leaf-shaped iron head.
+
+  - id: 308
+    item-db-name: iron_halberd
+    base-level: 18
+    weight: 290
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: POLEARM
+    two-handed: true
+    max-durability: 220
+    attack: 48
+    description: An axe blade, a spike and a hook on one long pole.
+
+  - id: 309
+    item-db-name: oak_staff
+    base-level: 10
+    weight: 120
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: STAFF
+    two-handed: true
+    max-durability: 150
+    attack: 15
+    magic-attack: 30
+    description: A tall oak staff, worn smooth where the hands go.
+
+  - id: 310
+    item-db-name: apprentice_tome
+    base-level: 5
+    weight: 60
+    type: EQUIP
+    material: PAPER
+    equip-slot: LEFT_HAND
+    weapon-type: TOME
+    max-durability: 100
+    magic-attack: 15
+    description: A primer of the first spells, its margins full of someone else's notes.
+
+  - id: 311
+    item-db-name: leather_knuckles
+    base-level: 5
+    weight: 40
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: FIST
+    max-durability: 120
+    attack: 16
+    description: Stitched leather with iron studs over the knuckles.
+
+  - id: 312
+    item-db-name: leather_whip
+    base-level: 5
+    weight: 50
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: WHIP
+    max-durability: 120
+    attack: 15
+    description: A braided leather whip, quick and cruel.
+
+  - id: 313
+    item-db-name: wooden_lute
+    base-level: 5
+    weight: 90
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: INSTRUMENT
+    two-handed: true
+    max-durability: 100
+    attack: 8
+    magic-attack: 15
+    description: A round-bellied lute with gut strings. It needs both hands to play.
+
+  - id: 314
+    item-db-name: light_crossbow
+    base-level: 10
+    weight: 160
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: CROSSBOW
+    two-handed: true
+    ammo-type: BOLT
+    attack-range: 10
+    max-durability: 160
+    attack: 20
+    description: A light crossbow with a goat's-foot lever. Shoots bolts from the quiver.
+
+  - id: 315
+    item-db-name: iron_bolt
+    base-level: 1
+    weight: 1
+    type: AMMO
+    ammo-type: BOLT
+    element: NORMAL
+    material: METAL
+    attack: 6
+    description: A short, heavy crossbow bolt with an iron head.
+
+  - id: 316
+    item-db-name: leather_sling
+    base-level: 1
+    weight: 10
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: SLING
+    ammo-type: STONE
+    attack-range: 8
+    max-durability: 80
+    attack: 4
+    description: A strap and a pouch. Every master can use one, and every child can.
+
+  - id: 317
+    item-db-name: sling_stone
+    base-level: 1
+    weight: 2
+    type: AMMO
+    ammo-type: STONE
+    element: NORMAL
+    material: STONE
+    attack: 2
+    description: A smooth river stone the size of an egg.
+
+  # A thrown weapon is its own ammunition: each throw uses up one piece of the stack in hand.
+  - id: 318
+    item-db-name: javelin
+    base-level: 10
+    weight: 60
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: THROWN
+    stackable: true
+    max-durability: 0
+    attack: 24
+    description: A light spear made to be thrown. Each throw spends one.
+
+  - id: 319
+    item-db-name: iron_kite_shield
+    base-level: 12
+    weight: 200
+    type: EQUIP
+    material: METAL
+    equip-slot: LEFT_HAND
+    armor-type: MEDIUM
+    max-durability: 220
+    defense: 12
+    magic-defense: 4
+    description: A tall iron-rimmed shield, pointed at the bottom.
+
+  - id: 320
+    item-db-name: tower_shield
+    base-level: 20
+    weight: 400
+    type: EQUIP
+    material: METAL
+    equip-slot: LEFT_HAND
+    armor-type: HEAVY
+    max-durability: 300
+    defense: 20
+    magic-defense: 6
+    description: A door of riveted plate. Only a knight carries one for long.
+
+  - id: 321
+    item-db-name: leather_jerkin
+    base-level: 5
+    weight: 150
+    type: EQUIP
+    material: LEATHER
+    equip-slot: ARMOR
+    armor-type: LIGHT
+    max-durability: 160
+    defense: 8
+    magic-defense: 2
+    description: Boiled leather over a padded shirt. It creaks.
+
+  - id: 322
+    item-db-name: chain_mail
+    base-level: 12
+    weight: 400
+    type: EQUIP
+    material: METAL
+    equip-slot: ARMOR
+    armor-type: MEDIUM
+    max-durability: 240
+    defense: 14
+    magic-defense: 3
+    description: Riveted rings over a gambeson. Heavy, but it moves with you.

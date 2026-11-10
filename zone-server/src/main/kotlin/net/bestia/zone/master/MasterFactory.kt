@@ -332,14 +332,16 @@ class MasterFactory(
     )
 
     /**
-     * What a new master is created carrying, by `items.yml` identifier and amount. The torches and the bow are
-     * carried, not worn: the knife stays in hand until the player picks the bow.
+     * What a new master is created carrying, by `items.yml` identifier and amount. The torches and the other
+     * novice weapons are carried, not worn: the knife stays in hand until the player picks another way to fight.
      */
     private val STARTER_SUPPLIES = listOf(
       "novice_health_potion" to 20,
       "novice_mana_potion" to 10,
       "torch" to 5,
       "novice_bow" to 1,
+      "novice_sword" to 1,
+      "novice_rod" to 1,
       "arrow" to 100
     )
 
