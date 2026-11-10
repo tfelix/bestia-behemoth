@@ -663,3 +663,5 @@ SKILLS_RESET,Reset
 SKILLS_APPLY,Apply
 SKILLS_NOTHING_QUEUED,"Add points, then Apply to learn them."
 SKILLS_QUEUED,Points queued: %d
+STATION_WORKER_ANY_FREE_CRAFTER,Any free crafter
+STATION_PAUSE_NO_FREE_CRAFTER,Paused: waiting for a free crafter.

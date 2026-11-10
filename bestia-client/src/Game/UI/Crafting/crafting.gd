@@ -58,7 +58,11 @@ const _PAUSE_TEXTS := {
 	"bag_full": "Paused: the worker's bag is full.",
 	"station_out": "Paused: the fire is out.",
 	"cannot_craft": "Paused: the worker cannot make this.",
+	"no_free_crafter": "STATION_PAUSE_NO_FREE_CRAFTER",
 }
+
+## The worker picker's entry for any free crafter. Entity ids are positive and 0 is the master.
+const _ANY_FREE_CRAFTER := -1
 
 ## Assigned at runtime by Game/UI/ui.gd, for the same reason the Inventory <-> Equipment pair is: the Inventory
 ## node only exists once its WidgetWindow has instantiated its content, so no editor-wired NodePath can reach it.
@@ -481,8 +485,8 @@ func _on_station_state(msg: StationStateSMSG) -> void:
 	for index in msg.Entries.size():
 		_queue_rows.add_child(_queue_row(msg.Entries[index], index))
 
-	_fill_worker_picker(int(msg.WorkerEntityId))
-	_pause_label.text = _PAUSE_TEXTS.get(msg.PauseName, "")
+	_fill_worker_picker(_ANY_FREE_CRAFTER if msg.AnyFreeCrafter else int(msg.WorkerEntityId))
+	_pause_label.text = tr(_PAUSE_TEXTS.get(msg.PauseName, ""))
 	_progress_running = msg.PauseName == "none"
 	_held_label.text = _held_text(msg.Held)
 
@@ -537,13 +541,17 @@ func _on_cancel_pressed(index: int) -> void:
 		_awaiting_queue = true
 
 
-## The master and each of their bestias. A bestia keeps working while the master is logged out, so the picker is
-## how a player leaves a station running.
+## The master, any free crafter and each of their bestias. A bestia keeps working while the master is logged out, so
+## the picker is how a player leaves a station running.
 func _fill_worker_picker(worker_entity_id: int) -> void:
 	_worker_picker.clear()
 	var master_name := ConnectionManager.selected_master_info.Name if ConnectionManager.selected_master_info else "You"
 	_worker_picker.add_item(master_name)
 	_worker_picker.set_item_metadata(0, 0)
+	_worker_picker.add_item(tr("STATION_WORKER_ANY_FREE_CRAFTER"))
+	_worker_picker.set_item_metadata(1, _ANY_FREE_CRAFTER)
+	if worker_entity_id == _ANY_FREE_CRAFTER:
+		_worker_picker.select(1)
 
 	var entities := EntityManager.get_instance()
 	for bestia in entities.get_owned_bestias() if entities else []:
@@ -558,8 +566,14 @@ func _fill_worker_picker(worker_entity_id: int) -> void:
 
 
 func _on_worker_selected(index: int) -> void:
-	if ConnectionManager.is_ready_to_send():
-		ConnectionManager.set_station_worker(_structure_id, int(_worker_picker.get_item_metadata(index)))
+	if not ConnectionManager.is_ready_to_send():
+		return
+
+	var worker_entity_id := int(_worker_picker.get_item_metadata(index))
+	if worker_entity_id == _ANY_FREE_CRAFTER:
+		ConnectionManager.set_station_any_free_crafter(_structure_id)
+	else:
+		ConnectionManager.set_station_worker(_structure_id, worker_entity_id)
 
 
 func _held_text(held: Dictionary) -> String:
