@@ -85,6 +85,7 @@ var inventory = null
 @onready var _queue_rows: VBoxContainer = %QueueRows
 @onready var _pause_label: Label = %PauseLabel
 @onready var _held_label: Label = %HeldLabel
+@onready var _worker_picker: OptionButton = %WorkerPicker
 @onready var _status: Label = %Status
 
 ## Skill id -> its recipes, in the order the server listed them.
@@ -126,6 +127,7 @@ func _ready() -> void:
 	_discover_button.pressed.connect(_show_discovery)
 	%BackButton.pressed.connect(_show_recipes)
 	_add_wood_button.pressed.connect(_on_add_wood_pressed)
+	_worker_picker.item_selected.connect(_on_worker_selected)
 
 	_emphasize(_discover_button)
 
@@ -479,6 +481,7 @@ func _on_station_state(msg: StationStateSMSG) -> void:
 	for index in msg.Entries.size():
 		_queue_rows.add_child(_queue_row(msg.Entries[index], index))
 
+	_fill_worker_picker(int(msg.WorkerEntityId))
 	_pause_label.text = _PAUSE_TEXTS.get(msg.PauseName, "")
 	_progress_running = msg.PauseName == "none"
 	_held_label.text = _held_text(msg.Held)
@@ -532,6 +535,31 @@ func _on_cancel_pressed(index: int) -> void:
 	if ConnectionManager.is_ready_to_send():
 		ConnectionManager.cancel_queue_entry(_structure_id, index)
 		_awaiting_queue = true
+
+
+## The master and each of their bestias. A bestia keeps working while the master is logged out, so the picker is
+## how a player leaves a station running.
+func _fill_worker_picker(worker_entity_id: int) -> void:
+	_worker_picker.clear()
+	var master_name := ConnectionManager.selected_master_info.Name if ConnectionManager.selected_master_info else "You"
+	_worker_picker.add_item(master_name)
+	_worker_picker.set_item_metadata(0, 0)
+
+	var entities := EntityManager.get_instance()
+	for bestia in entities.get_owned_bestias() if entities else []:
+		_worker_picker.add_item(OwnedSlots.name_of(bestia))
+		var index := _worker_picker.item_count - 1
+		_worker_picker.set_item_metadata(index, int(bestia.EntityId))
+		if int(bestia.EntityId) == worker_entity_id:
+			_worker_picker.select(index)
+
+	if worker_entity_id == 0:
+		_worker_picker.select(0)
+
+
+func _on_worker_selected(index: int) -> void:
+	if ConnectionManager.is_ready_to_send():
+		ConnectionManager.set_station_worker(_structure_id, int(_worker_picker.get_item_metadata(index)))
 
 
 func _held_text(held: Dictionary) -> String:
