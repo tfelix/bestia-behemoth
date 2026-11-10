@@ -26,9 +26,6 @@ class RecordingSkillWorld(
   private val stations: MutableMap<StaticEntityKind, EntityId> = mutableMapOf(),
   private val entitiesNearby: Set<EntityId> = emptySet(),
 
-  /** What [placeStation] answers - false models ground that already holds one. */
-  var stationPlacementSucceeds: Boolean = true,
-
   /** What [consumeCasterMana] answers - false models a caster who cannot pay. */
   var manaAvailable: Boolean = true,
 
@@ -36,7 +33,6 @@ class RecordingSkillWorld(
 ) : SkillWorld {
 
   val spawnedAreaEffects = mutableListOf<SpawnedAreaEffect>()
-  val placedStations = mutableListOf<PlacedStation>()
   val appliedDamage = mutableListOf<Pair<EntityId, Damage>>()
   val appliedEffects = mutableListOf<AppliedEffect>()
   val recipeOffers = mutableListOf<Long>()
@@ -228,12 +224,6 @@ class RecordingSkillWorld(
     droppedItems += DroppedItem(itemId, amount, at)
   }
 
-  override fun placeStation(kind: StaticEntityKind, masterId: Long, at: Vec3L, yaw: Float): Boolean {
-    placedStations += PlacedStation(kind, masterId, at)
-
-    return stationPlacementSucceeds
-  }
-
   override fun apply(targetEntityId: EntityId, damage: Damage) {
     appliedDamage += targetEntityId to damage
   }
@@ -283,8 +273,6 @@ class RecordingSkillWorld(
   }
 
   data class SpawnedAreaEffect(val centre: Vec3L, val visualId: Long, val effect: AreaEffect)
-
-  data class PlacedStation(val kind: StaticEntityKind, val masterId: Long, val at: Vec3L)
 
   data class AppliedEffect(val targetEntityId: EntityId, val effectId: Long, val level: Int, val amount: Int = 0)
 

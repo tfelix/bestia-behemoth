@@ -2,7 +2,6 @@ package net.bestia.zone.casting.scripts
 
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.casting.CraftingSkillStrategy
-import net.bestia.zone.entity.StaticEntityKind
 import org.springframework.stereotype.Component
 
 /**
@@ -16,5 +15,4 @@ import org.springframework.stereotype.Component
  * Nothing can fill a slot yet: runes are Artificer work (`RUNIC_ETCHING`) and that sub-tree is not built.
  */
 @Component
-class ItemCustomization(losService: LineOfSightService) :
-  CraftingSkillStrategy(losService, StaticEntityKind.WORKBENCH)
+class ItemCustomization(losService: LineOfSightService) : CraftingSkillStrategy(losService)

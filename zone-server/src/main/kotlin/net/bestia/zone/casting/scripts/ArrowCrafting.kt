@@ -6,4 +6,4 @@ import org.springframework.stereotype.Component
 
 /** Arrow Crafting: a Hunter makes arrows in the wild, so like Cooking it needs no station. */
 @Component
-class ArrowCrafting(losService: LineOfSightService) : CraftingSkillStrategy(losService, station = null)
+class ArrowCrafting(losService: LineOfSightService) : CraftingSkillStrategy(losService)

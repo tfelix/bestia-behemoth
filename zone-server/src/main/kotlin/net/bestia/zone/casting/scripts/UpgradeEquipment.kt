@@ -16,4 +16,4 @@ import org.springframework.stereotype.Component
  * not: unbounded is not a design when every equip script scales off the number.
  */
 @Component
-class UpgradeEquipment(losService: LineOfSightService) : CraftingSkillStrategy(losService, station = null)
+class UpgradeEquipment(losService: LineOfSightService) : CraftingSkillStrategy(losService)
