@@ -552,3 +552,10 @@ statusEffects:
     isSyncedToClient: true
     dispellable: false
     script: RitualFatigue
+
+  - id: 202
+    identifier: SPRINTING
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Sprinting
