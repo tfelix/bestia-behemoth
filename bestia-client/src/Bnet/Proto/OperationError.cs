@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSr3JAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqNJgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -130,9 +130,12 @@ namespace Bnet {
             "T19GQVIQmQESFQoQRklTSElOR19HT1RfQVdBWRCaARITCg5ESUdfTkVFRFNf",
             "VE9PTBDMAhIWChFESUdfTkVFRFNfUElDS0FYRRDNAhIVChBESUdfTkVFRFNf",
             "U0hPVkVMEM4CEhAKC0RJR19UT09fRkFSEM8CEhYKEURJR19OT1RISU5HX0ZP",
-            "VU5EENACEiAKG1RSRUFTVVJFX01BUF9OT1RISU5HX1NFTlNFRBDRAiIECC4Q",
-            "LioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90",
-            "b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
+            "VU5EENACEiAKG1RSRUFTVVJFX01BUF9OT1RISU5HX1NFTlNFRBDRAhIaChVC",
+            "UkVFRElOR19OT1RfUE9TU0lCTEUQ2gESGgoVQlJFRURJTkdfTkVFRFNfQlVO",
+            "RExFENsBEiAKG0JSRUVESU5HX1BBSVJfQ0FOTk9UX1RSQVZFTBDcARIbChZC",
+            "UkVFRElOR19DTFVUQ0hfRkFJTEVEEN0BEh0KGEJSRUVESU5HX05PX1JPT01f",
+            "Rk9SX0VHRxDeASIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5i",
+            "ZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -816,6 +819,26 @@ namespace Bnet {
     /// Treasure Map found no cache the caster sensed in the last ten minutes. The player casts Treasure Sense first.
     /// </summary>
     [pbr::OriginalName("TREASURE_MAP_NOTHING_SENSED")] TreasureMapNothingSensed = 337,
+    /// <summary>
+    /// A Breeding Farm cannot start a clutch the client should not have offered: wrong pair, busy farm, not the owner.
+    /// </summary>
+    [pbr::OriginalName("BREEDING_NOT_POSSIBLE")] BreedingNotPossible = 218,
+    /// <summary>
+    /// Every clutch needs a Nesting Bundle. The player makes or buys one.
+    /// </summary>
+    [pbr::OriginalName("BREEDING_NEEDS_BUNDLE")] BreedingNeedsBundle = 219,
+    /// <summary>
+    /// A parent cannot walk to the farm, for example from deep water. The player brings it closer.
+    /// </summary>
+    [pbr::OriginalName("BREEDING_PAIR_CANNOT_TRAVEL")] BreedingPairCannotTravel = 220,
+    /// <summary>
+    /// A parent left, was sent off or died before the egg was laid; the clutch and its bundle are lost.
+    /// </summary>
+    [pbr::OriginalName("BREEDING_CLUTCH_FAILED")] BreedingClutchFailed = 221,
+    /// <summary>
+    /// The egg does not fit in the master's bag. The player makes room.
+    /// </summary>
+    [pbr::OriginalName("BREEDING_NO_ROOM_FOR_EGG")] BreedingNoRoomForEgg = 222,
   }
 
   #endregion

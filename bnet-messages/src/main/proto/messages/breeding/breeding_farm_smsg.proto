@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/breeding/bestia_egg.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BreedingFarmSmsgProto";
+
+enum BreedingFarmPhase {
+  BREEDING_FARM_PHASE_IDLE = 0;
+  // The pair walks to the farm. The bundle is held, not used yet.
+  BREEDING_FARM_PHASE_GATHERING = 1;
+  BREEDING_FARM_PHASE_BREEDING = 2;
+  // The timer ended and the egg is being rolled.
+  BREEDING_FARM_PHASE_LAYING = 3;
+  BREEDING_FARM_PHASE_EGG_READY = 4;
+}
+
+// A Breeding Farm as its owner sees it. Sent when the owner clicks it and on every change while they are online.
+message BreedingFarmSMSG {
+  fixed64 structure_id = 1;
+  BreedingFarmPhase phase = 2;
+  // 0 when the farm has no pair.
+  fixed64 mother_entity_id = 3;
+  fixed64 father_entity_id = 4;
+  bool has_bundle = 5;
+  // While breeding: time left and the whole clutch; before it, the clutch the pair will need.
+  uint64 remaining_ms = 6;
+  uint64 total_ms = 7;
+  // Only in BREEDING_FARM_PHASE_EGG_READY.
+  BestiaEgg egg = 8;
+}

@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "InspectEggCmsgProto";
+
+// Asks what an egg item in the master's bag holds. Answered by a BestiaEggSMSG.
+message InspectEggCMSG {
+  fixed64 unique_id = 1;
+}

@@ -6,6 +6,7 @@ import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.skill.Casting
 import net.bestia.zone.battle.ecs.skill.Crafting
 import net.bestia.zone.battle.ecs.status.InCombat
+import net.bestia.zone.breeding.ecs.BreedingFarmSystem
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
@@ -31,8 +32,8 @@ import org.springframework.stereotype.Component as SpringComponent
 class WorldStateSampler(private val registry: MeterRegistry) : System {
   override val phase = Phase.UPKEEP
 
-  /** Both read status effects, and honor marks change them; samples the tick as it was. */
-  override val before = setOf(HonorStandingSystem::class)
+  /** Honor marks change status effects and breeding pairs set out on paths; samples the tick as it was. */
+  override val before = setOf(HonorStandingSystem::class, BreedingFarmSystem::class)
 
   override val schedule: Schedule = Schedule.EverySeconds(SAMPLE_SECONDS)
 

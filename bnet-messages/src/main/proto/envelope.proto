@@ -187,6 +187,12 @@ import "messages/system/conversation_smsg.proto";
 import "messages/system/conversation_choice_cmsg.proto";
 import "messages/fishing/cast_line_cmsg.proto";
 import "messages/fishing/strike_line_cmsg.proto";
+import "messages/breeding/start_breeding_cmsg.proto";
+import "messages/breeding/release_breeding_pair_cmsg.proto";
+import "messages/breeding/take_egg_cmsg.proto";
+import "messages/breeding/inspect_egg_cmsg.proto";
+import "messages/breeding/breeding_farm_smsg.proto";
+import "messages/breeding/bestia_egg_smsg.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EnvelopeProto";
@@ -434,6 +440,14 @@ message Envelope {
     // FISHING 920
     CastLineCMSG cast_line = 920;
     StrikeLineCMSG strike_line = 921;
+
+    // BREEDING 930
+    StartBreedingCMSG start_breeding = 930;
+    ReleaseBreedingPairCMSG release_breeding_pair = 931;
+    TakeEggCMSG take_egg = 932;
+    InspectEggCMSG inspect_egg = 933;
+    BreedingFarmSMSG breeding_farm = 934;
+    BestiaEggSMSG bestia_egg = 935;
 
     // MISC
   }
