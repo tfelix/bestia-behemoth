@@ -127,7 +127,10 @@ enum class StaticEntityKind {
   RESIN,
 
   // A ring of Mana Concentrate with a focus stone, where a group holds a ritual. Used up when the ritual ends.
-  MANA_CIRCLE;
+  MANA_CIRCLE,
+
+  // A player's storage: holds items rather than working them. See `ChestKitScript`.
+  CHEST;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.
