@@ -18,25 +18,32 @@ class FirstAidTest {
   private val sut = FirstAid(LineOfSightService())
 
   @Test
-  fun `heals a share of the target's own pool once that beats the flat floor`() {
-    // 30% of 2000 is 600, well past the Lv.1 floor of 100.
-    val healed = sut.execute(ctx(skillLevel = 1, targetMaxHealth = 2000))
+  fun `heals a share of a small pool`() {
+    // 30% of 200 is 60, below the Lv.1 cap of 100.
+    val healed = sut.execute(ctx(skillLevel = 1, targetMaxHealth = 200))
 
     assertTrue(healed is Heal)
-    assertEquals(600, healed!!.amount)
+    assertEquals(60, healed!!.amount)
   }
 
   @Test
-  fun `falls back to the flat amount for a target with a small pool`() {
-    // 30% of 100 is 30, so the Lv.1 floor of 100 is what a young bestia actually gets.
-    assertEquals(100, healedBy(skillLevel = 1, targetMaxHealth = 100))
+  fun `the flat amount caps the heal on a large pool`() {
+    // 30% of 2000 is 600, so the Lv.1 cap of 100 is what a big bestia gets.
+    assertEquals(100, healedBy(skillLevel = 1, targetMaxHealth = 2000))
   }
 
   @Test
   fun `each rank heals more than the last`() {
     val amounts = (1..3).map { healedBy(skillLevel = it, targetMaxHealth = 2000) }
 
-    assertEquals(listOf(600, 1200, 2000), amounts)
+    assertEquals(listOf(100, 200, 350), amounts)
+  }
+
+  @Test
+  fun `each rank costs more mana`() {
+    val skill = ctx(skillLevel = 1, targetMaxHealth = 2000).skill
+
+    assertEquals(listOf(12, 16, 20), (1..3).map { sut.costOf(skill, it).manaCost })
   }
 
   @Test
@@ -83,7 +90,7 @@ class FirstAidTest {
     assertTrue(sut.isCastPossible(first))
     assertTrue(sut.isCastPossible(second), "neither caster can see the other's mark yet")
 
-    assertEquals(600, sut.execute(first)?.amount)
+    assertEquals(100, sut.execute(first)?.amount)
     assertNull(sut.execute(second), "the healer that lost the claim must heal nothing")
     assertEquals(1, world.appliedEffects.size, "the cooldown is claimed once, not twice")
   }
