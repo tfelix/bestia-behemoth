@@ -62,6 +62,8 @@ signal crafting_win_toggled
 func _ready() -> void:
 	add_to_group("world_blocking_ui")
 	_name_hotkeys_in_tooltips()
+	# Hovering a bestia's name shows its individual values.
+	_master_name.mouse_filter = Control.MOUSE_FILTER_PASS
 	ConnectionManager.connect("entity_received", _on_entity_received)
 	_master_info = ConnectionManager.selected_master_info
 
@@ -112,6 +114,7 @@ func _clear_bar(bar: Range, value_label: Label) -> void:
 
 func _show_master_identity() -> void:
 	_profile_portrait.show_master()
+	_master_name.tooltip_text = ""
 	if _master_info == null:
 		return
 	_master_name.text = _master_info.Name
@@ -120,7 +123,8 @@ func _show_master_identity() -> void:
 
 func _show_bestia_identity(bestia: BestiaInfo) -> void:
 	_profile_portrait.show_bestia(bestia.MobId)
-	_master_name.text = OwnedSlots.name_of(bestia)
+	_master_name.text = OwnedSlots.title_of(bestia)
+	_master_name.tooltip_text = BreedingText.iv_lines(bestia.Ivs)
 	_update_level(bestia.Level)
 
 

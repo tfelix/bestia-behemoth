@@ -23,6 +23,13 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     [Export]
     public Vector3 Position { get; set; }
 
+    /// <summary>The <c>BestiaSex</c> ordinal: 0 unknown, 1 male, 2 female.</summary>
+    [Export]
+    public int Sex { get; set; }
+
+    [Export]
+    public IvReadingInfo Ivs { get; set; } = new();
+
     /// <summary>
     /// Creates a BestiaInfo message from protobuf data
     /// </summary>
@@ -35,7 +42,9 @@ namespace BestiaBehemothClient.Bnet.Message.Master
         EntityId = protoBestiaInfo.EntityId,
         MobId = protoBestiaInfo.MobId,
         Name = protoBestiaInfo.Name,
-        Level = protoBestiaInfo.Level
+        Level = protoBestiaInfo.Level,
+        Sex = (int)protoBestiaInfo.Sex,
+        Ivs = IvReadingInfo.FromProto(protoBestiaInfo.Ivs)
       };
 
       // Convert Vec3 to Godot Vector3 with null check (swap Y and Z: server z-up to Godot y-up)

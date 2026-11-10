@@ -45,6 +45,8 @@
 [ext_resource type="Script" path="res://Game/UI/Sense/monster_sense_popup.gd" id="45_sensepopup"]
 [ext_resource type="PackedScene" path="res://Game/UI/Settlement/CitySign.tscn" id="43_citysign"]
 [ext_resource type="PackedScene" path="res://Game/UI/Auction/WonBought.tscn" id="44_wonbought"]
+[ext_resource type="PackedScene" path="res://Game/UI/Breeding/BreedingFarmPanel.tscn" id="43_farm"]
+[ext_resource type="PackedScene" path="res://Game/UI/Breeding/IncubatorPanel.tscn" id="44_incubator"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -210,6 +212,17 @@ visible = false
 layout_mode = 1
 content = ExtResource("44_wonbought")
 window_title = "Won & Bought"
+[node name="BreedingFarmWin" parent="." instance=ExtResource("8_wdgtw")]
+visible = false
+layout_mode = 1
+content = ExtResource("43_farm")
+window_title = "Breeding Farm"
+
+[node name="IncubatorWin" parent="." instance=ExtResource("8_wdgtw")]
+visible = false
+layout_mode = 1
+content = ExtResource("44_incubator")
+window_title = "Incubator"
 
 [node name="Invitations" parent="." instance=ExtResource("31_invites")]
 layout_mode = 1

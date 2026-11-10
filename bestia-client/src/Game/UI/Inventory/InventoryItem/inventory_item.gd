@@ -9,6 +9,9 @@ signal dragged_out()
 ## whether an exchange is open at all.
 signal move_requested(amount: int)
 
+## The bestia egg, whose tooltip also says what it hatches into. Must match items.yml.
+const _BESTIA_EGG_ITEM_ID := 129
+
 @export var item: ItemResource
 @export var amount: int
 
@@ -82,6 +85,23 @@ func _ready() -> void:
 	)
 	if _is_shopping():
 		_show_trade_price()
+	if item.item_id == _BESTIA_EGG_ITEM_ID and unique_id != 0:
+		mouse_entered.connect(_inspect_egg, CONNECT_ONE_SHOT)
+
+
+## Asked on the first hover only: what an egg holds is on the server, and most eggs are never looked at.
+func _inspect_egg() -> void:
+	if not ConnectionManager.is_ready_to_send():
+		return
+	ConnectionManager.bestia_egg_received.connect(_on_egg_read)
+	ConnectionManager.inspect_egg(unique_id)
+
+
+func _on_egg_read(message: BestiaEggSMSG) -> void:
+	if message.Egg == null or message.Egg.UniqueId != unique_id:
+		return
+	ConnectionManager.bestia_egg_received.disconnect(_on_egg_read)
+	tooltip_text += "\n\n" + BreedingText.egg_detail(message.Egg)
 
 
 func _is_shopping() -> bool:

@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Breeding/incubator_panel.gd" id="1_panel"]
+
+[node name="IncubatorPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(360, 300)
+offset_right = 360.0
+offset_bottom = 300.0
+script = ExtResource("1_panel")

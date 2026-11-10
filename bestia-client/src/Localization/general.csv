@@ -818,3 +818,37 @@ ERROR_TRADE_AGREEMENT_NEEDS_HOUSE,You need an auction house of your own for a Tr
 ERROR_TRADE_AGREEMENT_LIMIT,You have as many Trade Agreements as your skill level allows.
 ERROR_TRADE_AGREEMENT_TARGET_INVALID,"That master owns no auction house, does not know Trade Agreement, has no free agreement, or is linked already."
 ERROR_PICKUP_OUT_OF_RANGE,Stand at the auction house the goods wait at.
+IV_TITLE,Individual values
+IV_STAT_0,STR
+IV_STAT_1,INT
+IV_STAT_2,VIT
+IV_STAT_3,DEX
+IV_STAT_4,WIL
+IV_STAT_5,AGI
+IV_STAT_6,HP
+IV_STAT_7,Mana
+IV_STAT_8,Stamina
+IV_GRADE_0,Poor
+IV_GRADE_1,Fair
+IV_GRADE_2,Good
+IV_GRADE_3,Great
+IV_GRADE_4,Excellent
+IV_GRADE_5,Perfect
+BESTIA_EGG_PROGRESS,Hatched: %d%%
+BREEDING_FARM_PHASE_0,No clutch. Pick a female and a male of the same species.
+BREEDING_FARM_PHASE_1,The pair is walking to the farm.
+BREEDING_FARM_PHASE_2,The pair is breeding.
+BREEDING_FARM_PHASE_3,The egg is being laid.
+BREEDING_FARM_PHASE_4,An egg is ready. Take it to an Incubator.
+BREEDING_FARM_NEEDS_BUNDLE,Each clutch uses one Nesting Bundle from your bag. Both parents must be Lv. 10 or higher.
+BREEDING_FARM_MOTHER,Female
+BREEDING_FARM_FATHER,Male
+BREEDING_FARM_START,Breed
+BREEDING_FARM_RELEASE,Release pair
+BREEDING_TAKE_EGG,Take egg
+INCUBATOR_EMPTY,The incubator is empty.
+INCUBATOR_PLACE_EGG,Put in egg
+INCUBATOR_NO_EGGS,You carry no bestia egg.
+INCUBATOR_WAITING_FOR_SLOT,The egg is ready. Free a bestia slot and it hatches.
+SUCCESS_BREEDING_EGG_LAID,Your Breeding Farm laid an egg.
+SUCCESS_BESTIA_HATCHED,An egg hatched. Your new bestia waits next to the Incubator.

@@ -82,6 +82,11 @@ signal post_office_opened(message: PostOfficeOpenSMSG)
 ## The parcels to the played master, as seen from the post office the window is open at.
 signal parcels_received(message: ParcelsSMSG)
 signal parcel_quote_received(message: ParcelQuoteSMSG)
+## A Breeding Farm or Incubator of the played master, when clicked and on every change.
+signal breeding_farm_received(message: BreedingFarmSMSG)
+signal incubator_received(message: IncubatorSMSG)
+## What an egg in the bag holds, the answer to [method inspect_egg].
+signal bestia_egg_received(message: BestiaEggSMSG)
 signal parcel_sent(message: ParcelSentSMSG)
 ## A pigeon says a parcel waits at an office.
 signal parcel_arrived(message: ParcelArrivedSMSG)
@@ -202,6 +207,11 @@ var QuoteParcelCMSG = load("res://Bnet/Message/Postal/QuoteParcelCMSG.cs")
 var SendParcelCMSG = load("res://Bnet/Message/Postal/SendParcelCMSG.cs")
 var CollectParcelCMSG = load("res://Bnet/Message/Postal/CollectParcelCMSG.cs")
 var RefuseParcelCMSG = load("res://Bnet/Message/Postal/RefuseParcelCMSG.cs")
+var StartBreedingCMSG = load("res://Bnet/Message/Breeding/StartBreedingCMSG.cs")
+var ReleaseBreedingPairCMSG = load("res://Bnet/Message/Breeding/ReleaseBreedingPairCMSG.cs")
+var TakeEggCMSG = load("res://Bnet/Message/Breeding/TakeEggCMSG.cs")
+var PlaceEggCMSG = load("res://Bnet/Message/Breeding/PlaceEggCMSG.cs")
+var InspectEggCMSG = load("res://Bnet/Message/Breeding/InspectEggCMSG.cs")
 var TakeParcelsCMSG = load("res://Bnet/Message/Postal/TakeParcelsCMSG.cs")
 var RequestPartyInfoCMSG = load("res://Bnet/Message/Party/RequestPartyInfoCMSG.cs")
 var CreatePartyCMSG = load("res://Bnet/Message/Party/CreatePartyCMSG.cs")
@@ -1188,6 +1198,48 @@ func set_home_post_office(postmaster_entity_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Sends the pair to the farm with one Nesting Bundle. Answered by a BreedingFarmSMSG, or an OperationError.
+func start_breeding(structure_id: int, mother_entity_id: int, father_entity_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = StartBreedingCMSG.new()
+	msg.StructureId = structure_id
+	msg.MotherEntityId = mother_entity_id
+	msg.FatherEntityId = father_entity_id
+	_socket.SendMessage(msg)
+
+
+func release_breeding_pair(structure_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = ReleaseBreedingPairCMSG.new()
+	msg.StructureId = structure_id
+	_socket.SendMessage(msg)
+
+
+## From a Breeding Farm or an Incubator, whichever [param structure_id] is.
+func take_egg(structure_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = TakeEggCMSG.new()
+	msg.StructureId = structure_id
+	_socket.SendMessage(msg)
+
+
+## [param unique_id] is the egg item's instance id.
+func place_egg(structure_id: int, unique_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = PlaceEggCMSG.new()
+	msg.StructureId = structure_id
+	msg.UniqueId = unique_id
+	_socket.SendMessage(msg)
+
+
+## Answered by a BestiaEggSMSG.
+func inspect_egg(unique_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = InspectEggCMSG.new()
+	msg.UniqueId = unique_id
+	_socket.SendMessage(msg)
+
+
 ## Weighs a parcel. Answered by a ParcelQuoteSMSG, or an OperationError when it cannot go.
 func quote_parcel(postmaster_entity_id: int, recipient_name: String, player_item_ids: Array[int], amounts: Array[int]) -> void:
 	assert(is_ready_to_send())
@@ -1660,6 +1712,12 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		parcel_arrived.emit(message)
 	elif message is RouteBoardSMSG:
 		route_board_received.emit(message)
+	elif message is BreedingFarmSMSG:
+		breeding_farm_received.emit(message)
+	elif message is IncubatorSMSG:
+		incubator_received.emit(message)
+	elif message is BestiaEggSMSG:
+		bestia_egg_received.emit(message)
 	elif message is PartySMSG:
 		party_message_received.emit(message)
 	elif message is GuildSMSG:
