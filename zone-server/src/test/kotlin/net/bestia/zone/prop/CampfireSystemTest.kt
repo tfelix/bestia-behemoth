@@ -30,6 +30,7 @@ class CampfireSystemTest {
     source = source,
     residency = residency,
     worldService = mockk<WorldService> { every { config.chunkSize } returns 32 },
+    stations = mockk(relaxed = true),
     clock = Clock.fixed(now, ZoneOffset.UTC)
   )
 

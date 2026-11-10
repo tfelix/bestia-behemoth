@@ -49,6 +49,7 @@
  - RECOVERY wave 28: ManaRegenSystem [EverySeconds(seconds=8.0)]
  - RECOVERY wave 28: StaminaRegenSystem [EverySeconds(seconds=10.0)]
  - ITEMS wave 29: GainExpSystem [EveryTick]
+ - ITEMS wave 29: StationWorkSystem [EveryTick]
  - ITEMS wave 29: WornGearSystem [EveryTick]
  - ITEMS wave 30: ObtainItemIntentSystem [EveryTick]
  - ITEMS wave 31: CarryCapacitySystem [EveryTick]

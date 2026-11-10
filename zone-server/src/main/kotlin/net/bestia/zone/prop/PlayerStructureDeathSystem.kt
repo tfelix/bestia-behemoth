@@ -32,7 +32,8 @@ import net.bestia.zone.battle.ecs.damage.PlayerDeathSystem
 class PlayerStructureDeathSystem(
   private val structures: PlayerStructureRegistry,
   private val worldService: WorldService,
-  private val collision: StructureCollision
+  private val collision: StructureCollision,
+  private val stations: StationSpill,
 ) : System {
   override val phase = Phase.DEATH
   override val before = setOf(PlayerDeathSystem::class)
@@ -55,6 +56,8 @@ class PlayerStructureDeathSystem(
         LOG.warn { "Player structure ${identity.structureId} died with no position; its row is left behind" }
         return@each
       }
+
+      structures.of(identity.structureId)?.let { stations.spill(world, it, position) }
 
       val chunkSize = worldService.config.chunkSize.toLong()
       structures.remove(
