@@ -136,6 +136,7 @@ import "messages/settlement/offer_settlement_cmsg.proto";
 import "messages/settlement/settlement_offer_smsg.proto";
 import "messages/settlement/answer_settlement_offer_cmsg.proto";
 import "messages/settlement/settlement_notice_smsg.proto";
+import "messages/settlement/repair_structure_cmsg.proto";
 import "messages/postal/send_letter_cmsg.proto";
 import "messages/postal/letter_sent_smsg.proto";
 import "messages/postal/request_letters_cmsg.proto";
@@ -396,6 +397,7 @@ message Envelope {
     SettlementOfferSMSG settlement_offer = 955;
     AnswerSettlementOfferCMSG answer_settlement_offer = 956;
     SettlementNoticeSMSG settlement_notice = 957;
+    RepairStructureCMSG repair_structure = 958;
 
     // MISC
   }
