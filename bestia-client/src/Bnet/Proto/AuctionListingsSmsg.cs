@@ -28,20 +28,22 @@ namespace Bnet {
             "bxIEYm5ldBoobWVzc2FnZXMvY29tcG9uZW50L2l0ZW1fc3RhdF92YWx1ZS5w",
             "cm90byJtChNBdWN0aW9uTGlzdGluZ3NTTVNHEgwKBHBhZ2UYASABKAUSEgoK",
             "cGFnZV9jb3VudBgCIAEoBRIMCgRtaW5lGAMgASgIEiYKCGxpc3RpbmdzGAQg",
-            "AygLMhQuYm5ldC5BdWN0aW9uTGlzdGluZyKvAgoOQXVjdGlvbkxpc3RpbmcS",
+            "AygLMhQuYm5ldC5BdWN0aW9uTGlzdGluZyKPAwoOQXVjdGlvbkxpc3RpbmcS",
             "EgoKbGlzdGluZ19pZBgBIAEoBBIPCgdpdGVtX2lkGAIgASgEEg4KBmFtb3Vu",
             "dBgDIAEoBRINCgVwcmljZRgEIAEoAxITCgtzZWxsZXJfbmFtZRgFIAEoCRIR",
             "Cgl0b3duX25hbWUYBiABKAkSIAoYZXhwaXJlc19hdF9lcG9jaF9zZWNvbmRz",
             "GAcgASgDEhIKCml0ZW1fbGV2ZWwYCCABKAUSFQoNdXBncmFkZV9sZXZlbBgJ",
             "IAEoBRISCgpkdXJhYmlsaXR5GAogASgFEhYKDm1heF9kdXJhYmlsaXR5GAsg",
             "ASgFEg0KBXNsb3RzGAwgASgFEikKDHJvbGxlZF9zdGF0cxgNIAMoCzITLmJu",
-            "ZXQuSXRlbVN0YXRWYWx1ZUIxChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGEF1",
-            "Y3Rpb25MaXN0aW5nc1Ntc2dQcm90b2IGcHJvdG8z"));
+            "ZXQuSXRlbVN0YXRWYWx1ZRISCgppc19hdWN0aW9uGA4gASgIEhMKC2N1cnJl",
+            "bnRfYmlkGA8gASgDEhQKDG5leHRfbWluX2JpZBgQIAEoAxIOCgZidXlvdXQY",
+            "ESABKAMSDwoHbGVhZGluZxgSIAEoCEIxChVuZXQuYmVzdGlhLmJuZXQucHJv",
+            "dG9CGEF1Y3Rpb25MaXN0aW5nc1Ntc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.AuctionListingsSMSG), global::Bnet.AuctionListingsSMSG.Parser, new[]{ "Page", "PageCount", "Mine", "Listings" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.AuctionListing), global::Bnet.AuctionListing.Parser, new[]{ "ListingId", "ItemId", "Amount", "Price", "SellerName", "TownName", "ExpiresAtEpochSeconds", "ItemLevel", "UpgradeLevel", "Durability", "MaxDurability", "Slots", "RolledStats" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.AuctionListing), global::Bnet.AuctionListing.Parser, new[]{ "ListingId", "ItemId", "Amount", "Price", "SellerName", "TownName", "ExpiresAtEpochSeconds", "ItemLevel", "UpgradeLevel", "Durability", "MaxDurability", "Slots", "RolledStats", "IsAuction", "CurrentBid", "NextMinBid", "Buyout", "Leading" }, null, null, null, null)
           }));
     }
     #endregion
@@ -397,6 +399,11 @@ namespace Bnet {
       maxDurability_ = other.maxDurability_;
       slots_ = other.slots_;
       rolledStats_ = other.rolledStats_.Clone();
+      isAuction_ = other.isAuction_;
+      currentBid_ = other.currentBid_;
+      nextMinBid_ = other.nextMinBid_;
+      buyout_ = other.buyout_;
+      leading_ = other.leading_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -570,6 +577,81 @@ namespace Bnet {
       get { return rolledStats_; }
     }
 
+    /// <summary>Field number for the "is_auction" field.</summary>
+    public const int IsAuctionFieldNumber = 14;
+    private bool isAuction_;
+    /// <summary>
+    /// A timed auction rather than a fixed price; price is then its starting bid.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool IsAuction {
+      get { return isAuction_; }
+      set {
+        isAuction_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "current_bid" field.</summary>
+    public const int CurrentBidFieldNumber = 15;
+    private long currentBid_;
+    /// <summary>
+    /// The highest bid so far; 0 before the first.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long CurrentBid {
+      get { return currentBid_; }
+      set {
+        currentBid_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "next_min_bid" field.</summary>
+    public const int NextMinBidFieldNumber = 16;
+    private long nextMinBid_;
+    /// <summary>
+    /// The least the next bid may be.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long NextMinBid {
+      get { return nextMinBid_; }
+      set {
+        nextMinBid_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "buyout" field.</summary>
+    public const int BuyoutFieldNumber = 17;
+    private long buyout_;
+    /// <summary>
+    /// 0 for none.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long Buyout {
+      get { return buyout_; }
+      set {
+        buyout_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "leading" field.</summary>
+    public const int LeadingFieldNumber = 18;
+    private bool leading_;
+    /// <summary>
+    /// Whether the receiver holds the highest bid.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Leading {
+      get { return leading_; }
+      set {
+        leading_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -598,6 +680,11 @@ namespace Bnet {
       if (MaxDurability != other.MaxDurability) return false;
       if (Slots != other.Slots) return false;
       if(!rolledStats_.Equals(other.rolledStats_)) return false;
+      if (IsAuction != other.IsAuction) return false;
+      if (CurrentBid != other.CurrentBid) return false;
+      if (NextMinBid != other.NextMinBid) return false;
+      if (Buyout != other.Buyout) return false;
+      if (Leading != other.Leading) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -618,6 +705,11 @@ namespace Bnet {
       if (MaxDurability != 0) hash ^= MaxDurability.GetHashCode();
       if (Slots != 0) hash ^= Slots.GetHashCode();
       hash ^= rolledStats_.GetHashCode();
+      if (IsAuction != false) hash ^= IsAuction.GetHashCode();
+      if (CurrentBid != 0L) hash ^= CurrentBid.GetHashCode();
+      if (NextMinBid != 0L) hash ^= NextMinBid.GetHashCode();
+      if (Buyout != 0L) hash ^= Buyout.GetHashCode();
+      if (Leading != false) hash ^= Leading.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -685,6 +777,26 @@ namespace Bnet {
         output.WriteInt32(Slots);
       }
       rolledStats_.WriteTo(output, _repeated_rolledStats_codec);
+      if (IsAuction != false) {
+        output.WriteRawTag(112);
+        output.WriteBool(IsAuction);
+      }
+      if (CurrentBid != 0L) {
+        output.WriteRawTag(120);
+        output.WriteInt64(CurrentBid);
+      }
+      if (NextMinBid != 0L) {
+        output.WriteRawTag(128, 1);
+        output.WriteInt64(NextMinBid);
+      }
+      if (Buyout != 0L) {
+        output.WriteRawTag(136, 1);
+        output.WriteInt64(Buyout);
+      }
+      if (Leading != false) {
+        output.WriteRawTag(144, 1);
+        output.WriteBool(Leading);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -744,6 +856,26 @@ namespace Bnet {
         output.WriteInt32(Slots);
       }
       rolledStats_.WriteTo(ref output, _repeated_rolledStats_codec);
+      if (IsAuction != false) {
+        output.WriteRawTag(112);
+        output.WriteBool(IsAuction);
+      }
+      if (CurrentBid != 0L) {
+        output.WriteRawTag(120);
+        output.WriteInt64(CurrentBid);
+      }
+      if (NextMinBid != 0L) {
+        output.WriteRawTag(128, 1);
+        output.WriteInt64(NextMinBid);
+      }
+      if (Buyout != 0L) {
+        output.WriteRawTag(136, 1);
+        output.WriteInt64(Buyout);
+      }
+      if (Leading != false) {
+        output.WriteRawTag(144, 1);
+        output.WriteBool(Leading);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -791,6 +923,21 @@ namespace Bnet {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Slots);
       }
       size += rolledStats_.CalculateSize(_repeated_rolledStats_codec);
+      if (IsAuction != false) {
+        size += 1 + 1;
+      }
+      if (CurrentBid != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(CurrentBid);
+      }
+      if (NextMinBid != 0L) {
+        size += 2 + pb::CodedOutputStream.ComputeInt64Size(NextMinBid);
+      }
+      if (Buyout != 0L) {
+        size += 2 + pb::CodedOutputStream.ComputeInt64Size(Buyout);
+      }
+      if (Leading != false) {
+        size += 2 + 1;
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -840,6 +987,21 @@ namespace Bnet {
         Slots = other.Slots;
       }
       rolledStats_.Add(other.rolledStats_);
+      if (other.IsAuction != false) {
+        IsAuction = other.IsAuction;
+      }
+      if (other.CurrentBid != 0L) {
+        CurrentBid = other.CurrentBid;
+      }
+      if (other.NextMinBid != 0L) {
+        NextMinBid = other.NextMinBid;
+      }
+      if (other.Buyout != 0L) {
+        Buyout = other.Buyout;
+      }
+      if (other.Leading != false) {
+        Leading = other.Leading;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -911,6 +1073,26 @@ namespace Bnet {
             rolledStats_.AddEntriesFrom(input, _repeated_rolledStats_codec);
             break;
           }
+          case 112: {
+            IsAuction = input.ReadBool();
+            break;
+          }
+          case 120: {
+            CurrentBid = input.ReadInt64();
+            break;
+          }
+          case 128: {
+            NextMinBid = input.ReadInt64();
+            break;
+          }
+          case 136: {
+            Buyout = input.ReadInt64();
+            break;
+          }
+          case 144: {
+            Leading = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -980,6 +1162,26 @@ namespace Bnet {
           }
           case 106: {
             rolledStats_.AddEntriesFrom(ref input, _repeated_rolledStats_codec);
+            break;
+          }
+          case 112: {
+            IsAuction = input.ReadBool();
+            break;
+          }
+          case 120: {
+            CurrentBid = input.ReadInt64();
+            break;
+          }
+          case 128: {
+            NextMinBid = input.ReadInt64();
+            break;
+          }
+          case 136: {
+            Buyout = input.ReadInt64();
+            break;
+          }
+          case 144: {
+            Leading = input.ReadBool();
             break;
           }
         }

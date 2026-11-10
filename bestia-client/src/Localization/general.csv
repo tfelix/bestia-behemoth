@@ -772,3 +772,12 @@ ERROR_AUCTION_HOUSE_NOT_EMPTY,Listings are still up in this house.
 ERROR_TRADE_POST_NEEDS_KIT,You need an auction house kit.
 ERROR_TRADE_POST_LIMIT,You already run as many auction houses as your Trade Post Owner level allows.
 ERROR_TRADE_POST_NEEDS_POST_OFFICE,The town needs a working post office first.
+AUCTION_BID,Bid
+AUCTION_BID_NOTE,"Bid at least %s. The coin leaves your bag now, and comes back by post if somebody bids more."
+AUCTION_BID_BUYOUT,A bid of %s buys it at once.
+AUCTION_SELL_FIXED,Fixed price
+AUCTION_SELL_DAYS,Auction: %d days
+AUCTION_SELL_BUYOUT,Buyout
+AUCTION_SELL_BUYOUT_HINT,"For an auction: a bid of this much ends it at once. 0 for none."
+ERROR_AUCTION_BID_TOO_LOW,Somebody bid at least as much. Look at the new least bid.
+ERROR_AUCTION_HAS_BIDS,This auction has a bid and cannot be taken down.

@@ -25,14 +25,15 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci1tZXNzYWdlcy9hdWN0aW9uL2xpc3RfYXVjdGlvbl9pdGVtX2Ntc2cucHJv",
-            "dG8SBGJuZXQiZQoTTGlzdEF1Y3Rpb25JdGVtQ01TRxIXCg9ob3VzZV9lbnRp",
-            "dHlfaWQYASABKAQSFgoOcGxheWVyX2l0ZW1faWQYAiABKAQSDgoGYW1vdW50",
-            "GAMgASgFEg0KBXByaWNlGAQgASgDQjEKFW5ldC5iZXN0aWEuYm5ldC5wcm90",
-            "b0IYTGlzdEF1Y3Rpb25JdGVtQ21zZ1Byb3RvYgZwcm90bzM="));
+            "dG8SBGJuZXQijAEKE0xpc3RBdWN0aW9uSXRlbUNNU0cSFwoPaG91c2VfZW50",
+            "aXR5X2lkGAEgASgEEhYKDnBsYXllcl9pdGVtX2lkGAIgASgEEg4KBmFtb3Vu",
+            "dBgDIAEoBRINCgVwcmljZRgEIAEoAxIVCg1kdXJhdGlvbl9kYXlzGAUgASgF",
+            "Eg4KBmJ1eW91dBgGIAEoA0IxChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGExp",
+            "c3RBdWN0aW9uSXRlbUNtc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ListAuctionItemCMSG), global::Bnet.ListAuctionItemCMSG.Parser, new[]{ "HouseEntityId", "PlayerItemId", "Amount", "Price" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ListAuctionItemCMSG), global::Bnet.ListAuctionItemCMSG.Parser, new[]{ "HouseEntityId", "PlayerItemId", "Amount", "Price", "DurationDays", "Buyout" }, null, null, null, null)
           }));
     }
     #endregion
@@ -40,7 +41,8 @@ namespace Bnet {
   }
   #region Messages
   /// <summary>
-  /// Puts goods up at a fixed price. Answered by the seller's own listings, or by an OperationError.
+  /// Puts goods up at a fixed price, or as a timed auction. Answered by the seller's own listings, or by an
+  /// OperationError.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class ListAuctionItemCMSG : pb::IMessage<ListAuctionItemCMSG>
@@ -81,6 +83,8 @@ namespace Bnet {
       playerItemId_ = other.playerItemId_;
       amount_ = other.amount_;
       price_ = other.price_;
+      durationDays_ = other.durationDays_;
+      buyout_ = other.buyout_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -133,7 +137,7 @@ namespace Bnet {
     public const int PriceFieldNumber = 4;
     private long price_;
     /// <summary>
-    /// Coins for the whole lot.
+    /// Coins for the whole lot: the fixed price, or an auction's starting bid.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -141,6 +145,36 @@ namespace Bnet {
       get { return price_; }
       set {
         price_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "duration_days" field.</summary>
+    public const int DurationDaysFieldNumber = 5;
+    private int durationDays_;
+    /// <summary>
+    /// 0 for a fixed price; 1, 2 or 5 for an auction that runs that many days.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int DurationDays {
+      get { return durationDays_; }
+      set {
+        durationDays_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "buyout" field.</summary>
+    public const int BuyoutFieldNumber = 6;
+    private long buyout_;
+    /// <summary>
+    /// A bid of this much ends the auction at once. 0 for none.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long Buyout {
+      get { return buyout_; }
+      set {
+        buyout_ = value;
       }
     }
 
@@ -163,6 +197,8 @@ namespace Bnet {
       if (PlayerItemId != other.PlayerItemId) return false;
       if (Amount != other.Amount) return false;
       if (Price != other.Price) return false;
+      if (DurationDays != other.DurationDays) return false;
+      if (Buyout != other.Buyout) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -174,6 +210,8 @@ namespace Bnet {
       if (PlayerItemId != 0UL) hash ^= PlayerItemId.GetHashCode();
       if (Amount != 0) hash ^= Amount.GetHashCode();
       if (Price != 0L) hash ^= Price.GetHashCode();
+      if (DurationDays != 0) hash ^= DurationDays.GetHashCode();
+      if (Buyout != 0L) hash ^= Buyout.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -208,6 +246,14 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteInt64(Price);
       }
+      if (DurationDays != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(DurationDays);
+      }
+      if (Buyout != 0L) {
+        output.WriteRawTag(48);
+        output.WriteInt64(Buyout);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -234,6 +280,14 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteInt64(Price);
       }
+      if (DurationDays != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(DurationDays);
+      }
+      if (Buyout != 0L) {
+        output.WriteRawTag(48);
+        output.WriteInt64(Buyout);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -255,6 +309,12 @@ namespace Bnet {
       }
       if (Price != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeInt64Size(Price);
+      }
+      if (DurationDays != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(DurationDays);
+      }
+      if (Buyout != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(Buyout);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -279,6 +339,12 @@ namespace Bnet {
       }
       if (other.Price != 0L) {
         Price = other.Price;
+      }
+      if (other.DurationDays != 0) {
+        DurationDays = other.DurationDays;
+      }
+      if (other.Buyout != 0L) {
+        Buyout = other.Buyout;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -315,6 +381,14 @@ namespace Bnet {
             Price = input.ReadInt64();
             break;
           }
+          case 40: {
+            DurationDays = input.ReadInt32();
+            break;
+          }
+          case 48: {
+            Buyout = input.ReadInt64();
+            break;
+          }
         }
       }
     #endif
@@ -348,6 +422,14 @@ namespace Bnet {
           }
           case 32: {
             Price = input.ReadInt64();
+            break;
+          }
+          case 40: {
+            DurationDays = input.ReadInt32();
+            break;
+          }
+          case 48: {
+            Buyout = input.ReadInt64();
             break;
           }
         }

@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSr0IQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqlIgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -122,9 +122,10 @@ namespace Bnet {
             "ChxBVUNUSU9OX0ZFRV9DSEFOR0VEX1JFQ0VOVExZEMECEhwKF0FVQ1RJT05f",
             "SE9VU0VfTk9UX0VNUFRZEMICEhkKFFRSQURFX1BPU1RfTkVFRFNfS0lUEMMC",
             "EhUKEFRSQURFX1BPU1RfTElNSVQQxAISIQocVFJBREVfUE9TVF9ORUVEU19Q",
-            "T1NUX09GRklDRRDFAiIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5l",
-            "dC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJv",
-            "dG8z"));
+            "T1NUX09GRklDRRDFAhIYChNBVUNUSU9OX0JJRF9UT09fTE9XEMYCEhUKEEFV",
+            "Q1RJT05fSEFTX0JJRFMQxwIiBAguEC4qElNIT1BfVFJFQVNVUllfRlVMTEIs",
+            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9i",
+            "BnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -748,6 +749,14 @@ namespace Bnet {
     /// The town needs a working post office first.
     /// </summary>
     [pbr::OriginalName("TRADE_POST_NEEDS_POST_OFFICE")] TradePostNeedsPostOffice = 325,
+    /// <summary>
+    /// Somebody bid at least as much in the meantime. The board shows the new least bid.
+    /// </summary>
+    [pbr::OriginalName("AUCTION_BID_TOO_LOW")] AuctionBidTooLow = 326,
+    /// <summary>
+    /// An auction with a bid on it cannot be taken down.
+    /// </summary>
+    [pbr::OriginalName("AUCTION_HAS_BIDS")] AuctionHasBids = 327,
   }
 
   #endregion

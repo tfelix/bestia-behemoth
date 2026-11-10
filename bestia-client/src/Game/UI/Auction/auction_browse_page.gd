@@ -31,6 +31,10 @@ var _next: Button
 var _gold: Label
 var _confirm: ConfirmationDialog
 var _pending_buy: AuctionListingEntry
+var _bid_dialog: ConfirmationDialog
+var _bid_amount: SpinBox
+var _bid_note: Label
+var _pending_bid: AuctionListingEntry
 
 
 func _ready() -> void:
@@ -98,8 +102,8 @@ func _show(listings: Array, page: int, page_count: int) -> void:
 		if item == null:
 			printerr("Auction: item with ID %s not found in ItemDB" % [listing.ItemId])
 			continue
-		var row := AuctionListingRow.new(listing, item)
-		row.action_pressed.connect(_ask_to_buy)
+		var row := AuctionListingRow.new(listing, item, "AUCTION_BID" if listing.IsAuction else "AUCTION_BUY")
+		row.action_pressed.connect(_ask_to_bid if listing.IsAuction else _ask_to_buy)
 		_rows.add_child(row)
 
 	_empty.visible = listings.is_empty()
@@ -113,6 +117,23 @@ func _ask_to_buy(listing: AuctionListingEntry) -> void:
 	var item := ItemDB.get_instance().get_item(listing.ItemId)
 	_confirm.dialog_text = tr("AUCTION_BUY_CONFIRM") % [listing.Amount, tr(item.name_key), AuctionFormat.coins(listing.Price)]
 	_confirm.popup_centered()
+
+
+func _ask_to_bid(listing: AuctionListingEntry) -> void:
+	_pending_bid = listing
+	_bid_amount.min_value = listing.NextMinBid
+	_bid_amount.max_value = listing.Buyout if listing.Buyout > 0 else 1_000_000_000
+	_bid_amount.value = listing.NextMinBid
+	_bid_note.text = tr("AUCTION_BID_NOTE") % AuctionFormat.coins(listing.NextMinBid)
+	if listing.Buyout > 0:
+		_bid_note.text += "\n" + tr("AUCTION_BID_BUYOUT") % AuctionFormat.coins(listing.Buyout)
+	_bid_dialog.popup_centered()
+
+
+func _on_bid_confirmed() -> void:
+	if _pending_bid != null:
+		ConnectionManager.bid_auction(house_entity_id, _pending_bid.ListingId, int(_bid_amount.value))
+		_pending_bid = null
 
 
 func _on_buy_confirmed() -> void:
@@ -191,6 +212,17 @@ func _build() -> void:
 	_confirm.title = tr("AUCTION_BUY")
 	_confirm.confirmed.connect(_on_buy_confirmed)
 	add_child(_confirm)
+
+	_bid_dialog = ConfirmationDialog.new()
+	_bid_dialog.title = tr("AUCTION_BID")
+	var bid_body := UiStyle.vbox(6)
+	_bid_note = UiStyle.label("", 12, UiStyle.MUTED)
+	bid_body.add_child(_bid_note)
+	_bid_amount = SpinBox.new()
+	bid_body.add_child(_bid_amount)
+	_bid_dialog.add_child(bid_body)
+	_bid_dialog.confirmed.connect(_on_bid_confirmed)
+	add_child(_bid_dialog)
 
 	_show([], 0, 0)
 

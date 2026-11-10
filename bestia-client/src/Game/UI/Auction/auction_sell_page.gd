@@ -1,9 +1,15 @@
 class_name AuctionSellPage
 extends VBoxContainer
 
-## The Sell tab: put a held pile up at a fixed price, and see and take down your own listings at this house.
+## The Sell tab: put a held pile up at a fixed price or as a timed auction, and see and take down your own
+## listings at this house.
 ##
-## The fee shown is the one the server charges: a tenth of the asking price, plus the house owner's fee.
+## The fee shown is the one the server charges: a share of the asking price by how long it runs, plus the house
+## owner's fee.
+
+## Mirrors the server's AuctionFees: index 0 is a fixed price, the rest are auctions of that many days.
+const _DURATIONS := [0, 1, 2, 5]
+const _RATES := {0: 0.10, 1: 0.06, 2: 0.10, 5: 0.20}
 
 ## The window's house, which every request names. Set by [AuctionHousePanel].
 var house_entity_id: int = 0
@@ -18,6 +24,8 @@ var _piles: Array = []
 var _pile: OptionButton
 var _amount: SpinBox
 var _price: SpinBox
+var _duration: OptionButton
+var _buyout: SpinBox
 var _fee: Label
 var _list: Button
 var _rows: VBoxContainer
@@ -55,7 +63,9 @@ func _on_pile_selected(index: int) -> void:
 
 func _show_fee() -> void:
 	var price := int(_price.value)
-	var listing_fee := maxi(1, ceili(price * 0.1))
+	var days: int = _DURATIONS[maxi(0, _duration.selected)]
+	var listing_fee := maxi(1, ceili(price * _RATES[days]))
+	_buyout.editable = days != 0
 	var owner_fee := 0 if owner_fee_percent <= 0 else maxi(1, ceili(price * owner_fee_percent / 100.0))
 	_fee.text = tr("AUCTION_SELL_FEE") % [AuctionFormat.coins(listing_fee + owner_fee), owner_fee_percent]
 
@@ -64,7 +74,11 @@ func _on_list_pressed() -> void:
 	var index := _pile.selected
 	if index < 0 or index >= _piles.size() or house_entity_id == 0:
 		return
-	ConnectionManager.list_auction_item(house_entity_id, _piles[index].player_item_id, int(_amount.value), int(_price.value))
+	var days: int = _DURATIONS[maxi(0, _duration.selected)]
+	var buyout := int(_buyout.value) if days != 0 else 0
+	ConnectionManager.list_auction_item(
+		house_entity_id, _piles[index].player_item_id, int(_amount.value), int(_price.value), days, buyout
+	)
 
 
 func _on_listings(msg: AuctionListingsSMSG) -> void:
@@ -110,6 +124,20 @@ func _build() -> void:
 	_price.custom_minimum_size = Vector2(110, 0)
 	_price.value_changed.connect(func(_value: float) -> void: _show_fee())
 	form.add_child(_price)
+
+	_duration = OptionButton.new()
+	for days in _DURATIONS:
+		_duration.add_item(tr("AUCTION_SELL_FIXED") if days == 0 else tr("AUCTION_SELL_DAYS") % days)
+	_duration.item_selected.connect(func(_index: int) -> void: _show_fee())
+	form.add_child(_duration)
+
+	form.add_child(UiStyle.label(tr("AUCTION_SELL_BUYOUT"), 12, UiStyle.MUTED))
+	_buyout = SpinBox.new()
+	_buyout.min_value = 0
+	_buyout.max_value = 1_000_000_000
+	_buyout.custom_minimum_size = Vector2(110, 0)
+	_buyout.tooltip_text = tr("AUCTION_SELL_BUYOUT_HINT")
+	form.add_child(_buyout)
 
 	_list = Button.new()
 	_list.text = tr("AUCTION_SELL_LIST")
