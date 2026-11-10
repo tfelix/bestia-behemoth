@@ -40,6 +40,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/BlindVignette/BlindVignette.tscn" id="40_blind"]
 [ext_resource type="Script" uid="uid://1u024aahembd" path="res://Game/UI/Map/notebook.gd" id="41_notebook"]
 [ext_resource type="Script" uid="uid://bq7e7aqobe3ro" path="res://Game/UI/Conversation/conversation_presenter.gd" id="42_convpres"]
+[ext_resource type="PackedScene" path="res://Game/UI/Survey/SurveyGame.tscn" id="43_survey"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -145,6 +146,12 @@ visible = false
 layout_mode = 1
 content = ExtResource("33_auction")
 window_title = "Auction House"
+
+[node name="SurveyWin" parent="." instance=ExtResource("8_wdgtw")]
+visible = false
+layout_mode = 1
+content = ExtResource("43_survey")
+window_title = "Survey"
 
 [node name="PartyWin" parent="." instance=ExtResource("8_wdgtw")]
 visible = false
