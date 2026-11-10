@@ -25,14 +25,14 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci1tZXNzYWdlcy9hdWN0aW9uL2F1Y3Rpb25fcHVyY2hhc2VkX3Ntc2cucHJv",
-            "dG8SBGJuZXQiSwoUQXVjdGlvblB1cmNoYXNlZFNNU0cSEgoKbGlzdGluZ19p",
-            "ZBgBIAEoBBIPCgdpdGVtX2lkGAIgASgEEg4KBmFtb3VudBgDIAEoBUIyChVu",
-            "ZXQuYmVzdGlhLmJuZXQucHJvdG9CGUF1Y3Rpb25QdXJjaGFzZWRTbXNnUHJv",
-            "dG9iBnByb3RvMw=="));
+            "dG8SBGJuZXQiXwoUQXVjdGlvblB1cmNoYXNlZFNNU0cSEgoKbGlzdGluZ19p",
+            "ZBgBIAEoBBIPCgdpdGVtX2lkGAIgASgEEg4KBmFtb3VudBgDIAEoBRISCgp3",
+            "YWl0aW5nX2F0GAQgASgJQjIKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IZQXVj",
+            "dGlvblB1cmNoYXNlZFNtc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.AuctionPurchasedSMSG), global::Bnet.AuctionPurchasedSMSG.Parser, new[]{ "ListingId", "ItemId", "Amount" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.AuctionPurchasedSMSG), global::Bnet.AuctionPurchasedSMSG.Parser, new[]{ "ListingId", "ItemId", "Amount", "WaitingAt" }, null, null, null, null)
           }));
     }
     #endregion
@@ -40,7 +40,7 @@ namespace Bnet {
   }
   #region Messages
   /// <summary>
-  /// The sender bought a listing; the goods are already in the inventory.
+  /// The sender bought a listing: the goods are in the inventory, or wait at a linked house.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class AuctionPurchasedSMSG : pb::IMessage<AuctionPurchasedSMSG>
@@ -80,6 +80,7 @@ namespace Bnet {
       listingId_ = other.listingId_;
       itemId_ = other.itemId_;
       amount_ = other.amount_;
+      waitingAt_ = other.waitingAt_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -125,6 +126,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "waiting_at" field.</summary>
+    public const int WaitingAtFieldNumber = 4;
+    private string waitingAt_ = "";
+    /// <summary>
+    /// The town of the linked house the goods wait at; empty when they were handed over.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string WaitingAt {
+      get { return waitingAt_; }
+      set {
+        waitingAt_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -143,6 +159,7 @@ namespace Bnet {
       if (ListingId != other.ListingId) return false;
       if (ItemId != other.ItemId) return false;
       if (Amount != other.Amount) return false;
+      if (WaitingAt != other.WaitingAt) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -153,6 +170,7 @@ namespace Bnet {
       if (ListingId != 0UL) hash ^= ListingId.GetHashCode();
       if (ItemId != 0UL) hash ^= ItemId.GetHashCode();
       if (Amount != 0) hash ^= Amount.GetHashCode();
+      if (WaitingAt.Length != 0) hash ^= WaitingAt.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -183,6 +201,10 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteInt32(Amount);
       }
+      if (WaitingAt.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(WaitingAt);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -205,6 +227,10 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteInt32(Amount);
       }
+      if (WaitingAt.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(WaitingAt);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -223,6 +249,9 @@ namespace Bnet {
       }
       if (Amount != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Amount);
+      }
+      if (WaitingAt.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(WaitingAt);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -244,6 +273,9 @@ namespace Bnet {
       }
       if (other.Amount != 0) {
         Amount = other.Amount;
+      }
+      if (other.WaitingAt.Length != 0) {
+        WaitingAt = other.WaitingAt;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -276,6 +308,10 @@ namespace Bnet {
             Amount = input.ReadInt32();
             break;
           }
+          case 34: {
+            WaitingAt = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -305,6 +341,10 @@ namespace Bnet {
           }
           case 24: {
             Amount = input.ReadInt32();
+            break;
+          }
+          case 34: {
+            WaitingAt = input.ReadString();
             break;
           }
         }

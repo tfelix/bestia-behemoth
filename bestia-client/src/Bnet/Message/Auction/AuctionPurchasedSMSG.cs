@@ -10,13 +10,17 @@ namespace BestiaBehemothClient.Bnet.Message.Auction
     [Export] public ulong ItemId { get; set; }
     [Export] public int Amount { get; set; }
 
+    /// <summary>The town of the linked house the goods wait at; empty when they were handed over.</summary>
+    [Export] public string WaitingAt { get; set; } = "";
+
     public static AuctionPurchasedSMSG FromProto(global::Bnet.AuctionPurchasedSMSG proto)
     {
       return new AuctionPurchasedSMSG
       {
         ListingId = proto.ListingId,
         ItemId = proto.ItemId,
-        Amount = proto.Amount
+        Amount = proto.Amount,
+        WaitingAt = proto.WaitingAt
       };
     }
   }

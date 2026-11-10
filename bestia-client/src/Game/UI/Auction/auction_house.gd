@@ -9,6 +9,7 @@ extends PanelContainer
 
 signal auction_opened()
 signal auction_closed()
+signal won_bought_requested()
 
 ## How far the player may wander from where the window opened before it closes. Generous, because the
 ## player stood within reach of a wall and may walk along a sixteen-metre hall without meaning to leave.
@@ -114,8 +115,15 @@ func _build() -> void:
 	_town = UiStyle.label("", 16, UiStyle.ACCENT)
 	body.add_child(_town)
 
+	var subtitle := UiStyle.hbox(6)
+	body.add_child(subtitle)
 	_linked = UiStyle.label("", 11, UiStyle.MUTED)
-	body.add_child(_linked)
+	_linked.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	subtitle.add_child(_linked)
+	var won_bought := Button.new()
+	won_bought.text = tr("WON_BOUGHT_TITLE")
+	won_bought.pressed.connect(func() -> void: won_bought_requested.emit())
+	subtitle.add_child(won_bought)
 
 	_tabs = TabContainer.new()
 	_tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL

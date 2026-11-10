@@ -30,12 +30,20 @@ namespace BestiaBehemothClient.Bnet.Message.Auction
 
     [Export] public bool CanTearDown { get; set; }
 
+    [Export] public Godot.Collections.Array<TradePartnerEntry> Partners { get; set; } = [];
+
     public static AuctionHouseOpenSMSG FromProto(global::Bnet.AuctionHouseOpenSMSG proto)
     {
       var linked = new Godot.Collections.Array<string>();
       foreach (var town in proto.LinkedTownNames)
       {
         linked.Add(town);
+      }
+
+      var partners = new Godot.Collections.Array<TradePartnerEntry>();
+      foreach (var partner in proto.Partners)
+      {
+        partners.Add(new TradePartnerEntry { MasterId = partner.MasterId, Name = partner.Name });
       }
 
       return new AuctionHouseOpenSMSG
@@ -49,7 +57,8 @@ namespace BestiaBehemothClient.Bnet.Message.Auction
         MaxOwnerFeePercent = proto.MaxOwnerFeePercent,
         Till = proto.Till,
         FeeChangeableAtEpochSeconds = proto.FeeChangeableAtEpochSeconds,
-        CanTearDown = proto.CanTearDown
+        CanTearDown = proto.CanTearDown,
+        Partners = partners
       };
     }
   }

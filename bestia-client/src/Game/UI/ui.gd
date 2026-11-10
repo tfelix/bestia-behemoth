@@ -21,6 +21,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _survey_win: WidgetWindow = $SurveyWin
 @onready var _stall_win: WidgetWindow = $StallWin
 @onready var _city_sign_win: WidgetWindow = $CitySignWin
+@onready var _won_bought_win: WidgetWindow = $WonBoughtWin
 @onready var _invitations: InvitationTray = $Invitations
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
 @onready var _master_profile: MasterProfile = $TopLeftColumn/MasterProfile
@@ -132,6 +133,13 @@ func _ready() -> void:
 	auction.inventory = inventory
 	auction.auction_opened.connect(_on_auction_opened)
 	auction.auction_closed.connect(_on_auction_closed)
+	auction.won_bought_requested.connect(_toggle_won_bought)
+
+	# Won & Bought lists what waits at linked houses; it opens from the auction window and from the letters, and
+	# hears Trade Agreement offers and notices whether open or not.
+	var won_bought := _won_bought_win.get_content() as WonBoughtPanel
+	won_bought.invitations = _invitations
+	won_bought.notice.connect(_chat.system_line)
 
 	# A Cartography cast at a theodolite opens the needle game.
 	var survey := _survey_win.get_content() as SurveyGamePanel
@@ -168,6 +176,7 @@ func _ready() -> void:
 	_map_source.habitat_species_changed.connect(compendium.show_habitat_species)
 
 	(_letters_win.get_content() as LetterPanel).notice.connect(_chat.system_line)
+	(_letters_win.get_content() as LetterPanel).won_bought_requested.connect(_toggle_won_bought)
 	ConnectionManager.letter_arrived.connect(_on_letter_arrived)
 
 	# Talking to a postmaster at work is what opens it, as a merchant opens the shop.
@@ -562,6 +571,10 @@ func _on_stall_opened(mine: bool) -> void:
 	_stall_win.visible = true
 	if mine:
 		_inventory_win.visible = true
+
+
+func _toggle_won_bought() -> void:
+	_won_bought_win.visible = !_won_bought_win.visible
 
 
 ## Neither closes another window: the party and guild windows are looked at beside whatever else is open.

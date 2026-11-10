@@ -60,6 +60,10 @@ signal auction_listings_received(message: AuctionListingsSMSG)
 signal auction_purchased(message: AuctionPurchasedSMSG)
 ## A street stall as the viewer sees it: on pitching, on a click, and after every change.
 signal street_stall_received(message: StreetStallSMSG)
+signal trade_agreement_offered(message: TradeAgreementOfferSMSG)
+signal trade_link_notice(message: TradeLinkNoticeSMSG)
+## The Won & Bought window's contents, on request and after every collect or post.
+signal pickups_received(message: PickupsSMSG)
 ## The name for the next Founder cast is free; the cast may start.
 signal settlement_planned(message: SettlementPlannedSMSG)
 ## A standing city sign was clicked within reach.
@@ -172,6 +176,11 @@ var StallUnlistCMSG = load("res://Bnet/Message/Stall/StallUnlistCMSG.cs")
 var StallBuyCMSG = load("res://Bnet/Message/Stall/StallBuyCMSG.cs")
 var ListAuctionItemCMSG = load("res://Bnet/Message/Auction/ListAuctionItemCMSG.cs")
 var BidAuctionCMSG = load("res://Bnet/Message/Auction/BidAuctionCMSG.cs")
+var AnswerTradeAgreementCMSG = load("res://Bnet/Message/Auction/AnswerTradeAgreementCMSG.cs")
+var CutTradeLinkCMSG = load("res://Bnet/Message/Auction/CutTradeLinkCMSG.cs")
+var RequestPickupsCMSG = load("res://Bnet/Message/Auction/RequestPickupsCMSG.cs")
+var CollectPickupCMSG = load("res://Bnet/Message/Auction/CollectPickupCMSG.cs")
+var PostPickupCMSG = load("res://Bnet/Message/Auction/PostPickupCMSG.cs")
 var CancelAuctionListingCMSG = load("res://Bnet/Message/Auction/CancelAuctionListingCMSG.cs")
 var SetAuctionFeeCMSG = load("res://Bnet/Message/Auction/SetAuctionFeeCMSG.cs")
 var CollectAuctionTillCMSG = load("res://Bnet/Message/Auction/CollectAuctionTillCMSG.cs")
@@ -1036,6 +1045,42 @@ func tear_down_auction_house(house_entity_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+func answer_trade_agreement(offer_id: int, accept: bool) -> void:
+	assert(is_ready_to_send())
+	var msg = AnswerTradeAgreementCMSG.new()
+	msg.OfferId = offer_id
+	msg.Accept = accept
+	_socket.SendMessage(msg)
+
+
+func cut_trade_link(house_entity_id: int, partner_master_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = CutTradeLinkCMSG.new()
+	msg.HouseEntityId = house_entity_id
+	msg.PartnerMasterId = partner_master_id
+	_socket.SendMessage(msg)
+
+
+## Asks for everything bought or won that waits at a linked house. Answered by a PickupsSMSG.
+func request_pickups() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(RequestPickupsCMSG.new())
+
+
+func collect_pickup(pickup_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = CollectPickupCMSG.new()
+	msg.PickupId = pickup_id
+	_socket.SendMessage(msg)
+
+
+func post_pickup(pickup_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = PostPickupCMSG.new()
+	msg.PickupId = pickup_id
+	_socket.SendMessage(msg)
+
+
 ## Names the town the next Founder cast plants. Answered by a SettlementPlannedSMSG or an OperationError.
 func plan_settlement(town_name: String) -> void:
 	assert(is_ready_to_send())
@@ -1553,6 +1598,12 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		auction_purchased.emit(message)
 	elif message is StreetStallSMSG:
 		street_stall_received.emit(message)
+	elif message is TradeAgreementOfferSMSG:
+		trade_agreement_offered.emit(message)
+	elif message is TradeLinkNoticeSMSG:
+		trade_link_notice.emit(message)
+	elif message is PickupsSMSG:
+		pickups_received.emit(message)
 	elif message is SettlementPlannedSMSG:
 		settlement_planned.emit(message)
 	elif message is SettlementSignSMSG:
