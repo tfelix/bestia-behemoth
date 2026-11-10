@@ -28,6 +28,13 @@ interface StatusEffectScript {
   val shield: HarmShield?
     get() = null
 
+  /**
+   * Whether the bearer may drop the effect, from its buff icon or by recasting a toggle skill. Only a buff is ever
+   * offered; an effect that must run its course, like a cooldown marker, says false.
+   */
+  val isCancellable: Boolean
+    get() = true
+
   /** False for an effect that is re-derived on spawn, so a stored copy could only ever be stale. */
   val isPersisted: Boolean
     get() = true

@@ -137,6 +137,20 @@ class StatusEffectService(
     return true
   }
 
+  /**
+   * Drops [definitionId] from [bearerId] because its player asked to. Only a buff whose script allows it goes: a
+   * debuff is not the bearer's to end. Returns whether it was dropped.
+   */
+  fun cancelByBearer(world: World, bearerId: EntityId, definitionId: Long): Boolean {
+    val definition = statusEffectDefinitionRegistry.findById(definitionId) ?: return false
+    val script = statusEffectScriptRegistry.get(definition.script) ?: return false
+    if (definition.polarity != StatusEffectPolarity.BUFF || !script.isCancellable) {
+      return false
+    }
+
+    return removeEffect(world, bearerId, definitionId, RemovalReason.CANCELLED)
+  }
+
   /** Lifts every buff from [targetId] that its catalogue row lets a dispel lift. Returns how many went. */
   fun dispel(world: World, targetId: EntityId): Int {
     val active = world.get(targetId, StatusEffects::class)?.activeEffects?.toList() ?: return 0

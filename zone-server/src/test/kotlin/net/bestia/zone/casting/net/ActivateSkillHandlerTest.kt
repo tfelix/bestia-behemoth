@@ -35,6 +35,8 @@ import net.bestia.zone.casting.SkillContext
 import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.casting.SkillStrategy
 import net.bestia.zone.casting.SkillStrategyFactory
+import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.battle.status.StatusEffectId
 
 /**
  * The cast-time branch, which is the whole job of this handler: an instant skill is handed straight to
@@ -52,11 +54,18 @@ class ActivateSkillHandlerTest {
     override fun execute(ctx: SkillContext): Damage? = null
   }
 
+  private class HideToggle : SkillStrategy {
+    override val toggledStatus = StatusEffectId.HIDDEN
+    override fun isCastPossible(ctx: SkillContext) = true
+    override fun execute(ctx: SkillContext): Damage? = null
+  }
+
   private val world = testWorld()
   private val skillExecution = mockk<SkillExecutionService>(relaxed = true)
   private val messages = mockk<OutMessageProcessor>(relaxed = true)
+  private val statusEffects = mockk<StatusEffectService>(relaxed = true)
 
-  private fun handlerFor(caster: EntityId, skill: Skill): ActivateSkillHandler {
+  private fun handlerFor(caster: EntityId, skill: Skill, script: SkillStrategy = TestScript()): ActivateSkillHandler {
     val connectionInfoService = ConnectionInfoService()
     connectionInfoService.activateSession(ACCOUNT_ID, masterId = 1L, masterEntityId = caster)
 
@@ -66,14 +75,25 @@ class ActivateSkillHandlerTest {
     return ActivateSkillHandler(
       connectionInfoService = connectionInfoService,
       skillCheckService = SkillCheckService(world),
-      skillStrategyFactory = SkillStrategyFactory(listOf(TestScript())),
+      skillStrategyFactory = SkillStrategyFactory(listOf(script)),
       skillExecutionService = skillExecution,
       logoutCancelService = LogoutCancelService(),
       deadActionGuard = DeadActionGuard(),
       actionGuard = ActionGuard(),
       propPromotion = PropPromotionService(mockk(relaxed = true)),
       outMessageProcessor = messages,
+      statusEffects = statusEffects,
     )
+  }
+
+  @Test
+  fun `recasting a toggle skill drops its status for free instead of casting`() {
+    val caster = world.spawnCaster()
+    every { statusEffects.cancelByBearer(any(), caster, StatusEffectId.HIDDEN.id) } returns true
+
+    handlerFor(caster, skill(castTime = 0f, script = "HideToggle"), HideToggle()).handle(world, activate(world.spawnCaster()))
+
+    verify(exactly = 0) { skillExecution.execute(any(), any(), any(), any(), any(), any(), any()) }
   }
 
   @Test
@@ -199,11 +219,11 @@ class ActivateSkillHandlerTest {
   )
 
   /** [script] names `TestScript`, the simple name a `SkillStrategyFactory` keys the test script under. */
-  private fun skill(castTime: Float, targetType: SkillTargetType = SkillTargetType.ENEMY) = Skill(
+  private fun skill(castTime: Float, targetType: SkillTargetType = SkillTargetType.ENEMY, script: String = "TestScript") = Skill(
     id = SKILL_ID,
     identifier = "TEST_SKILL",
     strength = null,
-    script = "TestScript",
+    script = script,
     manaCost = 0,
     range = 100,
     targetType = targetType,
