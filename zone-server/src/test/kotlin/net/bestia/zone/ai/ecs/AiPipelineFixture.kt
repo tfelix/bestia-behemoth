@@ -208,11 +208,16 @@ class AiPipelineFixture(
    */
   val structures = mutableListOf<StructureEntry>()
   val chestContents = mutableMapOf<Long, Inventory>()
-  private val structureRegistry: PlayerStructureRegistry = mockk<PlayerStructureRegistry>().also {
+  val structureRegistry: PlayerStructureRegistry = mockk<PlayerStructureRegistry>().also {
     every { it.all() } answers { structures }
     every { it.of(any()) } answers { structures.firstOrNull { entry -> entry.id == firstArg<Long>() } }
     every { it.setWorker(any(), any()) } answers {
       structures.replaceAll { entry -> if (entry.id == firstArg<Long>()) entry.copy(workerBestiaId = secondArg()) else entry }
+    }
+    every { it.setStationContents(any(), any(), any()) } answers {
+      structures.replaceAll { entry ->
+        if (entry.id == firstArg<Long>()) entry.copy(queue = secondArg(), held = thirdArg()) else entry
+      }
     }
   }
 
