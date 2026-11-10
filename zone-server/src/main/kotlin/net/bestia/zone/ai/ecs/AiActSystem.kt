@@ -84,7 +84,8 @@ class AiActSystem(
     Health::class,
     Mana::class,
     Animation::class,
-  ) + AttackExecutionService.WRITES + QuiverAmmoSupply.WRITES + JourneyService.WRITES + BagCare.WRITES
+  ) + AttackExecutionService.WRITES + QuiverAmmoSupply.WRITES + JourneyService.WRITES + BagCare.WRITES +
+    runtimes.flatMap { it.writes }
 
   override fun update(world: World, deltaTime: Float) {
     val worldBoard = sharedMemory.worldBoard()

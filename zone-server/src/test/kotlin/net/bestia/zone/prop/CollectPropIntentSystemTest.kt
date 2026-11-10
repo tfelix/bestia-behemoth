@@ -5,6 +5,10 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.battle.ecs.exp.GainExp
+import net.bestia.zone.item.GatheringExp
+import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.item.ecs.ObtainItemIntent
@@ -67,7 +71,9 @@ class CollectPropIntentSystemTest {
     out = mockk(relaxed = true)
 
     val kinds = PropKindRegistry().also { it.load() }
-    return CollectPropIntentSystem(kinds, divergence, PropRemoval(kinds, divergence, residency), out)
+    return CollectPropIntentSystem(
+      kinds, divergence, PropRemoval(kinds, divergence, residency), out, GatheringExp(ItemStatCatalog())
+    )
   }
 
   /**
@@ -89,12 +95,13 @@ class CollectPropIntentSystemTest {
   private fun World.addCollector(
     propEntityId: EntityId,
     accountId: Long = 1L,
-    at: Vec3L = propPosition
+    at: Vec3L = propPosition,
+    quiet: Boolean = false,
   ): EntityId = createEntity { id ->
     add(id, Account(accountId))
     add(id, Position.fromVec3(at))
     add(id, Animation())
-    add(id, CollectPropIntent(propEntityId))
+    add(id, CollectPropIntent(propEntityId, quiet))
   }
 
   private fun World.grantOf(collectorId: EntityId) =
@@ -264,5 +271,29 @@ class CollectPropIntentSystemTest {
     world.tick(0f)
 
     assertNull(world.get(collector, CollectPropIntent::class))
+  }
+
+  @Test
+  fun `a quiet refusal tells nobody`() {
+    val world = worldWith(newSystem())
+    world.addCollector(world.addProp(), at = Vec3L(200, 200, 10), quiet = true)
+
+    world.tick(0f)
+
+    verify(exactly = 0) { out.sendToPlayer(any(), any<OperationErrorSMSG>()) }
+  }
+
+  @Test
+  fun `a bestia earns experience for what it collects, a master nothing`() {
+    val world = worldWith(newSystem())
+    val bestia = world.addCollector(world.addProp(kind = StaticEntityKind.MANA_CRYSTAL_LARGE, propId = 7007L))
+    world.add(bestia, OwnedBestia(masterId = 1L, playerBestiaId = 11L))
+    val master = world.addCollector(world.addProp(propId = 7008L))
+
+    world.tick(0f)
+
+    // Two crystals at item level 1: 2 * 1 + 5 each.
+    assertEquals(14, world.get(bestia, GainExp::class)?.value)
+    assertNull(world.get(master, GainExp::class))
   }
 }

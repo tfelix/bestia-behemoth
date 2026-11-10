@@ -22,6 +22,7 @@ import net.bestia.zone.ai.core.state.WorldState
 import net.bestia.zone.ai.domain.AiDomainCatalogue
 import net.bestia.zone.ai.domain.bestia.action.ApproachTargetActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.AttackActionTemplate
+import net.bestia.zone.ai.domain.bestia.action.CollectPropActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.EatVegetationActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.RetreatHomeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.UseFromBagActionTemplate
@@ -144,6 +145,18 @@ object BestiaDomain : AiDomainCatalogue {
   val RETREAT_BELOW_HEALTH_PCT = StateKey<Int>("retreatBelowHealthPct", retain = Blackboard.PERMANENT)
   val FLEES_ON_SIGHT = StateKey<Boolean>("fleesOnSight", retain = Blackboard.PERMANENT)
 
+  /** How full its bag is, 0..100 of what it can carry. */
+  val BAG_LOAD_PCT = StateKey<Int>("bagLoadPct", observed = true)
+
+  /** A gatherer stops gathering at this load, so it never has to leave a find on the ground for want of room. */
+  const val HAUL_AT_LOAD_PCT = 80
+
+  /** The props a gatherer last saw in its area, nearest first. See `GatherSense`. */
+  val GATHERABLES = StateKey<List<Gatherable>>("gatherables")
+
+  /** Gathered something a moment ago: [Goals.GATHER] is met by one prop, and wanted again once this lapses. */
+  val GATHERED = StateKey<Boolean>("gathered", retain = 1f)
+
   /** Where a bestia under GATHER orders works; absent under any other job. */
   val GATHER_AREA = StateKey<GatherArea>("gatherArea", retain = Blackboard.PERMANENT)
 
@@ -230,6 +243,8 @@ object BestiaDomain : AiDomainCatalogue {
   private fun enemyInSight(state: WorldState): Boolean = state.get(ENEMY_IN_SIGHT) == true
 
   private fun eatLineOf(state: WorldState): Int = state.get(EAT_BELOW_STAMINA_PCT) ?: DEFAULT_EAT_BELOW_STAMINA_PCT
+
+  private fun bagLoadOf(state: WorldState): Int = state.get(BAG_LOAD_PCT) ?: 0
 
   private fun healLineOf(state: WorldState): Int = state.get(HEAL_BELOW_HEALTH_PCT) ?: DEFAULT_HEAL_BELOW_HEALTH_PCT
 
@@ -397,8 +412,22 @@ object BestiaDomain : AiDomainCatalogue {
       desiredState = listOf(Precondition { s -> atRetreat(s) }),
     )
 
+    /**
+     * A gatherer at work, one prop per plan. Under [RETURN_HOME], whose radius is the area's own, so it never
+     * works its way out of the area; over [WANDER], so idling is what it does once nothing is left.
+     */
+    val GATHER = Goal(
+      name = "Gather",
+      priority = priority(base = 60f),
+      availability = Precondition { s ->
+        !s.get(GATHERABLES).isNullOrEmpty() && bagLoadOf(s) < HAUL_AT_LOAD_PCT
+      },
+      desiredState = listOf(Preconditions.equalTo(GATHERED, true)),
+    )
+
     val ALL = listOf(
       EAT_VEGETATION, SLEEP, RETURN_HOME, KILL_ATTACKER, KILL_ENEMY, WANDER, HEAL_FROM_BAG, EAT_FROM_BAG, RETREAT,
+      GATHER,
     )
 
     val BY_NAME = ALL.associateBy { it.name }
@@ -436,6 +465,7 @@ object BestiaDomain : AiDomainCatalogue {
     "healFromBag" to { c -> UseFromBagActionTemplate.heal(c.care) },
     "eatFromBag" to { c -> UseFromBagActionTemplate.eat(c.care) },
     "retreatHome" to { c -> RetreatHomeActionTemplate(c.locomotion) },
+    "collectProp" to { c -> CollectPropActionTemplate(c.locomotion) },
   )
 
   /** Every action id a profile may name, for fail-fast validation at boot without building anything. */

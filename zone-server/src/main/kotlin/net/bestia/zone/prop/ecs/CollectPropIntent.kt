@@ -28,4 +28,8 @@ import net.bestia.zone.util.EntityId
  * clicks two props inside the same 50 ms tick collects the second. Matches `LootItemIntent`'s existing
  * behaviour and is not worth a queue.
  */
-data class CollectPropIntent(val propEntityId: EntityId) : Component
+data class CollectPropIntent(
+  val propEntityId: EntityId,
+  /** A refusal tells nobody. For a bestia collecting on its own, whose `Account` is its master's. */
+  val quiet: Boolean = false,
+) : Component

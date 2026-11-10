@@ -3,6 +3,7 @@ package net.bestia.zone.prop
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.item.GatheringExp
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
@@ -61,12 +62,13 @@ class CollectPropIntentSystem(
   private val divergence: WorldObjectDivergenceRegistry,
   private val removal: PropRemoval,
   private val outMessageProcessor: OutMessageProcessor,
+  private val gatheringExp: GatheringExp,
 ) : System {
   override val phase = Phase.ITEMS
 
   override val reads: ComponentClassSet = setOf(
     Account::class, Position::class, PropPose::class, StaticVisual::class, WorldObjectIdentity::class
-  )
+  ) + GatheringExp.READS
 
   /**
    * [ObtainItemIntent.CreateItemIntent] is declared even though it is added to a *different* entity than the
@@ -75,17 +77,20 @@ class CollectPropIntentSystem(
    */
   override val writes: ComponentClassSet = setOf(
     CollectPropIntent::class, ObtainItemIntent.CreateItemIntent::class, Animation::class
-  ) + PropRemoval.WRITES
+  ) + PropRemoval.WRITES + GatheringExp.WRITES
 
   override fun update(world: World, deltaTime: Float) {
     world.query(CollectPropIntent::class).each { collectorId ->
       val intent = get<CollectPropIntent>()
-      collect(world, collectorId, intent.propEntityId)
+      collect(world, collectorId, intent)
       world.remove(collectorId, CollectPropIntent::class)
     }
   }
 
-  private fun collect(world: World, collectorId: EntityId, propId: EntityId) {
+  private fun collect(world: World, collectorId: EntityId, intent: CollectPropIntent) {
+    val propId = intent.propEntityId
+    val refuse = { code: OperationErrorProto.OpError -> if (!intent.quiet) deny(world, collectorId, code) }
+
     // Any of these missing means the id names something that is not a live prop: a stale handle from a column
     // that was re-materialised, one already collected or felled this tick, or simply not a prop at all. The
     // client cannot tell those apart, and should not be able to - see COLLECT_TARGET_GONE.
@@ -94,31 +99,32 @@ class CollectPropIntentSystem(
     val identity = world.get(propId, WorldObjectIdentity::class)
 
     if (pose == null || visual == null || identity == null) {
-      return deny(world, collectorId, OperationErrorProto.OpError.COLLECT_TARGET_GONE)
+      return refuse(OperationErrorProto.OpError.COLLECT_TARGET_GONE)
     }
 
     val spec = kinds.of(visual.kind)
     val collect = spec.collect
-      ?: return deny(world, collectorId, OperationErrorProto.OpError.COLLECT_NOT_COLLECTIBLE)
+      ?: return refuse(OperationErrorProto.OpError.COLLECT_NOT_COLLECTIBLE)
 
     if (divergence.of(identity.propId) != null) {
-      return deny(world, collectorId, OperationErrorProto.OpError.COLLECT_TARGET_GONE)
+      return refuse(OperationErrorProto.OpError.COLLECT_TARGET_GONE)
     }
 
     // Read off PropPose, not Position. A pristine prop has no Position at all - that is PropPose's whole
     // reason to exist - and promotion adds one without removing the pose. Reading Position would make a
     // crystal collectible only after somebody had already hit it.
     val collectorPosition = world.get(collectorId, Position::class)?.toVec3L()
-      ?: return deny(world, collectorId, OperationErrorProto.OpError.COLLECT_TARGET_GONE)
+      ?: return refuse(OperationErrorProto.OpError.COLLECT_TARGET_GONE)
 
     if (collectorPosition.distance(pose.position) > MAX_COLLECT_RANGE) {
-      return deny(world, collectorId, OperationErrorProto.OpError.COLLECT_OUT_OF_RANGE)
+      return refuse(OperationErrorProto.OpError.COLLECT_OUT_OF_RANGE)
     }
 
     // The claim. Synchronous in memory, which is the whole reason the race above resolves - see the class note.
     // Whether it comes back is the kind's call, which PropRemoval reads.
     removal.removed(world, propId, PropRemoval.Cause.USED_UP)
     world.add(collectorId, ObtainItemIntent.CreateItemIntent(collect.itemId, collect.amount))
+    gatheringExp.award(world, collectorId, collect.itemId, collect.amount)
     // Bends down for it, as for a stack off the ground: nothing else says who took the crystal that just vanished.
     world.get(collectorId, Animation::class)?.startPickUp()
 

@@ -7,11 +7,14 @@ import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.core.state.Drive
 import net.bestia.zone.ai.core.state.RestingWindow
 import net.bestia.zone.ai.domain.AiDomainRuntime
+import net.bestia.zone.ai.domain.bestia.action.CollectPropActionTemplate
+import net.bestia.zone.ai.domain.bestia.action.GatherWork
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.AiProfile
 import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.casting.SkillExecutionService
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.care.BagCare
 import net.bestia.zone.navigation.NavigationService
@@ -40,6 +43,10 @@ class BestiaRuntime(
   private val locomotion = Locomotion(navigation, random)
 
   override val catalogue = BestiaDomain
+
+  override val reads: ComponentClassSet = GatherWork.READS
+
+  override val writes: ComponentClassSet = CollectPropActionTemplate.WRITES
 
   override val drives: List<Drive> = BestiaDomain.DRIVES
 

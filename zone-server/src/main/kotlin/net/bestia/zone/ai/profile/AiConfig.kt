@@ -50,12 +50,19 @@ data class AiConfig(
  * replacing them, so a job can never grant a creature a behaviour its species does not have — a critter told to
  * GUARD still cannot hunt, because its profile has no kill-on-sight goal to enable.
  *
+ * A job's [workGoals] and [workActions] are the exception: they are added whatever the species, until species
+ * restrictions on jobs exist.
+ *
  * `KillAttacker` is in every job on purpose: self-defence is not an order a player gets to switch off, and an
  * owned creature that stood still while being killed would be a bug reported as one.
  *
  * Craft, Mine and Follow join once the goals that carry them exist.
  */
-enum class BestiaJob(val goalNames: Set<String>) {
+enum class BestiaJob(
+  val goalNames: Set<String>,
+  val workGoals: List<String> = emptyList(),
+  val workActions: List<String> = emptyList(),
+) {
 
   /** Roam the area around home and engage anything hostile that comes near. */
   GUARD(setOf("KillAttacker", "KillEnemy", "Wander", "ReturnHome")),
@@ -64,7 +71,11 @@ enum class BestiaJob(val goalNames: Set<String>) {
   REST(setOf("KillAttacker", "Wander", "ReturnHome", "EatVegetation", "Sleep")),
 
   /** Collect what grows and lies around home and carry it to the master's nearest chest. */
-  GATHER(setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"));
+  GATHER(
+    setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"),
+    workGoals = listOf("Gather"),
+    workActions = listOf("collectProp"),
+  );
 
   companion object {
     fun fromNameOrNull(name: String): BestiaJob? = entries.firstOrNull { it.name.equals(name, ignoreCase = true) }
