@@ -136,6 +136,7 @@ var OpenCraftingCMSG = load("res://Bnet/Message/Crafting/OpenCraftingCMSG.cs")
 var AddWoodCMSG = load("res://Bnet/Message/Crafting/AddWoodCMSG.cs")
 var QueueCraftCMSG = load("res://Bnet/Message/Crafting/QueueCraftCMSG.cs")
 var CancelQueueEntryCMSG = load("res://Bnet/Message/Crafting/CancelQueueEntryCMSG.cs")
+var SetStationWorkerCMSG = load("res://Bnet/Message/Crafting/SetStationWorkerCMSG.cs")
 var RequestTradeCMSG = load("res://Bnet/Message/Trade/RequestTradeCMSG.cs")
 var AnswerTradeRequestCMSG = load("res://Bnet/Message/Trade/AnswerTradeRequestCMSG.cs")
 var OfferTradeItemCMSG = load("res://Bnet/Message/Trade/OfferTradeItemCMSG.cs")
@@ -744,6 +745,16 @@ func cancel_queue_entry(structure_id: int, index: int) -> void:
 	var msg = CancelQueueEntryCMSG.new()
 	msg.StructureId = structure_id
 	msg.Index = index
+	_socket.SendMessage(msg)
+
+
+## Sets [param worker_entity_id], one of the player's bestias, to work the station [param structure_id]; 0 sets the
+## master. A bestia keeps working while the master is logged out.
+func set_station_worker(structure_id: int, worker_entity_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = SetStationWorkerCMSG.new()
+	msg.StructureId = structure_id
+	msg.WorkerEntityId = worker_entity_id
 	_socket.SendMessage(msg)
 
 
