@@ -274,6 +274,23 @@ class RecordingSkillWorld(
 
   override fun isBehind(targetEntityId: EntityId): Boolean = targetEntityId in behind
 
+  val knockbackImmune = mutableSetOf<EntityId>()
+
+  override fun isKnockbackImmune(entityId: EntityId): Boolean = entityId in knockbackImmune
+
+  val givenItems = mutableListOf<Pair<Long, Int>>()
+
+  override fun giveItem(itemId: Long, amount: Int) {
+    givenItems += itemId to amount
+  }
+
+  val revived = mutableListOf<Pair<EntityId, Int>>()
+
+  override fun revive(entityId: EntityId, healthPercent: Int): Boolean {
+    revived += entityId to healthPercent
+    return true
+  }
+
   val blinks = mutableListOf<Pair<EntityId, Vec3L>>()
 
   override fun blink(entityId: EntityId, to: Vec3L): Boolean {

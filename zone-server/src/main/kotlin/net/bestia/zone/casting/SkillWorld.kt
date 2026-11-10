@@ -156,6 +156,15 @@ interface SkillWorld {
   /** Whether the caster stands in the half behind [targetEntityId], as it faces. One operation. */
   fun isBehind(targetEntityId: EntityId): Boolean
 
+  /** Whether a blow or a blast may not push [entityId] back, see [net.bestia.zone.battle.Knockback]. One operation. */
+  fun isKnockbackImmune(entityId: EntityId): Boolean
+
+  /** Gives the caster [amount] of [itemId], through the usual weight check on the next tick. One operation. */
+  fun giveItem(itemId: Long, amount: Int)
+
+  /** Raises a dead [entityId] where it lies with [healthPercent] of its health. False for the living. One operation. */
+  fun revive(entityId: EntityId, healthPercent: Int): Boolean
+
   /** Puts [entityId] on the ground at [to] at once, a shadow step; false with no ground there. One operation. */
   fun blink(entityId: EntityId, to: Vec3L): Boolean
 

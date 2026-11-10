@@ -96,6 +96,7 @@ object BestiaSkillMechanics {
   }
 
   private fun pushAway(ctx: SkillContext, targetId: EntityId, from: Vec3L, tiles: Int) {
+    if (ctx.world.isKnockbackImmune(targetId)) return
     val at = ctx.world.positionOf(targetId) ?: return
     val (dx, dy) = unit(from, at) ?: return
 

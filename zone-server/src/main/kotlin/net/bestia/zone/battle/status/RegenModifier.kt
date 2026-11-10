@@ -24,12 +24,15 @@ data class RegenModifier(
   val flat: Int = 0,
   val percent: Int = 0,
   /** No regeneration at all, whatever the other terms add up to: a poison or a sealed mana pool. */
-  val blocked: Boolean = false
+  val blocked: Boolean = false,
+  /** Keeps regenerating in a fight, where natural regeneration otherwise stops, as Endure does. */
+  val inCombat: Boolean = false,
 ) {
 
   fun plus(flat: Int = 0, percent: Int = 0) = RegenModifier(
     flat = this.flat + flat,
     percent = this.percent + percent,
-    blocked = blocked
+    blocked = blocked,
+    inCombat = inCombat
   )
 }

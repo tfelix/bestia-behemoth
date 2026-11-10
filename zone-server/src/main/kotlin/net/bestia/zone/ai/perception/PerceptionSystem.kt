@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.perception
 
+import net.bestia.zone.battle.ecs.status.Taunted
 import net.bestia.zone.ai.core.state.CommonKeys
 import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.ai.ecs.AiDetailSystem
@@ -57,6 +58,7 @@ class PerceptionSystem(
     Health::class,
     TakenDamage::class,
     StatusEffects::class,
+    Taunted::class,
   ) + Hostility.READS + DamageGate.READS
 
   /**
@@ -108,7 +110,9 @@ class PerceptionSystem(
       // even if something else is closer. `TakenDamage` already records this for experience attribution,
       // so retaliation needs no new bookkeeping — it just needed someone to read it, which is why the
       // aggro key existed but was never set by anything.
-      val target = attacker ?: nearestHostile
+      // A taunt outranks both: a provoked creature fights the one who provoked it.
+      val taunter = world.get(id, Taunted::class)?.byEntityId?.takeIf { world.isAlive(it) }
+      val target = taunter ?: attacker ?: nearestHostile
 
       memory.set(CommonKeys.IS_AGGRO, attacker != null)
       memory.set(CommonKeys.ENEMY_IN_SIGHT, target != null)

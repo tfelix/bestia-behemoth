@@ -1,5 +1,7 @@
 package net.bestia.zone.casting.ecs
 
+import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -25,7 +27,8 @@ class CastingSystem(
 ) : System {
   override val phase = Phase.ACTIONS
 
-  override val writes: ComponentClassSet = setOf(Casting::class)
+  override val reads: ComponentClassSet = setOf(CombatStats::class)
+  override val writes: ComponentClassSet = setOf(Casting::class, IsStatusValueDirty::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Casting::class).each { id ->
@@ -35,7 +38,7 @@ class CastingSystem(
       if (casting.hasElapsed()) {
         LOG.debug { "Cast of skill ${casting.skillId} by entity $id completed" }
 
-        world.remove(id, Casting::class)
+        Casting.end(world, id)
 
         skillExecutionService.execute(
           world = world,

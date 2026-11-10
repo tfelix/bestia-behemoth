@@ -1,5 +1,6 @@
 package net.bestia.zone.casting.net
 
+import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.battle.ActionGuard
@@ -189,6 +190,7 @@ class ActivateSkillHandler(
             args = msg.args
           )
         )
+        if (Casting.movesWhileCasting(this, id)) add(id, IsStatusValueDirty)
       }
 
       id

@@ -69,6 +69,7 @@ class AttackExecutionService(
   private val actionGuard: ActionGuard = ActionGuard(),
   private val actionReactions: ActionReactions = ActionReactions.NONE,
   private val gearWear: GearWear = GearWear.NONE,
+  private val swingProcs: List<SwingProc> = emptyList(),
 ) {
 
   /** [READS] plus what spending an arrow reads, which only the item slice can name. */
@@ -243,6 +244,7 @@ class AttackExecutionService(
           val staged = world.get(targetId, IncomingDamage::class) ?: world.add(targetId, IncomingDamage())
           staged.add(result.amount, attackerId, kind)
           ammunition?.effect?.onHit(world, attackerId, targetId, result)
+          swingProcs.forEach { it.onSwingLanded(world, attackerId, targetId, result) }
         }
       }
 

@@ -1,5 +1,7 @@
 package net.bestia.zone.battle.ecs.skill
 
+import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.sync.Removable
 import net.bestia.zone.sync.SyncTargets
 import net.bestia.zone.sync.Countdown
@@ -52,4 +54,20 @@ class Casting(
 
   // Bystanders see the cast bar as well, so this is a public broadcast rather than owner-only.
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets = SyncTargets.PublicInRange
+
+  companion object {
+    /**
+     * Ends [entityId]'s cast. A caster who walks while casting walks slower only for as long as the bar runs, so
+     * its speed is recalculated as the cast ends.
+     */
+    fun end(world: World, entityId: EntityId) {
+      if (!world.has(entityId, Casting::class)) return
+      world.remove(entityId, Casting::class)
+      if (movesWhileCasting(world, entityId)) world.add(entityId, IsStatusValueDirty)
+    }
+
+    fun movesWhileCasting(world: World, entityId: EntityId): Boolean {
+      return (world.get(entityId, CombatStats::class)?.values?.castMovePercent ?: 0) > 0
+    }
+  }
 }
