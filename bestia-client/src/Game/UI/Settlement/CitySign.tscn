@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Settlement/city_sign.gd" id="1_sign"]
+
+[node name="CitySign" type="PanelContainer"]
+custom_minimum_size = Vector2(340, 220)
+offset_right = 340.0
+offset_bottom = 220.0
+script = ExtResource("1_sign")
