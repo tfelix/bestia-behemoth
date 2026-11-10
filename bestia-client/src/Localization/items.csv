@@ -539,3 +539,41 @@ AUCTION_HOUSE_KIT,Auction House Kit
 AUCTION_HOUSE_KIT_DESC,"A hall's worth of beams, a long counter and a ledger chained to it.
 
 Trade Post Owner raises it as an auction house, in a town with a post office."
+WILLOW_ROD,Willow Rod
+WILLOW_ROD_DESC,"A bent willow switch with a line of twisted bark.
+
+Good for perch and the odd boot."
+BAMBOO_ROD,Bamboo Rod
+BAMBOO_ROD_DESC,"A light, springy rod of jointed cane."
+ASH_ROD,Ash Rod
+ASH_ROD_DESC,A tapered ash rod with iron guides. It bends a long way before it breaks.
+STEEL_ROD,Steel Rod
+STEEL_ROD_DESC,A thin steel rod with a geared reel. Made for things that pull back.
+PERCH,Perch
+PERCH_DESC,A striped little fish with a spiny back. Every pond seems to have one more.
+BREAM,Bream
+BREAM_DESC,"A flat, bronze fish that feeds along the bottom. Bony, but filling."
+PIKE,Pike
+PIKE_DESC,A long green hunter with a mouth full of teeth. Mind your fingers when you take the hook out.
+EEL,Eel
+EEL_DESC,"A slick, snake-like fish that keeps wriggling long after it should have stopped."
+SALMON,Salmon
+SALMON_DESC,A strong silver fish with pink flesh. Cooks pay well for a fresh one.
+STURGEON,Sturgeon
+STURGEON_DESC,"An old, armoured fish from the deep channels. Some say they live a hundred years."
+SWORDFISH,Swordfish
+SWORDFISH_DESC,"A fast fish with a long, flat bill. It fights the line like a duelist."
+MOONSCALE,Moonscale
+MOONSCALE_DESC,Its pale scales glow faintly at night. Alchemists grind them for their brews.
+DEEPMAW,Deepmaw
+DEEPMAW_DESC,A dark fish that is mostly mouth. It rarely leaves the cold water at the bottom.
+ABYSSAL_LANTERNFISH,Abyssal Lanternfish
+ABYSSAL_LANTERNFISH_DESC,A fish with a little light hanging over its head. Nobody knows how deep it lives.
+OLD_BOOT,Old Boot
+OLD_BOOT_DESC,"Soaked, rotten and missing its partner. Every angler catches one sooner or later."
+DRIFTWOOD,Driftwood
+DRIFTWOOD_DESC,"A grey piece of wood, washed smooth by the water. It burns well once it dries."
+TANGLED_NET,Tangled Net
+TANGLED_NET_DESC,"Somebody else's net, knotted beyond use. The cord can still be picked apart."
+SEALED_BOTTLE,Sealed Bottle
+SEALED_BOTTLE_DESC,A bottle with a wax seal and a rolled paper inside. Collectors pay well for one unopened.
