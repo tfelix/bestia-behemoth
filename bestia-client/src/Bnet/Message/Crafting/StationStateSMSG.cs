@@ -14,13 +14,16 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
     [Export] public Godot.Collections.Dictionary<uint, uint> Held { get; set; } = [];
 
     /// <summary>
-    /// "none", "worker_away", "worker_offline", "bag_full", "station_out" or "cannot_craft", so GDScript can
-    /// match without the enum.
+    /// "none", "worker_away", "worker_offline", "bag_full", "station_out", "cannot_craft" or "no_free_crafter", so
+    /// GDScript can match without the enum.
     /// </summary>
     [Export] public string PauseName { get; set; } = "none";
 
     /// <summary>The bestia that works the queue, or 0 when the owner does.</summary>
     [Export] public ulong WorkerEntityId { get; set; }
+
+    /// <summary>Any free crafter may take the station; <see cref="WorkerEntityId"/> is the one that did, or 0.</summary>
+    [Export] public bool AnyFreeCrafter { get; set; }
 
     public static StationStateSMSG FromProto(global::Bnet.StationStateSMSG proto)
     {
@@ -28,6 +31,7 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
       {
         StructureId = proto.StructureId,
         WorkerEntityId = proto.WorkerEntityId,
+        AnyFreeCrafter = proto.AnyFreeCrafter,
         PauseName = proto.Pause switch
         {
           global::Bnet.StationPause.WorkerAway => "worker_away",
@@ -35,6 +39,7 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
           global::Bnet.StationPause.BagFull => "bag_full",
           global::Bnet.StationPause.StationOut => "station_out",
           global::Bnet.StationPause.CannotCraft => "cannot_craft",
+          global::Bnet.StationPause.NoFreeCrafter => "no_free_crafter",
           _ => "none"
         }
       };

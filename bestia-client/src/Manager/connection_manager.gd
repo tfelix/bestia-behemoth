@@ -778,6 +778,15 @@ func set_station_worker(structure_id: int, worker_entity_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Lets the first idle bestia with the Craft job take the station [param structure_id].
+func set_station_any_free_crafter(structure_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = SetStationWorkerCMSG.new()
+	msg.StructureId = structure_id
+	msg.AnyFreeCrafter = true
+	_socket.SendMessage(msg)
+
+
 ## Abandons the craft in progress. Nothing is refunded because nothing has been spent yet.
 func cancel_craft() -> void:
 	assert(is_ready_to_send())
