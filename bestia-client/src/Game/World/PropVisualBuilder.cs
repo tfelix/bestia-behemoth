@@ -123,6 +123,8 @@ namespace BestiaBehemothClient.Game.World
         "CHEST" => 58,
         "THEODOLITE" => 59,
         "POST_OFFICE" => 67,
+        "BREEDING_FARM" => 69,
+        "INCUBATOR" => 70,
         "STRUCTURE_WALL" => Mesh.StructurePieces.Wall,
         "STRUCTURE_FLOOR" => Mesh.StructurePieces.Floor,
         "STRUCTURE_STAIRS" => Mesh.StructurePieces.Stairs,
