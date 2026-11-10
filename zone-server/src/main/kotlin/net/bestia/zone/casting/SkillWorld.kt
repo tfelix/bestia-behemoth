@@ -177,6 +177,9 @@ interface SkillWorld {
    */
   fun senseResources(rangeMetres: Double, accuracy: Double)
 
+  /** Shows the caster the hollows within [radiusMetres], and how deep and large they are if [revealsDepth]. */
+  fun soundForHollows(radiusMetres: Int, revealsDepth: Boolean)
+
   /** Whether a blow or a blast may not push [entityId] back, see [net.bestia.zone.battle.Knockback]. One operation. */
   fun isKnockbackImmune(entityId: EntityId): Boolean
 

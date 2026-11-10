@@ -489,6 +489,12 @@ class BudgetedSkillWorld(
     services.resourceSensing?.sense(world, casterId, rangeMetres, accuracy)
   }
 
+  override fun soundForHollows(radiusMetres: Int, revealsDepth: Boolean) {
+    budget.charge(SPAWN_OPS)
+
+    services.echoSensing?.sound(world, casterId, radiusMetres, revealsDepth)
+  }
+
   override fun isKnockbackImmune(entityId: EntityId): Boolean {
     budget.charge()
 
