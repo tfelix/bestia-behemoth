@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component
 
 /**
  * Prices raising an effort value by one point. See the game docs' effort-value rules:
- * https://docs.bestia-game.net/docs/mechanics/statusvalues/#effort-values
+ * https://docs.bestia-game.net/docs/mechanics/combat/statusvalues/#effort-values
  *
  * The docs' `effGainNeeded = max(1, nextEffValue / 3)` with integer division, which yields the
  * escalating curve below - the first five points of an attribute are cheap, then each band of three

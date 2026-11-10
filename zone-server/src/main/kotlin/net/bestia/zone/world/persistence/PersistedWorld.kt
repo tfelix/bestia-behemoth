@@ -133,7 +133,7 @@ class PersistedWorld(
    * its answer, and the carry-forward would have to be built at the same time as the scoring.
    *
    * What will set it is the world-end tally described in `../bestia-docs` under
-   * `docs/mechanics/factions/#earning-advantage-points`. There is no faction implementation in zone-server at
+   * `docs/mechanics/society/factions/#earning-advantage-points`. There is no faction implementation in zone-server at
    * all today - no influence, no covenants, no Advantage Points - so this stays null and every regeneration
    * carries a null forward, which is exactly the Genesis behaviour.
    *

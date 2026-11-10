@@ -383,7 +383,7 @@ namespace Bnet {
   ///
   /// At creation every value starts at 1 and the player distributes a fixed budget across them under an
   /// escalating cost curve; the server re-validates the distribution and refuses anything that does not
-  /// spend it exactly. See https://docs.bestia-game.net/docs/mechanics/statusvalues/#effort-values
+  /// spend it exactly. See https://docs.bestia-game.net/docs/mechanics/combat/statusvalues/#effort-values
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class EffortValues : pb::IMessage<EffortValues>

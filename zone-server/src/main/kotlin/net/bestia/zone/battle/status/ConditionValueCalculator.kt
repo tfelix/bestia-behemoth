@@ -6,7 +6,7 @@ import kotlin.math.floor
 /**
  * Pure calculations for the maximum condition-value pools (HP / Mana / Stamina) from a character's
  * level and effective primary attributes. See the game docs' status-value formulas:
- * https://docs.bestia-game.net/docs/mechanics/statusvalues/
+ * https://docs.bestia-game.net/docs/mechanics/combat/statusvalues/
  *
  * These are the "formula-driven" pools of player-owned entities (master + player bestia). Mobs keep
  * the authored `Bestia.health` instead and are not run through this calculator.

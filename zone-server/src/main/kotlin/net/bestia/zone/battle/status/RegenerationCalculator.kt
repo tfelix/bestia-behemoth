@@ -6,7 +6,7 @@ import kotlin.math.max
 /**
  * Pure calculations for how much a condition-value pool (HP / Mana / Stamina) refills per
  * regeneration tick. See the game docs' recovery formulas:
- * https://docs.bestia-game.net/docs/mechanics/statusvalues/
+ * https://docs.bestia-game.net/docs/mechanics/combat/statusvalues/
  *
  * A sibling of [ConditionValueCalculator] rather than more methods on it: pool *size* and pool
  * *refill rate* are different questions with different inputs, and each carries its own set of

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component as SpringComponent
  * Passive HP regeneration for every entity with [Health], gated on the entity not being
  * [InCombat]. Amount and the 6 s cadence come from the docs' HP-recovery formula, via
  * [RegenerationCalculator.hpRegen]:
- * https://docs.bestia-game.net/docs/mechanics/statusvalues/
+ * https://docs.bestia-game.net/docs/mechanics/combat/statusvalues/
  */
 @SpringComponent
 class HpRegenSystem(

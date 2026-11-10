@@ -4,7 +4,7 @@ package net.bestia.zone.battle.status
  * What an entity subtracts from an incoming hit, in Ragnarok Online's two kinds.
  *
  * [defense] / [magicDefense] are the **soft** kind: derived from level + effective primary [StatusValues]
- * per the game docs (https://docs.bestia-game.net/docs/mechanics/statusvalues/), and subtracted flat, last,
+ * per the game docs (https://docs.bestia-game.net/docs/mechanics/combat/statusvalues/), and subtracted flat, last,
  * after every multiplier. Physical soft defence is RO pre-renewal's player formula: a fixed [defense] plus a
  * roll below [defenseSpread], made per hit by the damage calculator. It stays a small share of a same-level
  * hit, where the old `VIT + STR/5 + AGI/5 + Lv/4` swallowed half of it. [hardDefense] / [hardMagicDefense] are the **hard** kind, carried by worn

@@ -37,7 +37,7 @@ static func short_code(attribute: Attribute) -> String:
 
 
 ## One line on what the attribute does, condensed from
-## https://docs.bestia-game.net/docs/mechanics/statusvalues/ for players picking their first values.
+## https://docs.bestia-game.net/docs/mechanics/combat/statusvalues/ for players picking their first values.
 static func summary(attribute: Attribute) -> String:
 	match attribute:
 		Attribute.STRENGTH: return "Melee damage and carry capacity, a little HP and stamina."
@@ -55,7 +55,7 @@ static func summary(attribute: Attribute) -> String:
 ## the server re-prices every spend, so a divergence here shows up as a request the server refuses.
 ## The docs' effGainNeeded = max(1, nextEffValue / 3) with integer division:
 ## values 1-5 cost 1 each, 6-8 cost 2, 9-11 cost 3, and so on.
-## See https://docs.bestia-game.net/docs/mechanics/statusvalues/#effort-values
+## See https://docs.bestia-game.net/docs/mechanics/combat/statusvalues/#effort-values
 static func step_cost(next_value: int) -> int:
 	@warning_ignore("integer_division")
 	return maxi(1, next_value / 3)

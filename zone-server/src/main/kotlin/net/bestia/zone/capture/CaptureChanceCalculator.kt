@@ -3,7 +3,7 @@ package net.bestia.zone.capture
 import org.springframework.stereotype.Component
 
 /**
- * `P_catch = clamp(0%, 95%, base_trap + Σ bonus)`, from `bestia-docs/content/docs/mechanics/bestia.md`.
+ * `P_catch = clamp(0%, 95%, base_trap + Σ bonus)`, from `bestia-docs/content/docs/mechanics/bestias/bestia.md`.
  *
  * The bonuses are additive percentage points, as the docs specify, so a good setup can make up for a weak
  * trap but not for an ancient target.

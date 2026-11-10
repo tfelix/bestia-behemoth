@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component as SpringComponent
  * Passive Mana regeneration for every entity with [Mana], gated on the entity not being
  * [InCombat]. Amount and the 8 s cadence come from the docs' mana-recovery formula, via
  * [RegenerationCalculator.manaRegen]:
- * https://docs.bestia-game.net/docs/mechanics/statusvalues/
+ * https://docs.bestia-game.net/docs/mechanics/combat/statusvalues/
  */
 @SpringComponent
 class ManaRegenSystem(
