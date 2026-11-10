@@ -325,6 +325,12 @@ against `Flee` on the same threshold — leaving that gate in place would have g
 goal at all), and `KillAttacker`'s base of 95 is what keeps a creature under attack from wandering off to
 graze (80) or sleep (90), so do not tune it down per-profile.
 
+Who is an enemy is `ai/perception/Hostility`, filtered by `DamageGate`. A guard (`GUARD_AREA`) asks
+`Hostility.isIntruder` instead: wild creatures whose profile has `KillEnemy`, and other players' masters and bestias
+except its own master's party and guild, all only inside its area; it walks back to the middle after a fight
+(`ReturnToMiddle`). An owned bestia's courage gates `KillEnemy` against a foe `STRONGER_FOE_LEVEL_LEAD` levels above it
+(`TARGET_LEVEL_LEAD`); `KillAttacker` is never gated.
+
 ## login-server & the login↔zone handoff
 
 login-server is a plain Spring Boot REST service (`spring-boot-starter-web`, no
