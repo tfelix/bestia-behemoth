@@ -136,10 +136,12 @@ class WorldParamsTest {
     // tier) and boulders, stones and sticks were scattered (`LootScatterParams`, `ChunkMaterializer.VERSION` 10).
     // Only the world tier moved when hills were woven into the open country: `KnollParams`.
     // Both moved for the set dressing: `DressingParams` (world tier) and `ChunkMaterializer.VERSION` 11.
+    // Only the chunk tier moved when resin was scattered under the conifers: `LootScatterParams` and
+    // `ChunkMaterializer.VERSION` 12.
     assertEquals(-6_706_671_773_251_072_201L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Pinned as a pair so each half stays checkable: a world-tier retune has to move the number above and
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
-    assertEquals(-7_700_479_231_352_262_248L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
+    assertEquals(7_001_728_224_483_513_746L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
   }
 
   private fun config() = StandardWorld.demoConfig().copy(widthCells = 64, heightCells = 64)

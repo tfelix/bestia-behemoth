@@ -21,8 +21,8 @@ data class LootScatterParams(
   /**
    * Lattice edges, in metres, one per kind.
    *
-   * Three lattices rather than one shared like [GroundCoverScatter]'s, because these three are *not* mutually
-   * exclusive: a stick lies under a tree on stony ground beside a boulder. A shared lattice would make them
+   * One lattice per kind rather than one shared like [GroundCoverScatter]'s, because these are *not* mutually
+   * exclusive: a stick and a lump of resin lie under a tree on stony ground beside a boulder. A shared lattice would make them
    * compete for cells and thin each other wherever two belong.
    *
    * **Not a thing to change after a world ships**: a cell index is the durable half of a prop's identity.
@@ -30,6 +30,7 @@ data class LootScatterParams(
   val boulderCellSize: Double = 9.0,
   val stoneCellSize: Double = 7.0,
   val stickCellSize: Double = 6.0,
+  val resinCellSize: Double = 8.0,
 
   /** How far an item may wander from its cell's centre, as a share of its cell. */
   val jitterShare: Double = 0.7,
@@ -59,6 +60,12 @@ data class LootScatterParams(
   /** Chance per cell of a stick under a closed canopy, scaled by [Biome.canopy]. */
   val stickDensity: Double = 0.09,
 
+  /**
+   * Chance per cell of a lump of resin under a closed conifer canopy, scaled by [Biome.canopy] and by how much
+   * of that canopy is conifer. A third of the stick rate: the design promises a few lumps, not a carpet.
+   */
+  val resinDensity: Double = 0.03,
+
   /** Soil depth in metres at and above which the soil adds nothing to how stony the ground is. */
   val stonySoilDepth: Double = 0.8,
 
@@ -78,15 +85,18 @@ data class LootScatterParams(
   val boulderHeight: Double = 1.6,
   val boulderRadius: Double = 1.2,
   val stoneHeight: Double = 0.15,
-  val stickHeight: Double = 0.1
+  val stickHeight: Double = 0.1,
+  val resinHeight: Double = 0.08
 ) : Params {
 
   init {
-    require(boulderCellSize > 0.0 && stoneCellSize > 0.0 && stickCellSize > 0.0) {
+    require(boulderCellSize > 0.0 && stoneCellSize > 0.0 && stickCellSize > 0.0 && resinCellSize > 0.0) {
       "lattice sizes must be positive"
     }
     require(jitterShare in 0.0..1.0) { "jitterShare must be in [0,1], was $jitterShare" }
-    require(boulderDensity in 0.0..1.0 && stoneDensity in 0.0..1.0 && stickDensity in 0.0..1.0) {
+    require(
+      boulderDensity in 0.0..1.0 && stoneDensity in 0.0..1.0 && stickDensity in 0.0..1.0 && resinDensity in 0.0..1.0
+    ) {
       "densities must be in [0,1]"
     }
     require(boulderBaseline in 0.0..1.0 && stoneBaseline in 0.0..1.0) { "baselines must be in [0,1]" }
@@ -100,12 +110,14 @@ data class LootScatterParams(
     .put("boulderCellSize", boulderCellSize)
     .put("stoneCellSize", stoneCellSize)
     .put("stickCellSize", stickCellSize)
+    .put("resinCellSize", resinCellSize)
     .put("jitterShare", jitterShare)
     .put("boulderDensity", boulderDensity)
     .put("boulderBaseline", boulderBaseline)
     .put("stoneDensity", stoneDensity)
     .put("stoneBaseline", stoneBaseline)
     .put("stickDensity", stickDensity)
+    .put("resinDensity", resinDensity)
     .put("stonySoilDepth", stonySoilDepth)
     .put("glacialReach", glacialReach)
     .put("patchWavelength", patchWavelength)
@@ -115,10 +127,11 @@ data class LootScatterParams(
     .put("boulderRadius", boulderRadius)
     .put("stoneHeight", stoneHeight)
     .put("stickHeight", stickHeight)
+    .put("resinHeight", resinHeight)
 }
 
 /**
- * The things lying on the ground that a player can take or break: boulders, loose stones and fallen sticks.
+ * The things lying on the ground that a player can take or break: boulders, loose stones, fallen sticks and resin.
  *
  * Implicit, like every other scatter in this package, for the reason [VegetationScatter] gives at length - a
  * hash answers where they are and nothing stores them. A stone picked up or a boulder broken is a divergence
@@ -132,6 +145,7 @@ data class LootScatterParams(
  * - **Loose stones** follow the same stoniness with a much higher floor, so there are always some within a
  *   short walk of anywhere dry - they are the first thing a new player crafts with.
  * - **Sticks** lie under trees, by [Biome.canopy], and nowhere else.
+ * - **Resin** lies under conifers. There are no tree species, so the biome stands in for them: see [coniferShareOf].
  *
  * Nothing is placed on ground somebody works or keeps: a field, a settlement's graded disc, a cemetery.
  * Paving, buildings, bridges and cave mouths are refused already by the shared [PropSite].
@@ -146,6 +160,7 @@ class LootScatter(
   private val boulderSeed = GenRng.mix64(seed xor BOULDER_SALT)
   private val stoneSeed = GenRng.mix64(seed xor STONE_SALT)
   private val stickSeed = GenRng.mix64(seed xor STICK_SALT)
+  private val resinSeed = GenRng.mix64(seed xor RESIN_SALT)
   private val patchSeed = GenRng.mix64(seed xor PATCH_SALT)
 
   /**
@@ -159,6 +174,7 @@ class LootScatter(
     lattice(chunk, site, ground, into, PropKind.BOULDER, params.boulderCellSize, boulderSeed)
     lattice(chunk, site, ground, into, PropKind.LOOSE_STONE, params.stoneCellSize, stoneSeed)
     lattice(chunk, site, ground, into, PropKind.STICK, params.stickCellSize, stickSeed)
+    lattice(chunk, site, ground, into, PropKind.RESIN, params.resinCellSize, resinSeed)
   }
 
   /** The chance one cell of [kind]'s lattice at this position holds one, in `[0, 1]`. */
@@ -176,6 +192,7 @@ class LootScatter(
         params.stoneDensity * (params.stoneBaseline + (1.0 - params.stoneBaseline) * stony * patchAt(worldX, worldY))
       }
       PropKind.STICK -> params.stickDensity * biome.canopy
+      PropKind.RESIN -> params.resinDensity * biome.canopy * coniferShareOf(biome)
       else -> 0.0
     }
   }
@@ -197,6 +214,20 @@ class LootScatter(
     Biome.TUNDRA, Biome.DESERT -> 0.6
     Biome.DRYLAND -> 0.45
     else -> 0.1
+  }
+
+  /**
+   * How much of a biome's canopy is conifer, in `[0, 1]`.
+   *
+   * Taiga is the boreal forest of spruce, pine and fir. A temperate rainforest is mostly conifer too - cedar,
+   * hemlock, the big firs - and a temperate forest is mixed woods with some pine. The temperate two matter more
+   * than their shares suggest: most taiga lies below the snow line, where no tree stands and nothing lies.
+   */
+  private fun coniferShareOf(biome: Biome): Double = when (biome) {
+    Biome.TAIGA -> 1.0
+    Biome.TEMPERATE_RAINFOREST -> 0.6
+    Biome.TEMPERATE_FOREST -> 0.25
+    else -> 0.0
   }
 
   private fun patchAt(worldX: Double, worldY: Double): Double {
@@ -223,7 +254,8 @@ class LootScatter(
     val ceiling = when (kind) {
       PropKind.BOULDER -> params.boulderDensity
       PropKind.LOOSE_STONE -> params.stoneDensity
-      else -> params.stickDensity
+      PropKind.STICK -> params.stickDensity
+      else -> params.resinDensity
     }
 
     for (cellY in cellOf(bounds.minY) until cellOf(bounds.maxY) + 1) {
@@ -238,7 +270,7 @@ class LootScatter(
         if (config.chunkOf(x) != chunk.x || config.chunkOf(y) != chunk.y) continue
 
         if (ground.isWorked(x, y)) continue
-        val glacial = if (kind == PropKind.STICK) 0.0 else ground.glacialAt(x, y, params.glacialReach)
+        val glacial = if (kind in UNDER_TREES) 0.0 else ground.glacialAt(x, y, params.glacialReach)
         if (roll >= densityAt(kind, x, y, glacial)) continue
 
         val height = site.groundAt(x, y)
@@ -253,7 +285,8 @@ class LootScatter(
         val (heightM, radiusM) = when (kind) {
           PropKind.BOULDER -> params.boulderHeight to params.boulderRadius
           PropKind.LOOSE_STONE -> params.stoneHeight to 0.0
-          else -> params.stickHeight to 0.0
+          PropKind.STICK -> params.stickHeight to 0.0
+          else -> params.resinHeight to 0.0
         }
 
         into.add(
@@ -313,11 +346,15 @@ class LootScatter(
 
   companion object {
     /** The kinds this emits, for a consumer counting or filtering them. */
-    val KINDS = setOf(PropKind.BOULDER, PropKind.LOOSE_STONE, PropKind.STICK)
+    val KINDS = setOf(PropKind.BOULDER, PropKind.LOOSE_STONE, PropKind.STICK, PropKind.RESIN)
+
+    /** The kinds that follow the trees, for which how glacial the ground is decides nothing. */
+    private val UNDER_TREES = setOf(PropKind.STICK, PropKind.RESIN)
 
     private const val BOULDER_SALT = 0x426F756C646572L
     private const val STONE_SALT = 0x53746F6E6573L
     private const val STICK_SALT = 0x537469636B73L
+    private const val RESIN_SALT = 0x526573696EL
     private const val PATCH_SALT = 0x4C6F6F7450L
     private const val PATCH_OCTAVES = 2
   }

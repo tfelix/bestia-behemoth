@@ -1001,7 +1001,8 @@ class ChunkMaterializer(
     // it did not emit before.
     // 11: fixtures - piers, boats, fences, crops, haystacks, scarecrows, windmills, wells, signposts, milestones,
     // lanterns, cairns, headstones, outcrops, inn houses (`FixtureProps`) - so chunks emit props they did not.
-    const val VERSION = 11
+    // 12: resin lies under the conifers (`LootScatter`), so forest chunks emit props they did not.
+    const val VERSION = 12
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

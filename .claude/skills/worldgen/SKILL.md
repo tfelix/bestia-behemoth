@@ -507,7 +507,7 @@ Trees, crystals, and aetherite are **not written into the voxel grid** — `Vege
 there's no per-tree storage anywhere; `trunkSite` still vetoes placement against streets/bridges/
 buildings/caves so nothing spawns inside a wall.
 
-`ChunkMaterializer.VERSION` (currently **11**) is a hand-incremented tier version — separate from any
+`ChunkMaterializer.VERSION` (currently **12**) is a hand-incremented tier version — separate from any
 `Stage.version` — folded into `WorldParams.chunkTierVersion`. It climbed to 10 across the branch that
 built subtraction, vegetation, blighted cover, wounds, bare rock, lava, props and points of interest, and
 was reset to 1 in this cleanup pass alongside every `Stage.version` (see Cross-cutting mechanisms above)
@@ -518,13 +518,15 @@ has shipped to make the bumps so far mean anything.
 
 ### Ground loot and set dressing (`voxel/LootScatter`, `dress/`, `voxel/FixtureProps`)
 
-**Ground loot** is three more scatters on their own lattices: `BOULDER` (by stoniness - thin soil, a rocky biome,
+**Ground loot** is four more scatters on their own lattices: `BOULDER` (by stoniness - thin soil, a rocky biome,
 glacial ground near a `MORAINE`/`GLACIAL_TROUGH` - broken in the zone for quarried stone and flint), `LOOSE_STONE`
-(the same stoniness with a high floor, so a new player always finds one) and `STICK` (by `Biome.canopy`). Nothing
+(the same stoniness with a high floor, so a new player always finds one), `STICK` (by `Biome.canopy`) and `RESIN`
+(canopy times a conifer share of the biome - taiga, temperate rainforest, a little temperate forest - as there are no
+tree species). Nothing
 lies in a `FIELD`, a `SETTLEMENT_GRADING` disc or a `CEMETERY`. Seed 7: 3.1 / 8.4 / 6.2 per hectare.
 
 **Set dressing** is one `PropKind.FIXTURE` with `dress/FixtureKind`'s ordinal as sub-kind (the `POI` pattern - four
-kind bits are nearly spent: 13 of 16) and the style (`FenceStyle`, `CropStyle`, a model) in `PropFlags.fixture`'s
+kind bits are nearly spent: 14 of 16) and the style (`FenceStyle`, `CropStyle`, a model) in `PropFlags.fixture`'s
 bits, which the zone sends as the variant instead of a roll. The split that matters:
 
 - **Sparse things that need the whole world are `FIXTURE` markers** from `DressingStage`: piers (deck elevation on

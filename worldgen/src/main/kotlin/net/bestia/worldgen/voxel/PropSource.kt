@@ -129,7 +129,10 @@ enum class PropKind {
    * arithmetic. Rectangular like a [BUILDING] wherever its producer gives it a half-width, and its style - which
    * fence, which crop - rides in the flag bits [PropFlags.fixture] packs.
    */
-  FIXTURE
+  FIXTURE,
+
+  /** A lump of resin under the conifers, picked up as it lies: what makes a stick burn. See [LootScatter]. */
+  RESIN
 }
 
 /**
