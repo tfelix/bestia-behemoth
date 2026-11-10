@@ -253,6 +253,11 @@ class RecordingSkillWorld(
     return true
   }
 
+  /** What [partyNear] answers; the caster alone by default. */
+  var party: List<EntityId> = emptyList()
+
+  override fun partyNear(radiusMetres: Long): List<EntityId> = party
+
   override fun payCasterCost(mana: Int, stamina: Int): Boolean {
     if (!manaAvailable) {
       return false

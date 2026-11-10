@@ -38,6 +38,16 @@ interface PassiveSkillScript {
    */
   val skill: SkillId
 
-  /** Mutates [context] to reflect this passive being known at [level], which is always >= 1. */
+  /**
+   * True for a master's passive that also works on the master's bestias, like Quick Travel. A bestia gets it at the
+   * master's level, whether or not the master stands nearby.
+   */
+  val reachesOwnedBestias: Boolean
+    get() = false
+
+  /**
+   * Mutates [context] to reflect this passive being known at [level], which is always >= 1. Runs after the
+   * equipment, so the context already says what is held and worn.
+   */
   fun apply(context: StatusValueRecalcContext, level: Int)
 }

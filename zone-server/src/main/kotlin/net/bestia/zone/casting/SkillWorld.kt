@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.skill.PartyMates
 import net.bestia.zone.battle.damage.HitKind
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.aoi.AoiLayer
@@ -133,6 +134,12 @@ interface SkillWorld {
    * only when [includeCaster]. The dead stay where they fell. One operation.
    */
   fun summonGuild(guildId: Long, to: Vec3L, includeCaster: Boolean)
+
+  /**
+   * The caster's party members within [radiusMetres] of the caster and the bestias they own, the caster included;
+   * the caster and its own bestias alone without a party. One operation plus one per result, see [PartyMates].
+   */
+  fun partyNear(radiusMetres: Long = PartyMates.VISIBLE_RANGE_METRES): List<EntityId>
 
   /** Sends [message] to every member of [guildId] being played. One operation. */
   fun tellGuild(guildId: Long, message: SMSG)

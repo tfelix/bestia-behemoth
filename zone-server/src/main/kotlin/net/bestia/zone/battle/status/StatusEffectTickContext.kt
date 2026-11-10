@@ -21,8 +21,14 @@ class StatusEffectTickContext(
     get() = effect.level
 
   /** Credited to the host, so the target's effect names who gave it. */
-  fun applyEffect(targetId: EntityId, effect: StatusEffectId, level: Int) {
-    statusEffectService.applyEffect(world, targetId, effect, level, sourceEntityId = hostId)
+  fun applyEffect(
+    targetId: EntityId,
+    effect: StatusEffectId,
+    level: Int,
+    durationSeconds: Double? = null,
+    amount: Int = 0,
+  ) {
+    statusEffectService.applyEffect(world, targetId, effect, level, hostId, durationSeconds, amount)
   }
 
   /**

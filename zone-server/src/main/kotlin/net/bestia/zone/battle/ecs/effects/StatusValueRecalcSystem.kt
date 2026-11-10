@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.passive.PassiveSkillScriptRegistry
 import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
@@ -82,7 +83,9 @@ class StatusValueRecalcSystem(
     Master::class,
     // ... and may weigh what the entity is made of (Blessing turns on Undead).
     Nature::class,
-    Dead::class
+    Dead::class,
+    // A bestia reads its master's passives that reach it.
+    OwnedBestia::class
   ) + equipment.reads
   override val writes: ComponentClassSet = setOf(
     StatusValues::class,
@@ -112,8 +115,9 @@ class StatusValueRecalcSystem(
 
       val context = StatusValueRecalcContext(base, baseSpeed)
 
-      applyPassiveSkills(context, world, id)
       equipment.contribute(context, world, id)
+      applyPassiveSkills(context, world, id)
+      applyOwnersPassiveSkills(context, world, id)
       applyStatusEffects(context, world, id)
 
       // Only an owner carries this outbound copy; nothing on the server reads it.
@@ -178,6 +182,35 @@ class StatusValueRecalcSystem(
         script.apply(context, level)
       }
     }
+  }
+
+  /** A master's passives that reach their bestias, on a bestia at its master's levels. */
+  private fun applyOwnersPassiveSkills(
+    context: StatusValueRecalcContext,
+    world: World,
+    id: EntityId
+  ) {
+    val masterId = world.get(id, OwnedBestia::class)?.masterId ?: return
+    val masterSkills = masterSkillsOf(world, masterId) ?: return
+
+    for ((skillId, script) in passiveSkillScriptRegistry.bound()) {
+      val level = masterSkills.levelOf(skillId)
+      if (script.reachesOwnedBestias && level > 0) {
+        script.apply(context, level)
+      }
+    }
+  }
+
+  /** A scan, but recalcs are rare and only a bestia whose master is in the world gets anything. */
+  private fun masterSkillsOf(world: World, masterId: Long): KnownSkills? {
+    var found: KnownSkills? = null
+    world.query(Master::class, KnownSkills::class).each { _ ->
+      if (get<Master>().masterId == masterId) {
+        found = get<KnownSkills>()
+      }
+    }
+
+    return found
   }
 
   private fun applyStatusEffects(
