@@ -36,6 +36,17 @@ interface StatusEffectScript {
   val isCancellable: Boolean
     get() = true
 
+  /**
+   * The Potency of a spell no player cast, like a ward stone's aura or a postal seal, in place of the caster's.
+   * Null for an effect that takes the Potency of the cast that left it.
+   */
+  val fixedPotency: Int?
+    get() = null
+
+  /** A dispel weaker than this has no chance at all against the effect. 0 for none. */
+  val dispelThreshold: Int
+    get() = 0
+
   /** False for an effect that is re-derived on spawn, so a stored copy could only ever be stale. */
   val isPersisted: Boolean
     get() = true

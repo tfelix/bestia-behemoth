@@ -331,6 +331,8 @@ enum OpError {
   SKILL_INVALID_CHOICE = 125;
   // Neither of the master's two professions allows this weapon type or armor weight.
   EQUIP_NOT_YOUR_PROFESSION = 126;
+  // The effect already on the target came from a stronger cast; a weaker one cannot refresh it.
+  SKILL_WEAKER_THAN_ACTIVE = 127;
 }
 
 message OperationError {

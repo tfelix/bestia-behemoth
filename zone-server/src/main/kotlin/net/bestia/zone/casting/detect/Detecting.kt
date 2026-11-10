@@ -11,7 +11,11 @@ import net.bestia.zone.util.EntityId
  * What a Detect skill lets its bearer sense: masters and player bestia nearby, hidden ones too. [DetectingSystem]
  * looks again every second and takes it off when [remainingSeconds] run out. Only the bearer's player sees it.
  */
-class Detecting(var remainingSeconds: Float) : DirtyableComponent() {
+class Detecting(
+  var remainingSeconds: Float,
+  /** The Potency of the detecting cast, contested against a concealment's; see [DetectingSystem]. */
+  var potency: Int = Int.MAX_VALUE,
+) : DirtyableComponent() {
 
   var found: List<Detected> = emptyList()
     private set

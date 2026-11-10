@@ -20,6 +20,16 @@ object StatusResistance {
     return (fromStats + levelLead * PER_LEVEL_LEAD).coerceIn(0.0, MAX)
   }
 
+  /**
+   * Against a cast: the attributes as above, and the target's Resolve against the cast's Potency in place of the
+   * level lead. See [net.bestia.zone.battle.potency.Potency.resolve].
+   */
+  fun ofPotency(statSum: Int, resolve: Int, potency: Int): Double {
+    val fromStats = if (statSum <= 0) 0.0 else statSum / (statSum + HALF_POINT)
+
+    return (fromStats + (resolve - potency) / 100.0).coerceIn(0.0, MAX)
+  }
+
   fun chancePercent(baseChancePercent: Double, resistance: Double): Double {
     return baseChancePercent * (1.0 - resistance)
   }

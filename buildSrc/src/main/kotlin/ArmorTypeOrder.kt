@@ -1,7 +1,7 @@
 import org.gradle.api.GradleException
 
 /**
- * The client stores armor types by `net.bestia.zone.item.equip.ArmorType` ordinal, so this list must mirror
+ * The client stores armor types by `net.bestia.zone.battle.gear.ArmorType` ordinal, so this list must mirror
  * that enum's declaration order exactly. Shared by [BestiaDbSyncTask] and [ItemDbSyncTask].
  */
 object ArmorTypeOrder {

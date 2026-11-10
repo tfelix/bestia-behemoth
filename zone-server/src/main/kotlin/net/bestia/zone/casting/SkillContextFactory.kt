@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.potency.PotencyCalculator
 import net.bestia.zone.battle.damage.HitKind
 import net.bestia.zone.battle.BattleContext
 import net.bestia.zone.battle.BattleContextFactory
@@ -25,6 +26,7 @@ class SkillContextFactory(
   private val battleContextFactory: BattleContextFactory,
   private val skillWorldServices: SkillWorldServices,
   private val config: SkillExecutionConfig,
+  private val potencyCalculator: PotencyCalculator? = null,
 ) {
 
   /**
@@ -47,6 +49,8 @@ class SkillContextFactory(
       ?: enchantedGroundItemContext(world, casterId, usedAttack, targetEntityId)
       ?: return null
 
+    val potency = potencyCalculator?.castPotency(world, casterId, skill, skillLevel) ?: 0
+
     val budget = SkillBudget(
       maxOps = config.worldOpsPerCast,
       maxQueryResults = config.maxQueryResults,
@@ -62,7 +66,8 @@ class SkillContextFactory(
         casterId = casterId,
         skillId = skill.id,
         skillLevel = skillLevel,
-        skillHitKind = HitKind.ofSkill(skill)
+        skillHitKind = HitKind.ofSkill(skill),
+        castPotency = potency
       ),
       casterId = casterId,
       targetEntityId = targetEntityId,
@@ -70,7 +75,8 @@ class SkillContextFactory(
       skillId = skill.id,
       skillLevel = skillLevel,
       skill = skill,
-      args = args
+      args = args,
+      potency = potency
     )
   }
 

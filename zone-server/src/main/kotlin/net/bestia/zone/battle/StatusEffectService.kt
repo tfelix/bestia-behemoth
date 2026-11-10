@@ -1,5 +1,6 @@
 package net.bestia.zone.battle
 
+import net.bestia.zone.battle.potency.Potency
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.attack.ThreadLocalRandomSource
@@ -53,7 +54,8 @@ class StatusEffectService(
     level: Int,
     sourceEntityId: EntityId? = null,
     durationSeconds: Double? = null,
-    amount: Int = 0
+    amount: Int = 0,
+    potency: Int = 0,
   ): Boolean {
     val definition = statusEffectDefinitionRegistry.getOrThrow(definitionId)
     if (isTurnedAway(world, definition, sourceEntityId, targetId)) {
@@ -79,9 +81,13 @@ class StatusEffectService(
         shield = script.shield,
         polarity = definition.polarity,
         showsCountdown = script.showsCountdown,
-        locks = script.actionLocks
+        locks = script.actionLocks,
+        potency = script.fixedPotency ?: potency
       )
       landed = effects.activeEffects.lastOrNull { it.definitionId == definition.id }
+    }
+    if (change == StatusEffects.Change.WEAKER) {
+      return false
     }
     // On a refresh too: endowing a weapon anew with another element replaces the old one.
     if (amount != 0) {
@@ -109,9 +115,10 @@ class StatusEffectService(
     chancePercent: Int,
     durationSeconds: Double? = null,
     amount: Int = 0,
+    potency: Int? = null,
   ): Boolean {
     val definition = statusEffectDefinitionRegistry.getOrThrow(effect.id)
-    val resistance = resistanceOf(world, definition, targetId, sourceEntityId)
+    val resistance = resistanceOf(world, definition, targetId, sourceEntityId, potency)
 
     if (random.nextDouble() * 100.0 >= StatusResistance.chancePercent(chancePercent.toDouble(), resistance)) {
       return false
@@ -121,8 +128,16 @@ class StatusEffectService(
       ?: statusEffectScriptRegistry.getOrThrow(definition.script).durationSeconds(level)
 
     return applyEffect(
-      world, targetId, effect.id, level, sourceEntityId, StatusResistance.durationSeconds(baseSeconds, resistance), amount
+      world, targetId, effect.id, level, sourceEntityId, StatusResistance.durationSeconds(baseSeconds, resistance), amount,
+      potency ?: 0
     )
+  }
+
+  /** Whether [definitionId] on [targetId] came from a stronger cast than [potency], which then cannot refresh it. */
+  fun isHeldStronger(world: World, targetId: EntityId, definitionId: Long, potency: Int): Boolean {
+    val existing = world.get(targetId, StatusEffects::class)?.activeEffects?.firstOrNull { it.definitionId == definitionId }
+
+    return existing != null && existing.potency > potency
   }
 
   /** Drops [definitionId] from [targetId] and tells its script why. Returns whether it was there. */
@@ -155,10 +170,28 @@ class StatusEffectService(
 
   /** Lifts every buff from [targetId] that its catalogue row lets a dispel lift. Returns how many went. */
   fun dispel(world: World, targetId: EntityId): Int {
+    return dispel(world, targetId, potency = Int.MAX_VALUE, baseChancePercent = 100, polarities = setOf(StatusEffectPolarity.BUFF))
+  }
+
+  /**
+   * Rolls once per dispellable effect of [polarities] on [targetId]: the base chance of the dispel's rank, cut by
+   * a target stronger than [potency] and refused outright below a fixed spell's threshold. See
+   * [Potency.dispelChancePercent]. Returns how many went.
+   */
+  fun dispel(
+    world: World,
+    targetId: EntityId,
+    potency: Int,
+    baseChancePercent: Int,
+    polarities: Set<StatusEffectPolarity>,
+  ): Int {
     val active = world.get(targetId, StatusEffects::class)?.activeEffects?.toList() ?: return 0
     val lifted = active.filter { effect ->
-      val definition = statusEffectDefinitionRegistry.findById(effect.definitionId)
-      definition != null && definition.polarity == StatusEffectPolarity.BUFF && definition.dispellable
+      val definition = statusEffectDefinitionRegistry.findById(effect.definitionId) ?: return@filter false
+      if (definition.polarity !in polarities || !definition.dispellable) return@filter false
+
+      val threshold = statusEffectScriptRegistry.get(definition.script)?.dispelThreshold ?: 0
+      random.nextDouble() * 100.0 < Potency.dispelChancePercent(baseChancePercent, potency, effect.potency, threshold)
     }
 
     return lifted.count { removeEffect(world, targetId, it.definitionId, RemovalReason.DISPELLED) }
@@ -225,14 +258,28 @@ class StatusEffectService(
     world: World,
     definition: StatusEffectDefinition,
     targetId: EntityId,
-    sourceEntityId: EntityId?
+    sourceEntityId: EntityId?,
+    potency: Int?,
   ): Double {
     if (definition.resist.isEmpty()) {
       return 0.0
     }
 
-    val attributes = world.get(targetId, CombatStats::class)?.values?.attributes
+    val combat = world.get(targetId, CombatStats::class)?.values
+    val attributes = combat?.attributes
     val statSum = attributes?.let { values -> definition.resist.sumOf { it.valueIn(values) } } ?: 0
+
+    // A cast weighs the target's Resolve against its own Potency; anything else, like a swing's proc, the levels.
+    if (potency != null) {
+      val resolve = Potency.resolve(
+        level = world.get(targetId, Level::class)?.level ?: 1,
+        intelligence = attributes?.intelligence ?: 0,
+        willpower = attributes?.willpower ?: 0,
+        focus = combat?.potencyFocus ?: 0,
+      )
+
+      return StatusResistance.ofPotency(statSum, resolve, potency)
+    }
     val targetLevel = world.get(targetId, Level::class)?.level
     val sourceLevel = sourceEntityId?.let { world.get(it, Level::class)?.level }
     val levelLead = if (targetLevel != null && sourceLevel != null) targetLevel - sourceLevel else 0
@@ -263,8 +310,9 @@ class StatusEffectService(
     level: Int,
     sourceEntityId: EntityId? = null,
     durationSeconds: Double? = null,
-    amount: Int = 0
-  ) = applyEffect(world, targetId, effect.id, level, sourceEntityId, durationSeconds, amount)
+    amount: Int = 0,
+    potency: Int = 0,
+  ) = applyEffect(world, targetId, effect.id, level, sourceEntityId, durationSeconds, amount, potency)
 
   private companion object {
     val LOG = KotlinLogging.logger { }

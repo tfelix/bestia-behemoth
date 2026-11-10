@@ -11,6 +11,11 @@ import org.springframework.stereotype.Component
 @Component
 class Warded : StatusEffectScript {
 
+  /** A ward stone's spell: out of reach of any one caster, see the spell potency page's "Fixed Potency". */
+  override val fixedPotency: Int = WARD_POTENCY
+
+  override val dispelThreshold: Int = WARD_DISPEL_THRESHOLD
+
   override val shield: HarmShield = HarmShield.PLAYERS
 
   /** Once the bearer leaves the field it runs out within seconds, so a stored copy is never worth restoring. */

@@ -45,6 +45,9 @@ data class CombatValues(
 
   /** See [DamageModifiers]. */
   val damageModifiers: DamageModifiers = DamageModifiers.NONE,
+
+  /** See [StatusValueRecalcContext.potencyFocus]. */
+  val potencyFocus: Int = 0,
 ) {
 
   companion object {
@@ -97,7 +100,7 @@ data class CombatValues(
         healReceivedPercent = context.healReceivedPercent,
         attackPercent = context.attackPercent,
         weaponElement = context.weaponElement
-      ).copy(damageModifiers = context.damageModifiers)
+      ).copy(damageModifiers = context.damageModifiers, potencyFocus = context.potencyFocus)
     }
 
     private fun resolve(

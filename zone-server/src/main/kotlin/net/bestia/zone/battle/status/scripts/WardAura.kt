@@ -21,6 +21,11 @@ import org.springframework.stereotype.Component
 @Component
 class WardAura : StatusEffectScript {
 
+  /** A ward stone's spell: out of reach of any one caster, see the spell potency page's "Fixed Potency". */
+  override val fixedPotency: Int = WARD_POTENCY
+
+  override val dispelThreshold: Int = WARD_DISPEL_THRESHOLD
+
   override val stackBehavior: StackBehavior = StackBehavior.IGNORE_IF_PRESENT
 
   override val tickIntervalSeconds: Float = PULSE_SECONDS

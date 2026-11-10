@@ -1,5 +1,8 @@
 package net.bestia.zone.casting.detect
 
+import net.bestia.zone.battle.ecs.effects.StatusEffectDurationSystem
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.potency.Potency
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -21,7 +24,10 @@ class DetectingSystem(
 ) : System {
   override val phase = Phase.STATUS
   override val schedule: Schedule = Schedule.EverySeconds(1f)
-  override val reads: ComponentClassSet = setOf(Position::class, Master::class, OwnedBestia::class)
+
+  // A concealment is judged as it stands after this tick's expiries. GuildAuraSystem says it runs before this.
+  override val after = setOf(StatusEffectDurationSystem::class)
+  override val reads: ComponentClassSet = setOf(Position::class, Master::class, OwnedBestia::class, StatusEffects::class)
   override val writes: ComponentClassSet = setOf(Detecting::class)
 
   override fun update(world: World, deltaTime: Float) {
@@ -33,21 +39,30 @@ class DetectingSystem(
         return@each
       }
 
-      detecting.update(sense(world, id, get<Position>().toVec3L()))
+      detecting.update(sense(world, id, get<Position>().toVec3L(), detecting.potency))
     }
   }
 
-  private fun sense(world: World, bearerId: EntityId, at: Vec3L): List<Detecting.Detected> {
+  private fun sense(world: World, bearerId: EntityId, at: Vec3L, potency: Int): List<Detecting.Detected> {
     val found = mutableListOf<Detecting.Detected>()
     aoi.forEachInCube(at, RADIUS_TILES * 2, AoiLayer.DYNAMIC_ONLY) { id, x, y, z ->
       val isMaster = world.has(id, Master::class)
-      if (id != bearerId && (isMaster || world.has(id, OwnedBestia::class))) {
-        found.add(Detecting.Detected(id, Vec3L(x, y, z), isMaster))
+      val position = Vec3L(x, y, z)
+      if (id != bearerId && (isMaster || world.has(id, OwnedBestia::class)) && isWithinReach(world, id, at, position, potency)) {
+        found.add(Detecting.Detected(id, position, isMaster))
       }
     }
 
     // In a fixed order, so the same bodies standing still do not count as news.
     return found.sortedBy { it.entityId }
+  }
+
+  /** A concealed body is found only within part of the range: `range x Edge(P detect - P conceal)`. */
+  private fun isWithinReach(world: World, id: EntityId, from: Vec3L, to: Vec3L, potency: Int): Boolean {
+    val concealment = world.get(id, StatusEffects::class)?.concealment() ?: return true
+    val reach = RADIUS_TILES * Potency.edge(potency, concealment.potency)
+
+    return from.distance(to) <= reach
   }
 
   private companion object {

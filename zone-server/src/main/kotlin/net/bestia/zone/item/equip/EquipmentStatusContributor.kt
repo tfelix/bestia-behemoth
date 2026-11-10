@@ -1,5 +1,6 @@
 package net.bestia.zone.item.equip
 
+import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.battle.status.StatusValueContributor
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -37,5 +38,23 @@ class EquipmentStatusContributor(
     context.offHandWeaponType = worn[EquipmentSlot.LEFT_HAND]?.let { templates.templateOf(it.itemId)?.weaponType }
     context.bodyArmorType = worn[EquipmentSlot.ARMOR]?.let { templates.templateOf(it.itemId)?.armorType }
     context.shieldArmorType = worn[EquipmentSlot.LEFT_HAND]?.let { templates.templateOf(it.itemId)?.armorType }
+
+    context.potencyFocus += focusOf(context.heldWeaponType) + focusOf(context.offHandWeaponType)
+  }
+
+  /** A caster's tools steady the spell: Potency's Focus term, by what is held. */
+  private fun focusOf(weaponType: WeaponType?): Int {
+    return when (weaponType) {
+      WeaponType.STAFF -> STAFF_FOCUS
+      WeaponType.TOME -> TOME_FOCUS
+      WeaponType.WAND -> WAND_FOCUS
+      else -> 0
+    }
+  }
+
+  private companion object {
+    const val STAFF_FOCUS = 6
+    const val TOME_FOCUS = 4
+    const val WAND_FOCUS = 3
   }
 }

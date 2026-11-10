@@ -1,5 +1,7 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.skill.PartyMates
 import net.bestia.zone.battle.damage.Blocked
 import net.bestia.zone.battle.damage.weighedTo
@@ -53,6 +55,8 @@ class BudgetedSkillWorld(
   private val skillLevel: Int,
   /** How the skill's blows are weighed when a script names no kind of its own; see [HitKind.ofSkill]. */
   private val skillHitKind: HitKind = HitKind.UNTYPED,
+  /** The cast's Potency, which every status it leaves carries. */
+  private val castPotency: Int = 0,
 ) : SkillWorld {
 
   override val remainingOps: Int get() = budget.remainingOps
@@ -192,7 +196,9 @@ class BudgetedSkillWorld(
     val effect = StatusEffectId.valueOf(status)
 
     return onEntity(targetEntityId) { target ->
-      services.statusEffects.tryInflict(this, target, effect, level, casterId, chancePercent, durationSeconds, amount)
+      services.statusEffects.tryInflict(
+        this, target, effect, level, casterId, chancePercent, durationSeconds, amount, castPotency
+      )
     } == true
   }
 
@@ -268,7 +274,11 @@ class BudgetedSkillWorld(
     budget.charge()
 
     onEntity(targetEntityId) { target ->
-      services.statusEffects.applyEffect(this, target, effectId, level, casterId, durationSeconds, amount)
+      if (services.statusEffects.isHeldStronger(this, target, effectId, castPotency)) {
+        tellCaster(OpError.SKILL_WEAKER_THAN_ACTIVE)
+        return@onEntity
+      }
+      services.statusEffects.applyEffect(this, target, effectId, level, casterId, durationSeconds, amount, castPotency)
     }
   }
 
@@ -332,8 +342,9 @@ class BudgetedSkillWorld(
     val detecting = world.get(casterId, Detecting::class)
     if (detecting != null) {
       detecting.remainingSeconds = seconds
+      detecting.potency = castPotency
     } else {
-      world.add(casterId, Detecting(seconds))
+      world.add(casterId, Detecting(seconds, castPotency))
     }
   }
 
@@ -465,6 +476,11 @@ class BudgetedSkillWorld(
   /** [block] against [id], or null if [id] is gone. */
   private inline fun <T> onEntity(id: EntityId, block: World.(EntityId) -> T): T? {
     return if (world.isAlive(id)) world.block(id) else null
+  }
+
+  private fun tellCaster(error: OpError) {
+    val accountId = world.get(casterId, Account::class)?.accountId ?: return
+    services.messages.sendToPlayer(accountId, OperationErrorSMSG(error))
   }
 
   private fun broadcastDamage(targetEntityId: EntityId, damage: Damage) {
