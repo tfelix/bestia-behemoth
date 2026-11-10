@@ -60,6 +60,12 @@ data class Recipe(
   /** Whether this recipe is aimed at an item the crafter already holds rather than at nothing. */
   val needsTarget: Boolean get() = effect != RecipeEffect.PRODUCE
 
+  /** Item id -> amount, summed per item, so a recipe naming a material twice is checked against the total. */
+  val inputTotals: Map<Long, Int>
+    get() {
+      return inputs.groupBy({ it.itemId }, { it.amount }).mapValues { (_, amounts) -> amounts.sum() }
+    }
+
   data class ItemStack(val itemId: Long, val amount: Int) {
     init {
       require(amount > 0) { "An item stack needs a positive amount, was $amount" }

@@ -136,6 +136,7 @@ class CraftingFixture(
       crafters = Crafters(starterKit),
       blueprintPoints = BlueprintPoints(),
       structureRegistry = structureRegistry,
+      stationStates = mockk(relaxed = true),
     )
   }
 

@@ -36,6 +36,7 @@ import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.prop.PlayerStructureRegistry
 import net.bestia.zone.prop.StructureEntry
 import net.bestia.zone.prop.Campfire
+import net.bestia.zone.crafting.station.StationStateSender
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import java.time.Clock
 import net.bestia.zone.crafting.ecs.KnownRecipes
@@ -89,6 +90,7 @@ class CraftingService(
   private val crafters: Crafters,
   private val blueprintPoints: BlueprintPoints,
   private val structureRegistry: PlayerStructureRegistry,
+  private val stationStates: StationStateSender,
   private val metrics: GameMetrics = GameMetrics(),
   private val clock: Clock = Clock.systemUTC(),
 ) : RecipeOffering {
@@ -166,6 +168,63 @@ class CraftingService(
         fuelSeconds = station?.burnsOutAt?.let { Campfire.secondsLeft(it, clock.instant()) } ?: 0
       )
     )
+
+    station?.let(stationStates::send)
+  }
+
+  /**
+   * Whether [recipe] may go into a station's queue for this crafter. Only a recipe that makes something does: one
+   * that works on an item needs that item in the crafter's hands.
+   *
+   * @return the refusal to send back, or null when it may
+   */
+  fun refusalToQueue(world: World, crafterId: EntityId, masterEntityId: EntityId, recipe: Recipe): OpError? {
+    if (recipe.needsTarget) return OpError.CRAFT_NOT_POSSIBLE
+
+    val crafter = crafters.of(world, crafterId, masterEntityId) ?: return OpError.CRAFT_NOT_POSSIBLE
+    val known = crafter.skills
+    if (known?.knowsSkill(recipe.requiredSkillId, recipe.requiredSkillLevel) != true || !crafter.knowsBlueprint(recipe)) {
+      return OpError.CRAFT_NOT_POSSIBLE
+    }
+
+    return if (withinReach(known, recipe, outputLevelOf(recipe))) null else OpError.CRAFT_ITEM_TOO_ADVANCED
+  }
+
+  /** How long [recipe] takes this crafter, or null when they cannot make it at all. */
+  fun craftSecondsFor(world: World, crafterId: EntityId, masterEntityId: EntityId, recipe: Recipe): Float? {
+    val crafter = crafters.of(world, crafterId, masterEntityId) ?: return null
+
+    return bonuses.craftSeconds(crafter.skills, recipe)
+  }
+
+  /**
+   * Rolls one item of a station's queue. Its inputs were paid into the station when it was queued, so there is
+   * nothing to take here: the caller spends them whichever way the roll goes. [workerId] brings the DEX and WIL
+   * and the bag the item goes into.
+   *
+   * @return the refusal that stops the queue, or null when the item was rolled
+   */
+  fun produceFromStation(world: World, workerId: EntityId, masterEntityId: EntityId, recipe: Recipe): OpError? {
+    refusalToQueue(world, workerId, masterEntityId, recipe)?.let { return it }
+
+    val minted = mintedBy(recipe)
+    if (minted > 0 && reserve.available() < minted) return OpError.CRAFT_WORLD_OUT_OF_GOLD
+
+    val crafter = crafters.of(world, workerId, masterEntityId) ?: return OpError.CRAFT_NOT_POSSIBLE
+    val known = crafter.skills
+    val accountId = world.get(workerId, Account::class)?.accountId
+    val masterId = crafter.master.masterId
+    val chance = bonuses.successChance(known, recipe, attributesOf(world, workerId))
+
+    if (Random.nextFloat() <= chance) {
+      val provenance = ItemProvenance(crafterName = crafter.master.name, worldName = worldService.record.name)
+      val roll = rollOutput(recipe, known)
+      succeed(world, workerId, accountId, masterId, crafter.playerBestiaId, recipe, null, minted, chance, roll, provenance)
+    } else {
+      fail(world, workerId, accountId, masterId, crafter.playerBestiaId, recipe, null, known)
+    }
+
+    return null
   }
 
   /**
@@ -532,9 +591,9 @@ class CraftingService(
     }
   }
 
-  /** Summed per item, so a recipe naming a material twice is checked against the total. */
-  private fun required(recipe: Recipe): Map<Long, Int> =
-    recipe.inputs.groupBy({ it.itemId }, { it.amount }).mapValues { (_, amounts) -> amounts.sum() }
+  private fun required(recipe: Recipe): Map<Long, Int> {
+    return recipe.inputTotals
+  }
 
   /**
    * How many of [itemId] the crafter holds, counting only stackable piles.

@@ -26,6 +26,7 @@ class CampfireSystem(
   private val source: PlayerStructureSource,
   private val residency: WorldObjectResidencyService,
   private val worldService: WorldService,
+  private val stations: StationSpill,
   private val clock: Clock = Clock.systemUTC()
 ) : System {
 
@@ -49,6 +50,7 @@ class CampfireSystem(
         val entityId = loaded[entry.id]
 
         if (entry.isGoneAt(now)) {
+          stations.spill(world, entry, entry.position)
           entityId?.let { residency.remove(world, it) }
           removeRow(entry)
           LOG.info { "Campfire ${entry.id} went cold and is gone" }
