@@ -100,6 +100,19 @@ recipes:
     craftSeconds: 60.0
     baseSuccessChance: 1.0
 
+  - id: 51
+    identifier: AUCTION_HOUSE_KIT
+    effect: PRODUCE
+    output: { item: auction_house_kit, amount: 1 }
+    inputs:
+      - { item: log, amount: 80 }
+      - { item: loose_stone, amount: 60 }
+      - { item: iron_ingot, amount: 20 }
+    skill: { skill: M_CARPENTRY, level: 5 }
+    station: WORKBENCH
+    craftSeconds: 90.0
+    baseSuccessChance: 1.0
+
   - id: 39
     identifier: FURNACE_KIT
     effect: PRODUCE

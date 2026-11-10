@@ -19,4 +19,23 @@ class AuctionFeesTest {
   fun `asking for a single coin still costs one`() {
     assertEquals(1L, AuctionFees.listingFee(1L))
   }
+
+  @Test
+  fun `an owner fee rounds up and half of it, rounded down, reaches the till`() {
+    val ownerFee = AuctionFees.ownerFee(price = 1001, percent = 5)
+
+    assertEquals(51, ownerFee)
+    assertEquals(25, AuctionFees.tillShare(ownerFee))
+  }
+
+  @Test
+  fun `a start town house charges no owner fee`() {
+    assertEquals(0, AuctionFees.ownerFee(price = 1000, percent = 0))
+  }
+
+  @Test
+  fun `each Trade Post Owner level allows five percent more`() {
+    assertEquals(5, AuctionFees.maxOwnerFeePercent(1))
+    assertEquals(25, AuctionFees.maxOwnerFeePercent(5))
+  }
 }

@@ -382,6 +382,14 @@ class RecordingSkillWorld(
 
   var townsFounded = 0
 
+  val structuresBegun = mutableListOf<Pair<StaticEntityKind, Vec3L>>()
+
+  override fun beginStructure(kind: StaticEntityKind, at: Vec3L, buildSeconds: Float): Long? {
+    structuresBegun += kind to at
+
+    return structuresBegun.size.toLong()
+  }
+
   override fun foundTown(): Boolean {
     townsFounded++
 

@@ -395,6 +395,20 @@ enum OpError {
   REPAIR_NOT_NEEDED = 311;
   // The repairer carries none of the materials the repair needs.
   REPAIR_NEEDS_MATERIALS = 312;
+
+  // Player auction houses, from 320.
+  // The house's town has fallen; it trades nothing until a town holds it again.
+  AUCTION_HOUSE_CLOSED = 320;
+  // The owner fee can change once a day.
+  AUCTION_FEE_CHANGED_RECENTLY = 321;
+  // Listings are still up in the house.
+  AUCTION_HOUSE_NOT_EMPTY = 322;
+  // Trade Post Owner needs an auction house kit in the bag.
+  TRADE_POST_NEEDS_KIT = 323;
+  // The master runs as many auction houses as their Trade Post Owner level allows.
+  TRADE_POST_LIMIT = 324;
+  // The town needs a working post office first.
+  TRADE_POST_NEEDS_POST_OFFICE = 325;
 }
 
 message OperationError {

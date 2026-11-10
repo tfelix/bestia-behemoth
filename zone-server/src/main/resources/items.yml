@@ -1450,6 +1450,17 @@ items:
 
       Set it down inside a town without a post office, and the post will run it once it is built.
 
+  - id: 151
+    item-db-name: auction_house_kit
+    base-level: 50
+    weight: 1500
+    type: ETC
+    material: WOOD
+    description: |
+      A hall's worth of beams, a long counter and a ledger chained to it.
+
+      Trade Post Owner raises it as an auction house, in a town with a post office.
+
   # The Priest's reagents: Aqua Benedicta fills an empty bottle with holy water, and Aspersio spends it.
   - id: 109
     item-db-name: empty_bottle

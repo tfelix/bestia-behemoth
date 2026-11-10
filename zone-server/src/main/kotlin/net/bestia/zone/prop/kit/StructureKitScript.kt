@@ -37,14 +37,19 @@ abstract class StructureKitScript(
   private val structures: PlayerStructureService,
 
   /** What this kit turns into once it is built. */
-  val kind: StaticEntityKind,
+  override val kind: StaticEntityKind,
 
   /** How much work the finished thing takes, in seconds, before any skill or buff is applied. */
-  val buildSeconds: Float,
+  override val buildSeconds: Float,
 
   /** How far from the builder it may be put down, in tiles. */
   private val reach: Long = PlayerStructureService.RANGE_TILES
-) : ItemScript {
+) : ItemScript, BuildingKit {
+
+  override val kitItemId: Long
+    get() {
+      return itemId
+    }
 
   override fun execute(world: World, userId: EntityId, args: ScriptArgs): Boolean {
     val at = args.vec(ScriptArgKeys.POSITION)

@@ -19,7 +19,7 @@ import org.hibernate.type.SqlTypes
 import java.time.Instant
 
 /**
- * Goods up for sale in the shared market. The goods themselves sit in [container], held by no player, so a
+ * Goods up for sale at an auction house. The goods themselves sit in [container], held by no player, so a
  * listing survives its seller logging off and the boot that releases stale trade reservations.
  *
  * Not tied to a world: the market outlives a regenerated map, and its houses are found again by town.
@@ -57,6 +57,10 @@ class AuctionListing(
 
   @Column(name = "town_name", nullable = false)
   val townName: String,
+
+  /** The player auction house it was put up at, or null for the start towns' shared market. */
+  @Column(name = "house_structure_id")
+  val houseStructureId: Long? = null,
 
   @Column(name = "expires_at", nullable = false)
   val expiresAt: Instant,

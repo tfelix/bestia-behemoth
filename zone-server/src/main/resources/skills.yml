@@ -716,6 +716,10 @@ skills:
     range: 2
     manaCost: 40
     castTime: 10.0
+    mechanics:
+      reagents:
+        - item: auction_house_kit
+          amount: 1
     description: |
       Builds an auction house where other citizens can buy and sell their wares, turning any
       settlement into a proper marketplace. Only one auction house can stand in a settlement.

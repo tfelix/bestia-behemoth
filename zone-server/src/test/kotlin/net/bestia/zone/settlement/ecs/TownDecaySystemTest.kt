@@ -31,7 +31,9 @@ class TownDecaySystemTest {
   private val worldService = mockk<WorldService> {
     every { config } returns WorldConfig(seed = 1L, chunkSize = 32, voxelSize = 1.0)
   }
-  private val system = TownDecaySystem(towns, structures, propKinds, mockk(relaxed = true), mockk(relaxed = true), worldService)
+  private val system = TownDecaySystem(
+    towns, structures, propKinds, mockk(relaxed = true), mockk(relaxed = true), worldService, mockk(relaxed = true)
+  )
 
   @Test
   fun `a post office outside a town loses half its health in 48 h`() {

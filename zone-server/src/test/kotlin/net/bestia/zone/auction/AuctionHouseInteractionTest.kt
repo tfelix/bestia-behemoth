@@ -1,5 +1,10 @@
 package net.bestia.zone.auction
 
+import net.bestia.zone.entity.ecs.PlayerStructureIdentity
+import net.bestia.zone.prop.PlayerStructureRegistry
+import net.bestia.zone.prop.StructureEntry
+import net.bestia.zone.settlement.TownRegistry
+
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -32,6 +37,10 @@ class AuctionHouseInteractionTest {
   private lateinit var world: EcsWorld
   private lateinit var messages: OutMessageProcessor
   private lateinit var interaction: AuctionHouseInteraction
+  private lateinit var structures: PlayerStructureRegistry
+  private lateinit var towns: TownRegistry
+  private lateinit var playerHouses: PlayerHouses
+  private lateinit var houseService: PlayerHouseService
   private var hall: EntityId = 0L
 
   @BeforeEach
@@ -46,7 +55,13 @@ class AuctionHouseInteractionTest {
     every { markets.townOf(HALL_PROP_ID) } returns "Ashford"
     every { markets.towns() } returns listOf("Ashford", "Brightwater", "Coldmere")
 
-    interaction = AuctionHouseInteraction(AuctionHouses(worldService, markets), messages)
+    structures = mockk(relaxed = true)
+    towns = mockk(relaxed = true)
+    playerHouses = mockk(relaxed = true)
+    houseService = mockk(relaxed = true)
+    interaction = AuctionHouseInteraction(
+      AuctionHouses(worldService, markets, structures, towns, playerHouses), houseService, messages
+    )
 
     // Eight metres along x, six across y.
     hall = world.createEntity { id ->
@@ -77,6 +92,36 @@ class AuctionHouseInteractionTest {
     verify(exactly = 0) { messages.sendToPlayer(any(), any<SMSG>()) }
   }
 
+  @Test
+  fun `a player house in a standing town opens through its owner's service`() {
+    val house = playerHouse()
+    every { towns.standingAt(hallAt) } returns mockk { every { name } returns "Oakhold" }
+    val player = playerAt(Vec3L(hallAt.x + 10, hallAt.y, hallAt.z))
+
+    assertNull(interaction.interact(world, player, house))
+    verify { houseService.open(accountId, house, AuctionHouses.At.Player(OWNED, "Oakhold")) }
+  }
+
+  @Test
+  fun `a player house whose town fell is closed`() {
+    val house = playerHouse()
+    every { towns.standingAt(hallAt) } returns null
+    val player = playerAt(Vec3L(hallAt.x + 10, hallAt.y, hallAt.z))
+
+    assertEquals(OpError.AUCTION_HOUSE_CLOSED, interaction.interact(world, player, house))
+  }
+
+  private fun playerHouse(): EntityId {
+    every { playerHouses.of(OWNED.structureId) } returns OWNED
+    every { structures.of(OWNED.structureId) } returns StructureEntry(OWNED.structureId, StaticEntityKind.AUCTION_HOUSE, 3, 7, hallAt, 0f)
+
+    return world.createEntity { id ->
+      add(id, PropPose(hallAt, yaw = 0f))
+      add(id, PlayerStructureIdentity(OWNED.structureId, 7L))
+      add(id, StaticVisual(StaticEntityKind.AUCTION_HOUSE, variant = 0, heightDm = 40, halfLengthDm = 80, halfWidthDm = 60))
+    }
+  }
+
   private fun playerAt(at: Vec3L): EntityId {
     return world.createEntity { id ->
       add(id, Position.fromVec3(at))
@@ -85,6 +130,8 @@ class AuctionHouseInteractionTest {
   }
 
   private companion object {
+    val OWNED = PlayerHouses.House(42L, 3L, 7L, "Ada", feePercent = 5, feeChangedAt = null)
+
     const val HALL_PROP_ID = 4242L
   }
 }

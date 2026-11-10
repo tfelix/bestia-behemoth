@@ -14,4 +14,18 @@ message AuctionHouseOpenSMSG {
 
   // Every town whose house shares this market, this one included.
   repeated string linked_town_names = 3;
+
+  // Empty at a start town's house, which has no owner.
+  string owner_name = 4;
+  // Charged on every new listing, on top of the listing fee.
+  int32 owner_fee_percent = 5;
+
+  // Only for the owner: what they may set and what waits to be collected.
+  bool is_owner = 6;
+  int32 max_owner_fee_percent = 7;
+  int64 till = 8;
+  // When the owner may change the fee again. Zero when they may now.
+  int64 fee_changeable_at_epoch_seconds = 9;
+  // Whether the owner may tear the house down: no listing is up in it.
+  bool can_tear_down = 10;
 }

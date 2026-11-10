@@ -13,16 +13,24 @@ import org.springframework.stereotype.Component
 @Component
 class AuctionHouseInteraction(
   private val houses: AuctionHouses,
+  private val playerHouses: PlayerHouseService,
   private val outMessageProcessor: OutMessageProcessor,
 ) : PropInteraction {
 
   override val kind = StaticEntityKind.AUCTION_HOUSE
 
   override fun interact(world: World, actorId: EntityId, propId: EntityId): OpError? {
-    val town = houses.townInReach(world, actorId, propId) ?: return OpError.AUCTION_OUT_OF_RANGE
+    val at = houses.houseInReach(world, actorId, propId) ?: return OpError.AUCTION_OUT_OF_RANGE
     val accountId = world.get(actorId, Account::class)?.accountId ?: return null
 
-    outMessageProcessor.sendToPlayer(accountId, AuctionHouseOpenSMSG(propId, town, houses.linkedTowns()))
+    when (at) {
+      is AuctionHouses.At.StartTown ->
+        outMessageProcessor.sendToPlayer(accountId, AuctionHouseOpenSMSG(propId, at.townName, houses.linkedTowns()))
+      is AuctionHouses.At.Player -> {
+        if (!at.isOpen) return OpError.AUCTION_HOUSE_CLOSED
+        playerHouses.open(accountId, propId, at)
+      }
+    }
 
     return null
   }

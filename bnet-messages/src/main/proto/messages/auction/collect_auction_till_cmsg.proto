@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "CollectAuctionTillCmsgProto";
+
+// The owner empties the till of the house they stand at into their bag.
+message CollectAuctionTillCMSG {
+  uint64 house_entity_id = 1;
+}
