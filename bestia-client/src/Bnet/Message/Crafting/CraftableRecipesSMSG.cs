@@ -14,6 +14,7 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
   [GlobalClass]
   public partial class CraftableRecipesSMSG : ISMSG
   {
+    /// <summary>The skill the window shows first, or 0 when none was picked.</summary>
     [Export] public ulong SkillId { get; set; }
 
     /// <summary>

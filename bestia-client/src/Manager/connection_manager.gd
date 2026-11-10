@@ -131,6 +131,7 @@ var InteractEntityCMSG = load("res://Bnet/Message/Map/InteractEntityCMSG.cs")
 var CraftItemCMSG = load("res://Bnet/Message/Crafting/CraftItemCMSG.cs")
 var DiscoverRecipeCMSG = load("res://Bnet/Message/Crafting/DiscoverRecipeCMSG.cs")
 var CancelCraftCMSG = load("res://Bnet/Message/Crafting/CancelCraftCMSG.cs")
+var OpenCraftingCMSG = load("res://Bnet/Message/Crafting/OpenCraftingCMSG.cs")
 var RequestTradeCMSG = load("res://Bnet/Message/Trade/RequestTradeCMSG.cs")
 var AnswerTradeRequestCMSG = load("res://Bnet/Message/Trade/AnswerTradeRequestCMSG.cs")
 var OfferTradeItemCMSG = load("res://Bnet/Message/Trade/OfferTradeItemCMSG.cs")
@@ -682,11 +683,22 @@ func set_quiver(item_ids: Array[int]) -> void:
 ## The server may refuse (materials short, station gone, already crafting) with an OperationError, and a
 ## craft that starts can still fail when it resolves - nothing is applied locally either way. Progress
 ## arrives as a CastingComponentSMSG, which is deliberately the same bar a spell cast uses.
-func craft_item(recipe_id: int, target_unique_id: int = 0) -> void:
+## [param amount] crafts follow one another until the materials run out; only a producing recipe repeats.
+func craft_item(recipe_id: int, target_unique_id: int = 0, amount: int = 1) -> void:
 	assert(is_ready_to_send())
 	var msg = CraftItemCMSG.new()
 	msg.RecipeId = recipe_id
 	msg.TargetUniqueId = target_unique_id
+	msg.Amount = amount
+	_socket.SendMessage(msg)
+
+
+## Opens the crafting window where the player stands. [param skill_id] is shown first, and 0 picks none.
+## The answer arrives as [signal craftable_recipes_received].
+func open_crafting(skill_id: int = 0) -> void:
+	assert(is_ready_to_send())
+	var msg = OpenCraftingCMSG.new()
+	msg.SkillId = skill_id
 	_socket.SendMessage(msg)
 
 

@@ -3,9 +3,8 @@ using Bnet;
 namespace BestiaBehemothClient.Bnet.Message.Crafting
 {
   /// <summary>
-  /// Start one craft. Sent from the crafting window, which opened because the player activated a
-  /// crafting skill - activation and execution are separate messages because
-  /// <c>ActivateSkillCMSG</c> carries no recipe.
+  /// Start a craft, or a batch of the same craft. Sent from the crafting window - opening it and crafting
+  /// are separate messages, because a window that lists nine recipes cannot say which one is wanted.
   ///
   /// The server may refuse (unknown recipe, skill too low, no station in range, materials short,
   /// already crafting) with an <c>OperationError</c>. Nothing is applied locally either way.
@@ -19,12 +18,16 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
     /// </summary>
     public ulong TargetUniqueId { get; set; }
 
+    /// <summary>How many to make one after another. Only a producing recipe repeats.</summary>
+    public uint Amount { get; set; } = 1;
+
     public override Envelope ToEnvelope()
     {
       var craftItem = new global::Bnet.CraftItemCMSG
       {
         RecipeId = RecipeId,
-        TargetUniqueId = TargetUniqueId
+        TargetUniqueId = TargetUniqueId,
+        Amount = Amount
       };
 
       return new Envelope

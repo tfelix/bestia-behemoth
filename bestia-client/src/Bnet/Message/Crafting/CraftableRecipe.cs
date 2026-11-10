@@ -30,6 +30,9 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
   {
     [Export] public ulong RecipeId { get; set; }
 
+    /// <summary>The skill this recipe belongs to, which is how the window groups the list.</summary>
+    [Export] public ulong SkillId { get; set; }
+
     [Export] public RecipeEffect Effect { get; set; } = RecipeEffect.Produce;
 
     /// <summary>
@@ -69,6 +72,7 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
       var recipe = new CraftableRecipe
       {
         RecipeId = proto.RecipeId,
+        SkillId = proto.SkillId,
         OutputItemId = proto.OutputItemId,
         OutputAmount = proto.OutputAmount,
         SuccessPermille = proto.SuccessPermille,

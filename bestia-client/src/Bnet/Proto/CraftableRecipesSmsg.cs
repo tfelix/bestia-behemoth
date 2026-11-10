@@ -27,20 +27,20 @@ namespace Bnet {
             "Ci5tZXNzYWdlcy9jcmFmdGluZy9jcmFmdGFibGVfcmVjaXBlc19zbXNnLnBy",
             "b3RvEgRibmV0ImYKFENyYWZ0YWJsZVJlY2lwZXNTTVNHEhAKCHNraWxsX2lk",
             "GAEgASgEEhQKDHN0YXRpb25fa2luZBgCIAEoDRImCgdyZWNpcGVzGAMgAygL",
-            "MhUuYm5ldC5DcmFmdGFibGVSZWNpcGUi2gEKD0NyYWZ0YWJsZVJlY2lwZRIR",
+            "MhUuYm5ldC5DcmFmdGFibGVSZWNpcGUi7AEKD0NyYWZ0YWJsZVJlY2lwZRIR",
             "CglyZWNpcGVfaWQYASABKAQSDgoGZWZmZWN0GAIgASgNEhYKDm91dHB1dF9p",
             "dGVtX2lkGAMgASgNEhUKDW91dHB1dF9hbW91bnQYBCABKA0SIQoGaW5wdXRz",
             "GAUgAygLMhEuYm5ldC5SZWNpcGVJbnB1dBIYChBzdWNjZXNzX3Blcm1pbGxl",
             "GAYgASgNEhQKDGNyYWZ0X21pbGxpcxgHIAEoDRITCgtpbnB1dHNfaGVsZBgI",
-            "IAEoCBINCgVwb2ludBgJIAMoAiI8CgtSZWNpcGVJbnB1dBIPCgdpdGVtX2lk",
-            "GAEgASgNEg4KBmFtb3VudBgCIAEoDRIMCgRoZWxkGAMgASgNQjIKFW5ldC5i",
-            "ZXN0aWEuYm5ldC5wcm90b0IZQ3JhZnRhYmxlUmVjaXBlc1Ntc2dQcm90b2IG",
-            "cHJvdG8z"));
+            "IAEoCBINCgVwb2ludBgJIAMoAhIQCghza2lsbF9pZBgKIAEoBCI8CgtSZWNp",
+            "cGVJbnB1dBIPCgdpdGVtX2lkGAEgASgNEg4KBmFtb3VudBgCIAEoDRIMCgRo",
+            "ZWxkGAMgASgNQjIKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IZQ3JhZnRhYmxl",
+            "UmVjaXBlc1Ntc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipesSMSG), global::Bnet.CraftableRecipesSMSG.Parser, new[]{ "SkillId", "StationKind", "Recipes" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipe), global::Bnet.CraftableRecipe.Parser, new[]{ "RecipeId", "Effect", "OutputItemId", "OutputAmount", "Inputs", "SuccessPermille", "CraftMillis", "InputsHeld", "Point" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipe), global::Bnet.CraftableRecipe.Parser, new[]{ "RecipeId", "Effect", "OutputItemId", "OutputAmount", "Inputs", "SuccessPermille", "CraftMillis", "InputsHeld", "Point", "SkillId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.RecipeInput), global::Bnet.RecipeInput.Parser, new[]{ "ItemId", "Amount", "Held" }, null, null, null, null)
           }));
     }
@@ -50,11 +50,12 @@ namespace Bnet {
   #region Messages
   /// <summary>
   ///*
-  /// What the player can make with the skill they just activated, here, right now.
+  /// What the player can make here, right now: every known skill's recipes for the station in range, or
+  /// the ones that need no station (Handiwork) when none is.
   ///
-  /// Sent in answer to activating a crafting skill rather than to a request of its own: the success
-  /// chance and the duration both depend on invested skill levels and on which station is standing
-  /// nearby, so only the server can fill them in, and activation is already the moment the player asked.
+  /// Sent when a crafting skill is activated, a station is clicked, or the window is opened with
+  /// OpenCraftingCMSG. The success chance and the duration both depend on invested skill levels, so only
+  /// the server can fill them in.
   ///
   /// Carries no recipe *names*. A producing recipe is named by its output item, which the client already
   /// has in its own item DB; the three item-changing effects are named by the effect. That is what keeps
@@ -110,6 +111,9 @@ namespace Bnet {
     /// <summary>Field number for the "skill_id" field.</summary>
     public const int SkillIdFieldNumber = 1;
     private ulong skillId_;
+    /// <summary>
+    /// The skill the window shows first: the one activated, or 0 when none was.
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public ulong SkillId {
@@ -369,6 +373,7 @@ namespace Bnet {
       craftMillis_ = other.craftMillis_;
       inputsHeld_ = other.inputsHeld_;
       point_ = other.point_.Clone();
+      skillId_ = other.skillId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -506,6 +511,21 @@ namespace Bnet {
       get { return point_; }
     }
 
+    /// <summary>Field number for the "skill_id" field.</summary>
+    public const int SkillIdFieldNumber = 10;
+    private ulong skillId_;
+    /// <summary>
+    /// The skill this recipe belongs to, which is how the window groups the list.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong SkillId {
+      get { return skillId_; }
+      set {
+        skillId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -530,6 +550,7 @@ namespace Bnet {
       if (CraftMillis != other.CraftMillis) return false;
       if (InputsHeld != other.InputsHeld) return false;
       if(!point_.Equals(other.point_)) return false;
+      if (SkillId != other.SkillId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -546,6 +567,7 @@ namespace Bnet {
       if (CraftMillis != 0) hash ^= CraftMillis.GetHashCode();
       if (InputsHeld != false) hash ^= InputsHeld.GetHashCode();
       hash ^= point_.GetHashCode();
+      if (SkillId != 0UL) hash ^= SkillId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -594,6 +616,10 @@ namespace Bnet {
         output.WriteBool(InputsHeld);
       }
       point_.WriteTo(output, _repeated_point_codec);
+      if (SkillId != 0UL) {
+        output.WriteRawTag(80);
+        output.WriteUInt64(SkillId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -634,6 +660,10 @@ namespace Bnet {
         output.WriteBool(InputsHeld);
       }
       point_.WriteTo(ref output, _repeated_point_codec);
+      if (SkillId != 0UL) {
+        output.WriteRawTag(80);
+        output.WriteUInt64(SkillId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -667,6 +697,9 @@ namespace Bnet {
         size += 1 + 1;
       }
       size += point_.CalculateSize(_repeated_point_codec);
+      if (SkillId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(SkillId);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -702,6 +735,9 @@ namespace Bnet {
         InputsHeld = other.InputsHeld;
       }
       point_.Add(other.point_);
+      if (other.SkillId != 0UL) {
+        SkillId = other.SkillId;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -758,6 +794,10 @@ namespace Bnet {
             point_.AddEntriesFrom(input, _repeated_point_codec);
             break;
           }
+          case 80: {
+            SkillId = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -812,6 +852,10 @@ namespace Bnet {
           case 74:
           case 77: {
             point_.AddEntriesFrom(ref input, _repeated_point_codec);
+            break;
+          }
+          case 80: {
+            SkillId = input.ReadUInt64();
             break;
           }
         }
