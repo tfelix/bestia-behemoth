@@ -124,6 +124,9 @@ class StatusValueRecalcContext(
   var hpRegen: RegenModifier = RegenModifier()
     private set
 
+  /** Potency's Focus term: what gear and buffs add to the strength of this entity's casts. Capped when used. */
+  var potencyFocus: Int = 0
+
   /** See [DamageModifiers]: bonuses to damage dealt and reductions to damage taken, by the other side. */
   var damageModifiers: DamageModifiers = DamageModifiers.NONE
     private set

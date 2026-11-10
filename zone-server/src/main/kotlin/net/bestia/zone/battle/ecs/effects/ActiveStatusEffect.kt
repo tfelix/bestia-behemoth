@@ -30,7 +30,12 @@ data class ActiveStatusEffect(
   /** Denormalized like [isSyncedToClient], for the same reason. */
   val showsCountdown: Boolean = true,
   /** Denormalized like [shield], because every move and swing asks. */
-  val locks: Set<ActionLock> = emptySet()
+  val locks: Set<ActionLock> = emptySet(),
+  /**
+   * How strong the cast that left this effect was, see [net.bestia.zone.battle.potency.Potency]. A dispel and a
+   * detection contest against it, and a weaker cast cannot refresh it. 0 for an effect no cast left.
+   */
+  val potency: Int = 0,
 ) {
   /** Runtime only, so it is kept out of `equals`, `copy` and storage. */
   var sinceLastTick: Float = 0f

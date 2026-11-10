@@ -33,6 +33,9 @@ class SkillContext(
    * and checks it, the same way [SkillStrategy.checkCastStart] did at activation.
    */
   val args: List<Long> = emptyList(),
+
+  /** How strong this cast is, see [net.bestia.zone.battle.potency.Potency]. What a contest weighs it by. */
+  val potency: Int = 0,
 ) {
 
   /** Where the skill was aimed: the target's position for an entity cast, the aimed-at point otherwise. */

@@ -41,7 +41,8 @@ class StatusEffects(
     shield: HarmShield? = null,
     polarity: StatusEffectPolarity = StatusEffectPolarity.NEUTRAL,
     showsCountdown: Boolean = true,
-    locks: Set<ActionLock> = emptySet()
+    locks: Set<ActionLock> = emptySet(),
+    potency: Int = 0,
   ): Change {
     fun newInstance() = ActiveStatusEffect(
       definitionId = definitionId,
@@ -52,10 +53,17 @@ class StatusEffects(
       shield = shield,
       polarity = polarity,
       showsCountdown = showsCountdown,
-      locks = locks
+      locks = locks,
+      potency = potency
     )
 
     val existing = activeEffects.firstOrNull { it.definitionId == definitionId }
+
+    // Otherwise a faint buff from an ally could lower a friend's protection, and a weak curse could cover a strong
+    // one to make it easy to lift.
+    if (existing != null && stackBehavior != StackBehavior.STACK_INDEPENDENT && potency < existing.potency) {
+      return Change.WEAKER
+    }
 
     return when (stackBehavior) {
       StackBehavior.STACK_INDEPENDENT -> add(newInstance())
@@ -98,6 +106,11 @@ class StatusEffects(
   }
 
   fun hasEffect(definitionId: Long): Boolean = activeEffects.any { it.definitionId == definitionId }
+
+  /** The HIDDEN or CLOAKED effect on the bearer, for a detection contest against its Potency; null if neither. */
+  fun concealment(): ActiveStatusEffect? {
+    return activeEffects.firstOrNull { it.definitionId == StatusEffectId.HIDDEN.id || it.definitionId == StatusEffectId.CLOAKED.id }
+  }
 
   /** Hidden or cloaked: nothing may pick the bearer out as a target. */
   fun isConcealed(): Boolean {
@@ -179,6 +192,9 @@ class StatusEffects(
     UNCHANGED,
     REFRESHED,
     CHANGED,
+
+    /** Turned away: the effect already on the bearer came from a stronger cast. */
+    WEAKER,
   }
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets {

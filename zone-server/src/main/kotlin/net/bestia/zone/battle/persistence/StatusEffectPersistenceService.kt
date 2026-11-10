@@ -25,7 +25,8 @@ data class StatusEffectsSnapshot(
     val level: Int,
     /** Null means "never expires" — the relational spelling of [Float.POSITIVE_INFINITY]. */
     val remainingSeconds: Float?,
-    val sourceEntityId: EntityId?
+    val sourceEntityId: EntityId?,
+    val potency: Int = 0,
   )
 }
 
@@ -136,7 +137,8 @@ class StatusEffectPersistenceService(
           definitionId = it.definitionId,
           level = it.level,
           remainingSeconds = it.remainingSeconds.toNullableSeconds(),
-          sourceEntityId = it.sourceEntityId
+          sourceEntityId = it.sourceEntityId,
+          potency = it.potency
         )
       }
     )
@@ -162,7 +164,8 @@ class StatusEffectPersistenceService(
           definitionId = it.definitionId,
           level = it.level,
           remainingSeconds = it.remainingSeconds,
-          sourceEntityId = it.sourceEntityId
+          sourceEntityId = it.sourceEntityId,
+          potency = it.potency
         )
       }
     }
@@ -211,7 +214,8 @@ class StatusEffectPersistenceService(
       isSyncedToClient = definition.isSyncedToClient,
       shield = script.shield,
       polarity = definition.polarity,
-      showsCountdown = script.showsCountdown
+      showsCountdown = script.showsCountdown,
+      potency = row.potency
     )
   }
 

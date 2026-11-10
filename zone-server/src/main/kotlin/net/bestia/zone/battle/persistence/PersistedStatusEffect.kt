@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.persistence
 
+import org.hibernate.annotations.ColumnDefault
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -48,6 +49,11 @@ class PersistedStatusEffect(
   /** Entity that caused the effect, if it is still meaningful to attribute it. */
   @Column(name = "source_entity_id", nullable = true)
   var sourceEntityId: Long? = null,
+
+  /** The Potency of the cast that left it, so a relog does not make a strong buff easy to lift. */
+  @Column(name = "potency", nullable = false)
+  @ColumnDefault("0")
+  var potency: Int = 0,
 ) {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
