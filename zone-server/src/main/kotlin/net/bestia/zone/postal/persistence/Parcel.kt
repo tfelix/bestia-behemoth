@@ -68,8 +68,11 @@ class Parcel(
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   val id: Long = 0
 
-  /** On its way back to the sender, refused or never collected. A returned parcel is not returned again. */
-  @Column(nullable = false)
+  /**
+   * On its way back to the sender, refused or never collected. A returned parcel is not returned again.
+   * Not named `returning`: that is a reserved word on MariaDB, which refused the whole `create table`.
+   */
+  @Column(name = "is_returning", nullable = false)
   var returning: Boolean = false
 
   /** Auction mail: in the mailbox at once, and handed out at any post office. */
