@@ -40,8 +40,11 @@ import kotlin.math.roundToInt
 class ConstructionSystem(
   private val structures: PlayerStructureService,
   private val registry: PlayerStructureRegistry,
-  private val propKinds: PropKindRegistry
+  private val propKinds: PropKindRegistry,
+  completions: List<SiteCompletion>,
 ) : System {
+
+  private val completionByKind = completions.associateBy { it.kind }
   override val phase = Phase.ACTIONS
 
   override val reads: ComponentClassSet = setOf(Position::class, Dead::class)
@@ -105,7 +108,12 @@ class ConstructionSystem(
 
     completed?.forEach { (siteId, site) ->
       LOG.debug { "Construction of structure ${site.structureId} (${site.kind}) finished" }
-      structures.completeConstruction(world, siteId, site)
+      val completion = completionByKind[site.kind]
+      if (completion != null) {
+        completion.complete(world, siteId, site)
+      } else {
+        structures.completeConstruction(world, siteId, site)
+      }
     }
   }
 

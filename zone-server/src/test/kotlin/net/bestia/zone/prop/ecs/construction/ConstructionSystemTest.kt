@@ -49,7 +49,7 @@ class ConstructionSystemTest {
     val propKinds = mockk<PropKindRegistry>()
     every { propKinds.of(any()) } returns PropKindDto(kind = StaticEntityKind.WORKBENCH, maxHp = finalHp)
 
-    system = ConstructionSystem(structures, registry, propKinds)
+    system = ConstructionSystem(structures, registry, propKinds, emptyList())
   }
 
   @Test
