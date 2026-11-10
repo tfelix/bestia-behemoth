@@ -79,7 +79,7 @@ class WorldObjectResidencyTest {
     removals = ArrayList()
     residency = WorldObjectResidencyService(
       listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), noDivergence(), subscriptions,
-      chunkResidency
+      chunkResidency, mockk(relaxed = true)
     )
   }
 
@@ -299,7 +299,7 @@ class WorldObjectResidencyTest {
     }
     val service = WorldObjectResidencyService(
       listOf(empty), kindRegistry(), EntityAOIService(), recordingFanOut(), worldService(), noDivergence(),
-      subscriptions, chunkResidency
+      subscriptions, chunkResidency, mockk(relaxed = true)
     )
     val world = testWorld()
 
@@ -445,7 +445,7 @@ class WorldObjectResidencyTest {
     }
     val service = WorldObjectResidencyService(
       listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), divergence, subscriptions,
-      chunkResidency
+      chunkResidency, mockk(relaxed = true)
     )
     val world = testWorld()
 
@@ -473,7 +473,7 @@ class WorldObjectResidencyTest {
     }
     val service = WorldObjectResidencyService(
       listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), divergence, subscriptions,
-      chunkResidency
+      chunkResidency, mockk(relaxed = true)
     )
     val world = testWorld()
 
@@ -503,7 +503,7 @@ class WorldObjectResidencyTest {
     }
     val service = WorldObjectResidencyService(
       listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), divergence, subscriptions,
-      chunkResidency
+      chunkResidency, mockk(relaxed = true)
     )
     val world = testWorld()
 

@@ -2,6 +2,7 @@ package net.bestia.zone.boot
 
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.prop.PlayerStructureRegistry
+import net.bestia.zone.prop.chest.ChestStorages
 import net.bestia.zone.prop.persistence.PlayerStructureRepository
 import net.bestia.zone.structure.StructureCollision
 import org.springframework.boot.CommandLineRunner
@@ -25,12 +26,14 @@ class PlayerStructureBootRunner(
   private val structures: PlayerStructureRepository,
   private val masters: MasterRepository,
   private val collision: StructureCollision,
+  private val chests: ChestStorages,
 ) : CommandLineRunner {
 
   @Transactional
   override fun run(vararg args: String?) {
     nameOwnerAccounts()
     registry.loadAll()
+    chests.loadAll()
     standBuildingPieces()
   }
 

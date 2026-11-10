@@ -5,6 +5,7 @@ import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.GrowthStage
+import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.PropVitality
@@ -12,6 +13,7 @@ import net.bestia.zone.entity.ecs.StaticSync
 import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.message.ChunkFanOut
+import net.bestia.zone.prop.chest.ChestStorages
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.residency.ChunkResidency
 import net.bestia.zone.world.stream.ChunkStaticEntitiesSMSG
@@ -65,6 +67,7 @@ class WorldObjectResidencyService(
   private val divergence: WorldObjectDivergenceRegistry,
   private val subscriptions: ChunkSubscriptionService,
   residency: ChunkResidency,
+  private val chests: ChestStorages,
   private val clock: Clock = Clock.systemUTC()
 ) {
 
@@ -345,6 +348,7 @@ class WorldObjectResidencyService(
       add(id, WorldObjectIdentity(site.propId, latticeVersion))
       // Only for something a player built, so a tree carries no half-empty second identity.
       if (site.structureId != 0L) add(id, PlayerStructureIdentity(site.structureId, site.ownerAccountId))
+      if (site.kind == StaticEntityKind.CHEST) chests.furnish(this, id, site.structureId)
       add(id, StaticSync)
     }
 

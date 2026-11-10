@@ -3,7 +3,8 @@ package net.bestia.zone.item.container
 import net.bestia.zone.util.PlayerBestiaId
 
 /**
- * Loads and saves the rows that hold item containers. The account slice owns those rows, so it implements this.
+ * Loads and saves the rows that hold item containers. Slices above this one own those rows, so the account slice
+ * implements this.
  *
  * Every container write loads the container, changes it and saves it, from several kinds of threads at once. So
  * each load locks its row until the transaction ends; without the lock two writers read the same state and one
@@ -22,6 +23,9 @@ interface ContainerOwners {
    * another master. Throws when there is no such player bestia.
    */
   fun lockedPlayerBestiaOf(masterId: Long, playerBestiaId: PlayerBestiaId): ContainerOwner?
+
+  /** Locks the row of a chest [masterId] built: null when another master built it. Throws when there is no such chest. */
+  fun lockedChestOf(masterId: Long, structureId: Long): ContainerOwner?
 
   fun save(owner: ContainerOwner)
 

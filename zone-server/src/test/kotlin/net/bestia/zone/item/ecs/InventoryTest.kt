@@ -1,6 +1,8 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.item.ItemProvenance
+import net.bestia.zone.sync.SyncTargets
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -408,5 +410,16 @@ class InventoryTest {
     val sent = inventory.toEntityMessage(entityId = 5L, removed = false) as InventoryComponentSMSG
 
     assertEquals(alice, sent.items.single().provenance)
+  }
+
+  @Test
+  fun `only the owner of a chest sees inside`() {
+    val world = testWorld()
+    val chest = world.createEntity { id ->
+      add(id, ChestStorage(structureId = 3L, ownerMasterId = 9L, ownerAccountId = 1L))
+      add(id, inventory)
+    }
+
+    assertEquals(SyncTargets.Accounts(setOf(1L)), inventory.syncTargets(world, chest))
   }
 }

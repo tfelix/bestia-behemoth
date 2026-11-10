@@ -87,7 +87,7 @@ class StructureResidencyTest {
   }
 
   private val residency = WorldObjectResidencyService(
-    listOf(trees, stations), kinds, aoi, fanOut, worldService, divergence, subscriptions, chunkResidency
+    listOf(trees, stations), kinds, aoi, fanOut, worldService, divergence, subscriptions, chunkResidency, mockk(relaxed = true)
   )
 
   private val world = testWorld()

@@ -7,11 +7,15 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.entity.ecs.DeadActionGuard
+import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.container.ItemHolder
 import net.bestia.zone.item.container.ReservedItem
 import net.bestia.zone.item.ecs.CarryCapacity
+import net.bestia.zone.item.ecs.ChestStorage
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.equip.EquipmentSlot
@@ -74,6 +78,16 @@ class TransferItemHandlerTest {
       add(id, CarryCapacity(current = 0, max = capacity))
     }
 
+  private fun ownChest(x: Long, masterId: Long = MASTER_ID, contents: List<Inventory.Item> = emptyList()): EntityId =
+    world.createEntity { id ->
+      add(id, PropPose(Vec3L(x, 5, 0), yaw = 0f))
+      add(id, ChestStorage(STRUCTURE_ID, masterId, ACCOUNT_ID))
+      add(id, Inventory(contents.toMutableList()))
+    }
+
+  /** Distinct goods that each take a slot of their own. */
+  private fun otherGoods(count: Int) = (1..count).map { Inventory.Item(itemId = 1000L + it, amount = 1) }
+
   private fun arrowsIn(entity: EntityId): Int =
     world.get(entity, Inventory::class)!!.getItems().filter { it.itemId == ARROW }.sumOf { it.amount }
 
@@ -84,7 +98,7 @@ class TransferItemHandlerTest {
 
   @Test
   fun `the goods leave the giver on the tick and reach the bestia once the database moved them`() {
-    every { inventoryService.transferBetweenOwners(MASTER_ID, null, PLAYER_BESTIA_ID, ARROW, 0L, 4, null) } returns
+    every { inventoryService.transferBetweenOwners(MASTER_ID, ItemHolder.Master, ItemHolder.Bestia(PLAYER_BESTIA_ID), ARROW, 0L, 4, null) } returns
       arrived(4)
 
     sut.handle(world, handOver)
@@ -96,6 +110,86 @@ class TransferItemHandlerTest {
 
     assertEquals(6, arrowsIn(master))
     assertEquals(4, arrowsIn(bestia))
+  }
+
+  @Test
+  fun `goods go into the master's chest and come out again`() {
+    val chest = ownChest(x = 7)
+    val intoChest = ItemHolder.Chest(STRUCTURE_ID)
+    every { inventoryService.transferBetweenOwners(MASTER_ID, ItemHolder.Master, intoChest, ARROW, 0L, 4, null) } returns
+      arrived(4)
+    every { inventoryService.transferBetweenOwners(MASTER_ID, intoChest, ItemHolder.Master, ARROW, 0L, 3, null) } returns
+      arrived(3)
+
+    sut.handle(world, handOver.copy(toEntityId = chest))
+    pending!!.invoke()
+    val stored = world.get(chest, Inventory::class)!!.getItems().single().playerItemId
+    sut.handle(world, TransferItemCMSG(ACCOUNT_ID, chest, master, stored, amount = 3))
+    pending!!.invoke()
+
+    assertEquals(1, arrowsIn(chest))
+    assertEquals(9, arrowsIn(master))
+  }
+
+  @Test
+  fun `a bestia puts goods into the chest`() {
+    val chest = ownChest(x = 8)
+    world.get(bestia, Inventory::class)!!.addItem(Inventory.Item(ARROW, amount = 5, weight = 10))
+    val bestiasArrows = world.get(bestia, Inventory::class)!!.getItems().single().playerItemId
+    every {
+      inventoryService.transferBetweenOwners(
+        MASTER_ID, ItemHolder.Bestia(PLAYER_BESTIA_ID), ItemHolder.Chest(STRUCTURE_ID), ARROW, 0L, 5, null
+      )
+    } returns arrived(5)
+
+    sut.handle(world, TransferItemCMSG(ACCOUNT_ID, bestia, chest, bestiasArrows, amount = 5))
+    pending!!.invoke()
+
+    assertEquals(5, arrowsIn(chest))
+  }
+
+  @Test
+  fun `another master's chest is neither given to nor taken from`() {
+    val strangers = ownChest(x = 6, masterId = MASTER_ID + 1, contents = listOf(Inventory.Item(ARROW, amount = 5)))
+    val theirArrows = world.get(strangers, Inventory::class)!!.getItems().single().playerItemId
+
+    sut.handle(world, handOver.copy(toEntityId = strangers))
+    sut.handle(world, TransferItemCMSG(ACCOUNT_ID, strangers, master, theirArrows, amount = 5))
+
+    assertNull(pending)
+    assertEquals(5, arrowsIn(strangers))
+    assertEquals(10, arrowsIn(master))
+  }
+
+  @Test
+  fun `a chest too far away is told so`() {
+    val farAway = ownChest(x = 5 + ExchangeReach.HORIZONTAL + 1)
+
+    sut.handle(world, handOver.copy(toEntityId = farAway))
+
+    assertNull(pending)
+    verify { outMessages.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OpError.EXCHANGE_OUT_OF_REACH)) }
+  }
+
+  @Test
+  fun `a full chest takes nothing that needs a new slot`() {
+    val full = ownChest(x = 6, contents = otherGoods(ChestStorage.SLOTS))
+
+    sut.handle(world, handOver.copy(toEntityId = full))
+
+    assertNull(pending)
+    assertEquals(10, arrowsIn(master))
+    verify { outMessages.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OpError.CHEST_FULL)) }
+  }
+
+  @Test
+  fun `a pile merges into a full chest`() {
+    val pile = Inventory.Item(ARROW, amount = 2, weight = 10)
+    val full = ownChest(x = 6, contents = otherGoods(ChestStorage.SLOTS - 1) + pile)
+
+    sut.handle(world, handOver.copy(toEntityId = full))
+
+    assertNotNull(pending)
   }
 
   @Test
@@ -221,6 +315,7 @@ class TransferItemHandlerTest {
     const val ACCOUNT_ID = 1L
     const val MASTER_ID = 9L
     const val PLAYER_BESTIA_ID = 21L
+    const val STRUCTURE_ID = 33L
     const val ARROW = 40L
     const val SWORD = 11L
   }

@@ -7,9 +7,11 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.container.ItemHolder
 import net.bestia.zone.item.container.ReservedItem
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.CarryCheck
+import net.bestia.zone.item.ecs.ChestStorage
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemOwner
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
@@ -24,7 +26,8 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
 /**
- * Hands a held item from one of a master's own entities to another standing next to it.
+ * Hands a held item from one of a master's own entities to another standing next to it, or into or out of a chest
+ * the master built.
  *
  * The goods leave the giver's live bag on the tick that checks the move, so from then on nothing else - a second
  * move, a drop, a craft - can reach them. The durable move follows as one transaction on the master's job key,
@@ -33,7 +36,7 @@ import org.springframework.stereotype.Component
  * database had, and they stay gone. At no point do both bags hold the same goods.
  *
  * Neither entity has to be the one the player drives, so both ids come from the message - and each is checked
- * to be this account's master or one of its bestias before anything is touched.
+ * to be this account's master, one of its bestias or one of its chests before anything is touched.
  */
 @Component
 class TransferItemHandler(
@@ -57,8 +60,8 @@ class TransferItemHandler(
     }
 
     val masterId = connectionInfoService.getMasterId(msg.playerId)
-    val giver = ItemOwner.of(world, msg.fromEntityId)?.takeIf { it.masterId == masterId }
-    val receiver = ItemOwner.of(world, msg.toEntityId)?.takeIf { it.masterId == masterId }
+    val giver = ItemOwner.holderOf(world, msg.fromEntityId, masterId)
+    val receiver = ItemOwner.holderOf(world, msg.toEntityId, masterId)
     if (giver == null || receiver == null) {
       LOG.warn { "Account ${msg.playerId} tried to move goods between ${msg.fromEntityId} and ${msg.toEntityId}, not both its own" }
       return true
@@ -87,8 +90,9 @@ class TransferItemHandler(
       return true
     }
 
-    if (!CarryCheck.fits(world, msg.toEntityId, held.weight * msg.amount)) {
-      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(OpError.EXCHANGE_TOO_HEAVY))
+    val noRoom = noRoomFor(world, msg.toEntityId, held, msg.amount)
+    if (noRoom != null) {
+      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(noRoom))
       return true
     }
 
@@ -110,14 +114,14 @@ class TransferItemHandler(
     msg: TransferItemCMSG,
     taken: Inventory.Item,
     masterId: Long,
-    giver: ItemOwner,
-    receiver: ItemOwner,
+    giver: ItemHolder,
+    receiver: ItemHolder,
   ) {
     val moved: ReservedItem? = try {
       inventoryService.transferBetweenOwners(
         masterId = masterId,
-        fromBestia = giver.playerBestiaId,
-        toBestia = receiver.playerBestiaId,
+        from = giver,
+        to = receiver,
         itemId = taken.itemId,
         uniqueId = taken.uniqueId,
         amount = taken.amount,
@@ -138,6 +142,18 @@ class TransferItemHandler(
     }
 
     worldView.grantToLive(msg.toEntityId, listOf(moved))
+  }
+
+  /** A chest counts slots, everything else carries by weight. */
+  private fun noRoomFor(world: World, receiverId: EntityId, held: Inventory.Item, amount: Int): OpError? {
+    val chest = world.get(receiverId, ChestStorage::class)
+    if (chest != null) {
+      val contents = world.get(receiverId, Inventory::class) ?: return OpError.CHEST_FULL
+
+      return if (chest.hasRoomFor(contents, held)) null else OpError.CHEST_FULL
+    }
+
+    return if (CarryCheck.fits(world, receiverId, held.weight * amount)) null else OpError.EXCHANGE_TOO_HEAVY
   }
 
   /** Worn gear stays on until it is taken off, and a copy that is its own item moves one at a time. */
