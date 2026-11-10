@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrKGgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSr5GgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -101,9 +101,10 @@ namespace Bnet {
             "QU5HRRCAARIUCg9SSVRVQUxfRkFUSUdVRUQQgQESFAoPUklUVUFMX05PVF9P",
             "UEVOEIIBEhMKDlJJVFVBTF9SVU5OSU5HEIMBEhoKFVJJVFVBTF9BTFJFQURZ",
             "X0pPSU5FRBCEARIQCgtSSVRVQUxfRlVMTBCFARISCg1SSVRVQUxfRkFJTEVE",
-            "EIYBEg8KCkNIRVNUX0ZVTEwQhwEiBAguEC4qElNIT1BfVFJFQVNVUllfRlVM",
-            "TEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJv",
-            "dG9iBnByb3RvMw=="));
+            "EIYBEg8KCkNIRVNUX0ZVTEwQhwESFAoPQ0hFU1RfTk9UX1lPVVJTEIgBEhcK",
+            "EkNIRVNUX09VVF9PRl9SRUFDSBCJASIECC4QLioSU0hPUF9UUkVBU1VSWV9G",
+            "VUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQ",
+            "cm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -616,6 +617,14 @@ namespace Bnet {
     /// Every slot of the chest is taken and the goods would need a new one. The player takes something out first.
     /// </summary>
     [pbr::OriginalName("CHEST_FULL")] ChestFull = 135,
+    /// <summary>
+    /// Only the master who built a chest, and that master's bestias, may open it.
+    /// </summary>
+    [pbr::OriginalName("CHEST_NOT_YOURS")] ChestNotYours = 136,
+    /// <summary>
+    /// The chest is too far away to reach into. The player walks up to it.
+    /// </summary>
+    [pbr::OriginalName("CHEST_OUT_OF_REACH")] ChestOutOfReach = 137,
   }
 
   #endregion

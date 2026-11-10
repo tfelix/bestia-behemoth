@@ -45,6 +45,7 @@ class InteractEntityHandlerTest {
   private lateinit var crafting: CraftingService
   private lateinit var talk: TalkService
   private lateinit var hallInteraction: PropInteraction
+  private lateinit var chestInteraction: PropInteraction
   private lateinit var handler: InteractEntityHandler
   private var actor: EntityId = 0L
 
@@ -57,6 +58,9 @@ class InteractEntityHandlerTest {
     hallInteraction = mockk(relaxed = true)
     every { hallInteraction.kind } returns StaticEntityKind.AUCTION_HOUSE
     every { hallInteraction.interact(any(), any(), any()) } returns null
+    chestInteraction = mockk(relaxed = true)
+    every { chestInteraction.kind } returns StaticEntityKind.CHEST
+    every { chestInteraction.interact(any(), any(), any()) } returns null
 
     actor = world.createEntity { id ->
       add(id, Position.fromVec3(standingAt))
@@ -72,7 +76,7 @@ class InteractEntityHandlerTest {
       talkService = talk,
       crafting = crafting,
       outMessageProcessor = messages,
-      propInteractions = listOf(hallInteraction),
+      propInteractions = listOf(hallInteraction, chestInteraction),
     )
   }
 
@@ -152,6 +156,20 @@ class InteractEntityHandlerTest {
     handler.handle(world, interactWith(workbench))
 
     verify { crafting.openAtStructure(world, actor, actor, 7L) }
+  }
+
+  @Test
+  fun `clicking a chest opens the chest, not a crafting window`() {
+    val chest = world.createEntity { id ->
+      add(id, PropPose(standingAt, yaw = 0f))
+      add(id, StaticVisual(StaticEntityKind.CHEST, variant = 0, heightDm = 8))
+      add(id, PlayerStructureIdentity(8L, ownerAccountId = accountId))
+    }
+
+    handler.handle(world, interactWith(chest))
+
+    verify { chestInteraction.interact(any(), actor, chest) }
+    verify(exactly = 0) { crafting.openAtStructure(any(), any(), any(), any()) }
   }
 
   @Test

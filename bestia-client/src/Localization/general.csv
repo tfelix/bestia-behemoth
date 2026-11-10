@@ -508,6 +508,8 @@ TRAVEL_DELETE,Forget this route
 ERROR_EXCHANGE_OUT_OF_REACH,They walked too far apart to hand anything over.
 ERROR_EXCHANGE_TOO_HEAVY,They cannot carry that much more.
 ERROR_CHEST_FULL,The chest is full. Take something out first.
+ERROR_CHEST_NOT_YOURS,This chest is not yours.
+ERROR_CHEST_OUT_OF_REACH,Walk up to the chest to open it.
 ERROR_TRADE_NEEDS_MASTER,"Only your master can trade. Hand the goods to your master first."
 ERROR_TELEPORT_NOT_READY,Your wings need a moment before they carry you again.
 ERROR_TELEPORT_NOT_NOW,You cannot fly off in the middle of that.

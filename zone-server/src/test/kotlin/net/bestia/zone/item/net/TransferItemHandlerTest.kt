@@ -17,6 +17,7 @@ import net.bestia.zone.item.container.ReservedItem
 import net.bestia.zone.item.ecs.CarryCapacity
 import net.bestia.zone.item.ecs.ChestStorage
 import net.bestia.zone.item.ecs.Equipment
+import net.bestia.zone.item.ecs.ExchangeReach
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.EquipmentSlots

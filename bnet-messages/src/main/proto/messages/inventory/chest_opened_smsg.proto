@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ChestOpenedSMSGProto";
+
+// The player opened one of their chests. Its contents follow as an InventoryComponentSMSG for the same entity, and
+// every later change to them arrives the same way. Goods move in and out with TransferItemCMSG.
+message ChestOpenedSMSG {
+  uint64 entity_id = 1;
+
+  // How many slots the chest has. A pile that merges into one already inside takes no slot of its own.
+  uint32 slots = 2;
+}
