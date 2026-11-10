@@ -124,6 +124,13 @@ class RecordingSkillWorld(
     manaRestored.add(entityId to amount)
   }
 
+  override fun effectSourceOf(entityId: EntityId, effectId: Long): EntityId? {
+    return if (appliedEffects.any { it.targetEntityId == entityId && it.effectId == effectId }) effectSource else null
+  }
+
+  /** Who [effectSourceOf] says gave an effect that was applied. */
+  var effectSource: EntityId? = null
+
   override fun hasEffect(entityId: EntityId, effectId: Long): Boolean {
     return effectsOn[entityId]?.contains(effectId) == true
   }
@@ -273,6 +280,10 @@ class RecordingSkillWorld(
   val behind = mutableSetOf<EntityId>()
 
   override fun isBehind(targetEntityId: EntityId): Boolean = targetEntityId in behind
+
+  var calledBestias = 0
+
+  override fun callOwnBestias(): Int = calledBestias
 
   val knockbackImmune = mutableSetOf<EntityId>()
 

@@ -1,5 +1,7 @@
 package net.bestia.zone.casting.net
 
+import net.bestia.zone.skill.persistence.Skill
+import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
@@ -128,7 +130,7 @@ class ActivateSkillHandler(
     // SkillStrategy.checkCastStart.
     val cost = strategy.costOf(skill, msg.skillLevel)
     val denial = world.modify(activeEntityId) { id ->
-      unaffordable(this, id, cost) ?: strategy.checkCastStart(this, id, msg.skillLevel, msg.args)
+      unaffordable(this, id, cost) ?: missingReagent(this, id, skill) ?: strategy.checkCastStart(this, id, msg.skillLevel, msg.args)
     }
     if (denial != null) {
       LOG.debug { "Activation of ${skill.identifier} by $activeEntityId refused: $denial" }
@@ -224,6 +226,15 @@ class ActivateSkillHandler(
       stamina < cost.staminaCost -> OpError.SKILL_NOT_ENOUGH_STAMINA
       else -> null
     }
+  }
+
+  /** A skill that uses up an item is refused before its bar when the bag holds none; it is taken on resolution. */
+  private fun missingReagent(world: World, casterId: EntityId, skill: Skill): OpError? {
+    val reagent = skill.mechanics.reagent ?: return null
+    val inventory = world.get(casterId, Inventory::class) ?: return null
+    val held = inventory.getItems().filter { it.itemId == reagent.itemId }.sumOf { it.amount }
+
+    return if (held < reagent.amount) OpError.SKILL_MISSING_REAGENT else null
   }
 
   private fun reducedCastTime(seconds: Float, reductionPercent: Int): Float {

@@ -13,9 +13,10 @@ import org.springframework.stereotype.Component
 import kotlin.math.min
 
 /**
- * First Aid (`skills.yml` id 8): bandages channelled over ten seconds, healing a share of the target's
- * maximum health or a flat amount, whichever is smaller. The flat value caps it, so a big pool cannot turn a
- * bandage into a full heal.
+ * First Aid (`skills.yml` id 8): a bandage is put on at the start, then the mend is channelled for ten seconds,
+ * healing in a pulse every two seconds. Together the pulses heal a share of the target's maximum health or a flat
+ * amount, whichever is smaller - the flat value caps it, so a big pool cannot turn a bandage into a full heal. A
+ * hit breaks the channel and keeps what was healed so far.
  *
  * A bestia may only receive it once a minute, which is `FIRST_AID_COOLDOWN` on the *target* rather than a
  * cooldown on the caster - so two healers cannot take turns topping the same bestia up.
@@ -47,21 +48,26 @@ class FirstAid(
     return super.isCastPossible(ctx)
   }
 
+  /** Claims the patient; the bandage itself is the skill's reagent and is taken as the cast starts. */
   override fun execute(ctx: SkillContext): Damage? {
-    val battle = ctx.battle as? EntityBattleContext ?: return null
     val target = ctx.targetEntityId ?: return null
 
-    // Computed before the claim, so the mark can never affect what was healed.
-    val healed = Heal(healed(battle))
+    // The live claim, not the snapshot check in `isCastPossible`, decides which of two healers gets the patient.
+    ctx.world.applyStatusEffectIfAbsent(target, StatusEffectId.FIRST_AID_COOLDOWN.id, ctx.skillLevel)
 
-    // The live claim, not the snapshot check in `isCastPossible`, decides: only the cast that sets the mark heals.
-    val claimed = ctx.world.applyStatusEffectIfAbsent(
-      target,
-      StatusEffectId.FIRST_AID_COOLDOWN.id,
-      ctx.skillLevel
-    )
+    return null
+  }
 
-    return if (claimed) healed else null
+  /** One pulse of the mend; the last one adds what the division left over, so the pulses add up to the table. */
+  override fun onChannelTick(ctx: SkillContext, tick: Int) {
+    val battle = ctx.battle as? EntityBattleContext ?: return
+    val target = ctx.targetEntityId ?: return
+    // A second healer who lost the race for the patient channels for nothing.
+    if (ctx.world.effectSourceOf(target, StatusEffectId.FIRST_AID_COOLDOWN.id) != ctx.casterId) return
+    val total = healed(battle)
+    val pulse = total / PULSES + if (tick == PULSES - 1) total % PULSES else 0
+
+    if (pulse > 0) ctx.world.apply(target, Heal(pulse))
   }
 
   private fun healed(ctx: EntityBattleContext): Int {
@@ -79,5 +85,8 @@ class FirstAid(
     val FLAT_HP = intArrayOf(100, 200, 350)
 
     val MANA_COST = intArrayOf(12, 16, 20)
+
+    /** Ten seconds of channel at one pulse every two. */
+    const val PULSES = 5
   }
 }
