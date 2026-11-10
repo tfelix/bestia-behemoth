@@ -29,12 +29,16 @@ sealed class ObtainItemIntent : Component {
   /**
    * Creates [amount] of item [itemId] out of thin air (no source entity/stack involved) - e.g. the
    * `/item` GM command, a quest reward or a forge. A forged copy brings its [roll] and its [provenance].
+   *
+   * [freshId] names the one new copy up front, from `PlayerItemIds`, for a caller that keeps a row about it. A
+   * copy dropped at the feet for want of room gets a new id when it is picked up.
    */
   class CreateItemIntent(
     val itemId: Long,
     val amount: Int,
     val roll: ItemRoll? = null,
     val provenance: ItemProvenance? = null,
+    val freshId: Long = 0L,
   ) : ObtainItemIntent()
 
   /**

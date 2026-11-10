@@ -173,7 +173,7 @@ class ObtainItemIntentSystem(
     }
 
     if (CarryCheck.fits(world, entityId, item.weight * intent.amount)) {
-      grantItem(world, entityId, item, intent.amount, roll = intent.roll, provenance = intent.provenance)
+      grantItem(world, entityId, item, intent.amount, roll = intent.roll, provenance = intent.provenance, freshId = intent.freshId)
       return
     }
 
@@ -209,6 +209,7 @@ class ObtainItemIntentSystem(
     roll: ItemRoll? = null,
     provenance: ItemProvenance? = null,
     weight: Int = item.weight,
+    freshId: Long = 0L,
   ) {
     val inventory = world.get(entityId, Inventory::class)
     if (inventory == null) {
@@ -217,7 +218,11 @@ class ObtainItemIntentSystem(
     }
     // Fresh copies of gear are minted here rather than by the database, one per unit, so each shows up as a copy
     // the player can already name.
-    val freshInstanceIds = if (uniqueId == 0L && !item.stackable) List(amount) { PlayerItemIds.next() } else emptyList()
+    val freshInstanceIds = when {
+      uniqueId != 0L || item.stackable -> emptyList()
+      freshId != 0L && amount == 1 -> listOf(freshId)
+      else -> List(amount) { PlayerItemIds.next() }
+    }
     val heldIds = freshInstanceIds.ifEmpty { listOf(uniqueId) }
 
     heldIds.forEach { heldId ->

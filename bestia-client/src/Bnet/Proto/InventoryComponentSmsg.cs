@@ -27,7 +27,7 @@ namespace Bnet {
             "CjFtZXNzYWdlcy9jb21wb25lbnQvaW52ZW50b3J5X2NvbXBvbmVudF9zbXNn",
             "LnByb3RvEgRibmV0GihtZXNzYWdlcy9jb21wb25lbnQvaXRlbV9zdGF0X3Zh",
             "bHVlLnByb3RvIkIKFkludmVudG9yeUNvbXBvbmVudFNNU0cSIgoFaXRlbXMY",
-            "AiADKAsyEy5ibmV0LkludmVudG9yeUl0ZW1KBAgBEAIiywIKDUludmVudG9y",
+            "AiADKAsyEy5ibmV0LkludmVudG9yeUl0ZW1KBAgBEAIi2gIKDUludmVudG9y",
             "eUl0ZW0SDwoHaXRlbV9pZBgBIAEoDRIRCgl1bmlxdWVfaWQYAiABKAQSDgoG",
             "YW1vdW50GAMgASgNEhAKCGVxdWlwcGVkGAQgASgIEhIKCmR1cmFiaWxpdHkY",
             "BSABKA0SFgoObWF4X2R1cmFiaWxpdHkYBiABKA0SDQoFc2xvdHMYByABKA0S",
@@ -35,14 +35,14 @@ namespace Bnet {
             "DHJvbGxlZF9zdGF0cxgKIAMoCzITLmJuZXQuSXRlbVN0YXRWYWx1ZRIWCg5w",
             "bGF5ZXJfaXRlbV9pZBgLIAEoBBISCgpjcmFmdGVkX2J5GAwgASgJEhIKCmNy",
             "YWZ0ZWRfaW4YDSABKAkSIwoKbWFwX2NpcmNsZRgOIAEoCzIPLmJuZXQuTWFw",
-            "Q2lyY2xlIjEKCU1hcENpcmNsZRIJCgF4GAEgASgBEgkKAXkYAiABKAESDgoG",
-            "cmFkaXVzGAMgASgBQjQKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IbSW52ZW50",
-            "b3J5Q29tcG9uZW50U01TR1Byb3RvYgZwcm90bzM="));
+            "Q2lyY2xlEg0KBXRpdGxlGA8gASgJIjEKCU1hcENpcmNsZRIJCgF4GAEgASgB",
+            "EgkKAXkYAiABKAESDgoGcmFkaXVzGAMgASgBQjQKFW5ldC5iZXN0aWEuYm5l",
+            "dC5wcm90b0IbSW52ZW50b3J5Q29tcG9uZW50U01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryComponentSMSG), global::Bnet.InventoryComponentSMSG.Parser, new[]{ "Items" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "PlayerItemId", "CraftedBy", "CraftedIn", "MapCircle" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "PlayerItemId", "CraftedBy", "CraftedIn", "MapCircle", "Title" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MapCircle), global::Bnet.MapCircle.Parser, new[]{ "X", "Y", "Radius" }, null, null, null, null)
           }));
     }
@@ -290,6 +290,7 @@ namespace Bnet {
       craftedBy_ = other.craftedBy_;
       craftedIn_ = other.craftedIn_;
       mapCircle_ = other.mapCircle_ != null ? other.mapCircle_.Clone() : null;
+      title_ = other.title_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -494,6 +495,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "title" field.</summary>
+    public const int TitleFieldNumber = 15;
+    private string title_ = "";
+    /// <summary>
+    /// This copy's own name, like a relic's. Empty for an item that has only its kind's name.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Title {
+      get { return title_; }
+      set {
+        title_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -523,6 +539,7 @@ namespace Bnet {
       if (CraftedBy != other.CraftedBy) return false;
       if (CraftedIn != other.CraftedIn) return false;
       if (!object.Equals(MapCircle, other.MapCircle)) return false;
+      if (Title != other.Title) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -544,6 +561,7 @@ namespace Bnet {
       if (CraftedBy.Length != 0) hash ^= CraftedBy.GetHashCode();
       if (CraftedIn.Length != 0) hash ^= CraftedIn.GetHashCode();
       if (mapCircle_ != null) hash ^= MapCircle.GetHashCode();
+      if (Title.Length != 0) hash ^= Title.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -615,6 +633,10 @@ namespace Bnet {
         output.WriteRawTag(114);
         output.WriteMessage(MapCircle);
       }
+      if (Title.Length != 0) {
+        output.WriteRawTag(122);
+        output.WriteString(Title);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -678,6 +700,10 @@ namespace Bnet {
         output.WriteRawTag(114);
         output.WriteMessage(MapCircle);
       }
+      if (Title.Length != 0) {
+        output.WriteRawTag(122);
+        output.WriteString(Title);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -727,6 +753,9 @@ namespace Bnet {
       }
       if (mapCircle_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(MapCircle);
+      }
+      if (Title.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Title);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -782,6 +811,9 @@ namespace Bnet {
           MapCircle = new global::Bnet.MapCircle();
         }
         MapCircle.MergeFrom(other.MapCircle);
+      }
+      if (other.Title.Length != 0) {
+        Title = other.Title;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -861,6 +893,10 @@ namespace Bnet {
             input.ReadMessage(MapCircle);
             break;
           }
+          case 122: {
+            Title = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -937,6 +973,10 @@ namespace Bnet {
               MapCircle = new global::Bnet.MapCircle();
             }
             input.ReadMessage(MapCircle);
+            break;
+          }
+          case 122: {
+            Title = input.ReadString();
             break;
           }
         }

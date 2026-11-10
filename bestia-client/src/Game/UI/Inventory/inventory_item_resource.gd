@@ -14,6 +14,9 @@ class_name InventoryItemResource
 @export var crafted_by: String = ""
 @export var crafted_in: String = ""
 
+## This copy's own name, like a relic's. Empty for an item known only by its kind.
+@export var title: String = ""
+
 ## The circle this copy draws on the map, like a treasure map's: centre x, centre y (world metres, y north) and
 ## radius in z. Null for most items.
 var map_circle: Variant = null

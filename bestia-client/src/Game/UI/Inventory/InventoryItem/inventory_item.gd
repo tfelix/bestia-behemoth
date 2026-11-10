@@ -31,6 +31,8 @@ signal move_requested(amount: int)
 
 ## Who crafted this pile or copy, and in which world, for the tooltip. Empty for an item nobody crafted.
 @export var crafted_by: String = ""
+## This copy's own name, like a relic's; empty for an item known only by its kind.
+@export var title: String = ""
 @export var crafted_in: String = ""
 
 ## Wear on the backing instance. A [member max_durability] of 0 means this item does not wear at all,
@@ -76,7 +78,7 @@ func _ready() -> void:
 	_icon.texture = item.get_icon()
 	_wear.show_wear(durability, max_durability)
 	tooltip_text = ItemDetail.as_bbcode(
-		item, upgrade_level, durability, max_durability, slots, item_level, rolled_stats, crafted_by, crafted_in
+		item, upgrade_level, durability, max_durability, slots, item_level, rolled_stats, crafted_by, crafted_in, title
 	)
 	if _is_shopping():
 		_show_trade_price()

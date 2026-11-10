@@ -589,3 +589,27 @@ CRUMBLED_TREASURE_MAP,Crumbled Treasure Map
 CRUMBLED_TREASURE_MAP_DESC,"A treasure map gone brittle and blank.
 
 Somebody has already dug up what it showed."
+RELIC_BLADE,Old Blade
+RELIC_BLADE_DESC,"A blade from before the oldest town still standing, its edge still keen.
+
+The chronicle knows who forged it and whose hands it passed through."
+RELIC_CROWN,Old Crown
+RELIC_CROWN_DESC,"A circlet of worked metal, dented where it was taken from a fallen head.
+
+Kings wore it. The chronicle remembers which."
+RELIC_RING,Old Signet
+RELIC_RING_DESC,"A heavy signet ring, its seal worn smooth by generations of thumbs.
+
+The chronicle remembers whose hand it sealed for."
+RELIC_RELIQUARY,Old Reliquary
+RELIC_RELIQUARY_DESC,"A small sealed casket on a chain, holding what someone thought holy.
+
+Nobody has opened it. The chronicle says why it was made."
+RELIC_TOME,Old Tome
+RELIC_TOME_DESC,"A thick book bound in boards, its pages brown but still legible.
+
+What is written in it, the chronicle only hints at."
+RELIC_BANNER,Old Banner
+RELIC_BANNER_DESC,"A faded war banner, its device still clear, worn across the shoulders.
+
+Armies marched under it. The chronicle names the battles."
