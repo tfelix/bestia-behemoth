@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SetAuctionFeeCmsgProto";
+
+// The owner sets the owner fee of their house. New listings pay it; answered by the house window again.
+message SetAuctionFeeCMSG {
+  uint64 house_entity_id = 1;
+  int32 percent = 2;
+}

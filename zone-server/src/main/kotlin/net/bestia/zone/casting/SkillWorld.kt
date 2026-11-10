@@ -232,6 +232,9 @@ interface SkillWorld {
   /** Plants the sign site of the town the caster planned, where it stands. False when it may not. */
   fun foundTown(): Boolean
 
+  /** Starts a construction site of [kind] owned by the caster at [at]. @return its structure id, or null */
+  fun beginStructure(kind: StaticEntityKind, at: Vec3L, buildSeconds: Float): Long?
+
   /**
    * There is deliberately no `async` here. A cast resolves on the tick thread, so relational work belongs to
    * the service that owns the row, which hands it to `AsyncJobExecutor` under its own ordering key.

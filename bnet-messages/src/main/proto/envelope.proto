@@ -128,6 +128,9 @@ import "messages/auction/auction_listings_smsg.proto";
 import "messages/auction/buy_auction_listing_cmsg.proto";
 import "messages/auction/cancel_auction_listing_cmsg.proto";
 import "messages/auction/auction_purchased_smsg.proto";
+import "messages/auction/set_auction_fee_cmsg.proto";
+import "messages/auction/collect_auction_till_cmsg.proto";
+import "messages/auction/tear_down_auction_house_cmsg.proto";
 import "messages/settlement/plan_settlement_cmsg.proto";
 import "messages/settlement/settlement_planned_smsg.proto";
 import "messages/settlement/settlement_sign_smsg.proto";
@@ -398,6 +401,11 @@ message Envelope {
     AnswerSettlementOfferCMSG answer_settlement_offer = 956;
     SettlementNoticeSMSG settlement_notice = 957;
     RepairStructureCMSG repair_structure = 958;
+
+    // PLAYER AUCTION HOUSES 960
+    SetAuctionFeeCMSG set_auction_fee = 960;
+    CollectAuctionTillCMSG collect_auction_till = 961;
+    TearDownAuctionHouseCMSG tear_down_auction_house = 962;
 
     // MISC
   }

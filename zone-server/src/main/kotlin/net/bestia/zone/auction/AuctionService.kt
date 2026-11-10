@@ -7,6 +7,7 @@ import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.auction.persistence.AuctionListing
 import net.bestia.zone.auction.persistence.AuctionListingRepository
+import net.bestia.zone.auction.persistence.PlayerAuctionHouseRepository
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.economy.WorldReserve
@@ -34,8 +35,9 @@ import java.time.Clock
 import java.time.Duration
 
 /**
- * The shared market of the start towns. Off the tick: every request reads or writes the database, and the
- * world is only borrowed for the reach check, the live mirror and the reserve.
+ * The markets: the start towns' shared one, and each player house with the houses of its owner. Off the tick:
+ * every request reads or writes the database, and the world is only borrowed for the reach check, the live mirror
+ * and the reserve.
  *
  * Goods move in the database first and are mirrored into the live inventory after the commit, as in a trade.
  */
@@ -44,6 +46,8 @@ class AuctionService(
   private val world: WorldView,
   private val connectionInfoService: ConnectionInfoService,
   private val houses: AuctionHouses,
+  private val playerHouses: PlayerHouses,
+  private val houseRows: PlayerAuctionHouseRepository,
   private val listings: AuctionListingRepository,
   private val parcels: ParcelService,
   private val inventoryService: InventoryService,
@@ -62,7 +66,7 @@ class AuctionService(
     if (basicSkill?.mayUseTradePosts(accountId) == false) return deny(accountId, OpError.BASIC_SKILL_TRADE_POST_LOCKED)
     val masterId = connectionInfoService.getMasterId(accountId)
     val masterEntityId = connectionInfoService.getSelectedMasterEntityId(accountId)
-    val town = townInReach(accountId, houseEntityId) ?: return deny(accountId, OpError.AUCTION_OUT_OF_RANGE)
+    val at = openHouseInReach(accountId, houseEntityId) ?: return
     val coinId = commodityItems.coinItemId() ?: return deny(accountId, OpError.REQUEST_REFUSED)
 
     // A client only offers what these allow, so a refusal here is a hand-made packet.
@@ -83,9 +87,11 @@ class AuctionService(
       return deny(accountId, OpError.AUCTION_LISTING_LIMIT)
     }
 
-    val fee = AuctionFees.listingFee(price)
+    val listingFee = AuctionFees.listingFee(price)
+    val ownerFee = AuctionFees.ownerFee(price, (at as? AuctionHouses.At.Player)?.house?.feePercent ?: 0)
+    val fee = listingFee + ownerFee
     val listed = transactions.execute { status ->
-      escrow(masterId, held, amount, price, fee, coinId, town).also { if (it is Refused) status.setRollbackOnly() }
+      escrow(masterId, held, amount, price, fee, coinId, at).also { if (it is Refused) status.setRollbackOnly() }
     }
 
     if (listed !is Listed) {
@@ -97,7 +103,8 @@ class AuctionService(
       LOG.warn { "Master $masterId listed item ${held.itemId} that its live inventory does not hold" }
     }
     world.takeFromLive(masterEntityId, ReservedItem.stack(coinId, fee.toInt(), weight = 0))
-    world.read { reserve.charge(-fee.toDouble(), CoinSource.AUCTION_FEE) }
+    val toReserve = fee - AuctionFees.tillShare(ownerFee)
+    world.read { reserve.charge(-toReserve.toDouble(), CoinSource.AUCTION_FEE) }
 
     search(accountId, AuctionQuery(houseEntityId, null, 0, 0, emptyList(), mine = true, page = 0))
   }
@@ -105,11 +112,11 @@ class AuctionService(
   fun buy(accountId: AccountId, houseEntityId: Long, listingId: Long) {
     if (basicSkill?.mayUseTradePosts(accountId) == false) return deny(accountId, OpError.BASIC_SKILL_TRADE_POST_LOCKED)
     val buyerId = connectionInfoService.getMasterId(accountId)
-    townInReach(accountId, houseEntityId) ?: return deny(accountId, OpError.AUCTION_OUT_OF_RANGE)
+    val at = openHouseInReach(accountId, houseEntityId) ?: return
     val coinId = commodityItems.coinItemId() ?: return deny(accountId, OpError.REQUEST_REFUSED)
 
     val bought = transactions.execute { status ->
-      purchase(buyerId, listingId, coinId).also { if (it is Refused) status.setRollbackOnly() }
+      purchase(buyerId, listingId, coinId, at).also { if (it is Refused) status.setRollbackOnly() }
     }
 
     if (bought !is Bought) {
@@ -127,7 +134,7 @@ class AuctionService(
   /** The goods come back; the fee does not, as the docs say of any listing that did not sell. */
   fun takeDown(accountId: AccountId, houseEntityId: Long, listingId: Long) {
     val sellerId = connectionInfoService.getMasterId(accountId)
-    townInReach(accountId, houseEntityId) ?: return deny(accountId, OpError.AUCTION_OUT_OF_RANGE)
+    houseInReach(accountId, houseEntityId) ?: return deny(accountId, OpError.AUCTION_OUT_OF_RANGE)
 
     val returned = transactions.execute {
       val listing = listings.findLockedById(listingId)?.takeIf { it.sellerMasterId == sellerId }
@@ -143,7 +150,8 @@ class AuctionService(
   }
 
   fun search(accountId: AccountId, query: AuctionQuery) {
-    townInReach(accountId, query.houseEntityId) ?: return deny(accountId, OpError.AUCTION_OUT_OF_RANGE)
+    val at = openHouseInReach(accountId, query.houseEntityId) ?: return
+    val shown = shownAt(at)
 
     val seller = if (query.mine) connectionInfoService.getMasterId(accountId) else null
     val itemIds = query.itemIds.take(MAX_ITEM_IDS)
@@ -157,6 +165,8 @@ class AuctionService(
         itemIds = itemIds.ifEmpty { listOf(NO_ITEM) },
         sellerMasterId = seller,
         now = clock.instant(),
+        startTowns = shown.startTowns,
+        houseIds = shown.houseIds.ifEmpty { listOf(NO_HOUSE) },
         pageable = PageRequest.of(query.page.coerceAtLeast(0), PAGE_SIZE),
       )
 
@@ -167,7 +177,7 @@ class AuctionService(
   }
 
   private fun escrow(
-    masterId: Long, held: Inventory.Item, amount: Int, price: Long, fee: Long, coinId: Long, town: String,
+    masterId: Long, held: Inventory.Item, amount: Int, price: Long, fee: Long, coinId: Long, at: AuctionHouses.At,
   ): Outcome {
     val itemId = held.itemId
     val item = itemRepository.findByIdOrNull(itemId) ?: return Refused(OpError.REQUEST_REFUSED)
@@ -189,11 +199,18 @@ class AuctionService(
         itemLevel = goods.itemLevel,
         category = AuctionCategory.of(item),
         price = price,
-        townName = town,
+        townName = at.townName,
+        houseStructureId = (at as? AuctionHouses.At.Player)?.house?.structureId,
         expiresAt = clock.instant().plus(FIXED_PRICE_DURATION),
         container = container,
       )
     )
+
+    // The owner's half of the owner fee waits in the house's till; the rest of the fee goes to the reserve.
+    if (at is AuctionHouses.At.Player) {
+      val ownerFee = AuctionFees.ownerFee(price, at.house.feePercent)
+      houseRows.findLockedById(at.house.structureId)?.let { it.till += AuctionFees.tillShare(ownerFee) }
+    }
 
     return Listed(goods)
   }
@@ -215,8 +232,10 @@ class AuctionService(
   }
 
   /** The seller is paid by post: they are rarely standing at a house when somebody buys. */
-  private fun purchase(buyerId: Long, listingId: Long, coinId: Long): Outcome {
-    val listing = listings.findLockedById(listingId) ?: return Refused(OpError.AUCTION_LISTING_GONE)
+  private fun purchase(buyerId: Long, listingId: Long, coinId: Long, at: AuctionHouses.At): Outcome {
+    val listing = listings.findLockedById(listingId)
+      ?.takeIf { shownAt(at).shows(it) }
+      ?: return Refused(OpError.AUCTION_LISTING_GONE)
 
     if (listing.sellerMasterId == buyerId) {
       return Refused(OpError.REQUEST_REFUSED)
@@ -246,10 +265,41 @@ class AuctionService(
     )
   }
 
-  private fun townInReach(accountId: AccountId, houseEntityId: Long): String? {
+  private fun houseInReach(accountId: AccountId, houseEntityId: Long): AuctionHouses.At? {
     val actorId = connectionInfoService.getActiveEntityId(accountId)
 
-    return world.read { houses.townInReach(this, actorId, houseEntityId) }
+    return world.read { houses.houseInReach(this, actorId, houseEntityId) }
+  }
+
+  /** The house the request is made at, if it is in reach and open; otherwise the player is told why not. */
+  private fun openHouseInReach(accountId: AccountId, houseEntityId: Long): AuctionHouses.At? {
+    val at = houseInReach(accountId, houseEntityId)
+    if (at == null) {
+      deny(accountId, OpError.AUCTION_OUT_OF_RANGE)
+      return null
+    }
+    if (at is AuctionHouses.At.Player && !at.isOpen) {
+      deny(accountId, OpError.AUCTION_HOUSE_CLOSED)
+      return null
+    }
+
+    return at
+  }
+
+  /** Which listings a house shows: the start towns' shared market, or the player houses it shares with. */
+  private data class Shown(val startTowns: Boolean, val houseIds: Set<Long>) {
+    fun shows(listing: AuctionListing): Boolean {
+      val house = listing.houseStructureId
+
+      return if (house == null) startTowns else house in houseIds
+    }
+  }
+
+  private fun shownAt(at: AuctionHouses.At): Shown {
+    return when (at) {
+      is AuctionHouses.At.StartTown -> Shown(startTowns = true, houseIds = emptySet())
+      is AuctionHouses.At.Player -> Shown(startTowns = false, houseIds = playerHouses.sharingWith(at.house))
+    }
   }
 
   private fun deny(accountId: AccountId, code: OpError) {
@@ -281,5 +331,8 @@ class AuctionService(
 
     /** Fills the `IN` list when any item will do; no item has this id. */
     private const val NO_ITEM = -1L
+
+    /** Fills the houses' `IN` list at a start town; no structure has this id. */
+    private const val NO_HOUSE = -1L
   }
 }

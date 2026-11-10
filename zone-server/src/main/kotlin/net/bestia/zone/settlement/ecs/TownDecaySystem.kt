@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
+import net.bestia.zone.prop.PlayerStructureDestroyedEvent
 import net.bestia.zone.prop.PlayerStructureRegistry
 import net.bestia.zone.prop.PropKindRegistry
 import net.bestia.zone.prop.StructureEntry
@@ -16,6 +17,7 @@ import net.bestia.zone.settlement.TownRegistry
 import net.bestia.zone.structure.StructureCollision
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -30,6 +32,7 @@ class TownDecaySystem(
   private val residency: WorldObjectResidencyService,
   private val collision: StructureCollision,
   private val worldService: WorldService,
+  private val events: ApplicationEventPublisher,
 ) : System {
 
   override val schedule: Schedule = Schedule.EverySeconds(RUN_SECONDS)
@@ -83,6 +86,7 @@ class TownDecaySystem(
     structures.remove(entry.id, Math.floorDiv(entry.position.x, chunkSize).toInt(), Math.floorDiv(entry.position.y, chunkSize).toInt())
     collision.fall(entry.id)
     owed.remove(entry.id)
+    events.publishEvent(PlayerStructureDestroyedEvent(this, entry.id, entry.kind, entry.position))
   }
 
   private companion object {

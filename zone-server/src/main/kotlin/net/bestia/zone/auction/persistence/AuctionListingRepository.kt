@@ -15,6 +15,10 @@ interface AuctionListingRepository : JpaRepository<AuctionListing, Long> {
 
   fun findByExpiresAtBefore(now: Instant): List<AuctionListing>
 
+  fun findByHouseStructureId(houseStructureId: Long): List<AuctionListing>
+
+  fun countByHouseStructureId(houseStructureId: Long): Long
+
   /** Locked, so two buyers of one listing are served one after the other and the second finds it gone. */
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("SELECT l FROM AuctionListing l WHERE l.id = :id")
@@ -32,6 +36,7 @@ interface AuctionListingRepository : JpaRepository<AuctionListing, Long> {
         AND (:anyItem = true OR l.itemId IN :itemIds)
         AND (:sellerMasterId IS NULL OR l.sellerMasterId = :sellerMasterId)
         AND l.expiresAt > :now
+        AND ((:startTowns = true AND l.houseStructureId IS NULL) OR l.houseStructureId IN :houseIds)
       ORDER BY (l.price * 1.0 / l.amount), l.id
     """,
     countQuery = """
@@ -41,6 +46,7 @@ interface AuctionListingRepository : JpaRepository<AuctionListing, Long> {
         AND (:anyItem = true OR l.itemId IN :itemIds)
         AND (:sellerMasterId IS NULL OR l.sellerMasterId = :sellerMasterId)
         AND l.expiresAt > :now
+        AND ((:startTowns = true AND l.houseStructureId IS NULL) OR l.houseStructureId IN :houseIds)
     """
   )
   fun search(
@@ -51,6 +57,8 @@ interface AuctionListingRepository : JpaRepository<AuctionListing, Long> {
     itemIds: Collection<Long>,
     sellerMasterId: Long?,
     now: Instant,
+    startTowns: Boolean,
+    houseIds: Collection<Long>,
     pageable: Pageable,
   ): Page<AuctionListing>
 }

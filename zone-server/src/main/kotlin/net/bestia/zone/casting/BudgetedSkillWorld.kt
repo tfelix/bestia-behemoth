@@ -17,6 +17,7 @@ import net.bestia.zone.battle.damage.Blocked
 import net.bestia.zone.battle.damage.weighedTo
 import net.bestia.zone.battle.damage.DamageLanding
 import net.bestia.zone.battle.damage.HitKind
+import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.battle.Healing
 import net.bestia.zone.battle.Sides
 import net.bestia.zone.battle.damage.Damage
@@ -596,6 +597,17 @@ class BudgetedSkillWorld(
     budget.charge()
 
     return services.towns.found(world, casterId)
+  }
+
+  override fun beginStructure(kind: StaticEntityKind, at: Vec3L, buildSeconds: Float): Long? {
+    budget.charge(SPAWN_OPS)
+
+    val masterId = world.get(casterId, Master::class)?.masterId ?: return null
+    val accountId = world.get(casterId, Account::class)?.accountId ?: return null
+    val siteId = services.structures.beginConstruction(world, kind, masterId, accountId, at, 0f, buildSeconds)
+      ?: return null
+
+    return world.get(siteId, PlayerStructureIdentity::class)?.structureId
   }
 
   /** [block] against [id], or null if [id] is gone. */

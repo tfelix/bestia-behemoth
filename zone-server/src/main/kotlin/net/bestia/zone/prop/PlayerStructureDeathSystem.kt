@@ -12,6 +12,7 @@ import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.prop.chest.ChestStorages
 import net.bestia.zone.structure.StructureCollision
 import net.bestia.zone.world.WorldService
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component as SpringComponent
 import net.bestia.zone.battle.ecs.damage.PlayerDeathSystem
 
@@ -36,6 +37,7 @@ class PlayerStructureDeathSystem(
   private val collision: StructureCollision,
   private val stations: StationSpill,
   private val chests: ChestStorages,
+  private val events: ApplicationEventPublisher,
 ) : System {
   override val phase = Phase.DEATH
   override val before = setOf(PlayerDeathSystem::class)
@@ -59,7 +61,8 @@ class PlayerStructureDeathSystem(
         return@each
       }
 
-      structures.of(identity.structureId)?.let { stations.spill(world, it, position) }
+      val entry = structures.of(identity.structureId)
+      entry?.let { stations.spill(world, it, position) }
       chests.spill(identity.structureId, identity.ownerAccountId, position)
 
       val chunkSize = worldService.config.chunkSize.toLong()
@@ -69,6 +72,9 @@ class PlayerStructureDeathSystem(
         chunkY = Math.floorDiv(position.y, chunkSize).toInt()
       )
       collision.fall(identity.structureId)
+      if (entry != null) {
+        events.publishEvent(PlayerStructureDestroyedEvent(this, entry.id, entry.kind, position))
+      }
 
       LOG.info { "Player structure ${identity.structureId} was destroyed at $position" }
     }

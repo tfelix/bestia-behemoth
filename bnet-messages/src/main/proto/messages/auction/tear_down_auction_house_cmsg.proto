@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "TearDownAuctionHouseCmsgProto";
+
+// The owner tears down their house. Only while no listing is up in it.
+message TearDownAuctionHouseCMSG {
+  uint64 house_entity_id = 1;
+}
