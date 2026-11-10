@@ -87,6 +87,7 @@ skills:
     range: 2
     manaCost: 12
     castTime: 10.0
+    cooldown: 180
     description: |
       Apply bandages to yourself or to a friendly Bestia or master and channel a healing effect
       over 10s. The cooldown of this skill is 3 minutes. A target can only receive a single
@@ -227,6 +228,7 @@ skills:
     range: 2
     manaCost: 19
     castTime: 10.0
+    cooldown: 30
     description: |
       Build and operate Mana Harvesters which channel mana from the environment into raw
       crystals - the source of magic for many use cases. Yield follows the local mana
@@ -543,6 +545,7 @@ skills:
     script: Sprint
     targetType: FRIENDLY
     needsLineOfSight: false
+    cooldown: 30
     description: |
       A burst of speed for when walking away is not fast enough - the first escape every
       wanderer learns, and the one they never stop using.
@@ -561,6 +564,7 @@ skills:
     needsLineOfSight: false
     manaCost: 10
     castTime: 5.0
+    cooldown: 300
     description: |
       A whistle every Bestia learns to answer. Calls your Bestias back from wherever they
       wandered off to.
@@ -576,6 +580,7 @@ skills:
     needsLineOfSight: false
     manaCost: 15
     castTime: 2.0
+    cooldown: 60
     description: |
       An instinct for the direction and distance of nearby physical resources - ore veins,
       herb patches, timber stands and game trails - long before they come into view. Each
@@ -602,6 +607,7 @@ skills:
     needsLineOfSight: false
     manaCost: 12
     castTime: 2.0
+    cooldown: 10
     description: |
       A prickle at the back of the mind that flags mana at work nearby, and picks apart what
       spell an item or entity carries bound to it. Each cast sweeps the area once. Local mana
@@ -622,6 +628,7 @@ skills:
     range: 12
     manaCost: 6
     castTime: 1.0
+    cooldown: 3
     description: |
       Cast on a monster to read what mana and instinct alone can tell about it. Reveals its
       status values, element, HP and mana. Cooldown 3s.
@@ -632,6 +639,7 @@ skills:
     targetType: FRIENDLY
     needsLineOfSight: false
     manaCost: 14
+    cooldown: 10
     description: |
       A pulse of second sight that peels back concealment. For 10s, hidden traps, hiding
       Bestia and cloaked Assassins within 10m of the caster stand out for what they are.
@@ -644,6 +652,7 @@ skills:
     needsLineOfSight: false
     manaCost: 20
     castTime: 5.0
+    cooldown: 60
     description: |
       The Scholar's ear to the ground - a sense for the direction and distance of world-changing
       events long before word of them travels. Only works at an Observation Outpost. Level 1
@@ -659,6 +668,7 @@ skills:
     range: 0
     manaCost: 100
     castTime: 60.0
+    cooldown: 86400
     description: |
       The founding rite that plants a city sign in the ground and calls a settlement into being
       around it. Only one settlement can be active at a time. Cooldown 24h.
@@ -709,6 +719,7 @@ skills:
     range: 10
     manaCost: 30
     castTime: 5.0
+    cooldown: 60
     description: |
       Weaves this Trader's auction house into those of other consenting players, merging their
       listings into a single, wider marketplace. To be linked, the other player needs at least
@@ -757,6 +768,7 @@ skills:
     needsLineOfSight: false
     manaCost: 30
     castTime: 5.0
+    cooldown: 60
     description: |
       Casts a Sage's sight far beyond their own eyes, scouting distant ground and the resources
       hiding on it before ever setting foot there. Works on any charted location. The sight lasts
@@ -771,6 +783,7 @@ skills:
     range: 9
     manaCost: 40
     castTime: 2.0
+    cooldown: 15
     description: |
       Unravels every magical effect clinging to a target in a single word, undoing buffs and
       curses alike. The target's soft magic defense lowers the chance. Consumes a Yellow Mana
@@ -783,6 +796,7 @@ skills:
     script: MagicRod
     targetType: FRIENDLY
     manaCost: 20
+    cooldown: 20
     description: |
       A reactive ward raised at a gesture. The next single-target spell to strike the caster is
       caught and unravelled instead of landing, its energy siphoned back as mana. Area spells wash
@@ -797,6 +811,7 @@ skills:
     targetType: FRIENDLY
     manaCost: 25
     castTime: 1.0
+    cooldown: 15
     description: |
       Opens a slow siphon on the mana of everything hostile standing too close, pulling it
       steadily into the Sage's own reserves. Each second drains a share of each target's max mana.
@@ -813,6 +828,7 @@ skills:
     range: 6
     manaCost: 55
     castTime: 3.0
+    cooldown: 40
     description: |
       Consecrates a patch of ground against hostile magic. While it holds, no area-of-effect or
       ground-targeted spell can take root inside its bounds - friend and foe alike. Cooldown 40s.
@@ -849,6 +865,7 @@ skills:
     targetType: FRIENDLY
     manaCost: 35
     castTime: 2.0
+    cooldown: 30
     description: |
       Moves the caster and their Bestias close by. Consumes a Teleport Rune. A teleported entity
       cannot teleport again for 5min. Cooldown 30s.
@@ -863,6 +880,7 @@ skills:
     range: 3
     manaCost: 70
     castTime: 5.0
+    cooldown: 120
     description: |
       The Sage's capstone. Tears a standing hole that anyone can walk through, in both
       directions, for 30s. Consumes a Portal Rune. Cooldown 120s.
@@ -876,6 +894,7 @@ skills:
     range: 5
     manaCost: 28
     castTime: 2.0
+    cooldown: 5
     description: |
       Temporarily infuses an ally's weapon with fire, water, wind or earth; the caster picks the
       element when casting. The weapon takes on the element, and the bonus damage comes on top.
@@ -891,6 +910,7 @@ skills:
     targetType: FRIENDLY
     range: 9
     manaCost: 18
+    cooldown: 20
     description: |
       A murmured rite that lightens the burden of spellcasting. Applies to the next spell the
       target casts within 30s. Cooldown 20s.
@@ -904,6 +924,7 @@ skills:
     range: 9
     manaCost: 22
     castTime: 2.0
+    cooldown: 30
     description: |
       A quiet benediction that lets a crafter's hands find the better cut. Every item the party
       starts crafting while it holds rolls its random stats with better odds. Lasts 90s.
@@ -917,6 +938,7 @@ skills:
     targetType: FRIENDLY
     range: 9
     manaCost: 20
+    cooldown: 10
     description: |
       Clears the mind of a target. Lifts Blind, Confused and Feared in a single rite. Cooldown
       10s.
@@ -927,6 +949,7 @@ skills:
     targetType: FRIENDLY
     manaCost: 12
     castTime: 3.0
+    cooldown: 5
     description: |
       The rite of blessing plain water into Holy Water. The Priest must stand in water and needs
       an Empty Bottle. Cast 3s, cooldown 5s.
@@ -952,6 +975,7 @@ skills:
     range: 9
     manaCost: 30
     castTime: 1.0
+    cooldown: 15
     description: |
       A shimmering ward that stands between a target and harm for 60s, soaking up hits until it
       gives out. Cooldown 15s.
@@ -966,6 +990,7 @@ skills:
     range: 6
     manaCost: 25
     castTime: 1.0
+    cooldown: 10
     description: |
       Lays a veil of still air 3m wide over the ground for 20s. Anything standing in it cannot
       be hit by arrows, bolts or thrown weapons. Cooldown 10s.
@@ -977,6 +1002,7 @@ skills:
     range: 9
     manaCost: 16
     castTime: 1.0
+    cooldown: 8
     description: |
       Burns a sigil onto a target that pries its guard open, and bites hardest into Demons and
       the Undead. Cooldown 8s.
@@ -1014,6 +1040,7 @@ skills:
     range: 2
     manaCost: 22
     castTime: 2.0
+    cooldown: 10
     description: |
       Anoints a weapon with Holy Water, so its strikes carry the holy element. Consumes one Holy
       Water. Cooldown 10s.
@@ -1027,6 +1054,7 @@ skills:
     range: 9
     manaCost: 30
     castTime: 2.0
+    cooldown: 5
     description: |
       A judgment of pure holy mana that punches through armor. Against an Undead target it can
       end its existence outright, more likely the more it is wounded. The damage is that of a Holy
@@ -1040,6 +1068,7 @@ skills:
     targetType: ENEMY
     range: 9
     manaCost: 18
+    cooldown: 15
     description: |
       Marks a single target so that the very next hit it takes lands twice as hard. The mark
       lasts 20s. Cooldown 15s.
@@ -1051,6 +1080,7 @@ skills:
     range: 9
     manaCost: 35
     castTime: 3.0
+    cooldown: 60
     description: |
       A hymn of thanksgiving that quickens the natural recovery of the party for 90s. Cooldown
       60s.
@@ -1064,6 +1094,7 @@ skills:
     range: 12
     manaCost: 60
     castTime: 5.0
+    cooldown: 30
     description: |
       A pillar of holy mana erupts around the target spot for 15s, searing everything caught in
       it and Demons and the Undead worst of all. Cooldown 30s.
@@ -1078,6 +1109,7 @@ skills:
     range: 6
     manaCost: 50
     castTime: 3.0
+    cooldown: 30
     description: |
       Consecrates a patch of ground for 30s. Every second it heals allies standing in it, and
       burns Demons and the Undead for the same amount. Cooldown 30s.
@@ -1091,6 +1123,7 @@ skills:
     range: 5
     manaCost: 120
     castTime: 10.0
+    cooldown: 600
     description: |
       Calls a fallen Bestia or Master back over the threshold with part of their HP. Can not be
       used on the caster. Cooldown 10min.
@@ -1118,6 +1151,7 @@ skills:
     targetType: FRIENDLY
     manaCost: 30
     castTime: 5.0
+    cooldown: 10
     description: |
       A shimmering ward of raw mana wrapped around the caster for 5min, turning aside blade and
       spell alike. Each hit costs 2% of the current mana, and the ward ends when mana drops
@@ -1187,6 +1221,7 @@ skills:
     range: 6
     manaCost: 30
     castTime: 1.0
+    cooldown: 10
     description: |
       Conjures a barrier of solidified mana in front of a target. It blocks projectiles and
       melee strikes until it has absorbed enough hits or its time runs out. Cooldown 10s.
@@ -1201,6 +1236,7 @@ skills:
     range: 6
     manaCost: 25
     castTime: 1.0
+    cooldown: 15
     description: |
       Encases a target in stone. It applies Stoning, which turns into Stone unless it is cured
       first. Consumes a Red Mana Crystal. Cooldown 15s.
@@ -1214,6 +1250,7 @@ skills:
     targetType: ENEMY
     range: 9
     manaCost: 30
+    cooldown: 20
     description: |
       A ward of counter-mana thrown over a target mid-incantation. It can interrupt the spell
       being woven and leaves the target Silenced. Cooldown 20s.
@@ -1228,6 +1265,7 @@ skills:
     range: 6
     manaCost: 35
     castTime: 2.0
+    cooldown: 10
     description: |
       Conjures a wall of roaring flame for 20s. Anything that tries to push through is burned
       and shoved back. Cooldown 10s.
@@ -1242,6 +1280,7 @@ skills:
     range: 12
     manaCost: 70
     castTime: 6.0
+    cooldown: 30
     description: |
       Calls down a rain of blazing meteors onto an area for 10s. Cooldown 30s.
 
@@ -1255,6 +1294,7 @@ skills:
     range: 12
     manaCost: 65
     castTime: 5.0
+    cooldown: 25
     description: |
       A freezing gale that batters an area with waves of ice for 10s, each one able to freeze
       what it hits. Cooldown 25s.
@@ -1268,6 +1308,7 @@ skills:
     targetType: FRIENDLY
     manaCost: 40
     castTime: 2.0
+    cooldown: 15
     description: |
       A burst of subzero cold erupts outward from the caster. Cooldown 15s.
 
@@ -1281,6 +1322,7 @@ skills:
     range: 9
     manaCost: 30
     castTime: 2.0
+    cooldown: 20
     description: |
       Turns the ground into clinging mud for 30s. It strips AGI-increasing buffs and drags down
       AGI and DEX, at most 25% against Masters and 50% against wild Bestias. Cooldown 20s.
@@ -1294,6 +1336,7 @@ skills:
     range: 12
     manaCost: 60
     castTime: 4.0
+    cooldown: 20
     description: |
       Wind churns into a storm overhead for 8s, calling down lightning across the area at
       random. Cooldown 20s.
@@ -1307,6 +1350,7 @@ skills:
     targetType: FRIENDLY
     manaCost: 60
     castTime: 4.0
+    cooldown: 25
     description: |
       Splits the ground around the caster for 8s, dealing repeated damage to everything standing
       on it. Cooldown 25s.
@@ -1321,6 +1365,7 @@ skills:
     range: 9
     manaCost: 45
     castTime: 2.0
+    cooldown: 15
     description: |
       Tears into a target with raw mana that ignores elemental resistance, ripping away part of
       its mana. Cooldown 15s.
@@ -1335,6 +1380,7 @@ skills:
     range: 5
     manaCost: 50
     castTime: 3.0
+    cooldown: 60
     description: |
       Channels so much raw magic through one of the master's Bestias for 60s that its armor is
       the first thing to give: magic attack rises and soft magic defense falls. Cooldown 60s.
@@ -1349,6 +1395,7 @@ skills:
     targetType: ENEMY
     range: 2
     manaCost: 22
+    cooldown: 12
     description: |
       Knocks a random piece of equipment off the target and keeps its slot empty for a while.
       Accessories cannot be stripped. Stripping a dual wielder's weapon or shield takes both
@@ -1384,6 +1431,7 @@ skills:
     script: Hide
     targetType: FRIENDLY
     manaCost: 18
+    cooldown: 5
     description: |
       Drops the Assassin flat against whatever cover is at hand. Nothing hostile can see them
       while they stay put. Breaks on moving or attacking. Ruwach always reveals. Cooldown 5s.
@@ -1396,6 +1444,7 @@ skills:
     script: Cloak
     targetType: FRIENDLY
     manaCost: 30
+    cooldown: 8
     description: |
       What Hide is for standing still, Cloak is for walking. Still breaks on attacking. Ruwach
       strips it outright. Cooldown 8s.
@@ -1443,6 +1492,7 @@ skills:
     targetType: ENEMY
     range: 1
     manaCost: 16
+    cooldown: 8
     description: |
       A blade driven in from behind. Only works from Hide or Cloak, and only from behind the
       target. The strike ends the hiding. Cooldown 8s.
@@ -1455,6 +1505,7 @@ skills:
     targetType: ENEMY
     range: 1
     manaCost: 20
+    cooldown: 30
     description: |
       A short, vicious blow below the ribs that leaves the target stunned and gasping. A boss
       recovers twice as fast. Cooldown 30s.
@@ -1467,6 +1518,7 @@ skills:
     targetType: ENEMY
     range: 1
     manaCost: 20
+    cooldown: 5
     description: |
       Eight strikes in a heartbeat, split across both blades. Cooldown 5s.
 
@@ -1478,6 +1530,7 @@ skills:
     targetType: ENEMY
     range: 8
     manaCost: 15
+    cooldown: 20
     description: |
       Slips through the shadows to stand right behind a target, still hidden, so a Backstab can
       follow. Cooldown 20s.
@@ -1508,6 +1561,7 @@ skills:
     targetType: ENEMY
     range: 6
     manaCost: 14
+    cooldown: 10
     description: |
       A shout or a slammed shield that forces a monster or wild Bestia to attack only the Knight.
       It has no effect on masters. Cooldown 10s.
@@ -1519,6 +1573,7 @@ skills:
     script: ShieldWall
     targetType: FRIENDLY
     manaCost: 25
+    cooldown: 15
     description: |
       Plants the Knight's feet and raises their shield into a proper wall. Needs a shield.
       Toggle. Cooldown 15s.
@@ -1533,6 +1588,7 @@ skills:
     targetType: ENEMY
     range: 2
     manaCost: 18
+    cooldown: 6
     description: |
       A single committed swing that trades finesse for raw impact, with a chance to stun what it
       lands on for 1s. Cooldown 6s.
@@ -1638,6 +1694,7 @@ skills:
     script: StaffSweep
     targetType: FRIENDLY
     manaCost: 20
+    cooldown: 6
     description: |
       A wide sweep of the staff that hits every enemy within 2m and knocks them back 1m. Needs a
       staff. Cooldown 6s.
@@ -1649,6 +1706,7 @@ skills:
     script: BattleFury
     targetType: FRIENDLY
     manaCost: 20
+    cooldown: 60
     description: |
       Works the Brawler into a Berserk: +60% ATK and +30% attack speed, but no DEF. Cooldown 60s.
 
@@ -1672,6 +1730,7 @@ skills:
     targetType: ENEMY
     range: 6
     manaCost: 12
+    cooldown: 10
     description: |
       Dashes up to 6m to a target. Cooldown 10s.
 
@@ -1699,6 +1758,7 @@ skills:
     targetType: ENEMY
     range: 9
     manaCost: 15
+    cooldown: 10
     description: |
       Marks one target for 30s. It shows on the master's map, and its Hide and Cloak do not
       work against the master. A new mark ends the old one. Cooldown 10s.
@@ -1740,6 +1800,7 @@ skills:
     targetType: GROUND
     range: 5
     manaCost: 15
+    cooldown: 1
     description: |
       Needs a bow. A volley that hits every enemy in a 3x3 area and knocks them back 1m. Takes
       one arrow out of the quiver.
@@ -1752,6 +1813,8 @@ skills:
     targetType: ENEMY
     range: 5
     manaCost: 15
+    cooldown: 10
+    castTime: 1.5
     description: |
       Needs a bow. One shot for 150% ATK that knocks the target back 6m. Cooldown 10s.
 
@@ -1796,6 +1859,7 @@ skills:
     targetType: ENEMY
     range: 4
     manaCost: 15
+    cooldown: 6
     description: |
       Needs a whip. A strike at the footing that leaves the target Slowed (-20% move speed).
       Cooldown 6s.
@@ -1809,6 +1873,8 @@ skills:
     targetType: ENEMY
     range: 9
     manaCost: 18
+    cooldown: 2
+    castTime: 1
     description: |
       Needs an instrument. One sharp, ugly note that hits the target as a sound wave.
       Cooldown 2s.
@@ -1820,6 +1886,8 @@ skills:
     script: DissonantChord
     targetType: FRIENDLY
     manaCost: 30
+    cooldown: 20
+    castTime: 2
     description: |
       Needs an instrument. Every enemy within 3 tiles gets ASPD Down and loses HIT for 20s.
       Cooldown 20s.
@@ -1840,6 +1908,8 @@ skills:
     script: BattleHymn
     targetType: FRIENDLY
     manaCost: 30
+    cooldown: 5
+    castTime: 2
     description: |
       A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 60s.
 
@@ -1850,6 +1920,8 @@ skills:
     script: WarMarch
     targetType: FRIENDLY
     manaCost: 30
+    cooldown: 5
+    castTime: 2
     description: |
       A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 60s.
 
@@ -1860,6 +1932,8 @@ skills:
     script: MirageDance
     targetType: FRIENDLY
     manaCost: 30
+    cooldown: 5
+    castTime: 2
     description: |
       A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 60s.
 
@@ -1870,6 +1944,8 @@ skills:
     script: WanderersTune
     targetType: FRIENDLY
     manaCost: 20
+    cooldown: 5
+    castTime: 2
     description: |
       A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 10min. Made for long journeys with a Bestia team.
 
@@ -1889,6 +1965,7 @@ skills:
     targetType: FRIENDLY
     range: 7
     manaCost: 25
+    cooldown: 30
     description: |
       Takes the hits meant for one party member. While it lasts, all damage the ally takes goes to
       the Knight instead. It ends early when the ally moves more than 7m away. Cooldown 30s.
@@ -1901,6 +1978,7 @@ skills:
     targetType: ENEMY
     range: 1
     manaCost: 12
+    cooldown: 4
     description: |
       Needs a spear or a polearm. A wide sweep that hits every enemy in a 3x3 area in front of the
       Knight. Cooldown 4s.
@@ -1913,6 +1991,7 @@ skills:
     targetType: ENEMY
     range: 7
     manaCost: 14
+    cooldown: 3
     description: |
       Needs a spear or a thrown weapon. Hurls it at a target up to 7 tiles away. A spear comes back
       to hand; a thrown weapon is used up like ammunition. Cooldown 3s.
@@ -1933,6 +2012,7 @@ skills:
     targetType: FRIENDLY
     range: 7
     manaCost: 1
+    cooldown: 1
     description: |
       Throws a potion from the bag onto an ally up to 7 tiles away, so it works as if the ally had
       drunk it. Cooldown 1s.
@@ -1944,6 +2024,8 @@ skills:
     script: Replanting
     targetType: GROUND
     range: 2
+    castTime: 3
+    manaCost: 5
     description: |
       Plants a sapling in a tree stump. The new tree grows back faster than one left to nature.
       Consumes a log.
@@ -1966,6 +2048,7 @@ skills:
     targetType: GROUND
     range: 1
     manaCost: 10
+    castTime: 5
     description: |
       Sets up a market stall where the Trader stands. Other players buy the listed items from it.
       The stall closes when the Trader walks away or after 1h.
@@ -1978,6 +2061,8 @@ skills:
     targetType: GROUND
     range: 3
     manaCost: 10
+    cooldown: 10
+    castTime: 2
     description: |
       Sets a blasting charge that breaks every block around it 3s later. Consumes a Blasting Charge,
       brewed with Alchemy. Nobody should stand too close.
@@ -1999,6 +2084,8 @@ skills:
     targetType: GROUND
     range: 2
     manaCost: 30
+    cooldown: 300
+    castTime: 5
     description: |
       Turns a campfire into a camp. Party members and their Bestias within 5m bear the weather
       better: `+-5` degrees temperature tolerance, in both directions. Only one camp per master.
@@ -2013,6 +2100,8 @@ skills:
     script: TreasureSense
     targetType: FRIENDLY
     manaCost: 15
+    cooldown: 30
+    castTime: 2
     description: |
       A Prospector's nose for what someone buried and never came back for. Senses treasure caches
       nearby. Cooldown 30s.
@@ -2026,6 +2115,8 @@ skills:
     script: EchoSounding
     targetType: FRIENDLY
     manaCost: 20
+    cooldown: 20
+    castTime: 2
     description: |
       A sound pulse that marks hollow spaces nearby on the map: cave openings, hollows and buried
       chambers. Cooldown 20s.
@@ -2039,6 +2130,7 @@ skills:
     targetType: GROUND
     range: 2
     manaCost: 20
+    castTime: 5
     description: |
       Charts a sensed treasure cache onto a sheet of blank vellum. The map is an item that can be
       traded or sold, so whoever holds it can dig the cache up.
