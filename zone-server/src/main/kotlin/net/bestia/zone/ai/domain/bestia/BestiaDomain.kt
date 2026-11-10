@@ -144,6 +144,9 @@ object BestiaDomain : AiDomainCatalogue {
   val RETREAT_BELOW_HEALTH_PCT = StateKey<Int>("retreatBelowHealthPct", retain = Blackboard.PERMANENT)
   val FLEES_ON_SIGHT = StateKey<Boolean>("fleesOnSight", retain = Blackboard.PERMANENT)
 
+  /** Where a bestia under GATHER orders works; absent under any other job. */
+  val GATHER_AREA = StateKey<GatherArea>("gatherArea", retain = Blackboard.PERMANENT)
+
   /** When this species sleeps, against the world's day/night cycle. See [isRestingPhase]. */
   val ACTIVITY_CYCLE = StateKey<ActivityCycle>("activityCycle", retain = Blackboard.PERMANENT)
 
