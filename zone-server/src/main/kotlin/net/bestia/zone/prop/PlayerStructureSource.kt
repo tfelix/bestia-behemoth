@@ -1,5 +1,6 @@
 package net.bestia.zone.prop
 
+import java.time.Clock
 import net.bestia.worldgen.core.ChunkPos
 import org.springframework.stereotype.Component
 import net.bestia.zone.entity.StaticEntityKind
@@ -18,18 +19,20 @@ import net.bestia.zone.entity.StaticEntityKind
 @Component
 class PlayerStructureSource(
   private val structures: PlayerStructureRegistry,
-  private val propKinds: PropKindRegistry
+  private val propKinds: PropKindRegistry,
+  private val clock: Clock = Clock.systemUTC(),
 ) : WorldObjectSource {
 
   /**
    * Listed rather than derived, unlike [GeneratedPropSource]'s set, because there is nothing to derive it from:
-   * no enumeration of generator flags produces "the kinds a player may build", and these three are exactly the
-   * ones a crafting skill can put up.
+   * no enumeration of generator flags produces "the kinds a player may build", and these are exactly the
+   * stations a kit can put up.
    */
   override val kinds: Set<StaticEntityKind> = setOf(
     StaticEntityKind.WORKBENCH,
     StaticEntityKind.FURNACE,
-    StaticEntityKind.FORGE
+    StaticEntityKind.FORGE,
+    StaticEntityKind.CAMPFIRE
   )
 
   /**
@@ -58,8 +61,8 @@ class PlayerStructureSource(
       kind = entry.kind,
       propId = 0,
       position = entry.position,
-      // A station has one model, so there is nothing to roll between - see its `prop-kinds.yml` row.
-      variant = 0,
+      // A station has one model, so there is nothing to roll between - except a campfire, which is lit or cold.
+      variant = Campfire.variantAt(entry, clock.instant()),
       // From the collider rather than from a drawn height: a generator measures what it drew, and nothing drew
       // this. The collider is the only statement anywhere of how tall a forge is.
       heightDm = (spec.collider.height * 10).toInt(),

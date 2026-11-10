@@ -118,7 +118,10 @@ enum class StaticEntityKind {
   // `structure-pieces.yml` gives it.
   STRUCTURE_WALL,
   STRUCTURE_FLOOR,
-  STRUCTURE_STAIRS;
+  STRUCTURE_STAIRS,
+
+  // The station of Cooking. Unlike the other stations it burns down, see `Campfire`.
+  CAMPFIRE;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.

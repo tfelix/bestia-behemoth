@@ -16,7 +16,7 @@
 # reason the success tables in the design docs are worth anything.
 #
 # `station` names a `StaticEntityKind` that must be standing within `PlayerStructureService.RANGE_TILES`
-# tiles. Cooking deliberately has none: there is no camp-fire prop, so a meal is cooked anywhere.
+# tiles. A campfire counts only while it burns.
 #
 # `baseSuccessChance` is before skill bonuses - see `CraftBonusService`, which applies the docs'
 # per-level tables on top. A recipe at 1.0 cannot fail on its own.
@@ -32,6 +32,7 @@ recipes:
       - { item: apple, amount: 2 }
       - { item: jelly, amount: 1 }
     skill: { skill: M_COOKING, level: 1 }
+    station: CAMPFIRE
     craftSeconds: 6.0
     baseSuccessChance: 0.5
 
@@ -106,6 +107,18 @@ recipes:
       - { item: log, amount: 2 }
     skill: { skill: M_FORGE_WEAPON, level: 1 }
     craftSeconds: 10.0
+    baseSuccessChance: 1.0
+
+  - id: 41
+    identifier: CAMPFIRE_KIT
+    effect: PRODUCE
+    output: { item: campfire_kit, amount: 1 }
+    inputs:
+      - { item: stick, amount: 4 }
+      - { item: loose_stone, amount: 3 }
+      - { item: resin, amount: 1 }
+    skill: { skill: M_COOKING, level: 1 }
+    craftSeconds: 5.0
     baseSuccessChance: 1.0
 
   # --- Craftsman tree, at a workbench --------------------------------------------------------------

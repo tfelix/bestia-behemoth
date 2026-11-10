@@ -23,7 +23,13 @@ data class CraftableRecipesSMSG(
   /** The station the recipes are worked at, or null for Handiwork. */
   val station: StaticEntityKind?,
 
-  val recipes: List<CraftableRecipe>
+  val recipes: List<CraftableRecipe>,
+
+  /** The player structure the recipes are worked at, or 0 for Handiwork. */
+  val structureId: Long = 0,
+
+  /** Seconds a campfire has left to burn; 0 once it is out or for a station that burns nothing. */
+  val fuelSeconds: Long = 0
 ) : SMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -55,6 +61,8 @@ data class CraftableRecipesSMSG(
       // Ordinal + 1, so 0 can mean "none" - the same encoding `ItemResource.equip_slot` uses on the client.
       .setStationKind(station?.let { it.ordinal + 1 } ?: 0)
       .addAllRecipes(protoRecipes)
+      .setStructureId(structureId)
+      .setFuelSeconds(fuelSeconds.toInt())
       .build()
 
     return EnvelopeProto.Envelope.newBuilder()

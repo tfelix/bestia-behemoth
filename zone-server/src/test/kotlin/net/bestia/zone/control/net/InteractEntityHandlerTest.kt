@@ -151,7 +151,7 @@ class InteractEntityHandlerTest {
 
     handler.handle(world, interactWith(workbench))
 
-    verify { crafting.openAtStation(world, actor, actor, StaticEntityKind.WORKBENCH) }
+    verify { crafting.openAtStructure(world, actor, actor, 7L) }
   }
 
   @Test

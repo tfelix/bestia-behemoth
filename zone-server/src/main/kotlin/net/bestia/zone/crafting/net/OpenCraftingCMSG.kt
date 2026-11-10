@@ -8,10 +8,13 @@ data class OpenCraftingCMSG(
   override val playerId: Long,
 
   /** The skill to show first, or `CraftingService.NO_SKILL`. */
-  val skillId: Long
+  val skillId: Long,
+
+  /** The station the window is already open at, or 0 to let the server pick. */
+  val structureId: Long = 0
 ) : CMSG {
   companion object {
     fun fromBnet(accountId: Long, openCrafting: OpenCraftingCmsgProto.OpenCraftingCMSG): OpenCraftingCMSG =
-      OpenCraftingCMSG(playerId = accountId, skillId = openCrafting.skillId)
+      OpenCraftingCMSG(playerId = accountId, skillId = openCrafting.skillId, structureId = openCrafting.structureId)
   }
 }

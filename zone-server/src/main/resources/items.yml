@@ -384,6 +384,18 @@ items:
       An anvil horn, a bellows and a ring of hearth stones, roped together.
 
       Set it down and it becomes a forge - once somebody puts the work in.
+
+  - id: 126
+    item-db-name: campfire_kit
+    base-level: 1
+    weight: 300
+    type: USABLE
+    material: WOOD
+    script: CampfireKitScript
+    description: |
+      Kindling, a few stones and a lump of resin to get it going.
+
+      Set it down to light a campfire. It burns half an hour, longer with more wood.
   # --- The economy's first commodities ------------------------------------------------------------
   # farm -> mill -> bakery -> household, which is the shortest chain that exercises every part of the
   # settlement ledger at once: several stages, a capacity that player damage can take away at the farm

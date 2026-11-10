@@ -10,6 +10,10 @@ import net.bestia.zone.battle.ecs.skill.Crafting
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.stat.ItemStatRoller
 import io.mockk.every
+import net.bestia.zone.prop.PlayerStructureRegistry
+import net.bestia.zone.prop.StructureEntry
+import net.bestia.zone.entity.ecs.PlayerStructureIdentity
+import net.bestia.zone.geometry.Vec3L
 import io.mockk.mockk
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
@@ -73,6 +77,7 @@ class CraftingFixture(
     every { it.consumeAll(any(), any(), any()) } returns true
   }
   val structures = mockk<PlayerStructureService>()
+  val structureRegistry = mockk<PlayerStructureRegistry>()
   val outMessageProcessor = mockk<OutMessageProcessor>(relaxed = true)
 
   val commodities = mockk<CommodityItems>().also { every { it.coinItemId() } returns COIN_ITEM_ID }
@@ -109,8 +114,10 @@ class CraftingFixture(
       skillIds[firstArg<String>()]?.let { id -> mockk<Skill>().also { every { it.id } returns id } }
     }
     every { structures.stationNear(any(), any(), any()) } answers {
-      if (thirdArg<StaticEntityKind>() in stationsInRange) STATION_ENTITY_ID else null
+      val kind = thirdArg<StaticEntityKind>()
+      if (kind in stationsInRange) stationEntityOf(kind) else null
     }
+    every { structureRegistry.of(any()) } answers { stationEntries[firstArg<Long>()] }
 
     bonuses = CraftBonusService(skillRepository)
     service = CraftingService(
@@ -128,12 +135,31 @@ class CraftingFixture(
       worldService = worldService,
       crafters = Crafters(starterKit),
       blueprintPoints = BlueprintPoints(),
+      structureRegistry = structureRegistry,
     )
   }
 
   fun withStation(kind: StaticEntityKind): CraftingFixture {
     stationsInRange.add(kind)
     return this
+  }
+
+  /** Structure id -> the row of each station a test stood the crafter next to. */
+  private val stationEntries = mutableMapOf<Long, StructureEntry>()
+
+  /** A structure row the registry answers for, standing anywhere; only `openAtStructure` looks at these alone. */
+  fun givenStructure(entry: StructureEntry) {
+    stationEntries[entry.id] = entry
+  }
+
+  /** A station standing in the world, its structure id taken from its kind so each kind is built once. */
+  private fun stationEntityOf(kind: StaticEntityKind): EntityId {
+    val structureId = kind.ordinal.toLong() + 1
+    stationEntries.getOrPut(structureId) {
+      StructureEntry(structureId, kind, MASTER_ID, ACCOUNT_ID, Vec3L(0, 0, 0), yaw = 0f)
+    }
+
+    return world.createEntity { id -> add(id, PlayerStructureIdentity(structureId, ACCOUNT_ID)) }
   }
 
   /**
@@ -189,7 +215,6 @@ class CraftingFixture(
     const val MASTER_ID = 42L
     const val ACCOUNT_ID = 7L
     const val PLAYER_BESTIA_ID = 13L
-    const val STATION_ENTITY_ID = 999L
     const val WORLD_NAME = "Genesis"
 
     /** A plain material pile, which is the only thing a recipe input may be. */
