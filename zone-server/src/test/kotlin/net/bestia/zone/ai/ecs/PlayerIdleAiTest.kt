@@ -1,6 +1,7 @@
 package net.bestia.zone.ai.ecs
 
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
+import net.bestia.zone.ai.domain.bestia.WorkArea
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.ai.profile.Courage
@@ -117,6 +118,14 @@ class PlayerIdleAiTest {
 
     assertEquals(50, careful.memory.get(BestiaDomain.RETREAT_BELOW_HEALTH_PCT))
     assertEquals(null, brave.memory.get(BestiaDomain.RETREAT_BELOW_HEALTH_PCT))
+  }
+
+  @Test
+  fun `a guard holds the area around its home`() {
+    val guard = agentWith("aggressive_melee", AiConfig(job = BestiaJob.GUARD))
+
+    assertEquals(WorkArea(Vec3L.ZERO, radius = 24), guard.memory.get(BestiaDomain.GUARD_AREA))
+    assertTrue(guard.goals.any { it.name == "ReturnToMiddle" })
   }
 
   @Test

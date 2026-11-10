@@ -30,6 +30,7 @@ import net.bestia.zone.ai.domain.bestia.action.HaulToChestActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.RetreatHomeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.UseFromBagActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.ReturnHomeActionTemplate
+import net.bestia.zone.ai.domain.bestia.action.ReturnToMiddleActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.SleepActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.TakeFoodFromChestActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.WalkToVegetationActionTemplate
@@ -187,6 +188,12 @@ object BestiaDomain : AiDomainCatalogue {
 
   /** Where a bestia under CRAFT orders looks for stations to work; absent under any other job. */
   val CRAFT_AREA = StateKey<WorkArea>("craftArea", retain = Blackboard.PERMANENT)
+
+  /** Where a bestia under GUARD orders holds off intruders; absent under any other job. */
+  val GUARD_AREA = StateKey<WorkArea>("guardArea", retain = Blackboard.PERMANENT)
+
+  /** A guard has walked back to the middle of its area since its last fight. Perception clears it on every target. */
+  val BACK_IN_MIDDLE = StateKey<Boolean>("backInMiddle", retain = Blackboard.PERMANENT)
 
   /** Its master's stations in its craft area that wait for a free crafter, nearest first. See `StationSense`. */
   val OPEN_STATIONS = StateKey<List<OpenStation>>("openStations")
@@ -497,9 +504,17 @@ object BestiaDomain : AiDomainCatalogue {
       desiredState = listOf(Preconditions.equalTo(AT_WORK, true)),
     )
 
+    /** A guard walking back to the middle of its area once a fight is over. Over [WANDER], under the kill goals. */
+    val RETURN_TO_MIDDLE = Goal(
+      name = "ReturnToMiddle",
+      priority = priority(base = 70f),
+      availability = Precondition { s -> s.get(GUARD_AREA) != null && !enemyInSight(s) },
+      desiredState = listOf(Preconditions.equalTo(BACK_IN_MIDDLE, true)),
+    )
+
     val ALL = listOf(
       EAT_VEGETATION, SLEEP, RETURN_HOME, KILL_ATTACKER, KILL_ENEMY, WANDER, HEAL_FROM_BAG, EAT_FROM_BAG, RETREAT,
-      GATHER, HAUL_TO_CHEST, RESTOCK_FOOD, CRAFT,
+      GATHER, HAUL_TO_CHEST, RESTOCK_FOOD, CRAFT, RETURN_TO_MIDDLE,
     )
 
     val BY_NAME = ALL.associateBy { it.name }
@@ -533,6 +548,7 @@ object BestiaDomain : AiDomainCatalogue {
   private val TEMPLATE_FACTORIES: Map<String, (Collaborators) -> ActionTemplate> = mapOf(
     "wander" to { c -> WanderActionTemplate(c.locomotion) },
     "returnHome" to { c -> ReturnHomeActionTemplate(c.locomotion) },
+    "returnToMiddle" to { c -> ReturnToMiddleActionTemplate(c.locomotion) },
     "walkToVegetation" to { c -> WalkToVegetationActionTemplate(c.locomotion) },
     "eatVegetation" to { _ -> EatVegetationActionTemplate() },
     "sleep" to { _ -> SleepActionTemplate() },
