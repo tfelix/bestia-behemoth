@@ -6,9 +6,8 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "CraftItemCmsgProto";
 
 /**
- * Start one craft. Sent from the crafting window, which the player opened by activating a crafting
- * skill - activation and execution are deliberately separate messages, because ActivateSkillCMSG
- * carries no recipe and a skill that unlocks nine recipes cannot say which one is wanted.
+ * Start a craft. Sent from the crafting window - opening it and crafting are deliberately separate
+ * messages, because a window that lists nine recipes cannot say which one is wanted.
  *
  * The craft is validated on arrival and again when it resolves, and its inputs are consumed at the
  * end - so walking away from a forge mid-craft costs nothing.
@@ -19,4 +18,6 @@ message CraftItemCMSG {
   // The item instance to work on, for a recipe whose effect changes an item rather than making one.
   // 0 for a producing recipe, which has no target.
   uint64 target_unique_id = 2;
+  // How many to make one after another; 0 means 1. Only a producing recipe repeats.
+  uint32 amount = 3;
 }
