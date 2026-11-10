@@ -74,7 +74,7 @@ func show_bag(title: String, items: Array, capacity: String) -> void:
 		_grid.add_child(row)
 
 
-## Shown when a drop is refused before it is sent, because the receiver could not carry it.
+## Shown when a move is refused because the receiver could not take it.
 func flash_refusal() -> void:
 	if _flash != null:
 		_flash.kill()
