@@ -7,6 +7,7 @@ import io.mockk.verify
 import net.bestia.zone.crafting.CraftingService
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.crafting.station.StationFixture.Companion.ACCOUNT
 import net.bestia.zone.crafting.station.StationFixture.Companion.OWNER
 import net.bestia.zone.crafting.station.StationFixture.Companion.PLANK
@@ -26,9 +27,10 @@ class StationWorkSystemTest {
   private val now = Instant.parse("2026-11-10T12:00:00Z")
   private val connections = ConnectionInfoService()
   private val crafting = mockk<CraftingService>().also {
-    every { it.craftSecondsFor(any(), any(), any(), any()) } returns 4f
+    every { it.craftSecondsFor(any(), any()) } returns 4f
     every { it.produceFromStation(any(), any(), any(), any()) } returns null
   }
+  private val profiles = mockk<CrafterProfiles>(relaxed = true)
   private val work = StationWork()
 
   @Test
@@ -38,7 +40,7 @@ class StationWorkSystemTest {
 
     system(fixture).update(fixture.world, 4f)
 
-    verify(exactly = 1) { crafting.produceFromStation(fixture.world, owner, owner, fixture.recipe) }
+    verify(exactly = 1) { crafting.produceFromStation(fixture.world, owner, any(), fixture.recipe) }
     assertEquals(listOf(QueueEntry(RECIPE, 2, done = 1)), fixture.station.queue)
     assertEquals(mapOf(PLANK to 2), fixture.station.held)
   }
@@ -95,6 +97,33 @@ class StationWorkSystemTest {
     assertEquals(StationPause.STATION_OUT, work.of(STATION).pause)
   }
 
+  /** The whole point of a bestia worker: the queue goes on with nobody playing. */
+  @Test
+  fun `a bestia keeps working while its master is logged out`() {
+    val fixture = queued(amount = 2)
+    val bestia = fixture.givenBestia()
+    fixture.workers.assign(fixture.world, bestia, fixture.station)
+    every { profiles.crafterFor(fixture.world, bestia, OWNER) } returns
+      fixture.crafters.Crafter(Master(OWNER, "Joiner"), StationFixture.PLAYER_BESTIA, null, null)
+
+    system(fixture).update(fixture.world, 4f)
+
+    verify { crafting.produceFromStation(fixture.world, bestia, any(), fixture.recipe) }
+    assertEquals(listOf(QueueEntry(RECIPE, 2, done = 1)), fixture.station.queue)
+  }
+
+  @Test
+  fun `a bestia worker waits while what its absent master knows is loading`() {
+    val fixture = queued(amount = 2)
+    val bestia = fixture.givenBestia()
+    fixture.workers.assign(fixture.world, bestia, fixture.station)
+    every { profiles.crafterFor(any(), any(), any()) } returns null
+
+    system(fixture).update(fixture.world, 4f)
+
+    assertEquals(StationPause.WORKER_OFFLINE, work.of(STATION).pause)
+  }
+
   private fun queued(amount: Int, fixture: StationFixture = StationFixture()): StationFixture {
     fixture.station = fixture.station.copy(queue = listOf(QueueEntry(RECIPE, amount)), held = mapOf(PLANK to amount * 2))
     return fixture
@@ -110,6 +139,9 @@ class StationWorkSystemTest {
       structures = fixture.structures,
       recipes = fixture.recipes,
       crafting = crafting,
+      crafters = fixture.crafters,
+      profiles = profiles,
+      workers = fixture.workers,
       itemTemplates = fixture.itemTemplates,
       connections = connections,
       work = work,

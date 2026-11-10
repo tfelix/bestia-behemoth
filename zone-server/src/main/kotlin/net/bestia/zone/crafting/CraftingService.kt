@@ -178,10 +178,9 @@ class CraftingService(
    *
    * @return the refusal to send back, or null when it may
    */
-  fun refusalToQueue(world: World, crafterId: EntityId, masterEntityId: EntityId, recipe: Recipe): OpError? {
+  fun refusalToQueue(crafter: Crafters.Crafter, recipe: Recipe): OpError? {
     if (recipe.needsTarget) return OpError.CRAFT_NOT_POSSIBLE
 
-    val crafter = crafters.of(world, crafterId, masterEntityId) ?: return OpError.CRAFT_NOT_POSSIBLE
     val known = crafter.skills
     if (known?.knowsSkill(recipe.requiredSkillId, recipe.requiredSkillLevel) != true || !crafter.knowsBlueprint(recipe)) {
       return OpError.CRAFT_NOT_POSSIBLE
@@ -190,27 +189,24 @@ class CraftingService(
     return if (withinReach(known, recipe, outputLevelOf(recipe))) null else OpError.CRAFT_ITEM_TOO_ADVANCED
   }
 
-  /** How long [recipe] takes this crafter, or null when they cannot make it at all. */
-  fun craftSecondsFor(world: World, crafterId: EntityId, masterEntityId: EntityId, recipe: Recipe): Float? {
-    val crafter = crafters.of(world, crafterId, masterEntityId) ?: return null
-
+  /** How long [recipe] takes this crafter. */
+  fun craftSecondsFor(crafter: Crafters.Crafter, recipe: Recipe): Float {
     return bonuses.craftSeconds(crafter.skills, recipe)
   }
 
   /**
    * Rolls one item of a station's queue. Its inputs were paid into the station when it was queued, so there is
    * nothing to take here: the caller spends them whichever way the roll goes. [workerId] brings the DEX and WIL
-   * and the bag the item goes into.
+   * and the bag the item goes into, [crafter] the skills and blueprints.
    *
    * @return the refusal that stops the queue, or null when the item was rolled
    */
-  fun produceFromStation(world: World, workerId: EntityId, masterEntityId: EntityId, recipe: Recipe): OpError? {
-    refusalToQueue(world, workerId, masterEntityId, recipe)?.let { return it }
+  fun produceFromStation(world: World, workerId: EntityId, crafter: Crafters.Crafter, recipe: Recipe): OpError? {
+    refusalToQueue(crafter, recipe)?.let { return it }
 
     val minted = mintedBy(recipe)
     if (minted > 0 && reserve.available() < minted) return OpError.CRAFT_WORLD_OUT_OF_GOLD
 
-    val crafter = crafters.of(world, workerId, masterEntityId) ?: return OpError.CRAFT_NOT_POSSIBLE
     val known = crafter.skills
     val accountId = world.get(workerId, Account::class)?.accountId
     val masterId = crafter.master.masterId

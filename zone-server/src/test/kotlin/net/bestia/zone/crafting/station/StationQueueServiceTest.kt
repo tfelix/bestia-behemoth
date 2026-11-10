@@ -29,7 +29,9 @@ class StationQueueServiceTest {
   private val service = StationQueueService(
     structures = fixture.structures,
     recipes = fixture.recipes,
-    crafting = mockk<CraftingService> { every { refusalToQueue(any(), any(), any(), any()) } returns null },
+    crafting = mockk<CraftingService> { every { refusalToQueue(any(), any()) } returns null },
+    crafters = fixture.crafters,
+    workers = fixture.workers,
     itemTemplates = fixture.itemTemplates,
     inventoryService = inventoryService,
     asyncJobExecutor = mockk<AsyncJobExecutor> {
@@ -112,5 +114,26 @@ class StationQueueServiceTest {
     service.spill(fixture.world, fixture.station, Vec3L(3, 3, 0))
 
     verify { lootItems.spawnLootItem(fixture.world, itemId = PLANK, amount = 4, pos = Vec3L(3, 3, 0)) }
+  }
+
+  @Test
+  fun `the owner sets one of their bestias to work the station`() {
+    val owner = fixture.givenOwner(planks = 0)
+    val bestia = fixture.givenBestia()
+
+    assertNull(service.setWorker(fixture.world, owner, STATION, bestia))
+
+    assertEquals(StationFixture.PLAYER_BESTIA, fixture.station.workerBestiaId)
+    assertEquals(bestia, fixture.workers.entityOf(STATION))
+  }
+
+  @Test
+  fun `somebody else's bestia cannot be set to work it`() {
+    val owner = fixture.givenOwner(planks = 0)
+    val stranger = fixture.world.createEntity { id ->
+      add(id, net.bestia.zone.identity.ecs.OwnedBestia(masterId = 99L, playerBestiaId = 77L))
+    }
+
+    assertEquals(OpError.CRAFT_NOT_POSSIBLE, service.setWorker(fixture.world, owner, STATION, stranger))
   }
 }

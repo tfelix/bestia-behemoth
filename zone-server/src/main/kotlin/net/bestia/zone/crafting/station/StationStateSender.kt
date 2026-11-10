@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 @Component
 class StationStateSender(
   private val work: StationWork,
+  private val workers: StationWorkers,
   private val outMessageProcessor: OutMessageProcessor,
 ) {
 
@@ -23,7 +24,8 @@ class StationStateSender(
         held = station.held,
         progressSeconds = progress?.seconds ?: 0f,
         craftSeconds = progress?.craftSeconds ?: 0f,
-        pause = progress?.pause ?: StationPause.NONE
+        pause = progress?.pause ?: StationPause.NONE,
+        workerEntityId = workers.entityOf(station.id) ?: 0L
       )
     )
   }

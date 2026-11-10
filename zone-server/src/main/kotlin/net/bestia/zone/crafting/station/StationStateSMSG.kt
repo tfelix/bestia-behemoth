@@ -13,7 +13,10 @@ data class StationStateSMSG(
   val held: Map<Long, Int>,
   val progressSeconds: Float,
   val craftSeconds: Float,
-  val pause: StationPause
+  val pause: StationPause,
+
+  /** The bestia that works the queue, or 0 when the owner does. */
+  val workerEntityId: Long = 0L
 ) : SMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -36,6 +39,7 @@ data class StationStateSMSG(
       .addAllEntries(entries)
       .addAllHeld(piles)
       .setPause(pause.wire)
+      .setWorkerEntityId(workerEntityId)
       .build()
 
     return EnvelopeProto.Envelope.newBuilder()
