@@ -29,6 +29,7 @@ message SetBestiaAiConfigCMSG {
     GUARD = 1;
     REST = 2;
     GATHER = 3;
+    CRAFT = 4;
   }
 
   enum Courage {

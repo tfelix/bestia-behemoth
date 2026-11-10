@@ -30,6 +30,10 @@ export const JOB_TEXT: Record<string, { name: string; text: string }> = {
 		name: 'Gather',
 		text: 'Collects sticks, plants, crystals and logs around where it was left and carries them to your nearest chest.'
 	},
+	CRAFT: {
+		name: 'Craft',
+		text: 'Works the queue of any of your stations around where it was left that takes any free crafter.'
+	},
 	REST: { name: 'Rest', text: 'Stays around where it was left, eats and sleeps as needed.' }
 };
 
