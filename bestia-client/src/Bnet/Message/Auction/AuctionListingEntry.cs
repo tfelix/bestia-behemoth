@@ -28,6 +28,20 @@ namespace BestiaBehemothClient.Bnet.Message.Auction
     [Export] public int Slots { get; set; }
     [Export] public Godot.Collections.Array<ItemStatValue> RolledStats { get; set; } = [];
 
+    /// <summary>A timed auction; <see cref="Price"/> is then its starting bid.</summary>
+    [Export] public bool IsAuction { get; set; }
+
+    /// <summary>The highest bid so far, 0 before the first.</summary>
+    [Export] public long CurrentBid { get; set; }
+
+    [Export] public long NextMinBid { get; set; }
+
+    /// <summary>0 for none.</summary>
+    [Export] public long Buyout { get; set; }
+
+    /// <summary>Whether this player holds the highest bid.</summary>
+    [Export] public bool Leading { get; set; }
+
     public static AuctionListingEntry FromProto(global::Bnet.AuctionListing proto)
     {
       return new AuctionListingEntry
@@ -44,7 +58,12 @@ namespace BestiaBehemothClient.Bnet.Message.Auction
         Durability = proto.Durability,
         MaxDurability = proto.MaxDurability,
         Slots = proto.Slots,
-        RolledStats = ItemStatValue.FromProto(proto.RolledStats)
+        RolledStats = ItemStatValue.FromProto(proto.RolledStats),
+        IsAuction = proto.IsAuction,
+        CurrentBid = proto.CurrentBid,
+        NextMinBid = proto.NextMinBid,
+        Buyout = proto.Buyout,
+        Leading = proto.Leading
       };
     }
   }

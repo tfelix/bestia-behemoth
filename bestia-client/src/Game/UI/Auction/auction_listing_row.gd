@@ -73,9 +73,11 @@ func _build() -> void:
 	row.add_child(_cell(seller, COLUMNS["seller"]))
 
 	row.add_child(_cell(UiStyle.label(AuctionFormat.time_left(_listing.ExpiresAtEpochSeconds), 12, UiStyle.MUTED), COLUMNS["time"]))
-	var unit := int(ceil(float(_listing.Price) / maxi(1, _listing.Amount)))
+	# An auction is shown at its highest bid, or at its start before the first one.
+	var price: int = _listing.CurrentBid if _listing.CurrentBid > 0 else _listing.Price
+	var unit := int(ceil(float(price) / maxi(1, _listing.Amount)))
 	row.add_child(AuctionFormat.price(unit, COLUMNS["unit"], UiStyle.MUTED))
-	row.add_child(AuctionFormat.price(_listing.Price, COLUMNS["price"]))
+	row.add_child(AuctionFormat.price(price, COLUMNS["price"], UiStyle.ONLINE if _listing.Leading else UiStyle.ACCENT))
 
 	var action := Button.new()
 	action.text = tr(_action_key)

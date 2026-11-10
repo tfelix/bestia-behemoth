@@ -171,6 +171,7 @@ var StallListCMSG = load("res://Bnet/Message/Stall/StallListCMSG.cs")
 var StallUnlistCMSG = load("res://Bnet/Message/Stall/StallUnlistCMSG.cs")
 var StallBuyCMSG = load("res://Bnet/Message/Stall/StallBuyCMSG.cs")
 var ListAuctionItemCMSG = load("res://Bnet/Message/Auction/ListAuctionItemCMSG.cs")
+var BidAuctionCMSG = load("res://Bnet/Message/Auction/BidAuctionCMSG.cs")
 var CancelAuctionListingCMSG = load("res://Bnet/Message/Auction/CancelAuctionListingCMSG.cs")
 var SetAuctionFeeCMSG = load("res://Bnet/Message/Auction/SetAuctionFeeCMSG.cs")
 var CollectAuctionTillCMSG = load("res://Bnet/Message/Auction/CollectAuctionTillCMSG.cs")
@@ -978,14 +979,29 @@ func buy_from_stall(stall_entity_id: int, listing_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
-## Puts [param amount] of a held pile up at a fixed [param price] for the whole lot. Answered by the seller's listings.
-func list_auction_item(house_entity_id: int, player_item_id: int, amount: int, price: int) -> void:
+## Puts [param amount] of a held pile up for the whole lot: at a fixed [param price] when [param days] is 0, else as
+## an auction of that many days starting at [param price]. Answered by the seller's listings.
+func list_auction_item(
+	house_entity_id: int, player_item_id: int, amount: int, price: int, days: int = 0, buyout: int = 0
+) -> void:
 	assert(is_ready_to_send())
 	var msg = ListAuctionItemCMSG.new()
 	msg.HouseEntityId = house_entity_id
 	msg.PlayerItemId = player_item_id
 	msg.Amount = amount
 	msg.Price = price
+	msg.DurationDays = days
+	msg.Buyout = buyout
+	_socket.SendMessage(msg)
+
+
+## Bids [param amount] on an auction. Answered by the refreshed board, or an OperationError.
+func bid_auction(house_entity_id: int, listing_id: int, amount: int) -> void:
+	assert(is_ready_to_send())
+	var msg = BidAuctionCMSG.new()
+	msg.HouseEntityId = house_entity_id
+	msg.ListingId = listing_id
+	msg.Amount = amount
 	_socket.SendMessage(msg)
 
 
