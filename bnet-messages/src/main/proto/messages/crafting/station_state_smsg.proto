@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "StationStateSmsgProto";
+
+/**
+ * A station's queue and what it holds, sent to its owner when the crafting window opens there and whenever either
+ * changes. Progress between two of these is drawn by the client from progress_millis and craft_millis.
+ */
+message StationStateSMSG {
+  uint64 structure_id = 1;
+  repeated StationQueueEntry entries = 2;
+
+  // The ingredients paid into the station and not used yet.
+  repeated StationHeldItem held = 3;
+
+  // Why the first entry is not being worked, or STATION_PAUSE_NONE while it is.
+  StationPause pause = 4;
+}
+
+message StationQueueEntry {
+  uint64 recipe_id = 1;
+  uint32 amount = 2;
+  uint32 done = 3;
+
+  // How far the item in progress is; only ever set on the first entry.
+  uint32 progress_millis = 4;
+  uint32 craft_millis = 5;
+}
+
+message StationHeldItem {
+  uint32 item_id = 1;
+  uint32 amount = 2;
+}
+
+enum StationPause {
+  STATION_PAUSE_NONE = 0;
+  STATION_PAUSE_WORKER_AWAY = 1;
+  STATION_PAUSE_WORKER_OFFLINE = 2;
+  STATION_PAUSE_BAG_FULL = 3;
+  STATION_PAUSE_STATION_OUT = 4;
+  STATION_PAUSE_CANNOT_CRAFT = 5;
+}
