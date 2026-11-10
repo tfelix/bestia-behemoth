@@ -26,6 +26,10 @@ export function biomeName(biome: string): string {
 /** What a job means to a player, in the words of the game's Bestia orders. */
 export const JOB_TEXT: Record<string, { name: string; text: string }> = {
 	GUARD: { name: 'Guard', text: 'Roams around where it was left and drives off anything hostile that comes near.' },
+	GATHER: {
+		name: 'Gather',
+		text: 'Collects sticks, plants, crystals and logs around where it was left and carries them to your nearest chest.'
+	},
 	REST: { name: 'Rest', text: 'Stays around where it was left, eats and sleeps as needed.' }
 };
 
