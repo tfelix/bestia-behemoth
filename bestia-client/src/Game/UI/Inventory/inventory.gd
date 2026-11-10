@@ -93,6 +93,7 @@ func _ready() -> void:
 	add_to_group("inventory")
 	ConnectionManager.connect("entity_received", _on_entity_received)
 	ConnectionManager.chest_opened.connect(_on_chest_opened)
+	ConnectionManager.operation_error.connect(_on_operation_error)
 	# Every change to a bag, and every switch of the controlled entity, already goes out as this signal.
 	inventory_updated.connect(_report_gold_change)
 	_exchange.item_dropped.connect(_on_dropped_on_partner)
@@ -497,6 +498,12 @@ func _close_chest() -> void:
 		_partner_id = 0
 	_items.erase(_chest_id)
 	_chest_id = 0
+
+
+## A chest has no weight limit, so a full one is only found out by the server.
+func _on_operation_error(msg: OperationError) -> void:
+	if msg.CodeName == "chest_full" and _partner_id == _chest_id and is_exchanging():
+		_exchange.flash_refusal()
 
 
 ## One icon per own entity standing within reach, coloured by its slot and named in its tooltip; none for one
