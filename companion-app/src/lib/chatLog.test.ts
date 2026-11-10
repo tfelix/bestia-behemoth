@@ -17,7 +17,7 @@ describe('lineOf', () => {
 	});
 
 	it('ignores every other event', () => {
-		expect(lineOf({ id: '1-0', type: 'StanceChanged', data: { masterId: 5 } })).toBeNull();
+		expect(lineOf({ id: '1-0', type: 'OrdersChanged', data: { masterId: 5 } })).toBeNull();
 	});
 });
 

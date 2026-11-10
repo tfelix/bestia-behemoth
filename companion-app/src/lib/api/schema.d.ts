@@ -68,7 +68,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/companion/masters/{masterId}/bestias/{bestiaId}/stance": {
+    "/v1/companion/masters/{masterId}/bestias/{bestiaId}/orders": {
         parameters: {
             query?: never;
             header?: never;
@@ -527,10 +527,9 @@ export interface components {
             key: string;
             value?: components["schemas"]["JsonNode"];
         };
-        StanceOrder: {
-            stance: string;
-            /** Format: int32 */
-            aggression: number;
+        BestiaOrders: {
+            job: string;
+            courage: string;
         };
         JourneyOrder: {
             waypoints: components["schemas"]["Position"][];
@@ -777,9 +776,8 @@ export interface components {
             species: string;
             /** Format: int32 */
             level: number;
-            stance: string;
-            /** Format: int32 */
-            aggression: number;
+            job: string;
+            courage: string;
             inWorld: boolean;
             position: components["schemas"]["Position"];
             /** Format: int64 */
@@ -1026,7 +1024,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["StanceOrder"];
+                "application/json": components["schemas"]["BestiaOrders"];
             };
         };
         responses: {
@@ -1036,7 +1034,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["StanceOrder"];
+                    "*/*": components["schemas"]["BestiaOrders"];
                 };
             };
         };

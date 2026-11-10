@@ -1,5 +1,5 @@
 import type { LiveEvent } from '#lib/live.svelte.ts';
-import { speciesName, STANCE_TEXT } from '#lib/names.ts';
+import { COURAGE_NAME, JOB_TEXT, speciesName } from '#lib/names.ts';
 
 /** A toast's words for an event, or null for those that only refresh what is on screen. */
 export function describe(event: LiveEvent): { title: string; body: string } | null {
@@ -18,8 +18,8 @@ export function describe(event: LiveEvent): { title: string; body: string } | nu
 			return { title: `A parcel from ${d.senderName}`, body: `It waits at ${d.officeName}.` };
 		case 'LetterArrived':
 			return { title: `A letter from ${d.senderName}`, body: String(d.subject || 'A pigeon brought it.') };
-		case 'StanceChanged':
-			return { title: 'Standing order received', body: `${STANCE_TEXT[String(d.stance)]?.name ?? d.stance}, aggression ${d.aggression}.` };
+		case 'OrdersChanged':
+			return { title: 'Orders received', body: `${JOB_TEXT[String(d.job)]?.name ?? d.job}, ${COURAGE_NAME[String(d.courage)] ?? d.courage}.` };
 		default:
 			return null;
 	}

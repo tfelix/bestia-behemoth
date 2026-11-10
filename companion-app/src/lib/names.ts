@@ -23,10 +23,16 @@ export function biomeName(biome: string): string {
 	return names[`BIOME_${biome}`] ?? biome.toLowerCase().replace(/_/g, ' ');
 }
 
-/** What a stance means to a player, in the words of the game's standing orders. */
-export const STANCE_TEXT: Record<string, { name: string; text: string }> = {
-	HOLD: { name: 'Hold', text: 'Stays put. Defends itself, but will not wander, forage or pick fights.' },
-	PATROL: { name: 'Patrol', text: 'Roams around where it was left and comes back if it strays.' },
-	FORAGE: { name: 'Forage', text: 'Looks after itself: eats and sleeps as needed, roaming meanwhile.' },
-	DEFEND: { name: 'Defend', text: 'Engages anything hostile that comes near, rather than waiting to be hit.' }
+/** What a job means to a player, in the words of the game's Bestia orders. */
+export const JOB_TEXT: Record<string, { name: string; text: string }> = {
+	GUARD: { name: 'Guard', text: 'Roams around where it was left and drives off anything hostile that comes near.' },
+	REST: { name: 'Rest', text: 'Stays around where it was left, eats and sleeps as needed.' }
+};
+
+export const COURAGE_NAME: Record<string, string> = {
+	TIMID: 'Timid',
+	CAREFUL: 'Careful',
+	STEADY: 'Steady',
+	BOLD: 'Bold',
+	BRAVE: 'Brave'
 };
