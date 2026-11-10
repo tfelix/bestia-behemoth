@@ -75,6 +75,7 @@ class InteractEntityHandlerTest {
       deadActionGuard = DeadActionGuard(),
       talkService = talk,
       crafting = crafting,
+      towns = mockk(relaxed = true),
       outMessageProcessor = messages,
       propInteractions = listOf(hallInteraction, chestInteraction),
     )

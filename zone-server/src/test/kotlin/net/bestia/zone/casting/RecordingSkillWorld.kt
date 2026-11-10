@@ -380,6 +380,14 @@ class RecordingSkillWorld(
     recipeOffers += skillId
   }
 
+  var townsFounded = 0
+
+  override fun foundTown(): Boolean {
+    townsFounded++
+
+    return true
+  }
+
   /** What the next [readTracks] answers with. Null - clean ground - is the useful default. */
   var tracks: TrackReading? = null
 

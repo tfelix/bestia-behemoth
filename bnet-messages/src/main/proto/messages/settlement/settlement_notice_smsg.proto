@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SettlementNoticeSmsgProto";
+
+// Something happened to a town the receiver holds or held. The client words it.
+message SettlementNoticeSMSG {
+  enum Notice {
+    // The sign is finished; the town stands.
+    FOUNDED = 0;
+    // The sign was destroyed.
+    FELL = 1;
+    TORN_DOWN = 2;
+    // The receiver handed the town over.
+    HANDED_OVER = 3;
+    // The receiver took the town over.
+    RECEIVED = 4;
+    // The sign site was destroyed or left unworked for a day.
+    SITE_LOST = 5;
+  }
+
+  Notice notice = 1;
+  string name = 2;
+}

@@ -128,6 +128,14 @@ import "messages/auction/auction_listings_smsg.proto";
 import "messages/auction/buy_auction_listing_cmsg.proto";
 import "messages/auction/cancel_auction_listing_cmsg.proto";
 import "messages/auction/auction_purchased_smsg.proto";
+import "messages/settlement/plan_settlement_cmsg.proto";
+import "messages/settlement/settlement_planned_smsg.proto";
+import "messages/settlement/settlement_sign_smsg.proto";
+import "messages/settlement/tear_down_settlement_cmsg.proto";
+import "messages/settlement/offer_settlement_cmsg.proto";
+import "messages/settlement/settlement_offer_smsg.proto";
+import "messages/settlement/answer_settlement_offer_cmsg.proto";
+import "messages/settlement/settlement_notice_smsg.proto";
 import "messages/postal/send_letter_cmsg.proto";
 import "messages/postal/letter_sent_smsg.proto";
 import "messages/postal/request_letters_cmsg.proto";
@@ -378,6 +386,16 @@ message Envelope {
     StallUnlistCMSG stall_unlist = 915;
     StallBuyCMSG stall_buy = 916;
     MonsterSenseSMSG monster_sense = 917;
+
+    // PLAYER SETTLEMENTS 950
+    PlanSettlementCMSG plan_settlement = 950;
+    SettlementPlannedSMSG settlement_planned = 951;
+    SettlementSignSMSG settlement_sign = 952;
+    TearDownSettlementCMSG tear_down_settlement = 953;
+    OfferSettlementCMSG offer_settlement = 954;
+    SettlementOfferSMSG settlement_offer = 955;
+    AnswerSettlementOfferCMSG answer_settlement_offer = 956;
+    SettlementNoticeSMSG settlement_notice = 957;
 
     // MISC
   }

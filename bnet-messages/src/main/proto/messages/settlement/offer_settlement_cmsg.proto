@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "OfferSettlementCmsgProto";
+
+// The founder offers their town to a master standing nearby, named by master name.
+message OfferSettlementCMSG {
+  uint64 sign_entity_id = 1;
+  string master_name = 2;
+}

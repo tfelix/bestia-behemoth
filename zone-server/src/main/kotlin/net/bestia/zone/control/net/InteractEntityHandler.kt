@@ -15,6 +15,8 @@ import net.bestia.zone.prop.ecs.construction.ConstructionSite
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.settlement.TownService
+import net.bestia.zone.settlement.ecs.CitySign
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.townsfolk.ecs.Townsfolk
@@ -45,6 +47,7 @@ class InteractEntityHandler(
   private val deadActionGuard: DeadActionGuard,
   private val talkService: TalkService,
   private val crafting: CraftingService,
+  private val towns: TownService,
   private val outMessageProcessor: OutMessageProcessor,
   propInteractions: List<PropInteraction>,
 ) : TickMessageHandler<InteractEntityCMSG> {
@@ -95,6 +98,10 @@ class InteractEntityHandler(
     val propInteraction = kindOf(world, targetId)?.let(propInteractionByKind::get)
     if (propInteraction != null) {
       return propInteraction.interact(world, actorId, targetId)
+    }
+
+    if (world.has(targetId, CitySign::class)) {
+      return towns.openSign(world, actorId, targetId)
     }
 
     // The component every player-built structure carries and nothing else does, so this needs no second

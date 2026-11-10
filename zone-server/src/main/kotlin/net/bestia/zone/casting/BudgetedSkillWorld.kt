@@ -592,6 +592,12 @@ class BudgetedSkillWorld(
     return services.spoor.read(centre, radiusTiles)
   }
 
+  override fun foundTown(): Boolean {
+    budget.charge()
+
+    return services.towns.found(world, casterId)
+  }
+
   /** [block] against [id], or null if [id] is gone. */
   private inline fun <T> onEntity(id: EntityId, block: World.(EntityId) -> T): T? {
     return if (world.isAlive(id)) world.block(id) else null
