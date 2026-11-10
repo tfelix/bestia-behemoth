@@ -10,6 +10,7 @@ import net.bestia.zone.ai.domain.AiDomainRuntime
 import net.bestia.zone.ai.domain.bestia.action.CollectPropActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.FellTreeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.GatherWork
+import net.bestia.zone.ai.domain.bestia.action.TakeFoodFromChestActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.ChestExchange
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.AiProfile
@@ -53,7 +54,7 @@ class BestiaRuntime(
   override val catalogue = BestiaDomain
 
   override val reads: ComponentClassSet =
-    GatherWork.READS + FellTreeActionTemplate.READS + ChestExchange.READS
+    GatherWork.READS + FellTreeActionTemplate.READS + ChestExchange.READS + TakeFoodFromChestActionTemplate.READS
 
   override val writes: ComponentClassSet = CollectPropActionTemplate.WRITES + FellTreeActionTemplate.WRITES
 

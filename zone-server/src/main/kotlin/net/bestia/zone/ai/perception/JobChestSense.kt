@@ -15,7 +15,8 @@ import net.bestia.zone.prop.chest.ChestStorages
 import org.springframework.stereotype.Component
 
 /**
- * Notices a gatherer's job chest - its master's chest nearest the area - and whether what it carries still fits.
+ * Notices a gatherer's job chest, its master's chest nearest the area: whether what it carries still fits there, and
+ * whether there is food in it.
  * Read from the chest's live contents, which exist whether its prop stands in the world or not.
  */
 @Component
@@ -40,6 +41,7 @@ class JobChestSense(
       context.forget(BestiaDomain.JOB_CHEST)
       context.forget(BestiaDomain.CHEST_HAS_ROOM)
       context.forget(BestiaDomain.GOODS_TO_HAUL)
+      context.forget(BestiaDomain.FOOD_IN_CHEST)
       return
     }
 
@@ -50,6 +52,7 @@ class JobChestSense(
     context.remember(BestiaDomain.JOB_CHEST, JobChest(chest.id, chest.position))
     context.remember(BestiaDomain.CHEST_HAS_ROOM, contents.size() < ChestStorage.SLOTS || goodsThatFit.isNotEmpty())
     context.remember(BestiaDomain.GOODS_TO_HAUL, goodsThatFit.isNotEmpty())
+    context.remember(BestiaDomain.FOOD_IN_CHEST, care.hasFor(contents, BagCare.Need.STAMINA))
   }
 
   private fun nearestChest(masterId: Long, area: GatherArea): StructureEntry? {

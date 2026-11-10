@@ -4,6 +4,7 @@ import io.mockk.every
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.battle.ecs.exp.GainExp
+import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.battle.attack.AttackOutcome
 import net.bestia.zone.geometry.Vec3L
@@ -173,6 +174,23 @@ class GathererTest {
     ai.tick(times = 20 * 20)
 
     assertNull(ai.divergence.of(1L))
+  }
+
+  @Test
+  fun `a gatherer out of food takes a few from its chest and eats one`() {
+    val gatherer = bestia()
+    val chest = chest()
+    ai.world.add(gatherer, Stamina(10, 100))
+    ai.world.add(gatherer, Inventory(mutableListOf()))
+    ai.world.add(gatherer, CarryCapacity(0, 100))
+    ai.world.getOrThrow(chest, Inventory::class).addItem(Inventory.Item(BREAD, 5, weight = 1))
+
+    ai.tickUntil(describe = { "stamina stayed at ${ai.world.getOrThrow(gatherer, Stamina::class).current}" }) {
+      ai.world.getOrThrow(gatherer, Stamina::class).current >= 40
+    }
+
+    assertEquals(mapOf(BREAD to 2), itemsIn(chest))
+    assertEquals(mapOf(BREAD to 2), itemsIn(gatherer))
   }
 
   private fun itemsIn(id: EntityId): Map<Long, Int> {
