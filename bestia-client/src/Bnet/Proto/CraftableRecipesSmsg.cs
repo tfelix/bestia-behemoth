@@ -25,9 +25,10 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci5tZXNzYWdlcy9jcmFmdGluZy9jcmFmdGFibGVfcmVjaXBlc19zbXNnLnBy",
-            "b3RvEgRibmV0ImYKFENyYWZ0YWJsZVJlY2lwZXNTTVNHEhAKCHNraWxsX2lk",
-            "GAEgASgEEhQKDHN0YXRpb25fa2luZBgCIAEoDRImCgdyZWNpcGVzGAMgAygL",
-            "MhUuYm5ldC5DcmFmdGFibGVSZWNpcGUi7AEKD0NyYWZ0YWJsZVJlY2lwZRIR",
+            "b3RvEgRibmV0IpIBChRDcmFmdGFibGVSZWNpcGVzU01TRxIQCghza2lsbF9p",
+            "ZBgBIAEoBBIUCgxzdGF0aW9uX2tpbmQYAiABKA0SJgoHcmVjaXBlcxgDIAMo",
+            "CzIVLmJuZXQuQ3JhZnRhYmxlUmVjaXBlEhQKDHN0cnVjdHVyZV9pZBgEIAEo",
+            "BBIUCgxmdWVsX3NlY29uZHMYBSABKA0i7AEKD0NyYWZ0YWJsZVJlY2lwZRIR",
             "CglyZWNpcGVfaWQYASABKAQSDgoGZWZmZWN0GAIgASgNEhYKDm91dHB1dF9p",
             "dGVtX2lkGAMgASgNEhUKDW91dHB1dF9hbW91bnQYBCABKA0SIQoGaW5wdXRz",
             "GAUgAygLMhEuYm5ldC5SZWNpcGVJbnB1dBIYChBzdWNjZXNzX3Blcm1pbGxl",
@@ -39,7 +40,7 @@ namespace Bnet {
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipesSMSG), global::Bnet.CraftableRecipesSMSG.Parser, new[]{ "SkillId", "StationKind", "Recipes" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipesSMSG), global::Bnet.CraftableRecipesSMSG.Parser, new[]{ "SkillId", "StationKind", "Recipes", "StructureId", "FuelSeconds" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipe), global::Bnet.CraftableRecipe.Parser, new[]{ "RecipeId", "Effect", "OutputItemId", "OutputAmount", "Inputs", "SuccessPermille", "CraftMillis", "InputsHeld", "Point", "SkillId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.RecipeInput), global::Bnet.RecipeInput.Parser, new[]{ "ItemId", "Amount", "Held" }, null, null, null, null)
           }));
@@ -99,6 +100,8 @@ namespace Bnet {
       skillId_ = other.skillId_;
       stationKind_ = other.stationKind_;
       recipes_ = other.recipes_.Clone();
+      structureId_ = other.structureId_;
+      fuelSeconds_ = other.fuelSeconds_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -150,6 +153,36 @@ namespace Bnet {
       get { return recipes_; }
     }
 
+    /// <summary>Field number for the "structure_id" field.</summary>
+    public const int StructureIdFieldNumber = 4;
+    private ulong structureId_;
+    /// <summary>
+    /// The player structure the recipes are worked at, or 0 for Handiwork.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong StructureId {
+      get { return structureId_; }
+      set {
+        structureId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "fuel_seconds" field.</summary>
+    public const int FuelSecondsFieldNumber = 5;
+    private uint fuelSeconds_;
+    /// <summary>
+    /// Seconds a campfire has left to burn, 0 once it is out or for a station that burns nothing.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint FuelSeconds {
+      get { return fuelSeconds_; }
+      set {
+        fuelSeconds_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -168,6 +201,8 @@ namespace Bnet {
       if (SkillId != other.SkillId) return false;
       if (StationKind != other.StationKind) return false;
       if(!recipes_.Equals(other.recipes_)) return false;
+      if (StructureId != other.StructureId) return false;
+      if (FuelSeconds != other.FuelSeconds) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -178,6 +213,8 @@ namespace Bnet {
       if (SkillId != 0UL) hash ^= SkillId.GetHashCode();
       if (StationKind != 0) hash ^= StationKind.GetHashCode();
       hash ^= recipes_.GetHashCode();
+      if (StructureId != 0UL) hash ^= StructureId.GetHashCode();
+      if (FuelSeconds != 0) hash ^= FuelSeconds.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -205,6 +242,14 @@ namespace Bnet {
         output.WriteUInt32(StationKind);
       }
       recipes_.WriteTo(output, _repeated_recipes_codec);
+      if (StructureId != 0UL) {
+        output.WriteRawTag(32);
+        output.WriteUInt64(StructureId);
+      }
+      if (FuelSeconds != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(FuelSeconds);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -224,6 +269,14 @@ namespace Bnet {
         output.WriteUInt32(StationKind);
       }
       recipes_.WriteTo(ref output, _repeated_recipes_codec);
+      if (StructureId != 0UL) {
+        output.WriteRawTag(32);
+        output.WriteUInt64(StructureId);
+      }
+      if (FuelSeconds != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(FuelSeconds);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -241,6 +294,12 @@ namespace Bnet {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(StationKind);
       }
       size += recipes_.CalculateSize(_repeated_recipes_codec);
+      if (StructureId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(StructureId);
+      }
+      if (FuelSeconds != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(FuelSeconds);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -260,6 +319,12 @@ namespace Bnet {
         StationKind = other.StationKind;
       }
       recipes_.Add(other.recipes_);
+      if (other.StructureId != 0UL) {
+        StructureId = other.StructureId;
+      }
+      if (other.FuelSeconds != 0) {
+        FuelSeconds = other.FuelSeconds;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -291,6 +356,14 @@ namespace Bnet {
             recipes_.AddEntriesFrom(input, _repeated_recipes_codec);
             break;
           }
+          case 32: {
+            StructureId = input.ReadUInt64();
+            break;
+          }
+          case 40: {
+            FuelSeconds = input.ReadUInt32();
+            break;
+          }
         }
       }
     #endif
@@ -320,6 +393,14 @@ namespace Bnet {
           }
           case 26: {
             recipes_.AddEntriesFrom(ref input, _repeated_recipes_codec);
+            break;
+          }
+          case 32: {
+            StructureId = input.ReadUInt64();
+            break;
+          }
+          case 40: {
+            FuelSeconds = input.ReadUInt32();
             break;
           }
         }

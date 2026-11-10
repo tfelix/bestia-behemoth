@@ -1,0 +1,65 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="stone_mat"]
+albedo_color = Color(0.46, 0.44, 0.41, 1)
+roughness = 0.95
+
+[sub_resource type="SphereMesh" id="stone"]
+material = SubResource("stone_mat")
+radius = 0.11
+height = 0.16
+radial_segments = 8
+rings = 4
+
+[sub_resource type="StandardMaterial3D" id="log_mat"]
+albedo_color = Color(0.17, 0.14, 0.12, 1)
+roughness = 0.9
+
+[sub_resource type="CylinderMesh" id="log"]
+material = SubResource("log_mat")
+top_radius = 0.06
+bottom_radius = 0.06
+height = 0.7
+radial_segments = 8
+
+[node name="CampfireCold" type="Node3D"]
+
+[node name="Stone0" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.320, 0.05, 0.000)
+mesh = SubResource("stone")
+
+[node name="Stone1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.226, 0.05, 0.226)
+mesh = SubResource("stone")
+
+[node name="Stone2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000, 0.05, 0.320)
+mesh = SubResource("stone")
+
+[node name="Stone3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.226, 0.05, 0.226)
+mesh = SubResource("stone")
+
+[node name="Stone4" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.320, 0.05, 0.000)
+mesh = SubResource("stone")
+
+[node name="Stone5" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.226, 0.05, -0.226)
+mesh = SubResource("stone")
+
+[node name="Stone6" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000, 0.05, -0.320)
+mesh = SubResource("stone")
+
+[node name="Stone7" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.226, 0.05, -0.226)
+mesh = SubResource("stone")
+
+[node name="Log0" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.282, 0.940, -0.193, -0.776, 0.342, 0.531, 0.565, 0.000, 0.825, 0, 0.12, 0)
+mesh = SubResource("log")
+
+[node name="Log1" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.282, 0.940, 0.193, -0.776, 0.342, -0.531, -0.565, 0.000, 0.825, 0, 0.12, 0)
+mesh = SubResource("log")

@@ -567,7 +567,19 @@ namespace BestiaBehemothClient.Game.World
       // Building pieces, drawn from the cells they block - see StaticEntityRenderer.AddStructurePiece.
       new Kind { PlaceholderWidth = 1.0f, PlaceholderColour = new Color(0.62f, 0.50f, 0.36f) }, // STRUCTURE_WALL
       new Kind { PlaceholderWidth = 1.0f, PlaceholderColour = new Color(0.55f, 0.42f, 0.28f) }, // STRUCTURE_FLOOR
-      new Kind { PlaceholderWidth = 1.0f, PlaceholderColour = new Color(0.48f, 0.38f, 0.26f) }  // STRUCTURE_STAIRS
+      new Kind { PlaceholderWidth = 1.0f, PlaceholderColour = new Color(0.48f, 0.38f, 0.26f) }, // STRUCTURE_STAIRS
+
+      // Cold and lit, in the order of `Campfire.COLD_VARIANT` and `LIT_VARIANT` on the server.
+      new Kind
+      {
+        Scenes = new[]
+        {
+          new SceneVariant { Path = "res://Game/World/Campfire/CampfireCold.tscn", NaturalHeight = 0.3f },
+          new SceneVariant { Path = "res://Game/World/Campfire/CampfireLit.tscn", NaturalHeight = 0.7f },
+        },
+        PlaceholderWidth = 0.8f, PlaceholderColour = new Color(0.62f, 0.30f, 0.16f), StructureHeight = 0.5f,
+        Action = PropAction.Use
+      } // CAMPFIRE
     };
 
     /// <summary>
