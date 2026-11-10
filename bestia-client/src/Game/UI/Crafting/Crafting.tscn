@@ -6,9 +6,9 @@
 bg_color = Color(0.11, 0.11, 0.13, 1)
 
 [node name="Crafting" type="PanelContainer"]
-custom_minimum_size = Vector2(520, 600)
-offset_right = 520.0
-offset_bottom = 600.0
+custom_minimum_size = Vector2(640, 440)
+offset_right = 640.0
+offset_bottom = 440.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
 script = ExtResource("1_craft")
 
@@ -26,41 +26,112 @@ theme_override_constants/separation = 6
 [node name="StationLabel" type="Label" parent="Margin/Body"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Workbench"
+theme_override_font_sizes/font_size = 15
+text = "Handiwork"
 
-[node name="TargetRow" type="HBoxContainer" parent="Margin/Body"]
+[node name="MakePage" type="HBoxContainer" parent="Margin/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="SkillRail" type="VBoxContainer" parent="Margin/Body/MakePage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="RecipeColumn" type="VBoxContainer" parent="Margin/Body/MakePage"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SkillTitle" type="Label" parent="Margin/Body/MakePage/RecipeColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/Body/MakePage/RecipeColumn"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="RecipeRows" type="VBoxContainer" parent="Margin/Body/MakePage/RecipeColumn/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="DiscoverButton" type="Button" parent="Margin/Body/MakePage/RecipeColumn"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Discover a recipe"
+
+[node name="Separator" type="VSeparator" parent="Margin/Body/MakePage"]
+layout_mode = 2
+
+[node name="Detail" type="VBoxContainer" parent="Margin/Body/MakePage"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="RecipeName" type="Label" parent="Margin/Body/MakePage/Detail"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+
+[node name="Inputs" type="VBoxContainer" parent="Margin/Body/MakePage/Detail"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Odds" type="Label" parent="Margin/Body/MakePage/Detail"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.66, 1)
+theme_override_font_sizes/font_size = 12
+
+[node name="TargetRow" type="HBoxContainer" parent="Margin/Body/MakePage/Detail"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="TargetLabel" type="Label" parent="Margin/Body/TargetRow"]
+[node name="TargetLabel" type="Label" parent="Margin/Body/MakePage/Detail/TargetRow"]
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 12
 text = "Work on:"
 
-[node name="TargetPicker" type="OptionButton" parent="Margin/Body/TargetRow"]
+[node name="TargetPicker" type="OptionButton" parent="Margin/Body/MakePage/Detail/TargetRow"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Separator" type="HSeparator" parent="Margin/Body"]
-layout_mode = 2
-
-[node name="Scroll" type="ScrollContainer" parent="Margin/Body"]
+[node name="Spacer" type="Control" parent="Margin/Body/MakePage/Detail"]
 layout_mode = 2
 size_flags_vertical = 3
-horizontal_scroll_mode = 0
 
-[node name="RecipeRows" type="VBoxContainer" parent="Margin/Body/Scroll"]
+[node name="Actions" type="HBoxContainer" parent="Margin/Body/MakePage/Detail"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 0
+theme_override_constants/separation = 4
+
+[node name="DiscoverPage" type="VBoxContainer" parent="Margin/Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="BackButton" type="Button" parent="Margin/Body/DiscoverPage"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+text = "‹ Back to the recipes"
 
 [node name="Status" type="Label" parent="Margin/Body"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-text = ""
 autowrap_mode = 3
