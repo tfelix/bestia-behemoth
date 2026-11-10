@@ -38,7 +38,7 @@ class HonorPriceTest {
   fun `the best customer still pays more than the shop pays them`() {
     val price = priceFor(HonorLedger(earned = 1_000))!!
 
-    assertEquals(PersonalPrice.MIN_BUY_FACTOR, price.buyFactor, 1e-9)
+    assertEquals(0.95, price.buyFactor, 1e-9)
     assertEquals(1.0, price.sellFactor)
   }
 

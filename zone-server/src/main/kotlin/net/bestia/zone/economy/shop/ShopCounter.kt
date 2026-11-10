@@ -28,6 +28,7 @@ class ShopCounter(
   private val out: OutMessageProcessor,
   private val clock: BestiaClock,
   private val standing: TraderStanding,
+  private val haggling: Haggling,
 ) {
 
   fun isOpen(counter: Counter): Boolean {
@@ -74,7 +75,9 @@ class ShopCounter(
   }
 
   private fun personalPrice(viewerId: EntityId, settlement: Int, counter: Counter): PersonalPrice? {
-    return world.read { standing.priceFor(this, viewerId, settlement, counter.merchantId) }
+    return world.read {
+      standing.priceFor(this, viewerId, settlement, counter.merchantId)?.haggled(haggling.shareOf(this, viewerId))
+    }
   }
 
   private fun refuse(accountId: AccountId, counter: Counter, code: OpError) {

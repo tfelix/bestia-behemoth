@@ -64,6 +64,7 @@ enum class SkillId {
   // Read by the systems they change: felling and its yield, picking herbs.
   M_LUMBERJACK,
   M_HERBALISM,
+  M_HAGGLING,
 
   // Capture: their levels add to every catch roll in net.bestia.zone.capture.BestiaTrapSystem.
   M_TRAPPING,
