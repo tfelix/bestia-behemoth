@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { ApiError, getJson, sendJson } from '#lib/api/client.ts';
-	import { STANCES, type Bestia, type StanceOrder } from '#lib/api/model.ts';
+	import { COURAGE, JOBS, type Bestia, type BestiaOrders } from '#lib/api/model.ts';
 	import Age from '#lib/components/Age.svelte';
 	import { touchesMaster } from '#lib/events.ts';
 	import { guarded } from '#lib/guard.ts';
 	import { live } from '#lib/live.svelte.ts';
-	import { speciesName, STANCE_TEXT } from '#lib/names.ts';
+	import { COURAGE_NAME, JOB_TEXT, speciesName } from '#lib/names.ts';
 	import { stopJourney, travelStatus } from '#lib/travel.ts';
 
-	type Draft = { stance: string; aggression: number; key: string; sending: boolean; note: string | null };
+	type Draft = { job: string; courage: string; key: string; sending: boolean; note: string | null };
 
 	const masterId = $derived(Number(page.params.id));
 	let bestias = $state<Bestia[] | null>(null);
@@ -22,7 +22,7 @@
 			for (const b of bestias) {
 				if (!drafts[b.id]?.sending) {
 					const note = drafts[b.id]?.note ?? null;
-					drafts[b.id] = { stance: b.stance, aggression: b.aggression, key: crypto.randomUUID(), sending: false, note };
+					drafts[b.id] = { job: b.job, courage: b.courage, key: crypto.randomUUID(), sending: false, note };
 				}
 			}
 			failure = null;
@@ -39,7 +39,7 @@
 
 	function changed(b: Bestia): boolean {
 		const d = drafts[b.id];
-		return !!d && (d.stance !== b.stance || d.aggression !== b.aggression);
+		return !!d && (d.job !== b.job || d.courage !== b.courage);
 	}
 
 	let stopping = $state<number | null>(null);
@@ -62,16 +62,16 @@
 		draft.note = null;
 		try {
 			const stored = await guarded(() =>
-				sendJson<StanceOrder>(
+				sendJson<BestiaOrders>(
 					'PUT',
-					`/v1/companion/masters/${masterId}/bestias/${b.id}/stance`,
-					{ stance: draft.stance, aggression: draft.aggression },
+					`/v1/companion/masters/${masterId}/bestias/${b.id}/orders`,
+					{ job: draft.job, courage: draft.courage },
 					{ 'Idempotency-Key': draft.key }
 				)
 			);
-			b.stance = stored.stance;
-			b.aggression = stored.aggression;
-			drafts[b.id] = { ...stored, key: crypto.randomUUID(), sending: false, note: 'Order given.' };
+			b.job = stored.job;
+			b.courage = stored.courage;
+			drafts[b.id] = { ...stored, key: crypto.randomUUID(), sending: false, note: 'Orders given.' };
 		} catch (e) {
 			// On a timeout the key stays: sending again cannot give the order twice.
 			draft.sending = false;
@@ -111,23 +111,31 @@
 				</p>
 
 				{#if draft}
-					<div class="label">Standing order</div>
-					<div class="stances" role="radiogroup" aria-label="Stance">
-						{#each STANCES as stance (stance)}
+					<div class="label">Job</div>
+					<div class="jobs" role="radiogroup" aria-label="Job">
+						{#each JOBS as job (job)}
 							<button
-								class="stance"
-								class:chosen={draft.stance === stance}
+								class="job"
+								class:chosen={draft.job === job}
 								role="radio"
-								aria-checked={draft.stance === stance}
-								onclick={() => (draft.stance = stance)}>{STANCE_TEXT[stance].name}</button
+								aria-checked={draft.job === job}
+								onclick={() => (draft.job = job)}>{JOB_TEXT[job].name}</button
 							>
 						{/each}
 					</div>
-					<p class="muted small">{STANCE_TEXT[draft.stance]?.text}</p>
+					<p class="muted small">{JOB_TEXT[draft.job]?.text}</p>
 
-					<label class="aggression">
-						<span class="label">Aggression <strong>{draft.aggression}</strong></span>
-						<input type="range" min="0" max="100" step="5" bind:value={draft.aggression} />
+					<label class="courage">
+						<span class="label">Courage <strong>{COURAGE_NAME[draft.courage] ?? draft.courage}</strong></span>
+						<input
+							type="range"
+							min="0"
+							max={COURAGE.length - 1}
+							step="1"
+							value={COURAGE.indexOf(draft.courage as (typeof COURAGE)[number])}
+							oninput={(e) => (draft.courage = COURAGE[Number(e.currentTarget.value)])}
+						/>
+						<span class="ends muted small"><span>Careful</span><span>Brave</span></span>
 					</label>
 
 					<div class="actions">
@@ -163,14 +171,14 @@
 		margin: 0 0 0.8rem;
 	}
 
-	.stances {
+	.jobs {
 		display: grid;
-		grid-template-columns: repeat(4, 1fr);
+		grid-template-columns: repeat(2, 1fr);
 		gap: 0.35rem;
 		margin-top: 0.35rem;
 	}
 
-	.stance {
+	.job {
 		min-height: 2.5rem;
 		border: 1px solid var(--edge);
 		border-radius: 0.45rem;
@@ -182,7 +190,7 @@
 		cursor: pointer;
 	}
 
-	.stance.chosen {
+	.job.chosen {
 		border-color: var(--brass);
 		background: linear-gradient(180deg, #3a2f22, #241d16);
 		color: var(--brass);
@@ -193,14 +201,19 @@
 		font-size: 0.85rem;
 	}
 
-	.aggression {
+	.courage {
 		display: grid;
 		gap: 0.3rem;
 		margin: 0.6rem 0 0.9rem;
 	}
 
-	.aggression input {
+	.courage input {
 		accent-color: var(--accent);
+	}
+
+	.ends {
+		display: flex;
+		justify-content: space-between;
 	}
 
 	.actions {

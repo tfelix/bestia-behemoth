@@ -18,7 +18,7 @@ export type MapMeta = Schemas['MapMeta'];
 export type Place = Schemas['Place'];
 export type Service = Schemas['Service'];
 export type PlaceDetail = Schemas['PlaceDetail'];
-export type StanceOrder = Schemas['StanceOrder'];
+export type BestiaOrders = Schemas['BestiaOrders'];
 export type ChatOrder = Schemas['ChatOrder'];
 export type Letter = Schemas['Letter'];
 export type LetterOrder = Schemas['LetterOrder'];
@@ -29,5 +29,9 @@ export type Position = Schemas['Position'];
 export type Journey = Schemas['Journey'];
 export type JourneyOrder = Schemas['JourneyOrder'];
 
-export const STANCES = ['HOLD', 'PATROL', 'FORAGE', 'DEFEND'] as const;
-export type Stance = (typeof STANCES)[number];
+export const JOBS = ['GUARD', 'REST'] as const;
+export type Job = (typeof JOBS)[number];
+
+/** From careful to brave, in the order the slider shows them. */
+export const COURAGE = ['TIMID', 'CAREFUL', 'STEADY', 'BOLD', 'BRAVE'] as const;
+export type Courage = (typeof COURAGE)[number];
