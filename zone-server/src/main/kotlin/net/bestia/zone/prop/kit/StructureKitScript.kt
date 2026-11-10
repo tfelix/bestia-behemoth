@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.script.ScriptArgKeys
 import net.bestia.zone.script.ScriptArgs
@@ -67,9 +68,18 @@ abstract class StructureKitScript(
       return false
     }
 
+    if (!mayBuildAt(world, userId, at)) {
+      return false
+    }
+
     val yaw = args.float(ScriptArgKeys.YAW) ?: 0f
 
     return structures.beginConstruction(world, kind, masterId, accountId, at, yaw, buildSeconds) != null
+  }
+
+  /** A kit with a rule of its own about where it may stand checks it here and tells the user why not. */
+  protected open fun mayBuildAt(world: World, userId: EntityId, at: Vec3L): Boolean {
+    return true
   }
 
   private companion object {

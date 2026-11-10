@@ -19,6 +19,8 @@ interface MasterRepository : JpaRepository<Master, Long> {
 
   fun findAllByHomeSettlementName(homeSettlementName: String): List<Master>
 
+  fun findAllByHomePostOffice(homePostOffice: Int): List<Master>
+
   @Query("select m.entityId from Master m where m.entityId in :entityIds")
   fun findEntityIdsIn(@Param("entityIds") entityIds: Collection<Long>): List<Long>
 

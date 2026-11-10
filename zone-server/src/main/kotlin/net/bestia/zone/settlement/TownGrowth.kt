@@ -23,7 +23,7 @@ object TownGrowth {
   const val MAX_SIGN_DEFENSE = 60
 
   /** The buildings that only work inside a town, and keep its founder from tearing the sign down. */
-  val FUNCTIONAL_KINDS: Set<StaticEntityKind> = setOf(StaticEntityKind.AUCTION_HOUSE)
+  val FUNCTIONAL_KINDS: Set<StaticEntityKind> = setOf(StaticEntityKind.POST_OFFICE, StaticEntityKind.AUCTION_HOUSE)
 
   /** A finished structure's worth to the town it stands in. */
   fun pointsOf(kind: StaticEntityKind): Double {

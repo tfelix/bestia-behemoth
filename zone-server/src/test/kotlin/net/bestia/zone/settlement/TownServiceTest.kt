@@ -193,6 +193,17 @@ class TownServiceTest {
   }
 
   @Test
+  fun `a town takes one post office and nothing outside a town does`() {
+    foundAndFinish()
+
+    assertEquals(OpError.SETTLEMENT_NEEDS_TOWN, service.buildingRefusal(Vec3L(9000, 9000, 10), StaticEntityKind.POST_OFFICE))
+    assertNull(service.buildingRefusal(signAt, StaticEntityKind.POST_OFFICE))
+
+    structures.add(structure(StaticEntityKind.POST_OFFICE, signAt, buildSeconds = 1800f))
+    assertEquals(OpError.SETTLEMENT_ALREADY_HAS_ONE, service.buildingRefusal(signAt, StaticEntityKind.POST_OFFICE))
+  }
+
+  @Test
   fun `a sign site left unworked for a day is given up`() {
     val founder = spawnFounder()
     service.plan(accountId, masterId, "Oakhold")

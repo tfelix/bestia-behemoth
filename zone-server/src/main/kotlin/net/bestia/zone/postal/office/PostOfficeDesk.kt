@@ -21,18 +21,18 @@ import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.townsfolk.conversation.ServiceCounter
 import net.bestia.zone.townsfolk.conversation.Speaker
 import net.bestia.zone.util.AccountId
-import net.bestia.zone.world.time.BestiaClock
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionTemplate
 
 /**
- * The postmaster's counter. A postmaster at work opens the post office window instead of a conversation, as a
- * merchant at work opens the shop. Called on the tick; the master's row is read and written in a job.
+ * The post office counter. A postmaster at work opens the post office window instead of a conversation, as a
+ * merchant at work opens the shop, and so does clicking a player-built office. Called on the tick; the master's
+ * row is read and written in a job.
  */
 @Service
 class PostOfficeDesk(
   private val offices: PostOffices,
-  private val clock: BestiaClock,
+  private val postmasters: PostmasterCounters,
   private val masters: MasterRepository,
   private val connections: ConnectionInfoService,
   private val jobs: AsyncJobExecutor,
@@ -55,23 +55,30 @@ class PostOfficeDesk(
 
   /** @return true when the window is on its way, false when this is not a postmaster at work. */
   override fun serve(accountId: AccountId, speaker: Speaker): Boolean {
-    val office = officeAtWork(speaker) ?: return false
+    val counter = postmasters.counterOf(speaker)?.takeIf { it.office != null } ?: return false
+
+    return open(accountId, counter)
+  }
+
+  /** @return false when [counter] is closed. */
+  fun open(accountId: AccountId, counter: PostCounter): Boolean {
+    val office = counter.office ?: return false
     val masterId = connections.getMasterId(accountId)
 
-    jobs.submit(masterId) { answer(accountId, masterId, speaker, office, newHome = null) }
+    jobs.submit(masterId) { answer(accountId, masterId, counter, office, newHome = null) }
 
     return true
   }
 
-  fun setHome(accountId: AccountId, postmaster: Speaker) {
-    val office = officeAtWork(postmaster) ?: return
+  fun setHome(accountId: AccountId, counter: PostCounter) {
+    val office = counter.office ?: return
     val masterId = connections.getMasterId(accountId)
 
-    jobs.submit(masterId) { answer(accountId, masterId, postmaster, office, newHome = office.settlement) }
+    jobs.submit(masterId) { answer(accountId, masterId, counter, office, newHome = office.settlement) }
   }
 
-  fun quote(accountId: AccountId, postmaster: Speaker, recipientName: String, lines: List<Line>) {
-    val office = officeAtWork(postmaster) ?: return closed(accountId)
+  fun quote(accountId: AccountId, counter: PostCounter, recipientName: String, lines: List<Line>) {
+    val office = counter.office ?: return closed(accountId)
     val goods = goodsOf(accountId, lines) ?: return refuse(accountId, OpError.REQUEST_REFUSED)
     if (goods.any { itemTemplates.isBound(it.itemId) }) return refuse(accountId, OpError.ITEM_BOUND)
 
@@ -83,8 +90,8 @@ class PostOfficeDesk(
     }
   }
 
-  fun send(accountId: AccountId, postmaster: Speaker, recipientName: String, lines: List<Line>, coachOnly: Boolean) {
-    val office = officeAtWork(postmaster) ?: return closed(accountId)
+  fun send(accountId: AccountId, counter: PostCounter, recipientName: String, lines: List<Line>, coachOnly: Boolean) {
+    val office = counter.office ?: return closed(accountId)
     val goods = goodsOf(accountId, lines) ?: return refuse(accountId, OpError.REQUEST_REFUSED)
     if (goods.any { itemTemplates.isBound(it.itemId) }) return refuse(accountId, OpError.ITEM_BOUND)
     val customer = customerOf(accountId)
@@ -97,29 +104,29 @@ class PostOfficeDesk(
     }
   }
 
-  fun collect(accountId: AccountId, postmaster: Speaker, parcelId: Long) {
-    val office = officeAtWork(postmaster) ?: return closed(accountId)
+  fun collect(accountId: AccountId, counter: PostCounter, parcelId: Long) {
+    val office = counter.office ?: return closed(accountId)
     val customer = customerOf(accountId)
 
     jobs.submit(customer.masterId) {
       parcels.collect(customer, office, parcelId)?.let { refuse(accountId, it.code, it.args) }
-      showParcels(accountId, customer.masterId, postmaster, office)
+      showParcels(accountId, customer.masterId, counter, office)
     }
   }
 
-  fun refuseParcel(accountId: AccountId, postmaster: Speaker, parcelId: Long) {
-    val office = officeAtWork(postmaster) ?: return closed(accountId)
+  fun refuseParcel(accountId: AccountId, counter: PostCounter, parcelId: Long) {
+    val office = counter.office ?: return closed(accountId)
     val customer = customerOf(accountId)
 
     jobs.submit(customer.masterId) {
       parcels.refuse(customer, parcelId)?.let { refuse(accountId, it.code, it.args) }
-      showParcels(accountId, customer.masterId, postmaster, office)
+      showParcels(accountId, customer.masterId, counter, office)
     }
   }
 
   /** On the tick, which knows what the courier's bag can still take. */
-  fun takeParcels(world: World, accountId: AccountId, postmaster: Speaker, parcelIds: List<Long>) {
-    val office = officeAtWork(postmaster) ?: return closed(accountId)
+  fun takeParcels(world: World, accountId: AccountId, counter: PostCounter, parcelIds: List<Long>) {
+    val office = counter.office ?: return closed(accountId)
     val entityId = connections.getSelectedMasterEntityId(accountId)
     if (world.get(entityId, StatusEffects::class)?.hasEffect(StatusEffectId.STRUCK_OFF.id) == true) {
       return refuse(accountId, OpError.COURIER_STRUCK_OFF)
@@ -130,7 +137,7 @@ class PostOfficeDesk(
 
     jobs.submit(courier.masterId) {
       couriers.take(courier, office, parcelIds)?.let { refuse(accountId, it.code, it.args) }
-      showRouteBoard(accountId, postmaster, office)
+      showRouteBoard(accountId, counter, office)
     }
   }
 
@@ -154,17 +161,17 @@ class PostOfficeDesk(
     return ParcelService.Customer(connections.getMasterId(accountId), connections.getSelectedMasterEntityId(accountId))
   }
 
-  private fun showParcels(accountId: AccountId, masterId: Long, postmaster: Speaker, office: PostOffices.Office) {
-    out.sendToPlayer(accountId, ParcelsSMSG(postmaster.entityId, parcels.parcelsOf(masterId, office)))
+  private fun showParcels(accountId: AccountId, masterId: Long, counter: PostCounter, office: PostOffices.Office) {
+    out.sendToPlayer(accountId, ParcelsSMSG(counter.entityId, parcels.parcelsOf(masterId, office)))
   }
 
   private fun showRouteBoard(
     accountId: AccountId,
-    postmaster: Speaker,
+    counter: PostCounter,
     office: PostOffices.Office,
     delivered: CourierService.Delivery? = null,
   ) {
-    out.sendToPlayer(accountId, RouteBoardSMSG(postmaster.entityId, couriers.routeBoard(office), delivered))
+    out.sendToPlayer(accountId, RouteBoardSMSG(counter.entityId, couriers.routeBoard(office), delivered))
   }
 
   private fun closed(accountId: AccountId) {
@@ -175,17 +182,10 @@ class PostOfficeDesk(
     out.sendToPlayer(accountId, OperationErrorSMSG(code, args))
   }
 
-  private fun officeAtWork(postmaster: Speaker): PostOffices.Office? {
-    if (postmaster.business != PostOffices.POST_OFFICE) return null
-    if (!postmaster.merchant.hours.isOpenAt(clock.now().minuteOfDay)) return null
-
-    return offices.officeOf(postmaster.settlement)
-  }
-
   private fun answer(
     accountId: AccountId,
     masterId: Long,
-    postmaster: Speaker,
+    counter: PostCounter,
     office: PostOffices.Office,
     newHome: Int?,
   ) {
@@ -198,11 +198,11 @@ class PostOfficeDesk(
 
     out.sendToPlayer(
       accountId,
-      PostOfficeOpenSMSG(postmaster.entityId, office.name, office.level, homeName, isHome = home == office.settlement)
+      PostOfficeOpenSMSG(counter.entityId, office.name, office.level, homeName, isHome = home == office.settlement)
     )
     val courier = CourierService.Courier(masterId, connections.getSelectedMasterEntityId(accountId), freeWeight = 0)
     val delivered = couriers.deliver(courier, office)
-    showParcels(accountId, masterId, postmaster, office)
-    showRouteBoard(accountId, postmaster, office, delivered)
+    showParcels(accountId, masterId, counter, office)
+    showRouteBoard(accountId, counter, office, delivered)
   }
 }

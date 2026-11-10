@@ -86,6 +86,20 @@ recipes:
     craftSeconds: 10.0
     baseSuccessChance: 1.0
 
+  # A player town's buildings, from the design docs' player settlements page.
+  - id: 50
+    identifier: POST_OFFICE_KIT
+    effect: PRODUCE
+    output: { item: post_office_kit, amount: 1 }
+    inputs:
+      - { item: log, amount: 40 }
+      - { item: loose_stone, amount: 30 }
+      - { item: iron_ingot, amount: 10 }
+    skill: { skill: M_CARPENTRY, level: 3 }
+    station: WORKBENCH
+    craftSeconds: 60.0
+    baseSuccessChance: 1.0
+
   - id: 39
     identifier: FURNACE_KIT
     effect: PRODUCE

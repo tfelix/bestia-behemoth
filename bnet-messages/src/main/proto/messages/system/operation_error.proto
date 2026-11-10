@@ -386,6 +386,10 @@ enum OpError {
   // args[0] is who declined.
   SETTLEMENT_OFFER_DECLINED = 306;
   SETTLEMENT_OUT_OF_RANGE = 307;
+  // This building only goes up inside a standing player town.
+  SETTLEMENT_NEEDS_TOWN = 308;
+  // The town already has this building, finished or still being built.
+  SETTLEMENT_ALREADY_HAS_ONE = 309;
 }
 
 message OperationError {

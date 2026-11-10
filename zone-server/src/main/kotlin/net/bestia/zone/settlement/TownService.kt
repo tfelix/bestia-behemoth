@@ -235,6 +235,16 @@ class TownService(
     tell(town.founderAccountId, Notice.SITE_LOST, town.name)
   }
 
+  /** Why a [kind] that only works in a town may not go up at [at]: a town takes one of each. */
+  fun buildingRefusal(at: Vec3L, kind: StaticEntityKind): OpError? {
+    val town = towns.standingAt(at) ?: return OpError.SETTLEMENT_NEEDS_TOWN
+    val taken = structureRegistry.all().any {
+      it.kind == kind && towns.metresBetween(town.sign, it.position) <= town.size.radiusMetres
+    }
+
+    return if (taken) OpError.SETTLEMENT_ALREADY_HAS_ONE else null
+  }
+
   fun openSign(world: World, actorId: EntityId, signId: EntityId): OpError? {
     val town = townAtSign(world, actorId, signId) ?: return OpError.SETTLEMENT_OUT_OF_RANGE
     val accountId = world.get(actorId, Account::class)?.accountId ?: return null

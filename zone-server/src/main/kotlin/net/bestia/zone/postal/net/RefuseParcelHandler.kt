@@ -6,13 +6,13 @@ import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder
 import net.bestia.zone.postal.office.PostOfficeDesk
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.townsfolk.conversation.TalkService
+import net.bestia.zone.postal.office.PostCounters
 import org.springframework.stereotype.Component
 
 @Component
 class RefuseParcelHandler(
   private val connections: ConnectionInfoService,
-  private val talk: TalkService,
+  private val counters: PostCounters,
   private val desk: PostOfficeDesk,
 ) : TickMessageHandler<RefuseParcelCMSG> {
 
@@ -22,8 +22,8 @@ class RefuseParcelHandler(
 
   override fun handle(world: World, msg: RefuseParcelCMSG): Boolean {
     val actor = connections.getActiveEntityId(msg.playerId)
-    val postmaster = talk.speakerInReach(msg.playerId, actor, msg.postmasterEntityId) ?: return true
-    desk.refuseParcel(msg.playerId, postmaster, msg.parcelId)
+    val counter = counters.inReach(world, msg.playerId, actor, msg.postmasterEntityId) ?: return true
+    desk.refuseParcel(msg.playerId, counter, msg.parcelId)
 
     return true
   }

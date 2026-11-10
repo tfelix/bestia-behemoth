@@ -6,13 +6,13 @@ import net.bestia.zone.message.TickMessageHandler
 import net.bestia.zone.message.decoder
 import net.bestia.zone.postal.office.PostOfficeDesk
 import net.bestia.zone.session.ConnectionInfoService
-import net.bestia.zone.townsfolk.conversation.TalkService
+import net.bestia.zone.postal.office.PostCounters
 import org.springframework.stereotype.Component
 
 @Component
 class TakeParcelsHandler(
   private val connections: ConnectionInfoService,
-  private val talk: TalkService,
+  private val counters: PostCounters,
   private val desk: PostOfficeDesk,
 ) : TickMessageHandler<TakeParcelsCMSG> {
 
@@ -22,8 +22,8 @@ class TakeParcelsHandler(
 
   override fun handle(world: World, msg: TakeParcelsCMSG): Boolean {
     val actor = connections.getActiveEntityId(msg.playerId)
-    val postmaster = talk.speakerInReach(msg.playerId, actor, msg.postmasterEntityId) ?: return true
-    desk.takeParcels(world, msg.playerId, postmaster, msg.parcelIds)
+    val counter = counters.inReach(world, msg.playerId, actor, msg.postmasterEntityId) ?: return true
+    desk.takeParcels(world, msg.playerId, counter, msg.parcelIds)
 
     return true
   }
