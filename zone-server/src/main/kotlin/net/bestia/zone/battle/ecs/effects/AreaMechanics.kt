@@ -29,6 +29,30 @@ data class AreaMechanics(
   /** Tiles per second the area drifts, like a hurricane moving off from its caster. */
   val driftX: Float = 0f,
   val driftY: Float = 0f,
+
+  /**
+   * Above 0, each tick lands as one strike at a random spot inside the area, hitting only what stands within
+   * this many tiles of it - a meteor or a lightning bolt rather than a carpet.
+   */
+  val strikeRadiusTiles: Int = 0,
+
+  /** Only foes of these kinds are harmed; empty means every foe. Allies are healed whatever their kind. */
+  val foeKinds: Set<BestiaKind> = emptySet(),
+
+  /** Percent of an ally's maximum health restored per tick, beside the flat [healPerTick]. */
+  val healPercentPerTick: Int = 0,
+
+  /** Weighs each tick's damage by the area's element against the victim's, as a bolt is weighed. */
+  val weighsElement: Boolean = false,
+
+  /** No ground spell takes root inside it unless its Potency wins, see `GroundWards`. */
+  val blocksGroundSpells: Boolean = false,
+
+  /** Moves with its caster instead of staying where it was cast. */
+  val followsCaster: Boolean = false,
+
+  /** Pushes a foe back the way it came, against its facing, instead of away from the centre. */
+  val knockbackAgainstFacing: Boolean = false,
 ) {
 
   val drifts: Boolean

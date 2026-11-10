@@ -55,6 +55,9 @@ data class AreaEffect(
   val casterAccountId: AccountId? = null,
 
   val mechanics: AreaMechanics = AreaMechanics.NONE,
+
+  /** The Potency of the cast that left it, for a zone that blocks other spells, see [AreaMechanics.blocksGroundSpells]. */
+  val potency: Int = 0,
 ) : Component {
 
   /** The part of a tile the area has drifted but not yet moved, see [AreaMechanics.driftX]. */

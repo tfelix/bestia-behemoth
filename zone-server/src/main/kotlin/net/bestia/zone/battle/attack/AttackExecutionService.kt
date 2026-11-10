@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.attack
 
+import net.bestia.zone.movement.ecs.Facing
 import net.bestia.zone.battle.damage.Blocked
 import net.bestia.zone.battle.damage.weighedTo
 import net.bestia.zone.battle.damage.DamageLanding
@@ -150,6 +151,7 @@ class AttackExecutionService(
     }
 
     val result = strategy.execute(ctx)
+    world.get(attackerId, Facing::class)?.turnTowards(ctx.attacker.position, ctx.targetPosition())
 
     // Armed only once the swing is real, so stepping out of reach neither costs the attacker its delay nor
     // offers a way to sidestep it.
@@ -263,7 +265,7 @@ class AttackExecutionService(
     /** What [attack] writes: the staged damage, the attacker's delay, and a prop promoted on its first hit. */
     val WRITES: ComponentClassSet = setOf(
       IncomingDamage::class, AttackDelay::class, Position::class, Grounded::class, Health::class,
-      CombatStats::class,
+      CombatStats::class, Facing::class,
     )
   }
 }

@@ -1,5 +1,6 @@
 package net.bestia.zone.spawn
 
+import net.bestia.zone.movement.ecs.Facing
 import net.bestia.zone.ai.domain.bestia.SkillAttack
 import net.bestia.zone.bestia.BestiaSkillLevel
 import net.bestia.zone.entity.GameMetrics
@@ -88,6 +89,7 @@ class BestiaEntitySpawner(
 
     val configure: World.(EntityId) -> Unit = { id ->
       add(id, Position.fromVec3(pos))
+      add(id, Facing())
       add(id, Living)
       add(id, visual ?: EntityVisual(VisualKind.BESTIA, bestiaId))
       add(id, Health(bestia.health, bestia.health))

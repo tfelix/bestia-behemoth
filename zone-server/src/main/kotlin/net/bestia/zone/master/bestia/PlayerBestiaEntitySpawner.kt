@@ -1,5 +1,6 @@
 package net.bestia.zone.master.bestia
 
+import net.bestia.zone.movement.ecs.Facing
 import net.bestia.zone.crafting.station.StationWorkers
 import net.bestia.zone.bestia.BestiaSkillLevel
 import net.bestia.zone.item.stat.ItemStatCatalog
@@ -170,6 +171,8 @@ class PlayerBestiaEntitySpawner(
     val playerBestia = loaded.row
 
     add(id, Position.fromVec3(playerBestia.position))
+
+    add(id, Facing())
     add(id, Living)
     add(id, Level(playerBestia.level))
     add(id, Exp(0, levelUpExpCalculator.getRequiredExperience(playerBestia.level)))

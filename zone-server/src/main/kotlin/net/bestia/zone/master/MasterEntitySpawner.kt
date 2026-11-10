@@ -1,5 +1,6 @@
 package net.bestia.zone.master
 
+import net.bestia.zone.movement.ecs.Facing
 import net.bestia.zone.item.profession.Profession
 import net.bestia.zone.item.profession.Professions
 import net.bestia.zone.item.profession.ProfessionService
@@ -158,6 +159,7 @@ class MasterEntitySpawner(
       add(id, Account(accountId = master.account.id))
       add(id, MasterComponent(master.id, master.name))
       add(id, Position.fromVec3(master.currentPosition))
+      add(id, Facing())
       add(id, Living)
       add(id, Level(master.level))
       add(id, Exp(master.exp, levelUpExpCalculator.getRequiredExperience(master.level)))

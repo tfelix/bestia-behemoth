@@ -1,5 +1,7 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.ammo.Ammunition
+import net.bestia.zone.battle.attack.BattleAttack
 import net.bestia.zone.skill.PartyMates
 import net.bestia.zone.battle.damage.HitKind
 import net.bestia.zone.battle.damage.Damage
@@ -140,6 +142,22 @@ interface SkillWorld {
    * the caster and its own bestias alone without a party. One operation plus one per result, see [PartyMates].
    */
   fun partyNear(radiusMetres: Long = PartyMates.VISIBLE_RANGE_METRES): List<EntityId>
+
+  /**
+   * A weapon blow at [targetEntityId] with [attack] at [powerPercent] of a swing: it hits, misses and crits like
+   * one, lands like [apply] does, and comes back for the script's own after-effects. Null when there is no fight
+   * to resolve. One operation.
+   */
+  fun strike(targetEntityId: EntityId, attack: BattleAttack, powerPercent: Int): Damage?
+
+  /** One shot for the caster's held bow or crossbow, taken from the quiver; null when none is left. One operation. */
+  fun drawAmmo(): Ammunition?
+
+  /** Whether the caster stands in the half behind [targetEntityId], as it faces. One operation. */
+  fun isBehind(targetEntityId: EntityId): Boolean
+
+  /** Puts [entityId] on the ground at [to] at once, a shadow step; false with no ground there. One operation. */
+  fun blink(entityId: EntityId, to: Vec3L): Boolean
 
   /** Sends [message] to every member of [guildId] being played. One operation. */
   fun tellGuild(guildId: Long, message: SMSG)
