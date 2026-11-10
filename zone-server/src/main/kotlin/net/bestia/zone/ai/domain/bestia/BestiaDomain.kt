@@ -30,6 +30,7 @@ import net.bestia.zone.ai.domain.bestia.action.RetreatHomeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.UseFromBagActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.ReturnHomeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.SleepActionTemplate
+import net.bestia.zone.ai.domain.bestia.action.TakeFoodFromChestActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.WalkToVegetationActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.WanderActionTemplate
 import net.bestia.zone.aoi.EntityAOIService
@@ -170,6 +171,9 @@ object BestiaDomain : AiDomainCatalogue {
 
   /** Whether the job chest has a free slot, or takes some of what the bag holds. */
   val CHEST_HAS_ROOM = StateKey<Boolean>("chestHasRoom", observed = true)
+
+  /** Whether the job chest holds food the bestia may eat. */
+  val FOOD_IN_CHEST = StateKey<Boolean>("foodInChest", observed = true)
 
   /** Whether the bag holds goods for the job chest that still fit in it. */
   val GOODS_TO_HAUL = StateKey<Boolean>("goodsToHaul", observed = true)
@@ -417,6 +421,16 @@ object BestiaDomain : AiDomainCatalogue {
       desiredState = listOf(Precondition { s -> (s.get(STAMINA_PCT) ?: 100) >= eatLineOf(s) }),
     )
 
+    /** Out of food with stamina low: fetch some from the job chest. Just under [EAT_FROM_BAG], which then eats it. */
+    val RESTOCK_FOOD = Goal(
+      name = "RestockFood",
+      priority = priority(base = 87f),
+      availability = Precondition { s ->
+        (s.get(STAMINA_PCT) ?: 100) < eatLineOf(s) && s.get(FOOD_IN_BAG) != true && s.get(FOOD_IN_CHEST) == true
+      },
+      desiredState = listOf(Preconditions.equalTo(FOOD_IN_BAG, true)),
+    )
+
     /**
      * An owned bestia walking home out of a fight its courage says it is losing. Above every other goal,
      * [KILL_ATTACKER] included, or it would never leave a fight. Satisfied once home: if the attacker follows
@@ -458,7 +472,7 @@ object BestiaDomain : AiDomainCatalogue {
 
     val ALL = listOf(
       EAT_VEGETATION, SLEEP, RETURN_HOME, KILL_ATTACKER, KILL_ENEMY, WANDER, HEAL_FROM_BAG, EAT_FROM_BAG, RETREAT,
-      GATHER, HAUL_TO_CHEST,
+      GATHER, HAUL_TO_CHEST, RESTOCK_FOOD,
     )
 
     val BY_NAME = ALL.associateBy { it.name }
@@ -502,6 +516,7 @@ object BestiaDomain : AiDomainCatalogue {
     "collectProp" to { c -> CollectPropActionTemplate(c.locomotion) },
     "fellTree" to { c -> FellTreeActionTemplate(c.locomotion, c.attackExecution, c.promotion, c.aoi, c.attacks) },
     "haulToChest" to { c -> HaulToChestActionTemplate(c.locomotion, c.care, c.handover, c.aoi) },
+    "takeFoodFromChest" to { c -> TakeFoodFromChestActionTemplate(c.locomotion, c.care, c.handover, c.aoi) },
   )
 
   /** Every action id a profile may name, for fail-fast validation at boot without building anything. */

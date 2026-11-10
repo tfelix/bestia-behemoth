@@ -56,12 +56,20 @@ class BagCare(
     return true
   }
 
+  /** The items in [inventory] a bestia may use for [need], best first. */
+  fun suppliesFor(inventory: Inventory, need: Need): List<Inventory.Item> {
+    return candidatesFor(inventory, need).sortedByDescending { (_, script) -> script.restores(need) }.map { it.first }
+  }
+
   private fun bestFor(inventory: Inventory, need: Need): Pair<Inventory.Item, RestorativeScript>? {
+    return candidatesFor(inventory, need).maxByOrNull { (_, script) -> script.restores(need) }
+  }
+
+  private fun candidatesFor(inventory: Inventory, need: Need): List<Pair<Inventory.Item, RestorativeScript>> {
     return inventory.getItems()
       .filter { !it.equipped }
       .mapNotNull { held -> careScriptOf(held.itemId)?.let { held to it } }
       .filter { (_, script) -> script.restores(need) > 0 }
-      .maxByOrNull { (_, script) -> script.restores(need) }
   }
 
   private fun careScriptOf(itemId: Long): RestorativeScript? {
