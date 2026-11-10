@@ -586,7 +586,14 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 0.25f, PlaceholderColour = new Color(0.85f, 0.55f, 0.15f), Collectible = true,
         Action = PropAction.Collect
-      } // RESIN
+      }, // RESIN
+
+      // A ring of glowing paste around a focus stone, where a ritual is held: a flat violet disc until it has a model.
+      new Kind
+      {
+        PlaceholderWidth = 3.0f, PlaceholderColour = new Color(0.55f, 0.35f, 0.95f), StructureHeight = 0.1f,
+        Action = PropAction.Use
+      } // MANA_CIRCLE
     };
 
     /// <summary>

@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.damage
 
+import net.bestia.zone.battle.ecs.skill.RitualParticipant
 import net.bestia.zone.battle.ecs.skill.Channel
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.status.StatusEffectId
@@ -41,6 +42,7 @@ class ReceivedDamageSystem(
   override val writes: ComponentClassSet =
     setOf(
       Health::class, TakenDamage::class, Dead::class, LogoutIntent::class, Casting::class, Crafting::class, Channel::class,
+      RitualParticipant::class,
       InCombat::class, IncomingDamage::class, Animation::class,
       // A barrier or a freeze reacts to the hit, and may leave.
       StatusEffects::class, IsStatusValueDirty::class
@@ -88,8 +90,9 @@ class ReceivedDamageSystem(
         if (world.has(id, Casting::class)) {
           world.remove(id, Casting::class)
         }
-        if (world.has(id, Channel::class)) {
+        if (world.has(id, Channel::class) || world.has(id, RitualParticipant::class)) {
           world.remove(id, Channel::class)
+          world.remove(id, RitualParticipant::class)
           world.get(id, StatusEffects::class)?.removeEffect(StatusEffectId.CHANNELING.id)
           world.add(id, IsStatusValueDirty)
         }

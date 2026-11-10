@@ -22,6 +22,12 @@ enum OpSuccess {
   // An invitation went out. Whether it is taken up arrives later: a roster push, or a *_INVITE_DECLINED error.
   PARTY_INVITATION_SENT = 5;
   GUILD_INVITATION_SENT = 6;
+
+  // A Mana Circle's ritual: opened by its owner, joined by a helper, started by the leader, and charged.
+  RITUAL_OPENED = 7;
+  RITUAL_JOINED = 8;
+  RITUAL_STARTED = 9;
+  RITUAL_CHARGED = 10;
 }
 
 message OperationSuccess {

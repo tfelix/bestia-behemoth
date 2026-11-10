@@ -124,7 +124,10 @@ enum class StaticEntityKind {
   CAMPFIRE,
 
   // Worldgen's RESIN, under the conifers. With the ground loot above in spirit, appended here for the ordinal.
-  RESIN;
+  RESIN,
+
+  // A ring of Mana Concentrate with a focus stone, where a group holds a ritual. Used up when the ritual ends.
+  MANA_CIRCLE;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.

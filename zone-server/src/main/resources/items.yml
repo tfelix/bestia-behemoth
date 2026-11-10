@@ -1900,3 +1900,37 @@ items:
     defense: 14
     magic-defense: 3
     description: Riveted rings over a gambeson. Heavy, but it moves with you.
+
+  # The ritual circle of the spell potency page. Its recipe (5 Mana Concentrate and a focus stone) waits for the
+  # crafting window; until then the kit and the Concentrate come from a mage's shop or a GM.
+  - id: 323
+    item-db-name: mana_concentrate
+    base-level: 20
+    weight: 10
+    type: ETC
+    material: CRYSTAL
+    description: |
+      Mana pressed into a heavy, glowing paste.
+
+      Laid into the ground in a ring, it holds a ritual.
+
+  - id: 324
+    item-db-name: focus_stone
+    base-level: 20
+    weight: 80
+    type: ETC
+    material: STONE
+    description: A smooth, carved stone. Set in the middle of a Mana Circle, it gathers what the ring holds.
+
+  - id: 325
+    item-db-name: mana_circle_kit
+    base-level: 20
+    weight: 130
+    type: USABLE
+    material: CRYSTAL
+    script: ManaCircleKitScript
+    description: |
+      Five measures of Mana Concentrate and a focus stone, ready to be laid out.
+
+      Placed on the ground it becomes a Mana Circle: up to five helpers join its leader, and after half a minute
+      of channeling the leader's next skill is charged. The ring is used up by the ritual.

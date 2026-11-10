@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.potency.Potency
 import net.bestia.zone.battle.potency.PotencyCalculator
 import net.bestia.zone.battle.damage.HitKind
 import net.bestia.zone.battle.BattleContext
@@ -42,6 +43,7 @@ class SkillContextFactory(
     targetPosition: Vec3L?,
     cost: SkillLevelCost = SkillLevelCost.of(skill),
     args: List<Long> = emptyList(),
+    ritual: RitualBoost? = null,
   ): SkillContext? {
     val usedAttack = BattleAttack.of(skill, skillLevel).copy(range = cost.rangeTiles, manaCost = cost.manaCost)
 
@@ -49,7 +51,9 @@ class SkillContextFactory(
       ?: enchantedGroundItemContext(world, casterId, usedAttack, targetEntityId)
       ?: return null
 
-    val potency = potencyCalculator?.castPotency(world, casterId, skill, skillLevel) ?: 0
+    // A ritual lifts a cast above what one caster reaches, but never past what no circle can bind.
+    val ownPotency = potencyCalculator?.castPotency(world, casterId, skill, skillLevel) ?: 0
+    val potency = if (ritual == null) ownPotency else (ownPotency + ritual.potencyBonus).coerceAtMost(Potency.RITUAL_CAP)
 
     val budget = SkillBudget(
       maxOps = config.worldOpsPerCast,
@@ -76,7 +80,8 @@ class SkillContextFactory(
       skillLevel = skillLevel,
       skill = skill,
       args = args,
-      potency = potency
+      potency = potency,
+      ritual = ritual
     )
   }
 

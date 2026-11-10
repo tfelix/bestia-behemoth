@@ -50,6 +50,7 @@ func _ready() -> void:
 	add_to_group("world_blocking_ui")
 	ConnectionManager.connect("chat_received", _on_chat_received)
 	ConnectionManager.operation_error.connect(_on_operation_error)
+	ConnectionManager.operation_success.connect(_on_operation_success)
 	ConnectionManager.bestia_capture_received.connect(_on_bestia_capture)
 	ConnectionManager.journey_ended.connect(_on_journey_ended)
 
@@ -327,6 +328,15 @@ func _on_operation_error(message) -> void:
 		text = template % Array(message.Args)
 
 	error_line(text)
+
+
+## The success counterpart of [method _on_operation_error]: a [code]SUCCESS_*[/code] row in general.csv makes a
+## success worth a system line here, and a code without one is another window's to show.
+func _on_operation_success(message) -> void:
+	var key := "SUCCESS_%s" % message.CodeName.to_upper()
+	var text := tr(key)
+	if text != key:
+		system_line(text)
 
 
 ## Only our own traps are worth a line; a stranger's catch is seen, not announced.

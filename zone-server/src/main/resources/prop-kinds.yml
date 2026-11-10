@@ -346,6 +346,12 @@ kinds:
     regrow-seconds: 1800
     collect: { item-id: 123, amount: 1 }
 
+  # A ritual ring of Mana Concentrate laid flat into the ground; used up when its ritual ends.
+  - kind: MANA_CIRCLE
+    max-hp: 40
+    collider: { half-x: 2, half-y: 2, height: 1 }
+    variants: 1
+
   # What people put up - worldgen's `FixtureKind`, see `dress/DressingStage` and `voxel/FixtureProps`. One row per
   # entry, mandatory like the landmarks'. `variants` is how many styles the generator chooses between, and the
   # generator's choice arrives as the variant itself rather than a roll: a fence is dry-stone because of the ground

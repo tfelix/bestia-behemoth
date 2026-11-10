@@ -535,3 +535,20 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: StrippedGear
+
+  # The two halves of a ritual (spell potency page). Statuses of the master skill tree start at id 200.
+  - id: 200
+    identifier: RITUAL_CHARGE
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    dispellable: false
+    script: RitualCharge
+
+  - id: 201
+    identifier: RITUAL_FATIGUE
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    dispellable: false
+    script: RitualFatigue

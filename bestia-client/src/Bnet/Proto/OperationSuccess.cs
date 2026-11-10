@@ -26,12 +26,13 @@ namespace Bnet {
           string.Concat(
             "CidtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX3N1Y2Nlc3MucHJvdG8SBGJu",
             "ZXQiMQoQT3BlcmF0aW9uU3VjY2VzcxIdCgRjb2RlGAEgASgOMg8uYm5ldC5P",
-            "cFN1Y2Nlc3MqpwEKCU9wU3VjY2VzcxISCg5NQVNURVJfQ1JFQVRFRBAAEhIK",
+            "cFN1Y2Nlc3Mq9QEKCU9wU3VjY2VzcxISCg5NQVNURVJfQ1JFQVRFRBAAEhIK",
             "Dk1BU1RFUl9ERUxFVEVEEAESEwoPQ1JBRlRfU1VDQ0VFREVEEAISFAoQU1RS",
             "VUNUVVJFX1BMQUNFRBADEhEKDUNIQVJUX1dSSVRURU4QBBIZChVQQVJUWV9J",
-            "TlZJVEFUSU9OX1NFTlQQBRIZChVHVUlMRF9JTlZJVEFUSU9OX1NFTlQQBkIu",
-            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CFU9wZXJhdGlvblN1Y2Nlc3NQcm90",
-            "b2IGcHJvdG8z"));
+            "TlZJVEFUSU9OX1NFTlQQBRIZChVHVUlMRF9JTlZJVEFUSU9OX1NFTlQQBhIR",
+            "Cg1SSVRVQUxfT1BFTkVEEAcSEQoNUklUVUFMX0pPSU5FRBAIEhIKDlJJVFVB",
+            "TF9TVEFSVEVEEAkSEgoOUklUVUFMX0NIQVJHRUQQCkIuChVuZXQuYmVzdGlh",
+            "LmJuZXQucHJvdG9CFU9wZXJhdGlvblN1Y2Nlc3NQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpSuccess), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -62,6 +63,13 @@ namespace Bnet {
     /// </summary>
     [pbr::OriginalName("PARTY_INVITATION_SENT")] PartyInvitationSent = 5,
     [pbr::OriginalName("GUILD_INVITATION_SENT")] GuildInvitationSent = 6,
+    /// <summary>
+    /// A Mana Circle's ritual: opened by its owner, joined by a helper, started by the leader, and charged.
+    /// </summary>
+    [pbr::OriginalName("RITUAL_OPENED")] RitualOpened = 7,
+    [pbr::OriginalName("RITUAL_JOINED")] RitualJoined = 8,
+    [pbr::OriginalName("RITUAL_STARTED")] RitualStarted = 9,
+    [pbr::OriginalName("RITUAL_CHARGED")] RitualCharged = 10,
   }
 
   #endregion
