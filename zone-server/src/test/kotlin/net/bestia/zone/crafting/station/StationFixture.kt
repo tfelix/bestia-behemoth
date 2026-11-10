@@ -2,7 +2,11 @@ package net.bestia.zone.crafting.station
 
 import io.mockk.every
 import io.mockk.mockk
+import net.bestia.zone.crafting.Crafters
 import net.bestia.zone.crafting.Recipe
+import net.bestia.zone.crafting.StarterKit
+import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.world.anchor.SimulationAnchor
 import net.bestia.zone.crafting.RecipeEffect
 import net.bestia.zone.crafting.RecipeRegistry
 import net.bestia.zone.ecs.core.EcsWorld
@@ -43,6 +47,23 @@ class StationFixture(stationKind: StaticEntityKind = StaticEntityKind.WORKBENCH,
     every { registry.setStationContents(STATION, any(), any()) } answers {
       station = station.copy(queue = secondArg(), held = thirdArg<Map<Long, Int>>().filterValues { it > 0 })
     }
+    every { registry.setWorker(STATION, any()) } answers { station = station.copy(workerBestiaId = secondArg()) }
+    every { registry.workplaceOf(any()) } answers { station.takeIf { it.workerBestiaId == firstArg<Long>() } }
+  }
+
+  val crafters = Crafters(StarterKit())
+  val workers = StationWorkers(structures)
+
+  /** One of [OWNER]'s bestias at [at], with an empty bag that carries [maxWeight]. */
+  fun givenBestia(at: Vec3L = Vec3L(1, 0, 0), maxWeight: Int = 1000): EntityId {
+    return world.createEntity { id ->
+      add(id, OwnedBestia(masterId = OWNER, playerBestiaId = PLAYER_BESTIA))
+      add(id, Account(ACCOUNT))
+      add(id, Position.fromVec3(at))
+      add(id, Inventory(mutableListOf()))
+      add(id, CarryCapacity(current = 0, max = maxWeight))
+      add(id, SimulationAnchor())
+    }
   }
 
   val itemTemplates = mockk<ItemTemplateRegistry>().also { templates ->
@@ -76,5 +97,6 @@ class StationFixture(stationKind: StaticEntityKind = StaticEntityKind.WORKBENCH,
     const val RECIPE = 1L
     const val PLANK = 50L
     const val CHAIR = 51L
+    const val PLAYER_BESTIA = 13L
   }
 }

@@ -2,6 +2,9 @@ package net.bestia.zone.crafting.station
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.crafting.CraftingService
+import net.bestia.zone.crafting.Crafters
+import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.prop.station.WorkAssignment
 import net.bestia.zone.crafting.Recipe
 import net.bestia.zone.crafting.RecipeRegistry
 import net.bestia.zone.item.ecs.ObtainItemIntentSystem
@@ -26,15 +29,18 @@ import org.springframework.stereotype.Component as SpringComponent
 /**
  * Works through every station's queue, one item at a time, while its worker is there to do it.
  *
- * The worker is the station's owner, while they play. Each item rolls on its own and spends its share of the
- * ingredients the station holds, made or failed. A queue that cannot go on pauses and says why; it goes on by
- * itself once the cause is gone.
+ * The worker is one of the owner's bestias, which keeps working while its master is logged out, or else the owner
+ * while they play. Each item rolls on its own and spends its share of the ingredients the station holds, made or
+ * failed. A queue that cannot go on pauses and says why; it goes on by itself once the cause is gone.
  */
 @SpringComponent
 class StationWorkSystem(
   private val structures: PlayerStructureRegistry,
   private val recipes: RecipeRegistry,
   private val crafting: CraftingService,
+  private val crafters: Crafters,
+  private val profiles: CrafterProfiles,
+  private val workers: StationWorkers,
   private val itemTemplates: ItemTemplateRegistry,
   private val connections: ConnectionInfoService,
   private val work: StationWork,
@@ -46,7 +52,8 @@ class StationWorkSystem(
   // path so a finished item is in the bag the same tick.
   override val phase = Phase.ITEMS
   override val before = setOf(ObtainItemIntentSystem::class)
-  override val reads: ComponentClassSet = setOf(Position::class, Inventory::class, CarryCapacity::class)
+  override val reads: ComponentClassSet =
+    setOf(Position::class, Inventory::class, CarryCapacity::class, WorkAssignment::class, Master::class)
   override val writes: ComponentClassSet = setOf(ObtainItemIntent.CreateItemIntent::class)
 
   override fun update(world: World, deltaTime: Float) {
@@ -65,14 +72,13 @@ class StationWorkSystem(
       return
     }
 
-    val workerId = workerOf(station)
-    val craftSeconds = workerId?.let { crafting.craftSecondsFor(world, it, it, recipe) }
+    val workerId = workerOf(world, station)
+    val crafter = workerId?.let { crafterOf(world, it, station) }
     val pause = when {
-      workerId == null -> StationPause.WORKER_OFFLINE
+      workerId == null || crafter == null -> StationPause.WORKER_OFFLINE
       !isNear(world, workerId, station) -> StationPause.WORKER_AWAY
       !station.canWorkAt(clock.instant()) -> StationPause.STATION_OUT
       !outputFits(world, workerId, recipe.output) -> StationPause.BAG_FULL
-      craftSeconds == null -> StationPause.CANNOT_CRAFT
       else -> StationPause.NONE
     }
     if (pause != progress.pause) {
@@ -81,11 +87,12 @@ class StationWorkSystem(
     }
     if (pause != StationPause.NONE) return
 
-    progress.craftSeconds = craftSeconds!!
+    val craftSeconds = crafting.craftSecondsFor(crafter!!, recipe)
+    progress.craftSeconds = craftSeconds
     progress.seconds += deltaTime
     if (progress.seconds < craftSeconds) return
 
-    val refusal = crafting.produceFromStation(world, workerId!!, workerId, recipe)
+    val refusal = crafting.produceFromStation(world, workerId!!, crafter, recipe)
     if (refusal != null) {
       LOG.debug { "Station ${station.id} cannot make ${recipe.identifier} for its worker: $refusal" }
       progress.pause = StationPause.CANNOT_CRAFT
@@ -103,12 +110,32 @@ class StationWorkSystem(
     structures.of(station.id)?.let(states::send)
   }
 
-  /** The owner's master entity, while they play that master; nobody works a station of somebody offline. */
-  private fun workerOf(station: StructureEntry): EntityId? {
+  /** The bestia set to work here, or else the owner's master while they play it. */
+  private fun workerOf(world: World, station: StructureEntry): EntityId? {
+    if (station.workerBestiaId != null) {
+      return workers.entityOf(station.id)?.takeIf { world.get(it, WorkAssignment::class)?.structureId == station.id }
+    }
+
+    return playingMasterOf(station)
+  }
+
+  private fun playingMasterOf(station: StructureEntry): EntityId? {
     val accountId = station.ownerAccountId ?: return null
     if (!connections.isPlaying(accountId, station.ownerMasterId)) return null
 
     return connections.getSelectedMasterEntityId(accountId)
+  }
+
+  /**
+   * Skills and blueprints are always the master's. While the master plays they come from its entity, and are kept
+   * for when it logs out; a bestia of an absent master crafts with the kept copy.
+   */
+  private fun crafterOf(world: World, workerId: EntityId, station: StructureEntry): Crafters.Crafter? {
+    val masterEntityId = playingMasterOf(station)
+      ?: return profiles.crafterFor(world, workerId, station.ownerMasterId)
+
+    profiles.remember(world, masterEntityId)
+    return crafters.of(world, workerId, masterEntityId)
   }
 
   private fun isNear(world: World, workerId: EntityId, station: StructureEntry): Boolean {

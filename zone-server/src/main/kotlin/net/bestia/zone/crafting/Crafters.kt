@@ -52,4 +52,17 @@ class Crafters(
       blueprints = world.get(masterEntityId, KnownRecipes::class),
     )
   }
+
+  /** A bestia of [master] crafting while its master is not in the world, with what the master knows loaded for it. */
+  fun ofAbsentMaster(
+    world: World,
+    crafterId: EntityId,
+    master: Master,
+    skills: KnownSkills,
+    blueprints: KnownRecipes
+  ): Crafter? {
+    val owned = world.get(crafterId, OwnedBestia::class)?.takeIf { it.masterId == master.masterId } ?: return null
+
+    return Crafter(master, owned.playerBestiaId, skills, blueprints)
+  }
 }

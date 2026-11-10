@@ -1,5 +1,6 @@
 package net.bestia.zone.master.bestia
 
+import net.bestia.zone.crafting.station.StationWorkers
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiConfig
@@ -28,6 +29,7 @@ class BestiaAiConfigService(
   private val aiAgentFactory: AiAgentFactory,
   private val world: WorldView,
   private val events: ApplicationEventPublisher,
+  private val stationWorkers: StationWorkers,
 ) {
 
   /** The config as stored, which has its aggression clamped, or null when the bestia does not exist. */
@@ -55,6 +57,8 @@ class BestiaAiConfigService(
     world.modify(entityId) { id ->
       val home = get(id, Position::class)?.toVec3L() ?: return@modify
       add(id, aiAgentFactory.create(profile, species.defaultAttack, species.aspd, homePosition = home, config = config))
+      // A bestia at work keeps working: its home stays the station.
+      stationWorkers.resume(this, id)
     }
   }
 }

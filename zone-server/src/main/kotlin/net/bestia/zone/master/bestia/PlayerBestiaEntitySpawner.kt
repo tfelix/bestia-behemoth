@@ -1,5 +1,6 @@
 package net.bestia.zone.master.bestia
 
+import net.bestia.zone.crafting.station.StationWorkers
 import net.bestia.zone.bestia.BestiaSkillLevel
 import net.bestia.zone.item.stat.ItemStatCatalog
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -65,6 +66,7 @@ class PlayerBestiaEntitySpawner(
   private val aiAgentFactory: AiAgentFactory,
   private val statusEffectPersistenceService: StatusEffectPersistenceService,
   private val itemStats: ItemStatCatalog,
+  private val stationWorkers: StationWorkers,
 ) {
 
   /**
@@ -253,6 +255,8 @@ class PlayerBestiaEntitySpawner(
     statusEffectPersistenceService.attach(this, id, loaded.statusEffects)
 
     attachIdleAi(id, playerBestia)
+    // After the AI, whose home it moves to the station.
+    stationWorkers.resume(this, id)
   }
 
   /**

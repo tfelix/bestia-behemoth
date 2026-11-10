@@ -4,11 +4,13 @@ import net.bestia.zone.prop.station.QueueEntry
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.crafting.CraftingService
+import net.bestia.zone.crafting.Crafters
 import net.bestia.zone.crafting.RecipeRegistry
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.ecs.CarryCheck
 import net.bestia.zone.item.ecs.Inventory
@@ -36,6 +38,8 @@ class StationQueueService(
   private val structures: PlayerStructureRegistry,
   private val recipes: RecipeRegistry,
   private val crafting: CraftingService,
+  private val crafters: Crafters,
+  private val workers: StationWorkers,
   private val itemTemplates: ItemTemplateRegistry,
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
@@ -50,7 +54,8 @@ class StationQueueService(
     val recipe = recipes.of(recipeId)?.takeIf { it.station == station.kind } ?: return OpError.CRAFT_NOT_POSSIBLE
     if (station.queue.size >= MAX_ENTRIES) return OpError.CRAFT_ALREADY_IN_PROGRESS
 
-    crafting.refusalToQueue(world, actorId, actorId, recipe)?.let { return it }
+    val crafter = crafters.of(world, actorId, actorId) ?: return OpError.CRAFT_NOT_POSSIBLE
+    crafting.refusalToQueue(crafter, recipe)?.let { return it }
 
     val count = amount.coerceIn(1, MAX_AMOUNT)
     val paid = recipe.inputTotals.mapValues { (_, each) -> each * count }
@@ -105,10 +110,32 @@ class StationQueueService(
     return null
   }
 
+  /**
+   * Picks who works the station: [workerEntityId] for one of the owner's bestias, 0 for the owner.
+   *
+   * @return the refusal to send back, or null when the worker is set
+   */
+  fun setWorker(world: World, actorId: EntityId, structureId: Long, workerEntityId: EntityId): OpError? {
+    val station = ownStationNear(world, actorId, structureId) ?: return OpError.CRAFT_NOT_POSSIBLE
+
+    if (workerEntityId == 0L) {
+      workers.unassign(world, structureId)
+    } else {
+      val owned = world.get(workerEntityId, OwnedBestia::class)
+      if (owned?.masterId != station.ownerMasterId) return OpError.CRAFT_NOT_POSSIBLE
+      workers.assign(world, workerEntityId, station)
+    }
+
+    work.forget(structureId)
+    sendState(structureId)
+    return null
+  }
+
   /** Drops what a station holds on the ground where it stood: it was knocked down, or its fire is gone. */
   override fun spill(world: World, station: StructureEntry, at: Vec3L) {
     station.held.forEach { (itemId, amount) -> lootItems.spawnLootItem(world, itemId = itemId, amount = amount, pos = at) }
     work.forget(station.id)
+    workers.unassign(world, station.id)
 
     if (station.held.isNotEmpty()) LOG.info { "Station ${station.id} spilled ${station.held} at $at" }
   }
