@@ -44,7 +44,7 @@ skills after under `# BESTIA SKILLS`, by ascending id (**bestia-species/item ski
 reserved at id 1000-8999**; master skills use the open range below that, currently 1-185, with
 holes where removed skills used to be; a free id is never reused) — not enforced by code, just keep following
 it. The 1000+ split was chosen when the master skill tree grew past the original
-"masters 1-99" convention (see `docs/mechanics/master.md` for the full master skill tree
+"masters 1-99" convention (see `docs/mechanics/master/` for the master skill trees
 design).
 
 **Guild skills are 9000+**, last in the file under `# GUILD SKILLS`. The guild learns them, not a master:

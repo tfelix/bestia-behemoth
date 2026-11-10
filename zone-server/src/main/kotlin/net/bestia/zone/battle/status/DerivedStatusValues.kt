@@ -5,7 +5,7 @@ package net.bestia.zone.battle.status
  * the rest of its [CombatValues], whenever something that feeds them changes - a buff/debuff that changed the
  * primaries therefore flows through here when the recalc runs, and a fight just reads the result.
  *
- * Formulas follow the game docs (https://docs.bestia-game.net/docs/mechanics/statusvalues/),
+ * Formulas follow the game docs (https://docs.bestia-game.net/docs/mechanics/combat/statusvalues/),
  * simplified to the parts expressible today: the additive `ModSum` terms of HIT, FLEE and CRIT arrive as [hitBonus],
  * [fleeBonus] and [critBonus] - [CombatValues] collects them from the recalc context - and the multiplicative
  * `ModPerc` terms are omitted (`ModPerc = 1`). Gear otherwise reaches the damage formula through

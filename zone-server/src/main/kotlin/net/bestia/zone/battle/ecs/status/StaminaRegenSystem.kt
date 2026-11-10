@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component as SpringComponent
 /**
  * Passive Stamina regeneration for every entity with [Stamina]. Amount and the 10 s cadence come
  * from the docs' stamina-recovery formula, via [RegenerationCalculator.staminaRegen]:
- * https://docs.bestia-game.net/docs/mechanics/statusvalues/
+ * https://docs.bestia-game.net/docs/mechanics/combat/statusvalues/
  *
  * ### Why this is not gated on [InCombat], unlike its two siblings
  *

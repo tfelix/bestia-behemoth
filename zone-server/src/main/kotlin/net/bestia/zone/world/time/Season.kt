@@ -8,7 +8,7 @@ import net.bestia.worldgen.climate.Seasons
  *
  * ### Why the order changed
  *
- * https://docs.bestia-game.net/docs/mechanics/environment/#in-game-time *lists* the seasons summer, winter,
+ * https://docs.bestia-game.net/docs/mechanics/world/environment/#in-game-time *lists* the seasons summer, winter,
  * fall, spring, and this enum used to take that listing as the calendar - `ofMonth` was `entries[month - 1]`.
  * That is not a rotation of a year, it is a reshuffle: it puts summer next to winter and autumn next to
  * spring. Read as an orbital order it needs the planet to reverse direction twice a year, and the generator's

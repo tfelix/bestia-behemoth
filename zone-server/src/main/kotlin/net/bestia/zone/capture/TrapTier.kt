@@ -1,7 +1,7 @@
 package net.bestia.zone.capture
 
 /**
- * The four Magic Bestia Traps of `bestia-docs/content/docs/mechanics/bestia.md`.
+ * The four Magic Bestia Traps of `bestia-docs/content/docs/mechanics/bestias/bestia.md`.
  *
  * Every row of the docs' base table is the tier's Lv. 1-20 value minus 40 points per level band, so a tier
  * is one number rather than a row of five.

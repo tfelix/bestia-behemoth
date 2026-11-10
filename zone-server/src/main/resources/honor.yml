@@ -1,5 +1,5 @@
 # What every act costs or earns in honor. The player-facing table is in bestia-docs
-# content/docs/mechanics/pvp.md; keep the numbers in step with it.
+# content/docs/mechanics/society/pvp.md; keep the numbers in step with it.
 #
 # `global` changes the Master's own honor; `local` falls on each townsperson who saw it, or on the
 # settlement when it happens inside one with nobody in sight. A loss is negative, a gain positive.

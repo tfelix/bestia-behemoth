@@ -6,7 +6,7 @@ import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.api.Test
 
 /**
- * The worked examples of `bestia-docs/content/docs/mechanics/bestia.md`. Their target is "at 1% HP" and they
+ * The worked examples of `bestia-docs/content/docs/mechanics/bestias/bestia.md`. Their target is "at 1% HP" and they
  * count that as the full +30, so the target here is one hit point in ten thousand.
  */
 class CaptureChanceCalculatorTest {

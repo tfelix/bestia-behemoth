@@ -6,7 +6,7 @@ import java.time.Instant
 /**
  * A single point in the in-game "Bestia time" calendar, derived from how much real-world
  * time has elapsed since a world's creation instant. Per
- * https://docs.bestia-game.net/docs/mechanics/environment/#in-game-time, Bestia time runs
+ * https://docs.bestia-game.net/docs/mechanics/world/environment/#in-game-time, Bestia time runs
  * [SPEED_FACTOR]x faster than real time: a Bestia day is [HOURS_PER_DAY] Bestia-hours but
  * only takes 8 real-world hours to pass (2 real hours of night, 6 of day), a Bestia month is
  * [DAYS_PER_MONTH] Bestia-days (10 real-world days), and a Bestia year is [MONTHS_PER_YEAR]

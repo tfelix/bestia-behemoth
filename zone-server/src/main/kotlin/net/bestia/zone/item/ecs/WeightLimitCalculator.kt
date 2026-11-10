@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
  * 100 per kilogram, so the constants below are hundredths of a kilogram.
  *
  * The docs' formula is the same shape at a hundredth of this scale and is stale until it is rescaled too:
- * https://docs.bestia-game.net/docs/mechanics/items/#weight-limit
+ * https://docs.bestia-game.net/docs/mechanics/items-crafting/items/#weight-limit
  */
 @Component
 class WeightLimitCalculator {

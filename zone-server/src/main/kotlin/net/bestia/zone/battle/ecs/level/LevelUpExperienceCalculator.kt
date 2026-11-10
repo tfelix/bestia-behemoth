@@ -5,7 +5,7 @@ import kotlin.math.roundToInt
 
 /**
  * EXP needed to go from [level] to the next one, per the game docs:
- * https://docs.bestia-game.net/docs/mechanics/bestia/#experience
+ * https://docs.bestia-game.net/docs/mechanics/bestias/bestia/#experience
  *
  * Cubic, so every route slows down as the level rises. Kill EXP (`4·lv + 5` in the docs) is authored per
  * species and does not depend on this.
