@@ -15,14 +15,18 @@ data class CraftItemCMSG(
   val recipeId: Long,
 
   /** The item instance to work on, or 0 for a recipe that makes something instead. */
-  val targetUniqueId: Long
+  val targetUniqueId: Long,
+
+  /** How many to make one after another. */
+  val amount: Int = 1
 ) : CMSG {
   companion object {
     fun fromBnet(accountId: Long, craftItem: CraftItemCmsgProto.CraftItemCMSG): CraftItemCMSG =
       CraftItemCMSG(
         playerId = accountId,
         recipeId = craftItem.recipeId,
-        targetUniqueId = craftItem.targetUniqueId
+        targetUniqueId = craftItem.targetUniqueId,
+        amount = craftItem.amount.coerceAtLeast(1)
       )
   }
 }

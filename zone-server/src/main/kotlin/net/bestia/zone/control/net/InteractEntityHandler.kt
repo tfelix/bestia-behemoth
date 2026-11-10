@@ -3,8 +3,7 @@ package net.bestia.zone.control.net
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.bnet.proto.OperationErrorProto.OpError
-import net.bestia.zone.dialog.DialogId
-import net.bestia.zone.dialog.DialogService
+import net.bestia.zone.crafting.CraftingService
 import net.bestia.zone.townsfolk.conversation.TalkService
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.entity.ecs.DeadActionGuard
@@ -41,8 +40,8 @@ import org.springframework.stereotype.Component
 class InteractEntityHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val deadActionGuard: DeadActionGuard,
-  private val dialogService: DialogService,
   private val talkService: TalkService,
+  private val crafting: CraftingService,
   private val outMessageProcessor: OutMessageProcessor,
   propInteractions: List<PropInteraction>,
 ) : TickMessageHandler<InteractEntityCMSG> {
@@ -81,11 +80,9 @@ class InteractEntityHandler(
     // The component every player-built structure carries and nothing else does, so this needs no second
     // list of which kinds a player can build.
     if (world.has(targetId, PlayerStructureIdentity::class)) {
-      // A finished station has nothing to open yet. The dialog is the placeholder for whatever window it
-      // eventually gets, so that clicking one answers rather than doing nothing at all.
-      world.get(actorId, Account::class)?.accountId?.let { accountId ->
-        dialogService.send(accountId, DialogId.WORKBENCH_PLACEHOLDER, sourceEntityId = targetId)
-      }
+      val station = world.get(targetId, StaticVisual::class)?.kind ?: return null
+      val accountId = world.get(actorId, Account::class)?.accountId ?: return null
+      crafting.openAtStation(world, actorId, connectionInfoService.getSelectedMasterEntityId(accountId), station)
       return null
     }
 

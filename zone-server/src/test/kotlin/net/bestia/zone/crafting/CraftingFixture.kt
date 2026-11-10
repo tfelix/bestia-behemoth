@@ -6,6 +6,7 @@ import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.crafting.ecs.KnownRecipes
+import net.bestia.zone.battle.ecs.skill.Crafting
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.stat.ItemStatRoller
 import io.mockk.every
@@ -168,6 +169,21 @@ class CraftingFixture(
   }
 
   fun inventoryOf(entityId: EntityId): Inventory = world.getOrThrow(entityId, Inventory::class)
+
+  /** Answers the last recipe list sent to the player. */
+  fun captureOffer(): () -> CraftableRecipesSMSG {
+    var sent: CraftableRecipesSMSG? = null
+    every { outMessageProcessor.sendToPlayer(any<Long>(), any<CraftableRecipesSMSG>()) } answers { sent = secondArg() }
+
+    return { checkNotNull(sent) { "No recipe list was sent" } }
+  }
+
+  /** What `CraftingSystem` does once the craft of [entityId] has run its time. */
+  fun finishCraftOf(entityId: EntityId) {
+    val crafting = world.getOrThrow(entityId, Crafting::class)
+    world.remove(entityId, Crafting::class)
+    service.resolve(world, entityId, crafting)
+  }
 
   companion object {
     const val MASTER_ID = 42L
