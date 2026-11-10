@@ -259,6 +259,38 @@ sealed interface ZoneAnswer {
     data class Goods(val item: String, val amount: Int)
   }
 
+  /** A master's theodolites. [radiusKm] is set while one surveys or its chart waits to be collected. */
+  data class Theodolites(val theodolites: List<Theodolite>) : ZoneAnswer {
+    /** [state] is IDLE, SURVEYING or READY; [remainingSeconds] is the work a SURVEYING one still needs. */
+    data class Theodolite(
+      val structureId: Long,
+      val at: MapPoint,
+      val state: String,
+      val radiusKm: Int?,
+      val remainingSeconds: Int?,
+    ) {
+      companion object {
+        const val IDLE = "IDLE"
+        const val SURVEYING = "SURVEYING"
+        const val READY = "READY"
+      }
+    }
+  }
+
+  /**
+   * A paid survey's needle game. In round i the needle points at `90 * sin(2 * PI * t / swingPeriodMs)` degrees
+   * after t ms, and must stop within [arcWidthDegrees] around `arcCentresDegrees[i]`.
+   */
+  data class SurveyGame(
+    val structureId: Long,
+    val swingPeriodMs: Int,
+    val arcWidthDegrees: Int,
+    val arcCentresDegrees: List<Int>,
+  ) : ZoneAnswer
+
+  /** [outcome] is WON (the theodolite starts its work) or MISSED. */
+  data class SurveyOutcome(val outcome: String) : ZoneAnswer
+
   /**
    * Whether a letter went out. [refusal] is null when it did, else why not: CHAT_LOCKED (Basic Skill below the chat
    * rank), RECIPIENT_UNKNOWN, RECIPIENT_FULL or CANNOT_AFFORD.

@@ -419,6 +419,34 @@ class ApiServerScenarioTest : ApiScenarioTestBase() {
   }
 
   @Test
+  fun `a survey from the app answers its needle game, and its refusals become statuses`() {
+    var refusal: String? = null
+    answer = { request ->
+      when {
+        refusal != null -> BusReply.of(request.correlationId, BusReply.Status.INVALID, refusal)
+        request.query is ZoneQuery.StartSurvey -> BusReply.ok(request.correlationId, ZoneAnswer.SurveyGame(3, 1800, 20, listOf(-40, 0, 65)))
+        else -> BusReply.ok(request.correlationId, ZoneAnswer.SurveyOutcome("WON"))
+      }
+    }
+    fun start() = post("/v1/companion/masters/5/theodolites/3/survey", mapOf("km" to 3), accountId = 55, idempotencyKey = UUID.randomUUID().toString())
+
+    val game = start()
+    assertEquals(200, game.statusCode.value())
+    assertEquals(1800, json(game)["swingPeriodMs"].asInt())
+    assertEquals(ZoneQuery.StartSurvey(5, structureId = 3, km = 3), asked.single().query)
+
+    val stops = post("/v1/companion/masters/5/theodolites/3/survey/stops", mapOf("stopsMs" to listOf(10, 20, 30)), 55, UUID.randomUUID().toString())
+    assertEquals("WON", json(stops)["outcome"].asText())
+    assertEquals(ZoneQuery.SurveyStops(5, structureId = 3, stopsMs = listOf(10, 20, 30)), asked.last().query)
+
+    val statuses = mapOf("SURVEY_TIER_LOCKED" to 403, "SURVEY_NO_THEODOLITE" to 409, "SKILL_MISSING_REAGENT" to 422, "SKILL_INVALID_CHOICE" to 400)
+    for ((why, status) in statuses) {
+      refusal = why
+      assertEquals(status, start().statusCode.value(), why)
+    }
+  }
+
+  @Test
   fun `a letter wakes an account away from the game`() {
     val subscription = mapOf(
       "endpoint" to "https://fcm.googleapis.com/fcm/send/${UUID.randomUUID()}",

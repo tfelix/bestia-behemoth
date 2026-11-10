@@ -19,6 +19,7 @@ enum class ApiRoute {
   ORDERS,
   LETTERS,
   PARCELS,
+  SURVEYS,
   PUSH,
   WS,
   OTHER,
@@ -62,6 +63,7 @@ enum class ApiRoute {
           rest.endsWith("/orders") -> ORDERS
           rest.contains("/letters") -> LETTERS
           rest.endsWith("/parcels") -> PARCELS
+          rest.contains("/theodolites") -> SURVEYS
           else -> MASTERS
         }
 

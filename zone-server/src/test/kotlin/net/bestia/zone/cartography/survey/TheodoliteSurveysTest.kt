@@ -3,18 +3,16 @@ package net.bestia.zone.cartography.survey
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.bestia.bnet.proto.OperationErrorProto.OpError
-import net.bestia.bnet.proto.OperationSuccessProto.OpSuccess
+import net.bestia.zone.cartography.survey.TheodoliteSurveys.StopsOutcome
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.message.OperationErrorSMSG
-import net.bestia.zone.message.OperationSuccessSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.prop.PlayerStructureRegistry
 import net.bestia.zone.prop.StructureEntry
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
 class TheodoliteSurveysTest {
@@ -48,13 +46,22 @@ class TheodoliteSurveysTest {
   }
 
   @Test
+  fun `a game prepared for the app is kept for its stops like a cast's`() {
+    val game = sut.prepare(MASTER_ID, ACCOUNT_ID, theodolite, SurveyTier.KM_3, cartographyLevel = 3)
+
+    assertEquals(StopsOutcome.WON, sut.submitStops(ACCOUNT_ID, theodolite.id, winningStops(game)))
+    verify { structures.setSurvey(theodolite.id, SurveyTier.KM_3.radiusMetres, TheodoliteSurveys.WORK_SECONDS) }
+    assertEquals(emptyList<SMSG>(), sent)
+  }
+
+  @Test
   fun `a won game starts ten minutes of work for the chosen size`() {
     val game = openedGame()
 
-    sut.submitStops(ACCOUNT_ID, theodolite.id, winningStops(game))
+    val outcome = sut.submitStops(ACCOUNT_ID, theodolite.id, winningStops(game))
 
+    assertEquals(StopsOutcome.WON, outcome)
     verify { structures.setSurvey(theodolite.id, SurveyTier.KM_1.radiusMetres, TheodoliteSurveys.WORK_SECONDS) }
-    assertEquals(OperationSuccessSMSG(OpSuccess.SURVEY_STARTED), sent.last())
   }
 
   @Test
@@ -62,18 +69,17 @@ class TheodoliteSurveysTest {
     val game = openedGame()
     val missed = winningStops(game).mapIndexed { i, stop -> if (i == 0) stop + game.swingPeriodMs / 2 else stop }
 
-    sut.submitStops(ACCOUNT_ID, theodolite.id, missed)
-    sut.submitStops(ACCOUNT_ID, theodolite.id, winningStops(game))
+    assertEquals(StopsOutcome.MISSED, sut.submitStops(ACCOUNT_ID, theodolite.id, missed))
+    assertNull(sut.submitStops(ACCOUNT_ID, theodolite.id, winningStops(game)))
 
     verify(exactly = 0) { structures.setSurvey(any(), any(), any()) }
-    assertEquals(OperationErrorSMSG(OpError.SURVEY_MISSED), sent.last())
   }
 
   @Test
   fun `only the player who cast can play the game`() {
     val game = openedGame()
 
-    sut.submitStops(ACCOUNT_ID + 1, theodolite.id, winningStops(game))
+    assertNull(sut.submitStops(ACCOUNT_ID + 1, theodolite.id, winningStops(game)))
 
     verify(exactly = 0) { structures.setSurvey(any(), any(), any()) }
   }

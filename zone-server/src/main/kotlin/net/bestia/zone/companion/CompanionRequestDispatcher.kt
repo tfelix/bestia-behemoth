@@ -20,6 +20,7 @@ import net.bestia.zone.companion.query.PartyQueries
 import net.bestia.zone.companion.query.NotebookCommands
 import net.bestia.zone.companion.query.OrdersCommand
 import net.bestia.zone.companion.query.ParcelQueries
+import net.bestia.zone.companion.query.SurveyCommands
 import net.bestia.zone.companion.query.TicketQueries
 import org.springframework.stereotype.Component
 
@@ -42,6 +43,7 @@ class CompanionRequestDispatcher(
   private val notebook: NotebookCommands,
   private val letters: LetterCommands,
   private val parcels: ParcelQueries,
+  private val surveys: SurveyCommands,
 ) : RequestHandler {
 
   override fun handle(request: BusRequest): BusReply {
@@ -78,6 +80,9 @@ class CompanionRequestDispatcher(
       is ZoneQuery.ReadLetter -> letters.read(id, account, query)
       is ZoneQuery.DeleteLetter -> letters.delete(id, account, query)
       is ZoneQuery.Parcels -> parcels.parcels(id, account, query)
+      is ZoneQuery.Theodolites -> surveys.list(id, account, query)
+      is ZoneQuery.StartSurvey -> surveys.start(id, account, query)
+      is ZoneQuery.SurveyStops -> surveys.stops(id, account, query)
     }
   }
 

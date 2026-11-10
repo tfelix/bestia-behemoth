@@ -28,6 +28,11 @@ export type CompendiumEntry = Schemas['CompendiumEntry'];
 export type Position = Schemas['Position'];
 export type Journey = Schemas['Journey'];
 export type JourneyOrder = Schemas['JourneyOrder'];
+export type Theodolite = Schemas['Theodolite'];
+export type SurveyOrder = Schemas['SurveyOrder'];
+export type SurveyGame = Schemas['SurveyGame'];
+export type SurveyStops = Schemas['SurveyStops'];
+export type SurveyResult = Schemas['SurveyResult'];
 
 export const JOBS = ['GUARD', 'GATHER', 'CRAFT', 'REST'] as const;
 export type Job = (typeof JOBS)[number];

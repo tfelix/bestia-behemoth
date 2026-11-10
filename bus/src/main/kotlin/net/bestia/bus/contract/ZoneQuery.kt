@@ -123,4 +123,19 @@ sealed interface ZoneQuery {
 
   /** Every parcel to [masterId], on the road or waiting. Answered with [ZoneAnswer.Parcels]. */
   data class Parcels(val masterId: Long) : ZoneQuery
+
+  /** [masterId]'s standing theodolites. Answered with [ZoneAnswer.Theodolites]. */
+  data class Theodolites(val masterId: Long) : ZoneQuery
+
+  /**
+   * Pays for a survey of [km] at an idle theodolite of [masterId] and opens its needle game. Answered with
+   * [ZoneAnswer.SurveyGame]. A write: send it with an idempotency key.
+   */
+  data class StartSurvey(val masterId: Long, val structureId: Long, val km: Int) : ZoneQuery
+
+  /**
+   * The stops for the game [StartSurvey] opened: milliseconds into each round. Answered with
+   * [ZoneAnswer.SurveyOutcome]. A write: send it with an idempotency key.
+   */
+  data class SurveyStops(val masterId: Long, val structureId: Long, val stopsMs: List<Long>) : ZoneQuery
 }

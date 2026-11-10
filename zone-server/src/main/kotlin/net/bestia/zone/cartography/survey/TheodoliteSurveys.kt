@@ -24,8 +24,8 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Surveys at a theodolite: the needle game a cast of Cartography opens, the ten minutes of work a won game starts,
- * and collecting the chart once it is drawn. One survey per theodolite at a time.
+ * Surveys at a theodolite: the needle game a cast of Cartography (or the companion app) opens, the ten minutes of
+ * work a won game starts, and collecting the chart once it is drawn. One survey per theodolite at a time.
  */
 @Service
 class TheodoliteSurveys(
@@ -50,39 +50,46 @@ class TheodoliteSurveys(
     }
   }
 
-  /**
-   * Opens the needle game for [tier] at [theodolite]. The difficulty needs the master's charts, so it is worked out
-   * off the tick and the game is sent when it is ready.
-   */
+  /** Opens the needle game for a cast at [theodolite]. [prepare] reads the database, so it runs off the tick. */
   fun open(masterId: Long, accountId: Long, theodolite: StructureEntry, tier: SurveyTier, cartographyLevel: Int) {
-    val voxelSize = worldService.config.voxelSize
-    val centreX = theodolite.position.x * voxelSize
-    val centreY = theodolite.position.y * voxelSize
-    val manaHere = mana.manaAt(theodolite.position)
-
     asyncJobExecutor.submit(masterId) {
-      val charted = chartService.inventoryCoverage(masterId)
-      val km = (0..MAX_SEARCH_KM).firstOrNull { km -> isChartedAround(charted::contains, centreX, centreY, km * 1000.0) }
-        ?: MAX_SEARCH_KM
-      val game = SurveyMinigame.of(SurveyMinigame.difficulty(tier, km, manaHere, cartographyLevel))
-
-      sessions[theodolite.id] = Session(masterId, accountId, tier, game)
+      val game = prepare(masterId, accountId, theodolite, tier, cartographyLevel)
       messages.sendToPlayer(accountId, SurveyMinigameSMSG(theodolite.id, game))
     }
   }
 
-  /** The player's stops for the open game at [structureId]. A win starts the ten minutes of work. */
-  fun submitStops(accountId: Long, structureId: Long, stopsMs: List<Long>) {
-    val session = sessions.remove(structureId)?.takeIf { it.accountId == accountId } ?: return
+  /**
+   * Builds the needle game for [tier] at [theodolite] and keeps it until [accountId] sends its stops. Blocks on the
+   * master's charts, which set the difficulty, so never call it on the tick or inside a world scope.
+   */
+  fun prepare(masterId: Long, accountId: Long, theodolite: StructureEntry, tier: SurveyTier, cartographyLevel: Int): SurveyMinigame {
+    val voxelSize = worldService.config.voxelSize
+    val centreX = theodolite.position.x * voxelSize
+    val centreY = theodolite.position.y * voxelSize
 
-    if (!session.game.isHit(stopsMs)) {
-      messages.sendToPlayer(accountId, OperationErrorSMSG(OpError.SURVEY_MISSED))
-      return
-    }
+    val charted = chartService.inventoryCoverage(masterId)
+    val km = (0..MAX_SEARCH_KM).firstOrNull { km -> isChartedAround(charted::contains, centreX, centreY, km * 1000.0) }
+      ?: MAX_SEARCH_KM
+    val manaHere = mana.manaAt(theodolite.position)
+    val game = SurveyMinigame.of(SurveyMinigame.difficulty(tier, km, manaHere, cartographyLevel))
+
+    sessions[theodolite.id] = Session(masterId, accountId, tier, game)
+    return game
+  }
+
+  /**
+   * Judges the stops for the open game at [structureId]; null when [accountId] has no game open there. A win starts
+   * the ten minutes of work. On the tick or inside a world scope, since it writes the structure registry.
+   */
+  fun submitStops(accountId: Long, structureId: Long, stopsMs: List<Long>): StopsOutcome? {
+    val session = sessions.remove(structureId)?.takeIf { it.accountId == accountId } ?: return null
+    if (!session.game.isHit(stopsMs)) return StopsOutcome.MISSED
 
     structures.setSurvey(structureId, session.tier.radiusMetres, WORK_SECONDS)
-    messages.sendToPlayer(accountId, OperationSuccessSMSG(OpSuccess.SURVEY_STARTED))
+    return StopsOutcome.WON
   }
+
+  enum class StopsOutcome { WON, MISSED }
 
   /** Clicking the theodolite: collects a drawn chart, or says how long the survey still needs. */
   fun collect(world: World, actorId: EntityId, accountId: Long?, masterId: Long?, structureId: Long): OpError? {
