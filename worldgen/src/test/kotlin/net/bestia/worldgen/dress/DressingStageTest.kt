@@ -121,7 +121,8 @@ class DressingStageTest {
       FixtureKind.WELL,
       FixtureKind.LANTERN,
       FixtureKind.MILESTONE,
-      FixtureKind.WINDMILL
+      FixtureKind.WINDMILL,
+      FixtureKind.CAMP
     )
   }
 }

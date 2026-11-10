@@ -662,7 +662,14 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 7.0f, PlaceholderColour = new Color(0.70f, 0.66f, 0.58f), StructureHeight = 4f,
         Action = PropAction.Use
-      } // POST_OFFICE
+      }, // POST_OFFICE
+
+      // An abandoned camp beside a road: the cold campfire, with nothing to light.
+      new Kind
+      {
+        Scenes = new[] { new SceneVariant { Path = "res://Game/World/Campfire/CampfireCold.tscn", NaturalHeight = 0.3f } },
+        PlaceholderWidth = 0.8f, PlaceholderColour = new Color(0.40f, 0.36f, 0.32f)
+      } // FIXTURE_CAMP
     };
 
     /// <summary>

@@ -59,7 +59,10 @@ enum class FixtureKind(val heightM: Double, val readable: Boolean = false) {
   OUTCROP(3.5),
 
   /** The house of a roadside inn, a day's walk from anywhere. */
-  INN(8.0);
+  INN(8.0),
+
+  /** A long-cold fire ring beside a road in the wild, where travellers stopped for the night. */
+  CAMP(0.4);
 
   companion object {
     /** Every entry's ordinal and height, for `DressingStage.paramsVersion`: retuning one moves the world. */

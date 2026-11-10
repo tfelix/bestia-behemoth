@@ -506,3 +506,9 @@ kinds:
     max-hp: 800
     collider: { half-x: 4, half-y: 3, height: 4 }
     variants: 1
+
+  # A cold fire ring beside a road in the wild. Treasure caches gather around these.
+  - kind: FIXTURE_CAMP
+    max-hp: 60
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1

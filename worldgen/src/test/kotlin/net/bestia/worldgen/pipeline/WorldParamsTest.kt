@@ -138,7 +138,8 @@ class WorldParamsTest {
     // Both moved for the set dressing: `DressingParams` (world tier) and `ChunkMaterializer.VERSION` 11.
     // Only the chunk tier moved when resin was scattered under the conifers: `LootScatterParams` and
     // `ChunkMaterializer.VERSION` 12.
-    assertEquals(-6_706_671_773_251_072_201L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
+    // Only the world tier moved when abandoned camps were set beside the wild roads: `DressingParams`.
+    assertEquals(7_669_538_694_674_387_394L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Pinned as a pair so each half stays checkable: a world-tier retune has to move the number above and
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
     assertEquals(2_661_146_669_002_965_907L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
