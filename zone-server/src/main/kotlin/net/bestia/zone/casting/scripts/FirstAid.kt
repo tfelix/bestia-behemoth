@@ -7,26 +7,29 @@ import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.casting.BasicMagicSkillStrategy
 import net.bestia.zone.casting.SkillContext
 import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.casting.SkillLevelCost
+import net.bestia.zone.skill.persistence.Skill
 import org.springframework.stereotype.Component
-import kotlin.math.max
+import kotlin.math.min
 
 /**
  * First Aid (`skills.yml` id 8): bandages channelled over ten seconds, healing a share of the target's
- * maximum health or a flat amount, whichever is more.
- *
- * The flat floor is what makes the skill worth casting on a low-level bestia, whose percentage of a small pool
- * would be nothing; the percentage is what keeps it worth casting later. Both come from the skill's own
- * description.
+ * maximum health or a flat amount, whichever is smaller. The flat value caps it, so a big pool cannot turn a
+ * bandage into a full heal.
  *
  * A bestia may only receive it once a minute, which is `FIRST_AID_COOLDOWN` on the *target* rather than a
- * cooldown on the caster - so two healers cannot take turns topping the same bestia up. The three-minute
- * cooldown the description also promises is presentation-only for now: nothing server-side tracks per-skill
- * cooldowns.
+ * cooldown on the caster - so two healers cannot take turns topping the same bestia up.
  */
 @Component
 class FirstAid(
   losService: LineOfSightService,
 ) : BasicMagicSkillStrategy(losService) {
+
+  override fun costOf(skill: Skill, level: Int): SkillLevelCost {
+    val rank = level.coerceIn(1, MANA_COST.size)
+
+    return SkillLevelCost.of(skill).copy(manaCost = MANA_COST[rank - 1])
+  }
 
   override fun isCastPossible(ctx: SkillContext): Boolean {
     val battle = ctx.battle
@@ -65,14 +68,16 @@ class FirstAid(
     val level = ctx.usedAttack.level.coerceIn(1, PERCENT_OF_MAX_HP.size)
     val fromPool = ctx.defender.maxHealth * PERCENT_OF_MAX_HP[level - 1] / 100
 
-    return max(fromPool, FLAT_HP[level - 1])
+    return min(fromPool, FLAT_HP[level - 1])
   }
 
   private companion object {
     /** Per rank, from the skill's description: 30% / 60% / 100% of the target's maximum health. */
     val PERCENT_OF_MAX_HP = intArrayOf(30, 60, 100)
 
-    /** The floor for each of those ranks, for a target whose pool is still small. */
+    /** The cap for each of those ranks, so a large pool does not turn a bandage into a full heal. */
     val FLAT_HP = intArrayOf(100, 200, 350)
+
+    val MANA_COST = intArrayOf(12, 16, 20)
   }
 }
