@@ -172,6 +172,17 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.82, 0.35, 1)
 theme_override_font_sizes/font_size = 12
 
+[node name="WorkerLabel" type="Label" parent="Margin/Body/QueuePanel/QueueHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.66, 1)
+theme_override_font_sizes/font_size = 12
+text = "Worker"
+
+[node name="WorkerPicker" type="OptionButton" parent="Margin/Body/QueuePanel/QueueHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+
 [node name="QueueRows" type="VBoxContainer" parent="Margin/Body/QueuePanel"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 60)
