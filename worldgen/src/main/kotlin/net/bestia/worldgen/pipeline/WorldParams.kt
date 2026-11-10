@@ -30,6 +30,7 @@ import net.bestia.worldgen.mana.ManaParams
 import net.bestia.worldgen.resource.ResourceParams
 import net.bestia.worldgen.spawn.SpawnerParams
 import net.bestia.worldgen.spawn.VegetationStandParams
+import net.bestia.worldgen.treasure.TreasureParams
 import net.bestia.worldgen.voxel.ChunkMaterializer
 import net.bestia.worldgen.voxel.AetheriteParams
 import net.bestia.worldgen.voxel.CrystalParams
@@ -148,6 +149,12 @@ data class WorldParams(
 
   /** The set dressing: piers, lanterns, signposts, windmills, cemeteries. World tier, like [knoll]. */
   val dressing: DressingParams = DressingParams(),
+
+  /**
+   * The treasure caches. World tier, like [dressing], though the wild ones are only ever computed on demand:
+   * a retune moves every cache, so the world has to count as a different one.
+   */
+  val treasure: TreasureParams = TreasureParams(),
 
   /**
    * The macro navigation graph NPCs plan journeys over. Last, because it reads everything before it.
@@ -293,6 +300,7 @@ data class WorldParams(
       r.poi.digest().value,
       r.knoll.digest().value,
       r.dressing.digest().value,
+      r.treasure.digest().value,
       r.nav.digest().value
     )
   }

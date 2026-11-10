@@ -619,6 +619,7 @@ class MapRenderer(
       // Treasure, in the colour the map already uses for something worth having, darkened towards the caves
       // it is hidden in.
       FeatureKind.CAVE_HOARD -> Color(230, 180, 80)
+      FeatureKind.TREASURE_CACHE -> Color(230, 180, 80)
       FeatureKind.BESTIA_SPAWN -> Color(220, 70, 70)
       // Green, which nothing else on the map owns: the faults are violet, the ore yellow, the volcanism in
       // fire colours and a den red. Mid rather than bright, because a stand is a patch of ordinary wood.
