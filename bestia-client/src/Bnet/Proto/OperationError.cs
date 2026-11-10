@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrDIAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSr0IQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -118,9 +118,13 @@ namespace Bnet {
             "T0ZfUkFOR0UQswISGgoVU0VUVExFTUVOVF9ORUVEU19UT1dOELQCEh8KGlNF",
             "VFRMRU1FTlRfQUxSRUFEWV9IQVNfT05FELUCEhgKE1JFUEFJUl9PVVRTSURF",
             "X1RPV04QtgISFgoRUkVQQUlSX05PVF9ORUVERUQQtwISGwoWUkVQQUlSX05F",
-            "RURTX01BVEVSSUFMUxC4AiIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwK",
-            "FW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IG",
-            "cHJvdG8z"));
+            "RURTX01BVEVSSUFMUxC4AhIZChRBVUNUSU9OX0hPVVNFX0NMT1NFRBDAAhIh",
+            "ChxBVUNUSU9OX0ZFRV9DSEFOR0VEX1JFQ0VOVExZEMECEhwKF0FVQ1RJT05f",
+            "SE9VU0VfTk9UX0VNUFRZEMICEhkKFFRSQURFX1BPU1RfTkVFRFNfS0lUEMMC",
+            "EhUKEFRSQURFX1BPU1RfTElNSVQQxAISIQocVFJBREVfUE9TVF9ORUVEU19Q",
+            "T1NUX09GRklDRRDFAiIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5l",
+            "dC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJv",
+            "dG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -719,6 +723,31 @@ namespace Bnet {
     /// The repairer carries none of the materials the repair needs.
     /// </summary>
     [pbr::OriginalName("REPAIR_NEEDS_MATERIALS")] RepairNeedsMaterials = 312,
+    /// <summary>
+    /// Player auction houses, from 320.
+    /// The house's town has fallen; it trades nothing until a town holds it again.
+    /// </summary>
+    [pbr::OriginalName("AUCTION_HOUSE_CLOSED")] AuctionHouseClosed = 320,
+    /// <summary>
+    /// The owner fee can change once a day.
+    /// </summary>
+    [pbr::OriginalName("AUCTION_FEE_CHANGED_RECENTLY")] AuctionFeeChangedRecently = 321,
+    /// <summary>
+    /// Listings are still up in the house.
+    /// </summary>
+    [pbr::OriginalName("AUCTION_HOUSE_NOT_EMPTY")] AuctionHouseNotEmpty = 322,
+    /// <summary>
+    /// Trade Post Owner needs an auction house kit in the bag.
+    /// </summary>
+    [pbr::OriginalName("TRADE_POST_NEEDS_KIT")] TradePostNeedsKit = 323,
+    /// <summary>
+    /// The master runs as many auction houses as their Trade Post Owner level allows.
+    /// </summary>
+    [pbr::OriginalName("TRADE_POST_LIMIT")] TradePostLimit = 324,
+    /// <summary>
+    /// The town needs a working post office first.
+    /// </summary>
+    [pbr::OriginalName("TRADE_POST_NEEDS_POST_OFFICE")] TradePostNeedsPostOffice = 325,
   }
 
   #endregion

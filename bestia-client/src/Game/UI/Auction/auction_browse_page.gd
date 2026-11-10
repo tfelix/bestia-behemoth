@@ -1,7 +1,7 @@
 class_name AuctionBrowsePage
 extends VBoxContainer
 
-## The Browse tab: filter the shared market, page through it, buy.
+## The Browse tab: filter the market, page through it, buy.
 ##
 ## Every page comes from the server; nothing is filtered or sorted here except turning a typed name into the
 ## items it matches, because names live only on the client.
@@ -99,7 +99,7 @@ func _show(listings: Array, page: int, page_count: int) -> void:
 			printerr("Auction: item with ID %s not found in ItemDB" % [listing.ItemId])
 			continue
 		var row := AuctionListingRow.new(listing, item)
-		row.buy_pressed.connect(_ask_to_buy)
+		row.action_pressed.connect(_ask_to_buy)
 		_rows.add_child(row)
 
 	_empty.visible = listings.is_empty()

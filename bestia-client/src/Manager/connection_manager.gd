@@ -170,6 +170,11 @@ var BuyAuctionListingCMSG = load("res://Bnet/Message/Auction/BuyAuctionListingCM
 var StallListCMSG = load("res://Bnet/Message/Stall/StallListCMSG.cs")
 var StallUnlistCMSG = load("res://Bnet/Message/Stall/StallUnlistCMSG.cs")
 var StallBuyCMSG = load("res://Bnet/Message/Stall/StallBuyCMSG.cs")
+var ListAuctionItemCMSG = load("res://Bnet/Message/Auction/ListAuctionItemCMSG.cs")
+var CancelAuctionListingCMSG = load("res://Bnet/Message/Auction/CancelAuctionListingCMSG.cs")
+var SetAuctionFeeCMSG = load("res://Bnet/Message/Auction/SetAuctionFeeCMSG.cs")
+var CollectAuctionTillCMSG = load("res://Bnet/Message/Auction/CollectAuctionTillCMSG.cs")
+var TearDownAuctionHouseCMSG = load("res://Bnet/Message/Auction/TearDownAuctionHouseCMSG.cs")
 var PlanSettlementCMSG = load("res://Bnet/Message/Settlement/PlanSettlementCMSG.cs")
 var TearDownSettlementCMSG = load("res://Bnet/Message/Settlement/TearDownSettlementCMSG.cs")
 var OfferSettlementCMSG = load("res://Bnet/Message/Settlement/OfferSettlementCMSG.cs")
@@ -970,6 +975,48 @@ func buy_from_stall(stall_entity_id: int, listing_id: int) -> void:
 	var msg = StallBuyCMSG.new()
 	msg.StallEntityId = stall_entity_id
 	msg.ListingId = listing_id
+	_socket.SendMessage(msg)
+
+
+## Puts [param amount] of a held pile up at a fixed [param price] for the whole lot. Answered by the seller's listings.
+func list_auction_item(house_entity_id: int, player_item_id: int, amount: int, price: int) -> void:
+	assert(is_ready_to_send())
+	var msg = ListAuctionItemCMSG.new()
+	msg.HouseEntityId = house_entity_id
+	msg.PlayerItemId = player_item_id
+	msg.Amount = amount
+	msg.Price = price
+	_socket.SendMessage(msg)
+
+
+func cancel_auction_listing(house_entity_id: int, listing_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = CancelAuctionListingCMSG.new()
+	msg.HouseEntityId = house_entity_id
+	msg.ListingId = listing_id
+	_socket.SendMessage(msg)
+
+
+## The owner's requests at their own house. Each is answered by the house window again.
+func set_auction_fee(house_entity_id: int, percent: int) -> void:
+	assert(is_ready_to_send())
+	var msg = SetAuctionFeeCMSG.new()
+	msg.HouseEntityId = house_entity_id
+	msg.Percent = percent
+	_socket.SendMessage(msg)
+
+
+func collect_auction_till(house_entity_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = CollectAuctionTillCMSG.new()
+	msg.HouseEntityId = house_entity_id
+	_socket.SendMessage(msg)
+
+
+func tear_down_auction_house(house_entity_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = TearDownAuctionHouseCMSG.new()
+	msg.HouseEntityId = house_entity_id
 	_socket.SendMessage(msg)
 
 
