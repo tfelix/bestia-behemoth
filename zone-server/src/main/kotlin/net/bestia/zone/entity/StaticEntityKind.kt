@@ -152,7 +152,10 @@ enum class StaticEntityKind {
   CITY_SIGN,
 
   // A post office players built in their town. The post runs it, see `PostOffices`.
-  POST_OFFICE;
+  POST_OFFICE,
+
+  // Worldgen's FixtureKind.CAMP, appended here for the ordinal rather than beside the other fixtures.
+  FIXTURE_CAMP;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.

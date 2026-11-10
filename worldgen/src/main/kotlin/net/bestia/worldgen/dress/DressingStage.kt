@@ -85,7 +85,13 @@ data class DressingParams(
   val cemeteryMaxSide: Double = 46.0,
 
   /** Fields a settlement must work before it builds a windmill to grind what they grow. */
-  val windmillMinFields: Int = 3
+  val windmillMinFields: Int = 3,
+
+  /** Mean metres of road between two abandoned camps, where travellers stopped for the night. */
+  val campSpacing: Double = 4_000.0,
+
+  /** Metres a camp keeps from a settlement's edge: nobody camps within sight of a bed. */
+  val campSettlementClearance: Double = 2_500.0
 ) : Params {
 
   init {
@@ -96,6 +102,7 @@ data class DressingParams(
     require(outcropShare in 0.0..1.0) { "outcropShare must be in [0,1]" }
     require(cemeteryMaxSide >= cemeteryBaseSide && cemeteryBaseSide > 0.0) { "cemetery sides are inverted" }
     require(windmillMinFields >= 0) { "windmillMinFields must not be negative" }
+    require(campSpacing > 0.0 && campSettlementClearance >= 0.0) { "camp spacing must be positive" }
   }
 
   override fun digest() = ParamsDigest()
@@ -110,6 +117,8 @@ data class DressingParams(
     .put("cemeteryBaseSide", cemeteryBaseSide)
     .put("cemeteryMaxSide", cemeteryMaxSide)
     .put("windmillMinFields", windmillMinFields)
+    .put("campSpacing", campSpacing)
+    .put("campSettlementClearance", campSettlementClearance)
 }
 
 /**
@@ -143,7 +152,7 @@ class DressingStage(
 
   override val id = ID
 
-  override val version = 1
+  override val version = 2
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, FixtureKind.catalogueDigest())
 
@@ -178,6 +187,7 @@ class DressingStage(
     milestones(ctx, world, out)
     cairns(ctx, world, out)
     inns(ctx, world, out)
+    camps(ctx, world, out)
     outcrops(ctx, world, out)
 
     return StageResult(features = out.features)
@@ -883,6 +893,43 @@ class DressingStage(
     }
   }
 
+  /**
+   * A cold fire ring beside a road out in the wild, about every [DressingParams.campSpacing] metres.
+   *
+   * Treasure caches gather around these, which is why they stand where a traveller would stop rather than at random.
+   */
+  private fun camps(ctx: GenContext, world: World, out: Out) {
+    for (road in world.roads) {
+      val roadClass = RoadClass.of(road) ?: continue
+      val line = road.centerline
+      val count = (line.length / CAMP_STEP).toInt()
+      var nextCamp = campGap(ctx, road.id.value, 0)
+      for (k in 1 until count) {
+        val s = k * CAMP_STEP
+        if (s < nextCamp) continue
+        val point = line.pointAt(s)
+        if (world.settlementNear(point, params.campSettlementClearance) != null) continue
+
+        val h = GenRng.hash(ctx.seed, id.hash, CAMP_SALT, road.id.value, k.toLong())
+        val tangent = line.tangentAt(s)
+        val normal = Vec2d(-tangent.y, tangent.x)
+        val side = if (GenRng.unit(h) < 0.5) 1.0 else -1.0
+        val offset = roadClass.halfWidth + CAMP_SETBACK_MIN + (CAMP_SETBACK_MAX - CAMP_SETBACK_MIN) * GenRng.unit(GenRng.mix64(h + 1))
+        val spot = point + normal * (side * offset)
+        if (!world.isClear(spot, CAMP_RADIUS)) continue
+
+        out.fixture(FixtureKind.CAMP, spot, yaw = 2.0 * PI * GenRng.unit(GenRng.mix64(h + 2)))
+        nextCamp = s + campGap(ctx, road.id.value, k)
+      }
+    }
+  }
+
+  /** Road metres to the next camp: the mean spacing, give or take half of it. */
+  private fun campGap(ctx: GenContext, road: Long, k: Int): Double {
+    val u = GenRng.unit(GenRng.hash(ctx.seed, id.hash, CAMP_GAP_SALT, road, k.toLong()))
+    return params.campSpacing * (0.5 + u)
+  }
+
   /** Rock outcrops on the tops of hills in dry and upland country. */
   private fun outcrops(ctx: GenContext, world: World, out: Out) {
     for (hill in world.knolls) {
@@ -985,7 +1032,14 @@ class DressingStage(
     private const val INN_HALF_LENGTH = 7.0
     private const val INN_HALF_WIDTH = 5.0
 
+    private const val CAMP_STEP = 100.0
+    private const val CAMP_SETBACK_MIN = 8.0
+    private const val CAMP_SETBACK_MAX = 20.0
+    private const val CAMP_RADIUS = 2.5
+
     private const val PIER_SALT = 0x50494552L
+    private const val CAMP_SALT = 0x43414D50L
+    private const val CAMP_GAP_SALT = 0x43474150L
     private const val BOAT_SALT = 0x424F4154L
     private const val WELL_SALT = 0x57454C4CL
     private const val MILL_SALT = 0x4D494C4CL
