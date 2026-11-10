@@ -13,7 +13,6 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.spoor.ActorSignatureSystem
 import net.bestia.zone.travel.knowledge.Knower
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.world.anchor.AnchorPriority
 import net.bestia.zone.world.anchor.SimulationAnchor
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component as SpringComponent
@@ -98,7 +97,7 @@ class TravelSystem(
   private fun end(world: World, id: EntityId, journey: Journey, failure: JourneyFailure?) {
     world.remove(id, Journey::class)
     if (failure != null) world.remove(id, Path::class)
-    world.get(id, SimulationAnchor::class)?.priority = AnchorPriority.RESTING
+    world.get(id, SimulationAnchor::class)?.let { it.priority = it.atRest }
 
     val position = world.getOrThrow(id, Position::class).toVec3L()
     val accountId = world.get(id, Account::class)?.accountId

@@ -8,5 +8,8 @@ import net.bestia.zone.ecs.core.Component
  */
 class SimulationAnchor(
   /** Raised while the entity travels, so a capped server keeps simulating the ones on the move. */
-  var priority: AnchorPriority = AnchorPriority.RESTING
+  var priority: AnchorPriority = AnchorPriority.RESTING,
+
+  /** What [priority] falls back to once a journey ends: [AnchorPriority.WORKER] for a bestia at work. */
+  var atRest: AnchorPriority = AnchorPriority.RESTING
 ) : Component

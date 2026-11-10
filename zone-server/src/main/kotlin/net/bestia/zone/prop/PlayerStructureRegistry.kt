@@ -32,7 +32,10 @@ data class StructureEntry(
   val queue: List<QueueEntry> = emptyList(),
 
   /** Item id -> amount paid into a station for its queue and not used yet. */
-  val held: Map<Long, Int> = emptyMap()
+  val held: Map<Long, Int> = emptyMap(),
+
+  /** The player bestia that works a station's queue, or null when its owner does. */
+  val workerBestiaId: Long? = null
 ) {
 
   val isUnderConstruction: Boolean
@@ -180,6 +183,23 @@ class PlayerStructureRegistry(
     }
   }
 
+  fun setWorker(structureId: Long, workerBestiaId: Long?) {
+    val current = byId[structureId] ?: return
+    reindex(current.copy(workerBestiaId = workerBestiaId))
+
+    asyncJobExecutor.submit(structureId) {
+      repository.findById(structureId).ifPresent { row ->
+        row.workerBestiaId = workerBestiaId
+        repository.save(row)
+      }
+    }
+  }
+
+  /** The station [playerBestiaId] works at, if any. */
+  fun workplaceOf(playerBestiaId: Long): StructureEntry? {
+    return byId.values.firstOrNull { it.workerBestiaId == playerBestiaId }
+  }
+
   /**
    * Turns a site into a standing structure. Idempotent, and a no-op for one that was never a site.
    *
@@ -229,7 +249,8 @@ class PlayerStructureRegistry(
       val entry = StructureEntry(
         row.id, row.kind, row.ownerMasterId, row.ownerAccountId, Vec3L(row.x, row.y, row.z), row.yaw,
         row.totalBuildSeconds, row.remainingBuildSeconds, row.burnsOutAt,
-        StationContents.decodeQueue(row.stationQueue), StationContents.decodeHeld(row.stationHeld)
+        StationContents.decodeQueue(row.stationQueue), StationContents.decodeHeld(row.stationHeld),
+        row.workerBestiaId
       )
       index(row.chunkX, row.chunkY, entry)
     }
