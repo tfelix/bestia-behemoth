@@ -409,6 +409,10 @@ enum OpError {
   TRADE_POST_LIMIT = 324;
   // The town needs a working post office first.
   TRADE_POST_NEEDS_POST_OFFICE = 325;
+  // Somebody bid at least as much in the meantime. The board shows the new least bid.
+  AUCTION_BID_TOO_LOW = 326;
+  // An auction with a bid on it cannot be taken down.
+  AUCTION_HAS_BIDS = 327;
 }
 
 message OperationError {

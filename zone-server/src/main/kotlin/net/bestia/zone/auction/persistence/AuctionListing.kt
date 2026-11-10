@@ -12,6 +12,7 @@ import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
+import kotlin.math.ceil
 import net.bestia.zone.auction.AuctionCategory
 import net.bestia.zone.item.persistence.ItemContainer
 import org.hibernate.annotations.JdbcTypeCode
@@ -51,7 +52,7 @@ class AuctionListing(
   @Column(nullable = false)
   val category: AuctionCategory,
 
-  /** Coins for the whole lot. */
+  /** Coins for the whole lot: the fixed price, or an auction's starting bid. */
   @Column(nullable = false)
   val price: Long,
 
@@ -65,6 +66,14 @@ class AuctionListing(
   @Column(name = "expires_at", nullable = false)
   val expiresAt: Instant,
 
+  /** A timed auction rather than a fixed price; it goes to the highest bid when [expiresAt] comes. */
+  @Column(name = "is_auction", nullable = false)
+  val isAuction: Boolean = false,
+
+  /** A bid of this much ends the auction at once. */
+  @Column
+  val buyout: Long? = null,
+
   @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
   @JoinColumn(name = "container_id", nullable = false)
   val container: ItemContainer,
@@ -73,4 +82,22 @@ class AuctionListing(
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   val id: Long = 0
+
+  /** The highest bid, whose coin the house holds until it is outbid or wins. */
+  @Column(name = "current_bid")
+  var currentBid: Long? = null
+
+  @Column(name = "bidder_master_id")
+  var bidderMasterId: Long? = null
+
+  /** The least the next bid may be: the starting bid, then 5% over the current one and at least one coin more. */
+  val nextMinBid: Long
+    get() {
+      val bid = currentBid ?: return price
+      return bid + maxOf(1L, ceil(bid * MIN_RAISE).toLong())
+    }
+
+  companion object {
+    const val MIN_RAISE = 0.05
+  }
 }

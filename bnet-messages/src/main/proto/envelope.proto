@@ -131,6 +131,7 @@ import "messages/auction/auction_purchased_smsg.proto";
 import "messages/auction/set_auction_fee_cmsg.proto";
 import "messages/auction/collect_auction_till_cmsg.proto";
 import "messages/auction/tear_down_auction_house_cmsg.proto";
+import "messages/auction/bid_auction_cmsg.proto";
 import "messages/settlement/plan_settlement_cmsg.proto";
 import "messages/settlement/settlement_planned_smsg.proto";
 import "messages/settlement/settlement_sign_smsg.proto";
@@ -406,6 +407,7 @@ message Envelope {
     SetAuctionFeeCMSG set_auction_fee = 960;
     CollectAuctionTillCMSG collect_auction_till = 961;
     TearDownAuctionHouseCMSG tear_down_auction_house = 962;
+    BidAuctionCMSG bid_auction = 963;
 
     // MISC
   }

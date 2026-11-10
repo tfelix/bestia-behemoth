@@ -1,6 +1,7 @@
 package net.bestia.zone.auction.net
 
 import net.bestia.bnet.proto.ListAuctionItemCmsgProto
+import net.bestia.zone.auction.ListingTerms
 import net.bestia.zone.message.CMSG
 
 data class ListAuctionItemCMSG(
@@ -8,7 +9,7 @@ data class ListAuctionItemCMSG(
   val houseEntityId: Long,
   val playerItemId: Long,
   val amount: Int,
-  val price: Long,
+  val terms: ListingTerms,
 ) : CMSG {
 
   companion object {
@@ -18,7 +19,7 @@ data class ListAuctionItemCMSG(
         houseEntityId = msg.houseEntityId,
         playerItemId = msg.playerItemId,
         amount = msg.amount,
-        price = msg.price,
+        terms = ListingTerms(msg.price, msg.durationDays, msg.buyout.takeIf { it > 0 }),
       )
     }
   }

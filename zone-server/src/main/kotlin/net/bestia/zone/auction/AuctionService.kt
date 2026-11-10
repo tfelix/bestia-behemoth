@@ -19,6 +19,7 @@ import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.ecs.grantToLive
 import net.bestia.zone.item.ecs.takeFromLive
+import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.message.OperationErrorSMSG
@@ -62,8 +63,9 @@ class AuctionService(
   private val basicSkill: BasicSkillGate? = null,
 ) {
 
-  fun list(accountId: AccountId, houseEntityId: Long, playerItemId: Long, amount: Int, price: Long) {
+  fun list(accountId: AccountId, houseEntityId: Long, playerItemId: Long, amount: Int, terms: ListingTerms) {
     if (basicSkill?.mayUseTradePosts(accountId) == false) return deny(accountId, OpError.BASIC_SKILL_TRADE_POST_LOCKED)
+    val price = terms.price
     val masterId = connectionInfoService.getMasterId(accountId)
     val masterEntityId = connectionInfoService.getSelectedMasterEntityId(accountId)
     val at = openHouseInReach(accountId, houseEntityId) ?: return
@@ -75,7 +77,8 @@ class AuctionService(
       get(masterEntityId, Inventory::class)?.byPlayerItemId(playerItemId)
         ?.takeUnless { it.equipped || worn?.isWorn(it.uniqueId) == true }
     }
-    if (held == null || held.itemId == coinId || amount <= 0 || held.amount < amount || price <= 0 || price > MAX_PRICE) {
+    val isPossible = held != null && held.itemId != coinId && amount in 1..held.amount && price in 1..MAX_PRICE && terms.isValid
+    if (held == null || !isPossible) {
       LOG.warn { "Master $masterId sent an impossible listing: item $playerItemId x$amount for $price" }
       return deny(accountId, OpError.REQUEST_REFUSED)
     }
@@ -87,11 +90,11 @@ class AuctionService(
       return deny(accountId, OpError.AUCTION_LISTING_LIMIT)
     }
 
-    val listingFee = AuctionFees.listingFee(price)
+    val listingFee = AuctionFees.listingFee(price, terms.days)
     val ownerFee = AuctionFees.ownerFee(price, (at as? AuctionHouses.At.Player)?.house?.feePercent ?: 0)
     val fee = listingFee + ownerFee
     val listed = transactions.execute { status ->
-      escrow(masterId, held, amount, price, fee, coinId, at).also { if (it is Refused) status.setRollbackOnly() }
+      escrow(masterId, held, amount, terms, fee, coinId, at).also { if (it is Refused) status.setRollbackOnly() }
     }
 
     if (listed !is Listed) {
@@ -136,15 +139,17 @@ class AuctionService(
     val sellerId = connectionInfoService.getMasterId(accountId)
     houseInReach(accountId, houseEntityId) ?: return deny(accountId, OpError.AUCTION_OUT_OF_RANGE)
 
-    val returned = transactions.execute {
+    val outcome = transactions.execute {
       val listing = listings.findLockedById(listingId)?.takeIf { it.sellerMasterId == sellerId }
-        ?: return@execute null
+        ?: return@execute Refused(OpError.AUCTION_LISTING_GONE)
+      if (listing.currentBid != null) return@execute Refused(OpError.AUCTION_HAS_BIDS)
       val goods = inventoryService.moveFromEscrow(listing.container, sellerId)
       listings.delete(listing)
-      goods
-    } ?: return deny(accountId, OpError.AUCTION_LISTING_GONE)
+      Bought(goods, price = 0)
+    }
+    if (outcome !is Bought) return deny(accountId, (outcome as? Refused)?.code ?: OpError.REQUEST_REFUSED)
 
-    world.grantToLive(connectionInfoService.getSelectedMasterEntityId(accountId), returned)
+    world.grantToLive(connectionInfoService.getSelectedMasterEntityId(accountId), outcome.goods)
 
     search(accountId, AuctionQuery(houseEntityId, null, 0, 0, emptyList(), mine = true, page = 0))
   }
@@ -170,15 +175,17 @@ class AuctionService(
         pageable = PageRequest.of(query.page.coerceAtLeast(0), PAGE_SIZE),
       )
 
-      AuctionListingsSMSG(found.number, found.totalPages, query.mine, found.content.map(::rowOf))
+      val viewerId = connectionInfoService.getMasterId(accountId)
+      AuctionListingsSMSG(found.number, found.totalPages, query.mine, found.content.map { rowOf(it, viewerId) })
     }
 
     page?.let { outMessageProcessor.sendToPlayer(accountId, it) }
   }
 
   private fun escrow(
-    masterId: Long, held: Inventory.Item, amount: Int, price: Long, fee: Long, coinId: Long, at: AuctionHouses.At,
+    masterId: Long, held: Inventory.Item, amount: Int, terms: ListingTerms, fee: Long, coinId: Long, at: AuctionHouses.At,
   ): Outcome {
+    val price = terms.price
     val itemId = held.itemId
     val item = itemRepository.findByIdOrNull(itemId) ?: return Refused(OpError.REQUEST_REFUSED)
 
@@ -201,8 +208,10 @@ class AuctionService(
         price = price,
         townName = at.townName,
         houseStructureId = (at as? AuctionHouses.At.Player)?.house?.structureId,
-        expiresAt = clock.instant().plus(FIXED_PRICE_DURATION),
+        expiresAt = clock.instant().plus(if (terms.isAuction) Duration.ofDays(terms.days.toLong()) else FIXED_PRICE_DURATION),
         container = container,
+        isAuction = terms.isAuction,
+        buyout = terms.buyout,
       )
     )
 
@@ -216,13 +225,68 @@ class AuctionService(
   }
 
   /**
-   * Goods whose listing ran out unsold go back to their seller's mailbox, as the sale's coins do. The fee does not
-   * come back, as the docs say of any listing that did not sell.
+   * Bids on a timed auction. The coin leaves the bidder's bag at once and the house holds it; the bid it beats goes
+   * back to its bidder by post. A bid of the buyout ends the auction there and then.
    */
-  @Scheduled(fixedDelay = 5 * 60 * 1000L)
+  fun bid(accountId: AccountId, houseEntityId: Long, listingId: Long, amount: Long) {
+    val bidderId = connectionInfoService.getMasterId(accountId)
+    val at = openHouseInReach(accountId, houseEntityId) ?: return
+    val coinId = commodityItems.coinItemId() ?: return deny(accountId, OpError.REQUEST_REFUSED)
+
+    val outcome = transactions.execute { status ->
+      placeBid(bidderId, listingId, amount, coinId, at).also { if (it is Refused) status.setRollbackOnly() }
+    }
+    if (outcome !is BidPlaced) {
+      deny(accountId, (outcome as? Refused)?.code ?: OpError.REQUEST_REFUSED)
+      return search(accountId, AuctionQuery(houseEntityId, null, 0, 0, emptyList(), mine = false, page = 0))
+    }
+
+    world.takeFromLive(connectionInfoService.getSelectedMasterEntityId(accountId), ReservedItem.stack(coinId, outcome.paid.toInt(), weight = 0))
+    search(accountId, AuctionQuery(houseEntityId, null, 0, 0, emptyList(), mine = false, page = 0))
+  }
+
+  private fun placeBid(bidderId: Long, listingId: Long, amount: Long, coinId: Long, at: AuctionHouses.At): Outcome {
+    val listing = listings.findLockedById(listingId)
+      ?.takeIf { it.isAuction && shownAt(at).shows(it) && it.expiresAt.isAfter(clock.instant()) }
+      ?: return Refused(OpError.AUCTION_LISTING_GONE)
+    if (listing.sellerMasterId == bidderId || listing.bidderMasterId == bidderId) return Refused(OpError.REQUEST_REFUSED)
+
+    val bid = listing.buyout?.let { minOf(amount, it) } ?: amount
+    if (bid < listing.nextMinBid || bid > MAX_PRICE) return Refused(OpError.AUCTION_BID_TOO_LOW)
+
+    if (!inventoryService.consumeAll(bidderId, listOf(coinId to bid.toInt()))) {
+      return Refused(OpError.AUCTION_CANNOT_AFFORD)
+    }
+
+    val coin = itemRepository.findByIdOrNull(coinId) ?: return Refused(OpError.REQUEST_REFUSED)
+    val outbid = listing.bidderMasterId
+    val outbidAmount = listing.currentBid
+    if (outbid != null && outbidAmount != null) {
+      parcels.postInstant(outbid, SENDER_NAME) { it.addStackable(coin, outbidAmount.toInt()) }
+    }
+
+    listing.currentBid = bid
+    listing.bidderMasterId = bidderId
+    if (bid == listing.buyout) settle(listing, coin)
+
+    return BidPlaced(bid)
+  }
+
+  /**
+   * Listings whose time ran out: an auction with a bid goes to its highest bidder, everything else goes back to its
+   * seller's mailbox. The fee does not come back, as the docs say of any listing that did not sell.
+   */
+  @Scheduled(fixedDelay = 60 * 1000L)
   fun returnExpired() {
     transactions.execute {
       for (listing in listings.findByExpiresAtBefore(clock.instant())) {
+        // Asked only once something is due: the first run comes before the items are imported, and the coin's id
+        // is resolved once, for good.
+        val coin = listing.bidderMasterId?.let { commodityItems.coinItemId() }?.let { itemRepository.findByIdOrNull(it) }
+        if (coin != null) {
+          settle(listing, coin)
+          continue
+        }
         parcels.postInstant(listing.sellerMasterId, SENDER_NAME) { parcel ->
           inventoryService.moveBetweenEscrows(listing.container, parcel)
         }
@@ -231,13 +295,23 @@ class AuctionService(
     }
   }
 
+  /** Inside a transaction: the winner gets the goods and the seller the winning bid, both by post. */
+  private fun settle(listing: AuctionListing, coin: Item) {
+    val winner = listing.bidderMasterId ?: return
+    val bid = listing.currentBid ?: return
+
+    parcels.postInstant(winner, SENDER_NAME) { parcel -> inventoryService.moveBetweenEscrows(listing.container, parcel) }
+    parcels.postInstant(listing.sellerMasterId, SENDER_NAME) { it.addStackable(coin, bid.toInt()) }
+    listings.delete(listing)
+  }
+
   /** The seller is paid by post: they are rarely standing at a house when somebody buys. */
   private fun purchase(buyerId: Long, listingId: Long, coinId: Long, at: AuctionHouses.At): Outcome {
     val listing = listings.findLockedById(listingId)
       ?.takeIf { shownAt(at).shows(it) }
       ?: return Refused(OpError.AUCTION_LISTING_GONE)
 
-    if (listing.sellerMasterId == buyerId) {
+    if (listing.sellerMasterId == buyerId || listing.isAuction) {
       return Refused(OpError.REQUEST_REFUSED)
     }
 
@@ -254,7 +328,7 @@ class AuctionService(
     return Bought(goods, listing.price)
   }
 
-  private fun rowOf(listing: AuctionListing): AuctionListingsSMSG.Row {
+  private fun rowOf(listing: AuctionListing, viewerId: Long): AuctionListingsSMSG.Row {
     return AuctionListingsSMSG.Row(
       listingId = listing.id,
       goods = ReservedItem.of(listing.container.slots.single(), listing.itemLevel),
@@ -262,6 +336,11 @@ class AuctionService(
       sellerName = listing.sellerName,
       townName = listing.townName,
       expiresAt = listing.expiresAt,
+      bid = if (listing.isAuction) {
+        AuctionListingsSMSG.Bid(listing.currentBid ?: 0, listing.nextMinBid, listing.buyout ?: 0, listing.bidderMasterId == viewerId)
+      } else {
+        null
+      },
     )
   }
 
@@ -310,6 +389,7 @@ class AuctionService(
   private data class Listed(val goods: ReservedItem) : Outcome
   private data class Bought(val goods: List<ReservedItem>, val price: Long) : Outcome
   private data class Refused(val code: OpError) : Outcome
+  private data class BidPlaced(val paid: Long) : Outcome
 
   companion object {
     private val LOG = KotlinLogging.logger { }

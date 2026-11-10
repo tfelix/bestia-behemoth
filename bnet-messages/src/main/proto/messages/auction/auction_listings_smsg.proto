@@ -37,4 +37,15 @@ message AuctionListing {
   int32 max_durability = 11;
   int32 slots = 12;
   repeated ItemStatValue rolled_stats = 13;
+
+  // A timed auction rather than a fixed price; price is then its starting bid.
+  bool is_auction = 14;
+  // The highest bid so far; 0 before the first.
+  int64 current_bid = 15;
+  // The least the next bid may be.
+  int64 next_min_bid = 16;
+  // 0 for none.
+  int64 buyout = 17;
+  // Whether the receiver holds the highest bid.
+  bool leading = 18;
 }

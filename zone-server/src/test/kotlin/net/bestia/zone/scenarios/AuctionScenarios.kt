@@ -8,9 +8,11 @@ import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.auction.AuctionCategory
 import net.bestia.zone.auction.AuctionPurchasedSMSG
 import net.bestia.zone.auction.AuctionFees
+import net.bestia.zone.auction.ListingTerms
 import net.bestia.zone.auction.AuctionListingsSMSG
 import net.bestia.zone.auction.AuctionQuery
 import net.bestia.zone.auction.AuctionService
+import net.bestia.zone.auction.net.BidAuctionCMSG
 import net.bestia.zone.auction.net.BuyAuctionListingCMSG
 import net.bestia.zone.auction.net.CancelAuctionListingCMSG
 import net.bestia.zone.auction.net.ListAuctionItemCMSG
@@ -155,7 +157,7 @@ class AuctionScenarios : BestiaNoSocketScenario() {
     val coinsBefore = liveAmount(coin)
     val reserveBefore = world.read { reserve.available() }
 
-    clientPlayer1.sendMessage(ListAuctionItemCMSG(player, house, heldPileOf(apple, 3), amount = 3, price = price))
+    clientPlayer1.sendMessage(ListAuctionItemCMSG(player, house, heldPileOf(apple, 3), amount = 3, terms = ListingTerms(price)))
 
     val mine = awaitListings { it.mine }
     val listed = mine.listings.single()
@@ -177,7 +179,7 @@ class AuctionScenarios : BestiaNoSocketScenario() {
     val apple = itemRepository.findByIdentifierOrThrow("apple").id
     grant(apple, 1)
     grant(commodityItems.coinItemId()!!, 10)
-    clientPlayer1.sendMessage(ListAuctionItemCMSG(player, house, heldPileOf(apple, 1), amount = 1, price = 50L))
+    clientPlayer1.sendMessage(ListAuctionItemCMSG(player, house, heldPileOf(apple, 1), amount = 1, terms = ListingTerms(50L)))
     awaitListings { it.mine }
 
     assertEquals(1, search(AuctionCategory.CONSUMABLE, itemIds = emptyList()).listings.size)
@@ -193,7 +195,7 @@ class AuctionScenarios : BestiaNoSocketScenario() {
     val coins = liveAmount(commodityItems.coinItemId()!!)
 
     clientPlayer1.sendMessage(
-      ListAuctionItemCMSG(player, house, heldPileOf(apple, 1), amount = 1, price = (coins + 1) * 100L)
+      ListAuctionItemCMSG(player, house, heldPileOf(apple, 1), amount = 1, terms = ListingTerms((coins + 1) * 100L))
     )
 
     val error = awaitValue { assertNotNull(clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class)) }
@@ -252,6 +254,48 @@ class AuctionScenarios : BestiaNoSocketScenario() {
     assertEquals(apple to 2, mailOf(player).single().first)
   }
 
+  @Test
+  fun `an auction goes to its highest bid when its time runs out`() {
+    val apple = itemRepository.findByIdentifierOrThrow("apple").id
+    val coin = commodityItems.coinItemId()!!
+    val listingId = listApples(amount = 2, price = 40L, terms = ListingTerms(40L, days = 1))
+    grant(coin, 50, buyer)
+    val buyerCoins = durableAmount(coin, buyer)
+
+    clientPlayer2.sendMessage(BidAuctionCMSG(buyer, buyersHouse, listingId, amount = 45L))
+
+    await { assertEquals(buyerCoins - 45, durableAmount(coin, buyer)) }
+    TransactionTemplate(transactionManager).execute {
+      entityManager.createQuery("UPDATE AuctionListing l SET l.expiresAt = :past WHERE l.id = :id")
+        .setParameter("past", Instant.now().minusSeconds(60))
+        .setParameter("id", listingId)
+        .executeUpdate()
+    }
+    auctionService.returnExpired()
+
+    assertEquals(0L, listings.count())
+    assertEquals(apple to 2, mailOf(buyer).single().first)
+    assertEquals(coin to 45, mailOf(player).single().first)
+  }
+
+  @Test
+  fun `a bid below the next least bid is refused and a buyout ends the auction at once`() {
+    val apple = itemRepository.findByIdentifierOrThrow("apple").id
+    val coin = commodityItems.coinItemId()!!
+    val listingId = listApples(amount = 1, price = 40L, terms = ListingTerms(40L, days = 2, buyout = 100L))
+    grant(coin, 200, buyer)
+
+    clientPlayer2.sendMessage(BidAuctionCMSG(buyer, buyersHouse, listingId, amount = 39L))
+    val error = awaitValue { assertNotNull(clientPlayer2.tryGetLastReceived(OperationErrorSMSG::class)) }
+    assertEquals(OpError.AUCTION_BID_TOO_LOW, error.code)
+
+    clientPlayer2.sendMessage(BidAuctionCMSG(buyer, buyersHouse, listingId, amount = 500L))
+
+    await { assertEquals(0L, listings.count()) }
+    assertEquals(apple to 1, mailOf(buyer).single().first)
+    assertEquals(coin to 100, mailOf(player).single().first, "a bid over the buyout pays the buyout")
+  }
+
   /** Each parcel to [accountId]'s master: its one pile, and whether it may be collected anywhere. */
   private fun mailOf(accountId: Long): List<Pair<Pair<Long, Int>, Boolean>> {
     return TransactionTemplate(transactionManager).execute {
@@ -289,14 +333,14 @@ class AuctionScenarios : BestiaNoSocketScenario() {
   }
 
   /** @return the new listing's id */
-  private fun listApples(amount: Int, price: Long): Long {
+  private fun listApples(amount: Int, price: Long, terms: ListingTerms = ListingTerms(price)): Long {
     val apple = itemRepository.findByIdentifierOrThrow("apple").id
     grant(apple, amount)
-    grant(commodityItems.coinItemId()!!, AuctionFees.listingFee(price).toInt())
+    grant(commodityItems.coinItemId()!!, AuctionFees.listingFee(price, terms.days).toInt())
     clientPlayer1.clearMessages()
 
     val pile = heldPileOf(apple, amount)
-    clientPlayer1.sendMessage(ListAuctionItemCMSG(player, house, pile, amount = amount, price = price))
+    clientPlayer1.sendMessage(ListAuctionItemCMSG(player, house, pile, amount = amount, terms = terms))
 
     return awaitListings { it.mine && it.listings.isNotEmpty() }.listings.single().listingId
   }

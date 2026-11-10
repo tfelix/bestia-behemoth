@@ -3,6 +3,7 @@ package net.bestia.zone.scenarios
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.auction.AuctionFees
+import net.bestia.zone.auction.ListingTerms
 import net.bestia.zone.auction.AuctionListingsSMSG
 import net.bestia.zone.auction.PlayerHouses
 import net.bestia.zone.auction.net.ListAuctionItemCMSG
@@ -139,7 +140,7 @@ class PlayerAuctionHouseScenarios : BestiaNoSocketScenario() {
     grant(commodityItems.coinItemId()!!, fee.toInt())
     clientPlayer1.clearMessages()
 
-    clientPlayer1.sendMessage(ListAuctionItemCMSG(player, house, heldPileOf(apple, 2), amount = 2, price = price))
+    clientPlayer1.sendMessage(ListAuctionItemCMSG(player, house, heldPileOf(apple, 2), amount = 2, terms = ListingTerms(price)))
 
     await {
       val page = assertNotNull(clientPlayer1.tryGetLastReceived(AuctionListingsSMSG::class))
