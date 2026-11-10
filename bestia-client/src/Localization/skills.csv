@@ -42,9 +42,9 @@ curse that halves DEX and INT instead.
 `+4/lv` HIT
 `+3/lv` ATK and MATK
 `40s + 40s/lv` duration"
-SKILL_8_DESC,"Apply bandages to yourself or to a friendly Bestia or master and channel a healing effect
-over 10s. The cooldown of this skill is 3 minutes. A target can only receive a single
-First Aid every 60 secs.
+SKILL_8_DESC,"Put a bandage on yourself or on a friendly Bestia or master, then channel a healing effect
+over 10s, a pulse every 2s. A hit breaks the channel. The cooldown of this skill is 3
+minutes. A target can only receive a single First Aid every 60 secs.
 
 Whichever is smaller, a share of the maximum health of the target or a flat amount:
 Lv.1 `+30%` max HP or `+100 HP`, 12 mana

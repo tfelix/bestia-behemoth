@@ -1,5 +1,6 @@
 package net.bestia.zone.auction
 
+import net.bestia.zone.skill.BasicSkillGate
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.account.persistence.MasterRepository
@@ -54,9 +55,11 @@ class AuctionService(
   private val transactions: TransactionTemplate,
   private val itemTemplates: ItemTemplateRegistry,
   private val clock: Clock = Clock.systemUTC(),
+  private val basicSkill: BasicSkillGate? = null,
 ) {
 
   fun list(accountId: AccountId, houseEntityId: Long, playerItemId: Long, amount: Int, price: Long) {
+    if (basicSkill?.mayUseTradePosts(accountId) == false) return deny(accountId, OpError.BASIC_SKILL_TRADE_POST_LOCKED)
     val masterId = connectionInfoService.getMasterId(accountId)
     val masterEntityId = connectionInfoService.getSelectedMasterEntityId(accountId)
     val town = townInReach(accountId, houseEntityId) ?: return deny(accountId, OpError.AUCTION_OUT_OF_RANGE)
@@ -100,6 +103,7 @@ class AuctionService(
   }
 
   fun buy(accountId: AccountId, houseEntityId: Long, listingId: Long) {
+    if (basicSkill?.mayUseTradePosts(accountId) == false) return deny(accountId, OpError.BASIC_SKILL_TRADE_POST_LOCKED)
     val buyerId = connectionInfoService.getMasterId(accountId)
     townInReach(accountId, houseEntityId) ?: return deny(accountId, OpError.AUCTION_OUT_OF_RANGE)
     val coinId = commodityItems.coinItemId() ?: return deny(accountId, OpError.REQUEST_REFUSED)

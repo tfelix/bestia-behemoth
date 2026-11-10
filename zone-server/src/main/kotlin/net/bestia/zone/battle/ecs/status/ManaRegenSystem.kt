@@ -1,5 +1,9 @@
 package net.bestia.zone.battle.ecs.status
 
+import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.skill.ecs.KnownSkills
+import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.battle.status.RegenerationCalculator
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -17,7 +21,8 @@ import org.springframework.stereotype.Component as SpringComponent
  */
 @SpringComponent
 class ManaRegenSystem(
-  private val regenerationCalculator: RegenerationCalculator
+  private val regenerationCalculator: RegenerationCalculator,
+  private val sittingRecovery: SittingRecovery? = null,
 ) : System {
   override val phase = Phase.RECOVERY
 
@@ -26,7 +31,9 @@ class ManaRegenSystem(
     CombatStats::class,
     InCombat::class,
     Dead::class,
-    RegenerationModifiers::class
+    RegenerationModifiers::class,
+    // Sitting recovery asks the pose and the master's Basic Skill.
+    Animation::class, KnownSkills::class, Master::class, OwnedBestia::class
   )
   override val writes: ComponentClassSet = setOf(Mana::class)
 
@@ -46,7 +53,8 @@ class ManaRegenSystem(
 
       val base = regenerationCalculator.manaRegen(mana.max, intelligence)
 
-      mana.current += regenerationCalculator.applyModifier(base, modifier)
+      val sitting = sittingRecovery?.factorOf(world, id) ?: 1
+      mana.current += regenerationCalculator.applyModifier(base, modifier) * sitting
     }
   }
 }

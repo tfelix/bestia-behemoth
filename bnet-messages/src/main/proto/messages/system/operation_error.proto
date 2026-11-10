@@ -348,6 +348,10 @@ enum OpError {
   CHEST_NOT_YOURS = 136;
   // The chest is too far away to reach into. The player walks up to it.
   CHEST_OUT_OF_REACH = 137;
+  // Listing and buying at a trade post needs Basic Skill 3. Browsing does not.
+  BASIC_SKILL_TRADE_POST_LOCKED = 138;
+  // A skill whose cast uses up an item (a bandage, a crystal) was started without one in the bag.
+  SKILL_MISSING_REAGENT = 139;
 }
 
 message OperationError {

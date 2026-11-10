@@ -438,14 +438,25 @@ func _tree_has_trunk(tree: String) -> bool:
 	return false
 
 
-## Why a whole tree is still closed, or empty once it is open: every tree but Novice waits for Basic Skill.
+## Why a whole tree is closed, or empty while it is open: every tree but Novice waits for Basic Skill, and Novice
+## closes for good with the first point spent anywhere else - mirrors MasterSkillTreeService.nextLevel.
 func _tree_lock_note(tree: String, levels: Dictionary) -> String:
-	if not _is_master_view or tree == NO_TREE or tree == NOVICE_TREE:
+	if not _is_master_view or tree == NO_TREE:
 		return ""
+	if tree == NOVICE_TREE:
+		return tr("SKILLS_NOVICE_CLOSED") if _has_invested_outside_novice(levels) else ""
 	var basic: int = levels.get(BASIC_SKILL_ID, 0)
 	if basic >= TREE_UNLOCK_BASIC_SKILL_LEVEL:
 		return ""
 	return tr("SKILLS_TREE_LOCKED") % [_skill_name(BASIC_SKILL_ID), TREE_UNLOCK_BASIC_SKILL_LEVEL, basic]
+
+
+func _has_invested_outside_novice(levels: Dictionary) -> bool:
+	for id in _skill_ids:
+		var tree := _tree_of(id)
+		if tree != NOVICE_TREE and tree != NO_TREE and levels.get(id, 0) > 0:
+			return true
+	return false
 
 
 ## Why a sub-tree is still closed, or empty once it is open: it needs points in its tree first.
