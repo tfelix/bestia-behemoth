@@ -45,13 +45,23 @@ class CrafterProfiles(
 
   /** The crafter [workerId] is for its absent master, or null while what the master knows is still loading. */
   fun crafterFor(world: World, workerId: EntityId, masterId: Long): Crafters.Crafter? {
-    val knowledge = byMaster[masterId]
-    if (knowledge == null) {
-      load(masterId)
-      return null
-    }
+    val knowledge = knowledgeOrLoad(masterId) ?: return null
 
     return crafters.ofAbsentMaster(world, workerId, knowledge.master, knowledge.skills, knowledge.blueprints)
+  }
+
+  /** What [masterId] knows, with nobody to work it yet, or null while it is still loading. */
+  fun knowledgeOf(masterId: Long): Crafters.Crafter? {
+    val knowledge = knowledgeOrLoad(masterId) ?: return null
+
+    return crafters.Crafter(knowledge.master, null, knowledge.skills, knowledge.blueprints)
+  }
+
+  private fun knowledgeOrLoad(masterId: Long): Knowledge? {
+    val knowledge = byMaster[masterId]
+    if (knowledge == null) load(masterId)
+
+    return knowledge
   }
 
   private fun load(masterId: Long) {

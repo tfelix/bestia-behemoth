@@ -17,6 +17,7 @@ import net.bestia.zone.scenarios.ScenarioDataSetup
 import net.bestia.zone.util.PlayerBestiaId
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -258,6 +259,35 @@ class InventoryServiceTransferTest {
 
     assertEquals(ownerBefore, held(owner, null, "apple"))
     assertEquals(0, heldInChest(strangersChest.structureId, "apple"))
+  }
+
+  @Test
+  fun `a station's ingredients leave the master and its chest together, or not at all`() {
+    val master = masterA()
+    val chest = ItemHolder.Chest(chestOf(master))
+    inventoryService.addItem(master, "apple", 5)
+    inventoryService.transferBetweenOwners(master, ItemHolder.Master, chest, appleId(), 0L, 3)
+    val before = held(master, null, "apple")
+
+    val chestShort = mapOf(ItemHolder.Master to mapOf(appleId() to 2), chest to mapOf(appleId() to 4))
+    assertFalse(inventoryService.consumeAllFrom(master, chestShort))
+    assertEquals(before, held(master, null, "apple"))
+    assertEquals(3, heldInChest(chest.structureId, "apple"))
+
+    val enough = mapOf(ItemHolder.Master to mapOf(appleId() to 2), chest to mapOf(appleId() to 3))
+    assertTrue(inventoryService.consumeAllFrom(master, enough))
+    assertEquals(before - 2, held(master, null, "apple"))
+    assertEquals(0, heldInChest(chest.structureId, "apple"))
+  }
+
+  @Test
+  fun `a station pays nothing from another master's chest`() {
+    val strangersChest = ItemHolder.Chest(chestOf(masterB()))
+    inventoryService.addItem(masterB(), "apple", 2)
+    inventoryService.transferBetweenOwners(masterB(), ItemHolder.Master, strangersChest, appleId(), 0L, 2)
+
+    assertFalse(inventoryService.consumeAllFrom(masterA(), mapOf(strangersChest to mapOf(appleId() to 1))))
+    assertEquals(2, heldInChest(strangersChest.structureId, "apple"))
   }
 
   @Test
