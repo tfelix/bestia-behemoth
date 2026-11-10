@@ -27,6 +27,7 @@ data class InventoryComponentSMSG(
         .setPlayerItemId(item.playerItemId)
         .setCraftedBy(item.provenance?.crafterName.orEmpty())
         .setCraftedIn(item.provenance?.worldName.orEmpty())
+        .apply { item.mapCircle?.let { setMapCircle(it.toProto()) } }
         .build()
     }
 
@@ -49,6 +50,7 @@ data class InventoryComponentSMSG(
     val itemLevel: Int = 0,
     val rolledStats: List<StatValue> = emptyList(),
     val playerItemId: Long = uniqueId,
-    val provenance: ItemProvenance? = null
+    val provenance: ItemProvenance? = null,
+    val mapCircle: MapCircles.Circle? = null
   )
 }

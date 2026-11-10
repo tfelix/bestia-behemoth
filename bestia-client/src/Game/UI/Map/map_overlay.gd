@@ -365,6 +365,10 @@ func set_grid_overlay(on: bool) -> void:
 ## Closes an open map rather than leaving it to the next keypress: the charts can go while it is being read -
 ## dropped, traded, or the last one used up - and what is on screen would otherwise stay there as a picture of
 ## ground the player can no longer see.
+func set_treasure_circles(circles: Array[Vector3]) -> void:
+	_view.treasure_circles = circles
+
+
 func set_has_chart(has_chart: bool) -> void:
 	_has_chart = has_chart
 	if not has_chart and visible:

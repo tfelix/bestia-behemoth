@@ -72,6 +72,7 @@ const _COMPASS_MARK_COLOUR := Color(0.62, 0.85, 1.0)
 ## swapping one chart for another - which changes what is visible without changing how many are held -
 ## still drops the cache.
 var _chart_signature: String = ""
+var _holds_treasure_map := false
 
 var _compass_refresh_countdown: float = 0.0
 
@@ -445,6 +446,8 @@ func _on_inventory_updated(inventory: Inventory) -> void:
 	var entities := EntityManager.get_instance()
 	var master_entity_id := entities.get_owned_master_entity_id() if entities != null else 0
 
+	_show_treasure_maps(inventory.held_instances(master_entity_id))
+
 	var held: Array[String] = []
 	for item in inventory.held_instances(master_entity_id):
 		if item.item.item_id in _CHART_ENABLING_ITEM_IDS:
@@ -457,10 +460,26 @@ func _on_inventory_updated(inventory: Inventory) -> void:
 
 	_chart_signature = signature
 	_map_warm_countdown = 0.0
-	_minimap.set_has_chart(not held.is_empty())
-	_map_overlay.set_has_chart(not held.is_empty())
+	_minimap.set_has_chart(not held.is_empty() or _holds_treasure_map)
+	_map_overlay.set_has_chart(not held.is_empty() or _holds_treasure_map)
 	(_compendium_win.get_content() as CompendiumPanel).set_has_chart(not held.is_empty())
 	_map_source.set_chart_signature(signature)
+
+
+## Each treasure map in the bag draws its circle on both maps, and opens them even without a chart.
+func _show_treasure_maps(items: Array) -> void:
+	var circles: Array[Vector3] = []
+	for item in items:
+		if item.map_circle != null:
+			circles.append(item.map_circle)
+	_minimap.set_treasure_circles(circles)
+	_map_overlay.set_treasure_circles(circles)
+
+	if _holds_treasure_map == not circles.is_empty():
+		return
+	_holds_treasure_map = not circles.is_empty()
+	_minimap.set_has_chart(not _chart_signature.is_empty() or _holds_treasure_map)
+	_map_overlay.set_has_chart(not _chart_signature.is_empty() or _holds_treasure_map)
 
 
 func _on_map_unavailable() -> void:

@@ -358,7 +358,8 @@ data class Inventory(
           itemLevel = item.itemLevel,
           rolledStats = item.rolledStats,
           playerItemId = item.playerItemId,
-          provenance = item.provenance
+          provenance = item.provenance,
+          mapCircle = if (item.uniqueId == 0L) null else MapCircles.installed.of(item.uniqueId)
         )
       }
     )

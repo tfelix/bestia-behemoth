@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrVJAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSr3JAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -130,8 +130,9 @@ namespace Bnet {
             "T19GQVIQmQESFQoQRklTSElOR19HT1RfQVdBWRCaARITCg5ESUdfTkVFRFNf",
             "VE9PTBDMAhIWChFESUdfTkVFRFNfUElDS0FYRRDNAhIVChBESUdfTkVFRFNf",
             "U0hPVkVMEM4CEhAKC0RJR19UT09fRkFSEM8CEhYKEURJR19OT1RISU5HX0ZP",
-            "VU5EENACIgQILhAuKhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3Rp",
-            "YS5ibmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "VU5EENACEiAKG1RSRUFTVVJFX01BUF9OT1RISU5HX1NFTlNFRBDRAiIECC4Q",
+            "LioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90",
+            "b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -811,6 +812,10 @@ namespace Bnet {
     /// A metre of digging turned up nothing. Nothing is buried here.
     /// </summary>
     [pbr::OriginalName("DIG_NOTHING_FOUND")] DigNothingFound = 336,
+    /// <summary>
+    /// Treasure Map found no cache the caster sensed in the last ten minutes. The player casts Treasure Sense first.
+    /// </summary>
+    [pbr::OriginalName("TREASURE_MAP_NOTHING_SENSED")] TreasureMapNothingSensed = 337,
   }
 
   #endregion

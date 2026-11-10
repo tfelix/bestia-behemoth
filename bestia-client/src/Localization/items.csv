@@ -581,3 +581,11 @@ SHOVEL,Shovel
 SHOVEL_DESC,"A wooden spade on a long handle, its blade hardened in the fire.
 
 Whatever somebody buried, this is how it comes back up."
+TREASURE_MAP,Treasure Map
+TREASURE_MAP_DESC,"A hand-drawn map with a circle inked on it.
+
+Something is buried somewhere inside the circle. Whoever digs it up first keeps it."
+CRUMBLED_TREASURE_MAP,Crumbled Treasure Map
+CRUMBLED_TREASURE_MAP_DESC,"A treasure map gone brittle and blank.
+
+Somebody has already dug up what it showed."

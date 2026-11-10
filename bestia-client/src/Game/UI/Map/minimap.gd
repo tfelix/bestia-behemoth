@@ -35,6 +35,10 @@ func setup(source: MapSource, entities: Node) -> void:
 
 
 ## Called whenever the inventory changes: the widget exists exactly while a chart does.
+func set_treasure_circles(circles: Array[Vector3]) -> void:
+	_view.treasure_circles = circles
+
+
 func set_has_chart(has_chart: bool) -> void:
 	visible = has_chart
 

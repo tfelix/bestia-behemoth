@@ -437,6 +437,8 @@ enum OpError {
   DIG_TOO_FAR = 335;
   // A metre of digging turned up nothing. Nothing is buried here.
   DIG_NOTHING_FOUND = 336;
+  // Treasure Map found no cache the caster sensed in the last ten minutes. The player casts Treasure Sense first.
+  TREASURE_MAP_NOTHING_SENSED = 337;
 }
 
 message OperationError {

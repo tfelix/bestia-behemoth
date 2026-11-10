@@ -38,6 +38,7 @@ import kotlin.math.min
 class DigService(
   private val registry: TreasureCacheRegistry,
   private val loot: TreasureLoot,
+  private val maps: TreasureMapService,
   private val richness: TreasureRichness,
   private val chunkService: ChunkService,
   private val inbox: ChunkStreamInbox,
@@ -119,6 +120,7 @@ class DigService(
 
   private fun open(world: World, entityId: EntityId, cache: TreasureCache) {
     registry.open(cache.id)
+    maps.crumble(world, cache.id)
 
     val contents = loot.roll(richness.of(cache), excavationLevelOf(world, entityId))
     give(world, entityId, contents)

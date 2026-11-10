@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 129
+name_key = "CRUMBLED_TREASURE_MAP"
+description_key = "CRUMBLED_TREASURE_MAP_DESC"
+weight = 1
+type = 2

@@ -13,6 +13,10 @@ class_name InventoryItemResource
 ## Who crafted this pile or copy, and in which world. Empty for an item nobody crafted.
 @export var crafted_by: String = ""
 @export var crafted_in: String = ""
+
+## The circle this copy draws on the map, like a treasure map's: centre x, centre y (world metres, y north) and
+## radius in z. Null for most items.
+var map_circle: Variant = null
 @export var item: ItemResource
 @export var equipped: bool = false
 

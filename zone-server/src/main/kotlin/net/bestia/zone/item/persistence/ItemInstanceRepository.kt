@@ -13,6 +13,11 @@ interface ItemInstanceRepository : JpaRepository<ItemInstance, Long> {
   @Modifying
   @Query("update ItemInstance i set i.durability = :durability where i.id = :id")
   fun updateDurability(@Param("id") id: Long, @Param("durability") durability: Int): Int
+
+  /** Turns these copies into another item wherever they are held, since a bag slot reads its item off them. */
+  @Modifying
+  @Query("update ItemInstance i set i.item = :item where i.id in :ids")
+  fun retemplate(@Param("ids") ids: Collection<Long>, @Param("item") item: Item): Int
 }
 
 fun ItemInstanceRepository.findByIdOrThrow(instanceId: Long): ItemInstance =
