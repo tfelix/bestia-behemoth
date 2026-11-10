@@ -1,5 +1,11 @@
 package net.bestia.zone.prop
 
+import net.bestia.zone.util.EntityId
+import net.bestia.zone.entity.StaticEntityKind
+import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.SkillId
+import net.bestia.zone.skill.OwnerSkills
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
@@ -41,7 +47,10 @@ class PropDeathDivergenceSystem(
   private val divergence: WorldObjectDivergenceRegistry,
   private val removal: PropRemoval,
   private val gatheringExp: GatheringExp,
+  private val skills: SkillRepository? = null,
 ) : System {
+
+  private val lumberjackId: Long? by lazy { skills?.findByIdentifier(SkillId.M_LUMBERJACK)?.id }
   override val phase = Phase.DEATH
   override val before = setOf(PlayerDeathSystem::class)
 
@@ -53,7 +62,7 @@ class PropDeathDivergenceSystem(
     setOf(
       Dead::class, WorldObjectIdentity::class, StaticVisual::class, Position::class, TakenDamage::class,
       Account::class
-    ) + GatheringExp.READS
+    ) + GatheringExp.READS + OwnerSkills.READS
 
   // The loot entity is brand new and needs nothing declared - DeathSystem's own spawnLoot has the same shape.
   // The stump a tree leaves is a prop entity, and the world refuses its components unless they are declared.
@@ -82,11 +91,14 @@ class PropDeathDivergenceSystem(
         val killer = damage?.topAccount(world)
         // Whoever dealt the most is who felled it, and earns the gathering EXP if it is a bestia.
         val feller = damage?.damagePercentages()?.maxByOrNull { it.value }?.key
+        val extraChance = extraDropPercent(world, id, visual.kind)
         spec.loot.forEach { entry ->
           val amount = floor(entry.amount * yieldShare).toInt()
           if (amount > 0 && Random.nextInt(1, 10_001) <= entry.dropChance) {
+            // A Lumberjack splits more out of the same trunk: a chance of the stack again.
+            val dropped = if (Random.nextInt(100) < extraChance) amount * 2 else amount
             lootItemEntitySpawner.spawnLootItem(
-              world, itemId = entry.itemId, amount = amount, pos = position, lootOwner = killer
+              world, itemId = entry.itemId, amount = dropped, pos = position, lootOwner = killer
             )
             feller?.let { gatheringExp.award(world, it, entry.itemId, amount) }
           }
@@ -95,5 +107,18 @@ class PropDeathDivergenceSystem(
 
       removal.removed(world, id, PropRemoval.Cause.USED_UP)
     }
+  }
+
+  private companion object {
+    const val LUMBERJACK_DROP_PERCENT_PER_LEVEL = 20
+  }
+
+  /** Lumberjack's `+20%/lv` drop chance, for whoever did the most to the tree; nothing for other props. */
+  private fun extraDropPercent(world: World, propId: EntityId, kind: StaticEntityKind): Int {
+    if (kind != StaticEntityKind.TREE && kind != StaticEntityKind.BLIGHTED_TREE) return 0
+    val feller = world.get(propId, TakenDamage::class)?.topSource() ?: return 0
+    val level = lumberjackId?.let { OwnerSkills.levelOf(world, feller, it) } ?: 0
+
+    return LUMBERJACK_DROP_PERCENT_PER_LEVEL * level
   }
 }

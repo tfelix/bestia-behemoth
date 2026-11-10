@@ -1,5 +1,6 @@
 package net.bestia.zone.item.persistence
 
+import net.bestia.zone.battle.gear.ToolKind
 import net.bestia.zone.battle.gear.WeaponType
 import jakarta.persistence.*
 import org.hibernate.annotations.JdbcTypeCode
@@ -126,6 +127,11 @@ class Item(
    */
   @Column(name = "attack_range", nullable = true)
   var attackRange: Int? = null,
+
+  /** What a tool is for, like felling; null for anything that is not a tool. */
+  @Enumerated(EnumType.STRING)
+  @Column(name = "tool_kind", nullable = true, length = 16)
+  var toolKind: ToolKind? = null,
 
   /** What kind of weapon this is, for profession and skill checks; null for anything that is not a weapon. */
   @Enumerated(EnumType.STRING)

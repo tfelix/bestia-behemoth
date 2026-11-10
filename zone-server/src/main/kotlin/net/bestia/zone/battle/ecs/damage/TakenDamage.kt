@@ -67,6 +67,11 @@ class TakenDamage(): Component {
     return damageByAccount(world).maxByOrNull { it.value }?.key
   }
 
+  /** The single entity that dealt the most damage, or null when nothing did. */
+  fun topSource(): EntityId? {
+    return value.maxByOrNull { it.value.damage }?.key
+  }
+
   /** Damage dealt per account, a master and its bestias together; damage without an account is left out. */
   fun damageByAccount(world: World): Map<Long, Int> {
     val damageByAccount = HashMap<Long, Int>()
