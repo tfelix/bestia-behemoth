@@ -51,6 +51,22 @@ class ForcedMovement(private val walk: LocalWalkQuery) {
     return moved
   }
 
+  /**
+   * Puts the entity on the ground at [to] at once, without walking the way there - a shadow step. False when
+   * there is no ground to stand on at [to].
+   */
+  fun blinkTo(world: World, entityId: EntityId, to: Vec3L): Boolean {
+    val position = world.get(entityId, Position::class) ?: return false
+    val z = walk.surfaceAt(to) ?: return false
+
+    position.x = to.x
+    position.y = to.y
+    position.z = z
+    world.remove(entityId, Path::class)
+
+    return true
+  }
+
   /** Away from [from] by up to [tiles]. Standing on [from] gives no direction, so it does not move. */
   fun awayFrom(world: World, entityId: EntityId, from: Vec3L, tiles: Int): Int {
     val at = world.get(entityId, Position::class)?.toVec3L() ?: return 0

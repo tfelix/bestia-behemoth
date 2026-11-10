@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.movement.ecs.Facing
 import net.bestia.zone.battle.status.RemovalReason
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.ActionGuard
@@ -45,6 +46,7 @@ class SkillExecutionService(
   private val actionReactions: ActionReactions = ActionReactions.NONE,
   private val reagents: ReagentPayment? = null,
   private val statusEffects: StatusEffectService? = null,
+  private val groundWards: GroundWards? = null,
 ) {
 
   /** Skills never change after the import, and resolution runs on the tick, so they are read once at boot. */
@@ -140,6 +142,12 @@ class SkillExecutionService(
         return
       }
 
+      // A ground spell cast into a warded zone fails before anything is paid, unless its Potency wins.
+      if (targetPosition != null && groundWards?.blocks(world, targetPosition, ctx.potency) == true) {
+        LOG.debug { "Skill $skillId by $casterId fizzled: the ground at $targetPosition is warded" }
+        return
+      }
+
       // After the possibility check and before the effect, so a refused cast costs nothing and a
       // resolved one is always paid for.
       if (reagents?.pay(world, casterId, skill.mechanics.reagent) == false) {
@@ -160,6 +168,7 @@ class SkillExecutionService(
       // Before the effect lands, so what casting ends - a hiding, a sprint - ends before this cast begins, and a
       // skill that hides its own caster is not undone by its own cast.
       actionReactions.notifyActed(world, casterId, EntityAction.CAST)
+      world.get(casterId, Facing::class)?.turnTowards(ctx.battle.attacker.position, ctx.aimedAt)
       val result = strategy.execute(ctx)
       cooldowns.start(world, casterId, skill.id, cost.cooldownSeconds)
       startChannel(world, casterId, skill, skillLevel, targetEntityId, targetPosition, args)

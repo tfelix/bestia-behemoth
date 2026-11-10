@@ -42,4 +42,5 @@ class SkillWorldServices(
   val castCancel: CastCancelService,
   val gear: GearOperations,
   val groundItemDispel: GroundItemDispel,
+  val strikes: SkillStrikes? = null,
 )

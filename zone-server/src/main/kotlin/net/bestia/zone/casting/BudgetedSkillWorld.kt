@@ -1,5 +1,10 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.movement.ecs.Facing
+import net.bestia.zone.battle.damage.HitReach
+import net.bestia.zone.battle.ammo.Ammunition
+import net.bestia.zone.battle.attack.AttackType
+import net.bestia.zone.battle.attack.BattleAttack
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.skill.PartyMates
@@ -410,6 +415,39 @@ class BudgetedSkillWorld(
     for (accountId in GuildMates.playedBy(world, guildId).keys) {
       services.messages.sendToPlayer(accountId, message)
     }
+  }
+
+  override fun strike(targetEntityId: EntityId, attack: BattleAttack, powerPercent: Int): Damage? {
+    budget.charge()
+
+    val strikes = services.strikes ?: return null
+    val damage = strikes.strike(world, casterId, targetEntityId, attack, powerPercent) ?: return null
+    val reach = if (attack.attackType == AttackType.RANGED_PHYSICAL) HitReach.RANGED else HitReach.MELEE
+    apply(targetEntityId, damage, HitKind.physical(reach, attack.attackElement))
+
+    return damage
+  }
+
+  override fun drawAmmo(): Ammunition? {
+    budget.charge()
+
+    return services.strikes?.drawAmmo(world, casterId)
+  }
+
+  override fun isBehind(targetEntityId: EntityId): Boolean {
+    budget.charge()
+
+    val facing = world.get(targetEntityId, Facing::class) ?: return false
+    val targetAt = world.get(targetEntityId, Position::class)?.toVec3L() ?: return false
+    val casterAt = world.get(casterId, Position::class)?.toVec3L() ?: return false
+
+    return facing.isBehind(targetAt, casterAt)
+  }
+
+  override fun blink(entityId: EntityId, to: Vec3L): Boolean {
+    budget.charge()
+
+    return onEntity(entityId) { id -> services.forcedMovement.blinkTo(this, id, to) } == true
   }
 
   override fun partyNear(radiusMetres: Long): List<EntityId> {

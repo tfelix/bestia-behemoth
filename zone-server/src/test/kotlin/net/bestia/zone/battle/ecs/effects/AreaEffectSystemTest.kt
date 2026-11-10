@@ -1,5 +1,10 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.battle.BestiaKind
+import net.bestia.zone.battle.Size
+import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.ecs.status.Nature
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.aoi.EntityAOIService
@@ -94,6 +99,48 @@ class AreaEffectSystemTest {
 
     assertEquals(DAMAGE_PER_TICK, stagedDamage(inside), "a tile diagonally adjacent to the centre is inside a 3x3")
     assertEquals(0, stagedDamage(outside), "two tiles out is beyond a 3x3")
+  }
+
+  @Test
+  fun `an area that harms only certain kinds leaves other foes alone`() {
+    val undead = victimAt(Vec3L(CENTER.x + 1, CENTER.y, CENTER.z))
+    world.add(undead, Nature(Element.UNDEAD, Size.MEDIUM, kind = BestiaKind.UNDEAD))
+    val beast = victimAt(Vec3L(CENTER.x - 1, CENTER.y, CENTER.z))
+    world.add(beast, Nature(Element.NORMAL, Size.MEDIUM, kind = BestiaKind.BEAST))
+    patchAt(CENTER, AreaMechanics(foeKinds = setOf(BestiaKind.UNDEAD)))
+
+    world.tick(TICK_INTERVAL)
+
+    assertEquals(DAMAGE_PER_TICK, stagedDamage(undead))
+    assertEquals(0, stagedDamage(beast))
+  }
+
+  @Test
+  fun `a strike lands on one spot of the area, not the whole of it`() {
+    val victims = (-3L..3L).flatMap { x -> (-3L..3L).map { y -> victimAt(Vec3L(CENTER.x + x, CENTER.y + y, CENTER.z)) } }
+    patchAt(CENTER, AreaMechanics(strikeRadiusTiles = 0).copy(strikeRadiusTiles = 1), radius = 3)
+
+    world.tick(TICK_INTERVAL)
+
+    val hit = victims.count { stagedDamage(it) > 0 }
+    assertTrue(hit in 1..9, "one strike covers at most the 3x3 around where it fell, hit $hit")
+  }
+
+  /** A master's patch, so the wild creatures in it are its foes. */
+  private fun patchAt(center: Vec3L, mechanics: AreaMechanics, radius: Long = 1): EntityId {
+    val caster = world.createEntity { casterId -> add(casterId, Master(masterId = 1L)) }
+    val id = world.createEntity { entityId ->
+      add(entityId, Position.fromVec3(center))
+      add(
+        entityId,
+        AreaEffect(
+          casterId = caster, skillId = SKILL_ID, skillLevel = 1, radiusTiles = radius,
+          damagePerTick = DAMAGE_PER_TICK, tickIntervalSeconds = TICK_INTERVAL, remainingTicks = 3, mechanics = mechanics
+        )
+      )
+    }
+    aoi.setEntityPosition(id, center)
+    return id
   }
 
   @Test

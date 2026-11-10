@@ -1,5 +1,9 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.movement.ecs.Facing
+import net.bestia.zone.battle.ElementModifier
+import net.bestia.zone.battle.Element
+import kotlin.random.Random
 import net.bestia.zone.battle.damage.DamageLanding
 import net.bestia.zone.battle.damage.HitKind
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -47,6 +51,7 @@ class AreaEffectSystem(
   private val propPromotionService: CombatTargetPromotion,
   private val areaDamageReceiver: AreaDamageReceiver,
   private val mechanicsApplier: AreaMechanicsApplier? = null,
+  private val random: Random = Random.Default,
 ) : System {
   override val phase = Phase.COMBAT
 
@@ -54,7 +59,8 @@ class AreaEffectSystem(
 
   /** [EntityAudience.READS] address the damage message; see [OutMessageProcessor.sendToObserversOf]. */
   override val reads: ComponentClassSet =
-    setOf(Position::class, Health::class, Dead::class, StatusEffects::class, Nature::class) + EntityAudience.READS +
+    setOf(Position::class, Health::class, Dead::class, StatusEffects::class, Nature::class, Facing::class) +
+      EntityAudience.READS +
       DamageGate.READS + Sides.READS + DamageLanding.READS +
       areaDamageReceiver.reads
   /**
@@ -79,6 +85,7 @@ class AreaEffectSystem(
 
       effect.sinceLastTick += deltaTime
       if (effect.mechanics.drifts) drift(get<Position>(), effect, deltaTime)
+      if (effect.mechanics.followsCaster) follow(world, get<Position>(), effect)
 
       // A while loop rather than an if, so a long frame delivers every tick it swallowed instead of
       // silently dropping them.
@@ -113,6 +120,45 @@ class AreaEffectSystem(
     position.y += stepY
   }
 
+  /** An aura carried by its caster: the area stands wherever the caster stands. */
+  private fun follow(world: World, position: Position, effect: AreaEffect) {
+    val caster = world.get(effect.casterId, Position::class) ?: return
+    position.x = caster.x
+    position.y = caster.y
+    position.z = caster.z
+  }
+
+  /** Where this tick's one strike lands, for an area of random strikes; null for one that covers it all. */
+  private fun strikeCentre(effect: AreaEffect, center: Vec3L): Vec3L? {
+    if (effect.mechanics.strikeRadiusTiles <= 0) return null
+    val spread = effect.radiusTiles
+
+    return Vec3L(
+      center.x + random.nextLong(-spread, spread + 1),
+      center.y + random.nextLong(-spread, spread + 1),
+      center.z
+    )
+  }
+
+  /** A foe outside the kinds an area harms, say anything but undead and demons, is left alone. */
+  private fun harms(world: World, effect: AreaEffect, victimId: EntityId): Boolean {
+    val kinds = effect.mechanics.foeKinds
+    if (kinds.isEmpty()) return true
+
+    return world.get(victimId, Nature::class)?.kind in kinds
+  }
+
+  /** The tick's damage on [victimId], weighed by element when the area asks for it. */
+  private fun damageOn(world: World, effect: AreaEffect, victimId: EntityId): Int {
+    if (!effect.mechanics.weighsElement) return effect.damagePerTick
+
+    val nature = world.get(victimId, Nature::class)
+    val element = world.get(victimId, CombatStats::class)?.values?.elementOverride ?: nature?.element ?: Element.NORMAL
+    val modifier = ElementModifier.getModifierFloat(effect.element, element)
+
+    return (effect.damagePerTick * modifier).toInt().coerceAtLeast(0)
+  }
+
   /** An area limited to undead, say, leaves the living in it alone. */
   private fun touches(world: World, effect: AreaEffect, victimId: EntityId): Boolean {
     val mechanics = effect.mechanics
@@ -129,10 +175,11 @@ class AreaEffectSystem(
     // 2 * radius spans 2 * radius + 1 tiles per axis - a radius of 1 is the 3x3 that was aimed at.
     // AoiLayer.ALL on purpose: statics are in the same index, and a fire that spares the trees is
     // the defect.
-    val edge = effect.radiusTiles * 2
+    val strike = strikeCentre(effect, center)
+    val edge = if (strike != null) effect.mechanics.strikeRadiusTiles * 2L else effect.radiusTiles * 2
     val footprint = effect.footprint
     val inside = LinkedHashSet<EntityId>()
-    entityAOIService.forEachInCube(center, edge, AoiLayer.ALL) { id, x, y, _ ->
+    entityAOIService.forEachInCube(strike ?: center, edge, AoiLayer.ALL) { id, x, y, _ ->
       if (footprint == null || footprint.covers(x, y)) inside.add(id)
     }
 
@@ -172,12 +219,14 @@ class AreaEffectSystem(
         // Asked here as well as at the drain: a burn the drain drops would still be reported to the client.
         if (DamageGate.verdict(world, effect.casterId, victimId, effect.casterAccountId) != DamageGate.Verdict.ADMITTED) continue
 
+        if (!harms(world, effect, victimId)) continue
         mechanicsApplier?.onFoe(world, victimId, effect, center)
-        if (effect.damagePerTick == 0) continue
+        val tickDamage = damageOn(world, effect, victimId)
+        if (tickDamage == 0) continue
 
         // A patch is a spell: its blows are weighed like one, by both sides' damage modifiers.
         val kind = HitKind.magic(effect.element)
-        val dealt = DamageLanding.weigh(world, effect.casterId, victimId, kind, effect.damagePerTick)
+        val dealt = DamageLanding.weigh(world, effect.casterId, victimId, kind, tickDamage)
         val damage = world.get(victimId, IncomingDamage::class) ?: world.add(victimId, IncomingDamage())
         damage.add(dealt, effect.casterId, kind)
 

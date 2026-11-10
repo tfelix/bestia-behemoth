@@ -1,5 +1,8 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.movement.ecs.Facing
 import net.bestia.zone.battle.Healing
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.ecs.status.Mana
@@ -28,7 +31,14 @@ class AreaMechanicsApplier(
       mechanics.zoneStatus?.let { statusEffects.applyEffect(world, victimId, it, effect.skillLevel, effect.casterId) }
     }
     if (mechanics.knockbackTiles > 0) {
-      forcedMovement.awayFrom(world, victimId, centre, mechanics.knockbackTiles)
+      val facing = world.get(victimId, Facing::class)
+      val at = world.get(victimId, Position::class)?.toVec3L()
+      if (mechanics.knockbackAgainstFacing && facing != null && at != null) {
+        // Back the way it came: a point ahead of the victim is what it is pushed away from.
+        forcedMovement.awayFrom(world, victimId, Vec3L(at.x + facing.dx, at.y + facing.dy, at.z), mechanics.knockbackTiles)
+      } else {
+        forcedMovement.awayFrom(world, victimId, centre, mechanics.knockbackTiles)
+      }
     }
   }
 
@@ -39,6 +49,10 @@ class AreaMechanicsApplier(
     mechanics.zoneStatus?.let { statusEffects.applyEffect(world, allyId, it, effect.skillLevel, effect.casterId) }
     if (mechanics.healPerTick > 0) {
       Healing.heal(world, allyId, mechanics.healPerTick)
+    }
+    if (mechanics.healPercentPerTick > 0) {
+      val maxHealth = world.get(allyId, Health::class)?.max ?: return
+      Healing.heal(world, allyId, maxHealth * mechanics.healPercentPerTick / 100)
     }
   }
 

@@ -52,7 +52,7 @@ class MoveSystem(
   override val phase = Phase.MOVEMENT
 
   override val reads: ComponentClassSet = setOf(Speed::class, Dead::class, Account::class)
-  override val writes: ComponentClassSet = setOf(Position::class, Path::class, CoarseMovement::class)
+  override val writes: ComponentClassSet = setOf(Position::class, Path::class, CoarseMovement::class, Facing::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Position::class, Speed::class, Path::class).each { id ->
@@ -126,6 +126,7 @@ class MoveSystem(
 
         // Not the x/y/z setters: a step is not published, see Position.stepTo.
         position.stepTo(nextPoint.x, nextPoint.y, z)
+        world.get(id, Facing::class)?.turnTowards(Vec3L(fromX, fromY, z), nextPoint)
         stepped++
 
         // Per stepped tile rather than per tick, and inside the loop for the reason the loop exists: an

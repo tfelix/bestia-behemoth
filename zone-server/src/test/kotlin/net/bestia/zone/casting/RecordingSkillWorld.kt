@@ -1,5 +1,7 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.ammo.Ammunition
+import net.bestia.zone.battle.attack.BattleAttack
 import net.bestia.zone.battle.damage.HitKind
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.aoi.AoiLayer
@@ -250,6 +252,32 @@ class RecordingSkillWorld(
 
     applyStatusEffect(targetEntityId, effectId, level)
 
+    return true
+  }
+
+  /** What [strike] answers for every target; null means no fight resolves. */
+  var strikeResult: Damage? = null
+  val strikes = mutableListOf<Pair<EntityId, Int>>()
+
+  override fun strike(targetEntityId: EntityId, attack: BattleAttack, powerPercent: Int): Damage? {
+    strikes += targetEntityId to powerPercent
+    return strikeResult
+  }
+
+  /** What [drawAmmo] answers. */
+  var ammo: Ammunition? = null
+
+  override fun drawAmmo(): Ammunition? = ammo
+
+  /** Targets the caster stands behind. */
+  val behind = mutableSetOf<EntityId>()
+
+  override fun isBehind(targetEntityId: EntityId): Boolean = targetEntityId in behind
+
+  val blinks = mutableListOf<Pair<EntityId, Vec3L>>()
+
+  override fun blink(entityId: EntityId, to: Vec3L): Boolean {
+    blinks += entityId to to
     return true
   }
 
