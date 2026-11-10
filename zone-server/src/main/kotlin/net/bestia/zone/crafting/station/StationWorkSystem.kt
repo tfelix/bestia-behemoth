@@ -19,6 +19,8 @@ import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.entity.StaticEntityKind
+import net.bestia.zone.prop.CampfireService
 import net.bestia.zone.prop.PlayerStructureRegistry
 import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.prop.StructureEntry
@@ -47,6 +49,7 @@ class StationWorkSystem(
   private val connections: ConnectionInfoService,
   private val work: StationWork,
   private val states: StationStateSender,
+  private val campfires: CampfireService,
   private val clock: Clock = Clock.systemUTC(),
 ) : System {
 
@@ -61,12 +64,22 @@ class StationWorkSystem(
 
   override fun update(world: World, deltaTime: Float) {
     structures.all()
+      .filter { it.queue.isNotEmpty() && it.kind == StaticEntityKind.CAMPFIRE && it.workerBestiaId != null }
+      .forEach { fire -> keepBurning(world, fire) }
+
+    structures.all()
       .filter { it.queue.isNotEmpty() && !it.isUnderConstruction }
       .forEach { station -> advance(world, station, deltaTime) }
 
     structures.all()
       .filter { it.takesAnyCrafter && it.workerBestiaId != null && it.queue.isEmpty() }
       .forEach { station -> releaseCrafter(world, station) }
+  }
+
+  /** A bestia at a campfire with work feeds it from the chest next to it, as its master would. */
+  private fun keepBurning(world: World, fire: StructureEntry) {
+    val workerId = workerOf(world, fire) ?: return
+    if (isNear(world, workerId, fire)) campfires.addWoodFromChest(world, fire.id)
   }
 
   /** A free crafter whose station has nothing left to do moves on to another, or goes home. */

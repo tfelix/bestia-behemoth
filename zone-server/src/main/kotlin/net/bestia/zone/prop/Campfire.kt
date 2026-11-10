@@ -21,6 +21,9 @@ object Campfire {
   /** The most burn time a fire can hold, so one fire cannot be stacked up to burn for days. */
   val MAX_BURN: Duration = Duration.ofHours(2)
 
+  /** A fire with less than this left runs low: the bestia working it puts on a log, so the queue never stops. */
+  val LOW: Duration = Duration.ofMinutes(5)
+
   /** How long a cold campfire waits for wood before it is gone. */
   val COLD_UNTIL_GONE: Duration = Duration.ofMinutes(30)
 
@@ -38,6 +41,10 @@ object Campfire {
     if (from >= cap) return null
 
     return minOf(from + PER_LOG, cap)
+  }
+
+  fun runsLowAt(entry: StructureEntry, now: Instant): Boolean {
+    return entry.burnsOutAt != null && secondsLeft(entry.burnsOutAt, now) < LOW.seconds
   }
 
   fun variantAt(entry: StructureEntry, now: Instant): Int {

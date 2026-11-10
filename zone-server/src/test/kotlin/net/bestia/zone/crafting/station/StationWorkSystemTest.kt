@@ -8,6 +8,7 @@ import net.bestia.zone.crafting.CraftingService
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.prop.CampfireService
 import net.bestia.zone.crafting.station.StationFixture.Companion.ACCOUNT
 import net.bestia.zone.crafting.station.StationFixture.Companion.OWNER
 import net.bestia.zone.crafting.station.StationFixture.Companion.PLANK
@@ -33,6 +34,7 @@ class StationWorkSystemTest {
     every { it.produceFromStation(any(), any(), any(), any()) } returns null
   }
   private val profiles = mockk<CrafterProfiles>(relaxed = true)
+  private val campfires = mockk<CampfireService>(relaxed = true)
   private val work = StationWork()
 
   @Test
@@ -127,6 +129,19 @@ class StationWorkSystemTest {
     assertTrue(fixture.station.waitsForCrafter)
   }
 
+  @Test
+  fun `a bestia working a campfire keeps it burning, its owner adds wood by hand`() {
+    val fixture = queued(amount = 2, StationFixture(StaticEntityKind.CAMPFIRE, burnsOutAt = now.plusSeconds(60)))
+    online(fixture, fixture.givenOwner(planks = 0))
+
+    system(fixture).update(fixture.world, 1f)
+    verify(exactly = 0) { campfires.addWoodFromChest(any(), any()) }
+
+    fixture.workers.assign(fixture.world, fixture.givenBestia(), fixture.station)
+    system(fixture).update(fixture.world, 1f)
+    verify { campfires.addWoodFromChest(fixture.world, STATION) }
+  }
+
   /** The whole point of a bestia worker: the queue goes on with nobody playing. */
   @Test
   fun `a bestia keeps working while its master is logged out`() {
@@ -176,6 +191,7 @@ class StationWorkSystemTest {
       connections = connections,
       work = work,
       states = mockk(relaxed = true),
+      campfires = campfires,
       clock = Clock.fixed(now, ZoneOffset.UTC)
     )
   }
