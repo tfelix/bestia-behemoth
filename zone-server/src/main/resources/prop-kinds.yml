@@ -270,6 +270,42 @@ kinds:
     regrow-seconds: 600
     collect: { item-id: 23, amount: 1 }
 
+  # The rare herbs. Each yields its own herb, which Herbalism has to be high enough to pick.
+  - kind: MEDICINAL_HERB
+    max-hp: 5
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+    regrow-seconds: 600
+    collect: { item-id: 328, amount: 1 }
+
+  - kind: MANA_HERB
+    max-hp: 5
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+    regrow-seconds: 600
+    collect: { item-id: 329, amount: 1 }
+
+  - kind: FROST_HERB
+    max-hp: 5
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+    regrow-seconds: 600
+    collect: { item-id: 330, amount: 1 }
+
+  - kind: SUN_HERB
+    max-hp: 5
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+    regrow-seconds: 600
+    collect: { item-id: 331, amount: 1 }
+
+  - kind: GHOST_HERB
+    max-hp: 5
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+    regrow-seconds: 600
+    collect: { item-id: 332, amount: 1 }
+
   - kind: SHRUB
     max-hp: 16
     collider: { half-x: 1, half-y: 1, height: 2 }

@@ -1,5 +1,6 @@
 package net.bestia.zone.prop
 
+import net.bestia.worldgen.voxel.HerbKind
 import net.bestia.worldgen.poi.PoiKind
 import net.bestia.worldgen.voxel.PropKind
 import net.bestia.zone.ground.fire.GroundFireConfig
@@ -44,7 +45,7 @@ class PropKindRegistryTest {
 
     val collectible = StaticEntityKind.entries.filter { registry.of(it).collect != null }
 
-    assertEquals(MINERALS + PLANTS + GROUND_LOOT, collectible.toSet())
+    assertEquals(MINERALS + PLANTS + RARE_HERBS + GROUND_LOOT, collectible.toSet())
 
     for (kind in collectible) {
       val collect = registry.of(kind).collect!!
@@ -166,6 +167,14 @@ class PropKindRegistryTest {
     }
   }
 
+  @Test
+  fun `each herb kind has its own runtime kind`() {
+    val herbs = HerbKind.entries.map { StaticEntityKind.of(PropKind.HERB, blighted = false, large = false, it.ordinal) }
+
+    assertEquals(HerbKind.entries.size, herbs.toSet().size, "two herb kinds share a runtime kind: $herbs")
+    assertEquals(RARE_HERBS + StaticEntityKind.HERB, herbs.toSet())
+  }
+
   private companion object {
 
     /** worldgen's ground cover kinds. Named here rather than imported so a rename of either side shows up. */
@@ -187,6 +196,15 @@ class PropKindRegistryTest {
       StaticEntityKind.BLIGHTED_SHRUB,
       StaticEntityKind.REED,
       StaticEntityKind.BLIGHTED_REED
+    )
+
+    /** The herbs a `HerbKind` other than WILD becomes. */
+    val RARE_HERBS = setOf(
+      StaticEntityKind.MEDICINAL_HERB,
+      StaticEntityKind.MANA_HERB,
+      StaticEntityKind.FROST_HERB,
+      StaticEntityKind.SUN_HERB,
+      StaticEntityKind.GHOST_HERB
     )
 
     /** Picked up as it lies, and back after a while: worldgen's loose stones, sticks and resin. See `LootScatter`. */

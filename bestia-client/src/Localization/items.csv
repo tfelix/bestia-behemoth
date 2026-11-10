@@ -521,3 +521,13 @@ THEODOLITE_KIT_DESC,"A brass sighting scope and a folding tripod.
 Set up on open ground, it is where Cartography surveys the land around it."
 INK,Ink
 INK_DESC,A small bottle of black ink. Every try at a survey spends one.
+MEDICINAL_HERB,Medicinal Herb
+MEDICINAL_HERB_DESC,A healing herb of the forest floor. A base ingredient for many potions.
+MANA_HERB,Mana Herb
+MANA_HERB_DESC,A mana-touched herb that only grows where the mana runs strong.
+FROST_HERB,Frost Herb
+FROST_HERB_DESC,"A tough little herb of the tundra, the taiga and the high mountains."
+SUN_HERB,Sun Herb
+SUN_HERB_DESC,A sun-dried herb of the desert and the badlands.
+GHOST_HERB,Ghost Herb
+GHOST_HERB_DESC,A pale herb that only grows on blighted ground.

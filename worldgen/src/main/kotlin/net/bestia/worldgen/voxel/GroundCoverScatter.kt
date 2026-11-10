@@ -118,7 +118,23 @@ data class GroundCoverParams(
    * four and the *spread* around each is the same relative thing, so six fields would be four of them saying
    * the same number twice.
    */
-  val heightSpread: Double = 0.3
+  val heightSpread: Double = 0.3,
+
+  /**
+   * How often a herb is one of the rare kinds where the land allows it, see [HerbKind.of]. Shares rather than
+   * densities: the herb count stays what the table above measured, and only what grows changes.
+   */
+  val ghostHerbShare: Double = 0.3,
+  val manaHerbShare: Double = 0.3,
+  val frostHerbShare: Double = 0.35,
+  val sunHerbShare: Double = 0.5,
+  val medicinalHerbShare: Double = 0.25,
+
+  /** Mana, 0 to 1, from which mana herbs grow: well above the 0.4-0.6 most land has. */
+  val manaHerbMinMana: Double = 0.6,
+
+  /** Canopy from which a forest floor grows medicinal herbs; the temperate and tropical forests clear it. */
+  val medicinalHerbMinCanopy: Double = 0.5
 ) : Params {
 
   init {
@@ -138,6 +154,9 @@ data class GroundCoverParams(
     require(shrubHeight > 0.0) { "shrubHeight must be positive, was $shrubHeight" }
     require(reedHeight > 0.0) { "reedHeight must be positive, was $reedHeight" }
     require(heightSpread in 0.0..1.0) { "heightSpread must be in [0,1], was $heightSpread" }
+    listOf(ghostHerbShare, manaHerbShare, frostHerbShare, sunHerbShare, medicinalHerbShare, manaHerbMinMana)
+      .forEach { require(it in 0.0..1.0) { "herb shares and the mana floor must be in [0,1], was $it" } }
+    require(medicinalHerbMinCanopy in 0.0..1.0) { "medicinalHerbMinCanopy must be in [0,1], was $medicinalHerbMinCanopy" }
   }
 
   override fun digest(): ParamsDigest {
@@ -158,6 +177,13 @@ data class GroundCoverParams(
       .put("shrubHeight", shrubHeight)
       .put("reedHeight", reedHeight)
       .put("heightSpread", heightSpread)
+      .put("ghostHerbShare", ghostHerbShare)
+      .put("manaHerbShare", manaHerbShare)
+      .put("frostHerbShare", frostHerbShare)
+      .put("sunHerbShare", sunHerbShare)
+      .put("medicinalHerbShare", medicinalHerbShare)
+      .put("manaHerbMinMana", manaHerbMinMana)
+      .put("medicinalHerbMinCanopy", medicinalHerbMinCanopy)
   }
 }
 
@@ -329,6 +355,11 @@ class GroundCoverScatter(
           plant.shrubRoll < shrubShareOf(biome) -> PropKind.SHRUB to params.shrubHeight
           else -> PropKind.HERB to params.herbHeight
         }
+        val herb = if (kind == PropKind.HERB) {
+          HerbKind.of(blighted, surface.manaAt(plant.x, plant.y), biome, plant.herbRoll, params)
+        } else {
+          HerbKind.WILD
+        }
 
         into.add(
           kind = kind,
@@ -338,7 +369,8 @@ class GroundCoverScatter(
           ground = ground,
           heightM = nominalHeight * (1.0 + (plant.sizeRoll - 0.5) * 2.0 * params.heightSpread),
           // No radius: a herb has no spread worth sending, and `radiusAt` is a *crown* everywhere else.
-          flags = if (blighted) PropFlags.BLIGHTED else 0
+          flags = if (blighted) PropFlags.BLIGHTED else 0,
+          subKind = herb.ordinal
         )
       }
     }
@@ -370,7 +402,8 @@ class GroundCoverScatter(
       x = x,
       y = y,
       shrubRoll = GenRng.unit(GenRng.mix64(key + 3)),
-      sizeRoll = GenRng.unit(GenRng.mix64(key + 4))
+      sizeRoll = GenRng.unit(GenRng.mix64(key + 4)),
+      herbRoll = GenRng.unit(GenRng.mix64(key + 5))
     )
   }
 
@@ -385,7 +418,7 @@ class GroundCoverScatter(
   }
 
   /** One plant, as the lattice draws it before the ground is known. */
-  private class Plant(val x: Double, val y: Double, val shrubRoll: Double, val sizeRoll: Double)
+  private class Plant(val x: Double, val y: Double, val shrubRoll: Double, val sizeRoll: Double, val herbRoll: Double)
 
   companion object {
 
