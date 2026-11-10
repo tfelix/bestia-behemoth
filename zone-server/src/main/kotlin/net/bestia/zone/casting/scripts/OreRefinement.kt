@@ -2,7 +2,6 @@ package net.bestia.zone.casting.scripts
 
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.casting.CraftingSkillStrategy
-import net.bestia.zone.entity.StaticEntityKind
 import org.springframework.stereotype.Component
 
 /**
@@ -16,5 +15,4 @@ import org.springframework.stereotype.Component
  * the reason refining is worth investing in rather than gambling at.
  */
 @Component
-class OreRefinement(losService: LineOfSightService) :
-  CraftingSkillStrategy(losService, StaticEntityKind.FURNACE, placesStation = true)
+class OreRefinement(losService: LineOfSightService) : CraftingSkillStrategy(losService)

@@ -113,14 +113,6 @@ class BudgetedSkillWorld(
     services.lootItems.spawnLootItem(world, itemId = itemId, amount = amount, pos = at, lootOwner = ownerAccountId)
   }
 
-  override fun placeStation(kind: StaticEntityKind, masterId: Long, at: Vec3L, yaw: Float): Boolean {
-    budget.charge(SPAWN_OPS)
-
-    val ownerAccountId = world.get(casterId, Account::class)?.accountId ?: return false
-
-    return services.structures.place(world, kind, masterId, ownerAccountId, at, yaw) != null
-  }
-
   override fun igniteGroundFire(centre: Vec3L, radiusTiles: Long): Boolean {
     budget.charge(SPAWN_OPS)
 

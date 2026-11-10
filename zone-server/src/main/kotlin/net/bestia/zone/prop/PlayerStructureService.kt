@@ -50,57 +50,6 @@ class PlayerStructureService(
       .firstOrNull { world.get(it, StaticVisual::class)?.kind == kind }
 
   /**
-   * Records a station at [position] and brings it into the world if anyone is holding that ground.
-   *
-   * Writes the row first and materialises second, which is the order that cannot lose a station: a crash
-   * between the two leaves a structure that appears the next time somebody walks up to it, where the reverse
-   * would leave one standing that no restart brings back.
-   *
-   * @return null when the ground is already occupied by a station of the same kind, or a building piece does not
-   *   fit
-   */
-  fun place(
-    world: World,
-    kind: StaticEntityKind,
-    ownerMasterId: Long,
-    ownerAccountId: AccountId,
-    position: Vec3L,
-    requestedYaw: Float
-  ): StructureEntry? {
-    val yaw = yawOf(kind, requestedYaw)
-    val isTaken = if (collision.isPiece(kind)) {
-      !collision.fits(kind, position, yaw)
-    } else {
-      stationNear(world, position, kind) != null
-    }
-    if (isTaken) {
-      LOG.debug { "Master $ownerMasterId tried to place a $kind where the ground is taken at $position" }
-      return null
-    }
-
-    val chunkSize = worldService.config.chunkSize.toLong()
-    val entry = structures.place(
-      kind = kind,
-      ownerMasterId = ownerMasterId,
-      ownerAccountId = ownerAccountId,
-      position = position,
-      yaw = yaw,
-      chunkX = Math.floorDiv(position.x, chunkSize).toInt(),
-      chunkY = Math.floorDiv(position.y, chunkSize).toInt()
-    )
-
-    if (collision.isPiece(kind)) collision.stand(entry.id, kind, position, yaw)
-
-    // Null when nobody holds the column, which needs nothing: the row is written, and `PlayerStructureSource`
-    // will produce it the next time that ground materialises.
-    residency.placeNow(world, source.siteOf(entry))
-
-    LOG.info { "Master $ownerMasterId placed a $kind at $position (structure ${entry.id})" }
-
-    return entry
-  }
-
-  /**
    * The nearest site of [kind] being built within [RANGE_TILES] of [around], or null.
    *
    * The counterpart to [stationNear], which cannot see one: a site is an ordinary entity in the `DYNAMIC`
@@ -113,14 +62,11 @@ class PlayerStructureService(
   }
 
   /**
-   * Starts a structure rather than finishing one: records the row unbuilt and puts a site into the world.
+   * Starts a structure from a kit: records the row unbuilt and puts a site into the world. Refuses ground that
+   * already holds one of the same kind, finished or half-built.
    *
-   * The mirror of [place] for anything that has to be *worked on* - a kit used out of the inventory - where
-   * that one is for a skill that raises a station outright. Both refuse ground that already holds one of the
-   * same kind, and this also refuses ground that holds a half-built one.
-   *
-   * Unlike [place] there is no residency call: a site is an ordinary entity, so nothing has to be waiting on
-   * that column for it to appear.
+   * There is no residency call: a site is an ordinary entity, so nothing has to be waiting on that column for it
+   * to appear.
    *
    * A building piece holds its cells from the start, so nothing else is built into them while it goes up.
    *

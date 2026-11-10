@@ -23,11 +23,10 @@ import net.bestia.zone.spoor.TrackReading
  * that. So this is a closed set of operations, each charged against the cast's budget. See
  * [BudgetedSkillWorld].
  *
- * What the budget bounds is therefore the *number* of operations, not the cost of one. Two of these are
- * not cheap: [placeStation] writes a row through JPA and [offerRecipes] sends a message, so each holds the
- * tick across a database round trip or a socket write. The honest ceiling on how long a cast holds the
- * tick is "ops x the slowest op", not "ops x short". Moving those two off the tick is the follow-up that
- * would make the budget mean what it says.
+ * What the budget bounds is therefore the *number* of operations, not the cost of one. [offerRecipes] is
+ * not cheap: it sends a message, so it holds the tick across a socket write. The honest ceiling on how long
+ * a cast holds the tick is "ops x the slowest op", not "ops x short". Moving it off the tick is the
+ * follow-up that would make the budget mean what it says.
  *
  * ### Why the world is not injected
  *
@@ -79,9 +78,6 @@ interface SkillWorld {
 
   /** Drops [amount] of [itemId] on the ground at [at], for the caster's account to pick up first. */
   fun dropItem(itemId: Long, amount: Int, at: Vec3L)
-
-  /** Puts a station up at [at] for [masterId]. False when the ground already holds one of the same kind. */
-  fun placeStation(kind: StaticEntityKind, masterId: Long, at: Vec3L, yaw: Float = 0f): Boolean
 
   /**
    * Sets light to the grass around [centre], if any of it will take.

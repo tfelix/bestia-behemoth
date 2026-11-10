@@ -2,7 +2,6 @@ package net.bestia.zone.casting.scripts
 
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.casting.CraftingSkillStrategy
-import net.bestia.zone.entity.StaticEntityKind
 import org.springframework.stereotype.Component
 
 /**
@@ -16,5 +15,4 @@ import org.springframework.stereotype.Component
  * adds nothing here rather than inventing a curve.
  */
 @Component
-class EquipmentRepair(losService: LineOfSightService) :
-  CraftingSkillStrategy(losService, StaticEntityKind.FORGE)
+class EquipmentRepair(losService: LineOfSightService) : CraftingSkillStrategy(losService)

@@ -2,7 +2,6 @@ package net.bestia.zone.casting.scripts
 
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.casting.CraftingSkillStrategy
-import net.bestia.zone.entity.StaticEntityKind
 import org.springframework.stereotype.Component
 
 /**
@@ -19,5 +18,4 @@ import org.springframework.stereotype.Component
  * and is left unimplemented rather than mapped onto something it does not mean.
  */
 @Component
-class Carpentry(losService: LineOfSightService) :
-  CraftingSkillStrategy(losService, StaticEntityKind.WORKBENCH, placesStation = true)
+class Carpentry(losService: LineOfSightService) : CraftingSkillStrategy(losService)

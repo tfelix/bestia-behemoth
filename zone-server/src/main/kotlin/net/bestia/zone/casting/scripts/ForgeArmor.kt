@@ -2,7 +2,6 @@ package net.bestia.zone.casting.scripts
 
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.casting.CraftingSkillStrategy
-import net.bestia.zone.entity.StaticEntityKind
 import org.springframework.stereotype.Component
 
 /**
@@ -15,5 +14,4 @@ import org.springframework.stereotype.Component
  * Shares Forge Weapon's chance sources exactly: both smithing passives plus a step per level of this skill.
  */
 @Component
-class ForgeArmor(losService: LineOfSightService) :
-  CraftingSkillStrategy(losService, StaticEntityKind.FORGE)
+class ForgeArmor(losService: LineOfSightService) : CraftingSkillStrategy(losService)

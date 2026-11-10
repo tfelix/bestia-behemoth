@@ -15,4 +15,4 @@ import org.springframework.stereotype.Component
  * The stamina cost the docs give (5 to 11 by level) has no field anywhere in the catalogue and is left out.
  */
 @Component
-class Cooking(losService: LineOfSightService) : CraftingSkillStrategy(losService, station = null)
+class Cooking(losService: LineOfSightService) : CraftingSkillStrategy(losService)
