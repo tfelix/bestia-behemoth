@@ -61,7 +61,7 @@ class CampfireSystem(
       }
   }
 
-  /** Structure id -> the entity standing for it, for every campfire somebody is near enough to see. */
+  /** Structure id -> the entity standing for it, for every campfire a client or a bestia is near. */
   private fun loadedCampfires(world: World): Map<Long, EntityId> {
     val loaded = HashMap<Long, EntityId>()
 

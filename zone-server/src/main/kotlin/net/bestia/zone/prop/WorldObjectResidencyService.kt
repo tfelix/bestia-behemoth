@@ -13,6 +13,7 @@ import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.message.ChunkFanOut
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.residency.ChunkResidency
 import net.bestia.zone.world.stream.ChunkStaticEntitiesSMSG
 import net.bestia.zone.world.stream.ChunkSubscriptionService
 import net.bestia.zone.world.stream.StaticEntityRemovedSMSG
@@ -25,9 +26,10 @@ import net.bestia.zone.util.inClassNameOrder
  *
  * ### The rule
  *
- * A chunk column's static entities exist while at least one client holds terrain for that column, and not
+ * A chunk column's generated props exist while at least one client holds terrain for that column, and not
  * otherwise. On a 128 km world there are on the order of a million tree props; the ECS holds the few thousand
- * standing on ground somebody can see.
+ * standing on ground somebody can see. Player structures follow [ChunkResidency] instead, which simulation
+ * anchors hold too - see [WorldObjectScope]. Each scope is one [Layer].
  *
  * ### Nothing here is a cache
  *
@@ -43,8 +45,8 @@ import net.bestia.zone.util.inClassNameOrder
  *
  * ### Refcounted by column, not by chunk
  *
- * [ChunkSubscriptionService] addresses a *slab*, so a column with three subscribed slabs fires the
- * first-subscriber callback three times and the last-subscriber callback three times. A static entity stands on
+ * [ChunkSubscriptionService] and [ChunkResidency] address a *slab*, so a column with three held slabs fires the
+ * first-holder callback three times and the last-holder callback three times. A static entity stands on
  * the surface and belongs to the column, so this counts holders per column and materialises on the first and
  * releases on the last. Without that, walking through a cave would delete the trees overhead.
  *
@@ -62,10 +64,18 @@ class WorldObjectResidencyService(
   private val worldService: WorldService,
   private val divergence: WorldObjectDivergenceRegistry,
   private val subscriptions: ChunkSubscriptionService,
+  residency: ChunkResidency,
   private val clock: Clock = Clock.systemUTC()
 ) {
 
   private val sources = foundSources.inClassNameOrder()
+
+  private val viewed = Layer(sourcesOf(WorldObjectScope.VIEWED), emptyColumnIsFree = false)
+
+  /** Only a column with something on it costs budget, or 512 anchors would queue for minutes at four columns a tick. */
+  private val simulated = Layer(sourcesOf(WorldObjectScope.SIMULATED), emptyColumnIsFree = true)
+
+  private val layers = listOf(viewed, simulated)
 
   /** Voxels per chunk edge, for turning a world position into a chunk-local one. */
   private val chunkSize: Int get() = worldService.config.chunkSize
@@ -78,15 +88,6 @@ class WorldObjectResidencyService(
    */
   private val latticeVersion: Long get() = worldService.record.pipelineVersion
 
-  /** Packed `(x, y)` chunk column -> the entities standing in it. */
-  private val resident = HashMap<Long, LongArray>()
-
-  /** Packed column -> how many subscribed slabs of it are held. See the class note. */
-  private val holders = HashMap<Long, Int>()
-
-  private val pendingLoad = LinkedHashSet<Long>()
-  private val pendingRelease = LinkedHashSet<Long>()
-
   /**
    * Column -> accounts that hold its terrain and have not been told what stands on it.
    *
@@ -98,8 +99,14 @@ class WorldObjectResidencyService(
   private val awaitingBatch = HashMap<Long, MutableSet<Long>>()
 
   init {
-    subscriptions.onFirstSubscriber { chunk -> hold(chunk) }
-    subscriptions.onLastSubscriber { chunk -> release(chunk) }
+    subscriptions.onFirstSubscriber { chunk -> viewed.hold(columnOf(chunk)) }
+    subscriptions.onLastSubscriber { chunk -> viewed.release(columnOf(chunk)) }
+
+    // Skipped without a source, which would only queue every simulated column for nothing.
+    if (simulated.sources.isNotEmpty()) {
+      residency.onFirstHolder { chunk -> simulated.hold(columnOf(chunk)) }
+      residency.onLastHolder { chunk -> simulated.release(columnOf(chunk)) }
+    }
 
     // Every recipient, not only the first: the second player into a wood gets no first-subscriber callback
     // and still has to be told about the trees.
@@ -108,9 +115,9 @@ class WorldObjectResidencyService(
     }
   }
 
-  val residentColumns get() = resident.size
-  val residentEntities get() = resident.values.sumOf { it.size }
-  val pending get() = pendingLoad.size + pendingRelease.size
+  val residentColumns get() = viewed.resident.size + simulated.resident.keys.count { it !in viewed.resident }
+  val residentEntities get() = layers.sumOf { layer -> layer.resident.values.sumOf { it.size } }
+  val pending get() = layers.sumOf { it.pendingLoad.size + it.pendingRelease.size }
 
   /**
    * Columns whose holders have the terrain but have not yet been told what stands on it.
@@ -120,32 +127,6 @@ class WorldObjectResidencyService(
    * queued to load or release and there is still a batch owed. A drain gated on [pending] alone never flushes it.
    */
   val awaitingBatches get() = awaitingBatch.size
-
-  private fun hold(chunk: ChunkPos) {
-    val column = columnOf(chunk)
-    val count = (holders[column] ?: 0) + 1
-    holders[column] = count
-
-    if (count == 1) {
-      // A column can be released and re-held inside one tick - a teleport does exactly that, since a `reset`
-      // manifest withdraws everything before re-announcing. Cancelling the release is not merely an
-      // optimisation: releasing then loading would destroy and re-create every entity in the column and hand
-      // every client a new set of ids for the same trees.
-      if (!pendingRelease.remove(column)) pendingLoad.add(column)
-    }
-  }
-
-  private fun release(chunk: ChunkPos) {
-    val column = columnOf(chunk)
-    val count = (holders[column] ?: 0) - 1
-
-    if (count <= 0) {
-      holders.remove(column)
-      if (!pendingLoad.remove(column)) pendingRelease.add(column)
-    } else {
-      holders[column] = count
-    }
-  }
 
   /**
    * Materialises up to [budget] queued columns and releases up to [budget] more.
@@ -158,19 +139,11 @@ class WorldObjectResidencyService(
    */
   fun drain(world: World, budget: Int): Pair<Int, Int> {
     var loaded = 0
-    while (loaded < budget && pendingLoad.isNotEmpty()) {
-      val column = pendingLoad.first()
-      pendingLoad.remove(column)
-      materialise(world, column)
-      loaded++
-    }
-
     var released = 0
-    while (released < budget && pendingRelease.isNotEmpty()) {
-      val column = pendingRelease.first()
-      pendingRelease.remove(column)
-      dematerialise(world, column)
-      released++
+
+    for (layer in layers) {
+      loaded += drainLoads(world, layer, budget)
+      released += drainReleases(world, layer, budget)
     }
 
     // After both, so a column materialised this tick is announced in the same tick its terrain was, and one
@@ -188,6 +161,28 @@ class WorldObjectResidencyService(
     return loaded to released
   }
 
+  private fun drainLoads(world: World, layer: Layer, budget: Int): Int {
+    var loaded = 0
+    while (loaded < budget && layer.pendingLoad.isNotEmpty()) {
+      val column = layer.pendingLoad.first()
+      layer.pendingLoad.remove(column)
+      val spawned = materialise(world, layer, column)
+      if (spawned > 0 || !layer.emptyColumnIsFree) loaded++
+    }
+    return loaded
+  }
+
+  private fun drainReleases(world: World, layer: Layer, budget: Int): Int {
+    var released = 0
+    while (released < budget && layer.pendingRelease.isNotEmpty()) {
+      val column = layer.pendingRelease.first()
+      layer.pendingRelease.remove(column)
+      val destroyed = dematerialise(world, layer, column)
+      if (destroyed > 0 || !layer.emptyColumnIsFree) released++
+    }
+    return released
+  }
+
   /**
    * Tells each waiting account what stands in the columns it now holds.
    *
@@ -201,7 +196,10 @@ class WorldObjectResidencyService(
     val columns = awaitingBatch.keys.toList()
 
     for (column in columns) {
-      val ids = resident[column] ?: continue
+      // Waits for the viewed layer only: it follows exactly the clients that wait. A simulated column that lands
+      // later announces itself again in [materialise].
+      val generated = viewed.resident[column] ?: continue
+      val ids = generated + (simulated.resident[column] ?: EMPTY)
       val accounts = awaitingBatch.remove(column) ?: continue
       if (accounts.isEmpty()) continue
 
@@ -247,7 +245,15 @@ class WorldObjectResidencyService(
   }
 
   /** The entities of one column, for the sync channel to batch. Empty when the column is not resident. */
-  fun entitiesIn(chunkX: Int, chunkY: Int): LongArray = resident[pack(chunkX, chunkY)] ?: EMPTY
+  fun entitiesIn(chunkX: Int, chunkY: Int): LongArray {
+    val column = pack(chunkX, chunkY)
+    val generated = viewed.resident[column] ?: EMPTY
+    val built = simulated.resident[column] ?: EMPTY
+
+    if (built.isEmpty()) return generated
+    if (generated.isEmpty()) return built
+    return generated + built
+  }
 
   /**
    * Takes one resident static entity out of the world and tells the column's holders it is gone.
@@ -258,7 +264,7 @@ class WorldObjectResidencyService(
    * deferred queue when a system at a later order queues a `destroy`. A caller that only destroyed would
    * therefore let a client served this column in the same tick receive the removal *first* and a batch that
    * still lists the entity *second* - and then draw a prop nobody can ever pick up. Removing it from
-   * [resident] here means the batch that goes out later in the same tick has already forgotten it.
+   * its layer here means the batch that goes out later in the same tick has already forgotten it.
    *
    * The message is an optimisation, not the mechanism. [flushBatches] rebuilds a column from the live
    * entities and [materialise] re-runs [stageOf], so a lost removal converges the next time the column
@@ -273,12 +279,11 @@ class WorldObjectResidencyService(
     val chunkY = Math.floorDiv(pose.position.y, chunkSize.toLong()).toInt()
     val column = pack(chunkX, chunkY)
 
-    val ids = resident[column] ?: return false
-    if (!ids.contains(entityId)) return false
+    val layer = layerHolding(column, entityId) ?: return false
 
     // A shorter array rather than a tombstone: collection is rare next to materialising a column, and every
     // other reader of `resident` treats it as exactly "the entities standing here".
-    resident[column] = ids.filter { it != entityId }.toLongArray()
+    layer.resident[column] = layer.resident.getValue(column).filter { it != entityId }.toLongArray()
 
     aoi.removeEntityPosition(entityId)
     world.destroy(entityId)
@@ -291,23 +296,31 @@ class WorldObjectResidencyService(
     return true
   }
 
-  private fun materialise(world: World, column: Long) {
-    if (resident.containsKey(column)) return
+  /** @return how many entities it spawned */
+  private fun materialise(world: World, layer: Layer, column: Long): Int {
+    if (layer.resident.containsKey(column)) return 0
 
     val chunk = ChunkPos(unpackX(column), unpackY(column), 0)
-    val sites = sources.flatMap { it.sitesIn(chunk) }.mapNotNull { site -> stageOf(site.propId)?.let { site to it } }
+    val sites = layer.sources.flatMap { it.sitesIn(chunk) }
+      .mapNotNull { site -> stageOf(site.propId)?.let { site to it } }
 
     if (sites.isEmpty()) {
       // Recorded as resident anyway, so a chunk with no trees on it is not re-asked on every tick it is held.
-      resident[column] = EMPTY
-      return
+      layer.resident[column] = EMPTY
+      return 0
     }
 
     val ids = LongArray(sites.size)
 
     sites.forEachIndexed { i, (site, growth) -> ids[i] = spawn(world, site, growth) }
 
-    resident[column] = ids
+    layer.resident[column] = ids
+
+    // A client may hold the column already and have had a batch without these: a station drained a tick after
+    // the trees around it.
+    announce(column)
+
+    return ids.size
   }
 
   /**
@@ -345,9 +358,10 @@ class WorldObjectResidencyService(
   }
 
   /**
-   * Adds a site to a column that is *already resident*, and re-announces that column to everyone holding it.
+   * Adds a player structure to a column that is *already resident*, and re-announces that column to every client
+   * holding it.
    *
-   * For something built while people are watching. A placement writes its durable row first, so a column
+   * For something built while a client or a bestia is near. A placement writes its durable row first, so a column
    * nobody holds needs nothing here - it will be built from the row the next time somebody walks up to it, and
    * this returns null to say so.
    *
@@ -358,18 +372,20 @@ class WorldObjectResidencyService(
    * @return the new entity's id, or null when the column is not resident
    */
   fun placeNow(world: World, site: WorldObjectSite): Long? {
+    require(site.structureId != 0L) { "Only a player structure is placed at runtime, and it is $site" }
+
     val chunkX = Math.floorDiv(site.position.x, chunkSize.toLong()).toInt()
     val chunkY = Math.floorDiv(site.position.y, chunkSize.toLong()).toInt()
     val column = pack(chunkX, chunkY)
 
-    val ids = resident[column] ?: return null
+    val ids = simulated.resident[column] ?: return null
 
     val id = spawn(world, site)
-    resident[column] = ids + id
+    simulated.resident[column] = ids + id
 
     // Queued rather than sent: `flushBatches` reads the components back off the entity, and the `add`s above
     // are still in the deferred queue while a system is iterating. The next drain runs after them.
-    awaitingBatch.getOrPut(column) { HashSet() }.addAll(subscriptions.subscribersOfColumn(chunkX, chunkY))
+    announce(column)
 
     return id
   }
@@ -392,8 +408,7 @@ class WorldObjectResidencyService(
     val chunkY = Math.floorDiv(pose.position.y, chunkSize.toLong()).toInt()
     val column = pack(chunkX, chunkY)
 
-    val ids = resident[column] ?: return null
-    if (!ids.contains(entityId)) return null
+    val layer = layerHolding(column, entityId) ?: return null
 
     val site = WorldObjectSite(
       kind = visual.kind,
@@ -406,13 +421,13 @@ class WorldObjectResidencyService(
       halfWidthDm = visual.halfWidthDm
     )
     val replacement = spawn(world, site, growth)
-    resident[column] = ids.filter { it != entityId }.toLongArray() + replacement
+    layer.resident[column] = layer.resident.getValue(column).filter { it != entityId }.toLongArray() + replacement
 
     aoi.removeEntityPosition(entityId)
     world.destroy(entityId)
 
     // A whole-column batch, as placeNow sends, so a client draws the stump and stops drawing the tree at once.
-    awaitingBatch.getOrPut(column) { HashSet() }.addAll(subscriptions.subscribersOfColumn(chunkX, chunkY))
+    announce(column)
 
     return replacement
   }
@@ -436,20 +451,84 @@ class WorldObjectResidencyService(
     return GrowthStage.GROWN
   }
 
-  private fun dematerialise(world: World, column: Long) {
+  /** @return how many entities it destroyed */
+  private fun dematerialise(world: World, layer: Layer, column: Long): Int {
+    val ids = layer.resident.remove(column)
+
     // A client that lost the terrain will discard the column's contents anyway, so a batch for it now would
     // describe entities that are about to stop existing.
-    awaitingBatch.remove(column)
+    if (column !in viewed.resident) awaitingBatch.remove(column)
 
-    val ids = resident.remove(column) ?: return
+    if (ids == null) return 0
 
     for (id in ids) {
       aoi.removeEntityPosition(id)
       world.destroy(id)
     }
+
+    return ids.size
+  }
+
+  /** Queues a whole-column batch for every client holding the column. */
+  private fun announce(column: Long) {
+    val holders = subscriptions.subscribersOfColumn(unpackX(column), unpackY(column))
+
+    // An entry nobody holds would never flush: the batch waits for the viewed layer, which only clients load.
+    if (holders.isEmpty()) return
+
+    awaitingBatch.getOrPut(column) { HashSet() }.addAll(holders)
+  }
+
+  private fun layerHolding(column: Long, entityId: Long): Layer? {
+    return layers.firstOrNull { it.resident[column]?.contains(entityId) == true }
+  }
+
+  private fun sourcesOf(scope: WorldObjectScope): List<WorldObjectSource> {
+    return sources.filter { it.scope == scope }
   }
 
   private fun columnOf(chunk: ChunkPos) = pack(chunk.x, chunk.y)
+
+  /**
+   * The entities of the sources that share one [WorldObjectScope], and the columns queued to change.
+   *
+   * @property emptyColumnIsFree a column with nothing on it costs no drain budget
+   */
+  private class Layer(val sources: List<WorldObjectSource>, val emptyColumnIsFree: Boolean) {
+
+    /** Packed `(x, y)` chunk column -> the entities standing in it. */
+    val resident = HashMap<Long, LongArray>()
+
+    /** Packed column -> how many held slabs of it there are. See the class note. */
+    private val holders = HashMap<Long, Int>()
+
+    val pendingLoad = LinkedHashSet<Long>()
+    val pendingRelease = LinkedHashSet<Long>()
+
+    fun hold(column: Long) {
+      val count = (holders[column] ?: 0) + 1
+      holders[column] = count
+
+      if (count == 1) {
+        // A column can be released and re-held inside one tick - a teleport does exactly that, since a `reset`
+        // manifest withdraws everything before re-announcing. Cancelling the release is not merely an
+        // optimisation: releasing then loading would destroy and re-create every entity in the column and hand
+        // every client a new set of ids for the same trees.
+        if (!pendingRelease.remove(column)) pendingLoad.add(column)
+      }
+    }
+
+    fun release(column: Long) {
+      val count = (holders[column] ?: 0) - 1
+
+      if (count <= 0) {
+        holders.remove(column)
+        if (!pendingLoad.remove(column)) pendingRelease.add(column)
+      } else {
+        holders[column] = count
+      }
+    }
+  }
 
   private companion object {
     val EMPTY = LongArray(0)

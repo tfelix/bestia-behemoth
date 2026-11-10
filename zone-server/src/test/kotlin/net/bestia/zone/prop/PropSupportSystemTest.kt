@@ -82,7 +82,8 @@ class PropSupportSystemTest {
   }
 
   private fun systemFor(kind: StaticEntityKind = StaticEntityKind.TREE): PropSupportSystem {
-    subscriptions = ChunkSubscriptionService(ChunkResidency())
+    val chunkResidency = ChunkResidency()
+    subscriptions = ChunkSubscriptionService(chunkResidency)
     divergence = RecordingDivergence()
     removals = ArrayList()
 
@@ -106,7 +107,8 @@ class PropSupportSystemTest {
       fanOut,
       worldService,
       divergence,
-      subscriptions
+      subscriptions,
+      chunkResidency
     )
 
     val derived: DerivedStore = mockk { every { isStale(any()) } answers { stale } }
