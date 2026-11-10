@@ -1,7 +1,7 @@
 package net.bestia.zone.ai.perception
 
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
-import net.bestia.zone.ai.domain.bestia.GatherArea
+import net.bestia.zone.ai.domain.bestia.WorkArea
 import net.bestia.zone.ai.domain.bestia.JobChest
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.entity.StaticEntityKind
@@ -55,7 +55,7 @@ class JobChestSense(
     context.remember(BestiaDomain.FOOD_IN_CHEST, care.hasFor(contents, BagCare.Need.STAMINA))
   }
 
-  private fun nearestChest(masterId: Long, area: GatherArea): StructureEntry? {
+  private fun nearestChest(masterId: Long, area: WorkArea): StructureEntry? {
     return structures.all()
       .filter { it.kind == StaticEntityKind.CHEST && it.ownerMasterId == masterId && !it.isUnderConstruction }
       .filter { it.position.distance(area.center) <= MAX_CHEST_DISTANCE }

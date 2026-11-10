@@ -1,6 +1,7 @@
 package net.bestia.zone.crafting.station
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.crafting.CraftingService
 import net.bestia.zone.crafting.Crafters
 import net.bestia.zone.identity.ecs.Master
@@ -23,6 +24,7 @@ import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.prop.StructureEntry
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.anchor.SimulationAnchor
 import java.time.Clock
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -53,13 +55,24 @@ class StationWorkSystem(
   override val phase = Phase.ITEMS
   override val before = setOf(ObtainItemIntentSystem::class)
   override val reads: ComponentClassSet =
-    setOf(Position::class, Inventory::class, CarryCapacity::class, WorkAssignment::class, Master::class)
-  override val writes: ComponentClassSet = setOf(ObtainItemIntent.CreateItemIntent::class)
+    setOf(Position::class, Inventory::class, CarryCapacity::class, Master::class, AiAgent::class)
+  override val writes: ComponentClassSet =
+    setOf(ObtainItemIntent.CreateItemIntent::class, WorkAssignment::class, SimulationAnchor::class)
 
   override fun update(world: World, deltaTime: Float) {
     structures.all()
       .filter { it.queue.isNotEmpty() && !it.isUnderConstruction }
       .forEach { station -> advance(world, station, deltaTime) }
+
+    structures.all()
+      .filter { it.takesAnyCrafter && it.workerBestiaId != null && it.queue.isEmpty() }
+      .forEach { station -> releaseCrafter(world, station) }
+  }
+
+  /** A free crafter whose station has nothing left to do moves on to another, or goes home. */
+  private fun releaseCrafter(world: World, station: StructureEntry) {
+    workers.unassign(world, station.id)
+    structures.of(station.id)?.let(states::send)
   }
 
   private fun advance(world: World, station: StructureEntry, deltaTime: Float) {

@@ -7,6 +7,7 @@ import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.core.state.Drive
 import net.bestia.zone.ai.core.state.RestingWindow
 import net.bestia.zone.ai.domain.AiDomainRuntime
+import net.bestia.zone.ai.domain.bestia.action.ClaimStationActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.CollectPropActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.FellTreeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.GatherWork
@@ -44,6 +45,7 @@ class BestiaRuntime(
   private val promotion: CombatTargetPromotion,
   private val aoi: EntityAOIService,
   private val handover: ItemHandover,
+  private val stations: StationClaims,
   /** Where wandering draws from. Defaulted for the server; a test passes a seed to pin a walk. */
   random: Random = Random.Default,
 ) : AiDomainRuntime {
@@ -54,9 +56,11 @@ class BestiaRuntime(
   override val catalogue = BestiaDomain
 
   override val reads: ComponentClassSet =
-    GatherWork.READS + FellTreeActionTemplate.READS + ChestExchange.READS + TakeFoodFromChestActionTemplate.READS
+    GatherWork.READS + FellTreeActionTemplate.READS + ChestExchange.READS + TakeFoodFromChestActionTemplate.READS +
+      ClaimStationActionTemplate.READS
 
-  override val writes: ComponentClassSet = CollectPropActionTemplate.WRITES + FellTreeActionTemplate.WRITES
+  override val writes: ComponentClassSet =
+    CollectPropActionTemplate.WRITES + FellTreeActionTemplate.WRITES + ClaimStationActionTemplate.WRITES
 
   override val drives: List<Drive> = BestiaDomain.DRIVES
 
@@ -88,7 +92,10 @@ class BestiaRuntime(
     config.courage.retreatBelowHealthPct?.let { memory.set(BestiaDomain.RETREAT_BELOW_HEALTH_PCT, it, Blackboard.PERMANENT) }
     memory.set(BestiaDomain.FLEES_ON_SIGHT, config.courage.fleesOnSight, Blackboard.PERMANENT)
     if (config.job == BestiaJob.GATHER) {
-      memory.set(BestiaDomain.GATHER_AREA, GatherArea(homePosition, wanderRadius), Blackboard.PERMANENT)
+      memory.set(BestiaDomain.GATHER_AREA, WorkArea(homePosition, wanderRadius), Blackboard.PERMANENT)
+    }
+    if (config.job == BestiaJob.CRAFT) {
+      memory.set(BestiaDomain.CRAFT_AREA, WorkArea(homePosition, wanderRadius), Blackboard.PERMANENT)
     }
   }
 
@@ -101,7 +108,7 @@ class BestiaRuntime(
     return BestiaDomain.resolver(
       profile.actionIds,
       BestiaDomain.Collaborators(
-        locomotion, skills, attackExecution, basicAttacks, care, promotion, aoi, handover, profile.attacks
+        locomotion, skills, attackExecution, basicAttacks, care, promotion, aoi, handover, stations, profile.attacks
       )
     )
   }

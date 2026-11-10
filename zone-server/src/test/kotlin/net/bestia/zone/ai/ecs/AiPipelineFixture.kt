@@ -19,6 +19,8 @@ import net.bestia.zone.ai.perception.BagSense
 import net.bestia.zone.ai.perception.ForageSense
 import net.bestia.zone.ai.perception.GatherSense
 import net.bestia.zone.ai.perception.JobChestSense
+import net.bestia.zone.ai.perception.StationSense
+import net.bestia.zone.crafting.station.StationWorkers
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.container.ItemHandover
@@ -200,12 +202,22 @@ class AiPipelineFixture(
     }
   }
 
-  /** The players' structures, and what each chest holds. Empty, so a gatherer has no chest until a test builds one. */
+  /**
+   * The players' structures, and what each chest holds. Empty, so a gatherer has no chest and a crafter no station
+   * until a test builds one.
+   */
   val structures = mutableListOf<StructureEntry>()
   val chestContents = mutableMapOf<Long, Inventory>()
   private val structureRegistry: PlayerStructureRegistry = mockk<PlayerStructureRegistry>().also {
     every { it.all() } answers { structures }
+    every { it.of(any()) } answers { structures.firstOrNull { entry -> entry.id == firstArg<Long>() } }
+    every { it.setWorker(any(), any()) } answers {
+      structures.replaceAll { entry -> if (entry.id == firstArg<Long>()) entry.copy(workerBestiaId = secondArg()) else entry }
+    }
   }
+
+  /** Who works which station, over [structures]. */
+  val stationWorkers = StationWorkers(structureRegistry)
   private val chests: ChestStorages = mockk<ChestStorages>().also {
     every { it.contentsOf(any()) } answers { chestContents.getOrPut(firstArg()) { Inventory(mutableListOf()) } }
   }
@@ -259,6 +271,7 @@ class AiPipelineFixture(
     promotion = PropPromotionService(divergence),
     aoi = aoi,
     handover = ItemHandover(inventoryService, jobs, worldView),
+    stations = stationWorkers,
     random = random,
   )
 
@@ -297,6 +310,7 @@ class AiPipelineFixture(
         BagSense(bagCare),
         GatherSense(aoi, propKinds, divergence),
         JobChestSense(structureRegistry, chests, bagCare),
+        StationSense(structureRegistry),
         ShelterSense(aoi) { at, reach -> doorsteps.filter { it.distance(at) <= reach } },
         SettlementSense(
           food = { mealStall },

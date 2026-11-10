@@ -1,7 +1,7 @@
 package net.bestia.zone.ai.perception
 
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
-import net.bestia.zone.ai.domain.bestia.GatherArea
+import net.bestia.zone.ai.domain.bestia.WorkArea
 import net.bestia.zone.ai.domain.bestia.Gatherable
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
@@ -46,7 +46,7 @@ class GatherSense(
     context.remember(BestiaDomain.GATHERABLES, nearest)
   }
 
-  private fun gatherableOf(world: World, id: EntityId, area: GatherArea): Gatherable? {
+  private fun gatherableOf(world: World, id: EntityId, area: WorkArea): Gatherable? {
     val pose = world.get(id, PropPose::class) ?: return null
     if (!area.contains(pose.position)) return null
 

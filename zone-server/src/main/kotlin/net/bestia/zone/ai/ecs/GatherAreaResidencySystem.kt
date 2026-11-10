@@ -1,7 +1,7 @@
 package net.bestia.zone.ai.ecs
 
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
-import net.bestia.zone.ai.domain.bestia.GatherArea
+import net.bestia.zone.ai.domain.bestia.WorkArea
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
@@ -33,7 +33,7 @@ class GatherAreaResidencySystem(
 
   override val reads: ComponentClassSet = setOf(OwnedBestia::class, AiAgent::class)
 
-  private val held = HashMap<EntityId, GatherArea>()
+  private val held = HashMap<EntityId, WorkArea>()
 
   override fun update(world: World, deltaTime: Float) {
     val working = HashSet<EntityId>()
@@ -55,7 +55,7 @@ class GatherAreaResidencySystem(
     }
   }
 
-  private fun follow(id: EntityId, area: GatherArea) {
+  private fun follow(id: EntityId, area: WorkArea) {
     val previous = held.put(id, area)
     if (previous == area) return
 

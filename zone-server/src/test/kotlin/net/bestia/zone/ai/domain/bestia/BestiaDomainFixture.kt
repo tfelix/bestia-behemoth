@@ -39,7 +39,7 @@ object BestiaDomainFixture {
     actionIds,
     BestiaDomain.Collaborators(
       locomotion(), skills(), attackExecution(), BasicAttackResolver(mockk(relaxed = true)), TestBagCare.create(),
-      mockk(relaxed = true), EntityAOIService(), mockk(relaxed = true), attacks,
+      mockk(relaxed = true), EntityAOIService(), mockk(relaxed = true), mockk(relaxed = true), attacks,
     )
   )
 }
