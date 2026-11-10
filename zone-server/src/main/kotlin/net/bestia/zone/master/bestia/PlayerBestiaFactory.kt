@@ -12,6 +12,9 @@ import net.bestia.zone.account.persistence.PlayerBestia
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.bestia.persistence.BestiaRepository
 import net.bestia.zone.bestia.persistence.findByIdentifierOrThrow
+import net.bestia.zone.bestia.Sex
+import net.bestia.zone.battle.status.IndividualValues
+import kotlin.random.Random
 
 @Component
 class PlayerBestiaFactory(
@@ -25,7 +28,11 @@ class PlayerBestiaFactory(
   class PlayerBestiaCreateData(
     val bestiaIdentifier: String,
     val spawnPosition: Vec3L,
-    val level: Int = 1
+    val level: Int = 1,
+    /** Null rolls one, as for a caught bestia. */
+    val sex: Sex? = null,
+    /** Null rolls them, as for a caught bestia. */
+    val individualValues: IndividualValues? = null,
   )
 
   /**
@@ -54,6 +61,8 @@ class PlayerBestiaFactory(
     pb.spawnPosition = playerBestiaCreateData.spawnPosition
     pb.level = playerBestiaCreateData.level
     pb.entityId = entityIdGenerator.nextId()
+    pb.sex = playerBestiaCreateData.sex ?: Sex.roll(Random.Default)
+    pb.individualValues = playerBestiaCreateData.individualValues ?: IndividualValues.rollWild(Random.Default)
 
     return playerBestiaRepository.save(pb)
   }

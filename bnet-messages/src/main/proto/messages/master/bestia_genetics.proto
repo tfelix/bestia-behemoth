@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BestiaGeneticsProto";
+
+enum BestiaSex {
+  BESTIA_SEX_UNKNOWN = 0;
+  BESTIA_SEX_MALE = 1;
+  BESTIA_SEX_FEMALE = 2;
+}
+
+enum IvGrade {
+  IV_GRADE_POOR = 0;
+  IV_GRADE_FAIR = 1;
+  IV_GRADE_GOOD = 2;
+  IV_GRADE_GREAT = 3;
+  IV_GRADE_EXCELLENT = 4;
+  IV_GRADE_PERFECT = 5;
+}
+
+// A bestia's nine individual values as the receiving master may read them. Both lists are in the order
+// STR, INT, VIT, DEX, WIL, AGI, HP, MANA, STAMINA. `exact` is empty unless the master has Bloodline Study.
+message IvReading {
+  repeated IvGrade grades = 1;
+  repeated uint32 exact = 2;
+}

@@ -6,6 +6,8 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.ContainerOwner
 import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.bestia.persistence.Bestia
+import net.bestia.zone.bestia.Sex
+import net.bestia.zone.battle.status.IndividualValues
 import org.hibernate.Length
 import org.hibernate.annotations.ColumnDefault
 
@@ -68,6 +70,14 @@ class PlayerBestia(
    */
   @Embedded
   var aiConfig: AiConfig = AiConfig()
+
+  /** Null only on a row from before bestias had a sex; [net.bestia.zone.boot.PlayerBestiaGeneticsBootRunner] rolls it. */
+  @Enumerated(EnumType.STRING)
+  @Column(name = "sex")
+  var sex: Sex? = null
+
+  @Embedded
+  var individualValues: IndividualValues = IndividualValues()
 
   /**
    * The journey it is on, as [net.bestia.zone.travel.StoredJourney] writes it, so a bestia sent off keeps going

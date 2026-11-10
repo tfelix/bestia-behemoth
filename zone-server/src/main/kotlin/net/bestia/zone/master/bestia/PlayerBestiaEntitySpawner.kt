@@ -221,10 +221,12 @@ class PlayerBestiaEntitySpawner(
 
     // Formula-driven pools, kept fresh by StatusValueRecalcSystem - which is what the
     // FormulaDrivenVitals marker below opts this entity into.
-    val maxHp = conditionValueCalculator.computeMaxHp(playerBestia.level, baseStatusValues.vitality)
-    val maxMana = conditionValueCalculator.computeMaxMana(playerBestia.level, baseStatusValues.intelligence)
+    val ivs = playerBestia.individualValues
+    add(id, ivs)
+    val maxHp = conditionValueCalculator.computeMaxHp(playerBestia.level, baseStatusValues.vitality, iv = ivs.hp)
+    val maxMana = conditionValueCalculator.computeMaxMana(playerBestia.level, baseStatusValues.intelligence, iv = ivs.mana)
     val maxStamina = conditionValueCalculator.computeMaxStamina(
-      playerBestia.level, baseStatusValues.vitality, baseStatusValues.strength, baseStatusValues.willpower
+      playerBestia.level, baseStatusValues.vitality, baseStatusValues.strength, baseStatusValues.willpower, ivs.stamina
     )
     add(id, Health(current = maxHp, max = maxHp))
     add(id, Mana(current = maxMana, max = maxMana))
