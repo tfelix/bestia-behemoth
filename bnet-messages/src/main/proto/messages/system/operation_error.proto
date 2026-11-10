@@ -344,6 +344,10 @@ enum OpError {
   RITUAL_FAILED = 134;
   // Every slot of the chest is taken and the goods would need a new one. The player takes something out first.
   CHEST_FULL = 135;
+  // Only the master who built a chest, and that master's bestias, may open it.
+  CHEST_NOT_YOURS = 136;
+  // The chest is too far away to reach into. The player walks up to it.
+  CHEST_OUT_OF_REACH = 137;
 }
 
 message OperationError {

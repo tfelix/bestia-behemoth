@@ -1,4 +1,4 @@
-package net.bestia.zone.item.net
+package net.bestia.zone.item.ecs
 
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.PropPose

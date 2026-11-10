@@ -77,12 +77,16 @@ class InteractEntityHandler(
       return toggleBuilding(world, actorId, targetId)
     }
 
-    // The component every player-built structure carries and nothing else does, so this needs no second
-    // list of which kinds a player can build. A structure with an interaction of its own, like a Mana Circle,
-    // takes that instead of the crafting window.
+    // Ahead of the structures: a chest or a Mana Circle is one, but neither is a crafting station.
     val propInteraction = world.get(targetId, StaticVisual::class)?.kind?.let(propInteractionByKind::get)
+    if (propInteraction != null) {
+      return propInteraction.interact(world, actorId, targetId)
+    }
+
+    // The component every player-built structure carries and nothing else does, so this needs no second
+    // list of which kinds a player can build.
     val structure = world.get(targetId, PlayerStructureIdentity::class)
-    if (structure != null && propInteraction == null) {
+    if (structure != null) {
       val accountId = world.get(actorId, Account::class)?.accountId ?: return null
       val masterEntityId = connectionInfoService.getSelectedMasterEntityId(accountId)
       crafting.openAtStructure(world, actorId, masterEntityId, structure.structureId)
@@ -96,10 +100,6 @@ class InteractEntityHandler(
         talkService.open(accountId, actorId, targetId)
       }
       return null
-    }
-
-    if (propInteraction != null) {
-      return propInteraction.interact(world, actorId, targetId)
     }
 
     LOG.debug { "Entity $actorId interacted with $targetId, which has nothing to interact with" }
