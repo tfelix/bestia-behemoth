@@ -36,6 +36,7 @@ import net.bestia.worldgen.spawn.SpawnerStage
 import net.bestia.worldgen.spawn.VegetationStandStage
 import net.bestia.worldgen.geo.KnollStage
 import net.bestia.worldgen.dress.DressingStage
+import net.bestia.worldgen.treasure.TreasureStage
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.voxel.BlockType
@@ -129,6 +130,8 @@ class StandardWorldTest {
         // final by the time corruption has run, and nothing reads a landmark back.
         PoiStage.ID,
         TownStage.ID,
+        // Ready once history ran, and "treasure" sorts after "towns". Nothing reads a cache back.
+        TreasureStage.ID,
         EconomyStage.ID,
         // The navigation graph is the most derived thing in the pipeline: it reads the roads, the bridges,
         // the gates the town stage just placed and the cave mouths, so it cannot be ready until all of them
