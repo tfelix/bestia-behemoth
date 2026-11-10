@@ -1,6 +1,7 @@
 package net.bestia.zone.crafting.station
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.crafting.CraftingService
 import net.bestia.zone.crafting.Crafters
@@ -82,6 +83,12 @@ class StationWorkSystem(
     if (isNear(world, workerId, fire)) campfires.addWoodFromChest(world, fire.id)
   }
 
+  /** Tells a bestia worker its bag is in the way, so it carries its products to the chest. */
+  private fun askToEmptyBag(world: World, workerId: EntityId) {
+    val memory = world.get(workerId, AiAgent::class)?.memory ?: return
+    memory.set(BestiaDomain.NO_ROOM_FOR_PRODUCT, true, BestiaDomain.NO_ROOM_FOR_PRODUCT.retain)
+  }
+
   /** A free crafter whose station has nothing left to do moves on to another, or goes home. */
   private fun releaseCrafter(world: World, station: StructureEntry) {
     workers.unassign(world, station.id)
@@ -112,6 +119,7 @@ class StationWorkSystem(
       progress.pause = pause
       states.send(station)
     }
+    if (pause == StationPause.BAG_FULL) askToEmptyBag(world, workerId!!)
     if (pause != StationPause.NONE) return
 
     val craftSeconds = crafting.craftSecondsFor(crafter!!, recipe)

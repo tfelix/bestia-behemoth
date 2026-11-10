@@ -176,6 +176,9 @@ object BestiaDomain : AiDomainCatalogue {
   /** Whether the job chest holds food the bestia may eat. */
   val FOOD_IN_CHEST = StateKey<Boolean>("foodInChest", observed = true)
 
+  /** Its station waits because the next product does not fit in its bag. Set by the station while it waits. */
+  val NO_ROOM_FOR_PRODUCT = StateKey<Boolean>("noRoomForProduct", observed = true, retain = 10f)
+
   /** Whether the bag holds goods for the job chest that still fit in it. */
   val GOODS_TO_HAUL = StateKey<Boolean>("goodsToHaul", observed = true)
 
@@ -468,14 +471,17 @@ object BestiaDomain : AiDomainCatalogue {
     )
 
     /**
-     * A gatherer carrying its finds to its chest, once its bag is nearly full or the area is picked clean. Over
-     * [RETURN_HOME], so a chest outside the area is reached rather than turned back from.
+     * A gatherer or crafter carrying its goods to its chest, once its bag is nearly full, the area is picked clean or
+     * its station has no room for the next product. Over [RETURN_HOME], so a chest outside the area is reached rather
+     * than turned back from.
      */
     val HAUL_TO_CHEST = Goal(
       name = "HaulToChest",
       priority = priority(base = 75f),
       availability = Precondition { s ->
-        s.get(GOODS_TO_HAUL) == true && (bagLoadOf(s) >= HAUL_AT_LOAD_PCT || s.get(GATHERABLES).isNullOrEmpty())
+        val pickedClean = s.get(GATHER_AREA) != null && s.get(GATHERABLES).isNullOrEmpty()
+        val bagFull = bagLoadOf(s) >= HAUL_AT_LOAD_PCT || s.get(NO_ROOM_FOR_PRODUCT) == true
+        s.get(GOODS_TO_HAUL) == true && (bagFull || pickedClean)
       },
       desiredState = listOf(Preconditions.equalTo(GOODS_TO_HAUL, false)),
     )

@@ -77,11 +77,14 @@ enum class BestiaJob(
     workActions = listOf("collectProp", "fellTree", "haulToChest", "takeFoodFromChest"),
   ),
 
-  /** Work the queues of the master's stations around home that take any free crafter. */
+  /**
+   * Work the queues of the master's stations around home that take any free crafter, and carry the products to the
+   * chest next to the station.
+   */
   CRAFT(
     setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"),
-    workGoals = listOf("Craft"),
-    workActions = listOf("claimStation"),
+    workGoals = listOf("Craft", "HaulToChest", "RestockFood"),
+    workActions = listOf("claimStation", "haulToChest", "takeFoodFromChest"),
   );
 
   companion object {

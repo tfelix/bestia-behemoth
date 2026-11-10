@@ -32,7 +32,7 @@ export const JOB_TEXT: Record<string, { name: string; text: string }> = {
 	},
 	CRAFT: {
 		name: 'Craft',
-		text: 'Works the queue of any of your stations around where it was left that takes any free crafter.'
+		text: 'Works your stations around where it was left that take any free crafter, and carries what it makes to the chest next to them.'
 	},
 	REST: { name: 'Rest', text: 'Stays around where it was left, eats and sleeps as needed.' }
 };
