@@ -227,6 +227,9 @@ func _on_item_use_requested(item_id: int) -> void:
 		return
 
 	var player_item_id := inventory.first_held(item_id) if inventory else 0
+	# A tool with a use script, like a shovel, is used from the hand as well as from the bag.
+	if player_item_id == 0 and inventory and item_res.item_script:
+		player_item_id = inventory.first_worn(item_id)
 	if player_item_id == 0:
 		return
 

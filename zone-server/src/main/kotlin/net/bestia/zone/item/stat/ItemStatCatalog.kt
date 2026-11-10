@@ -34,6 +34,11 @@ class ItemStatCatalog {
     return slot.storedItemLevel ?: itemLevelOf(slot.template.id, slot.rolledStats, slot.slots)
   }
 
+  /** Items whose copies roll their own stats, like forged gear. */
+  fun withRandomStats(): List<Long> {
+    return byItemId.filterValues { it.randomStats != null }.keys.sorted()
+  }
+
   /** [ItemStatSheet.NONE] for an item that declares nothing, which is most of them. */
   fun sheetOf(itemId: Long): ItemStatSheet {
     return byItemId[itemId] ?: ItemStatSheet.NONE

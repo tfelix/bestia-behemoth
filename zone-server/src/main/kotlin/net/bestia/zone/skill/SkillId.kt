@@ -62,6 +62,10 @@ enum class SkillId {
   // FishingCatalogue: its rank raises the catch level cap.
   M_FISHING,
 
+  // Treasure: Excavation digs a treasure cache faster and turns up its best item more often. See
+  // net.bestia.zone.treasure.DigService.
+  M_EXCAVATION,
+
   // Passives with a stat effect, named by their PassiveSkillScript bean rather than from the yml.
   M_MEDITATION,
   M_QUICK_TRAVEL,

@@ -77,6 +77,11 @@ class AmbientSiteResolver(
   /** Cells resolved so far, for the debug command. */
   val memoSize: Int get() = resolved.size
 
+  /** How dangerous the country is here, 0 to 1. Sets the bestias' levels, and how rich a treasure cache is. */
+  fun dangerAt(worldX: Double, worldY: Double): Double {
+    return dangerAt(state, worldX, worldY, state.surface.biomeAt(worldX, worldY))
+  }
+
   /**
    * The site this cell offers, or null where the wilderness holds nothing.
    *

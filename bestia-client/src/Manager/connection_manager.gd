@@ -150,6 +150,7 @@ var RespawnCMSG = load("res://Bnet/Message/System/RespawnCMSG.cs")
 var InteractCMSG = load("res://Bnet/Message/System/InteractCMSG.cs")
 var ConversationChoiceCMSG = load("res://Bnet/Message/System/ConversationChoiceCMSG.cs")
 var CollectPropCMSG = load("res://Bnet/Message/Map/CollectPropCMSG.cs")
+var DigCMSG = load("res://Bnet/Message/Map/DigCMSG.cs")
 var InteractEntityCMSG = load("res://Bnet/Message/Map/InteractEntityCMSG.cs")
 var CraftItemCMSG = load("res://Bnet/Message/Crafting/CraftItemCMSG.cs")
 var DiscoverRecipeCMSG = load("res://Bnet/Message/Crafting/DiscoverRecipeCMSG.cs")
@@ -723,6 +724,14 @@ func cast_line(target: Vector3) -> void:
 func strike_line() -> void:
 	assert(is_ready_to_send())
 	_socket.SendMessage(StrikeLineCMSG.new())
+
+
+## Digs at a ground tile with the tool in the right hand. The server keeps going while a cache lies below.
+func dig(tile: Vector3) -> void:
+	assert(is_ready_to_send())
+	var msg = DigCMSG.new()
+	msg.Position = tile
+	_socket.SendMessage(msg)
 
 
 ## Clicking on something in the world. What it means is decided by the server from what the target is, so

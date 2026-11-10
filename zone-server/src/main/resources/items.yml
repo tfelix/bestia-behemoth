@@ -1385,6 +1385,20 @@ items:
 
       It chops slowly and bruises more than it cuts, but it chops.
 
+  # Digs soil, sand and gravel, where a pickaxe digs rock - see DigService. Every master can make one.
+  - id: 438
+    item-db-name: shovel
+    base-level: 1
+    weight: 220
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    max-durability: 120
+    description: |
+      A wooden spade on a long handle, its blade hardened in the fire.
+
+      Whatever somebody buried, this is how it comes back up.
+
   # Handed to a courier at a post office's route board, under the postal seal. Each copy weighs the parcels in it,
   # so its own weight is only the canvas. `bound` keeps it in the courier's bag until it is delivered.
   - id: 105

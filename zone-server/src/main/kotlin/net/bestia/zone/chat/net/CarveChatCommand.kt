@@ -67,7 +67,8 @@ class CarveChatCommand(
       return false
     }
 
-    inbox.offerCarve(ChunkStreamInbox.Carve(playerId, x, y, z, radius))
+    // Centred on the voxel's centre rather than its corner, so a brush aimed at a voxel is symmetric about it.
+    inbox.offerCarve(ChunkStreamInbox.Carve(playerId, CarveBrush.sphere(x + 0.5, y + 0.5, z + 0.5, radius)))
 
     LOG.info { "Queued /carve ($x,$y,$z) r=$radius for player $playerId" }
 

@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service
  * `CraftItemHandler` / `ActivateSkillHandler` each cancel the opposite before starting their own.
  */
 @Service
-class CastCancelService {
+class CastCancelService(
+  private val otherWork: List<InterruptibleWork> = emptyList(),
+) {
 
   /** Also ends a channel and the stillness it holds its caster in: a channel is a cast that outlived its bar. */
   fun cancelCast(world: World, entityId: EntityId) {
@@ -45,6 +47,7 @@ class CastCancelService {
 
   fun cancelCraft(world: World, entityId: EntityId) {
     world.remove(entityId, Crafting::class)
+    otherWork.forEach { world.remove(entityId, it.component) }
   }
 
   /** Breaks off whatever the entity was busy with, for a stun or a freeze. */

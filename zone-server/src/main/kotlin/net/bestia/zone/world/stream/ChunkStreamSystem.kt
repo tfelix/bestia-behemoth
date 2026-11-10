@@ -2,7 +2,6 @@ package net.bestia.zone.world.stream
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.ChunkPos
-import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.ActivePlayer
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -143,33 +142,16 @@ class ChunkStreamSystem(
     if (carves.isEmpty()) return
 
     for (carve in carves) {
-      if (carve.radius < CarveBrush.MIN_RADIUS) {
-        metrics.carveRejected()
-        LOG.warn {
-          "Account ${carve.accountId} asked for a bore radius of ${carve.radius}, below the " +
-              "${CarveBrush.MIN_RADIUS} the client can render"
-        }
-        continue
-      }
-
-      // Centred on the voxel's centre rather than its corner, so a brush aimed at a voxel is symmetric about
-      // it. Localisation and the world seam are `ChunkService.carve`'s business - a brush is a shape in world
+      // Localisation and the world seam are `ChunkService.carve`'s business - a brush is a shape in world
       // space and can reach into several chunks at once.
-      val brush = CarveBrush.sphere(
-        carve.x + 0.5,
-        carve.y + 0.5,
-        carve.z + 0.5,
-        carve.radius
-      )
-
-      val result = chunkService.carve(brush)
+      val result = chunkService.carve(carve.brush)
       carvedChunks.addAll(result.chunks)
       metrics.carved(result.voxels.size, result.chunks.size)
 
       bank(result, carve.accountId)
 
       LOG.debug {
-        "Account ${carve.accountId} carved r=${carve.radius} at (${carve.x},${carve.y},${carve.z}): " +
+        "Account ${carve.accountId} carved ${carve.brush}: " +
             "${result.voxels.size} voxels across ${result.chunks.size} chunks"
       }
     }

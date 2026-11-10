@@ -55,6 +55,9 @@ class GameMetrics(private val registry: MeterRegistry = SimpleMeterRegistry()) {
 
     /** A courier's share of the freight fees of the parcels it delivered, paid back out of the reserve. */
     COURIER,
+
+    /** The coins in a treasure cache, withdrawn when it is dug up. */
+    TREASURE,
   }
 
   private val hits = Counter.builder("zone.combat.hits")

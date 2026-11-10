@@ -670,6 +670,11 @@ STATUS_EFFECT_203,In camp: the weather bites less here, and a good camp keeps ou
 ERROR_FISHING_NOT_WATER,There is no water deep enough to fish there.
 ERROR_FISHING_TOO_FAR,Your line does not reach that far.
 ERROR_FISHING_GOT_AWAY,It got away.
+ERROR_DIG_NEEDS_TOOL,Hold a shovel or a pickaxe to dig.
+ERROR_DIG_NEEDS_PICKAXE,This ground is rock. Dig it with a pickaxe.
+ERROR_DIG_NEEDS_SHOVEL,This ground is soil. Dig it with a shovel.
+ERROR_DIG_TOO_FAR,That spot is too far away to dig. Walk closer.
+ERROR_DIG_NOTHING_FOUND,You dig a little but find nothing buried here.
 =======
 SKILLS_TITLE,Skills
 SKILLS_TAB_OTHER,Other

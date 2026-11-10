@@ -12,6 +12,7 @@ import net.bestia.zone.battle.ecs.attack.AttackSystem
 import net.bestia.zone.battle.ecs.skill.Casting
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.battle.ecs.skill.Crafting
+import net.bestia.zone.battle.ecs.skill.InterruptibleWork
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.InCombat
 import net.bestia.zone.battle.damage.DamageGate
@@ -36,6 +37,7 @@ class ReceivedDamageSystem(
   private val metrics: GameMetrics = GameMetrics(),
   private val reactions: DamageReactions = DamageReactions.NONE,
   private val random: Random = Random.Default,
+  private val otherWork: List<InterruptibleWork> = emptyList(),
 ) : System {
   override val phase = Phase.COMBAT
   override val after = setOf(AttackSystem::class)
@@ -49,7 +51,7 @@ class ReceivedDamageSystem(
       InCombat::class, IncomingDamage::class, Animation::class,
       // A barrier or a freeze reacts to the hit, and may leave.
       StatusEffects::class, IsStatusValueDirty::class
-    )
+    ) + otherWork.map { it.component }
 
   override fun update(world: World, deltaTime: Float) {
     world.query(IncomingDamage::class, Health::class).each { id ->
@@ -101,6 +103,9 @@ class ReceivedDamageSystem(
         }
         if (world.has(id, Crafting::class)) {
           world.remove(id, Crafting::class)
+        }
+        for (work in otherWork) {
+          if (world.has(id, work.component)) world.remove(id, work.component)
         }
         // A hit stands an emoting entity up, the same tick it lands.
         world.get(id, Animation::class)?.endEmote()
