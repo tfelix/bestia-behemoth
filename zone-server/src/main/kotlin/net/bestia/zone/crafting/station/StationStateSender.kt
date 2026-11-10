@@ -25,7 +25,8 @@ class StationStateSender(
         progressSeconds = progress?.seconds ?: 0f,
         craftSeconds = progress?.craftSeconds ?: 0f,
         pause = progress?.pause ?: StationPause.NONE,
-        workerEntityId = workers.entityOf(station.id) ?: 0L
+        workerEntityId = workers.entityOf(station.id) ?: 0L,
+        takesAnyCrafter = station.takesAnyCrafter
       )
     )
   }

@@ -97,6 +97,18 @@ class StationWorkSystemTest {
     assertEquals(StationPause.STATION_OUT, work.of(STATION).pause)
   }
 
+  @Test
+  fun `a station waiting for a free crafter is not worked by its owner`() {
+    val fixture = queued(amount = 2)
+    fixture.station = fixture.station.copy(takesAnyCrafter = true)
+    online(fixture, fixture.givenOwner(planks = 0))
+
+    system(fixture).update(fixture.world, 4f)
+
+    assertEquals(StationPause.NO_FREE_CRAFTER, work.of(STATION).pause)
+    assertEquals(mapOf(PLANK to 4), fixture.station.held)
+  }
+
   /** The whole point of a bestia worker: the queue goes on with nobody playing. */
   @Test
   fun `a bestia keeps working while its master is logged out`() {

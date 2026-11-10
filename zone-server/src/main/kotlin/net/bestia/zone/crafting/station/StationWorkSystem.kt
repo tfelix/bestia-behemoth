@@ -75,6 +75,7 @@ class StationWorkSystem(
     val workerId = workerOf(world, station)
     val crafter = workerId?.let { crafterOf(world, it, station) }
     val pause = when {
+      station.waitsForCrafter -> StationPause.NO_FREE_CRAFTER
       workerId == null || crafter == null -> StationPause.WORKER_OFFLINE
       !isNear(world, workerId, station) -> StationPause.WORKER_AWAY
       !station.canWorkAt(clock.instant()) -> StationPause.STATION_OUT

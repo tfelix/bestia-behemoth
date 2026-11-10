@@ -15,6 +15,7 @@ import net.bestia.zone.crafting.station.StationFixture.Companion.PLANK
 import net.bestia.zone.crafting.station.StationFixture.Companion.RECIPE
 import net.bestia.zone.crafting.station.StationFixture.Companion.STATION
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -125,6 +126,27 @@ class StationQueueServiceTest {
 
     assertEquals(StationFixture.PLAYER_BESTIA, fixture.station.workerBestiaId)
     assertEquals(bestia, fixture.workers.entityOf(STATION))
+  }
+
+  @Test
+  fun `letting any free crafter take the station sends its bestia off it`() {
+    val owner = fixture.givenOwner(planks = 0)
+    service.setWorker(fixture.world, owner, STATION, fixture.givenBestia())
+
+    assertNull(service.takeAnyFreeCrafter(fixture.world, owner, STATION))
+
+    assertTrue(fixture.station.waitsForCrafter)
+    assertNull(fixture.workers.entityOf(STATION))
+  }
+
+  @Test
+  fun `picking a worker again stops waiting for a free crafter`() {
+    val owner = fixture.givenOwner(planks = 0)
+    service.takeAnyFreeCrafter(fixture.world, owner, STATION)
+
+    service.setWorker(fixture.world, owner, STATION, 0L)
+
+    assertFalse(fixture.station.takesAnyCrafter)
   }
 
   @Test

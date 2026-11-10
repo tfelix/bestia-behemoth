@@ -36,12 +36,20 @@ data class StructureEntry(
   val held: Map<Long, Int> = emptyMap(),
 
   /** The player bestia that works a station's queue, or null when its owner does. */
-  val workerBestiaId: Long? = null
+  val workerBestiaId: Long? = null,
+
+  /** See [PlayerStructure.takesAnyCrafter]. */
+  val takesAnyCrafter: Boolean = false
 ) {
 
   val isUnderConstruction: Boolean
     get() {
       return totalBuildSeconds > 0f
+    }
+
+  val waitsForCrafter: Boolean
+    get() {
+      return takesAnyCrafter && workerBestiaId == null
     }
 
   /** Whether anybody can work here now. Only a campfire can stop: it has to be burning. */
@@ -197,6 +205,18 @@ class PlayerStructureRegistry(
     }
   }
 
+  fun setTakesAnyCrafter(structureId: Long, takesAnyCrafter: Boolean) {
+    val current = byId[structureId] ?: return
+    reindex(current.copy(takesAnyCrafter = takesAnyCrafter))
+
+    asyncJobExecutor.submit(structureId) {
+      repository.findById(structureId).ifPresent { row ->
+        row.takesAnyCrafter = takesAnyCrafter
+        repository.save(row)
+      }
+    }
+  }
+
   /** The station [playerBestiaId] works at, if any. */
   fun workplaceOf(playerBestiaId: Long): StructureEntry? {
     return byId.values.firstOrNull { it.workerBestiaId == playerBestiaId }
@@ -252,7 +272,7 @@ class PlayerStructureRegistry(
         row.id, row.kind, row.ownerMasterId, row.ownerAccountId, Vec3L(row.x, row.y, row.z), row.yaw,
         row.totalBuildSeconds, row.remainingBuildSeconds, row.burnsOutAt,
         StationContents.decodeQueue(row.stationQueue), StationContents.decodeHeld(row.stationHeld),
-        row.workerBestiaId
+        row.workerBestiaId, row.takesAnyCrafter
       )
       index(row.chunkX, row.chunkY, entry)
     }

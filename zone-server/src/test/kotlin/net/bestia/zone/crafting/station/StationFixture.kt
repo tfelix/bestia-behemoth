@@ -48,6 +48,7 @@ class StationFixture(stationKind: StaticEntityKind = StaticEntityKind.WORKBENCH,
       station = station.copy(queue = secondArg(), held = thirdArg<Map<Long, Int>>().filterValues { it > 0 })
     }
     every { registry.setWorker(STATION, any()) } answers { station = station.copy(workerBestiaId = secondArg()) }
+    every { registry.setTakesAnyCrafter(STATION, any()) } answers { station = station.copy(takesAnyCrafter = secondArg()) }
     every { registry.workplaceOf(any()) } answers { station.takeIf { it.workerBestiaId == firstArg<Long>() } }
   }
 
