@@ -26,16 +26,18 @@ namespace Bnet {
           string.Concat(
             "CittZXNzYWdlcy9tYXN0ZXIvYmVzdGlhX2FpX2NvbmZpZ19zbXNnLnByb3Rv",
             "EgRibmV0Gi9tZXNzYWdlcy9tYXN0ZXIvc2V0X2Jlc3RpYV9haV9jb25maWdf",
-            "Y21zZy5wcm90byKkAQoSQmVzdGlhQWlDb25maWdTTVNHEhgKEHBsYXllcl9i",
+            "Y21zZy5wcm90byKVAgoSQmVzdGlhQWlDb25maWdTTVNHEhgKEHBsYXllcl9i",
             "ZXN0aWFfaWQYASABKAQSLAoDam9iGAUgASgOMh8uYm5ldC5TZXRCZXN0aWFB",
             "aUNvbmZpZ0NNU0cuSm9iEjQKB2NvdXJhZ2UYBiABKA4yIy5ibmV0LlNldEJl",
-            "c3RpYUFpQ29uZmlnQ01TRy5Db3VyYWdlSgQIAhADSgQIAxAESgQIBBAFQjAK",
-            "FW5ldC5iZXN0aWEuYm5ldC5wcm90b0IXQmVzdGlhQWlDb25maWdTbXNnUHJv",
-            "dG9iBnByb3RvMw=="));
+            "c3RpYUFpQ29uZmlnQ01TRy5Db3VyYWdlEjUKDGZhbGxiYWNrX2pvYhgHIAEo",
+            "DjIfLmJuZXQuU2V0QmVzdGlhQWlDb25maWdDTVNHLkpvYhI4CglvdmVycmlk",
+            "ZXMYCCABKAsyJS5ibmV0LlNldEJlc3RpYUFpQ29uZmlnQ01TRy5PdmVycmlk",
+            "ZXNKBAgCEANKBAgDEARKBAgEEAVCMAoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
+            "QhdCZXN0aWFBaUNvbmZpZ1Ntc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.SetBestiaAiConfigCmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaAiConfigSMSG), global::Bnet.BestiaAiConfigSMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaAiConfigSMSG), global::Bnet.BestiaAiConfigSMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage", "FallbackJob", "Overrides" }, null, null, null, null)
           }));
     }
     #endregion
@@ -84,6 +86,8 @@ namespace Bnet {
       playerBestiaId_ = other.playerBestiaId_;
       job_ = other.job_;
       courage_ = other.courage_;
+      fallbackJob_ = other.fallbackJob_;
+      overrides_ = other.overrides_ != null ? other.overrides_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -129,6 +133,30 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "fallback_job" field.</summary>
+    public const int FallbackJobFieldNumber = 7;
+    private global::Bnet.SetBestiaAiConfigCMSG.Types.Job fallbackJob_ = global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SetBestiaAiConfigCMSG.Types.Job FallbackJob {
+      get { return fallbackJob_; }
+      set {
+        fallbackJob_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "overrides" field.</summary>
+    public const int OverridesFieldNumber = 8;
+    private global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides overrides_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides Overrides {
+      get { return overrides_; }
+      set {
+        overrides_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -147,6 +175,8 @@ namespace Bnet {
       if (PlayerBestiaId != other.PlayerBestiaId) return false;
       if (Job != other.Job) return false;
       if (Courage != other.Courage) return false;
+      if (FallbackJob != other.FallbackJob) return false;
+      if (!object.Equals(Overrides, other.Overrides)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -157,6 +187,8 @@ namespace Bnet {
       if (PlayerBestiaId != 0UL) hash ^= PlayerBestiaId.GetHashCode();
       if (Job != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) hash ^= Job.GetHashCode();
       if (Courage != global::Bnet.SetBestiaAiConfigCMSG.Types.Courage.Unspecified) hash ^= Courage.GetHashCode();
+      if (FallbackJob != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) hash ^= FallbackJob.GetHashCode();
+      if (overrides_ != null) hash ^= Overrides.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -187,6 +219,14 @@ namespace Bnet {
         output.WriteRawTag(48);
         output.WriteEnum((int) Courage);
       }
+      if (FallbackJob != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) {
+        output.WriteRawTag(56);
+        output.WriteEnum((int) FallbackJob);
+      }
+      if (overrides_ != null) {
+        output.WriteRawTag(66);
+        output.WriteMessage(Overrides);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -209,6 +249,14 @@ namespace Bnet {
         output.WriteRawTag(48);
         output.WriteEnum((int) Courage);
       }
+      if (FallbackJob != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) {
+        output.WriteRawTag(56);
+        output.WriteEnum((int) FallbackJob);
+      }
+      if (overrides_ != null) {
+        output.WriteRawTag(66);
+        output.WriteMessage(Overrides);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -227,6 +275,12 @@ namespace Bnet {
       }
       if (Courage != global::Bnet.SetBestiaAiConfigCMSG.Types.Courage.Unspecified) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Courage);
+      }
+      if (FallbackJob != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) FallbackJob);
+      }
+      if (overrides_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Overrides);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -248,6 +302,15 @@ namespace Bnet {
       }
       if (other.Courage != global::Bnet.SetBestiaAiConfigCMSG.Types.Courage.Unspecified) {
         Courage = other.Courage;
+      }
+      if (other.FallbackJob != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) {
+        FallbackJob = other.FallbackJob;
+      }
+      if (other.overrides_ != null) {
+        if (overrides_ == null) {
+          Overrides = new global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides();
+        }
+        Overrides.MergeFrom(other.Overrides);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -280,6 +343,17 @@ namespace Bnet {
             Courage = (global::Bnet.SetBestiaAiConfigCMSG.Types.Courage) input.ReadEnum();
             break;
           }
+          case 56: {
+            FallbackJob = (global::Bnet.SetBestiaAiConfigCMSG.Types.Job) input.ReadEnum();
+            break;
+          }
+          case 66: {
+            if (overrides_ == null) {
+              Overrides = new global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides();
+            }
+            input.ReadMessage(Overrides);
+            break;
+          }
         }
       }
     #endif
@@ -309,6 +383,17 @@ namespace Bnet {
           }
           case 48: {
             Courage = (global::Bnet.SetBestiaAiConfigCMSG.Types.Courage) input.ReadEnum();
+            break;
+          }
+          case 56: {
+            FallbackJob = (global::Bnet.SetBestiaAiConfigCMSG.Types.Job) input.ReadEnum();
+            break;
+          }
+          case 66: {
+            if (overrides_ == null) {
+              Overrides = new global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides();
+            }
+            input.ReadMessage(Overrides);
             break;
           }
         }

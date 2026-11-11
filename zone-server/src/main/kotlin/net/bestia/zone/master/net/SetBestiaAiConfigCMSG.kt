@@ -1,5 +1,6 @@
 package net.bestia.zone.master.net
 
+import net.bestia.zone.master.bestia.OrdersWire
 import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.BestiaJob
@@ -26,7 +27,12 @@ data class SetBestiaAiConfigCMSG(
     ): SetBestiaAiConfigCMSG {
       val job = BestiaJob.fromNameOrNull(msg.job.name)
       val courage = Courage.fromNameOrNull(msg.courage.name)
-      val orders = if (job != null && courage != null) AiConfig(job, courage) else null
+      val fallback = OrdersWire.fallbackFrom(msg.fallbackJob)
+      val orders = if (job != null && courage != null && fallback.isSuccess) {
+        AiConfig(job, courage, fallback.getOrNull(), OrdersWire.overridesFrom(msg.overrides)).takeIf { it.isValid }
+      } else {
+        null
+      }
 
       return SetBestiaAiConfigCMSG(playerId = accountId, playerBestiaId = msg.playerBestiaId, orders = orders)
     }
