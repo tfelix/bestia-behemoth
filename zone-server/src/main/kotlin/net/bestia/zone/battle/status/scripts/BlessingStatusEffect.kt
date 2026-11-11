@@ -31,7 +31,7 @@ class BlessingStatusEffect : StatusEffectScript {
     level: Int,
     sourceEntityId: EntityId?
   ) {
-    if (isCursedBy(world.get(entityId, Nature::class))) {
+    if (curses(world.get(entityId, Nature::class))) {
       context.dexterity /= 2
       context.intelligence /= 2
       return
@@ -44,15 +44,13 @@ class BlessingStatusEffect : StatusEffectScript {
     context.addAttack(atk = ATTACK_PER_LEVEL * level, matk = ATTACK_PER_LEVEL * level)
   }
 
-  /** An entity with no Nature - a master, a prop - counts as Normal, as everywhere else. */
-  private fun isCursedBy(nature: Nature?): Boolean =
-    nature != null && (nature.element in UNDEAD_ELEMENTS || nature.kind == BestiaKind.DEMON)
+  companion object {
+    /** Whether a blessing turns on [nature]. An entity with no Nature - a master, a prop - counts as Normal. */
+    fun curses(nature: Nature?): Boolean =
+      nature != null && (nature.element.base == Element.UNDEAD || nature.kind == BestiaKind.DEMON)
 
-  private companion object {
-    const val STAT_PER_LEVEL = 2
-    const val HIT_PER_LEVEL = 4
-    const val ATTACK_PER_LEVEL = 3
-
-    val UNDEAD_ELEMENTS = setOf(Element.UNDEAD, Element.UNDEAD_2, Element.UNDEAD_3, Element.UNDEAD_4)
+    private const val STAT_PER_LEVEL = 2
+    private const val HIT_PER_LEVEL = 4
+    private const val ATTACK_PER_LEVEL = 3
   }
 }

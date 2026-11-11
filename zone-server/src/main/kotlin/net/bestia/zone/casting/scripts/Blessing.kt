@@ -6,10 +6,11 @@ import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.casting.BasicMagicSkillStrategy
 import net.bestia.zone.casting.SkillContext
 import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.battle.status.scripts.BlessingStatusEffect
 import org.springframework.stereotype.Component
 
 /**
- * Blessing (`skills.yml` id 6).
+ * Blessing (`skills.yml` id 6), on a single target.
  *
  * Applies the `BLESSING` status effect (`status_effects.yml` id 5) at the cast level. What the effect does to
  * the target's stats, and for how long, is `net.bestia.zone.battle.status.scripts.BlessingStatusEffect`.
@@ -25,6 +26,11 @@ class Blessing(
 
   override fun execute(ctx: SkillContext): Damage? {
     val target = ctx.targetEntityId ?: return null
+
+    // The curse is harm, so it only lands where a blow would: never on an ally's undead bestia or in a safe zone.
+    if (BlessingStatusEffect.curses(ctx.world.natureOf(target)) && !ctx.world.isFoe(target)) {
+      return null
+    }
 
     ctx.applyStatusEffect(target, StatusEffectId.BLESSING)
 
