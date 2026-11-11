@@ -1024,14 +1024,15 @@ skills:
   - id: 84
     identifier: M_PNEUMA
     script: Pneuma
-    targetType: GROUND
+    targetType: AOE_GROUND
+    aoeRadius: 1.0
     range: 6
     manaCost: 25
     castTime: 1.0
     cooldown: 10
     description: |
-      Lays a veil of still air 3m wide over the ground for 20s. Anything standing in it cannot
-      be hit by arrows, bolts or thrown weapons. Cooldown 10s.
+      Lays a veil of still air 3m wide over the ground for 20s. Anything standing in it, friend
+      or foe, cannot be hit by arrows, bolts or thrown weapons. Cooldown 10s.
 
   - id: 85
     identifier: M_SIGNUM_CRUCIS
@@ -1130,29 +1131,34 @@ skills:
   - id: 93
     identifier: M_MAGNUS_EXORCISMUS
     script: MagnusExorcismus
-    targetType: GROUND
+    element: HOLY
+    targetType: AOE_GROUND
+    aoeRadius: 3.0
     range: 12
     manaCost: 60
     castTime: 5.0
     cooldown: 30
     description: |
-      A pillar of holy mana erupts around the target spot for 15s, searing everything caught in
-      it and Demons and the Undead worst of all. Cooldown 30s.
+      A pillar of holy mana erupts 7m wide around the target spot. For 15s a holy wave sears
+      every foe caught in it every 3s, and Demons and the Undead worst of all. Cooldown 30s.
 
-      `+15%/lv` MATK
+      `+15%/lv` MATK per wave, from 115% at Lv.1
       `+10%/lv` extra against Demon and Undead
 
   - id: 94
     identifier: M_SANCTUARY
     script: Sanctuary
-    targetType: GROUND
+    element: HOLY
+    targetType: AOE_GROUND
+    aoeRadius: 2.0
     range: 6
     manaCost: 50
     castTime: 3.0
     cooldown: 30
     description: |
-      Consecrates a patch of ground for 30s. Every second it heals allies standing in it, and
-      burns Demons and the Undead for the same amount. Cooldown 30s.
+      Consecrates a patch of ground 5m wide for 30s. Every second it heals allies standing in
+      it, and burns Demons and the Undead for the same share of the Priest's own max HP.
+      Cooldown 30s.
 
       `+5%/lv` max HP healed per second
 

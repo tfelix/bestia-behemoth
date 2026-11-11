@@ -14,3 +14,5 @@ tree = "SCHOLAR"
 sub_tree = "PRIEST"
 prerequisite_ids = PackedInt32Array(83)
 prerequisite_levels = PackedInt32Array(2)
+target_type = "AOE_GROUND"
+aoe_radius = 1.0

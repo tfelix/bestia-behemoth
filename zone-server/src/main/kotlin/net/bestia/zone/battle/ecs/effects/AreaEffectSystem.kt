@@ -3,6 +3,7 @@ package net.bestia.zone.battle.ecs.effects
 import net.bestia.zone.movement.ecs.Facing
 import net.bestia.zone.battle.ElementModifier
 import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.Unholy
 import kotlin.random.Random
 import net.bestia.zone.battle.damage.DamageLanding
 import net.bestia.zone.battle.damage.HitKind
@@ -140,23 +141,30 @@ class AreaEffectSystem(
     )
   }
 
-  /** A foe outside the kinds an area harms, say anything but undead and demons, is left alone. */
+  /** A foe outside the kinds and elements an area harms, say anything but undead and demons, is left alone. */
   private fun harms(world: World, effect: AreaEffect, victimId: EntityId): Boolean {
-    val kinds = effect.mechanics.foeKinds
-    if (kinds.isEmpty()) return true
+    val mechanics = effect.mechanics
+    if (mechanics.foeKinds.isEmpty() && mechanics.foeElements.isEmpty()) return true
 
-    return world.get(victimId, Nature::class)?.kind in kinds
+    return world.get(victimId, Nature::class)?.kind in mechanics.foeKinds ||
+      elementOf(world, victimId).base in mechanics.foeElements
   }
 
   /** The tick's damage on [victimId], weighed by element when the area asks for it. */
   private fun damageOn(world: World, effect: AreaEffect, victimId: EntityId): Int {
-    if (!effect.mechanics.weighsElement) return effect.damagePerTick
+    val mechanics = effect.mechanics
+    val element = elementOf(world, victimId)
+    val modifier = if (mechanics.weighsElement) ElementModifier.getModifierFloat(effect.element, element) else 1f
+    val unholy = mechanics.unholyBonusPercent > 0 && Unholy.isUnholy(world.get(victimId, Nature::class)?.kind, element)
+    val bonus = if (unholy) (100 + mechanics.unholyBonusPercent) / 100f else 1f
 
-    val nature = world.get(victimId, Nature::class)
-    val element = world.get(victimId, CombatStats::class)?.values?.elementOverride ?: nature?.element ?: Element.NORMAL
-    val modifier = ElementModifier.getModifierFloat(effect.element, element)
+    return (effect.damagePerTick * modifier * bonus).toInt().coerceAtLeast(0)
+  }
 
-    return (effect.damagePerTick * modifier).toInt().coerceAtLeast(0)
+  private fun elementOf(world: World, victimId: EntityId): Element {
+    return world.get(victimId, CombatStats::class)?.values?.elementOverride
+      ?: world.get(victimId, Nature::class)?.element
+      ?: Element.NORMAL
   }
 
   /** An area limited to undead, say, leaves the living in it alone. */
