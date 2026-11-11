@@ -38,6 +38,11 @@ import "messages/master/invest_status_point_cmsg.proto";
 import "messages/master/set_bestia_ai_config_cmsg.proto";
 import "messages/master/bestia_ai_config_smsg.proto";
 import "messages/master/get_bestia_orders_cmsg.proto";
+import "messages/master/get_order_book_cmsg.proto";
+import "messages/master/order_book_smsg.proto";
+import "messages/master/save_order_preset_cmsg.proto";
+import "messages/master/delete_order_preset_cmsg.proto";
+import "messages/master/save_work_area_cmsg.proto";
 import "messages/master/get_skills_cmsg.proto";
 import "messages/master/activate_skill_cmsg.proto";
 import "messages/master/skill_cooldown_smsg.proto";
@@ -464,6 +469,11 @@ message Envelope {
 
     // BESTIA ORDERS 940
     GetBestiaOrdersCMSG get_bestia_orders = 940;
+    GetOrderBookCMSG get_order_book = 941;
+    OrderBookSMSG order_book = 942;
+    SaveOrderPresetCMSG save_order_preset = 943;
+    DeleteOrderPresetCMSG delete_order_preset = 944;
+    SaveWorkAreaCMSG save_work_area = 945;
 
     // MISC
   }

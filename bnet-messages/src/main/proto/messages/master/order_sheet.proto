@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/master/set_bestia_ai_config_cmsg.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "OrderSheetProto";
+
+/** A whole set of orders without a bestia: what a preset holds. The fields mean what they mean in SetBestiaAiConfigCMSG. */
+message OrderSheet {
+  SetBestiaAiConfigCMSG.Job job = 1;
+  SetBestiaAiConfigCMSG.Courage courage = 2;
+  SetBestiaAiConfigCMSG.Job fallback_job = 3;
+  SetBestiaAiConfigCMSG.Overrides overrides = 4;
+  repeated SetBestiaAiConfigCMSG.Rule rules = 5;
+  optional uint64 area_place_id = 6;
+  optional uint64 chest_place_id = 7;
+}

@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "DeleteOrderPresetCmsgProto";
+
+/** Deletes a preset. Its bestias keep the orders they had, as their own. Answered with OrderBookSMSG. */
+message DeleteOrderPresetCMSG {
+  uint64 preset_id = 1;
+}

@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqlKAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSr4KAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -140,9 +140,11 @@ namespace Bnet {
             "E1NQRUxMX0FMUkVBRFlfS05PV04QnwESGgoVU1BFTExfVFJBSU5JTkdfRkFJ",
             "TEVEEKABEh0KGFNQRUxMX0lOU0NSSVBUSU9OX0ZBSUxFRBChARIWChFTUEVM",
             "TF9NSU5EX0JST0tFThCiARIXChJTUEVMTF9PVVRfT0ZfUkFOR0UQowESFgoR",
-            "U0tJTExfTkVFRFNfV0FURVIQpAEiBAguEC4qElNIT1BfVFJFQVNVUllfRlVM",
-            "TEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJv",
-            "dG9iBnByb3RvMw=="));
+            "U0tJTExfTkVFRFNfV0FURVIQpAESFgoRT1JERVJTX05BTUVfVEFLRU4Q4AES",
+            "HAoXT1JERVJTX1RPT19NQU5ZX1BSRVNFVFMQ4QESGwoWT1JERVJTX1RPT19N",
+            "QU5ZX1BMQUNFUxDiASIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5l",
+            "dC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJv",
+            "dG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -876,6 +878,18 @@ namespace Bnet {
     /// A rite that blesses water, like Aqua Benedicta, needs its caster to stand in water.
     /// </summary>
     [pbr::OriginalName("SKILL_NEEDS_WATER")] SkillNeedsWater = 164,
+    /// <summary>
+    /// The master has an order preset or a named place of that name already.
+    /// </summary>
+    [pbr::OriginalName("ORDERS_NAME_TAKEN")] OrdersNameTaken = 224,
+    /// <summary>
+    /// The master has as many order presets as allowed.
+    /// </summary>
+    [pbr::OriginalName("ORDERS_TOO_MANY_PRESETS")] OrdersTooManyPresets = 225,
+    /// <summary>
+    /// The master has as many named places as allowed.
+    /// </summary>
+    [pbr::OriginalName("ORDERS_TOO_MANY_PLACES")] OrdersTooManyPlaces = 226,
   }
 
   #endregion
