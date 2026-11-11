@@ -17,4 +17,9 @@ interface ItemScript {
   val itemId: Long
 
   fun execute(world: World, userId: EntityId, args: ScriptArgs): Boolean
+
+  /** [execute] for an item that keeps its own state on its instance, like a spell scroll; [uniqueId] is 0 for a pile. */
+  fun executeHeld(world: World, userId: EntityId, args: ScriptArgs, uniqueId: Long): Boolean {
+    return execute(world, userId, args)
+  }
 }

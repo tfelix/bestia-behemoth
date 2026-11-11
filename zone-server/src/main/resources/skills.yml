@@ -862,10 +862,17 @@ skills:
     range: 2
     manaCost: 35
     castTime: 15.0
+    mechanics:
+      reagents:
+        - item: blank_spell_scroll
+          amount: 1
     description: |
       Extracts an attack from the memory of a Bestia onto a scroll, which can then either trigger
       the attack once or teach it to another Bestia. The extraction can destroy the Bestia's mind
-      and kill it. The base chance depends on the level of the attack.
+      and kill it. The base chance depends on the level of the attack. Consumes a Blank Spell
+      Scroll, also when the extraction fails.
+
+      `+10%/lv` success chance
 
   - id: 70
     identifier: M_SPELL_BINDING

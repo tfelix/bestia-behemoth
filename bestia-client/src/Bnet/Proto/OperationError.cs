@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrSJgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqNKAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -135,9 +135,13 @@ namespace Bnet {
             "RExFENsBEiAKG0JSRUVESU5HX1BBSVJfQ0FOTk9UX1RSQVZFTBDcARIbChZC",
             "UkVFRElOR19DTFVUQ0hfRkFJTEVEEN0BEh0KGEJSRUVESU5HX05PX1JPT01f",
             "Rk9SX0VHRxDeARIbChZJTkNVQkFUT1JfTk9fRlJFRV9TTE9UEN8BEhMKDlBP",
-            "UlRBTF9OT19TUE9UEJsBEhEKDFBPUlRBTF9TUEVOVBCcASIECC4QLioSU0hP",
-            "UF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3Bl",
-            "cmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
+            "UlRBTF9OT19TUE9UEJsBEhEKDFBPUlRBTF9TUEVOVBCcARIZChRTUEVMTF9O",
+            "T1RfT1dOX0JFU1RJQRCdARIYChNTUEVMTF9MRVZFTF9UT09fTE9XEJ4BEhgK",
+            "E1NQRUxMX0FMUkVBRFlfS05PV04QnwESGgoVU1BFTExfVFJBSU5JTkdfRkFJ",
+            "TEVEEKABEh0KGFNQRUxMX0lOU0NSSVBUSU9OX0ZBSUxFRBChARIWChFTUEVM",
+            "TF9NSU5EX0JST0tFThCiARIXChJTUEVMTF9PVVRfT0ZfUkFOR0UQowEiBAgu",
+            "EC4qElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQuYmVzdGlhLmJuZXQucHJv",
+            "dG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -850,6 +854,23 @@ namespace Bnet {
     /// </summary>
     [pbr::OriginalName("PORTAL_NO_SPOT")] PortalNoSpot = 155,
     [pbr::OriginalName("PORTAL_SPENT")] PortalSpent = 156,
+    /// <summary>
+    /// Spell scrolls: the bestia is not one of yours, its level is below the attack's, or it knows the attack
+    /// already. Training or extraction failed; the scroll is spent either way.
+    /// </summary>
+    [pbr::OriginalName("SPELL_NOT_OWN_BESTIA")] SpellNotOwnBestia = 157,
+    [pbr::OriginalName("SPELL_LEVEL_TOO_LOW")] SpellLevelTooLow = 158,
+    [pbr::OriginalName("SPELL_ALREADY_KNOWN")] SpellAlreadyKnown = 159,
+    [pbr::OriginalName("SPELL_TRAINING_FAILED")] SpellTrainingFailed = 160,
+    [pbr::OriginalName("SPELL_INSCRIPTION_FAILED")] SpellInscriptionFailed = 161,
+    /// <summary>
+    /// A failed extraction broke the bestia's mind. It is lost; its bag went to the master by post.
+    /// </summary>
+    [pbr::OriginalName("SPELL_MIND_BROKEN")] SpellMindBroken = 162,
+    /// <summary>
+    /// A spell scroll aimed past its attack's reach; the scroll stays in the bag.
+    /// </summary>
+    [pbr::OriginalName("SPELL_OUT_OF_RANGE")] SpellOutOfRange = 163,
   }
 
   #endregion

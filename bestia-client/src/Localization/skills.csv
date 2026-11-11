@@ -576,7 +576,10 @@ ground-targeted spell can take root inside its bounds - friend and foe alike. Co
 `+10s/lv` duration, from 15s at Lv.1"
 SKILL_69_DESC,"Extracts an attack from the memory of a Bestia onto a scroll, which can then either trigger
 the attack once or teach it to another Bestia. The extraction can destroy the Bestia's mind
-and kill it. The base chance depends on the level of the attack."
+and kill it. The base chance depends on the level of the attack. Consumes a Blank Spell
+Scroll, also when the extraction fails.
+
+`+10%/lv` success chance"
 SKILL_70_DESC,"Binds a spell to an object or place and ties it to a trigger, giving rise to enchanted
 artifacts, standing alarms and hidden traps alike. The details are still to be designed."
 SKILL_71_DESC,"Moves the caster and their Bestias close by. Consumes a Teleport Rune. A teleported entity

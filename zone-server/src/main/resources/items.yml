@@ -2479,3 +2479,26 @@ items:
     type: ETC
     material: STONE
     description: A heavy stone carved with a rune that holds a door open. Warp Portal burns one.
+
+  # What Spell Inscription writes an attack onto. The GM item command is its only source until crafting can make it.
+  - id: 337
+    item-db-name: blank_spell_scroll
+    base-level: 40
+    weight: 1
+    type: ETC
+    material: PAPER
+    description: A sheet of fine vellum, primed to hold a spell. Spell Inscription writes an attack onto it.
+
+  # Its attack lives on a `spell_scroll` row keyed by this item's instance, so it never stacks - see SpellScrollScript.
+  - id: 338
+    item-db-name: spell_scroll
+    base-level: 40
+    weight: 1
+    type: USABLE
+    material: PAPER
+    stackable: false
+    script: SpellScrollScript
+    description: |
+      A scroll with an attack written on it.
+
+      Read from the bag, it casts its attack once, with no mana. Spell Training teaches it to a bestia instead.

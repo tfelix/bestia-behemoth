@@ -695,6 +695,19 @@ ERROR_PORTAL_SPENT,The portal is closing or has let everyone through it can.
 PORTAL_MARK_SPOT,Mark this spot (%d of %d saved)
 PORTAL_TO_HOME,To your home
 PORTAL_TO_SPOT,"To spot %d (%s, %.1f km)"
+ERROR_SPELL_NOT_OWN_BESTIA,That is not one of your bestias.
+ERROR_SPELL_LEVEL_TOO_LOW,Your bestia is not high enough in level for this attack yet.
+ERROR_SPELL_ALREADY_KNOWN,Your bestia knows this attack already.
+ERROR_SPELL_TRAINING_FAILED,The training failed. The scroll is spent.
+ERROR_SPELL_INSCRIPTION_FAILED,The extraction failed. The blank scroll is spent.
+ERROR_SPELL_MIND_BROKEN,The extraction broke your bestia's mind. It is lost for good. Its bag was sent to you by post.
+ERROR_SPELL_OUT_OF_RANGE,The target is out of the scroll's reach.
+SUCCESS_SPELL_LEARNED,Your bestia learned the attack.
+SUCCESS_SPELL_INSCRIBED,The attack is written on a new spell scroll.
+SPELL_SCROLL_PICK,%s Lv. %d
+SPELL_SCROLL_NONE,You hold no spell scroll.
+SPELL_INSCRIPTION_PICK,"%s: %s Lv. %d - success %d%%, mind breaks %d%%"
+SPELL_INSCRIPTION_NONE,None of your bestias knows an attack to copy.
 ELEMENT_FIRE,Fire
 ELEMENT_WATER,Water
 ELEMENT_WIND,Wind

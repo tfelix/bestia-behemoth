@@ -63,6 +63,12 @@ interface SkillStrategy {
   fun checkCastStart(world: World, casterId: EntityId, skillLevel: Int, args: List<Long> = emptyList()): OpError? = null
 
   /**
+   * [checkCastStart] for a choice that only makes sense on the picked target, like the bestia Spell Training
+   * teaches. Runs at activation once the target is known, under the same rules; null when the cast may start.
+   */
+  fun checkTarget(world: World, casterId: EntityId, targetEntityId: EntityId?, skillLevel: Int, args: List<Long>): OpError? = null
+
+  /**
    * A choice that is no cast at all, like marking a spot for Warp Portal: done at once, with no cost, no cast bar
    * and no cooldown. Runs at activation in the caster's own scope, before anything else is checked.
    *

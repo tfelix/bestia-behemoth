@@ -176,6 +176,15 @@ class ActivateSkillHandler(
       }
     }
 
+    val targetDenial = world.modify(activeEntityId) { id ->
+      strategy.checkTarget(this, id, targetEntityId, msg.skillLevel, msg.args)
+    }
+    if (targetDenial != null) {
+      LOG.debug { "Activation of ${skill.identifier} by $activeEntityId refused for its target: $targetDenial" }
+      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(targetDenial))
+      return true
+    }
+
     val started = world.modify(activeEntityId) { id ->
       // Before the cast-time branch, deliberately: a tick handler runs between two ticks, so this add()
       // applies immediately - unlike promoting only from
