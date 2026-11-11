@@ -109,6 +109,7 @@ object BattleContextFixture {
     element: Element = Element.NORMAL,
     elementResistance: Map<Element, Int> = emptyMap(),
     maxHealth: Int = 0,
+    health: Int = maxHealth,
     activeEffectIds: Set<Long> = emptySet(),
     id: Long = ATTACKER_ID
   ): BattleEntity {
@@ -140,6 +141,7 @@ object BattleContextFixture {
       assumedElement = element,
       elementResistance = elementResistance,
       maxHealth = maxHealth,
+      health = health,
       activeEffectIds = activeEffectIds
     )
   }

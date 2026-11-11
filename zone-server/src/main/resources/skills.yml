@@ -1052,14 +1052,15 @@ skills:
   - id: 86
     identifier: M_HOLY_LIGHT
     script: HolyLight
+    element: HOLY
     targetType: ENEMY
     range: 9
     manaCost: 24
     castTime: 1.5
     description: |
-      Condenses raw holy mana into a single searing beam.
+      Condenses raw holy mana into a single searing beam of holy damage.
 
-      `+10%/lv` MATK
+      `+10%/lv` MATK, from 110% at Lv.1
 
   - id: 87
     identifier: M_DEMON_BANE
@@ -1087,7 +1088,8 @@ skills:
 
   - id: 90
     identifier: M_TURN_UNDEAD
-    script: TurnUndead
+    script: MasterTurnUndead
+    element: HOLY
     targetType: ENEMY
     range: 9
     manaCost: 30

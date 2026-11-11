@@ -22,6 +22,7 @@ data class BattleEntity(
 
   /** 0 when the entity has no health at all, which is why a heal has to guard against it. */
   val maxHealth: Int = 0,
+  val health: Int = 0,
 
   /**
    * Ids of the status effects currently on this entity, so a script can refuse a cast the target is

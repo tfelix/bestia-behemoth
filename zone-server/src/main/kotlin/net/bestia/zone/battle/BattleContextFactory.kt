@@ -99,6 +99,7 @@ class BattleContextFactory(
       // An effect like a freeze turns the body into another element for as long as it lasts.
       assumedElement = combat.elementOverride ?: nature?.element ?: Element.NORMAL,
       elementResistance = combat.elementResistance,
+      health = world.get(entityId, Health::class)?.current ?: 0,
       maxHealth = world.get(entityId, Health::class)?.max ?: 0,
       activeEffectIds = world.get(entityId, StatusEffects::class)
         ?.activeEffects
