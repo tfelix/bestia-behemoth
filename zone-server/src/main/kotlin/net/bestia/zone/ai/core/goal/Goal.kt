@@ -42,5 +42,9 @@ class Goal(
   fun withBasePriority(base: Float): Goal =
     Goal(name, Priority(base, priority.combine, priority.considerations), availability, desiredState)
 
+  /** This goal, available only while [gate] holds as well. */
+  fun onlyWhen(gate: Precondition): Goal =
+    Goal(name, priority, Precondition { s -> availability.isSatisfied(s) && gate.isSatisfied(s) }, desiredState)
+
   override fun toString(): String = name
 }

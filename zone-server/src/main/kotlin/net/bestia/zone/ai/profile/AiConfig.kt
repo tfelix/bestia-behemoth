@@ -1,6 +1,8 @@
 package net.bestia.zone.ai.profile
 
+import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
+import jakarta.persistence.Transient
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 
@@ -28,7 +30,24 @@ data class AiConfig(
 
   @Enumerated(EnumType.STRING)
   val courage: Courage = Courage.STEADY,
+
+  /** What it does while [job] has nothing to do. See [BestiaJob.takesFallback]. */
+  @Enumerated(EnumType.STRING)
+  @Column(name = "fallback_job")
+  val fallbackJob: BestiaJob? = null,
+
+  /** Stored by whoever stores these orders, as its own nullable embedded value. See `PlayerBestia.aiConfig`. */
+  @Transient
+  val overrides: OrderOverrides = OrderOverrides(),
 ) {
+
+  /** Whether these orders can be followed: a fallback only behind a job that runs out of work, and not itself. */
+  val isValid: Boolean
+    get() {
+      val fallback = fallbackJob ?: return true
+
+      return job.takesFallback && fallback != job && fallback != BestiaJob.REST
+    }
 
   companion object {
     /**
@@ -62,6 +81,8 @@ enum class BestiaJob(
   val goalNames: Set<String>,
   val workGoals: List<String> = emptyList(),
   val workActions: List<String> = emptyList(),
+  /** Whether it can run out of work, and so hand over to a fallback job. A guard and a resting bestia never do. */
+  val takesFallback: Boolean = false,
 ) {
 
   /** Roam the area around home, engage anything hostile inside it, and walk back to its middle after a fight. */
@@ -79,6 +100,7 @@ enum class BestiaJob(
     setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"),
     workGoals = listOf("Gather", "HaulToChest", "RestockFood"),
     workActions = listOf("collectProp", "fellTree", "haulToChest", "takeFoodFromChest"),
+    takesFallback = true,
   ),
 
   /**
@@ -89,13 +111,15 @@ enum class BestiaJob(
     setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"),
     workGoals = listOf("Craft", "HaulToChest", "RestockFood"),
     workActions = listOf("claimStation", "haulToChest", "takeFoodFromChest"),
+    takesFallback = true,
   ),
 
   /** Dig the ore below the master's mining shafts around home and carry it to the master's nearest chest. */
   MINE(
     setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"),
     workGoals = listOf("Mine", "HaulToChest", "RestockFood"),
-    workActions = listOf("claimStation", "haulToChest", "takeFoodFromChest"),
+    workActions = listOf("claimShaft", "haulToChest", "takeFoodFromChest"),
+    takesFallback = true,
   );
 
   companion object {

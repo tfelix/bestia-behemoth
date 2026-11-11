@@ -58,7 +58,8 @@ class AiAgentFactory(
     val goals = profile.goals
       .mapNotNull { tuning ->
         runtime.catalogue.goalsByName[tuning.name]?.let { goal ->
-          tuning.basePriority?.let(goal::withBasePriority) ?: goal
+          val tuned = tuning.basePriority?.let(goal::withBasePriority) ?: goal
+          if (tuning.onlyWhenMainJobIdle) tuned.onlyWhen(runtime.mainJobIdle) else tuned
         }
       }
 
