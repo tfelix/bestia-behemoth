@@ -148,7 +148,7 @@ class ChunkStreamSystem(
       carvedChunks.addAll(result.chunks)
       metrics.carved(result.voxels.size, result.chunks.size)
 
-      bank(result, carve.accountId)
+      bank(result, carve)
 
       LOG.debug {
         "Account ${carve.accountId} carved ${carve.brush}: " +
@@ -160,8 +160,10 @@ class ChunkStreamSystem(
   }
 
   /** Puts what a carve broke aside for whoever swung the pick. */
-  private fun bank(result: ChunkService.CarveResult, accountId: Long) {
-    val entityId = runCatching { connections.getActiveEntityId(accountId) }.getOrNull() ?: return
+  private fun bank(result: ChunkService.CarveResult, carve: ChunkStreamInbox.Carve) {
+    val entityId = carve.yieldTo
+      ?: runCatching { connections.getActiveEntityId(carve.accountId) }.getOrNull()
+      ?: return
 
     carveYield.bank(result, entityId)
   }
