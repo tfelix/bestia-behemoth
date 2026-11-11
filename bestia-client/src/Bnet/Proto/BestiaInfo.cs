@@ -26,16 +26,16 @@ namespace Bnet {
           string.Concat(
             "CiFtZXNzYWdlcy9tYXN0ZXIvYmVzdGlhX2luZm8ucHJvdG8SBGJuZXQaE21l",
             "c3NhZ2VzL3ZlYzMucHJvdG8aJW1lc3NhZ2VzL21hc3Rlci9iZXN0aWFfZ2Vu",
-            "ZXRpY3MucHJvdG8ipgEKCkJlc3RpYUluZm8SEQoJZW50aXR5X2lkGAEgASgG",
+            "ZXRpY3MucHJvdG8iwAEKCkJlc3RpYUluZm8SEQoJZW50aXR5X2lkGAEgASgG",
             "Eg4KBm1vYl9pZBgCIAEoDRIMCgRuYW1lGAMgASgJEg0KBWxldmVsGAQgASgN",
             "EhwKCHBvc2l0aW9uGAUgASgLMgouYm5ldC5WZWMzEhwKA3NleBgGIAEoDjIP",
             "LmJuZXQuQmVzdGlhU2V4EhwKA2l2cxgHIAEoCzIPLmJuZXQuSXZSZWFkaW5n",
-            "QigKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IPQmVzdGlhSW5mb1Byb3RvYgZw",
-            "cm90bzM="));
+            "EhgKEHBsYXllcl9iZXN0aWFfaWQYCCABKARCKAoVbmV0LmJlc3RpYS5ibmV0",
+            "LnByb3RvQg9CZXN0aWFJbmZvUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, global::Bnet.BestiaGeneticsReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaInfo), global::Bnet.BestiaInfo.Parser, new[]{ "EntityId", "MobId", "Name", "Level", "Position", "Sex", "Ivs" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaInfo), global::Bnet.BestiaInfo.Parser, new[]{ "EntityId", "MobId", "Name", "Level", "Position", "Sex", "Ivs", "PlayerBestiaId" }, null, null, null, null)
           }));
     }
     #endregion
@@ -84,6 +84,7 @@ namespace Bnet {
       position_ = other.position_ != null ? other.position_.Clone() : null;
       sex_ = other.sex_;
       ivs_ = other.ivs_ != null ? other.ivs_.Clone() : null;
+      playerBestiaId_ = other.playerBestiaId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -177,6 +178,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "player_bestia_id" field.</summary>
+    public const int PlayerBestiaIdFieldNumber = 8;
+    private ulong playerBestiaId_;
+    /// <summary>
+    ///* Names the bestia in its orders, which outlive the entity.  
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong PlayerBestiaId {
+      get { return playerBestiaId_; }
+      set {
+        playerBestiaId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -199,6 +215,7 @@ namespace Bnet {
       if (!object.Equals(Position, other.Position)) return false;
       if (Sex != other.Sex) return false;
       if (!object.Equals(Ivs, other.Ivs)) return false;
+      if (PlayerBestiaId != other.PlayerBestiaId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -213,6 +230,7 @@ namespace Bnet {
       if (position_ != null) hash ^= Position.GetHashCode();
       if (Sex != global::Bnet.BestiaSex.Unknown) hash ^= Sex.GetHashCode();
       if (ivs_ != null) hash ^= Ivs.GetHashCode();
+      if (PlayerBestiaId != 0UL) hash ^= PlayerBestiaId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -259,6 +277,10 @@ namespace Bnet {
         output.WriteRawTag(58);
         output.WriteMessage(Ivs);
       }
+      if (PlayerBestiaId != 0UL) {
+        output.WriteRawTag(64);
+        output.WriteUInt64(PlayerBestiaId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -297,6 +319,10 @@ namespace Bnet {
         output.WriteRawTag(58);
         output.WriteMessage(Ivs);
       }
+      if (PlayerBestiaId != 0UL) {
+        output.WriteRawTag(64);
+        output.WriteUInt64(PlayerBestiaId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -327,6 +353,9 @@ namespace Bnet {
       }
       if (ivs_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Ivs);
+      }
+      if (PlayerBestiaId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(PlayerBestiaId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -366,6 +395,9 @@ namespace Bnet {
           Ivs = new global::Bnet.IvReading();
         }
         Ivs.MergeFrom(other.Ivs);
+      }
+      if (other.PlayerBestiaId != 0UL) {
+        PlayerBestiaId = other.PlayerBestiaId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -420,6 +452,10 @@ namespace Bnet {
             input.ReadMessage(Ivs);
             break;
           }
+          case 64: {
+            PlayerBestiaId = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -471,6 +507,10 @@ namespace Bnet {
               Ivs = new global::Bnet.IvReading();
             }
             input.ReadMessage(Ivs);
+            break;
+          }
+          case 64: {
+            PlayerBestiaId = input.ReadUInt64();
             break;
           }
         }

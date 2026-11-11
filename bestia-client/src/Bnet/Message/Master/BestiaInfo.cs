@@ -11,6 +11,10 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     [Export]
     public ulong EntityId { get; set; }
 
+    /// <summary>Names the bestia in its orders.</summary>
+    [Export]
+    public ulong PlayerBestiaId { get; set; }
+
     [Export]
     public uint MobId { get; set; }
 
@@ -40,6 +44,7 @@ namespace BestiaBehemothClient.Bnet.Message.Master
       var bestiaInfo = new BestiaInfo
       {
         EntityId = protoBestiaInfo.EntityId,
+        PlayerBestiaId = protoBestiaInfo.PlayerBestiaId,
         MobId = protoBestiaInfo.MobId,
         Name = protoBestiaInfo.Name,
         Level = protoBestiaInfo.Level,

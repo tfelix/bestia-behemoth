@@ -17,4 +17,6 @@ message BestiaInfo {
   Vec3 position = 5;
   BestiaSex sex = 6;
   IvReading ivs = 7;
+  /** Names the bestia in its orders, which outlive the entity. */
+  uint64 player_bestia_id = 8;
 }
