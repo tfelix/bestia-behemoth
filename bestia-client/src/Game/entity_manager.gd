@@ -39,6 +39,8 @@ var _journeys: Dictionary[int, JourneyComponentSMSG] = {}
 ## What a Detect skill lets the player's own entities sense, by entity id, while it lasts.
 var _detections: Dictionary[int, DetectingComponentSMSG] = {}
 var _bobbers: Dictionary[int, Bobber] = {}
+## The Warp Portal spots the player's master saved, oldest first.
+var _warp_marks: Array[Vector3] = []
 
 ## The player took control of another of their entities. [param previous_id] is 0 on the first one.
 signal controlled_entity_changed(previous_id: int, entity_id: int)
@@ -306,6 +308,9 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 
 	if msg is FishingComponentSMSG:
 		_show_fishing_line(msg)
+
+	if msg is WarpMarksComponentSMSG:
+		_warp_marks.assign(msg.Spots)
 		return
 
 	if msg is DetectingComponentSMSG:
@@ -438,6 +443,10 @@ func get_journeys() -> Dictionary[int, JourneyComponentSMSG]:
 
 func get_detections() -> Dictionary[int, DetectingComponentSMSG]:
 	return _detections
+
+
+func get_warp_marks() -> Array[Vector3]:
+	return _warp_marks
 
 
 ## The name the player knows one of its own bestias by: its own or its species'. Empty for anything else.

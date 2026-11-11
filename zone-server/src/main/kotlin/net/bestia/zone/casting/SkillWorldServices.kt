@@ -57,4 +57,5 @@ class SkillWorldServices(
   val stalls: StallPitching? = null,
   val magicSensing: MagicSensing? = null,
   val monsterSensing: MonsterSensing? = null,
+  val teleports: SkillTeleports? = null,
 )

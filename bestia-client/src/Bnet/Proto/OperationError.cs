@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqqJgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrSJgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -134,9 +134,10 @@ namespace Bnet {
             "UkVFRElOR19OT1RfUE9TU0lCTEUQ2gESGgoVQlJFRURJTkdfTkVFRFNfQlVO",
             "RExFENsBEiAKG0JSRUVESU5HX1BBSVJfQ0FOTk9UX1RSQVZFTBDcARIbChZC",
             "UkVFRElOR19DTFVUQ0hfRkFJTEVEEN0BEh0KGEJSRUVESU5HX05PX1JPT01f",
-            "Rk9SX0VHRxDeARIbChZJTkNVQkFUT1JfTk9fRlJFRV9TTE9UEN8BIgQILhAu",
-            "KhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
-            "QhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "Rk9SX0VHRxDeARIbChZJTkNVQkFUT1JfTk9fRlJFRV9TTE9UEN8BEhMKDlBP",
+            "UlRBTF9OT19TUE9UEJsBEhEKDFBPUlRBTF9TUEVOVBCcASIECC4QLioSU0hP",
+            "UF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3Bl",
+            "cmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -844,6 +845,11 @@ namespace Bnet {
     /// An egg is ready to hatch, but its owner has no free bestia slot. It waits in the incubator until one frees up.
     /// </summary>
     [pbr::OriginalName("INCUBATOR_NO_FREE_SLOT")] IncubatorNoFreeSlot = 223,
+    /// <summary>
+    /// Warp Portal: the saved spot picked is not there (any more), or the portal has no passage left or is gone.
+    /// </summary>
+    [pbr::OriginalName("PORTAL_NO_SPOT")] PortalNoSpot = 155,
+    [pbr::OriginalName("PORTAL_SPENT")] PortalSpent = 156,
   }
 
   #endregion

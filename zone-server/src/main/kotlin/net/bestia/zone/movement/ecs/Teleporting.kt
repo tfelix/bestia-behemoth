@@ -1,5 +1,6 @@
 package net.bestia.zone.movement.ecs
 
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.geometry.Vec3L
 
@@ -23,5 +24,11 @@ class Teleporting(
       var savePoint: Vec3L? = null
       var lookupFailed = false
     }
+
+    /** Exactly here, on the ground: the far end of a warp portal. */
+    data class Spot(val at: Vec3L) : Destination
+
+    /** Beside [leaderId] once it has landed: a master's bestias that go along on its Teleport. */
+    data class Follow(val leaderId: EntityId) : Destination
   }
 }

@@ -63,6 +63,14 @@ interface SkillStrategy {
   fun checkCastStart(world: World, casterId: EntityId, skillLevel: Int, args: List<Long> = emptyList()): OpError? = null
 
   /**
+   * A choice that is no cast at all, like marking a spot for Warp Portal: done at once, with no cost, no cast bar
+   * and no cooldown. Runs at activation in the caster's own scope, before anything else is checked.
+   *
+   * @return true when [args] asked for such a choice and it is done; false lets the cast go on as usual
+   */
+  fun freeAction(world: World, casterId: EntityId, skillLevel: Int, args: List<Long>): Boolean = false
+
+  /**
    * Whether the cast may go ahead at all: range, line of sight, a target that is eligible. Nothing is
    * spent and nothing happens when this is false.
    *

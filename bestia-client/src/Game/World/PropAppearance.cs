@@ -689,7 +689,14 @@ namespace BestiaBehemothClient.Game.World
       new Kind
       {
         PlaceholderWidth = 2.5f, PlaceholderColour = new Color(0.33f, 0.25f, 0.17f), StructureHeight = 3f
-      } // MINING_SHAFT
+      }, // MINING_SHAFT
+
+      // A Sage's warp portal, one at each end: a tall violet slab until it has a model. Clicking it steps through.
+      new Kind
+      {
+        PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.55f, 0.40f, 0.95f), StructureHeight = 2.5f,
+        Action = PropAction.Use
+      } // WARP_PORTAL
     };
 
     /// <summary>

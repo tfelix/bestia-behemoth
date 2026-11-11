@@ -68,6 +68,8 @@ class TeleportSystem(
       when (val destination = teleporting.destination) {
         is Teleporting.Destination.Nearby -> hop(world, id, get<Position>(), destination)
         is Teleporting.Destination.Home -> goHome(world, id, get<Position>(), destination)
+        is Teleporting.Destination.Spot -> land(world, id, get<Position>(), destination.at)
+        is Teleporting.Destination.Follow -> follow(world, id, get<Position>(), destination)
       }
     }
   }
@@ -105,16 +107,37 @@ class TeleportSystem(
     appear(world, id, EntityFx.Kind.HOME_APPEAR, settings.butterflyWingAppearMs)
   }
 
+  private fun land(world: World, id: EntityId, position: Position, at: Vec3L) {
+    val z = groundHeight.standingZAt(at)
+    place(world, id, position, if (z == null) at else Vec3L(at.x, at.y, z))
+    appear(world, id, EntityFx.Kind.HOME_APPEAR, settings.butterflyWingAppearMs)
+  }
+
+  /** Waits, vanished, while the leader is still on its way, then comes down at its side. */
+  private fun follow(world: World, id: EntityId, position: Position, follow: Teleporting.Destination.Follow) {
+    if (world.has(follow.leaderId, Teleporting::class)) return
+    val leader = world.get(follow.leaderId, Position::class)?.toVec3L()
+    if (leader == null) {
+      appear(world, id, EntityFx.Kind.HOME_APPEAR, settings.butterflyWingAppearMs)
+      return
+    }
+
+    place(world, id, position, findLanding(world, id, leader, FOLLOW_RADIUS_METRES, minMetres = 1.0) ?: leader)
+    appear(world, id, EntityFx.Kind.HOME_APPEAR, settings.butterflyWingAppearMs)
+  }
+
   /**
    * A dry spot between the shortest hop and [radius] away. For a body a player is looking through, only
    * ground that player was already sent counts, so the hop lands on something drawn and needs no loading screen.
    */
-  private fun findLanding(world: World, id: EntityId, from: Vec3L, radius: Long): Vec3L? {
+  private fun findLanding(
+    world: World, id: EntityId, from: Vec3L, radius: Long, minMetres: Double = settings.flyWingMinMetres.toDouble()
+  ): Vec3L? {
     val sent = viewerOf(world, id)?.let { subscriptions.sentTo(it) }
 
     repeat(LANDING_TRIES) {
       val angle = random.nextDouble(0.0, 2 * Math.PI)
-      val distance = random.nextDouble(settings.flyWingMinMetres.toDouble(), radius.toDouble())
+      val distance = random.nextDouble(minMetres, radius.toDouble())
       val x = from.x + (cos(angle) * distance).roundToLong()
       val y = from.y + (sin(angle) * distance).roundToLong()
 
@@ -160,6 +183,9 @@ class TeleportSystem(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** How far from its master a following bestia comes down. */
+    private const val FOLLOW_RADIUS_METRES = 3L
 
     /** Over land nearly every try lands; this many all failing means open water or the world's edge. */
     private const val LANDING_TRIES = 12

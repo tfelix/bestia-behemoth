@@ -2462,3 +2462,20 @@ items:
     type: ETC
     material: CRYSTAL
     description: A common blue crystal of mana. Endow burns one to carry an element into a weapon.
+
+  # What Teleport and Warp Portal burn. The GM item command is their only source until crafting can make them.
+  - id: 335
+    item-db-name: teleport_rune
+    base-level: 30
+    weight: 1
+    type: ETC
+    material: STONE
+    description: A small stone carved with a rune of passage. Teleport burns one.
+
+  - id: 336
+    item-db-name: portal_rune
+    base-level: 50
+    weight: 2
+    type: ETC
+    material: STONE
+    description: A heavy stone carved with a rune that holds a door open. Warp Portal burns one.

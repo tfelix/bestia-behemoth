@@ -94,6 +94,31 @@ class TeleportSystemTest {
   }
 
   @Test
+  fun `a portal passage lands exactly at its exit, on the ground`() {
+    val id = teleporting(Teleporting.Destination.Spot(Vec3L(500, 600, 10)))
+
+    system().update(world, 0f)
+
+    assertEquals(Vec3L(500, 600, 77), positionOf(id))
+  }
+
+  @Test
+  fun `a following bestia waits for its master and then comes down beside it`() {
+    val master = teleporting(Teleporting.Destination.Spot(Vec3L(500, 600, 10)), secondsUntilMove = 1f)
+    val bestia = teleporting(Teleporting.Destination.Follow(master))
+
+    system().update(world, 0f)
+    assertTrue(world.has(bestia, Teleporting::class), "the bestia went before its master")
+
+    system().update(world, 1f)
+    system().update(world, 0f)
+
+    val landed = positionOf(bestia)
+    assertTrue(hypot((landed.x - 500).toDouble(), (landed.y - 600).toDouble()) <= 3.5, "landed at $landed")
+    assertFalse(world.has(bestia, Teleporting::class))
+  }
+
+  @Test
   fun `nothing moves before the vanish has played`() {
     val id = teleporting(Teleporting.Destination.Nearby(150), secondsUntilMove = 0.25f)
 
