@@ -190,6 +190,11 @@ class Master(
   @ColumnDefault("''")
   var professions: String = ""
 
+  /** The Warp Portal spots the master saved, see `WarpMarks.encode`. */
+  @Column(name = "warp_marks", nullable = false, length = 512)
+  @ColumnDefault("''")
+  var warpMarks: String = ""
+
   @OneToMany(mappedBy = "master", cascade = [CascadeType.ALL], orphanRemoval = true)
   val learnedSkills: MutableSet<LearnedSkill> = mutableSetOf()
 

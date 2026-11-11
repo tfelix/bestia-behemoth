@@ -67,6 +67,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         case global::Bnet.ComponentDelta.ComponentOneofCase.Detecting: return DetectingComponentSMSG.FromProto(entityId, delta.Detecting);
         case global::Bnet.ComponentDelta.ComponentOneofCase.ItemEnchantments: return ItemEnchantmentsComponentSMSG.FromProto(entityId, delta.ItemEnchantments);
         case global::Bnet.ComponentDelta.ComponentOneofCase.Fishing: return FishingComponentSMSG.FromProto(entityId, delta.Fishing);
+        case global::Bnet.ComponentDelta.ComponentOneofCase.WarpMarks: return WarpMarksComponentSMSG.FromProto(entityId, delta.WarpMarks);
         default:
           GD.PrintErr($"StateBatchMessages: component '{delta.ComponentCase}' of entity {entityId} was not handled!");
           return null;

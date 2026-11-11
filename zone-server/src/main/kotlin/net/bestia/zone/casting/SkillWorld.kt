@@ -187,6 +187,15 @@ interface SkillWorld {
   /** Puts the caster's street stall down where they stand, with [maxListings] places, for [seconds]. One spawn. */
   fun pitchStall(maxListings: Int, seconds: Int): OpError?
 
+  /** Teleports the caster and its own bestias close by: nearby, or home if [toHome]. One spawn. */
+  fun teleportCaster(toHome: Boolean)
+
+  /** The caster's [index]-th saved Warp Portal spot, oldest first; null when there is none. One op. */
+  fun warpMarkOf(entityId: EntityId, index: Int): Vec3L?
+
+  /** Opens a portal at [at] to [to], or home when null, for [passages] bodies and [seconds]. One spawn. */
+  fun openPortal(at: Vec3L, to: Vec3L?, passages: Int, seconds: Int)
+
   /** Shows the caster the hollows within [radiusMetres], and how deep and large they are if [revealsDepth]. */
   fun soundForHollows(radiusMetres: Int, revealsDepth: Boolean)
 

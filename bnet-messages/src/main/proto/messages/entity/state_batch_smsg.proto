@@ -39,6 +39,7 @@ import "messages/component/status_values_smsg.proto";
 import "messages/component/townsfolk_visual_component_smsg.proto";
 import "messages/component/visual_component.proto";
 import "messages/component/worn_gear_component_smsg.proto";
+import "messages/component/warp_marks_component_smsg.proto";
 import "messages/entity/vanish_entity_smsg.proto";
 
 option java_package = "net.bestia.bnet.proto";
@@ -104,5 +105,6 @@ message ComponentDelta {
     DetectingComponentSMSG detecting = 35;
     ItemEnchantmentsComponentSMSG item_enchantments = 36;
     FishingComponentSMSG fishing = 37;
+    WarpMarksComponentSMSG warp_marks = 38;
   }
 }

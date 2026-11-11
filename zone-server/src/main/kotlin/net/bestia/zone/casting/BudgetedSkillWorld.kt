@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.casting.portal.WarpMarks
 import net.bestia.zone.battle.ecs.status.InCombat
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.Revival
@@ -518,6 +519,24 @@ class BudgetedSkillWorld(
     refusal?.let(::tellCaster)
 
     return refusal
+  }
+
+  override fun teleportCaster(toHome: Boolean) {
+    budget.charge(SPAWN_OPS)
+
+    services.teleports?.teleport(world, casterId, toHome)?.let(::tellCaster)
+  }
+
+  override fun warpMarkOf(entityId: EntityId, index: Int): Vec3L? {
+    budget.charge()
+
+    return world.get(entityId, WarpMarks::class)?.spots?.getOrNull(index)
+  }
+
+  override fun openPortal(at: Vec3L, to: Vec3L?, passages: Int, seconds: Int) {
+    budget.charge(SPAWN_OPS)
+
+    services.teleports?.openPortal(world, casterId, at, to, passages, seconds)?.let(::tellCaster)
   }
 
   override fun soundForHollows(radiusMetres: Int, revealsDepth: Boolean) {

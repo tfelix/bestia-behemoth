@@ -885,6 +885,10 @@ skills:
     manaCost: 35
     castTime: 2.0
     cooldown: 30
+    mechanics:
+      reagents:
+        - item: teleport_rune
+          amount: 1
     description: |
       Moves the caster and their Bestias close by. Consumes a Teleport Rune. A teleported entity
       cannot teleport again for 5min. Cooldown 30s.
@@ -900,6 +904,10 @@ skills:
     manaCost: 70
     castTime: 5.0
     cooldown: 120
+    mechanics:
+      reagents:
+        - item: portal_rune
+          amount: 1
     description: |
       The Sage's capstone. Tears a standing hole that anyone can walk through, in both
       directions, for 30s. Consumes a Portal Rune. Cooldown 120s.
