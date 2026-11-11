@@ -104,5 +104,20 @@ class PriestStatusesTest {
     assertEquals(0, GloriaGrace.rollChanceBonusOf(world, plain))
   }
 
+  @Test
+  fun `Aspersio makes the weapon holy for a minute per level and replaces an endowment`() {
+    val effect = ActiveStatusEffect(StatusEffectId.ASPERSIO.id, 2, 120f)
+    val context = recalc()
+    val sut = AspersioAnointing()
+
+    sut.apply(world, 7L, context, effect)
+    sut.onApply(StatusEffectHookContext(world, 7L, effect, service))
+
+    assertEquals(Element.HOLY, context.weaponElement)
+    assertEquals(120.0, sut.durationSeconds(2))
+    verify { service.removeEffect(world, 7L, StatusEffectId.MASTER_ENDOWED.id, any()) }
+    verify { service.removeEffect(world, 7L, StatusEffectId.ENDOWED.id, any()) }
+  }
+
   private fun recalc() = StatusValueRecalcContext(StatusValues(1, 1, 1, 1, 1, 1), baseSpeed = 10f)
 }

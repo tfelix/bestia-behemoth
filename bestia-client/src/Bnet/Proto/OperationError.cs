@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqNKAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqlKAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -139,9 +139,10 @@ namespace Bnet {
             "T1RfT1dOX0JFU1RJQRCdARIYChNTUEVMTF9MRVZFTF9UT09fTE9XEJ4BEhgK",
             "E1NQRUxMX0FMUkVBRFlfS05PV04QnwESGgoVU1BFTExfVFJBSU5JTkdfRkFJ",
             "TEVEEKABEh0KGFNQRUxMX0lOU0NSSVBUSU9OX0ZBSUxFRBChARIWChFTUEVM",
-            "TF9NSU5EX0JST0tFThCiARIXChJTUEVMTF9PVVRfT0ZfUkFOR0UQowEiBAgu",
-            "EC4qElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQuYmVzdGlhLmJuZXQucHJv",
-            "dG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
+            "TF9NSU5EX0JST0tFThCiARIXChJTUEVMTF9PVVRfT0ZfUkFOR0UQowESFgoR",
+            "U0tJTExfTkVFRFNfV0FURVIQpAEiBAguEC4qElNIT1BfVFJFQVNVUllfRlVM",
+            "TEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJv",
+            "dG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -871,6 +872,10 @@ namespace Bnet {
     /// A spell scroll aimed past its attack's reach; the scroll stays in the bag.
     /// </summary>
     [pbr::OriginalName("SPELL_OUT_OF_RANGE")] SpellOutOfRange = 163,
+    /// <summary>
+    /// A rite that blesses water, like Aqua Benedicta, needs its caster to stand in water.
+    /// </summary>
+    [pbr::OriginalName("SKILL_NEEDS_WATER")] SkillNeedsWater = 164,
   }
 
   #endregion

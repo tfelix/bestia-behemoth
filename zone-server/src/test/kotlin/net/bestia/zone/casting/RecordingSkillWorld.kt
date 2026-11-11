@@ -195,6 +195,11 @@ class RecordingSkillWorld(
 
   override fun isAlive(entityId: EntityId): Boolean = true
 
+  /** What [isFallen] answers yes for. */
+  val fallen = mutableSetOf<EntityId>()
+
+  override fun isFallen(entityId: EntityId): Boolean = entityId in fallen
+
   override fun positionOf(entityId: EntityId): Vec3L? = positions[entityId]
 
   override fun masterIdOf(entityId: EntityId): Long? = masterIds[entityId]

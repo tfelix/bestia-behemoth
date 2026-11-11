@@ -465,6 +465,8 @@ enum OpError {
   SPELL_MIND_BROKEN = 162;
   // A spell scroll aimed past its attack's reach; the scroll stays in the bag.
   SPELL_OUT_OF_RANGE = 163;
+  // A rite that blesses water, like Aqua Benedicta, needs its caster to stand in water.
+  SKILL_NEEDS_WATER = 164;
 }
 
 message OperationError {

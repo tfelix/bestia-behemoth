@@ -2,6 +2,8 @@ package net.bestia.zone.battle.status.scripts
 
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
+import net.bestia.zone.battle.status.StatusEffectHookContext
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.ecs.core.World
@@ -19,6 +21,10 @@ class Endowed : StatusEffectScript {
 
   override fun durationSeconds(level: Int): Double {
     return 180.0
+  }
+
+  override fun onApply(context: StatusEffectHookContext) {
+    context.removeEffect(StatusEffectId.ASPERSIO)
   }
 
   override fun apply(world: World, entityId: EntityId, context: StatusValueRecalcContext, effect: ActiveStatusEffect) {

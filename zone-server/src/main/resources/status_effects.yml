@@ -663,3 +663,11 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: GloriaGrace
+
+  # The Priest's Aspersio: the weapon strikes as holy. It replaces an endowment.
+  - id: 216
+    identifier: ASPERSIO
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: AspersioAnointing

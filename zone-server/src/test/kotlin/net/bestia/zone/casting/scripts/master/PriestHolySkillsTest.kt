@@ -14,7 +14,14 @@ import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.casting.RecordingSkillWorld
 import net.bestia.zone.casting.SkillContextFixture
+import net.bestia.worldgen.vector.Aabb
+import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.navigation.region.RegionGrid
+import net.bestia.zone.navigation.region.WaterSource
+import net.bestia.zone.navigation.region.WaterSurvey
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.util.Random
 
@@ -92,6 +99,46 @@ class PriestHolySkillsTest {
     assertEquals(1L, effect.radiusTiles)
     assertEquals(40, effect.remainingTicks)
     assertEquals(AreaMechanics(zoneStatus = StatusEffectId.SHELTERED, zoneStatusForEveryone = true), effect.mechanics)
+  }
+
+  @Test
+  fun `Aqua Benedicta needs water underfoot and fills a bottle with Holy Water`() {
+    val dry = AquaBenedicta(RegionGrid(water(wet = false)))
+    val wet = AquaBenedicta(RegionGrid(water(wet = true)))
+    world.putPosition(BattleContextFixture.ATTACKER_ID, Vec3L(4, 4, 0))
+
+    assertFalse(dry.isCastPossible(ctx(level = 1)))
+    assertTrue(wet.isCastPossible(ctx(level = 1)))
+
+    wet.execute(ctx(level = 1))
+    assertEquals(listOf(AquaBenedicta.HOLY_WATER_ITEM_ID to 1), world.givenItems)
+  }
+
+  @Test
+  fun `Aspersio anoints the ally's weapon at the cast level`() {
+    Aspersio(LineOfSightService()).execute(ctx(level = 3))
+
+    assertEquals(listOf(StatusEffectId.ASPERSIO.id to 3), world.appliedEffects.map { it.effectId to it.level })
+  }
+
+  @Test
+  fun `Resurrection raises only a fallen ally, never the living or the caster`() {
+    val resurrection = Resurrection(LineOfSightService())
+    assertFalse(resurrection.isCastPossible(ctx(level = 1)))
+
+    world.fallen += target
+    assertTrue(resurrection.isCastPossible(ctx(level = 1)))
+    resurrection.execute(ctx(level = 1))
+    assertEquals(listOf(target to 30), world.revived)
+
+    world.fallen += BattleContextFixture.ATTACKER_ID
+    val onSelf = BattleContextFixture.entityCtx(defenderEntity = BattleContextFixture.battleEntity())
+    assertFalse(resurrection.isCastPossible(SkillContextFixture.skillCtx(onSelf, world, skillLevel = 1)))
+  }
+
+  private fun water(wet: Boolean) = object : WaterSource {
+    override val isReady get() = true
+    override fun survey(area: Aabb, exact: Boolean) = WaterSurvey({ _, _ -> false }, emptyList(), isWet = { _, _ -> wet })
   }
 
   private fun groundCtx(level: Int, aoeRadius: Double, caster: BattleEntity = BattleContextFixture.battleEntity()) =

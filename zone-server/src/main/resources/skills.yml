@@ -988,9 +988,13 @@ skills:
     manaCost: 12
     castTime: 3.0
     cooldown: 5
+    mechanics:
+      reagents:
+        - item: empty_bottle
+          amount: 1
     description: |
-      The rite of blessing plain water into Holy Water. The Priest must stand in water and needs
-      an Empty Bottle. Cast 3s, cooldown 5s.
+      The rite of blessing plain water into Holy Water. The Priest must stand in water and fills
+      one Empty Bottle. Cast 3s, cooldown 5s.
 
   - id: 81
     identifier: M_INCREASE_AGI
@@ -1081,9 +1085,13 @@ skills:
     manaCost: 22
     castTime: 2.0
     cooldown: 10
+    mechanics:
+      reagents:
+        - item: holy_water
+          amount: 1
     description: |
-      Anoints a weapon with Holy Water, so its strikes carry the holy element. Consumes one Holy
-      Water. Cooldown 10s.
+      Anoints a weapon with Holy Water, so its strikes carry the holy element. It replaces an
+      Endow. Consumes one Holy Water. Cooldown 10s.
 
       `+60s/lv` duration
 
@@ -1171,7 +1179,7 @@ skills:
     castTime: 10.0
     cooldown: 600
     description: |
-      Calls a fallen Bestia or Master back over the threshold with part of their HP. Can not be
+      Calls a fallen Bestia or Master back over the threshold with 30% of their HP. Can not be
       used on the caster. Cooldown 10min.
 
 # Warrior trunk (Meditation keeps id 27 above)
