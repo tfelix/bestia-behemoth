@@ -13,6 +13,7 @@ class OrderPresetService(
   private val presets: OrderPresetRepository,
   private val playerBestias: PlayerBestiaRepository,
   private val aiConfigs: BestiaAiConfigService,
+  private val places: NamedPlaces,
 ) {
 
   /** Why a preset could not be saved. */
@@ -31,7 +32,7 @@ class OrderPresetService(
   fun save(masterId: Long, presetId: Long?, name: String, orders: AiConfig): Saved {
     val trimmed = name.trim()
     if (trimmed.isEmpty() || trimmed.length > OrderPreset.NAME_LENGTH) return refused(Refusal.INVALID_NAME)
-    if (!orders.isValid) return refused(Refusal.INVALID_ORDERS)
+    if (!orders.isValid || !places.fitFor(masterId, orders)) return refused(Refusal.INVALID_ORDERS)
 
     val preset = if (presetId == null) {
       if (presets.countByMasterId(masterId) >= OrderPreset.MAX_PER_MASTER) return refused(Refusal.TOO_MANY)

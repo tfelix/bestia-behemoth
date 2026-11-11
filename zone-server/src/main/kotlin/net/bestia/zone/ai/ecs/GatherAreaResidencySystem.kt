@@ -28,7 +28,8 @@ class GatherAreaResidencySystem(
   override val after = setOf(AnchorResidencySystem::class)
   override val before = setOf(WorldObjectResidencySystem::class)
 
-  // An area only changes with new orders, so a second's delay in loading or releasing it costs nothing.
+  // An area only changes with new orders or a moved place, so a second's delay in loading or releasing it costs
+  // nothing.
   override val schedule: Schedule = Schedule.EverySeconds(1f)
 
   override val reads: ComponentClassSet = setOf(OwnedBestia::class, AiAgent::class)
