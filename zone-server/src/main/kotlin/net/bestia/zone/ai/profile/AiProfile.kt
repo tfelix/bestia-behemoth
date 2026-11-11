@@ -37,12 +37,25 @@ data class AiProfile(
    * This profile as an owned bestia runs it under [orders]: the archetype's goals narrowed to the job, plus the
    * job's work and the self-care every owned bestia has. The narrowing never widens: a job cannot teach a creature
    * to hunt if its species never could.
+   *
+   * The fallback job adds only what the main job lacks, and those goals wait until the main job runs out of work.
    */
-  fun underOrders(orders: AiConfig): AiProfile = copy(
-    goals = goals.filter { it.name in orders.job.goalNames } +
-      (orders.job.workGoals + AiConfig.SELF_CARE_GOALS).map { GoalTuning(it, basePriority = null) },
-    actionIds = (actionIds + orders.job.workActions + AiConfig.SELF_CARE_ACTIONS).distinct(),
-  )
+  fun underOrders(orders: AiConfig): AiProfile {
+    val main = goalsOf(orders.job) + AiConfig.SELF_CARE_GOALS.map { GoalTuning(it, basePriority = null) }
+    val fallback = orders.fallbackJob?.let(::goalsOf).orEmpty()
+      .filter { candidate -> main.none { it.name == candidate.name } }
+      .map { it.copy(onlyWhenMainJobIdle = true) }
+    val fallbackActions = orders.fallbackJob?.workActions.orEmpty()
+
+    return copy(
+      goals = main + fallback,
+      actionIds = (actionIds + orders.job.workActions + fallbackActions + AiConfig.SELF_CARE_ACTIONS).distinct(),
+    )
+  }
+
+  private fun goalsOf(job: BestiaJob): List<GoalTuning> {
+    return goals.filter { it.name in job.goalNames } + job.workGoals.map { GoalTuning(it, basePriority = null) }
+  }
 
   /** This profile plus the attack skills a species fights with, which no shared profile can list. */
   fun withSkillAttacks(skillAttacks: List<SkillAttack>): AiProfile {
@@ -72,7 +85,12 @@ data class AiProfile(
    * Which goal this archetype pursues, optionally overriding the base priority the goal declares in Kotlin.
    * A null [basePriority] means "use the goal's own".
    */
-  data class GoalTuning(val name: String, val basePriority: Float?)
+  data class GoalTuning(
+    val name: String,
+    val basePriority: Float?,
+    /** A fallback job's goal: pursued only while the main job has nothing to do. */
+    val onlyWhenMainJobIdle: Boolean = false,
+  )
 
   companion object {
     fun fromDto(dto: AiProfileDto): AiProfile = AiProfile(

@@ -32,10 +32,11 @@ class BestiaAiConfigService(
   private val stationWorkers: StationWorkers,
 ) {
 
-  /** The orders as stored, or null when the bestia does not exist. */
+  /** The orders as stored, each override inside its limit, or null when the bestia does not exist. */
   @Transactional
-  fun apply(playerBestiaId: PlayerBestiaId, config: AiConfig): AiConfig? {
+  fun apply(playerBestiaId: PlayerBestiaId, orders: AiConfig): AiConfig? {
     val playerBestia = playerBestias.findByIdOrNull(playerBestiaId) ?: return null
+    val config = orders.copy(overrides = orders.overrides.clamped())
 
     playerBestia.aiConfig = config
     playerBestias.save(playerBestia)

@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.domain.bestia
 
+import net.bestia.zone.ai.core.precondition.Precondition
 import net.bestia.zone.battle.attack.BasicAttackResolver
 import net.bestia.zone.ai.bt.Locomotion
 import net.bestia.zone.ai.core.action.ActionResolver
@@ -86,25 +87,47 @@ class BestiaRuntime(
   }
 
   /** The lines an owned bestia looks after itself and gets out of a fight at, and where it works. */
-  private fun attachOrders(memory: Blackboard, config: AiConfig, homePosition: Vec3L, wanderRadius: Long) {
-    memory.set(BestiaDomain.EAT_BELOW_STAMINA_PCT, BestiaDomain.DEFAULT_EAT_BELOW_STAMINA_PCT, Blackboard.PERMANENT)
-    memory.set(BestiaDomain.HEAL_BELOW_HEALTH_PCT, BestiaDomain.DEFAULT_HEAL_BELOW_HEALTH_PCT, Blackboard.PERMANENT)
-    config.courage.retreatBelowHealthPct?.let { memory.set(BestiaDomain.RETREAT_BELOW_HEALTH_PCT, it, Blackboard.PERMANENT) }
+  private fun attachOrders(memory: Blackboard, config: AiConfig, homePosition: Vec3L, speciesRadius: Long) {
+    val overrides = config.overrides.clamped()
+    val retreatLine = overrides.retreatBelowHealthPct ?: config.courage.retreatBelowHealthPct
+    val areaRadius = overrides.areaRadius?.toLong() ?: speciesRadius
+
+    memory.set(BestiaDomain.MAIN_JOB, config.job, Blackboard.PERMANENT)
+    memory.set(BestiaDomain.WANDER_RADIUS, areaRadius, Blackboard.PERMANENT)
+    memory.set(
+      BestiaDomain.EAT_BELOW_STAMINA_PCT,
+      overrides.eatBelowStaminaPct ?: BestiaDomain.DEFAULT_EAT_BELOW_STAMINA_PCT,
+      Blackboard.PERMANENT,
+    )
+    memory.set(
+      BestiaDomain.HEAL_BELOW_HEALTH_PCT,
+      overrides.healBelowHealthPct ?: BestiaDomain.DEFAULT_HEAL_BELOW_HEALTH_PCT,
+      Blackboard.PERMANENT,
+    )
+    memory.set(
+      BestiaDomain.HAUL_AT_LOAD_PCT,
+      overrides.haulAtLoadPct ?: BestiaDomain.DEFAULT_HAUL_AT_LOAD_PCT,
+      Blackboard.PERMANENT,
+    )
+    retreatLine?.let { memory.set(BestiaDomain.RETREAT_BELOW_HEALTH_PCT, it, Blackboard.PERMANENT) }
     memory.set(BestiaDomain.FLEES_ON_SIGHT, config.courage.fleesOnSight, Blackboard.PERMANENT)
     memory.set(BestiaDomain.TAKES_ON_STRONGER_FOES, config.courage.takesOnStrongerFoes, Blackboard.PERMANENT)
-    if (config.job == BestiaJob.GATHER) {
-      memory.set(BestiaDomain.GATHER_AREA, WorkArea(homePosition, wanderRadius), Blackboard.PERMANENT)
-    }
-    if (config.job == BestiaJob.CRAFT) {
-      memory.set(BestiaDomain.CRAFT_AREA, WorkArea(homePosition, wanderRadius), Blackboard.PERMANENT)
-    }
-    if (config.job == BestiaJob.MINE) {
-      memory.set(BestiaDomain.MINE_AREA, WorkArea(homePosition, wanderRadius), Blackboard.PERMANENT)
-    }
-    if (config.job == BestiaJob.GUARD) {
-      memory.set(BestiaDomain.GUARD_AREA, WorkArea(homePosition, wanderRadius), Blackboard.PERMANENT)
+
+    val area = WorkArea(homePosition, areaRadius)
+    listOfNotNull(config.job, config.fallbackJob).forEach { job ->
+      areaKeyOf(job)?.let { memory.set(it, area, Blackboard.PERMANENT) }
     }
   }
+
+  private fun areaKeyOf(job: BestiaJob) = when (job) {
+    BestiaJob.GATHER -> BestiaDomain.GATHER_AREA
+    BestiaJob.CRAFT -> BestiaDomain.CRAFT_AREA
+    BestiaJob.MINE -> BestiaDomain.MINE_AREA
+    BestiaJob.GUARD -> BestiaDomain.GUARD_AREA
+    BestiaJob.REST -> null
+  }
+
+  override val mainJobIdle = Precondition(BestiaDomain::mainJobIdle)
 
   // A ranged species stops at shooting distance; one that also bites lets the target come to it.
   private fun attackRangeOf(profile: AiProfile): Long =

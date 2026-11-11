@@ -46,11 +46,24 @@ class StationWorkers(
 
   /** A free crafter takes a station that waits for one and has work, a miner a shaft nobody works. */
   override fun claim(world: World, bestiaId: EntityId, structureId: Long): Boolean {
-    val station = structures.of(structureId)?.takeIf { (it.waitsForCrafter && it.queue.isNotEmpty()) || it.waitsForMiner }
-      ?: return false
+    val playerBestiaId = world.get(bestiaId, OwnedBestia::class)?.playerBestiaId ?: return false
+    val station = structures.of(structureId) ?: return false
+    if (station.workerBestiaId == playerBestiaId) return true
+    if (!(station.waitsForCrafter && station.queue.isNotEmpty()) && !station.waitsForMiner) return false
 
     assign(world, bestiaId, station)
     return true
+  }
+
+  /** Also before its WorkAssignment has landed, which happens at the end of the tick that claimed the station. */
+  override fun quit(world: World, bestiaId: EntityId) {
+    if (world.has(bestiaId, WorkAssignment::class)) {
+      release(world, bestiaId)
+      return
+    }
+
+    val playerBestiaId = world.get(bestiaId, OwnedBestia::class)?.playerBestiaId ?: return
+    structures.workplaceOf(playerBestiaId)?.let { structures.setWorker(it.id, null) }
   }
 
   /** Takes the bestia working [structureId] off it, so its owner works it again. */
