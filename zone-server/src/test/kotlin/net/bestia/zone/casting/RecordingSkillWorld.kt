@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.ammo.Ammunition
 import net.bestia.zone.battle.attack.BattleAttack
 import net.bestia.zone.battle.damage.HitKind
@@ -294,6 +295,14 @@ class RecordingSkillWorld(
 
   override fun senseResources(rangeMetres: Double, accuracy: Double) {
     resourceSenses += rangeMetres to accuracy
+  }
+
+  /** Listing places and seconds of each [pitchStall]. */
+  val stalls = mutableListOf<Pair<Int, Int>>()
+
+  override fun pitchStall(maxListings: Int, seconds: Int): OpError? {
+    stalls += maxListings to seconds
+    return null
   }
 
   /** Radius and depth reveal of each [soundForHollows]. */

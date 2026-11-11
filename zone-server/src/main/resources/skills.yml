@@ -2060,8 +2060,8 @@ skills:
   - id: 178
     identifier: M_STREET_STALL
     script: StreetStall
-    targetType: GROUND
-    range: 1
+    targetType: FRIENDLY
+    needsLineOfSight: false
     manaCost: 10
     castTime: 5
     description: |

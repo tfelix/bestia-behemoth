@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.ammo.Ammunition
 import net.bestia.zone.battle.attack.BattleAttack
 import net.bestia.zone.skill.PartyMates
@@ -176,6 +177,9 @@ interface SkillWorld {
    * [accuracy] (0 to 1). A scan of the land: charged as a spawn.
    */
   fun senseResources(rangeMetres: Double, accuracy: Double)
+
+  /** Puts the caster's street stall down where they stand, with [maxListings] places, for [seconds]. One spawn. */
+  fun pitchStall(maxListings: Int, seconds: Int): OpError?
 
   /** Shows the caster the hollows within [radiusMetres], and how deep and large they are if [revealsDepth]. */
   fun soundForHollows(radiusMetres: Int, revealsDepth: Boolean)

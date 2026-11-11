@@ -363,6 +363,13 @@ enum OpError {
   SURVEY_IN_PROGRESS = 145;
   // A herb above the level the picker's Herbalism allows.
   HERB_TOO_RARE = 146;
+  // Street stalls: the Trader already has one standing, all its listing places are taken, it packed up or the
+  // offer was sold, the buyer lacks the coins, or stands too far away.
+  STALL_ALREADY_OPEN = 147;
+  STALL_FULL = 148;
+  STALL_GONE = 149;
+  STALL_CANNOT_AFFORD = 150;
+  STALL_OUT_OF_RANGE = 151;
 }
 
 message OperationError {

@@ -489,6 +489,15 @@ class BudgetedSkillWorld(
     services.resourceSensing?.sense(world, casterId, rangeMetres, accuracy)
   }
 
+  override fun pitchStall(maxListings: Int, seconds: Int): OpError? {
+    budget.charge(SPAWN_OPS)
+
+    val refusal = services.stalls?.pitch(world, casterId, maxListings, seconds) ?: OpError.REQUEST_REFUSED
+    refusal?.let(::tellCaster)
+
+    return refusal
+  }
+
   override fun soundForHollows(radiusMetres: Int, revealsDepth: Boolean) {
     budget.charge(SPAWN_OPS)
 
