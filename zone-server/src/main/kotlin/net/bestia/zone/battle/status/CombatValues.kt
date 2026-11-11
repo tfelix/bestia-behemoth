@@ -117,6 +117,7 @@ data class CombatValues(
         castTimeReduction = context.castTimeReduction,
         elementOverride = context.elementOverride,
         defensePercent = context.defensePercent,
+        defenseCutPercent = context.defenseCutPercent,
         hitPercent = context.hitPercent,
         aspdPercent = context.aspdPercent,
         healReceivedPercent = context.healReceivedPercent,
@@ -151,6 +152,7 @@ data class CombatValues(
       castTimeReduction: Int = 0,
       elementOverride: Element? = null,
       defensePercent: Int = 0,
+      defenseCutPercent: Int = 0,
       hitPercent: Int = 0,
       aspdPercent: Int = 0,
       healReceivedPercent: Int = 0,
@@ -169,7 +171,9 @@ data class CombatValues(
           rangedAtk = scaled(derived.rangedAtk, attackPercent),
           matk = scaled(derived.matk, attackPercent)
         ),
-        defense = if (defensePercent == 0) defense else defense.withHardDefenseRaisedBy(defensePercent),
+        defense = defense
+          .let { if (defensePercent == 0) it else it.withHardDefenseRaisedBy(defensePercent) }
+          .let { if (defenseCutPercent == 0) it else it.withPhysicalDefenseCutBy(defenseCutPercent) },
         weapon = when {
           weapon == Weapon.NONE -> Weapon.NONE
           attackPercent == 0 -> weapon

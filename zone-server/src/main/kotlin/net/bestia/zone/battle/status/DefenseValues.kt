@@ -33,6 +33,13 @@ data class DefenseValues(
     )
   }
 
+  /** Physical defence, soft and hard, cut by [percent], as a sigil that pries the guard open. Magic defence stays. */
+  fun withPhysicalDefenseCutBy(percent: Int): DefenseValues {
+    val kept = (100 - percent).coerceIn(0, 100)
+
+    return copy(defense = defense * kept / 100, defenseSpread = defenseSpread * kept / 100, hardDefense = hardDefense * kept / 100)
+  }
+
   companion object {
     fun fromStatusValues(
       lv: Int,

@@ -92,6 +92,10 @@ class StatusValueRecalcContext(
   var defensePercent: Int = 0
     private set
 
+  /** Percent of the physical defence taken away, see [DefenseValues.withPhysicalDefenseCutBy]. */
+  var defenseCutPercent: Int = 0
+    private set
+
   /** Percentage points on top of the resolved attack, hit rate and attack speed. */
   var attackPercent: Int = 0
     private set
@@ -227,6 +231,10 @@ class StatusValueRecalcContext(
     hitPercent += hit
     aspdPercent += aspd
     healReceivedPercent += healReceived
+  }
+
+  fun cutDefense(percent: Int) {
+    defenseCutPercent += percent
   }
 
   /** More damage dealt to a [kind], an [element] or a boss, in percent; see [DamageModifiers]. */
