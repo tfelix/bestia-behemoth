@@ -91,6 +91,27 @@ class PlayerBestia(
   @Embedded
   var individualValues: IndividualValues = IndividualValues()
 
+  /** The preset its orders follow, or null for orders of its own. See `BestiaAiConfigService`. */
+  @Column(name = "order_preset_id")
+  var orderPresetId: Long? = null
+
+  /** The numbers it keeps as its own while it follows a preset. Part of [aiConfig] already. */
+  var ownOverrides: OrderOverrides
+    get() = storedOwnOverrides ?: OrderOverrides()
+    set(value) {
+      storedOwnOverrides = value
+    }
+
+  @Embedded
+  @AttributeOverrides(
+    AttributeOverride(name = "retreatBelowHealthPct", column = Column(name = "own_retreat_below_health_pct")),
+    AttributeOverride(name = "eatBelowStaminaPct", column = Column(name = "own_eat_below_stamina_pct")),
+    AttributeOverride(name = "healBelowHealthPct", column = Column(name = "own_heal_below_health_pct")),
+    AttributeOverride(name = "haulAtLoadPct", column = Column(name = "own_haul_at_load_pct")),
+    AttributeOverride(name = "areaRadius", column = Column(name = "own_area_radius")),
+  )
+  private var storedOwnOverrides: OrderOverrides? = null
+
   /**
    * The journey it is on, as [net.bestia.zone.travel.StoredJourney] writes it, so a bestia sent off keeps going
    * after a restart. Null when it is on none.

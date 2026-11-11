@@ -94,16 +94,19 @@ class ZoneEventRelay(
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
   fun onOrdersChanged(event: BestiaAiConfigChangedEvent) {
+    val orders = OrdersOnTheBus.answerOf(event.playerBestiaId, event.stored)
     events.publish(
       ZoneEvent.OrdersChanged(
         event.accountId,
         event.masterId,
         event.playerBestiaId,
-        event.config.job.name,
-        event.config.courage.name,
-        event.config.fallbackJob?.name,
-        OrdersOnTheBus.numbersOf(event.config.overrides),
-        OrdersOnTheBus.linesOf(event.config.rules),
+        orders.job,
+        orders.courage,
+        orders.fallbackJob,
+        orders.overrides,
+        orders.rules,
+        orders.presetId,
+        orders.ownOverrides,
       )
     )
   }

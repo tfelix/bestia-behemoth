@@ -29,6 +29,9 @@ enum class ZoneQueryKind {
   WHOSE_TICKET,
   GUILD_EMBLEM,
   SET_ORDERS,
+  ORDER_PRESETS,
+  SAVE_ORDER_PRESET,
+  DELETE_ORDER_PRESET,
   SEND_CHAT,
   SEND_ON_JOURNEY,
   STOP_JOURNEY,
@@ -66,6 +69,9 @@ enum class ZoneQueryKind {
         is ZoneQuery.WhoseTicket -> WHOSE_TICKET
         is ZoneQuery.GuildEmblem -> GUILD_EMBLEM
         is ZoneQuery.SetOrders -> SET_ORDERS
+        is ZoneQuery.OrderPresets -> ORDER_PRESETS
+        is ZoneQuery.SaveOrderPreset -> SAVE_ORDER_PRESET
+        is ZoneQuery.DeleteOrderPreset -> DELETE_ORDER_PRESET
         is ZoneQuery.SendChat -> SEND_CHAT
         is ZoneQuery.SendOnJourney -> SEND_ON_JOURNEY
         is ZoneQuery.StopJourney -> STOP_JOURNEY

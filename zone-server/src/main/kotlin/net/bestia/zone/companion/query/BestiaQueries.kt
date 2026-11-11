@@ -62,6 +62,8 @@ class BestiaQueries(
           fallbackJob = row.aiConfig.fallbackJob?.name,
           overrides = OrdersOnTheBus.numbersOf(row.aiConfig.overrides),
           rules = OrdersOnTheBus.linesOf(row.aiConfig.rules),
+          presetId = row.orderPresetId,
+          ownOverrides = OrdersOnTheBus.numbersOf(row.ownOverrides),
         )
       }
     )
