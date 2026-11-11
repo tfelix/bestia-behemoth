@@ -12,6 +12,7 @@ import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.party.PartyService
 import net.bestia.zone.scenarios.ScenarioDataSetup
 import net.bestia.zone.world.MasterSpawnPointService
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -79,6 +80,18 @@ class MasterDeletionServiceTest {
 
   /** Only needed to set a party up; [MasterDeletionService] brings its own transaction. */
   private val transactionTemplate: TransactionTemplate by lazy { TransactionTemplate(transactionManager) }
+
+  private val created = mutableListOf<Master>()
+
+  /**
+   * Also after a failed assertion: a master left in [FREE_SLOT] fails every other class that creates one there, and
+   * hides which test broke first.
+   */
+  @AfterEach
+  fun deleteLeftoverMasters() {
+    created.filter { masterRepository.findByIdOrNull(it.id) != null }
+      .forEach { masterDeletionService.delete(ACCOUNT_ID, it.id, it.name) }
+  }
 
   @Test
   fun `deletes the master and frees its name`() {
@@ -222,7 +235,7 @@ class MasterDeletionServiceTest {
 
   /** Named uniquely per call because the master name carries a unique index. */
   private fun createThrowawayMaster(): Master {
-    return masterFactory.create(
+    val master = masterFactory.create(
       ACCOUNT_ID,
       MasterFactory.CreateMasterData(
         name = "doomed${NEXT_NAME.getAndIncrement()}",
@@ -235,6 +248,8 @@ class MasterDeletionServiceTest {
         slot = FREE_SLOT
       )
     )
+    created += master
+    return master
   }
 
   private companion object {
