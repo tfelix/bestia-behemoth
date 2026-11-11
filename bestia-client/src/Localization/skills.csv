@@ -608,8 +608,8 @@ Cooldown 30s.
 `+15%` chance for every random stat slot and socket"
 SKILL_79_DESC,"Clears the mind of a target. Lifts Blind, Confused and Feared in a single rite. Cooldown
 10s."
-SKILL_80_DESC,"The rite of blessing plain water into Holy Water. The Priest must stand in water and needs
-an Empty Bottle. Cast 3s, cooldown 5s."
+SKILL_80_DESC,"The rite of blessing plain water into Holy Water. The Priest must stand in water and fills
+one Empty Bottle. Cast 3s, cooldown 5s."
 SKILL_81_DESC,"Lightens a target's limbs with borrowed haste, quickening step and swing alike.
 
 `+15%` movement speed at every level
@@ -637,8 +637,8 @@ or Undead lands harder, and what they strike back with lands softer.
 
 `+5%/lv` damage against Demon and Undead Bestias
 `-6%/lv` damage taken from Demon and Undead Bestias"
-SKILL_89_DESC,"Anoints a weapon with Holy Water, so its strikes carry the holy element. Consumes one Holy
-Water. Cooldown 10s.
+SKILL_89_DESC,"Anoints a weapon with Holy Water, so its strikes carry the holy element. It replaces an
+Endow. Consumes one Holy Water. Cooldown 10s.
 
 `+60s/lv` duration"
 SKILL_90_DESC,"A judgment of pure holy mana that punches through armor. Against an Undead target it can
@@ -662,7 +662,7 @@ it, and burns Demons and the Undead for the same share of the Priest's own max H
 Cooldown 30s.
 
 `+5%/lv` max HP healed per second"
-SKILL_95_DESC,"Calls a fallen Bestia or Master back over the threshold with part of their HP. Can not be
+SKILL_95_DESC,"Calls a fallen Bestia or Master back over the threshold with 30% of their HP. Can not be
 used on the caster. Cooldown 10min."
 SKILL_96_DESC,"A warrior's steadied breath - the body keeps mending itself even in the thick of a fight.
 HP and mana regeneration does not stop during combat."

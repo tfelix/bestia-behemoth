@@ -2,6 +2,8 @@ package net.bestia.zone.battle.status.scripts
 
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
+import net.bestia.zone.battle.status.StatusEffectHookContext
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.ecs.core.World
@@ -18,6 +20,10 @@ class MasterEndowed : StatusEffectScript {
   override val isPersisted: Boolean = false
 
   override fun durationSeconds(level: Int): Double = SECONDS_PER_LEVEL * level
+
+  override fun onApply(context: StatusEffectHookContext) {
+    context.removeEffect(StatusEffectId.ASPERSIO)
+  }
 
   override fun apply(world: World, entityId: EntityId, context: StatusValueRecalcContext, effect: ActiveStatusEffect) {
     context.weaponElement = Element.entries[effect.amount]
