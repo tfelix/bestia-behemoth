@@ -25,7 +25,7 @@ class RetreatHomeActionTemplate(private val locomotion: Locomotion) : ActionTemp
     return listOf(
       Action(
         name = "retreatHome",
-        preconditions = listOf(Precondition { s -> BestiaDomain.retreatWarranted(s) }),
+        preconditions = listOf(Precondition { s -> BestiaDomain.headsHome(s) }),
         effects = listOf(Effects.set(BestiaDomain.POSITION, home)),
         // Cheaper than returnHome, which plans to the same spot but arrives anywhere inside the wander radius:
         // at equal cost the search took that one, and a bestia already inside the radius never moved.

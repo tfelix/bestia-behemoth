@@ -1,6 +1,7 @@
 package net.bestia.zone.ai.domain.bestia
 
 import net.bestia.zone.ai.profile.BestiaJob
+import net.bestia.zone.ai.profile.OrderRule
 import net.bestia.zone.battle.attack.BasicAttackResolver
 import net.bestia.zone.ai.bt.Locomotion
 import net.bestia.zone.ai.core.action.ActionResolver
@@ -168,6 +169,9 @@ object BestiaDomain : AiDomainCatalogue {
   /** The load it carries its bag to the chest at, when its orders set one. */
   val HAUL_AT_LOAD_PCT = StateKey<Int>("haulAtLoadPct", retain = Blackboard.PERMANENT)
 
+  /** An owned bestia's rules, read from the top. See [ruleSays]. */
+  val RULES = StateKey<List<OrderRule>>("orderRules", retain = Blackboard.PERMANENT)
+
   /** The job an owned bestia's orders give it first. Its fallback job waits until [mainJobIdle]. */
   val MAIN_JOB = StateKey<BestiaJob>("mainJob", retain = Blackboard.PERMANENT)
 
@@ -310,6 +314,19 @@ object BestiaDomain : AiDomainCatalogue {
 
   private fun healLineOf(state: WorldState): Int = state.get(HEAL_BELOW_HEALTH_PCT) ?: DEFAULT_HEAL_BELOW_HEALTH_PCT
 
+  /** Below its eat line, or told by a rule to eat. */
+  private fun needsFood(state: WorldState): Boolean =
+    (state.get(STAMINA_PCT) ?: 100) < eatLineOf(state) || ruleSays(state, OrderRule.Action.EAT)
+
+  /** Below its heal line, or told by a rule to heal. */
+  private fun needsHealing(state: WorldState): Boolean =
+    healthPctOf(state) < healLineOf(state) || ruleSays(state, OrderRule.Action.HEAL)
+
+  /** Full enough to carry its bag to the chest, or told by a rule to do so now. */
+  private fun bagFull(state: WorldState): Boolean =
+    bagLoadOf(state) >= haulLineOf(state) || ruleSays(state, OrderRule.Action.HAUL_NOW) ||
+      state.get(NO_ROOM_FOR_PRODUCT) == true
+
   private fun haulLineOf(state: WorldState): Int = state.get(HAUL_AT_LOAD_PCT) ?: DEFAULT_HAUL_AT_LOAD_PCT
 
   /**
@@ -335,11 +352,39 @@ object BestiaDomain : AiDomainCatalogue {
    * Shared by [Goals.RETREAT] and its action, so the walk home is never planned for any other reason.
    */
   fun retreatWarranted(state: WorldState): Boolean {
+    if (ruleSays(state, OrderRule.Action.HOLD_GROUND)) return false
+
     val line = state.get(RETREAT_BELOW_HEALTH_PCT)
     val hurt = line != null && healthPctOf(state) < line
     val frightened = state.get(FLEES_ON_SIGHT) == true && enemyInSight(state)
-    return hurt || frightened
+    return hurt || frightened || ruleSays(state, OrderRule.Action.RETREAT)
   }
+
+  /** Whether its way home is warranted: out of a fight, or told by a rule to rest there. */
+  fun headsHome(state: WorldState): Boolean =
+    retreatWarranted(state) || ruleSays(state, OrderRule.Action.REST_AT_HOME)
+
+  /** Whether the first of its rules that holds says to [action]. Wild mobs have no rules. */
+  fun ruleSays(state: WorldState, action: OrderRule.Action): Boolean {
+    return state.get(RULES)?.firstOrNull { holds(it, state) }?.action == action
+  }
+
+  private fun holds(rule: OrderRule, state: WorldState): Boolean {
+    val threshold = rule.threshold ?: 0
+
+    return when (rule.condition) {
+      OrderRule.Condition.STAMINA_BELOW -> (state.get(STAMINA_PCT) ?: 100) < threshold
+      OrderRule.Condition.HEALTH_BELOW -> healthPctOf(state) < threshold
+      OrderRule.Condition.BAG_ABOVE -> bagLoadOf(state) > threshold
+      OrderRule.Condition.NIGHT -> state.get(IS_NIGHT) == true
+      OrderRule.Condition.DAY -> state.get(IS_NIGHT) == false
+      OrderRule.Condition.STRONGER_FOE_IN_SIGHT ->
+        enemyInSight(state) && (state.get(TARGET_LEVEL_LEAD) ?: 0) >= STRONGER_FOE_LEVEL_LEAD
+    }
+  }
+
+  /** Told by a rule to rest at home: no work, no roaming, until the rule stops holding. */
+  private fun restsAtHome(state: WorldState): Boolean = ruleSays(state, OrderRule.Action.REST_AT_HOME)
 
   /** Wild mobs have no courage and take on anything. */
   private fun courageHoldsBack(state: WorldState): Boolean {
@@ -391,7 +436,8 @@ object BestiaDomain : AiDomainCatalogue {
         consider(restingPhaseUrgency)
       },
       availability = Precondition { s ->
-        (s.get(TIREDNESS) ?: 0) >= (s.get(TIREDNESS_THRESHOLD) ?: 80) || isRestingPhase(s)
+        val tired = (s.get(TIREDNESS) ?: 0) >= (s.get(TIREDNESS_THRESHOLD) ?: 80) || isRestingPhase(s)
+        tired && !ruleSays(s, OrderRule.Action.KEEP_WORKING)
       },
       desiredState = listOf(
         Preconditions.atMost(TIREDNESS, RESTED_TIREDNESS),
@@ -452,7 +498,7 @@ object BestiaDomain : AiDomainCatalogue {
         consider(AGGRESSION.linear())
         consider(HEALTH_PCT.linear())
       },
-      availability = Precondition { s -> enemyInSight(s) && !courageHoldsBack(s) },
+      availability = Precondition { s -> enemyInSight(s) && !courageHoldsBack(s) && !restsAtHome(s) },
       desiredState = listOf(Preconditions.equalTo(TARGET_DEAD, true)),
     )
 
@@ -464,7 +510,7 @@ object BestiaDomain : AiDomainCatalogue {
       name = "Wander",
       priority = priority(base = 20f) { consider(RESTLESSNESS.linear()) },
       availability = Precondition { s ->
-        (s.get(RESTLESSNESS) ?: 0) >= (s.get(RESTLESS_THRESHOLD) ?: DEFAULT_RESTLESS_THRESHOLD)
+        (s.get(RESTLESSNESS) ?: 0) >= (s.get(RESTLESS_THRESHOLD) ?: DEFAULT_RESTLESS_THRESHOLD) && !restsAtHome(s)
       },
       desiredState = listOf(Preconditions.atMost(RESTLESSNESS, 20)),
     )
@@ -476,18 +522,16 @@ object BestiaDomain : AiDomainCatalogue {
     val HEAL_FROM_BAG = Goal(
       name = "HealFromBag",
       priority = priority(base = 96f),
-      availability = Precondition { s -> healthPctOf(s) < healLineOf(s) && s.get(HEAL_IN_BAG) == true },
-      desiredState = listOf(Precondition { s -> healthPctOf(s) >= healLineOf(s) }),
+      availability = Precondition { s -> needsHealing(s) && s.get(HEAL_IN_BAG) == true },
+      desiredState = listOf(Precondition { s -> !needsHealing(s) }),
     )
 
     /** An owned bestia eating from its own bag once its stamina runs low. Not mid-fight: food can wait. */
     val EAT_FROM_BAG = Goal(
       name = "EatFromBag",
       priority = priority(base = 88f),
-      availability = Precondition { s ->
-        (s.get(STAMINA_PCT) ?: 100) < eatLineOf(s) && s.get(FOOD_IN_BAG) == true
-      },
-      desiredState = listOf(Precondition { s -> (s.get(STAMINA_PCT) ?: 100) >= eatLineOf(s) }),
+      availability = Precondition { s -> needsFood(s) && s.get(FOOD_IN_BAG) == true },
+      desiredState = listOf(Precondition { s -> !needsFood(s) }),
     )
 
     /** Out of food with stamina low: fetch some from the job chest. Just under [EAT_FROM_BAG], which then eats it. */
@@ -495,7 +539,7 @@ object BestiaDomain : AiDomainCatalogue {
       name = "RestockFood",
       priority = priority(base = 87f),
       availability = Precondition { s ->
-        (s.get(STAMINA_PCT) ?: 100) < eatLineOf(s) && s.get(FOOD_IN_BAG) != true && s.get(FOOD_IN_CHEST) == true
+        needsFood(s) && s.get(FOOD_IN_BAG) != true && s.get(FOOD_IN_CHEST) == true
       },
       desiredState = listOf(Preconditions.equalTo(FOOD_IN_BAG, true)),
     )
@@ -521,7 +565,7 @@ object BestiaDomain : AiDomainCatalogue {
       priority = priority(base = 60f),
       // Without room in its chest a gatherer stops, rather than gather what it could never put away.
       availability = Precondition { s ->
-        !s.get(GATHERABLES).isNullOrEmpty() && bagLoadOf(s) < haulLineOf(s) && s.get(CHEST_HAS_ROOM) == true
+        !s.get(GATHERABLES).isNullOrEmpty() && !bagFull(s) && s.get(CHEST_HAS_ROOM) == true && !restsAtHome(s)
       },
       desiredState = listOf(Preconditions.equalTo(GATHERED, true)),
     )
@@ -536,8 +580,7 @@ object BestiaDomain : AiDomainCatalogue {
       priority = priority(base = 75f),
       availability = Precondition { s ->
         val pickedClean = s.get(GATHER_AREA) != null && s.get(GATHERABLES).isNullOrEmpty()
-        val bagFull = bagLoadOf(s) >= haulLineOf(s) || s.get(NO_ROOM_FOR_PRODUCT) == true
-        s.get(GOODS_TO_HAUL) == true && (bagFull || pickedClean)
+        s.get(GOODS_TO_HAUL) == true && (bagFull(s) || pickedClean) && !restsAtHome(s)
       },
       desiredState = listOf(Preconditions.equalTo(GOODS_TO_HAUL, false)),
     )
@@ -549,7 +592,9 @@ object BestiaDomain : AiDomainCatalogue {
     val CRAFT = Goal(
       name = "Craft",
       priority = priority(base = 60f),
-      availability = Precondition { s -> s.get(AT_WORK) != true && !s.get(OPEN_STATIONS).isNullOrEmpty() },
+      availability = Precondition { s ->
+        s.get(AT_WORK) != true && !s.get(OPEN_STATIONS).isNullOrEmpty() && !restsAtHome(s)
+      },
       desiredState = listOf(Precondition(::atCraftStation)),
     )
 
@@ -560,7 +605,9 @@ object BestiaDomain : AiDomainCatalogue {
     val MINE = Goal(
       name = "Mine",
       priority = priority(base = 60f),
-      availability = Precondition { s -> s.get(AT_WORK) != true && !s.get(OPEN_SHAFTS).isNullOrEmpty() },
+      availability = Precondition { s ->
+        s.get(AT_WORK) != true && !s.get(OPEN_SHAFTS).isNullOrEmpty() && !restsAtHome(s)
+      },
       desiredState = listOf(Precondition(::atShaft)),
     )
 
@@ -568,13 +615,24 @@ object BestiaDomain : AiDomainCatalogue {
     val RETURN_TO_MIDDLE = Goal(
       name = "ReturnToMiddle",
       priority = priority(base = 70f),
-      availability = Precondition { s -> s.get(GUARD_AREA) != null && !enemyInSight(s) },
+      availability = Precondition { s -> s.get(GUARD_AREA) != null && !enemyInSight(s) && !restsAtHome(s) },
       desiredState = listOf(Preconditions.equalTo(BACK_IN_MIDDLE, true)),
+    )
+
+    /**
+     * An owned bestia told by a rule to rest at home, at night for example. Over the work goals, which wait while the
+     * rule holds, and under care and fighting back.
+     */
+    val REST_AT_HOME = Goal(
+      name = "RestAtHome",
+      priority = priority(base = 80f),
+      availability = Precondition { s -> restsAtHome(s) && !atRetreat(s) },
+      desiredState = listOf(Precondition { s -> atRetreat(s) }),
     )
 
     val ALL = listOf(
       EAT_VEGETATION, SLEEP, RETURN_HOME, KILL_ATTACKER, KILL_ENEMY, WANDER, HEAL_FROM_BAG, EAT_FROM_BAG, RETREAT,
-      GATHER, HAUL_TO_CHEST, RESTOCK_FOOD, CRAFT, MINE, RETURN_TO_MIDDLE,
+      GATHER, HAUL_TO_CHEST, RESTOCK_FOOD, CRAFT, MINE, RETURN_TO_MIDDLE, REST_AT_HOME,
     )
 
     val BY_NAME = ALL.associateBy { it.name }

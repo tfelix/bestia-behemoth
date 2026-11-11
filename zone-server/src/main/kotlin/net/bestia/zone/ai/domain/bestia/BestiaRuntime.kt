@@ -93,6 +93,7 @@ class BestiaRuntime(
     val areaRadius = overrides.areaRadius?.toLong() ?: speciesRadius
 
     memory.set(BestiaDomain.MAIN_JOB, config.job, Blackboard.PERMANENT)
+    memory.set(BestiaDomain.RULES, config.rules, Blackboard.PERMANENT)
     memory.set(BestiaDomain.WANDER_RADIUS, areaRadius, Blackboard.PERMANENT)
     memory.set(
       BestiaDomain.EAT_BELOW_STAMINA_PCT,
