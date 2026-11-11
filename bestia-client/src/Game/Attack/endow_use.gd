@@ -13,8 +13,4 @@ func _open_picker(attack: AttackResource, level: int) -> void:
 		menu.add_item(tr(element[0]), element[1])
 
 	menu.id_pressed.connect(func(ordinal: int) -> void: _picked(attack, level, PackedInt64Array([ordinal])))
-	menu.popup_hide.connect(menu.queue_free)
-
-	var tree := Engine.get_main_loop() as SceneTree
-	tree.root.add_child(menu)
-	menu.popup(Rect2i(Vector2i(tree.root.get_mouse_position()), Vector2i.ZERO))
+	_show_menu(menu)
