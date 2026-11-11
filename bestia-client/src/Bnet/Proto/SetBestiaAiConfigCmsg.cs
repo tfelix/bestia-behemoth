@@ -25,16 +25,16 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci9tZXNzYWdlcy9tYXN0ZXIvc2V0X2Jlc3RpYV9haV9jb25maWdfY21zZy5w",
-            "cm90bxIEYm5ldCLMAgoVU2V0QmVzdGlhQWlDb25maWdDTVNHEhgKEHBsYXll",
+            "cm90bxIEYm5ldCLWAgoVU2V0QmVzdGlhQWlDb25maWdDTVNHEhgKEHBsYXll",
             "cl9iZXN0aWFfaWQYASABKAQSLAoDam9iGAUgASgOMh8uYm5ldC5TZXRCZXN0",
             "aWFBaUNvbmZpZ0NNU0cuSm9iEjQKB2NvdXJhZ2UYBiABKA4yIy5ibmV0LlNl",
-            "dEJlc3RpYUFpQ29uZmlnQ01TRy5Db3VyYWdlIkYKA0pvYhITCg9KT0JfVU5T",
+            "dEJlc3RpYUFpQ29uZmlnQ01TRy5Db3VyYWdlIlAKA0pvYhITCg9KT0JfVU5T",
             "UEVDSUZJRUQQABIJCgVHVUFSRBABEggKBFJFU1QQAhIKCgZHQVRIRVIQAxIJ",
-            "CgVDUkFGVBAEIlsKB0NvdXJhZ2USFwoTQ09VUkFHRV9VTlNQRUNJRklFRBAA",
-            "EgkKBVRJTUlEEAESCwoHQ0FSRUZVTBACEgoKBlNURUFEWRADEggKBEJPTEQQ",
-            "BBIJCgVCUkFWRRAFSgQIAhADSgQIAxAESgQIBBAFQjMKFW5ldC5iZXN0aWEu",
-            "Ym5ldC5wcm90b0IaU2V0QmVzdGlhQWlDb25maWdDbXNnUHJvdG9iBnByb3Rv",
-            "Mw=="));
+            "CgVDUkFGVBAEEggKBE1JTkUQBSJbCgdDb3VyYWdlEhcKE0NPVVJBR0VfVU5T",
+            "UEVDSUZJRUQQABIJCgVUSU1JRBABEgsKB0NBUkVGVUwQAhIKCgZTVEVBRFkQ",
+            "AxIICgRCT0xEEAQSCQoFQlJBVkUQBUoECAIQA0oECAMQBEoECAQQBUIzChVu",
+            "ZXQuYmVzdGlhLmJuZXQucHJvdG9CGlNldEJlc3RpYUFpQ29uZmlnQ21zZ1By",
+            "b3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -340,6 +340,7 @@ namespace Bnet {
         [pbr::OriginalName("REST")] Rest = 2,
         [pbr::OriginalName("GATHER")] Gather = 3,
         [pbr::OriginalName("CRAFT")] Craft = 4,
+        [pbr::OriginalName("MINE")] Mine = 5,
       }
 
       public enum Courage {

@@ -30,6 +30,7 @@ message SetBestiaAiConfigCMSG {
     REST = 2;
     GATHER = 3;
     CRAFT = 4;
+    MINE = 5;
   }
 
   enum Courage {

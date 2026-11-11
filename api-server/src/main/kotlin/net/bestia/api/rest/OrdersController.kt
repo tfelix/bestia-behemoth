@@ -24,7 +24,7 @@ class OrdersController(
   private val cache: AnswerCache,
 ) {
 
-  /** [job] is GUARD, GATHER, CRAFT or REST; [courage] is TIMID, CAREFUL, STEADY, BOLD or BRAVE. */
+  /** [job] is GUARD, GATHER, CRAFT, MINE or REST; [courage] is TIMID, CAREFUL, STEADY, BOLD or BRAVE. */
   data class BestiaOrders(val job: String, val courage: String)
 
   @PutMapping
