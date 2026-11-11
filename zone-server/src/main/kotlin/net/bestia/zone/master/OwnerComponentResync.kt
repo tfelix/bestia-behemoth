@@ -1,5 +1,6 @@
 package net.bestia.zone.master
 
+import net.bestia.zone.casting.portal.WarpMarks
 import net.bestia.zone.battle.ecs.exp.Exp
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
@@ -47,5 +48,6 @@ object OwnerComponentResync {
     world.get(entityId, Place::class)?.markDirty()
     world.get(entityId, Journey::class)?.markDirty()
     world.get(entityId, Honor::class)?.markDirty()
+    world.get(entityId, WarpMarks::class)?.markDirty()
   }
 }

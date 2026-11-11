@@ -162,7 +162,10 @@ enum class StaticEntityKind {
   INCUBATOR,
 
   // Dug over ore by its owner's bestias. See `MiningShaftKitScript`.
-  MINING_SHAFT;
+  MINING_SHAFT,
+
+  // A Sage's Warp Portal, one at each end: an ordinary entity for 30 s, never on the static channel.
+  WARP_PORTAL;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.

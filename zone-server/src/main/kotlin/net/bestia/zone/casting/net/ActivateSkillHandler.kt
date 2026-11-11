@@ -117,6 +117,12 @@ class ActivateSkillHandler(
       return true
     }
 
+    // Also before the cooldown: a free choice like marking a portal spot is no cast and is never kept waiting.
+    if (world.modify(activeEntityId) { id -> strategy.freeAction(this, id, msg.skillLevel, msg.args) } == true) {
+      LOG.debug { "${skill.identifier} free action by $activeEntityId: ${msg.args}" }
+      return true
+    }
+
     // The client greys the button out for the same span, so a press that gets here is a hotkey race.
     if (!skillExecutionService.isReady(world, activeEntityId, skill.id)) {
       LOG.debug { "Activation of ${skill.identifier} by $activeEntityId refused: still cooling down" }

@@ -305,6 +305,27 @@ class RecordingSkillWorld(
     return 0
   }
 
+  /** Whether each [teleportCaster] went home. */
+  val teleports = mutableListOf<Boolean>()
+
+  override fun teleportCaster(toHome: Boolean) {
+    teleports += toHome
+  }
+
+  /** What [warpMarkOf] answers, by index. */
+  var warpMarks: List<Vec3L> = emptyList()
+
+  override fun warpMarkOf(entityId: EntityId, index: Int): Vec3L? = warpMarks.getOrNull(index)
+
+  /** Where each [openPortal] opened, to where, for how many passages and seconds. */
+  val portals = mutableListOf<OpenedPortal>()
+
+  override fun openPortal(at: Vec3L, to: Vec3L?, passages: Int, seconds: Int) {
+    portals += OpenedPortal(at, to, passages, seconds)
+  }
+
+  data class OpenedPortal(val at: Vec3L, val to: Vec3L?, val passages: Int, val seconds: Int)
+
   /** The level of each [senseMagic]. */
   val magicSenses = mutableListOf<Int>()
 

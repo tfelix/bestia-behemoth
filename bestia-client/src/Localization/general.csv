@@ -689,6 +689,12 @@ STATUS_EFFECT_204,Ruwach: every second it ends Hide and Cloak on everyone within
 STATUS_EFFECT_205,Endowed: your weapon strikes as an element and hits harder.
 STATUS_EFFECT_206,Magic Rod: the next single-target spell at you is caught and turned into mana.
 STATUS_EFFECT_207,Mana Drain: you draw mana from the foes around you every second.
+STATUS_EFFECT_208,Teleport sickness: you cannot teleport again for a while.
+ERROR_PORTAL_NO_SPOT,That saved spot is not there any more.
+ERROR_PORTAL_SPENT,The portal is closing or has let everyone through it can.
+PORTAL_MARK_SPOT,Mark this spot (%d of %d saved)
+PORTAL_TO_HOME,To your home
+PORTAL_TO_SPOT,"To spot %d (%s, %.1f km)"
 ELEMENT_FIRE,Fire
 ELEMENT_WATER,Water
 ELEMENT_WIND,Wind

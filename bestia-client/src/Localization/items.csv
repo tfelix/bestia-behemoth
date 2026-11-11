@@ -637,3 +637,7 @@ YELLOW_MANA_CRYSTAL,Yellow Mana Crystal
 YELLOW_MANA_CRYSTAL_DESC,A rare yellow crystal of mana. Dispel burns one to unravel what clings to a target.
 BLUE_MANA_CRYSTAL,Blue Mana Crystal
 BLUE_MANA_CRYSTAL_DESC,A common blue crystal of mana. Endow burns one to carry an element into a weapon.
+TELEPORT_RUNE,Teleport Rune
+TELEPORT_RUNE_DESC,A small stone carved with a rune of passage. Teleport burns one.
+PORTAL_RUNE,Portal Rune
+PORTAL_RUNE_DESC,A heavy stone carved with a rune that holds a door open. Warp Portal burns one.

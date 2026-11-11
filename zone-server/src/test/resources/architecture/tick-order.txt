@@ -92,6 +92,7 @@
  - UPKEEP wave 50: TownMapSystem [EverySeconds(seconds=10.0)]
  - UPKEEP wave 50: TradeRangeSystem [EverySeconds(seconds=0.5)]
  - UPKEEP wave 50: TreeRegrowthSystem [EverySeconds(seconds=60.0)]
+ - UPKEEP wave 50: WarpPortalSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 50: WorldStateSampler [EverySeconds(seconds=5.0)]
  - UPKEEP wave 51: CompendiumSightingSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 51: GuildMemberBeaconSystem [EverySeconds(seconds=1.0)]

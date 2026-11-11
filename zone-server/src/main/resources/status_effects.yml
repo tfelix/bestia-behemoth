@@ -598,3 +598,12 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: ManaDraining
+
+  # After a Sage's Teleport: nothing teleports the body again for five minutes.
+  - id: 208
+    identifier: TELEPORT_SICKNESS
+    polarity: NEUTRAL
+    showIcon: true
+    isSyncedToClient: true
+    dispellable: false
+    script: TeleportSickness

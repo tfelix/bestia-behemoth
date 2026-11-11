@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/vec3.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "WarpMarksComponentSMSGProto";
+
+// The spots a Sage saved for Warp Portal, oldest first. Sent to the owner only, whenever they change, so the
+// cast's picker can offer them.
+message WarpMarksComponentSMSG {
+  repeated Vec3 spots = 1;
+}
