@@ -71,6 +71,7 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.SenseMarks] = e => Sense.SenseMarksSMSG.FromProto(e.SenseMarks),
       [Envelope.MessageOneofCase.AuctionListings] = e => Auction.AuctionListingsSMSG.FromProto(e.AuctionListings),
       [Envelope.MessageOneofCase.AuctionPurchased] = e => Auction.AuctionPurchasedSMSG.FromProto(e.AuctionPurchased),
+      [Envelope.MessageOneofCase.StreetStall] = e => Stall.StreetStallSMSG.FromProto(e.StreetStall),
       [Envelope.MessageOneofCase.Letters] = e => Postal.LettersSMSG.FromProto(e.Letters),
       [Envelope.MessageOneofCase.LetterArrived] = e => Postal.LetterArrivedSMSG.FromProto(e.LetterArrived),
       [Envelope.MessageOneofCase.LetterSent] = e => Postal.LetterSentSMSG.FromProto(e.LetterSent),

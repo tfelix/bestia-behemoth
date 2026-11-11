@@ -659,6 +659,13 @@ func held_instances(entity_id: int = selected_entity_id) -> Array:
 	)
 
 
+## Held piles and copies that are not worn and not coins: what may be put up for sale.
+func sellable_held() -> Array:
+	return _items.get(selected_entity_id, []).filter(
+		func(item): return not item.equipped and item.item != null and item.item.item_id != GOLD_COIN_ITEM_ID
+	)
+
+
 func gold() -> int:
 	return _count_by_item(_items.get(selected_entity_id, [])).get(GOLD_COIN_ITEM_ID, 0)
 

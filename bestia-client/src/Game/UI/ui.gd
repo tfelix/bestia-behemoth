@@ -19,6 +19,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _post_office_win: WidgetWindow = $PostOfficeWin
 @onready var _auction_win: WidgetWindow = $AuctionWin
 @onready var _survey_win: WidgetWindow = $SurveyWin
+@onready var _stall_win: WidgetWindow = $StallWin
 @onready var _invitations: InvitationTray = $Invitations
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
 @onready var _master_profile: MasterProfile = $TopLeftColumn/MasterProfile
@@ -135,6 +136,12 @@ func _ready() -> void:
 	var survey := _survey_win.get_content() as SurveyGamePanel
 	survey.survey_opened.connect(func() -> void: _survey_win.visible = true)
 	survey.survey_closed.connect(func() -> void: _survey_win.visible = false)
+
+	# A street stall opens when the server sends one; the seller lists from the bag, so it needs the inventory.
+	var stall := _stall_win.get_content() as StallPanel
+	stall.inventory = inventory
+	stall.stall_opened.connect(_on_stall_opened)
+	stall.stall_closed.connect(func() -> void: _stall_win.visible = false)
 
 	# The party and guild windows exist from the start, hidden: they listen for their rosters and invitations
 	# whether open or not. Both speak through the chat, which is the client's one channel for notices.
@@ -542,6 +549,12 @@ func _on_auction_opened() -> void:
 
 func _on_auction_closed() -> void:
 	_auction_win.visible = false
+
+
+func _on_stall_opened(mine: bool) -> void:
+	_stall_win.visible = true
+	if mine:
+		_inventory_win.visible = true
 
 
 ## Neither closes another window: the party and guild windows are looked at beside whatever else is open.

@@ -465,6 +465,11 @@ ERROR_AUCTION_LISTING_LIMIT,You have as many goods up for sale as you may. Let o
 ERROR_AUCTION_CANNOT_AFFORD_FEE,You cannot pay the listing fee.
 ERROR_AUCTION_LISTING_GONE,That listing is no longer for sale.
 ERROR_AUCTION_CANNOT_AFFORD,You cannot afford that.
+ERROR_STALL_ALREADY_OPEN,You already have a stall standing.
+ERROR_STALL_FULL,Your stall has no free place for another offer.
+ERROR_STALL_GONE,"That stall has packed up, or the offer is gone."
+ERROR_STALL_CANNOT_AFFORD,You cannot afford that offer.
+ERROR_STALL_OUT_OF_RANGE,Step closer to the stall.
 ERROR_MAIL_RECIPIENT_UNKNOWN,Nobody is called %s. Check the name.
 ERROR_MAIL_CANNOT_AFFORD,You cannot pay the postage.
 ERROR_MAIL_RECIPIENT_FULL,The mailbox of %s is full. The pigeon came back.
@@ -498,6 +503,23 @@ AUCTION_BUY_CONFIRM,Buy %d× %s for %s gold?
 AUCTION_PAGE,Page %d of %d
 AUCTION_YOUR_GOLD,Your gold:
 AUCTION_SELL_EMPTY,Selling opens soon.
+STALL_TITLE,%s's Stall
+STALL_CLOSES_IN,Packs up in %d min
+STALL_EMPTY,Nothing on offer.
+STALL_COL_ITEM,Item
+STALL_COL_LEVEL,Lv.
+STALL_COL_AMOUNT,Qty
+STALL_COL_PRICE,Price
+STALL_BUY,Buy
+STALL_BUY_CONFIRM,Buy %d× %s for %s gold?
+STALL_TAKE_BACK,Take back
+STALL_YOUR_GOLD,Your gold:
+STALL_ADD,Offer from your bag
+STALL_FREE_PLACES,Free places: %d
+STALL_AMOUNT,Qty
+STALL_PRICE,Price
+STALL_PRICE_HINT,Coins for the whole lot.
+STALL_LIST,List
 TRAVEL_ROUTES,Routes
 TRAVEL_NO_ROUTES,No routes kept yet.
 TRAVEL_SAVE_ROUTE,Keep as route
