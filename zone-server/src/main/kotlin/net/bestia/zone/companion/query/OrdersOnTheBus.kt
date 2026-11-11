@@ -24,7 +24,7 @@ object OrdersOnTheBus {
     val rules = sheet.rules.map {
       OrderRule.fromNamesOrNull(it.condition, it.threshold, it.action) ?: return invalid("Unknown rule $it")
     }
-    val orders = AiConfig(job, courage, fallbackJob, overridesOf(sheet.overrides), rules)
+    val orders = AiConfig(job, courage, fallbackJob, overridesOf(sheet.overrides), rules, sheet.areaPlaceId, sheet.chestPlaceId)
 
     return if (orders.isValid) Result.success(orders) else invalid("Orders that cannot be followed: $orders")
   }
@@ -35,13 +35,15 @@ object OrdersOnTheBus {
     fallbackJob = orders.fallbackJob?.name,
     overrides = numbersOf(orders.overrides),
     rules = linesOf(orders.rules),
+    areaPlaceId = orders.areaPlaceId,
+    chestPlaceId = orders.chestPlaceId,
   )
 
   fun answerOf(playerBestiaId: Long, stored: StoredOrders): ZoneAnswer.Orders {
     val sheet = sheetOf(stored.orders)
     return ZoneAnswer.Orders(
       playerBestiaId, sheet.job, sheet.courage, sheet.fallbackJob, sheet.overrides, sheet.rules,
-      stored.presetId, numbersOf(stored.ownOverrides),
+      sheet.areaPlaceId, sheet.chestPlaceId, stored.presetId, numbersOf(stored.ownOverrides),
     )
   }
 

@@ -60,7 +60,9 @@ describe('orders', () => {
 			courage: 'STEADY',
 			fallbackJob: undefined,
 			overrides: {},
-			rules: [{ condition: 'DAY', threshold: undefined, action: 'KEEP_WORKING' }]
+			rules: [{ condition: 'DAY', threshold: undefined, action: 'KEEP_WORKING' }],
+			areaPlaceId: undefined,
+			chestPlaceId: undefined
 		});
 	});
 });

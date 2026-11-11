@@ -3,8 +3,8 @@
 	import L from 'leaflet';
 	import { untrack } from 'svelte';
 	import { page } from '$app/state';
-	import { ApiError, getJson } from '#lib/api/client.ts';
-	import type { Bestia, Catalog, MapMeta, MasterSheet, Place, PlaceDetail, Position, Service } from '#lib/api/model.ts';
+	import { ApiError, getJson, sendJson } from '#lib/api/client.ts';
+	import type { AreaWrite, Bestia, BestiaPlace, BestiaPlaces, Catalog, MapMeta, MasterSheet, Place, PlaceDetail, Position, Service } from '#lib/api/model.ts';
 	import MapCard, { type Card } from '#lib/components/MapCard.svelte';
 	import TravelSheet from '#lib/components/TravelSheet.svelte';
 	import { guarded } from '#lib/guard.ts';
@@ -53,7 +53,16 @@
 	let note = $state<string | null>(null);
 	/** Where a journey gave up, by bestia, from the live event; shown until that bestia sets off again. */
 	let gaveUpAt = $state<Record<number, Position>>({});
-	let travelLayers = $state.raw<{ markers: L.LayerGroup; journeys: L.LayerGroup; draft: L.LayerGroup; failures: L.LayerGroup; marks: L.LayerGroup } | null>(null);
+	let travelLayers = $state.raw<{
+		markers: L.LayerGroup;
+		journeys: L.LayerGroup;
+		draft: L.LayerGroup;
+		failures: L.LayerGroup;
+		marks: L.LayerGroup;
+		areas: L.LayerGroup;
+	} | null>(null);
+	/** The master's named work areas, which their Bestias' orders can name. */
+	let workAreas = $state<BestiaPlace[]>([]);
 	let map: L.Map | null = null;
 	let meta = $state.raw<MapMeta | null>(null);
 	let grid: L.GridLayer | null = null;
@@ -95,6 +104,7 @@
 				getJson<MasterSheet>(`/v1/companion/masters/${id}`),
 				getJson<Bestia[]>(`/v1/companion/masters/${id}/bestias`)
 			]);
+			workAreas = (await getJson<BestiaPlaces>(`/v1/companion/masters/${id}/places`)).places.filter((p) => p.kind === 'AREA');
 			bestias = roster;
 			master = { name: sheet.name, position: sheet.position };
 			if (selectedId === null || !roster.some((b) => b.id === selectedId)) {
@@ -147,7 +157,8 @@
 				journeys: L.layerGroup().addTo(leaflet),
 				draft: L.layerGroup().addTo(leaflet),
 				failures: L.layerGroup().addTo(leaflet),
-				marks: L.layerGroup().addTo(leaflet)
+				marks: L.layerGroup().addTo(leaflet),
+				areas: L.layerGroup().addTo(leaflet)
 			};
 		}).catch((e) => (failure = e instanceof Error ? e.message : String(e)));
 
@@ -196,6 +207,19 @@
 	$effect(() => {
 		const wanted = prefs?.gridOverlay ?? false;
 		if (wanted !== untrack(() => showGrid)) setGrid(wanted);
+	});
+
+	// The named work areas, as circles their Bestias stay inside.
+	$effect(() => {
+		const layers = travelLayers;
+		if (!layers) return;
+
+		layers.areas.clearLayers();
+		for (const area of workAreas) {
+			L.circle([area.northMetres, area.eastMetres], { radius: area.radius, color: '#c9a45c', weight: 2, fillOpacity: 0.08 })
+				.bindTooltip(area.name, { direction: 'center' })
+				.addTo(layers.areas);
+		}
 	});
 
 	// The master's own marks, from the notebook the game keeps too: a tap on one asks about it.
@@ -350,7 +374,10 @@
 			addStop(at);
 			return;
 		}
-		openCard('Open ground', at, [{ label: 'Mark here', run: () => askMarkName(at) }]);
+		openCard('Open ground', at, [
+			{ label: 'Mark here', run: () => askMarkName(at) },
+			{ label: 'Make a work area here', run: () => askAreaName(at) }
+		]);
 	}
 
 	function addStop(at: Position) {
@@ -414,6 +441,28 @@
 	}
 
 	/** Asks what to call a mark at [at] - a new one, or [mark] renamed - and keeps it in the notebook. */
+	/** A named circle of [AREA_RADIUS] tiles that Bestias' orders can name; its radius is changed on the Bestia page. */
+	function askAreaName(at: Position) {
+		card = {
+			title: 'Name this work area',
+			lines: [],
+			actions: [],
+			ask: {
+				placeholder: 'Name, e.g. North field',
+				value: '',
+				submit: (name) => {
+					const write: AreaWrite = { name, eastMetres: at.eastMetres, northMetres: at.northMetres, radius: AREA_RADIUS };
+					void order(async () => {
+						const saved = await sendJson<BestiaPlaces>('POST', `/v1/companion/masters/${masterId}/places/areas`, write, {
+							'Idempotency-Key': crypto.randomUUID()
+						});
+						workAreas = saved.places.filter((p) => p.kind === 'AREA');
+					});
+				}
+			}
+		};
+	}
+
 	function askMarkName(at: Position, mark?: NotebookEntry<MarkValue>) {
 		card = {
 			title: mark ? 'Rename mark' : 'Mark this place',
@@ -555,6 +604,8 @@
 
 	/** As many as one journey may have. */
 	const MAX_STOPS = 15;
+	/** Tiles; the Bestia page changes it afterwards. */
+	const AREA_RADIUS = 16;
 </script>
 
 <main class="map-page">

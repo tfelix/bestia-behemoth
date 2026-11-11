@@ -69,6 +69,8 @@ class MastersController(
     val fallbackJob: String?,
     val overrides: OrderNumbers,
     val rules: List<OrderRuleLine>,
+    val areaPlaceId: Long?,
+    val chestPlaceId: Long?,
     /** The preset it follows; null for orders of its own. */
     val presetId: Long?,
     /** The numbers it keeps as its own while it follows a preset. */
@@ -185,6 +187,8 @@ class MastersController(
         fallbackJob = it.fallbackJob,
         overrides = it.overrides,
         rules = it.rules,
+        areaPlaceId = it.areaPlaceId,
+        chestPlaceId = it.chestPlaceId,
         presetId = it.presetId,
         ownOverrides = it.ownOverrides,
         activity = it.activity,

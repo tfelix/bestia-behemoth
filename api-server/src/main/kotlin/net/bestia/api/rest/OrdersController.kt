@@ -39,6 +39,10 @@ class OrdersController(
     val fallbackJob: String? = null,
     val overrides: OrderNumbers = OrderNumbers(),
     val rules: List<OrderRuleLine> = emptyList(),
+    /** A named work area instead of the one around its home; null for none. */
+    val areaPlaceId: Long? = null,
+    /** A named chest instead of the nearest; null for none. */
+    val chestPlaceId: Long? = null,
     val presetId: Long? = null,
     val ownOverrides: OrderNumbers = OrderNumbers(),
   )
@@ -51,12 +55,15 @@ class OrdersController(
     @RequestHeader("Idempotency-Key") idempotencyKey: String,
     @RequestBody orders: BestiaOrders,
   ): BestiaOrders {
-    val query = ZoneQuery.SetOrders(masterId, bestiaId, orders.job, orders.courage, orders.fallbackJob, orders.overrides, orders.rules, orders.presetId)
+    val query = ZoneQuery.SetOrders(masterId, bestiaId, orders.job, orders.courage, orders.fallbackJob, orders.overrides, orders.rules,
+      orders.areaPlaceId, orders.chestPlaceId, orders.presetId,
+    )
     val stored = zone.ask(accountId, query, idempotencyKey.take(MAX_KEY_LENGTH)).answerOrThrow<ZoneAnswer.Orders>()
 
     cache.forget(accountId)
     return BestiaOrders(
-      stored.job, stored.courage, stored.fallbackJob, stored.overrides, stored.rules, stored.presetId, stored.ownOverrides,
+      stored.job, stored.courage, stored.fallbackJob, stored.overrides, stored.rules, stored.areaPlaceId, stored.chestPlaceId,
+      stored.presetId, stored.ownOverrides,
     )
   }
 

@@ -130,6 +130,8 @@ class ZoneEventRelay(
         orders.fallbackJob,
         orders.overrides,
         orders.rules,
+        orders.areaPlaceId,
+        orders.chestPlaceId,
         orders.presetId,
         orders.ownOverrides,
       )
