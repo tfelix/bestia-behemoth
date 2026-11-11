@@ -51,6 +51,8 @@ export type OrderDraft = {
 	fallbackJob: string | null;
 	numbers: OrderNumbers;
 	rules: OrderRuleLine[];
+	areaPlaceId: number | null;
+	chestPlaceId: number | null;
 	presetId: number | null;
 };
 
@@ -62,6 +64,8 @@ export function draftOf(b: Bestia): OrderDraft {
 		fallbackJob: b.fallbackJob ?? null,
 		numbers: { ...(following ? b.ownOverrides : b.overrides) },
 		rules: (b.rules ?? []).map((rule) => ({ ...rule })),
+		areaPlaceId: b.areaPlaceId ?? null,
+		chestPlaceId: b.chestPlaceId ?? null,
 		presetId: b.presetId ?? null
 	};
 }
@@ -73,12 +77,21 @@ export function ordersOf(draft: OrderDraft): BestiaOrders {
 		return { job: draft.job, courage: draft.courage, presetId: draft.presetId, overrides: numbers, rules: [], ownOverrides: {} };
 	}
 	const fallbackJob = fallbacksFor(draft.job).includes(draft.fallbackJob ?? '') ? (draft.fallbackJob ?? undefined) : undefined;
-	return { job: draft.job, courage: draft.courage, fallbackJob, overrides: numbers, rules: draft.rules.map(ruleOf), ownOverrides: {} };
+	return {
+		job: draft.job,
+		courage: draft.courage,
+		fallbackJob,
+		overrides: numbers,
+		rules: draft.rules.map(ruleOf),
+		areaPlaceId: draft.areaPlaceId ?? undefined,
+		chestPlaceId: draft.chestPlaceId ?? undefined,
+		ownOverrides: {}
+	};
 }
 
 export function sheetOf(draft: OrderDraft): OrderSheet {
-	const { job, courage, fallbackJob, overrides, rules } = ordersOf({ ...draft, presetId: null });
-	return { job, courage, fallbackJob, overrides, rules };
+	const { job, courage, fallbackJob, overrides, rules, areaPlaceId, chestPlaceId } = ordersOf({ ...draft, presetId: null });
+	return { job, courage, fallbackJob, overrides, rules, areaPlaceId, chestPlaceId };
 }
 
 /** Whether [draft] differs from what [b] has now. */

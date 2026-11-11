@@ -75,6 +75,8 @@ sealed interface ZoneQuery {
     val fallbackJob: String? = null,
     val overrides: OrderNumbers = OrderNumbers(),
     val rules: List<OrderRuleLine> = emptyList(),
+    val areaPlaceId: Long? = null,
+    val chestPlaceId: Long? = null,
     val presetId: Long? = null,
   ) : ZoneQuery
 
@@ -89,6 +91,28 @@ sealed interface ZoneQuery {
 
   /** Deletes a preset. Its bestias keep their orders, as their own. A write: send it with an idempotency key. */
   data class DeleteOrderPreset(val masterId: Long, val presetId: Long) : ZoneQuery
+
+  /** The master's named places, and the chests they could name. */
+  data class BestiaPlaces(val masterId: Long) : ZoneQuery
+
+  /** Names a work area, or with [placeId] moves, resizes or renames one. A write: send it with an idempotency key. */
+  data class SaveAreaPlace(
+    val masterId: Long,
+    val placeId: Long?,
+    val name: String,
+    val eastMetres: Double,
+    val northMetres: Double,
+    val radius: Long,
+  ) : ZoneQuery
+
+  /** Names one of the master's chests, or with [placeId] renames it. A write: send it with an idempotency key. */
+  data class SaveChestPlace(val masterId: Long, val placeId: Long?, val name: String, val chestStructureId: Long) : ZoneQuery
+
+  /**
+   * Forgets a place. Orders that named it go back to home and the nearest chest. A write: send it with an idempotency
+   * key.
+   */
+  data class DeletePlace(val masterId: Long, val placeId: Long) : ZoneQuery
 
   /** What the master's bestias did lately, newest first. */
   data class Diary(val masterId: Long) : ZoneQuery

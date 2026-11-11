@@ -64,6 +64,8 @@ sealed interface ZoneAnswer {
       val fallbackJob: String? = null,
       val overrides: OrderNumbers = OrderNumbers(),
       val rules: List<OrderRuleLine> = emptyList(),
+      val areaPlaceId: Long? = null,
+      val chestPlaceId: Long? = null,
       /** The preset it follows; null for orders of its own. */
       val presetId: Long? = null,
       /** The numbers it keeps as its own while it follows a preset. */
@@ -246,9 +248,28 @@ sealed interface ZoneAnswer {
     val fallbackJob: String? = null,
     val overrides: OrderNumbers = OrderNumbers(),
     val rules: List<OrderRuleLine> = emptyList(),
+    val areaPlaceId: Long? = null,
+    val chestPlaceId: Long? = null,
     val presetId: Long? = null,
     val ownOverrides: OrderNumbers = OrderNumbers(),
   ) : ZoneAnswer
+
+  /** A master's named places, and every chest of theirs that a chest place can name. */
+  data class BestiaPlaces(val places: List<BestiaPlace>, val chests: List<ChestSpot>) : ZoneAnswer {
+
+    /** [kind] AREA or CHEST. [radius] in tiles, 0 for a chest; [chestStructureId] only for a chest. */
+    data class BestiaPlace(
+      val id: Long,
+      val name: String,
+      val kind: String,
+      val eastMetres: Double,
+      val northMetres: Double,
+      val radius: Long,
+      val chestStructureId: Long?,
+    )
+
+    data class ChestSpot(val structureId: Long, val eastMetres: Double, val northMetres: Double)
+  }
 
   /** What a master's bestias did lately, newest first. */
   data class Diary(val lines: List<DiaryEntry>) : ZoneAnswer {

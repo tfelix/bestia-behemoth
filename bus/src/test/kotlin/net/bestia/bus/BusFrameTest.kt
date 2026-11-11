@@ -29,6 +29,11 @@ class BusFrameTest {
       ZoneQuery.SaveOrderPreset(7, null, "Camp", OrderSheet("GATHER", "BOLD", rules = listOf(OrderRuleLine("DAY", null, "KEEP_WORKING")))),
       ZoneQuery.DeleteOrderPreset(7, 3),
       ZoneQuery.Diary(7),
+      ZoneQuery.BestiaPlaces(7),
+      ZoneQuery.SaveAreaPlace(7, placeId = null, name = "North field", eastMetres = 40.0, northMetres = 80.0, radius = 16),
+      ZoneQuery.SaveChestPlace(7, placeId = 3, name = "Camp chest", chestStructureId = 9),
+      ZoneQuery.DeletePlace(7, placeId = 3),
+      ZoneQuery.SetOrders(7, 11, "GATHER", "STEADY", areaPlaceId = 3, chestPlaceId = 4),
       ZoneQuery.Workshop(7),
       ZoneQuery.QueueAtStation(7, structureId = 5, recipeId = 42, amount = 3),
       ZoneQuery.CancelAtStation(7, structureId = 5, index = 1),
@@ -90,6 +95,10 @@ class BusFrameTest {
       ZoneAnswer.Services("\"s\"", listOf(ZoneAnswer.Services.Service(9, "INN", "The Boar", 1.0, 2.0, "Ashfen", 6, 22))),
       ZoneAnswer.TicketOwner(42),
       ZoneAnswer.Orders(2, "GUARD", "BOLD"),
+      ZoneAnswer.BestiaPlaces(
+        listOf(ZoneAnswer.BestiaPlaces.BestiaPlace(3, "North field", "AREA", 40.0, 80.0, 16, null)),
+        listOf(ZoneAnswer.BestiaPlaces.ChestSpot(9, 1.0, 2.0)),
+      ),
       ZoneAnswer.Diary(listOf(ZoneAnswer.Diary.DiaryEntry(3, 99, "HAULED", mapOf("log" to 12), null, null))),
       ZoneAnswer.Workshop(
         listOf(
