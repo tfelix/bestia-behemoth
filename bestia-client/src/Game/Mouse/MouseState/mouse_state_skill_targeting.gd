@@ -92,6 +92,8 @@ func _update_entity_snap(mgr: MouseManager) -> void:
 		effective_filter = "friendly" if base_filter == "enemy" else "enemy"
 	if effective_filter == "enemy" and skill.targets_enchanted_items:
 		effective_filter = "enemy_or_enchanted_item"
+	if skill.targets_fallen:
+		effective_filter = "fallen"
 
 	var entity_manager := EntityManager.get_instance()
 	if entity_manager == null:

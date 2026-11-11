@@ -31,6 +31,8 @@ const MISSING_ICON: Texture2D = preload("res://Game/UI/Inventory/InventoryItem/i
 ## An ENEMY skill that may also be aimed at an enchanted item on the ground, like Dispel at a sealed sack.
 ## Hand-authored: the server decides by the skill's script, which skills.yml cannot say.
 @export var targets_enchanted_items: bool = false
+## A FRIENDLY skill aimed at a body lying dead, like Resurrection. Hand-authored, as above.
+@export var targets_fallen: bool = false
 
 ## Which skill tree, and inside it which sub-tree, the Skills window groups this skill under. Mirrors
 ## master_skill_tree.yml and is synced by SkillDbSyncTask; both are empty for a skill outside the master
