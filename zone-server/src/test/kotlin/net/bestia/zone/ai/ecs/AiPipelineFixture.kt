@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.ecs
 
+import net.bestia.zone.item.mining.ShaftOre
 import net.bestia.zone.battle.attack.BasicAttackResolver
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.movement.ecs.GroundTrample
@@ -222,6 +223,9 @@ class AiPipelineFixture(
     }
   }
 
+  /** Never dug out: a test that digs puts its own ore below a shaft. */
+  val shaftOre: ShaftOre = mockk(relaxed = true)
+
   /** Who works which station, over [structures]. */
   val stationWorkers = StationWorkers(structureRegistry)
   private val chests: ChestStorages = mockk<ChestStorages>().also {
@@ -316,7 +320,7 @@ class AiPipelineFixture(
         BagSense(bagCare),
         GatherSense(aoi, propKinds, divergence),
         JobChestSense(structureRegistry, chests, bagCare),
-        StationSense(structureRegistry),
+        StationSense(structureRegistry, shaftOre),
         ShelterSense(aoi) { at, reach -> doorsteps.filter { it.distance(at) <= reach } },
         SettlementSense(
           food = { mealStall },

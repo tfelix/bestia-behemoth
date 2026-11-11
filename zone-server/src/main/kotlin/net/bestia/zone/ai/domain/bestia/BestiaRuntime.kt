@@ -98,6 +98,9 @@ class BestiaRuntime(
     if (config.job == BestiaJob.CRAFT) {
       memory.set(BestiaDomain.CRAFT_AREA, WorkArea(homePosition, wanderRadius), Blackboard.PERMANENT)
     }
+    if (config.job == BestiaJob.MINE) {
+      memory.set(BestiaDomain.MINE_AREA, WorkArea(homePosition, wanderRadius), Blackboard.PERMANENT)
+    }
     if (config.job == BestiaJob.GUARD) {
       memory.set(BestiaDomain.GUARD_AREA, WorkArea(homePosition, wanderRadius), Blackboard.PERMANENT)
     }

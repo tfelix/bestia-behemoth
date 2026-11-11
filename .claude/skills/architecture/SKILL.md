@@ -260,7 +260,7 @@ each step out.** Layered so the bottom is domain-agnostic:
 | `ai/core/planner` | Forward-A\* `Planner`, `Plan`, `EffectWriteBack` (scope-aware), `PlanExecutor` (simulation harness for domain tests only) |
 | `ai/core/agent` | `Agent` interface + `SimpleAgent` for tests |
 | `ai/bt` | The tree library: `SequenceNode`/`SelectorNode`/`ParallelNode`, `Inverter`/`Succeeder`/`Repeat`/`Cooldown`, the `sequence { } / selector { }` DSL, `Locomotion`, parameterised leaves (`MoveTo`, `Wander`, `UseSkill`, `Wait`, `Sleep`) |
-| `ai/perception` | `PerceptionSystem` — the **only** writer of observation keys; `SenseSystem` + `Sense`/`SenseContext` — the agents' eyes and ears, a periodic sweep hosting pluggable senses; `ForageSense` + `ForageGround`/`BiomeForageGround` — writer of `KNOWN_VEGETATION` from the world's biome raster; owned bestias' orders add `BagSense` (stamina, food in the bag), `GatherSense` (props to gather in `GATHER_AREA`), `JobChestSense` (the master's nearest chest) and `StationSense` (stations in `CRAFT_AREA` that wait for a free crafter); `GatherAreaResidencySystem` (`ai/ecs`) keeps generated props loaded over a gatherer's area |
+| `ai/perception` | `PerceptionSystem` — the **only** writer of observation keys; `SenseSystem` + `Sense`/`SenseContext` — the agents' eyes and ears, a periodic sweep hosting pluggable senses; `ForageSense` + `ForageGround`/`BiomeForageGround` — writer of `KNOWN_VEGETATION` from the world's biome raster; owned bestias' orders add `BagSense` (stamina, food in the bag), `GatherSense` (props to gather in `GATHER_AREA`), `JobChestSense` (the master's nearest chest) and `StationSense` (stations in `CRAFT_AREA` that wait for a free crafter, shafts in `MINE_AREA` that wait for a miner); `GatherAreaResidencySystem` (`ai/ecs`) keeps generated props loaded over a gatherer's area |
 | `ai/ecs` | `AiAgent` component, `AiDriveSystem`, `AiThinkSystem`, `AiActSystem`, `AiAgentFactory`, `SharedMemoryService`, `PlayerControlled` |
 | `ai/domain/bestia` | `BestiaDomain`: the keys, goals and action templates for mobs; `ActivityCycle` (diurnal/nocturnal/cathemeral) |
 | `ai/profile` | `AiProfileDto`/`AiProfile`/`AiProfileRegistry` + `AiConfig`/`BestiaJob`/`Courage` (a bestia's orders), from `resources/ai/*.yml` |
@@ -330,6 +330,10 @@ Who is an enemy is `ai/perception/Hostility`, filtered by `DamageGate`. A guard 
 except its own master's party and guild, all only inside its area; it walks back to the middle after a fight
 (`ReturnToMiddle`). An owned bestia's courage gates `KillEnemy` against a foe `STRONGER_FOE_LEVEL_LEAD` levels above it
 (`TARGET_LEVEL_LEAD`); `KillAttacker` is never gated.
+
+A miner works a mining shaft like a crafter works a station (`StationWorkers`). `crafting/station/ShaftWorkSystem`
+digs through `item/mining/ShaftOre`, which queues real carves on `ChunkStreamInbox` with `yieldTo` the miner, so the
+ore leaves the world's finite supply exactly once. `OreHandOut` pays it like any other carve.
 
 ## login-server & the login↔zone handoff
 

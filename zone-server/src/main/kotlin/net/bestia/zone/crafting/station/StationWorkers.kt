@@ -44,9 +44,10 @@ class StationWorkers(
     structures.setWorker(station.id, playerBestiaId)
   }
 
-  /** A free crafter takes a station that waits for one and has work. */
+  /** A free crafter takes a station that waits for one and has work, a miner a shaft nobody works. */
   override fun claim(world: World, bestiaId: EntityId, structureId: Long): Boolean {
-    val station = structures.of(structureId)?.takeIf { it.waitsForCrafter && it.queue.isNotEmpty() } ?: return false
+    val station = structures.of(structureId)?.takeIf { (it.waitsForCrafter && it.queue.isNotEmpty()) || it.waitsForMiner }
+      ?: return false
 
     assign(world, bestiaId, station)
     return true
@@ -88,9 +89,11 @@ class StationWorkers(
     byStation.remove(assignment.structureId)
 
     // Home is where it stands now, as when its orders change: it does not walk back to where it lived before. A
-    // crafter goes back to the area it crafts in.
+    // crafter or a miner goes back to the area it works in.
     val memory = world.get(bestiaId, AiAgent::class)?.memory
-    val home = memory?.get(BestiaDomain.CRAFT_AREA)?.center ?: world.get(bestiaId, Position::class)?.toVec3L()
+    val home = memory?.get(BestiaDomain.CRAFT_AREA)?.center
+      ?: memory?.get(BestiaDomain.MINE_AREA)?.center
+      ?: world.get(bestiaId, Position::class)?.toVec3L()
     home?.let { memory?.set(BestiaDomain.HOME_POSITION, it, Blackboard.PERMANENT) }
     memory?.set(BestiaDomain.WANDER_RADIUS, assignment.formerWanderRadius, Blackboard.PERMANENT)
 

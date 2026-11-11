@@ -63,6 +63,12 @@ data class StructureEntry(
       return takesAnyCrafter && workerBestiaId == null
     }
 
+  /** A standing mining shaft nobody works. */
+  val waitsForMiner: Boolean
+    get() {
+      return kind == StaticEntityKind.MINING_SHAFT && workerBestiaId == null && !isUnderConstruction
+    }
+
   /** Whether anybody can work here now. Only a campfire can stop: it has to be burning. */
   fun canWorkAt(now: Instant): Boolean {
     return burnsOutAt == null || now < burnsOutAt

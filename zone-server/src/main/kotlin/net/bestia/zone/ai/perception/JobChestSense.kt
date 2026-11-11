@@ -34,7 +34,10 @@ class JobChestSense(
   override val reads: ComponentClassSet = setOf(OwnedBestia::class, WorkAssignment::class) + BagCare.READS
 
   override fun sense(context: SenseContext) {
-    val area = context.recall(BestiaDomain.GATHER_AREA) ?: context.recall(BestiaDomain.CRAFT_AREA) ?: return
+    val area = context.recall(BestiaDomain.GATHER_AREA)
+      ?: context.recall(BestiaDomain.CRAFT_AREA)
+      ?: context.recall(BestiaDomain.MINE_AREA)
+      ?: return
     val masterId = context.world.get(context.entityId, OwnedBestia::class)?.masterId ?: return
     // At a station, the chest nearest it is the one that pays its queue.
     val workplace = context.world.get(context.entityId, WorkAssignment::class)?.position
