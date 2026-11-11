@@ -29,6 +29,38 @@ message SetBestiaAiConfigCMSG {
   /** The numbers set by hand in Fine-tune. The server clamps each to its limit. */
   Overrides overrides = 8;
 
+  /** Read from the top, the first that holds deciding. At most 8. */
+  repeated Rule rules = 9;
+
+  /** "When condition then action". Only the pairs the server allows; see OrderRule there. */
+  message Rule {
+    Condition condition = 1;
+    /** The x in "stamina below x%"; unset for a condition without a number. */
+    optional int32 threshold = 2;
+    Action action = 3;
+
+    enum Condition {
+      CONDITION_UNSPECIFIED = 0;
+      STAMINA_BELOW = 1;
+      HEALTH_BELOW = 2;
+      BAG_ABOVE = 3;
+      NIGHT = 4;
+      DAY = 5;
+      STRONGER_FOE_IN_SIGHT = 6;
+    }
+
+    enum Action {
+      ACTION_UNSPECIFIED = 0;
+      EAT = 1;
+      REST_AT_HOME = 2;
+      HEAL = 3;
+      RETREAT = 4;
+      HAUL_NOW = 5;
+      KEEP_WORKING = 6;
+      HOLD_GROUND = 7;
+    }
+  }
+
   /** An unset field keeps what the courage step and the job choose. */
   message Overrides {
     /** 0 never retreats. */

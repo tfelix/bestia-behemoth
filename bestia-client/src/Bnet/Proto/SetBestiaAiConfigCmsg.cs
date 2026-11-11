@@ -25,29 +25,41 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci9tZXNzYWdlcy9tYXN0ZXIvc2V0X2Jlc3RpYV9haV9jb25maWdfY21zZy5w",
-            "cm90bxIEYm5ldCLzBQoVU2V0QmVzdGlhQWlDb25maWdDTVNHEhgKEHBsYXll",
+            "cm90bxIEYm5ldCLdCQoVU2V0QmVzdGlhQWlDb25maWdDTVNHEhgKEHBsYXll",
             "cl9iZXN0aWFfaWQYASABKAQSLAoDam9iGAUgASgOMh8uYm5ldC5TZXRCZXN0",
             "aWFBaUNvbmZpZ0NNU0cuSm9iEjQKB2NvdXJhZ2UYBiABKA4yIy5ibmV0LlNl",
             "dEJlc3RpYUFpQ29uZmlnQ01TRy5Db3VyYWdlEjUKDGZhbGxiYWNrX2pvYhgH",
             "IAEoDjIfLmJuZXQuU2V0QmVzdGlhQWlDb25maWdDTVNHLkpvYhI4CglvdmVy",
             "cmlkZXMYCCABKAsyJS5ibmV0LlNldEJlc3RpYUFpQ29uZmlnQ01TRy5PdmVy",
-            "cmlkZXMaqQIKCU92ZXJyaWRlcxIlChhyZXRyZWF0X2JlbG93X2hlYWx0aF9w",
-            "Y3QYASABKAVIAIgBARIiChVlYXRfYmVsb3dfc3RhbWluYV9wY3QYAiABKAVI",
-            "AYgBARIiChVoZWFsX2JlbG93X2hlYWx0aF9wY3QYAyABKAVIAogBARIdChBo",
-            "YXVsX2F0X2xvYWRfcGN0GAQgASgFSAOIAQESGAoLYXJlYV9yYWRpdXMYBSAB",
-            "KAVIBIgBAUIbChlfcmV0cmVhdF9iZWxvd19oZWFsdGhfcGN0QhgKFl9lYXRf",
-            "YmVsb3dfc3RhbWluYV9wY3RCGAoWX2hlYWxfYmVsb3dfaGVhbHRoX3BjdEIT",
-            "ChFfaGF1bF9hdF9sb2FkX3BjdEIOCgxfYXJlYV9yYWRpdXMiUAoDSm9iEhMK",
-            "D0pPQl9VTlNQRUNJRklFRBAAEgkKBUdVQVJEEAESCAoEUkVTVBACEgoKBkdB",
-            "VEhFUhADEgkKBUNSQUZUEAQSCAoETUlORRAFIlsKB0NvdXJhZ2USFwoTQ09V",
-            "UkFHRV9VTlNQRUNJRklFRBAAEgkKBVRJTUlEEAESCwoHQ0FSRUZVTBACEgoK",
-            "BlNURUFEWRADEggKBEJPTEQQBBIJCgVCUkFWRRAFSgQIAhADSgQIAxAESgQI",
-            "BBAFQjMKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IaU2V0QmVzdGlhQWlDb25m",
-            "aWdDbXNnUHJvdG9iBnByb3RvMw=="));
+            "cmlkZXMSLwoFcnVsZXMYCSADKAsyIC5ibmV0LlNldEJlc3RpYUFpQ29uZmln",
+            "Q01TRy5SdWxlGrYDCgRSdWxlEj0KCWNvbmRpdGlvbhgBIAEoDjIqLmJuZXQu",
+            "U2V0QmVzdGlhQWlDb25maWdDTVNHLlJ1bGUuQ29uZGl0aW9uEhYKCXRocmVz",
+            "aG9sZBgCIAEoBUgAiAEBEjcKBmFjdGlvbhgDIAEoDjInLmJuZXQuU2V0QmVz",
+            "dGlhQWlDb25maWdDTVNHLlJ1bGUuQWN0aW9uIokBCglDb25kaXRpb24SGQoV",
+            "Q09ORElUSU9OX1VOU1BFQ0lGSUVEEAASEQoNU1RBTUlOQV9CRUxPVxABEhAK",
+            "DEhFQUxUSF9CRUxPVxACEg0KCUJBR19BQk9WRRADEgkKBU5JR0hUEAQSBwoD",
+            "REFZEAUSGQoVU1RST05HRVJfRk9FX0lOX1NJR0hUEAYigwEKBkFjdGlvbhIW",
+            "ChJBQ1RJT05fVU5TUEVDSUZJRUQQABIHCgNFQVQQARIQCgxSRVNUX0FUX0hP",
+            "TUUQAhIICgRIRUFMEAMSCwoHUkVUUkVBVBAEEgwKCEhBVUxfTk9XEAUSEAoM",
+            "S0VFUF9XT1JLSU5HEAYSDwoLSE9MRF9HUk9VTkQQB0IMCgpfdGhyZXNob2xk",
+            "GqkCCglPdmVycmlkZXMSJQoYcmV0cmVhdF9iZWxvd19oZWFsdGhfcGN0GAEg",
+            "ASgFSACIAQESIgoVZWF0X2JlbG93X3N0YW1pbmFfcGN0GAIgASgFSAGIAQES",
+            "IgoVaGVhbF9iZWxvd19oZWFsdGhfcGN0GAMgASgFSAKIAQESHQoQaGF1bF9h",
+            "dF9sb2FkX3BjdBgEIAEoBUgDiAEBEhgKC2FyZWFfcmFkaXVzGAUgASgFSASI",
+            "AQFCGwoZX3JldHJlYXRfYmVsb3dfaGVhbHRoX3BjdEIYChZfZWF0X2JlbG93",
+            "X3N0YW1pbmFfcGN0QhgKFl9oZWFsX2JlbG93X2hlYWx0aF9wY3RCEwoRX2hh",
+            "dWxfYXRfbG9hZF9wY3RCDgoMX2FyZWFfcmFkaXVzIlAKA0pvYhITCg9KT0Jf",
+            "VU5TUEVDSUZJRUQQABIJCgVHVUFSRBABEggKBFJFU1QQAhIKCgZHQVRIRVIQ",
+            "AxIJCgVDUkFGVBAEEggKBE1JTkUQBSJbCgdDb3VyYWdlEhcKE0NPVVJBR0Vf",
+            "VU5TUEVDSUZJRUQQABIJCgVUSU1JRBABEgsKB0NBUkVGVUwQAhIKCgZTVEVB",
+            "RFkQAxIICgRCT0xEEAQSCQoFQlJBVkUQBUoECAIQA0oECAMQBEoECAQQBUIz",
+            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGlNldEJlc3RpYUFpQ29uZmlnQ21z",
+            "Z1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG), global::Bnet.SetBestiaAiConfigCMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage", "FallbackJob", "Overrides" }, null, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Job), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Courage) }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides), global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides.Parser, new[]{ "RetreatBelowHealthPct", "EatBelowStaminaPct", "HealBelowHealthPct", "HaulAtLoadPct", "AreaRadius" }, new[]{ "RetreatBelowHealthPct", "EatBelowStaminaPct", "HealBelowHealthPct", "HaulAtLoadPct", "AreaRadius" }, null, null, null)})
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG), global::Bnet.SetBestiaAiConfigCMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage", "FallbackJob", "Overrides", "Rules" }, null, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Job), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Courage) }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule), global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Parser, new[]{ "Condition", "Threshold", "Action" }, new[]{ "Threshold" }, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Condition), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Action) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides), global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides.Parser, new[]{ "RetreatBelowHealthPct", "EatBelowStaminaPct", "HealBelowHealthPct", "HaulAtLoadPct", "AreaRadius" }, new[]{ "RetreatBelowHealthPct", "EatBelowStaminaPct", "HealBelowHealthPct", "HaulAtLoadPct", "AreaRadius" }, null, null, null)})
           }));
     }
     #endregion
@@ -102,6 +114,7 @@ namespace Bnet {
       courage_ = other.courage_;
       fallbackJob_ = other.fallbackJob_;
       overrides_ = other.overrides_ != null ? other.overrides_.Clone() : null;
+      rules_ = other.rules_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -180,6 +193,20 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "rules" field.</summary>
+    public const int RulesFieldNumber = 9;
+    private static readonly pb::FieldCodec<global::Bnet.SetBestiaAiConfigCMSG.Types.Rule> _repeated_rules_codec
+        = pb::FieldCodec.ForMessage(74, global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.SetBestiaAiConfigCMSG.Types.Rule> rules_ = new pbc::RepeatedField<global::Bnet.SetBestiaAiConfigCMSG.Types.Rule>();
+    /// <summary>
+    ///* Read from the top, the first that holds deciding. At most 8. 
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.SetBestiaAiConfigCMSG.Types.Rule> Rules {
+      get { return rules_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -200,6 +227,7 @@ namespace Bnet {
       if (Courage != other.Courage) return false;
       if (FallbackJob != other.FallbackJob) return false;
       if (!object.Equals(Overrides, other.Overrides)) return false;
+      if(!rules_.Equals(other.rules_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -212,6 +240,7 @@ namespace Bnet {
       if (Courage != global::Bnet.SetBestiaAiConfigCMSG.Types.Courage.Unspecified) hash ^= Courage.GetHashCode();
       if (FallbackJob != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) hash ^= FallbackJob.GetHashCode();
       if (overrides_ != null) hash ^= Overrides.GetHashCode();
+      hash ^= rules_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -250,6 +279,7 @@ namespace Bnet {
         output.WriteRawTag(66);
         output.WriteMessage(Overrides);
       }
+      rules_.WriteTo(output, _repeated_rules_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -280,6 +310,7 @@ namespace Bnet {
         output.WriteRawTag(66);
         output.WriteMessage(Overrides);
       }
+      rules_.WriteTo(ref output, _repeated_rules_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -305,6 +336,7 @@ namespace Bnet {
       if (overrides_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Overrides);
       }
+      size += rules_.CalculateSize(_repeated_rules_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -335,6 +367,7 @@ namespace Bnet {
         }
         Overrides.MergeFrom(other.Overrides);
       }
+      rules_.Add(other.rules_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -375,6 +408,10 @@ namespace Bnet {
               Overrides = new global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides();
             }
             input.ReadMessage(Overrides);
+            break;
+          }
+          case 74: {
+            rules_.AddEntriesFrom(input, _repeated_rules_codec);
             break;
           }
         }
@@ -419,6 +456,10 @@ namespace Bnet {
             input.ReadMessage(Overrides);
             break;
           }
+          case 74: {
+            rules_.AddEntriesFrom(ref input, _repeated_rules_codec);
+            break;
+          }
         }
       }
     }
@@ -454,6 +495,330 @@ namespace Bnet {
       }
 
       /// <summary>
+      ///* "When condition then action". Only the pairs the server allows; see OrderRule there. 
+      /// </summary>
+      [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+      public sealed partial class Rule : pb::IMessage<Rule>
+      #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          , pb::IBufferMessage
+      #endif
+      {
+        private static readonly pb::MessageParser<Rule> _parser = new pb::MessageParser<Rule>(() => new Rule());
+        private pb::UnknownFieldSet _unknownFields;
+        private int _hasBits0;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public static pb::MessageParser<Rule> Parser { get { return _parser; } }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public static pbr::MessageDescriptor Descriptor {
+          get { return global::Bnet.SetBestiaAiConfigCMSG.Descriptor.NestedTypes[0]; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        pbr::MessageDescriptor pb::IMessage.Descriptor {
+          get { return Descriptor; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public Rule() {
+          OnConstruction();
+        }
+
+        partial void OnConstruction();
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public Rule(Rule other) : this() {
+          _hasBits0 = other._hasBits0;
+          condition_ = other.condition_;
+          threshold_ = other.threshold_;
+          action_ = other.action_;
+          _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public Rule Clone() {
+          return new Rule(this);
+        }
+
+        /// <summary>Field number for the "condition" field.</summary>
+        public const int ConditionFieldNumber = 1;
+        private global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Condition condition_ = global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Condition.Unspecified;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Condition Condition {
+          get { return condition_; }
+          set {
+            condition_ = value;
+          }
+        }
+
+        /// <summary>Field number for the "threshold" field.</summary>
+        public const int ThresholdFieldNumber = 2;
+        private readonly static int ThresholdDefaultValue = 0;
+
+        private int threshold_;
+        /// <summary>
+        ///* The x in "stamina below x%"; unset for a condition without a number. 
+        /// </summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public int Threshold {
+          get { if ((_hasBits0 & 1) != 0) { return threshold_; } else { return ThresholdDefaultValue; } }
+          set {
+            _hasBits0 |= 1;
+            threshold_ = value;
+          }
+        }
+        /// <summary>Gets whether the "threshold" field is set</summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public bool HasThreshold {
+          get { return (_hasBits0 & 1) != 0; }
+        }
+        /// <summary>Clears the value of the "threshold" field</summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void ClearThreshold() {
+          _hasBits0 &= ~1;
+        }
+
+        /// <summary>Field number for the "action" field.</summary>
+        public const int ActionFieldNumber = 3;
+        private global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Action action_ = global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Action.Unspecified;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Action Action {
+          get { return action_; }
+          set {
+            action_ = value;
+          }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override bool Equals(object other) {
+          return Equals(other as Rule);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public bool Equals(Rule other) {
+          if (ReferenceEquals(other, null)) {
+            return false;
+          }
+          if (ReferenceEquals(other, this)) {
+            return true;
+          }
+          if (Condition != other.Condition) return false;
+          if (Threshold != other.Threshold) return false;
+          if (Action != other.Action) return false;
+          return Equals(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override int GetHashCode() {
+          int hash = 1;
+          if (Condition != global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Condition.Unspecified) hash ^= Condition.GetHashCode();
+          if (HasThreshold) hash ^= Threshold.GetHashCode();
+          if (Action != global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Action.Unspecified) hash ^= Action.GetHashCode();
+          if (_unknownFields != null) {
+            hash ^= _unknownFields.GetHashCode();
+          }
+          return hash;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override string ToString() {
+          return pb::JsonFormatter.ToDiagnosticString(this);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void WriteTo(pb::CodedOutputStream output) {
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          output.WriteRawMessage(this);
+        #else
+          if (Condition != global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Condition.Unspecified) {
+            output.WriteRawTag(8);
+            output.WriteEnum((int) Condition);
+          }
+          if (HasThreshold) {
+            output.WriteRawTag(16);
+            output.WriteInt32(Threshold);
+          }
+          if (Action != global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Action.Unspecified) {
+            output.WriteRawTag(24);
+            output.WriteEnum((int) Action);
+          }
+          if (_unknownFields != null) {
+            _unknownFields.WriteTo(output);
+          }
+        #endif
+        }
+
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+          if (Condition != global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Condition.Unspecified) {
+            output.WriteRawTag(8);
+            output.WriteEnum((int) Condition);
+          }
+          if (HasThreshold) {
+            output.WriteRawTag(16);
+            output.WriteInt32(Threshold);
+          }
+          if (Action != global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Action.Unspecified) {
+            output.WriteRawTag(24);
+            output.WriteEnum((int) Action);
+          }
+          if (_unknownFields != null) {
+            _unknownFields.WriteTo(ref output);
+          }
+        }
+        #endif
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public int CalculateSize() {
+          int size = 0;
+          if (Condition != global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Condition.Unspecified) {
+            size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Condition);
+          }
+          if (HasThreshold) {
+            size += 1 + pb::CodedOutputStream.ComputeInt32Size(Threshold);
+          }
+          if (Action != global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Action.Unspecified) {
+            size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Action);
+          }
+          if (_unknownFields != null) {
+            size += _unknownFields.CalculateSize();
+          }
+          return size;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void MergeFrom(Rule other) {
+          if (other == null) {
+            return;
+          }
+          if (other.Condition != global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Condition.Unspecified) {
+            Condition = other.Condition;
+          }
+          if (other.HasThreshold) {
+            Threshold = other.Threshold;
+          }
+          if (other.Action != global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Action.Unspecified) {
+            Action = other.Action;
+          }
+          _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void MergeFrom(pb::CodedInputStream input) {
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          input.ReadRawMessage(this);
+        #else
+          uint tag;
+          while ((tag = input.ReadTag()) != 0) {
+          if ((tag & 7) == 4) {
+            // Abort on any end group tag.
+            return;
+          }
+          switch(tag) {
+              default:
+                _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+                break;
+              case 8: {
+                Condition = (global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Condition) input.ReadEnum();
+                break;
+              }
+              case 16: {
+                Threshold = input.ReadInt32();
+                break;
+              }
+              case 24: {
+                Action = (global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Action) input.ReadEnum();
+                break;
+              }
+            }
+          }
+        #endif
+        }
+
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+          uint tag;
+          while ((tag = input.ReadTag()) != 0) {
+          if ((tag & 7) == 4) {
+            // Abort on any end group tag.
+            return;
+          }
+          switch(tag) {
+              default:
+                _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+                break;
+              case 8: {
+                Condition = (global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Condition) input.ReadEnum();
+                break;
+              }
+              case 16: {
+                Threshold = input.ReadInt32();
+                break;
+              }
+              case 24: {
+                Action = (global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Action) input.ReadEnum();
+                break;
+              }
+            }
+          }
+        }
+        #endif
+
+        #region Nested types
+        /// <summary>Container for nested types declared in the Rule message type.</summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public static partial class Types {
+          public enum Condition {
+            [pbr::OriginalName("CONDITION_UNSPECIFIED")] Unspecified = 0,
+            [pbr::OriginalName("STAMINA_BELOW")] StaminaBelow = 1,
+            [pbr::OriginalName("HEALTH_BELOW")] HealthBelow = 2,
+            [pbr::OriginalName("BAG_ABOVE")] BagAbove = 3,
+            [pbr::OriginalName("NIGHT")] Night = 4,
+            [pbr::OriginalName("DAY")] Day = 5,
+            [pbr::OriginalName("STRONGER_FOE_IN_SIGHT")] StrongerFoeInSight = 6,
+          }
+
+          public enum Action {
+            [pbr::OriginalName("ACTION_UNSPECIFIED")] Unspecified = 0,
+            [pbr::OriginalName("EAT")] Eat = 1,
+            [pbr::OriginalName("REST_AT_HOME")] RestAtHome = 2,
+            [pbr::OriginalName("HEAL")] Heal = 3,
+            [pbr::OriginalName("RETREAT")] Retreat = 4,
+            [pbr::OriginalName("HAUL_NOW")] HaulNow = 5,
+            [pbr::OriginalName("KEEP_WORKING")] KeepWorking = 6,
+            [pbr::OriginalName("HOLD_GROUND")] HoldGround = 7,
+          }
+
+        }
+        #endregion
+
+      }
+
+      /// <summary>
       ///* An unset field keeps what the courage step and the job choose. 
       /// </summary>
       [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
@@ -472,7 +837,7 @@ namespace Bnet {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
         public static pbr::MessageDescriptor Descriptor {
-          get { return global::Bnet.SetBestiaAiConfigCMSG.Descriptor.NestedTypes[0]; }
+          get { return global::Bnet.SetBestiaAiConfigCMSG.Descriptor.NestedTypes[1]; }
         }
 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
