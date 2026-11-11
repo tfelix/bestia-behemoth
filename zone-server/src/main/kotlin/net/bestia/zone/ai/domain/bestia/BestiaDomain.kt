@@ -170,6 +170,16 @@ object BestiaDomain : AiDomainCatalogue {
   /** The load it carries its bag to the chest at, when its orders set one. */
   val HAUL_AT_LOAD_PCT = StateKey<Int>("haulAtLoadPct", retain = Blackboard.PERMANENT)
 
+  /** The named area its orders give it to work in. See `PlaceSense`. */
+  val AREA_PLACE_ID = StateKey<Long>("areaPlaceId", retain = Blackboard.PERMANENT)
+
+  /** The named chest its orders give it, instead of the nearest. See `JobChestSense`. */
+  val CHEST_PLACE_ID = StateKey<Long>("chestPlaceId", retain = Blackboard.PERMANENT)
+
+  /** The job areas a work area place moves: every job's own, under whichever key it uses. */
+  val WORK_AREAS: List<StateKey<WorkArea>>
+    get() = listOf(GATHER_AREA, CRAFT_AREA, MINE_AREA, GUARD_AREA)
+
   /** An owned bestia's rules, read from the top. See [ruleSays]. */
   val RULES = StateKey<List<OrderRule>>("orderRules", retain = Blackboard.PERMANENT)
 

@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional
 class BestiaAiConfigService(
   private val playerBestias: PlayerBestiaRepository,
   private val presets: OrderPresetRepository,
+  private val places: NamedPlaces,
   private val aiProfileRegistry: AiProfileRegistry,
   private val aiAgentFactory: AiAgentFactory,
   private val world: WorldView,
@@ -40,11 +41,12 @@ class BestiaAiConfigService(
 
   /**
    * Gives a bestia [orders] of its own, or links it to the preset [presetId] with the numbers of [orders] as its own.
-   * Null when the bestia does not exist, or the preset is not its master's.
+   * Null when the bestia does not exist, or the preset or a place it names is not its master's.
    */
   @Transactional
   fun apply(playerBestiaId: PlayerBestiaId, orders: AiConfig, presetId: Long? = null): StoredOrders? {
     val playerBestia = playerBestias.findByIdOrNull(playerBestiaId) ?: return null
+    if (!places.fitFor(playerBestia.master.id, orders)) return null
     val own = orders.overrides.clamped()
 
     if (presetId == null) {
