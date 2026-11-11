@@ -64,4 +64,26 @@ class SetBestiaAiConfigCMSGTest {
   fun `a fallback the main job cannot take refuses the orders`() {
     assertNull(ordersOf(Wire.newBuilder().setJob(Job.GUARD).setFallbackJob(Job.GATHER)))
   }
+
+  @Test
+  fun `reads the preset and the named places`() {
+    val msg = SetBestiaAiConfigCMSG.fromBnet(
+      1L,
+      Wire.newBuilder().setPlayerBestiaId(5).setCourage(Courage.STEADY).setJob(Job.GATHER)
+        .setPresetId(7).setAreaPlaceId(11).setChestPlaceId(12).build(),
+    )
+
+    assertEquals(7L, msg.presetId)
+    assertEquals(11L, msg.orders?.areaPlaceId)
+    assertEquals(12L, msg.orders?.chestPlaceId)
+  }
+
+  @Test
+  fun `unset preset and places are none`() {
+    val msg = SetBestiaAiConfigCMSG.fromBnet(1L, Wire.newBuilder().setPlayerBestiaId(5).setCourage(Courage.STEADY).setJob(Job.GATHER).build())
+
+    assertNull(msg.presetId)
+    assertNull(msg.orders?.areaPlaceId)
+    assertNull(msg.orders?.chestPlaceId)
+  }
 }
