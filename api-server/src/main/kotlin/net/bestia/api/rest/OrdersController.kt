@@ -29,6 +29,9 @@ class OrdersController(
   /**
    * [job] is GUARD, GATHER, CRAFT, MINE or REST; [courage] is TIMID, CAREFUL, STEADY, BOLD or BRAVE. [fallbackJob]
    * runs while a GATHER, CRAFT or MINE job has nothing to do; null for none. [overrides] are the Fine-tune numbers.
+   *
+   * With [presetId] the bestia follows that preset: the other fields come from it, and [overrides] are only the
+   * numbers it keeps as its own. In an answer, [overrides] are the numbers in force and [ownOverrides] its own.
    */
   data class BestiaOrders(
     val job: String,
@@ -36,6 +39,8 @@ class OrdersController(
     val fallbackJob: String? = null,
     val overrides: OrderNumbers = OrderNumbers(),
     val rules: List<OrderRuleLine> = emptyList(),
+    val presetId: Long? = null,
+    val ownOverrides: OrderNumbers = OrderNumbers(),
   )
 
   @PutMapping
@@ -46,11 +51,13 @@ class OrdersController(
     @RequestHeader("Idempotency-Key") idempotencyKey: String,
     @RequestBody orders: BestiaOrders,
   ): BestiaOrders {
-    val query = ZoneQuery.SetOrders(masterId, bestiaId, orders.job, orders.courage, orders.fallbackJob, orders.overrides, orders.rules)
+    val query = ZoneQuery.SetOrders(masterId, bestiaId, orders.job, orders.courage, orders.fallbackJob, orders.overrides, orders.rules, orders.presetId)
     val stored = zone.ask(accountId, query, idempotencyKey.take(MAX_KEY_LENGTH)).answerOrThrow<ZoneAnswer.Orders>()
 
     cache.forget(accountId)
-    return BestiaOrders(stored.job, stored.courage, stored.fallbackJob, stored.overrides, stored.rules)
+    return BestiaOrders(
+      stored.job, stored.courage, stored.fallbackJob, stored.overrides, stored.rules, stored.presetId, stored.ownOverrides,
+    )
   }
 
   private companion object {
