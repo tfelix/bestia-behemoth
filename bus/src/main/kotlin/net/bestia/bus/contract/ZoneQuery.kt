@@ -63,8 +63,9 @@ sealed interface ZoneQuery {
   data class GuildEmblem(val hash: String) : ZoneQuery
 
   /**
-   * New orders for an owned bestia: a job and a courage step by name, a fallback job, and the numbers set in
-   * Fine-tune. A write: send it with an idempotency key.
+   * New orders for an owned bestia: a job and a courage step by name, a fallback job, the numbers set in Fine-tune and
+   * the rules. With [presetId] it follows that preset instead, and [overrides] are only the numbers it keeps as its
+   * own. A write: send it with an idempotency key.
    */
   data class SetOrders(
     val masterId: Long,
@@ -74,7 +75,20 @@ sealed interface ZoneQuery {
     val fallbackJob: String? = null,
     val overrides: OrderNumbers = OrderNumbers(),
     val rules: List<OrderRuleLine> = emptyList(),
+    val presetId: Long? = null,
   ) : ZoneQuery
+
+  /** The master's order presets, by name. */
+  data class OrderPresets(val masterId: Long) : ZoneQuery
+
+  /**
+   * Creates a preset, or with [presetId] changes one; every bestia that follows it gets the change. A write: send it
+   * with an idempotency key.
+   */
+  data class SaveOrderPreset(val masterId: Long, val presetId: Long?, val name: String, val sheet: OrderSheet) : ZoneQuery
+
+  /** Deletes a preset. Its bestias keep their orders, as their own. A write: send it with an idempotency key. */
+  data class DeleteOrderPreset(val masterId: Long, val presetId: Long) : ZoneQuery
 
   /** A line of party or guild chat ([channel] PARTY or GUILD), said as [masterId]. A write: send it with an idempotency key. */
   data class SendChat(val masterId: Long, val channel: String, val text: String) : ZoneQuery

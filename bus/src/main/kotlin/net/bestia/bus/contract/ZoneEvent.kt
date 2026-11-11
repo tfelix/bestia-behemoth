@@ -36,6 +36,8 @@ sealed interface ZoneEvent {
     val fallbackJob: String? = null,
     val overrides: OrderNumbers = OrderNumbers(),
     val rules: List<OrderRuleLine> = emptyList(),
+    val presetId: Long? = null,
+    val ownOverrides: OrderNumbers = OrderNumbers(),
   ) : ZoneEvent
 
   /** The account entered the world with [masterId], or left it ([inWorld] false, [masterId] null). */

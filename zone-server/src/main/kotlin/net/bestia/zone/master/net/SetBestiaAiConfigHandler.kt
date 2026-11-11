@@ -40,7 +40,7 @@ class SetBestiaAiConfigHandler(
     val stored = aiConfigs.apply(msg.playerBestiaId, orders)
       ?: return deny(msg.playerId, AiConfigErrorSMSG.AiConfigErrorCode.BESTIA_NOT_OWNED)
 
-    outMessageProcessor.sendToPlayer(msg.playerId, BestiaAiConfigSMSG(msg.playerBestiaId, stored))
+    outMessageProcessor.sendToPlayer(msg.playerId, BestiaAiConfigSMSG(msg.playerBestiaId, stored.orders))
     return true
   }
 

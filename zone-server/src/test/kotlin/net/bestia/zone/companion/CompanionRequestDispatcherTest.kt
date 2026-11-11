@@ -1,5 +1,6 @@
 package net.bestia.zone.companion
 
+import net.bestia.bus.contract.OrderSheet
 import net.bestia.zone.ai.profile.OrderRule
 import net.bestia.bus.contract.OrderRuleLine
 import net.bestia.zone.ai.profile.OrderOverrides
@@ -150,6 +151,45 @@ class CompanionRequestDispatcherTest {
       assertEquals(Status.NOT_FOUND, ask(2L, ZoneQuery.SetOrders(master.id, bestia.id, "GUARD", "BOLD")).status)
     } finally {
       ask(1L, ZoneQuery.SetOrders(master.id, bestia.id, before.job.name, before.courage.name, before.fallbackJob?.name))
+    }
+  }
+
+  @Test
+  fun `a bestia follows its preset as it changes and keeps its own numbers, until the preset is deleted`() {
+    val master = masters.findAllByAccountIdOrderBySlot(1L).first()
+    val bestia = playerBestias.findAllByMasterId(master.id).first()
+    val before = bestia.aiConfig
+    val gatherer = OrderSheet("GATHER", "BOLD", overrides = OrderNumbers(haulAtLoadPct = 60))
+
+    try {
+      val created = assertIs<ZoneAnswer.OrderPresets>(ask(1L, ZoneQuery.SaveOrderPreset(master.id, null, " Camp ", gatherer)).answer)
+      val preset = created.presets.single { it.name == "Camp" }
+
+      ask(1L, ZoneQuery.SetOrders(master.id, bestia.id, "REST", "TIMID", overrides = OrderNumbers(eatBelowStaminaPct = 70), presetId = preset.id))
+      ask(1L, ZoneQuery.SaveOrderPreset(master.id, preset.id, "Camp", gatherer.copy(courage = "CAREFUL", overrides = OrderNumbers(haulAtLoadPct = 50))))
+
+      val following = playerBestias.findByIdOrNull(bestia.id)!!
+      assertEquals(preset.id, following.orderPresetId)
+      assertEquals(
+        AiConfig(BestiaJob.GATHER, Courage.CAREFUL, overrides = OrderOverrides(eatBelowStaminaPct = 70, haulAtLoadPct = 50)),
+        following.aiConfig,
+        "the changed preset, with its own eat line on top",
+      )
+      val listed = assertIs<ZoneAnswer.OrderPresets>(ask(1L, ZoneQuery.OrderPresets(master.id)).answer)
+      assertEquals(1, listed.presets.single { it.id == preset.id }.bestias)
+
+      assertEquals(Status.INVALID, ask(1L, ZoneQuery.SaveOrderPreset(master.id, null, "Camp", gatherer)).status, "a name in use")
+      assertEquals(Status.NOT_FOUND, ask(2L, ZoneQuery.OrderPresets(master.id)).status, "a stranger's")
+
+      ask(1L, ZoneQuery.DeleteOrderPreset(master.id, preset.id))
+      val unlinked = playerBestias.findByIdOrNull(bestia.id)!!
+      assertEquals(null, unlinked.orderPresetId)
+      assertEquals(Courage.CAREFUL, unlinked.aiConfig.courage, "it keeps the orders it had")
+    } finally {
+      ask(1L, ZoneQuery.SetOrders(master.id, bestia.id, before.job.name, before.courage.name, before.fallbackJob?.name))
+      (ask(1L, ZoneQuery.OrderPresets(master.id)).answer as ZoneAnswer.OrderPresets).presets.forEach {
+        ask(1L, ZoneQuery.DeleteOrderPreset(master.id, it.id))
+      }
     }
   }
 

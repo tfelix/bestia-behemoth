@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import net.bestia.zone.account.persistence.Master
 import net.bestia.zone.account.persistence.MasterRepository
+import net.bestia.zone.account.persistence.OrderPresetRepository
 
 /**
  * Permanently deletes a master and everything that only existed because of it.
@@ -41,6 +42,7 @@ import net.bestia.zone.account.persistence.MasterRepository
  * - **Persisted status effects** - stored against [Master.entityId], which is not a foreign key to anything.
  * - **Compendium entries** ([CompendiumStore.deleteAllOf]) - each row is a foreign key to the master.
  * - **Learned blueprints** ([KnownRecipeStore.deleteAllOf]) - each row is a foreign key to the master.
+ * - **Order presets** ([OrderPresetRepository]) - keyed by the master's id, without a foreign key.
  * - **Map charts** ([MapChartRepository]) - a chart row *is* keyed by a real foreign key to the item instance
  *   that carries it, so it has to go before the instance does. Every master holds at least one, since one is
  *   granted at creation.
@@ -54,6 +56,7 @@ class MasterDeletionService(
   private val mapChartRepository: MapChartRepository,
   private val compendiumStore: CompendiumStore,
   private val knownRecipeStore: KnownRecipeStore,
+  private val orderPresets: OrderPresetRepository,
   private val statusEffectPersistenceService: StatusEffectPersistenceService,
   private val world: WorldView,
 ) {
@@ -127,6 +130,7 @@ class MasterDeletionService(
 
     compendiumStore.deleteAllOf(masterId)
     knownRecipeStore.deleteAllOf(masterId)
+    orderPresets.deleteAllByMasterId(masterId)
 
     // Removed from the account's collection as well as deleted: `Account.master` cascades ALL but has no
     // orphanRemoval, so a still-listed master would be cascade-persisted again on flush - after we deleted it.

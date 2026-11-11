@@ -64,6 +64,10 @@ sealed interface ZoneAnswer {
       val fallbackJob: String? = null,
       val overrides: OrderNumbers = OrderNumbers(),
       val rules: List<OrderRuleLine> = emptyList(),
+      /** The preset it follows; null for orders of its own. */
+      val presetId: Long? = null,
+      /** The numbers it keeps as its own while it follows a preset. */
+      val ownOverrides: OrderNumbers = OrderNumbers(),
     )
   }
 
@@ -226,7 +230,14 @@ sealed interface ZoneAnswer {
     val fallbackJob: String? = null,
     val overrides: OrderNumbers = OrderNumbers(),
     val rules: List<OrderRuleLine> = emptyList(),
+    val presetId: Long? = null,
+    val ownOverrides: OrderNumbers = OrderNumbers(),
   ) : ZoneAnswer
+
+  /** A master's order presets, by name. [bestias] is how many follow each. */
+  data class OrderPresets(val presets: List<Preset>) : ZoneAnswer {
+    data class Preset(val id: Long, val name: String, val sheet: OrderSheet, val bestias: Int)
+  }
 
   /**
    * Whether a chat line went out. [refusal] is null when it did, else why not: CHAT_LOCKED (Basic Skill below the
