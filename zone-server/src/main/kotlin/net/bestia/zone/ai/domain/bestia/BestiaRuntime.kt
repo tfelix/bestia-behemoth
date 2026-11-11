@@ -1,5 +1,7 @@
 package net.bestia.zone.ai.domain.bestia
 
+import net.bestia.zone.item.ecs.ItemTemplateRegistry
+import net.bestia.zone.bestia.diary.BestiaNews
 import net.bestia.zone.ai.core.precondition.Precondition
 import net.bestia.zone.battle.attack.BasicAttackResolver
 import net.bestia.zone.ai.bt.Locomotion
@@ -49,6 +51,8 @@ class BestiaRuntime(
   private val stations: StationClaims,
   /** Where wandering draws from. Defaulted for the server; a test passes a seed to pin a walk. */
   random: Random = Random.Default,
+  private val news: BestiaNews = BestiaNews { },
+  private val items: ItemTemplateRegistry? = null,
 ) : AiDomainRuntime {
 
   /** One shared instance: it holds only stateless collaborators, so there is nothing per-agent about it. */
@@ -139,7 +143,8 @@ class BestiaRuntime(
     return BestiaDomain.resolver(
       profile.actionIds,
       BestiaDomain.Collaborators(
-        locomotion, skills, attackExecution, basicAttacks, care, promotion, aoi, handover, stations, profile.attacks
+        locomotion, skills, attackExecution, basicAttacks, care, promotion, aoi, handover, stations, profile.attacks,
+        news, { itemId -> items?.identifierOf(itemId) },
       )
     )
   }

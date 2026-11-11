@@ -1,5 +1,7 @@
 package net.bestia.zone.crafting.station
 
+import net.bestia.zone.bestia.diary.BestiaHappened
+import net.bestia.zone.bestia.diary.BestiaNews
 import net.bestia.zone.prop.station.QueueEntry
 import io.mockk.every
 import io.mockk.mockk
@@ -36,6 +38,7 @@ class StationWorkSystemTest {
   private val profiles = mockk<CrafterProfiles>(relaxed = true)
   private val campfires = mockk<CampfireService>(relaxed = true)
   private val work = StationWork()
+  private val told = mutableListOf<BestiaHappened>()
 
   @Test
   fun `the owner next to the station makes one item at a time from what it holds`() {
@@ -158,6 +161,35 @@ class StationWorkSystemTest {
   }
 
   @Test
+  fun `a bestia that finishes the queue tells its master's diary`() {
+    val fixture = queued(amount = 1)
+    givenBestiaWorker(fixture)
+
+    system(fixture).update(fixture.world, 4f)
+
+    assertEquals(listOf(BestiaHappened.Kind.QUEUE_FINISHED), told.map { it.kind })
+    assertEquals(StationFixture.PLAYER_BESTIA, told.single().playerBestiaId)
+  }
+
+  @Test
+  fun `a fire going out under a bestia is told once, a full bag not at all`() {
+    val fixture = queued(amount = 2, StationFixture(StaticEntityKind.CAMPFIRE, burnsOutAt = now.minusSeconds(1)))
+    givenBestiaWorker(fixture)
+
+    system(fixture).update(fixture.world, 4f)
+    system(fixture).update(fixture.world, 4f)
+
+    assertEquals(listOf("STATION_OUT"), told.map { it.reason })
+  }
+
+  private fun givenBestiaWorker(fixture: StationFixture) {
+    val bestia = fixture.givenBestia()
+    fixture.workers.assign(fixture.world, bestia, fixture.station)
+    every { profiles.crafterFor(fixture.world, bestia, OWNER) } returns
+      fixture.crafters.Crafter(Master(OWNER, "Joiner"), StationFixture.PLAYER_BESTIA, null, null)
+  }
+
+  @Test
   fun `a bestia worker waits while what its absent master knows is loading`() {
     val fixture = queued(amount = 2)
     val bestia = fixture.givenBestia()
@@ -192,7 +224,8 @@ class StationWorkSystemTest {
       work = work,
       states = mockk(relaxed = true),
       campfires = campfires,
-      clock = Clock.fixed(now, ZoneOffset.UTC)
+      clock = Clock.fixed(now, ZoneOffset.UTC),
+      news = BestiaNews { told += it },
     )
   }
 }

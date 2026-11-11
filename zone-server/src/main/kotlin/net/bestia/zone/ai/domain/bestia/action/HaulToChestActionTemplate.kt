@@ -1,5 +1,8 @@
 package net.bestia.zone.ai.domain.bestia.action
 
+import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.bestia.diary.BestiaNews
+import net.bestia.zone.bestia.diary.BestiaHappened
 import net.bestia.zone.ai.bt.Locomotion
 import net.bestia.zone.ai.bt.leaves.MoveTo
 import net.bestia.zone.ai.bt.leaves.Wait
@@ -27,6 +30,8 @@ class HaulToChestActionTemplate(
   private val care: BagCare,
   private val handover: ItemHandover,
   private val aoi: EntityAOIService,
+  private val news: BestiaNews,
+  private val identifierOf: (Long) -> String?,
 ) : ActionTemplate {
   override val id = "haulToChest"
 
@@ -43,7 +48,7 @@ class HaulToChestActionTemplate(
         behavior = {
           sequence {
             +MoveTo(chest.position, locomotion, arrivalRadius = ChestExchange.REACH)
-            +Deposit(chest, care, handover, aoi)
+            +Deposit(chest, care, handover, aoi, news, identifierOf)
             +Wait(DEPOSIT_SECONDS)
           }
         },
@@ -57,6 +62,8 @@ class HaulToChestActionTemplate(
     private val care: BagCare,
     private val handover: ItemHandover,
     private val aoi: EntityAOIService,
+    private val news: BestiaNews,
+    private val identifierOf: (Long) -> String?,
   ) : BtNode {
     private var deposited = false
 
@@ -64,12 +71,25 @@ class HaulToChestActionTemplate(
       if (deposited) return Status.SUCCESS
 
       val exchange = ChestExchange.open(context.world, aoi, context.entityId, chest) ?: return Status.FAILURE
-      ChestStorage.whatFits(exchange.contents, care.spareGoods(exchange.bag)).forEach { item ->
+      val deposit = ChestStorage.whatFits(exchange.contents, care.spareGoods(exchange.bag))
+      // Summed first: handing a pile over empties it.
+      val hauled = deposit.groupBy { it.itemId }.mapValues { (_, piles) -> piles.sumOf { it.amount } }
+      deposit.forEach { item ->
         handover.hand(context.world, exchange.masterId, exchange.bestia, exchange.chest, item.playerItemId, item.amount)
       }
+      tellHauled(context, exchange.masterId, hauled)
 
       deposited = true
       return Status.SUCCESS
+    }
+
+    /** One diary line per haul, summing the goods, rather than one per pile. */
+    private fun tellHauled(context: BtContext, masterId: Long, hauled: Map<Long, Int>) {
+      val playerBestiaId = context.world.get(context.entityId, OwnedBestia::class)?.playerBestiaId ?: return
+      val items = hauled.mapNotNull { (itemId, amount) -> identifierOf(itemId)?.let { it to amount } }.toMap()
+      if (items.isEmpty()) return
+
+      news.tell(BestiaHappened(this, masterId, playerBestiaId, BestiaHappened.Kind.HAULED, items = items))
     }
 
     override fun toString(): String = "Deposit(${chest.structureId})"

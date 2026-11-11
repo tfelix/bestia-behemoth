@@ -1,5 +1,8 @@
 package net.bestia.zone.ai.ecs
 
+import net.bestia.zone.item.ecs.ItemTemplateRegistry
+import net.bestia.zone.bestia.diary.BestiaNews
+import net.bestia.zone.bestia.diary.BestiaHappened
 import net.bestia.zone.item.mining.ShaftOre
 import net.bestia.zone.battle.attack.BasicAttackResolver
 import net.bestia.zone.identity.ecs.OwnedBestia
@@ -273,6 +276,10 @@ class AiPipelineFixture(
   val bagCare = TestBagCare.create()
 
   // Spring collects the domain runtimes in the live server; a test names them.
+  /** What owned bestias told their masters' diaries. */
+  val told = mutableListOf<BestiaHappened>()
+  val news = BestiaNews { told += it }
+
   val bestia = BestiaRuntime(
     navigation = TestNavigation.service(),
     skills = skills,
@@ -284,6 +291,8 @@ class AiPipelineFixture(
     handover = ItemHandover(inventoryService, jobs, worldView),
     stations = stationWorkers,
     random = random,
+    news = news,
+    items = mockk<ItemTemplateRegistry> { every { identifierOf(any()) } answers { "item_${firstArg<Long>()}" } },
   )
 
   /** Where a townsperson goes when they walk through a door. Readable, so a test can assert on it. */
@@ -320,7 +329,7 @@ class AiPipelineFixture(
         ForageSense { grazeableGround },
         BagSense(bagCare),
         GatherSense(aoi, propKinds, divergence),
-        JobChestSense(structureRegistry, chests, bagCare),
+        JobChestSense(structureRegistry, chests, bagCare, news),
         StationSense(structureRegistry, shaftOre, stationWorkers),
         ShelterSense(aoi) { at, reach -> doorsteps.filter { it.distance(at) <= reach } },
         SettlementSense(

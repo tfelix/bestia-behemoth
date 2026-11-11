@@ -1,5 +1,6 @@
 package net.bestia.zone.master.bestia
 
+import net.bestia.zone.bestia.diary.BestiaHappened
 import net.bestia.zone.crafting.station.StationWorkers
 import net.bestia.zone.account.persistence.OrderPreset
 import net.bestia.zone.account.persistence.OrderPresetRepository
@@ -91,6 +92,9 @@ class BestiaAiConfigService(
 
     val master = playerBestia.master
     events.publishEvent(BestiaAiConfigChangedEvent(this, master.account.id, master.id, playerBestia.id, stored))
+    events.publishEvent(
+      BestiaHappened(this, master.id, playerBestia.id, BestiaHappened.Kind.NEW_ORDERS, reason = stored.orders.job.name)
+    )
     return stored
   }
 
