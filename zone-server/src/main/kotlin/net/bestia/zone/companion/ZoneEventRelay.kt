@@ -1,5 +1,6 @@
 package net.bestia.zone.companion
 
+import net.bestia.zone.companion.query.OrdersOnTheBus
 import net.bestia.bus.EventPublisher
 import net.bestia.bus.contract.ZoneEvent
 import net.bestia.zone.account.persistence.MasterRepository
@@ -100,6 +101,8 @@ class ZoneEventRelay(
         event.playerBestiaId,
         event.config.job.name,
         event.config.courage.name,
+        event.config.fallbackJob?.name,
+        OrdersOnTheBus.numbersOf(event.config.overrides),
       )
     )
   }

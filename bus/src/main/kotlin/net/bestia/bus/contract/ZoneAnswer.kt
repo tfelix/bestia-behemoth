@@ -61,6 +61,8 @@ sealed interface ZoneAnswer {
       val metresPerSecond: Double,
       /** Where it is travelling, null when it stands. */
       val journey: Journey? = null,
+      val fallbackJob: String? = null,
+      val overrides: OrderNumbers = OrderNumbers(),
     )
   }
 
@@ -216,7 +218,13 @@ sealed interface ZoneAnswer {
   data class TicketOwner(val accountId: Long) : ZoneAnswer
 
   /** The orders as stored. */
-  data class Orders(val playerBestiaId: Long, val job: String, val courage: String) : ZoneAnswer
+  data class Orders(
+    val playerBestiaId: Long,
+    val job: String,
+    val courage: String,
+    val fallbackJob: String? = null,
+    val overrides: OrderNumbers = OrderNumbers(),
+  ) : ZoneAnswer
 
   /**
    * Whether a chat line went out. [refusal] is null when it did, else why not: CHAT_LOCKED (Basic Skill below the
