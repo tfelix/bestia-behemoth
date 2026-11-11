@@ -29,7 +29,7 @@ class AreaMechanicsApplier(
         world, victimId, status.effect, status.level, effect.casterId, status.chancePercent, status.durationSeconds
       )
     }
-    if (!mechanics.forAllies) {
+    if (!mechanics.forAllies && !mechanics.zoneStatusForEveryone) {
       mechanics.zoneStatus?.let { statusEffects.applyEffect(world, victimId, it, effect.skillLevel, effect.casterId) }
     }
     if (mechanics.knockbackTiles > 0 && !Knockback.isImmune(world, victimId)) {
@@ -49,7 +49,9 @@ class AreaMechanicsApplier(
     if (!mechanics.forAllies) return
     if (mechanics.partyOnly && !PartyMates.isPartyOf(world, effect.casterId, allyId)) return
 
-    mechanics.zoneStatus?.let { statusEffects.applyEffect(world, allyId, it, effect.skillLevel, effect.casterId) }
+    if (!mechanics.zoneStatusForEveryone) {
+      mechanics.zoneStatus?.let { statusEffects.applyEffect(world, allyId, it, effect.skillLevel, effect.casterId) }
+    }
     if (mechanics.healPerTick > 0) {
       Healing.heal(world, allyId, mechanics.healPerTick)
     }
@@ -60,7 +62,12 @@ class AreaMechanicsApplier(
   }
 
   fun onAnyone(world: World, id: EntityId, effect: AreaEffect) {
-    val percent = effect.mechanics.manaPercentPerTick
+    val mechanics = effect.mechanics
+    if (mechanics.zoneStatusForEveryone) {
+      mechanics.zoneStatus?.let { statusEffects.applyEffect(world, id, it, effect.skillLevel, effect.casterId) }
+    }
+
+    val percent = mechanics.manaPercentPerTick
     if (percent <= 0) return
 
     world.get(id, Mana::class)?.let { it.current += it.max * percent / 100 }

@@ -116,6 +116,34 @@ class AreaEffectSystemTest {
   }
 
   @Test
+  fun `an area that harms only the unholy finds an Undead by its element too`() {
+    val undeadDragon = victimAt(Vec3L(CENTER.x + 1, CENTER.y, CENTER.z))
+    world.add(undeadDragon, Nature(Element.UNDEAD_4, Size.BIG, kind = BestiaKind.DRAGON))
+    val beast = victimAt(Vec3L(CENTER.x - 1, CENTER.y, CENTER.z))
+    world.add(beast, Nature(Element.NORMAL, Size.MEDIUM, kind = BestiaKind.BEAST))
+    patchAt(CENTER, AreaMechanics(foeKinds = setOf(BestiaKind.DEMON, BestiaKind.UNDEAD), foeElements = setOf(Element.UNDEAD)))
+
+    world.tick(TICK_INTERVAL)
+
+    assertEquals(DAMAGE_PER_TICK, stagedDamage(undeadDragon))
+    assertEquals(0, stagedDamage(beast))
+  }
+
+  @Test
+  fun `the unholy bonus raises the damage on a Demon and leaves others as they are`() {
+    val demon = victimAt(Vec3L(CENTER.x + 1, CENTER.y, CENTER.z))
+    world.add(demon, Nature(Element.SHADOW, Size.MEDIUM, kind = BestiaKind.DEMON))
+    val beast = victimAt(Vec3L(CENTER.x - 1, CENTER.y, CENTER.z))
+    world.add(beast, Nature(Element.NORMAL, Size.MEDIUM, kind = BestiaKind.BEAST))
+    patchAt(CENTER, AreaMechanics(unholyBonusPercent = 100))
+
+    world.tick(TICK_INTERVAL)
+
+    assertEquals(2 * DAMAGE_PER_TICK, stagedDamage(demon))
+    assertEquals(DAMAGE_PER_TICK, stagedDamage(beast))
+  }
+
+  @Test
   fun `a strike lands on one spot of the area, not the whole of it`() {
     val victims = (-3L..3L).flatMap { x -> (-3L..3L).map { y -> victimAt(Vec3L(CENTER.x + x, CENTER.y + y, CENTER.z)) } }
     patchAt(CENTER, AreaMechanics(strikeRadiusTiles = 0).copy(strikeRadiusTiles = 1), radius = 3)
