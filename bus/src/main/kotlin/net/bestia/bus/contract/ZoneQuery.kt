@@ -90,6 +90,9 @@ sealed interface ZoneQuery {
   /** Deletes a preset. Its bestias keep their orders, as their own. A write: send it with an idempotency key. */
   data class DeleteOrderPreset(val masterId: Long, val presetId: Long) : ZoneQuery
 
+  /** What the master's bestias did lately, newest first. */
+  data class Diary(val masterId: Long) : ZoneQuery
+
   /** The master's crafting stations, their queues and workers, and what the chest beside each can pay for. */
   data class Workshop(val masterId: Long) : ZoneQuery
 
