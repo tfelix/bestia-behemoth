@@ -41,6 +41,9 @@ class Crafting(
 
   /** How many more of the same craft start once this one resolves. */
   val remainingRepeats: Int = 0,
+
+  /** Points on every random stat and socket chance, settled when the craft starts, see `ItemStatRoller`. */
+  val rollChanceBonus: Int = 0,
 ) : Countdown(remainingSeconds), Removable {
 
   // A craft bar reports "still busy" rather than feeding a decision, so it beats at half the rate a

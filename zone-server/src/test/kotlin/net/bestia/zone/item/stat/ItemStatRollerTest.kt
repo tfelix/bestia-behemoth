@@ -56,6 +56,16 @@ class ItemStatRollerTest {
     assertEquals(0, worst.roll(twoSockets, cap = 9).sockets)
   }
 
+  @Test
+  fun `a chance bonus lets a slot roll that would have missed`() {
+    // 0.5 draws 23 out of 100, past a 20% slot but inside 20% + 15.
+    val middling = ItemStatRoller(FixedRandom(0.5f))
+    val rare = sheet(RandomStatTemplate.Slot(listOf(ItemStat.STR), chance = 20))
+
+    assertEquals(emptyList<StatValue>(), middling.roll(rare, cap = 60).stats)
+    assertEquals(1, middling.roll(rare, cap = 60, chanceBonus = 15).stats.size)
+  }
+
   private fun sheet(vararg slots: RandomStatTemplate.Slot): ItemStatSheet {
     return ItemStatSheet(randomStats = RandomStatTemplate(slots.toList()))
   }

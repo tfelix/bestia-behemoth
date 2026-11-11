@@ -623,3 +623,43 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: LexAeternaMark
+
+  # The Priest's Increase AGI: faster feet and swing, and more AGI.
+  - id: 211
+    identifier: INCREASE_AGI
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: AgilityIncreased
+
+  # The Priest's Kyrie Eleison: soaks part of the next few hits. A bestia's Kyrie is BARRIER.
+  - id: 212
+    identifier: KYRIE_ELEISON
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: KyrieEleisonWard
+
+  # The Priest's Suffragium: the next cast bar is shorter.
+  - id: 213
+    identifier: SUFFRAGIUM
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: SuffragiumGrace
+
+  # The Priest's Magnificat: faster HP and mana regeneration.
+  - id: 214
+    identifier: MAGNIFICAT
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: MagnificatHymn
+
+  # The Priest's Gloria: better odds on the random stats of what the bearer crafts.
+  - id: 215
+    identifier: GLORIA
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: GloriaGrace
