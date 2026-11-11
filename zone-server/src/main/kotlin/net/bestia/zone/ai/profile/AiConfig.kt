@@ -92,7 +92,11 @@ enum class BestiaJob(
   ),
 
   /** Dig the ore below the master's mining shafts around home and carry it to the master's nearest chest. */
-  MINE(setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"));
+  MINE(
+    setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"),
+    workGoals = listOf("Mine", "HaulToChest", "RestockFood"),
+    workActions = listOf("claimStation", "haulToChest", "takeFoodFromChest"),
+  );
 
   companion object {
     fun fromNameOrNull(name: String): BestiaJob? = entries.firstOrNull { it.name.equals(name, ignoreCase = true) }

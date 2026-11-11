@@ -194,13 +194,19 @@ object BestiaDomain : AiDomainCatalogue {
   /** Where a bestia under CRAFT orders looks for stations to work; absent under any other job. */
   val CRAFT_AREA = StateKey<WorkArea>("craftArea", retain = Blackboard.PERMANENT)
 
+  /** Where a bestia under MINE orders looks for shafts to work; absent under any other job. */
+  val MINE_AREA = StateKey<WorkArea>("mineArea", retain = Blackboard.PERMANENT)
+
   /** Where a bestia under GUARD orders holds off intruders; absent under any other job. */
   val GUARD_AREA = StateKey<WorkArea>("guardArea", retain = Blackboard.PERMANENT)
 
   /** A guard has walked back to the middle of its area since its last fight. Perception clears it on every target. */
   val BACK_IN_MIDDLE = StateKey<Boolean>("backInMiddle", retain = Blackboard.PERMANENT)
 
-  /** Its master's stations in its craft area that wait for a free crafter, nearest first. See `StationSense`. */
+  /**
+   * Its master's stations in its craft area that wait for a free crafter, or the shafts in its mine area that wait for
+   * a miner, nearest first. See `StationSense`.
+   */
   val OPEN_STATIONS = StateKey<List<OpenStation>>("openStations")
 
   /** Whether it works a station now. */
@@ -510,8 +516,13 @@ object BestiaDomain : AiDomainCatalogue {
      * A free crafter taking a station that waits for one. The station is then its home, so [RETURN_HOME] keeps it
      * there; over [WANDER], so idling is what it does once no station waits.
      */
-    val CRAFT = Goal(
-      name = "Craft",
+    val CRAFT = takeOpenStation("Craft")
+
+    /** A miner taking a shaft that has no miner, as [CRAFT] takes a station. */
+    val MINE = takeOpenStation("Mine")
+
+    private fun takeOpenStation(name: String) = Goal(
+      name = name,
       priority = priority(base = 60f),
       availability = Precondition { s -> s.get(AT_WORK) != true && !s.get(OPEN_STATIONS).isNullOrEmpty() },
       desiredState = listOf(Preconditions.equalTo(AT_WORK, true)),
@@ -527,7 +538,7 @@ object BestiaDomain : AiDomainCatalogue {
 
     val ALL = listOf(
       EAT_VEGETATION, SLEEP, RETURN_HOME, KILL_ATTACKER, KILL_ENEMY, WANDER, HEAL_FROM_BAG, EAT_FROM_BAG, RETREAT,
-      GATHER, HAUL_TO_CHEST, RESTOCK_FOOD, CRAFT, RETURN_TO_MIDDLE,
+      GATHER, HAUL_TO_CHEST, RESTOCK_FOOD, CRAFT, MINE, RETURN_TO_MIDDLE,
     )
 
     val BY_NAME = ALL.associateBy { it.name }

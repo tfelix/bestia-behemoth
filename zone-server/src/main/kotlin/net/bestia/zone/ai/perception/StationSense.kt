@@ -4,17 +4,21 @@ import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.domain.bestia.OpenStation
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.item.mining.ShaftOre
 import net.bestia.zone.prop.PlayerStructureRegistry
+import net.bestia.zone.prop.StructureEntry
 import net.bestia.zone.prop.station.WorkAssignment
 import org.springframework.stereotype.Component
 
 /**
- * Notices whether a crafter works a station, and which of its master's stations in its area wait for a free
- * crafter and have work, nearest first. Only a bestia under CRAFT orders has that area.
+ * Notices whether a worker works a station, and which of its master's places in its area wait for it, nearest first:
+ * stations that wait for a free crafter and have work for a bestia under CRAFT orders, shafts nobody works with ore
+ * left for one under MINE orders. Only those two jobs have such an area.
  */
 @Component
 class StationSense(
   private val structures: PlayerStructureRegistry,
+  private val shaftOre: ShaftOre,
 ) : Sense {
 
   override val name = "station"
@@ -24,11 +28,19 @@ class StationSense(
   override val reads: ComponentClassSet = setOf(OwnedBestia::class, WorkAssignment::class)
 
   override fun sense(context: SenseContext) {
-    val area = context.recall(BestiaDomain.CRAFT_AREA) ?: return
+    val craftArea = context.recall(BestiaDomain.CRAFT_AREA)
+    val mineArea = context.recall(BestiaDomain.MINE_AREA)
+    val area = craftArea ?: mineArea ?: return
     val masterId = context.world.get(context.entityId, OwnedBestia::class)?.masterId ?: return
 
+    val waiting: (StructureEntry) -> Boolean = if (craftArea != null) {
+      { it.waitsForCrafter && it.queue.isNotEmpty() }
+    } else {
+      { it.waitsForMiner && !shaftOre.isDugOut(it.id) }
+    }
+
     val open = structures.all()
-      .filter { it.ownerMasterId == masterId && it.waitsForCrafter && it.queue.isNotEmpty() }
+      .filter { it.ownerMasterId == masterId && waiting(it) }
       .filter { !it.isUnderConstruction && area.contains(it.position) }
       .sortedBy { it.position.distance(context.position) }
       .map { OpenStation(it.id, it.position) }
