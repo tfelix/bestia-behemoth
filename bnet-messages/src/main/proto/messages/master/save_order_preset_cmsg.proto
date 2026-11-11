@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/master/order_sheet.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SaveOrderPresetCmsgProto";
+
+/**
+ * Creates a preset of the selected master, or with `preset_id` changes one; every bestia that follows it gets the
+ * change. Answered with OrderBookSMSG.
+ */
+message SaveOrderPresetCMSG {
+  optional uint64 preset_id = 1;
+  /** 1 to 32 characters, unique per master. */
+  string name = 2;
+  OrderSheet orders = 3;
+}

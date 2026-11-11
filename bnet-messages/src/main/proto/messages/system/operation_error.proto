@@ -467,6 +467,12 @@ enum OpError {
   SPELL_OUT_OF_RANGE = 163;
   // A rite that blesses water, like Aqua Benedicta, needs its caster to stand in water.
   SKILL_NEEDS_WATER = 164;
+  // The master has an order preset or a named place of that name already.
+  ORDERS_NAME_TAKEN = 224;
+  // The master has as many order presets as allowed.
+  ORDERS_TOO_MANY_PRESETS = 225;
+  // The master has as many named places as allowed.
+  ORDERS_TOO_MANY_PLACES = 226;
 }
 
 message OperationError {

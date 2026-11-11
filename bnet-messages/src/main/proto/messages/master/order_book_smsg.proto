@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/master/order_sheet.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "OrderBookSmsgProto";
+
+/**
+ * The selected master's order presets and named places, to pick from in the orders window. Sent whole on
+ * GetOrderBookCMSG and after every change made in the game.
+ */
+message OrderBookSMSG {
+  /** By name. */
+  repeated Preset presets = 1;
+  /** By name. */
+  repeated Place places = 2;
+
+  message Preset {
+    uint64 id = 1;
+    string name = 2;
+    OrderSheet orders = 3;
+    /** How many bestias follow it. */
+    uint32 followers = 4;
+  }
+
+  message Place {
+    uint64 id = 1;
+    string name = 2;
+    Kind kind = 3;
+    /** The area's middle or the chest's spot, in world tiles. */
+    int64 x = 4;
+    int64 y = 5;
+    /** The area's radius in tiles; 0 for a chest. */
+    uint32 radius = 6;
+
+    enum Kind {
+      KIND_UNSPECIFIED = 0;
+      AREA = 1;
+      CHEST = 2;
+    }
+  }
+}
