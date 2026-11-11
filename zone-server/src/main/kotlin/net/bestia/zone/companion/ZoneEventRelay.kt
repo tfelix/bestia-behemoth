@@ -1,5 +1,6 @@
 package net.bestia.zone.companion
 
+import net.bestia.zone.bestia.diary.BestiaHappened
 import net.bestia.zone.companion.query.OrdersOnTheBus
 import net.bestia.bus.EventPublisher
 import net.bestia.bus.contract.ZoneEvent
@@ -50,6 +51,30 @@ class ZoneEventRelay(
       val bestia = playerBestias.findByIdOrNull(event.playerBestiaId) ?: return@submit
       events.publish(
         ZoneEvent.BestiaDiedAway(event.accountId, event.masterId, event.playerBestiaId, bestia.name, bestia.bestia.identifier)
+      )
+    }
+  }
+
+  /** Death has its own event above. */
+  @EventListener
+  fun onBestiaHappened(happened: BestiaHappened) {
+    if (happened.kind == BestiaHappened.Kind.DIED) return
+
+    jobs.submit(happened.masterId) {
+      val bestia = playerBestias.findByIdOrNull(happened.playerBestiaId) ?: return@submit
+      val accountId = bestia.master.account.id
+      events.publish(
+        ZoneEvent.BestiaHappening(
+          accountId = accountId,
+          masterId = happened.masterId,
+          playerBestiaId = happened.playerBestiaId,
+          bestiaName = bestia.name,
+          species = bestia.bestia.identifier,
+          kind = happened.kind.name,
+          place = happened.place,
+          reason = happened.reason,
+          whilePlaying = connections.hasActiveSession(accountId),
+        )
       )
     }
   }

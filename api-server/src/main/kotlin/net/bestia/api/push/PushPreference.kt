@@ -35,6 +35,14 @@ class PushPreference(
   @Column(name = "parcel_arrived", nullable = false, columnDefinition = "BIT(1)")
   var parcelArrived: Boolean = true,
 
+  /** A bestia's work stopped and will not go on by itself, or a station's queue is done. */
+  @Column(name = "bestia_stopped", nullable = false, columnDefinition = "BIT(1)")
+  var bestiaStopped: Boolean = true,
+
+  /** A bestia is attacked after a quiet while, or retreats. */
+  @Column(name = "bestia_attacked", nullable = false, columnDefinition = "BIT(1)")
+  var bestiaAttacked: Boolean = true,
+
   /** Minutes after midnight in [timeZone]. May wrap past midnight: 22:00 to 07:00 is 1320 to 420. */
   @Column(name = "quiet_from", nullable = true)
   var quietFrom: Short? = null,

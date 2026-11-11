@@ -690,6 +690,8 @@ export interface components {
             journeyEnded: boolean;
             letterArrived: boolean;
             parcelArrived: boolean;
+            bestiaStopped: boolean;
+            bestiaAttacked: boolean;
         };
         JsonNode: Record<string, never>;
         Write: {

@@ -1,4 +1,5 @@
 import type { LiveEvent } from '#lib/live.svelte.ts';
+import { diaryText } from '#lib/diary.ts';
 import { COURAGE_NAME, JOB_TEXT, speciesName } from '#lib/names.ts';
 
 /** A toast's words for an event, or null for those that only refresh what is on screen. */
@@ -18,6 +19,8 @@ export function describe(event: LiveEvent): { title: string; body: string } | nu
 			return { title: `A parcel from ${d.senderName}`, body: `It waits at ${d.officeName}.` };
 		case 'LetterArrived':
 			return { title: `A letter from ${d.senderName}`, body: String(d.subject || 'A pigeon brought it.') };
+		case 'BestiaHappening':
+			return d.whilePlaying ? null : bestiaHappening(d);
 		case 'OrdersChanged':
 			return { title: 'Orders received', body: `${JOB_TEXT[String(d.job)]?.name ?? d.job}, ${COURAGE_NAME[String(d.courage)] ?? d.courage}.` };
 		default:
@@ -42,5 +45,20 @@ function journeyEnded(d: Record<string, string | number | boolean | null>): { ti
 			return { title: `${who} died on the way`, body: 'It lies where it fell until you return.' };
 		default:
 			return { title: `${who} is stuck`, body: 'It found no way on and stopped. See the map.' };
+	}
+}
+
+/** Told only of what stops a Bestia or puts it in danger; hauls and new orders go to the diary alone. */
+function bestiaHappening(d: Record<string, string | number | boolean | null>): { title: string; body: string } | null {
+	const who = d.bestiaName ?? speciesName(String(d.species));
+	const line = { playerBestiaId: Number(d.playerBestiaId), atEpochMs: 0, kind: String(d.kind), items: {}, place: (d.place as string) ?? undefined, reason: (d.reason as string) ?? undefined };
+	switch (d.kind) {
+		case 'WORK_PAUSED':
+		case 'QUEUE_FINISHED':
+		case 'ATTACKED':
+		case 'RETREATED':
+			return { title: String(who), body: diaryText(line) + '.' };
+		default:
+			return null;
 	}
 }

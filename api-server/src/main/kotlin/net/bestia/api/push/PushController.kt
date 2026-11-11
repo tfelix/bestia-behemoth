@@ -52,6 +52,10 @@ class PushController(
     val letterArrived: Boolean = true,
     /** Defaulted, as [journeyEnded] is. */
     val parcelArrived: Boolean = true,
+    /** Defaulted, as [journeyEnded] is. */
+    val bestiaStopped: Boolean = true,
+    /** Defaulted, as [journeyEnded] is. */
+    val bestiaAttacked: Boolean = true,
   )
 
   /** What a page needs to call `pushManager.subscribe`. Public: it is the same for everybody. */
@@ -100,6 +104,8 @@ class PushController(
       stored.journeyEnded,
       stored.letterArrived,
       stored.parcelArrived,
+      stored.bestiaStopped,
+      stored.bestiaAttacked,
     )
   }
 
@@ -119,6 +125,8 @@ class PushController(
     stored.journeyEnded = body.journeyEnded
     stored.letterArrived = body.letterArrived
     stored.parcelArrived = body.parcelArrived
+    stored.bestiaStopped = body.bestiaStopped
+    stored.bestiaAttacked = body.bestiaAttacked
     stored.quietFrom = body.quietFrom?.let { parse(it) }
     stored.quietTo = body.quietTo?.let { parse(it) }
     stored.timeZone = zone.id
