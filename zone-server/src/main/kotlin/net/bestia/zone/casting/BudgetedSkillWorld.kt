@@ -489,6 +489,18 @@ class BudgetedSkillWorld(
     services.resourceSensing?.sense(world, casterId, rangeMetres, accuracy)
   }
 
+  override fun senseMagic(level: Int) {
+    budget.charge(SPAWN_OPS)
+
+    services.magicSensing?.sense(world, casterId, level)
+  }
+
+  override fun senseMonster(targetId: EntityId): Boolean {
+    budget.charge()
+
+    return services.monsterSensing?.sense(world, casterId, targetId) == true
+  }
+
   override fun pitchStall(maxListings: Int, seconds: Int): OpError? {
     budget.charge(SPAWN_OPS)
 

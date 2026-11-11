@@ -4,7 +4,7 @@ namespace BestiaBehemothClient.Bnet.Message.Sense
 {
   /// <summary>
   /// What a sensing skill found. Each mark is a dictionary with <c>kind</c> (the proto's SenseKind as int),
-  /// <c>x</c> and <c>y</c> in map metres, <c>label</c>, <c>ref_id</c>, <c>depth</c> and <c>size</c>. Shown for
+  /// <c>x</c> and <c>y</c> in map metres, <c>label</c>, <c>ref_id</c>, <c>depth</c>, <c>size</c> and <c>vague</c> (only that something is near, not where). Shown for
   /// <see cref="VisibleSeconds"/>, then forgotten.
   /// </summary>
   [GlobalClass]
@@ -27,7 +27,8 @@ namespace BestiaBehemothClient.Bnet.Message.Sense
           ["label"] = mark.Label,
           ["ref_id"] = mark.RefId,
           ["depth"] = mark.DepthMetres,
-          ["size"] = mark.SizeMetres
+          ["size"] = mark.SizeMetres,
+          ["vague"] = mark.Vague
         });
       }
 

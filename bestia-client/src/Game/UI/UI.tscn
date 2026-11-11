@@ -42,6 +42,7 @@
 [ext_resource type="Script" uid="uid://bq7e7aqobe3ro" path="res://Game/UI/Conversation/conversation_presenter.gd" id="42_convpres"]
 [ext_resource type="PackedScene" path="res://Game/UI/Survey/SurveyGame.tscn" id="43_survey"]
 [ext_resource type="PackedScene" path="res://Game/UI/Stall/Stall.tscn" id="44_stall"]
+[ext_resource type="Script" path="res://Game/UI/Sense/monster_sense_popup.gd" id="45_sensepopup"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -241,6 +242,12 @@ layout_mode = 1
 
 [node name="ConversationPresenter" type="Node" parent="."]
 script = ExtResource("42_convpres")
+
+[node name="MonsterSensePopup" type="PanelContainer" parent="."]
+visible = false
+offset_right = 200.0
+offset_bottom = 120.0
+script = ExtResource("45_sensepopup")
 
 [node name="MessageDialog" parent="." unique_id=1957725178 instance=ExtResource("13_dialog")]
 oversampling_override = 1.0

@@ -42,6 +42,11 @@ class StatusEffectTickContext(
     staged.add(amount, effect.sourceEntityId ?: hostId)
   }
 
+  /** Ends [effect] on [targetId], as a reveal ends a concealment. */
+  fun strip(targetId: EntityId, effect: StatusEffectId) {
+    statusEffectService.removeEffect(world, targetId, effect.id, RemovalReason.DISPELLED)
+  }
+
   fun removeSelf() {
     statusEffectService.removeEffect(world, hostId, effect.definitionId, RemovalReason.CANCELLED)
   }

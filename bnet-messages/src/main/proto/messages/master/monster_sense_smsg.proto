@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "MonsterSenseSmsgProto";
+
+// What the Sense skill reads off a monster: its status values, element, kind, HP and mana, as they stand now.
+// Element, kind and size are the server's enum names.
+message MonsterSenseSMSG {
+  uint64 entity_id = 1;
+  int32 level = 2;
+  string element = 3;
+  string kind = 4;
+  string size = 5;
+  int32 hp = 6;
+  int32 max_hp = 7;
+  int32 mana = 8;
+  int32 max_mana = 9;
+  int32 strength = 10;
+  int32 vitality = 11;
+  int32 intelligence = 12;
+  int32 agility = 13;
+  int32 willpower = 14;
+  int32 dexterity = 15;
+  int32 defense = 16;
+  int32 magic_defense = 17;
+}

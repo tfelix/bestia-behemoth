@@ -54,6 +54,8 @@ signal auction_house_opened(message: AuctionHouseOpenSMSG)
 signal survey_minigame_opened(message: SurveyMinigameSMSG)
 ## Resource Sense or Echo Sounding found something.
 signal sense_marks_received(message: SenseMarksSMSG)
+## Sense read a monster's values.
+signal monster_sensed(message: MonsterSenseSMSG)
 signal auction_listings_received(message: AuctionListingsSMSG)
 signal auction_purchased(message: AuctionPurchasedSMSG)
 ## A street stall as the viewer sees it: on pitching, on a click, and after every change.
@@ -1429,6 +1431,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		survey_minigame_opened.emit(message)
 	elif message is SenseMarksSMSG:
 		sense_marks_received.emit(message)
+	elif message is MonsterSenseSMSG:
+		monster_sensed.emit(message)
 	elif message is AuctionListingsSMSG:
 		auction_listings_received.emit(message)
 	elif message is AuctionPurchasedSMSG:

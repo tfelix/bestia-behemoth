@@ -26,19 +26,20 @@ namespace Bnet {
           string.Concat(
             "CiZtZXNzYWdlcy9tYXN0ZXIvc2Vuc2VfbWFya3Nfc21zZy5wcm90bxIEYm5l",
             "dCJJCg5TZW5zZU1hcmtzU01TRxIeCgVtYXJrcxgBIAMoCzIPLmJuZXQuU2Vu",
-            "c2VNYXJrEhcKD3Zpc2libGVfc2Vjb25kcxgCIAEoDSKfAQoJU2Vuc2VNYXJr",
+            "c2VNYXJrEhcKD3Zpc2libGVfc2Vjb25kcxgCIAEoDSKuAQoJU2Vuc2VNYXJr",
             "Eh0KBGtpbmQYASABKA4yDy5ibmV0LlNlbnNlS2luZBITCgtlYXN0X21ldHJl",
             "cxgCIAEoARIUCgxub3J0aF9tZXRyZXMYAyABKAESDQoFbGFiZWwYBCABKAkS",
             "DgoGcmVmX2lkGAUgASgDEhQKDGRlcHRoX21ldHJlcxgGIAEoAhITCgtzaXpl",
-            "X21ldHJlcxgHIAEoAipfCglTZW5zZUtpbmQSDQoJU0VOU0VfT1JFEAASDwoL",
-            "U0VOU0VfSEVSQlMQARIQCgxTRU5TRV9USU1CRVIQAhIOCgpTRU5TRV9HQU1F",
-            "EAMSEAoMU0VOU0VfSE9MTE9XEARCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
-            "QhNTZW5zZU1hcmtzU21zZ1Byb3RvYgZwcm90bzM="));
+            "X21ldHJlcxgHIAEoAhINCgV2YWd1ZRgIIAEoCCpvCglTZW5zZUtpbmQSDQoJ",
+            "U0VOU0VfT1JFEAASDwoLU0VOU0VfSEVSQlMQARIQCgxTRU5TRV9USU1CRVIQ",
+            "AhIOCgpTRU5TRV9HQU1FEAMSEAoMU0VOU0VfSE9MTE9XEAQSDgoKU0VOU0Vf",
+            "TUFOQRAFQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITU2Vuc2VNYXJrc1Nt",
+            "c2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.SenseKind), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SenseMarksSMSG), global::Bnet.SenseMarksSMSG.Parser, new[]{ "Marks", "VisibleSeconds" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SenseMark), global::Bnet.SenseMark.Parser, new[]{ "Kind", "EastMetres", "NorthMetres", "Label", "RefId", "DepthMetres", "SizeMetres" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SenseMark), global::Bnet.SenseMark.Parser, new[]{ "Kind", "EastMetres", "NorthMetres", "Label", "RefId", "DepthMetres", "SizeMetres", "Vague" }, null, null, null, null)
           }));
     }
     #endregion
@@ -51,14 +52,16 @@ namespace Bnet {
     [pbr::OriginalName("SENSE_TIMBER")] SenseTimber = 2,
     [pbr::OriginalName("SENSE_GAME")] SenseGame = 3,
     [pbr::OriginalName("SENSE_HOLLOW")] SenseHollow = 4,
+    [pbr::OriginalName("SENSE_MANA")] SenseMana = 5,
   }
 
   #endregion
 
   #region Messages
   /// <summary>
-  /// What a sensing skill found: Resource Sense points at ore, herbs, timber and game, Echo Sounding at hollows. The
-  /// client shows the marks for visible_seconds and then forgets them; nothing is kept on the map.
+  /// What a sensing skill found: Resource Sense points at ore, herbs, timber and game, Echo Sounding at hollows, Magic
+  /// Sense at mana at work. The client shows the marks for visible_seconds and then forgets them; nothing is kept on
+  /// the map.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class SenseMarksSMSG : pb::IMessage<SenseMarksSMSG>
@@ -326,6 +329,7 @@ namespace Bnet {
       refId_ = other.refId_;
       depthMetres_ = other.depthMetres_;
       sizeMetres_ = other.sizeMetres_;
+      vague_ = other.vague_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -430,6 +434,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "vague" field.</summary>
+    public const int VagueFieldNumber = 8;
+    private bool vague_;
+    /// <summary>
+    /// True when the sense only tells that something is near, not where: Magic Sense Lv1. The position is then not shown.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Vague {
+      get { return vague_; }
+      set {
+        vague_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -452,6 +471,7 @@ namespace Bnet {
       if (RefId != other.RefId) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(DepthMetres, other.DepthMetres)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(SizeMetres, other.SizeMetres)) return false;
+      if (Vague != other.Vague) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -466,6 +486,7 @@ namespace Bnet {
       if (RefId != 0L) hash ^= RefId.GetHashCode();
       if (DepthMetres != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(DepthMetres);
       if (SizeMetres != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(SizeMetres);
+      if (Vague != false) hash ^= Vague.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -512,6 +533,10 @@ namespace Bnet {
         output.WriteRawTag(61);
         output.WriteFloat(SizeMetres);
       }
+      if (Vague != false) {
+        output.WriteRawTag(64);
+        output.WriteBool(Vague);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -550,6 +575,10 @@ namespace Bnet {
         output.WriteRawTag(61);
         output.WriteFloat(SizeMetres);
       }
+      if (Vague != false) {
+        output.WriteRawTag(64);
+        output.WriteBool(Vague);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -580,6 +609,9 @@ namespace Bnet {
       }
       if (SizeMetres != 0F) {
         size += 1 + 4;
+      }
+      if (Vague != false) {
+        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -613,6 +645,9 @@ namespace Bnet {
       }
       if (other.SizeMetres != 0F) {
         SizeMetres = other.SizeMetres;
+      }
+      if (other.Vague != false) {
+        Vague = other.Vague;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -661,6 +696,10 @@ namespace Bnet {
             SizeMetres = input.ReadFloat();
             break;
           }
+          case 64: {
+            Vague = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -706,6 +745,10 @@ namespace Bnet {
           }
           case 61: {
             SizeMetres = input.ReadFloat();
+            break;
+          }
+          case 64: {
+            Vague = input.ReadBool();
             break;
           }
         }

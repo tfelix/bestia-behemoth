@@ -5,7 +5,7 @@ extends RefCounted
 ## compass and the chat show it, and nothing is put on the map for good.
 
 ## The proto's SenseKind, in its order.
-enum Kind { ORE, HERBS, TIMBER, GAME, HOLLOW }
+enum Kind { ORE, HERBS, TIMBER, GAME, HOLLOW, MANA }
 
 const _COLOURS := {
 	Kind.ORE: Color(0.85, 0.62, 0.35),
@@ -13,6 +13,7 @@ const _COLOURS := {
 	Kind.TIMBER: Color(0.30, 0.62, 0.30),
 	Kind.GAME: Color(0.95, 0.55, 0.45),
 	Kind.HOLLOW: Color(0.65, 0.65, 0.85),
+	Kind.MANA: Color(0.72, 0.52, 1.0),
 }
 
 ## Each entry: the mark's dictionary plus [code]until[/code], in ticks msec.
@@ -39,6 +40,8 @@ func compass_marks(here: Vector2) -> Array:
 
 	var result: Array = []
 	for mark in _marks:
+		if bool(mark.get("vague", false)):
+			continue
 		var to := Vector2(float(mark["x"]), float(mark["y"]))
 		result.append({
 			"bearing": CompassStrip.bearing_between(Vector3(here.x, 0.0, here.y), Vector3(to.x, 0.0, to.y)),
@@ -52,6 +55,10 @@ func compass_marks(here: Vector2) -> Array:
 static func summary(message: SenseMarksSMSG, here: Vector2) -> String:
 	if message.Marks.is_empty():
 		return tr_static("SENSE_NOTHING")
+
+	var vague := message.Marks.filter(func(it: Dictionary) -> bool: return bool(it.get("vague", false)))
+	if not vague.is_empty():
+		return tr_static("SENSE_MANA_NEARBY") % vague.size()
 
 	var parts: Array[String] = []
 	for mark in message.Marks:
@@ -70,6 +77,8 @@ static func name_of(mark: Dictionary) -> String:
 		return str(TranslationServer.translate(species.name_key)) if species != null else "?"
 	if int(mark["kind"]) == Kind.HOLLOW:
 		return tr_static("SENSE_HOLLOW")
+	if int(mark["kind"]) == Kind.MANA:
+		return tr_static("SENSE_MANA") % str(mark["label"])
 	return str(mark["label"])
 
 

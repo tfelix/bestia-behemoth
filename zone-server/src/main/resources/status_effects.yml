@@ -567,3 +567,10 @@ statusEffects:
     isSyncedToClient: true
     dispellable: false
     script: Camped
+
+  - id: 204
+    identifier: RUWACH
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: RuwachPulse
