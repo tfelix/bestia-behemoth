@@ -66,6 +66,9 @@ enum class SkillId {
   // net.bestia.zone.treasure.DigService.
   M_EXCAVATION,
 
+  // Mining: its level gates the shaft kit, and sets how deep and how fast a shaft digs.
+  M_MINING,
+
   // Passives with a stat effect, named by their PassiveSkillScript bean rather than from the yml.
   M_MEDITATION,
   M_QUICK_TRAVEL,

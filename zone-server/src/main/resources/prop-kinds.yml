@@ -229,6 +229,12 @@ kinds:
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
 
+  # A timber head frame over a hole: big, but only planks.
+  - kind: MINING_SHAFT
+    max-hp: 250
+    collider: { half-x: 2, half-y: 2, height: 3 }
+    variants: 1
+
   # Cold and lit, which `Campfire` picks from how long it has left to burn.
   - kind: CAMPFIRE
     max-hp: 60

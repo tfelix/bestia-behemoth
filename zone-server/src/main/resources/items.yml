@@ -568,6 +568,18 @@ items:
 
       Set it down and it becomes a chest only you can open. Whoever breaks it can take what spills.
 
+  - id: 443
+    item-db-name: mining_shaft_kit
+    base-level: 1
+    weight: 1500
+    type: USABLE
+    material: WOOD
+    script: MiningShaftKitScript
+    description: |
+      Beams for a head frame, a windlass and a coil of rope.
+
+      Set it down and it becomes a mining shaft. Your bestias dig the ore below it while you are away.
+
   - id: 126
     item-db-name: campfire_kit
     base-level: 1

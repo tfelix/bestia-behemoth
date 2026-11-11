@@ -159,7 +159,10 @@ enum class StaticEntityKind {
 
   // Breeding: player structures like the stations, but they pair bestias and hatch eggs instead of crafting.
   BREEDING_FARM,
-  INCUBATOR;
+  INCUBATOR,
+
+  // Dug over ore by its owner's bestias. See `MiningShaftKitScript`.
+  MINING_SHAFT;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.
