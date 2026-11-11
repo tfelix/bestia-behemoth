@@ -793,12 +793,16 @@ skills:
 
   - id: 64
     identifier: M_DISPEL
-    script: Dispel
+    script: MasterDispel
     targetType: ENEMY
     range: 9
     manaCost: 40
     castTime: 2.0
     cooldown: 15
+    mechanics:
+      reagents:
+        - item: yellow_mana_crystal
+          amount: 1
     description: |
       Unravels every magical effect clinging to a target in a single word, undoing buffs and
       curses alike. The target's soft magic defense lowers the chance. Consumes a Yellow Mana
@@ -910,6 +914,10 @@ skills:
     manaCost: 28
     castTime: 2.0
     cooldown: 5
+    mechanics:
+      reagents:
+        - item: blue_mana_crystal
+          amount: 1
     description: |
       Temporarily infuses an ally's weapon with fire, water, wind or earth; the caster picks the
       element when casting. The weapon takes on the element, and the bonus damage comes on top.

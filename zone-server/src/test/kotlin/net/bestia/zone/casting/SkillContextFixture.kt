@@ -23,6 +23,7 @@ object SkillContextFixture {
     skillLevel: Int = battle.usedAttack.level,
     targetPosition: Vec3L? = null,
     skill: Skill = skill(skillId),
+    args: List<Long> = emptyList(),
   ): SkillContext {
     val targetEntityId: EntityId? = (battle as? EntityBattleContext)?.defender?.id
 
@@ -35,7 +36,8 @@ object SkillContextFixture {
       targetPosition = targetPosition ?: battle.targetPosition().takeIf { targetEntityId == null },
       skillId = skillId,
       skillLevel = skillLevel,
-      skill = skill
+      skill = skill,
+      args = args,
     )
   }
 

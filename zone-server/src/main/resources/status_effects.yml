@@ -574,3 +574,27 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: RuwachPulse
+
+  # The Sage's Endow on an ally's weapon: the element in `amount`, plus attack per level.
+  - id: 205
+    identifier: MASTER_ENDOWED
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: MasterEndowed
+
+  # The Sage's Magic Rod: the next single-target spell at the bearer is caught, see MagicRodCatch.
+  - id: 206
+    identifier: MAGIC_ROD
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: MagicRodWard
+
+  # The Sage's Mana Drain: every second the bearer draws mana from the foes around it.
+  - id: 207
+    identifier: MANA_DRAINING
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: ManaDraining

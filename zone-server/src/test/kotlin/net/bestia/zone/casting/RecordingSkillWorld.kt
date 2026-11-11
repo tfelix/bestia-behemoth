@@ -297,6 +297,14 @@ class RecordingSkillWorld(
     resourceSenses += rangeMetres to accuracy
   }
 
+  /** Target and base chance of each [dispelAll]. */
+  val fullDispels = mutableListOf<Pair<EntityId, Int>>()
+
+  override fun dispelAll(entityId: EntityId, baseChancePercent: Int): Int {
+    fullDispels += entityId to baseChancePercent
+    return 0
+  }
+
   /** The level of each [senseMagic]. */
   val magicSenses = mutableListOf<Int>()
 
