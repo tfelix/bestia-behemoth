@@ -83,6 +83,8 @@ func _ready() -> void:
 	tooltip_text = ItemDetail.as_bbcode(
 		item, upgrade_level, durability, max_durability, slots, item_level, rolled_stats, crafted_by, crafted_in, title
 	)
+	if item.item_id == SpellScrollBook.ITEM_ID and unique_id != 0:
+		SpellScrollBook.ask([unique_id], _show_spell)
 	if _is_shopping():
 		_show_trade_price()
 	if item.item_id == _BESTIA_EGG_ITEM_ID and unique_id != 0:
@@ -102,6 +104,17 @@ func _on_egg_read(message: BestiaEggSMSG) -> void:
 		return
 	ConnectionManager.bestia_egg_received.disconnect(_on_egg_read)
 	tooltip_text += "\n\n" + BreedingText.egg_detail(message.Egg)
+
+
+## Names the attack under the scroll's title, once the server has said which it is.
+func _show_spell() -> void:
+	var spell := SpellScrollBook.describe(unique_id)
+	if spell.is_empty():
+		return
+
+	var title_and_rest := tooltip_text.split("\n", true, 1)
+	title_and_rest.insert(1, spell)
+	tooltip_text = "\n".join(title_and_rest)
 
 
 func _is_shopping() -> bool:

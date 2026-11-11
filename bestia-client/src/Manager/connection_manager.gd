@@ -72,6 +72,8 @@ signal settlement_planned(message: SettlementPlannedSMSG)
 signal settlement_sign_opened(message: SettlementSignSMSG)
 signal settlement_offered(message: SettlementOfferSMSG)
 signal settlement_notice(message: SettlementNoticeSMSG)
+signal spell_scrolls_received(message: SpellScrollsSMSG)
+signal inscription_options_received(message: InscriptionOptionsSMSG)
 ## The played master's whole mailbox, on request and after a letter was thrown away.
 signal letters_received(message: LettersSMSG)
 ## A pigeon brought a letter to the played master.
@@ -198,6 +200,8 @@ var TearDownSettlementCMSG = load("res://Bnet/Message/Settlement/TearDownSettlem
 var OfferSettlementCMSG = load("res://Bnet/Message/Settlement/OfferSettlementCMSG.cs")
 var AnswerSettlementOfferCMSG = load("res://Bnet/Message/Settlement/AnswerSettlementOfferCMSG.cs")
 var RepairStructureCMSG = load("res://Bnet/Message/Settlement/RepairStructureCMSG.cs")
+var SpellScrollsCMSG = load("res://Bnet/Message/SpellScroll/SpellScrollsCMSG.cs")
+var InscriptionOptionsCMSG = load("res://Bnet/Message/SpellScroll/InscriptionOptionsCMSG.cs")
 var SendLetterCMSG = load("res://Bnet/Message/Postal/SendLetterCMSG.cs")
 var RequestLettersCMSG = load("res://Bnet/Message/Postal/RequestLettersCMSG.cs")
 var ReadLetterCMSG = load("res://Bnet/Message/Postal/ReadLetterCMSG.cs")
@@ -1159,6 +1163,20 @@ func repair_structure(entity_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Asks which attack each spell scroll holds. Answered by a SpellScrollsSMSG.
+func request_spell_scrolls(unique_ids: Array[int]) -> void:
+	assert(is_ready_to_send())
+	var msg = SpellScrollsCMSG.new()
+	msg.UniqueIds.assign(unique_ids)
+	_socket.SendMessage(msg)
+
+
+## Asks what Spell Inscription could copy off the master's bestias. Answered by an InscriptionOptionsSMSG.
+func request_inscription_options() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(InscriptionOptionsCMSG.new())
+
+
 ## Sends a letter by pigeon. Answered by a LetterSentSMSG, or an OperationError when it cannot go.
 func send_letter(recipient_name: String, subject: String, body: String) -> void:
 	assert(is_ready_to_send())
@@ -1694,6 +1712,10 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		settlement_offered.emit(message)
 	elif message is SettlementNoticeSMSG:
 		settlement_notice.emit(message)
+	elif message is SpellScrollsSMSG:
+		spell_scrolls_received.emit(message)
+	elif message is InscriptionOptionsSMSG:
+		inscription_options_received.emit(message)
 	elif message is LettersSMSG:
 		letters_received.emit(message)
 	elif message is LetterArrivedSMSG:

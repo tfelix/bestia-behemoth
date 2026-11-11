@@ -20,6 +20,9 @@ var skill_level: int = 1
 ## The choice a picker made before targeting began, sent along with the target; empty for most skills.
 var args: PackedInt64Array = PackedInt64Array()
 var indicator_scene: PackedScene = null
+## Called with the target position and entity id (0 for ground) instead of casting, for something aimed like a
+## skill that is not one, such as reading a spell scroll. Casts the skill when unset.
+var on_confirm := Callable()
 
 var _indicator: Node3D = null
 var _last_ground_hit = null
@@ -124,14 +127,19 @@ func _try_confirm(mgr: MouseManager, event: InputEvent) -> void:
 		# it: this is rounded to a whole tile on the wire, and the ground correction on `position` can
 		# round it to the neighbouring voxel. The indicator above deliberately uses the drawn one -
 		# that is a mark on the model, not a coordinate for the server.
-		ConnectionManager.activate_skill(
-			skill.skill_id, skill_level, _snap_target.get_logical_position(), _snap_target.entity_id, args)
+		_confirm(_snap_target.get_logical_position(), _snap_target.entity_id)
 	else:
 		if _last_ground_hit == null:
 			return
 		# The tile under the cursor, not the raw hit: Vec3Convert rounds whatever it is handed, and a
 		# world position rounds to the tile whose *centre* is nearest, which is the neighbour of the one
 		# the indicator just drew for half of every tile. See TileSpace.
-		ConnectionManager.activate_skill(
-			skill.skill_id, skill_level, TileSpace.world_to_tile(_last_ground_hit), 0, args)
+		_confirm(TileSpace.world_to_tile(_last_ground_hit), 0)
 	mgr.enter_default()
+
+
+func _confirm(target_position: Vector3, target_entity_id: int) -> void:
+	if on_confirm.is_valid():
+		on_confirm.call(target_position, target_entity_id)
+	else:
+		ConnectionManager.activate_skill(skill.skill_id, skill_level, target_position, target_entity_id, args)

@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="ItemResource" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+[ext_resource type="Script" path="res://Game/Item/UseScripts/spell_scroll_use.gd" id="2_use"]
 
 [resource]
 script = ExtResource("1_script")
@@ -9,3 +10,4 @@ name_key = "SPELL_SCROLL"
 description_key = "SPELL_SCROLL_DESC"
 weight = 1
 level = 40
+item_script = ExtResource("2_use")
