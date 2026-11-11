@@ -2446,3 +2446,19 @@ items:
     type: ETC
     material: GLASS
     description: A bottle with a wax seal and a rolled paper inside. Collectors pay well for one unopened.
+  # What the Sage's spells burn. The GM item command is their only source until crafting can make them.
+  - id: 333
+    item-db-name: yellow_mana_crystal
+    base-level: 30
+    weight: 2
+    type: ETC
+    material: CRYSTAL
+    description: A rare yellow crystal of mana. Dispel burns one to unravel what clings to a target.
+
+  - id: 334
+    item-db-name: blue_mana_crystal
+    base-level: 15
+    weight: 2
+    type: ETC
+    material: CRYSTAL
+    description: A common blue crystal of mana. Endow burns one to carry an element into a weapon.

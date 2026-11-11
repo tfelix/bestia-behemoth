@@ -30,6 +30,7 @@ import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.status.RemovalReason
 import net.bestia.zone.casting.detect.Detecting
 import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.battle.status.StatusEffectPolarity
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.entity.ecs.Dead
@@ -315,6 +316,14 @@ class BudgetedSkillWorld(
     budget.charge()
 
     return services.statusEffects.dispel(world, entityId)
+  }
+
+  override fun dispelAll(entityId: EntityId, baseChancePercent: Int): Int {
+    budget.charge()
+
+    return services.statusEffects.dispel(
+      world, entityId, castPotency, baseChancePercent, setOf(StatusEffectPolarity.BUFF, StatusEffectPolarity.DEBUFF)
+    )
   }
 
   override fun dispelGroundItem(entityId: EntityId, baseChancePercent: Int): Int {

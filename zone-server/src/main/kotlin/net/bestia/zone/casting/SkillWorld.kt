@@ -281,6 +281,12 @@ interface SkillWorld {
   /** Strips every buff a dispel may lift from [entityId]; returns how many went. */
   fun dispel(entityId: EntityId): Int
 
+  /**
+   * The Sage's Dispel: rolls [baseChancePercent] against each dispellable buff and curse on [entityId], cut by a
+   * stronger spell than the cast's Potency. Returns how many went.
+   */
+  fun dispelAll(entityId: EntityId, baseChancePercent: Int): Int
+
   /** Tries to break each enchantment on a ground item at `baseChancePercent - strength`; returns how many broke. */
   fun dispelGroundItem(entityId: EntityId, baseChancePercent: Int): Int
 

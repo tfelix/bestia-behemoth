@@ -1,5 +1,8 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.damage.HitForm
+import net.bestia.zone.battle.damage.HitKind
+import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.movement.ecs.Facing
 import net.bestia.zone.battle.status.RemovalReason
@@ -167,6 +170,13 @@ class SkillExecutionService(
         statusEffects?.removeEffect(world, casterId, StatusEffectId.RITUAL_CHARGE.id, RemovalReason.CANCELLED)
       }
 
+      // Paid for, and then gone into the rod: a caught spell costs its caster as much as one that landed.
+      if (isCaughtByMagicRod(world, skill, casterId, targetEntityId, cost.manaCost)) {
+        cooldowns.start(world, casterId, skill.id, cost.cooldownSeconds)
+        LOG.debug { "Skill $skillId by $casterId was caught by the Magic Rod of $targetEntityId" }
+        return
+      }
+
       // Before the effect lands, so what casting ends - a hiding, a sprint - ends before this cast begins, and a
       // skill that hides its own caster is not undone by its own cast.
       actionReactions.notifyActed(world, casterId, EntityAction.CAST)
@@ -189,6 +199,14 @@ class SkillExecutionService(
     } catch (e: Exception) {
       LOG.error(e) { "Skill $skillId (script=${skill.script}) by $casterId failed" }
     }
+  }
+
+  private fun isCaughtByMagicRod(world: World, skill: Skill, casterId: EntityId, targetId: EntityId?, manaCost: Int): Boolean {
+    if (targetId == null || targetId == casterId || skill.targetType != SkillTargetType.ENEMY) return false
+    if (HitKind.ofSkill(skill).form != HitForm.MAGIC) return false
+    val effects = statusEffects ?: return false
+
+    return MagicRodCatch.catches(world, targetId, manaCost, effects)
   }
 
   /** A tougher body pays less stamina for the same skill, see [net.bestia.zone.battle.status.CombatValues.staminaCostReduction]. */

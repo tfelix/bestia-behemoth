@@ -633,3 +633,7 @@ INCUBATOR_KIT,incubator kit
 INCUBATOR_KIT_DESC,"Fired bricks around an ember core, with a padded nest on top.
 
 Set it down and it becomes an Incubator, which keeps one egg warm until it hatches."
+YELLOW_MANA_CRYSTAL,Yellow Mana Crystal
+YELLOW_MANA_CRYSTAL_DESC,A rare yellow crystal of mana. Dispel burns one to unravel what clings to a target.
+BLUE_MANA_CRYSTAL,Blue Mana Crystal
+BLUE_MANA_CRYSTAL_DESC,A common blue crystal of mana. Endow burns one to carry an element into a weapon.

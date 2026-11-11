@@ -74,6 +74,7 @@ enum class SkillId {
   M_QUICK_TRAVEL,
   M_MAXIMIZE_CARRY_CAPACITY,
   M_EXPERT_TAMING,
+  M_FREE_CAST,
 
   // Read by the systems they change: felling and its yield, picking herbs.
   M_LUMBERJACK,

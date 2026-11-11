@@ -685,7 +685,14 @@ ERROR_BREEDING_PAIR_CANNOT_TRAVEL,Your pair cannot reach the Breeding Farm. Brin
 ERROR_BREEDING_CLUTCH_FAILED,A parent left the Breeding Farm. The clutch and its Nesting Bundle are lost.
 ERROR_BREEDING_NO_ROOM_FOR_EGG,The egg does not fit in your bag.
 ERROR_INCUBATOR_NO_FREE_SLOT,Your egg is ready to hatch. Free a bestia slot and it hatches.
-=======
+STATUS_EFFECT_204,Ruwach: every second it ends Hide and Cloak on everyone within 10 m.
+STATUS_EFFECT_205,Endowed: your weapon strikes as an element and hits harder.
+STATUS_EFFECT_206,Magic Rod: the next single-target spell at you is caught and turned into mana.
+STATUS_EFFECT_207,Mana Drain: you draw mana from the foes around you every second.
+ELEMENT_FIRE,Fire
+ELEMENT_WATER,Water
+ELEMENT_WIND,Wind
+ELEMENT_EARTH,Earth
 SKILLS_TITLE,Skills
 SKILLS_TAB_OTHER,Other
 SKILL_TREE_NOVICE,Novice
