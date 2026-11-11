@@ -98,6 +98,34 @@ class SkillExecutionServiceTest {
   }
 
   @Test
+  fun `a free cast resolves without mana and leaves no cooldown`() {
+    val script = TestScript(result = HitDamage(5))
+    val caster = world.spawnFighter(mana = 5)
+    val target = world.spawnFighter()
+    val service = serviceFor(script, manaCost = 30, cooldown = 10f)
+
+    service.executeFree(world, caster, SKILL_ID, 1, target, null)
+    world.tick(0f)
+
+    assertEquals(1, script.casts)
+    assertEquals(5, world.manaOf(caster))
+    assertEquals(5, world.stagedDamageOn(target))
+    assertTrue(service.isReady(world, caster, SKILL_ID))
+  }
+
+  @Test
+  fun `a free cast still fizzles when the script finds it impossible`() {
+    val script = TestScript(result = HitDamage(5), possible = false)
+    val caster = world.spawnFighter()
+    val target = world.spawnFighter()
+
+    serviceFor(script).executeFree(world, caster, SKILL_ID, 1, target, null)
+    world.tick(0f)
+
+    assertEquals(0, script.casts)
+  }
+
+  @Test
   fun `a resolved cast is charged exactly once`() {
     val script = TestScript(result = HitDamage(1))
     val caster = world.spawnFighter(mana = 100)

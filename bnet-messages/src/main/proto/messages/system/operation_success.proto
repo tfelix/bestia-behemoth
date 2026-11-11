@@ -36,6 +36,10 @@ enum OpSuccess {
   BREEDING_EGG_LAID = 13;
   // An Incubator hatched an egg into a new bestia of its owner, next to it.
   BESTIA_HATCHED = 14;
+
+  // A bestia learned the attack on a spell scroll, or an attack was copied onto a new one.
+  SPELL_LEARNED = 15;
+  SPELL_INSCRIBED = 16;
 }
 
 message OperationSuccess {

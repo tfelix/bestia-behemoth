@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SpellScrollsCmsgProto";
+
+// Asks which attack each of these spell scrolls holds. Answered by a SpellScrollsSMSG.
+message SpellScrollsCMSG {
+  repeated uint64 unique_ids = 1;
+}

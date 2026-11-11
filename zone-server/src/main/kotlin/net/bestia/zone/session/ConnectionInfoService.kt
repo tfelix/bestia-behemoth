@@ -222,6 +222,18 @@ class ConnectionInfoService(
     store.add(PlayerEntity(playerBestiaId, playerBestiaEntityId))
   }
 
+  /** Forgets a bestia its master lost for good. A session acting as it goes back to the master. */
+  fun unregisterPlayerBestiaEntity(accountId: AccountId, masterId: Long, playerBestiaId: PlayerBestiaId) {
+    val session = sessions[accountId] ?: return
+    val owned = session.playerEntitiesByMaster[masterId] ?: return
+    val lost = owned.filter { it.playerBestiaId == playerBestiaId }
+    owned.removeAll(lost.toSet())
+
+    if (session is ActiveConnection && lost.any { it.entityId == session.currentActiveEntity }) {
+      session.currentActiveEntity = session.master.entityId
+    }
+  }
+
   fun getSelectedMasterEntityId(accountId: AccountId): MasterEntityId {
     val session = sessions[accountId]
 

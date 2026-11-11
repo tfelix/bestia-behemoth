@@ -196,6 +196,30 @@ interface SkillWorld {
   /** Opens a portal at [at] to [to], or home when null, for [passages] bodies and [seconds]. One spawn. */
   fun openPortal(at: Vec3L, to: Vec3L?, passages: Int, seconds: Int)
 
+  /** Why [bestiaId] cannot learn from the caster's spell scroll [scrollId], or null when it can. One op. */
+  fun spellTrainingRefusal(bestiaId: EntityId, scrollId: Long): OpError?
+
+  /** Why the caster cannot copy [skillId] off [bestiaId] onto a scroll, or null when it can. One op. */
+  fun spellInscriptionRefusal(bestiaId: EntityId, skillId: Long): OpError?
+
+  /** Takes the spell scroll [scrollId] out of the caster's bag; what it held, or null when it is gone. One op. */
+  fun takeSpellScroll(scrollId: Long): InscribedSpell?
+
+  /** [skillId] as [bestiaId] knows it, or null when it knows no such attack. One op. */
+  fun bestiaAttack(bestiaId: EntityId, skillId: Long): InscribedSpell?
+
+  /** [bestiaId] knows [spell] from now on. One op. */
+  fun teachSpell(bestiaId: EntityId, spell: InscribedSpell)
+
+  /** Writes [spell] onto a new scroll in the caster's bag. One op. */
+  fun inscribeSpell(spell: InscribedSpell)
+
+  /** Loses the caster's own [bestiaId] for good, see [SpellScrolls.breakMind]. One spawn. */
+  fun breakMind(bestiaId: EntityId)
+
+  /** Tells the caster's player why the cast came to nothing. One op. */
+  fun tellCaster(error: OpError)
+
   /** Shows the caster the hollows within [radiusMetres], and how deep and large they are if [revealsDepth]. */
   fun soundForHollows(radiusMetres: Int, revealsDepth: Boolean)
 

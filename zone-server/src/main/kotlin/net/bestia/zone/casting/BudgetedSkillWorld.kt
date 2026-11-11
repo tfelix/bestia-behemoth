@@ -539,6 +539,52 @@ class BudgetedSkillWorld(
     services.teleports?.openPortal(world, casterId, at, to, passages, seconds)?.let(::tellCaster)
   }
 
+  override fun spellTrainingRefusal(bestiaId: EntityId, scrollId: Long): OpError? {
+    budget.charge()
+
+    val scrolls = services.spellScrolls ?: return OpError.REQUEST_REFUSED
+
+    return scrolls.trainingRefusal(world, casterId, bestiaId, scrollId)
+  }
+
+  override fun spellInscriptionRefusal(bestiaId: EntityId, skillId: Long): OpError? {
+    budget.charge()
+
+    val scrolls = services.spellScrolls ?: return OpError.REQUEST_REFUSED
+
+    return scrolls.inscriptionRefusal(world, casterId, bestiaId, skillId)
+  }
+
+  override fun takeSpellScroll(scrollId: Long): InscribedSpell? {
+    budget.charge()
+
+    return services.spellScrolls?.takeScroll(world, casterId, scrollId)
+  }
+
+  override fun bestiaAttack(bestiaId: EntityId, skillId: Long): InscribedSpell? {
+    budget.charge()
+
+    return services.spellScrolls?.attackOf(world, bestiaId, skillId)
+  }
+
+  override fun teachSpell(bestiaId: EntityId, spell: InscribedSpell) {
+    budget.charge()
+
+    services.spellScrolls?.teach(world, casterId, bestiaId, spell)
+  }
+
+  override fun inscribeSpell(spell: InscribedSpell) {
+    budget.charge()
+
+    services.spellScrolls?.inscribe(world, casterId, spell)
+  }
+
+  override fun breakMind(bestiaId: EntityId) {
+    budget.charge(SPAWN_OPS)
+
+    services.spellScrolls?.breakMind(world, casterId, bestiaId)
+  }
+
   override fun soundForHollows(radiusMetres: Int, revealsDepth: Boolean) {
     budget.charge(SPAWN_OPS)
 
@@ -643,7 +689,9 @@ class BudgetedSkillWorld(
     return if (world.isAlive(id)) world.block(id) else null
   }
 
-  private fun tellCaster(error: OpError) {
+  override fun tellCaster(error: OpError) {
+    budget.charge()
+
     val accountId = world.get(casterId, Account::class)?.accountId ?: return
     services.messages.sendToPlayer(accountId, OperationErrorSMSG(error))
   }

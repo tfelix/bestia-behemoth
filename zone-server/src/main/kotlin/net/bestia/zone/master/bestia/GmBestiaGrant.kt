@@ -63,7 +63,6 @@ class GmBestiaGrant(
   companion object {
     private val LOG = KotlinLogging.logger { }
 
-    /** The `identifier` in `mob/gm-bestia.yml`. */
-    const val SPECIES = "gm_bestia"
+    const val SPECIES = BestiaCatalogue.GM_SPECIES
   }
 }

@@ -326,6 +326,44 @@ class RecordingSkillWorld(
 
   data class OpenedPortal(val at: Vec3L, val to: Vec3L?, val passages: Int, val seconds: Int)
 
+  /** What [takeSpellScroll] answers, by scroll id; a taken scroll is gone. */
+  val spellScrolls = mutableMapOf<Long, InscribedSpell>()
+
+  /** What [bestiaAttack] answers, by skill id. */
+  val bestiaAttacks = mutableMapOf<Long, InscribedSpell>()
+
+  /** What both refusal checks answer. */
+  var spellRefusal: OpError? = null
+
+  val taughtSpells = mutableListOf<Pair<EntityId, InscribedSpell>>()
+  val inscribedSpells = mutableListOf<InscribedSpell>()
+  val brokenMinds = mutableListOf<EntityId>()
+  val toldCaster = mutableListOf<OpError>()
+
+  override fun spellTrainingRefusal(bestiaId: EntityId, scrollId: Long): OpError? = spellRefusal
+
+  override fun spellInscriptionRefusal(bestiaId: EntityId, skillId: Long): OpError? = spellRefusal
+
+  override fun takeSpellScroll(scrollId: Long): InscribedSpell? = spellScrolls.remove(scrollId)
+
+  override fun bestiaAttack(bestiaId: EntityId, skillId: Long): InscribedSpell? = bestiaAttacks[skillId]
+
+  override fun teachSpell(bestiaId: EntityId, spell: InscribedSpell) {
+    taughtSpells += bestiaId to spell
+  }
+
+  override fun inscribeSpell(spell: InscribedSpell) {
+    inscribedSpells += spell
+  }
+
+  override fun breakMind(bestiaId: EntityId) {
+    brokenMinds += bestiaId
+  }
+
+  override fun tellCaster(error: OpError) {
+    toldCaster += error
+  }
+
   /** The level of each [senseMagic]. */
   val magicSenses = mutableListOf<Int>()
 

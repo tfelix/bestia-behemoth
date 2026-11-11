@@ -641,3 +641,9 @@ TELEPORT_RUNE,Teleport Rune
 TELEPORT_RUNE_DESC,A small stone carved with a rune of passage. Teleport burns one.
 PORTAL_RUNE,Portal Rune
 PORTAL_RUNE_DESC,A heavy stone carved with a rune that holds a door open. Warp Portal burns one.
+BLANK_SPELL_SCROLL,Blank Spell Scroll
+BLANK_SPELL_SCROLL_DESC,"A sheet of fine vellum, primed to hold a spell. Spell Inscription writes an attack onto it."
+SPELL_SCROLL,Spell Scroll
+SPELL_SCROLL_DESC,"A scroll with an attack written on it.
+
+Read from the bag, it casts its attack once, with no mana. Spell Training teaches it to a bestia instead."

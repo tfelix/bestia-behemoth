@@ -58,4 +58,5 @@ class SkillWorldServices(
   val magicSensing: MagicSensing? = null,
   val monsterSensing: MonsterSensing? = null,
   val teleports: SkillTeleports? = null,
+  val spellScrolls: SpellScrolls? = null,
 )

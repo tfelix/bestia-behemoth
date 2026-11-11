@@ -48,6 +48,10 @@ import "messages/trade/street_stall_smsg.proto";
 import "messages/trade/stall_list_cmsg.proto";
 import "messages/trade/stall_unlist_cmsg.proto";
 import "messages/trade/stall_buy_cmsg.proto";
+import "messages/scroll/spell_scrolls_cmsg.proto";
+import "messages/scroll/spell_scrolls_smsg.proto";
+import "messages/scroll/inscription_options_cmsg.proto";
+import "messages/scroll/inscription_options_smsg.proto";
 import "messages/master/monster_sense_smsg.proto";
 import "messages/master/bestia_capture_smsg.proto";
 import "messages/master/owned_bestias_smsg.proto";
@@ -413,6 +417,10 @@ message Envelope {
     StallUnlistCMSG stall_unlist = 915;
     StallBuyCMSG stall_buy = 916;
     MonsterSenseSMSG monster_sense = 917;
+    SpellScrollsCMSG spell_scrolls_request = 918;
+    SpellScrollsSMSG spell_scrolls = 919;
+    InscriptionOptionsCMSG inscription_options_request = 922;
+    InscriptionOptionsSMSG inscription_options = 923;
 
     // PLAYER SETTLEMENTS 950
     PlanSettlementCMSG plan_settlement = 950;

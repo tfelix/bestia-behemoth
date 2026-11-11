@@ -84,6 +84,9 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.SettlementSign] = e => Settlement.SettlementSignSMSG.FromProto(e.SettlementSign),
       [Envelope.MessageOneofCase.SettlementOffer] = e => Settlement.SettlementOfferSMSG.FromProto(e.SettlementOffer),
       [Envelope.MessageOneofCase.SettlementNotice] = e => Settlement.SettlementNoticeSMSG.FromProto(e.SettlementNotice),
+      [Envelope.MessageOneofCase.SpellScrolls] = e => SpellScroll.SpellScrollsSMSG.FromProto(e.SpellScrolls),
+      [Envelope.MessageOneofCase.InscriptionOptions] =
+        e => SpellScroll.InscriptionOptionsSMSG.FromProto(e.InscriptionOptions),
       [Envelope.MessageOneofCase.Letters] = e => Postal.LettersSMSG.FromProto(e.Letters),
       [Envelope.MessageOneofCase.LetterArrived] = e => Postal.LetterArrivedSMSG.FromProto(e.LetterArrived),
       [Envelope.MessageOneofCase.LetterSent] = e => Postal.LetterSentSMSG.FromProto(e.LetterSent),

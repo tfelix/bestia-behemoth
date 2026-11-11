@@ -39,7 +39,7 @@ class CatalogueWarmUpBootRunner(
     items.warmUp()
     commodities.warmUp()
     loot.warmUp()
-    bestias.all()
+    bestias.warmUp()
     craftBonus.warmUp()
     exposure.warmUp()
     weather.weatherSenseSkillId
