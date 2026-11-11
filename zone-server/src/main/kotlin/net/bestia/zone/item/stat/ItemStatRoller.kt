@@ -12,19 +12,21 @@ import kotlin.math.min
  * [cap] is the highest stat level the roll may reach, from the maker's skill and material. Sockets roll first
  * and use part of it. Every stat then rolls a quality as the lower of two dice, so a top roll is rare, and the
  * whole roll is scaled down if the stats together went past the cap.
+ *
+ * [chanceBonus] adds percentage points to every slot's and every socket's chance to roll at all, as Gloria does.
  */
 @Component
 class ItemStatRoller(
   private val random: Random = ThreadLocalRandomSource
 ) {
 
-  fun roll(sheet: ItemStatSheet, cap: Int): ItemRoll {
+  fun roll(sheet: ItemStatSheet, cap: Int, chanceBonus: Int = 0): ItemRoll {
     val template = sheet.randomStats ?: return ItemRoll(emptyList(), 0, sheet.itemLevel)
     val capPoints = cap.toDouble() / ItemLevel.LEVELS_PER_POINT
 
-    val sockets = rollSockets(template.socketChances, capPoints)
+    val sockets = rollSockets(template.socketChances.map { it + chanceBonus }, capPoints)
     val statPoints = capPoints - sockets * ItemLevel.POINTS_PER_SOCKET
-    val stats = scaledToCap(template.slots.mapNotNull { rollSlot(it, statPoints) }, statPoints)
+    val stats = scaledToCap(template.slots.mapNotNull { rollSlot(it, statPoints, chanceBonus) }, statPoints)
 
     return ItemRoll(stats, sockets, ItemLevel.of(sheet.baseLevel, sheet.fixedStats() + stats, sockets))
   }
@@ -41,8 +43,8 @@ class ItemStatRoller(
     return sockets
   }
 
-  private fun rollSlot(slot: RandomStatTemplate.Slot, statPoints: Double): StatValue? {
-    if (!rolls(slot.chance)) return null
+  private fun rollSlot(slot: RandomStatTemplate.Slot, statPoints: Double, chanceBonus: Int): StatValue? {
+    if (!rolls(slot.chance + chanceBonus)) return null
 
     val stat = slot.candidates[random.nextInt(slot.candidates.size)]
     val quality = min(random.nextDouble(), random.nextDouble())

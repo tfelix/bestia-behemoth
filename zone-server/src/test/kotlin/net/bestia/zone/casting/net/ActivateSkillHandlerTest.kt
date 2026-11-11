@@ -36,6 +36,7 @@ import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.casting.SkillStrategy
 import net.bestia.zone.casting.SkillStrategyFactory
 import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.battle.status.RemovalReason
 import net.bestia.zone.battle.status.StatusEffectId
 
 /**
@@ -131,6 +132,18 @@ class ActivateSkillHandlerTest {
 
     assertEquals(1.5f, world.get(quick, Casting::class)?.totalSeconds)
     assertEquals(0.4f, world.get(instant, Casting::class)?.totalSeconds)
+  }
+
+  @Test
+  fun `a cast bar spends Suffragium and an instant cast keeps it`() {
+    val caster = world.spawnCaster()
+    val dummy = world.spawnCaster()
+
+    handlerFor(caster, skill(castTime = 0f)).handle(world, activate(dummy))
+    verify(exactly = 0) { statusEffects.removeEffect(any(), caster, StatusEffectId.SUFFRAGIUM.id, any()) }
+
+    handlerFor(caster, skill(castTime = 2f)).handle(world, activate(dummy))
+    verify(exactly = 1) { statusEffects.removeEffect(any(), caster, StatusEffectId.SUFFRAGIUM.id, RemovalReason.CANCELLED) }
   }
 
   @Test

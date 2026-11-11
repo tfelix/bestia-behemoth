@@ -7,6 +7,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.battle.ActionGuard
 import net.bestia.zone.battle.status.ActionLock
+import net.bestia.zone.battle.status.RemovalReason
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.battle.damage.DamageGate
@@ -208,6 +210,8 @@ class ActivateSkillHandler(
           )
         )
         if (Casting.movesWhileCasting(this, id)) add(id, IsStatusValueDirty)
+        // Suffragium shortens only the next cast bar, so the bar that used it spends it.
+        statusEffects.removeEffect(this, id, StatusEffectId.SUFFRAGIUM.id, RemovalReason.CANCELLED)
       }
 
       id

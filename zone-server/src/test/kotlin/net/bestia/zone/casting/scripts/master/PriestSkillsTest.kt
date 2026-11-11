@@ -53,4 +53,28 @@ class PriestSkillsTest {
   }
 
   private fun ctx(level: Int) = SkillContextFixture.skillCtx(BattleContextFixture.entityCtx(), world, skillLevel = level)
+
+  @Test
+  fun `Increase AGI and Suffragium buff the ally, Kyrie raises a fresh ward`() {
+    IncreaseAgi(LineOfSightService()).execute(ctx(level = 3))
+    Suffragium(LineOfSightService()).execute(ctx(level = 1))
+    KyrieEleison(LineOfSightService()).execute(ctx(level = 2))
+
+    assertEquals(
+      listOf(StatusEffectId.INCREASE_AGI.id to 3, StatusEffectId.SUFFRAGIUM.id to 1, StatusEffectId.KYRIE_ELEISON.id to 2),
+      world.appliedEffects.map { it.effectId to it.level }
+    )
+    assertEquals(listOf(target to StatusEffectId.KYRIE_ELEISON.id), world.removedEffects)
+  }
+
+  @Test
+  fun `Magnificat and Gloria reach the whole party in sight`() {
+    world.party = listOf(1L, 5L, 6L)
+
+    Magnificat().execute(ctx(level = 2))
+    Gloria().execute(ctx(level = 1))
+
+    assertEquals(listOf(1L, 5L, 6L), world.appliedEffects.filter { it.effectId == StatusEffectId.MAGNIFICAT.id }.map { it.targetEntityId })
+    assertEquals(listOf(1L, 5L, 6L), world.appliedEffects.filter { it.effectId == StatusEffectId.GLORIA.id }.map { it.targetEntityId })
+  }
 }
