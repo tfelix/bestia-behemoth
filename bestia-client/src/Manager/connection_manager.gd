@@ -223,6 +223,9 @@ var InspectEggCMSG = load("res://Bnet/Message/Breeding/InspectEggCMSG.cs")
 var GetBestiaOrdersCMSG = load("res://Bnet/Message/Master/GetBestiaOrdersCMSG.cs")
 var SetBestiaAiConfigCMSG = load("res://Bnet/Message/Master/SetBestiaAiConfigCMSG.cs")
 var GetOrderBookCMSG = load("res://Bnet/Message/Master/GetOrderBookCMSG.cs")
+var SaveOrderPresetCMSG = load("res://Bnet/Message/Master/SaveOrderPresetCMSG.cs")
+var DeleteOrderPresetCMSG = load("res://Bnet/Message/Master/DeleteOrderPresetCMSG.cs")
+var SaveWorkAreaCMSG = load("res://Bnet/Message/Master/SaveWorkAreaCMSG.cs")
 var TakeParcelsCMSG = load("res://Bnet/Message/Postal/TakeParcelsCMSG.cs")
 var RequestPartyInfoCMSG = load("res://Bnet/Message/Party/RequestPartyInfoCMSG.cs")
 var CreatePartyCMSG = load("res://Bnet/Message/Party/CreatePartyCMSG.cs")
@@ -1577,6 +1580,34 @@ func set_bestia_orders(player_bestia_id: int, orders: OrderSheet, preset_id: int
 func get_order_book() -> void:
 	assert(is_ready_to_send())
 	_socket.SendMessage(GetOrderBookCMSG.new())
+
+
+## Creates a preset, or with a [param preset_id] changes it for every bestia that follows it. Answered by an
+## OrderBookSMSG, or an OperationError.
+func save_order_preset(preset_id: int, preset_name: String, orders: OrderSheet) -> void:
+	assert(is_ready_to_send())
+	var msg = SaveOrderPresetCMSG.new()
+	msg.PresetId = preset_id
+	msg.Name = preset_name
+	msg.Orders = orders
+	_socket.SendMessage(msg)
+
+
+func delete_order_preset(preset_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = DeleteOrderPresetCMSG.new()
+	msg.PresetId = preset_id
+	_socket.SendMessage(msg)
+
+
+## Names a work area of [param radius] tiles around where the bestia stands. Answered by an OrderBookSMSG.
+func save_work_area(player_bestia_id: int, area_name: String, radius: int) -> void:
+	assert(is_ready_to_send())
+	var msg = SaveWorkAreaCMSG.new()
+	msg.PlayerBestiaId = player_bestia_id
+	msg.Name = area_name
+	msg.Radius = radius
+	_socket.SendMessage(msg)
 
 
 ## Asks for an emote on the entity we control, by its AnimationKind name ("CHEER"). Seen as its Animation component.
