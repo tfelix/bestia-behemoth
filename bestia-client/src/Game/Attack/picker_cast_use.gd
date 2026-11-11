@@ -28,3 +28,12 @@ func _picked(attack: AttackResource, level: int, args: PackedInt64Array) -> void
 
 func _casts_on_self() -> bool:
 	return false
+
+
+## Opens [param menu] at the mouse; it frees itself once closed.
+func _show_menu(menu: PopupMenu) -> void:
+	menu.popup_hide.connect(menu.queue_free)
+
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(menu)
+	menu.popup(Rect2i(Vector2i(tree.root.get_mouse_position()), Vector2i.ZERO))

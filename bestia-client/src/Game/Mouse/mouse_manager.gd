@@ -157,14 +157,20 @@ func enter_item_targeting(
 	change_state(state)
 
 
+## [param on_confirm] takes the aimed target instead of casting the skill, see [member MouseStateSkillTargeting.on_confirm].
 func enter_skill_targeting(
-	skill: AttackResource, skill_level: int, indicator_scene: PackedScene = null, args := PackedInt64Array()
+	skill: AttackResource,
+	skill_level: int,
+	indicator_scene: PackedScene = null,
+	args := PackedInt64Array(),
+	on_confirm := Callable()
 ) -> void:
 	print_debug("MouseManager.enter_skill_targeting: %s" % [skill.name])
 	var state := MouseStateSkillTargeting.new()
 	state.skill = skill
 	state.skill_level = skill_level
 	state.args = args
+	state.on_confirm = on_confirm
 	if indicator_scene:
 		state.indicator_scene = indicator_scene
 	change_state(state)
