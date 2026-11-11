@@ -25,6 +25,7 @@ export type OrderRuleLine = Schemas['OrderRuleLine'];
 export type OrderSheet = Schemas['OrderSheet'];
 export type OrderPreset = Schemas['OrderPreset'];
 export type Workshop = Schemas['Workshop'];
+export type DiaryEntry = Schemas['DiaryEntry'];
 export type StationView = Schemas['StationView'];
 export type QueueOrder = Schemas['QueueOrder'];
 export type WorkerOrder = Schemas['WorkerOrder'];

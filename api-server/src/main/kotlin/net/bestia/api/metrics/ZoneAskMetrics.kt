@@ -32,6 +32,7 @@ enum class ZoneQueryKind {
   ORDER_PRESETS,
   SAVE_ORDER_PRESET,
   DELETE_ORDER_PRESET,
+  DIARY,
   WORKSHOP,
   QUEUE_AT_STATION,
   CANCEL_AT_STATION,
@@ -77,6 +78,7 @@ enum class ZoneQueryKind {
         is ZoneQuery.OrderPresets -> ORDER_PRESETS
         is ZoneQuery.SaveOrderPreset -> SAVE_ORDER_PRESET
         is ZoneQuery.DeleteOrderPreset -> DELETE_ORDER_PRESET
+        is ZoneQuery.Diary -> DIARY
         is ZoneQuery.Workshop -> WORKSHOP
         is ZoneQuery.QueueAtStation -> QUEUE_AT_STATION
         is ZoneQuery.CancelAtStation -> CANCEL_AT_STATION
