@@ -1,5 +1,7 @@
 package net.bestia.zone.master.net
 
+import net.bestia.zone.ai.profile.OrderRule
+import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Rule
 import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Courage
 import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Job
 import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Overrides
@@ -31,6 +33,31 @@ class SetBestiaAiConfigCMSGTest {
   @Test
   fun `an unset fallback is none`() {
     assertNull(ordersOf(Wire.newBuilder().setJob(Job.GUARD))?.fallbackJob)
+  }
+
+  @Test
+  fun `reads rules in their order`() {
+    val orders = ordersOf(
+      Wire.newBuilder().setJob(Job.REST)
+        .addRules(Rule.newBuilder().setCondition(Rule.Condition.NIGHT).setAction(Rule.Action.REST_AT_HOME))
+        .addRules(Rule.newBuilder().setCondition(Rule.Condition.STAMINA_BELOW).setThreshold(30).setAction(Rule.Action.EAT))
+    )
+
+    assertEquals(
+      listOf(
+        OrderRule(OrderRule.Condition.NIGHT, null, OrderRule.Action.REST_AT_HOME),
+        OrderRule(OrderRule.Condition.STAMINA_BELOW, 30, OrderRule.Action.EAT),
+      ),
+      orders?.rules,
+    )
+  }
+
+  @Test
+  fun `a rule that pairs a condition with an action it does not allow refuses the orders`() {
+    val wire = Wire.newBuilder().setJob(Job.REST)
+      .addRules(Rule.newBuilder().setCondition(Rule.Condition.NIGHT).setAction(Rule.Action.HAUL_NOW))
+
+    assertNull(ordersOf(wire))
   }
 
   @Test

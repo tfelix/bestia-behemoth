@@ -20,6 +20,7 @@ data class BestiaAiConfigSMSG(
       .setCourage(SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Courage.valueOf(config.courage.name))
       .setFallbackJob(OrdersWire.fallbackTo(config.fallbackJob))
       .setOverrides(OrdersWire.overridesTo(config.overrides))
+      .addAllRules(OrdersWire.rulesTo(config.rules))
 
     return EnvelopeProto.Envelope.newBuilder()
       .setBestiaAiConfig(payload)
