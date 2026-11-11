@@ -23,6 +23,23 @@ message SetBestiaAiConfigCMSG {
   Job job = 5;
   Courage courage = 6;
 
+  /** What it does while `job` has nothing to do. JOB_UNSPECIFIED: no fallback. Only GATHER, CRAFT and MINE take one. */
+  Job fallback_job = 7;
+
+  /** The numbers set by hand in Fine-tune. The server clamps each to its limit. */
+  Overrides overrides = 8;
+
+  /** An unset field keeps what the courage step and the job choose. */
+  message Overrides {
+    /** 0 never retreats. */
+    optional int32 retreat_below_health_pct = 1;
+    optional int32 eat_below_stamina_pct = 2;
+    optional int32 heal_below_health_pct = 3;
+    optional int32 haul_at_load_pct = 4;
+    /** In tiles. */
+    optional int32 area_radius = 5;
+  }
+
   enum Job {
     /** Never sent by a well-behaved client; present so an unset field is not silently a real job. */
     JOB_UNSPECIFIED = 0;
