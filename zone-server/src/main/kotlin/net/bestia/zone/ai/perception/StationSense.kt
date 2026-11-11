@@ -4,6 +4,7 @@ import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.domain.bestia.OpenStation
 import net.bestia.zone.ai.domain.bestia.StationClaims
 import net.bestia.zone.ai.profile.BestiaJob
+import net.bestia.zone.ai.profile.OrderRule
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.identity.ecs.OwnedBestia
@@ -46,7 +47,8 @@ class StationSense(
       mine.filter { it.waitsForMiner && !shaftOre.isDugOut(it.id) && area.contains(it.position) }
     }
     // From the registry rather than its WorkAssignment, which lands only at the end of the tick that claimed it.
-    val workplace = structures.workplaceOf(owned.playerBestiaId)?.takeUnless { worksForFallback(context, it) }
+    val workplace = structures.workplaceOf(owned.playerBestiaId)
+      ?.takeUnless { worksForFallback(context, it) || restsAtHome(context) }
 
     context.remember(BestiaDomain.AT_WORK, workplace != null)
     context.remember(BestiaDomain.AT_SHAFT, workplace?.kind == StaticEntityKind.MINING_SHAFT)
@@ -62,6 +64,14 @@ class StationSense(
     val mainJob = context.recall(BestiaDomain.MAIN_JOB) ?: return false
     val workplaceJob = if (workplace.kind == StaticEntityKind.MINING_SHAFT) BestiaJob.MINE else BestiaJob.CRAFT
     if (workplaceJob == mainJob || BestiaDomain.mainJobIdle(context.agent.memory.snapshot())) return false
+
+    claims.quit(context.world, context.entityId)
+    return true
+  }
+
+  /** Told by a rule to rest at home: the station is put down until the rule stops holding. */
+  private fun restsAtHome(context: SenseContext): Boolean {
+    if (!BestiaDomain.ruleSays(context.agent.memory.snapshot(), OrderRule.Action.REST_AT_HOME)) return false
 
     claims.quit(context.world, context.entityId)
     return true

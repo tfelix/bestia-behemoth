@@ -1,6 +1,7 @@
 package net.bestia.zone.ai.profile
 
 import jakarta.persistence.Column
+import jakarta.persistence.Convert
 import jakarta.persistence.Embeddable
 import jakarta.persistence.Transient
 import jakarta.persistence.EnumType
@@ -39,14 +40,24 @@ data class AiConfig(
   /** Stored by whoever stores these orders, as its own nullable embedded value. See `PlayerBestia.aiConfig`. */
   @Transient
   val overrides: OrderOverrides = OrderOverrides(),
+
+  /** Read from the top; the first that holds decides. */
+  @Convert(converter = OrderRulesConverter::class)
+  @Column(name = "order_rules", length = 400)
+  val rules: List<OrderRule> = emptyList(),
 ) {
 
-  /** Whether these orders can be followed: a fallback only behind a job that runs out of work, and not itself. */
+  /**
+   * Whether these orders can be followed: a fallback only behind a job that runs out of work and not itself, and a
+   * short list of rules that each make sense.
+   */
   val isValid: Boolean
     get() {
-      val fallback = fallbackJob ?: return true
+      val fallbackFits = fallbackJob == null ||
+        (job.takesFallback && fallbackJob != job && fallbackJob != BestiaJob.REST)
+      val rulesFit = rules.size <= OrderRule.MAX_RULES && rules.all { it.isValid }
 
-      return job.takesFallback && fallback != job && fallback != BestiaJob.REST
+      return fallbackFits && rulesFit
     }
 
   companion object {
@@ -55,7 +66,7 @@ data class AiConfig(
      * out of a fight it is losing. They are the one place orders widen the archetype, and they add no way to
      * hurt anybody. Wild mobs never get them: a mob that bolted could not be fought at all.
      */
-    val SELF_CARE_GOALS = listOf("HealFromBag", "EatFromBag", "Retreat")
+    val SELF_CARE_GOALS = listOf("HealFromBag", "EatFromBag", "Retreat", "RestAtHome")
 
     /** The actions that carry [SELF_CARE_GOALS]. */
     val SELF_CARE_ACTIONS = listOf("healFromBag", "eatFromBag", "retreatHome")
