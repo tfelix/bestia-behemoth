@@ -12,6 +12,8 @@ class_name BestiaParty
 
 ## The exchange icon beside [param entity_id]'s row was clicked.
 signal exchange_requested(entity_id: int)
+## The orders icon beside a bestia's row was clicked.
+signal orders_requested(bestia: BestiaInfo)
 
 ## How often the health bars are re-read off the entity cache. Polled for the reason MasterProfile polls its
 ## position: the rows exist for entities whose component pushes may have arrived before them.
@@ -27,6 +29,7 @@ const _HP_BAR_HEIGHT := 4.0
 const _FONT_SIZE := 13
 
 const _EXCHANGE_ICON := preload("res://Theme/Icons/arrows-exchange.svg")
+const _ORDERS_ICON := preload("res://Theme/Icons/flag.svg")
 const _EXCHANGE_ICON_WIDTH := 14
 
 ## entity id -> {"button": Button, "hp": ProgressBar, "exchange": Button}
@@ -99,7 +102,8 @@ func _rebuild() -> void:
 	for i in bestias.size():
 		var bestia := bestias[i]
 		var label := "%s  Lv. %d" % [OwnedSlots.title_of(bestia), bestia.Level]
-		_add_owned_row(bestia.EntityId, label, OwnedSlots.name_of(bestia), OwnedSlots.color_of(i + 1))
+		var row := _add_owned_row(bestia.EntityId, label, OwnedSlots.name_of(bestia), OwnedSlots.color_of(i + 1))
+		row.add_child(_make_orders_button(bestia, OwnedSlots.color_of(i + 1)))
 
 	for i in maxi(entity_manager.get_bestia_slot_count() - bestias.size(), 0):
 		_add_empty_row()
@@ -115,7 +119,7 @@ func show_exchange_partners(entity_ids: Array[int]) -> void:
 		_rows[entity_id]["exchange"].visible = entity_id in entity_ids
 
 
-func _add_owned_row(entity_id: int, label: String, entity_name: String, slot_color: Color) -> void:
+func _add_owned_row(entity_id: int, label: String, entity_name: String, slot_color: Color) -> HBoxContainer:
 	var button := _make_slot_button(label)
 	button.pressed.connect(_on_row_pressed.bind(entity_id))
 
@@ -130,6 +134,7 @@ func _add_owned_row(entity_id: int, label: String, entity_name: String, slot_col
 	row.add_child(exchange)
 
 	_rows[entity_id] = {"button": button, "hp": hp, "exchange": exchange}
+	return row
 
 
 ## Outside the row rather than on it, so the row's own click still means "take control".
@@ -141,6 +146,18 @@ func _make_exchange_button(entity_name: String, slot_color: Color) -> Button:
 	OwnedSlots.tint_icon(button, slot_color)
 	button.tooltip_text = tr("EXCHANGE_WITH") % entity_name
 	button.visible = false
+	return button
+
+
+## Always shown, unlike the exchange icon: orders matter most while the bestia is out of sight.
+func _make_orders_button(bestia: BestiaInfo, slot_color: Color) -> Button:
+	var button := Button.new()
+	button.icon = _ORDERS_ICON
+	button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	button.add_theme_constant_override("icon_max_width", _EXCHANGE_ICON_WIDTH)
+	OwnedSlots.tint_icon(button, slot_color)
+	button.tooltip_text = tr("ORDERS_OPEN") % OwnedSlots.name_of(bestia)
+	button.pressed.connect(func() -> void: orders_requested.emit(bestia))
 	return button
 
 

@@ -37,6 +37,8 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.ChestOpened] = e => Inventory.ChestOpenedSMSG.FromProto(e.ChestOpened),
       [Envelope.MessageOneofCase.BreedingFarm] = e => Breeding.BreedingFarmSMSG.FromProto(e.BreedingFarm),
       [Envelope.MessageOneofCase.Incubator] = e => Breeding.IncubatorSMSG.FromProto(e.Incubator),
+      [Envelope.MessageOneofCase.BestiaAiConfig] = e => Master.BestiaAiConfigSMSG.FromProto(e.BestiaAiConfig),
+      [Envelope.MessageOneofCase.OrderBook] = e => Master.OrderBookSMSG.FromProto(e.OrderBook),
       [Envelope.MessageOneofCase.BestiaEgg] = e => Breeding.BestiaEggSMSG.FromProto(e.BestiaEgg),
       [Envelope.MessageOneofCase.WorldInfo] = e => Map.WorldInfoSMSG.FromProto(e.WorldInfo),
       [Envelope.MessageOneofCase.WorldTime] = e => Map.WorldTimeSMSG.FromProto(e.WorldTime),

@@ -1,0 +1,8 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/BestiaOrders/bestia_orders_panel.gd" id="1_panel"]
+
+[node name="BestiaOrdersPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(420, 0)
+offset_right = 420.0
+script = ExtResource("1_panel")
