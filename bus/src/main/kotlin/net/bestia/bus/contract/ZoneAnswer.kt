@@ -250,6 +250,33 @@ sealed interface ZoneAnswer {
     val ownOverrides: OrderNumbers = OrderNumbers(),
   ) : ZoneAnswer
 
+  /** A master's crafting stations, nearest the master's home first. */
+  data class Workshop(val stations: List<StationView>) : ZoneAnswer {
+
+    /**
+     * [kind] as the structure names it. [worker] is OWNER, BESTIA ([workerBestiaId]) or ANY_FREE_CRAFTER. [pause] says
+     * why the queue waits, if it does. [affordable] is what the chest beside it can pay for now; empty without one.
+     */
+    data class StationView(
+      val id: Long,
+      val kind: String,
+      val eastMetres: Double,
+      val northMetres: Double,
+      val queue: List<QueueLine>,
+      val worker: String,
+      val workerBestiaId: Long?,
+      val pause: String?,
+      val hasChest: Boolean,
+      val affordable: List<AffordableRecipe>,
+    )
+
+    /** [item] is the identifier of what the recipe makes; null for one that changes an item instead. */
+    data class QueueLine(val recipeId: Long, val item: String?, val amount: Int, val done: Int)
+
+    /** A recipe the chest can pay for [most] times. */
+    data class AffordableRecipe(val recipeId: Long, val item: String, val most: Int)
+  }
+
   /** A master's order presets, by name. [bestias] is how many follow each. */
   data class OrderPresets(val presets: List<Preset>) : ZoneAnswer {
     data class Preset(val id: Long, val name: String, val sheet: OrderSheet, val bestias: Int)
