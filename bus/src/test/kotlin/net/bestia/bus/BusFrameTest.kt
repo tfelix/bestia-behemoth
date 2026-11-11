@@ -4,6 +4,7 @@ import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.BusRequest
 import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.MapPoint
+import net.bestia.bus.contract.OrderNumbers
 import net.bestia.bus.contract.ZoneEvent
 import net.bestia.bus.contract.ZoneQuery
 import org.junit.jupiter.api.Test
@@ -19,6 +20,7 @@ class BusFrameTest {
       ZoneQuery.MapTile(masterId = 7, level = 3, x = -2, y = 9, ifNoneMatch = "\"w1-3/-2/9\""),
       ZoneQuery.HabitatTile(masterId = 7, speciesId = 1, level = 3, x = -2, y = 9, ifNoneMatch = null),
       ZoneQuery.SetOrders(masterId = 7, playerBestiaId = 11, job = "GUARD", courage = "BOLD"),
+      ZoneQuery.SetOrders(7, 11, "GATHER", "STEADY", fallbackJob = "CRAFT", overrides = OrderNumbers(haulAtLoadPct = 60)),
       ZoneQuery.SendChat(masterId = 7, channel = "PARTY", text = "on my way"),
       ZoneQuery.Compendium(masterId = 7),
       ZoneQuery.SendOnJourney(masterId = 7, playerBestiaId = 11, waypoints = listOf(MapPoint(1.5, 2.5))),
@@ -75,6 +77,7 @@ class BusFrameTest {
       ZoneAnswer.Services("\"s\"", listOf(ZoneAnswer.Services.Service(9, "INN", "The Boar", 1.0, 2.0, "Ashfen", 6, 22))),
       ZoneAnswer.TicketOwner(42),
       ZoneAnswer.Orders(2, "GUARD", "BOLD"),
+      ZoneAnswer.Orders(2, "MINE", "BOLD", fallbackJob = "GUARD", overrides = OrderNumbers(retreatBelowHealthPct = 0)),
       ZoneAnswer.ChatSent(null),
       ZoneAnswer.ChatSent(ZoneAnswer.ChatSent.NOT_IN_GUILD),
       ZoneAnswer.Letters(listOf(ZoneAnswer.Letters.Letter(3, "Ayla", "Bridge", "It is down.", 5, 6, read = true))),

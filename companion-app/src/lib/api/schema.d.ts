@@ -578,6 +578,20 @@ export interface components {
         BestiaOrders: {
             job: string;
             courage: string;
+            fallbackJob?: string;
+            overrides: components["schemas"]["OrderNumbers"];
+        };
+        OrderNumbers: {
+            /** Format: int32 */
+            retreatBelowHealthPct?: number;
+            /** Format: int32 */
+            eatBelowStaminaPct?: number;
+            /** Format: int32 */
+            healBelowHealthPct?: number;
+            /** Format: int32 */
+            haulAtLoadPct?: number;
+            /** Format: int32 */
+            areaRadius?: number;
         };
         JourneyOrder: {
             waypoints: components["schemas"]["Position"][];
@@ -860,6 +874,8 @@ export interface components {
             /** Format: double */
             metresPerSecond: number;
             journey?: components["schemas"]["Journey"];
+            fallbackJob?: string;
+            overrides: components["schemas"]["OrderNumbers"];
         };
         Journey: {
             name?: string;

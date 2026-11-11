@@ -59,6 +59,8 @@ class BestiaQueries(
           // One at rest walks at the speed it spawns with.
           metresPerSecond = plane.metresPerSecond(row.entityId?.let { speeds[it] } ?: Speed().speed),
           journey = row.entityId?.let { travelling[it] },
+          fallbackJob = row.aiConfig.fallbackJob?.name,
+          overrides = OrdersOnTheBus.numbersOf(row.aiConfig.overrides),
         )
       }
     )

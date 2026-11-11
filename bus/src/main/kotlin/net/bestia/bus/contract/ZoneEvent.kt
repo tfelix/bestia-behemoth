@@ -33,6 +33,8 @@ sealed interface ZoneEvent {
     val playerBestiaId: Long,
     val job: String,
     val courage: String,
+    val fallbackJob: String? = null,
+    val overrides: OrderNumbers = OrderNumbers(),
   ) : ZoneEvent
 
   /** The account entered the world with [masterId], or left it ([inWorld] false, [masterId] null). */

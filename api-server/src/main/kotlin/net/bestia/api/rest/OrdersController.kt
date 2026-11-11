@@ -1,5 +1,6 @@
 package net.bestia.api.rest
 
+import net.bestia.bus.contract.OrderNumbers
 import net.bestia.api.auth.CompanionAuthFilter.Companion.ACCOUNT_ID
 import net.bestia.api.bus.ZoneClient
 import net.bestia.api.cache.AnswerCache
@@ -24,8 +25,16 @@ class OrdersController(
   private val cache: AnswerCache,
 ) {
 
-  /** [job] is GUARD, GATHER, CRAFT, MINE or REST; [courage] is TIMID, CAREFUL, STEADY, BOLD or BRAVE. */
-  data class BestiaOrders(val job: String, val courage: String)
+  /**
+   * [job] is GUARD, GATHER, CRAFT, MINE or REST; [courage] is TIMID, CAREFUL, STEADY, BOLD or BRAVE. [fallbackJob]
+   * runs while a GATHER, CRAFT or MINE job has nothing to do; null for none. [overrides] are the Fine-tune numbers.
+   */
+  data class BestiaOrders(
+    val job: String,
+    val courage: String,
+    val fallbackJob: String? = null,
+    val overrides: OrderNumbers = OrderNumbers(),
+  )
 
   @PutMapping
   fun set(
@@ -35,11 +44,11 @@ class OrdersController(
     @RequestHeader("Idempotency-Key") idempotencyKey: String,
     @RequestBody orders: BestiaOrders,
   ): BestiaOrders {
-    val query = ZoneQuery.SetOrders(masterId, bestiaId, orders.job, orders.courage)
+    val query = ZoneQuery.SetOrders(masterId, bestiaId, orders.job, orders.courage, orders.fallbackJob, orders.overrides)
     val stored = zone.ask(accountId, query, idempotencyKey.take(MAX_KEY_LENGTH)).answerOrThrow<ZoneAnswer.Orders>()
 
     cache.forget(accountId)
-    return BestiaOrders(stored.job, stored.courage)
+    return BestiaOrders(stored.job, stored.courage, stored.fallbackJob, stored.overrides)
   }
 
   private companion object {

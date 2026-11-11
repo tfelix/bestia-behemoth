@@ -1,5 +1,7 @@
 package net.bestia.zone.companion
 
+import net.bestia.zone.ai.profile.OrderOverrides
+import net.bestia.bus.contract.OrderNumbers
 import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.BusReply.Status
 import net.bestia.bus.contract.BusRequest
@@ -120,11 +122,23 @@ class CompanionRequestDispatcherTest {
       assertEquals(ZoneAnswer.Orders(bestia.id, BestiaJob.GUARD.name, Courage.BOLD.name), set.answer)
       assertEquals(AiConfig(BestiaJob.GUARD, Courage.BOLD), playerBestias.findByIdOrNull(bestia.id)!!.aiConfig)
 
+      val tuned = ZoneQuery.SetOrders(
+        master.id, bestia.id, "GATHER", "STEADY", fallbackJob = "CRAFT",
+        overrides = OrderNumbers(haulAtLoadPct = 60, areaRadius = 500),
+      )
+      ask(1L, tuned)
+      assertEquals(
+        AiConfig(BestiaJob.GATHER, Courage.STEADY, BestiaJob.CRAFT, OrderOverrides(haulAtLoadPct = 60, areaRadius = 64)),
+        playerBestias.findByIdOrNull(bestia.id)!!.aiConfig,
+        "a fallback and clamped numbers survive the database",
+      )
+      assertEquals(Status.INVALID, ask(1L, tuned.copy(job = "GUARD")).status, "a guard takes no fallback")
+
       assertEquals(Status.INVALID, ask(1L, ZoneQuery.SetOrders(master.id, bestia.id, "DANCE", "BOLD")).status)
       assertEquals(Status.INVALID, ask(1L, ZoneQuery.SetOrders(master.id, bestia.id, "GUARD", "RECKLESS")).status)
       assertEquals(Status.NOT_FOUND, ask(2L, ZoneQuery.SetOrders(master.id, bestia.id, "GUARD", "BOLD")).status)
     } finally {
-      ask(1L, ZoneQuery.SetOrders(master.id, bestia.id, before.job.name, before.courage.name))
+      ask(1L, ZoneQuery.SetOrders(master.id, bestia.id, before.job.name, before.courage.name, before.fallbackJob?.name))
     }
   }
 

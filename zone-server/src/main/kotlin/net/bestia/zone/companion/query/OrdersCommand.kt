@@ -31,7 +31,13 @@ class OrdersCommand(
       ?: return BusReply.of(correlationId, Status.INVALID, "Unknown job '${query.job}'")
     val courage = Courage.fromNameOrNull(query.courage)
       ?: return BusReply.of(correlationId, Status.INVALID, "Unknown courage '${query.courage}'")
-    val orders = AiConfig(job, courage)
+    val fallbackJob = query.fallbackJob?.let {
+      BestiaJob.fromNameOrNull(it) ?: return BusReply.of(correlationId, Status.INVALID, "Unknown fallback job '$it'")
+    }
+    val orders = AiConfig(job, courage, fallbackJob, OrdersOnTheBus.overridesOf(query.overrides))
+    if (!orders.isValid) {
+      return BusReply.of(correlationId, Status.INVALID, "A $job bestia cannot fall back to $fallbackJob")
+    }
 
     var reply = BusReply.of(correlationId, Status.NOT_FOUND)
     inbox.onIo(accountId) {
@@ -57,7 +63,14 @@ class OrdersCommand(
     val stored = aiConfigs.apply(query.playerBestiaId, orders)
       ?: return BusReply.of(correlationId, Status.NOT_FOUND)
 
-    return BusReply.ok(correlationId, ZoneAnswer.Orders(query.playerBestiaId, stored.job.name, stored.courage.name))
+    val answer = ZoneAnswer.Orders(
+      query.playerBestiaId,
+      stored.job.name,
+      stored.courage.name,
+      stored.fallbackJob?.name,
+      OrdersOnTheBus.numbersOf(stored.overrides),
+    )
+    return BusReply.ok(correlationId, answer)
   }
 
   private companion object {
