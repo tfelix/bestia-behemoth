@@ -103,6 +103,7 @@ class ZoneEventRelay(
         event.config.courage.name,
         event.config.fallbackJob?.name,
         OrdersOnTheBus.numbersOf(event.config.overrides),
+        OrdersOnTheBus.linesOf(event.config.rules),
       )
     )
   }

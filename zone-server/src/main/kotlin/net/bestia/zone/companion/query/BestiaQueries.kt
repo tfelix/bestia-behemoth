@@ -61,6 +61,7 @@ class BestiaQueries(
           journey = row.entityId?.let { travelling[it] },
           fallbackJob = row.aiConfig.fallbackJob?.name,
           overrides = OrdersOnTheBus.numbersOf(row.aiConfig.overrides),
+          rules = OrdersOnTheBus.linesOf(row.aiConfig.rules),
         )
       }
     )
