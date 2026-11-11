@@ -580,6 +580,7 @@ export interface components {
             courage: string;
             fallbackJob?: string;
             overrides: components["schemas"]["OrderNumbers"];
+            rules: components["schemas"]["OrderRuleLine"][];
         };
         OrderNumbers: {
             /** Format: int32 */
@@ -592,6 +593,12 @@ export interface components {
             haulAtLoadPct?: number;
             /** Format: int32 */
             areaRadius?: number;
+        };
+        OrderRuleLine: {
+            condition: string;
+            /** Format: int32 */
+            threshold?: number;
+            action: string;
         };
         JourneyOrder: {
             waypoints: components["schemas"]["Position"][];
@@ -876,6 +883,7 @@ export interface components {
             journey?: components["schemas"]["Journey"];
             fallbackJob?: string;
             overrides: components["schemas"]["OrderNumbers"];
+            rules: components["schemas"]["OrderRuleLine"][];
         };
         Journey: {
             name?: string;

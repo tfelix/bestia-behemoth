@@ -1,5 +1,6 @@
 package net.bestia.api.rest
 
+import net.bestia.bus.contract.OrderRuleLine
 import net.bestia.bus.contract.OrderNumbers
 import net.bestia.api.auth.CompanionAuthFilter.Companion.ACCOUNT_ID
 import net.bestia.api.bus.ZoneClient
@@ -67,6 +68,7 @@ class MastersController(
     val journey: Journey?,
     val fallbackJob: String?,
     val overrides: OrderNumbers,
+    val rules: List<OrderRuleLine>,
   )
 
   /** [route] is the way still ahead as planned; [waypoints] from [nextIndex] on are still to visit. */
@@ -176,6 +178,7 @@ class MastersController(
         },
         fallbackJob = it.fallbackJob,
         overrides = it.overrides,
+        rules = it.rules,
       )
     }
   }

@@ -1,5 +1,6 @@
 package net.bestia.bus
 
+import net.bestia.bus.contract.OrderRuleLine
 import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.BusRequest
 import net.bestia.bus.contract.ZoneAnswer
@@ -20,7 +21,8 @@ class BusFrameTest {
       ZoneQuery.MapTile(masterId = 7, level = 3, x = -2, y = 9, ifNoneMatch = "\"w1-3/-2/9\""),
       ZoneQuery.HabitatTile(masterId = 7, speciesId = 1, level = 3, x = -2, y = 9, ifNoneMatch = null),
       ZoneQuery.SetOrders(masterId = 7, playerBestiaId = 11, job = "GUARD", courage = "BOLD"),
-      ZoneQuery.SetOrders(7, 11, "GATHER", "STEADY", fallbackJob = "CRAFT", overrides = OrderNumbers(haulAtLoadPct = 60)),
+      ZoneQuery.SetOrders(7, 11, "GATHER", "STEADY", fallbackJob = "CRAFT", overrides = OrderNumbers(haulAtLoadPct = 60),
+        rules = listOf(OrderRuleLine("STAMINA_BELOW", 30, "EAT"), OrderRuleLine("NIGHT", null, "REST_AT_HOME"))),
       ZoneQuery.SendChat(masterId = 7, channel = "PARTY", text = "on my way"),
       ZoneQuery.Compendium(masterId = 7),
       ZoneQuery.SendOnJourney(masterId = 7, playerBestiaId = 11, waypoints = listOf(MapPoint(1.5, 2.5))),

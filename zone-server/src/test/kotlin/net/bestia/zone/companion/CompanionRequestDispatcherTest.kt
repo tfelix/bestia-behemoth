@@ -1,5 +1,7 @@
 package net.bestia.zone.companion
 
+import net.bestia.zone.ai.profile.OrderRule
+import net.bestia.bus.contract.OrderRuleLine
 import net.bestia.zone.ai.profile.OrderOverrides
 import net.bestia.bus.contract.OrderNumbers
 import net.bestia.bus.contract.BusReply
@@ -133,6 +135,15 @@ class CompanionRequestDispatcherTest {
         "a fallback and clamped numbers survive the database",
       )
       assertEquals(Status.INVALID, ask(1L, tuned.copy(job = "GUARD")).status, "a guard takes no fallback")
+
+      ask(1L, tuned.copy(rules = listOf(OrderRuleLine("NIGHT", null, "REST_AT_HOME"))))
+      assertEquals(
+        listOf(OrderRule(OrderRule.Condition.NIGHT, null, OrderRule.Action.REST_AT_HOME)),
+        playerBestias.findByIdOrNull(bestia.id)!!.aiConfig.rules,
+        "rules survive the database",
+      )
+      val badRule = tuned.copy(rules = listOf(OrderRuleLine("NIGHT", 5, "EAT")))
+      assertEquals(Status.INVALID, ask(1L, badRule).status, "night takes no number and does not mean eat")
 
       assertEquals(Status.INVALID, ask(1L, ZoneQuery.SetOrders(master.id, bestia.id, "DANCE", "BOLD")).status)
       assertEquals(Status.INVALID, ask(1L, ZoneQuery.SetOrders(master.id, bestia.id, "GUARD", "RECKLESS")).status)

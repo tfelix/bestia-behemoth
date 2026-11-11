@@ -65,8 +65,8 @@
 				sendJson<BestiaOrders>(
 					'PUT',
 					`/v1/companion/masters/${masterId}/bestias/${b.id}/orders`,
-					// Fallback and Fine-tune numbers are not edited here, so they go back as they are.
-					{ job: draft.job, courage: draft.courage, fallbackJob: b.fallbackJob, overrides: b.overrides },
+					// Fallback, Fine-tune numbers and rules are not edited here, so they go back as they are.
+					{ job: draft.job, courage: draft.courage, fallbackJob: b.fallbackJob, overrides: b.overrides, rules: b.rules },
 					{ 'Idempotency-Key': draft.key }
 				)
 			);
@@ -74,6 +74,7 @@
 			b.courage = stored.courage;
 			b.fallbackJob = stored.fallbackJob;
 			b.overrides = stored.overrides;
+			b.rules = stored.rules;
 			drafts[b.id] = { job: stored.job, courage: stored.courage, key: crypto.randomUUID(), sending: false, note: 'Orders given.' };
 		} catch (e) {
 			// On a timeout the key stays: sending again cannot give the order twice.
