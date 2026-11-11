@@ -21,6 +21,7 @@
 		sheetOf,
 		type OrderDraft
 	} from '#lib/orders.ts';
+	import { activityText } from '#lib/activity.ts';
 	import { stopJourney, travelStatus } from '#lib/travel.ts';
 
 	type Draft = OrderDraft & { key: string; sending: boolean; note: string | null; presetName: string };
@@ -162,7 +163,7 @@
 				</div>
 
 				<p class="travel">
-					<span class="muted small">{travelStatus(b)}</span>
+					<span class="muted small">{b.activity && !b.journey ? activityText(b.activity) : travelStatus(b)}</span>
 					{#if b.journey}
 						<button class="btn" disabled={stopping === b.id} onclick={() => stop(b)}>Stop</button>
 					{:else if b.inWorld}
