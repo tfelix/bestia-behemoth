@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.domain.bestia
 
+import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.battle.attack.BasicAttackResolver
 import net.bestia.zone.ai.bt.Locomotion
 import net.bestia.zone.ai.core.action.ActionResolver
@@ -162,7 +163,13 @@ object BestiaDomain : AiDomainCatalogue {
   val BAG_LOAD_PCT = StateKey<Int>("bagLoadPct", observed = true)
 
   /** A gatherer stops gathering at this load, so it never has to leave a find on the ground for want of room. */
-  const val HAUL_AT_LOAD_PCT = 80
+  const val DEFAULT_HAUL_AT_LOAD_PCT = 80
+
+  /** The load it carries its bag to the chest at, when its orders set one. */
+  val HAUL_AT_LOAD_PCT = StateKey<Int>("haulAtLoadPct", retain = Blackboard.PERMANENT)
+
+  /** The job an owned bestia's orders give it first. Its fallback job waits until [mainJobIdle]. */
+  val MAIN_JOB = StateKey<BestiaJob>("mainJob", retain = Blackboard.PERMANENT)
 
   /** The props a gatherer last saw in its area, nearest first. See `GatherSense`. */
   val GATHERABLES = StateKey<List<Gatherable>>("gatherables")
@@ -203,14 +210,17 @@ object BestiaDomain : AiDomainCatalogue {
   /** A guard has walked back to the middle of its area since its last fight. Perception clears it on every target. */
   val BACK_IN_MIDDLE = StateKey<Boolean>("backInMiddle", retain = Blackboard.PERMANENT)
 
-  /**
-   * Its master's stations in its craft area that wait for a free crafter, or the shafts in its mine area that wait for
-   * a miner, nearest first. See `StationSense`.
-   */
+  /** Its master's stations in its craft area that wait for a free crafter, nearest first. See `StationSense`. */
   val OPEN_STATIONS = StateKey<List<OpenStation>>("openStations")
 
   /** Whether it works a station now. */
   val AT_WORK = StateKey<Boolean>("atWork")
+
+  /** Whether the station it works is a mining shaft. */
+  val AT_SHAFT = StateKey<Boolean>("atShaft")
+
+  /** Its master's shafts in its mine area that wait for a miner, nearest first. See `StationSense`. */
+  val OPEN_SHAFTS = StateKey<List<OpenStation>>("openShafts")
 
   /** When this species sleeps, against the world's day/night cycle. See [isRestingPhase]. */
   val ACTIVITY_CYCLE = StateKey<ActivityCycle>("activityCycle", retain = Blackboard.PERMANENT)
@@ -299,6 +309,26 @@ object BestiaDomain : AiDomainCatalogue {
   private fun bagLoadOf(state: WorldState): Int = state.get(BAG_LOAD_PCT) ?: 0
 
   private fun healLineOf(state: WorldState): Int = state.get(HEAL_BELOW_HEALTH_PCT) ?: DEFAULT_HEAL_BELOW_HEALTH_PCT
+
+  private fun haulLineOf(state: WorldState): Int = state.get(HAUL_AT_LOAD_PCT) ?: DEFAULT_HAUL_AT_LOAD_PCT
+
+  /**
+   * Whether the main job has run out of work, so the fallback job may run: nothing left to gather and the bag
+   * hauled, or no station or shaft waiting and none being worked. Not before its sense has looked once: a bestia
+   * that just got its orders would otherwise start on its fallback job first.
+   */
+  fun mainJobIdle(state: WorldState): Boolean {
+    return when (state.get(MAIN_JOB)) {
+      BestiaJob.GATHER -> state.get(GATHERABLES)?.isEmpty() == true && state.get(GOODS_TO_HAUL) != true
+      BestiaJob.CRAFT -> !atCraftStation(state) && state.get(OPEN_STATIONS)?.isEmpty() == true
+      BestiaJob.MINE -> !atShaft(state) && state.get(OPEN_SHAFTS)?.isEmpty() == true
+      else -> false
+    }
+  }
+
+  fun atShaft(state: WorldState): Boolean = state.get(AT_WORK) == true && state.get(AT_SHAFT) == true
+
+  fun atCraftStation(state: WorldState): Boolean = state.get(AT_WORK) == true && state.get(AT_SHAFT) != true
 
   /**
    * Whether courage says to get out: hurt below its retreat line, or a timid one seeing an enemy at all.
@@ -491,7 +521,7 @@ object BestiaDomain : AiDomainCatalogue {
       priority = priority(base = 60f),
       // Without room in its chest a gatherer stops, rather than gather what it could never put away.
       availability = Precondition { s ->
-        !s.get(GATHERABLES).isNullOrEmpty() && bagLoadOf(s) < HAUL_AT_LOAD_PCT && s.get(CHEST_HAS_ROOM) == true
+        !s.get(GATHERABLES).isNullOrEmpty() && bagLoadOf(s) < haulLineOf(s) && s.get(CHEST_HAS_ROOM) == true
       },
       desiredState = listOf(Preconditions.equalTo(GATHERED, true)),
     )
@@ -506,7 +536,7 @@ object BestiaDomain : AiDomainCatalogue {
       priority = priority(base = 75f),
       availability = Precondition { s ->
         val pickedClean = s.get(GATHER_AREA) != null && s.get(GATHERABLES).isNullOrEmpty()
-        val bagFull = bagLoadOf(s) >= HAUL_AT_LOAD_PCT || s.get(NO_ROOM_FOR_PRODUCT) == true
+        val bagFull = bagLoadOf(s) >= haulLineOf(s) || s.get(NO_ROOM_FOR_PRODUCT) == true
         s.get(GOODS_TO_HAUL) == true && (bagFull || pickedClean)
       },
       desiredState = listOf(Preconditions.equalTo(GOODS_TO_HAUL, false)),
@@ -516,16 +546,22 @@ object BestiaDomain : AiDomainCatalogue {
      * A free crafter taking a station that waits for one. The station is then its home, so [RETURN_HOME] keeps it
      * there; over [WANDER], so idling is what it does once no station waits.
      */
-    val CRAFT = takeOpenStation("Craft")
-
-    /** A miner taking a shaft that has no miner, as [CRAFT] takes a station. */
-    val MINE = takeOpenStation("Mine")
-
-    private fun takeOpenStation(name: String) = Goal(
-      name = name,
+    val CRAFT = Goal(
+      name = "Craft",
       priority = priority(base = 60f),
       availability = Precondition { s -> s.get(AT_WORK) != true && !s.get(OPEN_STATIONS).isNullOrEmpty() },
-      desiredState = listOf(Preconditions.equalTo(AT_WORK, true)),
+      desiredState = listOf(Precondition(::atCraftStation)),
+    )
+
+    /**
+     * A miner taking a shaft that has no miner, as [CRAFT] takes a station. Its own list and desired state, so a
+     * bestia that crafts and mines never takes a shaft for its crafting or a station for its mining.
+     */
+    val MINE = Goal(
+      name = "Mine",
+      priority = priority(base = 60f),
+      availability = Precondition { s -> s.get(AT_WORK) != true && !s.get(OPEN_SHAFTS).isNullOrEmpty() },
+      desiredState = listOf(Precondition(::atShaft)),
     )
 
     /** A guard walking back to the middle of its area once a fight is over. Over [WANDER], under the kill goals. */
@@ -585,7 +621,8 @@ object BestiaDomain : AiDomainCatalogue {
     "fellTree" to { c -> FellTreeActionTemplate(c.locomotion, c.attackExecution, c.promotion, c.aoi, c.attacks) },
     "haulToChest" to { c -> HaulToChestActionTemplate(c.locomotion, c.care, c.handover, c.aoi) },
     "takeFoodFromChest" to { c -> TakeFoodFromChestActionTemplate(c.locomotion, c.care, c.handover, c.aoi) },
-    "claimStation" to { c -> ClaimStationActionTemplate(c.locomotion, c.stations) },
+    "claimStation" to { c -> ClaimStationActionTemplate.forStations(c.locomotion, c.stations) },
+    "claimShaft" to { c -> ClaimStationActionTemplate.forShafts(c.locomotion, c.stations) },
   )
 
   /** Every action id a profile may name, for fail-fast validation at boot without building anything. */

@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.domain
 
+import net.bestia.zone.ai.core.precondition.Precondition
 import net.bestia.zone.ai.core.action.ActionResolver
 import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.core.state.Drive
@@ -36,6 +37,10 @@ interface AiDomainRuntime {
   fun attach(memory: Blackboard, profile: AiProfile, homePosition: Vec3L, config: AiConfig?)
 
   fun resolver(profile: AiProfile): ActionResolver
+
+  /** When an agent's main job has nothing to do, so its fallback job may run. Never, in a domain without orders. */
+  val mainJobIdle: Precondition
+    get() = Precondition { false }
 
   /**
    * When perception should clear [net.bestia.zone.ai.core.state.CommonKeys.RESTED] for this agent.

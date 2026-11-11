@@ -2,6 +2,7 @@ package net.bestia.zone.account.persistence
 
 import jakarta.persistence.*
 import net.bestia.zone.ai.profile.AiConfig
+import net.bestia.zone.ai.profile.OrderOverrides
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.ContainerOwner
 import net.bestia.zone.item.persistence.ItemContainer
@@ -68,8 +69,19 @@ class PlayerBestia(
    * rather than null. The schema is `ddl-auto: update` against a real database, so existing player bestias
    * survive the migration and must land somewhere sensible.
    */
+  var aiConfig: AiConfig
+    get() = orders.copy(overrides = orderOverrides ?: OrderOverrides())
+    set(value) {
+      orders = value
+      orderOverrides = value.overrides
+    }
+
   @Embedded
-  var aiConfig: AiConfig = AiConfig()
+  private var orders: AiConfig = AiConfig()
+
+  /** Apart from [orders], and nullable: Hibernate reads an embedded value whose columns are all null as null. */
+  @Embedded
+  private var orderOverrides: OrderOverrides? = null
 
   /** Null only on a row from before bestias had a sex; [net.bestia.zone.boot.PlayerBestiaGeneticsBootRunner] rolls it. */
   @Enumerated(EnumType.STRING)

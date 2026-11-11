@@ -213,6 +213,7 @@ class AiPipelineFixture(
   val structureRegistry: PlayerStructureRegistry = mockk<PlayerStructureRegistry>().also {
     every { it.all() } answers { structures }
     every { it.of(any()) } answers { structures.firstOrNull { entry -> entry.id == firstArg<Long>() } }
+    every { it.workplaceOf(any()) } answers { structures.firstOrNull { entry -> entry.workerBestiaId == firstArg<Long>() } }
     every { it.setWorker(any(), any()) } answers {
       structures.replaceAll { entry -> if (entry.id == firstArg<Long>()) entry.copy(workerBestiaId = secondArg()) else entry }
     }
@@ -320,7 +321,7 @@ class AiPipelineFixture(
         BagSense(bagCare),
         GatherSense(aoi, propKinds, divergence),
         JobChestSense(structureRegistry, chests, bagCare),
-        StationSense(structureRegistry, shaftOre),
+        StationSense(structureRegistry, shaftOre, stationWorkers),
         ShelterSense(aoi) { at, reach -> doorsteps.filter { it.distance(at) <= reach } },
         SettlementSense(
           food = { mealStall },
