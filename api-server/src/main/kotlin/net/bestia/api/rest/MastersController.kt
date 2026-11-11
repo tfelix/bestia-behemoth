@@ -1,5 +1,6 @@
 package net.bestia.api.rest
 
+import net.bestia.bus.contract.OrderNumbers
 import net.bestia.api.auth.CompanionAuthFilter.Companion.ACCOUNT_ID
 import net.bestia.api.bus.ZoneClient
 import net.bestia.api.cache.AnswerCache
@@ -64,6 +65,8 @@ class MastersController(
     val metresPerSecond: Double,
     /** Where it is travelling, null when it stands. */
     val journey: Journey?,
+    val fallbackJob: String?,
+    val overrides: OrderNumbers,
   )
 
   /** [route] is the way still ahead as planned; [waypoints] from [nextIndex] on are still to visit. */
@@ -171,6 +174,8 @@ class MastersController(
             route = journey.route.map { point -> Position(point.east, point.north) },
           )
         },
+        fallbackJob = it.fallbackJob,
+        overrides = it.overrides,
       )
     }
   }

@@ -4,7 +4,7 @@ import { distanceText, routeLength, stopsAhead, travelStatus, travelTimeText, wa
 
 const here = { eastMetres: 0, northMetres: 0 };
 
-function bestia(overrides: Partial<Bestia>): Bestia {
+function bestia(changes: Partial<Bestia>): Bestia {
 	return {
 		id: 7,
 		name: 'Rex',
@@ -17,7 +17,8 @@ function bestia(overrides: Partial<Bestia>): Bestia {
 		position: here,
 		asOf: 0,
 		metresPerSecond: 4,
-		...overrides
+		overrides: {},
+		...changes
 	};
 }
 

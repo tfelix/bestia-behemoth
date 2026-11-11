@@ -62,12 +62,17 @@ sealed interface ZoneQuery {
    */
   data class GuildEmblem(val hash: String) : ZoneQuery
 
-  /** New orders for an owned bestia: a job and a courage step, by name. A write: send it with an idempotency key. */
+  /**
+   * New orders for an owned bestia: a job and a courage step by name, a fallback job, and the numbers set in
+   * Fine-tune. A write: send it with an idempotency key.
+   */
   data class SetOrders(
     val masterId: Long,
     val playerBestiaId: Long,
     val job: String,
     val courage: String,
+    val fallbackJob: String? = null,
+    val overrides: OrderNumbers = OrderNumbers(),
   ) : ZoneQuery
 
   /** A line of party or guild chat ([channel] PARTY or GUILD), said as [masterId]. A write: send it with an idempotency key. */
