@@ -1,5 +1,6 @@
 package net.bestia.zone.world.stream
 
+import net.bestia.zone.util.EntityId
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.voxel.CarveBrush
@@ -39,8 +40,10 @@ class ChunkStreamInbox {
    *
    * A shape rather than a block id, because a carve only removes: what a request has to say is *how much* to
    * take, not what to leave behind. The brush itself refuses a bore the client's mesher cannot draw.
+   *
+   * What the carve breaks out goes to [yieldTo], or else to the account's active entity.
    */
-  data class Carve(val accountId: Long, val brush: CarveBrush)
+  data class Carve(val accountId: Long, val brush: CarveBrush, val yieldTo: EntityId? = null)
 
   /**
    * Put this account's active entity down at a horizontal position, on whatever the ground there is.
