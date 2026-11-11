@@ -246,6 +246,17 @@ ORDERS_ACTION_5,haul to the chest now
 ORDERS_ACTION_6,keep working
 ORDERS_ACTION_7,hold the ground
 ORDERS_GIVE,Give orders
+ORDERS_SAVE,Save
+ORDERS_CANCEL,Cancel
+ORDERS_SAVE_AS_PRESET,Save as preset...
+ORDERS_PRESET_NAME,Name of the preset
+ORDERS_EDIT_PRESET,Edit preset
+ORDERS_EDITING_HINT,You are editing the preset. Saving changes it for every bestia that follows it.
+ORDERS_SAVE_PRESET,Save preset
+ORDERS_DELETE_PRESET,Delete preset
+ORDERS_DELETE_PRESET_CONFIRM,Click again to delete
+ORDERS_AREA_HERE,Name a work area around where %s stands
+ORDERS_AREA_NAME,Name of the area
 ITEM_CRAFTED_BY,Crafted by {crafter} in {world}
 ITEM_MATERIAL_AXES,Material: {axes}
 ITEM_ATTACK_RANGE,Range: {tiles} tiles
