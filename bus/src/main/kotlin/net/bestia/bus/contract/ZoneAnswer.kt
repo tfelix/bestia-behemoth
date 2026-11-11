@@ -63,6 +63,7 @@ sealed interface ZoneAnswer {
       val journey: Journey? = null,
       val fallbackJob: String? = null,
       val overrides: OrderNumbers = OrderNumbers(),
+      val rules: List<OrderRuleLine> = emptyList(),
     )
   }
 
@@ -224,6 +225,7 @@ sealed interface ZoneAnswer {
     val courage: String,
     val fallbackJob: String? = null,
     val overrides: OrderNumbers = OrderNumbers(),
+    val rules: List<OrderRuleLine> = emptyList(),
   ) : ZoneAnswer
 
   /**

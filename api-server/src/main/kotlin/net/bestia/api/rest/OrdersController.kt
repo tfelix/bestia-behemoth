@@ -1,5 +1,6 @@
 package net.bestia.api.rest
 
+import net.bestia.bus.contract.OrderRuleLine
 import net.bestia.bus.contract.OrderNumbers
 import net.bestia.api.auth.CompanionAuthFilter.Companion.ACCOUNT_ID
 import net.bestia.api.bus.ZoneClient
@@ -34,6 +35,7 @@ class OrdersController(
     val courage: String,
     val fallbackJob: String? = null,
     val overrides: OrderNumbers = OrderNumbers(),
+    val rules: List<OrderRuleLine> = emptyList(),
   )
 
   @PutMapping
@@ -44,11 +46,11 @@ class OrdersController(
     @RequestHeader("Idempotency-Key") idempotencyKey: String,
     @RequestBody orders: BestiaOrders,
   ): BestiaOrders {
-    val query = ZoneQuery.SetOrders(masterId, bestiaId, orders.job, orders.courage, orders.fallbackJob, orders.overrides)
+    val query = ZoneQuery.SetOrders(masterId, bestiaId, orders.job, orders.courage, orders.fallbackJob, orders.overrides, orders.rules)
     val stored = zone.ask(accountId, query, idempotencyKey.take(MAX_KEY_LENGTH)).answerOrThrow<ZoneAnswer.Orders>()
 
     cache.forget(accountId)
-    return BestiaOrders(stored.job, stored.courage, stored.fallbackJob, stored.overrides)
+    return BestiaOrders(stored.job, stored.courage, stored.fallbackJob, stored.overrides, stored.rules)
   }
 
   private companion object {

@@ -73,6 +73,7 @@ sealed interface ZoneQuery {
     val courage: String,
     val fallbackJob: String? = null,
     val overrides: OrderNumbers = OrderNumbers(),
+    val rules: List<OrderRuleLine> = emptyList(),
   ) : ZoneQuery
 
   /** A line of party or guild chat ([channel] PARTY or GUILD), said as [masterId]. A write: send it with an idempotency key. */

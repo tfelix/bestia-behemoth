@@ -34,9 +34,11 @@ class OrdersCommand(
     val fallbackJob = query.fallbackJob?.let {
       BestiaJob.fromNameOrNull(it) ?: return BusReply.of(correlationId, Status.INVALID, "Unknown fallback job '$it'")
     }
-    val orders = AiConfig(job, courage, fallbackJob, OrdersOnTheBus.overridesOf(query.overrides))
+    val rules = OrdersOnTheBus.rulesOf(query.rules)
+      ?: return BusReply.of(correlationId, Status.INVALID, "Unknown rule condition or action")
+    val orders = AiConfig(job, courage, fallbackJob, OrdersOnTheBus.overridesOf(query.overrides), rules)
     if (!orders.isValid) {
-      return BusReply.of(correlationId, Status.INVALID, "A $job bestia cannot fall back to $fallbackJob")
+      return BusReply.of(correlationId, Status.INVALID, "Orders that cannot be followed: $orders")
     }
 
     var reply = BusReply.of(correlationId, Status.NOT_FOUND)
@@ -69,6 +71,7 @@ class OrdersCommand(
       stored.courage.name,
       stored.fallbackJob?.name,
       OrdersOnTheBus.numbersOf(stored.overrides),
+      OrdersOnTheBus.linesOf(stored.rules),
     )
     return BusReply.ok(correlationId, answer)
   }
