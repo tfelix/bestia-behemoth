@@ -1,5 +1,8 @@
 package net.bestia.zone.control.net
 
+import net.bestia.zone.entity.ecs.VisualKind
+import net.bestia.zone.entity.ecs.EntityVisual
+import net.bestia.zone.entity.StaticEntityKind
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.bnet.proto.OperationErrorProto.OpError
@@ -66,6 +69,17 @@ class InteractEntityHandler(
     return true
   }
 
+  /**
+   * A prop names its kind on its [StaticVisual]. A structure that lives as an ordinary entity, like a street stall,
+   * names it on its [EntityVisual] instead.
+   */
+  private fun kindOf(world: World, targetId: EntityId): StaticEntityKind? {
+    world.get(targetId, StaticVisual::class)?.let { return it.kind }
+    val visual = world.get(targetId, EntityVisual::class)?.takeIf { it.kind == VisualKind.STRUCTURE } ?: return null
+
+    return StaticEntityKind.entries.getOrNull(visual.id.toInt())
+  }
+
   /** @return the refusal to send back, or null when the click was acted on (or meant nothing). */
   private fun interact(world: World, actorId: EntityId, targetId: EntityId): OpError? {
     if (!world.isAlive(targetId)) {
@@ -78,7 +92,7 @@ class InteractEntityHandler(
     }
 
     // Ahead of the structures: a chest or a Mana Circle is one, but neither is a crafting station.
-    val propInteraction = world.get(targetId, StaticVisual::class)?.kind?.let(propInteractionByKind::get)
+    val propInteraction = kindOf(world, targetId)?.let(propInteractionByKind::get)
     if (propInteraction != null) {
       return propInteraction.interact(world, actorId, targetId)
     }

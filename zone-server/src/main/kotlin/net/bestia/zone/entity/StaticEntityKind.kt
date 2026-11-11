@@ -142,7 +142,10 @@ enum class StaticEntityKind {
   MANA_HERB,
   FROST_HERB,
   SUN_HERB,
-  GHOST_HERB;
+  GHOST_HERB,
+
+  // A Trader's street stall, drawn like the War Banner: an ordinary entity for an hour, never on the static channel.
+  STREET_STALL;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.

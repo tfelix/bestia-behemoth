@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "StreetStallSmsgProto";
+
+import "messages/component/item_stat_value.proto";
+
+// A Trader's street stall as the viewer sees it: the seller manages it, everyone else buys from it. Sent on
+// opening and after every change; `closed` tells an open window the stall packed up.
+message StreetStallSMSG {
+  uint64 stall_entity_id = 1;
+  string seller_name = 2;
+  bool mine = 3;
+  int32 max_listings = 4;
+  int32 closes_in_seconds = 5;
+  bool closed = 6;
+  repeated StallListing listings = 7;
+}
+
+message StallListing {
+  uint64 listing_id = 1;
+  uint64 item_id = 2;
+  int32 amount = 3;
+  // Coins for the whole lot.
+  int64 price = 4;
+  int32 item_level = 5;
+  int32 upgrade_level = 6;
+  int32 durability = 7;
+  int32 max_durability = 8;
+  int32 slots = 9;
+  repeated ItemStatValue rolled_stats = 10;
+}

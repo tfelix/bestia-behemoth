@@ -50,4 +50,5 @@ class SkillWorldServices(
   val camps: BaseCamps? = null,
   val resourceSensing: ResourceSensing? = null,
   val echoSensing: EchoSensing? = null,
+  val stalls: StallPitching? = null,
 )
