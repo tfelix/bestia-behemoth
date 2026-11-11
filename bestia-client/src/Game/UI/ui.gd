@@ -19,6 +19,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _post_office_win: WidgetWindow = $PostOfficeWin
 @onready var _breeding_farm_win: WidgetWindow = $BreedingFarmWin
 @onready var _incubator_win: WidgetWindow = $IncubatorWin
+@onready var _bestia_orders_win: WidgetWindow = $BestiaOrdersWin
 @onready var _auction_win: WidgetWindow = $AuctionWin
 @onready var _survey_win: WidgetWindow = $SurveyWin
 @onready var _stall_win: WidgetWindow = $StallWin
@@ -206,6 +207,12 @@ func _ready() -> void:
 	# And from the party panel, whose rows offer it for whoever stands close enough - which the inventory works out.
 	inventory.partners_in_reach_changed.connect(_bestia_party.show_exchange_partners)
 	_bestia_party.exchange_requested.connect(inventory.open_exchange_with)
+	var orders := _bestia_orders_win.get_content() as BestiaOrdersPanel
+	orders.title_changed.connect(func(title: String) -> void: _bestia_orders_win.window_title = title)
+	_bestia_party.orders_requested.connect(func(bestia: BestiaInfo) -> void:
+		orders.open_for(bestia)
+		_bestia_orders_win.visible = true
+	)
 	_master_profile.show_gold(inventory.gold())
 
 	# The map lives beside the game rather than inside it: both views draw from one MapSource, so panning
