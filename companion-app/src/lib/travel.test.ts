@@ -19,6 +19,7 @@ function bestia(changes: Partial<Bestia>): Bestia {
 		metresPerSecond: 4,
 		overrides: {},
 		rules: [],
+		ownOverrides: {},
 		...changes
 	};
 }

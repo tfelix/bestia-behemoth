@@ -69,6 +69,10 @@ class MastersController(
     val fallbackJob: String?,
     val overrides: OrderNumbers,
     val rules: List<OrderRuleLine>,
+    /** The preset it follows; null for orders of its own. */
+    val presetId: Long?,
+    /** The numbers it keeps as its own while it follows a preset. */
+    val ownOverrides: OrderNumbers,
   )
 
   /** [route] is the way still ahead as planned; [waypoints] from [nextIndex] on are still to visit. */
@@ -179,6 +183,8 @@ class MastersController(
         fallbackJob = it.fallbackJob,
         overrides = it.overrides,
         rules = it.rules,
+        presetId = it.presetId,
+        ownOverrides = it.ownOverrides,
       )
     }
   }

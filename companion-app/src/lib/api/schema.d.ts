@@ -36,6 +36,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/order-presets/{presetId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["change"];
+        post?: never;
+        delete: operations["delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/masters/{masterId}/notebook/{collection}/{key}": {
         parameters: {
             query?: never;
@@ -46,7 +62,7 @@ export interface paths {
         get?: never;
         put: operations["put"];
         post?: never;
-        delete: operations["delete"];
+        delete: operations["delete_1"];
         options?: never;
         head?: never;
         patch?: never;
@@ -164,7 +180,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/companion/masters/{masterId}/notebook/{collection}": {
+    "/v1/companion/masters/{masterId}/order-presets": {
         parameters: {
             query?: never;
             header?: never;
@@ -180,7 +196,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/companion/masters/{masterId}/letters": {
+    "/v1/companion/masters/{masterId}/notebook/{collection}": {
         parameters: {
             query?: never;
             header?: never;
@@ -188,6 +204,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["list_1"];
+        put?: never;
+        post: operations["add_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/companion/masters/{masterId}/letters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_2"];
         put?: never;
         post: operations["send_1"];
         delete?: never;
@@ -251,7 +283,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["list_2"];
+        get: operations["list_3"];
         put?: never;
         post?: never;
         delete?: never;
@@ -283,7 +315,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["list_3"];
+        get: operations["list_4"];
         put?: never;
         post?: never;
         delete?: never;
@@ -315,7 +347,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["list_4"];
+        get: operations["list_5"];
         put?: never;
         post?: never;
         delete?: never;
@@ -542,7 +574,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["delete_1"];
+        delete: operations["delete_2"];
         options?: never;
         head?: never;
         patch?: never;
@@ -575,13 +607,6 @@ export interface components {
             key: string;
             value?: components["schemas"]["JsonNode"];
         };
-        BestiaOrders: {
-            job: string;
-            courage: string;
-            fallbackJob?: string;
-            overrides: components["schemas"]["OrderNumbers"];
-            rules: components["schemas"]["OrderRuleLine"][];
-        };
         OrderNumbers: {
             /** Format: int32 */
             retreatBelowHealthPct?: number;
@@ -599,6 +624,35 @@ export interface components {
             /** Format: int32 */
             threshold?: number;
             action: string;
+        };
+        OrderSheet: {
+            job: string;
+            courage: string;
+            fallbackJob?: string;
+            overrides: components["schemas"]["OrderNumbers"];
+            rules: components["schemas"]["OrderRuleLine"][];
+        };
+        PresetWrite: {
+            name: string;
+            sheet: components["schemas"]["OrderSheet"];
+        };
+        OrderPreset: {
+            /** Format: int64 */
+            id: number;
+            name: string;
+            sheet: components["schemas"]["OrderSheet"];
+            /** Format: int32 */
+            bestias: number;
+        };
+        BestiaOrders: {
+            job: string;
+            courage: string;
+            fallbackJob?: string;
+            overrides: components["schemas"]["OrderNumbers"];
+            rules: components["schemas"]["OrderRuleLine"][];
+            /** Format: int64 */
+            presetId?: number;
+            ownOverrides: components["schemas"]["OrderNumbers"];
         };
         JourneyOrder: {
             waypoints: components["schemas"]["Position"][];
@@ -884,6 +938,9 @@ export interface components {
             fallbackJob?: string;
             overrides: components["schemas"]["OrderNumbers"];
             rules: components["schemas"]["OrderRuleLine"][];
+            /** Format: int64 */
+            presetId?: number;
+            ownOverrides: components["schemas"]["OrderNumbers"];
         };
         Journey: {
             name?: string;
@@ -1030,6 +1087,60 @@ export interface operations {
             };
         };
     };
+    change: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+                presetId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PresetWrite"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["OrderPreset"][];
+                };
+            };
+        };
+    };
+    delete: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+                presetId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["OrderPreset"][];
+                };
+            };
+        };
+    };
     put: {
         parameters: {
             query?: never;
@@ -1060,7 +1171,7 @@ export interface operations {
             };
         };
     };
-    delete: {
+    delete_1: {
         parameters: {
             query?: {
                 baseRevision?: number;
@@ -1314,6 +1425,56 @@ export interface operations {
             header?: never;
             path: {
                 masterId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["OrderPreset"][];
+                };
+            };
+        };
+    };
+    add: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PresetWrite"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["OrderPreset"][];
+                };
+            };
+        };
+    };
+    list_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                masterId: number;
                 collection: string;
             };
             cookie?: never;
@@ -1331,7 +1492,7 @@ export interface operations {
             };
         };
     };
-    add: {
+    add_1: {
         parameters: {
             query?: never;
             header: {
@@ -1360,7 +1521,7 @@ export interface operations {
             };
         };
     };
-    list_1: {
+    list_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -1476,7 +1637,7 @@ export interface operations {
             };
         };
     };
-    list_2: {
+    list_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -1518,7 +1679,7 @@ export interface operations {
             };
         };
     };
-    list_3: {
+    list_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -1562,7 +1723,7 @@ export interface operations {
             };
         };
     };
-    list_4: {
+    list_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -1894,7 +2055,7 @@ export interface operations {
             };
         };
     };
-    delete_1: {
+    delete_2: {
         parameters: {
             query?: never;
             header?: never;
