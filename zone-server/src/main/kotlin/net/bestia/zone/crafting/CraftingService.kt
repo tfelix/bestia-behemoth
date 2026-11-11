@@ -42,6 +42,7 @@ import java.time.Clock
 import net.bestia.zone.crafting.ecs.KnownRecipes
 import net.bestia.zone.crafting.discovery.BlueprintPoints
 import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.status.scripts.GloriaGrace
 import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.entity.StaticEntityKind
@@ -214,7 +215,7 @@ class CraftingService(
 
     if (Random.nextFloat() <= chance) {
       val provenance = ItemProvenance(crafterName = crafter.master.name, worldName = worldService.record.name)
-      val roll = rollOutput(recipe, known)
+      val roll = rollOutput(recipe, known, GloriaGrace.rollChanceBonusOf(world, workerId))
       succeed(world, workerId, accountId, masterId, crafter.playerBestiaId, recipe, null, minted, chance, roll, provenance)
     } else {
       fail(world, workerId, accountId, masterId, crafter.playerBestiaId, recipe, null, known)
@@ -285,7 +286,8 @@ class CraftingService(
         totalSeconds = bonuses.craftSeconds(known, recipe),
         masterEntityId = masterEntityId.takeIf { it != entityId },
         // A failed upgrade or slot cut can destroy its target, so only a recipe that makes something repeats.
-        remainingRepeats = if (recipe.needsTarget) 0 else repeats.coerceIn(0, MAX_REPEATS)
+        remainingRepeats = if (recipe.needsTarget) 0 else repeats.coerceIn(0, MAX_REPEATS),
+        rollChanceBonus = GloriaGrace.rollChanceBonusOf(world, entityId),
       )
     )
 
@@ -337,7 +339,7 @@ class CraftingService(
 
     val chance = bonuses.successChance(known, recipe, attributesOf(world, entityId))
     val succeeded = Random.nextFloat() <= chance
-    val roll = if (succeeded) rollOutput(recipe, known) else null
+    val roll = if (succeeded) rollOutput(recipe, known, crafting.rollChanceBonus) else null
     val provenance = ItemProvenance(crafterName = crafter.master.name, worldName = worldService.record.name)
 
     asyncJobExecutor.submit(masterId) {
@@ -458,12 +460,12 @@ class CraftingService(
   }
 
   /** Null for an output without a template: it rolls nothing and keeps its template's level. */
-  private fun rollOutput(recipe: Recipe, known: KnownSkills?): ItemRoll? {
+  private fun rollOutput(recipe: Recipe, known: KnownSkills?, chanceBonus: Int): ItemRoll? {
     val output = recipe.output ?: return null
     val sheet = itemStats.sheetOf(output.itemId)
     if (recipe.effect != RecipeEffect.PRODUCE || sheet.randomStats == null) return null
 
-    return roller.roll(sheet, bonuses.rollCap(known, recipe, mainMaterialLevel(recipe)))
+    return roller.roll(sheet, bonuses.rollCap(known, recipe, mainMaterialLevel(recipe)), chanceBonus)
   }
 
   /** The level of the input the recipe needs most of: the iron of an iron sword, not its coal. */
