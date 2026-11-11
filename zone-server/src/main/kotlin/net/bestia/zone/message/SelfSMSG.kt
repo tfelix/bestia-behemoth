@@ -16,6 +16,7 @@ data class SelfSMSG(
 
   data class BestiaInfo(
     val entityId: Long,
+    val playerBestiaId: Long,
     val mobId: Int,
     /**
      * Name is optional. If not given fall back to the
@@ -39,6 +40,7 @@ data class SelfSMSG(
       // Proto3 strings have no null: the empty string is the "no name" the client falls back from.
       val info = BestiaInfoProto.BestiaInfo.newBuilder()
         .setEntityId(entityId)
+        .setPlayerBestiaId(playerBestiaId)
         .setMobId(mobId)
         .setName(name ?: "")
         .setLevel(level)

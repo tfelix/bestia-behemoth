@@ -112,6 +112,7 @@ data class AvailableMasterSMSG(
 
         val protoBestiaInfo = BestiaInfoProto.BestiaInfo.newBuilder()
           .setEntityId(bestia.entityId)
+          .setPlayerBestiaId(bestia.playerBestiaId)
           .setMobId(bestia.mobId)
           .setName(bestia.name ?: "")
           .setLevel(bestia.level)
