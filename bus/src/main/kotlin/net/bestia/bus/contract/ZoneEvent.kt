@@ -40,6 +40,23 @@ sealed interface ZoneEvent {
     val ownOverrides: OrderNumbers = OrderNumbers(),
   ) : ZoneEvent
 
+  /**
+   * Something an owned bestia did, as its diary says it: [kind] NEW_ORDERS, HAULED, WORK_PAUSED, QUEUE_FINISHED,
+   * ATTACKED or RETREATED, with [place] and [reason] as the diary has them. [whilePlaying] when the player was in the
+   * game to see it, which is no time to wake them.
+   */
+  data class BestiaHappening(
+    override val accountId: Long,
+    val masterId: Long,
+    val playerBestiaId: Long,
+    val bestiaName: String?,
+    val species: String,
+    val kind: String,
+    val place: String?,
+    val reason: String?,
+    val whilePlaying: Boolean,
+  ) : ZoneEvent
+
   /** The account entered the world with [masterId], or left it ([inWorld] false, [masterId] null). */
   data class Presence(override val accountId: Long, val masterId: Long?, val inWorld: Boolean) : ZoneEvent
 

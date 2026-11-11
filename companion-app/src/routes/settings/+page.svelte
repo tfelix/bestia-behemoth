@@ -93,6 +93,10 @@
 				<label><input type="checkbox" bind:checked={prefs.journeyEnded} onchange={save} /> a Bestia I sent off arrives, or gets stuck</label>
 				<label><input type="checkbox" bind:checked={prefs.letterArrived} onchange={save} /> a letter arrives</label>
 				<label><input type="checkbox" bind:checked={prefs.parcelArrived} onchange={save} /> a parcel arrives</label>
+				<label
+					><input type="checkbox" bind:checked={prefs.bestiaStopped} onchange={save} /> a Bestia stops working, or finishes a queue</label
+				>
+				<label><input type="checkbox" bind:checked={prefs.bestiaAttacked} onchange={save} /> a Bestia is attacked, or retreats</label>
 			</fieldset>
 			<fieldset>
 				<legend class="label">Quiet hours</legend>

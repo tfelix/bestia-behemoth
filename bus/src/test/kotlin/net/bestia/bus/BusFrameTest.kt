@@ -28,6 +28,12 @@ class BusFrameTest {
       ZoneQuery.OrderPresets(7),
       ZoneQuery.SaveOrderPreset(7, null, "Camp", OrderSheet("GATHER", "BOLD", rules = listOf(OrderRuleLine("DAY", null, "KEEP_WORKING")))),
       ZoneQuery.DeleteOrderPreset(7, 3),
+      ZoneQuery.Diary(7),
+      ZoneQuery.Workshop(7),
+      ZoneQuery.QueueAtStation(7, structureId = 5, recipeId = 42, amount = 3),
+      ZoneQuery.CancelAtStation(7, structureId = 5, index = 1),
+      ZoneQuery.MoveAtStation(7, structureId = 5, from = 1, to = 0),
+      ZoneQuery.SetStationWorker(7, structureId = 5, playerBestiaId = null, anyFreeCrafter = true),
       ZoneQuery.SendChat(masterId = 7, channel = "PARTY", text = "on my way"),
       ZoneQuery.Compendium(masterId = 7),
       ZoneQuery.SendOnJourney(masterId = 7, playerBestiaId = 11, waypoints = listOf(MapPoint(1.5, 2.5))),
@@ -84,6 +90,15 @@ class BusFrameTest {
       ZoneAnswer.Services("\"s\"", listOf(ZoneAnswer.Services.Service(9, "INN", "The Boar", 1.0, 2.0, "Ashfen", 6, 22))),
       ZoneAnswer.TicketOwner(42),
       ZoneAnswer.Orders(2, "GUARD", "BOLD"),
+      ZoneAnswer.Diary(listOf(ZoneAnswer.Diary.DiaryEntry(3, 99, "HAULED", mapOf("log" to 12), null, null))),
+      ZoneAnswer.Workshop(
+        listOf(
+          ZoneAnswer.Workshop.StationView(
+            5, "WORKBENCH", 1.0, 2.0, listOf(ZoneAnswer.Workshop.QueueLine(42, "chest_kit", 3, 1)), "BESTIA", 11, null,
+            hasChest = true, affordable = listOf(ZoneAnswer.Workshop.AffordableRecipe(42, "chest_kit", 4)),
+          )
+        )
+      ),
       ZoneAnswer.OrderPresets(listOf(ZoneAnswer.OrderPresets.Preset(3, "Camp", OrderSheet("MINE", "STEADY", "GUARD"), bestias = 2))),
       ZoneAnswer.Orders(2, "MINE", "BOLD", fallbackJob = "GUARD", overrides = OrderNumbers(retreatBelowHealthPct = 0)),
       ZoneAnswer.ChatSent(null),
@@ -130,6 +145,7 @@ class BusFrameTest {
       ZoneEvent.CompendiumChanged(accountId = 1, masterId = 2),
       ZoneEvent.NotebookChanged(1, masterId = null, collection = "keybindings", key = "_", revision = 3, deleted = false, json = "{}"),
       ZoneEvent.JourneyEnded(1, 2, 3, "Rex", "wolf", "Ore run", "STUCK", MapPoint(1.0, 2.0), whilePlaying = false),
+      ZoneEvent.BestiaHappening(1, 2, 3, "Rex", "wolf", "WORK_PAUSED", "CAMPFIRE", "STATION_OUT", whilePlaying = false),
     )
 
     for (event in events) {

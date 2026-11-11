@@ -27,6 +27,8 @@ CREATE TABLE push_preference
     journey_ended     BIT(1)      NOT NULL,
     letter_arrived    BIT(1)      NOT NULL,
     parcel_arrived    BIT(1)      NOT NULL,
+    bestia_stopped    BIT(1)      NOT NULL,
+    bestia_attacked   BIT(1)      NOT NULL,
     -- Minutes after midnight in time_zone; both null for no quiet hours. May wrap past midnight.
     quiet_from        SMALLINT    NULL,
     quiet_to          SMALLINT    NULL,
