@@ -639,7 +639,14 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.85f, 0.85f, 0.90f), Collectible = true,
         Action = PropAction.Collect
-      } // GHOST_HERB
+      }, // GHOST_HERB
+
+      // A Trader's street stall, an entity like the War Banner: a low cloth-coloured counter until it has a model.
+      new Kind
+      {
+        PlaceholderWidth = 1.5f, PlaceholderColour = new Color(0.72f, 0.36f, 0.30f), StructureHeight = 1f,
+        Action = PropAction.Use
+      } // STREET_STALL
     };
 
     /// <summary>

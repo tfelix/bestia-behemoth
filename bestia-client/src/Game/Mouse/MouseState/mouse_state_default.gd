@@ -55,7 +55,9 @@ func handle_object_clicked(mgr: MouseManager, object: Node3D, event: InputEvent,
 			mgr.request_attack(object, object.entity_id)
 
 		DefaultAction.Kind.USE_STATION:
-			mgr.request_interact(object, object.entity_id)
+			# A finished station is a prop, a stall an entity: each carries its id under its own name.
+			var target_id: int = object.get_structure_entity_id() if object is StructureVisual else object.entity_id
+			mgr.request_interact(object, target_id)
 
 		DefaultAction.Kind.BUILD:
 			# A construction site: walking up to it and clicking is how you start building, and how you stop.
@@ -142,7 +144,8 @@ func _action_for(object: Node3D) -> int:
 		if object.is_construction_site():
 			return DefaultAction.Kind.BUILD
 
-		return DefaultAction.Kind.SELECT
+		var structure_action := DefaultAction.from_prop_name(object.action)
+		return structure_action if structure_action != DefaultAction.Kind.NONE else DefaultAction.Kind.SELECT
 
 	return DefaultAction.Kind.NONE
 

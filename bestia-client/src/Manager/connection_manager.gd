@@ -56,6 +56,8 @@ signal survey_minigame_opened(message: SurveyMinigameSMSG)
 signal sense_marks_received(message: SenseMarksSMSG)
 signal auction_listings_received(message: AuctionListingsSMSG)
 signal auction_purchased(message: AuctionPurchasedSMSG)
+## A street stall as the viewer sees it: on pitching, on a click, and after every change.
+signal street_stall_received(message: StreetStallSMSG)
 ## The played master's whole mailbox, on request and after a letter was thrown away.
 signal letters_received(message: LettersSMSG)
 ## A pigeon brought a letter to the played master.
@@ -157,6 +159,9 @@ var ShopTradeCMSG = load("res://Bnet/Message/Shop/ShopTradeCMSG.cs")
 var ShopQuoteCMSG = load("res://Bnet/Message/Shop/ShopQuoteCMSG.cs")
 var SearchAuctionsCMSG = load("res://Bnet/Message/Auction/SearchAuctionsCMSG.cs")
 var BuyAuctionListingCMSG = load("res://Bnet/Message/Auction/BuyAuctionListingCMSG.cs")
+var StallListCMSG = load("res://Bnet/Message/Stall/StallListCMSG.cs")
+var StallUnlistCMSG = load("res://Bnet/Message/Stall/StallUnlistCMSG.cs")
+var StallBuyCMSG = load("res://Bnet/Message/Stall/StallBuyCMSG.cs")
 var SendLetterCMSG = load("res://Bnet/Message/Postal/SendLetterCMSG.cs")
 var RequestLettersCMSG = load("res://Bnet/Message/Postal/RequestLettersCMSG.cs")
 var ReadLetterCMSG = load("res://Bnet/Message/Postal/ReadLetterCMSG.cs")
@@ -926,6 +931,35 @@ func buy_auction_listing(house_entity_id: int, listing_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Puts [param amount] of a held pile on the seller's own stall for [param price] coins the lot. Answered by a
+## StreetStallSMSG, or an OperationError when the stall is full.
+func list_on_stall(stall_entity_id: int, player_item_id: int, amount: int, price: int) -> void:
+	assert(is_ready_to_send())
+	var msg = StallListCMSG.new()
+	msg.StallEntityId = stall_entity_id
+	msg.PlayerItemId = player_item_id
+	msg.Amount = amount
+	msg.Price = price
+	_socket.SendMessage(msg)
+
+
+func unlist_from_stall(stall_entity_id: int, listing_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = StallUnlistCMSG.new()
+	msg.StallEntityId = stall_entity_id
+	msg.ListingId = listing_id
+	_socket.SendMessage(msg)
+
+
+## Buys a whole offer. Answered by a StreetStallSMSG, or an OperationError when somebody was faster.
+func buy_from_stall(stall_entity_id: int, listing_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = StallBuyCMSG.new()
+	msg.StallEntityId = stall_entity_id
+	msg.ListingId = listing_id
+	_socket.SendMessage(msg)
+
+
 ## Sends a letter by pigeon. Answered by a LetterSentSMSG, or an OperationError when it cannot go.
 func send_letter(recipient_name: String, subject: String, body: String) -> void:
 	assert(is_ready_to_send())
@@ -1399,6 +1433,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		auction_listings_received.emit(message)
 	elif message is AuctionPurchasedSMSG:
 		auction_purchased.emit(message)
+	elif message is StreetStallSMSG:
+		street_stall_received.emit(message)
 	elif message is LettersSMSG:
 		letters_received.emit(message)
 	elif message is LetterArrivedSMSG:

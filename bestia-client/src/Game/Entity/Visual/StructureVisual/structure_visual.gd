@@ -1,7 +1,7 @@
 extends Visual
 class_name StructureVisual
 
-## A structure drawn as an ordinary entity: a construction site, or a ward stone.
+## A structure drawn as an ordinary entity: a construction site, a ward stone, or a short-lived one like a stall.
 ##
 ## A finished station reaches the client on the per-chunk static batch and is drawn by StaticEntityRenderer.
 ## A construction site's progress and health change while somebody is watching, so it travels the entity
@@ -15,6 +15,9 @@ const _ART_NODE_NAME = "Art"
 var _kind: int = -1
 
 var _entity_id: int = 0
+
+## What a click on the finished structure does, named as on a PropPicker. Set in _ready from the kind.
+var action: StringName = &"none"
 
 var _total_seconds: float = 0.0
 var _remaining_seconds: float = 0.0
@@ -50,6 +53,7 @@ func _ready() -> void:
 		return
 
 	var builder = PropVisualBuilderScript.new()
+	action = builder.ActionName(_kind)
 
 	var art: Node3D = builder.BuildConstruction(_kind)
 	art.name = _ART_NODE_NAME

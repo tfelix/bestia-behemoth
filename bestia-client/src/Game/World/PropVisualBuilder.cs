@@ -153,6 +153,12 @@ namespace BestiaBehemothClient.Game.World
       return new Vector3(width, HeightOf(appearance), width);
     }
 
+    /// <summary>What a click on this kind does, as <see cref="PropAppearance.ActionName"/> spells it.</summary>
+    public string ActionName(int kind)
+    {
+      return PropAppearance.ActionName(PropAppearance.Of(kind).Action);
+    }
+
     /// <summary>How tall this kind stands, in metres.</summary>
     public float Height(int kind)
     {
