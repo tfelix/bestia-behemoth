@@ -47,6 +47,9 @@ interface SkillWorld {
 
   fun isAlive(entityId: EntityId): Boolean
 
+  /** Whether [entityId] lies dead where it fell, waiting for a respawn or a Resurrection. */
+  fun isFallen(entityId: EntityId): Boolean
+
   fun positionOf(entityId: EntityId): Vec3L?
 
   /** Null when [entityId] is a bestia rather than a master - a refusal for anything master-only. */

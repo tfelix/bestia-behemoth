@@ -80,6 +80,12 @@ class BudgetedSkillWorld(
     return world.isAlive(entityId)
   }
 
+  override fun isFallen(entityId: EntityId): Boolean {
+    budget.charge()
+
+    return world.has(entityId, Dead::class)
+  }
+
   override fun positionOf(entityId: EntityId): Vec3L? {
     budget.charge()
 

@@ -68,7 +68,20 @@ class RegionGrid(private val water: WaterSource) {
 
     val x = position.x + 0.5
     val y = position.y + 0.5
-    return water.survey(Aabb(x - 1.0, y - 1.0, x + 1.0, y + 1.0), exact = true).isDeep(x, y)
+    return surveyAround(x, y).isDeep(x, y)
+  }
+
+  /** Whether [position] stands in any water, the shallows a body can wade in too. Generated water only. */
+  fun isWetAt(position: Vec3L): Boolean {
+    if (!water.isReady) return false
+
+    val x = position.x + 0.5
+    val y = position.y + 0.5
+    return surveyAround(x, y).isWet(x, y)
+  }
+
+  private fun surveyAround(x: Double, y: Double): WaterSurvey {
+    return water.survey(Aabb(x - 1.0, y - 1.0, x + 1.0, y + 1.0), exact = true)
   }
 
   /**
