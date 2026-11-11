@@ -1,5 +1,6 @@
 package net.bestia.zone.crafting.station
 
+import net.bestia.zone.item.ecs.ChestStorage
 import net.bestia.zone.prop.station.QueueEntry
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
@@ -217,6 +218,88 @@ class StationQueueService(
     work.forget(structureId)
     sendState(structureId)
     return null
+  }
+
+  /**
+   * [cancel] from afar, by the companion app. The owner's bag is not to be touched while they are away, so the unused
+   * ingredients go into the chest next to the station as far as it has room; the rest stays in the station.
+   */
+  fun cancelFromAfar(world: World, masterId: Long, structureId: Long, index: Int): OpError? {
+    val station = ownStation(masterId, structureId) ?: return OpError.CRAFT_NOT_POSSIBLE
+    val entry = station.queue.getOrNull(index) ?: return OpError.CRAFT_NOT_POSSIBLE
+
+    val unused = recipes.of(entry.recipeId)?.inputTotals.orEmpty()
+      .mapValues { (itemId, each) -> minOf(each * entry.left, station.held[itemId] ?: 0) }
+      .filterValues { it > 0 }
+    val refunded = structures.chestBeside(station)?.let { chest -> refundInto(chest, unused) }.orEmpty()
+
+    val held = station.held.toMutableMap()
+    refunded.forEach { (itemId, amount) -> held.merge(itemId, -amount, Int::plus) }
+    structures.setStationContents(structureId, station.queue.filterIndexed { i, _ -> i != index }, held)
+    if (index == 0) work.forget(structureId)
+
+    sendState(structureId)
+    return null
+  }
+
+  /** Moves the entry at [from] to [to]. Moving the one in progress starts its item over. */
+  fun moveFromAfar(masterId: Long, structureId: Long, from: Int, to: Int): OpError? {
+    val station = ownStation(masterId, structureId) ?: return OpError.CRAFT_NOT_POSSIBLE
+    if (from !in station.queue.indices || to !in station.queue.indices) return OpError.CRAFT_NOT_POSSIBLE
+
+    val queue = station.queue.toMutableList()
+    queue.add(to, queue.removeAt(from))
+    structures.setStationContents(structureId, queue, station.held)
+    if (from == 0 || to == 0) work.forget(structureId)
+
+    sendState(structureId)
+    return null
+  }
+
+  /**
+   * [setWorker] or [takeAnyFreeCrafter] from afar: [workerEntityId] for one of the owner's bestias, null with
+   * [anyFreeCrafter] false for the owner.
+   */
+  fun setWorkerFromAfar(
+    world: World,
+    masterId: Long,
+    structureId: Long,
+    workerEntityId: EntityId?,
+    anyFreeCrafter: Boolean,
+  ): OpError? {
+    val station = ownStation(masterId, structureId) ?: return OpError.CRAFT_NOT_POSSIBLE
+
+    workers.unassign(world, structureId)
+    if (workerEntityId != null) {
+      if (world.get(workerEntityId, OwnedBestia::class)?.masterId != masterId) return OpError.CRAFT_NOT_POSSIBLE
+      workers.assign(world, workerEntityId, station)
+    }
+    structures.setTakesAnyCrafter(structureId, workerEntityId == null && anyFreeCrafter)
+
+    work.forget(structureId)
+    sendState(structureId)
+    return null
+  }
+
+  /** What [chest] takes of [piles] now, added to its live contents, with the database following behind. */
+  private fun refundInto(chest: StructureEntry, piles: Map<Long, Int>): Map<Long, Int> {
+    val contents = chests.contentsOf(chest.id)
+    val goods = piles.map { (itemId, amount) -> Inventory.Item(itemId, amount, itemTemplates.templateOf(itemId)?.weight ?: 0) }
+    val fitting = ChestStorage.whatFits(contents, goods).associate { it.itemId to it.amount }
+    if (fitting.isEmpty()) return fitting
+
+    contents.addItems(goods.filter { it.itemId in fitting })
+    val masterId = chest.ownerMasterId
+    asyncJobExecutor.submit(masterId) {
+      if (!inventoryService.grantStacksTo(masterId, ItemHolder.Chest(chest.id), fitting)) {
+        LOG.warn { "Chest ${chest.id} of master $masterId is gone; a cancelled queue's refund is lost" }
+      }
+    }
+    return fitting
+  }
+
+  private fun ownStation(masterId: Long, structureId: Long): StructureEntry? {
+    return structures.of(structureId)?.takeIf { it.ownerMasterId == masterId && !it.isUnderConstruction }
   }
 
   /** Drops what a station holds on the ground where it stood: it was knocked down, or its fire is gone. */

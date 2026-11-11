@@ -30,6 +30,7 @@ class StationQueueServiceTest {
   private val fixture = StationFixture()
   private val inventoryService = mockk<InventoryService>().also {
     every { it.consumeAllFrom(any(), any()) } returns true
+    every { it.grantStacksTo(any(), any(), any()) } returns true
   }
   private val profiles = mockk<CrafterProfiles>()
   private val lootItems = mockk<LootItemEntitySpawner>(relaxed = true)
@@ -187,6 +188,52 @@ class StationQueueServiceTest {
     val refund = fixture.world.get(owner, ObtainItemIntent.CreateItemsIntent::class)!!.grants.single()
     assertEquals(2, refund.amount)
     assertEquals(mapOf(PLANK to 2), fixture.station.held)
+  }
+
+  @Test
+  fun `cancelling from afar puts the unused ingredients into the chest beside the station`() {
+    fixture.givenChest(planks = 1)
+    fixture.station = fixture.station.copy(queue = listOf(QueueEntry(RECIPE, 3, done = 1)), held = mapOf(PLANK to 4))
+
+    assertNull(service.cancelFromAfar(fixture.world, OWNER, STATION, index = 0))
+
+    assertEquals(5, fixture.planksIn(fixture.chestContents))
+    assertTrue(fixture.station.queue.isEmpty())
+    assertTrue(fixture.station.held.isEmpty())
+    verify { inventoryService.grantStacksTo(OWNER, ItemHolder.Chest(CHEST), mapOf(PLANK to 4)) }
+  }
+
+  @Test
+  fun `without a chest beside it a cancelled entry's ingredients stay in the station`() {
+    fixture.station = fixture.station.copy(queue = listOf(QueueEntry(RECIPE, 2)), held = mapOf(PLANK to 4))
+
+    assertNull(service.cancelFromAfar(fixture.world, OWNER, STATION, index = 0))
+
+    assertEquals(mapOf(PLANK to 4), fixture.station.held)
+    assertEquals(OpError.CRAFT_NOT_POSSIBLE, service.cancelFromAfar(fixture.world, 99L, STATION, index = 0))
+  }
+
+  @Test
+  fun `the owner reorders the queue from afar`() {
+    val queue = listOf(QueueEntry(RECIPE, 1), QueueEntry(RECIPE, 2), QueueEntry(RECIPE, 3))
+    fixture.station = fixture.station.copy(queue = queue)
+
+    assertNull(service.moveFromAfar(OWNER, STATION, from = 2, to = 0))
+
+    assertEquals(listOf(3, 1, 2), fixture.station.queue.map { it.amount })
+    assertEquals(OpError.CRAFT_NOT_POSSIBLE, service.moveFromAfar(OWNER, STATION, from = 0, to = 5))
+  }
+
+  @Test
+  fun `the owner picks the worker from afar`() {
+    val bestia = fixture.givenBestia()
+
+    assertNull(service.setWorkerFromAfar(fixture.world, OWNER, STATION, bestia, anyFreeCrafter = false))
+    assertEquals(bestia, fixture.workers.entityOf(STATION))
+
+    assertNull(service.setWorkerFromAfar(fixture.world, OWNER, STATION, null, anyFreeCrafter = true))
+    assertTrue(fixture.station.waitsForCrafter)
+    assertNull(fixture.workers.entityOf(STATION))
   }
 
   @Test

@@ -313,6 +313,18 @@ class InventoryService(
     }
   }
 
+  /** Adds stacks of [items] (item id -> amount) to [holder]'s container. False when the holder is gone. */
+  @Transactional
+  fun grantStacksTo(masterId: Long, holder: ItemHolder, items: Map<Long, Int>): Boolean {
+    val owner = lock(masterId, holder) ?: return false
+    items.forEach { (itemId, amount) ->
+      val item = itemRepository.findByIdOrNull(itemId) ?: throw ItemNotFoundException(itemId.toString())
+      grant(owner.container, item, amount, uniqueId = 0L)
+    }
+    owners.save(owner)
+    return true
+  }
+
   /**
    * [consumeAll] across several of a master's own holders, item id -> amount for each, in one transaction: a
    * station's queue paid from the master's bag and the chest next to it.
