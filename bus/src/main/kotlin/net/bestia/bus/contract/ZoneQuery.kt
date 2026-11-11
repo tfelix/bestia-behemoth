@@ -90,6 +90,32 @@ sealed interface ZoneQuery {
   /** Deletes a preset. Its bestias keep their orders, as their own. A write: send it with an idempotency key. */
   data class DeleteOrderPreset(val masterId: Long, val presetId: Long) : ZoneQuery
 
+  /** The master's crafting stations, their queues and workers, and what the chest beside each can pay for. */
+  data class Workshop(val masterId: Long) : ZoneQuery
+
+  /** Queues [amount] of a recipe at a station, paid from the chest beside it. A write: send it with an idempotency key. */
+  data class QueueAtStation(val masterId: Long, val structureId: Long, val recipeId: Long, val amount: Int) : ZoneQuery
+
+  /**
+   * Takes the queue entry at [index] off; its unused ingredients go into the chest beside the station as far as it
+   * has room. A write: send it with an idempotency key.
+   */
+  data class CancelAtStation(val masterId: Long, val structureId: Long, val index: Int) : ZoneQuery
+
+  /** Moves the queue entry at [from] to [to]. A write: send it with an idempotency key. */
+  data class MoveAtStation(val masterId: Long, val structureId: Long, val from: Int, val to: Int) : ZoneQuery
+
+  /**
+   * Who works a station: the bestia [playerBestiaId], any free crafter, or with neither the master. A write: send it
+   * with an idempotency key.
+   */
+  data class SetStationWorker(
+    val masterId: Long,
+    val structureId: Long,
+    val playerBestiaId: Long?,
+    val anyFreeCrafter: Boolean,
+  ) : ZoneQuery
+
   /** A line of party or guild chat ([channel] PARTY or GUILD), said as [masterId]. A write: send it with an idempotency key. */
   data class SendChat(val masterId: Long, val channel: String, val text: String) : ZoneQuery
 

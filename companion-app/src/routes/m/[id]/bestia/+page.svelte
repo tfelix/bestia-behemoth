@@ -142,7 +142,10 @@
 </script>
 
 <main class="page">
-	<h1 class="title">Bestia</h1>
+	<div class="top">
+		<h1 class="title">Bestia</h1>
+		<a class="btn" href={`/m/${masterId}/workshop`}>Workshop</a>
+	</div>
 
 	{#if failure}
 		<p class="alert">{failure}</p>
@@ -304,6 +307,12 @@
 <style>
 	.title {
 		margin-bottom: 0.8rem;
+	}
+
+	.top {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
 	}
 
 	.head {
