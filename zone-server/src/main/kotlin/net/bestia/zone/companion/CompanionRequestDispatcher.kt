@@ -20,6 +20,7 @@ import net.bestia.zone.companion.query.PartyQueries
 import net.bestia.zone.companion.query.NotebookCommands
 import net.bestia.zone.companion.query.OrderPresetCommands
 import net.bestia.zone.companion.query.OrdersCommand
+import net.bestia.zone.companion.query.WorkshopCommands
 import net.bestia.zone.companion.query.ParcelQueries
 import net.bestia.zone.companion.query.SurveyCommands
 import net.bestia.zone.companion.query.TicketQueries
@@ -36,6 +37,7 @@ class CompanionRequestDispatcher(
   private val map: MapQueries,
   private val orders: OrdersCommand,
   private val presets: OrderPresetCommands,
+  private val workshop: WorkshopCommands,
   private val tickets: TicketQueries,
   private val chat: ChatCommand,
   private val compendium: CompendiumQueries,
@@ -74,6 +76,11 @@ class CompanionRequestDispatcher(
       is ZoneQuery.OrderPresets -> presets.list(id, account, query)
       is ZoneQuery.SaveOrderPreset -> presets.save(id, account, query)
       is ZoneQuery.DeleteOrderPreset -> presets.delete(id, account, query)
+      is ZoneQuery.Workshop -> workshop.list(id, account, query)
+      is ZoneQuery.QueueAtStation -> workshop.queue(id, account, query)
+      is ZoneQuery.CancelAtStation -> workshop.cancel(id, account, query)
+      is ZoneQuery.MoveAtStation -> workshop.move(id, account, query)
+      is ZoneQuery.SetStationWorker -> workshop.setWorker(id, account, query)
       is ZoneQuery.SendChat -> chat.send(id, account, query)
       is ZoneQuery.SendOnJourney -> journeys.send(id, account, query)
       is ZoneQuery.StopJourney -> journeys.stop(id, account, query)

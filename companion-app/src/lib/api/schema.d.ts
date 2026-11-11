@@ -36,6 +36,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/workshop/{structureId}/worker": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["worker"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/companion/masters/{masterId}/workshop/{structureId}/queue/{index}/position": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["move"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/masters/{masterId}/order-presets/{presetId}": {
         parameters: {
             query?: never;
@@ -143,6 +175,22 @@ export interface paths {
         put?: never;
         post: operations["subscribe"];
         delete: operations["unsubscribe"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/companion/masters/{masterId}/workshop/{structureId}/queue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["queue"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -300,6 +348,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["sheet"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/companion/masters/{masterId}/workshop": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["workshop"];
         put?: never;
         post?: never;
         delete?: never;
@@ -564,6 +628,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/workshop/{structureId}/queue/{index}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["cancel"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/masters/{masterId}/letters/{letterId}": {
         parameters: {
             query?: never;
@@ -606,6 +686,50 @@ export interface components {
             revision: number;
             key: string;
             value?: components["schemas"]["JsonNode"];
+        };
+        WorkerOrder: {
+            /** Format: int64 */
+            playerBestiaId?: number;
+            anyFreeCrafter: boolean;
+        };
+        AffordableRecipe: {
+            /** Format: int64 */
+            recipeId: number;
+            item: string;
+            /** Format: int32 */
+            most: number;
+        };
+        QueueLine: {
+            /** Format: int64 */
+            recipeId: number;
+            item?: string;
+            /** Format: int32 */
+            amount: number;
+            /** Format: int32 */
+            done: number;
+        };
+        StationView: {
+            /** Format: int64 */
+            id: number;
+            kind: string;
+            /** Format: double */
+            eastMetres: number;
+            /** Format: double */
+            northMetres: number;
+            queue: components["schemas"]["QueueLine"][];
+            worker: string;
+            /** Format: int64 */
+            workerBestiaId?: number;
+            pause?: string;
+            hasChest: boolean;
+            affordable: components["schemas"]["AffordableRecipe"][];
+        };
+        Workshop: {
+            stations: components["schemas"]["StationView"][];
+        };
+        MoveOrder: {
+            /** Format: int32 */
+            to: number;
         };
         OrderNumbers: {
             /** Format: int32 */
@@ -672,6 +796,12 @@ export interface components {
         Subscription: {
             endpoint: string;
             keys: components["schemas"]["Keys"];
+        };
+        QueueOrder: {
+            /** Format: int64 */
+            recipeId: number;
+            /** Format: int32 */
+            amount: number;
         };
         SurveyOrder: {
             /** Format: int32 */
@@ -1098,6 +1228,65 @@ export interface operations {
             };
         };
     };
+    worker: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+                structureId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkerOrder"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Workshop"];
+                };
+            };
+        };
+    };
+    move: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+                structureId: number;
+                index: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MoveOrder"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Workshop"];
+                };
+            };
+        };
+    };
     change: {
         parameters: {
             query?: never;
@@ -1369,6 +1558,35 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    queue: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+                structureId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QueueOrder"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Workshop"];
+                };
             };
         };
     };
@@ -1686,6 +1904,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["MasterSheet"];
+                };
+            };
+        };
+    };
+    workshop: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                masterId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Workshop"];
                 };
             };
         };
@@ -2062,6 +2302,32 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["Catalog"];
+                };
+            };
+        };
+    };
+    cancel: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+                structureId: number;
+                index: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Workshop"];
                 };
             };
         };
