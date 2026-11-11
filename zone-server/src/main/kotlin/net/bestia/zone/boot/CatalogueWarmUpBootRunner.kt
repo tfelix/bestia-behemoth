@@ -10,6 +10,7 @@ import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.weather.EnvironmentalExposureSystem
 import net.bestia.zone.weather.WeatherPublisher
 import net.bestia.zone.spawn.ecs.MobLootSpawner
+import net.bestia.zone.item.mining.MiningSkill
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
@@ -31,6 +32,7 @@ class CatalogueWarmUpBootRunner(
   private val skills: SkillExecutionService,
   private val fishing: FishingCatalogue,
   private val breederSkills: BreederSkills,
+  private val mining: MiningSkill,
 ) : CommandLineRunner {
 
   override fun run(vararg args: String?) {
@@ -44,5 +46,6 @@ class CatalogueWarmUpBootRunner(
     skills.warmUp()
     fishing.warmUp()
     breederSkills.warmUp()
+    mining.warmUp()
   }
 }

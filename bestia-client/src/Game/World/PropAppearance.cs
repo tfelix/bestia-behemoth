@@ -683,7 +683,13 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.64f, 0.38f, 0.28f), StructureHeight = 1f,
         Action = PropAction.Use
-      } // INCUBATOR
+      }, // INCUBATOR
+
+      // A mining shaft: a tall timber frame until it has a model. Nothing to open; its bestias work it.
+      new Kind
+      {
+        PlaceholderWidth = 2.5f, PlaceholderColour = new Color(0.33f, 0.25f, 0.17f), StructureHeight = 3f
+      } // MINING_SHAFT
     };
 
     /// <summary>

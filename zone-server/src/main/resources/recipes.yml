@@ -209,6 +209,17 @@ recipes:
     craftSeconds: 10.0
     baseSuccessChance: 1.0
 
+  - id: 66
+    identifier: MINING_SHAFT_KIT
+    effect: PRODUCE
+    output: { item: mining_shaft_kit, amount: 1 }
+    inputs:
+      - { item: log, amount: 8 }
+      - { item: iron_ingot, amount: 2 }
+    skill: { skill: M_CARPENTRY, level: 1 }
+    craftSeconds: 20.0
+    baseSuccessChance: 1.0
+
   # --- Craftsman tree, at a workbench --------------------------------------------------------------
 
   - id: 10
