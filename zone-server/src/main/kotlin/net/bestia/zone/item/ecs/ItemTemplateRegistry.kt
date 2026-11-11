@@ -74,6 +74,10 @@ class ItemTemplateRegistry(
     itemRepository.findAll().associate { it.identifier to it.id }
   }
 
+  private val identifierById: Map<Long, String> by lazy {
+    idByIdentifier.entries.associate { (identifier, id) -> id to identifier }
+  }
+
   fun isBound(itemId: Long): Boolean {
     return templateOf(itemId)?.bound == true
   }
@@ -87,6 +91,7 @@ class ItemTemplateRegistry(
   fun warmUp() {
     byItemId.size
     idByIdentifier.size
+    identifierById.size
   }
 
   /**
@@ -107,4 +112,7 @@ class ItemTemplateRegistry(
    * resolve it where a `findByIdentifier` round trip cannot go: inside a world scope.
    */
   fun idOf(identifier: String): Long? = idByIdentifier[identifier]
+
+  /** The `items.yml` identifier of [itemId], the name the companion app shows an item by. */
+  fun identifierOf(itemId: Long): String? = identifierById[itemId]
 }
