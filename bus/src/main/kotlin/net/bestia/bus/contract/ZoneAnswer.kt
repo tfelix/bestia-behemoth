@@ -250,6 +250,24 @@ sealed interface ZoneAnswer {
     val ownOverrides: OrderNumbers = OrderNumbers(),
   ) : ZoneAnswer
 
+  /** What a master's bestias did lately, newest first. */
+  data class Diary(val lines: List<DiaryEntry>) : ZoneAnswer {
+
+    /**
+     * [kind] is NEW_ORDERS, HAULED, WORK_PAUSED, QUEUE_FINISHED, ATTACKED, RETREATED or DIED. [items] are item
+     * identifiers with amounts, [place] a station's kind, [reason] why work stopped (a station pause, CHEST_FULL or
+     * NO_ORE) or, for NEW_ORDERS, the job.
+     */
+    data class DiaryEntry(
+      val playerBestiaId: Long,
+      val atEpochMs: Long,
+      val kind: String,
+      val items: Map<String, Int>,
+      val place: String?,
+      val reason: String?,
+    )
+  }
+
   /** A master's crafting stations, nearest the master's home first. */
   data class Workshop(val stations: List<StationView>) : ZoneAnswer {
 

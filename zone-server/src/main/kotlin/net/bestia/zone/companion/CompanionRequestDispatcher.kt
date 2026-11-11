@@ -19,6 +19,7 @@ import net.bestia.zone.companion.query.MasterQueries
 import net.bestia.zone.companion.query.PartyQueries
 import net.bestia.zone.companion.query.NotebookCommands
 import net.bestia.zone.companion.query.OrderPresetCommands
+import net.bestia.zone.companion.query.DiaryQueries
 import net.bestia.zone.companion.query.OrdersCommand
 import net.bestia.zone.companion.query.WorkshopCommands
 import net.bestia.zone.companion.query.ParcelQueries
@@ -38,6 +39,7 @@ class CompanionRequestDispatcher(
   private val orders: OrdersCommand,
   private val presets: OrderPresetCommands,
   private val workshop: WorkshopCommands,
+  private val diaries: DiaryQueries,
   private val tickets: TicketQueries,
   private val chat: ChatCommand,
   private val compendium: CompendiumQueries,
@@ -76,6 +78,7 @@ class CompanionRequestDispatcher(
       is ZoneQuery.OrderPresets -> presets.list(id, account, query)
       is ZoneQuery.SaveOrderPreset -> presets.save(id, account, query)
       is ZoneQuery.DeleteOrderPreset -> presets.delete(id, account, query)
+      is ZoneQuery.Diary -> found(id, diaries.diary(account, query.masterId))
       is ZoneQuery.Workshop -> workshop.list(id, account, query)
       is ZoneQuery.QueueAtStation -> workshop.queue(id, account, query)
       is ZoneQuery.CancelAtStation -> workshop.cancel(id, account, query)

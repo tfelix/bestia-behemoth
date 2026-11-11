@@ -564,6 +564,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/diary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["diary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/masters/{masterId}/compendium": {
         parameters: {
             query?: never;
@@ -1039,6 +1055,18 @@ export interface components {
         };
         GuildView: {
             guild?: components["schemas"]["Guild"];
+        };
+        DiaryEntry: {
+            /** Format: int64 */
+            playerBestiaId: number;
+            /** Format: int64 */
+            atEpochMs: number;
+            kind: string;
+            items: {
+                [key: string]: number;
+            };
+            place?: string;
+            reason?: string;
         };
         CompendiumEntry: {
             /** Format: int64 */
@@ -2214,6 +2242,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["GuildView"];
+                };
+            };
+        };
+    };
+    diary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                masterId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DiaryEntry"][];
                 };
             };
         };

@@ -144,7 +144,10 @@
 <main class="page">
 	<div class="top">
 		<h1 class="title">Bestia</h1>
-		<a class="btn" href={`/m/${masterId}/workshop`}>Workshop</a>
+		<span class="links">
+			<a class="btn" href={`/m/${masterId}/diary`}>Diary</a>
+			<a class="btn" href={`/m/${masterId}/workshop`}>Workshop</a>
+		</span>
 	</div>
 
 	{#if failure}
@@ -313,6 +316,11 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: baseline;
+	}
+
+	.links {
+		display: flex;
+		gap: 0.4rem;
 	}
 
 	.head {
