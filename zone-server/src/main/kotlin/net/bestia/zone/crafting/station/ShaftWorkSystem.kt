@@ -1,5 +1,7 @@
 package net.bestia.zone.crafting.station
 
+import net.bestia.zone.bestia.diary.BestiaNews
+import net.bestia.zone.bestia.diary.BestiaHappened
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -38,6 +40,7 @@ class ShaftWorkSystem(
   private val connections: ConnectionInfoService,
   private val mining: MiningSkill,
   private val ore: ShaftOre,
+  private val news: BestiaNews = BestiaNews { },
 ) : System {
 
   override val phase = Phase.ITEMS
@@ -89,6 +92,11 @@ class ShaftWorkSystem(
 
   /** A shaft dug out, or a master who cannot mine: its miner goes back to its area and looks for another. */
   private fun letGo(world: World, shaft: StructureEntry) {
+    shaft.workerBestiaId?.let { worker ->
+      news.tell(
+        BestiaHappened(this, shaft.ownerMasterId, worker, BestiaHappened.Kind.WORK_PAUSED, place = shaft.kind.name, reason = NO_ORE)
+      )
+    }
     workers.unassign(world, shaft.id)
     labour.remove(shaft.id)
   }
@@ -131,6 +139,9 @@ class ShaftWorkSystem(
      * more, and what does not fit falls at its feet.
      */
     const val ROOM_TO_DIG = 700
+
+    /** Why a miner stopped, in its diary: nothing left in reach. */
+    const val NO_ORE = "NO_ORE"
 
     /** A shaft whose owner has no account on record yet. Only what the carve is logged under. */
     private const val NO_ACCOUNT = 0L

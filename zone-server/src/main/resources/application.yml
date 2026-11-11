@@ -290,6 +290,12 @@ spoor:
   fresh-seconds: 300
   cold-seconds: 2400
 
+bestia:
+  diary:
+    # How long a line of an owned bestia's diary is kept, and the most lines kept per bestia.
+    keep-days: 7
+    max-lines-per-bestia: 200
+
 navigation:
   # Local (tile-accurate) pathfinding searches allowed per tick, across all NPCs. One bounded search is well
   # under a millisecond against a 50 ms tick, so this is generous; what it stops is a whole pack running out of

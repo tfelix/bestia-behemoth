@@ -6,6 +6,7 @@
  - AI wave 5: AiThinkSystem [EveryTick]
  - AI wave 6: AiActSystem [EveryTick]
  - AI wave 7: FearSystem [EverySeconds(seconds=1.0)]
+ - AI wave 7: OwnedBestiaWatchSystem [EverySeconds(seconds=1.0)]
  - MOVEMENT wave 8: MovementSystem [EveryTick]
  - MOVEMENT wave 8: TravelSystem [EveryTick]
  - MOVEMENT wave 9: ActorSignatureSystem [EveryTick]

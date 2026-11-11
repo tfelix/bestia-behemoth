@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.domain.bestia
 
+import net.bestia.zone.bestia.diary.BestiaNews
 import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.ai.profile.OrderRule
 import net.bestia.zone.battle.attack.BasicAttackResolver
@@ -195,6 +196,9 @@ object BestiaDomain : AiDomainCatalogue {
 
   /** Its station waits because the next product does not fit in its bag. Set by the station while it waits. */
   val NO_ROOM_FOR_PRODUCT = StateKey<Boolean>("noRoomForProduct", observed = true, retain = 10f)
+
+  /** Whether the master was told that the job chest takes nothing more. */
+  val CHEST_FULL_TOLD = StateKey<Boolean>("chestFullTold", retain = Blackboard.PERMANENT)
 
   /** Whether the bag holds goods for the job chest that still fit in it. */
   val GOODS_TO_HAUL = StateKey<Boolean>("goodsToHaul", observed = true)
@@ -654,6 +658,10 @@ object BestiaDomain : AiDomainCatalogue {
     val handover: ItemHandover,
     val stations: StationClaims,
     val attacks: List<AttackDefinition> = emptyList(),
+    /** Tells the master's diary what an owned bestia did. */
+    val news: BestiaNews = BestiaNews { },
+    /** An item's identifier, which the diary names it by. */
+    val identifierOf: (Long) -> String? = { null },
   )
 
   /**
@@ -677,7 +685,7 @@ object BestiaDomain : AiDomainCatalogue {
     "retreatHome" to { c -> RetreatHomeActionTemplate(c.locomotion) },
     "collectProp" to { c -> CollectPropActionTemplate(c.locomotion) },
     "fellTree" to { c -> FellTreeActionTemplate(c.locomotion, c.attackExecution, c.promotion, c.aoi, c.attacks) },
-    "haulToChest" to { c -> HaulToChestActionTemplate(c.locomotion, c.care, c.handover, c.aoi) },
+    "haulToChest" to { c -> HaulToChestActionTemplate(c.locomotion, c.care, c.handover, c.aoi, c.news, c.identifierOf) },
     "takeFoodFromChest" to { c -> TakeFoodFromChestActionTemplate(c.locomotion, c.care, c.handover, c.aoi) },
     "claimStation" to { c -> ClaimStationActionTemplate.forStations(c.locomotion, c.stations) },
     "claimShaft" to { c -> ClaimStationActionTemplate.forShafts(c.locomotion, c.stations) },
