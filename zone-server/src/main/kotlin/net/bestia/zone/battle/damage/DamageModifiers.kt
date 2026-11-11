@@ -2,11 +2,12 @@ package net.bestia.zone.battle.damage
 
 import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.Unholy
 
 /**
  * Percent bonuses to the damage an entity deals and reductions to the damage it takes, by what is on the other
  * side of the hit. Ragnarok Online pre-renewal's card modifiers (rAthena `battle_calc_cardfix`): Demon Bane's
- * "+5% against demons", Iron Skin's "-3% physical damage taken", a card's "-30% from demi-humans".
+ * "+5% against Demons and the Undead", Iron Skin's "-3% physical damage taken", a card's "-30% from demi-humans".
  *
  * They weigh the final number, after defence, and a critical hit too, since a crit only ignores defence. Bonuses
  * in one category add up: two "-30% from demi-humans" make -60%. Categories multiply: -30% from demi-humans and
@@ -18,8 +19,11 @@ data class DamageModifiers(
   val dealtVsKind: Map<BestiaKind, Int> = emptyMap(),
   val dealtVsElement: Map<Element, Int> = emptyMap(),
   val dealtVsBoss: Int = 0,
+  /** One category for all of [Unholy], so an Undead of Undead element is not counted twice. */
+  val dealtVsUnholy: Int = 0,
   val takenFromKind: Map<BestiaKind, Int> = emptyMap(),
   val takenFromBoss: Int = 0,
+  val takenFromUnholy: Int = 0,
   val takenByForm: Map<HitForm, Int> = emptyMap(),
   val takenByReach: Map<HitReach, Int> = emptyMap(),
 ) {
@@ -30,7 +34,12 @@ data class DamageModifiers(
     val kind: BestiaKind?,
     val element: Element,
     val boss: Boolean,
-  )
+  ) {
+    val isUnholy: Boolean
+      get() {
+        return Unholy.isUnholy(kind, element)
+      }
+  }
 
   companion object {
     val NONE = DamageModifiers()
@@ -48,11 +57,13 @@ data class DamageModifiers(
         factor = factor.scaledBy(100 + (defender.kind?.let { dealt.dealtVsKind[it] } ?: 0))
         factor = factor.scaledBy(100 + (dealt.dealtVsElement[defender.element.base] ?: 0))
         factor = factor.scaledBy(100 + if (defender.boss) dealt.dealtVsBoss else 0)
+        factor = factor.scaledBy(100 + if (defender.isUnholy) dealt.dealtVsUnholy else 0)
       }
 
       val taken = defender.modifiers
       factor = factor.scaledBy(100 - (attacker?.kind?.let { taken.takenFromKind[it] } ?: 0))
       factor = factor.scaledBy(100 - if (attacker?.boss == true) taken.takenFromBoss else 0)
+      factor = factor.scaledBy(100 - if (attacker?.isUnholy == true) taken.takenFromUnholy else 0)
       factor = factor.scaledBy(100 - (taken.takenByForm[kind.form] ?: 0))
       factor = factor.scaledBy(100 - (taken.takenByReach[kind.reach] ?: 0))
 

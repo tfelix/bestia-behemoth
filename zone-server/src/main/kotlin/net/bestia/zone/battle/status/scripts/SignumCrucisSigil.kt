@@ -1,7 +1,6 @@
 package net.bestia.zone.battle.status.scripts
 
-import net.bestia.zone.battle.BestiaKind
-import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.Unholy
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.status.StatusEffectScript
@@ -27,9 +26,7 @@ class SignumCrucisSigil : StatusEffectScript {
 
   companion object {
     fun defenseCutPercent(level: Int, nature: Nature?): Int {
-      val unholy = nature != null &&
-        (nature.element.base == Element.UNDEAD || nature.kind == BestiaKind.UNDEAD || nature.kind == BestiaKind.DEMON)
-      val percentPerLevel = if (unholy) PERCENT_PER_LEVEL * 2 else PERCENT_PER_LEVEL
+      val percentPerLevel = if (Unholy.isUnholy(nature)) PERCENT_PER_LEVEL * 2 else PERCENT_PER_LEVEL
 
       return percentPerLevel * level.coerceIn(1, MAX_LEVEL)
     }

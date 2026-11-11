@@ -237,19 +237,26 @@ class StatusValueRecalcContext(
     defenseCutPercent += percent
   }
 
-  /** More damage dealt to a [kind], an [element] or a boss, in percent; see [DamageModifiers]. */
-  fun addDamageDealt(percent: Int, kind: BestiaKind? = null, element: Element? = null, boss: Boolean = false) {
+  /** More damage dealt to a [kind], an [element], a boss or the unholy, in percent; see [DamageModifiers]. */
+  fun addDamageDealt(
+    percent: Int,
+    kind: BestiaKind? = null,
+    element: Element? = null,
+    boss: Boolean = false,
+    unholy: Boolean = false,
+  ) {
     val current = damageModifiers
     damageModifiers = current.copy(
       dealtVsKind = if (kind != null) current.dealtVsKind.plusPercent(kind, percent) else current.dealtVsKind,
       dealtVsElement = if (element != null) current.dealtVsElement.plusPercent(element.base, percent) else current.dealtVsElement,
       dealtVsBoss = if (boss) current.dealtVsBoss + percent else current.dealtVsBoss,
+      dealtVsUnholy = if (unholy) current.dealtVsUnholy + percent else current.dealtVsUnholy,
     )
   }
 
   /**
-   * Less damage taken, in percent: from a [kind] or a boss, or of a [form] (physical, magic) or [reach] (melee,
-   * ranged). Iron Skin is `addDamageTaken(3 * level, form = HitForm.PHYSICAL)`. See [DamageModifiers].
+   * Less damage taken, in percent: from a [kind], a boss or the unholy, or of a [form] (physical, magic) or [reach]
+   * (melee, ranged). Iron Skin is `addDamageTaken(3 * level, form = HitForm.PHYSICAL)`. See [DamageModifiers].
    */
   fun addDamageTaken(
     percent: Int,
@@ -257,11 +264,13 @@ class StatusValueRecalcContext(
     boss: Boolean = false,
     form: HitForm? = null,
     reach: HitReach? = null,
+    unholy: Boolean = false,
   ) {
     val current = damageModifiers
     damageModifiers = current.copy(
       takenFromKind = if (kind != null) current.takenFromKind.plusPercent(kind, percent) else current.takenFromKind,
       takenFromBoss = if (boss) current.takenFromBoss + percent else current.takenFromBoss,
+      takenFromUnholy = if (unholy) current.takenFromUnholy + percent else current.takenFromUnholy,
       takenByForm = if (form != null) current.takenByForm.plusPercent(form, percent) else current.takenByForm,
       takenByReach = if (reach != null) current.takenByReach.plusPercent(reach, percent) else current.takenByReach,
     )
