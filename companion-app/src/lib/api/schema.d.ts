@@ -68,6 +68,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/places/areas/{placeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["changeArea"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/masters/{masterId}/order-presets/{presetId}": {
         parameters: {
             query?: never;
@@ -228,6 +244,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/places/chests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["nameChest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/companion/masters/{masterId}/places/areas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["addArea"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/masters/{masterId}/order-presets": {
         parameters: {
             query?: never;
@@ -380,6 +428,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["list_4"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/companion/masters/{masterId}/places": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["bestiaPlaces"];
         put?: never;
         post?: never;
         delete?: never;
@@ -660,6 +724,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/places/{placeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["deletePlace"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/masters/{masterId}/letters/{letterId}": {
         parameters: {
             query?: never;
@@ -749,6 +829,41 @@ export interface components {
             /** Format: int32 */
             to: number;
         };
+        AreaWrite: {
+            name: string;
+            /** Format: double */
+            eastMetres: number;
+            /** Format: double */
+            northMetres: number;
+            /** Format: int64 */
+            radius: number;
+        };
+        BestiaPlace: {
+            /** Format: int64 */
+            id: number;
+            name: string;
+            kind: string;
+            /** Format: double */
+            eastMetres: number;
+            /** Format: double */
+            northMetres: number;
+            /** Format: int64 */
+            radius: number;
+            /** Format: int64 */
+            chestStructureId?: number;
+        };
+        BestiaPlaces: {
+            places: components["schemas"]["BestiaPlace"][];
+            chests: components["schemas"]["ChestSpot"][];
+        };
+        ChestSpot: {
+            /** Format: int64 */
+            structureId: number;
+            /** Format: double */
+            eastMetres: number;
+            /** Format: double */
+            northMetres: number;
+        };
         OrderNumbers: {
             /** Format: int32 */
             retreatBelowHealthPct?: number;
@@ -773,6 +888,10 @@ export interface components {
             fallbackJob?: string;
             overrides: components["schemas"]["OrderNumbers"];
             rules: components["schemas"]["OrderRuleLine"][];
+            /** Format: int64 */
+            areaPlaceId?: number;
+            /** Format: int64 */
+            chestPlaceId?: number;
         };
         PresetWrite: {
             name: string;
@@ -792,6 +911,10 @@ export interface components {
             fallbackJob?: string;
             overrides: components["schemas"]["OrderNumbers"];
             rules: components["schemas"]["OrderRuleLine"][];
+            /** Format: int64 */
+            areaPlaceId?: number;
+            /** Format: int64 */
+            chestPlaceId?: number;
             /** Format: int64 */
             presetId?: number;
             ownOverrides: components["schemas"]["OrderNumbers"];
@@ -837,6 +960,11 @@ export interface components {
         };
         SurveyResult: {
             outcome: string;
+        };
+        ChestWrite: {
+            name: string;
+            /** Format: int64 */
+            chestStructureId: number;
         };
         LetterOrder: {
             recipientName: string;
@@ -1109,6 +1237,10 @@ export interface components {
             overrides: components["schemas"]["OrderNumbers"];
             rules: components["schemas"]["OrderRuleLine"][];
             /** Format: int64 */
+            areaPlaceId?: number;
+            /** Format: int64 */
+            chestPlaceId?: number;
+            /** Format: int64 */
             presetId?: number;
             ownOverrides: components["schemas"]["OrderNumbers"];
             activity?: components["schemas"]["Activity"];
@@ -1313,6 +1445,35 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["Workshop"];
+                };
+            };
+        };
+    };
+    changeArea: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+                placeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AreaWrite"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BestiaPlaces"];
                 };
             };
         };
@@ -1678,6 +1839,62 @@ export interface operations {
             };
         };
     };
+    nameChest: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChestWrite"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BestiaPlaces"];
+                };
+            };
+        };
+    };
+    addArea: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AreaWrite"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BestiaPlaces"];
+                };
+            };
+        };
+    };
     list: {
         parameters: {
             query?: never;
@@ -1978,6 +2195,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["Theodolite"][];
+                };
+            };
+        };
+    };
+    bestiaPlaces: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                masterId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BestiaPlaces"];
                 };
             };
         };
@@ -2380,6 +2619,31 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["Workshop"];
+                };
+            };
+        };
+    };
+    deletePlace: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+                placeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BestiaPlaces"];
                 };
             };
         };

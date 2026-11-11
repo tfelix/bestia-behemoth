@@ -67,6 +67,8 @@ class BestiaQueries(
           fallbackJob = row.aiConfig.fallbackJob?.name,
           overrides = OrdersOnTheBus.numbersOf(row.aiConfig.overrides),
           rules = OrdersOnTheBus.linesOf(row.aiConfig.rules),
+          areaPlaceId = row.aiConfig.areaPlaceId,
+          chestPlaceId = row.aiConfig.chestPlaceId,
           presetId = row.orderPresetId,
           ownOverrides = OrdersOnTheBus.numbersOf(row.ownOverrides),
           activity = row.entityId?.let { doing[it] },

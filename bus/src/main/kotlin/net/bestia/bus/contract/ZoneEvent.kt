@@ -36,6 +36,8 @@ sealed interface ZoneEvent {
     val fallbackJob: String? = null,
     val overrides: OrderNumbers = OrderNumbers(),
     val rules: List<OrderRuleLine> = emptyList(),
+    val areaPlaceId: Long? = null,
+    val chestPlaceId: Long? = null,
     val presetId: Long? = null,
     val ownOverrides: OrderNumbers = OrderNumbers(),
   ) : ZoneEvent

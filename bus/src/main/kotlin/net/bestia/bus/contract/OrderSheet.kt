@@ -7,4 +7,6 @@ data class OrderSheet(
   val fallbackJob: String? = null,
   val overrides: OrderNumbers = OrderNumbers(),
   val rules: List<OrderRuleLine> = emptyList(),
+  val areaPlaceId: Long? = null,
+  val chestPlaceId: Long? = null,
 )

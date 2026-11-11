@@ -194,6 +194,37 @@ class CompanionRequestDispatcherTest {
   }
 
   @Test
+  fun `a bestia works a named area until the place is deleted, and a stranger's place is refused`() {
+    val master = masters.findAllByAccountIdOrderBySlot(1L).first()
+    val bestia = playerBestias.findAllByMasterId(master.id).first()
+    val before = bestia.aiConfig
+
+    val saved = assertIs<ZoneAnswer.BestiaPlaces>(
+      ask(1L, ZoneQuery.SaveAreaPlace(master.id, null, "North field", 40.0, 80.0, radius = 500)).answer
+    )
+    val field = saved.places.single { it.name == "North field" }
+    assertEquals(64, field.radius, "a radius past its limit is clamped")
+
+    try {
+      ask(1L, ZoneQuery.SetOrders(master.id, bestia.id, "GATHER", "STEADY", areaPlaceId = field.id))
+      assertEquals(field.id, playerBestias.findByIdOrNull(bestia.id)!!.aiConfig.areaPlaceId)
+      assertEquals(Status.NOT_FOUND, ask(2L, ZoneQuery.BestiaPlaces(master.id)).status)
+      assertEquals(
+        Status.NOT_FOUND,
+        ask(1L, ZoneQuery.SetOrders(master.id, bestia.id, "GATHER", "STEADY", areaPlaceId = field.id + 999)).status,
+        "a place that is not the master's",
+      )
+
+      ask(1L, ZoneQuery.DeletePlace(master.id, field.id))
+
+      assertEquals(null, playerBestias.findByIdOrNull(bestia.id)!!.aiConfig.areaPlaceId, "the orders forget the place")
+    } finally {
+      ask(1L, ZoneQuery.SetOrders(master.id, bestia.id, before.job.name, before.courage.name, before.fallbackJob?.name))
+      ask(1L, ZoneQuery.DeletePlace(master.id, field.id))
+    }
+  }
+
+  @Test
   fun `a master keeps, renames and forgets routes in the notebook, and a stranger touches none`() {
     val master = masters.findAllByAccountIdOrderBySlot(1L).first()
     val json = """{"name":"","waypoints":[{"east":100.0,"north":200.0},{"east":900.0,"north":950.0}]}"""

@@ -1,7 +1,18 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { ApiError, getJson, sendJson } from '#lib/api/client.ts';
-	import { COURAGE, JOBS, type Bestia, type BestiaOrders, type OrderPreset, type PresetWrite } from '#lib/api/model.ts';
+	import {
+		COURAGE,
+		JOBS,
+		type AreaWrite,
+		type Bestia,
+		type BestiaOrders,
+		type BestiaPlace,
+		type BestiaPlaces,
+		type ChestWrite,
+		type OrderPreset,
+		type PresetWrite
+	} from '#lib/api/model.ts';
 	import Age from '#lib/components/Age.svelte';
 	import { touchesMaster } from '#lib/events.ts';
 	import { guarded } from '#lib/guard.ts';
@@ -29,6 +40,9 @@
 	const masterId = $derived(Number(page.params.id));
 	let bestias = $state<Bestia[] | null>(null);
 	let presets = $state<OrderPreset[]>([]);
+	let places = $state<BestiaPlaces>({ places: [], chests: [] });
+	let chestToName = $state<number | null>(null);
+	let chestName = $state('');
 	let drafts = $state<Record<number, Draft>>({});
 	let failure = $state<string | null>(null);
 
@@ -38,10 +52,11 @@
 
 	async function load(id: number) {
 		try {
-			[bestias, presets] = await guarded(() =>
+			[bestias, presets, places] = await guarded(() =>
 				Promise.all([
 					getJson<Bestia[]>(`/v1/companion/masters/${id}/bestias`),
-					getJson<OrderPreset[]>(`/v1/companion/masters/${id}/order-presets`)
+					getJson<OrderPreset[]>(`/v1/companion/masters/${id}/order-presets`),
+					getJson<BestiaPlaces>(`/v1/companion/masters/${id}/places`)
 				])
 			);
 			for (const b of bestias) {
@@ -125,6 +140,41 @@
 		} catch (e) {
 			draft.note = noteOf(e);
 		}
+	}
+
+	const areas = $derived(places.places.filter((place) => place.kind === 'AREA'));
+	const namedChests = $derived(places.places.filter((place) => place.kind === 'CHEST'));
+	const unnamedChests = $derived(places.chests.filter((chest) => !namedChests.some((place) => place.chestStructureId === chest.structureId)));
+
+	async function placeWrite(method: string, suffix: string, body: unknown) {
+		try {
+			places = await guarded(() =>
+				sendJson<BestiaPlaces>(method, `/v1/companion/masters/${masterId}/places${suffix}`, body, {
+					'Idempotency-Key': crypto.randomUUID()
+				})
+			);
+		} catch (e) {
+			failure = e instanceof Error ? e.message : String(e);
+		}
+	}
+
+	function resizeArea(area: BestiaPlace, radius: number) {
+		const write: AreaWrite = { name: area.name, eastMetres: area.eastMetres, northMetres: area.northMetres, radius };
+		void placeWrite('PUT', `/areas/${area.id}`, write);
+	}
+
+	function nameChest() {
+		if (chestToName == null || !chestName.trim()) return;
+		const write: ChestWrite = { name: chestName.trim(), chestStructureId: chestToName };
+		void placeWrite('POST', '/chests', write);
+		chestName = '';
+		chestToName = null;
+	}
+
+	/** Deleting a place sends the Bestias that worked there back to their home and nearest chest. */
+	async function deletePlace(place: BestiaPlace) {
+		await placeWrite('DELETE', `/${place.id}`, undefined);
+		await load(masterId);
 	}
 
 	async function deletePreset(preset: OrderPreset) {
@@ -232,6 +282,23 @@
 							</label>
 						{/if}
 
+						{#if !following}
+							<label class="field">
+								<span class="label">Works in</span>
+								<select bind:value={draft.areaPlaceId}>
+									<option value={null}>The area around its home</option>
+									{#each areas as area (area.id)}<option value={area.id}>{area.name}</option>{/each}
+								</select>
+							</label>
+							<label class="field">
+								<span class="label">Brings its goods to</span>
+								<select bind:value={draft.chestPlaceId}>
+									<option value={null}>The nearest chest</option>
+									{#each namedChests as chest (chest.id)}<option value={chest.id}>{chest.name}</option>{/each}
+								</select>
+							</label>
+						{/if}
+
 						<div class="label">Numbers <span class="muted small">(empty: chosen by courage and job)</span></div>
 						<div class="numbers">
 							{#each NUMBERS as number (number.key)}
@@ -290,6 +357,46 @@
 				{/if}
 			</section>
 		{/each}
+
+		<section class="panel rise">
+			<h2>Places</h2>
+			<p class="muted small">Work areas are made on the map: tap the ground, then "Make a work area here". Many Bestias can share one.</p>
+			{#each areas as area (area.id)}
+				<div class="preset">
+					<span>{area.name}</span>
+					<label class="muted small"
+						>radius <input
+							class="threshold"
+							type="number"
+							min="4"
+							max="64"
+							value={area.radius}
+							onchange={(e) => resizeArea(area, Number(e.currentTarget.value))}
+						/> tiles</label
+					>
+					<button class="btn small" onclick={() => deletePlace(area)}>Delete</button>
+				</div>
+			{/each}
+			{#each namedChests as chest (chest.id)}
+				<div class="preset">
+					<span>{chest.name}</span>
+					<span class="muted small">a chest</span>
+					<button class="btn small" onclick={() => deletePlace(chest)}>Delete</button>
+				</div>
+			{/each}
+			{#if unnamedChests.length > 0}
+				<div class="save-preset">
+					<select bind:value={chestToName} aria-label="Chest to name">
+						<option value={null}>Name a chest…</option>
+						{#each unnamedChests as chest (chest.structureId)}
+							<option value={chest.structureId}>Chest at {Math.round(chest.eastMetres)} E, {Math.round(chest.northMetres)} N</option>
+						{/each}
+					</select>
+					<input placeholder="Name" maxlength="32" bind:value={chestName} />
+					<button class="btn small" disabled={chestToName == null || !chestName.trim()} onclick={nameChest}>Name it</button>
+				</div>
+			{/if}
+		</section>
 
 		{#if presets.length > 0}
 			<section class="panel rise">
