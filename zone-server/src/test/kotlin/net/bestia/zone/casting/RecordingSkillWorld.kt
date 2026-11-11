@@ -297,6 +297,21 @@ class RecordingSkillWorld(
     resourceSenses += rangeMetres to accuracy
   }
 
+  /** The level of each [senseMagic]. */
+  val magicSenses = mutableListOf<Int>()
+
+  override fun senseMagic(level: Int) {
+    magicSenses += level
+  }
+
+  /** Who each [senseMonster] read. */
+  val monsterSenses = mutableListOf<EntityId>()
+
+  override fun senseMonster(targetId: EntityId): Boolean {
+    monsterSenses += targetId
+    return true
+  }
+
   /** Listing places and seconds of each [pitchStall]. */
   val stalls = mutableListOf<Pair<Int, Int>>()
 

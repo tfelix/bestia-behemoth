@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.status
 
+import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.ecs.core.World
@@ -41,6 +42,10 @@ interface StatusEffectScript {
    * Null for an effect that takes the Potency of the cast that left it.
    */
   val fixedPotency: Int?
+    get() = null
+
+  /** The element its mana belongs to, which Magic Sense Lv3 reads. Null reads as neutral. */
+  val element: Element?
     get() = null
 
   /** A dispel weaker than this has no chance at all against the effect. 0 for none. */

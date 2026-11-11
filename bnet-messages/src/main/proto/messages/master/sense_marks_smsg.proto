@@ -4,8 +4,9 @@ package bnet;
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "SenseMarksSmsgProto";
 
-// What a sensing skill found: Resource Sense points at ore, herbs, timber and game, Echo Sounding at hollows. The
-// client shows the marks for visible_seconds and then forgets them; nothing is kept on the map.
+// What a sensing skill found: Resource Sense points at ore, herbs, timber and game, Echo Sounding at hollows, Magic
+// Sense at mana at work. The client shows the marks for visible_seconds and then forgets them; nothing is kept on
+// the map.
 message SenseMarksSMSG {
   repeated SenseMark marks = 1;
   uint32 visible_seconds = 2;
@@ -24,6 +25,8 @@ message SenseMark {
   // A hollow's depth below the surface and its size, in metres. Zero unless Echo Sounding is high enough to tell.
   float depth_metres = 6;
   float size_metres = 7;
+  // True when the sense only tells that something is near, not where: Magic Sense Lv1. The position is then not shown.
+  bool vague = 8;
 }
 
 enum SenseKind {
@@ -32,4 +35,5 @@ enum SenseKind {
   SENSE_TIMBER = 2;
   SENSE_GAME = 3;
   SENSE_HOLLOW = 4;
+  SENSE_MANA = 5;
 }

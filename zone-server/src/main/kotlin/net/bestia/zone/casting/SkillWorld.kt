@@ -178,6 +178,12 @@ interface SkillWorld {
    */
   fun senseResources(rangeMetres: Double, accuracy: Double)
 
+  /** Shows the caster the mana at work around it, as much as Magic Sense at [level] tells. One scan. */
+  fun senseMagic(level: Int)
+
+  /** Shows the caster what Sense reads off [targetId]; false when there is nothing to read. One op. */
+  fun senseMonster(targetId: EntityId): Boolean
+
   /** Puts the caster's street stall down where they stand, with [maxListings] places, for [seconds]. One spawn. */
   fun pitchStall(maxListings: Int, seconds: Int): OpError?
 

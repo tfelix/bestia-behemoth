@@ -48,6 +48,7 @@ import "messages/trade/street_stall_smsg.proto";
 import "messages/trade/stall_list_cmsg.proto";
 import "messages/trade/stall_unlist_cmsg.proto";
 import "messages/trade/stall_buy_cmsg.proto";
+import "messages/master/monster_sense_smsg.proto";
 import "messages/master/bestia_capture_smsg.proto";
 import "messages/master/owned_bestias_smsg.proto";
 import "messages/compendium/request_compendium_cmsg.proto";
@@ -376,6 +377,7 @@ message Envelope {
     StallListCMSG stall_list = 914;
     StallUnlistCMSG stall_unlist = 915;
     StallBuyCMSG stall_buy = 916;
+    MonsterSenseSMSG monster_sense = 917;
 
     // MISC
   }

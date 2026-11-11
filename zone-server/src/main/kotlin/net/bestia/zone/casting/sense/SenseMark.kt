@@ -9,6 +9,8 @@ data class SenseMark(
   val refId: Long = 0,
   val depthMetres: Double = 0.0,
   val sizeMetres: Double = 0.0,
+  /** True when the sense only says that something is near, not where. */
+  val vague: Boolean = false,
 )
 
-enum class SenseKind { ORE, HERBS, TIMBER, GAME, HOLLOW }
+enum class SenseKind { ORE, HERBS, TIMBER, GAME, HOLLOW, MANA }

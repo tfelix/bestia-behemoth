@@ -18,6 +18,7 @@ data class SenseMarksSMSG(val marks: List<SenseMark>, val visibleSeconds: Int) :
           .setRefId(mark.refId)
           .setDepthMetres(mark.depthMetres.toFloat())
           .setSizeMetres(mark.sizeMetres.toFloat())
+          .setVague(mark.vague)
       )
     }
 

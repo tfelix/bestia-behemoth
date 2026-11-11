@@ -634,7 +634,7 @@ skills:
 
   - id: 52
     identifier: M_SENSE
-    script: Sense
+    script: MonsterSense
     targetType: ENEMY
     range: 12
     manaCost: 6
