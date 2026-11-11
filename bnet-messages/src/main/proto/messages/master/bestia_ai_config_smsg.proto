@@ -20,4 +20,5 @@ message BestiaAiConfigSMSG {
   SetBestiaAiConfigCMSG.Courage courage = 6;
   SetBestiaAiConfigCMSG.Job fallback_job = 7;
   SetBestiaAiConfigCMSG.Overrides overrides = 8;
+  repeated SetBestiaAiConfigCMSG.Rule rules = 9;
 }

@@ -28,8 +28,9 @@ data class SetBestiaAiConfigCMSG(
       val job = BestiaJob.fromNameOrNull(msg.job.name)
       val courage = Courage.fromNameOrNull(msg.courage.name)
       val fallback = OrdersWire.fallbackFrom(msg.fallbackJob)
-      val orders = if (job != null && courage != null && fallback.isSuccess) {
-        AiConfig(job, courage, fallback.getOrNull(), OrdersWire.overridesFrom(msg.overrides)).takeIf { it.isValid }
+      val rules = OrdersWire.rulesFrom(msg.rulesList)
+      val orders = if (job != null && courage != null && fallback.isSuccess && rules != null) {
+        AiConfig(job, courage, fallback.getOrNull(), OrdersWire.overridesFrom(msg.overrides), rules).takeIf { it.isValid }
       } else {
         null
       }

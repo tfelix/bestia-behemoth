@@ -2,8 +2,10 @@ package net.bestia.zone.master.bestia
 
 import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Job
 import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Overrides
+import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Rule
 import net.bestia.zone.ai.profile.BestiaJob
 import net.bestia.zone.ai.profile.OrderOverrides
+import net.bestia.zone.ai.profile.OrderRule
 
 /** Bestia orders to and from the game wire. */
 object OrdersWire {
@@ -25,6 +27,22 @@ object OrdersWire {
     haulAtLoadPct = wire.takeIf { it.hasHaulAtLoadPct() }?.haulAtLoadPct,
     areaRadius = wire.takeIf { it.hasAreaRadius() }?.areaRadius,
   )
+
+  /** Null when a line names a condition or action this server does not know. */
+  fun rulesFrom(wire: List<Rule>): List<OrderRule>? {
+    return wire.map { rule ->
+      val threshold = rule.takeIf { it.hasThreshold() }?.threshold
+      OrderRule.fromNamesOrNull(rule.condition.name, threshold, rule.action.name) ?: return null
+    }
+  }
+
+  fun rulesTo(rules: List<OrderRule>): List<Rule> = rules.map { rule ->
+    val wire = Rule.newBuilder()
+      .setCondition(Rule.Condition.valueOf(rule.condition.name))
+      .setAction(Rule.Action.valueOf(rule.action.name))
+    rule.threshold?.let(wire::setThreshold)
+    wire.build()
+  }
 
   fun overridesTo(overrides: OrderOverrides): Overrides {
     val wire = Overrides.newBuilder()
