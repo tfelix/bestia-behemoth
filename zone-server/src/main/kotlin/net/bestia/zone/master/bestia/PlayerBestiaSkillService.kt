@@ -51,6 +51,24 @@ class PlayerBestiaSkillService(
     return custom
   }
 
+  /** Teaches the bestia [skillId] at [level] as a custom skill. One it already has a row for is raised, never lowered. */
+  @Transactional
+  fun learn(playerBestiaId: PlayerBestiaId, skillId: Long, level: Int) {
+    val known = learnedSkillRepository.findByPlayerBestiaIdAndSkillId(playerBestiaId, skillId)
+    if (known != null) {
+      known.level = maxOf(known.level, level)
+      return
+    }
+
+    learnedSkillRepository.save(
+      LearnedSkill(
+        skill = skillRepository.getReferenceById(skillId),
+        level = level,
+        playerBestia = playerBestiaRepository.findByIdOrThrow(playerBestiaId)
+      )
+    )
+  }
+
   companion object {
 
     /** The top of the learnset a GM grant reaches. No level cap exists elsewhere in the zone to read it from. */

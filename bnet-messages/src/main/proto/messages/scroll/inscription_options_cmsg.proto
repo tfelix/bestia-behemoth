@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "InscriptionOptionsCmsgProto";
+
+// Asks which attacks the master could copy off its own bestias with Spell Inscription. Answered by an
+// InscriptionOptionsSMSG.
+message InscriptionOptionsCMSG {
+}

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SpellScrollsSmsgProto";
+
+// The attack on each spell scroll that was asked about. A scroll that holds none is left out.
+message SpellScrollsSMSG {
+  repeated SpellScroll scrolls = 1;
+}
+
+message SpellScroll {
+  uint64 unique_id = 1;
+  uint64 skill_id = 2;
+  int32 level = 3;
+}

@@ -5,8 +5,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.persistence.StatusEffectPersistenceService
-import net.bestia.zone.cartography.persistence.MapChartRepository
 import net.bestia.zone.compendium.CompendiumStore
+import net.bestia.zone.item.container.ItemInstanceDependents
 import net.bestia.zone.item.persistence.ItemInstanceRepository
 import net.bestia.zone.guild.GuildService
 import net.bestia.zone.party.PartyService
@@ -41,9 +41,8 @@ import net.bestia.zone.account.persistence.MasterRepository
  * - **Persisted status effects** - stored against [Master.entityId], which is not a foreign key to anything.
  * - **Compendium entries** ([CompendiumStore.deleteAllOf]) - each row is a foreign key to the master.
  * - **Learned blueprints** ([KnownRecipeStore.deleteAllOf]) - each row is a foreign key to the master.
- * - **Map charts** ([MapChartRepository]) - a chart row *is* keyed by a real foreign key to the item instance
- *   that carries it, so it has to go before the instance does. Every master holds at least one, since one is
- *   granted at creation.
+ * - **Rows keyed by an item instance** ([ItemInstanceDependents]) - a map chart or a spell scroll's attack is
+ *   keyed by a real foreign key to the item instance that carries it, so it has to go before the instance does.
  */
 @Service
 class MasterDeletionService(
@@ -51,7 +50,7 @@ class MasterDeletionService(
   private val partyService: PartyService,
   private val guildService: GuildService,
   private val itemInstanceRepository: ItemInstanceRepository,
-  private val mapChartRepository: MapChartRepository,
+  private val instanceDependents: List<ItemInstanceDependents>,
   private val compendiumStore: CompendiumStore,
   private val knownRecipeStore: KnownRecipeStore,
   private val statusEffectPersistenceService: StatusEffectPersistenceService,
@@ -138,8 +137,8 @@ class MasterDeletionService(
     masterRepository.flush()
 
     if (heldInstanceIds.isNotEmpty()) {
-      // Before the instances: map_chart.item_instance_id is a foreign key, so the other order violates it.
-      mapChartRepository.deleteAllByItemInstanceIdIn(heldInstanceIds)
+      // Before the instances: their item_instance_id is a foreign key, so the other order violates it.
+      instanceDependents.forEach { it.deleteFor(heldInstanceIds) }
       itemInstanceRepository.deleteAllById(heldInstanceIds)
     }
 

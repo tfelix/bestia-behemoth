@@ -57,6 +57,11 @@ class BestiaCatalogue(
     ordered.associateBy { it.identifier }
   }
 
+  /** Loads the species and their learnsets at boot, so no lookup on the tick reaches the database. */
+  fun warmUp() {
+    attackLevels.size
+  }
+
   fun all(): List<Bestia> {
     return ordered
   }
@@ -84,7 +89,28 @@ class BestiaCatalogue(
     return learnset(bestiaId).filter { it.requiredLevel <= level }
   }
 
+  // The lowest level any species learns each attack at. The GM bestia learns every attack at level 1 to try them.
+  private val attackLevels: Map<Long, Int> by lazy {
+    val gmSpeciesId = byIdentifier[GM_SPECIES]?.id
+    learnsets.filterKeys { it != gmSpeciesId }.values.flatten()
+      .groupBy { it.skillId }
+      .mapValues { (_, rows) -> rows.minOf { it.requiredLevel } }
+  }
+
+  /**
+   * The level a bestia has to reach to learn [skillId] from a scroll: the lowest any species learns it at. Null for
+   * a skill no species learns, which is no bestia attack.
+   */
+  fun attackLevelOf(skillId: Long): Int? {
+    return attackLevels[skillId]
+  }
+
   fun byIdentifier(identifier: String): Bestia {
     return byIdentifier[identifier] ?: throw BestiaNotFoundException(identifier)
+  }
+
+  companion object {
+    /** The `identifier` in `mob/gm-bestia.yml`: the GM test species, which knows every attack. */
+    const val GM_SPECIES = "gm_bestia"
   }
 }

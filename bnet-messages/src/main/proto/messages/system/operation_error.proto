@@ -454,6 +454,17 @@ enum OpError {
   // Warp Portal: the saved spot picked is not there (any more), or the portal has no passage left or is gone.
   PORTAL_NO_SPOT = 155;
   PORTAL_SPENT = 156;
+  // Spell scrolls: the bestia is not one of yours, its level is below the attack's, or it knows the attack
+  // already. Training or extraction failed; the scroll is spent either way.
+  SPELL_NOT_OWN_BESTIA = 157;
+  SPELL_LEVEL_TOO_LOW = 158;
+  SPELL_ALREADY_KNOWN = 159;
+  SPELL_TRAINING_FAILED = 160;
+  SPELL_INSCRIPTION_FAILED = 161;
+  // A failed extraction broke the bestia's mind. It is lost; its bag went to the master by post.
+  SPELL_MIND_BROKEN = 162;
+  // A spell scroll aimed past its attack's reach; the scroll stays in the bag.
+  SPELL_OUT_OF_RANGE = 163;
 }
 
 message OperationError {

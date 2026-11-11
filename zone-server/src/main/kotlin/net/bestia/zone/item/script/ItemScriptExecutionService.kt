@@ -32,7 +32,8 @@ class ItemScriptExecutionService(
 
   /** As [useItem], for a caller on the tick that holds a script rather than a catalogue row. */
   fun use(world: World, userId: EntityId, itemScript: ItemScript, playerItemId: Long, args: ScriptArgs): Boolean {
-    val isSuccess = itemScript.execute(world, userId, args)
+    val uniqueId = world.get(userId, Inventory::class)?.byPlayerItemId(playerItemId)?.uniqueId ?: 0L
+    val isSuccess = itemScript.executeHeld(world, userId, args, uniqueId)
 
     if (isSuccess) {
       val inventory = world.getOrThrow(userId, Inventory::class)

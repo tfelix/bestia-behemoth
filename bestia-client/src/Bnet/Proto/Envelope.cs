@@ -66,7 +66,11 @@ namespace Bnet {
             "bXNnLnByb3RvGiZtZXNzYWdlcy90cmFkZS9zdHJlZXRfc3RhbGxfc21zZy5w",
             "cm90bxokbWVzc2FnZXMvdHJhZGUvc3RhbGxfbGlzdF9jbXNnLnByb3RvGiZt",
             "ZXNzYWdlcy90cmFkZS9zdGFsbF91bmxpc3RfY21zZy5wcm90bxojbWVzc2Fn",
-            "ZXMvdHJhZGUvc3RhbGxfYnV5X2Ntc2cucHJvdG8aKG1lc3NhZ2VzL21hc3Rl",
+            "ZXMvdHJhZGUvc3RhbGxfYnV5X2Ntc2cucHJvdG8aKG1lc3NhZ2VzL3Njcm9s",
+            "bC9zcGVsbF9zY3JvbGxzX2Ntc2cucHJvdG8aKG1lc3NhZ2VzL3Njcm9sbC9z",
+            "cGVsbF9zY3JvbGxzX3Ntc2cucHJvdG8aLm1lc3NhZ2VzL3Njcm9sbC9pbnNj",
+            "cmlwdGlvbl9vcHRpb25zX2Ntc2cucHJvdG8aLm1lc3NhZ2VzL3Njcm9sbC9p",
+            "bnNjcmlwdGlvbl9vcHRpb25zX3Ntc2cucHJvdG8aKG1lc3NhZ2VzL21hc3Rl",
             "ci9tb25zdGVyX3NlbnNlX3Ntc2cucHJvdG8aKW1lc3NhZ2VzL21hc3Rlci9i",
             "ZXN0aWFfY2FwdHVyZV9zbXNnLnByb3RvGihtZXNzYWdlcy9tYXN0ZXIvb3du",
             "ZWRfYmVzdGlhc19zbXNnLnByb3RvGjFtZXNzYWdlcy9jb21wZW5kaXVtL3Jl",
@@ -207,7 +211,7 @@ namespace Bnet {
             "L2JyZWVkaW5nL2JyZWVkaW5nX2Zhcm1fc21zZy5wcm90bxonbWVzc2FnZXMv",
             "YnJlZWRpbmcvYmVzdGlhX2VnZ19zbXNnLnByb3RvGiZtZXNzYWdlcy9icmVl",
             "ZGluZy9wbGFjZV9lZ2dfY21zZy5wcm90bxombWVzc2FnZXMvYnJlZWRpbmcv",
-            "aW5jdWJhdG9yX3Ntc2cucHJvdG8iwE8KCEVudmVsb3BlEjMKEW9wZXJhdGlv",
+            "aW5jdWJhdG9yX3Ntc2cucHJvdG8isFEKCEVudmVsb3BlEjMKEW9wZXJhdGlv",
             "bl9zdWNjZXNzGAEgASgLMhYuYm5ldC5PcGVyYXRpb25TdWNjZXNzSAASLwoP",
             "b3BlcmF0aW9uX2Vycm9yGAIgASgLMhQuYm5ldC5PcGVyYXRpb25FcnJvckgA",
             "EisKC3N0YXRlX2JhdGNoGAMgASgLMhQuYm5ldC5TdGF0ZUJhdGNoU01TR0gA",
@@ -395,50 +399,56 @@ namespace Bnet {
             "ZXQuU3RhbGxMaXN0Q01TR0gAEi4KDHN0YWxsX3VubGlzdBiTByABKAsyFS5i",
             "bmV0LlN0YWxsVW5saXN0Q01TR0gAEigKCXN0YWxsX2J1eRiUByABKAsyEi5i",
             "bmV0LlN0YWxsQnV5Q01TR0gAEjAKDW1vbnN0ZXJfc2Vuc2UYlQcgASgLMhYu",
-            "Ym5ldC5Nb25zdGVyU2Vuc2VTTVNHSAASNAoPcGxhbl9zZXR0bGVtZW50GLYH",
-            "IAEoCzIYLmJuZXQuUGxhblNldHRsZW1lbnRDTVNHSAASOgoSc2V0dGxlbWVu",
-            "dF9wbGFubmVkGLcHIAEoCzIbLmJuZXQuU2V0dGxlbWVudFBsYW5uZWRTTVNH",
-            "SAASNAoPc2V0dGxlbWVudF9zaWduGLgHIAEoCzIYLmJuZXQuU2V0dGxlbWVu",
-            "dFNpZ25TTVNHSAASPQoUdGVhcl9kb3duX3NldHRsZW1lbnQYuQcgASgLMhwu",
-            "Ym5ldC5UZWFyRG93blNldHRsZW1lbnRDTVNHSAASNgoQb2ZmZXJfc2V0dGxl",
-            "bWVudBi6ByABKAsyGS5ibmV0Lk9mZmVyU2V0dGxlbWVudENNU0dIABI2ChBz",
-            "ZXR0bGVtZW50X29mZmVyGLsHIAEoCzIZLmJuZXQuU2V0dGxlbWVudE9mZmVy",
-            "U01TR0gAEkMKF2Fuc3dlcl9zZXR0bGVtZW50X29mZmVyGLwHIAEoCzIfLmJu",
-            "ZXQuQW5zd2VyU2V0dGxlbWVudE9mZmVyQ01TR0gAEjgKEXNldHRsZW1lbnRf",
-            "bm90aWNlGL0HIAEoCzIaLmJuZXQuU2V0dGxlbWVudE5vdGljZVNNU0dIABI2",
-            "ChByZXBhaXJfc3RydWN0dXJlGL4HIAEoCzIZLmJuZXQuUmVwYWlyU3RydWN0",
-            "dXJlQ01TR0gAEjMKD3NldF9hdWN0aW9uX2ZlZRjAByABKAsyFy5ibmV0LlNl",
-            "dEF1Y3Rpb25GZWVDTVNHSAASPQoUY29sbGVjdF9hdWN0aW9uX3RpbGwYwQcg",
-            "ASgLMhwuYm5ldC5Db2xsZWN0QXVjdGlvblRpbGxDTVNHSAASQgoXdGVhcl9k",
-            "b3duX2F1Y3Rpb25faG91c2UYwgcgASgLMh4uYm5ldC5UZWFyRG93bkF1Y3Rp",
-            "b25Ib3VzZUNNU0dIABIsCgtiaWRfYXVjdGlvbhjDByABKAsyFC5ibmV0LkJp",
-            "ZEF1Y3Rpb25DTVNHSAASPwoVdHJhZGVfYWdyZWVtZW50X29mZmVyGMQHIAEo",
-            "CzIdLmJuZXQuVHJhZGVBZ3JlZW1lbnRPZmZlclNNU0dIABJBChZhbnN3ZXJf",
-            "dHJhZGVfYWdyZWVtZW50GMUHIAEoCzIeLmJuZXQuQW5zd2VyVHJhZGVBZ3Jl",
-            "ZW1lbnRDTVNHSAASMQoOY3V0X3RyYWRlX2xpbmsYxgcgASgLMhYuYm5ldC5D",
-            "dXRUcmFkZUxpbmtDTVNHSAASNwoRdHJhZGVfbGlua19ub3RpY2UYxwcgASgL",
-            "MhkuYm5ldC5UcmFkZUxpbmtOb3RpY2VTTVNHSAASNAoPcmVxdWVzdF9waWNr",
-            "dXBzGMgHIAEoCzIYLmJuZXQuUmVxdWVzdFBpY2t1cHNDTVNHSAASJQoHcGlj",
-            "a3VwcxjJByABKAsyES5ibmV0LlBpY2t1cHNTTVNHSAASMgoOY29sbGVjdF9w",
-            "aWNrdXAYygcgASgLMhcuYm5ldC5Db2xsZWN0UGlja3VwQ01TR0gAEiwKC3Bv",
-            "c3RfcGlja3VwGMsHIAEoCzIULmJuZXQuUG9zdFBpY2t1cENNU0dIABIoCglj",
-            "YXN0X2xpbmUYmAcgASgLMhIuYm5ldC5DYXN0TGluZUNNU0dIABIsCgtzdHJp",
-            "a2VfbGluZRiZByABKAsyFC5ibmV0LlN0cmlrZUxpbmVDTVNHSAASMgoOc3Rh",
-            "cnRfYnJlZWRpbmcYogcgASgLMhcuYm5ldC5TdGFydEJyZWVkaW5nQ01TR0gA",
-            "Ej8KFXJlbGVhc2VfYnJlZWRpbmdfcGFpchijByABKAsyHS5ibmV0LlJlbGVh",
-            "c2VCcmVlZGluZ1BhaXJDTVNHSAASJgoIdGFrZV9lZ2cYpAcgASgLMhEuYm5l",
-            "dC5UYWtlRWdnQ01TR0gAEiwKC2luc3BlY3RfZWdnGKUHIAEoCzIULmJuZXQu",
-            "SW5zcGVjdEVnZ0NNU0dIABIwCg1icmVlZGluZ19mYXJtGKYHIAEoCzIWLmJu",
-            "ZXQuQnJlZWRpbmdGYXJtU01TR0gAEioKCmJlc3RpYV9lZ2cYpwcgASgLMhMu",
-            "Ym5ldC5CZXN0aWFFZ2dTTVNHSAASKAoJcGxhY2VfZWdnGKgHIAEoCzISLmJu",
-            "ZXQuUGxhY2VFZ2dDTVNHSAASKQoJaW5jdWJhdG9yGKkHIAEoCzITLmJuZXQu",
-            "SW5jdWJhdG9yU01TR0gAQgkKB21lc3NhZ2VKBgj2AxD3A0oGCPgDEPkDSgYI",
-            "+QMQ+gNKBgj+AxCeBEoGCPUDEPYDSgYIzgYQ0QZCJgoVbmV0LmJlc3RpYS5i",
-            "bmV0LnByb3RvQg1FbnZlbG9wZVByb3RvYgZwcm90bzM="));
+            "Ym5ldC5Nb25zdGVyU2Vuc2VTTVNHSAASOAoVc3BlbGxfc2Nyb2xsc19yZXF1",
+            "ZXN0GJYHIAEoCzIWLmJuZXQuU3BlbGxTY3JvbGxzQ01TR0gAEjAKDXNwZWxs",
+            "X3Njcm9sbHMYlwcgASgLMhYuYm5ldC5TcGVsbFNjcm9sbHNTTVNHSAASRAob",
+            "aW5zY3JpcHRpb25fb3B0aW9uc19yZXF1ZXN0GJoHIAEoCzIcLmJuZXQuSW5z",
+            "Y3JpcHRpb25PcHRpb25zQ01TR0gAEjwKE2luc2NyaXB0aW9uX29wdGlvbnMY",
+            "mwcgASgLMhwuYm5ldC5JbnNjcmlwdGlvbk9wdGlvbnNTTVNHSAASNAoPcGxh",
+            "bl9zZXR0bGVtZW50GLYHIAEoCzIYLmJuZXQuUGxhblNldHRsZW1lbnRDTVNH",
+            "SAASOgoSc2V0dGxlbWVudF9wbGFubmVkGLcHIAEoCzIbLmJuZXQuU2V0dGxl",
+            "bWVudFBsYW5uZWRTTVNHSAASNAoPc2V0dGxlbWVudF9zaWduGLgHIAEoCzIY",
+            "LmJuZXQuU2V0dGxlbWVudFNpZ25TTVNHSAASPQoUdGVhcl9kb3duX3NldHRs",
+            "ZW1lbnQYuQcgASgLMhwuYm5ldC5UZWFyRG93blNldHRsZW1lbnRDTVNHSAAS",
+            "NgoQb2ZmZXJfc2V0dGxlbWVudBi6ByABKAsyGS5ibmV0Lk9mZmVyU2V0dGxl",
+            "bWVudENNU0dIABI2ChBzZXR0bGVtZW50X29mZmVyGLsHIAEoCzIZLmJuZXQu",
+            "U2V0dGxlbWVudE9mZmVyU01TR0gAEkMKF2Fuc3dlcl9zZXR0bGVtZW50X29m",
+            "ZmVyGLwHIAEoCzIfLmJuZXQuQW5zd2VyU2V0dGxlbWVudE9mZmVyQ01TR0gA",
+            "EjgKEXNldHRsZW1lbnRfbm90aWNlGL0HIAEoCzIaLmJuZXQuU2V0dGxlbWVu",
+            "dE5vdGljZVNNU0dIABI2ChByZXBhaXJfc3RydWN0dXJlGL4HIAEoCzIZLmJu",
+            "ZXQuUmVwYWlyU3RydWN0dXJlQ01TR0gAEjMKD3NldF9hdWN0aW9uX2ZlZRjA",
+            "ByABKAsyFy5ibmV0LlNldEF1Y3Rpb25GZWVDTVNHSAASPQoUY29sbGVjdF9h",
+            "dWN0aW9uX3RpbGwYwQcgASgLMhwuYm5ldC5Db2xsZWN0QXVjdGlvblRpbGxD",
+            "TVNHSAASQgoXdGVhcl9kb3duX2F1Y3Rpb25faG91c2UYwgcgASgLMh4uYm5l",
+            "dC5UZWFyRG93bkF1Y3Rpb25Ib3VzZUNNU0dIABIsCgtiaWRfYXVjdGlvbhjD",
+            "ByABKAsyFC5ibmV0LkJpZEF1Y3Rpb25DTVNHSAASPwoVdHJhZGVfYWdyZWVt",
+            "ZW50X29mZmVyGMQHIAEoCzIdLmJuZXQuVHJhZGVBZ3JlZW1lbnRPZmZlclNN",
+            "U0dIABJBChZhbnN3ZXJfdHJhZGVfYWdyZWVtZW50GMUHIAEoCzIeLmJuZXQu",
+            "QW5zd2VyVHJhZGVBZ3JlZW1lbnRDTVNHSAASMQoOY3V0X3RyYWRlX2xpbmsY",
+            "xgcgASgLMhYuYm5ldC5DdXRUcmFkZUxpbmtDTVNHSAASNwoRdHJhZGVfbGlu",
+            "a19ub3RpY2UYxwcgASgLMhkuYm5ldC5UcmFkZUxpbmtOb3RpY2VTTVNHSAAS",
+            "NAoPcmVxdWVzdF9waWNrdXBzGMgHIAEoCzIYLmJuZXQuUmVxdWVzdFBpY2t1",
+            "cHNDTVNHSAASJQoHcGlja3VwcxjJByABKAsyES5ibmV0LlBpY2t1cHNTTVNH",
+            "SAASMgoOY29sbGVjdF9waWNrdXAYygcgASgLMhcuYm5ldC5Db2xsZWN0UGlj",
+            "a3VwQ01TR0gAEiwKC3Bvc3RfcGlja3VwGMsHIAEoCzIULmJuZXQuUG9zdFBp",
+            "Y2t1cENNU0dIABIoCgljYXN0X2xpbmUYmAcgASgLMhIuYm5ldC5DYXN0TGlu",
+            "ZUNNU0dIABIsCgtzdHJpa2VfbGluZRiZByABKAsyFC5ibmV0LlN0cmlrZUxp",
+            "bmVDTVNHSAASMgoOc3RhcnRfYnJlZWRpbmcYogcgASgLMhcuYm5ldC5TdGFy",
+            "dEJyZWVkaW5nQ01TR0gAEj8KFXJlbGVhc2VfYnJlZWRpbmdfcGFpchijByAB",
+            "KAsyHS5ibmV0LlJlbGVhc2VCcmVlZGluZ1BhaXJDTVNHSAASJgoIdGFrZV9l",
+            "Z2cYpAcgASgLMhEuYm5ldC5UYWtlRWdnQ01TR0gAEiwKC2luc3BlY3RfZWdn",
+            "GKUHIAEoCzIULmJuZXQuSW5zcGVjdEVnZ0NNU0dIABIwCg1icmVlZGluZ19m",
+            "YXJtGKYHIAEoCzIWLmJuZXQuQnJlZWRpbmdGYXJtU01TR0gAEioKCmJlc3Rp",
+            "YV9lZ2cYpwcgASgLMhMuYm5ldC5CZXN0aWFFZ2dTTVNHSAASKAoJcGxhY2Vf",
+            "ZWdnGKgHIAEoCzISLmJuZXQuUGxhY2VFZ2dDTVNHSAASKQoJaW5jdWJhdG9y",
+            "GKkHIAEoCzITLmJuZXQuSW5jdWJhdG9yU01TR0gAQgkKB21lc3NhZ2VKBgj2",
+            "AxD3A0oGCPgDEPkDSgYI+QMQ+gNKBgj+AxCeBEoGCPUDEPYDSgYIzgYQ0QZC",
+            "JgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQg1FbnZlbG9wZVByb3RvYgZwcm90",
+            "bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.PingReflection.Descriptor, global::Bnet.ChatCmsgReflection.Descriptor, global::Bnet.ChatSmsgReflection.Descriptor, global::Bnet.AuthenticationReflection.Descriptor, global::Bnet.OperationErrorReflection.Descriptor, global::Bnet.OperationSuccessReflection.Descriptor, global::Bnet.CraftItemCmsgReflection.Descriptor, global::Bnet.CancelCraftCmsgReflection.Descriptor, global::Bnet.CraftableRecipesSmsgReflection.Descriptor, global::Bnet.DiscoverRecipeCmsgReflection.Descriptor, global::Bnet.DiscoveryResultSmsgReflection.Descriptor, global::Bnet.MaterialAxesSmsgReflection.Descriptor, global::Bnet.OpenCraftingCmsgReflection.Descriptor, global::Bnet.AddWoodCmsgReflection.Descriptor, global::Bnet.QueueCraftCmsgReflection.Descriptor, global::Bnet.CancelQueueEntryCmsgReflection.Descriptor, global::Bnet.StationStateSmsgReflection.Descriptor, global::Bnet.SetStationWorkerCmsgReflection.Descriptor, global::Bnet.MoveEntityReflection.Descriptor, global::Bnet.JourneyEndedSmsgReflection.Descriptor, global::Bnet.NotebookReflection.Descriptor, global::Bnet.SelectActiveEntityReflection.Descriptor, global::Bnet.AuthenticationSuccessReflection.Descriptor, global::Bnet.DisconnectedReflection.Descriptor, global::Bnet.GetMasterCmsgReflection.Descriptor, global::Bnet.GetSelfCmsgReflection.Descriptor, global::Bnet.SelfSmsgReflection.Descriptor, global::Bnet.MasterReflection.Descriptor, global::Bnet.SelectMasterCmsgReflection.Descriptor, global::Bnet.CreateMasterCmsgReflection.Descriptor, global::Bnet.DeleteMasterCmsgReflection.Descriptor, global::Bnet.InvestSkillPointCmsgReflection.Descriptor, global::Bnet.InvestStatusPointCmsgReflection.Descriptor, global::Bnet.SetBestiaAiConfigCmsgReflection.Descriptor, global::Bnet.BestiaAiConfigSmsgReflection.Descriptor, global::Bnet.GetSkillsCmsgReflection.Descriptor, global::Bnet.ActivateSkillCmsgReflection.Descriptor, global::Bnet.SkillCooldownSmsgReflection.Descriptor, global::Bnet.CancelStatusEffectCmsgReflection.Descriptor, global::Bnet.SurveyMinigameSmsgReflection.Descriptor, global::Bnet.SurveyStopsCmsgReflection.Descriptor, global::Bnet.SenseMarksSmsgReflection.Descriptor, global::Bnet.StreetStallSmsgReflection.Descriptor, global::Bnet.StallListCmsgReflection.Descriptor, global::Bnet.StallUnlistCmsgReflection.Descriptor, global::Bnet.StallBuyCmsgReflection.Descriptor, global::Bnet.MonsterSenseSmsgReflection.Descriptor, global::Bnet.BestiaCaptureSmsgReflection.Descriptor, global::Bnet.OwnedBestiasSmsgReflection.Descriptor, global::Bnet.RequestCompendiumCmsgReflection.Descriptor, global::Bnet.CompendiumSmsgReflection.Descriptor, global::Bnet.ActiveEntitySmsgReflection.Descriptor, global::Bnet.AttackEntityCmsgReflection.Descriptor, global::Bnet.EmoteCmsgReflection.Descriptor, global::Bnet.StateBatchSmsgReflection.Descriptor, global::Bnet.DamageEntitySmsgReflection.Descriptor, global::Bnet.GetInventoryCmsgReflection.Descriptor, global::Bnet.UseItemCmsgReflection.Descriptor, global::Bnet.DropItemCmsgReflection.Descriptor, global::Bnet.LootItemCmsgReflection.Descriptor, global::Bnet.EquipItemCmsgReflection.Descriptor, global::Bnet.UnequipItemCmsgReflection.Descriptor, global::Bnet.TransferItemCmsgReflection.Descriptor, global::Bnet.SetQuiverCmsgReflection.Descriptor, global::Bnet.ChestOpenedSmsgReflection.Descriptor, global::Bnet.RequestLogoutCmsgReflection.Descriptor, global::Bnet.RespawnCmsgReflection.Descriptor, global::Bnet.DialogSmsgReflection.Descriptor, global::Bnet.AcceptPartyInviteCmsgReflection.Descriptor, global::Bnet.DeclinePartyInviteCmsgReflection.Descriptor, global::Bnet.PartyInvitationSmsgReflection.Descriptor, global::Bnet.PartyInfoSmsgReflection.Descriptor, global::Bnet.DisbandPartySmsgReflection.Descriptor, global::Bnet.CreatePartyCmsgReflection.Descriptor, global::Bnet.LeavePartyCmsgReflection.Descriptor, global::Bnet.RemovePartyMemberCmsgReflection.Descriptor, global::Bnet.RequestDisbandPartyCmsgReflection.Descriptor, global::Bnet.RequestPartyInvitationCmsgReflection.Descriptor, global::Bnet.RequestPartyInfoCmsgReflection.Descriptor, global::Bnet.SetPartyExpShareCmsgReflection.Descriptor, global::Bnet.CreateGuildCmsgReflection.Descriptor, global::Bnet.RequestGuildInfoCmsgReflection.Descriptor, global::Bnet.InviteToGuildCmsgReflection.Descriptor, global::Bnet.AnswerGuildInviteCmsgReflection.Descriptor, global::Bnet.LeaveGuildCmsgReflection.Descriptor, global::Bnet.KickGuildMemberCmsgReflection.Descriptor, global::Bnet.SetGuildMemberRankCmsgReflection.Descriptor, global::Bnet.SaveGuildRankCmsgReflection.Descriptor, global::Bnet.DeleteGuildRankCmsgReflection.Descriptor, global::Bnet.InvestGuildSkillCmsgReflection.Descriptor, global::Bnet.DisbandGuildCmsgReflection.Descriptor, global::Bnet.GuildInfoSmsgReflection.Descriptor, global::Bnet.GuildInvitationSmsgReflection.Descriptor, global::Bnet.GuildLeftSmsgReflection.Descriptor, global::Bnet.GuildSkillCooldownSmsgReflection.Descriptor, global::Bnet.GuildNoticeSmsgReflection.Descriptor, global::Bnet.RequestGuildLogCmsgReflection.Descriptor, global::Bnet.GuildLogSmsgReflection.Descriptor, global::Bnet.SetGuildMotdCmsgReflection.Descriptor, global::Bnet.SetGuildEmblemCmsgReflection.Descriptor, global::Bnet.TransferGuildLeadershipCmsgReflection.Descriptor, global::Bnet.LiftGuildExpulsionCmsgReflection.Descriptor, global::Bnet.WorldInfoSmsgReflection.Descriptor, global::Bnet.ChunkManifestSmsgReflection.Descriptor, global::Bnet.ChunkRequestCmsgReflection.Descriptor, global::Bnet.ChunkDataSmsgReflection.Descriptor, global::Bnet.ChunkPatchSmsgReflection.Descriptor, global::Bnet.ChunkStaticEntitiesSmsgReflection.Descriptor, global::Bnet.ChunkGroundOverlaySmsgReflection.Descriptor, global::Bnet.ChunkGroundLayersSmsgReflection.Descriptor, global::Bnet.ChunkGroundStampsSmsgReflection.Descriptor, global::Bnet.GroundMarkRulesSmsgReflection.Descriptor, global::Bnet.StaticEntityRemovedSmsgReflection.Descriptor, global::Bnet.CollectPropCmsgReflection.Descriptor, global::Bnet.DigCmsgReflection.Descriptor, global::Bnet.TreasureShimmerSmsgReflection.Descriptor, global::Bnet.InteractEntityCmsgReflection.Descriptor, global::Bnet.OpenShopCmsgReflection.Descriptor, global::Bnet.ShopOfferSmsgReflection.Descriptor, global::Bnet.ShopQuoteCmsgReflection.Descriptor, global::Bnet.ShopQuoteSmsgReflection.Descriptor, global::Bnet.AuctionHouseOpenSmsgReflection.Descriptor, global::Bnet.ListAuctionItemCmsgReflection.Descriptor, global::Bnet.SearchAuctionsCmsgReflection.Descriptor, global::Bnet.AuctionListingsSmsgReflection.Descriptor, global::Bnet.BuyAuctionListingCmsgReflection.Descriptor, global::Bnet.CancelAuctionListingCmsgReflection.Descriptor, global::Bnet.AuctionPurchasedSmsgReflection.Descriptor, global::Bnet.SetAuctionFeeCmsgReflection.Descriptor, global::Bnet.CollectAuctionTillCmsgReflection.Descriptor, global::Bnet.TearDownAuctionHouseCmsgReflection.Descriptor, global::Bnet.BidAuctionCmsgReflection.Descriptor, global::Bnet.TradeAgreementOfferSmsgReflection.Descriptor, global::Bnet.AnswerTradeAgreementCmsgReflection.Descriptor, global::Bnet.CutTradeLinkCmsgReflection.Descriptor, global::Bnet.TradeLinkNoticeSmsgReflection.Descriptor, global::Bnet.RequestPickupsCmsgReflection.Descriptor, global::Bnet.PickupsSmsgReflection.Descriptor, global::Bnet.CollectPickupCmsgReflection.Descriptor, global::Bnet.PostPickupCmsgReflection.Descriptor, global::Bnet.PlanSettlementCmsgReflection.Descriptor, global::Bnet.SettlementPlannedSmsgReflection.Descriptor, global::Bnet.SettlementSignSmsgReflection.Descriptor, global::Bnet.TearDownSettlementCmsgReflection.Descriptor, global::Bnet.OfferSettlementCmsgReflection.Descriptor, global::Bnet.SettlementOfferSmsgReflection.Descriptor, global::Bnet.AnswerSettlementOfferCmsgReflection.Descriptor, global::Bnet.SettlementNoticeSmsgReflection.Descriptor, global::Bnet.RepairStructureCmsgReflection.Descriptor, global::Bnet.SendLetterCmsgReflection.Descriptor, global::Bnet.LetterSentSmsgReflection.Descriptor, global::Bnet.RequestLettersCmsgReflection.Descriptor, global::Bnet.LettersSmsgReflection.Descriptor, global::Bnet.ReadLetterCmsgReflection.Descriptor, global::Bnet.DeleteLetterCmsgReflection.Descriptor, global::Bnet.LetterArrivedSmsgReflection.Descriptor, global::Bnet.PostOfficeOpenSmsgReflection.Descriptor, global::Bnet.SetHomePostOfficeCmsgReflection.Descriptor, global::Bnet.ParcelsSmsgReflection.Descriptor, global::Bnet.QuoteParcelCmsgReflection.Descriptor, global::Bnet.ParcelQuoteSmsgReflection.Descriptor, global::Bnet.SendParcelCmsgReflection.Descriptor, global::Bnet.ParcelSentSmsgReflection.Descriptor, global::Bnet.CollectParcelCmsgReflection.Descriptor, global::Bnet.RefuseParcelCmsgReflection.Descriptor, global::Bnet.ParcelArrivedSmsgReflection.Descriptor, global::Bnet.RouteBoardSmsgReflection.Descriptor, global::Bnet.TakeParcelsCmsgReflection.Descriptor, global::Bnet.ShopTradeCmsgReflection.Descriptor, global::Bnet.WeatherSmsgReflection.Descriptor, global::Bnet.WorldTimeSmsgReflection.Descriptor, global::Bnet.RequestTradeCmsgReflection.Descriptor, global::Bnet.AnswerTradeRequestCmsgReflection.Descriptor, global::Bnet.OfferTradeItemCmsgReflection.Descriptor, global::Bnet.RetractTradeItemCmsgReflection.Descriptor, global::Bnet.SetTradeLockCmsgReflection.Descriptor, global::Bnet.ConfirmTradeCmsgReflection.Descriptor, global::Bnet.CancelTradeCmsgReflection.Descriptor, global::Bnet.TradeRequestSmsgReflection.Descriptor, global::Bnet.TradeStateSmsgReflection.Descriptor, global::Bnet.InteractCmsgReflection.Descriptor, global::Bnet.ConversationSmsgReflection.Descriptor, global::Bnet.ConversationChoiceCmsgReflection.Descriptor, global::Bnet.CastLineCmsgReflection.Descriptor, global::Bnet.StrikeLineCmsgReflection.Descriptor, global::Bnet.StartBreedingCmsgReflection.Descriptor, global::Bnet.ReleaseBreedingPairCmsgReflection.Descriptor, global::Bnet.TakeEggCmsgReflection.Descriptor, global::Bnet.InspectEggCmsgReflection.Descriptor, global::Bnet.BreedingFarmSmsgReflection.Descriptor, global::Bnet.BestiaEggSmsgReflection.Descriptor, global::Bnet.PlaceEggCmsgReflection.Descriptor, global::Bnet.IncubatorSmsgReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.PingReflection.Descriptor, global::Bnet.ChatCmsgReflection.Descriptor, global::Bnet.ChatSmsgReflection.Descriptor, global::Bnet.AuthenticationReflection.Descriptor, global::Bnet.OperationErrorReflection.Descriptor, global::Bnet.OperationSuccessReflection.Descriptor, global::Bnet.CraftItemCmsgReflection.Descriptor, global::Bnet.CancelCraftCmsgReflection.Descriptor, global::Bnet.CraftableRecipesSmsgReflection.Descriptor, global::Bnet.DiscoverRecipeCmsgReflection.Descriptor, global::Bnet.DiscoveryResultSmsgReflection.Descriptor, global::Bnet.MaterialAxesSmsgReflection.Descriptor, global::Bnet.OpenCraftingCmsgReflection.Descriptor, global::Bnet.AddWoodCmsgReflection.Descriptor, global::Bnet.QueueCraftCmsgReflection.Descriptor, global::Bnet.CancelQueueEntryCmsgReflection.Descriptor, global::Bnet.StationStateSmsgReflection.Descriptor, global::Bnet.SetStationWorkerCmsgReflection.Descriptor, global::Bnet.MoveEntityReflection.Descriptor, global::Bnet.JourneyEndedSmsgReflection.Descriptor, global::Bnet.NotebookReflection.Descriptor, global::Bnet.SelectActiveEntityReflection.Descriptor, global::Bnet.AuthenticationSuccessReflection.Descriptor, global::Bnet.DisconnectedReflection.Descriptor, global::Bnet.GetMasterCmsgReflection.Descriptor, global::Bnet.GetSelfCmsgReflection.Descriptor, global::Bnet.SelfSmsgReflection.Descriptor, global::Bnet.MasterReflection.Descriptor, global::Bnet.SelectMasterCmsgReflection.Descriptor, global::Bnet.CreateMasterCmsgReflection.Descriptor, global::Bnet.DeleteMasterCmsgReflection.Descriptor, global::Bnet.InvestSkillPointCmsgReflection.Descriptor, global::Bnet.InvestStatusPointCmsgReflection.Descriptor, global::Bnet.SetBestiaAiConfigCmsgReflection.Descriptor, global::Bnet.BestiaAiConfigSmsgReflection.Descriptor, global::Bnet.GetSkillsCmsgReflection.Descriptor, global::Bnet.ActivateSkillCmsgReflection.Descriptor, global::Bnet.SkillCooldownSmsgReflection.Descriptor, global::Bnet.CancelStatusEffectCmsgReflection.Descriptor, global::Bnet.SurveyMinigameSmsgReflection.Descriptor, global::Bnet.SurveyStopsCmsgReflection.Descriptor, global::Bnet.SenseMarksSmsgReflection.Descriptor, global::Bnet.StreetStallSmsgReflection.Descriptor, global::Bnet.StallListCmsgReflection.Descriptor, global::Bnet.StallUnlistCmsgReflection.Descriptor, global::Bnet.StallBuyCmsgReflection.Descriptor, global::Bnet.SpellScrollsCmsgReflection.Descriptor, global::Bnet.SpellScrollsSmsgReflection.Descriptor, global::Bnet.InscriptionOptionsCmsgReflection.Descriptor, global::Bnet.InscriptionOptionsSmsgReflection.Descriptor, global::Bnet.MonsterSenseSmsgReflection.Descriptor, global::Bnet.BestiaCaptureSmsgReflection.Descriptor, global::Bnet.OwnedBestiasSmsgReflection.Descriptor, global::Bnet.RequestCompendiumCmsgReflection.Descriptor, global::Bnet.CompendiumSmsgReflection.Descriptor, global::Bnet.ActiveEntitySmsgReflection.Descriptor, global::Bnet.AttackEntityCmsgReflection.Descriptor, global::Bnet.EmoteCmsgReflection.Descriptor, global::Bnet.StateBatchSmsgReflection.Descriptor, global::Bnet.DamageEntitySmsgReflection.Descriptor, global::Bnet.GetInventoryCmsgReflection.Descriptor, global::Bnet.UseItemCmsgReflection.Descriptor, global::Bnet.DropItemCmsgReflection.Descriptor, global::Bnet.LootItemCmsgReflection.Descriptor, global::Bnet.EquipItemCmsgReflection.Descriptor, global::Bnet.UnequipItemCmsgReflection.Descriptor, global::Bnet.TransferItemCmsgReflection.Descriptor, global::Bnet.SetQuiverCmsgReflection.Descriptor, global::Bnet.ChestOpenedSmsgReflection.Descriptor, global::Bnet.RequestLogoutCmsgReflection.Descriptor, global::Bnet.RespawnCmsgReflection.Descriptor, global::Bnet.DialogSmsgReflection.Descriptor, global::Bnet.AcceptPartyInviteCmsgReflection.Descriptor, global::Bnet.DeclinePartyInviteCmsgReflection.Descriptor, global::Bnet.PartyInvitationSmsgReflection.Descriptor, global::Bnet.PartyInfoSmsgReflection.Descriptor, global::Bnet.DisbandPartySmsgReflection.Descriptor, global::Bnet.CreatePartyCmsgReflection.Descriptor, global::Bnet.LeavePartyCmsgReflection.Descriptor, global::Bnet.RemovePartyMemberCmsgReflection.Descriptor, global::Bnet.RequestDisbandPartyCmsgReflection.Descriptor, global::Bnet.RequestPartyInvitationCmsgReflection.Descriptor, global::Bnet.RequestPartyInfoCmsgReflection.Descriptor, global::Bnet.SetPartyExpShareCmsgReflection.Descriptor, global::Bnet.CreateGuildCmsgReflection.Descriptor, global::Bnet.RequestGuildInfoCmsgReflection.Descriptor, global::Bnet.InviteToGuildCmsgReflection.Descriptor, global::Bnet.AnswerGuildInviteCmsgReflection.Descriptor, global::Bnet.LeaveGuildCmsgReflection.Descriptor, global::Bnet.KickGuildMemberCmsgReflection.Descriptor, global::Bnet.SetGuildMemberRankCmsgReflection.Descriptor, global::Bnet.SaveGuildRankCmsgReflection.Descriptor, global::Bnet.DeleteGuildRankCmsgReflection.Descriptor, global::Bnet.InvestGuildSkillCmsgReflection.Descriptor, global::Bnet.DisbandGuildCmsgReflection.Descriptor, global::Bnet.GuildInfoSmsgReflection.Descriptor, global::Bnet.GuildInvitationSmsgReflection.Descriptor, global::Bnet.GuildLeftSmsgReflection.Descriptor, global::Bnet.GuildSkillCooldownSmsgReflection.Descriptor, global::Bnet.GuildNoticeSmsgReflection.Descriptor, global::Bnet.RequestGuildLogCmsgReflection.Descriptor, global::Bnet.GuildLogSmsgReflection.Descriptor, global::Bnet.SetGuildMotdCmsgReflection.Descriptor, global::Bnet.SetGuildEmblemCmsgReflection.Descriptor, global::Bnet.TransferGuildLeadershipCmsgReflection.Descriptor, global::Bnet.LiftGuildExpulsionCmsgReflection.Descriptor, global::Bnet.WorldInfoSmsgReflection.Descriptor, global::Bnet.ChunkManifestSmsgReflection.Descriptor, global::Bnet.ChunkRequestCmsgReflection.Descriptor, global::Bnet.ChunkDataSmsgReflection.Descriptor, global::Bnet.ChunkPatchSmsgReflection.Descriptor, global::Bnet.ChunkStaticEntitiesSmsgReflection.Descriptor, global::Bnet.ChunkGroundOverlaySmsgReflection.Descriptor, global::Bnet.ChunkGroundLayersSmsgReflection.Descriptor, global::Bnet.ChunkGroundStampsSmsgReflection.Descriptor, global::Bnet.GroundMarkRulesSmsgReflection.Descriptor, global::Bnet.StaticEntityRemovedSmsgReflection.Descriptor, global::Bnet.CollectPropCmsgReflection.Descriptor, global::Bnet.DigCmsgReflection.Descriptor, global::Bnet.TreasureShimmerSmsgReflection.Descriptor, global::Bnet.InteractEntityCmsgReflection.Descriptor, global::Bnet.OpenShopCmsgReflection.Descriptor, global::Bnet.ShopOfferSmsgReflection.Descriptor, global::Bnet.ShopQuoteCmsgReflection.Descriptor, global::Bnet.ShopQuoteSmsgReflection.Descriptor, global::Bnet.AuctionHouseOpenSmsgReflection.Descriptor, global::Bnet.ListAuctionItemCmsgReflection.Descriptor, global::Bnet.SearchAuctionsCmsgReflection.Descriptor, global::Bnet.AuctionListingsSmsgReflection.Descriptor, global::Bnet.BuyAuctionListingCmsgReflection.Descriptor, global::Bnet.CancelAuctionListingCmsgReflection.Descriptor, global::Bnet.AuctionPurchasedSmsgReflection.Descriptor, global::Bnet.SetAuctionFeeCmsgReflection.Descriptor, global::Bnet.CollectAuctionTillCmsgReflection.Descriptor, global::Bnet.TearDownAuctionHouseCmsgReflection.Descriptor, global::Bnet.BidAuctionCmsgReflection.Descriptor, global::Bnet.TradeAgreementOfferSmsgReflection.Descriptor, global::Bnet.AnswerTradeAgreementCmsgReflection.Descriptor, global::Bnet.CutTradeLinkCmsgReflection.Descriptor, global::Bnet.TradeLinkNoticeSmsgReflection.Descriptor, global::Bnet.RequestPickupsCmsgReflection.Descriptor, global::Bnet.PickupsSmsgReflection.Descriptor, global::Bnet.CollectPickupCmsgReflection.Descriptor, global::Bnet.PostPickupCmsgReflection.Descriptor, global::Bnet.PlanSettlementCmsgReflection.Descriptor, global::Bnet.SettlementPlannedSmsgReflection.Descriptor, global::Bnet.SettlementSignSmsgReflection.Descriptor, global::Bnet.TearDownSettlementCmsgReflection.Descriptor, global::Bnet.OfferSettlementCmsgReflection.Descriptor, global::Bnet.SettlementOfferSmsgReflection.Descriptor, global::Bnet.AnswerSettlementOfferCmsgReflection.Descriptor, global::Bnet.SettlementNoticeSmsgReflection.Descriptor, global::Bnet.RepairStructureCmsgReflection.Descriptor, global::Bnet.SendLetterCmsgReflection.Descriptor, global::Bnet.LetterSentSmsgReflection.Descriptor, global::Bnet.RequestLettersCmsgReflection.Descriptor, global::Bnet.LettersSmsgReflection.Descriptor, global::Bnet.ReadLetterCmsgReflection.Descriptor, global::Bnet.DeleteLetterCmsgReflection.Descriptor, global::Bnet.LetterArrivedSmsgReflection.Descriptor, global::Bnet.PostOfficeOpenSmsgReflection.Descriptor, global::Bnet.SetHomePostOfficeCmsgReflection.Descriptor, global::Bnet.ParcelsSmsgReflection.Descriptor, global::Bnet.QuoteParcelCmsgReflection.Descriptor, global::Bnet.ParcelQuoteSmsgReflection.Descriptor, global::Bnet.SendParcelCmsgReflection.Descriptor, global::Bnet.ParcelSentSmsgReflection.Descriptor, global::Bnet.CollectParcelCmsgReflection.Descriptor, global::Bnet.RefuseParcelCmsgReflection.Descriptor, global::Bnet.ParcelArrivedSmsgReflection.Descriptor, global::Bnet.RouteBoardSmsgReflection.Descriptor, global::Bnet.TakeParcelsCmsgReflection.Descriptor, global::Bnet.ShopTradeCmsgReflection.Descriptor, global::Bnet.WeatherSmsgReflection.Descriptor, global::Bnet.WorldTimeSmsgReflection.Descriptor, global::Bnet.RequestTradeCmsgReflection.Descriptor, global::Bnet.AnswerTradeRequestCmsgReflection.Descriptor, global::Bnet.OfferTradeItemCmsgReflection.Descriptor, global::Bnet.RetractTradeItemCmsgReflection.Descriptor, global::Bnet.SetTradeLockCmsgReflection.Descriptor, global::Bnet.ConfirmTradeCmsgReflection.Descriptor, global::Bnet.CancelTradeCmsgReflection.Descriptor, global::Bnet.TradeRequestSmsgReflection.Descriptor, global::Bnet.TradeStateSmsgReflection.Descriptor, global::Bnet.InteractCmsgReflection.Descriptor, global::Bnet.ConversationSmsgReflection.Descriptor, global::Bnet.ConversationChoiceCmsgReflection.Descriptor, global::Bnet.CastLineCmsgReflection.Descriptor, global::Bnet.StrikeLineCmsgReflection.Descriptor, global::Bnet.StartBreedingCmsgReflection.Descriptor, global::Bnet.ReleaseBreedingPairCmsgReflection.Descriptor, global::Bnet.TakeEggCmsgReflection.Descriptor, global::Bnet.InspectEggCmsgReflection.Descriptor, global::Bnet.BreedingFarmSmsgReflection.Descriptor, global::Bnet.BestiaEggSmsgReflection.Descriptor, global::Bnet.PlaceEggCmsgReflection.Descriptor, global::Bnet.IncubatorSmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Envelope), global::Bnet.Envelope.Parser, new[]{ "OperationSuccess", "OperationError", "StateBatch", "DamageEntity", "Authentication", "Disconnected", "AuthenticationSuccess", "Ping", "Pong", "ChatCmsg", "ChatSmsg", "RequestLogout", "Dialog", "ConversationChoice", "Respawn", "Interact", "Conversation", "WorldInfo", "ChunkManifest", "ChunkRequest", "ChunkData", "ChunkPatch", "Weather", "ChunkStaticEntities", "StaticEntityRemoved", "CollectProp", "WorldTime", "ChunkGroundOverlay", "InteractEntity", "ChunkGroundLayers", "ChunkGroundStamps", "GroundMarkRules", "Dig", "TreasureShimmer", "GetInventory", "UseItem", "DropItem", "LootItem", "EquipItem", "UnequipItem", "TransferItem", "SetQuiver", "ChestOpened", "GetMaster", "Master", "SelectMaster", "GetSelf", "Self", "InvestSkillPoint", "GetSkills", "ActivateSkill", "CreateMaster", "InvestStatusPoint", "SetBestiaAiConfig", "BestiaAiConfig", "DeleteMaster", "BestiaCapture", "OwnedBestias", "ActiveEntity", "RequestCompendium", "Compendium", "SkillCooldown", "CancelStatusEffect", "SelectActiveEntity", "MoveEntity", "JourneyEnded", "AttackEntity", "Emote", "AcceptPartyInvite", "DeclinePartyInvite", "PartyInvitation", "PartyInfo", "DisbandParty", "CreateParty", "LeaveParty", "RemovePartyMember", "RequestDisbandParty", "RequestPartyInvitation", "RequestPartyInfo", "SetPartyExpShare", "CreateGuild", "RequestGuildInfo", "InviteToGuild", "AnswerGuildInvite", "LeaveGuild", "KickGuildMember", "SetGuildMemberRank", "SaveGuildRank", "DeleteGuildRank", "InvestGuildSkill", "DisbandGuild", "GuildInfo", "GuildInvitation", "GuildLeft", "GuildSkillCooldown", "GuildNotice", "RequestGuildLog", "GuildLog", "SetGuildMotd", "SetGuildEmblem", "TransferGuildLeadership", "LiftGuildExpulsion", "CraftableRecipes", "CraftItem", "CancelCraft", "DiscoverRecipe", "DiscoveryResult", "MaterialAxes", "OpenCrafting", "AddWood", "QueueCraft", "CancelQueueEntry", "StationState", "SetStationWorker", "RequestTrade", "AnswerTradeRequest", "OfferTradeItem", "RetractTradeItem", "SetTradeLock", "ConfirmTrade", "CancelTrade", "TradeRequest", "TradeState", "OpenShop", "ShopTrade", "ShopOffer", "ShopQuote", "ShopQuoteResult", "AuctionHouseOpen", "ListAuctionItem", "SearchAuctions", "AuctionListings", "BuyAuctionListing", "CancelAuctionListing", "AuctionPurchased", "SendLetter", "LetterSent", "RequestLetters", "Letters", "ReadLetter", "DeleteLetter", "LetterArrived", "PostOfficeOpen", "SetHomePostOffice", "SendParcel", "QuoteParcel", "ParcelQuote", "ParcelSent", "Parcels", "CollectParcel", "RefuseParcel", "ParcelArrived", "RouteBoard", "TakeParcels", "NotebookList", "Notebook", "NotebookPut", "NotebookDelete", "NotebookChanged", "SurveyMinigame", "SurveyStops", "SenseMarks", "StreetStall", "StallList", "StallUnlist", "StallBuy", "MonsterSense", "PlanSettlement", "SettlementPlanned", "SettlementSign", "TearDownSettlement", "OfferSettlement", "SettlementOffer", "AnswerSettlementOffer", "SettlementNotice", "RepairStructure", "SetAuctionFee", "CollectAuctionTill", "TearDownAuctionHouse", "BidAuction", "TradeAgreementOffer", "AnswerTradeAgreement", "CutTradeLink", "TradeLinkNotice", "RequestPickups", "Pickups", "CollectPickup", "PostPickup", "CastLine", "StrikeLine", "StartBreeding", "ReleaseBreedingPair", "TakeEgg", "InspectEgg", "BreedingFarm", "BestiaEgg", "PlaceEgg", "Incubator" }, new[]{ "Message" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Envelope), global::Bnet.Envelope.Parser, new[]{ "OperationSuccess", "OperationError", "StateBatch", "DamageEntity", "Authentication", "Disconnected", "AuthenticationSuccess", "Ping", "Pong", "ChatCmsg", "ChatSmsg", "RequestLogout", "Dialog", "ConversationChoice", "Respawn", "Interact", "Conversation", "WorldInfo", "ChunkManifest", "ChunkRequest", "ChunkData", "ChunkPatch", "Weather", "ChunkStaticEntities", "StaticEntityRemoved", "CollectProp", "WorldTime", "ChunkGroundOverlay", "InteractEntity", "ChunkGroundLayers", "ChunkGroundStamps", "GroundMarkRules", "Dig", "TreasureShimmer", "GetInventory", "UseItem", "DropItem", "LootItem", "EquipItem", "UnequipItem", "TransferItem", "SetQuiver", "ChestOpened", "GetMaster", "Master", "SelectMaster", "GetSelf", "Self", "InvestSkillPoint", "GetSkills", "ActivateSkill", "CreateMaster", "InvestStatusPoint", "SetBestiaAiConfig", "BestiaAiConfig", "DeleteMaster", "BestiaCapture", "OwnedBestias", "ActiveEntity", "RequestCompendium", "Compendium", "SkillCooldown", "CancelStatusEffect", "SelectActiveEntity", "MoveEntity", "JourneyEnded", "AttackEntity", "Emote", "AcceptPartyInvite", "DeclinePartyInvite", "PartyInvitation", "PartyInfo", "DisbandParty", "CreateParty", "LeaveParty", "RemovePartyMember", "RequestDisbandParty", "RequestPartyInvitation", "RequestPartyInfo", "SetPartyExpShare", "CreateGuild", "RequestGuildInfo", "InviteToGuild", "AnswerGuildInvite", "LeaveGuild", "KickGuildMember", "SetGuildMemberRank", "SaveGuildRank", "DeleteGuildRank", "InvestGuildSkill", "DisbandGuild", "GuildInfo", "GuildInvitation", "GuildLeft", "GuildSkillCooldown", "GuildNotice", "RequestGuildLog", "GuildLog", "SetGuildMotd", "SetGuildEmblem", "TransferGuildLeadership", "LiftGuildExpulsion", "CraftableRecipes", "CraftItem", "CancelCraft", "DiscoverRecipe", "DiscoveryResult", "MaterialAxes", "OpenCrafting", "AddWood", "QueueCraft", "CancelQueueEntry", "StationState", "SetStationWorker", "RequestTrade", "AnswerTradeRequest", "OfferTradeItem", "RetractTradeItem", "SetTradeLock", "ConfirmTrade", "CancelTrade", "TradeRequest", "TradeState", "OpenShop", "ShopTrade", "ShopOffer", "ShopQuote", "ShopQuoteResult", "AuctionHouseOpen", "ListAuctionItem", "SearchAuctions", "AuctionListings", "BuyAuctionListing", "CancelAuctionListing", "AuctionPurchased", "SendLetter", "LetterSent", "RequestLetters", "Letters", "ReadLetter", "DeleteLetter", "LetterArrived", "PostOfficeOpen", "SetHomePostOffice", "SendParcel", "QuoteParcel", "ParcelQuote", "ParcelSent", "Parcels", "CollectParcel", "RefuseParcel", "ParcelArrived", "RouteBoard", "TakeParcels", "NotebookList", "Notebook", "NotebookPut", "NotebookDelete", "NotebookChanged", "SurveyMinigame", "SurveyStops", "SenseMarks", "StreetStall", "StallList", "StallUnlist", "StallBuy", "MonsterSense", "SpellScrollsRequest", "SpellScrolls", "InscriptionOptionsRequest", "InscriptionOptions", "PlanSettlement", "SettlementPlanned", "SettlementSign", "TearDownSettlement", "OfferSettlement", "SettlementOffer", "AnswerSettlementOffer", "SettlementNotice", "RepairStructure", "SetAuctionFee", "CollectAuctionTill", "TearDownAuctionHouse", "BidAuction", "TradeAgreementOffer", "AnswerTradeAgreement", "CutTradeLink", "TradeLinkNotice", "RequestPickups", "Pickups", "CollectPickup", "PostPickup", "CastLine", "StrikeLine", "StartBreeding", "ReleaseBreedingPair", "TakeEgg", "InspectEgg", "BreedingFarm", "BestiaEgg", "PlaceEgg", "Incubator" }, new[]{ "Message" }, null, null, null)
           }));
     }
     #endregion
@@ -981,6 +991,18 @@ namespace Bnet {
           break;
         case MessageOneofCase.MonsterSense:
           MonsterSense = other.MonsterSense.Clone();
+          break;
+        case MessageOneofCase.SpellScrollsRequest:
+          SpellScrollsRequest = other.SpellScrollsRequest.Clone();
+          break;
+        case MessageOneofCase.SpellScrolls:
+          SpellScrolls = other.SpellScrolls.Clone();
+          break;
+        case MessageOneofCase.InscriptionOptionsRequest:
+          InscriptionOptionsRequest = other.InscriptionOptionsRequest.Clone();
+          break;
+        case MessageOneofCase.InscriptionOptions:
+          InscriptionOptions = other.InscriptionOptions.Clone();
           break;
         case MessageOneofCase.PlanSettlement:
           PlanSettlement = other.PlanSettlement.Clone();
@@ -3141,6 +3163,54 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "spell_scrolls_request" field.</summary>
+    public const int SpellScrollsRequestFieldNumber = 918;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SpellScrollsCMSG SpellScrollsRequest {
+      get { return messageCase_ == MessageOneofCase.SpellScrollsRequest ? (global::Bnet.SpellScrollsCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.SpellScrollsRequest;
+      }
+    }
+
+    /// <summary>Field number for the "spell_scrolls" field.</summary>
+    public const int SpellScrollsFieldNumber = 919;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SpellScrollsSMSG SpellScrolls {
+      get { return messageCase_ == MessageOneofCase.SpellScrolls ? (global::Bnet.SpellScrollsSMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.SpellScrolls;
+      }
+    }
+
+    /// <summary>Field number for the "inscription_options_request" field.</summary>
+    public const int InscriptionOptionsRequestFieldNumber = 922;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.InscriptionOptionsCMSG InscriptionOptionsRequest {
+      get { return messageCase_ == MessageOneofCase.InscriptionOptionsRequest ? (global::Bnet.InscriptionOptionsCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.InscriptionOptionsRequest;
+      }
+    }
+
+    /// <summary>Field number for the "inscription_options" field.</summary>
+    public const int InscriptionOptionsFieldNumber = 923;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.InscriptionOptionsSMSG InscriptionOptions {
+      get { return messageCase_ == MessageOneofCase.InscriptionOptions ? (global::Bnet.InscriptionOptionsSMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.InscriptionOptions;
+      }
+    }
+
     /// <summary>Field number for the "plan_settlement" field.</summary>
     public const int PlanSettlementFieldNumber = 950;
     /// <summary>
@@ -3696,6 +3766,10 @@ namespace Bnet {
       StallUnlist = 915,
       StallBuy = 916,
       MonsterSense = 917,
+      SpellScrollsRequest = 918,
+      SpellScrolls = 919,
+      InscriptionOptionsRequest = 922,
+      InscriptionOptions = 923,
       PlanSettlement = 950,
       SettlementPlanned = 951,
       SettlementSign = 952,
@@ -3924,6 +3998,10 @@ namespace Bnet {
       if (!object.Equals(StallUnlist, other.StallUnlist)) return false;
       if (!object.Equals(StallBuy, other.StallBuy)) return false;
       if (!object.Equals(MonsterSense, other.MonsterSense)) return false;
+      if (!object.Equals(SpellScrollsRequest, other.SpellScrollsRequest)) return false;
+      if (!object.Equals(SpellScrolls, other.SpellScrolls)) return false;
+      if (!object.Equals(InscriptionOptionsRequest, other.InscriptionOptionsRequest)) return false;
+      if (!object.Equals(InscriptionOptions, other.InscriptionOptions)) return false;
       if (!object.Equals(PlanSettlement, other.PlanSettlement)) return false;
       if (!object.Equals(SettlementPlanned, other.SettlementPlanned)) return false;
       if (!object.Equals(SettlementSign, other.SettlementSign)) return false;
@@ -4130,6 +4208,10 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.StallUnlist) hash ^= StallUnlist.GetHashCode();
       if (messageCase_ == MessageOneofCase.StallBuy) hash ^= StallBuy.GetHashCode();
       if (messageCase_ == MessageOneofCase.MonsterSense) hash ^= MonsterSense.GetHashCode();
+      if (messageCase_ == MessageOneofCase.SpellScrollsRequest) hash ^= SpellScrollsRequest.GetHashCode();
+      if (messageCase_ == MessageOneofCase.SpellScrolls) hash ^= SpellScrolls.GetHashCode();
+      if (messageCase_ == MessageOneofCase.InscriptionOptionsRequest) hash ^= InscriptionOptionsRequest.GetHashCode();
+      if (messageCase_ == MessageOneofCase.InscriptionOptions) hash ^= InscriptionOptions.GetHashCode();
       if (messageCase_ == MessageOneofCase.PlanSettlement) hash ^= PlanSettlement.GetHashCode();
       if (messageCase_ == MessageOneofCase.SettlementPlanned) hash ^= SettlementPlanned.GetHashCode();
       if (messageCase_ == MessageOneofCase.SettlementSign) hash ^= SettlementSign.GetHashCode();
@@ -4848,6 +4930,14 @@ namespace Bnet {
         output.WriteRawTag(170, 57);
         output.WriteMessage(MonsterSense);
       }
+      if (messageCase_ == MessageOneofCase.SpellScrollsRequest) {
+        output.WriteRawTag(178, 57);
+        output.WriteMessage(SpellScrollsRequest);
+      }
+      if (messageCase_ == MessageOneofCase.SpellScrolls) {
+        output.WriteRawTag(186, 57);
+        output.WriteMessage(SpellScrolls);
+      }
       if (messageCase_ == MessageOneofCase.CastLine) {
         output.WriteRawTag(194, 57);
         output.WriteMessage(CastLine);
@@ -4855,6 +4945,14 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.StrikeLine) {
         output.WriteRawTag(202, 57);
         output.WriteMessage(StrikeLine);
+      }
+      if (messageCase_ == MessageOneofCase.InscriptionOptionsRequest) {
+        output.WriteRawTag(210, 57);
+        output.WriteMessage(InscriptionOptionsRequest);
+      }
+      if (messageCase_ == MessageOneofCase.InscriptionOptions) {
+        output.WriteRawTag(218, 57);
+        output.WriteMessage(InscriptionOptions);
       }
       if (messageCase_ == MessageOneofCase.StartBreeding) {
         output.WriteRawTag(146, 58);
@@ -5650,6 +5748,14 @@ namespace Bnet {
         output.WriteRawTag(170, 57);
         output.WriteMessage(MonsterSense);
       }
+      if (messageCase_ == MessageOneofCase.SpellScrollsRequest) {
+        output.WriteRawTag(178, 57);
+        output.WriteMessage(SpellScrollsRequest);
+      }
+      if (messageCase_ == MessageOneofCase.SpellScrolls) {
+        output.WriteRawTag(186, 57);
+        output.WriteMessage(SpellScrolls);
+      }
       if (messageCase_ == MessageOneofCase.CastLine) {
         output.WriteRawTag(194, 57);
         output.WriteMessage(CastLine);
@@ -5657,6 +5763,14 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.StrikeLine) {
         output.WriteRawTag(202, 57);
         output.WriteMessage(StrikeLine);
+      }
+      if (messageCase_ == MessageOneofCase.InscriptionOptionsRequest) {
+        output.WriteRawTag(210, 57);
+        output.WriteMessage(InscriptionOptionsRequest);
+      }
+      if (messageCase_ == MessageOneofCase.InscriptionOptions) {
+        output.WriteRawTag(218, 57);
+        output.WriteMessage(InscriptionOptions);
       }
       if (messageCase_ == MessageOneofCase.StartBreeding) {
         output.WriteRawTag(146, 58);
@@ -6284,6 +6398,18 @@ namespace Bnet {
       }
       if (messageCase_ == MessageOneofCase.MonsterSense) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(MonsterSense);
+      }
+      if (messageCase_ == MessageOneofCase.SpellScrollsRequest) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(SpellScrollsRequest);
+      }
+      if (messageCase_ == MessageOneofCase.SpellScrolls) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(SpellScrolls);
+      }
+      if (messageCase_ == MessageOneofCase.InscriptionOptionsRequest) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(InscriptionOptionsRequest);
+      }
+      if (messageCase_ == MessageOneofCase.InscriptionOptions) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(InscriptionOptions);
       }
       if (messageCase_ == MessageOneofCase.PlanSettlement) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(PlanSettlement);
@@ -7392,6 +7518,30 @@ namespace Bnet {
             MonsterSense = new global::Bnet.MonsterSenseSMSG();
           }
           MonsterSense.MergeFrom(other.MonsterSense);
+          break;
+        case MessageOneofCase.SpellScrollsRequest:
+          if (SpellScrollsRequest == null) {
+            SpellScrollsRequest = new global::Bnet.SpellScrollsCMSG();
+          }
+          SpellScrollsRequest.MergeFrom(other.SpellScrollsRequest);
+          break;
+        case MessageOneofCase.SpellScrolls:
+          if (SpellScrolls == null) {
+            SpellScrolls = new global::Bnet.SpellScrollsSMSG();
+          }
+          SpellScrolls.MergeFrom(other.SpellScrolls);
+          break;
+        case MessageOneofCase.InscriptionOptionsRequest:
+          if (InscriptionOptionsRequest == null) {
+            InscriptionOptionsRequest = new global::Bnet.InscriptionOptionsCMSG();
+          }
+          InscriptionOptionsRequest.MergeFrom(other.InscriptionOptionsRequest);
+          break;
+        case MessageOneofCase.InscriptionOptions:
+          if (InscriptionOptions == null) {
+            InscriptionOptions = new global::Bnet.InscriptionOptionsSMSG();
+          }
+          InscriptionOptions.MergeFrom(other.InscriptionOptions);
           break;
         case MessageOneofCase.PlanSettlement:
           if (PlanSettlement == null) {
@@ -9103,6 +9253,24 @@ namespace Bnet {
             MonsterSense = subBuilder;
             break;
           }
+          case 7346: {
+            global::Bnet.SpellScrollsCMSG subBuilder = new global::Bnet.SpellScrollsCMSG();
+            if (messageCase_ == MessageOneofCase.SpellScrollsRequest) {
+              subBuilder.MergeFrom(SpellScrollsRequest);
+            }
+            input.ReadMessage(subBuilder);
+            SpellScrollsRequest = subBuilder;
+            break;
+          }
+          case 7354: {
+            global::Bnet.SpellScrollsSMSG subBuilder = new global::Bnet.SpellScrollsSMSG();
+            if (messageCase_ == MessageOneofCase.SpellScrolls) {
+              subBuilder.MergeFrom(SpellScrolls);
+            }
+            input.ReadMessage(subBuilder);
+            SpellScrolls = subBuilder;
+            break;
+          }
           case 7362: {
             global::Bnet.CastLineCMSG subBuilder = new global::Bnet.CastLineCMSG();
             if (messageCase_ == MessageOneofCase.CastLine) {
@@ -9119,6 +9287,24 @@ namespace Bnet {
             }
             input.ReadMessage(subBuilder);
             StrikeLine = subBuilder;
+            break;
+          }
+          case 7378: {
+            global::Bnet.InscriptionOptionsCMSG subBuilder = new global::Bnet.InscriptionOptionsCMSG();
+            if (messageCase_ == MessageOneofCase.InscriptionOptionsRequest) {
+              subBuilder.MergeFrom(InscriptionOptionsRequest);
+            }
+            input.ReadMessage(subBuilder);
+            InscriptionOptionsRequest = subBuilder;
+            break;
+          }
+          case 7386: {
+            global::Bnet.InscriptionOptionsSMSG subBuilder = new global::Bnet.InscriptionOptionsSMSG();
+            if (messageCase_ == MessageOneofCase.InscriptionOptions) {
+              subBuilder.MergeFrom(InscriptionOptions);
+            }
+            input.ReadMessage(subBuilder);
+            InscriptionOptions = subBuilder;
             break;
           }
           case 7442: {
@@ -10904,6 +11090,24 @@ namespace Bnet {
             MonsterSense = subBuilder;
             break;
           }
+          case 7346: {
+            global::Bnet.SpellScrollsCMSG subBuilder = new global::Bnet.SpellScrollsCMSG();
+            if (messageCase_ == MessageOneofCase.SpellScrollsRequest) {
+              subBuilder.MergeFrom(SpellScrollsRequest);
+            }
+            input.ReadMessage(subBuilder);
+            SpellScrollsRequest = subBuilder;
+            break;
+          }
+          case 7354: {
+            global::Bnet.SpellScrollsSMSG subBuilder = new global::Bnet.SpellScrollsSMSG();
+            if (messageCase_ == MessageOneofCase.SpellScrolls) {
+              subBuilder.MergeFrom(SpellScrolls);
+            }
+            input.ReadMessage(subBuilder);
+            SpellScrolls = subBuilder;
+            break;
+          }
           case 7362: {
             global::Bnet.CastLineCMSG subBuilder = new global::Bnet.CastLineCMSG();
             if (messageCase_ == MessageOneofCase.CastLine) {
@@ -10920,6 +11124,24 @@ namespace Bnet {
             }
             input.ReadMessage(subBuilder);
             StrikeLine = subBuilder;
+            break;
+          }
+          case 7378: {
+            global::Bnet.InscriptionOptionsCMSG subBuilder = new global::Bnet.InscriptionOptionsCMSG();
+            if (messageCase_ == MessageOneofCase.InscriptionOptionsRequest) {
+              subBuilder.MergeFrom(InscriptionOptionsRequest);
+            }
+            input.ReadMessage(subBuilder);
+            InscriptionOptionsRequest = subBuilder;
+            break;
+          }
+          case 7386: {
+            global::Bnet.InscriptionOptionsSMSG subBuilder = new global::Bnet.InscriptionOptionsSMSG();
+            if (messageCase_ == MessageOneofCase.InscriptionOptions) {
+              subBuilder.MergeFrom(InscriptionOptions);
+            }
+            input.ReadMessage(subBuilder);
+            InscriptionOptions = subBuilder;
             break;
           }
           case 7442: {

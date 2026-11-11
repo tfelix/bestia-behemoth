@@ -26,15 +26,16 @@ namespace Bnet {
           string.Concat(
             "CidtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX3N1Y2Nlc3MucHJvdG8SBGJu",
             "ZXQiMQoQT3BlcmF0aW9uU3VjY2VzcxIdCgRjb2RlGAEgASgOMg8uYm5ldC5P",
-            "cFN1Y2Nlc3MqxgIKCU9wU3VjY2VzcxISCg5NQVNURVJfQ1JFQVRFRBAAEhIK",
+            "cFN1Y2Nlc3Mq7gIKCU9wU3VjY2VzcxISCg5NQVNURVJfQ1JFQVRFRBAAEhIK",
             "Dk1BU1RFUl9ERUxFVEVEEAESEwoPQ1JBRlRfU1VDQ0VFREVEEAISFAoQU1RS",
             "VUNUVVJFX1BMQUNFRBADEhEKDUNIQVJUX1dSSVRURU4QBBIZChVQQVJUWV9J",
             "TlZJVEFUSU9OX1NFTlQQBRIZChVHVUlMRF9JTlZJVEFUSU9OX1NFTlQQBhIR",
             "Cg1SSVRVQUxfT1BFTkVEEAcSEQoNUklUVUFMX0pPSU5FRBAIEhIKDlJJVFVB",
             "TF9TVEFSVEVEEAkSEgoOUklUVUFMX0NIQVJHRUQQChISCg5TVVJWRVlfU1RB",
             "UlRFRBALEhAKDFNVUlZFWV9SRUFEWRAMEhUKEUJSRUVESU5HX0VHR19MQUlE",
-            "EA0SEgoOQkVTVElBX0hBVENIRUQQDkIuChVuZXQuYmVzdGlhLmJuZXQucHJv",
-            "dG9CFU9wZXJhdGlvblN1Y2Nlc3NQcm90b2IGcHJvdG8z"));
+            "EA0SEgoOQkVTVElBX0hBVENIRUQQDhIRCg1TUEVMTF9MRUFSTkVEEA8SEwoP",
+            "U1BFTExfSU5TQ1JJQkVEEBBCLgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhVP",
+            "cGVyYXRpb25TdWNjZXNzUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpSuccess), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -85,6 +86,11 @@ namespace Bnet {
     /// An Incubator hatched an egg into a new bestia of its owner, next to it.
     /// </summary>
     [pbr::OriginalName("BESTIA_HATCHED")] BestiaHatched = 14,
+    /// <summary>
+    /// A bestia learned the attack on a spell scroll, or an attack was copied onto a new one.
+    /// </summary>
+    [pbr::OriginalName("SPELL_LEARNED")] SpellLearned = 15,
+    [pbr::OriginalName("SPELL_INSCRIBED")] SpellInscribed = 16,
   }
 
   #endregion

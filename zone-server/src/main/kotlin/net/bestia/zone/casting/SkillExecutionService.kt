@@ -84,7 +84,24 @@ class SkillExecutionService(
     args: List<Long> = emptyList(),
   ) {
     world.post {
-      resolve(world, casterId, skillId, skillLevel, targetEntityId, targetPosition, args)
+      resolve(world, casterId, skillId, skillLevel, targetEntityId, targetPosition, args, paid = true)
+    }
+  }
+
+  /**
+   * [execute] for a cast that something else already paid for, like a spell scroll: no mana, stamina, reagent or
+   * cooldown. Range, line of sight and the target are checked as for any cast.
+   */
+  fun executeFree(
+    world: World,
+    casterId: EntityId,
+    skillId: Long,
+    skillLevel: Int,
+    targetEntityId: EntityId?,
+    targetPosition: Vec3L?,
+  ) {
+    world.post {
+      resolve(world, casterId, skillId, skillLevel, targetEntityId, targetPosition, emptyList(), paid = false)
     }
   }
 
@@ -96,6 +113,7 @@ class SkillExecutionService(
     targetEntityId: EntityId?,
     targetPosition: Vec3L?,
     args: List<Long>,
+    paid: Boolean,
   ) {
     val skill = skillOf(skillId)
     if (skill == null) {
@@ -124,7 +142,7 @@ class SkillExecutionService(
     }
 
     val cost = strategy.costOf(skill, skillLevel)
-    val ritual = RitualBoost.heldBy(world, casterId)
+    val ritual = if (paid) RitualBoost.heldBy(world, casterId) else null
     val ctx = skillContextFactory.create(
       world, casterId, skill, skillLevel, targetEntityId, targetPosition, cost, args, ritual
     )
@@ -133,7 +151,7 @@ class SkillExecutionService(
       return
     }
 
-    if (!cooldowns.isReady(world, casterId, skill.id)) {
+    if (paid && !cooldowns.isReady(world, casterId, skill.id)) {
       LOG.debug { "Skill $skillId by $casterId fizzled: still cooling down" }
       return
     }
@@ -154,13 +172,13 @@ class SkillExecutionService(
 
       // After the possibility check and before the effect, so a refused cast costs nothing and a
       // resolved one is always paid for.
-      if (reagents?.pay(world, casterId, skill.mechanics.reagents) == false) {
+      if (paid && reagents?.pay(world, casterId, skill.mechanics.reagents) == false) {
         LOG.debug { "Skill $skillId by $casterId fizzled: it lacks one of ${skill.mechanics.reagents.map { it.item }}" }
         return
       }
 
       val stamina = reducedStamina(world, casterId, cost.staminaCost)
-      if (!ctx.world.payCasterCost(mana = cost.manaCost, stamina = stamina)) {
+      if (paid && !ctx.world.payCasterCost(mana = cost.manaCost, stamina = stamina)) {
         LOG.debug { "Skill $skillId by $casterId fizzled: not enough mana or stamina" }
         return
       }
@@ -172,7 +190,7 @@ class SkillExecutionService(
 
       // Paid for, and then gone into the rod: a caught spell costs its caster as much as one that landed.
       if (isCaughtByMagicRod(world, skill, casterId, targetEntityId, cost.manaCost)) {
-        cooldowns.start(world, casterId, skill.id, cost.cooldownSeconds)
+        if (paid) cooldowns.start(world, casterId, skill.id, cost.cooldownSeconds)
         LOG.debug { "Skill $skillId by $casterId was caught by the Magic Rod of $targetEntityId" }
         return
       }
@@ -182,7 +200,7 @@ class SkillExecutionService(
       actionReactions.notifyActed(world, casterId, EntityAction.CAST)
       world.get(casterId, Facing::class)?.turnTowards(ctx.battle.attacker.position, ctx.aimedAt)
       val result = strategy.execute(ctx)
-      cooldowns.start(world, casterId, skill.id, cost.cooldownSeconds)
+      if (paid) cooldowns.start(world, casterId, skill.id, cost.cooldownSeconds)
       startChannel(world, casterId, skill, skillLevel, targetEntityId, targetPosition, args)
 
       // A skill whose whole effect is a patch of ground, a station or a chart has no number to show, and

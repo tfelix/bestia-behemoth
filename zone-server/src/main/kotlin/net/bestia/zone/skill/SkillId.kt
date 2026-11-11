@@ -91,6 +91,9 @@ enum class SkillId {
   // Breeding: net.bestia.zone.master.skill.BloodlineStudy reads its level for timers, dominant IVs and IV reading.
   M_BLOODLINE_STUDY,
 
+  // The Spell Inscription picker shows the odds before the cast, so it reads the level.
+  M_SPELL_INSCRIPTION,
+
   // Guild skills a guild learns, not a master: net.bestia.zone.guild reads the guild's level of each.
   GUILD_EMBLEM,
   OFFICIAL_GUILD_APPROVAL,

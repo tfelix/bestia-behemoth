@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "InscriptionOptionsSmsgProto";
+
+// Every attack Spell Inscription could copy off one of the master's bestias, with the odds the server will roll.
+message InscriptionOptionsSMSG {
+  repeated InscriptionOption options = 1;
+}
+
+message InscriptionOption {
+  uint64 bestia_entity_id = 1;
+  uint64 skill_id = 2;
+  int32 level = 3;
+  int32 success_percent = 4;
+  // The chance the bestia is lost: a failed extraction breaks its mind half of the time.
+  int32 mind_break_percent = 5;
+}
