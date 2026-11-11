@@ -15,3 +15,4 @@ tree = "SCHOLAR"
 sub_tree = "PRIEST"
 prerequisite_ids = PackedInt32Array(4, 79)
 prerequisite_levels = PackedInt32Array(8, 1)
+targets_fallen = true

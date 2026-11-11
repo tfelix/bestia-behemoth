@@ -1,0 +1,45 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://Game/Entity/Visual/EffectVisual/Effects/holy_ground.gd" id="1_script"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
+size = Vector2(7, 7)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_light"]
+resource_local_to_scene = true
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+albedo_color = Color(1, 0.97, 0.8, 0.5)
+emission_enabled = true
+emission = Color(1, 0.95, 0.7, 1)
+emission_energy_multiplier = 2.5
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_pillar"]
+top_radius = 3.0
+bottom_radius = 3.5
+height = 6.0
+cap_top = false
+cap_bottom = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pillar"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(1, 0.97, 0.8, 0.12)
+
+[node name="MagnusExorcismus" type="Node3D"]
+script = ExtResource("1_script")
+pulse_speed = 2.1
+pulse_depth = 0.35
+
+[node name="Glow" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+mesh = SubResource("PlaneMesh_ground")
+material_override = SubResource("StandardMaterial3D_light")
+
+[node name="Pillar" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+mesh = SubResource("CylinderMesh_pillar")
+material_override = SubResource("StandardMaterial3D_pillar")
