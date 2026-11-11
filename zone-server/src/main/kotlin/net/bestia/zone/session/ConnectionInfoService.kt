@@ -259,6 +259,13 @@ class ConnectionInfoService(
     return session.playerEntitiesByMaster[masterId]?.toSet() ?: emptySet()
   }
 
+  /** [playerBestiaId] when it is one of the bestias of the account's selected master, else null. */
+  fun ownedBestiaOf(accountId: AccountId, playerBestiaId: PlayerBestiaId): PlayerEntity? {
+    val session = sessions[accountId] as? ActiveConnection ?: return null
+
+    return session.playerEntitiesByMaster[session.master.masterId]?.firstOrNull { it.playerBestiaId == playerBestiaId }
+  }
+
   fun activateEntity(
     accountId: AccountId,
     selectedEntityId: EntityId

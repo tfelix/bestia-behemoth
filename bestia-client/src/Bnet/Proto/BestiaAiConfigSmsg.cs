@@ -26,19 +26,24 @@ namespace Bnet {
           string.Concat(
             "CittZXNzYWdlcy9tYXN0ZXIvYmVzdGlhX2FpX2NvbmZpZ19zbXNnLnByb3Rv",
             "EgRibmV0Gi9tZXNzYWdlcy9tYXN0ZXIvc2V0X2Jlc3RpYV9haV9jb25maWdf",
-            "Y21zZy5wcm90byLGAgoSQmVzdGlhQWlDb25maWdTTVNHEhgKEHBsYXllcl9i",
+            "Y21zZy5wcm90byKIBAoSQmVzdGlhQWlDb25maWdTTVNHEhgKEHBsYXllcl9i",
             "ZXN0aWFfaWQYASABKAQSLAoDam9iGAUgASgOMh8uYm5ldC5TZXRCZXN0aWFB",
             "aUNvbmZpZ0NNU0cuSm9iEjQKB2NvdXJhZ2UYBiABKA4yIy5ibmV0LlNldEJl",
             "c3RpYUFpQ29uZmlnQ01TRy5Db3VyYWdlEjUKDGZhbGxiYWNrX2pvYhgHIAEo",
             "DjIfLmJuZXQuU2V0QmVzdGlhQWlDb25maWdDTVNHLkpvYhI4CglvdmVycmlk",
             "ZXMYCCABKAsyJS5ibmV0LlNldEJlc3RpYUFpQ29uZmlnQ01TRy5PdmVycmlk",
             "ZXMSLwoFcnVsZXMYCSADKAsyIC5ibmV0LlNldEJlc3RpYUFpQ29uZmlnQ01T",
-            "Ry5SdWxlSgQIAhADSgQIAxAESgQIBBAFQjAKFW5ldC5iZXN0aWEuYm5ldC5w",
-            "cm90b0IXQmVzdGlhQWlDb25maWdTbXNnUHJvdG9iBnByb3RvMw=="));
+            "Ry5SdWxlEhYKCXByZXNldF9pZBgKIAEoBEgAiAEBEhoKDWFyZWFfcGxhY2Vf",
+            "aWQYCyABKARIAYgBARIbCg5jaGVzdF9wbGFjZV9pZBgMIAEoBEgCiAEBEjwK",
+            "DW93bl9vdmVycmlkZXMYDSABKAsyJS5ibmV0LlNldEJlc3RpYUFpQ29uZmln",
+            "Q01TRy5PdmVycmlkZXNCDAoKX3ByZXNldF9pZEIQCg5fYXJlYV9wbGFjZV9p",
+            "ZEIRCg9fY2hlc3RfcGxhY2VfaWRKBAgCEANKBAgDEARKBAgEEAVCMAoVbmV0",
+            "LmJlc3RpYS5ibmV0LnByb3RvQhdCZXN0aWFBaUNvbmZpZ1Ntc2dQcm90b2IG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.SetBestiaAiConfigCmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaAiConfigSMSG), global::Bnet.BestiaAiConfigSMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage", "FallbackJob", "Overrides", "Rules" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaAiConfigSMSG), global::Bnet.BestiaAiConfigSMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage", "FallbackJob", "Overrides", "Rules", "PresetId", "AreaPlaceId", "ChestPlaceId", "OwnOverrides" }, new[]{ "PresetId", "AreaPlaceId", "ChestPlaceId" }, null, null, null)
           }));
     }
     #endregion
@@ -47,7 +52,8 @@ namespace Bnet {
   #region Messages
   /// <summary>
   ///*
-  /// The orders now in force for one of the player's bestias, sent back after a successful SetBestiaAiConfigCMSG.
+  /// The orders now in force for one of the player's bestias: the answer to GetBestiaOrdersCMSG, and sent whenever
+  /// they change, from the game, from the companion app or by a change to the preset it follows.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class BestiaAiConfigSMSG : pb::IMessage<BestiaAiConfigSMSG>
@@ -57,6 +63,7 @@ namespace Bnet {
   {
     private static readonly pb::MessageParser<BestiaAiConfigSMSG> _parser = new pb::MessageParser<BestiaAiConfigSMSG>(() => new BestiaAiConfigSMSG());
     private pb::UnknownFieldSet _unknownFields;
+    private int _hasBits0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pb::MessageParser<BestiaAiConfigSMSG> Parser { get { return _parser; } }
@@ -84,12 +91,17 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public BestiaAiConfigSMSG(BestiaAiConfigSMSG other) : this() {
+      _hasBits0 = other._hasBits0;
       playerBestiaId_ = other.playerBestiaId_;
       job_ = other.job_;
       courage_ = other.courage_;
       fallbackJob_ = other.fallbackJob_;
       overrides_ = other.overrides_ != null ? other.overrides_.Clone() : null;
       rules_ = other.rules_.Clone();
+      presetId_ = other.presetId_;
+      areaPlaceId_ = other.areaPlaceId_;
+      chestPlaceId_ = other.chestPlaceId_;
+      ownOverrides_ = other.ownOverrides_ != null ? other.ownOverrides_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -150,6 +162,9 @@ namespace Bnet {
     /// <summary>Field number for the "overrides" field.</summary>
     public const int OverridesFieldNumber = 8;
     private global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides overrides_;
+    /// <summary>
+    ///* The numbers in force: the preset's, with the bestia's own on top. 
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides Overrides {
@@ -168,6 +183,102 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public pbc::RepeatedField<global::Bnet.SetBestiaAiConfigCMSG.Types.Rule> Rules {
       get { return rules_; }
+    }
+
+    /// <summary>Field number for the "preset_id" field.</summary>
+    public const int PresetIdFieldNumber = 10;
+    private readonly static ulong PresetIdDefaultValue = 0UL;
+
+    private ulong presetId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong PresetId {
+      get { if ((_hasBits0 & 1) != 0) { return presetId_; } else { return PresetIdDefaultValue; } }
+      set {
+        _hasBits0 |= 1;
+        presetId_ = value;
+      }
+    }
+    /// <summary>Gets whether the "preset_id" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasPresetId {
+      get { return (_hasBits0 & 1) != 0; }
+    }
+    /// <summary>Clears the value of the "preset_id" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearPresetId() {
+      _hasBits0 &= ~1;
+    }
+
+    /// <summary>Field number for the "area_place_id" field.</summary>
+    public const int AreaPlaceIdFieldNumber = 11;
+    private readonly static ulong AreaPlaceIdDefaultValue = 0UL;
+
+    private ulong areaPlaceId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong AreaPlaceId {
+      get { if ((_hasBits0 & 2) != 0) { return areaPlaceId_; } else { return AreaPlaceIdDefaultValue; } }
+      set {
+        _hasBits0 |= 2;
+        areaPlaceId_ = value;
+      }
+    }
+    /// <summary>Gets whether the "area_place_id" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasAreaPlaceId {
+      get { return (_hasBits0 & 2) != 0; }
+    }
+    /// <summary>Clears the value of the "area_place_id" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearAreaPlaceId() {
+      _hasBits0 &= ~2;
+    }
+
+    /// <summary>Field number for the "chest_place_id" field.</summary>
+    public const int ChestPlaceIdFieldNumber = 12;
+    private readonly static ulong ChestPlaceIdDefaultValue = 0UL;
+
+    private ulong chestPlaceId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong ChestPlaceId {
+      get { if ((_hasBits0 & 4) != 0) { return chestPlaceId_; } else { return ChestPlaceIdDefaultValue; } }
+      set {
+        _hasBits0 |= 4;
+        chestPlaceId_ = value;
+      }
+    }
+    /// <summary>Gets whether the "chest_place_id" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasChestPlaceId {
+      get { return (_hasBits0 & 4) != 0; }
+    }
+    /// <summary>Clears the value of the "chest_place_id" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearChestPlaceId() {
+      _hasBits0 &= ~4;
+    }
+
+    /// <summary>Field number for the "own_overrides" field.</summary>
+    public const int OwnOverridesFieldNumber = 13;
+    private global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides ownOverrides_;
+    /// <summary>
+    ///* The numbers the bestia keeps as its own while it follows a preset. 
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides OwnOverrides {
+      get { return ownOverrides_; }
+      set {
+        ownOverrides_ = value;
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -191,6 +302,10 @@ namespace Bnet {
       if (FallbackJob != other.FallbackJob) return false;
       if (!object.Equals(Overrides, other.Overrides)) return false;
       if(!rules_.Equals(other.rules_)) return false;
+      if (PresetId != other.PresetId) return false;
+      if (AreaPlaceId != other.AreaPlaceId) return false;
+      if (ChestPlaceId != other.ChestPlaceId) return false;
+      if (!object.Equals(OwnOverrides, other.OwnOverrides)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -204,6 +319,10 @@ namespace Bnet {
       if (FallbackJob != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) hash ^= FallbackJob.GetHashCode();
       if (overrides_ != null) hash ^= Overrides.GetHashCode();
       hash ^= rules_.GetHashCode();
+      if (HasPresetId) hash ^= PresetId.GetHashCode();
+      if (HasAreaPlaceId) hash ^= AreaPlaceId.GetHashCode();
+      if (HasChestPlaceId) hash ^= ChestPlaceId.GetHashCode();
+      if (ownOverrides_ != null) hash ^= OwnOverrides.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -243,6 +362,22 @@ namespace Bnet {
         output.WriteMessage(Overrides);
       }
       rules_.WriteTo(output, _repeated_rules_codec);
+      if (HasPresetId) {
+        output.WriteRawTag(80);
+        output.WriteUInt64(PresetId);
+      }
+      if (HasAreaPlaceId) {
+        output.WriteRawTag(88);
+        output.WriteUInt64(AreaPlaceId);
+      }
+      if (HasChestPlaceId) {
+        output.WriteRawTag(96);
+        output.WriteUInt64(ChestPlaceId);
+      }
+      if (ownOverrides_ != null) {
+        output.WriteRawTag(106);
+        output.WriteMessage(OwnOverrides);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -274,6 +409,22 @@ namespace Bnet {
         output.WriteMessage(Overrides);
       }
       rules_.WriteTo(ref output, _repeated_rules_codec);
+      if (HasPresetId) {
+        output.WriteRawTag(80);
+        output.WriteUInt64(PresetId);
+      }
+      if (HasAreaPlaceId) {
+        output.WriteRawTag(88);
+        output.WriteUInt64(AreaPlaceId);
+      }
+      if (HasChestPlaceId) {
+        output.WriteRawTag(96);
+        output.WriteUInt64(ChestPlaceId);
+      }
+      if (ownOverrides_ != null) {
+        output.WriteRawTag(106);
+        output.WriteMessage(OwnOverrides);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -300,6 +451,18 @@ namespace Bnet {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Overrides);
       }
       size += rules_.CalculateSize(_repeated_rules_codec);
+      if (HasPresetId) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(PresetId);
+      }
+      if (HasAreaPlaceId) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(AreaPlaceId);
+      }
+      if (HasChestPlaceId) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(ChestPlaceId);
+      }
+      if (ownOverrides_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(OwnOverrides);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -331,6 +494,21 @@ namespace Bnet {
         Overrides.MergeFrom(other.Overrides);
       }
       rules_.Add(other.rules_);
+      if (other.HasPresetId) {
+        PresetId = other.PresetId;
+      }
+      if (other.HasAreaPlaceId) {
+        AreaPlaceId = other.AreaPlaceId;
+      }
+      if (other.HasChestPlaceId) {
+        ChestPlaceId = other.ChestPlaceId;
+      }
+      if (other.ownOverrides_ != null) {
+        if (ownOverrides_ == null) {
+          OwnOverrides = new global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides();
+        }
+        OwnOverrides.MergeFrom(other.OwnOverrides);
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -377,6 +555,25 @@ namespace Bnet {
             rules_.AddEntriesFrom(input, _repeated_rules_codec);
             break;
           }
+          case 80: {
+            PresetId = input.ReadUInt64();
+            break;
+          }
+          case 88: {
+            AreaPlaceId = input.ReadUInt64();
+            break;
+          }
+          case 96: {
+            ChestPlaceId = input.ReadUInt64();
+            break;
+          }
+          case 106: {
+            if (ownOverrides_ == null) {
+              OwnOverrides = new global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides();
+            }
+            input.ReadMessage(OwnOverrides);
+            break;
+          }
         }
       }
     #endif
@@ -421,6 +618,25 @@ namespace Bnet {
           }
           case 74: {
             rules_.AddEntriesFrom(ref input, _repeated_rules_codec);
+            break;
+          }
+          case 80: {
+            PresetId = input.ReadUInt64();
+            break;
+          }
+          case 88: {
+            AreaPlaceId = input.ReadUInt64();
+            break;
+          }
+          case 96: {
+            ChestPlaceId = input.ReadUInt64();
+            break;
+          }
+          case 106: {
+            if (ownOverrides_ == null) {
+              OwnOverrides = new global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides();
+            }
+            input.ReadMessage(OwnOverrides);
             break;
           }
         }

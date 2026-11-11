@@ -8,7 +8,8 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "BestiaAiConfigSmsgProto";
 
 /**
- * The orders now in force for one of the player's bestias, sent back after a successful SetBestiaAiConfigCMSG.
+ * The orders now in force for one of the player's bestias: the answer to GetBestiaOrdersCMSG, and sent whenever
+ * they change, from the game, from the companion app or by a change to the preset it follows.
  */
 message BestiaAiConfigSMSG {
   uint64 player_bestia_id = 1;
@@ -19,6 +20,12 @@ message BestiaAiConfigSMSG {
   SetBestiaAiConfigCMSG.Job job = 5;
   SetBestiaAiConfigCMSG.Courage courage = 6;
   SetBestiaAiConfigCMSG.Job fallback_job = 7;
+  /** The numbers in force: the preset's, with the bestia's own on top. */
   SetBestiaAiConfigCMSG.Overrides overrides = 8;
   repeated SetBestiaAiConfigCMSG.Rule rules = 9;
+  optional uint64 preset_id = 10;
+  optional uint64 area_place_id = 11;
+  optional uint64 chest_place_id = 12;
+  /** The numbers the bestia keeps as its own while it follows a preset. */
+  SetBestiaAiConfigCMSG.Overrides own_overrides = 13;
 }

@@ -32,6 +32,15 @@ message SetBestiaAiConfigCMSG {
   /** Read from the top, the first that holds deciding. At most 8. */
   repeated Rule rules = 9;
 
+  /** Follows this preset of the master. Then `overrides` are only the numbers the bestia keeps as its own. */
+  optional uint64 preset_id = 10;
+
+  /** A named work area instead of the one around its home. */
+  optional uint64 area_place_id = 11;
+
+  /** A named chest instead of the nearest. */
+  optional uint64 chest_place_id = 12;
+
   /** "When condition then action". Only the pairs the server allows; see OrderRule there. */
   message Rule {
     Condition condition = 1;

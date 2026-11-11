@@ -25,40 +25,43 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci9tZXNzYWdlcy9tYXN0ZXIvc2V0X2Jlc3RpYV9haV9jb25maWdfY21zZy5w",
-            "cm90bxIEYm5ldCLdCQoVU2V0QmVzdGlhQWlDb25maWdDTVNHEhgKEHBsYXll",
+            "cm90bxIEYm5ldCLhCgoVU2V0QmVzdGlhQWlDb25maWdDTVNHEhgKEHBsYXll",
             "cl9iZXN0aWFfaWQYASABKAQSLAoDam9iGAUgASgOMh8uYm5ldC5TZXRCZXN0",
             "aWFBaUNvbmZpZ0NNU0cuSm9iEjQKB2NvdXJhZ2UYBiABKA4yIy5ibmV0LlNl",
             "dEJlc3RpYUFpQ29uZmlnQ01TRy5Db3VyYWdlEjUKDGZhbGxiYWNrX2pvYhgH",
             "IAEoDjIfLmJuZXQuU2V0QmVzdGlhQWlDb25maWdDTVNHLkpvYhI4CglvdmVy",
             "cmlkZXMYCCABKAsyJS5ibmV0LlNldEJlc3RpYUFpQ29uZmlnQ01TRy5PdmVy",
             "cmlkZXMSLwoFcnVsZXMYCSADKAsyIC5ibmV0LlNldEJlc3RpYUFpQ29uZmln",
-            "Q01TRy5SdWxlGrYDCgRSdWxlEj0KCWNvbmRpdGlvbhgBIAEoDjIqLmJuZXQu",
-            "U2V0QmVzdGlhQWlDb25maWdDTVNHLlJ1bGUuQ29uZGl0aW9uEhYKCXRocmVz",
-            "aG9sZBgCIAEoBUgAiAEBEjcKBmFjdGlvbhgDIAEoDjInLmJuZXQuU2V0QmVz",
-            "dGlhQWlDb25maWdDTVNHLlJ1bGUuQWN0aW9uIokBCglDb25kaXRpb24SGQoV",
-            "Q09ORElUSU9OX1VOU1BFQ0lGSUVEEAASEQoNU1RBTUlOQV9CRUxPVxABEhAK",
-            "DEhFQUxUSF9CRUxPVxACEg0KCUJBR19BQk9WRRADEgkKBU5JR0hUEAQSBwoD",
-            "REFZEAUSGQoVU1RST05HRVJfRk9FX0lOX1NJR0hUEAYigwEKBkFjdGlvbhIW",
-            "ChJBQ1RJT05fVU5TUEVDSUZJRUQQABIHCgNFQVQQARIQCgxSRVNUX0FUX0hP",
-            "TUUQAhIICgRIRUFMEAMSCwoHUkVUUkVBVBAEEgwKCEhBVUxfTk9XEAUSEAoM",
-            "S0VFUF9XT1JLSU5HEAYSDwoLSE9MRF9HUk9VTkQQB0IMCgpfdGhyZXNob2xk",
-            "GqkCCglPdmVycmlkZXMSJQoYcmV0cmVhdF9iZWxvd19oZWFsdGhfcGN0GAEg",
-            "ASgFSACIAQESIgoVZWF0X2JlbG93X3N0YW1pbmFfcGN0GAIgASgFSAGIAQES",
-            "IgoVaGVhbF9iZWxvd19oZWFsdGhfcGN0GAMgASgFSAKIAQESHQoQaGF1bF9h",
-            "dF9sb2FkX3BjdBgEIAEoBUgDiAEBEhgKC2FyZWFfcmFkaXVzGAUgASgFSASI",
-            "AQFCGwoZX3JldHJlYXRfYmVsb3dfaGVhbHRoX3BjdEIYChZfZWF0X2JlbG93",
-            "X3N0YW1pbmFfcGN0QhgKFl9oZWFsX2JlbG93X2hlYWx0aF9wY3RCEwoRX2hh",
-            "dWxfYXRfbG9hZF9wY3RCDgoMX2FyZWFfcmFkaXVzIlAKA0pvYhITCg9KT0Jf",
-            "VU5TUEVDSUZJRUQQABIJCgVHVUFSRBABEggKBFJFU1QQAhIKCgZHQVRIRVIQ",
-            "AxIJCgVDUkFGVBAEEggKBE1JTkUQBSJbCgdDb3VyYWdlEhcKE0NPVVJBR0Vf",
-            "VU5TUEVDSUZJRUQQABIJCgVUSU1JRBABEgsKB0NBUkVGVUwQAhIKCgZTVEVB",
-            "RFkQAxIICgRCT0xEEAQSCQoFQlJBVkUQBUoECAIQA0oECAMQBEoECAQQBUIz",
-            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGlNldEJlc3RpYUFpQ29uZmlnQ21z",
-            "Z1Byb3RvYgZwcm90bzM="));
+            "Q01TRy5SdWxlEhYKCXByZXNldF9pZBgKIAEoBEgAiAEBEhoKDWFyZWFfcGxh",
+            "Y2VfaWQYCyABKARIAYgBARIbCg5jaGVzdF9wbGFjZV9pZBgMIAEoBEgCiAEB",
+            "GrYDCgRSdWxlEj0KCWNvbmRpdGlvbhgBIAEoDjIqLmJuZXQuU2V0QmVzdGlh",
+            "QWlDb25maWdDTVNHLlJ1bGUuQ29uZGl0aW9uEhYKCXRocmVzaG9sZBgCIAEo",
+            "BUgAiAEBEjcKBmFjdGlvbhgDIAEoDjInLmJuZXQuU2V0QmVzdGlhQWlDb25m",
+            "aWdDTVNHLlJ1bGUuQWN0aW9uIokBCglDb25kaXRpb24SGQoVQ09ORElUSU9O",
+            "X1VOU1BFQ0lGSUVEEAASEQoNU1RBTUlOQV9CRUxPVxABEhAKDEhFQUxUSF9C",
+            "RUxPVxACEg0KCUJBR19BQk9WRRADEgkKBU5JR0hUEAQSBwoDREFZEAUSGQoV",
+            "U1RST05HRVJfRk9FX0lOX1NJR0hUEAYigwEKBkFjdGlvbhIWChJBQ1RJT05f",
+            "VU5TUEVDSUZJRUQQABIHCgNFQVQQARIQCgxSRVNUX0FUX0hPTUUQAhIICgRI",
+            "RUFMEAMSCwoHUkVUUkVBVBAEEgwKCEhBVUxfTk9XEAUSEAoMS0VFUF9XT1JL",
+            "SU5HEAYSDwoLSE9MRF9HUk9VTkQQB0IMCgpfdGhyZXNob2xkGqkCCglPdmVy",
+            "cmlkZXMSJQoYcmV0cmVhdF9iZWxvd19oZWFsdGhfcGN0GAEgASgFSACIAQES",
+            "IgoVZWF0X2JlbG93X3N0YW1pbmFfcGN0GAIgASgFSAGIAQESIgoVaGVhbF9i",
+            "ZWxvd19oZWFsdGhfcGN0GAMgASgFSAKIAQESHQoQaGF1bF9hdF9sb2FkX3Bj",
+            "dBgEIAEoBUgDiAEBEhgKC2FyZWFfcmFkaXVzGAUgASgFSASIAQFCGwoZX3Jl",
+            "dHJlYXRfYmVsb3dfaGVhbHRoX3BjdEIYChZfZWF0X2JlbG93X3N0YW1pbmFf",
+            "cGN0QhgKFl9oZWFsX2JlbG93X2hlYWx0aF9wY3RCEwoRX2hhdWxfYXRfbG9h",
+            "ZF9wY3RCDgoMX2FyZWFfcmFkaXVzIlAKA0pvYhITCg9KT0JfVU5TUEVDSUZJ",
+            "RUQQABIJCgVHVUFSRBABEggKBFJFU1QQAhIKCgZHQVRIRVIQAxIJCgVDUkFG",
+            "VBAEEggKBE1JTkUQBSJbCgdDb3VyYWdlEhcKE0NPVVJBR0VfVU5TUEVDSUZJ",
+            "RUQQABIJCgVUSU1JRBABEgsKB0NBUkVGVUwQAhIKCgZTVEVBRFkQAxIICgRC",
+            "T0xEEAQSCQoFQlJBVkUQBUIMCgpfcHJlc2V0X2lkQhAKDl9hcmVhX3BsYWNl",
+            "X2lkQhEKD19jaGVzdF9wbGFjZV9pZEoECAIQA0oECAMQBEoECAQQBUIzChVu",
+            "ZXQuYmVzdGlhLmJuZXQucHJvdG9CGlNldEJlc3RpYUFpQ29uZmlnQ21zZ1By",
+            "b3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG), global::Bnet.SetBestiaAiConfigCMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage", "FallbackJob", "Overrides", "Rules" }, null, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Job), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Courage) }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule), global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Parser, new[]{ "Condition", "Threshold", "Action" }, new[]{ "Threshold" }, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Condition), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Action) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG), global::Bnet.SetBestiaAiConfigCMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage", "FallbackJob", "Overrides", "Rules", "PresetId", "AreaPlaceId", "ChestPlaceId" }, new[]{ "PresetId", "AreaPlaceId", "ChestPlaceId" }, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Job), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Courage) }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule), global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Parser, new[]{ "Condition", "Threshold", "Action" }, new[]{ "Threshold" }, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Condition), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Rule.Types.Action) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides), global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides.Parser, new[]{ "RetreatBelowHealthPct", "EatBelowStaminaPct", "HealBelowHealthPct", "HaulAtLoadPct", "AreaRadius" }, new[]{ "RetreatBelowHealthPct", "EatBelowStaminaPct", "HealBelowHealthPct", "HaulAtLoadPct", "AreaRadius" }, null, null, null)})
           }));
     }
@@ -82,6 +85,7 @@ namespace Bnet {
   {
     private static readonly pb::MessageParser<SetBestiaAiConfigCMSG> _parser = new pb::MessageParser<SetBestiaAiConfigCMSG>(() => new SetBestiaAiConfigCMSG());
     private pb::UnknownFieldSet _unknownFields;
+    private int _hasBits0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pb::MessageParser<SetBestiaAiConfigCMSG> Parser { get { return _parser; } }
@@ -109,12 +113,16 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public SetBestiaAiConfigCMSG(SetBestiaAiConfigCMSG other) : this() {
+      _hasBits0 = other._hasBits0;
       playerBestiaId_ = other.playerBestiaId_;
       job_ = other.job_;
       courage_ = other.courage_;
       fallbackJob_ = other.fallbackJob_;
       overrides_ = other.overrides_ != null ? other.overrides_.Clone() : null;
       rules_ = other.rules_.Clone();
+      presetId_ = other.presetId_;
+      areaPlaceId_ = other.areaPlaceId_;
+      chestPlaceId_ = other.chestPlaceId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -207,6 +215,96 @@ namespace Bnet {
       get { return rules_; }
     }
 
+    /// <summary>Field number for the "preset_id" field.</summary>
+    public const int PresetIdFieldNumber = 10;
+    private readonly static ulong PresetIdDefaultValue = 0UL;
+
+    private ulong presetId_;
+    /// <summary>
+    ///* Follows this preset of the master. Then `overrides` are only the numbers the bestia keeps as its own. 
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong PresetId {
+      get { if ((_hasBits0 & 1) != 0) { return presetId_; } else { return PresetIdDefaultValue; } }
+      set {
+        _hasBits0 |= 1;
+        presetId_ = value;
+      }
+    }
+    /// <summary>Gets whether the "preset_id" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasPresetId {
+      get { return (_hasBits0 & 1) != 0; }
+    }
+    /// <summary>Clears the value of the "preset_id" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearPresetId() {
+      _hasBits0 &= ~1;
+    }
+
+    /// <summary>Field number for the "area_place_id" field.</summary>
+    public const int AreaPlaceIdFieldNumber = 11;
+    private readonly static ulong AreaPlaceIdDefaultValue = 0UL;
+
+    private ulong areaPlaceId_;
+    /// <summary>
+    ///* A named work area instead of the one around its home. 
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong AreaPlaceId {
+      get { if ((_hasBits0 & 2) != 0) { return areaPlaceId_; } else { return AreaPlaceIdDefaultValue; } }
+      set {
+        _hasBits0 |= 2;
+        areaPlaceId_ = value;
+      }
+    }
+    /// <summary>Gets whether the "area_place_id" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasAreaPlaceId {
+      get { return (_hasBits0 & 2) != 0; }
+    }
+    /// <summary>Clears the value of the "area_place_id" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearAreaPlaceId() {
+      _hasBits0 &= ~2;
+    }
+
+    /// <summary>Field number for the "chest_place_id" field.</summary>
+    public const int ChestPlaceIdFieldNumber = 12;
+    private readonly static ulong ChestPlaceIdDefaultValue = 0UL;
+
+    private ulong chestPlaceId_;
+    /// <summary>
+    ///* A named chest instead of the nearest. 
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong ChestPlaceId {
+      get { if ((_hasBits0 & 4) != 0) { return chestPlaceId_; } else { return ChestPlaceIdDefaultValue; } }
+      set {
+        _hasBits0 |= 4;
+        chestPlaceId_ = value;
+      }
+    }
+    /// <summary>Gets whether the "chest_place_id" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasChestPlaceId {
+      get { return (_hasBits0 & 4) != 0; }
+    }
+    /// <summary>Clears the value of the "chest_place_id" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearChestPlaceId() {
+      _hasBits0 &= ~4;
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -228,6 +326,9 @@ namespace Bnet {
       if (FallbackJob != other.FallbackJob) return false;
       if (!object.Equals(Overrides, other.Overrides)) return false;
       if(!rules_.Equals(other.rules_)) return false;
+      if (PresetId != other.PresetId) return false;
+      if (AreaPlaceId != other.AreaPlaceId) return false;
+      if (ChestPlaceId != other.ChestPlaceId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -241,6 +342,9 @@ namespace Bnet {
       if (FallbackJob != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) hash ^= FallbackJob.GetHashCode();
       if (overrides_ != null) hash ^= Overrides.GetHashCode();
       hash ^= rules_.GetHashCode();
+      if (HasPresetId) hash ^= PresetId.GetHashCode();
+      if (HasAreaPlaceId) hash ^= AreaPlaceId.GetHashCode();
+      if (HasChestPlaceId) hash ^= ChestPlaceId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -280,6 +384,18 @@ namespace Bnet {
         output.WriteMessage(Overrides);
       }
       rules_.WriteTo(output, _repeated_rules_codec);
+      if (HasPresetId) {
+        output.WriteRawTag(80);
+        output.WriteUInt64(PresetId);
+      }
+      if (HasAreaPlaceId) {
+        output.WriteRawTag(88);
+        output.WriteUInt64(AreaPlaceId);
+      }
+      if (HasChestPlaceId) {
+        output.WriteRawTag(96);
+        output.WriteUInt64(ChestPlaceId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -311,6 +427,18 @@ namespace Bnet {
         output.WriteMessage(Overrides);
       }
       rules_.WriteTo(ref output, _repeated_rules_codec);
+      if (HasPresetId) {
+        output.WriteRawTag(80);
+        output.WriteUInt64(PresetId);
+      }
+      if (HasAreaPlaceId) {
+        output.WriteRawTag(88);
+        output.WriteUInt64(AreaPlaceId);
+      }
+      if (HasChestPlaceId) {
+        output.WriteRawTag(96);
+        output.WriteUInt64(ChestPlaceId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -337,6 +465,15 @@ namespace Bnet {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Overrides);
       }
       size += rules_.CalculateSize(_repeated_rules_codec);
+      if (HasPresetId) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(PresetId);
+      }
+      if (HasAreaPlaceId) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(AreaPlaceId);
+      }
+      if (HasChestPlaceId) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(ChestPlaceId);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -368,6 +505,15 @@ namespace Bnet {
         Overrides.MergeFrom(other.Overrides);
       }
       rules_.Add(other.rules_);
+      if (other.HasPresetId) {
+        PresetId = other.PresetId;
+      }
+      if (other.HasAreaPlaceId) {
+        AreaPlaceId = other.AreaPlaceId;
+      }
+      if (other.HasChestPlaceId) {
+        ChestPlaceId = other.ChestPlaceId;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -414,6 +560,18 @@ namespace Bnet {
             rules_.AddEntriesFrom(input, _repeated_rules_codec);
             break;
           }
+          case 80: {
+            PresetId = input.ReadUInt64();
+            break;
+          }
+          case 88: {
+            AreaPlaceId = input.ReadUInt64();
+            break;
+          }
+          case 96: {
+            ChestPlaceId = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -458,6 +616,18 @@ namespace Bnet {
           }
           case 74: {
             rules_.AddEntriesFrom(ref input, _repeated_rules_codec);
+            break;
+          }
+          case 80: {
+            PresetId = input.ReadUInt64();
+            break;
+          }
+          case 88: {
+            AreaPlaceId = input.ReadUInt64();
+            break;
+          }
+          case 96: {
+            ChestPlaceId = input.ReadUInt64();
             break;
           }
         }
