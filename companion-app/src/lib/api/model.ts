@@ -34,7 +34,7 @@ export type SurveyGame = Schemas['SurveyGame'];
 export type SurveyStops = Schemas['SurveyStops'];
 export type SurveyResult = Schemas['SurveyResult'];
 
-export const JOBS = ['GUARD', 'GATHER', 'CRAFT', 'REST'] as const;
+export const JOBS = ['GUARD', 'GATHER', 'CRAFT', 'MINE', 'REST'] as const;
 export type Job = (typeof JOBS)[number];
 
 /** From careful to brave, in the order the slider shows them. */

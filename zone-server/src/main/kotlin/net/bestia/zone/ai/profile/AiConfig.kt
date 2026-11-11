@@ -56,7 +56,7 @@ data class AiConfig(
  * `KillAttacker` is in every job on purpose: self-defence is not an order a player gets to switch off, and an
  * owned creature that stood still while being killed would be a bug reported as one.
  *
- * Mine and Follow join once the goals that carry them exist.
+ * Follow joins once the goals that carry it exist.
  */
 enum class BestiaJob(
   val goalNames: Set<String>,
@@ -89,7 +89,10 @@ enum class BestiaJob(
     setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"),
     workGoals = listOf("Craft", "HaulToChest", "RestockFood"),
     workActions = listOf("claimStation", "haulToChest", "takeFoodFromChest"),
-  );
+  ),
+
+  /** Dig the ore below the master's mining shafts around home and carry it to the master's nearest chest. */
+  MINE(setOf("KillAttacker", "Wander", "ReturnHome", "Sleep"));
 
   companion object {
     fun fromNameOrNull(name: String): BestiaJob? = entries.firstOrNull { it.name.equals(name, ignoreCase = true) }
