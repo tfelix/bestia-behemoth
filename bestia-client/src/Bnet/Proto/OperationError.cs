@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqqJgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSr9JgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -134,9 +134,11 @@ namespace Bnet {
             "UkVFRElOR19OT1RfUE9TU0lCTEUQ2gESGgoVQlJFRURJTkdfTkVFRFNfQlVO",
             "RExFENsBEiAKG0JSRUVESU5HX1BBSVJfQ0FOTk9UX1RSQVZFTBDcARIbChZC",
             "UkVFRElOR19DTFVUQ0hfRkFJTEVEEN0BEh0KGEJSRUVESU5HX05PX1JPT01f",
-            "Rk9SX0VHRxDeARIbChZJTkNVQkFUT1JfTk9fRlJFRV9TTE9UEN8BIgQILhAu",
-            "KhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
-            "QhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "Rk9SX0VHRxDeARIbChZJTkNVQkFUT1JfTk9fRlJFRV9TTE9UEN8BEhYKEU9S",
+            "REVSU19OQU1FX1RBS0VOEOABEhwKF09SREVSU19UT09fTUFOWV9QUkVTRVRT",
+            "EOEBEhsKFk9SREVSU19UT09fTUFOWV9QTEFDRVMQ4gEiBAguEC4qElNIT1Bf",
+            "VFJFQVNVUllfRlVMTEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJh",
+            "dGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -844,6 +846,18 @@ namespace Bnet {
     /// An egg is ready to hatch, but its owner has no free bestia slot. It waits in the incubator until one frees up.
     /// </summary>
     [pbr::OriginalName("INCUBATOR_NO_FREE_SLOT")] IncubatorNoFreeSlot = 223,
+    /// <summary>
+    /// The master has an order preset or a named place of that name already.
+    /// </summary>
+    [pbr::OriginalName("ORDERS_NAME_TAKEN")] OrdersNameTaken = 224,
+    /// <summary>
+    /// The master has as many order presets as allowed.
+    /// </summary>
+    [pbr::OriginalName("ORDERS_TOO_MANY_PRESETS")] OrdersTooManyPresets = 225,
+    /// <summary>
+    /// The master has as many named places as allowed.
+    /// </summary>
+    [pbr::OriginalName("ORDERS_TOO_MANY_PLACES")] OrdersTooManyPlaces = 226,
   }
 
   #endregion

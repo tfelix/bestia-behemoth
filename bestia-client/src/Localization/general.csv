@@ -818,6 +818,9 @@ ERROR_TRADE_AGREEMENT_NEEDS_HOUSE,You need an auction house of your own for a Tr
 ERROR_TRADE_AGREEMENT_LIMIT,You have as many Trade Agreements as your skill level allows.
 ERROR_TRADE_AGREEMENT_TARGET_INVALID,"That master owns no auction house, does not know Trade Agreement, has no free agreement, or is linked already."
 ERROR_PICKUP_OUT_OF_RANGE,Stand at the auction house the goods wait at.
+ERROR_ORDERS_NAME_TAKEN,You already have a preset or place of that name.
+ERROR_ORDERS_TOO_MANY_PRESETS,You have as many order presets as you can keep. Delete one first.
+ERROR_ORDERS_TOO_MANY_PLACES,You have as many named places as you can keep. Delete one in the companion app first.
 IV_TITLE,Individual values
 IV_STAT_0,STR
 IV_STAT_1,INT

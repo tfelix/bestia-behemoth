@@ -1,14 +1,55 @@
 package net.bestia.zone.master.bestia
 
+import net.bestia.bnet.proto.OrderSheetProto.OrderSheet
+import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Courage as WireCourage
 import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Job
 import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Overrides
 import net.bestia.bnet.proto.SetBestiaAiConfigCmsgProto.SetBestiaAiConfigCMSG.Rule
+import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.BestiaJob
+import net.bestia.zone.ai.profile.Courage
 import net.bestia.zone.ai.profile.OrderOverrides
 import net.bestia.zone.ai.profile.OrderRule
 
 /** Bestia orders to and from the game wire. */
 object OrdersWire {
+
+  /** Null when a job, the courage step or a rule is unknown, or the orders break a rule of [AiConfig]. */
+  fun ordersFrom(
+    job: Job,
+    courage: WireCourage,
+    fallbackJob: Job,
+    overrides: Overrides,
+    rules: List<Rule>,
+    areaPlaceId: Long?,
+    chestPlaceId: Long?,
+  ): AiConfig? {
+    val mainJob = BestiaJob.fromNameOrNull(job.name) ?: return null
+    val step = Courage.fromNameOrNull(courage.name) ?: return null
+    val fallback = fallbackFrom(fallbackJob).getOrElse { return null }
+    val lines = rulesFrom(rules) ?: return null
+
+    return AiConfig(mainJob, step, fallback, overridesFrom(overrides), lines, areaPlaceId, chestPlaceId).takeIf { it.isValid }
+  }
+
+  fun ordersFrom(sheet: OrderSheet): AiConfig? = ordersFrom(
+    sheet.job, sheet.courage, sheet.fallbackJob, sheet.overrides, sheet.rulesList,
+    sheet.takeIf { it.hasAreaPlaceId() }?.areaPlaceId,
+    sheet.takeIf { it.hasChestPlaceId() }?.chestPlaceId,
+  )
+
+  fun sheetOf(orders: AiConfig): OrderSheet {
+    val sheet = OrderSheet.newBuilder()
+      .setJob(Job.valueOf(orders.job.name))
+      .setCourage(WireCourage.valueOf(orders.courage.name))
+      .setFallbackJob(fallbackTo(orders.fallbackJob))
+      .setOverrides(overridesTo(orders.overrides))
+      .addAllRules(rulesTo(orders.rules))
+    orders.areaPlaceId?.let(sheet::setAreaPlaceId)
+    orders.chestPlaceId?.let(sheet::setChestPlaceId)
+
+    return sheet.build()
+  }
 
   /** No fallback for [Job.JOB_UNSPECIFIED]; failure for a job this server does not know. */
   fun fallbackFrom(job: Job): Result<BestiaJob?> {

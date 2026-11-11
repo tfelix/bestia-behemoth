@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SaveWorkAreaCmsgProto";
+
+/** Names a new work area around where one of the player's bestias stands. Answered with OrderBookSMSG. */
+message SaveWorkAreaCMSG {
+  uint64 player_bestia_id = 1;
+  /** 1 to 32 characters, unique among the master's places. */
+  string name = 2;
+  /** In tiles; the server clamps it to the area limits. */
+  uint32 radius = 3;
+}
