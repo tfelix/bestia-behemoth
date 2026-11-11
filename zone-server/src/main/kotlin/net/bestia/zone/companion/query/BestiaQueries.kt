@@ -20,6 +20,7 @@ class BestiaQueries(
   private val owned: OwnedMasters,
   private val world: WorldView,
   private val plane: MapPlane,
+  private val activities: BestiaActivities,
 ) {
 
   @Transactional(readOnly = true)
@@ -36,6 +37,10 @@ class BestiaQueries(
     }
     val speeds: Map<Long, Float> = world.read {
       entityIds.mapNotNull { id -> get(id, Speed::class)?.let { id to it.speed } }.toMap()
+    }
+    val jobs = rows.filter { it.entityId != null }.associate { it.entityId!! to it.aiConfig.job }
+    val doing: Map<Long, ZoneAnswer.Roster.Activity> = world.read {
+      jobs.mapNotNull { (id, job) -> activities.of(this, id, job)?.let { id to it } }.toMap()
     }
     val now = System.currentTimeMillis()
 
@@ -64,6 +69,7 @@ class BestiaQueries(
           rules = OrdersOnTheBus.linesOf(row.aiConfig.rules),
           presetId = row.orderPresetId,
           ownOverrides = OrdersOnTheBus.numbersOf(row.ownOverrides),
+          activity = row.entityId?.let { doing[it] },
         )
       }
     )

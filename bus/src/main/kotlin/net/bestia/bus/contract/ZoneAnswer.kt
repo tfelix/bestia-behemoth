@@ -68,6 +68,22 @@ sealed interface ZoneAnswer {
       val presetId: Long? = null,
       /** The numbers it keeps as its own while it follows a preset. */
       val ownOverrides: OrderNumbers = OrderNumbers(),
+      /** What it is doing now; null when it is not in the world. */
+      val activity: Activity? = null,
+    )
+
+    /**
+     * What a bestia is doing, for its status line. [kind] is CRAFTING, MINING, GATHERING, HAULING, FETCHING_FOOD,
+     * EATING, HEALING, FIGHTING, RETREATING, RESTING_AT_HOME, SLEEPING, GUARDING or IDLE. At a station, [item] is
+     * what it makes, [done] of [total], at [station] (its kind); [pause] says why the station waits, if it does.
+     */
+    data class Activity(
+      val kind: String,
+      val item: String? = null,
+      val done: Int? = null,
+      val total: Int? = null,
+      val station: String? = null,
+      val pause: String? = null,
     )
   }
 

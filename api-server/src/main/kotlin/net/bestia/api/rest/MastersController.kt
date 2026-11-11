@@ -73,6 +73,8 @@ class MastersController(
     val presetId: Long?,
     /** The numbers it keeps as its own while it follows a preset. */
     val ownOverrides: OrderNumbers,
+    /** What it is doing now; null when it is not in the world. */
+    val activity: ZoneAnswer.Roster.Activity?,
   )
 
   /** [route] is the way still ahead as planned; [waypoints] from [nextIndex] on are still to visit. */
@@ -185,6 +187,7 @@ class MastersController(
         rules = it.rules,
         presetId = it.presetId,
         ownOverrides = it.ownOverrides,
+        activity = it.activity,
       )
     }
   }

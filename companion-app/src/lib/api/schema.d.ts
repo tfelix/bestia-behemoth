@@ -917,6 +917,16 @@ export interface components {
             /** Format: int64 */
             firstSeen: number;
         };
+        Activity: {
+            kind: string;
+            item?: string;
+            /** Format: int32 */
+            done?: number;
+            /** Format: int32 */
+            total?: number;
+            station?: string;
+            pause?: string;
+        };
         Bestia: {
             /** Format: int64 */
             id: number;
@@ -941,6 +951,7 @@ export interface components {
             /** Format: int64 */
             presetId?: number;
             ownOverrides: components["schemas"]["OrderNumbers"];
+            activity?: components["schemas"]["Activity"];
         };
         Journey: {
             name?: string;

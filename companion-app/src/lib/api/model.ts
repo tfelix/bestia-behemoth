@@ -9,6 +9,7 @@ type Schemas = components['schemas'];
 export type MasterSummary = Schemas['MasterSummary'];
 export type MasterSheet = Schemas['MasterSheet'];
 export type Bestia = Schemas['Bestia'];
+export type Activity = Schemas['Activity'];
 export type Holder = Schemas['Holder'];
 export type Slot = Schemas['Slot'];
 export type PartyView = Schemas['PartyView'];
