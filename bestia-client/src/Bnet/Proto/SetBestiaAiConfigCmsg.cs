@@ -25,20 +25,29 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci9tZXNzYWdlcy9tYXN0ZXIvc2V0X2Jlc3RpYV9haV9jb25maWdfY21zZy5w",
-            "cm90bxIEYm5ldCLWAgoVU2V0QmVzdGlhQWlDb25maWdDTVNHEhgKEHBsYXll",
+            "cm90bxIEYm5ldCLzBQoVU2V0QmVzdGlhQWlDb25maWdDTVNHEhgKEHBsYXll",
             "cl9iZXN0aWFfaWQYASABKAQSLAoDam9iGAUgASgOMh8uYm5ldC5TZXRCZXN0",
             "aWFBaUNvbmZpZ0NNU0cuSm9iEjQKB2NvdXJhZ2UYBiABKA4yIy5ibmV0LlNl",
-            "dEJlc3RpYUFpQ29uZmlnQ01TRy5Db3VyYWdlIlAKA0pvYhITCg9KT0JfVU5T",
-            "UEVDSUZJRUQQABIJCgVHVUFSRBABEggKBFJFU1QQAhIKCgZHQVRIRVIQAxIJ",
-            "CgVDUkFGVBAEEggKBE1JTkUQBSJbCgdDb3VyYWdlEhcKE0NPVVJBR0VfVU5T",
-            "UEVDSUZJRUQQABIJCgVUSU1JRBABEgsKB0NBUkVGVUwQAhIKCgZTVEVBRFkQ",
-            "AxIICgRCT0xEEAQSCQoFQlJBVkUQBUoECAIQA0oECAMQBEoECAQQBUIzChVu",
-            "ZXQuYmVzdGlhLmJuZXQucHJvdG9CGlNldEJlc3RpYUFpQ29uZmlnQ21zZ1By",
-            "b3RvYgZwcm90bzM="));
+            "dEJlc3RpYUFpQ29uZmlnQ01TRy5Db3VyYWdlEjUKDGZhbGxiYWNrX2pvYhgH",
+            "IAEoDjIfLmJuZXQuU2V0QmVzdGlhQWlDb25maWdDTVNHLkpvYhI4CglvdmVy",
+            "cmlkZXMYCCABKAsyJS5ibmV0LlNldEJlc3RpYUFpQ29uZmlnQ01TRy5PdmVy",
+            "cmlkZXMaqQIKCU92ZXJyaWRlcxIlChhyZXRyZWF0X2JlbG93X2hlYWx0aF9w",
+            "Y3QYASABKAVIAIgBARIiChVlYXRfYmVsb3dfc3RhbWluYV9wY3QYAiABKAVI",
+            "AYgBARIiChVoZWFsX2JlbG93X2hlYWx0aF9wY3QYAyABKAVIAogBARIdChBo",
+            "YXVsX2F0X2xvYWRfcGN0GAQgASgFSAOIAQESGAoLYXJlYV9yYWRpdXMYBSAB",
+            "KAVIBIgBAUIbChlfcmV0cmVhdF9iZWxvd19oZWFsdGhfcGN0QhgKFl9lYXRf",
+            "YmVsb3dfc3RhbWluYV9wY3RCGAoWX2hlYWxfYmVsb3dfaGVhbHRoX3BjdEIT",
+            "ChFfaGF1bF9hdF9sb2FkX3BjdEIOCgxfYXJlYV9yYWRpdXMiUAoDSm9iEhMK",
+            "D0pPQl9VTlNQRUNJRklFRBAAEgkKBUdVQVJEEAESCAoEUkVTVBACEgoKBkdB",
+            "VEhFUhADEgkKBUNSQUZUEAQSCAoETUlORRAFIlsKB0NvdXJhZ2USFwoTQ09V",
+            "UkFHRV9VTlNQRUNJRklFRBAAEgkKBVRJTUlEEAESCwoHQ0FSRUZVTBACEgoK",
+            "BlNURUFEWRADEggKBEJPTEQQBBIJCgVCUkFWRRAFSgQIAhADSgQIAxAESgQI",
+            "BBAFQjMKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IaU2V0QmVzdGlhQWlDb25m",
+            "aWdDbXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG), global::Bnet.SetBestiaAiConfigCMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage" }, null, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Job), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Courage) }, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG), global::Bnet.SetBestiaAiConfigCMSG.Parser, new[]{ "PlayerBestiaId", "Job", "Courage", "FallbackJob", "Overrides" }, null, new[]{ typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Job), typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Courage) }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides), global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides.Parser, new[]{ "RetreatBelowHealthPct", "EatBelowStaminaPct", "HealBelowHealthPct", "HaulAtLoadPct", "AreaRadius" }, new[]{ "RetreatBelowHealthPct", "EatBelowStaminaPct", "HealBelowHealthPct", "HaulAtLoadPct", "AreaRadius" }, null, null, null)})
           }));
     }
     #endregion
@@ -91,6 +100,8 @@ namespace Bnet {
       playerBestiaId_ = other.playerBestiaId_;
       job_ = other.job_;
       courage_ = other.courage_;
+      fallbackJob_ = other.fallbackJob_;
+      overrides_ = other.overrides_ != null ? other.overrides_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -139,6 +150,36 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "fallback_job" field.</summary>
+    public const int FallbackJobFieldNumber = 7;
+    private global::Bnet.SetBestiaAiConfigCMSG.Types.Job fallbackJob_ = global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified;
+    /// <summary>
+    ///* What it does while `job` has nothing to do. JOB_UNSPECIFIED: no fallback. Only GATHER, CRAFT and MINE take one. 
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SetBestiaAiConfigCMSG.Types.Job FallbackJob {
+      get { return fallbackJob_; }
+      set {
+        fallbackJob_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "overrides" field.</summary>
+    public const int OverridesFieldNumber = 8;
+    private global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides overrides_;
+    /// <summary>
+    ///* The numbers set by hand in Fine-tune. The server clamps each to its limit. 
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides Overrides {
+      get { return overrides_; }
+      set {
+        overrides_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -157,6 +198,8 @@ namespace Bnet {
       if (PlayerBestiaId != other.PlayerBestiaId) return false;
       if (Job != other.Job) return false;
       if (Courage != other.Courage) return false;
+      if (FallbackJob != other.FallbackJob) return false;
+      if (!object.Equals(Overrides, other.Overrides)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -167,6 +210,8 @@ namespace Bnet {
       if (PlayerBestiaId != 0UL) hash ^= PlayerBestiaId.GetHashCode();
       if (Job != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) hash ^= Job.GetHashCode();
       if (Courage != global::Bnet.SetBestiaAiConfigCMSG.Types.Courage.Unspecified) hash ^= Courage.GetHashCode();
+      if (FallbackJob != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) hash ^= FallbackJob.GetHashCode();
+      if (overrides_ != null) hash ^= Overrides.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -197,6 +242,14 @@ namespace Bnet {
         output.WriteRawTag(48);
         output.WriteEnum((int) Courage);
       }
+      if (FallbackJob != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) {
+        output.WriteRawTag(56);
+        output.WriteEnum((int) FallbackJob);
+      }
+      if (overrides_ != null) {
+        output.WriteRawTag(66);
+        output.WriteMessage(Overrides);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -219,6 +272,14 @@ namespace Bnet {
         output.WriteRawTag(48);
         output.WriteEnum((int) Courage);
       }
+      if (FallbackJob != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) {
+        output.WriteRawTag(56);
+        output.WriteEnum((int) FallbackJob);
+      }
+      if (overrides_ != null) {
+        output.WriteRawTag(66);
+        output.WriteMessage(Overrides);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -237,6 +298,12 @@ namespace Bnet {
       }
       if (Courage != global::Bnet.SetBestiaAiConfigCMSG.Types.Courage.Unspecified) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Courage);
+      }
+      if (FallbackJob != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) FallbackJob);
+      }
+      if (overrides_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Overrides);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -258,6 +325,15 @@ namespace Bnet {
       }
       if (other.Courage != global::Bnet.SetBestiaAiConfigCMSG.Types.Courage.Unspecified) {
         Courage = other.Courage;
+      }
+      if (other.FallbackJob != global::Bnet.SetBestiaAiConfigCMSG.Types.Job.Unspecified) {
+        FallbackJob = other.FallbackJob;
+      }
+      if (other.overrides_ != null) {
+        if (overrides_ == null) {
+          Overrides = new global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides();
+        }
+        Overrides.MergeFrom(other.Overrides);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -290,6 +366,17 @@ namespace Bnet {
             Courage = (global::Bnet.SetBestiaAiConfigCMSG.Types.Courage) input.ReadEnum();
             break;
           }
+          case 56: {
+            FallbackJob = (global::Bnet.SetBestiaAiConfigCMSG.Types.Job) input.ReadEnum();
+            break;
+          }
+          case 66: {
+            if (overrides_ == null) {
+              Overrides = new global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides();
+            }
+            input.ReadMessage(Overrides);
+            break;
+          }
         }
       }
     #endif
@@ -319,6 +406,17 @@ namespace Bnet {
           }
           case 48: {
             Courage = (global::Bnet.SetBestiaAiConfigCMSG.Types.Courage) input.ReadEnum();
+            break;
+          }
+          case 56: {
+            FallbackJob = (global::Bnet.SetBestiaAiConfigCMSG.Types.Job) input.ReadEnum();
+            break;
+          }
+          case 66: {
+            if (overrides_ == null) {
+              Overrides = new global::Bnet.SetBestiaAiConfigCMSG.Types.Overrides();
+            }
+            input.ReadMessage(Overrides);
             break;
           }
         }
@@ -353,6 +451,438 @@ namespace Bnet {
         [pbr::OriginalName("STEADY")] Steady = 3,
         [pbr::OriginalName("BOLD")] Bold = 4,
         [pbr::OriginalName("BRAVE")] Brave = 5,
+      }
+
+      /// <summary>
+      ///* An unset field keeps what the courage step and the job choose. 
+      /// </summary>
+      [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+      public sealed partial class Overrides : pb::IMessage<Overrides>
+      #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          , pb::IBufferMessage
+      #endif
+      {
+        private static readonly pb::MessageParser<Overrides> _parser = new pb::MessageParser<Overrides>(() => new Overrides());
+        private pb::UnknownFieldSet _unknownFields;
+        private int _hasBits0;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public static pb::MessageParser<Overrides> Parser { get { return _parser; } }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public static pbr::MessageDescriptor Descriptor {
+          get { return global::Bnet.SetBestiaAiConfigCMSG.Descriptor.NestedTypes[0]; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        pbr::MessageDescriptor pb::IMessage.Descriptor {
+          get { return Descriptor; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public Overrides() {
+          OnConstruction();
+        }
+
+        partial void OnConstruction();
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public Overrides(Overrides other) : this() {
+          _hasBits0 = other._hasBits0;
+          retreatBelowHealthPct_ = other.retreatBelowHealthPct_;
+          eatBelowStaminaPct_ = other.eatBelowStaminaPct_;
+          healBelowHealthPct_ = other.healBelowHealthPct_;
+          haulAtLoadPct_ = other.haulAtLoadPct_;
+          areaRadius_ = other.areaRadius_;
+          _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public Overrides Clone() {
+          return new Overrides(this);
+        }
+
+        /// <summary>Field number for the "retreat_below_health_pct" field.</summary>
+        public const int RetreatBelowHealthPctFieldNumber = 1;
+        private readonly static int RetreatBelowHealthPctDefaultValue = 0;
+
+        private int retreatBelowHealthPct_;
+        /// <summary>
+        ///* 0 never retreats. 
+        /// </summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public int RetreatBelowHealthPct {
+          get { if ((_hasBits0 & 1) != 0) { return retreatBelowHealthPct_; } else { return RetreatBelowHealthPctDefaultValue; } }
+          set {
+            _hasBits0 |= 1;
+            retreatBelowHealthPct_ = value;
+          }
+        }
+        /// <summary>Gets whether the "retreat_below_health_pct" field is set</summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public bool HasRetreatBelowHealthPct {
+          get { return (_hasBits0 & 1) != 0; }
+        }
+        /// <summary>Clears the value of the "retreat_below_health_pct" field</summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void ClearRetreatBelowHealthPct() {
+          _hasBits0 &= ~1;
+        }
+
+        /// <summary>Field number for the "eat_below_stamina_pct" field.</summary>
+        public const int EatBelowStaminaPctFieldNumber = 2;
+        private readonly static int EatBelowStaminaPctDefaultValue = 0;
+
+        private int eatBelowStaminaPct_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public int EatBelowStaminaPct {
+          get { if ((_hasBits0 & 2) != 0) { return eatBelowStaminaPct_; } else { return EatBelowStaminaPctDefaultValue; } }
+          set {
+            _hasBits0 |= 2;
+            eatBelowStaminaPct_ = value;
+          }
+        }
+        /// <summary>Gets whether the "eat_below_stamina_pct" field is set</summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public bool HasEatBelowStaminaPct {
+          get { return (_hasBits0 & 2) != 0; }
+        }
+        /// <summary>Clears the value of the "eat_below_stamina_pct" field</summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void ClearEatBelowStaminaPct() {
+          _hasBits0 &= ~2;
+        }
+
+        /// <summary>Field number for the "heal_below_health_pct" field.</summary>
+        public const int HealBelowHealthPctFieldNumber = 3;
+        private readonly static int HealBelowHealthPctDefaultValue = 0;
+
+        private int healBelowHealthPct_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public int HealBelowHealthPct {
+          get { if ((_hasBits0 & 4) != 0) { return healBelowHealthPct_; } else { return HealBelowHealthPctDefaultValue; } }
+          set {
+            _hasBits0 |= 4;
+            healBelowHealthPct_ = value;
+          }
+        }
+        /// <summary>Gets whether the "heal_below_health_pct" field is set</summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public bool HasHealBelowHealthPct {
+          get { return (_hasBits0 & 4) != 0; }
+        }
+        /// <summary>Clears the value of the "heal_below_health_pct" field</summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void ClearHealBelowHealthPct() {
+          _hasBits0 &= ~4;
+        }
+
+        /// <summary>Field number for the "haul_at_load_pct" field.</summary>
+        public const int HaulAtLoadPctFieldNumber = 4;
+        private readonly static int HaulAtLoadPctDefaultValue = 0;
+
+        private int haulAtLoadPct_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public int HaulAtLoadPct {
+          get { if ((_hasBits0 & 8) != 0) { return haulAtLoadPct_; } else { return HaulAtLoadPctDefaultValue; } }
+          set {
+            _hasBits0 |= 8;
+            haulAtLoadPct_ = value;
+          }
+        }
+        /// <summary>Gets whether the "haul_at_load_pct" field is set</summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public bool HasHaulAtLoadPct {
+          get { return (_hasBits0 & 8) != 0; }
+        }
+        /// <summary>Clears the value of the "haul_at_load_pct" field</summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void ClearHaulAtLoadPct() {
+          _hasBits0 &= ~8;
+        }
+
+        /// <summary>Field number for the "area_radius" field.</summary>
+        public const int AreaRadiusFieldNumber = 5;
+        private readonly static int AreaRadiusDefaultValue = 0;
+
+        private int areaRadius_;
+        /// <summary>
+        ///* In tiles. 
+        /// </summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public int AreaRadius {
+          get { if ((_hasBits0 & 16) != 0) { return areaRadius_; } else { return AreaRadiusDefaultValue; } }
+          set {
+            _hasBits0 |= 16;
+            areaRadius_ = value;
+          }
+        }
+        /// <summary>Gets whether the "area_radius" field is set</summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public bool HasAreaRadius {
+          get { return (_hasBits0 & 16) != 0; }
+        }
+        /// <summary>Clears the value of the "area_radius" field</summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void ClearAreaRadius() {
+          _hasBits0 &= ~16;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override bool Equals(object other) {
+          return Equals(other as Overrides);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public bool Equals(Overrides other) {
+          if (ReferenceEquals(other, null)) {
+            return false;
+          }
+          if (ReferenceEquals(other, this)) {
+            return true;
+          }
+          if (RetreatBelowHealthPct != other.RetreatBelowHealthPct) return false;
+          if (EatBelowStaminaPct != other.EatBelowStaminaPct) return false;
+          if (HealBelowHealthPct != other.HealBelowHealthPct) return false;
+          if (HaulAtLoadPct != other.HaulAtLoadPct) return false;
+          if (AreaRadius != other.AreaRadius) return false;
+          return Equals(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override int GetHashCode() {
+          int hash = 1;
+          if (HasRetreatBelowHealthPct) hash ^= RetreatBelowHealthPct.GetHashCode();
+          if (HasEatBelowStaminaPct) hash ^= EatBelowStaminaPct.GetHashCode();
+          if (HasHealBelowHealthPct) hash ^= HealBelowHealthPct.GetHashCode();
+          if (HasHaulAtLoadPct) hash ^= HaulAtLoadPct.GetHashCode();
+          if (HasAreaRadius) hash ^= AreaRadius.GetHashCode();
+          if (_unknownFields != null) {
+            hash ^= _unknownFields.GetHashCode();
+          }
+          return hash;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override string ToString() {
+          return pb::JsonFormatter.ToDiagnosticString(this);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void WriteTo(pb::CodedOutputStream output) {
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          output.WriteRawMessage(this);
+        #else
+          if (HasRetreatBelowHealthPct) {
+            output.WriteRawTag(8);
+            output.WriteInt32(RetreatBelowHealthPct);
+          }
+          if (HasEatBelowStaminaPct) {
+            output.WriteRawTag(16);
+            output.WriteInt32(EatBelowStaminaPct);
+          }
+          if (HasHealBelowHealthPct) {
+            output.WriteRawTag(24);
+            output.WriteInt32(HealBelowHealthPct);
+          }
+          if (HasHaulAtLoadPct) {
+            output.WriteRawTag(32);
+            output.WriteInt32(HaulAtLoadPct);
+          }
+          if (HasAreaRadius) {
+            output.WriteRawTag(40);
+            output.WriteInt32(AreaRadius);
+          }
+          if (_unknownFields != null) {
+            _unknownFields.WriteTo(output);
+          }
+        #endif
+        }
+
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+          if (HasRetreatBelowHealthPct) {
+            output.WriteRawTag(8);
+            output.WriteInt32(RetreatBelowHealthPct);
+          }
+          if (HasEatBelowStaminaPct) {
+            output.WriteRawTag(16);
+            output.WriteInt32(EatBelowStaminaPct);
+          }
+          if (HasHealBelowHealthPct) {
+            output.WriteRawTag(24);
+            output.WriteInt32(HealBelowHealthPct);
+          }
+          if (HasHaulAtLoadPct) {
+            output.WriteRawTag(32);
+            output.WriteInt32(HaulAtLoadPct);
+          }
+          if (HasAreaRadius) {
+            output.WriteRawTag(40);
+            output.WriteInt32(AreaRadius);
+          }
+          if (_unknownFields != null) {
+            _unknownFields.WriteTo(ref output);
+          }
+        }
+        #endif
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public int CalculateSize() {
+          int size = 0;
+          if (HasRetreatBelowHealthPct) {
+            size += 1 + pb::CodedOutputStream.ComputeInt32Size(RetreatBelowHealthPct);
+          }
+          if (HasEatBelowStaminaPct) {
+            size += 1 + pb::CodedOutputStream.ComputeInt32Size(EatBelowStaminaPct);
+          }
+          if (HasHealBelowHealthPct) {
+            size += 1 + pb::CodedOutputStream.ComputeInt32Size(HealBelowHealthPct);
+          }
+          if (HasHaulAtLoadPct) {
+            size += 1 + pb::CodedOutputStream.ComputeInt32Size(HaulAtLoadPct);
+          }
+          if (HasAreaRadius) {
+            size += 1 + pb::CodedOutputStream.ComputeInt32Size(AreaRadius);
+          }
+          if (_unknownFields != null) {
+            size += _unknownFields.CalculateSize();
+          }
+          return size;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void MergeFrom(Overrides other) {
+          if (other == null) {
+            return;
+          }
+          if (other.HasRetreatBelowHealthPct) {
+            RetreatBelowHealthPct = other.RetreatBelowHealthPct;
+          }
+          if (other.HasEatBelowStaminaPct) {
+            EatBelowStaminaPct = other.EatBelowStaminaPct;
+          }
+          if (other.HasHealBelowHealthPct) {
+            HealBelowHealthPct = other.HealBelowHealthPct;
+          }
+          if (other.HasHaulAtLoadPct) {
+            HaulAtLoadPct = other.HaulAtLoadPct;
+          }
+          if (other.HasAreaRadius) {
+            AreaRadius = other.AreaRadius;
+          }
+          _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void MergeFrom(pb::CodedInputStream input) {
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          input.ReadRawMessage(this);
+        #else
+          uint tag;
+          while ((tag = input.ReadTag()) != 0) {
+          if ((tag & 7) == 4) {
+            // Abort on any end group tag.
+            return;
+          }
+          switch(tag) {
+              default:
+                _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+                break;
+              case 8: {
+                RetreatBelowHealthPct = input.ReadInt32();
+                break;
+              }
+              case 16: {
+                EatBelowStaminaPct = input.ReadInt32();
+                break;
+              }
+              case 24: {
+                HealBelowHealthPct = input.ReadInt32();
+                break;
+              }
+              case 32: {
+                HaulAtLoadPct = input.ReadInt32();
+                break;
+              }
+              case 40: {
+                AreaRadius = input.ReadInt32();
+                break;
+              }
+            }
+          }
+        #endif
+        }
+
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+          uint tag;
+          while ((tag = input.ReadTag()) != 0) {
+          if ((tag & 7) == 4) {
+            // Abort on any end group tag.
+            return;
+          }
+          switch(tag) {
+              default:
+                _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+                break;
+              case 8: {
+                RetreatBelowHealthPct = input.ReadInt32();
+                break;
+              }
+              case 16: {
+                EatBelowStaminaPct = input.ReadInt32();
+                break;
+              }
+              case 24: {
+                HealBelowHealthPct = input.ReadInt32();
+                break;
+              }
+              case 32: {
+                HaulAtLoadPct = input.ReadInt32();
+                break;
+              }
+              case 40: {
+                AreaRadius = input.ReadInt32();
+                break;
+              }
+            }
+          }
+        }
+        #endif
+
       }
 
     }
