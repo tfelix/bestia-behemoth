@@ -89,6 +89,10 @@ signal breeding_farm_received(message: BreedingFarmSMSG)
 signal incubator_received(message: IncubatorSMSG)
 ## What an egg in the bag holds, the answer to [method inspect_egg].
 signal bestia_egg_received(message: BestiaEggSMSG)
+## The orders of one owned bestia: the answer to [method get_bestia_orders], and on every change from anywhere.
+signal bestia_orders_received(message: BestiaAiConfigSMSG)
+## The played master's order presets and named places: the answer to [method get_order_book] and to every change of them.
+signal order_book_received(message: OrderBookSMSG)
 signal parcel_sent(message: ParcelSentSMSG)
 ## A pigeon says a parcel waits at an office.
 signal parcel_arrived(message: ParcelArrivedSMSG)
@@ -216,6 +220,9 @@ var ReleaseBreedingPairCMSG = load("res://Bnet/Message/Breeding/ReleaseBreedingP
 var TakeEggCMSG = load("res://Bnet/Message/Breeding/TakeEggCMSG.cs")
 var PlaceEggCMSG = load("res://Bnet/Message/Breeding/PlaceEggCMSG.cs")
 var InspectEggCMSG = load("res://Bnet/Message/Breeding/InspectEggCMSG.cs")
+var GetBestiaOrdersCMSG = load("res://Bnet/Message/Master/GetBestiaOrdersCMSG.cs")
+var SetBestiaAiConfigCMSG = load("res://Bnet/Message/Master/SetBestiaAiConfigCMSG.cs")
+var GetOrderBookCMSG = load("res://Bnet/Message/Master/GetOrderBookCMSG.cs")
 var TakeParcelsCMSG = load("res://Bnet/Message/Postal/TakeParcelsCMSG.cs")
 var RequestPartyInfoCMSG = load("res://Bnet/Message/Party/RequestPartyInfoCMSG.cs")
 var CreatePartyCMSG = load("res://Bnet/Message/Party/CreatePartyCMSG.cs")
@@ -1548,6 +1555,30 @@ func select_active_entity(entity_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+func get_bestia_orders(player_bestia_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = GetBestiaOrdersCMSG.new()
+	msg.PlayerBestiaId = player_bestia_id
+	_socket.SendMessage(msg)
+
+
+## Gives a bestia [param orders]. With a [param preset_id] it follows that preset and keeps only
+## [param own_overrides] as its own numbers. Answered by a BestiaAiConfigSMSG, or an OperationError.
+func set_bestia_orders(player_bestia_id: int, orders: OrderSheet, preset_id: int, own_overrides: Dictionary) -> void:
+	assert(is_ready_to_send())
+	var msg = SetBestiaAiConfigCMSG.new()
+	msg.PlayerBestiaId = player_bestia_id
+	msg.Orders = orders
+	msg.PresetId = preset_id
+	msg.OwnOverrides = own_overrides
+	_socket.SendMessage(msg)
+
+
+func get_order_book() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(GetOrderBookCMSG.new())
+
+
 ## Asks for an emote on the entity we control, by its AnimationKind name ("CHEER"). Seen as its Animation component.
 func send_emote(kind: String) -> void:
 	if not is_ready_to_send():
@@ -1740,6 +1771,10 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		incubator_received.emit(message)
 	elif message is BestiaEggSMSG:
 		bestia_egg_received.emit(message)
+	elif message is BestiaAiConfigSMSG:
+		bestia_orders_received.emit(message)
+	elif message is OrderBookSMSG:
+		order_book_received.emit(message)
 	elif message is PartySMSG:
 		party_message_received.emit(message)
 	elif message is GuildSMSG:

@@ -180,6 +180,72 @@ CAPTURE_FAILED,A Bestia broke free of your trap.
 BESTIA_PARTY_MASTER,Master
 BESTIA_PARTY_EMPTY_SLOT,Empty
 BESTIA_PARTY_EMPTY_SLOT_HINT,Catch a Bestia to fill the empty slot.
+ORDERS_OPEN,Orders for %s
+ORDERS_TITLE,Orders: %s
+ORDERS_LOADING,Asking for the orders...
+ORDERS_PRESET,Preset
+ORDERS_OWN,Own orders
+ORDERS_PRESET_ITEM,%s (followed by %d)
+ORDERS_FOLLOWING_HINT,"Follows the preset. Change the preset to change these orders; only the Fine-tune numbers you tick are its own."
+ORDERS_JOB,Job
+ORDERS_JOB_0,None
+ORDERS_JOB_1,Guard
+ORDERS_JOB_2,Rest
+ORDERS_JOB_3,Gather
+ORDERS_JOB_4,Craft
+ORDERS_JOB_5,Mine
+ORDERS_JOB_HINT_1,"Stays near home and fights wild monsters and, where that is allowed, other masters."
+ORDERS_JOB_HINT_2,Stays at home and rests.
+ORDERS_JOB_HINT_3,"Collects loot, herbs, wood and crystals in its area and hauls them to a chest."
+ORDERS_JOB_HINT_4,Works your crafting stations that have nobody at work.
+ORDERS_JOB_HINT_5,Digs ore at your mining shafts.
+ORDERS_FALLBACK,When idle
+ORDERS_FALLBACK_HINT,What it does while its job has nothing to do.
+ORDERS_NO_FALLBACK,Wait
+ORDERS_COURAGE,Courage
+ORDERS_COURAGE_1,Timid
+ORDERS_COURAGE_2,Careful
+ORDERS_COURAGE_3,Steady
+ORDERS_COURAGE_4,Bold
+ORDERS_COURAGE_5,Brave
+ORDERS_AREA,Work area
+ORDERS_AROUND_HOME,Around home
+ORDERS_CHEST,Chest
+ORDERS_NEAREST_CHEST,Nearest chest
+ORDERS_FINE_TUNE,Fine-tune
+ORDERS_NUMBER_RETREAT_BELOW_HEALTH_PCT,Retreat below
+ORDERS_NUMBER_EAT_BELOW_STAMINA_PCT,Eat below
+ORDERS_NUMBER_HEAL_BELOW_HEALTH_PCT,Heal below
+ORDERS_NUMBER_HAUL_AT_LOAD_PCT,Haul at
+ORDERS_NUMBER_AREA_RADIUS,Area radius
+ORDERS_NUMBER_UNIT_RETREAT_BELOW_HEALTH_PCT,% HP
+ORDERS_NUMBER_UNIT_EAT_BELOW_STAMINA_PCT,% stamina
+ORDERS_NUMBER_UNIT_HEAL_BELOW_HEALTH_PCT,% HP
+ORDERS_NUMBER_UNIT_HAUL_AT_LOAD_PCT,% load
+ORDERS_NUMBER_UNIT_AREA_RADIUS,tiles
+ORDERS_NUMBER_SET_HINT,Tick to set this number by hand. Unticked it follows the courage and the job.
+ORDERS_NUMBER_AUTO,auto
+ORDERS_RULES,Rules
+ORDERS_NO_RULES,No rules.
+ORDERS_ADD_RULE,Add rule
+ORDERS_RULE_THEN,then
+ORDERS_RULE_UP,Move up
+ORDERS_RULE_DOWN,Move down
+ORDERS_RULE_REMOVE,Remove
+ORDERS_CONDITION_1,Stamina below
+ORDERS_CONDITION_2,HP below
+ORDERS_CONDITION_3,Bag fuller than
+ORDERS_CONDITION_4,It is night
+ORDERS_CONDITION_5,It is day
+ORDERS_CONDITION_6,A stronger foe is in sight
+ORDERS_ACTION_1,eat
+ORDERS_ACTION_2,rest at home
+ORDERS_ACTION_3,heal
+ORDERS_ACTION_4,retreat
+ORDERS_ACTION_5,haul to the chest now
+ORDERS_ACTION_6,keep working
+ORDERS_ACTION_7,hold the ground
+ORDERS_GIVE,Give orders
 ITEM_CRAFTED_BY,Crafted by {crafter} in {world}
 ITEM_MATERIAL_AXES,Material: {axes}
 ITEM_ATTACK_RANGE,Range: {tiles} tiles
