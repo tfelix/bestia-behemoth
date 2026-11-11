@@ -621,8 +621,8 @@ gives out. Cooldown 15s.
 
 `+1/lv` hits absorbed
 `+10%/lv` of the target's max HP absorbed per hit"
-SKILL_84_DESC,"Lays a veil of still air 3m wide over the ground for 20s. Anything standing in it cannot
-be hit by arrows, bolts or thrown weapons. Cooldown 10s."
+SKILL_84_DESC,"Lays a veil of still air 3m wide over the ground for 20s. Anything standing in it, friend
+or foe, cannot be hit by arrows, bolts or thrown weapons. Cooldown 10s."
 SKILL_85_DESC,"Burns a sigil onto a target that pries its guard open, and bites hardest into Demons and
 the Undead. Cooldown 8s.
 
@@ -652,13 +652,14 @@ SKILL_92_DESC,"A hymn of thanksgiving that quickens the natural recovery of the 
 60s.
 
 `+10%/lv` HP and mana regeneration"
-SKILL_93_DESC,"A pillar of holy mana erupts around the target spot for 15s, searing everything caught in
-it and Demons and the Undead worst of all. Cooldown 30s.
+SKILL_93_DESC,"A pillar of holy mana erupts 7m wide around the target spot. For 15s a holy wave sears
+every foe caught in it every 3s, and Demons and the Undead worst of all. Cooldown 30s.
 
-`+15%/lv` MATK
+`+15%/lv` MATK per wave, from 115% at Lv.1
 `+10%/lv` extra against Demon and Undead"
-SKILL_94_DESC,"Consecrates a patch of ground for 30s. Every second it heals allies standing in it, and
-burns Demons and the Undead for the same amount. Cooldown 30s.
+SKILL_94_DESC,"Consecrates a patch of ground 5m wide for 30s. Every second it heals allies standing in
+it, and burns Demons and the Undead for the same share of the Priest's own max HP.
+Cooldown 30s.
 
 `+5%/lv` max HP healed per second"
 SKILL_95_DESC,"Calls a fallen Bestia or Master back over the threshold with part of their HP. Can not be

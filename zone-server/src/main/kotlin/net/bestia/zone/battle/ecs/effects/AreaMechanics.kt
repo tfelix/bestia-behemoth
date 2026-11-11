@@ -14,6 +14,9 @@ data class AreaMechanics(
   /** Refreshed on every tick, so it falls off soon after the bearer walks out. */
   val zoneStatus: StatusEffectId? = null,
   val forAllies: Boolean = false,
+
+  /** The [zoneStatus] reaches everyone inside, foe and friend alike, like Pneuma's still air. */
+  val zoneStatusForEveryone: Boolean = false,
   val healPerTick: Int = 0,
 
   /** Max mana everyone inside gains per tick, in percent, foe and friend alike. */
@@ -36,8 +39,15 @@ data class AreaMechanics(
    */
   val strikeRadiusTiles: Int = 0,
 
-  /** Only foes of these kinds are harmed; empty means every foe. Allies are healed whatever their kind. */
+  /**
+   * Only foes of these kinds or base elements are harmed; empty sets mean every foe. Allies are healed whatever
+   * their kind.
+   */
   val foeKinds: Set<BestiaKind> = emptySet(),
+  val foeElements: Set<Element> = emptySet(),
+
+  /** Extra damage, in percent, on a Demon or an Undead foe, see `Unholy`. */
+  val unholyBonusPercent: Int = 0,
 
   /** Percent of an ally's maximum health restored per tick, beside the flat [healPerTick]. */
   val healPercentPerTick: Int = 0,
