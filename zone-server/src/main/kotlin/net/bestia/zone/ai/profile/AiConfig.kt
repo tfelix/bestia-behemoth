@@ -45,6 +45,14 @@ data class AiConfig(
   @Convert(converter = OrderRulesConverter::class)
   @Column(name = "order_rules", length = 400)
   val rules: List<OrderRule> = emptyList(),
+
+  /** The named area it works in, instead of the one around its home. */
+  @Column(name = "area_place_id")
+  val areaPlaceId: Long? = null,
+
+  /** The named chest it hauls to and eats from, instead of the nearest one. */
+  @Column(name = "chest_place_id")
+  val chestPlaceId: Long? = null,
 ) {
 
   /**

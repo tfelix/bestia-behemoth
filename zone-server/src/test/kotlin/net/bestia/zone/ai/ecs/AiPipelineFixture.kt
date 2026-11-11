@@ -1,5 +1,8 @@
 package net.bestia.zone.ai.ecs
 
+import net.bestia.zone.ai.perception.PlaceSense
+import net.bestia.zone.ai.domain.bestia.PlaceLookup
+import net.bestia.zone.ai.domain.bestia.NamedPlace
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.bestia.diary.BestiaNews
 import net.bestia.zone.bestia.diary.BestiaHappened
@@ -276,6 +279,10 @@ class AiPipelineFixture(
   val bagCare = TestBagCare.create()
 
   // Spring collects the domain runtimes in the live server; a test names them.
+  /** The masters' named places, by id. */
+  val places = mutableMapOf<Long, NamedPlace>()
+  val placeLookup = PlaceLookup { places[it] }
+
   /** What owned bestias told their masters' diaries. */
   val told = mutableListOf<BestiaHappened>()
   val news = BestiaNews { told += it }
@@ -329,7 +336,8 @@ class AiPipelineFixture(
         ForageSense { grazeableGround },
         BagSense(bagCare),
         GatherSense(aoi, propKinds, divergence),
-        JobChestSense(structureRegistry, chests, bagCare, news),
+        JobChestSense(structureRegistry, chests, bagCare, news, placeLookup),
+        PlaceSense(placeLookup),
         StationSense(structureRegistry, shaftOre, stationWorkers),
         ShelterSense(aoi) { at, reach -> doorsteps.filter { it.distance(at) <= reach } },
         SettlementSense(

@@ -98,6 +98,8 @@ class BestiaRuntime(
 
     memory.set(BestiaDomain.MAIN_JOB, config.job, Blackboard.PERMANENT)
     memory.set(BestiaDomain.RULES, config.rules, Blackboard.PERMANENT)
+    config.areaPlaceId?.let { memory.set(BestiaDomain.AREA_PLACE_ID, it, Blackboard.PERMANENT) }
+    config.chestPlaceId?.let { memory.set(BestiaDomain.CHEST_PLACE_ID, it, Blackboard.PERMANENT) }
     memory.set(BestiaDomain.WANDER_RADIUS, areaRadius, Blackboard.PERMANENT)
     memory.set(
       BestiaDomain.EAT_BELOW_STAMINA_PCT,

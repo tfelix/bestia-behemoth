@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.perception
 
+import net.bestia.zone.ai.domain.bestia.PlaceLookup
 import net.bestia.zone.bestia.diary.BestiaNews
 import net.bestia.zone.bestia.diary.BestiaHappened
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
@@ -28,6 +29,7 @@ class JobChestSense(
   private val chests: ChestStorages,
   private val care: BagCare,
   private val news: BestiaNews = BestiaNews { },
+  private val places: PlaceLookup = PlaceLookup { null },
 ) : Sense {
 
   override val name = "jobChest"
@@ -44,7 +46,7 @@ class JobChestSense(
     val masterId = context.world.get(context.entityId, OwnedBestia::class)?.masterId ?: return
     // At a station, the chest nearest it is the one that pays its queue.
     val workplace = context.world.get(context.entityId, WorkAssignment::class)?.position
-    val chest = nearestChest(masterId, workplace ?: area.center)
+    val chest = namedChest(context, masterId) ?: nearestChest(masterId, workplace ?: area.center)
 
     if (chest == null) {
       context.forget(BestiaDomain.JOB_CHEST)
@@ -77,6 +79,14 @@ class JobChestSense(
     news.tell(
       BestiaHappened(this, owned.masterId, owned.playerBestiaId, BestiaHappened.Kind.WORK_PAUSED, reason = CHEST_FULL)
     )
+  }
+
+  /** The chest the orders name, while it stands and is still the master's. */
+  private fun namedChest(context: SenseContext, masterId: Long): StructureEntry? {
+    val placeId = context.recall(BestiaDomain.CHEST_PLACE_ID) ?: return null
+    val structureId = places.placeOf(placeId)?.chestStructureId ?: return null
+
+    return structures.of(structureId)?.takeIf { it.ownerMasterId == masterId && !it.isUnderConstruction }
   }
 
   private fun nearestChest(masterId: Long, to: Vec3L): StructureEntry? {
