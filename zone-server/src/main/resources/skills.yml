@@ -42,8 +42,8 @@ skills:
       Channels mana directly into a target's wounds, restoring HP in an instant. The Priest's
       bread and butter - simple, reliable, and the first rite every Priest learns.
 
-      Heals `[(BaseLv + INT) / 8] * (4 + 8 * SkillLv)` HP. Against an Undead target it is a holy
-      attack for half that amount.
+      Heals `[(BaseLv + INT) / 8] * (4 + 8 * SkillLv)` HP. Against an Undead foe it is a holy
+      attack for half that amount. Hold Shift to aim it at a monster.
       `+3/lv` mana cost, from 13 at Lv.1
 
   - id: 5
@@ -71,8 +71,8 @@ skills:
     manaCost: 28
     castTime: 2.0
     description: |
-      A benediction that steadies body and mind. On an Undead or Demon target it turns into a
-      curse that halves DEX and INT instead.
+      A benediction that steadies body and mind. On an Undead or Demon foe it turns into a curse
+      that halves DEX and INT instead. Hold Shift to aim it at a monster.
 
       `+2/lv` STR, DEX and INT
       `+4/lv` HIT
