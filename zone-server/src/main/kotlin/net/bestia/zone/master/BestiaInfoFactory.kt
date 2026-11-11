@@ -38,6 +38,7 @@ class BestiaInfoFactory(
 
         SelfSMSG.BestiaInfo(
           entityId = entityId,
+          playerBestiaId = playerBestiaId,
           mobId = playerBestia.bestia.id.toInt(),
           name = playerBestia.name,
           level = level,
