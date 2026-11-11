@@ -84,6 +84,11 @@ class PushNotifier(
       is ZoneEvent.JourneyEnded -> preference.journeyEnded
       is ZoneEvent.LetterArrived -> preference.letterArrived
       is ZoneEvent.ParcelArrived -> preference.parcelArrived
+      is ZoneEvent.BestiaHappening -> when (event.kind) {
+        in Notification.STOPPED_KINDS -> preference.bestiaStopped
+        in Notification.FIGHT_KINDS -> preference.bestiaAttacked
+        else -> false
+      }
       else -> false
     }
   }

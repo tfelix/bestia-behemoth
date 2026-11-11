@@ -51,11 +51,46 @@ data class Notification(val title: String, val body: String, val url: String, va
           tag = "parcel-${event.parcelId}",
         )
 
+        // Told in the game already when the player was in it; hauls and new orders are only for the diary.
+        is ZoneEvent.BestiaHappening -> if (event.whilePlaying) null else bestiaHappening(event)
+
         // Chat is read in the app, never pushed: a busy guild would spend the hourly budget in a minute.
         is ZoneEvent.OrdersChanged, is ZoneEvent.Presence, is ZoneEvent.ChartsChanged, is ZoneEvent.ChatLine,
         is ZoneEvent.CompendiumChanged, is ZoneEvent.NotebookChanged -> null
       }
     }
+
+    /** Pushed only for these, and only when the master is away. */
+    val STOPPED_KINDS = setOf("WORK_PAUSED", "QUEUE_FINISHED")
+    val FIGHT_KINDS = setOf("ATTACKED", "RETREATED")
+
+    private val STOPPED_BECAUSE = mapOf(
+      "STATION_OUT" to "Its fire went out.",
+      "CANNOT_CRAFT" to "It cannot make the next one.",
+      "CHEST_FULL" to "The chest is full.",
+      "NO_ORE" to "There is no ore left in reach.",
+    )
+
+    private fun bestiaHappening(event: ZoneEvent.BestiaHappening): Notification? {
+      val who = event.bestiaName ?: event.species
+      val bestiaPage = "/m/${event.masterId}/bestia"
+      val tag = "bestia-${event.playerBestiaId}"
+
+      return when (event.kind) {
+        "WORK_PAUSED" -> Notification(
+          "$who stopped working", STOPPED_BECAUSE[event.reason] ?: "It cannot go on by itself.", "/m/${event.masterId}/diary", tag,
+        )
+        "QUEUE_FINISHED" -> Notification(
+          "Queue finished", "$who finished the queue${event.place?.let { " at the ${stationName(it)}" } ?: ""}.",
+          "/m/${event.masterId}/workshop", "queue-${event.playerBestiaId}",
+        )
+        "ATTACKED" -> Notification("$who is under attack", "It fights back as its courage allows.", bestiaPage, tag)
+        "RETREATED" -> Notification("$who retreated", "It was losing the fight and went home.", bestiaPage, tag)
+        else -> null
+      }
+    }
+
+    private fun stationName(kind: String): String = kind.lowercase().replace('_', ' ')
 
     private fun journeyEnded(event: ZoneEvent.JourneyEnded): Notification {
       val who = event.bestiaName ?: event.species
