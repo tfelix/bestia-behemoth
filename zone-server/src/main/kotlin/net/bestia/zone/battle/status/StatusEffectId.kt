@@ -90,7 +90,9 @@ enum class StatusEffectId(val id: Long) {
   MASTER_ENDOWED(205),
   MAGIC_ROD(206),
   MANA_DRAINING(207),
-  TELEPORT_SICKNESS(208);
+  TELEPORT_SICKNESS(208),
+  SIGNUM_CRUCIS(209),
+  LEX_AETERNA(210);
 
   companion object {
     private val byId = entries.associateBy { it.id }

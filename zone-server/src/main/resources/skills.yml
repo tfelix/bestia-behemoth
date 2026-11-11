@@ -1045,8 +1045,8 @@ skills:
       Burns a sigil onto a target that pries its guard open, and bites hardest into Demons and
       the Undead. Cooldown 8s.
 
-      `-10%/lv` DEF
-      `+10%/lv` extra against Demon and Undead
+      `-10%/lv` physical DEF
+      `-10%/lv` more against Demon and Undead
       `+15s/lv` duration, from 30s at Lv.1
 
   - id: 86

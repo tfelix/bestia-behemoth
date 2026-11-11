@@ -239,7 +239,11 @@ class RecordingSkillWorld(
 
   override fun apply(targetEntityId: EntityId, damage: Damage, kind: HitKind?) {
     appliedDamage += targetEntityId to damage
+    appliedKinds += kind
   }
+
+  /** The kind each [appliedDamage] was landed as, null for the skill's own. */
+  val appliedKinds = mutableListOf<HitKind?>()
 
   override fun applyStatusEffect(
     targetEntityId: EntityId,

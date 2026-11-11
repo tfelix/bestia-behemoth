@@ -607,3 +607,19 @@ statusEffects:
     isSyncedToClient: true
     dispellable: false
     script: TeleportSickness
+
+  # The Priest's Signum Crucis: less physical defence, more so on a Demon or an Undead.
+  - id: 209
+    identifier: SIGNUM_CRUCIS
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: SignumCrucisSigil
+
+  # The Priest's Lex Aeterna: the next hit on the bearer counts twice.
+  - id: 210
+    identifier: LEX_AETERNA
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: LexAeternaMark
