@@ -61,6 +61,11 @@ class BestiaAiConfigService(
     return store(playerBestia)
   }
 
+  @Transactional(readOnly = true)
+  fun storedOf(playerBestiaId: PlayerBestiaId): StoredOrders? {
+    return playerBestias.findByIdOrNull(playerBestiaId)?.let(StoredOrders::of)
+  }
+
   /** Gives every bestia that follows [preset] its orders again, each keeping its own numbers. */
   @Transactional
   fun reapply(preset: OrderPreset) {

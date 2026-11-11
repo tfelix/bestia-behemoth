@@ -12,12 +12,14 @@ import net.bestia.zone.util.PlayerBestiaId
  * A player setting the orders of one of their own bestias.
  *
  * [orders] is null when the client sent an unset or unknown job or courage step, which the handler refuses: there
- * is no "nearest valid job", so it is rejected rather than guessed at.
+ * is no "nearest valid job", so it is rejected rather than guessed at. With [presetId] the bestia follows that preset
+ * and the numbers of [orders] are only its own.
  */
 data class SetBestiaAiConfigCMSG(
   override val playerId: Long,
   val playerBestiaId: PlayerBestiaId,
   val orders: AiConfig?,
+  val presetId: Long? = null,
 ) : CMSG {
 
   companion object {
@@ -30,12 +32,21 @@ data class SetBestiaAiConfigCMSG(
       val fallback = OrdersWire.fallbackFrom(msg.fallbackJob)
       val rules = OrdersWire.rulesFrom(msg.rulesList)
       val orders = if (job != null && courage != null && fallback.isSuccess && rules != null) {
-        AiConfig(job, courage, fallback.getOrNull(), OrdersWire.overridesFrom(msg.overrides), rules).takeIf { it.isValid }
+        AiConfig(
+          job, courage, fallback.getOrNull(), OrdersWire.overridesFrom(msg.overrides), rules,
+          areaPlaceId = msg.takeIf { it.hasAreaPlaceId() }?.areaPlaceId,
+          chestPlaceId = msg.takeIf { it.hasChestPlaceId() }?.chestPlaceId,
+        ).takeIf { it.isValid }
       } else {
         null
       }
 
-      return SetBestiaAiConfigCMSG(playerId = accountId, playerBestiaId = msg.playerBestiaId, orders = orders)
+      return SetBestiaAiConfigCMSG(
+        playerId = accountId,
+        playerBestiaId = msg.playerBestiaId,
+        orders = orders,
+        presetId = msg.takeIf { it.hasPresetId() }?.presetId,
+      )
     }
   }
 }
