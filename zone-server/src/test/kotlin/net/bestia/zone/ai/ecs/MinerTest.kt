@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.ecs
 
+import net.bestia.zone.bestia.diary.BestiaHappened
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -156,6 +157,8 @@ class MinerTest {
     val chest = ai.spawnChest(Vec3L(10, 0, 0), structureId = 9L, masterId = MASTER)
 
     ai.tickUntil(maxTicks = 20 * 300, describe = { "the chest holds ${oreIn(chest)}" }) { oreIn(chest) >= 4 }
+    val hauled = ai.told.first { it.kind == BestiaHappened.Kind.HAULED }
+    assertEquals(mapOf("item_$ORE" to 2), hauled.items, "one diary line per haul, the piles summed")
   }
 
   @Test

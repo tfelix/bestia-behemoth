@@ -1,5 +1,7 @@
 package net.bestia.zone.crafting.station
 
+import net.bestia.zone.bestia.diary.BestiaNews
+import net.bestia.zone.bestia.diary.BestiaHappened
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.ecs.AiAgent
@@ -52,6 +54,7 @@ class StationWorkSystem(
   private val states: StationStateSender,
   private val campfires: CampfireService,
   private val clock: Clock = Clock.systemUTC(),
+  private val news: BestiaNews = BestiaNews { },
 ) : System {
 
   // In ITEMS rather than ACTIONS so every move of the tick is done before the range check, and before the grant
@@ -118,6 +121,7 @@ class StationWorkSystem(
     if (pause != progress.pause) {
       progress.pause = pause
       states.send(station)
+      tellStopped(station, pause)
     }
     if (pause == StationPause.BAG_FULL) askToEmptyBag(world, workerId!!)
     if (pause != StationPause.NONE) return
@@ -132,6 +136,7 @@ class StationWorkSystem(
       LOG.debug { "Station ${station.id} cannot make ${recipe.identifier} for its worker: $refusal" }
       progress.pause = StationPause.CANNOT_CRAFT
       states.send(station)
+      tellStopped(station, StationPause.CANNOT_CRAFT)
       return
     }
 
@@ -143,6 +148,18 @@ class StationWorkSystem(
     progress.seconds = 0f
     structures.setStationContents(station.id, queue, held)
     structures.of(station.id)?.let(states::send)
+    if (queue.isEmpty()) tell(station, BestiaHappened.Kind.QUEUE_FINISHED)
+  }
+
+  /** Only the pauses that last until somebody acts; a bag full or a worker off to eat sorts itself out. */
+  private fun tellStopped(station: StructureEntry, pause: StationPause) {
+    if (pause in LASTING_PAUSES) tell(station, BestiaHappened.Kind.WORK_PAUSED, pause.name)
+  }
+
+  /** Told to the diary of the bestia that works [station]; the owner working it themself is there to see. */
+  private fun tell(station: StructureEntry, kind: BestiaHappened.Kind, reason: String? = null) {
+    val worker = station.workerBestiaId ?: return
+    news.tell(BestiaHappened(this, station.ownerMasterId, worker, kind, place = station.kind.name, reason = reason))
   }
 
   /** The bestia set to work here, or else the owner's master while they play it. */
@@ -188,5 +205,7 @@ class StationWorkSystem(
 
   private companion object {
     val LOG = KotlinLogging.logger { }
+
+    val LASTING_PAUSES = setOf(StationPause.STATION_OUT, StationPause.CANNOT_CRAFT)
   }
 }

@@ -1,5 +1,7 @@
 package net.bestia.zone.ai.perception
 
+import net.bestia.zone.bestia.diary.BestiaNews
+import net.bestia.zone.bestia.diary.BestiaHappened
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.domain.bestia.JobChest
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -25,6 +27,7 @@ class JobChestSense(
   private val structures: PlayerStructureRegistry,
   private val chests: ChestStorages,
   private val care: BagCare,
+  private val news: BestiaNews = BestiaNews { },
 ) : Sense {
 
   override val name = "jobChest"
@@ -55,10 +58,25 @@ class JobChestSense(
     val goods = context.world.get(context.entityId, Inventory::class)?.let(care::spareGoods).orEmpty()
     val goodsThatFit = ChestStorage.whatFits(contents, goods)
 
+    tellWhenFull(context, goods.isNotEmpty() && goodsThatFit.isEmpty())
+
     context.remember(BestiaDomain.JOB_CHEST, JobChest(chest.id, chest.position))
     context.remember(BestiaDomain.CHEST_HAS_ROOM, contents.size() < ChestStorage.SLOTS || goodsThatFit.isNotEmpty())
     context.remember(BestiaDomain.GOODS_TO_HAUL, goodsThatFit.isNotEmpty())
     context.remember(BestiaDomain.FOOD_IN_CHEST, care.hasFor(contents, BagCare.Need.STAMINA))
+  }
+
+  /** Once per stretch of being full: a bestia whose chest takes nothing more has stopped working. */
+  private fun tellWhenFull(context: SenseContext, full: Boolean) {
+    val told = context.recall(BestiaDomain.CHEST_FULL_TOLD) == true
+    if (full == told) return
+
+    context.remember(BestiaDomain.CHEST_FULL_TOLD, full)
+    if (!full) return
+    val owned = context.world.get(context.entityId, OwnedBestia::class) ?: return
+    news.tell(
+      BestiaHappened(this, owned.masterId, owned.playerBestiaId, BestiaHappened.Kind.WORK_PAUSED, reason = CHEST_FULL)
+    )
   }
 
   private fun nearestChest(masterId: Long, to: Vec3L): StructureEntry? {
@@ -69,6 +87,9 @@ class JobChestSense(
   }
 
   private companion object {
+    /** Why a worker stopped, in its diary. */
+    const val CHEST_FULL = "CHEST_FULL"
+
     /**
      * Tiles from the area's centre or the station. Far enough for a camp beside a wood, near enough that hauling is
      * not a trek.

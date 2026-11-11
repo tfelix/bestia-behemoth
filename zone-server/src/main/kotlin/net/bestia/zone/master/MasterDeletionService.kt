@@ -1,5 +1,6 @@
 package net.bestia.zone.master
 
+import net.bestia.zone.bestia.persistence.DiaryLineRepository
 import net.bestia.zone.crafting.KnownRecipeStore
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.WorldView
@@ -42,7 +43,8 @@ import net.bestia.zone.account.persistence.OrderPresetRepository
  * - **Persisted status effects** - stored against [Master.entityId], which is not a foreign key to anything.
  * - **Compendium entries** ([CompendiumStore.deleteAllOf]) - each row is a foreign key to the master.
  * - **Learned blueprints** ([KnownRecipeStore.deleteAllOf]) - each row is a foreign key to the master.
- * - **Order presets** ([OrderPresetRepository]) - keyed by the master's id, without a foreign key.
+ * - **Order presets** ([OrderPresetRepository]) and **diary lines** ([DiaryLineRepository]) - keyed by the
+ *   master's id, without a foreign key.
  * - **Rows keyed by an item instance** ([ItemInstanceDependents]) - a map chart or a spell scroll's attack is
  *   keyed by a real foreign key to the item instance that carries it, so it has to go before the instance does.
  */
@@ -56,6 +58,7 @@ class MasterDeletionService(
   private val compendiumStore: CompendiumStore,
   private val knownRecipeStore: KnownRecipeStore,
   private val orderPresets: OrderPresetRepository,
+  private val diaryLines: DiaryLineRepository,
   private val statusEffectPersistenceService: StatusEffectPersistenceService,
   private val world: WorldView,
 ) {
@@ -130,6 +133,7 @@ class MasterDeletionService(
     compendiumStore.deleteAllOf(masterId)
     knownRecipeStore.deleteAllOf(masterId)
     orderPresets.deleteAllByMasterId(masterId)
+    diaryLines.deleteAllByMasterId(masterId)
 
     // Removed from the account's collection as well as deleted: `Account.master` cascades ALL but has no
     // orphanRemoval, so a still-listed master would be cascade-persisted again on flush - after we deleted it.
