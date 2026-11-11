@@ -37,9 +37,12 @@ class ShaftOre(
     BlockType.entries.filter { oreYield.of(it) != null }.toSet()
   }
 
-  /** Whether the shaft at [shaftAt] has ore left within [reach]. */
+  /**
+   * Whether the shaft at [shaftAt] has ore left within [reach], as far as it knows. Cheap after the first call: the
+   * ground is only read again when the shaft digs.
+   */
   fun hasOre(shaftId: Long, shaftAt: Vec3L, reach: Reach): Boolean {
-    return nextOre(shaftId, shaftAt, reach) != null
+    return scanOf(shaftId, shaftAt, reach).ore.isNotEmpty()
   }
 
   /**
@@ -60,14 +63,23 @@ class ShaftOre(
     return taken.size
   }
 
-  /** Drops what is known about a shaft that is gone. */
-  fun forget(shaftId: Long) {
-    scans.remove(shaftId)
+  /** Drops what is known about every shaft but [shaftIds], the ones that still stand. */
+  fun keepOnly(shaftIds: Set<Long>) {
+    scans.keys.retainAll(shaftIds)
+  }
+
+  /** Whether the shaft has been looked at and nothing was left in reach. */
+  fun isDugOut(shaftId: Long): Boolean {
+    return scans[shaftId]?.ore?.isEmpty() == true
+  }
+
+  private fun scanOf(shaftId: Long, shaftAt: Vec3L, reach: Reach): Scan {
+    return scans[shaftId]?.takeIf { it.reach == reach } ?: scan(shaftAt, reach).also { scans[shaftId] = it }
   }
 
   /** The topmost ore still in the ground, skipping what someone else dug out since the scan. */
   private fun nextOre(shaftId: Long, shaftAt: Vec3L, reach: Reach): Vec3L? {
-    val scan = scans[shaftId]?.takeIf { it.reach == reach } ?: scan(shaftAt, reach).also { scans[shaftId] = it }
+    val scan = scanOf(shaftId, shaftAt, reach)
 
     while (scan.ore.isNotEmpty()) {
       val next = scan.ore.first()
