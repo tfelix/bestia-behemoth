@@ -690,6 +690,14 @@ STATUS_EFFECT_205,Endowed: your weapon strikes as an element and hits harder.
 STATUS_EFFECT_206,Magic Rod: the next single-target spell at you is caught and turned into mana.
 STATUS_EFFECT_207,Mana Drain: you draw mana from the foes around you every second.
 STATUS_EFFECT_208,Teleport sickness: you cannot teleport again for a while.
+STATUS_EFFECT_5,"Blessing: more STR, DEX, INT, HIT and attack. On a Demon or an Undead it halves DEX and INT instead."
+STATUS_EFFECT_209,Signum Crucis: your physical defence is lower.
+STATUS_EFFECT_210,Lex Aeterna: the next hit on you counts twice.
+STATUS_EFFECT_211,Increase AGI: you move and swing faster and have more AGI.
+STATUS_EFFECT_212,Kyrie Eleison: a ward soaks part of the next hits on you.
+STATUS_EFFECT_213,Suffragium: your next cast bar is 30% shorter.
+STATUS_EFFECT_214,Magnificat: your HP and mana regenerate faster.
+STATUS_EFFECT_215,Gloria: what you start to craft rolls its random stats with better odds.
 ERROR_PORTAL_NO_SPOT,That saved spot is not there any more.
 ERROR_PORTAL_SPENT,The portal is closing or has let everyone through it can.
 PORTAL_MARK_SPOT,Mark this spot (%d of %d saved)

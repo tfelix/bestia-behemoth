@@ -21,8 +21,8 @@ Lv.3 `-40%` cooking time, `+40%` success chance, 11 stamina"
 SKILL_4_DESC,"Channels mana directly into a target's wounds, restoring HP in an instant. The Priest's
 bread and butter - simple, reliable, and the first rite every Priest learns.
 
-Heals `[(BaseLv + INT) / 8] * (4 + 8 * SkillLv)` HP. Against an Undead target it is a holy
-attack for half that amount.
+Heals `[(BaseLv + INT) / 8] * (4 + 8 * SkillLv)` HP. Against an Undead foe it is a holy
+attack for half that amount. Hold Shift to aim it at a monster.
 `+3/lv` mana cost, from 13 at Lv.1"
 SKILL_1000_DESC,"Sets a patch of ground alight. Everything standing in the flames is burnt every 1.2s for
 9.6s - eight times in all.
@@ -35,8 +35,8 @@ interrupts the cast.
 
 `+20%/lv` MATK
 `-0.2s/lv` cast time"
-SKILL_6_DESC,"A benediction that steadies body and mind. On an Undead or Demon target it turns into a
-curse that halves DEX and INT instead.
+SKILL_6_DESC,"A benediction that steadies body and mind. On an Undead or Demon foe it turns into a curse
+that halves DEX and INT instead. Hold Shift to aim it at a monster.
 
 `+2/lv` STR, DEX and INT
 `+4/lv` HIT
