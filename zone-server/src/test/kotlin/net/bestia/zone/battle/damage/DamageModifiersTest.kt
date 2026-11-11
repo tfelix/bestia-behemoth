@@ -52,8 +52,20 @@ class DamageModifiersTest {
     assertEquals(100, DamageModifiers.weigh(100, HitKind.UNTYPED, null, defender))
   }
 
+  @Test
+  fun `the unholy count once, whether Undead by kind, by element or both`() {
+    val bane = side(DamageModifiers(dealtVsUnholy = 25, takenFromUnholy = 30))
+
+    assertEquals(125, DamageModifiers.weigh(100, sword, bane, side(kind = BestiaKind.UNDEAD, element = Element.UNDEAD_2)))
+    assertEquals(125, DamageModifiers.weigh(100, sword, bane, side(kind = BestiaKind.DRAGON, element = Element.UNDEAD_4)))
+    assertEquals(125, DamageModifiers.weigh(100, sword, bane, side(kind = BestiaKind.DEMON)))
+    assertEquals(100, DamageModifiers.weigh(100, sword, bane, side(kind = BestiaKind.BEAST)))
+    assertEquals(70, DamageModifiers.weigh(100, sword, side(kind = BestiaKind.DEMON), bane))
+  }
+
   private fun side(
     modifiers: DamageModifiers = DamageModifiers.NONE,
     kind: BestiaKind? = null,
-  ) = DamageModifiers.Side(modifiers, kind, Element.NORMAL, boss = false)
+    element: Element = Element.NORMAL,
+  ) = DamageModifiers.Side(modifiers, kind, element, boss = false)
 }

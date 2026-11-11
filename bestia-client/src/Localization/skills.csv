@@ -629,9 +629,9 @@ the Undead. Cooldown 8s.
 `-10%/lv` physical DEF
 `-10%/lv` more against Demon and Undead
 `+15s/lv` duration, from 30s at Lv.1"
-SKILL_86_DESC,"Condenses raw holy mana into a single searing beam.
+SKILL_86_DESC,"Condenses raw holy mana into a single searing beam of holy damage.
 
-`+10%/lv` MATK"
+`+10%/lv` MATK, from 110% at Lv.1"
 SKILL_87_DESC,"Years spent studying the weak points of the unholy pay off - every strike against a Demon
 or Undead lands harder, and what they strike back with lands softer.
 
