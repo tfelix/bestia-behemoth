@@ -56,6 +56,17 @@
 		}
 	}
 
+	/**
+	 * Fallback, Fine-tune numbers and rules are not edited here, so they go back as they are. A bestia keeps its preset
+	 * until its job or courage is changed here, which gives it orders of its own.
+	 */
+	function ordersFrom(b: Bestia, draft: Draft): BestiaOrders {
+		const keepsPreset = b.presetId != null && draft.job === b.job && draft.courage === b.courage;
+		return keepsPreset
+			? { job: b.job, courage: b.courage, presetId: b.presetId, overrides: b.ownOverrides, rules: [], ownOverrides: {} }
+			: { job: draft.job, courage: draft.courage, fallbackJob: b.fallbackJob, overrides: b.overrides, rules: b.rules, ownOverrides: {} };
+	}
+
 	async function give(b: Bestia) {
 		const draft = drafts[b.id];
 		draft.sending = true;
@@ -65,8 +76,7 @@
 				sendJson<BestiaOrders>(
 					'PUT',
 					`/v1/companion/masters/${masterId}/bestias/${b.id}/orders`,
-					// Fallback, Fine-tune numbers and rules are not edited here, so they go back as they are.
-					{ job: draft.job, courage: draft.courage, fallbackJob: b.fallbackJob, overrides: b.overrides, rules: b.rules },
+					ordersFrom(b, draft),
 					{ 'Idempotency-Key': draft.key }
 				)
 			);
@@ -75,6 +85,8 @@
 			b.fallbackJob = stored.fallbackJob;
 			b.overrides = stored.overrides;
 			b.rules = stored.rules;
+			b.presetId = stored.presetId;
+			b.ownOverrides = stored.ownOverrides;
 			drafts[b.id] = { job: stored.job, courage: stored.courage, key: crypto.randomUUID(), sending: false, note: 'Orders given.' };
 		} catch (e) {
 			// On a timeout the key stays: sending again cannot give the order twice.
