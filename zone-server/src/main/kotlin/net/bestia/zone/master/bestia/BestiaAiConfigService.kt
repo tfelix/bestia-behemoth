@@ -1,10 +1,14 @@
 package net.bestia.zone.master.bestia
 
 import net.bestia.zone.crafting.station.StationWorkers
+import net.bestia.zone.account.persistence.OrderPreset
+import net.bestia.zone.account.persistence.OrderPresetRepository
+import net.bestia.zone.account.persistence.PlayerBestia
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.AiProfileRegistry
+import net.bestia.zone.ai.profile.OrderOverrides
 import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.movement.ecs.Position
@@ -25,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class BestiaAiConfigService(
   private val playerBestias: PlayerBestiaRepository,
+  private val presets: OrderPresetRepository,
   private val aiProfileRegistry: AiProfileRegistry,
   private val aiAgentFactory: AiAgentFactory,
   private val world: WorldView,
@@ -32,19 +37,61 @@ class BestiaAiConfigService(
   private val stationWorkers: StationWorkers,
 ) {
 
-  /** The orders as stored, each override inside its limit, or null when the bestia does not exist. */
+  /**
+   * Gives a bestia [orders] of its own, or links it to the preset [presetId] with the numbers of [orders] as its own.
+   * Null when the bestia does not exist, or the preset is not its master's.
+   */
   @Transactional
-  fun apply(playerBestiaId: PlayerBestiaId, orders: AiConfig): AiConfig? {
+  fun apply(playerBestiaId: PlayerBestiaId, orders: AiConfig, presetId: Long? = null): StoredOrders? {
     val playerBestia = playerBestias.findByIdOrNull(playerBestiaId) ?: return null
-    val config = orders.copy(overrides = orders.overrides.clamped())
+    val own = orders.overrides.clamped()
 
-    playerBestia.aiConfig = config
+    if (presetId == null) {
+      playerBestia.orderPresetId = null
+      playerBestia.ownOverrides = OrderOverrides()
+      playerBestia.aiConfig = orders.copy(overrides = own)
+    } else {
+      val preset = presets.findByIdAndMasterId(presetId, playerBestia.master.id) ?: return null
+      follow(playerBestia, preset, own)
+    }
+
+    return store(playerBestia)
+  }
+
+  /** Gives every bestia that follows [preset] its orders again, each keeping its own numbers. */
+  @Transactional
+  fun reapply(preset: OrderPreset) {
+    playerBestias.findAllByOrderPresetId(preset.id).forEach { playerBestia ->
+      follow(playerBestia, preset, playerBestia.ownOverrides)
+      store(playerBestia)
+    }
+  }
+
+  /** Bestias that followed a deleted preset keep the orders they had, as their own. */
+  @Transactional
+  fun unlinkAll(presetId: Long) {
+    playerBestias.findAllByOrderPresetId(presetId).forEach { playerBestia ->
+      playerBestia.orderPresetId = null
+      playerBestia.ownOverrides = OrderOverrides()
+      store(playerBestia)
+    }
+  }
+
+  private fun follow(playerBestia: PlayerBestia, preset: OrderPreset, own: OrderOverrides) {
+    val presetOrders = preset.orders
+    playerBestia.orderPresetId = preset.id
+    playerBestia.ownOverrides = own
+    playerBestia.aiConfig = presetOrders.copy(overrides = presetOrders.overrides.overlaidWith(own).clamped())
+  }
+
+  private fun store(playerBestia: PlayerBestia): StoredOrders {
     playerBestias.save(playerBestia)
-    playerBestia.entityId?.let { rebuildAgent(it, playerBestia.bestia, config) }
+    val stored = StoredOrders.of(playerBestia)
+    playerBestia.entityId?.let { rebuildAgent(it, playerBestia.bestia, stored.orders) }
 
     val master = playerBestia.master
-    events.publishEvent(BestiaAiConfigChangedEvent(this, master.account.id, master.id, playerBestiaId, config))
-    return config
+    events.publishEvent(BestiaAiConfigChangedEvent(this, master.account.id, master.id, playerBestia.id, stored))
+    return stored
   }
 
   /**

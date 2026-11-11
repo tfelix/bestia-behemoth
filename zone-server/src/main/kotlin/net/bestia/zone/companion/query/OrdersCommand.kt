@@ -3,12 +3,10 @@ package net.bestia.zone.companion.query
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.BusReply.Status
-import net.bestia.bus.contract.ZoneAnswer
+import net.bestia.bus.contract.OrderSheet
 import net.bestia.bus.contract.ZoneQuery
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.ai.profile.AiConfig
-import net.bestia.zone.ai.profile.BestiaJob
-import net.bestia.zone.ai.profile.Courage
 import net.bestia.zone.master.bestia.BestiaAiConfigService
 import net.bestia.zone.message.AccountTaskExecutor
 import org.springframework.data.repository.findByIdOrNull
@@ -27,19 +25,8 @@ class OrdersCommand(
 ) {
 
   fun apply(correlationId: String, accountId: Long, query: ZoneQuery.SetOrders): BusReply {
-    val job = BestiaJob.fromNameOrNull(query.job)
-      ?: return BusReply.of(correlationId, Status.INVALID, "Unknown job '${query.job}'")
-    val courage = Courage.fromNameOrNull(query.courage)
-      ?: return BusReply.of(correlationId, Status.INVALID, "Unknown courage '${query.courage}'")
-    val fallbackJob = query.fallbackJob?.let {
-      BestiaJob.fromNameOrNull(it) ?: return BusReply.of(correlationId, Status.INVALID, "Unknown fallback job '$it'")
-    }
-    val rules = OrdersOnTheBus.rulesOf(query.rules)
-      ?: return BusReply.of(correlationId, Status.INVALID, "Unknown rule condition or action")
-    val orders = AiConfig(job, courage, fallbackJob, OrdersOnTheBus.overridesOf(query.overrides), rules)
-    if (!orders.isValid) {
-      return BusReply.of(correlationId, Status.INVALID, "Orders that cannot be followed: $orders")
-    }
+    val sheet = OrderSheet(query.job, query.courage, query.fallbackJob, query.overrides, query.rules)
+    val orders = OrdersOnTheBus.ordersOf(sheet).getOrElse { return BusReply.of(correlationId, Status.INVALID, it.message) }
 
     var reply = BusReply.of(correlationId, Status.NOT_FOUND)
     inbox.onIo(accountId) {
@@ -62,18 +49,10 @@ class OrdersCommand(
       return BusReply.of(correlationId, Status.NOT_FOUND)
     }
 
-    val stored = aiConfigs.apply(query.playerBestiaId, orders)
+    val stored = aiConfigs.apply(query.playerBestiaId, orders, query.presetId)
       ?: return BusReply.of(correlationId, Status.NOT_FOUND)
 
-    val answer = ZoneAnswer.Orders(
-      query.playerBestiaId,
-      stored.job.name,
-      stored.courage.name,
-      stored.fallbackJob?.name,
-      OrdersOnTheBus.numbersOf(stored.overrides),
-      OrdersOnTheBus.linesOf(stored.rules),
-    )
-    return BusReply.ok(correlationId, answer)
+    return BusReply.ok(correlationId, OrdersOnTheBus.answerOf(query.playerBestiaId, stored))
   }
 
   private companion object {

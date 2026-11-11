@@ -1,6 +1,7 @@
 package net.bestia.bus
 
 import net.bestia.bus.contract.OrderRuleLine
+import net.bestia.bus.contract.OrderSheet
 import net.bestia.bus.contract.BusReply
 import net.bestia.bus.contract.BusRequest
 import net.bestia.bus.contract.ZoneAnswer
@@ -23,6 +24,10 @@ class BusFrameTest {
       ZoneQuery.SetOrders(masterId = 7, playerBestiaId = 11, job = "GUARD", courage = "BOLD"),
       ZoneQuery.SetOrders(7, 11, "GATHER", "STEADY", fallbackJob = "CRAFT", overrides = OrderNumbers(haulAtLoadPct = 60),
         rules = listOf(OrderRuleLine("STAMINA_BELOW", 30, "EAT"), OrderRuleLine("NIGHT", null, "REST_AT_HOME"))),
+      ZoneQuery.SetOrders(7, 11, "REST", "TIMID", overrides = OrderNumbers(eatBelowStaminaPct = 70), presetId = 3),
+      ZoneQuery.OrderPresets(7),
+      ZoneQuery.SaveOrderPreset(7, null, "Camp", OrderSheet("GATHER", "BOLD", rules = listOf(OrderRuleLine("DAY", null, "KEEP_WORKING")))),
+      ZoneQuery.DeleteOrderPreset(7, 3),
       ZoneQuery.SendChat(masterId = 7, channel = "PARTY", text = "on my way"),
       ZoneQuery.Compendium(masterId = 7),
       ZoneQuery.SendOnJourney(masterId = 7, playerBestiaId = 11, waypoints = listOf(MapPoint(1.5, 2.5))),
@@ -79,6 +84,7 @@ class BusFrameTest {
       ZoneAnswer.Services("\"s\"", listOf(ZoneAnswer.Services.Service(9, "INN", "The Boar", 1.0, 2.0, "Ashfen", 6, 22))),
       ZoneAnswer.TicketOwner(42),
       ZoneAnswer.Orders(2, "GUARD", "BOLD"),
+      ZoneAnswer.OrderPresets(listOf(ZoneAnswer.OrderPresets.Preset(3, "Camp", OrderSheet("MINE", "STEADY", "GUARD"), bestias = 2))),
       ZoneAnswer.Orders(2, "MINE", "BOLD", fallbackJob = "GUARD", overrides = OrderNumbers(retreatBelowHealthPct = 0)),
       ZoneAnswer.ChatSent(null),
       ZoneAnswer.ChatSent(ZoneAnswer.ChatSent.NOT_IN_GUILD),
