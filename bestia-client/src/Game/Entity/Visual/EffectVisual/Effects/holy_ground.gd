@@ -2,6 +2,7 @@ extends Visual
 class_name HolyGround
 
 ## The Priest's ground rites: Pneuma's still air, Sanctuary and Magnus Exorcismus. One script, a scene each.
+## The Wizard's Safety Wall, a glowing pillar of mana on one tile, borrows it too.
 ##
 ## Presentation only, like [EmberPatch]: the server owns the area and destroys the entity when it ends. Each
 ## scene bakes in its skill's footprint (3x3, 5x5, 7x7), for the reason given there.
