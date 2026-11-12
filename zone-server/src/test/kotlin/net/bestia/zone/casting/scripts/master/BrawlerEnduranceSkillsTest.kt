@@ -1,10 +1,22 @@
 package net.bestia.zone.casting.scripts.master
 
+import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.BattleContextFixture
+import net.bestia.zone.battle.damage.HitDamage
+import net.bestia.zone.battle.damage.Miss
+import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.gear.WeaponType
+import net.bestia.zone.battle.status.CombatValues
+import net.bestia.zone.battle.status.StatusValues
+import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.casting.RecordingSkillWorld
 import net.bestia.zone.casting.SkillContextFixture
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class BrawlerEnduranceSkillsTest {
@@ -35,6 +47,52 @@ class BrawlerEnduranceSkillsTest {
       world.appliedEffects.map { Triple(it.targetEntityId, it.effectId, it.durationSeconds) }
     )
     assertEquals(listOf(10.0, 20.0, 30.0), (1..3).map { BattleFury.durationSeconds(it) })
+  }
+
+  @Test
+  fun `Staff Sweep strikes every foe around the Brawler and pushes back those it hits`() {
+    val wolf = 7L
+    val ally = 8L
+    val world = RecordingSkillWorld(entitiesNearby = setOf(caster, target, wolf, ally))
+      .putPosition(caster, Vec3L(10, 10, 0))
+    world.foes += setOf(target, wolf)
+    world.heldWeapons[caster] = WeaponType.STAFF
+    world.strikeResult = HitDamage(40)
+    val ctx = SkillContextFixture.skillCtx(world = world, skillLevel = 5)
+
+    assertTrue(StaffSweep().isCastPossible(ctx))
+    StaffSweep().execute(ctx)
+
+    assertEquals(setOf(target to 200, wolf to 200), world.strikes.toSet())
+    assertEquals(
+      setOf(RecordingSkillWorld.KnockBack(target, Vec3L(10, 10, 0), 1), RecordingSkillWorld.KnockBack(wolf, Vec3L(10, 10, 0), 1)),
+      world.knockBacks.toSet()
+    )
+    assertEquals(listOf(120, 140, 160, 180, 200), (1..5).map { StaffSweep.atkPercent(it) })
+  }
+
+  @Test
+  fun `a Staff Sweep that misses pushes nobody`() {
+    val world = RecordingSkillWorld(entitiesNearby = setOf(target)).putPosition(caster, Vec3L(0, 0, 0))
+    world.foes += target
+    world.strikeResult = Miss
+
+    StaffSweep().execute(SkillContextFixture.skillCtx(world = world, skillLevel = 1))
+
+    assertTrue(world.knockBacks.isEmpty())
+  }
+
+  @Test
+  fun `Staff Sweep needs a staff`() {
+    val ecs = testWorld()
+    fun brawlerWith(weapon: WeaponType?) = ecs.createEntity { id ->
+      add(id, CombatStats(CombatValues.ofBase(1, StatusValues(1, 1, 1, 1, 1, 1)).copy(heldWeaponType = weapon)))
+    }
+
+    assertEquals(OpError.SKILL_NEEDS_STAFF, StaffSweep().checkCastStart(ecs, brawlerWith(WeaponType.FIST), 1, emptyList()))
+    assertEquals(OpError.SKILL_NEEDS_STAFF, StaffSweep().checkCastStart(ecs, brawlerWith(null), 1, emptyList()))
+    assertNull(StaffSweep().checkCastStart(ecs, brawlerWith(WeaponType.STAFF), 1, emptyList()))
+    assertFalse(StaffSweep().isCastPossible(ctx(level = 1)), "nothing held at resolution")
   }
 
   private fun ctx(level: Int) = SkillContextFixture.skillCtx(world = world, skillLevel = level)
