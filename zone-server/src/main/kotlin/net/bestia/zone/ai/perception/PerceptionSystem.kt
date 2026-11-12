@@ -63,7 +63,7 @@ class PerceptionSystem(
     StatusEffects::class,
     Taunted::class,
     Level::class,
-  ) + Hostility.READS + DamageGate.READS
+  ) + Hostility.READS + DamageGate.READS + NoticeRange.READS
 
   /**
    * `AiAgent` is declared as written, not read: this system mutates the agent's blackboard on every
@@ -172,6 +172,7 @@ class PerceptionSystem(
 
       val pos = world.get(candidate, Position::class)?.toVec3L() ?: return@forEachInCube
       if (guardArea != null && !guardArea.contains(pos)) return@forEachInCube
+      if (!NoticeRange.notices(world, self, candidate, selfPos, pos, sightRadius)) return@forEachInCube
       val distance = selfPos.distance(pos)
       if (distance < nearestDistance) {
         nearest = candidate

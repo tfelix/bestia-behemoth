@@ -72,6 +72,7 @@ data class CombatValues(
   val halvesStunAndKnockback: Boolean = false,
   val carryCapacityPercent: Int = 0,
   val arcaneDamagePercent: Int = 0,
+  val noticeRangeCutPercent: Int = 0,
 
   /** What is held in the right hand, for a rule about it: a tree falls only to an axe or a felling tool. */
   val heldWeaponType: WeaponType? = null,
@@ -162,6 +163,7 @@ data class CombatValues(
         halvesStunAndKnockback = context.halvesStunAndKnockback,
         carryCapacityPercent = context.carryCapacityPercent,
         arcaneDamagePercent = context.arcaneDamagePercent,
+        noticeRangeCutPercent = context.noticeRangeCutPercent,
         heldWeaponType = context.heldWeaponType,
         heldTool = context.heldTool,
         shieldArmorType = context.shieldArmorType,

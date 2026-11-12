@@ -83,6 +83,11 @@ object Hostility {
     return shared || !rosterSeen
   }
 
+  /** Wild and not under anybody's control. */
+  fun isUntamed(world: World, id: EntityId): Boolean {
+    return isWild(world, id) && !isControlled(world, id)
+  }
+
   private fun isWild(world: World, id: EntityId): Boolean {
     return !world.has(id, OwnedBestia::class) && !world.has(id, Master::class)
   }
