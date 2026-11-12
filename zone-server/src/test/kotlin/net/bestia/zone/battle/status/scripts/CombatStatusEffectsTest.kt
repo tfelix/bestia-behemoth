@@ -82,7 +82,7 @@ class CombatStatusEffectsTest {
   }
 
   @Test
-  fun `berserk drops all armour to nothing and raises the attack`() {
+  fun `berserk drops all armour and physical defence to nothing and raises the attack`() {
     val context = StatusValueRecalcContext(BASE, baseSpeed = 4f)
     context.addDefense(hardDefense = 40, hardMagicDefense = 15)
     Berserk().apply(world, 1L, context, level = 1, sourceEntityId = null)
@@ -91,6 +91,8 @@ class CombatStatusEffectsTest {
 
     assertEquals(0, values.defense.hardDefense)
     assertEquals(0, values.defense.hardMagicDefense)
+    assertEquals(0, values.defense.defense, "soft DEF")
+    assertEquals(0, values.defense.defenseSpread, "soft DEF")
     assertTrue(values.derived.atk > CombatValues.ofBase(10, BASE).derived.atk)
   }
 
