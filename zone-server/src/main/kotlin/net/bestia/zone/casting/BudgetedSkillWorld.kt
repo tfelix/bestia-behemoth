@@ -388,6 +388,18 @@ class BudgetedSkillWorld(
     return spent
   }
 
+  override fun followsTripleBlow(): Boolean {
+    budget.charge()
+
+    return services.tripleBlow?.mayFollowUp(world, casterId) == true
+  }
+
+  override fun spendTripleBlow(): Boolean {
+    budget.charge()
+
+    return services.tripleBlow?.spendOpening(world, casterId) == true
+  }
+
   override fun strip(entityId: EntityId, slot: EquipmentSlot): Boolean {
     budget.charge()
 

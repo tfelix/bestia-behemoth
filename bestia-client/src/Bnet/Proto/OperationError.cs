@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSr/KgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqdKwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -148,8 +148,9 @@ namespace Bnet {
             "TF9XSUVMRBCpARIZChRTS0lMTF9OT1RfT05fTUFTVEVSUxCqARIWChFTS0lM",
             "TF9ORUVEU19TUEVBUhCrARIXChJTS0lMTF9ORUVEU19TSElFTEQQrAESHQoY",
             "U0tJTExfTkVFRFNfUEFSVFlfTUVNQkVSEK0BEhYKEVNLSUxMX05FRURTX1NU",
-            "QUZGEK4BIgQILhAuKhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3Rp",
-            "YS5ibmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "QUZGEK4BEhwKF1NLSUxMX05FRURTX1RSSVBMRV9CTE9XEK8BIgQILhAuKhJT",
+            "SE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNP",
+            "cGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -935,6 +936,10 @@ namespace Bnet {
     /// A staff skill, like Staff Sweep, was used without a staff in hand.
     /// </summary>
     [pbr::OriginalName("SKILL_NEEDS_STAFF")] SkillNeedsStaff = 174,
+    /// <summary>
+    /// Chain Combo was used without a Triple Blow landed just before it.
+    /// </summary>
+    [pbr::OriginalName("SKILL_NEEDS_TRIPLE_BLOW")] SkillNeedsTripleBlow = 175,
   }
 
   #endregion
