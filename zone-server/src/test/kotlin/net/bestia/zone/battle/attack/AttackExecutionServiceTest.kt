@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.battle.damage.ownByPlayer
 import net.bestia.zone.battle.damage.wardPlayer
+import net.bestia.zone.battle.damage.ShieldGuard
 class AttackExecutionServiceTest {
 
   private val world = testWorld()
@@ -204,6 +205,25 @@ class AttackExecutionServiceTest {
       world.has(target, IncomingDamage::class),
       "a miss is broadcast for the client to show, but must not stage a hit"
     )
+  }
+
+  @Test
+  fun `a swing the target's shield catches stages nothing`() {
+    val attacker = world.spawnFighter(at = Vec3L(0, 0, 0))
+    val knight = world.spawnFighter(at = Vec3L(1, 0, 0))
+    world.getOrThrow(knight, CombatStats::class).apply { values = values.copy(blockChancePercent = 100) }
+    val guarded = AttackExecutionService(
+      BattleContextFactory(PropPromotionService(mockk(relaxed = true))),
+      AttackStrategyFactory(LineOfSightService(), alwaysLands),
+      mockk(relaxed = true),
+      BasicAttackResolver(mockk(relaxed = true)),
+      mockk(relaxed = true),
+      shieldGuard = ShieldGuard(alwaysLands),
+    )
+
+    guarded.attack(world, attacker, knight, BattleAttack.getBasicMeleeAttack())
+
+    assertFalse(world.has(knight, IncomingDamage::class))
   }
 
   @Test

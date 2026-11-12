@@ -162,15 +162,24 @@ class BudgetedSkillWorld(
    * resolves between ticks, so no system is iterating and `World.add` applies immediately.
    */
   override fun apply(targetEntityId: EntityId, damage: Damage, kind: HitKind?) {
+    land(targetEntityId, damage, kind)
+  }
+
+  /** [apply], returning [Blocked] when the shield of whoever takes [damage] caught it, else [damage]. */
+  private fun land(targetEntityId: EntityId, damage: Damage, kind: HitKind?): Damage {
     budget.charge()
 
     if (damage is Miss || damage is Blocked) {
       broadcastDamage(targetEntityId, damage)
-      return
+      return damage
     }
 
     val hitKind = kind ?: skillHitKind
     val (receiver, dealer) = if (damage is Heal) targetEntityId to casterId else reflected(targetEntityId)
+    if (services.shieldGuard?.guard(world, receiver, hitKind, damage) == Blocked) {
+      broadcastDamage(receiver, Blocked)
+      return Blocked
+    }
     val landing = damage.weighedTo(DamageLanding.weigh(world, dealer, receiver, hitKind, damage.amount))
 
     // `true` only from inside the scope, so it distinguishes "the entity is gone" from "the entity is here
@@ -201,6 +210,8 @@ class BudgetedSkillWorld(
     if (landed && landing !is Heal && hitKind.form == HitForm.MAGIC) {
       services.plagiarism?.onStruck(world, receiver, casterId, skillId, skillLevel)
     }
+
+    return damage
   }
 
   override fun forceMove(entityId: EntityId, towards: Vec3L, maxTiles: Int, keepDistance: Int): Int {
@@ -494,9 +505,8 @@ class BudgetedSkillWorld(
     val strikes = services.strikes ?: return null
     val damage = strikes.strike(world, casterId, targetEntityId, attack, powerPercent, offHand) ?: return null
     val reach = if (attack.attackType == AttackType.RANGED_PHYSICAL) HitReach.RANGED else HitReach.MELEE
-    apply(targetEntityId, damage, HitKind.physical(reach, attack.attackElement))
 
-    return damage
+    return land(targetEntityId, damage, HitKind.physical(reach, attack.attackElement))
   }
 
   override fun drawAmmo(): Ammunition? {

@@ -11,6 +11,7 @@ import net.bestia.zone.battle.ecs.skill.CastCancelService
 import net.bestia.zone.item.enchant.GroundItemDispel
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.battle.damage.ShieldGuard
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.battle.ecs.effects.AreaEffectSpawner
 import net.bestia.zone.message.OutMessageProcessor
@@ -61,4 +62,5 @@ class SkillWorldServices(
   val teleports: SkillTeleports? = null,
   val spellScrolls: SpellScrolls? = null,
   val plagiarism: Plagiarism? = null,
+  val shieldGuard: ShieldGuard? = null,
 )
