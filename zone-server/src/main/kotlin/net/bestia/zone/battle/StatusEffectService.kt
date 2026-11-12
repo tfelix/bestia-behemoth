@@ -235,6 +235,13 @@ class StatusEffectService(
     active.toList().forEach { effect -> scriptOf(effect)?.onActed(hookContext(world, entityId, effect), action) }
   }
 
+  /** Tells every effect on [entityId] that its shield caught a blow whole. */
+  fun notifyBlocked(world: World, entityId: EntityId) {
+    val active = world.get(entityId, StatusEffects::class)?.activeEffects ?: return
+
+    active.toList().forEach { effect -> scriptOf(effect)?.onBlocked(hookContext(world, entityId, effect)) }
+  }
+
   /** A harmful effect is harm like a blow, so the gate that stops a blow stops it too. */
   private fun isTurnedAway(
     world: World,

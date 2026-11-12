@@ -95,7 +95,8 @@ class StatusEffects(
     return Change.CHANGED
   }
 
-  private fun refresh(effect: ActiveStatusEffect, durationSeconds: Double): Change {
+  /** Starts [effect]'s clock again at [durationSeconds]. */
+  fun refresh(effect: ActiveStatusEffect, durationSeconds: Double): Change {
     effect.remainingSeconds = durationSeconds.toFloat()
     // The client counts a visible effect down from the last sync, so it has to hear about the new clock.
     if (effect.isSyncedToClient && effect.showsCountdown) {

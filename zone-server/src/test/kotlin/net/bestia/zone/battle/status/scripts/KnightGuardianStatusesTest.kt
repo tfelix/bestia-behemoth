@@ -10,6 +10,7 @@ import net.bestia.zone.battle.damage.HitKind
 import net.bestia.zone.battle.damage.HitReach
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
+import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.gear.ArmorType
 import net.bestia.zone.battle.status.CombatValues
@@ -25,6 +26,8 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
@@ -135,6 +138,38 @@ class KnightGuardianStatusesTest {
     Devoted().onTick(StatusEffectTickContext(world, ally, devotedTo(knight, ally).effect, service))
 
     verify(exactly = 1) { service.removeEffect(world, ally, StatusEffectId.DEVOTED.id, RemovalReason.CANCELLED) }
+  }
+
+  @Test
+  fun `Juggernaut adds a fifth to ATK and DEF, and from Lv 2 shrugs off stuns and knockback`() {
+    val first = recalc(shield = null)
+    val second = recalc(shield = null)
+
+    JuggernautStance().apply(world, 1L, first, ActiveStatusEffect(StatusEffectId.JUGGERNAUT.id, 1, 10f))
+    JuggernautStance().apply(world, 1L, second, ActiveStatusEffect(StatusEffectId.JUGGERNAUT.id, 2, 15f))
+
+    assertEquals(20, first.attackPercent)
+    assertEquals(20, first.hardDefense)
+    assertEquals(0, first.hardMagicDefense)
+    assertEquals(emptySet<StatusEffectId>(), first.statusImmunities)
+    assertFalse(first.knockbackImmune)
+    assertEquals(setOf(StatusEffectId.STUN), second.statusImmunities)
+    assertTrue(second.knockbackImmune)
+    assertEquals(listOf(10.0, 15.0, 15.0), (1..3).map { JuggernautStance().durationSeconds(it) })
+  }
+
+  @Test
+  fun `at Lv 3 a blow the shield catches starts Juggernaut's clock again`() {
+    val third = ActiveStatusEffect(StatusEffectId.JUGGERNAUT.id, 3, 2f)
+    val second = ActiveStatusEffect(StatusEffectId.JUGGERNAUT.id, 2, 2f)
+    val knight = world.createEntity { id -> add(id, StatusEffects(mutableListOf(third))) }
+    val other = world.createEntity { id -> add(id, StatusEffects(mutableListOf(second))) }
+
+    JuggernautStance().onBlocked(StatusEffectHookContext(world, knight, third, service))
+    JuggernautStance().onBlocked(StatusEffectHookContext(world, other, second, service))
+
+    assertEquals(15f, third.remainingSeconds)
+    assertEquals(2f, second.remainingSeconds)
   }
 
   private fun body(at: Vec3L): EntityId {

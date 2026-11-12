@@ -86,6 +86,10 @@ interface StatusEffectScript {
   fun onActed(context: StatusEffectHookContext, action: EntityAction) {
   }
 
+  /** Answers a blow the bearer's shield caught whole, see `ShieldGuard`. */
+  fun onBlocked(context: StatusEffectHookContext) {
+  }
+
   /** Returns how much of [amount] the effect lets through to the bearer's health. */
   fun onDamageTaken(context: StatusEffectHookContext, amount: Int): Int {
     return amount

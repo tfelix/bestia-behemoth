@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.damage
 
+import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.attack.ThreadLocalRandomSource
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.ecs.core.World
@@ -12,13 +13,18 @@ import java.util.Random
  * blow lands, on the swing and the skill path, so the client shows "Block" instead of a number. A spell passes.
  */
 @Component
-class ShieldGuard(private val random: Random = ThreadLocalRandomSource) {
+class ShieldGuard(
+  private val random: Random = ThreadLocalRandomSource,
+  private val statusEffects: StatusEffectService? = null,
+) {
 
   /** [Blocked] when [targetId]'s shield catches [blow], else [blow] unchanged. */
   fun guard(world: World, targetId: EntityId, kind: HitKind, blow: Damage): Damage {
     if (kind.form != HitForm.PHYSICAL || (blow !is HitDamage && blow !is CriticalHit)) return blow
     val chance = world.get(targetId, CombatStats::class)?.values?.blockChancePercent ?: 0
     if (chance <= 0 || random.nextInt(100) >= chance) return blow
+
+    statusEffects?.notifyBlocked(world, targetId)
 
     return Blocked
   }
