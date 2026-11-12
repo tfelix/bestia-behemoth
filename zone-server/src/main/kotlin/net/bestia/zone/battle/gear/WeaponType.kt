@@ -43,4 +43,8 @@ enum class WeaponType(
   /** Held in the left hand rather than the right. */
   val isOffHand: Boolean
     get() = hands == Hands.OFF_HAND
+
+  /** May go into the left hand beside the main weapon, under Dual Wield: a one-handed blade, club or wand. */
+  val isDualWieldable: Boolean
+    get() = hands == Hands.ONE && this != SLING && this != THROWN && this != TOOL
 }

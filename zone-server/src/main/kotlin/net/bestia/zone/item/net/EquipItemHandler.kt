@@ -27,6 +27,10 @@ import org.springframework.stereotype.Component
 import net.bestia.zone.item.equip.EquipmentService
 import net.bestia.zone.item.equip.SlotLock
 import net.bestia.zone.item.equip.toOpError
+import net.bestia.zone.skill.SkillId
+import net.bestia.zone.skill.ecs.KnownSkills
+import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.persistence.findByIdentifier
 
 /**
  * Wears an item the player already holds. The server is the authority throughout: it resolves the
@@ -49,8 +53,11 @@ class EquipItemHandler(
   private val outMessageProcessor: OutMessageProcessor,
   private val deadActionGuard: DeadActionGuard,
   private val world: WorldView,
-  private val itemStats: ItemStatCatalog
+  private val itemStats: ItemStatCatalog,
+  private val skills: SkillRepository,
 ) : IoMessageHandler<EquipItemCMSG> {
+  private val dualWieldId: Long? by lazy { skills.findByIdentifier(SkillId.M_DUAL_WIELD)?.id }
+
   override val wire = decoder(MessageCase.EQUIP_ITEM) { accountId, envelope ->
     EquipItemCMSG.fromBnet(accountId, envelope.equipItem)
   }
@@ -69,6 +76,8 @@ class EquipItemHandler(
       return true
     }
 
+    // Resolved before the lease, where SQL is refused.
+    val dualWield = dualWieldId
     val applied = world.modify(activeEntityId) { id ->
       val equipment = get(id, Equipment::class)
       val inventory = get(id, Inventory::class)
@@ -99,7 +108,8 @@ class EquipItemHandler(
         wearerLevel = get(id, Level::class)?.level ?: 0,
         wearerIsNovice = noviceGate.isNovice(this, id),
         lockedSlots = SlotLock.lockedSlots(get(id, StatusEffects::class)),
-        allowance = get(id, Professions::class)?.allowance
+        allowance = get(id, Professions::class)?.allowance,
+        canDualWield = dualWield?.let { get(id, KnownSkills::class)?.knowsSkill(it, 1) } == true,
       )
 
       if (denial != null) {

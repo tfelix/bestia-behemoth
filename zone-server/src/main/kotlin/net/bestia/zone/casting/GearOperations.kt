@@ -2,7 +2,6 @@ package net.bestia.zone.casting
 
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
-import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.battle.status.scripts.GearCoating
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.container.InventoryService
@@ -37,11 +36,11 @@ class GearOperations(
     return SlotLock.entries.filter { equipment.get(it.slot) != null }
   }
 
-  /** Whether [entityId] holds a one-handed weapon in its left hand as well, rather than a shield or a tome. */
+  /** Whether [entityId] holds a second weapon in its left hand, rather than a shield or a tome. */
   fun isDualWielding(world: World, entityId: EntityId): Boolean {
     val leftHand = world.get(entityId, Equipment::class)?.get(EquipmentSlot.LEFT_HAND) ?: return false
 
-    return templates.templateOf(leftHand.itemId)?.weaponType?.hands == WeaponType.Hands.ONE
+    return templates.templateOf(leftHand.itemId)?.weaponType?.isDualWieldable == true
   }
 
   /** Returns false when nothing was worn there, which a skill against a wild bestia always finds. */

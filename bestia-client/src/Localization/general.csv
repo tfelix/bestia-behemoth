@@ -800,6 +800,7 @@ ERROR_SKILL_NEEDS_OWN_BESTIA,This spell only works on one of your own bestias.
 ERROR_SKILL_NEEDS_HIDING,You must be in Hide or Cloak for this.
 ERROR_SKILL_NEEDS_BEHIND,You must stand behind your target for this.
 ERROR_STRIP_GEAR_COATED,"Their gear is coated, it cannot be stripped."
+ERROR_EQUIP_NEEDS_DUAL_WIELD,You need Dual Wield to hold a weapon in your left hand.
 SUCCESS_SPELL_LEARNED,Your bestia learned the attack.
 SUCCESS_SPELL_INSCRIBED,The attack is written on a new spell scroll.
 SPELL_SCROLL_PICK,%s Lv. %d
