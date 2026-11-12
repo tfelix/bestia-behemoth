@@ -7,6 +7,7 @@ import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.ArtifactKind
 import net.bestia.worldgen.core.ArtifactRecord
 import net.bestia.worldgen.core.Chronicle
+import net.bestia.worldgen.core.CivOrigin
 import net.bestia.worldgen.core.CivRecord
 import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.FigureRecord
@@ -126,6 +127,48 @@ data class HistoryParams(
 
   /** Population above which a threatened settlement can afford walls. */
   val wallPopulation: Int = 900,
+
+  // --- New peoples ----------------------------------------------------------------------------------
+  //
+  // Every path below is optional: a world may see any of them, several times, or none. The chances are per
+  // world of the reference size and grow with the number of settlement sites.
+
+  /** Settlement sites on a genesis-size world (128 km). A world with twice as many sees new peoples twice as often. */
+  val referenceSites: Double = 28.0,
+
+  /** Expected arrivals over the sea on a reference world, spread over the years between the two bounds. */
+  val arrivalChance: Double = 0.35,
+  val arrivalFrom: Int = 150,
+  val arrivalTo: Int = 750,
+
+  /** Expected migrations overland on a reference world, spread over the years between the two bounds. */
+  val migrationChance: Double = 0.3,
+  val migrationFrom: Int = 100,
+  val migrationTo: Int = 700,
+
+  /** Metres a newcomer keeps from every standing town. Nobody lands next to a city and founds a people. */
+  val newcomerClearance: Double = 15_000.0,
+
+  /** Standing towns a civ needs before any of them can break away. */
+  val secessionMinTowns: Int = 5,
+
+  /** Chance per tick that a civ's most aggrieved town rises, at full grievance. */
+  val revoltRate: Double = 0.02,
+
+  /** Chance that a revolt wins; a lost one costs the town people and changes nothing else. */
+  val revoltSuccess: Double = 0.6,
+
+  /** Hostility a broken-away people starts with toward the one it left. Near [warThreshold] on purpose. */
+  val secessionHostility: Double = 0.8,
+
+  /** Chance that survivors of a razed, buried or forsaken town found a people of their own. */
+  val refugeeChance: Double = 0.35,
+
+  /** Population a lost town must have had for enough survivors to found anything. */
+  val refugeeMinPopulation: Double = 300.0,
+
+  /** Metres survivors travel at most to find empty land. */
+  val refugeeRange: Double = 90_000.0,
 
   // --- The four built sites -------------------------------------------------------------------------
   //
@@ -377,6 +420,23 @@ data class HistoryParams(
       "minWarYears $minWarYears must be in [0, maxWarYears $maxWarYears]"
     }
     require(wallPopulation >= 0) { "wallPopulation must not be negative, was $wallPopulation" }
+    require(referenceSites > 0.0) { "referenceSites must be positive, was $referenceSites" }
+    require(arrivalChance >= 0.0) { "arrivalChance must not be negative, was $arrivalChance" }
+    require(arrivalFrom in 0..arrivalTo) { "arrivalFrom $arrivalFrom must be in [0, arrivalTo $arrivalTo]" }
+    require(migrationChance >= 0.0) { "migrationChance must not be negative, was $migrationChance" }
+    require(migrationFrom in 0..migrationTo) {
+      "migrationFrom $migrationFrom must be in [0, migrationTo $migrationTo]"
+    }
+    require(newcomerClearance >= 0.0) { "newcomerClearance must not be negative, was $newcomerClearance" }
+    require(secessionMinTowns >= 2) { "secessionMinTowns must be at least 2, was $secessionMinTowns" }
+    require(revoltRate in 0.0..1.0) { "revoltRate must be in [0,1], was $revoltRate" }
+    require(revoltSuccess in 0.0..1.0) { "revoltSuccess must be in [0,1], was $revoltSuccess" }
+    require(secessionHostility >= 0.0) { "secessionHostility must not be negative, was $secessionHostility" }
+    require(refugeeChance in 0.0..1.0) { "refugeeChance must be in [0,1], was $refugeeChance" }
+    require(refugeeMinPopulation >= 0.0) {
+      "refugeeMinPopulation must not be negative, was $refugeeMinPopulation"
+    }
+    require(refugeeRange >= 0.0) { "refugeeRange must not be negative, was $refugeeRange" }
 
     require(mineRichness in 0.0..1.0) { "mineRichness must be in [0,1], was $mineRichness" }
     require(mineDepth > 0.0) { "mineDepth must be positive, was $mineDepth" }
@@ -469,6 +529,21 @@ data class HistoryParams(
     minWarYears = source.int("minWarYears", minWarYears),
     maxWarYears = source.int("maxWarYears", maxWarYears),
     wallPopulation = source.int("wallPopulation", wallPopulation),
+    referenceSites = source.double("referenceSites", referenceSites),
+    arrivalChance = source.double("arrivalChance", arrivalChance),
+    arrivalFrom = source.int("arrivalFrom", arrivalFrom),
+    arrivalTo = source.int("arrivalTo", arrivalTo),
+    migrationChance = source.double("migrationChance", migrationChance),
+    migrationFrom = source.int("migrationFrom", migrationFrom),
+    migrationTo = source.int("migrationTo", migrationTo),
+    newcomerClearance = source.double("newcomerClearance", newcomerClearance),
+    secessionMinTowns = source.int("secessionMinTowns", secessionMinTowns),
+    revoltRate = source.double("revoltRate", revoltRate),
+    revoltSuccess = source.double("revoltSuccess", revoltSuccess),
+    secessionHostility = source.double("secessionHostility", secessionHostility),
+    refugeeChance = source.double("refugeeChance", refugeeChance),
+    refugeeMinPopulation = source.double("refugeeMinPopulation", refugeeMinPopulation),
+    refugeeRange = source.double("refugeeRange", refugeeRange),
     mineRichness = source.double("mineRichness", mineRichness),
     mineDepth = source.double("mineDepth", mineDepth),
     mineRange = source.double("mineRange", mineRange),
@@ -531,6 +606,21 @@ data class HistoryParams(
     .put("minWarYears", minWarYears)
     .put("maxWarYears", maxWarYears)
     .put("wallPopulation", wallPopulation)
+    .put("referenceSites", referenceSites)
+    .put("arrivalChance", arrivalChance)
+    .put("arrivalFrom", arrivalFrom)
+    .put("arrivalTo", arrivalTo)
+    .put("migrationChance", migrationChance)
+    .put("migrationFrom", migrationFrom)
+    .put("migrationTo", migrationTo)
+    .put("newcomerClearance", newcomerClearance)
+    .put("secessionMinTowns", secessionMinTowns)
+    .put("revoltRate", revoltRate)
+    .put("revoltSuccess", revoltSuccess)
+    .put("secessionHostility", secessionHostility)
+    .put("refugeeChance", refugeeChance)
+    .put("refugeeMinPopulation", refugeeMinPopulation)
+    .put("refugeeRange", refugeeRange)
     .put("mineRichness", mineRichness)
     .put("mineDepth", mineDepth)
     .put("mineRange", mineRange)
@@ -699,6 +789,10 @@ internal class HistorySim(
         expandOrMigrate(civ, year)
         advanceTechnology(civ, year)
       }
+      // Before relations, so a new people is in contact from its first tick.
+      arriveOverSea(year)
+      migrateOverland(year)
+      secede(year)
       updateRelations(year)
       resolveWars(year)
       resolveDisasters(year)
@@ -758,36 +852,66 @@ internal class HistorySim(
         continue
       }
 
-      val civ = addCiv(site.cultureIndex, town, startYear)
-      civ.foundedEvent = log(
-        startYear, EventKind.CIV_FOUNDED,
-        listOf(Actor(ActorType.CIV, civ.index), Actor(ActorType.SETTLEMENT, site.index)),
-        site.position, emptyList(),
-        "the ${Names.civ(civ.nameSeed, civ.cultureIndex)} settle at ${nameOf(town)}"
-      )
+      seedCiv(site)
     }
 
     // A world too small for a city gets one civ anyway, seeded on its best site - otherwise nothing has a
     // history at all, which is a worse answer than a small one.
-    if (civs.isEmpty() && facts.isNotEmpty()) {
-      val site = facts.first()
-      addCiv(site.cultureIndex, towns[site.index], startYear)
+    if (civs.isEmpty() && facts.isNotEmpty()) seedCiv(facts.first())
+
+    // One people means no wars, which on a genesis-size world was every seed.
+    if (civs.size < 2) {
+      val rival = facts.filter { towns[it.index].founded == 0 }.maxByOrNull { rivalScore(it) }
+      if (rival != null) seedCiv(rival)
     }
+  }
+
+  private fun seedCiv(site: SiteFacts) {
+    val town = towns[site.index]
+    val civ = addCiv(site.cultureIndex, town, startYear, CivOrigin.SEEDED)
+    joinCiv(civ, town, startYear)
+    civ.foundedEvent = log(
+      startYear, EventKind.CIV_FOUNDED,
+      listOf(Actor(ActorType.CIV, civ.index), Actor(ActorType.SETTLEMENT, site.index)),
+      site.position, emptyList(),
+      "the ${civName(civ)} settle at ${nameOf(town)}"
+    )
+  }
+
+  /** Far from every capital first, then a different culture, then a bigger site. */
+  private fun rivalScore(site: SiteFacts): Double {
+    val nearestCapital = civs.minOf { distance[site.index][it.capital] }
+    val newCulture = if (civs.none { it.cultureIndex == site.cultureIndex }) RIVAL_NEW_CULTURE_BONUS else 1.0
+    val tier = 1.0 / (1.0 + RIVAL_TIER_PENALTY * site.tier.ordinal)
+    return nearestCapital * newCulture * tier
   }
 
   /**
    * The one way a civ enters the history, at the start or later. Safe to call inside a civ loop, because those
-   * loops iterate `civs.toList()`. Logging the founding is the caller's job: only the caller knows how the
-   * people came to be.
+   * loops iterate `civs.toList()`. The caller settles or hands over the capital and logs the founding: only the
+   * caller knows how the people came to be.
    */
-  private fun addCiv(cultureIndex: Int, capital: Town, year: Int): Civ {
-    val civ = Civ(civs.size, cultureIndex, capital.facts.index)
+  private fun addCiv(cultureIndex: Int, capital: Town, year: Int, origin: CivOrigin, parent: Int = -1): Civ {
+    val civ = Civ(civs.size, cultureIndex, capital.facts.index, origin, parent)
     civ.nameSeed = Names.seedOf(worldSeed, CIV_NAME_SALT, civ.index.toLong())
     civ.founded = year
     civs.add(civ)
     hostility.addCiv()
-    joinCiv(civ, capital, year)
     return civ
+  }
+
+  /** A standing town changes hands, by conquest or by breaking away. */
+  private fun transferTown(town: Town, from: Civ, to: Civ) {
+    from.towns.remove(town.facts.index)
+    to.towns.add(town.facts.index)
+    town.owner = to.index
+  }
+
+  /** A people whose capital fell or emptied rules from its largest standing town. */
+  private fun relocateCapital(civ: Civ) {
+    val capital = towns[civ.capital]
+    if (capital.standing && capital.owner == civ.index) return
+    civ.capital = seatOf(civ) ?: return
   }
 
   private fun joinCiv(civ: Civ, town: Town, year: Int) {
@@ -919,6 +1043,175 @@ internal class HistorySim(
     level < 0.55 -> "the heavy plough and the water mill"
     level < 0.8 -> "stone vaulting and the blast bloomery"
     else -> "the printing press and the deep shaft"
+  }
+
+  // --- New peoples -----------------------------------------------------------------------------------
+
+  /** How many times the reference world's settlement sites this world has. See [HistoryParams.referenceSites]. */
+  private val sizeScale = facts.size / params.referenceSites
+
+  private fun arriveOverSea(year: Int) {
+    val site = newcomerSite(year, params.arrivalChance, params.arrivalFrom, params.arrivalTo, ARRIVAL_SALT) {
+      it.coastal
+    } ?: return
+
+    val town = towns[site]
+    val civ = settleNewcomers(town, year, Culture.SEAFARING, CivOrigin.ARRIVED)
+    civ.foundedEvent = log(
+      year, EventKind.CIV_ARRIVED,
+      listOf(Actor(ActorType.CIV, civ.index), Actor(ActorType.SETTLEMENT, site)),
+      town.facts.position, emptyList(),
+      "the ${civName(civ)} come over the sea and settle at ${nameOf(town)}"
+    )
+  }
+
+  private fun migrateOverland(year: Int) {
+    val site = newcomerSite(year, params.migrationChance, params.migrationFrom, params.migrationTo, MIGRATION_SALT) {
+      !it.coastal
+    } ?: return
+
+    val town = towns[site]
+    val civ = settleNewcomers(town, year, Culture.PASTORAL, CivOrigin.MIGRATED)
+    civ.foundedEvent = log(
+      year, EventKind.CIV_MIGRATED,
+      listOf(Actor(ActorType.CIV, civ.index), Actor(ActorType.SETTLEMENT, site)),
+      town.facts.position, emptyList(),
+      "the ${civName(civ)} come out of the far country and settle at ${nameOf(town)}"
+    )
+  }
+
+  /**
+   * Where newcomers settle this tick, or null when they do not come. They come at an expected [chance] times per
+   * reference world inside the window, and take the empty site farthest from every standing town.
+   */
+  private fun newcomerSite(
+    year: Int,
+    chance: Double,
+    from: Int,
+    to: Int,
+    salt: Long,
+    accepts: (SiteFacts) -> Boolean
+  ): Int? {
+    if (year !in from..to) return null
+
+    val ticks = max(1, (to - from) / params.yearsPerTick)
+    val perTick = (chance * sizeScale / ticks).coerceAtMost(1.0)
+    if (roll(year.toLong(), salt) >= perTick) return null
+
+    return facts
+      .filter { towns[it.index].founded == 0 && it.habitability >= params.minFoundingHabitability && accepts(it) }
+      .map { it.index to distanceToStandingTown(it.index) }
+      .filter { (_, gap) -> gap >= params.newcomerClearance }
+      .maxByOrNull { (_, gap) -> gap }
+      ?.first
+  }
+
+  private fun distanceToStandingTown(site: Int): Double {
+    return towns.filter { it.standing }.minOfOrNull { distance[site][it.facts.index] } ?: Double.MAX_VALUE
+  }
+
+  /** Newcomers bring a culture the world has not seen yet, when there is one, and the world's know-how. */
+  private fun settleNewcomers(town: Town, year: Int, fallback: Culture, origin: CivOrigin): Civ {
+    val unseen = Culture.ALL.indices.filter { culture -> civs.none { it.cultureIndex == culture } }
+    val culture = if (unseen.isEmpty()) {
+      Culture.indexOf(fallback)
+    } else {
+      unseen[(roll(year.toLong(), town.facts.index.toLong(), NEWCOMER_CULTURE_SALT) * unseen.size).toInt()]
+    }
+
+    val technology = civs.filter { it.exists }.map { it.technology }.average().takeIf { !it.isNaN() } ?: 0.0
+    val civ = addCiv(culture, town, year, origin)
+    joinCiv(civ, town, year)
+    civ.technology = technology
+    return civ
+  }
+
+  /** A large civ's most aggrieved far town may rise. A won revolt takes the towns nearer to it than to the capital. */
+  private fun secede(year: Int) {
+    for (parent in civs.toList()) {
+      if (!parent.exists) continue
+
+      val standing = parent.towns.filter { towns[it].standing }
+      if (standing.size < params.secessionMinTowns) continue
+
+      val leader = standing.filter { it != parent.capital }.maxByOrNull { grievanceOf(parent, towns[it]) } ?: continue
+      val grievance = grievanceOf(parent, towns[leader])
+      if (roll(year.toLong(), parent.index.toLong(), REVOLT_SALT) >= params.revoltRate * grievance) continue
+
+      revolt(parent, towns[leader], year)
+    }
+  }
+
+  /** 0 to 1. Half of it is being beyond the capital's reach; sackings and blight make up the rest. */
+  private fun grievanceOf(parent: Civ, town: Town): Double {
+    val reach = distance[town.facts.index][parent.capital] / parent.culture.expansionRange
+    val cutOff = (reach - 1.0).coerceIn(0.0, 1.0) * 0.5
+    val sacked = min(town.sacked, 2) * 0.25
+    val blighted = if (town.blights > 0) 0.25 else 0.0
+    return (cutOff + sacked + blighted).coerceAtMost(1.0)
+  }
+
+  private fun revolt(parent: Civ, leader: Town, year: Int) {
+    val actors = listOf(Actor(ActorType.SETTLEMENT, leader.facts.index), Actor(ActorType.CIV, parent.index))
+    val wins = roll(year.toLong(), leader.facts.index.toLong(), REVOLT_OUTCOME_SALT) < params.revoltSuccess
+    if (!wins) {
+      leader.population *= 1.0 - REVOLT_POPULATION_LOSS
+      log(
+        year, EventKind.CIV_REVOLT, actors, leader.facts.position, emptyList(),
+        "${nameOf(leader)} rises against the ${civName(parent)} and is put down"
+      )
+      return
+    }
+
+    val uprising = log(
+      year, EventKind.CIV_REVOLT, actors, leader.facts.position, emptyList(),
+      "${nameOf(leader)} rises against the ${civName(parent)}"
+    )
+
+    val followers = parent.towns.filter {
+      it != parent.capital && towns[it].standing && distance[it][leader.facts.index] < distance[it][parent.capital]
+    }
+    val civ = addCiv(parent.cultureIndex, leader, year, CivOrigin.SECEDED, parent.index)
+    civ.technology = parent.technology
+    for (index in followers) transferTown(towns[index], parent, civ)
+    hostility.set(parent.index, civ.index, params.secessionHostility)
+
+    val others = followers.size - 1
+    val who = if (others == 0) "${nameOf(leader)} breaks" else "${nameOf(leader)} and $others other towns break"
+    val seceded = log(
+      year, EventKind.CIV_SECEDED,
+      listOf(Actor(ActorType.CIV, civ.index), Actor(ActorType.CIV, parent.index),
+        Actor(ActorType.SETTLEMENT, leader.facts.index)),
+      leader.facts.position, listOf(uprising),
+      "$who away from the ${civName(parent)} as the ${civName(civ)}"
+    )
+    civ.foundedEvent = seceded
+    parent.grudges.add(civ.index to seceded)
+    civ.grudges.add(parent.index to seceded)
+  }
+
+  /** Survivors of a big town lost to war, ash or blight may found a people of their own nearby. */
+  private fun foundRefuge(lost: Town, survivors: Double, lostOwner: Int, year: Int, ending: Int) {
+    if (survivors < params.refugeeMinPopulation) return
+    if (roll(year.toLong(), lost.facts.index.toLong(), REFUGEE_SALT) >= params.refugeeChance) return
+
+    val site = facts
+      .filter { towns[it.index].founded == 0 && it.habitability >= params.minFoundingHabitability }
+      .filter { distance[it.index][lost.facts.index] <= params.refugeeRange }
+      .maxByOrNull { it.habitability * (1.0 - distance[it.index][lost.facts.index] / params.refugeeRange) }
+      ?: return
+
+    val town = towns[site.index]
+    val formerCiv = civs.getOrNull(lostOwner)
+    val civ = addCiv(formerCiv?.cultureIndex ?: lost.facts.cultureIndex, town, year, CivOrigin.REFOUNDED, lostOwner)
+    joinCiv(civ, town, year)
+    civ.technology = formerCiv?.technology ?: 0.0
+    civ.foundedEvent = log(
+      year, EventKind.CIV_REFOUNDED,
+      listOf(Actor(ActorType.CIV, civ.index), Actor(ActorType.SETTLEMENT, site.index)),
+      town.facts.position, listOf(ending),
+      "survivors of ${nameOf(lost)} found the ${civName(civ)} at ${nameOf(town)}"
+    )
   }
 
   // --- Diplomacy and war -----------------------------------------------------------------------------
@@ -1146,9 +1439,8 @@ internal class HistorySim(
     // Conquest rather than a second sack: ownership changes and the place takes the victor's name, with
     // the old one kept because that is what the conquered go on calling it.
     if (roll(year.toLong(), target.toLong(), CONQUEST_SALT) < CONQUEST_CHANCE) {
-      civs[loser].towns.remove(target)
-      civs[winner].towns.add(target)
-      town.owner = winner
+      transferTown(town, civs[loser], civs[winner])
+      relocateCapital(civs[loser])
       town.oldNameSeed = town.nameSeed
       town.nameSeed = Names.seedOf(worldSeed, PLACE_NAME_SALT, target.toLong(), year.toLong())
 
@@ -1348,8 +1640,10 @@ internal class HistorySim(
     town.abandoned = year
     town.ruinCause = cause
     val owner = town.owner
+    val survivors = town.population
     if (owner >= 0) civs[owner].towns.remove(town.facts.index)
     town.owner = -1
+    if (owner >= 0) relocateCapital(civs[owner])
 
     // The one ending the Orders argue about. Counted here rather than at the call site because `abandon` is the
     // single path every ending goes through, so there is one place for this to be right - and counted before
@@ -1363,7 +1657,7 @@ internal class HistorySim(
     actors.add(Actor(ActorType.SETTLEMENT, town.facts.index))
     byCiv?.let { actors.add(Actor(ActorType.CIV, it)) }
 
-    log(
+    val ending = log(
       year, cause, actors, town.facts.position, causes,
       "${nameOf(town)} is $how and stands empty"
     )
@@ -1380,6 +1674,8 @@ internal class HistorySim(
     )
     town.sites.add(ruin)
     town.population = 0.0
+
+    if (cause in REFUGEE_CAUSES) foundRefuge(town, survivors, owner, year, ending)
   }
 
   // --- The mana ---------------------------------------------------------------------------------------
@@ -2707,7 +3003,7 @@ internal class HistorySim(
           foundedYear = civ.founded, endedYear = civ.ended, capital = civ.capital,
           technology = civ.technology, peakPopulation = civ.peak,
           settlements = civ.towns.sorted(), grudges = civ.grudges.toList(),
-          sworn = civ.sworn, swornYear = civ.swornYear
+          sworn = civ.sworn, swornYear = civ.swornYear, origin = civ.origin, parent = civ.parent
         )
       },
       figures = people.map {
@@ -2966,7 +3262,14 @@ internal class HistorySim(
     }
   }
 
-  private class Civ(val index: Int, val cultureIndex: Int, val capital: Int) {
+  private class Civ(
+    val index: Int,
+    val cultureIndex: Int,
+    /** Moves to the largest standing town when the capital falls or empties. See [relocateCapital]. */
+    var capital: Int,
+    val origin: CivOrigin,
+    val parent: Int
+  ) {
     var nameSeed = 0L
     var founded = 0
     var ended = 0
@@ -3346,6 +3649,27 @@ internal class HistorySim(
 
     /** Which of the eligible places a rite happens at. Separate from `RITE_SALT`, which decides *whether*. */
     const val RITE_PLACE_SALT = 0x36L
+
+    const val ARRIVAL_SALT = 0x37L
+    const val MIGRATION_SALT = 0x38L
+    const val NEWCOMER_CULTURE_SALT = 0x39L
+    const val REVOLT_SALT = 0x3AL
+    const val REVOLT_OUTCOME_SALT = 0x3BL
+    const val REFUGEE_SALT = 0x3CL
+
+    /** How much a culture no civ holds yet counts over distance, when choosing where the second people settles. */
+    const val RIVAL_NEW_CULTURE_BONUS = 1.25
+
+    /** Per tier below a city, so the second people prefers a town to a hamlet at a similar distance. */
+    const val RIVAL_TIER_PENALTY = 0.25
+
+    /** Share of its people a town loses when its revolt is put down. */
+    const val REVOLT_POPULATION_LOSS = 0.2
+
+    /** Endings that leave survivors with somewhere to go. A town that dwindled to nothing leaves nobody. */
+    val REFUGEE_CAUSES = setOf(
+      EventKind.SETTLEMENT_RAZED, EventKind.SETTLEMENT_BURIED, EventKind.SETTLEMENT_FORSAKEN
+    )
 
     /**
      * How much a borne-out conviction multiplies an Order's weight, at full strength.

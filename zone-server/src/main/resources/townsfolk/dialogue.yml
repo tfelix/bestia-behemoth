@@ -35,6 +35,11 @@ events:
   # --- Civilisations and war --------------------------------------------------------------------
   CIV_FOUNDED: { variants: 2, slots: [civ, place, year, era] }
   CIV_FELL: { variants: 2, slots: [civ, year, era] }
+  CIV_ARRIVED: { variants: 2, slots: [civ, place, year, era] }
+  CIV_MIGRATED: { variants: 2, slots: [civ, place, year, era] }
+  CIV_REVOLT: { variants: 2, slots: [place, civ, year, era] }
+  CIV_SECEDED: { variants: 2, slots: [civ, foe, place, year, era] }
+  CIV_REFOUNDED: { variants: 2, slots: [civ, place, year, era] }
   WAR_DECLARED: { variants: 2, slots: [civ, year, era, foe] }
   BATTLE: { variants: 3, slots: [civ, year, era, foe] }
   SIEGE: { variants: 2, slots: [civ, place, year, era] }
