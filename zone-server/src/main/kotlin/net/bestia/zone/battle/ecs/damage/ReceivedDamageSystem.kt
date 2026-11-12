@@ -17,6 +17,7 @@ import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.battle.ecs.status.InCombat
 import net.bestia.zone.battle.damage.DamageGate
+import net.bestia.zone.battle.ecs.effects.AreaEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -50,8 +51,9 @@ class ReceivedDamageSystem(
       Health::class, TakenDamage::class, Dead::class, LogoutIntent::class, Casting::class, Crafting::class, Channel::class,
       RitualParticipant::class,
       InCombat::class, IncomingDamage::class, Animation::class,
-      // A barrier or a freeze reacts to the hit, and may leave. Magic Armor pays for it in mana.
-      StatusEffects::class, IsStatusValueDirty::class, Mana::class
+      // A barrier or a freeze reacts to the hit, and may leave. Magic Armor pays for it in mana, Safety Wall from
+      // the count its area keeps.
+      StatusEffects::class, IsStatusValueDirty::class, Mana::class, AreaEffect::class
     ) + otherWork.map { it.component }
 
   override fun update(world: World, deltaTime: Float) {

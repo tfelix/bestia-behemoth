@@ -206,7 +206,7 @@ class AreaEffectSystem(
 
         mechanicsApplier?.onAnyone(world, victimId, effect)
         if (Sides.areAllied(world, effect.casterId, victimId)) {
-          mechanicsApplier?.onAlly(world, victimId, effect)
+          mechanicsApplier?.onAlly(world, victimId, effect, effectEntityId)
           // A ward, a heal or a debuff zone spares its own side. A plain burning patch keeps the damage gate's say.
           if (effect.mechanics != AreaMechanics.NONE) continue
         }

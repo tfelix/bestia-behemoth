@@ -687,3 +687,11 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: Mindbroken
+
+  # Standing on the Wizard's Safety Wall: physical blows are stopped until the wall's hits run out.
+  - id: 219
+    identifier: SAFETY_WALL
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: SafetyWalled

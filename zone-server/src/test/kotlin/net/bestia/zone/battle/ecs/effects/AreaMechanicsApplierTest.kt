@@ -26,6 +26,18 @@ class AreaMechanicsApplierTest {
     verify(exactly = 1) { statusEffects.applyEffect(world, ALLY, StatusEffectId.SHELTERED, 1, CASTER) }
   }
 
+  @Test
+  fun `a wall that counts hits names itself as the source of its allies' status`() {
+    val wall = area(AreaMechanics(zoneStatus = StatusEffectId.SAFETY_WALL, forAllies = true, absorbsHits = 6))
+    val ward = area(AreaMechanics(zoneStatus = StatusEffectId.SHELTERED, forAllies = true))
+
+    sut.onAlly(world, ALLY, wall, areaId = WALL)
+    sut.onAlly(world, ALLY, ward, areaId = WALL)
+
+    verify(exactly = 1) { statusEffects.applyEffect(world, ALLY, StatusEffectId.SAFETY_WALL, 1, WALL) }
+    verify(exactly = 1) { statusEffects.applyEffect(world, ALLY, StatusEffectId.SHELTERED, 1, CASTER) }
+  }
+
   private fun area(mechanics: AreaMechanics) = AreaEffect(
     casterId = CASTER, skillId = 84, skillLevel = 1, radiusTiles = 1,
     damagePerTick = 0, tickIntervalSeconds = 0.5f, remainingTicks = 40, mechanics = mechanics
@@ -35,5 +47,6 @@ class AreaMechanicsApplierTest {
     const val CASTER = 1L
     const val FOE = 2L
     const val ALLY = 3L
+    const val WALL = 4L
   }
 }

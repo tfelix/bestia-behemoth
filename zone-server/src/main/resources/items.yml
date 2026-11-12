@@ -2502,3 +2502,12 @@ items:
       A scroll with an attack written on it.
 
       Read from the bag, it casts its attack once, with no mana. Spell Training teaches it to a bestia instead.
+
+  # What Stone Curse burns. The GM item command is its only source until crafting can make it.
+  - id: 339
+    item-db-name: red_mana_crystal
+    base-level: 30
+    weight: 2
+    type: ETC
+    material: CRYSTAL
+    description: A red crystal of mana. Stone Curse burns one to turn flesh to stone.

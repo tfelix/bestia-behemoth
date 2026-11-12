@@ -694,20 +694,21 @@ SKILL_102_DESC,"A deeper communion with raw mana beyond the elements, sharpening
 it: Soul Break's damage and the magic attack Mindbreak gives.
 
 `+10%/lv` raw-mana power, from 5% at Lv.1"
-SKILL_103_DESC,"Conjures a barrier of solidified mana in front of a target. It blocks projectiles and
-melee strikes until it has absorbed enough hits or its time runs out. Cooldown 10s.
+SKILL_103_DESC,"Conjures a barrier of solidified mana on one tile. It shields every ally standing on it
+from melee strikes and projectiles until it has absorbed enough hits or its time runs out.
+Spells pass through. Cooldown 10s.
 
 `+4/lv` hits absorbed, from 2 at Lv.1
 `+16s/lv` duration, from 20s at Lv.1"
-SKILL_104_DESC,"Encases a target in stone. It applies Stoning, which turns into Stone unless it is cured
-first. Consumes a Red Mana Crystal. Cooldown 15s.
+SKILL_104_DESC,"Encases a target in stone. It applies Stoning, which turns into Stone after 10s unless it
+is cured first. Consumes a Red Mana Crystal. Cooldown 15s.
 
 `+20%/lv` chance, from 20% at Lv.1
-`+6s/lv` duration, from 5s at Lv.1"
-SKILL_105_DESC,"A ward of counter-mana thrown over a target mid-incantation. It can interrupt the spell
-being woven and leaves the target Silenced. Cooldown 20s.
+`+15s/lv` Stone duration, from 15s at Lv.1"
+SKILL_105_DESC,"A ward of counter-mana thrown over a target mid-incantation. If it takes hold, it breaks
+the spell being woven and leaves the target Silenced. Cooldown 20s.
 
-`+20%/lv` interrupt chance, from 20% at Lv.1
+`+20%/lv` chance, from 20% at Lv.1
 `+2s/lv` silence, from 3s at Lv.1"
 SKILL_107_DESC,"Conjures a wall of roaring flame for 20s. Anything that tries to push through is burned
 and shoved back. Cooldown 10s.

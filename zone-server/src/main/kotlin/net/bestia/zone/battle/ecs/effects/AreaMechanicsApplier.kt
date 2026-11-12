@@ -44,13 +44,14 @@ class AreaMechanicsApplier(
     }
   }
 
-  fun onAlly(world: World, allyId: EntityId, effect: AreaEffect) {
+  fun onAlly(world: World, allyId: EntityId, effect: AreaEffect, areaId: EntityId? = null) {
     val mechanics = effect.mechanics
     if (!mechanics.forAllies) return
     if (mechanics.partyOnly && !PartyMates.isPartyOf(world, effect.casterId, allyId)) return
 
     if (!mechanics.zoneStatusForEveryone) {
-      mechanics.zoneStatus?.let { statusEffects.applyEffect(world, allyId, it, effect.skillLevel, effect.casterId) }
+      val source = areaId.takeIf { mechanics.absorbsHits > 0 } ?: effect.casterId
+      mechanics.zoneStatus?.let { statusEffects.applyEffect(world, allyId, it, effect.skillLevel, source) }
     }
     if (mechanics.healPerTick > 0) {
       Healing.heal(world, allyId, mechanics.healPerTick)
