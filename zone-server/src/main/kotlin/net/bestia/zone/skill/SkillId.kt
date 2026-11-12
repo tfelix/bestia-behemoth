@@ -79,6 +79,8 @@ enum class SkillId {
   M_ENDURE,
   M_IRON_SKIN,
   M_ARCANE_MASTERY,
+  M_HEAVY_WEAPON_MASTERY,
+  M_HEAVY_ARMOR_MASTERY,
   // Its drain bonus is read by net.bestia.zone.battle.attack.PoisonedBlade.
   M_POISON_RESEARCH,
 

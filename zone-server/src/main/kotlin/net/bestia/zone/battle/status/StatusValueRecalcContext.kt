@@ -139,6 +139,9 @@ class StatusValueRecalcContext(
   /** The weight of a shield in the left hand, null for no shield. */
   var shieldArmorType: ArmorType? = null
 
+  /** The weight of every worn piece that has one, the shield included. */
+  var wornArmorTypes: List<ArmorType> = emptyList()
+
   var hpRegen: RegenModifier = RegenModifier()
     private set
 
