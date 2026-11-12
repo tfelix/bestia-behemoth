@@ -124,6 +124,12 @@ class RecordingSkillWorld(
     manaRestored.add(entityId to amount)
   }
 
+  val manaDrained = mutableListOf<Pair<EntityId, Int>>()
+
+  override fun drainMana(entityId: EntityId, percent: Int) {
+    manaDrained.add(entityId to percent)
+  }
+
   override fun effectSourceOf(entityId: EntityId, effectId: Long): EntityId? {
     return if (appliedEffects.any { it.targetEntityId == entityId && it.effectId == effectId }) effectSource else null
   }

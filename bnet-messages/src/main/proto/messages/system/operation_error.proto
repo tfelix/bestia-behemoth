@@ -473,6 +473,8 @@ enum OpError {
   ORDERS_TOO_MANY_PRESETS = 225;
   // The master has as many named places as allowed.
   ORDERS_TOO_MANY_PLACES = 226;
+  // A skill meant for the caster's own bestias, like Mindbreak, was aimed at something else.
+  SKILL_NEEDS_OWN_BESTIA = 165;
 }
 
 message OperationError {

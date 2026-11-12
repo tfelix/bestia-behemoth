@@ -307,6 +307,9 @@ interface SkillWorld {
   /** Adds mana to [entityId], up to its pool. */
   fun restoreMana(entityId: EntityId, amount: Int)
 
+  /** Takes [percent] of [entityId]'s current mana away, to nobody. */
+  fun drainMana(entityId: EntityId, percent: Int)
+
   fun hasEffect(entityId: EntityId, effectId: Long): Boolean
 
   /** Who gave [entityId] its [effectId], or null when it has none or nobody gave it. One operation. */

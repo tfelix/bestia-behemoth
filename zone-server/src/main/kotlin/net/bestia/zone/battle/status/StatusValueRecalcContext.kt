@@ -100,6 +100,10 @@ class StatusValueRecalcContext(
   var attackPercent: Int = 0
     private set
 
+  /** Percentage points on top of the magic attack alone, beside [attackPercent]. */
+  var magicAttackPercent: Int = 0
+    private set
+
   var hitPercent: Int = 0
     private set
 
@@ -236,6 +240,21 @@ class StatusValueRecalcContext(
   fun cutDefense(percent: Int) {
     defenseCutPercent += percent
   }
+
+  /** Percent of the soft magic defence taken away, see [DefenseValues.withSoftMagicDefenseCutBy]. */
+  var magicDefenseCutPercent: Int = 0
+    private set
+
+  fun cutMagicDefense(percent: Int) {
+    magicDefenseCutPercent += percent
+  }
+
+  fun addMagicAttackPercent(percent: Int) {
+    magicAttackPercent += percent
+  }
+
+  /** Percent more damage from the spells of raw mana, Soul Break and Mindbreak, see Arcane Mastery. */
+  var arcaneDamagePercent: Int = 0
 
   /** More damage dealt to a [kind], an [element], a boss or the unholy, in percent; see [DamageModifiers]. */
   fun addDamageDealt(

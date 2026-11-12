@@ -254,6 +254,12 @@ class BudgetedSkillWorld(
     world.get(entityId, Mana::class)?.let { it.current += amount }
   }
 
+  override fun drainMana(entityId: EntityId, percent: Int) {
+    budget.charge()
+
+    world.get(entityId, Mana::class)?.let { it.current -= it.current * percent / 100 }
+  }
+
   /**
    * Bounces a blow off whoever wears a reflect, at most [MAX_REFLECTIONS] times, so two mirrors facing each other
    * still let it land. Returns who takes it and whom it counts as coming from.

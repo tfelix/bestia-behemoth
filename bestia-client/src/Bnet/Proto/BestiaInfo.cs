@@ -182,7 +182,7 @@ namespace Bnet {
     public const int PlayerBestiaIdFieldNumber = 8;
     private ulong playerBestiaId_;
     /// <summary>
-    ///* Names the bestia in its orders, which outlive the entity.  
+    ///* Names the bestia in its orders, which outlive the entity. 
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]

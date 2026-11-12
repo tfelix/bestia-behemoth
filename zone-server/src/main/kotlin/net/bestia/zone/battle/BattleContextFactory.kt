@@ -106,7 +106,8 @@ class BattleContextFactory(
         ?.mapTo(mutableSetOf()) { it.definitionId }
         ?: emptySet(),
       attackPower = nature?.attackPower ?: 1f,
-      aspdPercent = combat.aspdPercent
+      aspdPercent = combat.aspdPercent,
+      arcaneDamagePercent = combat.arcaneDamagePercent
     )
   }
 

@@ -679,3 +679,11 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: MagicArmorWard
+
+  # The Wizard's Mindbreak on an own bestia: more MATK, less soft MDEF.
+  - id: 218
+    identifier: MINDBREAK
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Mindbroken

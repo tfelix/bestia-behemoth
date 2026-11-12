@@ -78,6 +78,7 @@ enum class SkillId {
   M_DEMON_BANE,
   M_ENDURE,
   M_IRON_SKIN,
+  M_ARCANE_MASTERY,
 
   // Read by the systems they change: felling and its yield, picking herbs.
   M_LUMBERJACK,
