@@ -126,5 +126,38 @@ class KnightVanguardSkillsTest {
     assertFalse(brandish.isCastPossible(ctx(level = 1)), "nothing held at resolution")
   }
 
+  @Test
+  fun `Charge dashes next to the foe, strikes at 150 percent ATK and provokes it for 3 seconds`() {
+    world.foes += target
+    // The recording world does not move anybody: the Knight stands where the dash would have put it.
+    world.putPosition(target, Vec3L(8, 0, 0)).putPosition(caster, Vec3L(7, 1, 0))
+
+    assertTrue(Charge(LineOfSightService()).isCastPossible(ctx(level = 2)))
+    Charge(LineOfSightService()).execute(ctx(level = 2))
+
+    assertEquals(listOf(RecordingSkillWorld.ForcedMove(caster, Vec3L(8, 0, 0), 5, keepDistance = 1)), world.forcedMoves)
+    assertEquals(listOf(target to 150), world.strikes)
+    assertEquals(
+      listOf(Triple(StatusEffectId.PROVOKED.id, 1, 3.0)),
+      world.appliedEffects.map { Triple(it.effectId, it.level, it.durationSeconds) }
+    )
+  }
+
+  @Test
+  fun `a Charge stopped short strikes nothing`() {
+    world.foes += target
+    world.putPosition(target, Vec3L(8, 0, 0)).putPosition(caster, Vec3L(4, 0, 0))
+
+    Charge(LineOfSightService()).execute(ctx(level = 1))
+
+    assertTrue(world.strikes.isEmpty())
+    assertTrue(world.appliedEffects.isEmpty())
+  }
+
+  @Test
+  fun `Charge cools down half a second faster each level`() {
+    assertEquals(listOf(14.5f, 14f, 13.5f, 13f, 12.5f), (1..5).map { Charge.cooldownSeconds(it) })
+  }
+
   private fun ctx(level: Int) = SkillContextFixture.skillCtx(world = world, skillLevel = level)
 }
