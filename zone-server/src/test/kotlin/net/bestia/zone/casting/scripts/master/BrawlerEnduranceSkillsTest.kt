@@ -2,6 +2,7 @@ package net.bestia.zone.casting.scripts.master
 
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.BattleContextFixture
+import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.damage.HitDamage
 import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.battle.ecs.status.CombatStats
@@ -93,6 +94,29 @@ class BrawlerEnduranceSkillsTest {
     assertEquals(OpError.SKILL_NEEDS_STAFF, StaffSweep().checkCastStart(ecs, brawlerWith(null), 1, emptyList()))
     assertNull(StaffSweep().checkCastStart(ecs, brawlerWith(WeaponType.STAFF), 1, emptyList()))
     assertFalse(StaffSweep().isCastPossible(ctx(level = 1)), "nothing held at resolution")
+  }
+
+  @Test
+  fun `Rush dashes next to the foe and lands one basic blow`() {
+    world.foes += target
+    // The recording world does not move anybody: the Brawler stands where the dash would have put it.
+    world.putPosition(target, Vec3L(6, 0, 0)).putPosition(caster, Vec3L(5, 0, 0))
+
+    assertTrue(Rush(LineOfSightService()).isCastPossible(ctx(level = 1)))
+    Rush(LineOfSightService()).execute(ctx(level = 1))
+
+    assertEquals(listOf(RecordingSkillWorld.ForcedMove(caster, Vec3L(6, 0, 0), 5, keepDistance = 1)), world.forcedMoves)
+    assertEquals(listOf(target to 100), world.strikes)
+  }
+
+  @Test
+  fun `a Rush stopped short strikes nothing`() {
+    world.foes += target
+    world.putPosition(target, Vec3L(6, 0, 0)).putPosition(caster, Vec3L(2, 0, 0))
+
+    Rush(LineOfSightService()).execute(ctx(level = 1))
+
+    assertTrue(world.strikes.isEmpty())
   }
 
   private fun ctx(level: Int) = SkillContextFixture.skillCtx(world = world, skillLevel = level)
