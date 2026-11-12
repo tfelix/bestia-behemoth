@@ -8,8 +8,10 @@ import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.Timings
+import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.history.Names
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.WorldParams
 import java.util.Locale
 
 /**
@@ -37,6 +39,7 @@ import java.util.Locale
  * ./gradlew :worldgen:chronicle -Psites            # ruins, battlefields, tombs and monuments
  * ./gradlew :worldgen:chronicle -Pquests           # unresolved threads worth turning into quests
  * ./gradlew :worldgen:chronicle -Porders           # who is sworn to which Order, and what came of it
+ * ./gradlew :worldgen:chronicle -Psweep=16         # one census line per seed, to compare before and after a change
  * ./gradlew :worldgen:chronicle -Pall              # everything, at length
  * ```
  *
@@ -63,6 +66,13 @@ object ChronicleMain {
     val tuning = cli.tuning()
     println("world ${WorldArgs.summary(config)}")
     println("  ${tuning.summary()}")
+
+    val sweepSeeds = cli.int("--sweep")
+    if (sweepSeeds != null) {
+      sweep(config, tuning.params, sweepSeeds)
+      return
+    }
+
     val generated = StandardWorld.build(config, params = tuning.params)
     Timings.printAndReset()
     val chronicle = generated.world.chronicle
@@ -87,6 +97,48 @@ object ChronicleMain {
     if (all || cli.has("--quests")) quests(chronicle)
 
     top(chronicle, cli.int("--top") ?: DEFAULT_TOP)
+  }
+
+  /**
+   * One census line per seed from the configured one on, then the mean. Run it before and after a change to the
+   * simulation: a single seed cannot show that a change made wars rarer or civs more common.
+   */
+  private fun sweep(base: WorldConfig, params: WorldParams, seeds: Int) {
+    println()
+    println(SWEEP_COLUMNS.joinToString("") { it.padStart(SWEEP_COLUMN_WIDTH) })
+
+    val totals = IntArray(SWEEP_COLUMNS.size - 1)
+    for (offset in 0 until seeds) {
+      val seed = base.seed + offset
+      val chronicle = StandardWorld.build(base.copy(seed = seed), params = params).world.chronicle
+      val census = censusOf(chronicle)
+      census.forEachIndexed { column, value -> totals[column] += value }
+      println(sweepRow(seed.toString(), census.map { it.toString() }))
+    }
+
+    val means = totals.map { "%.1f".format(Locale.ROOT, it.toDouble() / seeds) }
+    println(sweepRow("mean", means))
+  }
+
+  /** In the order of [SWEEP_COLUMNS], after the seed. */
+  private fun censusOf(chronicle: Chronicle): List<Int> {
+    val events = chronicle.eventCensus().toMap()
+    val sites = chronicle.sites.groupingBy { it.kind }.eachCount()
+    return listOf(
+      chronicle.civs.size,
+      events[EventKind.WAR_DECLARED] ?: 0,
+      events[EventKind.BATTLE] ?: 0,
+      sites[SiteKind.BATTLEFIELD] ?: 0,
+      chronicle.settlements.count { it.isRuin },
+      chronicle.figures.size,
+      chronicle.artifacts.size,
+      chronicle.sites.size,
+      chronicle.events.size
+    )
+  }
+
+  private fun sweepRow(first: String, cells: List<String>): String {
+    return (listOf(first) + cells).joinToString("") { it.padStart(SWEEP_COLUMN_WIDTH) }
   }
 
   /** The shape of a world's history in a dozen lines. What to read first. */
@@ -450,7 +502,12 @@ object ChronicleMain {
   private const val SITES_PER_KIND = 12
   private const val THREADS_PER_KIND = 8
 
+  private const val SWEEP_COLUMN_WIDTH = 11
+  private val SWEEP_COLUMNS = listOf(
+    "seed", "civs", "wars", "battles", "fields", "ruins", "figures", "artifacts", "sites", "events"
+  )
+
   private val CHRONICLE_FLAGS = setOf(
-    "--top", "--year", "--civs", "--artifacts", "--figures", "--sites", "--quests", "--orders", "--all"
+    "--top", "--year", "--civs", "--artifacts", "--figures", "--sites", "--quests", "--orders", "--all", "--sweep"
   )
 }
