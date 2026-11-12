@@ -246,6 +246,21 @@ HISTORY_CIV_FOUNDED_2,"Ask the {civ} and they will start at {place}, {era}. They
 HISTORY_CIV_FELL_ASK,Whatever happened to the {civ}?
 HISTORY_CIV_FELL_1,"The {civ} came apart {era}, around {year}. There is nobody left to answer for them."
 HISTORY_CIV_FELL_2,"You will not find the {civ} to ask. They were gone {era} and took their records with them."
+HISTORY_CIV_ARRIVED_ASK,Where did the {civ} come from?
+HISTORY_CIV_ARRIVED_1,"Over the sea. The {civ} came ashore at {place} {era}, around {year}, and never went back."
+HISTORY_CIV_ARRIVED_2,"The {civ} landed at {place} in {year}. Nobody here had seen their like before."
+HISTORY_CIV_MIGRATED_ASK,Were the {civ} always here?
+HISTORY_CIV_MIGRATED_1,"No. The {civ} came out of the far country {era} and settled at {place}."
+HISTORY_CIV_MIGRATED_2,"They walked here, the {civ}. Around {year} they reached {place} and stopped walking."
+HISTORY_CIV_REVOLT_ASK,Did {place} ever rise up?
+HISTORY_CIV_REVOLT_1,"{place} rose against the {civ} {era}, around {year}. People there still argue about it."
+HISTORY_CIV_REVOLT_2,"In {year} {place} had enough of the {civ}. Ask how it ended and you get two answers."
+HISTORY_CIV_SECEDED_ASK,How did the {civ} come to be?
+HISTORY_CIV_SECEDED_1,"The {civ} broke away from the {foe} {era}, with {place} at the head of it."
+HISTORY_CIV_SECEDED_2,"Around {year} {place} stopped answering to the {foe}. That was the start of the {civ}."
+HISTORY_CIV_REFOUNDED_ASK,Who founded the {civ}?
+HISTORY_CIV_REFOUNDED_1,"Survivors. Their old home was lost {era}, and they started again at {place} as the {civ}."
+HISTORY_CIV_REFOUNDED_2,"The {civ} began with refugees at {place}, around {year}. They do not talk about where they came from."
 HISTORY_WAR_DECLARED_ASK,Has there been war?
 HISTORY_WAR_DECLARED_1,"The {civ} declared on the {foe} {era}, near enough {year}. It went on longer than anyone promised."
 HISTORY_WAR_DECLARED_2,"The {civ} and the {foe} stopped pretending {era}. Everyone saw it coming and nobody stopped it."

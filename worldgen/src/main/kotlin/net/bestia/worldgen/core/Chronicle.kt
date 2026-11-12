@@ -358,7 +358,18 @@ enum class EventKind(
    * The quietest of the four and the one that does the "a hint here and there" work: it leaves nothing on the
    * ground, it happens repeatedly across a thousand years, and it is what a townsperson brings up unprompted.
    */
-  RITE_PERFORMED(45);
+  RITE_PERFORMED(45),
+
+  // --- New peoples ------------------------------------------------------------------------------------
+  //
+  // How a civ other than the first ones comes to be. Each is the founding of a people, so each sits near
+  // CIV_FOUNDED. A failed revolt is logged as CIV_REVOLT alone.
+
+  CIV_ARRIVED(75),
+  CIV_MIGRATED(70),
+  CIV_REVOLT(60),
+  CIV_SECEDED(75),
+  CIV_REFOUNDED(70);
 
   companion object {
 
@@ -481,7 +492,12 @@ data class CivRecord(
   val sworn: Faction? = null,
 
   /** Year it swore to [sworn] - its latest oath, not its first - or 0 if it never swore. */
-  val swornYear: Int = 0
+  val swornYear: Int = 0,
+
+  val origin: CivOrigin = CivOrigin.SEEDED,
+
+  /** The civ it broke away from or whose lost town its founders fled, or -1. */
+  val parent: Int = -1
 ) {
   val exists get() = endedYear == 0
 }
