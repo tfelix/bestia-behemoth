@@ -77,7 +77,7 @@ class StatusEffectService(
         stackBehavior = script.stackBehavior,
         level = level,
         sourceEntityId = sourceEntityId,
-        durationSeconds = durationSeconds ?: script.durationSeconds(level),
+        durationSeconds = steadied(world, targetId, definition.id, durationSeconds ?: script.durationSeconds(level)),
         isSyncedToClient = definition.isSyncedToClient,
         shield = script.shield,
         polarity = definition.polarity,
@@ -249,6 +249,12 @@ class StatusEffectService(
     val active = world.get(entityId, StatusEffects::class)?.activeEffects ?: return
 
     active.toList().forEach { effect -> scriptOf(effect)?.onBlocked(hookContext(world, entityId, effect)) }
+  }
+
+  private fun steadied(world: World, targetId: EntityId, definitionId: Long, seconds: Double): Double {
+    val isStun = definitionId == StatusEffectId.STUN.id
+
+    return if (isStun && SteadyAboveHalfHealth.holds(world, targetId)) seconds / 2 else seconds
   }
 
   /** A harmful effect is harm like a blow, so the gate that stops a blow stops it too. */

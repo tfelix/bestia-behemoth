@@ -69,6 +69,7 @@ data class CombatValues(
   val blockChancePercent: Int = 0,
   val knockbackImmune: Boolean = false,
   val lastStandCooldownSeconds: Int = 0,
+  val halvesStunAndKnockback: Boolean = false,
   val carryCapacityPercent: Int = 0,
   val arcaneDamagePercent: Int = 0,
 
@@ -153,6 +154,7 @@ data class CombatValues(
         blockChancePercent = context.blockChancePercent,
         knockbackImmune = context.knockbackImmune,
         lastStandCooldownSeconds = context.lastStandCooldownSeconds,
+        halvesStunAndKnockback = context.halvesStunAndKnockback,
         carryCapacityPercent = context.carryCapacityPercent,
         arcaneDamagePercent = context.arcaneDamagePercent,
         heldWeaponType = context.heldWeaponType,

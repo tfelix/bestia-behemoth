@@ -32,15 +32,16 @@ class AreaMechanicsApplier(
     if (!mechanics.forAllies && !mechanics.zoneStatusForEveryone) {
       mechanics.zoneStatus?.let { statusEffects.applyEffect(world, victimId, it, effect.skillLevel, effect.casterId) }
     }
-    if (mechanics.knockbackTiles > 0 && !Knockback.isImmune(world, victimId)) {
+    val knockbackTiles = if (mechanics.knockbackTiles > 0) Knockback.tilesFor(world, victimId, mechanics.knockbackTiles) else 0
+    if (knockbackTiles > 0) {
       val across = mechanics.knockbackAcross
       val at = world.get(victimId, Position::class)?.toVec3L()
       if (across != null && at != null) {
         val push = sideItCameFrom(world.get(victimId, Facing::class), across)
         // A point on the far side is what the victim is pushed away from.
-        forcedMovement.awayFrom(world, victimId, Vec3L(at.x - push * across.x, at.y - push * across.y, at.z), mechanics.knockbackTiles)
+        forcedMovement.awayFrom(world, victimId, Vec3L(at.x - push * across.x, at.y - push * across.y, at.z), knockbackTiles)
       } else {
-        forcedMovement.awayFrom(world, victimId, centre, mechanics.knockbackTiles)
+        forcedMovement.awayFrom(world, victimId, centre, knockbackTiles)
       }
     }
   }

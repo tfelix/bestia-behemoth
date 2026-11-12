@@ -46,7 +46,7 @@ object BestiaSkillMechanics {
       ctx.world.interrupt(targetId)
     }
     if (mechanics.knockback > 0) {
-      ctx.world.positionOf(ctx.casterId)?.let { from -> pushAway(ctx, targetId, from, mechanics.knockback) }
+      ctx.world.positionOf(ctx.casterId)?.let { from -> ctx.world.knockBack(targetId, from, mechanics.knockback) }
     }
     if (mechanics.gearWearPercent > 0) {
       ctx.world.wearGear(targetId, mechanics.gearWearPercent)
@@ -93,15 +93,6 @@ object BestiaSkillMechanics {
     if (!ctx.skill.mechanics.selfCentred) return ctx.aimedAt
 
     return ctx.world.positionOf(ctx.casterId) ?: ctx.aimedAt
-  }
-
-  private fun pushAway(ctx: SkillContext, targetId: EntityId, from: Vec3L, tiles: Int) {
-    if (ctx.world.isKnockbackImmune(targetId)) return
-    val at = ctx.world.positionOf(targetId) ?: return
-    val (dx, dy) = unit(from, at) ?: return
-
-    val towards = Vec3L(at.x + Math.round(dx * tiles), at.y + Math.round(dy * tiles), at.z)
-    ctx.world.forceMove(targetId, towards, tiles)
   }
 
   /** A storm drifts off the way it was thrown, from the caster towards where it landed. */

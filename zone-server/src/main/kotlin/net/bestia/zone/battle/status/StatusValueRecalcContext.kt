@@ -219,6 +219,9 @@ class StatusValueRecalcContext(
   /** A blow that would kill leaves 1 HP instead, once per this many seconds; 0 for never. Set by Unbreakable. */
   var lastStandCooldownSeconds: Int = 0
 
+  /** Above half its HP, a stun lasts half as long and a knockback goes half as far. Set by Unbreakable. */
+  var halvesStunAndKnockback: Boolean = false
+
   /** Stops natural regeneration outright; percentages add up, so -100% alone cannot promise that. */
   fun blockRegen(hp: Boolean = false, mana: Boolean = false) {
     if (hp) hpRegen = hpRegen.copy(blocked = true)

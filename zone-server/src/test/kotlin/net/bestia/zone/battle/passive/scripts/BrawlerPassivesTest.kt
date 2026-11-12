@@ -32,6 +32,11 @@ class BrawlerPassivesTest {
     assertEquals(listOf(600, 600, 360), (1..3).map { level -> recalc { Unbreakable().apply(it, level) }.lastStandCooldownSeconds })
   }
 
+  @Test
+  fun `Unbreakable steadies against stun and knockback from Lv 2`() {
+    assertEquals(listOf(false, true, true), (1..3).map { level -> recalc { Unbreakable().apply(it, level) }.halvesStunAndKnockback })
+  }
+
   private fun recalc(apply: (StatusValueRecalcContext) -> Unit): StatusValueRecalcContext {
     return StatusValueRecalcContext(StatusValues(1, 1, 1, 1, 1, 1), baseSpeed = 10f).also(apply)
   }
