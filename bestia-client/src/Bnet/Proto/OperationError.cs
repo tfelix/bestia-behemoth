@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqdKwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrTKwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -148,9 +148,10 @@ namespace Bnet {
             "TF9XSUVMRBCpARIZChRTS0lMTF9OT1RfT05fTUFTVEVSUxCqARIWChFTS0lM",
             "TF9ORUVEU19TUEVBUhCrARIXChJTS0lMTF9ORUVEU19TSElFTEQQrAESHQoY",
             "U0tJTExfTkVFRFNfUEFSVFlfTUVNQkVSEK0BEhYKEVNLSUxMX05FRURTX1NU",
-            "QUZGEK4BEhwKF1NLSUxMX05FRURTX1RSSVBMRV9CTE9XEK8BIgQILhAuKhJT",
-            "SE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNP",
-            "cGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "QUZGEK4BEhwKF1NLSUxMX05FRURTX1RSSVBMRV9CTE9XEK8BEhgKE1NLSUxM",
+            "X05FRURTX0JFUlNFUksQsAESGgoVU0tJTExfTkVFRFNfSEFMRl9NQU5BELEB",
+            "IgQILhAuKhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0",
+            "LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -940,6 +941,14 @@ namespace Bnet {
     /// Chain Combo was used without a Triple Blow landed just before it.
     /// </summary>
     [pbr::OriginalName("SKILL_NEEDS_TRIPLE_BLOW")] SkillNeedsTripleBlow = 175,
+    /// <summary>
+    /// A finisher like Ultima Fist was used while not Berserk.
+    /// </summary>
+    [pbr::OriginalName("SKILL_NEEDS_BERSERK")] SkillNeedsBerserk = 176,
+    /// <summary>
+    /// A finisher like Ultima Fist was used with less than half the mana.
+    /// </summary>
+    [pbr::OriginalName("SKILL_NEEDS_HALF_MANA")] SkillNeedsHalfMana = 177,
   }
 
   #endregion
