@@ -3,6 +3,11 @@ package net.bestia.zone.casting.scripts.master
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.LineOfSightService
+import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.gear.WeaponType
+import net.bestia.zone.battle.status.CombatValues
+import net.bestia.zone.battle.status.StatusValues
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.battle.damage.HitDamage
 import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.battle.status.StatusEffectId
@@ -81,6 +86,44 @@ class KnightVanguardSkillsTest {
     Bash(LineOfSightService()).execute(ctx(level = 5))
 
     assertTrue(world.inflicted.isEmpty())
+  }
+
+  @Test
+  fun `Brandish Spear strikes every foe in front of the Knight at 120 percent ATK and 40 more each level`() {
+    val wolf = 7L
+    val ally = 8L
+    val world = RecordingSkillWorld(entitiesNearby = setOf(target, wolf, ally))
+    world.foes += setOf(target, wolf)
+    world.heldWeapons[caster] = WeaponType.POLEARM
+    val ctx = SkillContextFixture.skillCtx(world = world, skillLevel = 5)
+
+    assertTrue(BrandishSpear(LineOfSightService()).isCastPossible(ctx))
+    BrandishSpear(LineOfSightService()).execute(ctx)
+
+    assertEquals(setOf(target to 280, wolf to 280), world.strikes.toSet())
+    assertEquals(listOf(120, 160, 200, 240, 280), (1..5).map { BrandishSpear.atkPercent(it) })
+  }
+
+  @Test
+  fun `Brandish Spear covers the 3x3 tiles that start next to the Knight, straight or diagonal`() {
+    val knight = Vec3L(10, 10, 0)
+
+    assertEquals(Vec3L(12, 10, 0), BrandishSpear.frontArea(knight, aimedAt = Vec3L(11, 10, 0)))
+    assertEquals(Vec3L(8, 12, 0), BrandishSpear.frontArea(knight, aimedAt = Vec3L(9, 11, 0)))
+  }
+
+  @Test
+  fun `Brandish Spear needs a spear or a polearm`() {
+    val ecs = testWorld()
+    fun knightWith(weapon: WeaponType?) = ecs.createEntity { id ->
+      add(id, CombatStats(CombatValues.ofBase(1, StatusValues(1, 1, 1, 1, 1, 1)).copy(heldWeaponType = weapon)))
+    }
+    val brandish = BrandishSpear(LineOfSightService())
+
+    assertEquals(OpError.SKILL_NEEDS_SPEAR, brandish.checkCastStart(ecs, knightWith(WeaponType.SWORD), 1, emptyList()))
+    assertEquals(OpError.SKILL_NEEDS_SPEAR, brandish.checkCastStart(ecs, knightWith(null), 1, emptyList()))
+    assertNull(brandish.checkCastStart(ecs, knightWith(WeaponType.SPEAR), 1, emptyList()))
+    assertFalse(brandish.isCastPossible(ctx(level = 1)), "nothing held at resolution")
   }
 
   private fun ctx(level: Int) = SkillContextFixture.skillCtx(world = world, skillLevel = level)
