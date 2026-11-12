@@ -8,6 +8,7 @@ import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.Nature
+import net.bestia.zone.battle.mark.HuntersMarks
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
@@ -53,7 +54,7 @@ class BattleContextFactory(
 
       return EntityBattleContext(
         usedAttack = attack,
-        attacker = attacker,
+        attacker = attacker.withCritRaisedBy(HuntersMarks.critPercentAgainst(world, attackerId, targetEntityId)),
         weapon = equippedWeapon(world, attackerId),
         damageVariables = DamageVariables(),
         defender = defender
@@ -109,6 +110,12 @@ class BattleContextFactory(
       aspdPercent = combat.aspdPercent,
       arcaneDamagePercent = combat.arcaneDamagePercent
     )
+  }
+
+  private fun BattleEntity.withCritRaisedBy(percent: Int): BattleEntity {
+    if (percent == 0) return this
+
+    return copy(derivedStatusValues = derivedStatusValues.copy(crit = derivedStatusValues.crit + percent))
   }
 
   /**

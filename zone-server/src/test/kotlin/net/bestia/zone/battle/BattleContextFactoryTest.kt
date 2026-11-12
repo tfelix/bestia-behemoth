@@ -1,7 +1,10 @@
 package net.bestia.zone.battle
 
 import io.mockk.mockk
+import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
+import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.Nature
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
@@ -109,6 +112,24 @@ class BattleContextFactoryTest {
     }
 
     assertNull(ctx)
+  }
+
+  @Test
+  fun `a hunter crits its marked prey 3 percent more often per level of the mark, nobody else does`() {
+    val world = testWorld()
+    val hunter = world.spawnMobLike()
+    val bystander = world.spawnMobLike()
+    val prey = world.spawnMobLike()
+    world.add(prey, StatusEffects(mutableListOf(ActiveStatusEffect(StatusEffectId.HUNTERS_MARK.id, 4, 30f, hunter))))
+
+    fun critOf(attacker: EntityId): Int {
+      return world.read {
+        val ctx = factory.create(world, attacker, BattleContextFixture.attack(), prey, null) as EntityBattleContext
+        ctx.attacker.derivedStatusValues.crit
+      }
+    }
+
+    assertEquals(critOf(bystander) + 12, critOf(hunter))
   }
 
   private fun World.spawnMobLike(nature: Nature? = null): EntityId = createEntity { id ->

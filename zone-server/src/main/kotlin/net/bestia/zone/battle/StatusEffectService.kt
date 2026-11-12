@@ -155,6 +155,17 @@ class StatusEffectService(
     return true
   }
 
+  /** Drops only the [definitionId] that [sourceEntityId] put on [targetId], for an effect several may put there. */
+  fun removeEffectFrom(world: World, targetId: EntityId, definitionId: Long, sourceEntityId: EntityId, reason: RemovalReason) {
+    val removed = world.get(targetId, StatusEffects::class)?.removeEffectFrom(definitionId, sourceEntityId).orEmpty()
+    if (removed.isEmpty()) {
+      return
+    }
+
+    world.add(targetId, IsStatusValueDirty)
+    removed.forEach { notifyRemoved(world, targetId, it, reason) }
+  }
+
   /**
    * Drops [definitionId] from [bearerId] because its player asked to. Only a buff whose script allows it goes: a
    * debuff is not the bearer's to end. Returns whether it was dropped.

@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.mark.MarkedPrey
 import net.bestia.zone.casting.portal.WarpMarks
 import net.bestia.zone.battle.ecs.status.InCombat
 import net.bestia.zone.identity.ecs.OwnedBestia
@@ -451,6 +452,18 @@ class BudgetedSkillWorld(
       detecting.potency = castPotency
     } else {
       world.add(casterId, Detecting(seconds, castPotency))
+    }
+  }
+
+  override fun markPrey(targetEntityId: EntityId, level: Int) {
+    budget.charge()
+
+    onEntity(targetEntityId) { prey ->
+      val oldPrey = get(casterId, MarkedPrey::class)?.preyId
+      if (oldPrey != null) {
+        services.statusEffects.removeEffectFrom(this, oldPrey, StatusEffectId.HUNTERS_MARK.id, casterId, RemovalReason.CANCELLED)
+      }
+      services.statusEffects.applyEffect(this, prey, StatusEffectId.HUNTERS_MARK, level, casterId, potency = castPotency)
     }
   }
 
