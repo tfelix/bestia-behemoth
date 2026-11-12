@@ -3,6 +3,8 @@ package net.bestia.zone.casting.scripts.master
 import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.LineOfSightService
+import net.bestia.zone.battle.ecs.effects.AreaStatus
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.casting.RecordingSkillWorld
 import net.bestia.zone.casting.SkillContextFixture
 import net.bestia.zone.geometry.Vec3L
@@ -64,9 +66,65 @@ class WizardAreasTest {
     assertEquals(1, storm.mechanics.strikeRadiusTiles)
   }
 
+  @Test
+  fun `Storm Gust sends a wave a second for ten seconds that may freeze each foe`() {
+    StormGust(LineOfSightService()).execute(groundCtx(level = 3, element = Element.WATER, aoeRadius = 4.0))
+
+    val spawned = world.spawnedAreaEffects.single()
+    assertEquals(9L, spawned.visualId)
+    val gale = spawned.effect
+    assertEquals(10, gale.remainingTicks)
+    assertEquals(4L, gale.radiusTiles)
+    // 15 MATK at 140%.
+    assertEquals(21, gale.damagePerTick)
+    assertEquals(listOf(AreaStatus(StatusEffectId.FROZEN, 25, null, 3)), gale.mechanics.statuses)
+    assertTrue(gale.mechanics.landsAsElementalSpell)
+  }
+
+  @Test
+  fun `Frost Nova bursts once around where the caster stands and only freezes`() {
+    world.putPosition(BattleContextFixture.ATTACKER_ID, CASTER_NOW)
+    FrostNova().execute(selfCtx(level = 2))
+
+    val spawned = world.spawnedAreaEffects.single()
+    assertEquals(CASTER_NOW, spawned.centre)
+    assertEquals(13L, spawned.visualId)
+    val burst = spawned.effect
+    assertEquals(4L, burst.radiusTiles)
+    assertEquals(1, burst.remainingTicks)
+    assertEquals(0, burst.damagePerTick)
+    assertEquals(listOf(AreaStatus(StatusEffectId.FROZEN, 35, null, 2)), burst.mechanics.statuses)
+  }
+
+  @Test
+  fun `Earthquake shakes two metres more per level around the caster for eight seconds`() {
+    world.putPosition(BattleContextFixture.ATTACKER_ID, CASTER_NOW)
+    Earthquake().execute(selfCtx(level = 3))
+
+    val spawned = world.spawnedAreaEffects.single()
+    assertEquals(CASTER_NOW, spawned.centre)
+    assertEquals(17L, spawned.visualId)
+    val quake = spawned.effect
+    assertEquals(6L, quake.radiusTiles)
+    assertEquals(8, quake.remainingTicks)
+    assertEquals(22, quake.damagePerTick)
+    assertEquals(Element.EARTH, quake.element)
+    assertTrue(quake.mechanics.landsAsElementalSpell)
+  }
+
   private fun groundCtx(level: Int, element: Element, aoeRadius: Double? = null) = SkillContextFixture.skillCtx(
     BattleContextFixture.groundCtx(BattleContextFixture.attack(level = level, aoeRadius = aoeRadius, element = element)),
     world,
     skillLevel = level,
   )
+
+  private fun selfCtx(level: Int) = SkillContextFixture.skillCtx(
+    BattleContextFixture.entityCtx(attack = BattleContextFixture.attack(level = level, element = Element.EARTH)),
+    world,
+    skillLevel = level,
+  )
+
+  private companion object {
+    val CASTER_NOW = Vec3L(7, 7, 0)
+  }
 }

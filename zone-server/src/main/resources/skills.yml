@@ -1357,27 +1357,31 @@ skills:
   - id: 109
     identifier: M_STORM_GUST
     script: StormGust
-    targetType: GROUND
+    element: WATER
+    targetType: AOE_GROUND
+    aoeRadius: 4.0
     range: 12
     manaCost: 65
     castTime: 5.0
     cooldown: 25
     description: |
-      A freezing gale that batters an area with waves of ice for 10s, each one able to freeze
-      what it hits. Cooldown 25s.
+      A freezing gale that batters a 9m area with a wave of ice every second for 10s. Each wave
+      can freeze the foes it hits. Cooldown 25s.
 
-      `+16%/lv` MATK per tick, from 8% at Lv.1
-      `+10%/lv` freeze chance per tick, from 5% at Lv.1
+      `+16%/lv` MATK per wave, from 108% at Lv.1
+      `+10%/lv` freeze chance per wave, from 5% at Lv.1
 
   - id: 111
     identifier: M_FROST_NOVA
     script: FrostNova
+    element: WATER
     targetType: FRIENDLY
     manaCost: 40
     castTime: 2.0
     cooldown: 15
     description: |
-      A burst of subzero cold erupts outward from the caster. Cooldown 15s.
+      A burst of subzero cold erupts outward from the caster. It does no harm, but may freeze
+      every foe it reaches. Cooldown 15s.
 
       `+2m/lv` radius, from 2m at Lv.1
       `+20%/lv` freeze chance, from 15% at Lv.1
@@ -1416,15 +1420,16 @@ skills:
   - id: 114
     identifier: M_EARTHQUAKE
     script: Earthquake
+    element: EARTH
     targetType: FRIENDLY
     manaCost: 60
     castTime: 4.0
     cooldown: 25
     description: |
-      Splits the ground around the caster for 8s, dealing repeated damage to everything standing
-      on it. Cooldown 25s.
+      Splits the ground around the caster for 8s. Every second it hits every foe standing on it.
+      The ground stays split where it was cast. Cooldown 25s.
 
-      `+20%/lv` MATK per tick, from 10% at Lv.1
+      `+20%/lv` MATK per tick, from 110% at Lv.1
       `+2m/lv` radius, from 2m at Lv.1
 
   - id: 116
