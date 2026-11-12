@@ -1581,6 +1581,7 @@ skills:
   - id: 129
     identifier: M_GUT_PUNCH
     script: GutPunch
+    archetype: STRIKE
     targetType: ENEMY
     range: 1
     manaCost: 20

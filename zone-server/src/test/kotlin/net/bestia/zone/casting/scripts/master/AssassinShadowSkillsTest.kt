@@ -2,6 +2,9 @@ package net.bestia.zone.casting.scripts.master
 
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.BattleContextFixture
+import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.Size
+import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
@@ -97,6 +100,19 @@ class AssassinShadowSkillsTest {
   @Test
   fun `Shadow Step fizzles out of hiding`() {
     assertFalse(ShadowStep(LineOfSightService()).isCastPossible(ctx(level = 3)))
+  }
+
+  @Test
+  fun `Gut Punch stuns for 4 to 6 seconds, and a boss for half as long`() {
+    GutPunch(LineOfSightService()).execute(ctx(level = 2))
+    world.natures[target] = Nature(Element.NORMAL, Size.MEDIUM, boss = true)
+    GutPunch(LineOfSightService()).execute(ctx(level = 3))
+
+    assertEquals(
+      listOf(StatusEffectId.STUN.id to 5.0, StatusEffectId.STUN.id to 3.0),
+      world.appliedEffects.map { it.effectId to it.durationSeconds }
+    )
+    assertEquals(listOf(4.0, 5.0, 6.0), (1..3).map { GutPunch.stunSeconds(it, isBoss = false) })
   }
 
   private fun ctx(level: Int) = SkillContextFixture.skillCtx(world = world, skillLevel = level)
