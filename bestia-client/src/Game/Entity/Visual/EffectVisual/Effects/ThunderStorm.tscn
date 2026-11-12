@@ -1,0 +1,40 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://Game/Entity/Visual/EffectVisual/Effects/holy_ground.gd" id="1_script"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
+size = Vector2(5, 5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_glow"]
+resource_local_to_scene = true
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+albedo_color = Color(0.8, 0.8, 1, 0.5)
+emission_enabled = true
+emission = Color(0.75, 0.75, 1, 1)
+emission_energy_multiplier = 1.2
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_cloud"]
+size = Vector2(5, 5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cloud"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(0.2, 0.2, 0.28, 0.6)
+
+[node name="ThunderStorm" type="Node3D"]
+script = ExtResource("1_script")
+pulse_speed = 8.0
+pulse_depth = 0.4
+
+[node name="Glow" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+mesh = SubResource("PlaneMesh_ground")
+material_override = SubResource("StandardMaterial3D_glow")
+
+[node name="Cloud" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 0)
+mesh = SubResource("PlaneMesh_cloud")
+material_override = SubResource("StandardMaterial3D_cloud")
