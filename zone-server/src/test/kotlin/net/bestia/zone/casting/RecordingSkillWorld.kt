@@ -229,6 +229,12 @@ class RecordingSkillWorld(
     detections.add(seconds)
   }
 
+  val markedPrey = mutableListOf<Pair<EntityId, Int>>()
+
+  override fun markPrey(targetEntityId: EntityId, level: Int) {
+    markedPrey.add(targetEntityId to level)
+  }
+
   data class Inflicted(
     val targetEntityId: EntityId,
     val status: String,

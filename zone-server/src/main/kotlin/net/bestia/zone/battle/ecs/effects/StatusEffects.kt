@@ -154,6 +154,17 @@ class StatusEffects(
     return removed
   }
 
+  /** Drops the instances of [definitionId] that [sourceEntityId] left, and returns them. Others' stay. */
+  fun removeEffectFrom(definitionId: Long, sourceEntityId: EntityId): List<ActiveStatusEffect> {
+    val removed = activeEffects.filter { it.definitionId == definitionId && it.sourceEntityId == sourceEntityId }
+    if (removed.isNotEmpty()) {
+      activeEffects.removeAll(removed)
+      markDirty()
+    }
+
+    return removed
+  }
+
   /** Ticks down every active instance by [deltaTime], removes any that expired and returns them. */
   fun tickDown(deltaTime: Float): List<ActiveStatusEffect> {
     val iterator = activeEffects.iterator()

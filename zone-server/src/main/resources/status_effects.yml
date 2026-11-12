@@ -778,3 +778,11 @@ statusEffects:
     isSyncedToClient: true
     dispellable: false
     script: UnbreakableSpent
+
+  # The Hunter's Mark on its prey: the hunter crits it more often. Several hunters may each mark the same prey.
+  - id: 230
+    identifier: HUNTERS_MARK
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: HuntersMarked

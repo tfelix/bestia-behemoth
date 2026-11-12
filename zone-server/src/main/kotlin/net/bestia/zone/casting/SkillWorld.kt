@@ -386,4 +386,7 @@ interface SkillWorld {
 
   /** Lets the caster sense masters and player bestia around it for [seconds], see `Detecting`. */
   fun detect(seconds: Float)
+
+  /** Marks [targetEntityId] as the caster's prey at [level], and ends the mark the caster put on another. */
+  fun markPrey(targetEntityId: EntityId, level: Int)
 }
