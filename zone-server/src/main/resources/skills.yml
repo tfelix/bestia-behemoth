@@ -1477,7 +1477,8 @@ skills:
     description: |
       Knocks a random piece of equipment off the target and keeps its slot empty for a while.
       Accessories cannot be stripped. Stripping a dual wielder's weapon or shield takes both
-      weapons. Fails against Equipment Coating. Cooldown 12s.
+      weapons. A monster with no gear loses 25% of its ATK or DEF for that time instead. Fails
+      against Equipment Coating. Cooldown 12s.
 
       `+10%/lv` strip chance, from 20% at Lv.1
       `+5s/lv` slot blocked
@@ -1499,8 +1500,8 @@ skills:
     manaCost: 26
     castTime: 2.0
     description: |
-      A thin, oiled coating worked into weapons and armor for 10min. While it holds, Strip
-      Equipment cannot take any coated piece.
+      A thin, oiled coating worked into everything the Assassin wears, for 10min. While it holds,
+      Strip Equipment cannot take any coated piece.
 
       `-40%/lv` durability wear of the coated equipment, from 20% at Lv.1
 
@@ -1512,7 +1513,8 @@ skills:
     cooldown: 5
     description: |
       Drops the Assassin flat against whatever cover is at hand. Nothing hostile can see them
-      while they stay put. Breaks on moving or attacking. Ruwach always reveals. Cooldown 5s.
+      while they stay put. Breaks on moving, attacking or casting; recast to come out. Ruwach
+      always reveals. Cooldown 5s.
 
       `-0.5/lv` mana drain per second, from 3 at Lv.1
       `+10%/lv` detection resistance
@@ -1524,8 +1526,8 @@ skills:
     manaCost: 30
     cooldown: 8
     description: |
-      What Hide is for standing still, Cloak is for walking. Still breaks on attacking. Ruwach
-      strips it outright. Cooldown 8s.
+      What Hide is for standing still, Cloak is for walking. Still breaks on attacking or
+      casting; recast to come out. Ruwach strips it outright. Cooldown 8s.
 
       `+20%/lv` movement speed kept, from 50% at Lv.1
       `-1/lv` mana drain per second, from 6 at Lv.1
@@ -1614,7 +1616,7 @@ skills:
     cooldown: 20
     description: |
       Slips through the shadows to stand right behind a target, still hidden, so a Backstab can
-      follow. Cooldown 20s.
+      follow. Only from Hide or Cloak. Cooldown 20s.
 
       `+2m/lv` range, from 4m at Lv.1
 
