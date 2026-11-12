@@ -1324,30 +1324,34 @@ skills:
   - id: 107
     identifier: M_FIRE_WALL
     script: FireWall
+    element: FIRE
     targetType: GROUND
     range: 6
     manaCost: 35
     castTime: 2.0
     cooldown: 10
     description: |
-      Conjures a wall of roaring flame for 20s. Anything that tries to push through is burned
-      and shoved back. Cooldown 10s.
+      Conjures a wall of roaring flame three tiles long for 20s, across the line of the cast.
+      Twice a second it burns every foe on it and shoves it back the way it came. Cooldown 10s.
 
-      `+20%/lv` MATK per tick, from 10% at Lv.1
+      `+20%/lv` MATK per tick, from 110% at Lv.1
       `+1m/lv` knockback, from 1m at Lv.1
 
   - id: 108
     identifier: M_METEOR_STORM
     script: MeteorStorm
-    targetType: GROUND
+    element: FIRE
+    targetType: AOE_GROUND
+    aoeRadius: 3.0
     range: 12
     manaCost: 70
     castTime: 6.0
     cooldown: 30
     description: |
-      Calls down a rain of blazing meteors onto an area for 10s. Cooldown 30s.
+      Calls down a rain of blazing meteors onto a 7m area for 10s. Each one falls at random
+      and burns every foe within 3m of where it lands. Cooldown 30s.
 
-      `+20%/lv` MATK per meteor, from 10% at Lv.1
+      `+20%/lv` MATK per meteor, from 110% at Lv.1
       `+2/lv` meteors, from 3 at Lv.1
 
   - id: 109
@@ -1395,16 +1399,18 @@ skills:
   - id: 113
     identifier: M_THUNDER_STORM
     script: ThunderStorm
-    targetType: GROUND
+    element: WIND
+    targetType: AOE_GROUND
+    aoeRadius: 2.0
     range: 12
     manaCost: 60
     castTime: 4.0
     cooldown: 20
     description: |
-      Wind churns into a storm overhead for 8s, calling down lightning across the area at
-      random. Cooldown 20s.
+      Wind churns into a storm overhead for 8s, calling down lightning at random across a 5m
+      area. Each strike hits every foe within 1m of it. Cooldown 20s.
 
-      `+20%/lv` MATK per strike, from 10% at Lv.1
+      `+20%/lv` MATK per strike, from 110% at Lv.1
       `+2/lv` strikes, from 3 at Lv.1
 
   - id: 114
