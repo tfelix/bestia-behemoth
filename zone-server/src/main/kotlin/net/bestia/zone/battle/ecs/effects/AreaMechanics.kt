@@ -66,6 +66,12 @@ data class AreaMechanics(
 
   /** Its ally side is the caster's party and their bestias only, as a camp is; other players get nothing. */
   val partyOnly: Boolean = false,
+
+  /**
+   * Physical blows on the allies inside are turned away until this many are spent, all of them sharing one count,
+   * like Safety Wall. The [zoneStatus] then names the area as its source, so the bearer knows whose count to spend.
+   */
+  val absorbsHits: Int = 0,
 ) {
 
   val drifts: Boolean

@@ -60,6 +60,9 @@ data class AreaEffect(
   val potency: Int = 0,
 ) : Component {
 
+  /** What is left of [AreaMechanics.absorbsHits]. */
+  var hitsLeft: Int = mechanics.absorbsHits
+
   /** The part of a tile the area has drifted but not yet moved, see [AreaMechanics.driftX]. */
   var driftCarryX: Float = 0f
   var driftCarryY: Float = 0f

@@ -12,9 +12,9 @@ class Silenced(private val castCancelService: CastCancelService) : StatusEffectS
 
   override val actionLocks: Set<ActionLock> = setOf(ActionLock.CAST)
 
-  /** Suppress Magic's table: 3 s at Lv. 1, one more per level. */
+  /** Suppress Magic's table: 3 s at Lv. 1, two more per level. */
   override fun durationSeconds(level: Int): Double {
-    return 2.0 + level
+    return 1.0 + 2.0 * level
   }
 
   override fun onApply(context: StatusEffectHookContext) {
