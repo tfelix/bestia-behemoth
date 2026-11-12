@@ -7,11 +7,13 @@ import java.util.Random
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.ActionGuard
+import net.bestia.zone.battle.ActionReactions
 import net.bestia.zone.battle.attack.ThreadLocalRandomSource
 import net.bestia.zone.battle.ecs.attack.AttackCancelService
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.skill.CastCancelService
 import net.bestia.zone.battle.status.ActionLock
+import net.bestia.zone.battle.status.EntityAction
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.control.ClientLeg
 import net.bestia.zone.control.MoveRequestRateLimit
@@ -52,6 +54,7 @@ class MoveEntityHandler(
   private val journeys: JourneyService,
   private val clientLeg: ClientLeg,
   private val outMessageProcessor: OutMessageProcessor,
+  private val actionReactions: ActionReactions = ActionReactions.NONE,
   private val random: Random = ThreadLocalRandomSource,
 ) : TickMessageHandler<MoveEntityCMSG> {
   override val wire = decoder(MessageCase.MOVE_ENTITY) { accountId, envelope ->
@@ -90,6 +93,9 @@ class MoveEntityHandler(
       outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(OpError.TRAVEL_DESTINATION_IN_WATER))
       return true
     }
+
+    // A stop is no step, so standing still in hiding stays hidden.
+    if (msg.waypoints.isNotEmpty()) actionReactions.notifyActed(world, id, EntityAction.MOVED)
 
     when {
       msg.waypoints.isEmpty() -> stop(world, id)

@@ -1,7 +1,10 @@
 package net.bestia.zone.casting.detect
 
 import net.bestia.zone.battle.ecs.effects.StatusEffectDurationSystem
+import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.battle.status.scripts.Hiding
 import net.bestia.zone.battle.potency.Potency
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
@@ -57,12 +60,21 @@ class DetectingSystem(
     return found.sortedBy { it.entityId }
   }
 
-  /** A concealed body is found only within part of the range: `range x Edge(P detect - P conceal)`. */
+  /**
+   * A concealed body is found only within part of the range: `range x Edge(P detect - P conceal)`, and less of it
+   * again for the detection resistance of Hide.
+   */
   private fun isWithinReach(world: World, id: EntityId, from: Vec3L, to: Vec3L, potency: Int): Boolean {
     val concealment = world.get(id, StatusEffects::class)?.concealment() ?: return true
-    val reach = RADIUS_TILES * Potency.edge(potency, concealment.potency)
+    val reach = RADIUS_TILES * Potency.edge(potency, concealment.potency) * (100 - resistancePercent(concealment)) / 100
 
     return from.distance(to) <= reach
+  }
+
+  private fun resistancePercent(concealment: ActiveStatusEffect): Int {
+    if (concealment.definitionId != StatusEffectId.HIDING.id) return 0
+
+    return Hiding.detectionResistancePercent(concealment.level)
   }
 
   private companion object {

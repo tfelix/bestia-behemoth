@@ -31,6 +31,18 @@ class RuwachPulseTest {
     verify(exactly = 0) { statusEffects.removeEffect(world, cloakedFarAway, any(), any()) }
   }
 
+  @Test
+  fun `a pulse ends the Assassin's Hide and Cloak too`() {
+    val caster = standing(Vec3L(0, 0, 0))
+    val hiding = standing(Vec3L(3, 0, 0), StatusEffectId.HIDING)
+    val effect = ActiveStatusEffect(definitionId = StatusEffectId.RUWACH.id, level = 1, remainingSeconds = 10f)
+
+    RuwachPulse().onTick(StatusEffectTickContext(world, caster, effect, statusEffects))
+
+    verify { statusEffects.removeEffect(world, hiding, StatusEffectId.HIDING.id, RemovalReason.DISPELLED) }
+    verify { statusEffects.removeEffect(world, hiding, StatusEffectId.CLOAKING.id, RemovalReason.DISPELLED) }
+  }
+
   private fun standing(at: Vec3L, concealment: StatusEffectId? = null, potency: Int = 100) = world.createEntity { id ->
     add(id, Position.fromVec3(at))
     val effects = concealment?.let {

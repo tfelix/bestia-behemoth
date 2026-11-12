@@ -107,14 +107,14 @@ class StatusEffects(
 
   fun hasEffect(definitionId: Long): Boolean = activeEffects.any { it.definitionId == definitionId }
 
-  /** The HIDDEN or CLOAKED effect on the bearer, for a detection contest against its Potency; null if neither. */
+  /** The concealment on the bearer, for a detection contest against its Potency; null if none. */
   fun concealment(): ActiveStatusEffect? {
-    return activeEffects.firstOrNull { it.definitionId == StatusEffectId.HIDDEN.id || it.definitionId == StatusEffectId.CLOAKED.id }
+    return activeEffects.firstOrNull { it.definitionId in CONCEALMENT_IDS }
   }
 
   /** Hidden or cloaked: nothing may pick the bearer out as a target. */
   fun isConcealed(): Boolean {
-    return activeEffects.any { it.definitionId == StatusEffectId.HIDDEN.id || it.definitionId == StatusEffectId.CLOAKED.id }
+    return activeEffects.any { it.definitionId in CONCEALMENT_IDS }
   }
 
   fun isLocked(lock: ActionLock): Boolean {
@@ -199,5 +199,9 @@ class StatusEffects(
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets {
     return SyncTargets.PublicInRange
+  }
+
+  private companion object {
+    val CONCEALMENT_IDS: Set<Long> = StatusEffectId.CONCEALMENTS.map { it.id }.toSet()
   }
 }
