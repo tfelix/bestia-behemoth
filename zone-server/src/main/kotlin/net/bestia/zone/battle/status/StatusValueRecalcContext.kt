@@ -207,6 +207,12 @@ class StatusValueRecalcContext(
     swingStatusChance = swingStatusChance + (effect to (swingStatusChance[effect] ?: 0) + percent)
   }
 
+  /** Walks on ground nobody made, see `OffRoadSystem`. Filled before the passives run. */
+  var walksOffRoad: Boolean = false
+
+  /** Percent more speed off the roads. Set by Trailblazer, which also tells `OffRoadSystem` to watch the ground. */
+  var offRoadSpeedPercent: Int = 0
+
   /** Percent less of a wild creature's sight radius at which it notices this entity. Set by Camouflage. */
   var noticeRangeCutPercent: Int = 0
 

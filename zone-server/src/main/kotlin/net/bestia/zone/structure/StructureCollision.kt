@@ -91,6 +91,13 @@ class StructureCollision(
     if (unsupported.isNotEmpty()) LOG.debug { "Piece $pieceId fell and left $unsupported without support" }
   }
 
+  /** Whether somebody at [position] stands on a built floor or stair: in its half cell, or on the cell below. */
+  fun standsOnPiece(position: Vec3L): Boolean {
+    if (!chunkService.isReady) return false
+
+    return index.isFilled(position.x, position.y, position.z) || index.isFilled(position.x, position.y, position.z - 1)
+  }
+
   /** A piece placed at a yaw stands at the nearest quarter turn: pieces snap to the grid. */
   private fun cellsOf(piece: StructurePiece, origin: Vec3L, yaw: Float): List<StructureCell> {
     return StructureRasterizer.rasterize(piece, origin, StructureRasterizer.quarterTurnsOf(yaw))
