@@ -776,6 +776,9 @@ STATUS_EFFECT_213,Suffragium: your next cast bar is 30% shorter.
 STATUS_EFFECT_214,Magnificat: your HP and mana regenerate faster.
 STATUS_EFFECT_215,Gloria: what you start to craft rolls its random stats with better odds.
 STATUS_EFFECT_216,Aspersio: your weapon strikes as holy.
+STATUS_EFFECT_217,Magic Armor: you take less damage. Each hit costs mana; the ward breaks below 20% mana.
+STATUS_EFFECT_218,"Mindbreak: more magic attack, less soft magic defense."
+STATUS_EFFECT_219,Safety Wall: melee strikes and projectiles are stopped while the wall holds.
 ERROR_PORTAL_NO_SPOT,That saved spot is not there any more.
 ERROR_PORTAL_SPENT,The portal is closing or has let everyone through it can.
 PORTAL_MARK_SPOT,Mark this spot (%d of %d saved)
@@ -789,6 +792,7 @@ ERROR_SPELL_INSCRIPTION_FAILED,The extraction failed. The blank scroll is spent.
 ERROR_SPELL_MIND_BROKEN,The extraction broke your bestia's mind. It is lost for good. Its bag was sent to you by post.
 ERROR_SPELL_OUT_OF_RANGE,The target is out of the scroll's reach.
 ERROR_SKILL_NEEDS_WATER,You must stand in water for this rite.
+ERROR_SKILL_NEEDS_OWN_BESTIA,This spell only works on one of your own bestias.
 SUCCESS_SPELL_LEARNED,Your bestia learned the attack.
 SUCCESS_SPELL_INSCRIBED,The attack is written on a new spell scroll.
 SPELL_SCROLL_PICK,%s Lv. %d
