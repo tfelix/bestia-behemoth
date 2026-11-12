@@ -174,6 +174,17 @@ class RecordingSkillWorld(
     return casterMana.also { casterMana = 0 }
   }
 
+  /** Whether a Triple Blow just landed, until a Chain Combo spends it. */
+  var tripleBlowOpen: Boolean = false
+
+  override fun followsTripleBlow(): Boolean {
+    return tripleBlowOpen
+  }
+
+  override fun spendTripleBlow(): Boolean {
+    return tripleBlowOpen.also { tripleBlowOpen = false }
+  }
+
   override fun strip(entityId: EntityId, slot: EquipmentSlot): Boolean {
     if (strippable) stripped.add(entityId to slot)
     return strippable

@@ -351,6 +351,12 @@ interface SkillWorld {
   /** Empties the caster's mana pool and returns what it held. */
   fun spendAllCasterMana(): Int
 
+  /** Whether the caster landed a Triple Blow so lately that a Chain Combo may still follow. One operation. */
+  fun followsTripleBlow(): Boolean
+
+  /** Spends the caster's last Triple Blow on one Chain Combo; false when it is too late. One operation. */
+  fun spendTripleBlow(): Boolean
+
   /** Takes off what [entityId] wears in [slot]; false when nothing was there. */
   fun strip(entityId: EntityId, slot: EquipmentSlot): Boolean
 

@@ -493,6 +493,8 @@ enum OpError {
   SKILL_NEEDS_PARTY_MEMBER = 173;
   // A staff skill, like Staff Sweep, was used without a staff in hand.
   SKILL_NEEDS_STAFF = 174;
+  // Chain Combo was used without a Triple Blow landed just before it.
+  SKILL_NEEDS_TRIPLE_BLOW = 175;
 }
 
 message OperationError {
