@@ -31,6 +31,7 @@ import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.status.RemovalReason
 import net.bestia.zone.casting.detect.Detecting
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusEffectPolarity
 import net.bestia.zone.identity.ecs.Account
@@ -384,6 +385,12 @@ class BudgetedSkillWorld(
     budget.charge()
 
     return services.gear.isDualWielding(world, entityId)
+  }
+
+  override fun swingStatusChanceOf(entityId: EntityId, effect: StatusEffectId): Int {
+    budget.charge()
+
+    return world.get(entityId, CombatStats::class)?.values?.swingStatusChance?.get(effect) ?: 0
   }
 
   override fun wearGear(entityId: EntityId, percent: Int): Boolean {

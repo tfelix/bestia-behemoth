@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.ammo.Ammunition
 import net.bestia.zone.battle.attack.BattleAttack
@@ -177,6 +178,13 @@ class RecordingSkillWorld(
   override fun strippableGearOf(entityId: EntityId): List<SlotLock> = wornGear[entityId].orEmpty()
 
   override fun isDualWielding(entityId: EntityId): Boolean = entityId in dualWielders
+
+  /** What [swingStatusChanceOf] answers for a stun, by entity. */
+  val gearStunChances = mutableMapOf<EntityId, Int>()
+
+  override fun swingStatusChanceOf(entityId: EntityId, effect: StatusEffectId): Int {
+    return if (effect == StatusEffectId.STUN) gearStunChances[entityId] ?: 0 else 0
+  }
 
   override fun wearGear(entityId: EntityId, percent: Int): Boolean {
     gearWorn.add(entityId to percent)

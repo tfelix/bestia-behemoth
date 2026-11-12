@@ -9,6 +9,7 @@ import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.battle.ecs.effects.AreaEffect
 import net.bestia.zone.battle.ecs.status.Nature
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.GuildMembership
@@ -347,6 +348,9 @@ interface SkillWorld {
 
   /** Whether [entityId] holds a weapon in each hand. One operation. */
   fun isDualWielding(entityId: EntityId): Boolean
+
+  /** The percent chance [entityId]'s gear gives each landed swing to put [effect] on its target. One operation. */
+  fun swingStatusChanceOf(entityId: EntityId, effect: StatusEffectId): Int
 
   /** Takes [percent] of the maximum off the durability of [entityId]'s weapon and armour. */
   fun wearGear(entityId: EntityId, percent: Int): Boolean
