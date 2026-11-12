@@ -779,6 +779,7 @@ STATUS_EFFECT_216,Aspersio: your weapon strikes as holy.
 STATUS_EFFECT_217,Magic Armor: you take less damage. Each hit costs mana; the ward breaks below 20% mana.
 STATUS_EFFECT_218,"Mindbreak: more magic attack, less soft magic defense."
 STATUS_EFFECT_219,Safety Wall: melee strikes and projectiles are stopped while the wall holds.
+STATUS_EFFECT_220,Quagmire: the mud cuts your AGI and DEX and lets no AGI buff hold.
 ERROR_PORTAL_NO_SPOT,That saved spot is not there any more.
 ERROR_PORTAL_SPENT,The portal is closing or has let everyone through it can.
 PORTAL_MARK_SPOT,Mark this spot (%d of %d saved)

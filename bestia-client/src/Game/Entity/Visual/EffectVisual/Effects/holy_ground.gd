@@ -2,10 +2,11 @@ extends Visual
 class_name HolyGround
 
 ## The Priest's ground rites: Pneuma's still air, Sanctuary and Magnus Exorcismus. One script, a scene each.
-## The Wizard's Safety Wall, a glowing pillar of mana on one tile, borrows it too.
+## The Wizard's Safety Wall and area spells borrow it too: only the colour and the pace of the glow differ.
 ##
 ## Presentation only, like [EmberPatch]: the server owns the area and destroys the entity when it ends. Each
-## scene bakes in its skill's footprint (3x3, 5x5, 7x7), for the reason given there.
+## scene bakes in its skill's footprint (3x3, 5x5, 7x7), for the reason given there. A burst whose size grows
+## by level has a scene per level that scales the base scene's Glow.
 
 ## How fast and how deep the glow breathes. Still air barely moves; an exorcism throbs.
 @export var pulse_speed := 2.0
