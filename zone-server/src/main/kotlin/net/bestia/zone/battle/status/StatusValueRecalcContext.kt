@@ -207,6 +207,9 @@ class StatusValueRecalcContext(
     swingStatusChance = swingStatusChance + (effect to (swingStatusChance[effect] ?: 0) + percent)
   }
 
+  /** Percent less of a wild creature's sight radius at which it notices this entity. Set by Camouflage. */
+  var noticeRangeCutPercent: Int = 0
+
   /** Percent more weight the entity can carry, beside what strength and vitality give. */
   var carryCapacityPercent: Int = 0
 
