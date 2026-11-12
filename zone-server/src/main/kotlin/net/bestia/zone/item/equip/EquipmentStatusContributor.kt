@@ -26,7 +26,8 @@ class EquipmentStatusContributor(
     val worn = world.get(id, Equipment::class)?.getWorn().orEmpty()
     for ((slot, item) in worn) {
       val stats = ItemStats(itemStatCatalog.sheetOf(item.itemId), item.rolledStats)
-      equipmentScriptRegistry.getByItemId(item.itemId).apply(context, slot, item.upgradeLevel, stats)
+      val wear = { equipmentScriptRegistry.getByItemId(item.itemId).apply(context, slot, item.upgradeLevel, stats) }
+      if (slot == EquipmentSlot.LEFT_HAND && isWeapon(item.itemId)) context.bookAttackToOffHand(wear) else wear()
     }
 
     // The damage formula prices refinement for the right hand only, and only the right hand can shoot.
@@ -37,10 +38,16 @@ class EquipmentStatusContributor(
     context.heldWeaponType = rightHand?.let { templates.templateOf(it.itemId)?.weaponType }
     context.heldTool = rightHand?.let { templates.templateOf(it.itemId)?.toolKind }
     context.offHandWeaponType = worn[EquipmentSlot.LEFT_HAND]?.let { templates.templateOf(it.itemId)?.weaponType }
+    context.offHandUpgradeLevel = worn[EquipmentSlot.LEFT_HAND]?.upgradeLevel ?: 0
     context.bodyArmorType = worn[EquipmentSlot.ARMOR]?.let { templates.templateOf(it.itemId)?.armorType }
     context.shieldArmorType = worn[EquipmentSlot.LEFT_HAND]?.let { templates.templateOf(it.itemId)?.armorType }
 
     context.potencyFocus += focusOf(context.heldWeaponType) + focusOf(context.offHandWeaponType)
+  }
+
+  /** A second weapon, rather than a shield or a tome. */
+  private fun isWeapon(itemId: Long): Boolean {
+    return templates.templateOf(itemId)?.weaponType?.isDualWieldable == true
   }
 
   /** A caster's tools steady the spell: Potency's Focus term, by what is held. */

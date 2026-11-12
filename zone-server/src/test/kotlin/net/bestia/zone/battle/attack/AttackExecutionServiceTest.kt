@@ -6,6 +6,8 @@ import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.ecs.attack.AttackDelay
 import net.bestia.zone.battle.BattleContextFixture
+import net.bestia.zone.battle.Weapon
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
@@ -202,6 +204,33 @@ class AttackExecutionServiceTest {
       world.has(target, IncomingDamage::class),
       "a miss is broadcast for the client to show, but must not stage a hit"
     )
+  }
+
+  @Test
+  fun `a dual wielder's second weapon strikes after the main hand, at Dual Wield's share`() {
+    val duelist = world.spawnFighter(at = Vec3L(0, 0, 0))
+    val target = world.spawnFighter(at = Vec3L(1, 0, 0))
+    world.getOrThrow(duelist, CombatStats::class).apply {
+      values = values.copy(offHandWeapon = Weapon(atk = 0, matk = 0, upgradeLevel = 0), offHandDamagePercent = 50)
+    }
+
+    sut.attack(world, duelist, target, BattleAttack.getBasicMeleeAttack())
+
+    // The main hand as in the swing above, 44; the second weapon at half of it, 22.
+    assertEquals(listOf(44, 22), world.get(target, IncomingDamage::class)?.amounts?.map { it.amount })
+  }
+
+  @Test
+  fun `a second weapon does not swing without Dual Wield`() {
+    val holder = world.spawnFighter(at = Vec3L(0, 0, 0))
+    val target = world.spawnFighter(at = Vec3L(1, 0, 0))
+    world.getOrThrow(holder, CombatStats::class).apply {
+      values = values.copy(offHandWeapon = Weapon(atk = 30, matk = 0, upgradeLevel = 0), offHandDamagePercent = 0)
+    }
+
+    sut.attack(world, holder, target, BattleAttack.getBasicMeleeAttack())
+
+    assertEquals(1, world.get(target, IncomingDamage::class)?.amounts?.size)
   }
 
   private fun World.spawnFighter(at: Vec3L): EntityId = createEntity { id ->

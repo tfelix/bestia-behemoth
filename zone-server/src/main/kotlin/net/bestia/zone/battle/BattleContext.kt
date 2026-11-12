@@ -39,6 +39,13 @@ data class EntityBattleContext(
   override fun targetPosition(): Vec3L {
     return defender.position
   }
+
+  /** The same blow struck with [offHand], a second weapon in the left hand, at [percent] of its power. */
+  fun withOffHand(offHand: Weapon, percent: Int): EntityBattleContext {
+    val power = damageVariables.attackPhysicalMod * percent / 100f
+
+    return copy(weapon = offHand, damageVariables = damageVariables.copy(attackPhysicalMod = power))
+  }
 }
 
 /**

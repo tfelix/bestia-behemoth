@@ -27,6 +27,12 @@ data class CombatValues(
   /** [Weapon.NONE] when bare-handed. */
   val weapon: Weapon,
 
+  /** A second weapon in the left hand, or null; see [StatusValueRecalcContext.offHandAttack]. */
+  val offHandWeapon: Weapon? = null,
+
+  /** See [StatusValueRecalcContext.offHandDamagePercent]. */
+  val offHandDamagePercent: Int = 0,
+
   /** Percentage points of damage removed per base element, see [Element.base]. */
   val elementResistance: Map<Element, Int> = emptyMap(),
 
@@ -139,6 +145,18 @@ data class CombatValues(
         arcaneDamagePercent = context.arcaneDamagePercent,
         heldWeaponType = context.heldWeaponType,
         heldTool = context.heldTool,
+        offHandWeapon = offHandWeaponOf(context),
+        offHandDamagePercent = context.offHandDamagePercent,
+      )
+    }
+
+    private fun offHandWeaponOf(context: StatusValueRecalcContext): Weapon? {
+      if (context.offHandWeaponType?.isDualWieldable != true) return null
+
+      return Weapon(
+        atk = scaled(context.offHandAttack, context.attackPercent),
+        matk = 0,
+        upgradeLevel = context.offHandUpgradeLevel,
       )
     }
 

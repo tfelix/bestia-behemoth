@@ -12,6 +12,9 @@ import net.bestia.zone.item.stat.ItemStat
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.stat.ItemStatSheet
 import net.bestia.zone.item.stat.StatValue
+import net.bestia.zone.battle.gear.WeaponType
+import net.bestia.zone.item.material.ItemMaterial
+import net.bestia.zone.item.persistence.Item
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -69,6 +72,28 @@ class EquipmentStatusContributorTest {
     sut.contribute(context, world, fighter)
 
     assertEquals(1 + 3 + 2, context.strength)
+  }
+
+  @Test
+  fun `a second weapon's ATK is kept apart from the main weapon's`() {
+    val dagger = Item(
+      id = 2L, identifier = "dagger", weight = 10, type = Item.ItemType.EQUIP, equipSlot = EquipmentSlot.RIGHT_HAND,
+      weaponType = WeaponType.DAGGER, material = ItemMaterial.METAL
+    )
+    val contributor = EquipmentStatusContributor(
+      EquipmentScriptRegistry(listOf(StatBonusEquipmentScript())), catalog, itemTemplatesOf(dagger)
+    )
+    catalog.load(mapOf(1L to ItemStatSheet(attack = 20), dagger.id to ItemStatSheet(attack = 7)))
+    val equipment = Equipment(availableSlotMask = EquipmentSlots.ALL)
+    equipment.equip(EquipmentSlot.RIGHT_HAND, Equipment.EquippedItem(itemId = 1, uniqueId = 1L))
+    equipment.equip(EquipmentSlot.LEFT_HAND, Equipment.EquippedItem(itemId = dagger.id, uniqueId = 2L, upgradeLevel = 3))
+    val duelist = world.createEntity { id -> add(id, equipment) }
+
+    contributor.contribute(context, world, duelist)
+
+    assertEquals(20, context.attack)
+    assertEquals(7, context.offHandAttack)
+    assertEquals(3, context.offHandUpgradeLevel)
   }
 
   private fun wearing(vararg items: Pair<EquipmentSlot, Int>): Long {
