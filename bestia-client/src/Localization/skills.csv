@@ -830,8 +830,9 @@ only the Knight, even one that would never pick a fight. It has no effect on mas
 newer provoke takes the target from whoever provoked it before. Cooldown 10s.
 
 `3s + 1s/lv` duration"
-SKILL_135_DESC,"Plants the Knight's feet and raises their shield into a proper wall. Needs a shield.
-Toggle. Cooldown 15s.
+SKILL_135_DESC,"Plants the Knight's feet and raises their shield into a proper wall. Needs a shield, and
+drops with it. Toggle: cast it again to lower the wall at no cost. The cut adds to Iron
+Skin. Cooldown 15s.
 
 `-5%/lv` physical damage taken, from 15% at Lv.1
 `-50%` movement speed at Lv.1, `-40%` at Lv.2, `-30%` from Lv.3
@@ -842,7 +843,7 @@ lands on for 1s. The chance adds to the stun chance of the Knight's gear. Cooldo
 `+20%/lv` bonus damage
 `+5%/lv` stun chance"
 SKILL_137_DESC,"A trained reflex that raises the shield on its own the instant a blow lands, sometimes fast
-enough to stop it cold. Needs a shield.
+enough to stop it cold. Needs a shield. A spell cannot be blocked.
 
 `+4%/lv` chance to block a hit fully"
 SKILL_138_DESC,"Closes the distance to a target in sight in an instant, weapon first. The impact deals 150%
@@ -855,7 +856,7 @@ anything: +20% DEF and +20% ATK.
 
 Lv.1 10s, cooldown 120s
 Lv.2 15s, and immune to stun and knockback
-Lv.3 cooldown 90s, and a hit fully blocked by Auto Guard refreshes the duration"
+Lv.3 15s, cooldown 90s, and a hit fully blocked by Auto Guard refreshes the duration"
 SKILL_140_DESC,"A Brawler's conditioning - stamina holds out longer under strain and comes back quicker once
 it's spent.
 
@@ -963,8 +964,10 @@ SKILL_169_DESC,"A song: needs an instrument and buffs every party member and the
 SKILL_170_DESC,"The Bard's capstone. Every song lands a little harder.
 
 `+10%/lv` effect of every song"
-SKILL_171_DESC,"Takes the hits meant for one party member. While it lasts, all damage the ally takes goes to
-the Knight instead. It ends early when the ally moves more than 7m away. Cooldown 30s.
+SKILL_171_DESC,"Takes the hits meant for a party member, a party Bestia or one of the Knight's own Bestias.
+While it lasts, every blow and spell on the ally hits the Knight instead, as hard as it would
+have hit the ally. Poison and burns stay with the ally. It ends early when the ally moves
+more than 7m away or the Knight falls. Cooldown 30s.
 
 `+15s/lv` duration"
 SKILL_172_DESC,"Needs a spear or a polearm. A wide sweep that hits every enemy in a 3x3 area in front of the

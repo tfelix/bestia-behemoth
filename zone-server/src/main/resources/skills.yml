@@ -1670,8 +1670,9 @@ skills:
     manaCost: 25
     cooldown: 15
     description: |
-      Plants the Knight's feet and raises their shield into a proper wall. Needs a shield.
-      Toggle. Cooldown 15s.
+      Plants the Knight's feet and raises their shield into a proper wall. Needs a shield, and
+      drops with it. Toggle: cast it again to lower the wall at no cost. The cut adds to Iron
+      Skin. Cooldown 15s.
 
       `-5%/lv` physical damage taken, from 15% at Lv.1
       `-50%` movement speed at Lv.1, `-40%` at Lv.2, `-30%` from Lv.3
@@ -1696,7 +1697,7 @@ skills:
     targetType: FRIENDLY
     description: |
       A trained reflex that raises the shield on its own the instant a blow lands, sometimes fast
-      enough to stop it cold. Needs a shield.
+      enough to stop it cold. Needs a shield. A spell cannot be blocked.
 
       `+4%/lv` chance to block a hit fully
 
@@ -1725,7 +1726,7 @@ skills:
 
       Lv.1 10s, cooldown 120s
       Lv.2 15s, and immune to stun and knockback
-      Lv.3 cooldown 90s, and a hit fully blocked by Auto Guard refreshes the duration
+      Lv.3 15s, cooldown 90s, and a hit fully blocked by Auto Guard refreshes the duration
 
 # Brawler
   - id: 140
@@ -2064,8 +2065,10 @@ skills:
     manaCost: 25
     cooldown: 30
     description: |
-      Takes the hits meant for one party member. While it lasts, all damage the ally takes goes to
-      the Knight instead. It ends early when the ally moves more than 7m away. Cooldown 30s.
+      Takes the hits meant for a party member, a party Bestia or one of the Knight's own Bestias.
+      While it lasts, every blow and spell on the ally hits the Knight instead, as hard as it would
+      have hit the ally. Poison and burns stay with the ally. It ends early when the ally moves
+      more than 7m away or the Knight falls. Cooldown 30s.
 
       `+15s/lv` duration
 

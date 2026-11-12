@@ -786,6 +786,9 @@ STATUS_EFFECT_222,"Cloak: nothing hostile sees you, and you move slower. Attacki
 STATUS_EFFECT_223,Equipment Coating: your gear wears less and cannot be stripped.
 STATUS_EFFECT_224,Enchant Poison: your swings that land may poison what they hit.
 STATUS_EFFECT_225,Provoked: you can fight no one but the one who provoked you.
+STATUS_EFFECT_226,"Shield Wall: less physical damage taken, and you move slower. Cast it again to lower it."
+STATUS_EFFECT_227,Devotion: a Knight takes the blows and spells meant for you while you stay near.
+STATUS_EFFECT_228,"Juggernaut: more ATK and DEF, and at Lv. 2 or more no stun or knockback."
 ERROR_PORTAL_NO_SPOT,That saved spot is not there any more.
 ERROR_PORTAL_SPENT,The portal is closing or has let everyone through it can.
 PORTAL_MARK_SPOT,Mark this spot (%d of %d saved)
@@ -806,6 +809,8 @@ ERROR_STRIP_GEAR_COATED,"Their gear is coated, it cannot be stripped."
 ERROR_EQUIP_NEEDS_DUAL_WIELD,You need Dual Wield to hold a weapon in your left hand.
 ERROR_SKILL_NOT_ON_MASTERS,This does not work on a master.
 ERROR_SKILL_NEEDS_SPEAR,You need a spear or a polearm in hand for this.
+ERROR_SKILL_NEEDS_SHIELD,You need a shield in your left hand for this.
+ERROR_SKILL_NEEDS_PARTY_MEMBER,"Aim this at a party member or a Bestia of your party, not yourself."
 SUCCESS_SPELL_LEARNED,Your bestia learned the attack.
 SUCCESS_SPELL_INSCRIBED,The attack is written on a new spell scroll.
 SPELL_SCROLL_PICK,%s Lv. %d
