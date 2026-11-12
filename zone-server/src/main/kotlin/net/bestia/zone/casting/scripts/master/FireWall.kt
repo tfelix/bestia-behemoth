@@ -7,11 +7,13 @@ import net.bestia.zone.battle.ecs.effects.AreaEffect
 import net.bestia.zone.battle.ecs.effects.LineFootprint
 import net.bestia.zone.casting.BasicMagicSkillStrategy
 import net.bestia.zone.casting.SkillContext
+import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.movement.ecs.Facing
 import org.springframework.stereotype.Component
 
 /**
  * Fire Wall (`skills.yml` id 107): three tiles of flame across the line of the cast for 20 s. Twice a second each
- * tile burns the foe on it for `MATK * (110% + 20%/lv after Lv.1)` and throws it `1 m/lv` back the way it came.
+ * tile burns the foe on it for `MATK * (110% + 20%/lv after Lv.1)` and throws it `1 m/lv` back across the wall.
  *
  * One area per tile rather than one with a [LineFootprint]: the client draws an effect by its id alone, so it
  * could not turn a single wall to face the caster.
@@ -27,15 +29,17 @@ class FireWall(losService: LineOfSightService) : BasicMagicSkillStrategy(losServ
     val ground = ctx.requireGroundContext()
     val level = ctx.skillLevel.coerceIn(1, MAX_LEVEL)
     val wall = LineFootprint.across(ground.attacker.position, ground.targetPosition, LENGTH_TILES)
+    val facesAwayFromCaster = Facing().apply { turnTowards(ground.attacker.position, ground.targetPosition) }
+    val across = Vec3L(facesAwayFromCaster.dx.toLong(), facesAwayFromCaster.dy.toLong(), 0)
 
     wall.tiles().forEach { tile ->
-      ctx.world.spawnAreaEffect(centre = tile, visualId = VISUAL_ID, effect = flames(ctx, ground, level))
+      ctx.world.spawnAreaEffect(centre = tile, visualId = VISUAL_ID, effect = flames(ctx, ground, level, across))
     }
 
     return null
   }
 
-  private fun flames(ctx: SkillContext, ground: GroundBattleContext, level: Int): AreaEffect {
+  private fun flames(ctx: SkillContext, ground: GroundBattleContext, level: Int, across: Vec3L): AreaEffect {
     return AreaEffect.lasting(
       casterId = ctx.casterId,
       skillId = ctx.skillId,
@@ -45,7 +49,7 @@ class FireWall(losService: LineOfSightService) : BasicMagicSkillStrategy(losServ
       tickIntervalSeconds = TICK_SECONDS,
       durationSeconds = DURATION_SECONDS,
       element = ground.usedAttack.attackElement,
-      mechanics = WizardArea.SPELL.copy(knockbackTiles = level, knockbackAgainstFacing = true),
+      mechanics = WizardArea.SPELL.copy(knockbackTiles = level, knockbackAcross = across),
     )
   }
 

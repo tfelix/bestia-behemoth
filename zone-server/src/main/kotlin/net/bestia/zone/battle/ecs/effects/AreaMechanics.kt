@@ -3,6 +3,7 @@ package net.bestia.zone.battle.ecs.effects
 import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.geometry.Vec3L
 
 /**
  * What an area does besides its damage, applied by [AreaEffectSystem] on every tick to whoever stands inside.
@@ -67,8 +68,11 @@ data class AreaMechanics(
   /** Moves with its caster instead of staying where it was cast. */
   val followsCaster: Boolean = false,
 
-  /** Pushes a foe back the way it came, against its facing, instead of away from the centre. */
-  val knockbackAgainstFacing: Boolean = false,
+  /**
+   * For a wall: the direction it faces, away from its caster. A foe is pushed across the wall back to the side it
+   * came from instead of away from the centre, so it can never be pushed along the wall and stay in the fire.
+   */
+  val knockbackAcross: Vec3L? = null,
 
   /** Its ally side is the caster's party and their bestias only, as a camp is; other players get nothing. */
   val partyOnly: Boolean = false,
