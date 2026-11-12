@@ -11,6 +11,7 @@ import net.bestia.zone.battle.ActionGuard
 import net.bestia.zone.battle.ActionReactions
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.mark.HuntersMarks
 import net.bestia.zone.battle.ecs.skill.Channel
 import net.bestia.zone.battle.status.ActionLock
 import net.bestia.zone.battle.status.EntityAction
@@ -137,7 +138,8 @@ class SkillExecutionService(
     }
 
     if (targetEntityId != null && targetEntityId != casterId &&
-      world.get(targetEntityId, StatusEffects::class)?.isConcealed() == true
+      world.get(targetEntityId, StatusEffects::class)?.isConcealed() == true &&
+      !HuntersMarks.seesThrough(world, casterId, targetEntityId)
     ) {
       LOG.debug { "Skill $skillId by $casterId fizzled: its target is hidden" }
       return

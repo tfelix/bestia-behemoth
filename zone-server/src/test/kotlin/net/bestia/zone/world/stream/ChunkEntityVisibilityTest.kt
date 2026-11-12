@@ -278,4 +278,31 @@ class ChunkEntityVisibilityTest {
     assertEquals(listOf(observer), visibility.drain().filter { 1L in it.appeared }.map { it.accountId })
     assertEquals(setOf(observer), visibility.observersOf(1L))
   }
+
+  @Test
+  fun `a hunter is let see a concealed entity, and loses it again`() {
+    hold(observer, ChunkPos(0, 0, 0))
+    visibility.moved(1L, Vec3L(5, 5, 0))
+    visibility.conceal(1L, keepVisibleTo = emptySet())
+    visibility.drain()
+
+    visibility.seeConcealed(1L, observer)
+    assertEquals(listOf(observer), visibility.drain().filter { 1L in it.appeared }.map { it.accountId })
+    assertEquals(setOf(observer), visibility.observersOf(1L))
+
+    visibility.stopSeeingConcealed(1L, observer)
+    assertEquals(listOf(observer), visibility.drain().filter { 1L in it.vanished }.map { it.accountId })
+  }
+
+  @Test
+  fun `seeing an entity that is not concealed changes nothing`() {
+    hold(observer, ChunkPos(0, 0, 0))
+    visibility.moved(1L, Vec3L(5, 5, 0))
+    visibility.drain()
+
+    visibility.seeConcealed(1L, observer)
+    visibility.stopSeeingConcealed(1L, observer)
+
+    assertEquals(emptyList(), visibility.drain())
+  }
 }
