@@ -49,6 +49,7 @@ skills:
   - id: 5
     identifier: M_FIREBOLT
     script: Firebolt
+    element: FIRE
     targetType: ENEMY
     needsLineOfSight: true
     range: 9
@@ -1217,6 +1218,7 @@ skills:
   - id: 99
     identifier: M_ICE_BOLT
     script: IceBolt
+    element: WATER
     targetType: ENEMY
     needsLineOfSight: true
     range: 9
@@ -1232,6 +1234,7 @@ skills:
   - id: 100
     identifier: M_THUNDER_BOLT
     script: ThunderBolt
+    element: WIND
     targetType: ENEMY
     needsLineOfSight: true
     range: 9
@@ -1247,6 +1250,7 @@ skills:
   - id: 101
     identifier: M_EARTH_SPIKE
     script: EarthSpike
+    element: EARTH
     targetType: ENEMY
     needsLineOfSight: true
     range: 9

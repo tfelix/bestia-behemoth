@@ -15,7 +15,7 @@ import kotlin.math.roundToLong
  * 1.2 seconds for 9.6 seconds - eight ticks.
  *
  * The per-tick number is computed once, at cast time, from the caster's stats: a patch has no single
- * defender whose magic defence could be subtracted, so unlike [Firebolt] the damage is unmitigated. Working
+ * defender whose magic defence could be subtracted, so unlike a bolt the damage is unmitigated. Working
  * defence into it needs the mitigation to move to the point of application in
  * [net.bestia.zone.battle.ecs.effects.AreaEffectSystem], which is a change to every area effect rather than
  * to this one.
