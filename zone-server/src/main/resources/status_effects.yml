@@ -768,3 +768,12 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: JuggernautStance
+
+  # The Brawler's Unbreakable was spent on a lethal blow; until this runs out, the next one kills. It outlasts a relog.
+  - id: 229
+    identifier: UNBREAKABLE_SPENT
+    polarity: NEUTRAL
+    showIcon: true
+    isSyncedToClient: true
+    dispellable: false
+    script: UnbreakableSpent

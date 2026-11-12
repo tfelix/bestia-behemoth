@@ -216,6 +216,9 @@ class StatusValueRecalcContext(
   /** Cannot be pushed back by a blow or a blast. A dash of its own still moves it. */
   var knockbackImmune: Boolean = false
 
+  /** A blow that would kill leaves 1 HP instead, once per this many seconds; 0 for never. Set by Unbreakable. */
+  var lastStandCooldownSeconds: Int = 0
+
   /** Stops natural regeneration outright; percentages add up, so -100% alone cannot promise that. */
   fun blockRegen(hp: Boolean = false, mana: Boolean = false) {
     if (hp) hpRegen = hpRegen.copy(blocked = true)

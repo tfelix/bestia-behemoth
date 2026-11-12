@@ -15,6 +15,7 @@ import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.util.EntityId
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -89,6 +90,27 @@ class StatusEffectServiceTest {
     )
 
     assertFalse(service.applyEffect(world, juggernaut, StatusEffectId.SWIFTNESS.id, level = 1))
+  }
+
+  @Test
+  fun `Unbreakable spares one lethal blow, then not again until its marker runs out`() {
+    val spent = StatusEffectDefinition(
+      id = StatusEffectId.UNBREAKABLE_SPENT.id, identifier = "UNBREAKABLE_SPENT", isSyncedToClient = true,
+      script = "Lingering", polarity = StatusEffectPolarity.NEUTRAL
+    )
+    val service = StatusEffectService(
+      StatusEffectDefinitionRegistry().apply { load(listOf(spent)) },
+      StatusEffectScriptRegistry(listOf(Lingering()))
+    )
+    val brawler = player()
+    world.add(brawler, CombatStats(CombatValues.OBJECT_BASELINE.copy(lastStandCooldownSeconds = 360)))
+    val plain = player()
+
+    assertTrue(service.survivesLethalDamage(world, brawler))
+    assertFalse(service.survivesLethalDamage(world, brawler), "the cooldown runs")
+    assertFalse(service.survivesLethalDamage(world, plain), "no Unbreakable")
+    val marker = world.getOrThrow(brawler, StatusEffects::class).activeEffects.single { it.definitionId == spent.id }
+    assertEquals(360f, marker.remainingSeconds)
   }
 
   private fun player(shield: HarmShield? = null): EntityId {

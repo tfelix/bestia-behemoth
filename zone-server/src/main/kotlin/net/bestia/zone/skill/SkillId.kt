@@ -83,6 +83,7 @@ enum class SkillId {
   M_HEAVY_ARMOR_MASTERY,
   M_AUTO_GUARD,
   M_TOUGH_GUY,
+  M_UNBREAKABLE,
   // Its drain bonus is read by net.bestia.zone.battle.attack.PoisonedBlade.
   M_POISON_RESEARCH,
 

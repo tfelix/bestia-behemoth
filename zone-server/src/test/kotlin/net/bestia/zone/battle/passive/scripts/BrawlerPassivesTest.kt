@@ -26,4 +26,13 @@ class BrawlerPassivesTest {
     assertEquals(14, sprint.staminaCostFor(savedPercent = 30))
     assertEquals(0, sprint.staminaCostFor(savedPercent = 150))
   }
+
+  @Test
+  fun `Unbreakable spares a lethal blow once per 10 minutes, 6 at Lv 3`() {
+    assertEquals(listOf(600, 600, 360), (1..3).map { level -> recalc { Unbreakable().apply(it, level) }.lastStandCooldownSeconds })
+  }
+
+  private fun recalc(apply: (StatusValueRecalcContext) -> Unit): StatusValueRecalcContext {
+    return StatusValueRecalcContext(StatusValues(1, 1, 1, 1, 1, 1), baseSpeed = 10f).also(apply)
+  }
 }

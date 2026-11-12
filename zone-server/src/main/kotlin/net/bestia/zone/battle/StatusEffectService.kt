@@ -229,6 +229,15 @@ class StatusEffectService(
     Healing.heal(world, sourceId, landed * Lifesteal.HEAL_PERCENT_OF_DAMAGE / 100)
   }
 
+  /** Unbreakable: one lethal blow per cooldown leaves 1 HP, and the marker it leaves is that cooldown. */
+  override fun survivesLethalDamage(world: World, targetId: EntityId): Boolean {
+    val cooldownSeconds = world.get(targetId, CombatStats::class)?.values?.lastStandCooldownSeconds ?: 0
+    if (cooldownSeconds <= 0) return false
+    if (world.get(targetId, StatusEffects::class)?.hasEffect(StatusEffectId.UNBREAKABLE_SPENT.id) == true) return false
+
+    return applyEffect(world, targetId, StatusEffectId.UNBREAKABLE_SPENT.id, level = 1, durationSeconds = cooldownSeconds.toDouble())
+  }
+
   override fun notifyActed(world: World, entityId: EntityId, action: EntityAction) {
     val active = world.get(entityId, StatusEffects::class)?.activeEffects ?: return
 
