@@ -85,6 +85,14 @@ class StructureCellIndex(
     return builder.build().also { snapshots[chunk] = it }
   }
 
+  /** Whether a piece fills any of the voxel at [x], [y], [z]. */
+  fun isFilled(x: Long, y: Long, z: Long): Boolean {
+    val at = ChunkCoords.localise(config, x, y, z) ?: return false
+    val standing = cellsOf(normalise(at.chunk)) ?: return false
+
+    return standing.fillAt(at.localX, at.localY, at.localZ) != Occupancy.EMPTY
+  }
+
   /** Whether any of [cells] fills a cell another piece fills, or puts a wall where one already stands. */
   fun isTaken(cells: List<StructureCell>): Boolean {
     return cells.any { cell ->

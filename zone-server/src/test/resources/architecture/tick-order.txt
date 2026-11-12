@@ -31,6 +31,7 @@
  - WORLD wave 16: WaterSystem [EveryTicks(n=2)]
  - WORLD wave 17: ChunkStreamSystem [EveryTick]
  - WORLD wave 18: AnchorResidencySystem [EveryTick]
+ - WORLD wave 18: OffRoadSystem [EverySeconds(seconds=0.5)]
  - WORLD wave 18: PlaceSystem [EveryTick]
  - WORLD wave 18: VicinitySystem [EveryTick]
  - WORLD wave 18: WeatherSystem [EverySeconds(seconds=10.0)]

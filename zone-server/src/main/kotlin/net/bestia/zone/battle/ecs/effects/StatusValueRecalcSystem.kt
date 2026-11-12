@@ -32,6 +32,7 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.movement.ecs.OffRoad
 import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.util.EntityId
 import kotlin.collections.orEmpty
@@ -89,7 +90,8 @@ class StatusValueRecalcSystem(
     Dead::class,
     // A bestia reads its master's passives that reach it.
     OwnedBestia::class,
-    Casting::class
+    Casting::class,
+    OffRoad::class
   ) + equipment.reads
   override val writes: ComponentClassSet = setOf(
     StatusValues::class,
@@ -121,6 +123,7 @@ class StatusValueRecalcSystem(
 
       world.get(id, IndividualValues::class)?.raise(context, level)
       equipment.contribute(context, world, id)
+      context.walksOffRoad = world.has(id, OffRoad::class)
       applyPassiveSkills(context, world, id)
       applyOwnersPassiveSkills(context, world, id)
       applyStatusEffects(context, world, id)
