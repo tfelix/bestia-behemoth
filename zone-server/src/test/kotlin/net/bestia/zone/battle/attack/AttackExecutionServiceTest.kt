@@ -9,7 +9,10 @@ import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.ecs.attack.AttackDelay
 import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.Weapon
+import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
+import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
@@ -96,6 +99,20 @@ class AttackExecutionServiceTest {
     serviceWith(FixedRandom(0.5f)).attack(world, attacker, target, BattleAttack.getBasicMeleeAttack())
 
     assertEquals(24, world.get(target, IncomingDamage::class)?.total())
+  }
+
+  @Test
+  fun `a hidden target is struck only by the hunter who marked it`() {
+    val hunter = world.spawnFighter(at = Vec3L(0, 0, 0))
+    val other = world.spawnFighter(at = Vec3L(0, 1, 0))
+    val prey = world.spawnFighter(at = Vec3L(1, 0, 0))
+    world.add(prey, StatusEffects(mutableListOf(
+      ActiveStatusEffect(StatusEffectId.HIDING.id, level = 1, remainingSeconds = 60f),
+      ActiveStatusEffect(StatusEffectId.HUNTERS_MARK.id, level = 1, remainingSeconds = 30f, sourceEntityId = hunter),
+    )))
+
+    assertEquals(AttackOutcome.IMPOSSIBLE, sut.attack(world, other, prey, BattleAttack.getBasicMeleeAttack()))
+    assertEquals(AttackOutcome.SWUNG, sut.attack(world, hunter, prey, BattleAttack.getBasicMeleeAttack()))
   }
 
   @Test

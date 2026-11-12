@@ -3,6 +3,7 @@ package net.bestia.zone.battle.status.scripts
 import net.bestia.zone.aoi.EntityVisibility
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.status.Mana
+import net.bestia.zone.battle.mark.HuntersMarks
 import net.bestia.zone.battle.status.EntityAction
 import net.bestia.zone.battle.status.RemovalReason
 import net.bestia.zone.battle.status.StatusEffectHookContext
@@ -40,8 +41,9 @@ abstract class Concealment(private val visibility: EntityVisibility) : StatusEff
 
   override fun onApply(context: StatusEffectHookContext) {
     val owner = context.world.get(context.hostId, Account::class)?.accountId
+    val hunters = HuntersMarks.hunterAccountsOf(context.world, context.hostId)
 
-    visibility.conceal(context.hostId, setOfNotNull(owner))
+    visibility.conceal(context.hostId, setOfNotNull(owner) + hunters)
   }
 
   override fun onRemove(context: StatusEffectHookContext, reason: RemovalReason) {

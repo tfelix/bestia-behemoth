@@ -97,6 +97,22 @@ class ChunkEntityVisibility(
     holdersOf(entityId).filter { it !in allowed }.forEach { appear(it, entityId) }
   }
 
+  override fun seeConcealed(entityId: EntityId, accountId: AccountId) {
+    val allowed = concealed[entityId] ?: return
+    if (accountId in allowed) return
+
+    concealed[entityId] = allowed + accountId
+    if (accountId in holdersOf(entityId)) appear(accountId, entityId)
+  }
+
+  override fun stopSeeingConcealed(entityId: EntityId, accountId: AccountId) {
+    val allowed = concealed[entityId] ?: return
+    if (accountId !in allowed) return
+
+    concealed[entityId] = allowed - accountId
+    if (accountId in holdersOf(entityId)) vanish(accountId, entityId)
+  }
+
   private fun holdersOf(entityId: EntityId): Set<AccountId> {
     return chunkOfEntity[entityId]?.let { subscriptions.subscribersOf(it) } ?: emptySet()
   }

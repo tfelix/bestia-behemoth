@@ -35,6 +35,7 @@ import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.scripts.Corrosive
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.mark.HuntersMarks
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
@@ -116,7 +117,8 @@ class AttackExecutionService(
     }
 
     // A client that names a hidden target saw it through no window the server gave it.
-    if (world.get(targetId, StatusEffects::class)?.isConcealed() == true) {
+    val isHidden = world.get(targetId, StatusEffects::class)?.isConcealed() == true
+    if (isHidden && !HuntersMarks.seesThrough(world, attackerId, targetId)) {
       return AttackOutcome.IMPOSSIBLE
     }
 
@@ -341,7 +343,7 @@ class AttackExecutionService(
       Account::class,
       // A tree asks what is held and how well its feller knows the axe, see Felling.
       StaticVisual::class,
-    ) + DamageGate.READS + DamageLanding.READS + OwnerSkills.READS
+    ) + DamageGate.READS + DamageLanding.READS + OwnerSkills.READS + HuntersMarks.READS
 
     /** What [attack] writes: the staged damage, the attacker's delay, and a prop promoted on its first hit. */
     val WRITES: ComponentClassSet = setOf(

@@ -5,12 +5,14 @@ import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.scripts.HuntersMarked
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 
 /** What a Hunter's Mark on a prey gives the hunter who put it there. */
 object HuntersMarks {
 
-  val READS: ComponentClassSet = setOf(StatusEffects::class)
+  val READS: ComponentClassSet = setOf(StatusEffects::class, Account::class)
 
   /** The level of the mark [hunterId] put on [preyId]; 0 when it has none from them. */
   fun levelOn(world: World, hunterId: EntityId, preyId: EntityId): Int {
@@ -18,6 +20,19 @@ object HuntersMarks {
       ?.firstOrNull { it.definitionId == StatusEffectId.HUNTERS_MARK.id && it.sourceEntityId == hunterId }
 
     return mark?.level ?: 0
+  }
+
+  /** A hunter sees through its prey's Hide and Cloak. */
+  fun seesThrough(world: World, hunterId: EntityId, preyId: EntityId): Boolean {
+    return levelOn(world, hunterId, preyId) > 0
+  }
+
+  /** The players whose hunters marked [preyId]. */
+  fun hunterAccountsOf(world: World, preyId: EntityId): Set<AccountId> {
+    val marks = world.get(preyId, StatusEffects::class)?.activeEffects.orEmpty()
+      .filter { it.definitionId == StatusEffectId.HUNTERS_MARK.id }
+
+    return marks.mapNotNullTo(HashSet()) { mark -> mark.sourceEntityId?.let { world.get(it, Account::class)?.accountId } }
   }
 
   /** Percent more chance for [attackerId] to crit [targetId], when it marked it. */

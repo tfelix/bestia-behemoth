@@ -52,6 +52,14 @@ interface EntityVisibility {
   fun reveal(entityId: EntityId) {
   }
 
+  /** Lets [accountId] see [entityId] while it is concealed, as if it had been kept visible to it. */
+  fun seeConcealed(entityId: EntityId, accountId: AccountId) {
+  }
+
+  /** Undoes [seeConcealed]. */
+  fun stopSeeingConcealed(entityId: EntityId, accountId: AccountId) {
+  }
+
   /**
    * Asks for [accountId] to be told again about every entity it can already see, as if each had just come
    * into view.
