@@ -32,7 +32,8 @@ class WizardAreasTest {
     assertEquals(40, flames.remainingTicks)
     assertEquals(Element.FIRE, flames.element)
     assertEquals(2, flames.mechanics.knockbackTiles)
-    assertTrue(flames.mechanics.knockbackAgainstFacing)
+    // The caster looks along +x, so foes are pushed across the wall along x.
+    assertEquals(Vec3L(1, 0, 0), flames.mechanics.knockbackAcross)
     assertTrue(flames.mechanics.landsAsElementalSpell)
   }
 

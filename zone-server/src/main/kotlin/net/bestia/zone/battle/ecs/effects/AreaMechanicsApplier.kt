@@ -33,15 +33,26 @@ class AreaMechanicsApplier(
       mechanics.zoneStatus?.let { statusEffects.applyEffect(world, victimId, it, effect.skillLevel, effect.casterId) }
     }
     if (mechanics.knockbackTiles > 0 && !Knockback.isImmune(world, victimId)) {
-      val facing = world.get(victimId, Facing::class)
+      val across = mechanics.knockbackAcross
       val at = world.get(victimId, Position::class)?.toVec3L()
-      if (mechanics.knockbackAgainstFacing && facing != null && at != null) {
-        // Back the way it came: a point ahead of the victim is what it is pushed away from.
-        forcedMovement.awayFrom(world, victimId, Vec3L(at.x + facing.dx, at.y + facing.dy, at.z), mechanics.knockbackTiles)
+      if (across != null && at != null) {
+        val push = sideItCameFrom(world.get(victimId, Facing::class), across)
+        // A point on the far side is what the victim is pushed away from.
+        forcedMovement.awayFrom(world, victimId, Vec3L(at.x - push * across.x, at.y - push * across.y, at.z), mechanics.knockbackTiles)
       } else {
         forcedMovement.awayFrom(world, victimId, centre, mechanics.knockbackTiles)
       }
     }
+  }
+
+  /**
+   * +1 to push along [across], -1 against it: back against the victim's facing where that crosses the wall. A foe
+   * that faces along the wall gives no hint, and is pushed away from the caster's side.
+   */
+  private fun sideItCameFrom(facing: Facing?, across: Vec3L): Int {
+    val headingAcross = facing?.let { it.dx * across.x + it.dy * across.y } ?: 0L
+
+    return if (headingAcross > 0) -1 else 1
   }
 
   fun onAlly(world: World, allyId: EntityId, effect: AreaEffect, areaId: EntityId? = null) {
