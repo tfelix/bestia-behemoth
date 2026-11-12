@@ -84,7 +84,7 @@ class ReceivedDamageSystem(
 
       val total = hits.sumOf { it.amount }
       metrics.hits(hits.size, total.toLong())
-      health.current -= total
+      health.current -= landedShareOf(world, id, health.current, total)
       hits.forEach { reactions.onDamageDealt(world, it.sourceEntityId, it.amount) }
 
       // Taking damage aborts a pending logout and interrupts a running cast or craft. Removing the
@@ -119,6 +119,13 @@ class ReceivedDamageSystem(
         LOG.trace { "$id died due to damage." }
       }
     }
+  }
+
+  /** All of [total], unless the entity lives through a lethal [total] at 1 HP, like an Unbreakable Brawler. */
+  private fun landedShareOf(world: World, id: EntityId, health: Int, total: Int): Int {
+    val isLethal = health in 1..total
+
+    return if (isLethal && reactions.survivesLethalDamage(world, id)) health - 1 else total
   }
 
   /** A focused caster may keep casting through a blow, see `CombatValues.castInterruptResistance`. */

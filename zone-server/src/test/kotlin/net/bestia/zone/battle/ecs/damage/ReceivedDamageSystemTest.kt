@@ -121,6 +121,32 @@ class ReceivedDamageSystemTest {
   }
 
   @Test
+  fun `a lethal blow leaves 1 HP when something lets the entity live through it, and only then`() {
+    var spared = 0
+    val unbreakable = object : DamageReactions by DamageReactions.NONE {
+      override fun survivesLethalDamage(world: World, targetId: EntityId): Boolean {
+        return spared++ == 0
+      }
+    }
+    val sut = ReceivedDamageSystem(reactions = unbreakable)
+    val world = testWorld()
+    val id = world.createEntity { eid ->
+      add(eid, Health(current = 10, max = 100))
+      add(eid, IncomingDamage().also { it.add(25, sourceEntity = 99L) })
+    }
+
+    sut.update(world, 0f)
+    world.tick(0f)
+    assertEquals(1, world.getOrThrow(id, Health::class).current)
+    assertFalse(world.has(id, Dead::class))
+
+    world.add(id, IncomingDamage().also { it.add(25, sourceEntity = 99L) })
+    sut.update(world, 0f)
+    world.tick(0f)
+    assertTrue(world.has(id, Dead::class), "spared once only")
+  }
+
+  @Test
   fun `a hit stands a sitting entity up`() {
     val world = testWorld()
     val id = world.createEntity { eid ->

@@ -110,7 +110,8 @@ enum class StatusEffectId(val id: Long) {
   PROVOKED(225),
   SHIELD_WALL(226),
   DEVOTED(227),
-  JUGGERNAUT(228);
+  JUGGERNAUT(228),
+  UNBREAKABLE_SPENT(229);
 
   companion object {
     private val byId = entries.associateBy { it.id }

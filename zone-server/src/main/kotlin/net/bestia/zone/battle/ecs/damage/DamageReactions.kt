@@ -14,6 +14,11 @@ interface DamageReactions {
 
   fun onDamageDealt(world: World, sourceId: EntityId, landed: Int)
 
+  /** Whether [targetId] lives through damage that would kill it, at 1 HP. Asked only when it would die. */
+  fun survivesLethalDamage(world: World, targetId: EntityId): Boolean {
+    return false
+  }
+
   companion object {
     val NONE = object : DamageReactions {
       override fun onDamageTaken(world: World, targetId: EntityId, hit: IncomingDamage.DamageAmount): Int {

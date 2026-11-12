@@ -68,6 +68,7 @@ data class CombatValues(
   val swingStatusChance: Map<StatusEffectId, Int> = emptyMap(),
   val blockChancePercent: Int = 0,
   val knockbackImmune: Boolean = false,
+  val lastStandCooldownSeconds: Int = 0,
   val carryCapacityPercent: Int = 0,
   val arcaneDamagePercent: Int = 0,
 
@@ -151,6 +152,7 @@ data class CombatValues(
         swingStatusChance = context.swingStatusChance,
         blockChancePercent = context.blockChancePercent,
         knockbackImmune = context.knockbackImmune,
+        lastStandCooldownSeconds = context.lastStandCooldownSeconds,
         carryCapacityPercent = context.carryCapacityPercent,
         arcaneDamagePercent = context.arcaneDamagePercent,
         heldWeaponType = context.heldWeaponType,
