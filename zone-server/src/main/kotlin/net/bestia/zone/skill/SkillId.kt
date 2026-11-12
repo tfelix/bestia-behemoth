@@ -84,6 +84,7 @@ enum class SkillId {
   M_AUTO_GUARD,
   M_TOUGH_GUY,
   M_UNBREAKABLE,
+  M_IRON_FIST,
   // Its drain bonus is read by net.bestia.zone.battle.attack.PoisonedBlade.
   M_POISON_RESEARCH,
 

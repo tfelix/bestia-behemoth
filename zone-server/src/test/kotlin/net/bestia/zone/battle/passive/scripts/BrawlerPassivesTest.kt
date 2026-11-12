@@ -1,5 +1,7 @@
 package net.bestia.zone.battle.passive.scripts
 
+import net.bestia.zone.battle.gear.ToolKind
+import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.casting.SkillLevelCost
@@ -35,6 +37,20 @@ class BrawlerPassivesTest {
   @Test
   fun `Unbreakable steadies against stun and knockback from Lv 2`() {
     assertEquals(listOf(false, true, true), (1..3).map { level -> recalc { Unbreakable().apply(it, level) }.halvesStunAndKnockback })
+  }
+
+  @Test
+  fun `Iron Fist adds 3 ATK a level with a fist weapon or bare hands`() {
+    fun ironFistAtk(weapon: WeaponType?, tool: ToolKind? = null) = recalc {
+      it.heldWeaponType = weapon
+      it.heldTool = tool
+      IronFist().apply(it, 10)
+    }.attack
+
+    assertEquals(30, ironFistAtk(WeaponType.FIST))
+    assertEquals(30, ironFistAtk(null))
+    assertEquals(0, ironFistAtk(WeaponType.STAFF))
+    assertEquals(0, ironFistAtk(null, tool = ToolKind.FISHING), "a rod in hand is no fist")
   }
 
   private fun recalc(apply: (StatusValueRecalcContext) -> Unit): StatusValueRecalcContext {
