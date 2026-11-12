@@ -4,6 +4,7 @@ import net.bestia.worldgen.civ.Culture
 import net.bestia.worldgen.core.Actor
 import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.Chronicle
+import net.bestia.worldgen.core.CivOrigin
 import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.SiteKind
@@ -124,12 +125,22 @@ object ChronicleMain {
   private fun censusOf(chronicle: Chronicle): List<Int> {
     val events = chronicle.eventCensus().toMap()
     val sites = chronicle.sites.groupingBy { it.kind }.eachCount()
+    val origins = chronicle.civs.groupingBy { it.origin }.eachCount()
     return listOf(
       chronicle.civs.size,
+      origins[CivOrigin.ARRIVED] ?: 0,
+      origins[CivOrigin.MIGRATED] ?: 0,
+      origins[CivOrigin.SECEDED] ?: 0,
+      origins[CivOrigin.REFOUNDED] ?: 0,
       events[EventKind.WAR_DECLARED] ?: 0,
       events[EventKind.BATTLE] ?: 0,
       sites[SiteKind.BATTLEFIELD] ?: 0,
       chronicle.settlements.count { it.isRuin },
+      chronicle.settlements.count { it.wasFounded && !it.isRuin },
+      chronicle.settlements.count { it.ruinCause == EventKind.SETTLEMENT_RAZED },
+      chronicle.settlements.count { it.ruinCause == EventKind.SETTLEMENT_BURIED },
+      chronicle.settlements.count { it.ruinCause == EventKind.SETTLEMENT_FORSAKEN },
+      chronicle.settlements.count { it.ruinCause == EventKind.SETTLEMENT_ABANDONED },
       chronicle.figures.size,
       chronicle.artifacts.size,
       chronicle.sites.size,
@@ -200,6 +211,8 @@ object ChronicleMain {
       println("  $name (${Culture.byIndex(civ.cultureIndex).name})$allegiance, $span")
       line("    settlements", "$standing standing of ${civ.settlements.size} ever held")
       line("    people", "$people, peak ${civ.peakPopulation}")
+      val parent = chronicle.civs.getOrNull(civ.parent)?.let { " from the ${Names.civ(it.nameSeed, it.cultureIndex)}" }
+      line("    origin", civ.origin.name.lowercase() + (parent ?: ""))
       line("    technology", fixed(civ.technology))
       line(
         "    capital",
@@ -504,7 +517,7 @@ object ChronicleMain {
 
   private const val SWEEP_COLUMN_WIDTH = 11
   private val SWEEP_COLUMNS = listOf(
-    "seed", "civs", "wars", "battles", "fields", "ruins", "figures", "artifacts", "sites", "events"
+    "seed", "civs", "by sea", "overland", "seceded", "refugees", "wars", "battles", "fields", "ruins", "standing", "razed", "buried", "forsaken", "dwindled", "figures", "artifacts", "sites", "events"
   )
 
   private val CHRONICLE_FLAGS = setOf(

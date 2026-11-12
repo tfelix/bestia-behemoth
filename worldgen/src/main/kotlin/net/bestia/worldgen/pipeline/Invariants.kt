@@ -295,6 +295,7 @@ object Invariants {
 
     // Steps 8 to 10.
     checkHistoryIsSelfConsistent(generated, ::fail)
+    checkTheWorldHasHadTwoPeoples(generated, ::fail)
     checkEventsRespectSettlementLifetimes(generated, ::fail)
     checkNoEventCitesAPrunedCause(generated, ::fail)
     checkArtifactChainsAreOrdered(generated, ::fail)
@@ -1118,6 +1119,22 @@ object Invariants {
         )
         return
       }
+    }
+  }
+
+  /** A world with room for two peoples has had two: one people alone never goes to war. */
+  private fun checkTheWorldHasHadTwoPeoples(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val chronicle = generated.world.chronicle
+    if (chronicle.settlements.size < 2) return
+
+    if (chronicle.civs.size < 2) {
+      fail(
+        "the world has had two peoples",
+        "${chronicle.settlements.size} settlement sites but only ${chronicle.civs.size} civ ever existed"
+      )
     }
   }
 
