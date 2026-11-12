@@ -736,3 +736,11 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: PoisonedWeapon
+
+  # The Knight's Provoke, and the impact of a Charge: the creature fights the Knight, whoever else is near.
+  - id: 225
+    identifier: PROVOKED
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Provoked
