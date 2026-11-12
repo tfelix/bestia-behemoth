@@ -23,7 +23,7 @@ class CombatStatusEffectsTest {
 
   private val definitions = StatusEffectDefinitionRegistry().also { StatusEffectImporterBootRunner(it).run() }
   private val scripts = StatusEffectScriptRegistry(
-    listOf(Enraged(), Fatigue(), Barrier(), Endowed(), Quagmired(), Tailwind(), Berserk())
+    listOf(Enraged(), Fatigue(), Barrier(), Endowed(), Quagmired(), Tailwind(), Berserk(), ManaSealed())
   )
   private val service = StatusEffectService(definitions, scripts)
   private val world = testWorld()
@@ -36,6 +36,14 @@ class CombatStatusEffectsTest {
     service.removeEffect(world, target, StatusEffectId.ENRAGED.id, RemovalReason.EXPIRED)
 
     assertTrue(hasEffect(target, StatusEffectId.FATIGUE))
+  }
+
+  @Test
+  fun `the one who spends its mana on Ultima Fist seals it on itself`() {
+    val brawler = world.createEntity { }
+
+    assertTrue(service.applyEffect(world, brawler, StatusEffectId.MANA_SEALED, level = 1, sourceEntityId = brawler))
+    assertTrue(hasEffect(brawler, StatusEffectId.MANA_SEALED))
   }
 
   @Test

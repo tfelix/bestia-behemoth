@@ -332,10 +332,11 @@ statusEffects:
     isSyncedToClient: true
     script: Lifesteal
 
-  # The price of Ultima Fist, so no dispel may lift it.
+  # The price of Ultima Fist, so no dispel may lift it. Neutral, as the caster puts it on itself, and the gate that
+  # stops harm from its own side would turn a debuff away.
   - id: 41
     identifier: MANA_SEALED
-    polarity: DEBUFF
+    polarity: NEUTRAL
     dispellable: false
     showIcon: true
     isSyncedToClient: true

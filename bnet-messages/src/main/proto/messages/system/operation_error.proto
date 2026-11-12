@@ -495,6 +495,10 @@ enum OpError {
   SKILL_NEEDS_STAFF = 174;
   // Chain Combo was used without a Triple Blow landed just before it.
   SKILL_NEEDS_TRIPLE_BLOW = 175;
+  // A finisher like Ultima Fist was used while not Berserk.
+  SKILL_NEEDS_BERSERK = 176;
+  // A finisher like Ultima Fist was used with less than half the mana.
+  SKILL_NEEDS_HALF_MANA = 177;
 }
 
 message OperationError {

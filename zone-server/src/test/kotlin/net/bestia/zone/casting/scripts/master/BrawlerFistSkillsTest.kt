@@ -6,6 +6,10 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.attack.TripleBlow
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.ecs.status.Mana
+import net.bestia.zone.battle.status.StackBehavior
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.casting.RecordingSkillWorld
 import net.bestia.zone.casting.SkillContextFixture
 import net.bestia.zone.ecs.core.testWorld
@@ -58,6 +62,54 @@ class BrawlerFistSkillsTest {
 
     every { tripleBlow.mayFollowUp(ecs, brawler) } returns true
     assertNull(chainCombo.checkCastStart(ecs, brawler, 1, emptyList()))
+  }
+
+  @Test
+  fun `Ultima Fist pours all mana into one blow, ends the Berserk and seals the mana`() {
+    world.foes += target
+    world.effectsOn[caster] = mutableSetOf(StatusEffectId.BERSERK.id)
+    world.manaFraction = 0.6f
+    world.casterMana = 120
+    val fist = MasterUltimaFist(LineOfSightService())
+
+    assertTrue(fist.isCastPossible(ctx(level = 5)))
+    fist.execute(ctx(level = 5))
+
+    // ATK * (4 + 120 / 10) = 1600%, and 50% more at Lv 5.
+    assertEquals(listOf(target to 2400), world.strikes)
+    assertEquals(0, world.casterMana)
+    assertEquals(listOf(caster to StatusEffectId.BERSERK.id), world.removedEffects)
+    assertEquals(listOf(caster to StatusEffectId.MANA_SEALED.id), world.appliedEffects.map { it.targetEntityId to it.effectId })
+  }
+
+  @Test
+  fun `Ultima Fist needs Berserk and half the mana`() {
+    world.foes += target
+    val fist = MasterUltimaFist(LineOfSightService())
+    world.manaFraction = 0.6f
+    assertFalse(fist.isCastPossible(ctx(level = 1)), "not Berserk")
+
+    world.effectsOn[caster] = mutableSetOf(StatusEffectId.BERSERK.id)
+    world.manaFraction = 0.4f
+    assertFalse(fist.isCastPossible(ctx(level = 1)), "less than half the mana")
+  }
+
+  @Test
+  fun `Ultima Fist is refused at the button without Berserk or with too little mana`() {
+    val ecs = testWorld()
+    fun brawler(berserk: Boolean, mana: Int) = ecs.createEntity { id ->
+      add(id, Mana(mana, 100))
+      if (berserk) {
+        add(id, StatusEffects().apply {
+          applyEffect(StatusEffectId.BERSERK.id, StackBehavior.REFRESH_DURATION, 1, sourceEntityId = null, durationSeconds = 30.0, isSyncedToClient = true)
+        })
+      }
+    }
+    val fist = MasterUltimaFist(LineOfSightService())
+
+    assertEquals(OpError.SKILL_NEEDS_BERSERK, fist.checkCastStart(ecs, brawler(berserk = false, mana = 100), 1, emptyList()))
+    assertEquals(OpError.SKILL_NEEDS_HALF_MANA, fist.checkCastStart(ecs, brawler(berserk = true, mana = 49), 1, emptyList()))
+    assertNull(fist.checkCastStart(ecs, brawler(berserk = true, mana = 50), 1, emptyList()))
   }
 
   private fun ctx(level: Int) = SkillContextFixture.skillCtx(world = world, skillLevel = level)
