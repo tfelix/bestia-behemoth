@@ -394,6 +394,12 @@ class BudgetedSkillWorld(
     return world.get(entityId, CombatStats::class)?.values?.heldWeaponType
   }
 
+  override fun holdsShield(entityId: EntityId): Boolean {
+    budget.charge()
+
+    return world.get(entityId, CombatStats::class)?.values?.shieldArmorType != null
+  }
+
   override fun swingStatusChanceOf(entityId: EntityId, effect: StatusEffectId): Int {
     budget.charge()
 

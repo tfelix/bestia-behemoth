@@ -37,6 +37,23 @@ class StatusEffectHookContext(
     staged.add(amount, effect.sourceEntityId ?: hostId)
   }
 
+  /**
+   * Hurts [targetId] by a share of a hit the host took, like a blow a shield returns, credited to [from]. An untyped
+   * hit, so no modifier weighs it twice and no ward passes it on again.
+   */
+  fun passOn(targetId: EntityId, amount: Int, from: EntityId) {
+    if (amount <= 0) return
+
+    // Deferred: a hit is drained inside ReceivedDamageSystem, where adding the component would be queued and a
+    // second share in the same tick would replace the first.
+    world.defer {
+      if (!world.isAlive(targetId)) return@defer
+
+      val staged = world.get(targetId, IncomingDamage::class) ?: world.add(targetId, IncomingDamage())
+      staged.add(amount, from)
+    }
+  }
+
   fun removeSelf() {
     statusEffectService.removeEffect(world, hostId, effect.definitionId, RemovalReason.CANCELLED)
   }

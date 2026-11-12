@@ -487,6 +487,8 @@ enum OpError {
   SKILL_NOT_ON_MASTERS = 170;
   // A skill for a long weapon, like Brandish Spear, was used without a spear or a polearm in hand.
   SKILL_NEEDS_SPEAR = 171;
+  // A shield skill, like Shield Wall, was used without a shield in the left hand.
+  SKILL_NEEDS_SHIELD = 172;
 }
 
 message OperationError {

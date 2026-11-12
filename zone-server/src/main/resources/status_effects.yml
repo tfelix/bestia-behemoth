@@ -744,3 +744,11 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: Provoked
+
+  # The Knight's Shield Wall, a toggle: less physical damage taken, slower on foot, while a shield is held.
+  - id: 226
+    identifier: SHIELD_WALL
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: ShieldWalled
