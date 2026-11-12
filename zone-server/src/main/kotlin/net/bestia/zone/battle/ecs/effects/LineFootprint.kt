@@ -15,16 +15,17 @@ class LineFootprint(
 ) : AreaFootprint {
 
   override fun covers(voxelX: Long, voxelY: Long): Boolean {
+    return tiles().any { tile -> abs(voxelX - tile.x) <= halfWidth && abs(voxelY - tile.y) <= halfWidth }
+  }
+
+  /** The tiles on the line itself, from [from] to [to], leaving out the width. */
+  fun tiles(): List<Vec3L> {
     val dx = to.x - from.x
     val dy = to.y - from.y
     val steps = max(abs(dx), abs(dy))
-    if (steps == 0L) return abs(voxelX - from.x) <= halfWidth && abs(voxelY - from.y) <= halfWidth
+    if (steps == 0L) return listOf(from)
 
-    return (0..steps).any { step ->
-      val x = from.x + dx * step / steps
-      val y = from.y + dy * step / steps
-      abs(voxelX - x) <= halfWidth && abs(voxelY - y) <= halfWidth
-    }
+    return (0..steps).map { step -> Vec3L(from.x + dx * step / steps, from.y + dy * step / steps, from.z) }
   }
 
   companion object {

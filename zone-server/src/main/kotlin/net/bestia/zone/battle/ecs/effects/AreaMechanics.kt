@@ -55,6 +55,12 @@ data class AreaMechanics(
   /** Weighs each tick's damage by the area's element against the victim's, as a bolt is weighed. */
   val weighsElement: Boolean = false,
 
+  /**
+   * Each tick lands as an `ElementalSpell` of the area's element: weighed by element and the victim's resistance to
+   * it, less its MDEF, like a Wizard's bolt.
+   */
+  val landsAsElementalSpell: Boolean = false,
+
   /** No ground spell takes root inside it unless its Potency wins, see `GroundWards`. */
   val blocksGroundSpells: Boolean = false,
 
