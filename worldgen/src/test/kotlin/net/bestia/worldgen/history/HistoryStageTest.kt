@@ -110,7 +110,7 @@ class HistoryStageTest {
     for (relic in buried) {
       val site = chronicle.sites[relic.restingSite]
       assertTrue(
-        site.kind == SiteKind.TOMB || site.kind == SiteKind.RUIN || site.kind == SiteKind.BATTLEFIELD,
+        site.kind in setOf(SiteKind.TOMB, SiteKind.RUIN, SiteKind.BATTLEFIELD, SiteKind.HOARD),
         "artifact ${relic.index} rests in a ${site.kind}"
       )
 

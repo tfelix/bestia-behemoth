@@ -148,17 +148,17 @@ class PriestHolyScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
   @Test
   @Order(2)
   fun `Holy Light and Turn Undead strike a wild bestia`() {
-    val at = world.read { getOrThrow(priest(), Position::class).toVec3L() }
     // Loads the learnset now: the spawner reads it inside the lease, where SQL is refused.
     catalogue.learnset(BLOB)
-    val blob = world.read { spawner.spawnMob(this, BLOB, at + Vec3L(3, 0, 0), persistent = false) }
-    foe = blob
-    // A blob that strikes back breaks the Priest's cast bars.
-    world.modify(blob) { id -> remove(id, AiAgent::class) }
 
     for (identifier in listOf("M_HOLY_LIGHT", "M_TURN_UNDEAD")) {
       val skillId = skillId(identifier)
-      // Enough to survive the blow: a dead blob would fizzle the next cast.
+      // A blob beside the Priest for each cast: on some spawn ground the Priest drifts several metres while the
+      // scenario runs, and a blob placed once is out of range by the second cast.
+      val at = world.read { getOrThrow(priest(), Position::class).toVec3L() }
+      val blob = world.read { spawner.spawnMob(this, BLOB, at + Vec3L(1, 0, 0), persistent = false) }
+      foe = blob
+      // Enough to survive the blow: a dead blob would fizzle the cast.
       world.modify(blob) { id -> get(id, Health::class)!!.apply { max = BLOB_HEALTH; current = BLOB_HEALTH } }
       client.clearMessages()
 
@@ -167,11 +167,11 @@ class PriestHolyScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
       await {
         assertTrue(client.receivedAny(DamageEntitySMSG::class) { it.entityId == blob && it.attackId == skillId.toInt() })
       }
-    }
 
-    // Gone before the Priest lies at 1 HP below, where a blob that strikes back could kill it.
-    world.modify(blob) { destroy(it) }
-    foe = null
+      // Gone before the Priest lies at 1 HP below, where a blob that strikes back could kill it.
+      world.modify(blob) { destroy(it) }
+      foe = null
+    }
   }
 
   @Test
