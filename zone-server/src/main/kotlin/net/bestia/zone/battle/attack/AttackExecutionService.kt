@@ -8,6 +8,7 @@ import net.bestia.zone.battle.damage.weighedTo
 import net.bestia.zone.battle.damage.DamageLanding
 import net.bestia.zone.battle.damage.HitReach
 import net.bestia.zone.battle.damage.HitKind
+import net.bestia.zone.battle.damage.HitForm
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.ActionGuard
@@ -77,6 +78,7 @@ class AttackExecutionService(
   private val swingProcs: List<SwingProc> = emptyList(),
   private val felling: Felling? = null,
   private val shieldGuard: ShieldGuard? = null,
+  private val tripleBlow: TripleBlow? = null,
 ) {
 
   /** [READS] plus what spending an arrow reads, which only the item slice can name. */
@@ -171,7 +173,7 @@ class AttackExecutionService(
     }
 
     apply(world, attackerId, targetId, result, ammunition, hitKindOf(ctx.usedAttack))
-    offHandResult?.let { apply(world, attackerId, targetId, it, ammunition = null, hitKindOf(ctx.usedAttack)) }
+    offHandResult?.let { apply(world, attackerId, targetId, it, ammunition = null, hitKindOf(ctx.usedAttack), isOffHand = true) }
     actionReactions.notifyActed(world, attackerId, EntityAction.ATTACKED)
     corrode(world, attackerId, targetId, attack, result)
 
@@ -231,6 +233,25 @@ class AttackExecutionService(
     return result.weighedTo(rules.felled(world, attackerId, result.amount))
   }
 
+  /**
+   * The main hand's landed melee swing as a Triple Blow, or null when it stays one blow. Once per attack: the second
+   * weapon only follows the swing. Not on a tree, which only an axe fells.
+   */
+  private fun tripled(
+    world: World,
+    attackerId: EntityId,
+    targetId: EntityId,
+    landed: DamageResult,
+    kind: HitKind,
+    isOffHand: Boolean,
+  ): DamageResult? {
+    if (isOffHand || kind.form != HitForm.PHYSICAL || kind.reach != HitReach.MELEE) return null
+    if (felling?.isTree(world, targetId) == true) return null
+    if (tripleBlow?.rolls(world, attackerId) != true) return null
+
+    return landed.weighedTo(landed.amount * TripleBlow.DAMAGE_PERCENT / 100)
+  }
+
   private fun hitKindOf(attack: BattleAttack): HitKind {
     return when (attack.attackType) {
       AttackType.MAGIC -> HitKind.magic(attack.attackElement)
@@ -246,16 +267,17 @@ class AttackExecutionService(
     swung: DamageResult,
     ammunition: Ammunition?,
     kind: HitKind,
+    isOffHand: Boolean = false,
   ) {
     if (!world.has(targetId, Position::class)) return
 
-    fun messageOf(result: DamageResult) = DamageEntitySMSG(
+    fun messageOf(result: DamageResult, blows: Int) = DamageEntitySMSG(
       entityId = targetId,
       sourceEntityId = attackerId,
       // 0 is "no catalogue entry", which is what a basic attack is - the client falls back to its
       // default swing rather than looking up an AttackResource that does not exist.
       attackId = 0,
-      div = 1,
+      div = blows,
       damage = result.amount,
       skillLevel = 1,
       type = DamageEntitySMSG.DamageType.of(result),
@@ -277,6 +299,8 @@ class AttackExecutionService(
       val guarded = shieldGuard?.guard(world, targetId, kind, swung) ?: swung
       val result = onTree(world, attackerId, targetId, guarded.weighedTo(DamageLanding.weigh(world, attackerId, targetId, kind, guarded.amount)))
         ?: return@defer
+      var dealt = result
+      var blows = 1
       when (result) {
         is Miss, is Blocked -> Unit
 
@@ -289,14 +313,19 @@ class AttackExecutionService(
             return@defer
           }
 
+          tripled(world, attackerId, targetId, result, kind, isOffHand)?.let {
+            dealt = it
+            blows = TripleBlow.BLOWS
+          }
+
           val staged = world.get(targetId, IncomingDamage::class) ?: world.add(targetId, IncomingDamage())
-          staged.add(result.amount, attackerId, kind)
-          ammunition?.effect?.onHit(world, attackerId, targetId, result)
-          swingProcs.forEach { it.onSwingLanded(world, attackerId, targetId, result) }
+          staged.add(dealt.amount, attackerId, kind)
+          ammunition?.effect?.onHit(world, attackerId, targetId, dealt)
+          swingProcs.forEach { it.onSwingLanded(world, attackerId, targetId, dealt) }
         }
       }
 
-      outMessageProcessor.sendToObserversOf(world, targetId, messageOf(result))
+      outMessageProcessor.sendToObserversOf(world, targetId, messageOf(dealt, blows))
     }
   }
 

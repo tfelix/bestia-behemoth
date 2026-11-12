@@ -1,6 +1,8 @@
 package net.bestia.zone.battle.attack
 
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import net.bestia.zone.battle.BattleContextFactory
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.LineOfSightService
@@ -24,6 +26,11 @@ import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.battle.damage.ownByPlayer
 import net.bestia.zone.battle.damage.wardPlayer
 import net.bestia.zone.battle.damage.ShieldGuard
+import net.bestia.zone.battle.damage.DamageEntitySMSG
+import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.skill.ecs.KnownSkills
+import net.bestia.zone.skill.persistence.Skill
+import net.bestia.zone.skill.persistence.SkillRepository
 class AttackExecutionServiceTest {
 
   private val world = testWorld()
@@ -253,8 +260,64 @@ class AttackExecutionServiceTest {
     assertEquals(1, world.get(target, IncomingDamage::class)?.amounts?.size)
   }
 
+  @Test
+  fun `a Triple Blow lands the swing twice over, shown as three blows`() {
+    val brawler = world.spawnFighter(at = Vec3L(0, 0, 0)).also { world.add(it, KnownSkills(mutableMapOf(TRIPLE_BLOW_ID to 10))) }
+    val target = world.spawnFighter(at = Vec3L(1, 0, 0))
+    val messages = mockk<OutMessageProcessor>(relaxed = true)
+
+    brawlerService(messages).attack(world, brawler, target, BattleAttack.getBasicMeleeAttack())
+
+    // The swing above, 44, at 200%.
+    assertEquals(listOf(88), world.get(target, IncomingDamage::class)?.amounts?.map { it.amount })
+    verify { messages.sendToObserversOf(world, target, match<DamageEntitySMSG> { it.div == 3 && it.damage == 88 }) }
+  }
+
+  @Test
+  fun `a Triple Blow comes from the main hand only`() {
+    val brawler = world.spawnFighter(at = Vec3L(0, 0, 0)).also { world.add(it, KnownSkills(mutableMapOf(TRIPLE_BLOW_ID to 10))) }
+    val target = world.spawnFighter(at = Vec3L(1, 0, 0))
+    world.getOrThrow(brawler, CombatStats::class).apply {
+      values = values.copy(offHandWeapon = Weapon(atk = 0, matk = 0, upgradeLevel = 0), offHandDamagePercent = 50)
+    }
+
+    brawlerService().attack(world, brawler, target, BattleAttack.getBasicMeleeAttack())
+
+    assertEquals(listOf(88, 22), world.get(target, IncomingDamage::class)?.amounts?.map { it.amount })
+  }
+
+  @Test
+  fun `without Triple Blow a swing stays one blow`() {
+    val fighter = world.spawnFighter(at = Vec3L(0, 0, 0))
+    val target = world.spawnFighter(at = Vec3L(1, 0, 0))
+
+    brawlerService().attack(world, fighter, target, BattleAttack.getBasicMeleeAttack())
+
+    assertEquals(listOf(44), world.get(target, IncomingDamage::class)?.amounts?.map { it.amount })
+  }
+
+  /** Every roll comes up, so Triple Blow always strikes for whoever knows it. */
+  private fun brawlerService(messages: OutMessageProcessor = mockk(relaxed = true)): AttackExecutionService {
+    val skills = mockk<SkillRepository> {
+      every { findByIdentifier("M_TRIPLE_BLOW") } returns mockk<Skill> { every { id } returns TRIPLE_BLOW_ID }
+    }
+
+    return AttackExecutionService(
+      BattleContextFactory(PropPromotionService(mockk(relaxed = true))),
+      AttackStrategyFactory(LineOfSightService(), alwaysLands),
+      messages,
+      BasicAttackResolver(mockk(relaxed = true)),
+      mockk(relaxed = true),
+      tripleBlow = TripleBlow(skills, alwaysLands),
+    )
+  }
+
   private fun World.spawnFighter(at: Vec3L): EntityId = createEntity { id ->
     add(id, Position.fromVec3(at))
     add(id, BattleContextFixture.combatStats())
+  }
+
+  private companion object {
+    const val TRIPLE_BLOW_ID = 144L
   }
 }

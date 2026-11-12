@@ -87,6 +87,8 @@ enum class SkillId {
   M_IRON_FIST,
   // Its drain bonus is read by net.bestia.zone.battle.attack.PoisonedBlade.
   M_POISON_RESEARCH,
+  // Its chance is read by net.bestia.zone.battle.attack.TripleBlow on every landed swing.
+  M_TRIPLE_BLOW,
 
   // Read by the systems they change: felling and its yield, picking herbs.
   M_LUMBERJACK,
