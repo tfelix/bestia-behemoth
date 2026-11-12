@@ -12,7 +12,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.ActionGuard
 import net.bestia.zone.battle.ActionReactions
+import net.bestia.zone.battle.BattleContext
 import net.bestia.zone.battle.BattleContextFactory
+import net.bestia.zone.battle.EntityBattleContext
 import net.bestia.zone.battle.ammo.AmmoSupply
 import net.bestia.zone.battle.ammo.Ammunition
 import net.bestia.zone.identity.ecs.Account
@@ -155,6 +157,7 @@ class AttackExecutionService(
     }
 
     val result = strategy.execute(ctx)
+    val offHandResult = offHandBlow(world, attackerId, targetId, ctx, strategy, result)
     world.get(attackerId, Facing::class)?.turnTowards(ctx.attacker.position, ctx.targetPosition())
 
     // Armed only once the swing is real, so stepping out of reach neither costs the attacker its delay nor
@@ -166,10 +169,31 @@ class AttackExecutionService(
     }
 
     apply(world, attackerId, targetId, result, ammunition, hitKindOf(ctx.usedAttack))
+    offHandResult?.let { apply(world, attackerId, targetId, it, ammunition = null, hitKindOf(ctx.usedAttack)) }
     actionReactions.notifyActed(world, attackerId, EntityAction.ATTACKED)
     corrode(world, attackerId, targetId, attack, result)
 
     return AttackOutcome.SWUNG
+  }
+
+  /**
+   * A dual wielder's second weapon follows a melee swing that connected, at Dual Wield's share of a blow. Not on a
+   * tree: only the axe in the main hand fells it.
+   */
+  private fun offHandBlow(
+    world: World,
+    attackerId: EntityId,
+    targetId: EntityId,
+    ctx: BattleContext,
+    strategy: AttackStrategy,
+    swung: DamageResult,
+  ): DamageResult? {
+    if (swung is Miss || ctx !is EntityBattleContext || ctx.usedAttack.attackType != AttackType.MELEE_PHYSICAL) return null
+    if (felling?.isTree(world, targetId) == true) return null
+    val combat = world.get(attackerId, CombatStats::class)?.values ?: return null
+    val offHand = combat.offHandWeapon?.takeIf { combat.offHandDamagePercent > 0 } ?: return null
+
+    return strategy.execute(ctx.withOffHand(offHand, combat.offHandDamagePercent))
   }
 
   private fun outOfAmmo(world: World, attackerId: EntityId): AttackOutcome {

@@ -98,7 +98,7 @@ enum class SkillId {
   // The Spell Inscription picker shows the odds before the cast, so it reads the level.
   M_SPELL_INSCRIPTION,
 
-  // A second weapon in the left hand needs it, see net.bestia.zone.item.net.EquipItemHandler.
+  // A second weapon in the left hand needs it, see net.bestia.zone.item.net.EquipItemHandler. Its passive swings it.
   M_DUAL_WIELD,
 
   // Guild skills a guild learns, not a master: net.bestia.zone.guild reads the guild's level of each.

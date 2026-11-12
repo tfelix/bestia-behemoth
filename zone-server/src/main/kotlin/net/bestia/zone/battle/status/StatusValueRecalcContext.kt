@@ -117,6 +117,14 @@ class StatusValueRecalcContext(
   /** Refinement of the weapon in hand. It scales the weapon term of the damage formula, not the total. */
   var weaponUpgradeLevel: Int = 0
 
+  /** ATK of a second weapon in the left hand. It strikes in a blow of its own, so it is kept apart from [attack]. */
+  var offHandAttack: Int = 0
+    private set
+  var offHandUpgradeLevel: Int = 0
+
+  /** How hard the second weapon strikes, in percent of a blow; 0 while nothing lets it swing. Set by Dual Wield. */
+  var offHandDamagePercent: Int = 0
+
   var rangedWeapon: RangedWeapon? = null
 
   /**
@@ -210,6 +218,14 @@ class StatusValueRecalcContext(
   fun addAttack(atk: Int = 0, matk: Int = 0) {
     attack += atk
     magicAttack += matk
+  }
+
+  /** Runs [wearOffHand], booking the ATK it adds to the second weapon instead of the main one. */
+  fun bookAttackToOffHand(wearOffHand: () -> Unit) {
+    val mainAttack = attack
+    wearOffHand()
+    offHandAttack += attack - mainAttack
+    attack = mainAttack
   }
 
   /** Adds to the docs' `HitModSum`, `FleeModSum` and the CRIT bonus, on top of the attribute-derived values. */
