@@ -2,6 +2,7 @@ package net.bestia.zone.boot
 
 import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.battle.attack.PoisonedBlade
+import net.bestia.zone.battle.attack.TripleBlow
 import net.bestia.zone.casting.plagiarism.Plagiarism
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.breeding.BreederSkills
@@ -36,6 +37,7 @@ class CatalogueWarmUpBootRunner(
   private val breederSkills: BreederSkills,
   private val mining: MiningSkill,
   private val poisonedBlade: PoisonedBlade,
+  private val tripleBlow: TripleBlow,
   private val plagiarism: Plagiarism,
 ) : CommandLineRunner {
 
@@ -52,6 +54,7 @@ class CatalogueWarmUpBootRunner(
     breederSkills.warmUp()
     mining.warmUp()
     poisonedBlade.warmUp()
+    tripleBlow.warmUp()
     plagiarism.warmUp()
   }
 }
