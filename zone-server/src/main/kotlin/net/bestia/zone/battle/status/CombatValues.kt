@@ -59,6 +59,7 @@ data class CombatValues(
   val statusImmunities: Set<StatusEffectId> = emptySet(),
   val knockbackImmune: Boolean = false,
   val carryCapacityPercent: Int = 0,
+  val arcaneDamagePercent: Int = 0,
 
   /** What is held in the right hand, for a rule about it: a tree falls only to an axe or a felling tool. */
   val heldWeaponType: WeaponType? = null,
@@ -122,6 +123,8 @@ data class CombatValues(
         aspdPercent = context.aspdPercent,
         healReceivedPercent = context.healReceivedPercent,
         attackPercent = context.attackPercent,
+        magicAttackPercent = context.magicAttackPercent,
+        magicDefenseCutPercent = context.magicDefenseCutPercent,
         weaponElement = context.weaponElement
       ).copy(
         damageModifiers = context.damageModifiers,
@@ -133,6 +136,7 @@ data class CombatValues(
         statusImmunities = context.statusImmunities,
         knockbackImmune = context.knockbackImmune,
         carryCapacityPercent = context.carryCapacityPercent,
+        arcaneDamagePercent = context.arcaneDamagePercent,
         heldWeaponType = context.heldWeaponType,
         heldTool = context.heldTool,
       )
@@ -157,6 +161,8 @@ data class CombatValues(
       aspdPercent: Int = 0,
       healReceivedPercent: Int = 0,
       attackPercent: Int = 0,
+      magicAttackPercent: Int = 0,
+      magicDefenseCutPercent: Int = 0,
       weaponElement: Element? = null
     ): CombatValues {
       val derived = DerivedStatusValues.fromStatusValues(level, attributes, hitBonus, fleeBonus, critBonus)
@@ -169,15 +175,19 @@ data class CombatValues(
           hitrate = scaled(derived.hitrate, hitPercent),
           atk = scaled(derived.atk, attackPercent),
           rangedAtk = scaled(derived.rangedAtk, attackPercent),
-          matk = scaled(derived.matk, attackPercent)
+          matk = scaled(derived.matk, attackPercent + magicAttackPercent)
         ),
         defense = defense
           .let { if (defensePercent == 0) it else it.withHardDefenseRaisedBy(defensePercent) }
-          .let { if (defenseCutPercent == 0) it else it.withPhysicalDefenseCutBy(defenseCutPercent) },
+          .let { if (defenseCutPercent == 0) it else it.withPhysicalDefenseCutBy(defenseCutPercent) }
+          .let { if (magicDefenseCutPercent == 0) it else it.withSoftMagicDefenseCutBy(magicDefenseCutPercent) },
         weapon = when {
           weapon == Weapon.NONE -> Weapon.NONE
-          attackPercent == 0 -> weapon
-          else -> weapon.copy(atk = scaled(weapon.atk, attackPercent), matk = scaled(weapon.matk, attackPercent))
+          attackPercent == 0 && magicAttackPercent == 0 -> weapon
+          else -> weapon.copy(
+            atk = scaled(weapon.atk, attackPercent),
+            matk = scaled(weapon.matk, attackPercent + magicAttackPercent)
+          )
         },
         elementResistance = elementResistance,
         castTimeReduction = castTimeReduction,

@@ -35,4 +35,7 @@ data class BattleEntity(
 
   /** See [net.bestia.zone.battle.status.CombatValues.aspdPercent]. */
   val aspdPercent: Int = 0,
+
+  /** See [net.bestia.zone.battle.status.StatusValueRecalcContext.arcaneDamagePercent]. */
+  val arcaneDamagePercent: Int = 0,
 )

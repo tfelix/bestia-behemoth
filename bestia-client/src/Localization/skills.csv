@@ -691,9 +691,9 @@ Fire Bolt.
 `+20%/lv` MATK
 `-0.2s/lv` cast time"
 SKILL_102_DESC,"A deeper communion with raw mana beyond the elements, sharpening the spells that draw on
-it: Soul Break and Mindbreak.
+it: Soul Break's damage and the magic attack Mindbreak gives.
 
-`+10%/lv` damage of raw-mana spells, from 5% at Lv.1"
+`+10%/lv` raw-mana power, from 5% at Lv.1"
 SKILL_103_DESC,"Conjures a barrier of solidified mana in front of a target. It blocks projectiles and
 melee strikes until it has absorbed enough hits or its time runs out. Cooldown 10s.
 
@@ -742,12 +742,13 @@ on it. Cooldown 25s.
 `+20%/lv` MATK per tick, from 10% at Lv.1
 `+2m/lv` radius, from 2m at Lv.1"
 SKILL_116_DESC,"Tears into a target with raw mana that ignores elemental resistance, ripping away part of
-its mana. Cooldown 15s.
+its current mana. Cooldown 15s.
 
 `+40%/lv` MATK, from 20% at Lv.1
 `+10%/lv` of the target's mana drained, from 5% at Lv.1"
-SKILL_118_DESC,"Channels so much raw magic through one of the master's Bestias for 60s that its armor is
-the first thing to give: magic attack rises and soft magic defense falls. Cooldown 60s.
+SKILL_118_DESC,"Channels so much raw magic through one of the master's own Bestias for 60s that its armor
+is the first thing to give: magic attack rises and soft magic defense falls. Arcane Mastery
+raises the magic attack it gives. Cooldown 60s.
 
 `+40%/lv` MATK, from 20% at Lv.1
 `-40%/lv` SMDEF, from 20% at Lv.1"

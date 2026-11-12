@@ -40,6 +40,11 @@ data class DefenseValues(
     return copy(defense = defense * kept / 100, defenseSpread = defenseSpread * kept / 100, hardDefense = hardDefense * kept / 100)
   }
 
+  /** The soft magic defence cut by [percent], as Mindbreak wears it down. The hard kind stays. */
+  fun withSoftMagicDefenseCutBy(percent: Int): DefenseValues {
+    return copy(magicDefense = magicDefense * (100 - percent).coerceIn(0, 100) / 100)
+  }
+
   companion object {
     fun fromStatusValues(
       lv: Int,

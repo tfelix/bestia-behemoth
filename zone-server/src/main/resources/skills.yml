@@ -1268,9 +1268,9 @@ skills:
     targetType: FRIENDLY
     description: |
       A deeper communion with raw mana beyond the elements, sharpening the spells that draw on
-      it: Soul Break and Mindbreak.
+      it: Soul Break's damage and the magic attack Mindbreak gives.
 
-      `+10%/lv` damage of raw-mana spells, from 5% at Lv.1
+      `+10%/lv` raw-mana power, from 5% at Lv.1
 
   - id: 103
     identifier: M_SAFETY_WALL
@@ -1426,7 +1426,7 @@ skills:
     cooldown: 15
     description: |
       Tears into a target with raw mana that ignores elemental resistance, ripping away part of
-      its mana. Cooldown 15s.
+      its current mana. Cooldown 15s.
 
       `+40%/lv` MATK, from 20% at Lv.1
       `+10%/lv` of the target's mana drained, from 5% at Lv.1
@@ -1440,8 +1440,9 @@ skills:
     castTime: 3.0
     cooldown: 60
     description: |
-      Channels so much raw magic through one of the master's Bestias for 60s that its armor is
-      the first thing to give: magic attack rises and soft magic defense falls. Cooldown 60s.
+      Channels so much raw magic through one of the master's own Bestias for 60s that its armor
+      is the first thing to give: magic attack rises and soft magic defense falls. Arcane Mastery
+      raises the magic attack it gives. Cooldown 60s.
 
       `+40%/lv` MATK, from 20% at Lv.1
       `-40%/lv` SMDEF, from 20% at Lv.1
