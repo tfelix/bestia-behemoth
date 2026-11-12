@@ -290,7 +290,11 @@ class RecordingSkillWorld(
   var strikeResult: Damage? = null
   val strikes = mutableListOf<Pair<EntityId, Int>>()
 
-  override fun strike(targetEntityId: EntityId, attack: BattleAttack, powerPercent: Int): Damage? {
+  /** The indices into [strikes] of the blows struck with the second weapon. */
+  val offHandStrikes = mutableListOf<Int>()
+
+  override fun strike(targetEntityId: EntityId, attack: BattleAttack, powerPercent: Int, offHand: Boolean): Damage? {
+    if (offHand) offHandStrikes += strikes.size
     strikes += targetEntityId to powerPercent
     return strikeResult
   }

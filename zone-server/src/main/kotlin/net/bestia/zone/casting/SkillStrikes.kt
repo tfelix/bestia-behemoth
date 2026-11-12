@@ -2,6 +2,7 @@ package net.bestia.zone.casting
 
 import net.bestia.zone.battle.BattleContextFactory
 import net.bestia.zone.battle.EntityBattleContext
+import net.bestia.zone.battle.Weapon
 import net.bestia.zone.battle.ammo.AmmoSupply
 import net.bestia.zone.battle.ammo.Ammunition
 import net.bestia.zone.battle.attack.AttackStrategyFactory
@@ -24,12 +25,32 @@ class SkillStrikes(
   private val ammo: AmmoSupply,
 ) {
 
-  /** The blow [casterId] deals [targetId] at [powerPercent] of a swing, or null when there is no fight to resolve. */
-  fun strike(world: World, casterId: EntityId, targetId: EntityId, attack: BattleAttack, powerPercent: Int): Damage? {
+  /**
+   * The blow [casterId] deals [targetId] at [powerPercent] of a swing, with the second weapon if [offHand]. Null when
+   * there is no fight to resolve, or no second weapon.
+   */
+  fun strike(
+    world: World,
+    casterId: EntityId,
+    targetId: EntityId,
+    attack: BattleAttack,
+    powerPercent: Int,
+    offHand: Boolean = false,
+  ): Damage? {
     val battle = battleContexts.create(world, casterId, attack, targetId, null) as? EntityBattleContext ?: return null
     battle.damageVariables.attackPhysicalMod = powerPercent / 100f
+    val blow = if (offHand) battle.withOffHand(offHandOf(world, casterId) ?: return null, FULL_POWER) else battle
 
-    return attackStrategies.getAttackStrategy(battle).execute(battle)
+    return attackStrategies.getAttackStrategy(blow).execute(blow)
+  }
+
+  private fun offHandOf(world: World, casterId: EntityId): Weapon? {
+    return world.get(casterId, CombatStats::class)?.values?.offHandWeapon
+  }
+
+  private companion object {
+    /** A skill's blow with the second weapon hits as hard as with the first: the skill sets the power. */
+    const val FULL_POWER = 100
   }
 
   /** Takes one shot for the held bow or crossbow out of the quiver; null when none is left or nothing shoots. */
