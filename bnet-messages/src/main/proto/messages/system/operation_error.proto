@@ -485,6 +485,8 @@ enum OpError {
   EQUIP_NEEDS_DUAL_WIELD = 169;
   // A skill that forces a fight, like Provoke, was aimed at a master. Only creatures can be forced.
   SKILL_NOT_ON_MASTERS = 170;
+  // A skill for a long weapon, like Brandish Spear, was used without a spear or a polearm in hand.
+  SKILL_NEEDS_SPEAR = 171;
 }
 
 message OperationError {

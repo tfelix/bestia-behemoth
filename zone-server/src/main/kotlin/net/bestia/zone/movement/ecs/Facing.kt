@@ -23,6 +23,11 @@ data class Facing(var dx: Int = 0, var dy: Int = 1) : Component {
     return Vec3L(at.x - dx, at.y - dy, at.z)
   }
 
+  /** The tile [tiles] steps ahead of an entity at [at] that faces this way. */
+  fun ahead(at: Vec3L, tiles: Int): Vec3L {
+    return Vec3L(at.x + dx * tiles, at.y + dy * tiles, at.z)
+  }
+
   /** Whether [other] stands in the half behind an entity at [at] that faces this way. */
   fun isBehind(at: Vec3L, other: Vec3L): Boolean {
     return (other.x - at.x) * dx + (other.y - at.y) * dy < 0

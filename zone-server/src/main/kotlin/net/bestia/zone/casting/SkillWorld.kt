@@ -9,6 +9,7 @@ import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.battle.ecs.effects.AreaEffect
 import net.bestia.zone.battle.ecs.status.Nature
+import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
@@ -348,6 +349,9 @@ interface SkillWorld {
 
   /** Whether [entityId] holds a weapon in each hand. One operation. */
   fun isDualWielding(entityId: EntityId): Boolean
+
+  /** What [entityId] holds in its right hand, or null for bare hands. One operation. */
+  fun heldWeaponTypeOf(entityId: EntityId): WeaponType?
 
   /** The percent chance [entityId]'s gear gives each landed swing to put [effect] on its target. One operation. */
   fun swingStatusChanceOf(entityId: EntityId, effect: StatusEffectId): Int
