@@ -491,6 +491,8 @@ enum OpError {
   SKILL_NEEDS_SHIELD = 172;
   // A skill that guards someone else, like Devotion, was aimed at the caster or at someone outside the party.
   SKILL_NEEDS_PARTY_MEMBER = 173;
+  // A staff skill, like Staff Sweep, was used without a staff in hand.
+  SKILL_NEEDS_STAFF = 174;
 }
 
 message OperationError {
