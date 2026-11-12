@@ -122,7 +122,8 @@ class PerceptionSystem(
       val taunter = world.get(id, Taunted::class)?.byEntityId?.takeIf { world.isAlive(it) }
       val target = taunter ?: attacker ?: nearestHostile
 
-      memory.set(CommonKeys.IS_AGGRO, attacker != null)
+      // A provoked creature fights back even if it was never hit and its kind never picks a fight.
+      memory.set(CommonKeys.IS_AGGRO, attacker != null || taunter != null)
       memory.set(CommonKeys.ENEMY_IN_SIGHT, target != null)
 
       if (target != null) {

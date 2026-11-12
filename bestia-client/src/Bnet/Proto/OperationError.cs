@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSr8KQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqXKgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -145,8 +145,9 @@ namespace Bnet {
             "QU5ZX1BMQUNFUxDiARIbChZTS0lMTF9ORUVEU19PV05fQkVTVElBEKUBEhcK",
             "ElNLSUxMX05FRURTX0hJRElORxCmARIXChJTS0lMTF9ORUVEU19CRUhJTkQQ",
             "pwESFgoRU1RSSVBfR0VBUl9DT0FURUQQqAESGwoWRVFVSVBfTkVFRFNfRFVB",
-            "TF9XSUVMRBCpASIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5i",
-            "ZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
+            "TF9XSUVMRBCpARIZChRTS0lMTF9OT1RfT05fTUFTVEVSUxCqASIECC4QLioS",
+            "U0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IT",
+            "T3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -912,6 +913,10 @@ namespace Bnet {
     /// A weapon was put into the left hand by a master without Dual Wield.
     /// </summary>
     [pbr::OriginalName("EQUIP_NEEDS_DUAL_WIELD")] EquipNeedsDualWield = 169,
+    /// <summary>
+    /// A skill that forces a fight, like Provoke, was aimed at a master. Only creatures can be forced.
+    /// </summary>
+    [pbr::OriginalName("SKILL_NOT_ON_MASTERS")] SkillNotOnMasters = 170,
   }
 
   #endregion

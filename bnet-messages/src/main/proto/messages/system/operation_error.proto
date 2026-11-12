@@ -483,6 +483,8 @@ enum OpError {
   STRIP_GEAR_COATED = 168;
   // A weapon was put into the left hand by a master without Dual Wield.
   EQUIP_NEEDS_DUAL_WIELD = 169;
+  // A skill that forces a fight, like Provoke, was aimed at a master. Only creatures can be forced.
+  SKILL_NOT_ON_MASTERS = 170;
 }
 
 message OperationError {
