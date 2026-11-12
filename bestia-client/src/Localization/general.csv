@@ -783,6 +783,7 @@ STATUS_EFFECT_220,Quagmire: the mud cuts your AGI and DEX and lets no AGI buff h
 STATUS_EFFECT_221,"Hide: nothing hostile sees you. Moving, attacking or casting reveals you."
 STATUS_EFFECT_222,"Cloak: nothing hostile sees you, and you move slower. Attacking or casting reveals you."
 STATUS_EFFECT_223,Equipment Coating: your gear wears less and cannot be stripped.
+STATUS_EFFECT_224,Enchant Poison: your swings that land may poison what they hit.
 ERROR_PORTAL_NO_SPOT,That saved spot is not there any more.
 ERROR_PORTAL_SPENT,The portal is closing or has let everyone through it can.
 PORTAL_MARK_SPOT,Mark this spot (%d of %d saved)
@@ -813,6 +814,7 @@ ELEMENT_WIND,Wind
 ELEMENT_EARTH,Earth
 SKILLS_TITLE,Skills
 SKILLS_TAB_OTHER,Other
+SKILLS_TAB_COPIED,Copied
 SKILL_TREE_NOVICE,Novice
 SKILL_TREE_CRAFTSMAN,Craftsman
 SKILL_TREE_SURVIVAL,Survival
@@ -831,6 +833,7 @@ SKILLS_PICK,Pick a skill to see what it does.
 SKILLS_LEVEL,Lv. %d / %d
 SKILLS_LEVEL_QUEUED,(+%d queued)
 SKILLS_PASSIVE,Passive: always on once learned
+SKILLS_COPIED,"Copied with Plagiarism: one cast, then it is gone."
 SKILLS_ACTIVE,Active
 SKILLS_TARGET_GROUND,Active: aimed at the ground
 SKILLS_TARGET_AOE_GROUND,Active: hits an area on the ground

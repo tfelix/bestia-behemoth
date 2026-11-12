@@ -18,6 +18,8 @@ const TREE_ORDER: Array[String] = ["NOVICE", "CRAFTSMAN", "SURVIVAL", "SCHOLAR",
 
 ## Skills outside the master tree - a bestia's own, or item-taught - carry no tree and collect here.
 const NO_TREE := ""
+## A spell held for one cast, like a Plagiarism copy, gets a tab of its own: it may also be a node of a tree.
+const COPIED_TAB := "~COPIED"
 const NOVICE_TREE := "NOVICE"
 
 ## Mirrors MasterSkillTreeService.SUB_TREE_UNLOCK_THRESHOLD - how many points must be spent anywhere in a
@@ -44,6 +46,8 @@ var _available_skill_points: int = 0
 ## and the level the server confirmed for each.
 var _skill_ids: Array[int] = []
 var _levels: Dictionary[int, int] = {}
+## The level of each skill held for one cast, from the list's temporary entries.
+var _copied: Dictionary[int, int] = {}
 ## The Potency band each learned skill casts at now, from the server: 0 for none, 1 (Faint) to 5 (Overwhelming).
 var _potency_bands: Dictionary[int, int] = {}
 ## One entry per queued point, in the order they were queued.
@@ -118,16 +122,20 @@ func _show_list(msg: SkillListSMSG) -> void:
 
 	_skill_ids.clear()
 	_levels.clear()
+	_copied.clear()
 	_potency_bands.clear()
 	for entry in msg.Skills:
+		if entry.Temporary:
+			_copied[entry.SkillId] = entry.Level
+			continue
 		_skill_ids.append(entry.SkillId)
 		_levels[entry.SkillId] = entry.Level
 		_potency_bands[entry.SkillId] = entry.PotencyBand
 	_queued.clear()
 	for id in _use_levels.keys():
-		if not _levels.has(id):
+		if not _levels.has(id) and not _copied.has(id):
 			_use_levels.erase(id)
-	if not _levels.has(_selected_id):
+	if not _levels.has(_selected_id) and not _copied.has(_selected_id):
 		_selected_id = 0
 
 	_rebuild_tabs()
@@ -332,6 +340,8 @@ func _rebuild_tabs() -> void:
 			_tabbed_trees.append(tree)
 	if present.has(NO_TREE):
 		_tabbed_trees.append(NO_TREE)
+	if not _copied.is_empty():
+		_tabbed_trees.append(COPIED_TAB)
 
 	# Silent throughout: adding the first tab already moves the current tab, and a refresh then would read
 	# trees past the tabs that exist so far. The caller refreshes once the strip is whole.
@@ -361,7 +371,7 @@ func _update_tab_titles(levels: Dictionary) -> void:
 
 ## The details would otherwise go on describing a skill nobody can see.
 func _on_tab_changed(_tab: int) -> void:
-	if _tree_of(_selected_id) != _current_tree():
+	if _is_copied_tab() or _tree_of(_selected_id) != _current_tree():
 		_selected_id = 0
 	_refresh()
 
@@ -372,7 +382,18 @@ func _current_tree() -> String:
 
 
 func _tree_name(tree: String) -> String:
+	if tree == COPIED_TAB:
+		return tr("SKILLS_TAB_COPIED")
 	return tr("SKILLS_TAB_OTHER") if tree == NO_TREE else _named("SKILL_TREE_" + tree, tree)
+
+
+func _is_copied_tab() -> bool:
+	return _current_tree() == COPIED_TAB
+
+
+## The level [param id] is known at in the open tab: the copy's own on the copied tab, the learned one elsewhere.
+func _known_level(id: int) -> int:
+	return _copied.get(id, 0) if _is_copied_tab() else _levels.get(id, 0)
 
 
 ## A translation, or the identifier title-cased when there is none yet: a missing key comes back unchanged.
@@ -441,7 +462,7 @@ func _tree_has_trunk(tree: String) -> bool:
 ## Why a whole tree is closed, or empty while it is open: every tree but Novice waits for Basic Skill, and Novice
 ## closes for good with the first point spent anywhere else - mirrors MasterSkillTreeService.nextLevel.
 func _tree_lock_note(tree: String, levels: Dictionary) -> String:
-	if not _is_master_view or tree == NO_TREE:
+	if not _is_master_view or tree == NO_TREE or tree == COPIED_TAB:
 		return ""
 	if tree == NOVICE_TREE:
 		return tr("SKILLS_NOVICE_CLOSED") if _has_invested_outside_novice(levels) else ""
@@ -533,6 +554,8 @@ func _refresh() -> void:
 ## The open tab as [MasterSkillTree] sections: the trunk first, then each sub-tree in the order the server
 ## sends them, each with whatever still keeps it closed.
 func _sections(tree: String, levels: Dictionary) -> Array:
+	if tree == COPIED_TAB:
+		return [{"title": "", "note": "", "ids": _copied.keys()}]
 	var trunk := {"title": "", "note": _tree_lock_note(tree, levels), "ids": []}
 	var sections: Array = [trunk]
 	var by_sub_tree := {}
@@ -555,6 +578,8 @@ func _sections(tree: String, levels: Dictionary) -> Array:
 
 
 func _tile_state(id: int, levels: Dictionary, remaining: int) -> Dictionary:
+	if _is_copied_tab():
+		return {"level": _copied[id], "max_level": _copied[id], "pending": 0, "raisable": false, "locked": false}
 	var queued := _queued_on(id)
 	return {
 		"level": _levels.get(id, 0),
@@ -566,7 +591,8 @@ func _tile_state(id: int, levels: Dictionary, remaining: int) -> Dictionary:
 
 
 func _show_selected(levels: Dictionary, remaining: int) -> void:
-	var attack := AttackDB.get_instance().get_attack(_selected_id) if _levels.has(_selected_id) else null
+	var listed := _copied.has(_selected_id) if _is_copied_tab() else _levels.has(_selected_id)
+	var attack := AttackDB.get_instance().get_attack(_selected_id) if listed else null
 	for part: Control in [_icon, _level, _kind, _description, _stats, _requirements, _leads_to, _use_level_row,
 			_hint, _use, _unqueue, _add_point]:
 		part.visible = attack != null
@@ -575,23 +601,23 @@ func _show_selected(levels: Dictionary, remaining: int) -> void:
 		return
 
 	var id := _selected_id
-	var level: int = _levels[id]
-	var queued := _queued_on(id)
-	var max_level := attack.max_level
+	var level := _known_level(id)
+	var queued := 0 if _is_copied_tab() else _queued_on(id)
+	var max_level := level if _is_copied_tab() else attack.max_level
 	_icon.texture = attack.get_icon()
 	_name.text = attack.name
 	_level.text = tr("SKILLS_LEVEL") % [level + queued, max_level]
 	if queued > 0:
 		_level.text += "  " + tr("SKILLS_LEVEL_QUEUED") % queued
 
-	_kind.text = _kind_text(attack)
+	_kind.text = tr("SKILLS_COPIED") if _is_copied_tab() else _kind_text(attack)
 	_description.text = tr(attack.description_key) if not attack.description_key.is_empty() else ""
 	_description.visible = not _description.text.is_empty()
 	_stats.text = _stats_text(attack, _potency_bands.get(id, 0))
 	_stats.visible = not _stats.text.is_empty()
-	_requirements.text = _requirements_text(id, levels)
+	_requirements.text = "" if _is_copied_tab() else _requirements_text(id, levels)
 	_requirements.visible = not _requirements.text.is_empty()
-	_leads_to.text = _leads_to_text(id)
+	_leads_to.text = "" if _is_copied_tab() else _leads_to_text(id)
 	_leads_to.visible = not _leads_to.text.is_empty()
 
 	var usable := level > 0 and not attack.is_passive
@@ -601,7 +627,7 @@ func _show_selected(levels: Dictionary, remaining: int) -> void:
 	_hint.visible = usable
 	_hint.text = tr("SKILLS_DRAG_HINT")
 
-	var investable := _is_master_view and _tree_of(id) != NO_TREE
+	var investable := _is_master_view and _tree_of(id) != NO_TREE and not _is_copied_tab()
 	_unqueue.visible = investable and queued > 0
 	_add_point.visible = investable
 	var maxed: bool = levels.get(id, 0) >= max_level
@@ -677,11 +703,11 @@ func _on_skill_selected(skill_id: int) -> void:
 
 
 func _use_level_of(id: int) -> int:
-	return clampi(_use_levels.get(id, _levels.get(id, 1)), 1, maxi(_levels.get(id, 1), 1))
+	return clampi(_use_levels.get(id, _known_level(id)), 1, maxi(_known_level(id), 1))
 
 
 func _on_use_level_step(step: int) -> void:
-	_use_levels[_selected_id] = clampi(_use_level_of(_selected_id) + step, 1, maxi(_levels.get(_selected_id, 1), 1))
+	_use_levels[_selected_id] = clampi(_use_level_of(_selected_id) + step, 1, maxi(_known_level(_selected_id), 1))
 	_use_level.text = str(_use_level_of(_selected_id))
 
 
@@ -689,7 +715,7 @@ func _on_use_level_step(step: int) -> void:
 ## its target rather than going out without one.
 func _use_skill(id: int) -> void:
 	var attack := AttackDB.get_instance().get_attack(id)
-	if attack == null or attack.is_passive or _levels.get(id, 0) == 0:
+	if attack == null or attack.is_passive or _known_level(id) == 0:
 		return
 	attack.use_skill(_use_level_of(id))
 
@@ -699,7 +725,7 @@ func _use_skill(id: int) -> void:
 ## leaves the window - the drop side rejects it as well, since a shortcut can also be dragged between slots.
 func _drag_data(id: int) -> Variant:
 	var attack := AttackDB.get_instance().get_attack(id)
-	if attack == null or attack.is_passive or _levels.get(id, 0) == 0:
+	if attack == null or attack.is_passive or _known_level(id) == 0:
 		return null
 
 	var preview := TextureRect.new()

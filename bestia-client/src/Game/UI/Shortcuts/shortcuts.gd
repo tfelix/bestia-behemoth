@@ -178,8 +178,9 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 	if not msg is SkillListSMSG:
 		return
 	var levels := {}
+	# A spell copied with Plagiarism may also be listed as a tree node the master never learned.
 	for entry in msg.Skills:
-		levels[entry.SkillId] = entry.Level
+		levels[entry.SkillId] = maxi(levels.get(entry.SkillId, 0), entry.Level)
 	_known_skills[msg.EntityId] = levels
 	if msg.EntityId == _controlled_entity_id:
 		_show_active_layer()

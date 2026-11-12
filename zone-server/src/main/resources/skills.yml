@@ -1488,7 +1488,8 @@ skills:
     targetType: FRIENDLY
     description: |
       Lets the Assassin carry a one-handed weapon in each hand. Without this skill no master can
-      hold a weapon in the left hand. The off-hand weapon always swings for less.
+      hold a weapon in the left hand. The off-hand weapon strikes after every swing that lands,
+      always for less, and swings come slower.
 
       `+10%/lv` off-hand damage, from 30% at Lv.1
       `-5%/lv` attack speed penalty, from 25% at Lv.1
@@ -1538,8 +1539,8 @@ skills:
     description: |
       A long, unhealthy familiarity with everything that should not be swallowed.
 
-      `+20%/lv` damage of the Assassin's own poisons
-      `+10%/lv` poison resistance
+      `+20%/lv` damage of the poison the Assassin's own blade leaves
+      `+10%/lv` resistance to being poisoned
 
   - id: 125
     identifier: M_ENCHANT_POISON
@@ -1553,8 +1554,9 @@ skills:
         - item: basic_poison
           amount: 1
     description: |
-      Works a brewed poison into the edge of a weapon for 5min, so every strike can leave it
-      behind. Consumes one poison, such as Basic Poison. The poison decides how hard it bites.
+      Works a brewed poison into the edge of your own or an ally's weapon for 5min, so every
+      swing that lands can leave it behind. Consumes one poison, such as Basic Poison. The poison
+      decides how hard it bites.
 
       `+5%/lv` poison chance per hit
 
@@ -1564,7 +1566,8 @@ skills:
     description: |
       When an enemy spell strikes the Assassin, they may memorize it well enough to cast it back
       once. Bestia attacks can be copied too. Casting the copy consumes it, and a new copy
-      overwrites the old one. A master's spell counts 10 attack levels per skill level.
+      overwrites the old one. A master's spell counts 10 attack levels per skill level and is
+      copied at the cap when it is above it; a bestia attack above the cap is not copied.
 
       `+10%/lv` copy chance
       `+20/lv` highest attack level copied, 100+ at max rank
@@ -1609,7 +1612,8 @@ skills:
     manaCost: 20
     cooldown: 5
     description: |
-      Eight strikes in a heartbeat, split across both blades. Cooldown 5s.
+      Eight weapon blows in a heartbeat. With a weapon in each hand, every second blow comes
+      from the left. Cooldown 5s.
 
       `+40%/lv` ATK over all eight hits, from 340% at Lv.1
 

@@ -764,7 +764,8 @@ against Equipment Coating. Cooldown 12s.
 `+10%/lv` strip chance, from 20% at Lv.1
 `+5s/lv` slot blocked"
 SKILL_120_DESC,"Lets the Assassin carry a one-handed weapon in each hand. Without this skill no master can
-hold a weapon in the left hand. The off-hand weapon always swings for less.
+hold a weapon in the left hand. The off-hand weapon strikes after every swing that lands,
+always for less, and swings come slower.
 
 `+10%/lv` off-hand damage, from 30% at Lv.1
 `-5%/lv` attack speed penalty, from 25% at Lv.1"
@@ -785,15 +786,17 @@ casting; recast to come out. Ruwach strips it outright. Cooldown 8s.
 `-1/lv` mana drain per second, from 6 at Lv.1"
 SKILL_124_DESC,"A long, unhealthy familiarity with everything that should not be swallowed.
 
-`+20%/lv` damage of the Assassin's own poisons
-`+10%/lv` poison resistance"
-SKILL_125_DESC,"Works a brewed poison into the edge of a weapon for 5min, so every strike can leave it
-behind. Consumes one poison, such as Basic Poison. The poison decides how hard it bites.
+`+20%/lv` damage of the poison the Assassin's own blade leaves
+`+10%/lv` resistance to being poisoned"
+SKILL_125_DESC,"Works a brewed poison into the edge of your own or an ally's weapon for 5min, so every
+swing that lands can leave it behind. Consumes one poison, such as Basic Poison. The poison
+decides how hard it bites.
 
 `+5%/lv` poison chance per hit"
 SKILL_126_DESC,"When an enemy spell strikes the Assassin, they may memorize it well enough to cast it back
 once. Bestia attacks can be copied too. Casting the copy consumes it, and a new copy
-overwrites the old one. A master's spell counts 10 attack levels per skill level.
+overwrites the old one. A master's spell counts 10 attack levels per skill level and is
+copied at the cap when it is above it; a bestia attack above the cap is not copied.
 
 `+10%/lv` copy chance
 `+20/lv` highest attack level copied, 100+ at max rank
@@ -806,7 +809,8 @@ SKILL_129_DESC,"A short, vicious blow below the ribs that leaves the target stun
 recovers twice as fast. Cooldown 30s.
 
 `+1s/lv` stun, from 4s at Lv.1"
-SKILL_130_DESC,"Eight strikes in a heartbeat, split across both blades. Cooldown 5s.
+SKILL_130_DESC,"Eight weapon blows in a heartbeat. With a weapon in each hand, every second blow comes
+from the left. Cooldown 5s.
 
 `+40%/lv` ATK over all eight hits, from 340% at Lv.1"
 SKILL_131_DESC,"Slips through the shadows to stand right behind a target, still hidden, so a Backstab can

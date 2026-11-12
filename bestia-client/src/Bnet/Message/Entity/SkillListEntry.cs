@@ -14,6 +14,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// <summary>The Potency band of a learned skill: 0 for none, then Faint = 1 to Overwhelming = 5.</summary>
     [Export] public uint PotencyBand { get; set; }
 
+    /// <summary>Held for a single cast, like a spell copied with Plagiarism, rather than learned.</summary>
+    [Export] public bool Temporary { get; set; }
+
     /// <summary>
     /// Creates a SkillListEntry from protobuf data
     /// </summary>
@@ -23,7 +26,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
       {
         SkillId = protoEntry.SkillId,
         Level = protoEntry.Level,
-        PotencyBand = protoEntry.PotencyBand
+        PotencyBand = protoEntry.PotencyBand,
+        Temporary = protoEntry.Temporary
       };
     }
   }
