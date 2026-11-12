@@ -26,6 +26,8 @@ data class DamageModifiers(
   val takenFromUnholy: Int = 0,
   val takenByForm: Map<HitForm, Int> = emptyMap(),
   val takenByReach: Map<HitReach, Int> = emptyMap(),
+  /** A ward against every blow and spell, like Magic Armor: a category of its own, as RO's Energy Coat is. */
+  val takenFromAnyHit: Int = 0,
 ) {
 
   /** One side of a hit as the modifiers see it. [kind] is null for what has none, like a prop. */
@@ -66,6 +68,7 @@ data class DamageModifiers(
       factor = factor.scaledBy(100 - if (attacker?.isUnholy == true) taken.takenFromUnholy else 0)
       factor = factor.scaledBy(100 - (taken.takenByForm[kind.form] ?: 0))
       factor = factor.scaledBy(100 - (taken.takenByReach[kind.reach] ?: 0))
+      factor = factor.scaledBy(100 - taken.takenFromAnyHit)
 
       return (amount.toLong() * factor / WHOLE).toInt()
     }
