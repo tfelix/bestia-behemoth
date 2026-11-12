@@ -199,6 +199,14 @@ class StatusValueRecalcContext(
     statusResistance = statusResistance + (effect to (statusResistance[effect] ?: 0) + percent)
   }
 
+  /** Percent chance a swing that lands puts a status on its target, like a stunning mace. See `GearSwingStatuses`. */
+  var swingStatusChance: Map<StatusEffectId, Int> = emptyMap()
+    private set
+
+  fun addSwingStatusChance(effect: StatusEffectId, percent: Int) {
+    swingStatusChance = swingStatusChance + (effect to (swingStatusChance[effect] ?: 0) + percent)
+  }
+
   /** Percent more weight the entity can carry, beside what strength and vitality give. */
   var carryCapacityPercent: Int = 0
 
