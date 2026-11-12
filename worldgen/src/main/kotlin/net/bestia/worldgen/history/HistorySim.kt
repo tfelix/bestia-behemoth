@@ -667,8 +667,8 @@ internal class HistorySim(
   private var prunedEvents = 0
   private var nextEventId = 0
 
-  /** Pairwise hostility, `[a][b]`, symmetric. Grows with contact and resets when war is declared. */
-  private lateinit var hostility: Array<DoubleArray>
+  /** Grows with contact and resets when war is declared. */
+  private val hostility = Hostility()
 
   /** Straight-line distances between every pair of sites, in metres. */
   private val distance: Array<DoubleArray> = Array(facts.size) { a ->
@@ -690,11 +690,10 @@ internal class HistorySim(
 
   fun run(): Chronicle {
     seedCivilisations()
-    hostility = Array(civs.size) { DoubleArray(civs.size) }
 
     var year = startYear
     while (year <= presentYear) {
-      for (civ in civs) {
+      for (civ in civs.toList()) {
         if (!civ.exists) continue
         growPopulations(civ, year)
         expandOrMigrate(civ, year)
@@ -759,12 +758,7 @@ internal class HistorySim(
         continue
       }
 
-      val civ = Civ(civs.size, site.cultureIndex, site.index)
-      civ.nameSeed = Names.seedOf(worldSeed, CIV_NAME_SALT, civ.index.toLong())
-      civ.founded = startYear
-      civs.add(civ)
-      joinCiv(civ, town, startYear)
-
+      val civ = addCiv(site.cultureIndex, town, startYear)
       civ.foundedEvent = log(
         startYear, EventKind.CIV_FOUNDED,
         listOf(Actor(ActorType.CIV, civ.index), Actor(ActorType.SETTLEMENT, site.index)),
@@ -777,12 +771,23 @@ internal class HistorySim(
     // history at all, which is a worse answer than a small one.
     if (civs.isEmpty() && facts.isNotEmpty()) {
       val site = facts.first()
-      val civ = Civ(0, site.cultureIndex, site.index)
-      civ.nameSeed = Names.seedOf(worldSeed, CIV_NAME_SALT, 0L)
-      civ.founded = startYear
-      civs.add(civ)
-      joinCiv(civ, towns[site.index], startYear)
+      addCiv(site.cultureIndex, towns[site.index], startYear)
     }
+  }
+
+  /**
+   * The one way a civ enters the history, at the start or later. Safe to call inside a civ loop, because those
+   * loops iterate `civs.toList()`. Logging the founding is the caller's job: only the caller knows how the
+   * people came to be.
+   */
+  private fun addCiv(cultureIndex: Int, capital: Town, year: Int): Civ {
+    val civ = Civ(civs.size, cultureIndex, capital.facts.index)
+    civ.nameSeed = Names.seedOf(worldSeed, CIV_NAME_SALT, civ.index.toLong())
+    civ.founded = year
+    civs.add(civ)
+    hostility.addCiv()
+    joinCiv(civ, capital, year)
+    return civ
   }
 
   private fun joinCiv(civ: Civ, town: Town, year: Int) {
@@ -942,8 +947,7 @@ internal class HistorySim(
         val gain = params.hostilityRate * proximity * competition * appetite *
             (0.7 + 0.6 * roll(year.toLong(), a.toLong(), b.toLong(), HOSTILITY_SALT))
 
-        hostility[a][b] += gain
-        hostility[b][a] = hostility[a][b]
+        hostility.set(a, b, hostility.between(a, b) + gain)
       }
     }
   }
@@ -964,7 +968,7 @@ internal class HistorySim(
   private fun resolveWars(year: Int) {
     for (a in civs.indices) {
       for (b in a + 1 until civs.size) {
-        if (hostility[a][b] < params.warThreshold) continue
+        if (hostility.between(a, b) < params.warThreshold) continue
         if (!civs[a].exists || !civs[b].exists) continue
         if (wars.any { it.involves(a, b) }) continue
 
@@ -1004,8 +1008,7 @@ internal class HistorySim(
     civs[a].grudges.add(b to cause)
     civs[b].grudges.add(a to cause)
 
-    hostility[a][b] = WAR_HOSTILITY_RESET
-    hostility[b][a] = WAR_HOSTILITY_RESET
+    hostility.set(a, b, WAR_HOSTILITY_RESET)
     wars.add(War(a, b, year, cause))
   }
 
@@ -1748,7 +1751,7 @@ internal class HistorySim(
   private fun swearOrders(year: Int) {
     if (params.orderInfluence.isAbsent) return
 
-    for (civ in civs) {
+    for (civ in civs.toList()) {
       if (!civ.exists) continue
 
       if (civ.sworn == null) swear(civ, year) else reconsider(civ, year)
@@ -2117,7 +2120,7 @@ internal class HistorySim(
   private fun raiseShrines(year: Int) {
     if (params.orderInfluence.isAbsent) return
 
-    for (civ in civs) {
+    for (civ in civs.toList()) {
       if (!civ.exists) continue
       val order = civ.sworn ?: continue
       if (civ.technology < params.shrineTechnology) continue
@@ -2180,7 +2183,7 @@ internal class HistorySim(
   // --- Figures and artifacts -------------------------------------------------------------------------
 
   private fun updateFigures(year: Int) {
-    for (civ in civs) {
+    for (civ in civs.toList()) {
       if (!civ.exists) continue
 
       val chance = params.yearsPerTick.toDouble() / params.yearsPerFigure
@@ -2464,7 +2467,7 @@ internal class HistorySim(
   // --- Monuments and walls ---------------------------------------------------------------------------
 
   private fun raiseMonuments(year: Int) {
-    for (civ in civs) {
+    for (civ in civs.toList()) {
       if (!civ.exists || civ.technology < MONUMENT_TECHNOLOGY) continue
       val capital = civ.towns.filter { towns[it].standing }.maxByOrNull { towns[it].population } ?: continue
       val town = towns[capital]
@@ -2504,7 +2507,7 @@ internal class HistorySim(
    * settlements" rule applied one level down.
    */
   private fun buildSites(year: Int) {
-    for (civ in civs) {
+    for (civ in civs.toList()) {
       if (!civ.exists) continue
 
       buildSite(
@@ -2677,7 +2680,7 @@ internal class HistorySim(
   }
 
   private fun retireCivs(year: Int) {
-    for (civ in civs) {
+    for (civ in civs.toList()) {
       if (!civ.exists) continue
       if (civ.towns.any { towns[it].standing }) continue
 
@@ -2941,6 +2944,26 @@ internal class HistorySim(
     val sites = ArrayList<Int>()
 
     val standing get() = founded != 0 && abandoned == 0
+  }
+
+  /** Symmetric pairwise hostility between civs, grown one row and column per [addCiv]. */
+  private class Hostility {
+    private var cells = Array(0) { DoubleArray(0) }
+
+    fun addCiv() {
+      val old = cells
+      val size = old.size + 1
+      cells = Array(size) { a -> old.getOrNull(a)?.copyOf(size) ?: DoubleArray(size) }
+    }
+
+    fun between(a: Int, b: Int): Double {
+      return cells[a][b]
+    }
+
+    fun set(a: Int, b: Int, value: Double) {
+      cells[a][b] = value
+      cells[b][a] = value
+    }
   }
 
   private class Civ(val index: Int, val cultureIndex: Int, val capital: Int) {
