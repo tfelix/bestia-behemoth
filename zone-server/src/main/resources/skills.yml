@@ -1598,6 +1598,8 @@ skills:
   - id: 130
     identifier: M_SONIC_BLOW
     script: SonicBlow
+    # Weapon blows, not a spell: no Magic Rod catches them.
+    archetype: STRIKE
     targetType: ENEMY
     range: 1
     manaCost: 20

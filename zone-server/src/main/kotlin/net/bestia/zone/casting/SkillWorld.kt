@@ -150,10 +150,10 @@ interface SkillWorld {
 
   /**
    * A weapon blow at [targetEntityId] with [attack] at [powerPercent] of a swing: it hits, misses and crits like
-   * one, lands like [apply] does, and comes back for the script's own after-effects. Null when there is no fight
-   * to resolve. One operation.
+   * one, lands like [apply] does, and comes back for the script's own after-effects. [offHand] strikes with the
+   * second weapon in the left hand. Null when there is no fight to resolve, or no second weapon. One operation.
    */
-  fun strike(targetEntityId: EntityId, attack: BattleAttack, powerPercent: Int): Damage?
+  fun strike(targetEntityId: EntityId, attack: BattleAttack, powerPercent: Int, offHand: Boolean = false): Damage?
 
   /** One shot for the caster's held bow or crossbow, taken from the quiver; null when none is left. One operation. */
   fun drawAmmo(): Ammunition?

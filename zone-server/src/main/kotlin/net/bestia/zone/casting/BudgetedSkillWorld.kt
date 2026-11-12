@@ -464,11 +464,11 @@ class BudgetedSkillWorld(
     }
   }
 
-  override fun strike(targetEntityId: EntityId, attack: BattleAttack, powerPercent: Int): Damage? {
+  override fun strike(targetEntityId: EntityId, attack: BattleAttack, powerPercent: Int, offHand: Boolean): Damage? {
     budget.charge()
 
     val strikes = services.strikes ?: return null
-    val damage = strikes.strike(world, casterId, targetEntityId, attack, powerPercent) ?: return null
+    val damage = strikes.strike(world, casterId, targetEntityId, attack, powerPercent, offHand) ?: return null
     val reach = if (attack.attackType == AttackType.RANGED_PHYSICAL) HitReach.RANGED else HitReach.MELEE
     apply(targetEntityId, damage, HitKind.physical(reach, attack.attackElement))
 
