@@ -6,7 +6,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
-/** All attack and no guard: armour counts for nothing while it lasts. */
+/** All attack and no guard: no physical defence at all, soft or hard, and no armour against spells. */
 @Component
 class Berserk : StatusEffectScript {
 
@@ -22,5 +22,6 @@ class Berserk : StatusEffectScript {
     sourceEntityId: EntityId?
   ) {
     context.addPercent(attack = 60, defense = -100, aspd = 30)
+    context.cutDefense(100)
   }
 }
