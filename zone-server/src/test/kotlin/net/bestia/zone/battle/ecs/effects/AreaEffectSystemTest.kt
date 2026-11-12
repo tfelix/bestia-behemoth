@@ -10,7 +10,9 @@ import io.mockk.mockk
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.entity.ecs.Dead
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.PropPose
@@ -152,6 +154,37 @@ class AreaEffectSystemTest {
 
     val hit = victims.count { stagedDamage(it) > 0 }
     assertTrue(hit in 1..9, "one strike covers at most the 3x3 around where it fell, hit $hit")
+  }
+
+  @Test
+  fun `an elemental spell area is weighed by element and resistance and less the victim's MDEF`() {
+    val fireProof = victimAt(Vec3L(CENTER.x + 1, CENTER.y, CENTER.z))
+    val baseline = CombatValues.OBJECT_BASELINE
+    world.add(
+      fireProof,
+      CombatStats(
+        baseline.copy(elementResistance = mapOf(Element.FIRE to 50), defense = baseline.defense.copy(magicDefense = 2))
+      )
+    )
+    val waterBody = victimAt(Vec3L(CENTER.x - 1, CENTER.y, CENTER.z))
+    world.add(waterBody, Nature(Element.WATER, Size.MEDIUM, kind = BestiaKind.AQUATIC))
+    val caster = world.createEntity { casterId -> add(casterId, Master(masterId = 1L)) }
+    world.createEntity { entityId ->
+      add(entityId, Position.fromVec3(CENTER))
+      add(
+        entityId,
+        AreaEffect(
+          casterId = caster, skillId = SKILL_ID, skillLevel = 1, radiusTiles = 1, damagePerTick = 100,
+          tickIntervalSeconds = TICK_INTERVAL, remainingTicks = 1, element = Element.FIRE,
+          mechanics = AreaMechanics(landsAsElementalSpell = true)
+        )
+      )
+    }.also { aoi.setEntityPosition(it, CENTER) }
+
+    world.tick(TICK_INTERVAL)
+
+    assertEquals(100 * 50 / 100 - 2, stagedDamage(fireProof))
+    assertEquals(100 * 50 / 100, stagedDamage(waterBody), "water halves fire")
   }
 
   /** A master's patch, so the wild creatures in it are its foes. */

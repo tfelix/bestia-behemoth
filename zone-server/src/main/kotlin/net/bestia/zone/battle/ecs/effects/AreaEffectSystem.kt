@@ -6,6 +6,7 @@ import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.Unholy
 import kotlin.random.Random
 import net.bestia.zone.battle.damage.DamageLanding
+import net.bestia.zone.battle.damage.ElementalSpell
 import net.bestia.zone.battle.damage.HitKind
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.Sides
@@ -154,6 +155,14 @@ class AreaEffectSystem(
   private fun damageOn(world: World, effect: AreaEffect, victimId: EntityId): Int {
     val mechanics = effect.mechanics
     val element = elementOf(world, victimId)
+    if (mechanics.landsAsElementalSpell) {
+      val victim = world.get(victimId, CombatStats::class)?.values
+
+      return ElementalSpell.damage(
+        effect.damagePerTick.toFloat(), effect.element, element,
+        victim?.elementResistance.orEmpty(), victim?.defense?.magicDefense ?: 0
+      )
+    }
     val modifier = if (mechanics.weighsElement) ElementModifier.getModifierFloat(effect.element, element) else 1f
     val unholy = mechanics.unholyBonusPercent > 0 && Unholy.isUnholy(world.get(victimId, Nature::class)?.kind, element)
     val bonus = if (unholy) (100 + mechanics.unholyBonusPercent) / 100f else 1f
