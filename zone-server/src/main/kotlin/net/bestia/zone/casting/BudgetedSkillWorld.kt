@@ -272,6 +272,13 @@ class BudgetedSkillWorld(
     world.get(entityId, Mana::class)?.let { it.current += amount }
   }
 
+  override fun restoreCaster(staminaPercent: Int, healthPercent: Int) {
+    budget.charge()
+
+    world.get(casterId, Stamina::class)?.let { it.current += it.max * staminaPercent / 100 }
+    world.get(casterId, Health::class)?.let { Healing.heal(world, casterId, it.max * healthPercent / 100) }
+  }
+
   override fun drainMana(entityId: EntityId, percent: Int) {
     budget.charge()
 
