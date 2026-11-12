@@ -33,6 +33,13 @@ interface SkillStrategy {
   val toggledStatus: StatusEffectId?
     get() = null
 
+  /**
+   * Whether resolving the cast counts as an action, which ends a hiding or a sprint on the caster. False for a skill
+   * cast from hiding that leaves the caster hidden, like Shadow Step.
+   */
+  val isReportedAsAction: Boolean
+    get() = true
+
   /** What casting [skill] at [level] costs and how far it reaches; the catalogue's single values by default. */
   fun costOf(skill: Skill, level: Int): SkillLevelCost = SkillLevelCost.of(skill)
 

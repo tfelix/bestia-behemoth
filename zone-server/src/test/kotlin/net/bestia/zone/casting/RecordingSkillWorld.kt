@@ -296,6 +296,10 @@ class RecordingSkillWorld(
 
   override fun isBehind(targetEntityId: EntityId): Boolean = targetEntityId in behind
 
+  val spotsBehind = mutableMapOf<EntityId, Vec3L>()
+
+  override fun spotBehind(targetEntityId: EntityId): Vec3L? = spotsBehind[targetEntityId]
+
   val replanted = mutableListOf<Triple<Vec3L, Int, Int>>()
 
   override fun replant(at: Vec3L, growthPercent: Int, bonusYield: Int): Boolean {

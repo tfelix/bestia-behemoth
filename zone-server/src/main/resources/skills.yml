@@ -1566,6 +1566,8 @@ skills:
   - id: 128
     identifier: M_BACKSTAB
     script: Backstab
+    # A weapon blow, not a spell: no Magic Rod catches it.
+    archetype: STRIKE
     targetType: ENEMY
     range: 1
     manaCost: 16

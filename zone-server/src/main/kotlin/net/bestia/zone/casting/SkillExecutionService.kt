@@ -197,7 +197,7 @@ class SkillExecutionService(
 
       // Before the effect lands, so what casting ends - a hiding, a sprint - ends before this cast begins, and a
       // skill that hides its own caster is not undone by its own cast.
-      actionReactions.notifyActed(world, casterId, EntityAction.CAST)
+      if (strategy.isReportedAsAction) actionReactions.notifyActed(world, casterId, EntityAction.CAST)
       world.get(casterId, Facing::class)?.turnTowards(ctx.battle.attacker.position, ctx.aimedAt)
       val result = strategy.execute(ctx)
       if (paid) cooldowns.start(world, casterId, skill.id, cost.cooldownSeconds)

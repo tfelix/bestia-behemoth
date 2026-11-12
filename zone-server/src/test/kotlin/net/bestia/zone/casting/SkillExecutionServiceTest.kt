@@ -39,6 +39,7 @@ class SkillExecutionServiceTest {
   private class TestScript(
     private val result: Damage? = null,
     private val possible: Boolean = true,
+    override val isReportedAsAction: Boolean = true,
     private val body: (SkillContext) -> Unit = {},
   ) : SkillStrategy {
     var casts = 0
@@ -270,6 +271,25 @@ class SkillExecutionServiceTest {
     service.executeNow(world, caster, SKILL_ID, 1, target, null)
 
     assertEquals(listOf("acted", "effect"), order)
+  }
+
+  @Test
+  fun `a cast that leaves its caster hidden is not reported as an action`() {
+    val reported = mutableListOf<EntityAction>()
+    val script = TestScript(isReportedAsAction = false)
+    val caster = world.spawnFighter()
+    val target = world.spawnFighter()
+    val repository = mockk<SkillRepository>()
+    every { repository.findAll() } returns listOf(skill(script = "TestScript"))
+    val service = SkillExecutionService(
+      repository, SkillStrategyFactory(listOf(script)), contextFactory(), SkillCooldownService(clock),
+      actionReactions = { _, _, action -> reported += action }
+    ).also { it.warmUp() }
+
+    service.executeNow(world, caster, SKILL_ID, 1, target, null)
+
+    assertEquals(1, script.casts)
+    assertEquals(emptyList<EntityAction>(), reported)
   }
 
   @Test

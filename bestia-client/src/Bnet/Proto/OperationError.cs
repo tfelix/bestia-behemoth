@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqVKQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrHKQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -142,9 +142,10 @@ namespace Bnet {
             "TF9NSU5EX0JST0tFThCiARIXChJTUEVMTF9PVVRfT0ZfUkFOR0UQowESFgoR",
             "U0tJTExfTkVFRFNfV0FURVIQpAESFgoRT1JERVJTX05BTUVfVEFLRU4Q4AES",
             "HAoXT1JERVJTX1RPT19NQU5ZX1BSRVNFVFMQ4QESGwoWT1JERVJTX1RPT19N",
-            "QU5ZX1BMQUNFUxDiARIbChZTS0lMTF9ORUVEU19PV05fQkVTVElBEKUBIgQI",
-            "LhAuKhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnBy",
-            "b3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "QU5ZX1BMQUNFUxDiARIbChZTS0lMTF9ORUVEU19PV05fQkVTVElBEKUBEhcK",
+            "ElNLSUxMX05FRURTX0hJRElORxCmARIXChJTS0lMTF9ORUVEU19CRUhJTkQQ",
+            "pwEiBAguEC4qElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQuYmVzdGlhLmJu",
+            "ZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -894,6 +895,14 @@ namespace Bnet {
     /// A skill meant for the caster's own bestias, like Mindbreak, was aimed at something else.
     /// </summary>
     [pbr::OriginalName("SKILL_NEEDS_OWN_BESTIA")] SkillNeedsOwnBestia = 165,
+    /// <summary>
+    /// A strike from hiding, like Backstab or Shadow Step, was used without Hide or Cloak on.
+    /// </summary>
+    [pbr::OriginalName("SKILL_NEEDS_HIDING")] SkillNeedsHiding = 166,
+    /// <summary>
+    /// Backstab was aimed at a target the caster does not stand behind.
+    /// </summary>
+    [pbr::OriginalName("SKILL_NEEDS_BEHIND")] SkillNeedsBehind = 167,
   }
 
   #endregion
