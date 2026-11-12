@@ -1644,9 +1644,10 @@ skills:
     identifier: M_HEAVY_ARMOR_MASTERY
     targetType: FRIENDLY
     description: |
-      Teaches the body to carry plate and mail, complementing the protection of Iron Skin.
+      Teaches the body to carry plate and mail, complementing the protection of Iron Skin. Counts
+      every worn piece of heavy armor, a heavy shield too.
 
-      `+2/lv` hard DEF while wearing heavy armor
+      `+2/lv` hard DEF for each heavy piece
 
   - id: 134
     identifier: M_PROVOKE
@@ -1656,8 +1657,9 @@ skills:
     manaCost: 14
     cooldown: 10
     description: |
-      A shout or a slammed shield that forces a monster or wild Bestia to attack only the Knight.
-      It has no effect on masters. Cooldown 10s.
+      A shout or a slammed shield that forces a monster or a Bestia, wild or owned, to attack
+      only the Knight, even one that would never pick a fight. It has no effect on masters. A
+      newer provoke takes the target from whoever provoked it before. Cooldown 10s.
 
       `3s + 1s/lv` duration
 
@@ -1684,7 +1686,7 @@ skills:
     cooldown: 6
     description: |
       A single committed swing that trades finesse for raw impact, with a chance to stun what it
-      lands on for 1s. Cooldown 6s.
+      lands on for 1s. The chance adds to the stun chance of the Knight's gear. Cooldown 6s.
 
       `+20%/lv` bonus damage
       `+5%/lv` stun chance
@@ -1706,8 +1708,9 @@ skills:
     needsLineOfSight: true
     manaCost: 22
     description: |
-      Closes the distance to a target in an instant, weapon first. The impact deals 150% ATK and
-      provokes the target for 3s.
+      Closes the distance to a target in sight in an instant, weapon first. The impact deals 150%
+      ATK and provokes the target for 3s. Ground the Knight cannot step onto stops the dash short,
+      and then nothing is struck.
 
       `15s - 0.5s/lv` cooldown
 
@@ -2075,9 +2078,10 @@ skills:
     cooldown: 4
     description: |
       Needs a spear or a polearm. A wide sweep that hits every enemy in a 3x3 area in front of the
-      Knight. Cooldown 4s.
+      Knight, turned towards the enemy it aims at. Each hit can miss and crit on its own.
+      Cooldown 4s.
 
-      `120% + 40%/lv` ATK
+      `+40%/lv` ATK, from 120% at Lv.1
 
   - id: 173
     identifier: M_JAVELIN

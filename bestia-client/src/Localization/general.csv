@@ -295,6 +295,7 @@ ITEM_STAT_HP_REGEN,{value}% HP recovery
 ITEM_STAT_MANA_REGEN,{value}% mana recovery
 ITEM_STAT_STAMINA_REGEN,{value}% stamina recovery
 ITEM_STAT_CAST_TIME,{value}% faster casting
+ITEM_STAT_STUN_CHANCE,{value}% chance to stun on hit
 ITEM_STAT_RESIST_NORMAL,{value}% neutral resistance
 ITEM_STAT_RESIST_WATER,{value}% water resistance
 ITEM_STAT_RESIST_EARTH,{value}% earth resistance
@@ -784,6 +785,7 @@ STATUS_EFFECT_221,"Hide: nothing hostile sees you. Moving, attacking or casting 
 STATUS_EFFECT_222,"Cloak: nothing hostile sees you, and you move slower. Attacking or casting reveals you."
 STATUS_EFFECT_223,Equipment Coating: your gear wears less and cannot be stripped.
 STATUS_EFFECT_224,Enchant Poison: your swings that land may poison what they hit.
+STATUS_EFFECT_225,Provoked: you can fight no one but the one who provoked you.
 ERROR_PORTAL_NO_SPOT,That saved spot is not there any more.
 ERROR_PORTAL_SPENT,The portal is closing or has let everyone through it can.
 PORTAL_MARK_SPOT,Mark this spot (%d of %d saved)
@@ -802,6 +804,8 @@ ERROR_SKILL_NEEDS_HIDING,You must be in Hide or Cloak for this.
 ERROR_SKILL_NEEDS_BEHIND,You must stand behind your target for this.
 ERROR_STRIP_GEAR_COATED,"Their gear is coated, it cannot be stripped."
 ERROR_EQUIP_NEEDS_DUAL_WIELD,You need Dual Wield to hold a weapon in your left hand.
+ERROR_SKILL_NOT_ON_MASTERS,This does not work on a master.
+ERROR_SKILL_NEEDS_SPEAR,You need a spear or a polearm in hand for this.
 SUCCESS_SPELL_LEARNED,Your bestia learned the attack.
 SUCCESS_SPELL_INSCRIBED,The attack is written on a new spell scroll.
 SPELL_SCROLL_PICK,%s Lv. %d

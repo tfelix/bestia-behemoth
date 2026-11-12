@@ -821,11 +821,13 @@ SKILL_132_DESC,"Years spent drilling with sword, axe, mace and spear until the w
 for swords, greatswords, axes, greataxes, maces, hammers, spears and polearms.
 
 `+3/lv` ATK"
-SKILL_133_DESC,"Teaches the body to carry plate and mail, complementing the protection of Iron Skin.
+SKILL_133_DESC,"Teaches the body to carry plate and mail, complementing the protection of Iron Skin. Counts
+every worn piece of heavy armor, a heavy shield too.
 
-`+2/lv` hard DEF while wearing heavy armor"
-SKILL_134_DESC,"A shout or a slammed shield that forces a monster or wild Bestia to attack only the Knight.
-It has no effect on masters. Cooldown 10s.
+`+2/lv` hard DEF for each heavy piece"
+SKILL_134_DESC,"A shout or a slammed shield that forces a monster or a Bestia, wild or owned, to attack
+only the Knight, even one that would never pick a fight. It has no effect on masters. A
+newer provoke takes the target from whoever provoked it before. Cooldown 10s.
 
 `3s + 1s/lv` duration"
 SKILL_135_DESC,"Plants the Knight's feet and raises their shield into a proper wall. Needs a shield.
@@ -835,7 +837,7 @@ Toggle. Cooldown 15s.
 `-50%` movement speed at Lv.1, `-40%` at Lv.2, `-30%` from Lv.3
 Lv.5 returns 10% of the blocked damage to the attacker"
 SKILL_136_DESC,"A single committed swing that trades finesse for raw impact, with a chance to stun what it
-lands on for 1s. Cooldown 6s.
+lands on for 1s. The chance adds to the stun chance of the Knight's gear. Cooldown 6s.
 
 `+20%/lv` bonus damage
 `+5%/lv` stun chance"
@@ -843,8 +845,9 @@ SKILL_137_DESC,"A trained reflex that raises the shield on its own the instant a
 enough to stop it cold. Needs a shield.
 
 `+4%/lv` chance to block a hit fully"
-SKILL_138_DESC,"Closes the distance to a target in an instant, weapon first. The impact deals 150% ATK and
-provokes the target for 3s.
+SKILL_138_DESC,"Closes the distance to a target in sight in an instant, weapon first. The impact deals 150%
+ATK and provokes the target for 3s. Ground the Knight cannot step onto stops the dash short,
+and then nothing is struck.
 
 `15s - 0.5s/lv` cooldown"
 SKILL_139_DESC,"The Knight's capstone. For a short time the line between wall and weapon stops meaning
@@ -965,9 +968,10 @@ the Knight instead. It ends early when the ally moves more than 7m away. Cooldow
 
 `+15s/lv` duration"
 SKILL_172_DESC,"Needs a spear or a polearm. A wide sweep that hits every enemy in a 3x3 area in front of the
-Knight. Cooldown 4s.
+Knight, turned towards the enemy it aims at. Each hit can miss and crit on its own.
+Cooldown 4s.
 
-`120% + 40%/lv` ATK"
+`+40%/lv` ATK, from 120% at Lv.1"
 SKILL_173_DESC,"Needs a spear or a thrown weapon. Hurls it at a target up to 7 tiles away. A spear comes back
 to hand; a thrown weapon is used up like ammunition. Cooldown 3s.
 
