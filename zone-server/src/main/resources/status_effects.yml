@@ -720,3 +720,11 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: Cloaking
+
+  # The Assassin's Equipment Coating: less durability wear, and Strip Equipment fails against the bearer.
+  - id: 223
+    identifier: EQUIPMENT_COATING
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: GearCoating

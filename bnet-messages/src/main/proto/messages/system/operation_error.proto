@@ -479,6 +479,8 @@ enum OpError {
   SKILL_NEEDS_HIDING = 166;
   // Backstab was aimed at a target the caster does not stand behind.
   SKILL_NEEDS_BEHIND = 167;
+  // Strip Equipment failed against gear under Equipment Coating.
+  STRIP_GEAR_COATED = 168;
 }
 
 message OperationError {

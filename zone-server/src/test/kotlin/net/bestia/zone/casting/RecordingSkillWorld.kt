@@ -11,6 +11,7 @@ import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.item.equip.EquipmentSlot
+import net.bestia.zone.item.equip.SlotLock
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
@@ -168,6 +169,14 @@ class RecordingSkillWorld(
     if (strippable) stripped.add(entityId to slot)
     return strippable
   }
+
+  /** What [strippableGearOf] answers, by target. */
+  val wornGear = mutableMapOf<EntityId, List<SlotLock>>()
+  val dualWielders = mutableSetOf<EntityId>()
+
+  override fun strippableGearOf(entityId: EntityId): List<SlotLock> = wornGear[entityId].orEmpty()
+
+  override fun isDualWielding(entityId: EntityId): Boolean = entityId in dualWielders
 
   override fun wearGear(entityId: EntityId, percent: Int): Boolean {
     gearWorn.add(entityId to percent)

@@ -1469,6 +1469,7 @@ skills:
   - id: 119
     identifier: M_STRIP_EQUIPMENT
     script: StripEquipment
+    archetype: STRIKE
     targetType: ENEMY
     range: 2
     manaCost: 22

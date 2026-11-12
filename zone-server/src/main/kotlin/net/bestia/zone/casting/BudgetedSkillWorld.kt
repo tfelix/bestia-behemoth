@@ -44,6 +44,7 @@ import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.equip.EquipmentSlot
+import net.bestia.zone.item.equip.SlotLock
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.SMSG
@@ -367,6 +368,18 @@ class BudgetedSkillWorld(
     budget.charge()
 
     return services.gear.strip(world, entityId, slot)
+  }
+
+  override fun strippableGearOf(entityId: EntityId): List<SlotLock> {
+    budget.charge()
+
+    return services.gear.strippable(world, entityId)
+  }
+
+  override fun isDualWielding(entityId: EntityId): Boolean {
+    budget.charge()
+
+    return services.gear.isDualWielding(world, entityId)
   }
 
   override fun wearGear(entityId: EntityId, percent: Int): Boolean {

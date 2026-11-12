@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrHKQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrfKQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -144,8 +144,9 @@ namespace Bnet {
             "HAoXT1JERVJTX1RPT19NQU5ZX1BSRVNFVFMQ4QESGwoWT1JERVJTX1RPT19N",
             "QU5ZX1BMQUNFUxDiARIbChZTS0lMTF9ORUVEU19PV05fQkVTVElBEKUBEhcK",
             "ElNLSUxMX05FRURTX0hJRElORxCmARIXChJTS0lMTF9ORUVEU19CRUhJTkQQ",
-            "pwEiBAguEC4qElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQuYmVzdGlhLmJu",
-            "ZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
+            "pwESFgoRU1RSSVBfR0VBUl9DT0FURUQQqAEiBAguEC4qElNIT1BfVFJFQVNV",
+            "UllfRlVMTEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVy",
+            "cm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -903,6 +904,10 @@ namespace Bnet {
     /// Backstab was aimed at a target the caster does not stand behind.
     /// </summary>
     [pbr::OriginalName("SKILL_NEEDS_BEHIND")] SkillNeedsBehind = 167,
+    /// <summary>
+    /// Strip Equipment failed against gear under Equipment Coating.
+    /// </summary>
+    [pbr::OriginalName("STRIP_GEAR_COATED")] StripGearCoated = 168,
   }
 
   #endregion
