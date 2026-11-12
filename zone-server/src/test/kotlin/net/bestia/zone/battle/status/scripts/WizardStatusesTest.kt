@@ -12,6 +12,10 @@ import net.bestia.zone.battle.ecs.effects.AreaMechanics
 import net.bestia.zone.battle.status.RemovalReason
 import net.bestia.zone.battle.status.StatusEffectHookContext
 import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.battle.status.StatusEffectTickContext
+import net.bestia.zone.battle.status.StatusValueRecalcContext
+import net.bestia.zone.battle.status.StatusValues
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.core.testWorld
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -55,6 +59,34 @@ class WizardStatusesTest {
     val sut = Silenced(mockk(relaxed = true))
 
     assertEquals(listOf(3.0, 5.0, 7.0), (1..3).map { sut.durationSeconds(it) })
+  }
+
+  @Test
+  fun `the Wizard's mud cuts AGI and DEX by level, capped lower on what a player owns`() {
+    val wild = world.createEntity { }
+    val owned = world.createEntity { id -> add(id, Account(accountId = 5L)) }
+    val sut = Mired()
+
+    assertEquals(listOf(10, 30, 50), (1..3).map { Mired.cutPercent(it, playerOwned = false) })
+    assertEquals(listOf(10, 25, 25), (1..3).map { Mired.cutPercent(it, playerOwned = true) })
+
+    val wildValues = StatusValueRecalcContext(StatusValues(10, 10, 10, 40, 10, 20), baseSpeed = 1f)
+    sut.apply(world, wild, wildValues, ActiveStatusEffect(StatusEffectId.QUAGMIRE.id, 3, 2f))
+    assertEquals(20 to 10, wildValues.agility to wildValues.dexterity)
+
+    val ownedValues = StatusValueRecalcContext(StatusValues(10, 10, 10, 40, 10, 20), baseSpeed = 1f)
+    sut.apply(world, owned, ownedValues, ActiveStatusEffect(StatusEffectId.QUAGMIRE.id, 3, 2f))
+    assertEquals(30 to 15, ownedValues.agility to ownedValues.dexterity)
+  }
+
+  @Test
+  fun `the Wizard's mud strips Increase AGI when it lands and on every tick after`() {
+    val effect = ActiveStatusEffect(StatusEffectId.QUAGMIRE.id, 1, 2f)
+
+    Mired().onApply(StatusEffectHookContext(world, 7L, effect, service))
+    Mired().onTick(StatusEffectTickContext(world, 7L, effect, service))
+
+    verify(exactly = 2) { service.removeEffect(world, 7L, StatusEffectId.INCREASE_AGI.id, any()) }
   }
 
   private fun context(wall: Long, bearer: Long) =

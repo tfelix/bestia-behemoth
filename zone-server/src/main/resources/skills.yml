@@ -1389,14 +1389,16 @@ skills:
   - id: 112
     identifier: M_QUAGMIRE
     script: Quagmire
-    targetType: GROUND
+    targetType: AOE_GROUND
+    aoeRadius: 2.0
     range: 9
     manaCost: 30
     castTime: 2.0
     cooldown: 20
     description: |
-      Turns the ground into clinging mud for 30s. It strips AGI-increasing buffs and drags down
-      AGI and DEX, at most 25% against Masters and 50% against wild Bestias. Cooldown 20s.
+      Turns a 5m patch of ground into clinging mud for 30s. It strips AGI-increasing buffs from
+      the foes in it and drags down their AGI and DEX, at most 25% against Masters and their
+      Bestias and 50% against wild Bestias. Cooldown 20s.
 
       `-20%/lv` AGI and DEX, from 10% at Lv.1
 
