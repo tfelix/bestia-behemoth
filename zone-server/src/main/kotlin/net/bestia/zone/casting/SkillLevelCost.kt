@@ -17,6 +17,11 @@ data class SkillLevelCost(
   val rangeTiles: Long,
 ) {
 
+  /** The stamina a caster pays whose body saves [savedPercent] of it, see `CombatValues.staminaCostReduction`. */
+  fun staminaCostFor(savedPercent: Int): Int {
+    return staminaCost * (100 - savedPercent.coerceIn(0, 100)) / 100
+  }
+
   companion object {
     /** The catalogue's single values, for a skill whose cost does not change with its level. */
     fun of(skill: Skill): SkillLevelCost {

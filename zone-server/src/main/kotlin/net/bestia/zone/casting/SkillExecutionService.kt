@@ -179,7 +179,7 @@ class SkillExecutionService(
         return
       }
 
-      val stamina = reducedStamina(world, casterId, cost.staminaCost)
+      val stamina = reducedStamina(world, casterId, cost)
       if (paid && !ctx.world.payCasterCost(mana = cost.manaCost, stamina = stamina)) {
         LOG.debug { "Skill $skillId by $casterId fizzled: not enough mana or stamina" }
         return
@@ -230,11 +230,9 @@ class SkillExecutionService(
     return MagicRodCatch.catches(world, targetId, manaCost, effects)
   }
 
-  /** A tougher body pays less stamina for the same skill, see [net.bestia.zone.battle.status.CombatValues.staminaCostReduction]. */
-  private fun reducedStamina(world: World, casterId: EntityId, stamina: Int): Int {
-    val reduction = world.get(casterId, CombatStats::class)?.values?.staminaCostReduction ?: 0
-
-    return stamina * (100 - reduction.coerceIn(0, 100)) / 100
+  /** A tougher body pays less stamina for the same skill. */
+  private fun reducedStamina(world: World, casterId: EntityId, cost: SkillLevelCost): Int {
+    return cost.staminaCostFor(world.get(casterId, CombatStats::class)?.values?.staminaCostReduction ?: 0)
   }
 
   /** Holds the caster in place while a channelled skill keeps acting, see [channelTick]. */
