@@ -813,6 +813,9 @@ ERROR_SKILL_NEEDS_SPEAR,You need a spear or a polearm in hand for this.
 ERROR_SKILL_NEEDS_SHIELD,You need a shield in your left hand for this.
 ERROR_SKILL_NEEDS_PARTY_MEMBER,"Aim this at a party member or a Bestia of your party, not yourself."
 ERROR_SKILL_NEEDS_STAFF,You need a staff in hand for this.
+ERROR_SKILL_NEEDS_TRIPLE_BLOW,Chain Combo can only follow right after a Triple Blow.
+ERROR_SKILL_NEEDS_BERSERK,You must be Berserk for this.
+ERROR_SKILL_NEEDS_HALF_MANA,You need at least half your mana for this.
 SUCCESS_SPELL_LEARNED,Your bestia learned the attack.
 SUCCESS_SPELL_INSCRIBED,The attack is written on a new spell scroll.
 SPELL_SCROLL_PICK,%s Lv. %d

@@ -875,11 +875,13 @@ Lv.2 a stun lasts half as long and a knockback goes half as far while above 50% 
 Lv.3 cooldown 6min"
 SKILL_143_DESC,"Knuckles hardened on posts, walls and the occasional jaw.
 
-`+3/lv` ATK with fist weapons"
-SKILL_144_DESC,"Every basic attack may become three in a row, for 200% ATK in all.
+`+3/lv` ATK with a fist weapon or bare hands"
+SKILL_144_DESC,"A basic melee attack that lands may become three blows in a row, for 200% of the blow in
+all. Only the main hand rolls, once per attack.
 
 `+3%/lv` chance per basic attack"
-SKILL_145_DESC,"Follows a Triple Blow at once with four more hits.
+SKILL_145_DESC,"Follows a Triple Blow at once with four more hits on an enemy. Only within 1.5s after a
+Triple Blow, and once for each.
 
 `250% + 50%/lv` ATK over all hits"
 SKILL_146_DESC,"A wide sweep of the staff that hits every enemy within 2m and knocks back 1m each one it
@@ -890,8 +892,9 @@ SKILL_147_DESC,"Works the Brawler into a Berserk: +60% ATK and +30% attack speed
 armor against spells. Cooldown 60s.
 
 `+10s/lv` duration"
-SKILL_148_DESC,"Only while Berserk and with at least half the mana: pours all of it into one blow of
-ATK * (4 + mana spent / 10). Afterwards the Berserk ends and the mana is sealed for 5min.
+SKILL_148_DESC,"Only while Berserk and with at least half the mana: pours all of it into one weapon blow of
+ATK * (4 + mana spent / 10). Afterwards the Berserk ends and Mana Sealed stops mana
+regeneration for 5min.
 
 `+10%/lv` damage"
 SKILL_149_DESC,"Dashes up to 6m to a target in sight and lands one basic blow on arrival. Ground the
