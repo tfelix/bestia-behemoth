@@ -23,6 +23,7 @@ import net.bestia.zone.battle.GearWear
 import net.bestia.zone.battle.Healing
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.damage.DamageGate
+import net.bestia.zone.battle.damage.ShieldGuard
 import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.battle.status.ActionLock
@@ -75,6 +76,7 @@ class AttackExecutionService(
   private val gearWear: GearWear = GearWear.NONE,
   private val swingProcs: List<SwingProc> = emptyList(),
   private val felling: Felling? = null,
+  private val shieldGuard: ShieldGuard? = null,
 ) {
 
   /** [READS] plus what spending an arrow reads, which only the item slice can name. */
@@ -272,7 +274,8 @@ class AttackExecutionService(
         return@defer
       }
 
-      val result = onTree(world, attackerId, targetId, swung.weighedTo(DamageLanding.weigh(world, attackerId, targetId, kind, swung.amount)))
+      val guarded = shieldGuard?.guard(world, targetId, kind, swung) ?: swung
+      val result = onTree(world, attackerId, targetId, guarded.weighedTo(DamageLanding.weigh(world, attackerId, targetId, kind, guarded.amount)))
         ?: return@defer
       when (result) {
         is Miss, is Blocked -> Unit

@@ -152,8 +152,9 @@ interface SkillWorld {
 
   /**
    * A weapon blow at [targetEntityId] with [attack] at [powerPercent] of a swing: it hits, misses and crits like
-   * one, lands like [apply] does, and comes back for the script's own after-effects. [offHand] strikes with the
-   * second weapon in the left hand. Null when there is no fight to resolve, or no second weapon. One operation.
+   * one, lands like [apply] does, and comes back for the script's own after-effects, as `Blocked` when a shield
+   * caught it. [offHand] strikes with the second weapon in the left hand. Null when there is no fight to resolve, or
+   * no second weapon. One operation.
    */
   fun strike(targetEntityId: EntityId, attack: BattleAttack, powerPercent: Int, offHand: Boolean = false): Damage?
 

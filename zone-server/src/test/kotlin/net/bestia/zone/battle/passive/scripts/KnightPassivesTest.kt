@@ -52,4 +52,14 @@ class KnightPassivesTest {
 
     assertEquals(0, context.hardDefense)
   }
+
+  @Test
+  fun `Auto Guard gives four percent block chance per level, only with a shield`() {
+    AutoGuard().apply(context, 5)
+    assertEquals(0, context.blockChancePercent)
+
+    context.shieldArmorType = ArmorType.LIGHT
+    AutoGuard().apply(context, 5)
+    assertEquals(20, context.blockChancePercent)
+  }
 }

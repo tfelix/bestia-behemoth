@@ -210,6 +210,9 @@ class StatusValueRecalcContext(
   /** Percent more weight the entity can carry, beside what strength and vitality give. */
   var carryCapacityPercent: Int = 0
 
+  /** Percent chance the shield catches a weapon blow whole, see `ShieldGuard`. */
+  var blockChancePercent: Int = 0
+
   /** Cannot be pushed back by a blow or a blast. A dash of its own still moves it. */
   var knockbackImmune: Boolean = false
 
