@@ -423,6 +423,7 @@ func setup(map_source: MapSource, entities: Node) -> void:
 	entities.journey_changed.connect(_on_journey_changed)
 	ConnectionManager.journey_ended.connect(_on_journey_ended)
 	entities.detection_changed.connect(_on_detection_changed)
+	entities.marked_prey_changed.connect(_on_marked_prey_changed)
 
 	if not source.meta.is_empty():
 		_on_meta_ready(source.meta)
@@ -615,6 +616,7 @@ func _draw() -> void:
 	_draw_failures()
 	_draw_guild_members()
 	_draw_detected()
+	_draw_marked_prey()
 	_draw_owned_entities()
 	_draw_player()
 	_draw_pin()
@@ -1467,6 +1469,29 @@ func _draw_detected_mark(at: Vector2, master: bool, bounds: Rect2) -> void:
 		draw_arc(at, _DOT_FILL_RADIUS * marker_scale, 0.0, TAU, 12, UiStyle.DANGER, 1.5 * marker_scale)
 	else:
 		draw_circle(at, _DOT_FILL_RADIUS * marker_scale, UiStyle.DANGER)
+
+
+func _on_marked_prey_changed(_entity_id: int) -> void:
+	queue_redraw()
+
+
+## A Hunter's prey is a sight ring, so it is never taken for a creature Detect found.
+func _draw_marked_prey() -> void:
+	if entity_manager == null:
+		return
+
+	var bounds := Rect2(Vector2.ZERO, size)
+	var ring := _DOT_FILL_RADIUS * 1.8 * marker_scale
+
+	for prey in entity_manager.get_marked_prey().values():
+		var at := _to_screen(Vector2(prey.Position.x, prey.Position.z) * _metres_per_voxel)
+		if not bounds.has_point(at):
+			continue
+
+		draw_arc(at, ring, 0.0, TAU, 20, _MARKER_OUTLINE, 3.0 * marker_scale)
+		draw_arc(at, ring, 0.0, TAU, 20, UiStyle.DANGER, 1.5 * marker_scale)
+		for direction in [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]:
+			draw_line(at + direction * ring * 0.5, at + direction * ring * 1.4, UiStyle.DANGER, 1.5 * marker_scale)
 
 
 ## Every other guild member being played, in world metres, as its beacon last said: a few metres behind at

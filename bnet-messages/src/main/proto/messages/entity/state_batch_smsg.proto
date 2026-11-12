@@ -23,6 +23,7 @@ import "messages/component/inventory_component_smsg.proto";
 import "messages/component/item_enchantments_component_smsg.proto";
 import "messages/component/journey_component_smsg.proto";
 import "messages/component/level_component_smsg.proto";
+import "messages/component/marked_prey_component_smsg.proto";
 import "messages/component/logout_intent_smsg.proto";
 import "messages/component/mana_component_smsg.proto";
 import "messages/component/master_visual_component_smsg.proto";
@@ -106,5 +107,6 @@ message ComponentDelta {
     ItemEnchantmentsComponentSMSG item_enchantments = 36;
     FishingComponentSMSG fishing = 37;
     WarpMarksComponentSMSG warp_marks = 38;
+    MarkedPreyComponentSMSG marked_prey = 39;
   }
 }

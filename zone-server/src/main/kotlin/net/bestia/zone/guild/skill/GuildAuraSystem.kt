@@ -1,5 +1,6 @@
 package net.bestia.zone.guild.skill
 
+import net.bestia.zone.battle.mark.MarkedPreySystem
 import net.bestia.zone.casting.detect.DetectingSystem
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.ecs.effects.StatusEffectDurationSystem
@@ -33,7 +34,7 @@ class GuildAuraSystem(
   override val phase = Phase.STATUS
   override val schedule: Schedule = Schedule.EverySeconds(PULSE_SECONDS)
   override val after = setOf(StatusEffectDurationSystem::class)
-  override val before = setOf(StatusValueRecalcSystem::class, DetectingSystem::class)
+  override val before = setOf(StatusValueRecalcSystem::class, DetectingSystem::class, MarkedPreySystem::class)
 
   override val reads: ComponentClassSet = GuildMates.reads
   override val writes: ComponentClassSet = setOf(StatusEffects::class, IsStatusValueDirty::class)
