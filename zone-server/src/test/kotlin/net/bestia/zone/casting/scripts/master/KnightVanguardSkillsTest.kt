@@ -3,6 +3,8 @@ package net.bestia.zone.casting.scripts.master
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.LineOfSightService
+import net.bestia.zone.battle.damage.HitDamage
+import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.casting.RecordingSkillWorld
 import net.bestia.zone.casting.SkillContextFixture
@@ -55,6 +57,30 @@ class KnightVanguardSkillsTest {
 
     assertEquals(OpError.SKILL_NOT_ON_MASTERS, provoke.checkTarget(ecs, caster, master, 1, emptyList()))
     assertNull(provoke.checkTarget(ecs, caster, wolf, 1, emptyList()))
+  }
+
+  @Test
+  fun `Bash strikes at 120 to 200 percent ATK and adds its stun chance to the gear's`() {
+    world.strikeResult = HitDamage(40)
+    world.gearStunChances[caster] = 5
+
+    Bash(LineOfSightService()).execute(ctx(level = 5))
+
+    assertEquals(listOf(target to 200), world.strikes)
+    assertEquals(
+      listOf(RecordingSkillWorld.Inflicted(target, "STUN", chancePercent = 30, durationSeconds = 1.0, level = 1)),
+      world.inflicted
+    )
+    assertEquals(listOf(120, 140, 160, 180, 200), (1..5).map { Bash.atkPercent(it) })
+  }
+
+  @Test
+  fun `a Bash that misses stuns nothing`() {
+    world.strikeResult = Miss
+
+    Bash(LineOfSightService()).execute(ctx(level = 5))
+
+    assertTrue(world.inflicted.isEmpty())
   }
 
   private fun ctx(level: Int) = SkillContextFixture.skillCtx(world = world, skillLevel = level)
