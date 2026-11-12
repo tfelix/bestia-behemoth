@@ -5,4 +5,7 @@ enum class EntityAction {
   ATTACKED,
   CAST,
   USED_ITEM,
+
+  /** Set off on a walk of its own; being pushed or blinked somewhere is not counted. */
+  MOVED,
 }

@@ -5,10 +5,12 @@ import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.worldgen.vector.Aabb
 import net.bestia.zone.battle.ActionGuard
+import net.bestia.zone.battle.ActionReactions
 import net.bestia.zone.battle.ecs.attack.AttackCancelService
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.ActionLock
+import net.bestia.zone.battle.status.EntityAction
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
@@ -86,6 +88,7 @@ class MoveEntityHandlerTest {
     walkQuery: LocalWalkQuery,
     rateLimit: MoveRequestRateLimit = MoveRequestRateLimit(WorldRulesConfig(tickRate = 20)),
     water: WaterSource = WaterSource.NONE,
+    actionReactions: ActionReactions = ActionReactions.NONE,
   ): MoveEntityHandler {
     connectionInfoService.activateSession(accountId, masterId = 1L, masterEntityId = entityId)
 
@@ -100,6 +103,7 @@ class MoveEntityHandlerTest {
       journeys = JourneyService(TravelConfig(), AttackCancelService(), RegionGrid(water)),
       clientLeg = ClientLeg(walkQuery, WorldRulesConfig(tickRate = 20)),
       outMessageProcessor = messages,
+      actionReactions = actionReactions,
     )
   }
 
@@ -402,6 +406,21 @@ class MoveEntityHandlerTest {
     handler.handle(world, moveAlong(id, emptyList()))
 
     assertNull(world.get(id, Path::class))
+  }
+
+  @Test
+  fun `a step is reported as an action, a stop is not`() {
+    val world = testWorld()
+    val id = world.createEntity { }
+    world.add(id, Position(0, 0, 0))
+    val reported = mutableListOf<EntityAction>()
+    val handler = handlerFor(world, id, OpenWalkQuery(), actionReactions = { _, _, action -> reported += action })
+
+    handler.handle(world, moveAlong(id, emptyList()))
+    assertEquals(emptyList(), reported)
+
+    handler.handle(world, moveAlong(id, listOf(Vec3L(1, 0, 0))))
+    assertEquals(listOf(EntityAction.MOVED), reported)
   }
 
   @Test

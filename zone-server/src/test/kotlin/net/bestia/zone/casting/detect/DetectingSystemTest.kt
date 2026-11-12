@@ -1,6 +1,9 @@
 package net.bestia.zone.casting.detect
 
 import net.bestia.zone.aoi.EntityAOIService
+import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.geometry.Vec3L
@@ -38,6 +41,23 @@ class DetectingSystemTest {
     world.tick(1f)
 
     assertFalse(world.has(bearer, Detecting::class))
+  }
+
+  @Test
+  fun `Hide's detection resistance takes its share off the reach`() {
+    val bearer = body(Vec3L(0, 0, 0), master = true).also { world.add(it, Detecting(remainingSeconds = 30f, potency = 0)) }
+    // An even contest finds a hidden body within half the range, 7.5 tiles; Hide Lv5 halves that again.
+    val burrowed = body(Vec3L(5, 0, 0), master = true).also { hide(it, StatusEffectId.HIDDEN, level = 5) }
+    val hiding = body(Vec3L(0, 5, 0), master = true).also { hide(it, StatusEffectId.HIDING, level = 5) }
+
+    world.tick(1f)
+
+    val found = world.get(bearer, Detecting::class)!!.found.map { it.entityId }
+    assertEquals(listOf(burrowed), found, "the hiding master at $hiding should stay unseen")
+  }
+
+  private fun hide(id: EntityId, effect: StatusEffectId, level: Int) {
+    world.add(id, StatusEffects(mutableListOf(ActiveStatusEffect(effect.id, level, remainingSeconds = 60f))))
   }
 
   private fun body(at: Vec3L, master: Boolean): EntityId {

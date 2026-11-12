@@ -176,6 +176,12 @@ class AreaEffectSystem(
       ?: Element.NORMAL
   }
 
+  private fun isHiding(world: World, victimId: EntityId): Boolean {
+    val effects = world.get(victimId, StatusEffects::class) ?: return false
+
+    return effects.hasEffect(StatusEffectId.HIDDEN.id) || effects.hasEffect(StatusEffectId.HIDING.id)
+  }
+
   /** An area limited to undead, say, leaves the living in it alone. */
   private fun touches(world: World, effect: AreaEffect, victimId: EntityId): Boolean {
     val mechanics = effect.mechanics
@@ -209,8 +215,8 @@ class AreaEffectSystem(
         if (victimId == effectEntityId) continue
         if (!world.isAlive(victimId)) continue
         if (world.has(victimId, Dead::class)) continue
-        // Dug in: an area passes over it. A cloak does not shield, and the blow reveals the wearer.
-        if (world.get(victimId, StatusEffects::class)?.hasEffect(StatusEffectId.HIDDEN.id) == true) continue
+        // Dug in or hiding: an area passes over it. A cloak does not shield, and the blow reveals the wearer.
+        if (isHiding(world, victimId)) continue
         if (!touches(world, effect, victimId)) continue
 
         mechanicsApplier?.onAnyone(world, victimId, effect)

@@ -102,10 +102,15 @@ enum class StatusEffectId(val id: Long) {
   MAGIC_ARMOR(217),
   MINDBREAK(218),
   SAFETY_WALL(219),
-  QUAGMIRE(220);
+  QUAGMIRE(220),
+  HIDING(221),
+  CLOAKING(222);
 
   companion object {
     private val byId = entries.associateBy { it.id }
+
+    /** What keeps its bearer out of sight: the bestias' Burrow and Shadow Cloak, the Assassin's Hide and Cloak. */
+    val CONCEALMENTS: Set<StatusEffectId> = setOf(HIDDEN, CLOAKED, HIDING, CLOAKING)
 
     fun findById(id: Long): StatusEffectId? = byId[id]
   }

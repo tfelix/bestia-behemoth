@@ -32,8 +32,7 @@ class RuwachPulse : StatusEffectScript {
       }
     }
     for (id in hidden) {
-      context.strip(id, StatusEffectId.HIDDEN)
-      context.strip(id, StatusEffectId.CLOAKED)
+      StatusEffectId.CONCEALMENTS.forEach { context.strip(id, it) }
     }
   }
 

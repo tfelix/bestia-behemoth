@@ -704,3 +704,19 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: Mired
+
+  # The Assassin's Hide: unseen until the bearer walks, attacks or casts. A bestia's Burrow is HIDDEN.
+  - id: 221
+    identifier: HIDING
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Hiding
+
+  # The Assassin's Cloak: unseen and slower while walking, until the bearer attacks or casts. A bestia's is CLOAKED.
+  - id: 222
+    identifier: CLOAKING
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Cloaking
