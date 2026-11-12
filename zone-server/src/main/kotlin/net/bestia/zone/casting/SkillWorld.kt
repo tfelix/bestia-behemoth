@@ -317,6 +317,9 @@ interface SkillWorld {
   /** Adds mana to [entityId], up to its pool. */
   fun restoreMana(entityId: EntityId, amount: Int)
 
+  /** Gives the caster back [staminaPercent] of its stamina pool and heals [healthPercent] of its HP. One operation. */
+  fun restoreCaster(staminaPercent: Int, healthPercent: Int)
+
   /** Takes [percent] of [entityId]'s current mana away, to nobody. */
   fun drainMana(entityId: EntityId, percent: Int)
 

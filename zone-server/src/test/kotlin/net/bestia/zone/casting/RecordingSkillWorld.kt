@@ -127,6 +127,13 @@ class RecordingSkillWorld(
     manaRestored.add(entityId to amount)
   }
 
+  /** Each [restoreCaster] as its stamina and health percent. */
+  val casterRestorations = mutableListOf<Pair<Int, Int>>()
+
+  override fun restoreCaster(staminaPercent: Int, healthPercent: Int) {
+    casterRestorations.add(staminaPercent to healthPercent)
+  }
+
   val manaDrained = mutableListOf<Pair<EntityId, Int>>()
 
   override fun drainMana(entityId: EntityId, percent: Int) {
