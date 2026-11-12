@@ -76,6 +76,8 @@ enum class SkillId {
   M_EXPERT_TAMING,
   M_FREE_CAST,
   M_DEMON_BANE,
+  M_ENDURE,
+  M_IRON_SKIN,
 
   // Read by the systems they change: felling and its yield, picking herbs.
   M_LUMBERJACK,

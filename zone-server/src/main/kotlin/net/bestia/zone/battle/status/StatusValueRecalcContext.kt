@@ -255,8 +255,9 @@ class StatusValueRecalcContext(
   }
 
   /**
-   * Less damage taken, in percent: from a [kind], a boss or the unholy, or of a [form] (physical, magic) or [reach]
-   * (melee, ranged). Iron Skin is `addDamageTaken(3 * level, form = HitForm.PHYSICAL)`. See [DamageModifiers].
+   * Less damage taken, in percent: from a [kind], a boss or the unholy, of a [form] (physical, magic) or [reach]
+   * (melee, ranged), or from [anyHit]. Iron Skin is `addDamageTaken(3 * level, form = HitForm.PHYSICAL)`. See
+   * [DamageModifiers].
    */
   fun addDamageTaken(
     percent: Int,
@@ -265,6 +266,7 @@ class StatusValueRecalcContext(
     form: HitForm? = null,
     reach: HitReach? = null,
     unholy: Boolean = false,
+    anyHit: Boolean = false,
   ) {
     val current = damageModifiers
     damageModifiers = current.copy(
@@ -273,6 +275,7 @@ class StatusValueRecalcContext(
       takenFromUnholy = if (unholy) current.takenFromUnholy + percent else current.takenFromUnholy,
       takenByForm = if (form != null) current.takenByForm.plusPercent(form, percent) else current.takenByForm,
       takenByReach = if (reach != null) current.takenByReach.plusPercent(reach, percent) else current.takenByReach,
+      takenFromAnyHit = if (anyHit) current.takenFromAnyHit + percent else current.takenFromAnyHit,
     )
   }
 

@@ -98,7 +98,8 @@ enum class StatusEffectId(val id: Long) {
   SUFFRAGIUM(213),
   MAGNIFICAT(214),
   GLORIA(215),
-  ASPERSIO(216);
+  ASPERSIO(216),
+  MAGIC_ARMOR(217);
 
   companion object {
     private val byId = entries.associateBy { it.id }

@@ -671,3 +671,11 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: AspersioAnointing
+
+  # The Warrior's Magic Armor: less damage from everything, paid for in mana per hit.
+  - id: 217
+    identifier: MAGIC_ARMOR
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: MagicArmorWard
