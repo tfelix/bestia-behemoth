@@ -695,3 +695,12 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: SafetyWalled
+
+  # Wading in the Wizard's Quagmire: less AGI and DEX, no AGI buff. The bestia skill's mire is QUAGMIRED.
+  - id: 220
+    identifier: QUAGMIRE
+    polarity: DEBUFF
+    dispellable: false
+    showIcon: true
+    isSyncedToClient: true
+    script: Mired

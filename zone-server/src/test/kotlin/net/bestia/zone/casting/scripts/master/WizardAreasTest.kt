@@ -3,6 +3,7 @@ package net.bestia.zone.casting.scripts.master
 import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.LineOfSightService
+import net.bestia.zone.battle.ecs.effects.AreaMechanics
 import net.bestia.zone.battle.ecs.effects.AreaStatus
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.casting.RecordingSkillWorld
@@ -110,6 +111,20 @@ class WizardAreasTest {
     assertEquals(22, quake.damagePerTick)
     assertEquals(Element.EARTH, quake.element)
     assertTrue(quake.mechanics.landsAsElementalSpell)
+  }
+
+  @Test
+  fun `Quagmire keeps its mud on every foe in a five by five for thirty seconds at the cast's level`() {
+    Quagmire(LineOfSightService()).execute(groundCtx(level = 2, element = Element.NORMAL, aoeRadius = 2.0))
+
+    val spawned = world.spawnedAreaEffects.single()
+    assertEquals(11L, spawned.visualId)
+    val mud = spawned.effect
+    assertEquals(2L, mud.radiusTiles)
+    assertEquals(0, mud.damagePerTick)
+    assertEquals(60, mud.remainingTicks)
+    assertEquals(2, mud.skillLevel)
+    assertEquals(AreaMechanics(zoneStatus = StatusEffectId.QUAGMIRE), mud.mechanics)
   }
 
   private fun groundCtx(level: Int, element: Element, aoeRadius: Double? = null) = SkillContextFixture.skillCtx(
