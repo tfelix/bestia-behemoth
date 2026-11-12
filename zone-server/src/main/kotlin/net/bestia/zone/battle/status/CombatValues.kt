@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.status
 
+import net.bestia.zone.battle.gear.ArmorType
 import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.battle.gear.ToolKind
 import net.bestia.zone.battle.damage.DamageModifiers
@@ -72,6 +73,9 @@ data class CombatValues(
   /** What is held in the right hand, for a rule about it: a tree falls only to an axe or a felling tool. */
   val heldWeaponType: WeaponType? = null,
   val heldTool: ToolKind? = null,
+
+  /** The weight of the shield in the left hand, or null for none, for a skill that needs one. */
+  val shieldArmorType: ArmorType? = null,
 ) {
 
   companion object {
@@ -149,6 +153,7 @@ data class CombatValues(
         arcaneDamagePercent = context.arcaneDamagePercent,
         heldWeaponType = context.heldWeaponType,
         heldTool = context.heldTool,
+        shieldArmorType = context.shieldArmorType,
         offHandWeapon = offHandWeaponOf(context),
         offHandDamagePercent = context.offHandDamagePercent,
       )

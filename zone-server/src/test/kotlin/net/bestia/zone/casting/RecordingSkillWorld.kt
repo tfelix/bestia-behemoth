@@ -185,6 +185,11 @@ class RecordingSkillWorld(
 
   override fun heldWeaponTypeOf(entityId: EntityId): WeaponType? = heldWeapons[entityId]
 
+  /** Who [holdsShield] says holds a shield. */
+  val shieldBearers = mutableSetOf<EntityId>()
+
+  override fun holdsShield(entityId: EntityId): Boolean = entityId in shieldBearers
+
   /** What [swingStatusChanceOf] answers for a stun, by entity. */
   val gearStunChances = mutableMapOf<EntityId, Int>()
 

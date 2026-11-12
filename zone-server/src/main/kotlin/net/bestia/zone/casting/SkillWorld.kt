@@ -353,6 +353,9 @@ interface SkillWorld {
   /** What [entityId] holds in its right hand, or null for bare hands. One operation. */
   fun heldWeaponTypeOf(entityId: EntityId): WeaponType?
 
+  /** Whether [entityId] holds a shield in its left hand. One operation. */
+  fun holdsShield(entityId: EntityId): Boolean
+
   /** The percent chance [entityId]'s gear gives each landed swing to put [effect] on its target. One operation. */
   fun swingStatusChanceOf(entityId: EntityId, effect: StatusEffectId): Int
 
