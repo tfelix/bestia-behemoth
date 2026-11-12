@@ -696,6 +696,12 @@ class BudgetedSkillWorld(
     return reached
   }
 
+  override fun isPartyOf(entityId: EntityId): Boolean {
+    budget.charge()
+
+    return PartyMates.isPartyOf(world, casterId, entityId)
+  }
+
   override fun payCasterCost(mana: Int, stamina: Int): Boolean {
     if (mana <= 0 && stamina <= 0) {
       return true

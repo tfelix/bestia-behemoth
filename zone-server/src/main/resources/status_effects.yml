@@ -752,3 +752,11 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: ShieldWalled
+
+  # Under the Knight's Devotion: every blow and spell meant for the bearer hits the Knight instead.
+  - id: 227
+    identifier: DEVOTED
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Devoted

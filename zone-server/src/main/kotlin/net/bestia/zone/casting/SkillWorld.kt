@@ -150,6 +150,9 @@ interface SkillWorld {
    */
   fun partyNear(radiusMetres: Long = PartyMates.VISIBLE_RANGE_METRES): List<EntityId>
 
+  /** Whether [entityId] is the caster, one of its party, or a bestia one of them owns. One operation. */
+  fun isPartyOf(entityId: EntityId): Boolean
+
   /**
    * A weapon blow at [targetEntityId] with [attack] at [powerPercent] of a swing: it hits, misses and crits like
    * one, lands like [apply] does, and comes back for the script's own after-effects, as `Blocked` when a shield

@@ -185,6 +185,11 @@ class RecordingSkillWorld(
 
   override fun heldWeaponTypeOf(entityId: EntityId): WeaponType? = heldWeapons[entityId]
 
+  /** Whom [isPartyOf] counts as the caster's party. */
+  val partyMembers = mutableSetOf<EntityId>()
+
+  override fun isPartyOf(entityId: EntityId): Boolean = entityId in partyMembers
+
   /** Who [holdsShield] says holds a shield. */
   val shieldBearers = mutableSetOf<EntityId>()
 

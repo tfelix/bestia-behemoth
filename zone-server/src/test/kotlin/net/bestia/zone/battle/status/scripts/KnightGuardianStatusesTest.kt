@@ -20,6 +20,9 @@ import net.bestia.zone.battle.status.StatusEffectTickContext
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.entity.ecs.Dead
+import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -90,6 +93,58 @@ class KnightGuardianStatusesTest {
     onDamageTaken(knight, level = 5, IncomingDamage.DamageAmount(70, wolf, HitKind.magic()))
 
     assertNull(world.get(wolf, IncomingDamage::class))
+  }
+
+  @Test
+  fun `a devoted ally's blows and spells land on the Knight instead, as they would have hurt the ally`() {
+    val knight = body(Vec3L(0, 0, 0))
+    val ally = body(Vec3L(7, 0, 0))
+    val wolf = world.createEntity { }
+    val context = devotedTo(knight, ally)
+
+    assertEquals(0, Devoted().onDamageTaken(context, IncomingDamage.DamageAmount(40, wolf, HitKind.physical(HitReach.MELEE))))
+    assertEquals(0, Devoted().onDamageTaken(context, IncomingDamage.DamageAmount(25, wolf, HitKind.magic())))
+    // A poison tick stays with the ally.
+    assertEquals(5, Devoted().onDamageTaken(context, IncomingDamage.DamageAmount(5, wolf)))
+
+    assertEquals(
+      listOf(IncomingDamage.DamageAmount(40, wolf), IncomingDamage.DamageAmount(25, wolf)),
+      world.get(knight, IncomingDamage::class)?.amounts
+    )
+    assertEquals(listOf(15.0, 30.0, 45.0), (1..3).map { Devoted().durationSeconds(it) })
+  }
+
+  @Test
+  fun `Devotion ends once the ally is more than 7 m from the Knight`() {
+    val knight = body(Vec3L(0, 0, 0))
+    val ally = body(Vec3L(8, 0, 0))
+    val context = devotedTo(knight, ally)
+
+    assertEquals(40, Devoted().onDamageTaken(context, IncomingDamage.DamageAmount(40, 9L, HitKind.physical(HitReach.MELEE))))
+    Devoted().onTick(StatusEffectTickContext(world, ally, context.effect, service))
+
+    assertNull(world.get(knight, IncomingDamage::class))
+    verify(exactly = 2) { service.removeEffect(world, ally, StatusEffectId.DEVOTED.id, RemovalReason.CANCELLED) }
+  }
+
+  @Test
+  fun `Devotion ends when the Knight falls`() {
+    val knight = body(Vec3L(0, 0, 0)).also { world.add(it, Dead()) }
+    val ally = body(Vec3L(1, 0, 0))
+
+    Devoted().onTick(StatusEffectTickContext(world, ally, devotedTo(knight, ally).effect, service))
+
+    verify(exactly = 1) { service.removeEffect(world, ally, StatusEffectId.DEVOTED.id, RemovalReason.CANCELLED) }
+  }
+
+  private fun body(at: Vec3L): EntityId {
+    return world.createEntity { id -> add(id, Position.fromVec3(at)) }
+  }
+
+  private fun devotedTo(knight: EntityId, ally: EntityId): StatusEffectHookContext {
+    val effect = ActiveStatusEffect(StatusEffectId.DEVOTED.id, 1, 15f, sourceEntityId = knight)
+
+    return StatusEffectHookContext(world, ally, effect, service)
   }
 
   private fun onDamageTaken(knight: EntityId, level: Int, hit: IncomingDamage.DamageAmount): Int {
