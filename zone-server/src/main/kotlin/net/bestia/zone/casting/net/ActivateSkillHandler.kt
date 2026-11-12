@@ -239,10 +239,11 @@ class ActivateSkillHandler(
   private fun unaffordable(world: World, casterId: EntityId, cost: SkillLevelCost): OpError? {
     val mana = world.get(casterId, Mana::class)?.current ?: Int.MAX_VALUE
     val stamina = world.get(casterId, Stamina::class)?.current ?: Int.MAX_VALUE
+    val staminaSaved = world.get(casterId, CombatStats::class)?.values?.staminaCostReduction ?: 0
 
     return when {
       mana < cost.manaCost -> OpError.SKILL_NOT_ENOUGH_MANA
-      stamina < cost.staminaCost -> OpError.SKILL_NOT_ENOUGH_STAMINA
+      stamina < cost.staminaCostFor(staminaSaved) -> OpError.SKILL_NOT_ENOUGH_STAMINA
       else -> null
     }
   }
