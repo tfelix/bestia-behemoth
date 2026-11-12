@@ -31,6 +31,18 @@ static func from_item_value(item_equip_slot: int) -> int:
 	return item_equip_slot - 1
 
 
+## The weapon types that may go into the left hand as a second weapon. Mirrors WeaponType.isDualWieldable.
+const DUAL_WIELDABLE: Array[String] = ["DAGGER", "FIST", "WHIP", "SWORD", "AXE", "MACE", "SPEAR", "WAND"]
+
+
+## Whether [param item] may go into [param slot]: its own slot, or the left hand for a second weapon. Mirrors
+## Item.fitsSlot; the server also asks for the Dual Wield skill.
+static func fits(item: ItemResource, slot: int) -> bool:
+	if from_item_value(item.equip_slot) == slot:
+		return true
+	return slot == Slot.LEFT_HAND and item.weapon_type in DUAL_WIELDABLE
+
+
 static func has_slot(mask: int, slot: int) -> bool:
 	return (mask & (1 << slot)) != 0
 

@@ -122,7 +122,7 @@ class ItemContainer(
     } ?: return false
 
     val template = candidate.template
-    if (template.type != Item.ItemType.EQUIP || template.equipSlot != slot) return false
+    if (template.type != Item.ItemType.EQUIP || !template.fitsSlot(slot)) return false
 
     candidate.equippedIn = slot
     return true
@@ -135,7 +135,7 @@ class ItemContainer(
    */
   fun equipFromPile(item: Item, provenance: ItemProvenance?, slot: EquipmentSlot, mint: () -> ItemInstance): Boolean {
     if (_slots.any { it.equippedIn == slot }) return false
-    if (item.type != Item.ItemType.EQUIP || item.equipSlot != slot) return false
+    if (item.type != Item.ItemType.EQUIP || !item.fitsSlot(slot)) return false
     val pile = freePile(item.id, provenance) ?: return false
 
     pile.amount -= 1

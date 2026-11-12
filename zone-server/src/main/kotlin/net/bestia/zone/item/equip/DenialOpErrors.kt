@@ -20,5 +20,6 @@ fun EquipmentService.Denial.toOpError(): OperationErrorProto.OpError {
     EquipmentService.Denial.BROKEN -> OperationErrorProto.OpError.EQUIP_ITEM_BROKEN
     EquipmentService.Denial.SLOT_STRIPPED -> OperationErrorProto.OpError.EQUIP_SLOT_STRIPPED
     EquipmentService.Denial.NOT_YOUR_PROFESSION -> OperationErrorProto.OpError.EQUIP_NOT_YOUR_PROFESSION
+    EquipmentService.Denial.NEEDS_DUAL_WIELD -> OperationErrorProto.OpError.EQUIP_NEEDS_DUAL_WIELD
   }
 }

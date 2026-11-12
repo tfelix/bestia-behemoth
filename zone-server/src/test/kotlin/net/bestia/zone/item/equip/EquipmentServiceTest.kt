@@ -4,6 +4,7 @@ import net.bestia.zone.battle.gear.ArmorType
 import net.bestia.zone.item.profession.Profession
 import net.bestia.zone.item.profession.GearAllowance
 import net.bestia.zone.battle.ammo.AmmoType
+import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.item.ecs.itemTemplatesOf
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
@@ -53,10 +54,11 @@ class EquipmentServiceTest {
     wearerIsNovice: Boolean = true,
     lockedSlots: Set<EquipmentSlot> = emptySet(),
     allowance: GearAllowance? = null,
+    canDualWield: Boolean = false,
   ): EquipmentService.Denial? {
     return service.checkEquip(
       equipment, inventory, item, item.baseLevel, slot, heldUniqueId, wearerLevel, wearerIsNovice, lockedSlots,
-      allowance
+      allowance, canDualWield
     )
   }
 
@@ -253,8 +255,34 @@ class EquipmentServiceTest {
     assertNull(check(BOW, EquipmentSlot.RIGHT_HAND))
   }
 
+  @Test
+  fun `a second weapon goes into the left hand only with Dual Wield`() {
+    assertEquals(EquipmentService.Denial.NEEDS_DUAL_WIELD, check(DAGGER, EquipmentSlot.LEFT_HAND))
+    assertNull(check(DAGGER, EquipmentSlot.LEFT_HAND, canDualWield = true))
+  }
+
+  @Test
+  fun `a two-handed or a ranged weapon never goes into the left hand`() {
+    assertEquals(EquipmentService.Denial.NOT_ALLOWED, check(BOW, EquipmentSlot.LEFT_HAND, canDualWield = true))
+    assertEquals(EquipmentService.Denial.NOT_ALLOWED, check(SLING, EquipmentSlot.LEFT_HAND, canDualWield = true))
+  }
+
+  @Test
+  fun `a shield needs no Dual Wield`() {
+    assertNull(check(SHIELD, EquipmentSlot.LEFT_HAND))
+  }
+
   private companion object {
     const val BOOTS_LEVEL = 10
+
+    val DAGGER = Item(
+      id = 99L, identifier = "dagger", weight = 10, type = Item.ItemType.EQUIP,
+      equipSlot = EquipmentSlot.RIGHT_HAND, weaponType = WeaponType.DAGGER, material = ItemMaterial.METAL
+    )
+    val SLING = Item(
+      id = 100L, identifier = "sling", weight = 10, type = Item.ItemType.EQUIP, equipSlot = EquipmentSlot.RIGHT_HAND,
+      weaponType = WeaponType.SLING, ammoType = AmmoType.STONE, attackRange = 5, material = ItemMaterial.LEATHER
+    )
 
     val BOW = Item(
       id = 97L, identifier = "novice_bow", weight = 50, type = Item.ItemType.EQUIP,

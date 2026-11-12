@@ -59,6 +59,9 @@ class EquipmentService(
 
     /** Neither of the master's professions allows this weapon type or armor weight. */
     NOT_YOUR_PROFESSION,
+
+    /** A weapon in the left hand without the Dual Wield skill. */
+    NEEDS_DUAL_WIELD,
   }
 
   /**
@@ -68,7 +71,8 @@ class EquipmentService(
    * [wearerLevel] and [wearerIsNovice] describe the wearer and are passed in rather than read here, for the
    * reason this whole service takes plain components: it stays free of the tick thread and directly
    * unit-testable. A caller with no level to offer passes 0 and is refused any item above tier 1, which is
-   * the safe direction - an unknown wearer is not a qualified one.
+   * the safe direction - an unknown wearer is not a qualified one. [canDualWield] is whether the wearer has learned
+   * Dual Wield, which a second weapon in the left hand needs.
    */
   fun checkEquip(
     equipment: Equipment,
@@ -81,8 +85,9 @@ class EquipmentService(
     wearerIsNovice: Boolean,
     lockedSlots: Set<EquipmentSlot> = emptySet(),
     allowance: GearAllowance? = null,
+    canDualWield: Boolean = false,
   ): Denial? {
-    if (item.type != Item.ItemType.EQUIP || item.equipSlot != slot) {
+    if (item.type != Item.ItemType.EQUIP || !item.fitsSlot(slot)) {
       return Denial.NOT_ALLOWED
     }
 
@@ -109,11 +114,19 @@ class EquipmentService(
       return Denial.BROKEN
     }
 
+    if (isSecondWeapon(item, slot) && !canDualWield) {
+      return Denial.NEEDS_DUAL_WIELD
+    }
+
     if (wouldOverfillHands(equipment, item, slot)) {
       return Denial.HANDS_FULL
     }
 
     return checkStillWearable(item, itemLevel, wearerLevel, wearerIsNovice, allowance)
+  }
+
+  private fun isSecondWeapon(item: Item, slot: EquipmentSlot): Boolean {
+    return slot == EquipmentSlot.LEFT_HAND && item.equipSlot != EquipmentSlot.LEFT_HAND
   }
 
   /** Refused rather than taking the other hand off, so nothing leaves a slot the player did not touch. */

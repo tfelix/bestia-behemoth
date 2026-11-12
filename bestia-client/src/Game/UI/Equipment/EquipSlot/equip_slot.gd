@@ -89,7 +89,7 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	if item_resource == null:
 		return false
 
-	return EquipmentSlot.from_item_value(item_resource.equip_slot) == slot
+	return EquipmentSlot.fits(item_resource, slot)
 
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:

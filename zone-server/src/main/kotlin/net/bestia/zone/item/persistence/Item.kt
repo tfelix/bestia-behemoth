@@ -242,6 +242,14 @@ class Item(
     }
   }
 
+  /**
+   * Whether this may be worn in [slot]: its own slot, or the left hand for a second weapon. Whether the wearer may
+   * hold a second weapon is the equip rules' question, see `EquipmentService`.
+   */
+  fun fitsSlot(slot: EquipmentSlot): Boolean {
+    return equipSlot == slot || (slot == EquipmentSlot.LEFT_HAND && weaponType?.isDualWieldable == true)
+  }
+
   /** An off-hand weapon, a tome, is held in the left hand; every other weapon in the right. */
   private fun heldSlotOf(weaponType: WeaponType): EquipmentSlot {
     return if (weaponType.isOffHand) EquipmentSlot.LEFT_HAND else EquipmentSlot.RIGHT_HAND

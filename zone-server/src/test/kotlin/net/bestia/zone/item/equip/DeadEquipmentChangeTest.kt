@@ -78,7 +78,8 @@ class DeadEquipmentChangeTest {
       outMessageProcessor = mockk(relaxed = true),
       deadActionGuard = DeadActionGuard(),
       world = world,
-      itemStats = ItemStatCatalog()
+      itemStats = ItemStatCatalog(),
+      skills = mockk(relaxed = true),
     )
   }
 

@@ -1,6 +1,7 @@
 package net.bestia.zone.item.persistence
 
 import net.bestia.zone.item.ItemProvenance
+import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.item.equip.EquipmentSlot
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -231,6 +232,18 @@ class ItemContainerTest {
 
     assertFalse(container.equip(boots.id, 0L, EquipmentSlot.RIGHT_HAND))
     assertTrue(container.equipped().isEmpty())
+  }
+
+  @Test
+  fun `a one-handed weapon goes into the left hand as a second weapon`() {
+    val dagger = Item(
+      id = 6L, identifier = "dagger", weight = 10, type = Item.ItemType.EQUIP, equipSlot = EquipmentSlot.RIGHT_HAND,
+      weaponType = WeaponType.DAGGER, material = ItemMaterial.METAL
+    )
+    container.addInstance(ItemInstance(item = dagger))
+
+    assertTrue(container.equip(dagger.id, 0L, EquipmentSlot.LEFT_HAND))
+    assertEquals(setOf(EquipmentSlot.LEFT_HAND), container.equipped().keys)
   }
 
   @Test
