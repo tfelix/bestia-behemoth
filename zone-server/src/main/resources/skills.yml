@@ -1767,13 +1767,14 @@ skills:
     description: |
       Knuckles hardened on posts, walls and the occasional jaw.
 
-      `+3/lv` ATK with fist weapons
+      `+3/lv` ATK with a fist weapon or bare hands
 
   - id: 144
     identifier: M_TRIPLE_BLOW
     targetType: FRIENDLY
     description: |
-      Every basic attack may become three in a row, for 200% ATK in all.
+      A basic melee attack that lands may become three blows in a row, for 200% of the blow in
+      all. Only the main hand rolls, once per attack.
 
       `+3%/lv` chance per basic attack
 
@@ -1784,7 +1785,8 @@ skills:
     range: 1
     manaCost: 15
     description: |
-      Follows a Triple Blow at once with four more hits.
+      Follows a Triple Blow at once with four more hits on an enemy. Only within 1.5s after a
+      Triple Blow, and once for each.
 
       `250% + 50%/lv` ATK over all hits
 
@@ -1819,8 +1821,9 @@ skills:
     range: 1
     manaCost: 10
     description: |
-      Only while Berserk and with at least half the mana: pours all of it into one blow of
-      ATK * (4 + mana spent / 10). Afterwards the Berserk ends and the mana is sealed for 5min.
+      Only while Berserk and with at least half the mana: pours all of it into one weapon blow of
+      ATK * (4 + mana spent / 10). Afterwards the Berserk ends and Mana Sealed stops mana
+      regeneration for 5min.
 
       `+10%/lv` damage
 
