@@ -75,7 +75,7 @@ class SkillMechanicsTest {
       RecordingSkillWorld.Inflicted(DEFENDER_ID, StatusEffectId.STUN.name, 70, 2.5, 3),
       world.inflicted.single()
     )
-    assertEquals(RecordingSkillWorld.ForcedMove(DEFENDER_ID, Vec3L(4, 0, 0), 3, 0), world.forcedMoves.single())
+    assertEquals(RecordingSkillWorld.KnockBack(DEFENDER_ID, Vec3L(0, 0, 0), 3), world.knockBacks.single())
     assertEquals(ATTACKER_ID to Heal(hit.amount / 2), world.appliedDamage.single())
   }
 

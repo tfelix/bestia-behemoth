@@ -227,6 +227,8 @@ class RecordingSkillWorld(
     val amount: Int = 0,
   )
 
+  data class KnockBack(val entityId: EntityId, val from: Vec3L, val tiles: Int)
+
   data class ForcedMove(val entityId: EntityId, val towards: Vec3L, val maxTiles: Int, val keepDistance: Int)
 
   data class Summon(val guildId: Long, val to: Vec3L, val includeCaster: Boolean)
@@ -466,9 +468,12 @@ class RecordingSkillWorld(
 
   override fun callOwnBestias(): Int = calledBestias
 
-  val knockbackImmune = mutableSetOf<EntityId>()
+  val knockBacks = mutableListOf<KnockBack>()
 
-  override fun isKnockbackImmune(entityId: EntityId): Boolean = entityId in knockbackImmune
+  override fun knockBack(entityId: EntityId, from: Vec3L, tiles: Int): Int {
+    knockBacks.add(KnockBack(entityId, from, tiles))
+    return tiles
+  }
 
   val givenItems = mutableListOf<Pair<Long, Int>>()
 

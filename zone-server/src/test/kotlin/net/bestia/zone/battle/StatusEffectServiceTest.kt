@@ -3,6 +3,7 @@ package net.bestia.zone.battle
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.HarmShield
@@ -111,6 +112,34 @@ class StatusEffectServiceTest {
     assertFalse(service.survivesLethalDamage(world, plain), "no Unbreakable")
     val marker = world.getOrThrow(brawler, StatusEffects::class).activeEffects.single { it.definitionId == spent.id }
     assertEquals(360f, marker.remainingSeconds)
+  }
+
+  @Test
+  fun `Unbreakable Lv 2 halves a stun while its bearer is above half its HP`() {
+    val stun = StatusEffectDefinition(
+      id = StatusEffectId.STUN.id, identifier = "STUN", isSyncedToClient = true, script = "Lingering",
+      polarity = StatusEffectPolarity.DEBUFF
+    )
+    val service = StatusEffectService(
+      StatusEffectDefinitionRegistry().apply { load(listOf(stun)) },
+      StatusEffectScriptRegistry(listOf(Lingering()))
+    )
+    fun brawler(health: Int) = player().also { id ->
+      world.add(id, CombatStats(CombatValues.OBJECT_BASELINE.copy(halvesStunAndKnockback = true)))
+      world.add(id, Health(current = health, max = 100))
+    }
+    val steady = brawler(health = 51)
+    val hurt = brawler(health = 50)
+
+    service.applyEffect(world, steady, stun.id, level = 1, durationSeconds = 4.0)
+    service.applyEffect(world, hurt, stun.id, level = 1, durationSeconds = 4.0)
+
+    assertEquals(2f, stunOn(steady)?.remainingSeconds)
+    assertEquals(4f, stunOn(hurt)?.remainingSeconds)
+  }
+
+  private fun stunOn(id: EntityId): ActiveStatusEffect? {
+    return world.getOrThrow(id, StatusEffects::class).activeEffects.firstOrNull { it.definitionId == StatusEffectId.STUN.id }
   }
 
   private fun player(shield: HarmShield? = null): EntityId {

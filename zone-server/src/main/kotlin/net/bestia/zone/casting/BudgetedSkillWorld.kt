@@ -666,10 +666,13 @@ class BudgetedSkillWorld(
     services.echoSensing?.sound(world, casterId, radiusMetres, revealsDepth)
   }
 
-  override fun isKnockbackImmune(entityId: EntityId): Boolean {
+  override fun knockBack(entityId: EntityId, from: Vec3L, tiles: Int): Int {
     budget.charge()
 
-    return Knockback.isImmune(world, entityId)
+    val pushed = Knockback.tilesFor(world, entityId, tiles)
+    if (pushed <= 0) return 0
+
+    return services.forcedMovement.awayFrom(world, entityId, from, pushed)
   }
 
   override fun giveItem(itemId: Long, amount: Int) {

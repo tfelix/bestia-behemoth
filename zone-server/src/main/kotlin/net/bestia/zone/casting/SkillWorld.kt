@@ -236,8 +236,11 @@ interface SkillWorld {
   /** Shows the caster the hollows within [radiusMetres], and how deep and large they are if [revealsDepth]. */
   fun soundForHollows(radiusMetres: Int, revealsDepth: Boolean)
 
-  /** Whether a blow or a blast may not push [entityId] back, see [net.bestia.zone.battle.Knockback]. One operation. */
-  fun isKnockbackImmune(entityId: EntityId): Boolean
+  /**
+   * Pushes [entityId] up to [tiles] away from [from], less when it resists a knockback, see
+   * [net.bestia.zone.battle.Knockback]. Returns the tiles it moved. One operation.
+   */
+  fun knockBack(entityId: EntityId, from: Vec3L, tiles: Int): Int
 
   /** Gives the caster [amount] of [itemId], through the usual weight check on the next tick. One operation. */
   fun giveItem(itemId: Long, amount: Int)
