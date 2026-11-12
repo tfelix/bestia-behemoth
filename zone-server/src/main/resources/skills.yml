@@ -1827,6 +1827,7 @@ skills:
     script: Rush
     targetType: ENEMY
     range: 6
+    needsLineOfSight: true
     manaCost: 12
     cooldown: 10
     description: |

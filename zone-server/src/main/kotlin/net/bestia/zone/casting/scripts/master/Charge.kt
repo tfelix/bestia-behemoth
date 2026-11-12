@@ -8,6 +8,7 @@ import net.bestia.zone.casting.SkillContext
 import net.bestia.zone.casting.SkillLevelCost
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.persistence.Skill
+import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import kotlin.math.abs
 import kotlin.math.max
@@ -31,20 +32,12 @@ class Charge(losService: LineOfSightService) : BasicMagicSkillStrategy(losServic
 
   override fun execute(ctx: SkillContext): Damage? {
     val target = ctx.targetEntityId ?: return null
-    val targetAt = ctx.world.positionOf(target) ?: return null
-
-    ctx.world.forceMove(ctx.casterId, targetAt, ctx.battle.usedAttack.range.toInt(), keepDistance = 1)
-    val knightAt = ctx.world.positionOf(ctx.casterId) ?: return null
-    if (!isNextTo(knightAt, targetAt)) return null
+    if (!dashNextTo(ctx, target)) return null
 
     ctx.world.strike(target, ctx.battle.usedAttack, IMPACT_ATK_PERCENT)
     Provoke.provoke(ctx.world, target, level = 1, durationSeconds = PROVOKE_SECONDS)
 
     return null
-  }
-
-  private fun isNextTo(a: Vec3L, b: Vec3L): Boolean {
-    return max(abs(a.x - b.x), abs(a.y - b.y)) <= 1
   }
 
   companion object {
@@ -54,6 +47,19 @@ class Charge(losService: LineOfSightService) : BasicMagicSkillStrategy(losServic
 
     fun cooldownSeconds(level: Int): Float {
       return 15f - 0.5f * level.coerceIn(1, MAX_LEVEL)
+    }
+
+    /** Dashes the caster up to the skill's range to stand next to [target]; false when the ground stopped it short. */
+    fun dashNextTo(ctx: SkillContext, target: EntityId): Boolean {
+      val targetAt = ctx.world.positionOf(target) ?: return false
+      ctx.world.forceMove(ctx.casterId, targetAt, ctx.battle.usedAttack.range.toInt(), keepDistance = 1)
+      val casterAt = ctx.world.positionOf(ctx.casterId) ?: return false
+
+      return isNextTo(casterAt, targetAt)
+    }
+
+    private fun isNextTo(a: Vec3L, b: Vec3L): Boolean {
+      return max(abs(a.x - b.x), abs(a.y - b.y)) <= 1
     }
   }
 }
