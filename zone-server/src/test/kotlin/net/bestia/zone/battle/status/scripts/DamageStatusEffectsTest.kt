@@ -62,6 +62,17 @@ class DamageStatusEffectsTest {
   }
 
   @Test
+  fun `a brewed poison drains what it carries, in per mille of the pool`() {
+    val target = withHealth(current = 1000, max = 1000)
+    service.applyEffect(world, target, StatusEffectId.POISON, level = 1, amount = 18)
+
+    world.tick(2f)
+    world.tick(0f)
+
+    assertEquals(18, staged(target))
+  }
+
+  @Test
   fun `a bleeding body that stands still loses nothing and closes twice as fast`() {
     val target = withHealth(current = 1000, max = 1000)
     service.applyEffect(world, target, StatusEffectId.BLEEDING, level = 1, durationSeconds = 10.0)

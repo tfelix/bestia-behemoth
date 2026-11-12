@@ -728,3 +728,11 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: GearCoating
+
+  # The Assassin's Enchant Poison: every landed swing may poison, as hard as the poison worked into the weapon.
+  - id: 224
+    identifier: ENCHANT_POISON
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: PoisonedWeapon

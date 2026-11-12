@@ -188,6 +188,14 @@ class StatusValueRecalcContext(
     statusImmunities = statusImmunities + effects
   }
 
+  /** Percentage points of resistance to a status, beside what the attributes give. See `StatusResistance`. */
+  var statusResistance: Map<StatusEffectId, Int> = emptyMap()
+    private set
+
+  fun addStatusResistance(effect: StatusEffectId, percent: Int) {
+    statusResistance = statusResistance + (effect to (statusResistance[effect] ?: 0) + percent)
+  }
+
   /** Percent more weight the entity can carry, beside what strength and vitality give. */
   var carryCapacityPercent: Int = 0
 

@@ -4,6 +4,10 @@ import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.casting.RecordingSkillWorld
 import net.bestia.zone.casting.SkillContextFixture
+import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.battle.status.scripts.Poison
+import net.bestia.zone.skill.persistence.SkillMechanics
+import net.bestia.zone.skill.persistence.SkillReagent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -31,6 +35,29 @@ class AssassinDuelistSkillsTest {
 
     assertEquals(listOf(1, 3, 5, 7), world.offHandStrikes)
     assertEquals(500, world.strikes.sumOf { it.second })
+  }
+
+  @Test
+  fun `Enchant Poison works the spent poison into an ally's weapon at the cast level`() {
+    val skill = SkillContextFixture.skill().apply {
+      mechanics = SkillMechanics(reagents = listOf(SkillReagent(item = "basic_poison")))
+    }
+
+    EnchantPoison(LineOfSightService()).execute(SkillContextFixture.skillCtx(world = world, skillLevel = 3, skill = skill))
+
+    assertEquals(
+      listOf(Triple(StatusEffectId.ENCHANT_POISON.id, 3, Poison.DEFAULT_DRAIN_PER_MILLE)),
+      world.appliedEffects.map { Triple(it.effectId, it.level, it.amount) }
+    )
+  }
+
+  @Test
+  fun `Enchant Poison does nothing to a foe's weapon`() {
+    world.foes += target
+
+    EnchantPoison(LineOfSightService()).execute(ctx(level = 1))
+
+    assertEquals(emptyList<Any>(), world.appliedEffects)
   }
 
   private fun ctx(level: Int) = SkillContextFixture.skillCtx(world = world, skillLevel = level)

@@ -22,6 +22,7 @@ import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.status.RemovalReason
 import net.bestia.zone.battle.status.StatusEffectHookContext
 import net.bestia.zone.battle.status.StatusResistance
+import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.status.scripts.Lifesteal
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
@@ -280,13 +281,20 @@ class StatusEffectService(
         focus = combat?.potencyFocus ?: 0,
       )
 
-      return StatusResistance.ofPotency(statSum, resolve, potency)
+      return StatusResistance.ofPotency(statSum, resolve, potency, trainedPercentOf(combat, definition))
     }
     val targetLevel = world.get(targetId, Level::class)?.level
     val sourceLevel = sourceEntityId?.let { world.get(it, Level::class)?.level }
     val levelLead = if (targetLevel != null && sourceLevel != null) targetLevel - sourceLevel else 0
 
-    return StatusResistance.of(statSum, levelLead)
+    return StatusResistance.of(statSum, levelLead, trainedPercentOf(combat, definition))
+  }
+
+  /** What a passive like Poison Research adds against one status. */
+  private fun trainedPercentOf(combat: CombatValues?, definition: StatusEffectDefinition): Int {
+    val effect = StatusEffectId.findById(definition.id) ?: return 0
+
+    return combat?.statusResistance?.get(effect) ?: 0
   }
 
   private fun scriptOf(effect: ActiveStatusEffect): StatusEffectScript? {

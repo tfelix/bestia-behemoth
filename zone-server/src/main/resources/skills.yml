@@ -1548,6 +1548,10 @@ skills:
     range: 2
     manaCost: 24
     castTime: 2.0
+    mechanics:
+      reagents:
+        - item: basic_poison
+          amount: 1
     description: |
       Works a brewed poison into the edge of a weapon for 5min, so every strike can leave it
       behind. Consumes one poison, such as Basic Poison. The poison decides how hard it bites.

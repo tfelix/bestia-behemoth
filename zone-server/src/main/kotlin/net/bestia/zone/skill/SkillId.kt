@@ -79,6 +79,8 @@ enum class SkillId {
   M_ENDURE,
   M_IRON_SKIN,
   M_ARCANE_MASTERY,
+  // Its drain bonus is read by net.bestia.zone.battle.attack.PoisonedBlade.
+  M_POISON_RESEARCH,
 
   // Read by the systems they change: felling and its yield, picking herbs.
   M_LUMBERJACK,
