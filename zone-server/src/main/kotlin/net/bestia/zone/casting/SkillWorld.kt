@@ -160,6 +160,9 @@ interface SkillWorld {
   /** Whether the caster stands in the half behind [targetEntityId], as it faces. One operation. */
   fun isBehind(targetEntityId: EntityId): Boolean
 
+  /** The tile right behind [targetEntityId], as it faces; null when it has no facing. One operation. */
+  fun spotBehind(targetEntityId: EntityId): Vec3L?
+
   /**
    * Brings the caster's bestias that are out in the world to stand around the caster, leaving out any that is
    * fighting. Returns how many came. One operation plus one per bestia.

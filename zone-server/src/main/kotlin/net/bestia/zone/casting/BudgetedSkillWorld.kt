@@ -478,6 +478,15 @@ class BudgetedSkillWorld(
     return facing.isBehind(targetAt, casterAt)
   }
 
+  override fun spotBehind(targetEntityId: EntityId): Vec3L? {
+    budget.charge()
+
+    val facing = world.get(targetEntityId, Facing::class) ?: return null
+    val targetAt = world.get(targetEntityId, Position::class)?.toVec3L() ?: return null
+
+    return facing.behind(targetAt)
+  }
+
   override fun callOwnBestias(): Int {
     budget.charge()
 

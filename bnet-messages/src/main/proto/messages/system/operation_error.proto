@@ -475,6 +475,10 @@ enum OpError {
   ORDERS_TOO_MANY_PLACES = 226;
   // A skill meant for the caster's own bestias, like Mindbreak, was aimed at something else.
   SKILL_NEEDS_OWN_BESTIA = 165;
+  // A strike from hiding, like Backstab or Shadow Step, was used without Hide or Cloak on.
+  SKILL_NEEDS_HIDING = 166;
+  // Backstab was aimed at a target the caster does not stand behind.
+  SKILL_NEEDS_BEHIND = 167;
 }
 
 message OperationError {
