@@ -53,7 +53,7 @@ STATUS_EFFECT_40,Lifesteal: your blows heal you by half the damage they deal.
 STATUS_EFFECT_41,Mana sealed: your mana does not come back on its own.
 STATUS_EFFECT_42,Enraged: you hit harder and take less damage. Fatigue follows.
 STATUS_EFFECT_43,Fatigued: you are weaker for a moment.
-STATUS_EFFECT_44,"Berserk: much stronger and quicker, but your armor guards nothing."
+STATUS_EFFECT_44,"Berserk: much stronger and quicker, but nothing guards you from blows, and your armor stops no spell."
 STATUS_EFFECT_45,Tailwind: you move and attack quicker.
 STATUS_EFFECT_46,Endowed weapon: your plain blows hit with an element.
 STATUS_EFFECT_47,Elemental coat: hits on you count against another element.
@@ -789,6 +789,7 @@ STATUS_EFFECT_225,Provoked: you can fight no one but the one who provoked you.
 STATUS_EFFECT_226,"Shield Wall: less physical damage taken, and you move slower. Cast it again to lower it."
 STATUS_EFFECT_227,Devotion: a Knight takes the blows and spells meant for you while you stay near.
 STATUS_EFFECT_228,"Juggernaut: more ATK and DEF, and at Lv. 2 or more no stun or knockback."
+STATUS_EFFECT_229,"Unbreakable spent: the next lethal hit will kill you, until this runs out."
 ERROR_PORTAL_NO_SPOT,That saved spot is not there any more.
 ERROR_PORTAL_SPENT,The portal is closing or has let everyone through it can.
 PORTAL_MARK_SPOT,Mark this spot (%d of %d saved)
@@ -811,6 +812,7 @@ ERROR_SKILL_NOT_ON_MASTERS,This does not work on a master.
 ERROR_SKILL_NEEDS_SPEAR,You need a spear or a polearm in hand for this.
 ERROR_SKILL_NEEDS_SHIELD,You need a shield in your left hand for this.
 ERROR_SKILL_NEEDS_PARTY_MEMBER,"Aim this at a party member or a Bestia of your party, not yourself."
+ERROR_SKILL_NEEDS_STAFF,You need a staff in hand for this.
 SUCCESS_SPELL_LEARNED,Your bestia learned the attack.
 SUCCESS_SPELL_INSCRIBED,The attack is written on a new spell scroll.
 SPELL_SCROLL_PICK,%s Lv. %d

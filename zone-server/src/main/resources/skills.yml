@@ -1734,9 +1734,9 @@ skills:
     targetType: FRIENDLY
     description: |
       A Brawler's conditioning - stamina holds out longer under strain and comes back quicker once
-      it's spent.
+      it's spent. Skills like Sprint cost less stamina, and the weather drains less.
 
-      `-10%/lv` stamina cost
+      `-10%/lv` stamina cost and drain
       `+10%/lv` stamina regeneration
 
   - id: 141
@@ -1745,9 +1745,9 @@ skills:
     targetType: FRIENDLY
     description: |
       A Brawler's answer to running on empty: dig deep once, and get back up. Restores 50% of
-      the stamina at once.
+      the stamina at once. Cooldown 180s.
 
-      Lv.2 also restores 20% HP
+      Lv.2 also heals 20% HP
       Lv.3 cooldown 120s instead of 180s
 
   - id: 142
@@ -1755,9 +1755,10 @@ skills:
     targetType: FRIENDLY
     description: |
       The Brawler's capstone. Once per cooldown, an otherwise lethal hit leaves the master at
-      1 HP instead. Cooldown 10min.
+      1 HP instead. An icon counts the cooldown down, and a relog does not reset it. Cooldown
+      10min.
 
-      Lv.2 Stun and knockback last half as long while above 50% HP
+      Lv.2 a stun lasts half as long and a knockback goes half as far while above 50% HP
       Lv.3 cooldown 6min
 
   - id: 143
@@ -1794,8 +1795,8 @@ skills:
     manaCost: 20
     cooldown: 6
     description: |
-      A wide sweep of the staff that hits every enemy within 2m and knocks them back 1m. Needs a
-      staff. Cooldown 6s.
+      A wide sweep of the staff that hits every enemy within 2m and knocks back 1m each one it
+      hits. Needs a staff. Cooldown 6s.
 
       `100% + 20%/lv` ATK
 
@@ -1806,7 +1807,8 @@ skills:
     manaCost: 20
     cooldown: 60
     description: |
-      Works the Brawler into a Berserk: +60% ATK and +30% attack speed, but no DEF. Cooldown 60s.
+      Works the Brawler into a Berserk: +60% ATK and +30% attack speed, but no DEF at all and no
+      armor against spells. Cooldown 60s.
 
       `+10s/lv` duration
 
@@ -1831,7 +1833,8 @@ skills:
     manaCost: 12
     cooldown: 10
     description: |
-      Dashes up to 6m to a target. Cooldown 10s.
+      Dashes up to 6m to a target in sight and lands one basic blow on arrival. Ground the
+      Brawler cannot step onto stops the dash short, and then nothing is struck. Cooldown 10s.
 
   - id: 150
     identifier: M_CAMOUFLAGE
