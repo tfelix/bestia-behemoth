@@ -12,6 +12,7 @@ import net.bestia.zone.item.stat.ItemStat
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.stat.ItemStatSheet
 import net.bestia.zone.item.stat.StatValue
+import net.bestia.zone.battle.gear.ArmorType
 import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.item.material.ItemMaterial
 import net.bestia.zone.item.persistence.Item
@@ -94,6 +95,27 @@ class EquipmentStatusContributorTest {
     assertEquals(20, context.attack)
     assertEquals(7, context.offHandAttack)
     assertEquals(3, context.offHandUpgradeLevel)
+  }
+
+  @Test
+  fun `every worn piece with a weight is counted, the shield too`() {
+    fun piece(id: Long, slot: EquipmentSlot, type: ArmorType): Item {
+      return Item(id = id, identifier = slot.name.lowercase(), weight = 10, type = Item.ItemType.EQUIP, equipSlot = slot, armorType = type, material = ItemMaterial.METAL)
+    }
+    val cuirass = piece(2L, EquipmentSlot.ARMOR, ArmorType.HEAVY)
+    val shield = piece(3L, EquipmentSlot.LEFT_HAND, ArmorType.HEAVY)
+    val boots = piece(4L, EquipmentSlot.FOOTGEAR, ArmorType.LIGHT)
+    val contributor = EquipmentStatusContributor(
+      EquipmentScriptRegistry(listOf(StatBonusEquipmentScript())), catalog, itemTemplatesOf(cuirass, shield, boots)
+    )
+    val equipment = Equipment(availableSlotMask = EquipmentSlots.ALL)
+    listOf(cuirass, shield, boots).forEach { equipment.equip(it.equipSlot!!, Equipment.EquippedItem(itemId = it.id, uniqueId = it.id)) }
+    equipment.equip(EquipmentSlot.RIGHT_HAND, Equipment.EquippedItem(itemId = 1, uniqueId = 1L))
+    val knight = world.createEntity { id -> add(id, equipment) }
+
+    contributor.contribute(context, world, knight)
+
+    assertEquals(listOf(ArmorType.LIGHT, ArmorType.HEAVY, ArmorType.HEAVY), context.wornArmorTypes.sorted())
   }
 
   private fun wearing(vararg items: Pair<EquipmentSlot, Int>): Long {

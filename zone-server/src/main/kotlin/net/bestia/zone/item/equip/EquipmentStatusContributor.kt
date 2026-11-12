@@ -41,6 +41,7 @@ class EquipmentStatusContributor(
     context.offHandUpgradeLevel = worn[EquipmentSlot.LEFT_HAND]?.upgradeLevel ?: 0
     context.bodyArmorType = worn[EquipmentSlot.ARMOR]?.let { templates.templateOf(it.itemId)?.armorType }
     context.shieldArmorType = worn[EquipmentSlot.LEFT_HAND]?.let { templates.templateOf(it.itemId)?.armorType }
+    context.wornArmorTypes = worn.values.mapNotNull { templates.templateOf(it.itemId)?.armorType }
 
     context.potencyFocus += focusOf(context.heldWeaponType) + focusOf(context.offHandWeaponType)
   }
