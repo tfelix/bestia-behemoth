@@ -3,6 +3,7 @@ package net.bestia.zone.master.skill
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.casting.SkillExecutionService
+import net.bestia.zone.casting.plagiarism.PlagiarizedSkill
 import net.bestia.zone.account.persistence.InheritedAttack
 import net.bestia.zone.account.persistence.LearnedSkill
 import net.bestia.zone.account.persistence.LearnedSkillRepository
@@ -127,6 +128,19 @@ class SkillListServiceTest {
     givenCustom(OTHER, 2)
 
     assertEquals(listOf(EMBER to 1, OTHER to 2), sut.entriesFor(ACCOUNT, BESTIA_ENTITY).map { it.skillId to it.level })
+  }
+
+  @Test
+  fun `a spell copied with Plagiarism follows the tree as a temporary entry, even one the tree also holds`() {
+    world.createEntity(MASTER_ENTITY) { id ->
+      add(id, KnownSkills(mutableMapOf()))
+      add(id, PlagiarizedSkill(BLESSING, 3))
+    }
+
+    assertEquals(
+      listOf(Triple(BLESSING, 0, false), Triple(BLESSING, 3, true)),
+      sut.entriesFor(ACCOUNT, MASTER_ENTITY).map { Triple(it.skillId, it.level, it.temporary) }
+    )
   }
 
   @Test

@@ -1,7 +1,6 @@
 package net.bestia.zone.master.net
 
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
-import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.message.OutMessageProcessor
@@ -35,8 +34,8 @@ class InvestSkillPointHandler(
 
     // The merged skill list isn't part of the ECS dirty-sync pipeline (see GetSkillsHandler), so nothing
     // else pushes the client a refresh after this.
-    val levels = world.get(masterEntityId, KnownSkills::class)?.levels().orEmpty()
-    outMessageProcessor.sendToPlayer(msg.playerId, SkillListSMSG(masterEntityId, masterSkillListBuilder.entriesFor(levels)))
+    val entries = masterSkillListBuilder.entriesFor(world, masterEntityId)
+    outMessageProcessor.sendToPlayer(msg.playerId, SkillListSMSG(masterEntityId, entries))
 
     return true
   }

@@ -15,6 +15,7 @@ import net.bestia.zone.battle.ecs.skill.Channel
 import net.bestia.zone.battle.status.ActionLock
 import net.bestia.zone.battle.status.EntityAction
 import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.casting.plagiarism.Plagiarism
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.persistence.Skill
@@ -51,6 +52,7 @@ class SkillExecutionService(
   private val reagents: ReagentPayment? = null,
   private val statusEffects: StatusEffectService? = null,
   private val groundWards: GroundWards? = null,
+  private val plagiarism: Plagiarism? = null,
 ) {
 
   /** Skills never change after the import, and resolution runs on the tick, so they are read once at boot. */
@@ -201,6 +203,7 @@ class SkillExecutionService(
       world.get(casterId, Facing::class)?.turnTowards(ctx.battle.attacker.position, ctx.aimedAt)
       val result = strategy.execute(ctx)
       if (paid) cooldowns.start(world, casterId, skill.id, cost.cooldownSeconds)
+      if (paid) plagiarism?.onCast(world, casterId, skill.id, skillLevel)
       startChannel(world, casterId, skill, skillLevel, targetEntityId, targetPosition, args)
 
       // A skill whose whole effect is a patch of ground, a station or a chart has no number to show, and

@@ -26,15 +26,15 @@ namespace Bnet {
           string.Concat(
             "CihtZXNzYWdlcy9jb21wb25lbnQvc2tpbGxfbGlzdF9zbXNnLnByb3RvEgRi",
             "bmV0IjsKDVNraWxsTGlzdFNNU0cSJAoGc2tpbGxzGAIgAygLMhQuYm5ldC5T",
-            "a2lsbExpc3RFbnRyeUoECAEQAiJHCg5Ta2lsbExpc3RFbnRyeRIQCghza2ls",
+            "a2lsbExpc3RFbnRyeUoECAEQAiJaCg5Ta2lsbExpc3RFbnRyeRIQCghza2ls",
             "bF9pZBgBIAEoBBINCgVsZXZlbBgCIAEoDRIUCgxwb3RlbmN5X2JhbmQYAyAB",
-            "KA1CKwoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhJTa2lsbExpc3RTTVNHUHJv",
-            "dG9iBnByb3RvMw=="));
+            "KA0SEQoJdGVtcG9yYXJ5GAQgASgIQisKFW5ldC5iZXN0aWEuYm5ldC5wcm90",
+            "b0ISU2tpbGxMaXN0U01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SkillListSMSG), global::Bnet.SkillListSMSG.Parser, new[]{ "Skills" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SkillListEntry), global::Bnet.SkillListEntry.Parser, new[]{ "SkillId", "Level", "PotencyBand" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SkillListEntry), global::Bnet.SkillListEntry.Parser, new[]{ "SkillId", "Level", "PotencyBand", "Temporary" }, null, null, null, null)
           }));
     }
     #endregion
@@ -274,6 +274,7 @@ namespace Bnet {
       skillId_ = other.skillId_;
       level_ = other.level_;
       potencyBand_ = other.potencyBand_;
+      temporary_ = other.temporary_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -323,6 +324,22 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "temporary" field.</summary>
+    public const int TemporaryFieldNumber = 4;
+    private bool temporary_;
+    /// <summary>
+    /// A skill held for a single cast, like a spell copied with Plagiarism, rather than learned. The same id may also
+    /// be listed as a tree node.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Temporary {
+      get { return temporary_; }
+      set {
+        temporary_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -341,6 +358,7 @@ namespace Bnet {
       if (SkillId != other.SkillId) return false;
       if (Level != other.Level) return false;
       if (PotencyBand != other.PotencyBand) return false;
+      if (Temporary != other.Temporary) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -351,6 +369,7 @@ namespace Bnet {
       if (SkillId != 0UL) hash ^= SkillId.GetHashCode();
       if (Level != 0) hash ^= Level.GetHashCode();
       if (PotencyBand != 0) hash ^= PotencyBand.GetHashCode();
+      if (Temporary != false) hash ^= Temporary.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -381,6 +400,10 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteUInt32(PotencyBand);
       }
+      if (Temporary != false) {
+        output.WriteRawTag(32);
+        output.WriteBool(Temporary);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -403,6 +426,10 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteUInt32(PotencyBand);
       }
+      if (Temporary != false) {
+        output.WriteRawTag(32);
+        output.WriteBool(Temporary);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -421,6 +448,9 @@ namespace Bnet {
       }
       if (PotencyBand != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(PotencyBand);
+      }
+      if (Temporary != false) {
+        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -442,6 +472,9 @@ namespace Bnet {
       }
       if (other.PotencyBand != 0) {
         PotencyBand = other.PotencyBand;
+      }
+      if (other.Temporary != false) {
+        Temporary = other.Temporary;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -474,6 +507,10 @@ namespace Bnet {
             PotencyBand = input.ReadUInt32();
             break;
           }
+          case 32: {
+            Temporary = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -503,6 +540,10 @@ namespace Bnet {
           }
           case 24: {
             PotencyBand = input.ReadUInt32();
+            break;
+          }
+          case 32: {
+            Temporary = input.ReadBool();
             break;
           }
         }

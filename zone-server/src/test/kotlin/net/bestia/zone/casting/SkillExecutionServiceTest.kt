@@ -28,6 +28,12 @@ import org.junit.jupiter.api.Test
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.skill.SkillTargetType
+import net.bestia.zone.battle.FixedRandom
+import net.bestia.zone.casting.plagiarism.PlagiarizedSkill
+import net.bestia.zone.casting.plagiarism.Plagiarism
+import net.bestia.zone.skill.ecs.KnownSkills
+import net.bestia.zone.skill.tree.MasterSkillTreeNode
+import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
@@ -71,6 +77,26 @@ class SkillExecutionServiceTest {
 
     assertEquals(1, script.casts)
     assertEquals(42, world.stagedDamageOn(target))
+  }
+
+  @Test
+  fun `a spell that strikes a master with Plagiarism is copied, and casting the copy uses it up`() {
+    val script = TestScript(result = HitDamage(3))
+    val plagiarism = Plagiarism(
+      mockk { every { findByIdentifier("M_PLAGIARISM") } returns skill().apply { id = PLAGIARISM_ID } },
+      MasterSkillTreeRegistry().apply { load(listOf(MasterSkillTreeNode(SKILL_ID, "TEST_SKILL", 5, "SCHOLAR"))) },
+      mockk(relaxed = true),
+      random = FixedRandom(0f),
+    )
+    val service = service(skill(script = "TestScript"), SkillStrategyFactory(listOf(script)), plagiarism)
+    val foe = world.spawnFighter()
+    val assassin = world.spawnFighter().also { world.add(it, KnownSkills(mutableMapOf(PLAGIARISM_ID to 5))) }
+
+    service.executeNow(world, foe, SKILL_ID, 3, assassin, null)
+    assertEquals(3, plagiarism.grantedLevel(world, assassin, SKILL_ID))
+
+    service.executeNow(world, assassin, SKILL_ID, 3, foe, null)
+    assertFalse(world.has(assassin, PlagiarizedSkill::class))
   }
 
   @Test
@@ -371,11 +397,17 @@ class SkillExecutionServiceTest {
   private fun serviceFor(script: SkillStrategy, manaCost: Int = 0, cooldown: Float = 0f) =
     service(skill(manaCost = manaCost, script = script::class.simpleName!!, cooldown = cooldown), SkillStrategyFactory(listOf(script)))
 
-  private fun service(skill: Skill, strategies: SkillStrategyFactory): SkillExecutionService {
+  private fun service(
+    skill: Skill,
+    strategies: SkillStrategyFactory,
+    plagiarism: Plagiarism? = null,
+  ): SkillExecutionService {
     val repository = mockk<SkillRepository>()
     every { repository.findAll() } returns listOf(skill)
 
-    return SkillExecutionService(repository, strategies, contextFactory(), SkillCooldownService(clock)).also { it.warmUp() }
+    return SkillExecutionService(
+      repository, strategies, contextFactory(plagiarism), SkillCooldownService(clock), plagiarism = plagiarism
+    ).also { it.warmUp() }
   }
 
   /** Resolution is posted to the tick thread; a tick runs it. */
@@ -391,7 +423,7 @@ class SkillExecutionServiceTest {
     world.tick(0f)
   }
 
-  private fun contextFactory() = SkillContextFactory(
+  private fun contextFactory(plagiarism: Plagiarism? = null) = SkillContextFactory(
     BattleContextFactory(propPromotion),
     SkillWorldServices(
       aoi = mockk(relaxed = true),
@@ -410,6 +442,7 @@ class SkillExecutionServiceTest {
       castCancel = mockk(relaxed = true),
       gear = mockk(relaxed = true),
       groundItemDispel = mockk(relaxed = true),
+      plagiarism = plagiarism,
     ),
     // A tight op budget so the runaway case is reached in a few hundred calls rather than the production 64.
     SkillExecutionConfig(worldOpsPerCast = 16, maxQueryResults = 8, maxMillisPerCast = 60_000)
@@ -460,5 +493,6 @@ class SkillExecutionServiceTest {
 
   private companion object {
     const val SKILL_ID = 1L
+    const val PLAGIARISM_ID = 126L
   }
 }

@@ -15,6 +15,7 @@ data class SkillListSMSG(
         .setSkillId(skill.skillId)
         .setLevel(skill.level)
         .setPotencyBand(skill.potencyBand)
+        .setTemporary(skill.temporary)
         .build()
     }
 
@@ -30,5 +31,7 @@ data class SkillListSMSG(
     val level: Int,
     /** [net.bestia.zone.battle.potency.Potency.Band] ordinal + 1 for a learned skill, 0 otherwise. */
     val potencyBand: Int = 0,
+    /** Held for one cast, like a Plagiarism copy, rather than learned. */
+    val temporary: Boolean = false,
   )
 }
