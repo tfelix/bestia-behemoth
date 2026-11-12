@@ -23,4 +23,7 @@ message SkillListEntry {
   // How strong a cast of this skill is now, as a Potency band: 0 for not learned, then FAINT = 1 to
   // OVERWHELMING = 5. The number itself stays on the server; players read bands.
   uint32 potency_band = 3;
+  // A skill held for a single cast, like a spell copied with Plagiarism, rather than learned. The same id may also
+  // be listed as a tree node.
+  bool temporary = 4;
 }

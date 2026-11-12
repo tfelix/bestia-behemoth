@@ -5,6 +5,7 @@ import net.bestia.zone.casting.sense.MagicSensing
 import net.bestia.zone.casting.sense.MonsterSensing
 import net.bestia.zone.casting.sense.ResourceSensing
 import net.bestia.zone.casting.camp.BaseCamps
+import net.bestia.zone.casting.plagiarism.Plagiarism
 import net.bestia.zone.prop.TreePlanting
 import net.bestia.zone.battle.ecs.skill.CastCancelService
 import net.bestia.zone.item.enchant.GroundItemDispel
@@ -59,4 +60,5 @@ class SkillWorldServices(
   val monsterSensing: MonsterSensing? = null,
   val teleports: SkillTeleports? = null,
   val spellScrolls: SpellScrolls? = null,
+  val plagiarism: Plagiarism? = null,
 )

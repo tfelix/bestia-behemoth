@@ -10,7 +10,6 @@ import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.session.EntityNotOwnedSessionException
-import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
@@ -37,8 +36,7 @@ class SkillListService(
     val masterEntityId = connectionInfoService.getSelectedMasterEntityId(accountId)
 
     val entries = if (activeEntityId == masterEntityId) {
-      val levels = world.read { get(masterEntityId, KnownSkills::class)?.levels() }.orEmpty()
-      masterSkillListBuilder.entriesFor(levels)
+      world.read { masterSkillListBuilder.entriesFor(this, masterEntityId) }
     } else {
       bestiaEntries(accountId, connectionInfoService.getMasterId(accountId), activeEntityId)
     }

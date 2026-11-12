@@ -103,6 +103,9 @@ enum class SkillId {
   // A second weapon in the left hand needs it, see net.bestia.zone.item.net.EquipItemHandler. Its passive swings it.
   M_DUAL_WIELD,
 
+  // net.bestia.zone.casting.plagiarism.Plagiarism reads its level when a spell strikes a master.
+  M_PLAGIARISM,
+
   // Guild skills a guild learns, not a master: net.bestia.zone.guild reads the guild's level of each.
   GUILD_EMBLEM,
   OFFICIAL_GUILD_APPROVAL,

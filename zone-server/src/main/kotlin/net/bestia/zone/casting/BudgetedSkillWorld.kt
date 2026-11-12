@@ -18,6 +18,7 @@ import net.bestia.zone.battle.damage.Blocked
 import net.bestia.zone.battle.damage.weighedTo
 import net.bestia.zone.battle.damage.DamageLanding
 import net.bestia.zone.battle.damage.HitKind
+import net.bestia.zone.battle.damage.HitForm
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.battle.Healing
 import net.bestia.zone.battle.Sides
@@ -194,6 +195,9 @@ class BudgetedSkillWorld(
     // resolution makes possible, or it cannot be hurt at all.
     if (landed) {
       broadcastDamage(receiver, landing)
+    }
+    if (landed && landing !is Heal && hitKind.form == HitForm.MAGIC) {
+      services.plagiarism?.onStruck(world, receiver, casterId, skillId, skillLevel)
     }
   }
 
