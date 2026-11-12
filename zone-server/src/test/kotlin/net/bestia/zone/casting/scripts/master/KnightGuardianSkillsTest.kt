@@ -80,5 +80,13 @@ class KnightGuardianSkillsTest {
     assertEquals(OpError.SKILL_NEEDS_PARTY_MEMBER, devotion.checkTarget(ecs, knight, stranger, 1, emptyList()))
   }
 
+  @Test
+  fun `Juggernaut takes on the stance at the skill's level and cools down faster at Lv 3`() {
+    Juggernaut().execute(ctx(level = 3))
+
+    assertEquals(listOf(RecordingSkillWorld.AppliedEffect(caster, StatusEffectId.JUGGERNAUT.id, 3)), world.appliedEffects)
+    assertEquals(listOf(120f, 120f, 90f), (1..3).map { Juggernaut.cooldownSeconds(it) })
+  }
+
   private fun ctx(level: Int) = SkillContextFixture.skillCtx(world = world, skillLevel = level)
 }

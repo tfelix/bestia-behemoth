@@ -3,6 +3,7 @@ package net.bestia.zone.battle.status
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
+import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 
@@ -52,6 +53,11 @@ class StatusEffectHookContext(
       val staged = world.get(targetId, IncomingDamage::class) ?: world.add(targetId, IncomingDamage())
       staged.add(amount, from)
     }
+  }
+
+  /** Starts the effect's clock again at [durationSeconds], as a refresh by a new cast would. */
+  fun refreshSelf(durationSeconds: Double) {
+    world.get(hostId, StatusEffects::class)?.refresh(effect, durationSeconds)
   }
 
   fun removeSelf() {

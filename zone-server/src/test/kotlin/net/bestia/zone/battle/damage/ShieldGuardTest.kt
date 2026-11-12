@@ -2,6 +2,8 @@ package net.bestia.zone.battle.damage
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.FixedRandom
 import net.bestia.zone.battle.LineOfSightService
@@ -39,6 +41,17 @@ class ShieldGuardTest {
     assertEquals(Blocked, alwaysBlocks.guard(world, knight, blow, HitDamage(40)))
     assertEquals(Blocked, alwaysBlocks.guard(world, knight, blow, CriticalHit(80)))
     assertEquals(HitDamage(40), ShieldGuard(FixedRandom(0.2f)).guard(world, knight, blow, HitDamage(40)))
+  }
+
+  @Test
+  fun `a caught blow is told to the effects on the one who caught it`() {
+    val statusEffects = mockk<StatusEffectService>(relaxed = true)
+    val knight = fighter(blockChance = 100)
+
+    ShieldGuard(FixedRandom(0f), statusEffects).guard(world, knight, blow, HitDamage(40))
+    ShieldGuard(FixedRandom(0f), statusEffects).guard(world, knight, HitKind.magic(), HitDamage(40))
+
+    verify(exactly = 1) { statusEffects.notifyBlocked(world, knight) }
   }
 
   @Test

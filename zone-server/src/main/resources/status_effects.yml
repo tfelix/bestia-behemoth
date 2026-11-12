@@ -760,3 +760,11 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: Devoted
+
+  # The Knight's Juggernaut: more ATK and DEF; from Lv.2 no stun and no knockback.
+  - id: 228
+    identifier: JUGGERNAUT
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: JuggernautStance
