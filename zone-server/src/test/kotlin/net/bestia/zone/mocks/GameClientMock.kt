@@ -81,6 +81,11 @@ class GameClientMock(
     return received().filterIsInstance(type.java).any(predicate)
   }
 
+  /** How many messages of [type] in the buffer match [predicate], for a burst like a multi-hit skill. */
+  fun <T : SMSG> countReceived(type: KClass<T>, predicate: (T) -> Boolean): Int {
+    return received().filterIsInstance(type.java).count(predicate)
+  }
+
   /** The most recent entity message of [type] about [entityId], when other entities send the same type. */
   fun <T : EntitySMSG> tryGetLastReceivedFor(type: KClass<T>, entityId: Long): T? {
     return received().filterIsInstance(type.java).lastOrNull { it.entityId == entityId }
