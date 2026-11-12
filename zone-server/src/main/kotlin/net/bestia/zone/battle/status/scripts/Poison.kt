@@ -10,7 +10,8 @@ import org.springframework.stereotype.Component
 
 /**
  * Wears the bearer down without killing it: a slow drain that stops at the last hit point, no natural healing,
- * and a weakened guard. Killing is what a blow is for.
+ * and a weakened guard. Killing is what a blow is for. A brewed poison sets its own drain as the effect's amount,
+ * in per mille of the maximum HP; any other drains [DEFAULT_DRAIN_PER_MILLE].
  */
 @Component
 class Poison : StatusEffectScript {
@@ -23,7 +24,8 @@ class Poison : StatusEffectScript {
 
   override fun onTick(context: StatusEffectTickContext) {
     val health = context.world.get(context.hostId, Health::class) ?: return
-    val drain = (health.max / PERCENT_OF_MAX).coerceAtLeast(1).coerceAtMost(health.current - 1)
+    val perMille = context.effect.amount.takeIf { it > 0 } ?: DEFAULT_DRAIN_PER_MILLE
+    val drain = (health.max * perMille / 1000).coerceAtLeast(1).coerceAtMost(health.current - 1)
 
     if (drain > 0) {
       context.dealDamage(drain)
@@ -41,8 +43,8 @@ class Poison : StatusEffectScript {
     context.blockRegen(hp = true)
   }
 
-  private companion object {
-    const val PERCENT_OF_MAX = 100
-    const val DEFENSE_PERCENT = -25
+  companion object {
+    const val DEFAULT_DRAIN_PER_MILLE = 10
+    private const val DEFENSE_PERCENT = -25
   }
 }

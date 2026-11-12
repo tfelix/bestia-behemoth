@@ -13,21 +13,24 @@ object StatusResistance {
   const val PER_LEVEL_LEAD = 0.01
   const val MAX = 0.8
 
-  /** [levelLead] is how many levels the target stands above the one inflicting the effect. */
-  fun of(statSum: Int, levelLead: Int): Double {
+  /**
+   * [levelLead] is how many levels the target stands above the one inflicting the effect. [trainedPercent] is what a
+   * passive adds against this one status, like Poison Research against poison.
+   */
+  fun of(statSum: Int, levelLead: Int, trainedPercent: Int = 0): Double {
     val fromStats = if (statSum <= 0) 0.0 else statSum / (statSum + HALF_POINT)
 
-    return (fromStats + levelLead * PER_LEVEL_LEAD).coerceIn(0.0, MAX)
+    return (fromStats + levelLead * PER_LEVEL_LEAD + trainedPercent / 100.0).coerceIn(0.0, MAX)
   }
 
   /**
    * Against a cast: the attributes as above, and the target's Resolve against the cast's Potency in place of the
    * level lead. See [net.bestia.zone.battle.potency.Potency.resolve].
    */
-  fun ofPotency(statSum: Int, resolve: Int, potency: Int): Double {
+  fun ofPotency(statSum: Int, resolve: Int, potency: Int, trainedPercent: Int = 0): Double {
     val fromStats = if (statSum <= 0) 0.0 else statSum / (statSum + HALF_POINT)
 
-    return (fromStats + (resolve - potency) / 100.0).coerceIn(0.0, MAX)
+    return (fromStats + (resolve - potency + trainedPercent) / 100.0).coerceIn(0.0, MAX)
   }
 
   fun chancePercent(baseChancePercent: Double, resistance: Double): Double {
