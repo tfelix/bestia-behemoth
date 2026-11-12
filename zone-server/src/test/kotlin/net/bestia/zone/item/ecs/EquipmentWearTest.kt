@@ -3,6 +3,9 @@ package net.bestia.zone.item.ecs
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.identity.ecs.Master
@@ -53,6 +56,22 @@ class EquipmentWearTest {
     assertEquals(0, inBag.durability)
     verify { inventoryService.recordWear(SWORD_ID, 0) }
     verify { inventoryService.unequip(MASTER_ID, null, EquipmentSlot.RIGHT_HAND) }
+  }
+
+  @Test
+  fun `a coated weapon wears less, and not at all at full coating`() {
+    val lightlyCoated = wielder(durability = 50).also { coat(it, level = 1) }
+    val fullyCoated = wielder(durability = 50).also { coat(it, level = 3) }
+
+    wear.wearWeapon(world, lightlyCoated, 10)
+    wear.wearWeapon(world, fullyCoated, 10)
+
+    assertEquals(42, weapon(lightlyCoated)?.durability)
+    assertEquals(50, weapon(fullyCoated)?.durability)
+  }
+
+  private fun coat(id: EntityId, level: Int) {
+    world.add(id, StatusEffects(mutableListOf(ActiveStatusEffect(StatusEffectId.EQUIPMENT_COATING.id, level, 600f))))
   }
 
   private fun wielder(durability: Int): EntityId {

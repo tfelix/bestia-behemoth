@@ -13,6 +13,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.item.equip.EquipmentSlot
+import net.bestia.zone.item.equip.SlotLock
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
@@ -340,6 +341,12 @@ interface SkillWorld {
 
   /** Takes off what [entityId] wears in [slot]; false when nothing was there. */
   fun strip(entityId: EntityId, slot: EquipmentSlot): Boolean
+
+  /** The pieces [entityId] wears that a strip may take, by the slot lock each one gets. One operation. */
+  fun strippableGearOf(entityId: EntityId): List<SlotLock>
+
+  /** Whether [entityId] holds a weapon in each hand. One operation. */
+  fun isDualWielding(entityId: EntityId): Boolean
 
   /** Takes [percent] of the maximum off the durability of [entityId]'s weapon and armour. */
   fun wearGear(entityId: EntityId, percent: Int): Boolean
