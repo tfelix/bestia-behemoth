@@ -45,6 +45,7 @@
  - STATUS wave 23: StatusEffectDurationSystem [EverySeconds(seconds=1.0)]
  - STATUS wave 24: GuildAuraSystem [EverySeconds(seconds=2.0)]
  - STATUS wave 25: DetectingSystem [EverySeconds(seconds=1.0)]
+ - STATUS wave 25: MarkedPreySystem [EverySeconds(seconds=1.0)]
  - STATUS wave 25: StatusValueRecalcSystem [EveryTick]
  - COMBAT wave 26: AreaEffectSystem [EveryTick]
  - COMBAT wave 27: AttackSystem [EveryTick]

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/vec3.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "MarkedPreyComponentSMSGProto";
+
+// Where the prey of the owner's Hunter's Mark stands, so the map can show it wherever it goes. Sent to the owner
+// only, about once a second while the prey moves; marked = false once the mark has run out.
+message MarkedPreyComponentSMSG {
+  bool marked = 1;
+  uint64 prey_entity_id = 2;
+  Vec3 position = 3;
+}

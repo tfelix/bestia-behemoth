@@ -65,6 +65,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         case global::Bnet.ComponentDelta.ComponentOneofCase.Journey: return JourneyComponentSMSG.FromProto(entityId, delta.Journey);
         case global::Bnet.ComponentDelta.ComponentOneofCase.Honor: return HonorComponentSMSG.FromProto(entityId, delta.Honor);
         case global::Bnet.ComponentDelta.ComponentOneofCase.Detecting: return DetectingComponentSMSG.FromProto(entityId, delta.Detecting);
+        case global::Bnet.ComponentDelta.ComponentOneofCase.MarkedPrey: return MarkedPreyComponentSMSG.FromProto(entityId, delta.MarkedPrey);
         case global::Bnet.ComponentDelta.ComponentOneofCase.ItemEnchantments: return ItemEnchantmentsComponentSMSG.FromProto(entityId, delta.ItemEnchantments);
         case global::Bnet.ComponentDelta.ComponentOneofCase.Fishing: return FishingComponentSMSG.FromProto(entityId, delta.Fishing);
         case global::Bnet.ComponentDelta.ComponentOneofCase.WarpMarks: return WarpMarksComponentSMSG.FromProto(entityId, delta.WarpMarks);

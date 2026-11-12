@@ -38,6 +38,8 @@ var _guild_beacons: Dictionary[int, GuildMemberBeaconComponentSMSG] = {}
 var _journeys: Dictionary[int, JourneyComponentSMSG] = {}
 ## What a Detect skill lets the player's own entities sense, by entity id, while it lasts.
 var _detections: Dictionary[int, DetectingComponentSMSG] = {}
+## The prey of the player's Hunter's Mark, by the hunter's entity id, while the mark lasts.
+var _marked_prey: Dictionary[int, MarkedPreyComponentSMSG] = {}
 var _bobbers: Dictionary[int, Bobber] = {}
 ## The Warp Portal spots the player's master saved, oldest first.
 var _warp_marks: Array[Vector3] = []
@@ -52,6 +54,8 @@ signal guild_beacon_changed(entity_id: int)
 signal journey_changed(entity_id: int)
 ## What one of the player's own entities senses through Detect changed or ran out; see [method get_detections].
 signal detection_changed(entity_id: int)
+## The prey of a Hunter's Mark moved, or the mark ran out; see [method get_marked_prey].
+signal marked_prey_changed(entity_id: int)
 
 
 ## EntityManager isn't an autoload (see the TODO above - its lifecycle is tied to the
@@ -324,6 +328,14 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		detection_changed.emit(msg.EntityId)
 		return
 
+	if msg is MarkedPreyComponentSMSG:
+		if msg.Marked:
+			_marked_prey[msg.EntityId] = msg
+		else:
+			_marked_prey.erase(msg.EntityId)
+		marked_prey_changed.emit(msg.EntityId)
+		return
+
 	if _keep_detached(msg):
 		return
 
@@ -446,6 +458,10 @@ func get_journeys() -> Dictionary[int, JourneyComponentSMSG]:
 
 func get_detections() -> Dictionary[int, DetectingComponentSMSG]:
 	return _detections
+
+
+func get_marked_prey() -> Dictionary[int, MarkedPreyComponentSMSG]:
+	return _marked_prey
 
 
 func get_warp_marks() -> Array[Vector3]:
