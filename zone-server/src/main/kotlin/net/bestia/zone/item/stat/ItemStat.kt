@@ -1,6 +1,7 @@
 package net.bestia.zone.item.stat
 
 import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 
 /**
@@ -33,6 +34,7 @@ enum class ItemStat(
   MANA_REGEN(5.0, { c, v -> c.addManaRegen(percent = v) }),
   STAMINA_REGEN(5.0, { c, v -> c.addStaminaRegen(percent = v) }),
   CAST_TIME(1.0, { c, v -> c.addCastTimeReduction(v) }),
+  STUN_CHANCE(1.0, { c, v -> c.addSwingStatusChance(StatusEffectId.STUN, v) }),
   RESIST_NORMAL(3.0, resist(Element.NORMAL)),
   RESIST_WATER(3.0, resist(Element.WATER)),
   RESIST_EARTH(3.0, resist(Element.EARTH)),
