@@ -92,6 +92,11 @@ class DistrictTest {
   fun `a handful of neighbours is not a quarter`() {
     for (district in districts) {
       val claimed = district.attribute(DistrictChannels.BUILDINGS).toInt()
+      // A village green is a park laid out empty on purpose; see `Districts.ofGreen`.
+      val green = DistrictKind.entries[district.attribute(DistrictChannels.KIND).toInt()] == DistrictKind.PARK &&
+          claimed == 0
+      if (green) continue
+
       assertTrue(
         claimed >= Districts.MIN_BUILDINGS,
         "$district was grown from $claimed buildings, below the floor of ${Districts.MIN_BUILDINGS}"

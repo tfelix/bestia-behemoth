@@ -294,7 +294,7 @@ class MapQueriesTest {
   @Test
   fun `a species' habitat is shown only once the master has seen it, and only where it is charted`() {
     // A row of its own: another spot on the strip would push the last test's spot off the world's east edge.
-    val centre = chartedAt(40_000.0, 32_000.0, radiusMetres = 3_000.0)
+    val centre = chartedAt(HABITAT_SPOT.first, HABITAT_SPOT.second, radiusMetres = 3_000.0)
     val tile = TileId.of(2, centre.first, centre.second)
     assertEquals(Status.NOT_FOUND, ask(habitatQuery(tile)).status, "an unseen species gives its habitat away")
 
@@ -365,11 +365,12 @@ class MapQueriesTest {
     return centreX to centreY
   }
 
-  /** A staffed service in the [nth] settlement north of the strip the other tests chart along. */
+  /** A staffed service in the [nth] settlement clear of every spot the other tests chart. */
   private fun someService(nth: Int): MapPoi {
     val meta = meta()
-    val towns = pois.liveIn(Aabb(0.0, CHARTED_STRIP_NORTH, meta.worldWidthMetres, meta.worldHeightMetres))
+    val towns = pois.liveIn(Aabb(0.0, 0.0, meta.worldWidthMetres, meta.worldHeightMetres))
       .filter { it.business != null }
+      .filter { shop -> RESERVED_SPOTS.all { (x, y) -> hypot(shop.x - x, shop.y - y) > SPOT_CLEARANCE } }
       .distinctBy { it.settlement }
 
     return towns.getOrNull(nth) ?: error("the test world has fewer than ${nth + 1} towns with a service")
@@ -423,8 +424,16 @@ class MapQueriesTest {
     /** The fixture master holds slot 0; ChartServiceTest uses slot 1 too, one master at a time. */
     const val FREE_SLOT = 1
 
-    /** Every other test charts at y = 20 km or 44 km, at most 6 km across. */
-    const val CHARTED_STRIP_NORTH = 52_000.0
+    /** Where the habitat test charts, off the rows [nextSpot] uses. */
+    val HABITAT_SPOT = 40_000.0 to 32_000.0
+
+    /** Every spot another test may chart: the [nextSpot] rows and [HABITAT_SPOT]. */
+    val RESERVED_SPOTS = (0 until SPOTS_PER_ROW).flatMap { i ->
+      listOf(20_000.0, 44_000.0).map { y -> (20_000.0 + i * 20_000.0) to y }
+    } + HABITAT_SPOT
+
+    /** A spot's chart reaches 3 km at most and a service's own up to 1.5 km, with room to spare. */
+    const val SPOT_CLEARANCE = 6_000.0
 
     /** How far past a disc's edge a charted 64 m cell can still reach. */
     val CELL_DIAGONAL = SurveyGrid.CELL_METRES * sqrt(2.0)
