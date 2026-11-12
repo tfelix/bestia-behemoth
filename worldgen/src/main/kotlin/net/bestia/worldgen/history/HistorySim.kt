@@ -3322,7 +3322,7 @@ internal class HistorySim(
     const val SHRINE_SALT = 0x34L
 
     /** Which of the eligible places a rite happens at. Separate from `RITE_SALT`, which decides *whether*. */
-    const val RITE_PLACE_SALT = 0x35L
+    const val RITE_PLACE_SALT = 0x36L
 
     /**
      * How much a borne-out conviction multiplies an Order's weight, at full strength.
