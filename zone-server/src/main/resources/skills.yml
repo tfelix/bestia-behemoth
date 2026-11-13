@@ -1851,7 +1851,8 @@ skills:
     targetType: FRIENDLY
     description: |
       Teaches the Hunter to read the land well enough to disappear into it. Wild Bestia
-      notice the master later. It does not hide the master.
+      notice the master later. It does not hide the master, and tamed Bestia notice the
+      master as usual.
 
       `-10%/lv` notice range of wild Bestia
 
@@ -1860,7 +1861,7 @@ skills:
     targetType: FRIENDLY
     description: |
       A Hunter's sure footing, at home where the road ends. Faster on any ground that is not
-      a made road or paving.
+      a made road, paving, a bridge or a built floor. The master's Bestias do not gain it.
 
       `+3%/lv` walk speed off roads
 
@@ -1872,8 +1873,8 @@ skills:
     manaCost: 15
     cooldown: 10
     description: |
-      Marks one target for 30s. It shows on the master's map, and its Hide and Cloak do not
-      work against the master. A new mark ends the old one. Cooldown 10s.
+      Marks one enemy for 30s. It shows on the master's map wherever it goes, and its Hide
+      and Cloak do not work against the master. A new mark ends the old one. Cooldown 10s.
 
       `+3%/lv` critical rate against the target
 
@@ -2108,8 +2109,9 @@ skills:
     manaCost: 14
     cooldown: 3
     description: |
-      Needs a spear or a thrown weapon. Hurls it at a target up to 7 tiles away. A spear comes back
-      to hand; a thrown weapon is used up like ammunition. Cooldown 3s.
+      Needs a spear or a thrown weapon. Hurls it at an enemy up to 7 tiles away as a ranged
+      attack, so Pneuma stops it. A spear comes back to hand. A thrown weapon takes one more
+      from the bag, and the last one stays in hand. Cooldown 3s.
 
       `150% + 30%/lv` ATK
 
@@ -2117,7 +2119,8 @@ skills:
     identifier: M_PACK_HUNT
     targetType: FRIENDLY
     description: |
-      The Hunter's Bestias learn whom to go for. They hit the target of Hunter's Mark harder.
+      The Hunter's Bestias learn whom to go for. They hit the target of the master's Hunter's
+      Mark harder, wherever the master stands. The master gains nothing.
 
       `+10%/lv` damage of the master's Bestias against the marked target
 
