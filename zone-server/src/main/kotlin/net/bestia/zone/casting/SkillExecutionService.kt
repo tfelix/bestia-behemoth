@@ -145,7 +145,7 @@ class SkillExecutionService(
       return
     }
 
-    val cost = strategy.costOf(skill, skillLevel)
+    val cost = costFor(world, casterId, strategy, skill, skillLevel)
     val ritual = if (paid) RitualBoost.heldBy(world, casterId) else null
     val ctx = skillContextFactory.create(
       world, casterId, skill, skillLevel, targetEntityId, targetPosition, cost, args, ritual
@@ -237,6 +237,12 @@ class SkillExecutionService(
     return cost.staminaCostFor(world.get(casterId, CombatStats::class)?.values?.staminaCostReduction ?: 0)
   }
 
+  private fun costFor(world: World, casterId: EntityId, strategy: SkillStrategy, skill: Skill, level: Int): SkillLevelCost {
+    val cost = strategy.costOf(skill, level)
+
+    return cost.copy(rangeTiles = strategy.reachOf(world, casterId, cost))
+  }
+
   /** Holds the caster in place while a channelled skill keeps acting, see [channelTick]. */
   private fun startChannel(
     world: World,
@@ -263,7 +269,7 @@ class SkillExecutionService(
     val strategy = skillStrategyFactory.getSkillStrategy(skill)
     val ctx = skillContextFactory.create(
       world, casterId, skill, channel.skillLevel, channel.targetEntityId, channel.targetPosition,
-      strategy.costOf(skill, channel.skillLevel), channel.args
+      costFor(world, casterId, strategy, skill, channel.skillLevel), channel.args
     ) ?: return
 
     try {

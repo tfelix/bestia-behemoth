@@ -44,6 +44,14 @@ interface SkillStrategy {
   fun costOf(skill: Skill, level: Int): SkillLevelCost = SkillLevelCost.of(skill)
 
   /**
+   * How far the cast of [casterId] reaches: the [cost]'s range, unless the weapon in hand decides, as it does for a
+   * bow skill. Asked on the tick as the cast resolves, before the range check; it may only read.
+   */
+  fun reachOf(world: World, casterId: EntityId, cost: SkillLevelCost): Long {
+    return cost.rangeTiles
+  }
+
+  /**
    * Whether the skill's cost can be met *now*, at activation - before the cast bar goes up. Nothing to
    * check by default.
    *

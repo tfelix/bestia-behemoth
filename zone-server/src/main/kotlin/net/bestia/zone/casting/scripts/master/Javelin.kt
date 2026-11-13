@@ -10,13 +10,15 @@ import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.casting.BasicMagicSkillStrategy
 import net.bestia.zone.casting.SkillContext
+import net.bestia.zone.casting.SkillLevelCost
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
 /**
  * Javelin (`skills.yml` id 173): hurls the spear or the thrown weapon in hand at a foe for `150% + 30%/lv` ATK, as a
- * shot. A spear comes back to hand; a thrown weapon spends one more of its kind from the bag, like an arrow.
+ * shot. A spear comes back to hand; a thrown weapon spends one more of its kind from the bag, like an arrow, and
+ * reaches as much farther as Vulture's Eye lets it.
  */
 @Component
 class Javelin(
@@ -30,6 +32,12 @@ class Javelin(
       WeaponType.THROWN -> if (ammo.hasThrownSpare(world, casterId)) null else OpError.SKILL_NOTHING_TO_THROW
       else -> OpError.SKILL_NEEDS_SPEAR_OR_THROWN
     }
+  }
+
+  override fun reachOf(world: World, casterId: EntityId, cost: SkillLevelCost): Long {
+    val throwReach = world.get(casterId, CombatStats::class)?.values?.throwReachTiles ?: 0
+
+    return cost.rangeTiles + throwReach
   }
 
   override fun isCastPossible(ctx: SkillContext): Boolean {

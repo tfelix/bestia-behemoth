@@ -1,5 +1,8 @@
 package net.bestia.zone.battle.passive.scripts
 
+import net.bestia.zone.battle.RangedWeapon
+import net.bestia.zone.battle.ammo.AmmoType
+import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.battle.status.StatusValues
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -30,7 +33,41 @@ class HunterPassivesTest {
     assertTrue(PackHunt().reachesOwnedBestias)
   }
 
+  @Test
+  fun `Owl's Eye sharpens DEX by one a level`() {
+    assertEquals(1 + 5, recalc { OwlsEye().apply(it, 5) }.dexterity)
+  }
+
+  @Test
+  fun `Vulture's Eye lengthens the bow by a tile and adds 2 HIT a level`() {
+    val archer = recalc { it.rangedWeapon = BOW; VulturesEye().apply(it, 5) }
+
+    assertEquals(BOW.range + 5, archer.rangedWeapon?.range)
+    assertEquals(10, archer.hit)
+    assertEquals(0, archer.throwReachTiles, "a bow is not thrown")
+  }
+
+  @Test
+  fun `Vulture's Eye lets a thrown weapon reach farther and hit surer`() {
+    val thrower = recalc { it.heldWeaponType = WeaponType.THROWN; VulturesEye().apply(it, 3) }
+
+    assertEquals(3, thrower.throwReachTiles)
+    assertEquals(6, thrower.hit)
+  }
+
+  @Test
+  fun `Vulture's Eye does nothing for a weapon that neither shoots nor is thrown`() {
+    val swordsman = recalc { it.heldWeaponType = WeaponType.SPEAR; VulturesEye().apply(it, 5) }
+
+    assertEquals(0, swordsman.hit)
+    assertEquals(0, swordsman.throwReachTiles)
+  }
+
   private fun recalc(apply: (StatusValueRecalcContext) -> Unit): StatusValueRecalcContext {
     return StatusValueRecalcContext(StatusValues(1, 1, 1, 1, 1, 1), baseSpeed = 10f).also(apply)
+  }
+
+  private companion object {
+    val BOW = RangedWeapon(range = 12, ammoType = AmmoType.ARROW)
   }
 }

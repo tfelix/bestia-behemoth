@@ -16,6 +16,7 @@ import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.casting.RecordingSkillWorld
 import net.bestia.zone.casting.SkillContext
 import net.bestia.zone.casting.SkillContextFixture
+import net.bestia.zone.casting.SkillLevelCost
 import net.bestia.zone.ecs.core.testWorld
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -97,6 +98,17 @@ class HunterTrackerSkillsTest {
     assertNull(javelin.checkCastStart(ecs, withJavelins, 1))
     assertEquals(OpError.SKILL_NOTHING_TO_THROW, javelin.checkCastStart(ecs, withLastJavelin, 1))
     assertEquals(OpError.SKILL_NEEDS_SPEAR_OR_THROWN, javelin.checkCastStart(ecs, hunterWith(WeaponType.SWORD), 1))
+  }
+
+  @Test
+  fun `Javelin reaches as many tiles farther as Vulture's Eye gives a throw`() {
+    val ecs = testWorld()
+    val thrower = ecs.createEntity { id ->
+      add(id, CombatStats(CombatValues.ofBase(1, StatusValues(1, 1, 1, 1, 1, 1)).copy(throwReachTiles = 4)))
+    }
+    val cost = SkillLevelCost(manaCost = 14, staminaCost = 0, cooldownSeconds = 3f, castTimeSeconds = 0f, rangeTiles = 7)
+
+    assertEquals(11, Javelin(LineOfSightService(), mockk()).reachOf(ecs, thrower, cost))
   }
 
   private fun ctx(level: Int): SkillContext {
