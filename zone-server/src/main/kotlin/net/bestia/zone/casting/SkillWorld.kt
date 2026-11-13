@@ -248,6 +248,12 @@ interface SkillWorld {
   /** Shows the caster the hollows within [radiusMetres], and how deep and large they are if [revealsDepth]. */
   fun soundForHollows(radiusMetres: Int, revealsDepth: Boolean)
 
+  /** Why the caster may not blast the rock [radiusMetres] around [at], or null when they may. One op. */
+  fun blastRefusal(at: Vec3L, radiusMetres: Int): OpError?
+
+  /** Sets a charge that breaks the rock [radiusMetres] around [at] once its fuse burns down. One spawn. */
+  fun setBlastCharge(at: Vec3L, radiusMetres: Int)
+
   /**
    * Pushes [entityId] up to [tiles] away from [from], less when it resists a knockback, see
    * [net.bestia.zone.battle.Knockback]. Returns the tiles it moved. One operation.

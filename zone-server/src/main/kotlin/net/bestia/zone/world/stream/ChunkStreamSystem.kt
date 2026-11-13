@@ -159,13 +159,13 @@ class ChunkStreamSystem(
     carveYield.handOut(world)
   }
 
-  /** Puts what a carve broke aside for whoever swung the pick. */
+  /** Puts what a carve broke aside for whoever swung the pick, or for the ground it is scattered on. */
   private fun bank(world: World, result: ChunkService.CarveResult, carve: ChunkStreamInbox.Carve) {
     val entityId = carve.yieldTo
       ?: runCatching { connections.getActiveEntityId(carve.accountId) }.getOrNull()
       ?: return
 
-    carveYield.bank(world, result, entityId)
+    carveYield.bank(world, result, entityId, carve.scatters)
   }
 
   /**

@@ -1030,10 +1030,11 @@ SKILL_178_DESC,"Sets up a market stall where the Trader stands. Other players bu
 The stall closes when the Trader walks away or after 1h.
 
 `+2/lv` listings, from 3 at Lv.1"
-SKILL_179_DESC,"Sets a blasting charge that breaks every block around it 3s later. Consumes a Blasting Charge,
-brewed with Alchemy. Nobody should stand too close.
+SKILL_179_DESC,"Sets a blasting charge on the ground. 3s later it breaks every block around it and hurts every
+foe inside. The ore it breaks scatters on the ground. Consumes a Blasting Charge.
 
-`+1m/lv` radius, from 1m at Lv.1"
+`+1m/lv` radius, from 2m at Lv.1
+`+20%/lv` ATK damage, from 120% at Lv.1"
 SKILL_180_DESC,"A Miner who has cut enough stones sees what a rough gem holds before the first cut. Shows
 which gem an unknown Rough Gemstone is.
 

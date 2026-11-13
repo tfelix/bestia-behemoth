@@ -526,6 +526,18 @@ class RecordingSkillWorld(
     soundings += radiusMetres to revealsDepth
   }
 
+  /** What [blastRefusal] answers. */
+  var blastRefusal: OpError? = null
+
+  /** Spot and radius of each [setBlastCharge]. */
+  val blastCharges = mutableListOf<Pair<Vec3L, Int>>()
+
+  override fun blastRefusal(at: Vec3L, radiusMetres: Int): OpError? = blastRefusal
+
+  override fun setBlastCharge(at: Vec3L, radiusMetres: Int) {
+    blastCharges += at to radiusMetres
+  }
+
   override fun pitchCamp(at: Vec3L, level: Int, durationSeconds: Long): Boolean {
     camps += Triple(at, level, durationSeconds)
     return true

@@ -1,6 +1,7 @@
 package net.bestia.zone.casting
 
 import net.bestia.zone.casting.sense.EchoSensing
+import net.bestia.zone.item.mining.Blasts
 import net.bestia.zone.casting.sense.MagicSensing
 import net.bestia.zone.casting.sense.MonsterSensing
 import net.bestia.zone.casting.sense.ResourceSensing
@@ -57,6 +58,7 @@ class SkillWorldServices(
   val camps: BaseCamps? = null,
   val resourceSensing: ResourceSensing? = null,
   val echoSensing: EchoSensing? = null,
+  val blasts: Blasts? = null,
   val stalls: StallPitching? = null,
   val magicSensing: MagicSensing? = null,
   val monsterSensing: MonsterSensing? = null,

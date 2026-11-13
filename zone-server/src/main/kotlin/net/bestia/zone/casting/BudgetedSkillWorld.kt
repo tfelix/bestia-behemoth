@@ -728,6 +728,19 @@ class BudgetedSkillWorld(
     services.echoSensing?.sound(world, casterId, radiusMetres, revealsDepth)
   }
 
+  override fun blastRefusal(at: Vec3L, radiusMetres: Int): OpError? {
+    budget.charge()
+
+    return services.blasts?.refusal(world, casterId, at, radiusMetres)
+  }
+
+  override fun setBlastCharge(at: Vec3L, radiusMetres: Int) {
+    budget.charge(SPAWN_OPS)
+
+    val accountId = world.get(casterId, Account::class)?.accountId ?: return
+    services.blasts?.set(accountId, casterId, at, radiusMetres)
+  }
+
   override fun knockBack(entityId: EntityId, from: Vec3L, tiles: Int): Int {
     budget.charge()
 
