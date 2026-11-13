@@ -3,8 +3,7 @@ package net.bestia.zone.battle.status.scripts
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
@@ -13,15 +12,10 @@ import org.springframework.stereotype.Component
  * song, Grand Performance (id 170) a stronger effect. Read off the Bard while the song plays.
  */
 @Component
-class Songcraft(private val skills: SkillRepository) {
+class Songcraft(private val skillIds: SkillIds) {
 
-  private val voiceTrainingId: Long? by lazy { skills.findByIdentifier(SkillId.M_VOICE_TRAINING)?.id }
-  private val grandPerformanceId: Long? by lazy { skills.findByIdentifier(SkillId.M_GRAND_PERFORMANCE)?.id }
-
-  fun warmUp() {
-    voiceTrainingId
-    grandPerformanceId
-  }
+  private val voiceTrainingId: Long? get() = skillIds[SkillId.M_VOICE_TRAINING]
+  private val grandPerformanceId: Long? get() = skillIds[SkillId.M_GRAND_PERFORMANCE]
 
   fun radiusTiles(world: World, bardId: EntityId): Long {
     return BASE_RADIUS_TILES + levelOf(world, bardId, voiceTrainingId)

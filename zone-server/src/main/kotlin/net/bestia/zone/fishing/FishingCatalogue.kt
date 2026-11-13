@@ -70,7 +70,6 @@ class FishingCatalogue(
   fun warmUp() {
     maxCatchLevelByRod.size
     table
-    fishingSkillId
   }
 
   /** Null for an item that is not a fishing rod. */

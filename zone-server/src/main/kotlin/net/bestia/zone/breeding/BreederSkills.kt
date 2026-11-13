@@ -15,11 +15,6 @@ class BreederSkills(
 
   private val beastfriendId: Long? get() = skillIds[SkillId.M_BEASTFRIEND]
 
-  fun warmUp() {
-    beastfriendId
-    bloodlineStudy.warmUp()
-  }
-
   fun bloodlineStudyLevel(known: KnownSkills?): Int {
     return bloodlineStudy.levelIn(known)
   }

@@ -6,8 +6,7 @@ import net.bestia.zone.casting.SkillGrant
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
@@ -23,18 +22,14 @@ import java.util.Random
  */
 @Component
 class Plagiarism(
-  private val skills: SkillRepository,
+  private val skillIds: SkillIds,
   private val masterTree: MasterSkillTreeRegistry,
   private val bestias: BestiaCatalogue,
   private val skillLists: SkillListPush? = null,
   private val random: Random = ThreadLocalRandomSource,
 ) : SkillGrant {
 
-  private val plagiarismId: Long? by lazy { skills.findByIdentifier(SkillId.M_PLAGIARISM)?.id }
-
-  fun warmUp() {
-    plagiarismId
-  }
+  private val plagiarismId: Long? get() = skillIds[SkillId.M_PLAGIARISM]
 
   override fun grantedLevel(world: World, casterId: EntityId, skillId: Long): Int {
     val copy = world.get(casterId, PlagiarizedSkill::class) ?: return 0

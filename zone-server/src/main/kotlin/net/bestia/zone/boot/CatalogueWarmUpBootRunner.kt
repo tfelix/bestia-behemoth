@@ -6,17 +6,10 @@ import net.bestia.zone.battle.attack.TripleBlow
 import net.bestia.zone.battle.status.scripts.Songcraft
 import net.bestia.zone.casting.plagiarism.Plagiarism
 import net.bestia.zone.bestia.BestiaCatalogue
-import net.bestia.zone.breeding.BreederSkills
-import net.bestia.zone.crafting.CraftBonusService
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.fishing.FishingCatalogue
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
-import net.bestia.zone.weather.EnvironmentalExposureSystem
-import net.bestia.zone.weather.WeatherPublisher
 import net.bestia.zone.spawn.ecs.MobLootSpawner
-import net.bestia.zone.item.mining.MiningSkill
-import net.bestia.zone.item.mining.RichVeins
-import net.bestia.zone.item.mining.RoughGemScript
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
@@ -32,19 +25,8 @@ class CatalogueWarmUpBootRunner(
   private val commodities: CommodityItems,
   private val loot: MobLootSpawner,
   private val bestias: BestiaCatalogue,
-  private val craftBonus: CraftBonusService,
-  private val exposure: EnvironmentalExposureSystem,
-  private val weather: WeatherPublisher,
   private val skills: SkillExecutionService,
   private val fishing: FishingCatalogue,
-  private val breederSkills: BreederSkills,
-  private val mining: MiningSkill,
-  private val richVeins: RichVeins,
-  private val roughGems: RoughGemScript,
-  private val poisonedBlade: PoisonedBlade,
-  private val tripleBlow: TripleBlow,
-  private val plagiarism: Plagiarism,
-  private val songcraft: Songcraft,
 ) : CommandLineRunner {
 
   override fun run(vararg args: String?) {
@@ -52,18 +34,7 @@ class CatalogueWarmUpBootRunner(
     commodities.warmUp()
     loot.warmUp()
     bestias.warmUp()
-    craftBonus.warmUp()
-    exposure.warmUp()
-    weather.weatherSenseSkillId
     skills.warmUp()
     fishing.warmUp()
-    breederSkills.warmUp()
-    mining.warmUp()
-    richVeins.warmUp()
-    roughGems.warmUp()
-    poisonedBlade.warmUp()
-    tripleBlow.warmUp()
-    plagiarism.warmUp()
-    songcraft.warmUp()
   }
 }

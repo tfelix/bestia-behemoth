@@ -4,8 +4,7 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.skill.OwnerSkills
 import net.bestia.zone.skill.SkillId
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.battle.attack.ThreadLocalRandomSource
 import org.springframework.stereotype.Component
@@ -17,18 +16,13 @@ import java.util.Random
  */
 @Component
 class RichVeins(
-  private val skills: SkillRepository,
+  private val skillIds: SkillIds,
   private val random: Random = ThreadLocalRandomSource,
 ) {
 
   val reads: ComponentClassSet = OwnerSkills.READS
 
-  private val richVeinsId: Long? by lazy { skills.findByIdentifier(SkillId.M_RICH_VEINS)?.id }
-
-  /** Resolves the skill id at boot, so the tick never reaches the database for it. */
-  fun warmUp() {
-    richVeinsId
-  }
+  private val richVeinsId: Long? get() = skillIds[SkillId.M_RICH_VEINS]
 
   /** Extra pieces for one broken voxel of [stack], mined by [minerId]. */
   fun extraPieces(world: World, minerId: EntityId, stack: OreYield.Stack): Int {

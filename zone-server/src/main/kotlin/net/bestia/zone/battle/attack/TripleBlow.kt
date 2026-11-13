@@ -5,8 +5,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.update
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import java.time.Clock
@@ -19,16 +18,12 @@ import java.util.Random
  */
 @Component
 class TripleBlow(
-  private val skills: SkillRepository,
+  private val skillIds: SkillIds,
   private val random: Random = ThreadLocalRandomSource,
   private val clock: Clock = Clock.systemUTC(),
 ) {
 
-  private val skillId: Long? by lazy { skills.findByIdentifier(SkillId.M_TRIPLE_BLOW)?.id }
-
-  fun warmUp() {
-    skillId
-  }
+  private val skillId: Long? get() = skillIds[SkillId.M_TRIPLE_BLOW]
 
   /** Rolls whether the swing [attackerId] just landed becomes a Triple Blow. */
   fun rolls(world: World, attackerId: EntityId): Boolean {

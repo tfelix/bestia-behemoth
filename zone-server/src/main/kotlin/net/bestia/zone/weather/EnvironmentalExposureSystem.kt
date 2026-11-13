@@ -53,11 +53,6 @@ class EnvironmentalExposureSystem(
   /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
   private val resistanceId: Long? get() = skillIds[SkillId.M_WEATHER_RESISTANCE]
 
-  /** Resolves the skill id now, at boot, so the first sweep on the tick does not reach the database. */
-  fun warmUp() {
-    resistanceId
-  }
-
   override val schedule: Schedule get() = Schedule.EveryTick
 
   override val reads: ComponentClassSet =

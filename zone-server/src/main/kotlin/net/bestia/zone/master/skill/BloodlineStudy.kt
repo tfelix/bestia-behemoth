@@ -20,11 +20,6 @@ class BloodlineStudy(
 
   private val skillId: Long? get() = skillIds[SkillId.M_BLOODLINE_STUDY]
 
-  /** Resolves the skill id now, so the first read on the tick does not reach the database. */
-  fun warmUp() {
-    skillId
-  }
-
   /** For the tick: off the master's live skills. */
   fun levelIn(known: KnownSkills?): Int {
     val id = skillId ?: return 0

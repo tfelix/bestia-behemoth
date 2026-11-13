@@ -13,8 +13,7 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.script.ScriptArgs
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import java.util.Random
@@ -25,7 +24,7 @@ import java.util.Random
  */
 @Component
 class RoughGemScript(
-  private val skills: SkillRepository,
+  private val skillIds: SkillIds,
   private val items: ItemTemplateRegistry,
   private val messages: OutMessageProcessor,
   private val random: Random = ThreadLocalRandomSource,
@@ -33,12 +32,7 @@ class RoughGemScript(
 
   override val itemId: Long = ITEM_ID
 
-  private val gemLoreId: Long? by lazy { skills.findByIdentifier(SkillId.M_GEM_LORE)?.id }
-
-  /** Resolves the skill id at boot, so the tick never reaches the database for it. */
-  fun warmUp() {
-    gemLoreId
-  }
+  private val gemLoreId: Long? get() = skillIds[SkillId.M_GEM_LORE]
 
   override fun execute(world: World, userId: EntityId, args: ScriptArgs): Boolean {
     val gemLore = gemLoreId?.let { world.get(userId, KnownSkills::class)?.levelOf(it) } ?: 0

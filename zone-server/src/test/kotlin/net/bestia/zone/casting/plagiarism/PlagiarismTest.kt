@@ -6,9 +6,9 @@ import io.mockk.verify
 import net.bestia.zone.battle.FixedRandom
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.Skill
-import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.skillIdsOf
 import net.bestia.zone.skill.tree.MasterSkillTreeNode
 import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
 import net.bestia.zone.util.EntityId
@@ -21,9 +21,7 @@ import java.util.Random
 class PlagiarismTest {
 
   private val world = testWorld()
-  private val skills = mockk<SkillRepository> {
-    every { findByIdentifier("M_PLAGIARISM") } returns mockk<Skill> { every { id } returns PLAGIARISM }
-  }
+  private val skillIds = skillIdsOf(SkillId.M_PLAGIARISM to PLAGIARISM)
   private val tree = MasterSkillTreeRegistry().apply {
     load(listOf(MasterSkillTreeNode(skillId = FIRE_BOLT, identifier = "M_FIRE_BOLT", maxLevel = 10, tree = "SCHOLAR")))
   }
@@ -35,7 +33,7 @@ class PlagiarismTest {
   private val push = mockk<SkillListPush>(relaxed = true)
   private val foe = 99L
 
-  private fun plagiarism(random: Random = FixedRandom(0f)) = Plagiarism(skills, tree, bestias, push, random)
+  private fun plagiarism(random: Random = FixedRandom(0f)) = Plagiarism(skillIds, tree, bestias, push, random)
 
   @Test
   fun `a master spell above the cap is copied at the cap, and the player is told`() {

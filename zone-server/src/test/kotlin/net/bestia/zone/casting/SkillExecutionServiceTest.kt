@@ -27,7 +27,9 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.ecs.core.EcsWorld
+import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.SkillTargetType
+import net.bestia.zone.skill.skillIdsOf
 import net.bestia.zone.battle.FixedRandom
 import net.bestia.zone.casting.plagiarism.PlagiarizedSkill
 import net.bestia.zone.casting.plagiarism.Plagiarism
@@ -83,7 +85,7 @@ class SkillExecutionServiceTest {
   fun `a spell that strikes a master with Plagiarism is copied, and casting the copy uses it up`() {
     val script = TestScript(result = HitDamage(3))
     val plagiarism = Plagiarism(
-      mockk { every { findByIdentifier("M_PLAGIARISM") } returns skill().apply { id = PLAGIARISM_ID } },
+      skillIdsOf(SkillId.M_PLAGIARISM to PLAGIARISM_ID),
       MasterSkillTreeRegistry().apply { load(listOf(MasterSkillTreeNode(SKILL_ID, "TEST_SKILL", 5, "SCHOLAR"))) },
       mockk(relaxed = true),
       random = FixedRandom(0f),
