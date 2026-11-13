@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrULAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrqLAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -152,9 +152,10 @@ namespace Bnet {
             "EK0BEhYKEVNLSUxMX05FRURTX1NUQUZGEK4BEhwKF1NLSUxMX05FRURTX1RS",
             "SVBMRV9CTE9XEK8BEhgKE1NLSUxMX05FRURTX0JFUlNFUksQsAESGgoVU0tJ",
             "TExfTkVFRFNfSEFMRl9NQU5BELEBEiAKG1NLSUxMX05FRURTX1NQRUFSX09S",
-            "X1RIUk9XThCyARIbChZTS0lMTF9OT1RISU5HX1RPX1RIUk9XELMBIgQILhAu",
-            "KhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
-            "QhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "X1RIUk9XThCyARIbChZTS0lMTF9OT1RISU5HX1RPX1RIUk9XELMBEhQKD1NL",
+            "SUxMX05FRURTX0JPVxC0ASIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwK",
+            "FW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -965,6 +966,10 @@ namespace Bnet {
     /// A throwing skill was used with the last of the thrown weapon in hand: none is left in the bag to throw.
     /// </summary>
     [pbr::OriginalName("SKILL_NOTHING_TO_THROW")] SkillNothingToThrow = 179,
+    /// <summary>
+    /// A bow skill, like Double Strafe, was used without a bow in hand.
+    /// </summary>
+    [pbr::OriginalName("SKILL_NEEDS_BOW")] SkillNeedsBow = 180,
   }
 
   #endregion
