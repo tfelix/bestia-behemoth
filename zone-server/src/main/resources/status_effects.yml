@@ -802,3 +802,19 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: Dissonance
+
+  # A Bard plays Battle Hymn: a field that hands BATTLE_HYMN to everyone on the Bard's side nearby.
+  - id: 233
+    identifier: SONG_BATTLE_HYMN
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: BattleHymnSong
+
+  # Hearing a Bard's Battle Hymn: more ATK and MATK.
+  - id: 234
+    identifier: BATTLE_HYMN
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: BattleHymnHeard
