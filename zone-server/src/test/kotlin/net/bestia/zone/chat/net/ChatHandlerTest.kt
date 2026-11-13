@@ -42,6 +42,7 @@ class ChatHandlerTest {
     partyAudience = partyAudience,
     guildAudience = guildAudience,
     groupChat = groupChat,
+    scryVoice = mockk(relaxed = true),
   )
 
   private fun whisper(target: String, text: String = "helloworld") {

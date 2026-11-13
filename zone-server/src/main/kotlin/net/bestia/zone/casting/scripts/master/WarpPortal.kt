@@ -2,6 +2,7 @@ package net.bestia.zone.casting.scripts.master
 
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.damage.Damage
+import net.bestia.zone.casting.ScrySight
 import net.bestia.zone.casting.SkillContext
 import net.bestia.zone.casting.SkillStrategy
 import net.bestia.zone.casting.portal.WarpMarks
@@ -12,7 +13,8 @@ import org.springframework.stereotype.Component
 
 /**
  * Warp Portal (`skills.yml` id 72). `args[0]` picks what the cast does:
- * - [MARK]: saves the spot the Sage stands on, at once and for free. One spot per level, the oldest makes room.
+ * - [MARK]: saves the spot the Sage stands on, or looks at through Scry, at once and for free. One spot per level,
+ *   the oldest makes room.
  * - [HOME]: opens a portal to the Sage's home.
  * - [FIRST_SPOT] + i: opens a portal to the i-th saved spot, oldest first.
  *
@@ -23,7 +25,8 @@ class WarpPortal : SkillStrategy {
 
   override fun freeAction(world: World, casterId: EntityId, skillLevel: Int, args: List<Long>): Boolean {
     if (args.firstOrNull() != MARK) return false
-    val at = world.get(casterId, Position::class)?.toVec3L() ?: return true
+    // A Sage whose Scry is open marks the spot it looks at, which is how a portal's far end is scouted.
+    val at = world.get(casterId, ScrySight::class)?.centre ?: world.get(casterId, Position::class)?.toVec3L() ?: return true
     val marks = world.get(casterId, WarpMarks::class) ?: world.add(casterId, WarpMarks())
     marks.mark(at, capacity = skillLevel.coerceIn(1, MAX_LEVEL))
 
