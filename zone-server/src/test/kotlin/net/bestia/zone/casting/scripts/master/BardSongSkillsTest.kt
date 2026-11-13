@@ -53,6 +53,9 @@ class BardSongSkillsTest {
   private companion object {
     val SONGS = listOf(
       BattleHymn() to StatusEffectId.SONG_BATTLE_HYMN,
+      WarMarch() to StatusEffectId.SONG_WAR_MARCH,
+      MirageDance() to StatusEffectId.SONG_MIRAGE_DANCE,
+      WanderersTune() to StatusEffectId.SONG_WANDERERS_TUNE,
     )
   }
 }
