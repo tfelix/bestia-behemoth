@@ -502,6 +502,10 @@ enum OpError {
   SKILL_NEEDS_BERSERK = 176;
   // A finisher like Ultima Fist was used with less than half the mana.
   SKILL_NEEDS_HALF_MANA = 177;
+  // A throwing skill, like Javelin, was used without a spear or a thrown weapon in hand.
+  SKILL_NEEDS_SPEAR_OR_THROWN = 178;
+  // A throwing skill was used with the last of the thrown weapon in hand: none is left in the bag to throw.
+  SKILL_NOTHING_TO_THROW = 179;
 }
 
 message OperationError {

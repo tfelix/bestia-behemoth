@@ -166,19 +166,22 @@ class BudgetedSkillWorld(
     land(targetEntityId, damage, kind)
   }
 
-  /** [apply], returning [Blocked] when the shield of whoever takes [damage] caught it, else [damage]. */
-  private fun land(targetEntityId: EntityId, damage: Damage, kind: HitKind?): Damage {
+  /**
+   * [apply], returning [Blocked] when the shield of whoever takes [damage] caught it, else [damage].
+   * [projectileItemId] is what flies to the target, for the client to draw; 0 for a blow.
+   */
+  private fun land(targetEntityId: EntityId, damage: Damage, kind: HitKind?, projectileItemId: Long = 0): Damage {
     budget.charge()
 
     if (damage is Miss || damage is Blocked) {
-      broadcastDamage(targetEntityId, damage)
+      broadcastDamage(targetEntityId, damage, projectileItemId)
       return damage
     }
 
     val hitKind = kind ?: skillHitKind
     val (receiver, dealer) = if (damage is Heal) targetEntityId to casterId else reflected(targetEntityId)
     if (services.shieldGuard?.guard(world, receiver, hitKind, damage) == Blocked) {
-      broadcastDamage(receiver, Blocked)
+      broadcastDamage(receiver, Blocked, projectileItemId)
       return Blocked
     }
     val landing = damage.weighedTo(DamageLanding.weigh(world, dealer, receiver, hitKind, damage.amount))
@@ -206,7 +209,7 @@ class BudgetedSkillWorld(
     // False means the blow never landed: the target died between the snapshot and now, which off-thread
     // resolution makes possible, or it cannot be hurt at all.
     if (landed) {
-      broadcastDamage(receiver, landing)
+      broadcastDamage(receiver, landing, projectileItemId)
     }
     if (landed && landing !is Heal && hitKind.form == HitForm.MAGIC) {
       services.plagiarism?.onStruck(world, receiver, casterId, skillId, skillLevel)
@@ -538,7 +541,13 @@ class BudgetedSkillWorld(
     val damage = strikes.strike(world, casterId, targetEntityId, attack, powerPercent, offHand) ?: return null
     val reach = if (attack.attackType == AttackType.RANGED_PHYSICAL) HitReach.RANGED else HitReach.MELEE
 
-    return land(targetEntityId, damage, HitKind.physical(reach, attack.attackElement))
+    return land(targetEntityId, damage, HitKind.physical(reach, attack.attackElement), attack.ammunition?.itemId ?: 0)
+  }
+
+  override fun throwHeldWeapon(): Ammunition? {
+    budget.charge()
+
+    return services.strikes?.throwHeldWeapon(world, casterId)
   }
 
   override fun drawAmmo(): Ammunition? {
@@ -819,7 +828,7 @@ class BudgetedSkillWorld(
     services.messages.sendToPlayer(accountId, OperationErrorSMSG(error))
   }
 
-  private fun broadcastDamage(targetEntityId: EntityId, damage: Damage) {
+  private fun broadcastDamage(targetEntityId: EntityId, damage: Damage, projectileItemId: Long = 0) {
     services.messages.sendToObserversOf(
       world,
       targetEntityId,
@@ -830,7 +839,8 @@ class BudgetedSkillWorld(
         div = damage.hits,
         damage = damage.amount,
         skillLevel = skillLevel,
-        type = DamageEntitySMSG.DamageType.of(damage)
+        type = DamageEntitySMSG.DamageType.of(damage),
+        projectileItemId = projectileItemId
       )
     )
   }

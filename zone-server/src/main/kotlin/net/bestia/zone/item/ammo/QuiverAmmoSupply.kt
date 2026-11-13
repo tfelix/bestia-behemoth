@@ -6,6 +6,7 @@ import net.bestia.zone.battle.RangedWeapon
 import net.bestia.zone.battle.ammo.AmmoEffectRegistry
 import net.bestia.zone.battle.ammo.AmmoSupply
 import net.bestia.zone.battle.ammo.Ammunition
+import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.identity.ecs.OwnedBestia
@@ -15,6 +16,7 @@ import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemOwner
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
+import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.util.EntityId
@@ -47,16 +49,43 @@ class QuiverAmmoSupply(
   }
 
   override fun draw(world: World, entityId: EntityId, ammunition: Ammunition): Boolean {
+    return spendOne(world, entityId, ammunition.itemId)
+  }
+
+  override fun hasThrownSpare(world: World, entityId: EntityId): Boolean {
+    val itemId = thrownInHand(world, entityId) ?: return false
     val inventory = world.get(entityId, Inventory::class) ?: return false
-    if (!inventory.removeFromStack(ammunition.itemId, 1)) {
+
+    return heldAmount(inventory, itemId) > 0
+  }
+
+  /** No attack of its own: the weapon's ATK already counts, as the weapon in hand. */
+  override fun drawThrown(world: World, entityId: EntityId): Ammunition? {
+    val itemId = thrownInHand(world, entityId) ?: return null
+    if (!spendOne(world, entityId, itemId)) {
+      return null
+    }
+
+    return Ammunition(itemId = itemId, attack = 0, element = Element.NORMAL)
+  }
+
+  private fun thrownInHand(world: World, entityId: EntityId): Long? {
+    val held = world.get(entityId, Equipment::class)?.get(EquipmentSlot.RIGHT_HAND) ?: return null
+
+    return held.itemId.takeIf { templates.templateOf(it)?.weaponType == WeaponType.THROWN }
+  }
+
+  private fun spendOne(world: World, entityId: EntityId, itemId: Long): Boolean {
+    val inventory = world.get(entityId, Inventory::class) ?: return false
+    if (!inventory.removeFromStack(itemId, 1)) {
       return false
     }
 
     val owner = ItemOwner.of(world, entityId) ?: return true
     asyncJobExecutor.submit(key = owner.masterId) {
-      val spent = inventoryService.consumeAll(owner.masterId, listOf(ammunition.itemId to 1), owner.playerBestiaId)
+      val spent = inventoryService.consumeAll(owner.masterId, listOf(itemId to 1), owner.playerBestiaId)
       if (!spent) {
-        LOG.warn { "Master ${owner.masterId} shot ammo ${ammunition.itemId} the database no longer holds" }
+        LOG.warn { "Master ${owner.masterId} shot ammo $itemId the database no longer holds" }
       }
     }
 

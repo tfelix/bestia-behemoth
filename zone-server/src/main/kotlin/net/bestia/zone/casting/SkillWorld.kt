@@ -389,4 +389,7 @@ interface SkillWorld {
 
   /** Marks [targetEntityId] as the caster's prey at [level], and ends the mark the caster put on another. */
   fun markPrey(targetEntityId: EntityId, level: Int)
+
+  /** What the caster throws from its hand, see `SkillStrikes.throwHeldWeapon`. Null when there is nothing to throw. */
+  fun throwHeldWeapon(): Ammunition?
 }

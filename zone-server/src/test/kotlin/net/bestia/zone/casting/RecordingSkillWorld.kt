@@ -235,6 +235,13 @@ class RecordingSkillWorld(
     markedPrey.add(targetEntityId to level)
   }
 
+  /** What [throwHeldWeapon] hands out, once each. */
+  val throwable = ArrayDeque<Ammunition>()
+
+  override fun throwHeldWeapon(): Ammunition? {
+    return throwable.removeFirstOrNull()
+  }
+
   data class Inflicted(
     val targetEntityId: EntityId,
     val status: String,
@@ -343,7 +350,11 @@ class RecordingSkillWorld(
   /** The indices into [strikes] of the blows struck with the second weapon. */
   val offHandStrikes = mutableListOf<Int>()
 
+  /** The attack each of [strikes] was struck with. */
+  val strikeAttacks = mutableListOf<BattleAttack>()
+
   override fun strike(targetEntityId: EntityId, attack: BattleAttack, powerPercent: Int, offHand: Boolean): Damage? {
+    strikeAttacks += attack
     if (offHand) offHandStrikes += strikes.size
     strikes += targetEntityId to powerPercent
     return strikeResult
