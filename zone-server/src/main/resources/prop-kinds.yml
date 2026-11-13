@@ -375,6 +375,11 @@ kinds:
     collider: { half-x: 1, half-y: 1, height: 3 }
     variants: 1
 
+  - kind: SCRY_EYE
+    max-hp: 1
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+
   # What lies on the ground - see worldgen's `LootScatter`. A boulder is broken, not picked: it drops dressed
   # stone and, now and then, the flint and the odd rough gem that were inside it. A loose stone and a stick are
   # picked up as they lie, and both come back, because they are the first crafting material a new player has

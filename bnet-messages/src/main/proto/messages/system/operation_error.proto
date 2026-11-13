@@ -443,6 +443,10 @@ enum OpError {
   MINE_ORE_TOO_HARD = 360;
   // Only a master with Gem Lore can appraise a Rough Gemstone. The stone stays in the bag.
   GEM_LORE_NEEDED = 361;
+  // Scry, at a map spot nobody charted. The mana is spent: the spell went out and found nothing to hold on to.
+  SCRY_UNCHARTED = 382;
+  // Scry, at a party member who is no longer there to be seen: left the party or the world.
+  SCRY_NO_SIGHT = 383;
   // A Breeding Farm cannot start a clutch the client should not have offered: wrong pair, busy farm, not the owner.
   BREEDING_NOT_POSSIBLE = 218;
   // Every clutch needs a Nesting Bundle. The player makes or buys one.

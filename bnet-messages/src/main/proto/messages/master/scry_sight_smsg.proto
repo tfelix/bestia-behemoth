@@ -1,0 +1,17 @@
+syntax = "proto3";
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ScrySightSmsgProto";
+
+// A Sage's Scry opened or ended. While open, the server streams the terrain and the creatures around the far spot as
+// well as around the body, and the client moves its camera there. Sent to the caster only.
+message ScrySightSMSG {
+  bool open = 1;
+  // The centre of the sight, in world units like a Position. Unset when the sight ended.
+  int64 x = 2;
+  int64 y = 3;
+  int64 z = 4;
+  float radius_metres = 5;
+  float seconds = 6;
+}

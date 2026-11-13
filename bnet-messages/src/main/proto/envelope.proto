@@ -50,6 +50,7 @@ import "messages/master/cancel_status_effect_cmsg.proto";
 import "messages/notebook/survey_minigame_smsg.proto";
 import "messages/notebook/survey_stops_cmsg.proto";
 import "messages/master/sense_marks_smsg.proto";
+import "messages/master/scry_sight_smsg.proto";
 import "messages/trade/street_stall_smsg.proto";
 import "messages/trade/stall_list_cmsg.proto";
 import "messages/trade/stall_unlist_cmsg.proto";
@@ -431,6 +432,7 @@ message Envelope {
     InscriptionOptionsSMSG inscription_options = 923;
     SpellBindingsCMSG spell_bindings_request = 924;
     SpellBindingsSMSG spell_bindings = 925;
+    ScrySightSMSG scry_sight = 926;
 
     // PLAYER SETTLEMENTS 950
     PlanSettlementCMSG plan_settlement = 950;
