@@ -907,15 +907,16 @@ regeneration for 5min.
 SKILL_149_DESC,"Dashes up to 6m to a target in sight and lands one basic blow on arrival. Ground the
 Brawler cannot step onto stops the dash short, and then nothing is struck. Cooldown 10s."
 SKILL_150_DESC,"Teaches the Hunter to read the land well enough to disappear into it. Wild Bestia
-notice the master later. It does not hide the master.
+notice the master later. It does not hide the master, and tamed Bestia notice the
+master as usual.
 
 `-10%/lv` notice range of wild Bestia"
 SKILL_151_DESC,"A Hunter's sure footing, at home where the road ends. Faster on any ground that is not
-a made road or paving.
+a made road, paving, a bridge or a built floor. The master's Bestias do not gain it.
 
 `+3%/lv` walk speed off roads"
-SKILL_152_DESC,"Marks one target for 30s. It shows on the master's map, and its Hide and Cloak do not
-work against the master. A new mark ends the old one. Cooldown 10s.
+SKILL_152_DESC,"Marks one enemy for 30s. It shows on the master's map wherever it goes, and its Hide
+and Cloak do not work against the master. A new mark ends the old one. Cooldown 10s.
 
 `+3%/lv` critical rate against the target"
 SKILL_153_DESC,"Eyes trained on far and small things, until the aim follows them by itself.
@@ -988,11 +989,13 @@ Knight, turned towards the enemy it aims at. Each hit can miss and crit on its o
 Cooldown 4s.
 
 `+40%/lv` ATK, from 120% at Lv.1"
-SKILL_173_DESC,"Needs a spear or a thrown weapon. Hurls it at a target up to 7 tiles away. A spear comes back
-to hand; a thrown weapon is used up like ammunition. Cooldown 3s.
+SKILL_173_DESC,"Needs a spear or a thrown weapon. Hurls it at an enemy up to 7 tiles away as a ranged
+attack, so Pneuma stops it. A spear comes back to hand. A thrown weapon takes one more
+from the bag, and the last one stays in hand. Cooldown 3s.
 
 `150% + 30%/lv` ATK"
-SKILL_174_DESC,"The Hunter's Bestias learn whom to go for. They hit the target of Hunter's Mark harder.
+SKILL_174_DESC,"The Hunter's Bestias learn whom to go for. They hit the target of the master's Hunter's
+Mark harder, wherever the master stands. The master gains nothing.
 
 `+10%/lv` damage of the master's Bestias against the marked target"
 SKILL_175_DESC,"Throws a potion from the bag onto an ally up to 7 tiles away, so it works as if the ally had

@@ -792,6 +792,7 @@ STATUS_EFFECT_226,"Shield Wall: less physical damage taken, and you move slower.
 STATUS_EFFECT_227,Devotion: a Knight takes the blows and spells meant for you while you stay near.
 STATUS_EFFECT_228,"Juggernaut: more ATK and DEF, and at Lv. 2 or more no stun or knockback."
 STATUS_EFFECT_229,"Unbreakable spent: the next lethal hit will kill you, until this runs out."
+STATUS_EFFECT_230,"Hunter's Mark: a Hunter hunts you. They see you through Hide and Cloak, crit you more often, and their Bestias hit you harder."
 ERROR_PORTAL_NO_SPOT,That saved spot is not there any more.
 ERROR_PORTAL_SPENT,The portal is closing or has let everyone through it can.
 PORTAL_MARK_SPOT,Mark this spot (%d of %d saved)
@@ -820,6 +821,8 @@ ERROR_SKILL_NEEDS_STAFF,You need a staff in hand for this.
 ERROR_SKILL_NEEDS_TRIPLE_BLOW,Chain Combo can only follow right after a Triple Blow.
 ERROR_SKILL_NEEDS_BERSERK,You must be Berserk for this.
 ERROR_SKILL_NEEDS_HALF_MANA,You need at least half your mana for this.
+ERROR_SKILL_NEEDS_SPEAR_OR_THROWN,You need a spear or a thrown weapon in hand for this.
+ERROR_SKILL_NOTHING_TO_THROW,You have none left in your bag to throw. The last one stays in your hand.
 SUCCESS_SPELL_LEARNED,Your bestia learned the attack.
 SUCCESS_SPELL_INSCRIBED,The attack is written on a new spell scroll.
 SPELL_SCROLL_PICK,%s Lv. %d
