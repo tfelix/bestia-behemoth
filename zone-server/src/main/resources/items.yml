@@ -1059,10 +1059,12 @@ items:
     item-db-name: rough_gem
     base-level: 20
     weight: 20
-    type: ETC
+    type: USABLE
     material: CRYSTAL
+    script: RoughGemScript
     description: |
-      An uncut stone still held in the rock it came out of. Which gem it is, only the cut tells.
+      An uncut stone still held in the rock it came out of. Which gem it is, only the cut tells - or a
+      miner with Gem Lore, who can appraise it from the bag.
 
       Worth guessing about until a jeweller says otherwise.
 

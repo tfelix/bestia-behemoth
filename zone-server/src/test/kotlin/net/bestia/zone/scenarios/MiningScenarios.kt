@@ -20,13 +20,16 @@ import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.mining.OreInBrush
 import net.bestia.zone.item.mining.PickaxeMining
+import net.bestia.zone.item.mining.RoughGemScript
 import net.bestia.zone.item.mining.ecs.MiningSwing
 import net.bestia.zone.item.net.EquipItemCMSG
+import net.bestia.zone.item.net.UseItemCMSG
 import net.bestia.zone.master.MasterFactory
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.mocks.GameClientMockFactory
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.script.ScriptArgs
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.skill.persistence.SkillRepository
@@ -197,6 +200,27 @@ class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
     await { assertTrue(groundStacksOf(itemId) > 0, "the ore lies on the ground") }
   }
 
+  @Test
+  @Order(6)
+  fun `Gem Lore appraises a Rough Gemstone into the gem it really is`() {
+    val roughGem = assertNotNull(items.idOf(ROUGH_GEM))
+    val gems = RoughGemScript.SHARES.map { (identifier, _) -> assertNotNull(items.idOf(identifier)) }
+    world.modify(miner()) { id -> add(id, ObtainItemIntent.CreateItemIntent(roughGem, 2)) }
+    await { assertEquals(2, amountOf(roughGem)) }
+    client.clearMessages()
+
+    client.sendMessage(UseItemCMSG(accountId, playerItemOf(roughGem), ScriptArgs.EMPTY))
+    val refusal = awaitValue { assertNotNull(client.tryGetLastReceived(OperationErrorSMSG::class)) }
+    assertEquals(OpError.GEM_LORE_NEEDED, refusal.code)
+
+    learn("M_GEM_LORE", 1)
+    val before = gems.sumOf { amountOf(it) }
+    client.sendMessage(UseItemCMSG(accountId, playerItemOf(roughGem), ScriptArgs.EMPTY))
+
+    await { assertEquals(1, amountOf(roughGem), "one stone was appraised") }
+    await { assertEquals(before + 1, gems.sumOf { amountOf(it) }, "it became one of the five gems") }
+  }
+
   /** Ore no untrained miner may break, so that both scenarios aim at the same kind of rock. */
   private fun hardOre(): Vec3L {
     return oreSpots.find(positionOf(miner())) { stack -> (items.baseLevelOf(stack.itemId) ?: 0) > UNTRAINED_CAP }
@@ -228,6 +252,10 @@ class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
     return world.read { getOrThrow(miner(), Inventory::class).getItems().filter { it.itemId == itemId }.sumOf { it.amount } }
   }
 
+  private fun playerItemOf(itemId: Long): Long {
+    return world.read { getOrThrow(miner(), Inventory::class).getItems().first { it.itemId == itemId }.playerItemId }
+  }
+
   private fun pickaxe(): Long {
     val pickaxeId = assertNotNull(items.idOf(PICKAXE))
     return world.read { getOrThrow(miner(), Inventory::class).getItems().first { it.itemId == pickaxeId }.playerItemId }
@@ -252,6 +280,7 @@ class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
     const val HURRIED_SECONDS = 0.2f
     const val RICH_VEINS_SWINGS = 6
     const val BLASTING_CHARGE = "blasting_charge"
+    const val ROUGH_GEM = "rough_gem"
     const val MANA = 500
 
     /** The tile a click on the top of a block names: the air above it. */

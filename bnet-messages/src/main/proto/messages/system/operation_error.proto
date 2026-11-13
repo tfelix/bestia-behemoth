@@ -441,6 +441,8 @@ enum OpError {
   TREASURE_MAP_NOTHING_SENSED = 337;
   // The ball of rock a pickaxe swing or a blast would break holds ore above the miner's Mining level. The ore stays.
   MINE_ORE_TOO_HARD = 360;
+  // Only a master with Gem Lore can appraise a Rough Gemstone. The stone stays in the bag.
+  GEM_LORE_NEEDED = 361;
   // A Breeding Farm cannot start a clutch the client should not have offered: wrong pair, busy farm, not the owner.
   BREEDING_NOT_POSSIBLE = 218;
   // Every clutch needs a Nesting Bundle. The player makes or buys one.

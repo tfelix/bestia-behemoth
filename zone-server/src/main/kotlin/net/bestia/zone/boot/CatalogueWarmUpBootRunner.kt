@@ -16,6 +16,7 @@ import net.bestia.zone.weather.WeatherPublisher
 import net.bestia.zone.spawn.ecs.MobLootSpawner
 import net.bestia.zone.item.mining.MiningSkill
 import net.bestia.zone.item.mining.RichVeins
+import net.bestia.zone.item.mining.RoughGemScript
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
@@ -39,6 +40,7 @@ class CatalogueWarmUpBootRunner(
   private val breederSkills: BreederSkills,
   private val mining: MiningSkill,
   private val richVeins: RichVeins,
+  private val roughGems: RoughGemScript,
   private val poisonedBlade: PoisonedBlade,
   private val tripleBlow: TripleBlow,
   private val plagiarism: Plagiarism,
@@ -58,6 +60,7 @@ class CatalogueWarmUpBootRunner(
     breederSkills.warmUp()
     mining.warmUp()
     richVeins.warmUp()
+    roughGems.warmUp()
     poisonedBlade.warmUp()
     tripleBlow.warmUp()
     plagiarism.warmUp()

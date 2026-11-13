@@ -9,4 +9,4 @@ name_key = "ROUGH_GEM"
 description_key = "ROUGH_GEM_DESC"
 weight = 20
 level = 20
-type = 2
+type = 0
