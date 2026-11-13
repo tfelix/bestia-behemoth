@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "b4eb3f6e70bef8caa69e2da25be3f36a5be72e7e",
+  "include-v-in-tag": true,
+  "include-component-in-tag": false,
+  "pull-request-title-pattern": "chore: release ${version}",
+  "bump-minor-pre-major": true,
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "package-name": "bestia-behemoth",
+      "extra-files": [
+        "bestia-client/src/Settings/settings_manager.gd",
+        { "type": "json", "path": "companion-app/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "companion-app/package-lock.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "companion-app/package-lock.json", "jsonpath": "$.packages[''].version" }
+      ]
+    }
+  }
+}
