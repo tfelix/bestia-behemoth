@@ -14,11 +14,6 @@ class MiningSkill(
   /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
   private val miningId: Long? get() = skillIds[SkillId.M_MINING]
 
-  /** Resolves the skill id at boot, so the tick never reaches the database for it. */
-  fun warmUp() {
-    miningId
-  }
-
   fun levelOf(known: KnownSkills?): Int {
     val id = miningId ?: return 0
 

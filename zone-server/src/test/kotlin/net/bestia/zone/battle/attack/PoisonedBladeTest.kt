@@ -1,6 +1,5 @@
 package net.bestia.zone.battle.attack
 
-import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.battle.FixedRandom
 import net.bestia.zone.battle.StatusEffectService
@@ -18,9 +17,9 @@ import net.bestia.zone.battle.status.scripts.Poison
 import net.bestia.zone.battle.status.scripts.PoisonedWeapon
 import net.bestia.zone.boot.StatusEffectImporterBootRunner
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.Skill
-import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.skillIdsOf
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -32,9 +31,7 @@ class PoisonedBladeTest {
   private val definitions = StatusEffectDefinitionRegistry().also { StatusEffectImporterBootRunner(it).run() }
   private val scripts = StatusEffectScriptRegistry(listOf(Poison(), PoisonedWeapon()))
   private val world = testWorld()
-  private val skills = mockk<SkillRepository> {
-    every { findByIdentifier("M_POISON_RESEARCH") } returns mockk<Skill> { every { id } returns POISON_RESEARCH_ID }
-  }
+  private val skillIds = skillIdsOf(SkillId.M_POISON_RESEARCH to POISON_RESEARCH_ID)
 
   @Test
   fun `a poisoned blade poisons what it lands on, harder in the hands of a researcher`() {
@@ -43,7 +40,7 @@ class PoisonedBladeTest {
     val service = StatusEffectService(definitions, scripts, FixedRandom(0f))
     service.applyEffect(world, assassin, StatusEffectId.ENCHANT_POISON, level = 1, amount = 10)
 
-    PoisonedBlade(service, skills).onSwingLanded(world, assassin, target, HitDamage(5))
+    PoisonedBlade(service, skillIds).onSwingLanded(world, assassin, target, HitDamage(5))
 
     val poison = world.getOrThrow(target, StatusEffects::class).activeEffects.single { it.definitionId == StatusEffectId.POISON.id }
     assertEquals(20, poison.amount, "Poison Research 5 doubles the drain")
@@ -57,7 +54,7 @@ class PoisonedBladeTest {
     val service = StatusEffectService(definitions, scripts, FixedRandom(0.06f))
     service.applyEffect(world, assassin, StatusEffectId.ENCHANT_POISON, level = 1, amount = 10)
 
-    PoisonedBlade(service, skills).onSwingLanded(world, assassin, target, HitDamage(5))
+    PoisonedBlade(service, skillIds).onSwingLanded(world, assassin, target, HitDamage(5))
 
     assertFalse(world.get(target, StatusEffects::class)?.hasEffect(StatusEffectId.POISON.id) == true)
     assertEquals(listOf(5, 10, 15, 20, 25), (1..5).map { PoisonedWeapon.chancePercent(it) })
@@ -78,7 +75,7 @@ class PoisonedBladeTest {
     val target = fighter()
     val service = StatusEffectService(definitions, scripts, FixedRandom(0f))
 
-    PoisonedBlade(service, skills).onSwingLanded(world, fighter(), target, HitDamage(5))
+    PoisonedBlade(service, skillIds).onSwingLanded(world, fighter(), target, HitDamage(5))
 
     assertTrue(world.get(target, StatusEffects::class)?.activeEffects.isNullOrEmpty())
   }

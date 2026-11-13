@@ -13,8 +13,7 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.script.ScriptArgs
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.Skill
-import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.skillIdsOf
 import java.util.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -24,9 +23,7 @@ import kotlin.test.assertTrue
 
 class RoughGemScriptTest {
 
-  private val skills = mockk<SkillRepository> {
-    every { findByIdentifier(SkillId.M_GEM_LORE.name) } returns mockk<Skill> { every { id } returns GEM_LORE_ID }
-  }
+  private val skillIds = skillIdsOf(SkillId.M_GEM_LORE to GEM_LORE_ID)
 
   private val items = mockk<ItemTemplateRegistry> {
     RoughGemScript.SHARES.forEachIndexed { i, (identifier, _) -> every { idOf(identifier) } returns GEM_IDS[i] }
@@ -36,7 +33,7 @@ class RoughGemScriptTest {
   private var roll = 0
   private val random = mockk<Random> { every { nextInt(any()) } answers { roll } }
 
-  private val sut = RoughGemScript(skills, items, messages, random)
+  private val sut = RoughGemScript(skillIds, items, messages, random)
   private val world = testWorld()
 
   @Test

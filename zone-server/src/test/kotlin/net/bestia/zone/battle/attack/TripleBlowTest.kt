@@ -1,13 +1,12 @@
 package net.bestia.zone.battle.attack
 
-import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.battle.FixedRandom
 import net.bestia.zone.breeding.MovableClock
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.Skill
-import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.skillIdsOf
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -21,9 +20,7 @@ class TripleBlowTest {
 
   private val world = testWorld()
   private val clock = MovableClock(Instant.parse("2026-11-12T12:00:00Z"))
-  private val skills = mockk<SkillRepository> {
-    every { findByIdentifier("M_TRIPLE_BLOW") } returns mockk<Skill> { every { id } returns TRIPLE_BLOW_ID }
-  }
+  private val skillIds = skillIdsOf(SkillId.M_TRIPLE_BLOW to TRIPLE_BLOW_ID)
 
   @Test
   fun `the chance is 3 percent a level`() {
@@ -32,7 +29,7 @@ class TripleBlowTest {
 
   @Test
   fun `only a master who knows Triple Blow rolls it`() {
-    val tripleBlow = TripleBlow(skills, FixedRandom(0f), clock)
+    val tripleBlow = TripleBlow(skillIds, FixedRandom(0f), clock)
 
     assertTrue(tripleBlow.rolls(world, brawler(level = 1)))
     assertFalse(tripleBlow.rolls(world, world.createEntity { }))
@@ -45,7 +42,7 @@ class TripleBlowTest {
         return bound - 1
       }
     }
-    val tripleBlow = TripleBlow(skills, highestRoll, clock)
+    val tripleBlow = TripleBlow(skillIds, highestRoll, clock)
     val brawler = brawler(level = 10)
 
     assertFalse(tripleBlow.rolls(world, brawler))
@@ -54,7 +51,7 @@ class TripleBlowTest {
 
   @Test
   fun `a Chain Combo may follow a Triple Blow for one and a half seconds`() {
-    val tripleBlow = TripleBlow(skills, FixedRandom(0f), clock)
+    val tripleBlow = TripleBlow(skillIds, FixedRandom(0f), clock)
     val brawler = brawler(level = 10)
 
     tripleBlow.rolls(world, brawler)
@@ -68,7 +65,7 @@ class TripleBlowTest {
 
   @Test
   fun `one Triple Blow allows one Chain Combo`() {
-    val tripleBlow = TripleBlow(skills, FixedRandom(0f), clock)
+    val tripleBlow = TripleBlow(skillIds, FixedRandom(0f), clock)
     val brawler = brawler(level = 10)
 
     tripleBlow.rolls(world, brawler)

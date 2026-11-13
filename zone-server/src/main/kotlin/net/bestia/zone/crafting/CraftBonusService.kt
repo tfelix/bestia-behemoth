@@ -47,14 +47,6 @@ class CraftBonusService(
   private val forgeArmorId: Long? get() = skillIds[SkillId.M_FORGE_ARMOR]
   private val upgradeEquipmentId: Long? get() = skillIds[SkillId.M_UPGRADE_EQUIPMENT]
 
-  /** Resolves the skill ids now, at boot, so the first craft on the tick does not reach the database. */
-  fun warmUp() {
-    listOf(
-      carpentryId, masterCraftsmanId, itemCustomizationId, oreRefinementId, weaponryResearchId, masterSmithId,
-      cookingId, equipmentRepairId, forgeWeaponId, forgeArmorId, upgradeEquipmentId,
-    )
-  }
-
   /**
    * The chance [recipe] succeeds for this crafter, clamped to 0..1.
    *

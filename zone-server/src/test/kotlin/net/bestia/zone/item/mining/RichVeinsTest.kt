@@ -7,22 +7,19 @@ import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.Skill
-import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.skillIdsOf
 import java.util.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class RichVeinsTest {
 
-  private val skills = mockk<SkillRepository> {
-    every { findByIdentifier(SkillId.M_RICH_VEINS.name) } returns mockk<Skill> { every { id } returns RICH_VEINS_ID }
-  }
+  private val skillIds = skillIdsOf(SkillId.M_RICH_VEINS to RICH_VEINS_ID)
 
   /** Always rolls just under 50%, so Lv.5 always pays and Lv.4 never does. */
   private val rolls = mockk<Random> { every { nextDouble() } returns 0.45 }
 
-  private val sut = RichVeins(skills, rolls)
+  private val sut = RichVeins(skillIds, rolls)
   private val world = testWorld()
 
   private val iron = OreYield.Stack(IRON_ORE, 1)

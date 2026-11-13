@@ -20,9 +20,9 @@ import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.Skill
-import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.skillIdsOf
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -37,11 +37,11 @@ class SongScriptTest {
   private val world = testWorld()
   private val aoi = mockk<EntityAOIService>()
   private val statusEffects = mockk<StatusEffectService>(relaxed = true)
-  private val skills = mockk<SkillRepository> {
-    every { findByIdentifier("M_VOICE_TRAINING") } returns mockk<Skill> { every { id } returns VOICE_TRAINING_ID }
-    every { findByIdentifier("M_GRAND_PERFORMANCE") } returns mockk<Skill> { every { id } returns GRAND_PERFORMANCE_ID }
-  }
-  private val song = TestSong(aoi, Songcraft(skills))
+  private val skillIds = skillIdsOf(
+    SkillId.M_VOICE_TRAINING to VOICE_TRAINING_ID,
+    SkillId.M_GRAND_PERFORMANCE to GRAND_PERFORMANCE_ID,
+  )
+  private val song = TestSong(aoi, Songcraft(skillIds))
   private val field = ActiveStatusEffect(definitionId = 999L, level = 4, remainingSeconds = 60f)
 
   @Test

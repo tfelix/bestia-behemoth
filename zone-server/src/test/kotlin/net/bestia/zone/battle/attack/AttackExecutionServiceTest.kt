@@ -32,8 +32,8 @@ import net.bestia.zone.battle.damage.ShieldGuard
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.Skill
-import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.SkillId
+import net.bestia.zone.skill.skillIdsOf
 class AttackExecutionServiceTest {
 
   private val world = testWorld()
@@ -315,9 +315,7 @@ class AttackExecutionServiceTest {
 
   /** Every roll comes up, so Triple Blow always strikes for whoever knows it. */
   private fun brawlerService(messages: OutMessageProcessor = mockk(relaxed = true)): AttackExecutionService {
-    val skills = mockk<SkillRepository> {
-      every { findByIdentifier("M_TRIPLE_BLOW") } returns mockk<Skill> { every { id } returns TRIPLE_BLOW_ID }
-    }
+    val skillIds = skillIdsOf(SkillId.M_TRIPLE_BLOW to TRIPLE_BLOW_ID)
 
     return AttackExecutionService(
       BattleContextFactory(PropPromotionService(mockk(relaxed = true))),
@@ -325,7 +323,7 @@ class AttackExecutionServiceTest {
       messages,
       BasicAttackResolver(mockk(relaxed = true)),
       mockk(relaxed = true),
-      tripleBlow = TripleBlow(skills, alwaysLands),
+      tripleBlow = TripleBlow(skillIds, alwaysLands),
     )
   }
 

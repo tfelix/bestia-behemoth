@@ -10,8 +10,7 @@ import net.bestia.zone.battle.status.scripts.PoisonedWeapon
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
@@ -19,14 +18,10 @@ import org.springframework.stereotype.Component
 @Component
 class PoisonedBlade(
   private val statusEffects: StatusEffectService,
-  private val skills: SkillRepository,
+  private val skillIds: SkillIds,
 ) : SwingProc {
 
-  private val poisonResearchId: Long? by lazy { skills.findByIdentifier(SkillId.M_POISON_RESEARCH)?.id }
-
-  fun warmUp() {
-    poisonResearchId
-  }
+  private val poisonResearchId: Long? get() = skillIds[SkillId.M_POISON_RESEARCH]
 
   override fun onSwingLanded(world: World, attackerId: EntityId, targetId: EntityId, swing: Damage) {
     val coating = world.get(attackerId, StatusEffects::class)?.activeEffects
