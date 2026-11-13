@@ -5,6 +5,7 @@ import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.core.ChunkSeamCheck
 import net.bestia.worldgen.core.WorldConfig
+import net.bestia.worldgen.history.SiteChannels
 import net.bestia.worldgen.render.Colors
 import net.bestia.worldgen.render.Hillshade
 import net.bestia.worldgen.render.Viewport
@@ -505,6 +506,7 @@ class MapRenderer(
   }
 
   private fun radiusOf(marker: PointMarker): Double {
+    if (marker.kind == FeatureKind.BATTLEFIELD) return battlefieldRadiusOf(marker)
     if (marker.kind != FeatureKind.SETTLEMENT) return MINOR_MARKER_RADIUS
 
     val population = populationOf(marker)
@@ -516,6 +518,13 @@ class MapRenderer(
 
     val share = (population / CITY_POPULATION).coerceIn(0.0, 1.0)
     return SETTLEMENT_MIN_RADIUS + (SETTLEMENT_MAX_RADIUS - SETTLEMENT_MIN_RADIUS) * sqrt(share)
+  }
+
+  /** By its dead, so a frontier fought over for centuries stands out from a single skirmish. */
+  private fun battlefieldRadiusOf(marker: PointMarker): Double {
+    val fallen = marker.optionalAttribute(SiteChannels.FALLEN) ?: return MINOR_MARKER_RADIUS
+    val share = (fallen / BATTLEFIELD_FALLEN_AT_MAX).coerceIn(0.0, 1.0)
+    return MINOR_MARKER_RADIUS + (BATTLEFIELD_MAX_RADIUS - MINOR_MARKER_RADIUS) * sqrt(share)
   }
 
   /** A feature with no outline still gets its influence bounds, so it is not invisible. */
@@ -592,6 +601,11 @@ class MapRenderer(
 
     /** The population a dot is drawn at full size for - [SettlementTier.CITY]'s ceiling. */
     private const val CITY_POPULATION = 40_000.0
+
+    private const val BATTLEFIELD_MAX_RADIUS = 7.0
+
+    /** The dead a battlefield is drawn at full size for. */
+    private const val BATTLEFIELD_FALLEN_AT_MAX = 5_000.0
 
     /** Widest id span still treated as a set of categories worth naming. */
     private const val MAX_CATEGORIES = 4096

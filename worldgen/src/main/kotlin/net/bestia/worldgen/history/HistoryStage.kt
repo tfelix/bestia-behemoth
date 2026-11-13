@@ -357,6 +357,8 @@ class HistoryStage(
         // is in a cave, has a third coordinate of its own - and whatever spawns the treasure needs all three.
         .channel(SiteChannels.ELEVATION) { record.elevation }
         .channel(SiteChannels.Faction) { (record.faction?.ordinal ?: -1).toDouble() }
+        .channel(SiteChannels.BATTLES) { record.battles.toDouble() }
+        .channel(SiteChannels.FALLEN) { record.fallen.toDouble() }
         .build()
     )
   }
@@ -462,6 +464,12 @@ object SiteChannels {
 
   /** Index into [Chronicle.figures], or -1. Who is buried here. */
   const val FIGURE = "figure"
+
+  /** Battles fought on a battlefield, 0 on every other kind. On every marker for [ELEVATION]'s reason. */
+  const val BATTLES = "battles"
+
+  /** The dead of all of a battlefield's battles, 0 on every other kind. */
+  const val FALLEN = "fallen"
 
   /**
    * [net.bestia.worldgen.resource.ResourceType] ordinal for a [SiteKind.MINE], -1 for every other kind.
