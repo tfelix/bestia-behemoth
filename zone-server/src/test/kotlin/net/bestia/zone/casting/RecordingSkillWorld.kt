@@ -480,6 +480,22 @@ class RecordingSkillWorld(
     toldCaster += error
   }
 
+  /** What [potionThrowRefusal] answers; [throwPotion] throws nothing while it is set. */
+  var potionRefusal: OpError? = null
+
+  val thrownPotions = mutableListOf<ThrownPotion>()
+
+  override fun potionThrowRefusal(targetEntityId: EntityId, itemId: Long): OpError? = potionRefusal
+
+  override fun throwPotion(targetEntityId: EntityId, itemId: Long, strengthPercent: Int): Boolean {
+    if (potionRefusal != null) return false
+    thrownPotions += ThrownPotion(targetEntityId, itemId, strengthPercent)
+
+    return true
+  }
+
+  data class ThrownPotion(val targetEntityId: EntityId, val itemId: Long, val strengthPercent: Int)
+
   /** The level of each [senseMagic]. */
   val magicSenses = mutableListOf<Int>()
 
