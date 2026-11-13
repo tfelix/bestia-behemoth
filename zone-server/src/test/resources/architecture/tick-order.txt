@@ -69,6 +69,7 @@
  - DEATH wave 40: PropDeathDivergenceSystem [EveryTick]
  - DEATH wave 41: PlayerDeathSystem [EveryTick]
  - DEATH wave 42: NpcKillReporter [EveryTick]
+ - DEATH wave 42: WorldBossSlainSystem [EveryTick]
  - DEATH wave 43: DeathSystem [EveryTick]
  - DEATH wave 44: BestiaBagDropSystem [EveryTick]
  - DEATH wave 45: PlayerKillHonorSystem [EveryTick]
