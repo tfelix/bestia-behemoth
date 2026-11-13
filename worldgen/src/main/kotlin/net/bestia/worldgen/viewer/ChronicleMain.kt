@@ -109,16 +109,31 @@ object ChronicleMain {
     println(SWEEP_COLUMNS.joinToString("") { it.padStart(SWEEP_COLUMN_WIDTH) })
 
     val totals = IntArray(SWEEP_COLUMNS.size - 1)
+    val eventTotals = HashMap<EventKind, Int>()
+    val worldsWith = HashMap<EventKind, Int>()
     for (offset in 0 until seeds) {
       val seed = base.seed + offset
       val chronicle = StandardWorld.build(base.copy(seed = seed), params = params).world.chronicle
       val census = censusOf(chronicle)
       census.forEachIndexed { column, value -> totals[column] += value }
       println(sweepRow(seed.toString(), census.map { it.toString() }))
+
+      for ((kind, count) in chronicle.eventCensus()) {
+        eventTotals.merge(kind, count, Int::plus)
+        worldsWith.merge(kind, 1, Int::plus)
+      }
     }
 
     val means = totals.map { "%.1f".format(Locale.ROOT, it.toDouble() / seeds) }
     println(sweepRow("mean", means))
+
+    // Every kind, so a kind that never happens shows as 0 of N worlds rather than by its absence.
+    println()
+    println("events over $seeds worlds: mean per world, and in how many worlds at all")
+    for (kind in EventKind.entries) {
+      val mean = "%.1f".format(Locale.ROOT, (eventTotals[kind] ?: 0).toDouble() / seeds)
+      line("  ${kind.name.lowercase()}", "${mean.padStart(6)}   ${worldsWith[kind] ?: 0} of $seeds")
+    }
   }
 
   /** In the order of [SWEEP_COLUMNS], after the seed. */
