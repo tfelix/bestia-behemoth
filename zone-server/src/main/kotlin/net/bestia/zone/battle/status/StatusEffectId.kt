@@ -114,7 +114,9 @@ enum class StatusEffectId(val id: Long) {
   UNBREAKABLE_SPENT(229),
   HUNTERS_MARK(230),
   IMPROVE_CONCENTRATION(231),
-  DISSONANCE(232);
+  DISSONANCE(232),
+  SONG_BATTLE_HYMN(233),
+  BATTLE_HYMN(234);
 
   companion object {
     private val byId = entries.associateBy { it.id }
