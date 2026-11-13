@@ -10,8 +10,10 @@ import net.bestia.zone.item.PlayerItemIds
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.ecs.ItemTitles
 import net.bestia.zone.item.ecs.ObtainItemIntent.CreateItemIntent
+import net.bestia.zone.item.stat.ItemLevel
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.stat.ItemStatRoller
+import net.bestia.zone.item.stat.ItemStatSheet
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.treasure.persistence.RelicRecord
 import net.bestia.zone.treasure.persistence.RelicRecordRepository
@@ -63,7 +65,8 @@ class Relics(
       records.save(RelicRecord(copy, artifact))
     }
 
-    val roll = roller.roll(stats.sheetOf(itemId), RELIC_LEVEL_CAP)
+    val sheet = stats.sheetOf(itemId)
+    val roll = roller.roll(sheet, rolledCapOf(record, sheet))
     return CreateItemIntent(itemId, 1, roll, provenanceOf(record), freshId = copy)
   }
 
@@ -91,6 +94,18 @@ class Relics(
     return worldService.generated.world.chronicle
   }
 
+  /**
+   * A relic with a longer history rolls better stats. Item level is the root of base level squared plus stat level
+   * squared, so with base level 80 these caps on the stat level land a relic between 80 and 110. The fixed stats
+   * count toward the cap; the rolled ones get the rest.
+   */
+  private fun rolledCapOf(record: ArtifactRecord, sheet: ItemStatSheet): Int {
+    val fame = (record.provenance.size - 1).coerceAtLeast(0)
+    val statCap = (MIN_STAT_CAP + STAT_CAP_PER_EVENT * fame).coerceAtMost(MAX_STAT_CAP)
+    val fixed = ItemLevel.LEVELS_PER_POINT * ItemLevel.pointsOf(sheet.fixedStats())
+    return (statCap - fixed).toInt().coerceAtLeast(0)
+  }
+
   private fun identifierOf(kind: ArtifactKind): String {
     return "relic_${kind.name.lowercase()}"
   }
@@ -99,7 +114,8 @@ class Relics(
     val LOG = KotlinLogging.logger { }
     const val JOB_KEY = "treasure-relics"
 
-    /** The cap the best gear of a splendid cache rolls to. */
-    const val RELIC_LEVEL_CAP = 70
+    const val MIN_STAT_CAP = 45
+    const val STAT_CAP_PER_EVENT = 10
+    const val MAX_STAT_CAP = 75
   }
 }
