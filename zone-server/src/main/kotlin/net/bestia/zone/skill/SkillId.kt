@@ -90,6 +90,8 @@ enum class SkillId {
   M_PACK_HUNT,
   M_OWLS_EYE,
   M_VULTURES_EYE,
+  M_INSTRUMENT_MASTERY,
+  M_NIMBLE_STEPS,
   // Its drain bonus is read by net.bestia.zone.battle.attack.PoisonedBlade.
   M_POISON_RESEARCH,
   // Its chance is read by net.bestia.zone.battle.attack.TripleBlow on every landed swing.
