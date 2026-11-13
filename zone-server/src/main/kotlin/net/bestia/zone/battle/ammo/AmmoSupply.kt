@@ -17,4 +17,10 @@ interface AmmoSupply {
 
   /** Takes one [ammunition] out of the bag. False when none is left, which a stale plan can still ask for. */
   fun draw(world: World, entityId: EntityId, ammunition: Ammunition): Boolean
+
+  /** Whether the bag holds another of the thrown weapon in hand. The one in hand stays to aim with. */
+  fun hasThrownSpare(world: World, entityId: EntityId): Boolean
+
+  /** Takes one more of the thrown weapon in hand out of the bag, as a shot; null when none is left. */
+  fun drawThrown(world: World, entityId: EntityId): Ammunition?
 }
