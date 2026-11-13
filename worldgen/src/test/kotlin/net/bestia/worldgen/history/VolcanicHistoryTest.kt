@@ -241,6 +241,10 @@ class VolcanicHistoryTest {
     /** `HistorySim.ASH_REACH`, duplicated because it is `private`. If it moves there, this reads the wrong reach. */
     const val ASH_REACH = 18_000.0
 
-    val SEEDS = listOf(1L, 3L, 7L, 42L)
+    /**
+     * Burying is rare on a 256-cell world (about one town per world), so the set must hold seeds that bury
+     * something. Re-picked when the history changes which towns stand near the vents.
+     */
+    val SEEDS = listOf(1L, 4L, 10L, 42L)
   }
 }

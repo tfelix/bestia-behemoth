@@ -180,7 +180,7 @@ class ParamsVersionTest {
       "SettlementTier" to 4_668_433_068_619_246_677L,
       "BusinessCatalogue" to -4_134_603_911_680_592_775L,
       "Names" to -9_118_719_711_542_149_956L,
-      "EventKind" to -6_853_824_722_313_674_147L,
+      "EventKind" to 1_105_463_975_177_965_334L,
       "Order" to -2_417_387_423_981_603_910L,
       // Both moved when ruby, diamond, emerald and amethyst joined the catalogue: `ResourceType` because the
       // worth table gained four rows, `MinableOre` because it gained four rows and every `scarcityRank` below
@@ -238,7 +238,7 @@ class ParamsVersionTest {
       // router's grade tunables and the road width variation. See `SettlementStage.sampleElevation`.
       "SettlementParams" to -4_952_664_331_358_582_183L,
       "OrderInfluence" to 2_558_661_069_677_437_569L,
-      "HistoryParams" to 7_794_337_074_236_630_794L,
+      "HistoryParams" to -2_922_451_020_013_286_174L,
       "CorruptionParams" to -8_182_278_140_807_375_004L,
       "SpawnerParams" to 5_079_634_965_732_130_795L,
       "VegetationStandParams" to -259_420_489_769_960_249L,

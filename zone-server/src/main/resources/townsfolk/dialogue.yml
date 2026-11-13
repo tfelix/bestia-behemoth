@@ -40,6 +40,14 @@ events:
   CIV_REVOLT: { variants: 2, slots: [place, civ, year, era] }
   CIV_SECEDED: { variants: 2, slots: [civ, foe, place, year, era] }
   CIV_REFOUNDED: { variants: 2, slots: [civ, place, year, era] }
+  SUCCESSION: { variants: 2, slots: [figure, civ, year, era] }
+  SUCCESSION_CRISIS: { variants: 2, slots: [figure, civ, year, era] }
+  DYNASTY_EXILED: { variants: 2, slots: [figure, civ, foe, place, year, era] }
+  MARRIAGE_ALLIANCE: { variants: 2, slots: [figure, civ, foe, year, era] }
+  FEUD_BEGAN: { variants: 2, slots: [figure, civ, foe, year, era] }
+  VENGEANCE_SWORN: { variants: 2, slots: [figure, civ, year, era] }
+  VENGEANCE_FULFILLED: { variants: 2, slots: [figure, civ, year, era] }
+  BETRAYAL: { variants: 2, slots: [figure, place, civ, foe, year, era] }
   WAR_DECLARED: { variants: 2, slots: [civ, year, era, foe] }
   BATTLE: { variants: 3, slots: [civ, year, era, foe] }
   SIEGE: { variants: 2, slots: [civ, place, year, era] }
