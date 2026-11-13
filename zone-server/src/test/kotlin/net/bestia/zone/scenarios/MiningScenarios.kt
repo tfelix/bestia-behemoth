@@ -14,6 +14,8 @@ import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.equip.EquipmentSlot
+import net.bestia.zone.item.mining.OreInBrush
+import net.bestia.zone.item.mining.PickaxeMining
 import net.bestia.zone.item.mining.ecs.MiningSwing
 import net.bestia.zone.item.net.EquipItemCMSG
 import net.bestia.zone.master.MasterFactory
@@ -37,6 +39,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 /** A Miner swings a pickaxe at real ore in the test world. */
 class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
@@ -70,6 +73,9 @@ class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
 
   @Autowired
   private lateinit var oreSpots: OreSpots
+
+  @Autowired
+  private lateinit var oreInBrush: OreInBrush
 
   private lateinit var client: GameClientMock
 
@@ -145,6 +151,29 @@ class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
     await { assertTrue(amountOf(itemId) > 0, "the ore reached the bag") }
   }
 
+  @Test
+  @Order(4)
+  fun `Rich Veins gives more iron or gem pieces than the rock holds`() {
+    learn("M_RICH_VEINS", 5)
+    val spot = oreSpots.find(positionOf(miner())) { stack -> !stack.isCoinMetal }
+    val itemId = oreSpots.itemAt(spot)
+    val before = amountOf(itemId)
+    var plain = 0
+
+    // Half of all blocks pay a piece more, so a few swings are as good as certain to show one.
+    for (swing in 0 until RICH_VEINS_SWINGS) {
+      val at = spot + Vec3L(0, 0, 1 - swing.toLong())
+      plain += world.read { oreInBrush.scan(PickaxeMining.ballAt(at)) }.filter { it.stack.itemId == itemId }.sumOf { it.stack.amount }
+      standNextTo(at)
+      client.sendMessage(DigCMSG(accountId, at))
+      hurry(awaitValue { assertNotNull(world.read { get(miner(), MiningSwing::class) }) })
+      await { assertTrue(amountOf(itemId) - before >= plain, "swing $swing paid at least what the rock held") }
+      if (amountOf(itemId) - before > plain) return
+    }
+
+    fail("$RICH_VEINS_SWINGS swings paid exactly the $plain pieces in the rock, never a piece more")
+  }
+
   /** Ore no untrained miner may break, so that both scenarios aim at the same kind of rock. */
   private fun hardOre(): Vec3L {
     return oreSpots.find(positionOf(miner())) { stack -> (items.baseLevelOf(stack.itemId) ?: 0) > UNTRAINED_CAP }
@@ -191,6 +220,7 @@ class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
     const val UNTRAINED_CAP = 10
     const val MIN_SWING_SECONDS = 30f
     const val HURRIED_SECONDS = 0.2f
+    const val RICH_VEINS_SWINGS = 6
 
     /** The tile a click on the top of a block names: the air above it. */
     val ABOVE = Vec3L(0, 0, 1)

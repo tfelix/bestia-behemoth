@@ -7,11 +7,14 @@ import net.bestia.zone.util.EntityId
 /** What a carve gives the entity that made it. The item slice knows which voxels are worth something. */
 interface CarveYield {
 
+  /** The component types [bank] reads. */
+  val reads: ComponentClassSet
+
   /** The component types [handOut] writes. */
   val writes: ComponentClassSet
 
   /** Puts aside for [entityId] what [result] broke. Tick thread. */
-  fun bank(result: ChunkService.CarveResult, entityId: EntityId)
+  fun bank(world: World, result: ChunkService.CarveResult, entityId: EntityId)
 
   /** Hands out what is put aside. Tick thread. */
   fun handOut(world: World)

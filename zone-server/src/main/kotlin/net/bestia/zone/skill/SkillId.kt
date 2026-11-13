@@ -68,6 +68,8 @@ enum class SkillId {
 
   // Mining: its level gates the shaft kit, and sets how deep and how fast a shaft digs.
   M_MINING,
+  // Read by net.bestia.zone.item.mining.OreHandOut on every broken ore block.
+  M_RICH_VEINS,
 
   // Passives with a stat effect, named by their PassiveSkillScript bean rather than from the yml.
   M_MEDITATION,
