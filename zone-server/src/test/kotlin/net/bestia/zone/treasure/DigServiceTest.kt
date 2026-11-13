@@ -67,6 +67,7 @@ class DigServiceTest {
     },
     skills = mockk { every { findByIdentifier(any<String>()) } returns null },
     outMessageProcessor = messages,
+    pickaxeMining = mockk(relaxed = true),
   )
 
   private val ecs = testWorld()
