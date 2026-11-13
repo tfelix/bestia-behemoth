@@ -6,6 +6,9 @@ plugins {
 	id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.25' apply false
 }
 
+// Release Please bumps version.txt (release-please-config.json), so every module ships the released number.
+version = file('version.txt').text.trim()
+
 subprojects {
 	apply plugin: 'java'
 	apply plugin: 'org.jetbrains.kotlin.jvm'
@@ -16,7 +19,7 @@ subprojects {
 	}
 
 	group = 'net.bestia'
-	version = '0.0.1-SNAPSHOT'
+	version = rootProject.version
 
 	java {
 		toolchain {
