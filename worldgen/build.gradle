@@ -413,6 +413,7 @@ tasks.register('chronicle', JavaExec) {
     if (cli('dynasties') != null) args '--dynasties'
     if (cli('deities') != null) args '--deities'
     if (cli('cults') != null) args '--cults'
+    if (cli('monsters') != null) args '--monsters'
     if (cli('sites') != null) args '--sites'
     if (cli('quests') != null) args '--quests'
     if (cli('orders') != null) args '--orders'

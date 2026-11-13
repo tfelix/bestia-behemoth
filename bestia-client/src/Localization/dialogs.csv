@@ -66,6 +66,7 @@ NAME_UNKNOWN_FIGURE,somebody nobody named
 NAME_UNKNOWN_ARTIFACT,a thing nobody named
 NAME_UNKNOWN_DEITY,a god nobody names any more
 NAME_UNKNOWN_CULT,a cult long forgotten
+NAME_UNKNOWN_MONSTER,a beast nobody dares to name
 TALK_GREETING_GUARD_1,"{name} watches you come the whole way in."
 TALK_GREETING_GUARD_2,"{name} looks you over and does not move."
 TALK_GREETING_GUARD_3,"{name} shifts a hand off the spear, then puts it back."
@@ -308,6 +309,24 @@ HISTORY_CULT_REVOLT_2,"The {foe} hunted {cult}, so around {year} they rose up. T
 HISTORY_CULT_ABSORBED_ASK,Where did {cult} go?
 HISTORY_CULT_ABSORBED_1,"They joined one of the great Orders {era}. Their old prayers live on there."
 HISTORY_CULT_ABSORBED_2,"Around {year} {cult} gave themselves to an Order, and kept little of their own."
+HISTORY_MONSTER_AWOKE_ASK,Where did {monster} come from?
+HISTORY_MONSTER_AWOKE_1,"Nobody knows for sure. It woke {era}, around {year}, and the land has not been the same since."
+HISTORY_MONSTER_AWOKE_2,"Around {year} something woke that should have slept. People call it {monster}."
+HISTORY_MONSTER_RAVAGED_ASK,What did {monster} do to {place}?
+HISTORY_MONSTER_RAVAGED_1,"{monster} fell on {place} {era}. Half the old families there lost someone."
+HISTORY_MONSTER_RAVAGED_2,"Ask anyone in {place} about {year}. They will tell you about {monster}, if they tell you anything."
+HISTORY_MONSTER_SLAIN_ASK,Who killed {monster}?
+HISTORY_MONSTER_SLAIN_1,"{figure} did, near {place}, {era}. They say {figure} took {artifact} from the carcass."
+HISTORY_MONSTER_SLAIN_2,"{monster} died near {place} around {year}. The bones may still be lying in the field."
+HISTORY_MONSTER_SEALED_ASK,Is {monster} still out there?
+HISTORY_MONSTER_SEALED_1,"Bound in crystal since {year}. Pray nobody is fool enough to break it."
+HISTORY_MONSTER_SEALED_2,"They sealed {monster} away {era}. Sealed is not the same as dead."
+HISTORY_MONSTER_WITHDREW_ASK,Where did {monster} go?
+HISTORY_MONSTER_WITHDREW_1,"It crawled off to its lair {era} and has not come out since. Not that anyone has gone looking."
+HISTORY_MONSTER_WITHDREW_2,"Around {year} {monster} left us alone. It is still out there somewhere, waiting."
+HISTORY_MONSTER_VANISHED_ASK,What became of {monster}?
+HISTORY_MONSTER_VANISHED_1,"Nobody knows. It vanished {era}. Some say it sleeps, some say it is watching."
+HISTORY_MONSTER_VANISHED_2,"One day in {year} {monster} was simply gone. My grandmother never believed it was dead."
 HISTORY_WAR_DECLARED_ASK,Has there been war?
 HISTORY_WAR_DECLARED_1,"The {civ} declared on the {foe} {era}, near enough {year}. It went on longer than anyone promised."
 HISTORY_WAR_DECLARED_2,"The {civ} and the {foe} stopped pretending {era}. Everyone saw it coming and nobody stopped it."

@@ -138,9 +138,9 @@ class PlaceRegionsTest {
 
   private companion object {
     /**
-     * Pinned, not computed - see the test that uses it. Re-pinned when pools for gods and cults were added: a new
-     * pool moves the digest but renames nothing, since every existing name draws from its own pools.
+     * Pinned, not computed - see the test that uses it. Re-pinned when pools for gods, cults and world bosses were
+     * added: a new pool moves the digest but renames nothing, since every existing name draws from its own pools.
      */
-    const val EXPECTED_NAME_DIGEST = -1695266652203544630L
+    const val EXPECTED_NAME_DIGEST = -2563341001968021080L
   }
 }

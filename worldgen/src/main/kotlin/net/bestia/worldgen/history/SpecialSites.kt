@@ -100,7 +100,13 @@ class SpecialSiteCandidates(
    * [SiteCandidate.quality] is the biome's own `SpawnHostility`-style harshness times how far out it is, so the
    * deepest desert ranks above the fringe of it - a barrow at the edge of the sand is a barrow beside a road.
    */
-  val wastes: List<SiteCandidate> = emptyList()
+  val wastes: List<SiteCandidate> = emptyList(),
+
+  /** Dry land, best farthest from every settlement site: where a world boss withdraws to on land. */
+  val remote: List<SiteCandidate> = emptyList(),
+
+  /** Deep open sea, best farthest from every settlement site: where a sea-going world boss withdraws to. */
+  val deeps: List<SiteCandidate> = emptyList()
 ) {
 
   companion object {
@@ -141,7 +147,9 @@ class SpecialSiteCandidates(
         } else {
           shrines(ctx, region, facts, params, elevation, waterLevel, seaLevel)
         },
-        wastes = wastes(ctx, region, facts, params, elevation, waterLevel, seaLevel)
+        wastes = wastes(ctx, region, facts, params, elevation, waterLevel, seaLevel),
+        remote = remote(region, facts, params, elevation, waterLevel, seaLevel),
+        deeps = deeps(region, facts, params, elevation, seaLevel)
       )
     }
 
@@ -157,6 +165,36 @@ class SpecialSiteCandidates(
      * The far edge is [HistoryParams.seerRange], for the reason that parameter exists: this is one person
      * choosing to cross something rather than a civilisation deciding to work there, so the reach is generous.
      */
+    private fun remote(
+      region: CellRegion,
+      facts: List<SiteFacts>,
+      params: HistoryParams,
+      elevation: FloatLayer,
+      waterLevel: FloatLayer,
+      seaLevel: Double
+    ): List<SiteCandidate> {
+      return scan(region, params) { position ->
+        if (!isDryGround(elevation, position, seaLevel, params.siteFreeboard)) return@scan null
+        if (!isClearOfStandingWater(waterLevel, region, position)) return@scan null
+        val nearest = facts.minOfOrNull { it.position.distanceTo(position) } ?: return@scan null
+        SiteCandidate(position, nearest)
+      }
+    }
+
+    private fun deeps(
+      region: CellRegion,
+      facts: List<SiteFacts>,
+      params: HistoryParams,
+      elevation: FloatLayer,
+      seaLevel: Double
+    ): List<SiteCandidate> {
+      return scan(region, params) { position ->
+        if (seaLevel - elevation.sampleBilinear(position.x, position.y) < params.oceanLairDepth) return@scan null
+        val nearest = facts.minOfOrNull { it.position.distanceTo(position) } ?: return@scan null
+        SiteCandidate(position, nearest)
+      }
+    }
+
     private fun wastes(
       ctx: GenContext,
       region: CellRegion,

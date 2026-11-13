@@ -96,6 +96,7 @@ class HistoryLineCatalogue {
       HistoryKnowledge.SLOT_FOE,
       HistoryKnowledge.SLOT_DEITY,
       HistoryKnowledge.SLOT_CULT,
+      HistoryKnowledge.SLOT_MONSTER,
     )
 
     private val LOG = KotlinLogging.logger { }

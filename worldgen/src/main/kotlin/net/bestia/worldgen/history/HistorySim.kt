@@ -22,6 +22,10 @@ import net.bestia.worldgen.core.FigureRecord
 import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.HistoryEvent
+import net.bestia.worldgen.core.LairKind
+import net.bestia.worldgen.core.MonsterFate
+import net.bestia.worldgen.core.MonsterOrigin
+import net.bestia.worldgen.core.MonsterRecord
 import net.bestia.worldgen.core.Params
 import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.core.ParamsText
@@ -30,6 +34,7 @@ import net.bestia.worldgen.core.RelationRecord
 import net.bestia.worldgen.core.SettlementRecord
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.SiteRecord
+import net.bestia.worldgen.core.WorldBoss
 import net.bestia.worldgen.vector.Vec2d
 import kotlin.math.max
 import kotlin.math.min
@@ -193,6 +198,39 @@ data class HistoryParams(
 
   /** Chance per tick, on a world with the Orders, that a cult joins the Order it leans toward. */
   val cultAbsorbChance: Double = 0.01,
+
+  // --- World bosses ---------------------------------------------------------------------------------
+
+  /** World bosses a reference world wakes, before a coin flip adds one, and more per doubling of its sites. */
+  val monstersAtReference: Double = 2.0,
+  val monstersPerDoubling: Double = 1.0,
+  val maxMonsters: Int = 5,
+
+  /** Years between which a world boss wakes. */
+  val monsterFrom: Int = 150,
+  val monsterTo: Int = 850,
+
+  /** Years a world boss rages before its story ends. */
+  val monsterReignMin: Int = 15,
+  val monsterReignMax: Int = 60,
+
+  /** Chance per tick that a raging beast falls on the nearest town within [ravageRange] metres. */
+  val ravageChance: Double = 0.4,
+  val ravageRange: Double = 40_000.0,
+  /** Share of its people a town loses to a raging beast. */
+  val ravageLoss: Double = 0.25,
+
+  /** Dead on one battlefield for its dead to rise as a world boss. */
+  val risenDeadFallen: Int = 500,
+
+  /** Relative weights of how a world boss's story ends. */
+  val slainWeight: Double = 0.4,
+  val sealedWeight: Double = 0.25,
+  val withdrawnWeight: Double = 0.25,
+  val vanishedWeight: Double = 0.1,
+
+  /** Metres of water a sea-going world boss's lair needs over it. */
+  val oceanLairDepth: Double = 30.0,
 
   /** A pair of facing towns is on the front when it is at most this many times as far apart as the closest pair. */
   val frontierSpread: Double = 1.5,
@@ -520,6 +558,21 @@ data class HistoryParams(
       "cultWipeShare $cultWipeShare and cultRevoltShare $cultRevoltShare must be non-negative and sum to at most 1"
     }
     require(cultAbsorbChance in 0.0..1.0) { "cultAbsorbChance must be in [0,1], was $cultAbsorbChance" }
+    require(monstersAtReference >= 0.0 && monstersPerDoubling >= 0.0 && maxMonsters >= 0) {
+      "monster counts must not be negative: $monstersAtReference, $monstersPerDoubling, $maxMonsters"
+    }
+    require(monsterFrom in 0..monsterTo) { "monsterFrom $monsterFrom must be in [0, monsterTo $monsterTo]" }
+    require(monsterReignMin in 0..monsterReignMax) {
+      "monsterReignMin $monsterReignMin must be in [0, monsterReignMax $monsterReignMax]"
+    }
+    require(ravageChance in 0.0..1.0 && ravageLoss in 0.0..1.0 && ravageRange >= 0.0) {
+      "ravage chance and loss must be in [0,1] and range non-negative: $ravageChance, $ravageLoss, $ravageRange"
+    }
+    require(risenDeadFallen >= 0) { "risenDeadFallen must not be negative, was $risenDeadFallen" }
+    require(listOf(slainWeight, sealedWeight, withdrawnWeight, vanishedWeight).all { it >= 0.0 }) {
+      "fate weights must not be negative"
+    }
+    require(oceanLairDepth >= 0.0) { "oceanLairDepth must not be negative, was $oceanLairDepth" }
     require(frontierSpread >= 1.0) { "frontierSpread must be at least 1, was $frontierSpread" }
     require(battleMergeRadius >= 0.0) { "battleMergeRadius must not be negative, was $battleMergeRadius" }
     require(battleAside >= 0.0) { "battleAside must not be negative, was $battleAside" }
@@ -652,6 +705,22 @@ data class HistoryParams(
     cultWipeShare = source.double("cultWipeShare", cultWipeShare),
     cultRevoltShare = source.double("cultRevoltShare", cultRevoltShare),
     cultAbsorbChance = source.double("cultAbsorbChance", cultAbsorbChance),
+    monstersAtReference = source.double("monstersAtReference", monstersAtReference),
+    monstersPerDoubling = source.double("monstersPerDoubling", monstersPerDoubling),
+    maxMonsters = source.int("maxMonsters", maxMonsters),
+    monsterFrom = source.int("monsterFrom", monsterFrom),
+    monsterTo = source.int("monsterTo", monsterTo),
+    monsterReignMin = source.int("monsterReignMin", monsterReignMin),
+    monsterReignMax = source.int("monsterReignMax", monsterReignMax),
+    ravageChance = source.double("ravageChance", ravageChance),
+    ravageRange = source.double("ravageRange", ravageRange),
+    ravageLoss = source.double("ravageLoss", ravageLoss),
+    risenDeadFallen = source.int("risenDeadFallen", risenDeadFallen),
+    slainWeight = source.double("slainWeight", slainWeight),
+    sealedWeight = source.double("sealedWeight", sealedWeight),
+    withdrawnWeight = source.double("withdrawnWeight", withdrawnWeight),
+    vanishedWeight = source.double("vanishedWeight", vanishedWeight),
+    oceanLairDepth = source.double("oceanLairDepth", oceanLairDepth),
     frontierSpread = source.double("frontierSpread", frontierSpread),
     battleMergeRadius = source.double("battleMergeRadius", battleMergeRadius),
     battleAside = source.double("battleAside", battleAside),
@@ -752,6 +821,22 @@ data class HistoryParams(
     .put("cultWipeShare", cultWipeShare)
     .put("cultRevoltShare", cultRevoltShare)
     .put("cultAbsorbChance", cultAbsorbChance)
+    .put("monstersAtReference", monstersAtReference)
+    .put("monstersPerDoubling", monstersPerDoubling)
+    .put("maxMonsters", maxMonsters)
+    .put("monsterFrom", monsterFrom)
+    .put("monsterTo", monsterTo)
+    .put("monsterReignMin", monsterReignMin)
+    .put("monsterReignMax", monsterReignMax)
+    .put("ravageChance", ravageChance)
+    .put("ravageRange", ravageRange)
+    .put("ravageLoss", ravageLoss)
+    .put("risenDeadFallen", risenDeadFallen)
+    .put("slainWeight", slainWeight)
+    .put("sealedWeight", sealedWeight)
+    .put("withdrawnWeight", withdrawnWeight)
+    .put("vanishedWeight", vanishedWeight)
+    .put("oceanLairDepth", oceanLairDepth)
     .put("frontierSpread", frontierSpread)
     .put("battleMergeRadius", battleMergeRadius)
     .put("battleAside", battleAside)
@@ -906,6 +991,7 @@ internal class HistorySim(
   private val dynasties = ArrayList<Dynasty>()
   private val deities = ArrayList<Deity>()
   private val cults = ArrayList<Cult>()
+  private val monsters = ArrayList<Monster>()
 
   /** Whether history has already raised the one god it may add to the first ones. */
   private var lateGodRisen = false
@@ -944,6 +1030,7 @@ internal class HistorySim(
 
   fun run(): Chronicle {
     createPantheon()
+    scheduleMonsters()
     seedCivilisations()
 
     var year = startYear
@@ -977,6 +1064,7 @@ internal class HistorySim(
       persecuteCults(year)
       absorbCults(year)
       raiseLateGod(year)
+      resolveMonsters(year)
       updateArtifacts(year)
       vanishSeers(year)
       // After the seers, so a prophet who has already walked out to a wound this tick is not also lost in a
@@ -994,6 +1082,8 @@ internal class HistorySim(
       year += params.yearsPerTick
     }
 
+    // A beast whose reign outlasts the history ends where the history ends, so every story has its fate.
+    for (monster in monsters.filter { it.awoke != 0 && it.fate == null }) resolveFate(monster, presentYear)
     return assemble()
   }
 
@@ -1668,6 +1758,261 @@ internal class HistorySim(
       if (left <= 0.0) return key
     }
     return weights.keys.lastOrNull()
+  }
+
+  // --- World bosses ----------------------------------------------------------------------------------
+
+  /**
+   * Which world bosses this history wakes, and when. Two on a reference world, one more per doubling of its sites,
+   * and a coin flip more, up to the catalogue. A boss whose kind of lair this world lacks (no cave, no deep sea)
+   * is skipped.
+   */
+  private fun scheduleMonsters() {
+    if (facts.isEmpty()) return
+
+    val doublings = Math.log(max(sizeScale, 1.0)) / Math.log(2.0)
+    val extra = if (roll(MONSTER_EXTRA_SALT) < 0.5) 1 else 0
+    val count = (Math.round(params.monstersAtReference + params.monstersPerDoubling * doublings).toInt() + extra)
+      .coerceIn(0, min(params.maxMonsters, WorldBoss.entries.size))
+
+    val bosses = WorldBoss.entries
+      .sortedBy { roll(it.ordinal.toLong(), MONSTER_ORDER_SALT) }
+      .filter { lairCandidates(it.lair).isNotEmpty() }
+      .take(count)
+    for (boss in bosses) {
+      val index = monsters.size
+      val awakens = params.monsterFrom +
+          (roll(index.toLong(), MONSTER_WAKE_SALT) * (params.monsterTo - params.monsterFrom)).toInt()
+      monsters.add(Monster(index, boss, Names.seedOf(worldSeed, MONSTER_NAME_SALT, index.toLong()), awakens))
+    }
+  }
+
+  private fun lairCandidates(lair: LairKind): List<SiteCandidate> = when (lair) {
+    LairKind.CAVE -> candidates.caves
+    LairKind.REMOTE_LAND -> candidates.remote
+    LairKind.OCEAN -> candidates.deeps
+  }
+
+  private fun resolveMonsters(year: Int) {
+    for (monster in monsters) {
+      when {
+        monster.fate != null -> continue
+        monster.awoke == 0 -> if (year >= monster.awakens) awaken(monster, year)
+        year >= monster.resolves -> resolveFate(monster, year)
+        else -> ravage(monster, year)
+      }
+    }
+  }
+
+  /** The beast wakes out of whatever this history gave it, the most fitting past its species has, or out of nowhere. */
+  private fun awaken(monster: Monster, year: Int) {
+    val name = monsterName(monster)
+    var site: Int? = null
+    val detail = monster.boss.origins.firstNotNullOfOrNull { origin ->
+      wakeFrom(origin, name, monster.index)?.let { origin to it }
+    }
+    if (detail != null) {
+      val (origin, wake) = detail
+      monster.origin = origin
+      monster.originEvent = wake.cause
+      monster.position = wake.position
+      site = wake.site
+    } else {
+      monster.position = lairCandidates(monster.boss.lair).first().position
+    }
+
+    monster.awoke = year
+    monster.resolves = year + params.monsterReignMin +
+        (roll(monster.index.toLong(), MONSTER_REIGN_SALT) * (params.monsterReignMax - params.monsterReignMin)).toInt()
+    monster.awokeEvent = log(
+      year, EventKind.MONSTER_AWOKE,
+      listOfNotNull(Actor(ActorType.MONSTER, monster.index), site?.let { Actor(ActorType.SITE, it) }),
+      monster.position, listOfNotNull(monster.originEvent.takeIf { it >= 0 }),
+      detail?.second?.text ?: "$name wakes in the wilds"
+    )
+  }
+
+  private class Wake(val position: Vec2d, val site: Int?, val cause: Int, val text: String)
+
+  /** How this origin could wake the beast in this history so far, or null when the history holds no such past. */
+  private fun wakeFrom(origin: MonsterOrigin, name: String, index: Int): Wake? = when (origin) {
+    // One wound per beast where there are several, so two beasts do not crawl out of the same crater.
+    MonsterOrigin.WOUND -> sites.filter { it.kind == SiteKind.WOUND }.takeIf { it.isNotEmpty() }?.let { wounds ->
+      val wound = wounds[index % wounds.size]
+      Wake(wound.position, wound.index, starFell, "$name rises out of ${siteName(wound)}")
+    }
+    MonsterOrigin.ROBBED_TOMB -> sites.lastOrNull { it.kind == SiteKind.TOMB }?.let {
+      Wake(it.position, it.index, -1, "grave robbers break into ${siteName(it)} and wake $name")
+    }
+    MonsterOrigin.ERUPTION -> events.lastOrNull { it.kind == EventKind.ERUPTION && it.where != null }?.let {
+      Wake(it.where!!, null, it.id, "$name crawls out of the ash after ${it.detail}")
+    }
+    MonsterOrigin.SUMMONED -> cults.lastOrNull()?.let { cult ->
+      val founding = events.lastOrNull { e ->
+        e.kind == EventKind.CULT_FOUNDED && Actor(ActorType.CULT, cult.index) in e.actors
+      }
+      Wake(sites[cult.sanctuary].position, cult.sanctuary, founding?.id ?: -1, "${cultName(cult)} call up $name")
+    }
+    MonsterOrigin.RISEN_DEAD -> sites.filter { it.kind == SiteKind.BATTLEFIELD && it.fallen >= params.risenDeadFallen }
+      .maxByOrNull { it.fallen }?.let { field ->
+        val battle = events.lastOrNull { e ->
+          e.kind == EventKind.BATTLE && Actor(ActorType.SITE, field.index) in e.actors
+        }
+        Wake(field.position, field.index, battle?.id ?: -1, "the dead of ${siteName(field)} rise as $name")
+      }
+    MonsterOrigin.ANCIENT -> null
+  }
+
+  /** The beast falls on the nearest standing town within reach, which loses a share of its people. */
+  private fun ravage(monster: Monster, year: Int) {
+    if (roll(year.toLong(), monster.index.toLong(), RAVAGE_SALT) >= params.ravageChance) return
+    val town = towns.filter { it.standing && it.facts.position.distanceTo(monster.position) <= params.ravageRange }
+      .minByOrNull { it.facts.position.distanceTo(monster.position) } ?: return
+
+    town.population = max(8.0, town.population * (1.0 - params.ravageLoss))
+    log(
+      year, EventKind.MONSTER_RAVAGED,
+      listOf(Actor(ActorType.MONSTER, monster.index), Actor(ActorType.SETTLEMENT, town.facts.index)),
+      town.facts.position, listOf(monster.awokeEvent),
+      "${monsterName(monster)} falls on ${nameOf(town)}"
+    )
+  }
+
+  /**
+   * How the story ends: slain by a hero, sealed in a crystal, withdrawn to its lair, or vanished. The last beast
+   * to meet its end is never slain when every one before it was, so a world always keeps one alive.
+   */
+  private fun resolveFate(monster: Monster, year: Int) {
+    val noneAlive = monsters.none { it.fate != null && it.fate != MonsterFate.SLAIN }
+    val lastOne = monsters.count { it.fate == null } == 1
+    val weights = buildMap {
+      if (!(noneAlive && lastOne)) put(MonsterFate.SLAIN, params.slainWeight)
+      put(MonsterFate.SEALED, params.sealedWeight)
+      put(MonsterFate.WITHDRAWN, params.withdrawnWeight)
+      put(MonsterFate.VANISHED, params.vanishedWeight)
+    }
+    val fate = pickWeighted(weights, roll(monster.index.toLong(), MONSTER_FATE_SALT)) ?: MonsterFate.WITHDRAWN
+
+    monster.ended = year
+    val done = when (fate) {
+      MonsterFate.SLAIN -> slay(monster, year)
+      MonsterFate.SEALED -> false
+      MonsterFate.WITHDRAWN, MonsterFate.VANISHED -> withdraw(monster, year, vanished = fate == MonsterFate.VANISHED)
+    }
+    if (!done) seal(monster, year)
+  }
+
+  /** A hero of the nearest people kills it and takes a trophy. Returns false when no people is there to fight it. */
+  private fun slay(monster: Monster, year: Int): Boolean {
+    val town = nearestHeldTown(monster.position) ?: return false
+    val civ = civs[town.owner]
+    val hero = people.firstOrNull {
+      it.death == 0 && it.civ == civ.index && (it.role == FigureRole.GENERAL || it.role == FigureRole.RULER)
+    } ?: newPerson(FigureRole.GENERAL, civ, town.facts.index, year)
+
+    val field = addSite(
+      SiteKind.BATTLEFIELD, monster.position, year, town.facts.index, civ.index, MONSTER_FIELD_RADIUS,
+      artifact = -1, figure = hero.index, monster = monster.index
+    )
+    town.sites.add(field)
+    val trophy = Relic(
+      index = relics.size,
+      nameSeed = Names.seedOf(worldSeed, ARTIFACT_NAME_SALT, relics.size.toLong()),
+      kind = ArtifactKind.RELIQUARY,
+      forgedYear = year,
+      forgedBy = hero.index,
+      material = "the bones of ${monster.boss.title.removePrefix("the ")}",
+      forgedAtNameSeed = towns[hero.home].nameSeed,
+      holder = hero.index
+    )
+    relics.add(trophy)
+
+    val slain = log(
+      year, EventKind.MONSTER_SLAIN,
+      listOf(
+        Actor(ActorType.FIGURE, hero.index), Actor(ActorType.MONSTER, monster.index), Actor(ActorType.SITE, field),
+        Actor(ActorType.ARTIFACT, trophy.index)
+      ),
+      monster.position, listOf(monster.awokeEvent),
+      "${personName(hero)} slays ${monsterName(monster)} near ${nameOf(town)} and keeps ${relicName(trophy)}"
+    )
+    trophy.provenance.add(slain)
+    monster.fate = MonsterFate.SLAIN
+    monster.hero = hero.index
+    monster.site = field
+    monster.trophy = trophy.index
+    return true
+  }
+
+  /** A prophet or scholar of the nearest people binds it in a crystal, not far from where it raged. */
+  private fun seal(monster: Monster, year: Int) {
+    val town = nearestHeldTown(monster.position)
+    val sealer = town?.let { near ->
+      people.firstOrNull {
+        it.death == 0 && it.civ == near.owner && (it.role == FigureRole.PROPHET || it.role == FigureRole.SCHOLAR)
+      } ?: newPerson(FigureRole.SCHOLAR, civs[near.owner], near.facts.index, year)
+    }
+
+    val seal = addSite(
+      SiteKind.SEAL, offset(monster.position, SEAL_KEY + monster.index, SEAL_OFFSET), year,
+      town?.facts?.index ?: -1, town?.owner ?: -1, SEAL_RADIUS, artifact = -1, figure = sealer?.index ?: -1,
+      monster = monster.index
+    )
+    town?.sites?.add(seal)
+    monster.fate = MonsterFate.SEALED
+    monster.hero = sealer?.index ?: -1
+    monster.site = seal
+
+    log(
+      year, EventKind.MONSTER_SEALED,
+      listOfNotNull(
+        sealer?.let { Actor(ActorType.FIGURE, it.index) }, Actor(ActorType.MONSTER, monster.index),
+        Actor(ActorType.SITE, seal)
+      ),
+      sites[seal].position, listOf(monster.awokeEvent),
+      "${sealer?.let { personName(it) } ?: "nobody knows who"} binds ${monsterName(monster)} in crystal at " +
+          siteName(sites[seal])
+    )
+  }
+
+  /**
+   * It withdraws to the lair its kind keeps: the far end of a cave, the remotest dry land, the deep sea. Returns
+   * false when this world has no such place left.
+   */
+  private fun withdraw(monster: Monster, year: Int, vanished: Boolean): Boolean {
+    val lair = when (monster.boss.lair) {
+      LairKind.CAVE -> candidates.caves.firstOrNull { it.detail !in usedCaves }?.also { usedCaves.add(it.detail) }
+      LairKind.REMOTE_LAND, LairKind.OCEAN -> lairCandidates(monster.boss.lair).firstOrNull { candidate ->
+        sites.none { it.kind == SiteKind.LAIR && it.position.distanceTo(candidate.position) < params.siteSeparation }
+      }
+    } ?: return false
+
+    val site = addSite(
+      SiteKind.LAIR, lair.position, year, -1, -1, LAIR_RADIUS, artifact = -1, figure = -1,
+      elevation = lair.elevation, monster = monster.index
+    )
+    monster.fate = if (vanished) MonsterFate.VANISHED else MonsterFate.WITHDRAWN
+    monster.site = site
+
+    if (vanished) {
+      log(
+        year, EventKind.MONSTER_VANISHED, listOf(Actor(ActorType.MONSTER, monster.index)), null,
+        listOf(monster.awokeEvent), "${monsterName(monster)} vanishes, and nobody knows where it went"
+      )
+    } else {
+      log(
+        year, EventKind.MONSTER_WITHDREW,
+        listOf(Actor(ActorType.MONSTER, monster.index), Actor(ActorType.SITE, site)),
+        lair.position, listOf(monster.awokeEvent), "${monsterName(monster)} withdraws to ${siteName(sites[site])}"
+      )
+    }
+    return true
+  }
+
+  private fun monsterName(monster: Monster) = Names.monster(monster.nameSeed, monster.boss)
+
+  private fun nearestHeldTown(at: Vec2d): Town? {
+    return towns.filter { it.standing && it.owner >= 0 }.minByOrNull { it.facts.position.distanceTo(at) }
   }
 
   // --- Diplomacy and war -----------------------------------------------------------------------------
@@ -3732,10 +4077,10 @@ internal class HistorySim(
     SiteKind.LIGHTHOUSE -> "light"
     // Not built by `buildSites`, which is what this verb table serves - a shrine is raised by `raiseShrines`
     // and logs its own sentence, because an Order's reason for building one is the whole point of the line.
-    SiteKind.SHRINE, SiteKind.SANCTUARY -> "raise"
+    SiteKind.SHRINE, SiteKind.SANCTUARY, SiteKind.SEAL -> "raise"
     // The residue kinds are never built by this pass; the branch exists so adding a kind is a compile error.
     SiteKind.RUIN, SiteKind.ASH_RUIN, SiteKind.BATTLEFIELD, SiteKind.TOMB, SiteKind.MONUMENT, SiteKind.HOARD,
-    SiteKind.WOUND -> "make"
+    SiteKind.WOUND, SiteKind.LAIR -> "make"
   }
 
   /**
@@ -3813,7 +4158,7 @@ internal class HistorySim(
           settlement = it.settlement, civ = it.civ, radius = it.radius,
           decay = decayOf(it), nameSeed = it.nameSeed, artifact = it.artifact, figure = it.figure,
           resource = it.resource, elevation = it.elevation, faction = it.faction,
-          battles = it.battles, fallen = it.fallen, cult = it.cult
+          battles = it.battles, fallen = it.fallen, cult = it.cult, monster = it.monster
         )
       },
       settlements = towns.map { town ->
@@ -3835,6 +4180,13 @@ internal class HistorySim(
       },
       relations = relations.toList(),
       deities = deities.map { DeityRecord(it.index, it.domain, it.nameSeed, it.year, it.cause) },
+      monsters = monsters.filter { it.fate != null }.map {
+        MonsterRecord(
+          index = it.index, boss = it.boss, nameSeed = it.nameSeed, origin = it.origin, originEvent = it.originEvent,
+          awokeYear = it.awoke, endedYear = it.ended, fate = it.fate!!, hero = it.hero, site = it.site,
+          trophy = it.trophy
+        )
+      },
       cults = cults.map {
         CultRecord(
           index = it.index, nameSeed = it.nameSeed, kind = it.kind, deity = it.deity, beast = it.beast,
@@ -3917,7 +4269,8 @@ internal class HistorySim(
     resource: Int = -1,
     elevation: Double = Double.NaN,
     faction: Faction? = null,
-    cult: Int = -1
+    cult: Int = -1,
+    monster: Int = -1
   ): Int {
     val index = sites.size
     sites.add(
@@ -3926,7 +4279,7 @@ internal class HistorySim(
         civ = civ, radius = radius,
         nameSeed = Names.seedOf(worldSeed, SITE_NAME_SALT, index.toLong()),
         artifact = artifact, figure = figure, resource = resource, elevation = elevation, faction = faction,
-        cult = cult
+        cult = cult, monster = monster
       )
     )
     return index
@@ -3971,7 +4324,12 @@ internal class HistorySim(
   )
 
   private fun siteName(site: Site): String {
-    val of = if (site.settlement >= 0) nameOf(towns[site.settlement]) else "the wilds"
+    val of = when {
+      site.monster >= 0 && (site.kind == SiteKind.LAIR || site.kind == SiteKind.SEAL) ->
+        monsterName(monsters[site.monster])
+      site.settlement >= 0 -> nameOf(towns[site.settlement])
+      else -> "the wilds"
+    }
     return Names.site(
       site.nameSeed, of,
       when (site.kind) {
@@ -3991,6 +4349,8 @@ internal class HistorySim(
         SiteKind.HOARD -> "hoard"
         SiteKind.WOUND -> "wound"
         SiteKind.SANCTUARY -> "sanctuary"
+        SiteKind.SEAL -> "seal"
+        SiteKind.LAIR -> "lair"
         // Three forms from one kind, off the same `else` branch in `Names.site`. This is the clearest thing the
         // order-on-a-channel design buys: "the cairn of Ashford" and "the ward of Ashford" are different
         // places to a player, and neither needed a `SiteKind` or a word pool of its own.
@@ -4158,6 +4518,20 @@ internal class HistorySim(
 
   private class Oath(val avenger: Int, val slain: Int, val against: Int, val event: Int)
 
+  private class Monster(val index: Int, val boss: WorldBoss, val nameSeed: Long, val awakens: Int) {
+    var awoke = 0
+    var awokeEvent = -1
+    var origin = MonsterOrigin.ANCIENT
+    var originEvent = -1
+    var position = Vec2d(0.0, 0.0)
+    var resolves = 0
+    var ended = 0
+    var fate: MonsterFate? = null
+    var hero = -1
+    var site = -1
+    var trophy = -1
+  }
+
   private class Deity(val index: Int, val domain: Domain, val nameSeed: Long, val year: Int, val cause: Int)
 
   private class Cult(
@@ -4211,7 +4585,9 @@ internal class HistorySim(
     /** The Order that raised it, for a shrine. Null for every other kind. */
     val faction: Faction? = null,
     /** The cult whose sanctuary this is, or -1. */
-    val cult: Int = -1
+    val cult: Int = -1,
+    /** The world boss whose seal, lair or slaying field this is, or -1. */
+    val monster: Int = -1
   ) {
     /** Battles fought here; more than one when a later battle came within the merge radius. Battlefields only. */
     var battles = 0
@@ -4501,6 +4877,7 @@ internal class HistorySim(
     const val HOUSE_NAME_SALT = 0x07L
     const val DEITY_NAME_SALT = 0x08L
     const val CULT_NAME_SALT = 0x09L
+    const val MONSTER_NAME_SALT = 0x0AL
 
     // The Orders. Six independent decisions about the same subject - a civilisation - so all six need their
     // own value, and read the `MONASTERY_SALT` story above before touching any of them. `ORDER_SHARE_SALT` is
@@ -4546,6 +4923,22 @@ internal class HistorySim(
     const val CULT_PERSECUTION_SALT = 0x50L
     const val CULT_OUTCOME_SALT = 0x51L
     const val CULT_ABSORB_SALT = 0x52L
+    const val MONSTER_EXTRA_SALT = 0x53L
+    const val MONSTER_ORDER_SALT = 0x54L
+    const val MONSTER_WAKE_SALT = 0x55L
+    const val MONSTER_REIGN_SALT = 0x56L
+    const val RAVAGE_SALT = 0x57L
+    const val MONSTER_FATE_SALT = 0x58L
+
+    /** A slaying field is smaller than a battle's: one beast and those who stood against it. */
+    const val MONSTER_FIELD_RADIUS = 120.0
+
+    /** A seal stands a little way from where the beast raged, small: a crystal on a ring of stone. */
+    const val SEAL_OFFSET = 600.0
+    const val SEAL_RADIUS = 14.0
+    const val SEAL_KEY = 2_000_000L
+
+    const val LAIR_RADIUS = 40.0
 
     /** Fewest gods any world has, and the smallest world the count shrinks for. */
     const val MIN_DEITIES = 3

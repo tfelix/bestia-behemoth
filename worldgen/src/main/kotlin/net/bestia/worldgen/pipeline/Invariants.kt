@@ -300,6 +300,7 @@ object Invariants {
     checkEveryBattleHasItsField(generated, ::fail)
     checkFamiliesHoldTogether(generated, ::fail)
     checkGodsAndCultsHoldTogether(generated, ::fail)
+    checkWorldBossesHoldTogether(generated, ::fail)
     checkEventsRespectSettlementLifetimes(generated, ::fail)
     checkNoEventCitesAPrunedCause(generated, ::fail)
     checkArtifactChainsAreOrdered(generated, ::fail)
@@ -1142,6 +1143,30 @@ object Invariants {
     }
   }
 
+  /** At least one world boss lives, no boss wakes twice, and each one's story ends at a site that names it. */
+  private fun checkWorldBossesHoldTogether(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val monsters = generated.world.chronicle.monsters
+    if (monsters.isEmpty()) return
+
+    if (monsters.none { it.alive }) {
+      fail("world bosses hold together", "all ${monsters.size} world bosses were slain")
+      return
+    }
+    if (monsters.map { it.boss }.distinct().size != monsters.size) {
+      fail("world bosses hold together", "a world boss woke twice: ${monsters.map { it.boss }}")
+      return
+    }
+    for (monster in monsters) {
+      if (generated.world.chronicle.sites.getOrNull(monster.site)?.monster != monster.index) {
+        fail("world bosses hold together", "${monster.boss} ends at site ${monster.site}, which does not name it")
+        return
+      }
+    }
+  }
+
   /** Gods are of distinct domains, patrons are real gods, and every cult has the sanctuary that names it. */
   private fun checkGodsAndCultsHoldTogether(
     generated: GeneratedWorld,
@@ -1721,6 +1746,8 @@ object Invariants {
       FeatureKind.WOUND to SiteChannels.RADIUS,
       FeatureKind.SHRINE to SiteChannels.RADIUS,
       FeatureKind.SANCTUARY to SiteChannels.RADIUS,
+      FeatureKind.SEAL to SiteChannels.RADIUS,
+      FeatureKind.LAIR to SiteChannels.RADIUS,
       FeatureKind.CAVE_ENTRANCE to CaveChannels.MOUTH
     )
 
