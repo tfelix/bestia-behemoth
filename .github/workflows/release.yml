@@ -83,3 +83,62 @@ jobs:
           subject-name: ${{ env.IMAGE }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
+
+  client:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    strategy:
+      matrix:
+        include:
+          - preset: Linux
+            platform: linux-x64
+            binary: bestia.x86_64
+          - preset: Windows Desktop
+            platform: windows-x64
+            binary: bestia.exe
+    env:
+      ARCHIVE: bestia-client-${{ needs.release-please.outputs.version }}-${{ matrix.platform }}
+      PRESET: ${{ matrix.preset }}
+      BINARY: ${{ matrix.binary }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.1
+          use-dotnet: true
+          include-templates: true
+      - name: Export
+        working-directory: bestia-client/src
+        run: |
+          # GDScript refers to the generated C# message types, so the assembly must exist before the import.
+          dotnet build "Bestia Behemoth Client.csproj"
+          # A fresh clone has no .godot import cache, and the export needs it.
+          godot --headless --import
+          mkdir -p "$RUNNER_TEMP/$ARCHIVE"
+          godot --headless --export-release "$PRESET" "$RUNNER_TEMP/$ARCHIVE/$BINARY"
+          test -f "$RUNNER_TEMP/$ARCHIVE/$BINARY"
+      - name: Pack
+        working-directory: ${{ runner.temp }}
+        run: |
+          # tar keeps the Linux binary executable; Windows players expect a zip.
+          if [ "${{ matrix.platform }}" = windows-x64 ]; then
+            zip -qr "$ARCHIVE.zip" "$ARCHIVE"
+          else
+            tar czf "$ARCHIVE.tar.gz" "$ARCHIVE"
+          fi
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: ${{ runner.temp }}/${{ env.ARCHIVE }}.*
+      - name: Upload to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: gh release upload "$TAG" "$RUNNER_TEMP/$ARCHIVE".* --repo "$GITHUB_REPOSITORY"
