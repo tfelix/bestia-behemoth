@@ -190,6 +190,7 @@ const _PREDICTION_GRACE_FLOOR_MSEC: int = 600
 const _ROTATION_DURATION: float = 0.3  # Time to turn the model to face movement direction
 const _VISUAL_NODE_NAME = "Visual"
 const _WARDED_EFFECT_ID: int = 10  # the server's StatusEffectId.WARDED
+const _SPELL_BINDING_GLYPH_EFFECT_ID: int = 18  # the server's SpellBindingGlyphs.GLYPH_VISUAL_ID
 
 # Ground snapping (see _update_ground_offset).
 const _GROUND_MAX_RATE: float = 6.0      # metres/second the correction may travel
@@ -1504,6 +1505,11 @@ func update_item_enchantments(msg: ItemEnchantmentsComponentSMSG) -> void:
 ## Null unless this is an item on the ground that carries an enchantment.
 func get_item_enchantments() -> ItemEnchantmentsComponentSMSG:
 	return _item_enchantments
+
+
+## A Spell Binding's glyph: shown to its binder, or to a party whose Magic Sense found it. Dispel can aim at it.
+func is_spell_binding_glyph() -> bool:
+	return _visual_key == "%s:%s" % [VisualKind.EFFECT, _SPELL_BINDING_GLYPH_EFFECT_ID]
 
 
 func update_guild_tag(msg: GuildTagComponentSMSG) -> void:

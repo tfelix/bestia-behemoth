@@ -74,6 +74,8 @@ signal settlement_offered(message: SettlementOfferSMSG)
 signal settlement_notice(message: SettlementNoticeSMSG)
 signal spell_scrolls_received(message: SpellScrollsSMSG)
 signal inscription_options_received(message: InscriptionOptionsSMSG)
+## The played master's own Spell Bindings, on request and after each change.
+signal spell_bindings_received(message: SpellBindingsSMSG)
 ## The played master's whole mailbox, on request and after a letter was thrown away.
 signal letters_received(message: LettersSMSG)
 ## A pigeon brought a letter to the played master.
@@ -206,6 +208,7 @@ var AnswerSettlementOfferCMSG = load("res://Bnet/Message/Settlement/AnswerSettle
 var RepairStructureCMSG = load("res://Bnet/Message/Settlement/RepairStructureCMSG.cs")
 var SpellScrollsCMSG = load("res://Bnet/Message/SpellScroll/SpellScrollsCMSG.cs")
 var InscriptionOptionsCMSG = load("res://Bnet/Message/SpellScroll/InscriptionOptionsCMSG.cs")
+var SpellBindingsCMSG = load("res://Bnet/Message/SpellBinding/SpellBindingsCMSG.cs")
 var SendLetterCMSG = load("res://Bnet/Message/Postal/SendLetterCMSG.cs")
 var RequestLettersCMSG = load("res://Bnet/Message/Postal/RequestLettersCMSG.cs")
 var ReadLetterCMSG = load("res://Bnet/Message/Postal/ReadLetterCMSG.cs")
@@ -1187,6 +1190,12 @@ func request_inscription_options() -> void:
 	_socket.SendMessage(InscriptionOptionsCMSG.new())
 
 
+## Asks for the played master's own Spell Bindings. Answered by a SpellBindingsSMSG.
+func request_spell_bindings() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(SpellBindingsCMSG.new())
+
+
 ## Sends a letter by pigeon. Answered by a LetterSentSMSG, or an OperationError when it cannot go.
 func send_letter(recipient_name: String, subject: String, body: String) -> void:
 	assert(is_ready_to_send())
@@ -1778,6 +1787,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		spell_scrolls_received.emit(message)
 	elif message is InscriptionOptionsSMSG:
 		inscription_options_received.emit(message)
+	elif message is SpellBindingsSMSG:
+		spell_bindings_received.emit(message)
 	elif message is LettersSMSG:
 		letters_received.emit(message)
 	elif message is LetterArrivedSMSG:
