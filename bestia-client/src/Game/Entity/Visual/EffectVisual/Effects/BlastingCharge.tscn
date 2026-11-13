@@ -1,0 +1,37 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://Game/Entity/Visual/EffectVisual/Effects/blasting_charge.gd" id="1_script"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_bundle"]
+top_radius = 0.12
+bottom_radius = 0.12
+height = 0.45
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bundle"]
+albedo_color = Color(0.62, 0.16, 0.1, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_spark"]
+radius = 0.06
+height = 0.12
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spark"]
+shading_mode = 0
+albedo_color = Color(1, 0.75, 0.3, 1)
+
+[node name="BlastingCharge" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Bundle" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.23, 0)
+mesh = SubResource("CylinderMesh_bundle")
+material_override = SubResource("StandardMaterial3D_bundle")
+
+[node name="Spark" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52, 0)
+mesh = SubResource("SphereMesh_spark")
+material_override = SubResource("StandardMaterial3D_spark")
+
+[node name="Glow" type="OmniLight3D" parent="Spark"]
+light_color = Color(1, 0.65, 0.25, 1)
+light_energy = 1.5
+omni_range = 2.5

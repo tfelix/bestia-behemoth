@@ -11,6 +11,7 @@
  - MOVEMENT wave 8: TravelSystem [EveryTick]
  - MOVEMENT wave 9: ActorSignatureSystem [EveryTick]
  - MOVEMENT wave 10: MoveSystem [EveryTick]
+ - ACTIONS wave 11: BlastFuseSystem [EveryTick]
  - ACTIONS wave 11: CastingSystem [EveryTick]
  - ACTIONS wave 11: CraftingSystem [EveryTick]
  - ACTIONS wave 11: IncubatorSystem [EverySeconds(seconds=1.0)]

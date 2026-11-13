@@ -13,8 +13,8 @@ interface CarveYield {
   /** The component types [handOut] writes. */
   val writes: ComponentClassSet
 
-  /** Puts aside for [entityId] what [result] broke. Tick thread. */
-  fun bank(world: World, result: ChunkService.CarveResult, entityId: EntityId)
+  /** Puts aside for [entityId] what [result] broke, or for the ground when it [scatters]. Tick thread. */
+  fun bank(world: World, result: ChunkService.CarveResult, entityId: EntityId, scatters: Boolean = false)
 
   /** Hands out what is put aside. Tick thread. */
   fun handOut(world: World)

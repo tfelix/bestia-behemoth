@@ -7,12 +7,16 @@ import net.bestia.zone.account.Face
 import net.bestia.zone.account.Hairstyle
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
+import net.bestia.zone.battle.ecs.status.Mana
+import net.bestia.zone.casting.net.ActivateSkillCMSG
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.ecs.Equipment
+import net.bestia.zone.item.ecs.GroundItemStack
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
+import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.mining.OreInBrush
 import net.bestia.zone.item.mining.PickaxeMining
@@ -174,6 +178,25 @@ class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
     fail("$RICH_VEINS_SWINGS swings paid exactly the $plain pieces in the rock, never a piece more")
   }
 
+  @Test
+  @Order(5)
+  fun `a blasting charge breaks the rock and scatters its ore on the ground`() {
+    learn("M_BLASTING", 1)
+    val spot = oreSpots.find(positionOf(miner())) { true }
+    val itemId = oreSpots.itemAt(spot)
+    val chargeId = assertNotNull(items.idOf(BLASTING_CHARGE))
+    world.modify(miner()) { id -> add(id, ObtainItemIntent.CreateItemIntent(chargeId, 1)) }
+    await { assertEquals(1, amountOf(chargeId)) }
+    standNextTo(spot)
+    world.modify(miner()) { id -> get(id, Mana::class)!!.apply { max = MANA; current = MANA } }
+
+    val blasting = assertNotNull(skills.findByIdentifier("M_BLASTING")).id
+    client.sendMessage(ActivateSkillCMSG(accountId, blasting, 1, spot, 0L))
+
+    await { assertEquals(0, amountOf(chargeId), "the charge was spent") }
+    await { assertTrue(groundStacksOf(itemId) > 0, "the ore lies on the ground") }
+  }
+
   /** Ore no untrained miner may break, so that both scenarios aim at the same kind of rock. */
   private fun hardOre(): Vec3L {
     return oreSpots.find(positionOf(miner())) { stack -> (items.baseLevelOf(stack.itemId) ?: 0) > UNTRAINED_CAP }
@@ -192,6 +215,13 @@ class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
   private fun learn(identifier: String, level: Int) {
     val skillId = assertNotNull(skills.findByIdentifier(identifier)).id
     world.modify(miner()) { id -> get(id, KnownSkills::class)!!.learnOrUpdate(skillId, level) }
+  }
+
+  private fun groundStacksOf(itemId: Long): Int {
+    var found = 0
+    world.read { query(GroundItemStack::class).each { _ -> if (get<GroundItemStack>().itemId == itemId) found++ } }
+
+    return found
   }
 
   private fun amountOf(itemId: Long): Int {
@@ -221,6 +251,8 @@ class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
     const val MIN_SWING_SECONDS = 30f
     const val HURRIED_SECONDS = 0.2f
     const val RICH_VEINS_SWINGS = 6
+    const val BLASTING_CHARGE = "blasting_charge"
+    const val MANA = 500
 
     /** The tile a click on the top of a block names: the air above it. */
     val ABOVE = Vec3L(0, 0, 1)

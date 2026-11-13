@@ -2532,3 +2532,12 @@ items:
       A yew bow with horn tips, made to bring down game.
 
       Needs both hands and arrows in the quiver.
+
+  # What Blasting burns. Brewed with Alchemy once that recipe exists; until then the GM item command hands it out.
+  - id: 460
+    item-db-name: blasting_charge
+    base-level: 30
+    weight: 20
+    type: ETC
+    material: PAPER
+    description: A paper cartridge packed with blasting powder. Blasting sets one on the ground to break the rock.

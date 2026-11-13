@@ -2,12 +2,15 @@ package net.bestia.zone.item.mining
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.ecs.ObtainItemIntent.CreateItemIntent
+import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.world.stream.ChunkService.CarveResult
 import net.bestia.zone.world.stream.ChunkService.CarvedVoxel
 import kotlin.test.Test
@@ -26,7 +29,9 @@ class OreHandOutTest {
     every { extraPieces(any(), any(), any()) } returns 0
   }
 
-  private val sut = OreHandOut(OreYield(items), richVeins)
+  private val lootItems = mockk<LootItemEntitySpawner>(relaxed = true)
+
+  private val sut = OreHandOut(OreYield(items), richVeins, lootItems)
   private val world = testWorld()
   private val miner = world.createEntity { }
 
@@ -76,6 +81,17 @@ class OreHandOutTest {
     assertEquals(IRON_ORE to 2, held())
   }
 
+  @Test
+  fun `a blast scatters its ore where each block was, for nobody in particular`() {
+    sut.bank(world, carve(voxel(BlockType.ORE_IRON_SMALL, Occupancy.EMPTY)), miner, scatters = true)
+
+    handOut()
+    world.runPostedUntil(System.nanoTime() + POSTED_NANOS)
+
+    assertNull(held())
+    verify { lootItems.spawnLootItem(any(), IRON_ORE, 1, Vec3L(1, 2, 3)) }
+  }
+
   private fun handOut() {
     world.modify(miner) { sut.handOut(this) }
   }
@@ -95,6 +111,7 @@ class OreHandOutTest {
   private companion object {
     const val GOLD_ORE = 31L
     const val IRON_ORE = 8L
+    const val POSTED_NANOS = 50_000_000L
     val CHUNK = ChunkPos(0, 0, 0)
   }
 }

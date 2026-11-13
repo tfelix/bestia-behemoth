@@ -2198,11 +2198,16 @@ skills:
     manaCost: 10
     cooldown: 10
     castTime: 2
+    mechanics:
+      reagents:
+        - item: blasting_charge
+          amount: 1
     description: |
-      Sets a blasting charge that breaks every block around it 3s later. Consumes a Blasting Charge,
-      brewed with Alchemy. Nobody should stand too close.
+      Sets a blasting charge on the ground. 3s later it breaks every block around it and hurts every
+      foe inside. The ore it breaks scatters on the ground. Consumes a Blasting Charge.
 
-      `+1m/lv` radius, from 1m at Lv.1
+      `+1m/lv` radius, from 2m at Lv.1
+      `+20%/lv` ATK damage, from 120% at Lv.1
 
   - id: 180
     identifier: M_GEM_LORE
