@@ -1956,16 +1956,18 @@ skills:
     targetType: FRIENDLY
     description: |
       Training with lute, flute and whip until each one is as much a weapon as an instrument.
+      Works while an instrument or a whip is in hand; a bow gains nothing.
 
-      `+2/lv` ATK with an instrument or a whip
+      `+2/lv` ATK
 
   - id: 161
     identifier: M_NIMBLE_STEPS
     targetType: FRIENDLY
     description: |
-      A Bard trusts footwork over plate and simply is not where the hit lands.
+      A Bard trusts footwork over plate and simply is not where the hit lands. Works in light
+      body armor, cloth or none.
 
-      `+2/lv` FLEE in light armor, cloth or no armor
+      `+2/lv` FLEE
 
   - id: 162
     identifier: M_HOBBLING_LASH
@@ -1975,8 +1977,8 @@ skills:
     manaCost: 15
     cooldown: 6
     description: |
-      Needs a whip. A strike at the footing that leaves the target Slowed (-20% move speed).
-      Cooldown 6s.
+      Needs a whip. A strike at the footing that leaves the target Slowed (-20% move speed) if it
+      hits. Cooldown 6s.
 
       `120% + 20%/lv` ATK
       `3s + 1s/lv` Slowed
@@ -1990,8 +1992,8 @@ skills:
     cooldown: 2
     castTime: 1
     description: |
-      Needs an instrument. One sharp, ugly note that hits the target as a sound wave.
-      Cooldown 2s.
+      Needs an instrument. One sharp, ugly note that hits the target as a sound wave. It flies
+      like an arrow, so DEX drives it and a Pneuma stops it. Cooldown 2s.
 
       `150% + 30%/lv` ATK
 
@@ -2003,9 +2005,10 @@ skills:
     cooldown: 20
     castTime: 2
     description: |
-      Needs an instrument. Every enemy within 3 tiles gets ASPD Down and loses HIT for 20s.
-      Cooldown 20s.
+      Needs an instrument. Every enemy within 3 tiles of the Bard swings slower and aims worse
+      for 20s. Cooldown 20s.
 
+      `-5%/lv` ASPD
       `-3%/lv` HIT
 
   - id: 165
