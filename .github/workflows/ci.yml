@@ -1,0 +1,96 @@
+# Tests for every part of the repo, one runner per part. Manual for now: run it from the Actions tab.
+# To run it on every PR, add under `on:`
+#   pull_request:
+#   push:
+#     branches: [main]
+name: CI
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  servers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      # bus, login and api tests start Valkey and MariaDB with Testcontainers on the runner's Docker.
+      - run: ./gradlew :zone-server:test :login-server:test :api-server:test :bus:test
+
+  # A runner of its own: in one Gradle process with the zone tests, the worldgen executor runs out of memory.
+  worldgen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew :worldgen:test
+
+  client:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew clientTest
+
+  companion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: companion-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: companion-app/.nvmrc
+          cache: npm
+          cache-dependency-path: companion-app/package-lock.json
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+
+  # Release Please builds the changelog from Conventional Commit prefixes; a commit without one is left out.
+  commits:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Every commit has a Conventional Commit prefix
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          bad=$(git log --format='%h %s' "$BASE..$HEAD" \
+            | grep -v -E '^[0-9a-f]+ (feat|fix|perf|refactor|docs|test|build|ci|chore|style|revert)(\(.+\))?!?: ' || true)
+          if [ -n "$bad" ]; then
+            echo "Commits without a Conventional Commit prefix:"
+            echo "$bad"
+            exit 1
+          fi
