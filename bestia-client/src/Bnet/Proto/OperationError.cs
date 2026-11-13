@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqBLQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqeLQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -153,9 +153,10 @@ namespace Bnet {
             "SVBMRV9CTE9XEK8BEhgKE1NLSUxMX05FRURTX0JFUlNFUksQsAESGgoVU0tJ",
             "TExfTkVFRFNfSEFMRl9NQU5BELEBEiAKG1NLSUxMX05FRURTX1NQRUFSX09S",
             "X1RIUk9XThCyARIbChZTS0lMTF9OT1RISU5HX1RPX1RIUk9XELMBEhQKD1NL",
-            "SUxMX05FRURTX0JPVxC0ARIVChBTS0lMTF9ORUVEU19XSElQELUBIgQILhAu",
-            "KhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
-            "QhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "SUxMX05FRURTX0JPVxC0ARIVChBTS0lMTF9ORUVEU19XSElQELUBEhsKFlNL",
+            "SUxMX05FRURTX0lOU1RSVU1FTlQQtgEiBAguEC4qElNIT1BfVFJFQVNVUllf",
+            "RlVMTEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9y",
+            "UHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -974,6 +975,10 @@ namespace Bnet {
     /// A whip skill, like Hobbling Lash, was used without a whip in hand.
     /// </summary>
     [pbr::OriginalName("SKILL_NEEDS_WHIP")] SkillNeedsWhip = 181,
+    /// <summary>
+    /// An instrument skill, like Discord Strike, was used without an instrument in hand.
+    /// </summary>
+    [pbr::OriginalName("SKILL_NEEDS_INSTRUMENT")] SkillNeedsInstrument = 182,
   }
 
   #endregion

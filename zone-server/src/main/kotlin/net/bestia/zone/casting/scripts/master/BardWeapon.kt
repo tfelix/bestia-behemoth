@@ -12,7 +12,8 @@ enum class BardWeapon(
   private val type: WeaponType,
   private val refusal: OpError,
 ) {
-  WHIP(WeaponType.WHIP, OpError.SKILL_NEEDS_WHIP);
+  WHIP(WeaponType.WHIP, OpError.SKILL_NEEDS_WHIP),
+  INSTRUMENT(WeaponType.INSTRUMENT, OpError.SKILL_NEEDS_INSTRUMENT);
 
   /** For [net.bestia.zone.casting.SkillStrategy.checkCastStart]. */
   fun refusalFor(world: World, casterId: EntityId): OpError? {

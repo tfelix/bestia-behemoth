@@ -510,6 +510,8 @@ enum OpError {
   SKILL_NEEDS_BOW = 180;
   // A whip skill, like Hobbling Lash, was used without a whip in hand.
   SKILL_NEEDS_WHIP = 181;
+  // An instrument skill, like Discord Strike, was used without an instrument in hand.
+  SKILL_NEEDS_INSTRUMENT = 182;
 }
 
 message OperationError {
