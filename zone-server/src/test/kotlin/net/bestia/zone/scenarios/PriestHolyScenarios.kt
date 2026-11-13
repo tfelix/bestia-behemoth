@@ -36,6 +36,7 @@ import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.ClientWorldContract
 import net.bestia.zone.world.MasterSpawnPointService
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -156,8 +157,11 @@ class PriestHolyScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
       // A fresh blob beside the Priest for each cast, without its AI and in one lease, so it never acts: a blob
       // that strikes back cancels the cast with its hit, and its skill lookup would run SQL on the tick.
       val at = world.read { getOrThrow(priest(), Position::class).toVec3L() }
+      // In the Priest's own chunk: its client is told of an entity only once that chunk streams to it, and a
+      // neighbouring chunk may not have arrived yet, so the client would never hear the blow land.
+      val beside = if (Math.floorMod(at.x + 1, ClientWorldContract.CHUNK_SIZE.toLong()) == 0L) -1 else 1
       val blob = world.read {
-        val id = spawner.spawnMob(this, BLOB, at + Vec3L(1, 0, 0), persistent = false)
+        val id = spawner.spawnMob(this, BLOB, at + Vec3L(beside, 0, 0), persistent = false)
         remove(id, AiAgent::class)
         // Enough to survive the blow: a dead blob would fizzle the cast.
         get(id, Health::class)!!.apply { max = BLOB_HEALTH; current = BLOB_HEALTH }
