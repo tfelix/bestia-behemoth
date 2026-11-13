@@ -227,6 +227,9 @@ interface SkillWorld {
   /** Writes [spell] onto a new scroll in the caster's bag. One op. */
   fun inscribeSpell(spell: InscribedSpell)
 
+  /** Dispels the Spell Binding at [entityId], see [SpellBindings.dispel]. One op. */
+  fun dispelBinding(entityId: EntityId, baseChancePercent: Int): Boolean?
+
   /** Binds a scroll as [args] ask, see [SpellBindings.bind]; the refusal, or null once bound. One spawn. */
   fun bindSpell(args: List<Long>, at: Vec3L): OpError?
 
