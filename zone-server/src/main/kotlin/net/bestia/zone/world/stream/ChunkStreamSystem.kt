@@ -60,6 +60,7 @@ class ChunkStreamSystem(
   private val carveYield: CarveYield,
   private val connections: ConnectionInfoService,
   private val workers: ChunkWorkers,
+  private val viewpoints: RemoteViewpoints = RemoteViewpoints(),
   private val metrics: ChunkStreamMetrics = ChunkStreamMetrics(),
 ) : System {
   override val phase = Phase.WORLD
@@ -277,14 +278,15 @@ class ChunkStreamSystem(
     for ((accountId, anchor) in anchors) {
       val previous = subscriptions.anchorOf(accountId)
       subscriptions.setAnchor(accountId, anchor)
+      val remote = remoteViewOf(accountId)
 
       // Considered every tick, not only when the anchor moves: the desired set can grow while a player stands
       // still, because the slab budget may not have afforded the whole view volume yet, or somebody dug. When
       // neither can have happened since a manifest that settled everything, there is nothing to recompute.
-      val basis = ManifestBasis(anchor, chunkService.slabEpoch)
+      val basis = ManifestBasis(anchor, remote, chunkService.slabEpoch)
       if (previous != null && settledManifests[accountId] == basis) continue
 
-      val settled = sendManifest(accountId, anchor, reset = previous == null, budget = budget)
+      val settled = sendManifest(accountId, anchor, remote, reset = previous == null, budget = budget)
       if (settled) settledManifests[accountId] = basis else settledManifests.remove(accountId)
     }
 
@@ -295,7 +297,16 @@ class ChunkStreamSystem(
   }
 
   /** What an account's last manifest was computed from, when it left nothing outstanding. */
-  private data class ManifestBasis(val anchor: ChunkPos, val slabEpoch: Long)
+  private data class ManifestBasis(val anchor: ChunkPos, val remote: RemoteView?, val slabEpoch: Long)
+
+  /** A [RemoteViewpoints.Viewpoint] in chunks, the unit a manifest is computed in. */
+  private data class RemoteView(val anchor: ChunkPos, val radius: Int)
+
+  private fun remoteViewOf(accountId: Long): RemoteView? {
+    val viewpoint = viewpoints.of(accountId) ?: return null
+
+    return RemoteView(ChunkCoords.chunkOf(chunkService.config, viewpoint.centre), viewpoint.radiusChunks)
+  }
 
   private val settledManifests = HashMap<Long, ManifestBasis>()
 
@@ -316,9 +327,18 @@ class ChunkStreamSystem(
    * @return true when the client now holds the whole desired set: every column was costed and the manifest,
    *   if one was needed, went out.
    */
-  private fun sendManifest(accountId: Long, anchor: ChunkPos, reset: Boolean, budget: SlabBudget): Boolean {
+  private fun sendManifest(
+    accountId: Long,
+    anchor: ChunkPos,
+    remote: RemoteView?,
+    reset: Boolean,
+    budget: SlabBudget
+  ): Boolean {
     manifestsComputed++
-    val (desired, complete) = viewVolume.chunksAround(anchor, budget)
+    val body = viewVolume.chunksAround(anchor, budget)
+    val far = remote?.let { viewVolume.chunksAround(it.anchor, budget, it.radius) }
+    val desired = if (far == null) body.chunks else body.chunks + far.chunks
+    val complete = body.complete && far?.complete != false
     val held = subscriptions.announcedTo(accountId)
 
     val added = if (reset) desired.toList() else desired.filterNot { it in held }
@@ -327,7 +347,9 @@ class ChunkStreamSystem(
     // because the slab budget ran out this tick has not gone anywhere, and withdrawing it would make the client
     // discard terrain it is standing next to only to be offered it again moments later. `reset` says
     // everything, so it names nothing removed.
-    val keptColumns = viewVolume.columnsAround(anchor, settings.viewRadiusChunks + settings.releaseMarginChunks)
+    val margin = settings.releaseMarginChunks
+    val keptColumns = viewVolume.columnsAround(anchor, settings.viewRadiusChunks + margin) +
+        (remote?.let { viewVolume.columnsAround(it.anchor, it.radius + margin) } ?: emptySet())
     val removed = if (reset) {
       emptyList()
     } else {
@@ -368,6 +390,12 @@ class ChunkStreamSystem(
     // costs nothing and keeps that argument free of special cases.
     val ground = chunkService.normalise(anchor)
     if (ground !in subscriptions.sentTo(accountId)) queueFirst(accountId, ground)
+
+    // Unasked as well, but behind the body's ground: the far spot is what a remote viewer looks at first.
+    val farGround = remote?.let { chunkService.normalise(it.anchor) }
+    if (farGround != null && farGround in desired && farGround !in subscriptions.sentTo(accountId)) {
+      queued.getOrPut(accountId) { LinkedHashSet() }.add(farGround)
+    }
 
     LOG.debug {
       "Manifest for $accountId at $anchor: ${added.size} added, ${removed.size} removed, reset=$reset"
@@ -562,6 +590,8 @@ class ChunkStreamSystem(
   /** Keeps the request bucket: reconnecting must not hand a client a fresh budget. */
   internal fun forget(accountId: Long) {
     subscriptions.forget(accountId)
+    // Whatever looked through it has gone with the connection, and must not open again on the next login.
+    viewpoints.close(accountId)
     inbox.forget(accountId)
     queued.remove(accountId)
     settledManifests.remove(accountId)
