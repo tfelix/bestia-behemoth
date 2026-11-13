@@ -50,6 +50,7 @@ class Chronicle(
   val dynasties: List<DynastyRecord> = emptyList(),
   val deities: List<DeityRecord> = emptyList(),
   val cults: List<CultRecord> = emptyList(),
+  val monsters: List<MonsterRecord> = emptyList(),
   /** Every lasting tie between two figures, each with the event that made it. */
   val relations: List<RelationRecord> = emptyList()
 ) {
@@ -126,7 +127,7 @@ class Chronicle(
 }
 
 /** What sort of entity an [Actor] refers to. */
-enum class ActorType { CIV, SETTLEMENT, FIGURE, ARTIFACT, SITE, DEITY, CULT }
+enum class ActorType { CIV, SETTLEMENT, FIGURE, ARTIFACT, SITE, DEITY, CULT, MONSTER }
 
 /**
  * One of the three Orders a people can be sworn to: what they believe the mana means.
@@ -407,7 +408,16 @@ enum class EventKind(
   CULT_REVOLT(65),
 
   /** A cult joins the Order its teaching leans toward. Only on a world where the Orders are known. */
-  CULT_ABSORBED(50);
+  CULT_ABSORBED(50),
+
+  // --- World bosses ----------------------------------------------------------------------------------
+
+  MONSTER_AWOKE(75),
+  MONSTER_RAVAGED(55),
+  MONSTER_SLAIN(80),
+  MONSTER_SEALED(75),
+  MONSTER_WITHDREW(65),
+  MONSTER_VANISHED(65);
 
   companion object {
 
@@ -700,7 +710,13 @@ enum class SiteKind {
   SHRINE,
 
   /** A cult's holy place in the open: an idol on a paved floor near the town where the cult was founded. */
-  SANCTUARY
+  SANCTUARY,
+
+  /** Where a world boss lies bound in a crystal. Whoever breaks the crystal wakes it. */
+  SEAL,
+
+  /** Where a living world boss hides: deep in a cave, far out in the wilds, or far out at sea. Not on any map. */
+  LAIR
 }
 
 data class SiteRecord(
@@ -756,5 +772,8 @@ data class SiteRecord(
   val fallen: Int = 0,
 
   /** Index into [Chronicle.cults] for a [SiteKind.SANCTUARY], else -1. */
-  val cult: Int = -1
+  val cult: Int = -1,
+
+  /** Index into [Chronicle.monsters] for a [SiteKind.SEAL], a [SiteKind.LAIR] or a slaying field, else -1. */
+  val monster: Int = -1
 )

@@ -407,6 +407,8 @@ class PoiStage(
         FeatureKind.LIGHTHOUSE,
         FeatureKind.SHRINE,
         FeatureKind.SANCTUARY,
+        FeatureKind.SEAL,
+        FeatureKind.LAIR,
         FeatureKind.WOUND
       )
 

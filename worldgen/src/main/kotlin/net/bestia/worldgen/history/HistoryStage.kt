@@ -24,6 +24,7 @@ import net.bestia.worldgen.core.StageId
 import net.bestia.worldgen.core.StageOutput
 import net.bestia.worldgen.core.StageResult
 import net.bestia.worldgen.core.StageScale
+import net.bestia.worldgen.core.WorldBoss
 import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.geo.TectonicsStage
 import net.bestia.worldgen.geo.VolcanismStage
@@ -68,7 +69,7 @@ class HistoryStage(
 
   override val paramsVersion get() = GenRng.hash(
     params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest(), EventKind.catalogueDigest(),
-    Names.catalogueDigest(), Faction.catalogueDigest(), Domain.catalogueDigest()
+    Names.catalogueDigest(), Faction.catalogueDigest(), Domain.catalogueDigest(), WorldBoss.catalogueDigest()
   )
   override val dependencies = listOf(
     TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID,
@@ -100,6 +101,8 @@ class HistoryStage(
     StageOutput.Vector(FeatureKind.WOUND),
     StageOutput.Vector(FeatureKind.SHRINE),
     StageOutput.Vector(FeatureKind.SANCTUARY),
+    StageOutput.Vector(FeatureKind.SEAL),
+    StageOutput.Vector(FeatureKind.LAIR),
     StageOutput.History
   )
 
@@ -346,6 +349,8 @@ class HistoryStage(
         SiteKind.WOUND -> FeatureKind.WOUND
         SiteKind.SHRINE -> FeatureKind.SHRINE
         SiteKind.SANCTUARY -> FeatureKind.SANCTUARY
+        SiteKind.SEAL -> FeatureKind.SEAL
+        SiteKind.LAIR -> FeatureKind.LAIR
       },
       position = record.position,
       attributes = StationTable.Builder(1)
@@ -367,6 +372,7 @@ class HistoryStage(
         .channel(SiteChannels.BATTLES) { record.battles.toDouble() }
         .channel(SiteChannels.FALLEN) { record.fallen.toDouble() }
         .channel(SiteChannels.CULT) { record.cult.toDouble() }
+        .channel(SiteChannels.MONSTER) { record.monster.toDouble() }
         .build()
     )
   }
@@ -484,6 +490,9 @@ object SiteChannels {
 
   /** Index into `Chronicle.cults` for a sanctuary, -1 on every other kind. */
   const val CULT = "cult"
+
+  /** Index into `Chronicle.monsters` for a seal, a lair or a slaying field, -1 on every other site. */
+  const val MONSTER = "monster"
 
   /**
    * [net.bestia.worldgen.resource.ResourceType] ordinal for a [SiteKind.MINE], -1 for every other kind.

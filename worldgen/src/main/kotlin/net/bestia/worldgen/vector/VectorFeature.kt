@@ -233,6 +233,12 @@ enum class FeatureKind(val defaultPriority: Int) {
   /** A cult's sanctuary. Beside [SHRINE] for the same reason: a small structure on ground it does not reshape. */
   SANCTUARY(643),
 
+  /** A world boss's seal: a crystal on a ring of stone. */
+  SEAL(644),
+
+  /** A world boss's lair. A marker for the zone to spawn it at; builds nothing. */
+  LAIR(645),
+
   /**
    * A street inside a settlement: a road with a narrower cross-section and a higher priority.
    *

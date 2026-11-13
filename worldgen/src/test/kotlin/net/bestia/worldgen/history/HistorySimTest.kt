@@ -8,6 +8,7 @@ import net.bestia.worldgen.core.CivOrigin
 import net.bestia.worldgen.core.CultFate
 import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.FigureRole
+import net.bestia.worldgen.core.MonsterFate
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.vector.Vec2d
 import kotlin.test.Test
@@ -282,6 +283,44 @@ class HistorySimTest {
   }
 
   @Test
+  fun `a world wakes world bosses, keeps one alive, and each ends in its place`() {
+    for (seed in 1L..20L) {
+      val chronicle = simulate(longFront(), FRONT_PARAMS, seed = seed, candidates = lairs())
+
+      val monsters = chronicle.monsters
+      assertTrue(monsters.size >= 2, "seed $seed woke ${monsters.size} world boss")
+      assertTrue(monsters.any { it.alive }, "seed $seed has no world boss alive: ${monsters.map { it.fate }}")
+      assertEquals(monsters.size, monsters.map { it.boss }.distinct().size, "seed $seed woke one boss twice")
+
+      for (monster in monsters) {
+        val site = chronicle.sites[monster.site]
+        val expected = when (monster.fate) {
+          MonsterFate.SLAIN -> SiteKind.BATTLEFIELD
+          MonsterFate.SEALED -> SiteKind.SEAL
+          MonsterFate.WITHDRAWN, MonsterFate.VANISHED -> SiteKind.LAIR
+        }
+        assertEquals(expected, site.kind, "seed $seed: ${monster.boss} ${monster.fate}")
+        assertEquals(monster.index, site.monster)
+      }
+    }
+  }
+
+  @Test
+  fun `a slain world boss leaves its slayer a trophy`() {
+    val params = FRONT_PARAMS.copy(slainWeight = 1.0, sealedWeight = 0.0, withdrawnWeight = 1.0, vanishedWeight = 0.0)
+    val chronicle = simulate(longFront(), params, candidates = lairs())
+
+    val slain = chronicle.monsters.firstOrNull { it.fate == MonsterFate.SLAIN }
+    assertTrue(slain != null, "no world boss was slain: ${chronicle.monsters.map { it.fate }}")
+    assertEquals(slain.hero, chronicle.artifacts[slain.trophy].forgedBy, "the trophy is not the slayer's")
+  }
+
+  @Test
+  fun `a world with nowhere for a lair wakes no world boss`() {
+    assertTrue(simulate(longFront(), FRONT_PARAMS).monsters.isEmpty())
+  }
+
+  @Test
   fun `the same sites give the same history`() {
     val first = simulate(twoNeighbouringPeoples())
     val second = simulate(twoNeighbouringPeoples())
@@ -354,10 +393,22 @@ class HistorySimTest {
     sites: List<SiteFacts>,
     params: HistoryParams = HistoryParams(),
     vents: List<VentFacts> = emptyList(),
-    seed: Long = 1L
+    seed: Long = 1L,
+    candidates: SpecialSiteCandidates = SpecialSiteCandidates.EMPTY
   ): Chronicle {
     val facts = sites.mapIndexed { index, site -> site.withIndex(index) }
-    return HistorySim(params, facts, vents, SpecialSiteCandidates.EMPTY, seed, seed).run()
+    return HistorySim(params, facts, vents, candidates, seed, seed).run()
+  }
+
+  /** A deep cave end, remote land and deep sea far out from [longFront], so every world boss has its lair. */
+  private fun lairs(): SpecialSiteCandidates {
+    fun at(xKm: Double, yKm: Double, detail: Int = -1) = SiteCandidate(Vec2d(xKm * 1000.0, yKm * 1000.0), 1.0, detail)
+    return SpecialSiteCandidates(
+      emptyList(), emptyList(), emptyList(), emptyList(),
+      caves = listOf(at(-120.0, 40.0, detail = 0), at(-120.0, 140.0, detail = 1)),
+      remote = listOf(at(150.0, 40.0), at(150.0, 160.0)),
+      deeps = listOf(at(40.0, -150.0), at(40.0, 250.0))
+    )
   }
 
   private fun site(

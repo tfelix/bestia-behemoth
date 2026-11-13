@@ -41,6 +41,7 @@ import java.util.Locale
  * ./gradlew :worldgen:chronicle -Pdynasties        # ruling houses, their rulers, and the ties between figures
  * ./gradlew :worldgen:chronicle -Pdeities          # the world's gods, named by every culture, and their patrons
  * ./gradlew :worldgen:chronicle -Pcults            # every cult, how far it spread and how it ended
+ * ./gradlew :worldgen:chronicle -Pmonsters         # every world boss, what woke it and how its story ended
  * ./gradlew :worldgen:chronicle -Psites            # ruins, battlefields, tombs and monuments
  * ./gradlew :worldgen:chronicle -Pquests           # unresolved threads worth turning into quests
  * ./gradlew :worldgen:chronicle -Porders           # who is sworn to which Order, and what came of it
@@ -99,6 +100,7 @@ object ChronicleMain {
     if (all || cli.has("--dynasties")) dynasties(chronicle)
     if (all || cli.has("--deities")) deities(chronicle)
     if (all || cli.has("--cults")) cults(chronicle)
+    if (all || cli.has("--monsters")) monsters(chronicle)
     if (all || cli.has("--artifacts")) artifacts(chronicle)
     if (all || cli.has("--sites")) sites(chronicle)
     if (all || cli.has("--orders")) orders(chronicle)
@@ -335,6 +337,24 @@ object ChronicleMain {
       val name = Names.cult(cult.nameSeed, cult.kind, deity, cult.beast)
       val span = if (cult.endedYear == 0) "${cult.foundedYear}-" else "${cult.foundedYear}-${cult.endedYear}"
       println("  $name, $span, ${cult.fate.name.lowercase()}, ${cult.settlements.size} towns")
+    }
+  }
+
+  /** Every world boss's story, from what woke it to where it is now, with the events that tell it. */
+  private fun monsters(chronicle: Chronicle) {
+    println()
+    println("${chronicle.monsters.size} world bosses")
+    for (monster in chronicle.monsters) {
+      val site = chronicle.sites.getOrNull(monster.site)
+      val where = site?.let { " at (${it.position.x.toInt()}, ${it.position.y.toInt()})" } ?: ""
+      println()
+      println(
+        "  ${Names.monster(monster.nameSeed, monster.boss)}: ${monster.origin.name.lowercase()}, " +
+            "${monster.awokeYear}-${monster.endedYear}, ${monster.fate.name.lowercase()}$where"
+      )
+      for (event in chronicle.eventsOf(Actor(ActorType.MONSTER, monster.index))) {
+        println("    ${event.year.toString().padStart(4)}  ${event.detail}")
+      }
     }
   }
 
@@ -602,7 +622,7 @@ object ChronicleMain {
   )
 
   private val CHRONICLE_FLAGS = setOf(
-    "--top", "--year", "--civs", "--artifacts", "--figures", "--dynasties", "--deities", "--cults", "--sites",
-    "--quests", "--orders", "--all", "--sweep"
+    "--top", "--year", "--civs", "--artifacts", "--figures", "--dynasties", "--deities", "--cults", "--monsters",
+    "--sites", "--quests", "--orders", "--all", "--sweep"
   )
 }

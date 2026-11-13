@@ -685,6 +685,8 @@ class MapRenderer(
       // MONUMENT's cream at one pixel per kilometre, which they could not be.
       FeatureKind.SHRINE -> Color(235, 130, 180)
       FeatureKind.SANCTUARY -> Color(200, 120, 230)
+      FeatureKind.SEAL -> Color(120, 230, 230)
+      FeatureKind.LAIR -> Color(90, 20, 20)
       FeatureKind.STREET -> Color(245, 215, 170)
       FeatureKind.TOWN_WALL -> Color(200, 200, 205)
       FeatureKind.GATE -> Color(255, 250, 230)
