@@ -99,6 +99,10 @@ class MobImporterBootRunner(
     @JsonProperty("event-only")
     val eventOnly: Boolean = false,
 
+    /** True for one of the five world bosses: only its lair or its seal spawns it. */
+    @JsonProperty("world-boss")
+    val worldBoss: Boolean = false,
+
     /** True for a species nothing may damage - see `Bestia.nonCombatant`. */
     @JsonProperty("non-combatant")
     val nonCombatant: Boolean = false,
@@ -172,6 +176,7 @@ class MobImporterBootRunner(
       boss = dto.boss,
       spawnWeight = dto.spawnWeight,
       eventOnly = dto.eventOnly,
+      worldBoss = dto.worldBoss,
       nonCombatant = dto.nonCombatant,
       inCompendium = dto.compendium,
       temperatureMinCelsius = dto.temperatureMin,
@@ -238,6 +243,7 @@ class MobImporterBootRunner(
         entity.boss != dto.boss ||
         entity.spawnWeight != dto.spawnWeight ||
         entity.eventOnly != dto.eventOnly ||
+        entity.worldBoss != dto.worldBoss ||
         entity.nonCombatant != dto.nonCombatant ||
         entity.inCompendium != dto.compendium ||
         entity.temperatureMinCelsius != dto.temperatureMin ||
@@ -273,6 +279,7 @@ class MobImporterBootRunner(
     entity.boss = dto.boss
     entity.spawnWeight = dto.spawnWeight
     entity.eventOnly = dto.eventOnly
+    entity.worldBoss = dto.worldBoss
     entity.nonCombatant = dto.nonCombatant
     entity.inCompendium = dto.compendium
     entity.temperatureMinCelsius = dto.temperatureMin

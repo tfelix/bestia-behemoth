@@ -14,7 +14,7 @@ enum class WorldBoss(
   val origins: List<MonsterOrigin>
 ) {
   OSSUARY_WYRM(
-    "ossuary-wyrm", "the Bone Wyrm", 108, LairKind.CAVE,
+    "ossuary_wyrm", "the Bone Wyrm", 108, LairKind.CAVE,
     listOf(MonsterOrigin.ROBBED_TOMB, MonsterOrigin.RISEN_DEAD)
   ),
   LEVIATHAN(
@@ -26,11 +26,11 @@ enum class WorldBoss(
     listOf(MonsterOrigin.ERUPTION, MonsterOrigin.WOUND)
   ),
   EMBER_SOVEREIGN(
-    "ember-sovereign", "the Ember Sovereign", 110, LairKind.CAVE,
+    "ember_sovereign", "the Ember Sovereign", 110, LairKind.CAVE,
     listOf(MonsterOrigin.ERUPTION, MonsterOrigin.SUMMONED)
   ),
   MIRE_MOTHER(
-    "mire-mother", "the Mire Mother", 104, LairKind.REMOTE_LAND,
+    "mire_mother", "the Mire Mother", 104, LairKind.REMOTE_LAND,
     listOf(MonsterOrigin.RISEN_DEAD, MonsterOrigin.SUMMONED, MonsterOrigin.WOUND)
   );
 

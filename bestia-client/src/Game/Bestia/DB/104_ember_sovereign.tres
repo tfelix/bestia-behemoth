@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 104
+name_key = "BESTIA_EMBER_SOVEREIGN"
+description_key = "BESTIA_EMBER_SOVEREIGN_DESC"
+kind = "ELEMENTAL"
+equip_slots = 384
+armor_types = 0
+non_combatant = false
+habitat = "VOLCANIC_FIELD"
+in_compendium = true
+aggressive = true
+placeholder_shape = 2
+placeholder_colour = Color(1, 0.2, 0, 1)
+placeholder_scale = 2.4
+placeholder_glow = 1
