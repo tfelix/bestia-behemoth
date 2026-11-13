@@ -299,6 +299,7 @@ object Invariants {
     checkTheWorldHasHadTwoPeoples(generated, ::fail)
     checkEveryBattleHasItsField(generated, ::fail)
     checkFamiliesHoldTogether(generated, ::fail)
+    checkGodsAndCultsHoldTogether(generated, ::fail)
     checkEventsRespectSettlementLifetimes(generated, ::fail)
     checkNoEventCitesAPrunedCause(generated, ::fail)
     checkArtifactChainsAreOrdered(generated, ::fail)
@@ -1141,6 +1142,33 @@ object Invariants {
     }
   }
 
+  /** Gods are of distinct domains, patrons are real gods, and every cult has the sanctuary that names it. */
+  private fun checkGodsAndCultsHoldTogether(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val chronicle = generated.world.chronicle
+    val domains = chronicle.deities.map { it.domain }
+    if (domains.size != domains.distinct().size) {
+      fail("gods and cults hold together", "two gods share a domain: $domains")
+      return
+    }
+
+    val patrons = chronicle.civs.map { it.patron } + chronicle.settlements.filter { it.wasFounded }.map { it.patron }
+    patrons.firstOrNull { it !in chronicle.deities.indices && chronicle.deities.isNotEmpty() }?.let {
+      fail("gods and cults hold together", "a people or town serves god $it, which does not exist")
+      return
+    }
+
+    for (cult in chronicle.cults) {
+      val sanctuary = chronicle.sites.getOrNull(cult.sanctuary)
+      if (sanctuary?.kind != SiteKind.SANCTUARY || sanctuary.cult != cult.index) {
+        fail("gods and cults hold together", "cult ${cult.index} has no sanctuary of its own")
+        return
+      }
+    }
+  }
+
   /** Parents rise before their children, spouses name each other, houses name real founders, and one ruler reigns. */
   private fun checkFamiliesHoldTogether(
     generated: GeneratedWorld,
@@ -1691,6 +1719,8 @@ object Invariants {
       // The widest structural marker there is, at 260 m against a 320 m margin - so this is the one entry in
       // this map that is anywhere near binding, and the one that would actually catch somebody widening a site.
       FeatureKind.WOUND to SiteChannels.RADIUS,
+      FeatureKind.SHRINE to SiteChannels.RADIUS,
+      FeatureKind.SANCTUARY to SiteChannels.RADIUS,
       FeatureKind.CAVE_ENTRANCE to CaveChannels.MOUTH
     )
 

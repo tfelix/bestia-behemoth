@@ -18,5 +18,8 @@ enum class CivOrigin {
   REFOUNDED,
 
   /** The losing house of a succession crisis and its followers. */
-  EXILED
+  EXILED,
+
+  /** The towns that followed a persecuted cult into revolt. */
+  CULT_REALM
 }

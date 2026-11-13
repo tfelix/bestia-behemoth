@@ -48,6 +48,8 @@ class Chronicle(
   /** Events dropped by importance pruning. Reported so a sweep can see the log is not silently truncated. */
   val prunedEvents: Int,
   val dynasties: List<DynastyRecord> = emptyList(),
+  val deities: List<DeityRecord> = emptyList(),
+  val cults: List<CultRecord> = emptyList(),
   /** Every lasting tie between two figures, each with the event that made it. */
   val relations: List<RelationRecord> = emptyList()
 ) {
@@ -124,7 +126,7 @@ class Chronicle(
 }
 
 /** What sort of entity an [Actor] refers to. */
-enum class ActorType { CIV, SETTLEMENT, FIGURE, ARTIFACT, SITE }
+enum class ActorType { CIV, SETTLEMENT, FIGURE, ARTIFACT, SITE, DEITY, CULT }
 
 /**
  * One of the three Orders a people can be sworn to: what they believe the mana means.
@@ -390,7 +392,22 @@ enum class EventKind(
   VENGEANCE_FULFILLED(55),
 
   /** A general opens the gates of the town they were holding to the enemy. */
-  BETRAYAL(70);
+  BETRAYAL(70),
+
+  // --- Gods and cults -----------------------------------------------------------------------------------
+
+  /** A god comes into worship later in history, because something happened that called for one. */
+  DEITY_RISEN(45),
+  CULT_FOUNDED(55),
+  CULT_SPREAD(40),
+  CULT_PERSECUTED(50),
+  CULT_WIPED_OUT(55),
+
+  /** A persecuted cult rises up and takes the towns that follow it as a realm of its own. */
+  CULT_REVOLT(65),
+
+  /** A cult joins the Order its teaching leans toward. Only on a world where the Orders are known. */
+  CULT_ABSORBED(50);
 
   companion object {
 
@@ -467,7 +484,10 @@ data class SettlementRecord(
   /** What emptied it, for a ruin. */
   val ruinCause: EventKind?,
   /** Sites - tombs, battlefields, monuments - that belong to this settlement. */
-  val sites: List<Int>
+  val sites: List<Int>,
+
+  /** Index into [Chronicle.deities] of the god its temple is dedicated to, or -1. */
+  val patron: Int = -1
 ) {
   val wasFounded get() = foundedYear != 0
   val isRuin get() = abandonedYear != 0
@@ -511,6 +531,9 @@ data class CivRecord(
    * present, and the log holds how it got there.
    */
   val sworn: Faction? = null,
+
+  /** Index into [Chronicle.deities] of the people's patron god, or -1. */
+  val patron: Int = -1,
 
   /** Year it swore to [sworn] - its latest oath, not its first - or 0 if it never swore. */
   val swornYear: Int = 0,
@@ -674,7 +697,10 @@ enum class SiteKind {
    * If they ever diverge structurally, splitting this into three kinds is mechanical: the channel already
    * carries the discriminator the split would need.
    */
-  SHRINE
+  SHRINE,
+
+  /** A cult's holy place in the open: an idol on a paved floor near the town where the cult was founded. */
+  SANCTUARY
 }
 
 data class SiteRecord(
@@ -727,5 +753,8 @@ data class SiteRecord(
 
   /** Battles fought on this field, and the dead of all of them. Zero on every kind but a battlefield. */
   val battles: Int = 0,
-  val fallen: Int = 0
+  val fallen: Int = 0,
+
+  /** Index into [Chronicle.cults] for a [SiteKind.SANCTUARY], else -1. */
+  val cult: Int = -1
 )

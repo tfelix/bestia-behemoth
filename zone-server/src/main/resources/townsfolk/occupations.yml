@@ -29,7 +29,8 @@ occupations:
     shift: { from: 8, to: 18 }
     knowledge:
       interests: [ORDER_SWORN, ORDER_SCHISM, SHRINE_RAISED, RITE_PERFORMED, MONASTERY_FOUNDED,
-                  SEER_VANISHED, STAR_FELL]
+                  SEER_VANISHED, STAR_FELL, DEITY_RISEN, CULT_FOUNDED, CULT_SPREAD, CULT_PERSECUTED,
+                  CULT_WIPED_OUT, CULT_REVOLT, CULT_ABSORBED]
 
   - id: innkeeper
     dialog: { greetings: 5, trade: 5 }

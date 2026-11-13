@@ -48,6 +48,13 @@ events:
   VENGEANCE_SWORN: { variants: 2, slots: [figure, civ, year, era] }
   VENGEANCE_FULFILLED: { variants: 2, slots: [figure, civ, year, era] }
   BETRAYAL: { variants: 2, slots: [figure, place, civ, foe, year, era] }
+  DEITY_RISEN: { variants: 2, slots: [deity, year, era] }
+  CULT_FOUNDED: { variants: 2, slots: [figure, cult, place, year, era] }
+  CULT_SPREAD: { variants: 2, slots: [cult, place, year, era] }
+  CULT_PERSECUTED: { variants: 2, slots: [cult, civ, year, era] }
+  CULT_WIPED_OUT: { variants: 2, slots: [cult, civ, year, era] }
+  CULT_REVOLT: { variants: 2, slots: [cult, civ, foe, place, year, era] }
+  CULT_ABSORBED: { variants: 2, slots: [cult, year, era] }
   WAR_DECLARED: { variants: 2, slots: [civ, year, era, foe] }
   BATTLE: { variants: 3, slots: [civ, year, era, foe] }
   SIEGE: { variants: 2, slots: [civ, place, year, era] }

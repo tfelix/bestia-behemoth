@@ -599,6 +599,7 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
       SiteKind.LIGHTHOUSE -> lighthouseColumn(site, ground, distance, into)
       SiteKind.WOUND -> woundColumn(site, ground, distance, into)
       SiteKind.SHRINE -> shrineColumn(site, ground, distance, into)
+      SiteKind.SANCTUARY -> sanctuaryColumn(site, ground, distance, into)
       // A battlefield is bones and rusted iron in the grass, which is a scatter pass rather than a structure.
       SiteKind.BATTLEFIELD -> Unit
       // A hoard is a marker for whatever spawns the treasure, not masonry. It is also *underground*, and this
@@ -703,6 +704,17 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
   }
 
   /** A standing monument: a stepped plinth with a shaft on it. */
+  /** A cult's idol at the centre of a paved floor, flush with the ground so it reads as a place, not a building. */
+  private fun sanctuaryColumn(site: Site, ground: Double, distance: Double, into: StructureSpans) {
+    val fraction = distance / site.radius
+    when {
+      fraction < SANCTUARY_IDOL_SHARE ->
+        into.add(ground - SLAB_THICKNESS, ground + SANCTUARY_IDOL_HEIGHT * (1.0 - site.decay * 0.4), BlockType.MASONRY)
+
+      fraction < SANCTUARY_FLOOR_SHARE -> into.add(ground - SLAB_THICKNESS, ground, BlockType.MASONRY)
+    }
+  }
+
   private fun monumentColumn(site: Site, ground: Double, distance: Double, into: StructureSpans) {
     if (distance < site.radius * MONUMENT_SHAFT_SHARE) {
       into.add(ground - SLAB_THICKNESS, ground + MONUMENT_HEIGHT * (1.0 - site.decay * 0.3), BlockType.MASONRY)
@@ -1032,7 +1044,8 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
       FeatureKind.FORT to SiteKind.FORT,
       FeatureKind.LIGHTHOUSE to SiteKind.LIGHTHOUSE,
       FeatureKind.WOUND to SiteKind.WOUND,
-      FeatureKind.SHRINE to SiteKind.SHRINE
+      FeatureKind.SHRINE to SiteKind.SHRINE,
+      FeatureKind.SANCTUARY to SiteKind.SANCTUARY
     )
 
     fun kindOf(kind: FeatureKind): SiteKind? = SITE_KINDS[kind]
@@ -1062,6 +1075,10 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     /** The cairn: a dome of rubble, wide and low, so it reads as piled rather than built. */
     const val SHRINE_CAIRN_SHARE = 0.55
     const val SHRINE_CAIRN_HEIGHT = 2.9
+
+    const val SANCTUARY_IDOL_SHARE = 0.12
+    const val SANCTUARY_IDOL_HEIGHT = 3.2
+    const val SANCTUARY_FLOOR_SHARE = 0.7
 
     /** How much of the ash a fully decayed site has lost to weathering and slumping. */
     const val ASH_SETTLING = 0.35

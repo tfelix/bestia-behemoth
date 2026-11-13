@@ -1,6 +1,9 @@
 package net.bestia.worldgen.history
 
 import net.bestia.worldgen.core.ArtifactKind
+import net.bestia.worldgen.core.BeastKind
+import net.bestia.worldgen.core.CultKind
+import net.bestia.worldgen.core.Domain
 import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.ParamsDigest
@@ -140,6 +143,62 @@ object Names {
 
   private const val HOUSE_STEM_SALT = 0xA0L
   private const val HOUSE_TAIL_SALT = 0xA1L
+
+  /**
+   * A god's name: a given name in the culture's style and a title of the god's domain, "Hilda of the Red Spear".
+   * The same seed in another culture gives another given name and the same title, so two peoples call one god by
+   * two names and both can tell it is the same god.
+   */
+  fun deity(seed: Long, cultureIndex: Int, domain: Domain): String {
+    val given = pick(styleOf(cultureIndex).givenNames, seed, DEITY_GIVEN_SALT).replaceFirstChar { it.uppercase() }
+    return "$given ${pick(DEITY_TITLES.getValue(domain), seed, DEITY_TITLE_SALT)}"
+  }
+
+  /** A cult's name: "the Children of Hilda of the Red Spear", "the Keepers of the Fallen Star". */
+  fun cult(seed: Long, kind: CultKind, deityName: String?, beast: BeastKind?): String {
+    val band = pick(CULT_BANDS, seed, CULT_BAND_SALT)
+    val of = when (kind) {
+      CultKind.DEITY -> deityName ?: "the Nameless"
+      CultKind.STAR -> "the Fallen Star"
+      CultKind.BEAST -> "the ${BEAST_NOUNS.getValue(beast ?: BeastKind.BEAST)}"
+    }
+    return "the $band of $of"
+  }
+
+  private const val DEITY_GIVEN_SALT = 0xB0L
+  private const val DEITY_TITLE_SALT = 0xB1L
+  private const val CULT_BAND_SALT = 0xB2L
+
+  private val DEITY_TITLES = mapOf(
+    Domain.WAR to listOf("of the Red Spear", "the Unbowed", "Shieldbreaker"),
+    Domain.LOVE to listOf("the Fair", "of the Rose", "Heartkeeper"),
+    Domain.DEATH to listOf("the Gatekeeper", "of the Black Earth", "the Last Host"),
+    Domain.SUN to listOf("the Bright", "of the Golden Disc", "Dawnbringer"),
+    Domain.MOON to listOf("the Pale", "of the Silver Hare", "Tidewatcher"),
+    Domain.SKY to listOf("Thunderhand", "of the Oak", "the Stormlord"),
+    Domain.SEA to listOf("of the Deep", "Wavecaller", "the Drowned King"),
+    Domain.HARVEST to listOf("Mother of Wheat", "of the Sheaf", "the Green"),
+    Domain.HEARTH to listOf("of the Undying Fire", "Keeper of Doors", "Breadgiver"),
+    Domain.WISDOM to listOf("the Owl-Eyed", "of the Scroll", "the Far-Seeing"),
+    Domain.CRAFT to listOf("of the Anvil", "the Forgefather", "Hammerhand"),
+    Domain.TRADE to listOf("of the Crossroads", "the Wayfarer", "Coinkeeper"),
+    Domain.TRICKERY to listOf("the Masked", "of Many Faces", "the Laughing One"),
+    Domain.HEALING to listOf("of the Spring", "the Mender", "Snakebearer"),
+    Domain.HUNT to listOf("of the Antlers", "the Swift", "Houndmaster"),
+    Domain.FATE to listOf("the Spinner", "of the Thread", "the Unseen Weaver"),
+    Domain.JUSTICE to listOf("of the Scales", "the Judge", "Truthkeeper"),
+    Domain.REVELRY to listOf("of the Vine", "the Reveller", "Cupbearer"),
+    Domain.NIGHT to listOf("of the Veil", "the Dreamer", "Starmother")
+  )
+
+  private val CULT_BANDS = listOf("Children", "Faithful", "Brotherhood", "Sisterhood", "Keepers", "Chosen")
+
+  private val BEAST_NOUNS = mapOf(
+    BeastKind.BEAST to "Beast", BeastKind.BIRD to "Wing", BeastKind.REPTILE to "Scale", BeastKind.AQUATIC to "Deep",
+    BeastKind.INSECT to "Swarm", BeastKind.PLANT to "Green", BeastKind.FORMLESS to "Shapeless",
+    BeastKind.ELEMENTAL to "Living Stone", BeastKind.UNDEAD to "Restless Dead", BeastKind.DEMON to "Horned One",
+    BeastKind.DRAGON to "Wyrm"
+  )
 
   /** A civilisation's name: a people, not a place, so it takes the demonym form. */
   fun civ(seed: Long, cultureIndex: Int): String {
@@ -378,6 +437,9 @@ object Names {
     // exactly the property the KDoc above says has to reach a version number.
     digest.put("woundEpithets", WOUND_EPITHETS.joinToString(","))
     digest.put("woundNouns", WOUND_NOUNS.joinToString(","))
+    for ((domain, titles) in DEITY_TITLES) digest.put("deity:${domain.name}", titles.joinToString(","))
+    digest.put("cultBands", CULT_BANDS.joinToString(","))
+    for ((beast, noun) in BEAST_NOUNS) digest.put("beast:${beast.name}", noun)
 
     return digest.value
   }

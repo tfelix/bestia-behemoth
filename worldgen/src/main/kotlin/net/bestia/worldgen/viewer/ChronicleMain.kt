@@ -39,6 +39,8 @@ import java.util.Locale
  * ./gradlew :worldgen:chronicle -Partifacts        # every artifact and its provenance chain
  * ./gradlew :worldgen:chronicle -Pfigures          # everybody the log remembers
  * ./gradlew :worldgen:chronicle -Pdynasties        # ruling houses, their rulers, and the ties between figures
+ * ./gradlew :worldgen:chronicle -Pdeities          # the world's gods, named by every culture, and their patrons
+ * ./gradlew :worldgen:chronicle -Pcults            # every cult, how far it spread and how it ended
  * ./gradlew :worldgen:chronicle -Psites            # ruins, battlefields, tombs and monuments
  * ./gradlew :worldgen:chronicle -Pquests           # unresolved threads worth turning into quests
  * ./gradlew :worldgen:chronicle -Porders           # who is sworn to which Order, and what came of it
@@ -95,6 +97,8 @@ object ChronicleMain {
     }
     if (all || cli.has("--figures")) figures(chronicle)
     if (all || cli.has("--dynasties")) dynasties(chronicle)
+    if (all || cli.has("--deities")) deities(chronicle)
+    if (all || cli.has("--cults")) cults(chronicle)
     if (all || cli.has("--artifacts")) artifacts(chronicle)
     if (all || cli.has("--sites")) sites(chronicle)
     if (all || cli.has("--orders")) orders(chronicle)
@@ -303,6 +307,34 @@ object ChronicleMain {
             "b. ${figure.birthYear}, $died, ${Names.civ(civ.nameSeed, civ.cultureIndex)}" +
             if (figure.restingSite >= 0) ", buried in a barrow" else ""
       )
+    }
+  }
+
+  /** The world's gods, each in the idiom of every culture that lives here, and whom each is patron of. */
+  private fun deities(chronicle: Chronicle) {
+    println()
+    println("${chronicle.deities.size} gods")
+    val cultures = chronicle.civs.map { it.cultureIndex }.distinct().sorted()
+    for (deity in chronicle.deities) {
+      val names = cultures.joinToString(" / ") { Names.deity(deity.nameSeed, it, deity.domain) }
+      val since = if (deity.cause >= 0) ", worshipped since ${deity.year}" else ""
+      val patronOf = chronicle.civs.filter { it.patron == deity.index }
+        .joinToString(", ") { Names.civ(it.nameSeed, it.cultureIndex) }
+      println("  ${deity.domain.name.lowercase().padEnd(9)} $names$since")
+      if (patronOf.isNotEmpty()) println("            patron of the $patronOf")
+    }
+  }
+
+  /** Every cult: what it worships, where it spread, and how it ended. */
+  private fun cults(chronicle: Chronicle) {
+    println()
+    println("${chronicle.cults.size} cults")
+    for (cult in chronicle.cults) {
+      val culture = chronicle.civs.getOrNull(chronicle.settlements[cult.origin].foundingCiv)?.cultureIndex ?: 0
+      val deity = chronicle.deities.getOrNull(cult.deity)?.let { Names.deity(it.nameSeed, culture, it.domain) }
+      val name = Names.cult(cult.nameSeed, cult.kind, deity, cult.beast)
+      val span = if (cult.endedYear == 0) "${cult.foundedYear}-" else "${cult.foundedYear}-${cult.endedYear}"
+      println("  $name, $span, ${cult.fate.name.lowercase()}, ${cult.settlements.size} towns")
     }
   }
 
@@ -570,7 +602,7 @@ object ChronicleMain {
   )
 
   private val CHRONICLE_FLAGS = setOf(
-    "--top", "--year", "--civs", "--artifacts", "--figures", "--dynasties", "--sites", "--quests", "--orders", "--all",
-    "--sweep"
+    "--top", "--year", "--civs", "--artifacts", "--figures", "--dynasties", "--deities", "--cults", "--sites",
+    "--quests", "--orders", "--all", "--sweep"
   )
 }
