@@ -1,0 +1,161 @@
+# The whole game on one host. Shipped in every release as bestia-deploy-X.Y.Z.zip, with the image tags below
+# already set to that release:
+#   unzip -o bestia-deploy-X.Y.Z.zip && cd bestia-deploy-X.Y.Z && cp ../.env .   (first time: from .env.example)
+#   docker compose pull && docker compose up -d
+# The fixed project name keeps the volumes when the folder name changes with the version.
+name: bestia
+
+x-server: &server
+  restart: unless-stopped
+  environment: &server-env
+    SPRING_PROFILES_ACTIVE: prod
+    BUS_HOST: valkey
+    BUS_PORT: 6379
+
+services:
+  zone:
+    <<: *server
+    image: ghcr.io/tfelix/bestia-zone-server:0.0.1 # x-release-please-version
+    environment:
+      <<: *server-env
+      SPRING_DATASOURCE_URL: jdbc:mariadb://zone-db:3306/bestia_zone
+      SPRING_DATASOURCE_PASSWORD: ${ZONE_DB_PASSWORD:?}
+      ZONE_JWT_AUTH_SECRET_KEY: ${GAME_JWT_SECRET:?}
+      BUS_USERNAME: zone
+      BUS_PASSWORD: ${BUS_ZONE_PASSWORD:?}
+      SOCKET_IP_ADDRESS: 0.0.0.0
+      CARTOGRAPHY_CACHE_DIR: /data/map-cache
+    ports:
+      - '8090:8090'
+    volumes:
+      - zone-data:/data
+    healthcheck:
+      test: ['CMD', 'curl', '-fs', 'http://127.0.0.1:8092/-/healthy']
+      # The first boot generates the world.
+      start_period: 15m
+    depends_on:
+      zone-db: { condition: service_healthy }
+      valkey: { condition: service_healthy }
+
+  login:
+    <<: *server
+    image: ghcr.io/tfelix/bestia-login-server:0.0.1 # x-release-please-version
+    environment:
+      <<: *server-env
+      SPRING_DATASOURCE_URL: jdbc:mariadb://login-db:3306/bestia_login
+      SPRING_DATASOURCE_PASSWORD: ${LOGIN_DB_PASSWORD:?}
+      JWT_SECRET: ${GAME_JWT_SECRET:?}
+      JWT_COMPANION_SECRET: ${COMPANION_JWT_SECRET:?}
+      BUS_USERNAME: login
+      BUS_PASSWORD: ${BUS_LOGIN_PASSWORD:?}
+      WEBAUTHN_RP_ID: ${BESTIA_HOST:?}
+      WEBAUTHN_ORIGINS_0: https://${BESTIA_HOST}
+      GAME_LOGIN_PUBLIC_BASE_URL: https://${BESTIA_HOST}
+      COMPANION_LOGIN_REDIRECT_URIS_0: https://${BESTIA_HOST}/auth/callback
+    healthcheck:
+      test: ['CMD', 'curl', '-fs', 'http://127.0.0.1:8080/actuator/health']
+      start_period: 2m
+    depends_on:
+      login-db: { condition: service_healthy }
+      valkey: { condition: service_healthy }
+
+  api:
+    <<: *server
+    image: ghcr.io/tfelix/bestia-api-server:0.0.1 # x-release-please-version
+    environment:
+      <<: *server-env
+      SPRING_DATASOURCE_URL: jdbc:mariadb://api-db:3306/bestia_api
+      SPRING_DATASOURCE_PASSWORD: ${API_DB_PASSWORD:?}
+      COMPANION_JWT_SECRET: ${COMPANION_JWT_SECRET:?}
+      COMPANION_ALLOWED_ORIGINS_0: https://${BESTIA_HOST}
+      PUSH_VAPID_PUBLIC_KEY: ${PUSH_VAPID_PUBLIC_KEY:?}
+      PUSH_VAPID_PRIVATE_KEY: ${PUSH_VAPID_PRIVATE_KEY:?}
+      BUS_USERNAME: api
+      BUS_PASSWORD: ${BUS_API_PASSWORD:?}
+    depends_on:
+      api-db: { condition: service_healthy }
+      valkey: { condition: service_healthy }
+
+  # TLS and one origin for the companion app, the login server and the api-server: the app calls both with
+  # relative paths, and its refresh cookie must stay first-party.
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      BESTIA_HOST: ${BESTIA_HOST:?}
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./companion:/srv/companion:ro
+      - caddy-data:/data
+    depends_on: [login, api]
+
+  # The users and what each may touch match zone-server/valkey/users.acl; only the passwords come from .env.
+  # Written at start from the environment, so the passwords never show up in the process arguments.
+  valkey:
+    image: valkey/valkey:8.1
+    restart: unless-stopped
+    environment:
+      BUS_ZONE_PASSWORD: ${BUS_ZONE_PASSWORD:?}
+      BUS_API_PASSWORD: ${BUS_API_PASSWORD:?}
+      BUS_LOGIN_PASSWORD: ${BUS_LOGIN_PASSWORD:?}
+    entrypoint: ['sh', '-c']
+    command:
+      - |
+        cat > /tmp/users.acl <<ACL
+        user default off
+        user zone on >$$BUS_ZONE_PASSWORD ~dir:* ~events ~kicks ~bus:idem:* &zone:*:requests &api:*:replies +@all -@admin -@dangerous
+        user api on >$$BUS_API_PASSWORD ~dir:* ~events &zone:*:requests &api:*:replies +@connection +@pubsub +@stream +@read
+        user login on >$$BUS_LOGIN_PASSWORD ~kicks +@connection +xadd
+        ACL
+        exec docker-entrypoint.sh valkey-server --aclfile /tmp/users.acl
+    volumes:
+      - valkey-data:/data
+    healthcheck:
+      # valkey-cli exits 0 even when the login is refused, so look for the answer itself.
+      test: ['CMD-SHELL', 'valkey-cli --user login --pass "$$BUS_LOGIN_PASSWORD" --no-auth-warning ping | grep -q PONG']
+
+  zone-db:
+    <<: &db
+      image: mariadb:11.4
+      restart: unless-stopped
+      healthcheck:
+        test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+    environment:
+      MARIADB_DATABASE: bestia_zone
+      MARIADB_USER: bestia
+      MARIADB_PASSWORD: ${ZONE_DB_PASSWORD:?}
+      MARIADB_RANDOM_ROOT_PASSWORD: 'yes'
+    volumes:
+      - zone-db:/var/lib/mysql
+
+  login-db:
+    <<: *db
+    environment:
+      MARIADB_DATABASE: bestia_login
+      MARIADB_USER: bestia
+      MARIADB_PASSWORD: ${LOGIN_DB_PASSWORD:?}
+      MARIADB_RANDOM_ROOT_PASSWORD: 'yes'
+    volumes:
+      - login-db:/var/lib/mysql
+
+  api-db:
+    <<: *db
+    environment:
+      MARIADB_DATABASE: bestia_api
+      MARIADB_USER: bestia
+      MARIADB_PASSWORD: ${API_DB_PASSWORD:?}
+      MARIADB_RANDOM_ROOT_PASSWORD: 'yes'
+    volumes:
+      - api-db:/var/lib/mysql
+
+volumes:
+  zone-data:
+  zone-db:
+  login-db:
+  api-db:
+  valkey-data:
+  caddy-data:

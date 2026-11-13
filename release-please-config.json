@@ -10,6 +10,7 @@
       "release-type": "simple",
       "package-name": "bestia-behemoth",
       "extra-files": [
+        "deploy/compose.yaml",
         "bestia-client/src/Settings/settings_manager.gd",
         { "type": "json", "path": "companion-app/package.json", "jsonpath": "$.version" },
         { "type": "json", "path": "companion-app/package-lock.json", "jsonpath": "$.version" },

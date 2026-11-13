@@ -1,0 +1,21 @@
+# One origin for everything a player's browser talks to. Caddy gets the TLS certificate for BESTIA_HOST itself.
+# Not routed on purpose: the login server's admin API and both servers' actuator endpoints.
+{$BESTIA_HOST} {
+	encode zstd gzip
+
+	@login path /api/v1/auth/* /api/v1/webauthn/* /game-login* /css/* /js/*
+	handle @login {
+		reverse_proxy login:8080
+	}
+
+	handle /v1/companion/* {
+		reverse_proxy api:8095
+	}
+
+	# The companion app is a single-page app: every other path renders in the browser.
+	handle {
+		root * /srv/companion
+		try_files {path} /index.html
+		file_server
+	}
+}
