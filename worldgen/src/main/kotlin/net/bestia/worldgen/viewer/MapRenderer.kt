@@ -503,6 +503,14 @@ class MapRenderer(
     g.color = MARKER_OUTLINE
     g.stroke = BasicStroke(1f)
     g.draw(Ellipse2D.Double(cx - radius, cy - radius, radius * 2, radius * 2))
+
+    // A site that holds an artifact: what a player can dig up, and what its guards stand over.
+    if ((marker.optionalAttribute(SiteChannels.ARTIFACT) ?: -1.0) >= 0.0) {
+      val ring = radius + ARTIFACT_RING_GAP
+      g.color = ARTIFACT_RING
+      g.stroke = BasicStroke(2f)
+      g.draw(Ellipse2D.Double(cx - ring, cy - ring, ring * 2, ring * 2))
+    }
   }
 
   private fun radiusOf(marker: PointMarker): Double {
@@ -606,6 +614,8 @@ class MapRenderer(
 
     /** The dead a battlefield is drawn at full size for. */
     private const val BATTLEFIELD_FALLEN_AT_MAX = 5_000.0
+    private const val ARTIFACT_RING_GAP = 2.0
+    private val ARTIFACT_RING = Color(255, 200, 40)
 
     /** Widest id span still treated as a set of categories worth naming. */
     private const val MAX_CATEGORIES = 4096
