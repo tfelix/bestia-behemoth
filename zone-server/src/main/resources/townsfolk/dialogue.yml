@@ -86,6 +86,11 @@ events:
   ARTIFACT_TAKEN: { variants: 1, slots: [artifact, figure, year, era] }
   ARTIFACT_LOST: { variants: 1, slots: [year, era] }
   ARTIFACT_ENTOMBED: { variants: 1, slots: [artifact, figure, year, era] }
+  ARTIFACT_ENSHRINED: { variants: 2, slots: [artifact, place, year, era] }
+  # The place is where the victors took it; the town it came from is still in the event's detail.
+  ARTIFACT_PLUNDERED: { variants: 2, slots: [artifact, place, civ, year, era] }
+  # The place is the town that raised the monument.
+  ARTIFACT_SEALED: { variants: 1, slots: [artifact, place, year, era] }
 
   # --- What was built ---------------------------------------------------------------------------
   MINE_OPENED: { variants: 1, slots: [civ, place, year, era] }

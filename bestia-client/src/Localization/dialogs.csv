@@ -379,6 +379,14 @@ HISTORY_ARTIFACT_LOST_ASK,Was anything ever lost around here?
 HISTORY_ARTIFACT_LOST_1,"Something went missing {era} that people still come asking after. Nobody agrees where."
 HISTORY_ARTIFACT_ENTOMBED_ASK,Where did {artifact} end up?
 HISTORY_ARTIFACT_ENTOMBED_1,"{artifact} went into the ground with {figure} {era}, around {year}."
+HISTORY_ARTIFACT_ENSHRINED_ASK,Where is {artifact} kept?
+HISTORY_ARTIFACT_ENSHRINED_1,"In the temple at {place}. Nobody wanted to carry it after {year}, so the priests took it in."
+HISTORY_ARTIFACT_ENSHRINED_2,"{place} has kept {artifact} {era}. You can look at it on feast days, if you keep your hands to yourself."
+HISTORY_ARTIFACT_PLUNDERED_ASK,What happened to {artifact}?
+HISTORY_ARTIFACT_PLUNDERED_1,"The {civ} carried it off to {place} {era}. Its own people still want it back."
+HISTORY_ARTIFACT_PLUNDERED_2,"Taken as loot in {year}. It sits in {place} now, among the trophies of the {civ}."
+HISTORY_ARTIFACT_SEALED_ASK,Is anything inside the monument?
+HISTORY_ARTIFACT_SEALED_1,"They say {place} sealed {artifact} into the stone {era}. Nobody has seen it since {year}."
 HISTORY_MINE_OPENED_ASK,Is there anything worth digging for?
 HISTORY_MINE_OPENED_1,"The {civ} opened the workings above {place} {era}, around {year}. It changed what this country is for."
 HISTORY_MONASTERY_FOUNDED_ASK,Is there a house of the faith nearby?
