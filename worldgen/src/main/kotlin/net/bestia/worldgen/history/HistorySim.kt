@@ -6,9 +6,15 @@ import net.bestia.worldgen.core.Actor
 import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.ArtifactKind
 import net.bestia.worldgen.core.ArtifactRecord
+import net.bestia.worldgen.core.BeastKind
 import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.core.CivOrigin
 import net.bestia.worldgen.core.CivRecord
+import net.bestia.worldgen.core.CultFate
+import net.bestia.worldgen.core.CultKind
+import net.bestia.worldgen.core.CultRecord
+import net.bestia.worldgen.core.DeityRecord
+import net.bestia.worldgen.core.Domain
 import net.bestia.worldgen.core.DynastyRecord
 import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.Faction
@@ -159,6 +165,34 @@ data class HistoryParams(
 
   /** Chance per siege that a living general of the besieged people betrays the town to the enemy. */
   val betrayalChance: Double = 0.06,
+
+  // --- Gods and cults -------------------------------------------------------------------------------
+
+  /** Gods a world of the reference size starts with, before a coin flip adds one. */
+  val deitiesAtReference: Double = 4.0,
+
+  /** More gods per doubling of the world's settlement sites. */
+  val deitiesPerDoubling: Double = 1.5,
+  val maxDeities: Int = 12,
+
+  /** Chance per tick that a civ's first eligible prophet founds a cult. */
+  val cultChance: Double = 0.03,
+
+  /** Chance per tick that a cult wins over another town. */
+  val cultSpreadChance: Double = 0.15,
+
+  /** Metres from a town that keeps a cult to one it can win over. */
+  val cultSpreadRange: Double = 40_000.0,
+
+  /** Chance per tick that the people holding most of a cult's towns turns on it. */
+  val cultPersecutionChance: Double = 0.02,
+
+  /** Of persecutions: the share that wipes the cult out, and the share that makes it rise as a realm. */
+  val cultWipeShare: Double = 0.4,
+  val cultRevoltShare: Double = 0.3,
+
+  /** Chance per tick, on a world with the Orders, that a cult joins the Order it leans toward. */
+  val cultAbsorbChance: Double = 0.01,
 
   /** A pair of facing towns is on the front when it is at most this many times as far apart as the closest pair. */
   val frontierSpread: Double = 1.5,
@@ -475,6 +509,17 @@ data class HistoryParams(
     require(feudChance in 0.0..1.0) { "feudChance must be in [0,1], was $feudChance" }
     require(vengeanceChance in 0.0..1.0) { "vengeanceChance must be in [0,1], was $vengeanceChance" }
     require(betrayalChance in 0.0..1.0) { "betrayalChance must be in [0,1], was $betrayalChance" }
+    require(deitiesAtReference >= 0.0) { "deitiesAtReference must not be negative, was $deitiesAtReference" }
+    require(deitiesPerDoubling >= 0.0) { "deitiesPerDoubling must not be negative, was $deitiesPerDoubling" }
+    require(maxDeities >= 1) { "maxDeities must be at least 1, was $maxDeities" }
+    require(cultChance in 0.0..1.0) { "cultChance must be in [0,1], was $cultChance" }
+    require(cultSpreadChance in 0.0..1.0) { "cultSpreadChance must be in [0,1], was $cultSpreadChance" }
+    require(cultSpreadRange >= 0.0) { "cultSpreadRange must not be negative, was $cultSpreadRange" }
+    require(cultPersecutionChance in 0.0..1.0) { "cultPersecutionChance must be in [0,1], was $cultPersecutionChance" }
+    require(cultWipeShare >= 0.0 && cultRevoltShare >= 0.0 && cultWipeShare + cultRevoltShare <= 1.0) {
+      "cultWipeShare $cultWipeShare and cultRevoltShare $cultRevoltShare must be non-negative and sum to at most 1"
+    }
+    require(cultAbsorbChance in 0.0..1.0) { "cultAbsorbChance must be in [0,1], was $cultAbsorbChance" }
     require(frontierSpread >= 1.0) { "frontierSpread must be at least 1, was $frontierSpread" }
     require(battleMergeRadius >= 0.0) { "battleMergeRadius must not be negative, was $battleMergeRadius" }
     require(battleAside >= 0.0) { "battleAside must not be negative, was $battleAside" }
@@ -597,6 +642,16 @@ data class HistoryParams(
     feudChance = source.double("feudChance", feudChance),
     vengeanceChance = source.double("vengeanceChance", vengeanceChance),
     betrayalChance = source.double("betrayalChance", betrayalChance),
+    deitiesAtReference = source.double("deitiesAtReference", deitiesAtReference),
+    deitiesPerDoubling = source.double("deitiesPerDoubling", deitiesPerDoubling),
+    maxDeities = source.int("maxDeities", maxDeities),
+    cultChance = source.double("cultChance", cultChance),
+    cultSpreadChance = source.double("cultSpreadChance", cultSpreadChance),
+    cultSpreadRange = source.double("cultSpreadRange", cultSpreadRange),
+    cultPersecutionChance = source.double("cultPersecutionChance", cultPersecutionChance),
+    cultWipeShare = source.double("cultWipeShare", cultWipeShare),
+    cultRevoltShare = source.double("cultRevoltShare", cultRevoltShare),
+    cultAbsorbChance = source.double("cultAbsorbChance", cultAbsorbChance),
     frontierSpread = source.double("frontierSpread", frontierSpread),
     battleMergeRadius = source.double("battleMergeRadius", battleMergeRadius),
     battleAside = source.double("battleAside", battleAside),
@@ -687,6 +742,16 @@ data class HistoryParams(
     .put("feudChance", feudChance)
     .put("vengeanceChance", vengeanceChance)
     .put("betrayalChance", betrayalChance)
+    .put("deitiesAtReference", deitiesAtReference)
+    .put("deitiesPerDoubling", deitiesPerDoubling)
+    .put("maxDeities", maxDeities)
+    .put("cultChance", cultChance)
+    .put("cultSpreadChance", cultSpreadChance)
+    .put("cultSpreadRange", cultSpreadRange)
+    .put("cultPersecutionChance", cultPersecutionChance)
+    .put("cultWipeShare", cultWipeShare)
+    .put("cultRevoltShare", cultRevoltShare)
+    .put("cultAbsorbChance", cultAbsorbChance)
     .put("frontierSpread", frontierSpread)
     .put("battleMergeRadius", battleMergeRadius)
     .put("battleAside", battleAside)
@@ -839,6 +904,14 @@ internal class HistorySim(
   private var blightLosses = 0
 
   private val dynasties = ArrayList<Dynasty>()
+  private val deities = ArrayList<Deity>()
+  private val cults = ArrayList<Cult>()
+
+  /** Whether history has already raised the one god it may add to the first ones. */
+  private var lateGodRisen = false
+
+  /** Events up to here have been looked at for a reason to raise a late god. */
+  private var eventsScannedForGods = 0
   private val relations = ArrayList<RelationRecord>()
 
   /** Vengeance sworn and not yet taken. */
@@ -870,6 +943,7 @@ internal class HistorySim(
   }
 
   fun run(): Chronicle {
+    createPantheon()
     seedCivilisations()
 
     var year = startYear
@@ -897,6 +971,12 @@ internal class HistorySim(
       // grandparents'. Returns immediately on a world where the Orders play no part.
       swearOrders(year)
       updateFigures(year)
+      // After the figures, so a prophet who rose this tick can found a cult in it.
+      foundCults(year)
+      spreadCults(year)
+      persecuteCults(year)
+      absorbCults(year)
+      raiseLateGod(year)
       updateArtifacts(year)
       vanishSeers(year)
       // After the seers, so a prophet who has already walked out to a wound this tick is not also lost in a
@@ -989,6 +1069,8 @@ internal class HistorySim(
     civ.founded = year
     civs.add(civ)
     hostility.addCiv()
+    // A people that broke away from another keeps its gods.
+    civ.patron = civs.getOrNull(parent)?.patron ?: patronFor(civ)
     return civ
   }
 
@@ -1014,6 +1096,7 @@ internal class HistorySim(
     town.wealth = (0.25 + town.facts.resourceValue * 0.35 + town.facts.habitability * 0.3)
       .coerceIn(0.0, 1.0)
     town.nameSeed = Names.seedOf(worldSeed, PLACE_NAME_SALT, town.facts.index.toLong())
+    town.patron = civ.patron
     civ.towns.add(town.facts.index)
   }
 
@@ -1309,6 +1392,282 @@ internal class HistorySim(
       town.facts.position, listOf(ending),
       "survivors of ${nameOf(lost)} found the ${civName(civ)} at ${nameOf(town)}"
     )
+  }
+
+  // --- Gods and cults --------------------------------------------------------------------------------
+
+  /**
+   * The first gods, drawn from the domain catalogue without repeats. How many grows with the world; which ones
+   * follows the land: coasts call for a god of the sea, rich soil for one of the harvest, mana and volcanoes for
+   * death, healing and fate, warlike cities for war.
+   */
+  private fun createPantheon() {
+    if (facts.isEmpty()) return
+
+    val doublings = Math.log(max(sizeScale, MIN_PANTHEON_SCALE)) / Math.log(2.0)
+    val extra = if (roll(DEITY_EXTRA_SALT) < 0.5) 1 else 0
+    val count = (Math.round(params.deitiesAtReference + params.deitiesPerDoubling * doublings).toInt() + extra)
+      .coerceIn(MIN_DEITIES, min(params.maxDeities, Domain.entries.size))
+
+    val weights = pantheonWeights()
+    repeat(count) { draw ->
+      val left = weights.filterKeys { domain -> deities.none { it.domain == domain } }
+      val domain = pickWeighted(left, roll(draw.toLong(), DEITY_DRAW_SALT)) ?: return
+      addDeity(domain, startYear, cause = -1)
+    }
+  }
+
+  private fun pantheonWeights(): Map<Domain, Double> {
+    val coast = facts.count { it.coastal }.toDouble() / facts.size
+    val soil = facts.map { it.fertility }.average()
+    val unrest = facts.map { it.volcanism + it.mana }.average()
+    val wealth = facts.map { it.resourceValue }.average()
+    val war = facts.filter { it.tier == SettlementTier.CITY }.map { it.culture.bellicosity }.average()
+      .takeIf { !it.isNaN() } ?: 0.0
+
+    return Domain.entries.associateWith { domain ->
+      when (domain) {
+        Domain.SEA -> 1.0 + 4.0 * coast
+        Domain.HARVEST -> 1.0 + 3.0 * soil
+        Domain.DEATH, Domain.HEALING, Domain.FATE -> 1.0 + 2.0 * unrest
+        Domain.WAR -> 1.0 + 3.0 * war
+        Domain.CRAFT -> 1.0 + 3.0 * wealth
+        else -> 1.0
+      }
+    }
+  }
+
+  private fun addDeity(domain: Domain, year: Int, cause: Int): Deity {
+    val nameSeed = Names.seedOf(worldSeed, DEITY_NAME_SALT, deities.size.toLong())
+    val deity = Deity(deities.size, domain, nameSeed, year, cause)
+    deities.add(deity)
+    return deity
+  }
+
+  /** A people's patron: any of the world's gods, the ones that suit how the people live more often. */
+  private fun patronFor(civ: Civ): Int {
+    if (deities.isEmpty()) return -1
+    val culture = civ.culture
+    val weights = deities.associate { deity ->
+      deity.index to when (deity.domain) {
+        Domain.WAR -> 1.0 + 3.0 * culture.bellicosity
+        Domain.SEA -> 1.0 + 3.0 * culture.harbour
+        Domain.CRAFT -> 1.0 + 3.0 * culture.craftBias
+        Domain.WISDOM -> 1.0 + 3.0 * culture.inventiveness
+        Domain.DEATH, Domain.FATE -> 1.0 + 2.0 * culture.clergyBias
+        else -> 1.0
+      }
+    }
+    return pickWeighted(weights, roll(civ.index.toLong(), PATRON_SALT)) ?: -1
+  }
+
+  /**
+   * History may call one more god into worship: the first plague turns people to healing, the first town lost
+   * to the blight to death. Only one, and only for a domain the world has no god of yet.
+   */
+  private fun raiseLateGod(year: Int) {
+    if (lateGodRisen || deities.isEmpty()) {
+      eventsScannedForGods = events.size
+      return
+    }
+    val fresh = events.subList(eventsScannedForGods, events.size).toList()
+    eventsScannedForGods = events.size
+
+    for (event in fresh) {
+      val domain = when (event.kind) {
+        EventKind.PLAGUE -> Domain.HEALING
+        EventKind.SETTLEMENT_FORSAKEN -> Domain.DEATH
+        else -> continue
+      }
+      if (deities.any { it.domain == domain }) continue
+
+      val deity = addDeity(domain, year, event.id)
+      lateGodRisen = true
+      val place = event.actors.firstOrNull { it.type == ActorType.SETTLEMENT }?.index
+      val culture = place?.let { towns[it].facts.cultureIndex } ?: facts.first().cultureIndex
+      log(
+        year, EventKind.DEITY_RISEN,
+        listOfNotNull(Actor(ActorType.DEITY, deity.index), place?.let { Actor(ActorType.SETTLEMENT, it) }),
+        event.where, listOf(event.id),
+        "after ${event.detail}, people turn to ${Names.deity(deity.nameSeed, culture, domain)}"
+      )
+      return
+    }
+  }
+
+  /** A living prophet may found a cult of a god, of a kind of beast, or of the star that fell. */
+  private fun foundCults(year: Int) {
+    for (civ in civs.toList()) {
+      if (!civ.exists) continue
+      val prophet = people.firstOrNull {
+        it.death == 0 && it.civ == civ.index && it.role == FigureRole.PROPHET && towns[it.home].standing &&
+            cults.none { cult -> cult.founder == it.index } &&
+            roll(year.toLong(), it.index.toLong(), CULT_SALT) < params.cultChance
+      } ?: continue
+      foundCult(prophet, civ, year)
+    }
+  }
+
+  private fun foundCult(prophet: Person, civ: Civ, year: Int) {
+    val home = towns[prophet.home]
+    val others = deities.filter { it.index != civ.patron }
+    val weights = buildMap {
+      if (others.isNotEmpty()) put(CultKind.DEITY, 2.0)
+      put(CultKind.BEAST, 1.0)
+      if (starFell >= 0) put(CultKind.STAR, 1.0 + 3.0 * home.facts.mana)
+    }
+    val kind = pickWeighted(weights, roll(year.toLong(), prophet.index.toLong(), CULT_KIND_SALT)) ?: return
+    val pick = roll(year.toLong(), prophet.index.toLong(), CULT_PICK_SALT)
+    val deity = if (kind == CultKind.DEITY) others[(pick * others.size).toInt()].index else -1
+    val beast = if (kind == CultKind.BEAST) BeastKind.entries[(pick * BeastKind.entries.size).toInt()] else null
+    val leaning = when (kind) {
+      CultKind.DEITY -> deities[deity].domain.leaning
+      CultKind.STAR -> Faction.CHAOS
+      CultKind.BEAST -> Faction.CIRCLE
+    }
+
+    val index = cults.size
+    val sanctuary = addSite(
+      SiteKind.SANCTUARY, offset(home.facts.position, SANCTUARY_KEY + index, SANCTUARY_OFFSET), year,
+      home.facts.index, civ.index, SANCTUARY_RADIUS, artifact = -1, figure = prophet.index, cult = index
+    )
+    home.sites.add(sanctuary)
+    val cult = Cult(
+      index, Names.seedOf(worldSeed, CULT_NAME_SALT, index.toLong()), kind, deity, beast, prophet.index,
+      home.facts.index, year, leaning, sanctuary
+    )
+    cult.towns.add(home.facts.index)
+    cults.add(cult)
+
+    log(
+      year, EventKind.CULT_FOUNDED,
+      listOfNotNull(
+        Actor(ActorType.FIGURE, prophet.index), Actor(ActorType.CULT, index),
+        deity.takeIf { it >= 0 }?.let { Actor(ActorType.DEITY, it) },
+        Actor(ActorType.SETTLEMENT, home.facts.index), Actor(ActorType.CIV, civ.index)
+      ),
+      home.facts.position, emptyList(),
+      "${personName(prophet)} founds ${cultName(cult)} at ${nameOf(home)} and raises ${siteName(sites[sanctuary])}"
+    )
+  }
+
+  /** A cult wins over the nearest town not yet its own, from any town that keeps it. */
+  private fun spreadCults(year: Int) {
+    for (cult in cults.filter { it.active }) {
+      if (roll(year.toLong(), cult.index.toLong(), CULT_SPREAD_SALT) >= params.cultSpreadChance) continue
+
+      val keeping = cult.towns.filter { towns[it].standing }
+      val next = towns.filter { it.standing && it.facts.index !in cult.towns }
+        .map { town -> town to keeping.minOfOrNull { distance[it][town.facts.index] } }
+        .filter { (_, gap) -> gap != null && gap <= params.cultSpreadRange }
+        .minByOrNull { (_, gap) -> gap!! }
+        ?.first ?: continue
+
+      cult.towns.add(next.facts.index)
+      log(
+        year, EventKind.CULT_SPREAD,
+        listOf(Actor(ActorType.CULT, cult.index), Actor(ActorType.SETTLEMENT, next.facts.index)),
+        next.facts.position, emptyList(),
+        "${cultName(cult)} win followers in ${nameOf(next)}"
+      )
+    }
+  }
+
+  /**
+   * The people that holds most of a cult's towns may turn on it. The cult is wiped out, rises up and takes
+   * the towns that follow it as a realm of its own, or endures.
+   */
+  private fun persecuteCults(year: Int) {
+    for (cult in cults.filter { it.active }) {
+      val held = cult.towns.filter { towns[it].standing && towns[it].owner >= 0 }
+      val persecutor = held.groupingBy { towns[it].owner }.eachCount().maxByOrNull { it.value }?.key ?: continue
+      if (roll(year.toLong(), cult.index.toLong(), CULT_PERSECUTION_SALT) >= params.cultPersecutionChance) continue
+
+      val by = civs[persecutor]
+      val persecution = log(
+        year, EventKind.CULT_PERSECUTED,
+        listOf(Actor(ActorType.CULT, cult.index), Actor(ActorType.CIV, persecutor)),
+        null, emptyList(),
+        "the ${civName(by)} turn on ${cultName(cult)}"
+      )
+
+      val outcome = roll(year.toLong(), cult.index.toLong(), CULT_OUTCOME_SALT)
+      when {
+        outcome < params.cultWipeShare -> {
+          cult.fate = CultFate.WIPED_OUT
+          cult.ended = year
+          log(
+            year, EventKind.CULT_WIPED_OUT,
+            listOf(Actor(ActorType.CULT, cult.index), Actor(ActorType.CIV, persecutor)),
+            null, listOf(persecution),
+            "the ${civName(by)} stamp out ${cultName(cult)}"
+          )
+        }
+        outcome < params.cultWipeShare + params.cultRevoltShare -> riseAsRealm(cult, by, year, persecution)
+      }
+    }
+  }
+
+  /** The cult's towns under the persecutor break away, led by the cult's first town if it is among them. */
+  private fun riseAsRealm(cult: Cult, from: Civ, year: Int, persecution: Int) {
+    val followers = cult.towns.filter { towns[it].standing && towns[it].owner == from.index && it != from.capital }
+    if (followers.isEmpty()) return
+    val leader = towns[if (cult.origin in followers) cult.origin else followers.first()]
+
+    val realm = addCiv(from.cultureIndex, leader, year, CivOrigin.CULT_REALM, from.index)
+    realm.technology = from.technology
+    if (cult.deity >= 0) realm.patron = cult.deity
+    for (index in followers) transferTown(towns[index], from, realm)
+    hostility.set(from.index, realm.index, params.secessionHostility)
+    cult.fate = CultFate.REALM
+    cult.realm = realm.index
+
+    realm.foundedEvent = log(
+      year, EventKind.CULT_REVOLT,
+      listOf(
+        Actor(ActorType.CULT, cult.index), Actor(ActorType.CIV, realm.index), Actor(ActorType.CIV, from.index),
+        Actor(ActorType.SETTLEMENT, leader.facts.index)
+      ),
+      leader.facts.position, listOf(persecution),
+      "${cultName(cult)} rise against the ${civName(from)} at ${nameOf(leader)} and rule as the ${civName(realm)}"
+    )
+    from.grudges.add(realm.index to realm.foundedEvent)
+    realm.grudges.add(from.index to realm.foundedEvent)
+  }
+
+  /** On a world where the Orders are known, a cult may join the Order its teaching leans toward. */
+  private fun absorbCults(year: Int) {
+    if (params.orderInfluence.isAbsent) return
+
+    for (cult in cults.filter { it.active && it.leaning != null }) {
+      val order = civs.firstOrNull { it.exists && it.sworn == cult.leaning } ?: continue
+      if (roll(year.toLong(), cult.index.toLong(), CULT_ABSORB_SALT) >= params.cultAbsorbChance) continue
+
+      cult.fate = CultFate.ABSORBED
+      cult.ended = year
+      log(
+        year, EventKind.CULT_ABSORBED,
+        listOf(Actor(ActorType.CULT, cult.index), Actor(ActorType.CIV, order.index)),
+        null, listOfNotNull(order.swornEvent.takeIf { it >= 0 }),
+        "${cultName(cult)} join ${cult.leaning!!.label}"
+      )
+    }
+  }
+
+  private fun cultName(cult: Cult): String {
+    val culture = towns[cult.origin].facts.cultureIndex
+    val deityName = deities.getOrNull(cult.deity)?.let { Names.deity(it.nameSeed, culture, it.domain) }
+    return Names.cult(cult.nameSeed, cult.kind, deityName, cult.beast)
+  }
+
+  /** One key of a weighted map, chosen by [unit] in [0,1), or null for an empty map. */
+  private fun <K> pickWeighted(weights: Map<K, Double>, unit: Double): K? {
+    var left = unit * weights.values.sum()
+    for ((key, weight) in weights) {
+      left -= weight
+      if (left <= 0.0) return key
+    }
+    return weights.keys.lastOrNull()
   }
 
   // --- Diplomacy and war -----------------------------------------------------------------------------
@@ -3373,7 +3732,7 @@ internal class HistorySim(
     SiteKind.LIGHTHOUSE -> "light"
     // Not built by `buildSites`, which is what this verb table serves - a shrine is raised by `raiseShrines`
     // and logs its own sentence, because an Order's reason for building one is the whole point of the line.
-    SiteKind.SHRINE -> "raise"
+    SiteKind.SHRINE, SiteKind.SANCTUARY -> "raise"
     // The residue kinds are never built by this pass; the branch exists so adding a kind is a compile error.
     SiteKind.RUIN, SiteKind.ASH_RUIN, SiteKind.BATTLEFIELD, SiteKind.TOMB, SiteKind.MONUMENT, SiteKind.HOARD,
     SiteKind.WOUND -> "make"
@@ -3430,7 +3789,8 @@ internal class HistorySim(
           foundedYear = civ.founded, endedYear = civ.ended, capital = civ.capital,
           technology = civ.technology, peakPopulation = civ.peak,
           settlements = civ.towns.sorted(), grudges = civ.grudges.toList(),
-          sworn = civ.sworn, swornYear = civ.swornYear, origin = civ.origin, parent = civ.parent
+          sworn = civ.sworn, swornYear = civ.swornYear, origin = civ.origin, parent = civ.parent,
+          patron = civ.patron
         )
       },
       figures = people.map {
@@ -3453,7 +3813,7 @@ internal class HistorySim(
           settlement = it.settlement, civ = it.civ, radius = it.radius,
           decay = decayOf(it), nameSeed = it.nameSeed, artifact = it.artifact, figure = it.figure,
           resource = it.resource, elevation = it.elevation, faction = it.faction,
-          battles = it.battles, fallen = it.fallen
+          battles = it.battles, fallen = it.fallen, cult = it.cult
         )
       },
       settlements = towns.map { town ->
@@ -3463,7 +3823,7 @@ internal class HistorySim(
           ownerCiv = town.owner, foundingCiv = town.foundingCiv, timesSacked = town.sacked,
           wallYear = town.wallYear, wallPopulation = town.wallPopulation,
           nameSeed = town.nameSeed, oldNameSeed = town.oldNameSeed, ruinCause = town.ruinCause,
-          sites = town.sites.toList()
+          sites = town.sites.toList(), patron = town.patron
         )
       },
       prunedEvents = prunedEvents,
@@ -3473,7 +3833,15 @@ internal class HistorySim(
           foundedYear = it.founded, endedYear = it.ended, exiledTo = it.exiledTo
         )
       },
-      relations = relations.toList()
+      relations = relations.toList(),
+      deities = deities.map { DeityRecord(it.index, it.domain, it.nameSeed, it.year, it.cause) },
+      cults = cults.map {
+        CultRecord(
+          index = it.index, nameSeed = it.nameSeed, kind = it.kind, deity = it.deity, beast = it.beast,
+          founder = it.founder, origin = it.origin, foundedYear = it.founded, endedYear = it.ended, fate = it.fate,
+          settlements = it.towns.toList(), leaning = it.leaning, sanctuary = it.sanctuary, realm = it.realm
+        )
+      }
     )
   }
 
@@ -3548,7 +3916,8 @@ internal class HistorySim(
     figure: Int,
     resource: Int = -1,
     elevation: Double = Double.NaN,
-    faction: Faction? = null
+    faction: Faction? = null,
+    cult: Int = -1
   ): Int {
     val index = sites.size
     sites.add(
@@ -3556,7 +3925,8 @@ internal class HistorySim(
         index = index, kind = kind, position = position, year = year, settlement = settlement,
         civ = civ, radius = radius,
         nameSeed = Names.seedOf(worldSeed, SITE_NAME_SALT, index.toLong()),
-        artifact = artifact, figure = figure, resource = resource, elevation = elevation, faction = faction
+        artifact = artifact, figure = figure, resource = resource, elevation = elevation, faction = faction,
+        cult = cult
       )
     )
     return index
@@ -3620,6 +3990,7 @@ internal class HistorySim(
         SiteKind.LIGHTHOUSE -> "light"
         SiteKind.HOARD -> "hoard"
         SiteKind.WOUND -> "wound"
+        SiteKind.SANCTUARY -> "sanctuary"
         // Three forms from one kind, off the same `else` branch in `Names.site`. This is the clearest thing the
         // order-on-a-channel design buys: "the cairn of Ashford" and "the ward of Ashford" are different
         // places to a player, and neither needed a `SiteKind` or a word pool of its own.
@@ -3676,6 +4047,9 @@ internal class HistorySim(
     var ruinCause: EventKind? = null
     val sites = ArrayList<Int>()
 
+    /** The god its temple is dedicated to: its founders' patron. Kept when the town changes hands. */
+    var patron = -1
+
     val standing get() = founded != 0 && abandoned == 0
   }
 
@@ -3714,6 +4088,9 @@ internal class HistorySim(
 
     /** Index of the ruling house, or -1 before the first ruler. */
     var house = -1
+
+    /** Index of the patron god, or -1 on a world with no gods. */
+    var patron = -1
     var founded = 0
     var ended = 0
     var technology = 0.0
@@ -3781,6 +4158,27 @@ internal class HistorySim(
 
   private class Oath(val avenger: Int, val slain: Int, val against: Int, val event: Int)
 
+  private class Deity(val index: Int, val domain: Domain, val nameSeed: Long, val year: Int, val cause: Int)
+
+  private class Cult(
+    val index: Int,
+    val nameSeed: Long,
+    val kind: CultKind,
+    val deity: Int,
+    val beast: BeastKind?,
+    val founder: Int,
+    val origin: Int,
+    val founded: Int,
+    val leaning: Faction?,
+    val sanctuary: Int
+  ) {
+    val towns = LinkedHashSet<Int>()
+    var ended = 0
+    var fate = CultFate.ACTIVE
+    var realm = -1
+    val active get() = fate == CultFate.ACTIVE
+  }
+
   private class Relic(
     val index: Int,
     val nameSeed: Long,
@@ -3811,7 +4209,9 @@ internal class HistorySim(
     /** Metres, for a site that is not on the ground. NaN for every kind but a hoard. */
     val elevation: Double = Double.NaN,
     /** The Order that raised it, for a shrine. Null for every other kind. */
-    val faction: Faction? = null
+    val faction: Faction? = null,
+    /** The cult whose sanctuary this is, or -1. */
+    val cult: Int = -1
   ) {
     /** Battles fought here; more than one when a later battle came within the merge radius. Battlefields only. */
     var battles = 0
@@ -4099,6 +4499,8 @@ internal class HistorySim(
     /** Names a volcano. Separate from `PLACE_NAME_SALT` so a vent and a town of the same index differ. */
     const val VENT_NAME_SALT = 0x06L
     const val HOUSE_NAME_SALT = 0x07L
+    const val DEITY_NAME_SALT = 0x08L
+    const val CULT_NAME_SALT = 0x09L
 
     // The Orders. Six independent decisions about the same subject - a civilisation - so all six need their
     // own value, and read the `MONASTERY_SALT` story above before touching any of them. `ORDER_SHARE_SALT` is
@@ -4134,6 +4536,27 @@ internal class HistorySim(
     const val FEUD_SALT = 0x46L
     const val VENGEANCE_SALT = 0x47L
     const val BETRAYAL_SALT = 0x48L
+    const val DEITY_DRAW_SALT = 0x49L
+    const val DEITY_EXTRA_SALT = 0x4AL
+    const val PATRON_SALT = 0x4BL
+    const val CULT_SALT = 0x4CL
+    const val CULT_KIND_SALT = 0x4DL
+    const val CULT_PICK_SALT = 0x4EL
+    const val CULT_SPREAD_SALT = 0x4FL
+    const val CULT_PERSECUTION_SALT = 0x50L
+    const val CULT_OUTCOME_SALT = 0x51L
+    const val CULT_ABSORB_SALT = 0x52L
+
+    /** Fewest gods any world has, and the smallest world the count shrinks for. */
+    const val MIN_DEITIES = 3
+    const val MIN_PANTHEON_SCALE = 0.5
+
+    /** A sanctuary stands this far outside its town, small: an idol and its paved floor. */
+    const val SANCTUARY_OFFSET = 900.0
+    const val SANCTUARY_RADIUS = 28.0
+
+    /** Added to a cult's index for its sanctuary's offset key, so it never shares a key with a tomb's figure. */
+    const val SANCTUARY_KEY = 1_000_000L
 
     /** Hostility left between two peoples once their rulers wed, as a share of what there was. */
     const val MARRIAGE_HOSTILITY_FACTOR = 0.5

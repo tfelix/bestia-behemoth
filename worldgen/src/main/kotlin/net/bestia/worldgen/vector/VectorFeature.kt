@@ -230,6 +230,9 @@ enum class FeatureKind(val defaultPriority: Int) {
    */
   SHRINE(642),
 
+  /** A cult's sanctuary. Beside [SHRINE] for the same reason: a small structure on ground it does not reshape. */
+  SANCTUARY(643),
+
   /**
    * A street inside a settlement: a road with a narrower cross-section and a higher priority.
    *

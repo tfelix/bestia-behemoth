@@ -684,6 +684,7 @@ class MapRenderer(
       // where that is answered. Three colours would also have to be told apart from MONASTERY's violet and
       // MONUMENT's cream at one pixel per kilometre, which they could not be.
       FeatureKind.SHRINE -> Color(235, 130, 180)
+      FeatureKind.SANCTUARY -> Color(200, 120, 230)
       FeatureKind.STREET -> Color(245, 215, 170)
       FeatureKind.TOWN_WALL -> Color(200, 200, 205)
       FeatureKind.GATE -> Color(255, 250, 230)
