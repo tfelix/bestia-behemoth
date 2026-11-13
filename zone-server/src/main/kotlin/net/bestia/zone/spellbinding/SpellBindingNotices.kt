@@ -1,5 +1,6 @@
 package net.bestia.zone.spellbinding
 
+import net.bestia.zone.battle.Element
 import net.bestia.zone.casting.sense.SenseKind
 import net.bestia.zone.casting.sense.SenseMark
 import net.bestia.zone.casting.sense.SenseMarksSMSG
@@ -22,10 +23,13 @@ class SpellBindingNotices(
 
   /** Loaded before the tick runs: a report is sent on the tick, where SQL is refused. */
   private var skillNames: Map<Long, String> = emptyMap()
+  private var skillElements: Map<Long, Element> = emptyMap()
 
   @EventListener(ApplicationReadyEvent::class)
   fun loadSkillNames() {
-    skillNames = skills.findAll().associate { it.id to it.identifier }
+    val all = skills.findAll()
+    skillNames = all.associate { it.id to it.identifier }
+    skillElements = all.associate { it.id to (Element.entries.find { element -> element.name == it.element } ?: Element.NORMAL) }
   }
 
   fun sendList(owner: SpellBindingOwner) {
@@ -48,6 +52,10 @@ class SpellBindingNotices(
   fun spellName(skillId: Long): String {
     return skillNames[skillId].orEmpty().removePrefix("M_").split('_')
       .joinToString(" ") { it.lowercase().replaceFirstChar(Char::uppercase) }
+  }
+
+  fun spellElement(skillId: Long): Element {
+    return skillElements[skillId] ?: Element.NORMAL
   }
 
   private companion object {

@@ -7,8 +7,7 @@ import org.springframework.stereotype.Component
 
 /**
  * Magic Sense (`skills.yml` id 51): sweeps 10 m per level for mana at work. See
- * [net.bestia.zone.casting.sense.MagicSensing] for what each level tells. Level 5, who bound a Spell Binding and its
- * trigger, waits for Spell Binding.
+ * [net.bestia.zone.casting.sense.MagicSensing] for what each level tells.
  */
 @Component
 class MagicSense : SkillStrategy {

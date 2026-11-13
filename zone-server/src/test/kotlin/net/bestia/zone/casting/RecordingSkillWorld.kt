@@ -435,6 +435,11 @@ class RecordingSkillWorld(
   /** Every [bindSpell] call: the args and where. */
   val boundSpells = mutableListOf<Pair<List<Long>, Vec3L>>()
 
+  /** What [dispelBinding] answers: no binding anywhere unless a test says so. */
+  var bindingDispel: Boolean? = null
+
+  override fun dispelBinding(entityId: EntityId, baseChancePercent: Int): Boolean? = bindingDispel
+
   override fun bindSpell(args: List<Long>, at: Vec3L): OpError? {
     boundSpells += args to at
 

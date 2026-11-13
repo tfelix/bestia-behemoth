@@ -29,6 +29,7 @@ class SpellBindingSystem(
   private val book: SpellBindingBook,
   private val firing: SpellBindingFiring,
   private val itemHits: ItemBindingHits,
+  private val glyphs: SpellBindingGlyphs,
   private val clock: Clock = Clock.systemUTC(),
 ) : System {
 
@@ -65,11 +66,12 @@ class SpellBindingSystem(
 
     itemHits.drain().forEach { hit -> fired += firedByHit(world, hit) }
 
-    if (fired.isEmpty() && !firing.hasLingeringCasters()) {
+    if (fired.isEmpty() && !firing.hasLingeringCasters() && !glyphs.hasRevealed()) {
       return
     }
     world.post {
       firing.removeGoneCasters(this)
+      glyphs.hideExpired(this)
       fired.forEach { fire(this, it) }
     }
   }

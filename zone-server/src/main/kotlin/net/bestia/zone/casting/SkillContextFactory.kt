@@ -5,6 +5,9 @@ import net.bestia.zone.battle.potency.PotencyCalculator
 import net.bestia.zone.battle.damage.HitKind
 import net.bestia.zone.battle.BattleContext
 import net.bestia.zone.battle.BattleContextFactory
+import net.bestia.zone.entity.ecs.EntityVisual
+import net.bestia.zone.entity.ecs.VisualKind
+import net.bestia.zone.item.ecs.GroundItemStack
 import net.bestia.zone.item.ecs.ItemEnchantments
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.ecs.core.World
@@ -86,7 +89,7 @@ class SkillContextFactory(
   }
 
   /**
-   * An item has no combat stats, so an enchanted one on the ground is aimed at as the ground it lies on. The target
+   * An item or a Spell Binding's glyph has no combat stats, so it is aimed at as the ground it lies on. The target
    * id stays on the [SkillContext], which is how Dispel tells it from a plain ground cast.
    */
   private fun enchantedGroundItemContext(
@@ -95,9 +98,14 @@ class SkillContextFactory(
     usedAttack: BattleAttack,
     targetEntityId: EntityId?,
   ): BattleContext? {
-    val item = targetEntityId?.takeIf { world.has(it, ItemEnchantments::class) } ?: return null
+    val item = targetEntityId?.takeIf { isBodiless(world, it) } ?: return null
     val lyingAt = world.get(item, Position::class)?.toVec3L() ?: return null
 
     return battleContextFactory.create(world, casterId, usedAttack, targetEntityId = null, targetPosition = lyingAt)
+  }
+
+  private fun isBodiless(world: World, targetId: EntityId): Boolean {
+    return world.has(targetId, ItemEnchantments::class) || world.has(targetId, GroundItemStack::class) ||
+      world.get(targetId, EntityVisual::class)?.kind == VisualKind.EFFECT
   }
 }

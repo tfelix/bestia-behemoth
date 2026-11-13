@@ -590,7 +590,7 @@ class BudgetedSkillWorld(
   override fun senseMagic(level: Int) {
     budget.charge(SPAWN_OPS)
 
-    services.magicSensing?.sense(world, casterId, level)
+    services.magicSensing?.sense(world, casterId, level, castPotency)
   }
 
   override fun senseMonster(targetId: EntityId): Boolean {
@@ -646,6 +646,12 @@ class BudgetedSkillWorld(
     budget.charge()
 
     return services.spellScrolls?.takeScroll(world, casterId, scrollId)
+  }
+
+  override fun dispelBinding(entityId: EntityId, baseChancePercent: Int): Boolean? {
+    budget.charge()
+
+    return services.spellBindings?.dispel(world, entityId, castPotency, baseChancePercent)
   }
 
   override fun bindSpell(args: List<Long>, at: Vec3L): OpError? {

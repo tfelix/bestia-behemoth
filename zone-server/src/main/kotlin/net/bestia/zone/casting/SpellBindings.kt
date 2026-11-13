@@ -17,6 +17,12 @@ interface SpellBindings {
   /** Takes the scroll and binds it at [at], or to the item [args] name. The refusal, or null once bound. */
   fun bind(world: World, casterId: EntityId, skillLevel: Int, args: List<Long>, at: Vec3L, potency: Int): OpError?
 
+  /**
+   * A Dispel of [potency] aimed at [targetId]: true when it broke the binding there, false when the binding held,
+   * null when [targetId] holds none.
+   */
+  fun dispel(world: World, targetId: EntityId, potency: Int, baseChancePercent: Int): Boolean?
+
   /** Releases one of the caster's own bindings when [args] ask for that; false for any other choice. */
   fun release(world: World, casterId: EntityId, args: List<Long>): Boolean
 }

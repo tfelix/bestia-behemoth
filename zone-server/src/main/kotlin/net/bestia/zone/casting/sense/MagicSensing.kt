@@ -12,20 +12,24 @@ import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.item.ecs.GroundItemStack
 import net.bestia.zone.item.ecs.ItemEnchantments
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.mana.ManaConcentrationService
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 
 /**
  * Magic Sense: mana at work around the caster. Spell fields, anything under a buff or debuff, enchanted items on the
  * ground, and mana-bearing crystals. Each level tells more about each source: that it is there, where and how strong,
- * its element, and the exact spell.
+ * its element, the exact spell, and for a Spell Binding who bound it and what it waits for.
  */
 @Component
 class MagicSensing(
@@ -35,20 +39,37 @@ class MagicSensing(
   private val statusDefinitions: StatusEffectDefinitionRegistry,
   private val statusScripts: StatusEffectScriptRegistry,
   private val messages: OutMessageProcessor,
+  private val bindings: SensedBindings? = null,
 ) {
 
   private val skillNames: Map<Long, String> by lazy { skills.findAll().associate { it.id to it.identifier } }
 
-  /** One mana source, before the level decides how much of it the caster learns. */
-  data class Source(val at: Vec3L, val potency: Int, val element: Element, val name: String)
+  /** Before the tick runs: a sweep reads the names on the tick, where SQL is refused. */
+  @EventListener(ApplicationReadyEvent::class)
+  fun loadSkillNames() {
+    skillNames.size
+  }
 
-  fun sense(world: World, casterId: EntityId, level: Int) {
+  /**
+   * One mana source, before the level decides how much of it the caster learns. [reading] is what level 5 adds about
+   * a Spell Binding.
+   */
+  data class Source(val at: Vec3L, val potency: Int, val element: Element, val name: String, val reading: String = "")
+
+  fun sense(world: World, casterId: EntityId, level: Int, potency: Int = 0) {
     val accountId = world.get(casterId, Account::class)?.accountId ?: return
     val at = world.get(casterId, Position::class)?.toVec3L() ?: return
     // Strong mana carries the sense further, drained land muffles it.
     val range = (RANGE_PER_LEVEL * level * mana.factorAt(at)).toLong()
 
-    val found = sourcesAround(world, casterId, at, range)
+    val sensedBindings = bindings?.around(world, at, range, potency).orEmpty()
+    if (level >= BINDING_LEVEL) {
+      val viewers = partyOf(world, casterId) + accountId
+      sensedBindings.mapNotNull { it.glyphId }.forEach { bindings?.reveal(world, it, viewers, VISIBLE_SECONDS) }
+    }
+
+    val found = sourcesAround(world, casterId, at, range) +
+      sensedBindings.map { Source(it.at, it.potency, it.element, it.spellName, it.reading) }
     val voxel = worldService.config.voxelSize
     val marks = found.map { source ->
       SenseMark(
@@ -114,7 +135,13 @@ class MagicSensing(
       .lowercase()
     if (level < SPELL_LEVEL) return "$strength $element"
 
-    return "$strength $element: ${source.name}"
+    if (level < BINDING_LEVEL || source.reading.isEmpty()) return "$strength $element: ${source.name}"
+
+    return "$strength $element: ${source.name}, ${source.reading}"
+  }
+
+  private fun partyOf(world: World, casterId: EntityId): Set<AccountId> {
+    return world.get(casterId, PartyMembership::class)?.members?.mapTo(HashSet()) { it.accountId }.orEmpty()
   }
 
   private fun nameOf(identifier: String?): String {
@@ -126,6 +153,7 @@ class MagicSensing(
     const val POSITION_LEVEL = 2
     const val ELEMENT_LEVEL = 3
     const val SPELL_LEVEL = 4
+    const val BINDING_LEVEL = 5
 
     /** Potency bands: a player's cast sits near 100, a ward stone far above. */
     const val FAINT_BELOW = 50

@@ -1,7 +1,9 @@
 package net.bestia.zone.spellbinding
 
 import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.battle.attack.ThreadLocalRandomSource
 import net.bestia.zone.battle.ecs.level.Level
+import net.bestia.zone.battle.potency.Potency
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.casting.SpellBindings
 import net.bestia.zone.ecs.core.World
@@ -9,11 +11,13 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.item.ecs.Equipment
+import net.bestia.zone.item.ecs.GroundItemStack
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.spellscroll.SpellScrollService
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 import java.time.Clock
+import java.util.Random
 
 /** Makes and ends Spell Bindings: the scroll, the limit, the glyph, the row and the binder's list. On the tick. */
 @Service
@@ -24,6 +28,7 @@ class SpellBindingService(
   private val glyphs: SpellBindingGlyphs,
   private val notices: SpellBindingNotices,
   private val clock: Clock = Clock.systemUTC(),
+  private val random: Random = ThreadLocalRandomSource,
 ) : SpellBindings {
 
   override fun bindRefusal(world: World, casterId: EntityId, skillLevel: Int, args: List<Long>): OpError? {
@@ -64,6 +69,24 @@ class SpellBindingService(
     notices.sendList(owner)
 
     return null
+  }
+
+  override fun dispel(world: World, targetId: EntityId, potency: Int, baseChancePercent: Int): Boolean? {
+    val entry = bindingAt(world, targetId) ?: return null
+    val chance = Potency.dispelChancePercent(baseChancePercent, potency, entry.bound.potency)
+    if (random.nextDouble() * 100 >= chance) {
+      return false
+    }
+
+    return forget(world, entry)
+  }
+
+  /** The binding on a glyph, or on an item lying on the ground. */
+  private fun bindingAt(world: World, targetId: EntityId): SpellBindingBook.Entry? {
+    world.get(targetId, GroundSpellBinding::class)?.let { return book.find(it.bound.owner.masterId, it.bound.id) }
+    val uniqueId = world.get(targetId, GroundItemStack::class)?.uniqueId?.takeIf { it != 0L } ?: return null
+
+    return book.byItem(uniqueId)
   }
 
   override fun release(world: World, casterId: EntityId, args: List<Long>): Boolean {

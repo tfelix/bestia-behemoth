@@ -14,6 +14,9 @@ import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.item.net.EquipItemCMSG
 import net.bestia.zone.spellbinding.StrangerPickup
+import net.bestia.zone.spellbinding.SpellBindingGlyphs
+import net.bestia.zone.spellbinding.SpellBindingSensing
+import net.bestia.zone.casting.sense.MagicSensing
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
@@ -118,6 +121,15 @@ class SpellBindingScenarios : BestiaNoSocketScenario(autoClientConnect = false) 
   @Autowired
   private lateinit var strangerPickup: StrangerPickup
 
+  @Autowired
+  private lateinit var glyphs: SpellBindingGlyphs
+
+  @Autowired
+  private lateinit var sensing: SpellBindingSensing
+
+  @Autowired
+  private lateinit var magicSensing: MagicSensing
+
   private lateinit var client: GameClientMock
 
   private var masterId = 0L
@@ -148,6 +160,7 @@ class SpellBindingScenarios : BestiaNoSocketScenario(autoClientConnect = false) 
 
     // Before connecting: the live bag is read from the database when the master enters the world.
     inventoryService.addItem(masterId, "stone_knife", 1)
+    inventoryService.addItem(masterId, "yellow_mana_crystal", 1)
 
     client = gameClientFactory.getGameClient(accountId = account.id)
     client.connect(masterId)
@@ -321,6 +334,70 @@ class SpellBindingScenarios : BestiaNoSocketScenario(autoClientConnect = false) 
     world.modify(stack) { id -> destroy(id) }
   }
 
+  @Test
+  @Order(9)
+  fun `Magic Sense Lv 5 names the binder and the trigger and shows the glyph, Lv 4 only the spell`() {
+    removeFoes()
+    val glyph = bindGlyph()
+    val senseId = skillId("M_MAGIC_SENSE")
+    world.modify(sage()) { id -> get(id, KnownSkills::class)!!.learnOrUpdate(senseId, 5) }
+    client.clearMessages()
+
+    world.modify(sage()) { id -> magicSensing.sense(this, id, level = 4, potency = 100) }
+    val lv4 = awaitValue { client.tryGetLastReceived(SenseMarksSMSG::class) }.marks.filter { it.label.contains("Tackle") }
+    assertTrue(lv4.isNotEmpty())
+    assertTrue(lv4.none { it.label.contains("bound by") })
+    assertTrue(glyphs.shownTo(glyph).isEmpty())
+    client.clearMessages()
+
+    client.sendMessage(ActivateSkillCMSG(accountId, senseId, 5, sageAt(), 0))
+
+    await {
+      val marks = assertNotNull(client.tryGetLastReceived(SenseMarksSMSG::class)).marks
+      assertTrue(marks.any { it.label.endsWith("Tackle, steps on it, foes, bound by binder") })
+    }
+    assertTrue(accountId in glyphs.shownTo(glyph))
+  }
+
+  @Test
+  @Order(10)
+  fun `a binding stronger than the sweep is found only close by`() {
+    val far = sageAt() + Vec3L(20, 0, 0)
+
+    val weak = world.read { sensing.around(this, far, range = 50, potency = 0) }
+    val strong = world.read { sensing.around(this, far, range = 50, potency = 100) }
+
+    assertTrue(weak.none { it.potency == GLYPH_POTENCY })
+    assertTrue(strong.any { it.potency == GLYPH_POTENCY })
+  }
+
+  @Test
+  @Order(11)
+  fun `Dispel aimed at a shown glyph lifts the binding`() {
+    val glyph = book.of(masterId).single { it.glyphId != null && it.bound.potency == GLYPH_POTENCY }.glyphId!!
+    val dispelId = skillId("M_DISPEL")
+    world.modify(sage()) { id ->
+      get(id, KnownSkills::class)!!.learnOrUpdate(dispelId, 5)
+      get(id, Mana::class)!!.apply { current = max }
+    }
+
+    client.sendMessage(ActivateSkillCMSG(accountId, dispelId, 5, sageAt(), glyph))
+
+    await { assertFalse(world.read { isAlive(glyph) }) }
+    assertTrue(book.of(masterId).none { it.glyphId == glyph })
+  }
+
+  /** A glyph under the Sage of a known Potency, so the contest tests can reason about it. */
+  private fun bindGlyph(): EntityId {
+    val scroll = inscribe(tackleId)
+    val args = listOf(SpellBindingChoice.BIND, scroll, BindingTrigger.STEPS_ON.id, BindingFilter.FOES.id, 0)
+    world.modify(sage()) { id -> bindings.bind(this, id, 5, args, sageAt(this, id), potency = GLYPH_POTENCY) }
+
+    return book.of(masterId).last().glyphId!!
+  }
+
+  private fun skillId(identifier: String): Long = assertNotNull(skills.findByIdentifier(identifier)).id
+
   private fun itemBinding(trigger: BindingTrigger, itemId: Long): List<Long> {
     return listOf(SpellBindingChoice.BIND, inscribe(tackleId), trigger.id, BindingFilter.FOES.id, itemId)
   }
@@ -430,6 +507,8 @@ class SpellBindingScenarios : BestiaNoSocketScenario(autoClientConnect = false) 
     const val LOGIN_ACCOUNT_ID = 45L
     const val BLOB = 1L
     const val STONE_KNIFE = 103L
+    /** Below any Sage's Dispel, so the Dispel always wins; far enough below a sweep of 100 to be found from afar. */
+    const val GLYPH_POTENCY = 20
     const val SAGE_LEVEL = 60
     const val MANA_NEEDED = 45
     const val BLOB_HEALTH = 100_000
