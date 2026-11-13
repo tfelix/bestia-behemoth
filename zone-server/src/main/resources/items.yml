@@ -327,9 +327,10 @@ items:
 
   # Relics: named gear from the world's chronicle, dug up from a cache where history buried one. Each copy is
   # one artifact: its name is a `treasure_relic` row and its forger and forge town its provenance - see Relics.
+  # Base level 80; the stats a relic rolls lift it to at most 110, the more of a history it has.
   - id: 130
     item-db-name: relic_blade
-    base-level: 50
+    base-level: 80
     weight: 350
     type: EQUIP
     material: METAL
@@ -353,7 +354,7 @@ items:
 
   - id: 131
     item-db-name: relic_crown
-    base-level: 50
+    base-level: 80
     weight: 120
     type: EQUIP
     material: METAL
@@ -377,7 +378,7 @@ items:
 
   - id: 132
     item-db-name: relic_ring
-    base-level: 50
+    base-level: 80
     weight: 10
     type: EQUIP
     material: METAL
@@ -401,7 +402,7 @@ items:
 
   - id: 133
     item-db-name: relic_reliquary
-    base-level: 50
+    base-level: 80
     weight: 60
     type: EQUIP
     material: METAL
@@ -424,7 +425,7 @@ items:
 
   - id: 134
     item-db-name: relic_tome
-    base-level: 50
+    base-level: 80
     weight: 90
     type: EQUIP
     material: PAPER
@@ -447,7 +448,7 @@ items:
 
   - id: 135
     item-db-name: relic_banner
-    base-level: 50
+    base-level: 80
     weight: 200
     type: EQUIP
     material: CLOTH
