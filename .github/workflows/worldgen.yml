@@ -1,0 +1,41 @@
+# The worldgen suite takes about 25 minutes and most of a runner's memory, so it only runs when something the
+# generated world depends on changed. Manual for now: run it from the Actions tab.
+# To run it on PRs and main, add under `on:` the triggers below, with the same `paths:` list for both:
+#   pull_request:
+#     paths: [...]
+#   push:
+#     branches: [main]
+#     paths: [...]
+# The paths:
+#   - 'worldgen/**'
+#   - 'buildSrc/**'                                        # WorldGenSettings, the generator's flags
+#   - 'zone-server/src/main/resources/application.yml'     # the `worldgen:` block of the world the zone boots
+#   - 'build.gradle'
+#   - 'settings.gradle'
+#   - 'gradle/**'
+#   - '.github/workflows/worldgen.yml'
+name: Worldgen
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: worldgen-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # A runner of its own: in one Gradle process with the zone tests, the worldgen executor runs out of memory.
+  worldgen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew :worldgen:test

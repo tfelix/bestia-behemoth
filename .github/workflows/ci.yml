@@ -1,4 +1,4 @@
-# Tests for every part of the repo, one runner per part. Manual for now: run it from the Actions tab.
+# Tests for every part of the repo, one runner per part. The worldgen suite has its own workflow (worldgen.yml). Manual for now: run it from the Actions tab.
 # To run it on every PR, add under `on:`
 #   pull_request:
 #   push:
@@ -28,19 +28,6 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       # bus, login and api tests start Valkey and MariaDB with Testcontainers on the runner's Docker.
       - run: ./gradlew :zone-server:test :login-server:test :api-server:test :bus:test
-
-  # A runner of its own: in one Gradle process with the zone tests, the worldgen executor runs out of memory.
-  worldgen:
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
-      - uses: gradle/actions/setup-gradle@v4
-      - run: ./gradlew :worldgen:test
 
   client:
     runs-on: ubuntu-latest
