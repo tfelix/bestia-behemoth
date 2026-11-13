@@ -1,0 +1,3 @@
+# The server images only need the jar Gradle built; everything else would slow the build context down.
+*
+!*/build/libs/*.jar
