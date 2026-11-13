@@ -7,6 +7,7 @@ import net.bestia.worldgen.core.Domain
 import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.ParamsDigest
+import net.bestia.worldgen.core.WorldBoss
 
 /**
  * Deterministic names, reconstructed from a seed rather than stored.
@@ -164,6 +165,18 @@ object Names {
     }
     return "the $band of $of"
   }
+
+  /** A world boss's name: a name of its own and its species' title, "Gharzul, the Bone Wyrm". */
+  fun monster(seed: Long, boss: WorldBoss): String {
+    return "${pick(MONSTER_NAMES, seed, MONSTER_NAME_SALT)}, ${boss.title}"
+  }
+
+  private const val MONSTER_NAME_SALT = 0xB3L
+
+  private val MONSTER_NAMES = listOf(
+    "Gharzul", "Vorthak", "Skarn", "Ulmog", "Thessra", "Morvain", "Kragath", "Ysolde", "Brannoch", "Xerith",
+    "Odrak", "Sevrine"
+  )
 
   private const val DEITY_GIVEN_SALT = 0xB0L
   private const val DEITY_TITLE_SALT = 0xB1L
@@ -439,6 +452,7 @@ object Names {
     digest.put("woundNouns", WOUND_NOUNS.joinToString(","))
     for ((domain, titles) in DEITY_TITLES) digest.put("deity:${domain.name}", titles.joinToString(","))
     digest.put("cultBands", CULT_BANDS.joinToString(","))
+    digest.put("monsterNames", MONSTER_NAMES.joinToString(","))
     for ((beast, noun) in BEAST_NOUNS) digest.put("beast:${beast.name}", noun)
 
     return digest.value

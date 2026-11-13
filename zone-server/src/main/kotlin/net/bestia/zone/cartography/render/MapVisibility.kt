@@ -122,6 +122,9 @@ enum class MapVisibility(
 
       FeatureKind.SHRINE -> LANDMARK
       FeatureKind.SANCTUARY -> LANDMARK
+      FeatureKind.SEAL -> LANDMARK
+      // Where a living world boss hides is for legends to point at, never for a map to show.
+      FeatureKind.LAIR -> SECRET
       FeatureKind.POI -> LANDMARK
 
       // A working mine is a place on the map; what is *in* it is ORE_DEPOSIT, which is not.

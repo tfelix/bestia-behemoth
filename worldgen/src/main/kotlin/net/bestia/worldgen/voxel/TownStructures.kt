@@ -600,6 +600,9 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
       SiteKind.WOUND -> woundColumn(site, ground, distance, into)
       SiteKind.SHRINE -> shrineColumn(site, ground, distance, into)
       SiteKind.SANCTUARY -> sanctuaryColumn(site, ground, distance, into)
+      SiteKind.SEAL -> sealColumn(site, ground, distance, into)
+      // A lair is where the zone puts the beast; the cave or the wilds around it are the place, not masonry.
+      SiteKind.LAIR -> Unit
       // A battlefield is bones and rusted iron in the grass, which is a scatter pass rather than a structure.
       SiteKind.BATTLEFIELD -> Unit
       // A hoard is a marker for whatever spawns the treasure, not masonry. It is also *underground*, and this
@@ -712,6 +715,15 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
         into.add(ground - SLAB_THICKNESS, ground + SANCTUARY_IDOL_HEIGHT * (1.0 - site.decay * 0.4), BlockType.MASONRY)
 
       fraction < SANCTUARY_FLOOR_SHARE -> into.add(ground - SLAB_THICKNESS, ground, BlockType.MASONRY)
+    }
+  }
+
+  /** A plinth for the crystal inside a low ring of stone. The crystal itself is a prop, so it can be broken. */
+  private fun sealColumn(site: Site, ground: Double, distance: Double, into: StructureSpans) {
+    val fraction = distance / site.radius
+    when {
+      fraction < SEAL_PLINTH_SHARE -> into.add(ground - SLAB_THICKNESS, ground + SEAL_PLINTH_HEIGHT, BlockType.MASONRY)
+      fraction >= SEAL_RING_INNER -> into.add(ground - SLAB_THICKNESS, ground + SEAL_RING_HEIGHT, BlockType.MASONRY)
     }
   }
 
@@ -1045,7 +1057,8 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
       FeatureKind.LIGHTHOUSE to SiteKind.LIGHTHOUSE,
       FeatureKind.WOUND to SiteKind.WOUND,
       FeatureKind.SHRINE to SiteKind.SHRINE,
-      FeatureKind.SANCTUARY to SiteKind.SANCTUARY
+      FeatureKind.SANCTUARY to SiteKind.SANCTUARY,
+      FeatureKind.SEAL to SiteKind.SEAL
     )
 
     fun kindOf(kind: FeatureKind): SiteKind? = SITE_KINDS[kind]
@@ -1079,6 +1092,11 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     const val SANCTUARY_IDOL_SHARE = 0.12
     const val SANCTUARY_IDOL_HEIGHT = 3.2
     const val SANCTUARY_FLOOR_SHARE = 0.7
+
+    const val SEAL_PLINTH_SHARE = 0.2
+    const val SEAL_PLINTH_HEIGHT = 1.0
+    const val SEAL_RING_INNER = 0.75
+    const val SEAL_RING_HEIGHT = 0.6
 
     /** How much of the ash a fully decayed site has lost to weathering and slumping. */
     const val ASH_SETTLING = 0.35

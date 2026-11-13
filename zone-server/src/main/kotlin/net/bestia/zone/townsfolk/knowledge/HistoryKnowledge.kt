@@ -42,6 +42,7 @@ object HistoryKnowledge {
   /** A god, named in the idiom of the event's place: each people calls the same god by its own name. */
   const val SLOT_DEITY = "deity"
   const val SLOT_CULT = "cult"
+  const val SLOT_MONSTER = "monster"
 
   /**
    * What fills a slot whose actor the chronicle has no name for.
@@ -55,6 +56,7 @@ object HistoryKnowledge {
   const val UNKNOWN_ARTIFACT = "NAME_UNKNOWN_ARTIFACT"
   const val UNKNOWN_DEITY = "NAME_UNKNOWN_DEITY"
   const val UNKNOWN_CULT = "NAME_UNKNOWN_CULT"
+  const val UNKNOWN_MONSTER = "NAME_UNKNOWN_MONSTER"
 
   fun of(chronicle: Chronicle, event: HistoryEvent, locality: Locality, variants: Int = 1): Knowledge {
     return Knowledge(
@@ -90,6 +92,9 @@ object HistoryKnowledge {
         ActorType.ARTIFACT -> slots.putIfAbsent(SLOT_ARTIFACT, artifactName(chronicle, actor.index))
         ActorType.DEITY -> slots.putIfAbsent(SLOT_DEITY, deityName(chronicle, actor.index, cultureOf(chronicle, event)))
         ActorType.CULT -> slots.putIfAbsent(SLOT_CULT, cultName(chronicle, actor.index))
+        ActorType.MONSTER -> slots.putIfAbsent(
+          SLOT_MONSTER, named(ChronicleNames.monsterOf(chronicle, actor.index), UNKNOWN_MONSTER)
+        )
 
         // Not the site's own name - "the barrow of X" carries an English form word that cannot be handed
         // over as a proper noun. What is worth having is the town it was built by, which every raised

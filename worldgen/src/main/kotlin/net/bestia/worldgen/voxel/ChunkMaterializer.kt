@@ -1004,7 +1004,8 @@ class ChunkMaterializer(
     // 12: resin lies under the conifers (`LootScatter`), so forest chunks emit props they did not.
     // 13: a herb carries its `HerbKind` on its sub-kind, so herbs in forests, mana, cold, desert and blight change.
     // 14: a cult's sanctuary stands outside its town (`TownStructures.sanctuaryColumn`).
-    const val VERSION = 14
+    // 15: a world boss's seal stands where it was bound (`TownStructures.sealColumn`).
+    const val VERSION = 15
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

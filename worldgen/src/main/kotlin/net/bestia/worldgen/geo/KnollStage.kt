@@ -524,6 +524,8 @@ class KnollStage(
       FeatureKind.LIGHTHOUSE,
       FeatureKind.SHRINE,
       FeatureKind.SANCTUARY,
+      FeatureKind.SEAL,
+      FeatureKind.LAIR,
       FeatureKind.WOUND,
       FeatureKind.POI,
       FeatureKind.CAVE_ENTRANCE,

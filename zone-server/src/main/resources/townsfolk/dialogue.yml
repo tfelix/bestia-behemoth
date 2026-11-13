@@ -55,6 +55,12 @@ events:
   CULT_WIPED_OUT: { variants: 2, slots: [cult, civ, year, era] }
   CULT_REVOLT: { variants: 2, slots: [cult, civ, foe, place, year, era] }
   CULT_ABSORBED: { variants: 2, slots: [cult, year, era] }
+  MONSTER_AWOKE: { variants: 2, slots: [monster, year, era] }
+  MONSTER_RAVAGED: { variants: 2, slots: [monster, place, year, era] }
+  MONSTER_SLAIN: { variants: 2, slots: [figure, monster, place, artifact, year, era] }
+  MONSTER_SEALED: { variants: 2, slots: [monster, year, era] }
+  MONSTER_WITHDREW: { variants: 2, slots: [monster, year, era] }
+  MONSTER_VANISHED: { variants: 2, slots: [monster, year, era] }
   WAR_DECLARED: { variants: 2, slots: [civ, year, era, foe] }
   BATTLE: { variants: 3, slots: [civ, year, era, foe] }
   SIEGE: { variants: 2, slots: [civ, place, year, era] }

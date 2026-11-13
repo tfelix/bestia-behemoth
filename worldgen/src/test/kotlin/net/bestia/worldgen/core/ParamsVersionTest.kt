@@ -162,6 +162,7 @@ class ParamsVersionTest {
     "EventKind" to EventKind.catalogueDigest(),
     "Order" to Faction.catalogueDigest(),
     "Domain" to Domain.catalogueDigest(),
+    "WorldBoss" to WorldBoss.catalogueDigest(),
     "ResourceType" to ResourceType.catalogueDigest(),
     "MinableOre" to MinableOre.catalogueDigest(),
     "SpawnHostility" to SpawnHostility.catalogueDigest(),
@@ -180,10 +181,11 @@ class ParamsVersionTest {
       // shape rather than a disc without also becoming a smaller one. See `SettlementTier.footprintRadius`.
       "SettlementTier" to 4_668_433_068_619_246_677L,
       "BusinessCatalogue" to -4_134_603_911_680_592_775L,
-      "Names" to -1_695_266_652_203_544_630L,
-      "EventKind" to 5_275_197_114_966_082_212L,
+      "Names" to -2_563_341_001_968_021_080L,
+      "EventKind" to 5_270_417_651_838_075_194L,
       "Order" to -2_417_387_423_981_603_910L,
       "Domain" to -2_510_024_340_807_783_382L,
+      "WorldBoss" to 670_475_568_735_854_959L,
       // Both moved when ruby, diamond, emerald and amethyst joined the catalogue: `ResourceType` because the
       // worth table gained four rows, `MinableOre` because it gained four rows and every `scarcityRank` below
       // diamond shifted to keep the ordering dense.
@@ -240,7 +242,7 @@ class ParamsVersionTest {
       // router's grade tunables and the road width variation. See `SettlementStage.sampleElevation`.
       "SettlementParams" to -4_952_664_331_358_582_183L,
       "OrderInfluence" to 2_558_661_069_677_437_569L,
-      "HistoryParams" to 7_557_943_030_547_285_614L,
+      "HistoryParams" to 7_713_679_867_092_700_935L,
       "CorruptionParams" to -8_182_278_140_807_375_004L,
       "SpawnerParams" to 5_079_634_965_732_130_795L,
       "VegetationStandParams" to -259_420_489_769_960_249L,

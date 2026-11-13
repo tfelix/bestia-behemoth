@@ -44,6 +44,13 @@ object ChronicleNames {
     return Names.deity(record.nameSeed, culture, record.domain)
   }
 
+  /** A world boss: its own name and its species' title, the same for every people. */
+  fun monsterOf(chronicle: Chronicle, monster: Int): String? {
+    val record = chronicle.monsters.getOrNull(monster) ?: return null
+
+    return Names.monster(record.nameSeed, record.boss)
+  }
+
   /** A cult, named in the idiom of the town that founded it. */
   fun cultOf(chronicle: Chronicle, cult: Int): String? {
     val record = chronicle.cults.getOrNull(cult) ?: return null
