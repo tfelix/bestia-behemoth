@@ -1,0 +1,53 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 104
+identifier: ember_sovereign
+level: 110
+name: "Ember Sovereign"
+description: >-
+  A living mass of magma and slag that rules the deep vents. Where it has passed, the cave walls still glow for
+  years.
+kind: ELEMENTAL
+element: FIRE_4
+size: BIG
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 1
+weight: 500
+health: 97915
+mana: 363
+experience: 42447
+attributes: { strength: 49, intelligence: 42, vitality: 249, dexterity: 26, willpower: 100, agility: 33 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: howl, level: 6 }
+  - { skill: growl, level: 11 }
+  - { skill: flame_weapon, level: 16 }
+  - { skill: flame_fang, level: 21 }
+  - { skill: crushing_blow, level: 26 }
+  - { skill: flame_coat, level: 31 }
+  - { skill: bewilder, level: 36 }
+  - { skill: healing_circle, level: 41 }
+  - { skill: body_slam, level: 46 }
+  - { skill: fire_ball, level: 51 }
+  - { skill: blazing_charge, level: 61 }
+  - { skill: control_undead, level: 66 }
+  - { skill: renewal, level: 70 }
+  - { skill: berserk, level: 76 }
+  - { skill: mana_storm, level: 82, active: true }
+  - { skill: skull_breaker, level: 88, active: true }
+  - { skill: divine_heal, level: 94, active: true }
+  - { skill: inferno, level: 100, active: true }
+habitat: [VOLCANIC_FIELD]
+temperature-min: 5
+temperature-max: 60
+spawn-weight: 100
+boss: true
+world-boss: true
+status-immunities: [STUN, FROZEN, STONING, FEARED, CONFUSED, CONTROLLED]
+equip-slots: [ACCESSORY_1, ACCESSORY_2]
+armor-types: []
+loot:
+  - { item: ember_core, chance: 10000 }
+  - { item: gold_ore, chance: 5000 }
+  - { item: iron_ore, chance: 5000 }

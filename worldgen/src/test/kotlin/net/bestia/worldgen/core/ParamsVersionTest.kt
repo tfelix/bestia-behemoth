@@ -185,7 +185,7 @@ class ParamsVersionTest {
       "EventKind" to 5_270_417_651_838_075_194L,
       "Order" to -2_417_387_423_981_603_910L,
       "Domain" to -2_510_024_340_807_783_382L,
-      "WorldBoss" to 670_475_568_735_854_959L,
+      "WorldBoss" to -606_815_975_619_433_919L,
       // Both moved when ruby, diamond, emerald and amethyst joined the catalogue: `ResourceType` because the
       // worth table gained four rows, `MinableOre` because it gained four rows and every `scarcityRank` below
       // diamond shifted to keep the ordering dense.

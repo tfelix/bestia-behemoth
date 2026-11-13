@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_script")
-bestia_id = 106
+bestia_id = 108
 name_key = "BESTIA_BLOOMHARE"
 description_key = "BESTIA_BLOOMHARE_DESC"
 kind = "BEAST"
@@ -13,8 +13,8 @@ armor_types = 15
 non_combatant = false
 habitat = ""
 in_compendium = true
+aggressive = false
 placeholder_shape = 1
 placeholder_colour = Color(1, 0.7529, 0.7961, 1)
 placeholder_scale = 0.6
 placeholder_glow = 0
-aggressive = false

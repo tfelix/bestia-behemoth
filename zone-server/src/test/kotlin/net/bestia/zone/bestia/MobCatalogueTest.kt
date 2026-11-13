@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import net.bestia.zone.boot.ItemImporterBootRunner
 import net.bestia.zone.boot.MobImporterBootRunner
+import net.bestia.worldgen.core.WorldBoss
 import net.bestia.zone.boot.SkillImporterBootRunner
 import org.junit.jupiter.api.Test
 import org.springframework.core.io.ClassPathResource
@@ -66,6 +67,19 @@ class MobCatalogueTest {
 
     assertEquals(emptyList(), tooMany)
     assertTrue(species.any { mob -> mob.learnset.any { it.active } }, "no species fights with a skill at all")
+  }
+
+  @Test
+  fun `every world boss of the history is a world-boss species of the same level`() {
+    val byIdentifier = species.associateBy { it.identifier }
+
+    val wrong = WorldBoss.entries.filter { boss ->
+      val mob = byIdentifier[boss.identifier]
+      mob == null || !mob.worldBoss || mob.level != boss.level
+    }
+
+    assertEquals(emptyList(), wrong)
+    assertEquals(WorldBoss.entries.size, species.count { it.worldBoss }, "a world-boss species the history never wakes")
   }
 
   private fun mapper(): ObjectMapper {

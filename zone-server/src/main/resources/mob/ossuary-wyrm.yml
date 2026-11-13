@@ -44,6 +44,7 @@ temperature-min: -20
 temperature-max: 20
 spawn-weight: 100
 boss: true
+world-boss: true
 status-immunities: [STUN, FROZEN, STONING, FEARED, CONFUSED, CONTROLLED]
 corrupted-only: true
 equip-slots: [HEAD_UPPER, ARMOR, ACCESSORY_1, ACCESSORY_2]
