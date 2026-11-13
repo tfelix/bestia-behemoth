@@ -428,6 +428,13 @@ class RecordingSkillWorld(
 
   data class OpenedPortal(val at: Vec3L, val to: Vec3L?, val passages: Int, val seconds: Int)
 
+  /** What each [scry] looked at, and how wide. */
+  val scries = mutableListOf<Pair<ScryTarget, Double>>()
+
+  override fun scry(target: ScryTarget, radiusMetres: Double) {
+    scries += target to radiusMetres
+  }
+
   /** What [takeSpellScroll] answers, by scroll id; a taken scroll is gone. */
   val spellScrolls = mutableMapOf<Long, InscribedSpell>()
 

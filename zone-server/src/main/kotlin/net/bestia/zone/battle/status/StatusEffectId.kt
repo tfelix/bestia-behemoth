@@ -122,13 +122,19 @@ enum class StatusEffectId(val id: Long) {
   SONG_MIRAGE_DANCE(237),
   MIRAGE_DANCE(238),
   SONG_WANDERERS_TUNE(239),
-  WANDERERS_TUNE(240);
+  WANDERERS_TUNE(240),
+  SCRYING(250),
+  SCRY_EYE(251),
+  SCRY_VEIL(252);
 
   companion object {
     private val byId = entries.associateBy { it.id }
 
-    /** What keeps its bearer out of sight: the bestias' Burrow and Shadow Cloak, the Assassin's Hide and Cloak. */
-    val CONCEALMENTS: Set<StatusEffectId> = setOf(HIDDEN, CLOAKED, HIDING, CLOAKING)
+    /**
+     * What keeps its bearer out of sight: the bestias' Burrow and Shadow Cloak, the Assassin's Hide and Cloak, and
+     * the veil over a Scry's eye.
+     */
+    val CONCEALMENTS: Set<StatusEffectId> = setOf(HIDDEN, CLOAKED, HIDING, CLOAKING, SCRY_VEIL)
 
     fun findById(id: Long): StatusEffectId? = byId[id]
   }

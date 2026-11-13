@@ -662,6 +662,12 @@ class BudgetedSkillWorld(
     services.teleports?.openPortal(world, casterId, at, to, passages, seconds)?.let(::tellCaster)
   }
 
+  override fun scry(target: ScryTarget, radiusMetres: Double) {
+    budget.charge(SPAWN_OPS)
+
+    services.scrying?.open(world, casterId, target, radiusMetres, castPotency)
+  }
+
   override fun spellTrainingRefusal(bestiaId: EntityId, scrollId: Long): OpError? {
     budget.charge()
 

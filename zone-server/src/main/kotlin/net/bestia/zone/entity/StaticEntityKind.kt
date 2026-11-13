@@ -168,7 +168,10 @@ enum class StaticEntityKind {
   WARP_PORTAL,
 
   // Worldgen's FixtureKind.SEAL_CRYSTAL, appended here for the ordinal. Breaking it wakes the bound world boss.
-  FIXTURE_SEAL_CRYSTAL;
+  FIXTURE_SEAL_CRYSTAL,
+
+  // The hidden eye where a Sage's Scry looks, for as long as it looks. Seen only once Ruwach uncovers it.
+  SCRY_EYE;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.

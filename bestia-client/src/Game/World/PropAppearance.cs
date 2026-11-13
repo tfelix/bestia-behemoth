@@ -702,7 +702,13 @@ namespace BestiaBehemothClient.Game.World
       new Kind
       {
         PlaceholderWidth = 1.0f, PlaceholderColour = new Color(0.55f, 0.85f, 0.95f), Action = PropAction.Break
-      } // FIXTURE_SEAL_CRYSTAL
+      }, // FIXTURE_SEAL_CRYSTAL
+
+      // The eye where a Sage's Scry looks: a small pale block until it has a model. Seen only once Ruwach uncovers it.
+      new Kind
+      {
+        PlaceholderWidth = 0.5f, PlaceholderColour = new Color(0.75f, 0.85f, 1.0f), StructureHeight = 0.5f
+      } // SCRY_EYE
     };
 
     /// <summary>

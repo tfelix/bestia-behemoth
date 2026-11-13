@@ -209,6 +209,9 @@ interface SkillWorld {
   /** Opens a portal at [at] to [to], or home when null, for [passages] bodies and [seconds]. One spawn. */
   fun openPortal(at: Vec3L, to: Vec3L?, passages: Int, seconds: Int)
 
+  /** Opens the caster's Scry on [target] with a view of [radiusMetres]. One spawn. */
+  fun scry(target: ScryTarget, radiusMetres: Double)
+
   /** Why [bestiaId] cannot learn from the caster's spell scroll [scrollId], or null when it can. One op. */
   fun spellTrainingRefusal(bestiaId: EntityId, scrollId: Long): OpError?
 

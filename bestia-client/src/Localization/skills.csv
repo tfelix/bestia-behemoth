@@ -549,8 +549,9 @@ SKILL_62_DESC,"Trains a Sage to keep moving through an incantation instead of ro
 `+20%/lv` movement speed kept while casting, all of it at max rank
 `+10%/lv` resistance against a hit breaking the cast"
 SKILL_63_DESC,"Casts a Sage's sight far beyond their own eyes, scouting distant ground and the resources
-hiding on it before ever setting foot there. Works on any charted location. The sight lasts
-20s. Cooldown 60s.
+hiding on it before ever setting foot there. Works on any charted location, or where a party
+member stands. A far spot drifts off target. The body stays in a trance, and any step, act or
+hit calls the sight back. The sight lasts 20s. Cooldown 60s.
 
 `+20m/lv` view radius"
 SKILL_64_DESC,"Unravels every magical effect clinging to a target in a single word, undoing buffs and

@@ -30,6 +30,11 @@ class StatusEffectHookContext(
     statusEffectService.removeEffect(world, hostId, effect.id, RemovalReason.CANCELLED)
   }
 
+  /** Ends [effect] on another entity, for a spell with a half on each, like a Scry's body and its far eye. */
+  fun removeEffectFrom(targetId: EntityId, effect: StatusEffectId) {
+    statusEffectService.removeEffect(world, targetId, effect.id, RemovalReason.CANCELLED)
+  }
+
   /** Hurts the host the way [StatusEffectTickContext.dealDamage] does. */
   fun dealDamage(amount: Int) {
     if (amount <= 0) return

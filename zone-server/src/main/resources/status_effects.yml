@@ -866,3 +866,28 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: WanderersTuneHeard
+
+  # The Sage's Scry, on the body left behind: anything it does, or any hit, calls the sight back.
+  - id: 250
+    identifier: SCRYING
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: ScryTrance
+
+  # The spell itself, on the eye at the far end of a Scry: a Dispel that lifts it ends the sight.
+  - id: 251
+    identifier: SCRY_EYE
+    polarity: BUFF
+    showIcon: false
+    isSyncedToClient: false
+    script: ScryLink
+
+  # Hides a Scry's eye until Ruwach uncovers it.
+  - id: 252
+    identifier: SCRY_VEIL
+    polarity: NEUTRAL
+    showIcon: false
+    isSyncedToClient: false
+    dispellable: false
+    script: ScryVeil
