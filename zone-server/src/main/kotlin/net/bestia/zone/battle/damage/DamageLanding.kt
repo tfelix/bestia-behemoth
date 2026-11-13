@@ -4,9 +4,11 @@ import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Nature
+import net.bestia.zone.battle.mark.HuntersMarks
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.util.EntityId
 
 /**
@@ -17,7 +19,8 @@ import net.bestia.zone.util.EntityId
 object DamageLanding {
 
   /** What [weigh] reads, for the systems that call it. */
-  val READS: ComponentClassSet = setOf(CombatStats::class, Nature::class, Master::class)
+  val READS: ComponentClassSet = setOf(CombatStats::class, Nature::class, Master::class, OwnedBestia::class) +
+      HuntersMarks.READS
 
   fun weigh(world: World, attackerId: EntityId?, targetId: EntityId, kind: HitKind, amount: Int): Int {
     if (kind.form == HitForm.OTHER) {
@@ -25,7 +28,18 @@ object DamageLanding {
     }
     val defender = sideOf(world, targetId) ?: return amount
 
-    return DamageModifiers.weigh(amount, kind, attackerId?.let { sideOf(world, it) }, defender)
+    val packHunt = attackerId?.let { packHuntPercent(world, it, targetId) } ?: 0
+
+    return DamageModifiers.weigh(amount, kind, attackerId?.let { sideOf(world, it) }, defender, packHunt)
+  }
+
+  /** A bestia's Pack Hunt bonus against [targetId], when its master marked it. */
+  private fun packHuntPercent(world: World, attackerId: EntityId, targetId: EntityId): Int {
+    val percent = world.get(attackerId, CombatStats::class)?.values?.markedPreyDamagePercent ?: 0
+    if (percent == 0) return 0
+
+    val masterId = world.get(attackerId, OwnedBestia::class)?.masterId ?: return 0
+    return if (HuntersMarks.isMarkedByMaster(world, targetId, masterId)) percent else 0
   }
 
   private fun sideOf(world: World, entityId: EntityId): DamageModifiers.Side? {

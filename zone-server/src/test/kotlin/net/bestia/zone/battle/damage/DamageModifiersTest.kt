@@ -37,6 +37,13 @@ class DamageModifiersTest {
   }
 
   @Test
+  fun `a bonus against one target is a category of its own`() {
+    val attacker = side(DamageModifiers(dealtVsKind = mapOf(BestiaKind.DEMON to 20)))
+
+    assertEquals(180, DamageModifiers.weigh(100, sword, attacker, side(kind = BestiaKind.DEMON), dealtVsTargetPercent = 50))
+  }
+
+  @Test
   fun `a physical reduction leaves a spell alone`() {
     val defender = side(DamageModifiers(takenByForm = mapOf(HitForm.PHYSICAL to 15)))
 

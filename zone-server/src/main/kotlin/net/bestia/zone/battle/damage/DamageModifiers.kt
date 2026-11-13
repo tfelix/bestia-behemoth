@@ -11,7 +11,8 @@ import net.bestia.zone.battle.Unholy
  *
  * They weigh the final number, after defence, and a critical hit too, since a crit only ignores defence. Bonuses
  * in one category add up: two "-30% from demi-humans" make -60%. Categories multiply: -30% from demi-humans and
- * -20% melee taken make 0.7 x 0.8. A reduction of 100% or more in a category stops the hit outright.
+ * -20% melee taken make 0.7 x 0.8. A reduction of 100% or more in a category stops the hit outright. A bonus against
+ * one target, like Pack Hunt's against a marked prey, is a category of its own.
  *
  * The element the defender resists is not here: that is `elementResistance`, which the formula already weighs.
  */
@@ -46,8 +47,11 @@ data class DamageModifiers(
   companion object {
     val NONE = DamageModifiers()
 
-    /** [amount] after the attacker's bonuses and the defender's reductions. An untyped hit passes unchanged. */
-    fun weigh(amount: Int, kind: HitKind, attacker: Side?, defender: Side): Int {
+    /**
+     * [amount] after the attacker's bonuses and the defender's reductions. An untyped hit passes unchanged.
+     * [dealtVsTargetPercent] is the attacker's bonus against this defender alone.
+     */
+    fun weigh(amount: Int, kind: HitKind, attacker: Side?, defender: Side, dealtVsTargetPercent: Int = 0): Int {
       if (kind.form == HitForm.OTHER || amount <= 0) {
         return amount
       }
@@ -60,6 +64,7 @@ data class DamageModifiers(
         factor = factor.scaledBy(100 + (dealt.dealtVsElement[defender.element.base] ?: 0))
         factor = factor.scaledBy(100 + if (defender.boss) dealt.dealtVsBoss else 0)
         factor = factor.scaledBy(100 + if (defender.isUnholy) dealt.dealtVsUnholy else 0)
+        factor = factor.scaledBy(100 + dealtVsTargetPercent)
       }
 
       val taken = defender.modifiers

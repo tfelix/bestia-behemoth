@@ -3,6 +3,7 @@ package net.bestia.zone.battle.passive.scripts
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.battle.status.StatusValues
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class HunterPassivesTest {
@@ -20,6 +21,13 @@ class HunterPassivesTest {
     assertEquals(11.5f, offRoad.speed, 0.001f)
     assertEquals(10f, onRoad.speed)
     assertEquals(15, onRoad.offRoadSpeedPercent, "the ground is watched on the road too")
+  }
+
+  @Test
+  fun `Pack Hunt makes the bestias 10 percent a level fiercer against the prey, and not the master`() {
+    assertEquals(30, recalc { PackHunt().applyToBestia(it, 3) }.markedPreyDamagePercent)
+    assertEquals(0, recalc { PackHunt().apply(it, 3) }.markedPreyDamagePercent)
+    assertTrue(PackHunt().reachesOwnedBestias)
   }
 
   private fun recalc(apply: (StatusValueRecalcContext) -> Unit): StatusValueRecalcContext {
