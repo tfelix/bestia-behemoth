@@ -31,6 +31,7 @@ import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.status.RemovalReason
+import net.bestia.zone.battle.status.HiddenNearby
 import net.bestia.zone.casting.detect.Detecting
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.gear.WeaponType
@@ -548,6 +549,19 @@ class BudgetedSkillWorld(
     budget.charge()
 
     return services.strikes?.throwHeldWeapon(world, casterId)
+  }
+
+  override fun revealHiddenNear(radiusTiles: Long): Int {
+    budget.charge()
+
+    val centre = world.get(casterId, Position::class)?.toVec3L() ?: return 0
+    val hidden = HiddenNearby.around(world, centre, radiusTiles, except = casterId)
+    budget.chargeQueryResults(hidden.size)
+    for (id in hidden) {
+      StatusEffectId.CONCEALMENTS.forEach { services.statusEffects.removeEffect(world, id, it.id, RemovalReason.DISPELLED) }
+    }
+
+    return hidden.size
   }
 
   override fun drawAmmo(): Ammunition? {
