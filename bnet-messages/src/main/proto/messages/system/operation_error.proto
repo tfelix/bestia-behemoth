@@ -439,6 +439,8 @@ enum OpError {
   DIG_NOTHING_FOUND = 336;
   // Treasure Map found no cache the caster sensed in the last ten minutes. The player casts Treasure Sense first.
   TREASURE_MAP_NOTHING_SENSED = 337;
+  // The ball of rock a pickaxe swing or a blast would break holds ore above the miner's Mining level. The ore stays.
+  MINE_ORE_TOO_HARD = 360;
   // A Breeding Farm cannot start a clutch the client should not have offered: wrong pair, busy farm, not the owner.
   BREEDING_NOT_POSSIBLE = 218;
   // Every clutch needs a Nesting Bundle. The player makes or buys one.

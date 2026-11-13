@@ -11,6 +11,7 @@ import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.ecs.ObtainItemIntent.CreateItemIntent
 import net.bestia.zone.item.ecs.ObtainItemIntent.CreateItemsIntent
 import net.bestia.zone.item.equip.EquipmentSlot
+import net.bestia.zone.item.mining.PickaxeMining
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
@@ -30,7 +31,8 @@ import kotlin.math.min
 
 /**
  * Digging for treasure, one metre at a time. A dig over a cache carries on by itself until it reaches the cache;
- * a dig anywhere else stops after a metre with nothing found, so digging at random costs time and a tool.
+ * a dig anywhere else stops after a metre with nothing found, so digging at random costs time and a tool. A pickaxe
+ * on rock with no cache below mines instead, see [PickaxeMining].
  *
  * Tick thread only, like [TreasureCacheRegistry].
  */
@@ -47,6 +49,7 @@ class DigService(
   private val items: ItemTemplateRegistry,
   private val skills: SkillRepository,
   private val outMessageProcessor: OutMessageProcessor,
+  private val pickaxeMining: PickaxeMining,
 ) {
 
   private val shovelId by lazy { items.idOf(SHOVEL) }
@@ -68,6 +71,11 @@ class DigService(
     }
 
     if (cache == null) {
+      val ground = Vec3L(target.x, target.y, target.z - 1)
+      if (toolIn(world, entityId) == DigTool.PICKAXE && toolFor(blockAt(ground)) == DigTool.PICKAXE) {
+        return pickaxeMining.begin(world, entityId, accountId, target)
+      }
+
       val trench = trenchToward(position, targetX, targetY, target.z.toDouble())
       startStep(world, entityId, accountId, null, trench, fromDepth = 0.0)
       return
