@@ -22,6 +22,7 @@ import net.bestia.zone.util.EntityId
  *
  * @param messages needed whenever [health] is restored: the number over the user's head is how a player
  *   sees a heal happen
+ * @param isPotion a drink that works on whoever it reaches, so a Potion Pitcher may throw it at an ally
  */
 abstract class RestorativeScript(
   override val itemId: Long,
@@ -29,6 +30,7 @@ abstract class RestorativeScript(
   val stamina: Int = 0,
   private val mana: Int = 0,
   private val messages: OutMessageProcessor? = null,
+  val isPotion: Boolean = false,
 ) : ItemScript {
 
   init {
@@ -38,27 +40,33 @@ abstract class RestorativeScript(
   }
 
   override fun execute(world: World, userId: EntityId, args: ScriptArgs): Boolean {
+    return restore(world, userId, FULL_STRENGTH_PERCENT)
+  }
+
+  /** Restores [drinkerId] by [strengthPercent] of this item's amounts, as a use does at 100. */
+  fun restore(world: World, drinkerId: EntityId, strengthPercent: Int): Boolean {
+    val healing = health * strengthPercent / 100
     // Through Healing, so sickness halves a potion too and it closes a bleeding wound.
-    val healed = health != 0 && world.has(userId, Health::class)
+    val healed = healing != 0 && world.has(drinkerId, Health::class)
     if (healed) {
-      Healing.heal(world, userId, health)
+      Healing.heal(world, drinkerId, healing)
     }
-    val fed = restore(world.get(userId, Stamina::class), stamina)
-    val refilled = restore(world.get(userId, Mana::class), mana)
+    val fed = refill(world.get(drinkerId, Stamina::class), stamina * strengthPercent / 100)
+    val refilled = refill(world.get(drinkerId, Mana::class), mana * strengthPercent / 100)
 
     if (!healed && !fed && !refilled) {
       return false
     }
 
     if (healed) {
-      showHeal(world, userId)
+      showHeal(world, drinkerId, healing)
     }
 
     return true
   }
 
   /** Whether the vital moved: one this item says nothing about, or one the user has not got, did not. */
-  private fun restore(vital: CurMax?, amount: Int): Boolean {
+  private fun refill(vital: CurMax?, amount: Int): Boolean {
     if (vital == null || amount == 0) {
       return false
     }
@@ -69,7 +77,11 @@ abstract class RestorativeScript(
     return true
   }
 
-  private fun showHeal(world: World, userId: EntityId) {
-    messages?.sendToObserversOf(world, userId, DamageEntitySMSG.fromItemHeal(userId, health))
+  private fun showHeal(world: World, drinkerId: EntityId, amount: Int) {
+    messages?.sendToObserversOf(world, drinkerId, DamageEntitySMSG.fromItemHeal(drinkerId, amount))
+  }
+
+  private companion object {
+    const val FULL_STRENGTH_PERCENT = 100
   }
 }

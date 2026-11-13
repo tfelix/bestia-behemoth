@@ -10,4 +10,4 @@ import org.springframework.stereotype.Component
 @Component
 class MedicineScript(
   messages: OutMessageProcessor,
-) : RestorativeScript(itemId = 62L, health = 70, stamina = 30, messages = messages)
+) : RestorativeScript(itemId = 62L, health = 70, stamina = 30, messages = messages, isPotion = true)
