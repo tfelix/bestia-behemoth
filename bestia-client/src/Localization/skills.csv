@@ -502,8 +502,8 @@ Lv.4 shows the exact spell bound to an item or place
 Lv.5 shows who bound it, and what trigger a Spell Binding waits for"
 SKILL_52_DESC,"Cast on a monster to read what mana and instinct alone can tell about it. Reveals its
 status values, element, HP and mana. Cooldown 3s."
-SKILL_53_DESC,"A pulse of second sight that peels back concealment. For 10s, hidden traps, hiding
-Bestia and cloaked Assassins within 10m of the caster stand out for what they are.
+SKILL_53_DESC,"A pulse of second sight that peels back concealment. For 10s, hiding Bestia and
+cloaked Assassins within 10m of the caster stand out for what they are.
 Detection resistance does not help against it. Cooldown 10s."
 SKILL_54_DESC,"The Scholar's ear to the ground - a sense for the direction and distance of world-changing
 events long before word of them travels. Only works at an Observation Outpost. Level 1
@@ -580,8 +580,15 @@ and kill it. The base chance depends on the level of the attack. Consumes a Blan
 Scroll, also when the extraction fails.
 
 `+10%/lv` success chance"
-SKILL_70_DESC,"Binds a spell to an object or place and ties it to a trigger, giving rise to enchanted
-artifacts, standing alarms and hidden traps alike. The details are still to be designed."
+SKILL_70_DESC,"Binds the attack on a spell scroll to a spot or an item and ties it to a trigger, giving
+rise to enchanted artifacts, standing alarms and hidden traps alike. It fires once and
+tells you who set it off. Only Magic Sense finds it. The scroll is spent.
+
+`+1/lv` bindings at once, from 1 at Lv.1
+`+20/lv` highest attack level, any at Lv.5
+Lv.1 steps on it, Lv.2 comes near, Lv.3 after a delay
+Lv.4 items: holder is struck, holder strikes
+Lv.5 items: holder's HP gets low, a stranger picks it up"
 SKILL_71_DESC,"Moves the caster and their Bestias close by. Consumes a Teleport Rune. A teleported entity
 cannot teleport again for 5min. Cooldown 30s.
 

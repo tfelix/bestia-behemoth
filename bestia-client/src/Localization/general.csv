@@ -822,6 +822,22 @@ SUCCESS_SPELL_LEARNED,Your bestia learned the attack.
 SUCCESS_SPELL_INSCRIBED,The attack is written on a new spell scroll.
 SPELL_SCROLL_PICK,%s Lv. %d
 SPELL_SCROLL_NONE,You hold no spell scroll.
+SPELL_BINDING_RELEASE,Release a binding
+SPELL_BINDING_ENTRY,"%s Lv. %d, %s"
+SPELL_BINDING_TRIGGER_1,When someone steps on it
+SPELL_BINDING_TRIGGER_2,When someone comes near
+SPELL_BINDING_TRIGGER_3,After a delay
+SPELL_BINDING_TRIGGER_4,Item: when the holder is struck
+SPELL_BINDING_TRIGGER_5,Item: when the holder strikes
+SPELL_BINDING_TRIGGER_6,Item: when the holder's HP gets low
+SPELL_BINDING_TRIGGER_7,Item: when a stranger picks it up
+SPELL_BINDING_FILTER_1,Foes
+SPELL_BINDING_FILTER_2,Allies
+SPELL_BINDING_FILTER_3,Anyone but me
+SPELL_BINDING_FILTER_4,Wild bestias only
+SPELL_BINDING_DELAY,After %d s
+SPELL_BINDING_NO_ITEM,You hold no item that can carry a binding.
+SPELL_BINDING_FIRED,Your Spell Binding fired: %s.
 SPELL_INSCRIPTION_PICK,"%s: %s Lv. %d - success %d%%, mind breaks %d%%"
 SPELL_INSCRIPTION_NONE,None of your bestias knows an attack to copy.
 ELEMENT_FIRE,Fire

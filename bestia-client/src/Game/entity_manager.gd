@@ -192,7 +192,8 @@ func get_closest_entity(world_position: Vector3, max_distance: float, filter: St
 		var entity: Entity = value
 		if filter == "enemy" and not can_be_harmed(entity):
 			continue
-		if filter == "enemy_or_enchanted_item" and not (can_be_harmed(entity) or entity.get_item_enchantments() != null):
+		var enchanted := entity.get_item_enchantments() != null or entity.is_spell_binding_glyph()
+		if filter == "enemy_or_enchanted_item" and not (can_be_harmed(entity) or enchanted):
 			continue
 		if filter == "friendly" and not is_entity_friendly(entity):
 			continue
