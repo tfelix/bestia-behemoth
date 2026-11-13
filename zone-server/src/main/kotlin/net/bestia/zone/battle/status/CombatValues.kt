@@ -89,6 +89,11 @@ data class CombatValues(
       base = StatusValues(strength = 1, vitality = 1, intelligence = 1, agility = 1, willpower = 1, dexterity = 1)
     )
 
+    /** A Spell Binding's frozen binder: their attributes and weapon power, wearing and suffering nothing else. */
+    fun ofSnapshot(level: Int, attributes: StatusValues, weapon: Weapon): CombatValues {
+      return resolve(level, attributes, attributes, weapon, hardDefense = 0, hardMagicDefense = 0)
+    }
+
     /** A structure whose armour is all it has: [OBJECT_BASELINE] with [hardDefense]. */
     fun ofStructure(hardDefense: Int): CombatValues {
       val base = StatusValues(strength = 1, vitality = 1, intelligence = 1, agility = 1, willpower = 1, dexterity = 1)

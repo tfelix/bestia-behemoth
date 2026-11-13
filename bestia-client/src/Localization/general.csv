@@ -802,6 +802,8 @@ ERROR_SPELL_TRAINING_FAILED,The training failed. The scroll is spent.
 ERROR_SPELL_INSCRIPTION_FAILED,The extraction failed. The blank scroll is spent.
 ERROR_SPELL_MIND_BROKEN,The extraction broke your bestia's mind. It is lost for good. Its bag was sent to you by post.
 ERROR_SPELL_OUT_OF_RANGE,The target is out of the scroll's reach.
+ERROR_SPELL_BINDING_TOO_STRONG,This attack is too strong for your Spell Binding level.
+ERROR_SPELL_BINDING_TRIGGER_LOCKED,Your Spell Binding level does not know this trigger yet.
 ERROR_SKILL_NEEDS_WATER,You must stand in water for this rite.
 ERROR_SKILL_NEEDS_OWN_BESTIA,This spell only works on one of your own bestias.
 ERROR_SKILL_NEEDS_HIDING,You must be in Hide or Cloak for this.

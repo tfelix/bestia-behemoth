@@ -10,7 +10,7 @@ import net.bestia.zone.util.EntityId
 /** Whom an entity belongs to, which is what the damage gate weighs on both sides of a blow. */
 object PlayerOwnership {
 
-  val READS: ComponentClassSet = setOf(Account::class, PlayerStructureIdentity::class, GuildOwned::class)
+  val READS: ComponentClassSet = setOf(Account::class, PlayerStructureIdentity::class, GuildOwned::class, BoundSpellCaster::class)
 
   /**
    * Masters and their bestias carry the owner's [Account]; a station carries the row of whoever built it; a
@@ -21,6 +21,8 @@ object PlayerOwnership {
   }
 
   fun ownerAccountOf(world: World, id: EntityId): AccountId? {
-    return world.get(id, Account::class)?.accountId ?: world.get(id, PlayerStructureIdentity::class)?.ownerAccountId
+    return world.get(id, Account::class)?.accountId
+      ?: world.get(id, PlayerStructureIdentity::class)?.ownerAccountId
+      ?: world.get(id, BoundSpellCaster::class)?.ownerAccountId
   }
 }

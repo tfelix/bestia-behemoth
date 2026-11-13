@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SpellBindingsCmsgProto";
+
+// Asks for the master's own Spell Bindings, for the cast menu that releases one. Answered by a SpellBindingsSMSG.
+message SpellBindingsCMSG {
+}

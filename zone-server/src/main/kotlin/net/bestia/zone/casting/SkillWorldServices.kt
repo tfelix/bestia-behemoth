@@ -62,6 +62,7 @@ class SkillWorldServices(
   val monsterSensing: MonsterSensing? = null,
   val teleports: SkillTeleports? = null,
   val spellScrolls: SpellScrolls? = null,
+  val spellBindings: SpellBindings? = null,
   val plagiarism: Plagiarism? = null,
   val shieldGuard: ShieldGuard? = null,
   val tripleBlow: TripleBlow? = null,

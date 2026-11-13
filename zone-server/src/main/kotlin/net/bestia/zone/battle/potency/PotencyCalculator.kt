@@ -3,6 +3,7 @@ package net.bestia.zone.battle.potency
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.entity.ecs.BoundSpellCaster
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.skill.persistence.Skill
 import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
@@ -18,6 +19,8 @@ class PotencyCalculator(
 ) {
 
   fun castPotency(world: World, casterId: EntityId, skill: Skill, skillLevel: Int): Int {
+    world.get(casterId, BoundSpellCaster::class)?.let { return it.potency }
+
     val combat = world.get(casterId, CombatStats::class)?.values
     val attributes = combat?.attributes
     val at = world.get(casterId, Position::class)?.toVec3L()

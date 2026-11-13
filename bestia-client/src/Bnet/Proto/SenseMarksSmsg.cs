@@ -30,11 +30,11 @@ namespace Bnet {
             "Eh0KBGtpbmQYASABKA4yDy5ibmV0LlNlbnNlS2luZBITCgtlYXN0X21ldHJl",
             "cxgCIAEoARIUCgxub3J0aF9tZXRyZXMYAyABKAESDQoFbGFiZWwYBCABKAkS",
             "DgoGcmVmX2lkGAUgASgDEhQKDGRlcHRoX21ldHJlcxgGIAEoAhITCgtzaXpl",
-            "X21ldHJlcxgHIAEoAhINCgV2YWd1ZRgIIAEoCCpvCglTZW5zZUtpbmQSDQoJ",
-            "U0VOU0VfT1JFEAASDwoLU0VOU0VfSEVSQlMQARIQCgxTRU5TRV9USU1CRVIQ",
-            "AhIOCgpTRU5TRV9HQU1FEAMSEAoMU0VOU0VfSE9MTE9XEAQSDgoKU0VOU0Vf",
-            "TUFOQRAFQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITU2Vuc2VNYXJrc1Nt",
-            "c2dQcm90b2IGcHJvdG8z"));
+            "X21ldHJlcxgHIAEoAhINCgV2YWd1ZRgIIAEoCCqIAQoJU2Vuc2VLaW5kEg0K",
+            "CVNFTlNFX09SRRAAEg8KC1NFTlNFX0hFUkJTEAESEAoMU0VOU0VfVElNQkVS",
+            "EAISDgoKU0VOU0VfR0FNRRADEhAKDFNFTlNFX0hPTExPVxAEEg4KClNFTlNF",
+            "X01BTkEQBRIXChNTRU5TRV9CSU5ESU5HX0ZJUkVEEAZCLAoVbmV0LmJlc3Rp",
+            "YS5ibmV0LnByb3RvQhNTZW5zZU1hcmtzU21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.SenseKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -53,6 +53,10 @@ namespace Bnet {
     [pbr::OriginalName("SENSE_GAME")] SenseGame = 3,
     [pbr::OriginalName("SENSE_HOLLOW")] SenseHollow = 4,
     [pbr::OriginalName("SENSE_MANA")] SenseMana = 5,
+    /// <summary>
+    /// A Spell Binding of the receiver that just fired. The label names it and who set it off.
+    /// </summary>
+    [pbr::OriginalName("SENSE_BINDING_FIRED")] SenseBindingFired = 6,
   }
 
   #endregion

@@ -22,6 +22,7 @@
  - ACTIONS wave 13: BestiaTrapSystem [EveryTick]
  - ACTIONS wave 14: TeleportSystem [EveryTick]
  - ACTIONS wave 15: FishingSystem [EveryTick]
+ - ACTIONS wave 15: SpellBindingSystem [EveryTick]
  - WORLD wave 16: GroundFireSystem [EveryTick]
  - WORLD wave 16: GroundItemDecaySystem [EverySeconds(seconds=60.0)]
  - WORLD wave 16: GroundStampSystem [EveryTick]
