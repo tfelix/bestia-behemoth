@@ -1014,9 +1014,9 @@ Mark harder, wherever the master stands. The master gains nothing.
 
 `+10%/lv` damage of the master's Bestias against the marked target"
 SKILL_175_DESC,"Throws a potion from the bag onto an ally up to 7 tiles away, so it works as if the ally had
-drunk it. Cooldown 1s.
+drunk it. A Small Health Potion, a Small Mana Potion or Medicine can be thrown. Cooldown 1s.
 
-`+10%/lv` effect of the thrown potion"
+`+10%/lv` health, mana and stamina from the thrown potion"
 SKILL_176_DESC,"Plants a sapling in a tree stump. The new tree grows back faster than one left to nature.
 Consumes a log.
 

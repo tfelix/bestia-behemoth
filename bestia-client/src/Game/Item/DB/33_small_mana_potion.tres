@@ -9,3 +9,4 @@ name_key = "SMALL_MANA_POTION"
 description_key = "SMALL_MANA_POTION_DESC"
 weight = 25
 level = 3
+is_potion = true

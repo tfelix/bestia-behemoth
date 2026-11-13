@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+[ext_resource type="Script" path="res://Game/Attack/potion_pitcher_use.gd" id="2_use"]
 
 [resource]
 script = ExtResource("1_script")
@@ -11,6 +12,7 @@ mana_cost = 1
 cooldown = 1.0
 max_level = 5
 target_type = "FRIENDLY"
+attack_script = ExtResource("2_use")
 tree = "CRAFTSMAN"
 sub_tree = "ALCHEMIST"
 prerequisite_ids = PackedInt32Array(24)

@@ -15,3 +15,4 @@ item_visual = ExtResource("3_potion_visual")
 metadata/_custom_type_script = "uid://bn4gvq3ayku4r"
 type = 0
 level = 3
+is_potion = true

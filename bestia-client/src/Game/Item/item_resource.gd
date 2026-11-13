@@ -54,6 +54,10 @@ const MISSING_VISUAL: PackedScene = preload("res://Game/Entity/Visual/ItemVisual
 ## Whether wearing this item hides the hair, so a full helmet cannot clip through it.
 @export var hides_hair: bool = false
 
+## Whether a Potion Pitcher may throw this item at an ally. Mirrors the server's RestorativeScript.isPotion, which
+## ClientPotionsTest pins.
+@export var is_potion: bool = false
+
 ## The light this item casts around its wearer while it burns in the light-source slot. Hand-authored:
 ## ItemDbSyncTask leaves these alone. A [member light_range] of 0 means the item gives no light.
 @export var light_color: Color = Color(1.0, 0.7, 0.4)
