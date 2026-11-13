@@ -216,6 +216,9 @@ class StatusValueRecalcContext(
   /** Percent more damage against the prey of the owner's Hunter's Mark. Set on a bestia by Pack Hunt. */
   var markedPreyDamagePercent: Int = 0
 
+  /** Tiles a throw reaches beyond the skill's own range. Set by Vulture's Eye while a thrown weapon is in hand. */
+  var throwReachTiles: Int = 0
+
   /** Percent less of a wild creature's sight radius at which it notices this entity. Set by Camouflage. */
   var noticeRangeCutPercent: Int = 0
 

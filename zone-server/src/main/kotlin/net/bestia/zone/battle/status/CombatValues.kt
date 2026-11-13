@@ -75,6 +75,7 @@ data class CombatValues(
   val noticeRangeCutPercent: Int = 0,
   val offRoadSpeedPercent: Int = 0,
   val markedPreyDamagePercent: Int = 0,
+  val throwReachTiles: Int = 0,
 
   /** What is held in the right hand, for a rule about it: a tree falls only to an axe or a felling tool. */
   val heldWeaponType: WeaponType? = null,
@@ -168,6 +169,7 @@ data class CombatValues(
         noticeRangeCutPercent = context.noticeRangeCutPercent,
         offRoadSpeedPercent = context.offRoadSpeedPercent,
         markedPreyDamagePercent = context.markedPreyDamagePercent,
+        throwReachTiles = context.throwReachTiles,
         heldWeaponType = context.heldWeaponType,
         heldTool = context.heldTool,
         shieldArmorType = context.shieldArmorType,
