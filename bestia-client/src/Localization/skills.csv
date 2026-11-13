@@ -922,21 +922,24 @@ and Cloak do not work against the master. A new mark ends the old one. Cooldown 
 SKILL_153_DESC,"Eyes trained on far and small things, until the aim follows them by itself.
 
 `+1/lv` DEX"
-SKILL_154_DESC,"Patience on the draw, until the shot lands where the eye already is. Works with every ranged
-weapon: bow, crossbow and thrown weapons.
+SKILL_154_DESC,"Patience on the draw, until the shot lands where the eye already is. Works while a bow,
+crossbow, sling or thrown weapon is in hand. With a thrown weapon, Javelin reaches farther.
 
 `+1/lv` range in tiles
 `+2/lv` HIT"
-SKILL_155_DESC,"Needs a bow. Shoots two arrows at the target but takes only one out of the quiver.
+SKILL_155_DESC,"Needs a bow and reaches as far as the bow. Shoots two arrows at the target but takes only
+one out of the quiver.
 
 `100% + 10%/lv` ATK per arrow"
-SKILL_156_DESC,"Needs a bow. A volley that hits every enemy in a 3x3 area and knocks them back 1m. Takes
-one arrow out of the quiver.
+SKILL_156_DESC,"Needs a bow and reaches as far as the bow. A volley that hits every enemy in a 3x3 area and
+knocks each one it hits back 1m, away from the Hunter. Takes one arrow out of the quiver.
+Cooldown 1s.
 
 `80% + 10%/lv` ATK"
-SKILL_157_DESC,Needs a bow. One shot for 150% ATK that knocks the target back 6m. Cooldown 10s.
-SKILL_158_DESC,"The Hunter's senses, sharpened to a point. Lasts 60s. When cast, it reveals everything
-hidden within 3m of the master.
+SKILL_157_DESC,"Needs a bow and reaches as far as the bow. One shot for 150% ATK that knocks the target
+back 6m if it hits. Takes one arrow out of the quiver. Cooldown 10s."
+SKILL_158_DESC,"The Hunter's senses, sharpened to a point. Lasts 60s. When cast, it ends Hide and Cloak on
+everyone within 3m of the master, once.
 
 `+2/lv` AGI and DEX"
 SKILL_159_DESC,Opens the crafting window with the arrow recipes. Needs no station.
