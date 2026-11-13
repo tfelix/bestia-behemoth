@@ -535,3 +535,9 @@ kinds:
     max-hp: 60
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
+
+  # The crystal a world boss is bound in. Breaking it wakes the boss, once per world: see `WorldBossSealService`.
+  - kind: FIXTURE_SEAL_CRYSTAL
+    max-hp: 5000
+    collider: { half-x: 1, half-y: 1, height: 3 }
+    variants: 1

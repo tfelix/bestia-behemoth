@@ -165,7 +165,10 @@ enum class StaticEntityKind {
   MINING_SHAFT,
 
   // A Sage's Warp Portal, one at each end: an ordinary entity for 30 s, never on the static channel.
-  WARP_PORTAL;
+  WARP_PORTAL,
+
+  // Worldgen's FixtureKind.SEAL_CRYSTAL, appended here for the ordinal. Breaking it wakes the bound world boss.
+  FIXTURE_SEAL_CRYSTAL;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.
