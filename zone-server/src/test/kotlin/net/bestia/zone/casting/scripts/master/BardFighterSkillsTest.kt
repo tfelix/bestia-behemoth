@@ -3,6 +3,7 @@ package net.bestia.zone.casting.scripts.master
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.LineOfSightService
+import net.bestia.zone.battle.attack.AttackType
 import net.bestia.zone.battle.damage.HitDamage
 import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.battle.ecs.status.CombatStats
@@ -70,6 +71,35 @@ class BardFighterSkillsTest {
     world.heldWeapons[caster] = WeaponType.WHIP
     world.foes -= target
     assertFalse(lash.isCastPossible(ctx(level = 1)), "not at a friend")
+  }
+
+  @Test
+  fun `Discord Strike hits a foe with a sound wave for 150 plus 30 percent ATK a level`() {
+    world.foes += target
+    world.heldWeapons[caster] = WeaponType.INSTRUMENT
+    val discord = DiscordStrike(LineOfSightService())
+
+    assertTrue(discord.isCastPossible(ctx(level = 5)))
+    discord.execute(ctx(level = 5))
+
+    assertEquals(listOf(target to 300), world.strikes)
+    assertEquals(AttackType.RANGED_PHYSICAL, world.strikeAttacks.single().attackType, "a shot, not a swing")
+    assertEquals(listOf(180, 210, 240, 270, 300), (1..5).map { DiscordStrike.atkPercent(it) })
+  }
+
+  @Test
+  fun `Discord Strike needs an instrument and a foe`() {
+    val discord = DiscordStrike(LineOfSightService())
+
+    assertEquals(OpError.SKILL_NEEDS_INSTRUMENT, discord.checkCastStart(ecs, bardWith(WeaponType.WHIP), 1, emptyList()))
+    assertNull(discord.checkCastStart(ecs, bardWith(WeaponType.INSTRUMENT), 1, emptyList()))
+
+    world.foes += target
+    world.heldWeapons[caster] = WeaponType.WHIP
+    assertFalse(discord.isCastPossible(ctx(level = 1)), "a whip is no instrument")
+    world.heldWeapons[caster] = WeaponType.INSTRUMENT
+    world.foes -= target
+    assertFalse(discord.isCastPossible(ctx(level = 1)), "not at a friend")
   }
 
   private fun bardWith(weapon: WeaponType?): EntityId {
