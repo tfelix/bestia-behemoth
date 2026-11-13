@@ -508,6 +508,8 @@ enum OpError {
   SKILL_NOTHING_TO_THROW = 179;
   // A bow skill, like Double Strafe, was used without a bow in hand.
   SKILL_NEEDS_BOW = 180;
+  // A whip skill, like Hobbling Lash, was used without a whip in hand.
+  SKILL_NEEDS_WHIP = 181;
 }
 
 message OperationError {
