@@ -46,7 +46,10 @@ class Chronicle(
    */
   val settlements: List<SettlementRecord>,
   /** Events dropped by importance pruning. Reported so a sweep can see the log is not silently truncated. */
-  val prunedEvents: Int
+  val prunedEvents: Int,
+  val dynasties: List<DynastyRecord> = emptyList(),
+  /** Every lasting tie between two figures, each with the event that made it. */
+  val relations: List<RelationRecord> = emptyList()
 ) {
 
   val span: IntRange get() = startYear..presentYear
@@ -369,7 +372,25 @@ enum class EventKind(
   CIV_MIGRATED(70),
   CIV_REVOLT(60),
   CIV_SECEDED(75),
-  CIV_REFOUNDED(70);
+  CIV_REFOUNDED(70),
+
+  // --- Families ---------------------------------------------------------------------------------------
+  //
+  // Ruling houses, their heirs and their quarrels. All at or above the importance floor: a succession is what
+  // a chronicle is organised by, and an oath or a betrayal is a thread a later quest may pick up.
+
+  SUCCESSION(50),
+  SUCCESSION_CRISIS(65),
+
+  /** The losing house of a succession crisis leaves with its followers and founds a people elsewhere. */
+  DYNASTY_EXILED(70),
+  MARRIAGE_ALLIANCE(55),
+  FEUD_BEGAN(45),
+  VENGEANCE_SWORN(45),
+  VENGEANCE_FULFILLED(55),
+
+  /** A general opens the gates of the town they were holding to the enemy. */
+  BETRAYAL(70);
 
   companion object {
 
@@ -516,6 +537,15 @@ data class FigureRecord(
   val deathYear: Int,
   /** Site index of the tomb, or -1 for a figure with no known grave. */
   val restingSite: Int,
+
+  /** Figure index of their parent among the figures, or -1. */
+  val parent: Int = -1,
+
+  /** Index into [Chronicle.dynasties], or -1 for a figure of no house. */
+  val dynasty: Int = -1,
+
+  /** Figure index of their spouse, or -1. */
+  val spouse: Int = -1,
 
   /**
    * The Order this person held to, or null.

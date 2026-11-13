@@ -130,6 +130,17 @@ object Names {
 
   private const val TOWNSPERSON_SALT = 0x90L
 
+  /** A ruling family, named the way a seat is: "House Ashford". From the place pools, so no pool is added. */
+  fun house(seed: Long, cultureIndex: Int): String {
+    val style = styleOf(cultureIndex)
+    val name = (pick(style.placeStems, seed, HOUSE_STEM_SALT) + pick(style.placeTails, seed, HOUSE_TAIL_SALT))
+      .replaceFirstChar { it.uppercase() }
+    return "House $name"
+  }
+
+  private const val HOUSE_STEM_SALT = 0xA0L
+  private const val HOUSE_TAIL_SALT = 0xA1L
+
   /** A civilisation's name: a people, not a place, so it takes the demonym form. */
   fun civ(seed: Long, cultureIndex: Int): String {
     val style = styleOf(cultureIndex)

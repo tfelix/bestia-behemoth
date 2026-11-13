@@ -7,6 +7,7 @@ import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.core.CivOrigin
 import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.Faction
+import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.core.WorldConfig
@@ -37,6 +38,7 @@ import java.util.Locale
  * ./gradlew :worldgen:chronicle -Pcivs             # every civilisation, its span and its grudges
  * ./gradlew :worldgen:chronicle -Partifacts        # every artifact and its provenance chain
  * ./gradlew :worldgen:chronicle -Pfigures          # everybody the log remembers
+ * ./gradlew :worldgen:chronicle -Pdynasties        # ruling houses, their rulers, and the ties between figures
  * ./gradlew :worldgen:chronicle -Psites            # ruins, battlefields, tombs and monuments
  * ./gradlew :worldgen:chronicle -Pquests           # unresolved threads worth turning into quests
  * ./gradlew :worldgen:chronicle -Porders           # who is sworn to which Order, and what came of it
@@ -92,6 +94,7 @@ object ChronicleMain {
       standing(chronicle, cli.int("--year") ?: chronicle.presentYear)
     }
     if (all || cli.has("--figures")) figures(chronicle)
+    if (all || cli.has("--dynasties")) dynasties(chronicle)
     if (all || cli.has("--artifacts")) artifacts(chronicle)
     if (all || cli.has("--sites")) sites(chronicle)
     if (all || cli.has("--orders")) orders(chronicle)
@@ -300,6 +303,36 @@ object ChronicleMain {
             "b. ${figure.birthYear}, $died, ${Names.civ(civ.nameSeed, civ.cultureIndex)}" +
             if (figure.restingSite >= 0) ", buried in a barrow" else ""
       )
+    }
+  }
+
+  /** Every ruling house with its rulers in order, then every tie between two figures. */
+  private fun dynasties(chronicle: Chronicle) {
+    println()
+    println("${chronicle.dynasties.size} ruling houses")
+    for (house in chronicle.dynasties) {
+      val civ = chronicle.civs[house.civ]
+      val name = Names.house(house.nameSeed, civ.cultureIndex)
+      val span = if (house.endedYear == 0) "${house.foundedYear}-" else "${house.foundedYear}-${house.endedYear}"
+      val exile = chronicle.civs.getOrNull(house.exiledTo)
+        ?.let { ", in exile as the ${Names.civ(it.nameSeed, it.cultureIndex)}" }
+      println()
+      println("  $name of the ${Names.civ(civ.nameSeed, civ.cultureIndex)}, $span${exile ?: ""}")
+
+      val rulers = chronicle.figures.filter { it.dynasty == house.index && it.role == FigureRole.RULER }
+      for (ruler in rulers) {
+        val rulerCiv = chronicle.civs[ruler.civ]
+        val died = if (ruler.deathYear == 0) "reigns" else "d. ${ruler.deathYear}"
+        val rulerName = Names.person(ruler.nameSeed, rulerCiv.cultureIndex, ruler.role)
+        println("    ${rulerName.padEnd(30)} ${ruler.birthYear}, $died")
+      }
+    }
+
+    println()
+    println("${chronicle.relations.size} ties between figures")
+    for (relation in chronicle.relations) {
+      val event = chronicle.events.firstOrNull { it.id == relation.since }
+      println("  ${relation.kind.name.lowercase().padEnd(9)} ${event?.let { "${it.year}: ${it.detail}" } ?: ""}")
     }
   }
 
@@ -537,6 +570,7 @@ object ChronicleMain {
   )
 
   private val CHRONICLE_FLAGS = setOf(
-    "--top", "--year", "--civs", "--artifacts", "--figures", "--sites", "--quests", "--orders", "--all", "--sweep"
+    "--top", "--year", "--civs", "--artifacts", "--figures", "--dynasties", "--sites", "--quests", "--orders", "--all",
+    "--sweep"
   )
 }

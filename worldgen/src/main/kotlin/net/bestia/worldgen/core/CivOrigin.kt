@@ -15,5 +15,8 @@ enum class CivOrigin {
   SECEDED,
 
   /** Survivors of a town lost to war, ash or blight. */
-  REFOUNDED
+  REFOUNDED,
+
+  /** The losing house of a succession crisis and its followers. */
+  EXILED
 }

@@ -16,6 +16,7 @@ import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.EventKind
+import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Faction
@@ -297,6 +298,7 @@ object Invariants {
     checkHistoryIsSelfConsistent(generated, ::fail)
     checkTheWorldHasHadTwoPeoples(generated, ::fail)
     checkEveryBattleHasItsField(generated, ::fail)
+    checkFamiliesHoldTogether(generated, ::fail)
     checkEventsRespectSettlementLifetimes(generated, ::fail)
     checkNoEventCitesAPrunedCause(generated, ::fail)
     checkArtifactChainsAreOrdered(generated, ::fail)
@@ -1136,6 +1138,54 @@ object Invariants {
         "the world has had two peoples",
         "${chronicle.settlements.size} settlement sites but only ${chronicle.civs.size} civ ever existed"
       )
+    }
+  }
+
+  /** Parents rise before their children, spouses name each other, houses name real founders, and one ruler reigns. */
+  private fun checkFamiliesHoldTogether(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val chronicle = generated.world.chronicle
+    val figures = chronicle.figures
+
+    for (figure in figures) {
+      val parent = figures.getOrNull(figure.parent)
+      if (figure.parent >= 0 && (parent == null || parent.birthYear >= figure.birthYear)) {
+        fail(
+          "families hold together",
+          "figure ${figure.index} rose in ${figure.birthYear}, but its parent ${figure.parent} did not rise before"
+        )
+        return
+      }
+      if (figure.spouse >= 0 && figures.getOrNull(figure.spouse)?.spouse != figure.index) {
+        fail(
+          "families hold together",
+          "figure ${figure.index} names spouse ${figure.spouse}, who does not name it back"
+        )
+        return
+      }
+      if (figure.dynasty !in -1 until chronicle.dynasties.size) {
+        fail(
+          "families hold together",
+          "figure ${figure.index} belongs to house ${figure.dynasty}, which does not exist"
+        )
+        return
+      }
+    }
+
+    for (house in chronicle.dynasties) {
+      if (figures.getOrNull(house.founder)?.dynasty != house.index) {
+        fail("families hold together", "house ${house.index} names founder ${house.founder}, who is not of it")
+        return
+      }
+    }
+
+    val rulersByCiv = figures.filter { it.role == FigureRole.RULER && it.deathYear == 0 }
+      .groupingBy { it.civ }
+      .eachCount()
+    rulersByCiv.filterValues { it > 1 }.keys.firstOrNull()?.let {
+      fail("families hold together", "civ $it has ${rulersByCiv[it]} living rulers")
     }
   }
 

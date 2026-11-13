@@ -6,6 +6,7 @@ import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.core.CivOrigin
 import net.bestia.worldgen.core.EventKind
+import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.vector.Vec2d
 import kotlin.test.Test
@@ -35,7 +36,7 @@ class HistorySimTest {
   fun `two neighbouring peoples go to war`() {
     val chronicle = simulate(twoNeighbouringPeoples())
 
-    assertEquals(2, chronicle.civs.size)
+    assertEquals(2, chronicle.civs.count { it.origin == CivOrigin.SEEDED })
     assertTrue(
       chronicle.events.any { it.kind == EventKind.WAR_DECLARED },
       "two warlike neighbours 40 km apart never went to war in ${chronicle.span}"
@@ -161,6 +162,71 @@ class HistorySimTest {
   }
 
   @Test
+  fun `a dead ruler is followed by an heir of the house or by a new house`() {
+    val chronicle = simulate(longFront(), FRONT_PARAMS)
+
+    val successions = chronicle.events.filter { it.kind == EventKind.SUCCESSION }
+    assertTrue(successions.isNotEmpty(), "no ruler was ever succeeded")
+    for (succession in successions) {
+      val heir = chronicle.figures[succession.actors[0].index]
+      val dead = chronicle.figures[succession.actors[1].index]
+      assertEquals(FigureRole.RULER, heir.role)
+
+      val afterCrisis = chronicle.events.any { it.id in succession.causes && it.kind == EventKind.SUCCESSION_CRISIS }
+      if (afterCrisis) {
+        assertEquals(heir.index, chronicle.dynasties[heir.dynasty].founder, "a ruler after a crisis founds a house")
+      } else {
+        assertEquals(dead.index, heir.parent, "an heir is the dead ruler's child")
+        assertEquals(dead.dynasty, heir.dynasty, "an heir is of the dead ruler's house")
+      }
+    }
+  }
+
+  @Test
+  fun `families, marriages, feuds and oaths all happen across many worlds`() {
+    val worlds = (1L..30L).map { simulate(longFront(), FRONT_PARAMS, seed = it) }
+    val kinds = worlds.flatMap { world -> world.events.map { it.kind } }.toSet()
+
+    val family = listOf(
+      EventKind.SUCCESSION, EventKind.SUCCESSION_CRISIS, EventKind.MARRIAGE_ALLIANCE, EventKind.FEUD_BEGAN,
+      EventKind.VENGEANCE_SWORN
+    )
+    for (kind in family) assertTrue(kind in kinds, "no $kind in 30 worlds")
+
+    for (world in worlds) {
+      for (figure in world.figures.filter { it.parent >= 0 }) {
+        val parent = world.figures[figure.parent]
+        assertTrue(parent.birthYear < figure.birthYear, "figure ${figure.index} rose before its parent")
+      }
+      val rulers = world.figures.filter { it.role == FigureRole.RULER && it.deathYear == 0 }
+        .groupingBy { it.civ }
+        .eachCount()
+      assertTrue(rulers.values.all { it == 1 }, "more than one living ruler of a people: $rulers")
+    }
+  }
+
+  @Test
+  fun `a house that loses the throne can found a people in exile`() {
+    val params = FRONT_PARAMS.copy(heirChance = 0.0, crisisExileChance = 1.0, crisisSplitChance = 0.0)
+    val chronicle = simulate(twoPeoplesAndAnEmptySite(emptySiteIsCoastal = false), params)
+
+    val exiled = chronicle.civs.firstOrNull { it.origin == CivOrigin.EXILED }
+    assertTrue(exiled != null, "no house went into exile: ${chronicle.eventCensus()}")
+    assertTrue(chronicle.dynasties.any { it.exiledTo == exiled.index }, "no house names the people it founded")
+    assertTrue(chronicle.events.any { it.kind == EventKind.DYNASTY_EXILED })
+  }
+
+  @Test
+  fun `a general can open a besieged town to the enemy`() {
+    val chronicle = simulate(longFront(), FRONT_PARAMS.copy(betrayalChance = 1.0))
+
+    val betrayal = chronicle.events.firstOrNull { it.kind == EventKind.BETRAYAL }
+    assertTrue(betrayal != null, "no general betrayed a town: ${chronicle.eventCensus()}")
+    val traitor = chronicle.figures[betrayal.actors.first { it.type == ActorType.FIGURE }.index]
+    assertEquals(FigureRole.GENERAL, traitor.role)
+  }
+
+  @Test
   fun `the same sites give the same history`() {
     val first = simulate(twoNeighbouringPeoples())
     val second = simulate(twoNeighbouringPeoples())
@@ -222,10 +288,11 @@ class HistorySimTest {
   private fun simulate(
     sites: List<SiteFacts>,
     params: HistoryParams = HistoryParams(),
-    vents: List<VentFacts> = emptyList()
+    vents: List<VentFacts> = emptyList(),
+    seed: Long = 1L
   ): Chronicle {
     val facts = sites.mapIndexed { index, site -> site.withIndex(index) }
-    return HistorySim(params, facts, vents, SpecialSiteCandidates.EMPTY, 1L, 1L).run()
+    return HistorySim(params, facts, vents, SpecialSiteCandidates.EMPTY, seed, seed).run()
   }
 
   private fun site(
