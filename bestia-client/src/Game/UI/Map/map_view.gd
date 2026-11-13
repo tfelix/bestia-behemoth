@@ -1883,6 +1883,11 @@ func _metres_of(entity: Node3D) -> Vector2:
 	return Vector2(entity.global_position.x, entity.global_position.z) * _metres_per_voxel
 
 
+## [param metres] east and north as a Godot position on the ground, the way a skill aimed there is sent.
+func tile_of_metres(metres: Vector2) -> Vector3:
+	return Vector3(metres.x, 0.0, metres.y) / _metres_per_voxel
+
+
 ## A server position in tiles, as the journey messages carry them, in world metres.
 func _metres_of_tile(tile: Vector3) -> Vector2:
 	return Vector2(tile.x, tile.z) * _metres_per_voxel

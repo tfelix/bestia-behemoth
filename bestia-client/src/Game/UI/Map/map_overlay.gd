@@ -493,6 +493,9 @@ func _on_context(hit: Dictionary, at: Vector2, services: Array = []) -> void:
 			title = tr("MAP_HOVER_BESTIA")
 		_:
 			actions.append({"label": tr("MAP_MARK_HERE"), "run": func() -> void: mark_requested.emit(world)})
+			var scry := ScryView.get_instance()
+			if scry != null and scry.scry_level() > 0 and not scry.is_open():
+				actions.append({"label": tr("MAP_SCRY_HERE"), "run": func() -> void: scry.scry_at(_view.tile_of_metres(world))})
 
 	lines.append(_view.grid_ref_of(world))
 	var from: Variant = _view.order_entity_metres()
