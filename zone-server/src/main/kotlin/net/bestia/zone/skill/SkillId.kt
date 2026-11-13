@@ -121,6 +121,10 @@ enum class SkillId {
   // net.bestia.zone.casting.plagiarism.Plagiarism reads its level when a spell strikes a master.
   M_PLAGIARISM,
 
+  // A Bard's song reads them off the Bard while it plays, see net.bestia.zone.battle.status.scripts.SongScript.
+  M_VOICE_TRAINING,
+  M_GRAND_PERFORMANCE,
+
   // Guild skills a guild learns, not a master: net.bestia.zone.guild reads the guild's level of each.
   GUILD_EMBLEM,
   OFFICIAL_GUILD_APPROVAL,

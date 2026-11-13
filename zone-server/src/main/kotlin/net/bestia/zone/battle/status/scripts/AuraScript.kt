@@ -30,20 +30,26 @@ abstract class AuraScript(private val aoi: EntityAOIService) : StatusEffectScrip
   /** How long the granted status outlives the last pulse that reached its bearer. */
   protected open val lingerSeconds: Double = DEFAULT_LINGER_SECONDS
 
-  protected abstract fun radiusTiles(effect: ActiveStatusEffect): Long
+  protected abstract fun radiusTiles(world: World, bearerId: EntityId, effect: ActiveStatusEffect): Long
+
+  /** What the granted status carries beyond its level, see [ActiveStatusEffect.amount]. */
+  protected open fun grantedAmount(world: World, bearerId: EntityId, effect: ActiveStatusEffect): Int {
+    return effect.amount
+  }
 
   /** Whether [otherId] is the kind of entity this field acts on, seen from [bearerId]. */
   protected abstract fun reaches(world: World, bearerId: EntityId, otherId: EntityId): Boolean
 
   override fun onTick(context: StatusEffectTickContext) {
     val centre = context.world.get(context.hostId, Position::class)?.toVec3L() ?: return
-    val radius = radiusTiles(context.effect)
+    val radius = radiusTiles(context.world, context.hostId, context.effect)
+    val amount = grantedAmount(context.world, context.hostId, context.effect)
 
     for (id in aoi.queryEntitiesInCube(centre, radius * 2)) {
       val at = context.world.get(id, Position::class)?.toVec3L() ?: continue
       if (!isWithin(centre, at, radius) || !reaches(context.world, context.hostId, id)) continue
 
-      context.applyEffect(id, granted, context.effect.level, lingerSeconds, context.effect.amount)
+      context.applyEffect(id, granted, context.effect.level, lingerSeconds, amount)
     }
   }
 

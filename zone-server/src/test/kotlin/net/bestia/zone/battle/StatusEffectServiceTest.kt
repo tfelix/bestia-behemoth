@@ -4,6 +4,7 @@ import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.HarmShield
@@ -136,6 +137,20 @@ class StatusEffectServiceTest {
 
     assertEquals(2f, stunOn(steady)?.remainingSeconds)
     assertEquals(4f, stunOn(hurt)?.remainingSeconds)
+  }
+
+  @Test
+  fun `a refresh that brings a new amount recalculates the bearer, as a stronger Bard's song does`() {
+    val friend = player()
+    service.applyEffect(world, friend, HELP, level = 1, amount = 100)
+    world.remove(friend, IsStatusValueDirty::class)
+
+    service.applyEffect(world, friend, HELP, level = 1, amount = 100)
+    assertFalse(world.has(friend, IsStatusValueDirty::class), "the same song again changes nothing")
+
+    service.applyEffect(world, friend, HELP, level = 1, amount = 130)
+    assertTrue(world.has(friend, IsStatusValueDirty::class))
+    assertEquals(130, world.getOrThrow(friend, StatusEffects::class).activeEffects.single { it.definitionId == HELP }.amount)
   }
 
   private fun stunOn(id: EntityId): ActiveStatusEffect? {

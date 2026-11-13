@@ -3,6 +3,7 @@ package net.bestia.zone.boot
 import net.bestia.zone.casting.SkillExecutionService
 import net.bestia.zone.battle.attack.PoisonedBlade
 import net.bestia.zone.battle.attack.TripleBlow
+import net.bestia.zone.battle.status.scripts.Songcraft
 import net.bestia.zone.casting.plagiarism.Plagiarism
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.breeding.BreederSkills
@@ -39,6 +40,7 @@ class CatalogueWarmUpBootRunner(
   private val poisonedBlade: PoisonedBlade,
   private val tripleBlow: TripleBlow,
   private val plagiarism: Plagiarism,
+  private val songcraft: Songcraft,
 ) : CommandLineRunner {
 
   override fun run(vararg args: String?) {
@@ -56,5 +58,6 @@ class CatalogueWarmUpBootRunner(
     poisonedBlade.warmUp()
     tripleBlow.warmUp()
     plagiarism.warmUp()
+    songcraft.warmUp()
   }
 }
