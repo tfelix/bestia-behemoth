@@ -17,7 +17,8 @@ import org.springframework.stereotype.Service
 @Service
 class OreYield(private val items: ItemTemplateRegistry) {
 
-  class Stack(val itemId: Long, val amount: Int)
+  /** [isCoinMetal]: gold, whose yield per voxel sizes the world's coin supply and must never grow. */
+  class Stack(val itemId: Long, val amount: Int, val isCoinMetal: Boolean = false)
 
   /** What a fully removed voxel of [block] yields, or null when it is not ore we can hand over. */
   fun of(block: BlockType): Stack? {
@@ -25,7 +26,7 @@ class OreYield(private val items: ItemTemplateRegistry) {
     val identifier = ITEM_BY_RESOURCE[broken.resource] ?: return null
     val itemId = items.idOf(identifier) ?: return null
 
-    return Stack(itemId, amountFor(broken.grade))
+    return Stack(itemId, amountFor(broken.grade), isCoinMetal = broken.resource == ResourceType.GOLD_LODE)
   }
 
   companion object {

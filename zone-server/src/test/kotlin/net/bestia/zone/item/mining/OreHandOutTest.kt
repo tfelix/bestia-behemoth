@@ -21,13 +21,18 @@ class OreHandOutTest {
     every { it.idOf("iron_ore") } returns IRON_ORE
   }
 
-  private val sut = OreHandOut(OreYield(items))
+  private val richVeins = mockk<RichVeins> {
+    every { reads } returns emptySet()
+    every { extraPieces(any(), any(), any()) } returns 0
+  }
+
+  private val sut = OreHandOut(OreYield(items), richVeins)
   private val world = testWorld()
   private val miner = world.createEntity { }
 
   @Test
   fun `an emptied ore voxel is handed out as an item intent`() {
-    sut.bank(carve(voxel(BlockType.ORE_GOLD_RICH, Occupancy.EMPTY)), miner)
+    sut.bank(world, carve(voxel(BlockType.ORE_GOLD_RICH, Occupancy.EMPTY)), miner)
 
     handOut()
 
@@ -36,7 +41,7 @@ class OreHandOutTest {
 
   @Test
   fun `a voxel with ore left in it pays nothing`() {
-    sut.bank(carve(voxel(BlockType.ORE_GOLD_RICH, Occupancy.FULL / 2)), miner)
+    sut.bank(world, carve(voxel(BlockType.ORE_GOLD_RICH, Occupancy.FULL / 2)), miner)
 
     handOut()
 
@@ -47,7 +52,7 @@ class OreHandOutTest {
   fun `a second stack waits until the first is picked up`() {
     val gold = voxel(BlockType.ORE_GOLD_SMALL, Occupancy.EMPTY)
     val iron = voxel(BlockType.ORE_IRON_SMALL, Occupancy.EMPTY)
-    sut.bank(carve(gold, iron), miner)
+    sut.bank(world, carve(gold, iron), miner)
 
     handOut()
     val first = held()
@@ -59,6 +64,16 @@ class OreHandOutTest {
 
     assertEquals(first, unchanged)
     assertEquals(setOf(GOLD_ORE to 1, IRON_ORE to 1), setOf(first, second))
+  }
+
+  @Test
+  fun `Rich Veins adds its extra piece to the voxel`() {
+    every { richVeins.extraPieces(any(), miner, any()) } returns 1
+    sut.bank(world, carve(voxel(BlockType.ORE_IRON_SMALL, Occupancy.EMPTY)), miner)
+
+    handOut()
+
+    assertEquals(IRON_ORE to 2, held())
   }
 
   private fun handOut() {

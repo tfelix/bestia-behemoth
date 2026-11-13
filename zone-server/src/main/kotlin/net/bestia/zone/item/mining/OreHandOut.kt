@@ -12,7 +12,10 @@ import org.springframework.stereotype.Component
 @Component
 class OreHandOut(
   private val oreYield: OreYield,
+  private val richVeins: RichVeins,
 ) : CarveYield {
+
+  override val reads: ComponentClassSet = richVeins.reads
 
   override val writes: ComponentClassSet = setOf(ObtainItemIntent.CreateItemIntent::class)
 
@@ -31,13 +34,14 @@ class OreHandOut(
    * click - which, since this is where the world's money comes from, is the difference between mining
    * and printing.
    */
-  override fun bank(result: ChunkService.CarveResult, entityId: EntityId) {
+  override fun bank(world: World, result: ChunkService.CarveResult, entityId: EntityId) {
     for (voxel in result.voxels) {
       if (!voxel.exhausted) continue
 
       val stack = oreYield.of(voxel.priorBlock) ?: continue
       val owed = unclaimed.getOrPut(entityId) { HashMap() }
-      owed[stack.itemId] = (owed[stack.itemId] ?: 0) + stack.amount
+      val pieces = stack.amount + richVeins.extraPieces(world, entityId, stack)
+      owed[stack.itemId] = (owed[stack.itemId] ?: 0) + pieces
     }
   }
 

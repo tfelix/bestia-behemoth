@@ -64,7 +64,7 @@ class ChunkStreamSystem(
 ) : System {
   override val phase = Phase.WORLD
 
-  override val reads: ComponentClassSet = setOf(Account::class, ActivePlayer::class, PropPose::class)
+  override val reads: ComponentClassSet = setOf(Account::class, ActivePlayer::class, PropPose::class) + carveYield.reads
 
   /**
    * [Position] and [Path] are written, not just read, because a teleport moves a player.
@@ -148,7 +148,7 @@ class ChunkStreamSystem(
       carvedChunks.addAll(result.chunks)
       metrics.carved(result.voxels.size, result.chunks.size)
 
-      bank(result, carve)
+      bank(world, result, carve)
 
       LOG.debug {
         "Account ${carve.accountId} carved ${carve.brush}: " +
@@ -160,12 +160,12 @@ class ChunkStreamSystem(
   }
 
   /** Puts what a carve broke aside for whoever swung the pick. */
-  private fun bank(result: ChunkService.CarveResult, carve: ChunkStreamInbox.Carve) {
+  private fun bank(world: World, result: ChunkService.CarveResult, carve: ChunkStreamInbox.Carve) {
     val entityId = carve.yieldTo
       ?: runCatching { connections.getActiveEntityId(carve.accountId) }.getOrNull()
       ?: return
 
-    carveYield.bank(result, entityId)
+    carveYield.bank(world, result, entityId)
   }
 
   /**
