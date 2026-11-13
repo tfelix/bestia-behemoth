@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqeLQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSq1LQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -154,9 +154,9 @@ namespace Bnet {
             "TExfTkVFRFNfSEFMRl9NQU5BELEBEiAKG1NLSUxMX05FRURTX1NQRUFSX09S",
             "X1RIUk9XThCyARIbChZTS0lMTF9OT1RISU5HX1RPX1RIUk9XELMBEhQKD1NL",
             "SUxMX05FRURTX0JPVxC0ARIVChBTS0lMTF9ORUVEU19XSElQELUBEhsKFlNL",
-            "SUxMX05FRURTX0lOU1RSVU1FTlQQtgEiBAguEC4qElNIT1BfVFJFQVNVUllf",
-            "RlVMTEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9y",
-            "UHJvdG9iBnByb3RvMw=="));
+            "SUxMX05FRURTX0lOU1RSVU1FTlQQtgESFQoQU0tJTExfTkVFRFNfQUxMWRC3",
+            "ASIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5l",
+            "dC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -979,6 +979,10 @@ namespace Bnet {
     /// An instrument skill, like Discord Strike, was used without an instrument in hand.
     /// </summary>
     [pbr::OriginalName("SKILL_NEEDS_INSTRUMENT")] SkillNeedsInstrument = 182,
+    /// <summary>
+    /// A skill that helps an ally, like Potion Pitcher, was aimed at something on the other side.
+    /// </summary>
+    [pbr::OriginalName("SKILL_NEEDS_ALLY")] SkillNeedsAlly = 183,
   }
 
   #endregion

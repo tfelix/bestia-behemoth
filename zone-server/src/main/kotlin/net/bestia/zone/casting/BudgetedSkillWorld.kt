@@ -835,6 +835,19 @@ class BudgetedSkillWorld(
     return if (world.isAlive(id)) world.block(id) else null
   }
 
+  override fun potionThrowRefusal(targetEntityId: EntityId, itemId: Long): OpError? {
+    budget.charge()
+
+    val potions = services.potions ?: return OpError.REQUEST_REFUSED
+    return potions.refusal(world, casterId, targetEntityId, itemId)
+  }
+
+  override fun throwPotion(targetEntityId: EntityId, itemId: Long, strengthPercent: Int): Boolean {
+    budget.charge()
+
+    return services.potions?.throwAt(world, casterId, targetEntityId, itemId, strengthPercent) == true
+  }
+
   override fun tellCaster(error: OpError) {
     budget.charge()
 

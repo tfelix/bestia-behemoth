@@ -37,7 +37,7 @@ class ReagentPayment(
     asyncJobExecutor.submit(key = owner.masterId) {
       if (!inventoryService.consumeAll(owner.masterId, spent, owner.playerBestiaId)) {
         // Already spent in the world; the database only disagrees when something raced it, which the log shows.
-        LOG.warn { "Master ${owner.masterId} lost reagents ${reagents.map { it.item }} in the database" }
+        LOG.warn { "Master ${owner.masterId} lost reagents $spent (item id to amount) in the database" }
       }
     }
 

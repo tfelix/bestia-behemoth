@@ -236,6 +236,12 @@ interface SkillWorld {
   /** Loses the caster's own [bestiaId] for good, see [SpellScrolls.breakMind]. One spawn. */
   fun breakMind(bestiaId: EntityId)
 
+  /** Why the caster cannot throw a potion [itemId] at [targetEntityId], see [PotionThrowing]. One op. */
+  fun potionThrowRefusal(targetEntityId: EntityId, itemId: Long): OpError?
+
+  /** [targetEntityId] drinks a potion [itemId] from the caster's bag at [strengthPercent]; whether it did. One op. */
+  fun throwPotion(targetEntityId: EntityId, itemId: Long, strengthPercent: Int): Boolean
+
   /** Tells the caster's player why the cast came to nothing. One op. */
   fun tellCaster(error: OpError)
 
