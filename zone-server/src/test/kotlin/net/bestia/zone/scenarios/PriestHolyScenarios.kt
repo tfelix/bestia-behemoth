@@ -153,13 +153,17 @@ class PriestHolyScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
 
     for (identifier in listOf("M_HOLY_LIGHT", "M_TURN_UNDEAD")) {
       val skillId = skillId(identifier)
-      // A blob beside the Priest for each cast: on some spawn ground the Priest drifts several metres while the
-      // scenario runs, and a blob placed once is out of range by the second cast.
+      // A fresh blob beside the Priest for each cast, without its AI and in one lease, so it never acts: a blob
+      // that strikes back cancels the cast with its hit, and its skill lookup would run SQL on the tick.
       val at = world.read { getOrThrow(priest(), Position::class).toVec3L() }
-      val blob = world.read { spawner.spawnMob(this, BLOB, at + Vec3L(1, 0, 0), persistent = false) }
+      val blob = world.read {
+        val id = spawner.spawnMob(this, BLOB, at + Vec3L(1, 0, 0), persistent = false)
+        remove(id, AiAgent::class)
+        // Enough to survive the blow: a dead blob would fizzle the cast.
+        get(id, Health::class)!!.apply { max = BLOB_HEALTH; current = BLOB_HEALTH }
+        id
+      }
       foe = blob
-      // Enough to survive the blow: a dead blob would fizzle the cast.
-      world.modify(blob) { id -> get(id, Health::class)!!.apply { max = BLOB_HEALTH; current = BLOB_HEALTH } }
       client.clearMessages()
 
       cast(identifier, level = 1, target = blob)
