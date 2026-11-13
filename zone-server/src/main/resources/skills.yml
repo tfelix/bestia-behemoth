@@ -2146,9 +2146,9 @@ skills:
     cooldown: 1
     description: |
       Throws a potion from the bag onto an ally up to 7 tiles away, so it works as if the ally had
-      drunk it. Cooldown 1s.
+      drunk it. A Small Health Potion, a Small Mana Potion or Medicine can be thrown. Cooldown 1s.
 
-      `+10%/lv` effect of the thrown potion
+      `+10%/lv` health, mana and stamina from the thrown potion
 
   - id: 176
     identifier: M_REPLANTING

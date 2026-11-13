@@ -836,6 +836,7 @@ ERROR_SKILL_NOTHING_TO_THROW,You have none left in your bag to throw. The last o
 ERROR_SKILL_NEEDS_BOW,You need a bow in hand for this.
 ERROR_SKILL_NEEDS_WHIP,You need a whip in hand for this.
 ERROR_SKILL_NEEDS_INSTRUMENT,You need an instrument in hand for this.
+ERROR_SKILL_NEEDS_ALLY,This skill only helps an ally.
 SUCCESS_SPELL_LEARNED,Your bestia learned the attack.
 SUCCESS_SPELL_INSCRIBED,The attack is written on a new spell scroll.
 SPELL_SCROLL_PICK,%s Lv. %d
@@ -858,6 +859,7 @@ SPELL_BINDING_NO_ITEM,You hold no item that can carry a binding.
 SPELL_BINDING_FIRED,Your Spell Binding fired: %s.
 SPELL_INSCRIPTION_PICK,"%s: %s Lv. %d - success %d%%, mind breaks %d%%"
 SPELL_INSCRIPTION_NONE,None of your bestias knows an attack to copy.
+POTION_PITCHER_NONE,You hold no potion to throw.
 ELEMENT_FIRE,Fire
 ELEMENT_WATER,Water
 ELEMENT_WIND,Wind
