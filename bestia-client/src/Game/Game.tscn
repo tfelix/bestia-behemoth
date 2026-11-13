@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://cxxwsgl6fa6iq" path="res://Game/Mouse/Selection/selection_marker.gd" id="13_selmrk"]
 [ext_resource type="Texture2D" uid="uid://bp0vtb8sk1qwd" path="res://Game/Mouse/Selection/navigation_s.png" id="14_selarw"]
 [ext_resource type="PackedScene" uid="uid://45jpbbdakcsg" path="res://Dev/RenderDebug/RenderDebug.tscn" id="15_rdebug"]
+[ext_resource type="Script" path="res://Game/World/resource_sonar.gd" id="16_sonar"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oscxy"]
 transparency = 1
@@ -50,5 +51,9 @@ no_depth_test = true
 fixed_size = true
 texture_filter = 0
 texture = ExtResource("14_selarw")
+
+[node name="ResourceSonar" type="MultiMeshInstance3D" parent="."]
+cast_shadow = 0
+script = ExtResource("16_sonar")
 
 [node name="RenderDebug" parent="." instance=ExtResource("15_rdebug")]

@@ -25,6 +25,8 @@ import net.bestia.zone.item.mining.ecs.MiningSwing
 import net.bestia.zone.item.net.EquipItemCMSG
 import net.bestia.zone.item.net.UseItemCMSG
 import net.bestia.zone.master.MasterFactory
+import net.bestia.zone.master.net.GetSkillsCMSG
+import net.bestia.zone.master.skill.SkillListSMSG
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.mocks.GameClientMockFactory
@@ -48,7 +50,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
-/** A Miner swings a pickaxe at real ore in the test world. */
+/** A Miner works real ore in the test world with the Miner's skills: pickaxe, Rich Veins, Blasting, Gem Lore, Sonar. */
 class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
 
   @Autowired
@@ -219,6 +221,22 @@ class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
 
     await { assertEquals(1, amountOf(roughGem), "one stone was appraised") }
     await { assertEquals(before + 1, gems.sumOf { amountOf(it) }, "it became one of the five gems") }
+  }
+
+  /** The sonar itself runs in the client, on the chunks it holds; the server's part is telling it the level. */
+  @Test
+  @Order(7)
+  fun `the client learns its Resource Sonar level, which is all it needs to light up the ore`() {
+    learn("M_RESOURCE_SONAR", 2)
+    val sonar = assertNotNull(skills.findByIdentifier("M_RESOURCE_SONAR")).id
+    client.clearMessages()
+
+    client.sendMessage(GetSkillsCMSG(accountId))
+
+    await {
+      val listed = client.getLastReceived(SkillListSMSG::class).skills.firstOrNull { it.skillId == sonar }
+      assertEquals(2, listed?.level)
+    }
   }
 
   /** Ore no untrained miner may break, so that both scenarios aim at the same kind of rock. */

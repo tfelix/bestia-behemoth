@@ -518,7 +518,9 @@ skills:
       The Miner's capstone: a feel for what's underfoot precise enough to map a shaft before
       the first swing of the pick.
 
-      Can sense ore and gem deposits through solid rock within 5m / Lv.
+      While a pickaxe is in hand, every ore and gem block nearby glows through the rock.
+
+      `+5m/lv` sense range, from 5m at Lv.1
 
   # Craftsman tree - see the tree grouping in master_skill_tree.yml.
   - id: 44
