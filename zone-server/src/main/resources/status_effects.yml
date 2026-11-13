@@ -794,3 +794,11 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: ImprovedConcentration
+
+  # The Bard's Dissonant Chord: slower swings and a worse aim.
+  - id: 232
+    identifier: DISSONANCE
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: Dissonance

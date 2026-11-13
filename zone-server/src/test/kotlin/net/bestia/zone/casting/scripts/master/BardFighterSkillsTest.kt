@@ -14,6 +14,7 @@ import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.casting.RecordingSkillWorld
 import net.bestia.zone.casting.SkillContextFixture
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -100,6 +101,29 @@ class BardFighterSkillsTest {
     world.heldWeapons[caster] = WeaponType.INSTRUMENT
     world.foes -= target
     assertFalse(discord.isCastPossible(ctx(level = 1)), "not at a friend")
+  }
+
+  @Test
+  fun `Dissonant Chord puts Dissonance at its level on every foe around the Bard`() {
+    val wolf = 7L
+    val ally = 8L
+    val around = RecordingSkillWorld(entitiesNearby = setOf(caster, target, wolf, ally)).putPosition(caster, Vec3L(10, 10, 0))
+    around.foes += setOf(target, wolf)
+    around.heldWeapons[caster] = WeaponType.INSTRUMENT
+    val ctx = SkillContextFixture.skillCtx(world = around, skillLevel = 4)
+
+    assertTrue(DissonantChord().isCastPossible(ctx))
+    DissonantChord().execute(ctx)
+
+    assertEquals(setOf(target, wolf), around.appliedEffects.map { it.targetEntityId }.toSet())
+    assertTrue(around.appliedEffects.all { it.effectId == StatusEffectId.DISSONANCE.id && it.level == 4 })
+  }
+
+  @Test
+  fun `Dissonant Chord needs an instrument`() {
+    assertEquals(OpError.SKILL_NEEDS_INSTRUMENT, DissonantChord().checkCastStart(ecs, bardWith(null), 1, emptyList()))
+    assertNull(DissonantChord().checkCastStart(ecs, bardWith(WeaponType.INSTRUMENT), 1, emptyList()))
+    assertFalse(DissonantChord().isCastPossible(ctx(level = 1)), "nothing held at resolution")
   }
 
   private fun bardWith(weapon: WeaponType?): EntityId {
