@@ -1,18 +1,25 @@
 package net.bestia.zone.treasure
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.mockk.every
 import io.mockk.mockk
-import net.bestia.worldgen.core.WorldConfig
-import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.worldgen.pipeline.TestWorlds
-import net.bestia.zone.item.stat.ItemStatCatalog
-import net.bestia.zone.item.stat.ItemStatRoller
-import net.bestia.zone.world.WorldService
-import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import net.bestia.worldgen.core.WorldConfig
+import net.bestia.worldgen.pipeline.GeneratedWorld
+import net.bestia.worldgen.pipeline.TestWorlds
+import net.bestia.zone.boot.ItemImporterBootRunner
+import net.bestia.zone.item.stat.ItemStatCatalog
+import net.bestia.zone.item.stat.ItemStatRoller
+import net.bestia.zone.item.stat.ItemStatSheet
+import net.bestia.zone.world.WorldService
+import org.junit.jupiter.api.Test
+import org.springframework.core.io.ClassPathResource
 
 class RelicsTest {
 
@@ -22,7 +29,7 @@ class RelicsTest {
     worldService = mockk<WorldService> { every { generated } returns world },
     records = mockk(relaxed = true),
     items = mockk { every { idOf(capture(identifiers)) } returns RELIC },
-    stats = ItemStatCatalog(),
+    stats = ItemStatCatalog().apply { load(mapOf(RELIC to relicBladeSheet())) },
     roller = ItemStatRoller(),
     asyncJobExecutor = mockk(relaxed = true),
   )
@@ -43,12 +50,31 @@ class RelicsTest {
   }
 
   @Test
+  fun `a relic comes up between item level 80 and 110`() {
+    for (artifact in world.world.chronicle.artifacts) {
+      val level = assertNotNull(relics.unearth(artifact.index)?.roll).itemLevel
+
+      assertTrue(level in 80..110, "artifact ${artifact.index} came up at item level $level")
+    }
+  }
+
+  @Test
   fun `an artifact the chronicle does not know gives nothing`() {
     assertNull(relics.unearth(Int.MAX_VALUE))
   }
 
   private companion object {
     const val RELIC = 130L
+
+    /** The real sheet, so the test sees the base level and random stats items.yml gives a relic. */
+    fun relicBladeSheet(): ItemStatSheet {
+      val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
+        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+      val items = ClassPathResource("items.yml").inputStream.use {
+        mapper.readValue(it, ItemImporterBootRunner.ItemsYmlFile::class.java).items
+      }
+      return items.single { it.identifier == "relic_blade" }.toStatSheet()
+    }
 
     val world: GeneratedWorld
       get() {
