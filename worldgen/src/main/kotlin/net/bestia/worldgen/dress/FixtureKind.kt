@@ -62,7 +62,10 @@ enum class FixtureKind(val heightM: Double, val readable: Boolean = false) {
   INN(8.0),
 
   /** A long-cold fire ring beside a road in the wild, where travellers stopped for the night. */
-  CAMP(0.4);
+  CAMP(0.4),
+
+  /** The crystal a world boss is bound in, on its seal's plinth. Breaking it sets the boss free. */
+  SEAL_CRYSTAL(2.4);
 
   companion object {
     /** Every entry's ordinal and height, for `DressingStage.paramsVersion`: retuning one moves the world. */
