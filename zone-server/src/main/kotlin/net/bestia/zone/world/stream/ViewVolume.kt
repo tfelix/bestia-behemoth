@@ -49,12 +49,12 @@ class ViewVolume(
    * against was clipped away offers something that draws nothing, and insertion order here becomes send order,
    * so a floor has to go out before what draws against it.
    */
-  fun chunksAround(anchor: ChunkPos, budget: SlabBudget): Desired {
+  fun chunksAround(anchor: ChunkPos, budget: SlabBudget, radius: Int = settings.viewRadiusChunks): Desired {
     val vertical = settings.viewRadiusChunksVertical
     val desired = LinkedHashSet<ChunkPos>()
     var complete = true
 
-    for ((dx, dy) in viewOffsets) {
+    for ((dx, dy) in offsetsWithin(radius)) {
       val column = ChunkPos(anchor.x + dx, anchor.y + dy, anchor.z)
       val isAnchorColumn = dx == 0 && dy == 0
 
@@ -91,9 +91,19 @@ class ViewVolume(
    * The view's column offsets, nearest first, so the send queue is already in the order a player wants it -
    * and so a budget that runs out spends what it had on the ground closest to them. The same for every player.
    */
-  private val viewOffsets: List<Pair<Int, Int>> = run {
-    val radius = settings.viewRadiusChunks
-    (-radius..radius).flatMap { dy -> (-radius..radius).map { dx -> dx to dy } }
+  private val viewOffsets: List<Pair<Int, Int>> = offsetsOf(settings.viewRadiusChunks)
+
+  /** Offsets for the other radii a [RemoteViewpoints.Viewpoint] asks for. Skill levels give only a few, so each is built once. */
+  private val smallerOffsets = HashMap<Int, List<Pair<Int, Int>>>()
+
+  private fun offsetsWithin(radius: Int): List<Pair<Int, Int>> {
+    if (radius == settings.viewRadiusChunks) return viewOffsets
+
+    return smallerOffsets.getOrPut(radius) { offsetsOf(radius) }
+  }
+
+  private fun offsetsOf(radius: Int): List<Pair<Int, Int>> {
+    return (-radius..radius).flatMap { dy -> (-radius..radius).map { dx -> dx to dy } }
       .sortedBy { (dx, dy) -> dx * dx + dy * dy }
   }
 
