@@ -261,6 +261,30 @@ HISTORY_CIV_SECEDED_2,"Around {year} {place} stopped answering to the {foe}. Tha
 HISTORY_CIV_REFOUNDED_ASK,Who founded the {civ}?
 HISTORY_CIV_REFOUNDED_1,"Survivors. Their old home was lost {era}, and they started again at {place} as the {civ}."
 HISTORY_CIV_REFOUNDED_2,"The {civ} began with refugees at {place}, around {year}. They do not talk about where they came from."
+HISTORY_SUCCESSION_ASK,Who rules the {civ}?
+HISTORY_SUCCESSION_1,"{figure} took the throne of the {civ} {era}, around {year}."
+HISTORY_SUCCESSION_2,"The {civ} have been ruled by {figure} since {year}."
+HISTORY_SUCCESSION_CRISIS_ASK,Was there ever a fight over the throne of the {civ}?
+HISTORY_SUCCESSION_CRISIS_1,"When {figure} died without an heir, {era}, the {civ} fought over the throne."
+HISTORY_SUCCESSION_CRISIS_2,"{figure} left no heir. Around {year} the {civ} nearly tore themselves apart over it."
+HISTORY_DYNASTY_EXILED_ASK,Why did the {civ} leave the {foe}?
+HISTORY_DYNASTY_EXILED_1,"{figure} lost the fight for the throne of the {foe} {era} and led their house to {place}. That was the start of the {civ}."
+HISTORY_DYNASTY_EXILED_2,"The {civ} began as an exiled house. {figure} brought them to {place} around {year}."
+HISTORY_MARRIAGE_ALLIANCE_ASK,Were the {civ} and the {foe} ever friends?
+HISTORY_MARRIAGE_ALLIANCE_1,"{figure} of the {civ} married into the {foe} {era}. For a while it kept the peace."
+HISTORY_MARRIAGE_ALLIANCE_2,"Around {year} there was a wedding between the {civ} and the {foe}. People still talk about the feast."
+HISTORY_FEUD_BEGAN_ASK,Is there bad blood between the {civ} and the {foe}?
+HISTORY_FEUD_BEGAN_1,"{figure} swore enmity to a general of the {foe} after a battle {era}. Some say it never ended."
+HISTORY_FEUD_BEGAN_2,"There has been a feud since {year}. {figure} of the {civ} started it, or so we say here."
+HISTORY_VENGEANCE_SWORN_ASK,Who swore revenge on the {civ}?
+HISTORY_VENGEANCE_SWORN_1,"{figure} swore to avenge their dead on the {civ}, {era}."
+HISTORY_VENGEANCE_SWORN_2,"Around {year} {figure} took an oath against the {civ}. Whether they kept it, I could not say."
+HISTORY_VENGEANCE_FULFILLED_ASK,Did anyone ever take revenge on the {civ}?
+HISTORY_VENGEANCE_FULFILLED_1,"{figure} had their revenge on the {civ} {era}, around {year}."
+HISTORY_VENGEANCE_FULFILLED_2,"{figure} swore an oath against the {civ} and kept it. That was in {year}."
+HISTORY_BETRAYAL_ASK,How did {place} fall to the {civ}?
+HISTORY_BETRAYAL_1,"{figure} opened the gates of {place} to the {civ} {era}. The {foe} have not forgiven it."
+HISTORY_BETRAYAL_2,"Betrayal. Around {year} {figure} let the {civ} into {place} without a fight."
 HISTORY_WAR_DECLARED_ASK,Has there been war?
 HISTORY_WAR_DECLARED_1,"The {civ} declared on the {foe} {era}, near enough {year}. It went on longer than anyone promised."
 HISTORY_WAR_DECLARED_2,"The {civ} and the {foe} stopped pretending {era}. Everyone saw it coming and nobody stopped it."

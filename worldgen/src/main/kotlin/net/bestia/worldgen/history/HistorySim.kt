@@ -9,15 +9,18 @@ import net.bestia.worldgen.core.ArtifactRecord
 import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.core.CivOrigin
 import net.bestia.worldgen.core.CivRecord
+import net.bestia.worldgen.core.DynastyRecord
 import net.bestia.worldgen.core.EventKind
+import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.FigureRecord
 import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.HistoryEvent
-import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.Params
 import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.core.ParamsText
+import net.bestia.worldgen.core.RelationKind
+import net.bestia.worldgen.core.RelationRecord
 import net.bestia.worldgen.core.SettlementRecord
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.SiteRecord
@@ -127,6 +130,35 @@ data class HistoryParams(
 
   /** Population above which a threatened settlement can afford walls. */
   val wallPopulation: Int = 900,
+
+  // --- Families -------------------------------------------------------------------------------------
+
+  /** Chance a new figure is the child of an earlier one of their people. */
+  val childChance: Double = 0.35,
+
+  /** Years between a parent's rise and their child's at the least, and how long a dead parent still counts. */
+  val generationYears: Int = 25,
+
+  /** Chance a dead ruler leaves an heir; otherwise the house ends in a succession crisis. */
+  val heirChance: Double = 0.75,
+
+  /** Chance a succession crisis sends the old house into exile, where it founds a people. */
+  val crisisExileChance: Double = 0.25,
+
+  /** Chance a succession crisis splits the civ instead, when it is large enough to split. */
+  val crisisSplitChance: Double = 0.25,
+
+  /** Chance per tick that two peoples at peace with living, unmarried rulers wed them to each other. */
+  val marriageChance: Double = 0.005,
+
+  /** Chance that the two generals of a battle become sworn enemies. */
+  val feudChance: Double = 0.3,
+
+  /** Chance that kin of a figure slain in battle swear vengeance. */
+  val vengeanceChance: Double = 0.5,
+
+  /** Chance per siege that a living general of the besieged people betrays the town to the enemy. */
+  val betrayalChance: Double = 0.06,
 
   /** A pair of facing towns is on the front when it is at most this many times as far apart as the closest pair. */
   val frontierSpread: Double = 1.5,
@@ -432,6 +464,17 @@ data class HistoryParams(
       "minWarYears $minWarYears must be in [0, maxWarYears $maxWarYears]"
     }
     require(wallPopulation >= 0) { "wallPopulation must not be negative, was $wallPopulation" }
+    require(childChance in 0.0..1.0) { "childChance must be in [0,1], was $childChance" }
+    require(generationYears >= 1) { "generationYears must be at least 1, was $generationYears" }
+    require(heirChance in 0.0..1.0) { "heirChance must be in [0,1], was $heirChance" }
+    require(crisisExileChance >= 0.0 && crisisSplitChance >= 0.0 && crisisExileChance + crisisSplitChance <= 1.0) {
+      "crisisExileChance $crisisExileChance and crisisSplitChance $crisisSplitChance must be non-negative " +
+          "and sum to at most 1"
+    }
+    require(marriageChance in 0.0..1.0) { "marriageChance must be in [0,1], was $marriageChance" }
+    require(feudChance in 0.0..1.0) { "feudChance must be in [0,1], was $feudChance" }
+    require(vengeanceChance in 0.0..1.0) { "vengeanceChance must be in [0,1], was $vengeanceChance" }
+    require(betrayalChance in 0.0..1.0) { "betrayalChance must be in [0,1], was $betrayalChance" }
     require(frontierSpread >= 1.0) { "frontierSpread must be at least 1, was $frontierSpread" }
     require(battleMergeRadius >= 0.0) { "battleMergeRadius must not be negative, was $battleMergeRadius" }
     require(battleAside >= 0.0) { "battleAside must not be negative, was $battleAside" }
@@ -545,6 +588,15 @@ data class HistoryParams(
     minWarYears = source.int("minWarYears", minWarYears),
     maxWarYears = source.int("maxWarYears", maxWarYears),
     wallPopulation = source.int("wallPopulation", wallPopulation),
+    childChance = source.double("childChance", childChance),
+    generationYears = source.int("generationYears", generationYears),
+    heirChance = source.double("heirChance", heirChance),
+    crisisExileChance = source.double("crisisExileChance", crisisExileChance),
+    crisisSplitChance = source.double("crisisSplitChance", crisisSplitChance),
+    marriageChance = source.double("marriageChance", marriageChance),
+    feudChance = source.double("feudChance", feudChance),
+    vengeanceChance = source.double("vengeanceChance", vengeanceChance),
+    betrayalChance = source.double("betrayalChance", betrayalChance),
     frontierSpread = source.double("frontierSpread", frontierSpread),
     battleMergeRadius = source.double("battleMergeRadius", battleMergeRadius),
     battleAside = source.double("battleAside", battleAside),
@@ -626,6 +678,15 @@ data class HistoryParams(
     .put("minWarYears", minWarYears)
     .put("maxWarYears", maxWarYears)
     .put("wallPopulation", wallPopulation)
+    .put("childChance", childChance)
+    .put("generationYears", generationYears)
+    .put("heirChance", heirChance)
+    .put("crisisExileChance", crisisExileChance)
+    .put("crisisSplitChance", crisisSplitChance)
+    .put("marriageChance", marriageChance)
+    .put("feudChance", feudChance)
+    .put("vengeanceChance", vengeanceChance)
+    .put("betrayalChance", betrayalChance)
     .put("frontierSpread", frontierSpread)
     .put("battleMergeRadius", battleMergeRadius)
     .put("battleAside", battleAside)
@@ -777,6 +838,12 @@ internal class HistorySim(
    */
   private var blightLosses = 0
 
+  private val dynasties = ArrayList<Dynasty>()
+  private val relations = ArrayList<RelationRecord>()
+
+  /** Vengeance sworn and not yet taken. */
+  private val oaths = ArrayList<Oath>()
+
   private val events = ArrayList<HistoryEvent>()
   private var prunedEvents = 0
   private var nextEventId = 0
@@ -818,6 +885,7 @@ internal class HistorySim(
       migrateOverland(year)
       secede(year)
       updateRelations(year)
+      arrangeMarriages(year)
       resolveWars(year)
       resolveDisasters(year)
       // After the disasters, so a town already emptied this tick is not buried a second time - `abandon` returns
@@ -1122,6 +1190,11 @@ internal class HistorySim(
     val perTick = (chance * sizeScale / ticks).coerceAtMost(1.0)
     if (roll(year.toLong(), salt) >= perTick) return null
 
+    return remotestEmptySite(accepts)
+  }
+
+  /** The empty site farthest from every standing town, at least [HistoryParams.newcomerClearance] from any. */
+  private fun remotestEmptySite(accepts: (SiteFacts) -> Boolean): Int? {
     return facts
       .filter { towns[it.index].founded == 0 && it.habitability >= params.minFoundingHabitability && accepts(it) }
       .map { it.index to distanceToStandingTown(it.index) }
@@ -1175,20 +1248,20 @@ internal class HistorySim(
     return (cutOff + sacked + blighted).coerceAtMost(1.0)
   }
 
-  private fun revolt(parent: Civ, leader: Town, year: Int) {
+  private fun revolt(parent: Civ, leader: Town, year: Int, causes: List<Int> = emptyList(), certain: Boolean = false) {
     val actors = listOf(Actor(ActorType.SETTLEMENT, leader.facts.index), Actor(ActorType.CIV, parent.index))
-    val wins = roll(year.toLong(), leader.facts.index.toLong(), REVOLT_OUTCOME_SALT) < params.revoltSuccess
+    val wins = certain || roll(year.toLong(), leader.facts.index.toLong(), REVOLT_OUTCOME_SALT) < params.revoltSuccess
     if (!wins) {
       leader.population *= 1.0 - REVOLT_POPULATION_LOSS
       log(
-        year, EventKind.CIV_REVOLT, actors, leader.facts.position, emptyList(),
+        year, EventKind.CIV_REVOLT, actors, leader.facts.position, causes,
         "${nameOf(leader)} rises against the ${civName(parent)} and is put down"
       )
       return
     }
 
     val uprising = log(
-      year, EventKind.CIV_REVOLT, actors, leader.facts.position, emptyList(),
+      year, EventKind.CIV_REVOLT, actors, leader.facts.position, causes,
       "${nameOf(leader)} rises against the ${civName(parent)}"
     )
 
@@ -1391,7 +1464,9 @@ internal class HistorySim(
     // Losing a battle costs the loser's frontier settlement people whether or not it is then taken.
     towns[target].population = max(10.0, towns[target].population * (1.0 - BATTLE_POPULATION_LOSS))
 
-    killGeneralsOf(loser, year, battle, field.position)
+    maybeFeud(winner, loser, year, battle, target)
+    takeVengeance(winner, loser, year, battle, target)
+    killGeneralsOf(loser, winner, year, battle, field.position)
     besiege(war, winner, loser, target, year, battle)
   }
 
@@ -1497,6 +1572,8 @@ internal class HistorySim(
       )
       return
     }
+
+    if (betray(war, winner, loser, town, year, cause)) return
 
     town.sacked++
     val sack = log(
@@ -1979,7 +2056,7 @@ internal class HistorySim(
   private fun vanishSeers(year: Int) {
     if (wounds.isEmpty()) return
 
-    for (person in people) {
+    for (person in people.toList()) {
       if (person.death != 0) continue
       if (person.role != FigureRole.PROPHET && person.role != FigureRole.SCHOLAR) continue
 
@@ -2055,7 +2132,7 @@ internal class HistorySim(
   private fun loseTravellers(year: Int) {
     if (candidates.wastes.isEmpty()) return
 
-    for (person in people) {
+    for (person in people.toList()) {
       if (person.death != 0) continue
       if (person.role != FigureRole.EXPLORER && person.role != FigureRole.GENERAL) continue
 
@@ -2576,31 +2653,30 @@ internal class HistorySim(
 
       val home = civ.towns.filter { towns[it].standing }
         .maxByOrNull { towns[it].population } ?: continue
-      val role = roleFor(civ, year)
-      val person = Person(
-        index = people.size,
-        nameSeed = Names.seedOf(worldSeed, FIGURE_NAME_SALT, people.size.toLong()),
-        role = role,
-        civ = civ.index,
-        home = home,
-        birth = year
-      )
-      // Their people's Order, which is null on a world where the Orders play no part. Not drawn separately:
-      // a person who dissents from the city they lead is a good story, and the mechanism for it is a schism
-      // logged against the civ - inventing a second, unlogged disagreement here would put a conviction on a
-      // figure that no event in the chronicle can account for.
-      person.sworn = civ.sworn
-      people.add(person)
+      // One ruler at a time: while one lives, the next comes by succession, not by rising.
+      val role = roleFor(civ, year, rulerWanted = civ.ruler < 0)
+      val person = newPerson(role, civ, home, year)
+      val parent = parentFor(civ, person, year)
+      if (parent != null) {
+        person.parent = parent.index
+        person.dynasty = parent.dynasty
+      }
+      if (role == FigureRole.RULER) {
+        civ.ruler = person.index
+        if (person.dynasty < 0) foundHouse(person, civ, year)
+      }
 
+      val family = parent?.let { ", child of ${personName(it)}" } ?: ""
+      val house = person.dynasty.takeIf { it >= 0 }?.let { " of ${houseName(dynasties[it])}" } ?: ""
       log(
         year, EventKind.FIGURE_ROSE,
         listOf(Actor(ActorType.FIGURE, person.index), Actor(ActorType.CIV, civ.index)),
         towns[home].facts.position, emptyList(),
-        "${personName(person)} rises as ${article(role)} of the ${civName(civ)} at ${nameOf(towns[home])}"
+        "${personName(person)}$house$family rises as ${article(role)} of the ${civName(civ)} at ${nameOf(towns[home])}"
       )
     }
 
-    for (person in people) {
+    for (person in people.toList()) {
       if (person.death != 0) continue
       if (year - person.birth < params.figureLifespan) continue
       person.death = year
@@ -2608,11 +2684,260 @@ internal class HistorySim(
     }
   }
 
+  private fun newPerson(role: FigureRole, civ: Civ, home: Int, year: Int): Person {
+    val person = Person(
+      index = people.size,
+      nameSeed = Names.seedOf(worldSeed, FIGURE_NAME_SALT, people.size.toLong()),
+      role = role,
+      civ = civ.index,
+      home = home,
+      birth = year
+    )
+    // Their people's Order, which is null on a world where the Orders play no part. Not drawn separately:
+    // a person who dissents from the city they lead is a good story, and the mechanism for it is a schism
+    // logged against the civ - inventing a second, unlogged disagreement here would put a conviction on a
+    // figure that no event in the chronicle can account for.
+    person.sworn = civ.sworn
+    people.add(person)
+    return person
+  }
+
+  /**
+   * Now and then a figure is the child of an earlier one of the same people: someone who rose at least a
+   * generation ago and is alive or not long dead. Same home town first, so a craft or a command runs in a family.
+   */
+  private fun parentFor(civ: Civ, child: Person, year: Int): Person? {
+    if (roll(year.toLong(), child.index.toLong(), CHILD_SALT) >= params.childChance) return null
+
+    val candidates = people.filter {
+      it.civ == civ.index && it.index != child.index && it.birth <= year - params.generationYears &&
+          (it.death == 0 || year - it.death <= params.generationYears)
+    }.sortedBy { if (it.home == child.home) 0 else 1 }
+    if (candidates.isEmpty()) return null
+
+    val sameHome = candidates.filter { it.home == child.home }.ifEmpty { candidates }
+    return sameHome[(roll(year.toLong(), child.index.toLong(), PARENT_PICK_SALT) * sameHome.size).toInt()]
+  }
+
+  private fun foundHouse(founder: Person, civ: Civ, year: Int) {
+    val dynasty = Dynasty(
+      index = dynasties.size,
+      nameSeed = Names.seedOf(worldSeed, HOUSE_NAME_SALT, dynasties.size.toLong()),
+      founder = founder.index,
+      civ = civ.index,
+      seat = founder.home,
+      founded = year
+    )
+    dynasties.add(dynasty)
+    founder.dynasty = dynasty.index
+    civ.house = dynasty.index
+  }
+
+  /**
+   * A ruler has died: an heir of the same house takes the throne at once, or the house has no heir and the
+   * people quarrel over who rules. The quarrel ends with a new house on the throne and may split the civ or send
+   * the old house into exile.
+   */
+  private fun succeed(civ: Civ, dead: Person, year: Int, death: Int) {
+    civ.ruler = -1
+    if (!civ.exists) return
+    val seat = seatOf(civ) ?: return
+
+    if (roll(year.toLong(), civ.index.toLong(), HEIR_SALT) < params.heirChance) {
+      val heir = newPerson(FigureRole.RULER, civ, seat, year)
+      heir.parent = dead.index
+      heir.dynasty = dead.dynasty
+      civ.ruler = heir.index
+      log(
+        year, EventKind.SUCCESSION,
+        listOf(
+          Actor(ActorType.FIGURE, heir.index), Actor(ActorType.FIGURE, dead.index), Actor(ActorType.CIV, civ.index)
+        ),
+        towns[seat].facts.position, listOf(death),
+        "${personName(heir)} succeeds ${personName(dead)}, their parent, as ruler of the ${civName(civ)}"
+      )
+      return
+    }
+
+    val crisis = log(
+      year, EventKind.SUCCESSION_CRISIS,
+      listOf(Actor(ActorType.FIGURE, dead.index), Actor(ActorType.CIV, civ.index)),
+      towns[seat].facts.position, listOf(death),
+      "${personName(dead)} dies without an heir, and the ${civName(civ)} quarrel over the throne"
+    )
+    val oldHouse = dead.dynasty.takeIf { it >= 0 }?.let { dynasties[it] }
+    oldHouse?.ended = year
+
+    val usurper = newPerson(FigureRole.RULER, civ, seat, year)
+    civ.ruler = usurper.index
+    foundHouse(usurper, civ, year)
+    log(
+      year, EventKind.SUCCESSION,
+      listOf(
+        Actor(ActorType.FIGURE, usurper.index), Actor(ActorType.FIGURE, dead.index), Actor(ActorType.CIV, civ.index)
+      ),
+      towns[seat].facts.position, listOf(crisis),
+      "${personName(usurper)} takes the throne of the ${civName(civ)} and founds ${houseName(dynasties[civ.house])}"
+    )
+
+    val outcome = roll(year.toLong(), civ.index.toLong(), CRISIS_SALT)
+    when {
+      oldHouse != null && outcome < params.crisisExileChance -> exileHouse(oldHouse, civ, year, crisis)
+      outcome < params.crisisExileChance + params.crisisSplitChance -> splitOver(civ, year, crisis)
+    }
+  }
+
+  /** The house that lost leaves with its followers and founds a people at the remotest empty site. */
+  private fun exileHouse(house: Dynasty, from: Civ, year: Int, crisis: Int) {
+    val site = remotestEmptySite { true } ?: return
+    val town = towns[site]
+    val civ = addCiv(from.cultureIndex, town, year, CivOrigin.EXILED, from.index)
+    joinCiv(civ, town, year)
+    civ.technology = from.technology
+
+    val leader = newPerson(FigureRole.RULER, civ, site, year)
+    leader.dynasty = house.index
+    civ.ruler = leader.index
+    civ.house = house.index
+    house.ended = 0
+    house.exiledTo = civ.index
+    hostility.set(from.index, civ.index, params.secessionHostility)
+
+    civ.foundedEvent = log(
+      year, EventKind.DYNASTY_EXILED,
+      listOf(Actor(ActorType.CIV, civ.index), Actor(ActorType.CIV, from.index), Actor(ActorType.FIGURE, leader.index),
+        Actor(ActorType.SETTLEMENT, site)),
+      town.facts.position, listOf(crisis),
+      "${personName(leader)} leads ${houseName(house)} out of the ${civName(from)} and founds the " +
+          "${civName(civ)} at ${nameOf(town)}"
+    )
+    from.grudges.add(civ.index to civ.foundedEvent)
+    civ.grudges.add(from.index to civ.foundedEvent)
+  }
+
+  /** The quarrel splits the civ: its most aggrieved far town takes the towns nearer to it than to the capital. */
+  private fun splitOver(civ: Civ, year: Int, crisis: Int) {
+    val standing = civ.towns.filter { towns[it].standing }
+    if (standing.size < params.secessionMinTowns) return
+
+    val leader = standing.filter { it != civ.capital }.maxByOrNull { grievanceOf(civ, towns[it]) } ?: return
+    revolt(civ, towns[leader], year, causes = listOf(crisis), certain = true)
+  }
+
+  /** Two peoples at peace may bind their ruling houses by marriage, which cools what was building between them. */
+  private fun arrangeMarriages(year: Int) {
+    for (a in civs.indices) {
+      for (b in a + 1 until civs.size) {
+        val first = civs[a]
+        val second = civs[b]
+        if (!first.exists || !second.exists || first.ruler < 0 || second.ruler < 0) continue
+        if (hostility.between(a, b) <= 0.0 || wars.any { it.involves(a, b) }) continue
+
+        val bride = people[first.ruler]
+        val groom = people[second.ruler]
+        if (bride.spouse >= 0 || groom.spouse >= 0) continue
+        if (roll(year.toLong(), a.toLong(), b.toLong(), MARRIAGE_SALT) >= params.marriageChance) continue
+
+        val wedding = log(
+          year, EventKind.MARRIAGE_ALLIANCE,
+          listOf(Actor(ActorType.FIGURE, bride.index), Actor(ActorType.FIGURE, groom.index),
+            Actor(ActorType.CIV, a), Actor(ActorType.CIV, b)),
+          null, emptyList(),
+          "${personName(bride)} of the ${civName(first)} weds ${personName(groom)} of the ${civName(second)}"
+        )
+        bride.spouse = groom.index
+        groom.spouse = bride.index
+        relations.add(RelationRecord(RelationKind.SPOUSE, bride.index, groom.index, wedding))
+        hostility.set(a, b, hostility.between(a, b) * MARRIAGE_HOSTILITY_FACTOR)
+      }
+    }
+  }
+
+  /** The generals who faced each other may carry it on as a feud. */
+  private fun maybeFeud(winner: Int, loser: Int, year: Int, battle: Int, near: Int) {
+    val ours = people.firstOrNull { it.death == 0 && it.civ == winner && it.role == FigureRole.GENERAL } ?: return
+    val theirs = people.firstOrNull { it.death == 0 && it.civ == loser && it.role == FigureRole.GENERAL } ?: return
+    val pair = setOf(ours.index, theirs.index)
+    if (relations.any { it.kind == RelationKind.RIVAL && setOf(it.from, it.to) == pair }) return
+    if (roll(year.toLong(), ours.index.toLong(), theirs.index.toLong(), FEUD_SALT) >= params.feudChance) return
+
+    val feud = log(
+      year, EventKind.FEUD_BEGAN,
+      listOf(Actor(ActorType.FIGURE, ours.index), Actor(ActorType.FIGURE, theirs.index),
+        Actor(ActorType.CIV, winner), Actor(ActorType.CIV, loser)),
+      towns[near].facts.position, listOf(battle),
+      "${personName(ours)} and ${personName(theirs)} become sworn enemies after the battle near ${nameOf(towns[near])}"
+    )
+    relations.add(RelationRecord(RelationKind.RIVAL, ours.index, theirs.index, feud))
+  }
+
+  /** A battle won against the people an avenger swore against settles the oath. */
+  private fun takeVengeance(winner: Int, loser: Int, year: Int, battle: Int, near: Int) {
+    val settled = oaths.filter {
+      people[it.avenger].death == 0 && people[it.avenger].civ == winner && it.against == loser
+    }
+    for (oath in settled) {
+      log(
+        year, EventKind.VENGEANCE_FULFILLED,
+        listOf(Actor(ActorType.FIGURE, oath.avenger), Actor(ActorType.FIGURE, oath.slain), Actor(ActorType.CIV, loser)),
+        towns[near].facts.position, listOf(oath.event, battle),
+        "${personName(people[oath.avenger])} avenges ${personName(people[oath.slain])} on the ${civName(civs[loser])}"
+      )
+    }
+    oaths.removeAll(settled)
+  }
+
+  /** Kin of a figure slain in battle may swear to avenge them on the people who won it. */
+  private fun swearVengeance(slain: Person, winner: Int, year: Int, death: Int) {
+    val avenger = people.firstOrNull { it.death == 0 && it.parent == slain.index }
+      ?: people.getOrNull(slain.spouse)?.takeIf { it.death == 0 }
+      ?: people.getOrNull(slain.parent)?.takeIf { it.death == 0 }
+      ?: return
+    if (roll(year.toLong(), slain.index.toLong(), VENGEANCE_SALT) >= params.vengeanceChance) return
+
+    val oath = log(
+      year, EventKind.VENGEANCE_SWORN,
+      listOf(
+        Actor(ActorType.FIGURE, avenger.index), Actor(ActorType.FIGURE, slain.index), Actor(ActorType.CIV, winner)
+      ),
+      towns[avenger.home].facts.position, listOf(death),
+      "${personName(avenger)} swears to avenge ${personName(slain)} on the ${civName(civs[winner])}"
+    )
+    relations.add(RelationRecord(RelationKind.AVENGER, avenger.index, slain.index, oath))
+    oaths.add(Oath(avenger.index, slain.index, winner, oath))
+  }
+
+  /**
+   * A general of the besieged people opens the town's gates to the enemy instead of letting it burn. The town
+   * changes hands unsacked, and the war is over. Returns whether it happened.
+   */
+  private fun betray(war: War, winner: Int, loser: Int, town: Town, year: Int, cause: Int): Boolean {
+    val target = town.facts.index
+    val traitor = people.firstOrNull {
+      it.death == 0 && it.civ == loser && it.role == FigureRole.GENERAL
+    } ?: return false
+    if (roll(year.toLong(), target.toLong(), BETRAYAL_SALT) >= params.betrayalChance) return false
+
+    transferTown(town, civs[loser], civs[winner])
+    relocateCapital(civs[loser])
+    val betrayal = log(
+      year, EventKind.BETRAYAL,
+      listOf(Actor(ActorType.FIGURE, traitor.index), Actor(ActorType.SETTLEMENT, target),
+        Actor(ActorType.CIV, winner), Actor(ActorType.CIV, loser)),
+      town.facts.position, listOf(cause),
+      "${personName(traitor)} opens the gates of ${nameOf(town)} to the ${civName(civs[winner])}"
+    )
+    val betrayed = civs[loser].ruler
+    if (betrayed >= 0) relations.add(RelationRecord(RelationKind.BETRAYED, traitor.index, betrayed, betrayal))
+    war.decided = true
+    return true
+  }
+
   /** Roles are drawn against culture: a herding people produces generals, a mining people smiths. */
-  private fun roleFor(civ: Civ, year: Int): FigureRole {
+  private fun roleFor(civ: Civ, year: Int, rulerWanted: Boolean): FigureRole {
     val culture = civ.culture
     val weights = doubleArrayOf(
-      1.0,                            // RULER
+      if (rulerWanted) 1.0 else 0.0,  // RULER
       culture.militaryBias,           // GENERAL
       culture.clergyBias,             // PROPHET
       culture.craftBias,              // SMITH
@@ -2624,19 +2949,20 @@ internal class HistorySim(
       pick -= weights[i]
       if (pick <= 0.0) return FigureRole.entries[i]
     }
-    return FigureRole.RULER
+    return if (rulerWanted) FigureRole.RULER else FigureRole.GENERAL
   }
 
   /** A general of the losing side may fall in the battle rather than in bed. */
-  private fun killGeneralsOf(civ: Int, year: Int, cause: Int, where: Vec2d) {
-    for (person in people) {
+  private fun killGeneralsOf(civ: Int, winner: Int, year: Int, cause: Int, where: Vec2d) {
+    for (person in people.toList()) {
       if (person.death != 0 || person.civ != civ) continue
       if (person.role != FigureRole.GENERAL && person.role != FigureRole.RULER) continue
       if (roll(year.toLong(), person.index.toLong(), SLAIN_SALT) >= SLAIN_CHANCE) continue
 
       person.death = year
       person.slainAt = where
-      buryFigure(person, year, EventKind.FIGURE_SLAIN, "falls in battle", cause)
+      val death = buryFigure(person, year, EventKind.FIGURE_SLAIN, "falls in battle", cause)
+      swearVengeance(person, winner, year, death)
     }
   }
 
@@ -2647,7 +2973,7 @@ internal class HistorySim(
    * marker in the world, and the marker is what a chunk materialises - so "the sword was lost with him at
    * Ashford" is a place a player can dig.
    */
-  private fun buryFigure(person: Person, year: Int, kind: EventKind, how: String, cause: Int = -1) {
+  private fun buryFigure(person: Person, year: Int, kind: EventKind, how: String, cause: Int = -1): Int {
     val died = log(
       year, kind, listOf(Actor(ActorType.FIGURE, person.index), Actor(ActorType.CIV, person.civ)),
       person.slainAt ?: towns[person.home].facts.position,
@@ -2655,9 +2981,11 @@ internal class HistorySim(
       "${personName(person)} $how"
     )
 
+    if (civs[person.civ].ruler == person.index) succeed(civs[person.civ], person, year, died)
+
     val entombed = person.role == FigureRole.RULER || person.role == FigureRole.PROPHET ||
         relics.any { it.holder == person.index }
-    if (!entombed) return
+    if (!entombed) return died
 
     val relic = relics.firstOrNull { it.holder == person.index }
     val site = addSite(
@@ -2684,12 +3012,22 @@ internal class HistorySim(
         )
       )
     }
+    return died
+  }
+
+  /** Who a dead holder's artifact passes to: their child, their spouse, their house, then anyone of their people. */
+  private fun heirOf(holder: Person): Person? {
+    val living = people.filter { it.death == 0 }
+    return living.firstOrNull { it.parent == holder.index }
+      ?: people.getOrNull(holder.spouse)?.takeIf { it.death == 0 }
+      ?: living.firstOrNull { holder.dynasty >= 0 && it.dynasty == holder.dynasty }
+      ?: living.firstOrNull { it.civ == holder.civ }
   }
 
   private fun updateArtifacts(year: Int) {
     // Smiths forge; rulers commission. Either way it takes a figure, which is what ties an artifact to a
     // person and a place instead of leaving it a loot table entry.
-    for (person in people) {
+    for (person in people.toList()) {
       if (person.death != 0) continue
       if (person.role != FigureRole.SMITH && person.role != FigureRole.RULER) continue
       if (relics.any { it.holder == person.index }) continue
@@ -2729,7 +3067,7 @@ internal class HistorySim(
       val holder = people[relic.holder]
       if (holder.death == 0) continue
 
-      val heir = people.firstOrNull { it.death == 0 && it.civ == holder.civ }
+      val heir = heirOf(holder)
       if (heir != null && roll(year.toLong(), relic.index.toLong(), INHERIT_SALT) < INHERIT_CHANCE) {
         relic.holder = heir.index
         relic.provenance.add(
@@ -3099,7 +3437,7 @@ internal class HistorySim(
         FigureRecord(
           index = it.index, nameSeed = it.nameSeed, role = it.role, civ = it.civ,
           homeSettlement = it.home, birthYear = it.birth, deathYear = it.death,
-          restingSite = it.resting, sworn = it.sworn
+          restingSite = it.resting, parent = it.parent, dynasty = it.dynasty, spouse = it.spouse, sworn = it.sworn
         )
       },
       artifacts = relics.map {
@@ -3128,7 +3466,14 @@ internal class HistorySim(
           sites = town.sites.toList()
         )
       },
-      prunedEvents = prunedEvents
+      prunedEvents = prunedEvents,
+      dynasties = dynasties.map {
+        DynastyRecord(
+          index = it.index, nameSeed = it.nameSeed, founder = it.founder, civ = it.civ, seat = it.seat,
+          foundedYear = it.founded, endedYear = it.ended, exiledTo = it.exiledTo
+        )
+      },
+      relations = relations.toList()
     )
   }
 
@@ -3246,6 +3591,8 @@ internal class HistorySim(
 
   private fun civName(civ: Civ) = Names.civ(civ.nameSeed, civ.cultureIndex)
 
+  private fun houseName(house: Dynasty) = Names.house(house.nameSeed, civs[house.civ].cultureIndex)
+
   private fun personName(person: Person) =
     Names.person(person.nameSeed, civs[person.civ].cultureIndex, person.role)
 
@@ -3361,6 +3708,12 @@ internal class HistorySim(
     val parent: Int
   ) {
     var nameSeed = 0L
+
+    /** Figure index of the living ruler, or -1 between one ruler's death and the next one's rise. */
+    var ruler = -1
+
+    /** Index of the ruling house, or -1 before the first ruler. */
+    var house = -1
     var founded = 0
     var ended = 0
     var technology = 0.0
@@ -3408,7 +3761,25 @@ internal class HistorySim(
 
     /** The Order they held, usually their civ's. Null on an unaligned world or an unaligned people. */
     var sworn: Faction? = null
+
+    var parent = -1
+    var dynasty = -1
+    var spouse = -1
   }
+
+  private class Dynasty(
+    val index: Int,
+    val nameSeed: Long,
+    val founder: Int,
+    val civ: Int,
+    val seat: Int,
+    val founded: Int
+  ) {
+    var ended = 0
+    var exiledTo = -1
+  }
+
+  private class Oath(val avenger: Int, val slain: Int, val against: Int, val event: Int)
 
   private class Relic(
     val index: Int,
@@ -3727,6 +4098,7 @@ internal class HistorySim(
 
     /** Names a volcano. Separate from `PLACE_NAME_SALT` so a vent and a town of the same index differ. */
     const val VENT_NAME_SALT = 0x06L
+    const val HOUSE_NAME_SALT = 0x07L
 
     // The Orders. Six independent decisions about the same subject - a civilisation - so all six need their
     // own value, and read the `MONASTERY_SALT` story above before touching any of them. `ORDER_SHARE_SALT` is
@@ -3754,6 +4126,17 @@ internal class HistorySim(
     const val GROUND_ALONG_SALT = 0x3EL
     const val GROUND_ASIDE_SALT = 0x3FL
     const val OLD_GROUND_SALT = 0x40L
+    const val CHILD_SALT = 0x41L
+    const val PARENT_PICK_SALT = 0x42L
+    const val HEIR_SALT = 0x43L
+    const val CRISIS_SALT = 0x44L
+    const val MARRIAGE_SALT = 0x45L
+    const val FEUD_SALT = 0x46L
+    const val VENGEANCE_SALT = 0x47L
+    const val BETRAYAL_SALT = 0x48L
+
+    /** Hostility left between two peoples once their rulers wed, as a share of what there was. */
+    const val MARRIAGE_HOSTILITY_FACTOR = 0.5
 
     /** How much a culture no civ holds yet counts over distance, when choosing where the second people settles. */
     const val RIVAL_NEW_CULTURE_BONUS = 1.25
