@@ -392,4 +392,10 @@ interface SkillWorld {
 
   /** What the caster throws from its hand, see `SkillStrikes.throwHeldWeapon`. Null when there is nothing to throw. */
   fun throwHeldWeapon(): Ammunition?
+
+  /**
+   * Ends every Hide and Cloak within [radiusTiles] of the caster, like one pulse of Ruwach. Returns how many were
+   * found. One operation plus one per result.
+   */
+  fun revealHiddenNear(radiusTiles: Long): Int
 }

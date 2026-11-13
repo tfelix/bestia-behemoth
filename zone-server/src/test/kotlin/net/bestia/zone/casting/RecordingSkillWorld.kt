@@ -242,6 +242,15 @@ class RecordingSkillWorld(
     return throwable.removeFirstOrNull()
   }
 
+  /** The radius of each [revealHiddenNear], and how many it answers it found. */
+  val reveals = mutableListOf<Long>()
+  var hiddenFound: Int = 0
+
+  override fun revealHiddenNear(radiusTiles: Long): Int {
+    reveals += radiusTiles
+    return hiddenFound
+  }
+
   data class Inflicted(
     val targetEntityId: EntityId,
     val status: String,

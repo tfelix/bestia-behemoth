@@ -17,6 +17,7 @@ import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.battle.status.CombatValues
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.casting.RecordingSkillWorld
 import net.bestia.zone.casting.SkillContext
@@ -139,6 +140,17 @@ class HunterArcherSkillsTest {
     assertNull(strafe.checkCastStart(ecs, loaded, 1))
     assertEquals(OpError.ATTACK_OUT_OF_AMMO, strafe.checkCastStart(ecs, empty, 1))
     assertEquals(OpError.SKILL_NEEDS_BOW, strafe.checkCastStart(ecs, crossbow, 1))
+  }
+
+  @Test
+  fun `Improve Concentration sharpens the Hunter and ends the hiding within 3 m once`() {
+    ImproveConcentration().execute(ctx(level = 4))
+
+    assertEquals(listOf(3L), world.reveals)
+    assertEquals(
+      listOf(caster to 4),
+      world.appliedEffects.filter { it.effectId == StatusEffectId.IMPROVE_CONCENTRATION.id }.map { it.targetEntityId to it.level }
+    )
   }
 
   private fun archerWithArrow() {

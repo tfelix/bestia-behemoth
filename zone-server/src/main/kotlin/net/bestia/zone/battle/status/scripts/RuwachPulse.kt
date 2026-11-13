@@ -1,6 +1,6 @@
 package net.bestia.zone.battle.status.scripts
 
-import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.status.HiddenNearby
 import net.bestia.zone.battle.status.StackBehavior
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusEffectScript
@@ -25,13 +25,7 @@ class RuwachPulse : StatusEffectScript {
     val world = context.world
     val centre = world.get(context.hostId, Position::class)?.toVec3L() ?: return
 
-    val hidden = ArrayList<Long>()
-    world.query(StatusEffects::class, Position::class).each { id ->
-      if (id != context.hostId && get<StatusEffects>().isConcealed() && get<Position>().toVec3L().distance(centre) <= RADIUS_TILES) {
-        hidden += id
-      }
-    }
-    for (id in hidden) {
+    for (id in HiddenNearby.around(world, centre, RADIUS_TILES, except = context.hostId)) {
       StatusEffectId.CONCEALMENTS.forEach { context.strip(id, it) }
     }
   }

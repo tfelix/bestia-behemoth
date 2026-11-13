@@ -786,3 +786,11 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: HuntersMarked
+
+  # The Hunter's Improve Concentration: more AGI and DEX.
+  - id: 231
+    identifier: IMPROVE_CONCENTRATION
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: ImprovedConcentration
