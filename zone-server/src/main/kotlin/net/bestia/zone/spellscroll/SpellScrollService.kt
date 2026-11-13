@@ -162,7 +162,7 @@ class SpellScrollService(
   }
 
   /** The spell on the scroll [scrollId] in [casterId]'s bag, or null when the bag holds no such scroll. */
-  private fun heldSpell(world: World, casterId: EntityId, scrollId: Long): InscribedSpell? {
+  fun heldSpell(world: World, casterId: EntityId, scrollId: Long): InscribedSpell? {
     val held = world.get(casterId, Inventory::class)?.getItems()
       ?.any { it.uniqueId == scrollId && it.itemId == SpellScrollScript.ITEM_ID && !it.equipped } == true
 

@@ -36,4 +36,6 @@ enum SenseKind {
   SENSE_GAME = 3;
   SENSE_HOLLOW = 4;
   SENSE_MANA = 5;
+  // A Spell Binding of the receiver that just fired. The label names it and who set it off.
+  SENSE_BINDING_FIRED = 6;
 }

@@ -653,8 +653,8 @@ skills:
     manaCost: 14
     cooldown: 10
     description: |
-      A pulse of second sight that peels back concealment. For 10s, hidden traps, hiding
-      Bestia and cloaked Assassins within 10m of the caster stand out for what they are.
+      A pulse of second sight that peels back concealment. For 10s, hiding Bestia and
+      cloaked Assassins within 10m of the caster stand out for what they are.
       Detection resistance does not help against it. Cooldown 10s.
 
   - id: 54
@@ -883,8 +883,15 @@ skills:
     manaCost: 45
     castTime: 10.0
     description: |
-      Binds a spell to an object or place and ties it to a trigger, giving rise to enchanted
-      artifacts, standing alarms and hidden traps alike. The details are still to be designed.
+      Binds the attack on a spell scroll to a spot or an item and ties it to a trigger, giving
+      rise to enchanted artifacts, standing alarms and hidden traps alike. It fires once and
+      tells you who set it off. Only Magic Sense finds it. The scroll is spent.
+
+      `+1/lv` bindings at once, from 1 at Lv.1
+      `+20/lv` highest attack level, any at Lv.5
+      Lv.1 steps on it, Lv.2 comes near, Lv.3 after a delay
+      Lv.4 items: holder is struck, holder strikes
+      Lv.5 items: holder's HP gets low, a stranger picks it up
 
   - id: 71
     identifier: M_TELEPORT

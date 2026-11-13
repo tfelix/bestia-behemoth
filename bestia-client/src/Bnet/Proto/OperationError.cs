@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrTKwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqVLAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -139,19 +139,21 @@ namespace Bnet {
             "T1RfT1dOX0JFU1RJQRCdARIYChNTUEVMTF9MRVZFTF9UT09fTE9XEJ4BEhgK",
             "E1NQRUxMX0FMUkVBRFlfS05PV04QnwESGgoVU1BFTExfVFJBSU5JTkdfRkFJ",
             "TEVEEKABEh0KGFNQRUxMX0lOU0NSSVBUSU9OX0ZBSUxFRBChARIWChFTUEVM",
-            "TF9NSU5EX0JST0tFThCiARIXChJTUEVMTF9PVVRfT0ZfUkFOR0UQowESFgoR",
-            "U0tJTExfTkVFRFNfV0FURVIQpAESFgoRT1JERVJTX05BTUVfVEFLRU4Q4AES",
-            "HAoXT1JERVJTX1RPT19NQU5ZX1BSRVNFVFMQ4QESGwoWT1JERVJTX1RPT19N",
-            "QU5ZX1BMQUNFUxDiARIbChZTS0lMTF9ORUVEU19PV05fQkVTVElBEKUBEhcK",
-            "ElNLSUxMX05FRURTX0hJRElORxCmARIXChJTS0lMTF9ORUVEU19CRUhJTkQQ",
-            "pwESFgoRU1RSSVBfR0VBUl9DT0FURUQQqAESGwoWRVFVSVBfTkVFRFNfRFVB",
-            "TF9XSUVMRBCpARIZChRTS0lMTF9OT1RfT05fTUFTVEVSUxCqARIWChFTS0lM",
-            "TF9ORUVEU19TUEVBUhCrARIXChJTS0lMTF9ORUVEU19TSElFTEQQrAESHQoY",
-            "U0tJTExfTkVFRFNfUEFSVFlfTUVNQkVSEK0BEhYKEVNLSUxMX05FRURTX1NU",
-            "QUZGEK4BEhwKF1NLSUxMX05FRURTX1RSSVBMRV9CTE9XEK8BEhgKE1NLSUxM",
-            "X05FRURTX0JFUlNFUksQsAESGgoVU0tJTExfTkVFRFNfSEFMRl9NQU5BELEB",
-            "IgQILhAuKhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0",
-            "LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "TF9NSU5EX0JST0tFThCiARIXChJTUEVMTF9PVVRfT0ZfUkFOR0UQowESHQoY",
+            "U1BFTExfQklORElOR19UT09fU1RST05HEPwCEiEKHFNQRUxMX0JJTkRJTkdf",
+            "VFJJR0dFUl9MT0NLRUQQ/QISFgoRU0tJTExfTkVFRFNfV0FURVIQpAESFgoR",
+            "T1JERVJTX05BTUVfVEFLRU4Q4AESHAoXT1JERVJTX1RPT19NQU5ZX1BSRVNF",
+            "VFMQ4QESGwoWT1JERVJTX1RPT19NQU5ZX1BMQUNFUxDiARIbChZTS0lMTF9O",
+            "RUVEU19PV05fQkVTVElBEKUBEhcKElNLSUxMX05FRURTX0hJRElORxCmARIX",
+            "ChJTS0lMTF9ORUVEU19CRUhJTkQQpwESFgoRU1RSSVBfR0VBUl9DT0FURUQQ",
+            "qAESGwoWRVFVSVBfTkVFRFNfRFVBTF9XSUVMRBCpARIZChRTS0lMTF9OT1Rf",
+            "T05fTUFTVEVSUxCqARIWChFTS0lMTF9ORUVEU19TUEVBUhCrARIXChJTS0lM",
+            "TF9ORUVEU19TSElFTEQQrAESHQoYU0tJTExfTkVFRFNfUEFSVFlfTUVNQkVS",
+            "EK0BEhYKEVNLSUxMX05FRURTX1NUQUZGEK4BEhwKF1NLSUxMX05FRURTX1RS",
+            "SVBMRV9CTE9XEK8BEhgKE1NLSUxMX05FRURTX0JFUlNFUksQsAESGgoVU0tJ",
+            "TExfTkVFRFNfSEFMRl9NQU5BELEBIgQILhAuKhJTSE9QX1RSRUFTVVJZX0ZV",
+            "TExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclBy",
+            "b3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -881,6 +883,11 @@ namespace Bnet {
     /// A spell scroll aimed past its attack's reach; the scroll stays in the bag.
     /// </summary>
     [pbr::OriginalName("SPELL_OUT_OF_RANGE")] SpellOutOfRange = 163,
+    /// <summary>
+    /// Spell Binding: the scroll's attack is above what the skill level may bind, or the trigger is not learned yet.
+    /// </summary>
+    [pbr::OriginalName("SPELL_BINDING_TOO_STRONG")] SpellBindingTooStrong = 380,
+    [pbr::OriginalName("SPELL_BINDING_TRIGGER_LOCKED")] SpellBindingTriggerLocked = 381,
     /// <summary>
     /// A rite that blesses water, like Aqua Benedicta, needs its caster to stand in water.
     /// </summary>

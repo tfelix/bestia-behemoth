@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SpellBindingsSmsgProto";
+
+import "messages/vec3.proto";
+
+// The master's own Spell Bindings that wait for their trigger. Sent on request and whenever one is made, fires or
+// goes away.
+message SpellBindingsSMSG {
+  repeated SpellBinding bindings = 1;
+}
+
+message SpellBinding {
+  uint64 binding_id = 1;
+  uint64 skill_id = 2;
+  int32 level = 3;
+  // BindingTrigger and BindingFilter ids, as the cast's args carry them.
+  int32 trigger = 4;
+  int32 filter = 5;
+  // Where a ground binding lies. Unset for an item binding.
+  Vec3 position = 6;
+  // The bound item's unique id. Zero for a ground binding.
+  uint64 item_unique_id = 7;
+}

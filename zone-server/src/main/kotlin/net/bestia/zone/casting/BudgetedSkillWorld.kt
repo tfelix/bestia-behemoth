@@ -648,6 +648,14 @@ class BudgetedSkillWorld(
     return services.spellScrolls?.takeScroll(world, casterId, scrollId)
   }
 
+  override fun bindSpell(args: List<Long>, at: Vec3L): OpError? {
+    budget.charge(SPAWN_OPS)
+
+    val bindings = services.spellBindings ?: return OpError.REQUEST_REFUSED
+
+    return bindings.bind(world, casterId, skillLevel, args, at, castPotency)
+  }
+
   override fun bestiaAttack(bestiaId: EntityId, skillId: Long): InscribedSpell? {
     budget.charge()
 

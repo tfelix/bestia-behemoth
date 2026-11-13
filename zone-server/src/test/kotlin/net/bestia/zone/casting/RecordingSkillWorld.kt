@@ -432,6 +432,15 @@ class RecordingSkillWorld(
     inscribedSpells += spell
   }
 
+  /** Every [bindSpell] call: the args and where. */
+  val boundSpells = mutableListOf<Pair<List<Long>, Vec3L>>()
+
+  override fun bindSpell(args: List<Long>, at: Vec3L): OpError? {
+    boundSpells += args to at
+
+    return null
+  }
+
   override fun breakMind(bestiaId: EntityId) {
     brokenMinds += bestiaId
   }
