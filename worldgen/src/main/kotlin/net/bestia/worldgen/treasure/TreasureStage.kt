@@ -36,7 +36,8 @@ class TreasureStage(
 
   override val id = ID
 
-  override val version = 1
+  // 2: a monument holds a cache when an artifact is sealed in it.
+  override val version = 2
 
   override val paramsVersion get() = params.digest().value
 
@@ -84,6 +85,8 @@ class TreasureStage(
       FeatureKind.TOMB -> params.tombChance
       FeatureKind.RUIN, FeatureKind.ASH_RUIN -> params.ruinChance
       FeatureKind.BATTLEFIELD -> params.battlefieldChance
+      // Only the artifact a people sealed into it.
+      FeatureKind.MONUMENT -> 0.0
       else -> params.outpostChance
     }
   }
@@ -120,7 +123,8 @@ class TreasureStage(
       FeatureKind.ASH_RUIN,
       FeatureKind.BATTLEFIELD,
       FeatureKind.FORT,
-      FeatureKind.MONASTERY
+      FeatureKind.MONASTERY,
+      FeatureKind.MONUMENT
     )
 
     /** Share of a site's radius a cache may lie out from its centre. */

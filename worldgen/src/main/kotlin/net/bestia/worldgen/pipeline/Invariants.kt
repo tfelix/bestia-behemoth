@@ -304,6 +304,7 @@ object Invariants {
     checkEventsRespectSettlementLifetimes(generated, ::fail)
     checkNoEventCitesAPrunedCause(generated, ::fail)
     checkArtifactChainsAreOrdered(generated, ::fail)
+    checkArtifactsHaveOneKeeper(generated, ::fail)
     checkEveryRuinHasAnEvent(generated, ::fail)
     checkStructuralMarkersFitTheQueryMargin(generated, ::fail)
     checkBuildingsBelongToTheirSettlement(generated, ::fail)
@@ -1364,6 +1365,32 @@ object Invariants {
       }
       if (relic.forgedBy !in chronicle.figures.indices) {
         fail("artifact chains are ordered", "artifact ${relic.index} was forged by nobody")
+        return
+      }
+    }
+  }
+
+  /** Today an artifact is carried, kept in a standing town, or lies at a site: never two of these. */
+  private fun checkArtifactsHaveOneKeeper(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val chronicle = generated.world.chronicle
+
+    for (relic in chronicle.artifacts) {
+      val keepers = listOf(relic.holder >= 0, relic.keptAt >= 0, relic.restingSite >= 0).count { it }
+      if (keepers > 1) {
+        fail("artifacts have one keeper", "artifact ${relic.index} has $keepers keepers")
+        return
+      }
+      val town = chronicle.settlements.getOrNull(relic.keptAt)
+      if (relic.keptAt >= 0 && (town == null || town.isRuin || !town.wasFounded)) {
+        fail("artifacts have one keeper", "artifact ${relic.index} is kept in settlement ${relic.keptAt}, which is gone")
+        return
+      }
+      val holder = chronicle.figures.getOrNull(relic.holder)
+      if (relic.holder >= 0 && (holder == null || holder.deathYear != 0)) {
+        fail("artifacts have one keeper", "artifact ${relic.index} is held by figure ${relic.holder}, who is dead")
         return
       }
     }

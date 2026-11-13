@@ -376,9 +376,10 @@ class TownKnowledgeTest {
      * How far one trade's share of the news may sit above another's.
      *
      * Above one because interests are supposed to move it, and well under the order-of-magnitude a reach
-     * multiplier would produce. This is the number to look at if the model is ever retuned.
+     * multiplier would produce. A town whose disputed memories are nearly all one trade's interests gives that
+     * trade close to the interest weight, so that weight is the bound.
      */
-    const val MAX_TRADE_GAP = 2.5
+    const val MAX_TRADE_GAP = KnowledgeProfile.INTEREST
 
     /** Contested memories a town needs before "somebody knows all of them" means anything. */
     const val RICH_TOWN = 10

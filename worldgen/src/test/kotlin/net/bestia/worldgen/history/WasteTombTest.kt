@@ -1,6 +1,7 @@
 package net.bestia.worldgen.history
 
 import net.bestia.worldgen.bio.Biome
+import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.IntLayer
@@ -65,9 +66,15 @@ class WasteTombTest {
      */
     const val TOMB_OFFSET_ALLOWANCE = 320.0
 
-    /** Tombs with no home settlement: exactly what `loseTravellers` produces and `buryFigure` never does. */
+    /**
+     * Tombs with no home settlement, of figures lost crossing the waste. A seer lost at a Wound leaves a tomb with no
+     * settlement too, so the figure's own `TRAVELLER_LOST` tells the two apart.
+     */
     val loneTombs by lazy {
-      chronicle.sites.filter { it.kind == SiteKind.TOMB && it.settlement < 0 }
+      val travellers = chronicle.events.filter { it.kind == EventKind.TRAVELLER_LOST }
+        .flatMap { event -> event.actors.filter { it.type == ActorType.FIGURE }.map { it.index } }
+        .toSet()
+      chronicle.sites.filter { it.kind == SiteKind.TOMB && it.settlement < 0 && it.figure in travellers }
     }
   }
 
