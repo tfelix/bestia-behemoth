@@ -2,9 +2,11 @@ package net.bestia.worldgen.history
 
 import net.bestia.worldgen.civ.Culture
 import net.bestia.worldgen.civ.SettlementTier
+import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.core.CivOrigin
 import net.bestia.worldgen.core.EventKind
+import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.vector.Vec2d
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -127,6 +129,38 @@ class HistorySimTest {
   }
 
   @Test
+  fun `a long front spreads its battles over several fields`() {
+    val chronicle = simulate(longFront(), FRONT_PARAMS)
+
+    val fields = chronicle.sitesOfKind(SiteKind.BATTLEFIELD)
+    assertTrue(fields.size >= 2, "one front of five town pairs gave ${fields.size} battlefield")
+    val span = fields.maxOf { it.position.y } - fields.minOf { it.position.y }
+    assertTrue(span >= 20_000.0, "the fields lie within ${span.toInt()} m of each other along an 80 km front")
+  }
+
+  @Test
+  fun `a battle near an old field adds to it`() {
+    val chronicle = simulate(longFront(), FRONT_PARAMS)
+
+    val fields = chronicle.sitesOfKind(SiteKind.BATTLEFIELD)
+    for (a in fields) {
+      for (b in fields) {
+        if (a.index >= b.index) continue
+        val gap = a.position.distanceTo(b.position)
+        assertTrue(gap > FRONT_PARAMS.battleMergeRadius, "fields ${a.index} and ${b.index} are ${gap.toInt()} m apart")
+      }
+    }
+
+    val battles = chronicle.events.filter { it.kind == EventKind.BATTLE }
+    assertEquals(battles.size, fields.sumOf { it.battles }, "the fields do not count every battle")
+    assertTrue(fields.any { it.battles > 1 }, "no field was fought over twice in ${battles.size} battles")
+    for (battle in battles) {
+      val site = battle.actors.single { it.type == ActorType.SITE }
+      assertEquals(SiteKind.BATTLEFIELD, chronicle.sites[site.index].kind)
+    }
+  }
+
+  @Test
   fun `the same sites give the same history`() {
     val first = simulate(twoNeighbouringPeoples())
     val second = simulate(twoNeighbouringPeoples())
@@ -161,6 +195,17 @@ class HistorySimTest {
       site(40.0, 10.0, SettlementTier.VILLAGE, Culture.PASTORAL),
       site(40.0, -10.0, SettlementTier.VILLAGE, Culture.PASTORAL)
     )
+  }
+
+  /**
+   * Two peoples facing each other along an 80 km border, 25 km apart. Quick to war, but not before their villages
+   * stand: a war in the first decades is two lone cities, and one of them falls.
+   */
+  private fun longFront(): List<SiteFacts> {
+    fun tierAt(step: Int) = if (step == 2) SettlementTier.CITY else SettlementTier.VILLAGE
+    val west = (0..4).map { site(0.0, it * 20.0, tierAt(it), Culture.AGRARIAN) }
+    val east = (0..4).map { site(25.0, it * 20.0, tierAt(it), Culture.PASTORAL) }
+    return west + east
   }
 
   /** Two peoples far out of each other's reach, and one empty site farther still. */
@@ -210,5 +255,9 @@ class HistorySimTest {
       index, position, tier, cultureIndex, potential, habitability, fertility, volcanism, floodRisk, coastal,
       resourceValue, mana
     )
+  }
+
+  private companion object {
+    val FRONT_PARAMS = HistoryParams(warThreshold = 0.3, arrivalChance = 0.0, migrationChance = 0.0, revoltRate = 0.0)
   }
 }

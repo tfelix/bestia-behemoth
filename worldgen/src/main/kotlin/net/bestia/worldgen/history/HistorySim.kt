@@ -128,6 +128,18 @@ data class HistoryParams(
   /** Population above which a threatened settlement can afford walls. */
   val wallPopulation: Int = 900,
 
+  /** A pair of facing towns is on the front when it is at most this many times as far apart as the closest pair. */
+  val frontierSpread: Double = 1.5,
+
+  /** Metres within which a battle adds to an existing battlefield rather than making a new one. */
+  val battleMergeRadius: Double = 1_500.0,
+
+  /** Metres a battle may be fought to either side of the line between the two towns. */
+  val battleAside: Double = 1_500.0,
+
+  /** Chance a battle returns to an old field on the way between the two towns instead of opening a new one. */
+  val oldGroundChance: Double = 0.5,
+
   // --- New peoples ----------------------------------------------------------------------------------
   //
   // Every path below is optional: a world may see any of them, several times, or none. The chances are per
@@ -420,6 +432,10 @@ data class HistoryParams(
       "minWarYears $minWarYears must be in [0, maxWarYears $maxWarYears]"
     }
     require(wallPopulation >= 0) { "wallPopulation must not be negative, was $wallPopulation" }
+    require(frontierSpread >= 1.0) { "frontierSpread must be at least 1, was $frontierSpread" }
+    require(battleMergeRadius >= 0.0) { "battleMergeRadius must not be negative, was $battleMergeRadius" }
+    require(battleAside >= 0.0) { "battleAside must not be negative, was $battleAside" }
+    require(oldGroundChance in 0.0..1.0) { "oldGroundChance must be in [0,1], was $oldGroundChance" }
     require(referenceSites > 0.0) { "referenceSites must be positive, was $referenceSites" }
     require(arrivalChance >= 0.0) { "arrivalChance must not be negative, was $arrivalChance" }
     require(arrivalFrom in 0..arrivalTo) { "arrivalFrom $arrivalFrom must be in [0, arrivalTo $arrivalTo]" }
@@ -529,6 +545,10 @@ data class HistoryParams(
     minWarYears = source.int("minWarYears", minWarYears),
     maxWarYears = source.int("maxWarYears", maxWarYears),
     wallPopulation = source.int("wallPopulation", wallPopulation),
+    frontierSpread = source.double("frontierSpread", frontierSpread),
+    battleMergeRadius = source.double("battleMergeRadius", battleMergeRadius),
+    battleAside = source.double("battleAside", battleAside),
+    oldGroundChance = source.double("oldGroundChance", oldGroundChance),
     referenceSites = source.double("referenceSites", referenceSites),
     arrivalChance = source.double("arrivalChance", arrivalChance),
     arrivalFrom = source.int("arrivalFrom", arrivalFrom),
@@ -606,6 +626,10 @@ data class HistoryParams(
     .put("minWarYears", minWarYears)
     .put("maxWarYears", maxWarYears)
     .put("wallPopulation", wallPopulation)
+    .put("frontierSpread", frontierSpread)
+    .put("battleMergeRadius", battleMergeRadius)
+    .put("battleAside", battleAside)
+    .put("oldGroundChance", oldGroundChance)
     .put("referenceSites", referenceSites)
     .put("arrivalChance", arrivalChance)
     .put("arrivalFrom", arrivalFrom)
@@ -1331,25 +1355,12 @@ internal class HistorySim(
    * than scattered evenly, without anything having to model a border.
    */
   private fun fightBattle(war: War, year: Int) {
-    var attacker = -1
-    var defender = -1
-    var best = Double.MAX_VALUE
-
-    for (i in civs[war.a].towns) {
-      if (!towns[i].standing) continue
-      for (j in civs[war.b].towns) {
-        if (!towns[j].standing) continue
-        if (distance[i][j] < best) {
-          best = distance[i][j]
-          attacker = i
-          defender = j
-        }
-      }
-    }
-    if (attacker < 0 || defender < 0) {
+    val front = frontierOf(civs[war.a], civs[war.b])
+    if (front.isEmpty()) {
       war.decided = true
       return
     }
+    val (attacker, defender) = pickFront(front, war, year)
 
     val strengthA = strengthOf(civs[war.a])
     val strengthB = strengthOf(civs[war.b])
@@ -1359,28 +1370,106 @@ internal class HistorySim(
     val winner = if (aWins) war.a else war.b
     val loser = if (aWins) war.b else war.a
     val target = if (aWins) defender else attacker
-    val midpoint = towns[attacker].facts.position.lerp(towns[defender].facts.position, 0.5)
+    val from = towns[attacker].facts.position
+    val to = towns[defender].facts.position
+    val ground = battleGround(from, to, war, year)
 
     val casualties = ((strengthA + strengthB) * BATTLE_CASUALTY_SHARE).toInt().coerceAtLeast(20)
+    val field = fieldAt(ground, from, to, war, year, target, winner)
+    field.battles++
+    field.fallen += casualties
+    if (field.index !in towns[target].sites) towns[target].sites.add(field.index)
+
     val battle = log(
       year, EventKind.BATTLE,
-      listOf(Actor(ActorType.CIV, winner), Actor(ActorType.CIV, loser)),
-      midpoint, listOf(war.cause),
+      listOf(Actor(ActorType.CIV, winner), Actor(ActorType.CIV, loser), Actor(ActorType.SITE, field.index)),
+      field.position, listOf(war.cause),
       "the ${civName(civs[winner])} defeat the ${civName(civs[loser])} near ${nameOf(towns[target])}, " +
           "$casualties dead"
     )
 
-    val siteIndex = addSite(
-      SiteKind.BATTLEFIELD, midpoint, year, target, winner,
-      radius = BATTLEFIELD_RADIUS, artifact = -1, figure = -1
-    )
-    towns[target].sites.add(siteIndex)
-
     // Losing a battle costs the loser's frontier settlement people whether or not it is then taken.
     towns[target].population = max(10.0, towns[target].population * (1.0 - BATTLE_POPULATION_LOSS))
 
-    killGeneralsOf(loser, year, battle, midpoint)
+    killGeneralsOf(loser, year, battle, field.position)
     besiege(war, winner, loser, target, year, battle)
+  }
+
+  /**
+   * The pairs of standing towns facing each other across the border, as (town of [a], town of [b]): each town
+   * paired with its nearest enemy town, kept when that pair is no more than [HistoryParams.frontierSpread]
+   * times the closest pair. As towns change hands the pairs change, which is what moves the front.
+   */
+  private fun frontierOf(a: Civ, b: Civ): List<Pair<Int, Int>> {
+    val ofA = a.towns.filter { towns[it].standing }
+    val ofB = b.towns.filter { towns[it].standing }
+    if (ofA.isEmpty() || ofB.isEmpty()) return emptyList()
+
+    val pairs = LinkedHashSet<Pair<Int, Int>>()
+    for (i in ofA) pairs.add(i to ofB.minBy { distance[i][it] })
+    for (j in ofB) pairs.add(ofA.minBy { distance[it][j] } to j)
+
+    val closest = pairs.minOf { (i, j) -> distance[i][j] }
+    return pairs.filter { (i, j) -> distance[i][j] <= closest * params.frontierSpread }
+  }
+
+  /** One pair of the front, the closer pairs more often. */
+  private fun pickFront(front: List<Pair<Int, Int>>, war: War, year: Int): Pair<Int, Int> {
+    val weights = front.map { (i, j) -> 1.0 / max(1.0, distance[i][j]) }
+    var left = roll(year.toLong(), war.a.toLong(), war.b.toLong(), FRONT_SALT) * weights.sum()
+    for ((index, weight) in weights.withIndex()) {
+      left -= weight
+      if (left <= 0.0) return front[index]
+    }
+    return front.last()
+  }
+
+  private fun distanceToSegment(point: Vec2d, from: Vec2d, to: Vec2d): Double {
+    val dx = to.x - from.x
+    val dy = to.y - from.y
+    val lengthSquared = dx * dx + dy * dy
+    if (lengthSquared == 0.0) return point.distanceTo(from)
+
+    val t = (((point.x - from.x) * dx + (point.y - from.y) * dy) / lengthSquared).coerceIn(0.0, 1.0)
+    return point.distanceTo(Vec2d(from.x + dx * t, from.y + dy * t))
+  }
+
+  /** Somewhere between the two towns, not always the midpoint: armies meet where they meet. */
+  private fun battleGround(from: Vec2d, to: Vec2d, war: War, year: Int): Vec2d {
+    val along = 0.5 + (roll(year.toLong(), war.a.toLong(), war.b.toLong(), GROUND_ALONG_SALT) - 0.5) * 0.4
+    val point = from.lerp(to, along)
+
+    val dx = to.x - from.x
+    val dy = to.y - from.y
+    val length = max(1.0, Math.sqrt(dx * dx + dy * dy))
+    val aside = (roll(year.toLong(), war.a.toLong(), war.b.toLong(), GROUND_ASIDE_SALT) - 0.5) * 2.0 *
+        params.battleAside
+    return Vec2d(point.x - dy / length * aside, point.y + dx / length * aside)
+  }
+
+  /**
+   * Where the battle is fought: the battlefield within [HistoryParams.battleMergeRadius] of [ground]; else, now
+   * and then, an old field on the way between the two towns, since armies come back to ground they know; else a
+   * new field at [ground].
+   */
+  private fun fieldAt(ground: Vec2d, from: Vec2d, to: Vec2d, war: War, year: Int, target: Int, winner: Int): Site {
+    val fields = sites.filter { it.kind == SiteKind.BATTLEFIELD }
+
+    val near = fields.filter { it.position.distanceTo(ground) <= params.battleMergeRadius }
+      .minByOrNull { it.position.distanceTo(ground) }
+    if (near != null) return near
+
+    val reach = params.battleAside + params.battleMergeRadius
+    val onTheWay = fields.filter { distanceToSegment(it.position, from, to) <= reach }
+      .minByOrNull { it.position.distanceTo(ground) }
+    val returns = roll(year.toLong(), war.a.toLong(), war.b.toLong(), OLD_GROUND_SALT) < params.oldGroundChance
+    if (onTheWay != null && returns) return onTheWay
+
+    val index = addSite(
+      SiteKind.BATTLEFIELD, ground, year, target, winner,
+      radius = BATTLEFIELD_RADIUS, artifact = -1, figure = -1
+    )
+    return sites[index]
   }
 
   private fun strengthOf(civ: Civ): Double {
@@ -3025,7 +3114,8 @@ internal class HistorySim(
           index = it.index, kind = it.kind, position = it.position, year = it.year,
           settlement = it.settlement, civ = it.civ, radius = it.radius,
           decay = decayOf(it), nameSeed = it.nameSeed, artifact = it.artifact, figure = it.figure,
-          resource = it.resource, elevation = it.elevation, faction = it.faction
+          resource = it.resource, elevation = it.elevation, faction = it.faction,
+          battles = it.battles, fallen = it.fallen
         )
       },
       settlements = towns.map { town ->
@@ -3351,7 +3441,11 @@ internal class HistorySim(
     val elevation: Double = Double.NaN,
     /** The Order that raised it, for a shrine. Null for every other kind. */
     val faction: Faction? = null
-  )
+  ) {
+    /** Battles fought here; more than one when a later battle came within the merge radius. Battlefields only. */
+    var battles = 0
+    var fallen = 0
+  }
 
   private class War(val a: Int, val b: Int, val startedYear: Int, val cause: Int) {
     /** Set when a razing or a conquest settles the matter, which ends the war early. */
@@ -3656,6 +3750,10 @@ internal class HistorySim(
     const val REVOLT_SALT = 0x3AL
     const val REVOLT_OUTCOME_SALT = 0x3BL
     const val REFUGEE_SALT = 0x3CL
+    const val FRONT_SALT = 0x3DL
+    const val GROUND_ALONG_SALT = 0x3EL
+    const val GROUND_ASIDE_SALT = 0x3FL
+    const val OLD_GROUND_SALT = 0x40L
 
     /** How much a culture no civ holds yet counts over distance, when choosing where the second people settles. */
     const val RIVAL_NEW_CULTURE_BONUS = 1.25
