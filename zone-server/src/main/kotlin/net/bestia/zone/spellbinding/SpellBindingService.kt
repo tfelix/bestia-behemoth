@@ -8,6 +8,8 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.item.ecs.Equipment
+import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.spellscroll.SpellScrollService
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
@@ -49,8 +51,15 @@ class SpellBindingService(
       boundAt = now,
       firesAt = if (choice.trigger == BindingTrigger.AFTER_DELAY) now.plusSeconds(choice.delaySeconds) else null,
     )
-    book.add(SpellBindingBook.Entry(bound, glyphId = glyphs.spawn(world, bound, at), position = at))
-    store.save(bound, at, itemInstanceId = null)
+    val itemId = choice.itemUniqueId
+    if (itemId != null) {
+      book.byItem(itemId)?.let { forget(world, it) }
+      book.add(SpellBindingBook.Entry(bound, itemUniqueId = itemId))
+      store.save(bound, position = null, itemInstanceId = itemId)
+    } else {
+      book.add(SpellBindingBook.Entry(bound, glyphId = glyphs.spawn(world, bound, at), position = at))
+      store.save(bound, at, itemInstanceId = null)
+    }
     replaceOldestBeyond(world, owner.masterId, SpellBindingRules.maxBindings(skillLevel))
     notices.sendList(owner)
 
@@ -80,16 +89,24 @@ class SpellBindingService(
   }
 
   private fun refusal(world: World, casterId: EntityId, skillLevel: Int, choice: SpellBindingChoice.Bind): OpError? {
-    // Item bindings come with their own triggers in a later step.
-    if (choice.trigger.onItem) {
-      return OpError.SKILL_INVALID_CHOICE
-    }
     if (!choice.trigger.isLearnedAt(skillLevel)) {
       return OpError.SPELL_BINDING_TRIGGER_LOCKED
+    }
+    val itemId = choice.itemUniqueId
+    if (itemId != null && !holdsItemWithIdentity(world, casterId, itemId, choice.scrollId)) {
+      return OpError.SKILL_INVALID_CHOICE
     }
     val spell = scrolls.heldSpell(world, casterId, choice.scrollId) ?: return OpError.SKILL_INVALID_CHOICE
 
     return if (spell.attackLevel > SpellBindingRules.maxAttackLevel(skillLevel)) OpError.SPELL_BINDING_TOO_STRONG else null
+  }
+
+  /** Only an item with an identity of its own carries a binding: one in the bag, or one worn. Not the scroll itself. */
+  private fun holdsItemWithIdentity(world: World, casterId: EntityId, itemId: Long, scrollId: Long): Boolean {
+    val inBag = world.get(casterId, Inventory::class)?.getItems().orEmpty().any { it.uniqueId == itemId && !it.stackable }
+    val worn = world.get(casterId, Equipment::class)?.isWorn(itemId) == true
+
+    return itemId != scrollId && (inBag || worn)
   }
 
   private fun replaceOldestBeyond(world: World, masterId: Long, limit: Int) {

@@ -41,6 +41,7 @@ class ReceivedDamageSystem(
   private val reactions: DamageReactions = DamageReactions.NONE,
   private val random: Random = Random.Default,
   private val otherWork: List<InterruptibleWork> = emptyList(),
+  private val landedHits: List<LandedHits> = emptyList(),
 ) : System {
   override val phase = Phase.COMBAT
   override val after = setOf(AttackSystem::class)
@@ -84,8 +85,15 @@ class ReceivedDamageSystem(
 
       val total = hits.sumOf { it.amount }
       metrics.hits(hits.size, total.toLong())
+      val healthBefore = health.current
       health.current -= landedShareOf(world, id, health.current, total)
       hits.forEach { reactions.onDamageDealt(world, it.sourceEntityId, it.amount) }
+      if (total > 0) {
+        hits.forEach { hit ->
+          val landed = LandedHits.LandedHit(id, hit.sourceEntityId, healthBefore, health.current, health.max)
+          landedHits.forEach { it.landed(landed) }
+        }
+      }
 
       // Taking damage aborts a pending logout and interrupts a running cast or craft. Removing the
       // component is what notifies the client (via the generic component-removed message); done inline

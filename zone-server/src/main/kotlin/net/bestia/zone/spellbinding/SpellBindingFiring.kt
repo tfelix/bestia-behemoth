@@ -67,6 +67,11 @@ class SpellBindingFiring(
     )
   }
 
+  /** A helpful attack, like a heal, goes at the holder of an item whose HP gets low. */
+  fun isHelpful(bound: BoundSpell): Boolean {
+    return skillExecution.skillOf(bound.spell.skillId)?.targetType == SkillTargetType.FRIENDLY
+  }
+
   fun hasLingeringCasters(): Boolean {
     return lingering.isNotEmpty()
   }

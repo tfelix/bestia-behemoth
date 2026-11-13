@@ -43,6 +43,13 @@ class BindingTargets(private val world: World, private val owner: SpellBindingOw
     }
   }
 
+  /** Neither the binder nor the binder's party, nor what any of them own. */
+  fun isStranger(candidate: EntityId): Boolean {
+    val candidateOwner = PlayerOwnership.ownerAccountOf(world, candidate)
+
+    return candidateOwner == null || candidateOwner !in allies
+  }
+
   private fun isCreature(id: EntityId): Boolean {
     return world.isAlive(id) && world.has(id, Health::class) && world.has(id, Position::class) &&
         !world.has(id, Dead::class) && !world.has(id, BoundSpellCaster::class)

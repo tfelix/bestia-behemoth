@@ -6,6 +6,14 @@ import net.bestia.zone.account.BodyType
 import net.bestia.zone.account.Face
 import net.bestia.zone.account.Hairstyle
 import net.bestia.zone.ai.ecs.AiAgent
+import net.bestia.zone.battle.ecs.damage.IncomingDamage
+import net.bestia.zone.ecs.core.update
+import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.ecs.Equipment
+import net.bestia.zone.item.equip.EquipmentSlot
+import net.bestia.zone.item.loot.LootItemEntitySpawner
+import net.bestia.zone.item.net.EquipItemCMSG
+import net.bestia.zone.spellbinding.StrangerPickup
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
@@ -101,6 +109,15 @@ class SpellBindingScenarios : BestiaNoSocketScenario(autoClientConnect = false) 
   @Autowired
   private lateinit var transactionManager: PlatformTransactionManager
 
+  @Autowired
+  private lateinit var inventoryService: InventoryService
+
+  @Autowired
+  private lateinit var lootItems: LootItemEntitySpawner
+
+  @Autowired
+  private lateinit var strangerPickup: StrangerPickup
+
   private lateinit var client: GameClientMock
 
   private var masterId = 0L
@@ -128,6 +145,9 @@ class SpellBindingScenarios : BestiaNoSocketScenario(autoClientConnect = false) 
         slot = 0,
       )
     ).id
+
+    // Before connecting: the live bag is read from the database when the master enters the world.
+    inventoryService.addItem(masterId, "stone_knife", 1)
 
     client = gameClientFactory.getGameClient(accountId = account.id)
     client.connect(masterId)
@@ -239,14 +259,101 @@ class SpellBindingScenarios : BestiaNoSocketScenario(autoClientConnect = false) 
     assertTrue(book.of(masterId).none { it.bound.id == oldest.bound.id })
   }
 
+  @Test
+  @Order(5)
+  fun `a binding on a worn knife strikes back at whoever hits its holder`() {
+    removeFoes()
+    learnBinding(level = 5)
+    val pile = world.read { get(sage(), Inventory::class)!!.getItems().first { it.itemId == STONE_KNIFE } }
+    client.sendMessage(EquipItemCMSG(accountId, pile.playerItemId, EquipmentSlot.RIGHT_HAND))
+    await { assertNotNull(world.read { get(sage(), Equipment::class)?.get(EquipmentSlot.RIGHT_HAND) }) }
+    bindDirectly(itemBinding(BindingTrigger.HOLDER_STRUCK, knife().uniqueId), level = 5)
+    val blob = spawnBlobAt(sageAt() + Vec3L(1, 0, 0))
+    client.clearMessages()
+
+    strike(source = blob, target = sage())
+
+    awaitFiredOn(blob)
+  }
+
+  @Test
+  @Order(6)
+  fun `a binding on a worn knife follows the holder's own blow`() {
+    val blob = foes.single()
+    bindDirectly(itemBinding(BindingTrigger.HOLDER_STRIKES, knife().uniqueId), level = 5)
+    restoreHealth(blob)
+    client.clearMessages()
+
+    strike(source = sage(), target = blob)
+
+    awaitFiredOn(blob)
+  }
+
+  @Test
+  @Order(7)
+  fun `a binding on a worn knife fires once its holder falls below 30 percent`() {
+    val blob = foes.single()
+    bindDirectly(itemBinding(BindingTrigger.HOLDER_LOW_HP, knife().uniqueId), level = 5)
+    restoreHealth(blob)
+    val before = world.modify(sage()) { id -> get(id, Health::class)!!.apply { current = max * 40 / 100 }.max }!!
+    client.clearMessages()
+
+    strike(source = blob, target = sage(), amount = before * 20 / 100)
+
+    awaitFiredOn(blob)
+    world.modify(sage()) { id -> get(id, Health::class)!!.apply { current = max } }
+  }
+
+  @Test
+  @Order(8)
+  fun `a stranger who picks the item up sets its binding off, the binder's own side does not`() {
+    val blob = foes.single()
+    val knife = knife()
+    bindDirectly(itemBinding(BindingTrigger.STRANGER_PICKS_UP, knife.uniqueId), level = 5)
+    restoreHealth(blob)
+    val stack = world.read { lootItems.spawnLootItem(this, knife.itemId, 1, sageAt(), uniqueId = knife.uniqueId) }
+    client.clearMessages()
+
+    world.modify(sage()) { id -> strangerPickup.onPickUp(this, id, stack) }
+    world.modify(blob) { id -> strangerPickup.onPickUp(this, id, stack) }
+
+    awaitFiredOn(blob)
+    world.modify(stack) { id -> destroy(id) }
+  }
+
+  private fun itemBinding(trigger: BindingTrigger, itemId: Long): List<Long> {
+    return listOf(SpellBindingChoice.BIND, inscribe(tackleId), trigger.id, BindingFilter.FOES.id, itemId)
+  }
+
+  /** The worn knife: a stackable knife is worn as a copy split off its pile, which has an identity of its own. */
+  private fun knife(): Equipment.EquippedItem {
+    return assertNotNull(world.read { get(sage(), Equipment::class)?.get(EquipmentSlot.RIGHT_HAND) })
+  }
+
+  private fun strike(source: EntityId, target: EntityId, amount: Int = 1) {
+    world.modify(target) { id -> update(id, { IncomingDamage() }) { it.add(amount, source) } }
+  }
+
+  private fun restoreHealth(blob: EntityId) {
+    world.modify(blob) { id -> get(id, Health::class)!!.apply { current = max } }
+  }
+
+  private fun awaitFiredOn(blob: EntityId) {
+    await {
+      assertTrue(client.receivedAny(SenseMarksSMSG::class) { msg -> msg.marks.any { it.kind == SenseKind.BINDING_FIRED } })
+    }
+    await { assertTrue(world.read { get(blob, Health::class)!!.let { it.current < it.max } }) }
+    assertTrue(book.of(masterId).none { it.itemUniqueId != null })
+  }
+
   private fun cast(args: List<Long>, level: Int = 3, at: Vec3L = sageAt()) {
     world.modify(sage()) { id -> get(id, Mana::class)!!.apply { current = max } }
     client.sendMessage(ActivateSkillCMSG(accountId, bindingSkillId, level, at, 0, args))
   }
 
   /** Past the cast bar, which the first trap test already sat through. */
-  private fun bindDirectly(args: List<Long>) {
-    val refusal = world.modify(sage()) { id -> bindings.bind(this, id, 3, args, sageAt(this, id), potency = 50) }
+  private fun bindDirectly(args: List<Long>, level: Int = 3) {
+    val refusal = world.modify(sage()) { id -> bindings.bind(this, id, level, args, sageAt(this, id), potency = 50) }
     assertEquals(null, refusal)
   }
 
@@ -322,6 +429,7 @@ class SpellBindingScenarios : BestiaNoSocketScenario(autoClientConnect = false) 
   private companion object {
     const val LOGIN_ACCOUNT_ID = 45L
     const val BLOB = 1L
+    const val STONE_KNIFE = 103L
     const val SAGE_LEVEL = 60
     const val MANA_NEEDED = 45
     const val BLOB_HEALTH = 100_000

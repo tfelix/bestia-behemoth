@@ -10,7 +10,5 @@ interface SpellBindingRepository : JpaRepository<SpellBindingRow, Long> {
   @Query("select coalesce(max(b.id), 0) from SpellBindingRow b")
   fun maxId(): Long
 
-  fun findAllByItemInstanceIdIsNull(): List<SpellBindingRow>
-
   fun findByItemInstanceId(itemInstanceId: Long): SpellBindingRow?
 }
