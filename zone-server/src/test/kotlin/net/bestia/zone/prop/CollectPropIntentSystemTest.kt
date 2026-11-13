@@ -1,5 +1,7 @@
 package net.bestia.zone.prop
 
+import net.bestia.zone.skill.SkillId
+import net.bestia.zone.skill.skillIdsOf
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -300,7 +302,7 @@ class CollectPropIntentSystemTest {
   @Test
   fun `a herb above the picker's Herbalism stays where it grows`() {
     val herbs = HerbPicking(
-      skills = mockk { every { findByIdentifier("M_HERBALISM") } returns mockk { every { id } returns 23L } },
+      skillIds = skillIdsOf(SkillId.M_HERBALISM to 23L),
       items = mockk { every { baseLevelOf(any()) } returns 20 },
     )
     val world = worldWith(newSystem(herbs))

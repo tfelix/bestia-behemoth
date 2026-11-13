@@ -9,8 +9,7 @@ import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.skill.OwnerSkills
 import net.bestia.zone.skill.SkillId
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
@@ -19,9 +18,9 @@ import org.springframework.stereotype.Component
  * `-10%/lv` of the time, which is that much more of each blow landing on the trunk.
  */
 @Component
-class Felling(private val skills: SkillRepository) {
+class Felling(private val skillIds: SkillIds) {
 
-  private val lumberjackId: Long? by lazy { skills.findByIdentifier(SkillId.M_LUMBERJACK)?.id }
+  private val lumberjackId: Long? get() = skillIds[SkillId.M_LUMBERJACK]
 
   val reads: ComponentClassSet = setOf(StaticVisual::class, CombatStats::class) + OwnerSkills.READS
 

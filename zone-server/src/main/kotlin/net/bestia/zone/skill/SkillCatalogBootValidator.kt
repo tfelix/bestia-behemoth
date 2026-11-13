@@ -14,7 +14,7 @@ import net.bestia.zone.skill.persistence.SkillRepository
  * ### One direction only, unlike those two
  *
  * A [SkillId] that names no catalogue row is worth a dead boot because it fails *quietly* otherwise:
- * every call site resolves the identifier to an id once, lazily, and a null degrades to "nobody
+ * every call site reads its id from [SkillIds], and a null degrades to "nobody
  * knows this skill". A renamed or deleted skill therefore turns a crafting bonus, a weather effect
  * or a permission gate silently inert - `BasicSkillGate` even fails open by design - and nothing
  * would say so.

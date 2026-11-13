@@ -1,6 +1,5 @@
 package net.bestia.zone.boot
 
-import net.bestia.zone.treasure.DigService
 import net.bestia.zone.treasure.Relics
 import net.bestia.zone.treasure.TreasureCacheRegistry
 import net.bestia.zone.treasure.TreasureMapRegistry
@@ -9,15 +8,13 @@ import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
 /**
- * Loads which treasure caches were dug, the circles of treasure maps, which copies are relics, and the skill
- * digging reads, so the tick never asks the database. After
- * the world is loaded.
+ * Loads which treasure caches were dug, the circles of treasure maps and which copies are relics, so the tick
+ * never asks the database. After the world is loaded.
  */
 @Component
 @Order(10)
 class TreasureBootRunner(
   private val registry: TreasureCacheRegistry,
-  private val digService: DigService,
   private val maps: TreasureMapRegistry,
   private val relics: Relics,
 ) : CommandLineRunner {
@@ -26,6 +23,5 @@ class TreasureBootRunner(
     registry.restoreAll()
     maps.restoreAll()
     relics.restoreAll()
-    digService.excavationSkillId
   }
 }

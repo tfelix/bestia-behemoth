@@ -3,8 +3,7 @@ package net.bestia.zone.crafting
 import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.skill.SkillId
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.SkillIds
 import org.springframework.stereotype.Service
 
 /**
@@ -21,9 +20,8 @@ import org.springframework.stereotype.Service
  * ### Reading levels
  *
  * Off the caster's live [KnownSkills], which is what `ActivateSkillHandler` already validates against, so
- * this asks no database on the tick thread. Skill *ids* come from the repository once, lazily and by
- * identifier, on the precedent of `EnvironmentalExposureSystem` - the numeric ids in `skills.yml` are
- * content and this is code.
+ * this asks no database on the tick thread. Skill *ids* come from [net.bestia.zone.skill.SkillIds] by
+ * identifier - the numeric ids in `skills.yml` are content and this is code.
  *
  * ### One table per docs row
  *
@@ -34,20 +32,20 @@ import org.springframework.stereotype.Service
  */
 @Service
 class CraftBonusService(
-  private val skills: SkillRepository
+  private val skillIds: SkillIds
 ) {
 
-  private val carpentryId: Long? by lazy { skills.findByIdentifier(SkillId.M_CARPENTRY)?.id }
-  private val masterCraftsmanId: Long? by lazy { skills.findByIdentifier(SkillId.M_MASTER_CRAFTSMAN)?.id }
-  private val itemCustomizationId: Long? by lazy { skills.findByIdentifier(SkillId.M_ITEM_CUSTOMIZATION)?.id }
-  private val oreRefinementId: Long? by lazy { skills.findByIdentifier(SkillId.M_ORE_REFINEMENT)?.id }
-  private val weaponryResearchId: Long? by lazy { skills.findByIdentifier(SkillId.M_WEAPONRY_RESEARCH)?.id }
-  private val masterSmithId: Long? by lazy { skills.findByIdentifier(SkillId.M_MASTER_SMITH)?.id }
-  private val cookingId: Long? by lazy { skills.findByIdentifier(SkillId.M_COOKING)?.id }
-  private val equipmentRepairId: Long? by lazy { skills.findByIdentifier(SkillId.M_EQUIPMENT_REPAIR)?.id }
-  private val forgeWeaponId: Long? by lazy { skills.findByIdentifier(SkillId.M_FORGE_WEAPON)?.id }
-  private val forgeArmorId: Long? by lazy { skills.findByIdentifier(SkillId.M_FORGE_ARMOR)?.id }
-  private val upgradeEquipmentId: Long? by lazy { skills.findByIdentifier(SkillId.M_UPGRADE_EQUIPMENT)?.id }
+  private val carpentryId: Long? get() = skillIds[SkillId.M_CARPENTRY]
+  private val masterCraftsmanId: Long? get() = skillIds[SkillId.M_MASTER_CRAFTSMAN]
+  private val itemCustomizationId: Long? get() = skillIds[SkillId.M_ITEM_CUSTOMIZATION]
+  private val oreRefinementId: Long? get() = skillIds[SkillId.M_ORE_REFINEMENT]
+  private val weaponryResearchId: Long? get() = skillIds[SkillId.M_WEAPONRY_RESEARCH]
+  private val masterSmithId: Long? get() = skillIds[SkillId.M_MASTER_SMITH]
+  private val cookingId: Long? get() = skillIds[SkillId.M_COOKING]
+  private val equipmentRepairId: Long? get() = skillIds[SkillId.M_EQUIPMENT_REPAIR]
+  private val forgeWeaponId: Long? get() = skillIds[SkillId.M_FORGE_WEAPON]
+  private val forgeArmorId: Long? get() = skillIds[SkillId.M_FORGE_ARMOR]
+  private val upgradeEquipmentId: Long? get() = skillIds[SkillId.M_UPGRADE_EQUIPMENT]
 
   /** Resolves the skill ids now, at boot, so the first craft on the tick does not reach the database. */
   fun warmUp() {

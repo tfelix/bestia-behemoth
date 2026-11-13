@@ -27,7 +27,7 @@ class EnvironmentalExposureSystemTest {
     weatherService = deepColdEverywhere(),
     chunkService = readyChunks(),
     config = ExposureConfig(),
-    skills = mockk(relaxed = true),
+    skillIds = mockk(relaxed = true),
     zoneConfig = WorldRulesConfig(tickRate = 20),
   )
 

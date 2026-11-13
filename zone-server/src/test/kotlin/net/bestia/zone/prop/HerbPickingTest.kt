@@ -1,5 +1,7 @@
 package net.bestia.zone.prop
 
+import net.bestia.zone.skill.SkillId
+import net.bestia.zone.skill.skillIdsOf
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.ecs.core.testWorld
@@ -15,7 +17,7 @@ import org.junit.jupiter.api.Test
 class HerbPickingTest {
 
   private val sut = HerbPicking(
-    skills = mockk { every { findByIdentifier("M_HERBALISM") } returns mockk { every { id } returns HERBALISM } },
+    skillIds = skillIdsOf(SkillId.M_HERBALISM to HERBALISM),
     items = mockk { every { baseLevelOf(any()) } answers { LEVELS[firstArg()] } },
   )
   private val world = testWorld()

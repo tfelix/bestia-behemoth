@@ -26,8 +26,7 @@ import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.skill.SkillId
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.util.EntityId
 import org.springframework.context.ApplicationEventPublisher
 import java.util.Random
@@ -46,7 +45,7 @@ class BestiaTrapSystem(
   private val deletionQueue: PersistedEntityDeletionQueue,
   private val events: ApplicationEventPublisher,
   private val outMessageProcessor: OutMessageProcessor,
-  private val skills: SkillRepository,
+  private val skillIds: SkillIds,
   private val random: Random = ThreadLocalRandomSource,
 ) : System {
 
@@ -62,8 +61,8 @@ class BestiaTrapSystem(
   override val writes: ComponentClassSet = setOf(BestiaTrap::class, TakenDamage::class)
 
   /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
-  private val trappingSkillId: Long? by lazy { skills.findByIdentifier(SkillId.M_TRAPPING)?.id }
-  private val beastfriendSkillId: Long? by lazy { skills.findByIdentifier(SkillId.M_BEASTFRIEND)?.id }
+  private val trappingSkillId: Long? get() = skillIds[SkillId.M_TRAPPING]
+  private val beastfriendSkillId: Long? get() = skillIds[SkillId.M_BEASTFRIEND]
 
   private class Sprung(val trapId: EntityId, val trap: BestiaTrap, val at: Vec3L, val targetId: EntityId)
 

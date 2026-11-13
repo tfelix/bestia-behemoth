@@ -20,8 +20,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.skill.SkillId
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.world.stream.ChunkCoords
 import net.bestia.zone.world.stream.ChunkService
 import kotlin.math.roundToInt
@@ -43,7 +42,7 @@ class EnvironmentalExposureSystem(
   private val weatherService: WeatherService,
   private val chunkService: ChunkService,
   private val config: ExposureConfig,
-  private val skills: SkillRepository,
+  private val skillIds: SkillIds,
   zoneConfig: WorldRulesConfig,
 ) : System {
   override val phase = Phase.UPKEEP
@@ -52,7 +51,7 @@ class EnvironmentalExposureSystem(
   val periodTicks: Long = (config.intervalSeconds * zoneConfig.tickRate).toLong().coerceAtLeast(1)
 
   /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
-  private val resistanceId: Long? by lazy { skills.findByIdentifier(SkillId.M_WEATHER_RESISTANCE)?.id }
+  private val resistanceId: Long? get() = skillIds[SkillId.M_WEATHER_RESISTANCE]
 
   /** Resolves the skill id now, at boot, so the first sweep on the tick does not reach the database. */
   fun warmUp() {

@@ -2,10 +2,8 @@ package net.bestia.zone.crafting
 
 import net.bestia.zone.battle.status.StatusValues
 import io.mockk.every
-import io.mockk.mockk
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.Skill
-import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.skillIdsOf
 import net.bestia.zone.entity.StaticEntityKind
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -18,15 +16,7 @@ import org.junit.jupiter.api.Test
  */
 class CraftBonusServiceTest {
 
-  private val skills = mockk<SkillRepository>()
-  private val service: CraftBonusService
-
-  init {
-    every { skills.findByIdentifier(any()) } answers {
-      SKILL_IDS[firstArg<String>()]?.let { id -> mockk<Skill>().also { every { it.id } returns id } }
-    }
-    service = CraftBonusService(skills)
-  }
+  private val service = CraftBonusService(skillIdsOf(SKILL_IDS))
 
   /** The crafter's own DEX and WIL count for every craft, so a deft bestia is a good crafter. */
   @Test

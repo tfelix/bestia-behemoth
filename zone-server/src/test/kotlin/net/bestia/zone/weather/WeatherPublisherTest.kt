@@ -6,7 +6,7 @@ import io.mockk.verify
 import net.bestia.worldgen.climate.Temperature
 import net.bestia.worldgen.climate.WeatherKind
 import net.bestia.worldgen.climate.WeatherState
-import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.skillIdsOf
 import net.bestia.zone.message.OutMessageHandler
 import net.bestia.zone.world.stream.ChunkService
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -41,7 +41,7 @@ class WeatherPublisherTest {
       every { surfaceElevationAt(any(), any()) } returns 100.0
     }
     // No WEATHER_SENSE in the catalogue, so no forecast is ever asked for.
-    val skills = mockk<SkillRepository> { every { findByIdentifier(any()) } returns null }
+    val skills = skillIdsOf()
 
     val groundWeather = mockk<GroundWeather> { every { at(any(), any(), any()) } returnsMany grounds }
 
@@ -133,7 +133,7 @@ class WeatherPublisherTest {
     val chunkService = mockk<ChunkService> {
       every { surfaceElevationAt(any(), any()) } returns null
     }
-    val skills = mockk<SkillRepository> { every { findByIdentifier(any()) } returns null }
+    val skills = skillIdsOf()
     val publisher = WeatherPublisher(weatherService, mockk(), chunkService, out, WeatherConfig(), skills, ManaSense(mockk()))
 
     assertFalse(publisher.publish(accountId, voxelX, voxelY, 0))
@@ -145,7 +145,7 @@ class WeatherPublisherTest {
   fun `disabled weather sends nothing at all`() {
     val weatherService = mockk<WeatherService>()
     val chunkService = mockk<ChunkService>()
-    val skills = mockk<SkillRepository> { every { findByIdentifier(any()) } returns null }
+    val skills = skillIdsOf()
     val publisher = WeatherPublisher(
       weatherService, mockk(), chunkService, out, WeatherConfig(enabled = false), skills, ManaSense(mockk())
     )

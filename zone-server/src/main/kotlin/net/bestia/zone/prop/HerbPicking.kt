@@ -6,8 +6,7 @@ import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.skill.OwnerSkills
 import net.bestia.zone.skill.SkillId
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
@@ -17,11 +16,11 @@ import org.springframework.stereotype.Component
  */
 @Component
 class HerbPicking(
-  private val skills: SkillRepository,
+  private val skillIds: SkillIds,
   private val items: ItemTemplateRegistry,
 ) {
 
-  private val herbalismId: Long? by lazy { skills.findByIdentifier(SkillId.M_HERBALISM)?.id }
+  private val herbalismId: Long? get() = skillIds[SkillId.M_HERBALISM]
 
   val reads: ComponentClassSet = OwnerSkills.READS
 

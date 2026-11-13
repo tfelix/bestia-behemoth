@@ -9,8 +9,8 @@ import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.Skill
-import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.SkillId
+import net.bestia.zone.skill.skillIdsOf
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -19,9 +19,7 @@ import org.junit.jupiter.api.Test
 class FellingTest {
 
   private val world = testWorld()
-  private val lumberjack = mockk<Skill> { every { id } returns 31L }
-  private val skills = mockk<SkillRepository> { every { findByIdentifier("M_LUMBERJACK") } returns lumberjack }
-  private val sut = Felling(skills)
+  private val sut = Felling(skillIdsOf(SkillId.M_LUMBERJACK to 31L))
 
   @Test
   fun `a tree falls only to a felling tool or an axe`() {

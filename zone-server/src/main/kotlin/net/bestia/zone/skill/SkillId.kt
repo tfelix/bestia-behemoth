@@ -2,7 +2,7 @@ package net.bestia.zone.skill
 
 /**
  * Every skill that *code* names, by identifier. Call sites use this -
- * `skills.findByIdentifier(SkillId.M_CARPENTRY)` - so naming a skill is a symbol lookup with
+ * `skillIds[SkillId.M_CARPENTRY]` - so naming a skill is a symbol lookup with
  * autocompletion rather than a string literal re-declared in whichever service happens to need it,
  * which is what a typo used to cost: a silently inert bonus or gate rather than a compiler error.
  *
@@ -10,8 +10,8 @@ package net.bestia.zone.skill
  * [net.bestia.zone.battle.status.StatusEffectId]
  *
  * Those two carry their id because the wire and their in-memory registries are keyed on it. A
- * skill's id is content owned by `skills.yml`, and every call site that wants one already goes
- * through [net.bestia.zone.skill.persistence.findByIdentifier] "because the id in `skills.yml` is content and this is code". Copying
+ * skill's id is content owned by `skills.yml`, and call sites that want one ask [SkillIds],
+ * which reads it from the catalogue at boot. Copying
  * the ids in here would give a renumbering a second place to be right - and renumbering an existing
  * skill already needs a database wipe, so it must not also become a code change. The constant's
  * *name* is the identifier; there is nothing else to carry.

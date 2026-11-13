@@ -12,8 +12,8 @@ import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.script.ScriptArgKeys
 import net.bestia.zone.script.ScriptArgs
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.Skill
-import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.SkillId
+import net.bestia.zone.skill.skillIdsOf
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFalse
@@ -28,11 +28,7 @@ class MiningShaftKitScriptTest {
     every { beginConstruction(any(), any(), any(), any(), any(), any(), any()) } returns 1L
   }
 
-  private val skills = mockk<SkillRepository> {
-    every { findByIdentifier("M_MINING") } returns mockk<Skill> { every { id } returns MINING_ID }
-  }
-
-  private val script = MiningShaftKitScript(structures, MiningSkill(skills))
+  private val script = MiningShaftKitScript(structures, MiningSkill(skillIdsOf(SkillId.M_MINING to MINING_ID)))
 
   @Test
   fun `a miner puts up a shaft`() {

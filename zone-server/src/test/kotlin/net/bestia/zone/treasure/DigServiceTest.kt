@@ -1,5 +1,6 @@
 package net.bestia.zone.treasure
 
+import net.bestia.zone.skill.skillIdsOf
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -65,7 +66,7 @@ class DigServiceTest {
       every { idOf("shovel") } returns SHOVEL
       every { idOf("pickaxe") } returns PICKAXE
     },
-    skills = mockk { every { findByIdentifier(any<String>()) } returns null },
+    skillIds = skillIdsOf(),
     outMessageProcessor = messages,
     pickaxeMining = mockk(relaxed = true),
   )
