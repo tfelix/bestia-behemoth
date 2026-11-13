@@ -13,6 +13,11 @@ import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.cartography.chart.ChartService
 import net.bestia.zone.cartography.persistence.MapChartRepository
 import net.bestia.zone.casting.ScrySight
+import net.bestia.zone.casting.scripts.master.WarpPortal
+import net.bestia.zone.casting.portal.WarpMarks
+import net.bestia.zone.chat.net.ChatCMSG
+import net.bestia.zone.chat.ChatType
+import net.bestia.zone.chat.ChatSMSG
 import net.bestia.zone.casting.ecs.SkillCooldowns
 import net.bestia.zone.casting.net.ActivateSkillCMSG
 import net.bestia.zone.casting.scripts.master.Scry
@@ -94,9 +99,13 @@ class ScryScenario : BestiaNoSocketScenario(autoClientConnect = false) {
   @Autowired
   private lateinit var worldService: WorldService
 
+  @Autowired
+  private lateinit var dataSetup: ScenarioDataSetup
+
   private lateinit var sage: GameClientMock
   private var sageMasterId = 0L
   private lateinit var farSpot: Vec3L
+  private var listenerHome: Vec3L? = null
 
   private val accountId get() = sage.connectedPlayerId
 
@@ -117,6 +126,7 @@ class ScryScenario : BestiaNoSocketScenario(autoClientConnect = false) {
         slot = 0,
       )
     ).id
+    dataSetup.grantFullBasicSkill(sageMasterId)
     // The starter chart covers kilometres around the spawn; without it nothing is charted, which the first test needs.
     chartRepository.deleteAll(chartRepository.findAll().filter { it.id !in chartsBefore })
 
@@ -133,6 +143,11 @@ class ScryScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
   @AfterAll
   fun leaveNothingBehind() {
+    // The fixture's second player is shared with later scenarios, which expect it back beside the first.
+    listenerHome?.let { home ->
+      val listener = connections.getSelectedMasterEntityId(clientPlayer2.connectedPlayerId)
+      world.modify(listener) { id -> get(id, Position::class)!!.apply { x = home.x; y = home.y; z = home.z } }
+    }
     clientPlayer2.disconnect()
     sage.disconnect()
   }
@@ -227,6 +242,39 @@ class ScryScenario : BestiaNoSocketScenario(autoClientConnect = false) {
     world.modify(sageEntity()) { id -> remove(id, PartyMembership::class) }
   }
 
+  @Test
+  @Order(7)
+  fun `public chat while scrying is spoken and heard at the far spot`() {
+    castScry(farSpot)
+    val centre = awaitValue { assertNotNull(sage.tryGetLastReceived(ScrySightSMSG::class)?.centre) }
+    val listener = connections.getSelectedMasterEntityId(clientPlayer2.connectedPlayerId)
+    listenerHome = positionOf(listener)
+    world.modify(listener) { id -> get(id, Position::class)!!.apply { x = centre.x; y = centre.y; z = centre.z } }
+    val farGround = chunkService.normalise(ChunkCoords.chunkOf(chunkService.config, centre))
+    await { assertTrue(farGround in subscriptions.sentTo(clientPlayer2.connectedPlayerId)) }
+
+    sage.sendMessage(ChatCMSG(accountId, ChatType.PUBLIC, FAR_WORDS))
+
+    await { assertTrue(clientPlayer2.receivedAny(ChatSMSG::class) { it.text == FAR_WORDS }, "heard where the Sage looks") }
+    assertTrue(sage.receivedAny(ChatSMSG::class) { it.text == FAR_WORDS }, "and by the Sage")
+  }
+
+  @Test
+  @Order(8)
+  fun `Warp Portal marks the scried spot`() {
+    val centre = assertNotNull(world.read { get(sageEntity(), ScrySight::class)?.centre })
+    val portal = skillId("M_WARP_PORTAL")
+    world.modify(sageEntity()) { id -> get(id, KnownSkills::class)!!.learnOrUpdate(portal, 1) }
+
+    sage.sendMessage(ActivateSkillCMSG(accountId, portal, 1, centre, targetEntityId = 0L, args = listOf(WarpPortal.MARK)))
+
+    await { assertEquals(listOf(centre), world.read { get(sageEntity(), WarpMarks::class)?.spots }) }
+    assertTrue(has(sageEntity(), StatusEffectId.SCRYING), "marking is no act of the body")
+
+    castScry(farSpot)
+    awaitEnded()
+  }
+
   private fun castScry(at: Vec3L, args: List<Long> = emptyList()) {
     sage.clearMessages()
     world.modify(sageEntity()) { id ->
@@ -280,5 +328,6 @@ class ScryScenario : BestiaNoSocketScenario(autoClientConnect = false) {
     const val CHART_RADIUS_METRES = 800.0
     const val MAX_DRIFT_METRES = 500.0
     const val PARTY_ID = 9_061L
+    const val FAR_WORDS = "can anyone hear me out here?"
   }
 }

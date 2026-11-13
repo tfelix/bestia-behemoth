@@ -21,6 +21,7 @@ import net.bestia.zone.chat.ChatText
 import net.bestia.zone.chat.ChatType
 import net.bestia.zone.chat.GroupChat
 import net.bestia.zone.identity.GroupMember
+import net.bestia.zone.scry.ScryVoice
 
 @Component
 class ChatHandler(
@@ -33,6 +34,7 @@ class ChatHandler(
   private val partyAudience: PartyAudience,
   private val guildAudience: GuildAudience,
   private val groupChat: GroupChat,
+  private val scryVoice: ScryVoice,
 ) : IoMessageHandler<ChatCMSG> {
   override val wire = decoder(MessageCase.CHAT_CMSG) { accountId, envelope ->
     ChatCMSG.fromBnet(accountId, envelope.chatCmsg)
@@ -84,7 +86,14 @@ class ChatHandler(
     )
 
     // Posted: who sees the entity is tick-thread state, and this handler runs on the IO lane.
-    world.post { outMessageProcessor.sendToObserversOf(this, activeEntityId, chatSMSG) }
+    world.post {
+      val farListeners = scryVoice.listenersOf(this, activeEntityId, msg.playerId)
+      if (farListeners == null) {
+        outMessageProcessor.sendToObserversOf(this, activeEntityId, chatSMSG)
+      } else {
+        farListeners.forEach { outMessageProcessor.sendToPlayer(it, chatSMSG) }
+      }
+    }
   }
 
   /**
