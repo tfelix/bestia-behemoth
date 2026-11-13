@@ -649,3 +649,7 @@ SPELL_SCROLL_DESC,"A scroll with an attack written on it.
 Read from the bag, it casts its attack once, with no mana. Spell Training teaches it to a bestia instead."
 RED_MANA_CRYSTAL,Red Mana Crystal
 RED_MANA_CRYSTAL_DESC,A red crystal of mana. Stone Curse burns one to turn flesh to stone.
+HUNTING_BOW,Hunting Bow
+HUNTING_BOW_DESC,"A yew bow with horn tips, made to bring down game.
+
+Needs both hands and arrows in the quiver."

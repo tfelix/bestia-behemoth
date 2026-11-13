@@ -2512,3 +2512,23 @@ items:
     type: ETC
     material: CRYSTAL
     description: A red crystal of mana. Stone Curse burns one to turn flesh to stone.
+
+  # The Hunter's bow: the Novice Bow stops working once a master specialises. The GM item command is its only source
+  # until crafting or a shop sells it.
+  - id: 340
+    item-db-name: hunting_bow
+    base-level: 10
+    weight: 90
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: BOW
+    two-handed: true
+    ammo-type: ARROW
+    attack-range: 12
+    max-durability: 160
+    attack: 22
+    description: |
+      A yew bow with horn tips, made to bring down game.
+
+      Needs both hands and arrows in the quiver.
