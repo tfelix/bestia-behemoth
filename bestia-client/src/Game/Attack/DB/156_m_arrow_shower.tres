@@ -14,3 +14,5 @@ tree = "WARRIOR"
 sub_tree = "HUNTER"
 prerequisite_ids = PackedInt32Array(155)
 prerequisite_levels = PackedInt32Array(5)
+target_type = "AOE_GROUND"
+aoe_radius = 1.0
