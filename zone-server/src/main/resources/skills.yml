@@ -1900,7 +1900,6 @@ skills:
     identifier: M_DOUBLE_STRAFE
     script: DoubleStrafe
     targetType: ENEMY
-    range: 5
     manaCost: 12
     description: |
       Needs a bow. Shoots two arrows at the target but takes only one out of the quiver.
@@ -1911,7 +1910,6 @@ skills:
     identifier: M_ARROW_SHOWER
     script: ArrowShower
     targetType: GROUND
-    range: 5
     manaCost: 15
     cooldown: 1
     description: |
@@ -1924,7 +1922,6 @@ skills:
     identifier: M_CHARGE_ARROW
     script: ChargeArrow
     targetType: ENEMY
-    range: 5
     manaCost: 15
     cooldown: 10
     castTime: 1.5
