@@ -296,6 +296,7 @@ object Invariants {
     // Steps 8 to 10.
     checkHistoryIsSelfConsistent(generated, ::fail)
     checkTheWorldHasHadTwoPeoples(generated, ::fail)
+    checkEveryBattleHasItsField(generated, ::fail)
     checkEventsRespectSettlementLifetimes(generated, ::fail)
     checkNoEventCitesAPrunedCause(generated, ::fail)
     checkArtifactChainsAreOrdered(generated, ::fail)
@@ -1135,6 +1136,31 @@ object Invariants {
         "the world has had two peoples",
         "${chronicle.settlements.size} settlement sites but only ${chronicle.civs.size} civ ever existed"
       )
+    }
+  }
+
+  /**
+   * Every battle names the battlefield it was fought on, and the fields count exactly the battles. Battles are
+   * above the pruning floor, so none is missing from the log.
+   */
+  private fun checkEveryBattleHasItsField(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val chronicle = generated.world.chronicle
+    val battles = chronicle.events.filter { it.kind == EventKind.BATTLE }
+
+    for (battle in battles) {
+      val site = battle.actors.firstOrNull { it.type == ActorType.SITE }?.let { chronicle.sites.getOrNull(it.index) }
+      if (site?.kind != SiteKind.BATTLEFIELD) {
+        fail("every battle has its field", "battle ${battle.id} in ${battle.year} names no battlefield")
+        return
+      }
+    }
+
+    val counted = chronicle.sites.filter { it.kind == SiteKind.BATTLEFIELD }.sumOf { it.battles }
+    if (counted != battles.size) {
+      fail("every battle has its field", "the battlefields count $counted battles, the log ${battles.size}")
     }
   }
 

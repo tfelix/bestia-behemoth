@@ -693,5 +693,9 @@ data class SiteRecord(
    * raised by a sworn people is a real thing this could describe later. It is null today because nothing sets
    * it, and a reader must treat null as "no Order raised this" rather than as "unknown".
    */
-  val faction: Faction? = null
+  val faction: Faction? = null,
+
+  /** Battles fought on this field, and the dead of all of them. Zero on every kind but a battlefield. */
+  val battles: Int = 0,
+  val fallen: Int = 0
 )

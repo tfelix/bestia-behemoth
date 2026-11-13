@@ -335,7 +335,8 @@ object ChronicleMain {
         println(
           "    year ${it.year.toString().padStart(4)}  " +
               "(${it.position.x.toInt()}, ${it.position.y.toInt()})  " +
-              "r=${it.radius.toInt()} m  decay ${fixed(it.decay)}"
+              "r=${it.radius.toInt()} m  decay ${fixed(it.decay)}" +
+              (if (it.kind == SiteKind.BATTLEFIELD) "  ${it.battles} battles, ${it.fallen} dead" else "")
         )
       }
       if (of.size > SITES_PER_KIND) println("    ... and ${of.size - SITES_PER_KIND} more")
