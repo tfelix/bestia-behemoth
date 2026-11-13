@@ -182,7 +182,7 @@ class ParamsVersionTest {
       "SettlementTier" to 4_668_433_068_619_246_677L,
       "BusinessCatalogue" to -4_134_603_911_680_592_775L,
       "Names" to -2_563_341_001_968_021_080L,
-      "EventKind" to 5_270_417_651_838_075_194L,
+      "EventKind" to 8_854_317_252_513_217_308L,
       "Order" to -2_417_387_423_981_603_910L,
       "Domain" to -2_510_024_340_807_783_382L,
       "WorldBoss" to -606_815_975_619_433_919L,

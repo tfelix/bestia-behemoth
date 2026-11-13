@@ -417,7 +417,18 @@ enum class EventKind(
   MONSTER_SLAIN(80),
   MONSTER_SEALED(75),
   MONSTER_WITHDREW(65),
-  MONSTER_VANISHED(65);
+  MONSTER_VANISHED(65),
+
+  // --- Artifacts kept today --------------------------------------------------------------------------
+
+  /** Nobody inherits it, so the capital's temple keeps it. */
+  ARTIFACT_ENSHRINED(55),
+
+  /** Conquerors carry it from the town that kept it to their own capital. */
+  ARTIFACT_PLUNDERED(60),
+
+  /** A people seals a kept artifact into a monument it raises. */
+  ARTIFACT_SEALED(55);
 
   companion object {
 
@@ -615,8 +626,20 @@ data class ArtifactRecord(
    * and the tomb is a real place in the world because [SiteRecord] put it there.
    */
   val restingSite: Int,
-  val provenance: List<Int>
-)
+  val provenance: List<Int>,
+  /** The living figure who carries it today, or -1. */
+  val holder: Int = -1,
+  /** The standing settlement whose temple or treasury keeps it today, or -1. */
+  val keptAt: Int = -1,
+  /**
+   * The settlement that first kept it, or -1. It still wants the artifact back when it lies elsewhere: the hook
+   * for a quest to return it.
+   */
+  val homeTemple: Int = -1
+) {
+  /** Nobody alive holds it and nobody keeps it: it lies in its [restingSite], or it is lost without a trace. */
+  val unclaimed get() = holder < 0 && keptAt < 0
+}
 
 /**
  * The kinds of place history leaves on the ground.

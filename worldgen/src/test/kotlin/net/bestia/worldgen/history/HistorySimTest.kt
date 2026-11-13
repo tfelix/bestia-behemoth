@@ -321,6 +321,33 @@ class HistorySimTest {
   }
 
   @Test
+  fun `an artifact nobody takes up is kept in a standing town`() {
+    val worlds = (1L..8L).map { simulate(villageGrid(6), seed = it) }
+    val kept = worlds.flatMap { world -> world.artifacts.filter { it.keptAt >= 0 }.map { world to it } }
+
+    assertTrue(kept.isNotEmpty(), "no artifact is kept in a temple on any seed")
+    for ((world, relic) in kept) {
+      assertTrue(!world.settlements[relic.keptAt].isRuin, "artifact ${relic.index} is kept in a ruin")
+      assertTrue(relic.homeTemple >= 0, "artifact ${relic.index} is kept but has no home temple")
+    }
+    assertTrue(worlds.any { world -> world.artifacts.any { it.holder >= 0 } }, "no artifact is carried today")
+  }
+
+  @Test
+  fun `conquerors carry off what a town kept`() {
+    val worlds = (1L..16L).map { simulate(longFront(), FRONT_PARAMS, seed = it) }
+    val plundered = worlds.flatMap { world ->
+      world.events.filter { it.kind == EventKind.ARTIFACT_PLUNDERED }.map { world to it }
+    }
+
+    assertTrue(plundered.isNotEmpty(), "no conquest carried off a kept artifact on any seed")
+    for ((world, event) in plundered) {
+      val relic = world.artifacts[event.actors.first { it.type == ActorType.ARTIFACT }.index]
+      assertTrue(relic.homeTemple >= 0, "a plundered artifact has no home to want it back")
+    }
+  }
+
+  @Test
   fun `the same sites give the same history`() {
     val first = simulate(twoNeighbouringPeoples())
     val second = simulate(twoNeighbouringPeoples())

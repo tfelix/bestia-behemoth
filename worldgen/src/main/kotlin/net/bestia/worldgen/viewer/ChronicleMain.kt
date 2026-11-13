@@ -195,7 +195,8 @@ object ChronicleMain {
     line("notable figures", "${chronicle.figures.size}")
     line(
       "artifacts",
-      "${chronicle.artifacts.size}, ${chronicle.artifacts.count { it.restingSite >= 0 }} lost or entombed"
+      "${chronicle.artifacts.size}: ${chronicle.artifacts.count { it.restingSite >= 0 }} lost or entombed, " +
+          "${chronicle.artifacts.count { it.keptAt >= 0 }} kept in towns, ${chronicle.artifacts.count { it.holder >= 0 }} carried"
     )
     line("sites", chronicle.sites.groupingBy { it.kind }.eachCount().entries
       .sortedByDescending { it.value }
@@ -416,8 +417,18 @@ object ChronicleMain {
           "    rests at (${site.position.x.toInt()}, ${site.position.y.toInt()})$depth " +
               "in a ${site.kind.name.lowercase()}, decay ${fixed(site.decay)}"
         )
+      } else if (relic.keptAt >= 0) {
+        val home = if (relic.homeTemple >= 0 && relic.homeTemple != relic.keptAt) {
+          ", far from ${placeName(chronicle, relic.homeTemple)} where it was first kept"
+        } else {
+          ""
+        }
+        println("    kept at ${placeName(chronicle, relic.keptAt)}$home")
+      } else if (relic.holder >= 0) {
+        val holder = chronicle.figures[relic.holder]
+        println("    carried by ${Names.person(holder.nameSeed, chronicle.civs[holder.civ].cultureIndex, holder.role)}")
       } else {
-        println("    still in use")
+        println("    whereabouts unknown")
       }
     }
   }
@@ -597,6 +608,9 @@ object ChronicleMain {
     Faction.CIRCLE -> "circle"
     null -> "shrine"
   }
+
+  private fun placeName(chronicle: Chronicle, settlement: Int): String =
+    Names.place(chronicle.settlements[settlement].nameSeed, cultureOf(chronicle, settlement))
 
   private fun cultureOf(chronicle: Chronicle, settlement: Int): Int =
     chronicle.settlements[settlement].ownerCiv.takeIf { it >= 0 }

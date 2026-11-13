@@ -2314,13 +2314,14 @@ internal class HistorySim(
       town.oldNameSeed = town.nameSeed
       town.nameSeed = Names.seedOf(worldSeed, PLACE_NAME_SALT, target.toLong(), year.toLong())
 
-      log(
+      val conquest = log(
         year, EventKind.CONQUEST,
         listOf(Actor(ActorType.SETTLEMENT, target), Actor(ActorType.CIV, winner)),
         town.facts.position, listOf(sack),
         "${nameOf(town)} passes to the ${civName(civs[winner])}, who rename it from " +
             Names.place(town.oldNameSeed, civs[loser].cultureIndex)
       )
+      plunder(town, civs[winner], year, conquest)
       war.decided = true
     }
   }
@@ -2544,6 +2545,7 @@ internal class HistorySim(
     )
     town.sites.add(ruin)
     town.population = 0.0
+    loseKeptRelics(town, ruin, year, ending)
 
     if (cause in REFUGEE_CAUSES) foundRefuge(town, survivors, owner, year, ending)
   }
@@ -3687,11 +3689,15 @@ internal class HistorySim(
 
     if (civs[person.civ].ruler == person.index) succeed(civs[person.civ], person, year, died)
 
-    val entombed = person.role == FigureRole.RULER || person.role == FigureRole.PROPHET ||
-        relics.any { it.holder == person.index }
+    // Half of what the dead carried goes into the grave; the rest passes on in `updateArtifacts`. A hero's trophy
+    // always goes with the hero.
+    val relic = relics.firstOrNull { it.holder == person.index }?.takeIf { relic ->
+      monsters.any { it.trophy == relic.index } ||
+          roll(year.toLong(), relic.index.toLong(), BURIAL_GOODS_SALT) < BURIAL_GOODS_CHANCE
+    }
+    val entombed = person.role == FigureRole.RULER || person.role == FigureRole.PROPHET || relic != null
     if (!entombed) return died
 
-    val relic = relics.firstOrNull { it.holder == person.index }
     val site = addSite(
       SiteKind.TOMB,
       // Beside the home settlement rather than in it: a barrow is outside the walls, and putting it under
@@ -3726,6 +3732,72 @@ internal class HistorySim(
       ?: people.getOrNull(holder.spouse)?.takeIf { it.death == 0 }
       ?: living.firstOrNull { holder.dynasty >= 0 && it.dynasty == holder.dynasty }
       ?: living.firstOrNull { it.civ == holder.civ }
+  }
+
+  /** The capital of the dead holder's people, while it stands and they still hold it. */
+  private fun shrineFor(holder: Person): Town? {
+    val civ = civs[holder.civ]
+    val capital = towns[civ.capital]
+    return capital.takeIf { civ.exists && it.standing && it.owner == civ.index }
+  }
+
+  /** Nobody takes it up, so the capital's temple keeps it. */
+  private fun enshrine(relic: Relic, town: Town, year: Int) {
+    relic.holder = -1
+    relic.keptAt = town.facts.index
+    if (relic.homeTemple < 0) relic.homeTemple = town.facts.index
+
+    val god = deities.getOrNull(town.patron)?.let { Names.deity(it.nameSeed, town.facts.cultureIndex, it.domain) }
+    relic.provenance.add(
+      log(
+        year, EventKind.ARTIFACT_ENSHRINED,
+        listOf(Actor(ActorType.ARTIFACT, relic.index), Actor(ActorType.SETTLEMENT, town.facts.index)),
+        town.facts.position, emptyList(),
+        "${relicName(relic)} is given to the ${god?.let { "temple of $it" } ?: "treasury"} at ${nameOf(town)}"
+      )
+    )
+  }
+
+  /** The victors carry what the conquered town kept home to their own capital. */
+  private fun plunder(town: Town, winner: Civ, year: Int, conquest: Int) {
+    val capital = towns[winner.capital].takeIf { it.standing && it.owner == winner.index } ?: return
+    if (capital === town) return
+
+    for (relic in relics) {
+      if (relic.keptAt != town.facts.index) continue
+      if (roll(year.toLong(), relic.index.toLong(), PLUNDER_SALT) >= PLUNDER_CHANCE) continue
+
+      relic.keptAt = capital.facts.index
+      relic.provenance.add(
+        log(
+          year, EventKind.ARTIFACT_PLUNDERED,
+          listOf(
+            Actor(ActorType.ARTIFACT, relic.index), Actor(ActorType.SETTLEMENT, capital.facts.index),
+            Actor(ActorType.CIV, winner.index)
+          ),
+          capital.facts.position, listOf(conquest),
+          "the ${civName(winner)} carry ${relicName(relic)} off from ${nameOf(town)} to ${nameOf(capital)}"
+        )
+      )
+    }
+  }
+
+  /** What a town kept stays in its ruin. */
+  private fun loseKeptRelics(town: Town, ruin: Int, year: Int, ending: Int) {
+    for (relic in relics) {
+      if (relic.keptAt != town.facts.index) continue
+
+      relic.keptAt = -1
+      relic.resting = ruin
+      relic.provenance.add(
+        log(
+          year, EventKind.ARTIFACT_LOST,
+          listOf(Actor(ActorType.ARTIFACT, relic.index), Actor(ActorType.SITE, ruin)),
+          sites[ruin].position, listOf(ending),
+          "${relicName(relic)} is lost in the ruin of ${nameOf(town)}"
+        )
+      )
+    }
   }
 
   private fun updateArtifacts(year: Int) {
@@ -3782,6 +3854,8 @@ internal class HistorySim(
             "${relicName(relic)} passes to ${personName(heir)}"
           )
         )
+      } else if (shrineFor(holder) != null && roll(year.toLong(), relic.index.toLong(), ENSHRINE_SALT) < ENSHRINE_CHANCE) {
+        enshrine(relic, shrineFor(holder)!!, year)
       } else {
         // Lost, and lost *somewhere*: a ruin if the holder's home is one, otherwise a battlefield of their
         // civ, otherwise their home. A quest hook needs a location or it is only a rumour.
@@ -3835,7 +3909,7 @@ internal class HistorySim(
     // came up **zero times in ten hoards** - so the artifact half of this existed and was never once reached,
     // which is indistinguishable from it not working.
     val capitalOf = if (town.owner >= 0 && civs[town.owner].capital == index) town.owner else -1
-    val relic = relics.firstOrNull {
+    val relic = relics.firstOrNull { it.keptAt == index } ?: relics.firstOrNull {
       it.holder >= 0 && it.resting < 0 &&
           (people[it.holder].home == index || (capitalOf >= 0 && people[it.holder].civ == capitalOf))
     }
@@ -3856,6 +3930,7 @@ internal class HistorySim(
 
     if (relic != null) {
       relic.holder = -1
+      relic.keptAt = -1
       relic.resting = site
       relic.provenance.add(
         log(
@@ -3902,18 +3977,35 @@ internal class HistorySim(
       if (town.sites.any { sites[it].kind == SiteKind.MONUMENT }) continue
       if (roll(year.toLong(), civ.index.toLong(), MONUMENT_SALT) >= MONUMENT_CHANCE) continue
 
+      // The town's most precious keepsake may be sealed into the stone.
+      val sealed = relics.firstOrNull { it.keptAt == capital }
+        ?.takeIf { roll(year.toLong(), it.index.toLong(), MONUMENT_RELIC_SALT) < MONUMENT_RELIC_CHANCE }
+
       val site = addSite(
         SiteKind.MONUMENT, offset(town.facts.position, capital.toLong(), MONUMENT_OFFSET),
-        year, capital, civ.index, MONUMENT_RADIUS, artifact = -1, figure = -1
+        year, capital, civ.index, MONUMENT_RADIUS, artifact = sealed?.index ?: -1, figure = -1
       )
       town.sites.add(site)
 
-      log(
+      val built = log(
         year, EventKind.MONUMENT_BUILT,
         listOf(Actor(ActorType.SITE, site), Actor(ActorType.CIV, civ.index)),
         sites[site].position, emptyList(),
         "the ${civName(civ)} raise ${siteName(sites[site])} at ${nameOf(town)}"
       )
+
+      if (sealed != null) {
+        sealed.keptAt = -1
+        sealed.resting = site
+        sealed.provenance.add(
+          log(
+            year, EventKind.ARTIFACT_SEALED,
+            listOf(Actor(ActorType.ARTIFACT, sealed.index), Actor(ActorType.SITE, site)),
+            sites[site].position, listOf(built),
+            "${relicName(sealed)} is sealed into ${siteName(sites[site])}"
+          )
+        )
+      }
     }
   }
 
@@ -4149,7 +4241,9 @@ internal class HistorySim(
         ArtifactRecord(
           index = it.index, nameSeed = it.nameSeed, kind = it.kind, forgedYear = it.forgedYear,
           forgedBy = it.forgedBy, material = it.material, forgedAtNameSeed = it.forgedAtNameSeed,
-          restingSite = it.resting, provenance = it.provenance.toList()
+          restingSite = it.resting, provenance = it.provenance.toList(),
+          holder = it.holder.takeIf { holder -> holder >= 0 && people[holder].death == 0 } ?: -1,
+          keptAt = it.keptAt, homeTemple = it.homeTemple
         )
       },
       sites = sites.map {
@@ -4564,6 +4658,12 @@ internal class HistorySim(
     var holder: Int
   ) {
     var resting = -1
+
+    /** The settlement whose temple or treasury keeps it, or -1. */
+    var keptAt = -1
+
+    /** The settlement that first kept it, or -1. It wants the artifact back wherever it went later. */
+    var homeTemple = -1
     val provenance = ArrayList<Int>()
   }
 
@@ -4676,6 +4776,12 @@ internal class HistorySim(
 
     const val FORGE_CHANCE = 0.30
     const val INHERIT_CHANCE = 0.55
+
+    /** Of the artifacts nobody inherits, how many the capital's temple takes in rather than losing. */
+    const val ENSHRINE_CHANCE = 0.5
+    const val BURIAL_GOODS_CHANCE = 0.5
+    const val PLUNDER_CHANCE = 0.6
+    const val MONUMENT_RELIC_CHANCE = 0.5
 
     const val MONUMENT_TECHNOLOGY = 0.35
     const val MONUMENT_POPULATION = 2_500.0
@@ -4929,6 +5035,10 @@ internal class HistorySim(
     const val MONSTER_REIGN_SALT = 0x56L
     const val RAVAGE_SALT = 0x57L
     const val MONSTER_FATE_SALT = 0x58L
+    const val ENSHRINE_SALT = 0x59L
+    const val PLUNDER_SALT = 0x5AL
+    const val MONUMENT_RELIC_SALT = 0x5BL
+    const val BURIAL_GOODS_SALT = 0x5CL
 
     /** A slaying field is smaller than a battle's: one beast and those who stood against it. */
     const val MONSTER_FIELD_RADIUS = 120.0
