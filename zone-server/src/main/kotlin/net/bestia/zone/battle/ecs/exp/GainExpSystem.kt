@@ -1,8 +1,7 @@
 package net.bestia.zone.battle.ecs.exp
 
 import net.bestia.zone.battle.passive.scripts.ExpertTaming
-import net.bestia.zone.skill.persistence.findByIdentifier
-import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.OwnerSkills
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -29,12 +28,12 @@ class GainExpSystem(
   private val levelUpExpCalc: LevelUpExperienceCalculator,
   private val writeBehind: EntityWriteBehind,
   private val levelUpListeners: List<LevelUpListener> = emptyList(),
-  private val skills: SkillRepository? = null,
+  private val skillIds: SkillIds? = null,
 ) : System {
   override val phase = Phase.ITEMS
 
   /** Resolved lazily: the catalogue is imported after this bean exists. */
-  private val expertTamingId: Long? by lazy { skills?.findByIdentifier(SkillId.M_EXPERT_TAMING)?.id }
+  private val expertTamingId: Long? get() = skillIds?.get(SkillId.M_EXPERT_TAMING)
 
   override val reads: ComponentClassSet = OwnerSkills.READS + setOf(
     Master::class,

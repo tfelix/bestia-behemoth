@@ -7,8 +7,7 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.decoder
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.skill.SkillId
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.spellscroll.InscriptionOptionsSMSG
 import net.bestia.zone.spellscroll.SpellScrollService
 import org.springframework.stereotype.Component
@@ -18,7 +17,7 @@ import org.springframework.stereotype.Component
 class InscriptionOptionsHandler(
   private val connections: ConnectionInfoService,
   private val scrolls: SpellScrollService,
-  private val skills: SkillRepository,
+  private val skillIds: SkillIds,
   private val world: WorldView,
   private val out: OutMessageProcessor,
 ) : IoMessageHandler<InscriptionOptionsCMSG> {
@@ -27,7 +26,7 @@ class InscriptionOptionsHandler(
     InscriptionOptionsCMSG(accountId)
   }
 
-  private val inscriptionSkillId: Long? by lazy { skills.findByIdentifier(SkillId.M_SPELL_INSCRIPTION)?.id }
+  private val inscriptionSkillId: Long? get() = skillIds[SkillId.M_SPELL_INSCRIPTION]
 
   override fun handle(msg: InscriptionOptionsCMSG): Boolean {
     val skillId = inscriptionSkillId ?: return true

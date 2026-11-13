@@ -28,8 +28,7 @@ import net.bestia.zone.economy.UnlimitedReserve
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.message.OutMessageProcessor
-import net.bestia.zone.skill.persistence.Skill
-import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.skillIdsOf
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.entity.StaticEntityKind
@@ -47,7 +46,7 @@ import net.bestia.zone.world.persistence.PersistedWorld
 class CraftingFixture(
   recipeList: List<Recipe> = emptyList(),
 
-  /** Identifier -> id, for the skills [CraftBonusService] resolves lazily. */
+  /** Identifier -> id, for the skills [CraftBonusService] names. */
   skillIds: Map<String, Long> = emptyMap(),
 
   /**
@@ -71,7 +70,6 @@ class CraftingFixture(
 
   val recipes = RecipeRegistry().apply { load(recipeList) }
 
-  val skillRepository = mockk<SkillRepository>()
   /** The durable take succeeds unless a test says otherwise; a relaxed mock would answer false. */
   val inventoryService = mockk<InventoryService>(relaxed = true).also {
     every { it.consumeAll(any(), any(), any()) } returns true
@@ -110,16 +108,13 @@ class CraftingFixture(
   private val stationsInRange = mutableSetOf<StaticEntityKind>()
 
   init {
-    every { skillRepository.findByIdentifier(any()) } answers {
-      skillIds[firstArg<String>()]?.let { id -> mockk<Skill>().also { every { it.id } returns id } }
-    }
     every { structures.stationNear(any(), any(), any()) } answers {
       val kind = thirdArg<StaticEntityKind>()
       if (kind in stationsInRange) stationEntityOf(kind) else null
     }
     every { structureRegistry.of(any()) } answers { stationEntries[firstArg<Long>()] }
 
-    bonuses = CraftBonusService(skillRepository)
+    bonuses = CraftBonusService(skillIdsOf(skillIds))
     service = CraftingService(
       recipes = recipes,
       bonuses = bonuses,

@@ -3,8 +3,7 @@ package net.bestia.zone.master.skill
 import net.bestia.zone.account.persistence.LearnedSkillRepository
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.SkillIds
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -15,11 +14,11 @@ import org.springframework.transaction.annotation.Transactional
  */
 @Service
 class BloodlineStudy(
-  private val skills: SkillRepository,
+  private val skillIds: SkillIds,
   private val learnedSkills: LearnedSkillRepository,
 ) {
 
-  private val skillId: Long? by lazy { skills.findByIdentifier(SkillId.M_BLOODLINE_STUDY)?.id }
+  private val skillId: Long? get() = skillIds[SkillId.M_BLOODLINE_STUDY]
 
   /** Resolves the skill id now, so the first read on the tick does not reach the database. */
   fun warmUp() {

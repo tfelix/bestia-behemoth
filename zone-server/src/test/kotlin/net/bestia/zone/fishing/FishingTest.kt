@@ -30,8 +30,8 @@ import net.bestia.zone.navigation.region.RegionGrid
 import net.bestia.zone.navigation.region.WaterSource
 import net.bestia.zone.navigation.region.WaterSurvey
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.Skill
-import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.SkillId
+import net.bestia.zone.skill.skillIdsOf
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -216,11 +216,7 @@ class FishingTest {
         every { idOf(any()) } answers { ITEMS[firstArg()]?.first }
         every { baseLevelOf(any()) } answers { ITEMS.values.firstOrNull { it.first == firstArg<Long>() }?.second }
       }
-      val skills = mockk<SkillRepository> {
-        every { findByIdentifier("M_FISHING") } returns mockk<Skill> { every { id } returns FISHING_SKILL_ID }
-      }
-
-      return FishingCatalogue(items, skills).also {
+      return FishingCatalogue(items, skillIdsOf(SkillId.M_FISHING to FISHING_SKILL_ID)).also {
         it.load()
         it.warmUp()
       }

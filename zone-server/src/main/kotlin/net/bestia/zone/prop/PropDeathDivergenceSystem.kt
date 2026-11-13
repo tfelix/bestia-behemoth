@@ -2,8 +2,7 @@ package net.bestia.zone.prop
 
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
-import net.bestia.zone.skill.persistence.findByIdentifier
-import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.OwnerSkills
 import net.bestia.zone.entity.ecs.Dead
@@ -47,10 +46,10 @@ class PropDeathDivergenceSystem(
   private val divergence: WorldObjectDivergenceRegistry,
   private val removal: PropRemoval,
   private val gatheringExp: GatheringExp,
-  private val skills: SkillRepository? = null,
+  private val skillIds: SkillIds? = null,
 ) : System {
 
-  private val lumberjackId: Long? by lazy { skills?.findByIdentifier(SkillId.M_LUMBERJACK)?.id }
+  private val lumberjackId: Long? get() = skillIds?.get(SkillId.M_LUMBERJACK)
   override val phase = Phase.DEATH
   override val before = setOf(PlayerDeathSystem::class)
 

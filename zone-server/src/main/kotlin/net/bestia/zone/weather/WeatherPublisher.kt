@@ -3,8 +3,7 @@ package net.bestia.zone.weather
 import net.bestia.zone.geometry.Vec3L
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.SkillId
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.message.OutMessageHandler
 import net.bestia.zone.world.stream.ChunkService
 import org.springframework.stereotype.Service
@@ -42,12 +41,12 @@ class WeatherPublisher(
   private val chunkService: ChunkService,
   private val out: OutMessageHandler,
   private val config: WeatherConfig,
-  private val skills: SkillRepository,
+  private val skillIds: SkillIds,
   private val manaSense: ManaSense,
 ) {
 
   /**
-   * The WEATHER_SENSE skill's id, resolved once.
+   * The WEATHER_SENSE skill's id.
    *
    * By identifier rather than by the literal 39, because the number in `skills.yml` is content and this is
    * code. Null when the skill is absent from the catalogue, in which case nobody gets a forecast - which is
@@ -56,7 +55,7 @@ class WeatherPublisher(
    * Visible because both callers resolve a player's level against it before calling [publish]: that level
    * lives in a `KnownSkills` component, and reading components is the caller's business - see the class note.
    */
-  val weatherSenseSkillId: Long? by lazy { skills.findByIdentifier(SkillId.M_WEATHER_SENSE)?.id }
+  val weatherSenseSkillId: Long? get() = skillIds[SkillId.M_WEATHER_SENSE]
 
   private val lastSent = ConcurrentHashMap<Long, WeatherSMSG>()
   private val lastSentAt = ConcurrentHashMap<Long, Long>()

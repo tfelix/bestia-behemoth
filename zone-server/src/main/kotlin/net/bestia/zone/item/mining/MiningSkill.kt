@@ -2,18 +2,17 @@ package net.bestia.zone.item.mining
 
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.SkillIds
 import org.springframework.stereotype.Service
 
 /** A master's level in Mining, and what it lets them break out of the rock. */
 @Service
 class MiningSkill(
-  private val skills: SkillRepository,
+  private val skillIds: SkillIds,
 ) {
 
   /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
-  private val miningId: Long? by lazy { skills.findByIdentifier(SkillId.M_MINING)?.id }
+  private val miningId: Long? get() = skillIds[SkillId.M_MINING]
 
   /** Resolves the skill id at boot, so the tick never reaches the database for it. */
   fun warmUp() {

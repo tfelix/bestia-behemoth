@@ -12,6 +12,7 @@ import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.skill.persistence.Skill
 import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.skill.skillIdsOf
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -121,7 +122,7 @@ class RecipeCatalogTest {
     val levelById = identifiers("items.yml", "items", "id", "base-level").mapKeys { it.key.toLong() }
     assertTrue(levelById.isNotEmpty(), "items.yml should declare levels")
 
-    val bonuses = CraftBonusService(skillRepository)
+    val bonuses = CraftBonusService(skillIdsOf(identifiers("skills.yml", "skills", "identifier")))
 
     registry.all().filter { it.effect == RecipeEffect.PRODUCE }.forEach { recipe ->
       val outputLevel = levelById[recipe.output!!.itemId]

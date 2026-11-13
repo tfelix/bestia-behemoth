@@ -51,7 +51,7 @@ class BestiaTrapSystemTest {
     deletionQueue = PersistedEntityDeletionQueue(),
     events = events,
     outMessageProcessor = out,
-    skills = mockk(relaxed = true),
+    skillIds = mockk(relaxed = true),
     random = random,
   )
   private val world = testWorld(systems = listOf(sut))

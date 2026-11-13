@@ -17,8 +17,7 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.ecs.KnownSkills
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.treasure.ecs.Digging
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.stream.ChunkCoords
@@ -47,7 +46,7 @@ class DigService(
   private val inbox: ChunkStreamInbox,
   private val gearWear: GearWear,
   private val items: ItemTemplateRegistry,
-  private val skills: SkillRepository,
+  private val skillIds: SkillIds,
   private val outMessageProcessor: OutMessageProcessor,
   private val pickaxeMining: PickaxeMining,
 ) {
@@ -55,8 +54,7 @@ class DigService(
   private val shovelId by lazy { items.idOf(SHOVEL) }
   private val pickaxeId by lazy { items.idOf(PICKAXE) }
 
-  /** Resolved at boot, see `TreasureBootRunner`, so the tick never reads the skill table. */
-  val excavationSkillId: Long? by lazy { skills.findByIdentifier(SkillId.M_EXCAVATION)?.id }
+  val excavationSkillId: Long? get() = skillIds[SkillId.M_EXCAVATION]
 
   fun begin(world: World, entityId: EntityId, accountId: Long, target: Vec3L) {
     val position = world.get(entityId, Position::class)?.toVec3L() ?: return

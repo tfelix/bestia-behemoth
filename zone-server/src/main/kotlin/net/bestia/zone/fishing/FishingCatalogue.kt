@@ -8,8 +8,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PostConstruct
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.skill.SkillId
-import net.bestia.zone.skill.persistence.SkillRepository
-import net.bestia.zone.skill.persistence.findByIdentifier
+import net.bestia.zone.skill.SkillIds
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
 
@@ -22,7 +21,7 @@ import org.springframework.stereotype.Service
 @Service
 class FishingCatalogue(
   private val items: ItemTemplateRegistry,
-  private val skills: SkillRepository,
+  private val skillIds: SkillIds,
 ) {
 
   private lateinit var file: FishingFile
@@ -51,7 +50,7 @@ class FishingCatalogue(
   }
 
   /** Null when the catalogue has no Fishing skill, which leaves every master untrained. */
-  val fishingSkillId: Long? by lazy { skills.findByIdentifier(SkillId.M_FISHING)?.id }
+  val fishingSkillId: Long? get() = skillIds[SkillId.M_FISHING]
 
   @PostConstruct
   fun load() {
