@@ -70,6 +70,8 @@ enum class SkillId {
   M_MINING,
   // Read by net.bestia.zone.item.mining.OreHandOut on every broken ore block.
   M_RICH_VEINS,
+  // Lets net.bestia.zone.item.mining.RoughGemScript appraise a Rough Gemstone.
+  M_GEM_LORE,
 
   // Passives with a stat effect, named by their PassiveSkillScript bean rather than from the yml.
   M_MEDITATION,
