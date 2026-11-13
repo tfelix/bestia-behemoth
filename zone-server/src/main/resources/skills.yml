@@ -2015,7 +2015,7 @@ skills:
     identifier: M_VOICE_TRAINING
     targetType: FRIENDLY
     description: |
-      A trained voice reaches further and holds a note longer.
+      A trained voice reaches further and holds a note longer, in every song the Bard plays.
 
       `+1/lv` song radius in tiles
       `+10%/lv` song duration
@@ -2028,7 +2028,9 @@ skills:
     cooldown: 5
     castTime: 2
     description: |
-      A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 60s.
+      A song: needs an instrument. It plays for 60s around the Bard, and everyone on the Bard's
+      side within 3 tiles hears it and keeps it 5s after leaving. It stops early if the Bard puts the
+      instrument away, falls or cannot cast. Cooldown 5s.
 
       `+3%/lv` ATK and MATK
 
@@ -2040,7 +2042,9 @@ skills:
     cooldown: 5
     castTime: 2
     description: |
-      A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 60s.
+      A song: needs an instrument. It plays for 60s around the Bard, and everyone on the Bard's
+      side within 3 tiles hears it and keeps it 5s after leaving. It stops early if the Bard puts the
+      instrument away, falls or cannot cast. Cooldown 5s.
 
       `+2%/lv` movement and attack speed
 
@@ -2052,7 +2056,9 @@ skills:
     cooldown: 5
     castTime: 2
     description: |
-      A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 60s.
+      A song: needs an instrument. It plays for 60s around the Bard, and everyone on the Bard's
+      side within 3 tiles hears it and keeps it 5s after leaving. It stops early if the Bard puts the
+      instrument away, falls or cannot cast. Cooldown 5s.
 
       `+3/lv` FLEE
 
@@ -2064,7 +2070,10 @@ skills:
     cooldown: 5
     castTime: 2
     description: |
-      A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 10min. Made for long journeys with a Bestia team.
+      A song: needs an instrument. It plays for 10min around the Bard, and everyone on the Bard's
+      side within 3 tiles hears it and keeps it 5s after leaving. It stops early if the Bard puts the
+      instrument away, falls or cannot cast. Cooldown 5s.
+      Made for long journeys with a Bestia team.
 
       `-10%/lv` stamina drain
 
@@ -2072,7 +2081,7 @@ skills:
     identifier: M_GRAND_PERFORMANCE
     targetType: FRIENDLY
     description: |
-      The Bard's capstone. Every song lands a little harder.
+      The Bard's capstone. Every song the Bard plays lands a little harder.
 
       `+10%/lv` effect of every song
 

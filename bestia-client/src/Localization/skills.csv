@@ -965,23 +965,32 @@ for 20s. Cooldown 20s.
 
 `-5%/lv` ASPD
 `-3%/lv` HIT"
-SKILL_165_DESC,"A trained voice reaches further and holds a note longer.
+SKILL_165_DESC,"A trained voice reaches further and holds a note longer, in every song the Bard plays.
 
 `+1/lv` song radius in tiles
 `+10%/lv` song duration"
-SKILL_166_DESC,"A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 60s.
+SKILL_166_DESC,"A song: needs an instrument. It plays for 60s around the Bard, and everyone on the Bard's
+side within 3 tiles hears it and keeps it 5s after leaving. It stops early if the Bard puts the
+instrument away, falls or cannot cast. Cooldown 5s.
 
 `+3%/lv` ATK and MATK"
-SKILL_167_DESC,"A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 60s.
+SKILL_167_DESC,"A song: needs an instrument. It plays for 60s around the Bard, and everyone on the Bard's
+side within 3 tiles hears it and keeps it 5s after leaving. It stops early if the Bard puts the
+instrument away, falls or cannot cast. Cooldown 5s.
 
 `+2%/lv` movement and attack speed"
-SKILL_168_DESC,"A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 60s.
+SKILL_168_DESC,"A song: needs an instrument. It plays for 60s around the Bard, and everyone on the Bard's
+side within 3 tiles hears it and keeps it 5s after leaving. It stops early if the Bard puts the
+instrument away, falls or cannot cast. Cooldown 5s.
 
 `+3/lv` FLEE"
-SKILL_169_DESC,"A song: needs an instrument and buffs every party member and their Bestias within 3 tiles for 10min. Made for long journeys with a Bestia team.
+SKILL_169_DESC,"A song: needs an instrument. It plays for 10min around the Bard, and everyone on the Bard's
+side within 3 tiles hears it and keeps it 5s after leaving. It stops early if the Bard puts the
+instrument away, falls or cannot cast. Cooldown 5s.
+Made for long journeys with a Bestia team.
 
 `-10%/lv` stamina drain"
-SKILL_170_DESC,"The Bard's capstone. Every song lands a little harder.
+SKILL_170_DESC,"The Bard's capstone. Every song the Bard plays lands a little harder.
 
 `+10%/lv` effect of every song"
 SKILL_171_DESC,"Takes the hits meant for a party member, a party Bestia or one of the Knight's own Bestias.
