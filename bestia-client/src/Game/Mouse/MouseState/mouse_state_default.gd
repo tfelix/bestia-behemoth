@@ -75,6 +75,11 @@ func handle_object_hover(mgr: MouseManager, _object: Node3D, _entered: bool) -> 
 
 
 func handle_ground_input_event(mgr: MouseManager, click_position: Vector3, event: InputEvent) -> void:
+	# The ground under the mouse is the far spot's: the body would set off towards it, and the step end the sight.
+	var scry := ScryView.get_instance()
+	if scry != null and scry.is_open():
+		return
+
 	if event.is_action_pressed("normal_action"):
 		# An explicit walk order replaces whatever we were walking towards - the pilot is only ever the
 		# client steering, and so stops the moment the player steers themselves. A cast is an order too.

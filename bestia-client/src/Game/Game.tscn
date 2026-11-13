@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://bp0vtb8sk1qwd" path="res://Game/Mouse/Selection/navigation_s.png" id="14_selarw"]
 [ext_resource type="PackedScene" uid="uid://45jpbbdakcsg" path="res://Dev/RenderDebug/RenderDebug.tscn" id="15_rdebug"]
 [ext_resource type="Script" path="res://Game/World/resource_sonar.gd" id="16_sonar"]
+[ext_resource type="Script" uid="uid://c56jmog2c02jq" path="res://Game/Scry/scry_view.gd" id="16_scry"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oscxy"]
 transparency = 1
@@ -34,6 +35,9 @@ script = ExtResource("12_emblem")
 
 [node name="EntityManager" type="Node" parent="." unique_id=432959366]
 script = ExtResource("9_eqev2")
+
+[node name="ScryView" type="Node3D" parent="."]
+script = ExtResource("16_scry")
 
 [node name="MouseMarker" type="Node3D" parent="." unique_id=1320338604]
 script = ExtResource("11_msmrk")

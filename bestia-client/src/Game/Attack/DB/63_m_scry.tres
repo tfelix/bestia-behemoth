@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+[ext_resource type="Script" path="res://Game/Attack/scry_use.gd" id="2_use"]
 
 [resource]
 script = ExtResource("1_script")
@@ -15,3 +16,4 @@ tree = "SCHOLAR"
 sub_tree = "SAGE"
 prerequisite_ids = PackedInt32Array(54)
 prerequisite_levels = PackedInt32Array(3)
+attack_script = ExtResource("2_use")

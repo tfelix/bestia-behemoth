@@ -505,6 +505,7 @@ MAP_GO,Go here
 MAP_GO_TO,Go: %s
 MAP_ADD_TO_ROUTE,Add to route
 MAP_MARK_HERE,Mark here
+MAP_SCRY_HERE,Scry here
 MAP_RENAME,Rename
 MAP_DELETE,Delete
 MAP_DISTANCE,%s away
@@ -806,8 +807,13 @@ STATUS_EFFECT_238,Mirage Dance: a Bard's song. More FLEE.
 STATUS_EFFECT_239,Playing Wanderer's Tune: the weather drains less stamina from everyone on your side near you.
 STATUS_EFFECT_240,Wanderer's Tune: a Bard's song. The weather drains less of your stamina.
 ERROR_PORTAL_NO_SPOT,That saved spot is not there any more.
+ERROR_SCRY_UNCHARTED,Your sight finds nothing to hold on to there: that land is not charted.
+ERROR_SCRY_NO_SIGHT,That party member is not there to be seen.
 ERROR_PORTAL_SPENT,The portal is closing or has let everyone through it can.
 PORTAL_MARK_SPOT,Mark this spot (%d of %d saved)
+SCRY_RETURN,Return to body
+SCRY_PICK_ON_MAP,A spot on the map...
+SCRY_PARTY_MEMBER,Where %s stands
 PORTAL_TO_HOME,To your home
 PORTAL_TO_SPOT,"To spot %d (%s, %.1f km)"
 ERROR_SPELL_NOT_OWN_BESTIA,That is not one of your bestias.

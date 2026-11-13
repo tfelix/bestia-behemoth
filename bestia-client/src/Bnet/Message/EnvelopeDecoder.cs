@@ -75,6 +75,7 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.AuctionHouseOpen] = e => Auction.AuctionHouseOpenSMSG.FromProto(e.AuctionHouseOpen),
       [Envelope.MessageOneofCase.SurveyMinigame] = e => Survey.SurveyMinigameSMSG.FromProto(e.SurveyMinigame),
       [Envelope.MessageOneofCase.SenseMarks] = e => Sense.SenseMarksSMSG.FromProto(e.SenseMarks),
+      [Envelope.MessageOneofCase.ScrySight] = e => Scry.ScrySightSMSG.FromProto(e.ScrySight),
       [Envelope.MessageOneofCase.MonsterSense] = e => Sense.MonsterSenseSMSG.FromProto(e.MonsterSense),
       [Envelope.MessageOneofCase.AuctionListings] = e => Auction.AuctionListingsSMSG.FromProto(e.AuctionListings),
       [Envelope.MessageOneofCase.AuctionPurchased] = e => Auction.AuctionPurchasedSMSG.FromProto(e.AuctionPurchased),

@@ -1620,6 +1620,11 @@ func vanish(msg: VanishEntitySMSG) -> void:
 		queue_free()
 
 
+## The camera rig this entity carries while it is driven, or null. A Scry borrows it while the sight is away.
+func get_camera_rig() -> Node3D:
+	return _camera
+
+
 func remove_as_active() -> void:
 	if _camera != null:
 		_camera.queue_free()

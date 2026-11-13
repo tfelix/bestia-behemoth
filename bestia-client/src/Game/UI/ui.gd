@@ -240,6 +240,9 @@ func _ready() -> void:
 	_map_overlay.mark_delete_requested.connect(_on_mark_clicked)
 	_map_overlay.mark_rename_requested.connect(_on_mark_rename_requested)
 	_minimap.pointed.connect(func(at: Vector2) -> void: _map_overlay.open_at(at))
+	var scry := ScryView.get_instance()
+	if scry != null:
+		scry.map_requested.connect(_map_overlay.open)
 	_map_overlay.place_selected.connect(_on_place_selected)
 	_map_overlay.service_selected.connect(_on_service_selected)
 
