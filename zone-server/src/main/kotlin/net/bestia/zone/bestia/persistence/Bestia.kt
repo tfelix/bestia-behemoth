@@ -168,6 +168,14 @@ class Bestia(
   var eventOnly: Boolean = false,
 
   /**
+   * One of the five world bosses. No den picks it: the world's history decides whether it lives and where, and
+   * only its lair or its seal spawns it.
+   */
+  @Column(name = "world_boss", nullable = false)
+  @ColumnDefault("false")
+  var worldBoss: Boolean = false,
+
+  /**
    * True when nothing may take this species' health: it is spawned with the `INVULNERABLE` status effect.
    *
    * A property of the species rather than a marker each caller remembers to add, because the *client* needs

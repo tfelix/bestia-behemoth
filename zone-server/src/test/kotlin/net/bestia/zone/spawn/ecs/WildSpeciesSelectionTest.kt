@@ -174,10 +174,10 @@ class WildSpeciesSelectionTest {
   @Test
   fun `a boss den above the ordinary cap holds a boss above it`() {
     // Deep corruption reaches 120, past the 100 an ordinary den stops at, and nothing on the way may clamp it.
-    val behemoth = candidate(1, level = 120, habitat = "GRASSLAND", boss = true)
+    val ancient = candidate(1, level = 120, habitat = "GRASSLAND", boss = true)
     val deep = den(96, 120, Biome.GRASSLAND, corrupted = true, boss = true)
 
-    val choice = WildSpawnerService.pick(listOf(behemoth), 1L, 1L, deep, config)
+    val choice = WildSpawnerService.pick(listOf(ancient), 1L, 1L, deep, config)
 
     assertEquals(0, choice!!.levelMiss)
     assertEquals(WildSpawnConfig.TOP_LEVEL, config.bandFor(deep.levelMax).maxLevel)
@@ -193,6 +193,15 @@ class WildSpeciesSelectionTest {
     // And it is refused even when it is the only thing that could possibly go there, which is the case an
     // "unspawnable by accident" implementation would get wrong.
     assertNull(WildSpawnerService.pick(listOf(scripted), 1L, 1L, den(1, 20), config))
+  }
+
+  @Test
+  fun `a world boss is refused by every kind of den`() {
+    // A world boss lives only in its lair; the history decides where that is.
+    val worldBoss = candidate(1, level = 120, habitat = "GRASSLAND", boss = true).also { it.species.worldBoss = true }
+
+    assertTrue(!WildSpawnerService.admits(worldBoss, den(96, 120, Biome.GRASSLAND, corrupted = true, boss = true)))
+    assertNull(WildSpawnerService.pick(listOf(worldBoss), 1L, 1L, den(96, 120, Biome.GRASSLAND, boss = true), config))
   }
 
   @Test

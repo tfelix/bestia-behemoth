@@ -43,6 +43,7 @@ temperature-min: -10
 temperature-max: 35
 spawn-weight: 100
 boss: true
+world-boss: true
 status-immunities: [STUN, FROZEN, STONING, FEARED, CONFUSED, CONTROLLED]
 equip-slots: [HEAD_UPPER, ARMOR, ACCESSORY_1, ACCESSORY_2]
 armor-types: [MEDIUM, HEAVY]

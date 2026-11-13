@@ -41,7 +41,7 @@ import kotlin.math.roundToInt
  *
  * So the join is split by what a wrong answer actually costs:
  *
- * - **Hard, never relaxed.** [admits]: the species is not `eventOnly`, its boss-ness matches the den's, a
+ * - **Hard, never relaxed.** [admits]: the species is not `eventOnly` or a world boss, its boss-ness matches the den's, a
  *   `corruptedOnly` species is on corrupted ground, and - the one that matters - its `habitat` includes the
  *   den's biome. A level-three creature in a level-ninety den is a balance problem. A blob in a volcanic
  *   field is nonsense, and no amount of empty world justifies it.
@@ -380,7 +380,7 @@ class WildSpawnerService(
     internal fun admits(candidate: Candidate, den: DenFacts): Boolean {
       val species = candidate.species
 
-      if (species.eventOnly) return false
+      if (species.eventOnly || species.worldBoss) return false
       if (den.boss != species.boss) return false
       if (species.corruptedOnly && !den.corrupted) return false
       if (candidate.habitat.isNotEmpty() && den.biome !in candidate.habitat) return false

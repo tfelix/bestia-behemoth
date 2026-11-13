@@ -1,0 +1,47 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 105
+identifier: mire_mother
+level: 104
+name: "Mire Mother"
+description: >-
+  A vast, rotting bog-thing that buds lesser creatures from its flanks. The marsh around its lair is never
+  quiet.
+kind: PLANT
+element: POISON_4
+size: BIG
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 0.03
+weight: 500
+health: 143775
+mana: 1118
+experience: 40557
+attributes: { strength: 1, intelligence: 222, vitality: 59, dexterity: 1, willpower: 148, agility: 59 }
+learnset:
+  - { skill: growl, level: 6 }
+  - { skill: venom_bolt, level: 16 }
+  - { skill: flame_weapon, level: 21 }
+  - { skill: shockwave, level: 31 }
+  - { skill: bewilder, level: 36 }
+  - { skill: poison_cloud, level: 46 }
+  - { skill: mending_light, level: 56 }
+  - { skill: miasma, level: 61 }
+  - { skill: acid_lance, level: 66 }
+  - { skill: control_undead, level: 70, active: true }
+  - { skill: mana_storm, level: 82, active: true }
+  - { skill: bleeding_wound, level: 88, active: true }
+  - { skill: pestilence, level: 100, active: true }
+habitat: [BOG, SWAMP]
+temperature-min: -10
+temperature-max: 38
+spawn-weight: 100
+boss: true
+world-boss: true
+status-immunities: [STUN, FROZEN, STONING, FEARED, CONFUSED, CONTROLLED]
+equip-slots: [HEAD_UPPER, GARMENT, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH]
+loot:
+  - { item: spore_dust, chance: 10000 }
+  - { item: venom_sac, chance: 6000 }
+  - { item: medicine, chance: 4000 }
