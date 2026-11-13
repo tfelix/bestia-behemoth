@@ -6,6 +6,7 @@ import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.ecs.core.testWorld
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 
 class HeardSongsTest {
@@ -14,6 +15,34 @@ class HeardSongsTest {
   fun `Battle Hymn adds 3 percent ATK and MATK a level, more from a Bard with Grand Performance`() {
     assertEquals(15, BattleHymnHeard().attackPercentAt(level = 5, effectPercent = 100))
     assertEquals(19, BattleHymnHeard().attackPercentAt(level = 5, effectPercent = 130))
+  }
+
+  @Test
+  fun `War March adds 2 percent move and attack speed a level`() {
+    val marching = WarMarchHeard().recalc(StatusEffectId.WAR_MARCH, level = 5, effectPercent = 130)
+
+    assertEquals(13, marching.aspdPercent)
+    assertEquals(11.3f, marching.speed, 0.001f)
+  }
+
+  @Test
+  fun `Mirage Dance adds 3 FLEE a level`() {
+    assertEquals(15, MirageDanceHeard().recalc(StatusEffectId.MIRAGE_DANCE, level = 5, effectPercent = 100).flee)
+    assertEquals(19, MirageDanceHeard().recalc(StatusEffectId.MIRAGE_DANCE, level = 5, effectPercent = 130).flee)
+  }
+
+  @Test
+  fun `Wanderer's Tune cuts the stamina drain 10 percent a level`() {
+    assertEquals(30, WanderersTuneHeard().recalc(StatusEffectId.WANDERERS_TUNE, 3, effectPercent = 100).staminaDrainReduction)
+    assertEquals(65, WanderersTuneHeard().recalc(StatusEffectId.WANDERERS_TUNE, 5, effectPercent = 130).staminaDrainReduction)
+  }
+
+  @Test
+  fun `what a Bard's song gives outlasts the field by 5 s and is never stored`() {
+    listOf(BattleHymnHeard(), WarMarchHeard(), MirageDanceHeard(), WanderersTuneHeard()).forEach {
+      assertEquals(5.0, it.durationSeconds(5))
+      assertFalse(it.isPersisted)
+    }
   }
 
   private fun HeardSongScript.attackPercentAt(level: Int, effectPercent: Int): Int {

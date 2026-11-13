@@ -818,3 +818,51 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: BattleHymnHeard
+
+  # A Bard plays War March: a field that hands WAR_MARCH to everyone on the Bard's side nearby.
+  - id: 235
+    identifier: SONG_WAR_MARCH
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: WarMarchSong
+
+  # Hearing a Bard's War March: faster feet and swings.
+  - id: 236
+    identifier: WAR_MARCH
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: WarMarchHeard
+
+  # A Bard plays Mirage Dance: a field that hands MIRAGE_DANCE to everyone on the Bard's side nearby.
+  - id: 237
+    identifier: SONG_MIRAGE_DANCE
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: MirageDanceSong
+
+  # Hearing a Bard's Mirage Dance: more FLEE.
+  - id: 238
+    identifier: MIRAGE_DANCE
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: MirageDanceHeard
+
+  # A Bard plays Wanderer's Tune: a field that hands WANDERERS_TUNE to everyone on the Bard's side nearby.
+  - id: 239
+    identifier: SONG_WANDERERS_TUNE
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: WanderersTuneSong
+
+  # Hearing a Bard's Wanderer's Tune: the weather drains less stamina.
+  - id: 240
+    identifier: WANDERERS_TUNE
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: WanderersTuneHeard
