@@ -922,6 +922,56 @@ namespace BestiaBehemothClient.Game.World
     }
 
     /// <summary>
+    /// The ore and gem blocks within <paramref name="radiusVoxels"/> of a spot, for Resource Sonar: each as the
+    /// Godot position of the block's centre, with its block id in <c>w</c>. Nearest first.
+    /// </summary>
+    public Vector4[] OreAround(Vector3 worldPosition, int radiusVoxels)
+    {
+      if (WorldInfo == null || radiusVoxels <= 0)
+      {
+        return [];
+      }
+
+      const double voxelSize = WorldLayout.VoxelSizeMetres;
+      var palette = BlockAppearance.Current;
+      _oreBlocks ??= OreMask(palette);
+
+      var found = OreSonar.Around(
+        Store, _wrap,
+        (long)Math.Floor(worldPosition.X / voxelSize), (long)Math.Floor(worldPosition.Z / voxelSize),
+        (int)Math.Floor(worldPosition.Y / voxelSize), radiusVoxels,
+        block => block < _oreBlocks.Length && _oreBlocks[block], WorldLayout.ChunkSize, WorldLayout.ChunkHeight);
+
+      var marks = new Vector4[found.Count];
+      for (var i = 0; i < found.Count; i++)
+      {
+        var ore = found[i];
+        marks[i] = new Vector4(
+          (float)((ore.X + 0.5) * voxelSize), (float)((ore.Z + 0.5) * voxelSize), (float)((ore.Y + 0.5) * voxelSize),
+          ore.Block);
+      }
+
+      return marks;
+    }
+
+    /// <summary>The colour <paramref name="blockId"/> is drawn in, so the sonar lights each ore in its own.</summary>
+    public Color BlockColour(int blockId) => BlockAppearance.Current.ColourOf((byte)blockId);
+
+    /// <summary>Which block ids the sonar shows, read once from the palette's names.</summary>
+    private static bool[] _oreBlocks;
+
+    private static bool[] OreMask(BlockAppearance palette)
+    {
+      var mask = new bool[256];
+      for (var id = 0; id < mask.Length; id++)
+      {
+        mask[id] = OreSonar.IsOreName(palette.NameOf(id));
+      }
+
+      return mask;
+    }
+
+    /// <summary>
     /// Whether the client holds the terrain column under (<paramref name="worldX"/>, <paramref name="worldZ"/>).
     /// </summary>
     /// <remarks>

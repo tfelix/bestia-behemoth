@@ -233,7 +233,9 @@ every swing.
 SKILL_43_DESC,"The Miner's capstone: a feel for what's underfoot precise enough to map a shaft before
 the first swing of the pick.
 
-Can sense ore and gem deposits through solid rock within 5m / Lv."
+While a pickaxe is in hand, every ore and gem block nearby glows through the rock.
+
+`+5m/lv` sense range, from 5m at Lv.1"
 SKILL_44_DESC,"Time spent far from settlements teaches a Craftsman to adapt and improvise, reworking
 weapons and armor in the field to better suit their needs. Each attempt can fail, and a
 failed attempt can destroy the equipment outright.
