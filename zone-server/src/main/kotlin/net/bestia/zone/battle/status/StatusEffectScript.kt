@@ -22,6 +22,11 @@ interface StatusEffectScript {
 
   fun durationSeconds(level: Int): Double
 
+  /** For an effect its bearer can hold longer, like a song sung by a trained voice. */
+  fun durationSeconds(world: World, bearerId: EntityId, level: Int): Double {
+    return durationSeconds(level)
+  }
+
   /** What the bearer may not do while the effect lasts. See [ActionLock]. */
   val actionLocks: Set<ActionLock>
     get() = emptySet()

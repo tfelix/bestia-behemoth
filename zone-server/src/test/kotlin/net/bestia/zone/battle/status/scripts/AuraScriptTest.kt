@@ -21,7 +21,7 @@ class AuraScriptTest {
   private class TestSong(aoi: EntityAOIService) : AuraScript(aoi) {
     override val granted = StatusEffectId.SWIFTNESS
     override fun durationSeconds(level: Int) = 60.0
-    override fun radiusTiles(effect: ActiveStatusEffect) = 3L
+    override fun radiusTiles(world: World, bearerId: EntityId, effect: ActiveStatusEffect) = 3L
     override fun reaches(world: World, bearerId: EntityId, otherId: EntityId) = isFriendOf(world, bearerId, otherId)
   }
 

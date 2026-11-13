@@ -77,7 +77,9 @@ class StatusEffectService(
         stackBehavior = script.stackBehavior,
         level = level,
         sourceEntityId = sourceEntityId,
-        durationSeconds = steadied(world, targetId, definition.id, durationSeconds ?: script.durationSeconds(level)),
+        durationSeconds = steadied(
+          world, targetId, definition.id, durationSeconds ?: script.durationSeconds(world, targetId, level)
+        ),
         isSyncedToClient = definition.isSyncedToClient,
         shield = script.shield,
         polarity = definition.polarity,
@@ -91,8 +93,11 @@ class StatusEffectService(
       return false
     }
     // On a refresh too: endowing a weapon anew with another element replaces the old one.
-    if (amount != 0) {
-      landed?.amount = amount
+    val stored = landed
+    if (amount != 0 && stored != null && stored.amount != amount) {
+      stored.amount = amount
+      // A refresh at the same level changes no values by itself; a new amount does, like a stronger song.
+      world.add(targetId, IsStatusValueDirty)
     }
 
     if (change == StatusEffects.Change.CHANGED) {
