@@ -11,6 +11,8 @@ class_name SettingsManager
 ## their shipped values instead of the file having to be migrated.
 
 const DEFAULTS_PATH := "res://Settings/default_settings.tres"
+## What an exported build ships with: the public servers instead of a local dev setup.
+const RELEASE_DEFAULTS_PATH := "res://Settings/release_settings.tres"
 const SAVE_PATH := "user://settings.json"
 
 ## Build identity, sent in the authentication handshake. Deliberately not a setting: the server
@@ -51,11 +53,12 @@ static func reload() -> void:
 
 
 static func _load_defaults() -> ClientSettings:
-	var defaults := load(DEFAULTS_PATH) as ClientSettings
+	var path := RELEASE_DEFAULTS_PATH if OS.has_feature("template") else DEFAULTS_PATH
+	var defaults := load(path) as ClientSettings
 	if defaults == null:
 		# The client still has to boot, and ClientSettings' own property defaults are the same values
 		# the resource holds - so this costs a working client only if the two ever drift.
-		push_error("SettingsManager: could not load %s; using built-in defaults" % DEFAULTS_PATH)
+		push_error("SettingsManager: could not load %s; using built-in defaults" % path)
 		return ClientSettings.new()
 
 	# The loaded resource is shared with anything else that loads the same path, and settings are
