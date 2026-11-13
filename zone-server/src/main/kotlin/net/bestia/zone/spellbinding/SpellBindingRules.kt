@@ -8,6 +8,9 @@ object SpellBindingRules {
   /** How close "comes near" reaches, and how far an "after a delay" binding looks for a target: 5 m. */
   const val NEAR_RADIUS_TILES = 5L
 
+  /** "Holder's HP gets low" fires when a hit takes the holder below this share of max HP. */
+  const val LOW_HEALTH_PERCENT = 30
+
   const val MIN_DELAY_SECONDS = 5L
   const val MAX_DELAY_SECONDS = 300L
 

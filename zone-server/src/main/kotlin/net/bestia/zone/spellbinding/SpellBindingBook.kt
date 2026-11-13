@@ -22,6 +22,7 @@ class SpellBindingBook {
   )
 
   private val byMaster = ConcurrentHashMap<Long, List<Entry>>()
+  private val byItem = ConcurrentHashMap<Long, Entry>()
   private val nextId = AtomicLong(1)
 
   fun startIdsAfter(maxId: Long) {
@@ -41,7 +42,16 @@ class SpellBindingBook {
     return of(masterId).find { it.bound.id == bindingId }
   }
 
+  fun byItem(uniqueId: Long): Entry? {
+    return byItem[uniqueId]
+  }
+
+  fun hasItemBindings(): Boolean {
+    return byItem.isNotEmpty()
+  }
+
   fun add(entry: Entry) {
+    entry.itemUniqueId?.let { byItem[it] = entry }
     byMaster.merge(entry.bound.owner.masterId, listOf(entry)) { old, new -> (old + new).sortedBy { it.bound.boundAt } }
   }
 
@@ -51,6 +61,7 @@ class SpellBindingBook {
       removed = entries.find { it.bound.id == bindingId }
       (entries - setOfNotNull(removed)).ifEmpty { null }
     }
+    removed?.itemUniqueId?.let { byItem.remove(it, removed) }
 
     return removed
   }

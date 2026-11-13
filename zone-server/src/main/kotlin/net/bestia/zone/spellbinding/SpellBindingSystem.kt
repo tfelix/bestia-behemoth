@@ -7,7 +7,10 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.battle.ecs.damage.LandedHits
+import net.bestia.zone.treasure.ecs.DiggingSystem
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.prop.ecs.construction.ConstructionSystem
 import net.bestia.zone.respawn.ecs.RespawnSystem
@@ -25,16 +28,18 @@ class SpellBindingSystem(
   private val aoi: EntityAOIService,
   private val book: SpellBindingBook,
   private val firing: SpellBindingFiring,
+  private val itemHits: ItemBindingHits,
   private val clock: Clock = Clock.systemUTC(),
 ) : System {
 
   override val phase = Phase.ACTIONS
 
-  /** Looks where creatures stand once they arrived, rose or were built this tick. */
-  override val after = setOf(RespawnSystem::class, ConstructionSystem::class, TeleportSystem::class)
+  /** Looks where creatures stand and what they wear once they arrived, rose, dug or were built this tick. */
+  override val after = setOf(RespawnSystem::class, ConstructionSystem::class, TeleportSystem::class, DiggingSystem::class)
   override val schedule: Schedule = Schedule.EveryTick
 
-  override val reads: ComponentClassSet = setOf(GroundSpellBinding::class, Position::class) + BindingTargets.READS
+  override val reads: ComponentClassSet =
+    setOf(GroundSpellBinding::class, Position::class, Equipment::class) + BindingTargets.READS
 
   private class Fired(val bound: BoundSpell, val at: Vec3L, val target: EntityId?)
 
@@ -58,6 +63,8 @@ class SpellBindingSystem(
       }
     }
 
+    itemHits.drain().forEach { hit -> fired += firedByHit(world, hit) }
+
     if (fired.isEmpty() && !firing.hasLingeringCasters()) {
       return
     }
@@ -70,6 +77,47 @@ class SpellBindingSystem(
   private fun fire(world: World, fired: Fired) {
     val entry = book.find(fired.bound.owner.masterId, fired.bound.id) ?: return
     firing.fire(world, entry, fired.at, fired.target)
+  }
+
+  /** The bindings on what the struck one and the striker wear, that this hit sets off. */
+  private fun firedByHit(world: World, hit: LandedHits.LandedHit): List<Fired> {
+    val struck = wornBindings(world, hit.targetId).mapNotNull { entry ->
+      when (entry.bound.trigger) {
+        BindingTrigger.HOLDER_STRUCK -> firedAt(world, entry, holder = hit.targetId, target = hit.sourceId)
+        BindingTrigger.HOLDER_LOW_HP -> if (fallsBelowLowHealth(hit)) {
+          val target = if (firing.isHelpful(entry.bound)) hit.targetId else hit.sourceId
+          firedAt(world, entry, holder = hit.targetId, target = target)
+        } else {
+          null
+        }
+
+        else -> null
+      }
+    }
+    val struckBack = wornBindings(world, hit.sourceId)
+      .filter { it.bound.trigger == BindingTrigger.HOLDER_STRIKES }
+      .mapNotNull { firedAt(world, it, holder = hit.sourceId, target = hit.targetId) }
+
+    return struck + struckBack
+  }
+
+  private fun wornBindings(world: World, holder: EntityId): List<SpellBindingBook.Entry> {
+    val worn = world.get(holder, Equipment::class)?.getWorn()?.values ?: return emptyList()
+
+    return worn.mapNotNull { book.byItem(it.uniqueId) }
+  }
+
+  private fun firedAt(world: World, entry: SpellBindingBook.Entry, holder: EntityId, target: EntityId): Fired? {
+    val at = world.get(holder, Position::class)?.toVec3L() ?: return null
+    val admitted = BindingTargets(world, entry.bound.owner).admits(entry.bound.filter, target)
+
+    return if (admitted) Fired(entry.bound, at, target) else null
+  }
+
+  private fun fallsBelowLowHealth(hit: LandedHits.LandedHit): Boolean {
+    val threshold = hit.maxHealth * SpellBindingRules.LOW_HEALTH_PERCENT
+
+    return hit.healthBefore * 100 >= threshold && hit.healthAfter * 100 < threshold
   }
 
   private fun creatureOnTile(world: World, at: Vec3L, bound: BoundSpell, targets: BindingTargets): EntityId? {
