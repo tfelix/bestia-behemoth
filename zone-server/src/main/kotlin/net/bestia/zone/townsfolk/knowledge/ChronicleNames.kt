@@ -37,6 +37,21 @@ object ChronicleNames {
     return Names.artifact(record.nameSeed, culture, record.kind, record.forgedAtNameSeed)
   }
 
+  /** A god as one people calls it. Every culture renders the same seed, so one god has a name per people. */
+  fun deityOf(chronicle: Chronicle, deity: Int, culture: Int): String? {
+    val record = chronicle.deities.getOrNull(deity) ?: return null
+
+    return Names.deity(record.nameSeed, culture, record.domain)
+  }
+
+  /** A cult, named in the idiom of the town that founded it. */
+  fun cultOf(chronicle: Chronicle, cult: Int): String? {
+    val record = chronicle.cults.getOrNull(cult) ?: return null
+    val culture = cultureOfSettlement(chronicle, record.origin)
+
+    return Names.cult(record.nameSeed, record.kind, deityOf(chronicle, record.deity, culture), record.beast)
+  }
+
   /**
    * Whose idiom names a town: whoever holds it, or whoever founded it once nobody does.
    *

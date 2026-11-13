@@ -121,6 +121,7 @@ enum class MapVisibility(
       FeatureKind.BATTLEFIELD -> PLACE
 
       FeatureKind.SHRINE -> LANDMARK
+      FeatureKind.SANCTUARY -> LANDMARK
       FeatureKind.POI -> LANDMARK
 
       // A working mine is a place on the map; what is *in* it is ORE_DEPOSIT, which is not.

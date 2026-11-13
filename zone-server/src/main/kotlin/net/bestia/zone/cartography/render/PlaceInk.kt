@@ -242,6 +242,8 @@ object PlaceInk {
       FeatureKind.LAVA_POOL -> lavaPool(g, x, y, r, palette)
       FeatureKind.WOUND -> wound(g, x, y, r, palette)
       FeatureKind.SHRINE -> dolmen(g, x, y, r, palette)
+      // An idol is a standing stone: the obelisk reads as one at map scale.
+      FeatureKind.SANCTUARY -> obelisk(g, x, y, r, palette)
 
       else -> star(g, x, y, r, palette)
     }

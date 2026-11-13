@@ -14,6 +14,7 @@ import net.bestia.worldgen.core.FeatureIds
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Domain
 import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.SiteKind
@@ -65,7 +66,10 @@ class HistoryStage(
 
   override val version = 1
 
-  override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest(), EventKind.catalogueDigest(), Names.catalogueDigest(), Faction.catalogueDigest())
+  override val paramsVersion get() = GenRng.hash(
+    params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest(), EventKind.catalogueDigest(),
+    Names.catalogueDigest(), Faction.catalogueDigest(), Domain.catalogueDigest()
+  )
   override val dependencies = listOf(
     TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID,
     ResourceStage.ID, CaveStage.ID, HabitabilityStage.ID, SettlementStage.ID,
@@ -95,6 +99,7 @@ class HistoryStage(
     StageOutput.Vector(FeatureKind.CAVE_HOARD),
     StageOutput.Vector(FeatureKind.WOUND),
     StageOutput.Vector(FeatureKind.SHRINE),
+    StageOutput.Vector(FeatureKind.SANCTUARY),
     StageOutput.History
   )
 
@@ -308,6 +313,7 @@ class HistoryStage(
             .channel(HistoryChannels.OLD_NAME_SEED) { record.oldNameSeed.toDouble() }
             .channel(HistoryChannels.TECHNOLOGY) { civ?.technology ?: 0.0 }
             .channel(HistoryChannels.Faction) { (civ?.sworn?.ordinal ?: -1).toDouble() }
+            .channel(HistoryChannels.PATRON) { record.patron.toDouble() }
             .build()
         )
       )
@@ -339,6 +345,7 @@ class HistoryStage(
         SiteKind.HOARD -> FeatureKind.CAVE_HOARD
         SiteKind.WOUND -> FeatureKind.WOUND
         SiteKind.SHRINE -> FeatureKind.SHRINE
+        SiteKind.SANCTUARY -> FeatureKind.SANCTUARY
       },
       position = record.position,
       attributes = StationTable.Builder(1)
@@ -359,6 +366,7 @@ class HistoryStage(
         .channel(SiteChannels.Faction) { (record.faction?.ordinal ?: -1).toDouble() }
         .channel(SiteChannels.BATTLES) { record.battles.toDouble() }
         .channel(SiteChannels.FALLEN) { record.fallen.toDouble() }
+        .channel(SiteChannels.CULT) { record.cult.toDouble() }
         .build()
     )
   }
@@ -413,6 +421,9 @@ object HistoryChannels {
 
   /** The name before the last conquest, or 0. */
   const val OLD_NAME_SEED = "old_name_seed"
+
+  /** Index into `Chronicle.deities` of the god the town's temple serves, or -1. */
+  const val PATRON = "patron"
 
   /** Owning civ's technology, 0 to 1. Copied here so a town does not have to reach into the chronicle. */
   const val TECHNOLOGY = "technology"
@@ -470,6 +481,9 @@ object SiteChannels {
 
   /** The dead of all of a battlefield's battles, 0 on every other kind. */
   const val FALLEN = "fallen"
+
+  /** Index into `Chronicle.cults` for a sanctuary, -1 on every other kind. */
+  const val CULT = "cult"
 
   /**
    * [net.bestia.worldgen.resource.ResourceType] ordinal for a [SiteKind.MINE], -1 for every other kind.

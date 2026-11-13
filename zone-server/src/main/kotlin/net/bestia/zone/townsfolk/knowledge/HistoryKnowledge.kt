@@ -39,6 +39,10 @@ object HistoryKnowledge {
   /** The other side, where an event has two of one kind of actor. Only ever a second civilisation. */
   const val SLOT_FOE = "foe"
 
+  /** A god, named in the idiom of the event's place: each people calls the same god by its own name. */
+  const val SLOT_DEITY = "deity"
+  const val SLOT_CULT = "cult"
+
   /**
    * What fills a slot whose actor the chronicle has no name for.
    *
@@ -49,6 +53,8 @@ object HistoryKnowledge {
   const val UNKNOWN_CIV = "NAME_UNKNOWN_CIV"
   const val UNKNOWN_FIGURE = "NAME_UNKNOWN_FIGURE"
   const val UNKNOWN_ARTIFACT = "NAME_UNKNOWN_ARTIFACT"
+  const val UNKNOWN_DEITY = "NAME_UNKNOWN_DEITY"
+  const val UNKNOWN_CULT = "NAME_UNKNOWN_CULT"
 
   fun of(chronicle: Chronicle, event: HistoryEvent, locality: Locality, variants: Int = 1): Knowledge {
     return Knowledge(
@@ -82,6 +88,8 @@ object HistoryKnowledge {
         }
         ActorType.FIGURE -> slots.putIfAbsent(SLOT_FIGURE, figureName(chronicle, actor.index))
         ActorType.ARTIFACT -> slots.putIfAbsent(SLOT_ARTIFACT, artifactName(chronicle, actor.index))
+        ActorType.DEITY -> slots.putIfAbsent(SLOT_DEITY, deityName(chronicle, actor.index, cultureOf(chronicle, event)))
+        ActorType.CULT -> slots.putIfAbsent(SLOT_CULT, cultName(chronicle, actor.index))
 
         // Not the site's own name - "the barrow of X" carries an English form word that cannot be handed
         // over as a proper noun. What is worth having is the town it was built by, which every raised
@@ -114,6 +122,22 @@ object HistoryKnowledge {
 
   private fun artifactName(chronicle: Chronicle, index: Int): Knowledge.Slot {
     return named(ChronicleNames.artifactOf(chronicle, index), UNKNOWN_ARTIFACT)
+  }
+
+  private fun deityName(chronicle: Chronicle, index: Int, culture: Int): Knowledge.Slot {
+    return named(ChronicleNames.deityOf(chronicle, index, culture), UNKNOWN_DEITY)
+  }
+
+  private fun cultName(chronicle: Chronicle, index: Int): Knowledge.Slot {
+    return named(ChronicleNames.cultOf(chronicle, index), UNKNOWN_CULT)
+  }
+
+  /** The culture of the event's first place, else of its first civ. */
+  private fun cultureOf(chronicle: Chronicle, event: HistoryEvent): Int {
+    val place = event.actors.firstOrNull { it.type == ActorType.SETTLEMENT }
+    if (place != null) return ChronicleNames.cultureOfSettlement(chronicle, place.index)
+    val civ = event.actors.firstOrNull { it.type == ActorType.CIV } ?: return -1
+    return ChronicleNames.cultureOfCiv(chronicle, civ.index)
   }
 
   /**

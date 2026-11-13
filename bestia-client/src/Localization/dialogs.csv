@@ -64,6 +64,8 @@ NAME_UNKNOWN_PLACE,a place nobody named
 NAME_UNKNOWN_CIV,old ones nobody named
 NAME_UNKNOWN_FIGURE,somebody nobody named
 NAME_UNKNOWN_ARTIFACT,a thing nobody named
+NAME_UNKNOWN_DEITY,a god nobody names any more
+NAME_UNKNOWN_CULT,a cult long forgotten
 TALK_GREETING_GUARD_1,"{name} watches you come the whole way in."
 TALK_GREETING_GUARD_2,"{name} looks you over and does not move."
 TALK_GREETING_GUARD_3,"{name} shifts a hand off the spear, then puts it back."
@@ -285,6 +287,27 @@ HISTORY_VENGEANCE_FULFILLED_2,"{figure} swore an oath against the {civ} and kept
 HISTORY_BETRAYAL_ASK,How did {place} fall to the {civ}?
 HISTORY_BETRAYAL_1,"{figure} opened the gates of {place} to the {civ} {era}. The {foe} have not forgiven it."
 HISTORY_BETRAYAL_2,"Betrayal. Around {year} {figure} let the {civ} into {place} without a fight."
+HISTORY_DEITY_RISEN_ASK,Since when do people pray to {deity}?
+HISTORY_DEITY_RISEN_1,"Since {year} or so. Times were hard {era}, and people turned to {deity}."
+HISTORY_DEITY_RISEN_2,"Nobody prayed to {deity} before the bad years. {era} that changed."
+HISTORY_CULT_FOUNDED_ASK,Who founded {cult}?
+HISTORY_CULT_FOUNDED_1,"{figure} did, at {place}, {era}. There is still a sanctuary outside the town."
+HISTORY_CULT_FOUNDED_2,"Around {year} a prophet named {figure} began preaching at {place}. That is how {cult} began."
+HISTORY_CULT_SPREAD_ASK,Are there followers of {cult} in {place}?
+HISTORY_CULT_SPREAD_1,"Since {year} or so. Some households in {place} still keep to {cult}."
+HISTORY_CULT_SPREAD_2,"{era} the preachers of {cult} came to {place}, and some people listened."
+HISTORY_CULT_PERSECUTED_ASK,Did the {civ} ever hunt down {cult}?
+HISTORY_CULT_PERSECUTED_1,"They did, {era}. The {civ} turned on {cult} around {year}."
+HISTORY_CULT_PERSECUTED_2,"In {year} the {civ} went after {cult}. People still lower their voices about it."
+HISTORY_CULT_WIPED_OUT_ASK,Whatever happened to {cult}?
+HISTORY_CULT_WIPED_OUT_1,"The {civ} stamped out {cult} {era}. Only their sanctuary is left."
+HISTORY_CULT_WIPED_OUT_2,"Gone since {year}. The {civ} saw to that, and nobody admits to their old prayers."
+HISTORY_CULT_REVOLT_ASK,How did the {civ} come to rule {place}?
+HISTORY_CULT_REVOLT_1,"Out of faith: {cult} rose against the {foe} at {place} {era}, and the faithful have ruled since as the {civ}."
+HISTORY_CULT_REVOLT_2,"The {foe} hunted {cult}, so around {year} they rose up. That was the start of the {civ}."
+HISTORY_CULT_ABSORBED_ASK,Where did {cult} go?
+HISTORY_CULT_ABSORBED_1,"They joined one of the great Orders {era}. Their old prayers live on there."
+HISTORY_CULT_ABSORBED_2,"Around {year} {cult} gave themselves to an Order, and kept little of their own."
 HISTORY_WAR_DECLARED_ASK,Has there been war?
 HISTORY_WAR_DECLARED_1,"The {civ} declared on the {foe} {era}, near enough {year}. It went on longer than anyone promised."
 HISTORY_WAR_DECLARED_2,"The {civ} and the {foe} stopped pretending {era}. Everyone saw it coming and nobody stopped it."

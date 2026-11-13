@@ -5,6 +5,7 @@ import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.core.CivOrigin
+import net.bestia.worldgen.core.CultFate
 import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.SiteKind
@@ -227,6 +228,60 @@ class HistorySimTest {
   }
 
   @Test
+  fun `a reference-size world has four or five gods and a larger one more`() {
+    val small = simulate(villageGrid(side = 6))
+    val large = simulate(villageGrid(side = 21))
+
+    val first = { chronicle: Chronicle -> chronicle.deities.count { it.cause < 0 } }
+    assertTrue(first(small) in 4..5, "${first(small)} first gods on ${small.settlements.size} sites")
+    assertTrue(first(large) >= 9, "${first(large)} first gods on ${large.settlements.size} sites")
+    assertEquals(small.deities.size, small.deities.map { it.domain }.distinct().size, "two gods of one domain")
+  }
+
+  @Test
+  fun `every people and every town it founds has a patron among the world's gods`() {
+    val chronicle = simulate(longFront(), FRONT_PARAMS)
+
+    for (civ in chronicle.civs) {
+      assertTrue(civ.patron in chronicle.deities.indices, "civ ${civ.index} has no patron")
+    }
+    for (town in chronicle.settlements.filter { it.wasFounded }) {
+      assertTrue(town.patron in chronicle.deities.indices, "town ${town.index} serves no god")
+    }
+  }
+
+  @Test
+  fun `a persecuted cult can rise and rule its towns as a realm`() {
+    val params = FRONT_PARAMS.copy(
+      cultChance = 1.0, cultSpreadChance = 1.0, cultPersecutionChance = 0.2,
+      cultWipeShare = 0.0, cultRevoltShare = 1.0
+    )
+    val chronicle = simulate(longFront(), params)
+
+    assertTrue(chronicle.cults.isNotEmpty(), "no prophet ever founded a cult")
+    for (cult in chronicle.cults) {
+      assertEquals(SiteKind.SANCTUARY, chronicle.sites[cult.sanctuary].kind)
+      assertEquals(cult.index, chronicle.sites[cult.sanctuary].cult)
+    }
+    val realm = chronicle.civs.firstOrNull { it.origin == CivOrigin.CULT_REALM }
+    assertTrue(realm != null, "no cult rose as a realm: ${chronicle.eventCensus()}")
+    assertTrue(chronicle.cults.any { it.fate == CultFate.REALM && it.realm == realm.index })
+  }
+
+  @Test
+  fun `on a world with the Orders a cult can join one`() {
+    val orders = OrderInfluence(chaos = 1.0, eternity = 1.0, circle = 1.0)
+    val params = FRONT_PARAMS.copy(orderInfluence = orders, cultChance = 1.0, cultAbsorbChance = 0.2)
+    val chronicle = simulate(longFront(), params)
+
+    assertTrue(
+      chronicle.events.any { it.kind == EventKind.CULT_ABSORBED },
+      "no cult joined an Order: ${chronicle.eventCensus()}"
+    )
+    assertTrue(chronicle.cults.any { it.fate == CultFate.ABSORBED })
+  }
+
+  @Test
   fun `the same sites give the same history`() {
     val first = simulate(twoNeighbouringPeoples())
     val second = simulate(twoNeighbouringPeoples())
@@ -272,6 +327,16 @@ class HistorySimTest {
     val west = (0..4).map { site(0.0, it * 20.0, tierAt(it), Culture.AGRARIAN) }
     val east = (0..4).map { site(25.0, it * 20.0, tierAt(it), Culture.PASTORAL) }
     return west + east
+  }
+
+  /** A square of villages 10 km apart, with two cities of different cultures in it so two peoples settle. */
+  private fun villageGrid(side: Int): List<SiteFacts> {
+    return (0 until side * side).map { cell ->
+      val x = (cell % side) * 10.0
+      val y = (cell / side) * 10.0
+      val tier = if (cell == 0 || cell == side * side - 1) SettlementTier.CITY else SettlementTier.VILLAGE
+      site(x, y, tier, if (cell % 2 == 0) Culture.AGRARIAN else Culture.PASTORAL)
+    }
   }
 
   /** Two peoples far out of each other's reach, and one empty site farther still. */
