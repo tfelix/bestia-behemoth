@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+[ext_resource type="Script" path="res://Game/Attack/self_cast_use.gd" id="2_self"]
 
 [resource]
 script = ExtResource("1_script")
@@ -16,3 +17,4 @@ sub_tree = "BARD"
 prerequisite_ids = PackedInt32Array(166)
 prerequisite_levels = PackedInt32Array(2)
 cast_time = 2.0
+attack_script = ExtResource("2_self")

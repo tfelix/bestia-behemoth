@@ -795,6 +795,14 @@ STATUS_EFFECT_229,"Unbreakable spent: the next lethal hit will kill you, until t
 STATUS_EFFECT_230,"Hunter's Mark: a Hunter hunts you. They see you through Hide and Cloak, crit you more often, and their Bestias hit you harder."
 STATUS_EFFECT_231,Improve Concentration: more AGI and DEX.
 STATUS_EFFECT_232,Dissonance: a Bard's chord rattles you. You swing slower and hit less often.
+STATUS_EFFECT_233,"Playing Battle Hymn: everyone on your side near you hits harder, with weapon and spell."
+STATUS_EFFECT_234,Battle Hymn: a Bard's song. More ATK and MATK.
+STATUS_EFFECT_235,Playing War March: everyone on your side near you moves and swings faster.
+STATUS_EFFECT_236,War March: a Bard's song. You move and swing faster.
+STATUS_EFFECT_237,Playing Mirage Dance: everyone on your side near you dodges more often.
+STATUS_EFFECT_238,Mirage Dance: a Bard's song. More FLEE.
+STATUS_EFFECT_239,Playing Wanderer's Tune: the weather drains less stamina from everyone on your side near you.
+STATUS_EFFECT_240,Wanderer's Tune: a Bard's song. The weather drains less of your stamina.
 ERROR_PORTAL_NO_SPOT,That saved spot is not there any more.
 ERROR_PORTAL_SPENT,The portal is closing or has let everyone through it can.
 PORTAL_MARK_SPOT,Mark this spot (%d of %d saved)
