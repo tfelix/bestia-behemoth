@@ -298,6 +298,7 @@ class ChunkMaterializer(
     loot.propsIn(chunk, site, nearby, into)
     crystals.propsIn(chunk, site, into)
     structures.spireProps(config, chunk, site, into)
+    structures.sealCrystals(config, chunk, bareGround(chunk, heights), into)
     // Built here from `nearby` rather than held in a field like `crystals` and `vegetation`, because its input
     // is the deposit markers for *this* query rather than a layer covering the world. Same reason
     // `TownStructures` and `OreVeins` are constructed per chunk a few lines above.
@@ -341,6 +342,11 @@ class ChunkMaterializer(
    * outside this chunk and [MARKER_MARGIN] is three hundred, so any feature reaching it was returned by both
    * chunks' queries.
    */
+  /** The ground as the terrain left it, before anything was built on it. */
+  private fun bareGround(chunk: ChunkPos, heights: ColumnHeights) = PropSite { worldX, worldY ->
+    heights[config.voxelOf(worldX).toInt() - chunk.x * config.chunkSize, config.voxelOf(worldY).toInt() - chunk.y * config.chunkSize]
+  }
+
   private fun trunkSite(
     chunk: ChunkPos,
     heights: ColumnHeights,
@@ -1005,7 +1011,8 @@ class ChunkMaterializer(
     // 13: a herb carries its `HerbKind` on its sub-kind, so herbs in forests, mana, cold, desert and blight change.
     // 14: a cult's sanctuary stands outside its town (`TownStructures.sanctuaryColumn`).
     // 15: a world boss's seal stands where it was bound (`TownStructures.sealColumn`).
-    const val VERSION = 15
+    // 16: a crystal stands on every seal's plinth (`TownStructures.sealCrystals`).
+    const val VERSION = 16
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

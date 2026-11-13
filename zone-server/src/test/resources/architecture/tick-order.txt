@@ -67,6 +67,7 @@
  - DEATH wave 39: CitySignSystem [EveryTick]
  - DEATH wave 39: PlayerStructureDeathSystem [EveryTick]
  - DEATH wave 39: WarBannerSystem [EveryTick]
+ - DEATH wave 39: WorldBossSealSystem [EveryTick]
  - DEATH wave 40: PropDeathDivergenceSystem [EveryTick]
  - DEATH wave 41: PlayerDeathSystem [EveryTick]
  - DEATH wave 42: NpcKillReporter [EveryTick]

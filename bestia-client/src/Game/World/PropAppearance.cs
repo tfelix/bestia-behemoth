@@ -696,7 +696,13 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.55f, 0.40f, 0.95f), StructureHeight = 2.5f,
         Action = PropAction.Use
-      } // WARP_PORTAL
+      }, // WARP_PORTAL
+
+      // The crystal a world boss is bound in, on its seal's plinth. Breaking it sets the boss free.
+      new Kind
+      {
+        PlaceholderWidth = 1.0f, PlaceholderColour = new Color(0.55f, 0.85f, 0.95f), Action = PropAction.Break
+      } // FIXTURE_SEAL_CRYSTAL
     };
 
     /// <summary>

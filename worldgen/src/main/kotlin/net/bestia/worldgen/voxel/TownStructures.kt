@@ -9,6 +9,7 @@ import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.core.SiteKind
+import net.bestia.worldgen.dress.FixtureKind
 import net.bestia.worldgen.history.SiteChannels
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.FootprintFeature
@@ -973,6 +974,36 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
   }
 
   /**
+   * The crystal on each seal's plinth whose position falls inside one chunk. [bare] is the ground before
+   * anything is built on it: the plinth stands on that ground, and `site` refuses ground that is built over.
+   */
+  fun sealCrystals(config: WorldConfig, chunk: ChunkPos, bare: PropSite, into: PropInstances) {
+    for (seal in sites) {
+      if (seal.kind != SiteKind.SEAL) continue
+      val x = seal.position.x
+      val y = seal.position.y
+      if (config.chunkOf(x) != chunk.x || config.chunkOf(y) != chunk.y) continue
+
+      val ground = bare.groundAt(x, y)
+      if (ground.isNaN()) continue
+
+      into.add(
+        kind = PropKind.FIXTURE,
+        identity = PropId.of(PropKind.FIXTURE, BuildingProps.cellOf(x), BuildingProps.cellOf(y)),
+        x = x,
+        y = y,
+        ground = ground + SEAL_PLINTH_HEIGHT,
+        heightM = FixtureKind.SEAL_CRYSTAL.heightM,
+        radiusM = SEAL_CRYSTAL_RADIUS,
+        halfWidthM = SEAL_CRYSTAL_RADIUS,
+        yawRad = 0.0,
+        flags = PropFlags.fixture(0),
+        subKind = FixtureKind.SEAL_CRYSTAL.ordinal
+      )
+    }
+  }
+
+  /**
    * The wound spires whose own position falls inside one chunk, as props.
    *
    * A distinct [PropKind.WOUND_SPIRE] rather than a flag on [PropKind.MANA_CRYSTAL], because the two sit on
@@ -1097,6 +1128,7 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     const val SEAL_PLINTH_HEIGHT = 1.0
     const val SEAL_RING_INNER = 0.75
     const val SEAL_RING_HEIGHT = 0.6
+    const val SEAL_CRYSTAL_RADIUS = 0.5
 
     /** How much of the ash a fully decayed site has lost to weathering and slumping. */
     const val ASH_SETTLING = 0.35
