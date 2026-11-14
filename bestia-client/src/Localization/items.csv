@@ -647,3 +647,5 @@ SPELL_SCROLL,Spell Scroll
 SPELL_SCROLL_DESC,"A scroll with an attack written on it.
 
 Read from the bag, it casts its attack once, with no mana. Spell Training teaches it to a bestia instead."
+RUSTED_SCRAP,Rusted Scrap
+RUSTED_SCRAP_DESC,"Bent, rusted iron from a battle long ago: a blade, a buckle, the rim of a shield."

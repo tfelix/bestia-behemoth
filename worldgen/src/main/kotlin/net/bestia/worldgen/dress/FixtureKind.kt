@@ -65,7 +65,18 @@ enum class FixtureKind(val heightM: Double, val readable: Boolean = false) {
   CAMP(0.4),
 
   /** The crystal a world boss is bound in, on its seal's plinth. Breaking it sets the boss free. */
-  SEAL_CRYSTAL(2.4);
+  SEAL_CRYSTAL(2.4),
+
+  /** What is left of the dead on a battlefield. The scatter is denser where more fell and thinner as it ages. */
+  BONES(0.4),
+  RUSTED_BLADE(0.2),
+  BROKEN_SHIELD(0.3),
+
+  /** Torn cloth on a broken pole. Cloth rots, so only a young battlefield still has them. */
+  BANNER_RAG(1.8),
+
+  /** The skeleton of a world boss, where a hero slew it. */
+  GIANT_REMAINS(6.0);
 
   companion object {
     /** Every entry's ordinal and height, for `DressingStage.paramsVersion`: retuning one moves the world. */

@@ -168,7 +168,14 @@ enum class StaticEntityKind {
   WARP_PORTAL,
 
   // Worldgen's FixtureKind.SEAL_CRYSTAL, appended here for the ordinal. Breaking it wakes the bound world boss.
-  FIXTURE_SEAL_CRYSTAL;
+  FIXTURE_SEAL_CRYSTAL,
+
+  // What lies on a battlefield: worldgen's battlefield fixtures, appended for the ordinal.
+  FIXTURE_BONES,
+  FIXTURE_RUSTED_BLADE,
+  FIXTURE_BROKEN_SHIELD,
+  FIXTURE_BANNER_RAG,
+  FIXTURE_GIANT_REMAINS;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.
