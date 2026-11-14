@@ -10,6 +10,8 @@ import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.anchor.SimulationAnchor
+import net.bestia.zone.world.time.BestiaClock
+import net.bestia.zone.world.time.BestiaDateTime
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -28,7 +30,9 @@ class SpawnerSystemTest {
   private val bestiaSpawner: BestiaEntitySpawner = mockk()
   private val cellIndex = SpawnerCellIndex()
   private val deletionQueue = PersistedEntityDeletionQueue()
-  private val system = SpawnerSystem(bestiaSpawner, cellIndex, deletionQueue)
+  private var now = NOON
+  private val clock: BestiaClock = mockk { every { now() } answers { now } }
+  private val system = SpawnerSystem(bestiaSpawner, cellIndex, deletionQueue, clock)
   private val world = testWorld(systems = listOf(system))
 
   /** Every mob the mocked spawner has produced, in order, so a test can tell a survivor from a replacement. */
@@ -56,6 +60,7 @@ class SpawnerSystemTest {
     pack: Int = 3,
     activationRange: Int = 100,
     featureId: Long = 1L,
+    nightOnly: Boolean = false,
   ): PlacedDen {
     val spawner = Spawner(
       identity = identity(featureId),
@@ -64,6 +69,7 @@ class SpawnerSystemTest {
       position = position,
       range = 10,
       activationRange = activationRange,
+      nightOnly = nightOnly,
     )
     val id = world.createEntity { it -> world.add(it, spawner) }
     cellIndex.add(id, position)
@@ -115,6 +121,23 @@ class SpawnerSystemTest {
 
     assertEquals(3, den.spawnedEntities.size)
     assertEquals(3, livingPackOf(den).size)
+  }
+
+  @Test
+  fun `a night-only den stocks at night and its pack fades out after dawn`() {
+    val den = placeDen(Vec3L(0, 0, 0), pack = 2, nightOnly = true).spawner
+    placePlayer(Vec3L(50, 0, 0))
+
+    tick(5f)
+    assertTrue(den.spawnedEntities.isEmpty(), "stocked by day")
+
+    now = MIDNIGHT
+    tick(5f)
+    assertEquals(2, livingPackOf(den).size)
+
+    now = NOON
+    tick(SpawnerSystem.UNLOAD_DELAY_SECONDS + 5f)
+    assertTrue(livingPackOf(den).isEmpty(), "the pack outlived the dawn")
   }
 
   @Test
@@ -286,5 +309,8 @@ class SpawnerSystemTest {
   private companion object {
     private const val WORLD_ID = 1L
     private const val WORLD_VERSION = 42L
+
+    val NOON = BestiaDateTime(year = 1, month = 1, day = 1, hour = 12, minute = 0, second = 0)
+    val MIDNIGHT = BestiaDateTime(year = 1, month = 1, day = 1, hour = 0, minute = 0, second = 0)
   }
 }
