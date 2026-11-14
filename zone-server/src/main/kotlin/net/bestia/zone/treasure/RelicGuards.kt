@@ -1,10 +1,8 @@
 package net.bestia.zone.treasure
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.history.SiteChannels
 import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.worldgen.spawn.SpawnerChannels
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.zone.battle.BestiaKind
@@ -13,13 +11,13 @@ import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.spawn.ecs.DenIdentity
+import net.bestia.zone.spawn.ecs.SiteSpecies
 import net.bestia.zone.spawn.ecs.Spawner
 import net.bestia.zone.spawn.ecs.SpawnerCellIndex
 import net.bestia.zone.spawn.ecs.WildSpawnerService.Candidate
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.stream.ChunkCoords
 import org.springframework.stereotype.Service
-import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
@@ -71,35 +69,23 @@ class RelicGuards(
 
     private val GUARDED = setOf(FeatureKind.TOMB, FeatureKind.MONUMENT)
 
-    /** Beyond this many levels from the wild around it, a guard would be out of place. */
-    const val MAX_LEVEL_MISS = 10
-
-    /** Counted like levels: an undead of another country is chosen only when it fits the level this much better. */
-    private const val HABITAT_PENALTY = 5
-
     /** A boss guards alone; anything less comes as a small band. */
     private const val BAND = 3
 
     internal fun guardsOf(generated: GeneratedWorld, worldId: Long, undead: List<Bestia>): List<Guard> {
       if (undead.isEmpty()) return emptyList()
       val config = generated.config
-      val candidates = undead.map(::Candidate)
-      val dens = generated.world.features.all()
-        .filter { it.kind == FeatureKind.BESTIA_SPAWN }
-        .filterIsInstance<PointMarker>()
+      val species = SiteSpecies(
+        undead.map(::Candidate),
+        generated.world.features.all().filter { it.kind == FeatureKind.BESTIA_SPAWN }.filterIsInstance<PointMarker>()
+      )
 
       return generated.world.features.all()
         .filter { it.kind in GUARDED }
         .filterIsInstance<PointMarker>()
         .filter { it.attribute(SiteChannels.ARTIFACT) >= 0 }
         .mapNotNull { site ->
-          val wild = dens.minByOrNull { it.position.distanceTo(site.position) } ?: return@mapNotNull null
-          val level = wild.attribute(SpawnerChannels.LEVEL_MAX).toInt()
-          val biome = Biome.entries[wild.attribute(SpawnerChannels.BIOME).toInt()]
-
-          val guard = candidates.minByOrNull { scoreOf(it, level, biome) } ?: return@mapNotNull null
-          if (abs(guard.species.level - level) > MAX_LEVEL_MISS) return@mapNotNull null
-
+          val guard = species.at(site.position) ?: return@mapNotNull null
           val ground = generated.base.heightAt(site.position.x, site.position.y)
           Guard(
             identity = DenIdentity(site.id.value, worldId, generated.world.pipelineVersion),
@@ -113,11 +99,6 @@ class RelicGuards(
             range = site.attribute(SiteChannels.RADIUS).roundToInt().coerceIn(1, Spawner.DEFAULT_ACTIVATION_RANGE),
           )
         }
-    }
-
-    private fun scoreOf(candidate: Candidate, level: Int, biome: Biome): Int {
-      val homeless = candidate.habitat.isNotEmpty() && biome !in candidate.habitat
-      return abs(candidate.species.level - level) + if (homeless) HABITAT_PENALTY else 0
     }
   }
 }
