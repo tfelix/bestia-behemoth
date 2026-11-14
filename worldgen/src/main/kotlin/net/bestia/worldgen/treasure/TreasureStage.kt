@@ -20,12 +20,13 @@ import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.vector.VectorFeature
 import kotlin.math.PI
 import kotlin.math.cos
+import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
- * Buries a treasure cache at the history sites that would have one: cave hoards, tombs, ruins, battlefields and
- * outposts.
+ * Buries a treasure cache at the history sites that would have one: cave hoards, tombs, ruins and outposts. A
+ * battlefield holds several, by its dead.
  *
  * Only these are stored. The far more numerous wild caches are a lattice nobody stores, see [TreasureCaches].
  */
@@ -37,7 +38,8 @@ class TreasureStage(
   override val id = ID
 
   // 2: a monument holds a cache when an artifact is sealed in it.
-  override val version = 2
+  // 3: a battlefield holds shallow caches by its dead.
+  override val version = 3
 
   override val paramsVersion get() = params.digest().value
 
@@ -59,24 +61,46 @@ class TreasureStage(
       val siteIndex = site.attribute(SiteChannels.SITE).toLong()
       val h = GenRng.hash(ctx.seed, id.hash, version.toLong(), siteIndex)
       val artifact = site.attribute(SiteChannels.ARTIFACT).toInt()
-      if (artifact < 0 && GenRng.unit(h) >= chanceAt(site.kind)) continue
+      val battlefield = site.kind == FeatureKind.BATTLEFIELD
+      val count = when {
+        battlefield -> cachesOnBattlefield(site)
+        artifact >= 0 || GenRng.unit(h) < chanceAt(site.kind) -> 1
+        else -> 0
+      }
 
-      caches.add(
-        PointMarker(
-          id = nextId(),
-          kind = FeatureKind.TREASURE_CACHE,
-          position = spotIn(site, h),
-          attributes = StationTable.Builder(stationCount = 1)
-            .channel(TreasureChannels.DEPTH) { params.depthAt(GenRng.unit(GenRng.mix64(h + 3))) }
-            .channel(TreasureChannels.MIN_TIER) { minTierOf(site, artifact).ordinal.toDouble() }
-            .channel(TreasureChannels.ARTIFACT) { artifact.toDouble() }
-            .channel(TreasureChannels.SITE) { siteIndex.toDouble() }
-            .channel(TreasureChannels.FLOOR) { site.attribute(SiteChannels.ELEVATION) }
-            .build()
+      for (k in 0 until count) {
+        val hk = if (k == 0) h else GenRng.hash(h, k.toLong())
+        // A lost artifact lies in one of a battlefield's caches, not in all of them.
+        val held = if (k == 0) artifact else -1
+        val depth = GenRng.unit(GenRng.mix64(hk + 3))
+        caches.add(
+          PointMarker(
+            id = nextId(),
+            kind = FeatureKind.TREASURE_CACHE,
+            position = spotIn(site, hk),
+            attributes = StationTable.Builder(stationCount = 1)
+              .channel(TreasureChannels.DEPTH) { if (battlefield) params.battlefieldDepthAt(depth) else params.depthAt(depth) }
+              .channel(TreasureChannels.MIN_TIER) { minTierOf(site, held).ordinal.toDouble() }
+              .channel(TreasureChannels.ARTIFACT) { held.toDouble() }
+              .channel(TreasureChannels.SITE) { siteIndex.toDouble() }
+              .channel(TreasureChannels.FLOOR) { site.attribute(SiteChannels.ELEVATION) }
+              .channel(TreasureChannels.BATTLEFIELD_AGE) { if (battlefield) ageOf(site) else Double.NaN }
+              .build()
+          )
         )
-      )
+      }
     }
     return StageResult(features = caches)
+  }
+
+  /** More where more fell, fewer the older the field is, and always one: somebody dropped something. */
+  private fun cachesOnBattlefield(site: PointMarker): Int {
+    val left = site.attribute(SiteChannels.FALLEN) * params.battlefieldCachesPerDead * (1.0 - AGE_THINNING * ageOf(site))
+    return left.roundToInt().coerceIn(1, params.battlefieldMaxCaches)
+  }
+
+  private fun ageOf(site: PointMarker): Double {
+    return site.attribute(SiteChannels.DECAY).coerceIn(0.0, 1.0)
   }
 
   private fun chanceAt(kind: FeatureKind): Double {
@@ -84,7 +108,6 @@ class TreasureStage(
       FeatureKind.CAVE_HOARD -> 1.0
       FeatureKind.TOMB -> params.tombChance
       FeatureKind.RUIN, FeatureKind.ASH_RUIN -> params.ruinChance
-      FeatureKind.BATTLEFIELD -> params.battlefieldChance
       // Only the artifact a people sealed into it.
       FeatureKind.MONUMENT -> 0.0
       else -> params.outpostChance
@@ -129,5 +152,8 @@ class TreasureStage(
 
     /** Share of a site's radius a cache may lie out from its centre. */
     private const val SITE_SPREAD = 0.8
+
+    /** Share of a battlefield's caches that scavengers have dug up by the time the field is fully decayed. */
+    private const val AGE_THINNING = 0.75
   }
 }

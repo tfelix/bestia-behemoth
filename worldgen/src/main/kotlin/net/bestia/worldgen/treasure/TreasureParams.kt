@@ -9,10 +9,17 @@ data class TreasureParams(
   /** Chance that a history site of each kind buried a cache. A site holding a relic always did. */
   val tombChance: Double = 0.7,
   val ruinChance: Double = 0.5,
-  val battlefieldChance: Double = 0.3,
   val outpostChance: Double = 0.2,
 
-  /** Every cache lies between these depths, in metres. */
+  /**
+   * A battlefield holds caches by its dead rather than by chance: this many per dead on a fresh field, at least
+   * one and at most [battlefieldMaxCaches]. The dead dropped them, so they lie shallow.
+   */
+  val battlefieldCachesPerDead: Double = 0.008,
+  val battlefieldMaxCaches: Int = 12,
+  val battlefieldMaxDepth: Double = 1.0,
+
+  /** Every other cache lies between these depths, in metres. */
   val minDepth: Double = 0.5,
   val maxDepth: Double = 4.0,
 
@@ -39,8 +46,10 @@ data class TreasureParams(
 
   init {
     require(tombChance in 0.0..1.0 && ruinChance in 0.0..1.0) { "chances must be in [0,1]" }
-    require(battlefieldChance in 0.0..1.0 && outpostChance in 0.0..1.0) { "chances must be in [0,1]" }
+    require(outpostChance in 0.0..1.0) { "chances must be in [0,1]" }
+    require(battlefieldCachesPerDead >= 0.0 && battlefieldMaxCaches >= 1) { "a battlefield holds at least one cache" }
     require(minDepth > 0.0 && maxDepth >= minDepth) { "depths must be positive and ordered" }
+    require(battlefieldMaxDepth in minDepth..maxDepth) { "battlefieldMaxDepth must lie between the depths" }
     require(wildCellSize > 0.0) { "wildCellSize must be positive, was $wildCellSize" }
     require(wildPerSquareKm >= 0.0) { "wildPerSquareKm must not be negative, was $wildPerSquareKm" }
     require(hotspotBoost >= 1.0) { "hotspotBoost must be at least 1, was $hotspotBoost" }
@@ -58,11 +67,17 @@ data class TreasureParams(
     return minDepth + (maxDepth - minDepth) * unit
   }
 
+  fun battlefieldDepthAt(unit: Double): Double {
+    return minDepth + (battlefieldMaxDepth - minDepth) * unit
+  }
+
   override fun digest(): ParamsDigest {
     return ParamsDigest()
       .put("tombChance", tombChance)
       .put("ruinChance", ruinChance)
-      .put("battlefieldChance", battlefieldChance)
+      .put("battlefieldCachesPerDead", battlefieldCachesPerDead)
+      .put("battlefieldMaxCaches", battlefieldMaxCaches)
+      .put("battlefieldMaxDepth", battlefieldMaxDepth)
       .put("outpostChance", outpostChance)
       .put("minDepth", minDepth)
       .put("maxDepth", maxDepth)

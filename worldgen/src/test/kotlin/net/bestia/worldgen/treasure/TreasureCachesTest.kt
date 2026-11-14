@@ -3,6 +3,7 @@ package net.bestia.worldgen.treasure
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.dress.FixtureChannels
 import net.bestia.worldgen.dress.FixtureKind
+import net.bestia.worldgen.history.SiteChannels
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.FeatureKind
@@ -40,6 +41,26 @@ class TreasureCachesTest {
     val params = TreasureParams()
     for (marker in stored) {
       assertTrue(marker.attribute(TreasureChannels.DEPTH) in params.minDepth..params.maxDepth)
+    }
+  }
+
+  @Test
+  fun `a battlefield holds shallow caches by its dead`() {
+    val params = TreasureParams()
+    val fields = world.world.features.all().filter { it.kind == FeatureKind.BATTLEFIELD }.filterIsInstance<PointMarker>()
+    val bySite = stored.groupBy { it.attribute(TreasureChannels.SITE).toInt() }
+    val counts = fields.associate { field ->
+      field.attribute(SiteChannels.FALLEN).toInt() to (bySite[field.attribute(SiteChannels.SITE).toInt()]?.size ?: 0)
+    }
+    println("caches per battlefield, by its dead: $counts")
+
+    assertTrue(counts.values.all { it >= 1 }, "a battlefield without a cache")
+    assertTrue(counts.maxBy { it.key }.value > 1, "the bloodiest field holds a single cache")
+    for (field in fields) {
+      for (cache in bySite[field.attribute(SiteChannels.SITE).toInt()].orEmpty()) {
+        assertTrue(cache.attribute(TreasureChannels.DEPTH) <= params.battlefieldMaxDepth, "a battlefield cache lies deep")
+        assertEquals(field.attribute(SiteChannels.DECAY), cache.attribute(TreasureChannels.BATTLEFIELD_AGE))
+      }
     }
   }
 
