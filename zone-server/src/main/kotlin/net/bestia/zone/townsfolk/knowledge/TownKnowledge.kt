@@ -164,9 +164,14 @@ class TownKnowledge(
       val byHousehold = HashMap<Int, MutableList<Knowledge>>()
 
       for (candidate in candidates) {
-        val knowledge =
-          HistoryKnowledge.of(chronicle, candidate.event, candidate.locality, variantsOf(candidate.event.kind))
         val share = shareOf(candidate, chronicle.presentYear)
+        val knowledge = HistoryKnowledge.of(
+          chronicle,
+          candidate.event,
+          candidate.locality,
+          variantsOf(candidate.event.kind),
+          handedDown = share == SHARE_SOLE,
+        )
 
         if (share >= 1.0) {
           universal.add(knowledge)
