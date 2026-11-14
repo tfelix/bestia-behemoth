@@ -44,6 +44,13 @@ object ChronicleNames {
     return Names.deity(record.nameSeed, culture, record.domain)
   }
 
+  /** A ruling house as its bare name: the phrasing says "House" in its own language. */
+  fun houseOf(chronicle: Chronicle, dynasty: Int): String? {
+    val record = chronicle.dynasties.getOrNull(dynasty) ?: return null
+
+    return Names.houseStem(record.nameSeed, cultureOfCiv(chronicle, record.civ))
+  }
+
   /** A world boss: its own name and its species' title, the same for every people. */
   fun monsterOf(chronicle: Chronicle, monster: Int): String? {
     val record = chronicle.monsters.getOrNull(monster) ?: return null

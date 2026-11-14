@@ -136,10 +136,14 @@ object Names {
 
   /** A ruling family, named the way a seat is: "House Ashford". From the place pools, so no pool is added. */
   fun house(seed: Long, cultureIndex: Int): String {
+    return "House ${houseStem(seed, cultureIndex)}"
+  }
+
+  /** The house's own name without the English "House", for text that is translated around it. */
+  fun houseStem(seed: Long, cultureIndex: Int): String {
     val style = styleOf(cultureIndex)
-    val name = (pick(style.placeStems, seed, HOUSE_STEM_SALT) + pick(style.placeTails, seed, HOUSE_TAIL_SALT))
+    return (pick(style.placeStems, seed, HOUSE_STEM_SALT) + pick(style.placeTails, seed, HOUSE_TAIL_SALT))
       .replaceFirstChar { it.uppercase() }
-    return "House $name"
   }
 
   private const val HOUSE_STEM_SALT = 0xA0L

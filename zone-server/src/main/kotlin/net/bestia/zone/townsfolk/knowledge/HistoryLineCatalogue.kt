@@ -102,7 +102,7 @@ class HistoryLineCatalogue {
   companion object {
     private const val RESOURCE = "townsfolk/dialogue.yml"
 
-    /** Every slot [HistoryKnowledge] and [LegendKnowledge] can produce. Anything else is a typo in the catalogue. */
+    /** Every slot [HistoryKnowledge], [LegendKnowledge] and [LineageClaims] can produce. Anything else is a typo in the catalogue. */
     val KNOWN_SLOTS = setOf(
       HistoryKnowledge.SLOT_PLACE,
       HistoryKnowledge.SLOT_CIV,
@@ -115,6 +115,7 @@ class HistoryLineCatalogue {
       HistoryKnowledge.SLOT_CULT,
       HistoryKnowledge.SLOT_MONSTER,
       LegendKnowledge.SLOT_DIRECTION,
+      LineageClaims.SLOT_HOUSE,
     )
 
     private val LOG = KotlinLogging.logger { }
