@@ -1348,3 +1348,171 @@ MINERS_CARBIDE_LAMP_DESC,"A bright, hissing lamp that lights a whole tunnel."
 GLOWCAP_LANTERN_DESC,"A glass lantern of luminous fungus. It needs no fuel, only a little water now and then."
 EVERFLAME_LANTERN_DESC,A brass lantern whose flame has burned for longer than anyone has owned it.
 LANTERN_OF_THE_LOST_SAINT_DESC,The lantern a saint carried into the dark to find the lost. The dark still remembers it.
+TIN_ORE,Tin Ore
+TIN_ORE_DESC,"A grey, soft ore that stains the fingers.
+
+It melts at the first hint of a hot fire."
+TIN_INGOT,Tin Ingot
+TIN_INGOT_DESC,"A soft grey bar of tin.
+
+On its own it is no use for much, but it makes copper behave."
+COPPER_ORE,Copper Ore
+COPPER_ORE_DESC,A lump of rock with green-blue streaks through it.
+COPPER_INGOT,Copper Ingot
+COPPER_INGOT_DESC,"A bar of reddish copper, warm to the touch even when cold."
+BRONZE_INGOT,Bronze Ingot
+BRONZE_INGOT_DESC,"Copper and tin run together into a hard, golden-brown bar.
+
+The first metal that holds an edge."
+STEEL_INGOT,Steel Ingot
+STEEL_INGOT_DESC,"Iron worked with carbon until it rings.
+
+It takes a keener edge than iron and holds it longer."
+SILVER_ORE,Silver Ore
+SILVER_ORE_DESC,"Dark, tarnished rock with threads of bright metal in it."
+SILVER_INGOT,Silver Ingot
+SILVER_INGOT_DESC,"A bar of pale silver.
+
+It carries a charge better than any other metal, and smiths say it is kind to the sick."
+MERCURY_ORE,Mercury Ore
+MERCURY_ORE_DESC,A red rock that sweats beads of liquid metal when it is warmed.
+QUICKSILVER,Quicksilver
+QUICKSILVER_DESC,"A flask of liquid metal that will not hold still.
+
+Artificers use it where a solid would not flow."
+BLACKIRON_INGOT,Blackiron Ingot
+BLACKIRON_INGOT_DESC,"Steel quenched in shadow until it turned black all the way through.
+
+It is cold, and it drinks magic."
+PALLADIUM_ORE,Palladium Ore
+PALLADIUM_ORE_DESC,"A dense, pale ore, unusually hard to crack."
+PALLADIUM_INGOT,Palladium Ingot
+PALLADIUM_INGOT_DESC,"A bright bar of palladium.
+
+It takes fine detail, which makes it the metal for delicate and costly work."
+MITHRIL_ORE,Mithril Ore
+MITHRIL_ORE_DESC,"A silvery ore, lighter than it looks and faintly warm."
+MITHRIL_INGOT,Mithril Ingot
+MITHRIL_INGOT_DESC,"A bar of mithril, almost weightless.
+
+Magic runs through it as water runs through a pipe."
+ADAMANTIUM_ORE,Adamantium Ore
+ADAMANTIUM_ORE_DESC,A black ore so heavy it bends the shelf it sits on.
+ADAMANTIUM_INGOT,Adamantium Ingot
+ADAMANTIUM_INGOT_DESC,"The hardest, heaviest bar anyone has made.
+
+It shrugs off spells as well as steel."
+YEW_BILLET,Yew Billet
+YEW_BILLET_DESC,"A billet of yew, springy and light.
+
+Bows are made from it."
+IRONWOOD,Ironwood
+IRONWOOD_DESC,"Dense, dark wood that sinks in water.
+
+It makes staves that do not splinter."
+HEARTWOOD,Heartwood
+HEARTWOOD_DESC,"A piece cut from the living heart of an ancient tree.
+
+It is warm, and it hums when held."
+ROPE,Rope
+ROPE_DESC,A coil of twisted fibre cord.
+HARDENED_LEATHER,Hardened Leather
+HARDENED_LEATHER_DESC,"Leather boiled in resin until it is stiff as a board.
+
+It keeps its shape and turns a blade."
+FINE_LEATHER,Fine Leather
+FINE_LEATHER_DESC,"Thin, supple, evenly tanned leather.
+
+Book covers, gloves and good boots are made from it."
+DRAKE_HIDE,Drake Hide
+DRAKE_HIDE_DESC,"A drake's hide, scaled on the outside and tough as a shield.
+
+Magic slides off it."
+SILK_CLOTH,Silk Cloth
+SILK_CLOTH_DESC,"A bolt of finely woven silk, so light it drifts."
+SHADOWSILK,Shadowsilk
+SHADOWSILK_DESC,"Silk woven with void, black as a closed eye.
+
+It swallows light and spells alike."
+STARWEAVE,Starweave
+STARWEAVE_DESC,"Silk shot through with condensed mana, glittering faintly.
+
+It feels like standing in the sun."
+SAND,Sand
+SAND_DESC,"A sack of clean, pale sand."
+GLASS,Glass
+GLASS_DESC,"A cooled slab of clear glass.
+
+It wants to be a bottle, a lens or a pane."
+LENS,Lens
+LENS_DESC,"A ground and polished glass lens.
+
+A monocle, a lantern or a spyglass starts here."
+LAMP_OIL,Lamp Oil
+LAMP_OIL_DESC,A flask of pressed oil that burns clean and slow.
+PARCHMENT,Parchment
+PARCHMENT_DESC,A sheet of pressed reed paper.
+MANA_INK,Mana Ink
+MANA_INK_DESC,"Ink with mana ground into it.
+
+What is written with it glows faintly until it is read."
+COG,Cog
+COG_DESC,"A small toothed wheel, cut true.
+
+Gearwork is made of them."
+CLOCKWORK_CORE,Clockwork Core
+CLOCKWORK_CORE_DESC,"A sealed movement of gears around a bead of quicksilver and a mana crystal.
+
+It ticks, and nothing winds it."
+GREAT_FANG,Great Fang
+GREAT_FANG_DESC,"A fang as long as a hand, taken from a big predator."
+STORM_FEATHER,Storm Feather
+STORM_FEATHER_DESC,"A long flight feather that crackles faintly.
+
+It is lighter than the wind it was born in."
+WYRM_BONE,Wyrm Bone
+WYRM_BONE_DESC,"A bone from a drake, dense as stone and nearly as heavy."
+OBSIDIAN,Obsidian
+OBSIDIAN_DESC,Black volcanic glass that breaks to an edge sharper than steel.
+LODESTONE,Lodestone
+LODESTONE_DESC,A dark stone that pulls on iron and hums against the palm.
+CORAL,Coral
+CORAL_DESC,"A branch of pale sea coral, brittle and finely patterned."
+DEATHCAP,Deathcap
+DEATHCAP_DESC,"A pale mushroom, sweet-smelling and fatal."
+THORNVINE,Thornvine
+THORNVINE_DESC,"A tough, supple vine armoured in hooked thorns."
+GLOWCAP,Glowcap
+GLOWCAP_DESC,A cave mushroom that gives off a steady green light.
+MANA_ESSENCE,Mana Essence
+MANA_ESSENCE_DESC,"A pinch of loose mana, grey and faintly warm."
+PURE_MANA_ESSENCE,Pure Mana Essence
+PURE_MANA_ESSENCE_DESC,"Mana gone clear and bright, with none of the grit."
+ROUGH_GARNET,Rough Garnet
+ROUGH_GARNET_DESC,"A dull red stone, still in the rock it grew in."
+CUT_GARNET,Cut Garnet
+CUT_GARNET_DESC,"A deep red garnet, cut and faceted."
+ROUGH_SAPPHIRE,Rough Sapphire
+ROUGH_SAPPHIRE_DESC,"A cloudy blue stone, still in the rock it grew in."
+CUT_SAPPHIRE,Cut Sapphire
+CUT_SAPPHIRE_DESC,"A clear blue sapphire, cut and faceted."
+ROUGH_ONYX,Rough Onyx
+ROUGH_ONYX_DESC,A black stone with a dull skin.
+CUT_ONYX,Cut Onyx
+CUT_ONYX_DESC,"A polished onyx, black and bottomless."
+TANNING_RACK_KIT,Tanning Rack Kit
+TANNING_RACK_KIT_DESC,"A frame of poles, a scraping beam and a bundle of cord.
+
+Set it down and it becomes a tanning rack - once somebody puts the work in."
+LOOM_KIT,Loom Kit
+LOOM_KIT_DESC,"A bundle of beams, heddles and a shuttle, packed flat.
+
+Set it down and it becomes a loom - once somebody puts the work in."
+GLASS_FURNACE_KIT,Glass Furnace Kit
+GLASS_FURNACE_KIT_DESC,"Firebrick, a clay crucible and a long iron pipe.
+
+Set it down and it becomes a glass furnace - once somebody puts the work in."
+GLASSBLOWING_BENCH_KIT,Glassblowing Bench Kit
+GLASSBLOWING_BENCH_KIT_DESC,"A bench, a set of wooden paddles and a blowpipe.
+
+Set it down and it becomes a glassblowing bench - once somebody puts the work in."

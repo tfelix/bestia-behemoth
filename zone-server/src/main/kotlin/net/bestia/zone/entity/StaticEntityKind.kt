@@ -171,7 +171,14 @@ enum class StaticEntityKind {
   FIXTURE_SEAL_CRYSTAL,
 
   // The hidden eye where a Sage's Scry looks, for as long as it looks. Seen only once Ruwach uncovers it.
-  SCRY_EYE;
+  SCRY_EYE,
+
+  // The stations of the material chains: hide to leather, fibre to cloth, sand to glass, glass to bottles and
+  // lenses. Player structures like the workbench, put up from a kit. See the crafting chains in the docs.
+  TANNING_RACK,
+  LOOM,
+  GLASS_FURNACE,
+  GLASSBLOWING_BENCH;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.

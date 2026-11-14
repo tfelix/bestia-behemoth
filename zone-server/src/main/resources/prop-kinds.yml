@@ -211,6 +211,28 @@ kinds:
     collider: { half-x: 2, half-y: 1, height: 2 }
     variants: 1
 
+  # The stations of the material chains, built from kits like the three above.
+  - kind: TANNING_RACK
+    max-hp: 150
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1
+
+  - kind: LOOM
+    max-hp: 150
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1
+
+  # Fired brick like the furnace, so it takes as much breaking.
+  - kind: GLASS_FURNACE
+    max-hp: 350
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1
+
+  - kind: GLASSBLOWING_BENCH
+    max-hp: 150
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+
   # Planks and iron bands: tougher than a workbench, because what is inside is worth breaking it for.
   - kind: CHEST
     max-hp: 200

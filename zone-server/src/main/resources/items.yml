@@ -111,6 +111,7 @@ items:
     weight: 30
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.1, HEFT: -0.2, ARCANE: 0.5, COMPLEXITY: 0.1 }
     description: |
       A shard of raw mana crystal, cool to the touch and faintly lit from within.
 
@@ -120,6 +121,7 @@ items:
     weight: 40
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: -0.2, HEFT: -0.3, VITALITY: -0.3, ARCANE: 0.6, COMPLEXITY: 0.3 }
     description: |
       A splinter of aetherite, prised from corrupted rock. It hums faintly against the palm.
 
@@ -133,11 +135,10 @@ items:
   # *gain*: two ore plus one coal (700) become one ingot (250).
   - id: 8
     item-db-name: iron_ore
-    base-level: 10
+    base-level: 20
     weight: 300
     type: ETC
     material: STONE
-    craft-axes: { STATE: 1.0, INTEGRITY: 0.3, HEFT: 0.8, COMPLEXITY: -0.9 }
     description: |
       A lump of raw iron ore, streaked with rust-coloured veins.
 
@@ -145,7 +146,7 @@ items:
 
   - id: 9
     item-db-name: iron_ingot
-    base-level: 12
+    base-level: 20
     weight: 250
     type: ETC
     material: METAL
@@ -181,6 +182,7 @@ items:
     weight: 5
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: -0.5, INTEGRITY: -0.3, HEFT: -0.6, VITALITY: -0.4, ARCANE: -0.9, COMPLEXITY: 0.2 }
     description: |
       A bead of condensed void, cold in a way that has nothing to do with temperature.
 
@@ -706,11 +708,10 @@ items:
   # coal (800) come out as a bar (300), and refining is a gain worth walking to a furnace for.
   - id: 31
     item-db-name: gold_ore
-    base-level: 15
+    base-level: 50
     weight: 350
     type: ETC
     material: STONE
-    craft-axes: { STATE: 1.0, INTEGRITY: 0.1, HEFT: 0.9, ARCANE: 0.2, COMPLEXITY: -0.9 }
     description: |
       A lump of quartz shot through with soft yellow metal.
 
@@ -718,7 +719,7 @@ items:
 
   - id: 32
     item-db-name: gold_bar
-    base-level: 17
+    base-level: 50
     weight: 300
     type: ETC
     material: METAL
@@ -906,6 +907,7 @@ items:
     weight: 800
     type: ETC
     material: STONE
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.3, HEFT: 1.0, EDGE: -0.5, COMPLEXITY: -0.7 }
     description: |
       A rough block of limestone straight off the quarry face.
 
@@ -917,6 +919,7 @@ items:
     weight: 700
     type: ETC
     material: STONE
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.4, HEFT: 0.9, EDGE: -0.3, COMPLEXITY: -0.2 }
     description: |
       A block dressed square, its faces worked smooth.
 
@@ -928,6 +931,7 @@ items:
     weight: 250
     type: ETC
     material: STONE
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.2, HEFT: 0.7, EDGE: -0.6, COMPLEXITY: -0.4 }
     description: |
       A fired clay brick, sanded and slightly uneven.
 
@@ -963,6 +967,7 @@ items:
     weight: 120
     type: ETC
     material: LEATHER
+    craft-axes: { STATE: 0.5, INTEGRITY: 0.5, HEFT: -0.2, COMPLEXITY: -0.1 }
     description: |
       A rolled sheet of cured leather, supple and evenly cut.
 
@@ -1069,6 +1074,7 @@ items:
     weight: 60
     type: ETC
     material: METAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.4, HEFT: 0.2, EDGE: 0.2, COMPLEXITY: -0.5 }
     description: |
       A twist of hand-forged iron nails, no two quite alike.
 
@@ -1331,6 +1337,7 @@ items:
     weight: 5
     type: ETC
     material: PAPER
+    craft-axes: { STATE: 0.5, INTEGRITY: -0.1, HEFT: -0.9, EDGE: 0.2, COMPLEXITY: -0.2 }
     description: |
       A long flight feather, light enough to lift on a breath.
 
@@ -1340,6 +1347,7 @@ items:
     weight: 10
     type: ETC
     material: STONE
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.1, HEFT: -0.5, EDGE: 0.9, COMPLEXITY: -0.4 }
     description: |
       A curved fang with an edge still keen enough to draw blood.
 
@@ -1349,6 +1357,7 @@ items:
     weight: 40
     type: ETC
     material: STONE
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.5, HEFT: 0.2, EDGE: 0.3, COMPLEXITY: -0.3 }
     description: |
       A ridged horn, broken off clean at the root.
 
@@ -1358,6 +1367,7 @@ items:
     weight: 30
     type: ETC
     material: LEATHER
+    craft-axes: { STATE: 0.4, INTEGRITY: 0.2, HEFT: -0.6, VITALITY: 0.2, COMPLEXITY: -0.6 }
     description: |
       A tuft of soft fur, warm and thick.
 
@@ -1367,6 +1377,7 @@ items:
     weight: 40
     type: ETC
     material: LEATHER
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.6, HEFT: -0.1, EDGE: 0.2, COMPLEXITY: 0.1 }
     description: |
       A plate of insect shell, hard as horn and light as bark.
 
@@ -1394,6 +1405,7 @@ items:
     weight: 15
     type: ETC
     material: FOOD
+    craft-axes: { STATE: -0.6, INTEGRITY: -0.4, HEFT: -0.3, VITALITY: -0.9 }
     description: |
       A small, swollen gland full of venom. Handle it with care.
 
@@ -1412,15 +1424,17 @@ items:
     weight: 20
     type: ETC
     material: LEATHER
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.5, HEFT: -0.1, EDGE: 0.1, ARCANE: -0.2, COMPLEXITY: 0.2 }
     description: |
       A tough, overlapping scale, cool and smooth to the touch.
 
   - id: 86
     item-db-name: dragon_scale
-    base-level: 70
+    base-level: 75
     weight: 60
     type: ETC
     material: METAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 1.0, HEFT: 0.3, EDGE: 0.4, VITALITY: -0.1, ARCANE: 0.5, COMPLEXITY: 0.2 }
     description: |
       A scale as wide as a palm. No blade has ever scratched it, and no fire has ever warmed it.
 
@@ -1430,6 +1444,7 @@ items:
     weight: 5
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: 0.8, INTEGRITY: 0.3, HEFT: -0.3, VITALITY: 0.3, ARCANE: 0.5, COMPLEXITY: 0.2 }
     description: |
       A round pearl with a soft, sea-green sheen.
 
@@ -1439,6 +1454,7 @@ items:
     weight: 20
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: 0.7, INTEGRITY: 0.6, HEFT: 0.6, ARCANE: 1.0, COMPLEXITY: 0.5 }
     description: |
       A small, heavy stone that glows like a star seen through mist.
 
@@ -1448,6 +1464,7 @@ items:
     weight: 20
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: 0.9, INTEGRITY: 0.2, HEFT: 0.1, EDGE: 0.3, ARCANE: 0.6, COMPLEXITY: 0.1 }
     description: |
       A crystal of blue ice that does not melt, not even in the hand.
 
@@ -1457,6 +1474,7 @@ items:
     weight: 30
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: 0.8, INTEGRITY: 0.2, HEFT: 0.2, EDGE: 0.2, ARCANE: 0.7, COMPLEXITY: 0.1 }
     description: |
       A smouldering core, too hot to hold for long.
 
@@ -1466,6 +1484,7 @@ items:
     weight: 10
     type: ETC
     material: GLASS
+    craft-axes: { STATE: -0.9, INTEGRITY: -0.7, HEFT: -0.8, VITALITY: -0.7, ARCANE: 0.2 }
     description: |
       A cold, pale jelly that a spirit left behind.
 
@@ -1475,6 +1494,7 @@ items:
     weight: 20
     type: ETC
     material: STONE
+    craft-axes: { STATE: 1.0, INTEGRITY: -0.3, HEFT: -0.2, EDGE: 0.4, VITALITY: -0.4, COMPLEXITY: -0.5 }
     description: |
       A splinter of old bone, dry and brittle.
 
@@ -1493,6 +1513,7 @@ items:
     weight: 10
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: -0.4, HEFT: 0.1, EDGE: 0.6, VITALITY: -0.6, ARCANE: -0.7, COMPLEXITY: 0.2 }
     description: |
       A black shard that seems to drink the light around it.
 
@@ -1502,6 +1523,7 @@ items:
     weight: 80
     type: ETC
     material: METAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.9, HEFT: 0.2, EDGE: 0.3, ARCANE: 0.3, COMPLEXITY: 0.4 }
     description: |
       A curved shell plate that shines like beaten gold, and weighs nearly as much.
 
@@ -1589,6 +1611,7 @@ items:
     weight: 40
     type: ETC
     material: STONE
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.2, HEFT: 0.9, EDGE: -0.7, COMPLEXITY: -0.9 }
     description: |
       A fist-sized stone that fits the hand.
 
@@ -1600,6 +1623,7 @@ items:
     weight: 30
     type: ETC
     material: STONE
+    craft-axes: { STATE: 1.0, INTEGRITY: -0.5, HEFT: 0.1, EDGE: 0.8, COMPLEXITY: -0.8 }
     description: |
       A nodule of flint, glassy where it has broken.
 
@@ -1611,6 +1635,7 @@ items:
     weight: 20
     type: ETC
     material: WOOD
+    craft-axes: { STATE: 0.9, INTEGRITY: 0.3, HEFT: -0.3, COMPLEXITY: -0.7 }
     description: |
       A dry branch fallen from a tree.
 
@@ -1746,6 +1771,7 @@ items:
     weight: 10
     type: ETC
     material: GLASS
+    craft-axes: { STATE: 0.8, INTEGRITY: -0.7, HEFT: -0.3, COMPLEXITY: -0.1 }
     description: |
       A small glass bottle with a cork stopper.
 
@@ -1757,6 +1783,7 @@ items:
     weight: 15
     type: ETC
     material: GLASS
+    craft-axes: { STATE: -0.9, INTEGRITY: -0.3, HEFT: -0.6, VITALITY: 0.7, ARCANE: 0.4 }
     description: |
       Plain water, blessed by a Priest and stoppered in a small bottle.
 
@@ -1769,6 +1796,7 @@ items:
     weight: 15
     type: ETC
     material: GLASS
+    craft-axes: { STATE: -0.8, INTEGRITY: -0.4, HEFT: -0.5, VITALITY: -0.7 }
     description: |
       A small vial of murky green liquid that smells of bitter almonds.
 
@@ -1837,6 +1865,7 @@ items:
     weight: 10
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.3, HEFT: -0.4, VITALITY: 0.2, ARCANE: 0.6, COMPLEXITY: 0.4 }
     description: |
       A faceted amethyst. It has no power of its own.
 
@@ -1848,6 +1877,7 @@ items:
     weight: 10
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.3, HEFT: -0.3, VITALITY: 0.8, ARCANE: 0.3, COMPLEXITY: 0.4 }
     description: |
       A faceted emerald. It has no power of its own.
 
@@ -1859,6 +1889,7 @@ items:
     weight: 10
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.4, HEFT: -0.3, EDGE: 0.2, VITALITY: 0.3, ARCANE: 0.5, COMPLEXITY: 0.5 }
     description: |
       A faceted ruby. It has no power of its own.
 
@@ -1870,6 +1901,7 @@ items:
     weight: 10
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.5, HEFT: -0.2, EDGE: 0.3, ARCANE: 0.9, COMPLEXITY: 0.6 }
     description: |
       A faceted pyrelith. It has no power of its own.
 
@@ -1881,6 +1913,7 @@ items:
     weight: 10
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 1.0, HEFT: -0.2, EDGE: 0.7, ARCANE: 0.4, COMPLEXITY: 0.7 }
     description: |
       A faceted diamond. It has no power of its own.
 
@@ -1905,6 +1938,7 @@ items:
     weight: 5
     type: ETC
     material: WOOD
+    craft-axes: { STATE: -0.3, INTEGRITY: -0.2, HEFT: -0.5, COMPLEXITY: -0.3, VITALITY: 0.1 }
     description: |
       A sticky lump of tree resin.
 
@@ -2247,6 +2281,7 @@ items:
     weight: 10
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: -0.4, INTEGRITY: -0.3, HEFT: 0.2, ARCANE: 0.9, COMPLEXITY: 0.4 }
     description: |
       Mana pressed into a heavy, glowing paste.
 
@@ -2292,6 +2327,7 @@ items:
     weight: 2
     type: ETC
     material: GLASS
+    craft-axes: { STATE: -0.8, INTEGRITY: -0.3, HEFT: -0.7, COMPLEXITY: 0.4 }
     description: A small bottle of black ink. Every try at a survey spends one.
 
   # The rare herbs, one per special land; see `HerbKind`. The base level is what Herbalism has to reach.
@@ -2301,6 +2337,7 @@ items:
     weight: 5
     type: ETC
     material: PLANT
+    craft-axes: { STATE: 0.0, INTEGRITY: -0.3, HEFT: -0.7, VITALITY: 0.9 }
     description: A healing herb of the forest floor. A base ingredient for many potions.
 
   - id: 329
@@ -2309,6 +2346,7 @@ items:
     weight: 5
     type: ETC
     material: PLANT
+    craft-axes: { INTEGRITY: -0.3, HEFT: -0.7, VITALITY: 0.6, ARCANE: 0.6 }
     description: A mana-touched herb that only grows where the mana runs strong.
 
   - id: 330
@@ -2317,6 +2355,7 @@ items:
     weight: 5
     type: ETC
     material: PLANT
+    craft-axes: { INTEGRITY: -0.3, HEFT: -0.7, EDGE: 0.2, VITALITY: 0.5, ARCANE: 0.3 }
     description: A tough little herb of the tundra, the taiga and the high mountains.
 
   - id: 331
@@ -2325,6 +2364,7 @@ items:
     weight: 5
     type: ETC
     material: PLANT
+    craft-axes: { INTEGRITY: -0.3, HEFT: -0.7, VITALITY: 0.9, ARCANE: 0.5 }
     description: A sun-dried herb of the desert and the badlands.
 
   - id: 332
@@ -2333,6 +2373,7 @@ items:
     weight: 5
     type: ETC
     material: PLANT
+    craft-axes: { STATE: -0.4, INTEGRITY: -0.4, HEFT: -0.7, VITALITY: -0.5, ARCANE: 0.7 }
     description: A pale herb that only grows on blighted ground.
 
   # ---------------------------------------------------------------------------------------------------------------
@@ -2511,6 +2552,7 @@ items:
     weight: 2
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.3, HEFT: -0.1, VITALITY: 0.3, ARCANE: 0.8, COMPLEXITY: 0.3 }
     description: A rare yellow crystal of mana. Dispel burns one to unravel what clings to a target.
 
   - id: 334
@@ -2519,6 +2561,7 @@ items:
     weight: 2
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.3, HEFT: -0.1, ARCANE: 0.6, COMPLEXITY: 0.2 }
     description: A common blue crystal of mana. Endow burns one to carry an element into a weapon.
 
   # What Teleport and Warp Portal burn. The GM item command is their only source until crafting can make them.
@@ -2568,6 +2611,7 @@ items:
     weight: 2
     type: ETC
     material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.3, HEFT: -0.1, EDGE: 0.2, VITALITY: -0.3, ARCANE: 0.8, COMPLEXITY: 0.3 }
     description: A red crystal of mana. Stone Curse burns one to turn flesh to stone.
 
   # The Hunter's bow: the Novice Bow stops working once a master specialises. The GM item command is its only source
@@ -2599,6 +2643,643 @@ items:
     type: ETC
     material: PAPER
     description: A paper cartridge packed with blasting powder. Blasting sets one on the ground to break the rock.
+
+  # --- Crafting materials (ids 200-255) ---------------------------------------------------------
+  # Each family is a chain: what a bestia drops or the ground gives, the station that refines it, and the material
+  # a recipe takes. Only the finished material carries `craft-axes`; an ore or a hide does not, so refining it is
+  # something every master knows (`starter_kit.yml`) rather than something to discover. The chains are drawn in the
+  # docs' crafting chains page, generated by `./gradlew craftGraph`.
+  # 
+  # Metals: two ore and a fuel make an ingot at a furnace; alloys take two ingots.
+
+  - id: 200
+    item-db-name: tin_ore
+    base-level: 5
+    weight: 300
+    type: ETC
+    material: STONE
+    description: |
+      A grey, soft ore that stains the fingers.
+
+      It melts at the first hint of a hot fire.
+
+  - id: 201
+    item-db-name: tin_ingot
+    base-level: 5
+    weight: 250
+    type: ETC
+    material: METAL
+    craft-axes: { STATE: 1.0, INTEGRITY: -0.2, HEFT: 0.3, EDGE: -0.1, COMPLEXITY: -0.6 }
+    description: |
+      A soft grey bar of tin.
+
+      On its own it is no use for much, but it makes copper behave.
+
+  - id: 202
+    item-db-name: copper_ore
+    base-level: 10
+    weight: 300
+    type: ETC
+    material: STONE
+    description: |
+      A lump of rock with green-blue streaks through it.
+
+  - id: 203
+    item-db-name: copper_ingot
+    base-level: 10
+    weight: 250
+    type: ETC
+    material: METAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.1, HEFT: 0.4, VITALITY: 0.1, COMPLEXITY: -0.4 }
+    description: |
+      A bar of reddish copper, warm to the touch even when cold.
+
+  - id: 204
+    item-db-name: bronze_ingot
+    base-level: 15
+    weight: 260
+    type: ETC
+    material: METAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.3, HEFT: 0.5, EDGE: 0.1, COMPLEXITY: -0.3 }
+    description: |
+      Copper and tin run together into a hard, golden-brown bar.
+
+      The first metal that holds an edge.
+
+  - id: 205
+    item-db-name: steel_ingot
+    base-level: 32
+    weight: 250
+    type: ETC
+    material: METAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.9, HEFT: 0.6, EDGE: 0.5, COMPLEXITY: 0.1 }
+    description: |
+      Iron worked with carbon until it rings.
+
+      It takes a keener edge than iron and holds it longer.
+
+  - id: 206
+    item-db-name: silver_ore
+    base-level: 35
+    weight: 320
+    type: ETC
+    material: STONE
+    description: |
+      Dark, tarnished rock with threads of bright metal in it.
+
+  - id: 207
+    item-db-name: silver_ingot
+    base-level: 38
+    weight: 280
+    type: ETC
+    material: METAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.2, HEFT: 0.4, EDGE: 0.2, VITALITY: 0.3, ARCANE: 0.4, COMPLEXITY: 0.2 }
+    description: |
+      A bar of pale silver.
+
+      It carries a charge better than any other metal, and smiths say it is kind to the sick.
+
+  - id: 208
+    item-db-name: mercury_ore
+    base-level: 60
+    weight: 350
+    type: ETC
+    material: STONE
+    description: |
+      A red rock that sweats beads of liquid metal when it is warmed.
+
+  - id: 209
+    item-db-name: quicksilver
+    base-level: 60
+    weight: 60
+    type: ETC
+    material: METAL
+    craft-axes: { STATE: -0.8, HEFT: 0.6, ARCANE: 0.5, COMPLEXITY: 0.4 }
+    description: |
+      A flask of liquid metal that will not hold still.
+
+      Artificers use it where a solid would not flow.
+
+  - id: 210
+    item-db-name: blackiron_ingot
+    base-level: 65
+    weight: 320
+    type: ETC
+    material: METAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.9, HEFT: 0.8, EDGE: 0.4, VITALITY: -0.3, ARCANE: -0.2, COMPLEXITY: 0.1 }
+    description: |
+      Steel quenched in shadow until it turned black all the way through.
+
+      It is cold, and it drinks magic.
+
+  - id: 211
+    item-db-name: palladium_ore
+    base-level: 70
+    weight: 330
+    type: ETC
+    material: STONE
+    description: |
+      A dense, pale ore, unusually hard to crack.
+
+  - id: 212
+    item-db-name: palladium_ingot
+    base-level: 70
+    weight: 300
+    type: ETC
+    material: METAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.7, HEFT: 0.5, EDGE: 0.3, ARCANE: 0.2, COMPLEXITY: 0.5 }
+    description: |
+      A bright bar of palladium.
+
+      It takes fine detail, which makes it the metal for delicate and costly work.
+
+  - id: 213
+    item-db-name: mithril_ore
+    base-level: 85
+    weight: 250
+    type: ETC
+    material: STONE
+    description: |
+      A silvery ore, lighter than it looks and faintly warm.
+
+  - id: 214
+    item-db-name: mithril_ingot
+    base-level: 85
+    weight: 120
+    type: ETC
+    material: METAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.9, HEFT: -0.3, EDGE: 0.4, ARCANE: 0.8, COMPLEXITY: 0.4 }
+    description: |
+      A bar of mithril, almost weightless.
+
+      Magic runs through it as water runs through a pipe.
+
+  - id: 215
+    item-db-name: adamantium_ore
+    base-level: 100
+    weight: 500
+    type: ETC
+    material: STONE
+    description: |
+      A black ore so heavy it bends the shelf it sits on.
+
+  - id: 216
+    item-db-name: adamantium_ingot
+    base-level: 100
+    weight: 450
+    type: ETC
+    material: METAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 1.0, HEFT: 1.0, EDGE: 0.3, ARCANE: -0.3, COMPLEXITY: -0.5 }
+    description: |
+      The hardest, heaviest bar anyone has made.
+
+      It shrugs off spells as well as steel.
+
+  # Wood: planks come from logs at a workbench. The hardwoods are dropped by rare trees and treants, ready to use.
+
+  - id: 217
+    item-db-name: yew_billet
+    base-level: 20
+    weight: 90
+    type: ETC
+    material: WOOD
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.7, HEFT: -0.4, VITALITY: 0.1, COMPLEXITY: -0.2 }
+    description: |
+      A billet of yew, springy and light.
+
+      Bows are made from it.
+
+  - id: 218
+    item-db-name: ironwood
+    base-level: 45
+    weight: 320
+    type: ETC
+    material: WOOD
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.8, HEFT: 0.6, COMPLEXITY: -0.2 }
+    description: |
+      Dense, dark wood that sinks in water.
+
+      It makes staves that do not splinter.
+
+  - id: 219
+    item-db-name: heartwood
+    base-level: 80
+    weight: 150
+    type: ETC
+    material: WOOD
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.7, HEFT: 0.1, VITALITY: 0.6, ARCANE: 0.6, COMPLEXITY: 0.2 }
+    description: |
+      A piece cut from the living heart of an ancient tree.
+
+      It is warm, and it hums when held.
+
+  - id: 220
+    item-db-name: rope
+    base-level: 3
+    weight: 40
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: 0.3, INTEGRITY: 0.4, HEFT: -0.5, COMPLEXITY: -0.1 }
+    description: |
+      A coil of twisted fibre cord.
+
+  # Leather: hide is cured into leather at a tanning rack. The hides of drakes are ready to use.
+
+  - id: 221
+    item-db-name: hardened_leather
+    base-level: 22
+    weight: 90
+    type: ETC
+    material: LEATHER
+    craft-axes: { STATE: 0.9, INTEGRITY: 0.7, COMPLEXITY: -0.2 }
+    description: |
+      Leather boiled in resin until it is stiff as a board.
+
+      It keeps its shape and turns a blade.
+
+  - id: 222
+    item-db-name: fine_leather
+    base-level: 35
+    weight: 60
+    type: ETC
+    material: LEATHER
+    craft-axes: { STATE: 0.5, INTEGRITY: 0.5, HEFT: -0.3, COMPLEXITY: 0.5 }
+    description: |
+      Thin, supple, evenly tanned leather.
+
+      Book covers, gloves and good boots are made from it.
+
+  - id: 223
+    item-db-name: drake_hide
+    base-level: 55
+    weight: 200
+    type: ETC
+    material: LEATHER
+    craft-axes: { STATE: 0.9, INTEGRITY: 0.8, HEFT: 0.2, ARCANE: -0.3, COMPLEXITY: 0.1 }
+    description: |
+      A drake's hide, scaled on the outside and tough as a shield.
+
+      Magic slides off it.
+
+  # Cloth: wool and flax are woven into cloth at a loom, silk thread into silk cloth.
+
+  - id: 224
+    item-db-name: silk_cloth
+    base-level: 35
+    weight: 30
+    type: ETC
+    material: CLOTH
+    craft-axes: { STATE: 0.4, INTEGRITY: 0.2, HEFT: -0.9, COMPLEXITY: 0.6 }
+    description: |
+      A bolt of finely woven silk, so light it drifts.
+
+  - id: 225
+    item-db-name: shadowsilk
+    base-level: 60
+    weight: 30
+    type: ETC
+    material: CLOTH
+    craft-axes: { STATE: 0.3, INTEGRITY: 0.3, HEFT: -0.9, VITALITY: -0.5, ARCANE: -0.6, COMPLEXITY: 0.5 }
+    description: |
+      Silk woven with void, black as a closed eye.
+
+      It swallows light and spells alike.
+
+  - id: 226
+    item-db-name: starweave
+    base-level: 80
+    weight: 30
+    type: ETC
+    material: CLOTH
+    craft-axes: { STATE: 0.3, INTEGRITY: 0.4, HEFT: -0.9, VITALITY: 0.5, ARCANE: 0.7, COMPLEXITY: 0.6 }
+    description: |
+      Silk shot through with condensed mana, glittering faintly.
+
+      It feels like standing in the sun.
+
+  # Glass: sand and coal make glass at a glass furnace; a glassblowing bench shapes it. Quartz sand and a finer glass can come later.
+
+  - id: 227
+    item-db-name: sand
+    base-level: 1
+    weight: 120
+    type: ETC
+    material: STONE
+    description: |
+      A sack of clean, pale sand.
+
+  - id: 228
+    item-db-name: glass
+    base-level: 8
+    weight: 60
+    type: ETC
+    material: GLASS
+    craft-axes: { STATE: 0.9, INTEGRITY: -0.8, COMPLEXITY: -0.3 }
+    description: |
+      A cooled slab of clear glass.
+
+      It wants to be a bottle, a lens or a pane.
+
+  - id: 229
+    item-db-name: lens
+    base-level: 30
+    weight: 15
+    type: ETC
+    material: GLASS
+    craft-axes: { STATE: 1.0, INTEGRITY: -0.6, HEFT: -0.4, EDGE: 0.2, COMPLEXITY: 0.7 }
+    description: |
+      A ground and polished glass lens.
+
+      A monocle, a lantern or a spyglass starts here.
+
+  # Paper and fluids.
+
+  - id: 230
+    item-db-name: lamp_oil
+    base-level: 5
+    weight: 30
+    type: ETC
+    material: GLASS
+    craft-axes: { STATE: -0.9, INTEGRITY: -0.4, HEFT: -0.5, COMPLEXITY: -0.2 }
+    description: |
+      A flask of pressed oil that burns clean and slow.
+
+  - id: 231
+    item-db-name: parchment
+    base-level: 5
+    weight: 3
+    type: ETC
+    material: PAPER
+    craft-axes: { STATE: 0.7, INTEGRITY: -0.6, HEFT: -0.9, COMPLEXITY: 0.3 }
+    description: |
+      A sheet of pressed reed paper.
+
+  - id: 232
+    item-db-name: mana_ink
+    base-level: 35
+    weight: 15
+    type: ETC
+    material: GLASS
+    craft-axes: { STATE: -0.7, INTEGRITY: -0.3, HEFT: -0.7, ARCANE: 0.7, COMPLEXITY: 0.6 }
+    description: |
+      Ink with mana ground into it.
+
+      What is written with it glows faintly until it is read.
+
+  # Mechanical parts: cut at a forge from bronze or steel.
+
+  - id: 233
+    item-db-name: cog
+    base-level: 40
+    weight: 20
+    type: ETC
+    material: METAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.6, HEFT: 0.2, COMPLEXITY: 0.9 }
+    description: |
+      A small toothed wheel, cut true.
+
+      Gearwork is made of them.
+
+  - id: 234
+    item-db-name: clockwork_core
+    base-level: 75
+    weight: 80
+    type: ETC
+    material: METAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.6, HEFT: 0.3, ARCANE: 0.5, COMPLEXITY: 1.0 }
+    description: |
+      A sealed movement of gears around a bead of quicksilver and a mana crystal.
+
+      It ticks, and nothing winds it.
+
+  # Parts of creatures, dropped as they are.
+
+  - id: 235
+    item-db-name: great_fang
+    base-level: 40
+    weight: 25
+    type: ETC
+    material: STONE
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.4, HEFT: -0.2, EDGE: 0.9, COMPLEXITY: -0.3 }
+    description: |
+      A fang as long as a hand, taken from a big predator.
+
+  - id: 236
+    item-db-name: storm_feather
+    base-level: 65
+    weight: 5
+    type: ETC
+    material: PAPER
+    craft-axes: { STATE: 0.4, INTEGRITY: 0.2, HEFT: -0.9, EDGE: 0.6, ARCANE: 0.6, COMPLEXITY: 0.1 }
+    description: |
+      A long flight feather that crackles faintly.
+
+      It is lighter than the wind it was born in.
+
+  - id: 237
+    item-db-name: wyrm_bone
+    base-level: 75
+    weight: 400
+    type: ETC
+    material: STONE
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.8, HEFT: 0.8, VITALITY: -0.3, ARCANE: 0.2, COMPLEXITY: -0.3 }
+    description: |
+      A bone from a drake, dense as stone and nearly as heavy.
+
+  # Stone and minerals found in the ground.
+
+  - id: 238
+    item-db-name: obsidian
+    base-level: 50
+    weight: 120
+    type: ETC
+    material: STONE
+    craft-axes: { STATE: 1.0, INTEGRITY: -0.8, HEFT: 0.2, EDGE: 1.0, ARCANE: 0.1, COMPLEXITY: -0.2 }
+    description: |
+      Black volcanic glass that breaks to an edge sharper than steel.
+
+  - id: 239
+    item-db-name: lodestone
+    base-level: 45
+    weight: 350
+    type: ETC
+    material: STONE
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.4, HEFT: 0.8, ARCANE: 0.5, COMPLEXITY: 0.1 }
+    description: |
+      A dark stone that pulls on iron and hums against the palm.
+
+  - id: 240
+    item-db-name: coral
+    base-level: 45
+    weight: 60
+    type: ETC
+    material: STONE
+    craft-axes: { STATE: 0.9, INTEGRITY: -0.3, HEFT: -0.1, VITALITY: 0.2, ARCANE: -0.4, COMPLEXITY: 0.3 }
+    description: |
+      A branch of pale sea coral, brittle and finely patterned.
+
+  # Herbs, gathered.
+
+  - id: 241
+    item-db-name: deathcap
+    base-level: 15
+    weight: 10
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: -0.3, INTEGRITY: -0.5, HEFT: -0.6, VITALITY: -0.9, COMPLEXITY: -0.2 }
+    description: |
+      A pale mushroom, sweet-smelling and fatal.
+
+  - id: 242
+    item-db-name: thornvine
+    base-level: 20
+    weight: 40
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: 0.5, INTEGRITY: 0.3, HEFT: -0.4, EDGE: 0.6, VITALITY: 0.1, COMPLEXITY: -0.3 }
+    description: |
+      A tough, supple vine armoured in hooked thorns.
+
+  - id: 243
+    item-db-name: glowcap
+    base-level: 45
+    weight: 10
+    type: ETC
+    material: PLANT
+    craft-axes: { STATE: -0.2, INTEGRITY: -0.5, HEFT: -0.6, VITALITY: 0.3, ARCANE: 0.4, COMPLEXITY: 0.1 }
+    description: |
+      A cave mushroom that gives off a steady green light.
+
+  # Mana: raw essence is gathered where the ground is rich, and a Mana Harvester grows it into crystals.
+
+  - id: 244
+    item-db-name: mana_essence
+    base-level: 5
+    weight: 5
+    type: ETC
+    material: CRYSTAL
+    craft-axes: { STATE: -0.6, INTEGRITY: -0.4, HEFT: -0.9, ARCANE: 0.5, COMPLEXITY: -0.1 }
+    description: |
+      A pinch of loose mana, grey and faintly warm.
+
+  - id: 245
+    item-db-name: pure_mana_essence
+    base-level: 30
+    weight: 5
+    type: ETC
+    material: CRYSTAL
+    craft-axes: { STATE: -0.5, INTEGRITY: -0.3, HEFT: -0.8, VITALITY: 0.2, ARCANE: 0.8, COMPLEXITY: 0.1 }
+    description: |
+      Mana gone clear and bright, with none of the grit.
+
+  # Gems: cut from rough stones at a gem cutter, as the other five are.
+
+  - id: 246
+    item-db-name: rough_garnet
+    base-level: 30
+    weight: 20
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A dull red stone, still in the rock it grew in.
+
+  - id: 247
+    item-db-name: cut_garnet
+    base-level: 30
+    weight: 5
+    type: ETC
+    material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.4, HEFT: -0.2, EDGE: 0.1, VITALITY: 0.1, ARCANE: 0.2, COMPLEXITY: 0.4 }
+    description: |
+      A deep red garnet, cut and faceted.
+
+  - id: 248
+    item-db-name: rough_sapphire
+    base-level: 45
+    weight: 20
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A cloudy blue stone, still in the rock it grew in.
+
+  - id: 249
+    item-db-name: cut_sapphire
+    base-level: 45
+    weight: 5
+    type: ETC
+    material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.5, HEFT: -0.3, ARCANE: 0.4, COMPLEXITY: 0.6 }
+    description: |
+      A clear blue sapphire, cut and faceted.
+
+  - id: 250
+    item-db-name: rough_onyx
+    base-level: 65
+    weight: 25
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A black stone with a dull skin.
+
+  - id: 251
+    item-db-name: cut_onyx
+    base-level: 65
+    weight: 5
+    type: ETC
+    material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.6, HEFT: 0.1, EDGE: 0.1, VITALITY: -0.6, ARCANE: -0.5, COMPLEXITY: 0.3 }
+    description: |
+      A polished onyx, black and bottomless.
+
+  # Station kits. Every master knows how to build a workbench; the rest take Carpentry.
+
+  - id: 252
+    item-db-name: tanning_rack_kit
+    base-level: 1
+    weight: 900
+    type: USABLE
+    material: WOOD
+    script: TanningRackKitScript
+    description: |
+      A frame of poles, a scraping beam and a bundle of cord.
+
+      Set it down and it becomes a tanning rack - once somebody puts the work in.
+
+  - id: 253
+    item-db-name: loom_kit
+    base-level: 1
+    weight: 1200
+    type: USABLE
+    material: WOOD
+    script: LoomKitScript
+    description: |
+      A bundle of beams, heddles and a shuttle, packed flat.
+
+      Set it down and it becomes a loom - once somebody puts the work in.
+
+  - id: 254
+    item-db-name: glass_furnace_kit
+    base-level: 1
+    weight: 1500
+    type: USABLE
+    material: STONE
+    script: GlassFurnaceKitScript
+    description: |
+      Firebrick, a clay crucible and a long iron pipe.
+
+      Set it down and it becomes a glass furnace - once somebody puts the work in.
+
+  - id: 255
+    item-db-name: glassblowing_bench_kit
+    base-level: 1
+    weight: 900
+    type: USABLE
+    material: WOOD
+    script: GlassblowingBenchKitScript
+    description: |
+      A bench, a set of wooden paddles and a blowpipe.
+
+      Set it down and it becomes a glassblowing bench - once somebody puts the work in.
 
   # --- Equipment catalogue (ids 500+) ----------------------------------------------------------
   # Generated from the catalogue on the docs' equipment design page: values follow its curves, `min-level`

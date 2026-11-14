@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 104
 identifier: ember_sovereign
-level: 110
+level-min: 110
+level-max: 110
 name: "Ember Sovereign"
 description: >-
   A living mass of magma and slag that rules the deep vents. Where it has passed, the cave walls still glow for

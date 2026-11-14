@@ -93,7 +93,7 @@ recipes:
     inputs:
       - { item: log, amount: 4 }
       - { item: stick, amount: 4 }
-    skill: { skill: M_CARPENTRY, level: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
     craftSeconds: 10.0
     baseSuccessChance: 1.0
 
@@ -170,7 +170,7 @@ recipes:
     inputs:
       - { item: loose_stone, amount: 12 }
       - { item: log, amount: 2 }
-    skill: { skill: M_ORE_REFINEMENT, level: 1 }
+    skill: { skill: M_CARPENTRY, level: 1 }
     craftSeconds: 10.0
     baseSuccessChance: 1.0
 
@@ -182,7 +182,7 @@ recipes:
       - { item: loose_stone, amount: 10 }
       - { item: iron_ingot, amount: 2 }
       - { item: log, amount: 2 }
-    skill: { skill: M_FORGE_WEAPON, level: 1 }
+    skill: { skill: M_CARPENTRY, level: 1 }
     craftSeconds: 10.0
     baseSuccessChance: 1.0
 
@@ -520,3 +520,493 @@ recipes:
     station: FORGE
     craftSeconds: 20.0
     baseSuccessChance: 0.45
+
+  # --- Material chains -----------------------------------------------------------------------------
+  # A material is dropped or gathered, refined at a station, and then used by a recipe. None of these has a
+  # discoverable point: their raw inputs carry no `craft-axes`, so every master knows them from `starter_kit.yml`
+  # and the skill rank and the inputs gate the tier. The chains are drawn in the docs crafting chains page.
+  #
+  # Metals. Two ore and a fuel make an ingot, and alloys take two ingots. The docs give smelting a base chance that
+  # falls below zero for the high ores, which a recipe cannot hold, so these stop at a low floor instead.
+
+  - id: 70
+    identifier: TIN_INGOT
+    effect: PRODUCE
+    output: { item: tin_ingot, amount: 1 }
+    inputs:
+      - { item: tin_ore, amount: 2 }
+      - { item: coal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 1 }
+    station: FURNACE
+    craftSeconds: 10.0
+    baseSuccessChance: 0.4
+
+  - id: 71
+    identifier: COPPER_INGOT
+    effect: PRODUCE
+    output: { item: copper_ingot, amount: 1 }
+    inputs:
+      - { item: copper_ore, amount: 2 }
+      - { item: coal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 1 }
+    station: FURNACE
+    craftSeconds: 10.0
+    baseSuccessChance: 0.4
+
+  - id: 72
+    identifier: BRONZE_INGOT
+    effect: PRODUCE
+    output: { item: bronze_ingot, amount: 1 }
+    inputs:
+      - { item: copper_ingot, amount: 1 }
+      - { item: tin_ingot, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 1 }
+    station: FURNACE
+    craftSeconds: 12.0
+    baseSuccessChance: 0.4
+
+  - id: 73
+    identifier: STEEL_INGOT
+    effect: PRODUCE
+    output: { item: steel_ingot, amount: 1 }
+    inputs:
+      - { item: iron_ingot, amount: 1 }
+      - { item: coal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 2 }
+    station: FURNACE
+    craftSeconds: 14.0
+    baseSuccessChance: 0.35
+
+  - id: 74
+    identifier: SILVER_INGOT
+    effect: PRODUCE
+    output: { item: silver_ingot, amount: 1 }
+    inputs:
+      - { item: silver_ore, amount: 2 }
+      - { item: coal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 2 }
+    station: FURNACE
+    craftSeconds: 14.0
+    baseSuccessChance: 0.3
+
+  - id: 75
+    identifier: QUICKSILVER
+    effect: PRODUCE
+    output: { item: quicksilver, amount: 1 }
+    inputs:
+      - { item: mercury_ore, amount: 2 }
+    skill: { skill: M_ORE_REFINEMENT, level: 3 }
+    station: FURNACE
+    craftSeconds: 16.0
+    baseSuccessChance: 0.25
+
+  - id: 76
+    identifier: BLACKIRON_INGOT
+    effect: PRODUCE
+    output: { item: blackiron_ingot, amount: 1 }
+    inputs:
+      - { item: steel_ingot, amount: 1 }
+      - { item: shadow_shard, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 3 }
+    station: FURNACE
+    craftSeconds: 18.0
+    baseSuccessChance: 0.2
+
+  - id: 77
+    identifier: PALLADIUM_INGOT
+    effect: PRODUCE
+    output: { item: palladium_ingot, amount: 1 }
+    inputs:
+      - { item: palladium_ore, amount: 2 }
+      - { item: coal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 3 }
+    station: FURNACE
+    craftSeconds: 18.0
+    baseSuccessChance: 0.2
+
+  - id: 78
+    identifier: MITHRIL_INGOT
+    effect: PRODUCE
+    output: { item: mithril_ingot, amount: 1 }
+    inputs:
+      - { item: mithril_ore, amount: 2 }
+      - { item: coal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 3 }
+    station: FURNACE
+    craftSeconds: 20.0
+    baseSuccessChance: 0.15
+
+  - id: 79
+    identifier: ADAMANTIUM_INGOT
+    effect: PRODUCE
+    output: { item: adamantium_ingot, amount: 1 }
+    inputs:
+      - { item: adamantium_ore, amount: 2 }
+      - { item: coal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 3 }
+    station: FURNACE
+    craftSeconds: 24.0
+    baseSuccessChance: 0.1
+
+  - id: 80
+    identifier: BRICK
+    effect: PRODUCE
+    output: { item: brick, amount: 2 }
+    inputs:
+      - { item: clay, amount: 2 }
+      - { item: coal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 1 }
+    station: FURNACE
+    craftSeconds: 8.0
+    baseSuccessChance: 0.6
+
+
+  # Workbench: what a bench turns out by hand. Nobody needs a skill for it.
+
+  - id: 81
+    identifier: PLANK
+    effect: PRODUCE
+    output: { item: plank, amount: 2 }
+    inputs:
+      - { item: log, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 4.0
+    baseSuccessChance: 1
+
+  - id: 82
+    identifier: CUT_STONE
+    effect: PRODUCE
+    output: { item: cut_stone, amount: 1 }
+    inputs:
+      - { item: quarried_stone, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 6.0
+    baseSuccessChance: 1
+
+  - id: 83
+    identifier: PARCHMENT
+    effect: PRODUCE
+    output: { item: parchment, amount: 1 }
+    inputs:
+      - { item: reed_stalk, amount: 2 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 4.0
+    baseSuccessChance: 1
+
+  - id: 84
+    identifier: LAMP_OIL
+    effect: PRODUCE
+    output: { item: lamp_oil, amount: 1 }
+    inputs:
+      - { item: flax, amount: 2 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 5.0
+    baseSuccessChance: 1
+
+  - id: 85
+    identifier: MANA_INK
+    effect: PRODUCE
+    output: { item: mana_ink, amount: 1 }
+    inputs:
+      - { item: ink, amount: 1 }
+      - { item: mana_essence, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 6.0
+    baseSuccessChance: 0.9
+
+
+  # Tanning rack.
+
+  - id: 86
+    identifier: LEATHER
+    effect: PRODUCE
+    output: { item: leather, amount: 1 }
+    inputs:
+      - { item: raw_hide, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: TANNING_RACK
+    craftSeconds: 6.0
+    baseSuccessChance: 1
+
+  - id: 87
+    identifier: HARDENED_LEATHER
+    effect: PRODUCE
+    output: { item: hardened_leather, amount: 1 }
+    inputs:
+      - { item: leather, amount: 1 }
+      - { item: resin, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: TANNING_RACK
+    craftSeconds: 8.0
+    baseSuccessChance: 0.9
+
+  - id: 88
+    identifier: FINE_LEATHER
+    effect: PRODUCE
+    output: { item: fine_leather, amount: 1 }
+    inputs:
+      - { item: raw_hide, amount: 1 }
+      - { item: salt, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: TANNING_RACK
+    craftSeconds: 10.0
+    baseSuccessChance: 0.9
+
+
+  # Loom. Silk is the dear cloth, and the two rare weaves need a rare reagent rather than a skill.
+
+  - id: 89
+    identifier: CLOTH_FROM_WOOL
+    effect: PRODUCE
+    output: { item: cloth, amount: 1 }
+    inputs:
+      - { item: wool, amount: 2 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: LOOM
+    craftSeconds: 5.0
+    baseSuccessChance: 1
+
+  - id: 90
+    identifier: CLOTH_FROM_FLAX
+    effect: PRODUCE
+    output: { item: cloth, amount: 1 }
+    inputs:
+      - { item: flax, amount: 2 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: LOOM
+    craftSeconds: 5.0
+    baseSuccessChance: 1
+
+  - id: 91
+    identifier: ROPE
+    effect: PRODUCE
+    output: { item: rope, amount: 1 }
+    inputs:
+      - { item: flax, amount: 2 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: LOOM
+    craftSeconds: 4.0
+    baseSuccessChance: 1
+
+  - id: 92
+    identifier: SILK_CLOTH
+    effect: PRODUCE
+    output: { item: silk_cloth, amount: 1 }
+    inputs:
+      - { item: silk_thread, amount: 2 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: LOOM
+    craftSeconds: 8.0
+    baseSuccessChance: 0.9
+
+  - id: 93
+    identifier: SHADOWSILK
+    effect: PRODUCE
+    output: { item: shadowsilk, amount: 1 }
+    inputs:
+      - { item: silk_cloth, amount: 1 }
+      - { item: void_essence, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: LOOM
+    craftSeconds: 12.0
+    baseSuccessChance: 0.8
+
+  - id: 94
+    identifier: SHADOWSILK_FROM_ECTOPLASM
+    effect: PRODUCE
+    output: { item: shadowsilk, amount: 1 }
+    inputs:
+      - { item: silk_cloth, amount: 1 }
+      - { item: ectoplasm, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: LOOM
+    craftSeconds: 12.0
+    baseSuccessChance: 0.8
+
+  - id: 95
+    identifier: STARWEAVE
+    effect: PRODUCE
+    output: { item: starweave, amount: 1 }
+    inputs:
+      - { item: silk_cloth, amount: 1 }
+      - { item: mana_concentrate, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: LOOM
+    craftSeconds: 16.0
+    baseSuccessChance: 0.7
+
+
+  # Glass furnace and glassblowing bench.
+
+  - id: 96
+    identifier: GLASS
+    effect: PRODUCE
+    output: { item: glass, amount: 1 }
+    inputs:
+      - { item: sand, amount: 2 }
+      - { item: coal, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: GLASS_FURNACE
+    craftSeconds: 8.0
+    baseSuccessChance: 1
+
+  - id: 97
+    identifier: EMPTY_BOTTLE
+    effect: PRODUCE
+    output: { item: empty_bottle, amount: 2 }
+    inputs:
+      - { item: glass, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: GLASSBLOWING_BENCH
+    craftSeconds: 5.0
+    baseSuccessChance: 1
+
+  - id: 98
+    identifier: LENS
+    effect: PRODUCE
+    output: { item: lens, amount: 1 }
+    inputs:
+      - { item: glass, amount: 2 }
+      - { item: sand, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: GLASSBLOWING_BENCH
+    craftSeconds: 10.0
+    baseSuccessChance: 0.9
+
+
+  # Forge parts. Cogs and the clockwork core are the intricate end of the metal chain.
+
+  - id: 99
+    identifier: NAILS
+    effect: PRODUCE
+    output: { item: nails, amount: 20 }
+    inputs:
+      - { item: iron_ingot, amount: 1 }
+    skill: { skill: M_FORGE_WEAPON, level: 1 }
+    station: FORGE
+    craftSeconds: 6.0
+    baseSuccessChance: 1
+
+  - id: 100
+    identifier: COG_BRONZE
+    effect: PRODUCE
+    output: { item: cog, amount: 2 }
+    inputs:
+      - { item: bronze_ingot, amount: 1 }
+    skill: { skill: M_FORGE_WEAPON, level: 2 }
+    station: FORGE
+    craftSeconds: 8.0
+    baseSuccessChance: 0.8
+
+  - id: 101
+    identifier: COG_STEEL
+    effect: PRODUCE
+    output: { item: cog, amount: 2 }
+    inputs:
+      - { item: steel_ingot, amount: 1 }
+    skill: { skill: M_FORGE_WEAPON, level: 2 }
+    station: FORGE
+    craftSeconds: 8.0
+    baseSuccessChance: 0.8
+
+  - id: 102
+    identifier: CLOCKWORK_CORE
+    effect: PRODUCE
+    output: { item: clockwork_core, amount: 1 }
+    inputs:
+      - { item: cog, amount: 3 }
+      - { item: quicksilver, amount: 1 }
+      - { item: blue_mana_crystal, amount: 1 }
+    skill: { skill: M_FORGE_WEAPON, level: 5 }
+    station: FORGE
+    craftSeconds: 30.0
+    baseSuccessChance: 0.4
+
+
+  # Gem cutting, like the five above. A failed cut shatters the stone.
+
+  - id: 103
+    identifier: CUT_GARNET
+    effect: PRODUCE
+    output: { item: cut_garnet, amount: 1 }
+    inputs:
+      - { item: rough_garnet, amount: 1 }
+    skill: { skill: M_GEM_CUTTING, level: 1 }
+    craftSeconds: 15.0
+    baseSuccessChance: 0.9
+
+  - id: 104
+    identifier: CUT_SAPPHIRE
+    effect: PRODUCE
+    output: { item: cut_sapphire, amount: 1 }
+    inputs:
+      - { item: rough_sapphire, amount: 1 }
+    skill: { skill: M_GEM_CUTTING, level: 2 }
+    craftSeconds: 25.0
+    baseSuccessChance: 0.75
+
+  - id: 105
+    identifier: CUT_ONYX
+    effect: PRODUCE
+    output: { item: cut_onyx, amount: 1 }
+    inputs:
+      - { item: rough_onyx, amount: 1 }
+    skill: { skill: M_GEM_CUTTING, level: 3 }
+    craftSeconds: 35.0
+    baseSuccessChance: 0.6
+
+
+  # Station kits. Built by hand with Carpentry, from what the chains above make.
+
+  - id: 106
+    identifier: TANNING_RACK_KIT
+    effect: PRODUCE
+    output: { item: tanning_rack_kit, amount: 1 }
+    inputs:
+      - { item: plank, amount: 6 }
+      - { item: rope, amount: 4 }
+      - { item: salt, amount: 2 }
+    skill: { skill: M_CARPENTRY, level: 2 }
+    craftSeconds: 12.0
+    baseSuccessChance: 1
+
+  - id: 107
+    identifier: LOOM_KIT
+    effect: PRODUCE
+    output: { item: loom_kit, amount: 1 }
+    inputs:
+      - { item: plank, amount: 8 }
+      - { item: rope, amount: 4 }
+      - { item: nails, amount: 10 }
+    skill: { skill: M_CARPENTRY, level: 2 }
+    craftSeconds: 15.0
+    baseSuccessChance: 1
+
+  - id: 108
+    identifier: GLASS_FURNACE_KIT
+    effect: PRODUCE
+    output: { item: glass_furnace_kit, amount: 1 }
+    inputs:
+      - { item: brick, amount: 12 }
+      - { item: iron_ingot, amount: 2 }
+      - { item: clay, amount: 4 }
+    skill: { skill: M_CARPENTRY, level: 2 }
+    craftSeconds: 20.0
+    baseSuccessChance: 1
+
+  - id: 109
+    identifier: GLASSBLOWING_BENCH_KIT
+    effect: PRODUCE
+    output: { item: glassblowing_bench_kit, amount: 1 }
+    inputs:
+      - { item: plank, amount: 6 }
+      - { item: iron_ingot, amount: 2 }
+      - { item: brick, amount: 2 }
+    skill: { skill: M_CARPENTRY, level: 2 }
+    craftSeconds: 15.0
+    baseSuccessChance: 1

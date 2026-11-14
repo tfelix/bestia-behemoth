@@ -24,9 +24,62 @@ blueprints:
   - WORKBENCH_KIT
   - FURNACE_KIT
   - FORGE_KIT
+  - TANNING_RACK_KIT
+  - LOOM_KIT
+  - GLASS_FURNACE_KIT
+  - GLASSBLOWING_BENCH_KIT
   - CAMPFIRE_KIT
+  # Found stranded by `CraftingChainTest`: a log carries no craft-axes (it is the precursor of a plank), so these four
+  # had no point to discover and nothing else teaches a recipe. Carpentry rank still gates the town buildings.
+  - CHEST_KIT
+  - MINING_SHAFT_KIT
+  - POST_OFFICE_KIT
+  - AUCTION_HOUSE_KIT
   # Breeding: the farm, the incubator and what a clutch uses up, so every master can breed without discovering
   # anything first.
   - BREEDING_FARM_KIT
   - NESTING_BUNDLE
   - INCUBATOR_KIT
+  # The material chains. Refining has nothing to discover - the raw inputs carry no craft-axes - so every master
+  # knows how, and the skill rank, the station and the inputs decide who can.
+  - TIN_INGOT
+  - COPPER_INGOT
+  - BRONZE_INGOT
+  - STEEL_INGOT
+  - SILVER_INGOT
+  - QUICKSILVER
+  - BLACKIRON_INGOT
+  - PALLADIUM_INGOT
+  - MITHRIL_INGOT
+  - ADAMANTIUM_INGOT
+  - BRICK
+  - PLANK
+  - CUT_STONE
+  - PARCHMENT
+  - LAMP_OIL
+  - MANA_INK
+  - LEATHER
+  - HARDENED_LEATHER
+  - FINE_LEATHER
+  - CLOTH_FROM_WOOL
+  - CLOTH_FROM_FLAX
+  - ROPE
+  - SILK_CLOTH
+  - SHADOWSILK
+  - SHADOWSILK_FROM_ECTOPLASM
+  - STARWEAVE
+  - GLASS
+  - EMPTY_BOTTLE
+  - LENS
+  - NAILS
+  - COG_BRONZE
+  - COG_STEEL
+  - CLOCKWORK_CORE
+  - CUT_AMETHYST
+  - CUT_EMERALD
+  - CUT_RUBY
+  - CUT_PYRELITH
+  - CUT_DIAMOND
+  - CUT_GARNET
+  - CUT_SAPPHIRE
+  - CUT_ONYX

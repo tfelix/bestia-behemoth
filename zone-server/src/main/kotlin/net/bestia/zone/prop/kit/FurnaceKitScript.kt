@@ -4,7 +4,7 @@ import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.entity.StaticEntityKind
 import org.springframework.stereotype.Component
 
-/** The Furnace Kit (`items.yml` id 124), made in Handiwork with Ore Refinement. */
+/** The Furnace Kit (`items.yml` id 124), made in Handiwork with Carpentry. */
 @Component
 class FurnaceKitScript(
   structures: PlayerStructureService

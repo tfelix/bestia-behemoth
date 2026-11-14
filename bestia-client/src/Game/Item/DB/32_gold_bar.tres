@@ -8,5 +8,5 @@ item_id = 32
 name_key = "GOLD_BAR"
 description_key = "GOLD_BAR_DESC"
 weight = 300
-level = 17
+level = 50
 type = 2
