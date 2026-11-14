@@ -68,6 +68,19 @@ class KnowledgeTopicProviderTest {
   }
 
   @Test
+  fun `what not everybody knows is offered before what everybody knows`() {
+    val famous = (1..OFFERED).map { memory(topic = it, importance = 90) }
+    val legend = memory(topic = 30_000, importance = 55)
+    holds(*(famous + legend).toTypedArray())
+
+    val offered = assertNotNull(sut.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(), menuTopic())).options
+      .map { Topics.localOf(Topics.KNOWLEDGE, it.topicId) }
+
+    assertEquals(legend.topic, offered.first(), "a famous memory crowded out the one only this person holds: $offered")
+    assertTrue(offered.any { it in famous.map(Knowledge::topic) }, "nothing everybody knows is offered any more: $offered")
+  }
+
+  @Test
   fun `a memory nobody alive saw is framed as hearsay around the memory itself`() {
     holds(memory(topic = FIRST_EVENT, certainty = Certainty.TOLD))
 
@@ -97,12 +110,12 @@ class KnowledgeTopicProviderTest {
     return sut.rootOptions(speaker()).single().topicId
   }
 
-  private fun memory(topic: Int, certainty: Certainty = Certainty.FIRSTHAND): Knowledge {
+  private fun memory(topic: Int, certainty: Certainty = Certainty.FIRSTHAND, importance: Int = 50): Knowledge {
     return Knowledge(
       topic = topic,
       key = KEY,
       slots = mapOf(HistoryKnowledge.SLOT_PLACE to Knowledge.Slot.Name(PLACE)),
-      importance = 50,
+      importance = importance,
       year = 1,
       locality = Locality.OWN_TOWN,
       variants = 2,
@@ -133,6 +146,9 @@ class KnowledgeTopicProviderTest {
     const val KEY = "HISTORY_CIV_FOUNDED"
 
     const val PLACE = "Karth"
+
+    /** `KnowledgeTopicProvider.OFFERED`. */
+    const val OFFERED = 4
 
     /** A pruned thousand-year chronicle keeps a few thousand events, well short of this. */
     const val CHRONICLE_CEILING = 20_000

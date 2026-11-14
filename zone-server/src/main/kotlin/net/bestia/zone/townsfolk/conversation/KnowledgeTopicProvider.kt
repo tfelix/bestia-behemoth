@@ -3,6 +3,7 @@ package net.bestia.zone.townsfolk.conversation
 import net.bestia.zone.townsfolk.knowledge.Certainty
 import net.bestia.zone.townsfolk.knowledge.Knowledge
 import net.bestia.zone.townsfolk.knowledge.KnowledgeService
+import net.bestia.zone.townsfolk.knowledge.TownKnowledge
 import net.bestia.zone.dialog.DialogArg
 import org.springframework.stereotype.Component
 
@@ -54,8 +55,10 @@ class KnowledgeTopicProvider(
   /**
    * The handful of things this person would raise today.
    *
-   * Ordered by importance so the town's own disasters come before a treaty signed two provinces away,
-   * then trimmed - a list of forty memories is a database query rather than a conversation.
+   * Mostly what not everybody knows, so the person who holds a rare memory or a legend actually says
+   * it: a town shares some thirty famous memories, and by importance alone every person offered the
+   * same four of them. One slot stays for the biggest famous thing, because everybody talks about
+   * that. Trimmed - a list of forty memories is a database query rather than a conversation.
    */
   private fun newsMenu(speaker: Speaker): ConversationNode {
     val held = knowledge.knownBy(speaker.identity)
@@ -63,9 +66,11 @@ class KnowledgeTopicProvider(
       return ConversationNode(lines.lineFor(speaker, ConversationKeys.NEWS_NONE), listOf(back()))
     }
 
-    val offered = held
+    val (common, uncommon) = held
       .sortedWith(compareByDescending<Knowledge> { it.importance }.thenBy { it.topic })
-      .take(OFFERED)
+      .partition { it.importance >= TownKnowledge.FAMOUS }
+    val picked = uncommon.take(OFFERED - COMMON_SLOTS) + common.take(COMMON_SLOTS)
+    val offered = picked + (uncommon + common).filterNot { it in picked }.take(OFFERED - picked.size)
 
     return ConversationNode(
       Line(ConversationKeys.NEWS_ASK),
@@ -132,6 +137,9 @@ class KnowledgeTopicProvider(
     const val OFFERED = 4
 
     const val ASK_SUFFIX = "_ASK"
+
+    /** How many of the offered memories may be ones the whole town knows. */
+    const val COMMON_SLOTS = 1
 
     val FRAMES = mapOf(
       Certainty.TOLD to ConversationKeys.HEARSAY_TOLD,
