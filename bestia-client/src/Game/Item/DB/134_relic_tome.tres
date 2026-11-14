@@ -8,6 +8,6 @@ item_id = 134
 name_key = "RELIC_TOME"
 description_key = "RELIC_TOME_DESC"
 weight = 90
-level = 50
+level = 80
 type = 1
 equip_slot = 7
