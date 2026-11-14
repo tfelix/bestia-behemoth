@@ -8,12 +8,11 @@ import net.bestia.zone.casting.SkillStrategy
 import net.bestia.zone.dialog.DialogArg
 import net.bestia.zone.dialog.DialogId
 import net.bestia.zone.dialog.DialogService
+import net.bestia.zone.geometry.Compass
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
-import kotlin.math.PI
 import kotlin.math.abs
-import kotlin.math.atan2
 import kotlin.math.floor
 import kotlin.math.hypot
 import kotlin.math.roundToLong
@@ -76,7 +75,7 @@ class TreasureSense(
   private fun readingOf(nearest: TreasureCache, count: Int, x: Double, y: Double, level: Int): Map<String, DialogArg> {
     val reading = mutableMapOf(
       "count" to DialogArg.Number(count.toLong()),
-      "heading" to DialogArg.Token(headingOf(nearest.x - x, nearest.y - y)),
+      "heading" to DialogArg.Token(Compass.tokenOf(nearest.x - x, nearest.y - y)),
       "distance" to DialogArg.Number(hypot(nearest.x - x, nearest.y - y).roundToLong()),
     )
     if (level >= DEPTH_LEVEL) reading["depth"] = DialogArg.Number(nearest.depth.roundToLong().coerceAtLeast(1))
@@ -89,12 +88,6 @@ class TreasureSense(
     return Vec3L(floor(cache.x).toLong(), floor(cache.y).toLong(), cache.floor.roundToLong())
   }
 
-  /** One of eight headings, counted from east toward north like Read Tracks names them. */
-  private fun headingOf(dx: Double, dy: Double): String {
-    val octant = Math.floorMod((atan2(dy, dx) / (PI / 4)).roundToLong(), DIRECTIONS.size.toLong()).toInt()
-    return DIRECTIONS[octant]
-  }
-
   private companion object {
     val LOG = KotlinLogging.logger { }
 
@@ -103,16 +96,5 @@ class TreasureSense(
     const val RICHNESS_LEVEL = 5
     const val SHIMMER_SECONDS = 60f
     const val HALF_VOXEL = 0.5
-
-    val DIRECTIONS = arrayOf(
-      "DIRECTION_EAST",
-      "DIRECTION_NORTHEAST",
-      "DIRECTION_NORTH",
-      "DIRECTION_NORTHWEST",
-      "DIRECTION_WEST",
-      "DIRECTION_SOUTHWEST",
-      "DIRECTION_SOUTH",
-      "DIRECTION_SOUTHEAST",
-    )
   }
 }
