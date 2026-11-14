@@ -8,5 +8,5 @@ item_id = 86
 name_key = "DRAGON_SCALE"
 description_key = "DRAGON_SCALE_DESC"
 weight = 60
-level = 70
+level = 75
 type = 2

@@ -4,7 +4,7 @@ import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.entity.StaticEntityKind
 import org.springframework.stereotype.Component
 
-/** The Forge Kit (`items.yml` id 125), made in Handiwork with Forge Weapon. */
+/** The Forge Kit (`items.yml` id 125), made in Handiwork with Carpentry. */
 @Component
 class ForgeKitScript(
   structures: PlayerStructureService

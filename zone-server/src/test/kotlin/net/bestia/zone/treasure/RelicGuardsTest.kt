@@ -48,7 +48,8 @@ class RelicGuardsTest {
   private fun undead(id: Long, level: Int) = Bestia(
     id = id,
     identifier = "undead_" + "x".repeat(id.toInt()),
-    level = level,
+    levelMin = level,
+    levelMax = level,
     experienceReward = 1,
     health = 10,
     mana = 10,

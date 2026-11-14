@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 214
+name_key = "MITHRIL_INGOT"
+description_key = "MITHRIL_INGOT_DESC"
+weight = 120
+level = 85
+type = 2

@@ -75,7 +75,7 @@ class MobCatalogueTest {
 
     val wrong = WorldBoss.entries.filter { boss ->
       val mob = byIdentifier[boss.identifier]
-      mob == null || !mob.worldBoss || mob.level != boss.level
+      mob == null || !mob.worldBoss || mob.levelMin != boss.level || mob.levelMax != boss.level
     }
 
     assertEquals(emptyList(), wrong)

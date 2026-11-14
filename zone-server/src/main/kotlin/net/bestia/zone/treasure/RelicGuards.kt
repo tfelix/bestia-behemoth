@@ -98,7 +98,7 @@ class RelicGuards(
           val biome = Biome.entries[wild.attribute(SpawnerChannels.BIOME).toInt()]
 
           val guard = candidates.minByOrNull { scoreOf(it, level, biome) } ?: return@mapNotNull null
-          if (abs(guard.species.level - level) > MAX_LEVEL_MISS) return@mapNotNull null
+          if (abs(guard.species.referenceLevel - level) > MAX_LEVEL_MISS) return@mapNotNull null
 
           val ground = generated.base.heightAt(site.position.x, site.position.y)
           Guard(
@@ -117,7 +117,7 @@ class RelicGuards(
 
     private fun scoreOf(candidate: Candidate, level: Int, biome: Biome): Int {
       val homeless = candidate.habitat.isNotEmpty() && biome !in candidate.habitat
-      return abs(candidate.species.level - level) + if (homeless) HABITAT_PENALTY else 0
+      return abs(candidate.species.referenceLevel - level) + if (homeless) HABITAT_PENALTY else 0
     }
   }
 }

@@ -150,6 +150,24 @@ tasks.register('syncItemDb', ItemDbSyncTask) {
 }
 
 /**
+ * Draws the crafting chains - what each station takes and makes - as a docs page, from recipes.yml, items.yml and
+ * starter_kit.yml. Writes to build/craftGraph by default; pass -PdocsDir=<dir> to write into a docs checkout. See
+ * buildSrc/src/main/kotlin/CraftGraphTask.kt.
+ */
+tasks.register('craftGraph', CraftGraphTask) {
+    group = 'documentation'
+    description = 'Generates the docs page that draws every crafting chain, per station, from the recipe data.'
+    itemsYml = layout.projectDirectory.file('src/main/resources/items.yml')
+    recipesYml = layout.projectDirectory.file('src/main/resources/recipes.yml')
+    starterKitYml = layout.projectDirectory.file('src/main/resources/starter_kit.yml')
+    itemsCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/items.csv')
+    resourcesDir = layout.projectDirectory.dir('src/main/resources')
+    output = providers.gradleProperty('docsDir')
+        .map { layout.projectDirectory.file("$it/crafting-chains-generated.md") }
+        .orElse(layout.buildDirectory.file('craftGraph/crafting-chains-generated.md'))
+}
+
+/**
  * Exports the per-species facts the client decides things with - its equipment slot and armor type masks,
  * whether it may be fought at all, and whether its AI profile hunts on sight - into the client's static bestia
  * DB. Static content that is deliberately never sent over the wire. See

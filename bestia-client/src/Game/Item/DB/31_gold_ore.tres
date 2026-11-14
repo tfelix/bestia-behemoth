@@ -8,5 +8,5 @@ item_id = 31
 name_key = "GOLD_ORE"
 description_key = "GOLD_ORE_DESC"
 weight = 350
-level = 15
+level = 50
 type = 2

@@ -4,7 +4,7 @@ import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.entity.StaticEntityKind
 import org.springframework.stereotype.Component
 
-/** The Workbench Kit (`items.yml` id 26), made in Handiwork with Carpentry. */
+/** The Workbench Kit (`items.yml` id 26), made in Handiwork, which every master can do. */
 @Component
 class WorkbenchKitScript(
   structures: PlayerStructureService
