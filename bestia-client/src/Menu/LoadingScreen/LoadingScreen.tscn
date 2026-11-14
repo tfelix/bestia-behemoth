@@ -1,13 +1,14 @@
 [gd_scene format=3 uid="uid://o8kd2shfnrk7"]
 
 [ext_resource type="Script" uid="uid://b767gih6ndfx0" path="res://Menu/LoadingScreen/loading_screen.gd" id="1_wlscr"]
-[ext_resource type="Texture2D" uid="uid://c6vp35y8niuin" path="res://Game/loading_screen_01.jpg" id="2_art"]
-[ext_resource type="Texture2D" uid="uid://c6w2prnqf4e8n" path="res://Game/loading_screen_02.jpg" id="3_art"]
+[ext_resource type="Texture2D" uid="uid://c6vp35y8niuin" path="res://Menu/LoadingScreen/loading_screen_01.jpg" id="2_art"]
+[ext_resource type="Texture2D" uid="uid://c6w2prnqf4e8n" path="res://Menu/LoadingScreen/loading_screen_02.jpg" id="3_art"]
+[ext_resource type="Texture2D" uid="uid://bkdi2rqxvjvir" path="res://Menu/LoadingScreen/loading_screen_03.jpg" id="4_oelju"]
 
 [node name="LoadingScreen" type="CanvasLayer" unique_id=1288041131]
 layer = 128
 script = ExtResource("1_wlscr")
-artworks = Array[Texture2D]([ExtResource("2_art"), ExtResource("3_art")])
+artworks = Array[Texture2D]([ExtResource("2_art"), ExtResource("3_art"), ExtResource("4_oelju")])
 
 [node name="Fade" type="Control" parent="." unique_id=165452283]
 unique_name_in_owner = true
