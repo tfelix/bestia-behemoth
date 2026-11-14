@@ -142,10 +142,12 @@ class WorldParamsTest {
     // Only the world tier moved when treasure caches were buried: `TreasureParams`.
     // Only the chunk tier moved when sand was scattered on the beaches: `LootScatterParams` and
     // `ChunkMaterializer.VERSION` 17.
-    assertEquals(8_844_686_390_522_158_024L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
+    // Both moved when battlefields were strewn with bones and held caches by their dead: `TreasureParams` and
+    // `ChunkMaterializer.VERSION` 18.
+    assertEquals(-2_153_480_532_116_697_597L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Pinned as a pair so each half stays checkable: a world-tier retune has to move the number above and
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
-    assertEquals(2_198_898_833_296_181_100L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
+    assertEquals(-2_974_802_262_421_579_109L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
   }
 
   private fun config() = StandardWorld.demoConfig().copy(widthCells = 64, heightCells = 64)

@@ -15,6 +15,7 @@ import net.bestia.zone.util.EntityId
 import kotlin.random.Random
 import net.bestia.zone.world.anchor.AnchorPositions
 import net.bestia.zone.world.anchor.SimulationAnchor
+import net.bestia.zone.world.time.BestiaClock
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -86,6 +87,7 @@ class SpawnerSystem(
   private val bestiaEntitySpawner: BestiaEntitySpawner,
   private val cellIndex: SpawnerCellIndex,
   private val deletionQueue: PersistedEntityDeletionQueue,
+  private val clock: BestiaClock,
   private val metrics: GameMetrics = GameMetrics(),
 ) : System {
   override val phase = Phase.SPAWN
@@ -140,6 +142,7 @@ class SpawnerSystem(
     // Collected once per pass rather than queried per den. With a thousand dens and a handful of players, the
     // other order asks the same question a thousand times.
     val players = AnchorPositions.of(world)
+    val night by lazy { clock.now().isNight }
 
     // Broad phase per player, then the exact per-den test against that player only: a den in some other
     // player's range is found by that player's own broad phase. `desired` is the single producer of "this den
@@ -154,6 +157,7 @@ class SpawnerSystem(
       for (id in near) {
         if (id in desired) continue
         val spawner = world.get(id, Spawner::class) ?: continue
+        if (spawner.nightOnly && !night) continue
         if (withinActivation(spawner, player)) desired.add(id)
       }
     }
