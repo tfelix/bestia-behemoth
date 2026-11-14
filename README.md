@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="Bestia Behemoth" src=".github/logo.png" width="400">
+  <img alt="Bestia Behemoth" src=".github/logo.png" width="600">
 </p>
 
 <p align="center"><b>An open-source fantasy MMORPG built with Kotlin and Godot.</b></p>
