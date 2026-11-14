@@ -1310,7 +1310,7 @@ object Invariants {
   }
 
   /**
-   * Every cause an event cites survived the pruner.
+   * Every cause an event cites, and every event a thread stays open since, survived the pruner.
    *
    * The pruner promises this - it takes the transitive closure over causes after choosing what to keep - and
    * this is that promise asserted. A dangling cause id is a provenance chain with a hole in it, and the
@@ -1330,6 +1330,12 @@ object Invariants {
           fail("no event cites a pruned cause", "event ${event.id} cites ${cause}, which was pruned")
           return
         }
+      }
+    }
+    for (thread in chronicle.threads) {
+      if (thread.since !in present) {
+        fail("no event cites a pruned cause", "a ${thread.kind} thread cites ${thread.since}, which was pruned")
+        return
       }
     }
   }
