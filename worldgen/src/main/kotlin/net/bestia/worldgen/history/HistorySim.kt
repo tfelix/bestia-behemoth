@@ -34,6 +34,7 @@ import net.bestia.worldgen.core.RelationRecord
 import net.bestia.worldgen.core.SettlementRecord
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.SiteRecord
+import net.bestia.worldgen.core.ThreadRecord
 import net.bestia.worldgen.core.WorldBoss
 import net.bestia.worldgen.vector.Vec2d
 import kotlin.math.max
@@ -4214,12 +4215,17 @@ internal class HistorySim(
   // --- Assembling the chronicle ----------------------------------------------------------------------
 
   private fun assemble(): Chronicle {
-    val kept = prune()
+    val threads = QuestThreads(chronicleOf(events, pruned = 0, threads = emptyList())).all()
+    val kept = prune(threads)
 
+    return chronicleOf(kept, prunedEvents, threads)
+  }
+
+  private fun chronicleOf(log: List<HistoryEvent>, pruned: Int, threads: List<ThreadRecord>): Chronicle {
     return Chronicle(
       startYear = startYear,
       presentYear = presentYear,
-      events = kept,
+      events = log,
       civs = civs.map { civ ->
         CivRecord(
           index = civ.index, cultureIndex = civ.cultureIndex, nameSeed = civ.nameSeed,
@@ -4265,7 +4271,7 @@ internal class HistorySim(
           sites = town.sites.toList(), patron = town.patron
         )
       },
-      prunedEvents = prunedEvents,
+      prunedEvents = pruned,
       dynasties = dynasties.map {
         DynastyRecord(
           index = it.index, nameSeed = it.nameSeed, founder = it.founder, civ = it.civ, seat = it.seat,
@@ -4287,7 +4293,8 @@ internal class HistorySim(
           founder = it.founder, origin = it.origin, foundedYear = it.founded, endedYear = it.ended, fate = it.fate,
           settlements = it.towns.toList(), leaning = it.leaning, sanctuary = it.sanctuary, realm = it.realm
         )
-      }
+      },
+      threads = threads
     )
   }
 
@@ -4297,9 +4304,9 @@ internal class HistorySim(
    * The last clause is the one that takes care. Dropping an event that a surviving event cites as a cause
    * leaves a dangling id, and a provenance chain with a hole in it is worse than a shorter chain - so
    * anything referenced by a keeper is kept regardless of its own importance, and so is every event on an
-   * artifact's chain.
+   * artifact's chain or that a thread stays open since.
    */
-  private fun prune(): List<HistoryEvent> {
+  private fun prune(threads: List<ThreadRecord>): List<HistoryEvent> {
     val keep = LinkedHashSet<Int>()
 
     for (event in events) {
@@ -4308,6 +4315,7 @@ internal class HistorySim(
       if (notable || sampled) keep.add(event.id)
     }
     for (relic in relics) keep.addAll(relic.provenance)
+    for (thread in threads) keep.add(thread.since)
 
     // Transitive closure over causes, so nothing kept cites something dropped.
     var frontier = keep.toList()
