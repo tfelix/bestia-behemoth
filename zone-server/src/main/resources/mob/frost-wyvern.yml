@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 72
 identifier: frost_wyvern
-level: 78
+level-min: 72
+level-max: 84
 name: "Frost Wyvern"
 description: >-
   A white wyvern that nests in glacier cracks and breathes freezing wind. It must land to breathe again; that is

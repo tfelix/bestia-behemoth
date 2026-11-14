@@ -33,7 +33,7 @@ class CatalogQueries(
         it.identifier,
         it.kind.name,
         it.element.name,
-        it.level,
+        it.referenceLevel,
         it.habitat.split(',').filter { biome -> biome.isNotEmpty() },
         it.inCompendium,
       )

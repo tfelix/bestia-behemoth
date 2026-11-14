@@ -44,7 +44,12 @@ class MobImporterBootRunner(
   data class MobYmlDto(
     val id: Long,
     val identifier: String,
-    val level: Int,
+
+    /** The levels a wild individual is rolled between, inclusive. See [Bestia.levelMin]. */
+    @JsonProperty("level-min")
+    val levelMin: Int,
+    @JsonProperty("level-max")
+    val levelMax: Int,
     val health: Int,
     val mana: Int,
     val experience: Int,
@@ -113,6 +118,7 @@ class MobImporterBootRunner(
     val temperatureMax: Double? = null
   ) {
     init {
+      require(levelMin >= 1 && levelMin <= levelMax) { "$identifier: level-min $levelMin and level-max $levelMax must satisfy 1 <= min <= max" }
       require(aspd in 0..AttackSpeed.aspd(AttackSpeed.MIN_MOTION_MS)) { "$identifier: aspd $aspd is outside 0..190" }
       require(attackPower > 0f) { "$identifier: attack-power must be > 0" }
     }
@@ -146,7 +152,8 @@ class MobImporterBootRunner(
     val bestia = Bestia(
       id = dto.id,
       identifier = dto.identifier,
-      level = dto.level,
+      levelMin = dto.levelMin,
+      levelMax = dto.levelMax,
       mana = dto.mana,
       health = dto.health,
       kind = dto.kind,
@@ -212,7 +219,8 @@ class MobImporterBootRunner(
     val equipSlotMask = parseEquipSlotMask(dto)
     val armorTypeMask = ArmorType.maskOf(dto.armorTypes)
 
-    val changed = entity.level != dto.level ||
+    val changed = entity.levelMin != dto.levelMin ||
+        entity.levelMax != dto.levelMax ||
         entity.health != dto.health ||
         entity.mana != dto.mana ||
         entity.kind != dto.kind ||
@@ -247,7 +255,8 @@ class MobImporterBootRunner(
       return false
     }
 
-    entity.level = dto.level
+    entity.levelMin = dto.levelMin
+    entity.levelMax = dto.levelMax
     entity.health = dto.health
     entity.mana = dto.mana
     entity.kind = dto.kind

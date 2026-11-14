@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 84
 identifier: lakesong_undine
-level: 62
+level-min: 62
+level-max: 62
 name: "Lakesong Undine"
 description: >-
   A spirit of clear water who sings on still lakes at dawn. She is calm until the lake is fouled, then she

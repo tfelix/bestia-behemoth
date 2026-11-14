@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 87
 identifier: ancient_rootfather
-level: 68
+level-min: 68
+level-max: 68
 name: "Ancient Rootfather"
 description: >-
   The oldest tree in the forest, which walks only once in many years. Whole groves grow on its back, and it

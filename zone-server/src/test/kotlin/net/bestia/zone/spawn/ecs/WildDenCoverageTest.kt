@@ -35,7 +35,7 @@ class WildDenCoverageTest {
     Bestia(
       id = 1,
       identifier = "blob",
-      level = 3,
+      levelMin = 3, levelMax = 3,
       experienceReward = 5,
       health = 10,
       mana = 8,
@@ -45,7 +45,7 @@ class WildDenCoverageTest {
     Bestia(
       id = 2,
       identifier = "doom_master_of_doom",
-      level = 100,
+      levelMin = 100, levelMax = 100,
       experienceReward = 12_000,
       health = 4_000,
       mana = 900,

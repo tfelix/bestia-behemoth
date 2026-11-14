@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 70
 identifier: banshee
-level: 74
+level-min: 68
+level-max: 80
 name: "Banshee"
 description: >-
   A weeping ghost whose wail freezes the blood. Cover your ears and close in fast.

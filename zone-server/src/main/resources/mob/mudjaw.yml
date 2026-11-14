@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 38
 identifier: mudjaw
-level: 38
+level-min: 35
+level-max: 41
 name: "Mudjaw"
 description: >-
   Lies as still as a log in shallow water. River folk say: if a log has eyes, walk the other way.

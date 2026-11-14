@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 63
 identifier: merrow_raider
-level: 64
+level-min: 59
+level-max: 69
 name: "Merrow Raider"
 description: >-
   Fish-folk with tridents who raid the coast at high tide. They flee to the sea when hurt, so finish the fight

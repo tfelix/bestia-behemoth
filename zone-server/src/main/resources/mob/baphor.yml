@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 96
 identifier: baphor
-level: 88
+level-min: 88
+level-max: 88
 name: "Baphor, the Horned Abbot"
 description: >-
   A goat-headed demon with a huge scythe who preaches to the corrupted. Its sermons summon lesser demons.

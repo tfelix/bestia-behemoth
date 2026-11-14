@@ -6,8 +6,10 @@ import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.bestia.persistence.Bestia
+import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
 import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.OwnerCombatStats
 import net.bestia.zone.battle.ecs.status.StatusValues
 import net.bestia.zone.battle.status.CombatValues
@@ -16,6 +18,7 @@ import net.bestia.zone.battle.status.StatusValues as Attributes
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.profile.MovementProfileRegistry
+import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -30,8 +33,13 @@ class BestiaEntitySpawnerCombatStatsTest {
   private val pool = CombatValuesPool()
 
   private val blob = Bestia(
-    id = 1, identifier = "blob", level = 7, experienceReward = 5, health = 10, mana = 8,
+    id = 1, identifier = "blob", levelMin = 7, levelMax = 7, experienceReward = 5, health = 10, mana = 8,
     strength = 12, vitality = 14, intelligence = 3, dexterity = 9, willpower = 6, agility = 11
+  )
+
+  private val rat = Bestia(
+    id = 2, identifier = "rat", levelMin = 1, levelMax = 3, experienceReward = 6, health = 96, mana = 30,
+    strength = 5, vitality = 10, intelligence = 1, dexterity = 4, willpower = 20, agility = 8
   )
 
   private val sut = BestiaEntitySpawner(
@@ -58,6 +66,46 @@ class BestiaEntitySpawnerCombatStatsTest {
       strength = 12, vitality = 14, intelligence = 3, agility = 11, willpower = 6, dexterity = 9
     )
     assertEquals(CombatValues.ofBase(level = 7, base = attributes), world.get(id, CombatStats::class)!!.values)
+  }
+
+  @Test
+  fun `an individual rolls a level inside its species' range and is scaled to it`() {
+    every { catalogue.byId(2L) } returns rat
+    val world = testWorld()
+    val random = Random(11)
+    val ranged = BestiaEntitySpawner(
+      bestiaCatalogue = catalogue,
+      aiProfileRegistry = mockk<AiProfileRegistry>(relaxed = true),
+      aiAgentFactory = mockk<AiAgentFactory>(relaxed = true),
+      movementProfileRegistry = MovementProfileRegistry().apply { load() },
+      statusEffectService = mockk(relaxed = true),
+      combatValuesPool = pool,
+      random = random
+    )
+
+    val spawned = (1..200).map { ranged.spawnMob(world, bestiaId = 2L, pos = Vec3L(it.toLong(), 0, 0)) }
+
+    val levels = spawned.map { world.get(it, Level::class)!!.level }
+    assertEquals(setOf(1, 2, 3), levels.toSet())
+    spawned.forEach { id ->
+      val level = world.get(id, Level::class)!!.level
+      assertEquals(MobLevelScaling().health(level, rat), world.get(id, Health::class)!!.max)
+      assertEquals(
+        CombatValues.ofBase(level, MobLevelScaling().attributes(level, rat)),
+        world.get(id, CombatStats::class)!!.values
+      )
+    }
+  }
+
+  @Test
+  fun `a caller can give the level instead of rolling one`() {
+    every { catalogue.byId(2L) } returns rat
+    val world = testWorld()
+
+    val id = sut.spawnMob(world, bestiaId = 2L, pos = Vec3L(1, 2, 3), level = 3)
+
+    assertEquals(3, world.get(id, Level::class)!!.level)
+    assertEquals(104, world.get(id, Health::class)!!.max)
   }
 
   @Test

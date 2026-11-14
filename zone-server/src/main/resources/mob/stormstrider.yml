@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 56
 identifier: stormstrider
-level: 56
+level-min: 52
+level-max: 60
 name: "Stormstrider"
 description: >-
   A huge flightless bird that runs fastest in a thunderstorm. Riders dream of taming one; most only ever see its

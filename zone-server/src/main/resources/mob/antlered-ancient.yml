@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 92
 identifier: antlered_ancient
-level: 80
+level-min: 80
+level-max: 80
 name: "Antlered Ancient"
 description: >-
   A white stag with antlers of light, the old guardian of the forest. Shadow creatures cannot stand near it.

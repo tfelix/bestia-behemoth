@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 46
 identifier: boulderkin
-level: 52
+level-min: 48
+level-max: 56
 name: "Boulderkin"
 description: >-
   A walking hill of stone, slow to anger and slower to stop. Wind cuts into its cracks; blades just ring.

@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 31
 identifier: crag_ram
-level: 30
+level-min: 28
+level-max: 32
 name: "Crag Ram"
 description: >-
   Leaps from ledge to ledge where no path exists. It charges from above and tries to knock climbers off the

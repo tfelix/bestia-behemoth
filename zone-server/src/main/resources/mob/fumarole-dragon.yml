@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 91
 identifier: fumarole_dragon
-level: 78
+level-min: 78
+level-max: 78
 name: "Fumarole Dragon"
 description: >-
   A dragon that sleeps in sulphur vents and breathes poison gas. Where the hot springs turn yellow, it is near.

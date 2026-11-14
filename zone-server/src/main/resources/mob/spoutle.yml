@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 49
 identifier: spoutle
-level: 31
+level-min: 29
+level-max: 33
 name: "Spoutle"
 description: >-
   A turtle that sleeps in hot springs with only its nose above water. Startle it and it shoots a jet of scalding

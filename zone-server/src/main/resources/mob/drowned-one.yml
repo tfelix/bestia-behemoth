@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 40
 identifier: drowned_one
-level: 42
+level-min: 39
+level-max: 45
 name: "Drowned One"
 description: >-
   A peat-soaked corpse that crawls out of the bog when the mist is thick. Holy light and fire send it back down.

@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 66
 identifier: kelpie
-level: 68
+level-min: 63
+level-max: 73
 name: "Kelpie"
 description: >-
   A water horse that waits by the shore, calm and saddled. Whoever climbs on is dragged into the lake.

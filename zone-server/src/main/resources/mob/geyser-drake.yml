@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 62
 identifier: geyser_drake
-level: 63
+level-min: 58
+level-max: 68
 name: "Geyser Drake"
 description: >-
   A slender drake that sleeps in boiling pools and breathes steam. Its scales stay warm long after it dies.

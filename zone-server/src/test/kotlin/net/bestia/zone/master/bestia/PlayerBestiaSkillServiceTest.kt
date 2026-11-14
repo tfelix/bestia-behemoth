@@ -18,7 +18,7 @@ import net.bestia.zone.bestia.persistence.LearnedSkill as LearnsetEntry
 
 class PlayerBestiaSkillServiceTest {
 
-  private val species = Bestia(id = SPECIES_ID, identifier = "blob", level = 3, experienceReward = 5, health = 10, mana = 8)
+  private val species = Bestia(id = SPECIES_ID, identifier = "blob", levelMin = 3, levelMax = 3, experienceReward = 5, health = 10, mana = 8)
 
   private val playerBestia = mockk<PlayerBestia> {
     every { bestia } returns species

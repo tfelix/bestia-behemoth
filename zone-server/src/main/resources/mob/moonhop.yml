@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 7
 identifier: moonhop
-level: 4
+level-min: 3
+level-max: 6
 name: "Moonhop"
 description: >-
   A long-eared hopper that comes out to graze at dusk. Tailors in every start town want its soft pelt.

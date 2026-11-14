@@ -6,6 +6,7 @@ import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.battle.ecs.exp.Exp
+import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.exp.GainExp
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
@@ -45,7 +46,8 @@ class DeathSystem(
       Position::class,
       Account::class,
       Persistent::class,
-      Living::class
+      Living::class,
+      Level::class
     ) + expSplitter.reads + levies.flatMap { it.reads } + lootChanceModifiers.flatMap { it.reads }
 
   // `Dead` is written rather than read: `bled` is set here, the same way PlayerDeathSystem sets `resolved`.
@@ -117,6 +119,7 @@ class DeathSystem(
 
     // Read now: the entity is destroyed long before the deferred block below runs.
     val killedAt = world.get(entityId, Position::class)?.toVec3L()
+    val killedLevel = world.get(entityId, Level::class)?.level
 
     // Check which of those are an actual player. Every player bestia has an Account component.
     val attackingPlayerCount = damageDealer.keys
@@ -128,6 +131,7 @@ class DeathSystem(
     world.defer {
       val earnedExp = experienceGainCalculator.calculate(
         species,
+        killedLevel,
         damageDealer,
         attackingPlayerCount
       )

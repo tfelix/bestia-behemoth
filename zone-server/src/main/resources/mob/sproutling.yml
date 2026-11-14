@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 8
 identifier: sproutling
-level: 5
+level-min: 4
+level-max: 7
 name: "Sproutling"
 description: >-
   Buries itself so only its leaves show, then screams when stepped on. Watch for grass that grows in odd tufts.

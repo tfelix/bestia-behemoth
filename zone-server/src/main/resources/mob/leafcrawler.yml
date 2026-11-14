@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 9
 identifier: leafcrawler
-level: 2
+level-min: 1
+level-max: 4
 name: "Leafcrawler"
 description: >-
   A fat green caterpillar that chews leaves all day. It spits sticky silk that slows the legs of anyone who

@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 25
 identifier: smokit
-level: 18
+level-min: 17
+level-max: 20
 name: "Smokit"
 description: >-
   A raccoon that balances a leaf on its head and swears it is a disguise. It hoards mushrooms and trinkets in

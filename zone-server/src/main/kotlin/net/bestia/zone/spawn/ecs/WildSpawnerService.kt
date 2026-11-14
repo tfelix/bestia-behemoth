@@ -267,7 +267,7 @@ class WildSpawnerService(
             samples.add(
               "den ${marker.id.value} at (${marker.position.x.toInt()},${marker.position.y.toInt()}) " +
                   "wanted $levelMin..$levelMax in ${den.biome.name} at ${den.temperature.roundToInt()}C, " +
-                  "got ${choice.species.identifier} (level ${choice.species.level}, miss ${choice.levelMiss})"
+                  "got ${choice.species.identifier} (level ${choice.species.referenceLevel}, miss ${choice.levelMiss})"
             )
           }
         }
@@ -390,8 +390,8 @@ class WildSpawnerService(
 
     /** How many levels outside the den's band this species sits. Zero is an exact fit. */
     internal fun levelMissOf(candidate: Candidate, den: DenFacts): Int = when {
-      candidate.species.level < den.levelMin -> den.levelMin - candidate.species.level
-      candidate.species.level > den.levelMax -> candidate.species.level - den.levelMax
+      candidate.species.referenceLevel < den.levelMin -> den.levelMin - candidate.species.referenceLevel
+      candidate.species.referenceLevel > den.levelMax -> candidate.species.referenceLevel - den.levelMax
       else -> 0
     }
 

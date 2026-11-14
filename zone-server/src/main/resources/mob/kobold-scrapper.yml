@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 55
 identifier: kobold_scrapper
-level: 24
+level-min: 22
+level-max: 26
 name: "Kobold Scrapper"
 description: >-
   Small dog-faced miners that dig for ore and fight over every scrap. Their camps are full of stolen tools.

@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 5
 identifier: fieldrat
-level: 1
+level-min: 1
+level-max: 3
 name: "Fieldrat"
 description: >-
   A plump brown rat that lives in the furrows at the edge of fields. It bolts at the first footstep, so approach
@@ -14,9 +15,9 @@ aspd: 80
 ai: passive_wanderer
 attack-power: 1
 weight: 15
-health: 83
-mana: 28
-experience: 4
+health: 96
+mana: 31
+experience: 6
 attributes: { strength: 1, intelligence: 5, vitality: 5, dexterity: 1, willpower: 5, agility: 5 }
 learnset:
   - { skill: tackle, level: 1 }

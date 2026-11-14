@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 102
 identifier: leviathan
-level: 112
+level-min: 112
+level-max: 112
 name: "Leviathan"
 description: >-
   A sea dragon as long as an island that surfaces only far out at sea. The waves it makes reach every coast.

@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 29
 identifier: conehurler
-level: 24
+level-min: 22
+level-max: 26
 name: "Conehurler"
 description: >-
   Looks like a pine cone on a branch until it drops on your head. It throws cones that burst into splinters.

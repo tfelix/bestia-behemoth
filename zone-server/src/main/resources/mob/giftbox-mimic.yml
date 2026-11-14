@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 105
 identifier: giftbox_mimic
-level: 40
+level-min: 40
+level-max: 40
 name: "Giftbox Mimic"
 description: >-
   A present with a bow that hops through the snow at midwinter. Open it gently; sometimes it bites.

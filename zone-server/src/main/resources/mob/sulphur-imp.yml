@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 50
 identifier: sulphur_imp
-level: 46
+level-min: 43
+level-max: 49
 name: "Sulphur Imp"
 description: >-
   A little horned trickster that smells of rotten eggs. It plays pranks on travellers by the vents, and some

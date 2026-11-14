@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 89
 identifier: sand_pharaoh
-level: 72
+level-min: 72
+level-max: 72
 name: "Sand Pharaoh"
 description: >-
   A buried king who rises when his tomb is disturbed. His curse follows whoever takes his gold.

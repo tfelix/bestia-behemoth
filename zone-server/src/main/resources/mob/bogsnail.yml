@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 19
 identifier: bogsnail
-level: 7
+level-min: 6
+level-max: 9
 name: "Bogsnail"
 description: >-
   A slow snail that leaves a toxic slime trail across the peat. Do not walk where the moss glistens.

@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 86
 identifier: ninefold_vixen
-level: 66
+level-min: 66
+level-max: 66
 name: "Ninefold Vixen"
 description: >-
   A fox with nine flaming tails who jumps between old shrines. Each tail is a spell; count them as they go out.

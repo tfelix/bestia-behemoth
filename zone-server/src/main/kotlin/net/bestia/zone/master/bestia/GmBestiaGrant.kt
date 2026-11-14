@@ -47,12 +47,12 @@ class GmBestiaGrant(
             bestiaIdentifier = SPECIES,
             spawnPosition = at,
             // The species' level, so the YML stays the one place it is set.
-            level = species.level
+            level = species.referenceLevel
           )
         )
       }
 
-      LOG.info { "Gave master $masterId of GM account $accountId the $SPECIES at level ${species.level}" }
+      LOG.info { "Gave master $masterId of GM account $accountId the $SPECIES at level ${species.referenceLevel}" }
       true
     } catch (e: Exception) {
       LOG.error(e) { "Could not give master $masterId of GM account $accountId the $SPECIES; they go without" }

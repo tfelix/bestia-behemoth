@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 73
 identifier: salamander
-level: 79
+level-min: 73
+level-max: 85
 name: "Salamander"
 description: >-
   A lizard of pure flame that swims through lava. Water hurts it badly; getting close enough to splash it is the

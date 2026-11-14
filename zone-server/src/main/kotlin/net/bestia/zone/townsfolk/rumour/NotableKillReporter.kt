@@ -26,7 +26,7 @@ class NotableKillReporter(
   override fun report(speciesId: Long, voxelX: Long, voxelY: Long) {
     val species = bestiaCatalogue.find(speciesId) ?: return
 
-    if (species.level < NOTABLE_LEVEL) {
+    if (species.referenceLevel < NOTABLE_LEVEL) {
       return
     }
 
@@ -34,10 +34,10 @@ class NotableKillReporter(
       kind = RumourKind.BOSS_SLAIN,
       voxelX = voxelX,
       voxelY = voxelY,
-      strength = strengthOf(species.level),
+      strength = strengthOf(species.referenceLevel),
     )
 
-    LOG.debug { "Kill of ${species.identifier} (level ${species.level}) reached ${heard.size} settlement(s)" }
+    LOG.debug { "Kill of ${species.identifier} (level ${species.referenceLevel}) reached ${heard.size} settlement(s)" }
   }
 
   /**

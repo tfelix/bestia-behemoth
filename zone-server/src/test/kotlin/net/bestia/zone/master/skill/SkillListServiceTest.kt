@@ -41,7 +41,7 @@ class SkillListServiceTest {
     mockk<SkillExecutionService> { every { skillOf(any()) } returns null }
   )
 
-  private val species = Bestia(id = 1L, identifier = "blob", level = 3, experienceReward = 5, health = 10, mana = 8)
+  private val species = Bestia(id = 1L, identifier = "blob", levelMin = 3, levelMax = 3, experienceReward = 5, health = 10, mana = 8)
   private val inherited = mutableSetOf<InheritedAttack>()
 
   init {

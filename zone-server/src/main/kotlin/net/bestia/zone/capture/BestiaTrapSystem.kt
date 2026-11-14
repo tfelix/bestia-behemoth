@@ -3,12 +3,14 @@ package net.bestia.zone.capture
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.attack.ThreadLocalRandomSource
 import net.bestia.zone.bestia.BestiaCatalogue
+import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.bestia.WildBestia
 import net.bestia.zone.aoi.AoiLayer
 import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -55,7 +57,8 @@ class BestiaTrapSystem(
   override val schedule: Schedule = Schedule.EveryTick
 
   override val reads: ComponentClassSet = setOf(
-    Position::class, EntityVisual::class, Health::class, CombatStats::class, KnownSkills::class, Persistent::class
+    Position::class, EntityVisual::class, Health::class, CombatStats::class, KnownSkills::class, Persistent::class,
+    Level::class
   ) + WildBestia.READS + DamageGate.READS
 
   /** [TakenDamage] is written on the creature that broke free, so it turns on the trapper. */
@@ -124,6 +127,7 @@ class BestiaTrapSystem(
   /** The creature leaves the world here, on the tick, so it cannot spring a second trap. */
   private fun capture(world: World, s: Sprung) {
     val speciesId = world.getOrThrow(s.targetId, EntityVisual::class).id
+    val level = levelOf(world, s.targetId, bestiaCatalogue.byId(speciesId))
 
     // A den or ambient spawner notices the gap by itself; only the persisted row has to be told.
     if (world.has(s.targetId, Persistent::class)) {
@@ -133,7 +137,12 @@ class BestiaTrapSystem(
 
     LOG.info { "Master ${s.trap.masterId} caught bestia $speciesId (entity ${s.targetId}) at ${s.at}" }
 
-    events.publishEvent(BestiaCapturedEvent(s.trap.ownerAccountId, s.trap.masterId, speciesId, s.at))
+    events.publishEvent(BestiaCapturedEvent(s.trap.ownerAccountId, s.trap.masterId, speciesId, level, s.at))
+  }
+
+  /** The creature's own rolled level; a wild one with none is the species' reference level. */
+  private fun levelOf(world: World, targetId: EntityId, species: Bestia): Int {
+    return world.get(targetId, Level::class)?.level ?: species.referenceLevel
   }
 
   private fun chanceFor(world: World, trap: BestiaTrap, targetId: EntityId): Double {
@@ -149,7 +158,7 @@ class BestiaTrapSystem(
     return captureChanceCalculator.chance(
       CaptureChanceCalculator.Input(
         tier = trap.tier,
-        targetLevel = species.level,
+        targetLevel = levelOf(world, targetId, species),
         targetHp = health.current,
         targetMaxHp = health.max,
         trapperWillpower = willpower,

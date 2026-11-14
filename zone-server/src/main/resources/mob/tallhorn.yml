@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 27
 identifier: tallhorn
-level: 20
+level-min: 18
+level-max: 22
 name: "Tallhorn"
 description: >-
   Grazes in great herds that stamp the plains flat. Harm one calf and the whole herd turns on you.

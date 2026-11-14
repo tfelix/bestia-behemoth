@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
@@ -35,6 +36,9 @@ data class MobSnapshot(
   val z: Long,
   val currentHp: Int,
 
+  /** The level this individual was rolled at; rehydrating re-rolls nothing. */
+  val level: Int,
+
   /**
    * Which den owns this creature, or null for one nothing owns - a `/spawn`ed mob, and every row written
    * before den ownership existed.
@@ -64,7 +68,7 @@ class MobEntityPersister(
   override val loadsAtStartup = true
 
   override val reads: ComponentClassSet =
-    setOf(EntityVisual::class, Account::class, Position::class, Health::class, DenMember::class)
+    setOf(EntityVisual::class, Account::class, Position::class, Health::class, DenMember::class, Level::class)
 
   override fun supports(world: World, id: EntityId): Boolean =
     world.get(id, EntityVisual::class)?.kind == VisualKind.BESTIA && !world.has(id, Account::class)
@@ -73,11 +77,13 @@ class MobEntityPersister(
     val visual = world.get(id, EntityVisual::class) ?: return null
     val pos = world.get(id, Position::class) ?: return null
     val hp = world.get(id, Health::class)
+    val level = world.get(id, Level::class)?.level ?: return null
     return MobSnapshot(
       entityId = id,
       bestiaId = visual.id,
       x = pos.x, y = pos.y, z = pos.z,
       currentHp = hp?.current ?: NO_HP,
+      level = level,
       // Carried, never interpreted. Which den this names, and whether that den still exists on this world,
       // is DenPackRestoreService's question - this persister knows only that it is part of a mob's state.
       den = world.get(id, DenMember::class)?.den,
@@ -117,6 +123,7 @@ class MobEntityPersister(
         entityId = snap.entityId,
         den = snap.den?.let(::DenMember),
         persistent = !fromDen,
+        level = snap.level,
       )
       if (snap.currentHp != NO_HP) {
         world.modify(snap.entityId) { id ->

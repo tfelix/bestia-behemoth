@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 107
 identifier: not_a_blob
-level: 50
+level-min: 50
+level-max: 50
 name: "Not-a-Blob"
 description: >-
   It looks exactly like a blob. It is not a blob. Your sword passes right through it, which a real blob would

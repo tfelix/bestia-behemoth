@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 68
 identifier: stormback_ape
-level: 71
+level-min: 66
+level-max: 76
 name: "Stormback Ape"
 description: >-
   A silver-backed ape that beats its chest like thunder. It throws whole branches and fights harder when its

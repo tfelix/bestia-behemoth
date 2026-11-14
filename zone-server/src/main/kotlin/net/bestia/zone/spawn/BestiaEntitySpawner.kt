@@ -13,7 +13,6 @@ import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.status.CombatValuesPool
 import net.bestia.zone.battle.status.StatusEffectId
-import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.navigation.MovementCapability
 import net.bestia.zone.navigation.profile.MovementProfileRegistry
 import net.bestia.zone.battle.ecs.status.CombatStats
@@ -38,6 +37,7 @@ import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component as SpringComponent
 import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.bestia.BestiaCatalogue
+import kotlin.random.Random
 
 @SpringComponent
 class BestiaEntitySpawner(
@@ -48,6 +48,8 @@ class BestiaEntitySpawner(
   private val statusEffectService: StatusEffectService,
   private val combatValuesPool: CombatValuesPool,
   private val metrics: GameMetrics = GameMetrics(),
+  private val levelScaling: MobLevelScaling = MobLevelScaling(),
+  private val random: Random = Random.Default,
 ) {
 
   /**
@@ -71,6 +73,9 @@ class BestiaEntitySpawner(
    *   townsperson overrides it: they share this archetype's behaviour but not its appearance, which is an
    *   individual's. Taken here for [aiMemory]'s reason - a component swapped in afterwards is deferred to
    *   the end of the tick, so a watching client would see the species body and then a correction.
+   * @param level this individual's level, or null to roll one from the species' range. A caller passes one to give
+   *   back a creature it already knows the level of - a rehydrated row, a released catch - which a re-roll would
+   *   change.
    */
   fun spawnMob(
     world: World,
@@ -82,23 +87,27 @@ class BestiaEntitySpawner(
     aiMemory: Blackboard? = null,
     homePosition: Vec3L? = null,
     visual: Component? = null,
+    level: Int? = null,
   ): EntityId {
     LOG.debug { "Spawning mob bestia $bestiaId on $pos" }
 
     val bestia = bestiaCatalogue.byId(bestiaId)
+    val mobLevel = level ?: LevelRoll.roll(bestia, random)
+    val health = levelScaling.health(mobLevel, bestia)
+    val mana = levelScaling.mana(mobLevel, bestia)
 
     val configure: World.(EntityId) -> Unit = { id ->
       add(id, Position.fromVec3(pos))
       add(id, Facing())
       add(id, Living)
       add(id, visual ?: EntityVisual(VisualKind.BESTIA, bestiaId))
-      add(id, Health(bestia.health, bestia.health))
+      add(id, Health(health, health))
       // The authored pool, like health. Without one a cast costs nothing, because the mana check lets an
       // entity with no Mana through.
-      add(id, Mana(bestia.mana, bestia.mana))
-      // Its species level, which ATK, MATK, HIT, FLEE and the defences all read. Without it a fight reads a
+      add(id, Mana(mana, mana))
+      // Its own level, which ATK, MATK, HIT, FLEE and the defences all read. Without it a fight reads a
       // mob as level 1. No Exp goes with it, so a mob never levels up.
-      add(id, Level(bestia.level))
+      add(id, Level(mobLevel))
       add(id, Stamina(current = 10, max = 10))
       add(id, Speed())
       add(
@@ -108,7 +117,7 @@ class BestiaEntitySpawner(
           kind = bestia.kind, boss = bestia.boss, weight = bestia.weight
         )
       )
-      val skills = learnedSkills(bestia)
+      val skills = learnedSkills(bestia, mobLevel)
       if (skills.isNotEmpty()) add(id, KnownSkills(skills))
       // Deliberately no FormulaDrivenVitals marker, which is what keeps the authored Bestia.health above
       // from being overwritten by the player pool formula on the next StatusValueRecalcSystem pass.
@@ -119,17 +128,7 @@ class BestiaEntitySpawner(
         id,
         CombatStats(
           combatValuesPool.share(
-            CombatValues.ofBase(
-              level = bestia.level,
-              base = StatusValues(
-                strength = bestia.strength,
-                vitality = bestia.vitality,
-                intelligence = bestia.intelligence,
-                agility = bestia.agility,
-                willpower = bestia.willpower,
-                dexterity = bestia.dexterity
-              )
-            )
+            CombatValues.ofBase(level = mobLevel, base = levelScaling.attributes(mobLevel, bestia))
           )
         )
       )
@@ -147,7 +146,7 @@ class BestiaEntitySpawner(
       // it, and the pathfinder has to know how it moves. `getOrDefault` covers the null and the typo alike.
       add(id, MovementCapability(movementProfileRegistry.getOrDefault(bestia.movementProfile).identifier))
 
-      attachAi(id, bestia, homePosition ?: pos, aiMemory)
+      attachAi(id, bestia, mobLevel, homePosition ?: pos, aiMemory)
     }
 
     metrics.mobSpawned()
@@ -164,7 +163,7 @@ class BestiaEntitySpawner(
     return bestia.statusImmunities.split(",").filter { it.isNotBlank() }.map { StatusEffectId.valueOf(it) }.toSet()
   }
 
-  private fun learnedSkills(bestia: Bestia): MutableMap<Long, Int> = bestiaCatalogue.learnsetUpTo(bestia.id, bestia.level)
+  private fun learnedSkills(bestia: Bestia, level: Int): MutableMap<Long, Int> = bestiaCatalogue.learnsetUpTo(bestia.id, level)
     .associate { it.skillId to BestiaSkillLevel.forLearnLevel(it.requiredLevel) }
     .toMutableMap()
 
@@ -176,7 +175,7 @@ class BestiaEntitySpawner(
    * Its default attack is not a catalogued skill and needs no [KnownSkills] entry. It fights with the learnset
    * skills marked active, and with whatever its AI profile lists if that is in its learnset, see [learnedSkills].
    */
-  private fun World.attachAi(id: EntityId, bestia: Bestia, spawnPosition: Vec3L, memory: Blackboard?) {
+  private fun World.attachAi(id: EntityId, bestia: Bestia, level: Int, spawnPosition: Vec3L, memory: Blackboard?) {
     val profileId = bestia.aiProfile ?: return
 
     val profile = aiProfileRegistry.get(profileId)
@@ -188,7 +187,7 @@ class BestiaEntitySpawner(
     add(
       id,
       aiAgentFactory.create(
-        profile.withSkillAttacks(activeSkillAttacks(bestia)),
+        profile.withSkillAttacks(activeSkillAttacks(bestia, level)),
         bestia.defaultAttack,
         bestia.aspd,
         homePosition = spawnPosition,
@@ -197,8 +196,8 @@ class BestiaEntitySpawner(
     )
   }
 
-  private fun activeSkillAttacks(bestia: Bestia): List<SkillAttack> {
-    return bestiaCatalogue.learnsetUpTo(bestia.id, bestia.level)
+  private fun activeSkillAttacks(bestia: Bestia, level: Int): List<SkillAttack> {
+    return bestiaCatalogue.learnsetUpTo(bestia.id, level)
       .filter { it.active }
       .map { SkillAttack(id = "skill-${it.skillId}", range = (it.range ?: 1).toLong(), skillId = it.skillId) }
   }

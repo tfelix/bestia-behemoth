@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 82
 identifier: hive_queen
-level: 54
+level-min: 54
+level-max: 54
 name: "Hive Queen"
 description: >-
   Queen of a hive the size of a house. She never fights alone; a cloud of guards follows her.

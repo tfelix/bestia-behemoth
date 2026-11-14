@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 35
 identifier: tuskseal
-level: 36
+level-min: 33
+level-max: 39
 name: "Tuskseal"
 description: >-
   A walrus that dozes on ice floes in big groups. Mothers with pups attack anything that comes near.

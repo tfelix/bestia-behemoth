@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 61
 identifier: rimehulk_yeti
-level: 62
+level-min: 57
+level-max: 67
 name: "Rimehulk Yeti"
 description: >-
   A shaggy giant whose roar starts avalanches. It hurls blocks of ice, so never let it take the high ground.

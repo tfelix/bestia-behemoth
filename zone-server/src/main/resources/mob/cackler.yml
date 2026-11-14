@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 44
 identifier: cackler
-level: 21
+level-min: 19
+level-max: 23
 name: "Cackler"
 description: >-
   A spotted scavenger whose laugh carries far. Where the cackling starts, something weak is about to die; make

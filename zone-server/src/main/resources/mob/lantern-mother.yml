@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 88
 identifier: lantern_mother
-level: 70
+level-min: 70
+level-max: 70
 name: "Lantern Mother"
 description: >-
   The great flame every lantern wisp comes from. Put out her wisps and she grows weak.

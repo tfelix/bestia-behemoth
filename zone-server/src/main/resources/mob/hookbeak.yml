@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 26
 identifier: hookbeak
-level: 22
+level-min: 20
+level-max: 24
 name: "Hookbeak"
 description: >-
   A ragged hawk that dives on anything smaller than itself, and some things that are not. It strikes out of the

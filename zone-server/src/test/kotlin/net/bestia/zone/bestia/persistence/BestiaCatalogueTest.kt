@@ -93,7 +93,7 @@ class BestiaCatalogueTest {
     return Bestia(
       id = id,
       identifier = identifier,
-      level = 3,
+      levelMin = 3, levelMax = 3,
       experienceReward = 5,
       health = 10,
       mana = 8

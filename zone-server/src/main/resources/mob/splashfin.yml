@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 14
 identifier: splashfin
-level: 2
+level-min: 1
+level-max: 4
 name: "Splashfin"
 description: >-
   A golden fish that leaps out of the water for no reason anyone can name. On land it only splashes, and it is

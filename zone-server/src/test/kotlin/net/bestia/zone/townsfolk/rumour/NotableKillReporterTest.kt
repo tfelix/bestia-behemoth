@@ -81,7 +81,7 @@ class NotableKillReporterTest {
     val bestia = Bestia(
       id = SPECIES,
       identifier = "test_beast",
-      level = level,
+      levelMin = level, levelMax = level,
       experienceReward = 10,
       health = 100,
       mana = 10,

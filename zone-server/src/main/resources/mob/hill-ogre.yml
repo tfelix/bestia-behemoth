@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 65
 identifier: hill_ogre
-level: 67
+level-min: 62
+level-max: 72
 name: "Hill Ogre"
 description: >-
   A huge brute that clubs first and thinks never. Its swings are wide; stay close and keep moving.

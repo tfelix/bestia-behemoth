@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 54
 identifier: mossback_stag
-level: 41
+level-min: 38
+level-max: 44
 name: "Mossback Stag"
 description: >-
   A stag with ferns growing in its antlers. It is gentle, but in rutting season it fights anything with horns,

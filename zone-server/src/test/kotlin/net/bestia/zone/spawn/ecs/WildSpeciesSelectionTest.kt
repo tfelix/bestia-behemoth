@@ -38,7 +38,7 @@ class WildSpeciesSelectionTest {
   ) = Bestia(
     id = id,
     identifier = "species_" + "x".repeat(id.toInt()),
-    level = level,
+    levelMin = level, levelMax = level,
     experienceReward = 1,
     health = 10,
     mana = 10,

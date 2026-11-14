@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 94
 identifier: stormcaller_roc
-level: 84
+level-min: 84
+level-max: 84
 name: "Stormcaller Roc"
 description: >-
   A huge bird that nests on peaks and calls lightning with its wings. Earth magic grounds it.

@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 100
 identifier: ember_phoenix
-level: 105
+level-min: 105
+level-max: 105
 name: "Ember Phoenix"
 description: >-
   A bird of living flame that rises from fresh lava once in a long while. It is reborn from its ashes, so the

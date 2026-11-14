@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 106
 identifier: bloomhare
-level: 20
+level-min: 20
+level-max: 20
 name: "Bloomhare"
 description: >-
   A hare with blossoms in its ears that hides painted eggs in spring meadows. Find its eggs and it may come to

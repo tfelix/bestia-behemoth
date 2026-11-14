@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 15
 identifier: snowpup
-level: 9
+level-min: 8
+level-max: 11
 name: "Snowpup"
 description: >-
   A white fox cub that dives head-first into snowdrifts to catch mice. Its fur keeps it warm in deep frost, but

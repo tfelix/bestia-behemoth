@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 48
 identifier: magmaslug
-level: 40
+level-min: 37
+level-max: 43
 name: "Magmaslug"
 description: >-
   A blob of living lava that oozes over cooling rock. It leaves a burning trail, so never follow it in light

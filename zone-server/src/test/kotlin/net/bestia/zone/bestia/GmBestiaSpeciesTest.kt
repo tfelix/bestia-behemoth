@@ -30,7 +30,8 @@ class GmBestiaSpeciesTest {
 
   @Test
   fun `it starts at level 80`() {
-    assertEquals(80, species.level)
+    assertEquals(80, species.levelMin)
+    assertEquals(80, species.levelMax)
   }
 
   @Test
@@ -66,7 +67,7 @@ class GmBestiaSpeciesTest {
 
     assertTrue(bestiaAttacks.isNotEmpty(), "skills.yml no longer has a bestia range, so this test checks nothing")
     assertEquals(bestiaAttacks, species.learnset.map { it.skill }.toSet())
-    assertTrue(species.learnset.all { it.level <= species.level })
+    assertTrue(species.learnset.all { it.level <= species.levelMax })
   }
 
   private fun mapper(): ObjectMapper {
