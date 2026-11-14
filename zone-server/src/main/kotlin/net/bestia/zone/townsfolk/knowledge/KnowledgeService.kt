@@ -99,6 +99,7 @@ class KnowledgeService(
       householdAt = { index -> Households.one(summary, index) },
       profileOf = { household -> profileOf(household) },
       variantsOf = { kind -> lines.of(kind).variants },
+      legendVariantsOf = { kind -> lines.of(kind).variants },
       rumours = recentNewsIn(settlement),
       positions = positionsOf(),
     )
