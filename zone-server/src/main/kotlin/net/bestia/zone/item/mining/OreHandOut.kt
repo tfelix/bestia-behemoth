@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component
 class OreHandOut(
   private val oreYield: OreYield,
   private val richVeins: RichVeins,
+  private val companions: OreCompanions,
   private val lootItems: LootItemEntitySpawner,
 ) : CarveYield {
 
@@ -46,16 +47,27 @@ class OreHandOut(
     for (voxel in result.voxels) {
       if (!voxel.exhausted) continue
 
-      val stack = oreYield.of(voxel.priorBlock) ?: continue
-      val pieces = stack.amount + richVeins.extraPieces(world, entityId, stack)
-
-      if (scatters) {
-        // Where the block was, so a blast's ore lies spread over the crater it made.
-        scattered += Scattered(Vec3L(voxel.voxelX, voxel.voxelY, voxel.voxelZ.toLong()), stack.itemId, pieces)
-      } else {
-        val owed = unclaimed.getOrPut(entityId) { HashMap() }
-        owed[stack.itemId] = (owed[stack.itemId] ?: 0) + pieces
+      val at = Vec3L(voxel.voxelX, voxel.voxelY, voxel.voxelZ.toLong())
+      val stack = oreYield.of(voxel.priorBlock)
+      if (stack != null) {
+        give(entityId, at, stack.itemId, stack.amount + richVeins.extraPieces(world, entityId, stack), scatters)
       }
+
+      // The rare lump beside the ore, or the grains in plain rock. Never for gold: see `OreCompanions`.
+      if (stack?.isCoinMetal == true) continue
+      companions.extrasFor(world, entityId, voxel.priorBlock, at.x, at.y, at.z).forEach { extra ->
+        give(entityId, at, extra.itemId, extra.amount, scatters)
+      }
+    }
+  }
+
+  private fun give(entityId: EntityId, at: Vec3L, itemId: Long, pieces: Int, scatters: Boolean) {
+    if (scatters) {
+      // Where the block was, so a blast's ore lies spread over the crater it made.
+      scattered += Scattered(at, itemId, pieces)
+    } else {
+      val owed = unclaimed.getOrPut(entityId) { HashMap() }
+      owed[itemId] = (owed[itemId] ?: 0) + pieces
     }
   }
 

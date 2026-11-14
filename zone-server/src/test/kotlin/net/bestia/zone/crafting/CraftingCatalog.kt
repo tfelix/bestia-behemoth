@@ -21,8 +21,11 @@ import org.springframework.core.io.ClassPathResource
 /**
  * The real `items.yml`, `recipes.yml` and `starter_kit.yml`, loaded the way the server loads them at boot, so a test
  * can ask questions of the whole crafting catalogue: the chains, the feature space and the blueprints in it.
+ *
+ * [includeGear] false leaves out `gear_recipes.yml`, which is how the generator that writes it sees the world before
+ * it has put anything there.
  */
-class CraftingCatalog {
+class CraftingCatalog(includeGear: Boolean = true) {
 
   val items: List<ItemImporterBootRunner.ItemYamlDto>
   val recipes: RecipeRegistry = RecipeRegistry()
@@ -56,7 +59,9 @@ class CraftingCatalog {
       skills[firstArg()]?.let { id -> mockk<Skill>().also { every { it.id } returns id } }
     }
 
-    RecipeImporterBootRunner(itemRepository, skillRepository, recipes).run()
+    RecipeImporterBootRunner(itemRepository, skillRepository, recipes).apply {
+      if (!includeGear) resources = listOf(RecipeImporterBootRunner.RECIPES_RESOURCE)
+    }.run()
     StarterKitImporterBootRunner(recipes, starterKit).run()
     axes.load(items.filter { it.craftAxes.isNotEmpty() }.associate { it.id to CraftVector(it.craftAxes) })
     blueprints.load(recipes.all(), axes, starterKit)

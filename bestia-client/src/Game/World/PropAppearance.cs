@@ -708,7 +708,37 @@ namespace BestiaBehemothClient.Game.World
       new Kind
       {
         PlaceholderWidth = 0.5f, PlaceholderColour = new Color(0.75f, 0.85f, 1.0f), StructureHeight = 0.5f
-      } // SCRY_EYE
+      }, // SCRY_EYE
+
+      // The stations of the material chains, each a plain coloured cube until it has a model. Built like a workbench,
+      // so each carries a StructureHeight and is drawn as a construction site while it goes up.
+      new Kind
+      {
+        PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.50f, 0.34f, 0.22f), StructureHeight = 2f,
+        Action = PropAction.Use
+      }, // TANNING_RACK
+      new Kind
+      {
+        PlaceholderWidth = 1.4f, PlaceholderColour = new Color(0.72f, 0.58f, 0.36f), StructureHeight = 2f,
+        Action = PropAction.Use
+      }, // LOOM
+      new Kind
+      {
+        PlaceholderWidth = 1.4f, PlaceholderColour = new Color(0.45f, 0.55f, 0.60f), StructureHeight = 2f,
+        Action = PropAction.Use
+      }, // GLASS_FURNACE
+      new Kind
+      {
+        PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.35f, 0.60f, 0.62f), StructureHeight = 1f,
+        Action = PropAction.Use
+      }, // GLASSBLOWING_BENCH
+
+      // A pile of sand on a beach, picked up as it lies: a small pale cube until it has a model.
+      new Kind
+      {
+        PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.86f, 0.78f, 0.52f), Collectible = true,
+        Action = PropAction.Collect
+      } // SAND_PILE
     };
 
     /// <summary>

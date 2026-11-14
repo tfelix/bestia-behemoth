@@ -41,3 +41,4 @@ loot:
   - { item: feather, chance: 3000 }
   - { item: shadow_shard, chance: 2000 }
   - { item: void_essence, chance: 800 }
+  - { item: mana_concentrate, chance: 800 }

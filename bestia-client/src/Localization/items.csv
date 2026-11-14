@@ -1439,7 +1439,7 @@ STARWEAVE_DESC,"Silk shot through with condensed mana, glittering faintly.
 
 It feels like standing in the sun."
 SAND,Sand
-SAND_DESC,"A sack of clean, pale sand."
+SAND_DESC,"A handful of clean, pale sand."
 GLASS,Glass
 GLASS_DESC,"A cooled slab of clear glass.
 
@@ -1516,3 +1516,19 @@ GLASSBLOWING_BENCH_KIT,Glassblowing Bench Kit
 GLASSBLOWING_BENCH_KIT_DESC,"A bench, a set of wooden paddles and a blowpipe.
 
 Set it down and it becomes a glassblowing bench - once somebody puts the work in."
+ROUGH_JADE,Rough Jade
+ROUGH_JADE_DESC,"A dull green stone, waxy where it has been broken."
+CUT_JADE,Cut Jade
+CUT_JADE_DESC,"A smooth, deep green jade, polished until it glows softly."
+ROUGH_TIGERS_EYE,Rough Tiger's Eye
+ROUGH_TIGERS_EYE_DESC,"A brown stone banded with gold, still in its crust."
+CUT_TIGERS_EYE,Cut Tiger's Eye
+CUT_TIGERS_EYE_DESC,"A cut tiger's eye whose bands shift as it turns, like a watching eye."
+ROUGH_OPAL,Rough Opal
+ROUGH_OPAL_DESC,"A pale, chalky stone with a flash of colour deep inside."
+CUT_OPAL,Cut Opal
+CUT_OPAL_DESC,"A cut opal, milky blue, with a slow tide of colour moving in it."
+MANA_PAPER,Mana Paper
+MANA_PAPER_DESC,"Parchment soaked in mana concentrate and pressed flat.
+
+Whatever is written on it stays written."

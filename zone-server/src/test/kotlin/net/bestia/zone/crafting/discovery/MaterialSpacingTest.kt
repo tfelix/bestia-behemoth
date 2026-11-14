@@ -66,11 +66,12 @@ class MaterialSpacingTest {
         "quicksilver", "blackiron_ingot", "palladium_ingot", "mithril_ingot", "adamantium_ingot"
       ),
       "leather" to listOf("leather", "hardened_leather", "fine_leather", "drake_hide", "dragon_scale"),
+      "paper" to listOf("parchment", "mana_ink", "mana_paper"),
       "cloth" to listOf("cloth", "silk_cloth", "shadowsilk", "starweave"),
       "wood" to listOf("plank", "yew_billet", "ironwood", "heartwood"),
       "gem" to listOf(
-        "cut_amethyst", "cut_garnet", "cut_emerald", "cut_sapphire", "cut_ruby", "cut_onyx", "cut_pyrelith",
-        "cut_diamond"
+        "cut_amethyst", "cut_garnet", "cut_jade", "cut_tigers_eye", "cut_emerald", "cut_sapphire", "cut_ruby",
+        "cut_onyx", "cut_opal", "cut_pyrelith", "cut_diamond"
       ),
       "mana" to listOf(
         "mana_essence", "mana_dust", "mana_concentrate", "pure_mana_essence", "blue_mana_crystal",

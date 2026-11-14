@@ -52,3 +52,5 @@ loot:
   - { item: log, chance: 10000 }
   - { item: wild_herb, chance: 8000 }
   - { item: aetherite_shard, chance: 1000 }
+  - { item: heartwood, chance: 400 }
+  - { item: ironwood, chance: 1500 }

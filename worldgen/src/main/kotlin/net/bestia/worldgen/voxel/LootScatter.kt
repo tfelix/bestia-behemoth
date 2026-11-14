@@ -31,6 +31,7 @@ data class LootScatterParams(
   val stoneCellSize: Double = 7.0,
   val stickCellSize: Double = 6.0,
   val resinCellSize: Double = 8.0,
+  val sandCellSize: Double = 8.0,
 
   /** How far an item may wander from its cell's centre, as a share of its cell. */
   val jitterShare: Double = 0.7,
@@ -66,6 +67,12 @@ data class LootScatterParams(
    */
   val resinDensity: Double = 0.03,
 
+  /**
+   * Chance per cell of a pile of sand on a beach, before the biome share. A beach is a thin strip, so a few
+   * piles within sight of the water, about eight to the hectare, is what a player walking the shore should find.
+   */
+  val sandDensity: Double = 0.05,
+
   /** Soil depth in metres at and above which the soil adds nothing to how stony the ground is. */
   val stonySoilDepth: Double = 0.8,
 
@@ -86,16 +93,18 @@ data class LootScatterParams(
   val boulderRadius: Double = 1.2,
   val stoneHeight: Double = 0.15,
   val stickHeight: Double = 0.1,
-  val resinHeight: Double = 0.08
+  val resinHeight: Double = 0.08,
+  val sandHeight: Double = 0.1
 ) : Params {
 
   init {
-    require(boulderCellSize > 0.0 && stoneCellSize > 0.0 && stickCellSize > 0.0 && resinCellSize > 0.0) {
+    require(boulderCellSize > 0.0 && stoneCellSize > 0.0 && stickCellSize > 0.0 && resinCellSize > 0.0 && sandCellSize > 0.0) {
       "lattice sizes must be positive"
     }
     require(jitterShare in 0.0..1.0) { "jitterShare must be in [0,1], was $jitterShare" }
     require(
-      boulderDensity in 0.0..1.0 && stoneDensity in 0.0..1.0 && stickDensity in 0.0..1.0 && resinDensity in 0.0..1.0
+      boulderDensity in 0.0..1.0 && stoneDensity in 0.0..1.0 && stickDensity in 0.0..1.0 && resinDensity in 0.0..1.0 &&
+        sandDensity in 0.0..1.0
     ) {
       "densities must be in [0,1]"
     }
@@ -111,6 +120,7 @@ data class LootScatterParams(
     .put("stoneCellSize", stoneCellSize)
     .put("stickCellSize", stickCellSize)
     .put("resinCellSize", resinCellSize)
+    .put("sandCellSize", sandCellSize)
     .put("jitterShare", jitterShare)
     .put("boulderDensity", boulderDensity)
     .put("boulderBaseline", boulderBaseline)
@@ -118,6 +128,7 @@ data class LootScatterParams(
     .put("stoneBaseline", stoneBaseline)
     .put("stickDensity", stickDensity)
     .put("resinDensity", resinDensity)
+    .put("sandDensity", sandDensity)
     .put("stonySoilDepth", stonySoilDepth)
     .put("glacialReach", glacialReach)
     .put("patchWavelength", patchWavelength)
@@ -128,10 +139,11 @@ data class LootScatterParams(
     .put("stoneHeight", stoneHeight)
     .put("stickHeight", stickHeight)
     .put("resinHeight", resinHeight)
+    .put("sandHeight", sandHeight)
 }
 
 /**
- * The things lying on the ground that a player can take or break: boulders, loose stones, fallen sticks and resin.
+ * The things lying on the ground that a player can take or break: boulders, loose stones, fallen sticks, resin and sand.
  *
  * Implicit, like every other scatter in this package, for the reason [VegetationScatter] gives at length - a
  * hash answers where they are and nothing stores them. A stone picked up or a boulder broken is a divergence
@@ -145,6 +157,7 @@ data class LootScatterParams(
  * - **Loose stones** follow the same stoniness with a much higher floor, so there are always some within a
  *   short walk of anywhere dry - they are the first thing a new player crafts with.
  * - **Sticks** lie under trees, by [Biome.canopy], and nowhere else.
+ * - **Sand** lies on beaches, and thinly on the deserts: a glass furnace turns it into glass.
  * - **Resin** lies under conifers. There are no tree species, so the biome stands in for them: see [coniferShareOf].
  *
  * Nothing is placed on ground somebody works or keeps: a field, a settlement's graded disc, a cemetery.
@@ -161,6 +174,7 @@ class LootScatter(
   private val stoneSeed = GenRng.mix64(seed xor STONE_SALT)
   private val stickSeed = GenRng.mix64(seed xor STICK_SALT)
   private val resinSeed = GenRng.mix64(seed xor RESIN_SALT)
+  private val sandSeed = GenRng.mix64(seed xor SAND_SALT)
   private val patchSeed = GenRng.mix64(seed xor PATCH_SALT)
 
   /**
@@ -175,6 +189,7 @@ class LootScatter(
     lattice(chunk, site, ground, into, PropKind.LOOSE_STONE, params.stoneCellSize, stoneSeed)
     lattice(chunk, site, ground, into, PropKind.STICK, params.stickCellSize, stickSeed)
     lattice(chunk, site, ground, into, PropKind.RESIN, params.resinCellSize, resinSeed)
+    lattice(chunk, site, ground, into, PropKind.SAND, params.sandCellSize, sandSeed)
   }
 
   /** The chance one cell of [kind]'s lattice at this position holds one, in `[0, 1]`. */
@@ -193,6 +208,7 @@ class LootScatter(
       }
       PropKind.STICK -> params.stickDensity * biome.canopy
       PropKind.RESIN -> params.resinDensity * biome.canopy * coniferShareOf(biome)
+      PropKind.SAND -> params.sandDensity * sandShareOf(biome)
       else -> 0.0
     }
   }
@@ -230,6 +246,14 @@ class LootScatter(
     else -> 0.0
   }
 
+  /** How sandy a biome is, in `[0, 1]`: a beach is all sand, and the deserts have some on the surface. */
+  private fun sandShareOf(biome: Biome): Double = when (biome) {
+    Biome.BEACH -> 1.0
+    Biome.DESERT -> 0.2
+    Biome.COLD_DESERT -> 0.1
+    else -> 0.0
+  }
+
   private fun patchAt(worldX: Double, worldY: Double): Double {
     val raw = (Noise.fbm(
       patchSeed, worldX / params.patchWavelength, worldY / params.patchWavelength, PATCH_OCTAVES
@@ -255,6 +279,7 @@ class LootScatter(
       PropKind.BOULDER -> params.boulderDensity
       PropKind.LOOSE_STONE -> params.stoneDensity
       PropKind.STICK -> params.stickDensity
+      PropKind.SAND -> params.sandDensity
       else -> params.resinDensity
     }
 
@@ -286,6 +311,7 @@ class LootScatter(
           PropKind.BOULDER -> params.boulderHeight to params.boulderRadius
           PropKind.LOOSE_STONE -> params.stoneHeight to 0.0
           PropKind.STICK -> params.stickHeight to 0.0
+          PropKind.SAND -> params.sandHeight to 0.0
           else -> params.resinHeight to 0.0
         }
 
@@ -346,7 +372,7 @@ class LootScatter(
 
   companion object {
     /** The kinds this emits, for a consumer counting or filtering them. */
-    val KINDS = setOf(PropKind.BOULDER, PropKind.LOOSE_STONE, PropKind.STICK, PropKind.RESIN)
+    val KINDS = setOf(PropKind.BOULDER, PropKind.LOOSE_STONE, PropKind.STICK, PropKind.RESIN, PropKind.SAND)
 
     /** The kinds that follow the trees, for which how glacial the ground is decides nothing. */
     private val UNDER_TREES = setOf(PropKind.STICK, PropKind.RESIN)
@@ -355,6 +381,7 @@ class LootScatter(
     private const val STONE_SALT = 0x53746F6E6573L
     private const val STICK_SALT = 0x537469636B73L
     private const val RESIN_SALT = 0x526573696EL
+    private const val SAND_SALT = 0x53616E64L
     private const val PATCH_SALT = 0x4C6F6F7450L
     private const val PATCH_OCTAVES = 2
   }

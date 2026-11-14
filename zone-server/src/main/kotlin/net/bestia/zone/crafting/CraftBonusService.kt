@@ -48,7 +48,8 @@ class CraftBonusService(
   private val upgradeEquipmentId: Long? get() = skillIds[SkillId.M_UPGRADE_EQUIPMENT]
 
   /**
-   * The chance [recipe] succeeds for this crafter, clamped to 0..1.
+   * The chance [recipe] succeeds for this crafter, clamped to [MIN_SUCCESS]..1: a recipe's base may be negative (see
+   * [Recipe.baseSuccessChance]), and no attempt is ever certain to fail, which is what the docs promise.
    *
    * Which bonuses apply is decided by the recipe's *required skill*, because that is what says which kind of
    * work this is - a recipe carrying its own category field would be a second answer to the same question,
@@ -57,8 +58,8 @@ class CraftBonusService(
    * [attributes] are the crafter's own, whoever crafts: a master, or a bestia working with its master's skills.
    */
   fun successChance(known: KnownSkills?, recipe: Recipe, attributes: StatusValues?): Float {
-    val base = recipe.baseSuccessChance + attributeBonus(attributes)
-    if (known == null) return base.coerceIn(0f, 1f)
+    val base = recipe.baseSuccessChance + attributeBonus(attributes, recipe)
+    if (known == null) return base.coerceIn(MIN_SUCCESS, 1f)
 
     val bonus = when (recipe.requiredSkillId) {
       cookingId -> at(COOKING_SUCCESS, known.levelIn(cookingId))
@@ -84,14 +85,20 @@ class CraftBonusService(
       else -> 0f
     }
 
-    return (base + bonus).coerceIn(0f, 1f)
+    return (base + bonus).coerceIn(MIN_SUCCESS, 1f)
   }
 
-  /** A steady hand and a calm mind: +2% per 10 DEX and +1% per 10 WIL, for every kind of craft. */
-  private fun attributeBonus(attributes: StatusValues?): Float {
+  /**
+   * A steady hand and a calm mind: +2% per 10 DEX and +1% per 10 WIL. Smelting is the exception the docs make:
+   * working the bellows and turning a heavy charge is physical labour, so it takes STR where every other craft
+   * takes DEX.
+   */
+  private fun attributeBonus(attributes: StatusValues?, recipe: Recipe): Float {
     if (attributes == null) return 0f
 
-    return (attributes.dexterity / 10) * DEX_STEP + (attributes.willpower / 10) * WIL_STEP
+    val hands = if (recipe.requiredSkillId == oreRefinementId) attributes.strength else attributes.dexterity
+
+    return (hands / 10) * DEX_STEP + (attributes.willpower / 10) * WIL_STEP
   }
 
   /**
@@ -214,6 +221,9 @@ class CraftBonusService(
   private fun at(table: List<Int>, level: Int): Int = at(table, level, 0)
 
   companion object {
+    /** The floor on any chance: "never entirely impossible", the docs' own clamp. */
+    const val MIN_SUCCESS = 0.01f
+
     private const val DEX_STEP = 0.02f
     private const val WIL_STEP = 0.01f
 

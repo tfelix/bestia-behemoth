@@ -47,3 +47,4 @@ armor-types: [LIGHT, MEDIUM]
 loot:
   - { item: clay, chance: 2000 }
   - { item: venom_sac, chance: 800 }
+  - { item: deathcap, chance: 1200 }

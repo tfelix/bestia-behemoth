@@ -7,5 +7,5 @@ script = ExtResource("1_script")
 item_id = 227
 name_key = "SAND"
 description_key = "SAND_DESC"
-weight = 120
+weight = 30
 type = 2

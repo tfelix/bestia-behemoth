@@ -121,7 +121,8 @@ class EconomyCoverage(
     val sold = priced[output.itemId] ?: return null
     val bought = recipe.inputs.map { priced[it.itemId] ?: return null }
 
-    val revenue = PriceCurve.CEILING * sold.refPrice * output.amount * recipe.baseSuccessChance
+    // A base below zero is a craft that only skill lifts into reach; it books no revenue on its own.
+    val revenue = PriceCurve.CEILING * sold.refPrice * output.amount * maxOf(0f, recipe.baseSuccessChance)
     val cost = recipe.inputs.zip(bought).sumOf { (stack, commodity) ->
       PriceCurve.FLOOR * commodity.refPrice * stack.amount
     }

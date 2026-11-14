@@ -1,6 +1,10 @@
 package net.bestia.zone.crafting
 
 import net.bestia.zone.entity.StaticEntityKind
+import net.bestia.zone.item.mining.OreCompanions
+import net.bestia.zone.item.mining.OreYield
+import org.springframework.core.io.ClassPathResource
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -92,6 +96,32 @@ class CraftingChainTest {
 
     assertTrue(catalog.recipes.all().any { it.station in NO_SKILL_STATIONS })
     assertEquals(emptyList<String>(), tooDemanding)
+  }
+
+  /** What nobody can make has to be handed out by the world, or the whole chain above it is a dead end. */
+  @Test
+  fun `every raw material is handed out somewhere in the world`() {
+    val made = catalog.recipes.all().mapNotNull { it.output }.map { catalog.item(it.itemId).identifier }.toSet()
+    val used = catalog.recipes.all().flatMap { recipe -> recipe.inputs.map { catalog.item(it.itemId).identifier } }.toSet()
+
+    val orphans = (used - made - worldSources()).sorted()
+
+    assertEquals(emptyList<String>(), orphans, "nothing drops, grows, is mined or lies on the ground for these")
+  }
+
+  /** Mob drop tables, what props yield, fishing, the ore a pick breaks out and what rides along with it. */
+  private fun worldSources(): Set<String> {
+    fun text(pattern: String) = PathMatchingResourcePatternResolver().getResources(pattern)
+      .joinToString("\n") { resource -> resource.inputStream.use { String(it.readAllBytes()) } }
+
+    val byName = Regex("""item:\s*([a-z0-9_]+)""")
+    val byId = Regex("""item-id:\s*(\d+)""")
+    val drops = byName.findAll(text("classpath:mob/*.yml")).map { it.groupValues[1] }
+    val fished = byName.findAll(text("classpath:fishing.yml")).map { it.groupValues[1] }
+    val props = byId.findAll(text("classpath:prop-kinds.yml")).map { catalog.item(it.groupValues[1].toLong()).identifier }
+    val ores = OreYield.ITEM_BY_RESOURCE.values + OreCompanions.identifiers()
+
+    return (drops + fished + props + ores).toSet()
   }
 
   private fun kitRecipe(station: StaticEntityKind): Recipe {

@@ -54,3 +54,4 @@ loot:
   - { item: bone_shard, chance: 10000 }
   - { item: dragon_scale, chance: 5000 }
   - { item: void_essence, chance: 2000 }
+  - { item: wyrm_bone, chance: 1500 }

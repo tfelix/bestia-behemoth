@@ -48,3 +48,4 @@ armor-types: [MEDIUM, HEAVY]
 loot:
   - { item: sharp_fang, chance: 2000 }
   - { item: dragon_scale, chance: 1000 }
+  - { item: drake_hide, chance: 1200 }

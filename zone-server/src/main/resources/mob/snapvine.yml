@@ -48,3 +48,4 @@ armor-types: [CLOTH]
 loot:
   - { item: wild_herb, chance: 2500 }
   - { item: log, chance: 1500 }
+  - { item: thornvine, chance: 2000 }

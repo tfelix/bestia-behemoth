@@ -44,3 +44,5 @@ loot:
   - { item: log, chance: 4000 }
   - { item: wild_herb, chance: 2000 }
   - { item: spore_dust, chance: 1000 }
+  - { item: yew_billet, chance: 1500 }
+  - { item: ironwood, chance: 400 }

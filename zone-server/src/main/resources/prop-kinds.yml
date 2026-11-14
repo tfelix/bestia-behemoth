@@ -443,6 +443,14 @@ kinds:
     regrow-seconds: 1800
     collect: { item-id: 123, amount: 1 }
 
+  # A pile of sand on a beach, for the glass furnace. Quick to come back: the tide brings more.
+  - kind: SAND_PILE
+    max-hp: 5
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+    regrow-seconds: 900
+    collect: { item-id: 227, amount: 1 }
+
   # A ritual ring of Mana Concentrate laid flat into the ground; used up when its ritual ends.
   - kind: MANA_CIRCLE
     max-hp: 40

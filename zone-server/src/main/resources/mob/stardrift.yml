@@ -45,3 +45,5 @@ loot:
   - { item: salt, chance: 2000 }
   - { item: raw_fish, chance: 1000 }
   - { item: star_core, chance: 400 }
+  - { item: blue_mana_crystal, chance: 600 }
+  - { item: mana_essence, chance: 800 }
