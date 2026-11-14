@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 774
+name_key = "TROUBADOURS_BUCKLED_SHOES"
+description_key = "TROUBADOURS_BUCKLED_SHOES_DESC"
+weight = 125
+level = 49
+min_level = 25
+type = 1
+equip_slot = 5
+armor_type = 2

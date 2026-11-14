@@ -41,7 +41,7 @@ class DeadEquipmentChangeTest {
 
     equipHandler().handle(EquipItemCMSG(ACCOUNT, playerItemId = 1L, slot = EquipmentSlot.RIGHT_HAND))
 
-    verify(exactly = 0) { equipmentService.checkEquip(any(), any(), any(), any(), any(), any(), any(), any()) }
+    verify(exactly = 0) { equipmentService.checkEquip(any(), any(), any(), any(), any(), any(), any()) }
   }
 
   @Test

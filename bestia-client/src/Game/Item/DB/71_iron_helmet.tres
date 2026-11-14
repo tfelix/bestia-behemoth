@@ -14,3 +14,4 @@ equip_slot = 1
 armor_type = 3
 worn_part = "Gear_IronHelmet"
 hides_hair = true
+min_level = 8

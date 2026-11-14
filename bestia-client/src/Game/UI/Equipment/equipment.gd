@@ -317,6 +317,10 @@ func equip_to_own_slot(item_id: int, player_item_id: int) -> bool:
 		return false
 
 	var slot := EquipmentSlot.from_item_value(item_resource.equip_slot)
+	# A second ring goes beside the first rather than replacing it.
+	if slot == EquipmentSlot.Slot.ACCESSORY_1 and _worn_by_slot().has(slot) \
+			and not _worn_by_slot().has(EquipmentSlot.Slot.ACCESSORY_2):
+		slot = EquipmentSlot.Slot.ACCESSORY_2
 	if slot < 0 or not EquipmentSlot.has_slot(_available_mask(), slot):
 		return false
 

@@ -13,3 +13,4 @@ equip_slot = 6
 level = 20
 worn_part = "Gear_IronSword"
 weapon_type = "SWORD"
+min_level = 10

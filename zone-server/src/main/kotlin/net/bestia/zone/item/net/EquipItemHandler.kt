@@ -100,7 +100,6 @@ class EquipItemHandler(
         equipment = equipment,
         inventory = inventory,
         item = item,
-        itemLevel = itemLevel,
         slot = msg.slot,
         heldUniqueId = held.uniqueId,
         // Zero for an entity with no Level component at all, which the service reads as unqualified rather

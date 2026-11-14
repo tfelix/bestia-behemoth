@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 792
+name_key = "ROUND_SHIELD"
+description_key = "ROUND_SHIELD_DESC"
+weight = 435
+level = 18
+min_level = 9
+type = 1
+equip_slot = 7
+armor_type = 3

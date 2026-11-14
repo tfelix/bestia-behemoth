@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 840
+name_key = "RING_OF_THE_HOLLOW_KING"
+description_key = "RING_OF_THE_HOLLOW_KING_DESC"
+weight = 5
+level = 77
+min_level = 72
+type = 1
+equip_slot = 8

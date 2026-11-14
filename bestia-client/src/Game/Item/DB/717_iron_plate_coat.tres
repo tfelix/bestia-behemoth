@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 717
+name_key = "IRON_PLATE_COAT"
+description_key = "IRON_PLATE_COAT_DESC"
+weight = 1760
+level = 20
+min_level = 12
+type = 1
+equip_slot = 3
+armor_type = 4

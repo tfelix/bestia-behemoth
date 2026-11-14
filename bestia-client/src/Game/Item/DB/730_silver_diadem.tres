@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 730
+name_key = "SILVER_DIADEM"
+description_key = "SILVER_DIADEM_DESC"
+weight = 40
+level = 64
+min_level = 34
+type = 1
+equip_slot = 1
+armor_type = 1

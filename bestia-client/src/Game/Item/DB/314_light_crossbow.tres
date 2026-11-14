@@ -13,3 +13,4 @@ type = 1
 equip_slot = 6
 weapon_type = "CROSSBOW"
 attack_range = 10
+min_level = 5

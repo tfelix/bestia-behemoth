@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 722
+name_key = "BASTION_PLATE"
+description_key = "BASTION_PLATE_DESC"
+weight = 2175
+level = 68
+min_level = 36
+type = 1
+equip_slot = 3
+armor_type = 4

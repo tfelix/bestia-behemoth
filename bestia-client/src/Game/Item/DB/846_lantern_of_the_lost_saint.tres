@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 846
+name_key = "LANTERN_OF_THE_LOST_SAINT"
+description_key = "LANTERN_OF_THE_LOST_SAINT_DESC"
+weight = 150
+level = 81
+min_level = 60
+type = 1
+equip_slot = 10
+light_color = Color(1, 0.95, 0.8, 1)
+light_range = 34.0
+light_energy = 3.2

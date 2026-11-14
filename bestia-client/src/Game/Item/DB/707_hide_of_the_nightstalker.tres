@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 707
+name_key = "HIDE_OF_THE_NIGHTSTALKER"
+description_key = "HIDE_OF_THE_NIGHTSTALKER_DESC"
+weight = 585
+level = 62
+min_level = 66
+type = 1
+equip_slot = 3
+armor_type = 2

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 667
+name_key = "SILVER_HARP"
+description_key = "SILVER_HARP_DESC"
+weight = 195
+level = 57
+min_level = 30
+type = 1
+equip_slot = 6
+weapon_type = "INSTRUMENT"

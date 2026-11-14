@@ -12,3 +12,4 @@ level = 20
 type = 1
 equip_slot = 7
 armor_type = 4
+min_level = 10

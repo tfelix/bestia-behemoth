@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 734
+name_key = "FEATHERED_TRICORN"
+description_key = "FEATHERED_TRICORN_DESC"
+weight = 95
+level = 31
+min_level = 16
+type = 1
+equip_slot = 1
+armor_type = 2

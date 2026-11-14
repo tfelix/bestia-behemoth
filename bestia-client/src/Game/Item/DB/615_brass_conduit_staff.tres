@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 615
+name_key = "BRASS_CONDUIT_STAFF"
+description_key = "BRASS_CONDUIT_STAFF_DESC"
+weight = 180
+level = 40
+min_level = 21
+type = 1
+equip_slot = 6
+weapon_type = "STAFF"

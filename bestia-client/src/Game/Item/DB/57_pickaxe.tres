@@ -14,3 +14,4 @@ type = 1
 equip_slot = 6
 weapon_type = "TOOL"
 item_script = ExtResource("2_dig_use")
+min_level = 5

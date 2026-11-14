@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 754
+name_key = "MANTLE_OF_EMBERS"
+description_key = "MANTLE_OF_EMBERS_DESC"
+weight = 190
+level = 53
+min_level = 28
+type = 1
+equip_slot = 4
+armor_type = 1

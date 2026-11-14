@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 670
+name_key = "THROWING_KNIFE"
+description_key = "THROWING_KNIFE_DESC"
+weight = 20
+level = 8
+min_level = 4
+type = 1
+equip_slot = 6
+weapon_type = "THROWN"

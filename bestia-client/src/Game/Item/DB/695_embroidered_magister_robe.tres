@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 695
+name_key = "EMBROIDERED_MAGISTER_ROBE"
+description_key = "EMBROIDERED_MAGISTER_ROBE_DESC"
+weight = 125
+level = 40
+min_level = 25
+type = 1
+equip_slot = 3
+armor_type = 1

@@ -656,3 +656,695 @@ HUNTING_BOW_DESC,"A yew bow with horn tips, made to bring down game.
 Needs both hands and arrows in the quiver."
 BLASTING_CHARGE,Blasting Charge
 BLASTING_CHARGE_DESC,A paper cartridge packed with blasting powder. Blasting sets one on the ground to break the rock.
+KNIFE,Knife
+DAGGER,Dagger
+COMBAT_KNIFE,Combat Knife
+GREAT_KNIFE,Great Knife
+BRONZE_STILETTO,Bronze Stiletto
+ALCHEMISTS_LANCET,Alchemist's Lancet
+ASSASSINS_DAGGER,Assassin's Dagger
+GEARWORK_DIRK,Gearwork Dirk
+NIGHTGLASS_KRIS,Nightglass Kris
+WHISPER_OF_THE_VEIL,Whisper of the Veil
+HAND_WRAPS,Hand Wraps
+CESTUS,Cestus
+KNUCKLEDUSTER,Knuckleduster
+SPIKED_KNUCKLES,Spiked Knuckles
+IRON_CLAW,Iron Claw
+TIGERCLAW_KATAR,Tigerclaw Katar
+BRASS_GAUNTLET,Brass Gauntlet
+MONKS_IRON_BANDS,Monk's Iron Bands
+STONEFIST_GAUNTLET,Stonefist Gauntlet
+FISTS_OF_THE_MOUNTAIN_KING,Fists of the Mountain King
+ROPE_LASH,Rope Lash
+BRAIDED_WHIP,Braided Whip
+THORNVINE_WHIP,Thornvine Whip
+BULLWHIP,Bullwhip
+CHAIN_WHIP,Chain Whip
+SILKEN_SCOURGE,Silken Scourge
+BARBED_LASH,Barbed Lash
+SERPENT_CHAIN_WHIP,Serpent-Chain Whip
+RIBBON_OF_THE_MASQUE,Ribbon of the Masque
+TONGUE_OF_THE_TEMPEST,Tongue of the Tempest
+SHORT_SWORD,Short Sword
+GLADIUS,Gladius
+ARMING_SWORD,Arming Sword
+BROADSWORD,Broadsword
+MERCHANTS_SABRE,Merchant's Sabre
+STEEL_LONGSWORD,Steel Longsword
+SURVEYORS_BACKSWORD,Surveyor's Backsword
+RAPIER,Rapier
+DUSKFORGED_FALCHION,Duskforged Falchion
+GILDED_TONGUE,Gilded Tongue
+HAND_AXE,Hand Axe
+BEARDED_AXE,Bearded Axe
+BROAD_AXE,Broad Axe
+WOODWARDS_AXE,Woodward's Axe
+SMITHS_HEWING_AXE,Smith's Hewing Axe
+STEEL_WAR_AXE,Steel War Axe
+CRESCENT_AXE,Crescent Axe
+RUNED_TOMAHAWK,Runed Tomahawk
+BLACKIRON_CLEAVER,Blackiron Cleaver
+HEARTWOOD_CLEAVER,Heartwood Cleaver
+CUDGEL,Cudgel
+FLANGED_MACE,Flanged Mace
+SPIKED_CLUB,Spiked Club
+MORNING_STAR,Morning Star
+PICKHEAD_MACE,Pickhead Mace
+CENSER_FLAIL,Censer Flail
+ALEMBIC_MACE,Alembic Mace
+OREBREAKER_MACE,Orebreaker Mace
+WARDENS_HOLY_MACE,Warden's Holy Mace
+DAWNBRINGER,Dawnbringer
+WOODEN_SPEAR,Wooden Spear
+FIRE_HARDENED_SPEAR,Fire-Hardened Spear
+SHORT_SPEAR,Short Spear
+BOAR_SPEAR,Boar Spear
+CAVALRY_LANCE,Cavalry Lance
+TRIDENT,Trident
+WINGED_SPEAR,Winged Spear
+PROSPECTORS_PIKE,Prospector's Pike
+HUNTING_PARTISAN,Hunting Partisan
+LODESTAR_PIKE,Lodestar Pike
+TWO_HANDED_SWORD,Two-Handed Sword
+ZWEIHANDER,Zweihander
+FLAMBERGE,Flamberge
+CLAYMORE,Claymore
+EXECUTIONERS_SWORD,Executioner's Sword
+STEEL_GREATBLADE,Steel Greatblade
+RUNEBLADE,Runeblade
+WYRMBONE_GREATSWORD,Wyrmbone Greatsword
+SUNDERER,Sunderer
+OATHKEEPER,Oathkeeper
+WOODSPLITTER,Woodsplitter
+GREATAXE,Greataxe
+WOODCUTTERS_GREATAXE,Woodcutter's Greataxe
+DOUBLE_BITTED_AXE,Double-Bitted Axe
+BEARDED_GREATAXE,Bearded Greataxe
+QUARRY_BREAKER,Quarry Breaker
+MOON_AXE,Moon Axe
+IRONBARK_REAVER,Ironbark Reaver
+FORGEMASTERS_LABRYS,Forgemaster's Labrys
+VEINSPLITTER,Veinsplitter
+MALLET,Mallet
+STONE_MAUL,Stone Maul
+SLEDGEHAMMER,Sledgehammer
+WAR_MAUL,War Maul
+FORGE_HAMMER,Forge Hammer
+BRONZE_HEADED_MAUL,Bronze-Headed Maul
+PICK_HAMMER,Pick-Hammer
+EARTHSHAKER_MAUL,Earthshaker Maul
+TEMPLARS_WARHAMMER,Templar's Warhammer
+ANVILHEART,Anvilheart
+BILLHOOK,Billhook
+BARDICHE,Bardiche
+GUISARME,Guisarme
+GLAIVE,Glaive
+LUCERNE_HAMMER,Lucerne Hammer
+VOULGE,Voulge
+BEC_DE_CORBIN,Bec de Corbin
+STEEL_HALBERD,Steel Halberd
+WARDENS_PARTISAN,Warden's Partisan
+SKYRENDER_HALBERD,Skyrender Halberd
+WALKING_STICK,Walking Stick
+QUARTERSTAFF,Quarterstaff
+WILLOW_STAFF,Willow Staff
+IRON_SHOD_QUARTERSTAFF,Iron-Shod Quarterstaff
+PILGRIMS_STAFF,Pilgrim's Staff
+BRASS_CONDUIT_STAFF,Brass Conduit Staff
+IRONWOOD_BO,Ironwood Bo
+SAGES_ROOTSTAFF,Sage's Rootstaff
+STAFF_OF_MENDING_LIGHT,Staff of Mending Light
+STAFF_OF_THE_SEVENTH_EMBER,Staff of the Seventh Ember
+TWIG_WAND,Twig Wand
+BIRCH_WAND,Birch Wand
+APPRENTICES_WAND,Apprentice's Wand
+BONE_WAND,Bone Wand
+CRYSTAL_TIPPED_WAND,Crystal-Tipped Wand
+TINKERS_SPARK_ROD,Tinker's Spark Rod
+CORAL_WAND,Coral Wand
+OBSIDIAN_WAND,Obsidian Wand
+LEY_IRON_SCEPTER,Ley-Iron Scepter
+STARFALL_WAND,Starfall Wand
+PRIMER,Primer
+PRIMER_OF_SPARKS,Primer of Sparks
+HYMNAL,Hymnal
+FIELD_HERBARIUM,Field Herbarium
+BOOK_OF_PSALMS,Book of Psalms
+GRIMOIRE_OF_ASH,Grimoire of Ash
+ANNOTATED_BESTIARY,Annotated Bestiary
+ATLAS_OF_LEY_LINES,Atlas of Ley Lines
+LITURGY_OF_THE_LANTERN,Liturgy of the Lantern
+CODEX_OF_UNWRITTEN_PAGES,Codex of Unwritten Pages
+SHORT_BOW,Short Bow
+YEW_SHORTBOW,Yew Shortbow
+LONGBOW,Longbow
+RECURVE_BOW,Recurve Bow
+HORN_BOW,Horn Bow
+COMPOSITE_LONGBOW,Composite Longbow
+ELMWOOD_WARBOW,Elmwood Warbow
+SONGSTRING_BOW,Songstring Bow
+WINDRUNNERS_LONGBOW,Windrunner's Longbow
+WOODEN_CROSSBOW,Wooden Crossbow
+HUNTING_CROSSBOW,Hunting Crossbow
+STIRRUP_CROSSBOW,Stirrup Crossbow
+ARBALEST,Arbalest
+STEEL_ARBALEST,Steel Arbalest
+CARAVAN_GUARD_CROSSBOW,Caravan Guard Crossbow
+REPEATING_CROSSBOW,Repeating Crossbow
+WINDLASS_ARBALEST,Windlass Arbalest
+GEARWORK_SIEGE_CROSSBOW,Gearwork Siege Crossbow
+CLOCKWORK_ARBALEST,Clockwork Arbalest
+TIN_WHISTLE,Tin Whistle
+REED_FLUTE,Reed Flute
+HAND_DRUM,Hand Drum
+TRAVELLERS_MANDOLIN,Traveller's Mandolin
+BAGPIPES,Bagpipes
+FIDDLE,Fiddle
+WARBAND_DRUM,Warband Drum
+SILVER_HARP,Silver Harp
+HURDY_GURDY_OF_HOURS,Hurdy-Gurdy of Hours
+LYRE_OF_THE_LAST_VERSE,Lyre of the Last Verse
+THROWING_KNIFE,Throwing Knife
+DARTS,Darts
+THROWING_AXE,Throwing Axe
+BOLAS,Bolas
+WEIGHTED_JAVELIN,Weighted Javelin
+STAR_DARTS,Star Darts
+CAUSTIC_FLASK,Caustic Flask
+STEEL_CHAKRAM,Steel Chakram
+FIRE_FLASK,Fire Flask
+PHILOSOPHERS_ORB,Philosopher's Orb
+SHEPHERDS_SLING,Shepherd's Sling
+BRAIDED_SLING,Braided Sling
+HIDE_SLING,Hide Sling
+LEADED_SLING,Leaded Sling
+FORKED_SLINGSHOT,Forked Slingshot
+BALEARIC_SLING,Balearic Sling
+SILK_SLING,Silk Sling
+GIANT_HUNTERS_SLING,Giant-Hunter's Sling
+STORMCORD_SLING,Stormcord Sling
+SHEPHERD_KINGS_SLING,Shepherd King's Sling
+PLAIN_ROBE,Plain Robe
+WOVEN_ROBE,Woven Robe
+ACOLYTES_CASSOCK,Acolyte's Cassock
+SCHOLARS_HABIT,Scholar's Habit
+HERBALISTS_SMOCK,Herbalist's Smock
+EMBROIDERED_MAGISTER_ROBE,Embroidered Magister Robe
+SILKWEAVE_VESTMENT,Silkweave Vestment
+ROBE_OF_THE_ASHEN_CIRCLE,Robe of the Ashen Circle
+MANTLE_OF_THE_STARLIT_CHOIR,Mantle of the Starlit Choir
+PADDED_GAMBESON,Padded Gambeson
+HIDE_VEST,Hide Vest
+HUNTERS_LEATHERS,Hunter's Leathers
+BOILED_LEATHER_CUIRASS,Boiled Leather Cuirass
+MINSTRELS_DOUBLET,Minstrel's Doublet
+SHADOWWEAVE_JERKIN,Shadowweave Jerkin
+PUGILISTS_WRAP_VEST,Pugilist's Wrap-Vest
+TRAILWARDEN_LEATHERS,Trailwarden Leathers
+HIDE_OF_THE_NIGHTSTALKER,Hide of the Nightstalker
+RING_MAIL,Ring Mail
+STUDDED_BRIGANDINE,Studded Brigandine
+SCALE_VEST,Scale Vest
+SMITHS_HAUBERK,Smith's Hauberk
+LAMELLAR_COAT,Lamellar Coat
+WARDENS_SCALE_VEST,Warden's Scale Vest
+VESTMENTS_OF_THE_DAWN,Vestments of the Dawn
+ARTIFICERS_BRASS_HARNESS,Artificer's Brass Harness
+DEEPFORGED_HAUBERK,Deepforged Hauberk
+IRON_PLATE_COAT,Iron Plate Coat
+SPLINT_MAIL,Splint Mail
+BANDED_PLATE,Banded Plate
+STEEL_BREASTPLATE,Steel Breastplate
+TEMPLARS_PLATE,Templar's Plate
+BASTION_PLATE,Bastion Plate
+BLACKIRON_FULLPLATE,Blackiron Fullplate
+AEGIS_OF_THE_UNBROKEN,Aegis of the Unbroken
+FELT_HOOD,Felt Hood
+STRAW_HAT,Straw Hat
+WIZARDS_CONE_HAT,Wizard's Cone Hat
+SCHOLARS_CAP,Scholar's Cap
+CIRCLET_OF_CLARITY,Circlet of Clarity
+SILVER_DIADEM,Silver Diadem
+CROWN_OF_THE_ECLIPSE,Crown of the Eclipse
+LEATHER_CAP,Leather Cap
+BANDANA,Bandana
+FEATHERED_TRICORN,Feathered Tricorn
+RANGERS_HOOD,Ranger's Hood
+ASSASSINS_COWL,Assassin's Cowl
+PLUMED_BARDS_CAP,Plumed Bard's Cap
+HOOD_OF_THE_SILENT_HUNT,Hood of the Silent Hunt
+BRONZE_SALLET,Bronze Sallet
+MINERS_LAMP_HELM,Miner's Lamp Helm
+KETTLE_HAT,Kettle Hat
+PRIESTS_MITRE,Priest's Mitre
+HORNED_HELM,Horned Helm
+GEARWRIGHTS_HELM,Gearwright's Helm
+NASAL_HELM,Nasal Helm
+GREAT_HELM,Great Helm
+BASCINET,Bascinet
+VISORED_BARBUTE,Visored Barbute
+CRESTED_WARHELM,Crested Warhelm
+WARHELM_OF_THE_IRON_TIDE,Warhelm of the Iron Tide
+TRAVELLERS_CLOAK,Traveller's Cloak
+PILGRIMS_SHAWL,Pilgrim's Shawl
+SCHOLARS_MANTLET,Scholar's Mantlet
+MANTLE_OF_EMBERS,Mantle of Embers
+SHROUD_OF_THE_QUIET_GRAVE,Shroud of the Quiet Grave
+WOOL_MANTLE,Wool Mantle
+OILSKIN_CAPE,Oilskin Cape
+HUNTERS_GHILLIE,Hunter's Ghillie
+PERFORMERS_HALF_CAPE,Performer's Half-Cape
+SHADOWSILK_CAPE,Shadowsilk Cape
+WINGS_OF_THE_WANDERING_WIND,Wings of the Wandering Wind
+FUR_LINED_MANTLE,Fur-Lined Mantle
+HERALDS_TABARD,Herald's Tabard
+FORESTERS_WEATHERCLOAK,Forester's Weathercloak
+MAIL_CAPE,Mail Cape
+KNIGHTS_WARCLOAK,Knight's Warcloak
+ROPE_SANDALS,Rope Sandals
+FELT_SLIPPERS,Felt Slippers
+PILGRIMS_SLIPPERS,Pilgrim's Slippers
+STARWALKER_SLIPPERS,Starwalker Slippers
+SOFT_LEATHER_BOOTS,Soft Leather Boots
+RANGERS_MOCCASINS,Ranger's Moccasins
+SILENT_STEP_BOOTS,Silent-Step Boots
+TROUBADOURS_BUCKLED_SHOES,Troubadour's Buckled Shoes
+FIGHTERS_FOOT_WRAPS,Fighter's Foot Wraps
+COURIERS_BOOTS,Courier's Boots
+BOOTS_OF_THE_SEVEN_LEAGUES,Boots of the Seven Leagues
+HOBNAILED_BOOTS,Hobnailed Boots
+RIVETED_BOOTS,Riveted Boots
+STRIDERS_BOOTS,Strider's Boots
+FORGE_SOLED_BOOTS,Forge-Soled Boots
+DEEPDELVERS_BOOTS,Deepdelver's Boots
+IRONSHOD_GREAVES,Ironshod Greaves
+PLATED_GREAVES,Plated Greaves
+SABATONS_OF_THE_BULWARK,Sabatons of the Bulwark
+TREADS_OF_THE_LAST_STAND,Treads of the Last Stand
+WICKER_BUCKLER,Wicker Buckler
+HIDE_TARGE,Hide Targe
+STUDDED_BUCKLER,Studded Buckler
+DUELISTS_PARRYING_BUCKLER,Duelist's Parrying Buckler
+MIRRORED_BUCKLER,Mirrored Buckler
+ROUND_SHIELD,Round Shield
+BRONZE_HEATER,Bronze Heater
+STEEL_KITE_SHIELD,Steel Kite Shield
+RUNED_WARD,Runed Ward
+GEARLOCK_SHIELD,Gearlock Shield
+IRON_PAVISE,Iron Pavise
+BULWARK_PAVISE,Bulwark Pavise
+CATHEDRAL_TOWER_SHIELD,Cathedral Tower Shield
+BASTION_OF_THE_FIRST_WALL,Bastion of the First Wall
+CRACKED_MONOCLE,Cracked Monocle
+LEATHER_EYEPATCH,Leather Eyepatch
+CLOTH_FACE_MASK,Cloth Face Mask
+SMOKED_GOGGLES,Smoked Goggles
+JEWELLERS_LOUPE,Jeweller's Loupe
+PLAGUE_BEAK_MASK,Plague Beak Mask
+MASQUERADE_HALF_MASK,Masquerade Half-Mask
+ASSASSINS_VEIL,Assassin's Veil
+SPYGLASS_MONOCLE,Spyglass Monocle
+IRON_FACE_GUARD,Iron Face-Guard
+OWL_EYE_LENSES,Owl-Eye Lenses
+MASK_OF_THE_HOLLOW_CHOIR,Mask of the Hollow Choir
+COPPER_BAND,Copper Band
+BONE_CHARM,Bone Charm
+IRON_RING,Iron Ring
+RABBITS_FOOT_CHARM,Rabbit's-Foot Charm
+BRAWLERS_BRACER,Brawler's Bracer
+RANGERS_THUMB_RING,Ranger's Thumb Ring
+MERCHANTS_SIGNET,Merchant's Signet
+ALCHEMISTS_PHYLACTERY,Alchemist's Phylactery
+JADE_EARRING,Jade Earring
+SILVER_HOLY_SYMBOL,Silver Holy Symbol
+TIGERS_EYE_RING,Tiger's-Eye Ring
+GARNET_RING,Garnet Ring
+SAPPHIRE_PENDANT,Sapphire Pendant
+BARDS_CHARM_BRACELET,Bard's Charm Bracelet
+MINERS_LODESTONE,Miner's Lodestone
+WOLF_TOOTH_NECKLACE,Wolf-Tooth Necklace
+EARRING_OF_THE_DANCING_BLADE,Earring of the Dancing Blade
+RING_OF_WARDING,Ring of Warding
+RUNESTONE_AMULET,Runestone Amulet
+EMERALD_RING_OF_GROWTH,Emerald Ring of Growth
+OPAL_OF_THE_TIDES,Opal of the Tides
+RUBY_SIGNET,Ruby Signet
+ONYX_RING,Onyx Ring
+PILGRIMS_AMULET,Pilgrim's Amulet
+BAND_OF_A_THOUSAND_BARGAINS,Band of a Thousand Bargains
+EYE_OF_THE_ORACLE,Eye of the Oracle
+HEART_OF_THE_BEHEMOTH,Heart of the Behemoth
+RING_OF_THE_HOLLOW_KING,Ring of the Hollow King
+TIN_LANTERN,Tin Lantern
+HOODED_LANTERN,Hooded Lantern
+MINERS_CARBIDE_LAMP,Miner's Carbide Lamp
+GLOWCAP_LANTERN,Glowcap Lantern
+EVERFLAME_LANTERN,Everflame Lantern
+LANTERN_OF_THE_LOST_SAINT,Lantern of the Lost Saint
+KNIFE_DESC,A plain kitchen-and-camp knife with a wooden grip. Every smith's first blade.
+DAGGER_DESC,A double-edged dagger with a simple crossguard.
+COMBAT_KNIFE_DESC,"A heavy single-edged knife with a clipped point, made for a fight rather than for bread."
+GREAT_KNIFE_DESC,"A knife grown nearly to a short sword, still worn at the belt."
+BRONZE_STILETTO_DESC,"A needle of bronze with no edge at all, only a point."
+ALCHEMISTS_LANCET_DESC,A surgeon's lancet with a hollow groove that carries whatever was last poured into it.
+ASSASSINS_DAGGER_DESC,"Blackened so it does not catch the light, and balanced for the hand that never misses twice."
+GEARWORK_DIRK_DESC,A dirk whose hilt hides a small spring that snaps the blade forward on the thrust.
+NIGHTGLASS_KRIS_DESC,A wavy blade of dark volcanic glass bound to steel. It is colder than the air around it.
+WHISPER_OF_THE_VEIL_DESC,Nobody remembers the smith who made it. Nobody it was used on remembers it either.
+HAND_WRAPS_DESC,Strips of linen wound tight around the knuckles.
+CESTUS_DESC,Leather thongs with a strip of hard hide over the fist.
+KNUCKLEDUSTER_DESC,A bar of iron with four holes for four fingers.
+SPIKED_KNUCKLES_DESC,A knuckleduster with a short spike over every knuckle.
+IRON_CLAW_DESC,Three curved blades rising from a leather gauntlet.
+TIGERCLAW_KATAR_DESC,"A punching blade with an H-shaped grip, driven straight from the shoulder."
+BRASS_GAUNTLET_DESC,"A heavy brass fist, riveted over a padded glove."
+MONKS_IRON_BANDS_DESC,"Plain iron rings worn on the forearms, worn smooth by a thousand blocks."
+STONEFIST_GAUNTLET_DESC,A gauntlet set with knuckles of polished granite.
+FISTS_OF_THE_MOUNTAIN_KING_DESC,Two gauntlets of grey stone that feel like part of the hand once they are on.
+ROPE_LASH_DESC,A length of knotted rope with a frayed end that cracks surprisingly loud.
+BRAIDED_WHIP_DESC,Four strands of leather plaited into a supple lash.
+THORNVINE_WHIP_DESC,A dried bramble vine bound to a wooden handle. The thorns did not come off.
+BULLWHIP_DESC,"A drover's whip, long enough to reach the far side of the herd."
+CHAIN_WHIP_DESC,Short iron links joined end to end with a weighted tip.
+SILKEN_SCOURGE_DESC,Three tails of dyed silk that sing in the air when they move.
+BARBED_LASH_DESC,A leather lash with small iron barbs woven into its last span.
+SERPENT_CHAIN_WHIP_DESC,Scaled steel links that move like a snake and end in a fanged weight.
+RIBBON_OF_THE_MASQUE_DESC,"A dancer's ribbon of crimson silk, edged with fine wire."
+TONGUE_OF_THE_TEMPEST_DESC,The crack of this whip arrives a moment before the thunder does.
+SHORT_SWORD_DESC,"A short straight blade, the length of a forearm."
+GLADIUS_DESC,"A broad, leaf-shaped stabbing sword with a round pommel."
+ARMING_SWORD_DESC,"A plain cruciform sword, the everyday blade of anyone who expects trouble."
+BROADSWORD_DESC,"A wide, heavy blade for cutting rather than thrusting."
+MERCHANTS_SABRE_DESC,"A light curved sabre with a brass guard, carried by caravan masters."
+STEEL_LONGSWORD_DESC,A long steel blade with a grip long enough for a second hand when it is needed.
+SURVEYORS_BACKSWORD_DESC,A single-edged sword with distance marks etched along its spine.
+RAPIER_DESC,A slender thrusting sword with a swept hilt. It rewards precision and punishes everything else.
+DUSKFORGED_FALCHION_DESC,"A heavy cleaver of a sword, quenched at sunset in the old way."
+GILDED_TONGUE_DESC,A gold-chased sabre that has settled more arguments than any contract.
+HAND_AXE_DESC,A small axe for kindling and for anything else that needs splitting.
+BEARDED_AXE_DESC,"An axe whose blade hangs low below the haft, good for hooking as well as cutting."
+BROAD_AXE_DESC,"A wide, flat axe head on a short haft."
+WOODWARDS_AXE_DESC,"The axe of the forest wardens, light enough to carry all day."
+SMITHS_HEWING_AXE_DESC,"A smith's test piece: if it holds an edge through oak, the steel is good."
+STEEL_WAR_AXE_DESC,"A steel axe with a spike on the back, made for war and nothing else."
+CRESCENT_AXE_DESC,A half-moon blade that bites deep and pulls free easily.
+RUNED_TOMAHAWK_DESC,A light axe with runes cut along the haft by a hand that knew what they meant.
+BLACKIRON_CLEAVER_DESC,"Dark iron, folded and folded again until it rings like a bell."
+HEARTWOOD_CLEAVER_DESC,"Its haft was cut from the heart of a living tree, and it has never quite stopped growing."
+CUDGEL_DESC,A knotted club of hardwood.
+FLANGED_MACE_DESC,An iron head of six flanges on a wooden haft.
+SPIKED_CLUB_DESC,A heavy club studded with iron nails.
+MORNING_STAR_DESC,A spiked iron ball on a short shaft.
+PICKHEAD_MACE_DESC,A miner's mace with a pick on the back for loosening ore and enemies alike.
+CENSER_FLAIL_DESC,A swinging censer on a chain. The smoke it trails is holy; the weight is not.
+ALEMBIC_MACE_DESC,A mace whose hollow head holds a sealed flask of something better left sealed.
+OREBREAKER_MACE_DESC,"Forged to crack ore that a pick will not, and it does not much care what else it cracks."
+WARDENS_HOLY_MACE_DESC,A silvered mace blessed over a grave that never stayed shut.
+DAWNBRINGER_DESC,"Its head glows faintly an hour before sunrise, every morning, wherever it is."
+WOODEN_SPEAR_DESC,A straight ash pole sharpened at one end.
+FIRE_HARDENED_SPEAR_DESC,A wooden spear whose point was hardened in the coals.
+SHORT_SPEAR_DESC,An iron spearhead on a shaft as long as a man is tall.
+BOAR_SPEAR_DESC,"A broad spearhead with lugs behind it, so the boar stays at the far end."
+CAVALRY_LANCE_DESC,"A lance cut down for fighting on foot, still heavy at the point."
+TRIDENT_DESC,"Three barbed tines, made for fish and used for everything else."
+WINGED_SPEAR_DESC,A spear with two short wings below its head to stop a charge.
+PROSPECTORS_PIKE_DESC,A long pike with a sounding rod hidden in its butt.
+HUNTING_PARTISAN_DESC,"A broad-bladed spear with side lugs, for game that bites back."
+LODESTAR_PIKE_DESC,Its iron head always turns a little toward the nearest vein of ore.
+TWO_HANDED_SWORD_DESC,"A long, plain blade that needs both hands and a lot of room."
+ZWEIHANDER_DESC,A huge sword with a leather-wrapped ricasso to grip above the guard.
+FLAMBERGE_DESC,A greatsword with a wavy blade that saws as well as cuts.
+CLAYMORE_DESC,A greatsword with a forward-sloping guard ending in quatrefoils.
+EXECUTIONERS_SWORD_DESC,Square-tipped and perfectly balanced for one kind of stroke.
+STEEL_GREATBLADE_DESC,"Good steel, a lot of it, in the shape of a sword."
+RUNEBLADE_DESC,Runes run the length of the fuller and glow when the blade is drawn in anger.
+WYRMBONE_GREATSWORD_DESC,Its core is a rib from something that breathed fire. It is still warm.
+SUNDERER_DESC,A slab of a sword that splits shields as readily as it splits the men behind them.
+OATHKEEPER_DESC,"It cannot be drawn against anyone its bearer has sworn to protect, or so the knights say."
+WOODSPLITTER_DESC,"A splitting maul with an axe's edge, for firewood and worse."
+GREATAXE_DESC,A broad axe head on a long two-handed haft.
+WOODCUTTERS_GREATAXE_DESC,The felling axe of a woodcutter who got tired of being robbed.
+DOUBLE_BITTED_AXE_DESC,"Two edges, so the backswing is not wasted."
+BEARDED_GREATAXE_DESC,A greataxe with a long hooked beard for pulling riders out of saddles.
+QUARRY_BREAKER_DESC,A quarryman's axe with a hardened wedge behind the blade.
+MOON_AXE_DESC,A crescent blade as wide as a man's chest.
+IRONBARK_REAVER_DESC,"Its haft is ironbark, which no blade has ever cut through."
+FORGEMASTERS_LABRYS_DESC,"A double axe a forgemaster makes once, to prove they can."
+VEINSPLITTER_DESC,"It follows the grain of the stone, and the stone opens."
+MALLET_DESC,A big wooden mallet for driving stakes.
+STONE_MAUL_DESC,A river stone lashed to a stout haft.
+SLEDGEHAMMER_DESC,An iron sledge for breaking rock.
+WAR_MAUL_DESC,A sledgehammer with a flat face and a spiked back.
+FORGE_HAMMER_DESC,"A smith's great hammer, as at home on an anvil as on a skull."
+BRONZE_HEADED_MAUL_DESC,A maul with a bronze head that never sparks in the gas-filled deep.
+PICK_HAMMER_DESC,A hammer on one side and a pick on the other.
+EARTHSHAKER_MAUL_DESC,"When it strikes the ground, the ground remembers."
+TEMPLARS_WARHAMMER_DESC,A warhammer with a prayer engraved on every face.
+ANVILHEART_DESC,Its head was the first anvil of a forge that has burned for three hundred years.
+BILLHOOK_DESC,A farmer's hedging blade on a long pole.
+BARDICHE_DESC,A long axe blade fixed to its pole at two points.
+GUISARME_DESC,A pole blade with a hook for pulling a rider down.
+GLAIVE_DESC,"A single-edged blade on a pole, swung in wide arcs."
+LUCERNE_HAMMER_DESC,"A pronged hammer head with a spike above it, on a long pole."
+VOULGE_DESC,A heavy cleaver blade lashed to a pole.
+BEC_DE_CORBIN_DESC,"A crow's-beak spike backed by a hammer, for plate armor and what is inside it."
+STEEL_HALBERD_DESC,"An axe, a spike and a hook on one shaft of good steel."
+WARDENS_PARTISAN_DESC,"The ceremonial polearm of a city's wardens, and not only ceremonial."
+SKYRENDER_HALBERD_DESC,Legend says it was forged to cut a storm in half. The scar in the clouds over the forge has never healed.
+WALKING_STICK_DESC,A good straight stick. Every journey starts with one.
+QUARTERSTAFF_DESC,"An oak staff as tall as its owner, for fighting rather than for spells."
+WILLOW_STAFF_DESC,A supple willow staff that bends toward the one who holds it.
+IRON_SHOD_QUARTERSTAFF_DESC,A quarterstaff with iron caps at both ends.
+PILGRIMS_STAFF_DESC,The staff of a pilgrim who has walked every holy road twice.
+BRASS_CONDUIT_STAFF_DESC,A brass tube full of copper coils. It hums when a spell runs through it.
+IRONWOOD_BO_DESC,"A fighting staff of ironwood, heavy enough to break a sword."
+SAGES_ROOTSTAFF_DESC,"A staff grown, not carved, from the root of an old tree."
+STAFF_OF_MENDING_LIGHT_DESC,A white staff topped with a lantern that never needs oil.
+STAFF_OF_THE_SEVENTH_EMBER_DESC,Six embers were lit from the first fire. This staff holds the seventh.
+TWIG_WAND_DESC,"A twig, trimmed and peeled. It works better than it should."
+BIRCH_WAND_DESC,A pale birch wand with the bark left on the grip.
+APPRENTICES_WAND_DESC,"The wand every apprentice is handed on the first day, and keeps longer than they admit."
+BONE_WAND_DESC,A wand carved from a long bone. Nobody asks whose.
+CRYSTAL_TIPPED_WAND_DESC,A rowan wand capped with a clear quartz point.
+TINKERS_SPARK_ROD_DESC,A copper rod with a ceramic grip that throws sparks when shaken.
+CORAL_WAND_DESC,A branch of red coral from a reef no ship has found twice.
+OBSIDIAN_WAND_DESC,"A shard of black glass, sharp enough to cut the hand that holds it carelessly."
+LEY_IRON_SCEPTER_DESC,Iron drawn from where the ley lines cross. Compasses spin near it.
+STARFALL_WAND_DESC,Carved from a fallen star. On clear nights it points to the place in the sky it came from.
+PRIMER_DESC,A thin book of first words and first signs.
+PRIMER_OF_SPARKS_DESC,A primer whose every page is singed at the edge.
+HYMNAL_DESC,"A worn book of hymns, its spine cracked open at the favourite ones."
+FIELD_HERBARIUM_DESC,Pressed leaves and careful notes on what heals and what kills.
+BOOK_OF_PSALMS_DESC,"Bound in white leather, with a ribbon for every hour of prayer."
+GRIMOIRE_OF_ASH_DESC,"Its pages are grey and powdery, and the writing only shows when it is warm."
+ANNOTATED_BESTIARY_DESC,"Drawings of every creature its author survived, and notes on the ones they did not expect to."
+ATLAS_OF_LEY_LINES_DESC,A book of maps where the roads are rivers of power instead of stone.
+LITURGY_OF_THE_LANTERN_DESC,"The rites of the lamplighters, who keep the dark from the door."
+CODEX_OF_UNWRITTEN_PAGES_DESC,"Every page is blank until its reader needs it, and then it is the right page."
+SHORT_BOW_DESC,"A short, simple bow of one piece of wood."
+YEW_SHORTBOW_DESC,A yew bow cut to be drawn quickly from the saddle.
+LONGBOW_DESC,"A bow as tall as its archer, with the reach to match."
+RECURVE_BOW_DESC,"Its tips curve away from the archer, storing more force than its length suggests."
+HORN_BOW_DESC,"Horn, wood and sinew, glued in layers by a patient bowyer."
+COMPOSITE_LONGBOW_DESC,"A longbow backed with sinew, which keeps its strength in the wet."
+ELMWOOD_WARBOW_DESC,A heavy warbow. Few can draw it twice in a row.
+SONGSTRING_BOW_DESC,Its string hums a different note for every arrow.
+WINDRUNNERS_LONGBOW_DESC,Arrows from this bow seem to ride the wind rather than fight it.
+WOODEN_CROSSBOW_DESC,"A wooden crossbow spanned by hand. Slow, but anyone can use it."
+HUNTING_CROSSBOW_DESC,A light crossbow for birds and small game.
+STIRRUP_CROSSBOW_DESC,A crossbow with an iron stirrup to brace it with the foot while spanning.
+ARBALEST_DESC,A heavy crossbow with a steel prod.
+STEEL_ARBALEST_DESC,"An all-steel arbalest, heavier than the man who carries it would like."
+CARAVAN_GUARD_CROSSBOW_DESC,A short crossbow that can be spanned and shot from a moving wagon.
+REPEATING_CROSSBOW_DESC,A crossbow with a magazine on top. Pump the lever and it shoots again.
+WINDLASS_ARBALEST_DESC,"Spanned with a windlass, and it punches through a door."
+GEARWORK_SIEGE_CROSSBOW_DESC,Brass gears span it in a heartbeat. The noise gives away the shooter.
+CLOCKWORK_ARBALEST_DESC,"Its mechanism ticks like a clock, and it always shoots on the stroke."
+TIN_WHISTLE_DESC,A cheap tin whistle with six holes. Play it well and nobody cares that it was cheap.
+REED_FLUTE_DESC,A flute cut from a riverside reed.
+HAND_DRUM_DESC,A small skin drum played with the fingers.
+TRAVELLERS_MANDOLIN_DESC,"A small mandolin, sturdy enough to survive the road."
+BAGPIPES_DESC,"Loud enough to be heard over a battle, which is what they were made for."
+FIDDLE_DESC,A fiddle that has played at more weddings than it can count.
+WARBAND_DRUM_DESC,A war drum whose beat keeps a column marching long after its legs want to stop.
+SILVER_HARP_DESC,A small harp strung with silver wire.
+HURDY_GURDY_OF_HOURS_DESC,"Turn the crank and it plays a tune nobody wrote, slightly different every hour."
+LYRE_OF_THE_LAST_VERSE_DESC,It knows one more verse than any song has. Nobody has yet heard it played to the end.
+THROWING_KNIFE_DESC,"A small, flat knife balanced to turn once in the air. Each throw spends one."
+DARTS_DESC,Weighted darts with feather flights. Each throw spends one.
+THROWING_AXE_DESC,"A small axe with a short haft, made to be thrown. Each throw spends one."
+BOLAS_DESC,Three weighted cords that wrap around legs. Each throw spends one.
+WEIGHTED_JAVELIN_DESC,A javelin with a lead weight behind its head. Each throw spends one.
+STAR_DARTS_DESC,Four-pointed steel stars. Each throw spends one.
+CAUSTIC_FLASK_DESC,A thin glass flask of something that eats through leather. Each throw spends one.
+STEEL_CHAKRAM_DESC,A flat steel ring with a sharpened outer edge. Each throw spends one.
+FIRE_FLASK_DESC,A sealed flask that bursts into flame when it shatters. Each throw spends one.
+PHILOSOPHERS_ORB_DESC,"A crystal orb that flies true, strikes, and always finds its way back to the hand that threw it."
+SHEPHERDS_SLING_DESC,A shepherd's sling of plaited wool and a leather cradle.
+BRAIDED_SLING_DESC,A tightly braided sling that does not stretch in the rain.
+HIDE_SLING_DESC,A sling with a broad cradle of rawhide.
+LEADED_SLING_DESC,A sling with lead weights in its cords for a faster swing.
+FORKED_SLINGSHOT_DESC,"A forked branch and a strip of elastic gut. Aimed, not swung."
+BALEARIC_SLING_DESC,"The long sling of the island slingers, who were said to never miss."
+SILK_SLING_DESC,"Silk cords and a fine leather cradle, light as nothing."
+GIANT_HUNTERS_SLING_DESC,"A long, heavy sling for stones the size of a fist."
+STORMCORD_SLING_DESC,Its cords were braided during a storm and still crackle faintly.
+SHEPHERD_KINGS_SLING_DESC,The sling of a shepherd who became a king by bringing down a giant.
+PLAIN_ROBE_DESC,A plain robe of undyed wool.
+WOVEN_ROBE_DESC,A robe woven with a faint pattern of stars.
+ACOLYTES_CASSOCK_DESC,The black cassock of a temple acolyte.
+SCHOLARS_HABIT_DESC,A long scholar's gown with deep pockets for books.
+HERBALISTS_SMOCK_DESC,"A stained smock that smells of a dozen herbs, some of them dangerous."
+EMBROIDERED_MAGISTER_ROBE_DESC,A magister's robe embroidered with runes in silver thread.
+SILKWEAVE_VESTMENT_DESC,A vestment of fine silk that feels cool even in the sun.
+ROBE_OF_THE_ASHEN_CIRCLE_DESC,The grey robe of a circle of fire-mages. It cannot be burned.
+MANTLE_OF_THE_STARLIT_CHOIR_DESC,A deep blue mantle that shows the night sky as it was the night it was woven.
+PADDED_GAMBESON_DESC,A quilted jacket of many layers of linen.
+HIDE_VEST_DESC,A vest of tanned hide.
+HUNTERS_LEATHERS_DESC,Soft leathers dyed in the colours of the forest floor.
+BOILED_LEATHER_CUIRASS_DESC,"Leather boiled in wax and shaped while hot, hard as wood."
+MINSTRELS_DOUBLET_DESC,"A slashed doublet in bright colours, with hidden leather beneath."
+SHADOWWEAVE_JERKIN_DESC,A black jerkin that seems to blur at the edges when it moves.
+PUGILISTS_WRAP_VEST_DESC,Layered wraps of cloth and leather that leave the arms free.
+TRAILWARDEN_LEATHERS_DESC,"The leathers of the trailwardens, who walk the borders for a lifetime."
+HIDE_OF_THE_NIGHTSTALKER_DESC,Tanned from a beast that hunted only in the dark. It still prefers the dark.
+RING_MAIL_DESC,Iron rings sewn onto a leather coat.
+STUDDED_BRIGANDINE_DESC,A cloth coat lined with small iron plates and studded with rivets.
+SCALE_VEST_DESC,Overlapping iron scales on a leather backing.
+SMITHS_HAUBERK_DESC,"A short mail shirt with a leather apron over it, scorched in a hundred places."
+LAMELLAR_COAT_DESC,"Small plates laced together in rows, light for how much it stops."
+WARDENS_SCALE_VEST_DESC,"Fine scales of blued steel, worn by the forest wardens."
+VESTMENTS_OF_THE_DAWN_DESC,"White vestments over a mail shirt, for a priest who expects to be attacked."
+ARTIFICERS_BRASS_HARNESS_DESC,A harness of brass plates with tool loops and a dozen pockets.
+DEEPFORGED_HAUBERK_DESC,"A hauberk forged at the bottom of a mine, in a forge that runs on the heat of the earth."
+IRON_PLATE_COAT_DESC,"A coat of iron plates over padding. Heavy, and worth it."
+SPLINT_MAIL_DESC,Strips of iron riveted over mail.
+BANDED_PLATE_DESC,Horizontal bands of steel over a mail shirt.
+STEEL_BREASTPLATE_DESC,A polished steel breastplate with a skirt of tassets.
+TEMPLARS_PLATE_DESC,White-enamelled plate with a red cross on the breast.
+BASTION_PLATE_DESC,Plate thick enough to stand in a gate and hold it.
+BLACKIRON_FULLPLATE_DESC,A full harness of black iron. It makes its wearer a wall.
+AEGIS_OF_THE_UNBROKEN_DESC,The armor of a knight who held a bridge alone for a day and a night. It bears every dent and none of the holes.
+FELT_HOOD_DESC,A simple felt hood that keeps the rain off.
+STRAW_HAT_DESC,A wide straw hat for long days in the field.
+WIZARDS_CONE_HAT_DESC,"A tall pointed hat. It is not just for show, though it is also for show."
+SCHOLARS_CAP_DESC,A square black cap worn by those who have read more than they have lived.
+CIRCLET_OF_CLARITY_DESC,A thin silver circlet that eases headaches and sharpens thought.
+SILVER_DIADEM_DESC,A diadem of silver leaves set with a single pearl.
+CROWN_OF_THE_ECLIPSE_DESC,"A black crown with a ring of gold, the sun swallowed by the moon."
+LEATHER_CAP_DESC,A close-fitting leather cap.
+BANDANA_DESC,A bright cloth tied over the hair.
+FEATHERED_TRICORN_DESC,"A three-cornered hat with a long feather, worn at an angle."
+RANGERS_HOOD_DESC,A hood of green leather that shades the eyes.
+ASSASSINS_COWL_DESC,A deep cowl and a mask in one.
+PLUMED_BARDS_CAP_DESC,A velvet cap with a plume that bobs when its wearer sings.
+HOOD_OF_THE_SILENT_HUNT_DESC,A hood that muffles its wearer's breath.
+BRONZE_SALLET_DESC,A bronze helmet with a long tail over the neck.
+MINERS_LAMP_HELM_DESC,An iron helm with a bracket for a lamp on the brow.
+KETTLE_HAT_DESC,A wide-brimmed iron hat that keeps arrows and rain off alike.
+PRIESTS_MITRE_DESC,A tall mitre with a steel cap sewn inside it.
+HORNED_HELM_DESC,"A steel helm with two great horns, more for courage than for use."
+GEARWRIGHTS_HELM_DESC,A helm with flip-down lenses and a dozen tiny tools in the brim.
+NASAL_HELM_DESC,A conical iron helm with a bar over the nose.
+GREAT_HELM_DESC,A flat-topped helm that covers the whole head.
+BASCINET_DESC,A pointed helm with a hinged visor.
+VISORED_BARBUTE_DESC,A close helm with a T-shaped opening and a sliding visor.
+CRESTED_WARHELM_DESC,A great helm crowned with a steel crest.
+WARHELM_OF_THE_IRON_TIDE_DESC,Worn by the captain who turned back the burning fleet. It still smells of smoke.
+TRAVELLERS_CLOAK_DESC,A hooded travelling cloak of oiled wool.
+PILGRIMS_SHAWL_DESC,A shawl embroidered with the signs of every shrine its owner visited.
+SCHOLARS_MANTLET_DESC,A short shoulder mantle in the colours of an old academy.
+MANTLE_OF_EMBERS_DESC,"A mantle whose hem glows faintly, like the last coals of a fire."
+SHROUD_OF_THE_QUIET_GRAVE_DESC,A grey shroud the dead do not like to look at.
+WOOL_MANTLE_DESC,"A thick woollen mantle, warm in the worst weather."
+OILSKIN_CAPE_DESC,A cape of waxed canvas that sheds the rain.
+HUNTERS_GHILLIE_DESC,A cloak hung with strips of cloth and leaves.
+PERFORMERS_HALF_CAPE_DESC,"A short cape lined in red silk, made to be swirled."
+SHADOWSILK_CAPE_DESC,A cape of black silk that hides its wearer in any shadow.
+WINGS_OF_THE_WANDERING_WIND_DESC,"A feathered cloak that lifts on the slightest breeze, as if it would rather be flying."
+FUR_LINED_MANTLE_DESC,A heavy mantle lined with wolf fur.
+HERALDS_TABARD_DESC,A tabard bearing a house's colours over a padded lining.
+FORESTERS_WEATHERCLOAK_DESC,A cloak of thick leather that has seen every season.
+MAIL_CAPE_DESC,A short cape of mail over the shoulders.
+KNIGHTS_WARCLOAK_DESC,"A heavy cloak lined with mail, clasped with the knight's own seal."
+ROPE_SANDALS_DESC,Sandals of plaited rope.
+FELT_SLIPPERS_DESC,Soft felt slippers for long nights of study.
+PILGRIMS_SLIPPERS_DESC,Slippers with soles worn thin by a thousand miles of prayer.
+STARWALKER_SLIPPERS_DESC,Slippers of blue silk embroidered with constellations.
+SOFT_LEATHER_BOOTS_DESC,Ankle boots of soft leather.
+RANGERS_MOCCASINS_DESC,Moccasins that make no sound on dry leaves.
+SILENT_STEP_BOOTS_DESC,"Boots with felt soles, made for walking where one should not be."
+TROUBADOURS_BUCKLED_SHOES_DESC,"Pointed shoes with silver buckles, made for dancing."
+FIGHTERS_FOOT_WRAPS_DESC,Wraps of linen and leather that leave the toes free to grip.
+COURIERS_BOOTS_DESC,Light boots worn by the couriers who run the long roads.
+BOOTS_OF_THE_SEVEN_LEAGUES_DESC,Every step in them is a little longer than it should be.
+HOBNAILED_BOOTS_DESC,Heavy boots with iron nails in the soles for grip on rock.
+RIVETED_BOOTS_DESC,Boots reinforced with riveted iron strips.
+STRIDERS_BOOTS_DESC,Tall boots for long strides through deep forest.
+FORGE_SOLED_BOOTS_DESC,Boots with soles thick enough to stand on a cooling slag heap.
+DEEPDELVERS_BOOTS_DESC,"Boots made for the deepest shafts, where the floor is never level."
+IRONSHOD_GREAVES_DESC,Iron greaves strapped over leather boots.
+PLATED_GREAVES_DESC,Steel greaves with articulated plates over the foot.
+SABATONS_OF_THE_BULWARK_DESC,Armored shoes that root their wearer to the spot.
+TREADS_OF_THE_LAST_STAND_DESC,Whoever wears these does not take a step back. They have never been made to.
+WICKER_BUCKLER_DESC,A small round shield of woven wicker.
+HIDE_TARGE_DESC,A round targe of hide stretched over a wooden frame.
+STUDDED_BUCKLER_DESC,A leather buckler studded with iron.
+DUELISTS_PARRYING_BUCKLER_DESC,"A small steel buckler with a spike, for turning a blade aside."
+MIRRORED_BUCKLER_DESC,"A buckler polished to a mirror, to blind whoever stands in front of it."
+ROUND_SHIELD_DESC,A round shield of planks with an iron boss.
+BRONZE_HEATER_DESC,A heater-shaped shield faced in bronze.
+STEEL_KITE_SHIELD_DESC,"A tall kite shield of steel, pointed at the bottom."
+RUNED_WARD_DESC,A shield carved with warding runes that glow when darkness is near.
+GEARLOCK_SHIELD_DESC,A shield that unfolds from a bracer at the turn of a key.
+IRON_PAVISE_DESC,A tall rectangular shield that can be set on the ground to stand behind.
+BULWARK_PAVISE_DESC,"A pavise of iron-faced oak, a wall in one hand."
+CATHEDRAL_TOWER_SHIELD_DESC,A tower shield with the window of a cathedral painted across it.
+BASTION_OF_THE_FIRST_WALL_DESC,"Cut from the first stone wall ever built around a city, and bound in iron."
+CRACKED_MONOCLE_DESC,A monocle with a crack across it. It still helps.
+LEATHER_EYEPATCH_DESC,An eyepatch. The eye beneath it is fine; the other one is better for it.
+CLOTH_FACE_MASK_DESC,A cloth tied over the mouth and nose against dust and fumes.
+SMOKED_GOGGLES_DESC,Goggles of smoked glass for watching molten metal.
+JEWELLERS_LOUPE_DESC,"A jeweller's loupe on a band, for telling a gem from glass."
+PLAGUE_BEAK_MASK_DESC,A long-beaked mask stuffed with dried herbs.
+MASQUERADE_HALF_MASK_DESC,A gilded half-mask from a masquerade nobody remembers ending.
+ASSASSINS_VEIL_DESC,A veil of black gauze that hides the face and nothing else.
+SPYGLASS_MONOCLE_DESC,A monocle with a tiny telescoping lens.
+IRON_FACE_GUARD_DESC,"An iron plate shaped to the face, with slits for the eyes."
+OWL_EYE_LENSES_DESC,Round amber lenses that make the night as clear as dusk.
+MASK_OF_THE_HOLLOW_CHOIR_DESC,A silver mask with an open mouth. Those who wear it hear singing.
+COPPER_BAND_DESC,A plain copper ring that turns the finger green.
+BONE_CHARM_DESC,"A carved bone on a cord, said to keep the dead at rest."
+IRON_RING_DESC,A heavy iron ring.
+RABBITS_FOOT_CHARM_DESC,"Lucky for its owner, if not for the rabbit."
+BRAWLERS_BRACER_DESC,A thick leather bracer that steadies the wrist for a punch.
+RANGERS_THUMB_RING_DESC,A horn ring worn on the thumb to draw a bowstring.
+MERCHANTS_SIGNET_DESC,A signet ring for sealing contracts.
+ALCHEMISTS_PHYLACTERY_DESC,"A tiny vial on a chain, filled with an antidote for emergencies."
+JADE_EARRING_DESC,A drop of green jade that calms the mind.
+SILVER_HOLY_SYMBOL_DESC,"A silver sun on a chain, blessed at dawn."
+TIGERS_EYE_RING_DESC,A ring set with a banded brown stone that catches the light like an eye.
+GARNET_RING_DESC,A gold ring set with a deep red garnet.
+SAPPHIRE_PENDANT_DESC,"A sapphire on a silver chain, cool against the skin."
+BARDS_CHARM_BRACELET_DESC,A bracelet hung with little charms from every town its owner played in.
+MINERS_LODESTONE_DESC,A lodestone on a leather thong that tugs toward iron.
+WOLF_TOOTH_NECKLACE_DESC,"A necklace of wolf teeth, each taken by its wearer."
+EARRING_OF_THE_DANCING_BLADE_DESC,A silver earring shaped like a tiny dagger.
+RING_OF_WARDING_DESC,A steel ring engraved with a circle of wards.
+RUNESTONE_AMULET_DESC,A flat stone carved with a single rune. Which rune it is changes from stone to stone.
+EMERALD_RING_OF_GROWTH_DESC,An emerald ring. Cuts heal faster under it.
+OPAL_OF_THE_TIDES_DESC,An opal whose colours shift like the sea.
+RUBY_SIGNET_DESC,A heavy signet set with a ruby the colour of hot iron.
+ONYX_RING_DESC,A ring of black onyx that seems to swallow light.
+PILGRIMS_AMULET_DESC,"An amulet carried to every shrine in the world, and blessed at each."
+BAND_OF_A_THOUSAND_BARGAINS_DESC,Every merchant who wore it died rich. None of them died happy.
+EYE_OF_THE_ORACLE_DESC,"A pale stone that shows, in its depths, a moment that has not happened yet."
+HEART_OF_THE_BEHEMOTH_DESC,"A red stone the size of a fist that beats, very slowly, once an hour."
+RING_OF_THE_HOLLOW_KING_DESC,"The ring of a king who traded everything for it. It fits any finger, and none comfortably."
+TIN_LANTERN_DESC,"A tin lantern with horn windows. It burns far longer than a torch, and a smith can refit it."
+HOODED_LANTERN_DESC,A lantern with a shutter that can dim it to a sliver.
+MINERS_CARBIDE_LAMP_DESC,"A bright, hissing lamp that lights a whole tunnel."
+GLOWCAP_LANTERN_DESC,"A glass lantern of luminous fungus. It needs no fuel, only a little water now and then."
+EVERFLAME_LANTERN_DESC,A brass lantern whose flame has burned for longer than anyone has owned it.
+LANTERN_OF_THE_LOST_SAINT_DESC,The lantern a saint carried into the dark to find the lost. The dark still remembers it.

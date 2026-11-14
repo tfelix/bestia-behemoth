@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 786
+name_key = "TREADS_OF_THE_LAST_STAND"
+description_key = "TREADS_OF_THE_LAST_STAND_DESC"
+weight = 580
+level = 84
+min_level = 62
+type = 1
+equip_slot = 5
+armor_type = 4

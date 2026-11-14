@@ -9,6 +9,7 @@ name_key = "HUNTING_BOW"
 description_key = "HUNTING_BOW_DESC"
 weight = 90
 level = 10
+min_level = 10
 type = 1
 equip_slot = 6
 weapon_type = "BOW"

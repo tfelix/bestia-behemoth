@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 720
+name_key = "STEEL_BREASTPLATE"
+description_key = "STEEL_BREASTPLATE_DESC"
+weight = 2000
+level = 49
+min_level = 25
+type = 1
+equip_slot = 3
+armor_type = 4

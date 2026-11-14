@@ -20,7 +20,7 @@ class EquipmentServiceTest {
 
   private val boots = Item(
     id = 4L, identifier = "boots", weight = 8, type = Item.ItemType.EQUIP,
-    equipSlot = EquipmentSlot.FOOTGEAR, baseLevel = BOOTS_LEVEL,
+    equipSlot = EquipmentSlot.FOOTGEAR, baseLevel = BOOTS_LEVEL, minLevel = BOOTS_MIN_LEVEL,
     material = ItemMaterial.LEATHER
   )
   private val noviceBoots = Item(
@@ -57,7 +57,7 @@ class EquipmentServiceTest {
     canDualWield: Boolean = false,
   ): EquipmentService.Denial? {
     return service.checkEquip(
-      equipment, inventory, item, item.baseLevel, slot, heldUniqueId, wearerLevel, wearerIsNovice, lockedSlots,
+      equipment, inventory, item, slot, heldUniqueId, wearerLevel, wearerIsNovice, lockedSlots,
       allowance, canDualWield
     )
   }
@@ -156,17 +156,17 @@ class EquipmentServiceTest {
   }
 
   @Test
-  fun `a wearer below the item's level is refused`() {
+  fun `a wearer below the item's min level is refused`() {
     assertEquals(
       EquipmentService.Denial.LEVEL_TOO_LOW,
-      check(boots, EquipmentSlot.FOOTGEAR, wearerLevel = BOOTS_LEVEL - 1)
+      check(boots, EquipmentSlot.FOOTGEAR, wearerLevel = BOOTS_MIN_LEVEL - 1)
     )
   }
 
-  /** Exactly the item's level is enough - the table reads as a minimum, not as something to exceed. */
+  /** Exactly the min level is enough - the table reads as a minimum, not as something to exceed. */
   @Test
-  fun `a wearer exactly at the item's level is accepted`() {
-    assertNull(check(boots, EquipmentSlot.FOOTGEAR, wearerLevel = BOOTS_LEVEL))
+  fun `a wearer exactly at the item's min level is accepted`() {
+    assertNull(check(boots, EquipmentSlot.FOOTGEAR, wearerLevel = BOOTS_MIN_LEVEL))
   }
 
   /**
@@ -174,7 +174,7 @@ class EquipmentServiceTest {
    * safe reading of not knowing.
    */
   @Test
-  fun `a wearer of no known level is refused anything above tier one`() {
+  fun `a wearer of no known level is refused anything above min level one`() {
     assertEquals(
       EquipmentService.Denial.LEVEL_TOO_LOW,
       check(boots, EquipmentSlot.FOOTGEAR, wearerLevel = 0)
@@ -216,22 +216,29 @@ class EquipmentServiceTest {
    * item it finds already worn, which is every item the sweep is there to judge.
    */
   @Test
-  fun `the copy's item level decides, not the template's base level`() {
-    val rolledHigh = BOOTS_LEVEL + 20
-
+  fun `the template's min level decides, not the base level or a copy's rolled item level`() {
     assertEquals(
       EquipmentService.Denial.LEVEL_TOO_LOW,
-      service.checkStillWearable(boots, rolledHigh, wearerLevel = rolledHigh - 1, wearerIsNovice = false)
+      service.checkStillWearable(boots, wearerLevel = BOOTS_MIN_LEVEL - 1, wearerIsNovice = false)
     )
+    // Below the base level, and far below any item level a copy could roll: still wearable.
+    assertNull(service.checkStillWearable(boots, wearerLevel = BOOTS_MIN_LEVEL, wearerIsNovice = false))
+  }
+
+  @Test
+  fun `an accessory fits either accessory slot`() {
+    assertNull(check(RING, EquipmentSlot.ACCESSORY_1))
+    assertNull(check(RING, EquipmentSlot.ACCESSORY_2))
+    assertEquals(EquipmentService.Denial.NOT_ALLOWED, check(RING, EquipmentSlot.HEAD_MID))
   }
 
   @Test
   fun `checkStillWearable judges a worn item without minding that it is worn`() {
     assertEquals(
       EquipmentService.Denial.NOVICE_ONLY,
-      service.checkStillWearable(noviceBoots, itemLevel = 1, WELL_ABOVE_ITEM_LEVEL, wearerIsNovice = false)
+      service.checkStillWearable(noviceBoots, WELL_ABOVE_ITEM_LEVEL, wearerIsNovice = false)
     )
-    assertNull(service.checkStillWearable(noviceBoots, itemLevel = 1, WELL_ABOVE_ITEM_LEVEL, wearerIsNovice = true))
+    assertNull(service.checkStillWearable(noviceBoots, WELL_ABOVE_ITEM_LEVEL, wearerIsNovice = true))
   }
 
   @Test
@@ -274,6 +281,7 @@ class EquipmentServiceTest {
 
   private companion object {
     const val BOOTS_LEVEL = 10
+    const val BOOTS_MIN_LEVEL = 5
 
     val DAGGER = Item(
       id = 99L, identifier = "dagger", weight = 10, type = Item.ItemType.EQUIP,
@@ -292,6 +300,10 @@ class EquipmentServiceTest {
     val SHIELD = Item(
       id = 98L, identifier = "shield", weight = 100, type = Item.ItemType.EQUIP,
       equipSlot = EquipmentSlot.LEFT_HAND, material = ItemMaterial.WOOD
+    )
+    val RING = Item(
+      id = 61L, identifier = "gold_ring", weight = 5, type = Item.ItemType.EQUIP,
+      equipSlot = EquipmentSlot.ACCESSORY_1, material = ItemMaterial.METAL
     )
 
     /** High enough that the structural cases never trip the level rule as well. */

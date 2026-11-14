@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 638
+name_key = "LITURGY_OF_THE_LANTERN"
+description_key = "LITURGY_OF_THE_LANTERN_DESC"
+weight = 80
+level = 70
+min_level = 37
+type = 1
+equip_slot = 7
+weapon_type = "TOME"

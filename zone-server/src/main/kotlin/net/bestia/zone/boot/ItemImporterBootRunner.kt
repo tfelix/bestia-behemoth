@@ -53,6 +53,9 @@ class ItemImporterBootRunner(
     val equipSlot: String? = null,
     @JsonProperty("base-level")
     val baseLevel: Int = 1,
+    /** The level a wearer needs; every EQUIP item names one and nothing else may. */
+    @JsonProperty("min-level")
+    val minLevel: Int? = null,
     @JsonProperty("max-durability")
     val maxDurability: Int = 0,
     @JsonProperty("novice-only")
@@ -103,6 +106,19 @@ class ItemImporterBootRunner(
     @JsonProperty("craft-axes")
     val craftAxes: Map<CraftAxis, Double> = emptyMap()
   ) {
+
+    /**
+     * Required on gear rather than defaulted, so a new piece cannot slip in wearable from level 1 because
+     * somebody forgot the line. Anything that is not worn has no use for one.
+     */
+    fun minLevelFor(type: Item.ItemType): Int {
+      if (type != Item.ItemType.EQUIP) {
+        require(minLevel == null) { "item '$identifier' is $type and must not declare a min-level" }
+        return 1
+      }
+
+      return requireNotNull(minLevel) { "item '$identifier' is EQUIP and must declare its min-level" }
+    }
 
     fun toStatSheet(): ItemStatSheet {
       require(randomStats == null || type.uppercase() == Item.ItemType.EQUIP.name) {
@@ -197,6 +213,7 @@ class ItemImporterBootRunner(
       || entity.script != dto.script
       || entity.equipSlot != equipSlot
       || entity.baseLevel != dto.baseLevel
+      || entity.minLevel != minLevelOf(dto, type)
       || entity.maxDurability != dto.maxDurability
       || entity.noviceOnly != dto.noviceOnly
       || entity.bound != dto.bound
@@ -220,6 +237,7 @@ class ItemImporterBootRunner(
     entity.script = dto.script
     entity.equipSlot = equipSlot
     entity.baseLevel = dto.baseLevel
+    entity.minLevel = minLevelOf(dto, type)
     entity.maxDurability = dto.maxDurability
     entity.noviceOnly = dto.noviceOnly
     entity.bound = dto.bound
@@ -261,6 +279,7 @@ class ItemImporterBootRunner(
       script = dto.script,
       equipSlot = getEquipSlot(dto),
       baseLevel = dto.baseLevel,
+      minLevel = minLevelOf(dto, getType(dto)),
       maxDurability = dto.maxDurability,
       noviceOnly = dto.noviceOnly,
       bound = dto.bound,
@@ -276,6 +295,8 @@ class ItemImporterBootRunner(
       stackable = stackableOf(dto, getType(dto))
     )
   }
+
+  private fun minLevelOf(dto: ItemYamlDto, type: Item.ItemType): Int = dto.minLevelFor(type)
 
   private fun stackableOf(dto: ItemYamlDto, type: Item.ItemType): Boolean =
     dto.stackable ?: (type != Item.ItemType.EQUIP)

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 761
+name_key = "WINGS_OF_THE_WANDERING_WIND"
+description_key = "WINGS_OF_THE_WANDERING_WIND_DESC"
+weight = 290
+level = 67
+min_level = 64
+type = 1
+equip_slot = 4
+armor_type = 2

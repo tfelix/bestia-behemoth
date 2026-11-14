@@ -61,8 +61,8 @@ class Item(
   /**
    * The tier this item belongs to before any stat on it is counted: what it takes to have anything to do with it.
    *
-   * It is where every copy's item level starts ([net.bestia.zone.item.stat.ItemLevel]), which is what a wearer
-   * needs to put gear on. It is also the reach a crafter needs to make the item
+   * It is where every copy's item level starts ([net.bestia.zone.item.stat.ItemLevel]). It is also the reach a
+   * crafter needs to make the item
    * ([net.bestia.zone.crafting.CraftBonusService.maxItemLevel]), and the tier a material belongs to.
    *
    * **A material's level gates nothing on its own today**, and that is deliberate rather than an oversight:
@@ -76,6 +76,17 @@ class Item(
    */
   @Column(name = "level")
   var baseLevel: Int = 1,
+
+  /**
+   * The level a wearer needs to put this gear on, set by hand per item. 1 for anything that is not gear.
+   *
+   * Deliberately not derived from the item level: a rolled copy's level rises with its luck, and gear that a
+   * lucky forge made unwearable for its owner would punish the roll it is supposed to reward. The docs'
+   * equipment design page gives the guideline the catalogue follows, about half the item level up to 40, and
+   * says why some items stray from it.
+   */
+  @Column(name = "min_level", nullable = false)
+  var minLevel: Int = 1,
 
   /**
    * How much wear a fresh [net.bestia.zone.item.persistence.ItemInstance] of this template can take, or
@@ -176,6 +187,22 @@ class Item(
   fun effectiveLevel(upgradeLevel: Int): Int = baseLevel + upgradeLevel
 
   /**
+   * Whether this item may be worn in [slot]. An accessory declares [EquipmentSlot.ACCESSORY_1] and fits
+   * [EquipmentSlot.ACCESSORY_2] too, so a master can wear two rings, and a dual-wieldable weapon fits the left hand
+   * as a second weapon. Every other item has exactly one slot. Whether the wearer may hold a second weapon is the
+   * equip rules' question, see `EquipmentService`.
+   */
+  fun isWornIn(slot: EquipmentSlot): Boolean {
+    if (type != ItemType.EQUIP) {
+      return false
+    }
+
+    return equipSlot == slot ||
+      (equipSlot == EquipmentSlot.ACCESSORY_1 && slot == EquipmentSlot.ACCESSORY_2) ||
+      (slot == EquipmentSlot.LEFT_HAND && weaponType?.isDualWieldable == true)
+  }
+
+  /**
    * The invariants tying [type] to [script] and [equipSlot].
    *
    * Extracted from `init` rather than left inline because the importer now *updates* an existing row in
@@ -203,6 +230,18 @@ class Item(
     // flag that silently does nothing is worse than a boot that says so.
     require(!noviceOnly || type != ItemType.ETC) {
       "Item $identifier is $type and must not declare novice-only"
+    }
+
+    require(minLevel >= 1) {
+      "Item $identifier has min-level $minLevel, but no wearer is below level 1"
+    }
+
+    require(minLevel == 1 || type == ItemType.EQUIP) {
+      "Item $identifier is $type and must not declare a min-level"
+    }
+
+    require(equipSlot != EquipmentSlot.ACCESSORY_2) {
+      "Item $identifier declares ACCESSORY_2; accessories declare ACCESSORY_1 and fit either accessory slot"
     }
 
     require(armorType == null || type == ItemType.EQUIP) {
@@ -240,14 +279,6 @@ class Item(
     require(element == null || ElementModifier.isLegalAttackElement(element!!)) {
       "Item $identifier declares element $element, but only a level 1 element can be shot"
     }
-  }
-
-  /**
-   * Whether this may be worn in [slot]: its own slot, or the left hand for a second weapon. Whether the wearer may
-   * hold a second weapon is the equip rules' question, see `EquipmentService`.
-   */
-  fun fitsSlot(slot: EquipmentSlot): Boolean {
-    return equipSlot == slot || (slot == EquipmentSlot.LEFT_HAND && weaponType?.isDualWieldable == true)
   }
 
   /** An off-hand weapon, a tome, is held in the left hand; every other weapon in the right. */

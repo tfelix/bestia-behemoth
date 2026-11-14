@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 821
+name_key = "JADE_EARRING"
+description_key = "JADE_EARRING_DESC"
+weight = 5
+level = 33
+min_level = 17
+type = 1
+equip_slot = 8

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 731
+name_key = "CROWN_OF_THE_ECLIPSE"
+description_key = "CROWN_OF_THE_ECLIPSE_DESC"
+weight = 45
+level = 81
+min_level = 62
+type = 1
+equip_slot = 1
+armor_type = 1

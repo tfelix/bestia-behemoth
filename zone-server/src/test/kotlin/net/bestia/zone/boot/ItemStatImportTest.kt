@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import net.bestia.zone.crafting.discovery.CraftVector
+import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.item.stat.ItemStat
 import net.bestia.zone.item.stat.StatPool
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.core.io.ClassPathResource
@@ -41,6 +43,37 @@ class ItemStatImportTest {
   }
 
   @Test
+  fun `every piece of gear names its min level, and nothing else does`() {
+    items.forEach { it.minLevelFor(Item.ItemType.valueOf(it.type.uppercase())) }
+  }
+
+  @Test
+  fun `gear without a min level is refused`() {
+    val sword = items.single { it.identifier == "iron_sword" }.copy(minLevel = null)
+
+    assertThrows<IllegalArgumentException> { sword.minLevelFor(Item.ItemType.EQUIP) }
+  }
+
+  @Test
+  fun `a min level on something that is not worn is refused`() {
+    val apple = items.single { it.identifier == "apple" }.copy(minLevel = 5)
+
+    assertThrows<IllegalArgumentException> { apple.minLevelFor(Item.ItemType.USABLE) }
+  }
+
+  /** Holds the generated catalogue to what the docs' equipment design page promises. */
+  @Test
+  fun `the equipment catalogue keeps its min levels within the guideline`() {
+    val catalogue = items.filter { it.id >= CATALOGUE_FIRST_ID }
+
+    assertEquals(346, catalogue.size)
+    catalogue.forEach {
+      val minLevel = requireNotNull(it.minLevel)
+      assertTrue(minLevel in 1..40 || minLevel >= 60) { "${it.identifier} has min level $minLevel, between 40 and 60" }
+    }
+  }
+
+  @Test
   fun `an affix names a pool or a stat, not both`() {
     val both = ItemImporterBootRunner.AffixDto(pool = StatPool.ATTRIBUTE, stat = ItemStat.STR)
 
@@ -61,5 +94,9 @@ class ItemStatImportTest {
       .copy(stackable = true, randomStats = ItemImporterBootRunner.RandomStatsDto(sockets = listOf(50)))
 
     assertThrows<IllegalArgumentException> { pileOfSwords.toStatSheet() }
+  }
+
+  private companion object {
+    const val CATALOGUE_FIRST_ID = 500L
   }
 }

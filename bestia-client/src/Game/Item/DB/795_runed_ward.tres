@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 795
+name_key = "RUNED_WARD"
+description_key = "RUNED_WARD_DESC"
+weight = 520
+level = 58
+min_level = 30
+type = 1
+equip_slot = 7
+armor_type = 3

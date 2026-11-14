@@ -12,3 +12,4 @@ level = 15
 type = 1
 equip_slot = 6
 weapon_type = "HAMMER"
+min_level = 8

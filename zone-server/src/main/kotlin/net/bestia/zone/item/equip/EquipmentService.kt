@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
  * which only knows the structural item/slot rules.
  *
  * Two kinds of rule: the structural item/slot ones, which only [checkEquip] asks, and the ones about the
- * *wearer* - their level against the copy's item level, and their novicehood against
+ * *wearer* - their level against the item's min level, and their novicehood against
  * [net.bestia.zone.item.persistence.Item.noviceOnly] - which are split into [checkStillWearable] because they are the
  * ones that can stop holding for gear already worn. Callers must handle a [Denial] by re-sending the
  * authoritative [Equipment] component
@@ -42,7 +42,7 @@ class EquipmentService(
     /** Structurally fine, but this wearer may not wear this item. */
     NOT_ALLOWED,
 
-    /** The wearer has not reached the item level of this copy yet. */
+    /** The wearer has not reached the item's min level yet. */
     LEVEL_TOO_LOW,
 
     /** Novice-only gear on a wearer who has invested outside the Novice tree. */
@@ -78,7 +78,6 @@ class EquipmentService(
     equipment: Equipment,
     inventory: Inventory,
     item: Item,
-    itemLevel: Int,
     slot: EquipmentSlot,
     heldUniqueId: Long,
     wearerLevel: Int,
@@ -87,7 +86,7 @@ class EquipmentService(
     allowance: GearAllowance? = null,
     canDualWield: Boolean = false,
   ): Denial? {
-    if (item.type != Item.ItemType.EQUIP || !item.fitsSlot(slot)) {
+    if (!item.isWornIn(slot)) {
       return Denial.NOT_ALLOWED
     }
 
@@ -122,7 +121,7 @@ class EquipmentService(
       return Denial.HANDS_FULL
     }
 
-    return checkStillWearable(item, itemLevel, wearerLevel, wearerIsNovice, allowance)
+    return checkStillWearable(item, wearerLevel, wearerIsNovice, allowance)
   }
 
   private fun isSecondWeapon(item: Item, slot: EquipmentSlot): Boolean {
@@ -149,15 +148,14 @@ class EquipmentService(
    */
   fun checkStillWearable(
     item: Item,
-    itemLevel: Int,
     wearerLevel: Int,
     wearerIsNovice: Boolean,
     allowance: GearAllowance? = null,
   ): Denial? {
-    // The copy's own level, stats included, but without its upgrade level: an upgrade makes a sword harder to
-    // *work on*, not harder to hold, and taking gear away from the player who improved it would punish exactly
-    // the thing the upgrade path is for.
-    if (wearerLevel < itemLevel) {
+    // The template's min level, not the copy's item level: rolls and upgrades make gear better or harder to
+    // work on, never harder to hold, and taking it away from the player who improved it would punish exactly
+    // what forging and upgrading are for.
+    if (wearerLevel < item.minLevel) {
       return Denial.LEVEL_TOO_LOW
     }
 

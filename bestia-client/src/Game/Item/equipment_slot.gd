@@ -35,10 +35,16 @@ static func from_item_value(item_equip_slot: int) -> int:
 const DUAL_WIELDABLE: Array[String] = ["DAGGER", "FIST", "WHIP", "SWORD", "AXE", "MACE", "SPEAR", "WAND"]
 
 
-## Whether [param item] may go into [param slot]: its own slot, or the left hand for a second weapon. Mirrors
-## Item.fitsSlot; the server also asks for the Dual Wield skill.
+## Whether [param item] may go into [param slot]: its own slot, the second accessory slot for an accessory (which
+## declares ACCESSORY_1), or the left hand for a second weapon. Mirrors Item.isWornIn; the server also asks for the
+## Dual Wield skill.
 static func fits(item: ItemResource, slot: int) -> bool:
-	if from_item_value(item.equip_slot) == slot:
+	var declared := from_item_value(item.equip_slot)
+	if declared < 0:
+		return false
+	if declared == slot:
+		return true
+	if declared == Slot.ACCESSORY_1 and slot == Slot.ACCESSORY_2:
 		return true
 	return slot == Slot.LEFT_HAND and item.weapon_type in DUAL_WIELDABLE
 

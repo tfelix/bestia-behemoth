@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 657
+name_key = "WINDLASS_ARBALEST"
+description_key = "WINDLASS_ARBALEST_DESC"
+weight = 265
+level = 62
+min_level = 34
+type = 1
+equip_slot = 6
+weapon_type = "CROSSBOW"
+attack_range = 13

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 784
+name_key = "PLATED_GREAVES"
+description_key = "PLATED_GREAVES_DESC"
+weight = 490
+level = 44
+min_level = 22
+type = 1
+equip_slot = 5
+armor_type = 4

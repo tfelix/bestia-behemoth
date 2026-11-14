@@ -262,6 +262,7 @@ ORDERS_AREA_NAME,Name of the area
 ITEM_CRAFTED_BY,Crafted by {crafter} in {world}
 ITEM_MATERIAL_AXES,Material: {axes}
 ITEM_ATTACK_RANGE,Range: {tiles} tiles
+ITEM_MIN_LEVEL,Requires level {level}
 QUIVER_SLOT_EMPTY,Drop arrows here. The leftmost is shot first; double click to take one out.
 CRAFT_HINT_TOO,too {pole}
 CRAFT_POLE_STATE_NEG,fluid

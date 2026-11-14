@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 597
+name_key = "EARTHSHAKER_MAUL"
+description_key = "EARTHSHAKER_MAUL_DESC"
+weight = 660
+level = 61
+min_level = 32
+type = 1
+equip_slot = 6
+weapon_type = "HAMMER"

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 800
+name_key = "BASTION_OF_THE_FIRST_WALL"
+description_key = "BASTION_OF_THE_FIRST_WALL_DESC"
+weight = 1330
+level = 85
+min_level = 70
+type = 1
+equip_slot = 7
+armor_type = 4

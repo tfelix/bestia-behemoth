@@ -12,7 +12,7 @@ class AuctionCategoryTest {
   fun `equipment is grouped by where it is worn`() {
     assertEquals(AuctionCategory.WEAPON, AuctionCategory.of(equip(EquipmentSlot.RIGHT_HAND)))
     assertEquals(AuctionCategory.ARMOR, AuctionCategory.of(equip(EquipmentSlot.LEFT_HAND)))
-    assertEquals(AuctionCategory.ACCESSORY, AuctionCategory.of(equip(EquipmentSlot.ACCESSORY_2)))
+    assertEquals(AuctionCategory.ACCESSORY, AuctionCategory.of(equip(EquipmentSlot.ACCESSORY_1)))
   }
 
   @Test

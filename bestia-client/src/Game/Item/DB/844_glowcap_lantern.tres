@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 844
+name_key = "GLOWCAP_LANTERN"
+description_key = "GLOWCAP_LANTERN_DESC"
+weight = 150
+level = 50
+min_level = 25
+type = 1
+equip_slot = 10
+light_color = Color(0.55, 1, 0.7, 1)
+light_range = 24.0
+light_energy = 2.0

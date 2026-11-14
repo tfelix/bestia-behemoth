@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 578
+name_key = "SUNDERER"
+description_key = "SUNDERER_DESC"
+weight = 555
+level = 74
+min_level = 39
+type = 1
+equip_slot = 6
+weapon_type = "GREATSWORD"

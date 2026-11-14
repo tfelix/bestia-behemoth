@@ -34,6 +34,10 @@ static func as_bbcode(
 	if level > 1:
 		lines.append("Lv. %d" % level)
 
+	# What it takes to wear it, which is not the item level: see ItemResource.min_level.
+	if item.min_level > 1:
+		lines.append(_translate("ITEM_MIN_LEVEL").format({"level": item.min_level}))
+
 	# What decides which professions may use it: the weapon type, or the weight of the armor.
 	if not item.weapon_type.is_empty():
 		lines.append(_translate("ITEM_WEAPON_%s" % item.weapon_type))

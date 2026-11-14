@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 658
+name_key = "GEARWORK_SIEGE_CROSSBOW"
+description_key = "GEARWORK_SIEGE_CROSSBOW_DESC"
+weight = 275
+level = 72
+min_level = 37
+type = 1
+equip_slot = 6
+weapon_type = "CROSSBOW"
+attack_range = 13

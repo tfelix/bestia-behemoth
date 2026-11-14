@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 644
+name_key = "RECURVE_BOW"
+description_key = "RECURVE_BOW_DESC"
+weight = 120
+level = 35
+min_level = 18
+type = 1
+equip_slot = 6
+weapon_type = "BOW"
+attack_range = 13

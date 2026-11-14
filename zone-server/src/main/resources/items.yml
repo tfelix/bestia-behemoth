@@ -1,7 +1,12 @@
 # `base-level` is the item's tier before its stats are counted: what it takes to have anything to do with it.
-# It is the level a wearer needs to put gear on, the reach a crafter needs to make it or work on it (see
-# `CraftBonusService`), and for a material the tier of work it belongs to. Defaults to 1, so an item with
-# nothing to say about its tier says nothing.
+# It is the reach a crafter needs to make it or work on it (see `CraftBonusService`), and for a material the
+# tier of work it belongs to. Defaults to 1, so an item with nothing to say about its tier says nothing.
+#
+# `min-level` is the level a wearer needs to put gear on. Every EQUIP item names one, by hand, and nothing
+# else may. It does not follow the item level, so a lucky roll never locks its owner out; the docs' equipment
+# design page gives the guideline (about half the item level, up to 40; 60+ only for legendaries).
+#
+# Accessories declare ACCESSORY_1 and fit either accessory slot.
 #
 # A material's level gates nothing by itself - a recipe already names the skill and rank it needs, and saying
 # it twice would only let the two drift. It is what a player reads off the material and what a future recipe
@@ -65,6 +70,7 @@ items:
   - id: 4
     item-db-name: shoes
     base-level: 1
+    min-level: 1
     weight: 80
     type: EQUIP
     material: LEATHER
@@ -81,6 +87,7 @@ items:
   - id: 5
     item-db-name: boots
     base-level: 10
+    min-level: 5
     weight: 200
     type: EQUIP
     material: LEATHER
@@ -238,6 +245,7 @@ items:
   - id: 19
     item-db-name: iron_sword
     base-level: 20
+    min-level: 10
     weight: 120
     type: EQUIP
     material: METAL
@@ -263,6 +271,7 @@ items:
   - id: 20
     item-db-name: iron_cuirass
     base-level: 25
+    min-level: 13
     weight: 650
     type: EQUIP
     material: METAL
@@ -331,6 +340,7 @@ items:
   - id: 130
     item-db-name: relic_blade
     base-level: 80
+    min-level: 25
     weight: 350
     type: EQUIP
     material: METAL
@@ -355,6 +365,7 @@ items:
   - id: 131
     item-db-name: relic_crown
     base-level: 80
+    min-level: 25
     weight: 120
     type: EQUIP
     material: METAL
@@ -379,6 +390,7 @@ items:
   - id: 132
     item-db-name: relic_ring
     base-level: 80
+    min-level: 25
     weight: 10
     type: EQUIP
     material: METAL
@@ -403,6 +415,7 @@ items:
   - id: 133
     item-db-name: relic_reliquary
     base-level: 80
+    min-level: 25
     weight: 60
     type: EQUIP
     material: METAL
@@ -426,6 +439,7 @@ items:
   - id: 134
     item-db-name: relic_tome
     base-level: 80
+    min-level: 25
     weight: 90
     type: EQUIP
     material: PAPER
@@ -449,6 +463,7 @@ items:
   - id: 135
     item-db-name: relic_banner
     base-level: 80
+    min-level: 25
     weight: 200
     type: EQUIP
     material: CLOTH
@@ -753,6 +768,7 @@ items:
   - id: 35
     item-db-name: torch
     base-level: 1
+    min-level: 1
     weight: 30
     type: EQUIP
     material: WOOD
@@ -993,6 +1009,7 @@ items:
   - id: 56
     item-db-name: linen_tunic
     base-level: 5
+    min-level: 3
     weight: 120
     type: EQUIP
     material: CLOTH
@@ -1017,6 +1034,7 @@ items:
   - id: 57
     item-db-name: pickaxe
     base-level: 10
+    min-level: 5
     weight: 350
     type: EQUIP
     material: METAL
@@ -1032,6 +1050,7 @@ items:
   - id: 58
     item-db-name: hatchet
     base-level: 5
+    min-level: 3
     weight: 250
     type: EQUIP
     material: METAL
@@ -1073,6 +1092,7 @@ items:
   - id: 61
     item-db-name: gold_ring
     base-level: 25
+    min-level: 13
     weight: 10
     type: EQUIP
     material: METAL
@@ -1137,6 +1157,7 @@ items:
   - id: 65
     item-db-name: novice_knife
     base-level: 1
+    min-level: 1
     weight: 60
     type: EQUIP
     material: METAL
@@ -1153,6 +1174,7 @@ items:
   - id: 66
     item-db-name: novice_shirt
     base-level: 1
+    min-level: 1
     weight: 120
     type: EQUIP
     material: CLOTH
@@ -1170,6 +1192,7 @@ items:
   - id: 67
     item-db-name: novice_boots
     base-level: 1
+    min-level: 1
     weight: 60
     type: EQUIP
     material: LEATHER
@@ -1230,6 +1253,7 @@ items:
   - id: 71
     item-db-name: iron_helmet
     base-level: 15
+    min-level: 8
     weight: 250
     type: EQUIP
     material: METAL
@@ -1502,6 +1526,7 @@ items:
   - id: 97
     item-db-name: novice_bow
     base-level: 1
+    min-level: 1
     weight: 50
     type: EQUIP
     material: WOOD
@@ -1522,6 +1547,7 @@ items:
   - id: 98
     item-db-name: novice_helmet
     base-level: 1
+    min-level: 1
     weight: 40
     type: EQUIP
     material: LEATHER
@@ -1540,6 +1566,7 @@ items:
   - id: 99
     item-db-name: novice_shield
     base-level: 1
+    min-level: 1
     weight: 100
     type: EQUIP
     material: WOOD
@@ -1592,6 +1619,7 @@ items:
   - id: 103
     item-db-name: stone_knife
     base-level: 1
+    min-level: 1
     weight: 50
     type: EQUIP
     material: STONE
@@ -1607,6 +1635,7 @@ items:
   - id: 104
     item-db-name: stone_hatchet
     base-level: 1
+    min-level: 1
     weight: 180
     type: EQUIP
     material: STONE
@@ -1623,6 +1652,7 @@ items:
   - id: 438
     item-db-name: shovel
     base-level: 1
+    min-level: 1
     weight: 220
     type: EQUIP
     material: WOOD
@@ -1889,6 +1919,7 @@ items:
   - id: 300
     item-db-name: novice_sword
     base-level: 1
+    min-level: 1
     weight: 80
     type: EQUIP
     material: METAL
@@ -1905,6 +1936,7 @@ items:
   - id: 301
     item-db-name: novice_rod
     base-level: 1
+    min-level: 1
     weight: 40
     type: EQUIP
     material: WOOD
@@ -1922,6 +1954,7 @@ items:
   - id: 302
     item-db-name: wooden_club
     base-level: 5
+    min-level: 3
     weight: 90
     type: EQUIP
     material: WOOD
@@ -1934,6 +1967,7 @@ items:
   - id: 303
     item-db-name: iron_hammer
     base-level: 15
+    min-level: 8
     weight: 280
     type: EQUIP
     material: METAL
@@ -1947,6 +1981,7 @@ items:
   - id: 304
     item-db-name: iron_axe
     base-level: 10
+    min-level: 5
     weight: 150
     type: EQUIP
     material: METAL
@@ -1959,6 +1994,7 @@ items:
   - id: 305
     item-db-name: iron_greataxe
     base-level: 18
+    min-level: 9
     weight: 300
     type: EQUIP
     material: METAL
@@ -1972,6 +2008,7 @@ items:
   - id: 306
     item-db-name: iron_greatsword
     base-level: 18
+    min-level: 9
     weight: 260
     type: EQUIP
     material: METAL
@@ -1985,6 +2022,7 @@ items:
   - id: 307
     item-db-name: iron_spear
     base-level: 10
+    min-level: 5
     weight: 140
     type: EQUIP
     material: METAL
@@ -1997,6 +2035,7 @@ items:
   - id: 308
     item-db-name: iron_halberd
     base-level: 18
+    min-level: 9
     weight: 290
     type: EQUIP
     material: METAL
@@ -2010,6 +2049,7 @@ items:
   - id: 309
     item-db-name: oak_staff
     base-level: 10
+    min-level: 5
     weight: 120
     type: EQUIP
     material: WOOD
@@ -2024,6 +2064,7 @@ items:
   - id: 310
     item-db-name: apprentice_tome
     base-level: 5
+    min-level: 3
     weight: 60
     type: EQUIP
     material: PAPER
@@ -2036,6 +2077,7 @@ items:
   - id: 311
     item-db-name: leather_knuckles
     base-level: 5
+    min-level: 3
     weight: 40
     type: EQUIP
     material: LEATHER
@@ -2048,6 +2090,7 @@ items:
   - id: 312
     item-db-name: leather_whip
     base-level: 5
+    min-level: 3
     weight: 50
     type: EQUIP
     material: LEATHER
@@ -2060,6 +2103,7 @@ items:
   - id: 313
     item-db-name: wooden_lute
     base-level: 5
+    min-level: 3
     weight: 90
     type: EQUIP
     material: WOOD
@@ -2074,6 +2118,7 @@ items:
   - id: 314
     item-db-name: light_crossbow
     base-level: 10
+    min-level: 5
     weight: 160
     type: EQUIP
     material: WOOD
@@ -2100,6 +2145,7 @@ items:
   - id: 316
     item-db-name: leather_sling
     base-level: 1
+    min-level: 1
     weight: 10
     type: EQUIP
     material: LEATHER
@@ -2126,6 +2172,7 @@ items:
   - id: 318
     item-db-name: javelin
     base-level: 10
+    min-level: 5
     weight: 60
     type: EQUIP
     material: WOOD
@@ -2139,6 +2186,7 @@ items:
   - id: 319
     item-db-name: iron_kite_shield
     base-level: 12
+    min-level: 6
     weight: 200
     type: EQUIP
     material: METAL
@@ -2152,6 +2200,7 @@ items:
   - id: 320
     item-db-name: tower_shield
     base-level: 20
+    min-level: 10
     weight: 400
     type: EQUIP
     material: METAL
@@ -2165,6 +2214,7 @@ items:
   - id: 321
     item-db-name: leather_jerkin
     base-level: 5
+    min-level: 3
     weight: 150
     type: EQUIP
     material: LEATHER
@@ -2178,6 +2228,7 @@ items:
   - id: 322
     item-db-name: chain_mail
     base-level: 12
+    min-level: 6
     weight: 400
     type: EQUIP
     material: METAL
@@ -2291,6 +2342,7 @@ items:
   - id: 420
     item-db-name: willow_rod
     base-level: 1
+    min-level: 1
     weight: 60
     type: EQUIP
     material: WOOD
@@ -2305,6 +2357,7 @@ items:
   - id: 421
     item-db-name: bamboo_rod
     base-level: 20
+    min-level: 10
     weight: 80
     type: EQUIP
     material: WOOD
@@ -2317,6 +2370,7 @@ items:
   - id: 422
     item-db-name: ash_rod
     base-level: 40
+    min-level: 20
     weight: 110
     type: EQUIP
     material: WOOD
@@ -2329,6 +2383,7 @@ items:
   - id: 423
     item-db-name: steel_rod
     base-level: 60
+    min-level: 30
     weight: 160
     type: EQUIP
     material: METAL
@@ -2520,6 +2575,7 @@ items:
   - id: 340
     item-db-name: hunting_bow
     base-level: 10
+    min-level: 10
     weight: 90
     type: EQUIP
     material: WOOD
@@ -2543,3 +2599,8117 @@ items:
     type: ETC
     material: PAPER
     description: A paper cartridge packed with blasting powder. Blasting sets one on the ground to break the rock.
+
+  # --- Equipment catalogue (ids 500+) ----------------------------------------------------------
+  # Generated from the catalogue on the docs' equipment design page: values follow its curves, `min-level`
+  # is set by hand per item, and `base-level` is solved so that base level plus fixed stats land on the
+  # item level the page lists.
+
+  # Dagger, 1H (Al, Ar, As)
+  - id: 500
+    item-db-name: knife
+    base-level: 4
+    min-level: 1
+    weight: 50
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: DAGGER
+    max-durability: 110
+    attack: 13
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A plain kitchen-and-camp knife with a wooden grip. Every smith's first blade.
+
+  - id: 501
+    item-db-name: dagger
+    base-level: 10
+    min-level: 5
+    weight: 55
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: DAGGER
+    max-durability: 130
+    attack: 23
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A double-edged dagger with a simple crossguard.
+
+  - id: 502
+    item-db-name: combat_knife
+    base-level: 18
+    min-level: 8
+    weight: 55
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: DAGGER
+    max-durability: 150
+    attack: 37
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A heavy single-edged knife with a clipped point, made for a fight rather than for bread.
+
+  - id: 503
+    item-db-name: great_knife
+    base-level: 26
+    min-level: 13
+    weight: 55
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: DAGGER
+    max-durability: 180
+    attack: 50
+    stats:
+      STR: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A knife grown nearly to a short sword, still worn at the belt.
+
+  - id: 504
+    item-db-name: bronze_stiletto
+    base-level: 26
+    min-level: 15
+    weight: 55
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: DAGGER
+    max-durability: 190
+    attack: 57
+    stats:
+      AGI: 2
+      CRIT: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A needle of bronze with no edge at all, only a point.
+
+  - id: 505
+    item-db-name: alchemists_lancet
+    base-level: 31
+    min-level: 18
+    weight: 60
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: DAGGER
+    max-durability: 210
+    attack: 55
+    magic-attack: 20
+    stats:
+      INT: 2
+      DEX: 2
+      RESIST_POISON: 6
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A surgeon's lancet with a hollow groove that carries whatever was last poured into it.
+
+  - id: 506
+    item-db-name: assassins_dagger
+    base-level: 37
+    min-level: 25
+    weight: 60
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: DAGGER
+    max-durability: 240
+    attack: 84
+    stats:
+      AGI: 3
+      CRIT: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      Blackened so it does not catch the light, and balanced for the hand that never misses twice.
+
+  - id: 507
+    item-db-name: gearwork_dirk
+    base-level: 54
+    min-level: 28
+    weight: 65
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: DAGGER
+    max-durability: 270
+    attack: 101
+    stats:
+      DEX: 3
+      INT: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A dirk whose hilt hides a small spring that snaps the blade forward on the thrust.
+
+  - id: 508
+    item-db-name: nightglass_kris
+    base-level: 61
+    min-level: 34
+    weight: 65
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: DAGGER
+    max-durability: 300
+    attack: 122
+    stats:
+      AGI: 4
+      CRIT: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A wavy blade of dark volcanic glass bound to steel. It is colder than the air around it.
+
+  - id: 509
+    item-db-name: whisper_of_the_veil
+    base-level: 52
+    min-level: 68
+    weight: 75
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: DAGGER
+    max-durability: 380
+    attack: 166
+    stats:
+      AGI: 8
+      DEX: 6
+      CRIT: 4
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+      sockets: [40, 20, 10]
+    description: |
+      Nobody remembers the smith who made it. Nobody it was used on remembers it either.
+
+
+  # Fist, 1H (As, Bw)
+  - id: 510
+    item-db-name: hand_wraps
+    base-level: 4
+    min-level: 1
+    weight: 60
+    type: EQUIP
+    material: CLOTH
+    equip-slot: RIGHT_HAND
+    weapon-type: FIST
+    max-durability: 110
+    attack: 15
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      Strips of linen wound tight around the knuckles.
+
+  - id: 511
+    item-db-name: cestus
+    base-level: 10
+    min-level: 5
+    weight: 65
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: FIST
+    max-durability: 130
+    attack: 26
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      Leather thongs with a strip of hard hide over the fist.
+
+  - id: 512
+    item-db-name: knuckleduster
+    base-level: 18
+    min-level: 9
+    weight: 65
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: FIST
+    max-durability: 150
+    attack: 40
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A bar of iron with four holes for four fingers.
+
+  - id: 513
+    item-db-name: spiked_knuckles
+    base-level: 26
+    min-level: 13
+    weight: 70
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: FIST
+    max-durability: 180
+    attack: 55
+    stats:
+      STR: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A knuckleduster with a short spike over every knuckle.
+
+  - id: 514
+    item-db-name: iron_claw
+    base-level: 31
+    min-level: 17
+    weight: 70
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: FIST
+    max-durability: 200
+    attack: 69
+    stats:
+      AGI: 2
+      CRIT: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      Three curved blades rising from a leather gauntlet.
+
+  - id: 515
+    item-db-name: tigerclaw_katar
+    base-level: 35
+    min-level: 22
+    weight: 75
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: FIST
+    max-durability: 230
+    attack: 87
+    stats:
+      AGI: 3
+      CRIT: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A punching blade with an H-shaped grip, driven straight from the shoulder.
+
+  - id: 516
+    item-db-name: brass_gauntlet
+    base-level: 50
+    min-level: 26
+    weight: 75
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: FIST
+    max-durability: 260
+    attack: 102
+    stats:
+      STR: 3
+      VIT: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A heavy brass fist, riveted over a padded glove.
+
+  - id: 517
+    item-db-name: monks_iron_bands
+    base-level: 56
+    min-level: 30
+    weight: 80
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: FIST
+    max-durability: 280
+    attack: 116
+    stats:
+      AGI: 3
+      FLEE: 4
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      Plain iron rings worn on the forearms, worn smooth by a thousand blocks.
+
+  - id: 518
+    item-db-name: stonefist_gauntlet
+    base-level: 69
+    min-level: 36
+    weight: 80
+    type: EQUIP
+    material: STONE
+    equip-slot: RIGHT_HAND
+    weapon-type: FIST
+    max-durability: 320
+    attack: 138
+    stats:
+      STR: 4
+      VIT: 3
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A gauntlet set with knuckles of polished granite.
+
+  - id: 519
+    item-db-name: fists_of_the_mountain_king
+    base-level: 81
+    min-level: 64
+    weight: 90
+    type: EQUIP
+    material: STONE
+    equip-slot: RIGHT_HAND
+    weapon-type: FIST
+    max-durability: 380
+    attack: 174
+    stats:
+      STR: 8
+      VIT: 6
+      HP_REGEN: 4
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+      sockets: [40, 20, 10]
+    description: |
+      Two gauntlets of grey stone that feel like part of the hand once they are on.
+
+
+  # Whip, 1H (Bd)
+  - id: 520
+    item-db-name: rope_lash
+    base-level: 5
+    min-level: 2
+    weight: 60
+    type: EQUIP
+    material: CLOTH
+    equip-slot: RIGHT_HAND
+    weapon-type: WHIP
+    max-durability: 120
+    attack: 18
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A length of knotted rope with a frayed end that cracks surprisingly loud.
+
+  - id: 521
+    item-db-name: braided_whip
+    base-level: 12
+    min-level: 6
+    weight: 65
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: WHIP
+    max-durability: 140
+    attack: 32
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      Four strands of leather plaited into a supple lash.
+
+  - id: 522
+    item-db-name: thornvine_whip
+    base-level: 19
+    min-level: 10
+    weight: 65
+    type: EQUIP
+    material: PLANT
+    equip-slot: RIGHT_HAND
+    weapon-type: WHIP
+    max-durability: 160
+    attack: 48
+    stats:
+      DEX: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A dried bramble vine bound to a wooden handle. The thorns did not come off.
+
+  - id: 523
+    item-db-name: bullwhip
+    base-level: 28
+    min-level: 14
+    weight: 70
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: WHIP
+    max-durability: 180
+    attack: 64
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A drover's whip, long enough to reach the far side of the herd.
+
+  - id: 524
+    item-db-name: chain_whip
+    base-level: 35
+    min-level: 18
+    weight: 70
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: WHIP
+    max-durability: 210
+    attack: 80
+    stats:
+      STR: 1
+      DEX: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      Short iron links joined end to end with a weighted tip.
+
+  - id: 525
+    item-db-name: silken_scourge
+    base-level: 41
+    min-level: 22
+    weight: 75
+    type: EQUIP
+    material: CLOTH
+    equip-slot: RIGHT_HAND
+    weapon-type: WHIP
+    max-durability: 230
+    attack: 70
+    magic-attack: 28
+    stats:
+      DEX: 3
+      WIL: 2
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      Three tails of dyed silk that sing in the air when they move.
+
+  - id: 526
+    item-db-name: barbed_lash
+    base-level: 51
+    min-level: 27
+    weight: 75
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: WHIP
+    max-durability: 260
+    attack: 116
+    stats:
+      DEX: 3
+      CRIT: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A leather lash with small iron barbs woven into its last span.
+
+  - id: 527
+    item-db-name: serpent_chain_whip
+    base-level: 60
+    min-level: 33
+    weight: 80
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: WHIP
+    max-durability: 300
+    attack: 140
+    stats:
+      DEX: 4
+      AGI: 3
+      RESIST_POISON: 6
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      Scaled steel links that move like a snake and end in a fanged weight.
+
+  - id: 528
+    item-db-name: ribbon_of_the_masque
+    base-level: 70
+    min-level: 37
+    weight: 80
+    type: EQUIP
+    material: CLOTH
+    equip-slot: RIGHT_HAND
+    weapon-type: WHIP
+    max-durability: 320
+    attack: 120
+    magic-attack: 50
+    stats:
+      DEX: 4
+      WIL: 4
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A dancer's ribbon of crimson silk, edged with fine wire.
+
+  - id: 529
+    item-db-name: tongue_of_the_tempest
+    base-level: 80
+    min-level: 64
+    weight: 90
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: WHIP
+    max-durability: 380
+    attack: 192
+    stats:
+      DEX: 7
+      AGI: 5
+      RESIST_WIND: 9
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+      sockets: [40, 20, 10]
+    description: |
+      The crack of this whip arrives a moment before the thunder does.
+
+
+  # Sword, 1H (Pr, Tr, As, Kn)
+  - id: 530
+    item-db-name: short_sword
+    base-level: 6
+    min-level: 3
+    weight: 125
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SWORD
+    max-durability: 120
+    attack: 20
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A short straight blade, the length of a forearm.
+
+  - id: 531
+    item-db-name: gladius
+    base-level: 12
+    min-level: 6
+    weight: 125
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SWORD
+    max-durability: 140
+    attack: 32
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A broad, leaf-shaped stabbing sword with a round pommel.
+
+  - id: 532
+    item-db-name: arming_sword
+    base-level: 20
+    min-level: 10
+    weight: 130
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SWORD
+    max-durability: 160
+    attack: 48
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A plain cruciform sword, the everyday blade of anyone who expects trouble.
+
+  - id: 533
+    item-db-name: broadsword
+    base-level: 28
+    min-level: 14
+    weight: 135
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SWORD
+    max-durability: 180
+    attack: 64
+    stats:
+      STR: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A wide, heavy blade for cutting rather than thrusting.
+
+  - id: 534
+    item-db-name: merchants_sabre
+    base-level: 31
+    min-level: 16
+    weight: 140
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SWORD
+    max-durability: 200
+    attack: 72
+    stats:
+      DEX: 2
+      AGI: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A light curved sabre with a brass guard, carried by caravan masters.
+
+  - id: 535
+    item-db-name: steel_longsword
+    base-level: 39
+    min-level: 20
+    weight: 145
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SWORD
+    max-durability: 220
+    attack: 88
+    stats:
+      STR: 3
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A long steel blade with a grip long enough for a second hand when it is needed.
+
+  - id: 536
+    item-db-name: surveyors_backsword
+    base-level: 42
+    min-level: 24
+    weight: 150
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SWORD
+    max-durability: 240
+    attack: 104
+    stats:
+      VIT: 2
+      DEX: 2
+      HIT: 4
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A single-edged sword with distance marks etched along its spine.
+
+  - id: 537
+    item-db-name: rapier
+    base-level: 49
+    min-level: 30
+    weight: 155
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SWORD
+    max-durability: 270
+    attack: 120
+    stats:
+      DEX: 4
+      HIT: 5
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A slender thrusting sword with a swept hilt. It rewards precision and punishes everything else.
+
+  - id: 538
+    item-db-name: duskforged_falchion
+    base-level: 67
+    min-level: 35
+    weight: 160
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SWORD
+    max-durability: 310
+    attack: 148
+    stats:
+      STR: 4
+      CRIT: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A heavy cleaver of a sword, quenched at sunset in the old way.
+
+  - id: 539
+    item-db-name: gilded_tongue
+    base-level: 73
+    min-level: 62
+    weight: 175
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SWORD
+    max-durability: 370
+    attack: 190
+    stats:
+      DEX: 6
+      AGI: 6
+      CRIT: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+      sockets: [40, 20, 10]
+    description: |
+      A gold-chased sabre that has settled more arguments than any contract.
+
+
+  # Axe, 1H (Bs, Fo, Kn)
+  - id: 540
+    item-db-name: hand_axe
+    base-level: 5
+    min-level: 2
+    weight: 155
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: AXE
+    max-durability: 120
+    attack: 18
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A small axe for kindling and for anything else that needs splitting.
+
+  - id: 541
+    item-db-name: bearded_axe
+    base-level: 12
+    min-level: 6
+    weight: 160
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: AXE
+    max-durability: 140
+    attack: 32
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      An axe whose blade hangs low below the haft, good for hooking as well as cutting.
+
+  - id: 542
+    item-db-name: broad_axe
+    base-level: 20
+    min-level: 10
+    weight: 165
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: AXE
+    max-durability: 160
+    attack: 48
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A wide, flat axe head on a short haft.
+
+  - id: 543
+    item-db-name: woodwards_axe
+    base-level: 27
+    min-level: 14
+    weight: 170
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: AXE
+    max-durability: 180
+    attack: 64
+    stats:
+      STR: 1
+      AGI: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      The axe of the forest wardens, light enough to carry all day.
+
+  - id: 544
+    item-db-name: smiths_hewing_axe
+    base-level: 35
+    min-level: 18
+    weight: 175
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: AXE
+    max-durability: 210
+    attack: 80
+    stats:
+      STR: 2
+      DEX: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A smith's test piece: if it holds an edge through oak, the steel is good.
+
+  - id: 545
+    item-db-name: steel_war_axe
+    base-level: 42
+    min-level: 23
+    weight: 185
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: AXE
+    max-durability: 240
+    attack: 100
+    stats:
+      STR: 3
+      CRIT: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A steel axe with a spike on the back, made for war and nothing else.
+
+  - id: 546
+    item-db-name: crescent_axe
+    base-level: 52
+    min-level: 27
+    weight: 190
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: AXE
+    max-durability: 260
+    attack: 116
+    stats:
+      STR: 3
+      AGI: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A half-moon blade that bites deep and pulls free easily.
+
+  - id: 547
+    item-db-name: runed_tomahawk
+    base-level: 61
+    min-level: 32
+    weight: 200
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: AXE
+    max-durability: 290
+    attack: 136
+    stats:
+      AGI: 3
+      DEX: 3
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A light axe with runes cut along the haft by a hand that knew what they meant.
+
+  - id: 548
+    item-db-name: blackiron_cleaver
+    base-level: 72
+    min-level: 37
+    weight: 205
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: AXE
+    max-durability: 320
+    attack: 156
+    stats:
+      STR: 5
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      Dark iron, folded and folded again until it rings like a bell.
+
+  - id: 549
+    item-db-name: heartwood_cleaver
+    base-level: 86
+    min-level: 66
+    weight: 220
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: AXE
+    max-durability: 380
+    attack: 194
+    stats:
+      STR: 6
+      AGI: 5
+      HP_REGEN: 4
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+      sockets: [40, 20, 10]
+    description: |
+      Its haft was cut from the heart of a living tree, and it has never quite stopped growing.
+
+
+  # Mace, 1H (Bs, Al, Mi, Pt, Kn)
+  - id: 550
+    item-db-name: cudgel
+    base-level: 5
+    min-level: 2
+    weight: 155
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: MACE
+    max-durability: 120
+    attack: 18
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A knotted club of hardwood.
+
+  - id: 551
+    item-db-name: flanged_mace
+    base-level: 12
+    min-level: 6
+    weight: 160
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: MACE
+    max-durability: 140
+    attack: 32
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      An iron head of six flanges on a wooden haft.
+
+  - id: 552
+    item-db-name: spiked_club
+    base-level: 18
+    min-level: 9
+    weight: 165
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: MACE
+    max-durability: 150
+    attack: 44
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A heavy club studded with iron nails.
+
+  - id: 553
+    item-db-name: morning_star
+    base-level: 27
+    min-level: 14
+    weight: 170
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: MACE
+    max-durability: 180
+    attack: 64
+    stats:
+      STR: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A spiked iron ball on a short shaft.
+
+  - id: 554
+    item-db-name: pickhead_mace
+    base-level: 33
+    min-level: 17
+    weight: 175
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: MACE
+    max-durability: 200
+    attack: 76
+    stats:
+      STR: 1
+      VIT: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A miner's mace with a pick on the back for loosening ore and enemies alike.
+
+  - id: 555
+    item-db-name: censer_flail
+    base-level: 41
+    min-level: 21
+    weight: 180
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: MACE
+    max-durability: 230
+    attack: 62
+    magic-attack: 30
+    stats:
+      WIL: 3
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A swinging censer on a chain. The smoke it trails is holy; the weight is not.
+
+  - id: 556
+    item-db-name: alembic_mace
+    base-level: 48
+    min-level: 25
+    weight: 190
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: MACE
+    max-durability: 250
+    attack: 84
+    magic-attack: 30
+    stats:
+      INT: 3
+      RESIST_POISON: 6
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A mace whose hollow head holds a sealed flask of something better left sealed.
+
+  - id: 557
+    item-db-name: orebreaker_mace
+    base-level: 58
+    min-level: 30
+    weight: 195
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: MACE
+    max-durability: 280
+    attack: 128
+    stats:
+      STR: 3
+      VIT: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      Forged to crack ore that a pick will not, and it does not much care what else it cracks.
+
+  - id: 558
+    item-db-name: wardens_holy_mace
+    base-level: 67
+    min-level: 36
+    weight: 205
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: MACE
+    max-durability: 320
+    attack: 112
+    magic-attack: 40
+    stats:
+      WIL: 4
+      VIT: 2
+      RESIST_UNDEAD: 9
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A silvered mace blessed over a grave that never stayed shut.
+
+  - id: 559
+    item-db-name: dawnbringer
+    base-level: 82
+    min-level: 70
+    weight: 220
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: MACE
+    max-durability: 390
+    attack: 160
+    magic-attack: 80
+    stats:
+      WIL: 7
+      INT: 4
+      RESIST_UNDEAD: 15
+    random-stats:
+      affixes:
+        - pool: ARCANE
+      sockets: [40, 20, 10]
+    description: |
+      Its head glows faintly an hour before sunrise, every morning, wherever it is.
+
+
+  # Spear, 1H (Fo, Pr, Kn, Hu)
+  - id: 560
+    item-db-name: wooden_spear
+    base-level: 4
+    min-level: 1
+    weight: 185
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: SPEAR
+    max-durability: 110
+    attack: 16
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A straight ash pole sharpened at one end.
+
+  - id: 561
+    item-db-name: fire_hardened_spear
+    base-level: 10
+    min-level: 5
+    weight: 190
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: SPEAR
+    max-durability: 130
+    attack: 28
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A wooden spear whose point was hardened in the coals.
+
+  - id: 562
+    item-db-name: short_spear
+    base-level: 18
+    min-level: 9
+    weight: 195
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SPEAR
+    max-durability: 150
+    attack: 44
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      An iron spearhead on a shaft as long as a man is tall.
+
+  - id: 563
+    item-db-name: boar_spear
+    base-level: 24
+    min-level: 13
+    weight: 205
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SPEAR
+    max-durability: 180
+    attack: 60
+    stats:
+      STR: 1
+      DEX: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A broad spearhead with lugs behind it, so the boar stays at the far end.
+
+  - id: 564
+    item-db-name: cavalry_lance
+    base-level: 33
+    min-level: 17
+    weight: 210
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SPEAR
+    max-durability: 200
+    attack: 76
+    stats:
+      STR: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A lance cut down for fighting on foot, still heavy at the point.
+
+  - id: 565
+    item-db-name: trident
+    base-level: 40
+    min-level: 21
+    weight: 220
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SPEAR
+    max-durability: 230
+    attack: 92
+    stats:
+      DEX: 2
+      RESIST_WATER: 6
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      Three barbed tines, made for fish and used for everything else.
+
+  - id: 566
+    item-db-name: winged_spear
+    base-level: 47
+    min-level: 25
+    weight: 225
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SPEAR
+    max-durability: 250
+    attack: 108
+    stats:
+      DEX: 2
+      HIT: 4
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A spear with two short wings below its head to stop a charge.
+
+  - id: 567
+    item-db-name: prospectors_pike
+    base-level: 56
+    min-level: 29
+    weight: 230
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SPEAR
+    max-durability: 270
+    attack: 124
+    stats:
+      VIT: 3
+      DEX: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A long pike with a sounding rod hidden in its butt.
+
+  - id: 568
+    item-db-name: hunting_partisan
+    base-level: 67
+    min-level: 35
+    weight: 245
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SPEAR
+    max-durability: 310
+    attack: 148
+    stats:
+      DEX: 4
+      AGI: 3
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A broad-bladed spear with side lugs, for game that bites back.
+
+  - id: 569
+    item-db-name: lodestar_pike
+    base-level: 72
+    min-level: 64
+    weight: 265
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: SPEAR
+    max-durability: 380
+    attack: 192
+    stats:
+      DEX: 6
+      VIT: 5
+      HIT: 8
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+      sockets: [40, 20, 10]
+    description: |
+      Its iron head always turns a little toward the nearest vein of ore.
+
+
+  # Greatsword, 2H (Kn)
+  - id: 570
+    item-db-name: two_handed_sword
+    base-level: 14
+    min-level: 7
+    weight: 430
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATSWORD
+    two-handed: true
+    max-durability: 140
+    attack: 41
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A long, plain blade that needs both hands and a lot of room.
+
+  - id: 571
+    item-db-name: zweihander
+    base-level: 22
+    min-level: 11
+    weight: 445
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATSWORD
+    two-handed: true
+    max-durability: 170
+    attack: 62
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A huge sword with a leather-wrapped ricasso to grip above the guard.
+
+  - id: 572
+    item-db-name: flamberge
+    base-level: 30
+    min-level: 15
+    weight: 460
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATSWORD
+    two-handed: true
+    max-durability: 190
+    attack: 83
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A greatsword with a wavy blade that saws as well as cuts.
+
+  - id: 573
+    item-db-name: claymore
+    base-level: 38
+    min-level: 19
+    weight: 475
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATSWORD
+    two-handed: true
+    max-durability: 210
+    attack: 104
+    stats:
+      STR: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A greatsword with a forward-sloping guard ending in quatrefoils.
+
+  - id: 574
+    item-db-name: executioners_sword
+    base-level: 42
+    min-level: 24
+    weight: 490
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATSWORD
+    two-handed: true
+    max-durability: 240
+    attack: 125
+    stats:
+      STR: 3
+      CRIT: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      Square-tipped and perfectly balanced for one kind of stroke.
+
+  - id: 575
+    item-db-name: steel_greatblade
+    base-level: 53
+    min-level: 27
+    weight: 510
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATSWORD
+    two-handed: true
+    max-durability: 260
+    attack: 145
+    stats:
+      STR: 3
+      VIT: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      Good steel, a lot of it, in the shape of a sword.
+
+  - id: 576
+    item-db-name: runeblade
+    base-level: 60
+    min-level: 31
+    weight: 525
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATSWORD
+    two-handed: true
+    max-durability: 290
+    attack: 140
+    magic-attack: 30
+    stats:
+      STR: 3
+      INT: 2
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      Runes run the length of the fuller and glow when the blade is drawn in anger.
+
+  - id: 577
+    item-db-name: wyrmbone_greatsword
+    base-level: 68
+    min-level: 35
+    weight: 540
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATSWORD
+    two-handed: true
+    max-durability: 310
+    attack: 187
+    stats:
+      STR: 4
+      RESIST_FIRE: 6
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      Its core is a rib from something that breathed fire. It is still warm.
+
+  - id: 578
+    item-db-name: sunderer
+    base-level: 74
+    min-level: 39
+    weight: 555
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATSWORD
+    two-handed: true
+    max-durability: 330
+    attack: 208
+    stats:
+      STR: 5
+      VIT: 3
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A slab of a sword that splits shields as readily as it splits the men behind them.
+
+  - id: 579
+    item-db-name: oathkeeper
+    base-level: 79
+    min-level: 72
+    weight: 590
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATSWORD
+    two-handed: true
+    max-durability: 390
+    attack: 255
+    stats:
+      STR: 8
+      VIT: 6
+      MDEF: 4
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+      sockets: [40, 20, 10]
+    description: |
+      It cannot be drawn against anyone its bearer has sworn to protect, or so the knights say.
+
+
+  # Greataxe, 2H (Bs, Fo, Mi, Kn)
+  - id: 580
+    item-db-name: woodsplitter
+    base-level: 12
+    min-level: 6
+    weight: 475
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATAXE
+    two-handed: true
+    max-durability: 140
+    attack: 36
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A splitting maul with an axe's edge, for firewood and worse.
+
+  - id: 581
+    item-db-name: greataxe
+    base-level: 20
+    min-level: 10
+    weight: 495
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATAXE
+    two-handed: true
+    max-durability: 160
+    attack: 57
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A broad axe head on a long two-handed haft.
+
+  - id: 582
+    item-db-name: woodcutters_greataxe
+    base-level: 28
+    min-level: 14
+    weight: 515
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATAXE
+    two-handed: true
+    max-durability: 180
+    attack: 78
+    stats:
+      STR: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      The felling axe of a woodcutter who got tired of being robbed.
+
+  - id: 583
+    item-db-name: double_bitted_axe
+    base-level: 35
+    min-level: 18
+    weight: 530
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATAXE
+    two-handed: true
+    max-durability: 210
+    attack: 99
+    stats:
+      STR: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      Two edges, so the backswing is not wasted.
+
+  - id: 584
+    item-db-name: bearded_greataxe
+    base-level: 43
+    min-level: 22
+    weight: 550
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATAXE
+    two-handed: true
+    max-durability: 230
+    attack: 119
+    stats:
+      STR: 3
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A greataxe with a long hooked beard for pulling riders out of saddles.
+
+  - id: 585
+    item-db-name: quarry_breaker
+    base-level: 51
+    min-level: 26
+    weight: 565
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATAXE
+    two-handed: true
+    max-durability: 260
+    attack: 140
+    stats:
+      STR: 2
+      VIT: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A quarryman's axe with a hardened wedge behind the blade.
+
+  - id: 586
+    item-db-name: moon_axe
+    base-level: 57
+    min-level: 30
+    weight: 585
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATAXE
+    two-handed: true
+    max-durability: 280
+    attack: 161
+    stats:
+      STR: 3
+      CRIT: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A crescent blade as wide as a man's chest.
+
+  - id: 587
+    item-db-name: ironbark_reaver
+    base-level: 66
+    min-level: 34
+    weight: 605
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATAXE
+    two-handed: true
+    max-durability: 300
+    attack: 182
+    stats:
+      STR: 4
+      AGI: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      Its haft is ironbark, which no blade has ever cut through.
+
+  - id: 588
+    item-db-name: forgemasters_labrys
+    base-level: 73
+    min-level: 38
+    weight: 620
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATAXE
+    two-handed: true
+    max-durability: 330
+    attack: 203
+    stats:
+      STR: 4
+      DEX: 3
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A double axe a forgemaster makes once, to prove they can.
+
+  - id: 589
+    item-db-name: veinsplitter
+    base-level: 86
+    min-level: 66
+    weight: 660
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: GREATAXE
+    two-handed: true
+    max-durability: 380
+    attack: 247
+    stats:
+      STR: 7
+      VIT: 5
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+      sockets: [40, 20, 10]
+    description: |
+      It follows the grain of the stone, and the stone opens.
+
+
+  # Hammer, 2H (Bs, Mi, Kn)
+  - id: 590
+    item-db-name: mallet
+    base-level: 6
+    min-level: 3
+    weight: 515
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: HAMMER
+    two-handed: true
+    max-durability: 120
+    attack: 21
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A big wooden mallet for driving stakes.
+
+  - id: 591
+    item-db-name: stone_maul
+    base-level: 14
+    min-level: 7
+    weight: 535
+    type: EQUIP
+    material: STONE
+    equip-slot: RIGHT_HAND
+    weapon-type: HAMMER
+    two-handed: true
+    max-durability: 140
+    attack: 41
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A river stone lashed to a stout haft.
+
+  - id: 592
+    item-db-name: sledgehammer
+    base-level: 22
+    min-level: 11
+    weight: 555
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: HAMMER
+    two-handed: true
+    max-durability: 170
+    attack: 62
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      An iron sledge for breaking rock.
+
+  - id: 593
+    item-db-name: war_maul
+    base-level: 30
+    min-level: 15
+    weight: 575
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: HAMMER
+    two-handed: true
+    max-durability: 190
+    attack: 83
+    stats:
+      STR: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A sledgehammer with a flat face and a spiked back.
+
+  - id: 594
+    item-db-name: forge_hammer
+    base-level: 36
+    min-level: 19
+    weight: 595
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: HAMMER
+    two-handed: true
+    max-durability: 210
+    attack: 104
+    stats:
+      STR: 2
+      DEX: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A smith's great hammer, as at home on an anvil as on a skull.
+
+  - id: 595
+    item-db-name: bronze_headed_maul
+    base-level: 45
+    min-level: 23
+    weight: 615
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: HAMMER
+    two-handed: true
+    max-durability: 240
+    attack: 125
+    stats:
+      STR: 2
+      VIT: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A maul with a bronze head that never sparks in the gas-filled deep.
+
+  - id: 596
+    item-db-name: pick_hammer
+    base-level: 51
+    min-level: 27
+    weight: 635
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: HAMMER
+    two-handed: true
+    max-durability: 260
+    attack: 145
+    stats:
+      STR: 3
+      HIT: 3
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A hammer on one side and a pick on the other.
+
+  - id: 597
+    item-db-name: earthshaker_maul
+    base-level: 61
+    min-level: 32
+    weight: 660
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: HAMMER
+    two-handed: true
+    max-durability: 290
+    attack: 171
+    stats:
+      STR: 4
+      VIT: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      When it strikes the ground, the ground remembers.
+
+  - id: 598
+    item-db-name: templars_warhammer
+    base-level: 71
+    min-level: 37
+    weight: 685
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: HAMMER
+    two-handed: true
+    max-durability: 320
+    attack: 197
+    stats:
+      STR: 4
+      WIL: 3
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A warhammer with a prayer engraved on every face.
+
+  - id: 599
+    item-db-name: anvilheart
+    base-level: 79
+    min-level: 72
+    weight: 740
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: HAMMER
+    two-handed: true
+    max-durability: 390
+    attack: 255
+    stats:
+      STR: 8
+      DEX: 6
+      RESIST_FIRE: 12
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+      sockets: [40, 20, 10]
+    description: |
+      Its head was the first anvil of a forge that has burned for three hundred years.
+
+
+  # Polearm, 2H (Kn)
+  - id: 600
+    item-db-name: billhook
+    base-level: 14
+    min-level: 7
+    weight: 430
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: POLEARM
+    two-handed: true
+    max-durability: 140
+    attack: 41
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A farmer's hedging blade on a long pole.
+
+  - id: 601
+    item-db-name: bardiche
+    base-level: 22
+    min-level: 11
+    weight: 445
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: POLEARM
+    two-handed: true
+    max-durability: 170
+    attack: 62
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A long axe blade fixed to its pole at two points.
+
+  - id: 602
+    item-db-name: guisarme
+    base-level: 30
+    min-level: 15
+    weight: 460
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: POLEARM
+    two-handed: true
+    max-durability: 190
+    attack: 83
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A pole blade with a hook for pulling a rider down.
+
+  - id: 603
+    item-db-name: glaive
+    base-level: 36
+    min-level: 19
+    weight: 475
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: POLEARM
+    two-handed: true
+    max-durability: 210
+    attack: 104
+    stats:
+      STR: 2
+      AGI: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A single-edged blade on a pole, swung in wide arcs.
+
+  - id: 604
+    item-db-name: lucerne_hammer
+    base-level: 45
+    min-level: 23
+    weight: 490
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: POLEARM
+    two-handed: true
+    max-durability: 240
+    attack: 125
+    stats:
+      STR: 3
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A pronged hammer head with a spike above it, on a long pole.
+
+  - id: 605
+    item-db-name: voulge
+    base-level: 53
+    min-level: 27
+    weight: 510
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: POLEARM
+    two-handed: true
+    max-durability: 260
+    attack: 145
+    stats:
+      STR: 2
+      VIT: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A heavy cleaver blade lashed to a pole.
+
+  - id: 606
+    item-db-name: bec_de_corbin
+    base-level: 58
+    min-level: 31
+    weight: 525
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: POLEARM
+    two-handed: true
+    max-durability: 290
+    attack: 166
+    stats:
+      STR: 3
+      HIT: 4
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A crow's-beak spike backed by a hammer, for plate armor and what is inside it.
+
+  - id: 607
+    item-db-name: steel_halberd
+    base-level: 68
+    min-level: 35
+    weight: 540
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: POLEARM
+    two-handed: true
+    max-durability: 310
+    attack: 187
+    stats:
+      STR: 4
+      VIT: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      An axe, a spike and a hook on one shaft of good steel.
+
+  - id: 608
+    item-db-name: wardens_partisan
+    base-level: 74
+    min-level: 40
+    weight: 555
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: POLEARM
+    two-handed: true
+    max-durability: 330
+    attack: 208
+    stats:
+      STR: 4
+      VIT: 4
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      The ceremonial polearm of a city's wardens, and not only ceremonial.
+
+  - id: 609
+    item-db-name: skyrender_halberd
+    base-level: 75
+    min-level: 88
+    weight: 610
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: POLEARM
+    two-handed: true
+    max-durability: 410
+    attack: 275
+    stats:
+      STR: 9
+      VIT: 7
+      HIT: 8
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+      sockets: [50, 25, 10, 5]
+    description: |
+      Legend says it was forged to cut a storm in half. The scar in the clouds over the forge has never healed.
+
+
+  # Staff, 2H (Ar, Sa, Pt, Wz, Bw)
+  - id: 610
+    item-db-name: walking_stick
+    base-level: 4
+    min-level: 1
+    weight: 155
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: STAFF
+    two-handed: true
+    max-durability: 110
+    attack: 9
+    magic-attack: 15
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A good straight stick. Every journey starts with one.
+
+  - id: 611
+    item-db-name: quarterstaff
+    base-level: 10
+    min-level: 5
+    weight: 160
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: STAFF
+    two-handed: true
+    max-durability: 130
+    attack: 25
+    magic-attack: 10
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      An oak staff as tall as its owner, for fighting rather than for spells.
+
+  - id: 612
+    item-db-name: willow_staff
+    base-level: 16
+    min-level: 8
+    weight: 160
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: STAFF
+    two-handed: true
+    max-durability: 150
+    attack: 21
+    magic-attack: 47
+    stats:
+      INT: 1
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A supple willow staff that bends toward the one who holds it.
+
+  - id: 613
+    item-db-name: iron_shod_quarterstaff
+    base-level: 24
+    min-level: 12
+    weight: 170
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: STAFF
+    two-handed: true
+    max-durability: 170
+    attack: 52
+    magic-attack: 15
+    stats:
+      STR: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A quarterstaff with iron caps at both ends.
+
+  - id: 614
+    item-db-name: pilgrims_staff
+    base-level: 31
+    min-level: 16
+    weight: 175
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: STAFF
+    two-handed: true
+    max-durability: 200
+    attack: 37
+    magic-attack: 88
+    stats:
+      WIL: 3
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      The staff of a pilgrim who has walked every holy road twice.
+
+  - id: 615
+    item-db-name: brass_conduit_staff
+    base-level: 40
+    min-level: 21
+    weight: 180
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: STAFF
+    two-handed: true
+    max-durability: 230
+    attack: 47
+    magic-attack: 114
+    stats:
+      INT: 2
+      DEX: 2
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A brass tube full of copper coils. It hums when a spell runs through it.
+
+  - id: 616
+    item-db-name: ironwood_bo
+    base-level: 48
+    min-level: 25
+    weight: 190
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: STAFF
+    two-handed: true
+    max-durability: 250
+    attack: 120
+    magic-attack: 25
+    stats:
+      STR: 2
+      AGI: 3
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A fighting staff of ironwood, heavy enough to break a sword.
+
+  - id: 617
+    item-db-name: sages_rootstaff
+    base-level: 55
+    min-level: 29
+    weight: 195
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: STAFF
+    two-handed: true
+    max-durability: 270
+    attack: 63
+    magic-attack: 156
+    stats:
+      INT: 3
+      WIL: 3
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A staff grown, not carved, from the root of an old tree.
+
+  - id: 618
+    item-db-name: staff_of_mending_light
+    base-level: 68
+    min-level: 35
+    weight: 205
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: STAFF
+    two-handed: true
+    max-durability: 310
+    attack: 75
+    magic-attack: 187
+    stats:
+      WIL: 5
+      MANA_REGEN: 4
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A white staff topped with a lantern that never needs oil.
+
+  - id: 619
+    item-db-name: staff_of_the_seventh_ember
+    base-level: 82
+    min-level: 70
+    weight: 220
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: STAFF
+    two-handed: true
+    max-durability: 390
+    attack: 100
+    magic-attack: 252
+    stats:
+      INT: 8
+      WIL: 4
+      RESIST_FIRE: 12
+    random-stats:
+      affixes:
+        - pool: ARCANE
+      sockets: [40, 20, 10]
+    description: |
+      Six embers were lit from the first fire. This staff holds the seventh.
+
+
+  # Wand, 1H (Ar, Sa, Wz)
+  - id: 620
+    item-db-name: twig_wand
+    base-level: 4
+    min-level: 1
+    weight: 30
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: WAND
+    max-durability: 110
+    attack: 2
+    magic-attack: 18
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A twig, trimmed and peeled. It works better than it should.
+
+  - id: 621
+    item-db-name: birch_wand
+    base-level: 10
+    min-level: 5
+    weight: 30
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: WAND
+    max-durability: 130
+    attack: 4
+    magic-attack: 30
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A pale birch wand with the bark left on the grip.
+
+  - id: 622
+    item-db-name: apprentices_wand
+    base-level: 18
+    min-level: 9
+    weight: 35
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: WAND
+    max-durability: 150
+    attack: 7
+    magic-attack: 46
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      The wand every apprentice is handed on the first day, and keeps longer than they admit.
+
+  - id: 623
+    item-db-name: bone_wand
+    base-level: 25
+    min-level: 13
+    weight: 35
+    type: EQUIP
+    material: STONE
+    equip-slot: RIGHT_HAND
+    weapon-type: WAND
+    max-durability: 180
+    attack: 10
+    magic-attack: 62
+    stats:
+      INT: 1
+      RESIST_UNDEAD: 3
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A wand carved from a long bone. Nobody asks whose.
+
+  - id: 624
+    item-db-name: crystal_tipped_wand
+    base-level: 33
+    min-level: 17
+    weight: 35
+    type: EQUIP
+    material: CRYSTAL
+    equip-slot: RIGHT_HAND
+    weapon-type: WAND
+    max-durability: 200
+    attack: 14
+    magic-attack: 78
+    stats:
+      INT: 2
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A rowan wand capped with a clear quartz point.
+
+  - id: 625
+    item-db-name: tinkers_spark_rod
+    base-level: 40
+    min-level: 21
+    weight: 35
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: WAND
+    max-durability: 230
+    attack: 17
+    magic-attack: 94
+    stats:
+      DEX: 2
+      INT: 2
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A copper rod with a ceramic grip that throws sparks when shaken.
+
+  - id: 626
+    item-db-name: coral_wand
+    base-level: 47
+    min-level: 25
+    weight: 40
+    type: EQUIP
+    material: STONE
+    equip-slot: RIGHT_HAND
+    weapon-type: WAND
+    max-durability: 250
+    attack: 20
+    magic-attack: 110
+    stats:
+      INT: 2
+      WIL: 2
+      RESIST_WATER: 6
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A branch of red coral from a reef no ship has found twice.
+
+  - id: 627
+    item-db-name: obsidian_wand
+    base-level: 57
+    min-level: 30
+    weight: 40
+    type: EQUIP
+    material: GLASS
+    equip-slot: RIGHT_HAND
+    weapon-type: WAND
+    max-durability: 280
+    attack: 24
+    magic-attack: 130
+    stats:
+      INT: 4
+      WIL: 2
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A shard of black glass, sharp enough to cut the hand that holds it carelessly.
+
+  - id: 628
+    item-db-name: ley_iron_scepter
+    base-level: 68
+    min-level: 36
+    weight: 40
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: WAND
+    max-durability: 320
+    attack: 29
+    magic-attack: 154
+    stats:
+      INT: 4
+      MAX_MANA: 4
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      Iron drawn from where the ley lines cross. Compasses spin near it.
+
+  - id: 629
+    item-db-name: starfall_wand
+    base-level: 75
+    min-level: 85
+    weight: 45
+    type: EQUIP
+    material: CRYSTAL
+    equip-slot: RIGHT_HAND
+    weapon-type: WAND
+    max-durability: 410
+    attack: 41
+    magic-attack: 214
+    stats:
+      INT: 9
+      WIL: 6
+      CAST_TIME: 8
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+      sockets: [50, 25, 10, 5]
+    description: |
+      Carved from a fallen star. On clear nights it points to the place in the sky it came from.
+
+
+  # Tome, left hand (Sa, Pt, Wz)
+  - id: 630
+    item-db-name: primer
+    base-level: 6
+    min-level: 3
+    weight: 60
+    type: EQUIP
+    material: PAPER
+    equip-slot: LEFT_HAND
+    weapon-type: TOME
+    max-durability: 120
+    magic-attack: 17
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A thin book of first words and first signs.
+
+  - id: 631
+    item-db-name: primer_of_sparks
+    base-level: 14
+    min-level: 7
+    weight: 65
+    type: EQUIP
+    material: PAPER
+    equip-slot: LEFT_HAND
+    weapon-type: TOME
+    max-durability: 140
+    magic-attack: 29
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A primer whose every page is singed at the edge.
+
+  - id: 632
+    item-db-name: hymnal
+    base-level: 20
+    min-level: 10
+    weight: 65
+    type: EQUIP
+    material: PAPER
+    equip-slot: LEFT_HAND
+    weapon-type: TOME
+    max-durability: 160
+    magic-attack: 38
+    stats:
+      WIL: 1
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A worn book of hymns, its spine cracked open at the favourite ones.
+
+  - id: 633
+    item-db-name: field_herbarium
+    base-level: 28
+    min-level: 14
+    weight: 70
+    type: EQUIP
+    material: PAPER
+    equip-slot: LEFT_HAND
+    weapon-type: TOME
+    max-durability: 180
+    magic-attack: 50
+    stats:
+      INT: 1
+      HP_REGEN: 2
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      Pressed leaves and careful notes on what heals and what kills.
+
+  - id: 634
+    item-db-name: book_of_psalms
+    base-level: 35
+    min-level: 18
+    weight: 70
+    type: EQUIP
+    material: PAPER
+    equip-slot: LEFT_HAND
+    weapon-type: TOME
+    max-durability: 210
+    magic-attack: 62
+    stats:
+      WIL: 2
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      Bound in white leather, with a ribbon for every hour of prayer.
+
+  - id: 635
+    item-db-name: grimoire_of_ash
+    base-level: 43
+    min-level: 22
+    weight: 75
+    type: EQUIP
+    material: PAPER
+    equip-slot: LEFT_HAND
+    weapon-type: TOME
+    max-durability: 230
+    magic-attack: 74
+    stats:
+      INT: 3
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      Its pages are grey and powdery, and the writing only shows when it is warm.
+
+  - id: 636
+    item-db-name: annotated_bestiary
+    base-level: 50
+    min-level: 26
+    weight: 75
+    type: EQUIP
+    material: PAPER
+    equip-slot: LEFT_HAND
+    weapon-type: TOME
+    max-durability: 260
+    magic-attack: 86
+    stats:
+      INT: 2
+      HIT: 3
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      Drawings of every creature its author survived, and notes on the ones they did not expect to.
+
+  - id: 637
+    item-db-name: atlas_of_ley_lines
+    base-level: 56
+    min-level: 31
+    weight: 80
+    type: EQUIP
+    material: PAPER
+    equip-slot: LEFT_HAND
+    weapon-type: TOME
+    max-durability: 290
+    magic-attack: 101
+    stats:
+      INT: 2
+      WIL: 3
+      MAX_MANA: 4
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A book of maps where the roads are rivers of power instead of stone.
+
+  - id: 638
+    item-db-name: liturgy_of_the_lantern
+    base-level: 70
+    min-level: 37
+    weight: 80
+    type: EQUIP
+    material: PAPER
+    equip-slot: LEFT_HAND
+    weapon-type: TOME
+    max-durability: 320
+    magic-attack: 119
+    stats:
+      WIL: 5
+      RESIST_SHADOW: 9
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      The rites of the lamplighters, who keep the dark from the door.
+
+  - id: 639
+    item-db-name: codex_of_unwritten_pages
+    base-level: 74
+    min-level: 68
+    weight: 90
+    type: EQUIP
+    material: PAPER
+    equip-slot: LEFT_HAND
+    weapon-type: TOME
+    max-durability: 380
+    magic-attack: 149
+    stats:
+      INT: 6
+      WIL: 6
+      MANA_REGEN: 6
+      CAST_TIME: 6
+    random-stats:
+      affixes:
+        - pool: ARCANE
+      sockets: [40, 20, 10]
+    description: |
+      Every page is blank until its reader needs it, and then it is the right page.
+
+
+  # Bow, 2H, arrows (Fo, Hu, Bd)
+  - id: 640
+    item-db-name: short_bow
+    base-level: 6
+    min-level: 3
+    weight: 105
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: BOW
+    two-handed: true
+    ammo-type: ARROW
+    attack-range: 11
+    max-durability: 120
+    attack: 18
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A short, simple bow of one piece of wood.
+
+  - id: 641
+    item-db-name: yew_shortbow
+    base-level: 12
+    min-level: 6
+    weight: 105
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: BOW
+    two-handed: true
+    ammo-type: ARROW
+    attack-range: 12
+    max-durability: 140
+    attack: 31
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A yew bow cut to be drawn quickly from the saddle.
+
+  - id: 643
+    item-db-name: longbow
+    base-level: 28
+    min-level: 14
+    weight: 115
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: BOW
+    two-handed: true
+    ammo-type: ARROW
+    attack-range: 14
+    max-durability: 180
+    attack: 67
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A bow as tall as its archer, with the reach to match.
+
+  - id: 644
+    item-db-name: recurve_bow
+    base-level: 35
+    min-level: 18
+    weight: 120
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: BOW
+    two-handed: true
+    ammo-type: ARROW
+    attack-range: 13
+    max-durability: 210
+    attack: 84
+    stats:
+      DEX: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      Its tips curve away from the archer, storing more force than its length suggests.
+
+  - id: 645
+    item-db-name: horn_bow
+    base-level: 43
+    min-level: 22
+    weight: 120
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: BOW
+    two-handed: true
+    ammo-type: ARROW
+    attack-range: 13
+    max-durability: 230
+    attack: 102
+    stats:
+      DEX: 2
+      STR: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      Horn, wood and sinew, glued in layers by a patient bowyer.
+
+  - id: 646
+    item-db-name: composite_longbow
+    base-level: 48
+    min-level: 26
+    weight: 125
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: BOW
+    two-handed: true
+    ammo-type: ARROW
+    attack-range: 15
+    max-durability: 260
+    attack: 119
+    stats:
+      DEX: 3
+      HIT: 4
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A longbow backed with sinew, which keeps its strength in the wet.
+
+  - id: 647
+    item-db-name: elmwood_warbow
+    base-level: 60
+    min-level: 31
+    weight: 130
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: BOW
+    two-handed: true
+    ammo-type: ARROW
+    attack-range: 15
+    max-durability: 290
+    attack: 141
+    stats:
+      STR: 2
+      DEX: 3
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A heavy warbow. Few can draw it twice in a row.
+
+  - id: 648
+    item-db-name: songstring_bow
+    base-level: 69
+    min-level: 36
+    weight: 135
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: BOW
+    two-handed: true
+    ammo-type: ARROW
+    attack-range: 14
+    max-durability: 320
+    attack: 163
+    stats:
+      DEX: 4
+      WIL: 3
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      Its string hums a different note for every arrow.
+
+  - id: 649
+    item-db-name: windrunners_longbow
+    base-level: 72
+    min-level: 68
+    weight: 145
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: BOW
+    two-handed: true
+    ammo-type: ARROW
+    attack-range: 16
+    max-durability: 380
+    attack: 212
+    stats:
+      DEX: 7
+      AGI: 5
+      HIT: 8
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+      sockets: [40, 20, 10]
+    description: |
+      Arrows from this bow seem to ride the wind rather than fight it.
+
+
+  # Crossbow, 2H, bolts (Ar, Pr, Tr, Hu)
+  - id: 650
+    item-db-name: wooden_crossbow
+    base-level: 8
+    min-level: 4
+    weight: 210
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: CROSSBOW
+    two-handed: true
+    ammo-type: BOLT
+    attack-range: 9
+    max-durability: 120
+    attack: 24
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A wooden crossbow spanned by hand. Slow, but anyone can use it.
+
+  - id: 651
+    item-db-name: hunting_crossbow
+    base-level: 16
+    min-level: 8
+    weight: 215
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: CROSSBOW
+    two-handed: true
+    ammo-type: BOLT
+    attack-range: 10
+    max-durability: 150
+    attack: 40
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A light crossbow for birds and small game.
+
+  - id: 652
+    item-db-name: stirrup_crossbow
+    base-level: 24
+    min-level: 12
+    weight: 225
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: CROSSBOW
+    two-handed: true
+    ammo-type: BOLT
+    attack-range: 10
+    max-durability: 170
+    attack: 56
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A crossbow with an iron stirrup to brace it with the foot while spanning.
+
+  - id: 653
+    item-db-name: arbalest
+    base-level: 32
+    min-level: 16
+    weight: 230
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: CROSSBOW
+    two-handed: true
+    ammo-type: BOLT
+    attack-range: 11
+    max-durability: 200
+    attack: 72
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A heavy crossbow with a steel prod.
+
+  - id: 654
+    item-db-name: steel_arbalest
+    base-level: 39
+    min-level: 20
+    weight: 240
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: CROSSBOW
+    two-handed: true
+    ammo-type: BOLT
+    attack-range: 12
+    max-durability: 220
+    attack: 88
+    stats:
+      DEX: 2
+      VIT: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      An all-steel arbalest, heavier than the man who carries it would like.
+
+  - id: 655
+    item-db-name: caravan_guard_crossbow
+    base-level: 46
+    min-level: 24
+    weight: 250
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: CROSSBOW
+    two-handed: true
+    ammo-type: BOLT
+    attack-range: 11
+    max-durability: 240
+    attack: 104
+    stats:
+      DEX: 2
+      AGI: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A short crossbow that can be spanned and shot from a moving wagon.
+
+  - id: 656
+    item-db-name: repeating_crossbow
+    base-level: 54
+    min-level: 28
+    weight: 255
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: CROSSBOW
+    two-handed: true
+    ammo-type: BOLT
+    attack-range: 11
+    max-durability: 270
+    attack: 120
+    stats:
+      DEX: 3
+      AGI: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A crossbow with a magazine on top. Pump the lever and it shoots again.
+
+  - id: 657
+    item-db-name: windlass_arbalest
+    base-level: 62
+    min-level: 34
+    weight: 265
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: CROSSBOW
+    two-handed: true
+    ammo-type: BOLT
+    attack-range: 13
+    max-durability: 290
+    attack: 136
+    stats:
+      DEX: 3
+      STR: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      Spanned with a windlass, and it punches through a door.
+
+  - id: 658
+    item-db-name: gearwork_siege_crossbow
+    base-level: 72
+    min-level: 37
+    weight: 275
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: CROSSBOW
+    two-handed: true
+    ammo-type: BOLT
+    attack-range: 13
+    max-durability: 320
+    attack: 156
+    stats:
+      DEX: 4
+      INT: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      Brass gears span it in a heartbeat. The noise gives away the shooter.
+
+  - id: 659
+    item-db-name: clockwork_arbalest
+    base-level: 80
+    min-level: 70
+    weight: 295
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: CROSSBOW
+    two-handed: true
+    ammo-type: BOLT
+    attack-range: 14
+    max-durability: 390
+    attack: 198
+    stats:
+      DEX: 7
+      INT: 4
+      CRIT: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+      sockets: [40, 20, 10]
+    description: |
+      Its mechanism ticks like a clock, and it always shoots on the stroke.
+
+
+  # Instrument, 2H (Bd)
+  - id: 660
+    item-db-name: tin_whistle
+    base-level: 4
+    min-level: 1
+    weight: 155
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: INSTRUMENT
+    two-handed: true
+    max-durability: 110
+    attack: 3
+    magic-attack: 15
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A cheap tin whistle with six holes. Play it well and nobody cares that it was cheap.
+
+  - id: 661
+    item-db-name: reed_flute
+    base-level: 10
+    min-level: 5
+    weight: 160
+    type: EQUIP
+    material: PLANT
+    equip-slot: RIGHT_HAND
+    weapon-type: INSTRUMENT
+    two-handed: true
+    max-durability: 130
+    attack: 8
+    magic-attack: 26
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A flute cut from a riverside reed.
+
+  - id: 662
+    item-db-name: hand_drum
+    base-level: 18
+    min-level: 9
+    weight: 165
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: INSTRUMENT
+    two-handed: true
+    max-durability: 150
+    attack: 14
+    magic-attack: 40
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A small skin drum played with the fingers.
+
+  - id: 663
+    item-db-name: travellers_mandolin
+    base-level: 24
+    min-level: 13
+    weight: 170
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: INSTRUMENT
+    two-handed: true
+    max-durability: 180
+    attack: 21
+    magic-attack: 55
+    stats:
+      DEX: 2
+      WIL: 1
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A small mandolin, sturdy enough to survive the road.
+
+  - id: 664
+    item-db-name: bagpipes
+    base-level: 33
+    min-level: 17
+    weight: 175
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: INSTRUMENT
+    two-handed: true
+    max-durability: 200
+    attack: 27
+    magic-attack: 69
+    stats:
+      VIT: 2
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      Loud enough to be heard over a battle, which is what they were made for.
+
+  - id: 665
+    item-db-name: fiddle
+    base-level: 41
+    min-level: 21
+    weight: 180
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: INSTRUMENT
+    two-handed: true
+    max-durability: 230
+    attack: 34
+    magic-attack: 84
+    stats:
+      DEX: 3
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A fiddle that has played at more weddings than it can count.
+
+  - id: 666
+    item-db-name: warband_drum
+    base-level: 49
+    min-level: 25
+    weight: 190
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: INSTRUMENT
+    two-handed: true
+    max-durability: 250
+    attack: 40
+    magic-attack: 98
+    stats:
+      VIT: 2
+      WIL: 2
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A war drum whose beat keeps a column marching long after its legs want to stop.
+
+  - id: 667
+    item-db-name: silver_harp
+    base-level: 57
+    min-level: 30
+    weight: 195
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: INSTRUMENT
+    two-handed: true
+    max-durability: 280
+    attack: 48
+    magic-attack: 116
+    stats:
+      INT: 3
+      WIL: 3
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A small harp strung with silver wire.
+
+  - id: 668
+    item-db-name: hurdy_gurdy_of_hours
+    base-level: 71
+    min-level: 36
+    weight: 205
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: INSTRUMENT
+    two-handed: true
+    max-durability: 320
+    attack: 58
+    magic-attack: 138
+    stats:
+      WIL: 4
+      MANA_REGEN: 4
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      Turn the crank and it plays a tune nobody wrote, slightly different every hour.
+
+  - id: 669
+    item-db-name: lyre_of_the_last_verse
+    base-level: 84
+    min-level: 66
+    weight: 220
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: INSTRUMENT
+    two-handed: true
+    max-durability: 380
+    attack: 74
+    magic-attack: 175
+    stats:
+      WIL: 7
+      DEX: 5
+      MANA_REGEN: 6
+    random-stats:
+      affixes:
+        - pool: ARCANE
+      sockets: [40, 20, 10]
+    description: |
+      It knows one more verse than any song has. Nobody has yet heard it played to the end.
+
+
+  # Thrown, 1H, stackable (Al, As, Hu)
+  - id: 670
+    item-db-name: throwing_knife
+    base-level: 8
+    min-level: 4
+    weight: 20
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: THROWN
+    stackable: true
+    max-durability: 0
+    attack: 20
+    description: |
+      A small, flat knife balanced to turn once in the air. Each throw spends one.
+
+  - id: 671
+    item-db-name: darts
+    base-level: 14
+    min-level: 7
+    weight: 20
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: THROWN
+    stackable: true
+    max-durability: 0
+    attack: 31
+    description: |
+      Weighted darts with feather flights. Each throw spends one.
+
+  - id: 672
+    item-db-name: throwing_axe
+    base-level: 22
+    min-level: 11
+    weight: 20
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: THROWN
+    stackable: true
+    max-durability: 0
+    attack: 46
+    description: |
+      A small axe with a short haft, made to be thrown. Each throw spends one.
+
+  - id: 673
+    item-db-name: bolas
+    base-level: 28
+    min-level: 14
+    weight: 20
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: THROWN
+    stackable: true
+    max-durability: 0
+    attack: 56
+    description: |
+      Three weighted cords that wrap around legs. Each throw spends one.
+
+  - id: 674
+    item-db-name: weighted_javelin
+    base-level: 34
+    min-level: 17
+    weight: 20
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: THROWN
+    stackable: true
+    max-durability: 0
+    attack: 67
+    description: |
+      A javelin with a lead weight behind its head. Each throw spends one.
+
+  - id: 675
+    item-db-name: star_darts
+    base-level: 42
+    min-level: 21
+    weight: 20
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: THROWN
+    stackable: true
+    max-durability: 0
+    attack: 82
+    description: |
+      Four-pointed steel stars. Each throw spends one.
+
+  - id: 676
+    item-db-name: caustic_flask
+    base-level: 48
+    min-level: 24
+    weight: 20
+    type: EQUIP
+    material: GLASS
+    equip-slot: RIGHT_HAND
+    weapon-type: THROWN
+    stackable: true
+    max-durability: 0
+    attack: 92
+    description: |
+      A thin glass flask of something that eats through leather. Each throw spends one.
+
+  - id: 677
+    item-db-name: steel_chakram
+    base-level: 58
+    min-level: 29
+    weight: 20
+    type: EQUIP
+    material: METAL
+    equip-slot: RIGHT_HAND
+    weapon-type: THROWN
+    stackable: true
+    max-durability: 0
+    attack: 110
+    description: |
+      A flat steel ring with a sharpened outer edge. Each throw spends one.
+
+  - id: 678
+    item-db-name: fire_flask
+    base-level: 66
+    min-level: 33
+    weight: 20
+    type: EQUIP
+    material: GLASS
+    equip-slot: RIGHT_HAND
+    weapon-type: THROWN
+    stackable: true
+    max-durability: 0
+    attack: 125
+    description: |
+      A sealed flask that bursts into flame when it shatters. Each throw spends one.
+
+  - id: 679
+    item-db-name: philosophers_orb
+    base-level: 86
+    min-level: 64
+    weight: 30
+    type: EQUIP
+    material: CRYSTAL
+    equip-slot: RIGHT_HAND
+    weapon-type: THROWN
+    max-durability: 380
+    attack: 172
+    stats:
+      DEX: 6
+      INT: 5
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+      sockets: [40, 20, 10]
+    description: |
+      A crystal orb that flies true, strikes, and always finds its way back to the hand that threw it.
+
+
+  # Sling, 1H, stones (everyone)
+  - id: 680
+    item-db-name: shepherds_sling
+    base-level: 6
+    min-level: 3
+    weight: 10
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: SLING
+    ammo-type: STONE
+    attack-range: 8
+    max-durability: 120
+    attack: 10
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A shepherd's sling of plaited wool and a leather cradle.
+
+  - id: 681
+    item-db-name: braided_sling
+    base-level: 14
+    min-level: 7
+    weight: 10
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: SLING
+    ammo-type: STONE
+    attack-range: 9
+    max-durability: 140
+    attack: 18
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [10]
+    description: |
+      A tightly braided sling that does not stretch in the rain.
+
+  - id: 682
+    item-db-name: hide_sling
+    base-level: 22
+    min-level: 11
+    weight: 10
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: SLING
+    ammo-type: STONE
+    attack-range: 9
+    max-durability: 170
+    attack: 26
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A sling with a broad cradle of rawhide.
+
+  - id: 683
+    item-db-name: leaded_sling
+    base-level: 30
+    min-level: 15
+    weight: 10
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: SLING
+    ammo-type: STONE
+    attack-range: 10
+    max-durability: 190
+    attack: 34
+    stats:
+      DEX: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20]
+    description: |
+      A sling with lead weights in its cords for a faster swing.
+
+  - id: 684
+    item-db-name: forked_slingshot
+    base-level: 38
+    min-level: 19
+    weight: 10
+    type: EQUIP
+    material: WOOD
+    equip-slot: RIGHT_HAND
+    weapon-type: SLING
+    ammo-type: STONE
+    attack-range: 10
+    max-durability: 210
+    attack: 42
+    stats:
+      DEX: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A forked branch and a strip of elastic gut. Aimed, not swung.
+
+  - id: 685
+    item-db-name: balearic_sling
+    base-level: 43
+    min-level: 23
+    weight: 10
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: SLING
+    ammo-type: STONE
+    attack-range: 11
+    max-durability: 240
+    attack: 50
+    stats:
+      DEX: 2
+      HIT: 3
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      The long sling of the island slingers, who were said to never miss.
+
+  - id: 686
+    item-db-name: silk_sling
+    base-level: 53
+    min-level: 27
+    weight: 15
+    type: EQUIP
+    material: CLOTH
+    equip-slot: RIGHT_HAND
+    weapon-type: SLING
+    ammo-type: STONE
+    attack-range: 11
+    max-durability: 260
+    attack: 58
+    stats:
+      DEX: 3
+      AGI: 1
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      Silk cords and a fine leather cradle, light as nothing.
+
+  - id: 687
+    item-db-name: giant_hunters_sling
+    base-level: 62
+    min-level: 32
+    weight: 15
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: SLING
+    ammo-type: STONE
+    attack-range: 12
+    max-durability: 290
+    attack: 68
+    stats:
+      STR: 2
+      DEX: 3
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A long, heavy sling for stones the size of a fist.
+
+  - id: 688
+    item-db-name: stormcord_sling
+    base-level: 74
+    min-level: 38
+    weight: 15
+    type: EQUIP
+    material: CLOTH
+    equip-slot: RIGHT_HAND
+    weapon-type: SLING
+    ammo-type: STONE
+    attack-range: 12
+    max-durability: 330
+    attack: 80
+    stats:
+      DEX: 4
+      RESIST_WIND: 6
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+        - pool: ATTRIBUTE
+          chance: 40
+        - pool: ATTRIBUTE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      Its cords were braided during a storm and still crackle faintly.
+
+  - id: 689
+    item-db-name: shepherd_kings_sling
+    base-level: 76
+    min-level: 60
+    weight: 15
+    type: EQUIP
+    material: LEATHER
+    equip-slot: RIGHT_HAND
+    weapon-type: SLING
+    ammo-type: STONE
+    attack-range: 13
+    max-durability: 370
+    attack: 94
+    stats:
+      DEX: 6
+      AGI: 4
+      CRIT: 2
+    random-stats:
+      affixes:
+        - pool: OFFENSE
+      sockets: [40, 20, 10]
+    description: |
+      The sling of a shepherd who became a king by bringing down a giant.
+
+
+  # Body, ARMOR
+  - id: 690
+    item-db-name: plain_robe
+    base-level: 6
+    min-level: 3
+    weight: 105
+    type: EQUIP
+    material: CLOTH
+    equip-slot: ARMOR
+    armor-type: CLOTH
+    max-durability: 120
+    defense: 3
+    magic-defense: 6
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      A plain robe of undyed wool.
+
+  - id: 691
+    item-db-name: woven_robe
+    base-level: 14
+    min-level: 7
+    weight: 105
+    type: EQUIP
+    material: CLOTH
+    equip-slot: ARMOR
+    armor-type: CLOTH
+    max-durability: 140
+    defense: 3
+    magic-defense: 7
+    stats:
+      INT: 1
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      A robe woven with a faint pattern of stars.
+
+  - id: 692
+    item-db-name: acolytes_cassock
+    base-level: 22
+    min-level: 11
+    weight: 110
+    type: EQUIP
+    material: CLOTH
+    equip-slot: ARMOR
+    armor-type: CLOTH
+    max-durability: 170
+    defense: 4
+    magic-defense: 8
+    stats:
+      WIL: 1
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      The black cassock of a temple acolyte.
+
+  - id: 693
+    item-db-name: scholars_habit
+    base-level: 27
+    min-level: 15
+    weight: 115
+    type: EQUIP
+    material: CLOTH
+    equip-slot: ARMOR
+    armor-type: CLOTH
+    max-durability: 190
+    defense: 5
+    magic-defense: 10
+    stats:
+      INT: 2
+      WIL: 2
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      A long scholar's gown with deep pockets for books.
+
+  - id: 694
+    item-db-name: herbalists_smock
+    base-level: 36
+    min-level: 19
+    weight: 120
+    type: EQUIP
+    material: CLOTH
+    equip-slot: ARMOR
+    armor-type: CLOTH
+    max-durability: 210
+    defense: 5
+    magic-defense: 11
+    stats:
+      INT: 1
+      VIT: 1
+      RESIST_POISON: 6
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A stained smock that smells of a dozen herbs, some of them dangerous.
+
+  - id: 695
+    item-db-name: embroidered_magister_robe
+    base-level: 40
+    min-level: 25
+    weight: 125
+    type: EQUIP
+    material: CLOTH
+    equip-slot: ARMOR
+    armor-type: CLOTH
+    max-durability: 250
+    defense: 6
+    magic-defense: 13
+    stats:
+      INT: 3
+      WIL: 3
+      CAST_TIME: 4
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A magister's robe embroidered with runes in silver thread.
+
+  - id: 696
+    item-db-name: silkweave_vestment
+    base-level: 60
+    min-level: 31
+    weight: 130
+    type: EQUIP
+    material: CLOTH
+    equip-slot: ARMOR
+    armor-type: CLOTH
+    max-durability: 290
+    defense: 7
+    magic-defense: 14
+    stats:
+      WIL: 4
+      MANA_REGEN: 3
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+        - pool: ARCANE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A vestment of fine silk that feels cool even in the sun.
+
+  - id: 697
+    item-db-name: robe_of_the_ashen_circle
+    base-level: 70
+    min-level: 37
+    weight: 135
+    type: EQUIP
+    material: CLOTH
+    equip-slot: ARMOR
+    armor-type: CLOTH
+    max-durability: 320
+    defense: 8
+    magic-defense: 16
+    stats:
+      INT: 5
+      RESIST_FIRE: 9
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+        - pool: ARCANE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      The grey robe of a circle of fire-mages. It cannot be burned.
+
+  - id: 698
+    item-db-name: mantle_of_the_starlit_choir
+    base-level: 58
+    min-level: 70
+    weight: 150
+    type: EQUIP
+    material: CLOTH
+    equip-slot: ARMOR
+    armor-type: CLOTH
+    max-durability: 390
+    defense: 10
+    magic-defense: 19
+    stats:
+      INT: 8
+      WIL: 6
+      MAX_MANA: 6
+      CAST_TIME: 5
+    random-stats:
+      affixes:
+        - pool: ARCANE
+      sockets: [40, 20, 10]
+    description: |
+      A deep blue mantle that shows the night sky as it was the night it was woven.
+
+  - id: 699
+    item-db-name: padded_gambeson
+    base-level: 8
+    min-level: 4
+    weight: 415
+    type: EQUIP
+    material: CLOTH
+    equip-slot: ARMOR
+    armor-type: LIGHT
+    max-durability: 120
+    defense: 5
+    magic-defense: 4
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      A quilted jacket of many layers of linen.
+
+  - id: 700
+    item-db-name: hide_vest
+    base-level: 16
+    min-level: 8
+    weight: 430
+    type: EQUIP
+    material: LEATHER
+    equip-slot: ARMOR
+    armor-type: LIGHT
+    max-durability: 150
+    defense: 6
+    magic-defense: 5
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      A vest of tanned hide.
+
+  - id: 701
+    item-db-name: hunters_leathers
+    base-level: 22
+    min-level: 12
+    weight: 450
+    type: EQUIP
+    material: LEATHER
+    equip-slot: ARMOR
+    armor-type: LIGHT
+    max-durability: 170
+    defense: 7
+    magic-defense: 6
+    stats:
+      AGI: 2
+      DEX: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      Soft leathers dyed in the colours of the forest floor.
+
+  - id: 702
+    item-db-name: boiled_leather_cuirass
+    base-level: 32
+    min-level: 16
+    weight: 465
+    type: EQUIP
+    material: LEATHER
+    equip-slot: ARMOR
+    armor-type: LIGHT
+    max-durability: 200
+    defense: 8
+    magic-defense: 7
+    stats:
+      VIT: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      Leather boiled in wax and shaped while hot, hard as wood.
+
+  - id: 703
+    item-db-name: minstrels_doublet
+    base-level: 38
+    min-level: 20
+    weight: 480
+    type: EQUIP
+    material: LEATHER
+    equip-slot: ARMOR
+    armor-type: LIGHT
+    max-durability: 220
+    defense: 9
+    magic-defense: 8
+    stats:
+      DEX: 2
+      WIL: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A slashed doublet in bright colours, with hidden leather beneath.
+
+  - id: 704
+    item-db-name: shadowweave_jerkin
+    base-level: 42
+    min-level: 25
+    weight: 495
+    type: EQUIP
+    material: LEATHER
+    equip-slot: ARMOR
+    armor-type: LIGHT
+    max-durability: 240
+    defense: 10
+    magic-defense: 9
+    stats:
+      AGI: 3
+      FLEE: 5
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A black jerkin that seems to blur at the edges when it moves.
+
+  - id: 705
+    item-db-name: pugilists_wrap_vest
+    base-level: 55
+    min-level: 28
+    weight: 510
+    type: EQUIP
+    material: CLOTH
+    equip-slot: ARMOR
+    armor-type: LIGHT
+    max-durability: 270
+    defense: 11
+    magic-defense: 9
+    stats:
+      STR: 2
+      AGI: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      Layered wraps of cloth and leather that leave the arms free.
+
+  - id: 706
+    item-db-name: trailwarden_leathers
+    base-level: 63
+    min-level: 33
+    weight: 530
+    type: EQUIP
+    material: LEATHER
+    equip-slot: ARMOR
+    armor-type: LIGHT
+    max-durability: 300
+    defense: 12
+    magic-defense: 10
+    stats:
+      DEX: 3
+      AGI: 3
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      The leathers of the trailwardens, who walk the borders for a lifetime.
+
+  - id: 707
+    item-db-name: hide_of_the_nightstalker
+    base-level: 62
+    min-level: 66
+    weight: 585
+    type: EQUIP
+    material: LEATHER
+    equip-slot: ARMOR
+    armor-type: LIGHT
+    max-durability: 380
+    defense: 15
+    magic-defense: 13
+    stats:
+      AGI: 8
+      DEX: 5
+      FLEE: 10
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+      sockets: [40, 20, 10]
+    description: |
+      Tanned from a beast that hunted only in the dark. It still prefers the dark.
+
+  - id: 708
+    item-db-name: ring_mail
+    base-level: 14
+    min-level: 7
+    weight: 965
+    type: EQUIP
+    material: METAL
+    equip-slot: ARMOR
+    armor-type: MEDIUM
+    max-durability: 140
+    defense: 8
+    magic-defense: 4
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      Iron rings sewn onto a leather coat.
+
+  - id: 709
+    item-db-name: studded_brigandine
+    base-level: 22
+    min-level: 11
+    weight: 1000
+    type: EQUIP
+    material: LEATHER
+    equip-slot: ARMOR
+    armor-type: MEDIUM
+    max-durability: 170
+    defense: 9
+    magic-defense: 4
+    stats:
+      VIT: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      A cloth coat lined with small iron plates and studded with rivets.
+
+  - id: 710
+    item-db-name: scale_vest
+    base-level: 30
+    min-level: 15
+    weight: 1035
+    type: EQUIP
+    material: METAL
+    equip-slot: ARMOR
+    armor-type: MEDIUM
+    max-durability: 190
+    defense: 10
+    magic-defense: 5
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      Overlapping iron scales on a leather backing.
+
+  - id: 711
+    item-db-name: smiths_hauberk
+    base-level: 36
+    min-level: 19
+    weight: 1070
+    type: EQUIP
+    material: METAL
+    equip-slot: ARMOR
+    armor-type: MEDIUM
+    max-durability: 210
+    defense: 12
+    magic-defense: 5
+    stats:
+      STR: 2
+      RESIST_FIRE: 6
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A short mail shirt with a leather apron over it, scorched in a hundred places.
+
+  - id: 712
+    item-db-name: lamellar_coat
+    base-level: 46
+    min-level: 23
+    weight: 1105
+    type: EQUIP
+    material: METAL
+    equip-slot: ARMOR
+    armor-type: MEDIUM
+    max-durability: 240
+    defense: 13
+    magic-defense: 6
+    stats:
+      VIT: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      Small plates laced together in rows, light for how much it stops.
+
+  - id: 713
+    item-db-name: wardens_scale_vest
+    base-level: 54
+    min-level: 28
+    weight: 1150
+    type: EQUIP
+    material: METAL
+    equip-slot: ARMOR
+    armor-type: MEDIUM
+    max-durability: 270
+    defense: 15
+    magic-defense: 7
+    stats:
+      VIT: 3
+      AGI: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      Fine scales of blued steel, worn by the forest wardens.
+
+  - id: 714
+    item-db-name: vestments_of_the_dawn
+    base-level: 58
+    min-level: 31
+    weight: 1180
+    type: EQUIP
+    material: CLOTH
+    equip-slot: ARMOR
+    armor-type: MEDIUM
+    max-durability: 290
+    defense: 14
+    magic-defense: 9
+    stats:
+      WIL: 4
+      RESIST_HOLY: 9
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      White vestments over a mail shirt, for a priest who expects to be attacked.
+
+  - id: 715
+    item-db-name: artificers_brass_harness
+    base-level: 70
+    min-level: 36
+    weight: 1225
+    type: EQUIP
+    material: METAL
+    equip-slot: ARMOR
+    armor-type: MEDIUM
+    max-durability: 320
+    defense: 17
+    magic-defense: 8
+    stats:
+      DEX: 3
+      INT: 3
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A harness of brass plates with tool loops and a dozen pockets.
+
+  - id: 716
+    item-db-name: deepforged_hauberk
+    base-level: 77
+    min-level: 64
+    weight: 1315
+    type: EQUIP
+    material: METAL
+    equip-slot: ARMOR
+    armor-type: MEDIUM
+    max-durability: 380
+    defense: 21
+    magic-defense: 9
+    stats:
+      STR: 6
+      VIT: 6
+      RESIST_FIRE: 15
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+      sockets: [40, 20, 10]
+    description: |
+      A hauberk forged at the bottom of a mine, in a forge that runs on the heat of the earth.
+
+  - id: 717
+    item-db-name: iron_plate_coat
+    base-level: 20
+    min-level: 12
+    weight: 1760
+    type: EQUIP
+    material: METAL
+    equip-slot: ARMOR
+    armor-type: HEAVY
+    max-durability: 220
+    defense: 11
+    magic-defense: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      A coat of iron plates over padding. Heavy, and worth it.
+
+  - id: 718
+    item-db-name: splint_mail
+    base-level: 30
+    min-level: 16
+    weight: 1840
+    type: EQUIP
+    material: METAL
+    equip-slot: ARMOR
+    armor-type: HEAVY
+    max-durability: 250
+    defense: 13
+    magic-defense: 3
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      Strips of iron riveted over mail.
+
+  - id: 719
+    item-db-name: banded_plate
+    base-level: 40
+    min-level: 20
+    weight: 1920
+    type: EQUIP
+    material: METAL
+    equip-slot: ARMOR
+    armor-type: HEAVY
+    max-durability: 280
+    defense: 15
+    magic-defense: 3
+    stats:
+      VIT: 3
+      AGI: -1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      Horizontal bands of steel over a mail shirt.
+
+  - id: 720
+    item-db-name: steel_breastplate
+    base-level: 49
+    min-level: 25
+    weight: 2000
+    type: EQUIP
+    material: METAL
+    equip-slot: ARMOR
+    armor-type: HEAVY
+    max-durability: 310
+    defense: 18
+    magic-defense: 4
+    stats:
+      VIT: 3
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A polished steel breastplate with a skirt of tassets.
+
+  - id: 721
+    item-db-name: templars_plate
+    base-level: 58
+    min-level: 30
+    weight: 2080
+    type: EQUIP
+    material: METAL
+    equip-slot: ARMOR
+    armor-type: HEAVY
+    max-durability: 340
+    defense: 20
+    magic-defense: 4
+    stats:
+      VIT: 3
+      WIL: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      White-enamelled plate with a red cross on the breast.
+
+  - id: 722
+    item-db-name: bastion_plate
+    base-level: 68
+    min-level: 36
+    weight: 2175
+    type: EQUIP
+    material: METAL
+    equip-slot: ARMOR
+    armor-type: HEAVY
+    max-durability: 380
+    defense: 22
+    magic-defense: 5
+    stats:
+      VIT: 5
+      MAX_HP: 5
+      AGI: -2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      Plate thick enough to stand in a gate and hold it.
+
+  - id: 723
+    item-db-name: blackiron_fullplate
+    base-level: 77
+    min-level: 40
+    weight: 2240
+    type: EQUIP
+    material: METAL
+    equip-slot: ARMOR
+    armor-type: HEAVY
+    max-durability: 400
+    defense: 24
+    magic-defense: 5
+    stats:
+      STR: 4
+      VIT: 5
+      AGI: -2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A full harness of black iron. It makes its wearer a wall.
+
+  - id: 724
+    item-db-name: aegis_of_the_unbroken
+    base-level: 65
+    min-level: 74
+    weight: 2375
+    type: EQUIP
+    material: METAL
+    equip-slot: ARMOR
+    armor-type: HEAVY
+    max-durability: 450
+    defense: 27
+    magic-defense: 6
+    stats:
+      VIT: 10
+      STR: 4
+      MAX_HP: 10
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+      sockets: [40, 20, 10]
+    description: |
+      The armor of a knight who held a bridge alone for a day and a night. It bears every dent and none of the holes.
+
+
+  # Head, HEAD_UPPER
+  - id: 725
+    item-db-name: felt_hood
+    base-level: 6
+    min-level: 3
+    weight: 30
+    type: EQUIP
+    material: CLOTH
+    equip-slot: HEAD_UPPER
+    armor-type: CLOTH
+    max-durability: 120
+    defense: 1
+    magic-defense: 2
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      A simple felt hood that keeps the rain off.
+
+  - id: 726
+    item-db-name: straw_hat
+    base-level: 10
+    min-level: 5
+    weight: 30
+    type: EQUIP
+    material: PLANT
+    equip-slot: HEAD_UPPER
+    armor-type: CLOTH
+    max-durability: 130
+    defense: 1
+    magic-defense: 2
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      A wide straw hat for long days in the field.
+
+  - id: 727
+    item-db-name: wizards_cone_hat
+    base-level: 24
+    min-level: 14
+    weight: 35
+    type: EQUIP
+    material: CLOTH
+    equip-slot: HEAD_UPPER
+    armor-type: CLOTH
+    max-durability: 180
+    defense: 2
+    magic-defense: 4
+    stats:
+      INT: 2
+      MAX_MANA: 3
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      A tall pointed hat. It is not just for show, though it is also for show.
+
+  - id: 728
+    item-db-name: scholars_cap
+    base-level: 35
+    min-level: 18
+    weight: 35
+    type: EQUIP
+    material: CLOTH
+    equip-slot: HEAD_UPPER
+    armor-type: CLOTH
+    max-durability: 210
+    defense: 2
+    magic-defense: 4
+    stats:
+      INT: 2
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A square black cap worn by those who have read more than they have lived.
+
+  - id: 729
+    item-db-name: circlet_of_clarity
+    base-level: 51
+    min-level: 27
+    weight: 40
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_UPPER
+    armor-type: CLOTH
+    max-durability: 260
+    defense: 3
+    magic-defense: 5
+    stats:
+      INT: 3
+      WIL: 3
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+        - pool: ARCANE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A thin silver circlet that eases headaches and sharpens thought.
+
+  - id: 730
+    item-db-name: silver_diadem
+    base-level: 64
+    min-level: 34
+    weight: 40
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_UPPER
+    armor-type: CLOTH
+    max-durability: 300
+    defense: 3
+    magic-defense: 6
+    stats:
+      WIL: 4
+      MAX_MANA: 4
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+        - pool: ARCANE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A diadem of silver leaves set with a single pearl.
+
+  - id: 731
+    item-db-name: crown_of_the_eclipse
+    base-level: 81
+    min-level: 62
+    weight: 45
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_UPPER
+    armor-type: CLOTH
+    max-durability: 370
+    defense: 3
+    magic-defense: 7
+    stats:
+      INT: 6
+      WIL: 6
+      MATK: 4
+    random-stats:
+      affixes:
+        - pool: ARCANE
+      sockets: [40, 20, 10]
+    description: |
+      A black crown with a ring of gold, the sun swallowed by the moon.
+
+  - id: 732
+    item-db-name: leather_cap
+    base-level: 10
+    min-level: 5
+    weight: 85
+    type: EQUIP
+    material: LEATHER
+    equip-slot: HEAD_UPPER
+    armor-type: LIGHT
+    max-durability: 130
+    defense: 2
+    magic-defense: 2
+    stats:
+      AGI: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      A close-fitting leather cap.
+
+  - id: 733
+    item-db-name: bandana
+    base-level: 16
+    min-level: 9
+    weight: 85
+    type: EQUIP
+    material: CLOTH
+    equip-slot: HEAD_UPPER
+    armor-type: LIGHT
+    max-durability: 150
+    defense: 2
+    magic-defense: 2
+    stats:
+      AGI: 1
+      FLEE: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      A bright cloth tied over the hair.
+
+  - id: 734
+    item-db-name: feathered_tricorn
+    base-level: 31
+    min-level: 16
+    weight: 95
+    type: EQUIP
+    material: LEATHER
+    equip-slot: HEAD_UPPER
+    armor-type: LIGHT
+    max-durability: 200
+    defense: 3
+    magic-defense: 3
+    stats:
+      DEX: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      A three-cornered hat with a long feather, worn at an angle.
+
+  - id: 735
+    item-db-name: rangers_hood
+    base-level: 36
+    min-level: 21
+    weight: 95
+    type: EQUIP
+    material: LEATHER
+    equip-slot: HEAD_UPPER
+    armor-type: LIGHT
+    max-durability: 230
+    defense: 3
+    magic-defense: 3
+    stats:
+      DEX: 2
+      AGI: 2
+      HIT: 3
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A hood of green leather that shades the eyes.
+
+  - id: 736
+    item-db-name: assassins_cowl
+    base-level: 49
+    min-level: 26
+    weight: 100
+    type: EQUIP
+    material: LEATHER
+    equip-slot: HEAD_UPPER
+    armor-type: LIGHT
+    max-durability: 260
+    defense: 4
+    magic-defense: 3
+    stats:
+      AGI: 3
+      CRIT: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A deep cowl and a mask in one.
+
+  - id: 737
+    item-db-name: plumed_bards_cap
+    base-level: 59
+    min-level: 31
+    weight: 105
+    type: EQUIP
+    material: LEATHER
+    equip-slot: HEAD_UPPER
+    armor-type: LIGHT
+    max-durability: 290
+    defense: 4
+    magic-defense: 4
+    stats:
+      DEX: 3
+      WIL: 3
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A velvet cap with a plume that bobs when its wearer sings.
+
+  - id: 738
+    item-db-name: hood_of_the_silent_hunt
+    base-level: 71
+    min-level: 37
+    weight: 110
+    type: EQUIP
+    material: LEATHER
+    equip-slot: HEAD_UPPER
+    armor-type: LIGHT
+    max-durability: 320
+    defense: 5
+    magic-defense: 4
+    stats:
+      DEX: 4
+      AGI: 3
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A hood that muffles its wearer's breath.
+
+  - id: 739
+    item-db-name: bronze_sallet
+    base-level: 20
+    min-level: 10
+    weight: 220
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_UPPER
+    armor-type: MEDIUM
+    max-durability: 160
+    defense: 3
+    magic-defense: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      A bronze helmet with a long tail over the neck.
+
+  - id: 740
+    item-db-name: miners_lamp_helm
+    base-level: 28
+    min-level: 14
+    weight: 230
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_UPPER
+    armor-type: MEDIUM
+    max-durability: 180
+    defense: 4
+    magic-defense: 2
+    stats:
+      VIT: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      An iron helm with a bracket for a lamp on the brow.
+
+  - id: 741
+    item-db-name: kettle_hat
+    base-level: 36
+    min-level: 18
+    weight: 235
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_UPPER
+    armor-type: MEDIUM
+    max-durability: 210
+    defense: 4
+    magic-defense: 2
+    stats:
+      VIT: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A wide-brimmed iron hat that keeps arrows and rain off alike.
+
+  - id: 742
+    item-db-name: priests_mitre
+    base-level: 44
+    min-level: 24
+    weight: 250
+    type: EQUIP
+    material: CLOTH
+    equip-slot: HEAD_UPPER
+    armor-type: MEDIUM
+    max-durability: 240
+    defense: 5
+    magic-defense: 4
+    stats:
+      WIL: 4
+      RESIST_HOLY: 6
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A tall mitre with a steel cap sewn inside it.
+
+  - id: 743
+    item-db-name: horned_helm
+    base-level: 57
+    min-level: 29
+    weight: 260
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_UPPER
+    armor-type: MEDIUM
+    max-durability: 270
+    defense: 6
+    magic-defense: 3
+    stats:
+      STR: 3
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A steel helm with two great horns, more for courage than for use.
+
+  - id: 744
+    item-db-name: gearwrights_helm
+    base-level: 68
+    min-level: 35
+    weight: 270
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_UPPER
+    armor-type: MEDIUM
+    max-durability: 310
+    defense: 6
+    magic-defense: 3
+    stats:
+      DEX: 3
+      INT: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A helm with flip-down lenses and a dozen tiny tools in the brim.
+
+  - id: 745
+    item-db-name: nasal_helm
+    base-level: 24
+    min-level: 13
+    weight: 390
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_UPPER
+    armor-type: HEAVY
+    max-durability: 230
+    defense: 5
+    magic-defense: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      A conical iron helm with a bar over the nose.
+
+  - id: 746
+    item-db-name: great_helm
+    base-level: 40
+    min-level: 20
+    weight: 420
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_UPPER
+    armor-type: HEAVY
+    max-durability: 280
+    defense: 6
+    magic-defense: 1
+    stats:
+      VIT: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A flat-topped helm that covers the whole head.
+
+  - id: 747
+    item-db-name: bascinet
+    base-level: 51
+    min-level: 26
+    weight: 440
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_UPPER
+    armor-type: HEAVY
+    max-durability: 320
+    defense: 7
+    magic-defense: 2
+    stats:
+      VIT: 2
+      STR: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A pointed helm with a hinged visor.
+
+  - id: 748
+    item-db-name: visored_barbute
+    base-level: 63
+    min-level: 33
+    weight: 465
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_UPPER
+    armor-type: HEAVY
+    max-durability: 360
+    defense: 8
+    magic-defense: 2
+    stats:
+      STR: 3
+      VIT: 3
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A close helm with a T-shaped opening and a sliding visor.
+
+  - id: 749
+    item-db-name: crested_warhelm
+    base-level: 74
+    min-level: 39
+    weight: 485
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_UPPER
+    armor-type: HEAVY
+    max-durability: 390
+    defense: 9
+    magic-defense: 2
+    stats:
+      STR: 4
+      VIT: 4
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A great helm crowned with a steel crest.
+
+  - id: 750
+    item-db-name: warhelm_of_the_iron_tide
+    base-level: 84
+    min-level: 68
+    weight: 515
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_UPPER
+    armor-type: HEAVY
+    max-durability: 440
+    defense: 10
+    magic-defense: 2
+    stats:
+      STR: 5
+      VIT: 6
+      RESIST_FIRE: 9
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+      sockets: [40, 20, 10]
+    description: |
+      Worn by the captain who turned back the burning fleet. It still smells of smoke.
+
+
+  # Garment, GARMENT
+  - id: 751
+    item-db-name: travellers_cloak
+    base-level: 10
+    min-level: 5
+    weight: 160
+    type: EQUIP
+    material: CLOTH
+    equip-slot: GARMENT
+    armor-type: CLOTH
+    max-durability: 130
+    defense: 1
+    magic-defense: 2
+    stats:
+      RESIST_WATER: 3
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      A hooded travelling cloak of oiled wool.
+
+  - id: 752
+    item-db-name: pilgrims_shawl
+    base-level: 22
+    min-level: 11
+    weight: 165
+    type: EQUIP
+    material: CLOTH
+    equip-slot: GARMENT
+    armor-type: CLOTH
+    max-durability: 170
+    defense: 1
+    magic-defense: 2
+    stats:
+      WIL: 1
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      A shawl embroidered with the signs of every shrine its owner visited.
+
+  - id: 753
+    item-db-name: scholars_mantlet
+    base-level: 33
+    min-level: 17
+    weight: 175
+    type: EQUIP
+    material: CLOTH
+    equip-slot: GARMENT
+    armor-type: CLOTH
+    max-durability: 200
+    defense: 1
+    magic-defense: 3
+    stats:
+      INT: 2
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      A short shoulder mantle in the colours of an old academy.
+
+  - id: 754
+    item-db-name: mantle_of_embers
+    base-level: 53
+    min-level: 28
+    weight: 190
+    type: EQUIP
+    material: CLOTH
+    equip-slot: GARMENT
+    armor-type: CLOTH
+    max-durability: 270
+    defense: 2
+    magic-defense: 3
+    stats:
+      INT: 3
+      RESIST_FIRE: 9
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+        - pool: ARCANE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A mantle whose hem glows faintly, like the last coals of a fire.
+
+  - id: 755
+    item-db-name: shroud_of_the_quiet_grave
+    base-level: 69
+    min-level: 36
+    weight: 205
+    type: EQUIP
+    material: CLOTH
+    equip-slot: GARMENT
+    armor-type: CLOTH
+    max-durability: 320
+    defense: 2
+    magic-defense: 4
+    stats:
+      WIL: 4
+      RESIST_UNDEAD: 9
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+        - pool: ARCANE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A grey shroud the dead do not like to look at.
+
+  - id: 756
+    item-db-name: wool_mantle
+    base-level: 16
+    min-level: 8
+    weight: 215
+    type: EQUIP
+    material: CLOTH
+    equip-slot: GARMENT
+    armor-type: LIGHT
+    max-durability: 150
+    defense: 2
+    magic-defense: 1
+    stats:
+      VIT: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      A thick woollen mantle, warm in the worst weather.
+
+  - id: 757
+    item-db-name: oilskin_cape
+    base-level: 25
+    min-level: 13
+    weight: 225
+    type: EQUIP
+    material: CLOTH
+    equip-slot: GARMENT
+    armor-type: LIGHT
+    max-durability: 180
+    defense: 2
+    magic-defense: 2
+    stats:
+      RESIST_WATER: 6
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      A cape of waxed canvas that sheds the rain.
+
+  - id: 758
+    item-db-name: hunters_ghillie
+    base-level: 35
+    min-level: 19
+    weight: 240
+    type: EQUIP
+    material: CLOTH
+    equip-slot: GARMENT
+    armor-type: LIGHT
+    max-durability: 210
+    defense: 2
+    magic-defense: 2
+    stats:
+      AGI: 2
+      FLEE: 3
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A cloak hung with strips of cloth and leaves.
+
+  - id: 759
+    item-db-name: performers_half_cape
+    base-level: 46
+    min-level: 24
+    weight: 250
+    type: EQUIP
+    material: CLOTH
+    equip-slot: GARMENT
+    armor-type: LIGHT
+    max-durability: 240
+    defense: 2
+    magic-defense: 2
+    stats:
+      DEX: 2
+      WIL: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A short cape lined in red silk, made to be swirled.
+
+  - id: 760
+    item-db-name: shadowsilk_cape
+    base-level: 63
+    min-level: 33
+    weight: 265
+    type: EQUIP
+    material: CLOTH
+    equip-slot: GARMENT
+    armor-type: LIGHT
+    max-durability: 300
+    defense: 3
+    magic-defense: 3
+    stats:
+      AGI: 4
+      CRIT: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A cape of black silk that hides its wearer in any shadow.
+
+  - id: 761
+    item-db-name: wings_of_the_wandering_wind
+    base-level: 67
+    min-level: 64
+    weight: 290
+    type: EQUIP
+    material: CLOTH
+    equip-slot: GARMENT
+    armor-type: LIGHT
+    max-durability: 380
+    defense: 4
+    magic-defense: 3
+    stats:
+      AGI: 6
+      DEX: 4
+      FLEE: 8
+      RESIST_WIND: 9
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+      sockets: [40, 20, 10]
+    description: |
+      A feathered cloak that lifts on the slightest breeze, as if it would rather be flying.
+
+  - id: 762
+    item-db-name: fur_lined_mantle
+    base-level: 29
+    min-level: 15
+    weight: 460
+    type: EQUIP
+    material: LEATHER
+    equip-slot: GARMENT
+    armor-type: MEDIUM
+    max-durability: 190
+    defense: 3
+    magic-defense: 1
+    stats:
+      VIT: 1
+      RESIST_WATER: 3
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      A heavy mantle lined with wolf fur.
+
+  - id: 763
+    item-db-name: heralds_tabard
+    base-level: 41
+    min-level: 21
+    weight: 485
+    type: EQUIP
+    material: CLOTH
+    equip-slot: GARMENT
+    armor-type: MEDIUM
+    max-durability: 230
+    defense: 3
+    magic-defense: 2
+    stats:
+      VIT: 2
+      WIL: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A tabard bearing a house's colours over a padded lining.
+
+  - id: 764
+    item-db-name: foresters_weathercloak
+    base-level: 59
+    min-level: 30
+    weight: 520
+    type: EQUIP
+    material: LEATHER
+    equip-slot: GARMENT
+    armor-type: MEDIUM
+    max-durability: 280
+    defense: 4
+    magic-defense: 2
+    stats:
+      AGI: 2
+      VIT: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A cloak of thick leather that has seen every season.
+
+  - id: 765
+    item-db-name: mail_cape
+    base-level: 50
+    min-level: 25
+    weight: 750
+    type: EQUIP
+    material: METAL
+    equip-slot: GARMENT
+    armor-type: HEAVY
+    max-durability: 310
+    defense: 4
+    magic-defense: 1
+    stats:
+      VIT: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A short cape of mail over the shoulders.
+
+  - id: 766
+    item-db-name: knights_warcloak
+    base-level: 70
+    min-level: 37
+    weight: 820
+    type: EQUIP
+    material: METAL
+    equip-slot: GARMENT
+    armor-type: HEAVY
+    max-durability: 380
+    defense: 6
+    magic-defense: 1
+    stats:
+      VIT: 4
+      MAX_HP: 4
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A heavy cloak lined with mail, clasped with the knight's own seal.
+
+
+  # Footgear, FOOTGEAR
+  - id: 767
+    item-db-name: rope_sandals
+    base-level: 6
+    min-level: 3
+    weight: 50
+    type: EQUIP
+    material: PLANT
+    equip-slot: FOOTGEAR
+    armor-type: CLOTH
+    max-durability: 120
+    defense: 1
+    magic-defense: 1
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      Sandals of plaited rope.
+
+  - id: 768
+    item-db-name: felt_slippers
+    base-level: 16
+    min-level: 8
+    weight: 55
+    type: EQUIP
+    material: CLOTH
+    equip-slot: FOOTGEAR
+    armor-type: CLOTH
+    max-durability: 150
+    defense: 1
+    magic-defense: 2
+    stats:
+      MANA_REGEN: 1
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      Soft felt slippers for long nights of study.
+
+  - id: 769
+    item-db-name: pilgrims_slippers
+    base-level: 35
+    min-level: 18
+    weight: 60
+    type: EQUIP
+    material: CLOTH
+    equip-slot: FOOTGEAR
+    armor-type: CLOTH
+    max-durability: 210
+    defense: 1
+    magic-defense: 3
+    stats:
+      WIL: 2
+      MANA_REGEN: 2
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      Slippers with soles worn thin by a thousand miles of prayer.
+
+  - id: 770
+    item-db-name: starwalker_slippers
+    base-level: 66
+    min-level: 34
+    weight: 65
+    type: EQUIP
+    material: CLOTH
+    equip-slot: FOOTGEAR
+    armor-type: CLOTH
+    max-durability: 300
+    defense: 2
+    magic-defense: 4
+    stats:
+      INT: 3
+      WIL: 2
+    random-stats:
+      affixes:
+        - pool: ARCANE
+        - pool: RESIST
+          chance: 40
+        - pool: ARCANE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      Slippers of blue silk embroidered with constellations.
+
+  - id: 771
+    item-db-name: soft_leather_boots
+    base-level: 14
+    min-level: 7
+    weight: 105
+    type: EQUIP
+    material: LEATHER
+    equip-slot: FOOTGEAR
+    armor-type: LIGHT
+    max-durability: 140
+    defense: 1
+    magic-defense: 1
+    stats:
+      AGI: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      Ankle boots of soft leather.
+
+  - id: 772
+    item-db-name: rangers_moccasins
+    base-level: 23
+    min-level: 12
+    weight: 110
+    type: EQUIP
+    material: LEATHER
+    equip-slot: FOOTGEAR
+    armor-type: LIGHT
+    max-durability: 170
+    defense: 2
+    magic-defense: 1
+    stats:
+      AGI: 1
+      DEX: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      Moccasins that make no sound on dry leaves.
+
+  - id: 773
+    item-db-name: silent_step_boots
+    base-level: 36
+    min-level: 20
+    weight: 120
+    type: EQUIP
+    material: LEATHER
+    equip-slot: FOOTGEAR
+    armor-type: LIGHT
+    max-durability: 220
+    defense: 2
+    magic-defense: 2
+    stats:
+      AGI: 3
+      FLEE: 3
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      Boots with felt soles, made for walking where one should not be.
+
+  - id: 774
+    item-db-name: troubadours_buckled_shoes
+    base-level: 49
+    min-level: 25
+    weight: 125
+    type: EQUIP
+    material: LEATHER
+    equip-slot: FOOTGEAR
+    armor-type: LIGHT
+    max-durability: 250
+    defense: 3
+    magic-defense: 2
+    stats:
+      DEX: 2
+      WIL: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      Pointed shoes with silver buckles, made for dancing.
+
+  - id: 775
+    item-db-name: fighters_foot_wraps
+    base-level: 57
+    min-level: 29
+    weight: 130
+    type: EQUIP
+    material: CLOTH
+    equip-slot: FOOTGEAR
+    armor-type: LIGHT
+    max-durability: 270
+    defense: 3
+    magic-defense: 2
+    stats:
+      STR: 2
+      AGI: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      Wraps of linen and leather that leave the toes free to grip.
+
+  - id: 776
+    item-db-name: couriers_boots
+    base-level: 69
+    min-level: 35
+    weight: 135
+    type: EQUIP
+    material: LEATHER
+    equip-slot: FOOTGEAR
+    armor-type: LIGHT
+    max-durability: 310
+    defense: 3
+    magic-defense: 3
+    stats:
+      AGI: 4
+      STAMINA_REGEN: 3
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      Light boots worn by the couriers who run the long roads.
+
+  - id: 777
+    item-db-name: boots_of_the_seven_leagues
+    base-level: 88
+    min-level: 60
+    weight: 145
+    type: EQUIP
+    material: LEATHER
+    equip-slot: FOOTGEAR
+    armor-type: LIGHT
+    max-durability: 370
+    defense: 4
+    magic-defense: 3
+    stats:
+      AGI: 6
+      STAMINA_REGEN: 4
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+      sockets: [40, 20, 10]
+    description: |
+      Every step in them is a little longer than it should be.
+
+  - id: 778
+    item-db-name: hobnailed_boots
+    base-level: 22
+    min-level: 11
+    weight: 220
+    type: EQUIP
+    material: LEATHER
+    equip-slot: FOOTGEAR
+    armor-type: MEDIUM
+    max-durability: 170
+    defense: 2
+    magic-defense: 1
+    stats:
+      VIT: 1
+      STAMINA_REGEN: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      Heavy boots with iron nails in the soles for grip on rock.
+
+  - id: 779
+    item-db-name: riveted_boots
+    base-level: 34
+    min-level: 17
+    weight: 235
+    type: EQUIP
+    material: LEATHER
+    equip-slot: FOOTGEAR
+    armor-type: MEDIUM
+    max-durability: 200
+    defense: 3
+    magic-defense: 1
+    stats:
+      VIT: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      Boots reinforced with riveted iron strips.
+
+  - id: 780
+    item-db-name: striders_boots
+    base-level: 51
+    min-level: 26
+    weight: 250
+    type: EQUIP
+    material: LEATHER
+    equip-slot: FOOTGEAR
+    armor-type: MEDIUM
+    max-durability: 260
+    defense: 4
+    magic-defense: 2
+    stats:
+      AGI: 2
+      STAMINA_REGEN: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      Tall boots for long strides through deep forest.
+
+  - id: 781
+    item-db-name: forge_soled_boots
+    base-level: 60
+    min-level: 31
+    weight: 260
+    type: EQUIP
+    material: LEATHER
+    equip-slot: FOOTGEAR
+    armor-type: MEDIUM
+    max-durability: 290
+    defense: 4
+    magic-defense: 2
+    stats:
+      VIT: 2
+      RESIST_FIRE: 9
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      Boots with soles thick enough to stand on a cooling slag heap.
+
+  - id: 782
+    item-db-name: deepdelvers_boots
+    base-level: 75
+    min-level: 38
+    weight: 275
+    type: EQUIP
+    material: LEATHER
+    equip-slot: FOOTGEAR
+    armor-type: MEDIUM
+    max-durability: 330
+    defense: 5
+    magic-defense: 2
+    stats:
+      VIT: 3
+      STR: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      Boots made for the deepest shafts, where the floor is never level.
+
+  - id: 783
+    item-db-name: ironshod_greaves
+    base-level: 30
+    min-level: 16
+    weight: 460
+    type: EQUIP
+    material: METAL
+    equip-slot: FOOTGEAR
+    armor-type: HEAVY
+    max-durability: 250
+    defense: 3
+    magic-defense: 1
+    stats:
+      VIT: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      Iron greaves strapped over leather boots.
+
+  - id: 784
+    item-db-name: plated_greaves
+    base-level: 44
+    min-level: 22
+    weight: 490
+    type: EQUIP
+    material: METAL
+    equip-slot: FOOTGEAR
+    armor-type: HEAVY
+    max-durability: 290
+    defense: 4
+    magic-defense: 1
+    stats:
+      VIT: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      Steel greaves with articulated plates over the foot.
+
+  - id: 785
+    item-db-name: sabatons_of_the_bulwark
+    base-level: 65
+    min-level: 33
+    weight: 530
+    type: EQUIP
+    material: METAL
+    equip-slot: FOOTGEAR
+    armor-type: HEAVY
+    max-durability: 360
+    defense: 5
+    magic-defense: 1
+    stats:
+      VIT: 3
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      Armored shoes that root their wearer to the spot.
+
+  - id: 786
+    item-db-name: treads_of_the_last_stand
+    base-level: 84
+    min-level: 62
+    weight: 580
+    type: EQUIP
+    material: METAL
+    equip-slot: FOOTGEAR
+    armor-type: HEAVY
+    max-durability: 430
+    defense: 6
+    magic-defense: 1
+    stats:
+      VIT: 5
+      STR: 3
+      MAX_HP: 4
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+      sockets: [40, 20, 10]
+    description: |
+      Whoever wears these does not take a step back. They have never been made to.
+
+
+  # Shield, LEFT_HAND
+  - id: 787
+    item-db-name: wicker_buckler
+    base-level: 8
+    min-level: 4
+    weight: 155
+    type: EQUIP
+    material: WOOD
+    equip-slot: LEFT_HAND
+    armor-type: LIGHT
+    max-durability: 120
+    defense: 3
+    magic-defense: 3
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      A small round shield of woven wicker.
+
+  - id: 788
+    item-db-name: hide_targe
+    base-level: 20
+    min-level: 10
+    weight: 165
+    type: EQUIP
+    material: LEATHER
+    equip-slot: LEFT_HAND
+    armor-type: LIGHT
+    max-durability: 160
+    defense: 4
+    magic-defense: 4
+    stats:
+      AGI: 1
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      A round targe of hide stretched over a wooden frame.
+
+  - id: 789
+    item-db-name: studded_buckler
+    base-level: 33
+    min-level: 17
+    weight: 175
+    type: EQUIP
+    material: LEATHER
+    equip-slot: LEFT_HAND
+    armor-type: LIGHT
+    max-durability: 200
+    defense: 5
+    magic-defense: 5
+    stats:
+      AGI: 1
+      FLEE: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      A leather buckler studded with iron.
+
+  - id: 790
+    item-db-name: duelists_parrying_buckler
+    base-level: 47
+    min-level: 25
+    weight: 190
+    type: EQUIP
+    material: METAL
+    equip-slot: LEFT_HAND
+    armor-type: LIGHT
+    max-durability: 250
+    defense: 6
+    magic-defense: 5
+    stats:
+      DEX: 2
+      FLEE: 4
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A small steel buckler with a spike, for turning a blade aside.
+
+  - id: 791
+    item-db-name: mirrored_buckler
+    base-level: 66
+    min-level: 34
+    weight: 200
+    type: EQUIP
+    material: METAL
+    equip-slot: LEFT_HAND
+    armor-type: LIGHT
+    max-durability: 300
+    defense: 8
+    magic-defense: 7
+    stats:
+      AGI: 3
+      RESIST_HOLY: 6
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A buckler polished to a mirror, to blind whoever stands in front of it.
+
+  - id: 792
+    item-db-name: round_shield
+    base-level: 18
+    min-level: 9
+    weight: 435
+    type: EQUIP
+    material: WOOD
+    equip-slot: LEFT_HAND
+    armor-type: MEDIUM
+    max-durability: 150
+    defense: 5
+    magic-defense: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [10]
+    description: |
+      A round shield of planks with an iron boss.
+
+  - id: 793
+    item-db-name: bronze_heater
+    base-level: 26
+    min-level: 13
+    weight: 450
+    type: EQUIP
+    material: METAL
+    equip-slot: LEFT_HAND
+    armor-type: MEDIUM
+    max-durability: 180
+    defense: 6
+    magic-defense: 3
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      A heater-shaped shield faced in bronze.
+
+  - id: 794
+    item-db-name: steel_kite_shield
+    base-level: 48
+    min-level: 24
+    weight: 495
+    type: EQUIP
+    material: METAL
+    equip-slot: LEFT_HAND
+    armor-type: MEDIUM
+    max-durability: 240
+    defense: 8
+    magic-defense: 4
+    stats:
+      VIT: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20, 5]
+    description: |
+      A tall kite shield of steel, pointed at the bottom.
+
+  - id: 795
+    item-db-name: runed_ward
+    base-level: 58
+    min-level: 30
+    weight: 520
+    type: EQUIP
+    material: METAL
+    equip-slot: LEFT_HAND
+    armor-type: MEDIUM
+    max-durability: 280
+    defense: 10
+    magic-defense: 5
+    stats:
+      WIL: 3
+      RESIST_SHADOW: 6
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A shield carved with warding runes that glow when darkness is near.
+
+  - id: 796
+    item-db-name: gearlock_shield
+    base-level: 71
+    min-level: 36
+    weight: 545
+    type: EQUIP
+    material: METAL
+    equip-slot: LEFT_HAND
+    armor-type: MEDIUM
+    max-durability: 320
+    defense: 11
+    magic-defense: 5
+    stats:
+      DEX: 2
+      INT: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A shield that unfolds from a bracer at the turn of a key.
+
+  - id: 797
+    item-db-name: iron_pavise
+    base-level: 30
+    min-level: 16
+    weight: 1035
+    type: EQUIP
+    material: METAL
+    equip-slot: LEFT_HAND
+    armor-type: HEAVY
+    max-durability: 250
+    defense: 8
+    magic-defense: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+      sockets: [20]
+    description: |
+      A tall rectangular shield that can be set on the ground to stand behind.
+
+  - id: 798
+    item-db-name: bulwark_pavise
+    base-level: 59
+    min-level: 30
+    weight: 1170
+    type: EQUIP
+    material: METAL
+    equip-slot: LEFT_HAND
+    armor-type: HEAVY
+    max-durability: 340
+    defense: 12
+    magic-defense: 3
+    stats:
+      VIT: 3
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 10]
+    description: |
+      A pavise of iron-faced oak, a wall in one hand.
+
+  - id: 799
+    item-db-name: cathedral_tower_shield
+    base-level: 76
+    min-level: 39
+    weight: 1250
+    type: EQUIP
+    material: METAL
+    equip-slot: LEFT_HAND
+    armor-type: HEAVY
+    max-durability: 390
+    defense: 15
+    magic-defense: 3
+    stats:
+      VIT: 4
+      WIL: 2
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+        - pool: RESIST
+          chance: 40
+        - pool: DEFENSE
+          chance: 25
+      sockets: [30, 15]
+    description: |
+      A tower shield with the window of a cathedral painted across it.
+
+  - id: 800
+    item-db-name: bastion_of_the_first_wall
+    base-level: 85
+    min-level: 70
+    weight: 1330
+    type: EQUIP
+    material: METAL
+    equip-slot: LEFT_HAND
+    armor-type: HEAVY
+    max-durability: 450
+    defense: 17
+    magic-defense: 4
+    stats:
+      VIT: 6
+      MAX_HP: 6
+      RESIST_NORMAL: 6
+    random-stats:
+      affixes:
+        - pool: DEFENSE
+      sockets: [40, 20, 10]
+    description: |
+      Cut from the first stone wall ever built around a city, and bound in iron.
+
+
+  # Face, HEAD_MID
+  - id: 801
+    item-db-name: cracked_monocle
+    base-level: 4
+    min-level: 5
+    weight: 10
+    type: EQUIP
+    material: GLASS
+    equip-slot: HEAD_MID
+    max-durability: 120
+    stats:
+      DEX: 1
+      HIT: 2
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [10]
+    description: |
+      A monocle with a crack across it. It still helps.
+
+  - id: 802
+    item-db-name: leather_eyepatch
+    base-level: 11
+    min-level: 7
+    weight: 10
+    type: EQUIP
+    material: LEATHER
+    equip-slot: HEAD_MID
+    max-durability: 130
+    stats:
+      HIT: 3
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [10]
+    description: |
+      An eyepatch. The eye beneath it is fine; the other one is better for it.
+
+  - id: 803
+    item-db-name: cloth_face_mask
+    base-level: 18
+    min-level: 9
+    weight: 10
+    type: EQUIP
+    material: CLOTH
+    equip-slot: HEAD_MID
+    max-durability: 140
+    stats:
+      RESIST_POISON: 3
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [10]
+    description: |
+      A cloth tied over the mouth and nose against dust and fumes.
+
+  - id: 804
+    item-db-name: smoked_goggles
+    base-level: 22
+    min-level: 12
+    weight: 10
+    type: EQUIP
+    material: GLASS
+    equip-slot: HEAD_MID
+    max-durability: 150
+    stats:
+      DEX: 2
+      RESIST_FIRE: 3
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20]
+    description: |
+      Goggles of smoked glass for watching molten metal.
+
+  - id: 805
+    item-db-name: jewellers_loupe
+    base-level: 24
+    min-level: 16
+    weight: 10
+    type: EQUIP
+    material: GLASS
+    equip-slot: HEAD_MID
+    max-durability: 160
+    stats:
+      DEX: 3
+      HIT: 4
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20]
+    description: |
+      A jeweller's loupe on a band, for telling a gem from glass.
+
+  - id: 806
+    item-db-name: plague_beak_mask
+    base-level: 32
+    min-level: 17
+    weight: 10
+    type: EQUIP
+    material: LEATHER
+    equip-slot: HEAD_MID
+    max-durability: 170
+    stats:
+      VIT: 1
+      RESIST_POISON: 9
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20]
+    description: |
+      A long-beaked mask stuffed with dried herbs.
+
+  - id: 807
+    item-db-name: masquerade_half_mask
+    base-level: 38
+    min-level: 20
+    weight: 10
+    type: EQUIP
+    material: CLOTH
+    equip-slot: HEAD_MID
+    max-durability: 180
+    stats:
+      DEX: 2
+      WIL: 2
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20, 5]
+    description: |
+      A gilded half-mask from a masquerade nobody remembers ending.
+
+  - id: 808
+    item-db-name: assassins_veil
+    base-level: 43
+    min-level: 23
+    weight: 10
+    type: EQUIP
+    material: CLOTH
+    equip-slot: HEAD_MID
+    max-durability: 190
+    stats:
+      AGI: 2
+      CRIT: 1
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20, 5]
+    description: |
+      A veil of black gauze that hides the face and nothing else.
+
+  - id: 809
+    item-db-name: spyglass_monocle
+    base-level: 46
+    min-level: 26
+    weight: 10
+    type: EQUIP
+    material: GLASS
+    equip-slot: HEAD_MID
+    max-durability: 200
+    stats:
+      DEX: 2
+      HIT: 6
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [30, 10]
+    description: |
+      A monocle with a tiny telescoping lens.
+
+  - id: 810
+    item-db-name: iron_face_guard
+    base-level: 57
+    min-level: 29
+    weight: 10
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_MID
+    max-durability: 220
+    stats:
+      VIT: 3
+      RESIST_NORMAL: 3
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [30, 10]
+    description: |
+      An iron plate shaped to the face, with slits for the eyes.
+
+  - id: 811
+    item-db-name: owl_eye_lenses
+    base-level: 55
+    min-level: 32
+    weight: 10
+    type: EQUIP
+    material: GLASS
+    equip-slot: HEAD_MID
+    max-durability: 230
+    stats:
+      DEX: 3
+      INT: 3
+      HIT: 5
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [30, 10]
+    description: |
+      Round amber lenses that make the night as clear as dusk.
+
+  - id: 812
+    item-db-name: mask_of_the_hollow_choir
+    base-level: 82
+    min-level: 64
+    weight: 10
+    type: EQUIP
+    material: METAL
+    equip-slot: HEAD_MID
+    max-durability: 280
+    stats:
+      INT: 4
+      WIL: 4
+      MDEF: 3
+      RESIST_SHADOW: 9
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: RESIST
+          chance: 30
+      sockets: [40, 20, 10]
+    description: |
+      A silver mask with an open mouth. Those who wear it hear singing.
+
+
+  # Accessory, ACCESSORY_1/2
+  - id: 813
+    item-db-name: copper_band
+    base-level: 8
+    min-level: 4
+    weight: 5
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 120
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [10]
+    description: |
+      A plain copper ring that turns the finger green.
+
+  - id: 814
+    item-db-name: bone_charm
+    base-level: 13
+    min-level: 7
+    weight: 5
+    type: EQUIP
+    material: STONE
+    equip-slot: ACCESSORY_1
+    max-durability: 130
+    stats:
+      WIL: 1
+      RESIST_UNDEAD: 3
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [10]
+    description: |
+      A carved bone on a cord, said to keep the dead at rest.
+
+  - id: 815
+    item-db-name: iron_ring
+    base-level: 16
+    min-level: 8
+    weight: 5
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 130
+    stats:
+      STR: 1
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [10]
+    description: |
+      A heavy iron ring.
+
+  - id: 816
+    item-db-name: rabbits_foot_charm
+    base-level: 16
+    min-level: 9
+    weight: 5
+    type: EQUIP
+    material: LEATHER
+    equip-slot: ACCESSORY_1
+    max-durability: 140
+    stats:
+      AGI: 1
+      FLEE: 2
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [10]
+    description: |
+      Lucky for its owner, if not for the rabbit.
+
+  - id: 817
+    item-db-name: brawlers_bracer
+    base-level: 23
+    min-level: 12
+    weight: 5
+    type: EQUIP
+    material: LEATHER
+    equip-slot: ACCESSORY_1
+    max-durability: 150
+    stats:
+      STR: 2
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20]
+    description: |
+      A thick leather bracer that steadies the wrist for a punch.
+
+  - id: 818
+    item-db-name: rangers_thumb_ring
+    base-level: 21
+    min-level: 13
+    weight: 5
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 150
+    stats:
+      DEX: 2
+      HIT: 3
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20]
+    description: |
+      A horn ring worn on the thumb to draw a bowstring.
+
+  - id: 819
+    item-db-name: merchants_signet
+    base-level: 29
+    min-level: 15
+    weight: 5
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 160
+    stats:
+      DEX: 1
+      AGI: 1
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20]
+    description: |
+      A signet ring for sealing contracts.
+
+  - id: 820
+    item-db-name: alchemists_phylactery
+    base-level: 30
+    min-level: 16
+    weight: 5
+    type: EQUIP
+    material: GLASS
+    equip-slot: ACCESSORY_1
+    max-durability: 160
+    stats:
+      INT: 2
+      RESIST_POISON: 6
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20]
+    description: |
+      A tiny vial on a chain, filled with an antidote for emergencies.
+
+  - id: 821
+    item-db-name: jade_earring
+    base-level: 33
+    min-level: 17
+    weight: 5
+    type: EQUIP
+    material: STONE
+    equip-slot: ACCESSORY_1
+    max-durability: 170
+    stats:
+      WIL: 2
+      MANA_REGEN: 2
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20]
+    description: |
+      A drop of green jade that calms the mind.
+
+  - id: 822
+    item-db-name: silver_holy_symbol
+    base-level: 35
+    min-level: 19
+    weight: 5
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 180
+    stats:
+      WIL: 3
+      RESIST_SHADOW: 6
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20, 5]
+    description: |
+      A silver sun on a chain, blessed at dawn.
+
+  - id: 823
+    item-db-name: tigers_eye_ring
+    base-level: 37
+    min-level: 20
+    weight: 5
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 180
+    stats:
+      DEX: 2
+      CRIT: 1
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20, 5]
+    description: |
+      A ring set with a banded brown stone that catches the light like an eye.
+
+  - id: 824
+    item-db-name: garnet_ring
+    base-level: 39
+    min-level: 22
+    weight: 5
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 190
+    stats:
+      STR: 2
+      VIT: 2
+      MAX_HP: 3
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20, 5]
+    description: |
+      A gold ring set with a deep red garnet.
+
+  - id: 825
+    item-db-name: sapphire_pendant
+    base-level: 43
+    min-level: 24
+    weight: 5
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 200
+    stats:
+      INT: 3
+      MAX_MANA: 4
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20, 5]
+    description: |
+      A sapphire on a silver chain, cool against the skin.
+
+  - id: 826
+    item-db-name: bards_charm_bracelet
+    base-level: 49
+    min-level: 25
+    weight: 5
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 200
+    stats:
+      DEX: 2
+      WIL: 2
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20, 5]
+    description: |
+      A bracelet hung with little charms from every town its owner played in.
+
+  - id: 827
+    item-db-name: miners_lodestone
+    base-level: 50
+    min-level: 26
+    weight: 5
+    type: EQUIP
+    material: STONE
+    equip-slot: ACCESSORY_1
+    max-durability: 200
+    stats:
+      VIT: 2
+      RESIST_EARTH: 9
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [30, 10]
+    description: |
+      A lodestone on a leather thong that tugs toward iron.
+
+  - id: 828
+    item-db-name: wolf_tooth_necklace
+    base-level: 53
+    min-level: 27
+    weight: 5
+    type: EQUIP
+    material: LEATHER
+    equip-slot: ACCESSORY_1
+    max-durability: 210
+    stats:
+      STR: 2
+      AGI: 2
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [30, 10]
+    description: |
+      A necklace of wolf teeth, each taken by its wearer.
+
+  - id: 829
+    item-db-name: earring_of_the_dancing_blade
+    base-level: 55
+    min-level: 29
+    weight: 5
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 220
+    stats:
+      AGI: 3
+      CRIT: 1
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [30, 10]
+    description: |
+      A silver earring shaped like a tiny dagger.
+
+  - id: 830
+    item-db-name: ring_of_warding
+    base-level: 58
+    min-level: 30
+    weight: 5
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 220
+    stats:
+      VIT: 2
+      MDEF: 2
+      RESIST_NORMAL: 3
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [30, 10]
+    description: |
+      A steel ring engraved with a circle of wards.
+
+  - id: 831
+    item-db-name: runestone_amulet
+    base-level: 64
+    min-level: 32
+    weight: 5
+    type: EQUIP
+    material: STONE
+    equip-slot: ACCESSORY_1
+    max-durability: 230
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [30, 10]
+    description: |
+      A flat stone carved with a single rune. Which rune it is changes from stone to stone.
+
+  - id: 832
+    item-db-name: emerald_ring_of_growth
+    base-level: 65
+    min-level: 33
+    weight: 5
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 230
+    stats:
+      VIT: 3
+      HP_REGEN: 4
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [30, 15]
+    description: |
+      An emerald ring. Cuts heal faster under it.
+
+  - id: 833
+    item-db-name: opal_of_the_tides
+    base-level: 66
+    min-level: 34
+    weight: 5
+    type: EQUIP
+    material: CRYSTAL
+    equip-slot: ACCESSORY_1
+    max-durability: 240
+    stats:
+      INT: 3
+      RESIST_WATER: 9
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [30, 15]
+    description: |
+      An opal whose colours shift like the sea.
+
+  - id: 834
+    item-db-name: ruby_signet
+    base-level: 70
+    min-level: 36
+    weight: 5
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 240
+    stats:
+      STR: 4
+      RESIST_FIRE: 6
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [30, 15]
+    description: |
+      A heavy signet set with a ruby the colour of hot iron.
+
+  - id: 835
+    item-db-name: onyx_ring
+    base-level: 70
+    min-level: 37
+    weight: 5
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 250
+    stats:
+      AGI: 3
+      DEX: 3
+      RESIST_SHADOW: 6
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [30, 15]
+    description: |
+      A ring of black onyx that seems to swallow light.
+
+  - id: 836
+    item-db-name: pilgrims_amulet
+    base-level: 73
+    min-level: 39
+    weight: 5
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 260
+    stats:
+      WIL: 4
+      VIT: 2
+      RESIST_HOLY: 9
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [30, 15]
+    description: |
+      An amulet carried to every shrine in the world, and blessed at each.
+
+  - id: 837
+    item-db-name: band_of_a_thousand_bargains
+    base-level: 87
+    min-level: 60
+    weight: 5
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 280
+    stats:
+      DEX: 4
+      AGI: 4
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: RESIST
+          chance: 30
+      sockets: [40, 20, 10]
+    description: |
+      Every merchant who wore it died rich. None of them died happy.
+
+  - id: 838
+    item-db-name: eye_of_the_oracle
+    base-level: 78
+    min-level: 64
+    weight: 5
+    type: EQUIP
+    material: CRYSTAL
+    equip-slot: ACCESSORY_1
+    max-durability: 280
+    stats:
+      INT: 5
+      WIL: 5
+      CAST_TIME: 6
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: RESIST
+          chance: 30
+      sockets: [40, 20, 10]
+    description: |
+      A pale stone that shows, in its depths, a moment that has not happened yet.
+
+  - id: 839
+    item-db-name: heart_of_the_behemoth
+    base-level: 77
+    min-level: 68
+    weight: 5
+    type: EQUIP
+    material: CRYSTAL
+    equip-slot: ACCESSORY_1
+    max-durability: 290
+    stats:
+      VIT: 6
+      STR: 4
+      MAX_HP: 8
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: RESIST
+          chance: 30
+      sockets: [40, 20, 10]
+    description: |
+      A red stone the size of a fist that beats, very slowly, once an hour.
+
+  - id: 840
+    item-db-name: ring_of_the_hollow_king
+    base-level: 77
+    min-level: 72
+    weight: 5
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 290
+    stats:
+      AGI: 5
+      DEX: 5
+      CRIT: 2
+      RESIST_SHADOW: 9
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: RESIST
+          chance: 30
+      sockets: [40, 20, 10]
+    description: |
+      The ring of a king who traded everything for it. It fits any finger, and none comfortably.
+
+
+  # Light source, LIGHT_SOURCE
+  - id: 841
+    item-db-name: tin_lantern
+    base-level: 10
+    min-level: 5
+    weight: 150
+    type: EQUIP
+    material: METAL
+    equip-slot: LIGHT_SOURCE
+    max-durability: 1440
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [10]
+    description: |
+      A tin lantern with horn windows. It burns far longer than a torch, and a smith can refit it.
+
+  - id: 842
+    item-db-name: hooded_lantern
+    base-level: 30
+    min-level: 15
+    weight: 150
+    type: EQUIP
+    material: METAL
+    equip-slot: LIGHT_SOURCE
+    max-durability: 2160
+    stats:
+      DEX: 1
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20]
+    description: |
+      A lantern with a shutter that can dim it to a sliver.
+
+  - id: 843
+    item-db-name: miners_carbide_lamp
+    base-level: 40
+    min-level: 20
+    weight: 150
+    type: EQUIP
+    material: METAL
+    equip-slot: LIGHT_SOURCE
+    max-durability: 2880
+    stats:
+      VIT: 1
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20, 5]
+    description: |
+      A bright, hissing lamp that lights a whole tunnel.
+
+  - id: 844
+    item-db-name: glowcap_lantern
+    base-level: 50
+    min-level: 25
+    weight: 150
+    type: EQUIP
+    material: METAL
+    equip-slot: LIGHT_SOURCE
+    max-durability: 3600
+    stats:
+      RESIST_POISON: 3
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [20, 5]
+    description: |
+      A glass lantern of luminous fungus. It needs no fuel, only a little water now and then.
+
+  - id: 845
+    item-db-name: everflame_lantern
+    base-level: 59
+    min-level: 30
+    weight: 150
+    type: EQUIP
+    material: METAL
+    equip-slot: LIGHT_SOURCE
+    max-durability: 7200
+    stats:
+      WIL: 2
+      RESIST_SHADOW: 6
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: ATTRIBUTE
+          chance: 50
+        - pool: RESIST
+          chance: 30
+      sockets: [30, 10]
+    description: |
+      A brass lantern whose flame has burned for longer than anyone has owned it.
+
+  - id: 846
+    item-db-name: lantern_of_the_lost_saint
+    base-level: 81
+    min-level: 60
+    weight: 150
+    type: EQUIP
+    material: METAL
+    equip-slot: LIGHT_SOURCE
+    max-durability: 10800
+    stats:
+      WIL: 5
+      RESIST_UNDEAD: 15
+      RESIST_SHADOW: 9
+    random-stats:
+      affixes:
+        - pool: ATTRIBUTE
+        - pool: RESIST
+          chance: 30
+      sockets: [40, 20, 10]
+    description: |
+      The lantern a saint carried into the dark to find the lost. The dark still remembers it.
+

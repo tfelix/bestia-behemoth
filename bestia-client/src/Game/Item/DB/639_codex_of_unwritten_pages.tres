@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 639
+name_key = "CODEX_OF_UNWRITTEN_PAGES"
+description_key = "CODEX_OF_UNWRITTEN_PAGES_DESC"
+weight = 90
+level = 74
+min_level = 68
+type = 1
+equip_slot = 7
+weapon_type = "TOME"

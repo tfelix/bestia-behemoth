@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 539
+name_key = "GILDED_TONGUE"
+description_key = "GILDED_TONGUE_DESC"
+weight = 175
+level = 73
+min_level = 62
+type = 1
+equip_slot = 6
+weapon_type = "SWORD"

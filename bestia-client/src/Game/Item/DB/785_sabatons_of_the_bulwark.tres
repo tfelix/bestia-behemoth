@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 785
+name_key = "SABATONS_OF_THE_BULWARK"
+description_key = "SABATONS_OF_THE_BULWARK_DESC"
+weight = 530
+level = 65
+min_level = 33
+type = 1
+equip_slot = 5
+armor_type = 4

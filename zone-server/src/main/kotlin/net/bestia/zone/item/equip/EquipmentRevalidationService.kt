@@ -77,7 +77,7 @@ class EquipmentRevalidationService(
     val refused = wearer.worn.mapNotNull { piece ->
       val template = templates[piece.itemId] ?: return@mapNotNull null
       val denial = equipmentService.checkStillWearable(
-        template, piece.itemLevel, wearer.level, wearer.isNovice, wearer.allowance
+        template, wearer.level, wearer.isNovice, wearer.allowance
       )
         ?: return@mapNotNull null
 

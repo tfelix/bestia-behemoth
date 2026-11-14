@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 508
+name_key = "NIGHTGLASS_KRIS"
+description_key = "NIGHTGLASS_KRIS_DESC"
+weight = 65
+level = 61
+min_level = 34
+type = 1
+equip_slot = 6
+weapon_type = "DAGGER"

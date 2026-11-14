@@ -19,7 +19,7 @@ import java.io.File
  * against the Godot client's Item DB (the `.tres` files under `bestia-client/src/Game/Item/DB/`),
  * the exact check/sync split [SkillDbSyncTask] uses for skills.
  *
- * `item_id`, `type`, `weight`, `level`, `equip_slot`, `armor_type`, `attack_range`, `name_key` and
+ * `item_id`, `type`, `weight`, `level`, `min_level`, `equip_slot`, `armor_type`, `attack_range`, `name_key` and
  * `description_key` are touched - every other field (`icon`, `item_script`, `item_visual`) is hand-authored
  * client presentation with no server equivalent and is left alone. `equip_slot`, `armor_type` and
  * `attack_range` are only checked/patched when set; anything else is fine relying on the resource default of 0
@@ -65,6 +65,8 @@ abstract class ItemDbSyncTask : DefaultTask() {
     val weight: Int,
     @JsonProperty("base-level")
     val level: Int = 1,
+    @JsonProperty("min-level")
+    val minLevel: Int = 1,
     val type: String,
     @JsonProperty("equip-slot")
     val equipSlot: String? = null,
@@ -83,6 +85,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     val identifier: String,
     val weight: Int,
     val level: Int,
+    val minLevel: Int,
     val type: Int,
     val equipSlot: Int,
     val armorType: Int,
@@ -103,6 +106,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
         identifier = item.identifier,
         weight = item.weight,
         level = item.level,
+        minLevel = item.minLevel,
         type = typeOrdinalOf(item),
         equipSlot = equipSlotValueOf(item),
         armorType = armorTypeValueOf(item),
@@ -120,6 +124,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     val itemIdPattern = Regex("""^item_id\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val weightPattern = Regex("""^weight\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val levelPattern = Regex("""^level\s*=\s*(\d+)""", RegexOption.MULTILINE)
+    val minLevelPattern = Regex("""^min_level\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val typePattern = Regex("""^type\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val equipSlotPattern = Regex("""^equip_slot\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val armorTypePattern = Regex("""^armor_type\s*=\s*(\d+)""", RegexOption.MULTILINE)
@@ -166,6 +171,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
       patchNumericField(file, "weight", weightPattern, expected.weight, DEFAULT_WEIGHT, id, shouldFix, problems)
       patchNumericField(file, "type", typePattern, expected.type, DEFAULT_TYPE, id, shouldFix, problems)
       patchNumericField(file, "level", levelPattern, expected.level, DEFAULT_LEVEL, id, shouldFix, problems)
+      patchNumericField(file, "min_level", minLevelPattern, expected.minLevel, DEFAULT_LEVEL, id, shouldFix, problems)
 
       // Only equipment needs the line at all; a usable/etc item is fine relying on the default 0.
       if (expected.equipSlot != DEFAULT_EQUIP_SLOT) {
@@ -318,6 +324,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     // because the checks above read a missing line as that default.
     val weightLine = if (expected.weight != DEFAULT_WEIGHT) "\nweight = ${expected.weight}" else ""
     val levelLine = if (expected.level != DEFAULT_LEVEL) "\nlevel = ${expected.level}" else ""
+    val minLevelLine = if (expected.minLevel != DEFAULT_LEVEL) "\nmin_level = ${expected.minLevel}" else ""
     val typeLine = if (expected.type != DEFAULT_TYPE) "\ntype = ${expected.type}" else ""
     val equipSlotLine =
       if (expected.equipSlot != DEFAULT_EQUIP_SLOT) "\nequip_slot = ${expected.equipSlot}" else ""
@@ -336,7 +343,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     item_id = $id
     name_key = "$nameKey"
     description_key = "$descriptionKey"
-    """.trimIndent() + weightLine + levelLine + typeLine + equipSlotLine + armorTypeLine + weaponTypeLine + attackRangeLine + "\n"
+    """.trimIndent() + weightLine + levelLine + minLevelLine + typeLine + equipSlotLine + armorTypeLine + weaponTypeLine + attackRangeLine + "\n"
   }
 
   companion object {
