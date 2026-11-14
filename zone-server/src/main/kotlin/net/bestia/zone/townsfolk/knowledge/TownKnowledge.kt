@@ -155,11 +155,12 @@ class TownKnowledge(
       val candidates = poolOf(generated, settlement, nearbyRange, positions)
       val legends = LegendKnowledge.toldAt(chronicle, settlement, worldSeed, positions, legendVariantsOf)
         .map { it.knowledge }
+      val claims = LineageClaims.at(chronicle, settlement, worldSeed, positions, legendVariantsOf(LegendKind.LINEAGE))
 
       val occupants = (0 until summary.householdCount).mapNotNull { index ->
         householdAt(index)?.let { Occupant(worldSeed, settlement, index, it, profileOf(it)) }
       }
-      if (occupants.isEmpty() || (candidates.isEmpty() && rumours.isEmpty() && legends.isEmpty())) {
+      if (occupants.isEmpty() || (candidates.isEmpty() && rumours.isEmpty() && legends.isEmpty() && claims.isEmpty())) {
         return TownKnowledge(emptyList(), emptyMap())
       }
 
@@ -219,6 +220,12 @@ class TownKnowledge(
           .sortedByDescending { drawKey(it, legend.topic.toLong(), it.weightForOldTales()) }
           .take(wanted)
           .forEach { byHousehold.getOrPut(it.index) { ArrayList() }.add(legend) }
+      }
+
+      // A house's descendants here are one family, so exactly one household claims it.
+      for (claim in claims) {
+        val claimant = occupants.maxBy { drawKey(it, claim.topic.toLong(), it.weightForOldTales()) }
+        byHousehold.getOrPut(claimant.index) { ArrayList() }.add(claim)
       }
 
       return TownKnowledge(universal, byHousehold)

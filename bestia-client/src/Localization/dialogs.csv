@@ -437,6 +437,9 @@ LEGEND_SLAYING_2,"Walk {direction} of {place} and you will find where {monster} 
 LEGEND_LOST_RELIC_ASK,Was anything of worth lost in the old wars?
 LEGEND_LOST_RELIC_1,"{artifact} was lost on a battlefield {direction} of {place}, {era}. It is still in the ground."
 LEGEND_LOST_RELIC_2,"{artifact} fell from a dying hand {direction} of {place}, {era}, and nobody ever found it."
+LEGEND_LINEAGE_ASK,Is your family an old one?
+LEGEND_LINEAGE_1,"We come down from House {house}. {figure} founded it, {era}."
+LEGEND_LINEAGE_2,"Do not let the roof fool you. Our blood is House {house}, the line of {figure}."
 TALK_SMALL_GUARD_WATCH_ASK,Quiet shift?
 TALK_SMALL_GUARD_WATCH_1,"Quiet is the whole job. A shift you remember is a shift that went wrong."
 TALK_SMALL_GUARD_WATCH_2,So far. I have learned not to say it out loud before sundown.
