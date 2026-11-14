@@ -90,6 +90,7 @@ abstract class DialogDbSyncTask : DefaultTask() {
 
   private data class ConversationFile(
     val events: Map<String, HistoryLineDto> = emptyMap(),
+    val legends: Map<String, HistoryLineDto> = emptyMap(),
     val eras: List<String> = emptyList(),
     val conversation: Map<String, HistoryLineDto> = emptyMap(),
   )
@@ -192,12 +193,24 @@ abstract class DialogDbSyncTask : DefaultTask() {
       return emptyList()
     }
 
-    val events = mapper.readValue(conversationYml.get().asFile, ConversationFile::class.java).events
+    val file = mapper.readValue(conversationYml.get().asFile, ConversationFile::class.java)
+
+    return kindLineProblems(file.events, "HISTORY", HISTORY_KEY_PATTERN, csv) +
+      kindLineProblems(file.legends, "LEGEND", LEGEND_KEY_PATTERN, csv)
+  }
+
+  /** One `_ASK` row and the numbered phrasings per kind, with rows past the kinds reported as orphans. */
+  private fun kindLineProblems(
+    kinds: Map<String, HistoryLineDto>,
+    prefix: String,
+    pattern: Regex,
+    csv: LocalizationCsv,
+  ): List<String> {
     val problems = mutableListOf<String>()
     val expected = HashSet<String>()
 
-    for ((kind, line) in events) {
-      val keys = listOf("HISTORY_${kind}_ASK") + (1..line.variants).map { "HISTORY_${kind}_$it" }
+    for ((kind, line) in kinds) {
+      val keys = listOf("${prefix}_${kind}_ASK") + (1..line.variants).map { "${prefix}_${kind}_$it" }
       expected += keys
 
       for (key in keys) {
@@ -209,14 +222,14 @@ abstract class DialogDbSyncTask : DefaultTask() {
 
         val used = PLACEHOLDER_PATTERN.findAll(text).map { it.groupValues[1] }.toSet()
         (used - line.slots.toSet()).forEach {
-          problems += "dialogs.csv: '$key' uses {$it}, which a $kind event cannot supply"
+          problems += "dialogs.csv: '$key' uses {$it}, which a $kind line cannot supply"
         }
       }
     }
 
     csv.keys()
-      .filter { HISTORY_KEY_PATTERN.matches(it) && it !in expected }
-      .forEach { problems += "dialogs.csv: '$it' matches no event kind or variant in dialogue.yml (orphaned row)" }
+      .filter { pattern.matches(it) && it !in expected }
+      .forEach { problems += "dialogs.csv: '$it' matches no kind or variant in dialogue.yml (orphaned row)" }
 
     return problems
   }
@@ -497,6 +510,9 @@ abstract class DialogDbSyncTask : DefaultTask() {
 
     /** A translation key owned by a `dialogue.yml` entry, e.g. `HISTORY_ERUPTION_1`. */
     private val HISTORY_KEY_PATTERN = Regex("""^HISTORY_[A-Z_]+_(ASK|\d+)$""")
+
+    /** A translation key owned by a `dialogue.yml` legend, e.g. `LEGEND_LAIR_2`. */
+    private val LEGEND_KEY_PATTERN = Regex("""^LEGEND_[A-Z_]+_(ASK|\d+)$""")
 
     /** A translation key owned by a `small-talk.yml` line, e.g. `TALK_SMALL_FARMER_BARLEY_ASK`. */
     private val SMALL_TALK_KEY_PATTERN = Regex("""^TALK_SMALL_[A-Z_]+_(ASK|\d+)$""")

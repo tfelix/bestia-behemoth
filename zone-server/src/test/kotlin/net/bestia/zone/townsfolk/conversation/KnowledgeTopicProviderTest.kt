@@ -62,7 +62,7 @@ class KnowledgeTopicProviderTest {
     holds(memory(topic = FIRST_EVENT))
 
     val menu = Topics.localOf(Topics.KNOWLEDGE, menuTopic())
-    val taken = (0..CHRONICLE_CEILING) + (RUMOURS..RUMOURS + RUMOUR_CEILING)
+    val taken = (0..CHRONICLE_CEILING) + (LEGENDS..LEGENDS + LEGEND_CEILING) + (RUMOURS..RUMOURS + RUMOUR_CEILING)
 
     assertTrue(menu !in taken, "the menu answers to $menu, which a memory can be given")
   }
@@ -141,5 +141,10 @@ class KnowledgeTopicProviderTest {
     const val RUMOURS = 50_000
 
     const val RUMOUR_CEILING = 20_000
+
+    /** `LegendKnowledge.TOPIC_BASE`. A world holds a few dozen hidden places. */
+    const val LEGENDS = 30_000
+
+    const val LEGEND_CEILING = 10_000
   }
 }

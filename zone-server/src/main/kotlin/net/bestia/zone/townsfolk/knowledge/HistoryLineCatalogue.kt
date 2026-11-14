@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service
 class HistoryLineCatalogue {
 
   private val byKind = LinkedHashMap<EventKind, HistoryLine>()
+  private val byLegend = LinkedHashMap<LegendKind, HistoryLine>()
 
   @PostConstruct
   fun load() {
@@ -44,11 +45,22 @@ class HistoryLineCatalogue {
         "could ever mention one. Give each a phrasing, or a reason not to."
     }
 
-    LOG.info { "Loaded phrasings for ${byKind.size} event kinds" }
+    file.legends.forEach { (kind, dto) -> byLegend[kind] = lineOf(kind.name, dto) }
+
+    val untold = LegendKind.entries - byLegend.keys
+    require(untold.isEmpty()) {
+      "$RESOURCE has no legend phrasing for ${untold.joinToString(", ") { it.name }}"
+    }
+
+    LOG.info { "Loaded phrasings for ${byKind.size} event kinds and ${byLegend.size} legend kinds" }
   }
 
   fun of(kind: EventKind): HistoryLine {
     return byKind[kind] ?: throw IllegalStateException("No phrasing for $kind; the boot check should have caught it")
+  }
+
+  fun of(kind: LegendKind): HistoryLine {
+    return byLegend[kind] ?: throw IllegalStateException("No phrasing for legend $kind; the boot check should have caught it")
   }
 
   fun all(): Map<EventKind, HistoryLine> {
@@ -56,18 +68,23 @@ class HistoryLineCatalogue {
   }
 
   private fun register(kind: EventKind, dto: LineDto) {
+    byKind[kind] = lineOf(kind.name, dto)
+  }
+
+  private fun lineOf(kind: String, dto: LineDto): HistoryLine {
     require(dto.variants >= 1) { "$kind is declared with ${dto.variants} phrasings, so it can never be said" }
 
     val unknown = dto.slots - KNOWN_SLOTS
     require(unknown.isEmpty()) {
-      "$kind declares slots ${unknown.joinToString(", ")}, which no event can supply. Known: $KNOWN_SLOTS"
+      "$kind declares slots ${unknown.joinToString(", ")}, which nothing can supply. Known: $KNOWN_SLOTS"
     }
 
-    byKind[kind] = HistoryLine(dto.variants, dto.slots.toSet())
+    return HistoryLine(dto.variants, dto.slots.toSet())
   }
 
   private data class DialogueYmlDto(
     val events: Map<EventKind, LineDto> = emptyMap(),
+    val legends: Map<LegendKind, LineDto> = emptyMap(),
     val eras: List<String> = emptyList(),
     /**
      * Not read here - `ConversationLineCatalogue` owns that section - but named so that this stays the
@@ -85,7 +102,7 @@ class HistoryLineCatalogue {
   companion object {
     private const val RESOURCE = "townsfolk/dialogue.yml"
 
-    /** Every slot [HistoryKnowledge] can produce. Anything else is a typo in the catalogue. */
+    /** Every slot [HistoryKnowledge] and [LegendKnowledge] can produce. Anything else is a typo in the catalogue. */
     val KNOWN_SLOTS = setOf(
       HistoryKnowledge.SLOT_PLACE,
       HistoryKnowledge.SLOT_CIV,
@@ -97,6 +114,7 @@ class HistoryLineCatalogue {
       HistoryKnowledge.SLOT_DEITY,
       HistoryKnowledge.SLOT_CULT,
       HistoryKnowledge.SLOT_MONSTER,
+      LegendKnowledge.SLOT_DIRECTION,
     )
 
     private val LOG = KotlinLogging.logger { }
