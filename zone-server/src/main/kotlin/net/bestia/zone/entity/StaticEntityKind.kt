@@ -181,7 +181,14 @@ enum class StaticEntityKind {
   GLASSBLOWING_BENCH,
 
   // Worldgen's SAND, on the beaches. Ground loot like the stick and the resin, appended here for the ordinal.
-  SAND_PILE;
+  SAND_PILE,
+
+  // What lies on a battlefield: worldgen's battlefield fixtures, appended for the ordinal.
+  FIXTURE_BONES,
+  FIXTURE_RUSTED_BLADE,
+  FIXTURE_BROKEN_SHIELD,
+  FIXTURE_BANNER_RAG,
+  FIXTURE_GIANT_REMAINS;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.

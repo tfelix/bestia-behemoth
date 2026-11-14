@@ -11468,3 +11468,12 @@ items:
     description: |
       The lantern a saint carried into the dark to find the lost. The dark still remembers it.
 
+  # What a battlefield leaves: picked off the ground there, or dropped by the dead that rise on it.
+  - id: 612
+    item-db-name: rusted_scrap
+    base-level: 5
+    weight: 50
+    type: ETC
+    material: METAL
+    description: |
+      Bent, rusted iron from a battle long ago: a blade, a buckle, the rim of a shield.

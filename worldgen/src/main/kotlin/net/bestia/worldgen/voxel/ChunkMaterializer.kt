@@ -1013,7 +1013,8 @@ class ChunkMaterializer(
     // 15: a world boss's seal stands where it was bound (`TownStructures.sealColumn`).
     // 16: a crystal stands on every seal's plinth (`TownStructures.sealCrystals`).
     // 17: sand lies on the beaches and thinly on the deserts (`LootScatter`), so those chunks emit props they did not.
-    const val VERSION = 17
+    // 18: bones and broken arms lie on battlefields, and a slain world boss's skeleton (`FixtureProps`).
+    const val VERSION = 18
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

@@ -64,7 +64,7 @@ class ItemStatImportTest {
   /** Holds the generated catalogue to what the docs' equipment design page promises. */
   @Test
   fun `the equipment catalogue keeps its min levels within the guideline`() {
-    val catalogue = items.filter { it.id >= CATALOGUE_FIRST_ID }
+    val catalogue = items.filter { it.id >= CATALOGUE_FIRST_ID && it.type.uppercase() == "EQUIP" }
 
     assertEquals(346, catalogue.size)
     catalogue.forEach {
