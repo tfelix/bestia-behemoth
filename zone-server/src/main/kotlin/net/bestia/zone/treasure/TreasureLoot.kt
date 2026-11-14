@@ -16,6 +16,10 @@ import java.util.Random
 /**
  * Rolls what an opened cache holds. Rolled when it is dug, not when the world was made, so the coin can come
  * out of what the world reserve still has.
+ *
+ * A cache on a young battlefield is mostly what the dead dropped: scrap, bone and plain gear, and only now and
+ * then a valuable somebody hid. Scavengers have long cleared an old field of that, so what is left there is only
+ * what was hidden well.
  */
 @Service
 class TreasureLoot(
@@ -28,13 +32,34 @@ class TreasureLoot(
   private val random: Random = ThreadLocalRandomSource,
 ) {
 
-  fun roll(tier: TreasureTier, excavationLevel: Int): List<CreateItemIntent> {
+  /** [battlefieldAge] is the cache's `TreasureCache.battlefieldAge`: NaN when it was not buried on a battlefield. */
+  fun roll(tier: TreasureTier, excavationLevel: Int, battlefieldAge: Double): List<CreateItemIntent> {
+    val youngField = battlefieldAge < OLD_FIELD
+    if (!youngField) return hidden(tier, excavationLevel)
+
+    val contents = droppedInBattle()
+    if (random.nextDouble() < HIDDEN_ON_YOUNG_FIELD) contents.addAll(hidden(tier, excavationLevel))
+    return contents
+  }
+
+  private fun hidden(tier: TreasureTier, excavationLevel: Int): List<CreateItemIntent> {
     val contents = ArrayList<CreateItemIntent>()
     coins(tier)?.let(contents::add)
     contents.addAll(valuables(tier))
     if (random.nextDouble() < TOP_ITEM_CHANCE + TOP_ITEM_CHANCE_PER_LEVEL * excavationLevel) {
       gear(tier)?.let(contents::add)
     }
+    return contents
+  }
+
+  private fun droppedInBattle(): MutableList<CreateItemIntent> {
+    val contents = ArrayList<CreateItemIntent>()
+    for ((item, range) in BATTLE_JUNK) {
+      val itemId = items.idOf(item) ?: continue
+      val amount = randomIn(range)
+      if (amount > 0) contents.add(CreateItemIntent(itemId, amount))
+    }
+    if (random.nextDouble() < BATTLE_GEAR_CHANCE) gear(TreasureTier.POOR)?.let(contents::add)
     return contents
   }
 
@@ -74,6 +99,16 @@ class TreasureLoot(
   private companion object {
     const val TOP_ITEM_CHANCE = 0.25
     const val TOP_ITEM_CHANCE_PER_LEVEL = 0.05
+
+    /** From this battlefield age on, the dropped junk is gone. NaN, a cache off any battlefield, is never young. */
+    const val OLD_FIELD = 0.5
+    const val HIDDEN_ON_YOUNG_FIELD = 0.2
+    const val BATTLE_GEAR_CHANCE = 0.3
+
+    val BATTLE_JUNK = listOf(
+      "rusted_scrap" to 2..5,
+      "bone_shard" to 0..2
+    )
 
     val COINS = mapOf(
       TreasureTier.POOR to 0..50,

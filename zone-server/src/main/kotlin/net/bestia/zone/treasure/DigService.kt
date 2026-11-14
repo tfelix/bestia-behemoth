@@ -130,7 +130,8 @@ class DigService(
     maps.crumble(world, cache.id)
 
     val relic = if (cache.artifact >= 0) relics.unearth(cache.artifact) else null
-    val contents = loot.roll(richness.of(cache), excavationLevelOf(world, entityId)) + listOfNotNull(relic)
+    val contents = loot.roll(richness.of(cache), excavationLevelOf(world, entityId), cache.battlefieldAge) +
+      listOfNotNull(relic)
     give(world, entityId, contents)
   }
 

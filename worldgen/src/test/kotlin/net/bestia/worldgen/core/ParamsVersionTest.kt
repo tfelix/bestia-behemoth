@@ -255,7 +255,7 @@ class ParamsVersionTest {
       "EconomyParams" to 6_863_789_847_631_252_411L,
       "PoiParams" to 9_183_715_732_977_741_057L,
       "NavParams" to -4_405_367_378_183_192_008L,
-      "TreasureParams" to 398_166_048_664_648_777L,
+      "TreasureParams" to 1_468_402_791_014_294_212L,
       "DetailParams" to 5_837_136_561_326_550_610L,
       "StrataParams" to 5_360_263_422_566_259_310L,
       "DropletParams" to 8_150_952_456_997_203_313L,
