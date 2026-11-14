@@ -58,7 +58,14 @@ object HistoryKnowledge {
   const val UNKNOWN_CULT = "NAME_UNKNOWN_CULT"
   const val UNKNOWN_MONSTER = "NAME_UNKNOWN_MONSTER"
 
-  fun of(chronicle: Chronicle, event: HistoryEvent, locality: Locality, variants: Int = 1): Knowledge {
+  /** @param handedDown see [Certainty.of] */
+  fun of(
+    chronicle: Chronicle,
+    event: HistoryEvent,
+    locality: Locality,
+    variants: Int = 1,
+    handedDown: Boolean = false,
+  ): Knowledge {
     return Knowledge(
       topic = event.id,
       key = KEY_PREFIX + event.kind.name,
@@ -67,6 +74,7 @@ object HistoryKnowledge {
       year = event.year,
       locality = locality,
       variants = variants,
+      certainty = Certainty.of(Era.of(chronicle.presentYear - event.year), handedDown),
     )
   }
 

@@ -55,6 +55,14 @@ TALK_NOT_YET_4,Not just now. There will be more here before long.
 TALK_COLD_SHOULDER_1,"I know who you are. Go away."
 TALK_COLD_SHOULDER_2,"We have heard what you did. Nobody here has anything to say to you."
 TALK_COLD_SHOULDER_3,(They turn their back on you.)
+TALK_HEARSAY_TOLD_1,"My grandfather told me this, and he had it from his. {tale}"
+TALK_HEARSAY_TOLD_2,"It is my grandmother's story, not mine. {tale}"
+TALK_HEARSAY_TOLD_3,"{tale} That is how my family tells it, anyway."
+TALK_HEARSAY_TOLD_4,"My father used to tell it by the fire. {tale}"
+TALK_HEARSAY_LEGEND_1,"An old saying goes like this. {tale}"
+TALK_HEARSAY_LEGEND_2,"Nobody alive saw it, mind. {tale}"
+TALK_HEARSAY_LEGEND_3,"{tale} Or so the old songs say."
+TALK_HEARSAY_LEGEND_4,"Take it as a tale, it is that old. {tale}"
 ERA_RECENT,only a few years back
 ERA_LIVING,within living memory
 ERA_GENERATIONS,a few generations back

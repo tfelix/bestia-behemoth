@@ -1,5 +1,6 @@
 package net.bestia.zone.townsfolk.conversation
 
+import net.bestia.zone.townsfolk.knowledge.Certainty
 import net.bestia.zone.townsfolk.knowledge.Knowledge
 import net.bestia.zone.townsfolk.knowledge.KnowledgeService
 import net.bestia.zone.dialog.DialogArg
@@ -90,8 +91,11 @@ class KnowledgeTopicProvider(
    */
   private fun lineOf(speaker: Speaker, memory: Knowledge): Line {
     val index = ConversationVariants.of(speaker, memory.topic.toLong(), memory.variants)
+    val tale = Line("${memory.key}_$index", memory.slots.mapValues { (_, slot) -> slot.toDialogArg() })
+    val frame = FRAMES[memory.certainty] ?: return tale
 
-    return Line("${memory.key}_$index", memory.slots.mapValues { (_, slot) -> slot.toDialogArg() })
+    // The tale's own arguments ride along, so the client can fill the nested line from them.
+    return lines.lineFor(speaker, frame, tale.args + (ConversationKeys.SLOT_TALE to DialogArg.Token(tale.key)))
   }
 
   private fun back(): ConversationOption {
@@ -128,5 +132,10 @@ class KnowledgeTopicProvider(
     const val OFFERED = 4
 
     const val ASK_SUFFIX = "_ASK"
+
+    val FRAMES = mapOf(
+      Certainty.TOLD to ConversationKeys.HEARSAY_TOLD,
+      Certainty.LEGEND to ConversationKeys.HEARSAY_LEGEND,
+    )
   }
 }
