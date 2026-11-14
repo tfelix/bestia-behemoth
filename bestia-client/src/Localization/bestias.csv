@@ -81,8 +81,6 @@ BESTIA_TUSKSEAL,Tuskseal
 BESTIA_TUSKSEAL_DESC,A walrus that dozes on ice floes in big groups. Mothers with pups attack anything that comes near.
 BESTIA_JELLYVEIL,Jellyveil
 BESTIA_JELLYVEIL_DESC,"A see-through jellyfish that washes up after storms. Its threads sting and numb the limbs, so do not wade in after a storm."
-BESTIA_STARDRIFT,Stardrift
-BESTIA_STARDRIFT_DESC,"A starfish with a glowing core that spins across the sand at night. The core is a crafting gem, and it knows it."
 BESTIA_MUDJAW,Mudjaw
 BESTIA_MUDJAW_DESC,"Lies as still as a log in shallow water. River folk say: if a log has eyes, walk the other way."
 BESTIA_KIND_REPTILE,Reptile
@@ -229,3 +227,11 @@ BESTIA_EMBER_SOVEREIGN,Ember Sovereign
 BESTIA_EMBER_SOVEREIGN_DESC,"A living mass of magma and slag that rules the deep vents. Where it has passed, the cave walls still glow for years."
 BESTIA_MIRE_MOTHER,Mire Mother
 BESTIA_MIRE_MOTHER_DESC,"A vast, rotting bog-thing that buds lesser creatures from its flanks. The marsh around its lair is never quiet."
+BESTIA_WAR_WRAITH,War Wraith
+BESTIA_WAR_WRAITH_DESC,"The rage of a whole battle gathered into one shape of smoke and torn banners. It walks the worst fields on moonless nights, and the light in its chest is the last thing many soldiers saw."
+BESTIA_RESTLESS_LEVY,Restless Levy
+BESTIA_RESTLESS_LEVY_DESC,"A farmhand called up for a war that was lost long ago, still in its rotten jerkin. It rises on old battlefields when the moon is up and swings whatever it was given."
+BESTIA_GRAVE_WISP,Grave Wisp
+BESTIA_GRAVE_WISP_DESC,A cold flame over a grave nobody dug. It drifts toward anyone who comes near and drinks their warmth.
+BESTIA_OATHBOUND_REVENANT,Oathbound Revenant
+BESTIA_OATHBOUND_REVENANT_DESC,"A captain who swore to hold a field and died holding it. The oath outlived the flesh, and it still challenges anyone who crosses its line."
