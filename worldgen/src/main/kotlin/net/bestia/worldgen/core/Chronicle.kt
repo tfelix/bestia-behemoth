@@ -52,7 +52,9 @@ class Chronicle(
   val cults: List<CultRecord> = emptyList(),
   val monsters: List<MonsterRecord> = emptyList(),
   /** Every lasting tie between two figures, each with the event that made it. */
-  val relations: List<RelationRecord> = emptyList()
+  val relations: List<RelationRecord> = emptyList(),
+  /** Every story the history left open: where a quest can pick it up. */
+  val threads: List<ThreadRecord> = emptyList()
 ) {
 
   val span: IntRange get() = startYear..presentYear
