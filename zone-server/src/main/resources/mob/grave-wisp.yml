@@ -1,0 +1,41 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 111
+identifier: grave_wisp
+level: 34
+name: "Grave Wisp"
+description: >-
+  A cold flame over a grave nobody dug. It drifts toward anyone who comes near and drinks their warmth.
+kind: FORMLESS
+element: GHOST_2
+size: SMALL
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 0.22
+weight: 15
+health: 155
+mana: 199
+experience: 154
+attributes: { strength: 1, intelligence: 53, vitality: 14, dexterity: 1, willpower: 36, agility: 14 }
+learnset:
+  - { skill: growl, level: 6 }
+  - { skill: soul_strike, level: 16 }
+  - { skill: flame_weapon, level: 21 }
+  - { skill: shockwave, level: 31, active: true }
+  - { skill: bewilder, level: 36 }
+  - { skill: haunt, level: 46 }
+  - { skill: mending_light, level: 56 }
+  - { skill: spirit_burst, level: 61 }
+  - { skill: soul_rend, level: 66 }
+  - { skill: control_undead, level: 70 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: bleeding_wound, level: 88 }
+  - { skill: ultima, level: 100 }
+habitat: []
+spawn-weight: 100
+battlefield: true
+equip-slots: [GARMENT]
+armor-types: [CLOTH, LIGHT]
+loot:
+  - { item: ectoplasm, chance: 3000 }
+  - { item: bone_shard, chance: 1000 }

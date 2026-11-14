@@ -1,0 +1,51 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 112
+identifier: oathbound_revenant
+level: 56
+name: "Oathbound Revenant"
+description: >-
+  A captain who swore to hold a field and died holding it. The oath outlived the flesh, and it still challenges
+  anyone who crosses its line.
+kind: UNDEAD
+element: UNDEAD_3
+size: MEDIUM
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 1.1
+weight: 60
+health: 4259
+mana: 166
+experience: 2205
+attributes: { strength: 8, intelligence: 17, vitality: 105, dexterity: 3, willpower: 42, agility: 14 }
+learnset:
+  - { skill: tackle, level: 1 }
+  - { skill: howl, level: 6 }
+  - { skill: growl, level: 11 }
+  - { skill: minor_heal, level: 16 }
+  - { skill: rotting_grasp, level: 21 }
+  - { skill: crushing_blow, level: 26 }
+  - { skill: tailwind, level: 31 }
+  - { skill: bewilder, level: 36 }
+  - { skill: healing_circle, level: 41 }
+  - { skill: body_slam, level: 46 }
+  - { skill: shockwave, level: 51, active: true }
+  - { skill: bone_armor, level: 56, active: true }
+  - { skill: bone_crusher, level: 61 }
+  - { skill: control_undead, level: 66 }
+  - { skill: renewal, level: 70 }
+  - { skill: berserk, level: 76 }
+  - { skill: mana_storm, level: 82 }
+  - { skill: skull_breaker, level: 88 }
+  - { skill: divine_heal, level: 94 }
+  - { skill: grave_tide, level: 100 }
+habitat: []
+spawn-weight: 30
+battlefield: true
+equip-slots: [HEAD_UPPER, HEAD_MID, ARMOR, GARMENT, FOOTGEAR, RIGHT_HAND, LEFT_HAND, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
+loot:
+  - { item: rusted_scrap, chance: 3000 }
+  - { item: bone_shard, chance: 2500 }
+  - { item: iron_ingot, chance: 1500 }
+  - { item: iron_kite_shield, chance: 100 }

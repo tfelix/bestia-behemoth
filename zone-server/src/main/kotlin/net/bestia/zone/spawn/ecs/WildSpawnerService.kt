@@ -41,10 +41,10 @@ import kotlin.math.roundToInt
  *
  * So the join is split by what a wrong answer actually costs:
  *
- * - **Hard, never relaxed.** [admits]: the species is not `eventOnly` or a world boss, its boss-ness matches the den's, a
- *   `corruptedOnly` species is on corrupted ground, and - the one that matters - its `habitat` includes the
- *   den's biome. A level-three creature in a level-ninety den is a balance problem. A blob in a volcanic
- *   field is nonsense, and no amount of empty world justifies it.
+ * - **Hard, never relaxed.** [admits]: the species is not `eventOnly`, a world boss or a battlefield haunt, its
+ *   boss-ness matches the den's, a `corruptedOnly` species is on corrupted ground, and - the one that matters -
+ *   its `habitat` includes the den's biome. A level-three creature in a level-ninety den is a balance problem.
+ *   A blob in a volcanic field is nonsense, and no amount of empty world justifies it.
  * - **Soft, relaxed when nothing exact fits.** The level band. [levelMissOf] measures how far outside it a
  *   species sits, the best available miss wins, and a miss of zero is an exact match. **The moment a species
  *   that fits exactly is authored, the best miss for that den becomes zero and every fallback is displaced -
@@ -380,7 +380,7 @@ class WildSpawnerService(
     internal fun admits(candidate: Candidate, den: DenFacts): Boolean {
       val species = candidate.species
 
-      if (species.eventOnly || species.worldBoss) return false
+      if (species.eventOnly || species.worldBoss || species.battlefield) return false
       if (den.boss != species.boss) return false
       if (species.corruptedOnly && !den.corrupted) return false
       if (candidate.habitat.isNotEmpty() && den.biome !in candidate.habitat) return false
