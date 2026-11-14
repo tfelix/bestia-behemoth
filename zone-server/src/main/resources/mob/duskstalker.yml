@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 59
 identifier: duskstalker
-level: 60
+level-min: 55
+level-max: 65
 name: "Duskstalker"
 description: >-
   A black lynx that hunts only in darkness and vanishes into its own shadow. Carry a light; it will not attack

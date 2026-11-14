@@ -23,7 +23,7 @@ class MobLearnsetImportTest {
   }
   private val bestiaSkillRepository = mockk<BestiaSkillRepository>(relaxed = true)
   private val importer = MobImporterBootRunner(mockk(), skillRepository, bestiaSkillRepository, mockk())
-  private val blob = Bestia(id = 1, identifier = "blob", level = 3, experienceReward = 5, health = 10, mana = 8)
+  private val blob = Bestia(id = 1, identifier = "blob", levelMin = 3, levelMax = 3, experienceReward = 5, health = 10, mana = 8)
 
   @Test
   fun `a new learnset is written with its learn levels`() {

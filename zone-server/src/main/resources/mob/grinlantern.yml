@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 106
 identifier: grinlantern
-level: 31
+level-min: 31
+level-max: 31
 name: "Grinlantern"
 description: >-
   A pumpkin with a candle inside and a grin nobody carved. It only grows on the night the dead walk.

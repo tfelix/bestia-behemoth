@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 17
 identifier: stingtail
-level: 12
+level-min: 11
+level-max: 14
 name: "Stingtail"
 description: >-
   Hides under hot stones and stings whatever steps near. Carry an antidote before you lift a rock in the desert.

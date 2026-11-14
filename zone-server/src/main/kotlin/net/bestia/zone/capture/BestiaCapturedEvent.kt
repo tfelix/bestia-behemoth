@@ -13,5 +13,8 @@ data class BestiaCapturedEvent(
   val ownerAccountId: AccountId,
   val masterId: Long,
   val speciesId: Long,
+
+  /** The level this individual was rolled at, which the master's bestia keeps. */
+  val level: Int,
   val at: Vec3L,
 )

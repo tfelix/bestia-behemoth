@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 85
 identifier: drowned_captain
-level: 64
+level-min: 64
+level-max: 64
 name: "Drowned Captain"
 description: >-
   The ghost captain of a wrecked ship, still giving orders to a dead crew. He comes with the fog, and his crew

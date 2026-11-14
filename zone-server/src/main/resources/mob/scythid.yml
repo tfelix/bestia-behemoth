@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 52
 identifier: scythid
-level: 39
+level-min: 36
+level-max: 42
 name: "Scythid"
 description: >-
   A mantis with sickle arms that waits motionless in tall grass. It is fast but light; heavy blows knock it

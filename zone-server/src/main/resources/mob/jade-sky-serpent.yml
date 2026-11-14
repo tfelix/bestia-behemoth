@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 98
 identifier: jade_sky_serpent
-level: 95
+level-min: 95
+level-max: 95
 name: "Jade Sky Serpent"
 description: >-
   A green dragon that circles above the rain clouds and rarely lands. It only comes down when the jungle burns.

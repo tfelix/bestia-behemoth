@@ -24,7 +24,7 @@ class GmBestiaGrantTest {
   private val catalogue = mockk<BestiaCatalogue> {
     every { byIdentifier(GmBestiaGrant.SPECIES) } returns Bestia(
       identifier = GmBestiaGrant.SPECIES,
-      level = SPECIES_LEVEL,
+      levelMin = SPECIES_LEVEL, levelMax = SPECIES_LEVEL,
       experienceReward = 0,
       health = 1,
       mana = 1

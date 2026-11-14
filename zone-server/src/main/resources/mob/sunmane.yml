@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 51
 identifier: sunmane
-level: 45
+level-min: 42
+level-max: 48
 name: "Sunmane"
 description: >-
   A lion with a mane that glows like dawn, leading its pride over the savanna. Shadow creatures avoid its land,

@@ -103,7 +103,7 @@ class ActorSignatureSystem(
       kind = ActorKind.BESTIA,
       speciesId = species.id,
       // A wild mob carries its species level; the species row covers a body spawned without one.
-      level = world.get(entityId, Level::class)?.level ?: species.level,
+      level = world.get(entityId, Level::class)?.level ?: species.referenceLevel,
       identifier = species.identifier,
       masterName = null,
     )

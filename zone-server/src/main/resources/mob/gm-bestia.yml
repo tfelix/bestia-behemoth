@@ -1,6 +1,7 @@
 id: 4
 identifier: gm_bestia
-level: 80
+level-min: 80
+level-max: 80
 # English source text for the client. syncBestiaDb copies it into bestias.csv, where it is translated.
 name: GM Bestia
 description: >-

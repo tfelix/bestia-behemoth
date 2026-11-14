@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 80
 identifier: golden_scarab
-level: 48
+level-min: 48
+level-max: 48
 name: "Golden Scarab"
 description: >-
   A beetle with a shell of beaten gold that nests in buried treasure vaults. Magic slides off its shell; steel

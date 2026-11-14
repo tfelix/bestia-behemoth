@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 37
 identifier: stardrift
-level: 23
+level-min: 21
+level-max: 25
 name: "Stardrift"
 description: >-
   A starfish with a glowing core that spins across the sand at night. The core is a crafting gem, and it knows

@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 22
 identifier: pebblit
-level: 13
+level-min: 12
+level-max: 15
 name: "Pebblit"
 description: >-
   A rock with arms that rolls downhill on purpose. It looks like any other stone until it gets up.

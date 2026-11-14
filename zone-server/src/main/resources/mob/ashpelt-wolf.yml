@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 28
 identifier: ashpelt_wolf
-level: 28
+level-min: 26
+level-max: 30
 name: "Ashpelt Wolf"
 description: >-
   Grey wolves that hunt in packs under the pines. They circle before they bite; keep your back to a tree.

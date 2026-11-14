@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 43
 identifier: sidewinder
-level: 37
+level-min: 34
+level-max: 40
 name: "Sidewinder"
 description: >-
   A sand viper that moves sideways and leaves strange tracks on the dunes. Its venom slows the heart, so a cure

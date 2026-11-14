@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 95
 identifier: rimetusk_ancient
-level: 86
+level-min: 86
+level-max: 86
 name: "Rimetusk Ancient"
 description: >-
   A mammoth older than the ice it walks on. It sleeps frozen for years and wakes up hungry.

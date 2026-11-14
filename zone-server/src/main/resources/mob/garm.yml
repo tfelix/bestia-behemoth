@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 93
 identifier: garm
-level: 82
+level-min: 82
+level-max: 82
 name: "Garm"
 description: >-
   A giant wolf of ice whose howl brings blizzards. The wolf packs of the north follow it.

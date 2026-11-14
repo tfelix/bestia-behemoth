@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 32
 identifier: harpy
-level: 44
+level-min: 41
+level-max: 47
 name: "Harpy"
 description: >-
   Half woman, half vulture, all temper. Harpies nest on cliff tops and shriek to call the flock.

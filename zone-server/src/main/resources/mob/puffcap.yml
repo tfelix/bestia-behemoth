@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 21
 identifier: puffcap
-level: 10
+level-min: 9
+level-max: 12
 name: "Puffcap"
 description: >-
   A walking mushroom that puffs out spores when hit. Fire makes short work of it, and of the spores too.

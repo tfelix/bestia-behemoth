@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 81
 identifier: flamestripe
-level: 50
+level-min: 50
+level-max: 50
 name: "Flamestripe"
 description: >-
   A tiger whose stripes burn like coals. The savanna burns where it hunts, and it waits for prey in the smoke.

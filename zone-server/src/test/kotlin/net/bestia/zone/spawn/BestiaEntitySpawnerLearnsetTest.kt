@@ -41,7 +41,7 @@ class BestiaEntitySpawnerLearnsetTest {
 
   init {
     every { bestiaRepository.findAll() } returns listOf(
-      Bestia(id = 1L, identifier = "blob", level = 3, experienceReward = 5, health = 10, mana = 8)
+      Bestia(id = 1L, identifier = "blob", levelMin = 3, levelMax = 3, experienceReward = 5, health = 10, mana = 8)
     )
   }
 
@@ -61,7 +61,7 @@ class BestiaEntitySpawnerLearnsetTest {
   @Test
   fun `a mob knows a later skill at a higher level`() {
     every { bestiaRepository.findAll() } returns listOf(
-      Bestia(id = 1L, identifier = "blob", level = 30, experienceReward = 5, health = 10, mana = 8)
+      Bestia(id = 1L, identifier = "blob", levelMin = 30, levelMax = 30, experienceReward = 5, health = 10, mana = 8)
     )
     every { bestiaSkillRepository.findAllLearned() } returns listOf(LearnedSkill(1, EMBER, 21))
 
@@ -73,7 +73,7 @@ class BestiaEntitySpawnerLearnsetTest {
   @Test
   fun `a wild mob fights with the skills its learnset marks active`() {
     every { bestiaRepository.findAll() } returns listOf(
-      Bestia(id = 1L, identifier = "blob", level = 3, experienceReward = 5, health = 10, mana = 8, aiProfile = "wild")
+      Bestia(id = 1L, identifier = "blob", levelMin = 3, levelMax = 3, experienceReward = 5, health = 10, mana = 8, aiProfile = "wild")
     )
     every { bestiaSkillRepository.findAllLearned() } returns listOf(
       LearnedSkill(1, EMBER, 1, active = true, range = 6),

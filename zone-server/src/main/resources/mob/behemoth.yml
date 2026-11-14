@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 103
 identifier: behemoth
-level: 120
+level-min: 120
+level-max: 120
 name: "Behemoth"
 description: >-
   A horned giant that walks the plains once in an age and leaves valleys in its tracks. The game is named after

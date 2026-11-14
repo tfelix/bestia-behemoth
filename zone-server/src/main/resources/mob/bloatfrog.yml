@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 39
 identifier: bloatfrog
-level: 33
+level-min: 31
+level-max: 35
 name: "Bloatfrog"
 description: >-
   A swollen toad with poison sacs in its cheeks. It puffs up before it spits; that is your moment to move.

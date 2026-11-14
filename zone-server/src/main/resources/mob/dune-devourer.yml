@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 74
 identifier: dune_devourer
-level: 82
+level-min: 76
+level-max: 88
 name: "Dune Devourer"
 description: >-
   A sand serpent that hunts by feeling footsteps through the dunes. Stand still and it may pass you by.

@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 13
 identifier: puddlehop
-level: 4
+level-min: 3
+level-max: 6
 name: "Puddlehop"
 description: >-
   A round frog whose belly swirl hypnotises flies. It croaks loudest just before rain.

@@ -114,7 +114,7 @@ class BlobBalanceTest {
   }
 
   private fun blobEntity() = BattleContextFixture.battleEntity(
-    level = blob.level,
+    level = (blob.levelMin + blob.levelMax) / 2,
     strength = blob.attributes.strength,
     intelligence = blob.attributes.intelligence,
     vitality = blob.attributes.vitality,

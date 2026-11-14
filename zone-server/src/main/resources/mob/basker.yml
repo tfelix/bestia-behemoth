@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 45
 identifier: basker
-level: 29
+level-min: 27
+level-max: 31
 name: "Basker"
 description: >-
   A lizard that soaks up sun on hot rocks until its scales glow. Hunt it in the cold morning, before it has

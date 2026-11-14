@@ -32,7 +32,7 @@ class BestiaTrapSystemTest {
   private val out = mockk<OutMessageProcessor>(relaxed = true)
   private val events = mockk<ApplicationEventPublisher>(relaxed = true)
   private val catalogue = mockk<BestiaCatalogue> {
-    every { byId(SPECIES_ID) } returns mockk<Bestia> { every { level } returns 5 }
+    every { byId(SPECIES_ID) } returns mockk<Bestia> { every { referenceLevel } returns 5 }
   }
 
   /** Whatever the roll draws; below the chance catches, at or above it breaks free. */
@@ -66,7 +66,7 @@ class BestiaTrapSystemTest {
 
     assertFalse(world.isAlive(trap), "a sprung trap is gone")
     assertFalse(world.isAlive(mob), "the wild creature leaves the world")
-    verify { events.publishEvent(BestiaCapturedEvent(ACCOUNT_ID, MASTER_ID, SPECIES_ID, TRAP_TILE) as Any) }
+    verify { events.publishEvent(BestiaCapturedEvent(ACCOUNT_ID, MASTER_ID, SPECIES_ID, 5, TRAP_TILE) as Any) }
     verify { out.sendToAllPlayersInRange(TRAP_TILE, BestiaCaptureSMSG(trap, mob, TRAPPER_ID, true)) }
   }
 

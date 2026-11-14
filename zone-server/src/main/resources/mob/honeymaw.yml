@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 30
 identifier: honeymaw
-level: 34
+level-min: 31
+level-max: 37
 name: "Honeymaw"
 description: >-
   A huge bear that raids bee nests and sleeps it off in the sun. Wake it at your own risk; it is far quicker

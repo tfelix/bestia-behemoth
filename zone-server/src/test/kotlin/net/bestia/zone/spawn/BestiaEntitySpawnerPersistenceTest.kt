@@ -43,7 +43,7 @@ class BestiaEntitySpawnerPersistenceTest {
     every { catalogue.byId(1L) } returns Bestia(
       id = 1,
       identifier = "blob",
-      level = 3,
+      levelMin = 3, levelMax = 3,
       experienceReward = 5,
       health = 10,
       mana = 8

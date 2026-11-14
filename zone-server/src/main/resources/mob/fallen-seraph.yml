@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 78
 identifier: fallen_seraph
-level: 96
+level-min: 92
+level-max: 100
 name: "Fallen Seraph"
 description: >-
   An angel the corruption twisted into a mockery of itself. Its halo has turned black, and it hates light.

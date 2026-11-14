@@ -41,28 +41,28 @@ class BestiaAdoptionService(
     compendiumRecorder.caught(event.ownerAccountId, event.masterId, event.speciesId)
 
     asyncJobExecutor.submit(key = event.ownerAccountId) {
-      adopt(event.ownerAccountId, event.masterId, bestiaCatalogue.byId(event.speciesId), event.at)
+      adopt(event.ownerAccountId, event.masterId, bestiaCatalogue.byId(event.speciesId), event.level, event.at)
     }
   }
 
-  private fun adopt(accountId: AccountId, masterId: Long, species: Bestia, at: Vec3L) {
+  private fun adopt(accountId: AccountId, masterId: Long, species: Bestia, level: Int, at: Vec3L) {
     try {
       playerBestiaCreateOperation.createAndSpawn(
         masterId = masterId,
         playerBestiaCreateData = PlayerBestiaCreateOperation.PlayerBestiaCreateData(
           bestiaIdentifier = species.identifier,
           spawnPosition = at,
-          level = species.level
+          level = level
         )
       )
     } catch (e: OwnedBestiaPolicyViolationException) {
       LOG.info { "Master $masterId has no free slot for the ${species.identifier} it caught: ${e.message}" }
-      release(species, at)
+      release(species, level, at)
       outMessageProcessor.sendToPlayer(accountId, OperationErrorSMSG(OpError.BESTIA_SLOTS_FULL))
       return
     } catch (e: Exception) {
       LOG.error(e) { "Could not hand the caught ${species.identifier} to master $masterId; releasing it" }
-      release(species, at)
+      release(species, level, at)
       return
     }
 
@@ -70,8 +70,8 @@ class BestiaAdoptionService(
   }
 
   /** Puts the creature back as a wild one, so a failed hand-over loses nothing. */
-  private fun release(species: Bestia, at: Vec3L) {
-    worldView.read { bestiaEntitySpawner.spawnMob(this, species.id, at) }
+  private fun release(species: Bestia, level: Int, at: Vec3L) {
+    worldView.read { bestiaEntitySpawner.spawnMob(this, species.id, at, level = level) }
   }
 
   private companion object {

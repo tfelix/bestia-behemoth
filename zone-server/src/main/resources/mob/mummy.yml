@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 42
 identifier: mummy
-level: 48
+level-min: 44
+level-max: 52
 name: "Mummy"
 description: >-
   A wrapped corpse that guards tombs long after its masters turned to dust. Its loose bandages burn well.

@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 11
 identifier: pecklet
-level: 3
+level-min: 2
+level-max: 5
 name: "Pecklet"
 description: >-
   A chick that hatches in sun-baked sand and still wears half its eggshell. Its pecks are warm, so it fears

@@ -1,6 +1,7 @@
 id: 1
 identifier: blob
-level: 3
+level-min: 2
+level-max: 5
 # English source text for the client. syncBestiaDb copies it into bestias.csv, where it is translated.
 name: Blob
 description: >-

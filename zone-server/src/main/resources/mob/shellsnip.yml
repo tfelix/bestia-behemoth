@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 12
 identifier: shellsnip
-level: 5
+level-min: 4
+level-max: 7
 name: "Shellsnip"
 description: >-
   Scuttles sideways along the tideline and snaps at bare toes. Its shell turns blows from the front; strike it

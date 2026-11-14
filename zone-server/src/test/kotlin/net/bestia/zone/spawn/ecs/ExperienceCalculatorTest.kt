@@ -32,7 +32,7 @@ class ExperienceCalculatorTest {
       Bestia(
         id = bestiaId,
         identifier = "test_bestia",
-        level = 1,
+        levelMin = 1, levelMax = 1,
         experienceReward = exp,
         health = 10,
         mana = 10,
@@ -41,11 +41,30 @@ class ExperienceCalculatorTest {
   }
 
   @Test
+  fun `a kill pays the reward scaled to the level the creature was rolled at`() {
+    every { bestiaRepository.findAll() } returns listOf(
+      Bestia(
+        id = bestiaId, identifier = "test_bestia", levelMin = 1, levelMax = 5, experienceReward = 100, health = 10, mana = 10,
+      )
+    )
+
+    fun paidAt(level: Int?): Int {
+      return calculator.calculate(bestiaId, level, mapOf(1L to 1f), attackingPlayerCount = 1)[1L]!!
+    }
+
+    assertEquals(100, paidAt(3))
+    assertEquals(115, paidAt(5))
+    assertEquals(85, paidAt(1))
+    assertEquals(100, paidAt(null), "a creature with no level is paid the authored reward")
+  }
+
+  @Test
   fun `solo kill grants exactly the given exp`() {
     givenBestiaExpReward(100)
 
     val result = calculator.calculate(
       killedBestiaId = bestiaId,
+      killedLevel = 1,
       damagePercentages = mapOf(1L to 1f),
       attackingPlayerCount = 1,
     )
@@ -59,6 +78,7 @@ class ExperienceCalculatorTest {
 
     val result = calculator.calculate(
       killedBestiaId = bestiaId,
+      killedLevel = 1,
       damagePercentages = mapOf(1L to 0.75f, 2L to 0.25f),
       attackingPlayerCount = 1,
     )
@@ -73,6 +93,7 @@ class ExperienceCalculatorTest {
 
     val result = calculator.calculate(
       killedBestiaId = bestiaId,
+      killedLevel = 1,
       damagePercentages = mapOf(1L to 0.5f, 2L to 0.5f),
       attackingPlayerCount = 2,
     )
@@ -88,6 +109,7 @@ class ExperienceCalculatorTest {
 
     val result = calculator.calculate(
       killedBestiaId = bestiaId,
+      killedLevel = 1,
       damagePercentages = mapOf(1L to 1f),
       attackingPlayerCount = 11,
     )
@@ -102,6 +124,7 @@ class ExperienceCalculatorTest {
 
     val result = calculator.calculate(
       killedBestiaId = bestiaId,
+      killedLevel = 1,
       damagePercentages = mapOf(1L to 1f),
       attackingPlayerCount = 50,
     )
@@ -115,6 +138,7 @@ class ExperienceCalculatorTest {
 
     val result = calculator.calculate(
       killedBestiaId = bestiaId,
+      killedLevel = 1,
       damagePercentages = mapOf(1L to 1f),
       attackingPlayerCount = 0,
     )
@@ -128,6 +152,7 @@ class ExperienceCalculatorTest {
 
     val result = calculator.calculate(
       killedBestiaId = bestiaId,
+      killedLevel = 1,
       damagePercentages = mapOf(1L to 1f),
       attackingPlayerCount = 1,
     )

@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 79
 identifier: blob_queen
-level: 42
+level-min: 42
+level-max: 42
 name: "Blob Queen"
 description: >-
   When enough blobs gather they merge into a quivering queen with a jelly crown. She splits off blobs when hurt,

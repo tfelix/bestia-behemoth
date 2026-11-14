@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 41
 identifier: dune_scarab
-level: 25
+level-min: 23
+level-max: 27
 name: "Dune Scarab"
 description: >-
   Rolls balls of dung across the dunes and buries them with lost coins inside. Dig where it digs.

@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 23
 identifier: lanternwisp
-level: 14
+level-min: 13
+level-max: 16
 name: "Lanternwisp"
 description: >-
   A pale flame that bobs over the marsh at night and leads travellers astray. Plain blows pass through it; magic

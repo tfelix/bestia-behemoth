@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 101
 identifier: ossuary_wyrm
-level: 108
+level-min: 108
+level-max: 108
 name: "Ossuary Wyrm"
 description: >-
   The bones of an ancient dragon, raised by the corruption. It cannot be poisoned or frightened, but it can be

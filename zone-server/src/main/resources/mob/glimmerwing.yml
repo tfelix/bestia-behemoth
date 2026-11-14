@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 20
 identifier: glimmerwing
-level: 9
+level-min: 8
+level-max: 11
 name: "Glimmerwing"
 description: >-
   A butterfly with wings like stained glass. The dust it sheds makes eyes heavy, so do not fight it in a

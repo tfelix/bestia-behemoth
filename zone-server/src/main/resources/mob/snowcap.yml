@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 34
 identifier: snowcap
-level: 32
+level-min: 30
+level-max: 34
 name: "Snowcap"
 description: >-
   A snowman that came alive in a blizzard and never thawed. Fire melts its grin off fast, and it knows to keep

@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 10
 identifier: buzzlet
-level: 7
+level-min: 6
+level-max: 9
 name: "Buzzlet"
 description: >-
   A fly that swarms around anything that smells of fruit. Alone it is a nuisance; in a cloud it is a problem.

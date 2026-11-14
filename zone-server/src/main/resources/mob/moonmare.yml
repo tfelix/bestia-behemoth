@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 67
 identifier: moonmare
-level: 69
+level-min: 64
+level-max: 74
 name: "Moonmare"
 description: >-
   A pale unicorn seen only on moonlit nights. It flees at the sight of drawn weapons; only a gentle master can

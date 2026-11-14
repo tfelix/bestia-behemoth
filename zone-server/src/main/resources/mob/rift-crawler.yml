@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 76
 identifier: rift_crawler
-level: 90
+level-min: 83
+level-max: 97
 name: "Rift Crawler"
 description: >-
   A tangle of limbs from the other side of the Rift. It flickers between worlds; strike when it is solid.

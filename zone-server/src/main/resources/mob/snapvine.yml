@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 53
 identifier: snapvine
-level: 26
+level-min: 24
+level-max: 28
 name: "Snapvine"
 description: >-
   A rooted flytrap that bites anything in reach. It cannot move, so fight it from afar.

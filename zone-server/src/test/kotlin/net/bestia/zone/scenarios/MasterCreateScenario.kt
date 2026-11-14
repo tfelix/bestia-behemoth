@@ -447,7 +447,7 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
       masterId = masterRepository.findByName("gmowner")!!.id
       val owned = playerBestiaRepository.findAllByMasterId(masterId).single()
       assertEquals(GmBestiaGrant.SPECIES, owned.bestia.identifier)
-      assertEquals(owned.bestia.level, owned.level)
+      assertEquals(owned.bestia.referenceLevel, owned.level)
 
       // The bestia enters the world with the master, as any bestia the master already owns does.
       client.sendMessage(SelectMasterCMSG(client.connectedPlayerId, masterId))
@@ -456,7 +456,7 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
       val bestiaSkillIds = skillRepository.findAll().map { it.id }.filter { it in BESTIA_SKILL_IDS }
       worldView.read {
-        assertEquals(owned.bestia.level, get(entityId, Level::class)!!.level)
+        assertEquals(owned.bestia.referenceLevel, get(entityId, Level::class)!!.level)
 
         val skills = get(entityId, KnownSkills::class)!!
         bestiaSkillIds.forEach { assertTrue(skills.levelOf(it) > 0, "the GM bestia does not know skill $it") }

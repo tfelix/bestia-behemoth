@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 69
 identifier: brineserpent
-level: 72
+level-min: 67
+level-max: 77
 name: "Brineserpent"
 description: >-
   A sea serpent that rises from the surf during storms. Fishers wait for calm weather for a reason.

@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 99
 identifier: hollow_king
-level: 100
+level-min: 100
+level-max: 100
 name: "The Hollow King"
 description: >-
   The king who ruled before the Rift and refused to die with his kingdom. He holds the corrupted land with an

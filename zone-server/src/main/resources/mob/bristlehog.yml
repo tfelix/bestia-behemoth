@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 24
 identifier: bristlehog
-level: 16
+level-min: 15
+level-max: 18
 name: "Bristlehog"
 description: >-
   Curls into a spiky ball when threatened and rolls at its attacker. Hit it before it curls up.

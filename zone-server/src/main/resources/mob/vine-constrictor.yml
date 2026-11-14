@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 60
 identifier: vine_constrictor
-level: 61
+level-min: 56
+level-max: 66
 name: "Vine Constrictor"
 description: >-
   A giant snake the colour of jungle vines. It drops from the canopy and squeezes; a friend nearby is the best

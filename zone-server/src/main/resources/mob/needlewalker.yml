@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 58
 identifier: needlewalker
-level: 59
+level-min: 55
+level-max: 63
 name: "Needlewalker"
 description: >-
   A cactus that walks to new water at night. It fires needles when touched, and its flesh holds water for

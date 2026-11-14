@@ -21,7 +21,13 @@ class Bestia(
   var id: Long = 0,
 
   val identifier: String,
-  var level: Int,
+
+  /**
+   * The levels a wild individual of this species is rolled between, both inclusive. Equal for a species that is
+   * always one level - a boss, a townsperson, an event creature.
+   */
+  var levelMin: Int,
+  var levelMax: Int,
   var experienceReward: Int,
   var health: Int,
   var mana: Int,
@@ -210,7 +216,17 @@ class Bestia(
 
   init {
     requireValidIdentifier(identifier)
+    require(levelMin >= 1 && levelMin <= levelMax) { "$identifier: level range $levelMin..$levelMax is not 1 <= min <= max" }
   }
+
+  /**
+   * The level [health], [mana], the attributes and [experienceReward] are authored for: the middle of the range.
+   * What a den's level band is matched against, and what an individual's own level is scaled relative to.
+   */
+  val referenceLevel: Int
+    get() {
+      return (levelMin + levelMax) / 2
+    }
 
   @OneToMany(mappedBy = "bestia", cascade = [CascadeType.ALL], orphanRemoval = true)
   val lootTable: MutableSet<LootItem> = mutableSetOf()

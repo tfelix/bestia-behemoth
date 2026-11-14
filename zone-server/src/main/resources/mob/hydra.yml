@@ -1,7 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 71
 identifier: hydra
-level: 76
+level-min: 70
+level-max: 82
 name: "Hydra"
 description: >-
   A many-headed swamp lizard that bites with each head in turn. Burn the stumps, or the heads grow back.

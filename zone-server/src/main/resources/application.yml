@@ -627,3 +627,9 @@ bus:
   max-in-flight: 64
   # A directory entry outlives a missed heartbeat or two, then lapses on its own if the node is gone.
   directory-ttl-seconds: 30
+
+# How a wild creature's strength follows the level it rolled inside its species' `level-min`..`level-max`.
+# Health, mana, attributes and EXP are authored for the middle of the range and scaled by
+# (level + offset) / (middle + offset). Higher flattens the spread; 0 makes it proportional to level.
+mob-level:
+  scaling-offset: 10
