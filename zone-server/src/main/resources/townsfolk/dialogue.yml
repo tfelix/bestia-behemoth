@@ -114,6 +114,20 @@ events:
   SHRINE_RAISED: { variants: 1, slots: [civ, place, year, era] }
   RITE_PERFORMED: { variants: 1, slots: [civ, year, era] }
 
+# Old sayings about the places the history hid, and family claims, one entry per LegendKind. Like an
+# event kind, each needs LEGEND_<KIND>_ASK and LEGEND_<KIND>_1 upward in dialogs.csv. Every legend is
+# said inside a hearsay frame. {direction} is one of the client's DIRECTION_* words, pointing from
+# {place} to the spot.
+legends:
+  HOARD: { variants: 2, slots: [direction, place, era] }
+  LAIR: { variants: 2, slots: [monster, direction, place, era] }
+  SEAL: { variants: 2, slots: [monster, direction, place, era] }
+  SLAYING: { variants: 2, slots: [monster, direction, place, era] }
+  LOST_RELIC: { variants: 2, slots: [artifact, direction, place, era] }
+  # Not a hidden place: a family's claim to an old ruling house, said as something told. {house} is the
+  # bare name, so the phrasing says "House" in its own language.
+  LINEAGE: { variants: 2, slots: [house, figure, era] }
+
 # The lines a conversation owns itself, rather than getting from a memory or from a trade: how somebody
 # signs off, how they answer "what is this place", what they say when they have no news, and what a
 # half-built action answers with.
@@ -135,6 +149,9 @@ conversation:
   TALK_SHOP_OPENED: { variants: 4, slots: [] }
   # An off-shift merchant asked when they open.
   TALK_SHOP_HOURS: { variants: 3, slots: [opens, closes] }
+  # Frames around an old memory, which is sent as the {tale} token. Each speaker keeps one frame.
+  TALK_HEARSAY_TOLD: { variants: 4, slots: [tale] }
+  TALK_HEARSAY_LEGEND: { variants: 4, slots: [tale] }
 
 # How long ago something was, in words - see the Era enum for the bands these name.
 eras:

@@ -55,6 +55,14 @@ TALK_NOT_YET_4,Not just now. There will be more here before long.
 TALK_COLD_SHOULDER_1,"I know who you are. Go away."
 TALK_COLD_SHOULDER_2,"We have heard what you did. Nobody here has anything to say to you."
 TALK_COLD_SHOULDER_3,(They turn their back on you.)
+TALK_HEARSAY_TOLD_1,"My grandfather told me this, and he had it from his. {tale}"
+TALK_HEARSAY_TOLD_2,"It is my grandmother's story, not mine. {tale}"
+TALK_HEARSAY_TOLD_3,"{tale} That is how my family tells it, anyway."
+TALK_HEARSAY_TOLD_4,"My father used to tell it by the fire. {tale}"
+TALK_HEARSAY_LEGEND_1,"An old saying goes like this. {tale}"
+TALK_HEARSAY_LEGEND_2,"Nobody alive saw it, mind. {tale}"
+TALK_HEARSAY_LEGEND_3,"{tale} Or so the old songs say."
+TALK_HEARSAY_LEGEND_4,"Take it as a tale, it is that old. {tale}"
 ERA_RECENT,only a few years back
 ERA_LIVING,within living memory
 ERA_GENERATIONS,a few generations back
@@ -414,6 +422,24 @@ HISTORY_SHRINE_RAISED_ASK,What is the stone circle?
 HISTORY_SHRINE_RAISED_1,"The {civ} raised it above {place} {era}, around {year}, to work at."
 HISTORY_RITE_PERFORMED_ASK,Do they still hold the rites?
 HISTORY_RITE_PERFORMED_1,"The {civ} kept the rite {era}, about {year}. They keep it still, when it matters."
+LEGEND_HOARD_ASK,Is there treasure buried around here?
+LEGEND_HOARD_1,"Somebody hid their gold in a cave {direction} of {place}, {era}, and never came back for it."
+LEGEND_HOARD_2,"There is a hoard in the hills {direction} of {place}. Whoever left it there {era} was running from something."
+LEGEND_LAIR_ASK,Where is {monster} now?
+LEGEND_LAIR_1,"{monster} is not dead. It crawled away {era} and lies somewhere {direction} of {place}."
+LEGEND_LAIR_2,"Folk {direction} of {place} still bar their doors at night. {monster} went to ground out there {era}."
+LEGEND_SEAL_ASK,Is it true {monster} was bound?
+LEGEND_SEAL_1,"{monster} was bound in stone {era}, {direction} of {place}. Leave the crystal be."
+LEGEND_SEAL_2,"They bound {monster} under a humming stone {direction} of {place}, {era}. Do not wake it."
+LEGEND_SLAYING_ASK,Where did {monster} fall?
+LEGEND_SLAYING_1,"{monster} fell on a field {direction} of {place}, {era}. Its bones are still there."
+LEGEND_SLAYING_2,"Walk {direction} of {place} and you will find where {monster} died, {era}. Nothing grows right there."
+LEGEND_LOST_RELIC_ASK,Was anything of worth lost in the old wars?
+LEGEND_LOST_RELIC_1,"{artifact} was lost on a battlefield {direction} of {place}, {era}. It is still in the ground."
+LEGEND_LOST_RELIC_2,"{artifact} fell from a dying hand {direction} of {place}, {era}, and nobody ever found it."
+LEGEND_LINEAGE_ASK,Is your family an old one?
+LEGEND_LINEAGE_1,"We come down from House {house}. {figure} founded it, {era}."
+LEGEND_LINEAGE_2,"Do not let the roof fool you. Our blood is House {house}, the line of {figure}."
 TALK_SMALL_GUARD_WATCH_ASK,Quiet shift?
 TALK_SMALL_GUARD_WATCH_1,"Quiet is the whole job. A shift you remember is a shift that went wrong."
 TALK_SMALL_GUARD_WATCH_2,So far. I have learned not to say it out loud before sundown.

@@ -61,16 +61,28 @@ object ConversationKeys {
   const val COLD_SHOULDER = "TALK_COLD_SHOULDER"
 
   /**
+   * Frames around an old memory, which goes in as [SLOT_TALE]: "my grandfather told me: {tale}".
+   * One frame per speaker, so it reads as their habit of speech. See `Certainty`.
+   */
+  const val HEARSAY_TOLD = "TALK_HEARSAY_TOLD"
+  const val HEARSAY_LEGEND = "TALK_HEARSAY_LEGEND"
+
+  /**
    * Every key whose phrasings are counted in `dialogue.yml`, so that the boot can check the two agree.
    *
    * A list rather than a convention over the constants above, because half of them are deliberately
    * single - a key added here with no count fails the boot, and a count with no key does too.
    */
-  val VARIED = setOf(GOODBYE, ABOUT_TOWN, NEWS_NONE, NOT_YET, SHOP_OPENED, SHOP_HOURS, COLD_SHOULDER)
+  val VARIED = setOf(
+    GOODBYE, ABOUT_TOWN, NEWS_NONE, NOT_YET, SHOP_OPENED, SHOP_HOURS, COLD_SHOULDER, HEARSAY_TOLD, HEARSAY_LEGEND
+  )
 
   const val SLOT_NAME = "name"
   const val SLOT_TOWN = "town"
   const val SLOT_TRADE = "trade"
   const val SLOT_OPENS = "opens"
   const val SLOT_CLOSES = "closes"
+
+  /** A whole memory line as a token. The client fills it with the frame's other arguments. */
+  const val SLOT_TALE = "tale"
 }

@@ -5,7 +5,10 @@ import io.mockk.mockk
 import net.bestia.worldgen.pop.Kinship
 import net.bestia.worldgen.pop.Member
 import net.bestia.zone.ai.core.state.HourWindow
+import net.bestia.zone.dialog.DialogArg
 import net.bestia.zone.townsfolk.domain.Occupation
+import net.bestia.zone.townsfolk.knowledge.Certainty
+import net.bestia.zone.townsfolk.knowledge.HistoryKnowledge
 import net.bestia.zone.townsfolk.knowledge.Knowledge
 import net.bestia.zone.townsfolk.knowledge.KnowledgeService
 import net.bestia.zone.townsfolk.knowledge.Locality
@@ -59,9 +62,43 @@ class KnowledgeTopicProviderTest {
     holds(memory(topic = FIRST_EVENT))
 
     val menu = Topics.localOf(Topics.KNOWLEDGE, menuTopic())
-    val taken = (0..CHRONICLE_CEILING) + (RUMOURS..RUMOURS + RUMOUR_CEILING)
+    val taken = (0..CHRONICLE_CEILING) + (LEGENDS..LEGENDS + LEGEND_CEILING) + (RUMOURS..RUMOURS + RUMOUR_CEILING)
 
     assertTrue(menu !in taken, "the menu answers to $menu, which a memory can be given")
+  }
+
+  @Test
+  fun `what not everybody knows is offered before what everybody knows`() {
+    val famous = (1..OFFERED).map { memory(topic = it, importance = 90) }
+    val legend = memory(topic = 30_000, importance = 55)
+    holds(*(famous + legend).toTypedArray())
+
+    val offered = assertNotNull(sut.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(), menuTopic())).options
+      .map { Topics.localOf(Topics.KNOWLEDGE, it.topicId) }
+
+    assertEquals(legend.topic, offered.first(), "a famous memory crowded out the one only this person holds: $offered")
+    assertTrue(offered.any { it in famous.map(Knowledge::topic) }, "nothing everybody knows is offered any more: $offered")
+  }
+
+  @Test
+  fun `a memory nobody alive saw is framed as hearsay around the memory itself`() {
+    holds(memory(topic = FIRST_EVENT, certainty = Certainty.TOLD))
+
+    val speech = assertNotNull(sut.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(), Topics.KNOWLEDGE + FIRST_EVENT)).speech
+    val tale = speech.args[ConversationKeys.SLOT_TALE]
+
+    assertTrue(speech.key.startsWith(ConversationKeys.HEARSAY_TOLD), "a told memory was said as ${speech.key}")
+    assertTrue(tale is DialogArg.Token && tale.key.startsWith(KEY), "the frame wraps $tale, not the memory")
+    assertEquals(DialogArg.Name(PLACE), speech.args[HistoryKnowledge.SLOT_PLACE], "the memory's slots did not ride along")
+  }
+
+  @Test
+  fun `a memory somebody saw is said plainly`() {
+    holds(memory(topic = FIRST_EVENT, certainty = Certainty.FIRSTHAND))
+
+    val speech = assertNotNull(sut.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(), Topics.KNOWLEDGE + FIRST_EVENT)).speech
+
+    assertTrue(speech.key.startsWith(KEY), "a firsthand memory was said as ${speech.key}")
   }
 
   private fun holds(vararg held: Knowledge) {
@@ -73,15 +110,16 @@ class KnowledgeTopicProviderTest {
     return sut.rootOptions(speaker()).single().topicId
   }
 
-  private fun memory(topic: Int): Knowledge {
+  private fun memory(topic: Int, certainty: Certainty = Certainty.FIRSTHAND, importance: Int = 50): Knowledge {
     return Knowledge(
       topic = topic,
       key = KEY,
-      slots = emptyMap(),
-      importance = 50,
+      slots = mapOf(HistoryKnowledge.SLOT_PLACE to Knowledge.Slot.Name(PLACE)),
+      importance = importance,
       year = 1,
       locality = Locality.OWN_TOWN,
       variants = 2,
+      certainty = certainty,
     )
   }
 
@@ -107,6 +145,11 @@ class KnowledgeTopicProviderTest {
 
     const val KEY = "HISTORY_CIV_FOUNDED"
 
+    const val PLACE = "Karth"
+
+    /** `KnowledgeTopicProvider.OFFERED`. */
+    const val OFFERED = 4
+
     /** A pruned thousand-year chronicle keeps a few thousand events, well short of this. */
     const val CHRONICLE_CEILING = 20_000
 
@@ -114,5 +157,10 @@ class KnowledgeTopicProviderTest {
     const val RUMOURS = 50_000
 
     const val RUMOUR_CEILING = 20_000
+
+    /** `LegendKnowledge.TOPIC_BASE`. A world holds a few dozen hidden places. */
+    const val LEGENDS = 30_000
+
+    const val LEGEND_CEILING = 10_000
   }
 }

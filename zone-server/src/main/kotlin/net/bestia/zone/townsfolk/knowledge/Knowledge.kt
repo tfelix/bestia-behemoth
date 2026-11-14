@@ -35,6 +35,7 @@ class Knowledge(
    * completely different places, and the layer that picks one must not have to know which is which.
    */
   val variants: Int = 1,
+  val certainty: Certainty = Certainty.FIRSTHAND,
 ) {
 
   override fun toString(): String {

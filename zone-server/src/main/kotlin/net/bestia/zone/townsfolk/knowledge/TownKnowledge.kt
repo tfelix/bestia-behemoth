@@ -146,17 +146,21 @@ class TownKnowledge(
       householdAt: (Int) -> Household?,
       profileOf: (Household) -> KnowledgeProfile,
       variantsOf: (EventKind) -> Int = { 1 },
+      legendVariantsOf: (LegendKind) -> Int = { 1 },
       rumours: List<Knowledge> = emptyList(),
       nearbyRange: Double = SettlementLoreService.NEARBY_RANGE,
       positions: Map<Int, Vec2d> = SettlementLoreService.settlementPositions(generated),
     ): TownKnowledge {
       val chronicle = generated.world.chronicle
       val candidates = poolOf(generated, settlement, nearbyRange, positions)
+      val legends = LegendKnowledge.toldAt(chronicle, settlement, worldSeed, positions, legendVariantsOf)
+        .map { it.knowledge }
+      val claims = LineageClaims.at(chronicle, settlement, worldSeed, positions, legendVariantsOf(LegendKind.LINEAGE))
 
       val occupants = (0 until summary.householdCount).mapNotNull { index ->
         householdAt(index)?.let { Occupant(worldSeed, settlement, index, it, profileOf(it)) }
       }
-      if (occupants.isEmpty() || (candidates.isEmpty() && rumours.isEmpty())) {
+      if (occupants.isEmpty() || (candidates.isEmpty() && rumours.isEmpty() && legends.isEmpty() && claims.isEmpty())) {
         return TownKnowledge(emptyList(), emptyMap())
       }
 
@@ -164,9 +168,14 @@ class TownKnowledge(
       val byHousehold = HashMap<Int, MutableList<Knowledge>>()
 
       for (candidate in candidates) {
-        val knowledge =
-          HistoryKnowledge.of(chronicle, candidate.event, candidate.locality, variantsOf(candidate.event.kind))
         val share = shareOf(candidate, chronicle.presentYear)
+        val knowledge = HistoryKnowledge.of(
+          chronicle,
+          candidate.event,
+          candidate.locality,
+          variantsOf(candidate.event.kind),
+          handedDown = share == SHARE_SOLE,
+        )
 
         if (share >= 1.0) {
           universal.add(knowledge)
@@ -201,6 +210,22 @@ class TownKnowledge(
           .sortedByDescending { drawKey(it, rumour.topic.toLong(), it.weightForRecent()) }
           .take(wanted)
           .forEach { byHousehold.getOrPut(it.index) { ArrayList() }.add(rumour) }
+      }
+
+      // A few of the town's elders keep each old saying, so finding one is worth the asking.
+      for (legend in legends) {
+        val wanted = ceil(SHARE_LESSER * occupants.size).toInt().coerceIn(1, occupants.size)
+
+        occupants
+          .sortedByDescending { drawKey(it, legend.topic.toLong(), it.weightForOldTales()) }
+          .take(wanted)
+          .forEach { byHousehold.getOrPut(it.index) { ArrayList() }.add(legend) }
+      }
+
+      // A house's descendants here are one family, so exactly one household claims it.
+      for (claim in claims) {
+        val claimant = occupants.maxBy { drawKey(it, claim.topic.toLong(), it.weightForOldTales()) }
+        byHousehold.getOrPut(claimant.index) { ArrayList() }.add(claim)
       }
 
       return TownKnowledge(universal, byHousehold)
@@ -343,6 +368,11 @@ class TownKnowledge(
        */
       fun weightForRecent(): Double {
         return profile.curiosity * jitter
+      }
+
+      /** For a tale nobody living saw, where only curiosity and age count. */
+      fun weightForOldTales(): Double {
+        return profile.curiosity * ageAffinity(LIVING_MEMORY_YEARS) * jitter
       }
 
       /**
