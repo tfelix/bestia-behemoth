@@ -58,6 +58,11 @@ blueprints:
   - PARCHMENT
   - LAMP_OIL
   - MANA_INK
+  - MANA_PAPER
+  - INK
+  - DYE
+  - BASIC_POISON
+  - HOLY_WATER
   - LEATHER
   - HARDENED_LEATHER
   - FINE_LEATHER
@@ -83,3 +88,6 @@ blueprints:
   - CUT_GARNET
   - CUT_SAPPHIRE
   - CUT_ONYX
+  - CUT_JADE
+  - CUT_TIGERS_EYE
+  - CUT_OPAL

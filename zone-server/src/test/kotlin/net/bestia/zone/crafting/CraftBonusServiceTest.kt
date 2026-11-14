@@ -76,8 +76,35 @@ class CraftBonusServiceTest {
     assertEquals(0.8f, service.successChance(known(EQUIPMENT_REPAIR to 5), recipe, null), TOLERANCE)
   }
 
+  /** The docs' smelting curve goes below zero for the high ores; skill and stats are what bring it back. */
   @Test
-  fun `a chance never leaves zero to one`() {
+  fun `a negative base is lifted by skill and stats and never falls below one percent`() {
+    val adamantium = recipeRequiring(ORE_REFINEMENT, baseSuccessChance = -0.6f)
+
+    assertEquals(CraftBonusService.MIN_SUCCESS, service.successChance(known(), adamantium, null), TOLERANCE)
+    assertEquals(0.30f, service.successChance(known(ORE_REFINEMENT to 3), adamantium, null), TOLERANCE)
+
+    val strong = StatusValues(strength = 60, vitality = 0, intelligence = 0, agility = 0, willpower = 30, dexterity = 0)
+    assertEquals(
+      -0.6f + 0.9f + 6 * 0.02f + 3 * 0.01f,
+      service.successChance(known(ORE_REFINEMENT to 3), adamantium, strong),
+      TOLERANCE
+    )
+  }
+
+  /** Working the bellows is physical: smelting reads STR where every other craft reads DEX. */
+  @Test
+  fun `smelting takes strength instead of dexterity`() {
+    val smelt = recipeRequiring(ORE_REFINEMENT, baseSuccessChance = 0.2f)
+    val deft = StatusValues(strength = 0, vitality = 0, intelligence = 0, agility = 0, willpower = 0, dexterity = 50)
+    val strong = StatusValues(strength = 50, vitality = 0, intelligence = 0, agility = 0, willpower = 0, dexterity = 0)
+
+    assertEquals(0.2f, service.successChance(known(), smelt, deft), TOLERANCE)
+    assertEquals(0.2f + 5 * 0.02f, service.successChance(known(), smelt, strong), TOLERANCE)
+  }
+
+  @Test
+  fun `a chance never leaves one percent to one`() {
     val certain = recipeRequiring(CARPENTRY, baseSuccessChance = 1f)
 
     assertEquals(1f, service.successChance(known(CARPENTRY to 10, MASTER_CRAFTSMAN to 5), certain, null), TOLERANCE)

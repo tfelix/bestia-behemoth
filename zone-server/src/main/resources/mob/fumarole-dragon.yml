@@ -44,3 +44,5 @@ loot:
   - { item: dragon_scale, chance: 5000 }
   - { item: venom_sac, chance: 4000 }
   - { item: coal, chance: 4000 }
+  - { item: wyrm_bone, chance: 800 }
+  - { item: drake_hide, chance: 1000 }

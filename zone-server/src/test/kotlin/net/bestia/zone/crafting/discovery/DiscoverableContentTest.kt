@@ -1,7 +1,9 @@
 package net.bestia.zone.crafting.discovery
 
 import net.bestia.zone.crafting.RecipeRegistry
+import net.bestia.zone.crafting.gear.GearRecipeGenerator
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -23,6 +25,11 @@ class DiscoverableContentTest {
     val discoverable = recipes.all().flatMap { blueprints.discoverable(it.requiredSkillId) }
       .map { it.recipe.identifier }.toSet()
 
-    assertEquals(setOf("WEAPON_BLUEPRINT", "ARMOR_BLUEPRINT", "WAR_BANNER", "BAMBOO_ROD", "ASH_ROD", "STEEL_ROD"), discoverable)
+    // The equipment catalogue is generated into `gear_recipes.yml` from id 200 up, and every piece of it is discovered.
+    val gear = recipes.all().filter { it.id >= GearRecipeGenerator.FIRST_ID }.map { it.identifier }.toSet()
+    val others = setOf("WEAPON_BLUEPRINT", "ARMOR_BLUEPRINT", "WAR_BANNER", "BAMBOO_ROD", "ASH_ROD", "STEEL_ROD")
+
+    assertTrue(gear.size >= 340, "expected the whole equipment catalogue, found ${gear.size}")
+    assertEquals(others + gear, discoverable)
   }
 }

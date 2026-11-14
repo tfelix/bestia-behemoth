@@ -178,7 +178,10 @@ enum class StaticEntityKind {
   TANNING_RACK,
   LOOM,
   GLASS_FURNACE,
-  GLASSBLOWING_BENCH;
+  GLASSBLOWING_BENCH,
+
+  // Worldgen's SAND, on the beaches. Ground loot like the stick and the resin, appended here for the ordinal.
+  SAND_PILE;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.
@@ -246,6 +249,7 @@ enum class StaticEntityKind {
       PropKind.LOOSE_STONE -> LOOSE_STONE
       PropKind.STICK -> STICK
       PropKind.RESIN -> RESIN
+      PropKind.SAND -> SAND_PILE
       // `FixtureKind`'s ordinal, on `subKind` for the POI arm's reason.
       PropKind.FIXTURE -> FIXTURE_KINDS[subKind]
     }

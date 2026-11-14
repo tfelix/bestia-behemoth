@@ -29,9 +29,13 @@ class OreHandOutTest {
     every { extraPieces(any(), any(), any()) } returns 0
   }
 
+  private val companions = mockk<OreCompanions> {
+    every { extrasFor(any(), any(), any(), any(), any(), any()) } returns emptyList()
+  }
+
   private val lootItems = mockk<LootItemEntitySpawner>(relaxed = true)
 
-  private val sut = OreHandOut(OreYield(items), richVeins, lootItems)
+  private val sut = OreHandOut(OreYield(items), richVeins, companions, lootItems)
   private val world = testWorld()
   private val miner = world.createEntity { }
 

@@ -9,6 +9,7 @@ import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.vector.AreaFeature
 import net.bestia.worldgen.vector.FeatureKind
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -43,6 +44,12 @@ class LootScatterTest {
     val biome: IntLayer = world.world.layers.require(LayerId.BIOME)
     val conifer = CONIFER_BIOMES.map { it.ordinal }.toSet()
     chunksAround(biome.data.indices.filter { biome.data[it] in conifer })
+  }
+
+  /** Chunks centred on a stride of beach cells: a beach is too thin a strip for the dry sweep to count sand. */
+  private val beachChunks: Set<Pair<Int, Int>> by lazy {
+    val biome: IntLayer = world.world.layers.require(LayerId.BIOME)
+    chunksAround(biome.data.indices.filter { biome.data[it] == Biome.BEACH.ordinal })
   }
 
   private fun chunksAround(cells: List<Int>): Set<Pair<Int, Int>> {
@@ -124,6 +131,22 @@ class LootScatterTest {
   }
 
   @Test
+  fun `sand lies on the beaches and on the deserts and nowhere else`() {
+    assumeTrue(beachChunks.isNotEmpty(), "this world has no beach, so there is nothing to find sand on")
+    val shore = itemsIn(beachChunks)
+    val hectares = beachChunks.size * world.config.chunkExtent * world.config.chunkExtent / 10_000.0
+    val sandRate = shore.count { it.kind == PropKind.SAND } / hectares
+    println("over ${beachChunks.size} beach chunks: sand %.2f per hectare".format(sandRate))
+    assertTrue(sandRate > 0.0, "no sand on any beach")
+
+    val surface = world.materializer.surface
+    for (sand in (items + shore).filter { it.kind == PropKind.SAND }) {
+      val biome = surface.biomeAt(sand.x, sand.y)
+      assertTrue(biome in SAND_BIOMES, "sand at (${sand.x}, ${sand.y}) lies in $biome")
+    }
+  }
+
+  @Test
   fun `nothing lies in a worked field or in standing water, and no item is claimed twice`() {
     val surface = world.materializer.surface
     assertTrue(items.isNotEmpty(), "the sweep found nothing, so this proves nothing")
@@ -144,5 +167,6 @@ class LootScatterTest {
     const val SAMPLES = 24
     const val BLOCK = 3
     val CONIFER_BIOMES = setOf(Biome.TAIGA, Biome.TEMPERATE_RAINFOREST, Biome.TEMPERATE_FOREST)
+    val SAND_BIOMES = setOf(Biome.BEACH, Biome.DESERT, Biome.COLD_DESERT)
   }
 }

@@ -31,6 +31,7 @@ catches:
   - { item: sea_pearl, level: 30, weight: 4 }
   - { item: eel, weight: 100 }
   - { item: rough_emerald, level: 40, weight: 4 }
+  - { item: coral, level: 45, weight: 4 }
   - { item: salmon, weight: 100 }
   - { item: sturgeon, weight: 100 }
   - { item: rough_ruby, level: 60, weight: 4 }

@@ -140,8 +140,8 @@ abstract class CraftGraphTask : DefaultTask() {
 
     text.appendLine("## Raw materials")
     text.appendLine()
-    text.appendLine("Items some recipe takes and no recipe makes. \"In the world\" is a search of the mob drop tables, props and fishing")
-    text.appendLine("for the item, so a `no` is a material nobody can obtain yet.")
+    text.appendLine("Items some recipe takes and no recipe makes. \"In the world\" is a search of the mob drop tables, props, fishing")
+    text.appendLine("and the ore a pick breaks out for the item, so a `no` is a material nobody can obtain yet.")
     text.appendLine()
     text.appendLine("| Material | Level | Carries craft-axes | In the world |")
     text.appendLine("| --- | --- | --- | --- |")
@@ -179,7 +179,10 @@ abstract class CraftGraphTask : DefaultTask() {
   private fun readRecipes(mapper: ObjectMapper): List<Recipe> {
     fun stack(node: JsonNode) = Stack(node["item"].asText(), node["amount"].asInt())
 
-    return mapper.readTree(recipesYml.get().asFile)["recipes"].map { node ->
+    val gear = resourcesDir.get().asFile.resolve("gear_recipes.yml")
+    val files = listOf(recipesYml.get().asFile) + listOfNotNull(gear.takeIf { it.exists() })
+
+    return files.flatMap { mapper.readTree(it)["recipes"].toList() }.map { node ->
       Recipe(
         identifier = node["identifier"].asText(),
         effect = node["effect"].asText(),
@@ -206,13 +209,14 @@ abstract class CraftGraphTask : DefaultTask() {
 
   /**
    * For each raw material, which kinds of resource hand it out: a mob's drop table (`item: name`), a prop that
-   * yields it (`item-id: 43`) or a fishing catch (`item: name`). Plain text matching, which is all this needs.
+   * yields it (`item-id: 43`), a fishing catch (`item: name`) or the rock a pick breaks (`OreYield`, `OreCompanions`). Plain text matching, which is all this needs.
    */
   private fun worldMentions(raw: List<String>, items: Map<String, Item>): Map<String, List<String>> {
     val root = resourcesDir.get().asFile
     val mobs = textOf(root.resolve("mob"))
     val props = textOf(root.resolve("prop-kinds.yml"))
     val fishing = textOf(root.resolve("fishing.yml"))
+    val mining = textOf(root.parentFile.resolve("kotlin/net/bestia/zone/item/mining"), "kt")
 
     return raw.associateWith { item ->
       val byName = Regex("""item:\s*${Regex.escape(item)}(?![a-z_])""")
@@ -222,14 +226,15 @@ abstract class CraftGraphTask : DefaultTask() {
         "mobs".takeIf { byName.containsMatchIn(mobs) },
         "props".takeIf { byId != null && byId.containsMatchIn(props) },
         "fishing".takeIf { byName.containsMatchIn(fishing) },
+        "mining".takeIf { mining.contains("\"$item\"") },
       )
     }
   }
 
-  private fun textOf(file: File): String {
+  private fun textOf(file: File, extension: String = "yml"): String {
     if (!file.exists()) return ""
     if (file.isFile) return file.readText()
 
-    return file.walkTopDown().filter { it.isFile && it.extension in setOf("yml", "yaml") }.joinToString("\n") { it.readText() }
+    return file.walkTopDown().filter { it.isFile && it.extension in setOf(extension, "yaml") }.joinToString("\n") { it.readText() }
   }
 }

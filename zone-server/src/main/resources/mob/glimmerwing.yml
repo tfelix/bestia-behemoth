@@ -47,3 +47,4 @@ armor-types: [LIGHT, MEDIUM]
 loot:
   - { item: silk_thread, chance: 1500 }
   - { item: mana_dust, chance: 1000 }
+  - { item: mana_essence, chance: 1200 }

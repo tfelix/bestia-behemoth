@@ -43,3 +43,4 @@ armor-types: [CLOTH, LIGHT]
 loot:
   - { item: ectoplasm, chance: 2000 }
   - { item: mana_dust, chance: 1500 }
+  - { item: mana_essence, chance: 1000 }

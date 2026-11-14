@@ -44,3 +44,4 @@ loot:
   - { item: reptile_scale, chance: 2500 }
   - { item: salt, chance: 1000 }
   - { item: dragon_scale, chance: 300 }
+  - { item: drake_hide, chance: 1200 }

@@ -168,6 +168,22 @@ tasks.register('craftGraph', CraftGraphTask) {
 }
 
 /**
+ * Writes gear_recipes.yml: one recipe for every piece of the equipment catalogue, from the rules in
+ * `GearRecipeGenerator`. Never edit the output by hand; change the rules and run this again.
+ * `GearRecipesTest` fails when the file and the rules disagree. Runs on the test classpath because it reuses the
+ * discovery maths the server and its tests use.
+ */
+tasks.register('genGearRecipes', JavaExec) {
+    group = 'other'
+    description = 'Regenerates src/main/resources/gear_recipes.yml from items.yml and the gear recipe rules.'
+    mainClass = 'net.bestia.zone.crafting.gear.GearRecipeGenerator'
+    classpath = sourceSets.test.runtimeClasspath
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+    args = [layout.projectDirectory.file('src/main/resources/gear_recipes.yml').asFile.absolutePath]
+    dependsOn 'testClasses'
+}
+
+/**
  * Exports the per-species facts the client decides things with - its equipment slot and armor type masks,
  * whether it may be fought at all, and whether its AI profile hunts on sight - into the client's static bestia
  * DB. Static content that is deliberately never sent over the wire. See

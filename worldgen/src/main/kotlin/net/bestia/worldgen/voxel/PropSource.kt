@@ -132,7 +132,10 @@ enum class PropKind {
   FIXTURE,
 
   /** A lump of resin under the conifers, picked up as it lies: what makes a stick burn. See [LootScatter]. */
-  RESIN
+  RESIN,
+
+  /** A pile of sand on a beach, picked up as it lies: what a glass furnace turns into glass. See [LootScatter]. */
+  SAND
 }
 
 /**

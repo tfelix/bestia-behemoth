@@ -533,6 +533,7 @@ items:
     weight: 20
     type: ETC
     material: PLANT
+    craft-axes: { STATE: 0.7, INTEGRITY: 0.3, HEFT: -0.8, COMPLEXITY: -0.5 }
     description: |
       A cut reed stalk, hollow and stubbornly straight.
 
@@ -2962,11 +2963,11 @@ items:
   - id: 227
     item-db-name: sand
     base-level: 1
-    weight: 120
+    weight: 30
     type: ETC
     material: STONE
     description: |
-      A sack of clean, pale sand.
+      A handful of clean, pale sand.
 
   - id: 228
     item-db-name: glass
@@ -3280,6 +3281,77 @@ items:
       A bench, a set of wooden paddles and a blowpipe.
 
       Set it down and it becomes a glassblowing bench - once somebody puts the work in.
+
+  # More gems, so the named jewellery has a stone that matches its name. Found beside the host ores in `OreCompanions`.
+
+  - id: 256
+    item-db-name: rough_jade
+    base-level: 33
+    weight: 20
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A dull green stone, waxy where it has been broken.
+
+  - id: 257
+    item-db-name: cut_jade
+    base-level: 33
+    weight: 5
+    type: ETC
+    material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.8, HEFT: 0.1, VITALITY: 0.5, ARCANE: 0.1, COMPLEXITY: 0.3 }
+    description: |
+      A smooth, deep green jade, polished until it glows softly.
+
+  - id: 258
+    item-db-name: rough_tigers_eye
+    base-level: 37
+    weight: 20
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A brown stone banded with gold, still in its crust.
+
+  - id: 259
+    item-db-name: cut_tigers_eye
+    base-level: 37
+    weight: 5
+    type: ETC
+    material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.5, HEFT: -0.1, EDGE: 0.4, ARCANE: 0.2, COMPLEXITY: 0.4 }
+    description: |
+      A cut tiger's eye whose bands shift as it turns, like a watching eye.
+
+  - id: 260
+    item-db-name: rough_opal
+    base-level: 66
+    weight: 20
+    type: ETC
+    material: CRYSTAL
+    description: |
+      A pale, chalky stone with a flash of colour deep inside.
+
+  - id: 261
+    item-db-name: cut_opal
+    base-level: 66
+    weight: 5
+    type: ETC
+    material: CRYSTAL
+    craft-axes: { STATE: 0.6, INTEGRITY: -0.5, HEFT: -0.4, VITALITY: 0.2, ARCANE: 0.8, COMPLEXITY: 0.5 }
+    description: |
+      A cut opal, milky blue, with a slow tide of colour moving in it.
+
+  - id: 262
+    item-db-name: mana_paper
+    base-level: 60
+    weight: 3
+    type: ETC
+    material: PAPER
+    craft-axes: { STATE: 0.6, INTEGRITY: -0.3, HEFT: -0.9, VITALITY: 0.1, ARCANE: 0.7, COMPLEXITY: 0.7 }
+    description: |
+      Parchment soaked in mana concentrate and pressed flat.
+
+      Whatever is written on it stays written.
 
   # --- Equipment catalogue (ids 500+) ----------------------------------------------------------
   # Generated from the catalogue on the docs' equipment design page: values follow its curves, `min-level`

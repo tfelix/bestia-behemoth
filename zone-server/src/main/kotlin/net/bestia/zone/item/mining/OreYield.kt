@@ -10,9 +10,10 @@ import org.springframework.stereotype.Service
 /**
  * What a broken ore voxel puts in a pack.
  *
- * The caller `OreBlocks.yieldOf` was written for and never had. Only iron, gold and the gems have an item to
- * come out as; the rest of the palette is in the rock with nowhere to go, and is left there rather than given
- * a placeholder item nobody can use.
+ * The caller `OreBlocks.yieldOf` was written for and never had. Only the metals and the gems have an item to
+ * come out as; the rest of the palette (sulfur, salt, aetherite) is in the rock with nowhere
+ * to go, and is left there rather than given a placeholder item nobody can use. What rides along with a host ore
+ * is [OreCompanions]'s business.
  */
 @Service
 class OreYield(private val items: ItemTemplateRegistry) {
@@ -51,9 +52,13 @@ class OreYield(private val items: ItemTemplateRegistry) {
      * Placer gold is absent because `OreBlocks` never reports it - placer and lode share the same three
      * blocks, and the reverse map keeps the lode so that a gold block has one answer rather than two.
      */
-    private val ITEM_BY_RESOURCE = mapOf(
+    internal val ITEM_BY_RESOURCE = mapOf(
+      ResourceType.COPPER to "copper_ore",
+      ResourceType.TIN to "tin_ore",
       ResourceType.IRON to "iron_ore",
       ResourceType.GOLD_LODE to "gold_ore",
+      ResourceType.SILVER to "silver_ore",
+      ResourceType.MITHRANDIUM to "mithril_ore",
       ResourceType.AMETHYST to "rough_amethyst",
       ResourceType.EMERALD to "rough_emerald",
       ResourceType.RUBY to "rough_ruby",

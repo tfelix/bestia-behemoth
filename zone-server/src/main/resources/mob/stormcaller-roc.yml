@@ -50,3 +50,4 @@ armor-types: [CLOTH, LIGHT]
 loot:
   - { item: feather, chance: 10000 }
   - { item: mana_crystal, chance: 3000 }
+  - { item: storm_feather, chance: 1200 }

@@ -286,7 +286,7 @@ recipes:
     skill: { skill: M_ORE_REFINEMENT, level: 1 }
     station: FURNACE
     craftSeconds: 10.0
-    baseSuccessChance: 0.4
+    baseSuccessChance: 0.2
 
   # Gold refines like iron and for the same reason a furnace is worth placing. What the bar is *for* is
   # minting, which is the only way coin enters the world - see the money supply design.
@@ -300,7 +300,7 @@ recipes:
     skill: { skill: M_ORE_REFINEMENT, level: 1 }
     station: FURNACE
     craftSeconds: 14.0
-    baseSuccessChance: 0.4
+    baseSuccessChance: -0.1
 
   # The mint. Every coin in the world is struck here and nowhere else, out of the world reserve - so this
   # is the one recipe whose output is money, and the one that can be refused because the world has run out.
@@ -526,8 +526,9 @@ recipes:
   # discoverable point: their raw inputs carry no `craft-axes`, so every master knows them from `starter_kit.yml`
   # and the skill rank and the inputs gate the tier. The chains are drawn in the docs crafting chains page.
   #
-  # Metals. Two ore and a fuel make an ingot, and alloys take two ingots. The docs give smelting a base chance that
-  # falls below zero for the high ores, which a recipe cannot hold, so these stop at a low floor instead.
+  # Metals. Two ore and a fuel make an ingot, and alloys take two ingots. The base chance is the docs' smelting curve,
+  # `0.30 - max(0, oreLevel - 10) * 0.01` (an alloy by its own level), which goes below zero for the high ores:
+  # only Ore Refinement, STR and WIL lift those into reach, and `CraftBonusService` floors the total at 1%.
 
   - id: 70
     identifier: TIN_INGOT
@@ -539,7 +540,7 @@ recipes:
     skill: { skill: M_ORE_REFINEMENT, level: 1 }
     station: FURNACE
     craftSeconds: 10.0
-    baseSuccessChance: 0.4
+    baseSuccessChance: 0.3
 
   - id: 71
     identifier: COPPER_INGOT
@@ -551,7 +552,7 @@ recipes:
     skill: { skill: M_ORE_REFINEMENT, level: 1 }
     station: FURNACE
     craftSeconds: 10.0
-    baseSuccessChance: 0.4
+    baseSuccessChance: 0.3
 
   - id: 72
     identifier: BRONZE_INGOT
@@ -563,7 +564,7 @@ recipes:
     skill: { skill: M_ORE_REFINEMENT, level: 1 }
     station: FURNACE
     craftSeconds: 12.0
-    baseSuccessChance: 0.4
+    baseSuccessChance: 0.25
 
   - id: 73
     identifier: STEEL_INGOT
@@ -575,7 +576,7 @@ recipes:
     skill: { skill: M_ORE_REFINEMENT, level: 2 }
     station: FURNACE
     craftSeconds: 14.0
-    baseSuccessChance: 0.35
+    baseSuccessChance: 0.08
 
   - id: 74
     identifier: SILVER_INGOT
@@ -587,7 +588,7 @@ recipes:
     skill: { skill: M_ORE_REFINEMENT, level: 2 }
     station: FURNACE
     craftSeconds: 14.0
-    baseSuccessChance: 0.3
+    baseSuccessChance: 0.05
 
   - id: 75
     identifier: QUICKSILVER
@@ -598,7 +599,7 @@ recipes:
     skill: { skill: M_ORE_REFINEMENT, level: 3 }
     station: FURNACE
     craftSeconds: 16.0
-    baseSuccessChance: 0.25
+    baseSuccessChance: -0.2
 
   - id: 76
     identifier: BLACKIRON_INGOT
@@ -610,7 +611,7 @@ recipes:
     skill: { skill: M_ORE_REFINEMENT, level: 3 }
     station: FURNACE
     craftSeconds: 18.0
-    baseSuccessChance: 0.2
+    baseSuccessChance: -0.25
 
   - id: 77
     identifier: PALLADIUM_INGOT
@@ -622,7 +623,7 @@ recipes:
     skill: { skill: M_ORE_REFINEMENT, level: 3 }
     station: FURNACE
     craftSeconds: 18.0
-    baseSuccessChance: 0.2
+    baseSuccessChance: -0.3
 
   - id: 78
     identifier: MITHRIL_INGOT
@@ -634,7 +635,7 @@ recipes:
     skill: { skill: M_ORE_REFINEMENT, level: 3 }
     station: FURNACE
     craftSeconds: 20.0
-    baseSuccessChance: 0.15
+    baseSuccessChance: -0.45
 
   - id: 79
     identifier: ADAMANTIUM_INGOT
@@ -646,7 +647,7 @@ recipes:
     skill: { skill: M_ORE_REFINEMENT, level: 3 }
     station: FURNACE
     craftSeconds: 24.0
-    baseSuccessChance: 0.1
+    baseSuccessChance: -0.6
 
   - id: 80
     identifier: BRICK
@@ -1010,3 +1011,98 @@ recipes:
     skill: { skill: M_CARPENTRY, level: 2 }
     craftSeconds: 15.0
     baseSuccessChance: 1
+
+  # The three stones the named jewellery is cut from. Cut like the rest.
+
+  - id: 110
+    identifier: CUT_JADE
+    effect: PRODUCE
+    output: { item: cut_jade, amount: 1 }
+    inputs:
+      - { item: rough_jade, amount: 1 }
+    skill: { skill: M_GEM_CUTTING, level: 2 }
+    craftSeconds: 20.0
+    baseSuccessChance: 0.75
+
+  - id: 111
+    identifier: CUT_TIGERS_EYE
+    effect: PRODUCE
+    output: { item: cut_tigers_eye, amount: 1 }
+    inputs:
+      - { item: rough_tigers_eye, amount: 1 }
+    skill: { skill: M_GEM_CUTTING, level: 2 }
+    craftSeconds: 22.0
+    baseSuccessChance: 0.7
+
+  - id: 112
+    identifier: CUT_OPAL
+    effect: PRODUCE
+    output: { item: cut_opal, amount: 1 }
+    inputs:
+      - { item: rough_opal, amount: 1 }
+    skill: { skill: M_GEM_CUTTING, level: 3 }
+    craftSeconds: 35.0
+    baseSuccessChance: 0.6
+
+  # The high tier of paper: a sheet of parchment soaked in mana concentrate, which a legendary tome is bound from.
+  - id: 113
+    identifier: MANA_PAPER
+    effect: PRODUCE
+    output: { item: mana_paper, amount: 1 }
+    inputs:
+      - { item: parchment, amount: 1 }
+      - { item: mana_concentrate, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 12.0
+    baseSuccessChance: 0.7
+
+  # The bench liquids: made from a bottle and what goes in it, so ink, dye, poison and holy water are not shop
+  # stock nobody sells. All of them are starter recipes, like the rest of the refining.
+  - id: 114
+    identifier: INK
+    effect: PRODUCE
+    output: { item: ink, amount: 1 }
+    inputs:
+      - { item: coal, amount: 1 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 5.0
+    baseSuccessChance: 1.0
+
+  - id: 115
+    identifier: DYE
+    effect: PRODUCE
+    output: { item: dye, amount: 1 }
+    inputs:
+      - { item: wild_herb, amount: 2 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 6.0
+    baseSuccessChance: 1.0
+
+  - id: 116
+    identifier: BASIC_POISON
+    effect: PRODUCE
+    output: { item: basic_poison, amount: 1 }
+    inputs:
+      - { item: deathcap, amount: 1 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 6.0
+    baseSuccessChance: 0.9
+
+  - id: 117
+    identifier: HOLY_WATER
+    effect: PRODUCE
+    output: { item: holy_water, amount: 1 }
+    inputs:
+      - { item: empty_bottle, amount: 1 }
+      - { item: salt, amount: 1 }
+    skill: { skill: M_BASIC_SKILL, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 8.0
+    baseSuccessChance: 0.9

@@ -207,8 +207,10 @@ class PropKindRegistryTest {
       StaticEntityKind.GHOST_HERB
     )
 
-    /** Picked up as it lies, and back after a while: worldgen's loose stones, sticks and resin. See `LootScatter`. */
-    val GROUND_LOOT = setOf(StaticEntityKind.LOOSE_STONE, StaticEntityKind.STICK, StaticEntityKind.RESIN)
+    /** Picked up as it lies, and back after a while: worldgen's loose stones, sticks, resin and sand. See `LootScatter`. */
+    val GROUND_LOOT = setOf(
+      StaticEntityKind.LOOSE_STONE, StaticEntityKind.STICK, StaticEntityKind.RESIN, StaticEntityKind.SAND_PILE
+    )
 
     /** `quarried_stone` in `items.yml`. */
     const val QUARRIED_STONE = 46L

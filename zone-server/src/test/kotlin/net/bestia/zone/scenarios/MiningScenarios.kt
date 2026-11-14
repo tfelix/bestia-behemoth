@@ -16,6 +16,7 @@ import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.GroundItemStack
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
+import net.bestia.zone.item.material.ItemMaterial
 import net.bestia.zone.item.ecs.ObtainItemIntent
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.mining.OreInBrush
@@ -164,7 +165,11 @@ class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
   @Order(4)
   fun `Rich Veins gives more iron or gem pieces than the rock holds`() {
     learn("M_RICH_VEINS", 5)
-    val spot = oreSpots.find(positionOf(miner())) { stack -> !stack.isCoinMetal }
+    // Iron or a gem, which is what the skill reaches. The other metals are heavy enough that a rich voxel of them
+    // overflows a novice's pack and lands at their feet, which is not what this scenario is about.
+    val spot = oreSpots.find(positionOf(miner())) { stack ->
+      !stack.isCoinMetal && (stack.itemId == items.idOf("iron_ore") || items.templateOf(stack.itemId)?.material == ItemMaterial.CRYSTAL)
+    }
     val itemId = oreSpots.itemAt(spot)
     val before = amountOf(itemId)
     var plain = 0

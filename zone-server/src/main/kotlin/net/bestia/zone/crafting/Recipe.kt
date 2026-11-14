@@ -37,14 +37,21 @@ data class Recipe(
   /** Before [CraftBonusService]'s time factor, which is the whole of what Master Craftsman buys. */
   val craftSeconds: Float,
 
-  /** In `[0, 1]`, before skill bonuses. 1.0 is a craft that cannot fail on its own. */
+  /**
+   * At most 1, before skill bonuses. 1.0 is a craft that cannot fail on its own.
+   *
+   * **May be negative**, and the design docs rely on it: the base chance falls with the level of what is being
+   * made (an ore smelts at `0.30 - max(0, level - 10) * 0.01`, a forged item at `0.90 - max(0, level - 10) * 0.015`),
+   * so a high-level craft starts below zero and only skill, stats and bonuses lift it into reach.
+   * [CraftBonusService.successChance] adds those and clamps the total, so the base never has to.
+   */
   val baseSuccessChance: Float
 ) {
 
   init {
     require(craftSeconds > 0f) { "Recipe $identifier needs a positive craftSeconds, was $craftSeconds" }
-    require(baseSuccessChance in 0f..1f) {
-      "Recipe $identifier baseSuccessChance must be in [0, 1], was $baseSuccessChance"
+    require(baseSuccessChance.isFinite() && baseSuccessChance <= 1f) {
+      "Recipe $identifier baseSuccessChance must be at most 1, was $baseSuccessChance"
     }
     require(requiredSkillLevel > 0) {
       "Recipe $identifier needs a positive requiredSkillLevel, was $requiredSkillLevel"

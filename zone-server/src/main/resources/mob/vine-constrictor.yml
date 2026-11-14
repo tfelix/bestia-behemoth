@@ -49,3 +49,4 @@ armor-types: [LIGHT, MEDIUM]
 loot:
   - { item: reptile_scale, chance: 3500 }
   - { item: raw_meat, chance: 2000 }
+  - { item: thornvine, chance: 2000 }
