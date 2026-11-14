@@ -1,9 +1,8 @@
 """Run with: cd tools/client && python3 -m unittest"""
+import _thread
 import base64
 import io
 import json
-import os
-import signal
 import sys
 import tempfile
 import threading
@@ -474,7 +473,7 @@ class PixellabApiTest(ClientTreeCase):
             deadline = time.monotonic() + 5
             while len(self.server.polls) < gi.VARIANTS and time.monotonic() < deadline:
                 time.sleep(0.01)
-            os.kill(os.getpid(), signal.SIGINT)
+            _thread.interrupt_main()  # what Ctrl-C does; os.kill(SIGINT) would terminate the process on Windows
 
         threading.Thread(target=interrupt_once_all_jobs_run, daemon=True).start()
         with self.assertRaises(KeyboardInterrupt):

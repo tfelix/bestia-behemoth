@@ -24,7 +24,7 @@ import sys
 import textwrap
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
@@ -63,6 +63,7 @@ DESCRIPTION_MAX_CHARS = 200
 
 PREVIEW_SCALE = 6  # contact sheet zoom, for viewing only
 POLL_INTERVAL_S = 3
+INTERRUPT_CHECK_S = 0.5  # how often the waiting main thread can notice Ctrl-C
 JOB_TIMEOUT_S = 180
 REQUEST_TIMEOUT_S = 60
 MAX_ATTEMPTS = 5
@@ -408,14 +409,19 @@ class Pixellab:
         images = []
         with ThreadPoolExecutor(max_workers=VARIANTS) as pool:
             variants = {pool.submit(self._generate_one, prompt, seed): number for number, seed in enumerate(seeds, 1)}
+            pending = set(variants)
             try:
-                for future in as_completed(variants):  # in completion order, so a fatal error is seen at once
-                    try:
-                        images.append(future.result())
-                    except PixellabError as error:
-                        if error.status in FATAL_STATUSES:
-                            raise
-                        print(f"  Variant {variants[future]} failed: {error}")
+                while pending:
+                    # In completion order, so a fatal error is seen at once. Short waits, not one blocking wait:
+                    # on Windows a blocking wait cannot be interrupted, so Ctrl-C would hang until a variant finished.
+                    done, pending = wait(pending, timeout=INTERRUPT_CHECK_S, return_when=FIRST_COMPLETED)
+                    for future in done:
+                        try:
+                            images.append(future.result())
+                        except PixellabError as error:
+                            if error.status in FATAL_STATUSES:
+                                raise
+                            print(f"  Variant {variants[future]} failed: {error}")
             except BaseException:  # Ctrl-C or a fatal error: the workers see the flag and cancel their jobs
                 self.stop.set()
                 raise
@@ -466,11 +472,16 @@ def checkerboard(size: int, cell: int = 24) -> Image.Image:
     return board
 
 
+LABEL_FONTS = ("DejaVuSans-Bold.ttf", "arialbd.ttf", "Arial Bold.ttf")  # Linux, Windows, macOS
+
+
 def label_font() -> ImageFont.ImageFont:
-    try:
-        return ImageFont.truetype("DejaVuSans-Bold.ttf", 28)
-    except OSError:
-        return ImageFont.load_default()
+    for name in LABEL_FONTS:
+        try:
+            return ImageFont.truetype(name, 28)
+        except OSError:
+            continue
+    return ImageFont.load_default(size=28)  # Pillow 10.1+; a fixed tiny bitmap font before that
 
 
 def contact_sheet(images: list[Image.Image]) -> Image.Image:
@@ -488,12 +499,24 @@ def contact_sheet(images: list[Image.Image]) -> Image.Image:
 
 
 def open_viewer(path: Path) -> None:
-    viewer = shlex.split(os.environ.get("IMAGE_VIEWER", "xdg-open"))
-    has_display = os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")
-    if has_display and shutil.which(viewer[0]):
-        # Popen, not run: the viewer must not hold the terminal while we wait for the answer.
-        subprocess.Popen([*viewer, str(path)], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                         stderr=subprocess.DEVNULL, start_new_session=True)
+    """Show the sheet without blocking the review. IMAGE_VIEWER overrides the system default viewer."""
+    override = os.environ.get("IMAGE_VIEWER")
+    try:
+        if override:
+            viewer = shlex.split(override, posix=os.name != "nt")  # posix mode would eat the backslashes of a Windows path
+            if shutil.which(viewer[0]):
+                # Popen, not run: the viewer must not hold the terminal while we wait for the answer.
+                subprocess.Popen([*viewer, str(path)], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                 stderr=subprocess.DEVNULL)
+        elif sys.platform == "win32":
+            os.startfile(path)  # the default app for .png, e.g. Photos
+        elif sys.platform == "darwin":
+            subprocess.Popen(["open", str(path)])
+        elif (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")) and shutil.which("xdg-open"):
+            subprocess.Popen(["xdg-open", str(path)], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                             stderr=subprocess.DEVNULL, start_new_session=True)
+    except OSError as error:
+        print(f"  (could not open a viewer: {error})")
     print(f"  Candidates: {path}")
 
 

@@ -29,7 +29,7 @@ Run `--probe` first on a new machine or after Pixellab changes. It shows whether
 ### What happens for each icon
 
 1. The prompt is built from the name and description. You can edit it.
-2. Four candidates are generated and shown as one numbered sheet in your image viewer (`xdg-open`, or set `IMAGE_VIEWER`).
+2. Four candidates are generated and shown as one numbered sheet in your image viewer (the system default: the Windows file association, `open` on macOS, `xdg-open` on Linux; set `IMAGE_VIEWER` to override). On Windows set the token with `$env:PIXELLAB_SECRET = "..."` and run `python tools\client\generate_icons.py`.
 3. You pick `1`-`4`, or retry, edit the prompt, skip or quit. Nothing is written before you pick.
 4. The PNG is saved next to the item or skill `.tres`, and the `icon` line is added to it.
 
