@@ -11,11 +11,14 @@ import net.bestia.worldgen.dress.FixtureChannels
 import net.bestia.worldgen.dress.FixtureKind
 import net.bestia.worldgen.dress.Plots
 import net.bestia.worldgen.civ.FieldChannels
+import net.bestia.worldgen.history.SiteChannels
+import net.bestia.worldgen.vector.Aabb
 import net.bestia.worldgen.vector.AreaFeature
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.vector.VectorFeature
+import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.ceil
 import kotlin.math.cos
@@ -23,14 +26,15 @@ import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 /**
  * The fixtures standing in one chunk: what the dressing stage placed, and what fields and cemeteries imply.
  *
  * Two sources, for the split `dress/DressingStage` explains. A `FIXTURE` marker becomes exactly one prop where it
  * stands. A `FIELD` is fenced along every edge, tiled with its crop, and given a haystack or three and the odd
- * scarecrow; a `CEMETERY` is walled and filled with headstones on the plots its named graves left free. All of
- * that is a pure function of the feature, so any chunk the feature reaches derives the same props and the one that
+ * scarecrow; a `CEMETERY` is walled and filled with headstones on the plots its named graves left free; a
+ * `BATTLEFIELD` is strewn with what its dead left behind. All of that is a pure function of the feature, so any chunk the feature reaches derives the same props and the one that
  * owns each prop's position emits it.
  *
  * ### Ground
@@ -55,8 +59,9 @@ class FixtureProps(
   private val markers = features.filter { it.kind == FeatureKind.FIXTURE }.filterIsInstance<PointMarker>()
   private val fields = features.filter { it.kind == FeatureKind.FIELD }.filterIsInstance<AreaFeature>()
   private val cemeteries = features.filter { it.kind == FeatureKind.CEMETERY }.filterIsInstance<AreaFeature>()
+  private val battlefields = features.filter { it.kind == FeatureKind.BATTLEFIELD }.filterIsInstance<PointMarker>()
 
-  val isEmpty get() = markers.isEmpty() && fields.isEmpty() && cemeteries.isEmpty()
+  val isEmpty get() = markers.isEmpty() && fields.isEmpty() && cemeteries.isEmpty() && battlefields.isEmpty()
 
   fun propsIn(chunk: ChunkPos, site: PropSite, into: PropInstances) {
     if (isEmpty) return
@@ -146,6 +151,47 @@ class FixtureProps(
           FixtureKind.GRAVESTONE.heightM * (0.8 + 0.4 * roll / fill), (roll * 1000).toInt() % GRAVE_MODELS
         )
       }
+    }
+
+    for (field in battlefields) {
+      val radius = field.attribute(SiteChannels.RADIUS)
+      val reach = Aabb(field.position.x - radius, field.position.y - radius, field.position.x + radius, field.position.y + radius)
+      if (reach.intersects(bounds)) battlefieldRemains(field, radius, ::emit)
+    }
+  }
+
+  /**
+   * Bones and broken arms over a battlefield: more where more fell, fewer the older the field is. Where a hero
+   * slew a world boss, its skeleton lies at the heart of the field.
+   */
+  private fun battlefieldRemains(field: PointMarker, radius: Double, emit: Emit) {
+    val age = field.attribute(SiteChannels.DECAY).coerceIn(0.0, 1.0)
+    val h = GenRng.hash(config.seed, field.id.value, REMAINS_SALT)
+
+    if (field.attribute(SiteChannels.MONSTER) >= 0) {
+      emit.emit(FixtureKind.GIANT_REMAINS, field.position.x, field.position.y, Double.NaN, GenRng.unit(h) * 2.0 * PI,
+        GIANT_HALF_LENGTH, GIANT_HALF_WIDTH, FixtureKind.GIANT_REMAINS.heightM, 0)
+    }
+
+    val left = field.attribute(SiteChannels.FALLEN) * REMAINS_PER_DEAD * (1.0 - AGE_THINNING * age)
+    for (k in 0 until left.toInt().coerceAtMost(MAX_REMAINS)) {
+      val piece = GenRng.hash(h, k.toLong())
+      val out = radius * REMAINS_SPREAD * sqrt(GenRng.unit(GenRng.mix64(piece + 1)))
+      val angle = 2.0 * PI * GenRng.unit(GenRng.mix64(piece + 2))
+      val kind = remainsKindOf(GenRng.unit(piece), age)
+      emit.emit(
+        kind, field.position.x + out * cos(angle), field.position.y + out * sin(angle), Double.NaN,
+        yaw = 2.0 * PI * GenRng.unit(GenRng.mix64(piece + 3)), halfLength = 0.5, halfWidth = 0.3, kind.heightM, 0
+      )
+    }
+  }
+
+  private fun remainsKindOf(roll: Double, age: Double): FixtureKind {
+    return when {
+      roll < BANNER_SHARE && age < BANNER_ROTS_AT -> FixtureKind.BANNER_RAG
+      roll < 0.45 -> FixtureKind.BONES
+      roll < 0.75 -> FixtureKind.RUSTED_BLADE
+      else -> FixtureKind.BROKEN_SHIELD
     }
   }
 
@@ -296,8 +342,19 @@ class FixtureProps(
     const val FALLOW_SHARE = 0.15
     const val GRAVE_MODELS = 3
 
+    /** Pieces of remains per dead on a fresh field, and the share of them a fully decayed field has lost. */
+    const val REMAINS_PER_DEAD = 0.15
+    const val AGE_THINNING = 0.8
+    const val MAX_REMAINS = 120
+    const val REMAINS_SPREAD = 0.85
+    const val BANNER_SHARE = 0.15
+    const val BANNER_ROTS_AT = 0.5
+    const val GIANT_HALF_LENGTH = 6.0
+    const val GIANT_HALF_WIDTH = 3.0
+
     const val FIELD_SALT = 0x4649454C44L
     const val GRAVE_SALT = 0x4752415645L
     const val LEAN_SALT = 0x4C45414EL
+    const val REMAINS_SALT = 0x52454D41L
   }
 }

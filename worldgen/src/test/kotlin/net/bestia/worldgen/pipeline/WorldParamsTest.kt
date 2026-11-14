@@ -143,7 +143,7 @@ class WorldParamsTest {
     assertEquals(8_844_686_390_522_158_024L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Pinned as a pair so each half stays checkable: a world-tier retune has to move the number above and
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
-    assertEquals(7_304_729_906_149_938_182L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
+    assertEquals(-3_332_020_306_843_468_946L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
   }
 
   private fun config() = StandardWorld.demoConfig().copy(widthCells = 64, heightCells = 64)

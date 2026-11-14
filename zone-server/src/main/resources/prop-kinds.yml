@@ -546,3 +546,36 @@ kinds:
     max-hp: 5000
     collider: { half-x: 1, half-y: 1, height: 3 }
     variants: 1
+
+  # What lies on a battlefield. Picked up as it lies and never comes back: the dead do not fall twice. A banner rag
+  # is only cloth gone to threads, so it yields nothing.
+  - kind: FIXTURE_BONES
+    max-hp: 10
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+    collect: { item-id: 92, amount: 1 }
+
+  - kind: FIXTURE_RUSTED_BLADE
+    max-hp: 10
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+    collect: { item-id: 341, amount: 1 }
+
+  - kind: FIXTURE_BROKEN_SHIELD
+    max-hp: 10
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+    collect: { item-id: 341, amount: 1 }
+
+  - kind: FIXTURE_BANNER_RAG
+    max-hp: 20
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1
+
+  # The skeleton of a slain world boss. Broken, it is a heap of bone.
+  - kind: FIXTURE_GIANT_REMAINS
+    max-hp: 3000
+    collider: { half-x: 6, half-y: 3, height: 6 }
+    variants: 1
+    loot:
+      - { item-id: 92, amount: 10, drop-chance: 10000 }
