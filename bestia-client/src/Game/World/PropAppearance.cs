@@ -738,7 +738,30 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.86f, 0.78f, 0.52f), Collectible = true,
         Action = PropAction.Collect
-      } // SAND_PILE
+      }, // SAND_PILE
+      // What lies on a battlefield: low boxes until they have models. Bones and broken arms are picked up.
+      new Kind
+      {
+        PlaceholderWidth = 0.5f, PlaceholderColour = new Color(0.86f, 0.83f, 0.74f), Collectible = true,
+        Action = PropAction.Collect
+      }, // FIXTURE_BONES
+      new Kind
+      {
+        PlaceholderWidth = 0.6f, PlaceholderColour = new Color(0.52f, 0.33f, 0.20f), Collectible = true,
+        Action = PropAction.Collect
+      }, // FIXTURE_RUSTED_BLADE
+      new Kind
+      {
+        PlaceholderWidth = 0.6f, PlaceholderColour = new Color(0.45f, 0.36f, 0.28f), Collectible = true,
+        Action = PropAction.Collect
+      }, // FIXTURE_BROKEN_SHIELD
+      new Kind { PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.55f, 0.15f, 0.15f) }, // FIXTURE_BANNER_RAG
+
+      // The skeleton of a slain world boss: a long pale mound until it has a model.
+      new Kind
+      {
+        PlaceholderWidth = 6.0f, PlaceholderColour = new Color(0.90f, 0.88f, 0.80f), Action = PropAction.Break
+      } // FIXTURE_GIANT_REMAINS
     };
 
     /// <summary>
