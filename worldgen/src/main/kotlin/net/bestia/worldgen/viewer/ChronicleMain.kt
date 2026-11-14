@@ -9,6 +9,7 @@ import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.SiteKind
+import net.bestia.worldgen.core.ThreadKind
 import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.history.Names
@@ -120,6 +121,8 @@ object ChronicleMain {
     val totals = IntArray(SWEEP_COLUMNS.size - 1)
     val eventTotals = HashMap<EventKind, Int>()
     val worldsWith = HashMap<EventKind, Int>()
+    val threadTotals = HashMap<ThreadKind, Int>()
+    val worldsWithThread = HashMap<ThreadKind, Int>()
     for (offset in 0 until seeds) {
       val seed = base.seed + offset
       val chronicle = StandardWorld.build(base.copy(seed = seed), params = params).world.chronicle
@@ -130,6 +133,10 @@ object ChronicleMain {
       for ((kind, count) in chronicle.eventCensus()) {
         eventTotals.merge(kind, count, Int::plus)
         worldsWith.merge(kind, 1, Int::plus)
+      }
+      for ((kind, threads) in chronicle.threads.groupBy { it.kind }) {
+        threadTotals.merge(kind, threads.size, Int::plus)
+        worldsWithThread.merge(kind, 1, Int::plus)
       }
     }
 
@@ -142,6 +149,13 @@ object ChronicleMain {
     for (kind in EventKind.entries) {
       val mean = "%.1f".format(Locale.ROOT, (eventTotals[kind] ?: 0).toDouble() / seeds)
       line("  ${kind.name.lowercase()}", "${mean.padStart(6)}   ${worldsWith[kind] ?: 0} of $seeds")
+    }
+
+    println()
+    println("open threads over $seeds worlds: mean per world, and in how many worlds at all")
+    for (kind in ThreadKind.entries) {
+      val mean = "%.1f".format(Locale.ROOT, (threadTotals[kind] ?: 0).toDouble() / seeds)
+      line("  ${kind.name.lowercase()}", "${mean.padStart(6)}   ${worldsWithThread[kind] ?: 0} of $seeds")
     }
   }
 
@@ -455,31 +469,33 @@ object ChronicleMain {
   }
 
   /**
-   * Unresolved threads: the quest hooks the architecture document says to mine the log for.
+   * Unresolved threads: the quest hooks the history recorded, then the other open ends worth a look.
    *
-   * Deliberately mechanical. A thread is unresolved when the log contains a beginning with no matching end -
-   * an artifact taken and never recovered, a monster driven off, a settlement lost with nobody left who
-   * remembers it. Nothing here writes a quest; it lists the places the log has left a question open, which is
-   * the raw material and the part that has to come out of the simulation rather than out of a template.
+   * Nothing here writes a quest. It lists the places the log has left a question open, which is the raw material
+   * and the part that has to come out of the simulation rather than out of a template.
    */
   private fun quests(chronicle: Chronicle) {
     println()
     println("unresolved threads")
 
-    val lost = chronicle.artifacts.filter { relic ->
-      relic.restingSite >= 0 &&
-          chronicle.provenanceOf(relic.index).none { it.kind == EventKind.ARTIFACT_ENTOMBED }
+    val byKind = chronicle.threads.groupBy { it.kind }
+    for (kind in ThreadKind.entries) {
+      val threads = byKind[kind].orEmpty()
+      println()
+      println("  ${threads.size} ${kind.name.lowercase().replace('_', ' ')}")
+      threads.take(THREADS_PER_KIND).forEach { thread ->
+        val since = chronicle.events.first { it.id == thread.since }
+        val where = thread.actors.firstOrNull { it.type == ActorType.SITE }
+          ?.let { chronicle.sites[it.index].position }
+          ?.let { "  at (${it.x.toInt()}, ${it.y.toInt()})" } ?: ""
+        val god = thread.actors.firstOrNull { it.type == ActorType.DEITY }
+          ?.let { "  (the god of ${chronicle.deities[it.index].domain.name.lowercase()})" } ?: ""
+        println("    ${since.year.toString().padStart(5)}  ${since.detail}$where$god")
+      }
     }
+
     println()
-    println("  ${lost.size} artifacts lost rather than laid to rest")
-    lost.take(THREADS_PER_KIND).forEach { relic ->
-      val culture = chronicle.civs[chronicle.figures[relic.forgedBy].civ].cultureIndex
-      val site = chronicle.sites[relic.restingSite]
-      println(
-        "    ${Names.artifact(relic.nameSeed, culture, relic.kind, relic.forgedAtNameSeed)} " +
-            "at (${site.position.x.toInt()}, ${site.position.y.toInt()})"
-      )
-    }
+    println("other open ends")
 
     val razed = chronicle.settlements.filter { it.isRuin && it.ruinCause == EventKind.SETTLEMENT_RAZED }
     println()
