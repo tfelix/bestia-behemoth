@@ -5,7 +5,10 @@ import io.mockk.mockk
 import net.bestia.worldgen.pop.Kinship
 import net.bestia.worldgen.pop.Member
 import net.bestia.zone.ai.core.state.HourWindow
+import net.bestia.zone.dialog.DialogArg
 import net.bestia.zone.townsfolk.domain.Occupation
+import net.bestia.zone.townsfolk.knowledge.Certainty
+import net.bestia.zone.townsfolk.knowledge.HistoryKnowledge
 import net.bestia.zone.townsfolk.knowledge.Knowledge
 import net.bestia.zone.townsfolk.knowledge.KnowledgeService
 import net.bestia.zone.townsfolk.knowledge.Locality
@@ -64,6 +67,27 @@ class KnowledgeTopicProviderTest {
     assertTrue(menu !in taken, "the menu answers to $menu, which a memory can be given")
   }
 
+  @Test
+  fun `a memory nobody alive saw is framed as hearsay around the memory itself`() {
+    holds(memory(topic = FIRST_EVENT, certainty = Certainty.TOLD))
+
+    val speech = assertNotNull(sut.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(), Topics.KNOWLEDGE + FIRST_EVENT)).speech
+    val tale = speech.args[ConversationKeys.SLOT_TALE]
+
+    assertTrue(speech.key.startsWith(ConversationKeys.HEARSAY_TOLD), "a told memory was said as ${speech.key}")
+    assertTrue(tale is DialogArg.Token && tale.key.startsWith(KEY), "the frame wraps $tale, not the memory")
+    assertEquals(DialogArg.Name(PLACE), speech.args[HistoryKnowledge.SLOT_PLACE], "the memory's slots did not ride along")
+  }
+
+  @Test
+  fun `a memory somebody saw is said plainly`() {
+    holds(memory(topic = FIRST_EVENT, certainty = Certainty.FIRSTHAND))
+
+    val speech = assertNotNull(sut.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(), Topics.KNOWLEDGE + FIRST_EVENT)).speech
+
+    assertTrue(speech.key.startsWith(KEY), "a firsthand memory was said as ${speech.key}")
+  }
+
   private fun holds(vararg held: Knowledge) {
     every { knowledge.knownBy(IDENTITY) } returns held.toList()
   }
@@ -73,15 +97,16 @@ class KnowledgeTopicProviderTest {
     return sut.rootOptions(speaker()).single().topicId
   }
 
-  private fun memory(topic: Int): Knowledge {
+  private fun memory(topic: Int, certainty: Certainty = Certainty.FIRSTHAND): Knowledge {
     return Knowledge(
       topic = topic,
       key = KEY,
-      slots = emptyMap(),
+      slots = mapOf(HistoryKnowledge.SLOT_PLACE to Knowledge.Slot.Name(PLACE)),
       importance = 50,
       year = 1,
       locality = Locality.OWN_TOWN,
       variants = 2,
+      certainty = certainty,
     )
   }
 
@@ -106,6 +131,8 @@ class KnowledgeTopicProviderTest {
     const val FIRST_EVENT = 0
 
     const val KEY = "HISTORY_CIV_FOUNDED"
+
+    const val PLACE = "Karth"
 
     /** A pruned thousand-year chronicle keeps a few thousand events, well short of this. */
     const val CHRONICLE_CEILING = 20_000

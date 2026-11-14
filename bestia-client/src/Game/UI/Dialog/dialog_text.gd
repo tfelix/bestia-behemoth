@@ -67,7 +67,13 @@ static func _format(template: String, args: Array) -> String:
 	for arg in args:
 		values[arg.Name] = _resolve_arg(arg)
 
-	return template.format(values)
+	# A token may be a whole line with placeholders of its own: a hearsay frame carries the memory it
+	# wraps as {tale}, together with that memory's args. One level is all any line nests.
+	var filled := {}
+	for name in values:
+		filled[name] = values[name].format(values)
+
+	return template.format(filled)
 
 
 ## Renders one placeholder value. Item and skill args deliberately arrive as ids rather than
