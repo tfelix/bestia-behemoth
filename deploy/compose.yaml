@@ -15,7 +15,7 @@ x-server: &server
 services:
   zone:
     <<: *server
-    image: ghcr.io/tfelix/bestia-zone-server:0.0.1 # x-release-please-version
+    image: ghcr.io/tfelix/bestia-zone-server:0.1.0 # x-release-please-version
     environment:
       <<: *server-env
       SPRING_DATASOURCE_URL: jdbc:mariadb://zone-db:3306/bestia_zone
@@ -39,7 +39,7 @@ services:
 
   login:
     <<: *server
-    image: ghcr.io/tfelix/bestia-login-server:0.0.1 # x-release-please-version
+    image: ghcr.io/tfelix/bestia-login-server:0.1.0 # x-release-please-version
     environment:
       <<: *server-env
       SPRING_DATASOURCE_URL: jdbc:mariadb://login-db:3306/bestia_login
@@ -61,7 +61,7 @@ services:
 
   api:
     <<: *server
-    image: ghcr.io/tfelix/bestia-api-server:0.0.1 # x-release-please-version
+    image: ghcr.io/tfelix/bestia-api-server:0.1.0 # x-release-please-version
     environment:
       <<: *server-env
       SPRING_DATASOURCE_URL: jdbc:mariadb://api-db:3306/bestia_api
