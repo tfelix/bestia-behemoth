@@ -103,6 +103,10 @@ class MobImporterBootRunner(
     @JsonProperty("world-boss")
     val worldBoss: Boolean = false,
 
+    /** True for a species that only rises on battlefields at night. */
+    @JsonProperty("battlefield")
+    val battlefield: Boolean = false,
+
     /** True for a species nothing may damage - see `Bestia.nonCombatant`. */
     @JsonProperty("non-combatant")
     val nonCombatant: Boolean = false,
@@ -177,6 +181,7 @@ class MobImporterBootRunner(
       spawnWeight = dto.spawnWeight,
       eventOnly = dto.eventOnly,
       worldBoss = dto.worldBoss,
+      battlefield = dto.battlefield,
       nonCombatant = dto.nonCombatant,
       inCompendium = dto.compendium,
       temperatureMinCelsius = dto.temperatureMin,
@@ -244,6 +249,7 @@ class MobImporterBootRunner(
         entity.spawnWeight != dto.spawnWeight ||
         entity.eventOnly != dto.eventOnly ||
         entity.worldBoss != dto.worldBoss ||
+        entity.battlefield != dto.battlefield ||
         entity.nonCombatant != dto.nonCombatant ||
         entity.inCompendium != dto.compendium ||
         entity.temperatureMinCelsius != dto.temperatureMin ||
@@ -280,6 +286,7 @@ class MobImporterBootRunner(
     entity.spawnWeight = dto.spawnWeight
     entity.eventOnly = dto.eventOnly
     entity.worldBoss = dto.worldBoss
+    entity.battlefield = dto.battlefield
     entity.nonCombatant = dto.nonCombatant
     entity.inCompendium = dto.compendium
     entity.temperatureMinCelsius = dto.temperatureMin
