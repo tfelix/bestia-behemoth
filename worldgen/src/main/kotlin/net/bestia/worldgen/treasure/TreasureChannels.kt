@@ -17,4 +17,7 @@ object TreasureChannels {
 
   /** Cave floor height in metres for a hoard, NaN for a cache under open ground. */
   const val FLOOR = "floor"
+
+  /** The battlefield's decay for a cache buried on one, NaN for any other cache. */
+  const val BATTLEFIELD_AGE = "battlefield_age"
 }

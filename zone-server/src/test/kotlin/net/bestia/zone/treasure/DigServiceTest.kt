@@ -54,7 +54,7 @@ class DigServiceTest {
 
   private val service = DigService(
     registry = registry,
-    loot = mockk { every { roll(any(), any()) } returns listOf(CreateItemIntent(COIN, 10)) },
+    loot = mockk { every { roll(any(), any(), any()) } returns listOf(CreateItemIntent(COIN, 10)) },
     maps = mockk(relaxed = true),
     relics = mockk(relaxed = true),
     richness = mockk { every { of(any()) } returns TreasureTier.POOR },
