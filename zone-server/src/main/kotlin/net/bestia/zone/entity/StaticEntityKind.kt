@@ -171,7 +171,14 @@ enum class StaticEntityKind {
   FIXTURE_SEAL_CRYSTAL,
 
   // The hidden eye where a Sage's Scry looks, for as long as it looks. Seen only once Ruwach uncovers it.
-  SCRY_EYE;
+  SCRY_EYE,
+
+  // What lies on a battlefield: worldgen's battlefield fixtures, appended for the ordinal.
+  FIXTURE_BONES,
+  FIXTURE_RUSTED_BLADE,
+  FIXTURE_BROKEN_SHIELD,
+  FIXTURE_BANNER_RAG,
+  FIXTURE_GIANT_REMAINS;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.

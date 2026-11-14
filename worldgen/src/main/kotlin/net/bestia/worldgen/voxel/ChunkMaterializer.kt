@@ -1012,7 +1012,8 @@ class ChunkMaterializer(
     // 14: a cult's sanctuary stands outside its town (`TownStructures.sanctuaryColumn`).
     // 15: a world boss's seal stands where it was bound (`TownStructures.sealColumn`).
     // 16: a crystal stands on every seal's plinth (`TownStructures.sealCrystals`).
-    const val VERSION = 16
+    // 17: bones and broken arms lie on battlefields, and a slain world boss's skeleton (`FixtureProps`).
+    const val VERSION = 17
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

@@ -50,7 +50,8 @@ class TreasureCaches(private val generated: GeneratedWorld) {
           depth = marker.attribute(TreasureChannels.DEPTH),
           minTier = TreasureTier.entries[marker.attribute(TreasureChannels.MIN_TIER).toInt()],
           artifact = marker.attribute(TreasureChannels.ARTIFACT).toInt(),
-          site = marker.attribute(TreasureChannels.SITE).toInt()
+          site = marker.attribute(TreasureChannels.SITE).toInt(),
+          battlefieldAge = marker.attribute(TreasureChannels.BATTLEFIELD_AGE)
         )
       )
     }

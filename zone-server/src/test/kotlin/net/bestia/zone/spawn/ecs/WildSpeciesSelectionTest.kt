@@ -205,6 +205,14 @@ class WildSpeciesSelectionTest {
   }
 
   @Test
+  fun `a battlefield haunt is refused by every ordinary den`() {
+    val levy = candidate(1, level = 16, habitat = "").also { it.species.battlefield = true }
+
+    assertTrue(!WildSpawnerService.admits(levy, den(10, 20, Biome.GRASSLAND)))
+    assertNull(WildSpawnerService.pick(listOf(levy), 1L, 1L, den(10, 20, Biome.GRASSLAND), config))
+  }
+
+  @Test
   fun `a den nothing admits gets no species rather than a wrong one`() {
     // Biome, not level: the level gap is now filled by the fallback, so the only way to get an honest null
     // is for the country itself to suit nothing in the catalogue.

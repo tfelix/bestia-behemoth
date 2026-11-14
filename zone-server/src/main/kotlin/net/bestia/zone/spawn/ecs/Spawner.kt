@@ -38,6 +38,9 @@ class Spawner(
    * front of the player.
    */
   val activationRange: Int = DEFAULT_ACTIVATION_RANGE,
+
+  /** Stocks only at night, like a battlefield's dead. At dawn the den goes idle and its pack fades out. */
+  val nightOnly: Boolean = false,
 ) : Component {
 
   init {

@@ -2543,3 +2543,13 @@ items:
     type: ETC
     material: PAPER
     description: A paper cartridge packed with blasting powder. Blasting sets one on the ground to break the rock.
+
+  # What a battlefield leaves: picked off the ground there, or dropped by the dead that rise on it.
+  - id: 341
+    item-db-name: rusted_scrap
+    base-level: 5
+    weight: 50
+    type: ETC
+    material: METAL
+    description: |
+      Bent, rusted iron from a battle long ago: a blade, a buckle, the rim of a shield.

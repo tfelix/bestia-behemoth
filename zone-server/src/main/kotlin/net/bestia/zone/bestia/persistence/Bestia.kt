@@ -175,6 +175,11 @@ class Bestia(
   @ColumnDefault("false")
   var worldBoss: Boolean = false,
 
+  /** Rises only on old battlefields at night: no ordinary den picks it, see `BattlefieldHaunts`. */
+  @Column(name = "battlefield", nullable = false)
+  @ColumnDefault("false")
+  var battlefield: Boolean = false,
+
   /**
    * True when nothing may take this species' health: it is spawned with the `INVULNERABLE` status effect.
    *

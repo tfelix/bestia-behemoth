@@ -8,6 +8,6 @@ item_id = 131
 name_key = "RELIC_CROWN"
 description_key = "RELIC_CROWN_DESC"
 weight = 120
-level = 50
+level = 80
 type = 1
 equip_slot = 1

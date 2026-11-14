@@ -40,12 +40,12 @@ class PropKindRegistryTest {
    * is a drift the server answers with `COLLECT_NOT_COLLECTIBLE` rather than an item.
    */
   @Test
-  fun `exactly the minerals, the plants and the ground loot are collectible, and each names an item`() {
+  fun `exactly the minerals, the plants, the ground loot and the battle remains are collectible, and each names an item`() {
     val registry = PropKindRegistry().also { it.load() }
 
     val collectible = StaticEntityKind.entries.filter { registry.of(it).collect != null }
 
-    assertEquals(MINERALS + PLANTS + RARE_HERBS + GROUND_LOOT, collectible.toSet())
+    assertEquals(MINERALS + PLANTS + RARE_HERBS + GROUND_LOOT + BATTLE_REMAINS, collectible.toSet())
 
     for (kind in collectible) {
       val collect = registry.of(kind).collect!!
@@ -64,11 +64,11 @@ class PropKindRegistryTest {
    * entirely healthy in the moment they are collected.
    */
   @Test
-  fun `minerals do not come back and plants do`() {
+  fun `minerals and battle remains do not come back and plants do`() {
     val registry = PropKindRegistry().also { it.load() }
 
-    for (kind in MINERALS) {
-      assertEquals(null, registry.of(kind).regrowSeconds, "$kind would regrow after being mined out")
+    for (kind in MINERALS + BATTLE_REMAINS) {
+      assertEquals(null, registry.of(kind).regrowSeconds, "$kind would come back after being picked")
     }
 
     for (kind in PLANTS + GROUND_LOOT) {
@@ -209,6 +209,13 @@ class PropKindRegistryTest {
 
     /** Picked up as it lies, and back after a while: worldgen's loose stones, sticks and resin. See `LootScatter`. */
     val GROUND_LOOT = setOf(StaticEntityKind.LOOSE_STONE, StaticEntityKind.STICK, StaticEntityKind.RESIN)
+
+    /** Picked off a battlefield and gone, like a mineral. */
+    val BATTLE_REMAINS = setOf(
+      StaticEntityKind.FIXTURE_BONES,
+      StaticEntityKind.FIXTURE_RUSTED_BLADE,
+      StaticEntityKind.FIXTURE_BROKEN_SHIELD
+    )
 
     /** `quarried_stone` in `items.yml`. */
     const val QUARRIED_STONE = 46L

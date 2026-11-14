@@ -1,0 +1,43 @@
+# Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
+id: 37
+identifier: war_wraith
+level: 85
+name: "War Wraith"
+description: >-
+  The rage of a whole battle gathered into one shape of smoke and torn banners. It walks the worst fields on
+  moonless nights, and the light in its chest is the last thing many soldiers saw.
+kind: UNDEAD
+element: GHOST_4
+size: BIG
+default-attack: MELEE
+aspd: 80
+ai: aggressive_melee
+attack-power: 0.23
+weight: 250
+health: 20
+mana: 698
+experience: 3317
+attributes: { strength: 1, intelligence: 142, vitality: 38, dexterity: 1, willpower: 95, agility: 38 }
+learnset:
+  - { skill: growl, level: 6 }
+  - { skill: soul_strike, level: 16 }
+  - { skill: flame_weapon, level: 21 }
+  - { skill: shockwave, level: 31 }
+  - { skill: bewilder, level: 36 }
+  - { skill: haunt, level: 46 }
+  - { skill: mending_light, level: 56 }
+  - { skill: spirit_burst, level: 61 }
+  - { skill: soul_rend, level: 66 }
+  - { skill: control_undead, level: 70, active: true }
+  - { skill: mana_storm, level: 82, active: true }
+  - { skill: bleeding_wound, level: 88 }
+  - { skill: ultima, level: 100 }
+habitat: []
+spawn-weight: 30
+battlefield: true
+equip-slots: [HEAD_UPPER, HEAD_MID, ARMOR, GARMENT, FOOTGEAR, RIGHT_HAND, LEFT_HAND, ACCESSORY_1, ACCESSORY_2]
+armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
+loot:
+  - { item: ectoplasm, chance: 4000 }
+  - { item: shadow_shard, chance: 1500 }
+  - { item: star_core, chance: 300 }
