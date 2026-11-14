@@ -42,7 +42,8 @@ class RelicGuards(
   /** Boot only. */
   fun placeDens(world: World) {
     val generated = worldService.generated
-    val undead = bestiaCatalogue.all().filter { it.kind == BestiaKind.UNDEAD && !it.eventOnly && !it.worldBoss }
+    val undead = bestiaCatalogue.all()
+      .filter { it.kind == BestiaKind.UNDEAD && !it.eventOnly && !it.worldBoss && !it.battlefield }
     val guards = guardsOf(generated, worldService.record.id, undead)
 
     for (guard in guards) {
