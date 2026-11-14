@@ -55,7 +55,8 @@ class MobCatalogueTest {
 
   @Test
   fun `a species a den may place lives in a biome or on corrupted land`() {
-    val homeless = species.filter { !it.eventOnly && !it.corruptedOnly && it.habitat.isEmpty() }.map { it.identifier }
+    val homeless = species.filter { !it.eventOnly && !it.battlefield && !it.corruptedOnly && it.habitat.isEmpty() }
+      .map { it.identifier }
 
     // An empty habitat means anywhere, which only the blob-like starter species of old wanted.
     assertEquals(emptyList(), homeless)
@@ -67,6 +68,14 @@ class MobCatalogueTest {
 
     assertEquals(emptyList(), tooMany)
     assertTrue(species.any { mob -> mob.learnset.any { it.active } }, "no species fights with a skill at all")
+  }
+
+  /** A design decision: a new species replaces an old one rather than adding to the count. */
+  @Test
+  fun `exactly a hundred regular species`() {
+    val regular = species.filter { !it.eventOnly && !it.worldBoss && it.compendium }
+
+    assertEquals(100, regular.size)
   }
 
   @Test
