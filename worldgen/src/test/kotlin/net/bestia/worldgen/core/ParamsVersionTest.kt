@@ -242,7 +242,7 @@ class ParamsVersionTest {
       // router's grade tunables and the road width variation. See `SettlementStage.sampleElevation`.
       "SettlementParams" to -4_952_664_331_358_582_183L,
       "OrderInfluence" to 2_558_661_069_677_437_569L,
-      "HistoryParams" to 7_713_679_867_092_700_935L,
+      "HistoryParams" to -5_540_013_019_274_650_800L,
       "CorruptionParams" to -8_182_278_140_807_375_004L,
       "SpawnerParams" to 5_079_634_965_732_130_795L,
       "VegetationStandParams" to -259_420_489_769_960_249L,
