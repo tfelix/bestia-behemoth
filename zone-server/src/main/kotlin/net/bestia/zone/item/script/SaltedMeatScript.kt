@@ -3,4 +3,4 @@ package net.bestia.zone.item.script
 import org.springframework.stereotype.Component
 
 @Component
-class SaltedMeatScript : RestorativeScript(itemId = 38L, stamina = 40)
+class SaltedMeatScript : RestorativeScript(itemId = 54L, stamina = 40)

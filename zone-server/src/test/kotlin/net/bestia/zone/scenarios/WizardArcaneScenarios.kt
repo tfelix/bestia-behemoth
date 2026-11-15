@@ -288,7 +288,7 @@ class WizardArcaneScenarios : BestiaNoSocketScenario(autoClientConnect = false) 
     const val MANA = 500
 
     /** `red_mana_crystal` in `items.yml`, Stone Curse's reagent. */
-    const val RED_MANA_CRYSTAL_ITEM_ID = 339L
+    const val RED_MANA_CRYSTAL_ITEM_ID = 200L
 
     val SKILLS = listOf(
       "M_ENDURE" to 1, "M_IRON_SKIN" to 5, "M_MAGIC_ARMOR" to 3,

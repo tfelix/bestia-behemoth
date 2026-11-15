@@ -3,4 +3,4 @@ package net.bestia.zone.item.script
 import org.springframework.stereotype.Component
 
 @Component
-class NoviceManaPotionScript : RestorativeScript(itemId = 70L, mana = 50)
+class NoviceManaPotionScript : RestorativeScript(itemId = 85L, mana = 50)

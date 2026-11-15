@@ -10,7 +10,7 @@ import kotlin.math.ceil
 import kotlin.math.max
 
 /**
- * Writes `gear_recipes.yml`: one recipe for every piece of the equipment catalogue (ids 500 and up), so each can be
+ * Writes `gear_recipes.yml`: one recipe for every piece of the equipment catalogue (the last 346 items, ids 266 and up), so each can be
  * discovered and crafted. Run it with `./gradlew genGearRecipes`; never edit the output by hand, change the rules
  * here and run it again. `GearRecipesTest` fails when the file and these rules disagree.
  *
@@ -35,6 +35,9 @@ import kotlin.math.max
 object GearRecipeGenerator {
 
   const val FIRST_ID = 200L
+
+  /** The first id of the equipment catalogue, the tail of `items.yml`. Moves whenever items are added before it. */
+  const val CATALOGUE_FIRST_ID = 266L
   const val OUTPUT_FILE = "gear_recipes.yml"
 
   /** What `GearRecipesTest` asks of the nearest neighbour of every blueprint. */
@@ -58,7 +61,7 @@ object GearRecipeGenerator {
     val seconds: Float get() = (1.2 * itemLevel * itemLevel).toFloat()
   }
 
-  fun craftable(item: ItemYamlDto): Boolean = item.type.uppercase() == "EQUIP" && item.id >= 500
+  fun craftable(item: ItemYamlDto): Boolean = item.type.uppercase() == "EQUIP" && item.id >= CATALOGUE_FIRST_ID
 
   /** One item and the recipe it has been given so far. */
   private class Chosen(

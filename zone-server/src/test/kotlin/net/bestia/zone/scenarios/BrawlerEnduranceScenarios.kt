@@ -343,7 +343,7 @@ class BrawlerEnduranceScenarios : BestiaNoSocketScenario(autoClientConnect = fal
     const val MANA = 500
     const val RUN_UP_TILES = 4
     const val OAK_STAFF = "oak_staff"
-    const val OAK_STAFF_ID = 309L
+    const val OAK_STAFF_ID = 152L
 
     val SKILLS = listOf(
       "M_TOUGH_GUY" to 5, "M_SECOND_WIND" to 3, "M_UNBREAKABLE" to 3, "M_BATTLE_FURY" to 3, "M_STAFF_SWEEP" to 5,

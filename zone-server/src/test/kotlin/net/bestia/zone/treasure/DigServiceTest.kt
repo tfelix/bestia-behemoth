@@ -189,8 +189,8 @@ class DigServiceTest {
   private companion object {
     const val ACCOUNT = 7L
     const val COIN = 11L
-    const val SHOVEL = 438L
-    const val PICKAXE = 57L
+    const val SHOVEL = 121L
+    const val PICKAXE = 73L
     const val SEARCH_RADIUS = 3_000.0
     const val EMPTY_OFFSET = 9L
 

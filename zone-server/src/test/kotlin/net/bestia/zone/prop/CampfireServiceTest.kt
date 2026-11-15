@@ -144,7 +144,7 @@ class CampfireServiceTest {
   private companion object {
     const val FIRE = 5L
     const val OWNER = 42L
-    const val LOG = 43L
+    const val LOG = 59L
     const val CHEST = 6L
   }
 }

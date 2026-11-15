@@ -56,7 +56,7 @@ class RoughGemScript(
 
   companion object {
     /** `rough_gem` in items.yml. */
-    const val ITEM_ID = 60L
+    const val ITEM_ID = 76L
 
     /** Each gem's share of Rough Gemstones, in percent: the rarer the gem, the rarer the stone that hides it. */
     val SHARES = listOf(

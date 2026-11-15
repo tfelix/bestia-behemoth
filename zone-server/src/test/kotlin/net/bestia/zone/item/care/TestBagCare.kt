@@ -15,9 +15,9 @@ import net.bestia.zone.item.script.SmallHealthPotionScript
 /** A [BagCare] over the real scripts of a few catalogue items, with the database behind it mocked away. */
 object TestBagCare {
 
-  const val BREAD = 30L
-  const val CHEESE = 42L
-  const val BANDAGE = 34L
+  const val BREAD = 46L
+  const val CHEESE = 58L
+  const val BANDAGE = 50L
   const val POTION = 3L
 
   private val MATERIALS = mapOf(

@@ -30,7 +30,7 @@ class ButterflyWingScript(
   private val worldView: WorldView,
 ) : WingScript(statusEffects, out) {
 
-  override val itemId: Long = 75L
+  override val itemId: Long = 91L
 
   override val vanish = EntityFx.Kind.HOME_VANISH
   override val vanishMs: Int get() = settings.butterflyWingVanishMs

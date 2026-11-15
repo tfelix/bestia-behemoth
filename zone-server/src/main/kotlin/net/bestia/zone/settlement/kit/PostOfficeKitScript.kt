@@ -20,7 +20,7 @@ class PostOfficeKitScript(
   private val outMessageProcessor: OutMessageProcessor,
 ) : StructureKitScript(structures, StaticEntityKind.POST_OFFICE, BUILD_SECONDS) {
 
-  override val itemId = 150L
+  override val itemId = 126L
 
   override fun mayBuildAt(world: World, userId: EntityId, at: Vec3L): Boolean {
     val refusal = towns.buildingRefusal(at, StaticEntityKind.POST_OFFICE) ?: return true

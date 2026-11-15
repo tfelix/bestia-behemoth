@@ -94,7 +94,7 @@ class TreasureMapTest {
   private companion object {
     const val MASTER = 3L
     const val ACCOUNT = 7L
-    const val MAP = 128L
-    const val CRUMBLED = 129L
+    const val MAP = 22L
+    const val CRUMBLED = 29L
   }
 }

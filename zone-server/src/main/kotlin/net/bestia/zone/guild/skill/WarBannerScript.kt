@@ -75,7 +75,7 @@ class WarBannerScript(
   }
 
   companion object {
-    const val ITEM_ID = 73L
+    const val ITEM_ID = 89L
 
     /** How far away a banner can be planted, in tiles. The client's aiming cursor uses the same number. */
     const val RANGE_TILES = 5L

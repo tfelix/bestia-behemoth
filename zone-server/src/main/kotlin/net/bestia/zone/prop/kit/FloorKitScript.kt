@@ -10,5 +10,5 @@ class FloorKitScript(
   structures: PlayerStructureService
 ) : StructureKitScript(structures, StaticEntityKind.STRUCTURE_FLOOR, BUILD_SECONDS, BUILDING_REACH) {
 
-  override val itemId = 107L
+  override val itemId = 124L
 }

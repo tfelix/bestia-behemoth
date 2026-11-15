@@ -9,5 +9,5 @@ class BestiaTrapScript(
   outMessageProcessor: OutMessageProcessor
 ) : TrapScript(TrapTier.BESTIA_TRAP, outMessageProcessor) {
 
-  override val itemId = 68L
+  override val itemId = 86L
 }

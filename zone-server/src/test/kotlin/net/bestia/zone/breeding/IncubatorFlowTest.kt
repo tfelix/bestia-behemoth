@@ -172,7 +172,7 @@ class IncubatorFlowTest {
     const val INCUBATOR = 6L
     const val OWNER = 42L
     const val ACCOUNT = 4L
-    const val EGG = 441L
+    const val EGG = 41L
     const val EGG_INSTANCE = 9_000L
     const val HATCH_MILLIS = 1_000_000L
   }

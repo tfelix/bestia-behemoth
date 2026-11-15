@@ -86,8 +86,8 @@ class WornGearSystemTest {
   }
 
   companion object {
-    private const val IRON_HELMET = 71L
-    private const val TORCH = 35L
+    private const val IRON_HELMET = 87L
+    private const val TORCH = 51L
     private val NOON = BestiaDateTime(year = 1, month = 1, day = 1, hour = 12, minute = 0, second = 0)
     private val MIDNIGHT = BestiaDateTime(year = 1, month = 1, day = 1, hour = 0, minute = 0, second = 0)
   }

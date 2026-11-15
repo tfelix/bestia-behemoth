@@ -506,7 +506,7 @@ class SpellBindingScenarios : BestiaNoSocketScenario(autoClientConnect = false) 
   private companion object {
     const val LOGIN_ACCOUNT_ID = 45L
     const val BLOB = 1L
-    const val STONE_KNIFE = 103L
+    const val STONE_KNIFE = 119L
     /** Below any Sage's Dispel, so the Dispel always wins; far enough below a sweep of 100 to be found from afar. */
     const val GLYPH_POTENCY = 20
     const val SAGE_LEVEL = 60

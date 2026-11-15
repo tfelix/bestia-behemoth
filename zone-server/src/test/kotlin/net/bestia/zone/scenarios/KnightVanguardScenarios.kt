@@ -270,10 +270,10 @@ class KnightVanguardScenarios : BestiaNoSocketScenario(autoClientConnect = false
 
   private fun itemIdOf(identifier: String): Long {
     return when (identifier) {
-      IRON_SPEAR -> 307L
+      IRON_SPEAR -> 150L
       IRON_AXE -> IRON_AXE_ID
-      IRON_CUIRASS -> 20L
-      TOWER_SHIELD -> 320L
+      IRON_CUIRASS -> 19L
+      TOWER_SHIELD -> 163L
       else -> error("not in the Knight's bag: $identifier")
     }
   }
@@ -346,7 +346,7 @@ class KnightVanguardScenarios : BestiaNoSocketScenario(autoClientConnect = false
     const val RUN_UP_TILES = 4
     const val IRON_SPEAR = "iron_spear"
     const val IRON_AXE = "iron_axe"
-    const val IRON_AXE_ID = 304L
+    const val IRON_AXE_ID = 147L
     const val IRON_CUIRASS = "iron_cuirass"
     const val TOWER_SHIELD = "tower_shield"
 

@@ -10,7 +10,7 @@ class TanningRackKitScript(
   structures: PlayerStructureService
 ) : StructureKitScript(structures, StaticEntityKind.TANNING_RACK, BUILD_SECONDS) {
 
-  override val itemId = 252L
+  override val itemId = 255L
 
   private companion object {
     /** Long enough that a build is something you commit to, short enough to stand through. */

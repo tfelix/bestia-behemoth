@@ -184,6 +184,6 @@ class PropDeathDivergenceSystemTest {
 
   private companion object {
     /** `log` in `items.yml`. */
-    const val LOG = 43L
+    const val LOG = 59L
   }
 }

@@ -10,7 +10,7 @@ class IncubatorKitScript(
   structures: PlayerStructureService
 ) : StructureKitScript(structures, StaticEntityKind.INCUBATOR, BUILD_SECONDS) {
 
-  override val itemId = 442L
+  override val itemId = 42L
 
   private companion object {
     /** Fired clay over an ember core: as much work as a furnace. */

@@ -352,9 +352,9 @@ class HunterArcherScenarios : BestiaNoSocketScenario(autoClientConnect = false) 
     const val HOLD_SECONDS = 600.0
 
     const val HUNTING_BOW = "hunting_bow"
-    const val HUNTING_BOW_ID = 340L
+    const val HUNTING_BOW_ID = 201L
     const val BOW_RANGE = 12L
-    const val ARROW_ID = 96L
+    const val ARROW_ID = 112L
 
     val SKILLS = listOf(
       "M_OWLS_EYE" to 5, "M_VULTURES_EYE" to 5, "M_DOUBLE_STRAFE" to 10, "M_ARROW_SHOWER" to 5, "M_CHARGE_ARROW" to 1,

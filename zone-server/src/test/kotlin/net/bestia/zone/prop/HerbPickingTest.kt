@@ -58,9 +58,9 @@ class HerbPickingTest {
   private companion object {
     const val HERBALISM = 23L
     const val MASTER_ID = 42L
-    const val WILD = 23L
-    const val MEDICINAL = 328L
-    const val GHOST = 332L
+    const val WILD = 30L
+    const val MEDICINAL = 171L
+    const val GHOST = 175L
     val LEVELS = mapOf(WILD to 1, MEDICINAL to 20, GHOST to 100)
   }
 }

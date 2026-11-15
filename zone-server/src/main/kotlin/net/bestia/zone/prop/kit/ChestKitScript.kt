@@ -10,7 +10,7 @@ class ChestKitScript(
   structures: PlayerStructureService
 ) : StructureKitScript(structures, StaticEntityKind.CHEST, BUILD_SECONDS) {
 
-  override val itemId = 127L
+  override val itemId = 36L
 
   private companion object {
     /** A box with a lid: quicker than a workbench. */

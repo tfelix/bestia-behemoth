@@ -10,7 +10,7 @@ class TheodoliteKitScript(
   structures: PlayerStructureService
 ) : StructureKitScript(structures, StaticEntityKind.THEODOLITE, BUILD_SECONDS) {
 
-  override val itemId = 326L
+  override val itemId = 169L
 
   private companion object {
     const val BUILD_SECONDS = 5f

@@ -28,6 +28,6 @@ class FoundersSealScript : ItemScript {
     private val LOG = KotlinLogging.logger { }
 
     /** `founders_seal` in items.yml. */
-    const val ITEM_ID = 72L
+    const val ITEM_ID = 88L
   }
 }

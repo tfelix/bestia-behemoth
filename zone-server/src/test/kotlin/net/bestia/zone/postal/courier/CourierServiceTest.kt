@@ -241,7 +241,7 @@ class CourierServiceTest {
   }
 
   private companion object {
-    const val COIN = 27L
+    const val COIN = 43L
     const val APPLE = 4L
     const val SACK = 100L
     const val COURIER = 8L

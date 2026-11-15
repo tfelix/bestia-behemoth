@@ -262,7 +262,7 @@ class AlchemistScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
     const val BLOB = 1L
 
     const val SMALL_HEALTH_POTION = 3L
-    const val SMALL_MANA_POTION = 33L
-    const val BREAD = 30L
+    const val SMALL_MANA_POTION = 49L
+    const val BREAD = 46L
   }
 }

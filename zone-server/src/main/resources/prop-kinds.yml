@@ -45,8 +45,8 @@ kinds:
       sapling: { size: 0.35, yield: 0 }
       young: { size: 0.65, yield: 0.5 }
     loot:
-      - { item-id: 43, amount: 4, drop-chance: 10000 } # log
-      - { item-id: 123, amount: 2, drop-chance: 10000 } # resin
+      - { item-id: 59, amount: 4, drop-chance: 10000 } # log
+      - { item-id: 142, amount: 2, drop-chance: 10000 } # resin
 
   - kind: BLIGHTED_TREE
     max-hp: 90
@@ -301,14 +301,14 @@ kinds:
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 600
-    collect: { item-id: 23, amount: 1 }
+    collect: { item-id: 30, amount: 1 }
 
   - kind: BLIGHTED_HERB
     max-hp: 4
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 600
-    collect: { item-id: 23, amount: 1 }
+    collect: { item-id: 30, amount: 1 }
 
   # The rare herbs. Each yields its own herb, which Herbalism has to be high enough to pick.
   - kind: MEDICINAL_HERB
@@ -316,63 +316,63 @@ kinds:
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 600
-    collect: { item-id: 328, amount: 1 }
+    collect: { item-id: 171, amount: 1 }
 
   - kind: MANA_HERB
     max-hp: 5
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 600
-    collect: { item-id: 329, amount: 1 }
+    collect: { item-id: 172, amount: 1 }
 
   - kind: FROST_HERB
     max-hp: 5
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 600
-    collect: { item-id: 330, amount: 1 }
+    collect: { item-id: 173, amount: 1 }
 
   - kind: SUN_HERB
     max-hp: 5
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 600
-    collect: { item-id: 331, amount: 1 }
+    collect: { item-id: 174, amount: 1 }
 
   - kind: GHOST_HERB
     max-hp: 5
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 600
-    collect: { item-id: 332, amount: 1 }
+    collect: { item-id: 175, amount: 1 }
 
   - kind: SHRUB
     max-hp: 16
     collider: { half-x: 1, half-y: 1, height: 2 }
     variants: 1
     regrow-seconds: 1200
-    collect: { item-id: 24, amount: 1 }
+    collect: { item-id: 31, amount: 1 }
 
   - kind: BLIGHTED_SHRUB
     max-hp: 12
     collider: { half-x: 1, half-y: 1, height: 2 }
     variants: 1
     regrow-seconds: 1200
-    collect: { item-id: 24, amount: 1 }
+    collect: { item-id: 31, amount: 1 }
 
   - kind: REED
     max-hp: 6
     collider: { half-x: 1, half-y: 1, height: 2 }
     variants: 1
     regrow-seconds: 900
-    collect: { item-id: 25, amount: 2 }
+    collect: { item-id: 32, amount: 2 }
 
   - kind: BLIGHTED_REED
     max-hp: 5
     collider: { half-x: 1, half-y: 1, height: 2 }
     variants: 1
     regrow-seconds: 900
-    collect: { item-id: 25, amount: 2 }
+    collect: { item-id: 32, amount: 2 }
 
   # The ward stone is an always-present entity rather than a static prop, so nothing promotes it and `max-hp` is
   # never read. The row is here because every kind needs one.
@@ -415,25 +415,25 @@ kinds:
     variants: 3
     regrow-seconds: 3600
     loot:
-      - { item-id: 46, amount: 2, drop-chance: 10000 }
-      - { item-id: 46, amount: 2, drop-chance: 5000 }
-      - { item-id: 100, amount: 1, drop-chance: 6000 }
-      - { item-id: 101, amount: 1, drop-chance: 3500 }
-      - { item-id: 60, amount: 1, drop-chance: 150 }
+      - { item-id: 62, amount: 2, drop-chance: 10000 }
+      - { item-id: 62, amount: 2, drop-chance: 5000 }
+      - { item-id: 116, amount: 1, drop-chance: 6000 }
+      - { item-id: 117, amount: 1, drop-chance: 3500 }
+      - { item-id: 76, amount: 1, drop-chance: 150 }
 
   - kind: LOOSE_STONE
     max-hp: 10
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 900
-    collect: { item-id: 100, amount: 1 }
+    collect: { item-id: 116, amount: 1 }
 
   - kind: STICK
     max-hp: 5
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 900
-    collect: { item-id: 102, amount: 1 }
+    collect: { item-id: 118, amount: 1 }
 
   # Resin under the conifers. Rarer than a stick and slower to come back: a tree weeps it, nobody drops it.
   - kind: RESIN
@@ -441,7 +441,7 @@ kinds:
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 1800
-    collect: { item-id: 123, amount: 1 }
+    collect: { item-id: 142, amount: 1 }
 
   # A pile of sand on a beach, for the glass furnace. Quick to come back: the tide brings more.
   - kind: SAND_PILE
@@ -449,7 +449,7 @@ kinds:
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
     regrow-seconds: 900
-    collect: { item-id: 227, amount: 1 }
+    collect: { item-id: 230, amount: 1 }
 
   # A ritual ring of Mana Concentrate laid flat into the ground; used up when its ritual ends.
   - kind: MANA_CIRCLE
@@ -483,7 +483,7 @@ kinds:
     collider: { half-x: 1, half-y: 15, height: 1 }
     variants: 4
     loot:
-      - { item-id: 43, amount: 1, drop-chance: 5000 }
+      - { item-id: 59, amount: 1, drop-chance: 5000 }
 
   # Styles: wheat, barley, cabbage (`CropStyle`).
   - kind: FIXTURE_CROP

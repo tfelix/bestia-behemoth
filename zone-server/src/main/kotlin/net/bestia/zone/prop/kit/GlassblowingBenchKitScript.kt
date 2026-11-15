@@ -10,7 +10,7 @@ class GlassblowingBenchKitScript(
   structures: PlayerStructureService
 ) : StructureKitScript(structures, StaticEntityKind.GLASSBLOWING_BENCH, BUILD_SECONDS) {
 
-  override val itemId = 255L
+  override val itemId = 258L
 
   private companion object {
     /** Long enough that a build is something you commit to, short enough to stand through. */

@@ -24,7 +24,7 @@ class GatherTest {
   }
 
   private companion object {
-    const val WOOL = 52L
+    const val WOOL = 68L
     const val GEM = 63L
   }
 }

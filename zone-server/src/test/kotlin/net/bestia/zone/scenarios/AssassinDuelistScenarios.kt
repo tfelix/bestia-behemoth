@@ -279,8 +279,8 @@ class AssassinDuelistScenarios : BestiaNoSocketScenario(autoClientConnect = fals
     const val ASSASSIN_HEALTH = 100_000
     const val BLOB_HEALTH = 100_000
     const val MANA = 500
-    const val STONE_KNIFE = 103L
-    const val BASIC_POISON = 111L
+    const val STONE_KNIFE = 119L
+    const val BASIC_POISON = 130L
     const val FLAME_DART = "flame_dart"
 
     val SKILLS = listOf(

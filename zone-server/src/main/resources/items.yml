@@ -52,6 +52,8 @@ items:
     type: ETC
     material: FOOD
     craft-axes: { STATE: -0.6, INTEGRITY: -0.6, HEFT: -0.7, VITALITY: 0.3 }
+    description: |
+      A quivering lump of blob residue. Someone probably buys these.
 
   - id: 3
     item-db-name: small_health_potion
@@ -207,7 +209,7 @@ items:
 
       Consumed a little at a time by the work of cutting slots into a finished item.
 
-  - id: 16
+  - id: 15
     item-db-name: weapon_blueprint
     base-level: 15
     weight: 1
@@ -217,7 +219,7 @@ items:
     description: |
       A smith's drawing of a blade, annotated in a hand that assumed the reader already knew how.
 
-  - id: 17
+  - id: 16
     item-db-name: armor_blueprint
     base-level: 15
     weight: 1
@@ -228,7 +230,7 @@ items:
       A smith's drawing of a breastplate, with the hard part - the fitting - left as an exercise.
 
   # The one thing Cooking makes, and the only crafted item that is USABLE rather than a material.
-  - id: 18
+  - id: 17
     item-db-name: hearty_stew
     base-level: 5
     weight: 60
@@ -244,7 +246,7 @@ items:
   # What Forge Weapon and Forge Armor produce, and the reason they exist: the catalogue had only two
   # pieces of footgear, so a forge had nothing it could plausibly make. Both wear, both take an upgrade
   # level, and both are what Equipment Repair and Upgrade Equipment act on.
-  - id: 19
+  - id: 18
     item-db-name: iron_sword
     base-level: 20
     min-level: 10
@@ -270,7 +272,7 @@ items:
 
       Nothing about it is clever. It does not need to be.
 
-  - id: 20
+  - id: 19
     item-db-name: iron_cuirass
     base-level: 25
     min-level: 13
@@ -296,7 +298,7 @@ items:
 
       It will stop what it stops.
 
-  - id: 21
+  - id: 20
     item-db-name: chart
     base-level: 1
     weight: 1
@@ -311,7 +313,7 @@ items:
       Shows the ground whoever made it walked. Two charts can be joined into one, and any chart can be
       copied onto empty paper.
 
-  - id: 22
+  - id: 21
     item-db-name: chart_blank
     base-level: 1
     weight: 1
@@ -324,7 +326,7 @@ items:
 
   # Drawn by Treasure Map. Never stacks: its circle lives on a `treasure_map` row keyed by this copy. Once the
   # cache is dug up, every copy turns into a crumbled_treasure_map - see TreasureMapService.
-  - id: 128
+  - id: 22
     item-db-name: treasure_map
     base-level: 1
     weight: 1
@@ -339,7 +341,7 @@ items:
   # Relics: named gear from the world's chronicle, dug up from a cache where history buried one. Each copy is
   # one artifact: its name is a `treasure_relic` row and its forger and forge town its provenance - see Relics.
   # Base level 80; the stats a relic rolls lift it to at most 110, the more of a history it has.
-  - id: 130
+  - id: 23
     item-db-name: relic_blade
     base-level: 80
     min-level: 25
@@ -364,7 +366,7 @@ items:
 
       The chronicle knows who forged it and whose hands it passed through.
 
-  - id: 131
+  - id: 24
     item-db-name: relic_crown
     base-level: 80
     min-level: 25
@@ -389,7 +391,7 @@ items:
 
       Kings wore it. The chronicle remembers which.
 
-  - id: 132
+  - id: 25
     item-db-name: relic_ring
     base-level: 80
     min-level: 25
@@ -414,7 +416,7 @@ items:
 
       The chronicle remembers whose hand it sealed for.
 
-  - id: 133
+  - id: 26
     item-db-name: relic_reliquary
     base-level: 80
     min-level: 25
@@ -438,7 +440,7 @@ items:
 
       Nobody has opened it. The chronicle says why it was made.
 
-  - id: 134
+  - id: 27
     item-db-name: relic_tome
     base-level: 80
     min-level: 25
@@ -462,7 +464,7 @@ items:
 
       What is written in it, the chronicle only hints at.
 
-  - id: 135
+  - id: 28
     item-db-name: relic_banner
     base-level: 80
     min-level: 25
@@ -487,7 +489,7 @@ items:
 
       Armies marched under it. The chronicle names the battles.
 
-  - id: 129
+  - id: 29
     item-db-name: crumbled_treasure_map
     base-level: 1
     weight: 1
@@ -507,7 +509,7 @@ items:
   # counts every one, and a herb that cost as much to carry as a lump of ore would make picking it a
   # decision instead of a reflex. A fresh master carries 495 herbs against 8 lumps of ore, which is the
   # ratio that keeps it a reflex - `ItemCatalogWeightTest` holds these to a tenth of an ore each.
-  - id: 23
+  - id: 30
     item-db-name: wild_herb
     base-level: 1
     weight: 5
@@ -518,7 +520,7 @@ items:
 
       Bitter, and worth something to anyone who brews.
 
-  - id: 24
+  - id: 31
     item-db-name: bramble_berries
     base-level: 1
     weight: 10
@@ -527,7 +529,7 @@ items:
     description: |
       Dark berries picked off a thorny shrub, still cold from the shade.
 
-  - id: 25
+  - id: 32
     item-db-name: reed_stalk
     base-level: 1
     weight: 20
@@ -539,7 +541,7 @@ items:
 
       Thatch, baskets and arrow shafts all start here.
 
-  - id: 26
+  - id: 33
     item-db-name: workbench_kit
     base-level: 1
     weight: 800
@@ -551,7 +553,7 @@ items:
 
       Set it down somewhere flat and it becomes a workbench - once somebody puts the work in.
 
-  - id: 124
+  - id: 34
     item-db-name: furnace_kit
     base-level: 1
     weight: 1200
@@ -563,7 +565,7 @@ items:
 
       Set it down and it becomes a furnace - once somebody puts the work in.
 
-  - id: 125
+  - id: 35
     item-db-name: forge_kit
     base-level: 1
     weight: 1500
@@ -575,7 +577,7 @@ items:
 
       Set it down and it becomes a forge - once somebody puts the work in.
 
-  - id: 127
+  - id: 36
     item-db-name: chest_kit
     base-level: 1
     weight: 600
@@ -587,7 +589,7 @@ items:
 
       Set it down and it becomes a chest only you can open. Whoever breaks it can take what spills.
 
-  - id: 443
+  - id: 37
     item-db-name: mining_shaft_kit
     base-level: 1
     weight: 1500
@@ -599,7 +601,7 @@ items:
 
       Set it down and it becomes a mining shaft. Your bestias dig the ore below it while you are away.
 
-  - id: 126
+  - id: 38
     item-db-name: campfire_kit
     base-level: 1
     weight: 300
@@ -612,7 +614,7 @@ items:
       Set it down to light a campfire. It burns half an hour, longer with more wood.
 
   # Breeding, see https://docs.bestia-game.net/docs/mechanics/bestias/bestia/#breeding.
-  - id: 439
+  - id: 39
     item-db-name: breeding_farm_kit
     base-level: 20
     weight: 1500
@@ -624,7 +626,7 @@ items:
 
       Set it down and it becomes a Breeding Farm, where a pair of bestias lays an egg.
 
-  - id: 440
+  - id: 40
     item-db-name: nesting_bundle
     base-level: 1
     weight: 50
@@ -636,7 +638,7 @@ items:
       A Breeding Farm uses up one for each clutch.
 
   # Never stacks: what the egg will hatch into lives on a `bestia_egg` row keyed by this item's instance.
-  - id: 441
+  - id: 41
     item-db-name: bestia_egg
     base-level: 1
     weight: 200
@@ -648,7 +650,7 @@ items:
 
       It only hatches in an Incubator.
 
-  - id: 442
+  - id: 42
     item-db-name: incubator_kit
     base-level: 30
     weight: 1200
@@ -663,7 +665,7 @@ items:
   # farm -> mill -> bakery -> household, which is the shortest chain that exercises every part of the
   # settlement ledger at once: several stages, a capacity that player damage can take away at the farm
   # end, a consumption sink at the household end, and real spoilage on the perishable.
-  - id: 27
+  - id: 43
     item-db-name: gold_coin
     base-level: 1
     # Weightless, and that is a design constraint rather than a rounding. There are no smaller
@@ -675,7 +677,7 @@ items:
     description: |
       A milled coin of soft gold, worn smooth by hands that were glad of it.
 
-  - id: 28
+  - id: 44
     item-db-name: grain
     base-level: 1
     weight: 30
@@ -684,7 +686,7 @@ items:
     description: |
       A sack of threshed grain, still smelling of the field it came out of.
 
-  - id: 29
+  - id: 45
     item-db-name: flour
     base-level: 1
     weight: 25
@@ -693,7 +695,7 @@ items:
     description: |
       Stone-ground flour, fine enough to take the print of a thumb.
 
-  - id: 30
+  - id: 46
     item-db-name: bread
     base-level: 1
     weight: 40
@@ -707,7 +709,7 @@ items:
 
   # Gold is what the world's money is made of, so these two weigh in the same shape iron does: two ore plus
   # coal (800) come out as a bar (300), and refining is a gain worth walking to a furnace for.
-  - id: 31
+  - id: 47
     item-db-name: gold_ore
     base-level: 50
     weight: 350
@@ -718,7 +720,7 @@ items:
 
       Heavy for its size, and worth nothing at all until a furnace has separated the two.
 
-  - id: 32
+  - id: 48
     item-db-name: gold_bar
     base-level: 50
     weight: 300
@@ -741,7 +743,7 @@ items:
 
   # Behind every general store counter, whatever else the town does. `MerchantStock` gives a retail
   # trade the whole commodity list, so these are the goods a player can count on finding anywhere.
-  - id: 33
+  - id: 49
     item-db-name: small_mana_potion
     base-level: 3
     weight: 25
@@ -753,7 +755,7 @@ items:
 
       Restores a modest amount of mana when consumed.
 
-  - id: 34
+  - id: 50
     item-db-name: bandage
     base-level: 1
     weight: 5
@@ -767,7 +769,7 @@ items:
 
   # Stackable gear: unlit torches share one pile, and the one worn in the light slot is split off and burns
   # down on its own. One point of wear is ten seconds of light, so 360 is one hour.
-  - id: 35
+  - id: 51
     item-db-name: torch
     base-level: 1
     min-level: 1
@@ -782,7 +784,7 @@ items:
 
       Worn in the light slot, it lights itself when it gets dark and burns for about an hour.
 
-  - id: 36
+  - id: 52
     item-db-name: salt
     base-level: 1
     weight: 40
@@ -795,7 +797,7 @@ items:
       Keeps meat from turning, which is why it is worth carrying a long way.
 
   # Food and drink: butcher, brewer, vintner and fishmonger.
-  - id: 37
+  - id: 53
     item-db-name: raw_meat
     base-level: 1
     weight: 120
@@ -806,7 +808,7 @@ items:
 
       Spoils faster than anything but fish.
 
-  - id: 38
+  - id: 54
     item-db-name: salted_meat
     base-level: 1
     weight: 90
@@ -818,7 +820,7 @@ items:
 
       Keeps for a season, which is what a traveller is really buying.
 
-  - id: 39
+  - id: 55
     item-db-name: ale
     base-level: 1
     weight: 60
@@ -830,7 +832,7 @@ items:
 
       Safer than most water, and a great deal cheaper than wine.
 
-  - id: 40
+  - id: 56
     item-db-name: wine
     base-level: 5
     weight: 90
@@ -842,7 +844,7 @@ items:
 
       Worth more the further it is carried from the vines that made it.
 
-  - id: 41
+  - id: 57
     item-db-name: raw_fish
     base-level: 1
     weight: 100
@@ -853,7 +855,7 @@ items:
 
       Worthless by tomorrow.
 
-  - id: 42
+  - id: 58
     item-db-name: cheese
     base-level: 1
     weight: 150
@@ -867,7 +869,7 @@ items:
 
   # Timber: carpenter, charcoaler and shipwright. The charcoaler needs no item of its own - `coal` is
   # already in the catalogue and a log is the thing it was missing to char.
-  - id: 43
+  - id: 59
     item-db-name: log
     base-level: 1
     weight: 900
@@ -878,7 +880,7 @@ items:
 
       The heaviest thing anybody carries by choice.
 
-  - id: 44
+  - id: 60
     item-db-name: plank
     base-level: 5
     weight: 150
@@ -890,7 +892,7 @@ items:
 
       Every building, cart and workbench starts as a stack of these.
 
-  - id: 45
+  - id: 61
     item-db-name: hull_timber
     base-level: 15
     weight: 700
@@ -902,7 +904,7 @@ items:
       Shaped for one hull and no other, which is why nobody else wants it.
 
   # Stone and clay: mason and potter.
-  - id: 46
+  - id: 62
     item-db-name: quarried_stone
     base-level: 5
     weight: 800
@@ -914,7 +916,7 @@ items:
 
       Undressed, and no use to a wall until it is.
 
-  - id: 47
+  - id: 63
     item-db-name: cut_stone
     base-level: 10
     weight: 700
@@ -926,7 +928,7 @@ items:
 
       What walls and towers are actually built of.
 
-  - id: 48
+  - id: 64
     item-db-name: brick
     base-level: 5
     weight: 250
@@ -938,7 +940,7 @@ items:
 
       Cheaper than stone, and worse in a siege.
 
-  - id: 49
+  - id: 65
     item-db-name: clay_pot
     base-level: 1
     weight: 120
@@ -951,7 +953,7 @@ items:
 
   # Hide and cloth: tanner, weaver, dyer and tailor. A hide has no producer on purpose - it comes off
   # something a player killed, which is where player supply enters an NPC chain.
-  - id: 50
+  - id: 66
     item-db-name: raw_hide
     base-level: 1
     weight: 200
@@ -962,7 +964,7 @@ items:
 
       Nobody who has carried one in summer carries a second.
 
-  - id: 51
+  - id: 67
     item-db-name: leather
     base-level: 5
     weight: 120
@@ -972,7 +974,7 @@ items:
     description: |
       A rolled sheet of cured leather, supple and evenly cut.
 
-  - id: 52
+  - id: 68
     item-db-name: wool
     base-level: 1
     weight: 80
@@ -981,7 +983,7 @@ items:
     description: |
       A shorn fleece, greasy and full of burrs.
 
-  - id: 53
+  - id: 69
     item-db-name: flax
     base-level: 1
     weight: 40
@@ -990,7 +992,7 @@ items:
     description: |
       A sheaf of retted flax stems, ready for the wheel.
 
-  - id: 54
+  - id: 70
     item-db-name: cloth
     base-level: 5
     weight: 60
@@ -1000,7 +1002,7 @@ items:
     description: |
       A bolt of plain woven cloth, sold by the length.
 
-  - id: 55
+  - id: 71
     item-db-name: dye
     base-level: 10
     weight: 40
@@ -1012,7 +1014,7 @@ items:
 
       It stains everything except the cloth it was meant for.
 
-  - id: 56
+  - id: 72
     item-db-name: linen_tunic
     base-level: 5
     min-level: 3
@@ -1037,7 +1039,7 @@ items:
 
   # Metal and luxury: blacksmith and jeweller. The two tools are what makes a smith a shop a player
   # needs rather than one they walk past - ore and timber both come out of the world through them.
-  - id: 57
+  - id: 73
     item-db-name: pickaxe
     base-level: 10
     min-level: 5
@@ -1053,7 +1055,7 @@ items:
 
       Nothing comes out of rock without one, and no pick comes back out unblunted.
 
-  - id: 58
+  - id: 74
     item-db-name: hatchet
     base-level: 5
     min-level: 3
@@ -1069,7 +1071,7 @@ items:
 
       Turns standing trees into logs, and blunts itself doing it.
 
-  - id: 59
+  - id: 75
     item-db-name: nails
     base-level: 5
     weight: 60
@@ -1081,7 +1083,7 @@ items:
 
       Dull work to make, and it holds everything else together.
 
-  - id: 60
+  - id: 76
     item-db-name: rough_gem
     base-level: 20
     weight: 20
@@ -1096,7 +1098,7 @@ items:
 
   # Gold that will never be a coin again - see `server/money-supply.md`. Minting is one-way, and so is
   # this: coin metal worked into a ring is coin metal out of the supply for good.
-  - id: 61
+  - id: 77
     item-db-name: gold_ring
     base-level: 25
     min-level: 13
@@ -1118,7 +1120,7 @@ items:
       Worked gold that will never be a coin again, and looks the better for it.
 
   # Letters and medicine: apothecary, alchemist and bookbinder.
-  - id: 62
+  - id: 78
     item-db-name: medicine
     base-level: 10
     weight: 20
@@ -1130,7 +1132,7 @@ items:
 
       Sets a man on his feet again, which is not quite the same as healing him.
 
-  - id: 63
+  - id: 79
     item-db-name: catalyst
     base-level: 25
     weight: 15
@@ -1141,7 +1143,7 @@ items:
 
       Spent by work that would otherwise go wrong.
 
-  - id: 64
+  - id: 80
     item-db-name: book
     base-level: 20
     weight: 80
@@ -1161,7 +1163,7 @@ items:
   #
   # Level 1 throughout, because a fresh master is level 1 and gear they cannot wear on their first login
   # would be a cruel joke rather than a tutorial.
-  - id: 65
+  - id: 81
     item-db-name: novice_knife
     base-level: 1
     min-level: 1
@@ -1178,7 +1180,7 @@ items:
 
       Someone kept it sharp for years before it was handed on.
 
-  - id: 66
+  - id: 82
     item-db-name: novice_shirt
     base-level: 1
     min-level: 1
@@ -1196,7 +1198,7 @@ items:
 
       It creaks with every breath, and it will turn a blow that was never going to land well anyway.
 
-  - id: 67
+  - id: 83
     item-db-name: novice_boots
     base-level: 1
     min-level: 1
@@ -1216,7 +1218,7 @@ items:
 
   # Light enough that the starting stack weighs nothing worth noticing - a new master should not have to
   # choose between their potions and their first haul of ore.
-  - id: 69
+  - id: 84
     item-db-name: novice_health_potion
     base-level: 1
     weight: 1
@@ -1229,7 +1231,7 @@ items:
 
       Heals a little health. Only a novice may drink it.
 
-  - id: 70
+  - id: 85
     item-db-name: novice_mana_potion
     base-level: 1
     weight: 1
@@ -1244,7 +1246,7 @@ items:
 
   # --- Capture --------------------------------------------------------------------------------------
   # Set on a tile within reach; the first wild bestia to step on it springs it - see BestiaTrapSystem.
-  - id: 68
+  - id: 86
     item-db-name: bestia_trap
     base-level: 1
     weight: 150
@@ -1257,7 +1259,7 @@ items:
       Reliable against young Bestia, and hopeless against anything grown.
 
   # --- Headgear -------------------------------------------------------------------------------------
-  - id: 71
+  - id: 87
     item-db-name: iron_helmet
     base-level: 15
     min-level: 8
@@ -1277,7 +1279,7 @@ items:
   # --- Guilds ---------------------------------------------------------------------------------------
   # Spent by founding a guild, which the client asks for with a name rather than by using the seal - see
   # FoundersSealScript, which only refuses.
-  - id: 72
+  - id: 88
     item-db-name: founders_seal
     base-level: 45
     weight: 50
@@ -1290,7 +1292,7 @@ items:
       Pressed into the wax of a charter, it founds a guild with its bearer as its master. The seal is spent.
 
   # Planted on a tile within reach by a member whose guild knows Rally to the Banner - see WarBannerScript.
-  - id: 73
+  - id: 89
     item-db-name: war_banner
     base-level: 30
     weight: 300
@@ -1304,7 +1306,7 @@ items:
 
   # --- Travel ---------------------------------------------------------------------------------------
   # A short hop to a random spot nearby, on ground already in view, so no loading screen - see FlyWingScript.
-  - id: 74
+  - id: 90
     item-db-name: fly_wing
     base-level: 1
     weight: 5
@@ -1317,7 +1319,7 @@ items:
       Crushed, it whisks its bearer to a random spot nearby. Companions are left behind.
 
   # Home to the user's save point - see ButterflyWingScript.
-  - id: 75
+  - id: 91
     item-db-name: butterfly_wing
     base-level: 5
     weight: 5
@@ -1332,7 +1334,7 @@ items:
   # --- Bestia materials -----------------------------------------------------------------------------
   # Parts a bestia drops when it dies. Like a raw hide, none has a producer: a kill is the only source.
   # The base level is roughly the level of the bestias that drop it.
-  - id: 76
+  - id: 92
     item-db-name: feather
     base-level: 1
     weight: 5
@@ -1342,7 +1344,7 @@ items:
     description: |
       A long flight feather, light enough to lift on a breath.
 
-  - id: 77
+  - id: 93
     item-db-name: sharp_fang
     base-level: 5
     weight: 10
@@ -1352,7 +1354,7 @@ items:
     description: |
       A curved fang with an edge still keen enough to draw blood.
 
-  - id: 78
+  - id: 94
     item-db-name: horn
     base-level: 10
     weight: 40
@@ -1362,7 +1364,7 @@ items:
     description: |
       A ridged horn, broken off clean at the root.
 
-  - id: 79
+  - id: 95
     item-db-name: soft_fur
     base-level: 3
     weight: 30
@@ -1372,7 +1374,7 @@ items:
     description: |
       A tuft of soft fur, warm and thick.
 
-  - id: 80
+  - id: 96
     item-db-name: chitin
     base-level: 12
     weight: 40
@@ -1382,7 +1384,7 @@ items:
     description: |
       A plate of insect shell, hard as horn and light as bark.
 
-  - id: 81
+  - id: 97
     item-db-name: silk_thread
     base-level: 8
     weight: 5
@@ -1391,7 +1393,7 @@ items:
     description: |
       A skein of raw silk, finer than hair and stronger than it looks.
 
-  - id: 82
+  - id: 98
     item-db-name: honeycomb
     base-level: 8
     weight: 30
@@ -1400,7 +1402,7 @@ items:
     description: |
       A slab of wax comb, still dripping with honey.
 
-  - id: 83
+  - id: 99
     item-db-name: venom_sac
     base-level: 15
     weight: 15
@@ -1410,7 +1412,7 @@ items:
     description: |
       A small, swollen gland full of venom. Handle it with care.
 
-  - id: 84
+  - id: 100
     item-db-name: spore_dust
     base-level: 10
     weight: 5
@@ -1419,7 +1421,7 @@ items:
     description: |
       A pinch of fine spores that makes the nose itch.
 
-  - id: 85
+  - id: 101
     item-db-name: reptile_scale
     base-level: 15
     weight: 20
@@ -1429,7 +1431,7 @@ items:
     description: |
       A tough, overlapping scale, cool and smooth to the touch.
 
-  - id: 86
+  - id: 102
     item-db-name: dragon_scale
     base-level: 75
     weight: 60
@@ -1439,7 +1441,7 @@ items:
     description: |
       A scale as wide as a palm. No blade has ever scratched it, and no fire has ever warmed it.
 
-  - id: 87
+  - id: 103
     item-db-name: sea_pearl
     base-level: 30
     weight: 5
@@ -1449,7 +1451,7 @@ items:
     description: |
       A round pearl with a soft, sea-green sheen.
 
-  - id: 88
+  - id: 104
     item-db-name: star_core
     base-level: 80
     weight: 20
@@ -1459,7 +1461,7 @@ items:
     description: |
       A small, heavy stone that glows like a star seen through mist.
 
-  - id: 89
+  - id: 105
     item-db-name: frost_crystal
     base-level: 40
     weight: 20
@@ -1469,7 +1471,7 @@ items:
     description: |
       A crystal of blue ice that does not melt, not even in the hand.
 
-  - id: 90
+  - id: 106
     item-db-name: ember_core
     base-level: 45
     weight: 30
@@ -1479,7 +1481,7 @@ items:
     description: |
       A smouldering core, too hot to hold for long.
 
-  - id: 91
+  - id: 107
     item-db-name: ectoplasm
     base-level: 25
     weight: 10
@@ -1489,7 +1491,7 @@ items:
     description: |
       A cold, pale jelly that a spirit left behind.
 
-  - id: 92
+  - id: 108
     item-db-name: bone_shard
     base-level: 5
     weight: 20
@@ -1499,7 +1501,7 @@ items:
     description: |
       A splinter of old bone, dry and brittle.
 
-  - id: 93
+  - id: 109
     item-db-name: old_bandage
     base-level: 5
     weight: 5
@@ -1508,7 +1510,7 @@ items:
     description: |
       A strip of yellowed linen. Whatever it once wrapped is long gone.
 
-  - id: 94
+  - id: 110
     item-db-name: shadow_shard
     base-level: 55
     weight: 10
@@ -1518,7 +1520,7 @@ items:
     description: |
       A black shard that seems to drink the light around it.
 
-  - id: 95
+  - id: 111
     item-db-name: golden_carapace
     base-level: 65
     weight: 80
@@ -1530,7 +1532,7 @@ items:
 
   # Ammo is never worn: the quiver points at it and each shot takes one from the bag. `attack` is added to the
   # shot, and `element` decides the shot's element. A `script` later gives special ammo its effect.
-  - id: 96
+  - id: 112
     item-db-name: arrow
     base-level: 1
     weight: 1
@@ -1546,7 +1548,7 @@ items:
 
   # A ranged weapon names the `ammo-type` it fires and how many tiles it shoots (`attack-range`). It needs both
   # hands. Its `attack` adds to the shot like a sword's does to a swing, on top of the arrow's.
-  - id: 97
+  - id: 113
     item-db-name: novice_bow
     base-level: 1
     min-level: 1
@@ -1567,7 +1569,7 @@ items:
       Needs both hands and arrows in the quiver.
 
   # Equipment `defense` and `magic-defense` are percentage reductions, so these are +3% and +5% of each.
-  - id: 98
+  - id: 114
     item-db-name: novice_helmet
     base-level: 1
     min-level: 1
@@ -1586,7 +1588,7 @@ items:
       It has stopped one falling branch already, and it has the dent to prove it.
 
   # Worn in the left hand: it has to come off before the two-handed novice bow will go on.
-  - id: 99
+  - id: 115
     item-db-name: novice_shield
     base-level: 1
     min-level: 1
@@ -1606,7 +1608,7 @@ items:
 
   # What lies on the ground and is picked up as it lies - worldgen's LOOSE_STONE and STICK props, see
   # `prop-kinds.yml` - and the two crude tools they make. The first crafts a new player can do with nothing.
-  - id: 100
+  - id: 116
     item-db-name: loose_stone
     base-level: 1
     weight: 40
@@ -1618,7 +1620,7 @@ items:
 
       Good for knocking, better for knapping.
 
-  - id: 101
+  - id: 117
     item-db-name: flint
     base-level: 1
     weight: 30
@@ -1630,7 +1632,7 @@ items:
 
       Struck right, it leaves an edge sharper than steel.
 
-  - id: 102
+  - id: 118
     item-db-name: stick
     base-level: 1
     weight: 20
@@ -1642,7 +1644,7 @@ items:
 
       A handle, a kindling, a walking aid.
 
-  - id: 103
+  - id: 119
     item-db-name: stone_knife
     base-level: 1
     min-level: 1
@@ -1658,7 +1660,7 @@ items:
 
       It cuts until it does not, and then you make another.
 
-  - id: 104
+  - id: 120
     item-db-name: stone_hatchet
     base-level: 1
     min-level: 1
@@ -1675,7 +1677,7 @@ items:
       It chops slowly and bruises more than it cuts, but it chops.
 
   # Digs soil, sand and gravel, where a pickaxe digs rock - see DigService. Every master can make one.
-  - id: 438
+  - id: 121
     item-db-name: shovel
     base-level: 1
     min-level: 1
@@ -1691,7 +1693,7 @@ items:
 
   # Handed to a courier at a post office's route board, under the postal seal. Each copy weighs the parcels in it,
   # so its own weight is only the canvas. `bound` keeps it in the courier's bag until it is delivered.
-  - id: 105
+  - id: 122
     item-db-name: mail_sack
     base-level: 1
     weight: 50
@@ -1706,7 +1708,7 @@ items:
 
   # Building pieces. Each is put down like the workbench kit and holds its place the moment its site goes up -
   # see `StructureCollision`. Nothing may hang in the air: a piece needs the ground or other pieces under it.
-  - id: 106
+  - id: 123
     item-db-name: wall_kit
     base-level: 1
     weight: 400
@@ -1718,7 +1720,7 @@ items:
 
       Set it on the ground or on a floor, and it stands as a wall.
 
-  - id: 107
+  - id: 124
     item-db-name: floor_kit
     base-level: 1
     weight: 300
@@ -1730,7 +1732,7 @@ items:
 
       Lay it on the ground, or across the top of walls for the storey above.
 
-  - id: 108
+  - id: 125
     item-db-name: stairs_kit
     base-level: 1
     weight: 350
@@ -1742,7 +1744,7 @@ items:
 
       Climbs one storey, three metres, over six paces.
   # Buildings for a player town. Each one only goes up inside a standing town, see `PostOfficeKitScript`.
-  - id: 150
+  - id: 126
     item-db-name: post_office_kit
     base-level: 30
     weight: 1500
@@ -1754,7 +1756,7 @@ items:
 
       Set it down inside a town without a post office, and the post will run it once it is built.
 
-  - id: 151
+  - id: 127
     item-db-name: auction_house_kit
     base-level: 50
     weight: 1500
@@ -1766,7 +1768,7 @@ items:
       Trade Post Owner raises it as an auction house, in a town with a post office.
 
   # The Priest's reagents: Aqua Benedicta fills an empty bottle with holy water, and Aspersio spends it.
-  - id: 109
+  - id: 128
     item-db-name: empty_bottle
     base-level: 1
     weight: 10
@@ -1778,7 +1780,7 @@ items:
 
       Empty, and waiting to be filled with something better.
 
-  - id: 110
+  - id: 129
     item-db-name: holy_water
     base-level: 5
     weight: 15
@@ -1791,7 +1793,7 @@ items:
       It burns the undead and anoints a weapon with the holy element.
 
   # The first poison an Alchemist can brew. Enchant Poison works it into a blade; stronger poisons follow later.
-  - id: 111
+  - id: 130
     item-db-name: basic_poison
     base-level: 5
     weight: 15
@@ -1805,7 +1807,7 @@ items:
 
   # Gems are vessels, not bonuses: a cut gem holds a Bestia essence, and the rarer the gem, the stronger the
   # essence it can hold. Its base level is the highest Bestia level it holds. See `mechanics/forging.md`.
-  - id: 112
+  - id: 131
     item-db-name: rough_amethyst
     base-level: 20
     weight: 20
@@ -1816,7 +1818,7 @@ items:
 
       Gem Cutting turns it into a cut amethyst.
 
-  - id: 113
+  - id: 132
     item-db-name: rough_emerald
     base-level: 40
     weight: 20
@@ -1827,7 +1829,7 @@ items:
 
       Gem Cutting turns it into a cut emerald.
 
-  - id: 114
+  - id: 133
     item-db-name: rough_ruby
     base-level: 60
     weight: 20
@@ -1838,7 +1840,7 @@ items:
 
       Gem Cutting turns it into a cut ruby.
 
-  - id: 115
+  - id: 134
     item-db-name: rough_pyrelith
     base-level: 80
     weight: 20
@@ -1849,7 +1851,7 @@ items:
 
       Gem Cutting turns it into a cut pyrelith.
 
-  - id: 116
+  - id: 135
     item-db-name: rough_diamond
     base-level: 100
     weight: 20
@@ -1860,7 +1862,7 @@ items:
 
       Gem Cutting turns it into a cut diamond.
 
-  - id: 117
+  - id: 136
     item-db-name: cut_amethyst
     base-level: 20
     weight: 10
@@ -1872,7 +1874,7 @@ items:
 
       Runic Etching binds an essence of a Bestia up to level 20 into it.
 
-  - id: 118
+  - id: 137
     item-db-name: cut_emerald
     base-level: 40
     weight: 10
@@ -1884,7 +1886,7 @@ items:
 
       Runic Etching binds an essence of a Bestia up to level 40 into it.
 
-  - id: 119
+  - id: 138
     item-db-name: cut_ruby
     base-level: 60
     weight: 10
@@ -1896,7 +1898,7 @@ items:
 
       Runic Etching binds an essence of a Bestia up to level 60 into it.
 
-  - id: 120
+  - id: 139
     item-db-name: cut_pyrelith
     base-level: 80
     weight: 10
@@ -1908,7 +1910,7 @@ items:
 
       Runic Etching binds an essence of a Bestia up to level 80 into it.
 
-  - id: 121
+  - id: 140
     item-db-name: cut_diamond
     base-level: 100
     weight: 10
@@ -1921,7 +1923,7 @@ items:
       Runic Etching binds the essence of a Bestia of any level into it.
 
   # One item for every essence: which Bestia and which gem it holds is per copy, like a forged item's rolls.
-  - id: 122
+  - id: 141
     item-db-name: essence_gem
     base-level: 1
     weight: 10
@@ -1933,7 +1935,7 @@ items:
       It fits into any socket.
 
   # What makes wood burn: it turns a stick into a torch and lights a campfire. Trees drop it when felled.
-  - id: 123
+  - id: 142
     item-db-name: resin
     base-level: 1
     weight: 5
@@ -1951,7 +1953,7 @@ items:
   # ---------------------------------------------------------------------------------------------------------------
 
   # The rest of the novice set from the master basics page: a sword and a rod beside the knife and the bow.
-  - id: 300
+  - id: 143
     item-db-name: novice_sword
     base-level: 1
     min-level: 1
@@ -1968,7 +1970,7 @@ items:
 
       Every new master gets one, and most keep it longer than they admit.
 
-  - id: 301
+  - id: 144
     item-db-name: novice_rod
     base-level: 1
     min-level: 1
@@ -1986,7 +1988,7 @@ items:
 
       It hits poorly, but mana runs down it like water down a gutter.
 
-  - id: 302
+  - id: 145
     item-db-name: wooden_club
     base-level: 5
     min-level: 3
@@ -1999,7 +2001,7 @@ items:
     attack: 18
     description: A knotted oak club. Nothing fancy, nothing to break.
 
-  - id: 303
+  - id: 146
     item-db-name: iron_hammer
     base-level: 15
     min-level: 8
@@ -2013,7 +2015,7 @@ items:
     attack: 45
     description: A long-hafted hammer with an iron head. It needs both hands and a strong back.
 
-  - id: 304
+  - id: 147
     item-db-name: iron_axe
     base-level: 10
     min-level: 5
@@ -2026,7 +2028,7 @@ items:
     attack: 28
     description: A bearded axe made for battle rather than for firewood.
 
-  - id: 305
+  - id: 148
     item-db-name: iron_greataxe
     base-level: 18
     min-level: 9
@@ -2040,7 +2042,7 @@ items:
     attack: 52
     description: A broad two-handed axe. It swings slowly and ends arguments.
 
-  - id: 306
+  - id: 149
     item-db-name: iron_greatsword
     base-level: 18
     min-level: 9
@@ -2054,7 +2056,7 @@ items:
     attack: 50
     description: A blade as long as a man's leg, held in both hands.
 
-  - id: 307
+  - id: 150
     item-db-name: iron_spear
     base-level: 10
     min-level: 5
@@ -2067,7 +2069,7 @@ items:
     attack: 26
     description: An ash shaft with a leaf-shaped iron head.
 
-  - id: 308
+  - id: 151
     item-db-name: iron_halberd
     base-level: 18
     min-level: 9
@@ -2081,7 +2083,7 @@ items:
     attack: 48
     description: An axe blade, a spike and a hook on one long pole.
 
-  - id: 309
+  - id: 152
     item-db-name: oak_staff
     base-level: 10
     min-level: 5
@@ -2096,7 +2098,7 @@ items:
     magic-attack: 30
     description: A tall oak staff, worn smooth where the hands go.
 
-  - id: 310
+  - id: 153
     item-db-name: apprentice_tome
     base-level: 5
     min-level: 3
@@ -2109,7 +2111,7 @@ items:
     magic-attack: 15
     description: A primer of the first spells, its margins full of someone else's notes.
 
-  - id: 311
+  - id: 154
     item-db-name: leather_knuckles
     base-level: 5
     min-level: 3
@@ -2122,7 +2124,7 @@ items:
     attack: 16
     description: Stitched leather with iron studs over the knuckles.
 
-  - id: 312
+  - id: 155
     item-db-name: leather_whip
     base-level: 5
     min-level: 3
@@ -2135,7 +2137,7 @@ items:
     attack: 15
     description: A braided leather whip, quick and cruel.
 
-  - id: 313
+  - id: 156
     item-db-name: wooden_lute
     base-level: 5
     min-level: 3
@@ -2150,7 +2152,7 @@ items:
     magic-attack: 15
     description: A round-bellied lute with gut strings. It needs both hands to play.
 
-  - id: 314
+  - id: 157
     item-db-name: light_crossbow
     base-level: 10
     min-level: 5
@@ -2166,7 +2168,7 @@ items:
     attack: 20
     description: A light crossbow with a goat's-foot lever. Shoots bolts from the quiver.
 
-  - id: 315
+  - id: 158
     item-db-name: iron_bolt
     base-level: 1
     weight: 1
@@ -2177,7 +2179,7 @@ items:
     attack: 6
     description: A short, heavy crossbow bolt with an iron head.
 
-  - id: 316
+  - id: 159
     item-db-name: leather_sling
     base-level: 1
     min-level: 1
@@ -2192,7 +2194,7 @@ items:
     attack: 4
     description: A strap and a pouch. Every master can use one, and every child can.
 
-  - id: 317
+  - id: 160
     item-db-name: sling_stone
     base-level: 1
     weight: 2
@@ -2204,7 +2206,7 @@ items:
     description: A smooth river stone the size of an egg.
 
   # A thrown weapon is its own ammunition: each throw uses up one piece of the stack in hand.
-  - id: 318
+  - id: 161
     item-db-name: javelin
     base-level: 10
     min-level: 5
@@ -2218,7 +2220,7 @@ items:
     attack: 24
     description: A light spear made to be thrown. Each throw spends one.
 
-  - id: 319
+  - id: 162
     item-db-name: iron_kite_shield
     base-level: 12
     min-level: 6
@@ -2232,7 +2234,7 @@ items:
     magic-defense: 4
     description: A tall iron-rimmed shield, pointed at the bottom.
 
-  - id: 320
+  - id: 163
     item-db-name: tower_shield
     base-level: 20
     min-level: 10
@@ -2246,7 +2248,7 @@ items:
     magic-defense: 6
     description: A door of riveted plate. Only a knight carries one for long.
 
-  - id: 321
+  - id: 164
     item-db-name: leather_jerkin
     base-level: 5
     min-level: 3
@@ -2260,7 +2262,7 @@ items:
     magic-defense: 2
     description: Boiled leather over a padded shirt. It creaks.
 
-  - id: 322
+  - id: 165
     item-db-name: chain_mail
     base-level: 12
     min-level: 6
@@ -2276,7 +2278,7 @@ items:
 
   # The ritual circle of the spell potency page. Its recipe (5 Mana Concentrate and a focus stone) waits for the
   # crafting window; until then the kit and the Concentrate come from a mage's shop or a GM.
-  - id: 323
+  - id: 166
     item-db-name: mana_concentrate
     base-level: 20
     weight: 10
@@ -2288,7 +2290,7 @@ items:
 
       Laid into the ground in a ring, it holds a ritual.
 
-  - id: 324
+  - id: 167
     item-db-name: focus_stone
     base-level: 20
     weight: 80
@@ -2296,7 +2298,7 @@ items:
     material: STONE
     description: A smooth, carved stone. Set in the middle of a Mana Circle, it gathers what the ring holds.
 
-  - id: 325
+  - id: 168
     item-db-name: mana_circle_kit
     base-level: 20
     weight: 130
@@ -2310,7 +2312,7 @@ items:
       of channeling the leader's next skill is charged. The ring is used up by the ritual.
 
   # The surveyor's instrument and what a survey is drawn with. The kit's recipe waits for the crafting window.
-  - id: 326
+  - id: 169
     item-db-name: theodolite_kit
     base-level: 10
     weight: 150
@@ -2322,7 +2324,7 @@ items:
 
       Set up on open ground, it is where Cartography surveys the land around it.
 
-  - id: 327
+  - id: 170
     item-db-name: ink
     base-level: 1
     weight: 2
@@ -2332,7 +2334,7 @@ items:
     description: A small bottle of black ink. Every try at a survey spends one.
 
   # The rare herbs, one per special land; see `HerbKind`. The base level is what Herbalism has to reach.
-  - id: 328
+  - id: 171
     item-db-name: medicinal_herb
     base-level: 20
     weight: 5
@@ -2341,7 +2343,7 @@ items:
     craft-axes: { STATE: 0.0, INTEGRITY: -0.3, HEFT: -0.7, VITALITY: 0.9 }
     description: A healing herb of the forest floor. A base ingredient for many potions.
 
-  - id: 329
+  - id: 172
     item-db-name: mana_herb
     base-level: 40
     weight: 5
@@ -2350,7 +2352,7 @@ items:
     craft-axes: { INTEGRITY: -0.3, HEFT: -0.7, VITALITY: 0.6, ARCANE: 0.6 }
     description: A mana-touched herb that only grows where the mana runs strong.
 
-  - id: 330
+  - id: 173
     item-db-name: frost_herb
     base-level: 60
     weight: 5
@@ -2359,7 +2361,7 @@ items:
     craft-axes: { INTEGRITY: -0.3, HEFT: -0.7, EDGE: 0.2, VITALITY: 0.5, ARCANE: 0.3 }
     description: A tough little herb of the tundra, the taiga and the high mountains.
 
-  - id: 331
+  - id: 174
     item-db-name: sun_herb
     base-level: 80
     weight: 5
@@ -2368,7 +2370,7 @@ items:
     craft-axes: { INTEGRITY: -0.3, HEFT: -0.7, VITALITY: 0.9, ARCANE: 0.5 }
     description: A sun-dried herb of the desert and the badlands.
 
-  - id: 332
+  - id: 175
     item-db-name: ghost_herb
     base-level: 100
     weight: 5
@@ -2381,7 +2383,7 @@ items:
   # Fishing: the rods and the catch table in `fishing.yml`. A rod's max catch level lives there too.
   # ---------------------------------------------------------------------------------------------------------------
 
-  - id: 420
+  - id: 176
     item-db-name: willow_rod
     base-level: 1
     min-level: 1
@@ -2396,7 +2398,7 @@ items:
 
       Good for perch and the odd boot.
 
-  - id: 421
+  - id: 177
     item-db-name: bamboo_rod
     base-level: 20
     min-level: 10
@@ -2409,7 +2411,7 @@ items:
     description: |
       A light, springy rod of jointed cane.
 
-  - id: 422
+  - id: 178
     item-db-name: ash_rod
     base-level: 40
     min-level: 20
@@ -2422,7 +2424,7 @@ items:
     description: |
       A tapered ash rod with iron guides. It bends a long way before it breaks.
 
-  - id: 423
+  - id: 179
     item-db-name: steel_rod
     base-level: 60
     min-level: 30
@@ -2435,7 +2437,7 @@ items:
     description: |
       A thin steel rod with a geared reel. Made for things that pull back.
 
-  - id: 424
+  - id: 180
     item-db-name: perch
     base-level: 8
     weight: 20
@@ -2443,7 +2445,7 @@ items:
     material: FOOD
     description: A striped little fish with a spiny back. Every pond seems to have one more.
 
-  - id: 425
+  - id: 181
     item-db-name: bream
     base-level: 15
     weight: 40
@@ -2451,7 +2453,7 @@ items:
     material: FOOD
     description: A flat, bronze fish that feeds along the bottom. Bony, but filling.
 
-  - id: 426
+  - id: 182
     item-db-name: pike
     base-level: 24
     weight: 150
@@ -2459,7 +2461,7 @@ items:
     material: FOOD
     description: A long green hunter with a mouth full of teeth. Mind your fingers when you take the hook out.
 
-  - id: 427
+  - id: 183
     item-db-name: eel
     base-level: 32
     weight: 80
@@ -2467,7 +2469,7 @@ items:
     material: FOOD
     description: A slick, snake-like fish that keeps wriggling long after it should have stopped.
 
-  - id: 428
+  - id: 184
     item-db-name: salmon
     base-level: 42
     weight: 200
@@ -2475,7 +2477,7 @@ items:
     material: FOOD
     description: A strong silver fish with pink flesh. Cooks pay well for a fresh one.
 
-  - id: 429
+  - id: 185
     item-db-name: sturgeon
     base-level: 55
     weight: 600
@@ -2483,7 +2485,7 @@ items:
     material: FOOD
     description: An old, armoured fish from the deep channels. Some say they live a hundred years.
 
-  - id: 430
+  - id: 186
     item-db-name: swordfish
     base-level: 68
     weight: 1200
@@ -2491,7 +2493,7 @@ items:
     material: FOOD
     description: A fast fish with a long, flat bill. It fights the line like a duelist.
 
-  - id: 431
+  - id: 187
     item-db-name: moonscale
     base-level: 82
     weight: 300
@@ -2499,7 +2501,7 @@ items:
     material: FOOD
     description: Its pale scales glow faintly at night. Alchemists grind them for their brews.
 
-  - id: 432
+  - id: 188
     item-db-name: deepmaw
     base-level: 98
     weight: 900
@@ -2507,7 +2509,7 @@ items:
     material: FOOD
     description: A dark fish that is mostly mouth. It rarely leaves the cold water at the bottom.
 
-  - id: 433
+  - id: 189
     item-db-name: abyssal_lanternfish
     base-level: 115
     weight: 400
@@ -2515,7 +2517,7 @@ items:
     material: FOOD
     description: A fish with a little light hanging over its head. Nobody knows how deep it lives.
 
-  - id: 434
+  - id: 190
     item-db-name: old_boot
     base-level: 1
     weight: 60
@@ -2523,7 +2525,7 @@ items:
     material: CLOTH
     description: Soaked, rotten and missing its partner. Every angler catches one sooner or later.
 
-  - id: 435
+  - id: 191
     item-db-name: driftwood
     base-level: 3
     weight: 50
@@ -2531,7 +2533,7 @@ items:
     material: WOOD
     description: A grey piece of wood, washed smooth by the water. It burns well once it dries.
 
-  - id: 436
+  - id: 192
     item-db-name: tangled_net
     base-level: 6
     weight: 70
@@ -2539,7 +2541,7 @@ items:
     material: CLOTH
     description: Somebody else's net, knotted beyond use. The cord can still be picked apart.
 
-  - id: 437
+  - id: 193
     item-db-name: sealed_bottle
     base-level: 18
     weight: 30
@@ -2547,7 +2549,7 @@ items:
     material: GLASS
     description: A bottle with a wax seal and a rolled paper inside. Collectors pay well for one unopened.
   # What the Sage's spells burn. The GM item command is their only source until crafting can make them.
-  - id: 333
+  - id: 194
     item-db-name: yellow_mana_crystal
     base-level: 30
     weight: 2
@@ -2556,7 +2558,7 @@ items:
     craft-axes: { STATE: 1.0, INTEGRITY: 0.3, HEFT: -0.1, VITALITY: 0.3, ARCANE: 0.8, COMPLEXITY: 0.3 }
     description: A rare yellow crystal of mana. Dispel burns one to unravel what clings to a target.
 
-  - id: 334
+  - id: 195
     item-db-name: blue_mana_crystal
     base-level: 15
     weight: 2
@@ -2566,7 +2568,7 @@ items:
     description: A common blue crystal of mana. Endow burns one to carry an element into a weapon.
 
   # What Teleport and Warp Portal burn. The GM item command is their only source until crafting can make them.
-  - id: 335
+  - id: 196
     item-db-name: teleport_rune
     base-level: 30
     weight: 1
@@ -2574,7 +2576,7 @@ items:
     material: STONE
     description: A small stone carved with a rune of passage. Teleport burns one.
 
-  - id: 336
+  - id: 197
     item-db-name: portal_rune
     base-level: 50
     weight: 2
@@ -2583,7 +2585,7 @@ items:
     description: A heavy stone carved with a rune that holds a door open. Warp Portal burns one.
 
   # What Spell Inscription writes an attack onto. The GM item command is its only source until crafting can make it.
-  - id: 337
+  - id: 198
     item-db-name: blank_spell_scroll
     base-level: 40
     weight: 1
@@ -2592,7 +2594,7 @@ items:
     description: A sheet of fine vellum, primed to hold a spell. Spell Inscription writes an attack onto it.
 
   # Its attack lives on a `spell_scroll` row keyed by this item's instance, so it never stacks - see SpellScrollScript.
-  - id: 338
+  - id: 199
     item-db-name: spell_scroll
     base-level: 40
     weight: 1
@@ -2606,7 +2608,7 @@ items:
       Read from the bag, it casts its attack once, with no mana. Spell Training teaches it to a bestia instead.
 
   # What Stone Curse burns. The GM item command is its only source until crafting can make it.
-  - id: 339
+  - id: 200
     item-db-name: red_mana_crystal
     base-level: 30
     weight: 2
@@ -2617,7 +2619,7 @@ items:
 
   # The Hunter's bow: the Novice Bow stops working once a master specialises. The GM item command is its only source
   # until crafting or a shop sells it.
-  - id: 340
+  - id: 201
     item-db-name: hunting_bow
     base-level: 10
     min-level: 10
@@ -2637,7 +2639,7 @@ items:
       Needs both hands and arrows in the quiver.
 
   # What Blasting burns. Brewed with Alchemy once that recipe exists; until then the GM item command hands it out.
-  - id: 460
+  - id: 202
     item-db-name: blasting_charge
     base-level: 30
     weight: 20
@@ -2653,7 +2655,7 @@ items:
   # 
   # Metals: two ore and a fuel make an ingot at a furnace; alloys take two ingots.
 
-  - id: 200
+  - id: 203
     item-db-name: tin_ore
     base-level: 5
     weight: 300
@@ -2664,7 +2666,7 @@ items:
 
       It melts at the first hint of a hot fire.
 
-  - id: 201
+  - id: 204
     item-db-name: tin_ingot
     base-level: 5
     weight: 250
@@ -2676,7 +2678,7 @@ items:
 
       On its own it is no use for much, but it makes copper behave.
 
-  - id: 202
+  - id: 205
     item-db-name: copper_ore
     base-level: 10
     weight: 300
@@ -2685,7 +2687,7 @@ items:
     description: |
       A lump of rock with green-blue streaks through it.
 
-  - id: 203
+  - id: 206
     item-db-name: copper_ingot
     base-level: 10
     weight: 250
@@ -2695,7 +2697,7 @@ items:
     description: |
       A bar of reddish copper, warm to the touch even when cold.
 
-  - id: 204
+  - id: 207
     item-db-name: bronze_ingot
     base-level: 15
     weight: 260
@@ -2707,7 +2709,7 @@ items:
 
       The first metal that holds an edge.
 
-  - id: 205
+  - id: 208
     item-db-name: steel_ingot
     base-level: 32
     weight: 250
@@ -2719,7 +2721,7 @@ items:
 
       It takes a keener edge than iron and holds it longer.
 
-  - id: 206
+  - id: 209
     item-db-name: silver_ore
     base-level: 35
     weight: 320
@@ -2728,7 +2730,7 @@ items:
     description: |
       Dark, tarnished rock with threads of bright metal in it.
 
-  - id: 207
+  - id: 210
     item-db-name: silver_ingot
     base-level: 38
     weight: 280
@@ -2740,7 +2742,7 @@ items:
 
       It carries a charge better than any other metal, and smiths say it is kind to the sick.
 
-  - id: 208
+  - id: 211
     item-db-name: mercury_ore
     base-level: 60
     weight: 350
@@ -2749,7 +2751,7 @@ items:
     description: |
       A red rock that sweats beads of liquid metal when it is warmed.
 
-  - id: 209
+  - id: 212
     item-db-name: quicksilver
     base-level: 60
     weight: 60
@@ -2761,7 +2763,7 @@ items:
 
       Artificers use it where a solid would not flow.
 
-  - id: 210
+  - id: 213
     item-db-name: blackiron_ingot
     base-level: 65
     weight: 320
@@ -2773,7 +2775,7 @@ items:
 
       It is cold, and it drinks magic.
 
-  - id: 211
+  - id: 214
     item-db-name: palladium_ore
     base-level: 70
     weight: 330
@@ -2782,7 +2784,7 @@ items:
     description: |
       A dense, pale ore, unusually hard to crack.
 
-  - id: 212
+  - id: 215
     item-db-name: palladium_ingot
     base-level: 70
     weight: 300
@@ -2794,7 +2796,7 @@ items:
 
       It takes fine detail, which makes it the metal for delicate and costly work.
 
-  - id: 213
+  - id: 216
     item-db-name: mithril_ore
     base-level: 85
     weight: 250
@@ -2803,7 +2805,7 @@ items:
     description: |
       A silvery ore, lighter than it looks and faintly warm.
 
-  - id: 214
+  - id: 217
     item-db-name: mithril_ingot
     base-level: 85
     weight: 120
@@ -2815,7 +2817,7 @@ items:
 
       Magic runs through it as water runs through a pipe.
 
-  - id: 215
+  - id: 218
     item-db-name: adamantium_ore
     base-level: 100
     weight: 500
@@ -2824,7 +2826,7 @@ items:
     description: |
       A black ore so heavy it bends the shelf it sits on.
 
-  - id: 216
+  - id: 219
     item-db-name: adamantium_ingot
     base-level: 100
     weight: 450
@@ -2838,7 +2840,7 @@ items:
 
   # Wood: planks come from logs at a workbench. The hardwoods are dropped by rare trees and treants, ready to use.
 
-  - id: 217
+  - id: 220
     item-db-name: yew_billet
     base-level: 20
     weight: 90
@@ -2850,7 +2852,7 @@ items:
 
       Bows are made from it.
 
-  - id: 218
+  - id: 221
     item-db-name: ironwood
     base-level: 45
     weight: 320
@@ -2862,7 +2864,7 @@ items:
 
       It makes staves that do not splinter.
 
-  - id: 219
+  - id: 222
     item-db-name: heartwood
     base-level: 80
     weight: 150
@@ -2874,7 +2876,7 @@ items:
 
       It is warm, and it hums when held.
 
-  - id: 220
+  - id: 223
     item-db-name: rope
     base-level: 3
     weight: 40
@@ -2886,7 +2888,7 @@ items:
 
   # Leather: hide is cured into leather at a tanning rack. The hides of drakes are ready to use.
 
-  - id: 221
+  - id: 224
     item-db-name: hardened_leather
     base-level: 22
     weight: 90
@@ -2898,7 +2900,7 @@ items:
 
       It keeps its shape and turns a blade.
 
-  - id: 222
+  - id: 225
     item-db-name: fine_leather
     base-level: 35
     weight: 60
@@ -2910,7 +2912,7 @@ items:
 
       Book covers, gloves and good boots are made from it.
 
-  - id: 223
+  - id: 226
     item-db-name: drake_hide
     base-level: 55
     weight: 200
@@ -2924,7 +2926,7 @@ items:
 
   # Cloth: wool and flax are woven into cloth at a loom, silk thread into silk cloth.
 
-  - id: 224
+  - id: 227
     item-db-name: silk_cloth
     base-level: 35
     weight: 30
@@ -2934,7 +2936,7 @@ items:
     description: |
       A bolt of finely woven silk, so light it drifts.
 
-  - id: 225
+  - id: 228
     item-db-name: shadowsilk
     base-level: 60
     weight: 30
@@ -2946,7 +2948,7 @@ items:
 
       It swallows light and spells alike.
 
-  - id: 226
+  - id: 229
     item-db-name: starweave
     base-level: 80
     weight: 30
@@ -2960,7 +2962,7 @@ items:
 
   # Glass: sand and coal make glass at a glass furnace; a glassblowing bench shapes it. Quartz sand and a finer glass can come later.
 
-  - id: 227
+  - id: 230
     item-db-name: sand
     base-level: 1
     weight: 30
@@ -2969,7 +2971,7 @@ items:
     description: |
       A handful of clean, pale sand.
 
-  - id: 228
+  - id: 231
     item-db-name: glass
     base-level: 8
     weight: 60
@@ -2981,7 +2983,7 @@ items:
 
       It wants to be a bottle, a lens or a pane.
 
-  - id: 229
+  - id: 232
     item-db-name: lens
     base-level: 30
     weight: 15
@@ -2995,7 +2997,7 @@ items:
 
   # Paper and fluids.
 
-  - id: 230
+  - id: 233
     item-db-name: lamp_oil
     base-level: 5
     weight: 30
@@ -3005,7 +3007,7 @@ items:
     description: |
       A flask of pressed oil that burns clean and slow.
 
-  - id: 231
+  - id: 234
     item-db-name: parchment
     base-level: 5
     weight: 3
@@ -3015,7 +3017,7 @@ items:
     description: |
       A sheet of pressed reed paper.
 
-  - id: 232
+  - id: 235
     item-db-name: mana_ink
     base-level: 35
     weight: 15
@@ -3029,7 +3031,7 @@ items:
 
   # Mechanical parts: cut at a forge from bronze or steel.
 
-  - id: 233
+  - id: 236
     item-db-name: cog
     base-level: 40
     weight: 20
@@ -3041,7 +3043,7 @@ items:
 
       Gearwork is made of them.
 
-  - id: 234
+  - id: 237
     item-db-name: clockwork_core
     base-level: 75
     weight: 80
@@ -3055,7 +3057,7 @@ items:
 
   # Parts of creatures, dropped as they are.
 
-  - id: 235
+  - id: 238
     item-db-name: great_fang
     base-level: 40
     weight: 25
@@ -3065,7 +3067,7 @@ items:
     description: |
       A fang as long as a hand, taken from a big predator.
 
-  - id: 236
+  - id: 239
     item-db-name: storm_feather
     base-level: 65
     weight: 5
@@ -3077,7 +3079,7 @@ items:
 
       It is lighter than the wind it was born in.
 
-  - id: 237
+  - id: 240
     item-db-name: wyrm_bone
     base-level: 75
     weight: 400
@@ -3089,7 +3091,7 @@ items:
 
   # Stone and minerals found in the ground.
 
-  - id: 238
+  - id: 241
     item-db-name: obsidian
     base-level: 50
     weight: 120
@@ -3099,7 +3101,7 @@ items:
     description: |
       Black volcanic glass that breaks to an edge sharper than steel.
 
-  - id: 239
+  - id: 242
     item-db-name: lodestone
     base-level: 45
     weight: 350
@@ -3109,7 +3111,7 @@ items:
     description: |
       A dark stone that pulls on iron and hums against the palm.
 
-  - id: 240
+  - id: 243
     item-db-name: coral
     base-level: 45
     weight: 60
@@ -3121,7 +3123,7 @@ items:
 
   # Herbs, gathered.
 
-  - id: 241
+  - id: 244
     item-db-name: deathcap
     base-level: 15
     weight: 10
@@ -3131,7 +3133,7 @@ items:
     description: |
       A pale mushroom, sweet-smelling and fatal.
 
-  - id: 242
+  - id: 245
     item-db-name: thornvine
     base-level: 20
     weight: 40
@@ -3141,7 +3143,7 @@ items:
     description: |
       A tough, supple vine armoured in hooked thorns.
 
-  - id: 243
+  - id: 246
     item-db-name: glowcap
     base-level: 45
     weight: 10
@@ -3153,7 +3155,7 @@ items:
 
   # Mana: raw essence is gathered where the ground is rich, and a Mana Harvester grows it into crystals.
 
-  - id: 244
+  - id: 247
     item-db-name: mana_essence
     base-level: 5
     weight: 5
@@ -3163,7 +3165,7 @@ items:
     description: |
       A pinch of loose mana, grey and faintly warm.
 
-  - id: 245
+  - id: 248
     item-db-name: pure_mana_essence
     base-level: 30
     weight: 5
@@ -3175,7 +3177,7 @@ items:
 
   # Gems: cut from rough stones at a gem cutter, as the other five are.
 
-  - id: 246
+  - id: 249
     item-db-name: rough_garnet
     base-level: 30
     weight: 20
@@ -3184,7 +3186,7 @@ items:
     description: |
       A dull red stone, still in the rock it grew in.
 
-  - id: 247
+  - id: 250
     item-db-name: cut_garnet
     base-level: 30
     weight: 5
@@ -3194,7 +3196,7 @@ items:
     description: |
       A deep red garnet, cut and faceted.
 
-  - id: 248
+  - id: 251
     item-db-name: rough_sapphire
     base-level: 45
     weight: 20
@@ -3203,7 +3205,7 @@ items:
     description: |
       A cloudy blue stone, still in the rock it grew in.
 
-  - id: 249
+  - id: 252
     item-db-name: cut_sapphire
     base-level: 45
     weight: 5
@@ -3213,7 +3215,7 @@ items:
     description: |
       A clear blue sapphire, cut and faceted.
 
-  - id: 250
+  - id: 253
     item-db-name: rough_onyx
     base-level: 65
     weight: 25
@@ -3222,7 +3224,7 @@ items:
     description: |
       A black stone with a dull skin.
 
-  - id: 251
+  - id: 254
     item-db-name: cut_onyx
     base-level: 65
     weight: 5
@@ -3234,7 +3236,7 @@ items:
 
   # Station kits. Every master knows how to build a workbench; the rest take Carpentry.
 
-  - id: 252
+  - id: 255
     item-db-name: tanning_rack_kit
     base-level: 1
     weight: 900
@@ -3246,7 +3248,7 @@ items:
 
       Set it down and it becomes a tanning rack - once somebody puts the work in.
 
-  - id: 253
+  - id: 256
     item-db-name: loom_kit
     base-level: 1
     weight: 1200
@@ -3258,7 +3260,7 @@ items:
 
       Set it down and it becomes a loom - once somebody puts the work in.
 
-  - id: 254
+  - id: 257
     item-db-name: glass_furnace_kit
     base-level: 1
     weight: 1500
@@ -3270,7 +3272,7 @@ items:
 
       Set it down and it becomes a glass furnace - once somebody puts the work in.
 
-  - id: 255
+  - id: 258
     item-db-name: glassblowing_bench_kit
     base-level: 1
     weight: 900
@@ -3284,7 +3286,7 @@ items:
 
   # More gems, so the named jewellery has a stone that matches its name. Found beside the host ores in `OreCompanions`.
 
-  - id: 256
+  - id: 259
     item-db-name: rough_jade
     base-level: 33
     weight: 20
@@ -3293,7 +3295,7 @@ items:
     description: |
       A dull green stone, waxy where it has been broken.
 
-  - id: 257
+  - id: 260
     item-db-name: cut_jade
     base-level: 33
     weight: 5
@@ -3303,7 +3305,7 @@ items:
     description: |
       A smooth, deep green jade, polished until it glows softly.
 
-  - id: 258
+  - id: 261
     item-db-name: rough_tigers_eye
     base-level: 37
     weight: 20
@@ -3312,7 +3314,7 @@ items:
     description: |
       A brown stone banded with gold, still in its crust.
 
-  - id: 259
+  - id: 262
     item-db-name: cut_tigers_eye
     base-level: 37
     weight: 5
@@ -3322,7 +3324,7 @@ items:
     description: |
       A cut tiger's eye whose bands shift as it turns, like a watching eye.
 
-  - id: 260
+  - id: 263
     item-db-name: rough_opal
     base-level: 66
     weight: 20
@@ -3331,7 +3333,7 @@ items:
     description: |
       A pale, chalky stone with a flash of colour deep inside.
 
-  - id: 261
+  - id: 264
     item-db-name: cut_opal
     base-level: 66
     weight: 5
@@ -3341,7 +3343,7 @@ items:
     description: |
       A cut opal, milky blue, with a slow tide of colour moving in it.
 
-  - id: 262
+  - id: 265
     item-db-name: mana_paper
     base-level: 60
     weight: 3
@@ -3359,7 +3361,7 @@ items:
   # item level the page lists.
 
   # Dagger, 1H (Al, Ar, As)
-  - id: 500
+  - id: 266
     item-db-name: knife
     base-level: 4
     min-level: 1
@@ -3379,7 +3381,7 @@ items:
     description: |
       A plain kitchen-and-camp knife with a wooden grip. Every smith's first blade.
 
-  - id: 501
+  - id: 267
     item-db-name: dagger
     base-level: 10
     min-level: 5
@@ -3399,7 +3401,7 @@ items:
     description: |
       A double-edged dagger with a simple crossguard.
 
-  - id: 502
+  - id: 268
     item-db-name: combat_knife
     base-level: 18
     min-level: 8
@@ -3419,7 +3421,7 @@ items:
     description: |
       A heavy single-edged knife with a clipped point, made for a fight rather than for bread.
 
-  - id: 503
+  - id: 269
     item-db-name: great_knife
     base-level: 26
     min-level: 13
@@ -3441,7 +3443,7 @@ items:
     description: |
       A knife grown nearly to a short sword, still worn at the belt.
 
-  - id: 504
+  - id: 270
     item-db-name: bronze_stiletto
     base-level: 26
     min-level: 15
@@ -3464,7 +3466,7 @@ items:
     description: |
       A needle of bronze with no edge at all, only a point.
 
-  - id: 505
+  - id: 271
     item-db-name: alchemists_lancet
     base-level: 31
     min-level: 18
@@ -3489,7 +3491,7 @@ items:
     description: |
       A surgeon's lancet with a hollow groove that carries whatever was last poured into it.
 
-  - id: 506
+  - id: 272
     item-db-name: assassins_dagger
     base-level: 37
     min-level: 25
@@ -3512,7 +3514,7 @@ items:
     description: |
       Blackened so it does not catch the light, and balanced for the hand that never misses twice.
 
-  - id: 507
+  - id: 273
     item-db-name: gearwork_dirk
     base-level: 54
     min-level: 28
@@ -3537,7 +3539,7 @@ items:
     description: |
       A dirk whose hilt hides a small spring that snaps the blade forward on the thrust.
 
-  - id: 508
+  - id: 274
     item-db-name: nightglass_kris
     base-level: 61
     min-level: 34
@@ -3562,7 +3564,7 @@ items:
     description: |
       A wavy blade of dark volcanic glass bound to steel. It is colder than the air around it.
 
-  - id: 509
+  - id: 275
     item-db-name: whisper_of_the_veil
     base-level: 52
     min-level: 68
@@ -3586,7 +3588,7 @@ items:
 
 
   # Fist, 1H (As, Bw)
-  - id: 510
+  - id: 276
     item-db-name: hand_wraps
     base-level: 4
     min-level: 1
@@ -3606,7 +3608,7 @@ items:
     description: |
       Strips of linen wound tight around the knuckles.
 
-  - id: 511
+  - id: 277
     item-db-name: cestus
     base-level: 10
     min-level: 5
@@ -3626,7 +3628,7 @@ items:
     description: |
       Leather thongs with a strip of hard hide over the fist.
 
-  - id: 512
+  - id: 278
     item-db-name: knuckleduster
     base-level: 18
     min-level: 9
@@ -3646,7 +3648,7 @@ items:
     description: |
       A bar of iron with four holes for four fingers.
 
-  - id: 513
+  - id: 279
     item-db-name: spiked_knuckles
     base-level: 26
     min-level: 13
@@ -3668,7 +3670,7 @@ items:
     description: |
       A knuckleduster with a short spike over every knuckle.
 
-  - id: 514
+  - id: 280
     item-db-name: iron_claw
     base-level: 31
     min-level: 17
@@ -3691,7 +3693,7 @@ items:
     description: |
       Three curved blades rising from a leather gauntlet.
 
-  - id: 515
+  - id: 281
     item-db-name: tigerclaw_katar
     base-level: 35
     min-level: 22
@@ -3714,7 +3716,7 @@ items:
     description: |
       A punching blade with an H-shaped grip, driven straight from the shoulder.
 
-  - id: 516
+  - id: 282
     item-db-name: brass_gauntlet
     base-level: 50
     min-level: 26
@@ -3739,7 +3741,7 @@ items:
     description: |
       A heavy brass fist, riveted over a padded glove.
 
-  - id: 517
+  - id: 283
     item-db-name: monks_iron_bands
     base-level: 56
     min-level: 30
@@ -3764,7 +3766,7 @@ items:
     description: |
       Plain iron rings worn on the forearms, worn smooth by a thousand blocks.
 
-  - id: 518
+  - id: 284
     item-db-name: stonefist_gauntlet
     base-level: 69
     min-level: 36
@@ -3789,7 +3791,7 @@ items:
     description: |
       A gauntlet set with knuckles of polished granite.
 
-  - id: 519
+  - id: 285
     item-db-name: fists_of_the_mountain_king
     base-level: 81
     min-level: 64
@@ -3813,7 +3815,7 @@ items:
 
 
   # Whip, 1H (Bd)
-  - id: 520
+  - id: 286
     item-db-name: rope_lash
     base-level: 5
     min-level: 2
@@ -3833,7 +3835,7 @@ items:
     description: |
       A length of knotted rope with a frayed end that cracks surprisingly loud.
 
-  - id: 521
+  - id: 287
     item-db-name: braided_whip
     base-level: 12
     min-level: 6
@@ -3853,7 +3855,7 @@ items:
     description: |
       Four strands of leather plaited into a supple lash.
 
-  - id: 522
+  - id: 288
     item-db-name: thornvine_whip
     base-level: 19
     min-level: 10
@@ -3875,7 +3877,7 @@ items:
     description: |
       A dried bramble vine bound to a wooden handle. The thorns did not come off.
 
-  - id: 523
+  - id: 289
     item-db-name: bullwhip
     base-level: 28
     min-level: 14
@@ -3895,7 +3897,7 @@ items:
     description: |
       A drover's whip, long enough to reach the far side of the herd.
 
-  - id: 524
+  - id: 290
     item-db-name: chain_whip
     base-level: 35
     min-level: 18
@@ -3918,7 +3920,7 @@ items:
     description: |
       Short iron links joined end to end with a weighted tip.
 
-  - id: 525
+  - id: 291
     item-db-name: silken_scourge
     base-level: 41
     min-level: 22
@@ -3942,7 +3944,7 @@ items:
     description: |
       Three tails of dyed silk that sing in the air when they move.
 
-  - id: 526
+  - id: 292
     item-db-name: barbed_lash
     base-level: 51
     min-level: 27
@@ -3967,7 +3969,7 @@ items:
     description: |
       A leather lash with small iron barbs woven into its last span.
 
-  - id: 527
+  - id: 293
     item-db-name: serpent_chain_whip
     base-level: 60
     min-level: 33
@@ -3993,7 +3995,7 @@ items:
     description: |
       Scaled steel links that move like a snake and end in a fanged weight.
 
-  - id: 528
+  - id: 294
     item-db-name: ribbon_of_the_masque
     base-level: 70
     min-level: 37
@@ -4019,7 +4021,7 @@ items:
     description: |
       A dancer's ribbon of crimson silk, edged with fine wire.
 
-  - id: 529
+  - id: 295
     item-db-name: tongue_of_the_tempest
     base-level: 80
     min-level: 64
@@ -4043,7 +4045,7 @@ items:
 
 
   # Sword, 1H (Pr, Tr, As, Kn)
-  - id: 530
+  - id: 296
     item-db-name: short_sword
     base-level: 6
     min-level: 3
@@ -4063,7 +4065,7 @@ items:
     description: |
       A short straight blade, the length of a forearm.
 
-  - id: 531
+  - id: 297
     item-db-name: gladius
     base-level: 12
     min-level: 6
@@ -4083,7 +4085,7 @@ items:
     description: |
       A broad, leaf-shaped stabbing sword with a round pommel.
 
-  - id: 532
+  - id: 298
     item-db-name: arming_sword
     base-level: 20
     min-level: 10
@@ -4103,7 +4105,7 @@ items:
     description: |
       A plain cruciform sword, the everyday blade of anyone who expects trouble.
 
-  - id: 533
+  - id: 299
     item-db-name: broadsword
     base-level: 28
     min-level: 14
@@ -4125,7 +4127,7 @@ items:
     description: |
       A wide, heavy blade for cutting rather than thrusting.
 
-  - id: 534
+  - id: 300
     item-db-name: merchants_sabre
     base-level: 31
     min-level: 16
@@ -4148,7 +4150,7 @@ items:
     description: |
       A light curved sabre with a brass guard, carried by caravan masters.
 
-  - id: 535
+  - id: 301
     item-db-name: steel_longsword
     base-level: 39
     min-level: 20
@@ -4170,7 +4172,7 @@ items:
     description: |
       A long steel blade with a grip long enough for a second hand when it is needed.
 
-  - id: 536
+  - id: 302
     item-db-name: surveyors_backsword
     base-level: 42
     min-level: 24
@@ -4194,7 +4196,7 @@ items:
     description: |
       A single-edged sword with distance marks etched along its spine.
 
-  - id: 537
+  - id: 303
     item-db-name: rapier
     base-level: 49
     min-level: 30
@@ -4219,7 +4221,7 @@ items:
     description: |
       A slender thrusting sword with a swept hilt. It rewards precision and punishes everything else.
 
-  - id: 538
+  - id: 304
     item-db-name: duskforged_falchion
     base-level: 67
     min-level: 35
@@ -4244,7 +4246,7 @@ items:
     description: |
       A heavy cleaver of a sword, quenched at sunset in the old way.
 
-  - id: 539
+  - id: 305
     item-db-name: gilded_tongue
     base-level: 73
     min-level: 62
@@ -4268,7 +4270,7 @@ items:
 
 
   # Axe, 1H (Bs, Fo, Kn)
-  - id: 540
+  - id: 306
     item-db-name: hand_axe
     base-level: 5
     min-level: 2
@@ -4288,7 +4290,7 @@ items:
     description: |
       A small axe for kindling and for anything else that needs splitting.
 
-  - id: 541
+  - id: 307
     item-db-name: bearded_axe
     base-level: 12
     min-level: 6
@@ -4308,7 +4310,7 @@ items:
     description: |
       An axe whose blade hangs low below the haft, good for hooking as well as cutting.
 
-  - id: 542
+  - id: 308
     item-db-name: broad_axe
     base-level: 20
     min-level: 10
@@ -4328,7 +4330,7 @@ items:
     description: |
       A wide, flat axe head on a short haft.
 
-  - id: 543
+  - id: 309
     item-db-name: woodwards_axe
     base-level: 27
     min-level: 14
@@ -4351,7 +4353,7 @@ items:
     description: |
       The axe of the forest wardens, light enough to carry all day.
 
-  - id: 544
+  - id: 310
     item-db-name: smiths_hewing_axe
     base-level: 35
     min-level: 18
@@ -4374,7 +4376,7 @@ items:
     description: |
       A smith's test piece: if it holds an edge through oak, the steel is good.
 
-  - id: 545
+  - id: 311
     item-db-name: steel_war_axe
     base-level: 42
     min-level: 23
@@ -4397,7 +4399,7 @@ items:
     description: |
       A steel axe with a spike on the back, made for war and nothing else.
 
-  - id: 546
+  - id: 312
     item-db-name: crescent_axe
     base-level: 52
     min-level: 27
@@ -4422,7 +4424,7 @@ items:
     description: |
       A half-moon blade that bites deep and pulls free easily.
 
-  - id: 547
+  - id: 313
     item-db-name: runed_tomahawk
     base-level: 61
     min-level: 32
@@ -4447,7 +4449,7 @@ items:
     description: |
       A light axe with runes cut along the haft by a hand that knew what they meant.
 
-  - id: 548
+  - id: 314
     item-db-name: blackiron_cleaver
     base-level: 72
     min-level: 37
@@ -4471,7 +4473,7 @@ items:
     description: |
       Dark iron, folded and folded again until it rings like a bell.
 
-  - id: 549
+  - id: 315
     item-db-name: heartwood_cleaver
     base-level: 86
     min-level: 66
@@ -4495,7 +4497,7 @@ items:
 
 
   # Mace, 1H (Bs, Al, Mi, Pt, Kn)
-  - id: 550
+  - id: 316
     item-db-name: cudgel
     base-level: 5
     min-level: 2
@@ -4515,7 +4517,7 @@ items:
     description: |
       A knotted club of hardwood.
 
-  - id: 551
+  - id: 317
     item-db-name: flanged_mace
     base-level: 12
     min-level: 6
@@ -4535,7 +4537,7 @@ items:
     description: |
       An iron head of six flanges on a wooden haft.
 
-  - id: 552
+  - id: 318
     item-db-name: spiked_club
     base-level: 18
     min-level: 9
@@ -4555,7 +4557,7 @@ items:
     description: |
       A heavy club studded with iron nails.
 
-  - id: 553
+  - id: 319
     item-db-name: morning_star
     base-level: 27
     min-level: 14
@@ -4577,7 +4579,7 @@ items:
     description: |
       A spiked iron ball on a short shaft.
 
-  - id: 554
+  - id: 320
     item-db-name: pickhead_mace
     base-level: 33
     min-level: 17
@@ -4600,7 +4602,7 @@ items:
     description: |
       A miner's mace with a pick on the back for loosening ore and enemies alike.
 
-  - id: 555
+  - id: 321
     item-db-name: censer_flail
     base-level: 41
     min-level: 21
@@ -4623,7 +4625,7 @@ items:
     description: |
       A swinging censer on a chain. The smoke it trails is holy; the weight is not.
 
-  - id: 556
+  - id: 322
     item-db-name: alembic_mace
     base-level: 48
     min-level: 25
@@ -4647,7 +4649,7 @@ items:
     description: |
       A mace whose hollow head holds a sealed flask of something better left sealed.
 
-  - id: 557
+  - id: 323
     item-db-name: orebreaker_mace
     base-level: 58
     min-level: 30
@@ -4672,7 +4674,7 @@ items:
     description: |
       Forged to crack ore that a pick will not, and it does not much care what else it cracks.
 
-  - id: 558
+  - id: 324
     item-db-name: wardens_holy_mace
     base-level: 67
     min-level: 36
@@ -4699,7 +4701,7 @@ items:
     description: |
       A silvered mace blessed over a grave that never stayed shut.
 
-  - id: 559
+  - id: 325
     item-db-name: dawnbringer
     base-level: 82
     min-level: 70
@@ -4724,7 +4726,7 @@ items:
 
 
   # Spear, 1H (Fo, Pr, Kn, Hu)
-  - id: 560
+  - id: 326
     item-db-name: wooden_spear
     base-level: 4
     min-level: 1
@@ -4744,7 +4746,7 @@ items:
     description: |
       A straight ash pole sharpened at one end.
 
-  - id: 561
+  - id: 327
     item-db-name: fire_hardened_spear
     base-level: 10
     min-level: 5
@@ -4764,7 +4766,7 @@ items:
     description: |
       A wooden spear whose point was hardened in the coals.
 
-  - id: 562
+  - id: 328
     item-db-name: short_spear
     base-level: 18
     min-level: 9
@@ -4784,7 +4786,7 @@ items:
     description: |
       An iron spearhead on a shaft as long as a man is tall.
 
-  - id: 563
+  - id: 329
     item-db-name: boar_spear
     base-level: 24
     min-level: 13
@@ -4807,7 +4809,7 @@ items:
     description: |
       A broad spearhead with lugs behind it, so the boar stays at the far end.
 
-  - id: 564
+  - id: 330
     item-db-name: cavalry_lance
     base-level: 33
     min-level: 17
@@ -4829,7 +4831,7 @@ items:
     description: |
       A lance cut down for fighting on foot, still heavy at the point.
 
-  - id: 565
+  - id: 331
     item-db-name: trident
     base-level: 40
     min-level: 21
@@ -4852,7 +4854,7 @@ items:
     description: |
       Three barbed tines, made for fish and used for everything else.
 
-  - id: 566
+  - id: 332
     item-db-name: winged_spear
     base-level: 47
     min-level: 25
@@ -4875,7 +4877,7 @@ items:
     description: |
       A spear with two short wings below its head to stop a charge.
 
-  - id: 567
+  - id: 333
     item-db-name: prospectors_pike
     base-level: 56
     min-level: 29
@@ -4900,7 +4902,7 @@ items:
     description: |
       A long pike with a sounding rod hidden in its butt.
 
-  - id: 568
+  - id: 334
     item-db-name: hunting_partisan
     base-level: 67
     min-level: 35
@@ -4925,7 +4927,7 @@ items:
     description: |
       A broad-bladed spear with side lugs, for game that bites back.
 
-  - id: 569
+  - id: 335
     item-db-name: lodestar_pike
     base-level: 72
     min-level: 64
@@ -4949,7 +4951,7 @@ items:
 
 
   # Greatsword, 2H (Kn)
-  - id: 570
+  - id: 336
     item-db-name: two_handed_sword
     base-level: 14
     min-level: 7
@@ -4970,7 +4972,7 @@ items:
     description: |
       A long, plain blade that needs both hands and a lot of room.
 
-  - id: 571
+  - id: 337
     item-db-name: zweihander
     base-level: 22
     min-level: 11
@@ -4991,7 +4993,7 @@ items:
     description: |
       A huge sword with a leather-wrapped ricasso to grip above the guard.
 
-  - id: 572
+  - id: 338
     item-db-name: flamberge
     base-level: 30
     min-level: 15
@@ -5012,7 +5014,7 @@ items:
     description: |
       A greatsword with a wavy blade that saws as well as cuts.
 
-  - id: 573
+  - id: 339
     item-db-name: claymore
     base-level: 38
     min-level: 19
@@ -5035,7 +5037,7 @@ items:
     description: |
       A greatsword with a forward-sloping guard ending in quatrefoils.
 
-  - id: 574
+  - id: 340
     item-db-name: executioners_sword
     base-level: 42
     min-level: 24
@@ -5059,7 +5061,7 @@ items:
     description: |
       Square-tipped and perfectly balanced for one kind of stroke.
 
-  - id: 575
+  - id: 341
     item-db-name: steel_greatblade
     base-level: 53
     min-level: 27
@@ -5085,7 +5087,7 @@ items:
     description: |
       Good steel, a lot of it, in the shape of a sword.
 
-  - id: 576
+  - id: 342
     item-db-name: runeblade
     base-level: 60
     min-level: 31
@@ -5112,7 +5114,7 @@ items:
     description: |
       Runes run the length of the fuller and glow when the blade is drawn in anger.
 
-  - id: 577
+  - id: 343
     item-db-name: wyrmbone_greatsword
     base-level: 68
     min-level: 35
@@ -5138,7 +5140,7 @@ items:
     description: |
       Its core is a rib from something that breathed fire. It is still warm.
 
-  - id: 578
+  - id: 344
     item-db-name: sunderer
     base-level: 74
     min-level: 39
@@ -5164,7 +5166,7 @@ items:
     description: |
       A slab of a sword that splits shields as readily as it splits the men behind them.
 
-  - id: 579
+  - id: 345
     item-db-name: oathkeeper
     base-level: 79
     min-level: 72
@@ -5189,7 +5191,7 @@ items:
 
 
   # Greataxe, 2H (Bs, Fo, Mi, Kn)
-  - id: 580
+  - id: 346
     item-db-name: woodsplitter
     base-level: 12
     min-level: 6
@@ -5210,7 +5212,7 @@ items:
     description: |
       A splitting maul with an axe's edge, for firewood and worse.
 
-  - id: 581
+  - id: 347
     item-db-name: greataxe
     base-level: 20
     min-level: 10
@@ -5231,7 +5233,7 @@ items:
     description: |
       A broad axe head on a long two-handed haft.
 
-  - id: 582
+  - id: 348
     item-db-name: woodcutters_greataxe
     base-level: 28
     min-level: 14
@@ -5254,7 +5256,7 @@ items:
     description: |
       The felling axe of a woodcutter who got tired of being robbed.
 
-  - id: 583
+  - id: 349
     item-db-name: double_bitted_axe
     base-level: 35
     min-level: 18
@@ -5277,7 +5279,7 @@ items:
     description: |
       Two edges, so the backswing is not wasted.
 
-  - id: 584
+  - id: 350
     item-db-name: bearded_greataxe
     base-level: 43
     min-level: 22
@@ -5300,7 +5302,7 @@ items:
     description: |
       A greataxe with a long hooked beard for pulling riders out of saddles.
 
-  - id: 585
+  - id: 351
     item-db-name: quarry_breaker
     base-level: 51
     min-level: 26
@@ -5326,7 +5328,7 @@ items:
     description: |
       A quarryman's axe with a hardened wedge behind the blade.
 
-  - id: 586
+  - id: 352
     item-db-name: moon_axe
     base-level: 57
     min-level: 30
@@ -5352,7 +5354,7 @@ items:
     description: |
       A crescent blade as wide as a man's chest.
 
-  - id: 587
+  - id: 353
     item-db-name: ironbark_reaver
     base-level: 66
     min-level: 34
@@ -5378,7 +5380,7 @@ items:
     description: |
       Its haft is ironbark, which no blade has ever cut through.
 
-  - id: 588
+  - id: 354
     item-db-name: forgemasters_labrys
     base-level: 73
     min-level: 38
@@ -5404,7 +5406,7 @@ items:
     description: |
       A double axe a forgemaster makes once, to prove they can.
 
-  - id: 589
+  - id: 355
     item-db-name: veinsplitter
     base-level: 86
     min-level: 66
@@ -5428,7 +5430,7 @@ items:
 
 
   # Hammer, 2H (Bs, Mi, Kn)
-  - id: 590
+  - id: 356
     item-db-name: mallet
     base-level: 6
     min-level: 3
@@ -5449,7 +5451,7 @@ items:
     description: |
       A big wooden mallet for driving stakes.
 
-  - id: 591
+  - id: 357
     item-db-name: stone_maul
     base-level: 14
     min-level: 7
@@ -5470,7 +5472,7 @@ items:
     description: |
       A river stone lashed to a stout haft.
 
-  - id: 592
+  - id: 358
     item-db-name: sledgehammer
     base-level: 22
     min-level: 11
@@ -5491,7 +5493,7 @@ items:
     description: |
       An iron sledge for breaking rock.
 
-  - id: 593
+  - id: 359
     item-db-name: war_maul
     base-level: 30
     min-level: 15
@@ -5514,7 +5516,7 @@ items:
     description: |
       A sledgehammer with a flat face and a spiked back.
 
-  - id: 594
+  - id: 360
     item-db-name: forge_hammer
     base-level: 36
     min-level: 19
@@ -5538,7 +5540,7 @@ items:
     description: |
       A smith's great hammer, as at home on an anvil as on a skull.
 
-  - id: 595
+  - id: 361
     item-db-name: bronze_headed_maul
     base-level: 45
     min-level: 23
@@ -5562,7 +5564,7 @@ items:
     description: |
       A maul with a bronze head that never sparks in the gas-filled deep.
 
-  - id: 596
+  - id: 362
     item-db-name: pick_hammer
     base-level: 51
     min-level: 27
@@ -5588,7 +5590,7 @@ items:
     description: |
       A hammer on one side and a pick on the other.
 
-  - id: 597
+  - id: 363
     item-db-name: earthshaker_maul
     base-level: 61
     min-level: 32
@@ -5614,7 +5616,7 @@ items:
     description: |
       When it strikes the ground, the ground remembers.
 
-  - id: 598
+  - id: 364
     item-db-name: templars_warhammer
     base-level: 71
     min-level: 37
@@ -5640,7 +5642,7 @@ items:
     description: |
       A warhammer with a prayer engraved on every face.
 
-  - id: 599
+  - id: 365
     item-db-name: anvilheart
     base-level: 79
     min-level: 72
@@ -5665,7 +5667,7 @@ items:
 
 
   # Polearm, 2H (Kn)
-  - id: 600
+  - id: 366
     item-db-name: billhook
     base-level: 14
     min-level: 7
@@ -5686,7 +5688,7 @@ items:
     description: |
       A farmer's hedging blade on a long pole.
 
-  - id: 601
+  - id: 367
     item-db-name: bardiche
     base-level: 22
     min-level: 11
@@ -5707,7 +5709,7 @@ items:
     description: |
       A long axe blade fixed to its pole at two points.
 
-  - id: 602
+  - id: 368
     item-db-name: guisarme
     base-level: 30
     min-level: 15
@@ -5728,7 +5730,7 @@ items:
     description: |
       A pole blade with a hook for pulling a rider down.
 
-  - id: 603
+  - id: 369
     item-db-name: glaive
     base-level: 36
     min-level: 19
@@ -5752,7 +5754,7 @@ items:
     description: |
       A single-edged blade on a pole, swung in wide arcs.
 
-  - id: 604
+  - id: 370
     item-db-name: lucerne_hammer
     base-level: 45
     min-level: 23
@@ -5775,7 +5777,7 @@ items:
     description: |
       A pronged hammer head with a spike above it, on a long pole.
 
-  - id: 605
+  - id: 371
     item-db-name: voulge
     base-level: 53
     min-level: 27
@@ -5801,7 +5803,7 @@ items:
     description: |
       A heavy cleaver blade lashed to a pole.
 
-  - id: 606
+  - id: 372
     item-db-name: bec_de_corbin
     base-level: 58
     min-level: 31
@@ -5827,7 +5829,7 @@ items:
     description: |
       A crow's-beak spike backed by a hammer, for plate armor and what is inside it.
 
-  - id: 607
+  - id: 373
     item-db-name: steel_halberd
     base-level: 68
     min-level: 35
@@ -5853,7 +5855,7 @@ items:
     description: |
       An axe, a spike and a hook on one shaft of good steel.
 
-  - id: 608
+  - id: 374
     item-db-name: wardens_partisan
     base-level: 74
     min-level: 40
@@ -5879,7 +5881,7 @@ items:
     description: |
       The ceremonial polearm of a city's wardens, and not only ceremonial.
 
-  - id: 609
+  - id: 375
     item-db-name: skyrender_halberd
     base-level: 75
     min-level: 88
@@ -5905,7 +5907,7 @@ items:
 
 
   # Staff, 2H (Ar, Sa, Pt, Wz, Bw)
-  - id: 610
+  - id: 376
     item-db-name: walking_stick
     base-level: 4
     min-level: 1
@@ -5927,7 +5929,7 @@ items:
     description: |
       A good straight stick. Every journey starts with one.
 
-  - id: 611
+  - id: 377
     item-db-name: quarterstaff
     base-level: 10
     min-level: 5
@@ -5949,7 +5951,7 @@ items:
     description: |
       An oak staff as tall as its owner, for fighting rather than for spells.
 
-  - id: 612
+  - id: 378
     item-db-name: willow_staff
     base-level: 16
     min-level: 8
@@ -5973,7 +5975,7 @@ items:
     description: |
       A supple willow staff that bends toward the one who holds it.
 
-  - id: 613
+  - id: 379
     item-db-name: iron_shod_quarterstaff
     base-level: 24
     min-level: 12
@@ -5997,7 +5999,7 @@ items:
     description: |
       A quarterstaff with iron caps at both ends.
 
-  - id: 614
+  - id: 380
     item-db-name: pilgrims_staff
     base-level: 31
     min-level: 16
@@ -6021,7 +6023,7 @@ items:
     description: |
       The staff of a pilgrim who has walked every holy road twice.
 
-  - id: 615
+  - id: 381
     item-db-name: brass_conduit_staff
     base-level: 40
     min-level: 21
@@ -6046,7 +6048,7 @@ items:
     description: |
       A brass tube full of copper coils. It hums when a spell runs through it.
 
-  - id: 616
+  - id: 382
     item-db-name: ironwood_bo
     base-level: 48
     min-level: 25
@@ -6071,7 +6073,7 @@ items:
     description: |
       A fighting staff of ironwood, heavy enough to break a sword.
 
-  - id: 617
+  - id: 383
     item-db-name: sages_rootstaff
     base-level: 55
     min-level: 29
@@ -6098,7 +6100,7 @@ items:
     description: |
       A staff grown, not carved, from the root of an old tree.
 
-  - id: 618
+  - id: 384
     item-db-name: staff_of_mending_light
     base-level: 68
     min-level: 35
@@ -6125,7 +6127,7 @@ items:
     description: |
       A white staff topped with a lantern that never needs oil.
 
-  - id: 619
+  - id: 385
     item-db-name: staff_of_the_seventh_ember
     base-level: 82
     min-level: 70
@@ -6151,7 +6153,7 @@ items:
 
 
   # Wand, 1H (Ar, Sa, Wz)
-  - id: 620
+  - id: 386
     item-db-name: twig_wand
     base-level: 4
     min-level: 1
@@ -6172,7 +6174,7 @@ items:
     description: |
       A twig, trimmed and peeled. It works better than it should.
 
-  - id: 621
+  - id: 387
     item-db-name: birch_wand
     base-level: 10
     min-level: 5
@@ -6193,7 +6195,7 @@ items:
     description: |
       A pale birch wand with the bark left on the grip.
 
-  - id: 622
+  - id: 388
     item-db-name: apprentices_wand
     base-level: 18
     min-level: 9
@@ -6214,7 +6216,7 @@ items:
     description: |
       The wand every apprentice is handed on the first day, and keeps longer than they admit.
 
-  - id: 623
+  - id: 389
     item-db-name: bone_wand
     base-level: 25
     min-level: 13
@@ -6238,7 +6240,7 @@ items:
     description: |
       A wand carved from a long bone. Nobody asks whose.
 
-  - id: 624
+  - id: 390
     item-db-name: crystal_tipped_wand
     base-level: 33
     min-level: 17
@@ -6261,7 +6263,7 @@ items:
     description: |
       A rowan wand capped with a clear quartz point.
 
-  - id: 625
+  - id: 391
     item-db-name: tinkers_spark_rod
     base-level: 40
     min-level: 21
@@ -6285,7 +6287,7 @@ items:
     description: |
       A copper rod with a ceramic grip that throws sparks when shaken.
 
-  - id: 626
+  - id: 392
     item-db-name: coral_wand
     base-level: 47
     min-level: 25
@@ -6310,7 +6312,7 @@ items:
     description: |
       A branch of red coral from a reef no ship has found twice.
 
-  - id: 627
+  - id: 393
     item-db-name: obsidian_wand
     base-level: 57
     min-level: 30
@@ -6336,7 +6338,7 @@ items:
     description: |
       A shard of black glass, sharp enough to cut the hand that holds it carelessly.
 
-  - id: 628
+  - id: 394
     item-db-name: ley_iron_scepter
     base-level: 68
     min-level: 36
@@ -6362,7 +6364,7 @@ items:
     description: |
       Iron drawn from where the ley lines cross. Compasses spin near it.
 
-  - id: 629
+  - id: 395
     item-db-name: starfall_wand
     base-level: 75
     min-level: 85
@@ -6388,7 +6390,7 @@ items:
 
 
   # Tome, left hand (Sa, Pt, Wz)
-  - id: 630
+  - id: 396
     item-db-name: primer
     base-level: 6
     min-level: 3
@@ -6408,7 +6410,7 @@ items:
     description: |
       A thin book of first words and first signs.
 
-  - id: 631
+  - id: 397
     item-db-name: primer_of_sparks
     base-level: 14
     min-level: 7
@@ -6428,7 +6430,7 @@ items:
     description: |
       A primer whose every page is singed at the edge.
 
-  - id: 632
+  - id: 398
     item-db-name: hymnal
     base-level: 20
     min-level: 10
@@ -6450,7 +6452,7 @@ items:
     description: |
       A worn book of hymns, its spine cracked open at the favourite ones.
 
-  - id: 633
+  - id: 399
     item-db-name: field_herbarium
     base-level: 28
     min-level: 14
@@ -6473,7 +6475,7 @@ items:
     description: |
       Pressed leaves and careful notes on what heals and what kills.
 
-  - id: 634
+  - id: 400
     item-db-name: book_of_psalms
     base-level: 35
     min-level: 18
@@ -6495,7 +6497,7 @@ items:
     description: |
       Bound in white leather, with a ribbon for every hour of prayer.
 
-  - id: 635
+  - id: 401
     item-db-name: grimoire_of_ash
     base-level: 43
     min-level: 22
@@ -6517,7 +6519,7 @@ items:
     description: |
       Its pages are grey and powdery, and the writing only shows when it is warm.
 
-  - id: 636
+  - id: 402
     item-db-name: annotated_bestiary
     base-level: 50
     min-level: 26
@@ -6542,7 +6544,7 @@ items:
     description: |
       Drawings of every creature its author survived, and notes on the ones they did not expect to.
 
-  - id: 637
+  - id: 403
     item-db-name: atlas_of_ley_lines
     base-level: 56
     min-level: 31
@@ -6568,7 +6570,7 @@ items:
     description: |
       A book of maps where the roads are rivers of power instead of stone.
 
-  - id: 638
+  - id: 404
     item-db-name: liturgy_of_the_lantern
     base-level: 70
     min-level: 37
@@ -6593,7 +6595,7 @@ items:
     description: |
       The rites of the lamplighters, who keep the dark from the door.
 
-  - id: 639
+  - id: 405
     item-db-name: codex_of_unwritten_pages
     base-level: 74
     min-level: 68
@@ -6618,7 +6620,7 @@ items:
 
 
   # Bow, 2H, arrows (Fo, Hu, Bd)
-  - id: 640
+  - id: 406
     item-db-name: short_bow
     base-level: 6
     min-level: 3
@@ -6641,7 +6643,7 @@ items:
     description: |
       A short, simple bow of one piece of wood.
 
-  - id: 641
+  - id: 407
     item-db-name: yew_shortbow
     base-level: 12
     min-level: 6
@@ -6664,7 +6666,7 @@ items:
     description: |
       A yew bow cut to be drawn quickly from the saddle.
 
-  - id: 643
+  - id: 408
     item-db-name: longbow
     base-level: 28
     min-level: 14
@@ -6687,7 +6689,7 @@ items:
     description: |
       A bow as tall as its archer, with the reach to match.
 
-  - id: 644
+  - id: 409
     item-db-name: recurve_bow
     base-level: 35
     min-level: 18
@@ -6712,7 +6714,7 @@ items:
     description: |
       Its tips curve away from the archer, storing more force than its length suggests.
 
-  - id: 645
+  - id: 410
     item-db-name: horn_bow
     base-level: 43
     min-level: 22
@@ -6738,7 +6740,7 @@ items:
     description: |
       Horn, wood and sinew, glued in layers by a patient bowyer.
 
-  - id: 646
+  - id: 411
     item-db-name: composite_longbow
     base-level: 48
     min-level: 26
@@ -6766,7 +6768,7 @@ items:
     description: |
       A longbow backed with sinew, which keeps its strength in the wet.
 
-  - id: 647
+  - id: 412
     item-db-name: elmwood_warbow
     base-level: 60
     min-level: 31
@@ -6794,7 +6796,7 @@ items:
     description: |
       A heavy warbow. Few can draw it twice in a row.
 
-  - id: 648
+  - id: 413
     item-db-name: songstring_bow
     base-level: 69
     min-level: 36
@@ -6822,7 +6824,7 @@ items:
     description: |
       Its string hums a different note for every arrow.
 
-  - id: 649
+  - id: 414
     item-db-name: windrunners_longbow
     base-level: 72
     min-level: 68
@@ -6849,7 +6851,7 @@ items:
 
 
   # Crossbow, 2H, bolts (Ar, Pr, Tr, Hu)
-  - id: 650
+  - id: 415
     item-db-name: wooden_crossbow
     base-level: 8
     min-level: 4
@@ -6872,7 +6874,7 @@ items:
     description: |
       A wooden crossbow spanned by hand. Slow, but anyone can use it.
 
-  - id: 651
+  - id: 416
     item-db-name: hunting_crossbow
     base-level: 16
     min-level: 8
@@ -6895,7 +6897,7 @@ items:
     description: |
       A light crossbow for birds and small game.
 
-  - id: 652
+  - id: 417
     item-db-name: stirrup_crossbow
     base-level: 24
     min-level: 12
@@ -6918,7 +6920,7 @@ items:
     description: |
       A crossbow with an iron stirrup to brace it with the foot while spanning.
 
-  - id: 653
+  - id: 418
     item-db-name: arbalest
     base-level: 32
     min-level: 16
@@ -6941,7 +6943,7 @@ items:
     description: |
       A heavy crossbow with a steel prod.
 
-  - id: 654
+  - id: 419
     item-db-name: steel_arbalest
     base-level: 39
     min-level: 20
@@ -6967,7 +6969,7 @@ items:
     description: |
       An all-steel arbalest, heavier than the man who carries it would like.
 
-  - id: 655
+  - id: 420
     item-db-name: caravan_guard_crossbow
     base-level: 46
     min-level: 24
@@ -6993,7 +6995,7 @@ items:
     description: |
       A short crossbow that can be spanned and shot from a moving wagon.
 
-  - id: 656
+  - id: 421
     item-db-name: repeating_crossbow
     base-level: 54
     min-level: 28
@@ -7021,7 +7023,7 @@ items:
     description: |
       A crossbow with a magazine on top. Pump the lever and it shoots again.
 
-  - id: 657
+  - id: 422
     item-db-name: windlass_arbalest
     base-level: 62
     min-level: 34
@@ -7049,7 +7051,7 @@ items:
     description: |
       Spanned with a windlass, and it punches through a door.
 
-  - id: 658
+  - id: 423
     item-db-name: gearwork_siege_crossbow
     base-level: 72
     min-level: 37
@@ -7077,7 +7079,7 @@ items:
     description: |
       Brass gears span it in a heartbeat. The noise gives away the shooter.
 
-  - id: 659
+  - id: 424
     item-db-name: clockwork_arbalest
     base-level: 80
     min-level: 70
@@ -7104,7 +7106,7 @@ items:
 
 
   # Instrument, 2H (Bd)
-  - id: 660
+  - id: 425
     item-db-name: tin_whistle
     base-level: 4
     min-level: 1
@@ -7126,7 +7128,7 @@ items:
     description: |
       A cheap tin whistle with six holes. Play it well and nobody cares that it was cheap.
 
-  - id: 661
+  - id: 426
     item-db-name: reed_flute
     base-level: 10
     min-level: 5
@@ -7148,7 +7150,7 @@ items:
     description: |
       A flute cut from a riverside reed.
 
-  - id: 662
+  - id: 427
     item-db-name: hand_drum
     base-level: 18
     min-level: 9
@@ -7170,7 +7172,7 @@ items:
     description: |
       A small skin drum played with the fingers.
 
-  - id: 663
+  - id: 428
     item-db-name: travellers_mandolin
     base-level: 24
     min-level: 13
@@ -7195,7 +7197,7 @@ items:
     description: |
       A small mandolin, sturdy enough to survive the road.
 
-  - id: 664
+  - id: 429
     item-db-name: bagpipes
     base-level: 33
     min-level: 17
@@ -7219,7 +7221,7 @@ items:
     description: |
       Loud enough to be heard over a battle, which is what they were made for.
 
-  - id: 665
+  - id: 430
     item-db-name: fiddle
     base-level: 41
     min-level: 21
@@ -7243,7 +7245,7 @@ items:
     description: |
       A fiddle that has played at more weddings than it can count.
 
-  - id: 666
+  - id: 431
     item-db-name: warband_drum
     base-level: 49
     min-level: 25
@@ -7268,7 +7270,7 @@ items:
     description: |
       A war drum whose beat keeps a column marching long after its legs want to stop.
 
-  - id: 667
+  - id: 432
     item-db-name: silver_harp
     base-level: 57
     min-level: 30
@@ -7295,7 +7297,7 @@ items:
     description: |
       A small harp strung with silver wire.
 
-  - id: 668
+  - id: 433
     item-db-name: hurdy_gurdy_of_hours
     base-level: 71
     min-level: 36
@@ -7322,7 +7324,7 @@ items:
     description: |
       Turn the crank and it plays a tune nobody wrote, slightly different every hour.
 
-  - id: 669
+  - id: 434
     item-db-name: lyre_of_the_last_verse
     base-level: 84
     min-level: 66
@@ -7348,7 +7350,7 @@ items:
 
 
   # Thrown, 1H, stackable (Al, As, Hu)
-  - id: 670
+  - id: 435
     item-db-name: throwing_knife
     base-level: 8
     min-level: 4
@@ -7363,7 +7365,7 @@ items:
     description: |
       A small, flat knife balanced to turn once in the air. Each throw spends one.
 
-  - id: 671
+  - id: 436
     item-db-name: darts
     base-level: 14
     min-level: 7
@@ -7378,7 +7380,7 @@ items:
     description: |
       Weighted darts with feather flights. Each throw spends one.
 
-  - id: 672
+  - id: 437
     item-db-name: throwing_axe
     base-level: 22
     min-level: 11
@@ -7393,7 +7395,7 @@ items:
     description: |
       A small axe with a short haft, made to be thrown. Each throw spends one.
 
-  - id: 673
+  - id: 438
     item-db-name: bolas
     base-level: 28
     min-level: 14
@@ -7408,7 +7410,7 @@ items:
     description: |
       Three weighted cords that wrap around legs. Each throw spends one.
 
-  - id: 674
+  - id: 439
     item-db-name: weighted_javelin
     base-level: 34
     min-level: 17
@@ -7423,7 +7425,7 @@ items:
     description: |
       A javelin with a lead weight behind its head. Each throw spends one.
 
-  - id: 675
+  - id: 440
     item-db-name: star_darts
     base-level: 42
     min-level: 21
@@ -7438,7 +7440,7 @@ items:
     description: |
       Four-pointed steel stars. Each throw spends one.
 
-  - id: 676
+  - id: 441
     item-db-name: caustic_flask
     base-level: 48
     min-level: 24
@@ -7453,7 +7455,7 @@ items:
     description: |
       A thin glass flask of something that eats through leather. Each throw spends one.
 
-  - id: 677
+  - id: 442
     item-db-name: steel_chakram
     base-level: 58
     min-level: 29
@@ -7468,7 +7470,7 @@ items:
     description: |
       A flat steel ring with a sharpened outer edge. Each throw spends one.
 
-  - id: 678
+  - id: 443
     item-db-name: fire_flask
     base-level: 66
     min-level: 33
@@ -7483,7 +7485,7 @@ items:
     description: |
       A sealed flask that bursts into flame when it shatters. Each throw spends one.
 
-  - id: 679
+  - id: 444
     item-db-name: philosophers_orb
     base-level: 86
     min-level: 64
@@ -7506,7 +7508,7 @@ items:
 
 
   # Sling, 1H, stones (everyone)
-  - id: 680
+  - id: 445
     item-db-name: shepherds_sling
     base-level: 6
     min-level: 3
@@ -7528,7 +7530,7 @@ items:
     description: |
       A shepherd's sling of plaited wool and a leather cradle.
 
-  - id: 681
+  - id: 446
     item-db-name: braided_sling
     base-level: 14
     min-level: 7
@@ -7550,7 +7552,7 @@ items:
     description: |
       A tightly braided sling that does not stretch in the rain.
 
-  - id: 682
+  - id: 447
     item-db-name: hide_sling
     base-level: 22
     min-level: 11
@@ -7572,7 +7574,7 @@ items:
     description: |
       A sling with a broad cradle of rawhide.
 
-  - id: 683
+  - id: 448
     item-db-name: leaded_sling
     base-level: 30
     min-level: 15
@@ -7596,7 +7598,7 @@ items:
     description: |
       A sling with lead weights in its cords for a faster swing.
 
-  - id: 684
+  - id: 449
     item-db-name: forked_slingshot
     base-level: 38
     min-level: 19
@@ -7620,7 +7622,7 @@ items:
     description: |
       A forked branch and a strip of elastic gut. Aimed, not swung.
 
-  - id: 685
+  - id: 450
     item-db-name: balearic_sling
     base-level: 43
     min-level: 23
@@ -7645,7 +7647,7 @@ items:
     description: |
       The long sling of the island slingers, who were said to never miss.
 
-  - id: 686
+  - id: 451
     item-db-name: silk_sling
     base-level: 53
     min-level: 27
@@ -7672,7 +7674,7 @@ items:
     description: |
       Silk cords and a fine leather cradle, light as nothing.
 
-  - id: 687
+  - id: 452
     item-db-name: giant_hunters_sling
     base-level: 62
     min-level: 32
@@ -7699,7 +7701,7 @@ items:
     description: |
       A long, heavy sling for stones the size of a fist.
 
-  - id: 688
+  - id: 453
     item-db-name: stormcord_sling
     base-level: 74
     min-level: 38
@@ -7726,7 +7728,7 @@ items:
     description: |
       Its cords were braided during a storm and still crackle faintly.
 
-  - id: 689
+  - id: 454
     item-db-name: shepherd_kings_sling
     base-level: 76
     min-level: 60
@@ -7752,7 +7754,7 @@ items:
 
 
   # Body, ARMOR
-  - id: 690
+  - id: 455
     item-db-name: plain_robe
     base-level: 6
     min-level: 3
@@ -7773,7 +7775,7 @@ items:
     description: |
       A plain robe of undyed wool.
 
-  - id: 691
+  - id: 456
     item-db-name: woven_robe
     base-level: 14
     min-level: 7
@@ -7796,7 +7798,7 @@ items:
     description: |
       A robe woven with a faint pattern of stars.
 
-  - id: 692
+  - id: 457
     item-db-name: acolytes_cassock
     base-level: 22
     min-level: 11
@@ -7819,7 +7821,7 @@ items:
     description: |
       The black cassock of a temple acolyte.
 
-  - id: 693
+  - id: 458
     item-db-name: scholars_habit
     base-level: 27
     min-level: 15
@@ -7843,7 +7845,7 @@ items:
     description: |
       A long scholar's gown with deep pockets for books.
 
-  - id: 694
+  - id: 459
     item-db-name: herbalists_smock
     base-level: 36
     min-level: 19
@@ -7868,7 +7870,7 @@ items:
     description: |
       A stained smock that smells of a dozen herbs, some of them dangerous.
 
-  - id: 695
+  - id: 460
     item-db-name: embroidered_magister_robe
     base-level: 40
     min-level: 25
@@ -7893,7 +7895,7 @@ items:
     description: |
       A magister's robe embroidered with runes in silver thread.
 
-  - id: 696
+  - id: 461
     item-db-name: silkweave_vestment
     base-level: 60
     min-level: 31
@@ -7919,7 +7921,7 @@ items:
     description: |
       A vestment of fine silk that feels cool even in the sun.
 
-  - id: 697
+  - id: 462
     item-db-name: robe_of_the_ashen_circle
     base-level: 70
     min-level: 37
@@ -7945,7 +7947,7 @@ items:
     description: |
       The grey robe of a circle of fire-mages. It cannot be burned.
 
-  - id: 698
+  - id: 463
     item-db-name: mantle_of_the_starlit_choir
     base-level: 58
     min-level: 70
@@ -7969,7 +7971,7 @@ items:
     description: |
       A deep blue mantle that shows the night sky as it was the night it was woven.
 
-  - id: 699
+  - id: 464
     item-db-name: padded_gambeson
     base-level: 8
     min-level: 4
@@ -7990,7 +7992,7 @@ items:
     description: |
       A quilted jacket of many layers of linen.
 
-  - id: 700
+  - id: 465
     item-db-name: hide_vest
     base-level: 16
     min-level: 8
@@ -8011,7 +8013,7 @@ items:
     description: |
       A vest of tanned hide.
 
-  - id: 701
+  - id: 466
     item-db-name: hunters_leathers
     base-level: 22
     min-level: 12
@@ -8035,7 +8037,7 @@ items:
     description: |
       Soft leathers dyed in the colours of the forest floor.
 
-  - id: 702
+  - id: 467
     item-db-name: boiled_leather_cuirass
     base-level: 32
     min-level: 16
@@ -8058,7 +8060,7 @@ items:
     description: |
       Leather boiled in wax and shaped while hot, hard as wood.
 
-  - id: 703
+  - id: 468
     item-db-name: minstrels_doublet
     base-level: 38
     min-level: 20
@@ -8082,7 +8084,7 @@ items:
     description: |
       A slashed doublet in bright colours, with hidden leather beneath.
 
-  - id: 704
+  - id: 469
     item-db-name: shadowweave_jerkin
     base-level: 42
     min-level: 25
@@ -8106,7 +8108,7 @@ items:
     description: |
       A black jerkin that seems to blur at the edges when it moves.
 
-  - id: 705
+  - id: 470
     item-db-name: pugilists_wrap_vest
     base-level: 55
     min-level: 28
@@ -8132,7 +8134,7 @@ items:
     description: |
       Layered wraps of cloth and leather that leave the arms free.
 
-  - id: 706
+  - id: 471
     item-db-name: trailwarden_leathers
     base-level: 63
     min-level: 33
@@ -8158,7 +8160,7 @@ items:
     description: |
       The leathers of the trailwardens, who walk the borders for a lifetime.
 
-  - id: 707
+  - id: 472
     item-db-name: hide_of_the_nightstalker
     base-level: 62
     min-level: 66
@@ -8181,7 +8183,7 @@ items:
     description: |
       Tanned from a beast that hunted only in the dark. It still prefers the dark.
 
-  - id: 708
+  - id: 473
     item-db-name: ring_mail
     base-level: 14
     min-level: 7
@@ -8202,7 +8204,7 @@ items:
     description: |
       Iron rings sewn onto a leather coat.
 
-  - id: 709
+  - id: 474
     item-db-name: studded_brigandine
     base-level: 22
     min-level: 11
@@ -8225,7 +8227,7 @@ items:
     description: |
       A cloth coat lined with small iron plates and studded with rivets.
 
-  - id: 710
+  - id: 475
     item-db-name: scale_vest
     base-level: 30
     min-level: 15
@@ -8246,7 +8248,7 @@ items:
     description: |
       Overlapping iron scales on a leather backing.
 
-  - id: 711
+  - id: 476
     item-db-name: smiths_hauberk
     base-level: 36
     min-level: 19
@@ -8270,7 +8272,7 @@ items:
     description: |
       A short mail shirt with a leather apron over it, scorched in a hundred places.
 
-  - id: 712
+  - id: 477
     item-db-name: lamellar_coat
     base-level: 46
     min-level: 23
@@ -8293,7 +8295,7 @@ items:
     description: |
       Small plates laced together in rows, light for how much it stops.
 
-  - id: 713
+  - id: 478
     item-db-name: wardens_scale_vest
     base-level: 54
     min-level: 28
@@ -8319,7 +8321,7 @@ items:
     description: |
       Fine scales of blued steel, worn by the forest wardens.
 
-  - id: 714
+  - id: 479
     item-db-name: vestments_of_the_dawn
     base-level: 58
     min-level: 31
@@ -8345,7 +8347,7 @@ items:
     description: |
       White vestments over a mail shirt, for a priest who expects to be attacked.
 
-  - id: 715
+  - id: 480
     item-db-name: artificers_brass_harness
     base-level: 70
     min-level: 36
@@ -8371,7 +8373,7 @@ items:
     description: |
       A harness of brass plates with tool loops and a dozen pockets.
 
-  - id: 716
+  - id: 481
     item-db-name: deepforged_hauberk
     base-level: 77
     min-level: 64
@@ -8394,7 +8396,7 @@ items:
     description: |
       A hauberk forged at the bottom of a mine, in a forge that runs on the heat of the earth.
 
-  - id: 717
+  - id: 482
     item-db-name: iron_plate_coat
     base-level: 20
     min-level: 12
@@ -8415,7 +8417,7 @@ items:
     description: |
       A coat of iron plates over padding. Heavy, and worth it.
 
-  - id: 718
+  - id: 483
     item-db-name: splint_mail
     base-level: 30
     min-level: 16
@@ -8436,7 +8438,7 @@ items:
     description: |
       Strips of iron riveted over mail.
 
-  - id: 719
+  - id: 484
     item-db-name: banded_plate
     base-level: 40
     min-level: 20
@@ -8460,7 +8462,7 @@ items:
     description: |
       Horizontal bands of steel over a mail shirt.
 
-  - id: 720
+  - id: 485
     item-db-name: steel_breastplate
     base-level: 49
     min-level: 25
@@ -8483,7 +8485,7 @@ items:
     description: |
       A polished steel breastplate with a skirt of tassets.
 
-  - id: 721
+  - id: 486
     item-db-name: templars_plate
     base-level: 58
     min-level: 30
@@ -8509,7 +8511,7 @@ items:
     description: |
       White-enamelled plate with a red cross on the breast.
 
-  - id: 722
+  - id: 487
     item-db-name: bastion_plate
     base-level: 68
     min-level: 36
@@ -8536,7 +8538,7 @@ items:
     description: |
       Plate thick enough to stand in a gate and hold it.
 
-  - id: 723
+  - id: 488
     item-db-name: blackiron_fullplate
     base-level: 77
     min-level: 40
@@ -8563,7 +8565,7 @@ items:
     description: |
       A full harness of black iron. It makes its wearer a wall.
 
-  - id: 724
+  - id: 489
     item-db-name: aegis_of_the_unbroken
     base-level: 65
     min-level: 74
@@ -8588,7 +8590,7 @@ items:
 
 
   # Head, HEAD_UPPER
-  - id: 725
+  - id: 490
     item-db-name: felt_hood
     base-level: 6
     min-level: 3
@@ -8609,7 +8611,7 @@ items:
     description: |
       A simple felt hood that keeps the rain off.
 
-  - id: 726
+  - id: 491
     item-db-name: straw_hat
     base-level: 10
     min-level: 5
@@ -8630,7 +8632,7 @@ items:
     description: |
       A wide straw hat for long days in the field.
 
-  - id: 727
+  - id: 492
     item-db-name: wizards_cone_hat
     base-level: 24
     min-level: 14
@@ -8654,7 +8656,7 @@ items:
     description: |
       A tall pointed hat. It is not just for show, though it is also for show.
 
-  - id: 728
+  - id: 493
     item-db-name: scholars_cap
     base-level: 35
     min-level: 18
@@ -8677,7 +8679,7 @@ items:
     description: |
       A square black cap worn by those who have read more than they have lived.
 
-  - id: 729
+  - id: 494
     item-db-name: circlet_of_clarity
     base-level: 51
     min-level: 27
@@ -8703,7 +8705,7 @@ items:
     description: |
       A thin silver circlet that eases headaches and sharpens thought.
 
-  - id: 730
+  - id: 495
     item-db-name: silver_diadem
     base-level: 64
     min-level: 34
@@ -8729,7 +8731,7 @@ items:
     description: |
       A diadem of silver leaves set with a single pearl.
 
-  - id: 731
+  - id: 496
     item-db-name: crown_of_the_eclipse
     base-level: 81
     min-level: 62
@@ -8752,7 +8754,7 @@ items:
     description: |
       A black crown with a ring of gold, the sun swallowed by the moon.
 
-  - id: 732
+  - id: 497
     item-db-name: leather_cap
     base-level: 10
     min-level: 5
@@ -8775,7 +8777,7 @@ items:
     description: |
       A close-fitting leather cap.
 
-  - id: 733
+  - id: 498
     item-db-name: bandana
     base-level: 16
     min-level: 9
@@ -8799,7 +8801,7 @@ items:
     description: |
       A bright cloth tied over the hair.
 
-  - id: 734
+  - id: 499
     item-db-name: feathered_tricorn
     base-level: 31
     min-level: 16
@@ -8822,7 +8824,7 @@ items:
     description: |
       A three-cornered hat with a long feather, worn at an angle.
 
-  - id: 735
+  - id: 500
     item-db-name: rangers_hood
     base-level: 36
     min-level: 21
@@ -8847,7 +8849,7 @@ items:
     description: |
       A hood of green leather that shades the eyes.
 
-  - id: 736
+  - id: 501
     item-db-name: assassins_cowl
     base-level: 49
     min-level: 26
@@ -8873,7 +8875,7 @@ items:
     description: |
       A deep cowl and a mask in one.
 
-  - id: 737
+  - id: 502
     item-db-name: plumed_bards_cap
     base-level: 59
     min-level: 31
@@ -8899,7 +8901,7 @@ items:
     description: |
       A velvet cap with a plume that bobs when its wearer sings.
 
-  - id: 738
+  - id: 503
     item-db-name: hood_of_the_silent_hunt
     base-level: 71
     min-level: 37
@@ -8925,7 +8927,7 @@ items:
     description: |
       A hood that muffles its wearer's breath.
 
-  - id: 739
+  - id: 504
     item-db-name: bronze_sallet
     base-level: 20
     min-level: 10
@@ -8946,7 +8948,7 @@ items:
     description: |
       A bronze helmet with a long tail over the neck.
 
-  - id: 740
+  - id: 505
     item-db-name: miners_lamp_helm
     base-level: 28
     min-level: 14
@@ -8969,7 +8971,7 @@ items:
     description: |
       An iron helm with a bracket for a lamp on the brow.
 
-  - id: 741
+  - id: 506
     item-db-name: kettle_hat
     base-level: 36
     min-level: 18
@@ -8992,7 +8994,7 @@ items:
     description: |
       A wide-brimmed iron hat that keeps arrows and rain off alike.
 
-  - id: 742
+  - id: 507
     item-db-name: priests_mitre
     base-level: 44
     min-level: 24
@@ -9016,7 +9018,7 @@ items:
     description: |
       A tall mitre with a steel cap sewn inside it.
 
-  - id: 743
+  - id: 508
     item-db-name: horned_helm
     base-level: 57
     min-level: 29
@@ -9041,7 +9043,7 @@ items:
     description: |
       A steel helm with two great horns, more for courage than for use.
 
-  - id: 744
+  - id: 509
     item-db-name: gearwrights_helm
     base-level: 68
     min-level: 35
@@ -9067,7 +9069,7 @@ items:
     description: |
       A helm with flip-down lenses and a dozen tiny tools in the brim.
 
-  - id: 745
+  - id: 510
     item-db-name: nasal_helm
     base-level: 24
     min-level: 13
@@ -9088,7 +9090,7 @@ items:
     description: |
       A conical iron helm with a bar over the nose.
 
-  - id: 746
+  - id: 511
     item-db-name: great_helm
     base-level: 40
     min-level: 20
@@ -9111,7 +9113,7 @@ items:
     description: |
       A flat-topped helm that covers the whole head.
 
-  - id: 747
+  - id: 512
     item-db-name: bascinet
     base-level: 51
     min-level: 26
@@ -9137,7 +9139,7 @@ items:
     description: |
       A pointed helm with a hinged visor.
 
-  - id: 748
+  - id: 513
     item-db-name: visored_barbute
     base-level: 63
     min-level: 33
@@ -9163,7 +9165,7 @@ items:
     description: |
       A close helm with a T-shaped opening and a sliding visor.
 
-  - id: 749
+  - id: 514
     item-db-name: crested_warhelm
     base-level: 74
     min-level: 39
@@ -9189,7 +9191,7 @@ items:
     description: |
       A great helm crowned with a steel crest.
 
-  - id: 750
+  - id: 515
     item-db-name: warhelm_of_the_iron_tide
     base-level: 84
     min-level: 68
@@ -9214,7 +9216,7 @@ items:
 
 
   # Garment, GARMENT
-  - id: 751
+  - id: 516
     item-db-name: travellers_cloak
     base-level: 10
     min-level: 5
@@ -9237,7 +9239,7 @@ items:
     description: |
       A hooded travelling cloak of oiled wool.
 
-  - id: 752
+  - id: 517
     item-db-name: pilgrims_shawl
     base-level: 22
     min-level: 11
@@ -9260,7 +9262,7 @@ items:
     description: |
       A shawl embroidered with the signs of every shrine its owner visited.
 
-  - id: 753
+  - id: 518
     item-db-name: scholars_mantlet
     base-level: 33
     min-level: 17
@@ -9283,7 +9285,7 @@ items:
     description: |
       A short shoulder mantle in the colours of an old academy.
 
-  - id: 754
+  - id: 519
     item-db-name: mantle_of_embers
     base-level: 53
     min-level: 28
@@ -9309,7 +9311,7 @@ items:
     description: |
       A mantle whose hem glows faintly, like the last coals of a fire.
 
-  - id: 755
+  - id: 520
     item-db-name: shroud_of_the_quiet_grave
     base-level: 69
     min-level: 36
@@ -9335,7 +9337,7 @@ items:
     description: |
       A grey shroud the dead do not like to look at.
 
-  - id: 756
+  - id: 521
     item-db-name: wool_mantle
     base-level: 16
     min-level: 8
@@ -9358,7 +9360,7 @@ items:
     description: |
       A thick woollen mantle, warm in the worst weather.
 
-  - id: 757
+  - id: 522
     item-db-name: oilskin_cape
     base-level: 25
     min-level: 13
@@ -9381,7 +9383,7 @@ items:
     description: |
       A cape of waxed canvas that sheds the rain.
 
-  - id: 758
+  - id: 523
     item-db-name: hunters_ghillie
     base-level: 35
     min-level: 19
@@ -9405,7 +9407,7 @@ items:
     description: |
       A cloak hung with strips of cloth and leaves.
 
-  - id: 759
+  - id: 524
     item-db-name: performers_half_cape
     base-level: 46
     min-level: 24
@@ -9429,7 +9431,7 @@ items:
     description: |
       A short cape lined in red silk, made to be swirled.
 
-  - id: 760
+  - id: 525
     item-db-name: shadowsilk_cape
     base-level: 63
     min-level: 33
@@ -9455,7 +9457,7 @@ items:
     description: |
       A cape of black silk that hides its wearer in any shadow.
 
-  - id: 761
+  - id: 526
     item-db-name: wings_of_the_wandering_wind
     base-level: 67
     min-level: 64
@@ -9479,7 +9481,7 @@ items:
     description: |
       A feathered cloak that lifts on the slightest breeze, as if it would rather be flying.
 
-  - id: 762
+  - id: 527
     item-db-name: fur_lined_mantle
     base-level: 29
     min-level: 15
@@ -9503,7 +9505,7 @@ items:
     description: |
       A heavy mantle lined with wolf fur.
 
-  - id: 763
+  - id: 528
     item-db-name: heralds_tabard
     base-level: 41
     min-level: 21
@@ -9527,7 +9529,7 @@ items:
     description: |
       A tabard bearing a house's colours over a padded lining.
 
-  - id: 764
+  - id: 529
     item-db-name: foresters_weathercloak
     base-level: 59
     min-level: 30
@@ -9553,7 +9555,7 @@ items:
     description: |
       A cloak of thick leather that has seen every season.
 
-  - id: 765
+  - id: 530
     item-db-name: mail_cape
     base-level: 50
     min-level: 25
@@ -9576,7 +9578,7 @@ items:
     description: |
       A short cape of mail over the shoulders.
 
-  - id: 766
+  - id: 531
     item-db-name: knights_warcloak
     base-level: 70
     min-level: 37
@@ -9604,7 +9606,7 @@ items:
 
 
   # Footgear, FOOTGEAR
-  - id: 767
+  - id: 532
     item-db-name: rope_sandals
     base-level: 6
     min-level: 3
@@ -9625,7 +9627,7 @@ items:
     description: |
       Sandals of plaited rope.
 
-  - id: 768
+  - id: 533
     item-db-name: felt_slippers
     base-level: 16
     min-level: 8
@@ -9648,7 +9650,7 @@ items:
     description: |
       Soft felt slippers for long nights of study.
 
-  - id: 769
+  - id: 534
     item-db-name: pilgrims_slippers
     base-level: 35
     min-level: 18
@@ -9672,7 +9674,7 @@ items:
     description: |
       Slippers with soles worn thin by a thousand miles of prayer.
 
-  - id: 770
+  - id: 535
     item-db-name: starwalker_slippers
     base-level: 66
     min-level: 34
@@ -9698,7 +9700,7 @@ items:
     description: |
       Slippers of blue silk embroidered with constellations.
 
-  - id: 771
+  - id: 536
     item-db-name: soft_leather_boots
     base-level: 14
     min-level: 7
@@ -9721,7 +9723,7 @@ items:
     description: |
       Ankle boots of soft leather.
 
-  - id: 772
+  - id: 537
     item-db-name: rangers_moccasins
     base-level: 23
     min-level: 12
@@ -9745,7 +9747,7 @@ items:
     description: |
       Moccasins that make no sound on dry leaves.
 
-  - id: 773
+  - id: 538
     item-db-name: silent_step_boots
     base-level: 36
     min-level: 20
@@ -9769,7 +9771,7 @@ items:
     description: |
       Boots with felt soles, made for walking where one should not be.
 
-  - id: 774
+  - id: 539
     item-db-name: troubadours_buckled_shoes
     base-level: 49
     min-level: 25
@@ -9793,7 +9795,7 @@ items:
     description: |
       Pointed shoes with silver buckles, made for dancing.
 
-  - id: 775
+  - id: 540
     item-db-name: fighters_foot_wraps
     base-level: 57
     min-level: 29
@@ -9819,7 +9821,7 @@ items:
     description: |
       Wraps of linen and leather that leave the toes free to grip.
 
-  - id: 776
+  - id: 541
     item-db-name: couriers_boots
     base-level: 69
     min-level: 35
@@ -9845,7 +9847,7 @@ items:
     description: |
       Light boots worn by the couriers who run the long roads.
 
-  - id: 777
+  - id: 542
     item-db-name: boots_of_the_seven_leagues
     base-level: 88
     min-level: 60
@@ -9867,7 +9869,7 @@ items:
     description: |
       Every step in them is a little longer than it should be.
 
-  - id: 778
+  - id: 543
     item-db-name: hobnailed_boots
     base-level: 22
     min-level: 11
@@ -9891,7 +9893,7 @@ items:
     description: |
       Heavy boots with iron nails in the soles for grip on rock.
 
-  - id: 779
+  - id: 544
     item-db-name: riveted_boots
     base-level: 34
     min-level: 17
@@ -9914,7 +9916,7 @@ items:
     description: |
       Boots reinforced with riveted iron strips.
 
-  - id: 780
+  - id: 545
     item-db-name: striders_boots
     base-level: 51
     min-level: 26
@@ -9940,7 +9942,7 @@ items:
     description: |
       Tall boots for long strides through deep forest.
 
-  - id: 781
+  - id: 546
     item-db-name: forge_soled_boots
     base-level: 60
     min-level: 31
@@ -9966,7 +9968,7 @@ items:
     description: |
       Boots with soles thick enough to stand on a cooling slag heap.
 
-  - id: 782
+  - id: 547
     item-db-name: deepdelvers_boots
     base-level: 75
     min-level: 38
@@ -9992,7 +9994,7 @@ items:
     description: |
       Boots made for the deepest shafts, where the floor is never level.
 
-  - id: 783
+  - id: 548
     item-db-name: ironshod_greaves
     base-level: 30
     min-level: 16
@@ -10015,7 +10017,7 @@ items:
     description: |
       Iron greaves strapped over leather boots.
 
-  - id: 784
+  - id: 549
     item-db-name: plated_greaves
     base-level: 44
     min-level: 22
@@ -10038,7 +10040,7 @@ items:
     description: |
       Steel greaves with articulated plates over the foot.
 
-  - id: 785
+  - id: 550
     item-db-name: sabatons_of_the_bulwark
     base-level: 65
     min-level: 33
@@ -10063,7 +10065,7 @@ items:
     description: |
       Armored shoes that root their wearer to the spot.
 
-  - id: 786
+  - id: 551
     item-db-name: treads_of_the_last_stand
     base-level: 84
     min-level: 62
@@ -10088,7 +10090,7 @@ items:
 
 
   # Shield, LEFT_HAND
-  - id: 787
+  - id: 552
     item-db-name: wicker_buckler
     base-level: 8
     min-level: 4
@@ -10109,7 +10111,7 @@ items:
     description: |
       A small round shield of woven wicker.
 
-  - id: 788
+  - id: 553
     item-db-name: hide_targe
     base-level: 20
     min-level: 10
@@ -10132,7 +10134,7 @@ items:
     description: |
       A round targe of hide stretched over a wooden frame.
 
-  - id: 789
+  - id: 554
     item-db-name: studded_buckler
     base-level: 33
     min-level: 17
@@ -10156,7 +10158,7 @@ items:
     description: |
       A leather buckler studded with iron.
 
-  - id: 790
+  - id: 555
     item-db-name: duelists_parrying_buckler
     base-level: 47
     min-level: 25
@@ -10180,7 +10182,7 @@ items:
     description: |
       A small steel buckler with a spike, for turning a blade aside.
 
-  - id: 791
+  - id: 556
     item-db-name: mirrored_buckler
     base-level: 66
     min-level: 34
@@ -10206,7 +10208,7 @@ items:
     description: |
       A buckler polished to a mirror, to blind whoever stands in front of it.
 
-  - id: 792
+  - id: 557
     item-db-name: round_shield
     base-level: 18
     min-level: 9
@@ -10227,7 +10229,7 @@ items:
     description: |
       A round shield of planks with an iron boss.
 
-  - id: 793
+  - id: 558
     item-db-name: bronze_heater
     base-level: 26
     min-level: 13
@@ -10248,7 +10250,7 @@ items:
     description: |
       A heater-shaped shield faced in bronze.
 
-  - id: 794
+  - id: 559
     item-db-name: steel_kite_shield
     base-level: 48
     min-level: 24
@@ -10271,7 +10273,7 @@ items:
     description: |
       A tall kite shield of steel, pointed at the bottom.
 
-  - id: 795
+  - id: 560
     item-db-name: runed_ward
     base-level: 58
     min-level: 30
@@ -10297,7 +10299,7 @@ items:
     description: |
       A shield carved with warding runes that glow when darkness is near.
 
-  - id: 796
+  - id: 561
     item-db-name: gearlock_shield
     base-level: 71
     min-level: 36
@@ -10323,7 +10325,7 @@ items:
     description: |
       A shield that unfolds from a bracer at the turn of a key.
 
-  - id: 797
+  - id: 562
     item-db-name: iron_pavise
     base-level: 30
     min-level: 16
@@ -10344,7 +10346,7 @@ items:
     description: |
       A tall rectangular shield that can be set on the ground to stand behind.
 
-  - id: 798
+  - id: 563
     item-db-name: bulwark_pavise
     base-level: 59
     min-level: 30
@@ -10369,7 +10371,7 @@ items:
     description: |
       A pavise of iron-faced oak, a wall in one hand.
 
-  - id: 799
+  - id: 564
     item-db-name: cathedral_tower_shield
     base-level: 76
     min-level: 39
@@ -10395,7 +10397,7 @@ items:
     description: |
       A tower shield with the window of a cathedral painted across it.
 
-  - id: 800
+  - id: 565
     item-db-name: bastion_of_the_first_wall
     base-level: 85
     min-level: 70
@@ -10420,7 +10422,7 @@ items:
 
 
   # Face, HEAD_MID
-  - id: 801
+  - id: 566
     item-db-name: cracked_monocle
     base-level: 4
     min-level: 5
@@ -10443,7 +10445,7 @@ items:
     description: |
       A monocle with a crack across it. It still helps.
 
-  - id: 802
+  - id: 567
     item-db-name: leather_eyepatch
     base-level: 11
     min-level: 7
@@ -10465,7 +10467,7 @@ items:
     description: |
       An eyepatch. The eye beneath it is fine; the other one is better for it.
 
-  - id: 803
+  - id: 568
     item-db-name: cloth_face_mask
     base-level: 18
     min-level: 9
@@ -10487,7 +10489,7 @@ items:
     description: |
       A cloth tied over the mouth and nose against dust and fumes.
 
-  - id: 804
+  - id: 569
     item-db-name: smoked_goggles
     base-level: 22
     min-level: 12
@@ -10510,7 +10512,7 @@ items:
     description: |
       Goggles of smoked glass for watching molten metal.
 
-  - id: 805
+  - id: 570
     item-db-name: jewellers_loupe
     base-level: 24
     min-level: 16
@@ -10533,7 +10535,7 @@ items:
     description: |
       A jeweller's loupe on a band, for telling a gem from glass.
 
-  - id: 806
+  - id: 571
     item-db-name: plague_beak_mask
     base-level: 32
     min-level: 17
@@ -10556,7 +10558,7 @@ items:
     description: |
       A long-beaked mask stuffed with dried herbs.
 
-  - id: 807
+  - id: 572
     item-db-name: masquerade_half_mask
     base-level: 38
     min-level: 20
@@ -10579,7 +10581,7 @@ items:
     description: |
       A gilded half-mask from a masquerade nobody remembers ending.
 
-  - id: 808
+  - id: 573
     item-db-name: assassins_veil
     base-level: 43
     min-level: 23
@@ -10602,7 +10604,7 @@ items:
     description: |
       A veil of black gauze that hides the face and nothing else.
 
-  - id: 809
+  - id: 574
     item-db-name: spyglass_monocle
     base-level: 46
     min-level: 26
@@ -10625,7 +10627,7 @@ items:
     description: |
       A monocle with a tiny telescoping lens.
 
-  - id: 810
+  - id: 575
     item-db-name: iron_face_guard
     base-level: 57
     min-level: 29
@@ -10648,7 +10650,7 @@ items:
     description: |
       An iron plate shaped to the face, with slits for the eyes.
 
-  - id: 811
+  - id: 576
     item-db-name: owl_eye_lenses
     base-level: 55
     min-level: 32
@@ -10672,7 +10674,7 @@ items:
     description: |
       Round amber lenses that make the night as clear as dusk.
 
-  - id: 812
+  - id: 577
     item-db-name: mask_of_the_hollow_choir
     base-level: 82
     min-level: 64
@@ -10697,7 +10699,7 @@ items:
 
 
   # Accessory, ACCESSORY_1/2
-  - id: 813
+  - id: 578
     item-db-name: copper_band
     base-level: 8
     min-level: 4
@@ -10717,7 +10719,7 @@ items:
     description: |
       A plain copper ring that turns the finger green.
 
-  - id: 814
+  - id: 579
     item-db-name: bone_charm
     base-level: 13
     min-level: 7
@@ -10740,7 +10742,7 @@ items:
     description: |
       A carved bone on a cord, said to keep the dead at rest.
 
-  - id: 815
+  - id: 580
     item-db-name: iron_ring
     base-level: 16
     min-level: 8
@@ -10762,7 +10764,7 @@ items:
     description: |
       A heavy iron ring.
 
-  - id: 816
+  - id: 581
     item-db-name: rabbits_foot_charm
     base-level: 16
     min-level: 9
@@ -10785,7 +10787,7 @@ items:
     description: |
       Lucky for its owner, if not for the rabbit.
 
-  - id: 817
+  - id: 582
     item-db-name: brawlers_bracer
     base-level: 23
     min-level: 12
@@ -10807,7 +10809,7 @@ items:
     description: |
       A thick leather bracer that steadies the wrist for a punch.
 
-  - id: 818
+  - id: 583
     item-db-name: rangers_thumb_ring
     base-level: 21
     min-level: 13
@@ -10830,7 +10832,7 @@ items:
     description: |
       A horn ring worn on the thumb to draw a bowstring.
 
-  - id: 819
+  - id: 584
     item-db-name: merchants_signet
     base-level: 29
     min-level: 15
@@ -10853,7 +10855,7 @@ items:
     description: |
       A signet ring for sealing contracts.
 
-  - id: 820
+  - id: 585
     item-db-name: alchemists_phylactery
     base-level: 30
     min-level: 16
@@ -10876,7 +10878,7 @@ items:
     description: |
       A tiny vial on a chain, filled with an antidote for emergencies.
 
-  - id: 821
+  - id: 586
     item-db-name: jade_earring
     base-level: 33
     min-level: 17
@@ -10899,7 +10901,7 @@ items:
     description: |
       A drop of green jade that calms the mind.
 
-  - id: 822
+  - id: 587
     item-db-name: silver_holy_symbol
     base-level: 35
     min-level: 19
@@ -10922,7 +10924,7 @@ items:
     description: |
       A silver sun on a chain, blessed at dawn.
 
-  - id: 823
+  - id: 588
     item-db-name: tigers_eye_ring
     base-level: 37
     min-level: 20
@@ -10945,7 +10947,7 @@ items:
     description: |
       A ring set with a banded brown stone that catches the light like an eye.
 
-  - id: 824
+  - id: 589
     item-db-name: garnet_ring
     base-level: 39
     min-level: 22
@@ -10969,7 +10971,7 @@ items:
     description: |
       A gold ring set with a deep red garnet.
 
-  - id: 825
+  - id: 590
     item-db-name: sapphire_pendant
     base-level: 43
     min-level: 24
@@ -10992,7 +10994,7 @@ items:
     description: |
       A sapphire on a silver chain, cool against the skin.
 
-  - id: 826
+  - id: 591
     item-db-name: bards_charm_bracelet
     base-level: 49
     min-level: 25
@@ -11015,7 +11017,7 @@ items:
     description: |
       A bracelet hung with little charms from every town its owner played in.
 
-  - id: 827
+  - id: 592
     item-db-name: miners_lodestone
     base-level: 50
     min-level: 26
@@ -11038,7 +11040,7 @@ items:
     description: |
       A lodestone on a leather thong that tugs toward iron.
 
-  - id: 828
+  - id: 593
     item-db-name: wolf_tooth_necklace
     base-level: 53
     min-level: 27
@@ -11061,7 +11063,7 @@ items:
     description: |
       A necklace of wolf teeth, each taken by its wearer.
 
-  - id: 829
+  - id: 594
     item-db-name: earring_of_the_dancing_blade
     base-level: 55
     min-level: 29
@@ -11084,7 +11086,7 @@ items:
     description: |
       A silver earring shaped like a tiny dagger.
 
-  - id: 830
+  - id: 595
     item-db-name: ring_of_warding
     base-level: 58
     min-level: 30
@@ -11108,7 +11110,7 @@ items:
     description: |
       A steel ring engraved with a circle of wards.
 
-  - id: 831
+  - id: 596
     item-db-name: runestone_amulet
     base-level: 64
     min-level: 32
@@ -11128,7 +11130,7 @@ items:
     description: |
       A flat stone carved with a single rune. Which rune it is changes from stone to stone.
 
-  - id: 832
+  - id: 597
     item-db-name: emerald_ring_of_growth
     base-level: 65
     min-level: 33
@@ -11151,7 +11153,7 @@ items:
     description: |
       An emerald ring. Cuts heal faster under it.
 
-  - id: 833
+  - id: 598
     item-db-name: opal_of_the_tides
     base-level: 66
     min-level: 34
@@ -11174,7 +11176,7 @@ items:
     description: |
       An opal whose colours shift like the sea.
 
-  - id: 834
+  - id: 599
     item-db-name: ruby_signet
     base-level: 70
     min-level: 36
@@ -11197,7 +11199,7 @@ items:
     description: |
       A heavy signet set with a ruby the colour of hot iron.
 
-  - id: 835
+  - id: 600
     item-db-name: onyx_ring
     base-level: 70
     min-level: 37
@@ -11221,7 +11223,7 @@ items:
     description: |
       A ring of black onyx that seems to swallow light.
 
-  - id: 836
+  - id: 601
     item-db-name: pilgrims_amulet
     base-level: 73
     min-level: 39
@@ -11245,7 +11247,7 @@ items:
     description: |
       An amulet carried to every shrine in the world, and blessed at each.
 
-  - id: 837
+  - id: 602
     item-db-name: band_of_a_thousand_bargains
     base-level: 87
     min-level: 60
@@ -11266,7 +11268,7 @@ items:
     description: |
       Every merchant who wore it died rich. None of them died happy.
 
-  - id: 838
+  - id: 603
     item-db-name: eye_of_the_oracle
     base-level: 78
     min-level: 64
@@ -11288,7 +11290,7 @@ items:
     description: |
       A pale stone that shows, in its depths, a moment that has not happened yet.
 
-  - id: 839
+  - id: 604
     item-db-name: heart_of_the_behemoth
     base-level: 77
     min-level: 68
@@ -11310,7 +11312,7 @@ items:
     description: |
       A red stone the size of a fist that beats, very slowly, once an hour.
 
-  - id: 840
+  - id: 605
     item-db-name: ring_of_the_hollow_king
     base-level: 77
     min-level: 72
@@ -11335,7 +11337,7 @@ items:
 
 
   # Light source, LIGHT_SOURCE
-  - id: 841
+  - id: 606
     item-db-name: tin_lantern
     base-level: 10
     min-level: 5
@@ -11355,7 +11357,7 @@ items:
     description: |
       A tin lantern with horn windows. It burns far longer than a torch, and a smith can refit it.
 
-  - id: 842
+  - id: 607
     item-db-name: hooded_lantern
     base-level: 30
     min-level: 15
@@ -11377,7 +11379,7 @@ items:
     description: |
       A lantern with a shutter that can dim it to a sliver.
 
-  - id: 843
+  - id: 608
     item-db-name: miners_carbide_lamp
     base-level: 40
     min-level: 20
@@ -11399,7 +11401,7 @@ items:
     description: |
       A bright, hissing lamp that lights a whole tunnel.
 
-  - id: 844
+  - id: 609
     item-db-name: glowcap_lantern
     base-level: 50
     min-level: 25
@@ -11421,7 +11423,7 @@ items:
     description: |
       A glass lantern of luminous fungus. It needs no fuel, only a little water now and then.
 
-  - id: 845
+  - id: 610
     item-db-name: everflame_lantern
     base-level: 59
     min-level: 30
@@ -11444,7 +11446,7 @@ items:
     description: |
       A brass lantern whose flame has burned for longer than anyone has owned it.
 
-  - id: 846
+  - id: 611
     item-db-name: lantern_of_the_lost_saint
     base-level: 81
     min-level: 60
