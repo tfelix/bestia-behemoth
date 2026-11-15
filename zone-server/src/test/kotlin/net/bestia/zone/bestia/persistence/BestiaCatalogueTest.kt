@@ -38,23 +38,23 @@ class BestiaCatalogueTest {
 
   @Test
   fun `learnset returns a species' own learnset rows, and none for a species without one`() {
-    every { bestiaSkillRepository.findAllLearned() } returns listOf(LearnedSkill(1, 1000, 3), LearnedSkill(2, 1001, 5))
+    every { bestiaSkillRepository.findAllLearned() } returns listOf(LearnedSkill(1, 2000, 3), LearnedSkill(2, 2001, 5))
 
-    assertEquals(listOf(LearnedSkill(1, 1000, 3)), sut.learnset(1))
+    assertEquals(listOf(LearnedSkill(1, 2000, 3)), sut.learnset(1))
     assertEquals(emptyList<LearnedSkill>(), sut.learnset(3))
   }
 
   @Test
   fun `learnsetUpTo keeps the skills gated at or below the level`() {
     every { bestiaSkillRepository.findAllLearned() } returns listOf(
-      LearnedSkill(1, 1000, 3),
-      LearnedSkill(1, 1001, 4),
-      LearnedSkill(1, 1002, 100)
+      LearnedSkill(1, 2000, 3),
+      LearnedSkill(1, 2001, 4),
+      LearnedSkill(1, 2002, 100)
     )
 
     assertEquals(emptyList<Long>(), sut.learnsetUpTo(1, 2).map { it.skillId })
-    assertEquals(listOf(1000L), sut.learnsetUpTo(1, 3).map { it.skillId })
-    assertEquals(listOf(1000L, 1001L, 1002L), sut.learnsetUpTo(1, 100).map { it.skillId })
+    assertEquals(listOf(2000L), sut.learnsetUpTo(1, 3).map { it.skillId })
+    assertEquals(listOf(2000L, 2001L, 2002L), sut.learnsetUpTo(1, 100).map { it.skillId })
   }
 
   @Test

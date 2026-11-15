@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 19
+name = "Magic Artisan"
+description_key = "SKILL_19_DESC"
+mana_cost = 38
+cooldown = 0.0
+max_level = 10
+target_type = "GROUND"
+tree = "CRAFTSMAN"
+sub_tree = "ARTIFICER"
+cast_time = 10.0
+prerequisite_ids = PackedInt32Array(18, 17)
+prerequisite_levels = PackedInt32Array(5, 3)

@@ -5,7 +5,8 @@ class_name EmblemPicture
 
 const SIZE := 32
 const MAX_BYTES := 8 * 1024
-const GUILD_EMBLEM_SKILL_ID := 9001
+## GUILD_EMBLEM in the server's skills.yml.
+const GUILD_EMBLEM_SKILL_ID := 1000
 
 
 ## Cropped to its middle square, then scaled. Empty when the file is no image Godot can read.

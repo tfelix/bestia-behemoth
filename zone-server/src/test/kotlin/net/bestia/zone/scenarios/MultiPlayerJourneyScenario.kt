@@ -112,9 +112,9 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
   private var bootsUniqueId: Long = 0
 
   companion object {
-    private const val HEAL_ID = 4L
-    private const val BLESSING_ID = 6L
-    private const val MAGIC_SENSE_ID = 51L
+    private const val HEAL_ID = 3L
+    private const val BLESSING_ID = 5L
+    private const val MAGIC_SENSE_ID = 45L
     private const val APPLE_ITEM_ID = 1L
     private const val SHOES_ITEM_ID = 4L
     private const val BOOTS_ITEM_ID = 5L

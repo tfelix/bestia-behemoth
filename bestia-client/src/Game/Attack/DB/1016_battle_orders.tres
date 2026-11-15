@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+[ext_resource type="Script" path="res://Game/Attack/self_cast_use.gd" id="2_self"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 1016
+name = "Battle Orders"
+description_key = "SKILL_1016_DESC"
+mana_cost = 0
+cooldown = 180.0
+attack_script = ExtResource("2_self")
+target_type = "FRIENDLY"
+tree = "GUILD"
+is_passive = false

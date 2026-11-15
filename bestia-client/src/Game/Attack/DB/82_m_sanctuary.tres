@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 82
+name = "Sanctuary"
+description_key = "SKILL_82_DESC"
+mana_cost = 50
+cooldown = 30.0
+max_level = 3
+cast_time = 3.0
+tree = "SCHOLAR"
+sub_tree = "PRIEST"
+prerequisite_ids = PackedInt32Array(80, 73)
+prerequisite_levels = PackedInt32Array(3, 1)
+target_type = "AOE_GROUND"
+aoe_radius = 2.0

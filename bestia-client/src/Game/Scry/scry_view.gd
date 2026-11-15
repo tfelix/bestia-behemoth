@@ -10,7 +10,8 @@ signal sight_changed(is_open: bool)
 ## The way to the far spot opens from the map: the UI connects this to opening it.
 signal map_requested
 
-const SKILL_ID := 63
+## M_SCRY in the server's skills.yml.
+const SKILL_ID := 57
 const _GROUP := "scry_view"
 
 ## Server argument for a party member as the target, see the server's `Scry` script.

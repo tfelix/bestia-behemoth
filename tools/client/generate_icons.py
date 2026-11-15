@@ -3,7 +3,7 @@
 
     python3 tools/client/generate_icons.py                  # guided
     python3 tools/client/generate_icons.py items --dry-run  # show prompts, no API call, no cost
-    python3 tools/client/generate_icons.py skills --only 5,firebolt
+    python3 tools/client/generate_icons.py skills --only 4,firebolt
     python3 tools/client/generate_icons.py --probe          # one real call, dumps the raw API reply
 
 Needs `pip install requests pillow` and a Pixellab token in $PIXELLAB_SECRET
