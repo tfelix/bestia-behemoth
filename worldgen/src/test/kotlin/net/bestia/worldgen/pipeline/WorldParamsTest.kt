@@ -144,7 +144,7 @@ class WorldParamsTest {
     // `ChunkMaterializer.VERSION` 17.
     // Both moved when battlefields were strewn with bones and held caches by their dead: `TreasureParams` and
     // `ChunkMaterializer.VERSION` 18.
-    assertEquals(-2_153_480_532_116_697_597L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
+    assertEquals(8_167_732_614_942_092_402L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Pinned as a pair so each half stays checkable: a world-tier retune has to move the number above and
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
     assertEquals(-2_974_802_262_421_579_109L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")

@@ -253,6 +253,9 @@ data class HistoryParams(
   /** Settlement sites on a genesis-size world (128 km). A world with twice as many sees new peoples twice as often. */
   val referenceSites: Double = 28.0,
 
+  /** Peoples a world starts with beyond the first two, per doubling of its settlement sites. */
+  val startingCivsPerDoubling: Double = 1.0,
+
   /** Expected arrivals over the sea on a reference world, spread over the years between the two bounds. */
   val arrivalChance: Double = 0.35,
   val arrivalFrom: Int = 150,
@@ -579,6 +582,9 @@ data class HistoryParams(
     require(battleAside >= 0.0) { "battleAside must not be negative, was $battleAside" }
     require(oldGroundChance in 0.0..1.0) { "oldGroundChance must be in [0,1], was $oldGroundChance" }
     require(referenceSites > 0.0) { "referenceSites must be positive, was $referenceSites" }
+    require(startingCivsPerDoubling >= 0.0) {
+      "startingCivsPerDoubling must not be negative, was $startingCivsPerDoubling"
+    }
     require(arrivalChance >= 0.0) { "arrivalChance must not be negative, was $arrivalChance" }
     require(arrivalFrom in 0..arrivalTo) { "arrivalFrom $arrivalFrom must be in [0, arrivalTo $arrivalTo]" }
     require(migrationChance >= 0.0) { "migrationChance must not be negative, was $migrationChance" }
@@ -727,6 +733,7 @@ data class HistoryParams(
     battleAside = source.double("battleAside", battleAside),
     oldGroundChance = source.double("oldGroundChance", oldGroundChance),
     referenceSites = source.double("referenceSites", referenceSites),
+    startingCivsPerDoubling = source.double("startingCivsPerDoubling", startingCivsPerDoubling),
     arrivalChance = source.double("arrivalChance", arrivalChance),
     arrivalFrom = source.int("arrivalFrom", arrivalFrom),
     arrivalTo = source.int("arrivalTo", arrivalTo),
@@ -843,6 +850,7 @@ data class HistoryParams(
     .put("battleAside", battleAside)
     .put("oldGroundChance", oldGroundChance)
     .put("referenceSites", referenceSites)
+    .put("startingCivsPerDoubling", startingCivsPerDoubling)
     .put("arrivalChance", arrivalChance)
     .put("arrivalFrom", arrivalFrom)
     .put("arrivalTo", arrivalTo)
@@ -1122,11 +1130,17 @@ internal class HistorySim(
     // history at all, which is a worse answer than a small one.
     if (civs.isEmpty() && facts.isNotEmpty()) seedCiv(facts.first())
 
-    // One people means no wars, which on a genesis-size world was every seed.
-    if (civs.size < 2) {
-      val rival = facts.filter { towns[it.index].founded == 0 }.maxByOrNull { rivalScore(it) }
-      if (rival != null) seedCiv(rival)
+    // One people means no wars, which on a genesis-size world was every seed. A large world seeded only from its
+    // few cities had no more wars than a small one.
+    while (civs.size < startingCivs()) {
+      val rival = facts.filter { towns[it.index].founded == 0 }.maxByOrNull { rivalScore(it) } ?: return
+      seedCiv(rival)
     }
+  }
+
+  private fun startingCivs(): Int {
+    val doublings = Math.log(max(sizeScale, 1.0)) / Math.log(2.0)
+    return MIN_STARTING_CIVS + Math.round(params.startingCivsPerDoubling * doublings).toInt()
   }
 
   private fun seedCiv(site: SiteFacts) {
@@ -5080,6 +5094,7 @@ internal class HistorySim(
 
     /** How much a culture no civ holds yet counts over distance, when choosing where the second people settles. */
     const val RIVAL_NEW_CULTURE_BONUS = 1.25
+    const val MIN_STARTING_CIVS = 2
 
     /** Per tier below a city, so the second people prefers a town to a hamlet at a similar distance. */
     const val RIVAL_TIER_PENALTY = 0.25
