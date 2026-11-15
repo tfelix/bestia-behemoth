@@ -7,4 +7,4 @@ import org.springframework.stereotype.Component
 @Component
 class BandageScript(
   messages: OutMessageProcessor,
-) : RestorativeScript(itemId = 34L, health = 20, messages = messages)
+) : RestorativeScript(itemId = 50L, health = 20, messages = messages)

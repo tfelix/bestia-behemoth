@@ -326,7 +326,7 @@ class KnightGuardianScenarios : BestiaNoSocketScenario(autoClientConnect = false
     const val MANA = 500
     const val ALMOST_OVER_SECONDS = 6f
     const val TOWER_SHIELD = "tower_shield"
-    const val TOWER_SHIELD_ID = 320L
+    const val TOWER_SHIELD_ID = 163L
 
     val SKILLS = listOf(
       "M_HEAVY_ARMOR_MASTERY" to 10, "M_SHIELD_WALL" to 5, "M_AUTO_GUARD" to 5, "M_DEVOTION" to 3,

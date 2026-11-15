@@ -38,6 +38,6 @@ class AquaBenedicta(private val water: RegionGrid) : SkillStrategy {
 
   companion object {
     /** `holy_water` in `items.yml`. */
-    const val HOLY_WATER_ITEM_ID = 110L
+    const val HOLY_WATER_ITEM_ID = 129L
   }
 }

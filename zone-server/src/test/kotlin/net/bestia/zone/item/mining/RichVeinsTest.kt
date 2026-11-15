@@ -63,6 +63,6 @@ class RichVeinsTest {
     const val RICH_VEINS_ID = 42L
     const val MASTER_ID = 7L
     const val IRON_ORE = 8L
-    const val GOLD_ORE = 31L
+    const val GOLD_ORE = 47L
   }
 }

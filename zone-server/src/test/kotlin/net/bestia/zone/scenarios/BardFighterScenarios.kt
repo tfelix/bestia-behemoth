@@ -313,10 +313,10 @@ class BardFighterScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
     const val MANA = 500
 
     const val LEATHER_WHIP = "leather_whip"
-    const val LEATHER_WHIP_ID = 312L
+    const val LEATHER_WHIP_ID = 155L
     const val LEATHER_WHIP_ATK = 15
     const val WOODEN_LUTE = "wooden_lute"
-    const val WOODEN_LUTE_ID = 313L
+    const val WOODEN_LUTE_ID = 156L
     const val WOODEN_LUTE_ATK = 8
 
     val SKILLS = listOf(

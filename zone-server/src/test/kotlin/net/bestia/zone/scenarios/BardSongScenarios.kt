@@ -327,7 +327,7 @@ class BardSongScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
     const val MANA = 500
 
     const val WOODEN_LUTE = "wooden_lute"
-    const val WOODEN_LUTE_ID = 313L
+    const val WOODEN_LUTE_ID = 156L
 
     val SKILLS = listOf(
       "M_VOICE_TRAINING" to 2, "M_BATTLE_HYMN" to 5, "M_WAR_MARCH" to 5, "M_MIRAGE_DANCE" to 5,

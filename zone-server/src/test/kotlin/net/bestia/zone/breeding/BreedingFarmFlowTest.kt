@@ -222,8 +222,8 @@ class BreedingFarmFlowTest {
     const val FARM = 5L
     const val OWNER = 42L
     const val ACCOUNT = 4L
-    const val BUNDLE = 440L
-    const val EGG = 441L
+    const val BUNDLE = 40L
+    const val EGG = 41L
     const val EGG_INSTANCE = 9_000L
     const val MOTHER_BESTIA = 11L
     const val FATHER_BESTIA = 12L

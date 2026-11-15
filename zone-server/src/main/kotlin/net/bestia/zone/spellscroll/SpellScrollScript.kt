@@ -98,7 +98,7 @@ class SpellScrollScript(
 
   companion object {
     /** `spell_scroll` in items.yml. */
-    const val ITEM_ID = 338L
+    const val ITEM_ID = 199L
 
     private val LOG = KotlinLogging.logger { }
   }

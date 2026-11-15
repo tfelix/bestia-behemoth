@@ -7,4 +7,4 @@ import org.springframework.stereotype.Component
 @Component
 class HeartyStewScript(
   messages: OutMessageProcessor,
-) : RestorativeScript(itemId = 18L, health = 60, stamina = 40, messages = messages)
+) : RestorativeScript(itemId = 17L, health = 60, stamina = 40, messages = messages)

@@ -16,7 +16,7 @@ class MiningShaftKitScript(
   private val mining: MiningSkill,
 ) : StructureKitScript(structures, StaticEntityKind.MINING_SHAFT, BUILD_SECONDS) {
 
-  override val itemId = 443L
+  override val itemId = 37L
 
   override fun execute(world: World, userId: EntityId, args: ScriptArgs): Boolean {
     if (mining.levelOf(world.get(userId, KnownSkills::class)) < 1) return false

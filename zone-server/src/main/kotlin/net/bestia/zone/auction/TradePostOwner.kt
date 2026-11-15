@@ -67,7 +67,7 @@ class TradePostOwner(
 
   companion object {
     /** `items.yml`'s auction_house_kit, which `skills.yml` also names as this skill's reagent. */
-    const val KIT_ITEM_ID = 151L
+    const val KIT_ITEM_ID = 127L
 
     /** 60 minutes of work: the most expensive building a town has. */
     const val BUILD_SECONDS = 3600f

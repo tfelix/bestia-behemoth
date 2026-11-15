@@ -64,7 +64,7 @@ class RelicsTest {
   }
 
   private companion object {
-    const val RELIC = 130L
+    const val RELIC = 23L
 
     /** The real sheet, so the test sees the base level and random stats items.yml gives a relic. */
     fun relicBladeSheet(): ItemStatSheet {

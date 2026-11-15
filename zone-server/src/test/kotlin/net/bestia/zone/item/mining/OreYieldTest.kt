@@ -73,8 +73,8 @@ class OreYieldTest {
   }
 
   private companion object {
-    const val GOLD_ORE = 31L
+    const val GOLD_ORE = 47L
     const val IRON_ORE = 8L
-    const val ROUGH_RUBY = 114L
+    const val ROUGH_RUBY = 133L
   }
 }

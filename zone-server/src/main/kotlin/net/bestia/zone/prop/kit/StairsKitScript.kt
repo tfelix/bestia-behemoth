@@ -10,5 +10,5 @@ class StairsKitScript(
   structures: PlayerStructureService
 ) : StructureKitScript(structures, StaticEntityKind.STRUCTURE_STAIRS, BUILD_SECONDS, BUILDING_REACH) {
 
-  override val itemId = 108L
+  override val itemId = 125L
 }

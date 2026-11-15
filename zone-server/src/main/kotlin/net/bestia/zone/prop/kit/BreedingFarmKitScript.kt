@@ -10,7 +10,7 @@ class BreedingFarmKitScript(
   structures: PlayerStructureService
 ) : StructureKitScript(structures, StaticEntityKind.BREEDING_FARM, BUILD_SECONDS) {
 
-  override val itemId = 439L
+  override val itemId = 39L
 
   private companion object {
     /** A fence and a hut: more work than a bench. */

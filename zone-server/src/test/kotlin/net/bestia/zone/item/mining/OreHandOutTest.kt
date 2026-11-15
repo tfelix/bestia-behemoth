@@ -113,7 +113,7 @@ class OreHandOutTest {
   }
 
   private companion object {
-    const val GOLD_ORE = 31L
+    const val GOLD_ORE = 47L
     const val IRON_ORE = 8L
     const val POSTED_NANOS = 50_000_000L
     val CHUNK = ChunkPos(0, 0, 0)

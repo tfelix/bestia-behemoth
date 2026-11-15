@@ -10,7 +10,7 @@ class ForgeKitScript(
   structures: PlayerStructureService
 ) : StructureKitScript(structures, StaticEntityKind.FORGE, BUILD_SECONDS) {
 
-  override val itemId = 125L
+  override val itemId = 35L
 
   private companion object {
     /** Long enough that a build is something you commit to, short enough to stand through. */

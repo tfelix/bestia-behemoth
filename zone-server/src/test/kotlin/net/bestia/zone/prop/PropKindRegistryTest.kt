@@ -213,7 +213,7 @@ class PropKindRegistryTest {
     )
 
     /** `quarried_stone` in `items.yml`. */
-    const val QUARRIED_STONE = 46L
+    const val QUARRIED_STONE = 62L
 
     /** How many ticks of fire a plant may survive before a burnt meadow looks untouched. */
     const val FIRE_TICKS_TO_KILL_A_PLANT = 3

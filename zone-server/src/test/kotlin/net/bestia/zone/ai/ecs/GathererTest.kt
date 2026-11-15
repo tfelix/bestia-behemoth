@@ -110,7 +110,7 @@ class GathererTest {
     ai.aoi.removeEntityPosition(tree)
     val logs = ai.world.createEntity { id ->
       ai.world.add(id, Position.fromVec3(treeAt))
-      ai.world.add(id, GroundItemStack(itemId = 43, amount = 4))
+      ai.world.add(id, GroundItemStack(itemId = LOG, amount = 4))
       ai.world.add(id, LootProtection(ACCOUNT, remainingSeconds = 6f))
     }
     ai.aoi.setEntityPosition(logs, treeAt)
@@ -200,6 +200,6 @@ class GathererTest {
   private companion object {
     const val ACCOUNT = 77L
     const val CHEST = 500L
-    const val LOG = 43L
+    const val LOG = 59L
   }
 }

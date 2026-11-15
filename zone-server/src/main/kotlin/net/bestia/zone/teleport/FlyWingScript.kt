@@ -16,7 +16,7 @@ class FlyWingScript(
   private val settings: TeleportItemSettings,
 ) : WingScript(statusEffects, out) {
 
-  override val itemId: Long = 74L
+  override val itemId: Long = 90L
 
   override val vanish = EntityFx.Kind.WING_VANISH
   override val vanishMs: Int get() = settings.flyWingVanishMs

@@ -10,7 +10,7 @@ class CampfireKitScript(
   structures: PlayerStructureService
 ) : StructureKitScript(structures, StaticEntityKind.CAMPFIRE, BUILD_SECONDS) {
 
-  override val itemId = 126L
+  override val itemId = 38L
 
   private companion object {
     /** Stones in a ring and wood on top: a moment's work, since it burns down within the hour. */

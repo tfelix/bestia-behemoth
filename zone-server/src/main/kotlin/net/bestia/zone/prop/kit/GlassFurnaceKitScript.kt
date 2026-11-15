@@ -10,7 +10,7 @@ class GlassFurnaceKitScript(
   structures: PlayerStructureService
 ) : StructureKitScript(structures, StaticEntityKind.GLASS_FURNACE, BUILD_SECONDS) {
 
-  override val itemId = 254L
+  override val itemId = 257L
 
   private companion object {
     /** Long enough that a build is something you commit to, short enough to stand through. */

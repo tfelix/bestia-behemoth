@@ -10,5 +10,5 @@ class WallKitScript(
   structures: PlayerStructureService
 ) : StructureKitScript(structures, StaticEntityKind.STRUCTURE_WALL, BUILD_SECONDS, BUILDING_REACH) {
 
-  override val itemId = 106L
+  override val itemId = 123L
 }

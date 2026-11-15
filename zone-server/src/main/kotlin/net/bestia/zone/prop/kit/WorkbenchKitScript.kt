@@ -10,7 +10,7 @@ class WorkbenchKitScript(
   structures: PlayerStructureService
 ) : StructureKitScript(structures, StaticEntityKind.WORKBENCH, BUILD_SECONDS) {
 
-  override val itemId = 26L
+  override val itemId = 33L
 
   private companion object {
     /** Long enough that a build is something you commit to, short enough to stand through. */

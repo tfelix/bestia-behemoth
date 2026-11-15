@@ -299,7 +299,7 @@ class PriestHolyScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
     const val MANA = 500
 
     /** `empty_bottle` in `items.yml`, Aqua Benedicta's reagent. */
-    const val EMPTY_BOTTLE_ITEM_ID = 109L
+    const val EMPTY_BOTTLE_ITEM_ID = 128L
 
     val HOLY_SKILLS = listOf(
       "M_HOLY_LIGHT" to 5, "M_DEMON_BANE" to 5, "M_TURN_UNDEAD" to 3, "M_MAGNUS_EXORCISMUS" to 3,

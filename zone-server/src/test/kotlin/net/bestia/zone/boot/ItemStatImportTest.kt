@@ -97,6 +97,6 @@ class ItemStatImportTest {
   }
 
   private companion object {
-    const val CATALOGUE_FIRST_ID = 500L
+    const val CATALOGUE_FIRST_ID = 266L
   }
 }

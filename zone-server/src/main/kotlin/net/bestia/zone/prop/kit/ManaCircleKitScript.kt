@@ -10,7 +10,7 @@ class ManaCircleKitScript(
   structures: PlayerStructureService
 ) : StructureKitScript(structures, StaticEntityKind.MANA_CIRCLE, BUILD_SECONDS) {
 
-  override val itemId = 325L
+  override val itemId = 168L
 
   private companion object {
     /** Pressing a ring of paste into the ground and setting a stone: a short job. */

@@ -370,9 +370,9 @@ class HunterTrackerScenarios : BestiaNoSocketScenario(autoClientConnect = false)
     const val HOLD_SECONDS = 600.0
 
     const val IRON_SPEAR = "iron_spear"
-    const val IRON_SPEAR_ID = 307L
+    const val IRON_SPEAR_ID = 150L
     const val JAVELIN = "javelin"
-    const val JAVELIN_ID = 318L
+    const val JAVELIN_ID = 161L
 
     val SKILLS = listOf(
       "M_CAMOUFLAGE" to 3, "M_TRAILBLAZER" to 5, "M_HUNTERS_MARK" to 5, "M_JAVELIN" to 5, "M_PACK_HUNT" to 3,

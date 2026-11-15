@@ -10,7 +10,7 @@ class LoomKitScript(
   structures: PlayerStructureService
 ) : StructureKitScript(structures, StaticEntityKind.LOOM, BUILD_SECONDS) {
 
-  override val itemId = 253L
+  override val itemId = 256L
 
   private companion object {
     /** Long enough that a build is something you commit to, short enough to stand through. */

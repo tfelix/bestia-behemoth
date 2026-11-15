@@ -10,7 +10,7 @@ class FurnaceKitScript(
   structures: PlayerStructureService
 ) : StructureKitScript(structures, StaticEntityKind.FURNACE, BUILD_SECONDS) {
 
-  override val itemId = 124L
+  override val itemId = 34L
 
   private companion object {
     /** Long enough that a build is something you commit to, short enough to stand through. */
