@@ -163,7 +163,7 @@ data class HistoryParams(
   /** Chance per tick that two peoples at peace with living, unmarried rulers wed them to each other. */
   val marriageChance: Double = 0.005,
 
-  /** Chance that the two generals of a battle become sworn enemies. */
+  /** Chance that the two commanders of a battle become sworn enemies. */
   val feudChance: Double = 0.3,
 
   /** Chance that kin of a figure slain in battle swear vengeance. */
@@ -3560,10 +3560,10 @@ internal class HistorySim(
     }
   }
 
-  /** The generals who faced each other may carry it on as a feud. */
+  /** The commanders who faced each other may carry it on as a feud. */
   private fun maybeFeud(winner: Int, loser: Int, year: Int, battle: Int, near: Int) {
-    val ours = people.firstOrNull { it.death == 0 && it.civ == winner && it.role == FigureRole.GENERAL } ?: return
-    val theirs = people.firstOrNull { it.death == 0 && it.civ == loser && it.role == FigureRole.GENERAL } ?: return
+    val ours = commanderOf(winner) ?: return
+    val theirs = commanderOf(loser) ?: return
     val pair = setOf(ours.index, theirs.index)
     if (relations.any { it.kind == RelationKind.RIVAL && setOf(it.from, it.to) == pair }) return
     if (roll(year.toLong(), ours.index.toLong(), theirs.index.toLong(), FEUD_SALT) >= params.feudChance) return
@@ -3576,6 +3576,12 @@ internal class HistorySim(
       "${personName(ours)} and ${personName(theirs)} become sworn enemies after the battle near ${nameOf(towns[near])}"
     )
     relations.add(RelationRecord(RelationKind.RIVAL, ours.index, theirs.index, feud))
+  }
+
+  /** A people's general leads its army, or its ruler when it has no general: few peoples have a general alive. */
+  private fun commanderOf(civ: Int): Person? {
+    return people.firstOrNull { it.death == 0 && it.civ == civ && it.role == FigureRole.GENERAL }
+      ?: people.getOrNull(civs[civ].ruler)?.takeIf { it.death == 0 }
   }
 
   /** A battle won against the people an avenger swore against settles the oath. */
