@@ -167,10 +167,10 @@ data class HistoryParams(
   val feudChance: Double = 0.3,
 
   /** Chance that kin of a figure slain in battle swear vengeance. */
-  val vengeanceChance: Double = 0.5,
+  val vengeanceChance: Double = 0.8,
 
   /** Chance per siege that a living general of the besieged people betrays the town to the enemy. */
-  val betrayalChance: Double = 0.06,
+  val betrayalChance: Double = 0.12,
 
   // --- Gods and cults -------------------------------------------------------------------------------
 
@@ -182,7 +182,7 @@ data class HistoryParams(
   val maxDeities: Int = 12,
 
   /** Chance per tick that a civ's first eligible prophet founds a cult. */
-  val cultChance: Double = 0.03,
+  val cultChance: Double = 0.045,
 
   /** Chance per tick that a cult wins over another town. */
   val cultSpreadChance: Double = 0.15,
@@ -191,10 +191,13 @@ data class HistoryParams(
   val cultSpreadRange: Double = 40_000.0,
 
   /** Chance per tick that the people holding most of a cult's towns turns on it. */
-  val cultPersecutionChance: Double = 0.02,
+  val cultPersecutionChance: Double = 0.015,
 
-  /** Of persecutions: the share that wipes the cult out, and the share that makes it rise as a realm. */
-  val cultWipeShare: Double = 0.4,
+  /**
+   * Of persecutions: the share that wipes the cult out, and the share that makes it rise as a realm. The rest
+   * endures in hiding, which is a story left open for a quest.
+   */
+  val cultWipeShare: Double = 0.3,
   val cultRevoltShare: Double = 0.3,
 
   /** Chance per tick, on a world with the Orders, that a cult joins the Order it leans toward. */
