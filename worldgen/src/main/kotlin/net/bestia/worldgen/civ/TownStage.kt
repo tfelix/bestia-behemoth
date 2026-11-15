@@ -341,7 +341,8 @@ class TownStage(
   // 15: nothing stands, and nothing is sown, in the sea or a pond - see `Shoreline`.
   // 16: a town's high streets are laid along the roads into it, and no building stands on a road - see
   // `StreetPlanner.roadStreets` and `WorldGround.Roadside`.
-  override val version = 16
+  // 17: a wall closes across the seam of its circuit, and the towers there stand apart.
+  override val version = 17
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**
@@ -1265,7 +1266,7 @@ class TownStage(
     thickness: Double = params.wallThickness
   ): List<MarkerFeature> {
     val steps = max(2, ((to - from) / WALL_STATION_SPACING).toInt())
-    val points = (0..steps).map { ring.pointAt(from + (to - from) * it / steps) }
+    val points = (0..steps).map { pointOnCircuit(ring, from + (to - from) * it / steps) }
 
     val out = ArrayList<MarkerFeature>()
     var run = ArrayList<Vec2d>()
@@ -1361,13 +1362,13 @@ class TownStage(
     for (i in 1..count) {
       // Interior points of the arc, so a tower never lands on the gate at either end of it.
       val s = from + span * i / (count + 1)
-      val at = ring.pointAt(s)
+      val at = pointOnCircuit(ring, s)
       if (!world.dry(at)) continue
       // Inside the town, like every other building. A tower is emitted as a `BUILDING`, so it is subject to
       // `Invariants.checkBuildingsBelongToTheirSettlement` exactly as a house is.
       if (!frame.encloses(at)) continue
 
-      val along = ring.tangentAt(s)
+      val along = ring.tangentAt(s.mod(ring.length))
       if (along.lengthSquared < 0.5) continue
 
       val half = params.wallThickness * TOWER_SIZE
@@ -1400,6 +1401,13 @@ class TownStage(
 
     return out
   }
+
+  /**
+   * The point [s] metres along a closed circuit. The stretch after the last gate runs on past the seam to the first
+   * gate, and `Polyline.pointAt` clamps at the seam: the wall stopped there, and the towers beyond it all stood on
+   * the seam itself.
+   */
+  private fun pointOnCircuit(ring: Polyline, s: Double): Vec2d = ring.pointAt(s.mod(ring.length))
 
   /** Centre of a closed circuit, as the mean of its vertices. Only used to face a tower's door inwards. */
   private fun frameCentreOf(ring: Polyline): Vec2d {
