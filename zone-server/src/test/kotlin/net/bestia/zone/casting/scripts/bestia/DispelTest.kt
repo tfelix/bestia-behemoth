@@ -52,9 +52,9 @@ class DispelTest {
       casterId = battle.attacker.id,
       targetEntityId = GROUND_ITEM,
       targetPosition = null,
-      skillId = 1143L,
+      skillId = 2133L,
       skillLevel = skillLevel,
-      skill = SkillContextFixture.skill(1143L),
+      skill = SkillContextFixture.skill(2133L),
     )
   }
 

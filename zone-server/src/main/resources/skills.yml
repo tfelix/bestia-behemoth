@@ -13,7 +13,7 @@ skills:
       Lv.5 Allows to create parties and invite players into them. Joining a party needs no rank.
       Unlocks all the other skill trees.
 
-  - id: 3
+  - id: 2
     identifier: M_COOKING
     script: Cooking
     targetType: GROUND
@@ -30,7 +30,7 @@ skills:
       Lv.2 `-20%` cooking time, `+20%` success chance, 8 stamina
       Lv.3 `-40%` cooking time, `+40%` success chance, 11 stamina
 
-  - id: 4
+  - id: 3
     identifier: M_HEAL
     script: Heal
     targetType: FRIENDLY
@@ -46,7 +46,7 @@ skills:
       attack for half that amount. Hold Shift to aim it at a monster.
       `+3/lv` mana cost, from 13 at Lv.1
 
-  - id: 5
+  - id: 4
     identifier: M_FIREBOLT
     script: Firebolt
     element: FIRE
@@ -63,7 +63,7 @@ skills:
       `+20%/lv` MATK
       `-0.2s/lv` cast time
 
-  - id: 6
+  - id: 5
     identifier: M_BLESSING
     script: Blessing
     targetType: FRIENDLY
@@ -80,7 +80,7 @@ skills:
       `+3/lv` ATK and MATK
       `40s + 40s/lv` duration
 
-  - id: 8
+  - id: 6
     identifier: M_FIRST_AID
     script: FirstAid
     targetType: FRIENDLY
@@ -105,7 +105,7 @@ skills:
       Lv.3 `+100%` max HP or `+350 HP`, 20 mana
 
 # --- Craftsman Tree ---
-  - id: 10
+  - id: 7
     identifier: M_CARPENTRY
     script: Carpentry
     targetType: GROUND
@@ -119,7 +119,7 @@ skills:
       `+5%/lv` success chance
       `+10 item lv/lv` of items that can be produced, up to item level 100+ at max rank
 
-  - id: 11
+  - id: 8
     identifier: M_MASTER_CRAFTSMAN
     targetType: FRIENDLY
     description: |
@@ -129,7 +129,7 @@ skills:
       `-10%/lv` construction time of structures
       `+2%/lv` construction success chance
 
-  - id: 12
+  - id: 9
     identifier: M_ITEM_CUSTOMIZATION
     script: ItemCustomization
     targetType: GROUND
@@ -145,7 +145,7 @@ skills:
       Every slot beyond the first lowers the success chance by 40%
 
 # Blacksmith
-  - id: 13
+  - id: 10
     identifier: M_ORE_REFINEMENT
     script: OreRefinement
     targetType: GROUND
@@ -160,7 +160,7 @@ skills:
       Level 1 enables you to place a Furnace
       `+30%/lv` refinement success chance, no ore level cap
 
-  - id: 14
+  - id: 11
     identifier: M_FORGE_WEAPON
     script: ForgeWeapon
     targetType: GROUND
@@ -176,7 +176,7 @@ skills:
       `+10 item lv/lv` reliable item level, 100+ at max rank
       `-5%` success chance per item level above the reliable one, no hard cap
 
-  - id: 15
+  - id: 12
     identifier: M_FORGE_ARMOR
     script: ForgeArmor
     targetType: GROUND
@@ -192,7 +192,7 @@ skills:
       `+10 item lv/lv` reliable item level, 100+ at max rank
       `-5%` success chance per item level above the reliable one, no hard cap
 
-  - id: 16
+  - id: 13
     identifier: M_EQUIPMENT_REPAIR
     script: EquipmentRepair
     targetType: GROUND
@@ -206,7 +206,7 @@ skills:
 
       `+20 item lv/lv` of equipment that can be repaired, up to item level 100+ at max rank
 
-  - id: 17
+  - id: 14
     identifier: M_WEAPONRY_RESEARCH
     targetType: FRIENDLY
     description: |
@@ -216,7 +216,7 @@ skills:
       `+8%/lv` success chance when upgrading a weapon or armor
       `+2%/lv` success chance when forging
 
-  - id: 18
+  - id: 15
     identifier: M_MASTER_SMITH
     targetType: FRIENDLY
     description: |
@@ -227,7 +227,7 @@ skills:
       `+5%/lv` upgrade chance
 
 # Artificer
-  - id: 19
+  - id: 16
     identifier: M_MANA_HARVESTER
     script: ManaHarvester
     targetType: GROUND
@@ -245,7 +245,7 @@ skills:
       `+3%/lv` crystal yield
       One more active harvester at Lv.4, Lv.7 and Lv.10
 
-  - id: 20
+  - id: 17
     identifier: M_MANAFLOW_EXPERT
     script: ManaflowExpert
     targetType: GROUND
@@ -261,7 +261,7 @@ skills:
       `+4%/lv` success chance
       `+20 crystal lv/lv` max crystal level, 100+ at max rank
 
-  - id: 21
+  - id: 18
     identifier: M_RUNIC_ETCHING
     script: RunicEtching
     targetType: GROUND
@@ -278,7 +278,7 @@ skills:
       `+10 Bestia lv/lv` reliable Bestia level, 100+ at max rank
       `-5%` success chance per Bestia level above the reliable one, no hard cap
 
-  - id: 22
+  - id: 19
     identifier: M_MAGIC_ARTISAN
     script: MagicArtisan
     targetType: GROUND
@@ -294,7 +294,7 @@ skills:
       `-3%/lv` chance to destroy the item if the binding fails, from 40% down to 13%
 
 # Alchemist
-  - id: 23
+  - id: 20
     identifier: M_HERBALISM
     targetType: FRIENDLY
     description: |
@@ -304,7 +304,7 @@ skills:
 
       `+20 herb lv/lv` max herb level, 100+ at max rank
 
-  - id: 24
+  - id: 21
     identifier: M_ALCHEMY
     script: Alchemy
     targetType: GROUND
@@ -320,7 +320,7 @@ skills:
       `+10 item lv/lv` reliable item level, 100+ at max rank
       `-5%` success chance per item level above the reliable one, no hard cap
 
-  - id: 25
+  - id: 22
     identifier: M_TRANSMUTATION
     script: Transmutation
     targetType: GROUND
@@ -337,7 +337,7 @@ skills:
       `+10 item lv/lv` reliable item level, 100+ at max rank
       `-5%` success chance per item level above the reliable one, no hard cap
 
-  - id: 26
+  - id: 23
     identifier: M_ALCHEMY_MASTERY
     targetType: FRIENDLY
     description: |
@@ -349,7 +349,7 @@ skills:
 
 # --- Survival Tree ---
   # Meditation sits on the Warrior trunk, but keeps the id it had as Inner Peace in this tree.
-  - id: 27
+  - id: 24
     identifier: M_MEDITATION
     targetType: FRIENDLY
     description: |
@@ -357,7 +357,7 @@ skills:
 
       `+6%/lv` HP and Mana regeneration
 
-  - id: 28
+  - id: 25
     identifier: M_WEATHER_RESISTANCE
     targetType: FRIENDLY
     description: |
@@ -367,7 +367,7 @@ skills:
 
       `+3 °C/lv` temperature tolerance
 
-  - id: 29
+  - id: 26
     identifier: M_QUICK_TRAVEL
     targetType: FRIENDLY
     description: |
@@ -376,7 +376,7 @@ skills:
 
       `+3%/lv` movement speed
 
-  - id: 30
+  - id: 27
     identifier: M_FISHING
     targetType: FRIENDLY
     description: |
@@ -387,7 +387,7 @@ skills:
       Catch level cap `20/lv`, 10 untrained. Above the cap a catch's odds halve every 5 levels
 
 # Forester
-  - id: 31
+  - id: 28
     identifier: M_LUMBERJACK
     targetType: FRIENDLY
     description: |
@@ -398,7 +398,7 @@ skills:
       `-10%/lv` wood gathering time
       `+20%/lv` resource drop chance
 
-  - id: 32
+  - id: 29
     identifier: M_TRAPPING
     targetType: FRIENDLY
     description: |
@@ -407,7 +407,7 @@ skills:
 
       `+6%/lv` catch chance
 
-  - id: 33
+  - id: 30
     identifier: M_EXPERT_TAMING
     targetType: FRIENDLY
     description: |
@@ -417,7 +417,7 @@ skills:
       `+5%/lv` EXP gain
       `-2%/lv` stamina loss
 
-  - id: 34
+  - id: 31
     identifier: M_BEASTFRIEND
     targetType: FRIENDLY
     description: |
@@ -428,7 +428,7 @@ skills:
 
 # Prospector
   # Maximize Carry Capacity sits on the Survival trunk, but keeps the id it had in this tree.
-  - id: 35
+  - id: 32
     identifier: M_MAXIMIZE_CARRY_CAPACITY
     targetType: FRIENDLY
     description: |
@@ -437,7 +437,7 @@ skills:
 
       `+15%/lv` weight limit of the Master and of every Bestia under their command
 
-  - id: 37
+  - id: 33
     identifier: M_CARTOGRAPHY
     script: Cartography
     targetType: FRIENDLY
@@ -460,7 +460,7 @@ skills:
 
       `-10/lv` survey difficulty
 
-  - id: 39
+  - id: 34
     identifier: M_WEATHER_SENSE
     targetType: FRIENDLY
     description: |
@@ -475,7 +475,7 @@ skills:
       `+1 km/lv` from Lv.2: the direction of the nearest stronger and weaker mana fields
 
 # Miner
-  - id: 40
+  - id: 35
     identifier: M_MINING
     targetType: FRIENDLY
     description: |
@@ -486,7 +486,7 @@ skills:
       `-10%/lv` mining time
       `+20 resource lv/lv` that can be mined, up to resource level 100+ at max rank
 
-  - id: 41
+  - id: 36
     identifier: M_GEM_CUTTING
     script: GemCutting
     targetType: GROUND
@@ -502,7 +502,7 @@ skills:
       `+20 gem lv/lv` reliable gem level, 100+ at max rank
       `-5%` success chance per gem level above the reliable one, no hard cap
 
-  - id: 42
+  - id: 37
     identifier: M_RICH_VEINS
     targetType: FRIENDLY
     description: |
@@ -511,7 +511,7 @@ skills:
 
       `+10%/lv` chance that a mined ore or gem block drops a second piece
 
-  - id: 43
+  - id: 38
     identifier: M_RESOURCE_SONAR
     targetType: FRIENDLY
     description: |
@@ -523,7 +523,7 @@ skills:
       `+5m/lv` sense range, from 5m at Lv.1
 
   # Craftsman tree - see the tree grouping in master_skill_tree.yml.
-  - id: 44
+  - id: 39
     identifier: M_UPGRADE_EQUIPMENT
     script: UpgradeEquipment
     targetType: GROUND
@@ -536,7 +536,7 @@ skills:
 
       Weaponry Research raises the odds; Master Smith raises them further.
 
-  - id: 45
+  - id: 40
     identifier: M_TRACK_READING
     script: ReadTracks
     targetType: GROUND
@@ -554,7 +554,7 @@ skills:
       Level 4 names another master by name
       Level 5 only searches further
 
-  - id: 46
+  - id: 41
     identifier: M_SPRINT
     script: Sprint
     targetType: FRIENDLY
@@ -571,7 +571,7 @@ skills:
       Lv.2 `+40%` movement speed
       Lv.3 `+50%` movement speed
 
-  - id: 47
+  - id: 42
     identifier: M_CALL_BESTIA
     script: CallBestia
     targetType: FRIENDLY
@@ -587,7 +587,7 @@ skills:
       when the channel ends. Taking damage breaks the channel. A Bestia that is fighting does
       not answer. Cooldown 5min.
 
-  - id: 48
+  - id: 43
     identifier: M_RESOURCE_SENSE
     script: ResourceSense
     targetType: FRIENDLY
@@ -603,7 +603,7 @@ skills:
       `+1 km/lv` detection distance
       `+10%/lv` detection accuracy
 
-  - id: 50
+  - id: 44
     identifier: M_BLOODLINE_STUDY
     targetType: FRIENDLY
     description: |
@@ -614,7 +614,7 @@ skills:
       Level 4 draws a fourth dominant IV per clutch
 
 # Scholar trunk
-  - id: 51
+  - id: 45
     identifier: M_MAGIC_SENSE
     script: MagicSense
     targetType: FRIENDLY
@@ -635,7 +635,7 @@ skills:
       Lv.4 shows the exact spell bound to an item or place
       Lv.5 shows who bound it, and what trigger a Spell Binding waits for
 
-  - id: 52
+  - id: 46
     identifier: M_SENSE
     script: MonsterSense
     targetType: ENEMY
@@ -647,7 +647,7 @@ skills:
       Cast on a monster to read what mana and instinct alone can tell about it. Reveals its
       status values, element, HP and mana. Cooldown 3s.
 
-  - id: 53
+  - id: 47
     identifier: M_RUWACH
     script: Ruwach
     targetType: FRIENDLY
@@ -659,7 +659,7 @@ skills:
       cloaked Assassins within 10m of the caster stand out for what they are.
       Detection resistance does not help against it. Cooldown 10s.
 
-  - id: 54
+  - id: 48
     identifier: M_OBSERVATION
     script: Observation
     targetType: FRIENDLY
@@ -675,7 +675,7 @@ skills:
       `+1 km/lv` detection distance around the outpost
 
   # Founder sits in the Prospector sub-tree.
-  - id: 55
+  - id: 49
     identifier: M_FOUNDER
     script: Founder
     targetType: GROUND
@@ -688,7 +688,7 @@ skills:
       around it. Only one settlement can be active at a time. Cooldown 24h.
 
 # Trader
-  - id: 56
+  - id: 50
     identifier: M_SCAVENGER
     targetType: FRIENDLY
     description: |
@@ -697,7 +697,7 @@ skills:
 
       `+10%/lv` recycle success chance
 
-  - id: 57
+  - id: 51
     identifier: M_MINTING
     script: Minting
     targetType: GROUND
@@ -712,7 +712,7 @@ skills:
       Level 1 enables you to place a Mint
       `60%` of a bar's gold becomes coin at Lv.1, `+10%/lv`, all of it at max rank
 
-  - id: 58
+  - id: 52
     identifier: M_TRADE_POST_OWNER
     script: TradePostOwner
     targetType: GROUND
@@ -730,7 +730,7 @@ skills:
       `+1/lv` auction houses the master may run
       `+5%/lv` highest owner fee
 
-  - id: 59
+  - id: 53
     identifier: M_TRADE_AGREEMENT
     script: TradeAgreement
     targetType: FRIENDLY
@@ -745,7 +745,7 @@ skills:
 
       `+1/lv` linked players
 
-  - id: 60
+  - id: 54
     identifier: M_HONORABLE_CITIZEN
     targetType: FRIENDLY
     description: |
@@ -756,7 +756,7 @@ skills:
       `+20%/lv` honor penalty for robbers
 
 # Sage
-  - id: 61
+  - id: 55
     identifier: M_SPELL_TRAINING
     script: SpellTraining
     targetType: FRIENDLY
@@ -770,7 +770,7 @@ skills:
 
       `+10%/lv` success chance
 
-  - id: 62
+  - id: 56
     identifier: M_FREE_CAST
     targetType: FRIENDLY
     description: |
@@ -779,7 +779,7 @@ skills:
       `+20%/lv` movement speed kept while casting, all of it at max rank
       `+10%/lv` resistance against a hit breaking the cast
 
-  - id: 63
+  - id: 57
     identifier: M_SCRY
     script: Scry
     targetType: GROUND
@@ -795,7 +795,7 @@ skills:
 
       `+20m/lv` view radius
 
-  - id: 64
+  - id: 58
     identifier: M_DISPEL
     script: MasterDispel
     targetType: ENEMY
@@ -814,7 +814,7 @@ skills:
 
       `50% + 10%/lv` base success chance
 
-  - id: 65
+  - id: 59
     identifier: M_MAGIC_ROD
     script: MagicRod
     targetType: FRIENDLY
@@ -828,7 +828,7 @@ skills:
       `+25%/lv` of the spell's cost recovered as mana, from 50% at Lv.1
       `+5s/lv` ward duration, from 10s at Lv.1
 
-  - id: 66
+  - id: 60
     identifier: M_MANA_DRAIN
     script: ManaDrain
     targetType: FRIENDLY
@@ -844,7 +844,7 @@ skills:
       `+1%/lv` max mana drained per second
       `+10s/lv` duration
 
-  - id: 68
+  - id: 61
     identifier: M_LAND_PROTECTOR
     script: LandProtector
     targetType: GROUND
@@ -859,7 +859,7 @@ skills:
       `+1m/lv` radius, from 3m at Lv.1
       `+10s/lv` duration, from 15s at Lv.1
 
-  - id: 69
+  - id: 62
     identifier: M_SPELL_INSCRIPTION
     script: SpellInscription
     targetType: FRIENDLY
@@ -878,7 +878,7 @@ skills:
 
       `+10%/lv` success chance
 
-  - id: 70
+  - id: 63
     identifier: M_SPELL_BINDING
     script: SpellBinding
     targetType: GROUND
@@ -896,7 +896,7 @@ skills:
       Lv.4 items: holder is struck, holder strikes
       Lv.5 items: holder's HP gets low, a stranger picks it up
 
-  - id: 71
+  - id: 64
     identifier: M_TELEPORT
     script: Teleport
     targetType: FRIENDLY
@@ -914,7 +914,7 @@ skills:
       Lv.1 a random spot within 150m
       Lv.2 the home settlement
 
-  - id: 72
+  - id: 65
     identifier: M_WARP_PORTAL
     script: WarpPortal
     targetType: GROUND
@@ -932,7 +932,7 @@ skills:
 
       `+2/lv` users who may pass
 
-  - id: 73
+  - id: 66
     identifier: M_ENDOW
     script: Endow
     targetType: FRIENDLY
@@ -953,7 +953,7 @@ skills:
       `+5%/lv` bonus damage of the element
 
 # Priest (Heal, Divine Protection and Blessing keep their low ids above)
-  - id: 77
+  - id: 67
     identifier: M_SUFFRAGIUM
     script: Suffragium
     targetType: FRIENDLY
@@ -966,7 +966,7 @@ skills:
 
       `-30%` cast time
 
-  - id: 78
+  - id: 68
     identifier: M_GLORIA
     script: Gloria
     targetType: FRIENDLY
@@ -981,7 +981,7 @@ skills:
 
       `+15%` chance for every random stat slot and socket
 
-  - id: 79
+  - id: 69
     identifier: M_STATUS_RECOVERY
     script: StatusRecovery
     targetType: FRIENDLY
@@ -992,7 +992,7 @@ skills:
       Clears the mind of a target. Lifts Blind, Confused and Feared in a single rite. Cooldown
       10s.
 
-  - id: 80
+  - id: 70
     identifier: M_AQUA_BENEDICTA
     script: AquaBenedicta
     targetType: FRIENDLY
@@ -1007,7 +1007,7 @@ skills:
       The rite of blessing plain water into Holy Water. The Priest must stand in water and fills
       one Empty Bottle. Cast 3s, cooldown 5s.
 
-  - id: 81
+  - id: 71
     identifier: M_INCREASE_AGI
     script: IncreaseAgi
     targetType: FRIENDLY
@@ -1021,7 +1021,7 @@ skills:
       `+2%/lv` attack speed, from 1% at Lv.1
       `+40s/lv` duration, from 80s at Lv.1
 
-  - id: 83
+  - id: 72
     identifier: M_KYRIE_ELEISON
     script: KyrieEleison
     targetType: FRIENDLY
@@ -1036,7 +1036,7 @@ skills:
       `+1/lv` hits absorbed
       `+10%/lv` of the target's max HP absorbed per hit
 
-  - id: 84
+  - id: 73
     identifier: M_PNEUMA
     script: Pneuma
     targetType: AOE_GROUND
@@ -1049,7 +1049,7 @@ skills:
       Lays a veil of still air 3m wide over the ground for 20s. Anything standing in it, friend
       or foe, cannot be hit by arrows, bolts or thrown weapons. Cooldown 10s.
 
-  - id: 85
+  - id: 74
     identifier: M_SIGNUM_CRUCIS
     script: SignumCrucis
     targetType: ENEMY
@@ -1065,7 +1065,7 @@ skills:
       `-10%/lv` more against Demon and Undead
       `+15s/lv` duration, from 30s at Lv.1
 
-  - id: 86
+  - id: 75
     identifier: M_HOLY_LIGHT
     script: HolyLight
     element: HOLY
@@ -1078,7 +1078,7 @@ skills:
 
       `+10%/lv` MATK, from 110% at Lv.1
 
-  - id: 87
+  - id: 76
     identifier: M_DEMON_BANE
     targetType: FRIENDLY
     description: |
@@ -1088,7 +1088,7 @@ skills:
       `+5%/lv` damage against Demon and Undead Bestias
       `-6%/lv` damage taken from Demon and Undead Bestias
 
-  - id: 89
+  - id: 77
     identifier: M_ASPERSIO
     script: Aspersio
     targetType: FRIENDLY
@@ -1106,7 +1106,7 @@ skills:
 
       `+60s/lv` duration
 
-  - id: 90
+  - id: 78
     identifier: M_TURN_UNDEAD
     script: MasterTurnUndead
     element: HOLY
@@ -1122,7 +1122,7 @@ skills:
 
       `+16%/lv` base chance to destroy an Undead, from 8% at Lv.1
 
-  - id: 91
+  - id: 79
     identifier: M_LEX_AETERNA
     script: LexAeterna
     targetType: ENEMY
@@ -1133,7 +1133,7 @@ skills:
       Marks a single target so that the very next hit it takes lands twice as hard. The mark
       lasts 20s. Cooldown 15s.
 
-  - id: 92
+  - id: 80
     identifier: M_MAGNIFICAT
     script: Magnificat
     targetType: FRIENDLY
@@ -1147,7 +1147,7 @@ skills:
 
       `+10%/lv` HP and mana regeneration
 
-  - id: 93
+  - id: 81
     identifier: M_MAGNUS_EXORCISMUS
     script: MagnusExorcismus
     element: HOLY
@@ -1164,7 +1164,7 @@ skills:
       `+15%/lv` MATK per wave, from 115% at Lv.1
       `+10%/lv` extra against Demon and Undead
 
-  - id: 94
+  - id: 82
     identifier: M_SANCTUARY
     script: Sanctuary
     element: HOLY
@@ -1181,7 +1181,7 @@ skills:
 
       `+5%/lv` max HP healed per second
 
-  - id: 95
+  - id: 83
     identifier: M_RESURRECTION
     script: Resurrection
     targetType: FRIENDLY
@@ -1194,14 +1194,14 @@ skills:
       used on the caster. Cooldown 10min.
 
 # Warrior trunk (Meditation keeps id 27 above)
-  - id: 96
+  - id: 84
     identifier: M_ENDURE
     targetType: FRIENDLY
     description: |
       A warrior's steadied breath - the body keeps mending itself even in the thick of a fight.
       HP and mana regeneration does not stop during combat.
 
-  - id: 97
+  - id: 85
     identifier: M_IRON_SKIN
     targetType: FRIENDLY
     description: |
@@ -1210,7 +1210,7 @@ skills:
 
       `-3%/lv` physical damage taken
 
-  - id: 98
+  - id: 86
     identifier: M_MAGIC_ARMOR
     script: MagicArmor
     targetType: FRIENDLY
@@ -1225,7 +1225,7 @@ skills:
       `-10%/lv` damage taken
 
 # Wizard (Fire Bolt keeps id 5 above)
-  - id: 99
+  - id: 87
     identifier: M_ICE_BOLT
     script: IceBolt
     element: WATER
@@ -1241,7 +1241,7 @@ skills:
       `+20%/lv` MATK
       `-0.2s/lv` cast time
 
-  - id: 100
+  - id: 88
     identifier: M_THUNDER_BOLT
     script: ThunderBolt
     element: WIND
@@ -1257,7 +1257,7 @@ skills:
       `+20%/lv` MATK
       `-0.2s/lv` cast time
 
-  - id: 101
+  - id: 89
     identifier: M_EARTH_SPIKE
     script: EarthSpike
     element: EARTH
@@ -1273,7 +1273,7 @@ skills:
       `+20%/lv` MATK
       `-0.2s/lv` cast time
 
-  - id: 102
+  - id: 90
     identifier: M_ARCANE_MASTERY
     targetType: FRIENDLY
     description: |
@@ -1282,7 +1282,7 @@ skills:
 
       `+10%/lv` raw-mana power, from 5% at Lv.1
 
-  - id: 103
+  - id: 91
     identifier: M_SAFETY_WALL
     script: SafetyWall
     targetType: GROUND
@@ -1298,7 +1298,7 @@ skills:
       `+4/lv` hits absorbed, from 2 at Lv.1
       `+16s/lv` duration, from 20s at Lv.1
 
-  - id: 104
+  - id: 92
     identifier: M_STONE_CURSE
     script: StoneCurse
     targetType: ENEMY
@@ -1317,7 +1317,7 @@ skills:
       `+20%/lv` chance, from 20% at Lv.1
       `+15s/lv` Stone duration, from 15s at Lv.1
 
-  - id: 105
+  - id: 93
     identifier: M_SUPPRESS_MAGIC
     script: SuppressMagic
     targetType: ENEMY
@@ -1331,7 +1331,7 @@ skills:
       `+20%/lv` chance, from 20% at Lv.1
       `+2s/lv` silence, from 3s at Lv.1
 
-  - id: 107
+  - id: 94
     identifier: M_FIRE_WALL
     script: FireWall
     element: FIRE
@@ -1347,7 +1347,7 @@ skills:
       `+20%/lv` MATK per tick, from 110% at Lv.1
       `+1m/lv` knockback, from 1m at Lv.1
 
-  - id: 108
+  - id: 95
     identifier: M_METEOR_STORM
     script: MeteorStorm
     element: FIRE
@@ -1364,7 +1364,7 @@ skills:
       `+20%/lv` MATK per meteor, from 110% at Lv.1
       `+2/lv` meteors, from 3 at Lv.1
 
-  - id: 109
+  - id: 96
     identifier: M_STORM_GUST
     script: StormGust
     element: WATER
@@ -1381,7 +1381,7 @@ skills:
       `+16%/lv` MATK per wave, from 108% at Lv.1
       `+10%/lv` freeze chance per wave, from 5% at Lv.1
 
-  - id: 111
+  - id: 97
     identifier: M_FROST_NOVA
     script: FrostNova
     element: WATER
@@ -1396,7 +1396,7 @@ skills:
       `+2m/lv` radius, from 2m at Lv.1
       `+20%/lv` freeze chance, from 15% at Lv.1
 
-  - id: 112
+  - id: 98
     identifier: M_QUAGMIRE
     script: Quagmire
     targetType: AOE_GROUND
@@ -1412,7 +1412,7 @@ skills:
 
       `-20%/lv` AGI and DEX, from 10% at Lv.1
 
-  - id: 113
+  - id: 99
     identifier: M_THUNDER_STORM
     script: ThunderStorm
     element: WIND
@@ -1429,7 +1429,7 @@ skills:
       `+20%/lv` MATK per strike, from 110% at Lv.1
       `+2/lv` strikes, from 3 at Lv.1
 
-  - id: 114
+  - id: 100
     identifier: M_EARTHQUAKE
     script: Earthquake
     element: EARTH
@@ -1444,7 +1444,7 @@ skills:
       `+20%/lv` MATK per tick, from 110% at Lv.1
       `+2m/lv` radius, from 2m at Lv.1
 
-  - id: 116
+  - id: 101
     identifier: M_SOUL_BREAK
     script: SoulBreak
     targetType: ENEMY
@@ -1459,7 +1459,7 @@ skills:
       `+40%/lv` MATK, from 20% at Lv.1
       `+10%/lv` of the target's mana drained, from 5% at Lv.1
 
-  - id: 118
+  - id: 102
     identifier: M_MINDBREAK
     script: Mindbreak
     targetType: FRIENDLY
@@ -1476,7 +1476,7 @@ skills:
       `-40%/lv` SMDEF, from 20% at Lv.1
 
 # Assassin
-  - id: 119
+  - id: 103
     identifier: M_STRIP_EQUIPMENT
     script: StripEquipment
     archetype: STRIKE
@@ -1493,7 +1493,7 @@ skills:
       `+10%/lv` strip chance, from 20% at Lv.1
       `+5s/lv` slot blocked
 
-  - id: 120
+  - id: 104
     identifier: M_DUAL_WIELD
     targetType: FRIENDLY
     description: |
@@ -1504,7 +1504,7 @@ skills:
       `+10%/lv` off-hand damage, from 30% at Lv.1
       `-5%/lv` attack speed penalty, from 25% at Lv.1
 
-  - id: 121
+  - id: 105
     identifier: M_EQUIPMENT_COATING
     script: EquipmentCoating
     targetType: FRIENDLY
@@ -1516,7 +1516,7 @@ skills:
 
       `-40%/lv` durability wear of the coated equipment, from 20% at Lv.1
 
-  - id: 122
+  - id: 106
     identifier: M_HIDE
     script: Hide
     targetType: FRIENDLY
@@ -1530,7 +1530,7 @@ skills:
       `-0.5/lv` mana drain per second, from 3 at Lv.1
       `+10%/lv` detection resistance
 
-  - id: 123
+  - id: 107
     identifier: M_CLOAK
     script: Cloak
     targetType: FRIENDLY
@@ -1543,7 +1543,7 @@ skills:
       `+20%/lv` movement speed kept, from 50% at Lv.1
       `-1/lv` mana drain per second, from 6 at Lv.1
 
-  - id: 124
+  - id: 108
     identifier: M_POISON_RESEARCH
     targetType: FRIENDLY
     description: |
@@ -1552,7 +1552,7 @@ skills:
       `+20%/lv` damage of the poison the Assassin's own blade leaves
       `+10%/lv` resistance to being poisoned
 
-  - id: 125
+  - id: 109
     identifier: M_ENCHANT_POISON
     script: EnchantPoison
     targetType: FRIENDLY
@@ -1570,7 +1570,7 @@ skills:
 
       `+5%/lv` poison chance per hit
 
-  - id: 126
+  - id: 110
     identifier: M_PLAGIARISM
     targetType: FRIENDLY
     description: |
@@ -1583,7 +1583,7 @@ skills:
       `+20/lv` highest attack level copied, 100+ at max rank
       Lv.5 a new copy no longer overwrites the old one
 
-  - id: 128
+  - id: 111
     identifier: M_BACKSTAB
     script: Backstab
     # A weapon blow, not a spell: no Magic Rod catches it.
@@ -1598,7 +1598,7 @@ skills:
 
       `+50%/lv` ATK, from 200% at Lv.1
 
-  - id: 129
+  - id: 112
     identifier: M_GUT_PUNCH
     script: GutPunch
     archetype: STRIKE
@@ -1612,7 +1612,7 @@ skills:
 
       `+1s/lv` stun, from 4s at Lv.1
 
-  - id: 130
+  - id: 113
     identifier: M_SONIC_BLOW
     script: SonicBlow
     # Weapon blows, not a spell: no Magic Rod catches them.
@@ -1627,7 +1627,7 @@ skills:
 
       `+40%/lv` ATK over all eight hits, from 340% at Lv.1
 
-  - id: 131
+  - id: 114
     identifier: M_SHADOW_STEP
     script: ShadowStep
     targetType: ENEMY
@@ -1641,7 +1641,7 @@ skills:
       `+2m/lv` range, from 4m at Lv.1
 
 # Knight
-  - id: 132
+  - id: 115
     identifier: M_HEAVY_WEAPON_MASTERY
     targetType: FRIENDLY
     description: |
@@ -1650,7 +1650,7 @@ skills:
 
       `+3/lv` ATK
 
-  - id: 133
+  - id: 116
     identifier: M_HEAVY_ARMOR_MASTERY
     targetType: FRIENDLY
     description: |
@@ -1659,7 +1659,7 @@ skills:
 
       `+2/lv` hard DEF for each heavy piece
 
-  - id: 134
+  - id: 117
     identifier: M_PROVOKE
     script: Provoke
     targetType: ENEMY
@@ -1673,7 +1673,7 @@ skills:
 
       `3s + 1s/lv` duration
 
-  - id: 135
+  - id: 118
     identifier: M_SHIELD_WALL
     script: ShieldWall
     targetType: FRIENDLY
@@ -1688,7 +1688,7 @@ skills:
       `-50%` movement speed at Lv.1, `-40%` at Lv.2, `-30%` from Lv.3
       Lv.5 returns 10% of the blocked damage to the attacker
 
-  - id: 136
+  - id: 119
     identifier: M_BASH
     script: Bash
     targetType: ENEMY
@@ -1702,7 +1702,7 @@ skills:
       `+20%/lv` bonus damage
       `+5%/lv` stun chance
 
-  - id: 137
+  - id: 120
     identifier: M_AUTO_GUARD
     targetType: FRIENDLY
     description: |
@@ -1711,7 +1711,7 @@ skills:
 
       `+4%/lv` chance to block a hit fully
 
-  - id: 138
+  - id: 121
     identifier: M_CHARGE
     script: Charge
     targetType: ENEMY
@@ -1725,7 +1725,7 @@ skills:
 
       `15s - 0.5s/lv` cooldown
 
-  - id: 139
+  - id: 122
     identifier: M_JUGGERNAUT
     script: Juggernaut
     targetType: FRIENDLY
@@ -1739,7 +1739,7 @@ skills:
       Lv.3 15s, cooldown 90s, and a hit fully blocked by Auto Guard refreshes the duration
 
 # Brawler
-  - id: 140
+  - id: 123
     identifier: M_TOUGH_GUY
     targetType: FRIENDLY
     description: |
@@ -1749,7 +1749,7 @@ skills:
       `-10%/lv` stamina cost and drain
       `+10%/lv` stamina regeneration
 
-  - id: 141
+  - id: 124
     identifier: M_SECOND_WIND
     script: SecondWind
     targetType: FRIENDLY
@@ -1760,7 +1760,7 @@ skills:
       Lv.2 also heals 20% HP
       Lv.3 cooldown 120s instead of 180s
 
-  - id: 142
+  - id: 125
     identifier: M_UNBREAKABLE
     targetType: FRIENDLY
     description: |
@@ -1771,7 +1771,7 @@ skills:
       Lv.2 a stun lasts half as long and a knockback goes half as far while above 50% HP
       Lv.3 cooldown 6min
 
-  - id: 143
+  - id: 126
     identifier: M_IRON_FIST
     targetType: FRIENDLY
     description: |
@@ -1779,7 +1779,7 @@ skills:
 
       `+3/lv` ATK with a fist weapon or bare hands
 
-  - id: 144
+  - id: 127
     identifier: M_TRIPLE_BLOW
     targetType: FRIENDLY
     description: |
@@ -1788,7 +1788,7 @@ skills:
 
       `+3%/lv` chance per basic attack
 
-  - id: 145
+  - id: 128
     identifier: M_CHAIN_COMBO
     script: ChainCombo
     targetType: ENEMY
@@ -1800,7 +1800,7 @@ skills:
 
       `250% + 50%/lv` ATK over all hits
 
-  - id: 146
+  - id: 129
     identifier: M_STAFF_SWEEP
     script: StaffSweep
     targetType: FRIENDLY
@@ -1812,7 +1812,7 @@ skills:
 
       `100% + 20%/lv` ATK
 
-  - id: 147
+  - id: 130
     identifier: M_BATTLE_FURY
     script: BattleFury
     targetType: FRIENDLY
@@ -1824,7 +1824,7 @@ skills:
 
       `+10s/lv` duration
 
-  - id: 148
+  - id: 131
     identifier: M_ULTIMA_FIST
     script: MasterUltimaFist
     targetType: ENEMY
@@ -1837,7 +1837,7 @@ skills:
 
       `+10%/lv` damage
 
-  - id: 149
+  - id: 132
     identifier: M_RUSH
     script: Rush
     targetType: ENEMY
@@ -1849,7 +1849,7 @@ skills:
       Dashes up to 6m to a target in sight and lands one basic blow on arrival. Ground the
       Brawler cannot step onto stops the dash short, and then nothing is struck. Cooldown 10s.
 
-  - id: 150
+  - id: 133
     identifier: M_CAMOUFLAGE
     targetType: FRIENDLY
     description: |
@@ -1859,7 +1859,7 @@ skills:
 
       `-10%/lv` notice range of wild Bestia
 
-  - id: 151
+  - id: 134
     identifier: M_TRAILBLAZER
     targetType: FRIENDLY
     description: |
@@ -1868,7 +1868,7 @@ skills:
 
       `+3%/lv` walk speed off roads
 
-  - id: 152
+  - id: 135
     identifier: M_HUNTERS_MARK
     script: HuntersMark
     targetType: ENEMY
@@ -1881,7 +1881,7 @@ skills:
 
       `+3%/lv` critical rate against the target
 
-  - id: 153
+  - id: 136
     identifier: M_OWLS_EYE
     targetType: FRIENDLY
     description: |
@@ -1889,7 +1889,7 @@ skills:
 
       `+1/lv` DEX
 
-  - id: 154
+  - id: 137
     identifier: M_VULTURES_EYE
     targetType: FRIENDLY
     description: |
@@ -1899,7 +1899,7 @@ skills:
       `+1/lv` range in tiles
       `+2/lv` HIT
 
-  - id: 155
+  - id: 138
     identifier: M_DOUBLE_STRAFE
     script: DoubleStrafe
     targetType: ENEMY
@@ -1910,7 +1910,7 @@ skills:
 
       `100% + 10%/lv` ATK per arrow
 
-  - id: 156
+  - id: 139
     identifier: M_ARROW_SHOWER
     script: ArrowShower
     targetType: AOE_GROUND
@@ -1924,7 +1924,7 @@ skills:
 
       `80% + 10%/lv` ATK
 
-  - id: 157
+  - id: 140
     identifier: M_CHARGE_ARROW
     script: ChargeArrow
     targetType: ENEMY
@@ -1935,7 +1935,7 @@ skills:
       Needs a bow and reaches as far as the bow. One shot for 150% ATK that knocks the target
       back 6m if it hits. Takes one arrow out of the quiver. Cooldown 10s.
 
-  - id: 158
+  - id: 141
     identifier: M_IMPROVE_CONCENTRATION
     script: ImproveConcentration
     targetType: FRIENDLY
@@ -1946,7 +1946,7 @@ skills:
 
       `+2/lv` AGI and DEX
 
-  - id: 159
+  - id: 142
     identifier: M_ARROW_CRAFTING
     script: ArrowCrafting
     targetType: GROUND
@@ -1954,7 +1954,7 @@ skills:
     description: |
       Opens the crafting window with the arrow recipes. Needs no station.
 
-  - id: 160
+  - id: 143
     identifier: M_INSTRUMENT_MASTERY
     targetType: FRIENDLY
     description: |
@@ -1963,7 +1963,7 @@ skills:
 
       `+2/lv` ATK
 
-  - id: 161
+  - id: 144
     identifier: M_NIMBLE_STEPS
     targetType: FRIENDLY
     description: |
@@ -1972,7 +1972,7 @@ skills:
 
       `+2/lv` FLEE
 
-  - id: 162
+  - id: 145
     identifier: M_HOBBLING_LASH
     script: HobblingLash
     targetType: ENEMY
@@ -1986,7 +1986,7 @@ skills:
       `120% + 20%/lv` ATK
       `3s + 1s/lv` Slowed
 
-  - id: 163
+  - id: 146
     identifier: M_DISCORD_STRIKE
     script: DiscordStrike
     targetType: ENEMY
@@ -2000,7 +2000,7 @@ skills:
 
       `150% + 30%/lv` ATK
 
-  - id: 164
+  - id: 147
     identifier: M_DISSONANT_CHORD
     script: DissonantChord
     targetType: FRIENDLY
@@ -2014,7 +2014,7 @@ skills:
       `-5%/lv` ASPD
       `-3%/lv` HIT
 
-  - id: 165
+  - id: 148
     identifier: M_VOICE_TRAINING
     targetType: FRIENDLY
     description: |
@@ -2023,7 +2023,7 @@ skills:
       `+1/lv` song radius in tiles
       `+10%/lv` song duration
 
-  - id: 166
+  - id: 149
     identifier: M_BATTLE_HYMN
     script: BattleHymn
     targetType: FRIENDLY
@@ -2037,7 +2037,7 @@ skills:
 
       `+3%/lv` ATK and MATK
 
-  - id: 167
+  - id: 150
     identifier: M_WAR_MARCH
     script: WarMarch
     targetType: FRIENDLY
@@ -2051,7 +2051,7 @@ skills:
 
       `+2%/lv` movement and attack speed
 
-  - id: 168
+  - id: 151
     identifier: M_MIRAGE_DANCE
     script: MirageDance
     targetType: FRIENDLY
@@ -2065,7 +2065,7 @@ skills:
 
       `+3/lv` FLEE
 
-  - id: 169
+  - id: 152
     identifier: M_WANDERERS_TUNE
     script: WanderersTune
     targetType: FRIENDLY
@@ -2080,7 +2080,7 @@ skills:
 
       `-10%/lv` stamina drain
 
-  - id: 170
+  - id: 153
     identifier: M_GRAND_PERFORMANCE
     targetType: FRIENDLY
     description: |
@@ -2088,7 +2088,7 @@ skills:
 
       `+10%/lv` effect of every song
 
-  - id: 171
+  - id: 154
     identifier: M_DEVOTION
     script: Devotion
     targetType: FRIENDLY
@@ -2103,7 +2103,7 @@ skills:
 
       `+15s/lv` duration
 
-  - id: 172
+  - id: 155
     identifier: M_BRANDISH_SPEAR
     script: BrandishSpear
     targetType: ENEMY
@@ -2117,7 +2117,7 @@ skills:
 
       `+40%/lv` ATK, from 120% at Lv.1
 
-  - id: 173
+  - id: 156
     identifier: M_JAVELIN
     script: Javelin
     targetType: ENEMY
@@ -2131,7 +2131,7 @@ skills:
 
       `150% + 30%/lv` ATK
 
-  - id: 174
+  - id: 157
     identifier: M_PACK_HUNT
     targetType: FRIENDLY
     description: |
@@ -2140,7 +2140,7 @@ skills:
 
       `+10%/lv` damage of the master's Bestias against the marked target
 
-  - id: 175
+  - id: 158
     identifier: M_POTION_PITCHER
     script: PotionPitcher
     targetType: FRIENDLY
@@ -2153,7 +2153,7 @@ skills:
 
       `+10%/lv` health, mana and stamina from the thrown potion
 
-  - id: 176
+  - id: 159
     identifier: M_REPLANTING
     script: Replanting
     targetType: GROUND
@@ -2171,7 +2171,7 @@ skills:
       `-25%/lv` regrowth time
       Lv.3 the grown tree gives one more log
 
-  - id: 177
+  - id: 160
     identifier: M_HAGGLING
     targetType: FRIENDLY
     description: |
@@ -2180,7 +2180,7 @@ skills:
       `-2%/lv` price when buying from a merchant
       `+2%/lv` price when selling to a merchant
 
-  - id: 178
+  - id: 161
     identifier: M_STREET_STALL
     script: StreetStall
     targetType: FRIENDLY
@@ -2193,7 +2193,7 @@ skills:
 
       `+2/lv` listings, from 3 at Lv.1
 
-  - id: 179
+  - id: 162
     identifier: M_BLASTING
     script: Blasting
     targetType: GROUND
@@ -2212,7 +2212,7 @@ skills:
       `+1m/lv` radius, from 2m at Lv.1
       `+20%/lv` ATK damage, from 120% at Lv.1
 
-  - id: 180
+  - id: 163
     identifier: M_GEM_LORE
     targetType: FRIENDLY
     description: |
@@ -2221,7 +2221,7 @@ skills:
 
       `+5%/lv` Gem Cutting success chance
 
-  - id: 181
+  - id: 164
     identifier: M_BASE_CAMP
     script: BaseCamp
     targetType: GROUND
@@ -2238,7 +2238,7 @@ skills:
       Lv.2 +50% HP and stamina regeneration, and storms and mana storms do not reach inside
       Lv.3 party members who die respawn at the camp
 
-  - id: 182
+  - id: 165
     identifier: M_TREASURE_SENSE
     script: TreasureSense
     targetType: FRIENDLY
@@ -2255,7 +2255,7 @@ skills:
       Lv.3 also how deep the cache lies
       Lv.5 also how rich it is
 
-  - id: 183
+  - id: 166
     identifier: M_ECHO_SOUNDING
     script: EchoSounding
     targetType: FRIENDLY
@@ -2269,7 +2269,7 @@ skills:
       `+5m/lv` radius, from 10m at Lv.1
       Lv.3 also how deep and how large a hollow is
 
-  - id: 184
+  - id: 167
     identifier: M_TREASURE_MAP
     script: TreasureMap
     targetType: FRIENDLY
@@ -2286,7 +2286,7 @@ skills:
 
       `-25m/lv` uncertainty of the marked spot, exact at max rank
 
-  - id: 185
+  - id: 168
     identifier: M_EXCAVATION
     targetType: FRIENDLY
     description: |
@@ -2295,8 +2295,176 @@ skills:
       `-20%/lv` time to dig out a treasure cache
       `+5%/lv` chance for the cache's best item
 
-# BESTIA SKILLS (reserved 1000-8999, see master_skill_tree.yml / skill-system SKILL.md)
+# GUILD SKILLS (1000-1999). The guild learns these with its own skill points, not a master; see
+# guild_skill_tree.yml for the tree.
   - id: 1000
+    identifier: GUILD_EMBLEM
+    targetType: FRIENDLY
+    description: |
+      The guild may carry an emblem. It shows on its members, its Stronghold and its banners.
+
+  - id: 1001
+    identifier: OFFICIAL_GUILD_APPROVAL
+    targetType: FRIENDLY
+    description: |
+      The guild is recognised by the realm. It may found a Guild Stronghold and attack the
+      installations of other guilds - and its own Stronghold may be attacked in turn.
+
+  - id: 1002
+    identifier: STEWARD_CONTRACT
+    targetType: FRIENDLY
+    description: |
+      Hires a steward for the Guild Stronghold. Members can open the guild storage at the
+      steward and return to the Stronghold when they fall.
+
+  - id: 1003
+    identifier: GUILD_STORAGE
+    targetType: FRIENDLY
+    description: |
+      A storage every member with the right rank can use, kept by the steward.
+
+      Each level adds more storage space.
+
+  - id: 1004
+    identifier: WATCHER_RESEARCH
+    targetType: FRIENDLY
+    description: |
+      Allows the guild to call watchers, Bestia that guard the Guild Stronghold.
+
+  - id: 1005
+    identifier: STRENGTHEN_WATCHERS
+    targetType: FRIENDLY
+    description: |
+      The watchers of the Guild Stronghold hit harder and attack faster.
+
+  - id: 1006
+    identifier: PERMANENT_DEVELOPMENT
+    targetType: FRIENDLY
+    description: |
+      Investing in the Guild Stronghold has a 50% chance to give one free extra point.
+
+  - id: 1007
+    identifier: GUILD_EXTENSION
+    targetType: FRIENDLY
+    description: |
+      More members can join the guild.
+
+      `+4 members/lv`
+
+  - id: 1008
+    identifier: GREAT_LEADERSHIP
+    targetType: FRIENDLY
+    description: |
+      Members near the guild master fight with more strength.
+
+      `+1 STR/lv` within 15 m of the guild master
+
+  - id: 1009
+    identifier: SHARP_GAZE
+    targetType: FRIENDLY
+    description: |
+      Members near the guild master aim more precisely.
+
+      `+1 DEX/lv` within 15 m of the guild master
+
+  - id: 1010
+    identifier: GLORIOUS_WOUNDS
+    targetType: FRIENDLY
+    description: |
+      Members near the guild master endure more.
+
+      `+1 VIT/lv` within 15 m of the guild master
+
+  - id: 1011
+    identifier: COLD_HEART
+    targetType: FRIENDLY
+    description: |
+      Members near the guild master move and react faster.
+
+      `+1 AGI/lv` within 15 m of the guild master
+
+  - id: 1012
+    identifier: ARCANE_ACCORD
+    targetType: FRIENDLY
+    description: |
+      Members near the guild master channel more magic.
+
+      `+1 INT/lv` within 15 m of the guild master
+
+  - id: 1013
+    identifier: STEADFAST_MIND
+    targetType: FRIENDLY
+    description: |
+      Members near the guild master resist magic better.
+
+      `+1 WIL/lv` within 15 m of the guild master
+
+  - id: 1014
+    identifier: FORTUNES_FAVOR
+    targetType: FRIENDLY
+    description: |
+      Everything a member of the guild defeats is more likely to drop its items.
+
+      `+5%/lv` of each drop's own chance - at Lv.5 a 10% drop becomes 12.5%
+
+  - id: 1015
+    identifier: EMERGENCY_MOVE
+    script: EmergencyMove
+    targetType: FRIENDLY
+    description: |
+      The members around the caster move faster for a short time.
+
+      `+25%` movement speed for 10s, within 15 m. Cooldown 60s for the whole guild.
+
+  - id: 1016
+    identifier: BATTLE_ORDERS
+    script: BattleOrders
+    targetType: FRIENDLY
+    description: |
+      The members around the caster gain strength, dexterity and intelligence.
+
+      `+5 STR, DEX and INT` for 180s, within 30 m. Cooldown 180s for the whole guild.
+
+  - id: 1017
+    identifier: GUILD_REGENERATION
+    script: GuildRegeneration
+    targetType: FRIENDLY
+    description: |
+      The members around the caster recover HP, Mana and stamina faster.
+
+      `+50%/lv` regeneration for 60s, within 30 m. Cooldown 300s for the whole guild.
+
+  - id: 1018
+    identifier: RESTORATION
+    script: Restoration
+    targetType: FRIENDLY
+    description: |
+      Restores 90% of the HP and Mana of the members around the caster, within 30 m.
+
+      Cooldown 180s for the whole guild.
+
+  - id: 1019
+    identifier: EMERGENCY_RECALL
+    script: EmergencyRecall
+    targetType: FRIENDLY
+    description: |
+      Calls every member of the guild to the caster. Works only inside the guild's own
+      Stronghold.
+
+      Cooldown 300s for the whole guild.
+
+  - id: 1020
+    identifier: RALLY_TO_THE_BANNER
+    script: RallyToTheBanner
+    targetType: FRIENDLY
+    description: |
+      Members may plant a War Banner. Casting the skill calls every member of the guild to the
+      banner - even into an enemy Stronghold. Enemies can cut the banner down.
+
+      Cooldown 900s for the whole guild, separate from Emergency Recall.
+
+# BESTIA SKILLS (2000 and up, see master_skill_tree.yml / skill-system SKILL.md)
+  - id: 2000
     identifier: ember
     name: Ember
     script: Ember
@@ -2317,7 +2485,7 @@ skills:
 
 
   # BEGIN generated from bestia-docs data/attacks.yaml by tools/bestia_export.py - do not edit by hand
-  - id: 1001
+  - id: 2001
     identifier: minor_heal
     name: Minor Heal
     script: BestiaHealSkill
@@ -2332,7 +2500,7 @@ skills:
     manaCost: 10
     description: Heals a friend a little. The first spell every healer learns.
 
-  - id: 1002
+  - id: 2002
     identifier: mending_light
     name: Mending Light
     script: BestiaHealSkill
@@ -2347,7 +2515,7 @@ skills:
     manaCost: 25
     description: Heals a friend for a fair amount. Used to treat wounds.
 
-  - id: 1003
+  - id: 2003
     identifier: greater_heal
     name: Greater Heal
     script: BestiaHealSkill
@@ -2362,7 +2530,7 @@ skills:
     manaCost: 49
     description: Heals a friend for a great amount.
 
-  - id: 1004
+  - id: 2004
     identifier: tackle
     name: Tackle
     script: BestiaPhysicalSkill
@@ -2378,7 +2546,7 @@ skills:
     description: Quick attack which uses the body weight in a short range melee attack. It does only little damage
       but is quick and cheap.
 
-  - id: 1005
+  - id: 2005
     identifier: headbutt
     name: Headbutt
     script: BestiaPhysicalSkill
@@ -2395,7 +2563,7 @@ skills:
       dash: 3
     description: Rushes up to three tiles at the target and drives the skull into it.
 
-  - id: 1006
+  - id: 2006
     identifier: pounce
     name: Pounce
     script: BestiaPhysicalSkill
@@ -2418,7 +2586,7 @@ skills:
     description: Leaps up to five tiles onto the target. Everything within a tile of the landing may be stunned for
       a moment.
 
-  - id: 1007
+  - id: 2007
     identifier: body_slam
     name: Body Slam
     script: BestiaPhysicalSkill
@@ -2435,7 +2603,7 @@ skills:
       weightScaling: true
     description: Throws its whole body against the target. The heavier the bestia and its load, the harder it lands.
 
-  - id: 1008
+  - id: 2008
     identifier: thrash
     name: Thrash
     script: BestiaPhysicalSkill
@@ -2453,7 +2621,7 @@ skills:
       hitsMax: 5
     description: Five quick, light blows on the target, one after the other.
 
-  - id: 1009
+  - id: 2009
     identifier: ram
     name: Ram
     script: BestiaPhysicalSkill
@@ -2471,7 +2639,7 @@ skills:
       dashBonusPerTile: 0.1
     description: Charges up to ten tiles at the target. The longer the run-up, the harder it hits.
 
-  - id: 1010
+  - id: 2010
     identifier: crushing_blow
     name: Crushing Blow
     script: BestiaPhysicalSkill
@@ -2486,7 +2654,7 @@ skills:
     manaCost: 10
     description: A heavy blow aimed to crush rather than cut. Shields and bones bend under it.
 
-  - id: 1011
+  - id: 2011
     identifier: hammer_blow
     name: Hammer Blow
     script: BestiaPhysicalSkill
@@ -2501,7 +2669,7 @@ skills:
     manaCost: 11
     description: Brings its full weight down in one blow, like a smith's hammer on the anvil.
 
-  - id: 1012
+  - id: 2012
     identifier: savage_maul
     name: Savage Maul
     script: BestiaPhysicalSkill
@@ -2516,7 +2684,7 @@ skills:
     manaCost: 14
     description: Grabs the target and tears at it with everything it has.
 
-  - id: 1013
+  - id: 2013
     identifier: rampage
     name: Rampage
     script: BestiaPhysicalSkill
@@ -2531,7 +2699,7 @@ skills:
     manaCost: 16
     description: Charges in a straight line and tramples the target into the ground.
 
-  - id: 1014
+  - id: 2014
     identifier: skull_breaker
     name: Skull Breaker
     script: BestiaPhysicalSkill
@@ -2551,7 +2719,7 @@ skills:
         durationSeconds: 2.5
     description: A blow to the head that very likely leaves the target stunned.
 
-  - id: 1015
+  - id: 2015
     identifier: titan_blow
     name: Titan Blow
     script: BestiaPhysicalSkill
@@ -2568,7 +2736,7 @@ skills:
       knockback: 3
     description: One blow with the strength of a landslide. It throws the target three tiles back.
 
-  - id: 1016
+  - id: 2016
     identifier: pebble_toss
     name: Pebble Toss
     script: BestiaPhysicalSkill
@@ -2585,7 +2753,7 @@ skills:
       interruptChance: 30
     description: Flings a small stone. Weak, but quick, and it often breaks off what the target was casting.
 
-  - id: 1017
+  - id: 2017
     identifier: quill_shot
     name: Quill Shot
     script: BestiaPhysicalSkill
@@ -2602,7 +2770,7 @@ skills:
       critBonus: 20
     description: A long, aimed shot with a single quill. It reaches far and finds weak spots.
 
-  - id: 1018
+  - id: 2018
     identifier: spine_volley
     name: Spine Volley
     script: BestiaPhysicalSkill
@@ -2620,7 +2788,7 @@ skills:
       hitsMax: 3
     description: Two or three spines at the same target, each weaker than a single shot.
 
-  - id: 1019
+  - id: 2019
     identifier: piercing_spike
     name: Piercing Spike
     script: BestiaPhysicalSkill
@@ -2637,7 +2805,7 @@ skills:
       ignoreDefense: true
     description: A long, hardened spike that goes straight through armour.
 
-  - id: 1020
+  - id: 2020
     identifier: barbed_barrage
     name: Barbed Barrage
     script: BestiaPhysicalSkill
@@ -2656,7 +2824,7 @@ skills:
         chance: 15
     description: A storm of barbed darts. Now and then one sticks and leaves a bleeding wound.
 
-  - id: 1021
+  - id: 2021
     identifier: thorn_volley
     name: Thorn Volley
     script: BestiaPhysicalSkill
@@ -2671,7 +2839,7 @@ skills:
     manaCost: 12
     description: A wave of thorns as long as daggers, shot with deadly aim.
 
-  - id: 1027
+  - id: 2022
     identifier: bleeding_wound
     name: Bleeding Wound
     script: BestiaPhysicalSkill
@@ -2690,7 +2858,7 @@ skills:
         chance: 80
     description: A deep cut that very likely keeps bleeding while the target moves or fights.
 
-  - id: 1028
+  - id: 2023
     identifier: shockwave
     name: Shockwave
     script: BestiaAreaSkill
@@ -2709,7 +2877,7 @@ skills:
       knockback: 3
     description: Slams the ground and throws everyone close by three tiles away.
 
-  - id: 1029
+  - id: 2024
     identifier: mana_storm
     name: Mana Storm
     script: BestiaAreaSkill
@@ -2727,7 +2895,7 @@ skills:
       manaPercentPerTick: 3
     description: Raw mana rains down on an area. It hurts everyone inside and fills their mana a little.
 
-  - id: 1032
+  - id: 2025
     identifier: flame_dart
     name: Flame Dart
     script: BestiaMagicSkill
@@ -2742,7 +2910,7 @@ skills:
     manaCost: 10
     description: Spits a small dart of flame at a single target. Quick to cast and hard to dodge.
 
-  - id: 1033
+  - id: 2026
     identifier: flame_fang
     name: Flame Fang
     script: BestiaPhysicalSkill
@@ -2757,7 +2925,7 @@ skills:
     manaCost: 4
     description: Bites with jaws that glow like coals. The wound keeps smoking afterwards.
 
-  - id: 1034
+  - id: 2027
     identifier: burning_ground
     name: Burning Ground
     script: BestiaDotSkill
@@ -2777,7 +2945,7 @@ skills:
         chance: 3
     description: Sets the ground ablaze. Whatever stands in the flames burns, and may catch fire itself.
 
-  - id: 1035
+  - id: 2028
     identifier: fire_ball
     name: Fire Ball
     script: BestiaAreaSkill
@@ -2795,7 +2963,7 @@ skills:
       igniteChance: 35
     description: A ball of fire that bursts on impact. It may set the ground alight.
 
-  - id: 1036
+  - id: 2029
     identifier: blazing_charge
     name: Blazing Charge
     script: BestiaPhysicalSkill
@@ -2810,7 +2978,7 @@ skills:
     manaCost: 12
     description: Wraps itself in flame and crashes into the target.
 
-  - id: 1037
+  - id: 2030
     identifier: searing_ray
     name: Searing Ray
     script: BestiaMagicSkill
@@ -2827,7 +2995,7 @@ skills:
       ignoreDefense: true
     description: A thin ray of white-hot fire that burns straight through any magic guard.
 
-  - id: 1038
+  - id: 2031
     identifier: inferno
     name: Inferno
     script: BestiaMagicSkill
@@ -2846,7 +3014,7 @@ skills:
       pillars: true
     description: While the caster holds the spell, pillars of fire strike the area one after another.
 
-  - id: 1039
+  - id: 2032
     identifier: ice_shard
     name: Ice Shard
     script: BestiaMagicSkill
@@ -2861,7 +3029,7 @@ skills:
     manaCost: 10
     description: Flings a sharp shard of ice at a single target.
 
-  - id: 1040
+  - id: 2033
     identifier: water_jet
     name: Water Jet
     script: BestiaPhysicalSkill
@@ -2882,7 +3050,7 @@ skills:
         level: 3
     description: Spits a hard jet of water. It may slow the target for a moment.
 
-  - id: 1041
+  - id: 2034
     identifier: frost_bite
     name: Frost Bite
     script: BestiaPhysicalSkill
@@ -2897,7 +3065,7 @@ skills:
     manaCost: 4
     description: A bite so cold it numbs the flesh around it.
 
-  - id: 1042
+  - id: 2035
     identifier: frost_breath
     name: Frost Breath
     script: BestiaAreaSkill
@@ -2913,7 +3081,7 @@ skills:
     aoeRadius: 2.0
     description: Breathes a cone of freezing air over everyone in front of it.
 
-  - id: 1043
+  - id: 2036
     identifier: chilling_mist
     name: Chilling Mist
     script: BestiaDotSkill
@@ -2933,7 +3101,7 @@ skills:
         chance: 8
     description: A cold fog settles on the ground. Whatever stands in it may freeze solid.
 
-  - id: 1044
+  - id: 2037
     identifier: tidal_slam
     name: Tidal Slam
     script: BestiaPhysicalSkill
@@ -2948,7 +3116,7 @@ skills:
     manaCost: 12
     description: Strikes with the weight of a breaking wave.
 
-  - id: 1045
+  - id: 2038
     identifier: hailstone
     name: Hailstone
     script: BestiaMagicSkill
@@ -2963,7 +3131,7 @@ skills:
     manaCost: 20
     description: Hurls a hailstone the size of a fist. It hits hard and leaves the target shivering.
 
-  - id: 1046
+  - id: 2039
     identifier: torrent
     name: Torrent
     script: BestiaMagicSkill
@@ -2978,7 +3146,7 @@ skills:
     manaCost: 22
     description: A rushing stream of water that slams into the target.
 
-  - id: 1047
+  - id: 2040
     identifier: blizzard
     name: Blizzard
     script: BestiaMagicSkill
@@ -2996,7 +3164,7 @@ skills:
       channelInterval: 1
     description: While the caster holds the spell, a howling blizzard batters the area.
 
-  - id: 1048
+  - id: 2041
     identifier: stone_dart
     name: Stone Dart
     script: BestiaMagicSkill
@@ -3011,7 +3179,7 @@ skills:
     manaCost: 10
     description: Shoots a sharp splinter of stone out of the ground at a single target.
 
-  - id: 1049
+  - id: 2042
     identifier: rock_throw
     name: Rock Throw
     script: BestiaPhysicalSkill
@@ -3026,7 +3194,7 @@ skills:
     manaCost: 5
     description: Tears a rock out of the ground and throws it.
 
-  - id: 1050
+  - id: 2043
     identifier: stone_fist
     name: Stone Fist
     script: BestiaPhysicalSkill
@@ -3041,7 +3209,7 @@ skills:
     manaCost: 4
     description: A blow with a fist or hoof hardened like stone.
 
-  - id: 1051
+  - id: 2044
     identifier: sand_tomb
     name: Sand Tomb
     script: BestiaDotSkill
@@ -3062,7 +3230,7 @@ skills:
         durationSeconds: 3
     description: Whirling sand grinds at the target and may trap it in place.
 
-  - id: 1052
+  - id: 2045
     identifier: tremor
     name: Tremor
     script: BestiaAreaSkill
@@ -3085,7 +3253,7 @@ skills:
         level: 5
     description: Stamps until the ground shakes. Everyone close by is hurt and slowed to half speed.
 
-  - id: 1053
+  - id: 2046
     identifier: boulder_slam
     name: Boulder Slam
     script: BestiaPhysicalSkill
@@ -3100,7 +3268,7 @@ skills:
     manaCost: 14
     description: Lifts a boulder, or becomes one, and brings it down on the target.
 
-  - id: 1054
+  - id: 2047
     identifier: stone_lance
     name: Stone Lance
     script: BestiaMagicSkill
@@ -3120,7 +3288,7 @@ skills:
         durationSeconds: 3
     description: A lance of stone impales the target and may pin it in place for three seconds.
 
-  - id: 1055
+  - id: 2048
     identifier: fissure
     name: Fissure
     script: BestiaMagicSkill
@@ -3135,7 +3303,7 @@ skills:
     manaCost: 66
     description: The ground opens up under an area and swallows what stands on it.
 
-  - id: 1056
+  - id: 2049
     identifier: shock
     name: Shock
     script: BestiaMagicSkill
@@ -3150,7 +3318,7 @@ skills:
     manaCost: 10
     description: A small arc of lightning that jumps to a single target.
 
-  - id: 1057
+  - id: 2050
     identifier: wind_cutter
     name: Wind Cutter
     script: BestiaPhysicalSkill
@@ -3165,7 +3333,7 @@ skills:
     manaCost: 5
     description: A blade of wind that cuts at range.
 
-  - id: 1058
+  - id: 2051
     identifier: wing_buffet
     name: Wing Buffet
     script: BestiaPhysicalSkill
@@ -3180,7 +3348,7 @@ skills:
     manaCost: 4
     description: Beats its wings against the target with the force of a gust.
 
-  - id: 1059
+  - id: 2052
     identifier: static_field
     name: Static Field
     script: BestiaDotSkill
@@ -3196,7 +3364,7 @@ skills:
     aoeRadius: 1.0
     description: Charges the air in an area. Anyone inside is shocked again and again.
 
-  - id: 1060
+  - id: 2053
     identifier: cyclone
     name: Cyclone
     script: BestiaAreaSkill
@@ -3212,7 +3380,7 @@ skills:
     aoeRadius: 2.0
     description: A spinning wind that sweeps over an area and throws everyone about.
 
-  - id: 1061
+  - id: 2054
     identifier: tempest_dive
     name: Tempest Dive
     script: BestiaPhysicalSkill
@@ -3227,7 +3395,7 @@ skills:
     manaCost: 14
     description: Dives from above, carried by a howling wind.
 
-  - id: 1062
+  - id: 2055
     identifier: chain_lightning
     name: Chain Lightning
     script: BestiaMagicSkill
@@ -3245,7 +3413,7 @@ skills:
       chainHop: 4
     description: A bolt of lightning that jumps on to up to two more foes close to each other.
 
-  - id: 1063
+  - id: 2056
     identifier: hurricane
     name: Hurricane
     script: BestiaMagicSkill
@@ -3263,7 +3431,7 @@ skills:
       areaSeconds: 6
     description: A hurricane breaks loose and moves away from its caster, tearing at everything in its path.
 
-  - id: 1064
+  - id: 2057
     identifier: venom_spit
     name: Venom Spit
     script: BestiaPhysicalSkill
@@ -3282,7 +3450,7 @@ skills:
         chance: 35
     description: Spits venom into the target's eyes. It may blind it.
 
-  - id: 1065
+  - id: 2058
     identifier: poison_sting
     name: Poison Sting
     script: BestiaPhysicalSkill
@@ -3301,7 +3469,7 @@ skills:
         chance: 15
     description: A quick sting that leaves a little poison behind.
 
-  - id: 1066
+  - id: 2059
     identifier: venom_bolt
     name: Venom Bolt
     script: BestiaMagicSkill
@@ -3320,7 +3488,7 @@ skills:
         chance: 35
     description: A bolt of green venom that may poison the target.
 
-  - id: 1067
+  - id: 2060
     identifier: poison_cloud
     name: Poison Cloud
     script: BestiaDotSkill
@@ -3340,7 +3508,7 @@ skills:
         chance: 3
     description: A cloud of foul gas hangs over the ground and may poison whoever breathes it.
 
-  - id: 1068
+  - id: 2061
     identifier: toxic_rend
     name: Toxic Rend
     script: BestiaPhysicalSkill
@@ -3359,7 +3527,7 @@ skills:
         chance: 70
     description: Tears into the target with claws dripping with venom. It is very likely poisoned.
 
-  - id: 1069
+  - id: 2062
     identifier: miasma
     name: Miasma
     script: BestiaAreaSkill
@@ -3380,7 +3548,7 @@ skills:
         chance: 70
     description: Exhales a sickly haze around itself. Everyone in it is very likely poisoned.
 
-  - id: 1070
+  - id: 2063
     identifier: acid_lance
     name: Acid Lance
     script: BestiaMagicSkill
@@ -3395,7 +3563,7 @@ skills:
     manaCost: 22
     description: A stream of acid that eats through armor and flesh.
 
-  - id: 1071
+  - id: 2064
     identifier: pestilence
     name: Pestilence
     script: BestiaMagicSkill
@@ -3414,7 +3582,7 @@ skills:
         chance: 70
     description: Spreads a plague across an area. Everyone in it is very likely poisoned.
 
-  - id: 1072
+  - id: 2065
     identifier: sunbeam
     name: Sunbeam
     script: BestiaMagicSkill
@@ -3429,7 +3597,7 @@ skills:
     manaCost: 12
     description: Focuses light into a single, searing beam.
 
-  - id: 1073
+  - id: 2066
     identifier: smite
     name: Smite
     script: BestiaPhysicalSkill
@@ -3444,7 +3612,7 @@ skills:
     manaCost: 5
     description: A strike blessed with holy light. The unnatural fear it.
 
-  - id: 1074
+  - id: 2067
     identifier: hallowed_ground
     name: Hallowed Ground
     script: BestiaDotSkill
@@ -3469,7 +3637,7 @@ skills:
       - UNDEAD
     description: Consecrates the ground. Only the undead and demons on it are hurt, and they often catch fire.
 
-  - id: 1075
+  - id: 2068
     identifier: judgement
     name: Judgement
     script: BestiaPhysicalSkill
@@ -3484,7 +3652,7 @@ skills:
     manaCost: 14
     description: A heavy blow that falls like a verdict.
 
-  - id: 1076
+  - id: 2069
     identifier: divine_nova
     name: Divine Nova
     script: BestiaAreaSkill
@@ -3500,7 +3668,7 @@ skills:
     aoeRadius: 2.0
     description: A ring of holy light bursts out from the caster.
 
-  - id: 1077
+  - id: 2070
     identifier: purifying_ray
     name: Purifying Ray
     script: BestiaMagicSkill
@@ -3515,7 +3683,7 @@ skills:
     manaCost: 22
     description: A ray of pure light that burns away the unnatural. The undead fear it most.
 
-  - id: 1078
+  - id: 2071
     identifier: pillar_of_dawn
     name: Pillar of Dawn
     script: BestiaMagicSkill
@@ -3530,7 +3698,7 @@ skills:
     manaCost: 66
     description: A pillar of light erupts and sears everything in it, the undead and demons worst of all.
 
-  - id: 1079
+  - id: 2072
     identifier: shadow_bolt
     name: Shadow Bolt
     script: BestiaMagicSkill
@@ -3545,7 +3713,7 @@ skills:
     manaCost: 10
     description: A bolt of living darkness that chills the soul.
 
-  - id: 1080
+  - id: 2073
     identifier: shadow_rake
     name: Shadow Rake
     script: BestiaPhysicalSkill
@@ -3560,7 +3728,7 @@ skills:
     manaCost: 4
     description: Rakes the target with claws made of shadow.
 
-  - id: 1081
+  - id: 2074
     identifier: creeping_dark
     name: Creeping Dark
     script: BestiaDotSkill
@@ -3576,7 +3744,7 @@ skills:
     aoeRadius: 1.0
     description: Darkness pools on the ground and gnaws at anyone inside.
 
-  - id: 1082
+  - id: 2075
     identifier: umbral_wave
     name: Umbral Wave
     script: BestiaAreaSkill
@@ -3592,7 +3760,7 @@ skills:
     aoeRadius: 2.0
     description: A wave of darkness rolls out and swallows the light.
 
-  - id: 1083
+  - id: 2076
     identifier: eclipse_strike
     name: Eclipse Strike
     script: BestiaPhysicalSkill
@@ -3607,7 +3775,7 @@ skills:
     manaCost: 14
     description: For a moment the light goes out, and then the blow lands.
 
-  - id: 1084
+  - id: 2077
     identifier: abyssal_lance
     name: Abyssal Lance
     script: BestiaMagicSkill
@@ -3622,7 +3790,7 @@ skills:
     manaCost: 22
     description: A spear of darkness pulled from somewhere far below.
 
-  - id: 1085
+  - id: 2078
     identifier: endless_night
     name: Endless Night
     script: BestiaMagicSkill
@@ -3642,7 +3810,7 @@ skills:
         chance: 30
     description: Night falls on an area. Everything in it is hurt and blinded while it lasts.
 
-  - id: 1086
+  - id: 2079
     identifier: soul_strike
     name: Soul Strike
     script: BestiaMagicSkill
@@ -3657,7 +3825,7 @@ skills:
     manaCost: 12
     description: Hurls a fragment of spirit at the target. It passes through armor as if it were not there.
 
-  - id: 1087
+  - id: 2080
     identifier: spectral_touch
     name: Spectral Touch
     script: BestiaPhysicalSkill
@@ -3672,7 +3840,7 @@ skills:
     manaCost: 5
     description: A cold touch from a hand that is not quite there.
 
-  - id: 1088
+  - id: 2081
     identifier: haunt
     name: Haunt
     script: BestiaDotSkill
@@ -3688,7 +3856,7 @@ skills:
     aoeRadius: 1.0
     description: Restless spirits cling to an area and claw at the living.
 
-  - id: 1089
+  - id: 2082
     identifier: spirit_burst
     name: Spirit Burst
     script: BestiaAreaSkill
@@ -3704,7 +3872,7 @@ skills:
     aoeRadius: 2.0
     description: A burst of spirit energy that tears at everyone close by.
 
-  - id: 1090
+  - id: 2083
     identifier: phantom_rush
     name: Phantom Rush
     script: BestiaPhysicalSkill
@@ -3719,7 +3887,7 @@ skills:
     manaCost: 14
     description: Rushes through the target. Its body passes, the pain stays.
 
-  - id: 1091
+  - id: 2084
     identifier: soul_rend
     name: Soul Rend
     script: BestiaMagicSkill
@@ -3734,7 +3902,7 @@ skills:
     manaCost: 20
     description: Tears at the target's spirit and rips away some of its mana.
 
-  - id: 1092
+  - id: 2085
     identifier: soul_harvest
     name: Soul Harvest
     script: BestiaMagicSkill
@@ -3751,7 +3919,7 @@ skills:
       lifesteal: 0.3
     description: Reaches for every soul in an area. The caster heals for part of what it takes.
 
-  - id: 1093
+  - id: 2086
     identifier: bone_shard
     name: Bone Shard
     script: BestiaPhysicalSkill
@@ -3766,7 +3934,7 @@ skills:
     manaCost: 5
     description: Flings a sharp splinter of bone.
 
-  - id: 1094
+  - id: 2087
     identifier: rotting_grasp
     name: Rotting Grasp
     script: BestiaPhysicalSkill
@@ -3785,7 +3953,7 @@ skills:
         chance: 10
     description: Grabs with a cold, rotting hand. Now and then the wound festers into poison.
 
-  - id: 1095
+  - id: 2088
     identifier: necrotic_bolt
     name: Necrotic Bolt
     script: BestiaMagicSkill
@@ -3800,7 +3968,7 @@ skills:
     manaCost: 14
     description: A bolt of grave energy that withers what it touches.
 
-  - id: 1096
+  - id: 2089
     identifier: blight
     name: Blight
     script: BestiaDotSkill
@@ -3820,7 +3988,7 @@ skills:
         chance: 8
     description: Rot spreads across the ground. Whatever stands in it may sicken, and heals do it only half the good.
 
-  - id: 1097
+  - id: 2090
     identifier: bone_crusher
     name: Bone Crusher
     script: BestiaPhysicalSkill
@@ -3835,7 +4003,7 @@ skills:
     manaCost: 12
     description: A blow with a club of fused bones.
 
-  - id: 1099
+  - id: 2091
     identifier: drain_life
     name: Drain Life
     script: BestiaMagicSkill
@@ -3850,7 +4018,7 @@ skills:
     manaCost: 22
     description: Pulls the life out of the target, one heartbeat at a time.
 
-  - id: 1100
+  - id: 2092
     identifier: grave_tide
     name: Grave Tide
     script: BestiaMagicSkill
@@ -3865,7 +4033,7 @@ skills:
     manaCost: 66
     description: The dead rise for a moment and drag the living down with them.
 
-  - id: 1101
+  - id: 2093
     identifier: lick_wounds
     name: Lick Wounds
     script: BestiaHealSkill
@@ -3880,7 +4048,7 @@ skills:
     manaCost: 12
     description: Licks its own wounds. Not much, but it keeps a young bestia going.
 
-  - id: 1102
+  - id: 2094
     identifier: regenerate
     name: Regenerate
     script: BestiaBuffSkill
@@ -3896,7 +4064,7 @@ skills:
     status: REGENERATING
     description: Knits its own flesh together over the next seconds.
 
-  - id: 1103
+  - id: 2095
     identifier: renewal
     name: Renewal
     script: BestiaCleansingHeal
@@ -3911,7 +4079,7 @@ skills:
     manaCost: 24
     description: Heals a friend and washes out poison, wounds, fire, sickness and blindness.
 
-  - id: 1104
+  - id: 2096
     identifier: howl
     name: Howl
     script: BestiaBuffSkill
@@ -3927,7 +4095,7 @@ skills:
     status: EMPOWERED
     description: A long howl that makes its blood run hot. It hits harder for a while.
 
-  - id: 1105
+  - id: 2097
     identifier: enrage
     name: Enrage
     script: BestiaBuffSkill
@@ -3943,7 +4111,7 @@ skills:
     status: ENRAGED
     description: Hits harder and shrugs off blows for a while. Afterwards it is worn out for a few seconds.
 
-  - id: 1106
+  - id: 2098
     identifier: bless_weapon
     name: Bless Weapon
     script: BestiaBuffSkill
@@ -3959,7 +4127,7 @@ skills:
     status: ENDOWED
     description: Blesses a friend's weapon. Its plain blows hit as Holy for a while.
 
-  - id: 1107
+  - id: 2099
     identifier: tailwind
     name: Tailwind
     script: BestiaBuffSkill
@@ -3975,7 +4143,7 @@ skills:
     status: TAILWIND
     description: A wind at its back makes every step and every swing quicker.
 
-  - id: 1108
+  - id: 2100
     identifier: war_cry
     name: War Cry
     script: BestiaBuffSkill
@@ -3994,7 +4162,7 @@ skills:
       reach: 10
     description: A roar that makes every friend within ten tiles hit harder.
 
-  - id: 1109
+  - id: 2101
     identifier: bloodlust
     name: Bloodlust
     script: BestiaBuffSkill
@@ -4010,7 +4178,7 @@ skills:
     status: LIFESTEAL
     description: For a while every blow heals it by half the damage it deals.
 
-  - id: 1110
+  - id: 2102
     identifier: berserk
     name: Berserk
     script: BestiaBuffSkill
@@ -4026,7 +4194,7 @@ skills:
     status: BERSERK
     description: Drops all defence for raw strength and quicker swings.
 
-  - id: 1112
+  - id: 2103
     identifier: growl
     name: Growl
     script: BestiaDebuffSkill
@@ -4047,7 +4215,7 @@ skills:
         chance: 100
     description: A low growl that makes every foe close by hit softer.
 
-  - id: 1113
+  - id: 2104
     identifier: screech
     name: Screech
     script: BestiaDebuffSkill
@@ -4068,7 +4236,7 @@ skills:
         chance: 100
     description: A piercing screech that throws off the aim of every foe close by.
 
-  - id: 1114
+  - id: 2105
     identifier: hamstring
     name: Hamstring
     script: BestiaDebuffSkill
@@ -4087,7 +4255,7 @@ skills:
         chance: 100
     description: Bites at the target's legs. Its swings come much slower for a while.
 
-  - id: 1115
+  - id: 2106
     identifier: quagmire
     name: Quagmire
     script: BestiaZoneSkill
@@ -4106,7 +4274,7 @@ skills:
       areaSeconds: 10
     description: Turns a 5×5 patch into a mire. Whoever stands in it is clumsy, slow and loses any haste.
 
-  - id: 1116
+  - id: 2107
     identifier: stone_curse
     name: Stone Curse
     script: BestiaDebuffSkill
@@ -4125,7 +4293,7 @@ skills:
         chance: 60
     description: The target starts turning to stone. If nothing cures it within ten seconds, it is stone for thirty.
 
-  - id: 1117
+  - id: 2108
     identifier: terrifying_roar
     name: Terrifying Roar
     script: BestiaDebuffSkill
@@ -4147,7 +4315,7 @@ skills:
         durationSeconds: 3
     description: A roar so fierce that foes close by may run away in fear.
 
-  - id: 1119
+  - id: 2109
     identifier: withering_curse
     name: Withering Curse
     script: BestiaDebuffSkill
@@ -4167,7 +4335,7 @@ skills:
         durationSeconds: 30
     description: 'Ages the target''s body by years: less health, less vitality, slower healing.'
 
-  - id: 1120
+  - id: 2110
     identifier: frost_diver
     name: Frost Diver
     script: BestiaMagicSkill
@@ -4186,7 +4354,7 @@ skills:
         chance: 50
     description: A shard of ice that does little harm but often freezes the target solid.
 
-  - id: 1121
+  - id: 2111
     identifier: frost_nova
     name: Frost Nova
     script: BestiaAreaSkill
@@ -4207,7 +4375,7 @@ skills:
         chance: 30
     description: A burst of frost around the caster that may freeze everyone close by.
 
-  - id: 1122
+  - id: 2112
     identifier: turn_undead
     name: Turn Undead
     script: TurnUndead
@@ -4223,7 +4391,7 @@ skills:
     description: 'Only for the undead: it may destroy one outright, else it burns with holy light. Bosses are never
       destroyed.'
 
-  - id: 1123
+  - id: 2113
     identifier: great_exorcism
     name: Great Exorcism
     script: BestiaAreaSkill
@@ -4252,7 +4420,7 @@ skills:
     description: While the caster holds the spell, holy light strikes the area again and again. It hurts only the
       undead, ghosts and demons. Uses up a mana crystal.
 
-  - id: 1124
+  - id: 2114
     identifier: control_undead
     name: Control Undead
     script: ControlUndead
@@ -4267,7 +4435,7 @@ skills:
     manaCost: 30
     description: Bends a wild undead to fight its own kind for a while. Bosses and the much stronger resist.
 
-  - id: 1125
+  - id: 2115
     identifier: ultima
     name: Ultima
     script: Ultima
@@ -4282,7 +4450,7 @@ skills:
     manaCost: 90
     description: Takes a quarter of the target's health, whatever its guard. A boss loses a twentieth.
 
-  - id: 1126
+  - id: 2116
     identifier: ultima_fist
     name: Ultima Fist
     script: UltimaFist
@@ -4298,7 +4466,7 @@ skills:
     description: 'Only while berserk and with half its mana: pours all of it into one devastating blow. Afterwards
       the mana does not come back for five minutes.'
 
-  - id: 1127
+  - id: 2117
     identifier: divine_heal
     name: Divine Heal
     script: BestiaHealSkill
@@ -4313,7 +4481,7 @@ skills:
     manaCost: 60
     description: Heals a friend for a huge amount.
 
-  - id: 1128
+  - id: 2118
     identifier: healing_circle
     name: Healing Circle
     script: BestiaAreaHealSkill
@@ -4329,7 +4497,7 @@ skills:
     aoeRadius: 2.0
     description: Heals every friend in a small circle.
 
-  - id: 1129
+  - id: 2119
     identifier: sanctuary
     name: Sanctuary
     script: BestiaAreaHealSkill
@@ -4350,7 +4518,7 @@ skills:
           amount: 1
     description: Hallows a large patch of ground that heals every friend in it for ten seconds. Uses up a mana crystal.
 
-  - id: 1130
+  - id: 2120
     identifier: mirror_veil
     name: Mirror Veil
     script: BestiaBuffSkill
@@ -4366,7 +4534,7 @@ skills:
     status: REFLECT
     description: A friend turns single-target skills back on their caster, a few times.
 
-  - id: 1131
+  - id: 2121
     identifier: bone_armor
     name: Bone Armor
     script: BestiaBuffSkill
@@ -4386,7 +4554,7 @@ skills:
           amount: 1
     description: Wraps a friend in plates of bone that soak up the next few blows. Uses up a bone shard.
 
-  - id: 1132
+  - id: 2122
     identifier: acid_skin
     name: Acid Skin
     script: BestiaBuffSkill
@@ -4402,7 +4570,7 @@ skills:
     status: CORROSIVE
     description: Its hide turns acid. Weapons that hit it wear down.
 
-  - id: 1133
+  - id: 2123
     identifier: flame_weapon
     name: Flame Weapon
     script: BestiaBuffSkill
@@ -4418,7 +4586,7 @@ skills:
     status: ENDOWED
     description: 'A friend''s weapon burns: its plain blows hit as Fire.'
 
-  - id: 1134
+  - id: 2124
     identifier: frost_weapon
     name: Frost Weapon
     script: BestiaBuffSkill
@@ -4434,7 +4602,7 @@ skills:
     status: ENDOWED
     description: 'A friend''s weapon freezes over: its plain blows hit as Water.'
 
-  - id: 1135
+  - id: 2125
     identifier: quake_weapon
     name: Quake Weapon
     script: BestiaBuffSkill
@@ -4450,7 +4618,7 @@ skills:
     status: ENDOWED
     description: 'A friend''s weapon grows heavy as stone: its plain blows hit as Earth.'
 
-  - id: 1136
+  - id: 2126
     identifier: storm_weapon
     name: Storm Weapon
     script: BestiaBuffSkill
@@ -4466,7 +4634,7 @@ skills:
     status: ENDOWED
     description: 'A friend''s weapon crackles: its plain blows hit as Wind.'
 
-  - id: 1137
+  - id: 2127
     identifier: flame_coat
     name: Flame Coat
     script: BestiaBuffSkill
@@ -4482,7 +4650,7 @@ skills:
     status: ARMOR_ENDOWED
     description: 'A friend is wrapped in fire: hits on it are weighed as against Fire.'
 
-  - id: 1138
+  - id: 2128
     identifier: frost_coat
     name: Frost Coat
     script: BestiaBuffSkill
@@ -4498,7 +4666,7 @@ skills:
     status: ARMOR_ENDOWED
     description: 'A friend is wrapped in frost: hits on it are weighed as against Water.'
 
-  - id: 1139
+  - id: 2129
     identifier: stone_coat
     name: Stone Coat
     script: BestiaBuffSkill
@@ -4514,7 +4682,7 @@ skills:
     status: ARMOR_ENDOWED
     description: 'A friend is wrapped in stone: hits on it are weighed as against Earth.'
 
-  - id: 1140
+  - id: 2130
     identifier: storm_coat
     name: Storm Coat
     script: BestiaBuffSkill
@@ -4530,7 +4698,7 @@ skills:
     status: ARMOR_ENDOWED
     description: 'A friend is wrapped in wind: hits on it are weighed as against Wind.'
 
-  - id: 1141
+  - id: 2131
     identifier: wind_ward
     name: Wind Ward
     script: BestiaZoneSkill
@@ -4549,7 +4717,7 @@ skills:
       areaSeconds: 10
     description: A 3×3 wall of wind for ten seconds. Shots and arrows at anyone inside miss.
 
-  - id: 1142
+  - id: 2132
     identifier: bewilder
     name: Bewilder
     script: BestiaDebuffSkill
@@ -4568,7 +4736,7 @@ skills:
         chance: 60
     description: Muddles the target's head. It may walk the wrong way for a while.
 
-  - id: 1143
+  - id: 2133
     identifier: dispel
     name: Dispel
     script: Dispel
@@ -4583,7 +4751,7 @@ skills:
     manaCost: 20
     description: Strips the target of its buffs.
 
-  - id: 1144
+  - id: 2134
     identifier: disarm
     name: Disarm
     script: Disarm
@@ -4599,7 +4767,7 @@ skills:
     description: Knocks the weapon out of the target's hand, and it stays empty for a while. A wild bestia hits softer
       instead.
 
-  - id: 1145
+  - id: 2135
     identifier: strip_armor
     name: Strip Armor
     script: StripArmor
@@ -4614,7 +4782,7 @@ skills:
     manaCost: 16
     description: Tears the target's armour off. Nothing can be worn in its place for a while.
 
-  - id: 1146
+  - id: 2136
     identifier: corrode
     name: Corrode
     script: BestiaPhysicalSkill
@@ -4631,7 +4799,7 @@ skills:
       gearWearPercent: 15
     description: A blow with acid on its claws. The target's weapon and armour lose a good part of their durability.
 
-  - id: 2000
+  - id: 2137
     identifier: forage
     name: Forage
     script: Gather
@@ -4650,7 +4818,7 @@ skills:
     description: Snuffles through the undergrowth and turns up grain, berries or herbs at its feet. Works once every
       five minutes.
 
-  - id: 2001
+  - id: 2138
     identifier: shed_wool
     name: Shed Wool
     script: Gather
@@ -4666,7 +4834,7 @@ skills:
       chance: 3000
     description: Shakes out a fleece of wool, and sometimes a tuft of soft fur. Works once every ten minutes.
 
-  - id: 2002
+  - id: 2139
     identifier: unearth
     name: Unearth
     script: Gather
@@ -4684,7 +4852,7 @@ skills:
       chance: 800
     description: 'Digs where it smells something buried: clay, a lost coin, now and then a rough gem.'
 
-  - id: 2004
+  - id: 2140
     identifier: gather_herbs
     name: Gather Herbs
     script: Gather
@@ -4702,7 +4870,7 @@ skills:
       chance: 500
     description: Picks the herbs it knows are good to eat, and a few you would not have known about.
 
-  - id: 2005
+  - id: 2141
     identifier: spin_silk
     name: Spin Silk
     script: Gather
@@ -4716,7 +4884,7 @@ skills:
       chance: 10000
     description: Spins a spool of fine silk thread for tailors.
 
-  - id: 2006
+  - id: 2142
     identifier: collect_honey
     name: Collect Honey
     script: Gather
@@ -4730,7 +4898,7 @@ skills:
       chance: 8000
     description: Raids a wild hive and brings back a dripping honeycomb, stings and all.
 
-  - id: 2007
+  - id: 2143
     identifier: mine_ore
     name: Mine Ore
     script: Gather
@@ -4748,7 +4916,7 @@ skills:
       chance: 800
     description: Breaks a lump of ore out of the nearest rock. It never asks which rock is yours.
 
-  - id: 2008
+  - id: 2144
     identifier: uproot
     name: Uproot
     script: Gather
@@ -4762,7 +4930,7 @@ skills:
       chance: 10000
     description: Tears a young tree out by its roots for firewood or timber.
 
-  - id: 2009
+  - id: 2145
     identifier: drip_jelly
     name: Drip Jelly
     script: Gather
@@ -4776,7 +4944,7 @@ skills:
       chance: 10000
     description: Wobbles until a blob of jelly drips off. It does not seem to mind.
 
-  - id: 2010
+  - id: 2146
     identifier: salt_crust
     name: Salt Crust
     script: Gather
@@ -4790,7 +4958,7 @@ skills:
       chance: 8000
     description: Scrapes the salt that dries on its hide after a swim in the sea.
 
-  - id: 2011
+  - id: 2147
     identifier: warm_fur
     name: Warm Fur
     script: ApplyStatus
@@ -4803,7 +4971,7 @@ skills:
     description: Huddles up against a friend. For five minutes and more, the cold has to be 15 °C colder before it
       hurts them.
 
-  - id: 2012
+  - id: 2148
     identifier: cooling_mist
     name: Cooling Mist
     script: ApplyStatus
@@ -4816,7 +4984,7 @@ skills:
     description: Wraps a friend in cool mist. For five minutes and more, the heat has to be 15 °C hotter before it
       hurts them.
 
-  - id: 2013
+  - id: 2149
     identifier: gale_step
     name: Gale Step
     script: ApplyStatus
@@ -4828,7 +4996,7 @@ skills:
     status: SWIFTNESS
     description: Puts the wind at a friend's back, so they run faster for a while.
 
-  - id: 2014
+  - id: 2150
     identifier: benediction
     name: Blessing
     script: ApplyStatus
@@ -4844,7 +5012,7 @@ skills:
         level: 5
     description: 'Blessing 5 on a friend: more strength, dexterity and intelligence for a while.'
 
-  - id: 2018
+  - id: 2151
     identifier: sniff_trail
     name: Sniff Trail
     script: ReadTracks
@@ -4855,7 +5023,7 @@ skills:
     manaCost: 6
     description: 'Puts its nose to the ground and reads the tracks there: who passed, how many and how long ago.'
 
-  - id: 2019
+  - id: 2152
     identifier: keen_eye
     name: Keen Eye
     script: ReadTracks
@@ -4866,7 +5034,7 @@ skills:
     manaCost: 8
     description: Circles above and reads the tracks below from the air.
 
-  - id: 2021
+  - id: 2153
     identifier: splash
     name: Splash
     script: Proclaim
@@ -4881,7 +5049,7 @@ skills:
     - '*splash!* It is very pleased with itself.'
     description: Splashes around with all its might. Nothing happens. Nothing ever happens.
 
-  - id: 2022
+  - id: 2154
     identifier: cackle
     name: Cackle
     script: Proclaim
@@ -4896,7 +5064,7 @@ skills:
     - '*laughs at something only it finds funny*'
     description: Laughs out loud. Everyone nearby hears it, and nobody likes it.
 
-  - id: 2023
+  - id: 2155
     identifier: mock
     name: Mock
     script: Proclaim
@@ -4911,7 +5079,7 @@ skills:
     - '*waves something shiny it just took from you*'
     description: Makes rude faces and noises at whoever is looking.
 
-  - id: 2024
+  - id: 2156
     identifier: wail
     name: Wail
     script: Proclaim
@@ -4926,7 +5094,7 @@ skills:
     - '*a wail that freezes the blood*'
     description: Wails in grief. It frightens nobody it is fond of.
 
-  - id: 2025
+  - id: 2157
     identifier: proclaim_doom
     name: Proclaim Doom
     script: Proclaim
@@ -4943,7 +5111,7 @@ skills:
     - Kneel before the Doommaster of Doom!
     description: Announces the doom of everyone nearby, at length. The doom never quite arrives.
 
-  - id: 2027
+  - id: 2158
     identifier: greater_blessing
     name: Greater Blessing
     script: ApplyStatus
@@ -4959,7 +5127,7 @@ skills:
         level: 10
     description: 'Blessing 10 on a friend: much more strength, dexterity and intelligence for a while.'
 
-  - id: 2028
+  - id: 2159
     identifier: detect
     name: Detect
     script: Detect
@@ -4971,7 +5139,7 @@ skills:
     description: Senses masters and their bestia within fifteen tiles, hidden ones too, and marks them on the map
       for thirty seconds.
 
-  - id: 2029
+  - id: 2160
     identifier: burrow
     name: Burrow
     script: ApplyStatus
@@ -4984,7 +5152,7 @@ skills:
     description: Digs in out of sight. It cannot move, but area attacks pass over it. Staying hidden costs mana, and
       any action gives it away.
 
-  - id: 2030
+  - id: 2161
     identifier: shadow_cloak
     name: Shadow Cloak
     script: ApplyStatus
@@ -4997,171 +5165,3 @@ skills:
     description: Moves unseen and slower. Any blow, an area one too, gives it away. Staying hidden costs mana.
 
   # END generated bestia skills
-
-# GUILD SKILLS (reserved 9000+). The guild learns these with its own skill points, not a master; see
-# guild_skill_tree.yml for the tree.
-  - id: 9001
-    identifier: GUILD_EMBLEM
-    targetType: FRIENDLY
-    description: |
-      The guild may carry an emblem. It shows on its members, its Stronghold and its banners.
-
-  - id: 9002
-    identifier: OFFICIAL_GUILD_APPROVAL
-    targetType: FRIENDLY
-    description: |
-      The guild is recognised by the realm. It may found a Guild Stronghold and attack the
-      installations of other guilds - and its own Stronghold may be attacked in turn.
-
-  - id: 9003
-    identifier: STEWARD_CONTRACT
-    targetType: FRIENDLY
-    description: |
-      Hires a steward for the Guild Stronghold. Members can open the guild storage at the
-      steward and return to the Stronghold when they fall.
-
-  - id: 9004
-    identifier: GUILD_STORAGE
-    targetType: FRIENDLY
-    description: |
-      A storage every member with the right rank can use, kept by the steward.
-
-      Each level adds more storage space.
-
-  - id: 9005
-    identifier: WATCHER_RESEARCH
-    targetType: FRIENDLY
-    description: |
-      Allows the guild to call watchers, Bestia that guard the Guild Stronghold.
-
-  - id: 9006
-    identifier: STRENGTHEN_WATCHERS
-    targetType: FRIENDLY
-    description: |
-      The watchers of the Guild Stronghold hit harder and attack faster.
-
-  - id: 9007
-    identifier: PERMANENT_DEVELOPMENT
-    targetType: FRIENDLY
-    description: |
-      Investing in the Guild Stronghold has a 50% chance to give one free extra point.
-
-  - id: 9008
-    identifier: GUILD_EXTENSION
-    targetType: FRIENDLY
-    description: |
-      More members can join the guild.
-
-      `+4 members/lv`
-
-  - id: 9009
-    identifier: GREAT_LEADERSHIP
-    targetType: FRIENDLY
-    description: |
-      Members near the guild master fight with more strength.
-
-      `+1 STR/lv` within 15 m of the guild master
-
-  - id: 9010
-    identifier: SHARP_GAZE
-    targetType: FRIENDLY
-    description: |
-      Members near the guild master aim more precisely.
-
-      `+1 DEX/lv` within 15 m of the guild master
-
-  - id: 9011
-    identifier: GLORIOUS_WOUNDS
-    targetType: FRIENDLY
-    description: |
-      Members near the guild master endure more.
-
-      `+1 VIT/lv` within 15 m of the guild master
-
-  - id: 9012
-    identifier: COLD_HEART
-    targetType: FRIENDLY
-    description: |
-      Members near the guild master move and react faster.
-
-      `+1 AGI/lv` within 15 m of the guild master
-
-  - id: 9013
-    identifier: ARCANE_ACCORD
-    targetType: FRIENDLY
-    description: |
-      Members near the guild master channel more magic.
-
-      `+1 INT/lv` within 15 m of the guild master
-
-  - id: 9014
-    identifier: STEADFAST_MIND
-    targetType: FRIENDLY
-    description: |
-      Members near the guild master resist magic better.
-
-      `+1 WIL/lv` within 15 m of the guild master
-
-  - id: 9015
-    identifier: FORTUNES_FAVOR
-    targetType: FRIENDLY
-    description: |
-      Everything a member of the guild defeats is more likely to drop its items.
-
-      `+5%/lv` of each drop's own chance - at Lv.5 a 10% drop becomes 12.5%
-
-  - id: 9016
-    identifier: EMERGENCY_MOVE
-    script: EmergencyMove
-    targetType: FRIENDLY
-    description: |
-      The members around the caster move faster for a short time.
-
-      `+25%` movement speed for 10s, within 15 m. Cooldown 60s for the whole guild.
-
-  - id: 9017
-    identifier: BATTLE_ORDERS
-    script: BattleOrders
-    targetType: FRIENDLY
-    description: |
-      The members around the caster gain strength, dexterity and intelligence.
-
-      `+5 STR, DEX and INT` for 180s, within 30 m. Cooldown 180s for the whole guild.
-
-  - id: 9018
-    identifier: GUILD_REGENERATION
-    script: GuildRegeneration
-    targetType: FRIENDLY
-    description: |
-      The members around the caster recover HP, Mana and stamina faster.
-
-      `+50%/lv` regeneration for 60s, within 30 m. Cooldown 300s for the whole guild.
-
-  - id: 9019
-    identifier: RESTORATION
-    script: Restoration
-    targetType: FRIENDLY
-    description: |
-      Restores 90% of the HP and Mana of the members around the caster, within 30 m.
-
-      Cooldown 180s for the whole guild.
-
-  - id: 9020
-    identifier: EMERGENCY_RECALL
-    script: EmergencyRecall
-    targetType: FRIENDLY
-    description: |
-      Calls every member of the guild to the caster. Works only inside the guild's own
-      Stronghold.
-
-      Cooldown 300s for the whole guild.
-
-  - id: 9021
-    identifier: RALLY_TO_THE_BANNER
-    script: RallyToTheBanner
-    targetType: FRIENDLY
-    description: |
-      Members may plant a War Banner. Casting the skill calls every member of the guild to the
-      banner - even into an enemy Stronghold. Enemies can cut the banner down.
-
-      Cooldown 900s for the whole guild, separate from Emergency Recall.

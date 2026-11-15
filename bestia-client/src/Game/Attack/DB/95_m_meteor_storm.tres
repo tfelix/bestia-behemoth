@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 95
+name = "Meteor Storm"
+description_key = "SKILL_95_DESC"
+mana_cost = 70
+cooldown = 30.0
+max_level = 3
+cast_time = 6.0
+tree = "WARRIOR"
+sub_tree = "WIZARD"
+prerequisite_ids = PackedInt32Array(4)
+prerequisite_levels = PackedInt32Array(5)
+target_type = "AOE_GROUND"
+aoe_radius = 3.0

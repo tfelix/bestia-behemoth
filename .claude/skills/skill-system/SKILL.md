@@ -39,15 +39,17 @@ bestia skill. It is not cosmetic: the `skill` table's unique key on `identifier`
 so a master `BLESSING` and a bestia `blessing` cannot coexist. The importers refuse such a pair at boot.
 The `SkillId` constant carries the prefix too, and so does the client file (`6_m_blessing.tres`).
 
-Convention in the file: master skills are grouped first under `# MASTER SKILLS`, bestia
-skills after under `# BESTIA SKILLS`, by ascending id (**bestia-species/item skills are
-reserved at id 1000-8999**; master skills use the open range below that, currently 1-185, with
-holes where removed skills used to be; a free id is never reused) — not enforced by code, just keep following
-it. The 1000+ split was chosen when the master skill tree grew past the original
-"masters 1-99" convention (see `docs/mechanics/master/` for the master skill trees
-design).
+**Three id ranges, and the file is in id order**: master skills are `1`-`999` (`# MASTER SKILLS`, first),
+guild skills `1000`-`1999` (`# GUILD SKILLS`), and every bestia-species/item skill is `2000` and up
+(`# BESTIA SKILLS`, last, because it is the range that keeps growing). Within a range the ids are
+contiguous with no gaps (master 1-168, guild 1000-1020, bestia 2000-2161) and assigned in file order, so a new
+skill takes the next free id at the end of its range and the file stays ascending. Master and guild skills are
+not expected to outgrow their ranges. Not enforced by code
+(apart from `SkillDbSyncTask.BESTIA_SKILL_IDS`, `>= 2000`), just keep following it. The ranges were last
+closed up on 2026-11-15: a removed skill's id is not left as a hole any more, so a branch that adds a skill
+or names one by number has to re-map (see `docs/mechanics/master/` for the master skill trees design).
 
-**Guild skills are 9000+**, last in the file under `# GUILD SKILLS`. The guild learns them, not a master:
+**Guild skills are 1000-1999.** The guild learns them, not a master:
 `guild_skill_tree.yml` is their tree (loaded into `GuildSkillTree`), the guild's levels live in
 `guild_skill_level`, and a master casts an active one through the `SkillGrant` port when its rank may use guild
 skills. `syncSkillDb` reads that tree too and puts their Attack DB entries under `tree = "GUILD"`, which the
@@ -61,6 +63,9 @@ master's Skills window never lists; the guild window's Skills tab draws them.
   constant too.
 - `MultiPlayerJourneyScenario` hardcodes real ids from this file
   (`BLESSING_ID`, `HEAL_ID`, `MAGIC_SENSE_ID`) to drive an end-to-end investment.
+- The client names a few by number: `scry_view.gd` (`M_SCRY`), `resource_sonar.gd` (`M_RESOURCE_SONAR`),
+  `emblem_picture.gd` (`GUILD_EMBLEM`), and the guild tree's `CELLS` grid and `NEEDS_STRONGHOLD` list in
+  `UI/Guild/`. Each names its skill in a comment; grep the old number when ids move.
 
 Everywhere else, code resolves a skill by `identifier` through `SkillRepository`, and the
 identifier itself comes from the **`SkillId` enum** (`zone-server/.../skill/SkillId.kt`) —
@@ -128,7 +133,7 @@ target and nothing else — the `used_attack_id`/`skill_level` it used to carry 
 numbers now, because there is no id to send. Casting a skill is `ActivateSkillCMSG`, a different
 message down a different pathway.
 
-The old `tackle` row (id 1001) was exactly this mistake and has been removed, along with the
+The old `tackle` row (id 1001 at the time) was exactly this mistake and has been removed, along with the
 `0`-valued `skillId` mobs used to be seeded with — an id `skills.yml` never had. A mob's basic attack
 is its species' `default-attack` (`MELEE`, `RANGED` or `BOTH` in the mob YAML) at the species' `aspd`,
 never an AI profile entry. A profile's `attacks:` lists attack skills only, each with a `skill_id`; the creature must know
@@ -206,7 +211,7 @@ by `identifier`.
   master's write-behind (`MasterEntityPersister`) then saves the points and the `learned_skill` rows
   together. `KnownSkills` is the authority while the master is online, so `SkillListSMSG` is built
   from it, not from the database.
-- A skill in `skills.yml` with no entry here (e.g. bestia skills 1000+, `ember`,
+- A skill in `skills.yml` with no entry here (e.g. bestia skills 2000+, `ember`,
   `tackle`) is not master-investable at all — masters never see a level-up option for
   it.
 - Two gates beyond `prerequisites` are enforced in `MasterSkillTreeService` and have **no
@@ -239,7 +244,7 @@ auto-loaded by `AttackDB` (`bestia-client/src/Game/Attack/attack_db.gd`) from ev
 tab under its bare id with a placeholder icon - so an unsynced skill shows up wrong
 instead of failing loudly.
 
-File naming convention: `<id>_<identifier lowercased>.tres` (e.g. `1000_ember.tres`),
+File naming convention: `<id>_<identifier lowercased>.tres` (e.g. `2000_ember.tres`),
 matching `skills.yml`'s `id`/`identifier` — not required by any loader code (only
 `skill_id` inside the file matters), but keep it for greppability.
 
@@ -335,8 +340,8 @@ levels a skill costs. It acts on the active entity and then pushes a fresh `Skil
 
 ## Adding a new skill end-to-end
 
-1. Add the entry to `skills.yml` with a fresh unused `id`, plus an English `description`
-   if you have flavor text ready.
+1. Add the entry to `skills.yml` with the next free `id` of its range (see above), at the end of that range's
+   block, plus an English `description` if you have flavor text ready.
 2. If it's master-investable, add a node to `master_skill_tree.yml` referencing it by
    `identifier`, with `maxLevel` and any `prerequisites`. Skip this step for
    bestia-species/item-taught skills.

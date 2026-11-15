@@ -581,8 +581,8 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
   }
 
   private companion object {
-    /** `skills.yml` reserves 1000 up to the guild skills at 9000 for the skills of bestia species. */
-    val BESTIA_SKILL_IDS = 1000L until 9000L
+    /** `skills.yml` reserves 2000 and up for the skills of bestia species; master skills are below 1000, guild skills 1000-1999. */
+    val BESTIA_SKILL_IDS = 2000L..Long.MAX_VALUE
   }
 }
 

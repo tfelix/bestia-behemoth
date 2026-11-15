@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+[ext_resource type="Script" path="res://Game/Attack/self_cast_use.gd" id="2_self"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 122
+name = "Juggernaut"
+description_key = "SKILL_122_DESC"
+mana_cost = 60
+cooldown = 120.0
+max_level = 3
+target_type = "FRIENDLY"
+tree = "WARRIOR"
+sub_tree = "KNIGHT"
+prerequisite_ids = PackedInt32Array(116, 121, 120)
+prerequisite_levels = PackedInt32Array(5, 3, 3)
+attack_script = ExtResource("2_self")

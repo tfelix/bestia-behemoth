@@ -319,7 +319,7 @@ class AreaEffectSystemTest {
     val CENTER = Vec3L(10, 10, 0)
     const val CASTER_ID = 4242L
     const val OWNER = 77L
-    const val SKILL_ID = 1000L
+    const val SKILL_ID = 2000L
     const val DAMAGE_PER_TICK = 7
     const val TICK_INTERVAL = 1.2f
     const val DURATION = 9.6f
@@ -343,7 +343,7 @@ class AreaEffectSystemTest {
     world.createEntity { entityId ->
       add(entityId, Position.fromVec3(at))
       add(entityId, AreaEffect.lasting(
-        casterId = CASTER_ID, skillId = 1000L, skillLevel = 1, radiusTiles = 2,
+        casterId = CASTER_ID, skillId = 2000L, skillLevel = 1, radiusTiles = 2,
         damagePerTick = 10, tickIntervalSeconds = 0.1f, durationSeconds = 1f
       ))
     }

@@ -77,8 +77,8 @@ class AggroScenarioTest {
     AttackEffectiveness.record(memory, EffectivenessKey("golem", "fireBolt"), observed = 0.9)
 
     val attacks = listOf(
-      SkillAttack(id = "slash", range = 1, skillId = 1001),
-      SkillAttack(id = "fireBolt", range = 4, skillId = 1002),
+      SkillAttack(id = "slash", range = 1, skillId = 2001),
+      SkillAttack(id = "fireBolt", range = 4, skillId = 2002),
     )
     val agent = SimpleAgent(
       name = "golem-hunter",

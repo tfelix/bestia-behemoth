@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="AttackResource" format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://Game/Attack/DB/4_m_firebolt.png" id="1_v44l0"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 4
+icon = ExtResource("1_v44l0")
+name = "Fire Bolt"
+description_key = "SKILL_4_DESC"
+mana_cost = 18
+cooldown = 0.0
+cast_time = 2.0
+max_level = 5
+target_type = "ENEMY"
+tree = "WARRIOR"
+sub_tree = "WIZARD"

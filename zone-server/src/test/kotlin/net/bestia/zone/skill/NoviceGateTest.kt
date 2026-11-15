@@ -94,6 +94,6 @@ class NoviceGateTest {
     const val FIRST_AID_ID = 8L
     const val CARPENTRY_ID = 20L
     const val ORE_REFINEMENT_ID = 21L
-    const val BESTIA_SKILL_ID = 1000L
+    const val BESTIA_SKILL_ID = 2000L
   }
 }

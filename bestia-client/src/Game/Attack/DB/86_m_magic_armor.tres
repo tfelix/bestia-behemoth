@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+[ext_resource type="Script" path="res://Game/Attack/self_cast_use.gd" id="2_self"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 86
+name = "Magic Armor"
+description_key = "SKILL_86_DESC"
+mana_cost = 30
+cooldown = 10.0
+max_level = 3
+target_type = "FRIENDLY"
+cast_time = 5.0
+tree = "WARRIOR"
+attack_script = ExtResource("2_self")

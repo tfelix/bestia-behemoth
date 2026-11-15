@@ -6,7 +6,7 @@ class_name ResourceSonar
 ## see OreSonar. Placed in Game.tscn, so it lives and dies with the world.
 
 ## M_RESOURCE_SONAR in the server's skills.yml.
-const _SKILL_ID := 43
+const _SKILL_ID := 38
 ## The pickaxe in the server's items.yml, by item name key, like Angler's rods.
 const _PICKAXE_NAME_KEY := &"PICKAXE"
 const _METRES_PER_LEVEL := 5

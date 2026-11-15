@@ -8,7 +8,7 @@ Lv.3 Allows to use trade posts.
 Lv.4 Allows sitting to double HP & Mana recovery.
 Lv.5 Allows to create parties and invite players into them. Joining a party needs no rank.
 Unlocks all the other skill trees."
-SKILL_3_DESC,"The Master and his Bestia can learn recipes and start to cook meals on fire places. Food
+SKILL_2_DESC,"The Master and his Bestia can learn recipes and start to cook meals on fire places. Food
 helps a Bestia to keep its health and stamina up and usually applies buff effects when it
 is eaten.
 
@@ -18,31 +18,31 @@ recipes you discover, not with the rank.
 Lv.1 `-0%` cooking time, `+0%` success chance, 5 stamina
 Lv.2 `-20%` cooking time, `+20%` success chance, 8 stamina
 Lv.3 `-40%` cooking time, `+40%` success chance, 11 stamina"
-SKILL_4_DESC,"Channels mana directly into a target's wounds, restoring HP in an instant. The Priest's
+SKILL_3_DESC,"Channels mana directly into a target's wounds, restoring HP in an instant. The Priest's
 bread and butter - simple, reliable, and the first rite every Priest learns.
 
 Heals `[(BaseLv + INT) / 8] * (4 + 8 * SkillLv)` HP. Against an Undead foe it is a holy
 attack for half that amount. Hold Shift to aim it at a monster.
 `+3/lv` mana cost, from 13 at Lv.1"
-SKILL_1000_DESC,"Sets a patch of ground alight. Everything standing in the flames is burnt every 1.2s for
+SKILL_2000_DESC,"Sets a patch of ground alight. Everything standing in the flames is burnt every 1.2s for
 9.6s - eight times in all.
 
 Aimed at the ground rather than at a creature, and it does not care whose side anyone is on:
 the flames burn the caster too."
-SKILL_5_DESC,"A quick bolt of flame hurled at a single target. The first spell most Wizards ever learn,
+SKILL_4_DESC,"A quick bolt of flame hurled at a single target. The first spell most Wizards ever learn,
 and the one they cast the most often. Must be channelled - moving or taking damage
 interrupts the cast.
 
 `+20%/lv` MATK
 `-0.2s/lv` cast time"
-SKILL_6_DESC,"A benediction that steadies body and mind. On an Undead or Demon foe it turns into a curse
+SKILL_5_DESC,"A benediction that steadies body and mind. On an Undead or Demon foe it turns into a curse
 that halves DEX and INT instead. Hold Shift to aim it at a monster.
 
 `+2/lv` STR, DEX and INT
 `+4/lv` HIT
 `+3/lv` ATK and MATK
 `40s + 40s/lv` duration"
-SKILL_8_DESC,"Put a bandage on yourself or on a friendly Bestia or master, then channel a healing effect
+SKILL_6_DESC,"Put a bandage on yourself or on a friendly Bestia or master, then channel a healing effect
 over 10s, a pulse every 2s. A hit breaks the channel. The cooldown of this skill is 3
 minutes. A target can only receive a single First Aid every 60 secs.
 
@@ -50,60 +50,60 @@ Whichever is smaller, a share of the maximum health of the target or a flat amou
 Lv.1 `+30%` max HP or `+100 HP`, 12 mana
 Lv.2 `+60%` max HP or `+200 HP`, 16 mana
 Lv.3 `+100%` max HP or `+350 HP`, 20 mana"
-SKILL_10_DESC,"Turns raw timber and honest labor into the workbenches, furniture and structures every
+SKILL_7_DESC,"Turns raw timber and honest labor into the workbenches, furniture and structures every
 settlement needs to stand on its own.
 
 Level 1 enables you to place a Workbench
 `+5%/lv` success chance
 `+10 item lv/lv` of items that can be produced, up to item level 100+ at max rank"
-SKILL_11_DESC,"A lifetime of calluses paid off - tools answer faster and structures rise quicker under
+SKILL_8_DESC,"A lifetime of calluses paid off - tools answer faster and structures rise quicker under
 this Craftsman's hand, and the Bestia working alongside them keep pace.
 
 `-10%/lv` construction time of structures
 `+2%/lv` construction success chance"
-SKILL_12_DESC,"A meticulous rework that opens sockets in an item's frame, letting a Runic Etcher's runes
+SKILL_9_DESC,"A meticulous rework that opens sockets in an item's frame, letting a Runic Etcher's runes
 be slotted into it later. Requires an Engraving Set which will be consumed in the process.
 
 `+10%/lv` success chance
 `-2%/lv` chance to destroy the item when the engraving fails, from 30% down to 12%
 1 rune slot, rising to 2 at Lv.4 and 3 at Lv.7
 Every slot beyond the first lowers the success chance by 40%"
-SKILL_13_DESC,"Feeds raw ore to the roar of the furnace, coaxing out the pure ingots every weapon and
+SKILL_10_DESC,"Feeds raw ore to the roar of the furnace, coaxing out the pure ingots every weapon and
 suit of armor is ultimately built from. Burns Coal as fuel. A failed smelt loses both
 the ore and the fuel.
 
 Level 1 enables you to place a Furnace
 `+30%/lv` refinement success chance, no ore level cap"
-SKILL_14_DESC,"Discovers and forges weapon blueprints from smelted ingots - the Blacksmith's bread and
+SKILL_11_DESC,"Discovers and forges weapon blueprints from smelted ingots - the Blacksmith's bread and
 butter. Higher skill levels reliably reach higher-level weapons.
 
 Level 1 enables you to place a Forge
 `+5%/lv` success chance
 `+10 item lv/lv` reliable item level, 100+ at max rank
 `-5%` success chance per item level above the reliable one, no hard cap"
-SKILL_15_DESC,"The counterpart to Forge Weapon: discovers and forges armor blueprints - plate, mail and
+SKILL_12_DESC,"The counterpart to Forge Weapon: discovers and forges armor blueprints - plate, mail and
 shields - from smelted ingots. Higher skill levels reliably reach higher-level armor.
 
 Level 1 enables you to place a Forge
 `+5%/lv` success chance
 `+10 item lv/lv` reliable item level, 100+ at max rank
 `-5%` success chance per item level above the reliable one, no hard cap"
-SKILL_16_DESC,"Hammers dents from armor and sets a fresh edge to broken blades, coaxing worn-out
+SKILL_13_DESC,"Hammers dents from armor and sets a fresh edge to broken blades, coaxing worn-out
 equipment back into fighting shape. Only weapons and armor wear out and can be repaired.
 The burnt time of a light source is gone for good.
 
 `+20 item lv/lv` of equipment that can be repaired, up to item level 100+ at max rank"
-SKILL_17_DESC,"Deeper knowledge of weapons and armor that raises the odds of successfully refining
+SKILL_14_DESC,"Deeper knowledge of weapons and armor that raises the odds of successfully refining
 either one further after forging. If an upgrade fails the equipment can be destroyed.
 
 `+8%/lv` success chance when upgrading a weapon or armor
 `+2%/lv` success chance when forging"
-SKILL_18_DESC,"The capstone of the forge. Makes a Blacksmith's hands steady enough to trust with the
+SKILL_15_DESC,"The capstone of the forge. Makes a Blacksmith's hands steady enough to trust with the
 rarest ore.
 
 `+5%/lv` Weapon/Armor forging chance
 `+5%/lv` upgrade chance"
-SKILL_19_DESC,"Build and operate Mana Harvesters which channel mana from the environment into raw
+SKILL_16_DESC,"Build and operate Mana Harvesters which channel mana from the environment into raw
 crystals - the source of magic for many use cases. Yield follows the local mana
 concentration, so where a harvester stands matters as much as its rank.
 
@@ -111,14 +111,14 @@ Level 1 enables you to place a Mana Harvester
 `-5%/lv` harvesting time
 `+3%/lv` crystal yield
 One more active harvester at Lv.4, Lv.7 and Lv.10"
-SKILL_20_DESC,"Refine the raw and unstable mana crystals harvested by a Mana Harvester into the finest
+SKILL_17_DESC,"Refine the raw and unstable mana crystals harvested by a Mana Harvester into the finest
 arcane raw materials used to build powerful magic artifacts. A crystal above your max
 crystal level cannot be refined.
 
 Level 1 enables you to place a Crystal Lathe
 `+4%/lv` success chance
 `+20 crystal lv/lv` max crystal level, 100+ at max rank"
-SKILL_21_DESC,"Binds the essence of a Bestia into a cut gem. The Essence Gem carries the power of the
+SKILL_18_DESC,"Binds the essence of a Bestia into a cut gem. The Essence Gem carries the power of the
 Bestia and fits into any socket. The rarer the gem, the higher the Bestia level it can hold.
 Converting a Bestia destroys it, and a failed etching shatters the gem too.
 
@@ -126,25 +126,25 @@ Level 1 enables you to place a Carving Table, the Bestia must stand next to it
 `+5%/lv` success chance
 `+10 Bestia lv/lv` reliable Bestia level, 100+ at max rank
 `-5%` success chance per Bestia level above the reliable one, no hard cap"
-SKILL_22_DESC,"Can create magic artifacts by binding sustained enchantments to an item, going well
+SKILL_19_DESC,"Can create magic artifacts by binding sustained enchantments to an item, going well
 beyond what a single etched rune can hold. Every binding needs refined mana crystals.
 
 Level 1 enables you to place an Enchantment Altar
 `+4%/lv` enchantment chance
 `-3%/lv` chance to destroy the item if the binding fails, from 40% down to 13%"
-SKILL_23_DESC,"Teaches which roots, herbs and mana-touched growth are worth the harvest, and how to
+SKILL_20_DESC,"Teaches which roots, herbs and mana-touched growth are worth the harvest, and how to
 keep them potent until they reach the cauldron. A herb above your max level cannot be
 gathered.
 
 `+20 herb lv/lv` max herb level, 100+ at max rank"
-SKILL_24_DESC,"The core craft of the Alchemist: brewing reagents down into potions, tonics and other
+SKILL_21_DESC,"The core craft of the Alchemist: brewing reagents down into potions, tonics and other
 consumables. Builds directly on what Herbalism teaches about picking the right ingredient.
 
 Level 1 enables you to place an Alchemy Laboratory
 `+5%/lv` success chance
 `+10 item lv/lv` reliable item level, 100+ at max rank
 `-5%` success chance per item level above the reliable one, no hard cap"
-SKILL_25_DESC,"The Alchemist's capstone. Where Alchemy brews what nature already provides,
+SKILL_22_DESC,"The Alchemist's capstone. Where Alchemy brews what nature already provides,
 Transmutation reshapes mundane matter itself into the rare magically-infused resources
 needed for strong artifact creation and weapon refinements.
 
@@ -152,59 +152,59 @@ Level 1 enables you to place a Transmutation Workbench
 `+5%/lv` success chance
 `+10 item lv/lv` reliable item level, 100+ at max rank
 `-5%` success chance per item level above the reliable one, no hard cap"
-SKILL_26_DESC,"A deeper feel for the cauldron - reagents stretch further and brews take hold more
+SKILL_23_DESC,"A deeper feel for the cauldron - reagents stretch further and brews take hold more
 reliably under this Alchemist's hand.
 
 `+5%/lv` Alchemy success chance
 `+10%/lv` Alchemy crafting speed"
-SKILL_27_DESC,"A calm, centered breathing that quickens the master's natural mending.
+SKILL_24_DESC,"A calm, centered breathing that quickens the master's natural mending.
 
 `+6%/lv` HP and Mana regeneration"
-SKILL_28_DESC,"Nights in the snow and noons in the desert teach a Master and their Bestia to shrug off
+SKILL_25_DESC,"Nights in the snow and noons in the desert teach a Master and their Bestia to shrug off
 the weather. Widens the band of temperatures they can bear, on the cold side and the hot
 side alike.
 
 `+3 °C/lv` temperature tolerance"
-SKILL_29_DESC,"Years on the road teach a Master and their Bestia how to cross any terrain without losing
+SKILL_26_DESC,"Years on the road teach a Master and their Bestia how to cross any terrain without losing
 a step.
 
 `+3%/lv` movement speed"
-SKILL_30_DESC,"A patient hand with rod and net that pulls fish from any water worth casting into - as
+SKILL_27_DESC,"A patient hand with rod and net that pulls fish from any water worth casting into - as
 good on the plate as it is at the trade post. Anyone with a fishing rod can fish, but an
 untrained angler mostly catches fish and loot up to level 10.
 
 Catch level cap `20/lv`, 10 untrained. Above the cap a catch's odds halve every 5 levels"
-SKILL_31_DESC,"An axeman's read of the forest - which trunks fell clean, which grain splits true, and how
+SKILL_28_DESC,"An axeman's read of the forest - which trunks fell clean, which grain splits true, and how
 to bring both down efficiently.
 
 Level 1 lets you build a Lumberjack Cabin
 `-10%/lv` wood gathering time
 `+20%/lv` resource drop chance"
-SKILL_32_DESC,"Knowing where to set a trap, how to bait it and when to spring it. Raises the catch chance
+SKILL_29_DESC,"Knowing where to set a trap, how to bait it and when to spring it. Raises the catch chance
 of every Bestia trap the master throws.
 
 `+6%/lv` catch chance"
-SKILL_33_DESC,"A Forester's patient hand with wild Bestia rubs off on them, sharpening how fast they learn
+SKILL_30_DESC,"A Forester's patient hand with wild Bestia rubs off on them, sharpening how fast they learn
 and how little they need to keep going out in the open.
 
 `+5%/lv` EXP gain
 `-2%/lv` stamina loss"
-SKILL_34_DESC,"A lifetime studying Bestia behavior down to the last twitch of an ear, making both the
+SKILL_31_DESC,"A lifetime studying Bestia behavior down to the last twitch of an ear, making both the
 taming and the trapping of them that much easier.
 
 `+5%/lv` chance to tame"
-SKILL_35_DESC,"Smarter packing, better-fitted saddlebags and a stronger back. Everything a Master and
+SKILL_32_DESC,"Smarter packing, better-fitted saddlebags and a stronger back. Everything a Master and
 their Bestia can shoulder gets easier to shoulder.
 
 `+15%/lv` weight limit of the Master and of every Bestia under their command"
-SKILL_37_DESC,"Enables the player to chart unexplored land, revealing terrain that can be shared,
+SKILL_33_DESC,"Enables the player to chart unexplored land, revealing terrain that can be shared,
 traded on, or built on.
 
 Used at your own theodolite. Spends one empty paper and one ink on a needle game; a won
 game makes the theodolite draw a chart of 1 km, 3 km (Lv3) or 5 km (Lv5) around it.
 
 `-10/lv` survey difficulty"
-SKILL_39_DESC,"Charting the same valley through a dozen seasons teaches a Prospector to read the sky
+SKILL_34_DESC,"Charting the same valley through a dozen seasons teaches a Prospector to read the sky
 above it. An instinct for what the wind is about to do, well before the storm arrives.
 
 It also reads the mana in the land: how strong it is where you stand, and where it grows
@@ -213,35 +213,35 @@ stronger or weaker.
 `+5min/lv` how far ahead upcoming weather changes can be sensed. Level 1 shows you the
 current wind direction and speed, and the mana concentration where you stand.
 `+1 km/lv` from Lv.2: the direction of the nearest stronger and weaker mana fields"
-SKILL_40_DESC,"A pickaxe, a steady lamp, and the nose for where the rock is worth breaking. Anyone with a
+SKILL_35_DESC,"A pickaxe, a steady lamp, and the nose for where the rock is worth breaking. Anyone with a
 pickaxe can mine, but an untrained miner only gets resources up to level 10.
 
 Level 1 lets you craft a pickaxe and build a Mining Shaft
 `-10%/lv` mining time
 `+20 resource lv/lv` that can be mined, up to resource level 100+ at max rank"
-SKILL_41_DESC,"Turns the rough gemstones a Miner digs up into cut gems. A cut gem holds a Bestia essence
+SKILL_36_DESC,"Turns the rough gemstones a Miner digs up into cut gems. A cut gem holds a Bestia essence
 for an Artificer; the rarer the gem, the stronger the essence. A failed cut shatters the gem.
 
 Level 1 enables you to place a Gem Cut Station
 `+8%/lv` success chance
 `+20 gem lv/lv` reliable gem level, 100+ at max rank
 `-5%` success chance per gem level above the reliable one, no hard cap"
-SKILL_42_DESC,"A Miner learns to follow a vein instead of hacking at it, and the rock gives up more for
+SKILL_37_DESC,"A Miner learns to follow a vein instead of hacking at it, and the rock gives up more for
 every swing.
 
 `+10%/lv` chance that a mined ore or gem block drops a second piece"
-SKILL_43_DESC,"The Miner's capstone: a feel for what's underfoot precise enough to map a shaft before
+SKILL_38_DESC,"The Miner's capstone: a feel for what's underfoot precise enough to map a shaft before
 the first swing of the pick.
 
 While a pickaxe is in hand, every ore and gem block nearby glows through the rock.
 
 `+5m/lv` sense range, from 5m at Lv.1"
-SKILL_44_DESC,"Time spent far from settlements teaches a Craftsman to adapt and improvise, reworking
+SKILL_39_DESC,"Time spent far from settlements teaches a Craftsman to adapt and improvise, reworking
 weapons and armor in the field to better suit their needs. Each attempt can fail, and a
 failed attempt can destroy the equipment outright.
 
 Weaponry Research raises the odds; Master Smith raises them further."
-SKILL_45_DESC,"Reads what has walked over a patch of ground, from the prints it left. Ground that takes
+SKILL_40_DESC,"Reads what has walked over a patch of ground, from the prints it left. Ground that takes
 no print - rock, paving, ice - keeps no tracks at all, at any rank.
 
 `+3 tiles/lv` how far around the read point you can search
@@ -249,223 +249,223 @@ Level 2 reads which way the trail led
 Level 3 names what made it, and how strong it was
 Level 4 names another master by name
 Level 5 only searches further"
-SKILL_9001_DESC,"The guild may carry an emblem. It shows on its members, its Stronghold and its banners."
-SKILL_9002_DESC,"The guild is recognised by the realm. It may found a Guild Stronghold and attack the
+SKILL_1000_DESC,"The guild may carry an emblem. It shows on its members, its Stronghold and its banners."
+SKILL_1001_DESC,"The guild is recognised by the realm. It may found a Guild Stronghold and attack the
 installations of other guilds - and its own Stronghold may be attacked in turn."
-SKILL_9003_DESC,"Hires a steward for the Guild Stronghold. Members can open the guild storage at the
+SKILL_1002_DESC,"Hires a steward for the Guild Stronghold. Members can open the guild storage at the
 steward and return to the Stronghold when they fall."
-SKILL_9004_DESC,"A storage every member with the right rank can use, kept by the steward.
+SKILL_1003_DESC,"A storage every member with the right rank can use, kept by the steward.
 
 Each level adds more storage space."
-SKILL_9005_DESC,"Allows the guild to call watchers, Bestia that guard the Guild Stronghold."
-SKILL_9006_DESC,The watchers of the Guild Stronghold hit harder and attack faster.
-SKILL_9007_DESC,Investing in the Guild Stronghold has a 50% chance to give one free extra point.
-SKILL_9008_DESC,"More members can join the guild.
+SKILL_1004_DESC,"Allows the guild to call watchers, Bestia that guard the Guild Stronghold."
+SKILL_1005_DESC,The watchers of the Guild Stronghold hit harder and attack faster.
+SKILL_1006_DESC,Investing in the Guild Stronghold has a 50% chance to give one free extra point.
+SKILL_1007_DESC,"More members can join the guild.
 
 `+4 members/lv`"
-SKILL_9009_DESC,"Members near the guild master fight with more strength.
+SKILL_1008_DESC,"Members near the guild master fight with more strength.
 
 `+1 STR/lv` within 15 m of the guild master"
-SKILL_9010_DESC,"Members near the guild master aim more precisely.
+SKILL_1009_DESC,"Members near the guild master aim more precisely.
 
 `+1 DEX/lv` within 15 m of the guild master"
-SKILL_9011_DESC,"Members near the guild master endure more.
+SKILL_1010_DESC,"Members near the guild master endure more.
 
 `+1 VIT/lv` within 15 m of the guild master"
-SKILL_9012_DESC,"Members near the guild master move and react faster.
+SKILL_1011_DESC,"Members near the guild master move and react faster.
 
 `+1 AGI/lv` within 15 m of the guild master"
-SKILL_9013_DESC,"Members near the guild master channel more magic.
+SKILL_1012_DESC,"Members near the guild master channel more magic.
 
 `+1 INT/lv` within 15 m of the guild master"
-SKILL_9014_DESC,"Members near the guild master resist magic better.
+SKILL_1013_DESC,"Members near the guild master resist magic better.
 
 `+1 WIL/lv` within 15 m of the guild master"
-SKILL_9015_DESC,"Everything a member of the guild defeats is more likely to drop its items.
+SKILL_1014_DESC,"Everything a member of the guild defeats is more likely to drop its items.
 
 `+5%/lv` of each drop's own chance - at Lv.5 a 10% drop becomes 12.5%"
-SKILL_9016_DESC,"The members around the caster move faster for a short time.
+SKILL_1015_DESC,"The members around the caster move faster for a short time.
 
 `+25%` movement speed for 10s, within 15 m. Cooldown 60s for the whole guild."
-SKILL_9017_DESC,"The members around the caster gain strength, dexterity and intelligence.
+SKILL_1016_DESC,"The members around the caster gain strength, dexterity and intelligence.
 
 `+5 STR, DEX and INT` for 180s, within 30 m. Cooldown 180s for the whole guild."
-SKILL_9018_DESC,"The members around the caster recover HP, Mana and stamina faster.
+SKILL_1017_DESC,"The members around the caster recover HP, Mana and stamina faster.
 
 `+50%/lv` regeneration for 60s, within 30 m. Cooldown 300s for the whole guild."
-SKILL_9019_DESC,"Restores 90% of the HP and Mana of the members around the caster, within 30 m.
+SKILL_1018_DESC,"Restores 90% of the HP and Mana of the members around the caster, within 30 m.
 
 Cooldown 180s for the whole guild."
-SKILL_9020_DESC,"Calls every member of the guild to the caster. Works only inside the guild's own
+SKILL_1019_DESC,"Calls every member of the guild to the caster. Works only inside the guild's own
 Stronghold.
 
 Cooldown 300s for the whole guild."
-SKILL_9021_DESC,"Members may plant a War Banner. Casting the skill calls every member of the guild to the
+SKILL_1020_DESC,"Members may plant a War Banner. Casting the skill calls every member of the guild to the
 banner - even into an enemy Stronghold. Enemies can cut the banner down.
 
 Cooldown 900s for the whole guild, separate from Emergency Recall."
-SKILL_1001_DESC,Heals a friend a little. The first spell every healer learns.
-SKILL_1002_DESC,Heals a friend for a fair amount. Used to treat wounds.
-SKILL_1003_DESC,Heals a friend for a great amount.
-SKILL_1004_DESC,Quick attack which uses the body weight in a short range melee attack. It does only little damage but is quick and cheap.
-SKILL_1005_DESC,Rushes up to three tiles at the target and drives the skull into it.
-SKILL_1006_DESC,Leaps up to five tiles onto the target. Everything within a tile of the landing may be stunned for a moment.
-SKILL_1007_DESC,"Throws its whole body against the target. The heavier the bestia and its load, the harder it lands."
-SKILL_1008_DESC,"Five quick, light blows on the target, one after the other."
-SKILL_1009_DESC,"Charges up to ten tiles at the target. The longer the run-up, the harder it hits."
-SKILL_1010_DESC,A heavy blow aimed to crush rather than cut. Shields and bones bend under it.
-SKILL_1011_DESC,"Brings its full weight down in one blow, like a smith's hammer on the anvil."
-SKILL_1012_DESC,Grabs the target and tears at it with everything it has.
-SKILL_1013_DESC,Charges in a straight line and tramples the target into the ground.
-SKILL_1014_DESC,A blow to the head that very likely leaves the target stunned.
-SKILL_1015_DESC,One blow with the strength of a landslide. It throws the target three tiles back.
-SKILL_1016_DESC,"Flings a small stone. Weak, but quick, and it often breaks off what the target was casting."
-SKILL_1017_DESC,"A long, aimed shot with a single quill. It reaches far and finds weak spots."
-SKILL_1018_DESC,"Two or three spines at the same target, each weaker than a single shot."
-SKILL_1019_DESC,"A long, hardened spike that goes straight through armour."
-SKILL_1020_DESC,A storm of barbed darts. Now and then one sticks and leaves a bleeding wound.
-SKILL_1021_DESC,"A wave of thorns as long as daggers, shot with deadly aim."
-SKILL_1027_DESC,A deep cut that very likely keeps bleeding while the target moves or fights.
-SKILL_1028_DESC,Slams the ground and throws everyone close by three tiles away.
-SKILL_1029_DESC,Raw mana rains down on an area. It hurts everyone inside and fills their mana a little.
-SKILL_1032_DESC,Spits a small dart of flame at a single target. Quick to cast and hard to dodge.
-SKILL_1033_DESC,Bites with jaws that glow like coals. The wound keeps smoking afterwards.
-SKILL_1034_DESC,"Sets the ground ablaze. Whatever stands in the flames burns, and may catch fire itself."
-SKILL_1035_DESC,A ball of fire that bursts on impact. It may set the ground alight.
-SKILL_1036_DESC,Wraps itself in flame and crashes into the target.
-SKILL_1037_DESC,A thin ray of white-hot fire that burns straight through any magic guard.
-SKILL_1038_DESC,"While the caster holds the spell, pillars of fire strike the area one after another."
-SKILL_1039_DESC,Flings a sharp shard of ice at a single target.
-SKILL_1040_DESC,Spits a hard jet of water. It may slow the target for a moment.
-SKILL_1041_DESC,A bite so cold it numbs the flesh around it.
-SKILL_1042_DESC,Breathes a cone of freezing air over everyone in front of it.
-SKILL_1043_DESC,A cold fog settles on the ground. Whatever stands in it may freeze solid.
-SKILL_1044_DESC,Strikes with the weight of a breaking wave.
-SKILL_1045_DESC,Hurls a hailstone the size of a fist. It hits hard and leaves the target shivering.
-SKILL_1046_DESC,A rushing stream of water that slams into the target.
-SKILL_1047_DESC,"While the caster holds the spell, a howling blizzard batters the area."
-SKILL_1048_DESC,Shoots a sharp splinter of stone out of the ground at a single target.
-SKILL_1049_DESC,Tears a rock out of the ground and throws it.
-SKILL_1050_DESC,A blow with a fist or hoof hardened like stone.
-SKILL_1051_DESC,Whirling sand grinds at the target and may trap it in place.
-SKILL_1052_DESC,Stamps until the ground shakes. Everyone close by is hurt and slowed to half speed.
-SKILL_1053_DESC,"Lifts a boulder, or becomes one, and brings it down on the target."
-SKILL_1054_DESC,A lance of stone impales the target and may pin it in place for three seconds.
-SKILL_1055_DESC,The ground opens up under an area and swallows what stands on it.
-SKILL_1056_DESC,A small arc of lightning that jumps to a single target.
-SKILL_1057_DESC,A blade of wind that cuts at range.
-SKILL_1058_DESC,Beats its wings against the target with the force of a gust.
-SKILL_1059_DESC,Charges the air in an area. Anyone inside is shocked again and again.
-SKILL_1060_DESC,A spinning wind that sweeps over an area and throws everyone about.
-SKILL_1061_DESC,"Dives from above, carried by a howling wind."
-SKILL_1062_DESC,A bolt of lightning that jumps on to up to two more foes close to each other.
-SKILL_1063_DESC,"A hurricane breaks loose and moves away from its caster, tearing at everything in its path."
-SKILL_1064_DESC,Spits venom into the target's eyes. It may blind it.
-SKILL_1065_DESC,A quick sting that leaves a little poison behind.
-SKILL_1066_DESC,A bolt of green venom that may poison the target.
-SKILL_1067_DESC,A cloud of foul gas hangs over the ground and may poison whoever breathes it.
-SKILL_1068_DESC,Tears into the target with claws dripping with venom. It is very likely poisoned.
-SKILL_1069_DESC,Exhales a sickly haze around itself. Everyone in it is very likely poisoned.
-SKILL_1070_DESC,A stream of acid that eats through armor and flesh.
-SKILL_1071_DESC,Spreads a plague across an area. Everyone in it is very likely poisoned.
-SKILL_1072_DESC,"Focuses light into a single, searing beam."
-SKILL_1073_DESC,A strike blessed with holy light. The unnatural fear it.
-SKILL_1074_DESC,"Consecrates the ground. Only the undead and demons on it are hurt, and they often catch fire."
-SKILL_1075_DESC,A heavy blow that falls like a verdict.
-SKILL_1076_DESC,A ring of holy light bursts out from the caster.
-SKILL_1077_DESC,A ray of pure light that burns away the unnatural. The undead fear it most.
-SKILL_1078_DESC,"A pillar of light erupts and sears everything in it, the undead and demons worst of all."
-SKILL_1079_DESC,A bolt of living darkness that chills the soul.
-SKILL_1080_DESC,Rakes the target with claws made of shadow.
-SKILL_1081_DESC,Darkness pools on the ground and gnaws at anyone inside.
-SKILL_1082_DESC,A wave of darkness rolls out and swallows the light.
-SKILL_1083_DESC,"For a moment the light goes out, and then the blow lands."
-SKILL_1084_DESC,A spear of darkness pulled from somewhere far below.
-SKILL_1085_DESC,Night falls on an area. Everything in it is hurt and blinded while it lasts.
-SKILL_1086_DESC,Hurls a fragment of spirit at the target. It passes through armor as if it were not there.
-SKILL_1087_DESC,A cold touch from a hand that is not quite there.
-SKILL_1088_DESC,Restless spirits cling to an area and claw at the living.
-SKILL_1089_DESC,A burst of spirit energy that tears at everyone close by.
-SKILL_1090_DESC,"Rushes through the target. Its body passes, the pain stays."
-SKILL_1091_DESC,Tears at the target's spirit and rips away some of its mana.
-SKILL_1092_DESC,Reaches for every soul in an area. The caster heals for part of what it takes.
-SKILL_1093_DESC,Flings a sharp splinter of bone.
-SKILL_1094_DESC,"Grabs with a cold, rotting hand. Now and then the wound festers into poison."
-SKILL_1095_DESC,A bolt of grave energy that withers what it touches.
-SKILL_1096_DESC,"Rot spreads across the ground. Whatever stands in it may sicken, and heals do it only half the good."
-SKILL_1097_DESC,A blow with a club of fused bones.
-SKILL_1099_DESC,"Pulls the life out of the target, one heartbeat at a time."
-SKILL_1100_DESC,The dead rise for a moment and drag the living down with them.
-SKILL_1101_DESC,"Licks its own wounds. Not much, but it keeps a young bestia going."
-SKILL_1102_DESC,Knits its own flesh together over the next seconds.
-SKILL_1103_DESC,"Heals a friend and washes out poison, wounds, fire, sickness and blindness."
-SKILL_1104_DESC,A long howl that makes its blood run hot. It hits harder for a while.
-SKILL_1105_DESC,Hits harder and shrugs off blows for a while. Afterwards it is worn out for a few seconds.
-SKILL_1106_DESC,Blesses a friend's weapon. Its plain blows hit as Holy for a while.
-SKILL_1107_DESC,A wind at its back makes every step and every swing quicker.
-SKILL_1108_DESC,A roar that makes every friend within ten tiles hit harder.
-SKILL_1109_DESC,For a while every blow heals it by half the damage it deals.
-SKILL_1110_DESC,Drops all defence for raw strength and quicker swings.
-SKILL_1112_DESC,A low growl that makes every foe close by hit softer.
-SKILL_1113_DESC,A piercing screech that throws off the aim of every foe close by.
-SKILL_1114_DESC,Bites at the target's legs. Its swings come much slower for a while.
-SKILL_1115_DESC,"Turns a 5×5 patch into a mire. Whoever stands in it is clumsy, slow and loses any haste."
-SKILL_1116_DESC,"The target starts turning to stone. If nothing cures it within ten seconds, it is stone for thirty."
-SKILL_1117_DESC,A roar so fierce that foes close by may run away in fear.
-SKILL_1119_DESC,"Ages the target's body by years: less health, less vitality, slower healing."
-SKILL_2000_DESC,"Snuffles through the undergrowth and turns up grain, berries or herbs at its feet. Works once every five minutes."
-SKILL_2001_DESC,"Shakes out a fleece of wool, and sometimes a tuft of soft fur. Works once every ten minutes."
-SKILL_2002_DESC,"Digs where it smells something buried: clay, a lost coin, now and then a rough gem."
-SKILL_2004_DESC,"Picks the herbs it knows are good to eat, and a few you would not have known about."
-SKILL_2005_DESC,Spins a spool of fine silk thread for tailors.
-SKILL_2006_DESC,"Raids a wild hive and brings back a dripping honeycomb, stings and all."
-SKILL_2007_DESC,Breaks a lump of ore out of the nearest rock. It never asks which rock is yours.
-SKILL_2008_DESC,Tears a young tree out by its roots for firewood or timber.
-SKILL_2009_DESC,Wobbles until a blob of jelly drips off. It does not seem to mind.
-SKILL_2010_DESC,Scrapes the salt that dries on its hide after a swim in the sea.
-SKILL_2011_DESC,"Huddles up against a friend. For five minutes and more, the cold has to be 15 °C colder before it hurts them."
-SKILL_2012_DESC,"Wraps a friend in cool mist. For five minutes and more, the heat has to be 15 °C hotter before it hurts them."
-SKILL_2013_DESC,"Puts the wind at a friend's back, so they run faster for a while."
-SKILL_2014_DESC,"Blessing 5 on a friend: more strength, dexterity and intelligence for a while."
-SKILL_2018_DESC,"Puts its nose to the ground and reads the tracks there: who passed, how many and how long ago."
-SKILL_2019_DESC,Circles above and reads the tracks below from the air.
-SKILL_2021_DESC,Splashes around with all its might. Nothing happens. Nothing ever happens.
-SKILL_2022_DESC,"Laughs out loud. Everyone nearby hears it, and nobody likes it."
-SKILL_2023_DESC,Makes rude faces and noises at whoever is looking.
-SKILL_2024_DESC,Wails in grief. It frightens nobody it is fond of.
-SKILL_2025_DESC,"Announces the doom of everyone nearby, at length. The doom never quite arrives."
-SKILL_1120_DESC,A shard of ice that does little harm but often freezes the target solid.
-SKILL_1121_DESC,A burst of frost around the caster that may freeze everyone close by.
-SKILL_1122_DESC,"Only for the undead: it may destroy one outright, else it burns with holy light. Bosses are never destroyed."
-SKILL_1123_DESC,"While the caster holds the spell, holy light strikes the area again and again. It hurts only the undead, ghosts and demons. Uses up a mana crystal."
-SKILL_1124_DESC,Bends a wild undead to fight its own kind for a while. Bosses and the much stronger resist.
-SKILL_1125_DESC,"Takes a quarter of the target's health, whatever its guard. A boss loses a twentieth."
-SKILL_1126_DESC,Only while berserk and with half its mana: pours all of it into one devastating blow. Afterwards the mana does not come back for five minutes.
-SKILL_1127_DESC,Heals a friend for a huge amount.
-SKILL_1128_DESC,Heals every friend in a small circle.
-SKILL_1129_DESC,Hallows a large patch of ground that heals every friend in it for ten seconds. Uses up a mana crystal.
-SKILL_1130_DESC,"A friend turns single-target skills back on their caster, a few times."
-SKILL_1131_DESC,Wraps a friend in plates of bone that soak up the next few blows. Uses up a bone shard.
-SKILL_1132_DESC,Its hide turns acid. Weapons that hit it wear down.
-SKILL_1133_DESC,A friend's weapon burns: its plain blows hit as Fire.
-SKILL_1134_DESC,A friend's weapon freezes over: its plain blows hit as Water.
-SKILL_1135_DESC,A friend's weapon grows heavy as stone: its plain blows hit as Earth.
-SKILL_1136_DESC,A friend's weapon crackles: its plain blows hit as Wind.
-SKILL_1137_DESC,A friend is wrapped in fire: hits on it are weighed as against Fire.
-SKILL_1138_DESC,A friend is wrapped in frost: hits on it are weighed as against Water.
-SKILL_1139_DESC,A friend is wrapped in stone: hits on it are weighed as against Earth.
-SKILL_1140_DESC,A friend is wrapped in wind: hits on it are weighed as against Wind.
-SKILL_1141_DESC,A 3×3 wall of wind for ten seconds. Shots and arrows at anyone inside miss.
-SKILL_1142_DESC,Muddles the target's head. It may walk the wrong way for a while.
-SKILL_1143_DESC,Strips the target of its buffs.
-SKILL_1144_DESC,"Knocks the weapon out of the target's hand, and it stays empty for a while. A wild bestia hits softer instead."
-SKILL_1145_DESC,Tears the target's armour off. Nothing can be worn in its place for a while.
-SKILL_1146_DESC,A blow with acid on its claws. The target's weapon and armour lose a good part of their durability.
-SKILL_2027_DESC,"Blessing 10 on a friend: much more strength, dexterity and intelligence for a while."
-SKILL_2028_DESC,"Senses masters and their bestia within fifteen tiles, hidden ones too, and marks them on the map for thirty seconds."
-SKILL_2029_DESC,"Digs in out of sight. It cannot move, but area attacks pass over it. Staying hidden costs mana, and any action gives it away."
-SKILL_2030_DESC,"Moves unseen and slower. Any blow, an area one too, gives it away. Staying hidden costs mana."
-SKILL_46_DESC,"A burst of speed for when walking away is not fast enough - the first escape every
+SKILL_2001_DESC,Heals a friend a little. The first spell every healer learns.
+SKILL_2002_DESC,Heals a friend for a fair amount. Used to treat wounds.
+SKILL_2003_DESC,Heals a friend for a great amount.
+SKILL_2004_DESC,Quick attack which uses the body weight in a short range melee attack. It does only little damage but is quick and cheap.
+SKILL_2005_DESC,Rushes up to three tiles at the target and drives the skull into it.
+SKILL_2006_DESC,Leaps up to five tiles onto the target. Everything within a tile of the landing may be stunned for a moment.
+SKILL_2007_DESC,"Throws its whole body against the target. The heavier the bestia and its load, the harder it lands."
+SKILL_2008_DESC,"Five quick, light blows on the target, one after the other."
+SKILL_2009_DESC,"Charges up to ten tiles at the target. The longer the run-up, the harder it hits."
+SKILL_2010_DESC,A heavy blow aimed to crush rather than cut. Shields and bones bend under it.
+SKILL_2011_DESC,"Brings its full weight down in one blow, like a smith's hammer on the anvil."
+SKILL_2012_DESC,Grabs the target and tears at it with everything it has.
+SKILL_2013_DESC,Charges in a straight line and tramples the target into the ground.
+SKILL_2014_DESC,A blow to the head that very likely leaves the target stunned.
+SKILL_2015_DESC,One blow with the strength of a landslide. It throws the target three tiles back.
+SKILL_2016_DESC,"Flings a small stone. Weak, but quick, and it often breaks off what the target was casting."
+SKILL_2017_DESC,"A long, aimed shot with a single quill. It reaches far and finds weak spots."
+SKILL_2018_DESC,"Two or three spines at the same target, each weaker than a single shot."
+SKILL_2019_DESC,"A long, hardened spike that goes straight through armour."
+SKILL_2020_DESC,A storm of barbed darts. Now and then one sticks and leaves a bleeding wound.
+SKILL_2021_DESC,"A wave of thorns as long as daggers, shot with deadly aim."
+SKILL_2022_DESC,A deep cut that very likely keeps bleeding while the target moves or fights.
+SKILL_2023_DESC,Slams the ground and throws everyone close by three tiles away.
+SKILL_2024_DESC,Raw mana rains down on an area. It hurts everyone inside and fills their mana a little.
+SKILL_2025_DESC,Spits a small dart of flame at a single target. Quick to cast and hard to dodge.
+SKILL_2026_DESC,Bites with jaws that glow like coals. The wound keeps smoking afterwards.
+SKILL_2027_DESC,"Sets the ground ablaze. Whatever stands in the flames burns, and may catch fire itself."
+SKILL_2028_DESC,A ball of fire that bursts on impact. It may set the ground alight.
+SKILL_2029_DESC,Wraps itself in flame and crashes into the target.
+SKILL_2030_DESC,A thin ray of white-hot fire that burns straight through any magic guard.
+SKILL_2031_DESC,"While the caster holds the spell, pillars of fire strike the area one after another."
+SKILL_2032_DESC,Flings a sharp shard of ice at a single target.
+SKILL_2033_DESC,Spits a hard jet of water. It may slow the target for a moment.
+SKILL_2034_DESC,A bite so cold it numbs the flesh around it.
+SKILL_2035_DESC,Breathes a cone of freezing air over everyone in front of it.
+SKILL_2036_DESC,A cold fog settles on the ground. Whatever stands in it may freeze solid.
+SKILL_2037_DESC,Strikes with the weight of a breaking wave.
+SKILL_2038_DESC,Hurls a hailstone the size of a fist. It hits hard and leaves the target shivering.
+SKILL_2039_DESC,A rushing stream of water that slams into the target.
+SKILL_2040_DESC,"While the caster holds the spell, a howling blizzard batters the area."
+SKILL_2041_DESC,Shoots a sharp splinter of stone out of the ground at a single target.
+SKILL_2042_DESC,Tears a rock out of the ground and throws it.
+SKILL_2043_DESC,A blow with a fist or hoof hardened like stone.
+SKILL_2044_DESC,Whirling sand grinds at the target and may trap it in place.
+SKILL_2045_DESC,Stamps until the ground shakes. Everyone close by is hurt and slowed to half speed.
+SKILL_2046_DESC,"Lifts a boulder, or becomes one, and brings it down on the target."
+SKILL_2047_DESC,A lance of stone impales the target and may pin it in place for three seconds.
+SKILL_2048_DESC,The ground opens up under an area and swallows what stands on it.
+SKILL_2049_DESC,A small arc of lightning that jumps to a single target.
+SKILL_2050_DESC,A blade of wind that cuts at range.
+SKILL_2051_DESC,Beats its wings against the target with the force of a gust.
+SKILL_2052_DESC,Charges the air in an area. Anyone inside is shocked again and again.
+SKILL_2053_DESC,A spinning wind that sweeps over an area and throws everyone about.
+SKILL_2054_DESC,"Dives from above, carried by a howling wind."
+SKILL_2055_DESC,A bolt of lightning that jumps on to up to two more foes close to each other.
+SKILL_2056_DESC,"A hurricane breaks loose and moves away from its caster, tearing at everything in its path."
+SKILL_2057_DESC,Spits venom into the target's eyes. It may blind it.
+SKILL_2058_DESC,A quick sting that leaves a little poison behind.
+SKILL_2059_DESC,A bolt of green venom that may poison the target.
+SKILL_2060_DESC,A cloud of foul gas hangs over the ground and may poison whoever breathes it.
+SKILL_2061_DESC,Tears into the target with claws dripping with venom. It is very likely poisoned.
+SKILL_2062_DESC,Exhales a sickly haze around itself. Everyone in it is very likely poisoned.
+SKILL_2063_DESC,A stream of acid that eats through armor and flesh.
+SKILL_2064_DESC,Spreads a plague across an area. Everyone in it is very likely poisoned.
+SKILL_2065_DESC,"Focuses light into a single, searing beam."
+SKILL_2066_DESC,A strike blessed with holy light. The unnatural fear it.
+SKILL_2067_DESC,"Consecrates the ground. Only the undead and demons on it are hurt, and they often catch fire."
+SKILL_2068_DESC,A heavy blow that falls like a verdict.
+SKILL_2069_DESC,A ring of holy light bursts out from the caster.
+SKILL_2070_DESC,A ray of pure light that burns away the unnatural. The undead fear it most.
+SKILL_2071_DESC,"A pillar of light erupts and sears everything in it, the undead and demons worst of all."
+SKILL_2072_DESC,A bolt of living darkness that chills the soul.
+SKILL_2073_DESC,Rakes the target with claws made of shadow.
+SKILL_2074_DESC,Darkness pools on the ground and gnaws at anyone inside.
+SKILL_2075_DESC,A wave of darkness rolls out and swallows the light.
+SKILL_2076_DESC,"For a moment the light goes out, and then the blow lands."
+SKILL_2077_DESC,A spear of darkness pulled from somewhere far below.
+SKILL_2078_DESC,Night falls on an area. Everything in it is hurt and blinded while it lasts.
+SKILL_2079_DESC,Hurls a fragment of spirit at the target. It passes through armor as if it were not there.
+SKILL_2080_DESC,A cold touch from a hand that is not quite there.
+SKILL_2081_DESC,Restless spirits cling to an area and claw at the living.
+SKILL_2082_DESC,A burst of spirit energy that tears at everyone close by.
+SKILL_2083_DESC,"Rushes through the target. Its body passes, the pain stays."
+SKILL_2084_DESC,Tears at the target's spirit and rips away some of its mana.
+SKILL_2085_DESC,Reaches for every soul in an area. The caster heals for part of what it takes.
+SKILL_2086_DESC,Flings a sharp splinter of bone.
+SKILL_2087_DESC,"Grabs with a cold, rotting hand. Now and then the wound festers into poison."
+SKILL_2088_DESC,A bolt of grave energy that withers what it touches.
+SKILL_2089_DESC,"Rot spreads across the ground. Whatever stands in it may sicken, and heals do it only half the good."
+SKILL_2090_DESC,A blow with a club of fused bones.
+SKILL_2091_DESC,"Pulls the life out of the target, one heartbeat at a time."
+SKILL_2092_DESC,The dead rise for a moment and drag the living down with them.
+SKILL_2093_DESC,"Licks its own wounds. Not much, but it keeps a young bestia going."
+SKILL_2094_DESC,Knits its own flesh together over the next seconds.
+SKILL_2095_DESC,"Heals a friend and washes out poison, wounds, fire, sickness and blindness."
+SKILL_2096_DESC,A long howl that makes its blood run hot. It hits harder for a while.
+SKILL_2097_DESC,Hits harder and shrugs off blows for a while. Afterwards it is worn out for a few seconds.
+SKILL_2098_DESC,Blesses a friend's weapon. Its plain blows hit as Holy for a while.
+SKILL_2099_DESC,A wind at its back makes every step and every swing quicker.
+SKILL_2100_DESC,A roar that makes every friend within ten tiles hit harder.
+SKILL_2101_DESC,For a while every blow heals it by half the damage it deals.
+SKILL_2102_DESC,Drops all defence for raw strength and quicker swings.
+SKILL_2103_DESC,A low growl that makes every foe close by hit softer.
+SKILL_2104_DESC,A piercing screech that throws off the aim of every foe close by.
+SKILL_2105_DESC,Bites at the target's legs. Its swings come much slower for a while.
+SKILL_2106_DESC,"Turns a 5×5 patch into a mire. Whoever stands in it is clumsy, slow and loses any haste."
+SKILL_2107_DESC,"The target starts turning to stone. If nothing cures it within ten seconds, it is stone for thirty."
+SKILL_2108_DESC,A roar so fierce that foes close by may run away in fear.
+SKILL_2109_DESC,"Ages the target's body by years: less health, less vitality, slower healing."
+SKILL_2137_DESC,"Snuffles through the undergrowth and turns up grain, berries or herbs at its feet. Works once every five minutes."
+SKILL_2138_DESC,"Shakes out a fleece of wool, and sometimes a tuft of soft fur. Works once every ten minutes."
+SKILL_2139_DESC,"Digs where it smells something buried: clay, a lost coin, now and then a rough gem."
+SKILL_2140_DESC,"Picks the herbs it knows are good to eat, and a few you would not have known about."
+SKILL_2141_DESC,Spins a spool of fine silk thread for tailors.
+SKILL_2142_DESC,"Raids a wild hive and brings back a dripping honeycomb, stings and all."
+SKILL_2143_DESC,Breaks a lump of ore out of the nearest rock. It never asks which rock is yours.
+SKILL_2144_DESC,Tears a young tree out by its roots for firewood or timber.
+SKILL_2145_DESC,Wobbles until a blob of jelly drips off. It does not seem to mind.
+SKILL_2146_DESC,Scrapes the salt that dries on its hide after a swim in the sea.
+SKILL_2147_DESC,"Huddles up against a friend. For five minutes and more, the cold has to be 15 °C colder before it hurts them."
+SKILL_2148_DESC,"Wraps a friend in cool mist. For five minutes and more, the heat has to be 15 °C hotter before it hurts them."
+SKILL_2149_DESC,"Puts the wind at a friend's back, so they run faster for a while."
+SKILL_2150_DESC,"Blessing 5 on a friend: more strength, dexterity and intelligence for a while."
+SKILL_2151_DESC,"Puts its nose to the ground and reads the tracks there: who passed, how many and how long ago."
+SKILL_2152_DESC,Circles above and reads the tracks below from the air.
+SKILL_2153_DESC,Splashes around with all its might. Nothing happens. Nothing ever happens.
+SKILL_2154_DESC,"Laughs out loud. Everyone nearby hears it, and nobody likes it."
+SKILL_2155_DESC,Makes rude faces and noises at whoever is looking.
+SKILL_2156_DESC,Wails in grief. It frightens nobody it is fond of.
+SKILL_2157_DESC,"Announces the doom of everyone nearby, at length. The doom never quite arrives."
+SKILL_2110_DESC,A shard of ice that does little harm but often freezes the target solid.
+SKILL_2111_DESC,A burst of frost around the caster that may freeze everyone close by.
+SKILL_2112_DESC,"Only for the undead: it may destroy one outright, else it burns with holy light. Bosses are never destroyed."
+SKILL_2113_DESC,"While the caster holds the spell, holy light strikes the area again and again. It hurts only the undead, ghosts and demons. Uses up a mana crystal."
+SKILL_2114_DESC,Bends a wild undead to fight its own kind for a while. Bosses and the much stronger resist.
+SKILL_2115_DESC,"Takes a quarter of the target's health, whatever its guard. A boss loses a twentieth."
+SKILL_2116_DESC,Only while berserk and with half its mana: pours all of it into one devastating blow. Afterwards the mana does not come back for five minutes.
+SKILL_2117_DESC,Heals a friend for a huge amount.
+SKILL_2118_DESC,Heals every friend in a small circle.
+SKILL_2119_DESC,Hallows a large patch of ground that heals every friend in it for ten seconds. Uses up a mana crystal.
+SKILL_2120_DESC,"A friend turns single-target skills back on their caster, a few times."
+SKILL_2121_DESC,Wraps a friend in plates of bone that soak up the next few blows. Uses up a bone shard.
+SKILL_2122_DESC,Its hide turns acid. Weapons that hit it wear down.
+SKILL_2123_DESC,A friend's weapon burns: its plain blows hit as Fire.
+SKILL_2124_DESC,A friend's weapon freezes over: its plain blows hit as Water.
+SKILL_2125_DESC,A friend's weapon grows heavy as stone: its plain blows hit as Earth.
+SKILL_2126_DESC,A friend's weapon crackles: its plain blows hit as Wind.
+SKILL_2127_DESC,A friend is wrapped in fire: hits on it are weighed as against Fire.
+SKILL_2128_DESC,A friend is wrapped in frost: hits on it are weighed as against Water.
+SKILL_2129_DESC,A friend is wrapped in stone: hits on it are weighed as against Earth.
+SKILL_2130_DESC,A friend is wrapped in wind: hits on it are weighed as against Wind.
+SKILL_2131_DESC,A 3×3 wall of wind for ten seconds. Shots and arrows at anyone inside miss.
+SKILL_2132_DESC,Muddles the target's head. It may walk the wrong way for a while.
+SKILL_2133_DESC,Strips the target of its buffs.
+SKILL_2134_DESC,"Knocks the weapon out of the target's hand, and it stays empty for a while. A wild bestia hits softer instead."
+SKILL_2135_DESC,Tears the target's armour off. Nothing can be worn in its place for a while.
+SKILL_2136_DESC,A blow with acid on its claws. The target's weapon and armour lose a good part of their durability.
+SKILL_2158_DESC,"Blessing 10 on a friend: much more strength, dexterity and intelligence for a while."
+SKILL_2159_DESC,"Senses masters and their bestia within fifteen tiles, hidden ones too, and marks them on the map for thirty seconds."
+SKILL_2160_DESC,"Digs in out of sight. It cannot move, but area attacks pass over it. Staying hidden costs mana, and any action gives it away."
+SKILL_2161_DESC,"Moves unseen and slower. Any blow, an area one too, gives it away. Staying hidden costs mana."
+SKILL_41_DESC,"A burst of speed for when walking away is not fast enough - the first escape every
 wanderer learns, and the one they never stop using.
 
 Lasts 5s and costs 20 stamina instead of mana. Ends early when you attack or cast a
@@ -474,24 +474,24 @@ skill. Cooldown 30s.
 Lv.1 `+30%` movement speed
 Lv.2 `+40%` movement speed
 Lv.3 `+50%` movement speed"
-SKILL_47_DESC,"A whistle every Bestia learns to answer. Calls your Bestias back from wherever they
+SKILL_42_DESC,"A whistle every Bestia learns to answer. Calls your Bestias back from wherever they
 wandered off to.
 
 Every Bestia you own that is out in the world, and not in storage, appears next to you
 when the channel ends. Taking damage breaks the channel. A Bestia that is fighting does
 not answer. Cooldown 5min."
-SKILL_48_DESC,"An instinct for the direction and distance of nearby physical resources - ore veins,
+SKILL_43_DESC,"An instinct for the direction and distance of nearby physical resources - ore veins,
 herb patches, timber stands and game trails - long before they come into view. Each
 cast points to the nearest resources of every kind within reach. Cooldown 60s.
 
 `+1 km/lv` detection distance
 `+10%/lv` detection accuracy"
-SKILL_50_DESC,"Knowing which pair of Bestia is worth putting in a Breeder, and why the last clutch came
+SKILL_44_DESC,"Knowing which pair of Bestia is worth putting in a Breeder, and why the last clutch came
 out the way it did. Applies to every Breeder the master owns.
 
 `-5%/lv` breeding and hatch time, within the same 50% floor as upgrades and feed
 Level 4 draws a fourth dominant IV per clutch"
-SKILL_51_DESC,"A prickle at the back of the mind that flags mana at work nearby, and picks apart what
+SKILL_45_DESC,"A prickle at the back of the mind that flags mana at work nearby, and picks apart what
 spell an item or entity carries bound to it. Each cast sweeps the area once. Local mana
 concentration widens the range in a mana-rich region and shrinks it in a drained one.
 Cooldown 10s.
@@ -502,88 +502,88 @@ Lv.2 shows the direction and rough strength of each source
 Lv.3 shows the element of the mana
 Lv.4 shows the exact spell bound to an item or place
 Lv.5 shows who bound it, and what trigger a Spell Binding waits for"
-SKILL_52_DESC,"Cast on a monster to read what mana and instinct alone can tell about it. Reveals its
+SKILL_46_DESC,"Cast on a monster to read what mana and instinct alone can tell about it. Reveals its
 status values, element, HP and mana. Cooldown 3s."
-SKILL_53_DESC,"A pulse of second sight that peels back concealment. For 10s, hiding Bestia and
+SKILL_47_DESC,"A pulse of second sight that peels back concealment. For 10s, hiding Bestia and
 cloaked Assassins within 10m of the caster stand out for what they are.
 Detection resistance does not help against it. Cooldown 10s."
-SKILL_54_DESC,"The Scholar's ear to the ground - a sense for the direction and distance of world-changing
+SKILL_48_DESC,"The Scholar's ear to the ground - a sense for the direction and distance of world-changing
 events long before word of them travels. Only works at an Observation Outpost. Level 1
 lets you build one from an outpost kit. Cooldown 60s.
 
 `+1 km/lv` detection distance around the outpost"
-SKILL_55_DESC,"The founding rite that plants a city sign in the ground and calls a settlement into being
+SKILL_49_DESC,"The founding rite that plants a city sign in the ground and calls a settlement into being
 around it. Only one settlement can be active at a time. Cooldown 24h."
-SKILL_56_DESC,"A scrapper's eye for what's still worth keeping - coaxes more usable components out of
+SKILL_50_DESC,"A scrapper's eye for what's still worth keeping - coaxes more usable components out of
 anything broken down for parts.
 
 `+10%/lv` recycle success chance"
-SKILL_57_DESC,"The final step between a fistful of raw gold and coin that actually spends. Allows the
+SKILL_51_DESC,"The final step between a fistful of raw gold and coin that actually spends. Allows the
 master to mint gold bars into gold coins. The gold a mint does not recover goes back to
 the world reserve.
 
 Level 1 enables you to place a Mint
 `60%` of a bar's gold becomes coin at Lv.1, `+10%/lv`, all of it at max rank"
-SKILL_58_DESC,"Builds an auction house where other citizens can buy and sell their wares, turning any
+SKILL_52_DESC,"Builds an auction house where other citizens can buy and sell their wares, turning any
 settlement into a proper marketplace. Only one auction house can stand in a settlement.
 
 `+1/lv` auction houses the master may run
 `+5%/lv` highest owner fee"
-SKILL_59_DESC,"Weaves this Trader's auction house into those of other consenting players, merging their
+SKILL_53_DESC,"Weaves this Trader's auction house into those of other consenting players, merging their
 listings into a single, wider marketplace. To be linked, the other player needs at least
 level 1 of this skill too. Cooldown 60s.
 
 `+1/lv` linked players"
-SKILL_60_DESC,"A quiet ledger of who's been caught with sticky fingers. Anyone caught stealing from this
+SKILL_54_DESC,"A quiet ledger of who's been caught with sticky fingers. Anyone caught stealing from this
 Trader's stock, mint or linked auction listings suffers a steeper honor penalty than they
 otherwise would.
 
 `+20%/lv` honor penalty for robbers"
-SKILL_61_DESC,"Trains a spell from a scroll into a Bestia's memory, the first step of every Sage's
+SKILL_55_DESC,"Trains a spell from a scroll into a Bestia's memory, the first step of every Sage's
 education. Consumes the scroll, also when the training fails. The base chance depends on the
 level of the spell, as with Spell Inscription.
 
 `+10%/lv` success chance"
-SKILL_62_DESC,"Trains a Sage to keep moving through an incantation instead of rooting to the spot.
+SKILL_56_DESC,"Trains a Sage to keep moving through an incantation instead of rooting to the spot.
 
 `+20%/lv` movement speed kept while casting, all of it at max rank
 `+10%/lv` resistance against a hit breaking the cast"
-SKILL_63_DESC,"Casts a Sage's sight far beyond their own eyes, scouting distant ground and the resources
+SKILL_57_DESC,"Casts a Sage's sight far beyond their own eyes, scouting distant ground and the resources
 hiding on it before ever setting foot there. Works on any charted location, or where a party
 member stands. A far spot drifts off target. The body stays in a trance, and any step, act or
 hit calls the sight back. The sight lasts 20s. Cooldown 60s.
 
 `+20m/lv` view radius"
-SKILL_64_DESC,"Unravels every magical effect clinging to a target in a single word, undoing buffs and
+SKILL_58_DESC,"Unravels every magical effect clinging to a target in a single word, undoing buffs and
 curses alike. The target's soft magic defense lowers the chance. Consumes a Yellow Mana
 Crystal. Cooldown 15s.
 
 `50% + 10%/lv` base success chance"
-SKILL_65_DESC,"A reactive ward raised at a gesture. The next single-target spell to strike the caster is
+SKILL_59_DESC,"A reactive ward raised at a gesture. The next single-target spell to strike the caster is
 caught and unravelled instead of landing, its energy siphoned back as mana. Area spells wash
 straight over it. Cooldown 20s.
 
 `+25%/lv` of the spell's cost recovered as mana, from 50% at Lv.1
 `+5s/lv` ward duration, from 10s at Lv.1"
-SKILL_66_DESC,"Opens a slow siphon on the mana of everything hostile standing too close, pulling it
+SKILL_60_DESC,"Opens a slow siphon on the mana of everything hostile standing too close, pulling it
 steadily into the Sage's own reserves. Each second drains a share of each target's max mana.
 Cooldown 15s.
 
 `+2m/lv` range
 `+1%/lv` max mana drained per second
 `+10s/lv` duration"
-SKILL_68_DESC,"Consecrates a patch of ground against hostile magic. While it holds, no area-of-effect or
+SKILL_61_DESC,"Consecrates a patch of ground against hostile magic. While it holds, no area-of-effect or
 ground-targeted spell can take root inside its bounds - friend and foe alike. Cooldown 40s.
 
 `+1m/lv` radius, from 3m at Lv.1
 `+10s/lv` duration, from 15s at Lv.1"
-SKILL_69_DESC,"Extracts an attack from the memory of a Bestia onto a scroll, which can then either trigger
+SKILL_62_DESC,"Extracts an attack from the memory of a Bestia onto a scroll, which can then either trigger
 the attack once or teach it to another Bestia. The extraction can destroy the Bestia's mind
 and kill it. The base chance depends on the level of the attack. Consumes a Blank Spell
 Scroll, also when the extraction fails.
 
 `+10%/lv` success chance"
-SKILL_70_DESC,"Binds the attack on a spell scroll to a spot or an item and ties it to a trigger, giving
+SKILL_63_DESC,"Binds the attack on a spell scroll to a spot or an item and ties it to a trigger, giving
 rise to enchanted artifacts, standing alarms and hidden traps alike. It fires once and
 tells you who set it off. Only Magic Sense finds it. The scroll is spent.
 
@@ -592,218 +592,218 @@ tells you who set it off. Only Magic Sense finds it. The scroll is spent.
 Lv.1 steps on it, Lv.2 comes near, Lv.3 after a delay
 Lv.4 items: holder is struck, holder strikes
 Lv.5 items: holder's HP gets low, a stranger picks it up"
-SKILL_71_DESC,"Moves the caster and their Bestias close by. Consumes a Teleport Rune. A teleported entity
+SKILL_64_DESC,"Moves the caster and their Bestias close by. Consumes a Teleport Rune. A teleported entity
 cannot teleport again for 5min. Cooldown 30s.
 
 Lv.1 a random spot within 150m
 Lv.2 the home settlement"
-SKILL_72_DESC,"The Sage's capstone. Tears a standing hole that anyone can walk through, in both
+SKILL_65_DESC,"The Sage's capstone. Tears a standing hole that anyone can walk through, in both
 directions, for 30s. Consumes a Portal Rune. Cooldown 120s.
 
 `+2/lv` users who may pass"
-SKILL_73_DESC,"Temporarily infuses an ally's weapon with fire, water, wind or earth; the caster picks the
+SKILL_66_DESC,"Temporarily infuses an ally's weapon with fire, water, wind or earth; the caster picks the
 element when casting. The weapon takes on the element, and the bonus damage comes on top.
 Consumes a Blue Mana Crystal. Cooldown 5s.
 
 `+60s/lv` duration
 `+5%/lv` bonus damage of the element"
-SKILL_77_DESC,"A murmured rite that lightens the burden of spellcasting. Applies to the next spell the
+SKILL_67_DESC,"A murmured rite that lightens the burden of spellcasting. Applies to the next spell the
 target casts within 30s. Cooldown 20s.
 
 `-30%` cast time"
-SKILL_78_DESC,"A quiet benediction that lets a crafter's hands find the better cut. Every item the party
+SKILL_68_DESC,"A quiet benediction that lets a crafter's hands find the better cut. Every item the party
 starts crafting while it holds rolls its random stats with better odds. Lasts 90s.
 Cooldown 30s.
 
 `+15%` chance for every random stat slot and socket"
-SKILL_79_DESC,"Clears the mind of a target. Lifts Blind, Confused and Feared in a single rite. Cooldown
+SKILL_69_DESC,"Clears the mind of a target. Lifts Blind, Confused and Feared in a single rite. Cooldown
 10s."
-SKILL_80_DESC,"The rite of blessing plain water into Holy Water. The Priest must stand in water and fills
+SKILL_70_DESC,"The rite of blessing plain water into Holy Water. The Priest must stand in water and fills
 one Empty Bottle. Cast 3s, cooldown 5s."
-SKILL_81_DESC,"Lightens a target's limbs with borrowed haste, quickening step and swing alike.
+SKILL_71_DESC,"Lightens a target's limbs with borrowed haste, quickening step and swing alike.
 
 `+15%` movement speed at every level
 `+2/lv` AGI, from +4 at Lv.1
 `+2%/lv` attack speed, from 1% at Lv.1
 `+40s/lv` duration, from 80s at Lv.1"
-SKILL_83_DESC,"A shimmering ward that stands between a target and harm for 60s, soaking up hits until it
+SKILL_72_DESC,"A shimmering ward that stands between a target and harm for 60s, soaking up hits until it
 gives out. Cooldown 15s.
 
 `+1/lv` hits absorbed
 `+10%/lv` of the target's max HP absorbed per hit"
-SKILL_84_DESC,"Lays a veil of still air 3m wide over the ground for 20s. Anything standing in it, friend
+SKILL_73_DESC,"Lays a veil of still air 3m wide over the ground for 20s. Anything standing in it, friend
 or foe, cannot be hit by arrows, bolts or thrown weapons. Cooldown 10s."
-SKILL_85_DESC,"Burns a sigil onto a target that pries its guard open, and bites hardest into Demons and
+SKILL_74_DESC,"Burns a sigil onto a target that pries its guard open, and bites hardest into Demons and
 the Undead. Cooldown 8s.
 
 `-10%/lv` physical DEF
 `-10%/lv` more against Demon and Undead
 `+15s/lv` duration, from 30s at Lv.1"
-SKILL_86_DESC,"Condenses raw holy mana into a single searing beam of holy damage.
+SKILL_75_DESC,"Condenses raw holy mana into a single searing beam of holy damage.
 
 `+10%/lv` MATK, from 110% at Lv.1"
-SKILL_87_DESC,"Years spent studying the weak points of the unholy pay off - every strike against a Demon
+SKILL_76_DESC,"Years spent studying the weak points of the unholy pay off - every strike against a Demon
 or Undead lands harder, and what they strike back with lands softer.
 
 `+5%/lv` damage against Demon and Undead Bestias
 `-6%/lv` damage taken from Demon and Undead Bestias"
-SKILL_89_DESC,"Anoints a weapon with Holy Water, so its strikes carry the holy element. It replaces an
+SKILL_77_DESC,"Anoints a weapon with Holy Water, so its strikes carry the holy element. It replaces an
 Endow. Consumes one Holy Water. Cooldown 10s.
 
 `+60s/lv` duration"
-SKILL_90_DESC,"A judgment of pure holy mana that punches through armor. Against an Undead target it can
+SKILL_78_DESC,"A judgment of pure holy mana that punches through armor. Against an Undead target it can
 end its existence outright, more likely the more it is wounded. The damage is that of a Holy
 Light of the same level. Cooldown 5s.
 
 `+16%/lv` base chance to destroy an Undead, from 8% at Lv.1"
-SKILL_91_DESC,"Marks a single target so that the very next hit it takes lands twice as hard. The mark
+SKILL_79_DESC,"Marks a single target so that the very next hit it takes lands twice as hard. The mark
 lasts 20s. Cooldown 15s."
-SKILL_92_DESC,"A hymn of thanksgiving that quickens the natural recovery of the party for 90s. Cooldown
+SKILL_80_DESC,"A hymn of thanksgiving that quickens the natural recovery of the party for 90s. Cooldown
 60s.
 
 `+10%/lv` HP and mana regeneration"
-SKILL_93_DESC,"A pillar of holy mana erupts 7m wide around the target spot. For 15s a holy wave sears
+SKILL_81_DESC,"A pillar of holy mana erupts 7m wide around the target spot. For 15s a holy wave sears
 every foe caught in it every 3s, and Demons and the Undead worst of all. Cooldown 30s.
 
 `+15%/lv` MATK per wave, from 115% at Lv.1
 `+10%/lv` extra against Demon and Undead"
-SKILL_94_DESC,"Consecrates a patch of ground 5m wide for 30s. Every second it heals allies standing in
+SKILL_82_DESC,"Consecrates a patch of ground 5m wide for 30s. Every second it heals allies standing in
 it, and burns Demons and the Undead for the same share of the Priest's own max HP.
 Cooldown 30s.
 
 `+5%/lv` max HP healed per second"
-SKILL_95_DESC,"Calls a fallen Bestia or Master back over the threshold with 30% of their HP. Can not be
+SKILL_83_DESC,"Calls a fallen Bestia or Master back over the threshold with 30% of their HP. Can not be
 used on the caster. Cooldown 10min."
-SKILL_96_DESC,"A warrior's steadied breath - the body keeps mending itself even in the thick of a fight.
+SKILL_84_DESC,"A warrior's steadied breath - the body keeps mending itself even in the thick of a fight.
 HP and mana regeneration does not stop during combat."
-SKILL_97_DESC,"Hide toughened by nothing more than sheer stubbornness. Unlike Magic Armor it costs no
+SKILL_85_DESC,"Hide toughened by nothing more than sheer stubbornness. Unlike Magic Armor it costs no
 mana, but the reduction is more modest.
 
 `-3%/lv` physical damage taken"
-SKILL_98_DESC,"A shimmering ward of raw mana wrapped around the caster for 5min, turning aside blade and
+SKILL_86_DESC,"A shimmering ward of raw mana wrapped around the caster for 5min, turning aside blade and
 spell alike. Each hit costs 2% of the current mana, and the ward ends when mana drops
 below 20%. Cooldown 10s.
 
 `-10%/lv` damage taken"
-SKILL_99_DESC,"A shard of hardened cold flung at a single target - the water-elemental counterpart to
+SKILL_87_DESC,"A shard of hardened cold flung at a single target - the water-elemental counterpart to
 Fire Bolt.
 
 `+20%/lv` MATK
 `-0.2s/lv` cast time"
-SKILL_100_DESC,"A crack of lightning called down onto a single target - the wind-elemental counterpart to
+SKILL_88_DESC,"A crack of lightning called down onto a single target - the wind-elemental counterpart to
 Fire Bolt.
 
 `+20%/lv` MATK
 `-0.2s/lv` cast time"
-SKILL_101_DESC,"A jagged spar of stone erupts beneath a single target - the earth-elemental counterpart to
+SKILL_89_DESC,"A jagged spar of stone erupts beneath a single target - the earth-elemental counterpart to
 Fire Bolt.
 
 `+20%/lv` MATK
 `-0.2s/lv` cast time"
-SKILL_102_DESC,"A deeper communion with raw mana beyond the elements, sharpening the spells that draw on
+SKILL_90_DESC,"A deeper communion with raw mana beyond the elements, sharpening the spells that draw on
 it: Soul Break's damage and the magic attack Mindbreak gives.
 
 `+10%/lv` raw-mana power, from 5% at Lv.1"
-SKILL_103_DESC,"Conjures a barrier of solidified mana on one tile. It shields every ally standing on it
+SKILL_91_DESC,"Conjures a barrier of solidified mana on one tile. It shields every ally standing on it
 from melee strikes and projectiles until it has absorbed enough hits or its time runs out.
 Spells pass through. Cooldown 10s.
 
 `+4/lv` hits absorbed, from 2 at Lv.1
 `+16s/lv` duration, from 20s at Lv.1"
-SKILL_104_DESC,"Encases a target in stone. It applies Stoning, which turns into Stone after 10s unless it
+SKILL_92_DESC,"Encases a target in stone. It applies Stoning, which turns into Stone after 10s unless it
 is cured first. Consumes a Red Mana Crystal. Cooldown 15s.
 
 `+20%/lv` chance, from 20% at Lv.1
 `+15s/lv` Stone duration, from 15s at Lv.1"
-SKILL_105_DESC,"A ward of counter-mana thrown over a target mid-incantation. If it takes hold, it breaks
+SKILL_93_DESC,"A ward of counter-mana thrown over a target mid-incantation. If it takes hold, it breaks
 the spell being woven and leaves the target Silenced. Cooldown 20s.
 
 `+20%/lv` chance, from 20% at Lv.1
 `+2s/lv` silence, from 3s at Lv.1"
-SKILL_107_DESC,"Conjures a wall of roaring flame three tiles long for 20s, across the line of the cast.
+SKILL_94_DESC,"Conjures a wall of roaring flame three tiles long for 20s, across the line of the cast.
 Twice a second it burns every foe on it and shoves it back the way it came. Cooldown 10s.
 
 `+20%/lv` MATK per tick, from 110% at Lv.1
 `+1m/lv` knockback, from 1m at Lv.1"
-SKILL_108_DESC,"Calls down a rain of blazing meteors onto a 7m area for 10s. Each one falls at random
+SKILL_95_DESC,"Calls down a rain of blazing meteors onto a 7m area for 10s. Each one falls at random
 and burns every foe within 3m of where it lands. Cooldown 30s.
 
 `+20%/lv` MATK per meteor, from 110% at Lv.1
 `+2/lv` meteors, from 3 at Lv.1"
-SKILL_109_DESC,"A freezing gale that batters a 9m area with a wave of ice every second for 10s. Each wave
+SKILL_96_DESC,"A freezing gale that batters a 9m area with a wave of ice every second for 10s. Each wave
 can freeze the foes it hits. Cooldown 25s.
 
 `+16%/lv` MATK per wave, from 108% at Lv.1
 `+10%/lv` freeze chance per wave, from 5% at Lv.1"
-SKILL_111_DESC,"A burst of subzero cold erupts outward from the caster. It does no harm, but may freeze
+SKILL_97_DESC,"A burst of subzero cold erupts outward from the caster. It does no harm, but may freeze
 every foe it reaches. Cooldown 15s.
 
 `+2m/lv` radius, from 2m at Lv.1
 `+20%/lv` freeze chance, from 15% at Lv.1"
-SKILL_112_DESC,"Turns a 5m patch of ground into clinging mud for 30s. It strips AGI-increasing buffs from
+SKILL_98_DESC,"Turns a 5m patch of ground into clinging mud for 30s. It strips AGI-increasing buffs from
 the foes in it and drags down their AGI and DEX, at most 25% against Masters and their
 Bestias and 50% against wild Bestias. Cooldown 20s.
 
 `-20%/lv` AGI and DEX, from 10% at Lv.1"
-SKILL_113_DESC,"Wind churns into a storm overhead for 8s, calling down lightning at random across a 5m
+SKILL_99_DESC,"Wind churns into a storm overhead for 8s, calling down lightning at random across a 5m
 area. Each strike hits every foe within 1m of it. Cooldown 20s.
 
 `+20%/lv` MATK per strike, from 110% at Lv.1
 `+2/lv` strikes, from 3 at Lv.1"
-SKILL_114_DESC,"Splits the ground around the caster for 8s. Every second it hits every foe standing on it.
+SKILL_100_DESC,"Splits the ground around the caster for 8s. Every second it hits every foe standing on it.
 The ground stays split where it was cast. Cooldown 25s.
 
 `+20%/lv` MATK per tick, from 110% at Lv.1
 `+2m/lv` radius, from 2m at Lv.1"
-SKILL_116_DESC,"Tears into a target with raw mana that ignores elemental resistance, ripping away part of
+SKILL_101_DESC,"Tears into a target with raw mana that ignores elemental resistance, ripping away part of
 its current mana. Cooldown 15s.
 
 `+40%/lv` MATK, from 20% at Lv.1
 `+10%/lv` of the target's mana drained, from 5% at Lv.1"
-SKILL_118_DESC,"Channels so much raw magic through one of the master's own Bestias for 60s that its armor
+SKILL_102_DESC,"Channels so much raw magic through one of the master's own Bestias for 60s that its armor
 is the first thing to give: magic attack rises and soft magic defense falls. Arcane Mastery
 raises the magic attack it gives. Cooldown 60s.
 
 `+40%/lv` MATK, from 20% at Lv.1
 `-40%/lv` SMDEF, from 20% at Lv.1"
-SKILL_119_DESC,"Knocks a random piece of equipment off the target and keeps its slot empty for a while.
+SKILL_103_DESC,"Knocks a random piece of equipment off the target and keeps its slot empty for a while.
 Accessories cannot be stripped. Stripping a dual wielder's weapon or shield takes both
 weapons. A monster with no gear loses 25% of its ATK or DEF for that time instead. Fails
 against Equipment Coating. Cooldown 12s.
 
 `+10%/lv` strip chance, from 20% at Lv.1
 `+5s/lv` slot blocked"
-SKILL_120_DESC,"Lets the Assassin carry a one-handed weapon in each hand. Without this skill no master can
+SKILL_104_DESC,"Lets the Assassin carry a one-handed weapon in each hand. Without this skill no master can
 hold a weapon in the left hand. The off-hand weapon strikes after every swing that lands,
 always for less, and swings come slower.
 
 `+10%/lv` off-hand damage, from 30% at Lv.1
 `-5%/lv` attack speed penalty, from 25% at Lv.1"
-SKILL_121_DESC,"A thin, oiled coating worked into everything the Assassin wears, for 10min. While it holds,
+SKILL_105_DESC,"A thin, oiled coating worked into everything the Assassin wears, for 10min. While it holds,
 Strip Equipment cannot take any coated piece.
 
 `-40%/lv` durability wear of the coated equipment, from 20% at Lv.1"
-SKILL_122_DESC,"Drops the Assassin flat against whatever cover is at hand. Nothing hostile can see them
+SKILL_106_DESC,"Drops the Assassin flat against whatever cover is at hand. Nothing hostile can see them
 while they stay put. Breaks on moving, attacking or casting; recast to come out. Ruwach
 always reveals. Cooldown 5s.
 
 `-0.5/lv` mana drain per second, from 3 at Lv.1
 `+10%/lv` detection resistance"
-SKILL_123_DESC,"What Hide is for standing still, Cloak is for walking. Still breaks on attacking or
+SKILL_107_DESC,"What Hide is for standing still, Cloak is for walking. Still breaks on attacking or
 casting; recast to come out. Ruwach strips it outright. Cooldown 8s.
 
 `+20%/lv` movement speed kept, from 50% at Lv.1
 `-1/lv` mana drain per second, from 6 at Lv.1"
-SKILL_124_DESC,"A long, unhealthy familiarity with everything that should not be swallowed.
+SKILL_108_DESC,"A long, unhealthy familiarity with everything that should not be swallowed.
 
 `+20%/lv` damage of the poison the Assassin's own blade leaves
 `+10%/lv` resistance to being poisoned"
-SKILL_125_DESC,"Works a brewed poison into the edge of your own or an ally's weapon for 5min, so every
+SKILL_109_DESC,"Works a brewed poison into the edge of your own or an ally's weapon for 5min, so every
 swing that lands can leave it behind. Consumes one poison, such as Basic Poison. The poison
 decides how hard it bites.
 
 `+5%/lv` poison chance per hit"
-SKILL_126_DESC,"When an enemy spell strikes the Assassin, they may memorize it well enough to cast it back
+SKILL_110_DESC,"When an enemy spell strikes the Assassin, they may memorize it well enough to cast it back
 once. Bestia attacks can be copied too. Casting the copy consumes it, and a new copy
 overwrites the old one. A master's spell counts 10 attack levels per skill level and is
 copied at the cap when it is above it; a bestia attack above the cap is not copied.
@@ -811,260 +811,260 @@ copied at the cap when it is above it; a bestia attack above the cap is not copi
 `+10%/lv` copy chance
 `+20/lv` highest attack level copied, 100+ at max rank
 Lv.5 a new copy no longer overwrites the old one"
-SKILL_128_DESC,"A blade driven in from behind. Only works from Hide or Cloak, and only from behind the
+SKILL_111_DESC,"A blade driven in from behind. Only works from Hide or Cloak, and only from behind the
 target. The strike ends the hiding. Cooldown 8s.
 
 `+50%/lv` ATK, from 200% at Lv.1"
-SKILL_129_DESC,"A short, vicious blow below the ribs that leaves the target stunned and gasping. A boss
+SKILL_112_DESC,"A short, vicious blow below the ribs that leaves the target stunned and gasping. A boss
 recovers twice as fast. Cooldown 30s.
 
 `+1s/lv` stun, from 4s at Lv.1"
-SKILL_130_DESC,"Eight weapon blows in a heartbeat. With a weapon in each hand, every second blow comes
+SKILL_113_DESC,"Eight weapon blows in a heartbeat. With a weapon in each hand, every second blow comes
 from the left. Cooldown 5s.
 
 `+40%/lv` ATK over all eight hits, from 340% at Lv.1"
-SKILL_131_DESC,"Slips through the shadows to stand right behind a target, still hidden, so a Backstab can
+SKILL_114_DESC,"Slips through the shadows to stand right behind a target, still hidden, so a Backstab can
 follow. Only from Hide or Cloak. Cooldown 20s.
 
 `+2m/lv` range, from 4m at Lv.1"
-SKILL_132_DESC,"Years spent drilling with sword, axe, mace and spear until the weight stops mattering. Counts
+SKILL_115_DESC,"Years spent drilling with sword, axe, mace and spear until the weight stops mattering. Counts
 for swords, greatswords, axes, greataxes, maces, hammers, spears and polearms.
 
 `+3/lv` ATK"
-SKILL_133_DESC,"Teaches the body to carry plate and mail, complementing the protection of Iron Skin. Counts
+SKILL_116_DESC,"Teaches the body to carry plate and mail, complementing the protection of Iron Skin. Counts
 every worn piece of heavy armor, a heavy shield too.
 
 `+2/lv` hard DEF for each heavy piece"
-SKILL_134_DESC,"A shout or a slammed shield that forces a monster or a Bestia, wild or owned, to attack
+SKILL_117_DESC,"A shout or a slammed shield that forces a monster or a Bestia, wild or owned, to attack
 only the Knight, even one that would never pick a fight. It has no effect on masters. A
 newer provoke takes the target from whoever provoked it before. Cooldown 10s.
 
 `3s + 1s/lv` duration"
-SKILL_135_DESC,"Plants the Knight's feet and raises their shield into a proper wall. Needs a shield, and
+SKILL_118_DESC,"Plants the Knight's feet and raises their shield into a proper wall. Needs a shield, and
 drops with it. Toggle: cast it again to lower the wall at no cost. The cut adds to Iron
 Skin. Cooldown 15s.
 
 `-5%/lv` physical damage taken, from 15% at Lv.1
 `-50%` movement speed at Lv.1, `-40%` at Lv.2, `-30%` from Lv.3
 Lv.5 returns 10% of the blocked damage to the attacker"
-SKILL_136_DESC,"A single committed swing that trades finesse for raw impact, with a chance to stun what it
+SKILL_119_DESC,"A single committed swing that trades finesse for raw impact, with a chance to stun what it
 lands on for 1s. The chance adds to the stun chance of the Knight's gear. Cooldown 6s.
 
 `+20%/lv` bonus damage
 `+5%/lv` stun chance"
-SKILL_137_DESC,"A trained reflex that raises the shield on its own the instant a blow lands, sometimes fast
+SKILL_120_DESC,"A trained reflex that raises the shield on its own the instant a blow lands, sometimes fast
 enough to stop it cold. Needs a shield. A spell cannot be blocked.
 
 `+4%/lv` chance to block a hit fully"
-SKILL_138_DESC,"Closes the distance to a target in sight in an instant, weapon first. The impact deals 150%
+SKILL_121_DESC,"Closes the distance to a target in sight in an instant, weapon first. The impact deals 150%
 ATK and provokes the target for 3s. Ground the Knight cannot step onto stops the dash short,
 and then nothing is struck.
 
 `15s - 0.5s/lv` cooldown"
-SKILL_139_DESC,"The Knight's capstone. For a short time the line between wall and weapon stops meaning
+SKILL_122_DESC,"The Knight's capstone. For a short time the line between wall and weapon stops meaning
 anything: +20% DEF and +20% ATK.
 
 Lv.1 10s, cooldown 120s
 Lv.2 15s, and immune to stun and knockback
 Lv.3 15s, cooldown 90s, and a hit fully blocked by Auto Guard refreshes the duration"
-SKILL_140_DESC,"A Brawler's conditioning - stamina holds out longer under strain and comes back quicker once
+SKILL_123_DESC,"A Brawler's conditioning - stamina holds out longer under strain and comes back quicker once
 it's spent. Skills like Sprint cost less stamina, and the weather drains less.
 
 `-10%/lv` stamina cost and drain
 `+10%/lv` stamina regeneration"
-SKILL_141_DESC,"A Brawler's answer to running on empty: dig deep once, and get back up. Restores 50% of
+SKILL_124_DESC,"A Brawler's answer to running on empty: dig deep once, and get back up. Restores 50% of
 the stamina at once. Cooldown 180s.
 
 Lv.2 also heals 20% HP
 Lv.3 cooldown 120s instead of 180s"
-SKILL_142_DESC,"The Brawler's capstone. Once per cooldown, an otherwise lethal hit leaves the master at
+SKILL_125_DESC,"The Brawler's capstone. Once per cooldown, an otherwise lethal hit leaves the master at
 1 HP instead. An icon counts the cooldown down, and a relog does not reset it. Cooldown
 10min.
 
 Lv.2 a stun lasts half as long and a knockback goes half as far while above 50% HP
 Lv.3 cooldown 6min"
-SKILL_143_DESC,"Knuckles hardened on posts, walls and the occasional jaw.
+SKILL_126_DESC,"Knuckles hardened on posts, walls and the occasional jaw.
 
 `+3/lv` ATK with a fist weapon or bare hands"
-SKILL_144_DESC,"A basic melee attack that lands may become three blows in a row, for 200% of the blow in
+SKILL_127_DESC,"A basic melee attack that lands may become three blows in a row, for 200% of the blow in
 all. Only the main hand rolls, once per attack.
 
 `+3%/lv` chance per basic attack"
-SKILL_145_DESC,"Follows a Triple Blow at once with four more hits on an enemy. Only within 1.5s after a
+SKILL_128_DESC,"Follows a Triple Blow at once with four more hits on an enemy. Only within 1.5s after a
 Triple Blow, and once for each.
 
 `250% + 50%/lv` ATK over all hits"
-SKILL_146_DESC,"A wide sweep of the staff that hits every enemy within 2m and knocks back 1m each one it
+SKILL_129_DESC,"A wide sweep of the staff that hits every enemy within 2m and knocks back 1m each one it
 hits. Needs a staff. Cooldown 6s.
 
 `100% + 20%/lv` ATK"
-SKILL_147_DESC,"Works the Brawler into a Berserk: +60% ATK and +30% attack speed, but no DEF at all and no
+SKILL_130_DESC,"Works the Brawler into a Berserk: +60% ATK and +30% attack speed, but no DEF at all and no
 armor against spells. Cooldown 60s.
 
 `+10s/lv` duration"
-SKILL_148_DESC,"Only while Berserk and with at least half the mana: pours all of it into one weapon blow of
+SKILL_131_DESC,"Only while Berserk and with at least half the mana: pours all of it into one weapon blow of
 ATK * (4 + mana spent / 10). Afterwards the Berserk ends and Mana Sealed stops mana
 regeneration for 5min.
 
 `+10%/lv` damage"
-SKILL_149_DESC,"Dashes up to 6m to a target in sight and lands one basic blow on arrival. Ground the
+SKILL_132_DESC,"Dashes up to 6m to a target in sight and lands one basic blow on arrival. Ground the
 Brawler cannot step onto stops the dash short, and then nothing is struck. Cooldown 10s."
-SKILL_150_DESC,"Teaches the Hunter to read the land well enough to disappear into it. Wild Bestia
+SKILL_133_DESC,"Teaches the Hunter to read the land well enough to disappear into it. Wild Bestia
 notice the master later. It does not hide the master, and tamed Bestia notice the
 master as usual.
 
 `-10%/lv` notice range of wild Bestia"
-SKILL_151_DESC,"A Hunter's sure footing, at home where the road ends. Faster on any ground that is not
+SKILL_134_DESC,"A Hunter's sure footing, at home where the road ends. Faster on any ground that is not
 a made road, paving, a bridge or a built floor. The master's Bestias do not gain it.
 
 `+3%/lv` walk speed off roads"
-SKILL_152_DESC,"Marks one enemy for 30s. It shows on the master's map wherever it goes, and its Hide
+SKILL_135_DESC,"Marks one enemy for 30s. It shows on the master's map wherever it goes, and its Hide
 and Cloak do not work against the master. A new mark ends the old one. Cooldown 10s.
 
 `+3%/lv` critical rate against the target"
-SKILL_153_DESC,"Eyes trained on far and small things, until the aim follows them by itself.
+SKILL_136_DESC,"Eyes trained on far and small things, until the aim follows them by itself.
 
 `+1/lv` DEX"
-SKILL_154_DESC,"Patience on the draw, until the shot lands where the eye already is. Works while a bow,
+SKILL_137_DESC,"Patience on the draw, until the shot lands where the eye already is. Works while a bow,
 crossbow, sling or thrown weapon is in hand. With a thrown weapon, Javelin reaches farther.
 
 `+1/lv` range in tiles
 `+2/lv` HIT"
-SKILL_155_DESC,"Needs a bow and reaches as far as the bow. Shoots two arrows at the target but takes only
+SKILL_138_DESC,"Needs a bow and reaches as far as the bow. Shoots two arrows at the target but takes only
 one out of the quiver.
 
 `100% + 10%/lv` ATK per arrow"
-SKILL_156_DESC,"Needs a bow and reaches as far as the bow. A volley that hits every enemy in a 3x3 area and
+SKILL_139_DESC,"Needs a bow and reaches as far as the bow. A volley that hits every enemy in a 3x3 area and
 knocks each one it hits back 1m, away from the Hunter. Takes one arrow out of the quiver.
 Cooldown 1s.
 
 `80% + 10%/lv` ATK"
-SKILL_157_DESC,"Needs a bow and reaches as far as the bow. One shot for 150% ATK that knocks the target
+SKILL_140_DESC,"Needs a bow and reaches as far as the bow. One shot for 150% ATK that knocks the target
 back 6m if it hits. Takes one arrow out of the quiver. Cooldown 10s."
-SKILL_158_DESC,"The Hunter's senses, sharpened to a point. Lasts 60s. When cast, it ends Hide and Cloak on
+SKILL_141_DESC,"The Hunter's senses, sharpened to a point. Lasts 60s. When cast, it ends Hide and Cloak on
 everyone within 3m of the master, once.
 
 `+2/lv` AGI and DEX"
-SKILL_159_DESC,Opens the crafting window with the arrow recipes. Needs no station.
-SKILL_160_DESC,"Training with lute, flute and whip until each one is as much a weapon as an instrument.
+SKILL_142_DESC,Opens the crafting window with the arrow recipes. Needs no station.
+SKILL_143_DESC,"Training with lute, flute and whip until each one is as much a weapon as an instrument.
 Works while an instrument or a whip is in hand; a bow gains nothing.
 
 `+2/lv` ATK"
-SKILL_161_DESC,"A Bard trusts footwork over plate and simply is not where the hit lands. Works in light
+SKILL_144_DESC,"A Bard trusts footwork over plate and simply is not where the hit lands. Works in light
 body armor, cloth or none.
 
 `+2/lv` FLEE"
-SKILL_162_DESC,"Needs a whip. A strike at the footing that leaves the target Slowed (-20% move speed) if it
+SKILL_145_DESC,"Needs a whip. A strike at the footing that leaves the target Slowed (-20% move speed) if it
 hits. Cooldown 6s.
 
 `120% + 20%/lv` ATK
 `3s + 1s/lv` Slowed"
-SKILL_163_DESC,"Needs an instrument. One sharp, ugly note that hits the target as a sound wave. It flies
+SKILL_146_DESC,"Needs an instrument. One sharp, ugly note that hits the target as a sound wave. It flies
 like an arrow, so DEX drives it and a Pneuma stops it. Cooldown 2s.
 
 `150% + 30%/lv` ATK"
-SKILL_164_DESC,"Needs an instrument. Every enemy within 3 tiles of the Bard swings slower and aims worse
+SKILL_147_DESC,"Needs an instrument. Every enemy within 3 tiles of the Bard swings slower and aims worse
 for 20s. Cooldown 20s.
 
 `-5%/lv` ASPD
 `-3%/lv` HIT"
-SKILL_165_DESC,"A trained voice reaches further and holds a note longer, in every song the Bard plays.
+SKILL_148_DESC,"A trained voice reaches further and holds a note longer, in every song the Bard plays.
 
 `+1/lv` song radius in tiles
 `+10%/lv` song duration"
-SKILL_166_DESC,"A song: needs an instrument. It plays for 60s around the Bard, and everyone on the Bard's
+SKILL_149_DESC,"A song: needs an instrument. It plays for 60s around the Bard, and everyone on the Bard's
 side within 3 tiles hears it and keeps it 5s after leaving. It stops early if the Bard puts the
 instrument away, falls or cannot cast. Cooldown 5s.
 
 `+3%/lv` ATK and MATK"
-SKILL_167_DESC,"A song: needs an instrument. It plays for 60s around the Bard, and everyone on the Bard's
+SKILL_150_DESC,"A song: needs an instrument. It plays for 60s around the Bard, and everyone on the Bard's
 side within 3 tiles hears it and keeps it 5s after leaving. It stops early if the Bard puts the
 instrument away, falls or cannot cast. Cooldown 5s.
 
 `+2%/lv` movement and attack speed"
-SKILL_168_DESC,"A song: needs an instrument. It plays for 60s around the Bard, and everyone on the Bard's
+SKILL_151_DESC,"A song: needs an instrument. It plays for 60s around the Bard, and everyone on the Bard's
 side within 3 tiles hears it and keeps it 5s after leaving. It stops early if the Bard puts the
 instrument away, falls or cannot cast. Cooldown 5s.
 
 `+3/lv` FLEE"
-SKILL_169_DESC,"A song: needs an instrument. It plays for 10min around the Bard, and everyone on the Bard's
+SKILL_152_DESC,"A song: needs an instrument. It plays for 10min around the Bard, and everyone on the Bard's
 side within 3 tiles hears it and keeps it 5s after leaving. It stops early if the Bard puts the
 instrument away, falls or cannot cast. Cooldown 5s.
 Made for long journeys with a Bestia team.
 
 `-10%/lv` stamina drain"
-SKILL_170_DESC,"The Bard's capstone. Every song the Bard plays lands a little harder.
+SKILL_153_DESC,"The Bard's capstone. Every song the Bard plays lands a little harder.
 
 `+10%/lv` effect of every song"
-SKILL_171_DESC,"Takes the hits meant for a party member, a party Bestia or one of the Knight's own Bestias.
+SKILL_154_DESC,"Takes the hits meant for a party member, a party Bestia or one of the Knight's own Bestias.
 While it lasts, every blow and spell on the ally hits the Knight instead, as hard as it would
 have hit the ally. Poison and burns stay with the ally. It ends early when the ally moves
 more than 7m away or the Knight falls. Cooldown 30s.
 
 `+15s/lv` duration"
-SKILL_172_DESC,"Needs a spear or a polearm. A wide sweep that hits every enemy in a 3x3 area in front of the
+SKILL_155_DESC,"Needs a spear or a polearm. A wide sweep that hits every enemy in a 3x3 area in front of the
 Knight, turned towards the enemy it aims at. Each hit can miss and crit on its own.
 Cooldown 4s.
 
 `+40%/lv` ATK, from 120% at Lv.1"
-SKILL_173_DESC,"Needs a spear or a thrown weapon. Hurls it at an enemy up to 7 tiles away as a ranged
+SKILL_156_DESC,"Needs a spear or a thrown weapon. Hurls it at an enemy up to 7 tiles away as a ranged
 attack, so Pneuma stops it. A spear comes back to hand. A thrown weapon takes one more
 from the bag, and the last one stays in hand. Cooldown 3s.
 
 `150% + 30%/lv` ATK"
-SKILL_174_DESC,"The Hunter's Bestias learn whom to go for. They hit the target of the master's Hunter's
+SKILL_157_DESC,"The Hunter's Bestias learn whom to go for. They hit the target of the master's Hunter's
 Mark harder, wherever the master stands. The master gains nothing.
 
 `+10%/lv` damage of the master's Bestias against the marked target"
-SKILL_175_DESC,"Throws a potion from the bag onto an ally up to 7 tiles away, so it works as if the ally had
+SKILL_158_DESC,"Throws a potion from the bag onto an ally up to 7 tiles away, so it works as if the ally had
 drunk it. A Small Health Potion, a Small Mana Potion or Medicine can be thrown. Cooldown 1s.
 
 `+10%/lv` health, mana and stamina from the thrown potion"
-SKILL_176_DESC,"Plants a sapling in a tree stump. The new tree grows back faster than one left to nature.
+SKILL_159_DESC,"Plants a sapling in a tree stump. The new tree grows back faster than one left to nature.
 Consumes a log.
 
 `-25%/lv` regrowth time
 Lv.3 the grown tree gives one more log"
-SKILL_177_DESC,"A Trader never pays the price on the sign. Better prices at every merchant.
+SKILL_160_DESC,"A Trader never pays the price on the sign. Better prices at every merchant.
 
 `-2%/lv` price when buying from a merchant
 `+2%/lv` price when selling to a merchant"
-SKILL_178_DESC,"Sets up a market stall where the Trader stands. Other players buy the listed items from it.
+SKILL_161_DESC,"Sets up a market stall where the Trader stands. Other players buy the listed items from it.
 The stall closes when the Trader walks away or after 1h.
 
 `+2/lv` listings, from 3 at Lv.1"
-SKILL_179_DESC,"Sets a blasting charge on the ground. 3s later it breaks every block around it and hurts every
+SKILL_162_DESC,"Sets a blasting charge on the ground. 3s later it breaks every block around it and hurts every
 foe inside. The ore it breaks scatters on the ground. Consumes a Blasting Charge.
 
 `+1m/lv` radius, from 2m at Lv.1
 `+20%/lv` ATK damage, from 120% at Lv.1"
-SKILL_180_DESC,"A Miner who has cut enough stones sees what a rough gem holds before the first cut. Shows
+SKILL_163_DESC,"A Miner who has cut enough stones sees what a rough gem holds before the first cut. Shows
 which gem an unknown Rough Gemstone is.
 
 `+5%/lv` Gem Cutting success chance"
-SKILL_181_DESC,"Turns a campfire into a camp. Party members and their Bestias within 5m bear the weather
+SKILL_164_DESC,"Turns a campfire into a camp. Party members and their Bestias within 5m bear the weather
 better: `+-5` degrees temperature tolerance, in both directions. Only one camp per master.
 Cooldown 5min.
 
 `+30min/lv` duration
 Lv.2 +50% HP and stamina regeneration, and storms and mana storms do not reach inside
 Lv.3 party members who die respawn at the camp"
-SKILL_182_DESC,"A Prospector's nose for what someone buried and never came back for. Senses treasure caches
+SKILL_165_DESC,"A Prospector's nose for what someone buried and never came back for. Senses treasure caches
 nearby. Cooldown 30s.
 
 `+20m/lv` radius, from 20m at Lv.1
 Lv.3 also how deep the cache lies
 Lv.5 also how rich it is"
-SKILL_183_DESC,"A sound pulse that marks hollow spaces nearby on the map: cave openings, hollows and buried
+SKILL_166_DESC,"A sound pulse that marks hollow spaces nearby on the map: cave openings, hollows and buried
 chambers. Cooldown 20s.
 
 `+5m/lv` radius, from 10m at Lv.1
 Lv.3 also how deep and how large a hollow is"
-SKILL_184_DESC,"Charts a sensed treasure cache onto a sheet of empty paper. The map is an item that can be
+SKILL_167_DESC,"Charts a sensed treasure cache onto a sheet of empty paper. The map is an item that can be
 traded or sold, so whoever holds it can dig the cache up.
 
 `-25m/lv` uncertainty of the marked spot, exact at max rank"
-SKILL_185_DESC,"Knowing where to dig and how not to break what lies below.
+SKILL_168_DESC,"Knowing where to dig and how not to break what lies below.
 
 `-20%/lv` time to dig out a treasure cache
 `+5%/lv` chance for the cache's best item"

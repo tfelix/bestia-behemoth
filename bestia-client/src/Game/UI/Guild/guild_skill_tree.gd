@@ -12,15 +12,15 @@ const GAP := Vector2(14, 6)
 ## Skill id to grid cell (column, row). Prerequisites always sit in a column further left, so every line
 ## runs rightwards. A skill missing here goes into a row of its own below the rest.
 const CELLS := {
-	9001: Vector2i(0, 0), 9002: Vector2i(1, 0), 9005: Vector2i(2, 0), 9006: Vector2i(3, 0),
-	9007: Vector2i(2, 1),
-	9003: Vector2i(2, 2), 9004: Vector2i(3, 2),
-	9008: Vector2i(0, 3), 9017: Vector2i(1, 3), 9018: Vector2i(2, 3), 9019: Vector2i(3, 3),
-	9020: Vector2i(3, 4), 9021: Vector2i(4, 4),
-	9009: Vector2i(0, 5), 9010: Vector2i(1, 5), 9015: Vector2i(2, 5),
-	9016: Vector2i(1, 6),
-	9011: Vector2i(0, 7), 9012: Vector2i(1, 7),
-	9013: Vector2i(0, 8), 9014: Vector2i(1, 8),
+	1000: Vector2i(0, 0), 1001: Vector2i(1, 0), 1004: Vector2i(2, 0), 1005: Vector2i(3, 0),
+	1006: Vector2i(2, 1),
+	1002: Vector2i(2, 2), 1003: Vector2i(3, 2),
+	1007: Vector2i(0, 3), 1016: Vector2i(1, 3), 1017: Vector2i(2, 3), 1018: Vector2i(3, 3),
+	1019: Vector2i(3, 4), 1020: Vector2i(4, 4),
+	1008: Vector2i(0, 5), 1009: Vector2i(1, 5), 1014: Vector2i(2, 5),
+	1015: Vector2i(1, 6),
+	1010: Vector2i(0, 7), 1011: Vector2i(1, 7),
+	1012: Vector2i(0, 8), 1013: Vector2i(1, 8),
 }
 
 const LINE_MET := Color(1.0, 0.82, 0.35, 0.7)

@@ -42,7 +42,8 @@ abstract class SkillDbSyncTask : DefaultTask() {
   private companion object {
     /** Mirrors the `@export` defaults in `attack_resource.gd`. */
     const val DEFAULT_MAX_LEVEL = 1
-    val BESTIA_SKILL_IDS = 1000L..8999L
+    /** Master skills are below 1000, guild skills 1000-1999, and every bestia skill from 2000 up. */
+    val BESTIA_SKILL_IDS = 2000L..Long.MAX_VALUE
     const val BESTIA_MAX_SKILL_LEVEL = 10
     const val DEFAULT_TARGET_TYPE = "GROUND"
     const val DEFAULT_IS_PASSIVE = false
