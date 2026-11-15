@@ -180,8 +180,14 @@ object ChronicleMain {
       chronicle.settlements.count { it.ruinCause == EventKind.SETTLEMENT_FORSAKEN },
       chronicle.settlements.count { it.ruinCause == EventKind.SETTLEMENT_ABANDONED },
       chronicle.figures.size,
+      chronicle.dynasties.size,
+      chronicle.deities.size,
+      chronicle.cults.size,
+      chronicle.monsters.size,
+      chronicle.monsters.count { it.alive },
       chronicle.artifacts.size,
       chronicle.sites.size,
+      chronicle.threads.size,
       chronicle.events.size
     )
   }
@@ -648,7 +654,7 @@ object ChronicleMain {
 
   private const val SWEEP_COLUMN_WIDTH = 11
   private val SWEEP_COLUMNS = listOf(
-    "seed", "civs", "by sea", "overland", "seceded", "refugees", "wars", "battles", "fields", "ruins", "standing", "razed", "buried", "forsaken", "dwindled", "figures", "artifacts", "sites", "events"
+    "seed", "civs", "by sea", "overland", "seceded", "refugees", "wars", "battles", "fields", "ruins", "standing", "razed", "buried", "forsaken", "dwindled", "figures", "houses", "gods", "cults", "bosses", "alive", "artifacts", "sites", "threads", "events"
   )
 
   private val CHRONICLE_FLAGS = setOf(
