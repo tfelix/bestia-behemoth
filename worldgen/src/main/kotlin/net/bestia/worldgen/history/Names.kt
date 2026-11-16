@@ -7,6 +7,7 @@ import net.bestia.worldgen.core.Domain
 import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.ParamsDigest
+import net.bestia.worldgen.core.Sex
 import net.bestia.worldgen.core.WorldBoss
 
 /**
@@ -108,8 +109,7 @@ object Names {
 
   /** A personal name, plus a byname often enough that a chronicle does not read as a list of nouns. */
   fun person(seed: Long, cultureIndex: Int, role: FigureRole): String {
-    val style = styleOf(cultureIndex)
-    val given = pick(style.givenNames, seed, 3).replaceFirstChar { it.uppercase() }
+    val given = givenName(seed, cultureIndex, PERSON_GIVEN_SALT).capitalised()
 
     return if (unit(seed, 4) < 0.55) {
       "$given ${pick(BYNAMES[role] ?: BYNAMES.getValue(FigureRole.RULER), seed, 5)}"
@@ -117,6 +117,13 @@ object Names {
       given
     }
   }
+
+  /** The sex of the figure [person] names, which follows from its given name. */
+  fun personSex(seed: Long, cultureIndex: Int): Sex {
+    return givenName(seed, cultureIndex, PERSON_GIVEN_SALT).sex
+  }
+
+  private const val PERSON_GIVEN_SALT = 3L
 
   /**
    * An ordinary person's name: a given name and nothing else.
@@ -129,7 +136,7 @@ object Names {
    * Reuses [Style.givenNames] rather than adding a pool, so this renames nothing that already exists.
    */
   fun townsperson(seed: Long, cultureIndex: Int): String {
-    return pick(styleOf(cultureIndex).givenNames, seed, TOWNSPERSON_SALT).replaceFirstChar { it.uppercase() }
+    return givenName(seed, cultureIndex, TOWNSPERSON_SALT).capitalised()
   }
 
   private const val TOWNSPERSON_SALT = 0x90L
@@ -155,8 +162,13 @@ object Names {
    * two names and both can tell it is the same god.
    */
   fun deity(seed: Long, cultureIndex: Int, domain: Domain): String {
-    val given = pick(styleOf(cultureIndex).givenNames, seed, DEITY_GIVEN_SALT).replaceFirstChar { it.uppercase() }
+    val given = givenName(seed, cultureIndex, DEITY_GIVEN_SALT).capitalised()
     return "$given ${pick(DEITY_TITLES.getValue(domain), seed, DEITY_TITLE_SALT)}"
+  }
+
+  /** The sex of the god [deity] names in this culture. Another people may call it by a name of the other sex. */
+  fun deitySex(seed: Long, cultureIndex: Int): Sex {
+    return givenName(seed, cultureIndex, DEITY_GIVEN_SALT).sex
   }
 
   /** A cult's name: "the Children of Hilda of the Red Spear", "the Keepers of the Fallen Star". */
@@ -296,8 +308,16 @@ object Names {
 
   private fun styleOf(cultureIndex: Int): Style = STYLES[cultureIndex.coerceIn(0, STYLES.size - 1)]
 
-  private fun pick(pool: List<String>, seed: Long, salt: Long): String =
+  private fun <T> pick(pool: List<T>, seed: Long, salt: Long): T =
     pool[(GenRng.hash(seed, salt) ushr 1).mod(pool.size.toLong()).toInt()]
+
+  private fun givenName(seed: Long, cultureIndex: Int, salt: Long): GivenName {
+    return pick(styleOf(cultureIndex).givenNames, seed, salt)
+  }
+
+  internal fun givenNamesOf(cultureIndex: Int): List<GivenName> {
+    return styleOf(cultureIndex).givenNames
+  }
 
   private fun unit(seed: Long, salt: Long): Double = GenRng.hashUnit(seed, salt)
 
@@ -306,9 +326,24 @@ object Names {
     val placeStems: List<String>,
     val placeTails: List<String>,
     val peopleTails: List<String>,
-    val givenNames: List<String>,
+    val givenNames: List<GivenName>,
     val epithets: List<String>
   )
+
+  /** A given name and the sex of whoever bears it, so a person's sex follows from the name they already have. */
+  internal data class GivenName(val name: String, val sex: Sex) {
+    fun capitalised(): String {
+      return name.replaceFirstChar { it.uppercase() }
+    }
+  }
+
+  private fun female(name: String): GivenName {
+    return GivenName(name, Sex.FEMALE)
+  }
+
+  private fun male(name: String): GivenName {
+    return GivenName(name, Sex.MALE)
+  }
 
   /**
    * One pool set per [net.bestia.worldgen.civ.Culture], in the same order as `Culture.ALL`.
@@ -330,8 +365,9 @@ object Names {
       ),
       peopleTails = listOf("ings", "folk", "shire", "marches", "vale"),
       givenNames = listOf(
-        "alden", "bertrand", "cuthred", "edila", "godwin", "hilda", "leofric", "mildred",
-        "osric", "rowena", "wulfric", "aelfwyn", "tobin", "maerit"
+        male("alden"), male("bertrand"), male("cuthred"), female("edila"), male("godwin"), female("hilda"),
+        male("leofric"), female("mildred"), male("osric"), female("rowena"), male("wulfric"), female("aelfwyn"),
+        male("tobin"), female("maerit")
       ),
       epithets = listOf("green", "harvest", "elder", "long", "still")
     ),
@@ -347,8 +383,9 @@ object Names {
       ),
       peopleTails = listOf("mennir", "folk", "kin", "sund", "reach"),
       givenNames = listOf(
-        "asgeir", "brynja", "dagfinn", "eir", "halvard", "ingrid", "jorund", "kettil",
-        "ragna", "sigvard", "thorunn", "vigdis", "olav", "sunniva"
+        male("asgeir"), female("brynja"), male("dagfinn"), female("eir"), male("halvard"), female("ingrid"),
+        male("jorund"), male("kettil"), female("ragna"), male("sigvard"), female("thorunn"), female("vigdis"),
+        male("olav"), female("sunniva")
       ),
       epithets = listOf("storm", "salt", "winter", "tide", "gale")
     ),
@@ -363,9 +400,11 @@ object Names {
         "ford", "wells", "grass"
       ),
       peopleTails = listOf("khai", "ulus", "horde", "band", "riders"),
+      // Many Mongolian names are given to either sex. Each is tagged as it is most often given.
       givenNames = listOf(
-        "altani", "batu", "chuluun", "erdene", "gerel", "khulan", "muunokhoi", "narantsetseg",
-        "oyuun", "saikhan", "temujin", "tsetseg", "yesui", "bayan"
+        female("altani"), male("batu"), male("chuluun"), male("erdene"), female("gerel"), female("khulan"),
+        male("muunokhoi"), female("narantsetseg"), female("oyuun"), male("saikhan"), male("temujin"),
+        female("tsetseg"), female("yesui"), male("bayan")
       ),
       epithets = listOf("sky", "wind", "far", "swift", "grass")
     ),
@@ -381,8 +420,9 @@ object Names {
       ),
       peopleTails = listOf("volk", "guild", "hold", "delvers", "clans"),
       givenNames = listOf(
-        "adalgar", "berta", "dietrich", "erwin", "gunther", "hedda", "kunimund", "liesel",
-        "otbert", "reinhild", "sigmar", "ulrica", "warin", "trevanion"
+        male("adalgar"), female("berta"), male("dietrich"), male("erwin"), male("gunther"), female("hedda"),
+        male("kunimund"), female("liesel"), male("otbert"), female("reinhild"), male("sigmar"), female("ulrica"),
+        male("warin"), male("trevanion")
       ),
       epithets = listOf("iron", "deep", "grim", "under", "hollow")
     )
@@ -443,7 +483,8 @@ object Names {
           .put("placeStems", style.placeStems.joinToString(","))
           .put("placeTails", style.placeTails.joinToString(","))
           .put("peopleTails", style.peopleTails.joinToString(","))
-          .put("givenNames", style.givenNames.joinToString(","))
+          .put("givenNames", style.givenNames.joinToString(",") { it.name })
+          .put("givenNameSexes", style.givenNames.joinToString(",") { it.sex.name })
           .put("epithets", style.epithets.joinToString(","))
           .value
       )

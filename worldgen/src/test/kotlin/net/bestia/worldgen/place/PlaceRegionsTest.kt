@@ -140,7 +140,8 @@ class PlaceRegionsTest {
     /**
      * Pinned, not computed - see the test that uses it. Re-pinned when pools for gods, cults and world bosses were
      * added: a new pool moves the digest but renames nothing, since every existing name draws from its own pools.
+     * Re-pinned again when every given name got a sex tag, which renames nothing either.
      */
-    const val EXPECTED_NAME_DIGEST = -2563341001968021080L
+    const val EXPECTED_NAME_DIGEST = 2466484856626488581L
   }
 }

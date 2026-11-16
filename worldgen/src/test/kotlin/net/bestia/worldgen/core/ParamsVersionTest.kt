@@ -181,7 +181,8 @@ class ParamsVersionTest {
       // shape rather than a disc without also becoming a smaller one. See `SettlementTier.footprintRadius`.
       "SettlementTier" to 4_668_433_068_619_246_677L,
       "BusinessCatalogue" to -4_134_603_911_680_592_775L,
-      "Names" to -2_563_341_001_968_021_080L,
+      // Moved when every given name got a sex tag. No name changed: `NamesTest` pins every English name.
+      "Names" to 2_466_484_856_626_488_581L,
       "EventKind" to 8_854_317_252_513_217_308L,
       "Order" to -2_417_387_423_981_603_910L,
       "Domain" to -2_510_024_340_807_783_382L,

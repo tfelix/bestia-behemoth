@@ -7,10 +7,12 @@ import net.bestia.worldgen.core.CultKind
 import net.bestia.worldgen.core.Domain
 import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.GenRng
+import net.bestia.worldgen.core.Sex
 import net.bestia.worldgen.core.WorldBoss
 import net.bestia.worldgen.place.RegionKind
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class NamesTest {
 
@@ -18,6 +20,35 @@ class NamesTest {
   fun `every English name is what it was`() {
     // A change to how names are built must not rename an existing world. Re-pin only for a rename you mean.
     assertEquals(ENGLISH_DIGEST, englishDigest())
+  }
+
+  @Test
+  fun `no given name is tagged with both sexes`() {
+    val tags = CULTURES.flatMap { Names.givenNamesOf(it) }.groupBy({ it.name }, { it.sex })
+    val ambiguous = tags.filterValues { it.distinct().size > 1 }.keys
+
+    assertTrue(ambiguous.isEmpty(), "tagged both female and male: $ambiguous")
+  }
+
+  @Test
+  fun `every culture has given names of both sexes`() {
+    for (culture in CULTURES) {
+      val sexes = Names.givenNamesOf(culture).map { it.sex }.toSet()
+      assertEquals(Sex.entries.toSet(), sexes, "culture $culture")
+    }
+  }
+
+  @Test
+  fun `a figure's sex is the tag of the given name it bears`() {
+    for (index in 0 until SEEDS) {
+      val seed = Names.seedOf(SWEEP_SEED, index.toLong())
+      for (culture in CULTURES) {
+        val given = Names.person(seed, culture, FigureRole.RULER).substringBefore(' ').lowercase()
+        val tagged = Names.givenNamesOf(culture).single { it.name == given }
+
+        assertEquals(tagged.sex, Names.personSex(seed, culture), given)
+      }
+    }
   }
 
   private fun englishDigest(): Long {
