@@ -3,6 +3,7 @@ package net.bestia.worldgen.history
 import net.bestia.worldgen.core.ArtifactKind
 import net.bestia.worldgen.core.BeastKind
 import net.bestia.worldgen.core.CultKind
+import net.bestia.worldgen.core.DeityRecord
 import net.bestia.worldgen.core.Domain
 import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.FigureRole
@@ -73,7 +74,7 @@ object Names {
    *   wilderness named in an arbitrary idiom at least varies the way real exonyms do. This is the same
    *   problem [site]'s `wound` branch solves, one step less drastically - a region is somewhere people
    *   pass through, so it gets a language rather than an epithet.
-   * @param epithet widens the name space with a leading adjective - "Elder Elm Downs".
+   * @param epithet widens the name space with a leading adjective - "Elder Elm Downs", in German "Alt-Elmhöhen".
    *
    *   Twenty stems and ten forms is two hundred names per culture, and regions competing for one form
    *   in one culture see only the twenty. A hundred and eighty regions therefore *will* collide, and
@@ -81,7 +82,13 @@ object Names {
    *   [Style.epithets] this reuses already exist. Callers should only reach for it on an actual clash -
    *   a world where every region has an adjective reads as generated.
    */
-  fun region(seed: Long, cultureIndex: Int, form: String, epithet: Boolean = false): String {
+  fun region(
+    seed: Long,
+    cultureIndex: Int,
+    form: String,
+    epithet: Boolean = false,
+    locale: NameLocale = NameLocale.EN
+  ): String {
     val culture = if (cultureIndex >= 0) {
       cultureIndex
     } else {
@@ -100,23 +107,27 @@ object Names {
       place(seed, culture).lowercase()
     }
 
-    val qualified = if (epithet) {
-      "${pick(style.epithets, seed, REGION_EPITHET_SALT)} $head"
-    } else {
-      head
-    }
+    val epithetWord = if (epithet) pick(style.epithets, seed, REGION_EPITHET_SALT) else null
 
-    return "${qualified.replaceFirstChar { it.uppercase() }} ${form.replaceFirstChar { it.uppercase() }}"
+    return when (locale) {
+      NameLocale.EN -> {
+        val qualified = if (epithetWord != null) "$epithetWord $head" else head
+        "${qualified.replaceFirstChar { it.uppercase() }} ${form.replaceFirstChar { it.uppercase() }}"
+      }
+
+      NameLocale.DE -> GermanNames.region(head.replaceFirstChar { it.uppercase() }, form, epithetWord)
+    }
   }
 
   /** A personal name, plus a byname often enough that a chronicle does not read as a list of nouns. */
-  fun person(seed: Long, cultureIndex: Int, role: FigureRole): String {
-    val given = givenName(seed, cultureIndex, PERSON_GIVEN_SALT).capitalised()
+  fun person(seed: Long, cultureIndex: Int, role: FigureRole, locale: NameLocale = NameLocale.EN): String {
+    val given = givenName(seed, cultureIndex, PERSON_GIVEN_SALT)
+    if (unit(seed, 4) >= 0.55) return given.capitalised()
 
-    return if (unit(seed, 4) < 0.55) {
-      "$given ${pick(BYNAMES[role] ?: BYNAMES.getValue(FigureRole.RULER), seed, 5)}"
-    } else {
-      given
+    val byname = pick(BYNAMES[role] ?: BYNAMES.getValue(FigureRole.RULER), seed, 5)
+    return when (locale) {
+      NameLocale.EN -> "${given.capitalised()} $byname"
+      NameLocale.DE -> "${given.capitalised()} ${GermanNames.byname(byname, given.sex)}"
     }
   }
 
@@ -144,8 +155,11 @@ object Names {
   private const val TOWNSPERSON_SALT = 0x90L
 
   /** A ruling family, named the way a seat is: "House Ashford". From the place pools, so no pool is added. */
-  fun house(seed: Long, cultureIndex: Int): String {
-    return "House ${houseStem(seed, cultureIndex)}"
+  fun house(seed: Long, cultureIndex: Int, locale: NameLocale = NameLocale.EN): String {
+    return when (locale) {
+      NameLocale.EN -> "House ${houseStem(seed, cultureIndex)}"
+      NameLocale.DE -> GermanNames.house(houseStem(seed, cultureIndex))
+    }
   }
 
   /** The house's own name without the English "House", for text that is translated around it. */
@@ -163,9 +177,13 @@ object Names {
    * The same seed in another culture gives another given name and the same title, so two peoples call one god by
    * two names and both can tell it is the same god.
    */
-  fun deity(seed: Long, cultureIndex: Int, domain: Domain): String {
-    val given = givenName(seed, cultureIndex, DEITY_GIVEN_SALT).capitalised()
-    return "$given ${pick(DEITY_TITLES.getValue(domain), seed, DEITY_TITLE_SALT)}"
+  fun deity(seed: Long, cultureIndex: Int, domain: Domain, locale: NameLocale = NameLocale.EN): String {
+    val given = givenName(seed, cultureIndex, DEITY_GIVEN_SALT)
+    val title = pick(DEITY_TITLES.getValue(domain), seed, DEITY_TITLE_SALT)
+    return when (locale) {
+      NameLocale.EN -> "${given.capitalised()} $title"
+      NameLocale.DE -> GermanNames.deity(given.capitalised(), given.sex, title)
+    }
   }
 
   /** The sex of the god [deity] names in this culture. Another people may call it by a name of the other sex. */
@@ -184,9 +202,46 @@ object Names {
     return "the $band of $of"
   }
 
+  /**
+   * A cult's name in [locale], for a cult of [deity] founded among [cultureIndex].
+   *
+   * Takes the god rather than its rendered name, because German puts the god in the genitive:
+   * "die Kinder der Hilda vom Roten Speer".
+   */
+  fun cult(
+    seed: Long,
+    kind: CultKind,
+    deity: DeityRecord?,
+    cultureIndex: Int,
+    beast: BeastKind?,
+    locale: NameLocale
+  ): String {
+    return when (locale) {
+      NameLocale.EN -> cult(seed, kind, deity?.let { deity(it.nameSeed, cultureIndex, it.domain) }, beast)
+      NameLocale.DE -> {
+        val of = when (kind) {
+          CultKind.DEITY -> deity?.let { germanDeityGenitive(it, cultureIndex) } ?: GermanNames.NAMELESS
+          CultKind.STAR -> GermanNames.FALLEN_STAR
+          CultKind.BEAST -> GermanNames.beast(beast ?: BeastKind.BEAST)
+        }
+        GermanNames.cult(pick(CULT_BANDS, seed, CULT_BAND_SALT), of)
+      }
+    }
+  }
+
+  private fun germanDeityGenitive(deity: DeityRecord, cultureIndex: Int): String {
+    val given = givenName(deity.nameSeed, cultureIndex, DEITY_GIVEN_SALT)
+    val title = pick(DEITY_TITLES.getValue(deity.domain), deity.nameSeed, DEITY_TITLE_SALT)
+    return GermanNames.deityGenitive(given.capitalised(), given.sex, title)
+  }
+
   /** A world boss's name: a name of its own and its species' title, "Gharzul, the Bone Wyrm". */
-  fun monster(seed: Long, boss: WorldBoss): String {
-    return "${pick(MONSTER_NAMES, seed, MONSTER_NAME_SALT)}, ${boss.title}"
+  fun monster(seed: Long, boss: WorldBoss, locale: NameLocale = NameLocale.EN): String {
+    val name = pick(MONSTER_NAMES, seed, MONSTER_NAME_SALT)
+    return when (locale) {
+      NameLocale.EN -> "$name, ${boss.title}"
+      NameLocale.DE -> "$name, ${GermanNames.bossTitle(boss)}"
+    }
   }
 
   private const val MONSTER_NAME_SALT = 0xB3L
@@ -200,7 +255,7 @@ object Names {
   private const val DEITY_TITLE_SALT = 0xB1L
   private const val CULT_BAND_SALT = 0xB2L
 
-  private val DEITY_TITLES = mapOf(
+  internal val DEITY_TITLES = mapOf(
     Domain.WAR to listOf("of the Red Spear", "the Unbowed", "Shieldbreaker"),
     Domain.LOVE to listOf("the Fair", "of the Rose", "Heartkeeper"),
     Domain.DEATH to listOf("the Gatekeeper", "of the Black Earth", "the Last Host"),
@@ -222,9 +277,9 @@ object Names {
     Domain.NIGHT to listOf("of the Veil", "the Dreamer", "Starmother")
   )
 
-  private val CULT_BANDS = listOf("Children", "Faithful", "Brotherhood", "Sisterhood", "Keepers", "Chosen")
+  internal val CULT_BANDS = listOf("Children", "Faithful", "Brotherhood", "Sisterhood", "Keepers", "Chosen")
 
-  private val BEAST_NOUNS = mapOf(
+  internal val BEAST_NOUNS = mapOf(
     BeastKind.BEAST to "Beast", BeastKind.BIRD to "Wing", BeastKind.REPTILE to "Scale", BeastKind.AQUATIC to "Deep",
     BeastKind.INSECT to "Swarm", BeastKind.PLANT to "Green", BeastKind.FORMLESS to "Shapeless",
     BeastKind.ELEMENTAL to "Living Stone", BeastKind.UNDEAD to "Restless Dead", BeastKind.DEMON to "Horned One",
@@ -232,10 +287,14 @@ object Names {
   )
 
   /** A civilisation's name: a people, not a place, so it takes the demonym form. */
-  fun civ(seed: Long, cultureIndex: Int): String {
+  fun civ(seed: Long, cultureIndex: Int, locale: NameLocale = NameLocale.EN): String {
     val style = styleOf(cultureIndex)
-    return (pick(style.placeStems, seed, 6) + pick(style.peopleTails, seed, 7))
-      .replaceFirstChar { it.uppercase() }
+    val tail = pick(style.peopleTails, seed, 7)
+    val localTail = when (locale) {
+      NameLocale.EN -> tail
+      NameLocale.DE -> GermanNames.peopleTail(tail)
+    }
+    return (pick(style.placeStems, seed, 6) + localTail).replaceFirstChar { it.uppercase() }
   }
 
   /**
@@ -251,14 +310,27 @@ object Names {
    * not, so it passed null and the same sword appeared as "Longcrown" in one view and "the Crown of Hartford"
    * in another. A name that depends on what the caller happens to know is not a name.
    */
-  fun artifact(seed: Long, cultureIndex: Int, kind: ArtifactKind, ofPlaceSeed: Long): String {
+  fun artifact(
+    seed: Long,
+    cultureIndex: Int,
+    kind: ArtifactKind,
+    ofPlaceSeed: Long,
+    locale: NameLocale = NameLocale.EN
+  ): String {
     val noun = pick(ARTIFACT_NOUNS.getValue(kind), seed, 8)
 
     return if (ofPlaceSeed != 0L && unit(seed, 9) < 0.5) {
-      "the ${noun.replaceFirstChar { it.uppercase() }} of ${place(ofPlaceSeed, cultureIndex)}"
+      val place = place(ofPlaceSeed, cultureIndex)
+      when (locale) {
+        NameLocale.EN -> "the ${noun.replaceFirstChar { it.uppercase() }} of $place"
+        NameLocale.DE -> GermanNames.artifactOfPlace(noun, place)
+      }
     } else {
       val epithet = pick(styleOf(cultureIndex).epithets, seed, 10)
-      "$epithet$noun".replaceFirstChar { it.uppercase() }
+      when (locale) {
+        NameLocale.EN -> "$epithet$noun".replaceFirstChar { it.uppercase() }
+        NameLocale.DE -> GermanNames.artifactCompound(epithet, noun)
+      }
     }
   }
 
@@ -267,24 +339,39 @@ object Names {
    *
    * Culture-independent: [of] already carries whatever a settlement's own name owes to its culture, and a
    * `form` like "barrow" or "battlefield" is a description of the site rather than an idiom belonging to anyone.
+   *
+   * German puts [of] after "von", so it must read in the dative as it stands: a town or a people does, a world
+   * boss with its title ("Gharzul, der Knochenlindwurm") does not.
    */
-  fun site(seed: Long, of: String, form: String): String = when (form) {
-    "barrow" -> "the barrow of $of"
-    "battlefield" -> "$of Battlefield"
-    "ruin" -> "the ruins of $of"
+  fun site(seed: Long, of: String, form: String, locale: NameLocale = NameLocale.EN): String {
+    if (form == "wound") return wound(seed, locale)
 
-    /*
-     * A wound belongs to nobody, so it cannot be named after a town like everything else here.
-     *
-     * The `else` branch below renders it "the wound of the wilds" - and it did, for all three of them, in the
-     * same year, in a chronicle that then referred to each of them by that name for a thousand years. A site the
-     * log keeps naming has to be distinguishable, so this one gets an epithet off its own seed. The place-stem
-     * pool is reused rather than a new one added: these are the words this world's languages are built from, and
-     * a wound is a place in it.
-     */
-    "wound" -> "the ${pick(WOUND_EPITHETS, seed, WOUND_SALT)} ${pick(WOUND_NOUNS, seed, WOUND_NOUN_SALT)}"
+    return when (locale) {
+      NameLocale.EN -> when (form) {
+        "barrow" -> "the barrow of $of"
+        "battlefield" -> "$of Battlefield"
+        "ruin" -> "the ruins of $of"
+        else -> "the $form of $of"
+      }
 
-    else -> "the $form of $of"
+      NameLocale.DE -> GermanNames.site(form, of)
+    }
+  }
+
+  /**
+   * A wound belongs to nobody, so it cannot be named after a town like everything else here.
+   *
+   * `site`'s `else` branch rendered it "the wound of the wilds" - and it did, for all three of them, in the
+   * same year, in a chronicle that then referred to each of them by that name for a thousand years. A site the
+   * log keeps naming has to be distinguishable, so this one gets an epithet off its own seed.
+   */
+  private fun wound(seed: Long, locale: NameLocale): String {
+    val epithet = pick(WOUND_EPITHETS, seed, WOUND_SALT)
+    val noun = pick(WOUND_NOUNS, seed, WOUND_NOUN_SALT)
+    return when (locale) {
+      NameLocale.EN -> "the $epithet $noun"
+      NameLocale.DE -> GermanNames.wound(epithet, noun)
+    }
   }
 
   /** The form word [site] names a site of [kind] by. A shrine's follows its Order: [faction]. */
@@ -324,11 +411,11 @@ object Names {
    * live near it. A wound predates all of them and often has nobody within twenty kilometres of it, so naming it
    * in one culture's idiom would be a claim the world does not support. These are what anybody would call it.
    */
-  private val WOUND_EPITHETS = listOf(
+  internal val WOUND_EPITHETS = listOf(
     "Sunken", "Bitter", "Riven", "Weeping", "Silent", "Hollow", "Starless", "Pale", "Fallen", "Ashen"
   )
 
-  private val WOUND_NOUNS = listOf("Wound", "Scar", "Hollow", "Fall", "Waste", "Crater")
+  internal val WOUND_NOUNS = listOf("Wound", "Scar", "Hollow", "Fall", "Waste", "Crater")
 
   private const val WOUND_SALT = 0x77L
   private const val WOUND_NOUN_SALT = 0x78L
@@ -354,7 +441,7 @@ object Names {
   private fun unit(seed: Long, salt: Long): Double = GenRng.hashUnit(seed, salt)
 
   /** The word pools one culture draws on. */
-  private class Style(
+  internal class Style(
     val placeStems: List<String>,
     val placeTails: List<String>,
     val peopleTails: List<String>,
@@ -384,7 +471,7 @@ object Names {
    * - `STYLES[index]` would silently reuse the last style otherwise, and every new culture would be named
    * like a highland one.
    */
-  private val STYLES = listOf(
+  internal val STYLES = listOf(
     // Agrarian: English river-valley farming names.
     Style(
       placeStems = listOf(
@@ -461,7 +548,7 @@ object Names {
   )
 
   /** Bynames by role, because "the Lawgiver" belongs to a ruler and "the Quenched" to a smith. */
-  private val BYNAMES: Map<FigureRole, List<String>> = mapOf(
+  internal val BYNAMES: Map<FigureRole, List<String>> = mapOf(
     FigureRole.RULER to listOf(
       "the Elder", "the Lawgiver", "the Unquiet", "the Wide-Handed", "the Second",
       "the Reluctant", "the Grey", "the Cruel"
@@ -484,7 +571,7 @@ object Names {
     )
   )
 
-  private val ARTIFACT_NOUNS: Map<ArtifactKind, List<String>> = mapOf(
+  internal val ARTIFACT_NOUNS: Map<ArtifactKind, List<String>> = mapOf(
     ArtifactKind.BLADE to listOf("brand", "edge", "fang", "sabre", "cleaver", "spike"),
     ArtifactKind.CROWN to listOf("crown", "circlet", "diadem", "helm", "torc"),
     ArtifactKind.RELIQUARY to listOf("reliquary", "casket", "shrine", "urn", "coffer"),
