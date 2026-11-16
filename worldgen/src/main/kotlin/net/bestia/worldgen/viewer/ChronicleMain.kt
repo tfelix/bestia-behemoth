@@ -6,7 +6,6 @@ import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.core.CivOrigin
 import net.bestia.worldgen.core.EventKind
-import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.ThreadKind
@@ -609,7 +608,7 @@ object ChronicleMain {
         } else {
           "the wilds"
         },
-        shrineForm(site.faction)
+        Names.siteForm(SiteKind.SHRINE, site.faction)
       )
       println(
         "    $name (${site.faction?.shortForm ?: "unclaimed"}), raised ${site.year}, " +
@@ -621,14 +620,6 @@ object ChronicleMain {
     println()
     println("  ${rites.size} rites performed")
     rites.takeLast(THREADS_PER_KIND).forEach { println("    ${it.year}: ${it.detail}") }
-  }
-
-  /** Mirrors `HistorySim.siteName`'s shrine forms, so the two views name one shrine the same way. */
-  private fun shrineForm(faction: Faction?) = when (faction) {
-    Faction.CHAOS -> "cairn"
-    Faction.ETERNITY -> "ward"
-    Faction.CIRCLE -> "circle"
-    null -> "shrine"
   }
 
   /** The name it bore in [year], so a scrub to before a conquest shows the old one. */

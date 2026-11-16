@@ -4045,7 +4045,7 @@ internal class HistorySim(
    *
    * One pass in [raiseMonuments]' shape - gated, once in a while, per civ, with an event logged - because that
    * shape is what makes the lore free rather than a second system. A site founded here gets a name from
-   * [siteName] (and [Names.site]'s `else` branch handles a new form with no edit to `Names`), can hold a relic
+   * [siteName] (a new form is one line in [Names.siteForm]), can hold a relic
    * whose provenance chain already ends at a *site*, and is mined by `chronicle -Pquests` for unresolved
    * threads without a line of new code.
    *
@@ -4464,40 +4464,7 @@ internal class HistorySim(
       site.settlement >= 0 -> nameOf(towns[site.settlement])
       else -> "the wilds"
     }
-    return Names.site(
-      site.nameSeed, of,
-      when (site.kind) {
-        SiteKind.RUIN -> "ruin"
-        // `Names.site` renders an unknown form as "the <form> of <Town>", so this reads "the ash of Karth" with
-        // no edit to `Names` at all.
-        SiteKind.ASH_RUIN -> "ash"
-        SiteKind.BATTLEFIELD -> "field"
-        SiteKind.TOMB -> "barrow"
-        SiteKind.MONUMENT -> "monument"
-        // `Names.site` ends in `else -> "the $form of $of"`, so a new form needs no edit to `Names` at all -
-        // which is the mechanism that makes the lore for these four free.
-        SiteKind.MINE -> "mine"
-        SiteKind.MONASTERY -> "abbey"
-        SiteKind.FORT -> "fort"
-        SiteKind.LIGHTHOUSE -> "light"
-        SiteKind.HOARD -> "hoard"
-        SiteKind.WOUND -> "wound"
-        SiteKind.SANCTUARY -> "sanctuary"
-        SiteKind.SEAL -> "seal"
-        SiteKind.LAIR -> "lair"
-        // Three forms from one kind, off the same `else` branch in `Names.site`. This is the clearest thing the
-        // order-on-a-channel design buys: "the cairn of Ashford" and "the ward of Ashford" are different
-        // places to a player, and neither needed a `SiteKind` or a word pool of its own.
-        SiteKind.SHRINE -> when (site.faction) {
-          Faction.CHAOS -> "cairn"
-          Faction.ETERNITY -> "ward"
-          Faction.CIRCLE -> "circle"
-          // Unreachable: `raiseShrines` is the only producer and it always sets one. Named rather than
-          // thrown because a name is not worth failing a world's generation over.
-          null -> "shrine"
-        }
-      }
-    )
+    return Names.site(site.nameSeed, of, Names.siteForm(site.kind, site.faction))
   }
 
   private fun article(role: FigureRole) = when (role) {
