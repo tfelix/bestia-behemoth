@@ -1,0 +1,19 @@
+plugins { id 'application' }
+
+repositories { mavenCentral() }
+
+java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
+
+dependencies {
+    implementation 'com.github.tjake:jlama-core:0.8.4'
+    implementation 'com.github.tjake:jlama-native:0.8.4:linux-x86_64'
+}
+
+def vectorFlags = ['--add-modules', 'jdk.incubator.vector', '--enable-preview']
+
+tasks.withType(JavaCompile).configureEach { options.compilerArgs += vectorFlags }
+
+application {
+    mainClass = 'JlamaServer'
+    applicationDefaultJvmArgs = vectorFlags + ['--enable-native-access=ALL-UNNAMED', '-Xmx12g']
+}

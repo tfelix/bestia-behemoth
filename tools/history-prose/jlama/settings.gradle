@@ -1,0 +1,2 @@
+// A build of its own, so the spike adds nothing to the main build.
+rootProject.name = 'jlama-server'
