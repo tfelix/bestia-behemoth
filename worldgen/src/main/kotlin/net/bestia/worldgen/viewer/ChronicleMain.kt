@@ -261,7 +261,7 @@ object ChronicleMain {
       line("    technology", fixed(civ.technology))
       line(
         "    capital",
-        Names.place(chronicle.settlements[civ.capital].nameSeed, civ.cultureIndex)
+        placeName(chronicle, civ.capital)
       )
 
       if (civ.grudges.isEmpty()) {
@@ -305,7 +305,7 @@ object ChronicleMain {
     println("the ten largest then")
     standing.sortedByDescending { it.population }.take(10).forEach {
       println(
-        "  ${Names.place(it.nameSeed, cultureOf(chronicle, it.index)).padEnd(20)} " +
+        "  ${placeName(chronicle, it.index, clamped).padEnd(20)} " +
             "founded ${it.foundedYear}, ${it.population} today"
       )
     }
@@ -508,7 +508,7 @@ object ChronicleMain {
     println("  ${razed.size} settlements destroyed by war, whose ruins nobody has reclaimed")
     razed.take(THREADS_PER_KIND).forEach {
       println(
-        "    ${Names.place(it.nameSeed, cultureOf(chronicle, it.index))}, " +
+        "    ${placeName(chronicle, it.index)}, " +
             "razed ${it.abandonedYear}, ${it.timesSacked} sackings"
       )
     }
@@ -532,7 +532,7 @@ object ChronicleMain {
     println("  ${forsaken.size} settlements the blight emptied, still standing empty")
     forsaken.take(THREADS_PER_KIND).forEach {
       println(
-        "    ${Names.place(it.nameSeed, cultureOf(chronicle, it.index))}, " +
+        "    ${placeName(chronicle, it.index)}, " +
             "forsaken ${it.abandonedYear}, founded ${it.foundedYear}"
       )
     }
@@ -605,7 +605,7 @@ object ChronicleMain {
       val name = Names.site(
         site.nameSeed,
         if (site.settlement >= 0) {
-          Names.place(chronicle.settlements[site.settlement].nameSeed, cultureOf(chronicle, site.settlement))
+          placeName(chronicle, site.settlement)
         } else {
           "the wilds"
         },
@@ -631,15 +631,13 @@ object ChronicleMain {
     null -> "shrine"
   }
 
-  private fun placeName(chronicle: Chronicle, settlement: Int): String =
-    Names.place(chronicle.settlements[settlement].nameSeed, cultureOf(chronicle, settlement))
-
-  private fun cultureOf(chronicle: Chronicle, settlement: Int): Int =
-    chronicle.settlements[settlement].ownerCiv.takeIf { it >= 0 }
-      ?.let { chronicle.civs[it].cultureIndex }
-      ?: chronicle.settlements[settlement].foundingCiv.takeIf { it >= 0 }
-        ?.let { chronicle.civs[it].cultureIndex }
-      ?: 0
+  /** The name it bore in [year], so a scrub to before a conquest shows the old one. */
+  private fun placeName(chronicle: Chronicle, settlement: Int, year: Int = chronicle.presentYear): String {
+    val record = chronicle.settlements[settlement]
+    val former = record.formerNames.firstOrNull { year < it.until }
+      ?: return Names.place(record.nameSeed, record.nameCulture)
+    return Names.place(former.seed, former.cultureIndex)
+  }
 
   private fun line(label: String, value: String) = println("  ${label.padEnd(20)} $value")
 
