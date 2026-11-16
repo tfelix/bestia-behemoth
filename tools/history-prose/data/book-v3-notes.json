@@ -1,0 +1,14 @@
+{
+ "intro": "The same war, written again by the two remaining models with a restructured prompt: hard rules in the system prompt, a list of the only allowed names with what each one is, a cleaned-up fact sheet, a bias anchor, and the task last. Sampling: temperature 0.6, top_p 0.85, min_p 0.05, repeat penalty 1.08. The same model then translated each book with a German localisation prompt. Timings ran while another job loaded the machine; compare quality, not speed.",
+ "summary": "<p><strong>Better than the original prompt on the hard facts.</strong> All four books were valid at the first try, with no invented names. Every book puts the 906 battle on Steingrube Field and knows Chuluun was the Saryhorde's ruler, because the cleaned-up sheet says so; the original sheet left both to guess. The cleaned-up sheet was written for this war by hand from the chronicle, and fixed a mistake in the suggested version (that put all three battles on Bortedag Field).</p><p><strong>Two side effects.</strong> All four books leave out the death counts: nothing is wrong, but the numbers are gone. And the bias line \"Blame the other side for the conflict\" makes the Saryhorde scribes say the Keshband started the war, which the Saryhorde did. To fix both: ask for the counts, and let the scribe blame the enemy for the war's cruelty, not its start.</p><p><strong>German:</strong> Gemma's translations keep the epithets in German and the articles right, with a few grammar slips. Qwen's German stays weak.</p>",
+ "comments": {
+  "gemma4-e4b/Saryhorde": "Right fields and years, Chuluun's fall in 901. Says the Keshband chose the war (the Saryhorde declared it); no death counts.",
+  "gemma4-e4b/Keshband": "Right fields and years. 'Bortedag was rightly claimed by Penpike's defenders' stretches a sacking into a conquest; no death counts.",
+  "qwen3-8b/Saryhorde": "Right fields, Chuluun 'our ruler'. Says the Keshband struck first; no death counts.",
+  "qwen3-8b/Keshband": "Calls the shared god the Saryhorde's 'false banner' and says 'their victories mere shadows' after saying they never won. No death counts.",
+  "gemma4-e4b/Saryhorde/de": "Good: 'Bayan, dem Unsichtbaren Weber', 'Tsetseg dem Zweiten', 'die Keshband'. Slips: 'heimsuchten Bortedag', 'Tugend Batu' (Batus).",
+  "gemma4-e4b/Keshband/de": "Good flow. Slips: 'den Segen von Bayan der Unsichtbare Weber' (wrong case), 'Chuluun fiel dahin'.",
+  "qwen3-8b/Saryhorde/de": "Weak: 'des unsichtbaren Webern', 'wachsamsten Blick', 'Verluste von Chuluun'.",
+  "qwen3-8b/Keshband/de": "Weak: 'Gotteinges' is not a word, 'das Land Keshband'."
+ }
+}

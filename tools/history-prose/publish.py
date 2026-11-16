@@ -27,35 +27,37 @@ def overall(s):
     return round((2 * s["facts"] + s["voice"] + s["language"] + s["form"]) / 5 * 2) / 2
 
 
-def book_v2():
-    """The war chronicles with the revised book and translation prompts, next to the original books."""
-    import book_prompt_v2
+def book_v3():
+    """The war chronicles with a restructured prompt (allowed-names list, cleaned facts), next to the originals."""
     import os
-    notes = json.load(open("data/book-v2-notes.json", encoding="utf-8"))
+    import book_prompt_v3
+    notes = json.load(open("data/book-v3-notes.json", encoding="utf-8"))
     rows = []
     for label in ("gemma4-e4b", "qwen3-8b"):
-        path = f"results/{label}-book-v2.jsonl"
+        path = f"results/{label}-book-v3.jsonl"
         if not os.path.exists(path):
             continue
-        old = {r["job"]["args"]["side"]: r for r in map(json.loads, open(f"results/{label}-reading.jsonl"))
-               if r["job"]["type"] == "book"}
+        original = {r["job"]["args"]["side"]: r for r in map(json.loads, open(f"results/{label}-reading.jsonl"))
+                    if r["job"]["type"] == "book"}
         for r in map(json.loads, open(path, encoding="utf-8")):
             key = f"{label}/{r['side']}"
             rows.append({
                 "model": MODEL_NAMES[label], "side": r["side"],
-                "old": old[r["side"]]["text"], "new": r["text"], "attempts": len(r["attempts"]),
+                "text": r["text"], "attempts": len(r["attempts"]),
                 "problems": [p for a in r["attempts"] for p in a["problems"]],
                 "comment": notes["comments"].get(key),
-                "de_v2": r["de_v2"], "de_v2_comment": notes["comments"].get(key + "/de_v2"),
-                "de_v1": r["de_v1"], "de_v1_comment": notes["comments"].get(key + "/de_v1"),
+                "de": r["de"], "de_comment": notes["comments"].get(key + "/de"),
+                "original": original[r["side"]]["text"],
             })
     return {
         "intro": notes["intro"], "summary": notes["summary"], "rows": rows,
         "prompts": [
-            {"title": "Revised system prompt", "text": book_prompt_v2.SYSTEM_V2},
-            {"title": "Revised task (user message: FACT SHEET, then this TASK)", "text": book_prompt_v2.TASK_V2},
-            {"title": "Revised German localisation prompt (the whole user message, no system prompt)",
-             "text": book_prompt_v2.TRANSLATE_V2},
+            {"title": "System prompt", "text": book_prompt_v3.SYSTEM_V3},
+            {"title": "User prompt, filled for the Saryhorde side", "text": book_prompt_v3.USER_V3.format(
+                side="Saryhorde", other="Keshband", allowed=book_prompt_v3.ALLOWED_NAMES, facts=book_prompt_v3.WAR_FACTS)},
+            {"title": "Sampling", "text": json.dumps(book_prompt_v3.SAMPLING) + ", thinking off"},
+            {"title": "German localisation prompt (the whole user message; temperature 0.2)",
+             "text": book_prompt_v3.TRANSLATE},
         ],
     }
 
@@ -119,7 +121,7 @@ def main():
         })
 
     data = {
-        "experiment": book_v2(),
+        "experiment": book_v3(),
         "models": models, "modelNames": MODEL_NAMES,
         "lead": texts["lead"], "verdict": texts["verdict"], "footer": texts["footer"],
         "summaryColumns": [
