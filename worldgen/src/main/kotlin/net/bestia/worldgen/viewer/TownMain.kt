@@ -273,8 +273,8 @@ object TownMain {
           "${Names.civ(it.nameSeed, it.cultureIndex)}, technology ${fixed(it.technology)}"
         )
       }
-      if (record.oldNameSeed != 0L) {
-        line("formerly", Names.place(record.oldNameSeed, Culture.indexOf(place.culture)))
+      for (former in record.formerNames) {
+        line("formerly", "${Names.place(former.seed, former.cultureIndex)}, ${former.since}-${former.until}")
       }
     }
 

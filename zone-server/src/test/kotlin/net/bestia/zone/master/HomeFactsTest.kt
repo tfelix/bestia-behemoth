@@ -58,7 +58,8 @@ class HomeFactsTest {
     wallYear = wallYear,
     wallPopulation = 0,
     nameSeed = 1L,
-    oldNameSeed = 0L,
+    nameCulture = 0,
+    formerNames = emptyList(),
     ruinCause = null,
     sites = emptyList(),
   )
