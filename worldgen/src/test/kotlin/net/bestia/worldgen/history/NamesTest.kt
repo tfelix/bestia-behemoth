@@ -96,12 +96,13 @@ class NamesTest {
     const val SEEDS = 400
     val CULTURES = Culture.ALL.indices.toList()
 
-    /** The forms `HistorySim.siteName` passes. */
+    /** The forms `Names.siteForm` gives. */
     val SITE_FORMS = listOf(
-      "ruin", "ash", "field", "barrow", "monument", "mine", "abbey", "fort", "light", "hoard", "wound",
+      "ruin", "ash", "battlefield", "barrow", "monument", "mine", "abbey", "fort", "light", "hoard", "wound",
       "sanctuary", "seal", "lair", "cairn", "ward", "circle", "shrine"
     )
 
-    const val ENGLISH_DIGEST = 8_990_054_608_266_844_108L
+    // Moved when "X Field" became "X Battlefield". Nothing else was renamed.
+    const val ENGLISH_DIGEST = 6_649_358_260_579_913_279L
   }
 }

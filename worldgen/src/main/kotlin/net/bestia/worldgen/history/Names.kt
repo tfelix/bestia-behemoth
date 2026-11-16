@@ -263,14 +263,14 @@ object Names {
   }
 
   /**
-   * A site name, which is nearly always possessive: "the barrow of X", "Y field".
+   * A site name, which is nearly always possessive: "the barrow of X", "Y Battlefield".
    *
    * Culture-independent: [of] already carries whatever a settlement's own name owes to its culture, and a
-   * `form` like "barrow" or "field" is a description of the site rather than an idiom belonging to anyone.
+   * `form` like "barrow" or "battlefield" is a description of the site rather than an idiom belonging to anyone.
    */
   fun site(seed: Long, of: String, form: String): String = when (form) {
     "barrow" -> "the barrow of $of"
-    "field" -> "$of Field"
+    "battlefield" -> "$of Battlefield"
     "ruin" -> "the ruins of $of"
 
     /*
@@ -292,7 +292,7 @@ object Names {
     return when (kind) {
       SiteKind.RUIN -> "ruin"
       SiteKind.ASH_RUIN -> "ash"
-      SiteKind.BATTLEFIELD -> "field"
+      SiteKind.BATTLEFIELD -> "battlefield"
       SiteKind.TOMB -> "barrow"
       SiteKind.MONUMENT -> "monument"
       SiteKind.MINE -> "mine"
@@ -531,6 +531,9 @@ object Names {
     digest.put("cultBands", CULT_BANDS.joinToString(","))
     digest.put("monsterNames", MONSTER_NAMES.joinToString(","))
     for ((beast, noun) in BEAST_NOUNS) digest.put("beast:${beast.name}", noun)
+    // How a site is phrased lives in code, not in a pool, so the phrases themselves are folded.
+    val siteForms = SiteKind.entries.flatMap { kind -> (Faction.entries + null).map { siteForm(kind, it) } }.distinct()
+    digest.put("siteNames", siteForms.joinToString(",") { site(0L, "%", it) })
 
     return digest.value
   }
