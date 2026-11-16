@@ -88,7 +88,7 @@ def main():
             entry["by"][label] = {
                 "text": r["text"], "passed": r["passed"], "attempts": len(r["attempts"]),
                 "problems": [p for t in r["attempts"] for p in t["problems"]],
-                "timing": r["attempts"][-1]["timing"], "wall_s": r["wall_s"],
+                "timing": r["attempts"][-1]["timing"], "wall_s": r["wall_s"], "prompt": r.get("prompt"),
                 "de": [{"how": t["how"], "text": t["de"], "problems": t["problems"]}
                        for t in translations if t["job"] == r["job"]],
             }

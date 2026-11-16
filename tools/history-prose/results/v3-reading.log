@@ -1,0 +1,25 @@
+[1/12] book     the war of Saryhorde and Keshband, 901   tries=1 ok=True 61.75s
+[2/12] book     the war of Saryhorde and Keshband, 901   tries=1 ok=True 61.39s
+[3/12] epitaph  Tsetseg the Second                       tries=1 ok=True 33.7s
+[4/12] epitaph  Gerel                                    tries=1 ok=True 21.55s
+[5/12] epitaph  Gerel the Unbeaten                       tries=1 ok=True 20.72s
+[6/12] epitaph  Gerel the Burned                         tries=1 ok=True 20.12s
+[7/12] epitaph  Temujin                                  tries=1 ok=True 18.93s
+[8/12] legend   Winddiadem                               tries=1 ok=True 34.76s
+[9/12] legend   Farsignet                                tries=1 ok=True 29.92s
+[10/12] legend   Hollowcodex                              tries=1 ok=True 37.26s
+[11/12] hymn     Bayan the Unseen Weaver                  tries=1 ok=True 42.67s
+[12/12] hymn     Erdene of the Black Earth                tries=1 ok=True 22.88s
+[1/12] book     the war of Saryhorde and Keshband, 901   tries=1 ok=True 167.14s
+[2/12] book     the war of Saryhorde and Keshband, 901   tries=1 ok=True 170.48s
+[3/12] epitaph  Tsetseg the Second                       tries=1 ok=True 88.25s
+[4/12] epitaph  Gerel                                    tries=1 ok=True 94.36s
+[5/12] epitaph  Gerel the Unbeaten                       tries=2 ok=True 130.69s
+[6/12] epitaph  Gerel the Burned                         tries=1 ok=True 65.57s
+[7/12] epitaph  Temujin                                  tries=2 ok=True 83.92s
+[8/12] legend   Winddiadem                               tries=1 ok=True 137.21s
+[9/12] legend   Farsignet                                tries=1 ok=True 95.6s
+[10/12] legend   Hollowcodex                              tries=1 ok=True 59.71s
+[11/12] hymn     Bayan the Unseen Weaver                  tries=1 ok=True 80.78s
+[12/12] hymn     Erdene of the Black Earth                tries=1 ok=True 65.19s
+CHAIN-DONE

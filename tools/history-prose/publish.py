@@ -7,6 +7,7 @@ import argparse
 import json
 import subprocess
 
+import prompt_v3
 import prose
 import translate
 import validator
@@ -18,8 +19,10 @@ MODEL_NAMES = {
     "ministral3-3b": "Ministral-3-3B · llama.cpp",
     "gemma4-e4b": "Gemma 4 E4B · llama.cpp",
     "jlama-mistral7b": "Mistral-7B v0.3 · Jlama",
+    "gemma4-e4b-v3": "Gemma 4 E4B · v3 prompt",
+    "qwen3-8b-v3": "Qwen3-8B · v3 prompt",
 }
-ORDER = ["gemma4-e4b", "qwen3-8b", "ministral3-8b", "qwen3-4b", "ministral3-3b", "jlama-mistral7b"]
+ORDER = ["gemma4-e4b-v3", "qwen3-8b-v3", "gemma4-e4b", "qwen3-8b", "ministral3-8b", "qwen3-4b", "ministral3-3b", "jlama-mistral7b"]
 KIND_LABELS = {"book": "Chronicle book", "epitaph": "Epitaph", "legend": "Artifact legend", "hymn": "Hymn"}
 
 
@@ -136,7 +139,13 @@ def main():
         ],
         "summary": summary, "texts": page_texts,
         "prompts": [
-            {"title": "System prompt (every text)", "text": prose.SYSTEM},
+            {"title": "v3 system prompt (the two v3 columns)", "text": prompt_v3.SYSTEM},
+            {"title": "v3 user message layout", "text": prompt_v3.USER},
+            *[{"title": f"v3 task: {KIND_LABELS.get(kind, kind)}", "text": template}
+              for kind, template in prompt_v3.TASKS.items()],
+            {"title": "v3 sampling", "text": json.dumps(prompt_v3.SAMPLING) + ", thinking off. Battlefields are named "
+                                             "'X Battlefield'; each v3 card shows its full prompt."},
+            {"title": "Original system prompt (all other columns)", "text": prose.SYSTEM},
             *[{"title": f"Task: {KIND_LABELS.get(kind, kind)}", "text": template}
               for kind, template in prose.TASKS.items() if kind in KIND_LABELS],
             {"title": "User message layout",

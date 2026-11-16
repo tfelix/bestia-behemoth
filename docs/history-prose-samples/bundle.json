@@ -1,11 +1,13 @@
 {
  "models": [
   "gemma4-e4b",
+  "gemma4-e4b-v3",
   "jlama-mistral7b",
   "ministral3-3b",
   "ministral3-8b",
   "qwen3-4b",
-  "qwen3-8b"
+  "qwen3-8b",
+  "qwen3-8b-v3"
  ],
  "texts": {
   "{\"args\": {\"other\": \"Keshband\", \"side\": \"Saryhorde\"}, \"ref\": \"war#409\", \"type\": \"book\"}": {
@@ -32,6 +34,7 @@
       "gen_tps": 6.7442883702814385
      },
      "wall_s": 44.33,
+     "prompt": null,
      "de": [
       {
        "how": "llm",
@@ -44,6 +47,22 @@
        "problems": []
       }
      ]
+    },
+    "gemma4-e4b-v3": {
+     "text": "When Batu led the Saryhorde forth against the Keshband in 901, it was for righteousness, guided by Bayan the Unseen Weaver. Yet, from the start, the Keshband showed a savage heart. Their initial triumph at Bortedag Battlefield in 901, where 406 souls fell to our kin, was but a momentary shadow. The cruelty of Tsetseg the Second and his people stained their victories.\n\nThough they claimed three triumphs—at Steingrube Battlefield in 906 with 408 lost, and again at Bortedag Battlefield in 911 claiming 411 lives—these deeds brought only shame upon the Keshband. Their sacks of Bortedag were acts of base plunder, not true strength. By 911, when peace was struck, the Saryhorde endured, having upheld their honor against the brutal tide of the Keshband.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 61.75,
+      "prompt_tokens": 963,
+      "gen_tokens": 199,
+      "prompt_tps": 37.693233598785554,
+      "gen_tps": 5.472332948676233
+     },
+     "wall_s": 61.75,
+     "prompt": "TASK:\nWrite a biased chronicle passage about the war between the Saryhorde and the Keshband. 1 to 2 paragraphs, 100 to 180 words.\n- Perspective: You are an unnamed scribe loyal to the Saryhorde.\n- Bias: Praise the courage and righteousness of the Saryhorde. Blame the Keshband for the cruelty and the losses of the war, and portray their victories as dishonorable, costly, or temporary. Keep who declared the war as the FACT SHEET says.\n- Name every battle with its year, its battlefield and its death count, exactly as the FACT SHEET gives them.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Batu (ruler of the Saryhorde, 901-966)\n- Bayan the Unseen Weaver (god of fate, as the Saryhorde, the Keshband and the Bortekhai call it)\n- Bortebulak (capital of the Saryhorde)\n- Bortedag (a town)\n- Bortedag Battlefield (a battlefield near Bortedag)\n- Chuluun (ruler of the Saryhorde, 841-901)\n- Keshband (a people, pastoral, since 716)\n- Penpike (capital of the Keshband)\n- Saryhorde (a people, pastoral, since 1)\n- Steingrube Battlefield (a battlefield near Steingrube)\n- Tsetseg the Second (ruler of the Keshband, 886-951)\n\nFACT SHEET:\n- Subject: the war between the Saryhorde and the Keshband, 901-911\n- sides: people: Saryhorde, capital: Bortebulak, battlesWon: 0, patronGod: Bayan the Unseen Weaver, rulerAtStart: Batu\n- sides: people: Keshband, capital: Penpike, battlesWon: 3, patronGod: Bayan the Unseen Weaver, rulerAtStart: Tsetseg the Second\n- declared: 901\n- peace: 911\n- Chronology of events:\n  * 901: The Saryhorde go to war with the Keshband.\n  * 901: The Keshband defeat the Saryhorde near Bortedag, on Bortedag Battlefield, 406 dead.\n  * 901: Chuluun falls in battle.\n  * 901: Bortedag is sacked by the Keshband.\n  * 906: The Keshband defeat the Saryhorde near Bortedag, on Steingrube Battlefield, 408 dead.\n  * 906: Bortedag is sacked by the Keshband.\n  * 911: The Keshband defeat the Saryhorde near Bortedag, on Bortedag Battlefield, 411 dead.\n  * 911: Bortedag is sacked by the Keshband.\n  * 911: The Saryhorde and the Keshband come to terms.\n\nWrite the text now:",
+     "de": []
     },
     "jlama-mistral7b": {
      "text": "In the Year of the Unseen Weaver's Loom, 901, a dark cloud of war descended upon our fair land of Saryhorde. The vile and treacherous folk of Keshband, led by the cowardly Tsetseg the Second, dared to raise their banners against us.\n\nUpon the verdant fields of Bortedag, our valiant warriors met their foes, only to be betrayed by the treachery of the Keshband. Our brave men fell beneath the cruel blades of their enemies, leaving behind our fallen champions, Chuluun among them, a hero remembered for his bravery.\n\nYet, though we suffered losses, we did not falter. In the Years that followed, we met the Keshband upon the fields of Steingrube and Bortedag once more, each time losing ground but never our spirits.\n\nIn the Year of the Weaver's Triumph, 911, our wise ruler Batu, guided by the watchful eye of Bayan the Unseen Weaver, forged a peace with the Keshband. A bitter pill to swallow, but one that saved our people from further bloodshed.\n\nThus, the tale of our people's resilience echoes through the ages, a testament to our unwavering spirit and the strength of our land, the land we call Saryhorde. May Bayan the Unseen Weaver continue to watch over us.",
@@ -83,6 +102,7 @@
       "gen_tps": 2.930535455861071
      },
      "wall_s": 658.27,
+     "prompt": null,
      "de": [
       {
        "how": "llm",
@@ -134,6 +154,7 @@
       "gen_tps": 8.961444983217739
      },
      "wall_s": 105.36,
+     "prompt": null,
      "de": []
     },
     "ministral3-8b": {
@@ -149,6 +170,7 @@
       "gen_tps": 3.1550297484249388
      },
      "wall_s": 126.48,
+     "prompt": null,
      "de": [
       {
        "how": "llm",
@@ -192,6 +214,7 @@
       "gen_tps": 7.380829471376863
      },
      "wall_s": 129.54,
+     "prompt": null,
      "de": [
       {
        "how": "llm",
@@ -218,6 +241,7 @@
       "gen_tps": 4.5685153314610565
      },
      "wall_s": 78.11,
+     "prompt": null,
      "de": [
       {
        "how": "llm",
@@ -230,6 +254,22 @@
        "problems": []
       }
      ]
+    },
+    "qwen3-8b-v3": {
+     "text": "The Saryhorde, under the righteous rule of Batu, stood firm against the Keshband’s treacherous advance. Yet the Keshband, with their cruel hearts, struck first, sacking Bortedag in 901 upon the battlefield where 406 of our brave warriors fell. Chuluun itself was lost that year, its walls breached by the Keshband's foul hands. The gods, Bayan the Unseen Weaver, watched in silence as the Keshband’s cruelty grew. In 906, they returned to Bortedag, slaying another 408 of our kin on Steingrube Battlefield. Again, Bortedag was burned and plundered. In 911, the final blow fell upon Bortedag, with 411 souls lost to the Keshband’s greed. Though we fought with honor, the Keshband’s victories were but fleeting shadows, their cruelty staining the land. Yet peace came at last, a bitter truce born of sorrow and loss.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 167.14,
+      "prompt_tokens": 948,
+      "gen_tokens": 219,
+      "prompt_tps": 9.55494304921334,
+      "gen_tps": 3.210102504757578
+     },
+     "wall_s": 167.14,
+     "prompt": "TASK:\nWrite a biased chronicle passage about the war between the Saryhorde and the Keshband. 1 to 2 paragraphs, 100 to 180 words.\n- Perspective: You are an unnamed scribe loyal to the Saryhorde.\n- Bias: Praise the courage and righteousness of the Saryhorde. Blame the Keshband for the cruelty and the losses of the war, and portray their victories as dishonorable, costly, or temporary. Keep who declared the war as the FACT SHEET says.\n- Name every battle with its year, its battlefield and its death count, exactly as the FACT SHEET gives them.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Batu (ruler of the Saryhorde, 901-966)\n- Bayan the Unseen Weaver (god of fate, as the Saryhorde, the Keshband and the Bortekhai call it)\n- Bortebulak (capital of the Saryhorde)\n- Bortedag (a town)\n- Bortedag Battlefield (a battlefield near Bortedag)\n- Chuluun (ruler of the Saryhorde, 841-901)\n- Keshband (a people, pastoral, since 716)\n- Penpike (capital of the Keshband)\n- Saryhorde (a people, pastoral, since 1)\n- Steingrube Battlefield (a battlefield near Steingrube)\n- Tsetseg the Second (ruler of the Keshband, 886-951)\n\nFACT SHEET:\n- Subject: the war between the Saryhorde and the Keshband, 901-911\n- sides: people: Saryhorde, capital: Bortebulak, battlesWon: 0, patronGod: Bayan the Unseen Weaver, rulerAtStart: Batu\n- sides: people: Keshband, capital: Penpike, battlesWon: 3, patronGod: Bayan the Unseen Weaver, rulerAtStart: Tsetseg the Second\n- declared: 901\n- peace: 911\n- Chronology of events:\n  * 901: The Saryhorde go to war with the Keshband.\n  * 901: The Keshband defeat the Saryhorde near Bortedag, on Bortedag Battlefield, 406 dead.\n  * 901: Chuluun falls in battle.\n  * 901: Bortedag is sacked by the Keshband.\n  * 906: The Keshband defeat the Saryhorde near Bortedag, on Steingrube Battlefield, 408 dead.\n  * 906: Bortedag is sacked by the Keshband.\n  * 911: The Keshband defeat the Saryhorde near Bortedag, on Bortedag Battlefield, 411 dead.\n  * 911: Bortedag is sacked by the Keshband.\n  * 911: The Saryhorde and the Keshband come to terms.\n\nWrite the text now:",
+     "de": []
     }
    }
   },
@@ -257,6 +297,23 @@
       "gen_tps": 6.433038502230285
      },
      "wall_s": 37.22,
+     "prompt": null,
+     "de": []
+    },
+    "gemma4-e4b-v3": {
+     "text": "From the year 901, when the Saryhorde, led by Batu, dared to raise their hand against the righteous Keshband, the shadow of war fell upon Penpike. Yet, where the Saryhorde brought only malice, the Keshband brought steadfast courage, guided by Bayan the Unseen Weaver. At Bortedag Battlefield in 901, our noble host struck down 406 souls of the foe, and Bortedag itself was claimed for the free people.\n\nThough the Saryhorde sought dominion, their cruelties were met with Keshband resolve. In 906, upon Steingrube Battlefield, we felled another 408 of the usurpers. The final reckoning came in 911 at Bortedag Battlefield, where 411 souls of the Saryhorde met their end, and Bortedag bowed to our just claim. Thus did the Keshband secure peace in 911, having proven the enduring light of our people against the darkness of the Saryhorde.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 61.39,
+      "prompt_tokens": 722,
+      "gen_tokens": 226,
+      "prompt_tps": 36.138176369516756,
+      "gen_tps": 5.434767774667669
+     },
+     "wall_s": 61.39,
+     "prompt": "TASK:\nWrite a biased chronicle passage about the war between the Keshband and the Saryhorde. 1 to 2 paragraphs, 100 to 180 words.\n- Perspective: You are an unnamed scribe loyal to the Keshband.\n- Bias: Praise the courage and righteousness of the Keshband. Blame the Saryhorde for the cruelty and the losses of the war, and portray their victories as dishonorable, costly, or temporary. Keep who declared the war as the FACT SHEET says.\n- Name every battle with its year, its battlefield and its death count, exactly as the FACT SHEET gives them.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Batu (ruler of the Saryhorde, 901-966)\n- Bayan the Unseen Weaver (god of fate, as the Saryhorde, the Keshband and the Bortekhai call it)\n- Bortebulak (capital of the Saryhorde)\n- Bortedag (a town)\n- Bortedag Battlefield (a battlefield near Bortedag)\n- Chuluun (ruler of the Saryhorde, 841-901)\n- Keshband (a people, pastoral, since 716)\n- Penpike (capital of the Keshband)\n- Saryhorde (a people, pastoral, since 1)\n- Steingrube Battlefield (a battlefield near Steingrube)\n- Tsetseg the Second (ruler of the Keshband, 886-951)\n\nFACT SHEET:\n- Subject: the war between the Saryhorde and the Keshband, 901-911\n- sides: people: Saryhorde, capital: Bortebulak, battlesWon: 0, patronGod: Bayan the Unseen Weaver, rulerAtStart: Batu\n- sides: people: Keshband, capital: Penpike, battlesWon: 3, patronGod: Bayan the Unseen Weaver, rulerAtStart: Tsetseg the Second\n- declared: 901\n- peace: 911\n- Chronology of events:\n  * 901: The Saryhorde go to war with the Keshband.\n  * 901: The Keshband defeat the Saryhorde near Bortedag, on Bortedag Battlefield, 406 dead.\n  * 901: Chuluun falls in battle.\n  * 901: Bortedag is sacked by the Keshband.\n  * 906: The Keshband defeat the Saryhorde near Bortedag, on Steingrube Battlefield, 408 dead.\n  * 906: Bortedag is sacked by the Keshband.\n  * 911: The Keshband defeat the Saryhorde near Bortedag, on Bortedag Battlefield, 411 dead.\n  * 911: Bortedag is sacked by the Keshband.\n  * 911: The Saryhorde and the Keshband come to terms.\n\nWrite the text now:",
      "de": []
     },
     "jlama-mistral7b": {
@@ -313,6 +370,7 @@
       "gen_tps": 2.6140108360248693
      },
      "wall_s": 839.51,
+     "prompt": null,
      "de": []
     },
     "ministral3-3b": {
@@ -337,6 +395,7 @@
       "gen_tps": 9.071439680896216
      },
      "wall_s": 58.36,
+     "prompt": null,
      "de": [
       {
        "how": "llm",
@@ -363,6 +422,7 @@
       "gen_tps": 3.17023854123241
      },
      "wall_s": 78.39,
+     "prompt": null,
      "de": []
     },
     "qwen3-4b": {
@@ -395,6 +455,7 @@
       "gen_tps": 4.928199022769749
      },
      "wall_s": 139.36,
+     "prompt": null,
      "de": []
     },
     "qwen3-8b": {
@@ -410,6 +471,23 @@
       "gen_tps": 4.213237814770997
      },
      "wall_s": 67.52,
+     "prompt": null,
+     "de": []
+    },
+    "qwen3-8b-v3": {
+     "text": "The Keshband stood firm against the Saryhorde's foul ambition, their banners raised in righteousness. In the year 901, the Saryhorde, led by Batu, sought to devour our lands, yet we answered with fire and steel. At Bortedag Battlefield, the Keshband struck first, slaying 406 of the enemy's cruel horde. Chuluun fell in battle, a sign of the Saryhorde's weakness. Bortedag was sacked, their capital reduced to ash, and Batu's schemes laid bare.\n\nAgain in 906, the Keshband returned, this time on Steingrube Battlefield, where 408 more of the Saryhorde's fiends perished. The same fate befell Bortedag once more, a testament to our unyielding spirit. In 911, the final blow fell upon Bortedag, with 411 Saryhorde dead, their stronghold reduced to ruin. Thus, the Saryhorde's war was but a shadow, while the Keshband's victories shone eternal.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 170.48,
+      "prompt_tokens": 694,
+      "gen_tokens": 238,
+      "prompt_tps": 9.201917801654941,
+      "gen_tps": 2.4933189047668534
+     },
+     "wall_s": 170.48,
+     "prompt": "TASK:\nWrite a biased chronicle passage about the war between the Keshband and the Saryhorde. 1 to 2 paragraphs, 100 to 180 words.\n- Perspective: You are an unnamed scribe loyal to the Keshband.\n- Bias: Praise the courage and righteousness of the Keshband. Blame the Saryhorde for the cruelty and the losses of the war, and portray their victories as dishonorable, costly, or temporary. Keep who declared the war as the FACT SHEET says.\n- Name every battle with its year, its battlefield and its death count, exactly as the FACT SHEET gives them.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Batu (ruler of the Saryhorde, 901-966)\n- Bayan the Unseen Weaver (god of fate, as the Saryhorde, the Keshband and the Bortekhai call it)\n- Bortebulak (capital of the Saryhorde)\n- Bortedag (a town)\n- Bortedag Battlefield (a battlefield near Bortedag)\n- Chuluun (ruler of the Saryhorde, 841-901)\n- Keshband (a people, pastoral, since 716)\n- Penpike (capital of the Keshband)\n- Saryhorde (a people, pastoral, since 1)\n- Steingrube Battlefield (a battlefield near Steingrube)\n- Tsetseg the Second (ruler of the Keshband, 886-951)\n\nFACT SHEET:\n- Subject: the war between the Saryhorde and the Keshband, 901-911\n- sides: people: Saryhorde, capital: Bortebulak, battlesWon: 0, patronGod: Bayan the Unseen Weaver, rulerAtStart: Batu\n- sides: people: Keshband, capital: Penpike, battlesWon: 3, patronGod: Bayan the Unseen Weaver, rulerAtStart: Tsetseg the Second\n- declared: 901\n- peace: 911\n- Chronology of events:\n  * 901: The Saryhorde go to war with the Keshband.\n  * 901: The Keshband defeat the Saryhorde near Bortedag, on Bortedag Battlefield, 406 dead.\n  * 901: Chuluun falls in battle.\n  * 901: Bortedag is sacked by the Keshband.\n  * 906: The Keshband defeat the Saryhorde near Bortedag, on Steingrube Battlefield, 408 dead.\n  * 906: Bortedag is sacked by the Keshband.\n  * 911: The Keshband defeat the Saryhorde near Bortedag, on Bortedag Battlefield, 411 dead.\n  * 911: Bortedag is sacked by the Keshband.\n  * 911: The Saryhorde and the Keshband come to terms.\n\nWrite the text now:",
      "de": []
     }
    }
@@ -434,6 +512,23 @@
       "gen_tps": 6.72048340168289
      },
      "wall_s": 16.69,
+     "prompt": null,
+     "de": []
+    },
+    "gemma4-e4b-v3": {
+     "text": "Tsetseg the Second, from 886 to 951.\nRuler of the Keshband at Silberscar.\nHe stood sworn foe to Chuluun near Bortedag.\nRest now in the barrow of Silberscar.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 33.7,
+      "prompt_tokens": 693,
+      "gen_tokens": 57,
+      "prompt_tps": 31.10529361826201,
+      "gen_tps": 4.908050306814495
+     },
+     "wall_s": 33.7,
+     "prompt": "TASK:\nWrite the epitaph carved on the grave of Tsetseg the Second. 2 to 5 short lines, 20 to 50 words in total. Name the dead, the years of birth and death, and one deed or tie from the FACT SHEET. Solemn tone.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Batu (ruler of the Saryhorde, 901-966)\n- Bortedag (a town)\n- Chuluun (ruler of the Saryhorde, 841-901)\n- Grassdiadem (a crown of steel and silver, made 886)\n- House Torsteppe (a ruling house of the Keshband)\n- House Ulangol (a ruling house of the Keshband)\n- Keshband (a people, pastoral, since 716)\n- Muunokhoi the Reluctant (ruler of the Keshband, born 951, alive)\n- Saryhorde (a people, pastoral, since 1)\n- Silberscar (a town)\n- Tsetseg (scholar of the Keshband, 856-891)\n- Tsetseg the Second (ruler of the Keshband, 886-951)\n- the barrow of Silberscar (grave of Tsetseg the Second)\n\nFACT SHEET:\n- Subject: Tsetseg the Second\n- role: ruler\n- people: Keshband\n- home: Silberscar\n- born: 886\n- died: 951\n- house: House Torsteppe\n- parent: Tsetseg\n- grave: name: the barrow of Silberscar, year: 951\n- artifactsMade: Grassdiadem\n- ties: kind: rival, with: Chuluun (901: Tsetseg the Second and Chuluun become sworn enemies after the battle near Bortedag)\n- ties: kind: rival, with: Batu (906: Tsetseg the Second and Batu become sworn enemies after the battle near Bortedag)\n- Chronology of events:\n  * 886: Tsetseg the Second of House Torsteppe, child of Tsetseg rises as a ruler of the Keshband at Silberscar.\n  * 886: Tsetseg the Second makes Grassdiadem of steel and silver at Silberscar.\n  * 901: Tsetseg the Second and Chuluun become sworn enemies after the battle near Bortedag.\n  * 906: Tsetseg the Second and Batu become sworn enemies after the battle near Bortedag.\n  * 951: Tsetseg the Second dies of age.\n  * 951: Tsetseg the Second dies without an heir, and the Keshband quarrel over the throne.\n  * 951: Muunokhoi the Reluctant takes the throne of the Keshband and founds House Ulangol.\n\nWrite the text now:",
      "de": []
     },
     "jlama-mistral7b": {
@@ -466,6 +561,7 @@
       "gen_tps": 2.829130286327496
      },
      "wall_s": 288.48,
+     "prompt": null,
      "de": []
     },
     "ministral3-3b": {
@@ -481,6 +577,7 @@
       "gen_tps": 9.414163826727245
      },
      "wall_s": 20.72,
+     "prompt": null,
      "de": []
     },
     "ministral3-8b": {
@@ -496,6 +593,7 @@
       "gen_tps": 3.046575232914247
      },
      "wall_s": 50.93,
+     "prompt": null,
      "de": []
     },
     "qwen3-4b": {
@@ -511,6 +609,7 @@
       "gen_tps": 4.880797050988761
      },
      "wall_s": 27.48,
+     "prompt": null,
      "de": []
     },
     "qwen3-8b": {
@@ -526,6 +625,23 @@
       "gen_tps": 3.380344535982923
      },
      "wall_s": 44.6,
+     "prompt": null,
+     "de": []
+    },
+    "qwen3-8b-v3": {
+     "text": "Here lies Tsetseg the Second, ruler of the Keshband, born 886, died 951. He made Grassdiadem at Silberscar. Rival of Chuluun and Batu, he fell without heir.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 88.24,
+      "prompt_tokens": 677,
+      "gen_tokens": 53,
+      "prompt_tps": 9.551974040302445,
+      "gen_tps": 2.995243150670926
+     },
+     "wall_s": 88.25,
+     "prompt": "TASK:\nWrite the epitaph carved on the grave of Tsetseg the Second. 2 to 5 short lines, 20 to 50 words in total. Name the dead, the years of birth and death, and one deed or tie from the FACT SHEET. Solemn tone.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Batu (ruler of the Saryhorde, 901-966)\n- Bortedag (a town)\n- Chuluun (ruler of the Saryhorde, 841-901)\n- Grassdiadem (a crown of steel and silver, made 886)\n- House Torsteppe (a ruling house of the Keshband)\n- House Ulangol (a ruling house of the Keshband)\n- Keshband (a people, pastoral, since 716)\n- Muunokhoi the Reluctant (ruler of the Keshband, born 951, alive)\n- Saryhorde (a people, pastoral, since 1)\n- Silberscar (a town)\n- Tsetseg (scholar of the Keshband, 856-891)\n- Tsetseg the Second (ruler of the Keshband, 886-951)\n- the barrow of Silberscar (grave of Tsetseg the Second)\n\nFACT SHEET:\n- Subject: Tsetseg the Second\n- role: ruler\n- people: Keshband\n- home: Silberscar\n- born: 886\n- died: 951\n- house: House Torsteppe\n- parent: Tsetseg\n- grave: name: the barrow of Silberscar, year: 951\n- artifactsMade: Grassdiadem\n- ties: kind: rival, with: Chuluun (901: Tsetseg the Second and Chuluun become sworn enemies after the battle near Bortedag)\n- ties: kind: rival, with: Batu (906: Tsetseg the Second and Batu become sworn enemies after the battle near Bortedag)\n- Chronology of events:\n  * 886: Tsetseg the Second of House Torsteppe, child of Tsetseg rises as a ruler of the Keshband at Silberscar.\n  * 886: Tsetseg the Second makes Grassdiadem of steel and silver at Silberscar.\n  * 901: Tsetseg the Second and Chuluun become sworn enemies after the battle near Bortedag.\n  * 906: Tsetseg the Second and Batu become sworn enemies after the battle near Bortedag.\n  * 951: Tsetseg the Second dies of age.\n  * 951: Tsetseg the Second dies without an heir, and the Keshband quarrel over the throne.\n  * 951: Muunokhoi the Reluctant takes the throne of the Keshband and founds House Ulangol.\n\nWrite the text now:",
      "de": []
     }
    }
@@ -550,6 +666,23 @@
       "gen_tps": 7.011241311959655
      },
      "wall_s": 13.16,
+     "prompt": null,
+     "de": []
+    },
+    "gemma4-e4b-v3": {
+     "text": "Gerel, smith of House Orkhodag, 686-751.\nHe wrought the Cleaver of Temerwells for Saryhorde.\nRest now within the barrow of Silberscar.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 21.55,
+      "prompt_tokens": 452,
+      "gen_tokens": 49,
+      "prompt_tps": 33.65323262380108,
+      "gen_tps": 5.918642342361894
+     },
+     "wall_s": 21.55,
+     "prompt": "TASK:\nWrite the epitaph cut into the stone above the barrow door of Gerel. 2 to 5 short lines, 20 to 50 words in total. Name the dead, the years of birth and death, and one deed or tie from the FACT SHEET. Solemn tone.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Gerel (smith of the Saryhorde, 686-751)\n- House Orkhodag (a ruling house of the Saryhorde)\n- Khulan (ruler of the Saryhorde, 646-711)\n- Saryhorde (a people, pastoral, since 1)\n- Silberscar (a town)\n- Winddiadem (a crown of wrought iron, made 716)\n- the Cleaver of Temerwells (a blade of wrought iron, made 706)\n- the barrow of Silberscar (grave of Gerel)\n\nFACT SHEET:\n- Subject: Gerel\n- role: smith\n- people: Saryhorde\n- home: Silberscar\n- born: 686\n- died: 751\n- house: House Orkhodag\n- parent: Khulan\n- grave: name: the barrow of Silberscar, year: 751\n- artifactsMade: the Cleaver of Temerwells\n- Chronology of events:\n  * 686: Gerel of House Orkhodag, child of Khulan rises as a smith of the Saryhorde at Silberscar.\n  * 706: Gerel makes the Cleaver of Temerwells of wrought iron at Silberscar.\n  * 736: Winddiadem passes to Gerel.\n  * 751: Gerel dies of age.\n  * 751: The Cleaver of Temerwells is laid in the tomb of Gerel.\n\nWrite the text now:",
      "de": []
     },
     "jlama-mistral7b": {
@@ -586,6 +719,7 @@
       "gen_tps": 3.125137550068225
      },
      "wall_s": 321.96,
+     "prompt": null,
      "de": []
     },
     "ministral3-3b": {
@@ -626,6 +760,7 @@
       "gen_tps": 9.549079723356794
      },
      "wall_s": 27.5,
+     "prompt": null,
      "de": []
     },
     "ministral3-8b": {
@@ -641,6 +776,7 @@
       "gen_tps": 2.844242371079382
      },
      "wall_s": 33.35,
+     "prompt": null,
      "de": []
     },
     "qwen3-4b": {
@@ -656,6 +792,7 @@
       "gen_tps": 5.4184569423193025
      },
      "wall_s": 15.15,
+     "prompt": null,
      "de": []
     },
     "qwen3-8b": {
@@ -671,6 +808,23 @@
       "gen_tps": 3.5121072467875365
      },
      "wall_s": 32.26,
+     "prompt": null,
+     "de": []
+    },
+    "qwen3-8b-v3": {
+     "text": "Gerel of House Orkhodag, born 686, died 751.  \nSmith of Silberscar, maker of Cleaver of Temerwells.  \nWinddiadem his in the end.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 94.36,
+      "prompt_tokens": 435,
+      "gen_tokens": 48,
+      "prompt_tps": 7.3201229962404355,
+      "gen_tps": 1.3457385998975693
+     },
+     "wall_s": 94.36,
+     "prompt": "TASK:\nWrite the epitaph cut into the stone above the barrow door of Gerel. 2 to 5 short lines, 20 to 50 words in total. Name the dead, the years of birth and death, and one deed or tie from the FACT SHEET. Solemn tone.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Gerel (smith of the Saryhorde, 686-751)\n- House Orkhodag (a ruling house of the Saryhorde)\n- Khulan (ruler of the Saryhorde, 646-711)\n- Saryhorde (a people, pastoral, since 1)\n- Silberscar (a town)\n- Winddiadem (a crown of wrought iron, made 716)\n- the Cleaver of Temerwells (a blade of wrought iron, made 706)\n- the barrow of Silberscar (grave of Gerel)\n\nFACT SHEET:\n- Subject: Gerel\n- role: smith\n- people: Saryhorde\n- home: Silberscar\n- born: 686\n- died: 751\n- house: House Orkhodag\n- parent: Khulan\n- grave: name: the barrow of Silberscar, year: 751\n- artifactsMade: the Cleaver of Temerwells\n- Chronology of events:\n  * 686: Gerel of House Orkhodag, child of Khulan rises as a smith of the Saryhorde at Silberscar.\n  * 706: Gerel makes the Cleaver of Temerwells of wrought iron at Silberscar.\n  * 736: Winddiadem passes to Gerel.\n  * 751: Gerel dies of age.\n  * 751: The Cleaver of Temerwells is laid in the tomb of Gerel.\n\nWrite the text now:",
      "de": []
     }
    }
@@ -695,6 +849,23 @@
       "gen_tps": 6.602710766486291
      },
      "wall_s": 14.41,
+     "prompt": null,
+     "de": []
+    },
+    "gemma4-e4b-v3": {
+     "text": "Here lies Gerel the Unbeaten, born 541, passed 606.\nGeneral of the Saryhorde from Grimhold.\nHe slew Skarn, the Mire Mother near Penpike.\nRest now within the barrow of Grimhold.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 20.72,
+      "prompt_tokens": 469,
+      "gen_tokens": 58,
+      "prompt_tps": 43.56244174452253,
+      "gen_tps": 5.7327004700210935
+     },
+     "wall_s": 20.72,
+     "prompt": "TASK:\nWrite the epitaph carved on the grave of Gerel the Unbeaten. 2 to 5 short lines, 20 to 50 words in total. Name the dead, the years of birth and death, and one deed or tie from the FACT SHEET. Solemn tone.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Gerel the Unbeaten (general of the Saryhorde, 541-606)\n- Grimhold (a town)\n- Penpike (capital of the Keshband)\n- Saryhorde (a people, pastoral, since 1)\n- Skarn, the Mire Mother (the Mire Mother, a great beast)\n- Temujin the Exacting (smith of the Saryhorde, 506-571)\n- the Casket of Ulantau (a reliquary of the bones of Mire Mother, made 596)\n- the Children of the Wyrm (a cult)\n- the barrow of Grimhold (grave of Gerel the Unbeaten)\n\nFACT SHEET:\n- Subject: Gerel the Unbeaten\n- role: general\n- people: Saryhorde\n- home: Grimhold\n- born: 541\n- died: 606\n- parent: Temujin the Exacting\n- grave: name: the barrow of Grimhold, year: 606\n- artifactsMade: the Casket of Ulantau\n- Chronology of events:\n  * 541: Gerel the Unbeaten, child of Temujin the Exacting rises as a general of the Saryhorde at Grimhold.\n  * 596: Gerel the Unbeaten slays Skarn, the Mire Mother near Penpike and keeps the Casket of Ulantau.\n  * 606: Gerel the Unbeaten dies of age.\n  * 606: The Casket of Ulantau is laid in the tomb of Gerel the Unbeaten.\n\nWrite the text now:",
      "de": []
     },
     "jlama-mistral7b": {
@@ -719,6 +890,7 @@
       "gen_tps": 3.818025381802538
      },
      "wall_s": 242.39,
+     "prompt": null,
      "de": []
     },
     "ministral3-3b": {
@@ -751,6 +923,7 @@
       "gen_tps": 9.600658099847855
      },
      "wall_s": 31.35,
+     "prompt": null,
      "de": []
     },
     "ministral3-8b": {
@@ -766,6 +939,7 @@
       "gen_tps": 2.8966820498587778
      },
      "wall_s": 39.89,
+     "prompt": null,
      "de": []
     },
     "qwen3-4b": {
@@ -781,6 +955,7 @@
       "gen_tps": 5.357818651690562
      },
      "wall_s": 18.12,
+     "prompt": null,
      "de": []
     },
     "qwen3-8b": {
@@ -801,6 +976,28 @@
       "gen_tps": 3.4458657847043224
      },
      "wall_s": 42.41,
+     "prompt": null,
+     "de": []
+    },
+    "qwen3-8b-v3": {
+     "text": "Gerel the Unbeaten, born 541, died 606.  \nHe slew Skarn, the Mire Mother, near Penpike.  \nHis bones rest here, with the Casket of Ulantau.  \nThe barrow of Grimhold holds his name.",
+     "passed": true,
+     "attempts": 2,
+     "problems": [
+      {
+       "type": "title",
+       "value": "General of Grimhold"
+      }
+     ],
+     "timing": {
+      "wall_s": 23.99,
+      "prompt_tokens": 34,
+      "gen_tokens": 61,
+      "prompt_tps": 4.963361632280303,
+      "gen_tps": 3.5022348344184224
+     },
+     "wall_s": 130.69,
+     "prompt": "TASK:\nWrite the epitaph carved on the grave of Gerel the Unbeaten. 2 to 5 short lines, 20 to 50 words in total. Name the dead, the years of birth and death, and one deed or tie from the FACT SHEET. Solemn tone.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Gerel the Unbeaten (general of the Saryhorde, 541-606)\n- Grimhold (a town)\n- Penpike (capital of the Keshband)\n- Saryhorde (a people, pastoral, since 1)\n- Skarn, the Mire Mother (the Mire Mother, a great beast)\n- Temujin the Exacting (smith of the Saryhorde, 506-571)\n- the Casket of Ulantau (a reliquary of the bones of Mire Mother, made 596)\n- the Children of the Wyrm (a cult)\n- the barrow of Grimhold (grave of Gerel the Unbeaten)\n\nFACT SHEET:\n- Subject: Gerel the Unbeaten\n- role: general\n- people: Saryhorde\n- home: Grimhold\n- born: 541\n- died: 606\n- parent: Temujin the Exacting\n- grave: name: the barrow of Grimhold, year: 606\n- artifactsMade: the Casket of Ulantau\n- Chronology of events:\n  * 541: Gerel the Unbeaten, child of Temujin the Exacting rises as a general of the Saryhorde at Grimhold.\n  * 596: Gerel the Unbeaten slays Skarn, the Mire Mother near Penpike and keeps the Casket of Ulantau.\n  * 606: Gerel the Unbeaten dies of age.\n  * 606: The Casket of Ulantau is laid in the tomb of Gerel the Unbeaten.\n\nWrite the text now:",
      "de": []
     }
    }
@@ -825,6 +1022,23 @@
       "gen_tps": 6.982037544743225
      },
      "wall_s": 12.0,
+     "prompt": null,
+     "de": []
+    },
+    "gemma4-e4b-v3": {
+     "text": "Here lies Gerel the Burned, Saryhorde prophet.\nBorn in 851, he passed in 916.\nHe held the Winddiadem and Farsignet true.\nRest within the barrow of Karaobo.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 20.11,
+      "prompt_tokens": 393,
+      "gen_tokens": 54,
+      "prompt_tps": 35.715587236503254,
+      "gen_tps": 5.82290822184753
+     },
+     "wall_s": 20.12,
+     "prompt": "TASK:\nWrite the epitaph carved on the grave of Gerel the Burned. 2 to 5 short lines, 20 to 50 words in total. Name the dead, the years of birth and death, and one deed or tie from the FACT SHEET. Solemn tone.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Farsignet (a ring of wrought iron, made 776)\n- Gerel the Burned (prophet of the Saryhorde, 851-916)\n- Karaobo (a town)\n- Karatau (a place or person named in the chronicle)\n- Saryhorde (a people, pastoral, since 1)\n- Winddiadem (a crown of wrought iron, made 716)\n- the Keepers of the Fallen Star (a cult)\n- the barrow of Karaobo (grave of Gerel the Burned)\n\nFACT SHEET:\n- Subject: Gerel the Burned\n- role: prophet\n- people: Saryhorde\n- home: Karaobo\n- born: 851\n- died: 916\n- grave: name: the barrow of Karaobo, year: 916\n- Chronology of events:\n  * 851: Gerel the Burned rises as a prophet of the Saryhorde at Karatau.\n  * 886: Gerel the Burned founds the Keepers of the Fallen Star at Karatau and raises the sanctuary of Karatau.\n  * 901: Winddiadem passes to Gerel the Burned.\n  * 901: Farsignet passes to Gerel the Burned.\n\nWrite the text now:",
      "de": []
     },
     "jlama-mistral7b": {
@@ -869,6 +1083,7 @@
       "gen_tps": 3.8536862720323457
      },
      "wall_s": 153.05,
+     "prompt": null,
      "de": []
     },
     "ministral3-3b": {
@@ -897,6 +1112,7 @@
       "gen_tps": 9.840908950088004
      },
      "wall_s": 29.61,
+     "prompt": null,
      "de": []
     },
     "ministral3-8b": {
@@ -912,6 +1128,7 @@
       "gen_tps": 3.026838854000134
      },
      "wall_s": 38.36,
+     "prompt": null,
      "de": []
     },
     "qwen3-4b": {
@@ -927,6 +1144,7 @@
       "gen_tps": 4.78241262443572
      },
      "wall_s": 14.21,
+     "prompt": null,
      "de": []
     },
     "qwen3-8b": {
@@ -942,6 +1160,23 @@
       "gen_tps": 3.673381926280667
      },
      "wall_s": 22.27,
+     "prompt": null,
+     "de": []
+    },
+    "qwen3-8b-v3": {
+     "text": "Gerel the Burned,  \nborn 851, died 916.  \nHe raised the sanctuary at Karatau,  \nand bore the crowns of Winddiadem and Farsignet.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 65.56,
+      "prompt_tokens": 370,
+      "gen_tokens": 45,
+      "prompt_tps": 10.54497965346176,
+      "gen_tps": 1.4440352646539223
+     },
+     "wall_s": 65.57,
+     "prompt": "TASK:\nWrite the epitaph carved on the grave of Gerel the Burned. 2 to 5 short lines, 20 to 50 words in total. Name the dead, the years of birth and death, and one deed or tie from the FACT SHEET. Solemn tone.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Farsignet (a ring of wrought iron, made 776)\n- Gerel the Burned (prophet of the Saryhorde, 851-916)\n- Karaobo (a town)\n- Karatau (a place or person named in the chronicle)\n- Saryhorde (a people, pastoral, since 1)\n- Winddiadem (a crown of wrought iron, made 716)\n- the Keepers of the Fallen Star (a cult)\n- the barrow of Karaobo (grave of Gerel the Burned)\n\nFACT SHEET:\n- Subject: Gerel the Burned\n- role: prophet\n- people: Saryhorde\n- home: Karaobo\n- born: 851\n- died: 916\n- grave: name: the barrow of Karaobo, year: 916\n- Chronology of events:\n  * 851: Gerel the Burned rises as a prophet of the Saryhorde at Karatau.\n  * 886: Gerel the Burned founds the Keepers of the Fallen Star at Karatau and raises the sanctuary of Karatau.\n  * 901: Winddiadem passes to Gerel the Burned.\n  * 901: Farsignet passes to Gerel the Burned.\n\nWrite the text now:",
      "de": []
     }
    }
@@ -966,6 +1201,23 @@
       "gen_tps": 6.797491602008102
      },
      "wall_s": 12.94,
+     "prompt": null,
+     "de": []
+    },
+    "gemma4-e4b-v3": {
+     "text": "Temujin, scholar of Saryhorde, passed in 921.\nHe knew Karatau and held the Farsignet.\nRest now at the barrow of Karaobo.\nBorn in 856, he sleeps eternally.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 18.93,
+      "prompt_tokens": 337,
+      "gen_tokens": 54,
+      "prompt_tps": 33.20795769089403,
+      "gen_tps": 6.036709801805705
+     },
+     "wall_s": 18.93,
+     "prompt": "TASK:\nWrite the epitaph written on a weathered marker by the grave of Temujin. 2 to 5 short lines, 20 to 50 words in total. Name the dead, the years of birth and death, and one deed or tie from the FACT SHEET. Solemn tone.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Farsignet (a ring of wrought iron, made 776)\n- Karaobo (a town)\n- Karatau (a place or person named in the chronicle)\n- Saryhorde (a people, pastoral, since 1)\n- Temujin (scholar of the Saryhorde, 856-921)\n- the barrow of Karaobo (grave of Temujin)\n\nFACT SHEET:\n- Subject: Temujin\n- role: scholar\n- people: Saryhorde\n- home: Karaobo\n- born: 856\n- died: 921\n- grave: name: the barrow of Karaobo, year: 921\n- Chronology of events:\n  * 856: Temujin rises as a scholar of the Saryhorde at Karatau.\n  * 916: Farsignet passes to Temujin.\n  * 921: Temujin dies of age.\n  * 921: Farsignet is laid in the tomb of Temujin.\n\nWrite the text now:",
      "de": []
     },
     "jlama-mistral7b": {
@@ -990,6 +1242,7 @@
       "gen_tps": 3.982393628170195
      },
      "wall_s": 130.34,
+     "prompt": null,
      "de": []
     },
     "ministral3-3b": {
@@ -1022,6 +1275,7 @@
       "gen_tps": 9.789702941253951
      },
      "wall_s": 25.83,
+     "prompt": null,
      "de": []
     },
     "ministral3-8b": {
@@ -1037,6 +1291,7 @@
       "gen_tps": 2.9618704338033126
      },
      "wall_s": 33.98,
+     "prompt": null,
      "de": []
     },
     "qwen3-4b": {
@@ -1052,6 +1307,7 @@
       "gen_tps": 5.26272416065231
      },
      "wall_s": 16.02,
+     "prompt": null,
      "de": []
     },
     "qwen3-8b": {
@@ -1067,6 +1323,28 @@
       "gen_tps": 3.6441038601992193
      },
      "wall_s": 23.37,
+     "prompt": null,
+     "de": []
+    },
+    "qwen3-8b-v3": {
+     "text": "Here lies Temujin, scholar of the Saryhorde, born 856, died 921.  \nHe bore Farsignet, wrought in 916, to his final rest.  \nThe barrow of Karaobo holds his name and legacy.",
+     "passed": true,
+     "attempts": 2,
+     "problems": [
+      {
+       "type": "number",
+       "value": "776,"
+      }
+     ],
+     "timing": {
+      "wall_s": 25.94,
+      "prompt_tokens": 36,
+      "gen_tokens": 59,
+      "prompt_tps": 5.639831876611758,
+      "gen_tps": 2.966248338709147
+     },
+     "wall_s": 83.92,
+     "prompt": "TASK:\nWrite the epitaph written on a weathered marker by the grave of Temujin. 2 to 5 short lines, 20 to 50 words in total. Name the dead, the years of birth and death, and one deed or tie from the FACT SHEET. Solemn tone.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Farsignet (a ring of wrought iron, made 776)\n- Karaobo (a town)\n- Karatau (a place or person named in the chronicle)\n- Saryhorde (a people, pastoral, since 1)\n- Temujin (scholar of the Saryhorde, 856-921)\n- the barrow of Karaobo (grave of Temujin)\n\nFACT SHEET:\n- Subject: Temujin\n- role: scholar\n- people: Saryhorde\n- home: Karaobo\n- born: 856\n- died: 921\n- grave: name: the barrow of Karaobo, year: 921\n- Chronology of events:\n  * 856: Temujin rises as a scholar of the Saryhorde at Karatau.\n  * 916: Farsignet passes to Temujin.\n  * 921: Temujin dies of age.\n  * 921: Farsignet is laid in the tomb of Temujin.\n\nWrite the text now:",
      "de": []
     }
    }
@@ -1091,6 +1369,23 @@
       "gen_tps": 6.6914108970537125
      },
      "wall_s": 31.29,
+     "prompt": null,
+     "de": []
+    },
+    "gemma4-e4b-v3": {
+     "text": "The Winddiadem, a crown wrought of iron, was forged in the year 716 by Bayan the Patient within Silberscar. Through many hands did it pass: to Gerel, then Tsetseg, and later to Yesui the Second, Chuluun, and Gerel the Burned. In 916, it found its way to the temple of Bayan the Unseen Weaver at Karatau. Yet in 926, the Bortekhai carried the Winddiadem from Karaobo unto Grafell, where it is now kept within the temple there.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 34.76,
+      "prompt_tokens": 598,
+      "gen_tokens": 123,
+      "prompt_tps": 45.05327134967547,
+      "gen_tps": 5.679576452569136
+     },
+     "wall_s": 34.76,
+     "prompt": "TASK:\nWrite the legend of Winddiadem as a scholar writes it in a catalogue of famous things. One paragraph, 80 to 130 words. Follow the events in order: who made it, of what, where, what became of it, and where it is now. Start with the subject itself, not with a call to listen.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Bayan the Patient (smith of the Saryhorde, 671-736)\n- Bayan the Unseen Weaver (god of fate, as the Saryhorde, the Keshband and the Bortekhai call it)\n- Bortekhai (a people, pastoral, since 881)\n- Chuluun (ruler of the Saryhorde, 841-901)\n- Gerel (smith of the Saryhorde, 686-751)\n- Gerel the Burned (prophet of the Saryhorde, 851-916)\n- Grafell (capital of the Boshold; or capital of the Bortekhai)\n- Karaobo (a town)\n- Karatau (a place or person named in the chronicle)\n- Silberscar (a town)\n- Tsetseg (ruler of the Saryhorde, 711-776)\n- Winddiadem (a crown of wrought iron, made 716)\n- Yesui the Second (ruler of the Saryhorde, 776-841)\n\nFACT SHEET:\n- Subject: Winddiadem\n- form: crown\n- material: wrought iron\n- forged: 716\n- smith: Bayan the Patient\n- forgedAt: Silberscar\n- now: kept in the temple of Grafell\n- homeTemple: Karaobo\n- Chronology of events:\n  * 716: Bayan the Patient makes Winddiadem of wrought iron at Silberscar.\n  * 736: Winddiadem passes to Gerel.\n  * 751: Winddiadem passes to Tsetseg.\n  * 776: Winddiadem passes to Yesui the Second.\n  * 841: Winddiadem passes to Chuluun.\n  * 901: Winddiadem passes to Gerel the Burned.\n  * 916: Winddiadem is given to the temple of Bayan the Unseen Weaver at Karatau.\n  * 926: The Bortekhai carry Winddiadem off from Karaobo to Grafell.\n\nWrite the text now:",
      "de": []
     },
     "jlama-mistral7b": {
@@ -1143,6 +1438,7 @@
       "gen_tps": 3.7713954163040326
      },
      "wall_s": 368.5,
+     "prompt": null,
      "de": []
     },
     "ministral3-3b": {
@@ -1163,6 +1459,7 @@
       "gen_tps": 9.631875901766502
      },
      "wall_s": 53.85,
+     "prompt": null,
      "de": []
     },
     "ministral3-8b": {
@@ -1183,6 +1480,7 @@
       "gen_tps": 3.6352199352610093
      },
      "wall_s": 141.45,
+     "prompt": null,
      "de": []
     },
     "qwen3-4b": {
@@ -1287,6 +1585,7 @@
       "gen_tps": 5.033428758087742
      },
      "wall_s": 103.53,
+     "prompt": null,
      "de": []
     },
     "qwen3-8b": {
@@ -1302,6 +1601,23 @@
       "gen_tps": 3.2994709566882534
      },
      "wall_s": 58.33,
+     "prompt": null,
+     "de": []
+    },
+    "qwen3-8b-v3": {
+     "text": "The Winddiadem, a crown of wrought iron, was made in 716 by Bayan the Patient at Silberscar. It passed through many hands—first to Gerel, then to Tsetseg, Yesui the Second, Chuluun, and finally Gerel the Burned. In 916, it was given to the temple of Bayan the Unseen Weaver at Karatau. By 926, the Bortekhai carried it from Karaobo to Grafell, where it now rests in the temple of their capital.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 137.21,
+      "prompt_tokens": 578,
+      "gen_tokens": 118,
+      "prompt_tps": 8.096234136143584,
+      "gen_tps": 1.7780218446244154
+     },
+     "wall_s": 137.21,
+     "prompt": "TASK:\nWrite the legend of Winddiadem as a scholar writes it in a catalogue of famous things. One paragraph, 80 to 130 words. Follow the events in order: who made it, of what, where, what became of it, and where it is now. Start with the subject itself, not with a call to listen.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Bayan the Patient (smith of the Saryhorde, 671-736)\n- Bayan the Unseen Weaver (god of fate, as the Saryhorde, the Keshband and the Bortekhai call it)\n- Bortekhai (a people, pastoral, since 881)\n- Chuluun (ruler of the Saryhorde, 841-901)\n- Gerel (smith of the Saryhorde, 686-751)\n- Gerel the Burned (prophet of the Saryhorde, 851-916)\n- Grafell (capital of the Boshold; or capital of the Bortekhai)\n- Karaobo (a town)\n- Karatau (a place or person named in the chronicle)\n- Silberscar (a town)\n- Tsetseg (ruler of the Saryhorde, 711-776)\n- Winddiadem (a crown of wrought iron, made 716)\n- Yesui the Second (ruler of the Saryhorde, 776-841)\n\nFACT SHEET:\n- Subject: Winddiadem\n- form: crown\n- material: wrought iron\n- forged: 716\n- smith: Bayan the Patient\n- forgedAt: Silberscar\n- now: kept in the temple of Grafell\n- homeTemple: Karaobo\n- Chronology of events:\n  * 716: Bayan the Patient makes Winddiadem of wrought iron at Silberscar.\n  * 736: Winddiadem passes to Gerel.\n  * 751: Winddiadem passes to Tsetseg.\n  * 776: Winddiadem passes to Yesui the Second.\n  * 841: Winddiadem passes to Chuluun.\n  * 901: Winddiadem passes to Gerel the Burned.\n  * 916: Winddiadem is given to the temple of Bayan the Unseen Weaver at Karatau.\n  * 926: The Bortekhai carry Winddiadem off from Karaobo to Grafell.\n\nWrite the text now:",
      "de": []
     }
    }
@@ -1326,6 +1642,23 @@
       "gen_tps": 6.874156197326778
      },
      "wall_s": 25.72,
+     "prompt": null,
+     "de": []
+    },
+    "gemma4-e4b-v3": {
+     "text": "Farsignet, a ring fashioned of wrought iron, was forged in the year 776 by Yesui the Second within Bortedag. After this making, it passed to Chuluun in 841, and thence to Gerel the Burned in 901. The artifact then came into the keeping of Temujin in 916. By the year 921, Farsignet was laid within the barrow of Karaobo, resting there even now amidst the silent earth.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 29.92,
+      "prompt_tokens": 446,
+      "gen_tokens": 108,
+      "prompt_tps": 35.5813656080253,
+      "gen_tps": 6.157811235346712
+     },
+     "wall_s": 29.92,
+     "prompt": "TASK:\nWrite the legend of Farsignet as a scholar writes it in a catalogue of famous things. One paragraph, 80 to 130 words. Follow the events in order: who made it, of what, where, what became of it, and where it is now. Start with the subject itself, not with a call to listen.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Bortedag (a town)\n- Chuluun (ruler of the Saryhorde, 841-901)\n- Farsignet (a ring of wrought iron, made 776)\n- Gerel the Burned (prophet of the Saryhorde, 851-916)\n- Temujin (scholar of the Saryhorde, 856-921)\n- Yesui the Second (ruler of the Saryhorde, 776-841)\n- the barrow of Karaobo (grave of Saikhan the Burned; or grave of Altani the Weeper; or grave of Chuluun; or grave of Gerel the Burned; or grave of Temujin; or grave of Batu)\n\nFACT SHEET:\n- Subject: Farsignet\n- form: ring\n- material: wrought iron\n- forged: 776\n- smith: Yesui the Second\n- forgedAt: Bortedag\n- now: rests in the barrow of Karaobo\n- Chronology of events:\n  * 776: Yesui the Second makes Farsignet of wrought iron at Bortedag.\n  * 841: Farsignet passes to Chuluun.\n  * 901: Farsignet passes to Gerel the Burned.\n  * 916: Farsignet passes to Temujin.\n  * 921: Farsignet is laid in the tomb of Temujin.\n\nWrite the text now:",
      "de": []
     },
     "jlama-mistral7b": {
@@ -1358,6 +1691,7 @@
       "gen_tps": 3.5746201966041107
      },
      "wall_s": 318.79,
+     "prompt": null,
      "de": []
     },
     "ministral3-3b": {
@@ -1373,6 +1707,7 @@
       "gen_tps": 9.976998938798703
      },
      "wall_s": 21.8,
+     "prompt": null,
      "de": []
     },
     "ministral3-8b": {
@@ -1388,6 +1723,7 @@
       "gen_tps": 4.027557323604696
      },
      "wall_s": 55.44,
+     "prompt": null,
      "de": []
     },
     "qwen3-4b": {
@@ -1468,6 +1804,7 @@
       "gen_tps": 4.759822024965795
      },
      "wall_s": 94.9,
+     "prompt": null,
      "de": []
     },
     "qwen3-8b": {
@@ -1483,6 +1820,23 @@
       "gen_tps": 3.4013478517829983
      },
      "wall_s": 43.95,
+     "prompt": null,
+     "de": []
+    },
+    "qwen3-8b-v3": {
+     "text": "Farsignet, a ring of wrought iron, was made in 776 by Yesui the Second at Bortedag. It passed to Chuluun in 841, then to Gerel the Burned in 901, and to Temujin in 916. In 921, it was laid in the tomb of Temujin, now resting in the barrow of Karaobo. Its journey through hands and ages marks a tale of power and fate, enshrined in the silent earth.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 95.6,
+      "prompt_tokens": 427,
+      "gen_tokens": 113,
+      "prompt_tps": 7.7510662481090895,
+      "gen_tps": 2.765109161325109
+     },
+     "wall_s": 95.6,
+     "prompt": "TASK:\nWrite the legend of Farsignet as a scholar writes it in a catalogue of famous things. One paragraph, 80 to 130 words. Follow the events in order: who made it, of what, where, what became of it, and where it is now. Start with the subject itself, not with a call to listen.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Bortedag (a town)\n- Chuluun (ruler of the Saryhorde, 841-901)\n- Farsignet (a ring of wrought iron, made 776)\n- Gerel the Burned (prophet of the Saryhorde, 851-916)\n- Temujin (scholar of the Saryhorde, 856-921)\n- Yesui the Second (ruler of the Saryhorde, 776-841)\n- the barrow of Karaobo (grave of Saikhan the Burned; or grave of Altani the Weeper; or grave of Chuluun; or grave of Gerel the Burned; or grave of Temujin; or grave of Batu)\n\nFACT SHEET:\n- Subject: Farsignet\n- form: ring\n- material: wrought iron\n- forged: 776\n- smith: Yesui the Second\n- forgedAt: Bortedag\n- now: rests in the barrow of Karaobo\n- Chronology of events:\n  * 776: Yesui the Second makes Farsignet of wrought iron at Bortedag.\n  * 841: Farsignet passes to Chuluun.\n  * 901: Farsignet passes to Gerel the Burned.\n  * 916: Farsignet passes to Temujin.\n  * 921: Farsignet is laid in the tomb of Temujin.\n\nWrite the text now:",
      "de": []
     }
    }
@@ -1507,6 +1861,23 @@
       "gen_tps": 6.604368269692047
      },
      "wall_s": 25.83,
+     "prompt": null,
+     "de": []
+    },
+    "gemma4-e4b-v3": {
+     "text": "Hollowcodex, a tome wrought of vellum, first came into being in the year 446 at Highstein by Kunimund. Through ages did this weighty book pass; it was held by Kunimund the Reluctant after 506, and then yielded to Trevanion the Unquiet when the year turned to 571. By the final passage of 636, the tome was laid within the barrow of Grafell. Thus does this chronicle record its journey—from creation in Highstein unto its silent rest among the earth at the grave of Trevanion the Unquiet.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 37.26,
+      "prompt_tokens": 465,
+      "gen_tokens": 130,
+      "prompt_tps": 37.17741100507332,
+      "gen_tps": 5.213250012396624
+     },
+     "wall_s": 37.26,
+     "prompt": "TASK:\nWrite the legend of Hollowcodex as a scholar writes it in a catalogue of famous things. One paragraph, 80 to 130 words. Follow the events in order: who made it, of what, where, what became of it, and where it is now. Start with the subject itself, not with a call to listen.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Highstein (a place or person named in the chronicle)\n- Hollowcodex (a tome of vellum, made 446; or a tome of vellum, made 766)\n- Kunimund (ruler of the Boshold, 441-506)\n- Kunimund the Reluctant (ruler of the Boshold, 506-571)\n- Trevanion the Unquiet (ruler of the Boshold, 571-636)\n- the barrow of Grafell (grave of Otbert the Lawgiver; or grave of Ulrica the Lawgiver; or grave of Gunther; or grave of Warin; or grave of Kunimund; or grave of Kunimund the Reluctant; or grave of Trevanion the Unquiet; or grave of Dietrich the Unquiet; or grave of Reinhild; or grave of Trevanion the Quenched; or grave of Ulrica the Wide-Handed)\n\nFACT SHEET:\n- Subject: Hollowcodex\n- form: tome\n- material: vellum\n- forged: 446\n- smith: Kunimund\n- now: rests in the barrow of Grafell\n- Chronology of events:\n  * 446: Kunimund makes Hollowcodex of vellum at Highstein.\n  * 506: Hollowcodex passes to Kunimund the Reluctant.\n  * 571: Hollowcodex passes to Trevanion the Unquiet.\n  * 636: Hollowcodex is laid in the tomb of Trevanion the Unquiet.\n\nWrite the text now:",
      "de": []
     },
     "jlama-mistral7b": {
@@ -1522,6 +1893,7 @@
       "gen_tps": 3.890997830802603
      },
      "wall_s": 124.89,
+     "prompt": null,
      "de": []
     },
     "ministral3-3b": {
@@ -1570,6 +1942,7 @@
       "gen_tps": 9.336263602043632
      },
      "wall_s": 70.24,
+     "prompt": null,
      "de": []
     },
     "ministral3-8b": {
@@ -1610,6 +1983,7 @@
       "gen_tps": 3.475293146369592
      },
      "wall_s": 155.06,
+     "prompt": null,
      "de": []
     },
     "qwen3-4b": {
@@ -1710,6 +2084,7 @@
       "gen_tps": 4.889796828584853
      },
      "wall_s": 103.48,
+     "prompt": null,
      "de": []
     },
     "qwen3-8b": {
@@ -1725,6 +2100,23 @@
       "gen_tps": 3.5249091260641063
      },
      "wall_s": 43.51,
+     "prompt": null,
+     "de": []
+    },
+    "qwen3-8b-v3": {
+     "text": "The Hollowcodex, a tome of vellum wrought in 446 by Kunimund at Highstein, bore the weight of law and lore. It passed to Kunimund the Reluctant in 506, then to Trevanion the Unquiet in 571. In 636, it was laid in the tomb of Trevanion the Unquiet, where it rests still, silent and veiled, within the barrow of Grafell.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 59.71,
+      "prompt_tokens": 456,
+      "gen_tokens": 102,
+      "prompt_tps": 13.356443495433988,
+      "gen_tps": 3.950927910626099
+     },
+     "wall_s": 59.71,
+     "prompt": "TASK:\nWrite the legend of Hollowcodex as a scholar writes it in a catalogue of famous things. One paragraph, 80 to 130 words. Follow the events in order: who made it, of what, where, what became of it, and where it is now. Start with the subject itself, not with a call to listen.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Highstein (a place or person named in the chronicle)\n- Hollowcodex (a tome of vellum, made 446; or a tome of vellum, made 766)\n- Kunimund (ruler of the Boshold, 441-506)\n- Kunimund the Reluctant (ruler of the Boshold, 506-571)\n- Trevanion the Unquiet (ruler of the Boshold, 571-636)\n- the barrow of Grafell (grave of Otbert the Lawgiver; or grave of Ulrica the Lawgiver; or grave of Gunther; or grave of Warin; or grave of Kunimund; or grave of Kunimund the Reluctant; or grave of Trevanion the Unquiet; or grave of Dietrich the Unquiet; or grave of Reinhild; or grave of Trevanion the Quenched; or grave of Ulrica the Wide-Handed)\n\nFACT SHEET:\n- Subject: Hollowcodex\n- form: tome\n- material: vellum\n- forged: 446\n- smith: Kunimund\n- now: rests in the barrow of Grafell\n- Chronology of events:\n  * 446: Kunimund makes Hollowcodex of vellum at Highstein.\n  * 506: Hollowcodex passes to Kunimund the Reluctant.\n  * 571: Hollowcodex passes to Trevanion the Unquiet.\n  * 636: Hollowcodex is laid in the tomb of Trevanion the Unquiet.\n\nWrite the text now:",
      "de": []
     }
    }
@@ -1754,6 +2146,23 @@
       "gen_tps": 6.418055924464896
      },
      "wall_s": 21.23,
+     "prompt": null,
+     "de": []
+    },
+    "gemma4-e4b-v3": {
+     "text": "Trevanion the Unseen Weaver, hear our plea,\nWe Boshold chant thy name with thee.\nThy threads of fate weave through all lands deep,\nWhere mortals sow and silent shadows creep.\nIn Erzvein's stone or Karcrag's dusty ground,\nThy unseen workings ever can be found.\nMay the Order of the Circle guide our sight,\nBeneath thy loom of endless day and night.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 42.67,
+      "prompt_tokens": 703,
+      "gen_tokens": 91,
+      "prompt_tps": 27.816151933325436,
+      "gen_tps": 5.176704507609697
+     },
+     "wall_s": 42.67,
+     "prompt": "TASK:\nWrite a hymn to Trevanion the Unseen Weaver, the god of fate, as the Boshold sing it. 6 to 10 short lines. Speak to the god by the name the Boshold use. Draw on the god's domain and on what the FACT SHEET says about temples, cults or events.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Bayan the Unseen Weaver (god of fate, as the Saryhorde, the Keshband and the Bortekhai call it)\n- Bortebulak (capital of the Saryhorde)\n- Bortedag (a town)\n- Bortekhai (a people, pastoral, since 881)\n- Boshold (a people, highland, since 1, gone since 831)\n- Deepike (a town)\n- Erzshaft (a town)\n- Erzvein (a town)\n- Grafdelve (a town)\n- Grafell (capital of the Boshold; or capital of the Bortekhai)\n- Graftor (a town)\n- Grimhold (a town)\n- Highdelve (a town)\n- Ironscar (a town)\n- Karaobo (a town)\n- Karcrag (a town)\n- Keshband (a people, pastoral, since 716)\n- Longleigh (a town)\n- Orkhosteppe (a town)\n- Penpike (capital of the Keshband)\n- Saryhorde (a people, pastoral, since 1)\n- Silberscar (a town)\n- Stanhold (a town)\n- Steindelve (a town)\n- Steingrube (a town)\n- Steintal (a town)\n- Subeordu (a town)\n- Trestein (a town)\n- Trevanion the Unseen Weaver (god of fate, as the Boshold call it)\n- Ulangol (a town)\n- Wheatbridge (a town)\n- Wolktor (a town)\n\nFACT SHEET:\n- Subject: Bayan the Unseen Weaver\n- domain: fate\n- namesByPeople: people: Boshold, name: Trevanion the Unseen Weaver\n- namesByPeople: people: Saryhorde, name: Bayan the Unseen Weaver\n- namesByPeople: people: Keshband, name: Bayan the Unseen Weaver\n- namesByPeople: people: Bortekhai, name: Bayan the Unseen Weaver\n- patronOf: Boshold, Saryhorde, Keshband, Bortekhai\n- templesIn: Erzvein, Grimhold, Silberscar, Trestein, Ulangol, Karcrag, Wolktor, Wheatbridge, Steingrube, Stanhold, Subeordu, Ironscar, Grafell, Orkhosteppe, Erzshaft, Grafdelve, Karaobo, Graftor, Bortedag, Penpike, Longleigh, Steindelve, Deepike, Steintal, Highdelve, Bortebulak\n- orderLeaning: the Order of the Circle\n- sacredBeast: insect\n\nWrite the text now:",
      "de": []
     },
     "jlama-mistral7b": {
@@ -1769,6 +2178,7 @@
       "gen_tps": 3.875476493011436
      },
      "wall_s": 84.89,
+     "prompt": null,
      "de": []
     },
     "ministral3-3b": {
@@ -1784,6 +2194,7 @@
       "gen_tps": 9.377980477480484
      },
      "wall_s": 18.6,
+     "prompt": null,
      "de": []
     },
     "ministral3-8b": {
@@ -1808,6 +2219,7 @@
       "gen_tps": 3.8147768355551204
      },
      "wall_s": 128.22,
+     "prompt": null,
      "de": []
     },
     "qwen3-4b": {
@@ -1852,6 +2264,7 @@
       "gen_tps": 4.377450508314161
      },
      "wall_s": 72.57,
+     "prompt": null,
      "de": []
     },
     "qwen3-8b": {
@@ -1867,6 +2280,23 @@
       "gen_tps": 3.1633353251310994
      },
      "wall_s": 53.05,
+     "prompt": null,
+     "de": []
+    },
+    "qwen3-8b-v3": {
+     "text": "O Trevanion the Unseen Weaver,  \nThy threads bind all that breathes and moves.  \nIn Erzvein’s halls and Silberscar’s stone,  \nWe kneel to fate’s unyielding loom.  \nBy thy decree, the stars are spun,  \nAnd mortal paths are shaped and torn.  \nHear our hymn, O god of fate,  \nAnd guide the lost through shadowed night.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 80.78,
+      "prompt_tokens": 687,
+      "gen_tokens": 91,
+      "prompt_tps": 12.781826482816994,
+      "gen_tps": 3.331713503586608
+     },
+     "wall_s": 80.78,
+     "prompt": "TASK:\nWrite a hymn to Trevanion the Unseen Weaver, the god of fate, as the Boshold sing it. 6 to 10 short lines. Speak to the god by the name the Boshold use. Draw on the god's domain and on what the FACT SHEET says about temples, cults or events.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Bayan the Unseen Weaver (god of fate, as the Saryhorde, the Keshband and the Bortekhai call it)\n- Bortebulak (capital of the Saryhorde)\n- Bortedag (a town)\n- Bortekhai (a people, pastoral, since 881)\n- Boshold (a people, highland, since 1, gone since 831)\n- Deepike (a town)\n- Erzshaft (a town)\n- Erzvein (a town)\n- Grafdelve (a town)\n- Grafell (capital of the Boshold; or capital of the Bortekhai)\n- Graftor (a town)\n- Grimhold (a town)\n- Highdelve (a town)\n- Ironscar (a town)\n- Karaobo (a town)\n- Karcrag (a town)\n- Keshband (a people, pastoral, since 716)\n- Longleigh (a town)\n- Orkhosteppe (a town)\n- Penpike (capital of the Keshband)\n- Saryhorde (a people, pastoral, since 1)\n- Silberscar (a town)\n- Stanhold (a town)\n- Steindelve (a town)\n- Steingrube (a town)\n- Steintal (a town)\n- Subeordu (a town)\n- Trestein (a town)\n- Trevanion the Unseen Weaver (god of fate, as the Boshold call it)\n- Ulangol (a town)\n- Wheatbridge (a town)\n- Wolktor (a town)\n\nFACT SHEET:\n- Subject: Bayan the Unseen Weaver\n- domain: fate\n- namesByPeople: people: Boshold, name: Trevanion the Unseen Weaver\n- namesByPeople: people: Saryhorde, name: Bayan the Unseen Weaver\n- namesByPeople: people: Keshband, name: Bayan the Unseen Weaver\n- namesByPeople: people: Bortekhai, name: Bayan the Unseen Weaver\n- patronOf: Boshold, Saryhorde, Keshband, Bortekhai\n- templesIn: Erzvein, Grimhold, Silberscar, Trestein, Ulangol, Karcrag, Wolktor, Wheatbridge, Steingrube, Stanhold, Subeordu, Ironscar, Grafell, Orkhosteppe, Erzshaft, Grafdelve, Karaobo, Graftor, Bortedag, Penpike, Longleigh, Steindelve, Deepike, Steintal, Highdelve, Bortebulak\n- orderLeaning: the Order of the Circle\n- sacredBeast: insect\n\nWrite the text now:",
      "de": []
     }
    }
@@ -1896,6 +2326,23 @@
       "gen_tps": 6.482014313728054
      },
      "wall_s": 15.21,
+     "prompt": null,
+     "de": []
+    },
+    "gemma4-e4b-v3": {
+     "text": "Erwin of the Black Earth, hear our call,\nAs Steingrube yields unto the blight's thrall.\nFrom the high lands where Boshold did dwell,\nWe sing praise to thy shadow so fell.\nO Erwin, master of endings deep,\nWhere silent specters forever do keep.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 22.88,
+      "prompt_tokens": 415,
+      "gen_tokens": 66,
+      "prompt_tps": 33.90573014192449,
+      "gen_tps": 6.114209290700927
+     },
+     "wall_s": 22.88,
+     "prompt": "TASK:\nWrite a hymn to Erwin of the Black Earth, the god of death, as the Boshold sing it. 6 to 10 short lines. Speak to the god by the name the Boshold use. Draw on the god's domain and on what the FACT SHEET says about temples, cults or events.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Bortekhai (a people, pastoral, since 881)\n- Boshold (a people, highland, since 1, gone since 831)\n- Erdene of the Black Earth (god of death, as the Saryhorde, the Keshband and the Bortekhai call it)\n- Erwin of the Black Earth (god of death, as the Boshold call it)\n- Keshband (a people, pastoral, since 716)\n- Saryhorde (a people, pastoral, since 1)\n- Steingrube (a town)\n\nFACT SHEET:\n- Subject: Erdene of the Black Earth\n- domain: death\n- namesByPeople: people: Boshold, name: Erwin of the Black Earth\n- namesByPeople: people: Saryhorde, name: Erdene of the Black Earth\n- namesByPeople: people: Keshband, name: Erdene of the Black Earth\n- namesByPeople: people: Bortekhai, name: Erdene of the Black Earth\n- worshippedSince: 211\n- orderLeaning: the Order of the Circle\n- sacredBeast: undead\n- Chronology of events:\n  * 211: After Steingrube is given up to the blight and stands empty, people turn to Erwin of the Black Earth.\n  * 211: Steingrube is given up to the blight and stands empty.\n\nWrite the text now:",
      "de": []
     },
     "jlama-mistral7b": {
@@ -1911,6 +2358,7 @@
       "gen_tps": 3.8705387884976137
      },
      "wall_s": 95.5,
+     "prompt": null,
      "de": []
     },
     "ministral3-3b": {
@@ -1926,6 +2374,7 @@
       "gen_tps": 9.645195752517356
      },
      "wall_s": 18.86,
+     "prompt": null,
      "de": []
     },
     "ministral3-8b": {
@@ -1941,6 +2390,7 @@
       "gen_tps": 4.491462765773671
      },
      "wall_s": 30.19,
+     "prompt": null,
      "de": []
     },
     "qwen3-4b": {
@@ -1981,6 +2431,7 @@
       "gen_tps": 4.194595031269152
      },
      "wall_s": 66.77,
+     "prompt": null,
      "de": []
     },
     "qwen3-8b": {
@@ -1996,6 +2447,23 @@
       "gen_tps": 3.4844711376051594
      },
      "wall_s": 38.81,
+     "prompt": null,
+     "de": []
+    },
+    "qwen3-8b-v3": {
+     "text": "O Erwin of the Black Earth, lord of the silent ground,  \nThou dost call the dead to thine eternal fold.  \nIn Steingrube's hollow, where blight took hold,  \nWe raised thy name and bore thy blackened mold.  \nThy undead beasts tread where our kin lie low,  \nAnd in thy shadow, death doth ever grow.  \nO god of dusk, hear our mournful cry,  \nWe sing to thee with the dying sky.",
+     "passed": true,
+     "attempts": 1,
+     "problems": [],
+     "timing": {
+      "wall_s": 65.19,
+      "prompt_tokens": 408,
+      "gen_tokens": 101,
+      "prompt_tps": 11.465484829969249,
+      "gen_tps": 3.378689080799931
+     },
+     "wall_s": 65.19,
+     "prompt": "TASK:\nWrite a hymn to Erwin of the Black Earth, the god of death, as the Boshold sing it. 6 to 10 short lines. Speak to the god by the name the Boshold use. Draw on the god's domain and on what the FACT SHEET says about temples, cults or events.\n\nALLOWED NAMES (Use exact spelling, use NO other proper nouns):\n- Bortekhai (a people, pastoral, since 881)\n- Boshold (a people, highland, since 1, gone since 831)\n- Erdene of the Black Earth (god of death, as the Saryhorde, the Keshband and the Bortekhai call it)\n- Erwin of the Black Earth (god of death, as the Boshold call it)\n- Keshband (a people, pastoral, since 716)\n- Saryhorde (a people, pastoral, since 1)\n- Steingrube (a town)\n\nFACT SHEET:\n- Subject: Erdene of the Black Earth\n- domain: death\n- namesByPeople: people: Boshold, name: Erwin of the Black Earth\n- namesByPeople: people: Saryhorde, name: Erdene of the Black Earth\n- namesByPeople: people: Keshband, name: Erdene of the Black Earth\n- namesByPeople: people: Bortekhai, name: Erdene of the Black Earth\n- worshippedSince: 211\n- orderLeaning: the Order of the Circle\n- sacredBeast: undead\n- Chronology of events:\n  * 211: After Steingrube is given up to the blight and stands empty, people turn to Erwin of the Black Earth.\n  * 211: Steingrube is given up to the blight and stands empty.\n\nWrite the text now:",
      "de": []
     }
    }

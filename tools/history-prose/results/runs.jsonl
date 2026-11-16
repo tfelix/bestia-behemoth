@@ -7,3 +7,5 @@
 {"label": "gemma4-e4b", "plan": "data/reading-plan.json", "wall_s": 270, "peak_rss_kb": 8054884}
 {"label": "gemma4-e4b", "plan": "data/world-plan.json", "wall_s": 2462, "peak_rss_kb": 11828972}
 {"label": "gemma4-e4b", "plan": "data/legend-plan.json", "wall_s": 841, "peak_rss_kb": 8603824}
+{"label": "gemma4-e4b-v3", "plan": "data/reading-plan.json", "wall_s": 406, "peak_rss_kb": 5259908}
+{"label": "qwen3-8b-v3", "plan": "data/reading-plan.json", "wall_s": 1239, "peak_rss_kb": 5679260}

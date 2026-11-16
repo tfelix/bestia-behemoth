@@ -230,6 +230,12 @@ data.texts.forEach((t, i) => {
     h.appendChild(badges);
     c.appendChild(h);
     c.appendChild(el('div', 'prose', r.text));
+    if (r.prompt) {
+      const pd = el('details', 'sheet');
+      pd.appendChild(el('summary', '', 'The v3 prompt as sent (system prompt in the Prompts section)'));
+      pd.appendChild(el('pre', '', r.prompt));
+      c.appendChild(pd);
+    }
     if (r.problems.length) {
       c.appendChild(el('div', 'problems', 'Validator found: ' + r.problems.map(p => p.type + ' "' + p.value + '"').join(', ')));
     }

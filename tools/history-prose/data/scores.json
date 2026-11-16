@@ -523,6 +523,178 @@
     "form": 5,
     "comment": "Uses the year 211, when the god was first worshipped. Good."
    }
+  ],
+  "gemma4-e4b-v3": [
+   {
+    "facts": 4,
+    "voice": 5,
+    "language": 5,
+    "form": 5,
+    "comment": "Every battle with year, battlefield and count; the Saryhorde start the war, as they did. '406 souls fell to our kin' is ambiguous."
+   },
+   {
+    "facts": 4,
+    "voice": 5,
+    "language": 5,
+    "form": 5,
+    "comment": "Every battle, field and count right. Calls the sacking of Bortedag a 'claim'."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Clean; assumes 'He'."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Clean."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Clean, right place and deed."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Both relics he held, right barrow."
+   },
+   {
+    "facts": 4,
+    "voice": 3,
+    "language": 4,
+    "form": 5,
+    "comment": "'He knew Karatau' is filler; the birth year comes last."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "All owners in order; no 'Hark'."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Correct and varied opening."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Correct, a catalogue's voice."
+   },
+   {
+    "facts": 5,
+    "voice": 5,
+    "language": 5,
+    "form": 5,
+    "comment": "A real hymn, in the Boshold's name for the god."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 4,
+    "form": 5,
+    "comment": "Good; one odd line ('silent specters forever do keep')."
+   }
+  ],
+  "qwen3-8b-v3": [
+   {
+    "facts": 2,
+    "voice": 4,
+    "language": 4,
+    "form": 5,
+    "comment": "Treats Chuluun as a town ('its walls breached'), says the Keshband struck first, 'the gods, Bayan'."
+   },
+   {
+    "facts": 3,
+    "voice": 5,
+    "language": 5,
+    "form": 5,
+    "comment": "Strong voice and every count, but calls Bortedag the Saryhorde's capital."
+   },
+   {
+    "facts": 5,
+    "voice": 3,
+    "language": 4,
+    "form": 5,
+    "comment": "Correct; 'he fell without heir' for a death of age."
+   },
+   {
+    "facts": 4,
+    "voice": 3,
+    "language": 2,
+    "form": 5,
+    "comment": "'Winddiadem his in the end' is broken English."
+   },
+   {
+    "facts": 4,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Puts the Casket of Ulantau in his grave; the sheet does not say so."
+   },
+   {
+    "facts": 4,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Calls the ring Farsignet one of his 'crowns'."
+   },
+   {
+    "facts": 3,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Says the Farsignet was made in 916; it passed to him then, made in 776."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Correct; 'the temple of their capital' is right for the Bortekhai."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Correct."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Correct."
+   },
+   {
+    "facts": 5,
+    "voice": 5,
+    "language": 5,
+    "form": 5,
+    "comment": "A real hymn."
+   },
+   {
+    "facts": 5,
+    "voice": 5,
+    "language": 4,
+    "form": 5,
+    "comment": "Good hymn; a forced rhyme ('blackened mold')."
+   }
   ]
  }
 }
