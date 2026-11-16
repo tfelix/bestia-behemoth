@@ -4,10 +4,12 @@ import net.bestia.worldgen.core.ArtifactKind
 import net.bestia.worldgen.core.BeastKind
 import net.bestia.worldgen.core.CultKind
 import net.bestia.worldgen.core.Domain
+import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.core.Sex
+import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.WorldBoss
 
 /**
@@ -283,6 +285,36 @@ object Names {
     "wound" -> "the ${pick(WOUND_EPITHETS, seed, WOUND_SALT)} ${pick(WOUND_NOUNS, seed, WOUND_NOUN_SALT)}"
 
     else -> "the $form of $of"
+  }
+
+  /** The form word [site] names a site of [kind] by. A shrine's follows its Order: [faction]. */
+  fun siteForm(kind: SiteKind, faction: Faction?): String {
+    return when (kind) {
+      SiteKind.RUIN -> "ruin"
+      SiteKind.ASH_RUIN -> "ash"
+      SiteKind.BATTLEFIELD -> "field"
+      SiteKind.TOMB -> "barrow"
+      SiteKind.MONUMENT -> "monument"
+      SiteKind.MINE -> "mine"
+      SiteKind.MONASTERY -> "abbey"
+      SiteKind.FORT -> "fort"
+      SiteKind.LIGHTHOUSE -> "light"
+      SiteKind.HOARD -> "hoard"
+      SiteKind.WOUND -> "wound"
+      SiteKind.SANCTUARY -> "sanctuary"
+      SiteKind.SEAL -> "seal"
+      SiteKind.LAIR -> "lair"
+      // Three forms from one kind. "The cairn of Ashford" and "the ward of Ashford" are different places to a
+      // player, and neither needed a `SiteKind` or a word pool of its own.
+      SiteKind.SHRINE -> when (faction) {
+        Faction.CHAOS -> "cairn"
+        Faction.ETERNITY -> "ward"
+        Faction.CIRCLE -> "circle"
+        // Unreachable: `raiseShrines` is the only producer and it always sets one. Named rather than
+        // thrown because a name is not worth failing a world's generation over.
+        null -> "shrine"
+      }
+    }
   }
 
   /**
