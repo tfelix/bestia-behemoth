@@ -7,6 +7,7 @@ import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.core.CivOrigin
 import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.Faction
+import net.bestia.worldgen.core.FeatureStore
 import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.ThreadKind
@@ -15,6 +16,7 @@ import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.history.Names
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.pipeline.WorldParams
+import java.io.File
 import java.util.Locale
 
 /**
@@ -48,6 +50,7 @@ import java.util.Locale
  * ./gradlew :worldgen:chronicle -Porders           # who is sworn to which Order, and what came of it
  * ./gradlew :worldgen:chronicle -Psweep=16         # one census line per seed, to compare before and after a change
  * ./gradlew :worldgen:chronicle -Pall              # everything, at length
+ * ./gradlew :worldgen:chronicle -Pfactsheet        # one JSON fact sheet per entity, for the prose spike
  * ```
  *
  * `-Porders` prints nothing on most worlds, and that is the answer rather than a gap: the Orders appear only
@@ -90,6 +93,11 @@ object ChronicleMain {
       return
     }
 
+    if (cli.has("--factsheet")) {
+      exportFactSheets(chronicle, generated.world.features, config.seed, cli.value("--factsheet"))
+      return
+    }
+
     val all = cli.has("--all")
     summary(chronicle)
 
@@ -108,6 +116,27 @@ object ChronicleMain {
     if (all || cli.has("--quests")) quests(chronicle)
 
     top(chronicle, cli.int("--top") ?: DEFAULT_TOP)
+  }
+
+  /**
+   * Writes one fact sheet per line to `build/factsheets/<seed>.jsonl`, and prints how many texts the world needs.
+   * See [FactSheets].
+   */
+  private fun exportFactSheets(chronicle: Chronicle, features: FeatureStore, seed: Long, target: String?) {
+    val sheets = FactSheets(chronicle, features)
+    val file = File(target?.takeIf { it.isNotBlank() } ?: "build/factsheets/$seed.jsonl")
+    file.parentFile?.mkdirs()
+    val all = sheets.all()
+    file.writeText(all.joinToString("\n", postfix = "\n") { Json.write(it) })
+
+    println()
+    println("${all.size} fact sheets written to ${file.absolutePath}")
+    all.groupingBy { it["kind"] }.eachCount().forEach { (kind, count) -> line("  $kind", "$count") }
+    println()
+    println("texts this world needs")
+    val counts = sheets.textCounts()
+    counts.forEach { (kind, count) -> line("  $kind", "$count") }
+    line("  total", "${counts.values.sum()}")
   }
 
   /**
@@ -659,6 +688,6 @@ object ChronicleMain {
 
   private val CHRONICLE_FLAGS = setOf(
     "--top", "--year", "--civs", "--artifacts", "--figures", "--dynasties", "--deities", "--cults", "--monsters",
-    "--sites", "--quests", "--orders", "--all", "--sweep"
+    "--sites", "--quests", "--orders", "--all", "--sweep", "--factsheet"
   )
 }

@@ -396,6 +396,7 @@ tasks.register('town', JavaExec) {
  * ./gradlew :worldgen:chronicle -Pyear=430       # the world as it stood then
  * ./gradlew :worldgen:chronicle -Pquests         # unresolved threads worth turning into quests
  * ./gradlew :worldgen:chronicle -Psweep=16       # one census line per seed, to compare before and after a change
+ * ./gradlew :worldgen:chronicle -Pfactsheet       # one JSON fact sheet per entity, for the prose spike
  * ```
  */
 tasks.register('chronicle', JavaExec) {
@@ -419,6 +420,7 @@ tasks.register('chronicle', JavaExec) {
     if (cli('orders') != null) args '--orders'
     if (cli('all') != null) args '--all'
     if (cli('sweep') != null) args '--sweep', cli('sweep')
+    if (cli('factsheet') != null) args '--factsheet', cli('factsheet')
 }
 
 /**
