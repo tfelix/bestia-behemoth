@@ -4266,7 +4266,8 @@ internal class HistorySim(
       },
       figures = people.map {
         FigureRecord(
-          index = it.index, nameSeed = it.nameSeed, role = it.role, civ = it.civ,
+          index = it.index, nameSeed = it.nameSeed, role = it.role,
+          sex = Names.personSex(it.nameSeed, civs[it.civ].cultureIndex), civ = it.civ,
           homeSettlement = it.home, birthYear = it.birth, deathYear = it.death,
           restingSite = it.resting, parent = it.parent, dynasty = it.dynasty, spouse = it.spouse, sworn = it.sworn
         )

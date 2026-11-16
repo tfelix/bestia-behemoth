@@ -577,6 +577,8 @@ data class FigureRecord(
   val index: Int,
   val nameSeed: Long,
   val role: FigureRole,
+  /** Follows from the given name: `Names.personSex`. */
+  val sex: Sex,
   val civ: Int,
   val homeSettlement: Int,
   val birthYear: Int,
