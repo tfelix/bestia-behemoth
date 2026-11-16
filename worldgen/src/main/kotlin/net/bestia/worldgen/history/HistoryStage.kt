@@ -313,7 +313,7 @@ class HistoryStage(
             .channel(HistoryChannels.WALL_YEAR) { record.wallYear.toDouble() }
             .channel(HistoryChannels.WALL_POPULATION) { record.wallPopulation.toDouble() }
             .channel(HistoryChannels.NAME_SEED) { record.nameSeed.toDouble() }
-            .channel(HistoryChannels.OLD_NAME_SEED) { record.oldNameSeed.toDouble() }
+            .channel(HistoryChannels.OLD_NAME_SEED) { (record.formerNames.lastOrNull()?.seed ?: 0L).toDouble() }
             .channel(HistoryChannels.TECHNOLOGY) { civ?.technology ?: 0.0 }
             .channel(HistoryChannels.Faction) { (civ?.sworn?.ordinal ?: -1).toDouble() }
             .channel(HistoryChannels.PATRON) { record.patron.toDouble() }

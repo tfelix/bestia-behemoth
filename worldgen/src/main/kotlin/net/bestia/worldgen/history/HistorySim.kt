@@ -20,6 +20,7 @@ import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.FigureRecord
 import net.bestia.worldgen.core.FigureRole
+import net.bestia.worldgen.core.FormerName
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.HistoryEvent
 import net.bestia.worldgen.core.LairKind
@@ -2329,19 +2330,23 @@ internal class HistorySim(
     if (roll(year.toLong(), target.toLong(), CONQUEST_SALT) < CONQUEST_CHANCE) {
       transferTown(town, civs[loser], civs[winner])
       relocateCapital(civs[loser])
-      town.oldNameSeed = town.nameSeed
-      town.nameSeed = Names.seedOf(worldSeed, PLACE_NAME_SALT, target.toLong(), year.toLong())
+      rename(town, Names.seedOf(worldSeed, PLACE_NAME_SALT, target.toLong(), year.toLong()), year)
 
       val conquest = log(
         year, EventKind.CONQUEST,
         listOf(Actor(ActorType.SETTLEMENT, target), Actor(ActorType.CIV, winner)),
         town.facts.position, listOf(sack),
-        "${nameOf(town)} passes to the ${civName(civs[winner])}, who rename it from " +
-            Names.place(town.oldNameSeed, civs[loser].cultureIndex)
+        "${nameOf(town)} passes to the ${civName(civs[winner])}, who rename it from ${nameOf(town.formerNames.last())}"
       )
       plunder(town, civs[winner], year, conquest)
       war.decided = true
     }
+  }
+
+  private fun rename(town: Town, seed: Long, year: Int) {
+    val since = town.formerNames.lastOrNull()?.until ?: town.founded
+    town.formerNames.add(FormerName(town.nameSeed, town.facts.cultureIndex, since, year))
+    town.nameSeed = seed
   }
 
   private fun makePeace(war: War, year: Int) {
@@ -4290,7 +4295,8 @@ internal class HistorySim(
           population = town.population.toInt(), wealth = town.wealth.coerceIn(0.0, 1.0),
           ownerCiv = town.owner, foundingCiv = town.foundingCiv, timesSacked = town.sacked,
           wallYear = town.wallYear, wallPopulation = town.wallPopulation,
-          nameSeed = town.nameSeed, oldNameSeed = town.oldNameSeed, ruinCause = town.ruinCause,
+          nameSeed = town.nameSeed, nameCulture = town.facts.cultureIndex, formerNames = town.formerNames.toList(),
+          ruinCause = town.ruinCause,
           sites = town.sites.toList(), patron = town.patron
         )
       },
@@ -4437,6 +4443,8 @@ internal class HistorySim(
 
   private fun nameOf(town: Town) = Names.place(town.nameSeed, town.facts.cultureIndex)
 
+  private fun nameOf(former: FormerName) = Names.place(former.seed, former.cultureIndex)
+
   private fun civName(civ: Civ) = Names.civ(civ.nameSeed, civ.cultureIndex)
 
   private fun houseName(house: Dynasty) = Names.house(house.nameSeed, civs[house.civ].cultureIndex)
@@ -4528,7 +4536,7 @@ internal class HistorySim(
      */
     var wardYear = 0
     var nameSeed = 0L
-    var oldNameSeed = 0L
+    val formerNames = ArrayList<FormerName>()
     var ruinCause: EventKind? = null
     val sites = ArrayList<Int>()
 

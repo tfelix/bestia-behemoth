@@ -2,6 +2,7 @@ package net.bestia.worldgen.history
 
 import net.bestia.worldgen.civ.Culture
 import net.bestia.worldgen.civ.SettlementTier
+import net.bestia.worldgen.core.Actor
 import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.core.CivOrigin
@@ -344,6 +345,30 @@ class HistorySimTest {
     for ((world, event) in plundered) {
       val relic = world.artifacts[event.actors.first { it.type == ActorType.ARTIFACT }.index]
       assertTrue(relic.homeTemple >= 0, "a plundered artifact has no home to want it back")
+    }
+  }
+
+  @Test
+  fun `a conquered town keeps every name it had, as its event lines said it`() {
+    val worlds = (1L..16L).map { simulate(longFront(), FRONT_PARAMS, seed = it) }
+    val renamed = worlds.flatMap { world ->
+      world.settlements.filter { it.formerNames.isNotEmpty() }.map { world to it }
+    }
+
+    assertTrue(renamed.any { (_, town) -> town.formerNames.size >= 2 }, "no town was conquered twice on any seed")
+    for ((world, town) in renamed) {
+      assertEquals(town.foundedYear, town.formerNames.first().since)
+      val events = world.eventsOf(Actor(ActorType.SETTLEMENT, town.index))
+      for (conquest in events.filter { it.kind == EventKind.CONQUEST }) {
+        val former = town.formerNames.first { it.until == conquest.year }
+        val oldName = Names.place(former.seed, former.cultureIndex)
+        assertTrue(conquest.detail.endsWith("rename it from $oldName"), "${conquest.detail} should end in $oldName")
+      }
+
+      val firstName = Names.place(town.formerNames.first().seed, town.formerNames.first().cultureIndex)
+      events.firstOrNull { it.kind == EventKind.SETTLEMENT_FOUNDED }?.let {
+        assertTrue(firstName in it.detail, "${it.detail} should name $firstName")
+      }
     }
   }
 

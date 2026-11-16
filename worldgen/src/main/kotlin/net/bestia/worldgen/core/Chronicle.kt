@@ -502,8 +502,10 @@ data class SettlementRecord(
   /** Population when the walls went up, which is the extent they were built to enclose. */
   val wallPopulation: Int,
   val nameSeed: Long,
-  /** Name before the last conquest, or 0. NPCs of the old culture still use it. */
-  val oldNameSeed: Long,
+  /** The culture `Names.place` renders [nameSeed] in. The site's own, so a conquest does not change it. */
+  val nameCulture: Int,
+  /** Every name before [nameSeed], oldest first. NPCs of a conquered people still use theirs. */
+  val formerNames: List<FormerName>,
   /** What emptied it, for a ruin. */
   val ruinCause: EventKind?,
   /** Sites - tombs, battlefields, monuments - that belong to this settlement. */
@@ -549,9 +551,8 @@ data class CivRecord(
    * thread through a history rather than the subject of one.
    *
    * The *current* Order, after any schism. What it was before, and when it changed, is in the log as
-   * [EventKind.ORDER_SWORN] and [EventKind.ORDER_SCHISM] - which is the same choice
-   * [SettlementRecord.oldNameSeed] makes for a conquered name, and for the same reason: a record holds the
-   * present, and the log holds how it got there.
+   * [EventKind.ORDER_SWORN] and [EventKind.ORDER_SCHISM]: a record holds the present, and the log holds how it
+   * got there.
    */
   val sworn: Faction? = null,
 
