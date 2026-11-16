@@ -9,9 +9,14 @@ jlama/. Each result line holds the text, every attempt, the validator result and
 import argparse
 import json
 import time
+import os
 import urllib.request
+import zlib
 
 import validator
+
+# Off by default, so the reading set and the world run stay reproducible. PROSE_VARY=1 turns it on.
+VARY = os.environ.get("PROSE_VARY") == "1"
 
 SYSTEM = """You write short texts that players find inside a fantasy game world: books, grave stones, legends, prayers.
 Rules:
@@ -65,6 +70,25 @@ TASKS = {
     ),
 }
 
+# Several framings per text kind, picked by the entity's ref so a text keeps its framing on a rerun. One framing
+# per kind made Gemma 4 E4B open 31 of 32 legends with the same line.
+FRAMINGS = {
+    "legend": [
+        "an old storyteller tells it at the fire",
+        "a temple keeper writes it in the temple's record of relics",
+        "a traveller notes it down after hearing it in an inn",
+        "a scholar writes it in a catalogue of famous things",
+    ],
+    "epitaph": [
+        "carved on the grave",
+        "cut into the stone above the barrow door",
+        "written on a weathered marker by the grave",
+    ],
+}
+# The phrase in TASKS that a framing replaces.
+DEFAULT_FRAMING = {"legend": "as an old storyteller tells it at the fire", "epitaph": "carved on the grave"}
+NO_FORMULA = " Do not open with 'Hark' or with a call to listen; start with the subject itself."
+
 DROP_KEYS = {"ref", "names", "years", "id"}
 
 
@@ -97,9 +121,20 @@ def compact(value, indent=0):
     return lines
 
 
+def framing_for(job):
+    options = FRAMINGS.get(job["type"])
+    if not options or not VARY:
+        return None
+    return options[zlib.crc32(job["ref"].encode()) % len(options)]
+
+
 def prompt_for(job, sheet):
     fields = {"name": sheet["name"], **job.get("args", {})}
     task = TASKS[job["type"]].format(**fields)
+    framing = framing_for(job)
+    if framing:
+        prefix = "as " if job["type"] == "legend" else ""
+        task = task.replace(DEFAULT_FRAMING[job["type"]], prefix + framing) + NO_FORMULA
     facts = "\n".join(compact(sheet))
     return f"FACT SHEET\n{facts}\n\nTASK\n{task}"
 

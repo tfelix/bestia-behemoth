@@ -7,6 +7,10 @@ import argparse
 import json
 import subprocess
 
+import prose
+import translate
+import validator
+
 MODEL_NAMES = {
     "qwen3-8b": "Qwen3-8B · llama.cpp",
     "ministral3-8b": "Ministral-3-8B · llama.cpp",
@@ -15,7 +19,7 @@ MODEL_NAMES = {
     "gemma4-e4b": "Gemma 4 E4B · llama.cpp",
     "jlama-mistral7b": "Mistral-7B v0.3 · Jlama",
 }
-ORDER = ["qwen3-8b", "ministral3-8b", "qwen3-4b", "ministral3-3b", "gemma4-e4b", "jlama-mistral7b"]
+ORDER = ["gemma4-e4b", "qwen3-8b", "ministral3-8b", "qwen3-4b", "ministral3-3b", "jlama-mistral7b"]
 KIND_LABELS = {"book": "Chronicle book", "epitaph": "Epitaph", "legend": "Artifact legend", "hymn": "Hymn"}
 
 
@@ -74,7 +78,8 @@ def main():
                         "comment": texts.get("de_comments", {}).get(f"{m}/{g['how']}")} for g in r["de"]],
             }
         heading = entry["title"].split(": ", 1)[1]
-        task = ""
+        task = "Task given to every model: " + prose.TASKS[job["type"]].format(
+            **{"name": heading.split(" (told by")[0], **job.get("args", {})})
         page_texts.append({
             "title": entry["title"], "heading": heading, "kindLabel": KIND_LABELS.get(job["type"], job["type"]),
             "sheet": bundle["sheets"][job["ref"]], "task": task, "by": by,
@@ -94,6 +99,21 @@ def main():
             {"key": "score", "label": "Score /5", "num": True},
         ],
         "summary": summary, "texts": page_texts,
+        "prompts": [
+            {"title": "System prompt (every text)", "text": prose.SYSTEM},
+            *[{"title": f"Task: {KIND_LABELS.get(kind, kind)}", "text": template}
+              for kind, template in prose.TASKS.items() if kind in KIND_LABELS],
+            {"title": "User message layout",
+             "text": "FACT SHEET\n<the fact sheet, as shown under each text>\n\nTASK\n<the task above, with names filled in>"},
+            {"title": "Retry (added to the user message after a rejected try)",
+             "text": "AVOID\n" + validator.feedback([
+                 {"type": "name", "value": "Eldoria"}, {"type": "number", "value": "952"},
+                 {"type": "case", "value": "keshband"}, {"type": "lowercase", "value": "the"}])
+                     + "\n\n(The rejected text itself is not sent back: small models copied it word for word.)"},
+            {"title": "Translation system prompt (LLM to German)", "text": translate.LLM_SYSTEM},
+            {"title": "Sampling", "text": "temperature 0.7, top_p 0.9, max 400 new tokens; translation: temperature 0.2. "
+                                          "Qwen3: thinking turned off (enable_thinking: false)."},
+        ],
     }
     page = open(args.template, encoding="utf-8").read()
     payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")

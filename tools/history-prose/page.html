@@ -61,6 +61,7 @@ section.text { display: grid; gap: 14px; scroll-margin-top: 16px; }
 .kind { font: 500 12px/1 var(--font-data); color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
 details.sheet { border: 1px dashed var(--line); border-radius: 6px; padding: 8px 12px; }
 details.sheet summary { cursor: pointer; font-size: 13px; color: var(--muted); }
+pre.prompt { font: 12.5px/1.55 var(--font-data); white-space: pre-wrap; margin: 0; }
 details.sheet pre { font: 12px/1.5 var(--font-data); white-space: pre-wrap; margin: 10px 0 0; color: var(--fg); }
 .cards { display: grid; gap: 12px; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; display: grid; gap: 10px; min-width: 0; }
@@ -93,6 +94,12 @@ footer { color: var(--muted); font-size: 13px; display: grid; gap: 6px; }
   <nav class="toc" id="toc"></nav>
 
   <main id="texts" style="display:grid;gap:40px"></main>
+
+  <section class="text" id="prompts">
+    <div class="kind">How the texts were asked for</div>
+    <h2>Prompts</h2>
+    <div class="cards" id="prompt-list"></div>
+  </section>
 
   <footer id="footer"></footer>
 </div>
@@ -139,12 +146,22 @@ data.models.forEach(m => {
   filters.appendChild(b);
 });
 
+// The prompts, so the reader can judge what the models were told.
+const promptList = document.getElementById('prompt-list');
+(data.prompts || []).forEach(p => {
+  const c = el('article', 'card');
+  c.appendChild(el('h3', '', p.title));
+  c.appendChild(el('pre', 'prompt', p.text));
+  promptList.appendChild(c);
+});
+
 // One section per text.
 const toc = document.getElementById('toc');
 const main = document.getElementById('texts');
 data.texts.forEach((t, i) => {
   const id = 'text-' + (i + 1);
   const a = el('a', '', t.title); a.href = '#' + id; toc.appendChild(a);
+  if (i === data.texts.length - 1) { const pa = el('a', '', 'Prompts'); pa.href = '#prompts'; toc.appendChild(pa); }
 
   const s = el('section', 'text'); s.id = id;
   s.appendChild(el('div', 'kind', t.kindLabel));

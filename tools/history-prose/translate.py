@@ -69,11 +69,21 @@ def main():
     ap.add_argument("--only", default="")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--any", action="store_true", help="also rejected texts, for a model with no valid one")
+    ap.add_argument("--per-kind", type=int, default=0, help="take at most this many texts of each kind")
     args = ap.parse_args()
 
     argos = Argos(args.argos, os.path.expanduser("~/llm-spike/argos")) if args.how == "argos" else None
     records = [json.loads(l) for l in open(args.inp, encoding="utf-8")]
     records = [r for r in records if (r["passed"] or args.any) and (not args.only or r["job"]["type"] == args.only)]
+    if args.per_kind:
+        taken = {}
+        mixed = []
+        for r in records:
+            kind = r["job"]["type"]
+            if taken.get(kind, 0) < args.per_kind:
+                taken[kind] = taken.get(kind, 0) + 1
+                mixed.append(r)
+        records = mixed
     if args.limit:
         records = records[: args.limit]
 
