@@ -12,6 +12,7 @@ import net.bestia.zone.casting.net.ActivateSkillCMSG
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.ecs.CarryCapacity
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.GroundItemStack
 import net.bestia.zone.item.ecs.Inventory
@@ -174,9 +175,10 @@ class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
     val before = amountOf(itemId)
     var plain = 0
 
-    // Half of all blocks pay a piece more, so a few swings are as good as certain to show one.
+    // Half of all blocks pay a piece more, so a few swings are as good as certain to show one - if each swing reaches
+    // ore. A vein can be a single voxel, so every swing aims at the next voxel of the same ore.
     for (swing in 0 until RICH_VEINS_SWINGS) {
-      val at = spot + Vec3L(0, 0, 1 - swing.toLong())
+      val at = if (swing == 0) spot else oreSpots.find(positionOf(miner())) { it.itemId == itemId }
       plain += world.read { oreInBrush.scan(PickaxeMining.ballAt(at)) }.filter { it.stack.itemId == itemId }.sumOf { it.stack.amount }
       standNextTo(at)
       client.sendMessage(DigCMSG(accountId, at))
@@ -245,8 +247,12 @@ class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
   }
 
   /** Ore no untrained miner may break, so that both scenarios aim at the same kind of rock. */
+  /** Ore a novice must be trained for, and light enough that a rich voxel of it still fits the bag. */
   private fun hardOre(): Vec3L {
-    return oreSpots.find(positionOf(miner())) { stack -> (items.baseLevelOf(stack.itemId) ?: 0) > UNTRAINED_CAP }
+    val room = world.read { getOrThrow(miner(), CarryCapacity::class).max - getOrThrow(miner(), Inventory::class).totalWeight }
+    return oreSpots.find(positionOf(miner())) { stack ->
+      (items.baseLevelOf(stack.itemId) ?: 0) > UNTRAINED_CAP && (items.templateOf(stack.itemId)?.weight ?: 0) * stack.amount <= room
+    }
   }
 
   /** Inside the rock is fine: the server checks reach, not whether the miner could stand there. */
