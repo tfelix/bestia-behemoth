@@ -27,6 +27,39 @@ def overall(s):
     return round((2 * s["facts"] + s["voice"] + s["language"] + s["form"]) / 5 * 2) / 2
 
 
+def book_v2():
+    """The war chronicles with the revised book and translation prompts, next to the original books."""
+    import book_prompt_v2
+    import os
+    notes = json.load(open("data/book-v2-notes.json", encoding="utf-8"))
+    rows = []
+    for label in ("gemma4-e4b", "qwen3-8b"):
+        path = f"results/{label}-book-v2.jsonl"
+        if not os.path.exists(path):
+            continue
+        old = {r["job"]["args"]["side"]: r for r in map(json.loads, open(f"results/{label}-reading.jsonl"))
+               if r["job"]["type"] == "book"}
+        for r in map(json.loads, open(path, encoding="utf-8")):
+            key = f"{label}/{r['side']}"
+            rows.append({
+                "model": MODEL_NAMES[label], "side": r["side"],
+                "old": old[r["side"]]["text"], "new": r["text"], "attempts": len(r["attempts"]),
+                "problems": [p for a in r["attempts"] for p in a["problems"]],
+                "comment": notes["comments"].get(key),
+                "de_v2": r["de_v2"], "de_v2_comment": notes["comments"].get(key + "/de_v2"),
+                "de_v1": r["de_v1"], "de_v1_comment": notes["comments"].get(key + "/de_v1"),
+            })
+    return {
+        "intro": notes["intro"], "summary": notes["summary"], "rows": rows,
+        "prompts": [
+            {"title": "Revised system prompt", "text": book_prompt_v2.SYSTEM_V2},
+            {"title": "Revised task (user message: FACT SHEET, then this TASK)", "text": book_prompt_v2.TASK_V2},
+            {"title": "Revised German localisation prompt (the whole user message, no system prompt)",
+             "text": book_prompt_v2.TRANSLATE_V2},
+        ],
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--bundle", required=True)
@@ -86,6 +119,7 @@ def main():
         })
 
     data = {
+        "experiment": book_v2(),
         "models": models, "modelNames": MODEL_NAMES,
         "lead": texts["lead"], "verdict": texts["verdict"], "footer": texts["footer"],
         "summaryColumns": [

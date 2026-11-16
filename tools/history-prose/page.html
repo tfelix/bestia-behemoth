@@ -93,6 +93,15 @@ footer { color: var(--muted); font-size: 13px; display: grid; gap: 6px; }
   <div class="filters" id="filters"><span>Show:</span></div>
   <nav class="toc" id="toc"></nav>
 
+  <section class="text" id="prompt-test">
+    <div class="kind">Prompt test</div>
+    <h2>War chronicles with revised prompts</h2>
+    <p class="note" id="exp-intro"></p>
+    <div class="verdict" id="exp-summary"></div>
+    <div class="cards" id="exp-rows"></div>
+    <details class="sheet"><summary>The revised prompts</summary><div class="cards" id="exp-prompts" style="margin-top:10px"></div></details>
+  </section>
+
   <main id="texts" style="display:grid;gap:40px"></main>
 
   <section class="text" id="prompts">
@@ -146,6 +155,42 @@ data.models.forEach(m => {
   filters.appendChild(b);
 });
 
+// The prompt test: old book, new book, and the new book in German with the new and the old translation prompt.
+const exp = data.experiment;
+if (exp && exp.rows.length) {
+  document.getElementById('exp-intro').textContent = exp.intro;
+  document.getElementById('exp-summary').innerHTML = exp.summary;
+  const rows = document.getElementById('exp-rows');
+  exp.rows.forEach(r => {
+    const c = el('article', 'card');
+    const h = el('div', 'card-head');
+    h.appendChild(el('h3', '', r.model + ' · told by the ' + r.side));
+    const b = el('div', 'badges');
+    b.appendChild(el('span', 'badge ' + (r.attempts === 1 ? 'ok' : 'warn'), r.attempts === 1 ? 'valid at once' : 'valid after ' + r.attempts + ' tries'));
+    h.appendChild(b);
+    c.appendChild(h);
+    c.appendChild(el('div', 'kind', 'New prompt'));
+    c.appendChild(el('div', 'prose', r.new));
+    if (r.problems.length) c.appendChild(el('div', 'problems', 'Validator found on earlier tries: ' + r.problems.map(p => p.type + ' "' + p.value + '"').join(', ')));
+    if (r.comment) c.appendChild(el('p', 'note', r.comment));
+    const old = el('details', 'sheet');
+    old.appendChild(el('summary', '', 'The same book with the original prompt'));
+    old.appendChild(el('div', 'prose', r.old));
+    c.appendChild(old);
+    c.appendChild(el('div', 'kind', 'German · new localisation prompt'));
+    c.appendChild(el('div', 'prose de', r.de_v2));
+    if (r.de_v2_comment) c.appendChild(el('p', 'note', r.de_v2_comment));
+    c.appendChild(el('div', 'kind', 'German · old translation prompt, same English text'));
+    c.appendChild(el('div', 'prose de', r.de_v1));
+    if (r.de_v1_comment) c.appendChild(el('p', 'note', r.de_v1_comment));
+    rows.appendChild(c);
+  });
+  const ep = document.getElementById('exp-prompts');
+  exp.prompts.forEach(p => { const c = el('article', 'card'); c.appendChild(el('h3', '', p.title)); c.appendChild(el('pre', 'prompt', p.text)); ep.appendChild(c); });
+} else {
+  document.getElementById('prompt-test').hidden = true;
+}
+
 // The prompts, so the reader can judge what the models were told.
 const promptList = document.getElementById('prompt-list');
 (data.prompts || []).forEach(p => {
@@ -160,6 +205,7 @@ const toc = document.getElementById('toc');
 const main = document.getElementById('texts');
 data.texts.forEach((t, i) => {
   const id = 'text-' + (i + 1);
+  if (i === 0 && data.experiment && data.experiment.rows.length) { const ea = el('a', '', 'Prompt test: war chronicles v2'); ea.href = '#prompt-test'; toc.appendChild(ea); }
   const a = el('a', '', t.title); a.href = '#' + id; toc.appendChild(a);
   if (i === data.texts.length - 1) { const pa = el('a', '', 'Prompts'); pa.href = '#prompts'; toc.appendChild(pa); }
 
