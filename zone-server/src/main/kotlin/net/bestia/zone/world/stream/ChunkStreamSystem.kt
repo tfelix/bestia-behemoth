@@ -140,7 +140,6 @@ class ChunkStreamSystem(
 
   private fun applyCarves(world: World) {
     val carves = inbox.drainCarves()
-    if (carves.isEmpty()) return
 
     for (carve in carves) {
       // Localisation and the world seam are `ChunkService.carve`'s business - a brush is a shape in world
@@ -157,6 +156,7 @@ class ChunkStreamSystem(
       }
     }
 
+    // Every tick, with or without a carve: one stack goes out per tick, so the ore and the lump beside it need two.
     carveYield.handOut(world)
   }
 
