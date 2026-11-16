@@ -326,7 +326,7 @@ object ChronicleMain {
       val died = if (figure.deathYear == 0) "living" else "d. ${figure.deathYear}"
       println(
         "  ${Names.person(figure.nameSeed, civ.cultureIndex, figure.role).padEnd(30)} " +
-            "${figure.role.name.lowercase().padEnd(9)} " +
+            "${figure.role.name.lowercase().padEnd(9)} ${figure.sex.name.lowercase().padEnd(6)} " +
             "b. ${figure.birthYear}, $died, ${Names.civ(civ.nameSeed, civ.cultureIndex)}" +
             if (figure.restingSite >= 0) ", buried in a barrow" else ""
       )

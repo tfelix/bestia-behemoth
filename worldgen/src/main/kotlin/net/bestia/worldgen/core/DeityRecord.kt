@@ -1,6 +1,9 @@
 package net.bestia.worldgen.core
 
-/** One god of this world. Each people renders [nameSeed] in its own style, so one god has many names. */
+/**
+ * One god of this world. Each people renders [nameSeed] in its own style, so one god has many names. It has no
+ * one sex for the same reason: each name brings its own, `Names.deitySex`.
+ */
 data class DeityRecord(
   val index: Int,
   val domain: Domain,
