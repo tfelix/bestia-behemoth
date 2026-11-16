@@ -7,15 +7,14 @@ import net.bestia.worldgen.history.Names
  * What the chronicle's entities are called, and in whose idiom.
  *
  * The join between a record's name seed and the culture that named it is small but easy to get subtly
- * wrong - a ruin keeps the name the people who built it gave it, not the name of whoever holds the
- * ground now - so it lives in one place rather than at each call site.
+ * wrong, so it lives in one place rather than at each call site.
  */
 object ChronicleNames {
 
   fun placeOf(chronicle: Chronicle, settlement: Int): String? {
     val record = chronicle.settlements.getOrNull(settlement) ?: return null
 
-    return Names.place(record.nameSeed, cultureOfSettlement(chronicle, settlement))
+    return Names.place(record.nameSeed, record.nameCulture)
   }
 
   fun civOf(chronicle: Chronicle, civ: Int): String? {
@@ -67,10 +66,9 @@ object ChronicleNames {
   }
 
   /**
-   * Whose idiom names a town: whoever holds it, or whoever founded it once nobody does.
+   * Whose idiom the people of a town speak: whoever holds it, or whoever founded it once nobody does.
    *
-   * A ruin keeps the name the people who built it gave it, which is the whole reason `foundingCiv`
-   * outlives `ownerCiv` on the record.
+   * Not the idiom of the town's own name, which is [net.bestia.worldgen.core.SettlementRecord.nameCulture].
    */
   fun cultureOfSettlement(chronicle: Chronicle, settlement: Int): Int {
     val record = chronicle.settlements.getOrNull(settlement) ?: return -1
