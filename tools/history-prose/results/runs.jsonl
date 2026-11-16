@@ -1,0 +1,9 @@
+{"label": "qwen3-4b", "plan": "data/reading-plan.json", "wall_s": 522, "peak_rss_kb": 5776204}
+{"label": "qwen3-8b", "plan": "data/reading-plan.json", "wall_s": 549, "peak_rss_kb": 9727432}
+{"label": "ministral3-8b", "plan": "data/reading-plan.json", "wall_s": 912, "peak_rss_kb": 10080136}
+{"label": "qwen3-4b", "plan": "data/reading-plan.json", "wall_s": 802, "peak_rss_kb": 5787792}
+{"label": "jlama-mistral7b", "plan": "data/reading-plan.json", "wall_s": 3627, "peak_rss_kb": 10869748}
+{"label": "ministral3-3b", "plan": "data/reading-plan.json", "wall_s": 482, "peak_rss_kb": 4729584}
+{"label": "gemma4-e4b", "plan": "data/reading-plan.json", "wall_s": 270, "peak_rss_kb": 8054884}
+{"label": "gemma4-e4b", "plan": "data/world-plan.json", "wall_s": 2462, "peak_rss_kb": 11828972}
+{"label": "gemma4-e4b", "plan": "data/legend-plan.json", "wall_s": 841, "peak_rss_kb": 8603824}

@@ -1,0 +1,528 @@
+{
+ "rubric": {
+  "facts": "1-5. Beyond the validator: are winners, causes, owners, places and order right? Invented events, titles or calendars count against it.",
+  "voice": "1-5. Does it sound like the text kind and the requested speaker: a biased scribe, a grave stone, a storyteller, a prayer?",
+  "language": "1-5. Grammar, natural old-style English, capitals, no modern words, no markup.",
+  "form": "1-5. Length and shape as asked.",
+  "overall": "(2 x facts + voice + language + form) / 5. Facts count twice: a wrong fact in a lore text misleads players."
+ },
+ "scored_by": "Claude (the spike's author), on 2026-11-16. Read the texts yourself; the scores are a first opinion.",
+ "scores": {
+  "qwen3-4b": [
+   {
+    "facts": 3,
+    "voice": 1,
+    "language": 2,
+    "form": 3,
+    "comment": "Lists the event lines, with no bias. Says the Keshband struck first, but the Saryhorde declared the war. Starts in lowercase."
+   },
+   {
+    "facts": 4,
+    "voice": 3,
+    "language": 2,
+    "form": 4,
+    "comment": "Some bias. Every sentence starts in lowercase, so the validator rejected it."
+   },
+   {
+    "facts": 5,
+    "voice": 2,
+    "language": 2,
+    "form": 3,
+    "comment": "Reads like a list of notes, not a grave stone."
+   },
+   {
+    "facts": 5,
+    "voice": 2,
+    "language": 3,
+    "form": 4,
+    "comment": "Correct but bare."
+   },
+   {
+    "facts": 4,
+    "voice": 3,
+    "language": 3,
+    "form": 5,
+    "comment": "'He slayed' is wrong English."
+   },
+   {
+    "facts": 5,
+    "voice": 3,
+    "language": 4,
+    "form": 4,
+    "comment": "Correct, plain."
+   },
+   {
+    "facts": 3,
+    "voice": 3,
+    "language": 3,
+    "form": 4,
+    "comment": "'Rests where he fell' is wrong: Temujin was buried in a barrow."
+   },
+   {
+    "facts": 4,
+    "voice": 3,
+    "language": 4,
+    "form": 4,
+    "comment": "Leaves out Gerel the Burned. Otherwise in order."
+   },
+   {
+    "facts": 4,
+    "voice": 3,
+    "language": 4,
+    "form": 5,
+    "comment": "Vague filler: 'used it in his great endeavors'."
+   },
+   {
+    "facts": 4,
+    "voice": 3,
+    "language": 1,
+    "form": 4,
+    "comment": "All lowercase, rejected after 3 tries."
+   },
+   {
+    "facts": 5,
+    "voice": 3,
+    "language": 3,
+    "form": 4,
+    "comment": "A list of facts set as lines."
+   },
+   {
+    "facts": 4,
+    "voice": 3,
+    "language": 2,
+    "form": 4,
+    "comment": "All lowercase, rejected after 3 tries."
+   }
+  ],
+  "qwen3-8b": [
+   {
+    "facts": 3,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Good bias. But calls Bortedag 'a city that would not fall', and it was sacked three times. Says the Keshband struck first."
+   },
+   {
+    "facts": 4,
+    "voice": 5,
+    "language": 4,
+    "form": 5,
+    "comment": "Strong biased voice. 'The Lord's grace' invents a religion the world does not have."
+   },
+   {
+    "facts": 4,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Clean. Assumes Tsetseg is a man; the chronicle has no sex for figures."
+   },
+   {
+    "facts": 4,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Clean and short."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 3,
+    "form": 5,
+    "comment": "'Slain Skarn' is broken grammar."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 5,
+    "form": 4,
+    "comment": "Correct, a bit short."
+   },
+   {
+    "facts": 5,
+    "voice": 3,
+    "language": 5,
+    "form": 5,
+    "comment": "Correct, plain."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "All owners in order, a good closing line."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Correct and readable."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Correct and readable."
+   },
+   {
+    "facts": 5,
+    "voice": 5,
+    "language": 4,
+    "form": 5,
+    "comment": "Sounds like a hymn. One forced rhyme."
+   },
+   {
+    "facts": 5,
+    "voice": 5,
+    "language": 5,
+    "form": 5,
+    "comment": "The best hymn of the set."
+   }
+  ],
+  "ministral3-8b": [
+   {
+    "facts": 2,
+    "voice": 5,
+    "language": 5,
+    "form": 4,
+    "comment": "The strongest bias and voice. But it moves the sacking to Bortebulak, the capital, which was never sacked."
+   },
+   {
+    "facts": 3,
+    "voice": 5,
+    "language": 5,
+    "form": 5,
+    "comment": "Vivid. Makes Bayan a 'she' and adds a ruler who 'clings to his lies'."
+   },
+   {
+    "facts": 4,
+    "voice": 5,
+    "language": 4,
+    "form": 5,
+    "comment": "A real grave stone."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Good."
+   },
+   {
+    "facts": 3,
+    "voice": 4,
+    "language": 4,
+    "form": 5,
+    "comment": "Puts the Casket of Ulantau in his grave; the sheet does not say so."
+   },
+   {
+    "facts": 3,
+    "voice": 4,
+    "language": 3,
+    "form": 4,
+    "comment": "Invents 'his flesh burned by flame' as his death. Markdown bold in the text."
+   },
+   {
+    "facts": 3,
+    "voice": 5,
+    "language": 5,
+    "form": 5,
+    "comment": "Invents a calendar: 'the year of the raven'."
+   },
+   {
+    "facts": 4,
+    "voice": 5,
+    "language": 5,
+    "form": 4,
+    "comment": "A real storyteller. Too long. Uses the town's later name for 916."
+   },
+   {
+    "facts": 5,
+    "voice": 5,
+    "language": 5,
+    "form": 5,
+    "comment": "The best legend of the set."
+   },
+   {
+    "facts": 3,
+    "voice": 5,
+    "language": 5,
+    "form": 5,
+    "comment": "Wrong year in the last try (575 for 571), rejected."
+   },
+   {
+    "facts": 4,
+    "voice": 5,
+    "language": 4,
+    "form": 5,
+    "comment": "A real hymn, lists temple towns."
+   },
+   {
+    "facts": 5,
+    "voice": 5,
+    "language": 4,
+    "form": 5,
+    "comment": "Good; one rhyme fails."
+   }
+  ],
+  "jlama-mistral7b": [
+   {
+    "facts": 3,
+    "voice": 4,
+    "language": 4,
+    "form": 2,
+    "comment": "Strong voice, but too long, and every year gets an invented name ('the Year of the Weaver's Triumph'). Rejected."
+   },
+   {
+    "facts": 1,
+    "voice": 4,
+    "language": 4,
+    "form": 1,
+    "comment": "Says Batu fell in battle and invents a defeat near Penpike. Cut off mid-sentence. Rejected."
+   },
+   {
+    "facts": 4,
+    "voice": 4,
+    "language": 4,
+    "form": 5,
+    "comment": "Good."
+   },
+   {
+    "facts": 4,
+    "voice": 4,
+    "language": 3,
+    "form": 3,
+    "comment": "Adds a title line and quotes; invents 'the year of the Saryhorde's birth'. Rejected."
+   },
+   {
+    "facts": 4,
+    "voice": 3,
+    "language": 1,
+    "form": 3,
+    "comment": "Starts with 'Here is your task:': the prompt leaks into the text."
+   },
+   {
+    "facts": 3,
+    "voice": 4,
+    "language": 4,
+    "form": 5,
+    "comment": "Reads well; 'of Karaobo' is the barrow, not his home."
+   },
+   {
+    "facts": 4,
+    "voice": 3,
+    "language": 4,
+    "form": 4,
+    "comment": "One long sentence."
+   },
+   {
+    "facts": 4,
+    "voice": 2,
+    "language": 3,
+    "form": 4,
+    "comment": "Misspells the name as 'Windiadem' and repeats Tsetseg. Rejected."
+   },
+   {
+    "facts": 2,
+    "voice": 4,
+    "language": 3,
+    "form": 3,
+    "comment": "Makes Temujin a king and the iron ring golden. Rejected."
+   },
+   {
+    "facts": 3,
+    "voice": 4,
+    "language": 4,
+    "form": 2,
+    "comment": "Leaves out the year it was made, invents 'shepherd of the land', too long."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 4,
+    "form": 5,
+    "comment": "Short, fits."
+   },
+   {
+    "facts": 4,
+    "voice": 4,
+    "language": 3,
+    "form": 3,
+    "comment": "Mixes the two peoples' names for the god in one hymn, and runs to 16 lines."
+   }
+  ],
+  "ministral3-3b": [
+   {
+    "facts": 1,
+    "voice": 4,
+    "language": 3,
+    "form": 4,
+    "comment": "Bold title line, death counts made up ('forty-six' for 406). Rejected."
+   },
+   {
+    "facts": 1,
+    "voice": 4,
+    "language": 4,
+    "form": 4,
+    "comment": "Makes Chuluun the enemy's leader, claims Bortedag fell 'without a single Keshband man lost' and '188' dead. Passed the validator anyway."
+   },
+   {
+    "facts": 3,
+    "voice": 4,
+    "language": 3,
+    "form": 4,
+    "comment": "Markdown bold. Makes Tsetseg a 'she' who did not 'rest in peace'."
+   },
+   {
+    "facts": 2,
+    "voice": 3,
+    "language": 2,
+    "form": 4,
+    "comment": "Garbled years ('sixty-eight-six'). Rejected."
+   },
+   {
+    "facts": 4,
+    "voice": 4,
+    "language": 4,
+    "form": 5,
+    "comment": "Fine; 'Skarn, the Mire's cruel breath' drops the name."
+   },
+   {
+    "facts": 2,
+    "voice": 3,
+    "language": 4,
+    "form": 4,
+    "comment": "Invents 'nine years... twelve he stood'; no year of death."
+   },
+   {
+    "facts": 3,
+    "voice": 4,
+    "language": 3,
+    "form": 5,
+    "comment": "Garbled years. Rejected."
+   },
+   {
+    "facts": 2,
+    "voice": 4,
+    "language": 4,
+    "form": 2,
+    "comment": "Invents a desert and makes Chuluun a king. Too long."
+   },
+   {
+    "facts": 3,
+    "voice": 4,
+    "language": 4,
+    "form": 4,
+    "comment": "Makes Chuluun a king; the ring 'glows'."
+   },
+   {
+    "facts": 4,
+    "voice": 4,
+    "language": 4,
+    "form": 4,
+    "comment": "'The year of our lord' invents a religion."
+   },
+   {
+    "facts": 4,
+    "voice": 4,
+    "language": 4,
+    "form": 5,
+    "comment": "Fits."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 3,
+    "form": 4,
+    "comment": "Several rhymes fail."
+   }
+  ],
+  "gemma4-e4b": [
+   {
+    "facts": 4,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Clear bias, all three battles and counts right. 'The sacking of Bortebulak's lands' blurs which town was sacked."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 5,
+    "form": 5,
+    "comment": "Every fact right, a fitting scribe's opening."
+   },
+   {
+    "facts": 4,
+    "voice": 3,
+    "language": 5,
+    "form": 5,
+    "comment": "Clean but plain. Assumes 'He'."
+   },
+   {
+    "facts": 5,
+    "voice": 3,
+    "language": 5,
+    "form": 5,
+    "comment": "Clean but plain."
+   },
+   {
+    "facts": 5,
+    "voice": 3,
+    "language": 4,
+    "form": 5,
+    "comment": "Correct, a list in lines."
+   },
+   {
+    "facts": 5,
+    "voice": 3,
+    "language": 5,
+    "form": 5,
+    "comment": "Correct, a list in lines."
+   },
+   {
+    "facts": 5,
+    "voice": 3,
+    "language": 5,
+    "form": 5,
+    "comment": "Correct, a list in lines."
+   },
+   {
+    "facts": 5,
+    "voice": 3,
+    "language": 5,
+    "form": 5,
+    "comment": "Every owner and year right. Opens with the same formula as the other two legends."
+   },
+   {
+    "facts": 5,
+    "voice": 3,
+    "language": 5,
+    "form": 5,
+    "comment": "Correct. 'A thing of great making' again."
+   },
+   {
+    "facts": 5,
+    "voice": 3,
+    "language": 5,
+    "form": 5,
+    "comment": "Correct. Same opening and the same filler line as the other legends."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 4,
+    "form": 5,
+    "comment": "A real hymn; names the Order of the Circle from the sheet."
+   },
+   {
+    "facts": 5,
+    "voice": 4,
+    "language": 4,
+    "form": 5,
+    "comment": "Uses the year 211, when the god was first worshipped. Good."
+   }
+  ]
+ }
+}

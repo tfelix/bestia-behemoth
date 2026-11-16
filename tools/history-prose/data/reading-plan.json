@@ -1,0 +1,68 @@
+[
+ {
+  "ref": "war#409",
+  "type": "book",
+  "args": {
+   "side": "Saryhorde",
+   "other": "Keshband"
+  }
+ },
+ {
+  "ref": "war#409",
+  "type": "book",
+  "args": {
+   "side": "Keshband",
+   "other": "Saryhorde"
+  }
+ },
+ {
+  "ref": "figure#64",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#40",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#32",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#60",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#62",
+  "type": "epitaph"
+ },
+ {
+  "ref": "artifact#18",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#24",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#8",
+  "type": "legend"
+ },
+ {
+  "ref": "deity#3",
+  "type": "hymn",
+  "args": {
+   "name": "Trevanion the Unseen Weaver",
+   "domain": "fate",
+   "people": "Boshold"
+  }
+ },
+ {
+  "ref": "deity#4",
+  "type": "hymn",
+  "args": {
+   "name": "Erwin of the Black Earth",
+   "domain": "death",
+   "people": "Boshold"
+  }
+ }
+]

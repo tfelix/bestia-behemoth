@@ -1,0 +1,41 @@
+Traceback (most recent call last):
+  File "/home/tfelix/workspace/bestia-behemoth/.claude/worktrees/llm-prose-world-history-391ca5/tools/history-prose/prose.py", line 192, in <module>
+    main()
+  File "/home/tfelix/workspace/bestia-behemoth/.claude/worktrees/llm-prose-world-history-391ca5/tools/history-prose/prose.py", line 176, in main
+    history = generate(job, sheet, args.server, args.attempts, args.temperature)
+  File "/home/tfelix/workspace/bestia-behemoth/.claude/worktrees/llm-prose-world-history-391ca5/tools/history-prose/prose.py", line 141, in generate
+    text, timing = chat(server, messages, max_tokens=400, temperature=temperature)
+  File "/home/tfelix/workspace/bestia-behemoth/.claude/worktrees/llm-prose-world-history-391ca5/tools/history-prose/prose.py", line 120, in chat
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+  File "/usr/lib/python3.10/urllib/request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python3.10/urllib/request.py", line 525, in open
+    response = meth(req, response)
+  File "/usr/lib/python3.10/urllib/request.py", line 634, in http_response
+    response = self.parent.error(
+  File "/usr/lib/python3.10/urllib/request.py", line 563, in error
+    return self._call_chain(*args)
+  File "/usr/lib/python3.10/urllib/request.py", line 496, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python3.10/urllib/request.py", line 643, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 500: Internal Server Error
+[1/12] book     the war of Saryhorde and Keshband, 901   tries=3 ok=False 129.54s pp=20.537746666894865 tg=7.380829471376863
+[2/12] book     the war of Saryhorde and Keshband, 901   tries=3 ok=False 139.36s pp=23.138016339295874 tg=4.928199022769749
+[3/12] epitaph  Tsetseg the Second                       tries=1 ok=True 27.48s pp=27.923965743599442 tg=4.880797050988761
+[4/12] epitaph  Gerel                                    tries=1 ok=True 15.15s pp=28.364601574384672 tg=5.4184569423193025
+[5/12] epitaph  Gerel the Unbeaten                       tries=1 ok=True 18.12s pp=25.629022112662685 tg=5.357818651690562
+[6/12] epitaph  Gerel the Burned                         tries=1 ok=True 14.21s pp=26.118088427648914 tg=4.78241262443572
+[7/12] epitaph  Temujin                                  tries=1 ok=True 16.02s pp=26.226361033397303 tg=5.26272416065231
+[8/12] legend   Winddiadem                               tries=3 ok=True 103.53s pp=33.91476327495234 tg=5.033428758087742
+[9/12] legend   Farsignet                                tries=3 ok=True 94.9s pp=38.30297654446673 tg=4.759822024965795
+[10/12] legend   Hollowcodex                              tries=3 ok=False 103.48s pp=5.478701547733187 tg=4.889796828584853
+[11/12] hymn     Bayan the Unseen Weaver                  tries=2 ok=True 72.57s pp=31.076617882607493 tg=4.377450508314161
+[12/12] hymn     Erdene of the Black Earth                tries=3 ok=False 66.77s pp=3.4845512420682905 tg=4.194595031269152
+BENCH
+MEMORY
+server did not come up
+warn: LLAMA_ARG_HOST environment variable is set, but will be overwritten by command line argument --host
+warn: LLAMA_ARG_PORT environment variable is set, but will be overwritten by command line argument --port
+error: invalid argument: --no-mmap
+CHAIN-DONE

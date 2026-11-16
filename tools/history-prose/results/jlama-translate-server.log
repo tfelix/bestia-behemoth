@@ -1,0 +1,6 @@
+WARNING: Using incubator modules: jdk.incubator.vector
+SLF4J: No SLF4J providers were found.
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See https://www.slf4j.org/codes.html#noProviders for further details.
+model loaded in 632 ms
+listening on 8081

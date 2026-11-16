@@ -1,0 +1,19 @@
+JLAMA
+[1/12] book     the war of Saryhorde and Keshband, 901   tries=3 ok=False 658.27s pp=6.385908490208582 tg=2.930535455861071
+[2/12] book     the war of Saryhorde and Keshband, 901   tries=3 ok=False 839.51s pp=4.904158533304823 tg=2.6140108360248693
+[3/12] epitaph  Tsetseg the Second                       tries=2 ok=True 288.48s pp=5.454967502321263 tg=2.829130286327496
+[4/12] epitaph  Gerel                                    tries=3 ok=False 321.96s pp=6.053935057787562 tg=3.125137550068225
+[5/12] epitaph  Gerel the Unbeaten                       tries=3 ok=True 242.39s pp=7.603420748960655 tg=3.818025381802538
+[6/12] epitaph  Gerel the Burned                         tries=2 ok=True 153.05s pp=7.698933993754711 tg=3.8536862720323457
+[7/12] epitaph  Temujin                                  tries=2 ok=True 130.34s pp=7.87111961159335 tg=3.982393628170195
+[8/12] legend   Winddiadem                               tries=3 ok=False 368.5s pp=7.796600452890762 tg=3.7713954163040326
+[9/12] legend   Farsignet                                tries=3 ok=False 318.79s pp=7.235276863409705 tg=3.5746201966041107
+[10/12] legend   Hollowcodex                              tries=1 ok=True 124.89s pp=7.4931477136040066 tg=3.890997830802603
+[11/12] hymn     Bayan the Unseen Weaver                  tries=1 ok=True 84.89s pp=7.933730019834325 tg=3.875476493011436
+[12/12] hymn     Erdene of the Black Earth                tries=1 ok=True 95.5s pp=8.066039517926631 tg=3.8705387884976137
+TRANSLATE-BOOKS
+llm   book     the war of Saryhorde and Keshband, 901   problems=0 70.7s
+llm   book     the war of Saryhorde and Keshband, 901   problems=0 95.45s
+argos book     the war of Saryhorde and Keshband, 901   problems=0 0.73s
+argos book     the war of Saryhorde and Keshband, 901   problems=0 1.19s
+WORLD

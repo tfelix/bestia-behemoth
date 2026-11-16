@@ -1,0 +1,6 @@
+{"model": "gemma4-e4b/gemma-4-E4B-it-Q4_K_M.gguf", "mode": "default", "peak_rss_kb": 7446508, "text_s": 46}
+{"model": "gemma4-e4b/gemma-4-E4B-it-Q4_K_M.gguf", "mode": "no-mmap", "peak_rss_kb": 5597200, "text_s": 48}
+{"model": "gemma4-e4b/gemma-4-E4B-it-Q4_K_M.gguf", "mode": "no-repack", "peak_rss_kb": 5227288, "text_s": 43}
+{"model": "qwen3-8b/Qwen3-8B-Q4_K_M.gguf", "mode": "default", "peak_rss_kb": 8930248, "text_s": 90}
+{"model": "qwen3-8b/Qwen3-8B-Q4_K_M.gguf", "mode": "no-mmap", "peak_rss_kb": 5681948, "text_s": 88}
+{"model": "qwen3-8b/Qwen3-8B-Q4_K_M.gguf", "mode": "no-repack", "peak_rss_kb": 5680520, "text_s": 86}

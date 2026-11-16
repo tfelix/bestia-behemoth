@@ -1,0 +1,495 @@
+[
+ {
+  "ref": "figure#0",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#1",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#2",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#8",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#10",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#12",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#16",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#19",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#20",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#21",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#24",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#25",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#30",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#31",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#32",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#33",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#35",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#36",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#37",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#40",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#42",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#43",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#44",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#45",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#47",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#49",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#51",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#53",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#55",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#56",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#58",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#59",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#60",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#62",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#64",
+  "type": "epitaph"
+ },
+ {
+  "ref": "figure#65",
+  "type": "epitaph"
+ },
+ {
+  "ref": "artifact#0",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#1",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#2",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#3",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#4",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#5",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#6",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#7",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#8",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#9",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#10",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#11",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#12",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#13",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#14",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#15",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#16",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#17",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#18",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#19",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#20",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#21",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#22",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#23",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#24",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#25",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#26",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#27",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#28",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#29",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#30",
+  "type": "legend"
+ },
+ {
+  "ref": "artifact#31",
+  "type": "legend"
+ },
+ {
+  "ref": "deity#0",
+  "type": "hymn",
+  "args": {
+   "name": "Berta Coinkeeper",
+   "domain": "trade",
+   "people": "Boshold"
+  }
+ },
+ {
+  "ref": "deity#1",
+  "type": "hymn",
+  "args": {
+   "name": "Sigmar Heartkeeper",
+   "domain": "love",
+   "people": "Boshold"
+  }
+ },
+ {
+  "ref": "deity#2",
+  "type": "hymn",
+  "args": {
+   "name": "Adalgar Snakebearer",
+   "domain": "healing",
+   "people": "Boshold"
+  }
+ },
+ {
+  "ref": "deity#3",
+  "type": "hymn",
+  "args": {
+   "name": "Trevanion the Unseen Weaver",
+   "domain": "fate",
+   "people": "Boshold"
+  }
+ },
+ {
+  "ref": "deity#4",
+  "type": "hymn",
+  "args": {
+   "name": "Erwin of the Black Earth",
+   "domain": "death",
+   "people": "Boshold"
+  }
+ },
+ {
+  "ref": "war#201",
+  "type": "book",
+  "args": {
+   "side": "Boshold",
+   "other": "Saryhorde"
+  }
+ },
+ {
+  "ref": "war#201",
+  "type": "book",
+  "args": {
+   "side": "Saryhorde",
+   "other": "Boshold"
+  }
+ },
+ {
+  "ref": "war#326",
+  "type": "book",
+  "args": {
+   "side": "Saryhorde",
+   "other": "Keshband"
+  }
+ },
+ {
+  "ref": "war#326",
+  "type": "book",
+  "args": {
+   "side": "Keshband",
+   "other": "Saryhorde"
+  }
+ },
+ {
+  "ref": "war#363",
+  "type": "book",
+  "args": {
+   "side": "Boshold",
+   "other": "Saryhorde"
+  }
+ },
+ {
+  "ref": "war#363",
+  "type": "book",
+  "args": {
+   "side": "Saryhorde",
+   "other": "Boshold"
+  }
+ },
+ {
+  "ref": "war#409",
+  "type": "book",
+  "args": {
+   "side": "Saryhorde",
+   "other": "Keshband"
+  }
+ },
+ {
+  "ref": "war#409",
+  "type": "book",
+  "args": {
+   "side": "Keshband",
+   "other": "Saryhorde"
+  }
+ },
+ {
+  "ref": "war#434",
+  "type": "book",
+  "args": {
+   "side": "Saryhorde",
+   "other": "Bortekhai"
+  }
+ },
+ {
+  "ref": "war#434",
+  "type": "book",
+  "args": {
+   "side": "Bortekhai",
+   "other": "Saryhorde"
+  }
+ },
+ {
+  "ref": "civ#0",
+  "type": "people"
+ },
+ {
+  "ref": "civ#1",
+  "type": "people"
+ },
+ {
+  "ref": "civ#2",
+  "type": "people"
+ },
+ {
+  "ref": "civ#3",
+  "type": "people"
+ },
+ {
+  "ref": "site#29",
+  "type": "memorial"
+ },
+ {
+  "ref": "site#39",
+  "type": "memorial"
+ },
+ {
+  "ref": "site#53",
+  "type": "memorial"
+ },
+ {
+  "ref": "site#62",
+  "type": "memorial"
+ },
+ {
+  "ref": "site#72",
+  "type": "memorial"
+ },
+ {
+  "ref": "site#74",
+  "type": "memorial"
+ },
+ {
+  "ref": "site#78",
+  "type": "memorial"
+ },
+ {
+  "ref": "cult#0",
+  "type": "tract"
+ },
+ {
+  "ref": "cult#1",
+  "type": "tract"
+ },
+ {
+  "ref": "cult#2",
+  "type": "tract"
+ },
+ {
+  "ref": "monster#0",
+  "type": "beast"
+ },
+ {
+  "ref": "monster#1",
+  "type": "beast"
+ },
+ {
+  "ref": "monster#2",
+  "type": "beast"
+ },
+ {
+  "ref": "dynasty#0",
+  "type": "house"
+ },
+ {
+  "ref": "dynasty#1",
+  "type": "house"
+ },
+ {
+  "ref": "dynasty#2",
+  "type": "house"
+ },
+ {
+  "ref": "dynasty#3",
+  "type": "house"
+ },
+ {
+  "ref": "dynasty#4",
+  "type": "house"
+ },
+ {
+  "ref": "dynasty#5",
+  "type": "house"
+ },
+ {
+  "ref": "dynasty#6",
+  "type": "house"
+ }
+]

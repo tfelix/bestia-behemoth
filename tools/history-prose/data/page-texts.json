@@ -1,0 +1,19 @@
+{
+ "lead": "Lore texts written by small LLMs on a CPU, from one generated world's chronicle (genesis world, seed 11753242). Each model got the same 12 tasks: one war told by both sides, five epitaphs, three artifact legends and two hymns. Every text sits next to the fact sheet the model saw, the validator's verdict, and a first score. Under each first book: its German translation by the same model and by Argos.",
+ "verdict": "<p><strong>Result: go, with Gemma 4 E4B on llama.cpp.</strong> In this reading set it wrote 12 of 12 valid texts at the first try, about 22 s each on this laptop CPU, with the facts closest to the sheet. On the whole genesis world it wrote all 107 texts (106 at the first try) in 41 minutes. Its weak side is sameness: 31 of 32 legends opened with \"Hark, and lend thine ear\"; rotating framings removed that, though a stock phrase remains. Qwen3-8B is the fallback: as reliable, more varied, twice as slow.</p><p>German: the same model translates better than Argos, which gets lore words wrong (\"barrow\" → \"Scheune\", \"sacked\" → \"entlassen\") and mixes translated and untranslated names. Names need a per-locale glossary either way.</p><p>The other four models are out: Ministral-3-8B moves facts around, the 3-4B models get facts and letter case wrong, and Jlama is about 6 times slower than llama.cpp. Scores are a first opinion by Claude after one read. Please judge the texts yourself.</p>",
+ "footer": "<p>Rubric: facts (counted twice), voice, language and form, each 1 to 5. Speeds are means over each model's first attempts on this i7-1355U (6 threads for generation, 10 for the prompt). Peak RSS includes the memory-mapped model file. The full analysis is the bestia-docs page <code>server/history-prose.md</code>.</p><p>Code: branch <code>spike/history-prose</code> in bestia-behemoth, <code>tools/history-prose/</code>. Texts and fact sheets as Markdown: <code>docs/history-prose-samples/</code>.</p>",
+ "de_comments": {
+  "qwen3-8b/llm": "71 s. Keeps the tone. Grammar slips: 'Tsetseg der Zweite' (should be 'dem Zweiten'), 'ihr Hauptstadt'. Renders 'Unseen Weaver' as 'Unbekannten Weber', a different epithet than Argos.",
+  "qwen3-8b/argos": "0.7 s. Fluent and correct. 'Frieden gemacht' is an anglicism ('geschlossen'). Switches between 'die' and 'das Keshband'.",
+  "ministral3-8b/llm": "95 s. Keeps the archaic register well. Small slips: 'Leut', a stray quoted „Siege“.",
+  "ministral3-8b/argos": "1.2 s. Fluent, but translates 'sacking' as 'Entlassung' (dismissal), twice. Archaic words trip it up.",
+  "qwen3-4b/llm": "52 s. Poor: 'gestohlen' for sacked, 'im 901', 'Unsehnen Webber'.",
+  "qwen3-4b/argos": "0.8 s. Fluent, but 'entlassen' for sacked again: a systematic error that needs a glossary.",
+  "jlama-mistral7b/llm": "160 s. Poor: 'Wäberin', leaves 'Tsetseg the Second' in English, gender errors, cut off.",
+  "jlama-mistral7b/argos": "1.5 s. Good German from a weak source text.",
+  "ministral3-3b/llm": "39 s. Readable. Slips: 'neunzig und acht', 'Ihr Hauptstadt', 'der Gedächtnis'.",
+  "ministral3-3b/argos": "0.8 s. Turns 'nine hundred six' into 'Jahr 96', and 'capital' into 'Kapital'. Spelled-out years cannot be checked; sources should use digits.",
+  "gemma4-e4b/llm": "47 s. Good archaic register ('Im Jahre', 'obgleich'). One nonsense phrase: 'Frieden brachte das Einkommen zu einem Abkommen'.",
+  "gemma4-e4b/argos": "0.7 s. Fluent, but 'Entlassung' for sacking again."
+ }
+}

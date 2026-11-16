@@ -1,0 +1,36 @@
+[1/12] book     the war of Saryhorde and Keshband, 901   tries=3 ok=False 122.64s pp=26.34508104405556 tg=7.329619956655814
+[2/12] book     the war of Saryhorde and Keshband, 901   tries=2 ok=True 76.36s pp=20.978111438525044 tg=7.373535026061022
+[3/12] epitaph  Tsetseg the Second                       tries=1 ok=True 24.03s pp=29.759753759294608 tg=7.567736033956326
+[4/12] epitaph  Gerel                                    tries=1 ok=True 12.72s pp=30.003524850193866 tg=8.140457021012882
+[5/12] epitaph  Gerel the Unbeaten                       tries=3 ok=False 27.35s pp=8.266922390132601 tg=8.167380817495422
+[6/12] epitaph  Gerel the Burned                         tries=1 ok=True 12.0s pp=29.592983676085556 tg=7.679282447848072
+[7/12] epitaph  Temujin                                  tries=3 ok=False 21.14s pp=8.638487919074645 tg=8.097576256610804
+[8/12] legend   Winddiadem                               tries=2 ok=True 54.33s pp=28.872208237914695 tg=7.010008200013625
+[9/12] legend   Farsignet                                tries=2 ok=True 44.28s pp=28.812241922654202 tg=7.7518956244107455
+[10/12] legend   Hollowcodex                              tries=2 ok=True 48.17s pp=28.742117474282676 tg=7.738497237951755
+[11/12] hymn     Bayan the Unseen Weaver                  tries=2 ok=True 41.21s pp=26.019726074731775 tg=7.442518617974965
+[12/12] hymn     Erdene of the Black Earth                tries=3 ok=False 37.07s pp=8.631330001639952 tg=7.760892860874057
+[1/12] book     the war of Saryhorde and Keshband, 901   tries=1 ok=True 78.11s pp=17.004440688161104 tg=4.5685153314610565
+[2/12] book     the war of Saryhorde and Keshband, 901   tries=1 ok=True 67.52s pp=15.012915396645512 tg=4.213237814770997
+[3/12] epitaph  Tsetseg the Second                       tries=1 ok=True 44.6s pp=16.19444377589502 tg=3.380344535982923
+[4/12] epitaph  Gerel                                    tries=1 ok=True 32.26s pp=15.270290455850319 tg=3.5121072467875365
+[5/12] epitaph  Gerel the Unbeaten                       tries=2 ok=True 42.41s pp=15.769761482357579 tg=3.4458657847043224
+[6/12] epitaph  Gerel the Burned                         tries=1 ok=True 22.27s pp=14.971158365517407 tg=3.673381926280667
+[7/12] epitaph  Temujin                                  tries=1 ok=True 23.37s pp=14.862067381938338 tg=3.6441038601992193
+[8/12] legend   Winddiadem                               tries=1 ok=True 58.33s pp=14.74273305682287 tg=3.2994709566882534
+[9/12] legend   Farsignet                                tries=1 ok=True 43.95s pp=15.416846193393472 tg=3.4013478517829983
+[10/12] legend   Hollowcodex                              tries=1 ok=True 43.51s pp=15.377472735461975 tg=3.5249091260641063
+[11/12] hymn     Bayan the Unseen Weaver                  tries=1 ok=True 53.05s pp=15.103946521805103 tg=3.1633353251310994
+[12/12] hymn     Erdene of the Black Earth                tries=1 ok=True 38.81s pp=15.058554981064017 tg=3.4844711376051594
+[1/12] book     the war of Saryhorde and Keshband, 901   tries=1 ok=True 126.48s pp=14.404469830455275 tg=3.1550297484249388
+[2/12] book     the war of Saryhorde and Keshband, 901   tries=1 ok=True 78.39s pp=13.94957580608117 tg=3.17023854123241
+[3/12] epitaph  Tsetseg the Second                       tries=1 ok=True 50.93s pp=14.159647989142531 tg=3.046575232914247
+[4/12] epitaph  Gerel                                    tries=1 ok=True 33.35s pp=14.515270120209976 tg=2.844242371079382
+[5/12] epitaph  Gerel the Unbeaten                       tries=1 ok=True 39.89s pp=14.582094347952081 tg=2.8966820498587778
+[6/12] epitaph  Gerel the Burned                         tries=1 ok=True 38.36s pp=14.991659342186619 tg=3.026838854000134
+[7/12] epitaph  Temujin                                  tries=1 ok=True 33.98s pp=14.393344157827816 tg=2.9618704338033126
+[8/12] legend   Winddiadem                               tries=2 ok=True 141.45s pp=13.183380827307852 tg=3.6352199352610093
+[9/12] legend   Farsignet                                tries=1 ok=True 55.44s pp=14.529393986735228 tg=4.027557323604696
+[10/12] legend   Hollowcodex                              tries=3 ok=False 155.06s pp=16.504785428193628 tg=3.475293146369592
+[11/12] hymn     Bayan the Unseen Weaver                  tries=3 ok=True 128.22s pp=12.32156138825912 tg=3.8147768355551204
+[12/12] hymn     Erdene of the Black Earth                tries=1 ok=True 30.19s pp=15.696114044136323 tg=4.491462765773671
