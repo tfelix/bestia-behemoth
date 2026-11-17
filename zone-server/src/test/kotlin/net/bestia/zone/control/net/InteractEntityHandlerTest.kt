@@ -57,10 +57,10 @@ class InteractEntityHandlerTest {
     talk = mockk(relaxed = true)
     hallInteraction = mockk(relaxed = true)
     every { hallInteraction.kind } returns StaticEntityKind.AUCTION_HOUSE
-    every { hallInteraction.interact(any(), any(), any()) } returns null
+    every { hallInteraction.interact(any(), any(), any(), any()) } returns null
     chestInteraction = mockk(relaxed = true)
     every { chestInteraction.kind } returns StaticEntityKind.CHEST
-    every { chestInteraction.interact(any(), any(), any()) } returns null
+    every { chestInteraction.interact(any(), any(), any(), any()) } returns null
 
     actor = world.createEntity { id ->
       add(id, Position.fromVec3(standingAt))
@@ -169,7 +169,7 @@ class InteractEntityHandlerTest {
 
     handler.handle(world, interactWith(chest))
 
-    verify { chestInteraction.interact(any(), actor, chest) }
+    verify { chestInteraction.interact(any(), actor, chest, any()) }
     verify(exactly = 0) { crafting.openAtStructure(any(), any(), any(), any()) }
   }
 
@@ -181,8 +181,18 @@ class InteractEntityHandlerTest {
     handler.handle(world, interactWith(hall))
     handler.handle(world, interactWith(tree))
 
-    verify(exactly = 1) { hallInteraction.interact(any(), actor, hall) }
-    verify(exactly = 0) { hallInteraction.interact(any(), any(), tree) }
+    verify(exactly = 1) { hallInteraction.interact(any(), actor, hall, any()) }
+    verify(exactly = 0) { hallInteraction.interact(any(), any(), tree, any()) }
+  }
+
+  @Test
+  fun `what the player chose before the click reaches the interaction`() {
+    val hall = spawnProp(StaticEntityKind.AUCTION_HOUSE)
+    val chosen = ScriptArgs.of("questId" to 7L)
+
+    handler.handle(world, InteractEntityCMSG(playerId = accountId, targetEntityId = hall, args = chosen))
+
+    verify { hallInteraction.interact(any(), actor, hall, chosen) }
   }
 
   @Test

@@ -27,6 +27,7 @@ import net.bestia.zone.message.decoder
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.prop.PropInteraction
+import net.bestia.zone.script.ScriptArgs
 import net.bestia.zone.entity.ecs.StaticVisual
 import org.springframework.stereotype.Component
 
@@ -65,7 +66,7 @@ class InteractEntityHandler(
       return true
     }
 
-    val refusal = world.modify(actorId) { id -> interact(this, id, msg.targetEntityId) }
+    val refusal = world.modify(actorId) { id -> interact(this, id, msg.targetEntityId, msg.args) }
 
     refusal?.let { outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(it)) }
 
@@ -84,7 +85,7 @@ class InteractEntityHandler(
   }
 
   /** @return the refusal to send back, or null when the click was acted on (or meant nothing). */
-  private fun interact(world: World, actorId: EntityId, targetId: EntityId): OpError? {
+  private fun interact(world: World, actorId: EntityId, targetId: EntityId, args: ScriptArgs): OpError? {
     if (!world.isAlive(targetId)) {
       LOG.debug { "Entity $actorId interacted with $targetId, which no longer exists" }
       return null
@@ -97,7 +98,7 @@ class InteractEntityHandler(
     // Ahead of the structures: a chest, a Mana Circle or a Breeding Farm is one, but none is a crafting station.
     val propInteraction = kindOf(world, targetId)?.let(propInteractionByKind::get)
     if (propInteraction != null) {
-      return propInteraction.interact(world, actorId, targetId)
+      return propInteraction.interact(world, actorId, targetId, args)
     }
 
     if (world.has(targetId, CitySign::class)) {
