@@ -1,0 +1,243 @@
+class_name BlackboardPanel
+extends PanelContainer
+
+## A town's quest board: every open quest, grouped as the played master sees it, with one quest's details beside
+## the list. Every board shows the same list. Opened by the server when the player clicks a board, and closed by
+## walking away, like the post office. Built in code, like [PostOfficePanel].
+
+signal blackboard_opened()
+signal blackboard_closed()
+
+const _WALK_AWAY_METRES := 10.0
+
+## By the band [QuestFormatter] rates a quest's suggested level in.
+const BAND_COLOURS := {
+	"trivial": Color(0.60, 0.60, 0.62),
+	"easy": Color(0.45, 0.85, 0.45),
+	"fair": Color(1.0, 0.82, 0.35),
+	"hard": Color(1.0, 0.55, 0.25),
+	"deadly": Color(0.90, 0.38, 0.38),
+}
+
+## The list's groups, in order, by the quest's role for the played master.
+const _GROUPS := [["accepted", "BLACKBOARD_GROUP_SIGNED"], ["offered", "BLACKBOARD_GROUP_OPEN"], ["posted", "BLACKBOARD_GROUP_YOURS"]]
+
+var _formatter := QuestFormatter.new()
+
+## The board the window is open at. Zero while closed. Every request names it.
+var _board_id: int = 0
+var _opened_at := Vector3.ZERO
+var _quests: Array = []
+var _selected_id: int = 0
+
+var _title: Label
+var _search: LineEdit
+var _list: VBoxContainer
+var _empty: Label
+var _detail: VBoxContainer
+var _detail_title: Label
+var _detail_subtitle: Label
+var _detail_progress: Label
+var _detail_bar: ProgressBar
+var _detail_reward: Label
+
+
+func _ready() -> void:
+	add_theme_stylebox_override("panel", UiStyle.flat(UiStyle.PANEL_BG, 0, 0))
+	custom_minimum_size = Vector2(600, 400)
+	_build()
+
+	ConnectionManager.blackboard_opened.connect(_on_opened)
+	visibility_changed.connect(_on_visibility_changed)
+	set_process(false)
+
+
+func is_open() -> bool:
+	return _board_id != 0
+
+
+func close_board() -> void:
+	if not is_open():
+		return
+
+	_board_id = 0
+	set_process(false)
+	blackboard_closed.emit()
+
+
+func _process(_delta: float) -> void:
+	var player := _player()
+	if player == null or player.global_position.distance_to(_opened_at) > _WALK_AWAY_METRES:
+		close_board()
+
+
+func _build() -> void:
+	var body := UiStyle.vbox(8)
+	add_child(UiStyle.margin(body, 10, 8, 10, 10))
+
+	_title = UiStyle.label("", 16, UiStyle.ACCENT)
+	body.add_child(_title)
+
+	var columns := UiStyle.hbox(10)
+	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(columns)
+
+	var left := UiStyle.vbox(6)
+	left.custom_minimum_size = Vector2(250, 0)
+	columns.add_child(left)
+
+	_search = LineEdit.new()
+	_search.placeholder_text = tr("BLACKBOARD_SEARCH")
+	_search.clear_button_enabled = true
+	_search.text_changed.connect(func(_text: String) -> void: _refresh_list())
+	left.add_child(_search)
+
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	left.add_child(scroll)
+
+	_list = UiStyle.vbox(3)
+	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(_list)
+
+	_empty = UiStyle.label(tr("BLACKBOARD_EMPTY"), 12, UiStyle.MUTED)
+	_empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	left.add_child(_empty)
+
+	columns.add_child(VSeparator.new())
+	_detail = _build_detail()
+	columns.add_child(_detail)
+
+
+func _build_detail() -> VBoxContainer:
+	var detail := UiStyle.vbox(6)
+	detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	_detail_title = UiStyle.label("", 15)
+	_detail_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	detail.add_child(_detail_title)
+
+	_detail_subtitle = UiStyle.label("", 11, UiStyle.MUTED)
+	_detail_subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	detail.add_child(_detail_subtitle)
+
+	_detail_progress = UiStyle.label("", 12)
+	detail.add_child(_detail_progress)
+
+	_detail_bar = UiStyle.bar(UiStyle.EXP_FILL, 8)
+	detail.add_child(_detail_bar)
+
+	_detail_reward = UiStyle.label("", 12)
+	detail.add_child(_detail_reward)
+
+	detail.visible = false
+	return detail
+
+
+func _on_opened(msg: BlackboardSMSG) -> void:
+	var was_open := is_open()
+	_board_id = msg.BoardEntityId
+
+	var player := _player()
+	if not was_open:
+		_opened_at = player.global_position if player != null else Vector3.ZERO
+		_selected_id = 0
+	set_process(player != null)
+
+	_title.text = tr("BLACKBOARD_TITLE") % msg.PlaceName if not msg.PlaceName.is_empty() else tr("BLACKBOARD_TITLE_NOWHERE")
+	_quests = msg.Quests
+	_refresh_list()
+
+	if not was_open:
+		blackboard_opened.emit()
+
+
+func _refresh_list() -> void:
+	for child in _list.get_children():
+		child.queue_free()
+
+	var query := _search.text.strip_edges().to_lower()
+	var shown := _quests.filter(func(quest) -> bool: return query.is_empty() or title_of(quest).to_lower().contains(query))
+
+	for group in _GROUPS:
+		var members := shown.filter(func(quest) -> bool: return _group_of(quest) == group[0])
+		if members.is_empty():
+			continue
+		_list.add_child(UiStyle.label(tr(group[1]), 11, UiStyle.MUTED))
+		for quest in members:
+			_list.add_child(_row(quest))
+
+	_empty.visible = shown.is_empty()
+	var selected = shown.filter(func(quest) -> bool: return quest.QuestId == _selected_id)
+	_show(selected[0] if not selected.is_empty() else (shown[0] if not shown.is_empty() else null))
+
+
+func _row(quest) -> Button:
+	var row := Button.new()
+	row.flat = true
+	row.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	row.focus_mode = Control.FOCUS_NONE
+	row.text = "[%d] %s" % [quest.SuggestedLevel, title_of(quest)]
+	row.add_theme_color_override("font_color", level_colour(quest.SuggestedLevel))
+	row.pressed.connect(func() -> void: _show(quest))
+	return row
+
+
+func _show(quest) -> void:
+	_detail.visible = quest != null
+	if quest == null:
+		_selected_id = 0
+		return
+
+	_selected_id = quest.QuestId
+	_detail_title.text = title_of(quest)
+	_detail_subtitle.text = tr("BLACKBOARD_SUBTITLE") % [quest.PosterName, time_left(quest), quest.SuggestedLevel]
+
+	var objective = quest.Objectives[0] if not quest.Objectives.is_empty() else null
+	_detail_progress.visible = objective != null
+	_detail_bar.visible = objective != null
+	if objective != null:
+		_detail_progress.text = tr("BLACKBOARD_PROGRESS") % [objective.Progress, objective.Required, objective.Yours]
+		UiStyle.set_bar(_detail_bar, objective.Progress, objective.Required)
+
+	var reward = quest.Rewards[0] if not quest.Rewards.is_empty() else null
+	_detail_reward.visible = reward != null
+	if reward != null:
+		_detail_reward.text = tr("BLACKBOARD_PAYS_EACH") % reward.Amount
+
+
+func _group_of(quest) -> String:
+	if quest.RoleName == "accepted" or quest.RoleName == "posted":
+		return quest.RoleName
+	return "offered"
+
+
+## The window's own close button only hides it.
+func _on_visibility_changed() -> void:
+	if not is_visible_in_tree():
+		close_board()
+
+
+func _player() -> Entity:
+	var manager := EntityManager.get_instance()
+	return manager.get_controlled_entity() if manager != null else null
+
+
+func title_of(quest) -> String:
+	return DialogText.resolve_line(quest.TitleKey, quest.Args)
+
+
+func time_left(quest) -> String:
+	var now := int(Time.get_unix_time_from_system() * 1000.0)
+	var unit := _formatter.TimeLeftUnit(quest.DeadlineEpochMs, now)
+	if unit == "ended":
+		return tr("QUEST_TIME_LEFT_ENDED")
+	return tr("QUEST_TIME_LEFT_%s" % unit.to_upper()) % _formatter.TimeLeftAmount(quest.DeadlineEpochMs, now)
+
+
+func level_colour(suggested_level: int) -> Color:
+	var manager := EntityManager.get_instance()
+	var master := manager.get_master_entity() if manager != null else null
+	var own_level := master.get_level() if master != null else suggested_level
+	return BAND_COLOURS[_formatter.LevelBand(suggested_level, own_level)]

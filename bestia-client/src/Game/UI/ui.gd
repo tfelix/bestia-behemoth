@@ -17,6 +17,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _emotes_win: WidgetWindow = $EmotesWin
 @onready var _letters_win: WidgetWindow = $LettersWin
 @onready var _post_office_win: WidgetWindow = $PostOfficeWin
+@onready var _blackboard_win: WidgetWindow = $BlackboardWin
 @onready var _breeding_farm_win: WidgetWindow = $BreedingFarmWin
 @onready var _incubator_win: WidgetWindow = $IncubatorWin
 @onready var _bestia_orders_win: WidgetWindow = $BestiaOrdersWin
@@ -188,6 +189,10 @@ func _ready() -> void:
 	post_office.notice.connect(_chat.system_line)
 	post_office.post_office_opened.connect(_on_post_office_opened)
 	post_office.post_office_closed.connect(func() -> void: _post_office_win.visible = false)
+
+	var blackboard := _blackboard_win.get_content() as BlackboardPanel
+	blackboard.blackboard_opened.connect(_on_blackboard_opened)
+	blackboard.blackboard_closed.connect(func() -> void: _blackboard_win.visible = false)
 	ConnectionManager.parcel_arrived.connect(_on_parcel_arrived)
 	ConnectionManager.sense_marks_received.connect(_on_sense_marks)
 
@@ -658,6 +663,12 @@ func _on_breeding_success(message: OperationSuccess) -> void:
 ## Packing a parcel needs the bag in view, as selling at the auction house does.
 func _on_post_office_opened() -> void:
 	_post_office_win.visible = true
+	_inventory_win.visible = true
+
+
+## Handing in or posting a quest needs the bag in view, as at the post office.
+func _on_blackboard_opened() -> void:
+	_blackboard_win.visible = true
 	_inventory_win.visible = true
 
 

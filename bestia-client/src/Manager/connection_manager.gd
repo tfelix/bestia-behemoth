@@ -82,6 +82,8 @@ signal spell_bindings_received(message: SpellBindingsSMSG)
 signal quest_log_received(message: QuestLogSMSG)
 ## One quest in the log changed, or left it.
 signal quest_updated(message: QuestUpdatedSMSG)
+## A blackboard's window opened, or its list changed while open.
+signal blackboard_opened(message: BlackboardSMSG)
 signal letters_received(message: LettersSMSG)
 ## A pigeon brought a letter to the played master.
 signal letter_arrived(message: LetterArrivedSMSG)
@@ -1811,6 +1813,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		quest_log_received.emit(message)
 	elif message is QuestUpdatedSMSG:
 		quest_updated.emit(message)
+	elif message is BlackboardSMSG:
+		blackboard_opened.emit(message)
 	elif message is LetterArrivedSMSG:
 		letter_arrived.emit(message)
 	elif message is LetterSentSMSG:

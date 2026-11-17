@@ -94,6 +94,7 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.Letters] = e => Postal.LettersSMSG.FromProto(e.Letters),
       [Envelope.MessageOneofCase.QuestLog] = e => Quest.QuestLogSMSG.FromProto(e.QuestLog),
       [Envelope.MessageOneofCase.QuestUpdated] = e => Quest.QuestUpdatedSMSG.FromProto(e.QuestUpdated),
+      [Envelope.MessageOneofCase.Blackboard] = e => Quest.BlackboardSMSG.FromProto(e.Blackboard),
       [Envelope.MessageOneofCase.LetterArrived] = e => Postal.LetterArrivedSMSG.FromProto(e.LetterArrived),
       [Envelope.MessageOneofCase.LetterSent] = e => Postal.LetterSentSMSG.FromProto(e.LetterSent),
       [Envelope.MessageOneofCase.PostOfficeOpen] = e => Postal.PostOfficeOpenSMSG.FromProto(e.PostOfficeOpen),

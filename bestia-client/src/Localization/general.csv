@@ -1048,3 +1048,18 @@ INCUBATOR_NO_EGGS,You carry no bestia egg.
 INCUBATOR_WAITING_FOR_SLOT,The egg is ready. Free a bestia slot and it hatches.
 SUCCESS_BREEDING_EGG_LAID,Your Breeding Farm laid an egg.
 SUCCESS_BESTIA_HATCHED,An egg hatched. Your new bestia waits next to the Incubator.
+BLACKBOARD_TITLE,Blackboard of %s
+BLACKBOARD_TITLE_NOWHERE,Blackboard
+BLACKBOARD_SEARCH,Search quests
+BLACKBOARD_EMPTY,No quests are posted yet. Post one to have others bring you what you need.
+BLACKBOARD_GROUP_SIGNED,Signed
+BLACKBOARD_GROUP_OPEN,Open
+BLACKBOARD_GROUP_YOURS,Posted by you
+BLACKBOARD_SUBTITLE,Posted by %s · ends in %s · suggested Lv %d
+BLACKBOARD_PROGRESS,%d / %d delivered (you: %d)
+BLACKBOARD_PAYS_EACH,Pays %d gold each
+QUEST_TIME_LEFT_DAYS,%d d
+QUEST_TIME_LEFT_HOURS,%d h
+QUEST_TIME_LEFT_MINUTES,%d min
+QUEST_TIME_LEFT_ENDED,ended
+QUEST_DELIVER_TITLE,Deliver {amount} {item}

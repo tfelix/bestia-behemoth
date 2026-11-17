@@ -1,15 +1,8 @@
-package net.bestia.zone.quest.net
+package net.bestia.zone.quest
 
 import net.bestia.bnet.proto.QuestProto
-import net.bestia.zone.quest.ObjectiveKind
-import net.bestia.zone.quest.ObjectiveScope
-import net.bestia.zone.quest.QuestOrigin
-import net.bestia.zone.quest.QuestReward
-import net.bestia.zone.quest.QuestStatus
-import net.bestia.zone.quest.QuestTextArg
-import net.bestia.zone.quest.QuestView
 
-internal fun QuestView.toProto(): QuestProto.Quest {
+fun QuestView.toProto(): QuestProto.Quest {
   val quest = QuestProto.Quest.newBuilder()
     .setQuestId(questId)
     .setOrigin(origin.toProto())

@@ -91,6 +91,12 @@ static func _resolve_arg(arg) -> String:
 				printerr("DialogText: unknown item id %d in dialog arg '%s'" % [arg.Number, arg.Name])
 				return "?"
 			return _translate(item.name_key)
+		"species":
+			var species := BestiaDB.get_instance().get_bestia(int(arg.Number))
+			if species == null:
+				printerr("DialogText: unknown species id %d in arg '%s'" % [arg.Number, arg.Name])
+				return "?"
+			return _translate(species.name_key)
 		"skill":
 			var attack := AttackDB.get_instance().get_attack(int(arg.Number))
 			if attack == null:
