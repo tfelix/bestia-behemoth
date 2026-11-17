@@ -15,8 +15,10 @@ signal habitat_requested(species_id: int)
 const PARCHMENT := Color(0.91, 0.86, 0.74)
 
 const _DETAIL_PORTRAIT_SIZE := 150
+const _DROP_ICON_SIZE := 24
 
 var _searcher := CompendiumSearcher.new()
+var _drop_finder := DropFinder.new()
 ## Every species the compendium lists, by number.
 var _species: Array[BestiaResource] = []
 ## species id -> CompendiumEntry, for each species this master has seen
@@ -44,6 +46,7 @@ var _detail_subtitle: Label
 var _detail_caught: Label
 var _detail_habitat: Label
 var _detail_description: Label
+var _detail_drops: VBoxContainer
 var _habitat_button: Button
 
 
@@ -170,6 +173,12 @@ func _build_detail() -> Control:
 	_detail_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text.add_child(_detail_description)
 
+	# As far below the description as "First seen" is.
+	text.add_child(UiStyle.margin(UiStyle.label(tr("COMPENDIUM_DROPS"), 12, UiStyle.ACCENT), 0, 10, 0, 0))
+	_detail_drops = UiStyle.vbox(2)
+	# Clears the scroll bar, which would cover the chance column.
+	text.add_child(UiStyle.margin(_detail_drops, 0, 0, 12, 0))
+
 	return detail
 
 
@@ -288,6 +297,7 @@ func _show_detail() -> void:
 	_detail_caught.text = tr("COMPENDIUM_CAUGHT") if entry.Caught else tr("COMPENDIUM_NOT_CAUGHT")
 	_detail_caught.add_theme_color_override("font_color", UiStyle.ACCENT if entry.Caught else UiStyle.MUTED)
 	_detail_habitat.text = "%s: %s" % [tr("COMPENDIUM_HABITAT"), _habitat_text(species)]
+	_show_drops(species)
 	_detail_description.text = "%s\n\n%s" % [
 		tr(species.description_key),
 		tr("COMPENDIUM_FIRST_SEEN") % Time.get_date_string_from_unix_time(entry.FirstSeenUnix),
@@ -303,3 +313,34 @@ func _habitat_text(species: BestiaResource) -> String:
 	for biome in biomes:
 		names.append(tr("BIOME_" + biome))
 	return ", ".join(names)
+
+
+func _show_drops(species: BestiaResource) -> void:
+	for row in _detail_drops.get_children():
+		row.queue_free()
+
+	var drops := _drop_finder.DropsOf(species)
+	if drops.is_empty():
+		_detail_drops.add_child(UiStyle.label(tr("COMPENDIUM_DROPS_NONE"), 12, UiStyle.MUTED))
+	for drop in drops:
+		var item := ItemDB.get_instance().get_item(drop["id"])
+		if item != null:
+			_detail_drops.add_child(_drop_row(item, drop["chance"]))
+
+
+func _drop_row(item: ItemResource, chance: int) -> Control:
+	var row := UiStyle.hbox(6)
+
+	var icon := TextureRect.new()
+	icon.texture = item.get_icon()
+	icon.custom_minimum_size = Vector2(_DROP_ICON_SIZE, _DROP_ICON_SIZE)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	row.add_child(icon)
+
+	var item_name := UiStyle.label(tr(item.name_key), 12)
+	item_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(item_name)
+
+	row.add_child(UiStyle.label(_drop_finder.ChanceLabel(chance), 12, UiStyle.MUTED))
+	return row
