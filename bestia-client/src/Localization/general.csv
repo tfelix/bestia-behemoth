@@ -1056,7 +1056,8 @@ BLACKBOARD_GROUP_SIGNED,Signed
 BLACKBOARD_GROUP_OPEN,Open
 BLACKBOARD_GROUP_YOURS,Posted by you
 BLACKBOARD_SUBTITLE,Posted by %s · ends in %s · suggested Lv %d
-BLACKBOARD_PROGRESS,%d / %d delivered (you: %d)
+BLACKBOARD_PROGRESS,%d / %d delivered
+BLACKBOARD_PROGRESS_YOURS,%d / %d delivered (you: %d)
 BLACKBOARD_PAYS_EACH,Pays %d gold each
 QUEST_TIME_LEFT_DAYS,%d d
 QUEST_TIME_LEFT_HOURS,%d h
@@ -1081,3 +1082,9 @@ BLACKBOARD_WITHDRAW_HINT,The quest still takes hand-ins for one hour. Then the u
 BLACKBOARD_CLOSING,closing
 ERROR_BLACKBOARD_CANNOT_AFFORD,You do not have enough gold for the pay and the board's fee.
 ERROR_BLACKBOARD_POSTING_LIMIT,You have as many quests open as the boards allow.
+BLACKBOARD_SIGN,Sign
+BLACKBOARD_SIGN_HINT,Take the quest into your log. Anyone may sign; each signer is paid for what they bring.
+BLACKBOARD_HAND_IN,Hand in %d
+BLACKBOARD_CARRIED,You carry %d
+BLACKBOARD_DROP,Drop quest
+ERROR_BLACKBOARD_NOTHING_TO_HAND_IN,You carry none of what this quest wants.

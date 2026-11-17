@@ -50,6 +50,10 @@ var _detail_progress: Label
 var _detail_bar: ProgressBar
 var _detail_reward: Label
 var _withdraw: Button
+var _sign: Button
+var _hand_in: Button
+var _drop: Button
+var _carried: Label
 var _post_button: Button
 var _form: VBoxContainer
 var _post_name: LineEdit
@@ -69,6 +73,7 @@ func _ready() -> void:
 	_build()
 
 	ConnectionManager.blackboard_opened.connect(_on_opened)
+	ConnectionManager.quest_updated.connect(_on_quest_updated)
 	visibility_changed.connect(_on_visibility_changed)
 	set_process(false)
 
@@ -164,12 +169,32 @@ func _build_detail() -> VBoxContainer:
 	_detail_reward = UiStyle.label("", 12)
 	detail.add_child(_detail_reward)
 
+	_carried = UiStyle.label("", 12, UiStyle.MUTED)
+	detail.add_child(_carried)
+
+	var actions := UiStyle.hbox(6)
+	detail.add_child(actions)
+
+	_sign = Button.new()
+	_sign.text = tr("BLACKBOARD_SIGN")
+	_sign.tooltip_text = tr("BLACKBOARD_SIGN_HINT")
+	_sign.pressed.connect(func() -> void: _send_for_selected("sign"))
+	actions.add_child(_sign)
+
+	_hand_in = Button.new()
+	_hand_in.pressed.connect(_on_hand_in_pressed)
+	actions.add_child(_hand_in)
+
+	_drop = Button.new()
+	_drop.text = tr("BLACKBOARD_DROP")
+	_drop.pressed.connect(func() -> void: ConnectionManager.abandon_quest(_selected_id))
+	actions.add_child(_drop)
+
 	_withdraw = Button.new()
 	_withdraw.text = tr("BLACKBOARD_WITHDRAW")
 	_withdraw.tooltip_text = tr("BLACKBOARD_WITHDRAW_HINT")
-	_withdraw.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	_withdraw.pressed.connect(_on_withdraw_pressed)
-	detail.add_child(_withdraw)
+	_withdraw.pressed.connect(func() -> void: _send_for_selected("withdraw"))
+	actions.add_child(_withdraw)
 
 	detail.visible = false
 	return detail
@@ -319,7 +344,10 @@ func _show(quest) -> void:
 	_detail_progress.visible = objective != null
 	_detail_bar.visible = objective != null
 	if objective != null:
-		_detail_progress.text = tr("BLACKBOARD_PROGRESS") % [objective.Progress, objective.Required, objective.Yours]
+		if quest.RoleName == "accepted":
+			_detail_progress.text = tr("BLACKBOARD_PROGRESS_YOURS") % [objective.Progress, objective.Required, objective.Yours]
+		else:
+			_detail_progress.text = tr("BLACKBOARD_PROGRESS") % [objective.Progress, objective.Required]
 		UiStyle.set_bar(_detail_bar, objective.Progress, objective.Required)
 
 	var reward = quest.Rewards[0] if not quest.Rewards.is_empty() else null
@@ -327,9 +355,67 @@ func _show(quest) -> void:
 	if reward != null:
 		_detail_reward.text = tr("BLACKBOARD_PAYS_EACH") % reward.Amount
 
+	var takes_work: bool = quest.StatusName == "open" or quest.StatusName == "closing"
+	var signed: bool = quest.RoleName == "accepted"
 	_withdraw.visible = quest.RoleName == "posted" and quest.StatusName == "open"
+	_sign.visible = quest.RoleName == "offered" and quest.StatusName == "open"
+	_drop.visible = signed
+	_hand_in.visible = signed and takes_work and _hand_in_amount(quest) > 0
+	_hand_in.text = tr("BLACKBOARD_HAND_IN") % _hand_in_amount(quest)
+	_carried.visible = signed and takes_work
+	_carried.text = tr("BLACKBOARD_CARRIED") % _carried_amount(quest)
 	if quest.StatusName == "closing":
 		_detail_subtitle.text += " · " + tr("BLACKBOARD_CLOSING")
+
+
+## What the played master carries of what the quest wants.
+func _carried_amount(quest) -> int:
+	if inventory == null or quest.Objectives.is_empty():
+		return 0
+	return inventory.get_item_count(quest.Objectives[0].ItemId)
+
+
+## As much as the master carries, but never more than the quest still wants.
+func _hand_in_amount(quest) -> int:
+	if quest.Objectives.is_empty():
+		return 0
+	var objective = quest.Objectives[0]
+	return mini(_carried_amount(quest), objective.Required - objective.Progress)
+
+
+func _selected_quest():
+	for quest in _quests:
+		if quest.QuestId == _selected_id:
+			return quest
+	return null
+
+
+func _on_hand_in_pressed() -> void:
+	var quest = _selected_quest()
+	if not is_open() or quest == null:
+		return
+
+	var args = ConnectionManager.ScriptArgsCls.new()
+	args.SetText(ScriptArgKeys.ACTION, "handIn")
+	args.SetInt(ScriptArgKeys.QUEST_ID, _selected_id)
+	args.SetInt(ScriptArgKeys.AMOUNT, _hand_in_amount(quest))
+	ConnectionManager.interact_entity(_board_id, args)
+
+
+func _send_for_selected(action: String) -> void:
+	if not is_open() or _selected_id == 0:
+		return
+
+	var args = ConnectionManager.ScriptArgsCls.new()
+	args.SetText(ScriptArgKeys.ACTION, action)
+	args.SetInt(ScriptArgKeys.QUEST_ID, _selected_id)
+	ConnectionManager.interact_entity(_board_id, args)
+
+
+## A quest on the board changed - another signer's hand-in, a drop, a deadline - so the board asks again.
+func _on_quest_updated(_msg: QuestUpdatedSMSG) -> void:
+	if is_open():
+		ConnectionManager.interact_entity(_board_id)
 
 
 # ----------------------------------------------------------------- posting
@@ -431,14 +517,6 @@ func _on_post_pressed() -> void:
 	_hide_form()
 
 
-func _on_withdraw_pressed() -> void:
-	if not is_open() or _selected_id == 0:
-		return
-
-	var args = ConnectionManager.ScriptArgsCls.new()
-	args.SetText(ScriptArgKeys.ACTION, "withdraw")
-	args.SetInt(ScriptArgKeys.QUEST_ID, _selected_id)
-	ConnectionManager.interact_entity(_board_id, args)
 
 
 func _group_of(quest) -> String:
