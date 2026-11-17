@@ -337,7 +337,7 @@ enum class FeatureKind(val defaultPriority: Int) {
    * `Invariants.checkStructuralMarkersFitTheQueryMargin`, unlike [WOUND] - there is no radius to outrun the
    * query margin with.
    *
-   * The rarest kind in the world by a wide margin: at most one per entry in `poi/PoiKind`, so a handful per
+   * The rarest kind in the world by a wide margin: at most `count` per entry in `poi/PoiKind`, so a handful per
    * world against a few thousand dens and ten thousand stands. Its whole reason for existing is that neither of
    * the two mechanisms above it can say "one of these, somewhere" - a lattice scatter has no notion of a
    * world-wide count, and everything `history/` places has to be *earned* by a simulated civilisation. See
