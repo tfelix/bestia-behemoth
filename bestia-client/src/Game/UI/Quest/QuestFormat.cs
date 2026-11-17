@@ -40,6 +40,25 @@ namespace BestiaBehemothClient.Game.UI.Quest
       };
     }
 
+    /// <summary>
+    /// Whether a board's open levels hold one worth the master's time: not trivial and not deadly. Bit n of
+    /// <paramref name="levelsLow"/> is level n + 1, bit n of <paramref name="levelsHigh"/> level n + 65.
+    /// </summary>
+    public static bool OfferFits(long levelsLow, long levelsHigh, int masterLevel)
+    {
+      for (var level = 1; level <= 128; level++)
+      {
+        var mask = level <= 64 ? levelsLow : levelsHigh;
+        var bit = (level - 1) % 64;
+        if ((mask >> bit & 1L) == 0) continue;
+
+        var band = LevelBand(level, masterLevel);
+        if (band != "trivial" && band != "deadly") return true;
+      }
+
+      return false;
+    }
+
     /// <summary>The board's fee: the server's <c>BlackboardFees</c>, rounded up, at least one coin.</summary>
     public static long BoardFee(long pay, int percent)
     {

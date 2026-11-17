@@ -76,6 +76,9 @@ var _last_worn_gear_msg: WornGearComponentSMSG = null
 var _guild_tag: GuildTagComponentSMSG = null
 var _item_enchantments: ItemEnchantmentsComponentSMSG = null
 
+# A quest board's open levels, kept for a visual that is built after they arrived.
+var _last_offer_msg: BlackboardOfferComponentSMSG
+
 # Base level, 0 until the first push. Sent for everything in range, so a stranger's mob shows it on hover too.
 var _level: int = 0
 
@@ -753,6 +756,8 @@ func _seed_visual(visual: Node) -> void:
 		visual.update_worn_gear(_last_worn_gear_msg)
 	if _guild_tag != null and visual.has_method("set_guild_tag"):
 		visual.set_guild_tag(_guild_tag)
+	if _last_offer_msg != null and visual.has_method("set_offer"):
+		visual.set_offer(_last_offer_msg.LevelsLow, _last_offer_msg.LevelsHigh)
 	if _item_enchantments != null and visual.has_method("set_item_enchantments"):
 		visual.set_item_enchantments(_item_enchantments)
 	if _level > 0 and visual.has_method("set_level"):
@@ -1387,6 +1392,14 @@ func clear_casting() -> void:
 
 ## Progress on a construction site. Its removal - finished, or knocked down - arrives the same way, and
 ## needs nothing here: the entity is destroyed either way, so the visual goes with it.
+## Only a quest board carries this. The board marks itself when an open quest fits the played master.
+func update_blackboard_offer(msg: BlackboardOfferComponentSMSG) -> void:
+	_last_offer_msg = msg
+	var visual = get_node_or_null(_VISUAL_NODE_NAME)
+	if visual != null and visual.has_method("set_offer"):
+		visual.set_offer(msg.LevelsLow, msg.LevelsHigh)
+
+
 func update_construction(msg: ConstructionComponentSMSG) -> void:
 	var visual = _get_visual_for_method("update_construction")
 	if visual != null:
