@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BlackboardOfferComponentSMSGProto";
+
+// The suggested levels of the quests open on the boards, the same on every board, so a client marks the boards
+// that have something for its master. Bit n of levels_low is level n + 1, bit n of levels_high level n + 65.
+message BlackboardOfferComponentSMSG {
+  fixed64 levels_low = 1;
+  fixed64 levels_high = 2;
+}
