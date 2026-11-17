@@ -23,6 +23,8 @@ import net.bestia.zone.entity.ecs.Living
 import net.bestia.zone.battle.ecs.damage.GroundSpill
 import net.bestia.zone.battle.ecs.damage.PlayerDeathSystem
 import net.bestia.zone.battle.ecs.damage.TakenDamage
+import net.bestia.zone.entity.observe.KillObserver
+import net.bestia.zone.entity.observe.KillFact
 
 @SpringComponent
 class DeathSystem(
@@ -34,6 +36,7 @@ class DeathSystem(
   private val spill: GroundSpill,
   private val levies: List<KillExpLevy> = emptyList(),
   private val lootChanceModifiers: List<LootChanceModifier> = emptyList(),
+  private val killObservers: List<KillObserver> = emptyList(),
   private val metrics: GameMetrics = GameMetrics(),
 ) : System {
   override val phase = Phase.DEATH
@@ -48,10 +51,11 @@ class DeathSystem(
       Persistent::class,
       Living::class,
       Level::class
-    ) + expSplitter.reads + levies.flatMap { it.reads } + lootChanceModifiers.flatMap { it.reads }
+    ) + expSplitter.reads + levies.flatMap { it.reads } + lootChanceModifiers.flatMap { it.reads } +
+      killObservers.flatMap { it.reads }
 
   // `Dead` is written rather than read: `bled` is set here, the same way PlayerDeathSystem sets `resolved`.
-  override val writes: ComponentClassSet = setOf(Dead::class, Exp::class)
+  override val writes: ComponentClassSet = setOf(Dead::class, Exp::class) + killObservers.flatMap { it.writes }
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Dead::class).each { entityId ->
@@ -136,7 +140,8 @@ class DeathSystem(
         attackingPlayerCount
       )
 
-      expSplitter.split(world, killedAt, earnedExp).forEach { credit ->
+      val credits = expSplitter.split(world, killedAt, earnedExp)
+      credits.forEach { credit ->
         val kept = credit.masterEntityId
           ?.let { master -> levies.fold(credit.amount) { amount, levy -> levy.levy(world, master, amount) } }
           ?: credit.amount
@@ -146,7 +151,21 @@ class DeathSystem(
           world.update(credit.entityId, { GainExp() }) { exp -> exp.value += kept }
         }
       }
+
+      killedAt?.let { reportToObservers(world, KillFact(species, it, creditedMasters(credits))) }
     }
+  }
+
+  /** Who earns the kill is who earns its EXP, so a party share counts for every member it reaches. */
+  private fun creditedMasters(credits: List<KillExpSplitter.ExpCredit>): Set<EntityId> {
+    return credits.mapNotNullTo(HashSet()) { it.masterEntityId }
+  }
+
+  private fun reportToObservers(world: World, kill: KillFact) {
+    if (kill.creditedMasters.isEmpty()) {
+      return
+    }
+    killObservers.forEach { it.onKill(world, kill) }
   }
 
   private fun spawnLoot(

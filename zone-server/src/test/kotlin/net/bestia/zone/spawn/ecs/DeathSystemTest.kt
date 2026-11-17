@@ -1,5 +1,6 @@
 package net.bestia.zone.spawn.ecs
 
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.config.PartyRulesConfig
@@ -21,6 +22,11 @@ import kotlin.test.assertTrue
 import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.entity.ecs.Living
+import net.bestia.zone.entity.observe.KillFact
+import net.bestia.zone.entity.observe.KillObserver
+import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.identity.ecs.Master
 
 /**
  * Who is gone for good when they die, and who is not.
@@ -201,5 +207,41 @@ class DeathSystemTest {
     repeat(5) { sut.update(world, 0f) }
 
     assertEquals(1, spilledAt.size)
+  }
+
+  @Test
+  fun `a kill is reported to observers with the masters who earned it`() {
+    val world = testWorld()
+    val killer = world.createEntity { eid -> add(eid, Master(1L)) }
+    val bystander = world.createEntity { eid -> add(eid, Master(2L)) }
+    val mob = world.deadBestia()
+    world.add(mob, TakenDamage().apply { addDamage(killer, 10) })
+
+    val heard = mutableListOf<KillFact>()
+    val observer = object : KillObserver {
+      override val reads: ComponentClassSet = emptySet()
+      override val writes: ComponentClassSet = emptySet()
+
+      override fun onKill(world: World, kill: KillFact) {
+        heard += kill
+      }
+    }
+    val calculator = mockk<ExperienceGainCalculator> {
+      every { calculate(any(), any(), any(), any()) } returns mapOf(killer to 10)
+    }
+    val observed = DeathSystem(
+      experienceGainCalculator = calculator,
+      mobLootSpawner = lootSpawner,
+      deletionQueue = deletionQueue,
+      expSplitter = KillExpSplitter(ConnectionInfoService(), PartyRulesConfig()),
+      notableKills = mockk<KillReporter>(relaxed = true),
+      spill = { _, _ -> },
+      killObservers = listOf(observer),
+    )
+
+    observed.update(world, 0f)
+
+    assertEquals(listOf(KillFact(7L, Vec3L(1, 2, 3), setOf(killer))), heard)
+    assertFalse(bystander in heard.single().creditedMasters)
   }
 }
