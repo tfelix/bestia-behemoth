@@ -286,6 +286,11 @@ enum class StaticEntityKind {
     /** Whether this kind is one of the fixtures, whose style travels as its model variant. */
     fun isFixture(kind: StaticEntityKind) = kind in FIXTURE_KINDS
 
+    /** The kind a landmark entity of [poi] is drawn and configured as. */
+    fun ofPoi(poi: PoiKind): StaticEntityKind {
+      return POI_KINDS[poi.ordinal]
+    }
+
     private val POI_KINDS: List<StaticEntityKind> = PoiKind.entries.map { poi ->
       val name = "POI_${poi.name}"
       requireNotNull(entries.firstOrNull { it.name == name }) {
