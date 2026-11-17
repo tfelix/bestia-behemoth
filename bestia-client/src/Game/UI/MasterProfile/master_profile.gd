@@ -13,6 +13,7 @@ const _MENU_HOTKEYS := {
 	"Party": "toggle_party",
 	"Guild": "toggle_guild",
 	"Compendium": "toggle_compendium",
+	"Quests": "toggle_quest_log",
 	"Emotes": "toggle_emotes",
 	"Letters": "toggle_letters",
 }
@@ -55,6 +56,7 @@ signal status_win_toggled
 signal party_win_toggled
 signal guild_win_toggled
 signal compendium_win_toggled
+signal quest_log_win_toggled
 signal emotes_win_toggled
 signal letters_win_toggled
 signal crafting_win_toggled
@@ -306,6 +308,8 @@ func _process(_delta: float) -> void:
 		guild_win_toggled.emit()
 	if Input.is_action_just_pressed("toggle_compendium"):
 		compendium_win_toggled.emit()
+	if Input.is_action_just_pressed("toggle_quest_log"):
+		quest_log_win_toggled.emit()
 	if Input.is_action_just_pressed("toggle_emotes"):
 		emotes_win_toggled.emit()
 	if Input.is_action_just_pressed("toggle_letters"):
@@ -365,6 +369,10 @@ func _on_emotes_pressed() -> void:
 
 func _on_compendium_pressed() -> void:
 	compendium_win_toggled.emit()
+
+
+func _on_quests_pressed() -> void:
+	quest_log_win_toggled.emit()
 
 
 func _on_letters_pressed() -> void:
