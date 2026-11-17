@@ -41,6 +41,18 @@ namespace BestiaBehemothClient.Tests
       Assert.Equal(fee, QuestFormat.BoardFee(pay, percent));
     }
 
+    [Fact]
+    public void MarksABoardOnlyForQuestsInTheMastersBand()
+    {
+      const long level5And80Low = 1L << 4;
+      const long level80High = 1L << 15;
+
+      Assert.False(QuestFormat.OfferFits(level5And80Low, level80High, masterLevel: 40));
+      Assert.True(QuestFormat.OfferFits(level5And80Low, level80High, masterLevel: 6));
+      Assert.True(QuestFormat.OfferFits(0, level80High, masterLevel: 78));
+      Assert.False(QuestFormat.OfferFits(0, 0, masterLevel: 20));
+    }
+
     private const long Minute = 60_000;
     private const long Hour = 60 * Minute;
     private const long Day = 24 * Hour;

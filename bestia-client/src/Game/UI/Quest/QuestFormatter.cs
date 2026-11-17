@@ -21,6 +21,11 @@ namespace BestiaBehemothClient.Game.UI.Quest
       return QuestFormat.TimeLeftAmount(deadlineEpochMs, nowEpochMs);
     }
 
+    public bool OfferFits(long levelsLow, long levelsHigh, int masterLevel)
+    {
+      return QuestFormat.OfferFits(levelsLow, levelsHigh, masterLevel);
+    }
+
     public long BoardFee(long pay, int percent)
     {
       return QuestFormat.BoardFee(pay, percent);

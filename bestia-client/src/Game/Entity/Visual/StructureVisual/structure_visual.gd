@@ -28,6 +28,16 @@ var _remaining_seconds: float = 0.0
 ## this is true - a site nobody is building holds exactly where it is. See ConstructionComponentSMSG.
 var _active: bool = false
 
+## How often a board's marker asks again whether it fits: the master's level changes without the board knowing.
+const _OFFER_RECHECK_SECONDS := 2.0
+## Above the placeholder board, clear of a player's name tag.
+const _OFFER_MARKER_HEIGHT := 3.0
+
+var _formatter := QuestFormatter.new()
+var _offer_marker: Label3D
+var _offer_low: int = 0
+var _offer_high: int = 0
+
 @onready var _pick_shape: CollisionShape3D = $Area3D/CollisionShape3D
 
 
@@ -74,6 +84,41 @@ func _ready() -> void:
 
 	# Whatever arrived before the art existed.
 	_apply_progress()
+
+
+## A quest board's open levels. The "!" shows while one fits the played master, who may level up meanwhile.
+func set_offer(levels_low: int, levels_high: int) -> void:
+	if _offer_marker == null:
+		_offer_marker = _build_offer_marker()
+		add_child(_offer_marker)
+		var timer := Timer.new()
+		timer.wait_time = _OFFER_RECHECK_SECONDS
+		timer.autostart = true
+		timer.timeout.connect(_recheck_offer)
+		add_child(timer)
+	_offer_low = levels_low
+	_offer_high = levels_high
+	_recheck_offer()
+
+
+func _recheck_offer() -> void:
+	var manager := EntityManager.get_instance()
+	var master := manager.get_master_entity() if manager != null else null
+	var fits: bool = master != null and _formatter.OfferFits(_offer_low, _offer_high, master.get_level())
+	_offer_marker.visible = fits
+
+
+func _build_offer_marker() -> Label3D:
+	var marker := Label3D.new()
+	marker.text = "!"
+	marker.font_size = 96
+	marker.outline_size = 18
+	marker.modulate = QuestStyle.BAND_COLOURS["fair"]
+	marker.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	marker.no_depth_test = true
+	marker.position = Vector3(0.0, _OFFER_MARKER_HEIGHT, 0.0)
+	marker.visible = false
+	return marker
 
 
 func update_construction(msg: ConstructionComponentSMSG) -> void:

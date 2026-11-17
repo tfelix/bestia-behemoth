@@ -383,6 +383,8 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		# Owner-only on the wire, so this only ever arrives for the local master. Cached on the entity for
 		# the reason update_mana states: the location panel may not exist yet when the first one lands.
 		entity.update_place(msg)
+	elif msg is BlackboardOfferComponentSMSG:
+		entity.update_blackboard_offer(msg)
 	elif msg is AreaNameComponentSMSG:
 		# No handling yet. A label over a town gate needs a visual that can carry one, which
 		# StaticEntityRenderer deliberately does not - see its note on nameplates.

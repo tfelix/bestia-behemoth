@@ -46,6 +46,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         case global::Bnet.ComponentDelta.ComponentOneofCase.TownsfolkVisual: return TownsfolkVisualComponentSMSG.FromProto(entityId, delta.TownsfolkVisual);
         case global::Bnet.ComponentDelta.ComponentOneofCase.Level: return LevelComponentSMSG.FromBnet(entityId, delta.Level);
         case global::Bnet.ComponentDelta.ComponentOneofCase.AreaName: return AreaNameComponentSMSG.FromProto(entityId, delta.AreaName);
+        case global::Bnet.ComponentDelta.ComponentOneofCase.BlackboardOffer: return BlackboardOfferComponentSMSG.FromProto(entityId, delta.BlackboardOffer);
         case global::Bnet.ComponentDelta.ComponentOneofCase.Exp: return ExpComponentSMSG.FromBnet(entityId, delta.Exp);
         case global::Bnet.ComponentDelta.ComponentOneofCase.Inventory: return InventoryComponentSMSG.FromProto(entityId, delta.Inventory);
         case global::Bnet.ComponentDelta.ComponentOneofCase.SkillPoints: return SkillPointsComponentSMSG.FromProto(entityId, delta.SkillPoints);
