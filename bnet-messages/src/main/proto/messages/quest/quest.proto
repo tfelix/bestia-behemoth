@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "QuestProto";
+
+// Who made a quest. Quests are made at runtime, so this names a maker, never a catalogue of quests.
+enum QuestOrigin {
+  QUEST_ORIGIN_BLACKBOARD = 0;
+}
+
+enum QuestStatus {
+  QUEST_STATUS_OPEN = 0;
+  // The poster withdrew it: work handed in before the notice runs out still counts.
+  QUEST_STATUS_CLOSING = 1;
+  QUEST_STATUS_COMPLETED = 2;
+  QUEST_STATUS_EXPIRED = 3;
+  QUEST_STATUS_WITHDRAWN = 4;
+}
+
+// Why the quest is in this master's log.
+enum QuestRole {
+  QUEST_ROLE_ACCEPTED = 0;
+  QUEST_ROLE_POSTED = 1;
+}
+
+enum ObjectiveKind {
+  OBJECTIVE_KIND_DELIVER_ITEM = 0;
+}
+
+enum ObjectiveScope {
+  // Everyone who accepted works towards one counter.
+  OBJECTIVE_SCOPE_SHARED = 0;
+  OBJECTIVE_SCOPE_PERSONAL = 1;
+}
+
+enum QuestRewardKind {
+  QUEST_REWARD_KIND_COINS_PER_UNIT = 0;
+}
+
+// A value for the quest's title template. Typed, so the client names items and species in its own language.
+message QuestTextArg {
+  oneof value {
+    int64 number = 1;
+    int64 item_id = 2;
+    int64 species_id = 3;
+    // A translation key the client resolves.
+    string token = 4;
+    // A proper noun, already rendered: a town or a player.
+    string name = 5;
+  }
+}
+
+message QuestObjective {
+  ObjectiveKind kind = 1;
+  ObjectiveScope scope = 2;
+  int64 item_id = 3;
+  uint32 required = 4;
+  // The shared total for a shared objective, the master's own count for a personal one.
+  uint32 progress = 5;
+  // What this master contributed. Equal to progress for a personal objective.
+  uint32 yours = 6;
+}
+
+message QuestReward {
+  QuestRewardKind kind = 1;
+  int64 amount = 2;
+}
+
+// Everything the client shows of one quest. Complete on its own: there is no quest definition to look up.
+message Quest {
+  uint64 quest_id = 1;
+  QuestOrigin origin = 2;
+  QuestStatus status = 3;
+  QuestRole role = 4;
+  string title_key = 5;
+  map<string, QuestTextArg> args = 6;
+  uint32 suggested_level = 7;
+  int64 deadline_epoch_ms = 8;
+  string poster_name = 9;
+  repeated QuestObjective objectives = 10;
+  repeated QuestReward rewards = 11;
+}

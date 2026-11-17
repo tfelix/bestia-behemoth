@@ -208,6 +208,8 @@ import "messages/breeding/breeding_farm_smsg.proto";
 import "messages/breeding/bestia_egg_smsg.proto";
 import "messages/breeding/place_egg_cmsg.proto";
 import "messages/breeding/incubator_smsg.proto";
+import "messages/quest/quest_log_smsg.proto";
+import "messages/quest/quest_updated_smsg.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EnvelopeProto";
@@ -480,6 +482,10 @@ message Envelope {
     SaveOrderPresetCMSG save_order_preset = 943;
     DeleteOrderPresetCMSG delete_order_preset = 944;
     SaveWorkAreaCMSG save_work_area = 945;
+
+    // QUEST 980
+    QuestLogSMSG quest_log = 980;
+    QuestUpdatedSMSG quest_updated = 981;
 
     // MISC
   }

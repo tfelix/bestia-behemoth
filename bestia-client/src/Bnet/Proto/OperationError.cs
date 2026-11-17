@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqMLgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSq0LgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -156,9 +156,10 @@ namespace Bnet {
             "TkVFRFNfSEFMRl9NQU5BELEBEiAKG1NLSUxMX05FRURTX1NQRUFSX09SX1RI",
             "Uk9XThCyARIbChZTS0lMTF9OT1RISU5HX1RPX1RIUk9XELMBEhQKD1NLSUxM",
             "X05FRURTX0JPVxC0ARIVChBTS0lMTF9ORUVEU19XSElQELUBEhsKFlNLSUxM",
-            "X05FRURTX0lOU1RSVU1FTlQQtgESFQoQU0tJTExfTkVFRFNfQUxMWRC3ASIE",
-            "CC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5w",
-            "cm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
+            "X05FRURTX0lOU1RSVU1FTlQQtgESFQoQU0tJTExfTkVFRFNfQUxMWRC3ARIT",
+            "Cg5RVUVTVF9MT0dfRlVMTBCAAxIRCgxRVUVTVF9DTE9TRUQQgQMiBAguEC4q",
+            "ElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
+            "E09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1001,6 +1002,14 @@ namespace Bnet {
     /// A skill that helps an ally, like Potion Pitcher, was aimed at something on the other side.
     /// </summary>
     [pbr::OriginalName("SKILL_NEEDS_ALLY")] SkillNeedsAlly = 183,
+    /// <summary>
+    /// The quest log holds as many quests as it can; finish or drop one first.
+    /// </summary>
+    [pbr::OriginalName("QUEST_LOG_FULL")] QuestLogFull = 384,
+    /// <summary>
+    /// The quest stopped taking new hands: it was withdrawn, finished or ran out of time.
+    /// </summary>
+    [pbr::OriginalName("QUEST_CLOSED")] QuestClosed = 385,
   }
 
   #endregion
