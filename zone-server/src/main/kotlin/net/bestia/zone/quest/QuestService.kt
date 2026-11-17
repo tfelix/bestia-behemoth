@@ -190,6 +190,12 @@ class QuestService(
     }
   }
 
+  /** The suggested level of every [origin] quest still taking work, for marking where there is work to take. */
+  @Transactional(readOnly = true)
+  fun openLevels(origin: QuestOrigin): List<Int> {
+    return quests.findAllByOriginAndStatusIn(origin, QuestStatus.entries.filter { it.takesWork }).map { it.suggestedLevel }
+  }
+
   /** How [masterId]'s log shows the quest, or null when it is not in that log. */
   @Transactional(readOnly = true)
   fun viewFor(masterId: Long, questId: Long): QuestView? {

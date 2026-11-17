@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component
 class BlackboardBootRunner(
   private val boards: Blackboards,
   private val startTownBoards: StartTownBoards,
+  private val offers: BlackboardOffers,
   private val world: World,
 ) : CommandLineRunner {
 
@@ -21,6 +22,7 @@ class BlackboardBootRunner(
 
     val startTownSpots = startTownBoards.spots()
     startTownSpots.forEach { boards.raise(world, it, structureId = null) }
+    offers.refresh()
 
     LOG.info { "Raised ${built.size} built blackboards and ${startTownSpots.size} in the start towns" }
   }

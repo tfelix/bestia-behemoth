@@ -2,6 +2,7 @@ package net.bestia.zone.blackboard
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.blackboard.ecs.Blackboard
+import net.bestia.zone.blackboard.ecs.BlackboardOffer
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.EntityVisual
@@ -44,6 +45,7 @@ class Blackboards(
       add(id, Position.fromVec3(at))
       add(id, EntityVisual(VisualKind.STRUCTURE, StaticEntityKind.BLACKBOARD.ordinal.toLong()))
       add(id, Blackboard(structureId))
+      add(id, BlackboardOffer())
     }
   }
 
