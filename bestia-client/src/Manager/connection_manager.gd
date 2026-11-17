@@ -78,6 +78,10 @@ signal inscription_options_received(message: InscriptionOptionsSMSG)
 ## The played master's own Spell Bindings, on request and after each change.
 signal spell_bindings_received(message: SpellBindingsSMSG)
 ## The played master's whole mailbox, on request and after a letter was thrown away.
+## The played master's whole quest log, sent once it selected a master.
+signal quest_log_received(message: QuestLogSMSG)
+## One quest in the log changed, or left it.
+signal quest_updated(message: QuestUpdatedSMSG)
 signal letters_received(message: LettersSMSG)
 ## A pigeon brought a letter to the played master.
 signal letter_arrived(message: LetterArrivedSMSG)
@@ -214,6 +218,7 @@ var SendLetterCMSG = load("res://Bnet/Message/Postal/SendLetterCMSG.cs")
 var RequestLettersCMSG = load("res://Bnet/Message/Postal/RequestLettersCMSG.cs")
 var ReadLetterCMSG = load("res://Bnet/Message/Postal/ReadLetterCMSG.cs")
 var DeleteLetterCMSG = load("res://Bnet/Message/Postal/DeleteLetterCMSG.cs")
+var AbandonQuestCMSG = load("res://Bnet/Message/Quest/AbandonQuestCMSG.cs")
 var SetHomePostOfficeCMSG = load("res://Bnet/Message/Postal/SetHomePostOfficeCMSG.cs")
 var QuoteParcelCMSG = load("res://Bnet/Message/Postal/QuoteParcelCMSG.cs")
 var SendParcelCMSG = load("res://Bnet/Message/Postal/SendParcelCMSG.cs")
@@ -1220,6 +1225,14 @@ func read_letter(letter_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Drops an accepted quest, or clears one that ended. Answered by a QuestUpdatedSMSG.
+func abandon_quest(quest_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = AbandonQuestCMSG.new()
+	msg.QuestId = quest_id
+	_socket.SendMessage(msg)
+
+
 ## Throws a letter away. Answered by a LettersSMSG.
 func delete_letter(letter_id: int) -> void:
 	assert(is_ready_to_send())
@@ -1794,6 +1807,10 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		spell_bindings_received.emit(message)
 	elif message is LettersSMSG:
 		letters_received.emit(message)
+	elif message is QuestLogSMSG:
+		quest_log_received.emit(message)
+	elif message is QuestUpdatedSMSG:
+		quest_updated.emit(message)
 	elif message is LetterArrivedSMSG:
 		letter_arrived.emit(message)
 	elif message is LetterSentSMSG:
