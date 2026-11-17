@@ -118,8 +118,11 @@ data class PoiParams(
    */
   val roadClearance: Double = 40.0,
 
+  /** Metres between any two landmarks. All kinds search one lattice, so without it two could share a point. */
+  val landmarkClearance: Double = 300.0,
+
   /**
-   * How many candidate positions are kept per landmark.
+   * How many candidate positions are kept per landmark copy.
    *
    * A shortlist rather than the whole eligible set, and it is a memory bound rather than a tuning knob: a 4096 km
    * world offers a million samples at [candidateStride], and holding every one of them as an object to pick one
@@ -140,6 +143,7 @@ data class PoiParams(
     require(siteClearance >= 0.0) { "siteClearance must not be negative, was $siteClearance" }
     require(caveClearance >= 0.0) { "caveClearance must not be negative, was $caveClearance" }
     require(roadClearance >= 0.0) { "roadClearance must not be negative, was $roadClearance" }
+    require(landmarkClearance >= 0.0) { "landmarkClearance must not be negative, was $landmarkClearance" }
     require(maxCandidates > 0) { "maxCandidates must be positive, was $maxCandidates" }
   }
 
@@ -150,6 +154,7 @@ data class PoiParams(
     siteClearance = source.double("siteClearance", siteClearance),
     caveClearance = source.double("caveClearance", caveClearance),
     roadClearance = source.double("roadClearance", roadClearance),
+    landmarkClearance = source.double("landmarkClearance", landmarkClearance),
     maxCandidates = source.int("maxCandidates", maxCandidates)
   )
 
@@ -160,46 +165,19 @@ data class PoiParams(
     .put("siteClearance", siteClearance)
     .put("caveClearance", caveClearance)
     .put("roadClearance", roadClearance)
+    .put("landmarkClearance", landmarkClearance)
     .put("maxCandidates", maxCandidates)
 }
 
 /**
- * Points of interest: the hand-authored landmarks, rolled once each per world.
+ * Points of interest: the hand-authored landmarks of [PoiKind], rolled per world and copy.
  *
- * Read [PoiKind] first - it says what a POI is and why it is neither a scatter nor a built site.
+ * The roll comes before the search: whether a world holds a copy is one hash of the seed, the kind's ordinal and
+ * the copy index, so [PoiKind.chance] means the same on every world size and an appended kind moves nothing.
  *
- * ### The roll comes before the search, and that is the whole shape of this stage
- *
- * Every other placement in the pipeline searches first and decides second: `SpecialSites` scores a few hundred
- * hilltops and `HistorySim` then rolls per year against the best of them. This is the other way round. Whether a
- * world holds a lost grave is a property of the *world*, decided by one hash of the seed and the entry's
- * ordinal, and the search only answers where it goes once the answer is yes.
- *
- * That ordering is what makes [PoiKind.chance] mean what it says. Rolled per candidate it would mean "how often
- * a hilltop holds one", and the count would grow with the world's area - a landmark that is unique on a small
- * world and commonplace on a large one. Rolled once, forty-five per cent is forty-five per cent of worlds on
- * every world size.
- *
- * ### Salted by ordinal, never by stream position
- *
- * `GenRng.hashUnit(seed, PRESENCE_SALT, ordinal)` rather than a sequence of draws down the catalogue. Two
- * consequences, both load bearing:
- *
- * - **Appending an entry moves nothing.** A new landmark at the end of [PoiKind] leaves every existing entry's
- *   roll and position untouched, so the catalogue can grow without rewriting every world that already exists.
- * - **A roll that fails costs nothing.** No stream advances, so the entries are genuinely independent rather
- *   than merely looking it.
- *
- * `PRESENCE_SALT` and `PICK_SALT` are separate constants for the reason `HistorySim` keeps eight of them: two of
- * its decisions once shared `HOARD_SALT` and read the same number as each other for the life of the world.
- *
- * ### Two passes of filtering, cheap then expensive
- *
- * The scan applies only what a raster can answer - biome, freeboard, standing water - because it runs at every
- * sampled position on the world. The clearances in [PoiParams] need a distance to every settlement, site, cave
- * mouth and road, so they are asked only of the shortlist, in pick order, until one position passes. A landmark
- * therefore gets [PoiParams.maxCandidates] attempts at finding somewhere nothing else has claimed, and does it
- * without ever measuring a distance for the thousands of positions it will not use.
+ * Filtering runs in two passes. The scan applies only what a raster can answer (biome, freeboard, standing
+ * water) at every sampled position. The clearances in [PoiParams] need distances, so [PoiPlacement] asks them of
+ * the shortlist only, in pick order.
  */
 class PoiStage(
   override val resolution: Resolution = Resolution.KILOMETRE,
@@ -208,7 +186,7 @@ class PoiStage(
 
   override val id = ID
 
-  override val version = 1
+  override val version = 2
 
   /**
    * The catalogue is folded in beside the params, and it is the more important half.
@@ -244,31 +222,30 @@ class PoiStage(
   override val outputs = listOf(StageOutput.Vector(FeatureKind.POI))
 
   override fun generate(ctx: GenContext, region: CellRegion): StageResult {
-    // The roll first, so a world that holds nothing does no searching at all. See the class KDoc.
-    val active = PoiKind.entries.filter {
-      GenRng.hashUnit(ctx.seed, PRESENCE_SALT, it.ordinal.toLong()) < it.chance
-    }
-    if (active.isEmpty()) return StageResult(features = emptyList())
+    // The roll first, so a world that holds nothing does no searching at all.
+    val rolled = PoiKind.entries.associateWith { rolledCopies(ctx.seed, it) }.filterValues { it.isNotEmpty() }
+    if (rolled.isEmpty()) return StageResult(features = emptyList())
 
-    val shortlists = List(active.size) { Shortlist(params.maxCandidates) }
+    val active = rolled.keys.toList()
+    val shortlists = active.map { Shortlist(params.maxCandidates * it.count) }
     scan(ctx, region, active, shortlists)
 
     val works = Works.read(ctx, region)
+    val requests = active.mapIndexed { slot, kind ->
+      PoiPlacement.Request(kind, rolled.getValue(kind), shortlists[slot].positions())
+    }
+    val placed = PoiPlacement.place(requests, params.landmarkClearance, ctx.seed) { works.isClear(it, params) }
+
     val nextId = FeatureIds.allocator(id)
-    val out = ArrayList<VectorFeature>(active.size)
-
-    for ((slot, kind) in active.withIndex()) {
-      val at = firstClearPosition(shortlists[slot], works) ?: continue
-
-      out.add(
-        PointMarker(
-          id = nextId(),
-          kind = FeatureKind.POI,
-          position = at,
-          attributes = StationTable.Builder(stationCount = 1)
-            .channel(PoiChannels.KIND) { kind.ordinal.toDouble() }
-            .build()
-        )
+    val out = placed.map { landmark ->
+      PointMarker(
+        id = nextId(),
+        kind = FeatureKind.POI,
+        position = landmark.at,
+        attributes = StationTable.Builder(stationCount = 1)
+          .channel(PoiChannels.KIND) { landmark.kind.ordinal.toDouble() }
+          .channel(PoiChannels.COPY) { landmark.copy.toDouble() }
+          .build()
       )
     }
 
@@ -352,15 +329,6 @@ class PoiStage(
       }
     }
     return true
-  }
-
-  /** The first shortlisted position nothing else has claimed, or null if every one of them is taken. */
-  private fun firstClearPosition(shortlist: Shortlist, works: Works): Vec2d? {
-    for (i in 0 until shortlist.size) {
-      val at = Vec2d(shortlist.xAt(i), shortlist.yAt(i))
-      if (works.isClear(at, params)) return at
-    }
-    return null
   }
 
   /**
@@ -478,14 +446,24 @@ class PoiStage(
       if (size < limit) size++
     }
 
-    fun xAt(i: Int) = xs[i]
-
-    fun yAt(i: Int) = ys[i]
+    fun positions(): List<Vec2d> {
+      return List(size) { Vec2d(xs[it], ys[it]) }
+    }
   }
 
   companion object {
 
     val ID = StageId("poi")
+
+    /**
+     * The copy indices of [kind] whose roll passes on this world. Where they stand is only known after the
+     * world is built; a copy that rolled but found no place is simply missing from it.
+     */
+    fun rolledCopies(seed: Long, kind: PoiKind): List<Int> {
+      return (0 until kind.count).filter { copy ->
+        GenRng.hashUnit(seed, PRESENCE_SALT, kind.ordinal.toLong(), copy.toLong()) < kind.chance
+      }
+    }
 
     /** Whether a world holds a given landmark at all. */
     private const val PRESENCE_SALT = 0x504F495F484153L

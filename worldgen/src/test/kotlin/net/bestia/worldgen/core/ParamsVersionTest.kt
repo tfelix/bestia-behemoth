@@ -196,7 +196,8 @@ class ParamsVersionTest {
       // `GemDepositTest`'s baseline for what that bought.
       "MinableOre" to 7_745_890_654_563_600_391L,
       "SpawnHostility" to 1_601_490_678_795_006_744L,
-      "PoiKind" to -8_044_551_008_766_842_828L
+      // Moved when each landmark got a count and a min spacing.
+      "PoiKind" to -3_678_954_259_388_121_995L
     )
 
     assertEquals(
@@ -255,7 +256,7 @@ class ParamsVersionTest {
       "TownParams" to 7_827_515_135_201_136_336L,
       "StreetParams" to 4_882_094_518_502_737_137L,
       "EconomyParams" to 6_863_789_847_631_252_411L,
-      "PoiParams" to 9_183_715_732_977_741_057L,
+      "PoiParams" to -5_206_010_807_671_237_656L,
       "NavParams" to -4_405_367_378_183_192_008L,
       "TreasureParams" to 1_468_402_791_014_294_212L,
       "DetailParams" to 5_837_136_561_326_550_610L,
