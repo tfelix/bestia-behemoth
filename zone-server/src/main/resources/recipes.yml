@@ -1106,3 +1106,16 @@ recipes:
     station: WORKBENCH
     craftSeconds: 8.0
     baseSuccessChance: 0.9
+
+  - id: 118
+    identifier: BLACKBOARD_KIT
+    effect: PRODUCE
+    output: { item: blackboard_kit, amount: 1 }
+    inputs:
+      - { item: log, amount: 4 }
+      - { item: plank, amount: 8 }
+      - { item: coal, amount: 2 }
+    skill: { skill: M_CARPENTRY, level: 2 }
+    station: WORKBENCH
+    craftSeconds: 30.0
+    baseSuccessChance: 1.0

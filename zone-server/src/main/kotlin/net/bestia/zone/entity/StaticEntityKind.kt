@@ -188,7 +188,10 @@ enum class StaticEntityKind {
   FIXTURE_RUSTED_BLADE,
   FIXTURE_BROKEN_SHIELD,
   FIXTURE_BANNER_RAG,
-  FIXTURE_GIANT_REMAINS;
+  FIXTURE_GIANT_REMAINS,
+
+  /** A town's quest board, an entity like the city sign so it can carry which quests are open. */
+  BLACKBOARD;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.
