@@ -127,22 +127,22 @@ class PropDeathDivergenceSystemTest {
   }
 
   @Test
-  fun `a claimed landmark is recorded as terminal and taken off the column`() {
+  fun `a prop that never regrows is recorded as terminal and taken off the column`() {
     val divergence = pristine()
     val world = testWorld()
     val propId = 456L
 
-    val landmark = world.createEntity { eid ->
+    val spire = world.createEntity { eid ->
       add(eid, Position.fromVec3(Vec3L(1, 2, 3)))
-      add(eid, StaticVisual(StaticEntityKind.POI_LOST_GRAVE, variant = 0, heightDm = 12))
+      add(eid, StaticVisual(StaticEntityKind.WOUND_SPIRE, variant = 0, heightDm = 12))
       add(eid, WorldObjectIdentity(propId, latticeVersion = 1L))
       add(eid, Dead())
     }
 
     system(divergence).update(world, 0f)
 
-    verify { divergence.recordDepletion(propId, StaticEntityKind.POI_LOST_GRAVE, null) }
-    verify { residency.remove(world, landmark) }
+    verify { divergence.recordDepletion(propId, StaticEntityKind.WOUND_SPIRE, null) }
+    verify { residency.remove(world, spire) }
   }
 
   /**

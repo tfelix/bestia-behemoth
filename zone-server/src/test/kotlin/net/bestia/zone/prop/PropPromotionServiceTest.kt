@@ -94,12 +94,12 @@ class PropPromotionServiceTest {
   fun `a terminally diverged prop refuses promotion`() {
     val world = testWorld()
     val divergence: WorldObjectDivergenceRegistry = mockk {
-      every { of(7L) } returns DivergenceEntry(StaticEntityKind.POI_LOST_GRAVE, DivergenceState.DEPLETED, null)
+      every { of(7L) } returns DivergenceEntry(StaticEntityKind.WOUND_SPIRE, DivergenceState.DEPLETED, null)
     }
     val service = PropPromotionService(divergence)
     val id = propEntity(world, propId = 7L)
 
-    assertFalse(service.promoteIfNeeded(world, id, NEXT_TO_PROP, REACH), "a claimed landmark must not stand back up")
+    assertFalse(service.promoteIfNeeded(world, id, NEXT_TO_PROP, REACH), "a depleted prop must not stand back up")
     assertFalse(world.has(id, Position::class))
   }
 

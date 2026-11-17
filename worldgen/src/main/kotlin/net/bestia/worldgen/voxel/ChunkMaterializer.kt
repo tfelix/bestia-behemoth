@@ -303,11 +303,8 @@ class ChunkMaterializer(
     // is the deposit markers for *this* query rather than a layer covering the world. Same reason
     // `TownStructures` and `OreVeins` are constructed per chunk a few lines above.
     aetherite(nearby).propsIn(chunk, site, into)
-    // The two sources that emit *placed* objects rather than scattered ones, both per chunk from `nearby` for
-    // the reason above. Neither re-decides anything the world tier already settled - see `PoiProps`.
-    PoiProps(config, nearby).propsIn(chunk, site, into)
-    // No `site`, and it is the only source here without one: `trunkSite` refuses the ground a building stands
-    // on, by design and by its own job. See `BuildingProps`.
+    // Placed rather than scattered, per chunk from `nearby` for the reason above. No `site`, the only source
+    // without one: `trunkSite` refuses the ground a building stands on, by design. See `BuildingProps`.
     BuildingProps(config, nearby).propsIn(chunk, into)
     // What people put up: the dressing stage's markers, and the fences, crops, haystacks and headstones that
     // fields and cemeteries imply. On the trees' `site`, so nothing stands on a road or in a house.
@@ -1014,7 +1011,7 @@ class ChunkMaterializer(
     // 16: a crystal stands on every seal's plinth (`TownStructures.sealCrystals`).
     // 17: sand lies on the beaches and thinly on the deserts (`LootScatter`), so those chunks emit props they did not.
     // 18: bones and broken arms lie on battlefields, and a slain world boss's skeleton (`FixtureProps`).
-    const val VERSION = 18
+    const val VERSION = 19
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

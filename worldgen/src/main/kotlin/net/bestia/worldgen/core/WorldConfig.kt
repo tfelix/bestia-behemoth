@@ -220,7 +220,7 @@ data class WorldConfig(
    * metre-scale voxel, traded for a duplicate-or-missing prop, and it is the right way round.
    *
    * **Hoisted here because it had been copied five times** - `AetheriteScatter`, `CrystalScatter`,
-   * `PoiProps`, `VegetationScatter` and `ChunkMaterializer.trunkSite` each carried their own `columnOf`, and
+   * the old landmark props, `VegetationScatter` and `ChunkMaterializer.trunkSite` each carried their own `columnOf`, and
    * `Invariants.checkPropsAreWellPlaced` carried a sixth that had drifted to plain `floor`. That drift is
    * not a difference anybody can see by reading either side; it surfaced as a rare-seed invariant failure
    * blaming the heightfield, on the one prop in a world that landed within half a millimetre of a boundary.

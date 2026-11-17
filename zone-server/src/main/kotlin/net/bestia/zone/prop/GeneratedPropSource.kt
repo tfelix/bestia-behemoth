@@ -3,7 +3,6 @@ package net.bestia.zone.prop
 import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.GenRng
-import net.bestia.worldgen.poi.PoiKind
 import net.bestia.worldgen.voxel.HerbKind
 import net.bestia.worldgen.voxel.PropKind
 import net.bestia.worldgen.voxel.PropFlags
@@ -49,7 +48,6 @@ class GeneratedPropSource(
   override val kinds: Set<StaticEntityKind> = buildSet {
     for (kind in PropKind.entries) {
       val subKinds = when (kind) {
-        PropKind.POI -> PoiKind.entries.indices
         // Every function but FORTIFICATION, which never becomes a prop - `StaticEntityKind.of` throws for it
         // rather than returning something, so enumerating it here would fail the boot on a kind nothing emits.
         PropKind.BUILDING -> BuildingFunction.entries.indices.filter {

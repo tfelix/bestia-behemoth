@@ -12,7 +12,7 @@
 # the numbers are in one place rather than in the factory.
 #
 # `regrow-seconds` is how long after being used up the same spot stands the prop again; a kind without it or
-# `regrowth` is terminal - a claimed landmark or a mined-out crystal never comes back.
+# `regrowth` is terminal - a mined-out crystal never comes back.
 #
 # `regrowth`, on the two tree kinds only, replaces it: a removed tree leaves a stump, which tries every
 # `stage-seconds` to sprout and then grows back as a sapling and a young tree. It only sprouts while a grown
@@ -21,8 +21,7 @@
 # `PropRemoval` decides what each removal leaves.
 #
 # `loot` is chance-rolled when the prop is killed. It is set only where an item fits what the thing is made of -
-# the tree drops logs, the boulder stone. A claimed landmark has no item that fits it, and inventing an id would
-# be worse than leaving it unset.
+# the tree drops logs, the boulder stone. Where no item fits, inventing an id would be worse than leaving it unset.
 #
 # `collect` is the other half of that, and deliberately not the same field. A kind with one is picked up with
 # a click - `CollectPropIntentSystem` grants the item straight into the inventory and records the depletion,

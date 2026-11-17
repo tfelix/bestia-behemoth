@@ -5,7 +5,7 @@ package net.bestia.worldgen.dress
  *
  * **One prop kind for all of them, and this is its sub-kind.** `PropId` has four bits of kind and twelve are
  * already spoken for, so a pier, a fence and a lantern each taking a kind of their own would end the catalogue
- * at four. `PoiKind` and `BuildingFunction` ride on `PropInstances.subKindAt` for the same reason, and the zone
+ * at four. `BuildingFunction` rides on `PropInstances.subKindAt` for the same reason, and the zone
  * joins each entry to a `StaticEntityKind.FIXTURE_*` by name.
  *
  * The ordinal reaches the prop's sub-kind byte and from there the wire, so **append only**.

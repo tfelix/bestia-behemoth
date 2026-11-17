@@ -34,21 +34,18 @@ enum class PoiKind(
    */
   val biomes: Set<Biome>,
 
-  /** How tall the prop stands, in metres. */
-  val heightM: Double,
-
   /** Metres between two copies of this landmark. Irrelevant when [count] is 1. */
   val minSpacing: Double = 0.0
 ) {
 
   /** A grave out in the waste, marked by whoever found the body. */
-  LOST_GRAVE("lost grave", 1, 0.45, setOf(Biome.DESERT, Biome.COLD_DESERT, Biome.BADLANDS, Biome.TUNDRA), 1.2),
+  LOST_GRAVE("lost grave", 1, 0.45, setOf(Biome.DESERT, Biome.COLD_DESERT, Biome.BADLANDS, Biome.TUNDRA)),
 
   /** A ring somebody raised on open ground, where a ring can be seen from a distance. */
-  STANDING_STONES("standing stones", 1, 0.60, setOf(Biome.GRASSLAND, Biome.DRYLAND, Biome.TUNDRA, Biome.TAIGA), 2.6),
+  STANDING_STONES("standing stones", 1, 0.60, setOf(Biome.GRASSLAND, Biome.DRYLAND, Biome.TUNDRA, Biome.TAIGA)),
 
   /** A broken obelisk from before anything in the chronicle. Unique, guaranteed, and allowed on any land. */
-  BROKEN_OBELISK("broken obelisk", 1, 1.0, emptySet(), 6.0),
+  BROKEN_OBELISK("broken obelisk", 1, 1.0, emptySet()),
 
   /** Waystones on the kind of ground people walk across. */
   WAYSTONE(
@@ -56,26 +53,18 @@ enum class PoiKind(
     4,
     0.70,
     setOf(Biome.GRASSLAND, Biome.TEMPERATE_FOREST, Biome.DRYLAND, Biome.TAIGA),
-    1.6,
     minSpacing = 16_000.0
   ),
 
   /** A tree turned to stone, in the ground that does that to a tree. */
-  PETRIFIED_TREE(
-    "petrified tree",
-    1,
-    0.30,
-    setOf(Biome.DESERT, Biome.BADLANDS, Biome.VOLCANIC_FIELD, Biome.DRYLAND),
-    5.5
-  ),
+  PETRIFIED_TREE("petrified tree", 1, 0.30, setOf(Biome.DESERT, Biome.BADLANDS, Biome.VOLCANIC_FIELD, Biome.DRYLAND)),
 
   /** An idol in the wet ground that swallowed whatever stood around it. */
-  SUNKEN_IDOL("sunken idol", 1, 0.25, setOf(Biome.SWAMP, Biome.BOG, Biome.TROPICAL_RAINFOREST), 2.2);
+  SUNKEN_IDOL("sunken idol", 1, 0.25, setOf(Biome.SWAMP, Biome.BOG, Biome.TROPICAL_RAINFOREST));
 
   init {
     require(count >= 1) { "$name count must be at least 1, was $count" }
     require(chance > 0.0 && chance <= 1.0) { "$name chance must be in (0,1], was $chance" }
-    require(heightM > 0.0) { "$name heightM must be positive, was $heightM" }
     require(minSpacing >= 0.0) { "$name minSpacing must not be negative, was $minSpacing" }
     require(biomes.none { it.isWater }) {
       "$name lists the water biome ${biomes.first { it.isWater }}; nothing stands on water"
@@ -109,7 +98,6 @@ enum class PoiKind(
             .put("count", kind.count)
             .put("chance", kind.chance)
             .put("biomes", kind.biomes.map { it.name }.sorted().joinToString(","))
-            .put("heightM", kind.heightM)
             .put("minSpacing", kind.minSpacing)
             .value
         )
