@@ -32,6 +32,15 @@ namespace BestiaBehemothClient.Tests
       Assert.Equal(amount, QuestFormat.TimeLeftAmount(now + left, now));
     }
 
+    [Theory]
+    [InlineData(480, 5, 24)]
+    [InlineData(101, 3, 4)]
+    [InlineData(2, 3, 1)]
+    public void PricesTheBoardFeeLikeTheServer(long pay, int percent, long fee)
+    {
+      Assert.Equal(fee, QuestFormat.BoardFee(pay, percent));
+    }
+
     private const long Minute = 60_000;
     private const long Hour = 60 * Minute;
     private const long Day = 24 * Hour;

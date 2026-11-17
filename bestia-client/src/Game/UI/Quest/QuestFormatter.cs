@@ -20,5 +20,10 @@ namespace BestiaBehemothClient.Game.UI.Quest
     {
       return QuestFormat.TimeLeftAmount(deadlineEpochMs, nowEpochMs);
     }
+
+    public long BoardFee(long pay, int percent)
+    {
+      return QuestFormat.BoardFee(pay, percent);
+    }
   }
 }

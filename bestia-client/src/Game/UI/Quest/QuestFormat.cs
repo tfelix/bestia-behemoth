@@ -40,6 +40,12 @@ namespace BestiaBehemothClient.Game.UI.Quest
       };
     }
 
+    /// <summary>The board's fee: the server's <c>BlackboardFees</c>, rounded up, at least one coin.</summary>
+    public static long BoardFee(long pay, int percent)
+    {
+      return System.Math.Max(1L, (pay * percent + 99) / 100);
+    }
+
     private const long MinutesPerDay = 24 * 60;
 
     // Rounded up, so a quest with seconds to go still shows a minute rather than "ended".
