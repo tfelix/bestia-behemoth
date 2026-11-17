@@ -91,41 +91,59 @@ kinds:
     variants: 3
     collect: { item-id: 7, amount: 2 }
 
-  # The points of interest: one row per entry in worldgen's `PoiKind`, and mandatory - a landmark added to the
-  # catalogue with no row here fails the boot rather than the first world that rolls it.
-  #
-  # `variants: 1` throughout, and unlike the rows above that is not a placeholder. A tree has ten models so a
-  # wood does not look stamped; each of these is *one object* that exists at most once in a world, so a second
-  # model of it would be a second answer to a question with one answer.
+  # The landmarks: one row per entry in worldgen's `PoiKind`, and mandatory. They are entities raised at boot by
+  # `LandmarkService`, not props, so `landmark` says how they fight and which `LandmarkScript` runs on a click.
+  # `effects` stay on for as long as the landmark stands: `INVULNERABLE` makes it unbreakable, an aura such as
+  # `WARD_AURA` makes it a sanctuary.
   - kind: POI_LOST_GRAVE
     max-hp: 60
     collider: { half-x: 1, half-y: 1, height: 1 }
-    variants: 1
+    landmark:
+      script: ExamineLandmarkScript
+      level: 5
+      attributes: { strength: 1, vitality: 5, intelligence: 1, agility: 1, willpower: 1, dexterity: 1 }
 
   - kind: POI_STANDING_STONES
     max-hp: 400
     collider: { half-x: 3, half-y: 3, height: 3 }
-    variants: 1
+    landmark:
+      script: ExamineLandmarkScript
+      level: 20
+      attributes: { strength: 1, vitality: 30, intelligence: 1, agility: 1, willpower: 20, dexterity: 1 }
 
   - kind: POI_BROKEN_OBELISK
     max-hp: 500
     collider: { half-x: 1, half-y: 1, height: 6 }
-    variants: 1
+    landmark:
+      script: ExamineLandmarkScript
+      level: 30
+      attributes: { strength: 1, vitality: 30, intelligence: 1, agility: 1, willpower: 30, dexterity: 1 }
+      effects:
+        - { id: INVULNERABLE }
 
   - kind: POI_WAYSTONE
     max-hp: 150
     collider: { half-x: 1, half-y: 1, height: 2 }
-    variants: 1
+    landmark:
+      script: ExamineLandmarkScript
+      level: 10
+      attributes: { strength: 1, vitality: 15, intelligence: 1, agility: 1, willpower: 5, dexterity: 1 }
 
   - kind: POI_PETRIFIED_TREE
     max-hp: 300
     collider: { half-x: 1, half-y: 1, height: 6 }
-    variants: 1
+    landmark:
+      script: ExamineLandmarkScript
+      level: 15
+      attributes: { strength: 1, vitality: 25, intelligence: 1, agility: 1, willpower: 5, dexterity: 1 }
 
   - kind: POI_SUNKEN_IDOL
     max-hp: 250
     collider: { half-x: 1, half-y: 1, height: 2 }
-    variants: 1
+    landmark:
+      script: ExamineLandmarkScript
+      level: 15
+      attributes: { strength: 1, vitality: 15, intelligence: 1, agility: 1, willpower: 25, dexterity: 1 }
 
   # The buildings a town lays out: one row per entry in worldgen's `BuildingFunction` except FORTIFICATION,
   # which stays voxels. Mandatory in the same way the landmarks above are - a function added to worldgen with

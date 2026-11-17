@@ -9,6 +9,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PostConstruct
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
+import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.entity.GrowthStage
 import net.bestia.zone.entity.StaticEntityKind
 
@@ -65,6 +67,21 @@ data class PropRegrowthDto(
   }
 }
 
+/** A status effect a landmark carries for as long as it stands, such as `INVULNERABLE` or an aura. */
+data class PropLandmarkEffectDto(val id: StatusEffectId, val level: Int = 1)
+
+/**
+ * How a landmark entity fights and what runs when a player clicks it.
+ *
+ * @property script simple class name of the `LandmarkScript` bean
+ */
+data class PropLandmarkDto(
+  val script: String,
+  val level: Int = 1,
+  val attributes: StatusValues,
+  val effects: List<PropLandmarkEffectDto> = emptyList()
+)
+
 data class PropKindDto(
   val kind: StaticEntityKind,
   val maxHp: Int,
@@ -82,7 +99,9 @@ data class PropKindDto(
    * written only where it applies. So a kind added to the enum is non-collectible by construction, rather
    * than by an exclusion list somewhere that a new kind can be forgotten from.
    */
-  val collect: PropCollectDto? = null
+  val collect: PropCollectDto? = null,
+  /** Present on the landmark kinds only, which are entities rather than props. */
+  val landmark: PropLandmarkDto? = null
 )
 
 data class PropKindsDto(val kinds: List<PropKindDto> = emptyList())
@@ -140,6 +159,7 @@ class PropKindRegistry {
         require(it.itemId > 0) { "${kind.kind} has a collect entry with item-id ${it.itemId}" }
         require(it.amount > 0) { "${kind.kind} has a collect entry with amount ${it.amount}" }
       }
+      kind.landmark?.let { validateLandmark(kind.kind, it) }
     }
 
     val missing = StaticEntityKind.entries.filterNot { it in byKind }
@@ -160,6 +180,14 @@ class PropKindRegistry {
       require(stage.yield in 0.0..1.0) { "$kind has a $name yield of ${stage.yield}" }
     }
     require(regrowth.sapling.size < regrowth.young.size) { "$kind has a sapling no smaller than its young tree" }
+  }
+
+  private fun validateLandmark(kind: StaticEntityKind, landmark: PropLandmarkDto) {
+    require(landmark.script.isNotBlank()) { "$kind has a landmark without a script" }
+    require(landmark.level >= 1) { "$kind has a landmark of level ${landmark.level}" }
+    landmark.effects.forEach {
+      require(it.level >= 1) { "$kind has landmark effect ${it.id} at level ${it.level}" }
+    }
   }
 
   private companion object {

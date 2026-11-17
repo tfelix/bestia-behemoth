@@ -145,6 +145,15 @@ class PropKindRegistryTest {
     }
   }
 
+  @Test
+  fun `exactly the landmark kinds carry a landmark block`() {
+    val registry = PropKindRegistry().also { it.load() }
+
+    val landmarks = StaticEntityKind.entries.filter { registry.of(it).landmark != null }
+
+    assertEquals(PoiKind.entries.map { StaticEntityKind.ofPoi(it) }.toSet(), landmarks.toSet())
+  }
+
   /**
    * Each ground cover kind reaches its own runtime kind, blighted and not.
    *
