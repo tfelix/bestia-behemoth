@@ -23,6 +23,8 @@ enum QuestStatus {
 enum QuestRole {
   QUEST_ROLE_ACCEPTED = 0;
   QUEST_ROLE_POSTED = 1;
+  // On a board, not yet taken by this master.
+  QUEST_ROLE_OFFERED = 2;
 }
 
 enum ObjectiveKind {

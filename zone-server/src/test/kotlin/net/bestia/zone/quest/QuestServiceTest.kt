@@ -71,6 +71,20 @@ class QuestServiceTest {
   }
 
   @Test
+  fun `a board shows each master its own, its taken and the offered quests, but not ended ones`() {
+    val taken = postDeliveryOf(required = 10)
+    val offered = postDeliveryOf(required = 5)
+    val ended = postDeliveryOf(required = 5)
+    service.accept(alice, taken)
+    service.end(ended, QuestStatus.EXPIRED)
+
+    val roles = service.boardFor(alice, QuestOrigin.BLACKBOARD).associate { it.questId to it.role }
+
+    assertEquals(mapOf(taken to QuestView.Role.ACCEPTED, offered to QuestView.Role.OFFERED), roles)
+    assertTrue(service.boardFor(poster, QuestOrigin.BLACKBOARD).all { it.role == QuestView.Role.POSTED })
+  }
+
+  @Test
   fun `accepting is refused for the poster, twice, a closed quest and a full log`() {
     val questId = postDeliveryOf(required = 10)
 

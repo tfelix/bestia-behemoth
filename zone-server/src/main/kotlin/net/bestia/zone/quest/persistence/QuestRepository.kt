@@ -1,6 +1,7 @@
 package net.bestia.zone.quest.persistence
 
 import jakarta.persistence.LockModeType
+import net.bestia.zone.quest.QuestOrigin
 import net.bestia.zone.quest.QuestStatus
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
@@ -14,6 +15,8 @@ interface QuestRepository : JpaRepository<Quest, Long> {
   fun findLocked(id: Long): Quest?
 
   fun findAllByPosterMasterId(posterMasterId: Long): List<Quest>
+
+  fun findAllByOriginAndStatusIn(origin: QuestOrigin, statuses: Collection<QuestStatus>): List<Quest>
 
   fun findAllByStatusInAndEndedAtBefore(statuses: Collection<QuestStatus>, endedBefore: Instant): List<Quest>
 }

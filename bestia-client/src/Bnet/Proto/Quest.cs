@@ -46,14 +46,14 @@ namespace Bnet {
             "S0JPQVJEEAAqkAEKC1F1ZXN0U3RhdHVzEhUKEVFVRVNUX1NUQVRVU19PUEVO",
             "EAASGAoUUVVFU1RfU1RBVFVTX0NMT1NJTkcQARIaChZRVUVTVF9TVEFUVVNf",
             "Q09NUExFVEVEEAISGAoUUVVFU1RfU1RBVFVTX0VYUElSRUQQAxIaChZRVUVT",
-            "VF9TVEFUVVNfV0lUSERSQVdOEAQqOwoJUXVlc3RSb2xlEhcKE1FVRVNUX1JP",
-            "TEVfQUNDRVBURUQQABIVChFRVUVTVF9ST0xFX1BPU1RFRBABKkkKDU9iamVj",
-            "dGl2ZUtpbmQSHwobT0JKRUNUSVZFX0tJTkRfREVMSVZFUl9JVEVNEAASFwoT",
-            "T0JKRUNUSVZFX0tJTkRfS0lMTBABKkoKDk9iamVjdGl2ZVNjb3BlEhoKFk9C",
-            "SkVDVElWRV9TQ09QRV9TSEFSRUQQABIcChhPQkpFQ1RJVkVfU0NPUEVfUEVS",
-            "U09OQUwQASo3Cg9RdWVzdFJld2FyZEtpbmQSJAogUVVFU1RfUkVXQVJEX0tJ",
-            "TkRfQ09JTlNfUEVSX1VOSVQQAEIjChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
-            "ClF1ZXN0UHJvdG9iBnByb3RvMw=="));
+            "VF9TVEFUVVNfV0lUSERSQVdOEAQqUwoJUXVlc3RSb2xlEhcKE1FVRVNUX1JP",
+            "TEVfQUNDRVBURUQQABIVChFRVUVTVF9ST0xFX1BPU1RFRBABEhYKElFVRVNU",
+            "X1JPTEVfT0ZGRVJFRBACKkkKDU9iamVjdGl2ZUtpbmQSHwobT0JKRUNUSVZF",
+            "X0tJTkRfREVMSVZFUl9JVEVNEAASFwoTT0JKRUNUSVZFX0tJTkRfS0lMTBAB",
+            "KkoKDk9iamVjdGl2ZVNjb3BlEhoKFk9CSkVDVElWRV9TQ09QRV9TSEFSRUQQ",
+            "ABIcChhPQkpFQ1RJVkVfU0NPUEVfUEVSU09OQUwQASo3Cg9RdWVzdFJld2Fy",
+            "ZEtpbmQSJAogUVVFU1RfUkVXQVJEX0tJTkRfQ09JTlNfUEVSX1VOSVQQAEIj",
+            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CClF1ZXN0UHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.QuestOrigin), typeof(global::Bnet.QuestStatus), typeof(global::Bnet.QuestRole), typeof(global::Bnet.ObjectiveKind), typeof(global::Bnet.ObjectiveScope), typeof(global::Bnet.QuestRewardKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -91,6 +91,10 @@ namespace Bnet {
   public enum QuestRole {
     [pbr::OriginalName("QUEST_ROLE_ACCEPTED")] Accepted = 0,
     [pbr::OriginalName("QUEST_ROLE_POSTED")] Posted = 1,
+    /// <summary>
+    /// On a board, not yet taken by this master.
+    /// </summary>
+    [pbr::OriginalName("QUEST_ROLE_OFFERED")] Offered = 2,
   }
 
   public enum ObjectiveKind {
