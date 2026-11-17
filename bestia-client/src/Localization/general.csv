@@ -1063,3 +1063,21 @@ QUEST_TIME_LEFT_HOURS,%d h
 QUEST_TIME_LEFT_MINUTES,%d min
 QUEST_TIME_LEFT_ENDED,ended
 QUEST_DELIVER_TITLE,Deliver {amount} {item}
+BLACKBOARD_POST,Post a quest
+BLACKBOARD_POST_LIMIT,You have %d quests open. Wait for one to end or withdraw one.
+BLACKBOARD_POST_ITEM,Item
+BLACKBOARD_POST_ITEM_HINT,Type an item name
+BLACKBOARD_POST_AMOUNT,Amount
+BLACKBOARD_POST_COINS,Gold each
+BLACKBOARD_POST_RUNS,Runs for
+BLACKBOARD_POST_RUN,%d d · %d%%
+BLACKBOARD_POST_PAY,Pay to deliverers: %s gold
+BLACKBOARD_POST_FEE,Board fee: %s gold
+BLACKBOARD_POST_TOTAL,You pay now: %s gold (you have %s)
+BLACKBOARD_POST_SEND,Post for %s gold
+BLACKBOARD_POST_CANCEL,Cancel
+BLACKBOARD_WITHDRAW,Withdraw
+BLACKBOARD_WITHDRAW_HINT,The quest still takes hand-ins for one hour. Then the unearned pay comes back by post.
+BLACKBOARD_CLOSING,closing
+ERROR_BLACKBOARD_CANNOT_AFFORD,You do not have enough gold for the pay and the board's fee.
+ERROR_BLACKBOARD_POSTING_LIMIT,You have as many quests open as the boards allow.

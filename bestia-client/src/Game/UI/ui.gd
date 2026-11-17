@@ -191,6 +191,7 @@ func _ready() -> void:
 	post_office.post_office_closed.connect(func() -> void: _post_office_win.visible = false)
 
 	var blackboard := _blackboard_win.get_content() as BlackboardPanel
+	blackboard.inventory = _inventory_win.get_content() as Inventory
 	blackboard.blackboard_opened.connect(_on_blackboard_opened)
 	blackboard.blackboard_closed.connect(func() -> void: _blackboard_win.visible = false)
 	ConnectionManager.parcel_arrived.connect(_on_parcel_arrived)

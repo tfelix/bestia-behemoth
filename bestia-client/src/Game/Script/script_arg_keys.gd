@@ -15,3 +15,12 @@ const YAW := "yaw"
 
 ## What was clicked, as a live ECS entity id.
 const TARGET_ENTITY_ID := "targetEntityId"
+
+## What to do at something that offers several actions, such as "post" at a blackboard. Absent means open it.
+const ACTION := "action"
+
+const QUEST_ID := "questId"
+const ITEM_ID := "itemId"
+const AMOUNT := "amount"
+const COINS_EACH := "coinsEach"
+const DAYS := "days"
