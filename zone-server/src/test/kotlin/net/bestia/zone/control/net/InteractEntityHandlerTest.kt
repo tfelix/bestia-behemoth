@@ -25,6 +25,11 @@ import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.StaticVisual
+import net.bestia.worldgen.poi.PoiKind
+import net.bestia.zone.entity.ecs.EntityVisual
+import net.bestia.zone.entity.ecs.Landmark
+import net.bestia.zone.entity.ecs.VisualKind
+import net.bestia.zone.landmark.LandmarkService
 import net.bestia.zone.prop.PropInteraction
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -46,6 +51,7 @@ class InteractEntityHandlerTest {
   private lateinit var talk: TalkService
   private lateinit var hallInteraction: PropInteraction
   private lateinit var chestInteraction: PropInteraction
+  private lateinit var landmarks: LandmarkService
   private lateinit var handler: InteractEntityHandler
   private var actor: EntityId = 0L
 
@@ -61,6 +67,8 @@ class InteractEntityHandlerTest {
     chestInteraction = mockk(relaxed = true)
     every { chestInteraction.kind } returns StaticEntityKind.CHEST
     every { chestInteraction.interact(any(), any(), any(), any()) } returns null
+    landmarks = mockk(relaxed = true)
+    every { landmarks.interact(any(), any(), any()) } returns null
 
     actor = world.createEntity { id ->
       add(id, Position.fromVec3(standingAt))
@@ -77,8 +85,22 @@ class InteractEntityHandlerTest {
       crafting = crafting,
       towns = mockk(relaxed = true),
       outMessageProcessor = messages,
+      landmarks = landmarks,
       propInteractions = listOf(hallInteraction, chestInteraction),
     )
+  }
+
+  @Test
+  fun `clicking a landmark runs its script`() {
+    val obelisk = world.createEntity { id ->
+      add(id, Position.fromVec3(standingAt))
+      add(id, EntityVisual(VisualKind.STRUCTURE, StaticEntityKind.POI_BROKEN_OBELISK.ordinal.toLong()))
+      add(id, Landmark(PoiKind.BROKEN_OBELISK, copy = 0))
+    }
+
+    handler.handle(world, interactWith(obelisk))
+
+    verify { landmarks.interact(any(), actor, obelisk) }
   }
 
   /** `TalkService` decides whether they can hear you and what they say; all the handler owes is the call. */
