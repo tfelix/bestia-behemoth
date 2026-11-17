@@ -507,6 +507,12 @@ economy:
   # Share of that sitting in settlement treasuries the day a world opens. The rest is still in the ground.
   npc-share: 0.5
 
+quest:
+  # Quests one master may have accepted at once, ended ones included until cleared.
+  log-capacity: 25
+  # How long an ended quest stays readable in the logs before it is deleted.
+  ended-kept-for: 3d
+
 world-time:
   # Left unset: defaults to this server instance's boot time (a new world timeline each restart).
   # world-epoch: 2026-01-01T00:00:00Z
