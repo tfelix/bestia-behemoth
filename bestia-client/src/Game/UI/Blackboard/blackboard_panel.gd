@@ -10,22 +10,11 @@ signal blackboard_closed()
 
 const _WALK_AWAY_METRES := 10.0
 
-## By the band [QuestFormatter] rates a quest's suggested level in.
-const BAND_COLOURS := {
-	"trivial": Color(0.60, 0.60, 0.62),
-	"easy": Color(0.45, 0.85, 0.45),
-	"fair": Color(1.0, 0.82, 0.35),
-	"hard": Color(1.0, 0.55, 0.25),
-	"deadly": Color(0.90, 0.38, 0.38),
-}
-
 ## How many item names the post form offers for what was typed.
 const _MAX_NAME_MATCHES := 8
 
 ## The list's groups, in order, by the quest's role for the played master.
 const _GROUPS := [["accepted", "BLACKBOARD_GROUP_SIGNED"], ["offered", "BLACKBOARD_GROUP_OPEN"], ["posted", "BLACKBOARD_GROUP_YOURS"]]
-
-var _formatter := QuestFormatter.new()
 
 ## Set by the UI, which owns the inventory window: the post form shows the gold in the bag.
 var inventory: Inventory
@@ -302,7 +291,7 @@ func _refresh_list() -> void:
 		child.queue_free()
 
 	var query := _search.text.strip_edges().to_lower()
-	var shown := _quests.filter(func(quest) -> bool: return query.is_empty() or title_of(quest).to_lower().contains(query))
+	var shown := _quests.filter(func(quest) -> bool: return query.is_empty() or QuestStyle.title_of(quest).to_lower().contains(query))
 
 	for group in _GROUPS:
 		var members := shown.filter(func(quest) -> bool: return _group_of(quest) == group[0])
@@ -322,8 +311,8 @@ func _row(quest) -> Button:
 	row.flat = true
 	row.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	row.focus_mode = Control.FOCUS_NONE
-	row.text = "[%d] %s" % [quest.SuggestedLevel, title_of(quest)]
-	row.add_theme_color_override("font_color", level_colour(quest.SuggestedLevel))
+	row.text = "[%d] %s" % [quest.SuggestedLevel, QuestStyle.title_of(quest)]
+	row.add_theme_color_override("font_color", QuestStyle.level_colour(quest.SuggestedLevel))
 	row.pressed.connect(func() -> void: _show(quest))
 	return row
 
@@ -337,8 +326,8 @@ func _show(quest) -> void:
 		return
 
 	_selected_id = quest.QuestId
-	_detail_title.text = title_of(quest)
-	_detail_subtitle.text = tr("BLACKBOARD_SUBTITLE") % [quest.PosterName, time_left(quest), quest.SuggestedLevel]
+	_detail_title.text = QuestStyle.title_of(quest)
+	_detail_subtitle.text = tr("BLACKBOARD_SUBTITLE") % [quest.PosterName, QuestStyle.time_left(quest), quest.SuggestedLevel]
 
 	var objective = quest.Objectives[0] if not quest.Objectives.is_empty() else null
 	_detail_progress.visible = objective != null
@@ -493,7 +482,7 @@ func _fee_percent() -> int:
 
 func _update_cost() -> void:
 	var pay := int(_post_amount.value) * int(_post_coins.value)
-	var fee := _formatter.BoardFee(pay, _fee_percent())
+	var fee := QuestStyle.board_fee(pay, _fee_percent())
 	var held := inventory.gold() if inventory != null else 0
 
 	_post_pay.text = tr("BLACKBOARD_POST_PAY") % UiStyle.group_digits(pay)
@@ -534,22 +523,3 @@ func _on_visibility_changed() -> void:
 func _player() -> Entity:
 	var manager := EntityManager.get_instance()
 	return manager.get_controlled_entity() if manager != null else null
-
-
-func title_of(quest) -> String:
-	return DialogText.resolve_line(quest.TitleKey, quest.Args)
-
-
-func time_left(quest) -> String:
-	var now := int(Time.get_unix_time_from_system() * 1000.0)
-	var unit := _formatter.TimeLeftUnit(quest.DeadlineEpochMs, now)
-	if unit == "ended":
-		return tr("QUEST_TIME_LEFT_ENDED")
-	return tr("QUEST_TIME_LEFT_%s" % unit.to_upper()) % _formatter.TimeLeftAmount(quest.DeadlineEpochMs, now)
-
-
-func level_colour(suggested_level: int) -> Color:
-	var manager := EntityManager.get_instance()
-	var master := manager.get_master_entity() if manager != null else null
-	var own_level := master.get_level() if master != null else suggested_level
-	return BAND_COLOURS[_formatter.LevelBand(suggested_level, own_level)]
