@@ -22,8 +22,13 @@ class StartTownMarkets(
   private val siteIndex: SettlementSiteIndex
 ) {
 
+  /** One market hall and the start town it stands in. */
+  class Hall(val townName: String, val building: SettlementSite.Building)
+
+  private val halls: List<Hall> by lazy { findHalls() }
+
   /** Hall prop id to the name of its town. */
-  private val townByHall: Map<Long, String> by lazy { findHalls() }
+  private val townByHall: Map<Long, String> by lazy { halls.associate { it.building.propId to it.townName } }
 
   private val startTownIndexes: Set<Int> by lazy { startTowns().mapTo(HashSet()) { it.settlementIndex } }
 
@@ -44,9 +49,13 @@ class StartTownMarkets(
     return townByHall.values.distinct()
   }
 
-  private fun findHalls(): Map<Long, String> {
+  fun halls(): List<Hall> {
+    return halls
+  }
+
+  private fun findHalls(): List<Hall> {
     val towns = startTowns()
-    val halls = LinkedHashMap<Long, String>()
+    val halls = ArrayList<Hall>()
 
     for (town in towns) {
       val markets = siteIndex.siteOf(town.settlementIndex)?.buildingsOf(BuildingFunction.MARKET).orEmpty()
@@ -55,7 +64,7 @@ class StartTownMarkets(
         LOG.warn { "Start town ${town.name} has no market hall, so it has no auction house" }
       }
 
-      markets.forEach { halls[it.propId] = town.name }
+      markets.forEach { halls.add(Hall(town.name, it)) }
     }
 
     LOG.info { "Auction houses stand in: ${towns.joinToString { it.name }}" }
