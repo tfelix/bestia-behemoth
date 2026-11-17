@@ -33,7 +33,7 @@ class PoiStageTest {
   fun `every catalogue entry is reachable`() {
     for (kind in PoiKind.entries) {
       assertTrue(
-        copiesPlaced(kind) > 0,
+        instancesPlaced(kind) > 0,
         "${kind.label} appeared on none of $SEEDS worlds. Either its biome filter names ground no world has, " +
           "or its clearances leave nowhere to stand. Measured: ${census()}"
       )
@@ -47,7 +47,7 @@ class PoiStageTest {
         assertEquals(
           kind.count,
           placed.count { it.kind == kind },
-          "seed $seed misses copies of the required ${kind.label}"
+          "seed $seed misses instances of the required ${kind.label}"
         )
       }
     }
@@ -55,36 +55,36 @@ class PoiStageTest {
 
   /** Against the rolls rather than `count * chance`, so roll noise cannot hide a placement loss or fake one. */
   @Test
-  fun `most rolled copies find a place, and none appears without a roll`() {
+  fun `most rolled instances find a place, and none appears without a roll`() {
     for (kind in PoiKind.entries) {
-      val placed = copiesPlaced(kind)
-      val rolled = copiesRolled(kind)
+      val placed = instancesPlaced(kind)
+      val rolled = instancesRolled(kind)
 
       assertTrue(
         placed >= rolled * MIN_SHARE_OF_ROLLED,
-        "${kind.label} placed $placed of $rolled rolled copies. A shortfall this large is a filter most worlds " +
+        "${kind.label} placed $placed of $rolled rolled instances. A shortfall this large is a filter most worlds " +
           "cannot satisfy. Measured: ${census()}"
       )
-      assertTrue(placed <= rolled, "${kind.label} placed $placed copies but rolled only $rolled. ${census()}")
+      assertTrue(placed <= rolled, "${kind.label} placed $placed instances but rolled only $rolled. ${census()}")
     }
   }
 
   // --- They are distinct things, in the right place -------------------------------------------------
 
   @Test
-  fun `copies of an entry carry distinct roll indices below its count`() {
+  fun `instances of an entry carry distinct roll indices below its count`() {
     for ((seed, placed) in worlds) {
       for ((kind, group) in placed.groupBy { it.kind }) {
-        val copies = group.map { it.copy }
+        val ids = group.map { it.instanceId }
 
-        assertEquals(copies.distinct(), copies, "seed $seed holds two ${kind.label} with one copy index")
-        assertTrue(copies.all { it in 0 until kind.count }, "seed $seed ${kind.label} copies $copies")
+        assertEquals(ids.distinct(), ids, "seed $seed holds two ${kind.label} with one instance id")
+        assertTrue(ids.all { it in 0 until kind.count }, "seed $seed ${kind.label} instances $ids")
       }
     }
   }
 
   @Test
-  fun `landmarks keep their spacing`() {
+  fun `POIs keep their spacing`() {
     val params = WorldParams.DEFAULT.poi
 
     for ((seed, placed) in worlds) {
@@ -92,12 +92,12 @@ class PoiStageTest {
         for (b in placed.drop(i + 1)) {
           val distance = a.distanceTo(b)
           val sameKind = if (a.kind == b.kind) a.kind.minSpacing else 0.0
-          val needed = max(sameKind, params.landmarkClearance)
+          val needed = max(sameKind, params.poiClearance)
 
           assertTrue(
             distance >= needed,
-            "seed $seed: ${a.kind.label} #${a.copy} and ${b.kind.label} #${b.copy} are ${distance.roundToInt()} m " +
-              "apart, closer than $needed"
+            "seed $seed: ${a.kind.label} #${a.instanceId} and ${b.kind.label} #${b.instanceId} are " +
+              "${distance.roundToInt()} m apart, closer than $needed"
           )
         }
       }
@@ -105,7 +105,7 @@ class PoiStageTest {
   }
 
   @Test
-  fun `every landmark stands in a biome its entry allows`() {
+  fun `every POI stands in a biome its entry allows`() {
     for ((seed, placed) in worlds) {
       for (poi in placed) {
         assertTrue(
@@ -125,16 +125,16 @@ class PoiStageTest {
     val twice = placedIn(REPEAT_SEED)
 
     assertEquals(
-      once.map { "${it.kind.name}#${it.copy}@${it.x},${it.y}" },
-      twice.map { "${it.kind.name}#${it.copy}@${it.x},${it.y}" },
-      "two builds of seed $REPEAT_SEED disagree about where its landmarks are"
+      once.map { "${it.kind.name}#${it.instanceId}@${it.x},${it.y}" },
+      twice.map { "${it.kind.name}#${it.instanceId}@${it.x},${it.y}" },
+      "two builds of seed $REPEAT_SEED disagree about where its POIs are"
     )
   }
 
-  // --- A required landmark never goes missing quietly -----------------------------------------------
+  // --- A required POI never goes missing quietly -----------------------------------------------
 
   @Test
-  fun `a required landmark with nowhere to stand fails the world`() {
+  fun `a required POI with nowhere to stand fails the world`() {
     // Every position is closer than this to some settlement, so nothing can stand anywhere.
     val nowhere = WorldParams.DEFAULT.copy(poi = PoiParams(settlementClearance = 1e9))
 
@@ -161,10 +161,10 @@ class PoiStageTest {
     /** Outside the sweep's range, so the determinism check is a fresh build. */
     const val REPEAT_SEED = 4_242L
 
-    /** Share of rolled copies that must stand. Below it a filter fails most worlds, not one without the biome. */
+    /** Share of rolled instances that must stand. Below it a filter fails most worlds, not one without the biome. */
     const val MIN_SHARE_OF_ROLLED = 0.45
 
-    class Placed(val kind: PoiKind, val copy: Int, val x: Double, val y: Double, val biome: Biome) {
+    class Placed(val kind: PoiKind, val instanceId: Int, val x: Double, val y: Double, val biome: Biome) {
 
       fun distanceTo(other: Placed): Double {
         return sqrt((x - other.x) * (x - other.x) + (y - other.y) * (y - other.y))
@@ -197,28 +197,28 @@ class PoiStageTest {
         .map { marker ->
           Placed(
             kind = PoiKind.entries[marker.attribute(PoiChannels.KIND).toInt()],
-            copy = marker.attribute(PoiChannels.COPY).toInt(),
+            instanceId = marker.attribute(PoiChannels.INSTANCE_ID).toInt(),
             x = marker.position.x,
             y = marker.position.y,
             // Nearest, never interpolated: a biome ordinal has no midpoint. The same cell the stage read.
             biome = Biome.entries[biome[(marker.position.x / metres).toInt(), (marker.position.y / metres).toInt()]]
           )
         }
-        .sortedWith(compareBy({ it.kind.ordinal }, { it.copy }))
+        .sortedWith(compareBy({ it.kind.ordinal }, { it.instanceId }))
     }
 
-    fun copiesRolled(kind: PoiKind): Int {
-      return worlds.sumOf { (seed, _) -> PoiStage.rolledCopies(seed, kind).size }
+    fun instancesRolled(kind: PoiKind): Int {
+      return worlds.sumOf { (seed, _) -> PoiStage.rolledInstances(seed, kind).size }
     }
 
-    fun copiesPlaced(kind: PoiKind): Int {
+    fun instancesPlaced(kind: PoiKind): Int {
       return worlds.sumOf { (_, placed) -> placed.count { it.kind == kind } }
     }
 
     /** The whole table, for a failure message. A count on its own never says which entry starved. */
     fun census(): String {
       return PoiKind.entries.joinToString(", ") {
-        "${it.name}=${copiesPlaced(it)}/${copiesRolled(it)}"
+        "${it.name}=${instancesPlaced(it)}/${instancesRolled(it)}"
       }
     }
   }

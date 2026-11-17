@@ -30,7 +30,7 @@ enum class StaticEntityKind {
   AETHERITE_SHARD_SMALL,
   AETHERITE_SHARD_LARGE,
 
-  // The landmarks, one per entry in worldgen's `PoiKind` and joined to it by name - see [ofPoi]. Entities rather
+  // The POIs, one per entry in worldgen's `PoiKind` and joined to it by name - see [ofPoi]. Entities rather
   // than props, drawn through `EntityVisual(STRUCTURE, ordinal)`. A constant each, so each has its own scene and
   // its own `prop-kinds.yml` row.
   POI_LOST_GRAVE,
@@ -261,7 +261,7 @@ enum class StaticEntityKind {
     /**
      * The runtime kind for each entry in worldgen's `PoiKind`, indexed by its ordinal.
      *
-     * **Joined by name, checked at class load.** A landmark added to the catalogue with no constant here would
+     * **Joined by name, checked at class load.** A POI added to the catalogue with no constant here would
      * otherwise be an `IndexOutOfBounds` on whichever world first rolled it - one seed in three, discovered by a
      * player rather than by a build - and the name join means the constant cannot be silently mismatched either.
      * `PropKindRegistry.load` fails the boot on a missing `prop-kinds.yml` row for the same reason.
@@ -280,7 +280,7 @@ enum class StaticEntityKind {
     /** Whether this kind is one of the fixtures, whose style travels as its model variant. */
     fun isFixture(kind: StaticEntityKind) = kind in FIXTURE_KINDS
 
-    /** The kind a landmark entity of [poi] is drawn and configured as. */
+    /** The kind a POI entity of [poi] is drawn and configured as. */
     fun ofPoi(poi: PoiKind): StaticEntityKind {
       return POI_KINDS[poi.ordinal]
     }

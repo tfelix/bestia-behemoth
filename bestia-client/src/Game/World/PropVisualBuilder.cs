@@ -196,10 +196,10 @@ namespace BestiaBehemothClient.Game.World
       return PropAppearance.Of(kind).HasScene;
     }
 
-    /// <summary>Whether this kind is a world generator landmark, see <see cref="PropAppearance.Kind.Landmark"/>.</summary>
-    public bool IsLandmark(int kind)
+    /// <summary>The scene an entity of this kind is drawn as in place of the shared one, or empty. See <see cref="PropAppearance.Kind.VisualScene"/>.</summary>
+    public string VisualScenePath(int kind)
     {
-      return PropAppearance.Of(kind).Landmark;
+      return PropAppearance.Of(kind).VisualScene ?? "";
     }
 
     private static Transform3D TransformRelativeTo(Node3D ancestor, Node3D node)

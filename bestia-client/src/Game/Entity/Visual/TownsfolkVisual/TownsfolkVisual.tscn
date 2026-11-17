@@ -176,6 +176,7 @@ _data = {
 
 [node name="TownsfolkVisual" type="Node3D" node_paths=PackedStringArray("body", "model", "pick_area")]
 script = ExtResource("1_n7t7g")
+default_click_action = 2
 body = NodePath("Model")
 model = NodePath("Model")
 pick_area = NodePath("Model/Area3D")

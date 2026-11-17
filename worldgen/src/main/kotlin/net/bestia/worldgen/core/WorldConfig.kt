@@ -209,7 +209,7 @@ data class WorldConfig(
    *
    * The horizontal counterpart of [voxelZOf], and **not** the same arithmetic, which is the whole reason it
    * is a named function rather than an inlined `floor(world / voxelSize)`. The coordinate is snapped to
-   * [Quantize]'s millimetre grid *before* the divide, because a trunk, a shard or a landmark near a chunk
+   * [Quantize]'s millimetre grid *before* the divide, because a trunk, a shard or a POI near a chunk
    * border is reached by two chunks through different arithmetic and the two results can differ by an ULP.
    * Plain `floor` turns that ULP into a whole voxel of disagreement, and a prop the two chunks disagree
    * about is a prop that appears twice in the world or not at all - `VegetationScatter.propsIn` decides
@@ -220,7 +220,7 @@ data class WorldConfig(
    * metre-scale voxel, traded for a duplicate-or-missing prop, and it is the right way round.
    *
    * **Hoisted here because it had been copied five times** - `AetheriteScatter`, `CrystalScatter`,
-   * the old landmark props, `VegetationScatter` and `ChunkMaterializer.trunkSite` each carried their own `columnOf`, and
+   * the old POI props, `VegetationScatter` and `ChunkMaterializer.trunkSite` each carried their own `columnOf`, and
    * `Invariants.checkPropsAreWellPlaced` carried a sixth that had drifted to plain `floor`. That drift is
    * not a difference anybody can see by reading either side; it surfaced as a rare-seed invariant failure
    * blaming the heightfield, on the one prop in a world that landed within half a millimetre of a boundary.

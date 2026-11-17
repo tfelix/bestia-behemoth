@@ -16,7 +16,7 @@ import kotlin.math.abs
 import net.bestia.zone.entity.StaticEntityKind
 
 /**
- * Everything the generator puts on the ground: trees, mana crystals, wound spires, landmarks, buildings.
+ * Everything the generator puts on the ground: trees, mana crystals, wound spires, buildings.
  *
  * One source for all three rather than one per kind, because they come out of a single `propsIn` call - the
  * generator resolves each prop's ground from the column heights it builds once for the chunk, and splitting

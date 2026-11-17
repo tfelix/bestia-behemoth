@@ -90,31 +90,31 @@ kinds:
     variants: 3
     collect: { item-id: 7, amount: 2 }
 
-  # The landmarks: one row per entry in worldgen's `PoiKind`, and mandatory. They are entities raised at boot by
-  # `LandmarkService`, not props, so `landmark` says how they fight and which `LandmarkScript` runs on a click.
-  # `effects` stay on for as long as the landmark stands: `INVULNERABLE` makes it unbreakable, an aura such as
+  # The POIs: one row per entry in worldgen's `PoiKind`, and mandatory. They are entities raised at boot by
+  # `PoiService`, not props, so `poi` says how they fight and which `EntityScript` runs on a click.
+  # `effects` stay on for as long as the POI stands: `INVULNERABLE` makes it unbreakable, an aura such as
   # `WARD_AURA` makes it a sanctuary.
   - kind: POI_LOST_GRAVE
     max-hp: 60
     collider: { half-x: 1, half-y: 1, height: 1 }
-    landmark:
-      script: ExamineLandmarkScript
+    poi:
+      script: ExaminePoiScript
       level: 5
       attributes: { strength: 1, vitality: 5, intelligence: 1, agility: 1, willpower: 1, dexterity: 1 }
 
   - kind: POI_STANDING_STONES
     max-hp: 400
     collider: { half-x: 3, half-y: 3, height: 3 }
-    landmark:
-      script: ExamineLandmarkScript
+    poi:
+      script: ExaminePoiScript
       level: 20
       attributes: { strength: 1, vitality: 30, intelligence: 1, agility: 1, willpower: 20, dexterity: 1 }
 
   - kind: POI_BROKEN_OBELISK
     max-hp: 500
     collider: { half-x: 1, half-y: 1, height: 6 }
-    landmark:
-      script: ExamineLandmarkScript
+    poi:
+      script: ExaminePoiScript
       level: 30
       attributes: { strength: 1, vitality: 30, intelligence: 1, agility: 1, willpower: 30, dexterity: 1 }
       effects:
@@ -123,29 +123,29 @@ kinds:
   - kind: POI_WAYSTONE
     max-hp: 150
     collider: { half-x: 1, half-y: 1, height: 2 }
-    landmark:
-      script: ExamineLandmarkScript
+    poi:
+      script: ExaminePoiScript
       level: 10
       attributes: { strength: 1, vitality: 15, intelligence: 1, agility: 1, willpower: 5, dexterity: 1 }
 
   - kind: POI_PETRIFIED_TREE
     max-hp: 300
     collider: { half-x: 1, half-y: 1, height: 6 }
-    landmark:
-      script: ExamineLandmarkScript
+    poi:
+      script: ExaminePoiScript
       level: 15
       attributes: { strength: 1, vitality: 25, intelligence: 1, agility: 1, willpower: 5, dexterity: 1 }
 
   - kind: POI_SUNKEN_IDOL
     max-hp: 250
     collider: { half-x: 1, half-y: 1, height: 2 }
-    landmark:
-      script: ExamineLandmarkScript
+    poi:
+      script: ExaminePoiScript
       level: 15
       attributes: { strength: 1, vitality: 15, intelligence: 1, agility: 1, willpower: 25, dexterity: 1 }
 
   # The buildings a town lays out: one row per entry in worldgen's `BuildingFunction` except FORTIFICATION,
-  # which stays voxels. Mandatory in the same way the landmarks above are - a function added to worldgen with
+  # which stays voxels. Mandatory in the same way the POIs above are - a function added to worldgen with
   # no row here fails the boot rather than the first town that has one.
   #
   # `collider` is the only field here that is a placeholder rather than a decision, and it is a *deliberate*
@@ -481,7 +481,7 @@ kinds:
     variants: 1
 
   # What people put up - worldgen's `FixtureKind`, see `dress/DressingStage` and `voxel/FixtureProps`. One row per
-  # entry, mandatory like the landmarks'. `variants` is how many styles the generator chooses between, and the
+  # entry, mandatory like the POIs'. `variants` is how many styles the generator chooses between, and the
   # generator's choice arrives as the variant itself rather than a roll: a fence is dry-stone because of the ground
   # it stands on. A wooden fence breaks for a log; nothing else here yields anything yet, for the reason at the top.
   - kind: FIXTURE_PIER

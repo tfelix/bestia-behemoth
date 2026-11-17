@@ -329,11 +329,11 @@ enum class FeatureKind(val defaultPriority: Int) {
   VEGETATION_STAND(682),
 
   /**
-   * A point of interest: one of the hand-authored landmarks a world happens to hold.
+   * A point of interest: one of the hand-authored POIs a world happens to hold.
    *
    * Geometry and attributes only, so the priority is inert - `SEA_LANE` and [BESTIA_SPAWN] make the same point.
-   * A POI has no extent at all: the marker's position *is* the landmark's position, and the chunk tier turns it
-   * into exactly one prop standing there. That is why it is absent from
+   * A POI has no extent at all: the marker's position *is* the POI's position, and the zone raises exactly
+   * one entity standing there. That is why it is absent from
    * `Invariants.checkStructuralMarkersFitTheQueryMargin`, unlike [WOUND] - there is no radius to outrun the
    * query margin with.
    *

@@ -127,7 +127,7 @@ class StandardWorldTest {
         CorruptionStage.ID,
         // Points of interest land here on the name tie-break - "poi" sorts before "towns" - and the position is
         // genuinely arbitrary: the stage reads the settlements, the sites and the cave mouths, all of which are
-        // final by the time corruption has run, and nothing reads a landmark back.
+        // final by the time corruption has run, and nothing reads a POI back.
         PoiStage.ID,
         TownStage.ID,
         // Ready once history ran, and "treasure" sorts after "towns". Nothing reads a cache back.

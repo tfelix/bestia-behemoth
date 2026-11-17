@@ -56,11 +56,6 @@ func open_for(target: Node3D, screen_position: Vector2) -> bool:
 		_target_entity_id = target.entity_id
 		add_item(tr("CONTEXT_REPAIR"), _ACTION_REPAIR)
 
-	# A click examines a landmark, so breaking one has to be meant. The server refuses one that cannot be hurt.
-	elif target is StructureVisual and target.is_landmark():
-		_target_entity_id = target.get_structure_entity_id()
-		add_item(tr("CONTEXT_ATTACK"), _ACTION_ATTACK)
-
 	elif target is StructureVisual and not target.is_construction_site():
 		_target_entity_id = target.get_structure_entity_id()
 		add_item(tr("CONTEXT_REPAIR"), _ACTION_REPAIR)

@@ -7,7 +7,7 @@ import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
 /**
- * Loads which generated static entities (trees, POI landmarks, ...) have already been depleted, so
+ * Loads which generated static entities (trees, crystals, ...) have already been depleted, so
  * [net.bestia.zone.prop.WorldObjectResidencyService] never resurrects one a player felled or claimed
  * on a prior run.
  *

@@ -249,6 +249,7 @@ _data = {
 
 [node name="DoommasterVisual" type="Node3D" node_paths=PackedStringArray("body", "model", "pick_area", "level_line")]
 script = ExtResource("1_script")
+default_click_action = 3
 body = NodePath("Body")
 model = NodePath("Body/Model")
 pick_area = NodePath("Body/Model/Area3D")

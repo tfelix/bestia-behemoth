@@ -29,8 +29,8 @@ import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.prop.PropInteraction
 import net.bestia.zone.script.ScriptArgs
 import net.bestia.zone.entity.ecs.StaticVisual
-import net.bestia.zone.entity.ecs.Landmark
-import net.bestia.zone.landmark.LandmarkService
+import net.bestia.zone.script.EntityScriptRegistry
+import net.bestia.zone.script.ecs.ScriptComponent
 import org.springframework.stereotype.Component
 
 /**
@@ -52,7 +52,7 @@ class InteractEntityHandler(
   private val crafting: CraftingService,
   private val towns: TownService,
   private val outMessageProcessor: OutMessageProcessor,
-  private val landmarks: LandmarkService,
+  private val scripts: EntityScriptRegistry,
   propInteractions: List<PropInteraction>,
 ) : TickMessageHandler<InteractEntityCMSG> {
 
@@ -98,8 +98,9 @@ class InteractEntityHandler(
       return toggleBuilding(world, actorId, targetId)
     }
 
-    if (world.has(targetId, Landmark::class)) {
-      return landmarks.interact(world, actorId, targetId)
+    val script = world.get(targetId, ScriptComponent::class)?.let { scripts.find(it.scriptId) }
+    if (script != null) {
+      return script.onInteract(world, actorId, targetId)
     }
 
     // Ahead of the structures: a chest, a Mana Circle or a Breeding Farm is one, but none is a crafting station.

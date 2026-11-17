@@ -96,7 +96,7 @@ class GeneratedWorld(
    * The props standing in one chunk, for a runtime to turn into entities.
    *
    * `zone-server`'s `world/prop/GeneratedPropSource` is the first real consumer - it backs
-   * `ChunkStaticEntitiesSMSG`, which is how a tree, a crystal or a POI landmark reaches a client at all.
+   * `ChunkStaticEntitiesSMSG`, which is how a tree or a crystal reaches a client at all.
    *
    * See [ChunkMaterializer.propsIn] for the two things that matter: hand in the column heights if you
    * already have them, and never accumulate the result over a region.
@@ -251,7 +251,7 @@ object StandardWorld {
       TownStage(base, p.town),
       EconomyStage(base, p.economy),
       // The last word on what stands on the ground, and the only stage whose output is decided by a coin toss
-      // rather than by the land: one roll per catalogue entry says whether this world holds that landmark at
+      // rather than by the land: one roll per catalogue entry says whether this world holds that POI at
       // all. Reads the settlements, the sites and the cave mouths in order to keep away from them.
       PoiStage(base, p.poi),
       // After everything that stands on the ground, because the hills go round the ways rather than the ways

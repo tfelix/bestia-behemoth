@@ -347,7 +347,7 @@ object Invariants {
     checkVegetationStandsAdvertiseFillableCapacity(generated, props, ::fail)
     checkPropsAreWellPlaced(generated, ::fail)
     checkNoTreeStandsInAYard(generated, props, ::fail)
-    checkLandmarksStand(generated, ::fail)
+    checkPoisStand(generated, ::fail)
     checkDistrictsHoldTheirBuildings(generated, ::fail)
     checkBuiltTownsHaveStreets(generated, ::fail)
 
@@ -4188,12 +4188,12 @@ object Invariants {
   }
 
   /**
-   * Every landmark marker names one copy of a catalogue entry and stands above the water.
+   * Every POI marker names one instance of a catalogue entry and stands above the water.
    *
    * `PoiStage` tests standing water on the kilometre raster, which cannot see a vector pond the chunk tier fills,
    * so the water claim is measured here against the real column.
    */
-  private fun checkLandmarksStand(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+  private fun checkPoisStand(generated: GeneratedWorld, fail: (String, String) -> Unit) {
     val config = generated.config
     val surface = generated.materializer.surface
     val seen = HashSet<Pair<PoiKind, Int>>()
@@ -4206,13 +4206,13 @@ object Invariants {
       val where = "(${marker.position.x},${marker.position.y})"
       val kind = PoiKind.entries.getOrNull(marker.attribute(PoiChannels.KIND).toInt())
       if (kind == null) {
-        fail("landmarks stand", "the landmark at $where names catalogue entry ${marker.attribute(PoiChannels.KIND)}")
+        fail("POIs stand", "the POI at $where names catalogue entry ${marker.attribute(PoiChannels.KIND)}")
         continue
       }
 
-      val copy = marker.attribute(PoiChannels.COPY).toInt()
-      if (copy !in 0 until kind.count || !seen.add(kind to copy)) {
-        fail("landmarks stand", "the ${kind.label} at $where is copy $copy, outside 0..${kind.count - 1} or twice")
+      val instanceId = marker.attribute(PoiChannels.INSTANCE_ID).toInt()
+      if (instanceId !in 0 until kind.count || !seen.add(kind to instanceId)) {
+        fail("POIs stand", "the ${kind.label} at $where is instance $instanceId, outside 0..${kind.count - 1} or twice")
       }
 
       val voxelX = config.voxelOf(marker.position.x)
@@ -4224,7 +4224,7 @@ object Invariants {
       ]
       val water = surface.waterLevelAt(marker.position.x, marker.position.y)
       if (water > ground) {
-        fail("landmarks stand", "the ${kind.label} at $where stands at $ground under water at $water")
+        fail("POIs stand", "the ${kind.label} at $where stands at $ground under water at $water")
       }
     }
   }

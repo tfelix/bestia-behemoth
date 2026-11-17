@@ -4,27 +4,27 @@ import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.core.ParamsDigest
 
 /**
- * One named landmark, and how many of it a world holds.
+ * One named POI, and how many of it a world holds.
  *
  * Not a scatter (no notion of a world-wide count) and not a history site (nothing earned it). A hand-authored
- * list: each entry rolls [count] times per world with [chance], and every passing roll places one copy. With
- * `count = 1, chance = 1.0` the landmark is unique and guaranteed, and [PoiStage] fails the world if it finds no
+ * list: each entry rolls [count] times per world with [chance], and every passing roll places one instance. With
+ * `count = 1, chance = 1.0` the POI is unique and guaranteed, and [PoiStage] fails the world if it finds no
  * place for it.
  *
  * ### Append only
  *
  * The ordinal is the zone's `StaticEntityKind.POI_*` join and the salt of every roll. Appending an entry moves no
- * existing landmark; renumbering moves all of them.
+ * existing POI; renumbering moves all of them.
  */
 enum class PoiKind(
 
   /** What to call it in tooling and in a log line. */
   val label: String,
 
-  /** How many times the world rolls for this landmark. Each passing roll places one copy. */
+  /** How many times the world rolls for this POI. Each passing roll places one instance. */
   val count: Int,
 
-  /** Chance each roll passes, in `(0,1]`. At 1.0 every copy is required and a missing place fails the world. */
+  /** Chance each roll passes, in `(0,1]`. At 1.0 every instance is required and a missing place fails the world. */
   val chance: Double,
 
   /**
@@ -34,7 +34,7 @@ enum class PoiKind(
    */
   val biomes: Set<Biome>,
 
-  /** Metres between two copies of this landmark. Irrelevant when [count] is 1. */
+  /** Metres between two instances of this POI. Irrelevant when [count] is 1. */
   val minSpacing: Double = 0.0
 ) {
 
@@ -71,7 +71,7 @@ enum class PoiKind(
     }
   }
 
-  /** Whether a world without this landmark is a broken world. */
+  /** Whether a world without this POI is a broken world. */
   val isRequired: Boolean
     get() {
       return chance >= 1.0
@@ -85,7 +85,7 @@ enum class PoiKind(
   companion object {
 
     /**
-     * Fingerprint of the whole list, folded into [PoiStage.paramsVersion], so retuning a landmark regenerates the
+     * Fingerprint of the whole list, folded into [PoiStage.paramsVersion], so retuning a POI regenerates the
      * world like a params change does. Biomes are folded sorted, so their declaration order is not a change.
      */
     fun catalogueDigest(): Long {
@@ -114,8 +114,8 @@ object PoiChannels {
   const val KIND = "kind"
 
   /**
-   * Index of the roll that placed this copy, in `[0, count)`. A failed roll leaves a gap, so (kind, copy) names
-   * one landmark stably however the other rolls of the world went.
+   * Index of the roll that placed this instance, in `[0, count)`. A failed roll leaves a gap, so
+   * (kind, instanceId) names one POI stably however the other rolls of the world went.
    */
-  const val COPY = "copy"
+  const val INSTANCE_ID = "instanceId"
 }

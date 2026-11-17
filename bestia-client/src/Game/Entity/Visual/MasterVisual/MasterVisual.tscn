@@ -15,6 +15,7 @@ height = 2.0898926
 
 [node name="MasterVisual" type="Node3D" unique_id=922268045]
 script = ExtResource("1_biohp")
+default_click_action = 1
 
 [node name="Mage" parent="." unique_id=1300394641 instance=ExtResource("2_1txkv")]
 transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0, 0)
