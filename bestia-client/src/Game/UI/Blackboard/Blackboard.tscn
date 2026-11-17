@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Blackboard/blackboard_panel.gd" id="1_board"]
+
+[node name="BlackboardPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(600, 400)
+offset_right = 600.0
+offset_bottom = 400.0
+script = ExtResource("1_board")

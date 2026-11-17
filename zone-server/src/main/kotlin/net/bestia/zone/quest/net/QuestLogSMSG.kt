@@ -4,6 +4,7 @@ import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.QuestLogSmsgProto
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.quest.QuestView
+import net.bestia.zone.quest.toProto
 
 data class QuestLogSMSG(
   val quests: List<QuestView>,

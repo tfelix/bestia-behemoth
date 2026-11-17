@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BlackboardSmsgProto";
+
+import "messages/quest/quest.proto";
+
+// A blackboard's window: every open quest, as the viewer sees it. Boards share one list, so any board shows all.
+message BlackboardSMSG {
+  fixed64 board_entity_id = 1;
+  string place_name = 2;
+  repeated Quest quests = 3;
+}

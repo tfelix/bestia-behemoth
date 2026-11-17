@@ -37,6 +37,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Emotes/Emotes.tscn" id="34_emotes"]
 [ext_resource type="PackedScene" path="res://Game/UI/Mail/LetterPanel.tscn" id="35_letters"]
 [ext_resource type="PackedScene" path="res://Game/UI/Mail/PostOfficePanel.tscn" id="36_postoffice"]
+[ext_resource type="PackedScene" path="res://Game/UI/Blackboard/Blackboard.tscn" id="90_blackboard"]
 [ext_resource type="PackedScene" path="res://Game/UI/BlindVignette/BlindVignette.tscn" id="40_blind"]
 [ext_resource type="Script" uid="uid://1u024aahembd" path="res://Game/UI/Map/notebook.gd" id="41_notebook"]
 [ext_resource type="Script" uid="uid://bq7e7aqobe3ro" path="res://Game/UI/Conversation/conversation_presenter.gd" id="42_convpres"]
@@ -201,6 +202,12 @@ visible = false
 layout_mode = 1
 content = ExtResource("36_postoffice")
 window_title = "Post Office"
+
+[node name="BlackboardWin" parent="." instance=ExtResource("8_wdgtw")]
+visible = false
+layout_mode = 1
+content = ExtResource("90_blackboard")
+window_title = "Blackboard"
 
 [node name="CitySignWin" parent="." instance=ExtResource("8_wdgtw")]
 visible = false

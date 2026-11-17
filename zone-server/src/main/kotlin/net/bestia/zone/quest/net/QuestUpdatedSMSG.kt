@@ -4,6 +4,7 @@ import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.QuestUpdatedSmsgProto
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.quest.QuestView
+import net.bestia.zone.quest.toProto
 
 /** [quest] is null when the quest left the log. */
 data class QuestUpdatedSMSG(
