@@ -761,7 +761,14 @@ namespace BestiaBehemothClient.Game.World
       new Kind
       {
         PlaceholderWidth = 6.0f, PlaceholderColour = new Color(0.90f, 0.88f, 0.80f), Action = PropAction.Break
-      } // FIXTURE_GIANT_REMAINS
+      }, // FIXTURE_GIANT_REMAINS
+
+      // A town's quest board, an entity like the city sign: a dark wooden panel until it has a model.
+      new Kind
+      {
+        PlaceholderWidth = 2.0f, PlaceholderColour = new Color(0.24f, 0.20f, 0.15f), StructureHeight = 2f,
+        Action = PropAction.Use
+      } // BLACKBOARD
     };
 
     /// <summary>

@@ -11477,3 +11477,15 @@ items:
     material: METAL
     description: |
       Bent, rusted iron from a battle long ago: a blade, a buckle, the rim of a shield.
+
+  - id: 613
+    item-db-name: blackboard_kit
+    base-level: 10
+    weight: 400
+    type: USABLE
+    material: WOOD
+    script: BlackboardKitScript
+    description: |
+      A dark-stained board on two posts, with a pouch of chalk and a fistful of nails.
+
+      Set it up inside a town without one, and anyone may post or take on quests there.

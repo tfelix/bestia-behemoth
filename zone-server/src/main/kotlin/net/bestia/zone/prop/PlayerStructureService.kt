@@ -132,6 +132,20 @@ class PlayerStructureService(
    * Called from inside a system, where both halves are already safe to interleave: `World.destroy` is
    * deferred to the end of the tick, and `placeNow` queues its column batch for the same reason.
    */
+  /**
+   * Finishes a site whose kind stands as an entity of its own (see `SiteCompletion`): the row stays, so its town
+   * counts the building, but no static prop is placed.
+   *
+   * @return the finished row, or null when the site has no position
+   */
+  fun finishAsEntity(world: World, siteEntityId: EntityId, site: ConstructionSite): StructureEntry? {
+    val settled = world.get(siteEntityId, Position::class)?.toVec3L() ?: return null
+    structures.finish(site.structureId, settled)
+    world.destroy(siteEntityId)
+
+    return structures.of(site.structureId)
+  }
+
   fun completeConstruction(world: World, siteEntityId: EntityId, site: ConstructionSite) {
     // Where it actually stands rather than where it was placed - see `PlayerStructureRegistry.finish`. A building
     // piece stands where it was placed and holds its cells there, though its site was grounded: an upper floor is

@@ -52,7 +52,9 @@ class PlayerStructureSource(
    * workbench inside its own scaffolding.
    */
   override fun sitesIn(chunk: ChunkPos): List<WorldObjectSite> =
-    structures.`in`(chunk.x, chunk.y).filterNot { it.isUnderConstruction }.map { siteOf(it) }
+    structures.`in`(chunk.x, chunk.y)
+      .filterNot { it.isUnderConstruction || it.kind in STANDS_AS_ENTITY }
+      .map { siteOf(it) }
 
   /**
    * One structure row as a site.
@@ -81,5 +83,10 @@ class PlayerStructureSource(
       structureId = entry.id,
       ownerAccountId = entry.ownerAccountId
     )
+  }
+
+  private companion object {
+    /** Kinds whose finished row is drawn as an entity of its own, so they can carry state a static prop cannot. */
+    val STANDS_AS_ENTITY = setOf(StaticEntityKind.BLACKBOARD)
   }
 }
