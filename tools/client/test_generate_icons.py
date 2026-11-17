@@ -194,10 +194,10 @@ class DiscoveryTest(ClientTreeCase):
         (self.item_db / "3_small-health-potion.png").unlink()
         self.assertFalse({item.id: item for item in gi.discover_items()}[3].has_icon)
 
-    def test_skills_read_name_and_passive_flag(self):
+    def test_skills_read_name_and_carry_no_hint(self):
         skills = {skill.id: skill for skill in gi.discover_skills()}
-        self.assertEqual(("Divine Protection", "passive skill"), (skills[2].name, skills[2].hint))
-        self.assertEqual("active skill", skills[5].hint)
+        self.assertEqual(("Divine Protection", ""), (skills[2].name, skills[2].hint))
+        self.assertEqual("", skills[5].hint)
         self.assertEqual([False, True], [skills[2].has_icon, skills[5].has_icon])
 
     def test_targets_are_the_missing_icons_unless_asked_otherwise(self):
@@ -224,10 +224,10 @@ class PromptTest(unittest.TestCase):
         text = "Hurls a [b]bolt[/b] of `fire`\nat one enemy.\n\nCooldown 3 minutes."
         self.assertEqual("Hurls a bolt of fire at one enemy.", gi.short_description(text))
 
-    def test_a_very_short_first_sentence_gets_the_next_one(self):
+    def test_every_sentence_of_the_first_paragraph_is_kept(self):
         self.assertEqual(
-            "The capstone of the forge. It makes anything you can name.",
-            gi.short_description("The capstone of the forge. It makes anything you can name. Costs gold."),
+            "The capstone of the forge. It makes anything you can name. Costs gold.",
+            gi.short_description("The capstone of the forge.\nIt makes anything you can name. Costs gold.\n\n`+15%` x"),
         )
 
     def test_long_text_is_cut_on_a_word(self):

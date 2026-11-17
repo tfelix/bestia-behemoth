@@ -50,16 +50,14 @@ API = f"{HOST}/v2"
 SECRET_ENV = "PIXELLAB_SECRET"
 
 IMAGE_SIZE = 64  # pro-flash: multiple of 4, 16 to 256
-VARIANTS = 4  # candidates per review round
+VARIANTS = 3  # candidates per review round
 NO_BACKGROUND = True
 STYLE_IMAGE: Path | None = None  # one approved icon of exactly IMAGE_SIZE; keeps the set consistent
 STYLE_OPTIONS = {"color_palette": True, "outline": True, "detail": True, "shading": True}
 
 STYLE_PREFIX = "Pixel art RPG icon, single object, centered, thick dark outline, vibrant colors, no text:"
 ITEM_HINTS = {0: "consumable item", 1: "piece of equipment"}  # by .tres `type`; other items get none
-SKILL_HINTS = {True: "passive skill", False: "active skill"}  # by .tres `is_passive`
-DESCRIPTION_MIN_CHARS = 40
-DESCRIPTION_MAX_CHARS = 200
+DESCRIPTION_MAX_CHARS = 400
 
 PREVIEW_SCALE = 6  # contact sheet zoom, for viewing only
 POLL_INTERVAL_S = 3
@@ -125,10 +123,6 @@ def str_field(text: str, key: str) -> str:
     return match.group(1) if match else ""
 
 
-def bool_field(text: str, key: str) -> bool:
-    return re.search(rf"^{key}[ \t]*=[ \t]*true", text, re.M) is not None
-
-
 def ext_resources(text: str) -> dict[str, dict[str, str]]:
     """The [ext_resource] lines by id. Attribute order differs between stubs and editor-saved files."""
     parsed = (dict(re.findall(r'(\w+)="([^"]*)"', match.group(1))) for match in EXT_RESOURCE.finditer(text))
@@ -176,8 +170,7 @@ def discover_skills() -> list[Asset]:
         if skill_id is None:
             continue
         description = translations.get(str_field(text, "description_key"), "")
-        hint = SKILL_HINTS[bool_field(text, "is_passive")]
-        assets.append(make_asset("skill", tres, text, skill_id, str_field(text, "name"), description, hint))
+        assets.append(make_asset("skill", tres, text, skill_id, str_field(text, "name"), description, ""))
     return sorted(assets, key=lambda asset: asset.id)
 
 
@@ -194,15 +187,9 @@ def select_targets(assets: list[Asset], only: str | None, replace: bool) -> list
 
 
 def short_description(text: str) -> str:
-    """The first sentences of the first paragraph. Later text is mostly mechanics, which an image model cannot
-    draw, and some of it carries BBCode tables."""
+    """The whole first paragraph. Later paragraphs are stat tables and BBCode, which an image model cannot draw."""
     paragraph = re.split(r"\n\s*\n", text.strip())[0]
-    paragraph = " ".join(re.sub(r"\[/?\w+[^\]]*\]|`", "", paragraph).split())
-    summary = ""
-    for sentence in re.split(r"(?<=[.!?])\s+", paragraph):
-        summary = f"{summary} {sentence}".strip()
-        if len(summary) >= DESCRIPTION_MIN_CHARS:  # a first sentence like "The capstone of the forge." says little
-            break
+    summary = " ".join(re.sub(r"\[/?\w+[^\]]*\]|`", "", paragraph).split())
     if len(summary) <= DESCRIPTION_MAX_CHARS:
         return summary
     return summary[:DESCRIPTION_MAX_CHARS].rsplit(" ", 1)[0] + "..."

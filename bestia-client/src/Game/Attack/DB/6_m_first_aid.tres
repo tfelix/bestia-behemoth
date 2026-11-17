@@ -1,10 +1,12 @@
 [gd_resource type="Resource" script_class="AttackResource" format=3 uid="uid://bx38kgpfxgso5"]
 
 [ext_resource type="Script" uid="uid://cusu6un1ro3qh" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://Game/Attack/DB/6_m_first_aid.png" id="2_icon"]
 
 [resource]
 script = ExtResource("1_script")
 skill_id = 6
+icon = ExtResource("2_icon")
 name = "First Aid"
 description_key = "SKILL_6_DESC"
 mana_cost = 12
