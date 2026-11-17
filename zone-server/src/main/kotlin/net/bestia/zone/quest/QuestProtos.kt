@@ -73,6 +73,7 @@ private fun QuestView.Role.toProto(): QuestProto.QuestRole {
   return when (this) {
     QuestView.Role.ACCEPTED -> QuestProto.QuestRole.QUEST_ROLE_ACCEPTED
     QuestView.Role.POSTED -> QuestProto.QuestRole.QUEST_ROLE_POSTED
+    QuestView.Role.OFFERED -> QuestProto.QuestRole.QUEST_ROLE_OFFERED
   }
 }
 

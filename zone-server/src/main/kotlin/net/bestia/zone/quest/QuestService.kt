@@ -133,9 +133,10 @@ class QuestService(
     events.publishEvent(QuestChangedEvent(questId))
   }
 
+  /** Ends the quest unless it already ended, as a completion can race a deadline. */
   @Transactional
   fun end(questId: Long, status: QuestStatus) {
-    val quest = quests.findLocked(questId) ?: return
+    val quest = quests.findLocked(questId)?.takeUnless { it.status.isEnded } ?: return
     quest.end(status, clock.instant())
     events.publishEvent(QuestChangedEvent(questId))
     val holders = entries.findAllByQuestId(questId).map { it.masterId }
@@ -173,6 +174,22 @@ class QuestService(
     return accepted + posted
   }
 
+  /** Every [origin] quest still taking work, as [masterId] sees it on a board: its own, taken, or on offer. */
+  @Transactional(readOnly = true)
+  fun boardFor(masterId: Long, origin: QuestOrigin): List<QuestView> {
+    val taken = entries.findAllByMasterId(masterId).associateBy { it.quest.id }
+    val open = quests.findAllByOriginAndStatusIn(origin, QuestStatus.entries.filter { it.takesWork })
+
+    return open.map { quest ->
+      val entry = taken[quest.id]
+      when {
+        entry != null -> QuestView.accepted(entry)
+        quest.posterMasterId == masterId -> QuestView.posted(quest)
+        else -> QuestView.offered(quest)
+      }
+    }
+  }
+
   /** How [masterId]'s log shows the quest, or null when it is not in that log. */
   @Transactional(readOnly = true)
   fun viewFor(masterId: Long, questId: Long): QuestView? {
@@ -202,6 +219,7 @@ class QuestService(
     }
 
     val ids = stale.map { it.id }
+    events.publishEvent(QuestsDeletedEvent(ids))
     entries.deleteAllByQuestIdIn(ids)
     quests.deleteAll(stale)
     LOG.info { "Deleted ${ids.size} quests that ended more than ${config.endedKeptFor} ago" }

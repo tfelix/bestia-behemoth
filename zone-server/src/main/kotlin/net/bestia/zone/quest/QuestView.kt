@@ -22,6 +22,9 @@ data class QuestView(
   enum class Role {
     ACCEPTED,
     POSTED,
+
+    /** On a board, not yet taken by this master. */
+    OFFERED,
   }
 
   /** [yours] is what this master did; for a personal objective it is the whole [progress]. */
@@ -43,6 +46,10 @@ data class QuestView(
 
     fun posted(quest: Quest): QuestView {
       return of(quest, Role.POSTED, counts = emptyList())
+    }
+
+    fun offered(quest: Quest): QuestView {
+      return of(quest, Role.OFFERED, counts = emptyList())
     }
 
     private fun of(quest: Quest, role: Role, counts: List<Int>): QuestView {
