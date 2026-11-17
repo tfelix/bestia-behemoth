@@ -14,3 +14,7 @@ non_combatant = false
 habitat = ""
 in_compendium = false
 aggressive = false
+level_min = 80
+level_max = 80
+loot_item_ids = PackedInt32Array()
+loot_chances = PackedInt32Array()

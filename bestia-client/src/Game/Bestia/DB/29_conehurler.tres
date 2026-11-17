@@ -18,3 +18,7 @@ placeholder_colour = Color(0.5451, 0.3686, 0.2353, 1)
 placeholder_scale = 0.6
 placeholder_glow = 0
 aggressive = true
+level_min = 22
+level_max = 26
+loot_item_ids = PackedInt32Array(59, 30)
+loot_chances = PackedInt32Array(2500, 1000)

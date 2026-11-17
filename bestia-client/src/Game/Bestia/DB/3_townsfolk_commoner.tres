@@ -16,3 +16,7 @@ armor_types = 15
 habitat = ""
 in_compendium = false
 aggressive = false
+level_min = 1
+level_max = 1
+loot_item_ids = PackedInt32Array()
+loot_chances = PackedInt32Array()

@@ -24,7 +24,10 @@ import java.io.File
  * reads them from these resources while the server independently enforces the same values from the
  * `bestia` table. Today that is which equipment slots and armor types a species has, so the UI can grey
  * out the rest, whether it is a non-combatant, so a click can mean talking rather than swinging, its kind, and
- * what the Bestia Compendium shows: its habitat and whether it is listed at all.
+ * what the Bestia Compendium shows: its habitat, its level range, its loot and whether it is listed at all.
+ *
+ * Loot names items by identifier, the client by id, so this task also reads `items.yml` to translate. A loot
+ * chance stays in the server's fixed point (10000 is 100%).
  *
  * It also exports whether a species **hunts on sight**, so its hover name can warn in red. The mob YML does not
  * say that itself: it names an AI profile (`ai:`), and a species is aggressive exactly when that profile under
@@ -55,6 +58,10 @@ abstract class BestiaDbSyncTask : DefaultTask() {
   @get:InputFile
   abstract val bestiasCsv: RegularFileProperty
 
+  /** The item catalog, read only to turn a loot entry's item identifier into the item id the client knows. */
+  @get:InputFile
+  abstract val itemsYml: RegularFileProperty
+
   /** The AI profile YMLs a mob's `ai:` names, read only to tell which of them hunt on sight. */
   @get:InputDirectory
   abstract val aiProfileDir: DirectoryProperty
@@ -75,6 +82,11 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     val habitat: List<String> = emptyList(),
     val compendium: Boolean = true,
     val kind: String,
+    @JsonProperty("level-min")
+    val levelMin: Int,
+    @JsonProperty("level-max")
+    val levelMax: Int,
+    val loot: List<LootDto> = emptyList(),
     val name: String,
     val description: String? = null,
     /** The AI profile's identifier. None spawns without AI, which never attacks first. */
@@ -90,6 +102,16 @@ abstract class BestiaDbSyncTask : DefaultTask() {
       put(descriptionKey, description?.trim() ?: "TODO: describe $identifier")
     }
   }
+
+  private data class LootDto(val item: String, val chance: Int)
+
+  private data class ItemDto(
+    val id: Long,
+    @JsonProperty("item-db-name")
+    val identifier: String
+  )
+
+  private data class ItemsFile(val items: List<ItemDto> = emptyList())
 
   private data class AiGoalDto(val name: String)
 
@@ -107,18 +129,32 @@ abstract class BestiaDbSyncTask : DefaultTask() {
    * Written even when the value matches `BestiaResource`'s own default, so "absent" is always drift
    * rather than sometimes meaning agreement.
    */
-  private fun exportedFields(mob: MobDto, profiles: Map<String, AiProfileDto>): Map<String, String> = mapOf(
+  private fun exportedFields(
+    mob: MobDto,
+    profiles: Map<String, AiProfileDto>,
+    itemIds: Map<String, Long>
+  ): Map<String, String> = mapOf(
     "name_key" to quoted(mob.nameKey),
     "description_key" to quoted(mob.descriptionKey),
     "kind" to quoted(mob.kind.uppercase()),
     "equip_slots" to maskOf(mob).toString(),
     "armor_types" to armorTypeMaskOf(mob).toString(),
     "non_combatant" to mob.nonCombatant.toString(),
-    // Joined without spaces: a field value is matched up to the first whitespace.
     "habitat" to quoted(mob.habitat.joinToString(",") { it.uppercase() }),
     "in_compendium" to mob.compendium.toString(),
-    "aggressive" to aggressive(mob, profiles).toString()
+    "aggressive" to aggressive(mob, profiles).toString(),
+    "level_min" to mob.levelMin.toString(),
+    "level_max" to mob.levelMax.toString(),
+    "loot_item_ids" to packedInts(mob.loot.map { itemIdOf(it, mob, itemIds) }),
+    "loot_chances" to packedInts(mob.loot.map { it.chance.toLong() })
   )
+
+  private fun itemIdOf(loot: LootDto, mob: MobDto, itemIds: Map<String, Long>): Long =
+    itemIds[loot.item]
+      ?: throw GradleException("Mob '${mob.identifier}' drops item '${loot.item}', which items.yml does not declare.")
+
+  /** Spelled the way Godot saves a packed array, so a `.tres` saved from the editor is no drift. */
+  private fun packedInts(values: List<Long>) = "PackedInt32Array(${values.joinToString(", ")})"
 
   private fun aggressive(mob: MobDto, profiles: Map<String, AiProfileDto>): Boolean {
     val ai = mob.ai ?: return false
@@ -138,6 +174,9 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     val mobs = ymlFiles.map { mapper.readValue(it, MobDto::class.java) }
 
     val mobById = mobs.associateBy { it.id }
+
+    val itemIds = mapper.readValue(itemsYml.get().asFile, ItemsFile::class.java).items
+      .associate { it.identifier to it.id }
 
     val profileFiles = aiProfileDir.get().asFile.listFiles { f -> f.isFile && f.extension == "yml" }?.toList() ?: emptyList()
     val profiles = profileFiles.map { mapper.readValue(it, AiProfileDto::class.java) }.associateBy { it.identifier }
@@ -190,7 +229,7 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     }
 
     for ((id, mob) in mobById) {
-      val expected = exportedFields(mob, profiles)
+      val expected = exportedFields(mob, profiles, itemIds)
       val file = fileByBestiaId[id]
 
       if (file == null) {
@@ -269,7 +308,8 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     }
   }
 
-  private fun fieldPattern(field: String) = Regex("""^$field\s*=\s*(\S+)""", RegexOption.MULTILINE)
+  /** A field's value is the rest of its line: a packed array has spaces in it. */
+  private fun fieldPattern(field: String) = Regex("""^$field\s*=\s*(.*?)[ \t]*$""", RegexOption.MULTILINE)
 
   private fun stubTres(id: Long, fields: Map<String, String>): String {
     val header = """
