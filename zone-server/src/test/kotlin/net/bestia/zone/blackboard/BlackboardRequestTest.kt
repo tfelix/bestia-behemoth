@@ -24,6 +24,16 @@ class BlackboardRequestTest {
   }
 
   @Test
+  fun `signing and handing in name the quest`() {
+    val sign = ScriptArgs.of(ScriptArgKeys.ACTION to "sign", ScriptArgKeys.QUEST_ID to 7L)
+    val handIn = ScriptArgs.of(ScriptArgKeys.ACTION to "handIn", ScriptArgKeys.QUEST_ID to 7L, ScriptArgKeys.AMOUNT to 4L)
+
+    assertEquals(BlackboardRequest.Sign(7), BlackboardRequest.parse(sign))
+    assertEquals(BlackboardRequest.HandIn(7, 4), BlackboardRequest.parse(handIn))
+    assertNull(BlackboardRequest.parse(ScriptArgs.of(ScriptArgKeys.ACTION to "handIn", ScriptArgKeys.QUEST_ID to 7L)))
+  }
+
+  @Test
   fun `a bag no client builds is refused`() {
     assertNull(BlackboardRequest.parse(ScriptArgs.of(ScriptArgKeys.ACTION to "post", ScriptArgKeys.ITEM_ID to 8L)))
     assertNull(BlackboardRequest.parse(ScriptArgs.of(ScriptArgKeys.ACTION to "burn")))

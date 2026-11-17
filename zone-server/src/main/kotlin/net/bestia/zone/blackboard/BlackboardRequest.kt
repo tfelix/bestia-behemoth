@@ -12,6 +12,10 @@ sealed interface BlackboardRequest {
 
   data class Withdraw(val questId: Long) : BlackboardRequest
 
+  data class Sign(val questId: Long) : BlackboardRequest
+
+  data class HandIn(val questId: Long, val amount: Int) : BlackboardRequest
+
   companion object {
     /** @return null for a bag no honest client builds */
     fun parse(args: ScriptArgs): BlackboardRequest? {
@@ -19,8 +23,17 @@ sealed interface BlackboardRequest {
         null -> Open
         "post" -> post(args)
         "withdraw" -> args.long(ScriptArgKeys.QUEST_ID)?.let { Withdraw(it) }
+        "sign" -> args.long(ScriptArgKeys.QUEST_ID)?.let { Sign(it) }
+        "handIn" -> handIn(args)
         else -> null
       }
+    }
+
+    private fun handIn(args: ScriptArgs): HandIn? {
+      val questId = args.long(ScriptArgKeys.QUEST_ID) ?: return null
+      val amount = args.long(ScriptArgKeys.AMOUNT)?.takeIf { it in 1..Int.MAX_VALUE.toLong() } ?: return null
+
+      return HandIn(questId, amount.toInt())
     }
 
     private fun post(args: ScriptArgs): Post? {
