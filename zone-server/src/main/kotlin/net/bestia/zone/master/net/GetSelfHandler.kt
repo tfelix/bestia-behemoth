@@ -19,6 +19,7 @@ import net.bestia.zone.master.BestiaInfoFactory
 import net.bestia.zone.account.AvailableBestiaSlotService
 import net.bestia.zone.guild.GuildInfoPublisher
 import net.bestia.zone.party.PartyRosterPublisher
+import net.bestia.zone.quest.net.QuestLogPublisher
 
 
 @Component
@@ -31,6 +32,7 @@ class GetSelfHandler(
   private val entityVisibility: EntityVisibility,
   private val partyRosterPublisher: PartyRosterPublisher,
   private val guildInfoPublisher: GuildInfoPublisher,
+  private val questLogPublisher: QuestLogPublisher,
 ) : IoMessageHandler<GetSelfCMSG> {
   override val wire = decoder(MessageCase.GET_SELF) { accountId, _ -> GetSelfCMSG(accountId) }
 
@@ -57,6 +59,7 @@ class GetSelfHandler(
     // The client's party and guild windows ask again once they load; this covers the scene that is ready first.
     partyRosterPublisher.sendTo(msg.playerId)
     guildInfoPublisher.sendTo(msg.playerId)
+    questLogPublisher.sendTo(msg.playerId)
 
     return true
   }

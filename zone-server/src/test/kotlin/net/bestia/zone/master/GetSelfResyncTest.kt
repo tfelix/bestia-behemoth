@@ -71,6 +71,7 @@ class GetSelfResyncTest {
     entityVisibility = entityVisibility,
     partyRosterPublisher = mockk(relaxed = true),
     guildInfoPublisher = mockk(relaxed = true),
+    questLogPublisher = mockk(relaxed = true),
   )
 
   /** Every owner-only component a selected master carries that its own windows read. */

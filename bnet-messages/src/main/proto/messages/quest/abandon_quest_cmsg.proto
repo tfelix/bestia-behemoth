@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "AbandonQuestCmsgProto";
+
+// Drop an accepted quest from the log, or clear one that has ended.
+message AbandonQuestCMSG {
+  uint64 quest_id = 1;
+}

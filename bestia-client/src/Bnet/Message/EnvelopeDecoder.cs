@@ -92,6 +92,8 @@ namespace BestiaBehemothClient.Bnet.Message
         e => SpellScroll.InscriptionOptionsSMSG.FromProto(e.InscriptionOptions),
       [Envelope.MessageOneofCase.SpellBindings] = e => SpellBinding.SpellBindingsSMSG.FromProto(e.SpellBindings),
       [Envelope.MessageOneofCase.Letters] = e => Postal.LettersSMSG.FromProto(e.Letters),
+      [Envelope.MessageOneofCase.QuestLog] = e => Quest.QuestLogSMSG.FromProto(e.QuestLog),
+      [Envelope.MessageOneofCase.QuestUpdated] = e => Quest.QuestUpdatedSMSG.FromProto(e.QuestUpdated),
       [Envelope.MessageOneofCase.LetterArrived] = e => Postal.LetterArrivedSMSG.FromProto(e.LetterArrived),
       [Envelope.MessageOneofCase.LetterSent] = e => Postal.LetterSentSMSG.FromProto(e.LetterSent),
       [Envelope.MessageOneofCase.PostOfficeOpen] = e => Postal.PostOfficeOpenSMSG.FromProto(e.PostOfficeOpen),
