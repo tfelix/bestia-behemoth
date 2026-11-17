@@ -6,6 +6,8 @@ data class QuestObjective(
   val scope: ObjectiveScope,
   val required: Int,
   val itemId: Long? = null,
+  val speciesId: Long? = null,
+  val area: QuestArea? = null,
   val progress: Int = 0,
 ) {
 

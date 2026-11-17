@@ -68,6 +68,8 @@ import net.bestia.zone.guild.ecs.GuildMemberBeacon
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.party.membership
+import net.bestia.zone.quest.ecs.ActiveQuests
+import net.bestia.zone.quest.QuestService
 
 /**
  * Materializes an already persisted [Master] row into a live ECS entity carrying every component a player
@@ -92,6 +94,7 @@ class MasterEntitySpawner(
   private val itemStats: ItemStatCatalog,
   private val guildMemberships: GuildMemberships,
   private val knownRecipeStore: KnownRecipeStore,
+  private val questService: QuestService,
   private val honorService: HonorService,
   private val professions: ProfessionService,
 ) {
@@ -136,6 +139,7 @@ class MasterEntitySpawner(
     LOG.info { "Create master entity for account ${master.account.id} with master id: $masterId" }
 
     val knownRecipeIds = knownRecipeStore.load(masterId)
+    val trackedKills = questService.trackedKillsFor(masterId)
     val learnedSkillIds = learnedSkillRepository.findAllByMasterId(masterId)
       .associate { it.skill.id to it.level }
 
@@ -172,6 +176,7 @@ class MasterEntitySpawner(
       // The stored pair only breaks ties: a content edit to the tree since the last save is caught here.
       professions.refresh(this, id)
       add(id, KnownRecipes(knownRecipeIds.toMutableSet()))
+      add(id, ActiveQuests(masterId, trackedKills))
       add(id, SkillPoints(master.skillPoints))
       add(id, StatusPoints(master.statusPoints))
       add(

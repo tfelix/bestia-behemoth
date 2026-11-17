@@ -42,6 +42,9 @@ class QuestServiceTest {
   @Autowired
   private lateinit var transactionManager: PlatformTransactionManager
 
+  @Autowired
+  private lateinit var live: LiveQuests
+
   // Far above any master the scenario fixture creates: this slice keeps master ids without a foreign key.
   private val poster = 9_100_001L
   private val alice = 9_100_002L
@@ -130,12 +133,55 @@ class QuestServiceTest {
     val later = Clock.fixed(Instant.now().plus(config.endedKeptFor).plus(Duration.ofMinutes(1)), ZoneOffset.UTC)
     // Built by hand for its clock, so it has no transactional proxy of its own.
     TransactionTemplate(transactionManager).executeWithoutResult {
-      QuestService(quests, entries, events, config, later).deleteLongEnded()
+      QuestService(quests, entries, events, config, live, later).deleteLongEnded()
     }
 
     assertFalse(quests.existsById(ended))
     assertTrue(quests.existsById(running))
     assertTrue(service.logOf(alice).isEmpty())
+  }
+
+  @Test
+  fun `an accepted kill quest is tracked with its count, and a recorded count is kept`() {
+    val questId = service.create(killDraft(required = 5)).id
+    service.accept(alice, questId)
+
+    val tracked = service.trackedKillsFor(alice).single()
+    assertEquals(WOLF, tracked.speciesId)
+    assertEquals(QuestArea.InPlace("Ashford"), tracked.area)
+    assertEquals(0, tracked.count)
+
+    service.recordPersonal(alice, questId, 0, 3)
+    service.recordPersonal(alice, questId, 0, 2)
+
+    assertEquals(3, service.trackedKillsFor(alice).single().count, "a late, lower count changes nothing")
+    assertEquals(3, service.viewFor(alice, questId)!!.objectives.single().progress)
+    assertEquals("Ashford", service.viewFor(alice, questId)!!.objectives.single().placeName)
+  }
+
+  @Test
+  fun `an ended kill quest is not tracked`() {
+    val questId = service.create(killDraft(required = 5)).id
+    service.accept(alice, questId)
+    service.end(questId, QuestStatus.EXPIRED)
+
+    assertTrue(service.trackedKillsFor(alice).isEmpty())
+  }
+
+  private fun killDraft(required: Int): QuestDraft {
+    val objective = QuestObjective(
+      ObjectiveKind.KILL, ObjectiveScope.PERSONAL, required, speciesId = WOLF, area = QuestArea.InPlace("Ashford"),
+    )
+
+    return QuestDraft(
+      origin = QuestOrigin.BLACKBOARD,
+      titleKey = "QUEST_KILL_TITLE",
+      textArgs = listOf(QuestTextArg.number("amount", required.toLong())),
+      suggestedLevel = 10,
+      deadline = Instant.now().plus(Duration.ofDays(1)),
+      objectives = listOf(objective),
+      rewards = emptyList(),
+    )
   }
 
   private fun postDeliveryOf(required: Int): Long {
@@ -155,5 +201,6 @@ class QuestServiceTest {
 
   private companion object {
     const val IRON_ORE = 8L
+    const val WOLF = 3L
   }
 }

@@ -27,6 +27,7 @@ enum QuestRole {
 
 enum ObjectiveKind {
   OBJECTIVE_KIND_DELIVER_ITEM = 0;
+  OBJECTIVE_KIND_KILL = 1;
 }
 
 enum ObjectiveScope {
@@ -61,6 +62,9 @@ message QuestObjective {
   uint32 progress = 5;
   // What this master contributed. Equal to progress for a personal objective.
   uint32 yours = 6;
+  int64 species_id = 7;
+  // The place a kill must happen in, empty when anywhere counts or the spot has no name.
+  string place_name = 8;
 }
 
 message QuestReward {
