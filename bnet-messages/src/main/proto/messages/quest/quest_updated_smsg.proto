@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "QuestUpdatedSmsgProto";
+
+import "messages/quest/quest.proto";
+
+// One quest in the log changed, or left it. `quest` is unset when it was removed.
+message QuestUpdatedSMSG {
+  uint64 quest_id = 1;
+  Quest quest = 2;
+}

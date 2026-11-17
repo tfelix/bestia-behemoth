@@ -522,6 +522,10 @@ enum OpError {
   SKILL_NEEDS_INSTRUMENT = 182;
   // A skill that helps an ally, like Potion Pitcher, was aimed at something on the other side.
   SKILL_NEEDS_ALLY = 183;
+  // The quest log holds as many quests as it can; finish or drop one first.
+  QUEST_LOG_FULL = 384;
+  // The quest stopped taking new hands: it was withdrawn, finished or ran out of time.
+  QUEST_CLOSED = 385;
 }
 
 message OperationError {
