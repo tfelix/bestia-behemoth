@@ -526,6 +526,10 @@ enum OpError {
   QUEST_LOG_FULL = 384;
   // The quest stopped taking new hands: it was withdrawn, finished or ran out of time.
   QUEST_CLOSED = 385;
+  // The poster has too few coins for the pay and the board's fee.
+  BLACKBOARD_CANNOT_AFFORD = 386;
+  // The poster has as many quests open as the boards allow.
+  BLACKBOARD_POSTING_LIMIT = 387;
 }
 
 message OperationError {

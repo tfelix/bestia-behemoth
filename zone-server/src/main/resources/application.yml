@@ -513,6 +513,17 @@ quest:
   # How long an ended quest stays readable in the logs before it is deleted.
   ended-kept-for: 3d
 
+blackboard:
+  # The runs a poster may pick, in days, and the fee each costs in percent of the pay. Paid up front into the
+  # world reserve and never refunded.
+  fee-percent-by-days:
+    1: 3
+    3: 5
+    7: 8
+  max-open-per-master: 10
+  # How long a withdrawn quest still takes hand-ins.
+  withdraw-notice: 1h
+
 world-time:
   # Left unset: defaults to this server instance's boot time (a new world timeline each restart).
   # world-epoch: 2026-01-01T00:00:00Z

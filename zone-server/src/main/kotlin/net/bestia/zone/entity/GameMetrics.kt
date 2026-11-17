@@ -47,6 +47,9 @@ class GameMetrics(private val registry: MeterRegistry = SimpleMeterRegistry()) {
     /** An auction listing fee. */
     AUCTION_FEE,
 
+    /** A blackboard's fee for posting a quest. */
+    QUEST_FEE,
+
     /** The postage of a letter. */
     POSTAGE,
 

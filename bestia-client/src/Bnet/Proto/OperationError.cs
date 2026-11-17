@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSq0LgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSryLgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -157,9 +157,10 @@ namespace Bnet {
             "Uk9XThCyARIbChZTS0lMTF9OT1RISU5HX1RPX1RIUk9XELMBEhQKD1NLSUxM",
             "X05FRURTX0JPVxC0ARIVChBTS0lMTF9ORUVEU19XSElQELUBEhsKFlNLSUxM",
             "X05FRURTX0lOU1RSVU1FTlQQtgESFQoQU0tJTExfTkVFRFNfQUxMWRC3ARIT",
-            "Cg5RVUVTVF9MT0dfRlVMTBCAAxIRCgxRVUVTVF9DTE9TRUQQgQMiBAguEC4q",
-            "ElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
-            "E09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
+            "Cg5RVUVTVF9MT0dfRlVMTBCAAxIRCgxRVUVTVF9DTE9TRUQQgQMSHQoYQkxB",
+            "Q0tCT0FSRF9DQU5OT1RfQUZGT1JEEIIDEh0KGEJMQUNLQk9BUkRfUE9TVElO",
+            "R19MSU1JVBCDAyIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5i",
+            "ZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1010,6 +1011,14 @@ namespace Bnet {
     /// The quest stopped taking new hands: it was withdrawn, finished or ran out of time.
     /// </summary>
     [pbr::OriginalName("QUEST_CLOSED")] QuestClosed = 385,
+    /// <summary>
+    /// The poster has too few coins for the pay and the board's fee.
+    /// </summary>
+    [pbr::OriginalName("BLACKBOARD_CANNOT_AFFORD")] BlackboardCannotAfford = 386,
+    /// <summary>
+    /// The poster has as many quests open as the boards allow.
+    /// </summary>
+    [pbr::OriginalName("BLACKBOARD_POSTING_LIMIT")] BlackboardPostingLimit = 387,
   }
 
   #endregion

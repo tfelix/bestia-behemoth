@@ -11,13 +11,30 @@ data class BlackboardSMSG(
   val boardEntityId: EntityId,
   val placeName: String,
   val quests: List<QuestView>,
+  val terms: Terms,
 ) : SMSG {
+
+  /** What the poster may pick, so the client prices a quest the way the board will. */
+  data class Terms(
+    val feePercentByDays: Map<Int, Int>,
+    val openPostings: Int,
+    val maxPostings: Int,
+    val maxAmount: Int,
+    val maxCoinsEach: Long,
+  )
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val board = BlackboardSmsgProto.BlackboardSMSG.newBuilder()
       .setBoardEntityId(boardEntityId)
       .setPlaceName(placeName)
       .addAllQuests(quests.map { it.toProto() })
+      .setOpenPostings(terms.openPostings)
+      .setMaxPostings(terms.maxPostings)
+      .setMaxAmount(terms.maxAmount)
+      .setMaxCoinsEach(terms.maxCoinsEach)
+    terms.feePercentByDays.toSortedMap().forEach { (days, percent) ->
+      board.addRuns(BlackboardSmsgProto.BlackboardRun.newBuilder().setDays(days).setFeePercent(percent))
+    }
 
     return EnvelopeProto.Envelope.newBuilder()
       .setBlackboard(board)

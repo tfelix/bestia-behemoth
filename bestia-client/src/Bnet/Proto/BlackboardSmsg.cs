@@ -25,14 +25,19 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiRtZXNzYWdlcy9xdWVzdC9ibGFja2JvYXJkX3Ntc2cucHJvdG8SBGJuZXQa",
-            "Gm1lc3NhZ2VzL3F1ZXN0L3F1ZXN0LnByb3RvIloKDkJsYWNrYm9hcmRTTVNH",
-            "EhcKD2JvYXJkX2VudGl0eV9pZBgBIAEoBhISCgpwbGFjZV9uYW1lGAIgASgJ",
-            "EhsKBnF1ZXN0cxgDIAMoCzILLmJuZXQuUXVlc3RCLAoVbmV0LmJlc3RpYS5i",
-            "bmV0LnByb3RvQhNCbGFja2JvYXJkU21zZ1Byb3RvYgZwcm90bzM="));
+            "Gm1lc3NhZ2VzL3F1ZXN0L3F1ZXN0LnByb3RvItYBCg5CbGFja2JvYXJkU01T",
+            "RxIXCg9ib2FyZF9lbnRpdHlfaWQYASABKAYSEgoKcGxhY2VfbmFtZRgCIAEo",
+            "CRIbCgZxdWVzdHMYAyADKAsyCy5ibmV0LlF1ZXN0EiEKBHJ1bnMYBCADKAsy",
+            "Ey5ibmV0LkJsYWNrYm9hcmRSdW4SFQoNb3Blbl9wb3N0aW5ncxgFIAEoDRIU",
+            "CgxtYXhfcG9zdGluZ3MYBiABKA0SEgoKbWF4X2Ftb3VudBgHIAEoDRIWCg5t",
+            "YXhfY29pbnNfZWFjaBgIIAEoAyIyCg1CbGFja2JvYXJkUnVuEgwKBGRheXMY",
+            "ASABKA0SEwoLZmVlX3BlcmNlbnQYAiABKA1CLAoVbmV0LmJlc3RpYS5ibmV0",
+            "LnByb3RvQhNCbGFja2JvYXJkU21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.QuestReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BlackboardSMSG), global::Bnet.BlackboardSMSG.Parser, new[]{ "BoardEntityId", "PlaceName", "Quests" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BlackboardSMSG), global::Bnet.BlackboardSMSG.Parser, new[]{ "BoardEntityId", "PlaceName", "Quests", "Runs", "OpenPostings", "MaxPostings", "MaxAmount", "MaxCoinsEach" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BlackboardRun), global::Bnet.BlackboardRun.Parser, new[]{ "Days", "FeePercent" }, null, null, null, null)
           }));
     }
     #endregion
@@ -80,6 +85,11 @@ namespace Bnet {
       boardEntityId_ = other.boardEntityId_;
       placeName_ = other.placeName_;
       quests_ = other.quests_.Clone();
+      runs_ = other.runs_.Clone();
+      openPostings_ = other.openPostings_;
+      maxPostings_ = other.maxPostings_;
+      maxAmount_ = other.maxAmount_;
+      maxCoinsEach_ = other.maxCoinsEach_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -124,6 +134,68 @@ namespace Bnet {
       get { return quests_; }
     }
 
+    /// <summary>Field number for the "runs" field.</summary>
+    public const int RunsFieldNumber = 4;
+    private static readonly pb::FieldCodec<global::Bnet.BlackboardRun> _repeated_runs_codec
+        = pb::FieldCodec.ForMessage(34, global::Bnet.BlackboardRun.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.BlackboardRun> runs_ = new pbc::RepeatedField<global::Bnet.BlackboardRun>();
+    /// <summary>
+    /// What a poster may pick, so the client's form can price a quest before it is sent.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.BlackboardRun> Runs {
+      get { return runs_; }
+    }
+
+    /// <summary>Field number for the "open_postings" field.</summary>
+    public const int OpenPostingsFieldNumber = 5;
+    private uint openPostings_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint OpenPostings {
+      get { return openPostings_; }
+      set {
+        openPostings_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "max_postings" field.</summary>
+    public const int MaxPostingsFieldNumber = 6;
+    private uint maxPostings_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint MaxPostings {
+      get { return maxPostings_; }
+      set {
+        maxPostings_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "max_amount" field.</summary>
+    public const int MaxAmountFieldNumber = 7;
+    private uint maxAmount_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint MaxAmount {
+      get { return maxAmount_; }
+      set {
+        maxAmount_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "max_coins_each" field.</summary>
+    public const int MaxCoinsEachFieldNumber = 8;
+    private long maxCoinsEach_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long MaxCoinsEach {
+      get { return maxCoinsEach_; }
+      set {
+        maxCoinsEach_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -142,6 +214,11 @@ namespace Bnet {
       if (BoardEntityId != other.BoardEntityId) return false;
       if (PlaceName != other.PlaceName) return false;
       if(!quests_.Equals(other.quests_)) return false;
+      if(!runs_.Equals(other.runs_)) return false;
+      if (OpenPostings != other.OpenPostings) return false;
+      if (MaxPostings != other.MaxPostings) return false;
+      if (MaxAmount != other.MaxAmount) return false;
+      if (MaxCoinsEach != other.MaxCoinsEach) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -152,6 +229,11 @@ namespace Bnet {
       if (BoardEntityId != 0UL) hash ^= BoardEntityId.GetHashCode();
       if (PlaceName.Length != 0) hash ^= PlaceName.GetHashCode();
       hash ^= quests_.GetHashCode();
+      hash ^= runs_.GetHashCode();
+      if (OpenPostings != 0) hash ^= OpenPostings.GetHashCode();
+      if (MaxPostings != 0) hash ^= MaxPostings.GetHashCode();
+      if (MaxAmount != 0) hash ^= MaxAmount.GetHashCode();
+      if (MaxCoinsEach != 0L) hash ^= MaxCoinsEach.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -179,6 +261,23 @@ namespace Bnet {
         output.WriteString(PlaceName);
       }
       quests_.WriteTo(output, _repeated_quests_codec);
+      runs_.WriteTo(output, _repeated_runs_codec);
+      if (OpenPostings != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(OpenPostings);
+      }
+      if (MaxPostings != 0) {
+        output.WriteRawTag(48);
+        output.WriteUInt32(MaxPostings);
+      }
+      if (MaxAmount != 0) {
+        output.WriteRawTag(56);
+        output.WriteUInt32(MaxAmount);
+      }
+      if (MaxCoinsEach != 0L) {
+        output.WriteRawTag(64);
+        output.WriteInt64(MaxCoinsEach);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -198,6 +297,23 @@ namespace Bnet {
         output.WriteString(PlaceName);
       }
       quests_.WriteTo(ref output, _repeated_quests_codec);
+      runs_.WriteTo(ref output, _repeated_runs_codec);
+      if (OpenPostings != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(OpenPostings);
+      }
+      if (MaxPostings != 0) {
+        output.WriteRawTag(48);
+        output.WriteUInt32(MaxPostings);
+      }
+      if (MaxAmount != 0) {
+        output.WriteRawTag(56);
+        output.WriteUInt32(MaxAmount);
+      }
+      if (MaxCoinsEach != 0L) {
+        output.WriteRawTag(64);
+        output.WriteInt64(MaxCoinsEach);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -215,6 +331,19 @@ namespace Bnet {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(PlaceName);
       }
       size += quests_.CalculateSize(_repeated_quests_codec);
+      size += runs_.CalculateSize(_repeated_runs_codec);
+      if (OpenPostings != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(OpenPostings);
+      }
+      if (MaxPostings != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MaxPostings);
+      }
+      if (MaxAmount != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MaxAmount);
+      }
+      if (MaxCoinsEach != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(MaxCoinsEach);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -234,6 +363,19 @@ namespace Bnet {
         PlaceName = other.PlaceName;
       }
       quests_.Add(other.quests_);
+      runs_.Add(other.runs_);
+      if (other.OpenPostings != 0) {
+        OpenPostings = other.OpenPostings;
+      }
+      if (other.MaxPostings != 0) {
+        MaxPostings = other.MaxPostings;
+      }
+      if (other.MaxAmount != 0) {
+        MaxAmount = other.MaxAmount;
+      }
+      if (other.MaxCoinsEach != 0L) {
+        MaxCoinsEach = other.MaxCoinsEach;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -265,6 +407,26 @@ namespace Bnet {
             quests_.AddEntriesFrom(input, _repeated_quests_codec);
             break;
           }
+          case 34: {
+            runs_.AddEntriesFrom(input, _repeated_runs_codec);
+            break;
+          }
+          case 40: {
+            OpenPostings = input.ReadUInt32();
+            break;
+          }
+          case 48: {
+            MaxPostings = input.ReadUInt32();
+            break;
+          }
+          case 56: {
+            MaxAmount = input.ReadUInt32();
+            break;
+          }
+          case 64: {
+            MaxCoinsEach = input.ReadInt64();
+            break;
+          }
         }
       }
     #endif
@@ -294,6 +456,264 @@ namespace Bnet {
           }
           case 26: {
             quests_.AddEntriesFrom(ref input, _repeated_quests_codec);
+            break;
+          }
+          case 34: {
+            runs_.AddEntriesFrom(ref input, _repeated_runs_codec);
+            break;
+          }
+          case 40: {
+            OpenPostings = input.ReadUInt32();
+            break;
+          }
+          case 48: {
+            MaxPostings = input.ReadUInt32();
+            break;
+          }
+          case 56: {
+            MaxAmount = input.ReadUInt32();
+            break;
+          }
+          case 64: {
+            MaxCoinsEach = input.ReadInt64();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// One run a quest may be posted for, and the fee it costs in percent of the pay.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class BlackboardRun : pb::IMessage<BlackboardRun>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<BlackboardRun> _parser = new pb::MessageParser<BlackboardRun>(() => new BlackboardRun());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<BlackboardRun> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Bnet.BlackboardSmsgReflection.Descriptor.MessageTypes[1]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BlackboardRun() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BlackboardRun(BlackboardRun other) : this() {
+      days_ = other.days_;
+      feePercent_ = other.feePercent_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BlackboardRun Clone() {
+      return new BlackboardRun(this);
+    }
+
+    /// <summary>Field number for the "days" field.</summary>
+    public const int DaysFieldNumber = 1;
+    private uint days_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Days {
+      get { return days_; }
+      set {
+        days_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "fee_percent" field.</summary>
+    public const int FeePercentFieldNumber = 2;
+    private uint feePercent_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint FeePercent {
+      get { return feePercent_; }
+      set {
+        feePercent_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as BlackboardRun);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(BlackboardRun other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Days != other.Days) return false;
+      if (FeePercent != other.FeePercent) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Days != 0) hash ^= Days.GetHashCode();
+      if (FeePercent != 0) hash ^= FeePercent.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Days != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(Days);
+      }
+      if (FeePercent != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(FeePercent);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Days != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(Days);
+      }
+      if (FeePercent != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(FeePercent);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Days != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Days);
+      }
+      if (FeePercent != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(FeePercent);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(BlackboardRun other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Days != 0) {
+        Days = other.Days;
+      }
+      if (other.FeePercent != 0) {
+        FeePercent = other.FeePercent;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            Days = input.ReadUInt32();
+            break;
+          }
+          case 16: {
+            FeePercent = input.ReadUInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            Days = input.ReadUInt32();
+            break;
+          }
+          case 16: {
+            FeePercent = input.ReadUInt32();
             break;
           }
         }

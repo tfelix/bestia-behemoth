@@ -17,4 +17,13 @@ object ScriptArgKeys {
 
   /** What was clicked, as a live ECS entity id. */
   const val TARGET_ENTITY_ID = "targetEntityId"
+
+  /** What to do at something that offers several actions, such as `post` at a blackboard. Absent means open it. */
+  const val ACTION = "action"
+
+  const val QUEST_ID = "questId"
+  const val ITEM_ID = "itemId"
+  const val AMOUNT = "amount"
+  const val COINS_EACH = "coinsEach"
+  const val DAYS = "days"
 }
