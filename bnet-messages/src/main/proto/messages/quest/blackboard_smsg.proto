@@ -12,4 +12,16 @@ message BlackboardSMSG {
   fixed64 board_entity_id = 1;
   string place_name = 2;
   repeated Quest quests = 3;
+  // What a poster may pick, so the client's form can price a quest before it is sent.
+  repeated BlackboardRun runs = 4;
+  uint32 open_postings = 5;
+  uint32 max_postings = 6;
+  uint32 max_amount = 7;
+  int64 max_coins_each = 8;
+}
+
+// One run a quest may be posted for, and the fee it costs in percent of the pay.
+message BlackboardRun {
+  uint32 days = 1;
+  uint32 fee_percent = 2;
 }
