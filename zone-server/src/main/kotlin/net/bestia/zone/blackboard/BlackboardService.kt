@@ -4,13 +4,17 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.blackboard.persistence.BlackboardPosting
 import net.bestia.zone.blackboard.persistence.BlackboardPostingRepository
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.economy.WorldReserve
 import net.bestia.zone.entity.GameMetrics.CoinSource
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.container.ReservedItem
+import net.bestia.zone.item.ecs.Equipment
+import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
+import net.bestia.zone.item.ecs.grantToLive
 import net.bestia.zone.item.ecs.takeFromLive
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.message.OperationErrorSMSG
@@ -25,7 +29,9 @@ import net.bestia.zone.quest.QuestReward
 import net.bestia.zone.quest.QuestService
 import net.bestia.zone.quest.QuestStatus
 import net.bestia.zone.quest.QuestTextArg
+import net.bestia.zone.quest.QuestView
 import net.bestia.zone.quest.QuestsDeletedEvent
+import net.bestia.zone.util.EntityId
 import org.springframework.context.event.EventListener
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.scheduling.annotation.Scheduled
@@ -63,6 +69,8 @@ class BlackboardService(
       BlackboardRequest.Open -> null
       is BlackboardRequest.Post -> post(visit, request)
       is BlackboardRequest.Withdraw -> withdraw(visit.masterId, request.questId)
+      is BlackboardRequest.Sign -> quests.accept(visit.masterId, request.questId)
+      is BlackboardRequest.HandIn -> handIn(visit, request)
     }
     refusal?.let { out.sendToPlayer(visit.accountId, OperationErrorSMSG(it)) }
     out.sendToPlayer(visit.accountId, boardFor(visit))
@@ -114,6 +122,83 @@ class BlackboardService(
       quests.close(questId)
       null
     }
+  }
+
+  /**
+   * Hands in up to [BlackboardRequest.HandIn.amount] of what the quest wants. The goods go to the poster's mailbox at
+   * once, the deliverer is paid from the posting, and the quest completes for everyone once the last unit is in.
+   */
+  fun handIn(visit: BoardVisit, request: BlackboardRequest.HandIn): OpError? {
+    val coinId = commodityItems.coinItemId() ?: return OpError.REQUEST_REFUSED
+    val quest = quests.viewFor(visit.masterId, request.questId)
+      ?.takeIf { it.role == QuestView.Role.ACCEPTED }
+      ?: return OpError.REQUEST_REFUSED
+    if (!quest.status.takesWork) {
+      return OpError.QUEST_CLOSED
+    }
+    val wanted = quest.objectives.single()
+    val itemId = wanted.itemId ?: return OpError.REQUEST_REFUSED
+    val piles = world.read { handablePiles(this, visit.masterEntityId, itemId) }
+    if (piles.isEmpty()) {
+      return OpError.BLACKBOARD_NOTHING_TO_HAND_IN
+    }
+
+    val amount = minOf(request.amount, wanted.required - wanted.progress)
+    val handed = transactions.execute { status ->
+      handInLocked(visit, request.questId, itemId, piles, amount, coinId).also { if (it == null) status.setRollbackOnly() }
+    } ?: return OpError.QUEST_CLOSED
+
+    // Past the commit. A live inventory that disagrees is corrected by the next login; the database decided.
+    handed.goods.forEach { world.takeFromLive(visit.masterEntityId, it) }
+    world.grantToLive(visit.masterEntityId, listOf(ReservedItem.stack(coinId, handed.pay.toInt(), weight = 0)))
+
+    return null
+  }
+
+  private class HandedIn(val goods: List<ReservedItem>, val pay: Long)
+
+  private fun handInLocked(
+    visit: BoardVisit,
+    questId: Long,
+    itemId: Long,
+    piles: List<Inventory.Item>,
+    amount: Int,
+    coinId: Long,
+  ): HandedIn? {
+    val posting = postings.findLockedByQuestId(questId)?.takeUnless { it.settled } ?: return null
+    val goods = ArrayList<ReservedItem>()
+    parcels.postInstant(posting.posterMasterId, SENDER_NAME) { parcel ->
+      var left = amount
+      for (pile in piles) {
+        if (left <= 0) break
+        inventoryService.moveToEscrow(visit.masterId, itemId, pile.uniqueId, minOf(left, pile.amount), parcel, pile.provenance)
+          ?.let { goods += it; left -= it.amount }
+      }
+    }
+
+    val moved = goods.sumOf { it.amount }
+    val counted = quests.advanceShared(questId, objectiveIndex = 0, amount = moved, byMasterId = visit.masterId)
+    if (moved == 0 || counted != moved) {
+      return null
+    }
+
+    val pay = counted * posting.coinsEach
+    posting.payLeft -= pay
+    inventoryService.grantToMaster(visit.masterId, coinId, pay.toInt())
+    if (quests.viewFor(visit.masterId, questId)?.status == QuestStatus.COMPLETED) {
+      returnUnearnedPay(posting)
+      posting.settled = true
+    }
+
+    return HandedIn(goods, pay)
+  }
+
+  /** What may be handed in: loose copies of [itemId], not gear being worn. */
+  private fun handablePiles(world: World, masterEntityId: EntityId, itemId: Long): List<Inventory.Item> {
+    val worn = world.get(masterEntityId, Equipment::class)
+    val held = world.get(masterEntityId, Inventory::class)?.getItems() ?: return emptyList()
+
+    return held.filter { it.itemId == itemId && !it.equipped && worn?.isWorn(it.uniqueId) != true }
   }
 
   @Scheduled(fixedDelay = 60 * 1000L)

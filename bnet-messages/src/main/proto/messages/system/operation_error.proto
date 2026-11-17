@@ -530,6 +530,8 @@ enum OpError {
   BLACKBOARD_CANNOT_AFFORD = 386;
   // The poster has as many quests open as the boards allow.
   BLACKBOARD_POSTING_LIMIT = 387;
+  // The deliverer carries none of what the quest wants, or only gear being worn.
+  BLACKBOARD_NOTHING_TO_HAND_IN = 388;
 }
 
 message OperationError {

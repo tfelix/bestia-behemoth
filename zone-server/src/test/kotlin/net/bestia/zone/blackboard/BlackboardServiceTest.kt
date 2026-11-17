@@ -21,6 +21,14 @@ import net.bestia.zone.quest.QuestDraft
 import net.bestia.zone.quest.QuestService
 import net.bestia.zone.quest.QuestStatus
 import net.bestia.zone.quest.persistence.Quest
+import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.item.container.ReservedItem
+import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.persistence.ItemContainer
+import net.bestia.zone.quest.ObjectiveKind
+import net.bestia.zone.quest.ObjectiveScope
+import net.bestia.zone.quest.QuestOrigin
+import net.bestia.zone.quest.QuestView
 import org.junit.jupiter.api.Test
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.TransactionCallback
@@ -58,11 +66,22 @@ class BlackboardServiceTest {
     every { create(capture(draft)) } answers { questOf(draft.captured).also { drafts += draft.captured } }
   }
 
-  private val inventory = mockk<InventoryService> { every { consumeAll(any(), any(), any()) } returns true }
-  private val parcels = mockk<ParcelService>(relaxed = true)
+  private val inventory = mockk<InventoryService>(relaxed = true) {
+    every { consumeAll(any(), any(), any()) } returns true
+    every { moveToEscrow(any(), IRON_ORE, any(), any(), any(), any()) } answers {
+      ReservedItem.stack(IRON_ORE, arg(3), weight = 0)
+    }
+  }
+  private val parcels = mockk<ParcelService>(relaxed = true) {
+    every { postInstant(any(), any(), any()) } answers { thirdArg<(ItemContainer) -> Unit>().invoke(mockk(relaxed = true)) }
+  }
   private val reserve = mockk<WorldReserve>(relaxed = true)
+  private val liveWorld = testWorld()
+  private val deliverer = liveWorld.createEntity { id ->
+    add(id, Inventory(mutableListOf(Inventory.Item(IRON_ORE, amount = 6), Inventory.Item(IRON_ORE, amount = 3))))
+  }
   private val world = mockk<WorldView>(relaxed = true).also { view ->
-    every { view.read<Any?>(any()) } answers { firstArg<World.() -> Any?>().invoke(mockk()) }
+    every { view.read<Any?>(any()) } answers { firstArg<World.() -> Any?>().invoke(liveWorld) }
     // The poster's master is not in this world, so its live bag has nothing to mirror.
     every { view.modify<Any?>(any(), any()) } returns false
   }
@@ -152,6 +171,66 @@ class BlackboardServiceTest {
     verify(exactly = 1) { parcels.postInstant(POSTER, any(), any()) }
   }
 
+  @Test
+  fun `a hand-in mails the goods to the poster and pays the deliverer from the posting`() {
+    service.post(visit(), post(amount = 10, coinsEach = 5))
+    val questId = rows.single().questId
+    signedView(questId, required = 10, progress = 0)
+    every { quests.advanceShared(questId, 0, 8, DELIVERER) } returns 8
+
+    assertNull(service.handIn(delivererVisit(), BlackboardRequest.HandIn(questId, amount = 8)))
+
+    verify { parcels.postInstant(POSTER, any(), any()) }
+    verify { inventory.moveToEscrow(DELIVERER, IRON_ORE, any(), 6, any(), any()) }
+    verify { inventory.moveToEscrow(DELIVERER, IRON_ORE, any(), 2, any(), any()) }
+    verify { inventory.grantToMaster(DELIVERER, COIN, 40) }
+    assertEquals(10L, rows.single().payLeft)
+  }
+
+  @Test
+  fun `the last hand-in completes the quest and settles the posting`() {
+    service.post(visit(), post(amount = 4, coinsEach = 5))
+    val questId = rows.single().questId
+    signedView(questId, required = 4, progress = 0, afterwards = QuestStatus.COMPLETED)
+    every { quests.advanceShared(questId, 0, 4, DELIVERER) } returns 4
+
+    assertNull(service.handIn(delivererVisit(), BlackboardRequest.HandIn(questId, amount = 9)))
+
+    assertTrue(rows.single().settled)
+    assertEquals(0L, rows.single().payLeft)
+  }
+
+  @Test
+  fun `only a signer hands in, and only what it carries`() {
+    service.post(visit(), post())
+    val questId = rows.single().questId
+
+    every { quests.viewFor(DELIVERER, questId) } returns null
+    assertEquals(OpError.REQUEST_REFUSED, service.handIn(delivererVisit(), BlackboardRequest.HandIn(questId, 1)))
+
+    signedView(questId, required = 10, progress = 0, itemId = 99L)
+    assertEquals(OpError.BLACKBOARD_NOTHING_TO_HAND_IN, service.handIn(delivererVisit(), BlackboardRequest.HandIn(questId, 1)))
+  }
+
+  private fun delivererVisit(): BoardVisit {
+    return BoardVisit(accountId = 2, masterId = DELIVERER, masterEntityId = deliverer, masterName = "Mira", boardEntityId = 200, placeName = "Ashford")
+  }
+
+  private fun signedView(
+    questId: Long,
+    required: Int,
+    progress: Int,
+    afterwards: QuestStatus = QuestStatus.OPEN,
+    itemId: Long = IRON_ORE,
+  ) {
+    val objective = QuestView.Objective(ObjectiveKind.DELIVER_ITEM, ObjectiveScope.SHARED, itemId, null, null, required, progress, 0)
+    fun viewIn(status: QuestStatus) = QuestView(
+      questId, QuestOrigin.BLACKBOARD, status, QuestView.Role.ACCEPTED, "QUEST_DELIVER_TITLE", emptyList(), 18, now,
+      "Kaelin", listOf(objective), emptyList(),
+    )
+    every { quests.viewFor(DELIVERER, questId) } returnsMany listOf(viewIn(QuestStatus.OPEN), viewIn(afterwards))
+  }
+
   private fun visit(): BoardVisit {
     return BoardVisit(accountId = 1, masterId = POSTER, masterEntityId = 100, masterName = "Kaelin", boardEntityId = 200, placeName = "Ashford")
   }
@@ -175,5 +254,6 @@ class BlackboardServiceTest {
     const val IRON_ORE = 8L
     const val POSTER = 10L
     const val OTHER = 11L
+    const val DELIVERER = 12L
   }
 }
