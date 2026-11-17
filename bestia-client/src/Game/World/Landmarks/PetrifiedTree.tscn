@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="placeholder_mat"]
+albedo_color = Color(0.48, 0.42, 0.38, 1)
+roughness = 0.95
+
+[sub_resource type="BoxMesh" id="placeholder"]
+material = SubResource("placeholder_mat")
+size = Vector3(0.9, 5.5, 0.9)
+
+[node name="PetrifiedTree" type="Node3D"]
+
+[node name="Placeholder" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.75, 0)
+mesh = SubResource("placeholder")

@@ -21,6 +21,8 @@ var _entity_id: int = 0
 ## What a click on the finished structure does, named as on a PropPicker. Set in _ready from the kind.
 var action: StringName = &"none"
 
+var _is_landmark: bool = false
+
 var _total_seconds: float = 0.0
 var _remaining_seconds: float = 0.0
 
@@ -64,6 +66,11 @@ func is_usable() -> bool:
 	return _kind == _CITY_SIGN_KIND
 
 
+## A landmark the world generator placed: examined with a click, attacked rather than repaired.
+func is_landmark() -> bool:
+	return _is_landmark
+
+
 func _ready() -> void:
 	if _kind < 0:
 		printerr("StructureVisual was readied without a kind")
@@ -71,12 +78,14 @@ func _ready() -> void:
 
 	var builder = PropVisualBuilderScript.new()
 	action = builder.ActionName(_kind)
+	_is_landmark = builder.IsLandmark(_kind)
 
 	var art: Node3D = builder.BuildConstruction(_kind)
 	art.name = _ART_NODE_NAME
 	add_child(art)
 
-	var size: Vector3 = builder.PickSize(_kind)
+	# A designer's scene is measured, so it needs no collision of its own.
+	var size: Vector3 = builder.PickSizeOf(art) if builder.HasScene(_kind) else builder.PickSize(_kind)
 	var box := BoxShape3D.new()
 	box.size = size
 	_pick_shape.shape = box

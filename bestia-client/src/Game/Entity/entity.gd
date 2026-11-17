@@ -653,6 +653,11 @@ func is_creature() -> bool:
 	return _is_creature
 
 
+func is_landmark() -> bool:
+	var visual = get_node_or_null(_VISUAL_NODE_NAME)
+	return visual is StructureVisual and visual.is_landmark()
+
+
 func is_townsfolk() -> bool:
 	return _is_townsfolk
 

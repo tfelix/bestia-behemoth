@@ -231,6 +231,12 @@ namespace BestiaBehemothClient.Game.World
       /// </remarks>
       public PropAction Action { get; init; }
 
+      /// <summary>
+      /// A world generator landmark: an entity players examine with a click and may attack, never repair. Mirrors
+      /// the <c>landmark</c> block of the server's <c>prop-kinds.yml</c>.
+      /// </summary>
+      public bool Landmark { get; init; }
+
       public bool HasScene => Scenes is { Length: > 0 };
 
       /// <summary>The model a prop with the wire <paramref name="variant"/> is drawn as. Only meaningful when <see cref="HasScene"/>.</summary>
@@ -270,6 +276,8 @@ namespace BestiaBehemothClient.Game.World
 
     private const string LanternScene = "res://Game/World/Fixtures/Lantern/Lantern.tscn";
 
+    private const string LandmarkDir = "res://Game/World/Landmarks/";
+
     /// <summary>The ten tree models, or with <paramref name="prefix"/> <c>Stump_</c> the stumps cut from them.</summary>
     /// <remarks>
     /// A stump is its tree cut down in the same model space, so it scales by the same natural height and its
@@ -288,6 +296,17 @@ namespace BestiaBehemothClient.Game.World
       new SceneVariant { Path = TreeDir + prefix + "Pine_4.gltf", NaturalHeight = 6.2203f },
       new SceneVariant { Path = TreeDir + prefix + "Pine_5.gltf", NaturalHeight = 4.9712f },
     };
+
+    /// <summary>A landmark entity, drawn from <c>Game/World/Landmarks/&lt;name&gt;.tscn</c>; a click examines it.</summary>
+    private static Kind LandmarkKind(string sceneName)
+    {
+      return new Kind
+      {
+        Scenes = new[] { new SceneVariant { Path = LandmarkDir + sceneName + ".tscn" } },
+        Action = PropAction.Use,
+        Landmark = true
+      };
+    }
 
     /// <summary>
     /// Every kind the server can send, in <c>StaticEntityKind</c> ordinal order.
@@ -349,14 +368,13 @@ namespace BestiaBehemothClient.Game.World
         Action = PropAction.Mine
       },
 
-      // The six points of interest, each a distinct width: at most one of each per world, so they have to be
-      // told apart on sight rather than by comparison.
-      new Kind { PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.55f, 0.52f, 0.48f) }, // POI_LOST_GRAVE
-      new Kind { PlaceholderWidth = 2.4f, PlaceholderColour = new Color(0.62f, 0.60f, 0.58f) }, // POI_STANDING_STONES
-      new Kind { PlaceholderWidth = 0.8f, PlaceholderColour = new Color(0.72f, 0.70f, 0.66f) }, // POI_BROKEN_OBELISK
-      new Kind { PlaceholderWidth = 0.5f, PlaceholderColour = new Color(0.66f, 0.62f, 0.56f) }, // POI_WAYSTONE
-      new Kind { PlaceholderWidth = 0.9f, PlaceholderColour = new Color(0.48f, 0.42f, 0.38f) }, // POI_PETRIFIED_TREE
-      new Kind { PlaceholderWidth = 0.7f, PlaceholderColour = new Color(0.40f, 0.44f, 0.40f) }, // POI_SUNKEN_IDOL
+      // The six landmarks. Each is a scene a designer edits in Game/World/Landmarks, drawn at its authored size.
+      LandmarkKind("LostGrave"), // POI_LOST_GRAVE
+      LandmarkKind("StandingStones"), // POI_STANDING_STONES
+      LandmarkKind("BrokenObelisk"), // POI_BROKEN_OBELISK
+      LandmarkKind("Waystone"), // POI_WAYSTONE
+      LandmarkKind("PetrifiedTree"), // POI_PETRIFIED_TREE
+      LandmarkKind("SunkenIdol"), // POI_SUNKEN_IDOL
 
       // The nine buildings a town is made of.
       //

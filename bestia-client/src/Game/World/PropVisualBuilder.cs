@@ -1,3 +1,4 @@
+using System.Linq;
 using Godot;
 
 namespace BestiaBehemothClient.Game.World
@@ -159,6 +160,57 @@ namespace BestiaBehemothClient.Game.World
       var width = Mathf.Max(appearance.PlaceholderWidth, MinPickWidth);
 
       return new Vector3(width, HeightOf(appearance), width);
+    }
+
+    /// <summary>
+    /// The box a click on <paramref name="art"/> should cover, measured off its meshes, so a designer's scene needs no
+    /// collision of its own. From the scene's origin, which stands on the ground, to its top.
+    /// </summary>
+    public Vector3 PickSizeOf(Node3D art)
+    {
+      var visuals = art.FindChildren("*", nameof(VisualInstance3D), true, false).OfType<VisualInstance3D>().ToList();
+      if (art is VisualInstance3D root)
+      {
+        visuals.Add(root);
+      }
+
+      if (visuals.Count == 0)
+      {
+        return new Vector3(MinPickWidth, MinPickWidth, MinPickWidth);
+      }
+
+      var bounds = visuals
+        .Select(visual => TransformRelativeTo(art, visual) * visual.GetAabb())
+        .Aggregate((merged, next) => merged.Merge(next));
+
+      return new Vector3(
+        Mathf.Max(bounds.Size.X, MinPickWidth),
+        Mathf.Max(bounds.End.Y, MinPickWidth),
+        Mathf.Max(bounds.Size.Z, MinPickWidth)
+      );
+    }
+
+    /// <summary>Whether this kind is drawn from a scene rather than a mesh or a placeholder box.</summary>
+    public bool HasScene(int kind)
+    {
+      return PropAppearance.Of(kind).HasScene;
+    }
+
+    /// <summary>Whether this kind is a world generator landmark, see <see cref="PropAppearance.Kind.Landmark"/>.</summary>
+    public bool IsLandmark(int kind)
+    {
+      return PropAppearance.Of(kind).Landmark;
+    }
+
+    private static Transform3D TransformRelativeTo(Node3D ancestor, Node3D node)
+    {
+      var transform = Transform3D.Identity;
+      for (var current = node; current != ancestor && current != null; current = current.GetParent() as Node3D)
+      {
+        transform = current.Transform * transform;
+      }
+
+      return transform;
     }
 
     /// <summary>What a click on this kind does, as <see cref="PropAppearance.ActionName"/> spells it.</summary>
