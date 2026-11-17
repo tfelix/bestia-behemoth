@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Quest/quest_log.gd" id="1_log"]
+
+[node name="QuestLogPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(620, 400)
+offset_right = 620.0
+offset_bottom = 400.0
+script = ExtResource("1_log")

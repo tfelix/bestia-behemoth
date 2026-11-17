@@ -1086,3 +1086,24 @@ BLACKBOARD_HAND_IN,Hand in %d
 BLACKBOARD_CARRIED,You carry %d
 BLACKBOARD_DROP,Drop quest
 ERROR_BLACKBOARD_NOTHING_TO_HAND_IN,You carry none of what this quest wants.
+QUEST_DELIVER_TEXT,"Bring {amount} {item} to any blackboard. {poster} pays {pay} gold for each."
+QUEST_LOG_EMPTY,Your quest log is empty. Sign a quest at a blackboard in town.
+QUEST_LOG_GROUP_BLACKBOARD,Blackboard
+QUEST_LOG_GROUP_POSTED,Posted by you
+QUEST_LOG_SUBTITLE,%s · posted by %s · ends in %s · suggested Lv %d
+QUEST_ORIGIN_BLACKBOARD,Blackboard
+QUEST_LOG_OBJECTIVE,%s %d / %d
+QUEST_LOG_OBJECTIVE_YOURS,(you: %d · you carry %d)
+QUEST_LOG_REWARD_EACH,Reward: %d gold each
+QUEST_LOG_TRACK,Track
+QUEST_LOG_DROP,Drop quest
+QUEST_LOG_CLEAR,Clear
+QUEST_STATUS_CLOSING,closing
+QUEST_STATUS_COMPLETED,completed
+QUEST_STATUS_EXPIRED,expired
+QUEST_STATUS_WITHDRAWN,withdrawn
+QUEST_NOTICE_COMPLETED,Quest complete: %s
+QUEST_NOTICE_EXPIRED,Quest ran out of time: %s
+QUEST_NOTICE_WITHDRAWN,Quest withdrawn: %s
+QUEST_NOTICE_CLOSING,Quest is closing in one hour: %s
+QUEST_TRACKER_LINE,%d / %d · carrying %d · %s

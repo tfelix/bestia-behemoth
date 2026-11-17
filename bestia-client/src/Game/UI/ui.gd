@@ -18,6 +18,8 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _letters_win: WidgetWindow = $LettersWin
 @onready var _post_office_win: WidgetWindow = $PostOfficeWin
 @onready var _blackboard_win: WidgetWindow = $BlackboardWin
+@onready var _quest_log_win: WidgetWindow = $QuestLogWin
+@onready var _quest_tracker: QuestTracker = $QuestTracker
 @onready var _breeding_farm_win: WidgetWindow = $BreedingFarmWin
 @onready var _incubator_win: WidgetWindow = $IncubatorWin
 @onready var _bestia_orders_win: WidgetWindow = $BestiaOrdersWin
@@ -46,6 +48,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 const _CHART_ENABLING_ITEM_IDS := [21]
 
 const _LETTER_ICON := preload("res://Theme/Icons/mail.svg")
+const _QUEST_ICON := preload("res://Theme/Icons/check.svg")
 
 ## Said once when the map server stops accepting this session. Worded here rather than in [MapSource] for the
 ## reason the chat refusals are worded in [code]chat.gd[/code]: the code that detects a thing should not be
@@ -194,6 +197,12 @@ func _ready() -> void:
 	blackboard.inventory = _inventory_win.get_content() as Inventory
 	blackboard.blackboard_opened.connect(_on_blackboard_opened)
 	blackboard.blackboard_closed.connect(func() -> void: _blackboard_win.visible = false)
+
+	var quest_log := _quest_log_win.get_content() as QuestLogPanel
+	quest_log.inventory = _inventory_win.get_content() as Inventory
+	quest_log.notice.connect(_on_quest_notice)
+	_quest_tracker.inventory = quest_log.inventory
+	_quest_tracker.quest_log = quest_log
 	ConnectionManager.parcel_arrived.connect(_on_parcel_arrived)
 	ConnectionManager.sense_marks_received.connect(_on_sense_marks)
 
@@ -637,6 +646,16 @@ func _on_master_profile_guild_win_toggled() -> void:
 
 func _on_master_profile_emotes_win_toggled() -> void:
 	_emotes_win.visible = !_emotes_win.visible
+
+
+func _on_master_profile_quest_log_win_toggled() -> void:
+	_quest_log_win.visible = !_quest_log_win.visible
+
+
+## A quest ended or started closing: told in the chat and as a toast, as a letter is.
+func _on_quest_notice(text: String) -> void:
+	_chat.system_line(text)
+	_obtained_items.show_notice(_QUEST_ICON, text)
 
 
 func _on_master_profile_compendium_win_toggled() -> void:
