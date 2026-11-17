@@ -12,6 +12,10 @@ namespace BestiaBehemothClient.Bnet.Message.Quest
     [Export] public string KindName { get; set; } = "";
     [Export] public string ScopeName { get; set; } = "";
     [Export] public long ItemId { get; set; }
+    [Export] public long SpeciesId { get; set; }
+
+    /// <summary>The place a kill must happen in; empty when anywhere counts.</summary>
+    [Export] public string PlaceName { get; set; } = "";
     [Export] public int Required { get; set; }
     [Export] public int Progress { get; set; }
     [Export] public int Yours { get; set; }
@@ -23,6 +27,8 @@ namespace BestiaBehemothClient.Bnet.Message.Quest
         KindName = EnumName.Of(proto.Kind),
         ScopeName = EnumName.Of(proto.Scope),
         ItemId = proto.ItemId,
+        SpeciesId = proto.SpeciesId,
+        PlaceName = proto.PlaceName,
         Required = (int)proto.Required,
         Progress = (int)proto.Progress,
         Yours = (int)proto.Yours

@@ -2,6 +2,8 @@ package net.bestia.zone.quest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.persistence.afterCommit
+import net.bestia.zone.quest.ecs.TrackedKill
 import net.bestia.zone.quest.persistence.Quest
 import net.bestia.zone.quest.persistence.QuestLogEntry
 import net.bestia.zone.quest.persistence.QuestLogEntryRepository
@@ -24,6 +26,7 @@ class QuestService(
   private val entries: QuestLogEntryRepository,
   private val events: ApplicationEventPublisher,
   private val config: QuestConfig,
+  private val live: LiveQuests,
   private val clock: Clock = Clock.systemUTC(),
 ) {
 
@@ -63,8 +66,10 @@ class QuestService(
       return OpError.QUEST_LOG_FULL
     }
 
-    entries.save(QuestLogEntry(masterId, quest, clock.instant(), counts = quest.objectives.map { 0 }))
+    val entry = entries.save(QuestLogEntry(masterId, quest, clock.instant(), counts = quest.objectives.map { 0 }))
     events.publishEvent(QuestChangedEvent(questId))
+    val kills = trackedKillsOf(entry)
+    afterCommit { live.track(masterId, kills) }
 
     return null
   }
@@ -79,6 +84,7 @@ class QuestService(
     val entry = entries.findByMasterIdAndQuestId(masterId, questId)
     if (entry != null) {
       entries.delete(entry)
+      afterCommit { live.untrack(listOf(masterId), questId) }
       return true
     }
 
@@ -132,6 +138,28 @@ class QuestService(
     val quest = quests.findLocked(questId) ?: return
     quest.end(status, clock.instant())
     events.publishEvent(QuestChangedEvent(questId))
+    val holders = entries.findAllByQuestId(questId).map { it.masterId }
+    afterCommit { live.untrack(holders, questId) }
+  }
+
+  /**
+   * Stores a personal objective's new [count], counted on the tick. Absolute rather than a step, so a job that
+   * runs twice or late cannot count a kill twice.
+   */
+  @Transactional
+  fun recordPersonal(masterId: Long, questId: Long, objectiveIndex: Int, count: Int) {
+    val entry = entries.findByMasterIdAndQuestId(masterId, questId) ?: return
+    if (count <= entry.counts[objectiveIndex]) {
+      return
+    }
+    entry.counts = entry.counts.replaced(objectiveIndex, count)
+    events.publishEvent(QuestChangedEvent(questId))
+  }
+
+  /** The personal objectives [masterId] counts on the tick while it plays, for its [ActiveQuests][net.bestia.zone.quest.ecs.ActiveQuests]. */
+  @Transactional(readOnly = true)
+  fun trackedKillsFor(masterId: Long): List<TrackedKill> {
+    return entries.findAllByMasterId(masterId).flatMap { trackedKillsOf(it) }
   }
 
   /** Every quest [masterId] accepted, then every one it posted and has not cleared. */
@@ -177,6 +205,27 @@ class QuestService(
     entries.deleteAllByQuestIdIn(ids)
     quests.deleteAll(stale)
     LOG.info { "Deleted ${ids.size} quests that ended more than ${config.endedKeptFor} ago" }
+  }
+
+  private fun trackedKillsOf(entry: QuestLogEntry): List<TrackedKill> {
+    val quest = entry.quest
+    if (!quest.status.takesWork) {
+      return emptyList()
+    }
+
+    return quest.objectives.withIndex()
+      .filter { (_, objective) -> objective.kind == ObjectiveKind.KILL && objective.scope == ObjectiveScope.PERSONAL }
+      .map { (index, objective) ->
+        TrackedKill(
+          questId = quest.id,
+          objectiveIndex = index,
+          speciesId = requireNotNull(objective.speciesId) { "Kill objective $index of quest ${quest.id} names no species" },
+          area = objective.area,
+          required = objective.required,
+          deadline = quest.deadline,
+          count = entry.counts[index],
+        )
+      }
   }
 
   private fun <T> List<T>.replaced(index: Int, value: T): List<T> {

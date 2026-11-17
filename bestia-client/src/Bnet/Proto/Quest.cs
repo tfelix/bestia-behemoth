@@ -27,36 +27,38 @@ namespace Bnet {
             "ChptZXNzYWdlcy9xdWVzdC9xdWVzdC5wcm90bxIEYm5ldCJzCgxRdWVzdFRl",
             "eHRBcmcSEAoGbnVtYmVyGAEgASgDSAASEQoHaXRlbV9pZBgCIAEoA0gAEhQK",
             "CnNwZWNpZXNfaWQYAyABKANIABIPCgV0b2tlbhgEIAEoCUgAEg4KBG5hbWUY",
-            "BSABKAlIAEIHCgV2YWx1ZSKcAQoOUXVlc3RPYmplY3RpdmUSIQoEa2luZBgB",
+            "BSABKAlIAEIHCgV2YWx1ZSLEAQoOUXVlc3RPYmplY3RpdmUSIQoEa2luZBgB",
             "IAEoDjITLmJuZXQuT2JqZWN0aXZlS2luZBIjCgVzY29wZRgCIAEoDjIULmJu",
             "ZXQuT2JqZWN0aXZlU2NvcGUSDwoHaXRlbV9pZBgDIAEoAxIQCghyZXF1aXJl",
-            "ZBgEIAEoDRIQCghwcm9ncmVzcxgFIAEoDRINCgV5b3VycxgGIAEoDSJCCgtR",
-            "dWVzdFJld2FyZBIjCgRraW5kGAEgASgOMhUuYm5ldC5RdWVzdFJld2FyZEtp",
-            "bmQSDgoGYW1vdW50GAIgASgDIo4DCgVRdWVzdBIQCghxdWVzdF9pZBgBIAEo",
-            "BBIhCgZvcmlnaW4YAiABKA4yES5ibmV0LlF1ZXN0T3JpZ2luEiEKBnN0YXR1",
-            "cxgDIAEoDjIRLmJuZXQuUXVlc3RTdGF0dXMSHQoEcm9sZRgEIAEoDjIPLmJu",
-            "ZXQuUXVlc3RSb2xlEhEKCXRpdGxlX2tleRgFIAEoCRIjCgRhcmdzGAYgAygL",
-            "MhUuYm5ldC5RdWVzdC5BcmdzRW50cnkSFwoPc3VnZ2VzdGVkX2xldmVsGAcg",
-            "ASgNEhkKEWRlYWRsaW5lX2Vwb2NoX21zGAggASgDEhMKC3Bvc3Rlcl9uYW1l",
-            "GAkgASgJEigKCm9iamVjdGl2ZXMYCiADKAsyFC5ibmV0LlF1ZXN0T2JqZWN0",
-            "aXZlEiIKB3Jld2FyZHMYCyADKAsyES5ibmV0LlF1ZXN0UmV3YXJkGj8KCUFy",
-            "Z3NFbnRyeRILCgNrZXkYASABKAkSIQoFdmFsdWUYAiABKAsyEi5ibmV0LlF1",
-            "ZXN0VGV4dEFyZzoCOAEqKgoLUXVlc3RPcmlnaW4SGwoXUVVFU1RfT1JJR0lO",
-            "X0JMQUNLQk9BUkQQACqQAQoLUXVlc3RTdGF0dXMSFQoRUVVFU1RfU1RBVFVT",
-            "X09QRU4QABIYChRRVUVTVF9TVEFUVVNfQ0xPU0lORxABEhoKFlFVRVNUX1NU",
-            "QVRVU19DT01QTEVURUQQAhIYChRRVUVTVF9TVEFUVVNfRVhQSVJFRBADEhoK",
-            "FlFVRVNUX1NUQVRVU19XSVRIRFJBV04QBCo7CglRdWVzdFJvbGUSFwoTUVVF",
-            "U1RfUk9MRV9BQ0NFUFRFRBAAEhUKEVFVRVNUX1JPTEVfUE9TVEVEEAEqMAoN",
-            "T2JqZWN0aXZlS2luZBIfChtPQkpFQ1RJVkVfS0lORF9ERUxJVkVSX0lURU0Q",
-            "ACpKCg5PYmplY3RpdmVTY29wZRIaChZPQkpFQ1RJVkVfU0NPUEVfU0hBUkVE",
-            "EAASHAoYT0JKRUNUSVZFX1NDT1BFX1BFUlNPTkFMEAEqNwoPUXVlc3RSZXdh",
-            "cmRLaW5kEiQKIFFVRVNUX1JFV0FSRF9LSU5EX0NPSU5TX1BFUl9VTklUEABC",
-            "IwoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQgpRdWVzdFByb3RvYgZwcm90bzM="));
+            "ZBgEIAEoDRIQCghwcm9ncmVzcxgFIAEoDRINCgV5b3VycxgGIAEoDRISCgpz",
+            "cGVjaWVzX2lkGAcgASgDEhIKCnBsYWNlX25hbWUYCCABKAkiQgoLUXVlc3RS",
+            "ZXdhcmQSIwoEa2luZBgBIAEoDjIVLmJuZXQuUXVlc3RSZXdhcmRLaW5kEg4K",
+            "BmFtb3VudBgCIAEoAyKOAwoFUXVlc3QSEAoIcXVlc3RfaWQYASABKAQSIQoG",
+            "b3JpZ2luGAIgASgOMhEuYm5ldC5RdWVzdE9yaWdpbhIhCgZzdGF0dXMYAyAB",
+            "KA4yES5ibmV0LlF1ZXN0U3RhdHVzEh0KBHJvbGUYBCABKA4yDy5ibmV0LlF1",
+            "ZXN0Um9sZRIRCgl0aXRsZV9rZXkYBSABKAkSIwoEYXJncxgGIAMoCzIVLmJu",
+            "ZXQuUXVlc3QuQXJnc0VudHJ5EhcKD3N1Z2dlc3RlZF9sZXZlbBgHIAEoDRIZ",
+            "ChFkZWFkbGluZV9lcG9jaF9tcxgIIAEoAxITCgtwb3N0ZXJfbmFtZRgJIAEo",
+            "CRIoCgpvYmplY3RpdmVzGAogAygLMhQuYm5ldC5RdWVzdE9iamVjdGl2ZRIi",
+            "CgdyZXdhcmRzGAsgAygLMhEuYm5ldC5RdWVzdFJld2FyZBo/CglBcmdzRW50",
+            "cnkSCwoDa2V5GAEgASgJEiEKBXZhbHVlGAIgASgLMhIuYm5ldC5RdWVzdFRl",
+            "eHRBcmc6AjgBKioKC1F1ZXN0T3JpZ2luEhsKF1FVRVNUX09SSUdJTl9CTEFD",
+            "S0JPQVJEEAAqkAEKC1F1ZXN0U3RhdHVzEhUKEVFVRVNUX1NUQVRVU19PUEVO",
+            "EAASGAoUUVVFU1RfU1RBVFVTX0NMT1NJTkcQARIaChZRVUVTVF9TVEFUVVNf",
+            "Q09NUExFVEVEEAISGAoUUVVFU1RfU1RBVFVTX0VYUElSRUQQAxIaChZRVUVT",
+            "VF9TVEFUVVNfV0lUSERSQVdOEAQqOwoJUXVlc3RSb2xlEhcKE1FVRVNUX1JP",
+            "TEVfQUNDRVBURUQQABIVChFRVUVTVF9ST0xFX1BPU1RFRBABKkkKDU9iamVj",
+            "dGl2ZUtpbmQSHwobT0JKRUNUSVZFX0tJTkRfREVMSVZFUl9JVEVNEAASFwoT",
+            "T0JKRUNUSVZFX0tJTkRfS0lMTBABKkoKDk9iamVjdGl2ZVNjb3BlEhoKFk9C",
+            "SkVDVElWRV9TQ09QRV9TSEFSRUQQABIcChhPQkpFQ1RJVkVfU0NPUEVfUEVS",
+            "U09OQUwQASo3Cg9RdWVzdFJld2FyZEtpbmQSJAogUVVFU1RfUkVXQVJEX0tJ",
+            "TkRfQ09JTlNfUEVSX1VOSVQQAEIjChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
+            "ClF1ZXN0UHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.QuestOrigin), typeof(global::Bnet.QuestStatus), typeof(global::Bnet.QuestRole), typeof(global::Bnet.ObjectiveKind), typeof(global::Bnet.ObjectiveScope), typeof(global::Bnet.QuestRewardKind), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.QuestTextArg), global::Bnet.QuestTextArg.Parser, new[]{ "Number", "ItemId", "SpeciesId", "Token", "Name" }, new[]{ "Value" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.QuestObjective), global::Bnet.QuestObjective.Parser, new[]{ "Kind", "Scope", "ItemId", "Required", "Progress", "Yours" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.QuestObjective), global::Bnet.QuestObjective.Parser, new[]{ "Kind", "Scope", "ItemId", "Required", "Progress", "Yours", "SpeciesId", "PlaceName" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.QuestReward), global::Bnet.QuestReward.Parser, new[]{ "Kind", "Amount" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Quest), global::Bnet.Quest.Parser, new[]{ "QuestId", "Origin", "Status", "Role", "TitleKey", "Args", "SuggestedLevel", "DeadlineEpochMs", "PosterName", "Objectives", "Rewards" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, })
           }));
@@ -93,6 +95,7 @@ namespace Bnet {
 
   public enum ObjectiveKind {
     [pbr::OriginalName("OBJECTIVE_KIND_DELIVER_ITEM")] DeliverItem = 0,
+    [pbr::OriginalName("OBJECTIVE_KIND_KILL")] Kill = 1,
   }
 
   public enum ObjectiveScope {
@@ -618,6 +621,8 @@ namespace Bnet {
       required_ = other.required_;
       progress_ = other.progress_;
       yours_ = other.yours_;
+      speciesId_ = other.speciesId_;
+      placeName_ = other.placeName_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -705,6 +710,33 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "species_id" field.</summary>
+    public const int SpeciesIdFieldNumber = 7;
+    private long speciesId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long SpeciesId {
+      get { return speciesId_; }
+      set {
+        speciesId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "place_name" field.</summary>
+    public const int PlaceNameFieldNumber = 8;
+    private string placeName_ = "";
+    /// <summary>
+    /// The place a kill must happen in, empty when anywhere counts or the spot has no name.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string PlaceName {
+      get { return placeName_; }
+      set {
+        placeName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -726,6 +758,8 @@ namespace Bnet {
       if (Required != other.Required) return false;
       if (Progress != other.Progress) return false;
       if (Yours != other.Yours) return false;
+      if (SpeciesId != other.SpeciesId) return false;
+      if (PlaceName != other.PlaceName) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -739,6 +773,8 @@ namespace Bnet {
       if (Required != 0) hash ^= Required.GetHashCode();
       if (Progress != 0) hash ^= Progress.GetHashCode();
       if (Yours != 0) hash ^= Yours.GetHashCode();
+      if (SpeciesId != 0L) hash ^= SpeciesId.GetHashCode();
+      if (PlaceName.Length != 0) hash ^= PlaceName.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -781,6 +817,14 @@ namespace Bnet {
         output.WriteRawTag(48);
         output.WriteUInt32(Yours);
       }
+      if (SpeciesId != 0L) {
+        output.WriteRawTag(56);
+        output.WriteInt64(SpeciesId);
+      }
+      if (PlaceName.Length != 0) {
+        output.WriteRawTag(66);
+        output.WriteString(PlaceName);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -815,6 +859,14 @@ namespace Bnet {
         output.WriteRawTag(48);
         output.WriteUInt32(Yours);
       }
+      if (SpeciesId != 0L) {
+        output.WriteRawTag(56);
+        output.WriteInt64(SpeciesId);
+      }
+      if (PlaceName.Length != 0) {
+        output.WriteRawTag(66);
+        output.WriteString(PlaceName);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -842,6 +894,12 @@ namespace Bnet {
       }
       if (Yours != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Yours);
+      }
+      if (SpeciesId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(SpeciesId);
+      }
+      if (PlaceName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(PlaceName);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -872,6 +930,12 @@ namespace Bnet {
       }
       if (other.Yours != 0) {
         Yours = other.Yours;
+      }
+      if (other.SpeciesId != 0L) {
+        SpeciesId = other.SpeciesId;
+      }
+      if (other.PlaceName.Length != 0) {
+        PlaceName = other.PlaceName;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -916,6 +980,14 @@ namespace Bnet {
             Yours = input.ReadUInt32();
             break;
           }
+          case 56: {
+            SpeciesId = input.ReadInt64();
+            break;
+          }
+          case 66: {
+            PlaceName = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -957,6 +1029,14 @@ namespace Bnet {
           }
           case 48: {
             Yours = input.ReadUInt32();
+            break;
+          }
+          case 56: {
+            SpeciesId = input.ReadInt64();
+            break;
+          }
+          case 66: {
+            PlaceName = input.ReadString();
             break;
           }
         }

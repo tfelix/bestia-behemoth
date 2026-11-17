@@ -31,6 +31,8 @@ private fun QuestView.Objective.toProto(): QuestProto.QuestObjective {
     .setKind(kind.toProto())
     .setScope(scope.toProto())
     .setItemId(itemId ?: 0)
+    .setSpeciesId(speciesId ?: 0)
+    .setPlaceName(placeName ?: "")
     .setRequired(required)
     .setProgress(progress)
     .setYours(yours)
@@ -84,6 +86,7 @@ private fun QuestView.Role.toProto(): QuestProto.QuestRole {
 private fun ObjectiveKind.toProto(): QuestProto.ObjectiveKind {
   return when (this) {
     ObjectiveKind.DELIVER_ITEM -> QuestProto.ObjectiveKind.OBJECTIVE_KIND_DELIVER_ITEM
+    ObjectiveKind.KILL -> QuestProto.ObjectiveKind.OBJECTIVE_KIND_KILL
   }
 }
 

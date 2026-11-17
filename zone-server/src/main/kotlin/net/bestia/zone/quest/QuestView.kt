@@ -29,6 +29,8 @@ data class QuestView(
     val kind: ObjectiveKind,
     val scope: ObjectiveScope,
     val itemId: Long?,
+    val speciesId: Long?,
+    val placeName: String?,
     val required: Int,
     val progress: Int,
     val yours: Int,
@@ -47,7 +49,11 @@ data class QuestView(
       val objectives = quest.objectives.mapIndexed { index, objective ->
         val yours = counts.getOrElse(index) { 0 }
         val progress = if (objective.scope == ObjectiveScope.SHARED) objective.progress else yours
-        Objective(objective.kind, objective.scope, objective.itemId, objective.required, progress, yours)
+        val placeName = (objective.area as? QuestArea.InPlace)?.placeName
+        Objective(
+          objective.kind, objective.scope, objective.itemId, objective.speciesId, placeName, objective.required,
+          progress, yours,
+        )
       }
 
       return QuestView(
