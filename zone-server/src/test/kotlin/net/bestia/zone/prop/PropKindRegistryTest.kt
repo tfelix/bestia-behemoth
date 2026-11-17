@@ -128,16 +128,10 @@ class PropKindRegistryTest {
     }
   }
 
-  /**
-   * Every landmark in worldgen's catalogue reaches a distinct runtime kind.
-   *
-   * The join `StaticEntityKind.POI_KINDS` makes is by name and is checked at class load, so what this really
-   * guards is the *other* direction: two catalogue entries mapping to one constant would be a name collision the
-   * join cannot see, and would draw two different landmarks with one mesh.
-   */
+  /** Two landmarks on one runtime kind would draw both with one scene and configure both with one row. */
   @Test
-  fun `each point of interest has its own runtime kind`() {
-    val mapped = PoiKind.entries.map { StaticEntityKind.of(PropKind.POI, blighted = false, large = false, subKind = it.ordinal) }
+  fun `each landmark has its own runtime kind`() {
+    val mapped = PoiKind.entries.map { StaticEntityKind.ofPoi(it) }
 
     assertEquals(PoiKind.entries.size, mapped.toSet().size, "two landmarks share a runtime kind: $mapped")
     for ((poi, kind) in PoiKind.entries.zip(mapped)) {

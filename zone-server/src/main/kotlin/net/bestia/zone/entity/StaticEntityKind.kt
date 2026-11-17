@@ -30,10 +30,9 @@ enum class StaticEntityKind {
   AETHERITE_SHARD_SMALL,
   AETHERITE_SHARD_LARGE,
 
-  // The points of interest, one per entry in worldgen's `PoiKind` and joined to it by name - see [POI_KINDS].
-  // A constant each rather than one `POI` kind plus a discriminator, because a client dispatches a *mesh* on
-  // this value and a broken obelisk has nothing in common with a sunken idol. It is also what gives each of them
-  // its own `prop-kinds.yml` row, so the collider a waystone eventually needs is not shared with a grave's.
+  // The landmarks, one per entry in worldgen's `PoiKind` and joined to it by name - see [ofPoi]. Entities rather
+  // than props, drawn through `EntityVisual(STRUCTURE, ordinal)`. A constant each, so each has its own scene and
+  // its own `prop-kinds.yml` row.
   POI_LOST_GRAVE,
   POI_STANDING_STONES,
   POI_BROKEN_OBELISK,
@@ -225,13 +224,8 @@ enum class StaticEntityKind {
       // generator sets that flag by construction because corrupted rock is what makes a body yield aetherite
       // at all, so a clean variant would be a mesh nothing can ever ask for.
       PropKind.AETHERITE_SHARD -> if (large) AETHERITE_SHARD_LARGE else AETHERITE_SHARD_SMALL
-      // The only kind that splits on `subKind` rather than on the flags, and the only one whose flags carry
-      // nothing: a POI is a specific object rather than a sample of a field. `PoiKind`'s four bits of kind would
-      // not have held a dozen landmarks, so the generator gives them one `PropKind` and a byte - see
-      // `PropInstances.subKindAt`.
-      PropKind.POI -> POI_KINDS[subKind]
-      // `BuildingFunction`'s ordinal, on `subKind` for the same reason a POI's kind is: sixteen `PropKind`s do
-      // not stretch to a landmark catalogue *and* ten building functions.
+      // `BuildingFunction`'s ordinal, on `subKind`: sixteen `PropKind`s do not stretch to ten building
+      // functions - see `PropInstances.subKindAt`.
       //
       // The null is `FORTIFICATION`, and it is a hard failure rather than a fallback. A fortification is
       // voxels, so `BuildingProps` filters it out before it can ever become a prop; one arriving here means
@@ -241,7 +235,7 @@ enum class StaticEntityKind {
         "BuildingFunction.${BuildingFunction.entries[subKind]} has no StaticEntityKind; it should never " +
             "have been emitted as a prop - see BuildingProps"
       }
-      // No table for these three, unlike the POI and building blocks above, and the difference is that those
+      // No table for these three, unlike the building block above, and the difference is that those
       // dispatch on a *different* enum's ordinal - which a `when` cannot see, so they need a name join checked
       // at class load. `PropKind` is this `when`'s own subject, so a kind appended in worldgen without an arm
       // here is a compile error, which is the stronger guard.
@@ -260,7 +254,7 @@ enum class StaticEntityKind {
       PropKind.STICK -> STICK
       PropKind.RESIN -> RESIN
       PropKind.SAND -> SAND_PILE
-      // `FixtureKind`'s ordinal, on `subKind` for the POI arm's reason.
+      // `FixtureKind`'s ordinal, on `subKind` for the building arm's reason.
       PropKind.FIXTURE -> FIXTURE_KINDS[subKind]
     }
 

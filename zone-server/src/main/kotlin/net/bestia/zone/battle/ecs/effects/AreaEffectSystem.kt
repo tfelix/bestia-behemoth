@@ -230,7 +230,7 @@ class AreaEffectSystem(
 
         // A static prop has no `Health` until something interacts with it, so without this the `AoiLayer.ALL`
         // above bought nothing and the class note's "a fire that spares the trees is the defect" was an
-        // aspiration rather than a description. False means the prop refuses - a claimed landmark, a mined-out
+        // aspiration rather than a description. False means the prop refuses - a felled spire, a mined-out
         // crystal, one not yet regrown - which is the same answer any other unresolvable target gives.
         //
         // Sound *here* specifically because this is inside `world.defer`: structural changes apply immediately

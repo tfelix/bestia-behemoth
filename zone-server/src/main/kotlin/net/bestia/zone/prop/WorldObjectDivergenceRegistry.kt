@@ -99,7 +99,7 @@ class WorldObjectDivergenceRegistry(
   }
 
   /** Null for a propId with no recorded divergence - most of them, always, for every kind but a felled tree
-   *  or a claimed landmark. Also null for `propId == 0` (a not-yet-generated future non-generated source). */
+   *  or a mined-out crystal. Also null for `propId == 0` (a not-yet-generated future non-generated source). */
   fun of(propId: Long): DivergenceEntry? = if (propId == 0L) null else byPropId[propId]
 
   /** [resumeAt] non-null means temporary (a herb with a `regrowSeconds`); null means terminal. */

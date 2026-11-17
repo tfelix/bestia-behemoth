@@ -10,7 +10,7 @@ package net.bestia.worldgen.voxel
  * to stand in a town.
  *
  * Keeping the two apart is the whole reason this type exists rather than a second method on `PropSite`. That
- * interface is consumed by the crystals, the ground cover, the wound spires, the aetherite and `PoiProps`,
+ * interface is consumed by the crystals, the ground cover, the wound spires and the aetherite,
  * whose own documentation calls a refusal "not a second opinion but a physical impossibility".
  *
  * Like `PropSite`, an implementation must be a **pure function of the position asked about** - never of the

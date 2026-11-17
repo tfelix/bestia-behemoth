@@ -16,7 +16,7 @@ import kotlin.math.atan2
 /**
  * The buildings a town laid out, as props: one `FeatureKind.BUILDING` footprint in, one prop out.
  *
- * ### Not a scatter, for [PoiProps]' reason
+ * ### Not a scatter
  *
  * The world tier has already decided that there is a shop here, how big it is and which way it faces. Nothing
  * here re-decides any of that - no biome test, no water test, no cap veto. `TownStage` graded the lot and
@@ -150,8 +150,8 @@ class BuildingProps(
   /**
    * The lattice cell that names this building, for [PropId].
    *
-   * A metre, exactly as [PoiProps.cellOf] takes one, and for the same argument: this lattice spaces nothing,
-   * it only names, so it can take the finest quantisation the fixed-point grid offers and never need to move.
+   * A metre, because this lattice spaces nothing, it only names, so it can take the finest quantisation the
+   * fixed-point grid offers and never need to move.
    * Injective because two buildings cannot share a centre - lots do not overlap, which `TownStage`'s own
    * plot-overlap test guarantees.
    */

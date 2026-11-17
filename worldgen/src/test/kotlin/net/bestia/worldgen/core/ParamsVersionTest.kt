@@ -196,8 +196,8 @@ class ParamsVersionTest {
       // `GemDepositTest`'s baseline for what that bought.
       "MinableOre" to 7_745_890_654_563_600_391L,
       "SpawnHostility" to 1_601_490_678_795_006_744L,
-      // Moved when each landmark got a count and a min spacing.
-      "PoiKind" to -3_678_954_259_388_121_995L
+      // Moved when each landmark got a count and a min spacing, then when it lost its prop height.
+      "PoiKind" to -7_254_915_198_717_922_829L
     )
 
     assertEquals(

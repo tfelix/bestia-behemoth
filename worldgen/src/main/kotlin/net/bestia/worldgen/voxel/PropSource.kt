@@ -41,20 +41,6 @@ enum class PropKind {
   AETHERITE_SHARD,
 
   /**
-   * A point of interest: one of the hand-authored landmarks `poi/PoiStage` rolled onto this world.
-   *
-   * **One kind for the whole catalogue, and the specific landmark is [PropInstances.subKindAt].** The reason
-   * is arithmetic: [PropId] has four bits of kind, so a catalogue with a dozen entries in it would eat the
-   * whole space and cap itself at twelve forever. `PoiKind`'s ordinal is a byte on the instance instead, which
-   * is what lets the catalogue grow to as many landmarks as there is art for.
-   *
-   * The one kind that is **not a scatter**. Every other kind here is a function of position that a chunk can
-   * evaluate for itself; this one comes from a `FeatureKind.POI` marker the world tier placed, because "one of
-   * these somewhere in the world" is not a question a lattice can answer. See `PoiProps`.
-   */
-  POI,
-
-  /**
    * A building a town laid out: a house, a shop, a temple, a barn.
    *
    * The palette used to raise these out of blocks - `TIMBER` walls, `THATCH` roofs, a masonry plinth - and the
@@ -63,8 +49,8 @@ enum class PropKind {
    * with nowhere to keep any of it. `WorldObjectDivergence` already stores per-prop state against a [PropId],
    * so a building becomes a thing the world can remember for the price of being a prop.
    *
-   * [PoiProps]' precedent again for the catalogue: one kind, with `BuildingFunction`'s ordinal in
-   * [PropInstances.subKindAt], rather than ten kinds out of the sixteen [PropId] has room for.
+   * One kind for the catalogue, with `BuildingFunction`'s ordinal in [PropInstances.subKindAt], rather than
+   * ten kinds out of the sixteen [PropId] has room for.
    *
    * **The first kind that is not radially symmetric**, which is why [PropInstances] grew a yaw and a second
    * half-extent for it. A tree is a circle and a house is not.
@@ -338,8 +324,8 @@ class PropInstances(initialCapacity: Int = 32) {
   /**
    * Which sub-type of its kind this prop is, or zero for a kind that has only one form.
    *
-   * Today that means the `PoiKind` ordinal on a [PropKind.POI], and nothing else uses it - see
-   * [PropKind.POI] for why the catalogue rides here rather than taking a kind each.
+   * The catalogue entry on a kind that carries one, like `BuildingFunction` on a [PropKind.BUILDING], because
+   * [PropId] has too few kind bits for a catalogue to take a kind per entry.
    *
    * Deliberately **not** called `variant`: the runtime already uses that word for "which of a kind's N
    * meshes", rolled off the prop's identity in `GeneratedPropSource.variantOf`, and one word for two
