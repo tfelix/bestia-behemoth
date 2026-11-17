@@ -2,9 +2,17 @@ extends Node3D
 class_name Visual
 
 
+## What a left click on this visual is for. MouseStateDefault may still change it with what the client knows of
+## the entity right now, e.g. a warded creature is only selected and a friendly one is talked to.
+enum ClickAction { NONE, SELECT, INTERACT, ATTACK }
+
 var ChatText = preload("res://Game/Entity/ChatText/ChatText.tscn")
 
 const _CHAT_NODE_NAME = "ChatText"
+
+## Set by whoever designs the scene, so how a thing reacts under the cursor lives next to how it looks.
+@export var default_click_action: ClickAction = ClickAction.NONE
+
 
 func show_damage(_msg: DamageEntitySMSG) -> void:
 	pass

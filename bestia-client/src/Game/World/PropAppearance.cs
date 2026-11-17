@@ -232,10 +232,10 @@ namespace BestiaBehemothClient.Game.World
       public PropAction Action { get; init; }
 
       /// <summary>
-      /// A world generator landmark: an entity players examine with a click and may attack, never repair. Mirrors
-      /// the <c>landmark</c> block of the server's <c>prop-kinds.yml</c>.
+      /// A scene that is the whole visual of an entity of this kind, inherited from <c>StructureVisual.tscn</c>. Its
+      /// designer sets the art and what a click does there, so nothing else in this row is read for it.
       /// </summary>
-      public bool Landmark { get; init; }
+      public string VisualScene { get; init; }
 
       public bool HasScene => Scenes is { Length: > 0 };
 
@@ -276,7 +276,7 @@ namespace BestiaBehemothClient.Game.World
 
     private const string LanternScene = "res://Game/World/Fixtures/Lantern/Lantern.tscn";
 
-    private const string LandmarkDir = "res://Game/World/Landmarks/";
+    private const string PoiDir = "res://Game/World/Poi/";
 
     /// <summary>The ten tree models, or with <paramref name="prefix"/> <c>Stump_</c> the stumps cut from them.</summary>
     /// <remarks>
@@ -297,17 +297,6 @@ namespace BestiaBehemothClient.Game.World
       new SceneVariant { Path = TreeDir + prefix + "Pine_5.gltf", NaturalHeight = 4.9712f },
     };
 
-    /// <summary>A landmark entity, drawn from <c>Game/World/Landmarks/&lt;name&gt;.tscn</c>; a click examines it.</summary>
-    private static Kind LandmarkKind(string sceneName)
-    {
-      return new Kind
-      {
-        Scenes = new[] { new SceneVariant { Path = LandmarkDir + sceneName + ".tscn" } },
-        Action = PropAction.Use,
-        Landmark = true
-      };
-    }
-
     /// <summary>
     /// Every kind the server can send, in <c>StaticEntityKind</c> ordinal order.
     /// </summary>
@@ -315,8 +304,7 @@ namespace BestiaBehemothClient.Game.World
     /// The placeholder colours are chosen to be told apart at a glance and to agree with the material a prop
     /// is made of where the player has already learned one: the aetherite shards carry the ore block's violet
     /// rather than the mana crystals' blue, because recognising them as a sign of the rock below is the whole
-    /// point of that prop. The landmarks are pale worked-stone greys, since everything above them is a growth
-    /// or an ore and reads as coloured.
+    /// point of that prop.
     /// </remarks>
     private static readonly Kind[] Kinds =
     {
@@ -368,13 +356,13 @@ namespace BestiaBehemothClient.Game.World
         Action = PropAction.Mine
       },
 
-      // The six landmarks. Each is a scene a designer edits in Game/World/Landmarks, drawn at its authored size.
-      LandmarkKind("LostGrave"), // POI_LOST_GRAVE
-      LandmarkKind("StandingStones"), // POI_STANDING_STONES
-      LandmarkKind("BrokenObelisk"), // POI_BROKEN_OBELISK
-      LandmarkKind("Waystone"), // POI_WAYSTONE
-      LandmarkKind("PetrifiedTree"), // POI_PETRIFIED_TREE
-      LandmarkKind("SunkenIdol"), // POI_SUNKEN_IDOL
+      // The six points of interest, entities only. Each is a visual scene a designer edits in Game/World/Poi.
+      new Kind { VisualScene = PoiDir + "LostGrave.tscn" }, // POI_LOST_GRAVE
+      new Kind { VisualScene = PoiDir + "StandingStones.tscn" }, // POI_STANDING_STONES
+      new Kind { VisualScene = PoiDir + "BrokenObelisk.tscn" }, // POI_BROKEN_OBELISK
+      new Kind { VisualScene = PoiDir + "Waystone.tscn" }, // POI_WAYSTONE
+      new Kind { VisualScene = PoiDir + "PetrifiedTree.tscn" }, // POI_PETRIFIED_TREE
+      new Kind { VisualScene = PoiDir + "SunkenIdol.tscn" }, // POI_SUNKEN_IDOL
 
       // The nine buildings a town is made of.
       //

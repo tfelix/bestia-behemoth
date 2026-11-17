@@ -128,24 +128,24 @@ class PropKindRegistryTest {
     }
   }
 
-  /** Two landmarks on one runtime kind would draw both with one scene and configure both with one row. */
+  /** Two POIs on one runtime kind would draw both with one scene and configure both with one row. */
   @Test
-  fun `each landmark has its own runtime kind`() {
+  fun `each POI has its own runtime kind`() {
     val mapped = PoiKind.entries.map { StaticEntityKind.ofPoi(it) }
 
-    assertEquals(PoiKind.entries.size, mapped.toSet().size, "two landmarks share a runtime kind: $mapped")
+    assertEquals(PoiKind.entries.size, mapped.toSet().size, "two POIs share a runtime kind: $mapped")
     for ((poi, kind) in PoiKind.entries.zip(mapped)) {
       assertEquals("POI_${poi.name}", kind.name, "${poi.label} is mapped to the wrong runtime kind")
     }
   }
 
   @Test
-  fun `exactly the landmark kinds carry a landmark block`() {
+  fun `exactly the POI kinds carry a POI block`() {
     val registry = PropKindRegistry().also { it.load() }
 
-    val landmarks = StaticEntityKind.entries.filter { registry.of(it).landmark != null }
+    val pois = StaticEntityKind.entries.filter { registry.of(it).poi != null }
 
-    assertEquals(PoiKind.entries.map { StaticEntityKind.ofPoi(it) }.toSet(), landmarks.toSet())
+    assertEquals(PoiKind.entries.map { StaticEntityKind.ofPoi(it) }.toSet(), pois.toSet())
   }
 
   /**

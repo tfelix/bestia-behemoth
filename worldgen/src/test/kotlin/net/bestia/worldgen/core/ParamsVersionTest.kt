@@ -167,7 +167,7 @@ class ParamsVersionTest {
     "MinableOre" to MinableOre.catalogueDigest(),
     "SpawnHostility" to SpawnHostility.catalogueDigest(),
     // The one catalogue that is the *whole* of a feature rather than a table one stage reads. Every number
-    // deciding which landmarks a world holds lives in it, so without a pin here the entire subsystem could be
+    // deciding which POIs a world holds lives in it, so without a pin here the entire subsystem could be
     // retuned - or an entry deleted - and no version would move.
     "PoiKind" to PoiKind.catalogueDigest()
   )
@@ -196,7 +196,7 @@ class ParamsVersionTest {
       // `GemDepositTest`'s baseline for what that bought.
       "MinableOre" to 7_745_890_654_563_600_391L,
       "SpawnHostility" to 1_601_490_678_795_006_744L,
-      // Moved when each landmark got a count and a min spacing, then when it lost its prop height.
+      // Moved when each POI got a count and a min spacing, then when it lost its prop height.
       "PoiKind" to -7_254_915_198_717_922_829L
     )
 
@@ -256,7 +256,7 @@ class ParamsVersionTest {
       "TownParams" to 7_827_515_135_201_136_336L,
       "StreetParams" to 4_882_094_518_502_737_137L,
       "EconomyParams" to 6_863_789_847_631_252_411L,
-      "PoiParams" to -5_206_010_807_671_237_656L,
+      "PoiParams" to -4_364_560_784_182_569_017L,
       "NavParams" to -4_405_367_378_183_192_008L,
       "TreasureParams" to 1_468_402_791_014_294_212L,
       "DetailParams" to 5_837_136_561_326_550_610L,

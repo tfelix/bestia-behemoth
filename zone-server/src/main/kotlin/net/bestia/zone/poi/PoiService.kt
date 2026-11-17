@@ -1,7 +1,6 @@
-package net.bestia.zone.landmark
+package net.bestia.zone.poi
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.poi.PoiChannels
 import net.bestia.worldgen.poi.PoiKind
@@ -17,14 +16,15 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.EntityVisual
-import net.bestia.zone.entity.ecs.Landmark
+import net.bestia.zone.entity.ecs.Poi
 import net.bestia.zone.entity.ecs.VisualKind
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.landmark.persistence.DestroyedLandmark
-import net.bestia.zone.landmark.persistence.DestroyedLandmarkRepository
+import net.bestia.zone.poi.persistence.DestroyedPoi
+import net.bestia.zone.poi.persistence.DestroyedPoiRepository
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.prop.PropKindRegistry
+import net.bestia.zone.script.ecs.ScriptComponent
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.stream.ChunkCoords
@@ -32,56 +32,49 @@ import org.springframework.stereotype.Service
 import java.time.Instant
 
 /**
- * The landmarks the world generator placed, as entities.
+ * The POIs the world generator placed, as entities.
  *
  * Raised from the world's markers on every boot, so stats, effects and scripts always follow the current
- * `prop-kinds.yml`. Only destruction is stored: a destroyed landmark stays gone for the rest of the world.
+ * `prop-kinds.yml`. Only destruction is stored: a destroyed POI stays gone for the rest of the world.
  *
  * Tick thread only after boot.
  */
 @Service
-class LandmarkService(
+class PoiService(
   private val worldService: WorldService,
   private val kinds: PropKindRegistry,
-  private val scripts: LandmarkScriptRegistry,
+  private val catalog: PoiCatalog,
   private val statusEffectService: StatusEffectService,
-  private val repository: DestroyedLandmarkRepository,
+  private val repository: DestroyedPoiRepository,
   private val asyncJobExecutor: AsyncJobExecutor,
 ) {
 
-  internal data class Site(val kind: PoiKind, val copy: Int, val position: Vec3L)
+  internal data class Site(val kind: PoiKind, val instanceId: Int, val position: Vec3L)
 
-  private val destroyed = HashSet<DestroyedLandmark.Key>()
+  private val destroyed = HashSet<DestroyedPoi.Key>()
 
-  /** Boot only. Raises every landmark of this world that players have not destroyed. */
+  /** Boot only. Raises every POI of this world that players have not destroyed. */
   fun raise(world: World) {
     loadDestroyed()
 
     val generated = worldService.generated
     val sites = sitesOf(generated)
-    val standing = sites.filterNot { keyOf(it.kind, it.copy) in destroyed }
+    val standing = sites.filterNot { keyOf(it.kind, it.instanceId) in destroyed }
     standing.forEach { raise(world, it) }
 
     logCensus(generated.config.seed, sites)
-    LOG.info { "Landmarks: ${sites.size} placed, ${sites.size - standing.size} destroyed, ${standing.size} raised" }
+    LOG.info { "POIs: ${sites.size} placed, ${sites.size - standing.size} destroyed, ${standing.size} raised" }
   }
 
-  /** A player clicked a landmark. */
-  fun interact(world: World, actorId: EntityId, landmarkId: EntityId): OpError? {
-    val landmark = world.get(landmarkId, Landmark::class) ?: return null
-    return scripts.scriptOf(landmark.kind).onInteract(world, actorId, landmarkId)
-  }
+  /** The POI's HP reached zero. It is never raised again on this world. */
+  fun destroyed(world: World, poiId: EntityId) {
+    val poi = world.get(poiId, Poi::class) ?: return
 
-  /** The landmark's HP reached zero. Its script reacts, and it is never raised again on this world. */
-  fun destroyed(world: World, landmarkId: EntityId) {
-    val landmark = world.get(landmarkId, Landmark::class) ?: return
-    scripts.scriptOf(landmark.kind).onDestroyed(world, landmarkId)
-
-    val key = keyOf(landmark.kind, landmark.copy)
+    val key = keyOf(poi.kind, poi.instanceId)
     destroyed.add(key)
-    LOG.info { "Landmark ${landmark.kind} #${landmark.copy} was destroyed" }
+    LOG.info { "POI ${poi.kind} #${poi.instanceId} was destroyed" }
 
-    val row = DestroyedLandmark(
+    val row = DestroyedPoi(
       id = key,
       worldId = worldService.record.id,
       pipelineVersion = worldService.generated.world.pipelineVersion,
@@ -91,7 +84,7 @@ class LandmarkService(
   }
 
   private fun raise(world: World, site: Site) {
-    val config = scripts.configOf(site.kind)
+    val config = catalog.configOf(site.kind)
     val maxHp = kinds.of(StaticEntityKind.ofPoi(site.kind)).maxHp
 
     val id = world.createEntity { entity ->
@@ -100,7 +93,8 @@ class LandmarkService(
       add(entity, Health(current = maxHp, max = maxHp))
       add(entity, Level(config.level))
       add(entity, CombatStats(CombatValues.ofBase(config.level, config.attributes)))
-      add(entity, Landmark(site.kind, site.copy))
+      add(entity, ScriptComponent(config.script))
+      add(entity, Poi(site.kind, site.instanceId))
     }
 
     // Applied in the listed order, so an `INVULNERABLE` listed first turns away a later debuff.
@@ -109,7 +103,7 @@ class LandmarkService(
         val applied = statusEffectService.applyEffect(
           this, id, effect.id, effect.level, durationSeconds = Double.POSITIVE_INFINITY
         )
-        if (!applied) LOG.warn { "Landmark ${site.kind} #${site.copy} refused its effect ${effect.id}" }
+        if (!applied) LOG.warn { "POI ${site.kind} #${site.instanceId} refused its effect ${effect.id}" }
       }
     }
   }
@@ -123,27 +117,27 @@ class LandmarkService(
     }
     valid.mapTo(destroyed) { it.id }
 
-    // A row from another world or build names a landmark that is gone or now stands elsewhere.
+    // A row from another world or build names a POI that is gone or now stands elsewhere.
     if (stale.isNotEmpty()) {
-      LOG.info { "Dropping ${stale.size} destroyed landmark row(s) of an earlier world" }
+      LOG.info { "Dropping ${stale.size} destroyed POI row(s) of an earlier world" }
       repository.deleteAll(stale)
     }
   }
 
-  /** An optional copy that rolled but found no place is legal and silent in worldgen, so it is said here. */
+  /** An optional roll that found no place is legal and silent in worldgen, so it is said here. */
   private fun logCensus(seed: Long, sites: List<Site>) {
     for (kind in PoiKind.entries) {
-      val rolled = PoiStage.rolledCopies(seed, kind).size
+      val rolled = PoiStage.rolledInstances(seed, kind).size
       val placed = sites.count { it.kind == kind }
-      if (placed < rolled) LOG.info { "Landmark $kind: $rolled rolled, $placed found a place" }
+      if (placed < rolled) LOG.info { "POI $kind: $rolled rolled, $placed found a place" }
     }
   }
 
   internal companion object {
     private val LOG = KotlinLogging.logger { }
 
-    fun keyOf(kind: PoiKind, copy: Int): DestroyedLandmark.Key {
-      return DestroyedLandmark.Key(kind.name, copy)
+    fun keyOf(kind: PoiKind, instanceId: Int): DestroyedPoi.Key {
+      return DestroyedPoi.Key(kind.name, instanceId)
     }
 
     fun sitesOf(generated: GeneratedWorld): List<Site> {
@@ -158,7 +152,7 @@ class LandmarkService(
 
           Site(
             kind = PoiKind.entries[marker.attribute(PoiChannels.KIND).toInt()],
-            copy = marker.attribute(PoiChannels.COPY).toInt(),
+            instanceId = marker.attribute(PoiChannels.INSTANCE_ID).toInt(),
             position = Vec3L(
               x = (marker.position.x / config.voxelSize).toLong(),
               y = (marker.position.y / config.voxelSize).toLong(),

@@ -174,12 +174,12 @@ func is_entity_friendly(entity: Entity) -> bool:
 
 
 ## Whether the local player's harm could land on [param entity], as far as the client can tell - the server's
-## damage gate has the last word. A living creature or a landmark that is neither friendly nor warded qualifies.
+## damage gate has the last word. Only a living creature that is neither friendly nor warded qualifies.
 func can_be_harmed(entity: Entity) -> bool:
 	if is_entity_friendly(entity) or entity.is_warded() or entity.is_dead():
 		return false
 
-	return entity.is_creature() or entity.is_landmark()
+	return entity.is_creature()
 
 
 ## DEPRECATED We need to come up with a better solution this can not work and scale. We need certain

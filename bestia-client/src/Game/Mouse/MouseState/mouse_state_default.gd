@@ -33,7 +33,9 @@ func handle_object_clicked(mgr: MouseManager, object: Node3D, event: InputEvent,
 		DefaultAction.Kind.ATTACK:
 			# Walked into reach first, then committed to: the server keeps swinging at it until one of them
 			# dies or we walk away. The request supersedes any pending goal itself.
-			mgr.request_attack(object, object.get_bestia_entity_id())
+			var is_structure: bool = object is StructureVisual
+			var target_id: int = object.get_structure_entity_id() if is_structure else object.get_bestia_entity_id()
+			mgr.request_attack(object, target_id)
 
 		DefaultAction.Kind.TALK:
 			# Walked up to first, unlike a swing: you have to be in earshot.
@@ -126,14 +128,6 @@ func _is_creature(object: Node3D) -> bool:
 ## What a left-click on [param object] would do. Null - nothing hovered - is [constant
 ## DefaultAction.Kind.NONE], so callers do not have to guard.
 func _action_for(object: Node3D) -> int:
-	if object is BestiaVisual:
-		return _action_for_bestia(object as BestiaVisual)
-
-	if object is MasterVisual:
-		# Selecting only. Clicking another player is how you look at them, not how you hit them - what you
-		# can do to them lives in the right-click menu.
-		return DefaultAction.Kind.SELECT
-
 	if object is ItemVisual:
 		return DefaultAction.Kind.LOOT
 
@@ -152,21 +146,42 @@ func _action_for(object: Node3D) -> int:
 	if object is Bobber:
 		return DefaultAction.Kind.STRIKE if object.is_own() else DefaultAction.Kind.NONE
 
-	if object is StructureVisual:
-		if object.is_construction_site():
-			return DefaultAction.Kind.BUILD
-		if object.is_usable():
+	if object is StructureVisual and object.is_construction_site():
+		return DefaultAction.Kind.BUILD
+
+	if _is_creature(object):
+		return _action_for_creature(object as Visual)
+
+	if object is Visual:
+		return _action_for_visual(object as Visual)
+
+	return DefaultAction.Kind.NONE
+
+
+## What a non-creature visual's designer chose for a click. A structure that names no choice still does what
+## PropAppearance says its kind is for, as stations, stalls and the city sign do.
+func _action_for_visual(visual: Visual) -> int:
+	match visual.default_click_action:
+		Visual.ClickAction.SELECT:
+			return DefaultAction.Kind.SELECT
+		Visual.ClickAction.INTERACT:
+			return DefaultAction.Kind.USE_STATION
+		Visual.ClickAction.ATTACK:
+			return DefaultAction.Kind.ATTACK
+
+	if visual is StructureVisual:
+		if visual.is_usable():
 			return DefaultAction.Kind.USE_STATION
 
-		var structure_action := DefaultAction.from_prop_name(object.action)
+		var structure_action := DefaultAction.from_prop_name(visual.action)
 		return structure_action if structure_action != DefaultAction.Kind.NONE else DefaultAction.Kind.SELECT
 
 	return DefaultAction.Kind.NONE
 
 
-## Whether clicking a creature means hitting it or speaking to it, from the one place that decides
-## disposition.
-func _action_for_bestia(visual: BestiaVisual) -> int:
+## A creature's designer chose fight, talk or look. Who owns it and how it stands towards us right now can
+## still turn a swing into talk or a look, from the one place that decides disposition.
+func _action_for_creature(visual: Visual) -> int:
 	var entity_manager := EntityManager.get_instance()
 	var entity := entity_manager.get_entity(visual.get_bestia_entity_id())
 
@@ -174,15 +189,21 @@ func _action_for_bestia(visual: BestiaVisual) -> int:
 	if entity == null:
 		return DefaultAction.Kind.NONE
 
-	# One of our own bestia: switching to it is the party panel's job, so a click only selects it.
+	# One of our own: switching to it is the party panel's job, so a click only selects it.
 	if entity_manager.is_owned_entity_id(visual.get_bestia_entity_id()):
 		return DefaultAction.Kind.SELECT
 
-	if entity_manager.is_entity_friendly(entity):
-		return DefaultAction.Kind.TALK
+	match visual.default_click_action:
+		Visual.ClickAction.SELECT:
+			return DefaultAction.Kind.SELECT
+		Visual.ClickAction.INTERACT:
+			return DefaultAction.Kind.TALK
+		Visual.ClickAction.ATTACK:
+			if entity_manager.is_entity_friendly(entity):
+				return DefaultAction.Kind.TALK
+			# Warded or dead: the server would refuse the blow, so a click only looks.
+			if not entity_manager.can_be_harmed(entity):
+				return DefaultAction.Kind.SELECT
+			return DefaultAction.Kind.ATTACK
 
-	# Warded or dead: the server would refuse the blow, so a click only looks.
-	if not entity_manager.can_be_harmed(entity):
-		return DefaultAction.Kind.SELECT
-
-	return DefaultAction.Kind.ATTACK
+	return DefaultAction.Kind.NONE

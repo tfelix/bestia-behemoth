@@ -33,15 +33,14 @@ import kotlin.math.max
 /**
  * Tuning shared by every entry in [PoiKind].
  *
- * The per-landmark numbers - how likely it is, which biomes it accepts, how tall it stands - are in the
- * catalogue, because they are what distinguishes one landmark from another. What is here is the machinery every
- * one of them uses to find ground: how finely the world is searched, and how far a landmark keeps from the
- * things that would swallow it.
+ * The per-POI numbers - how often it rolls, which biomes it accepts - are in the catalogue, because they are
+ * what distinguishes one POI from another. What is here is the machinery every one of them uses to find ground:
+ * how finely the world is searched, and how far a POI keeps from the things that would swallow it.
  *
  * **The four clearances all exist for the same reason and it is a concrete one.** `ChunkMaterializer.trunkSite`
  * returns `NaN` - "nothing may stand here" - over paving, under a bridge deck, beneath anything built and over
  * a hole in the ground. A prop offered `NaN` cannot be placed, so a POI whose coordinate lands on one of those
- * is a landmark the world rolled and then silently lost. Keeping clear of them at the world tier is how that is
+ * is a POI the world rolled and then silently lost. Keeping clear of them at the world tier is how that is
  * prevented rather than detected; `Invariants.checkPoisBecomeProps` is the detection, and if it ever fires these
  * numbers are what to move.
  */
@@ -55,7 +54,7 @@ data class PoiParams(
    * everything built - varies at kilometre scale, so sampling every cell would cost a thousand times as much to
    * learn the same thing.
    *
-   * It also bounds how *many* places a landmark could have stood, which matters not at all to where it ends up
+   * It also bounds how *many* places a POI could have stood, which matters not at all to where it ends up
    * (one is picked at random) and a great deal to whether one can be placed at all. At four kilometres a 128 km
    * world offers about a thousand samples, of which the land, dry and biome filters leave a few hundred.
    */
@@ -70,7 +69,7 @@ data class PoiParams(
    * amount of sampling *within* the cell can see that, because every sample returns nearly the same interpolated
    * value. So the guard is a claim about the detail noise's amplitude instead.
    *
-   * Lower than a monastery's freeboard would want: a landmark is one object rather than a precinct, so it needs
+   * Lower than a monastery's freeboard would want: a POI is one object rather than a precinct, so it needs
    * the ground under one point to be dry rather than the ground under eighty metres of garth.
    */
   val freeboard: Double = 12.0,
@@ -83,7 +82,7 @@ data class PoiParams(
    * the prop. That is also why this stage does not depend on `TownStage`: the streets are inside the footprint
    * this already stands well clear of.
    *
-   * There is a second reason it is generous. A landmark in sight of a town is a town's monument, and what these
+   * There is a second reason it is generous. A POI in sight of a town is a town's monument, and what these
    * are for is the opposite - something found a long way from anywhere.
    */
   val settlementClearance: Double = 1_500.0,
@@ -102,7 +101,7 @@ data class PoiParams(
    *
    * The one clearance that guards against a *hole* rather than against a structure, and the failure it prevents
    * is the one a raster could never see: `trunkSite`'s `bracketsGround` refuses any prop whose ground has been
-   * carved away beneath it, so a landmark on the lip of an entrance is a landmark in mid-air.
+   * carved away beneath it, so a POI on the lip of an entrance is a POI in mid-air.
    */
   val caveClearance: Double = 120.0,
 
@@ -113,16 +112,16 @@ data class PoiParams(
    * because it is ground somebody swept, a deck because a prop placed under one grows through the carriageway.
    * A bridge always lies on a road, so testing the road covers the deck as well.
    *
-   * Small compared with the others because a road corridor is a few metres wide and a landmark beside the road
-   * is a perfectly good landmark - a waystone is *supposed* to be near one.
+   * Small compared with the others because a road corridor is a few metres wide and a POI beside the road
+   * is a perfectly good POI - a waystone is *supposed* to be near one.
    */
   val roadClearance: Double = 40.0,
 
-  /** Metres between any two landmarks. All kinds search one lattice, so without it two could share a point. */
-  val landmarkClearance: Double = 300.0,
+  /** Metres between any two POIs. All kinds search one lattice, so without it two could share a point. */
+  val poiClearance: Double = 300.0,
 
   /**
-   * How many candidate positions are kept per landmark copy.
+   * How many candidate positions are kept per POI instance.
    *
    * A shortlist rather than the whole eligible set, and it is a memory bound rather than a tuning knob: a 4096 km
    * world offers a million samples at [candidateStride], and holding every one of them as an object to pick one
@@ -130,7 +129,7 @@ data class PoiParams(
    *
    * The shortlist is the [maxCandidates] positions with the smallest hash, which makes it a **uniform random
    * sample** of the eligible set rather than a corner of the map - the same trick a lattice scatter plays, read
-   * as a selection instead of as a threshold. Its size is therefore how many second chances a landmark gets when
+   * as a selection instead of as a threshold. Its size is therefore how many second chances a POI gets when
    * its first choice turns out to be inside something; sixty-four is far more than the measured worlds need.
    */
   val maxCandidates: Int = 64
@@ -143,7 +142,7 @@ data class PoiParams(
     require(siteClearance >= 0.0) { "siteClearance must not be negative, was $siteClearance" }
     require(caveClearance >= 0.0) { "caveClearance must not be negative, was $caveClearance" }
     require(roadClearance >= 0.0) { "roadClearance must not be negative, was $roadClearance" }
-    require(landmarkClearance >= 0.0) { "landmarkClearance must not be negative, was $landmarkClearance" }
+    require(poiClearance >= 0.0) { "poiClearance must not be negative, was $poiClearance" }
     require(maxCandidates > 0) { "maxCandidates must be positive, was $maxCandidates" }
   }
 
@@ -154,7 +153,7 @@ data class PoiParams(
     siteClearance = source.double("siteClearance", siteClearance),
     caveClearance = source.double("caveClearance", caveClearance),
     roadClearance = source.double("roadClearance", roadClearance),
-    landmarkClearance = source.double("landmarkClearance", landmarkClearance),
+    poiClearance = source.double("poiClearance", poiClearance),
     maxCandidates = source.int("maxCandidates", maxCandidates)
   )
 
@@ -165,15 +164,15 @@ data class PoiParams(
     .put("siteClearance", siteClearance)
     .put("caveClearance", caveClearance)
     .put("roadClearance", roadClearance)
-    .put("landmarkClearance", landmarkClearance)
+    .put("poiClearance", poiClearance)
     .put("maxCandidates", maxCandidates)
 }
 
 /**
- * Points of interest: the hand-authored landmarks of [PoiKind], rolled per world and copy.
+ * Points of interest: the hand-authored POIs of [PoiKind], rolled per world and instance.
  *
- * The roll comes before the search: whether a world holds a copy is one hash of the seed, the kind's ordinal and
- * the copy index, so [PoiKind.chance] means the same on every world size and an appended kind moves nothing.
+ * The roll comes before the search: whether a world holds an instance is one hash of the seed, the kind's ordinal and
+ * the instance id, so [PoiKind.chance] means the same on every world size and an appended kind moves nothing.
  *
  * Filtering runs in two passes. The scan applies only what a raster can answer (biome, freeboard, standing
  * water) at every sampled position. The clearances in [PoiParams] need distances, so [PoiPlacement] asks them of
@@ -191,7 +190,7 @@ class PoiStage(
   /**
    * The catalogue is folded in beside the params, and it is the more important half.
    *
-   * Every number that decides which landmarks a world holds lives in [PoiKind] rather than in [PoiParams], so
+   * Every number that decides which POIs a world holds lives in [PoiKind] rather than in [PoiParams], so
    * without `catalogueDigest` a designer could retune the whole feature and move no version number at all.
    * `HistoryStage` folds five catalogues in for the same reason.
    */
@@ -223,7 +222,7 @@ class PoiStage(
 
   override fun generate(ctx: GenContext, region: CellRegion): StageResult {
     // The roll first, so a world that holds nothing does no searching at all.
-    val rolled = PoiKind.entries.associateWith { rolledCopies(ctx.seed, it) }.filterValues { it.isNotEmpty() }
+    val rolled = PoiKind.entries.associateWith { rolledInstances(ctx.seed, it) }.filterValues { it.isNotEmpty() }
     if (rolled.isEmpty()) return StageResult(features = emptyList())
 
     val active = rolled.keys.toList()
@@ -234,17 +233,17 @@ class PoiStage(
     val requests = active.mapIndexed { slot, kind ->
       PoiPlacement.Request(kind, rolled.getValue(kind), shortlists[slot].positions())
     }
-    val placed = PoiPlacement.place(requests, params.landmarkClearance, ctx.seed) { works.isClear(it, params) }
+    val placed = PoiPlacement.place(requests, params.poiClearance, ctx.seed) { works.isClear(it, params) }
 
     val nextId = FeatureIds.allocator(id)
-    val out = placed.map { landmark ->
+    val out = placed.map { POI ->
       PointMarker(
         id = nextId(),
         kind = FeatureKind.POI,
-        position = landmark.at,
+        position = POI.at,
         attributes = StationTable.Builder(stationCount = 1)
-          .channel(PoiChannels.KIND) { landmark.kind.ordinal.toDouble() }
-          .channel(PoiChannels.COPY) { landmark.copy.toDouble() }
+          .channel(PoiChannels.KIND) { POI.kind.ordinal.toDouble() }
+          .channel(PoiChannels.INSTANCE_ID) { POI.instanceId.toDouble() }
           .build()
       )
     }
@@ -257,12 +256,12 @@ class PoiStage(
   /**
    * Walks the world on a stride and offers every position that passes the raster tests to each shortlist.
    *
-   * One walk for all the active landmarks rather than one per landmark: the three raster tests are the same for
+   * One walk for all the active POIs rather than one per POI: the three raster tests are the same for
    * every entry and only the biome filter differs, so a walk per entry would re-answer "is this dry land" up to
    * six times per position.
    *
    * The cell key is computed **after** the tests pass, because `GenRng.hash` is a vararg and allocates - see its
-   * own note on that. Each landmark's own key is then walked off it with `mix64`, which is `VegetationScatter`'s
+   * own note on that. Each POI's own key is then walked off it with `mix64`, which is `VegetationScatter`'s
    * idiom and keeps the per-position cost at one allocation however long the catalogue grows.
    */
   private fun scan(
@@ -302,7 +301,7 @@ class PoiStage(
         for (slot in active.indices) {
           val kind = active[slot]
           if (!kind.allows(here)) continue
-          // Off the cell's own key with `mix64`, so a landmark's draw depends on its **ordinal** and not on its
+          // Off the cell's own key with `mix64`, so a POI's draw depends on its **ordinal** and not on its
           // position in `active`. That is what lets a failed roll cost nothing and an appended entry disturb no
           // existing one - see the class KDoc.
           shortlists[slot].offer(GenRng.mix64(cellKey + kind.ordinal), worldX, worldY)
@@ -332,10 +331,10 @@ class PoiStage(
   }
 
   /**
-   * Everything already standing on the ground that a landmark has to keep away from.
+   * Everything already standing on the ground that a POI has to keep away from.
    *
    * Read once per world and held as four flat lists, because the shortlist walk asks about the same set for
-   * every landmark and re-querying the feature store per position would be the expensive half of this stage.
+   * every POI and re-querying the feature store per position would be the expensive half of this stage.
    */
   private class Works(
     val settlements: List<Vec2d>,
@@ -360,7 +359,7 @@ class PoiStage(
        * Every site kind history emits that lays voxels on the ground.
        *
        * All of them rather than the ones with the widest structures, because the cost is a distance per marker
-       * and the failure of missing one is a landmark inside a fort. `CAVE_HOARD` is deliberately absent - it is
+       * and the failure of missing one is a POI inside a fort. `CAVE_HOARD` is deliberately absent - it is
        * underground, and a hoard beneath a standing stone is a coincidence rather than a collision.
        */
       private val SITE_KINDS = setOf(
@@ -456,16 +455,16 @@ class PoiStage(
     val ID = StageId("poi")
 
     /**
-     * The copy indices of [kind] whose roll passes on this world. Where they stand is only known after the
-     * world is built; a copy that rolled but found no place is simply missing from it.
+     * The instance ids of [kind] whose roll passes on this world. Where they stand is only known after the
+     * world is built; an instance that rolled but found no place is simply missing from it.
      */
-    fun rolledCopies(seed: Long, kind: PoiKind): List<Int> {
-      return (0 until kind.count).filter { copy ->
-        GenRng.hashUnit(seed, PRESENCE_SALT, kind.ordinal.toLong(), copy.toLong()) < kind.chance
+    fun rolledInstances(seed: Long, kind: PoiKind): List<Int> {
+      return (0 until kind.count).filter { instanceId ->
+        GenRng.hashUnit(seed, PRESENCE_SALT, kind.ordinal.toLong(), instanceId.toLong()) < kind.chance
       }
     }
 
-    /** Whether a world holds a given landmark at all. */
+    /** Whether a world holds a given POI at all. */
     private const val PRESENCE_SALT = 0x504F495F484153L
 
     /** Which of the places it could have stood it does. Its own constant; see the class KDoc. */

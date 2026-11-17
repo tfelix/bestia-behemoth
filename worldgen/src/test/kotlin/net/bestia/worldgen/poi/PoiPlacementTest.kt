@@ -9,18 +9,18 @@ import kotlin.test.assertTrue
 class PoiPlacementTest {
 
   @Test
-  fun `copies take the first candidates that keep the spacing`() {
+  fun `instances take the first candidates that keep the spacing`() {
     val waystone = PoiKind.WAYSTONE
     val candidates = listOf(at(0.0), at(1_000.0), at(20_000.0), at(40_000.0))
 
     val placed = placeAnywhere(request(waystone, listOf(0, 1, 2), candidates))
 
     assertEquals(listOf(at(0.0), at(20_000.0), at(40_000.0)), placed.map { it.at })
-    assertEquals(listOf(0, 1, 2), placed.map { it.copy })
+    assertEquals(listOf(0, 1, 2), placed.map { it.instanceId })
   }
 
   @Test
-  fun `raising the count keeps the copies already placed`() {
+  fun `raising the count keeps the instances already placed`() {
     val candidates = listOf(at(0.0), at(20_000.0), at(40_000.0), at(60_000.0))
 
     val two = placeAnywhere(request(PoiKind.WAYSTONE, listOf(0, 1), candidates))
@@ -30,12 +30,12 @@ class PoiPlacementTest {
   }
 
   @Test
-  fun `a failed roll leaves a gap in the copy indices`() {
+  fun `a failed roll leaves a gap in the instance ids`() {
     val candidates = listOf(at(0.0), at(20_000.0))
 
     val placed = placeAnywhere(request(PoiKind.WAYSTONE, listOf(0, 2), candidates))
 
-    assertEquals(listOf(0, 2), placed.map { it.copy })
+    assertEquals(listOf(0, 2), placed.map { it.instanceId })
   }
 
   @Test
@@ -54,7 +54,7 @@ class PoiPlacementTest {
   }
 
   @Test
-  fun `an optional landmark with nowhere to stand is skipped`() {
+  fun `an optional POI with nowhere to stand is skipped`() {
     val grave = request(PoiKind.LOST_GRAVE, listOf(0), listOf(at(0.0)))
 
     val placed = PoiPlacement.place(listOf(grave), CLEARANCE, SEED) { false }
@@ -63,17 +63,17 @@ class PoiPlacementTest {
   }
 
   @Test
-  fun `a required landmark with nowhere to stand fails and names itself`() {
+  fun `a required POI with nowhere to stand fails and names itself`() {
     val error = assertFailsWith<PoiPlacementException> {
       PoiPlacement.place(listOf(request(PoiKind.BROKEN_OBELISK, listOf(0), listOf(at(0.0)))), CLEARANCE, SEED) { false }
     }
 
     val message = error.message.orEmpty()
-    assertTrue("BROKEN_OBELISK" in message && "copy 0" in message && "$SEED" in message, message)
+    assertTrue("BROKEN_OBELISK" in message && "instance 0" in message && "$SEED" in message, message)
   }
 
   @Test
-  fun `a required landmark without any candidate blames the ground`() {
+  fun `a required POI without any candidate blames the ground`() {
     val error = assertFailsWith<PoiPlacementException> {
       placeAnywhere(request(PoiKind.BROKEN_OBELISK, listOf(0), emptyList()))
     }
@@ -85,8 +85,8 @@ class PoiPlacementTest {
     return PoiPlacement.place(requests.toList(), CLEARANCE, SEED) { true }
   }
 
-  private fun request(kind: PoiKind, copies: List<Int>, candidates: List<Vec2d>): PoiPlacement.Request {
-    return PoiPlacement.Request(kind, copies, candidates)
+  private fun request(kind: PoiKind, instanceIds: List<Int>, candidates: List<Vec2d>): PoiPlacement.Request {
+    return PoiPlacement.Request(kind, instanceIds, candidates)
   }
 
   private fun at(x: Double): Vec2d {

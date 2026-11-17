@@ -15,6 +15,7 @@ class_name Entity extends Node3D
 var MasterModelScn = preload("res://Game/Entity/Visual/MasterVisual/MasterVisual.tscn")
 var TownsfolkModelScn = preload("res://Game/Entity/Visual/TownsfolkVisual/TownsfolkVisual.tscn")
 var StructureVisualScn = preload("res://Game/Entity/Visual/StructureVisual/StructureVisual.tscn")
+const PropVisualBuilderScript = preload("res://Game/World/PropVisualBuilder.cs")
 var Camera = preload("res://Game/SpringArmCamera/SpringArmCamera.tscn")
 
 var entity_id: int = 0
@@ -653,11 +654,6 @@ func is_creature() -> bool:
 	return _is_creature
 
 
-func is_landmark() -> bool:
-	var visual = get_node_or_null(_VISUAL_NODE_NAME)
-	return visual is StructureVisual and visual.is_landmark()
-
-
 func is_townsfolk() -> bool:
 	return _is_townsfolk
 
@@ -684,9 +680,10 @@ func _visual_scene_for(msg: VisualComponentSMSG) -> PackedScene:
 				return null
 			return item_resource.get_item_visual()
 		VisualKind.STRUCTURE:
-			# One scene for every structure, unlike the two above: the kind picks a mesh inside it rather
-			# than a scene here, because the art comes from PropAppearance rather than a per-kind .tscn.
-			return StructureVisualScn
+			# Mostly one scene for every structure, unlike the two above: the kind picks a mesh inside it, because
+			# the art comes from PropAppearance. A kind a designer dressed brings a scene inherited from it.
+			var own_scene: String = PropVisualBuilderScript.new().VisualScenePath(msg.VisualId)
+			return StructureVisualScn if own_scene.is_empty() else load(own_scene)
 		VisualKind.EFFECT:
 			var effect_resource = EffectDB.get_instance().get_effect(msg.VisualId)
 			if effect_resource == null or effect_resource.effect_visual == null:

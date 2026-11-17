@@ -6,6 +6,9 @@ class_name StructureVisual
 ## A finished station reaches the client on the per-chunk static batch and is drawn by StaticEntityRenderer.
 ## A construction site's progress and health change while somebody is watching, so it travels the entity
 ## channel instead. The art is the same catalogue either way - see PropVisualBuilder.
+##
+## A kind named in PropAppearance.Kind.VisualScene has its own scene inherited from this one, with an Art node
+## and a default_click_action its designer set.
 
 const PropVisualBuilderScript = preload("res://Game/World/PropVisualBuilder.cs")
 
@@ -20,8 +23,6 @@ var _entity_id: int = 0
 
 ## What a click on the finished structure does, named as on a PropPicker. Set in _ready from the kind.
 var action: StringName = &"none"
-
-var _is_landmark: bool = false
 
 var _total_seconds: float = 0.0
 var _remaining_seconds: float = 0.0
@@ -66,11 +67,6 @@ func is_usable() -> bool:
 	return _kind == _CITY_SIGN_KIND
 
 
-## A landmark the world generator placed: examined with a click, attacked rather than repaired.
-func is_landmark() -> bool:
-	return _is_landmark
-
-
 func _ready() -> void:
 	if _kind < 0:
 		printerr("StructureVisual was readied without a kind")
@@ -78,14 +74,17 @@ func _ready() -> void:
 
 	var builder = PropVisualBuilderScript.new()
 	action = builder.ActionName(_kind)
-	_is_landmark = builder.IsLandmark(_kind)
 
-	var art: Node3D = builder.BuildConstruction(_kind)
-	art.name = _ART_NODE_NAME
-	add_child(art)
+	# A kind with its own visual scene brings its art; the rest get it from PropAppearance.
+	var art := get_node_or_null(_ART_NODE_NAME) as Node3D
+	var is_designed := art != null
+	if not is_designed:
+		art = builder.BuildConstruction(_kind)
+		art.name = _ART_NODE_NAME
+		add_child(art)
 
 	# A designer's scene is measured, so it needs no collision of its own.
-	var size: Vector3 = builder.PickSizeOf(art) if builder.HasScene(_kind) else builder.PickSize(_kind)
+	var size: Vector3 = builder.PickSizeOf(art) if is_designed or builder.HasScene(_kind) else builder.PickSize(_kind)
 	var box := BoxShape3D.new()
 	box.size = size
 	_pick_shape.shape = box

@@ -1,4 +1,4 @@
-package net.bestia.zone.landmark.persistence
+package net.bestia.zone.poi.persistence
 
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
@@ -9,14 +9,14 @@ import java.io.Serializable
 import java.time.Instant
 
 /**
- * A landmark players destroyed. It stays gone for the rest of this world.
+ * A POI players destroyed. It stays gone for the rest of this world.
  *
- * (kind, copy) only names the same landmark under the same pipeline version, so the row carries that version
+ * (kind, instanceId) only names the same POI under the same pipeline version, so the row carries that version
  * and the world id.
  */
 @Entity
-@Table(name = "landmark_destroyed")
-class DestroyedLandmark(
+@Table(name = "poi_destroyed")
+class DestroyedPoi(
   @EmbeddedId
   var id: Key = Key(),
 
@@ -32,11 +32,11 @@ class DestroyedLandmark(
 
   @Embeddable
   data class Key(
-    /** `PoiKind` name, so a reordered catalogue cannot point a row at another landmark. */
+    /** `PoiKind` name, so a reordered catalogue cannot point a row at another POI. */
     @Column(name = "kind", nullable = false, length = 64)
     var kind: String = "",
 
-    @Column(name = "copy_index", nullable = false)
-    var copy: Int = 0,
+    @Column(name = "instance_id", nullable = false)
+    var instanceId: Int = 0,
   ) : Serializable
 }

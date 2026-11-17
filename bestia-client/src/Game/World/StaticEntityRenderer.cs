@@ -5,7 +5,7 @@ using Godot;
 namespace BestiaBehemothClient.Game.World
 {
   /// <summary>
-  /// Draws the static entities of each held chunk: trees, ground cover, mana crystals, wound spires, landmarks.
+  /// Draws the static entities of each held chunk: trees, ground cover, mana crystals, wound spires.
   /// </summary>
   /// <remarks>
   /// A sibling of <see cref="TerrainRenderer"/> and it keeps the same contract: one node per chunk, removed

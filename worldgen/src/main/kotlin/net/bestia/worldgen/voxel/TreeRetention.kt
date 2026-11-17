@@ -6,7 +6,7 @@ package net.bestia.worldgen.voxel
  * The companion of [PropSite], and a different question from it. `PropSite` answers *may anything stand on
  * this spot* - somebody paved it, roofed it, bridged it or opened a hole under it - and every prop kind
  * agrees about the answer. This one is about **how many**, it is asked only of trees, and it has no opinion
- * about landmarks: a point of interest the world tier decided exists must not be deleted because it happens
+ * about POIs: a point of interest the world tier decided exists must not be deleted because it happens
  * to stand in a town.
  *
  * Keeping the two apart is the whole reason this type exists rather than a second method on `PropSite`. That

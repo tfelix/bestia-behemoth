@@ -135,11 +135,11 @@ data class WorldParams(
   val economy: EconomyParams = EconomyParams(),
 
   /**
-   * The hand-authored landmarks, and how far each keeps from everything already built.
+   * The hand-authored POIs, and how far each keeps from everything already built.
    *
    * Folded into [version] and **not** [chunkTierVersion], for the reason [nav] is not: where a POI stands is a
    * world-tier product like any marker, and the chunk tier only reads the marker back. What decides *which*
-   * landmarks a world holds is not in here at all - it is the `PoiKind` catalogue, folded into
+   * POIs a world holds is not in here at all - it is the `PoiKind` catalogue, folded into
    * `PoiStage.paramsVersion` directly, because a table in an enum is a tunable in everything but its storage.
    */
   val poi: PoiParams = PoiParams(),
@@ -383,7 +383,7 @@ data class WorldParams(
         weather = base.weather.overriddenBy(text.scope("weather")),
         droplets = base.droplets.overriddenBy(text.scope("droplets")),
         // Loadable from the day it lands, unlike the sixteen prefixes above: every field in it is a *clearance*,
-        // and whether a landmark is far enough from a road is exactly the sort of thing found by looking at one
+        // and whether a POI is far enough from a road is exactly the sort of thing found by looking at one
         // and then moving a number.
         poi = base.poi.overriddenBy(text.scope("poi")),
         // Off `NOT_YET_LOADABLE` because den density is quadratic in `candidateSpacing` and there is no way

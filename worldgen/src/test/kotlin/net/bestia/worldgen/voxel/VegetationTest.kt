@@ -396,7 +396,7 @@ class VegetationTest {
     // site - that is how a herb inherits the street and building vetoes for free - so it is what would drop
     // if the thinning were ever handed to the wrong producer.
     //
-    // Only the two kinds this ground actually grows. A crystal, a reed and a landmark need a mana field, a
+    // Only the two kinds this ground actually grows. A crystal, a reed and a POI need a mana field, a
     // shore and a POI marker that this fixture does not have, so listing them would assert nothing.
     for (kind in listOf(PropKind.HERB, PropKind.SHRUB)) {
       val standing = propsOver(kind, listOf(grading))

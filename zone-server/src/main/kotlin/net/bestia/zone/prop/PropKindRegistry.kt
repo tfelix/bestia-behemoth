@@ -67,19 +67,19 @@ data class PropRegrowthDto(
   }
 }
 
-/** A status effect a landmark carries for as long as it stands, such as `INVULNERABLE` or an aura. */
-data class PropLandmarkEffectDto(val id: StatusEffectId, val level: Int = 1)
+/** A status effect a POI carries for as long as it stands, such as `INVULNERABLE` or an aura. */
+data class PropPoiEffectDto(val id: StatusEffectId, val level: Int = 1)
 
 /**
- * How a landmark entity fights and what runs when a player clicks it.
+ * How a POI entity fights and what runs when a player clicks it.
  *
- * @property script simple class name of the `LandmarkScript` bean
+ * @property script simple class name of the `EntityScript` bean, attached as a `ScriptComponent`
  */
-data class PropLandmarkDto(
+data class PropPoiDto(
   val script: String,
   val level: Int = 1,
   val attributes: StatusValues,
-  val effects: List<PropLandmarkEffectDto> = emptyList()
+  val effects: List<PropPoiEffectDto> = emptyList()
 )
 
 data class PropKindDto(
@@ -100,8 +100,8 @@ data class PropKindDto(
    * than by an exclusion list somewhere that a new kind can be forgotten from.
    */
   val collect: PropCollectDto? = null,
-  /** Present on the landmark kinds only, which are entities rather than props. */
-  val landmark: PropLandmarkDto? = null
+  /** Present on the POI kinds only, which are entities rather than props. */
+  val poi: PropPoiDto? = null
 )
 
 data class PropKindsDto(val kinds: List<PropKindDto> = emptyList())
@@ -159,7 +159,7 @@ class PropKindRegistry {
         require(it.itemId > 0) { "${kind.kind} has a collect entry with item-id ${it.itemId}" }
         require(it.amount > 0) { "${kind.kind} has a collect entry with amount ${it.amount}" }
       }
-      kind.landmark?.let { validateLandmark(kind.kind, it) }
+      kind.poi?.let { validatePoi(kind.kind, it) }
     }
 
     val missing = StaticEntityKind.entries.filterNot { it in byKind }
@@ -182,11 +182,11 @@ class PropKindRegistry {
     require(regrowth.sapling.size < regrowth.young.size) { "$kind has a sapling no smaller than its young tree" }
   }
 
-  private fun validateLandmark(kind: StaticEntityKind, landmark: PropLandmarkDto) {
-    require(landmark.script.isNotBlank()) { "$kind has a landmark without a script" }
-    require(landmark.level >= 1) { "$kind has a landmark of level ${landmark.level}" }
-    landmark.effects.forEach {
-      require(it.level >= 1) { "$kind has landmark effect ${it.id} at level ${it.level}" }
+  private fun validatePoi(kind: StaticEntityKind, poi: PropPoiDto) {
+    require(poi.script.isNotBlank()) { "$kind has a POI without a script" }
+    require(poi.level >= 1) { "$kind has a POI of level ${poi.level}" }
+    poi.effects.forEach {
+      require(it.level >= 1) { "$kind has POI effect ${it.id} at level ${it.level}" }
     }
   }
 

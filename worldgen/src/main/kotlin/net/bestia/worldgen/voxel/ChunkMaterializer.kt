@@ -283,7 +283,7 @@ class ChunkMaterializer(
     val into = PropInstances()
 
     // How many trees civilisation leaves, which is a different question from whether one may stand here -
-    // and asked of the trees alone. A herb in a yard is a herb garden, and a landmark must not be deleted
+    // and asked of the trees alone. A herb in a yard is a herb garden, and a POI must not be deleted
     // for standing in a town at all. See `TreeRetention`.
     val cover = SettlementCover(
       nearby, structures, vegetationParams.buildingYard, vegetationParams.townRetention,

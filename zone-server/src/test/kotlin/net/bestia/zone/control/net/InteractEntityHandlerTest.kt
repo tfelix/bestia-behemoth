@@ -25,11 +25,10 @@ import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.StaticVisual
-import net.bestia.worldgen.poi.PoiKind
-import net.bestia.zone.entity.ecs.EntityVisual
-import net.bestia.zone.entity.ecs.Landmark
-import net.bestia.zone.entity.ecs.VisualKind
-import net.bestia.zone.landmark.LandmarkService
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.script.EntityScript
+import net.bestia.zone.script.EntityScriptRegistry
+import net.bestia.zone.script.ecs.ScriptComponent
 import net.bestia.zone.prop.PropInteraction
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -51,7 +50,7 @@ class InteractEntityHandlerTest {
   private lateinit var talk: TalkService
   private lateinit var hallInteraction: PropInteraction
   private lateinit var chestInteraction: PropInteraction
-  private lateinit var landmarks: LandmarkService
+  private lateinit var script: RecordingScript
   private lateinit var handler: InteractEntityHandler
   private var actor: EntityId = 0L
 
@@ -67,8 +66,7 @@ class InteractEntityHandlerTest {
     chestInteraction = mockk(relaxed = true)
     every { chestInteraction.kind } returns StaticEntityKind.CHEST
     every { chestInteraction.interact(any(), any(), any(), any()) } returns null
-    landmarks = mockk(relaxed = true)
-    every { landmarks.interact(any(), any(), any()) } returns null
+    script = RecordingScript()
 
     actor = world.createEntity { id ->
       add(id, Position.fromVec3(standingAt))
@@ -85,22 +83,35 @@ class InteractEntityHandlerTest {
       crafting = crafting,
       towns = mockk(relaxed = true),
       outMessageProcessor = messages,
-      landmarks = landmarks,
+      scripts = EntityScriptRegistry(listOf(script)),
       propInteractions = listOf(hallInteraction, chestInteraction),
     )
   }
 
   @Test
-  fun `clicking a landmark runs its script`() {
-    val obelisk = world.createEntity { id ->
+  fun `clicking an entity with a script runs it`() {
+    val scripted = world.createEntity { id ->
       add(id, Position.fromVec3(standingAt))
-      add(id, EntityVisual(VisualKind.STRUCTURE, StaticEntityKind.POI_BROKEN_OBELISK.ordinal.toLong()))
-      add(id, Landmark(PoiKind.BROKEN_OBELISK, copy = 0))
+      add(id, ScriptComponent(RecordingScript::class.simpleName!!))
     }
 
-    handler.handle(world, interactWith(obelisk))
+    handler.handle(world, interactWith(scripted))
 
-    verify { landmarks.interact(any(), actor, obelisk) }
+    assertEquals(listOf(actor to scripted), script.clicks)
+  }
+
+  /** The ward stone carries a script id that no [EntityScript] answers to. */
+  @Test
+  fun `a script id without a script falls through to the other branches`() {
+    val hall = world.createEntity { id ->
+      add(id, PropPose(standingAt, yaw = 0f))
+      add(id, StaticVisual(StaticEntityKind.AUCTION_HOUSE, variant = 0, heightDm = 40))
+      add(id, ScriptComponent("master_spawn_ward"))
+    }
+
+    handler.handle(world, interactWith(hall))
+
+    verify(exactly = 1) { hallInteraction.interact(any(), actor, hall, any()) }
   }
 
   /** `TalkService` decides whether they can hear you and what they say; all the handler owes is the call. */
@@ -249,5 +260,14 @@ class InteractEntityHandlerTest {
 
   private fun interactWith(targetEntityId: EntityId): InteractEntityCMSG {
     return InteractEntityCMSG(playerId = accountId, targetEntityId = targetEntityId, args = ScriptArgs.EMPTY)
+  }
+
+  class RecordingScript : EntityScript {
+    val clicks = mutableListOf<Pair<EntityId, EntityId>>()
+
+    override fun onInteract(world: World, actorId: EntityId, entityId: EntityId): OpError? {
+      clicks += actorId to entityId
+      return null
+    }
   }
 }

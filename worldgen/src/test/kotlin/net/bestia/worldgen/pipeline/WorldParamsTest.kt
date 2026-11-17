@@ -144,11 +144,11 @@ class WorldParamsTest {
     // `ChunkMaterializer.VERSION` 17.
     // Both moved when battlefields were strewn with bones and held caches by their dead: `TreasureParams` and
     // `ChunkMaterializer.VERSION` 18.
-    // Only the world tier moved when landmarks got a count and kept apart: `PoiParams.landmarkClearance`.
-    assertEquals(9_168_633_997_503_329_140L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
+    // Only the world tier moved when POIs got a count and kept apart: `PoiParams.poiClearance`.
+    assertEquals(7_311_446_757_389_493_528L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Pinned as a pair so each half stays checkable: a world-tier retune has to move the number above and
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
-    // Moved with `ChunkMaterializer.VERSION` 19, when landmarks stopped being props.
+    // Moved with `ChunkMaterializer.VERSION` 19, when POIs stopped being props.
     assertEquals(-3_175_105_832_868_328_057L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
   }
 

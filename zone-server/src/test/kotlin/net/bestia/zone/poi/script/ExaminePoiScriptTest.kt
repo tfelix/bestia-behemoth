@@ -1,30 +1,30 @@
-package net.bestia.zone.landmark.script
+package net.bestia.zone.poi.script
 
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.worldgen.poi.PoiKind
 import net.bestia.zone.chat.ChatSMSG
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.entity.ecs.Landmark
+import net.bestia.zone.entity.ecs.Poi
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
 import org.junit.jupiter.api.Test
 
-class ExamineLandmarkScriptTest {
+class ExaminePoiScriptTest {
 
   private val messages = mockk<OutMessageProcessor>(relaxed = true)
-  private val script = ExamineLandmarkScript(messages)
+  private val script = ExaminePoiScript(messages)
   private val world = testWorld()
 
   private val obelisk = world.createEntity { id ->
     add(id, Position.fromVec3(Vec3L(100, 100, 10)))
-    add(id, Landmark(PoiKind.BROKEN_OBELISK, copy = 0))
+    add(id, Poi(PoiKind.BROKEN_OBELISK, instanceId = 0))
   }
 
   @Test
-  fun `a click within reach names the landmark to the clicker`() {
+  fun `a click within reach names the POI to the clicker`() {
     val reader = playerAt(Vec3L(103, 100, 10))
 
     script.onInteract(world, reader, obelisk)
