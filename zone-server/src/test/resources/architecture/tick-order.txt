@@ -68,6 +68,7 @@
  - ITEMS wave 37: ShopTradeIntentSystem [EveryTick]
  - ITEMS wave 38: CollectPropIntentSystem [EveryTick]
  - DEATH wave 39: CitySignSystem [EveryTick]
+ - DEATH wave 39: LandmarkDeathSystem [EveryTick]
  - DEATH wave 39: PlayerStructureDeathSystem [EveryTick]
  - DEATH wave 39: WarBannerSystem [EveryTick]
  - DEATH wave 39: WorldBossSealSystem [EveryTick]

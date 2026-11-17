@@ -6,6 +6,7 @@ import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.entity.ecs.Landmark
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.identity.ecs.OwnedBestia
@@ -21,10 +22,14 @@ import net.bestia.zone.util.EntityId
  */
 object Hostility {
 
-  val READS: ComponentClassSet =
-    setOf(Master::class, OwnedBestia::class, StatusEffects::class, AiAgent::class, PartyMembership::class, GuildMembership::class)
+  val READS: ComponentClassSet = setOf(
+    Master::class, OwnedBestia::class, StatusEffects::class, AiAgent::class, PartyMembership::class,
+    GuildMembership::class, Landmark::class
+  )
 
   fun isHostile(world: World, self: EntityId, candidate: EntityId): Boolean {
+    // A landmark has no side. Players may break one, but no creature sets out to.
+    if (world.has(candidate, Landmark::class)) return false
     // A controlled creature has changed sides: it hunts the wild it came from and spares its controller's side.
     if (isControlled(world, self)) return isWild(world, candidate) && !isControlled(world, candidate)
     if (isControlled(world, candidate)) return isWild(world, self)
@@ -39,6 +44,7 @@ object Hostility {
    * party and guild. Whether a hit on them is legal at all is the damage gate's question, not this one.
    */
   fun isIntruder(world: World, guard: EntityId, candidate: EntityId): Boolean {
+    if (world.has(candidate, Landmark::class)) return false
     if (isControlled(world, guard) || isControlled(world, candidate)) return isHostile(world, guard, candidate)
     if (isWild(world, candidate)) return huntsOnSight(world, candidate)
 

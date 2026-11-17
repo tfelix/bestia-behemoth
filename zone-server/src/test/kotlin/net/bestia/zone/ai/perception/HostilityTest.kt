@@ -3,7 +3,9 @@ package net.bestia.zone.ai.perception
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.worldgen.poi.PoiKind
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.entity.ecs.Landmark
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.util.EntityId
@@ -49,6 +51,16 @@ class HostilityTest {
     assertTrue(Hostility.isHostile(world, thrall, wild))
     assertFalse(Hostility.isHostile(world, thrall, master))
     assertTrue(Hostility.isHostile(world, wild, thrall))
+  }
+
+  @Test
+  fun `no creature hunts a landmark, not even a controlled one or a guard`() {
+    val landmark = world.createEntity { world.add(it, Landmark(PoiKind.BROKEN_OBELISK, copy = 0)) }
+    val thrall = world.createEntity { world.add(it, controlled()) }
+
+    assertFalse(Hostility.isHostile(world, thrall, landmark))
+    assertFalse(Hostility.isHostile(world, wild, landmark))
+    assertFalse(Hostility.isIntruder(world, bestia, landmark))
   }
 
   private fun controlled(): StatusEffects {
