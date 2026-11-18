@@ -1,3 +1,4 @@
+using BestiaBehemothClient.Bnet.Message.System;
 using Godot;
 
 namespace BestiaBehemothClient.Bnet.Message.Quest
@@ -13,8 +14,7 @@ namespace BestiaBehemothClient.Bnet.Message.Quest
     [Export] public string OriginName { get; set; } = "";
     [Export] public string StatusName { get; set; } = "";
     [Export] public string RoleName { get; set; } = "";
-    [Export] public string TitleKey { get; set; } = "";
-    [Export] public Godot.Collections.Array<QuestTextArgEntry> Args { get; set; } = [];
+    [Export] public TextRef Title { get; set; } = new();
     [Export] public int SuggestedLevel { get; set; }
     [Export] public long DeadlineEpochMs { get; set; }
     [Export] public string PosterName { get; set; } = "";
@@ -29,15 +29,11 @@ namespace BestiaBehemothClient.Bnet.Message.Quest
         OriginName = EnumName.Of(proto.Origin),
         StatusName = EnumName.Of(proto.Status),
         RoleName = EnumName.Of(proto.Role),
-        TitleKey = proto.TitleKey,
+        Title = TextRef.FromProto(proto.Title),
         SuggestedLevel = (int)proto.SuggestedLevel,
         DeadlineEpochMs = proto.DeadlineEpochMs,
         PosterName = proto.PosterName
       };
-      foreach (var arg in proto.Args)
-      {
-        quest.Args.Add(QuestTextArgEntry.FromProto(arg.Key, arg.Value));
-      }
       foreach (var objective in proto.Objectives)
       {
         quest.Objectives.Add(QuestObjectiveEntry.FromProto(objective));
