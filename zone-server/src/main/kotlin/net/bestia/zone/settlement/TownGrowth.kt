@@ -31,7 +31,8 @@ object TownGrowth {
       in FUNCTIONAL_KINDS -> FUNCTIONAL_BUILDING_POINTS
       StaticEntityKind.WORKBENCH, StaticEntityKind.FURNACE, StaticEntityKind.FORGE,
       StaticEntityKind.TANNING_RACK, StaticEntityKind.LOOM, StaticEntityKind.GLASS_FURNACE,
-      StaticEntityKind.GLASSBLOWING_BENCH -> 1.0
+      StaticEntityKind.GLASSBLOWING_BENCH, StaticEntityKind.ALCHEMY_LABORATORY, StaticEntityKind.GEM_CUT_STATION,
+      StaticEntityKind.TRANSMUTATION_WORKBENCH -> 1.0
       StaticEntityKind.STRUCTURE_WALL, StaticEntityKind.STRUCTURE_FLOOR, StaticEntityKind.STRUCTURE_STAIRS -> 0.1
       else -> 0.0
     }

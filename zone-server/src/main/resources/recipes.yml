@@ -416,8 +416,7 @@ recipes:
 
   # --- Gem cutting ---------------------------------------------------------------------------------
 
-  # Unstationed until a gem cut station kind exists, like GOLD_COIN waits for a mint. Gem Cutting has no script
-  # yet, so no cast offers these. A failed cut shatters the gem: the inputs are spent either way.
+  # A failed cut shatters the gem: the inputs are spent either way.
   - id: 32
     identifier: CUT_AMETHYST
     effect: PRODUCE
@@ -425,6 +424,7 @@ recipes:
     inputs:
       - { item: rough_amethyst, amount: 1 }
     skill: { skill: M_GEM_CUTTING, level: 1 }
+    station: GEM_CUT_STATION
     craftSeconds: 10.0
     baseSuccessChance: 0.9
 
@@ -435,6 +435,7 @@ recipes:
     inputs:
       - { item: rough_emerald, amount: 1 }
     skill: { skill: M_GEM_CUTTING, level: 2 }
+    station: GEM_CUT_STATION
     craftSeconds: 20.0
     baseSuccessChance: 0.75
 
@@ -445,6 +446,7 @@ recipes:
     inputs:
       - { item: rough_ruby, amount: 1 }
     skill: { skill: M_GEM_CUTTING, level: 3 }
+    station: GEM_CUT_STATION
     craftSeconds: 30.0
     baseSuccessChance: 0.6
 
@@ -455,6 +457,7 @@ recipes:
     inputs:
       - { item: rough_pyrelith, amount: 1 }
     skill: { skill: M_GEM_CUTTING, level: 4 }
+    station: GEM_CUT_STATION
     craftSeconds: 40.0
     baseSuccessChance: 0.5
 
@@ -465,6 +468,7 @@ recipes:
     inputs:
       - { item: rough_diamond, amount: 1 }
     skill: { skill: M_GEM_CUTTING, level: 5 }
+    station: GEM_CUT_STATION
     craftSeconds: 50.0
     baseSuccessChance: 0.4
 
@@ -938,6 +942,7 @@ recipes:
     inputs:
       - { item: rough_garnet, amount: 1 }
     skill: { skill: M_GEM_CUTTING, level: 1 }
+    station: GEM_CUT_STATION
     craftSeconds: 15.0
     baseSuccessChance: 0.9
 
@@ -948,6 +953,7 @@ recipes:
     inputs:
       - { item: rough_sapphire, amount: 1 }
     skill: { skill: M_GEM_CUTTING, level: 2 }
+    station: GEM_CUT_STATION
     craftSeconds: 25.0
     baseSuccessChance: 0.75
 
@@ -958,6 +964,7 @@ recipes:
     inputs:
       - { item: rough_onyx, amount: 1 }
     skill: { skill: M_GEM_CUTTING, level: 3 }
+    station: GEM_CUT_STATION
     craftSeconds: 35.0
     baseSuccessChance: 0.6
 
@@ -1021,6 +1028,7 @@ recipes:
     inputs:
       - { item: rough_jade, amount: 1 }
     skill: { skill: M_GEM_CUTTING, level: 2 }
+    station: GEM_CUT_STATION
     craftSeconds: 20.0
     baseSuccessChance: 0.75
 
@@ -1031,6 +1039,7 @@ recipes:
     inputs:
       - { item: rough_tigers_eye, amount: 1 }
     skill: { skill: M_GEM_CUTTING, level: 2 }
+    station: GEM_CUT_STATION
     craftSeconds: 22.0
     baseSuccessChance: 0.7
 
@@ -1041,6 +1050,7 @@ recipes:
     inputs:
       - { item: rough_opal, amount: 1 }
     skill: { skill: M_GEM_CUTTING, level: 3 }
+    station: GEM_CUT_STATION
     craftSeconds: 35.0
     baseSuccessChance: 0.6
 
@@ -1134,3 +1144,147 @@ recipes:
     station: FURNACE
     craftSeconds: 10.0
     baseSuccessChance: 1.0
+
+  # --- Alchemy, Gem Cutting and Transmutation stations -----------------------------------------------
+  # Their kits are Carpentry like every other station's, and starter recipes like theirs.
+
+  - id: 120
+    identifier: ALCHEMY_LABORATORY_KIT
+    effect: PRODUCE
+    output: { item: alchemy_laboratory_kit, amount: 1 }
+    inputs:
+      - { item: plank, amount: 6 }
+      - { item: glass, amount: 4 }
+      - { item: empty_bottle, amount: 4 }
+      - { item: iron_ingot, amount: 1 }
+    skill: { skill: M_CARPENTRY, level: 2 }
+    craftSeconds: 20.0
+    baseSuccessChance: 1
+
+  - id: 121
+    identifier: GEM_CUT_STATION_KIT
+    effect: PRODUCE
+    output: { item: gem_cut_station_kit, amount: 1 }
+    inputs:
+      - { item: plank, amount: 8 }
+      - { item: iron_ingot, amount: 2 }
+      - { item: sand, amount: 4 }
+    skill: { skill: M_CARPENTRY, level: 2 }
+    craftSeconds: 20.0
+    baseSuccessChance: 1
+
+  - id: 122
+    identifier: TRANSMUTATION_WORKBENCH_KIT
+    effect: PRODUCE
+    output: { item: transmutation_workbench_kit, amount: 1 }
+    inputs:
+      - { item: cut_stone, amount: 8 }
+      - { item: copper_ingot, amount: 4 }
+      - { item: mana_crystal, amount: 2 }
+    skill: { skill: M_CARPENTRY, level: 3 }
+    craftSeconds: 20.0
+    baseSuccessChance: 1
+
+  # --- Alchemy ---------------------------------------------------------------------------------------
+  # Potions from herbs and a bottle. Discovered rather than given: every input has craft-axes.
+
+  - id: 123
+    identifier: SMALL_HEALTH_POTION
+    effect: PRODUCE
+    output: { item: small_health_potion, amount: 1 }
+    inputs:
+      - { item: medicinal_herb, amount: 2 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 1 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 8.0
+    baseSuccessChance: 0.9
+
+  - id: 124
+    identifier: SMALL_MANA_POTION
+    effect: PRODUCE
+    output: { item: small_mana_potion, amount: 1 }
+    inputs:
+      - { item: mana_herb, amount: 2 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 1 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 8.0
+    baseSuccessChance: 0.9
+
+  - id: 125
+    identifier: HEALTH_POTION
+    effect: PRODUCE
+    output: { item: health_potion, amount: 1 }
+    inputs:
+      - { item: medicinal_herb, amount: 4 }
+      - { item: apple, amount: 2 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 3 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 15.0
+    baseSuccessChance: 0.7
+
+  - id: 126
+    identifier: MANA_POTION
+    effect: PRODUCE
+    output: { item: mana_potion, amount: 1 }
+    inputs:
+      - { item: mana_herb, amount: 4 }
+      - { item: grape, amount: 2 }
+      - { item: empty_bottle, amount: 1 }
+    skill: { skill: M_ALCHEMY, level: 3 }
+    station: ALCHEMY_LABORATORY
+    craftSeconds: 15.0
+    baseSuccessChance: 0.7
+
+  # --- Transmutation ---------------------------------------------------------------------------------
+  # Mundane mana matter, reshaped up the ladder: essence to pure essence to concentrate, and the common blue
+  # crystal into the rarer yellow and red ones.
+
+  - id: 127
+    identifier: PURE_MANA_ESSENCE
+    effect: PRODUCE
+    output: { item: pure_mana_essence, amount: 1 }
+    inputs:
+      - { item: mana_essence, amount: 3 }
+    skill: { skill: M_TRANSMUTATION, level: 1 }
+    station: TRANSMUTATION_WORKBENCH
+    craftSeconds: 15.0
+    baseSuccessChance: 0.8
+
+  - id: 128
+    identifier: MANA_CONCENTRATE
+    effect: PRODUCE
+    output: { item: mana_concentrate, amount: 1 }
+    inputs:
+      - { item: pure_mana_essence, amount: 2 }
+      - { item: mana_crystal, amount: 1 }
+    skill: { skill: M_TRANSMUTATION, level: 3 }
+    station: TRANSMUTATION_WORKBENCH
+    craftSeconds: 20.0
+    baseSuccessChance: 0.7
+
+  - id: 129
+    identifier: YELLOW_MANA_CRYSTAL
+    effect: PRODUCE
+    output: { item: yellow_mana_crystal, amount: 1 }
+    inputs:
+      - { item: blue_mana_crystal, amount: 3 }
+      - { item: mana_concentrate, amount: 1 }
+    skill: { skill: M_TRANSMUTATION, level: 5 }
+    station: TRANSMUTATION_WORKBENCH
+    craftSeconds: 25.0
+    baseSuccessChance: 0.6
+
+  - id: 130
+    identifier: RED_MANA_CRYSTAL
+    effect: PRODUCE
+    output: { item: red_mana_crystal, amount: 1 }
+    inputs:
+      - { item: yellow_mana_crystal, amount: 3 }
+      - { item: mana_concentrate, amount: 2 }
+    skill: { skill: M_TRANSMUTATION, level: 7 }
+    station: TRANSMUTATION_WORKBENCH
+    craftSeconds: 30.0
+    baseSuccessChance: 0.5

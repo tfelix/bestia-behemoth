@@ -27,7 +27,11 @@ class DiscoverableContentTest {
 
     // The equipment catalogue is generated into `gear_recipes.yml` from id 200 up, and every piece of it is discovered.
     val gear = recipes.all().filter { it.id >= GearRecipeGenerator.FIRST_ID }.map { it.identifier }.toSet()
-    val others = setOf("WEAPON_BLUEPRINT", "ARMOR_BLUEPRINT", "WAR_BANNER", "BAMBOO_ROD", "ASH_ROD", "STEEL_ROD")
+    val others = setOf(
+      "WEAPON_BLUEPRINT", "ARMOR_BLUEPRINT", "WAR_BANNER", "BAMBOO_ROD", "ASH_ROD", "STEEL_ROD",
+      "SMALL_HEALTH_POTION", "SMALL_MANA_POTION", "HEALTH_POTION", "MANA_POTION",
+      "PURE_MANA_ESSENCE", "MANA_CONCENTRATE", "YELLOW_MANA_CRYSTAL", "RED_MANA_CRYSTAL",
+    )
 
     assertTrue(gear.size >= 340, "expected the whole equipment catalogue, found ${gear.size}")
     assertEquals(others + gear, discoverable)

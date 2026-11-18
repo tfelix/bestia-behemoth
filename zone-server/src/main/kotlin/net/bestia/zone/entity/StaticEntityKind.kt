@@ -190,7 +190,12 @@ enum class StaticEntityKind {
   FIXTURE_GIANT_REMAINS,
 
   /** A town's quest board, an entity like the city sign so it can carry which quests are open. */
-  BLACKBOARD;
+  BLACKBOARD,
+
+  // The Alchemist's and the Miner's stations, appended for the ordinal.
+  ALCHEMY_LABORATORY,
+  GEM_CUT_STATION,
+  TRANSMUTATION_WORKBENCH;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.

@@ -774,7 +774,24 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 2.0f, PlaceholderColour = new Color(0.24f, 0.20f, 0.15f), StructureHeight = 2f,
         Action = PropAction.Use
-      } // BLACKBOARD
+      }, // BLACKBOARD
+
+      // The Alchemist's and the Miner's stations: boxes in their materials' colours until they have models.
+      new Kind
+      {
+        PlaceholderWidth = 1.4f, PlaceholderColour = new Color(0.55f, 0.75f, 0.55f), StructureHeight = 2f,
+        Action = PropAction.Use
+      }, // ALCHEMY_LABORATORY
+      new Kind
+      {
+        PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.60f, 0.45f, 0.70f), StructureHeight = 1f,
+        Action = PropAction.Use
+      }, // GEM_CUT_STATION
+      new Kind
+      {
+        PlaceholderWidth = 1.4f, PlaceholderColour = new Color(0.50f, 0.50f, 0.65f), StructureHeight = 1f,
+        Action = PropAction.Use
+      } // TRANSMUTATION_WORKBENCH
     };
 
     /// <summary>
