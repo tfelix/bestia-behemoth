@@ -1,3 +1,4 @@
+using BestiaBehemothClient.Bnet.Message.System;
 using Godot;
 
 namespace BestiaBehemothClient.Bnet.Message.Quest
@@ -20,6 +21,12 @@ namespace BestiaBehemothClient.Bnet.Message.Quest
     [Export] public int Progress { get; set; }
     [Export] public int Yours { get; set; }
 
+    /// <summary>The step of the quest this belongs to.</summary>
+    [Export] public int Stage { get; set; }
+
+    /// <summary>How to word the objective; its key is empty for a delivery or a kill.</summary>
+    [Export] public TextRef Text { get; set; } = new();
+
     public static QuestObjectiveEntry FromProto(global::Bnet.QuestObjective proto)
     {
       return new QuestObjectiveEntry
@@ -31,7 +38,9 @@ namespace BestiaBehemothClient.Bnet.Message.Quest
         PlaceName = proto.PlaceName,
         Required = (int)proto.Required,
         Progress = (int)proto.Progress,
-        Yours = (int)proto.Yours
+        Yours = (int)proto.Yours,
+        Stage = (int)proto.Stage,
+        Text = proto.Text == null ? new TextRef() : TextRef.FromProto(proto.Text)
       };
     }
   }

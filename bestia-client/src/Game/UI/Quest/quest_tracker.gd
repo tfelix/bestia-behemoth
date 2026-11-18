@@ -39,6 +39,11 @@ func _redraw() -> void:
 	for quest in quest_log.tracked_quests():
 		add_child(_line(QuestStyle.title_of(quest), 13, QuestStyle.level_colour(quest.SuggestedLevel)))
 		for objective in quest.Objectives:
+			if objective.Stage != quest.Stage:
+				continue
+			if not objective.Text.Key.is_empty():
+				add_child(_line("   " + DialogText.resolve_ref(objective.Text), 11, UiStyle.MUTED))
+				continue
 			var progress := tr("QUEST_TRACKER_LINE") % [
 				objective.Progress, objective.Required, quest_log.carried(objective), QuestStyle.time_left(quest)
 			]

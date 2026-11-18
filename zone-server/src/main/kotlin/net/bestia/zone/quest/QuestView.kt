@@ -40,6 +40,7 @@ data class QuestView(
     val progress: Int,
     val yours: Int,
     val stage: Int = 0,
+    val text: TextRef? = null,
   )
 
   companion object {
@@ -64,7 +65,7 @@ data class QuestView(
         val placeName = (objective.area as? QuestArea.InPlace)?.placeName
         Objective(
           objective.kind, objective.scope, objective.itemId, objective.speciesId, placeName, objective.required,
-          progress, yours, objective.stage,
+          progress, yours, objective.stage, objective.text,
         )
       }
 

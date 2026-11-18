@@ -25,39 +25,40 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChptZXNzYWdlcy9xdWVzdC9xdWVzdC5wcm90bxIEYm5ldBoabWVzc2FnZXMv",
-            "c3lzdGVtL3RleHQucHJvdG8ixAEKDlF1ZXN0T2JqZWN0aXZlEiEKBGtpbmQY",
+            "c3lzdGVtL3RleHQucHJvdG8i8AEKDlF1ZXN0T2JqZWN0aXZlEiEKBGtpbmQY",
             "ASABKA4yEy5ibmV0Lk9iamVjdGl2ZUtpbmQSIwoFc2NvcGUYAiABKA4yFC5i",
             "bmV0Lk9iamVjdGl2ZVNjb3BlEg8KB2l0ZW1faWQYAyABKAMSEAoIcmVxdWly",
             "ZWQYBCABKA0SEAoIcHJvZ3Jlc3MYBSABKA0SDQoFeW91cnMYBiABKA0SEgoK",
-            "c3BlY2llc19pZBgHIAEoAxISCgpwbGFjZV9uYW1lGAggASgJIkIKC1F1ZXN0",
-            "UmV3YXJkEiMKBGtpbmQYASABKA4yFS5ibmV0LlF1ZXN0UmV3YXJkS2luZBIO",
-            "CgZhbW91bnQYAiABKAMiswIKBVF1ZXN0EhAKCHF1ZXN0X2lkGAEgASgEEiEK",
-            "Bm9yaWdpbhgCIAEoDjIRLmJuZXQuUXVlc3RPcmlnaW4SIQoGc3RhdHVzGAMg",
-            "ASgOMhEuYm5ldC5RdWVzdFN0YXR1cxIdCgRyb2xlGAQgASgOMg8uYm5ldC5R",
-            "dWVzdFJvbGUSHAoFdGl0bGUYBSABKAsyDS5ibmV0LlRleHRSZWYSFwoPc3Vn",
-            "Z2VzdGVkX2xldmVsGAcgASgNEhkKEWRlYWRsaW5lX2Vwb2NoX21zGAggASgD",
-            "EhMKC3Bvc3Rlcl9uYW1lGAkgASgJEigKCm9iamVjdGl2ZXMYCiADKAsyFC5i",
-            "bmV0LlF1ZXN0T2JqZWN0aXZlEiIKB3Jld2FyZHMYCyADKAsyES5ibmV0LlF1",
-            "ZXN0UmV3YXJkKioKC1F1ZXN0T3JpZ2luEhsKF1FVRVNUX09SSUdJTl9CTEFD",
-            "S0JPQVJEEAAqkAEKC1F1ZXN0U3RhdHVzEhUKEVFVRVNUX1NUQVRVU19PUEVO",
-            "EAASGAoUUVVFU1RfU1RBVFVTX0NMT1NJTkcQARIaChZRVUVTVF9TVEFUVVNf",
-            "Q09NUExFVEVEEAISGAoUUVVFU1RfU1RBVFVTX0VYUElSRUQQAxIaChZRVUVT",
-            "VF9TVEFUVVNfV0lUSERSQVdOEAQqUwoJUXVlc3RSb2xlEhcKE1FVRVNUX1JP",
-            "TEVfQUNDRVBURUQQABIVChFRVUVTVF9ST0xFX1BPU1RFRBABEhYKElFVRVNU",
-            "X1JPTEVfT0ZGRVJFRBACKn4KDU9iamVjdGl2ZUtpbmQSHwobT0JKRUNUSVZF",
-            "X0tJTkRfREVMSVZFUl9JVEVNEAASFwoTT0JKRUNUSVZFX0tJTkRfS0lMTBAB",
-            "EhoKFk9CSkVDVElWRV9LSU5EX0VYQU1JTkUQAhIXChNPQkpFQ1RJVkVfS0lO",
-            "RF9UQUxLEAMqSgoOT2JqZWN0aXZlU2NvcGUSGgoWT0JKRUNUSVZFX1NDT1BF",
-            "X1NIQVJFRBAAEhwKGE9CSkVDVElWRV9TQ09QRV9QRVJTT05BTBABKjcKD1F1",
-            "ZXN0UmV3YXJkS2luZBIkCiBRVUVTVF9SRVdBUkRfS0lORF9DT0lOU19QRVJf",
-            "VU5JVBAAQiMKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IKUXVlc3RQcm90b2IG",
-            "cHJvdG8z"));
+            "c3BlY2llc19pZBgHIAEoAxISCgpwbGFjZV9uYW1lGAggASgJEg0KBXN0YWdl",
+            "GAkgASgNEhsKBHRleHQYCiABKAsyDS5ibmV0LlRleHRSZWYiQgoLUXVlc3RS",
+            "ZXdhcmQSIwoEa2luZBgBIAEoDjIVLmJuZXQuUXVlc3RSZXdhcmRLaW5kEg4K",
+            "BmFtb3VudBgCIAEoAyLCAgoFUXVlc3QSEAoIcXVlc3RfaWQYASABKAQSIQoG",
+            "b3JpZ2luGAIgASgOMhEuYm5ldC5RdWVzdE9yaWdpbhIhCgZzdGF0dXMYAyAB",
+            "KA4yES5ibmV0LlF1ZXN0U3RhdHVzEh0KBHJvbGUYBCABKA4yDy5ibmV0LlF1",
+            "ZXN0Um9sZRIcCgV0aXRsZRgFIAEoCzINLmJuZXQuVGV4dFJlZhIXCg9zdWdn",
+            "ZXN0ZWRfbGV2ZWwYByABKA0SGQoRZGVhZGxpbmVfZXBvY2hfbXMYCCABKAMS",
+            "EwoLcG9zdGVyX25hbWUYCSABKAkSKAoKb2JqZWN0aXZlcxgKIAMoCzIULmJu",
+            "ZXQuUXVlc3RPYmplY3RpdmUSIgoHcmV3YXJkcxgLIAMoCzIRLmJuZXQuUXVl",
+            "c3RSZXdhcmQSDQoFc3RhZ2UYDCABKA0qKgoLUXVlc3RPcmlnaW4SGwoXUVVF",
+            "U1RfT1JJR0lOX0JMQUNLQk9BUkQQACqQAQoLUXVlc3RTdGF0dXMSFQoRUVVF",
+            "U1RfU1RBVFVTX09QRU4QABIYChRRVUVTVF9TVEFUVVNfQ0xPU0lORxABEhoK",
+            "FlFVRVNUX1NUQVRVU19DT01QTEVURUQQAhIYChRRVUVTVF9TVEFUVVNfRVhQ",
+            "SVJFRBADEhoKFlFVRVNUX1NUQVRVU19XSVRIRFJBV04QBCpTCglRdWVzdFJv",
+            "bGUSFwoTUVVFU1RfUk9MRV9BQ0NFUFRFRBAAEhUKEVFVRVNUX1JPTEVfUE9T",
+            "VEVEEAESFgoSUVVFU1RfUk9MRV9PRkZFUkVEEAIqfgoNT2JqZWN0aXZlS2lu",
+            "ZBIfChtPQkpFQ1RJVkVfS0lORF9ERUxJVkVSX0lURU0QABIXChNPQkpFQ1RJ",
+            "VkVfS0lORF9LSUxMEAESGgoWT0JKRUNUSVZFX0tJTkRfRVhBTUlORRACEhcK",
+            "E09CSkVDVElWRV9LSU5EX1RBTEsQAypKCg5PYmplY3RpdmVTY29wZRIaChZP",
+            "QkpFQ1RJVkVfU0NPUEVfU0hBUkVEEAASHAoYT0JKRUNUSVZFX1NDT1BFX1BF",
+            "UlNPTkFMEAEqNwoPUXVlc3RSZXdhcmRLaW5kEiQKIFFVRVNUX1JFV0FSRF9L",
+            "SU5EX0NPSU5TX1BFUl9VTklUEABCIwoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
+            "QgpRdWVzdFByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.TextReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.QuestOrigin), typeof(global::Bnet.QuestStatus), typeof(global::Bnet.QuestRole), typeof(global::Bnet.ObjectiveKind), typeof(global::Bnet.ObjectiveScope), typeof(global::Bnet.QuestRewardKind), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.QuestObjective), global::Bnet.QuestObjective.Parser, new[]{ "Kind", "Scope", "ItemId", "Required", "Progress", "Yours", "SpeciesId", "PlaceName" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.QuestObjective), global::Bnet.QuestObjective.Parser, new[]{ "Kind", "Scope", "ItemId", "Required", "Progress", "Yours", "SpeciesId", "PlaceName", "Stage", "Text" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.QuestReward), global::Bnet.QuestReward.Parser, new[]{ "Kind", "Amount" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Quest), global::Bnet.Quest.Parser, new[]{ "QuestId", "Origin", "Status", "Role", "Title", "SuggestedLevel", "DeadlineEpochMs", "PosterName", "Objectives", "Rewards" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Quest), global::Bnet.Quest.Parser, new[]{ "QuestId", "Origin", "Status", "Role", "Title", "SuggestedLevel", "DeadlineEpochMs", "PosterName", "Objectives", "Rewards", "Stage" }, null, null, null, null)
           }));
     }
     #endregion
@@ -159,6 +160,8 @@ namespace Bnet {
       yours_ = other.yours_;
       speciesId_ = other.speciesId_;
       placeName_ = other.placeName_;
+      stage_ = other.stage_;
+      text_ = other.text_ != null ? other.text_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -273,6 +276,36 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "stage" field.</summary>
+    public const int StageFieldNumber = 9;
+    private uint stage_;
+    /// <summary>
+    /// The step of the quest this belongs to. A master works on one stage at a time.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Stage {
+      get { return stage_; }
+      set {
+        stage_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "text" field.</summary>
+    public const int TextFieldNumber = 10;
+    private global::Bnet.TextRef text_;
+    /// <summary>
+    /// How to word the objective. Unset for a delivery or a kill, which the client words from the ids above.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.TextRef Text {
+      get { return text_; }
+      set {
+        text_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -296,6 +329,8 @@ namespace Bnet {
       if (Yours != other.Yours) return false;
       if (SpeciesId != other.SpeciesId) return false;
       if (PlaceName != other.PlaceName) return false;
+      if (Stage != other.Stage) return false;
+      if (!object.Equals(Text, other.Text)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -311,6 +346,8 @@ namespace Bnet {
       if (Yours != 0) hash ^= Yours.GetHashCode();
       if (SpeciesId != 0L) hash ^= SpeciesId.GetHashCode();
       if (PlaceName.Length != 0) hash ^= PlaceName.GetHashCode();
+      if (Stage != 0) hash ^= Stage.GetHashCode();
+      if (text_ != null) hash ^= Text.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -361,6 +398,14 @@ namespace Bnet {
         output.WriteRawTag(66);
         output.WriteString(PlaceName);
       }
+      if (Stage != 0) {
+        output.WriteRawTag(72);
+        output.WriteUInt32(Stage);
+      }
+      if (text_ != null) {
+        output.WriteRawTag(82);
+        output.WriteMessage(Text);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -403,6 +448,14 @@ namespace Bnet {
         output.WriteRawTag(66);
         output.WriteString(PlaceName);
       }
+      if (Stage != 0) {
+        output.WriteRawTag(72);
+        output.WriteUInt32(Stage);
+      }
+      if (text_ != null) {
+        output.WriteRawTag(82);
+        output.WriteMessage(Text);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -436,6 +489,12 @@ namespace Bnet {
       }
       if (PlaceName.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(PlaceName);
+      }
+      if (Stage != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Stage);
+      }
+      if (text_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Text);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -472,6 +531,15 @@ namespace Bnet {
       }
       if (other.PlaceName.Length != 0) {
         PlaceName = other.PlaceName;
+      }
+      if (other.Stage != 0) {
+        Stage = other.Stage;
+      }
+      if (other.text_ != null) {
+        if (text_ == null) {
+          Text = new global::Bnet.TextRef();
+        }
+        Text.MergeFrom(other.Text);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -524,6 +592,17 @@ namespace Bnet {
             PlaceName = input.ReadString();
             break;
           }
+          case 72: {
+            Stage = input.ReadUInt32();
+            break;
+          }
+          case 82: {
+            if (text_ == null) {
+              Text = new global::Bnet.TextRef();
+            }
+            input.ReadMessage(Text);
+            break;
+          }
         }
       }
     #endif
@@ -573,6 +652,17 @@ namespace Bnet {
           }
           case 66: {
             PlaceName = input.ReadString();
+            break;
+          }
+          case 72: {
+            Stage = input.ReadUInt32();
+            break;
+          }
+          case 82: {
+            if (text_ == null) {
+              Text = new global::Bnet.TextRef();
+            }
+            input.ReadMessage(Text);
             break;
           }
         }
@@ -865,6 +955,7 @@ namespace Bnet {
       posterName_ = other.posterName_;
       objectives_ = other.objectives_.Clone();
       rewards_ = other.rewards_.Clone();
+      stage_ = other.stage_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -992,6 +1083,21 @@ namespace Bnet {
       get { return rewards_; }
     }
 
+    /// <summary>Field number for the "stage" field.</summary>
+    public const int StageFieldNumber = 12;
+    private uint stage_;
+    /// <summary>
+    /// The stage this master works on. Objectives of later stages are not sent.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Stage {
+      get { return stage_; }
+      set {
+        stage_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -1017,6 +1123,7 @@ namespace Bnet {
       if (PosterName != other.PosterName) return false;
       if(!objectives_.Equals(other.objectives_)) return false;
       if(!rewards_.Equals(other.rewards_)) return false;
+      if (Stage != other.Stage) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1034,6 +1141,7 @@ namespace Bnet {
       if (PosterName.Length != 0) hash ^= PosterName.GetHashCode();
       hash ^= objectives_.GetHashCode();
       hash ^= rewards_.GetHashCode();
+      if (Stage != 0) hash ^= Stage.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1086,6 +1194,10 @@ namespace Bnet {
       }
       objectives_.WriteTo(output, _repeated_objectives_codec);
       rewards_.WriteTo(output, _repeated_rewards_codec);
+      if (Stage != 0) {
+        output.WriteRawTag(96);
+        output.WriteUInt32(Stage);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1130,6 +1242,10 @@ namespace Bnet {
       }
       objectives_.WriteTo(ref output, _repeated_objectives_codec);
       rewards_.WriteTo(ref output, _repeated_rewards_codec);
+      if (Stage != 0) {
+        output.WriteRawTag(96);
+        output.WriteUInt32(Stage);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1166,6 +1282,9 @@ namespace Bnet {
       }
       size += objectives_.CalculateSize(_repeated_objectives_codec);
       size += rewards_.CalculateSize(_repeated_rewards_codec);
+      if (Stage != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Stage);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -1207,6 +1326,9 @@ namespace Bnet {
       }
       objectives_.Add(other.objectives_);
       rewards_.Add(other.rewards_);
+      if (other.Stage != 0) {
+        Stage = other.Stage;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -1269,6 +1391,10 @@ namespace Bnet {
             rewards_.AddEntriesFrom(input, _repeated_rewards_codec);
             break;
           }
+          case 96: {
+            Stage = input.ReadUInt32();
+            break;
+          }
         }
       }
     #endif
@@ -1329,6 +1455,10 @@ namespace Bnet {
           }
           case 90: {
             rewards_.AddEntriesFrom(ref input, _repeated_rewards_codec);
+            break;
+          }
+          case 96: {
+            Stage = input.ReadUInt32();
             break;
           }
         }
