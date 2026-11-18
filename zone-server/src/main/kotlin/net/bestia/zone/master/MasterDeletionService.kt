@@ -4,6 +4,7 @@ import net.bestia.zone.account.persistence.OrderPlaceRepository
 import net.bestia.zone.master.bestia.NamedPlaces
 import net.bestia.zone.bestia.persistence.DiaryLineRepository
 import net.bestia.zone.crafting.KnownRecipeStore
+import net.bestia.zone.fact.FactService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.identity.ecs.OwnedBestia
@@ -45,6 +46,7 @@ import net.bestia.zone.account.persistence.OrderPresetRepository
  * - **Persisted status effects** - stored against [Master.entityId], which is not a foreign key to anything.
  * - **Compendium entries** ([CompendiumStore.deleteAllOf]) - each row is a foreign key to the master.
  * - **Learned blueprints** ([KnownRecipeStore.deleteAllOf]) - each row is a foreign key to the master.
+ * - **Learned facts** ([FactService.deleteAllOf]) - keyed by the master's id, without a foreign key.
  * - **Order presets** ([OrderPresetRepository]), **named places** ([OrderPlaceRepository]) and **diary lines**
  *   ([DiaryLineRepository]) - keyed by the master's id, without a foreign key.
  * - **Rows keyed by an item instance** ([ItemInstanceDependents]) - a map chart or a spell scroll's attack is
@@ -59,6 +61,7 @@ class MasterDeletionService(
   private val instanceDependents: List<ItemInstanceDependents>,
   private val compendiumStore: CompendiumStore,
   private val knownRecipeStore: KnownRecipeStore,
+  private val factService: FactService,
   private val orderPresets: OrderPresetRepository,
   private val diaryLines: DiaryLineRepository,
   private val orderPlaces: OrderPlaceRepository,
@@ -136,6 +139,7 @@ class MasterDeletionService(
 
     compendiumStore.deleteAllOf(masterId)
     knownRecipeStore.deleteAllOf(masterId)
+    factService.deleteAllOf(masterId)
     orderPresets.deleteAllByMasterId(masterId)
     diaryLines.deleteAllByMasterId(masterId)
     orderPlaces.deleteAllByMasterId(masterId)
