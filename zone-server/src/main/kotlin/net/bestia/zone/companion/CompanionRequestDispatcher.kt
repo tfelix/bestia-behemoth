@@ -25,6 +25,7 @@ import net.bestia.zone.companion.query.PlaceCommands
 import net.bestia.zone.companion.query.WorkshopCommands
 import net.bestia.zone.companion.query.ParcelQueries
 import net.bestia.zone.companion.query.SurveyCommands
+import net.bestia.zone.companion.query.TextQueries
 import net.bestia.zone.companion.query.TicketQueries
 import org.springframework.stereotype.Component
 
@@ -52,6 +53,7 @@ class CompanionRequestDispatcher(
   private val letters: LetterCommands,
   private val parcels: ParcelQueries,
   private val surveys: SurveyCommands,
+  private val texts: TextQueries,
 ) : RequestHandler {
 
   override fun handle(request: BusRequest): BusReply {
@@ -76,6 +78,7 @@ class CompanionRequestDispatcher(
       is ZoneQuery.HabitatTile -> map.habitat(id, account, query)
       is ZoneQuery.WhoseTicket -> tickets.owner(id, query)
       is ZoneQuery.GuildEmblem -> emblems.emblem(id, query)
+      is ZoneQuery.Text -> texts.text(id, query)
       is ZoneQuery.SetOrders -> orders.apply(id, account, query)
       is ZoneQuery.OrderPresets -> presets.list(id, account, query)
       is ZoneQuery.SaveOrderPreset -> presets.save(id, account, query)
