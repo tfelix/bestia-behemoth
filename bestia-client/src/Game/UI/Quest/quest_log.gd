@@ -235,10 +235,13 @@ func _worded_objective_row(objective) -> Control:
 	var done: bool = objective.Progress >= objective.Required
 	var label := UiStyle.label("", 12, UiStyle.MUTED if done else UiStyle.TEXT)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# What was picked is said with the step, so a log read later still tells what the master decided.
+	var picked = objective.Choices.filter(func(choice) -> bool: return choice.Id == objective.Chosen)
+	var suffix := "" if picked.is_empty() else " - " + DialogText.resolve_ref(picked[0].Text)
 	TextSource.show_ref(objective.Text, func(text: String):
 		# The row may be redrawn before a written text arrives.
 		if is_instance_valid(label):
-			label.text = text
+			label.text = text + suffix
 	)
 	return label
 
