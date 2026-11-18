@@ -41,9 +41,9 @@ items:
     craft-axes: { STATE: 0.2, INTEGRITY: -0.3, HEFT: -0.6, VITALITY: 0.5 }
     script: AppleScript
     description: |
-      A fresh apple. 
-      
-      Restores a small amount of health when eaten.
+      A crisp red apple, still cool from the branch.
+
+      Restores a little health when eaten.
 
   - id: 2
     item-db-name: jelly
@@ -53,7 +53,9 @@ items:
     material: FOOD
     craft-axes: { STATE: -0.6, INTEGRITY: -0.6, HEFT: -0.7, VITALITY: 0.3 }
     description: |
-      A quivering lump of blob residue. Someone probably buys these.
+      A quivering, see-through lump left behind by a blob.
+
+      Cooks stir it into hearty stew.
 
   - id: 3
     item-db-name: small_health_potion
@@ -63,9 +65,9 @@ items:
     material: GLASS
     script: SmallHealthPotionScript
     description: |
-      A small vial of transparent slight red liquid.
+      A small vial of thin red liquid that glints when it is tilted.
 
-      Heals a modest amount of health when consumed.
+      Heals a modest amount of health when drunk.
 
   # `max-durability` is only meaningful on gear: a material and a consumable are gone before they could
   # wear. Set here so Equipment Repair has something to act on - see `ItemInstance.maxDurability`.
@@ -166,7 +168,9 @@ items:
     material: WOOD
     craft-axes: { STATE: 0.8, INTEGRITY: -0.6, HEFT: 0.2, COMPLEXITY: -0.8 }
     description: |
-      A handful of coal. It burns hot enough to melt ore, and dirties everything it touches.
+      A handful of glossy black coal that dirties everything it touches.
+
+      It burns hot enough to melt ore.
 
   - id: 11
     item-db-name: clay
@@ -238,7 +242,7 @@ items:
     material: FOOD
     script: HeartyStewScript
     description: |
-      A thick stew of whatever was to hand, cooked over an open fire.
+      A bowl of thick stew made from whatever was to hand, still steaming from the fire.
 
       Restores health and stamina both, which no potion does.
 
@@ -308,10 +312,9 @@ items:
     # charts merged into one stack would be one chart and one orphaned row.
     stackable: false
     description: |
-      A chart of surveyed land, drawn by hand.
+      A hand-drawn chart of surveyed land, inked line by careful line.
 
-      Shows the ground whoever made it walked. Two charts can be joined into one, and any chart can be
-      copied onto empty paper.
+      Shows the ground its maker walked, and can be joined with another chart or copied onto empty paper.
 
   - id: 21
     item-db-name: chart_blank
@@ -334,9 +337,9 @@ items:
     material: PAPER
     stackable: false
     description: |
-      A hand-drawn map with a circle inked on it.
+      A creased, hand-drawn map with a circle inked on it.
 
-      Something is buried somewhere inside the circle. Whoever digs it up first keeps it.
+      Something is buried inside the circle, and whoever digs it up first keeps it.
 
   # Relics: named gear from the world's chronicle, dug up from a cache where history buried one. Each copy is
   # one artifact: its name is a `treasure_relic` row and its forger and forge town its provenance - see Relics.
@@ -362,9 +365,9 @@ items:
           chance: 50
       sockets: [30, 10]
     description: |
-      A blade from before the oldest town still standing, its edge still keen.
+      A long blade of dark, pitted steel, its edge still keen.
 
-      The chronicle knows who forged it and whose hands it passed through.
+      It is older than the oldest town still standing, and the chronicle knows whose hands it passed through.
 
   - id: 24
     item-db-name: relic_crown
@@ -438,7 +441,7 @@ items:
     description: |
       A small sealed casket on a chain, holding what someone thought holy.
 
-      Nobody has opened it. The chronicle says why it was made.
+      Nobody has opened it, and the chronicle says why it was made.
 
   - id: 27
     item-db-name: relic_tome
@@ -587,7 +590,7 @@ items:
     description: |
       Planks, two iron bands and a hasp, waiting to be a chest.
 
-      Set it down and it becomes a chest only you can open. Whoever breaks it can take what spills.
+      Set it down and it becomes a chest only you can open, though whoever breaks it takes what spills.
 
   - id: 37
     item-db-name: mining_shaft_kit
@@ -599,7 +602,7 @@ items:
     description: |
       Beams for a head frame, a windlass and a coil of rope.
 
-      Set it down and it becomes a mining shaft. Your bestias dig the ore below it while you are away.
+      Set it down and it becomes a mining shaft, where your bestias dig the ore below while you are away.
 
   - id: 38
     item-db-name: campfire_kit
@@ -611,7 +614,7 @@ items:
     description: |
       Kindling, a few stones and a lump of resin to get it going.
 
-      Set it down to light a campfire. It burns half an hour, longer with more wood.
+      Set it down to light a campfire that burns half an hour, longer with more wood.
 
   # Breeding, see https://docs.bestia-game.net/docs/mechanics/bestias/bestia/#breeding.
   - id: 39
@@ -646,7 +649,7 @@ items:
     material: FOOD
     stackable: false
     description: |
-      A bestia egg from a Breeding Farm, still warm.
+      A speckled egg the size of two fists, still warm from the nest.
 
       It only hatches in an Incubator.
 
@@ -1091,10 +1094,9 @@ items:
     material: CRYSTAL
     script: RoughGemScript
     description: |
-      An uncut stone still held in the rock it came out of. Which gem it is, only the cut tells - or a
-      miner with Gem Lore, who can appraise it from the bag.
+      A dull, uncut stone still held in a crust of rock.
 
-      Worth guessing about until a jeweller says otherwise.
+      Only the cut tells which gem it is, unless a miner with Gem Lore appraises it from the bag.
 
   # Gold that will never be a coin again - see `server/money-supply.md`. Minting is one-way, and so is
   # this: coin metal worked into a ring is coin metal out of the supply for good.
@@ -1229,7 +1231,7 @@ items:
     description: |
       A thimble-sized vial of pale red liquid, the cork stamped with a beginner's mark.
 
-      Heals a little health. Only a novice may drink it.
+      Heals a little health, and only a novice may drink it.
 
   - id: 85
     item-db-name: novice_mana_potion
@@ -1242,7 +1244,7 @@ items:
     description: |
       A thimble-sized vial of pale blue liquid, the cork stamped with a beginner's mark.
 
-      Restores a little mana. Only a novice may drink it.
+      Restores a little mana, and only a novice may drink it.
 
   # --- Capture --------------------------------------------------------------------------------------
   # Set on a tile within reach; the first wild bestia to step on it springs it - see BestiaTrapSystem.
@@ -1289,7 +1291,7 @@ items:
     description: |
       A heavy signet of gold and aetherite, its face still blank, waiting for a name.
 
-      Pressed into the wax of a charter, it founds a guild with its bearer as its master. The seal is spent.
+      Pressed into the wax of a charter, it founds a guild with its bearer as master, and is spent.
 
   # Planted on a tile within reach by a member whose guild knows Rally to the Banner - see WarBannerScript.
   - id: 89
@@ -1302,7 +1304,7 @@ items:
     description: |
       A tall oak pole and a banner in the guild's colours, its hem weighted with iron.
 
-      Planted in the ground, it is where Rally to the Banner calls the guild. Enemies can cut it down.
+      Planted in the ground, it marks where Rally to the Banner calls the guild, until enemies cut it down.
 
   # --- Travel ---------------------------------------------------------------------------------------
   # A short hop to a random spot nearby, on ground already in view, so no loading screen - see FlyWingScript.
@@ -1316,7 +1318,7 @@ items:
     description: |
       A pale feather that never quite settles in the hand.
 
-      Crushed, it whisks its bearer to a random spot nearby. Companions are left behind.
+      Crushed, it whisks its bearer alone to a random spot nearby.
 
   # Home to the user's save point - see ButterflyWingScript.
   - id: 91
@@ -1329,7 +1331,7 @@ items:
     description: |
       A butterfly's wing, dusted in amber scales that glow like embers.
 
-      Crushed, it carries its bearer home to where they last set out from. Companions are left behind.
+      Crushed, it carries its bearer alone back to their save point.
 
   # --- Bestia materials -----------------------------------------------------------------------------
   # Parts a bestia drops when it dies. Like a raw hide, none has a producer: a kill is the only source.
@@ -1702,7 +1704,7 @@ items:
     stackable: false
     bound: true
     description: |
-      A canvas sack under the postal seal. Nobody may open it, the courier included.
+      A canvas sack closed with a postal seal that nobody may break, the courier included.
 
       Bring it to the post office it is addressed to before its deadline.
 
@@ -1814,9 +1816,9 @@ items:
     type: ETC
     material: CRYSTAL
     description: |
-      A violet crystal out of a shallow geode. The commonest gem in the world. It is still caught in rock.
+      A violet crystal out of a shallow geode, still caught in rock.
 
-      Gem Cutting turns it into a cut amethyst.
+      The commonest gem in the world, and Gem Cutting turns it into a cut amethyst.
 
   - id: 132
     item-db-name: rough_emerald
@@ -1825,7 +1827,7 @@ items:
     type: ETC
     material: CRYSTAL
     description: |
-      A green crystal out of deep granite. It is still caught in rock.
+      A green crystal out of deep granite, still caught in rock.
 
       Gem Cutting turns it into a cut emerald.
 
@@ -1836,7 +1838,7 @@ items:
     type: ETC
     material: CRYSTAL
     description: |
-      A deep red crystal out of marble. It is still caught in rock.
+      A deep red crystal out of marble, still caught in rock.
 
       Gem Cutting turns it into a cut ruby.
 
@@ -1847,7 +1849,7 @@ items:
     type: ETC
     material: CRYSTAL
     description: |
-      A gem that grew in the gas pockets of a cooled lava flow. It is warm to the touch. It is still caught in rock.
+      A gem grown in the gas pockets of a cooled lava flow, still caught in rock and warm to the touch.
 
       Gem Cutting turns it into a cut pyrelith.
 
@@ -1858,9 +1860,9 @@ items:
     type: ETC
     material: CRYSTAL
     description: |
-      The hardest stone there is, from the roots of the oldest land. It is still caught in rock.
+      A clear, hard crystal from the roots of the oldest land, still caught in rock.
 
-      Gem Cutting turns it into a cut diamond.
+      Gem Cutting turns the hardest stone there is into a cut diamond.
 
   - id: 136
     item-db-name: cut_amethyst
@@ -1870,7 +1872,7 @@ items:
     material: CRYSTAL
     craft-axes: { STATE: 1.0, INTEGRITY: 0.3, HEFT: -0.4, VITALITY: 0.2, ARCANE: 0.6, COMPLEXITY: 0.4 }
     description: |
-      A faceted amethyst. It has no power of its own.
+      A faceted violet amethyst, clear and empty of any power of its own.
 
       Runic Etching binds an essence of a Bestia up to level 20 into it.
 
@@ -1882,7 +1884,7 @@ items:
     material: CRYSTAL
     craft-axes: { STATE: 1.0, INTEGRITY: 0.3, HEFT: -0.3, VITALITY: 0.8, ARCANE: 0.3, COMPLEXITY: 0.4 }
     description: |
-      A faceted emerald. It has no power of its own.
+      A faceted green emerald, clear and empty of any power of its own.
 
       Runic Etching binds an essence of a Bestia up to level 40 into it.
 
@@ -1894,7 +1896,7 @@ items:
     material: CRYSTAL
     craft-axes: { STATE: 1.0, INTEGRITY: 0.4, HEFT: -0.3, EDGE: 0.2, VITALITY: 0.3, ARCANE: 0.5, COMPLEXITY: 0.5 }
     description: |
-      A faceted ruby. It has no power of its own.
+      A faceted ruby, deep red and empty of any power of its own.
 
       Runic Etching binds an essence of a Bestia up to level 60 into it.
 
@@ -1906,7 +1908,7 @@ items:
     material: CRYSTAL
     craft-axes: { STATE: 1.0, INTEGRITY: 0.5, HEFT: -0.2, EDGE: 0.3, ARCANE: 0.9, COMPLEXITY: 0.6 }
     description: |
-      A faceted pyrelith. It has no power of its own.
+      A faceted pyrelith, faintly warm and empty of any power of its own.
 
       Runic Etching binds an essence of a Bestia up to level 80 into it.
 
@@ -1918,7 +1920,7 @@ items:
     material: CRYSTAL
     craft-axes: { STATE: 1.0, INTEGRITY: 1.0, HEFT: -0.2, EDGE: 0.7, ARCANE: 0.4, COMPLEXITY: 0.7 }
     description: |
-      A faceted diamond. It has no power of its own.
+      A faceted diamond, bright and empty of any power of its own.
 
       Runic Etching binds the essence of a Bestia of any level into it.
 
@@ -1930,7 +1932,7 @@ items:
     type: ETC
     material: CRYSTAL
     description: |
-      A cut gem with the essence of a Bestia bound inside. It glows with the creature's power.
+      A cut gem with the essence of a Bestia bound inside, glowing with the creature's power.
 
       It fits into any socket.
 
@@ -2192,7 +2194,8 @@ items:
     attack-range: 8
     max-durability: 80
     attack: 4
-    description: A strap and a pouch. Every master can use one, and every child can.
+    description: |
+      A leather strap with a worn pouch at its middle. Every master can use one, and so can every child.
 
   - id: 160
     item-db-name: sling_stone
@@ -2296,7 +2299,8 @@ items:
     weight: 80
     type: ETC
     material: STONE
-    description: A smooth, carved stone. Set in the middle of a Mana Circle, it gathers what the ring holds.
+    description: |
+      A smooth stone carved with a spiral. Set in the middle of a Mana Circle, it gathers what the ring holds.
 
   - id: 168
     item-db-name: mana_circle_kit
@@ -2308,8 +2312,7 @@ items:
     description: |
       Five measures of Mana Concentrate and a focus stone, ready to be laid out.
 
-      Placed on the ground it becomes a Mana Circle: up to five helpers join its leader, and after half a minute
-      of channeling the leader's next skill is charged. The ring is used up by the ritual.
+      Laid on the ground it becomes a Mana Circle, which charges its leader's next skill after half a minute of channelling with up to five helpers.
 
   # The surveyor's instrument and what a survey is drawn with. The kit's recipe waits for the crafting window.
   - id: 169
@@ -2341,7 +2344,8 @@ items:
     type: ETC
     material: PLANT
     craft-axes: { STATE: 0.0, INTEGRITY: -0.3, HEFT: -0.7, VITALITY: 0.9 }
-    description: A healing herb of the forest floor. A base ingredient for many potions.
+    description: |
+      A sprig of broad green leaves from the forest floor. A base ingredient for many potions.
 
   - id: 172
     item-db-name: mana_herb
@@ -2350,7 +2354,8 @@ items:
     type: ETC
     material: PLANT
     craft-axes: { INTEGRITY: -0.3, HEFT: -0.7, VITALITY: 0.6, ARCANE: 0.6 }
-    description: A mana-touched herb that only grows where the mana runs strong.
+    description: |
+      A herb with faintly glowing blue veins in its leaves. It only grows where the mana runs strong.
 
   - id: 173
     item-db-name: frost_herb
@@ -2359,7 +2364,8 @@ items:
     type: ETC
     material: PLANT
     craft-axes: { INTEGRITY: -0.3, HEFT: -0.7, EDGE: 0.2, VITALITY: 0.5, ARCANE: 0.3 }
-    description: A tough little herb of the tundra, the taiga and the high mountains.
+    description: |
+      A tough little herb with frost-silvered leaves. It grows in the tundra, the taiga and the high mountains.
 
   - id: 174
     item-db-name: sun_herb
@@ -2368,7 +2374,8 @@ items:
     type: ETC
     material: PLANT
     craft-axes: { INTEGRITY: -0.3, HEFT: -0.7, VITALITY: 0.9, ARCANE: 0.5 }
-    description: A sun-dried herb of the desert and the badlands.
+    description: |
+      A brittle herb dried golden by the sun. It grows in the desert and the badlands.
 
   - id: 175
     item-db-name: ghost_herb
@@ -2377,7 +2384,8 @@ items:
     type: ETC
     material: PLANT
     craft-axes: { STATE: -0.4, INTEGRITY: -0.4, HEFT: -0.7, VITALITY: -0.5, ARCANE: 0.7 }
-    description: A pale herb that only grows on blighted ground.
+    description: |
+      A pale, almost see-through herb. It only grows on blighted ground.
 
   # ---------------------------------------------------------------------------------------------------------------
   # Fishing: the rods and the catch table in `fishing.yml`. A rod's max catch level lives there too.
@@ -2499,7 +2507,8 @@ items:
     weight: 300
     type: ETC
     material: FOOD
-    description: Its pale scales glow faintly at night. Alchemists grind them for their brews.
+    description: |
+      A slim fish whose pale scales glow faintly at night. Alchemists grind them for their brews.
 
   - id: 188
     item-db-name: deepmaw
@@ -2523,7 +2532,8 @@ items:
     weight: 60
     type: ETC
     material: CLOTH
-    description: Soaked, rotten and missing its partner. Every angler catches one sooner or later.
+    description: |
+      A soaked, rotten boot, missing its partner. Every angler catches one sooner or later.
 
   - id: 191
     item-db-name: driftwood
@@ -2539,7 +2549,8 @@ items:
     weight: 70
     type: ETC
     material: CLOTH
-    description: Somebody else's net, knotted beyond use. The cord can still be picked apart.
+    description: |
+      A sodden fishing net, knotted beyond use. The cord can still be picked apart.
 
   - id: 193
     item-db-name: sealed_bottle
@@ -2556,7 +2567,8 @@ items:
     type: ETC
     material: CRYSTAL
     craft-axes: { STATE: 1.0, INTEGRITY: 0.3, HEFT: -0.1, VITALITY: 0.3, ARCANE: 0.8, COMPLEXITY: 0.3 }
-    description: A rare yellow crystal of mana. Dispel burns one to unravel what clings to a target.
+    description: |
+      A rare mana crystal with a warm golden glow. Dispel burns one to unravel what clings to a target.
 
   - id: 195
     item-db-name: blue_mana_crystal
@@ -2565,7 +2577,8 @@ items:
     type: ETC
     material: CRYSTAL
     craft-axes: { STATE: 1.0, INTEGRITY: 0.3, HEFT: -0.1, ARCANE: 0.6, COMPLEXITY: 0.2 }
-    description: A common blue crystal of mana. Endow burns one to carry an element into a weapon.
+    description: |
+      A mana crystal with a cool blue glow, the commonest kind. Endow burns one to carry an element into a weapon.
 
   # What Teleport and Warp Portal burn. The GM item command is their only source until crafting can make them.
   - id: 196
@@ -2603,9 +2616,9 @@ items:
     stackable: false
     script: SpellScrollScript
     description: |
-      A scroll with an attack written on it.
+      A rolled scroll with a spell written across it in a tight hand.
 
-      Read from the bag, it casts its attack once, with no mana. Spell Training teaches it to a bestia instead.
+      Read from the bag, it casts its attack once without mana, or Spell Training teaches it to a bestia instead.
 
   # What Stone Curse burns. The GM item command is its only source until crafting can make it.
   - id: 200
@@ -2615,7 +2628,8 @@ items:
     type: ETC
     material: CRYSTAL
     craft-axes: { STATE: 1.0, INTEGRITY: 0.3, HEFT: -0.1, EDGE: 0.2, VITALITY: -0.3, ARCANE: 0.8, COMPLEXITY: 0.3 }
-    description: A red crystal of mana. Stone Curse burns one to turn flesh to stone.
+    description: |
+      A mana crystal with a deep crimson glow. Stone Curse burns one to turn flesh to stone.
 
   # The Hunter's bow: the Novice Bow stops working once a master specialises. The GM item command is its only source
   # until crafting or a shop sells it.
@@ -2717,7 +2731,7 @@ items:
     material: METAL
     craft-axes: { STATE: 1.0, INTEGRITY: 0.9, HEFT: 0.6, EDGE: 0.5, COMPLEXITY: 0.1 }
     description: |
-      Iron worked with carbon until it rings.
+      A grey bar of steel that rings when it is struck.
 
       It takes a keener edge than iron and holds it longer.
 
@@ -2834,7 +2848,7 @@ items:
     material: METAL
     craft-axes: { STATE: 1.0, INTEGRITY: 1.0, HEFT: 1.0, EDGE: 0.3, ARCANE: -0.3, COMPLEXITY: -0.5 }
     description: |
-      The hardest, heaviest bar anyone has made.
+      A dull black bar, the hardest and heaviest anyone has made.
 
       It shrugs off spells as well as steel.
 
@@ -3025,7 +3039,7 @@ items:
     material: GLASS
     craft-axes: { STATE: -0.7, INTEGRITY: -0.3, HEFT: -0.7, ARCANE: 0.7, COMPLEXITY: 0.6 }
     description: |
-      Ink with mana ground into it.
+      A small bottle of dark ink, shimmering with the mana ground into it.
 
       What is written with it glows faintly until it is read.
 
@@ -3173,7 +3187,7 @@ items:
     material: CRYSTAL
     craft-axes: { STATE: -0.5, INTEGRITY: -0.3, HEFT: -0.8, VITALITY: 0.2, ARCANE: 0.8, COMPLEXITY: 0.1 }
     description: |
-      Mana gone clear and bright, with none of the grit.
+      A pinch of mana powder gone clear and bright, with none of the grit.
 
   # Gems: cut from rough stones at a gem cutter, as the other five are.
 
@@ -3512,7 +3526,7 @@ items:
           chance: 40
       sockets: [20, 5]
     description: |
-      Blackened so it does not catch the light, and balanced for the hand that never misses twice.
+      A blackened dagger that does not catch the light, balanced for a hand that never misses twice.
 
   - id: 273
     item-db-name: gearwork_dirk
@@ -3584,7 +3598,7 @@ items:
         - pool: OFFENSE
       sockets: [40, 20, 10]
     description: |
-      Nobody remembers the smith who made it. Nobody it was used on remembers it either.
+      A thin grey blade that seems to fade at the edges when it moves. Nobody remembers the smith who made it, and nobody it was used on remembers it either.
 
 
   # Fist, 1H (As, Bw)
@@ -4041,7 +4055,7 @@ items:
         - pool: OFFENSE
       sockets: [40, 20, 10]
     description: |
-      The crack of this whip arrives a moment before the thunder does.
+      A long black lash that smells faintly of rain. Its crack arrives a moment before the thunder does.
 
 
   # Sword, 1H (Pr, Tr, As, Kn)
@@ -4351,7 +4365,7 @@ items:
           chance: 40
       sockets: [20]
     description: |
-      The axe of the forest wardens, light enough to carry all day.
+      A slender axe with a green-painted haft, light enough to carry all day. Forest wardens wear one at the belt.
 
   - id: 310
     item-db-name: smiths_hewing_axe
@@ -4374,7 +4388,7 @@ items:
           chance: 40
       sockets: [20, 5]
     description: |
-      A smith's test piece: if it holds an edge through oak, the steel is good.
+      A broad hewing axe with the smith's mark stamped on the cheek. It is a test piece: if it holds an edge through oak, the steel is good.
 
   - id: 311
     item-db-name: steel_war_axe
@@ -4471,7 +4485,7 @@ items:
           chance: 25
       sockets: [30, 15]
     description: |
-      Dark iron, folded and folded again until it rings like a bell.
+      A heavy cleaver of dark iron, folded and folded again until it rings like a bell.
 
   - id: 315
     item-db-name: heartwood_cleaver
@@ -4493,7 +4507,7 @@ items:
         - pool: OFFENSE
       sockets: [40, 20, 10]
     description: |
-      Its haft was cut from the heart of a living tree, and it has never quite stopped growing.
+      A broad cleaver on a haft of pale heartwood that still puts out the odd leaf. It was cut from the heart of a living tree.
 
 
   # Mace, 1H (Bs, Al, Mi, Pt, Kn)
@@ -4672,7 +4686,7 @@ items:
           chance: 25
       sockets: [30, 10]
     description: |
-      Forged to crack ore that a pick will not, and it does not much care what else it cracks.
+      A squat mace with a blunt, hardened head. It was forged to crack ore that a pick will not, and does not much care what else it cracks.
 
   - id: 324
     item-db-name: wardens_holy_mace
@@ -4722,7 +4736,7 @@ items:
         - pool: ARCANE
       sockets: [40, 20, 10]
     description: |
-      Its head glows faintly an hour before sunrise, every morning, wherever it is.
+      A golden mace with a sunburst head. It glows faintly an hour before sunrise, every morning, wherever it is.
 
 
   # Spear, 1H (Fo, Pr, Kn, Hu)
@@ -4947,7 +4961,7 @@ items:
         - pool: OFFENSE
       sockets: [40, 20, 10]
     description: |
-      Its iron head always turns a little toward the nearest vein of ore.
+      A long pike with a dark, magnetised iron head. It always turns a little toward the nearest vein of ore.
 
 
   # Greatsword, 2H (Kn)
@@ -5059,7 +5073,7 @@ items:
           chance: 40
       sockets: [20, 5]
     description: |
-      Square-tipped and perfectly balanced for one kind of stroke.
+      A broad, square-tipped blade with no point at all, balanced for one kind of stroke.
 
   - id: 341
     item-db-name: steel_greatblade
@@ -5112,7 +5126,7 @@ items:
           chance: 25
       sockets: [30, 10]
     description: |
-      Runes run the length of the fuller and glow when the blade is drawn in anger.
+      A greatsword with runes cut the length of its fuller. They glow when the blade is drawn in anger.
 
   - id: 343
     item-db-name: wyrmbone_greatsword
@@ -5138,7 +5152,7 @@ items:
           chance: 25
       sockets: [30, 15]
     description: |
-      Its core is a rib from something that breathed fire. It is still warm.
+      A pale greatsword built around a rib from something that breathed fire. It is still warm.
 
   - id: 344
     item-db-name: sunderer
@@ -5187,7 +5201,7 @@ items:
         - pool: OFFENSE
       sockets: [40, 20, 10]
     description: |
-      It cannot be drawn against anyone its bearer has sworn to protect, or so the knights say.
+      A plain knightly greatsword with an oath engraved down the blade. It cannot be drawn against anyone its bearer has sworn to protect, or so the knights say.
 
 
   # Greataxe, 2H (Bs, Fo, Mi, Kn)
@@ -5254,7 +5268,7 @@ items:
           chance: 40
       sockets: [20]
     description: |
-      The felling axe of a woodcutter who got tired of being robbed.
+      A long felling axe with a notched, well-used edge. It belonged to a woodcutter who got tired of being robbed.
 
   - id: 349
     item-db-name: double_bitted_axe
@@ -5277,7 +5291,7 @@ items:
           chance: 40
       sockets: [20, 5]
     description: |
-      Two edges, so the backswing is not wasted.
+      A greataxe with a blade on either side of the haft, so the backswing is not wasted.
 
   - id: 350
     item-db-name: bearded_greataxe
@@ -5378,7 +5392,7 @@ items:
           chance: 25
       sockets: [30, 15]
     description: |
-      Its haft is ironbark, which no blade has ever cut through.
+      A heavy reaving axe on a haft of dark ironbark. No blade has ever cut through that wood.
 
   - id: 354
     item-db-name: forgemasters_labrys
@@ -5404,7 +5418,7 @@ items:
           chance: 25
       sockets: [30, 15]
     description: |
-      A double axe a forgemaster makes once, to prove they can.
+      A polished double axe etched with its maker's mark. A forgemaster makes one once, to prove they can.
 
   - id: 355
     item-db-name: veinsplitter
@@ -5426,7 +5440,7 @@ items:
         - pool: OFFENSE
       sockets: [40, 20, 10]
     description: |
-      It follows the grain of the stone, and the stone opens.
+      A narrow-bladed greataxe with a vein of quartz running through the steel. It follows the grain of the stone, and the stone opens.
 
 
   # Hammer, 2H (Bs, Mi, Kn)
@@ -5614,7 +5628,7 @@ items:
           chance: 25
       sockets: [30, 10]
     description: |
-      When it strikes the ground, the ground remembers.
+      A massive maul with a head of rough-cast iron the size of a keg. When it strikes the ground, the ground remembers.
 
   - id: 364
     item-db-name: templars_warhammer
@@ -5663,7 +5677,7 @@ items:
         - pool: OFFENSE
       sockets: [40, 20, 10]
     description: |
-      Its head was the first anvil of a forge that has burned for three hundred years.
+      A hammer whose blackened head was once an anvil. It came from a forge that has burned for three hundred years.
 
 
   # Polearm, 2H (Kn)
@@ -5879,7 +5893,7 @@ items:
           chance: 25
       sockets: [30, 15]
     description: |
-      The ceremonial polearm of a city's wardens, and not only ceremonial.
+      A broad partisan with a tassel in the city's colours below the head. It is the wardens' ceremonial polearm, and not only ceremonial.
 
   - id: 375
     item-db-name: skyrender_halberd
@@ -5903,7 +5917,7 @@ items:
         - pool: ATTRIBUTE
       sockets: [50, 25, 10, 5]
     description: |
-      Legend says it was forged to cut a storm in half. The scar in the clouds over the forge has never healed.
+      A tall halberd whose blade shimmers like a storm cloud. Legend says it was forged to cut a storm in half, and the clouds over its forge never healed.
 
 
   # Staff, 2H (Ar, Sa, Pt, Wz, Bw)
@@ -6021,7 +6035,7 @@ items:
           chance: 40
       sockets: [20]
     description: |
-      The staff of a pilgrim who has walked every holy road twice.
+      A tall staff hung with shrine tokens, worn thin at the grip. Its pilgrim walked every holy road twice.
 
   - id: 381
     item-db-name: brass_conduit_staff
@@ -6149,7 +6163,7 @@ items:
         - pool: ARCANE
       sockets: [40, 20, 10]
     description: |
-      Six embers were lit from the first fire. This staff holds the seventh.
+      A charred black staff with a live ember caged at its tip. Six embers were lit from the first fire, and this staff holds the seventh.
 
 
   # Wand, 1H (Ar, Sa, Wz)
@@ -6214,7 +6228,7 @@ items:
           chance: 40
       sockets: [10]
     description: |
-      The wand every apprentice is handed on the first day, and keeps longer than they admit.
+      A plain wand of polished ash, scuffed at the tip. Every apprentice is handed one on the first day, and keeps it longer than they admit.
 
   - id: 389
     item-db-name: bone_wand
@@ -6362,7 +6376,7 @@ items:
           chance: 25
       sockets: [30, 15]
     description: |
-      Iron drawn from where the ley lines cross. Compasses spin near it.
+      A short scepter of dark, faintly glittering iron, drawn from where the ley lines cross. Compasses spin near it.
 
   - id: 395
     item-db-name: starfall_wand
@@ -6386,7 +6400,7 @@ items:
         - pool: ATTRIBUTE
       sockets: [50, 25, 10, 5]
     description: |
-      Carved from a fallen star. On clear nights it points to the place in the sky it came from.
+      A wand of pitted, silvery stone carved from a fallen star. On clear nights it points to the place in the sky it came from.
 
 
   # Tome, left hand (Sa, Pt, Wz)
@@ -6473,7 +6487,7 @@ items:
           chance: 40
       sockets: [20]
     description: |
-      Pressed leaves and careful notes on what heals and what kills.
+      A fat notebook of pressed leaves and careful notes on what heals and what kills.
 
   - id: 400
     item-db-name: book_of_psalms
@@ -6495,7 +6509,7 @@ items:
           chance: 40
       sockets: [20, 5]
     description: |
-      Bound in white leather, with a ribbon for every hour of prayer.
+      A book of psalms bound in white leather, with a ribbon for every hour of prayer.
 
   - id: 401
     item-db-name: grimoire_of_ash
@@ -6517,7 +6531,7 @@ items:
           chance: 40
       sockets: [20, 5]
     description: |
-      Its pages are grey and powdery, and the writing only shows when it is warm.
+      A grimoire with grey, powdery pages. The writing only shows when it is warm.
 
   - id: 402
     item-db-name: annotated_bestiary
@@ -6542,7 +6556,7 @@ items:
           chance: 25
       sockets: [30, 10]
     description: |
-      Drawings of every creature its author survived, and notes on the ones they did not expect to.
+      A thick, battered book of creature drawings crowded with margin notes. Its author survived every one of them, some only just.
 
   - id: 403
     item-db-name: atlas_of_ley_lines
@@ -6568,7 +6582,7 @@ items:
           chance: 25
       sockets: [30, 10]
     description: |
-      A book of maps where the roads are rivers of power instead of stone.
+      A heavy atlas bound in blue leather, its maps traced in faintly glowing lines. The roads it shows are rivers of power instead of stone.
 
   - id: 404
     item-db-name: liturgy_of_the_lantern
@@ -6593,7 +6607,7 @@ items:
           chance: 25
       sockets: [30, 15]
     description: |
-      The rites of the lamplighters, who keep the dark from the door.
+      A small, soot-stained book with a lantern stamped on its cover. It holds the rites of the lamplighters, who keep the dark from the door.
 
   - id: 405
     item-db-name: codex_of_unwritten_pages
@@ -6616,7 +6630,7 @@ items:
         - pool: ARCANE
       sockets: [40, 20, 10]
     description: |
-      Every page is blank until its reader needs it, and then it is the right page.
+      A thick codex whose every page is blank. Each one fills in when its reader needs it, and it is always the right page.
 
 
   # Bow, 2H, arrows (Fo, Hu, Bd)
@@ -6712,7 +6726,7 @@ items:
           chance: 40
       sockets: [20, 5]
     description: |
-      Its tips curve away from the archer, storing more force than its length suggests.
+      A short bow whose tips curve away from the archer, storing more force than its length suggests.
 
   - id: 410
     item-db-name: horn_bow
@@ -6738,7 +6752,7 @@ items:
           chance: 40
       sockets: [20, 5]
     description: |
-      Horn, wood and sinew, glued in layers by a patient bowyer.
+      A bow of horn, wood and sinew, glued in layers by a patient bowyer.
 
   - id: 411
     item-db-name: composite_longbow
@@ -6794,7 +6808,7 @@ items:
           chance: 25
       sockets: [30, 10]
     description: |
-      A heavy warbow. Few can draw it twice in a row.
+      A thick-limbed warbow of elm. Few can draw it twice in a row.
 
   - id: 413
     item-db-name: songstring_bow
@@ -6822,7 +6836,7 @@ items:
           chance: 25
       sockets: [30, 15]
     description: |
-      Its string hums a different note for every arrow.
+      A slender bow strung with fine silver wire. It hums a different note for every arrow.
 
   - id: 414
     item-db-name: windrunners_longbow
@@ -6847,7 +6861,7 @@ items:
         - pool: OFFENSE
       sockets: [40, 20, 10]
     description: |
-      Arrows from this bow seem to ride the wind rather than fight it.
+      A pale longbow wrapped in grey feathers at the grip. Arrows from it seem to ride the wind rather than fight it.
 
 
   # Crossbow, 2H, bolts (Ar, Pr, Tr, Hu)
@@ -7049,7 +7063,7 @@ items:
           chance: 25
       sockets: [30, 10]
     description: |
-      Spanned with a windlass, and it punches through a door.
+      A heavy arbalest with a crank windlass at its butt. It punches through a door.
 
   - id: 423
     item-db-name: gearwork_siege_crossbow
@@ -7077,7 +7091,7 @@ items:
           chance: 25
       sockets: [30, 15]
     description: |
-      Brass gears span it in a heartbeat. The noise gives away the shooter.
+      A heavy crossbow wrapped in brass gears that span it in a heartbeat. The noise gives away the shooter.
 
   - id: 424
     item-db-name: clockwork_arbalest
@@ -7102,7 +7116,7 @@ items:
         - pool: OFFENSE
       sockets: [40, 20, 10]
     description: |
-      Its mechanism ticks like a clock, and it always shoots on the stroke.
+      An arbalest with a clock face set into its stock. Its mechanism ticks, and it always shoots on the stroke.
 
 
   # Instrument, 2H (Bd)
@@ -7219,7 +7233,7 @@ items:
           chance: 40
       sockets: [20]
     description: |
-      Loud enough to be heard over a battle, which is what they were made for.
+      A leather bag sprouting three drones and a chanter. Loud enough to be heard over a battle, which is what they were made for.
 
   - id: 430
     item-db-name: fiddle
@@ -7243,7 +7257,7 @@ items:
           chance: 40
       sockets: [20, 5]
     description: |
-      A fiddle that has played at more weddings than it can count.
+      A dark, scratched fiddle with a fraying bow. It has played at more weddings than it can count.
 
   - id: 431
     item-db-name: warband_drum
@@ -7322,7 +7336,7 @@ items:
           chance: 25
       sockets: [30, 15]
     description: |
-      Turn the crank and it plays a tune nobody wrote, slightly different every hour.
+      A painted hurdy-gurdy with a small clock face on its crank. It plays a tune nobody wrote, slightly different every hour.
 
   - id: 434
     item-db-name: lyre_of_the_last_verse
@@ -7346,7 +7360,7 @@ items:
         - pool: ARCANE
       sockets: [40, 20, 10]
     description: |
-      It knows one more verse than any song has. Nobody has yet heard it played to the end.
+      A lyre of pale wood with one string more than it should have. It knows one more verse than any song has, and nobody has heard it played to the end.
 
 
   # Thrown, 1H, stackable (Al, As, Hu)
@@ -7726,7 +7740,7 @@ items:
           chance: 25
       sockets: [30, 15]
     description: |
-      Its cords were braided during a storm and still crackle faintly.
+      A sling of grey, frayed cords that still crackle faintly. They were braided during a storm.
 
   - id: 454
     item-db-name: shepherd_kings_sling
@@ -7750,7 +7764,7 @@ items:
         - pool: OFFENSE
       sockets: [40, 20, 10]
     description: |
-      The sling of a shepherd who became a king by bringing down a giant.
+      A plain, much-mended wool sling. Its shepherd became a king by bringing down a giant.
 
 
   # Body, ARMOR
@@ -8011,7 +8025,7 @@ items:
           chance: 40
       sockets: [10]
     description: |
-      A vest of tanned hide.
+      A sleeveless vest of tanned hide, laced at the sides.
 
   - id: 466
     item-db-name: hunters_leathers
@@ -8158,7 +8172,7 @@ items:
           chance: 25
       sockets: [30, 15]
     description: |
-      The leathers of the trailwardens, who walk the borders for a lifetime.
+      Weathered brown leathers, patched at knee and elbow. Trailwardens wear them for a lifetime of walking the borders.
 
   - id: 472
     item-db-name: hide_of_the_nightstalker
@@ -8181,7 +8195,7 @@ items:
         - pool: DEFENSE
       sockets: [40, 20, 10]
     description: |
-      Tanned from a beast that hunted only in the dark. It still prefers the dark.
+      A coat of black, short-haired hide from a beast that hunted only in the dark. It still prefers the dark.
 
   - id: 473
     item-db-name: ring_mail
@@ -8394,7 +8408,7 @@ items:
         - pool: DEFENSE
       sockets: [40, 20, 10]
     description: |
-      A hauberk forged at the bottom of a mine, in a forge that runs on the heat of the earth.
+      A dark, heavy hauberk with a faint red glow between its rings. It was forged at the bottom of a mine, on the heat of the earth.
 
   - id: 482
     item-db-name: iron_plate_coat
@@ -8586,7 +8600,7 @@ items:
         - pool: DEFENSE
       sockets: [40, 20, 10]
     description: |
-      The armor of a knight who held a bridge alone for a day and a night. It bears every dent and none of the holes.
+      A full harness of battered steel, dented all over and pierced nowhere. Its knight held a bridge alone for a day and a night.
 
 
   # Head, HEAD_UPPER
@@ -8925,7 +8939,7 @@ items:
           chance: 25
       sockets: [30, 15]
     description: |
-      A hood that muffles its wearer's breath.
+      A dark, close-fitting hood with a padded flap over the mouth. It muffles its wearer's breath.
 
   - id: 504
     item-db-name: bronze_sallet
@@ -9212,7 +9226,7 @@ items:
         - pool: DEFENSE
       sockets: [40, 20, 10]
     description: |
-      Worn by the captain who turned back the burning fleet. It still smells of smoke.
+      A sea-blackened steel helm with a crest like a breaking wave. Its captain turned back the burning fleet, and it still smells of smoke.
 
 
   # Garment, GARMENT
@@ -9625,7 +9639,7 @@ items:
           chance: 40
       sockets: [10]
     description: |
-      Sandals of plaited rope.
+      Flat sandals of plaited rope, tied at the ankle.
 
   - id: 533
     item-db-name: felt_slippers
@@ -9867,7 +9881,7 @@ items:
         - pool: DEFENSE
       sockets: [40, 20, 10]
     description: |
-      Every step in them is a little longer than it should be.
+      Tall, travel-worn boots with seven notches cut into each heel. Every step in them is a little longer than it should be.
 
   - id: 543
     item-db-name: hobnailed_boots
@@ -10086,7 +10100,7 @@ items:
         - pool: DEFENSE
       sockets: [40, 20, 10]
     description: |
-      Whoever wears these does not take a step back. They have never been made to.
+      Heavy steel sabatons, scarred along the toes. Whoever wears them does not take a step back, and has never been made to.
 
 
   # Shield, LEFT_HAND
@@ -10418,7 +10432,7 @@ items:
         - pool: DEFENSE
       sockets: [40, 20, 10]
     description: |
-      Cut from the first stone wall ever built around a city, and bound in iron.
+      A slab of grey stone bound in iron straps. It was cut from the first wall ever built around a city.
 
 
   # Face, HEAD_MID
@@ -10762,7 +10776,7 @@ items:
           chance: 30
       sockets: [10]
     description: |
-      A heavy iron ring.
+      A heavy ring of black iron, plain and cold.
 
   - id: 581
     item-db-name: rabbits_foot_charm
@@ -10785,7 +10799,7 @@ items:
           chance: 30
       sockets: [10]
     description: |
-      Lucky for its owner, if not for the rabbit.
+      A rabbit's foot on a leather cord, worn bald in places. Lucky for its owner, if not for the rabbit.
 
   - id: 582
     item-db-name: brawlers_bracer
@@ -10853,7 +10867,7 @@ items:
           chance: 30
       sockets: [20]
     description: |
-      A signet ring for sealing contracts.
+      A brass signet ring, its seal worn soft by years of wax. Merchants press it into their contracts.
 
   - id: 585
     item-db-name: alchemists_phylactery
@@ -11151,7 +11165,7 @@ items:
           chance: 30
       sockets: [30, 15]
     description: |
-      An emerald ring. Cuts heal faster under it.
+      A gold ring set with a bright green emerald. Cuts heal faster under it.
 
   - id: 598
     item-db-name: opal_of_the_tides
@@ -11245,7 +11259,7 @@ items:
           chance: 30
       sockets: [30, 15]
     description: |
-      An amulet carried to every shrine in the world, and blessed at each.
+      A worn bronze amulet hung with tiny shrine tokens. It was carried to every shrine in the world, and blessed at each.
 
   - id: 602
     item-db-name: band_of_a_thousand_bargains
@@ -11266,7 +11280,7 @@ items:
           chance: 30
       sockets: [40, 20, 10]
     description: |
-      Every merchant who wore it died rich. None of them died happy.
+      A thick gold band stamped with a ring of tiny scales. Every merchant who wore it died rich, and none of them died happy.
 
   - id: 603
     item-db-name: eye_of_the_oracle
@@ -11333,7 +11347,7 @@ items:
           chance: 30
       sockets: [40, 20, 10]
     description: |
-      The ring of a king who traded everything for it. It fits any finger, and none comfortably.
+      A band of tarnished gold with an empty setting. It fits any finger, and none comfortably.
 
 
   # Light source, LIGHT_SOURCE
@@ -11466,7 +11480,7 @@ items:
           chance: 30
       sockets: [40, 20, 10]
     description: |
-      The lantern a saint carried into the dark to find the lost. The dark still remembers it.
+      A plain iron lantern with a pale, steady flame. A saint carried it into the dark to find the lost, and the dark still remembers it.
 
   # What a battlefield leaves: picked off the ground there, or dropped by the dead that rise on it.
   - id: 612

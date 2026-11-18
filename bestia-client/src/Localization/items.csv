@@ -1,14 +1,16 @@
 keys,en
 APPLE,Apple
-APPLE_DESC,"A fresh apple. 
+APPLE_DESC,"A crisp red apple, still cool from the branch.
 
-Restores a small amount of health when eaten."
+Restores a little health when eaten."
 SMALL_HEALTH_POTION,Small Health Potion
-SMALL_HEALTH_POTION_DESC,"A small vial of transparent slight red liquid.
+SMALL_HEALTH_POTION_DESC,"A small vial of thin red liquid that glints when it is tilted.
 
-Heals a modest amount of health when consumed."
+Heals a modest amount of health when drunk."
 JELLY,Jelly
-JELLY_DESC,A quivering lump of blob residue. Someone probably buys these.
+JELLY_DESC,"A quivering, see-through lump left behind by a blob.
+
+Cooks stir it into hearty stew."
 SHOES,Shoes
 SHOES_DESC,"A sturdy pair of leather shoes.
 
@@ -30,7 +32,9 @@ IRON_INGOT_DESC,"A bar of refined iron, still warm from the furnace.
 
 The starting point of every forged weapon and every plate of armour."
 COAL,Coal
-COAL_DESC,"A handful of coal. It burns hot enough to melt ore, and dirties everything it touches."
+COAL_DESC,"A handful of glossy black coal that dirties everything it touches.
+
+It burns hot enough to melt ore."
 CLAY,Clay
 CLAY_DESC,"Wet river clay, kneaded into a ball. It takes a shape and keeps it."
 VOID_ESSENCE,Void Essence
@@ -46,7 +50,7 @@ WEAPON_BLUEPRINT_DESC,"A smith's drawing of a blade, annotated in a hand that as
 ARMOR_BLUEPRINT,Armor Blueprint
 ARMOR_BLUEPRINT_DESC,"A smith's drawing of a breastplate, with the hard part - the fitting - left as an exercise."
 HEARTY_STEW,Hearty Stew
-HEARTY_STEW_DESC,"A thick stew of whatever was to hand, cooked over an open fire.
+HEARTY_STEW_DESC,"A bowl of thick stew made from whatever was to hand, still steaming from the fire.
 
 Restores health and stamina both, which no potion does."
 IRON_SWORD,Iron Sword
@@ -58,10 +62,9 @@ IRON_CUIRASS_DESC,"A breastplate beaten out of four ingots and fitted by eye.
 
 It will stop what it stops."
 CHART,Chart
-CHART_DESC,"A chart of surveyed land, drawn by hand.
+CHART_DESC,"A hand-drawn chart of surveyed land, inked line by careful line.
 
-Shows the ground whoever made it walked. Two charts can be joined into one, and any chart can be
-copied onto empty paper."
+Shows the ground its maker walked, and can be joined with another chart or copied onto empty paper."
 CHART_BLANK,Empty Paper
 CHART_BLANK_DESC,"An empty sheet of paper, ruled and ready to be drawn on.
 
@@ -211,10 +214,9 @@ NAILS_DESC,"A twist of hand-forged iron nails, no two quite alike.
 
 Dull work to make, and it holds everything else together."
 ROUGH_GEM,Rough Gem
-ROUGH_GEM_DESC,"An uncut stone still held in the rock it came out of. Which gem it is, only the cut tells - or a
-miner with Gem Lore, who can appraise it from the bag.
+ROUGH_GEM_DESC,"A dull, uncut stone still held in a crust of rock.
 
-Worth guessing about until a jeweller says otherwise."
+Only the cut tells which gem it is, unless a miner with Gem Lore appraises it from the bag."
 GOLD_RING,Gold Ring
 GOLD_RING_DESC,"A plain gold band set with a small red stone.
 
@@ -250,11 +252,11 @@ Reliable against young Bestia, and hopeless against anything grown."
 NOVICE_HEALTH_POTION,Novice Health Potion
 NOVICE_HEALTH_POTION_DESC,"A thimble-sized vial of pale red liquid, the cork stamped with a beginner's mark.
 
-Heals a little health. Only a novice may drink it."
+Heals a little health, and only a novice may drink it."
 NOVICE_MANA_POTION,Novice Mana Potion
 NOVICE_MANA_POTION_DESC,"A thimble-sized vial of pale blue liquid, the cork stamped with a beginner's mark.
 
-Restores a little mana. Only a novice may drink it."
+Restores a little mana, and only a novice may drink it."
 IRON_HELMET,Iron Helmet
 IRON_HELMET_DESC,"An iron cap riveted to a mail hood that hangs down to the shoulders.
 
@@ -262,19 +264,19 @@ It hides the hair, which is the least of what it is for."
 FOUNDERS_SEAL,Founder's Seal
 FOUNDERS_SEAL_DESC,"A heavy signet of gold and aetherite, its face still blank, waiting for a name.
 
-Pressed into the wax of a charter, it founds a guild with its bearer as its master. The seal is spent."
+Pressed into the wax of a charter, it founds a guild with its bearer as master, and is spent."
 WAR_BANNER,War Banner
 WAR_BANNER_DESC,"A tall oak pole and a banner in the guild's colours, its hem weighted with iron.
 
-Planted in the ground, it is where Rally to the Banner calls the guild. Enemies can cut it down."
+Planted in the ground, it marks where Rally to the Banner calls the guild, until enemies cut it down."
 FLY_WING,Fly Wing
 FLY_WING_DESC,"A pale feather that never quite settles in the hand.
 
-Crushed, it whisks its bearer to a random spot nearby. Companions are left behind."
+Crushed, it whisks its bearer alone to a random spot nearby."
 BUTTERFLY_WING,Butterfly Wing
 BUTTERFLY_WING_DESC,"A butterfly's wing, dusted in amber scales that glow like embers.
 
-Crushed, it carries its bearer home to where they last set out from. Companions are left behind."
+Crushed, it carries its bearer alone back to their save point."
 FEATHER,Feather
 FEATHER_DESC,"A long flight feather, light enough to lift on a breath."
 SHARP_FANG,Sharp Fang
@@ -352,7 +354,7 @@ STONE_HATCHET_DESC,"A knapped stone wedged into a stick.
 
 It chops slowly and bruises more than it cuts, but it chops."
 MAIL_SACK,Mail Sack
-MAIL_SACK_DESC,"A canvas sack under the postal seal. Nobody may open it, the courier included.
+MAIL_SACK_DESC,"A canvas sack closed with a postal seal that nobody may break, the courier included.
 
 Bring it to the post office it is addressed to before its deadline."
 EMPTY_BOTTLE,Empty Bottle
@@ -368,47 +370,47 @@ BASIC_POISON_DESC,"A small vial of murky green liquid that smells of bitter almo
 
 Worked into a blade with Enchant Poison, every cut may leave it behind."
 ROUGH_AMETHYST,Rough Amethyst
-ROUGH_AMETHYST_DESC,"A violet crystal out of a shallow geode. The commonest gem in the world. It is still caught in rock.
+ROUGH_AMETHYST_DESC,"A violet crystal out of a shallow geode, still caught in rock.
 
-Gem Cutting turns it into a cut amethyst."
+The commonest gem in the world, and Gem Cutting turns it into a cut amethyst."
 ROUGH_EMERALD,Rough Emerald
-ROUGH_EMERALD_DESC,"A green crystal out of deep granite. It is still caught in rock.
+ROUGH_EMERALD_DESC,"A green crystal out of deep granite, still caught in rock.
 
 Gem Cutting turns it into a cut emerald."
 ROUGH_RUBY,Rough Ruby
-ROUGH_RUBY_DESC,"A deep red crystal out of marble. It is still caught in rock.
+ROUGH_RUBY_DESC,"A deep red crystal out of marble, still caught in rock.
 
 Gem Cutting turns it into a cut ruby."
 ROUGH_PYRELITH,Rough Pyrelith
-ROUGH_PYRELITH_DESC,"A gem that grew in the gas pockets of a cooled lava flow. It is warm to the touch. It is still caught in rock.
+ROUGH_PYRELITH_DESC,"A gem grown in the gas pockets of a cooled lava flow, still caught in rock and warm to the touch.
 
 Gem Cutting turns it into a cut pyrelith."
 ROUGH_DIAMOND,Rough Diamond
-ROUGH_DIAMOND_DESC,"The hardest stone there is, from the roots of the oldest land. It is still caught in rock.
+ROUGH_DIAMOND_DESC,"A clear, hard crystal from the roots of the oldest land, still caught in rock.
 
-Gem Cutting turns it into a cut diamond."
+Gem Cutting turns the hardest stone there is into a cut diamond."
 CUT_AMETHYST,Cut Amethyst
-CUT_AMETHYST_DESC,"A faceted amethyst. It has no power of its own.
+CUT_AMETHYST_DESC,"A faceted violet amethyst, clear and empty of any power of its own.
 
 Runic Etching binds an essence of a Bestia up to level 20 into it."
 CUT_EMERALD,Cut Emerald
-CUT_EMERALD_DESC,"A faceted emerald. It has no power of its own.
+CUT_EMERALD_DESC,"A faceted green emerald, clear and empty of any power of its own.
 
 Runic Etching binds an essence of a Bestia up to level 40 into it."
 CUT_RUBY,Cut Ruby
-CUT_RUBY_DESC,"A faceted ruby. It has no power of its own.
+CUT_RUBY_DESC,"A faceted ruby, deep red and empty of any power of its own.
 
 Runic Etching binds an essence of a Bestia up to level 60 into it."
 CUT_PYRELITH,Cut Pyrelith
-CUT_PYRELITH_DESC,"A faceted pyrelith. It has no power of its own.
+CUT_PYRELITH_DESC,"A faceted pyrelith, faintly warm and empty of any power of its own.
 
 Runic Etching binds an essence of a Bestia up to level 80 into it."
 CUT_DIAMOND,Cut Diamond
-CUT_DIAMOND_DESC,"A faceted diamond. It has no power of its own.
+CUT_DIAMOND_DESC,"A faceted diamond, bright and empty of any power of its own.
 
 Runic Etching binds the essence of a Bestia of any level into it."
 ESSENCE_GEM,Essence Gem
-ESSENCE_GEM_DESC,"A cut gem with the essence of a Bestia bound inside. It glows with the creature's power.
+ESSENCE_GEM_DESC,"A cut gem with the essence of a Bestia bound inside, glowing with the creature's power.
 
 It fits into any socket."
 RESIN,Resin
@@ -426,15 +428,15 @@ Set it down and it becomes a forge - once somebody puts the work in."
 CHEST_KIT,Chest Kit
 CHEST_KIT_DESC,"Planks, two iron bands and a hasp, waiting to be a chest.
 
-Set it down and it becomes a chest only you can open. Whoever breaks it can take what spills."
+Set it down and it becomes a chest only you can open, though whoever breaks it takes what spills."
 MINING_SHAFT_KIT,Mining Shaft Kit
 MINING_SHAFT_KIT_DESC,"Beams for a head frame, a windlass and a coil of rope.
 
-Set it down and it becomes a mining shaft. Your bestias dig the ore below it while you are away."
+Set it down and it becomes a mining shaft, where your bestias dig the ore below while you are away."
 CAMPFIRE_KIT,Campfire Kit
 CAMPFIRE_KIT_DESC,"Kindling, a few stones and a lump of resin to get it going.
 
-Set it down to light a campfire. It burns half an hour, longer with more wood."
+Set it down to light a campfire that burns half an hour, longer with more wood."
 ITEM_WEAPON_DAGGER,Dagger
 ITEM_WEAPON_FIST,Fist weapon
 ITEM_WEAPON_WHIP,Whip
@@ -496,7 +498,7 @@ LIGHT_CROSSBOW_DESC,A light crossbow with a goat's-foot lever. Shoots bolts from
 IRON_BOLT,Iron Bolt
 IRON_BOLT_DESC,"A short, heavy crossbow bolt with an iron head."
 LEATHER_SLING,Leather Sling
-LEATHER_SLING_DESC,"A strap and a pouch. Every master can use one, and every child can."
+LEATHER_SLING_DESC,"A leather strap with a worn pouch at its middle. Every master can use one, and so can every child."
 SLING_STONE,Sling Stone
 SLING_STONE_DESC,A smooth river stone the size of an egg.
 JAVELIN,Javelin
@@ -514,12 +516,11 @@ MANA_CONCENTRATE_DESC,"Mana pressed into a heavy, glowing paste.
 
 Laid into the ground in a ring, it holds a ritual."
 FOCUS_STONE,Focus Stone
-FOCUS_STONE_DESC,"A smooth, carved stone. Set in the middle of a Mana Circle, it gathers what the ring holds."
+FOCUS_STONE_DESC,"A smooth stone carved with a spiral. Set in the middle of a Mana Circle, it gathers what the ring holds."
 MANA_CIRCLE_KIT,Mana Circle Kit
 MANA_CIRCLE_KIT_DESC,"Five measures of Mana Concentrate and a focus stone, ready to be laid out.
 
-Placed on the ground it becomes a Mana Circle: up to five helpers join its leader, and after half a minute
-of channeling the leader's next skill is charged. The ring is used up by the ritual."
+Laid on the ground it becomes a Mana Circle, which charges its leader's next skill after half a minute of channelling with up to five helpers."
 THEODOLITE_KIT,Theodolite Kit
 THEODOLITE_KIT_DESC,"A brass sighting scope and a folding tripod.
 
@@ -527,15 +528,15 @@ Set up on open ground, it is where Cartography surveys the land around it."
 INK,Ink
 INK_DESC,A small bottle of black ink. Every try at a survey spends one.
 MEDICINAL_HERB,Medicinal Herb
-MEDICINAL_HERB_DESC,A healing herb of the forest floor. A base ingredient for many potions.
+MEDICINAL_HERB_DESC,A sprig of broad green leaves from the forest floor. A base ingredient for many potions.
 MANA_HERB,Mana Herb
-MANA_HERB_DESC,A mana-touched herb that only grows where the mana runs strong.
+MANA_HERB_DESC,A herb with faintly glowing blue veins in its leaves. It only grows where the mana runs strong.
 FROST_HERB,Frost Herb
-FROST_HERB_DESC,"A tough little herb of the tundra, the taiga and the high mountains."
+FROST_HERB_DESC,"A tough little herb with frost-silvered leaves. It grows in the tundra, the taiga and the high mountains."
 SUN_HERB,Sun Herb
-SUN_HERB_DESC,A sun-dried herb of the desert and the badlands.
+SUN_HERB_DESC,A brittle herb dried golden by the sun. It grows in the desert and the badlands.
 GHOST_HERB,Ghost Herb
-GHOST_HERB_DESC,A pale herb that only grows on blighted ground.
+GHOST_HERB_DESC,"A pale, almost see-through herb. It only grows on blighted ground."
 POST_OFFICE_KIT,Post Office Kit
 POST_OFFICE_KIT_DESC,"Beams, a counter, sorting shelves and a post horn, lashed onto a sledge.
 
@@ -569,17 +570,17 @@ STURGEON_DESC,"An old, armoured fish from the deep channels. Some say they live 
 SWORDFISH,Swordfish
 SWORDFISH_DESC,"A fast fish with a long, flat bill. It fights the line like a duelist."
 MOONSCALE,Moonscale
-MOONSCALE_DESC,Its pale scales glow faintly at night. Alchemists grind them for their brews.
+MOONSCALE_DESC,A slim fish whose pale scales glow faintly at night. Alchemists grind them for their brews.
 DEEPMAW,Deepmaw
 DEEPMAW_DESC,A dark fish that is mostly mouth. It rarely leaves the cold water at the bottom.
 ABYSSAL_LANTERNFISH,Abyssal Lanternfish
 ABYSSAL_LANTERNFISH_DESC,A fish with a little light hanging over its head. Nobody knows how deep it lives.
 OLD_BOOT,Old Boot
-OLD_BOOT_DESC,"Soaked, rotten and missing its partner. Every angler catches one sooner or later."
+OLD_BOOT_DESC,"A soaked, rotten boot, missing its partner. Every angler catches one sooner or later."
 DRIFTWOOD,Driftwood
 DRIFTWOOD_DESC,"A grey piece of wood, washed smooth by the water. It burns well once it dries."
 TANGLED_NET,Tangled Net
-TANGLED_NET_DESC,"Somebody else's net, knotted beyond use. The cord can still be picked apart."
+TANGLED_NET_DESC,"A sodden fishing net, knotted beyond use. The cord can still be picked apart."
 SEALED_BOTTLE,Sealed Bottle
 SEALED_BOTTLE_DESC,A bottle with a wax seal and a rolled paper inside. Collectors pay well for one unopened.
 SHOVEL,Shovel
@@ -587,17 +588,17 @@ SHOVEL_DESC,"A wooden spade on a long handle, its blade hardened in the fire.
 
 Whatever somebody buried, this is how it comes back up."
 TREASURE_MAP,Treasure Map
-TREASURE_MAP_DESC,"A hand-drawn map with a circle inked on it.
+TREASURE_MAP_DESC,"A creased, hand-drawn map with a circle inked on it.
 
-Something is buried somewhere inside the circle. Whoever digs it up first keeps it."
+Something is buried inside the circle, and whoever digs it up first keeps it."
 CRUMBLED_TREASURE_MAP,Crumbled Treasure Map
 CRUMBLED_TREASURE_MAP_DESC,"A treasure map gone brittle and blank.
 
 Somebody has already dug up what it showed."
 RELIC_BLADE,Old Blade
-RELIC_BLADE_DESC,"A blade from before the oldest town still standing, its edge still keen.
+RELIC_BLADE_DESC,"A long blade of dark, pitted steel, its edge still keen.
 
-The chronicle knows who forged it and whose hands it passed through."
+It is older than the oldest town still standing, and the chronicle knows whose hands it passed through."
 RELIC_CROWN,Old Crown
 RELIC_CROWN_DESC,"A circlet of worked metal, dented where it was taken from a fallen head.
 
@@ -609,7 +610,7 @@ The chronicle remembers whose hand it sealed for."
 RELIC_RELIQUARY,Old Reliquary
 RELIC_RELIQUARY_DESC,"A small sealed casket on a chain, holding what someone thought holy.
 
-Nobody has opened it. The chronicle says why it was made."
+Nobody has opened it, and the chronicle says why it was made."
 RELIC_TOME,Old Tome
 RELIC_TOME_DESC,"A thick book bound in boards, its pages brown but still legible.
 
@@ -627,7 +628,7 @@ NESTING_BUNDLE_DESC,"Reeds, fur and feathers bound into a nest.
 
 A Breeding Farm uses up one for each clutch."
 BESTIA_EGG,bestia egg
-BESTIA_EGG_DESC,"A bestia egg from a Breeding Farm, still warm.
+BESTIA_EGG_DESC,"A speckled egg the size of two fists, still warm from the nest.
 
 It only hatches in an Incubator."
 INCUBATOR_KIT,incubator kit
@@ -635,9 +636,9 @@ INCUBATOR_KIT_DESC,"Fired bricks around an ember core, with a padded nest on top
 
 Set it down and it becomes an Incubator, which keeps one egg warm until it hatches."
 YELLOW_MANA_CRYSTAL,Yellow Mana Crystal
-YELLOW_MANA_CRYSTAL_DESC,A rare yellow crystal of mana. Dispel burns one to unravel what clings to a target.
+YELLOW_MANA_CRYSTAL_DESC,A rare mana crystal with a warm golden glow. Dispel burns one to unravel what clings to a target.
 BLUE_MANA_CRYSTAL,Blue Mana Crystal
-BLUE_MANA_CRYSTAL_DESC,A common blue crystal of mana. Endow burns one to carry an element into a weapon.
+BLUE_MANA_CRYSTAL_DESC,"A mana crystal with a cool blue glow, the commonest kind. Endow burns one to carry an element into a weapon."
 TELEPORT_RUNE,Teleport Rune
 TELEPORT_RUNE_DESC,A small stone carved with a rune of passage. Teleport burns one.
 PORTAL_RUNE,Portal Rune
@@ -645,11 +646,11 @@ PORTAL_RUNE_DESC,A heavy stone carved with a rune that holds a door open. Warp P
 BLANK_SPELL_SCROLL,Blank Spell Scroll
 BLANK_SPELL_SCROLL_DESC,"A sheet of fine vellum, primed to hold a spell. Spell Inscription writes an attack onto it."
 SPELL_SCROLL,Spell Scroll
-SPELL_SCROLL_DESC,"A scroll with an attack written on it.
+SPELL_SCROLL_DESC,"A rolled scroll with a spell written across it in a tight hand.
 
-Read from the bag, it casts its attack once, with no mana. Spell Training teaches it to a bestia instead."
+Read from the bag, it casts its attack once without mana, or Spell Training teaches it to a bestia instead."
 RED_MANA_CRYSTAL,Red Mana Crystal
-RED_MANA_CRYSTAL_DESC,A red crystal of mana. Stone Curse burns one to turn flesh to stone.
+RED_MANA_CRYSTAL_DESC,A mana crystal with a deep crimson glow. Stone Curse burns one to turn flesh to stone.
 HUNTING_BOW,Hunting Bow
 HUNTING_BOW_DESC,"A yew bow with horn tips, made to bring down game.
 
@@ -1008,10 +1009,10 @@ COMBAT_KNIFE_DESC,"A heavy single-edged knife with a clipped point, made for a f
 GREAT_KNIFE_DESC,"A knife grown nearly to a short sword, still worn at the belt."
 BRONZE_STILETTO_DESC,"A needle of bronze with no edge at all, only a point."
 ALCHEMISTS_LANCET_DESC,A surgeon's lancet with a hollow groove that carries whatever was last poured into it.
-ASSASSINS_DAGGER_DESC,"Blackened so it does not catch the light, and balanced for the hand that never misses twice."
+ASSASSINS_DAGGER_DESC,"A blackened dagger that does not catch the light, balanced for a hand that never misses twice."
 GEARWORK_DIRK_DESC,A dirk whose hilt hides a small spring that snaps the blade forward on the thrust.
 NIGHTGLASS_KRIS_DESC,A wavy blade of dark volcanic glass bound to steel. It is colder than the air around it.
-WHISPER_OF_THE_VEIL_DESC,Nobody remembers the smith who made it. Nobody it was used on remembers it either.
+WHISPER_OF_THE_VEIL_DESC,"A thin grey blade that seems to fade at the edges when it moves. Nobody remembers the smith who made it, and nobody it was used on remembers it either."
 HAND_WRAPS_DESC,Strips of linen wound tight around the knuckles.
 CESTUS_DESC,Leather thongs with a strip of hard hide over the fist.
 KNUCKLEDUSTER_DESC,A bar of iron with four holes for four fingers.
@@ -1031,7 +1032,7 @@ SILKEN_SCOURGE_DESC,Three tails of dyed silk that sing in the air when they move
 BARBED_LASH_DESC,A leather lash with small iron barbs woven into its last span.
 SERPENT_CHAIN_WHIP_DESC,Scaled steel links that move like a snake and end in a fanged weight.
 RIBBON_OF_THE_MASQUE_DESC,"A dancer's ribbon of crimson silk, edged with fine wire."
-TONGUE_OF_THE_TEMPEST_DESC,The crack of this whip arrives a moment before the thunder does.
+TONGUE_OF_THE_TEMPEST_DESC,A long black lash that smells faintly of rain. Its crack arrives a moment before the thunder does.
 SHORT_SWORD_DESC,"A short straight blade, the length of a forearm."
 GLADIUS_DESC,"A broad, leaf-shaped stabbing sword with a round pommel."
 ARMING_SWORD_DESC,"A plain cruciform sword, the everyday blade of anyone who expects trouble."
@@ -1045,13 +1046,13 @@ GILDED_TONGUE_DESC,A gold-chased sabre that has settled more arguments than any 
 HAND_AXE_DESC,A small axe for kindling and for anything else that needs splitting.
 BEARDED_AXE_DESC,"An axe whose blade hangs low below the haft, good for hooking as well as cutting."
 BROAD_AXE_DESC,"A wide, flat axe head on a short haft."
-WOODWARDS_AXE_DESC,"The axe of the forest wardens, light enough to carry all day."
-SMITHS_HEWING_AXE_DESC,"A smith's test piece: if it holds an edge through oak, the steel is good."
+WOODWARDS_AXE_DESC,"A slender axe with a green-painted haft, light enough to carry all day. Forest wardens wear one at the belt."
+SMITHS_HEWING_AXE_DESC,"A broad hewing axe with the smith's mark stamped on the cheek. It is a test piece: if it holds an edge through oak, the steel is good."
 STEEL_WAR_AXE_DESC,"A steel axe with a spike on the back, made for war and nothing else."
 CRESCENT_AXE_DESC,A half-moon blade that bites deep and pulls free easily.
 RUNED_TOMAHAWK_DESC,A light axe with runes cut along the haft by a hand that knew what they meant.
-BLACKIRON_CLEAVER_DESC,"Dark iron, folded and folded again until it rings like a bell."
-HEARTWOOD_CLEAVER_DESC,"Its haft was cut from the heart of a living tree, and it has never quite stopped growing."
+BLACKIRON_CLEAVER_DESC,"A heavy cleaver of dark iron, folded and folded again until it rings like a bell."
+HEARTWOOD_CLEAVER_DESC,A broad cleaver on a haft of pale heartwood that still puts out the odd leaf. It was cut from the heart of a living tree.
 CUDGEL_DESC,A knotted club of hardwood.
 FLANGED_MACE_DESC,An iron head of six flanges on a wooden haft.
 SPIKED_CLUB_DESC,A heavy club studded with iron nails.
@@ -1059,9 +1060,9 @@ MORNING_STAR_DESC,A spiked iron ball on a short shaft.
 PICKHEAD_MACE_DESC,A miner's mace with a pick on the back for loosening ore and enemies alike.
 CENSER_FLAIL_DESC,A swinging censer on a chain. The smoke it trails is holy; the weight is not.
 ALEMBIC_MACE_DESC,A mace whose hollow head holds a sealed flask of something better left sealed.
-OREBREAKER_MACE_DESC,"Forged to crack ore that a pick will not, and it does not much care what else it cracks."
+OREBREAKER_MACE_DESC,"A squat mace with a blunt, hardened head. It was forged to crack ore that a pick will not, and does not much care what else it cracks."
 WARDENS_HOLY_MACE_DESC,A silvered mace blessed over a grave that never stayed shut.
-DAWNBRINGER_DESC,"Its head glows faintly an hour before sunrise, every morning, wherever it is."
+DAWNBRINGER_DESC,"A golden mace with a sunburst head. It glows faintly an hour before sunrise, every morning, wherever it is."
 WOODEN_SPEAR_DESC,A straight ash pole sharpened at one end.
 FIRE_HARDENED_SPEAR_DESC,A wooden spear whose point was hardened in the coals.
 SHORT_SPEAR_DESC,An iron spearhead on a shaft as long as a man is tall.
@@ -1071,27 +1072,27 @@ TRIDENT_DESC,"Three barbed tines, made for fish and used for everything else."
 WINGED_SPEAR_DESC,A spear with two short wings below its head to stop a charge.
 PROSPECTORS_PIKE_DESC,A long pike with a sounding rod hidden in its butt.
 HUNTING_PARTISAN_DESC,"A broad-bladed spear with side lugs, for game that bites back."
-LODESTAR_PIKE_DESC,Its iron head always turns a little toward the nearest vein of ore.
+LODESTAR_PIKE_DESC,"A long pike with a dark, magnetised iron head. It always turns a little toward the nearest vein of ore."
 TWO_HANDED_SWORD_DESC,"A long, plain blade that needs both hands and a lot of room."
 ZWEIHANDER_DESC,A huge sword with a leather-wrapped ricasso to grip above the guard.
 FLAMBERGE_DESC,A greatsword with a wavy blade that saws as well as cuts.
 CLAYMORE_DESC,A greatsword with a forward-sloping guard ending in quatrefoils.
-EXECUTIONERS_SWORD_DESC,Square-tipped and perfectly balanced for one kind of stroke.
+EXECUTIONERS_SWORD_DESC,"A broad, square-tipped blade with no point at all, balanced for one kind of stroke."
 STEEL_GREATBLADE_DESC,"Good steel, a lot of it, in the shape of a sword."
-RUNEBLADE_DESC,Runes run the length of the fuller and glow when the blade is drawn in anger.
-WYRMBONE_GREATSWORD_DESC,Its core is a rib from something that breathed fire. It is still warm.
+RUNEBLADE_DESC,A greatsword with runes cut the length of its fuller. They glow when the blade is drawn in anger.
+WYRMBONE_GREATSWORD_DESC,A pale greatsword built around a rib from something that breathed fire. It is still warm.
 SUNDERER_DESC,A slab of a sword that splits shields as readily as it splits the men behind them.
-OATHKEEPER_DESC,"It cannot be drawn against anyone its bearer has sworn to protect, or so the knights say."
+OATHKEEPER_DESC,"A plain knightly greatsword with an oath engraved down the blade. It cannot be drawn against anyone its bearer has sworn to protect, or so the knights say."
 WOODSPLITTER_DESC,"A splitting maul with an axe's edge, for firewood and worse."
 GREATAXE_DESC,A broad axe head on a long two-handed haft.
-WOODCUTTERS_GREATAXE_DESC,The felling axe of a woodcutter who got tired of being robbed.
-DOUBLE_BITTED_AXE_DESC,"Two edges, so the backswing is not wasted."
+WOODCUTTERS_GREATAXE_DESC,"A long felling axe with a notched, well-used edge. It belonged to a woodcutter who got tired of being robbed."
+DOUBLE_BITTED_AXE_DESC,"A greataxe with a blade on either side of the haft, so the backswing is not wasted."
 BEARDED_GREATAXE_DESC,A greataxe with a long hooked beard for pulling riders out of saddles.
 QUARRY_BREAKER_DESC,A quarryman's axe with a hardened wedge behind the blade.
 MOON_AXE_DESC,A crescent blade as wide as a man's chest.
-IRONBARK_REAVER_DESC,"Its haft is ironbark, which no blade has ever cut through."
-FORGEMASTERS_LABRYS_DESC,"A double axe a forgemaster makes once, to prove they can."
-VEINSPLITTER_DESC,"It follows the grain of the stone, and the stone opens."
+IRONBARK_REAVER_DESC,A heavy reaving axe on a haft of dark ironbark. No blade has ever cut through that wood.
+FORGEMASTERS_LABRYS_DESC,"A polished double axe etched with its maker's mark. A forgemaster makes one once, to prove they can."
+VEINSPLITTER_DESC,"A narrow-bladed greataxe with a vein of quartz running through the steel. It follows the grain of the stone, and the stone opens."
 MALLET_DESC,A big wooden mallet for driving stakes.
 STONE_MAUL_DESC,A river stone lashed to a stout haft.
 SLEDGEHAMMER_DESC,An iron sledge for breaking rock.
@@ -1099,9 +1100,9 @@ WAR_MAUL_DESC,A sledgehammer with a flat face and a spiked back.
 FORGE_HAMMER_DESC,"A smith's great hammer, as at home on an anvil as on a skull."
 BRONZE_HEADED_MAUL_DESC,A maul with a bronze head that never sparks in the gas-filled deep.
 PICK_HAMMER_DESC,A hammer on one side and a pick on the other.
-EARTHSHAKER_MAUL_DESC,"When it strikes the ground, the ground remembers."
+EARTHSHAKER_MAUL_DESC,"A massive maul with a head of rough-cast iron the size of a keg. When it strikes the ground, the ground remembers."
 TEMPLARS_WARHAMMER_DESC,A warhammer with a prayer engraved on every face.
-ANVILHEART_DESC,Its head was the first anvil of a forge that has burned for three hundred years.
+ANVILHEART_DESC,A hammer whose blackened head was once an anvil. It came from a forge that has burned for three hundred years.
 BILLHOOK_DESC,A farmer's hedging blade on a long pole.
 BARDICHE_DESC,A long axe blade fixed to its pole at two points.
 GUISARME_DESC,A pole blade with a hook for pulling a rider down.
@@ -1110,47 +1111,47 @@ LUCERNE_HAMMER_DESC,"A pronged hammer head with a spike above it, on a long pole
 VOULGE_DESC,A heavy cleaver blade lashed to a pole.
 BEC_DE_CORBIN_DESC,"A crow's-beak spike backed by a hammer, for plate armor and what is inside it."
 STEEL_HALBERD_DESC,"An axe, a spike and a hook on one shaft of good steel."
-WARDENS_PARTISAN_DESC,"The ceremonial polearm of a city's wardens, and not only ceremonial."
-SKYRENDER_HALBERD_DESC,Legend says it was forged to cut a storm in half. The scar in the clouds over the forge has never healed.
+WARDENS_PARTISAN_DESC,"A broad partisan with a tassel in the city's colours below the head. It is the wardens' ceremonial polearm, and not only ceremonial."
+SKYRENDER_HALBERD_DESC,"A tall halberd whose blade shimmers like a storm cloud. Legend says it was forged to cut a storm in half, and the clouds over its forge never healed."
 WALKING_STICK_DESC,A good straight stick. Every journey starts with one.
 QUARTERSTAFF_DESC,"An oak staff as tall as its owner, for fighting rather than for spells."
 WILLOW_STAFF_DESC,A supple willow staff that bends toward the one who holds it.
 IRON_SHOD_QUARTERSTAFF_DESC,A quarterstaff with iron caps at both ends.
-PILGRIMS_STAFF_DESC,The staff of a pilgrim who has walked every holy road twice.
+PILGRIMS_STAFF_DESC,"A tall staff hung with shrine tokens, worn thin at the grip. Its pilgrim walked every holy road twice."
 BRASS_CONDUIT_STAFF_DESC,A brass tube full of copper coils. It hums when a spell runs through it.
 IRONWOOD_BO_DESC,"A fighting staff of ironwood, heavy enough to break a sword."
 SAGES_ROOTSTAFF_DESC,"A staff grown, not carved, from the root of an old tree."
 STAFF_OF_MENDING_LIGHT_DESC,A white staff topped with a lantern that never needs oil.
-STAFF_OF_THE_SEVENTH_EMBER_DESC,Six embers were lit from the first fire. This staff holds the seventh.
+STAFF_OF_THE_SEVENTH_EMBER_DESC,"A charred black staff with a live ember caged at its tip. Six embers were lit from the first fire, and this staff holds the seventh."
 TWIG_WAND_DESC,"A twig, trimmed and peeled. It works better than it should."
 BIRCH_WAND_DESC,A pale birch wand with the bark left on the grip.
-APPRENTICES_WAND_DESC,"The wand every apprentice is handed on the first day, and keeps longer than they admit."
+APPRENTICES_WAND_DESC,"A plain wand of polished ash, scuffed at the tip. Every apprentice is handed one on the first day, and keeps it longer than they admit."
 BONE_WAND_DESC,A wand carved from a long bone. Nobody asks whose.
 CRYSTAL_TIPPED_WAND_DESC,A rowan wand capped with a clear quartz point.
 TINKERS_SPARK_ROD_DESC,A copper rod with a ceramic grip that throws sparks when shaken.
 CORAL_WAND_DESC,A branch of red coral from a reef no ship has found twice.
 OBSIDIAN_WAND_DESC,"A shard of black glass, sharp enough to cut the hand that holds it carelessly."
-LEY_IRON_SCEPTER_DESC,Iron drawn from where the ley lines cross. Compasses spin near it.
-STARFALL_WAND_DESC,Carved from a fallen star. On clear nights it points to the place in the sky it came from.
+LEY_IRON_SCEPTER_DESC,"A short scepter of dark, faintly glittering iron, drawn from where the ley lines cross. Compasses spin near it."
+STARFALL_WAND_DESC,"A wand of pitted, silvery stone carved from a fallen star. On clear nights it points to the place in the sky it came from."
 PRIMER_DESC,A thin book of first words and first signs.
 PRIMER_OF_SPARKS_DESC,A primer whose every page is singed at the edge.
 HYMNAL_DESC,"A worn book of hymns, its spine cracked open at the favourite ones."
-FIELD_HERBARIUM_DESC,Pressed leaves and careful notes on what heals and what kills.
-BOOK_OF_PSALMS_DESC,"Bound in white leather, with a ribbon for every hour of prayer."
-GRIMOIRE_OF_ASH_DESC,"Its pages are grey and powdery, and the writing only shows when it is warm."
-ANNOTATED_BESTIARY_DESC,"Drawings of every creature its author survived, and notes on the ones they did not expect to."
-ATLAS_OF_LEY_LINES_DESC,A book of maps where the roads are rivers of power instead of stone.
-LITURGY_OF_THE_LANTERN_DESC,"The rites of the lamplighters, who keep the dark from the door."
-CODEX_OF_UNWRITTEN_PAGES_DESC,"Every page is blank until its reader needs it, and then it is the right page."
+FIELD_HERBARIUM_DESC,A fat notebook of pressed leaves and careful notes on what heals and what kills.
+BOOK_OF_PSALMS_DESC,"A book of psalms bound in white leather, with a ribbon for every hour of prayer."
+GRIMOIRE_OF_ASH_DESC,"A grimoire with grey, powdery pages. The writing only shows when it is warm."
+ANNOTATED_BESTIARY_DESC,"A thick, battered book of creature drawings crowded with margin notes. Its author survived every one of them, some only just."
+ATLAS_OF_LEY_LINES_DESC,"A heavy atlas bound in blue leather, its maps traced in faintly glowing lines. The roads it shows are rivers of power instead of stone."
+LITURGY_OF_THE_LANTERN_DESC,"A small, soot-stained book with a lantern stamped on its cover. It holds the rites of the lamplighters, who keep the dark from the door."
+CODEX_OF_UNWRITTEN_PAGES_DESC,"A thick codex whose every page is blank. Each one fills in when its reader needs it, and it is always the right page."
 SHORT_BOW_DESC,"A short, simple bow of one piece of wood."
 YEW_SHORTBOW_DESC,A yew bow cut to be drawn quickly from the saddle.
 LONGBOW_DESC,"A bow as tall as its archer, with the reach to match."
-RECURVE_BOW_DESC,"Its tips curve away from the archer, storing more force than its length suggests."
-HORN_BOW_DESC,"Horn, wood and sinew, glued in layers by a patient bowyer."
+RECURVE_BOW_DESC,"A short bow whose tips curve away from the archer, storing more force than its length suggests."
+HORN_BOW_DESC,"A bow of horn, wood and sinew, glued in layers by a patient bowyer."
 COMPOSITE_LONGBOW_DESC,"A longbow backed with sinew, which keeps its strength in the wet."
-ELMWOOD_WARBOW_DESC,A heavy warbow. Few can draw it twice in a row.
-SONGSTRING_BOW_DESC,Its string hums a different note for every arrow.
-WINDRUNNERS_LONGBOW_DESC,Arrows from this bow seem to ride the wind rather than fight it.
+ELMWOOD_WARBOW_DESC,A thick-limbed warbow of elm. Few can draw it twice in a row.
+SONGSTRING_BOW_DESC,A slender bow strung with fine silver wire. It hums a different note for every arrow.
+WINDRUNNERS_LONGBOW_DESC,A pale longbow wrapped in grey feathers at the grip. Arrows from it seem to ride the wind rather than fight it.
 WOODEN_CROSSBOW_DESC,"A wooden crossbow spanned by hand. Slow, but anyone can use it."
 HUNTING_CROSSBOW_DESC,A light crossbow for birds and small game.
 STIRRUP_CROSSBOW_DESC,A crossbow with an iron stirrup to brace it with the foot while spanning.
@@ -1158,19 +1159,19 @@ ARBALEST_DESC,A heavy crossbow with a steel prod.
 STEEL_ARBALEST_DESC,"An all-steel arbalest, heavier than the man who carries it would like."
 CARAVAN_GUARD_CROSSBOW_DESC,A short crossbow that can be spanned and shot from a moving wagon.
 REPEATING_CROSSBOW_DESC,A crossbow with a magazine on top. Pump the lever and it shoots again.
-WINDLASS_ARBALEST_DESC,"Spanned with a windlass, and it punches through a door."
-GEARWORK_SIEGE_CROSSBOW_DESC,Brass gears span it in a heartbeat. The noise gives away the shooter.
-CLOCKWORK_ARBALEST_DESC,"Its mechanism ticks like a clock, and it always shoots on the stroke."
+WINDLASS_ARBALEST_DESC,A heavy arbalest with a crank windlass at its butt. It punches through a door.
+GEARWORK_SIEGE_CROSSBOW_DESC,A heavy crossbow wrapped in brass gears that span it in a heartbeat. The noise gives away the shooter.
+CLOCKWORK_ARBALEST_DESC,"An arbalest with a clock face set into its stock. Its mechanism ticks, and it always shoots on the stroke."
 TIN_WHISTLE_DESC,A cheap tin whistle with six holes. Play it well and nobody cares that it was cheap.
 REED_FLUTE_DESC,A flute cut from a riverside reed.
 HAND_DRUM_DESC,A small skin drum played with the fingers.
 TRAVELLERS_MANDOLIN_DESC,"A small mandolin, sturdy enough to survive the road."
-BAGPIPES_DESC,"Loud enough to be heard over a battle, which is what they were made for."
-FIDDLE_DESC,A fiddle that has played at more weddings than it can count.
+BAGPIPES_DESC,"A leather bag sprouting three drones and a chanter. Loud enough to be heard over a battle, which is what they were made for."
+FIDDLE_DESC,"A dark, scratched fiddle with a fraying bow. It has played at more weddings than it can count."
 WARBAND_DRUM_DESC,A war drum whose beat keeps a column marching long after its legs want to stop.
 SILVER_HARP_DESC,A small harp strung with silver wire.
-HURDY_GURDY_OF_HOURS_DESC,"Turn the crank and it plays a tune nobody wrote, slightly different every hour."
-LYRE_OF_THE_LAST_VERSE_DESC,It knows one more verse than any song has. Nobody has yet heard it played to the end.
+HURDY_GURDY_OF_HOURS_DESC,"A painted hurdy-gurdy with a small clock face on its crank. It plays a tune nobody wrote, slightly different every hour."
+LYRE_OF_THE_LAST_VERSE_DESC,"A lyre of pale wood with one string more than it should have. It knows one more verse than any song has, and nobody has heard it played to the end."
 THROWING_KNIFE_DESC,"A small, flat knife balanced to turn once in the air. Each throw spends one."
 DARTS_DESC,Weighted darts with feather flights. Each throw spends one.
 THROWING_AXE_DESC,"A small axe with a short haft, made to be thrown. Each throw spends one."
@@ -1189,8 +1190,8 @@ FORKED_SLINGSHOT_DESC,"A forked branch and a strip of elastic gut. Aimed, not sw
 BALEARIC_SLING_DESC,"The long sling of the island slingers, who were said to never miss."
 SILK_SLING_DESC,"Silk cords and a fine leather cradle, light as nothing."
 GIANT_HUNTERS_SLING_DESC,"A long, heavy sling for stones the size of a fist."
-STORMCORD_SLING_DESC,Its cords were braided during a storm and still crackle faintly.
-SHEPHERD_KINGS_SLING_DESC,The sling of a shepherd who became a king by bringing down a giant.
+STORMCORD_SLING_DESC,"A sling of grey, frayed cords that still crackle faintly. They were braided during a storm."
+SHEPHERD_KINGS_SLING_DESC,"A plain, much-mended wool sling. Its shepherd became a king by bringing down a giant."
 PLAIN_ROBE_DESC,A plain robe of undyed wool.
 WOVEN_ROBE_DESC,A robe woven with a faint pattern of stars.
 ACOLYTES_CASSOCK_DESC,The black cassock of a temple acolyte.
@@ -1201,14 +1202,14 @@ SILKWEAVE_VESTMENT_DESC,A vestment of fine silk that feels cool even in the sun.
 ROBE_OF_THE_ASHEN_CIRCLE_DESC,The grey robe of a circle of fire-mages. It cannot be burned.
 MANTLE_OF_THE_STARLIT_CHOIR_DESC,A deep blue mantle that shows the night sky as it was the night it was woven.
 PADDED_GAMBESON_DESC,A quilted jacket of many layers of linen.
-HIDE_VEST_DESC,A vest of tanned hide.
+HIDE_VEST_DESC,"A sleeveless vest of tanned hide, laced at the sides."
 HUNTERS_LEATHERS_DESC,Soft leathers dyed in the colours of the forest floor.
 BOILED_LEATHER_CUIRASS_DESC,"Leather boiled in wax and shaped while hot, hard as wood."
 MINSTRELS_DOUBLET_DESC,"A slashed doublet in bright colours, with hidden leather beneath."
 SHADOWWEAVE_JERKIN_DESC,A black jerkin that seems to blur at the edges when it moves.
 PUGILISTS_WRAP_VEST_DESC,Layered wraps of cloth and leather that leave the arms free.
-TRAILWARDEN_LEATHERS_DESC,"The leathers of the trailwardens, who walk the borders for a lifetime."
-HIDE_OF_THE_NIGHTSTALKER_DESC,Tanned from a beast that hunted only in the dark. It still prefers the dark.
+TRAILWARDEN_LEATHERS_DESC,"Weathered brown leathers, patched at knee and elbow. Trailwardens wear them for a lifetime of walking the borders."
+HIDE_OF_THE_NIGHTSTALKER_DESC,"A coat of black, short-haired hide from a beast that hunted only in the dark. It still prefers the dark."
 RING_MAIL_DESC,Iron rings sewn onto a leather coat.
 STUDDED_BRIGANDINE_DESC,A cloth coat lined with small iron plates and studded with rivets.
 SCALE_VEST_DESC,Overlapping iron scales on a leather backing.
@@ -1217,7 +1218,7 @@ LAMELLAR_COAT_DESC,"Small plates laced together in rows, light for how much it s
 WARDENS_SCALE_VEST_DESC,"Fine scales of blued steel, worn by the forest wardens."
 VESTMENTS_OF_THE_DAWN_DESC,"White vestments over a mail shirt, for a priest who expects to be attacked."
 ARTIFICERS_BRASS_HARNESS_DESC,A harness of brass plates with tool loops and a dozen pockets.
-DEEPFORGED_HAUBERK_DESC,"A hauberk forged at the bottom of a mine, in a forge that runs on the heat of the earth."
+DEEPFORGED_HAUBERK_DESC,"A dark, heavy hauberk with a faint red glow between its rings. It was forged at the bottom of a mine, on the heat of the earth."
 IRON_PLATE_COAT_DESC,"A coat of iron plates over padding. Heavy, and worth it."
 SPLINT_MAIL_DESC,Strips of iron riveted over mail.
 BANDED_PLATE_DESC,Horizontal bands of steel over a mail shirt.
@@ -1225,7 +1226,7 @@ STEEL_BREASTPLATE_DESC,A polished steel breastplate with a skirt of tassets.
 TEMPLARS_PLATE_DESC,White-enamelled plate with a red cross on the breast.
 BASTION_PLATE_DESC,Plate thick enough to stand in a gate and hold it.
 BLACKIRON_FULLPLATE_DESC,A full harness of black iron. It makes its wearer a wall.
-AEGIS_OF_THE_UNBROKEN_DESC,The armor of a knight who held a bridge alone for a day and a night. It bears every dent and none of the holes.
+AEGIS_OF_THE_UNBROKEN_DESC,"A full harness of battered steel, dented all over and pierced nowhere. Its knight held a bridge alone for a day and a night."
 FELT_HOOD_DESC,A simple felt hood that keeps the rain off.
 STRAW_HAT_DESC,A wide straw hat for long days in the field.
 WIZARDS_CONE_HAT_DESC,"A tall pointed hat. It is not just for show, though it is also for show."
@@ -1239,7 +1240,7 @@ FEATHERED_TRICORN_DESC,"A three-cornered hat with a long feather, worn at an ang
 RANGERS_HOOD_DESC,A hood of green leather that shades the eyes.
 ASSASSINS_COWL_DESC,A deep cowl and a mask in one.
 PLUMED_BARDS_CAP_DESC,A velvet cap with a plume that bobs when its wearer sings.
-HOOD_OF_THE_SILENT_HUNT_DESC,A hood that muffles its wearer's breath.
+HOOD_OF_THE_SILENT_HUNT_DESC,"A dark, close-fitting hood with a padded flap over the mouth. It muffles its wearer's breath."
 BRONZE_SALLET_DESC,A bronze helmet with a long tail over the neck.
 MINERS_LAMP_HELM_DESC,An iron helm with a bracket for a lamp on the brow.
 KETTLE_HAT_DESC,A wide-brimmed iron hat that keeps arrows and rain off alike.
@@ -1251,7 +1252,7 @@ GREAT_HELM_DESC,A flat-topped helm that covers the whole head.
 BASCINET_DESC,A pointed helm with a hinged visor.
 VISORED_BARBUTE_DESC,A close helm with a T-shaped opening and a sliding visor.
 CRESTED_WARHELM_DESC,A great helm crowned with a steel crest.
-WARHELM_OF_THE_IRON_TIDE_DESC,Worn by the captain who turned back the burning fleet. It still smells of smoke.
+WARHELM_OF_THE_IRON_TIDE_DESC,"A sea-blackened steel helm with a crest like a breaking wave. Its captain turned back the burning fleet, and it still smells of smoke."
 TRAVELLERS_CLOAK_DESC,A hooded travelling cloak of oiled wool.
 PILGRIMS_SHAWL_DESC,A shawl embroidered with the signs of every shrine its owner visited.
 SCHOLARS_MANTLET_DESC,A short shoulder mantle in the colours of an old academy.
@@ -1268,7 +1269,7 @@ HERALDS_TABARD_DESC,A tabard bearing a house's colours over a padded lining.
 FORESTERS_WEATHERCLOAK_DESC,A cloak of thick leather that has seen every season.
 MAIL_CAPE_DESC,A short cape of mail over the shoulders.
 KNIGHTS_WARCLOAK_DESC,"A heavy cloak lined with mail, clasped with the knight's own seal."
-ROPE_SANDALS_DESC,Sandals of plaited rope.
+ROPE_SANDALS_DESC,"Flat sandals of plaited rope, tied at the ankle."
 FELT_SLIPPERS_DESC,Soft felt slippers for long nights of study.
 PILGRIMS_SLIPPERS_DESC,Slippers with soles worn thin by a thousand miles of prayer.
 STARWALKER_SLIPPERS_DESC,Slippers of blue silk embroidered with constellations.
@@ -1278,7 +1279,7 @@ SILENT_STEP_BOOTS_DESC,"Boots with felt soles, made for walking where one should
 TROUBADOURS_BUCKLED_SHOES_DESC,"Pointed shoes with silver buckles, made for dancing."
 FIGHTERS_FOOT_WRAPS_DESC,Wraps of linen and leather that leave the toes free to grip.
 COURIERS_BOOTS_DESC,Light boots worn by the couriers who run the long roads.
-BOOTS_OF_THE_SEVEN_LEAGUES_DESC,Every step in them is a little longer than it should be.
+BOOTS_OF_THE_SEVEN_LEAGUES_DESC,"Tall, travel-worn boots with seven notches cut into each heel. Every step in them is a little longer than it should be."
 HOBNAILED_BOOTS_DESC,Heavy boots with iron nails in the soles for grip on rock.
 RIVETED_BOOTS_DESC,Boots reinforced with riveted iron strips.
 STRIDERS_BOOTS_DESC,Tall boots for long strides through deep forest.
@@ -1287,7 +1288,7 @@ DEEPDELVERS_BOOTS_DESC,"Boots made for the deepest shafts, where the floor is ne
 IRONSHOD_GREAVES_DESC,Iron greaves strapped over leather boots.
 PLATED_GREAVES_DESC,Steel greaves with articulated plates over the foot.
 SABATONS_OF_THE_BULWARK_DESC,Armored shoes that root their wearer to the spot.
-TREADS_OF_THE_LAST_STAND_DESC,Whoever wears these does not take a step back. They have never been made to.
+TREADS_OF_THE_LAST_STAND_DESC,"Heavy steel sabatons, scarred along the toes. Whoever wears them does not take a step back, and has never been made to."
 WICKER_BUCKLER_DESC,A small round shield of woven wicker.
 HIDE_TARGE_DESC,A round targe of hide stretched over a wooden frame.
 STUDDED_BUCKLER_DESC,A leather buckler studded with iron.
@@ -1301,7 +1302,7 @@ GEARLOCK_SHIELD_DESC,A shield that unfolds from a bracer at the turn of a key.
 IRON_PAVISE_DESC,A tall rectangular shield that can be set on the ground to stand behind.
 BULWARK_PAVISE_DESC,"A pavise of iron-faced oak, a wall in one hand."
 CATHEDRAL_TOWER_SHIELD_DESC,A tower shield with the window of a cathedral painted across it.
-BASTION_OF_THE_FIRST_WALL_DESC,"Cut from the first stone wall ever built around a city, and bound in iron."
+BASTION_OF_THE_FIRST_WALL_DESC,A slab of grey stone bound in iron straps. It was cut from the first wall ever built around a city.
 CRACKED_MONOCLE_DESC,A monocle with a crack across it. It still helps.
 LEATHER_EYEPATCH_DESC,An eyepatch. The eye beneath it is fine; the other one is better for it.
 CLOTH_FACE_MASK_DESC,A cloth tied over the mouth and nose against dust and fumes.
@@ -1316,11 +1317,11 @@ OWL_EYE_LENSES_DESC,Round amber lenses that make the night as clear as dusk.
 MASK_OF_THE_HOLLOW_CHOIR_DESC,A silver mask with an open mouth. Those who wear it hear singing.
 COPPER_BAND_DESC,A plain copper ring that turns the finger green.
 BONE_CHARM_DESC,"A carved bone on a cord, said to keep the dead at rest."
-IRON_RING_DESC,A heavy iron ring.
-RABBITS_FOOT_CHARM_DESC,"Lucky for its owner, if not for the rabbit."
+IRON_RING_DESC,"A heavy ring of black iron, plain and cold."
+RABBITS_FOOT_CHARM_DESC,"A rabbit's foot on a leather cord, worn bald in places. Lucky for its owner, if not for the rabbit."
 BRAWLERS_BRACER_DESC,A thick leather bracer that steadies the wrist for a punch.
 RANGERS_THUMB_RING_DESC,A horn ring worn on the thumb to draw a bowstring.
-MERCHANTS_SIGNET_DESC,A signet ring for sealing contracts.
+MERCHANTS_SIGNET_DESC,"A brass signet ring, its seal worn soft by years of wax. Merchants press it into their contracts."
 ALCHEMISTS_PHYLACTERY_DESC,"A tiny vial on a chain, filled with an antidote for emergencies."
 JADE_EARRING_DESC,A drop of green jade that calms the mind.
 SILVER_HOLY_SYMBOL_DESC,"A silver sun on a chain, blessed at dawn."
@@ -1333,21 +1334,21 @@ WOLF_TOOTH_NECKLACE_DESC,"A necklace of wolf teeth, each taken by its wearer."
 EARRING_OF_THE_DANCING_BLADE_DESC,A silver earring shaped like a tiny dagger.
 RING_OF_WARDING_DESC,A steel ring engraved with a circle of wards.
 RUNESTONE_AMULET_DESC,A flat stone carved with a single rune. Which rune it is changes from stone to stone.
-EMERALD_RING_OF_GROWTH_DESC,An emerald ring. Cuts heal faster under it.
+EMERALD_RING_OF_GROWTH_DESC,A gold ring set with a bright green emerald. Cuts heal faster under it.
 OPAL_OF_THE_TIDES_DESC,An opal whose colours shift like the sea.
 RUBY_SIGNET_DESC,A heavy signet set with a ruby the colour of hot iron.
 ONYX_RING_DESC,A ring of black onyx that seems to swallow light.
-PILGRIMS_AMULET_DESC,"An amulet carried to every shrine in the world, and blessed at each."
-BAND_OF_A_THOUSAND_BARGAINS_DESC,Every merchant who wore it died rich. None of them died happy.
+PILGRIMS_AMULET_DESC,"A worn bronze amulet hung with tiny shrine tokens. It was carried to every shrine in the world, and blessed at each."
+BAND_OF_A_THOUSAND_BARGAINS_DESC,"A thick gold band stamped with a ring of tiny scales. Every merchant who wore it died rich, and none of them died happy."
 EYE_OF_THE_ORACLE_DESC,"A pale stone that shows, in its depths, a moment that has not happened yet."
 HEART_OF_THE_BEHEMOTH_DESC,"A red stone the size of a fist that beats, very slowly, once an hour."
-RING_OF_THE_HOLLOW_KING_DESC,"The ring of a king who traded everything for it. It fits any finger, and none comfortably."
+RING_OF_THE_HOLLOW_KING_DESC,"A band of tarnished gold with an empty setting. It fits any finger, and none comfortably."
 TIN_LANTERN_DESC,"A tin lantern with horn windows. It burns far longer than a torch, and a smith can refit it."
 HOODED_LANTERN_DESC,A lantern with a shutter that can dim it to a sliver.
 MINERS_CARBIDE_LAMP_DESC,"A bright, hissing lamp that lights a whole tunnel."
 GLOWCAP_LANTERN_DESC,"A glass lantern of luminous fungus. It needs no fuel, only a little water now and then."
 EVERFLAME_LANTERN_DESC,A brass lantern whose flame has burned for longer than anyone has owned it.
-LANTERN_OF_THE_LOST_SAINT_DESC,The lantern a saint carried into the dark to find the lost. The dark still remembers it.
+LANTERN_OF_THE_LOST_SAINT_DESC,"A plain iron lantern with a pale, steady flame. A saint carried it into the dark to find the lost, and the dark still remembers it."
 TIN_ORE,Tin Ore
 TIN_ORE_DESC,"A grey, soft ore that stains the fingers.
 
@@ -1365,7 +1366,7 @@ BRONZE_INGOT_DESC,"Copper and tin run together into a hard, golden-brown bar.
 
 The first metal that holds an edge."
 STEEL_INGOT,Steel Ingot
-STEEL_INGOT_DESC,"Iron worked with carbon until it rings.
+STEEL_INGOT_DESC,"A grey bar of steel that rings when it is struck.
 
 It takes a keener edge than iron and holds it longer."
 SILVER_ORE,Silver Ore
@@ -1399,7 +1400,7 @@ Magic runs through it as water runs through a pipe."
 ADAMANTIUM_ORE,Adamantium Ore
 ADAMANTIUM_ORE_DESC,A black ore so heavy it bends the shelf it sits on.
 ADAMANTIUM_INGOT,Adamantium Ingot
-ADAMANTIUM_INGOT_DESC,"The hardest, heaviest bar anyone has made.
+ADAMANTIUM_INGOT_DESC,"A dull black bar, the hardest and heaviest anyone has made.
 
 It shrugs off spells as well as steel."
 YEW_BILLET,Yew Billet
@@ -1453,7 +1454,7 @@ LAMP_OIL_DESC,A flask of pressed oil that burns clean and slow.
 PARCHMENT,Parchment
 PARCHMENT_DESC,A sheet of pressed reed paper.
 MANA_INK,Mana Ink
-MANA_INK_DESC,"Ink with mana ground into it.
+MANA_INK_DESC,"A small bottle of dark ink, shimmering with the mana ground into it.
 
 What is written with it glows faintly until it is read."
 COG,Cog
@@ -1487,7 +1488,7 @@ GLOWCAP_DESC,A cave mushroom that gives off a steady green light.
 MANA_ESSENCE,Mana Essence
 MANA_ESSENCE_DESC,"A pinch of loose mana, grey and faintly warm."
 PURE_MANA_ESSENCE,Pure Mana Essence
-PURE_MANA_ESSENCE_DESC,"Mana gone clear and bright, with none of the grit."
+PURE_MANA_ESSENCE_DESC,"A pinch of mana powder gone clear and bright, with none of the grit."
 ROUGH_GARNET,Rough Garnet
 ROUGH_GARNET_DESC,"A dull red stone, still in the rock it grew in."
 CUT_GARNET,Cut Garnet
