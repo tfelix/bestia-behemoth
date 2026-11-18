@@ -2,9 +2,13 @@ package net.bestia.zone.townsfolk.conversation
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import net.bestia.worldgen.pop.Kinship
 import net.bestia.worldgen.pop.Member
 import net.bestia.zone.ai.core.state.HourWindow
+import net.bestia.zone.fact.FactRef
+import net.bestia.zone.fact.FactService
+import net.bestia.zone.fact.FactSource
 import net.bestia.zone.text.TextArg
 import net.bestia.zone.townsfolk.domain.Occupation
 import net.bestia.zone.townsfolk.knowledge.Certainty
@@ -29,7 +33,22 @@ class KnowledgeTopicProviderTest {
 
   private val knowledge = mockk<KnowledgeService>()
 
-  private val sut = KnowledgeTopicProvider(knowledge, ConversationLineCatalogue().apply { load() })
+  private val facts = mockk<FactService>(relaxed = true)
+
+  private val sut = KnowledgeTopicProvider(knowledge, ConversationLineCatalogue().apply { load() }, facts)
+
+  @Test
+  fun `hearing a chronicle event teaches it, hearing a legend or a rumour does not`() {
+    holds(memory(topic = FIRST_EVENT), memory(topic = LEGENDS), memory(topic = RUMOURS))
+    val asker = Asker(accountId = 7L, entityId = 1L)
+
+    for (topic in listOf(FIRST_EVENT, LEGENDS, RUMOURS)) {
+      assertNotNull(sut.nodeFor(asker, speaker(), Topics.KNOWLEDGE + topic))
+    }
+
+    verify(exactly = 1) { facts.learnAsPlayed(7L, FactRef.event(FIRST_EVENT), FactSource.TOWNSFOLK) }
+    verify(exactly = 1) { facts.learnAsPlayed(any(), any(), any()) }
+  }
 
   @Test
   fun `the first event the chronicle ever logged is a memory and not the menu`() {

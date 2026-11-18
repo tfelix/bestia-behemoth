@@ -42,6 +42,11 @@ class KnownFactsScenario : BestiaNoSocketScenario(autoClientConnect = false) {
     facts.learn(masterId(), LEARNED_IN_PLAY, FactSource.TOWNSFOLK)
 
     await { assertTrue(world.read { get(entityId, KnownFacts::class)!!.knows(LEARNED_IN_PLAY) }) }
+
+    facts.learnAsPlayed(clientPlayer2.connectedPlayerId, TOLD_IN_TOWN, FactSource.TOWNSFOLK)
+
+    await { assertTrue(world.read { get(entityId, KnownFacts::class)!!.knows(TOLD_IN_TOWN) }) }
+    assertTrue(TOLD_IN_TOWN in facts.factsOf(masterId()))
   }
 
   private fun masterId(): Long {
@@ -50,6 +55,7 @@ class KnownFactsScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
   private companion object {
     val LEARNED_EARLIER = FactRef.event(11)
+    val TOLD_IN_TOWN = FactRef.event(12)
     val LEARNED_IN_PLAY = FactRef(FactRef.Subject.ARTIFACT, 3, FactRef.Aspect.PLACE)
   }
 }
