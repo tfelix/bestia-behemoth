@@ -45,6 +45,11 @@ class TownKnowledge(
   private val byHousehold: Map<Int, List<Knowledge>>,
 ) {
 
+  /** The households that hold the memory with [topic], when it is not one the whole town knows. */
+  fun holdersOf(topic: Int): List<Int> {
+    return byHousehold.filterValues { held -> held.any { it.topic == topic } }.keys.sorted()
+  }
+
   fun heldBy(household: Int): List<Knowledge> {
     val own = byHousehold[household] ?: return universal
 
