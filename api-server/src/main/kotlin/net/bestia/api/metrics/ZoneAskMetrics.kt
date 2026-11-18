@@ -28,6 +28,7 @@ enum class ZoneQueryKind {
   HABITAT_TILE,
   WHOSE_TICKET,
   GUILD_EMBLEM,
+  TEXT,
   SET_ORDERS,
   ORDER_PRESETS,
   SAVE_ORDER_PRESET,
@@ -78,6 +79,7 @@ enum class ZoneQueryKind {
         is ZoneQuery.HabitatTile -> HABITAT_TILE
         is ZoneQuery.WhoseTicket -> WHOSE_TICKET
         is ZoneQuery.GuildEmblem -> GUILD_EMBLEM
+        is ZoneQuery.Text -> TEXT
         is ZoneQuery.SetOrders -> SET_ORDERS
         is ZoneQuery.OrderPresets -> ORDER_PRESETS
         is ZoneQuery.SaveOrderPreset -> SAVE_ORDER_PRESET

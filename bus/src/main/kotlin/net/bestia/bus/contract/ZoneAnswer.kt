@@ -203,6 +203,9 @@ sealed interface ZoneAnswer {
   /** A guild emblem's PNG, in the reply's body. Never changes under its [hash]. */
   data class Emblem(val hash: String) : ZoneAnswer
 
+  /** A written text. [locale] is the language of [body]: English when the one asked for is not written yet. */
+  data class Text(val textId: String, val locale: String, val body: String) : ZoneAnswer
+
   data class Places(val etag: String, val shared: Boolean, val places: List<Place>) : ZoneAnswer {
     data class Place(
       val id: Long,

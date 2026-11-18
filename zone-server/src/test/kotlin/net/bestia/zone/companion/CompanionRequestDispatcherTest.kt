@@ -19,6 +19,8 @@ import net.bestia.zone.ai.profile.Courage
 import net.bestia.zone.companion.query.MapPlane
 import net.bestia.zone.companion.query.NotebookCommands
 import net.bestia.zone.compendium.CompendiumStore
+import net.bestia.zone.text.persistence.WorldText
+import net.bestia.zone.text.persistence.WorldTextRepository
 import net.bestia.zone.travel.JourneyService
 import net.bestia.zone.travel.RoutesCollection
 import net.bestia.zone.world.WorldService
@@ -60,6 +62,9 @@ class CompanionRequestDispatcherTest {
 
   @Autowired
   private lateinit var worldService: WorldService
+
+  @Autowired
+  private lateinit var worldTexts: WorldTextRepository
 
   @Test
   fun `an account sees its own masters and nobody else's`() {
@@ -298,6 +303,23 @@ class CompanionRequestDispatcherTest {
 
     assertIs<ZoneAnswer.MapInfo>(meta)
     assertTrue(meta.maxLevel >= meta.minLevel)
+  }
+
+  @Test
+  fun `a written text is served in its language, and in English while that one is missing`() {
+    val textId = "ab".repeat(16)
+    worldTexts.save(WorldText(WorldText.Key(textId, "en"), "Here lies {name}.", WorldText.State.WRITTEN))
+
+    val english = ask(1L, ZoneQuery.Text(textId, "de")).answer
+    assertEquals(ZoneAnswer.Text(textId, "en", "Here lies {name}."), english)
+
+    worldTexts.save(WorldText(WorldText.Key(textId, "de"), "Hier ruht {name}.", WorldText.State.WRITTEN))
+
+    val german = ask(1L, ZoneQuery.Text(textId, "de")).answer
+    assertEquals(ZoneAnswer.Text(textId, "de", "Hier ruht {name}."), german)
+
+    assertEquals(Status.NOT_FOUND, ask(1L, ZoneQuery.Text("cd".repeat(16), "en")).status)
+    assertEquals(Status.INVALID, ask(1L, ZoneQuery.Text("../etc", "en")).status)
   }
 
   private fun ask(accountId: Long, query: ZoneQuery): BusReply {

@@ -63,6 +63,12 @@ sealed interface ZoneQuery {
   data class GuildEmblem(val hash: String) : ZoneQuery
 
   /**
+   * The body of a text written for this world, in [locale] or else in English. Not checked against the asker: the
+   * id is random and only handed to players the game showed the text to.
+   */
+  data class Text(val textId: String, val locale: String) : ZoneQuery
+
+  /**
    * New orders for an owned bestia: a job and a courage step by name, a fallback job, the numbers set in Fine-tune and
    * the rules. With [presetId] it follows that preset instead, and [overrides] are only the numbers it keeps as its
    * own. A write: send it with an idempotency key.
