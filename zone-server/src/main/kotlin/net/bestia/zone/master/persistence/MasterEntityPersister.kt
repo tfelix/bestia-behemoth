@@ -29,6 +29,7 @@ import net.bestia.zone.honor.HonorLedger
 import net.bestia.zone.honor.ecs.Honor
 import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.workexp.WorkExpLedger
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -41,6 +42,7 @@ data class MasterSnapshot(
   val z: Long,
   val level: Int,
   val exp: Int,
+  val workExpPaidUntil: Long,
   val skillPoints: Int,
   val statusPoints: Int,
   val strength: Int,
@@ -87,7 +89,7 @@ class MasterEntityPersister(
   override val reads: ComponentClassSet = setOf(
     MasterComponent::class, Position::class, Level::class, Exp::class, SkillPoints::class,
     StatusPoints::class, BaseStatusValues::class, Health::class, Mana::class, Dead::class, KnownSkills::class,
-    Honor::class, Professions::class, WarpMarks::class,
+    Honor::class, Professions::class, WarpMarks::class, WorkExpLedger::class,
   )
 
   override fun supports(world: World, id: EntityId): Boolean =
@@ -107,6 +109,7 @@ class MasterEntityPersister(
       x = pos.x, y = pos.y, z = pos.z,
       level = level,
       exp = exp,
+      workExpPaidUntil = world.get(id, WorkExpLedger::class)?.paidUntilMs ?: 0L,
       skillPoints = skillPoints,
       statusPoints = statusPoints,
       strength = baseStatusValues?.strength ?: 10,
@@ -147,6 +150,7 @@ class MasterEntityPersister(
       master.currentMana = snap.currentMana
       master.level = snap.level
       master.exp = snap.exp
+      master.workExpPaidUntil = snap.workExpPaidUntil
       master.skillPoints = snap.skillPoints
       master.statusPoints = snap.statusPoints
       master.strength = snap.strength

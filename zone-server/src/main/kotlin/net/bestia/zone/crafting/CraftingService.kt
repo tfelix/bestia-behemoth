@@ -50,6 +50,7 @@ import org.springframework.stereotype.Service
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import net.bestia.zone.casting.RecipeOffering
+import net.bestia.zone.workexp.WorkExpService
 
 /**
  * Everything a craft is: what a crafter can make here, starting one, and what happens when it resolves.
@@ -92,6 +93,7 @@ class CraftingService(
   private val blueprintPoints: BlueprintPoints,
   private val structureRegistry: PlayerStructureRegistry,
   private val stationStates: StationStateSender,
+  private val workExp: WorkExpService,
   private val metrics: GameMetrics = GameMetrics(),
   private val clock: Clock = Clock.systemUTC(),
 ) : RecipeOffering {
@@ -216,7 +218,10 @@ class CraftingService(
     if (Random.nextFloat() <= chance) {
       val provenance = ItemProvenance(crafterName = crafter.master.name, worldName = worldService.record.name)
       val roll = rollOutput(recipe, known, GloriaGrace.rollChanceBonusOf(world, workerId))
-      succeed(world, workerId, accountId, masterId, crafter.playerBestiaId, recipe, null, minted, chance, roll, provenance)
+      succeed(
+        world, workerId, accountId, masterId, crafter.playerBestiaId, recipe, null, minted, chance, roll, provenance,
+        craftSecondsFor(crafter, recipe)
+      )
     } else {
       fail(world, workerId, accountId, masterId, crafter.playerBestiaId, recipe, null, known)
     }
@@ -351,7 +356,10 @@ class CraftingService(
 
       val applied = world.modify(entityId) { id ->
         if (succeeded) {
-          succeed(this, id, accountId, masterId, playerBestiaId, recipe, target, minted, chance, roll, provenance)
+          succeed(
+            this, id, accountId, masterId, playerBestiaId, recipe, target, minted, chance, roll, provenance,
+            crafting.totalSeconds
+          )
         } else {
           fail(this, id, accountId, masterId, playerBestiaId, recipe, target, known)
         }
@@ -389,7 +397,8 @@ class CraftingService(
     minted: Int,
     chance: Float,
     roll: ItemRoll?,
-    provenance: ItemProvenance
+    provenance: ItemProvenance,
+    craftSeconds: Float
   ) {
     val inventory = world.get(entityId, Inventory::class) ?: return
     metrics.crafted(GameMetrics.Craft.SUCCESS)
@@ -422,6 +431,7 @@ class CraftingService(
     }
 
     LOG.debug { "Master $masterId completed ${recipe.identifier} (${(chance * 100).roundToInt()}% chance)" }
+    workExp.award(world, entityId, craftSeconds.toDouble())
     accountId?.let { outMessageProcessor.sendToPlayer(it, OperationSuccessSMSG(OpSuccess.CRAFT_SUCCEEDED)) }
   }
 

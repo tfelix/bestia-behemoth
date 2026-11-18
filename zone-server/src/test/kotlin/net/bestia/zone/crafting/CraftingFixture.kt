@@ -35,6 +35,15 @@ import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.persistence.PersistedWorld
+import net.bestia.zone.battle.ecs.level.LevelUpExperienceCalculator
+import net.bestia.zone.config.WorkExpConfig
+import net.bestia.zone.identity.MasterEntityResolver
+import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.workexp.WorkExpCalculator
+import net.bestia.zone.workexp.WorkExpService
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneOffset
 
 /**
  * A crafter, a world, and a [CraftingService] whose only mocks are the things that leave the tick: the durable
@@ -100,6 +109,9 @@ class CraftingFixture(
   /** Empty unless a test loads sheets, so outputs roll nothing. */
   val itemStats = ItemStatCatalog()
 
+  /** Nobody is playing a master unless a test says so, so a bestia's craft pays no work EXP by default. */
+  val sessions = mockk<ConnectionInfoService>(relaxed = true)
+
   val bonuses: CraftBonusService
 
   val service: CraftingService
@@ -132,6 +144,12 @@ class CraftingFixture(
       blueprintPoints = BlueprintPoints(),
       structureRegistry = structureRegistry,
       stationStates = mockk(relaxed = true),
+      workExp = WorkExpService(
+        calculator = WorkExpCalculator(WorkExpConfig(), LevelUpExperienceCalculator()),
+        config = WorkExpConfig(),
+        masters = MasterEntityResolver(sessions),
+        clock = Clock.fixed(Instant.ofEpochSecond(NOW_EPOCH_SECONDS), ZoneOffset.UTC),
+      ),
     )
   }
 
@@ -212,6 +230,9 @@ class CraftingFixture(
     const val ACCOUNT_ID = 7L
     const val PLAYER_BESTIA_ID = 13L
     const val WORLD_NAME = "Genesis"
+
+    /** The fixture's clock; a master's ledger of 0 is a full bank before it. */
+    const val NOW_EPOCH_SECONDS = 1_800_000_000L
 
     /** A plain material pile, which is the only thing a recipe input may be. */
     fun stack(itemId: Long, amount: Int) = Inventory.Item(itemId = itemId, amount = amount, weight = 1)

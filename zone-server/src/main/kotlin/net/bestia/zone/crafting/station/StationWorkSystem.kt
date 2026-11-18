@@ -7,7 +7,11 @@ import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.crafting.CraftingService
 import net.bestia.zone.crafting.Crafters
+import net.bestia.zone.battle.ecs.exp.GainExp
+import net.bestia.zone.battle.ecs.level.Level
+import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.workexp.WorkExpLedger
 import net.bestia.zone.prop.station.WorkAssignment
 import net.bestia.zone.crafting.Recipe
 import net.bestia.zone.crafting.RecipeRegistry
@@ -61,10 +65,15 @@ class StationWorkSystem(
   // path so a finished item is in the bag the same tick.
   override val phase = Phase.ITEMS
   override val before = setOf(ObtainItemIntentSystem::class)
-  override val reads: ComponentClassSet =
-    setOf(Position::class, Inventory::class, CarryCapacity::class, Master::class, AiAgent::class)
-  override val writes: ComponentClassSet =
-    setOf(ObtainItemIntent.CreateItemIntent::class, WorkAssignment::class, SimulationAnchor::class)
+  // Level and GuildMembership are read, and the ledger and GainExp written, when a finished item pays work EXP.
+  override val reads: ComponentClassSet = setOf(
+    Position::class, Inventory::class, CarryCapacity::class, Master::class, AiAgent::class, Level::class,
+    GuildMembership::class,
+  )
+  override val writes: ComponentClassSet = setOf(
+    ObtainItemIntent.CreateItemIntent::class, WorkAssignment::class, SimulationAnchor::class, WorkExpLedger::class,
+    GainExp::class,
+  )
 
   override fun update(world: World, deltaTime: Float) {
     structures.all()

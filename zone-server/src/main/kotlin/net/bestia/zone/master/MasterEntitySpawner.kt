@@ -70,6 +70,7 @@ import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.party.membership
 import net.bestia.zone.quest.ecs.ActiveQuests
 import net.bestia.zone.quest.QuestService
+import net.bestia.zone.workexp.WorkExpLedger
 
 /**
  * Materializes an already persisted [Master] row into a live ECS entity carrying every component a player
@@ -168,6 +169,7 @@ class MasterEntitySpawner(
       add(id, Living)
       add(id, Level(master.level))
       add(id, Exp(master.exp, levelUpExpCalculator.getRequiredExperience(master.level)))
+      add(id, WorkExpLedger(master.workExpPaidUntil))
       add(id, honorService.componentFor(HonorLedger(master.honorEarned, master.honorDebt, master.honorLastLossAt)))
       add(id, Speed())
       add(id, KnownSkills(learnedSkillIds.toMutableMap()))

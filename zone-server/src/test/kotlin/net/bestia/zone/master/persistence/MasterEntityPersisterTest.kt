@@ -25,6 +25,7 @@ import net.bestia.zone.account.persistence.LearnedSkill
 import net.bestia.zone.account.persistence.LearnedSkillRepository
 import net.bestia.zone.skill.persistence.Skill
 import net.bestia.zone.skill.persistence.SkillRepository
+import net.bestia.zone.workexp.WorkExpLedger
 import org.junit.jupiter.api.Test
 import java.awt.Color
 import kotlin.test.assertEquals
@@ -106,6 +107,17 @@ class MasterEntityPersisterTest {
     sut.persist(listOfNotNull(sut.snapshot(world, id)))
 
     assertEquals(345, row.exp)
+  }
+
+  @Test
+  fun `the point up to which work was paid is stored with the master`() {
+    val world = testWorld()
+    val id = world.master(dead = false)
+    world.add(id, WorkExpLedger(paidUntilMs = 1_800_000_123_000L))
+
+    sut.persist(listOfNotNull(sut.snapshot(world, id)))
+
+    assertEquals(1_800_000_123_000L, row.workExpPaidUntil)
   }
 
   @Test
