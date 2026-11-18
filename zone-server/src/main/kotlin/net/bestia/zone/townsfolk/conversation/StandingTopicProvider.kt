@@ -1,6 +1,7 @@
 package net.bestia.zone.townsfolk.conversation
 
 import net.bestia.zone.text.TextArg
+import net.bestia.zone.text.TextRef
 import net.bestia.zone.townsfolk.knowledge.ChronicleNames
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Component
@@ -27,7 +28,7 @@ class StandingTopicProvider(
 
   override fun rootOptions(speaker: Speaker): List<ConversationOption> {
     return listOf(
-      ConversationOption(Topics.STANDING + ABOUT_TOWN, Line(ConversationKeys.ABOUT_TOWN_ASK))
+      ConversationOption(Topics.STANDING + ABOUT_TOWN, TextRef(ConversationKeys.ABOUT_TOWN_ASK))
     )
   }
 
@@ -38,7 +39,7 @@ class StandingTopicProvider(
     }
   }
 
-  private fun aboutTown(speaker: Speaker): Line {
+  private fun aboutTown(speaker: Speaker): TextRef {
     val chronicle = worldService.generated.world.chronicle
     val town = ChronicleNames.placeOf(chronicle, speaker.settlement)
 

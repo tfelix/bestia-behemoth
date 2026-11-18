@@ -1,5 +1,7 @@
 package net.bestia.zone.townsfolk.conversation
 
+import net.bestia.zone.text.TextRef
+
 /**
  * One thing the player may say next.
  *
@@ -9,6 +11,6 @@ package net.bestia.zone.townsfolk.conversation
  */
 data class ConversationOption(
   val topicId: Int,
-  val line: Line,
+  val line: TextRef,
   val kind: OptionKind = OptionKind.TALK,
 )

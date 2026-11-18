@@ -15,6 +15,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.text.TextRef
 import net.bestia.zone.townsfolk.domain.Occupation
 import kotlin.test.Test
 
@@ -47,7 +48,7 @@ class TalkServiceTest {
     seed = 7L,
   )
   private val counter = Counter(merchant, "Mira", setOf("bread"), ShopHours.ALWAYS_OPEN)
-  private val greeting = ConversationNode(Line("TALK_GREETING_SHOPKEEPER_1"), emptyList())
+  private val greeting = ConversationNode(TextRef("TALK_GREETING_SHOPKEEPER_1"), emptyList())
 
   init {
     every { speakers.of(merchant) } returns speaker

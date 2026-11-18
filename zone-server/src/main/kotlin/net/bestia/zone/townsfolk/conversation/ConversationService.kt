@@ -3,6 +3,7 @@ package net.bestia.zone.townsfolk.conversation
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.GenRng
 import net.bestia.zone.text.TextArg
+import net.bestia.zone.text.TextRef
 import net.bestia.zone.world.time.BestiaClock
 import org.springframework.stereotype.Service
 
@@ -87,8 +88,8 @@ class ConversationService(
    * The name is a [TextArg.Name] rather than part of the key: it is an invented word out of the
    * culture's own pool, so there is nothing in it to translate and everything around it still is.
    */
-  private fun greeting(speaker: Speaker): Line {
-    return Line(
+  private fun greeting(speaker: Speaker): TextRef {
+    return TextRef(
       ConversationKeys.GREETING_PREFIX + speaker.occupation.id.uppercase() + "_" +
         ConversationVariants.of(speaker, ConversationVariants.GREETING, speaker.occupation.dialog.greetings),
       mapOf(ConversationKeys.SLOT_NAME to TextArg.Name(speaker.name))
@@ -96,7 +97,7 @@ class ConversationService(
   }
 
   private fun rootOption(): ConversationOption {
-    return ConversationOption(Topics.ROOT, Line(ConversationKeys.BACK), OptionKind.BACK)
+    return ConversationOption(Topics.ROOT, TextRef(ConversationKeys.BACK), OptionKind.BACK)
   }
 
   /**
