@@ -1,14 +1,15 @@
 package net.bestia.zone.poi.script
 
 import net.bestia.bnet.proto.OperationErrorProto.OpError
-import net.bestia.zone.chat.ChatSMSG
-import net.bestia.zone.chat.ChatType
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.Poi
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.script.EntityScript
+import net.bestia.zone.text.ReadableSMSG
+import net.bestia.zone.text.TextArg
+import net.bestia.zone.text.TextRef
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
@@ -27,12 +28,13 @@ class ExaminePoiScript(
     // The client walks into reach before it sends the click, so a click from further off is stale.
     if (actorAt.distance(poiAt) > EXAMINE_RANGE) return null
 
-    val text = "You see a ${poi.kind.label}."
-    outMessageProcessor.sendToPlayer(accountId, ChatSMSG(type = ChatType.COMMAND, text = text))
+    val text = TextRef(EXAMINE_KEY, mapOf("poi" to TextArg.Token("POI_${poi.kind.name}")))
+    outMessageProcessor.sendToPlayer(accountId, ReadableSMSG(entityId, text))
     return null
   }
 
   private companion object {
     const val EXAMINE_RANGE = 8L
+    const val EXAMINE_KEY = "READABLE_POI"
   }
 }
