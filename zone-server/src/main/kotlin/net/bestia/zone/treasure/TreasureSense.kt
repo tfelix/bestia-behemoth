@@ -5,7 +5,7 @@ import net.bestia.worldgen.treasure.TreasureCache
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.casting.SkillContext
 import net.bestia.zone.casting.SkillStrategy
-import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.text.TextArg
 import net.bestia.zone.dialog.DialogId
 import net.bestia.zone.dialog.DialogService
 import net.bestia.zone.geometry.Compass
@@ -72,14 +72,14 @@ class TreasureSense(
     }
   }
 
-  private fun readingOf(nearest: TreasureCache, count: Int, x: Double, y: Double, level: Int): Map<String, DialogArg> {
+  private fun readingOf(nearest: TreasureCache, count: Int, x: Double, y: Double, level: Int): Map<String, TextArg> {
     val reading = mutableMapOf(
-      "count" to DialogArg.Number(count.toLong()),
-      "heading" to DialogArg.Token(Compass.tokenOf(nearest.x - x, nearest.y - y)),
-      "distance" to DialogArg.Number(hypot(nearest.x - x, nearest.y - y).roundToLong()),
+      "count" to TextArg.Number(count.toLong()),
+      "heading" to TextArg.Token(Compass.tokenOf(nearest.x - x, nearest.y - y)),
+      "distance" to TextArg.Number(hypot(nearest.x - x, nearest.y - y).roundToLong()),
     )
-    if (level >= DEPTH_LEVEL) reading["depth"] = DialogArg.Number(nearest.depth.roundToLong().coerceAtLeast(1))
-    if (level >= RICHNESS_LEVEL) reading["richness"] = DialogArg.Token("TREASURE_TIER_${richness.of(nearest).name}")
+    if (level >= DEPTH_LEVEL) reading["depth"] = TextArg.Number(nearest.depth.roundToLong().coerceAtLeast(1))
+    if (level >= RICHNESS_LEVEL) reading["richness"] = TextArg.Token("TREASURE_TIER_${richness.of(nearest).name}")
     return reading
   }
 

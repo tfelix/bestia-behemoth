@@ -6,7 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.kotlinModule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PostConstruct
-import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.text.TextArg
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
 
@@ -77,7 +77,7 @@ class ConversationLineCatalogue {
    * Keyed on the speaker rather than rolled, for [ConversationVariants]' reason: asking the same person
    * twice has to give the same answer, or the variety reads as a bug.
    */
-  fun lineFor(speaker: Speaker, key: String, args: Map<String, DialogArg> = emptyMap()): Line {
+  fun lineFor(speaker: Speaker, key: String, args: Map<String, TextArg> = emptyMap()): Line {
     val count = variants[key]
       ?: throw IllegalStateException("No phrasing count for '$key'; the boot check should have caught it")
 

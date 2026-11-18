@@ -1,7 +1,7 @@
 package net.bestia.zone.townsfolk.conversation
 
 import net.bestia.bnet.proto.DialogSmsgProto
-import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.text.TextArg
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -25,9 +25,9 @@ class ConversationSMSGTest {
         speech = Line(
           "HISTORY_ERUPTION_1",
           mapOf(
-            "place" to DialogArg.Name("Karth"),
-            "ago" to DialogArg.Token("AGO_AGES"),
-            "year" to DialogArg.Number(312),
+            "place" to TextArg.Name("Karth"),
+            "ago" to TextArg.Token("AGO_AGES"),
+            "year" to TextArg.Number(312),
           )
         ),
         options = emptyList(),

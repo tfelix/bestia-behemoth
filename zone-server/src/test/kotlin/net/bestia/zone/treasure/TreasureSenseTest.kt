@@ -13,7 +13,7 @@ import net.bestia.worldgen.treasure.TreasureTier
 import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.casting.RecordingSkillWorld
 import net.bestia.zone.casting.SkillContextFixture
-import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.text.TextArg
 import net.bestia.zone.dialog.DialogId
 import net.bestia.zone.dialog.DialogService
 import net.bestia.zone.geometry.Vec3L
@@ -56,8 +56,8 @@ class TreasureSenseTest {
     val (dialog, args) = cast(level = 1, at = besideCache(dx = 10))
 
     assertEquals(DialogId.TREASURE_SENSED, dialog)
-    assertEquals(DialogArg.Token("DIRECTION_WEST"), args["heading"])
-    assertTrue(args.getValue("count") is DialogArg.Number)
+    assertEquals(TextArg.Token("DIRECTION_WEST"), args["heading"])
+    assertTrue(args.getValue("count") is TextArg.Number)
     verify { messages.sendToPlayer(ACCOUNT, match<SMSG> { it is TreasureShimmerSMSG && spotOf(cache) in it.spots }) }
   }
 
@@ -67,7 +67,7 @@ class TreasureSenseTest {
 
     val (dialog, args) = cast(level = 5, at = besideCache(dx = 10))
     assertEquals(DialogId.TREASURE_SENSED_RICHNESS, dialog)
-    assertEquals(DialogArg.Token("TREASURE_TIER_RICH"), args["richness"])
+    assertEquals(TextArg.Token("TREASURE_TIER_RICH"), args["richness"])
   }
 
   @Test
@@ -88,9 +88,9 @@ class TreasureSenseTest {
     assertFalse(sightings.recentNear(MASTER + 1, cache.x, cache.y).any { it.id == cache.id })
   }
 
-  private fun cast(level: Int, at: Vec3L): Pair<DialogId, Map<String, DialogArg>> {
+  private fun cast(level: Int, at: Vec3L): Pair<DialogId, Map<String, TextArg>> {
     val dialog = slot<DialogId>()
-    val args = slot<Map<String, DialogArg>>()
+    val args = slot<Map<String, TextArg>>()
     every { dialogs.send(any(), capture(dialog), capture(args), any()) } returns Unit
 
     val battle = BattleContextFixture.entityCtx()

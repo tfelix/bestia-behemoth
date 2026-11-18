@@ -7,7 +7,7 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.worldgen.pop.Kinship
 import net.bestia.worldgen.pop.Member
 import net.bestia.zone.ai.core.state.HourWindow
-import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.text.TextArg
 import net.bestia.zone.economy.shop.Counter
 import net.bestia.zone.economy.shop.MerchantStock
 import net.bestia.zone.economy.shop.ShopCounter
@@ -70,8 +70,8 @@ class ShopTopicProviderTest {
 
     assertEquals(OptionKind.TALK, option.kind)
     assertTrue(node.speech.key.startsWith(ConversationKeys.SHOP_HOURS))
-    assertEquals(DialogArg.Number(7), node.speech.args[ConversationKeys.SLOT_OPENS])
-    assertEquals(DialogArg.Number(19), node.speech.args[ConversationKeys.SLOT_CLOSES])
+    assertEquals(TextArg.Number(7), node.speech.args[ConversationKeys.SLOT_OPENS])
+    assertEquals(TextArg.Number(19), node.speech.args[ConversationKeys.SLOT_CLOSES])
   }
 
   @Test

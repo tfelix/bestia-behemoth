@@ -45,7 +45,7 @@ class Knowledge(
   /**
    * One argument filled into a memory's phrasing.
    *
-   * Narrower than the dialog package's `DialogArg` on purpose, and not merely a copy of it: what a memory
+   * Narrower than the dialog package's `TextArg` on purpose, and not merely a copy of it: what a memory
    * can supply is a name, a word to look up, or a count, and nothing here should ever be able to name an
    * item or an entity. The mapping to the wire type is a `when` in whoever sends it.
    */
