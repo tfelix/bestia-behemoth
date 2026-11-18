@@ -1,10 +1,12 @@
-[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://Game/Attack/DB/2012_savage_maul.png" id="2_icon"]
 
 [resource]
 script = ExtResource("1_script")
 skill_id = 2012
+icon = ExtResource("2_icon")
 name = "Savage Maul"
 description_key = "SKILL_2012_DESC"
 mana_cost = 14
