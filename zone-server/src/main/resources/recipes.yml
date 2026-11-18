@@ -1288,3 +1288,127 @@ recipes:
     station: TRANSMUTATION_WORKBENCH
     craftSeconds: 30.0
     baseSuccessChance: 0.5
+
+  # --- Charcoal-fired twins --------------------------------------------------------------------------
+  # Every coal-fired furnace recipe again with charcoal, the fuel a smith can make from a log. It never gets the
+  # furnace as hot, so each attempt is 10 points less likely to succeed (crafting.md, Ore Refinement Success Chance).
+
+  - id: 131
+    identifier: IRON_INGOT_CHARCOAL
+    effect: PRODUCE
+    output: { item: iron_ingot, amount: 1 }
+    inputs:
+      - { item: iron_ore, amount: 2 }
+      - { item: charcoal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 1 }
+    station: FURNACE
+    craftSeconds: 10.0
+    baseSuccessChance: 0.1
+
+  - id: 132
+    identifier: GOLD_BAR_CHARCOAL
+    effect: PRODUCE
+    output: { item: gold_bar, amount: 1 }
+    inputs:
+      - { item: gold_ore, amount: 2 }
+      - { item: charcoal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 1 }
+    station: FURNACE
+    craftSeconds: 14.0
+    baseSuccessChance: -0.2
+
+  - id: 133
+    identifier: TIN_INGOT_CHARCOAL
+    effect: PRODUCE
+    output: { item: tin_ingot, amount: 1 }
+    inputs:
+      - { item: tin_ore, amount: 2 }
+      - { item: charcoal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 1 }
+    station: FURNACE
+    craftSeconds: 10.0
+    baseSuccessChance: 0.2
+
+  - id: 134
+    identifier: COPPER_INGOT_CHARCOAL
+    effect: PRODUCE
+    output: { item: copper_ingot, amount: 1 }
+    inputs:
+      - { item: copper_ore, amount: 2 }
+      - { item: charcoal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 1 }
+    station: FURNACE
+    craftSeconds: 10.0
+    baseSuccessChance: 0.2
+
+  - id: 135
+    identifier: STEEL_INGOT_CHARCOAL
+    effect: PRODUCE
+    output: { item: steel_ingot, amount: 1 }
+    inputs:
+      - { item: iron_ingot, amount: 1 }
+      - { item: charcoal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 2 }
+    station: FURNACE
+    craftSeconds: 14.0
+    baseSuccessChance: -0.02
+
+  - id: 136
+    identifier: SILVER_INGOT_CHARCOAL
+    effect: PRODUCE
+    output: { item: silver_ingot, amount: 1 }
+    inputs:
+      - { item: silver_ore, amount: 2 }
+      - { item: charcoal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 2 }
+    station: FURNACE
+    craftSeconds: 14.0
+    baseSuccessChance: -0.05
+
+  - id: 137
+    identifier: PALLADIUM_INGOT_CHARCOAL
+    effect: PRODUCE
+    output: { item: palladium_ingot, amount: 1 }
+    inputs:
+      - { item: palladium_ore, amount: 2 }
+      - { item: charcoal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 3 }
+    station: FURNACE
+    craftSeconds: 18.0
+    baseSuccessChance: -0.4
+
+  - id: 138
+    identifier: MITHRIL_INGOT_CHARCOAL
+    effect: PRODUCE
+    output: { item: mithril_ingot, amount: 1 }
+    inputs:
+      - { item: mithril_ore, amount: 2 }
+      - { item: charcoal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 3 }
+    station: FURNACE
+    craftSeconds: 20.0
+    baseSuccessChance: -0.55
+
+  - id: 139
+    identifier: ADAMANTIUM_INGOT_CHARCOAL
+    effect: PRODUCE
+    output: { item: adamantium_ingot, amount: 1 }
+    inputs:
+      - { item: adamantium_ore, amount: 2 }
+      - { item: charcoal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 3 }
+    station: FURNACE
+    craftSeconds: 24.0
+    baseSuccessChance: -0.7
+
+  - id: 140
+    identifier: BRICK_CHARCOAL
+    effect: PRODUCE
+    output: { item: brick, amount: 2 }
+    inputs:
+      - { item: clay, amount: 2 }
+      - { item: charcoal, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 1 }
+    station: FURNACE
+    craftSeconds: 8.0
+    baseSuccessChance: 0.5

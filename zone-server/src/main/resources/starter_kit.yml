@@ -10,6 +10,17 @@ blueprints:
   - IRON_INGOT
   # Charred from a log, which has no craft-axes, so it cannot be discovered.
   - CHARCOAL
+  # The charcoal-fired twin of every coal-fired starter smelt.
+  - IRON_INGOT_CHARCOAL
+  - GOLD_BAR_CHARCOAL
+  - TIN_INGOT_CHARCOAL
+  - COPPER_INGOT_CHARCOAL
+  - STEEL_INGOT_CHARCOAL
+  - SILVER_INGOT_CHARCOAL
+  - PALLADIUM_INGOT_CHARCOAL
+  - MITHRIL_INGOT_CHARCOAL
+  - ADAMANTIUM_INGOT_CHARCOAL
+  - BRICK_CHARCOAL
   - GOLD_BAR
   - GOLD_COIN
   - IRON_SWORD
