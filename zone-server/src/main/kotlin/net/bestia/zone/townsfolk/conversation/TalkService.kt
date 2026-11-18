@@ -1,5 +1,8 @@
 package net.bestia.zone.townsfolk.conversation
 
+import net.bestia.zone.entity.observe.DeedFact
+import net.bestia.zone.entity.observe.DeedObserver
+import net.bestia.zone.entity.observe.WorldTarget
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto
 import net.bestia.zone.economy.shop.MerchantStock
@@ -29,6 +32,7 @@ class TalkService(
   private val out: OutMessageProcessor,
   private val reception: HonorReception,
   private val counters: List<ServiceCounter>,
+  private val deedObservers: List<DeedObserver> = emptyList(),
 ) {
 
   /**
@@ -37,6 +41,7 @@ class TalkService(
    */
   fun open(accountId: AccountId, actor: EntityId, target: EntityId) {
     val speaker = reachableSpeaker(accountId, actor, target) ?: return
+    tellObservers(actor, speaker)
     if (servedAtCounter(accountId, actor, speaker)) return
     if (counters.any { it.serve(accountId, speaker) }) return
 
@@ -53,6 +58,15 @@ class TalkService(
 
     val node = coldShoulder(actor, speaker) ?: conversation.nodeFor(Asker(accountId, actor), speaker, topicId)
     answer(accountId, speaker, node)
+  }
+
+  /** Posted to the tick, where the observers may change what they count. */
+  private fun tellObservers(actor: EntityId, speaker: Speaker) {
+    if (deedObservers.isEmpty()) {
+      return
+    }
+    val talkedTo = DeedFact(actor, DeedFact.Deed.TALKED_TO, WorldTarget.townsfolk(speaker.identity))
+    world.post { deedObservers.forEach { it.onDeed(this, talkedTo) } }
   }
 
   private fun coldShoulder(actor: EntityId, speaker: Speaker): ConversationNode? {

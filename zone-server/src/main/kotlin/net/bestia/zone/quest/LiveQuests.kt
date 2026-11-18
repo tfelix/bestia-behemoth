@@ -3,7 +3,7 @@ package net.bestia.zone.quest
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.identity.MasterEntityResolver
 import net.bestia.zone.quest.ecs.ActiveQuests
-import net.bestia.zone.quest.ecs.TrackedKill
+import net.bestia.zone.quest.ecs.TrackedObjectives
 import net.bestia.zone.session.ConnectionInfoService
 import org.springframework.stereotype.Component
 
@@ -15,11 +15,11 @@ class LiveQuests(
   private val masters: MasterEntityResolver = MasterEntityResolver(sessions),
 ) {
 
-  fun track(masterId: Long, kills: List<TrackedKill>) {
-    if (kills.isEmpty()) {
+  fun track(masterId: Long, tracked: TrackedObjectives) {
+    if (tracked.isEmpty) {
       return
     }
-    onPlayedMaster(masterId) { it.track(kills) }
+    onPlayedMaster(masterId) { it.track(tracked) }
   }
 
   fun untrack(masterIds: Collection<Long>, questId: Long) {

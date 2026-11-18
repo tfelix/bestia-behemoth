@@ -44,12 +44,14 @@ namespace Bnet {
             "Q09NUExFVEVEEAISGAoUUVVFU1RfU1RBVFVTX0VYUElSRUQQAxIaChZRVUVT",
             "VF9TVEFUVVNfV0lUSERSQVdOEAQqUwoJUXVlc3RSb2xlEhcKE1FVRVNUX1JP",
             "TEVfQUNDRVBURUQQABIVChFRVUVTVF9ST0xFX1BPU1RFRBABEhYKElFVRVNU",
-            "X1JPTEVfT0ZGRVJFRBACKkkKDU9iamVjdGl2ZUtpbmQSHwobT0JKRUNUSVZF",
+            "X1JPTEVfT0ZGRVJFRBACKn4KDU9iamVjdGl2ZUtpbmQSHwobT0JKRUNUSVZF",
             "X0tJTkRfREVMSVZFUl9JVEVNEAASFwoTT0JKRUNUSVZFX0tJTkRfS0lMTBAB",
-            "KkoKDk9iamVjdGl2ZVNjb3BlEhoKFk9CSkVDVElWRV9TQ09QRV9TSEFSRUQQ",
-            "ABIcChhPQkpFQ1RJVkVfU0NPUEVfUEVSU09OQUwQASo3Cg9RdWVzdFJld2Fy",
-            "ZEtpbmQSJAogUVVFU1RfUkVXQVJEX0tJTkRfQ09JTlNfUEVSX1VOSVQQAEIj",
-            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CClF1ZXN0UHJvdG9iBnByb3RvMw=="));
+            "EhoKFk9CSkVDVElWRV9LSU5EX0VYQU1JTkUQAhIXChNPQkpFQ1RJVkVfS0lO",
+            "RF9UQUxLEAMqSgoOT2JqZWN0aXZlU2NvcGUSGgoWT0JKRUNUSVZFX1NDT1BF",
+            "X1NIQVJFRBAAEhwKGE9CSkVDVElWRV9TQ09QRV9QRVJTT05BTBABKjcKD1F1",
+            "ZXN0UmV3YXJkS2luZBIkCiBRVUVTVF9SRVdBUkRfS0lORF9DT0lOU19QRVJf",
+            "VU5JVBAAQiMKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IKUXVlc3RQcm90b2IG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.TextReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.QuestOrigin), typeof(global::Bnet.QuestStatus), typeof(global::Bnet.QuestRole), typeof(global::Bnet.ObjectiveKind), typeof(global::Bnet.ObjectiveScope), typeof(global::Bnet.QuestRewardKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -95,6 +97,8 @@ namespace Bnet {
   public enum ObjectiveKind {
     [pbr::OriginalName("OBJECTIVE_KIND_DELIVER_ITEM")] DeliverItem = 0,
     [pbr::OriginalName("OBJECTIVE_KIND_KILL")] Kill = 1,
+    [pbr::OriginalName("OBJECTIVE_KIND_EXAMINE")] Examine = 2,
+    [pbr::OriginalName("OBJECTIVE_KIND_TALK")] Talk = 3,
   }
 
   public enum ObjectiveScope {

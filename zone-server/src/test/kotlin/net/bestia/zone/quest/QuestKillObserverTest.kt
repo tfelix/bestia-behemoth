@@ -11,6 +11,7 @@ import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.place.ecs.Place
 import net.bestia.zone.place.ecs.PlaceRef
 import net.bestia.zone.quest.ecs.ActiveQuests
+import net.bestia.zone.quest.ecs.TrackedObjectives
 import net.bestia.zone.quest.ecs.TrackedKill
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Test
@@ -86,7 +87,7 @@ class QuestKillObserverTest {
 
   private fun masterIn(place: String, tracked: TrackedKill): EntityId {
     return world.createEntity { id ->
-      add(id, ActiveQuests(MASTER_ID, listOf(tracked)))
+      add(id, ActiveQuests(MASTER_ID, TrackedObjectives(kills = listOf(tracked))))
       add(id, Place(PlaceRef(place)))
     }
   }

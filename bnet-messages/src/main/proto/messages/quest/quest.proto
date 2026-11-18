@@ -32,6 +32,8 @@ enum QuestRole {
 enum ObjectiveKind {
   OBJECTIVE_KIND_DELIVER_ITEM = 0;
   OBJECTIVE_KIND_KILL = 1;
+  OBJECTIVE_KIND_EXAMINE = 2;
+  OBJECTIVE_KIND_TALK = 3;
 }
 
 enum ObjectiveScope {

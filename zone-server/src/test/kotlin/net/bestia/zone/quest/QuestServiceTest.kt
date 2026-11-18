@@ -1,5 +1,8 @@
 package net.bestia.zone.quest
 
+import net.bestia.zone.entity.observe.DeedFact
+import net.bestia.zone.entity.observe.WorldTarget
+import net.bestia.zone.fact.FactRef
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.quest.persistence.QuestLogEntryRepository
 import net.bestia.zone.quest.persistence.QuestRepository
@@ -169,7 +172,7 @@ class QuestServiceTest {
     val questId = service.create(killDraft(required = 5)).id
     service.accept(alice, questId)
 
-    val tracked = service.trackedKillsFor(alice).single()
+    val tracked = service.trackedFor(alice).kills.single()
     assertEquals(WOLF, tracked.speciesId)
     assertEquals(QuestArea.InPlace("Ashford"), tracked.area)
     assertEquals(0, tracked.count)
@@ -177,7 +180,7 @@ class QuestServiceTest {
     service.recordPersonal(alice, questId, 0, 3)
     service.recordPersonal(alice, questId, 0, 2)
 
-    assertEquals(3, service.trackedKillsFor(alice).single().count, "a late, lower count changes nothing")
+    assertEquals(3, service.trackedFor(alice).kills.single().count, "a late, lower count changes nothing")
     assertEquals(3, service.viewFor(alice, questId)!!.objectives.single().progress)
     assertEquals("Ashford", service.viewFor(alice, questId)!!.objectives.single().placeName)
   }
@@ -188,7 +191,7 @@ class QuestServiceTest {
     service.accept(alice, questId)
     service.end(questId, QuestStatus.EXPIRED)
 
-    assertTrue(service.trackedKillsFor(alice).isEmpty())
+    assertTrue(service.trackedFor(alice).kills.isEmpty())
   }
 
   @Test
@@ -197,12 +200,12 @@ class QuestServiceTest {
     service.accept(alice, questId)
     service.accept(bob, questId)
 
-    assertEquals(listOf(WOLF), service.trackedKillsFor(alice).map { it.speciesId })
+    assertEquals(listOf(WOLF), service.trackedFor(alice).kills.map { it.speciesId })
     assertEquals(1, service.viewFor(alice, questId)!!.objectives.size)
 
     service.recordPersonal(alice, questId, 0, 2)
 
-    assertEquals(listOf(BEAR), service.trackedKillsFor(alice).map { it.speciesId })
+    assertEquals(listOf(BEAR), service.trackedFor(alice).kills.map { it.speciesId })
     val view = service.viewFor(alice, questId)!!
     assertEquals(1, view.stage)
     assertEquals(listOf(0, 1), view.objectives.map { it.stage })
@@ -210,7 +213,7 @@ class QuestServiceTest {
 
     service.recordPersonal(alice, questId, 1, 1)
 
-    assertTrue(service.trackedKillsFor(alice).isEmpty())
+    assertTrue(service.trackedFor(alice).kills.isEmpty())
     assertEquals(
       listOf(QuestStageDoneEvent(questId, alice, 0, wasLast = false), QuestStageDoneEvent(questId, alice, 1, wasLast = true)),
       published.stream(QuestStageDoneEvent::class.java).toList(),
@@ -224,6 +227,37 @@ class QuestServiceTest {
 
     assertFailsWith<IllegalArgumentException> { stagedKillDraft().let { it.copy(objectives = it.objectives.take(1) + shared) } }
     assertFailsWith<IllegalArgumentException> { stagedKillDraft().let { it.copy(objectives = it.objectives.take(1) + late) } }
+  }
+
+  @Test
+  fun `an examine and a talk objective are tracked by their target, one stage at a time`() {
+    val epitaph = WorldTarget.prop(77)
+    val keeper = WorldTarget.townsfolk(4_000_012)
+    val name = FactRef(FactRef.Subject.FIGURE, 7, FactRef.Aspect.NAME)
+    val draft = killDraft(required = 1).copy(
+      objectives = listOf(
+        QuestObjective(ObjectiveKind.EXAMINE, ObjectiveScope.PERSONAL, 1, target = epitaph),
+        QuestObjective(ObjectiveKind.TALK, ObjectiveScope.PERSONAL, 1, target = keeper, needsFact = name, stage = 1),
+      ),
+    )
+    val questId = service.create(draft).id
+    service.accept(alice, questId)
+
+    val read = service.trackedFor(alice).deeds.single()
+    assertEquals(DeedFact.Deed.EXAMINED to epitaph, read.deed to read.target)
+
+    service.recordPersonal(alice, questId, 0, 1)
+
+    val tell = service.trackedFor(alice).deeds.single()
+    assertEquals(DeedFact.Deed.TALKED_TO to keeper, tell.deed to tell.target)
+    assertEquals(name, tell.needsFact)
+  }
+
+  @Test
+  fun `an examine objective without a target is refused`() {
+    assertFailsWith<IllegalArgumentException> {
+      killDraft(required = 1).copy(objectives = listOf(QuestObjective(ObjectiveKind.EXAMINE, ObjectiveScope.PERSONAL, 1)))
+    }
   }
 
   private fun stagedKillDraft(): QuestDraft {
