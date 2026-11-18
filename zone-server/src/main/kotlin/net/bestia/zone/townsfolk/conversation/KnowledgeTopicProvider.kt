@@ -1,9 +1,13 @@
 package net.bestia.zone.townsfolk.conversation
 
+import net.bestia.zone.fact.FactRef
+import net.bestia.zone.fact.FactService
+import net.bestia.zone.fact.FactSource
 import net.bestia.zone.text.TextRef
 import net.bestia.zone.townsfolk.knowledge.Certainty
 import net.bestia.zone.townsfolk.knowledge.Knowledge
 import net.bestia.zone.townsfolk.knowledge.KnowledgeService
+import net.bestia.zone.townsfolk.knowledge.LegendKnowledge
 import net.bestia.zone.townsfolk.knowledge.TownKnowledge
 import net.bestia.zone.text.TextArg
 import org.springframework.stereotype.Component
@@ -25,6 +29,7 @@ import org.springframework.stereotype.Component
 class KnowledgeTopicProvider(
   private val knowledge: KnowledgeService,
   private val lines: ConversationLineCatalogue,
+  private val facts: FactService,
 ) : DialogTopicProvider {
 
   override fun owns(topicId: Int): Boolean {
@@ -49,6 +54,10 @@ class KnowledgeTopicProvider(
     }
 
     val memory = knowledge.knownBy(speaker.identity).firstOrNull { it.topic == local } ?: return null
+
+    if (isChronicleEvent(memory)) {
+      facts.learnAsPlayed(asker.accountId, FactRef.event(memory.topic), FactSource.TOWNSFOLK)
+    }
 
     return ConversationNode(lineOf(speaker, memory), listOf(back()))
   }
@@ -102,6 +111,14 @@ class KnowledgeTopicProvider(
 
     // The tale's own arguments ride along, so the client can fill the nested line from them.
     return lines.lineFor(speaker, frame, tale.args + (ConversationKeys.SLOT_TALE to TextArg.Token(tale.key)))
+  }
+
+  /**
+   * Only the chronicle is a fact. A legend may point the wrong way, and a rumour is no chronicle record.
+   * Both have their topics above the event ids.
+   */
+  private fun isChronicleEvent(memory: Knowledge): Boolean {
+    return memory.topic < LegendKnowledge.TOPIC_BASE
   }
 
   private fun back(): ConversationOption {

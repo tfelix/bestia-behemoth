@@ -5,17 +5,20 @@ import net.bestia.zone.fact.ecs.KnownFacts
 import net.bestia.zone.fact.persistence.MasterFact
 import net.bestia.zone.fact.persistence.MasterFactRepository
 import net.bestia.zone.identity.MasterEntityResolver
+import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.util.AccountId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 
-/** What each master has learned about the world. Runs off the tick: every call reads or writes the database. */
+/** What each master has learned about the world. Only [learnAsPlayed] may be called on the tick. */
 @Service
 class FactService(
   private val facts: MasterFactRepository,
   private val world: WorldView,
   private val sessions: ConnectionInfoService,
+  private val jobs: AsyncJobExecutor,
   private val masters: MasterEntityResolver = MasterEntityResolver(sessions),
 ) {
 
@@ -36,6 +39,16 @@ class FactService(
     tellPlayedMaster(masterId, fact)
 
     return true
+  }
+
+  /**
+   * Learns for the master [accountId] plays now, if it plays one. Safe to call on the tick: the row is written
+   * by a job.
+   */
+  fun learnAsPlayed(accountId: AccountId, fact: FactRef, source: FactSource) {
+    val masterId = sessions.activeMasters()[accountId] ?: return
+
+    jobs.submit(masterId) { learn(masterId, fact, source) }
   }
 
   /** The fact a played master just learned must count on the tick at once; others load theirs at spawn. */
