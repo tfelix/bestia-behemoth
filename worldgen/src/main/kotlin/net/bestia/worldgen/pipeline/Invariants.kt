@@ -44,6 +44,7 @@ import net.bestia.worldgen.vector.Aabb
 import net.bestia.worldgen.vector.AreaFeature
 import net.bestia.worldgen.vector.FeatureEvaluator
 import net.bestia.worldgen.vector.FeatureId
+import net.bestia.worldgen.treasure.TreasureChannels
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.FootprintFeature
 import net.bestia.worldgen.coast.CoastChannels
@@ -305,6 +306,7 @@ object Invariants {
     checkNoEventCitesAPrunedCause(generated, ::fail)
     checkArtifactChainsAreOrdered(generated, ::fail)
     checkArtifactsHaveOneKeeper(generated, ::fail)
+    checkEveryRestingArtifactCanBeDugUp(generated, ::fail)
     checkEveryRuinHasAnEvent(generated, ::fail)
     checkStructuralMarkersFitTheQueryMargin(generated, ::fail)
     checkBuildingsBelongToTheirSettlement(generated, ::fail)
@@ -1373,6 +1375,38 @@ object Invariants {
         fail("artifact chains are ordered", "artifact ${relic.index} was forged by nobody")
         return
       }
+    }
+  }
+
+  /** An artifact lying at a site is in exactly one treasure cache of that site, and no cache holds any other. */
+  private fun checkEveryRestingArtifactCanBeDugUp(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val name = "every resting artifact can be dug up"
+    val cachesByArtifact = generated.world.features.all()
+      .filter { it.kind == FeatureKind.TREASURE_CACHE }
+      .filterIsInstance<PointMarker>()
+      .filter { it.attribute(TreasureChannels.ARTIFACT) >= 0.0 }
+      .groupBy { it.attribute(TreasureChannels.ARTIFACT).toInt() }
+
+    val resting = generated.world.chronicle.artifacts.filter { it.unclaimed && it.restingSite >= 0 }
+    for (relic in resting) {
+      val caches = cachesByArtifact[relic.index].orEmpty()
+      if (caches.size != 1) {
+        fail(name, "artifact ${relic.index} rests at site ${relic.restingSite} and lies in ${caches.size} caches")
+        return
+      }
+      val cacheSite = caches.single().attribute(TreasureChannels.SITE).toInt()
+      if (cacheSite != relic.restingSite) {
+        fail(name, "artifact ${relic.index} rests at site ${relic.restingSite}, its cache lies at site $cacheSite")
+        return
+      }
+    }
+
+    val notResting = cachesByArtifact.keys - resting.map { it.index }.toSet()
+    if (notResting.isNotEmpty()) {
+      fail(name, "caches hold artifacts $notResting, which rest at no site")
     }
   }
 
