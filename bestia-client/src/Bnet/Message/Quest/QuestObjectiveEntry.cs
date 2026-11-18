@@ -27,8 +27,20 @@ namespace BestiaBehemothClient.Bnet.Message.Quest
     /// <summary>How to word the objective; its key is empty for a delivery or a kill.</summary>
     [Export] public TextRef Text { get; set; } = new();
 
+    /// <summary>What a decide step offers; answered with a <see cref="DecideQuestCMSG"/>.</summary>
+    [Export] public Godot.Collections.Array<QuestChoiceEntry> Choices { get; set; } = [];
+
+    /// <summary>The id the master picked; empty while it has not.</summary>
+    [Export] public string Chosen { get; set; } = "";
+
     public static QuestObjectiveEntry FromProto(global::Bnet.QuestObjective proto)
     {
+      var choices = new Godot.Collections.Array<QuestChoiceEntry>();
+      foreach (var choice in proto.Choices)
+      {
+        choices.Add(QuestChoiceEntry.FromProto(choice));
+      }
+
       return new QuestObjectiveEntry
       {
         KindName = EnumName.Of(proto.Kind),
@@ -40,7 +52,9 @@ namespace BestiaBehemothClient.Bnet.Message.Quest
         Progress = (int)proto.Progress,
         Yours = (int)proto.Yours,
         Stage = (int)proto.Stage,
-        Text = proto.Text == null ? new TextRef() : TextRef.FromProto(proto.Text)
+        Text = proto.Text == null ? new TextRef() : TextRef.FromProto(proto.Text),
+        Choices = choices,
+        Chosen = proto.Chosen
       };
     }
   }
