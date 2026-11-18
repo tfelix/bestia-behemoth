@@ -13,6 +13,7 @@ enum class ApiRoute {
   MAP_FIND,
   MAP_PLACE,
   EMBLEM,
+  TEXT,
   MASTERS,
   CATALOG,
   CHAT,
@@ -29,7 +30,7 @@ enum class ApiRoute {
   val cached: Boolean get() = this in CACHED
 
   companion object {
-    private val CACHED = setOf(MAP_TILE, MAP_HABITAT, MAP_PLACES, MAP_SERVICES, MAP_META, EMBLEM)
+    private val CACHED = setOf(MAP_TILE, MAP_HABITAT, MAP_PLACES, MAP_SERVICES, MAP_META, EMBLEM, TEXT)
 
     private const val PREFIX = "/v1/companion/"
     private val MAP = Regex("""^/v1/companion/masters/[^/]+/map/([a-z]+)(/.*)?$""")
@@ -55,6 +56,7 @@ enum class ApiRoute {
       val rest = path.removePrefix(PREFIX)
       return when {
         rest.startsWith("emblems/") -> EMBLEM
+        rest.startsWith("texts/") -> TEXT
         rest.startsWith("catalog") -> CATALOG
         rest.startsWith("push/") -> PUSH
         rest == "ws" -> WS

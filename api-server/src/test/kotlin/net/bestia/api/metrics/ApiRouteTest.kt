@@ -14,6 +14,7 @@ class ApiRouteTest {
       "/v1/companion/masters/5/map/s/2/1/1" to ApiRoute.MAP_SERVICES,
       "/v1/companion/masters/5/map/meta" to ApiRoute.MAP_META,
       "/v1/companion/emblems/${"ab".repeat(32)}.png" to ApiRoute.EMBLEM,
+      "/v1/companion/texts/${"ab".repeat(16)}/en" to ApiRoute.TEXT,
       "/v1/companion/masters" to ApiRoute.MASTERS,
       "/v1/companion/masters/5/inventory" to ApiRoute.MASTERS,
       "/v1/companion/masters/5/map/../bestias" to ApiRoute.MASTERS,
