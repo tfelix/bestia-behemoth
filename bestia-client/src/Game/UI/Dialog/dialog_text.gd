@@ -46,6 +46,11 @@ static func resolve_line(key: String, args: Array) -> String:
 	return _format(_translate(key), args)
 
 
+## Resolves a [code]TextRef[/code] from the server: its key and args, as [method resolve_line] does.
+static func resolve_ref(ref) -> String:
+	return resolve_line(ref.Key, Array(ref.Args))
+
+
 static func _translate(key: String) -> String:
 	return TranslationServer.translate(key)
 

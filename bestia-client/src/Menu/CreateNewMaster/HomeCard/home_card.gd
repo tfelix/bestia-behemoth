@@ -28,7 +28,7 @@ func show_candidate(candidate: MasterSpawnPointCandidate, suggested: bool) -> vo
 	_biome_label.text = tr(candidate.BiomeToken)
 
 	var history: Array = Array(candidate.History).map(
-		func(line): return DialogText.resolve_line(line.Key, Array(line.Args))
+		func(line): return DialogText.resolve_ref(line)
 	)
 	_history_label.text = " ".join(history)
 	_history_label.visible = not history.is_empty()
