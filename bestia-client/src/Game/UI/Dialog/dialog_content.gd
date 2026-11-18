@@ -19,7 +19,7 @@ var text_key: String
 ## plenty of dialogs are just a line of text.
 var title_key: String
 
-## Placeholder values, as [code]DialogArg[/code] objects. Always empty for a local dialog - a client-only
+## Placeholder values, as [code]TextArg[/code] objects. Always empty for a local dialog - a client-only
 ## dialog is static text, which is the whole reason it needs no server round trip.
 var args: Array
 

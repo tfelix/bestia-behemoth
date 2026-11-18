@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "TextProto";
+
+/**
+ * One placeholder value for a text. Typed rather than pre-rendered so that anything the client
+ * already localizes itself (item, species and skill names, entity names) stays localized: the
+ * server sends the reference, the client resolves it against its own DBs.
+ * Only use `text` for strings that have no client-side representation at all, e.g. another
+ * player's master name.
+ */
+message TextArg {
+  oneof value {
+    string text = 1;
+    int64 number = 2;
+    uint64 entity_id = 3;
+    int64 item_id = 4;
+    int64 skill_id = 5;
+    // A translation key the client resolves in turn and substitutes. What lets a template say
+    // "{who} spoke of {what}" where {what} is itself a localized word rather than an English one.
+    string token = 6;
+    // A proper noun, already rendered. Distinct from `text` so a reviewer can see at a glance that a
+    // server-composed sentence has not been smuggled through: generated names are built from invented
+    // stems that belong to no language, and there is nothing in one to translate.
+    string name = 7;
+    int64 species_id = 8;
+  }
+}
+
+/**
+ * One text, as a translation key and its arguments. Never a sentence: the server knows no language.
+ *
+ * A string key rather than a numeric id, because most keys are computed - from an event kind, an
+ * occupation, a time bucket - and the only numeric mapping would be an enum ordinal.
+ */
+message TextRef {
+  string key = 1;
+  // Keyed by the placeholder name the text uses, e.g. "place" fills {place}.
+  map<string, TextArg> args = 2;
+  // A text written for this world, served by the api-server in the player's language. Its body uses
+  // the same placeholders. Empty when the text is only the template behind `key`.
+  string text_id = 3;
+}

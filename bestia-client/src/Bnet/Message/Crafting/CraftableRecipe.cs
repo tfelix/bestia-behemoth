@@ -22,7 +22,7 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
   /// <remarks>
   /// Its own file rather than a companion inside <see cref="CraftableRecipesSMSG"/>, because Godot registers
   /// exactly one <c>[GlobalClass]</c> per C# file - the one named after the file. A second class in the same
-  /// file compiles and is invisible to GDScript, which is why <c>SkillListEntry</c> and <c>DialogArg</c> each
+  /// file compiles and is invisible to GDScript, which is why <c>SkillListEntry</c> and <c>TextArg</c> each
   /// have a file of their own too.
   /// </remarks>
   [GlobalClass]

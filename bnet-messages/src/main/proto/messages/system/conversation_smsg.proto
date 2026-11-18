@@ -2,25 +2,10 @@ syntax = "proto3";
 
 package bnet;
 
-import "messages/system/dialog_smsg.proto";
+import "messages/system/text.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "ConversationSmsgProto";
-
-/**
- * One thing said, as a translation key and its arguments.
- *
- * A string key rather than the numeric id `DialogSMSG` uses, and that is the whole reason conversation
- * is a separate message rather than a `CHOICE` flavour of the dialog popup. A dialog's id is short
- * because a human wrote the call site; a conversation line's key is *computed* - from an event kind, an
- * occupation, a time bucket - and the only numeric mapping available would be an enum ordinal, which
- * this codebase forbids storing anywhere precisely because a reorder rewrites every reference.
- */
-message Line {
-  string key = 1;
-  // Keyed by the placeholder name the text uses, e.g. "place" fills {place}.
-  map<string, DialogArg> args = 2;
-}
 
 /** What picking an option does, so the client can render it without understanding the topic. */
 enum OptionKind {
@@ -42,7 +27,7 @@ message ConversationOption {
    * all: there is no cursor to remember, so a reconnect or a restart costs nothing.
    */
   int32 topic_id = 1;
-  Line line = 2;
+  TextRef line = 2;
   OptionKind kind = 3;
 }
 
@@ -57,6 +42,6 @@ message ConversationOption {
 message ConversationSMSG {
   uint64 speaker_entity_id = 1;
   string speaker_name = 2;
-  Line speech = 3;
+  TextRef speech = 3;
   repeated ConversationOption options = 4;
 }

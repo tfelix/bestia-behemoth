@@ -32,11 +32,11 @@ namespace BestiaBehemothClient.Bnet.Message.System
 
     /// <summary>
     /// Placeholder values to substitute into the translated text, keyed by
-    /// <see cref="DialogArg.Name"/>. An array rather than a dictionary because Godot dictionaries
+    /// <see cref="TextArg.Name"/>. An array rather than a dictionary because Godot dictionaries
     /// of GodotObject do not survive the marshalling as cleanly.
     /// </summary>
     [Export]
-    public Godot.Collections.Array<DialogArg> Args { get; set; } = new();
+    public Godot.Collections.Array<TextArg> Args { get; set; } = new();
 
     /// <summary>
     /// Optional speaker, for a portrait or name. Meaningful only when
@@ -50,10 +50,10 @@ namespace BestiaBehemothClient.Bnet.Message.System
 
     public static DialogSMSG FromProto(global::Bnet.DialogSMSG proto)
     {
-      var args = new Godot.Collections.Array<DialogArg>();
+      var args = new Godot.Collections.Array<TextArg>();
       foreach (var entry in proto.Args)
       {
-        args.Add(DialogArg.FromProto(entry.Key, entry.Value));
+        args.Add(TextArg.FromProto(entry.Key, entry.Value));
       }
 
       return new DialogSMSG

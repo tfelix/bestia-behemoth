@@ -25,22 +25,18 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CidtZXNzYWdlcy9zeXN0ZW0vY29udmVyc2F0aW9uX3Ntc2cucHJvdG8SBGJu",
-            "ZXQaIW1lc3NhZ2VzL3N5c3RlbS9kaWFsb2dfc21zZy5wcm90byJ1CgRMaW5l",
-            "EgsKA2tleRgBIAEoCRIiCgRhcmdzGAIgAygLMhQuYm5ldC5MaW5lLkFyZ3NF",
-            "bnRyeRo8CglBcmdzRW50cnkSCwoDa2V5GAEgASgJEh4KBXZhbHVlGAIgASgL",
-            "Mg8uYm5ldC5EaWFsb2dBcmc6AjgBImAKEkNvbnZlcnNhdGlvbk9wdGlvbhIQ",
-            "Cgh0b3BpY19pZBgBIAEoBRIYCgRsaW5lGAIgASgLMgouYm5ldC5MaW5lEh4K",
-            "BGtpbmQYAyABKA4yEC5ibmV0Lk9wdGlvbktpbmQiigEKEENvbnZlcnNhdGlv",
-            "blNNU0cSGQoRc3BlYWtlcl9lbnRpdHlfaWQYASABKAQSFAoMc3BlYWtlcl9u",
-            "YW1lGAIgASgJEhoKBnNwZWVjaBgDIAEoCzIKLmJuZXQuTGluZRIpCgdvcHRp",
-            "b25zGAQgAygLMhguYm5ldC5Db252ZXJzYXRpb25PcHRpb24qNQoKT3B0aW9u",
-            "S2luZBIICgRUQUxLEAASCgoGQUNUSU9OEAESCAoEQkFDSxACEgcKA0VORBAD",
-            "Qi4KFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IVQ29udmVyc2F0aW9uU21zZ1By",
-            "b3RvYgZwcm90bzM="));
+            "ZXQaGm1lc3NhZ2VzL3N5c3RlbS90ZXh0LnByb3RvImMKEkNvbnZlcnNhdGlv",
+            "bk9wdGlvbhIQCgh0b3BpY19pZBgBIAEoBRIbCgRsaW5lGAIgASgLMg0uYm5l",
+            "dC5UZXh0UmVmEh4KBGtpbmQYAyABKA4yEC5ibmV0Lk9wdGlvbktpbmQijQEK",
+            "EENvbnZlcnNhdGlvblNNU0cSGQoRc3BlYWtlcl9lbnRpdHlfaWQYASABKAQS",
+            "FAoMc3BlYWtlcl9uYW1lGAIgASgJEh0KBnNwZWVjaBgDIAEoCzINLmJuZXQu",
+            "VGV4dFJlZhIpCgdvcHRpb25zGAQgAygLMhguYm5ldC5Db252ZXJzYXRpb25P",
+            "cHRpb24qNQoKT3B0aW9uS2luZBIICgRUQUxLEAASCgoGQUNUSU9OEAESCAoE",
+            "QkFDSxACEgcKA0VORBADQi4KFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IVQ29u",
+            "dmVyc2F0aW9uU21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.DialogSmsgReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.TextReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OptionKind), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Line), global::Bnet.Line.Parser, new[]{ "Key", "Args" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ConversationOption), global::Bnet.ConversationOption.Parser, new[]{ "TopicId", "Line", "Kind" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ConversationSMSG), global::Bnet.ConversationSMSG.Parser, new[]{ "SpeakerEntityId", "SpeakerName", "Speech", "Options" }, null, null, null, null)
           }));
@@ -74,243 +70,6 @@ namespace Bnet {
   #endregion
 
   #region Messages
-  /// <summary>
-  ///*
-  /// One thing said, as a translation key and its arguments.
-  ///
-  /// A string key rather than the numeric id `DialogSMSG` uses, and that is the whole reason conversation
-  /// is a separate message rather than a `CHOICE` flavour of the dialog popup. A dialog's id is short
-  /// because a human wrote the call site; a conversation line's key is *computed* - from an event kind, an
-  /// occupation, a time bucket - and the only numeric mapping available would be an enum ordinal, which
-  /// this codebase forbids storing anywhere precisely because a reorder rewrites every reference.
-  /// </summary>
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class Line : pb::IMessage<Line>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<Line> _parser = new pb::MessageParser<Line>(() => new Line());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<Line> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.ConversationSmsgReflection.Descriptor.MessageTypes[0]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Line() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Line(Line other) : this() {
-      key_ = other.key_;
-      args_ = other.args_.Clone();
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Line Clone() {
-      return new Line(this);
-    }
-
-    /// <summary>Field number for the "key" field.</summary>
-    public const int KeyFieldNumber = 1;
-    private string key_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Key {
-      get { return key_; }
-      set {
-        key_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    /// <summary>Field number for the "args" field.</summary>
-    public const int ArgsFieldNumber = 2;
-    private static readonly pbc::MapField<string, global::Bnet.DialogArg>.Codec _map_args_codec
-        = new pbc::MapField<string, global::Bnet.DialogArg>.Codec(pb::FieldCodec.ForString(10, ""), pb::FieldCodec.ForMessage(18, global::Bnet.DialogArg.Parser), 18);
-    private readonly pbc::MapField<string, global::Bnet.DialogArg> args_ = new pbc::MapField<string, global::Bnet.DialogArg>();
-    /// <summary>
-    /// Keyed by the placeholder name the text uses, e.g. "place" fills {place}.
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::MapField<string, global::Bnet.DialogArg> Args {
-      get { return args_; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as Line);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(Line other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (Key != other.Key) return false;
-      if (!Args.Equals(other.Args)) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (Key.Length != 0) hash ^= Key.GetHashCode();
-      hash ^= Args.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (Key.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(Key);
-      }
-      args_.WriteTo(output, _map_args_codec);
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Key.Length != 0) {
-        output.WriteRawTag(10);
-        output.WriteString(Key);
-      }
-      args_.WriteTo(ref output, _map_args_codec);
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (Key.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Key);
-      }
-      size += args_.CalculateSize(_map_args_codec);
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(Line other) {
-      if (other == null) {
-        return;
-      }
-      if (other.Key.Length != 0) {
-        Key = other.Key;
-      }
-      args_.MergeFrom(other.args_);
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 10: {
-            Key = input.ReadString();
-            break;
-          }
-          case 18: {
-            args_.AddEntriesFrom(input, _map_args_codec);
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 10: {
-            Key = input.ReadString();
-            break;
-          }
-          case 18: {
-            args_.AddEntriesFrom(ref input, _map_args_codec);
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class ConversationOption : pb::IMessage<ConversationOption>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -326,7 +85,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.ConversationSmsgReflection.Descriptor.MessageTypes[1]; }
+      get { return global::Bnet.ConversationSmsgReflection.Descriptor.MessageTypes[0]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -379,10 +138,10 @@ namespace Bnet {
 
     /// <summary>Field number for the "line" field.</summary>
     public const int LineFieldNumber = 2;
-    private global::Bnet.Line line_;
+    private global::Bnet.TextRef line_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Bnet.Line Line {
+    public global::Bnet.TextRef Line {
       get { return line_; }
       set {
         line_ = value;
@@ -517,7 +276,7 @@ namespace Bnet {
       }
       if (other.line_ != null) {
         if (line_ == null) {
-          Line = new global::Bnet.Line();
+          Line = new global::Bnet.TextRef();
         }
         Line.MergeFrom(other.Line);
       }
@@ -549,7 +308,7 @@ namespace Bnet {
           }
           case 18: {
             if (line_ == null) {
-              Line = new global::Bnet.Line();
+              Line = new global::Bnet.TextRef();
             }
             input.ReadMessage(Line);
             break;
@@ -583,7 +342,7 @@ namespace Bnet {
           }
           case 18: {
             if (line_ == null) {
-              Line = new global::Bnet.Line();
+              Line = new global::Bnet.TextRef();
             }
             input.ReadMessage(Line);
             break;
@@ -623,7 +382,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.ConversationSmsgReflection.Descriptor.MessageTypes[2]; }
+      get { return global::Bnet.ConversationSmsgReflection.Descriptor.MessageTypes[1]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -682,10 +441,10 @@ namespace Bnet {
 
     /// <summary>Field number for the "speech" field.</summary>
     public const int SpeechFieldNumber = 3;
-    private global::Bnet.Line speech_;
+    private global::Bnet.TextRef speech_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Bnet.Line Speech {
+    public global::Bnet.TextRef Speech {
       get { return speech_; }
       set {
         speech_ = value;
@@ -827,7 +586,7 @@ namespace Bnet {
       }
       if (other.speech_ != null) {
         if (speech_ == null) {
-          Speech = new global::Bnet.Line();
+          Speech = new global::Bnet.TextRef();
         }
         Speech.MergeFrom(other.Speech);
       }
@@ -861,7 +620,7 @@ namespace Bnet {
           }
           case 26: {
             if (speech_ == null) {
-              Speech = new global::Bnet.Line();
+              Speech = new global::Bnet.TextRef();
             }
             input.ReadMessage(Speech);
             break;
@@ -899,7 +658,7 @@ namespace Bnet {
           }
           case 26: {
             if (speech_ == null) {
-              Speech = new global::Bnet.Line();
+              Speech = new global::Bnet.TextRef();
             }
             input.ReadMessage(Speech);
             break;

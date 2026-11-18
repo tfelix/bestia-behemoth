@@ -18,7 +18,7 @@ namespace BestiaBehemothClient.Bnet.Message
   /// case boundaries is what puts the underscores back.
   ///
   /// Deliberately not the protobuf descriptor's <c>OriginalName</c>, which would give the proto name
-  /// verbatim: two of the five enums bridged this way (<c>RecipeEffect</c>, <c>DialogArgKind</c>) are
+  /// verbatim: two of the five enums bridged this way (<c>RecipeEffect</c>, <c>TextArgKind</c>) are
   /// hand-written C# and have no descriptor at all, and for <c>TradeStatus</c> - whose values carry a
   /// <c>TRADE_STATUS_</c> prefix that protoc strips - it would hand GDScript <c>trade_status_open</c> where
   /// <c>open</c> is wanted. Reading the member name keeps one rule for all five.
