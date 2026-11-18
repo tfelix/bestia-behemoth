@@ -324,6 +324,26 @@ A skill with no `description` in `skills.yml` yet still needs a `description_key
 the `.tres` schema is uniform), but its `skills.csv` row is hand-authored/placeholder
 until someone backfills a `skills.yml` description for it.
 
+## Work EXP: which skills pay EXP, and why
+
+A master earns EXP from job work as well as kills, through `workexp/WorkExpService.award`. It is **not** keyed to
+casts, mana or skill rank: a cast has no success signal, Heal/Blessing have no cooldown and can target self, and a
+caster may cast at any rank up to the learned one. What pays is *effort seconds*: today the run time of a craft that
+**succeeded**, called from `CraftingService.succeed` (hands-on and station queue alike, paid to the master behind
+the worker and only while that master plays).
+
+- The level curve is time-first (`exp-curve:` in `application.yml`, `ExpCurveConfig`): a level takes 24 h of constant
+  play at level 97, growing with level^2.5. `LevelUpExperienceCalculator` derives the EXP a level costs from that time
+  at the EXP rate of an on-level kill (`4*lv+5` per 25 s), so fighting is on the curve by construction. To change how
+  fast anyone levels, change the curve, never a mob's `experience:`.
+- `WorkExpCalculator` turns effort into the share of that level time it is worth (`work-exp:`, pace 0.75). Craft time
+  grows with ilvl^2 and level time with level^2.5, so crafts per level keep rising.
+- `WorkExpLedger` (persisted as `master.work_exp_paid_until`) caps the total at one effort-second per second, banking
+  at most an hour, so no amount of skills or stations beats the curve and relogging gains nothing.
+- Never pays: attacks, self-only buffs, movement and detection skills, and the Proclaim set; they have no work
+  product and are cheap to spam. Support skills (heal on another target that needed it) and master gathering are the
+  next candidates; bestia skills wait until a bestia's EXP survives a respawn.
+
 ## Granting everything: `/allskills`
 
 A GM chat command (`Authority.SKILLS`, `chat/net/AllSkillsChatCommand.kt`) for testing without the points or

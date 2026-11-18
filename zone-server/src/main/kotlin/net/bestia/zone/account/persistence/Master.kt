@@ -158,6 +158,11 @@ class Master(
       field = value
     }
 
+  /** Epoch millis up to which this master's job effort has been paid EXP, see `WorkExpLedger`. 0 is a full bank. */
+  @Column(name = "work_exp_paid_until", nullable = false)
+  @ColumnDefault("0")
+  var workExpPaidUntil: Long = 0
+
   /**
    * Hit points this master last left the world with, or null to enter it at full.
    *

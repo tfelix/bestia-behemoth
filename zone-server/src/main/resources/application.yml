@@ -21,6 +21,25 @@ persistence:
   # Each persistent entity is saved this often if it changed; the population is spread over the interval.
   interval-ms: 90000
 
+exp-curve:
+  # How long a level takes someone who does nothing but earn EXP: anchor-hours at anchor-level, growing with
+  # level^exponent and never below floor-seconds. The EXP a level costs is that time at the EXP rate of an on-level
+  # kill (4 * lv + 5 per reference-kill-seconds), so fighting and working take the same time per level. A craft takes
+  # 1.2 * itemLevel^2 seconds, so exponent 2.5 means ever more crafts per level.
+  anchor-level: 97
+  anchor-hours: 24
+  exponent: 2.5
+  floor-seconds: 60
+  reference-kill-seconds: 25
+
+work-exp:
+  # EXP for successful crafts: the share of a level that the craft's time is worth on the curve above, times pace.
+  pace: 0.75
+  # The most of a level one payout may be.
+  payout-cap-share: 0.35
+  # Effort that can be banked while not working, online or off. Effort is paid at one second per second at most.
+  bank-seconds: 3600
+
 party:
   # Seats in a party, the owner's included. Open invitations hold a seat each.
   max-size: 12
