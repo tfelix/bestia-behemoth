@@ -1133,6 +1133,11 @@ QUEST_LOG_GROUP_BLACKBOARD,Blackboard
 QUEST_LOG_GROUP_POSTED,Posted by you
 QUEST_LOG_SUBTITLE,%s · posted by %s · ends in %s · suggested Lv %d
 QUEST_ORIGIN_BLACKBOARD,Blackboard
+QUEST_ORIGIN_WORLD,Local matter
+QUESTGEN_TOPIC_ASK,You look troubled. What is it?
+QUESTGEN_LOST_RELIC_OFFER,"It is {artifact}. It was lost long ago and nobody ever found it. I can tell you what my house knows, if you mean to look for it."
+QUESTGEN_ACCEPT,I will look for it.
+QUESTGEN_ACCEPTED,Then listen well. May you have more luck than those before you.
 QUEST_LOG_OBJECTIVE,%s %d / %d
 QUEST_LOG_OBJECTIVE_YOURS,(you: %d · you carry %d)
 QUEST_LOG_REWARD_EACH,Reward: %d gold each
