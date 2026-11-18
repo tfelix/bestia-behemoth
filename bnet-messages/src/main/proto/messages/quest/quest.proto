@@ -35,6 +35,7 @@ enum ObjectiveKind {
   OBJECTIVE_KIND_EXAMINE = 2;
   OBJECTIVE_KIND_TALK = 3;
   OBJECTIVE_KIND_DECIDE = 4;
+  OBJECTIVE_KIND_BRING = 5;
 }
 
 enum ObjectiveScope {

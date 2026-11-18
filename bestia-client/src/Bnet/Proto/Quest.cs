@@ -48,14 +48,15 @@ namespace Bnet {
             "ChRRVUVTVF9TVEFUVVNfRVhQSVJFRBADEhoKFlFVRVNUX1NUQVRVU19XSVRI",
             "RFJBV04QBCpTCglRdWVzdFJvbGUSFwoTUVVFU1RfUk9MRV9BQ0NFUFRFRBAA",
             "EhUKEVFVRVNUX1JPTEVfUE9TVEVEEAESFgoSUVVFU1RfUk9MRV9PRkZFUkVE",
-            "EAIqmQEKDU9iamVjdGl2ZUtpbmQSHwobT0JKRUNUSVZFX0tJTkRfREVMSVZF",
+            "EAIqswEKDU9iamVjdGl2ZUtpbmQSHwobT0JKRUNUSVZFX0tJTkRfREVMSVZF",
             "Ul9JVEVNEAASFwoTT0JKRUNUSVZFX0tJTkRfS0lMTBABEhoKFk9CSkVDVElW",
             "RV9LSU5EX0VYQU1JTkUQAhIXChNPQkpFQ1RJVkVfS0lORF9UQUxLEAMSGQoV",
-            "T0JKRUNUSVZFX0tJTkRfREVDSURFEAQqSgoOT2JqZWN0aXZlU2NvcGUSGgoW",
-            "T0JKRUNUSVZFX1NDT1BFX1NIQVJFRBAAEhwKGE9CSkVDVElWRV9TQ09QRV9Q",
-            "RVJTT05BTBABKjcKD1F1ZXN0UmV3YXJkS2luZBIkCiBRVUVTVF9SRVdBUkRf",
-            "S0lORF9DT0lOU19QRVJfVU5JVBAAQiMKFW5ldC5iZXN0aWEuYm5ldC5wcm90",
-            "b0IKUXVlc3RQcm90b2IGcHJvdG8z"));
+            "T0JKRUNUSVZFX0tJTkRfREVDSURFEAQSGAoUT0JKRUNUSVZFX0tJTkRfQlJJ",
+            "TkcQBSpKCg5PYmplY3RpdmVTY29wZRIaChZPQkpFQ1RJVkVfU0NPUEVfU0hB",
+            "UkVEEAASHAoYT0JKRUNUSVZFX1NDT1BFX1BFUlNPTkFMEAEqNwoPUXVlc3RS",
+            "ZXdhcmRLaW5kEiQKIFFVRVNUX1JFV0FSRF9LSU5EX0NPSU5TX1BFUl9VTklU",
+            "EABCIwoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQgpRdWVzdFByb3RvYgZwcm90",
+            "bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.TextReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.QuestOrigin), typeof(global::Bnet.QuestStatus), typeof(global::Bnet.QuestRole), typeof(global::Bnet.ObjectiveKind), typeof(global::Bnet.ObjectiveScope), typeof(global::Bnet.QuestRewardKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -105,6 +106,7 @@ namespace Bnet {
     [pbr::OriginalName("OBJECTIVE_KIND_EXAMINE")] Examine = 2,
     [pbr::OriginalName("OBJECTIVE_KIND_TALK")] Talk = 3,
     [pbr::OriginalName("OBJECTIVE_KIND_DECIDE")] Decide = 4,
+    [pbr::OriginalName("OBJECTIVE_KIND_BRING")] Bring = 5,
   }
 
   public enum ObjectiveScope {
