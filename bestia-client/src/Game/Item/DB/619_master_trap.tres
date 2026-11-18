@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+[ext_resource type="Script" path="res://Game/Item/UseScripts/bestia_trap_use.gd" id="2_trap_use"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 619
+name_key = "MASTER_TRAP"
+description_key = "MASTER_TRAP_DESC"
+weight = 200
+level = 60
+item_script = ExtResource("2_trap_use")

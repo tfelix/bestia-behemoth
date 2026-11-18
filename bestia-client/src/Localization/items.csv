@@ -1539,3 +1539,47 @@ BLACKBOARD_KIT,Blackboard Kit
 BLACKBOARD_KIT_DESC,"A dark-stained board on two posts, with a pouch of chalk and a fistful of nails.
 
 Set it up inside a town without one, and anyone may post or take on quests there."
+ALCHEMY_LABORATORY_KIT,Alchemy Laboratory Kit
+ALCHEMY_LABORATORY_KIT_DESC,"A crate of flasks, retorts and a small burner, packed in straw.
+
+Set it down and it becomes an Alchemy Laboratory, where potions are brewed in the wild."
+GEM_CUT_STATION_KIT,Gem Cut Station Kit
+GEM_CUT_STATION_KIT_DESC,"A folded bench with clamps, loupes and pouches of graded grit.
+
+Set it down and it becomes a Gem Cut Station, where rough gems are cut."
+TRANSMUTATION_WORKBENCH_KIT,Transmutation Workbench Kit
+TRANSMUTATION_WORKBENCH_KIT_DESC,"A slab of engraved stone and a bundle of copper rods, wrapped in oilcloth.
+
+Set it down and it becomes a Transmutation Workbench, where mundane matter is reshaped."
+SUPER_TRAP,Super Trap
+SUPER_TRAP_DESC,"A reinforced cage with a second layer of binding wards.
+
+The workhorse of most Foresters."
+MEGA_TRAP,Mega Trap
+MEGA_TRAP_DESC,"A trap built around a caged mana crystal.
+
+Expensive enough that most masters save it for something worth keeping."
+MASTER_TRAP,Master Trap
+MASTER_TRAP_DESC,"The finest trap a Craftsman can make.
+
+The only trap with any real hope against an old Bestia."
+HEALTH_POTION,Health Potion
+HEALTH_POTION_DESC,"A robust flask of crimson elixir.
+
+Heals a large amount of health when consumed."
+MANA_POTION,Mana Potion
+MANA_POTION_DESC,"A flask of deep azure liquid that pulses with arcane power.
+
+Restores a large amount of mana when consumed."
+GRAPE,Grape
+GRAPE_DESC,"A sweet, ripe purple grape. Its sugar is said to wake the mind.
+
+Restores a little mana when eaten."
+CHARCOAL,Charcoal
+CHARCOAL_DESC,"Charred, brittle pieces of wood. Cheap furnace fuel, but it never burns as hot as coal."
+MARBLE,Marble
+MARBLE_DESC,"A block of white, veined stone. The finest building stone there is."
+SIGIL_OF_REDEMPTION,Sigil of Redemption
+SIGIL_OF_REDEMPTION_DESC,"A rare, costly sigil of gold. It symbolizes your bond to your Order.
+
+It also holds the power to undo those holy ties."

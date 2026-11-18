@@ -11503,3 +11503,156 @@ items:
       A dark-stained board on two posts, with a pouch of chalk and a fistful of nails.
 
       Set it up inside a town without one, and anyone may post or take on quests there.
+
+  # --- Stations a skill already promises --------------------------------------------------------------
+  # Alchemy, Gem Cutting and Transmutation each say Lv. 1 places their station, but no StaticEntityKind
+  # stands behind them yet. ETC until it does: a USABLE kit needs a script, and a script needs a station to put
+  # down. Each turns USABLE with its `*KitScript`, like `furnace_kit`.
+  - id: 614
+    item-db-name: alchemy_laboratory_kit
+    base-level: 1
+    weight: 1500
+    type: ETC
+    material: GLASS
+    description: |
+      A crate of flasks, retorts and a small burner, packed in straw.
+
+      Set it down and it becomes an Alchemy Laboratory, where potions are brewed in the wild.
+
+  - id: 615
+    item-db-name: gem_cut_station_kit
+    base-level: 1
+    weight: 1000
+    type: ETC
+    material: WOOD
+    description: |
+      A folded bench with clamps, loupes and pouches of graded grit.
+
+      Set it down and it becomes a Gem Cut Station, where rough gems are cut.
+
+  - id: 616
+    item-db-name: transmutation_workbench_kit
+    base-level: 1
+    weight: 1500
+    type: ETC
+    material: STONE
+    description: |
+      A slab of engraved stone and a bundle of copper rods, wrapped in oilcloth.
+
+      Set it down and it becomes a Transmutation Workbench, where mundane matter is reshaped.
+
+  # --- Capture, continued -----------------------------------------------------------------------------
+  # The three stronger tiers of TrapTier. They work exactly like the bestia_trap and differ only in tier.
+  - id: 617
+    item-db-name: super_trap
+    base-level: 20
+    weight: 200
+    type: USABLE
+    material: WOOD
+    script: SuperTrapScript
+    description: |
+      A reinforced cage with a second layer of binding wards.
+
+      The workhorse of most Foresters.
+
+  - id: 618
+    item-db-name: mega_trap
+    base-level: 40
+    weight: 200
+    type: USABLE
+    material: METAL
+    script: MegaTrapScript
+    description: |
+      A trap built around a caged mana crystal.
+
+      Expensive enough that most masters save it for something worth keeping.
+
+  - id: 619
+    item-db-name: master_trap
+    base-level: 60
+    weight: 200
+    type: USABLE
+    material: METAL
+    script: MasterTrapScript
+    description: |
+      The finest trap a Craftsman can make.
+
+      The only trap with any real hope against an old Bestia.
+
+  # --- Potions, the tier above the small ones ---------------------------------------------------------
+  - id: 620
+    item-db-name: health_potion
+    base-level: 30
+    weight: 40
+    type: USABLE
+    material: GLASS
+    script: HealthPotionScript
+    description: |
+      A robust flask of crimson elixir.
+
+      Heals a large amount of health when consumed.
+
+  - id: 621
+    item-db-name: mana_potion
+    base-level: 30
+    weight: 40
+    type: USABLE
+    material: GLASS
+    script: ManaPotionScript
+    description: |
+      A flask of deep azure liquid that pulses with arcane power.
+
+      Restores a large amount of mana when consumed.
+
+  - id: 622
+    item-db-name: grape
+    base-level: 1
+    weight: 10
+    type: USABLE
+    material: FOOD
+    craft-axes: { STATE: 0.0, INTEGRITY: -0.5, HEFT: -0.8, VITALITY: 0.4, ARCANE: 0.1 }
+    script: GrapeScript
+    description: |
+      A sweet, ripe purple grape. Its sugar is said to wake the mind.
+
+      Restores a little mana when eaten.
+
+  # --- Fuel and stone ---------------------------------------------------------------------------------
+  # Charcoal is the cheap furnace fuel the charcoaler business makes. Refining still names coal only.
+  - id: 623
+    item-db-name: charcoal
+    base-level: 1
+    weight: 20
+    type: ETC
+    material: WOOD
+    craft-axes: { STATE: 0.6, INTEGRITY: -0.6, HEFT: -0.6, VITALITY: -0.3 }
+    description: |
+      Charred, brittle pieces of wood. Cheap furnace fuel, but it never burns as hot as coal.
+
+  # Worldgen places marble deposits; this is what a quarry there yields.
+  - id: 624
+    item-db-name: marble
+    base-level: 20
+    weight: 600
+    type: ETC
+    material: STONE
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.5, HEFT: 0.8, COMPLEXITY: 0.2 }
+    description: |
+      A block of white, veined stone. The finest building stone there is.
+
+  # --- Rites ------------------------------------------------------------------------------------------
+  # Worn by the master who performs the rite of Banished From The Citadel and consumed by it (factions.md).
+  # The rite itself is not built yet, so for now the sigil is only an accessory with no bonus.
+  - id: 625
+    item-db-name: sigil_of_redemption
+    base-level: 73
+    min-level: 10
+    weight: 100
+    type: EQUIP
+    material: METAL
+    equip-slot: ACCESSORY_1
+    max-durability: 200
+    description: |
+      A rare, costly sigil of gold. It symbolizes your bond to your Order.
+
+      It also holds the power to undo those holy ties.

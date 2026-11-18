@@ -3932,6 +3932,17 @@ recipes:
     baseSuccessChance: -0.030
 
   - id: 493
+    identifier: SIGIL_OF_REDEMPTION
+    effect: PRODUCE
+    output: { item: sigil_of_redemption, amount: 1 }
+    inputs:
+      - { item: mithril_ingot, amount: 1 }
+    skill: { skill: M_FORGE_ARMOR, level: 8 }
+    station: FORGE
+    craftSeconds: 6394.8
+    baseSuccessChance: -0.045
+
+  - id: 494
     identifier: RIBBON_OF_THE_MASQUE
     effect: PRODUCE
     output: { item: ribbon_of_the_masque, amount: 1 }
@@ -3943,7 +3954,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 494
+  - id: 495
     identifier: BLACKIRON_CLEAVER
     effect: PRODUCE
     output: { item: blackiron_cleaver, amount: 1 }
@@ -3957,7 +3968,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 495
+  - id: 496
     identifier: TEMPLARS_WARHAMMER
     effect: PRODUCE
     output: { item: templars_warhammer, amount: 1 }
@@ -3970,7 +3981,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 496
+  - id: 497
     identifier: LITURGY_OF_THE_LANTERN
     effect: PRODUCE
     output: { item: liturgy_of_the_lantern, amount: 1 }
@@ -3984,7 +3995,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 497
+  - id: 498
     identifier: GEARWORK_SIEGE_CROSSBOW
     effect: PRODUCE
     output: { item: gearwork_siege_crossbow, amount: 1 }
@@ -3998,7 +4009,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 498
+  - id: 499
     identifier: ROBE_OF_THE_ASHEN_CIRCLE
     effect: PRODUCE
     output: { item: robe_of_the_ashen_circle, amount: 1 }
@@ -4010,7 +4021,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 499
+  - id: 500
     identifier: HOOD_OF_THE_SILENT_HUNT
     effect: PRODUCE
     output: { item: hood_of_the_silent_hunt, amount: 1 }
@@ -4023,7 +4034,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 500
+  - id: 501
     identifier: KNIGHTS_WARCLOAK
     effect: PRODUCE
     output: { item: knights_warcloak, amount: 1 }
@@ -4037,7 +4048,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 501
+  - id: 502
     identifier: ONYX_RING
     effect: PRODUCE
     output: { item: onyx_ring, amount: 1 }
@@ -4049,7 +4060,7 @@ recipes:
     craftSeconds: 6571.2
     baseSuccessChance: -0.060
 
-  - id: 502
+  - id: 503
     identifier: FORGEMASTERS_LABRYS
     effect: PRODUCE
     output: { item: forgemasters_labrys, amount: 1 }
@@ -4063,7 +4074,7 @@ recipes:
     craftSeconds: 6931.2
     baseSuccessChance: -0.090
 
-  - id: 503
+  - id: 504
     identifier: STORMCORD_SLING
     effect: PRODUCE
     output: { item: stormcord_sling, amount: 1 }
@@ -4076,7 +4087,7 @@ recipes:
     craftSeconds: 6931.2
     baseSuccessChance: -0.090
 
-  - id: 504
+  - id: 505
     identifier: DEEPDELVERS_BOOTS
     effect: PRODUCE
     output: { item: deepdelvers_boots, amount: 1 }
@@ -4090,7 +4101,7 @@ recipes:
     craftSeconds: 6931.2
     baseSuccessChance: -0.090
 
-  - id: 505
+  - id: 506
     identifier: SUNDERER
     effect: PRODUCE
     output: { item: sunderer, amount: 1 }
@@ -4105,7 +4116,7 @@ recipes:
     craftSeconds: 7300.8
     baseSuccessChance: -0.120
 
-  - id: 506
+  - id: 507
     identifier: WARDENS_PARTISAN
     effect: PRODUCE
     output: { item: wardens_partisan, amount: 1 }
@@ -4119,7 +4130,7 @@ recipes:
     craftSeconds: 7300.8
     baseSuccessChance: -0.120
 
-  - id: 507
+  - id: 508
     identifier: CRESTED_WARHELM
     effect: PRODUCE
     output: { item: crested_warhelm, amount: 1 }
@@ -4134,7 +4145,7 @@ recipes:
     craftSeconds: 7300.8
     baseSuccessChance: -0.120
 
-  - id: 508
+  - id: 509
     identifier: CATHEDRAL_TOWER_SHIELD
     effect: PRODUCE
     output: { item: cathedral_tower_shield, amount: 1 }
@@ -4148,7 +4159,7 @@ recipes:
     craftSeconds: 7300.8
     baseSuccessChance: -0.120
 
-  - id: 509
+  - id: 510
     identifier: PILGRIMS_AMULET
     effect: PRODUCE
     output: { item: pilgrims_amulet, amount: 1 }
@@ -4160,7 +4171,7 @@ recipes:
     craftSeconds: 7300.8
     baseSuccessChance: -0.120
 
-  - id: 510
+  - id: 511
     identifier: BLACKIRON_FULLPLATE
     effect: PRODUCE
     output: { item: blackiron_fullplate, amount: 1 }
@@ -4175,7 +4186,7 @@ recipes:
     craftSeconds: 7680.0
     baseSuccessChance: -0.150
 
-  - id: 511
+  - id: 512
     identifier: SHEPHERD_KINGS_SLING
     effect: PRODUCE
     output: { item: shepherd_kings_sling, amount: 1 }
@@ -4188,7 +4199,7 @@ recipes:
     craftSeconds: 9720.0
     baseSuccessChance: -0.300
 
-  - id: 512
+  - id: 513
     identifier: BOOTS_OF_THE_SEVEN_LEAGUES
     effect: PRODUCE
     output: { item: boots_of_the_seven_leagues, amount: 1 }
@@ -4201,18 +4212,19 @@ recipes:
     craftSeconds: 9720.0
     baseSuccessChance: -0.300
 
-  - id: 513
+  - id: 514
     identifier: BAND_OF_A_THOUSAND_BARGAINS
     effect: PRODUCE
     output: { item: band_of_a_thousand_bargains, amount: 1 }
     inputs:
-      - { item: mithril_ingot, amount: 1 }
+      - { item: mithril_ingot, amount: 2 }
+      - { item: mana_essence, amount: 1 }
     skill: { skill: M_FORGE_ARMOR, level: 9 }
     station: FORGE
     craftSeconds: 9720.0
     baseSuccessChance: -0.300
 
-  - id: 514
+  - id: 515
     identifier: LANTERN_OF_THE_LOST_SAINT
     effect: PRODUCE
     output: { item: lantern_of_the_lost_saint, amount: 1 }
@@ -4226,7 +4238,7 @@ recipes:
     craftSeconds: 9720.0
     baseSuccessChance: -0.300
 
-  - id: 515
+  - id: 516
     identifier: GILDED_TONGUE
     effect: PRODUCE
     output: { item: gilded_tongue, amount: 1 }
@@ -4238,7 +4250,7 @@ recipes:
     craftSeconds: 9937.2
     baseSuccessChance: -0.315
 
-  - id: 516
+  - id: 517
     identifier: CROWN_OF_THE_ECLIPSE
     effect: PRODUCE
     output: { item: crown_of_the_eclipse, amount: 1 }
@@ -4250,7 +4262,7 @@ recipes:
     craftSeconds: 9937.2
     baseSuccessChance: -0.315
 
-  - id: 517
+  - id: 518
     identifier: TREADS_OF_THE_LAST_STAND
     effect: PRODUCE
     output: { item: treads_of_the_last_stand, amount: 1 }
@@ -4265,7 +4277,7 @@ recipes:
     craftSeconds: 9937.2
     baseSuccessChance: -0.315
 
-  - id: 518
+  - id: 519
     identifier: FISTS_OF_THE_MOUNTAIN_KING
     effect: PRODUCE
     output: { item: fists_of_the_mountain_king, amount: 1 }
@@ -4278,7 +4290,7 @@ recipes:
     craftSeconds: 10156.8
     baseSuccessChance: -0.330
 
-  - id: 519
+  - id: 520
     identifier: TONGUE_OF_THE_TEMPEST
     effect: PRODUCE
     output: { item: tongue_of_the_tempest, amount: 1 }
@@ -4291,7 +4303,7 @@ recipes:
     craftSeconds: 10156.8
     baseSuccessChance: -0.330
 
-  - id: 520
+  - id: 521
     identifier: LODESTAR_PIKE
     effect: PRODUCE
     output: { item: lodestar_pike, amount: 1 }
@@ -4305,7 +4317,7 @@ recipes:
     craftSeconds: 10156.8
     baseSuccessChance: -0.330
 
-  - id: 521
+  - id: 522
     identifier: PHILOSOPHERS_ORB
     effect: PRODUCE
     output: { item: philosophers_orb, amount: 1 }
@@ -4317,7 +4329,7 @@ recipes:
     craftSeconds: 10156.8
     baseSuccessChance: -0.330
 
-  - id: 522
+  - id: 523
     identifier: DEEPFORGED_HAUBERK
     effect: PRODUCE
     output: { item: deepforged_hauberk, amount: 1 }
@@ -4331,20 +4343,20 @@ recipes:
     craftSeconds: 10156.8
     baseSuccessChance: -0.330
 
-  - id: 523
+  - id: 524
     identifier: WINGS_OF_THE_WANDERING_WIND
     effect: PRODUCE
     output: { item: wings_of_the_wandering_wind, amount: 1 }
     inputs:
       - { item: starweave, amount: 4 }
       - { item: leather, amount: 2 }
-      - { item: storm_feather, amount: 2 }
+      - { item: storm_feather, amount: 1 }
     skill: { skill: M_FORGE_ARMOR, level: 10 }
     station: WORKBENCH
     craftSeconds: 10156.8
     baseSuccessChance: -0.330
 
-  - id: 524
+  - id: 525
     identifier: MASK_OF_THE_HOLLOW_CHOIR
     effect: PRODUCE
     output: { item: mask_of_the_hollow_choir, amount: 1 }
@@ -4356,7 +4368,7 @@ recipes:
     craftSeconds: 10156.8
     baseSuccessChance: -0.330
 
-  - id: 525
+  - id: 526
     identifier: EYE_OF_THE_ORACLE
     effect: PRODUCE
     output: { item: eye_of_the_oracle, amount: 1 }
@@ -4367,7 +4379,7 @@ recipes:
     craftSeconds: 10156.8
     baseSuccessChance: -0.330
 
-  - id: 526
+  - id: 527
     identifier: HEARTWOOD_CLEAVER
     effect: PRODUCE
     output: { item: heartwood_cleaver, amount: 1 }
@@ -4381,7 +4393,7 @@ recipes:
     craftSeconds: 10378.8
     baseSuccessChance: -0.345
 
-  - id: 527
+  - id: 528
     identifier: VEINSPLITTER
     effect: PRODUCE
     output: { item: veinsplitter, amount: 1 }
@@ -4395,7 +4407,7 @@ recipes:
     craftSeconds: 10378.8
     baseSuccessChance: -0.345
 
-  - id: 528
+  - id: 529
     identifier: LYRE_OF_THE_LAST_VERSE
     effect: PRODUCE
     output: { item: lyre_of_the_last_verse, amount: 1 }
@@ -4409,7 +4421,7 @@ recipes:
     craftSeconds: 10378.8
     baseSuccessChance: -0.345
 
-  - id: 529
+  - id: 530
     identifier: HIDE_OF_THE_NIGHTSTALKER
     effect: PRODUCE
     output: { item: hide_of_the_nightstalker, amount: 1 }
@@ -4422,7 +4434,7 @@ recipes:
     craftSeconds: 10378.8
     baseSuccessChance: -0.345
 
-  - id: 530
+  - id: 531
     identifier: WHISPER_OF_THE_VEIL
     effect: PRODUCE
     output: { item: whisper_of_the_veil, amount: 1 }
@@ -4435,7 +4447,7 @@ recipes:
     craftSeconds: 10603.2
     baseSuccessChance: -0.360
 
-  - id: 531
+  - id: 532
     identifier: CODEX_OF_UNWRITTEN_PAGES
     effect: PRODUCE
     output: { item: codex_of_unwritten_pages, amount: 1 }
@@ -4449,7 +4461,7 @@ recipes:
     craftSeconds: 10603.2
     baseSuccessChance: -0.360
 
-  - id: 532
+  - id: 533
     identifier: WINDRUNNERS_LONGBOW
     effect: PRODUCE
     output: { item: windrunners_longbow, amount: 1 }
@@ -4463,7 +4475,7 @@ recipes:
     craftSeconds: 10603.2
     baseSuccessChance: -0.360
 
-  - id: 533
+  - id: 534
     identifier: WARHELM_OF_THE_IRON_TIDE
     effect: PRODUCE
     output: { item: warhelm_of_the_iron_tide, amount: 1 }
@@ -4477,7 +4489,7 @@ recipes:
     craftSeconds: 10603.2
     baseSuccessChance: -0.360
 
-  - id: 534
+  - id: 535
     identifier: HEART_OF_THE_BEHEMOTH
     effect: PRODUCE
     output: { item: heart_of_the_behemoth, amount: 1 }
@@ -4489,7 +4501,7 @@ recipes:
     craftSeconds: 10603.2
     baseSuccessChance: -0.360
 
-  - id: 535
+  - id: 536
     identifier: DAWNBRINGER
     effect: PRODUCE
     output: { item: dawnbringer, amount: 1 }
@@ -4502,7 +4514,7 @@ recipes:
     craftSeconds: 10830.0
     baseSuccessChance: -0.375
 
-  - id: 536
+  - id: 537
     identifier: STAFF_OF_THE_SEVENTH_EMBER
     effect: PRODUCE
     output: { item: staff_of_the_seventh_ember, amount: 1 }
@@ -4515,7 +4527,7 @@ recipes:
     craftSeconds: 10830.0
     baseSuccessChance: -0.375
 
-  - id: 537
+  - id: 538
     identifier: CLOCKWORK_ARBALEST
     effect: PRODUCE
     output: { item: clockwork_arbalest, amount: 1 }
@@ -4530,7 +4542,7 @@ recipes:
     craftSeconds: 10830.0
     baseSuccessChance: -0.375
 
-  - id: 538
+  - id: 539
     identifier: MANTLE_OF_THE_STARLIT_CHOIR
     effect: PRODUCE
     output: { item: mantle_of_the_starlit_choir, amount: 1 }
@@ -4542,7 +4554,7 @@ recipes:
     craftSeconds: 10830.0
     baseSuccessChance: -0.375
 
-  - id: 539
+  - id: 540
     identifier: BASTION_OF_THE_FIRST_WALL
     effect: PRODUCE
     output: { item: bastion_of_the_first_wall, amount: 1 }
@@ -4556,7 +4568,7 @@ recipes:
     craftSeconds: 10830.0
     baseSuccessChance: -0.375
 
-  - id: 540
+  - id: 541
     identifier: OATHKEEPER
     effect: PRODUCE
     output: { item: oathkeeper, amount: 1 }
@@ -4570,7 +4582,7 @@ recipes:
     craftSeconds: 11059.2
     baseSuccessChance: -0.390
 
-  - id: 541
+  - id: 542
     identifier: ANVILHEART
     effect: PRODUCE
     output: { item: anvilheart, amount: 1 }
@@ -4583,7 +4595,7 @@ recipes:
     craftSeconds: 11059.2
     baseSuccessChance: -0.390
 
-  - id: 542
+  - id: 543
     identifier: RING_OF_THE_HOLLOW_KING
     effect: PRODUCE
     output: { item: ring_of_the_hollow_king, amount: 1 }
@@ -4595,7 +4607,7 @@ recipes:
     craftSeconds: 11059.2
     baseSuccessChance: -0.390
 
-  - id: 543
+  - id: 544
     identifier: AEGIS_OF_THE_UNBROKEN
     effect: PRODUCE
     output: { item: aegis_of_the_unbroken, amount: 1 }
@@ -4608,7 +4620,7 @@ recipes:
     craftSeconds: 11290.8
     baseSuccessChance: -0.405
 
-  - id: 544
+  - id: 545
     identifier: STARFALL_WAND
     effect: PRODUCE
     output: { item: starfall_wand, amount: 1 }
@@ -4621,7 +4633,7 @@ recipes:
     craftSeconds: 12484.8
     baseSuccessChance: -0.480
 
-  - id: 545
+  - id: 546
     identifier: SKYRENDER_HALBERD
     effect: PRODUCE
     output: { item: skyrender_halberd, amount: 1 }
