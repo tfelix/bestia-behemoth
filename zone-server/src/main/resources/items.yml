@@ -11504,16 +11504,14 @@ items:
 
       Set it up inside a town without one, and anyone may post or take on quests there.
 
-  # --- Stations a skill already promises --------------------------------------------------------------
-  # Alchemy, Gem Cutting and Transmutation each say Lv. 1 places their station, but no StaticEntityKind
-  # stands behind them yet. ETC until it does: a USABLE kit needs a script, and a script needs a station to put
-  # down. Each turns USABLE with its `*KitScript`, like `furnace_kit`.
+  # --- Stations of Alchemy, Gem Cutting and Transmutation ---------------------------------------------
   - id: 614
     item-db-name: alchemy_laboratory_kit
     base-level: 1
     weight: 1500
-    type: ETC
+    type: USABLE
     material: GLASS
+    script: AlchemyLaboratoryKitScript
     description: |
       A crate of flasks, retorts and a small burner, packed in straw.
 
@@ -11523,8 +11521,9 @@ items:
     item-db-name: gem_cut_station_kit
     base-level: 1
     weight: 1000
-    type: ETC
+    type: USABLE
     material: WOOD
+    script: GemCutStationKitScript
     description: |
       A folded bench with clamps, loupes and pouches of graded grit.
 
@@ -11534,8 +11533,9 @@ items:
     item-db-name: transmutation_workbench_kit
     base-level: 1
     weight: 1500
-    type: ETC
+    type: USABLE
     material: STONE
+    script: TransmutationWorkbenchKitScript
     description: |
       A slab of engraved stone and a bundle of copper rods, wrapped in oilcloth.
 
