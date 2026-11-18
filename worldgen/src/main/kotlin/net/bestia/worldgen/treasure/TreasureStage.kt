@@ -2,6 +2,7 @@ package net.bestia.worldgen.treasure
 
 import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.core.CellRegion
+import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.core.FeatureIds
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.GenRng
@@ -39,7 +40,8 @@ class TreasureStage(
 
   // 2: a monument holds a cache when an artifact is sealed in it.
   // 3: a battlefield holds shallow caches by its dead.
-  override val version = 3
+  // 4: every artifact resting at a site lies in a cache of its own.
+  override val version = 4
 
   override val paramsVersion get() = params.digest().value
 
@@ -55,23 +57,26 @@ class TreasureStage(
       .filterIsInstance<PointMarker>()
       .sortedBy { it.attribute(SiteChannels.SITE) }
 
+    val restingAt = artifactsRestingBySite(ctx.chronicle())
+
     val nextId = FeatureIds.allocator(id)
     val caches = ArrayList<VectorFeature>()
     for (site in sites) {
       val siteIndex = site.attribute(SiteChannels.SITE).toLong()
       val h = GenRng.hash(ctx.seed, id.hash, version.toLong(), siteIndex)
-      val artifact = site.attribute(SiteChannels.ARTIFACT).toInt()
+      val artifacts = restingAt[siteIndex.toInt()].orEmpty()
       val battlefield = site.kind == FeatureKind.BATTLEFIELD
-      val count = when {
+      val withoutArtifact = when {
         battlefield -> cachesOnBattlefield(site)
-        artifact >= 0 || GenRng.unit(h) < chanceAt(site.kind) -> 1
+        GenRng.unit(h) < chanceAt(site.kind) -> 1
         else -> 0
       }
+      val count = maxOf(withoutArtifact, artifacts.size)
 
       for (k in 0 until count) {
         val hk = if (k == 0) h else GenRng.hash(h, k.toLong())
-        // A lost artifact lies in one of a battlefield's caches, not in all of them.
-        val held = if (k == 0) artifact else -1
+        // One artifact per cache: the first caches hold them, the rest of a battlefield's hold none.
+        val held = artifacts.getOrElse(k) { -1 }
         val depth = GenRng.unit(GenRng.mix64(hk + 3))
         caches.add(
           PointMarker(
@@ -91,6 +96,18 @@ class TreasureStage(
       }
     }
     return StageResult(features = caches)
+  }
+
+  /**
+   * The artifacts a player can dig up, by the site they lie at.
+   *
+   * Read from the artifacts, not from `SiteChannels.ARTIFACT`: that names only the artifact a site was made for.
+   * One lost later in an older ruin or on a battlefield is not in it, and a site may hold several.
+   */
+  private fun artifactsRestingBySite(chronicle: Chronicle): Map<Int, List<Int>> {
+    return chronicle.artifacts
+      .filter { it.unclaimed && it.restingSite >= 0 }
+      .groupBy({ it.restingSite }, { it.index })
   }
 
   /** More where more fell, fewer the older the field is, and always one: somebody dropped something. */
