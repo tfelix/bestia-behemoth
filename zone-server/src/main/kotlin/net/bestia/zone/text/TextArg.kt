@@ -1,5 +1,7 @@
 package net.bestia.zone.text
 
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import net.bestia.zone.util.EntityId
 
 /**
@@ -10,6 +12,17 @@ import net.bestia.zone.util.EntityId
  * Reach for [Text] only when the value has no client-side representation at all - another player's
  * master name being the usual case.
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes(
+  JsonSubTypes.Type(TextArg.Text::class, name = "text"),
+  JsonSubTypes.Type(TextArg.Number::class, name = "number"),
+  JsonSubTypes.Type(TextArg.Entity::class, name = "entity"),
+  JsonSubTypes.Type(TextArg.Item::class, name = "item"),
+  JsonSubTypes.Type(TextArg.Skill::class, name = "skill"),
+  JsonSubTypes.Type(TextArg.Species::class, name = "species"),
+  JsonSubTypes.Type(TextArg.Token::class, name = "token"),
+  JsonSubTypes.Type(TextArg.Name::class, name = "name"),
+)
 sealed interface TextArg {
 
   /** A string the client cannot derive itself, e.g. a player-chosen master name. */

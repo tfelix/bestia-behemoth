@@ -3,6 +3,8 @@ package net.bestia.zone.quest
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.quest.persistence.QuestLogEntryRepository
 import net.bestia.zone.quest.persistence.QuestRepository
+import net.bestia.zone.text.TextArg
+import net.bestia.zone.text.TextRef
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -65,7 +67,7 @@ class QuestServiceTest {
     val accepted = service.logOf(alice).single()
     assertEquals(QuestView.Role.ACCEPTED, accepted.role)
     assertEquals(IRON_ORE, accepted.objectives.single().itemId)
-    assertEquals(listOf(IRON_ORE.toString()), accepted.textArgs.filter { it.kind == QuestTextArg.Kind.ITEM }.map { it.value })
+    assertEquals(TextArg.Item(IRON_ORE), accepted.title.args["item"])
     assertEquals(QuestView.Role.POSTED, service.logOf(poster).single().role)
     assertEquals(setOf(poster, alice), service.holdersOf(questId))
   }
@@ -189,8 +191,7 @@ class QuestServiceTest {
 
     return QuestDraft(
       origin = QuestOrigin.BLACKBOARD,
-      titleKey = "QUEST_KILL_TITLE",
-      textArgs = listOf(QuestTextArg.number("amount", required.toLong())),
+      title = TextRef("QUEST_KILL_TITLE", mapOf("amount" to TextArg.Number(required.toLong()))),
       suggestedLevel = 10,
       deadline = Instant.now().plus(Duration.ofDays(1)),
       objectives = listOf(objective),
@@ -201,8 +202,10 @@ class QuestServiceTest {
   private fun postDeliveryOf(required: Int): Long {
     val draft = QuestDraft(
       origin = QuestOrigin.BLACKBOARD,
-      titleKey = "QUEST_DELIVER_TITLE",
-      textArgs = listOf(QuestTextArg.number("amount", required.toLong()), QuestTextArg.item("item", IRON_ORE)),
+      title = TextRef(
+        "QUEST_DELIVER_TITLE",
+        mapOf("amount" to TextArg.Number(required.toLong()), "item" to TextArg.Item(IRON_ORE)),
+      ),
       suggestedLevel = 20,
       deadline = Instant.now().plus(Duration.ofDays(1)),
       objectives = listOf(QuestObjective(ObjectiveKind.DELIVER_ITEM, ObjectiveScope.SHARED, required, IRON_ORE)),

@@ -28,9 +28,10 @@ import net.bestia.zone.quest.QuestOrigin
 import net.bestia.zone.quest.QuestReward
 import net.bestia.zone.quest.QuestService
 import net.bestia.zone.quest.QuestStatus
-import net.bestia.zone.quest.QuestTextArg
 import net.bestia.zone.quest.QuestView
 import net.bestia.zone.quest.QuestsDeletedEvent
+import net.bestia.zone.text.TextArg
+import net.bestia.zone.text.TextRef
 import net.bestia.zone.util.EntityId
 import org.springframework.context.event.EventListener
 import org.springframework.data.repository.findByIdOrNull
@@ -248,8 +249,10 @@ class BlackboardService(
   private fun draftOf(visit: BoardVisit, request: BlackboardRequest.Post): QuestDraft {
     return QuestDraft(
       origin = QuestOrigin.BLACKBOARD,
-      titleKey = TITLE_KEY,
-      textArgs = listOf(QuestTextArg.number("amount", request.amount.toLong()), QuestTextArg.item("item", request.itemId)),
+      title = TextRef(
+        TITLE_KEY,
+        mapOf("amount" to TextArg.Number(request.amount.toLong()), "item" to TextArg.Item(request.itemId)),
+      ),
       suggestedLevel = levelHint.suggestedLevelOf(request.itemId),
       deadline = clock.instant().plus(Duration.ofDays(request.days.toLong())),
       objectives = listOf(QuestObjective(ObjectiveKind.DELIVER_ITEM, ObjectiveScope.SHARED, request.amount, request.itemId)),

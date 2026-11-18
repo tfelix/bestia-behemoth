@@ -18,19 +18,19 @@ static var _formatter := QuestFormatter.new()
 
 
 static func title_of(quest) -> String:
-	return DialogText.resolve_line(quest.TitleKey, quest.Args)
+	return DialogText.resolve_line(quest.Title.Key, quest.Title.Args)
 
 
 ## The longer text under the title: the title key's [code]_TEXT[/code] twin, with the poster and the pay added to
 ## the quest's own args. Empty when the twin has no row.
 static func text_of(quest) -> String:
-	var key: String = quest.TitleKey.replace("_TITLE", "_TEXT")
+	var key: String = quest.Title.Key.replace("_TITLE", "_TEXT")
 	if TranslationServer.translate(key) == key:
 		return ""
 
 	# Untyped, so plain dictionaries can join the quest's typed args: DialogText reads both the same way.
 	var args: Array = []
-	args.append_array(quest.Args)
+	args.append_array(quest.Title.Args)
 	args.append({"Name": "poster", "KindName": "name", "Text": quest.PosterName})
 	var pay := 0
 	for reward in quest.Rewards:

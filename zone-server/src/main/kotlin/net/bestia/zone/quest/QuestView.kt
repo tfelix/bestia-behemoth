@@ -3,6 +3,7 @@ package net.bestia.zone.quest
 import net.bestia.zone.quest.persistence.Quest
 import net.bestia.zone.quest.persistence.QuestLogEntry
 import java.time.Instant
+import net.bestia.zone.text.TextRef
 
 /** One quest as one master's log shows it. */
 data class QuestView(
@@ -10,8 +11,7 @@ data class QuestView(
   val origin: QuestOrigin,
   val status: QuestStatus,
   val role: Role,
-  val titleKey: String,
-  val textArgs: List<QuestTextArg>,
+  val title: TextRef,
   val suggestedLevel: Int,
   val deadline: Instant,
   val posterName: String,
@@ -68,8 +68,7 @@ data class QuestView(
         origin = quest.origin,
         status = quest.status,
         role = role,
-        titleKey = quest.titleKey,
-        textArgs = quest.textArgs,
+        title = quest.title,
         suggestedLevel = quest.suggestedLevel,
         deadline = quest.deadline,
         posterName = quest.posterName ?: "",

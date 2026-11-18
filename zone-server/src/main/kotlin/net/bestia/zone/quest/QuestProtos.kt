@@ -1,6 +1,7 @@
 package net.bestia.zone.quest
 
 import net.bestia.bnet.proto.QuestProto
+import net.bestia.zone.text.toBnet
 
 fun QuestView.toProto(): QuestProto.Quest {
   val quest = QuestProto.Quest.newBuilder()
@@ -8,11 +9,10 @@ fun QuestView.toProto(): QuestProto.Quest {
     .setOrigin(origin.toProto())
     .setStatus(status.toProto())
     .setRole(role.toProto())
-    .setTitleKey(titleKey)
+    .setTitle(title.toBnet())
     .setSuggestedLevel(suggestedLevel)
     .setDeadlineEpochMs(deadline.toEpochMilli())
     .setPosterName(posterName)
-  textArgs.forEach { quest.putArgs(it.name, it.toProto()) }
   objectives.forEach { quest.addObjectives(it.toProto()) }
   rewards.forEach { quest.addRewards(it.toProto()) }
 
@@ -30,19 +30,6 @@ private fun QuestView.Objective.toProto(): QuestProto.QuestObjective {
     .setProgress(progress)
     .setYours(yours)
     .build()
-}
-
-private fun QuestTextArg.toProto(): QuestProto.QuestTextArg {
-  val arg = QuestProto.QuestTextArg.newBuilder()
-  when (kind) {
-    QuestTextArg.Kind.NUMBER -> arg.setNumber(value.toLong())
-    QuestTextArg.Kind.ITEM -> arg.setItemId(value.toLong())
-    QuestTextArg.Kind.SPECIES -> arg.setSpeciesId(value.toLong())
-    QuestTextArg.Kind.TOKEN -> arg.setToken(value)
-    QuestTextArg.Kind.NAME -> arg.setName(value)
-  }
-
-  return arg.build()
 }
 
 private fun QuestReward.toProto(): QuestProto.QuestReward {

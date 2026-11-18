@@ -24,25 +24,21 @@ namespace Bnet {
     static QuestReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChptZXNzYWdlcy9xdWVzdC9xdWVzdC5wcm90bxIEYm5ldCJzCgxRdWVzdFRl",
-            "eHRBcmcSEAoGbnVtYmVyGAEgASgDSAASEQoHaXRlbV9pZBgCIAEoA0gAEhQK",
-            "CnNwZWNpZXNfaWQYAyABKANIABIPCgV0b2tlbhgEIAEoCUgAEg4KBG5hbWUY",
-            "BSABKAlIAEIHCgV2YWx1ZSLEAQoOUXVlc3RPYmplY3RpdmUSIQoEa2luZBgB",
-            "IAEoDjITLmJuZXQuT2JqZWN0aXZlS2luZBIjCgVzY29wZRgCIAEoDjIULmJu",
-            "ZXQuT2JqZWN0aXZlU2NvcGUSDwoHaXRlbV9pZBgDIAEoAxIQCghyZXF1aXJl",
-            "ZBgEIAEoDRIQCghwcm9ncmVzcxgFIAEoDRINCgV5b3VycxgGIAEoDRISCgpz",
-            "cGVjaWVzX2lkGAcgASgDEhIKCnBsYWNlX25hbWUYCCABKAkiQgoLUXVlc3RS",
-            "ZXdhcmQSIwoEa2luZBgBIAEoDjIVLmJuZXQuUXVlc3RSZXdhcmRLaW5kEg4K",
-            "BmFtb3VudBgCIAEoAyKOAwoFUXVlc3QSEAoIcXVlc3RfaWQYASABKAQSIQoG",
-            "b3JpZ2luGAIgASgOMhEuYm5ldC5RdWVzdE9yaWdpbhIhCgZzdGF0dXMYAyAB",
-            "KA4yES5ibmV0LlF1ZXN0U3RhdHVzEh0KBHJvbGUYBCABKA4yDy5ibmV0LlF1",
-            "ZXN0Um9sZRIRCgl0aXRsZV9rZXkYBSABKAkSIwoEYXJncxgGIAMoCzIVLmJu",
-            "ZXQuUXVlc3QuQXJnc0VudHJ5EhcKD3N1Z2dlc3RlZF9sZXZlbBgHIAEoDRIZ",
-            "ChFkZWFkbGluZV9lcG9jaF9tcxgIIAEoAxITCgtwb3N0ZXJfbmFtZRgJIAEo",
-            "CRIoCgpvYmplY3RpdmVzGAogAygLMhQuYm5ldC5RdWVzdE9iamVjdGl2ZRIi",
-            "CgdyZXdhcmRzGAsgAygLMhEuYm5ldC5RdWVzdFJld2FyZBo/CglBcmdzRW50",
-            "cnkSCwoDa2V5GAEgASgJEiEKBXZhbHVlGAIgASgLMhIuYm5ldC5RdWVzdFRl",
-            "eHRBcmc6AjgBKioKC1F1ZXN0T3JpZ2luEhsKF1FVRVNUX09SSUdJTl9CTEFD",
+            "ChptZXNzYWdlcy9xdWVzdC9xdWVzdC5wcm90bxIEYm5ldBoabWVzc2FnZXMv",
+            "c3lzdGVtL3RleHQucHJvdG8ixAEKDlF1ZXN0T2JqZWN0aXZlEiEKBGtpbmQY",
+            "ASABKA4yEy5ibmV0Lk9iamVjdGl2ZUtpbmQSIwoFc2NvcGUYAiABKA4yFC5i",
+            "bmV0Lk9iamVjdGl2ZVNjb3BlEg8KB2l0ZW1faWQYAyABKAMSEAoIcmVxdWly",
+            "ZWQYBCABKA0SEAoIcHJvZ3Jlc3MYBSABKA0SDQoFeW91cnMYBiABKA0SEgoK",
+            "c3BlY2llc19pZBgHIAEoAxISCgpwbGFjZV9uYW1lGAggASgJIkIKC1F1ZXN0",
+            "UmV3YXJkEiMKBGtpbmQYASABKA4yFS5ibmV0LlF1ZXN0UmV3YXJkS2luZBIO",
+            "CgZhbW91bnQYAiABKAMiswIKBVF1ZXN0EhAKCHF1ZXN0X2lkGAEgASgEEiEK",
+            "Bm9yaWdpbhgCIAEoDjIRLmJuZXQuUXVlc3RPcmlnaW4SIQoGc3RhdHVzGAMg",
+            "ASgOMhEuYm5ldC5RdWVzdFN0YXR1cxIdCgRyb2xlGAQgASgOMg8uYm5ldC5R",
+            "dWVzdFJvbGUSHAoFdGl0bGUYBSABKAsyDS5ibmV0LlRleHRSZWYSFwoPc3Vn",
+            "Z2VzdGVkX2xldmVsGAcgASgNEhkKEWRlYWRsaW5lX2Vwb2NoX21zGAggASgD",
+            "EhMKC3Bvc3Rlcl9uYW1lGAkgASgJEigKCm9iamVjdGl2ZXMYCiADKAsyFC5i",
+            "bmV0LlF1ZXN0T2JqZWN0aXZlEiIKB3Jld2FyZHMYCyADKAsyES5ibmV0LlF1",
+            "ZXN0UmV3YXJkKioKC1F1ZXN0T3JpZ2luEhsKF1FVRVNUX09SSUdJTl9CTEFD",
             "S0JPQVJEEAAqkAEKC1F1ZXN0U3RhdHVzEhUKEVFVRVNUX1NUQVRVU19PUEVO",
             "EAASGAoUUVVFU1RfU1RBVFVTX0NMT1NJTkcQARIaChZRVUVTVF9TVEFUVVNf",
             "Q09NUExFVEVEEAISGAoUUVVFU1RfU1RBVFVTX0VYUElSRUQQAxIaChZRVUVT",
@@ -55,12 +51,11 @@ namespace Bnet {
             "ZEtpbmQSJAogUVVFU1RfUkVXQVJEX0tJTkRfQ09JTlNfUEVSX1VOSVQQAEIj",
             "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CClF1ZXN0UHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { },
+          new pbr::FileDescriptor[] { global::Bnet.TextReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.QuestOrigin), typeof(global::Bnet.QuestStatus), typeof(global::Bnet.QuestRole), typeof(global::Bnet.ObjectiveKind), typeof(global::Bnet.ObjectiveScope), typeof(global::Bnet.QuestRewardKind), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.QuestTextArg), global::Bnet.QuestTextArg.Parser, new[]{ "Number", "ItemId", "SpeciesId", "Token", "Name" }, new[]{ "Value" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.QuestObjective), global::Bnet.QuestObjective.Parser, new[]{ "Kind", "Scope", "ItemId", "Required", "Progress", "Yours", "SpeciesId", "PlaceName" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.QuestReward), global::Bnet.QuestReward.Parser, new[]{ "Kind", "Amount" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Quest), global::Bnet.Quest.Parser, new[]{ "QuestId", "Origin", "Status", "Role", "TitleKey", "Args", "SuggestedLevel", "DeadlineEpochMs", "PosterName", "Objectives", "Rewards" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, })
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Quest), global::Bnet.Quest.Parser, new[]{ "QuestId", "Origin", "Status", "Role", "Title", "SuggestedLevel", "DeadlineEpochMs", "PosterName", "Objectives", "Rewards" }, null, null, null, null)
           }));
     }
     #endregion
@@ -117,473 +112,6 @@ namespace Bnet {
   #endregion
 
   #region Messages
-  /// <summary>
-  /// A value for the quest's title template. Typed, so the client names items and species in its own language.
-  /// </summary>
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class QuestTextArg : pb::IMessage<QuestTextArg>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<QuestTextArg> _parser = new pb::MessageParser<QuestTextArg>(() => new QuestTextArg());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<QuestTextArg> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.QuestReflection.Descriptor.MessageTypes[0]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public QuestTextArg() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public QuestTextArg(QuestTextArg other) : this() {
-      switch (other.ValueCase) {
-        case ValueOneofCase.Number:
-          Number = other.Number;
-          break;
-        case ValueOneofCase.ItemId:
-          ItemId = other.ItemId;
-          break;
-        case ValueOneofCase.SpeciesId:
-          SpeciesId = other.SpeciesId;
-          break;
-        case ValueOneofCase.Token:
-          Token = other.Token;
-          break;
-        case ValueOneofCase.Name:
-          Name = other.Name;
-          break;
-      }
-
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public QuestTextArg Clone() {
-      return new QuestTextArg(this);
-    }
-
-    /// <summary>Field number for the "number" field.</summary>
-    public const int NumberFieldNumber = 1;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public long Number {
-      get { return HasNumber ? (long) value_ : 0L; }
-      set {
-        value_ = value;
-        valueCase_ = ValueOneofCase.Number;
-      }
-    }
-    /// <summary>Gets whether the "number" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasNumber {
-      get { return valueCase_ == ValueOneofCase.Number; }
-    }
-    /// <summary> Clears the value of the oneof if it's currently set to "number" </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearNumber() {
-      if (HasNumber) {
-        ClearValue();
-      }
-    }
-
-    /// <summary>Field number for the "item_id" field.</summary>
-    public const int ItemIdFieldNumber = 2;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public long ItemId {
-      get { return HasItemId ? (long) value_ : 0L; }
-      set {
-        value_ = value;
-        valueCase_ = ValueOneofCase.ItemId;
-      }
-    }
-    /// <summary>Gets whether the "item_id" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasItemId {
-      get { return valueCase_ == ValueOneofCase.ItemId; }
-    }
-    /// <summary> Clears the value of the oneof if it's currently set to "item_id" </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearItemId() {
-      if (HasItemId) {
-        ClearValue();
-      }
-    }
-
-    /// <summary>Field number for the "species_id" field.</summary>
-    public const int SpeciesIdFieldNumber = 3;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public long SpeciesId {
-      get { return HasSpeciesId ? (long) value_ : 0L; }
-      set {
-        value_ = value;
-        valueCase_ = ValueOneofCase.SpeciesId;
-      }
-    }
-    /// <summary>Gets whether the "species_id" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasSpeciesId {
-      get { return valueCase_ == ValueOneofCase.SpeciesId; }
-    }
-    /// <summary> Clears the value of the oneof if it's currently set to "species_id" </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearSpeciesId() {
-      if (HasSpeciesId) {
-        ClearValue();
-      }
-    }
-
-    /// <summary>Field number for the "token" field.</summary>
-    public const int TokenFieldNumber = 4;
-    /// <summary>
-    /// A translation key the client resolves.
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Token {
-      get { return HasToken ? (string) value_ : ""; }
-      set {
-        value_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-        valueCase_ = ValueOneofCase.Token;
-      }
-    }
-    /// <summary>Gets whether the "token" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasToken {
-      get { return valueCase_ == ValueOneofCase.Token; }
-    }
-    /// <summary> Clears the value of the oneof if it's currently set to "token" </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearToken() {
-      if (HasToken) {
-        ClearValue();
-      }
-    }
-
-    /// <summary>Field number for the "name" field.</summary>
-    public const int NameFieldNumber = 5;
-    /// <summary>
-    /// A proper noun, already rendered: a town or a player.
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Name {
-      get { return HasName ? (string) value_ : ""; }
-      set {
-        value_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-        valueCase_ = ValueOneofCase.Name;
-      }
-    }
-    /// <summary>Gets whether the "name" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasName {
-      get { return valueCase_ == ValueOneofCase.Name; }
-    }
-    /// <summary> Clears the value of the oneof if it's currently set to "name" </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearName() {
-      if (HasName) {
-        ClearValue();
-      }
-    }
-
-    private object value_;
-    /// <summary>Enum of possible cases for the "value" oneof.</summary>
-    public enum ValueOneofCase {
-      None = 0,
-      Number = 1,
-      ItemId = 2,
-      SpeciesId = 3,
-      Token = 4,
-      Name = 5,
-    }
-    private ValueOneofCase valueCase_ = ValueOneofCase.None;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ValueOneofCase ValueCase {
-      get { return valueCase_; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearValue() {
-      valueCase_ = ValueOneofCase.None;
-      value_ = null;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as QuestTextArg);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(QuestTextArg other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (Number != other.Number) return false;
-      if (ItemId != other.ItemId) return false;
-      if (SpeciesId != other.SpeciesId) return false;
-      if (Token != other.Token) return false;
-      if (Name != other.Name) return false;
-      if (ValueCase != other.ValueCase) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (HasNumber) hash ^= Number.GetHashCode();
-      if (HasItemId) hash ^= ItemId.GetHashCode();
-      if (HasSpeciesId) hash ^= SpeciesId.GetHashCode();
-      if (HasToken) hash ^= Token.GetHashCode();
-      if (HasName) hash ^= Name.GetHashCode();
-      hash ^= (int) valueCase_;
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (HasNumber) {
-        output.WriteRawTag(8);
-        output.WriteInt64(Number);
-      }
-      if (HasItemId) {
-        output.WriteRawTag(16);
-        output.WriteInt64(ItemId);
-      }
-      if (HasSpeciesId) {
-        output.WriteRawTag(24);
-        output.WriteInt64(SpeciesId);
-      }
-      if (HasToken) {
-        output.WriteRawTag(34);
-        output.WriteString(Token);
-      }
-      if (HasName) {
-        output.WriteRawTag(42);
-        output.WriteString(Name);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (HasNumber) {
-        output.WriteRawTag(8);
-        output.WriteInt64(Number);
-      }
-      if (HasItemId) {
-        output.WriteRawTag(16);
-        output.WriteInt64(ItemId);
-      }
-      if (HasSpeciesId) {
-        output.WriteRawTag(24);
-        output.WriteInt64(SpeciesId);
-      }
-      if (HasToken) {
-        output.WriteRawTag(34);
-        output.WriteString(Token);
-      }
-      if (HasName) {
-        output.WriteRawTag(42);
-        output.WriteString(Name);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (HasNumber) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(Number);
-      }
-      if (HasItemId) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(ItemId);
-      }
-      if (HasSpeciesId) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(SpeciesId);
-      }
-      if (HasToken) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Token);
-      }
-      if (HasName) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(QuestTextArg other) {
-      if (other == null) {
-        return;
-      }
-      switch (other.ValueCase) {
-        case ValueOneofCase.Number:
-          Number = other.Number;
-          break;
-        case ValueOneofCase.ItemId:
-          ItemId = other.ItemId;
-          break;
-        case ValueOneofCase.SpeciesId:
-          SpeciesId = other.SpeciesId;
-          break;
-        case ValueOneofCase.Token:
-          Token = other.Token;
-          break;
-        case ValueOneofCase.Name:
-          Name = other.Name;
-          break;
-      }
-
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            Number = input.ReadInt64();
-            break;
-          }
-          case 16: {
-            ItemId = input.ReadInt64();
-            break;
-          }
-          case 24: {
-            SpeciesId = input.ReadInt64();
-            break;
-          }
-          case 34: {
-            Token = input.ReadString();
-            break;
-          }
-          case 42: {
-            Name = input.ReadString();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            Number = input.ReadInt64();
-            break;
-          }
-          case 16: {
-            ItemId = input.ReadInt64();
-            break;
-          }
-          case 24: {
-            SpeciesId = input.ReadInt64();
-            break;
-          }
-          case 34: {
-            Token = input.ReadString();
-            break;
-          }
-          case 42: {
-            Name = input.ReadString();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class QuestObjective : pb::IMessage<QuestObjective>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -599,7 +127,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.QuestReflection.Descriptor.MessageTypes[1]; }
+      get { return global::Bnet.QuestReflection.Descriptor.MessageTypes[0]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1065,7 +593,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.QuestReflection.Descriptor.MessageTypes[2]; }
+      get { return global::Bnet.QuestReflection.Descriptor.MessageTypes[1]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1303,7 +831,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.QuestReflection.Descriptor.MessageTypes[3]; }
+      get { return global::Bnet.QuestReflection.Descriptor.MessageTypes[2]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1327,8 +855,7 @@ namespace Bnet {
       origin_ = other.origin_;
       status_ = other.status_;
       role_ = other.role_;
-      titleKey_ = other.titleKey_;
-      args_ = other.args_.Clone();
+      title_ = other.title_ != null ? other.title_.Clone() : null;
       suggestedLevel_ = other.suggestedLevel_;
       deadlineEpochMs_ = other.deadlineEpochMs_;
       posterName_ = other.posterName_;
@@ -1391,27 +918,16 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "title_key" field.</summary>
-    public const int TitleKeyFieldNumber = 5;
-    private string titleKey_ = "";
+    /// <summary>Field number for the "title" field.</summary>
+    public const int TitleFieldNumber = 5;
+    private global::Bnet.TextRef title_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string TitleKey {
-      get { return titleKey_; }
+    public global::Bnet.TextRef Title {
+      get { return title_; }
       set {
-        titleKey_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        title_ = value;
       }
-    }
-
-    /// <summary>Field number for the "args" field.</summary>
-    public const int ArgsFieldNumber = 6;
-    private static readonly pbc::MapField<string, global::Bnet.QuestTextArg>.Codec _map_args_codec
-        = new pbc::MapField<string, global::Bnet.QuestTextArg>.Codec(pb::FieldCodec.ForString(10, ""), pb::FieldCodec.ForMessage(18, global::Bnet.QuestTextArg.Parser), 50);
-    private readonly pbc::MapField<string, global::Bnet.QuestTextArg> args_ = new pbc::MapField<string, global::Bnet.QuestTextArg>();
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::MapField<string, global::Bnet.QuestTextArg> Args {
-      get { return args_; }
     }
 
     /// <summary>Field number for the "suggested_level" field.</summary>
@@ -1491,8 +1007,7 @@ namespace Bnet {
       if (Origin != other.Origin) return false;
       if (Status != other.Status) return false;
       if (Role != other.Role) return false;
-      if (TitleKey != other.TitleKey) return false;
-      if (!Args.Equals(other.Args)) return false;
+      if (!object.Equals(Title, other.Title)) return false;
       if (SuggestedLevel != other.SuggestedLevel) return false;
       if (DeadlineEpochMs != other.DeadlineEpochMs) return false;
       if (PosterName != other.PosterName) return false;
@@ -1509,8 +1024,7 @@ namespace Bnet {
       if (Origin != global::Bnet.QuestOrigin.Blackboard) hash ^= Origin.GetHashCode();
       if (Status != global::Bnet.QuestStatus.Open) hash ^= Status.GetHashCode();
       if (Role != global::Bnet.QuestRole.Accepted) hash ^= Role.GetHashCode();
-      if (TitleKey.Length != 0) hash ^= TitleKey.GetHashCode();
-      hash ^= Args.GetHashCode();
+      if (title_ != null) hash ^= Title.GetHashCode();
       if (SuggestedLevel != 0) hash ^= SuggestedLevel.GetHashCode();
       if (DeadlineEpochMs != 0L) hash ^= DeadlineEpochMs.GetHashCode();
       if (PosterName.Length != 0) hash ^= PosterName.GetHashCode();
@@ -1550,11 +1064,10 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteEnum((int) Role);
       }
-      if (TitleKey.Length != 0) {
+      if (title_ != null) {
         output.WriteRawTag(42);
-        output.WriteString(TitleKey);
+        output.WriteMessage(Title);
       }
-      args_.WriteTo(output, _map_args_codec);
       if (SuggestedLevel != 0) {
         output.WriteRawTag(56);
         output.WriteUInt32(SuggestedLevel);
@@ -1595,11 +1108,10 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteEnum((int) Role);
       }
-      if (TitleKey.Length != 0) {
+      if (title_ != null) {
         output.WriteRawTag(42);
-        output.WriteString(TitleKey);
+        output.WriteMessage(Title);
       }
-      args_.WriteTo(ref output, _map_args_codec);
       if (SuggestedLevel != 0) {
         output.WriteRawTag(56);
         output.WriteUInt32(SuggestedLevel);
@@ -1636,10 +1148,9 @@ namespace Bnet {
       if (Role != global::Bnet.QuestRole.Accepted) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Role);
       }
-      if (TitleKey.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(TitleKey);
+      if (title_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Title);
       }
-      size += args_.CalculateSize(_map_args_codec);
       if (SuggestedLevel != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(SuggestedLevel);
       }
@@ -1675,10 +1186,12 @@ namespace Bnet {
       if (other.Role != global::Bnet.QuestRole.Accepted) {
         Role = other.Role;
       }
-      if (other.TitleKey.Length != 0) {
-        TitleKey = other.TitleKey;
+      if (other.title_ != null) {
+        if (title_ == null) {
+          Title = new global::Bnet.TextRef();
+        }
+        Title.MergeFrom(other.Title);
       }
-      args_.MergeFrom(other.args_);
       if (other.SuggestedLevel != 0) {
         SuggestedLevel = other.SuggestedLevel;
       }
@@ -1726,11 +1239,10 @@ namespace Bnet {
             break;
           }
           case 42: {
-            TitleKey = input.ReadString();
-            break;
-          }
-          case 50: {
-            args_.AddEntriesFrom(input, _map_args_codec);
+            if (title_ == null) {
+              Title = new global::Bnet.TextRef();
+            }
+            input.ReadMessage(Title);
             break;
           }
           case 56: {
@@ -1789,11 +1301,10 @@ namespace Bnet {
             break;
           }
           case 42: {
-            TitleKey = input.ReadString();
-            break;
-          }
-          case 50: {
-            args_.AddEntriesFrom(ref input, _map_args_codec);
+            if (title_ == null) {
+              Title = new global::Bnet.TextRef();
+            }
+            input.ReadMessage(Title);
             break;
           }
           case 56: {

@@ -35,8 +35,7 @@ class QuestService(
     val quest = quests.save(
       Quest(
         origin = draft.origin,
-        titleKey = draft.titleKey,
-        textArgs = draft.textArgs,
+        title = draft.title,
         suggestedLevel = draft.suggestedLevel,
         deadline = draft.deadline,
         objectives = draft.objectives,
