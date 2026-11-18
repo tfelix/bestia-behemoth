@@ -1,0 +1,23 @@
+# One motif per kind of seed. A motif keeps a quest about one thing: it names the goal, the steps that may lead
+# to it, and what the player may decide once the goal is reached.
+#
+# seed    the QuestSeed.Kind the motif answers
+# goal    what the chain must give; a chain that cannot reach it is no quest
+# steps   the step patterns of quest-steps.yml the planner may use
+# decide  optional. Offered only when the step after every choice can be bound in this world.
+#         A choice without `then` ends the quest.
+motifs:
+  lost_relic:
+    seed: LOST_RELIC
+    goal: holds:relic
+    steps: [hear_legend, hear_of_loss, read_epitaph, dig_relic]
+    title: QUESTGEN_LOST_RELIC_TITLE
+    decide:
+      text: QUESTGEN_STEP_DECIDE_RELIC
+      tension: 2
+      choices:
+        keep:
+          text: QUESTGEN_CHOICE_KEEP_RELIC
+        return:
+          text: QUESTGEN_CHOICE_RETURN_RELIC
+          then: return_relic
