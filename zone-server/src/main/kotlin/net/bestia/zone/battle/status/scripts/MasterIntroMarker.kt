@@ -4,7 +4,7 @@ import net.bestia.zone.battle.status.StackBehavior
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusValueRecalcContext
-import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.text.TextArg
 import net.bestia.zone.dialog.DialogId
 import net.bestia.zone.dialog.DialogService
 import net.bestia.zone.identity.ecs.Account
@@ -59,8 +59,8 @@ class MasterIntroMarker(
       accountId,
       DialogId.MASTER_INTRO,
       mapOf(
-        "masterName" to DialogArg.Text(master.name),
-        "worldName" to DialogArg.Text(worldService.record.name)
+        "masterName" to TextArg.Text(master.name),
+        "worldName" to TextArg.Text(worldService.record.name)
       )
     )
   }

@@ -5,7 +5,7 @@ import io.mockk.mockk
 import net.bestia.worldgen.pop.Kinship
 import net.bestia.worldgen.pop.Member
 import net.bestia.zone.ai.core.state.HourWindow
-import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.text.TextArg
 import net.bestia.zone.townsfolk.domain.Occupation
 import net.bestia.zone.townsfolk.knowledge.Certainty
 import net.bestia.zone.townsfolk.knowledge.HistoryKnowledge
@@ -88,8 +88,8 @@ class KnowledgeTopicProviderTest {
     val tale = speech.args[ConversationKeys.SLOT_TALE]
 
     assertTrue(speech.key.startsWith(ConversationKeys.HEARSAY_TOLD), "a told memory was said as ${speech.key}")
-    assertTrue(tale is DialogArg.Token && tale.key.startsWith(KEY), "the frame wraps $tale, not the memory")
-    assertEquals(DialogArg.Name(PLACE), speech.args[HistoryKnowledge.SLOT_PLACE], "the memory's slots did not ride along")
+    assertTrue(tale is TextArg.Token && tale.key.startsWith(KEY), "the frame wraps $tale, not the memory")
+    assertEquals(TextArg.Name(PLACE), speech.args[HistoryKnowledge.SLOT_PLACE], "the memory's slots did not ride along")
   }
 
   @Test

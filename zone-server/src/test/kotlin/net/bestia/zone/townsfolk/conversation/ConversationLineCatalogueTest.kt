@@ -4,7 +4,7 @@ import net.bestia.worldgen.pop.Kinship
 import net.bestia.worldgen.pop.Member
 import net.bestia.zone.ai.core.state.HourWindow
 import net.bestia.zone.townsfolk.domain.Occupation
-import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.text.TextArg
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -72,7 +72,7 @@ class ConversationLineCatalogueTest {
     val line = catalogue.lineFor(
       speaker(seed = 3L),
       ConversationKeys.ABOUT_TOWN,
-      mapOf(ConversationKeys.SLOT_TRADE to DialogArg.Token("TRADE_BAKER")),
+      mapOf(ConversationKeys.SLOT_TRADE to TextArg.Token("TRADE_BAKER")),
     )
 
     assertEquals(setOf(ConversationKeys.SLOT_TRADE), line.args.keys)

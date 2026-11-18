@@ -7,6 +7,7 @@ import io.mockk.verify
 import net.bestia.bnet.proto.DialogSmsgProto
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.message.SMSG
+import net.bestia.zone.text.TextArg
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -34,12 +35,12 @@ class DialogServiceTest {
     val sent = slot<SMSG>()
     every { outMessageProcessor.sendToPlayer(ACCOUNT_ID, capture(sent)) } returns Unit
 
-    dialogService.send(ACCOUNT_ID, introDefinition, mapOf("masterName" to DialogArg.Text("Thorin")))
+    dialogService.send(ACCOUNT_ID, introDefinition, mapOf("masterName" to TextArg.Text("Thorin")))
 
     val msg = sent.captured as DialogSMSG
     assertEquals(1, msg.dialogId)
     assertEquals(DialogType.CONFIRM, msg.type)
-    assertEquals(mapOf("masterName" to DialogArg.Text("Thorin")), msg.args)
+    assertEquals(mapOf("masterName" to TextArg.Text("Thorin")), msg.args)
   }
 
   /**
@@ -52,7 +53,7 @@ class DialogServiceTest {
       dialogService.send(
         ACCOUNT_ID,
         introDefinition,
-        mapOf("masterName" to DialogArg.Text("Thorin"), "extra" to DialogArg.Number(1))
+        mapOf("masterName" to TextArg.Text("Thorin"), "extra" to TextArg.Number(1))
       )
     }
 
@@ -92,11 +93,11 @@ class DialogServiceTest {
       dialogId = 7,
       type = DialogType.CONFIRM,
       args = mapOf(
-        "text" to DialogArg.Text("Thorin"),
-        "number" to DialogArg.Number(42),
-        "entity" to DialogArg.Entity(1234L),
-        "item" to DialogArg.Item(9L),
-        "skill" to DialogArg.Skill(3L),
+        "text" to TextArg.Text("Thorin"),
+        "number" to TextArg.Number(42),
+        "entity" to TextArg.Entity(1234L),
+        "item" to TextArg.Item(9L),
+        "skill" to TextArg.Skill(3L),
       )
     )
 

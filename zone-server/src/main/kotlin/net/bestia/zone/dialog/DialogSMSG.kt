@@ -3,6 +3,8 @@ package net.bestia.zone.dialog
 import net.bestia.bnet.proto.DialogSmsgProto
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.zone.message.SMSG
+import net.bestia.zone.text.TextArg
+import net.bestia.zone.text.toBnet
 import net.bestia.zone.util.EntityId
 
 /**
@@ -18,7 +20,7 @@ import net.bestia.zone.util.EntityId
 data class DialogSMSG(
   val dialogId: Int,
   val type: DialogType,
-  val args: Map<String, DialogArg> = emptyMap(),
+  val args: Map<String, TextArg> = emptyMap(),
   val sourceEntityId: EntityId? = null,
 ) : SMSG {
 
@@ -36,7 +38,7 @@ data class DialogSMSG(
   }
 
   // No `else` branch: a new DialogType must fail to compile here rather than silently serialize as
-  // something wrong. The argument mapping makes the same promise, in DialogArgs.
+  // something wrong. The argument mapping makes the same promise, in TextArgs.
   private fun DialogType.toBnet(): DialogSmsgProto.DialogType = when (this) {
     DialogType.CONFIRM -> DialogSmsgProto.DialogType.CONFIRM
   }

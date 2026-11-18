@@ -1,6 +1,6 @@
 package net.bestia.zone.townsfolk.conversation
 
-import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.text.TextArg
 import net.bestia.zone.townsfolk.knowledge.ChronicleNames
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Component
@@ -46,8 +46,8 @@ class StandingTopicProvider(
       speaker,
       ConversationKeys.ABOUT_TOWN,
       mapOf(
-        ConversationKeys.SLOT_TOWN to DialogArg.Name(town.orEmpty()),
-        ConversationKeys.SLOT_TRADE to DialogArg.Token(speaker.tradeToken),
+        ConversationKeys.SLOT_TOWN to TextArg.Name(town.orEmpty()),
+        ConversationKeys.SLOT_TRADE to TextArg.Token(speaker.tradeToken),
       )
     )
   }

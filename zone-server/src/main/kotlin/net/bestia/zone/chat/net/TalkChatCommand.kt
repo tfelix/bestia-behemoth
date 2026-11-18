@@ -1,7 +1,7 @@
 package net.bestia.zone.chat.net
 
 import net.bestia.account.Authority
-import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.text.TextArg
 import net.bestia.zone.townsfolk.conversation.Asker
 import net.bestia.zone.townsfolk.conversation.ConversationNode
 import net.bestia.zone.townsfolk.conversation.ConversationService
@@ -145,15 +145,15 @@ class TalkChatCommand(
     return "${line.key} {$args}"
   }
 
-  private fun value(arg: DialogArg): String {
+  private fun value(arg: TextArg): String {
     return when (arg) {
-      is DialogArg.Text -> arg.value
-      is DialogArg.Name -> arg.value
-      is DialogArg.Token -> "<${arg.key}>"
-      is DialogArg.Number -> arg.value.toString()
-      is DialogArg.Entity -> "entity:${arg.entityId}"
-      is DialogArg.Item -> "item:${arg.itemId}"
-      is DialogArg.Skill -> "skill:${arg.skillId}"
+      is TextArg.Text -> arg.value
+      is TextArg.Name -> arg.value
+      is TextArg.Token -> "<${arg.key}>"
+      is TextArg.Number -> arg.value.toString()
+      is TextArg.Entity -> "entity:${arg.entityId}"
+      is TextArg.Item -> "item:${arg.itemId}"
+      is TextArg.Skill -> "skill:${arg.skillId}"
     }
   }
 

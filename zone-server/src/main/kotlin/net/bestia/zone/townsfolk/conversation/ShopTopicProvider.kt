@@ -2,7 +2,7 @@ package net.bestia.zone.townsfolk.conversation
 
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.ai.core.state.HourWindow
-import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.text.TextArg
 import net.bestia.zone.economy.shop.Counter
 import net.bestia.zone.economy.shop.MerchantStock
 import net.bestia.zone.economy.shop.ShopCounter
@@ -70,8 +70,8 @@ class ShopTopicProvider(
     val closes = counter.hours.closesAtMinute ?: return null
 
     val args = mapOf(
-      ConversationKeys.SLOT_OPENS to DialogArg.Number(nearestHour(opens)),
-      ConversationKeys.SLOT_CLOSES to DialogArg.Number(nearestHour(closes)),
+      ConversationKeys.SLOT_OPENS to TextArg.Number(nearestHour(opens)),
+      ConversationKeys.SLOT_CLOSES to TextArg.Number(nearestHour(closes)),
     )
 
     return ConversationNode(lines.lineFor(speaker, ConversationKeys.SHOP_HOURS, args), emptyList())

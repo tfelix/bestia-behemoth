@@ -4,7 +4,7 @@ import net.bestia.zone.townsfolk.knowledge.Certainty
 import net.bestia.zone.townsfolk.knowledge.Knowledge
 import net.bestia.zone.townsfolk.knowledge.KnowledgeService
 import net.bestia.zone.townsfolk.knowledge.TownKnowledge
-import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.text.TextArg
 import org.springframework.stereotype.Component
 
 /**
@@ -85,7 +85,7 @@ class KnowledgeTopicProvider(
    * ask about it - the boot check reads the same two keys per kind.
    */
   private fun askFor(memory: Knowledge): Line {
-    return Line(memory.key + ASK_SUFFIX, memory.slots.mapValues { (_, slot) -> slot.toDialogArg() })
+    return Line(memory.key + ASK_SUFFIX, memory.slots.mapValues { (_, slot) -> slot.toTextArg() })
   }
 
   /**
@@ -96,11 +96,11 @@ class KnowledgeTopicProvider(
    */
   private fun lineOf(speaker: Speaker, memory: Knowledge): Line {
     val index = ConversationVariants.of(speaker, memory.topic.toLong(), memory.variants)
-    val tale = Line("${memory.key}_$index", memory.slots.mapValues { (_, slot) -> slot.toDialogArg() })
+    val tale = Line("${memory.key}_$index", memory.slots.mapValues { (_, slot) -> slot.toTextArg() })
     val frame = FRAMES[memory.certainty] ?: return tale
 
     // The tale's own arguments ride along, so the client can fill the nested line from them.
-    return lines.lineFor(speaker, frame, tale.args + (ConversationKeys.SLOT_TALE to DialogArg.Token(tale.key)))
+    return lines.lineFor(speaker, frame, tale.args + (ConversationKeys.SLOT_TALE to TextArg.Token(tale.key)))
   }
 
   private fun back(): ConversationOption {
@@ -114,11 +114,11 @@ class KnowledgeTopicProvider(
    * and a dialog argument is what the *client* can render. Most of the mapping is the identity, and the
    * day one of them grows a case the other cannot express, this is where it will be obvious.
    */
-  private fun Knowledge.Slot.toDialogArg(): DialogArg {
+  private fun Knowledge.Slot.toTextArg(): TextArg {
     return when (this) {
-      is Knowledge.Slot.Name -> DialogArg.Name(value)
-      is Knowledge.Slot.Token -> DialogArg.Token(key)
-      is Knowledge.Slot.Number -> DialogArg.Number(value)
+      is Knowledge.Slot.Name -> TextArg.Name(value)
+      is Knowledge.Slot.Token -> TextArg.Token(key)
+      is Knowledge.Slot.Number -> TextArg.Number(value)
     }
   }
 

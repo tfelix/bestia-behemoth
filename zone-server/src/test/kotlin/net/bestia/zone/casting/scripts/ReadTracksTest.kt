@@ -7,7 +7,7 @@ import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.casting.RecordingSkillWorld
 import net.bestia.zone.casting.SkillContextFixture
-import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.text.TextArg
 import net.bestia.zone.dialog.DialogId
 import net.bestia.zone.dialog.DialogService
 import net.bestia.zone.geometry.Vec3L
@@ -65,9 +65,9 @@ class ReadTracksTest {
     level: Int,
     found: TrackReading? = reading(),
     targetPosition: Vec3L = Vec3L(3, 0, 0),
-  ): Pair<DialogId, Map<String, DialogArg>> {
+  ): Pair<DialogId, Map<String, TextArg>> {
     val dialog = slot<DialogId>()
-    val args = slot<Map<String, DialogArg>>()
+    val args = slot<Map<String, TextArg>>()
     every { dialogs.send(any(), capture(dialog), capture(args), any()) } returns Unit
 
     val world = RecordingSkillWorld().apply { tracks = found }
@@ -92,19 +92,19 @@ class ReadTracksTest {
     val (dialog, args) = cast(level = 1)
 
     assertEquals(DialogId.TRACKS_FAINT, dialog)
-    assertEquals(DialogArg.Number(6), args["passages"])
+    assertEquals(TextArg.Number(6), args["passages"])
     assertNull(args["what"], "identity was reported below the rank that earns it")
   }
 
   @Test
   fun `a novice is not told which way the trail led`() {
-    assertEquals(DialogArg.Token("DIRECTION_UNKNOWN"), cast(level = 1).second["heading"])
+    assertEquals(TextArg.Token("DIRECTION_UNKNOWN"), cast(level = 1).second["heading"])
   }
 
   @Test
   fun `the heading arrives once the rank earns it`() {
     // Octant 2 is +y, which the world generator calls north.
-    assertEquals(DialogArg.Token("DIRECTION_NORTH"), cast(level = config.headingLevel).second["heading"])
+    assertEquals(TextArg.Token("DIRECTION_NORTH"), cast(level = config.headingLevel).second["heading"])
   }
 
   @Test
@@ -112,8 +112,8 @@ class ReadTracksTest {
     val (dialog, args) = cast(level = config.identityLevel)
 
     assertEquals(DialogId.TRACKS_READING, dialog)
-    assertEquals(DialogArg.Token("BESTIA_BLOB"), args["what"])
-    assertEquals(DialogArg.Number(12), args["level"])
+    assertEquals(TextArg.Token("BESTIA_BLOB"), args["what"])
+    assertEquals(TextArg.Number(12), args["level"])
   }
 
   /** The user's own question: a blob against something level 80. The level is what answers it. */
@@ -123,19 +123,19 @@ class ReadTracksTest {
 
     val args = cast(level = config.identityLevel, found = reading(signature = boss)).second
 
-    assertEquals(DialogArg.Token("BESTIA_DOOM_MASTER_OF_DOOM"), args["what"])
-    assertEquals(DialogArg.Number(80), args["level"])
+    assertEquals(TextArg.Token("BESTIA_DOOM_MASTER_OF_DOOM"), args["what"])
+    assertEquals(TextArg.Number(80), args["level"])
   }
 
   @Test
   fun `another master reads as a traveller until the rank that names them`() {
     assertEquals(
-      DialogArg.Token("TRACK_SUBJECT_TRAVELLER"),
+      TextArg.Token("TRACK_SUBJECT_TRAVELLER"),
       cast(level = config.identityLevel, found = reading(signature = master())).second["what"]
     )
 
     assertEquals(
-      DialogArg.Name("Rhea"),
+      TextArg.Name("Rhea"),
       cast(level = config.nameLevel, found = reading(signature = master())).second["what"]
     )
   }
@@ -155,15 +155,15 @@ class ReadTracksTest {
   @Test
   fun `a fresh trail and a cold one are told apart`() {
     assertEquals(
-      DialogArg.Token("TRACK_AGE_FRESH"),
+      TextArg.Token("TRACK_AGE_FRESH"),
       cast(level = 1, found = reading(ageSeconds = 0)).second["age"]
     )
     assertEquals(
-      DialogArg.Token("TRACK_AGE_RECENT"),
+      TextArg.Token("TRACK_AGE_RECENT"),
       cast(level = 1, found = reading(ageSeconds = config.freshSeconds + 1)).second["age"]
     )
     assertEquals(
-      DialogArg.Token("TRACK_AGE_COLD"),
+      TextArg.Token("TRACK_AGE_COLD"),
       cast(level = 1, found = reading(ageSeconds = config.coldSeconds)).second["age"]
     )
   }

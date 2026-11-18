@@ -6,7 +6,7 @@ import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.casting.BasicMagicSkillStrategy
 import net.bestia.zone.casting.SkillContext
-import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.text.TextArg
 import net.bestia.zone.dialog.DialogId
 import net.bestia.zone.dialog.DialogService
 import net.bestia.zone.spoor.ActorKind
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component
  *
  * ### No text crosses the wire
  *
- * Every part of the reading goes out as a `DialogArg`: a species is a translation key the client already has a
+ * Every part of the reading goes out as a `TextArg`: a species is a translation key the client already has a
  * row for, a direction is one of eight keys, an age is one of three, and a count is a number. A player name is
  * the one thing sent as text, because it is a name.
  *
@@ -87,20 +87,20 @@ class ReadTracks(
   private fun faint(reading: TrackReading, level: Int) = mapOf(
     "heading" to headingOf(reading, level),
     "age" to ageOf(reading),
-    "passages" to DialogArg.Number(reading.passages.toLong()),
-    "walkers" to DialogArg.Number(reading.walkers.toLong()),
+    "passages" to TextArg.Number(reading.passages.toLong()),
+    "walkers" to TextArg.Number(reading.walkers.toLong()),
   )
 
   private fun named(reading: TrackReading, level: Int) = faint(reading, level) + mapOf(
     "what" to identityOf(reading, level)!!,
-    "level" to DialogArg.Number((reading.signature?.level ?: 0).toLong()),
+    "level" to TextArg.Number((reading.signature?.level ?: 0).toLong()),
   )
 
   /**
    * What made the tracks, or null when this reading cannot say - which is either a rank too low to tell or a
    * trail older than the world's memory of what walked it.
    */
-  private fun identityOf(reading: TrackReading, level: Int): DialogArg? {
+  private fun identityOf(reading: TrackReading, level: Int): TextArg? {
     if (level < config.identityLevel) return null
 
     val signature = reading.signature ?: return null
@@ -109,22 +109,22 @@ class ReadTracks(
       // A master's name is already public through MasterVisualComponentSMSG, so the gate is about the skill
       // having ranks worth taking rather than about hiding anything.
       return if (level >= config.nameLevel && !signature.masterName.isNullOrBlank()) {
-        DialogArg.Name(signature.masterName)
+        TextArg.Name(signature.masterName)
       } else {
-        DialogArg.Token(TRAVELLER)
+        TextArg.Token(TRAVELLER)
       }
     }
 
-    return signature.nameToken?.let { DialogArg.Token(it) }
+    return signature.nameToken?.let { TextArg.Token(it) }
   }
 
-  private fun headingOf(reading: TrackReading, level: Int): DialogArg {
-    if (level < config.headingLevel) return DialogArg.Token(DIRECTION_UNKNOWN)
+  private fun headingOf(reading: TrackReading, level: Int): TextArg {
+    if (level < config.headingLevel) return TextArg.Token(DIRECTION_UNKNOWN)
 
-    return DialogArg.Token(DIRECTIONS[reading.octant.coerceIn(DIRECTIONS.indices)])
+    return TextArg.Token(DIRECTIONS[reading.octant.coerceIn(DIRECTIONS.indices)])
   }
 
-  private fun ageOf(reading: TrackReading): DialogArg = DialogArg.Token(
+  private fun ageOf(reading: TrackReading): TextArg = TextArg.Token(
     when {
       reading.ageSeconds <= config.freshSeconds -> AGE_FRESH
       reading.ageSeconds >= config.coldSeconds -> AGE_COLD

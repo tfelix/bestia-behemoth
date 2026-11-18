@@ -8,7 +8,7 @@ import net.bestia.worldgen.pop.Kinship
 import net.bestia.worldgen.pop.Member
 import net.bestia.zone.ai.core.state.HourWindow
 import net.bestia.zone.townsfolk.domain.Occupation
-import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.text.TextArg
 import net.bestia.zone.world.WorldService
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -63,7 +63,7 @@ class StandingTopicProviderTest {
     val node = sut.nodeFor(Asker(accountId = 1L, entityId = 1L), speaker(business, occupation), Topics.STANDING + 1)
     val arg = node!!.speech.args.getValue(ConversationKeys.SLOT_TRADE)
 
-    return (arg as DialogArg.Token).key
+    return (arg as TextArg.Token).key
   }
 
   private fun speaker(business: String?, occupation: String): Speaker {
