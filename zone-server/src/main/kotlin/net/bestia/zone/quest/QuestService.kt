@@ -3,7 +3,10 @@ package net.bestia.zone.quest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.persistence.afterCommit
+import net.bestia.zone.entity.observe.DeedFact
+import net.bestia.zone.quest.ecs.TrackedDeed
 import net.bestia.zone.quest.ecs.TrackedKill
+import net.bestia.zone.quest.ecs.TrackedObjectives
 import net.bestia.zone.quest.persistence.Quest
 import net.bestia.zone.quest.persistence.QuestLogEntry
 import net.bestia.zone.quest.persistence.QuestLogEntryRepository
@@ -67,8 +70,8 @@ class QuestService(
 
     val entry = entries.save(QuestLogEntry(masterId, quest, clock.instant(), counts = quest.objectives.map { 0 }))
     events.publishEvent(QuestChangedEvent(questId))
-    val kills = trackedKillsOf(entry)
-    afterCommit { live.track(masterId, kills) }
+    val tracked = trackedOf(entry)
+    afterCommit { live.track(masterId, tracked) }
 
     return null
   }
@@ -166,17 +169,19 @@ class QuestService(
     val done = entry.stage
     entry.stage += 1
     events.publishEvent(QuestStageDoneEvent(quest.id, entry.masterId, done, wasLast = entry.stage == quest.stageCount))
-    val kills = trackedKillsOf(entry)
+    val tracked = trackedOf(entry)
     afterCommit {
       live.untrack(listOf(entry.masterId), quest.id)
-      live.track(entry.masterId, kills)
+      live.track(entry.masterId, tracked)
     }
   }
 
   /** The personal objectives [masterId] counts on the tick while it plays, for its [ActiveQuests][net.bestia.zone.quest.ecs.ActiveQuests]. */
   @Transactional(readOnly = true)
-  fun trackedKillsFor(masterId: Long): List<TrackedKill> {
-    return entries.findAllByMasterId(masterId).flatMap { trackedKillsOf(it) }
+  fun trackedFor(masterId: Long): TrackedObjectives {
+    val tracked = entries.findAllByMasterId(masterId).map { trackedOf(it) }
+
+    return TrackedObjectives(tracked.flatMap { it.kills }, tracked.flatMap { it.deeds })
   }
 
   /** Every quest [masterId] accepted, then every one it posted and has not cleared. */
@@ -247,26 +252,41 @@ class QuestService(
     LOG.info { "Deleted ${ids.size} quests that ended more than ${config.endedKeptFor} ago" }
   }
 
-  private fun trackedKillsOf(entry: QuestLogEntry): List<TrackedKill> {
+  /** What the master counts in the stage it works on. */
+  private fun trackedOf(entry: QuestLogEntry): TrackedObjectives {
     val quest = entry.quest
     if (!quest.status.takesWork) {
-      return emptyList()
+      return TrackedObjectives()
     }
 
-    return quest.objectives.withIndex()
-      .filter { (_, objective) -> objective.stage == entry.stage }
-      .filter { (_, objective) -> objective.kind == ObjectiveKind.KILL && objective.scope == ObjectiveScope.PERSONAL }
-      .map { (index, objective) ->
-        TrackedKill(
-          questId = quest.id,
-          objectiveIndex = index,
-          speciesId = requireNotNull(objective.speciesId) { "Kill objective $index of quest ${quest.id} names no species" },
-          area = objective.area,
-          required = objective.required,
-          deadline = quest.deadline,
-          count = entry.counts[index],
-        )
-      }
+    val current = quest.objectives.withIndex()
+      .filter { (_, objective) -> objective.stage == entry.stage && objective.scope == ObjectiveScope.PERSONAL }
+    val kills = current.filter { it.value.kind == ObjectiveKind.KILL }.map { (index, objective) ->
+      TrackedKill(
+        questId = quest.id,
+        objectiveIndex = index,
+        speciesId = requireNotNull(objective.speciesId) { "Kill objective $index of quest ${quest.id} names no species" },
+        area = objective.area,
+        required = objective.required,
+        deadline = quest.deadline,
+        count = entry.counts[index],
+      )
+    }
+    val deeds = current.mapNotNull { (index, objective) ->
+      val deed = DEED_OF[objective.kind] ?: return@mapNotNull null
+      TrackedDeed(
+        questId = quest.id,
+        objectiveIndex = index,
+        deed = deed,
+        target = requireNotNull(objective.target) { "Objective $index of quest ${quest.id} names no target" },
+        needsFact = objective.needsFact,
+        required = objective.required,
+        deadline = quest.deadline,
+        count = entry.counts[index],
+      )
+    }
+
+    return TrackedObjectives(kills, deeds)
   }
 
   private fun <T> List<T>.replaced(index: Int, value: T): List<T> {
@@ -275,5 +295,10 @@ class QuestService(
 
   private companion object {
     val LOG = KotlinLogging.logger { }
+
+    val DEED_OF = mapOf(
+      ObjectiveKind.EXAMINE to DeedFact.Deed.EXAMINED,
+      ObjectiveKind.TALK to DeedFact.Deed.TALKED_TO,
+    )
   }
 }
