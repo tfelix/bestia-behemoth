@@ -18,6 +18,9 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.WorldObjectIdentity
+import net.bestia.zone.entity.observe.DeedFact
+import net.bestia.zone.entity.observe.DeedObserver
+import net.bestia.zone.entity.observe.WorldTarget
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
@@ -44,7 +47,8 @@ import kotlin.math.roundToInt
 @Component
 class ReadableFixtures(
   private val worldService: WorldService,
-  private val outMessageProcessor: OutMessageProcessor
+  private val outMessageProcessor: OutMessageProcessor,
+  private val deedObservers: List<DeedObserver> = emptyList(),
 ) {
 
   fun read(world: World, actorId: EntityId, propId: EntityId, kind: FixtureKind): OpError? {
@@ -57,6 +61,10 @@ class ReadableFixtures(
 
     val text = textOf(world, propId, pose, kind) ?: return null
     outMessageProcessor.sendToPlayer(accountId, ReadableSMSG(propId, text))
+    world.get(propId, WorldObjectIdentity::class)?.let { identity ->
+      val examined = DeedFact(actorId, DeedFact.Deed.EXAMINED, WorldTarget.prop(identity.propId))
+      deedObservers.forEach { it.onDeed(world, examined) }
+    }
     return null
   }
 

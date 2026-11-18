@@ -5,6 +5,9 @@ import io.mockk.verify
 import net.bestia.worldgen.poi.PoiKind
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.Poi
+import net.bestia.zone.entity.observe.DeedFact
+import net.bestia.zone.entity.observe.DeedObserver
+import net.bestia.zone.entity.observe.WorldTarget
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.message.OutMessageProcessor
@@ -16,7 +19,8 @@ import org.junit.jupiter.api.Test
 class ExaminePoiScriptTest {
 
   private val messages = mockk<OutMessageProcessor>(relaxed = true)
-  private val script = ExaminePoiScript(messages)
+  private val deeds = mockk<DeedObserver>(relaxed = true)
+  private val script = ExaminePoiScript(messages, listOf(deeds))
   private val world = testWorld()
 
   private val obelisk = world.createEntity { id ->
@@ -31,6 +35,7 @@ class ExaminePoiScriptTest {
     script.onInteract(world, reader, obelisk)
 
     verify { messages.sendToPlayer(ACCOUNT_ID, match<ReadableSMSG> { it.text.args["poi"] == TextArg.Token("POI_BROKEN_OBELISK") }) }
+    verify { deeds.onDeed(world, DeedFact(reader, DeedFact.Deed.EXAMINED, WorldTarget.poi("BROKEN_OBELISK", 0))) }
   }
 
   @Test
@@ -40,6 +45,7 @@ class ExaminePoiScriptTest {
     script.onInteract(world, reader, obelisk)
 
     verify(exactly = 0) { messages.sendToPlayer(any(), any<ReadableSMSG>()) }
+    verify(exactly = 0) { deeds.onDeed(any(), any()) }
   }
 
   private fun playerAt(at: Vec3L): Long {

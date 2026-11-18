@@ -143,7 +143,7 @@ class MasterEntitySpawner(
     LOG.info { "Create master entity for account ${master.account.id} with master id: $masterId" }
 
     val knownRecipeIds = knownRecipeStore.load(masterId)
-    val trackedKills = questService.trackedKillsFor(masterId)
+    val trackedObjectives = questService.trackedFor(masterId)
     val knownFacts = factService.factsOf(masterId)
     val learnedSkillIds = learnedSkillRepository.findAllByMasterId(masterId)
       .associate { it.skill.id to it.level }
@@ -182,7 +182,7 @@ class MasterEntitySpawner(
       // The stored pair only breaks ties: a content edit to the tree since the last save is caught here.
       professions.refresh(this, id)
       add(id, KnownRecipes(knownRecipeIds.toMutableSet()))
-      add(id, ActiveQuests(masterId, trackedKills))
+      add(id, ActiveQuests(masterId, trackedObjectives))
       add(id, KnownFacts(knownFacts))
       add(id, SkillPoints(master.skillPoints))
       add(id, StatusPoints(master.statusPoints))

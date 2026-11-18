@@ -68,6 +68,8 @@ private fun ObjectiveKind.toProto(): QuestProto.ObjectiveKind {
   return when (this) {
     ObjectiveKind.DELIVER_ITEM -> QuestProto.ObjectiveKind.OBJECTIVE_KIND_DELIVER_ITEM
     ObjectiveKind.KILL -> QuestProto.ObjectiveKind.OBJECTIVE_KIND_KILL
+    ObjectiveKind.EXAMINE -> QuestProto.ObjectiveKind.OBJECTIVE_KIND_EXAMINE
+    ObjectiveKind.TALK -> QuestProto.ObjectiveKind.OBJECTIVE_KIND_TALK
   }
 }
 

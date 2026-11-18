@@ -21,6 +21,9 @@ data class QuestDraft(
     require(stages.size == 1 || objectives.all { it.scope == ObjectiveScope.PERSONAL }) {
       "A quest with stages takes personal objectives only"
     }
+    objectives.filter { it.kind == ObjectiveKind.EXAMINE || it.kind == ObjectiveKind.TALK }.forEach {
+      require(it.target != null && it.scope == ObjectiveScope.PERSONAL) { "$it needs a target and is personal" }
+    }
   }
 
 
