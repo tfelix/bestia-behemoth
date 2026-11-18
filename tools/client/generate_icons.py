@@ -56,6 +56,16 @@ STYLE_IMAGE: Path | None = None  # one approved icon of exactly IMAGE_SIZE; keep
 STYLE_OPTIONS = {"color_palette": True, "outline": True, "detail": True, "shading": True}
 
 STYLE_PREFIX = "Pixel art RPG icon, single object, centered, thick dark outline, vibrant colors, no text:"
+# Items say so outright: without "it is an item" the model drifts to creatures and characters.
+ITEM_PREFIX = (
+    "Pixel art RPG item inventory icon, single object, centered, thick dark outline, vibrant colors, "
+    "no text, no monsters, no characters. It is an inanimate item:"
+)
+BESTIA_SKILL_MIN_ID = 2000  # bestia skills (2000+) get their own prompt: description only, and no people
+BESTIA_SKILL_PREFIX = (
+    "Pixel art RPG skill icon, single object, centered, thick dark outline, vibrant colors, no text, "
+    "avoid depicting people:"
+)
 ITEM_HINTS = {0: "consumable item", 1: "piece of equipment"}  # by .tres `type`; other items get none
 DESCRIPTION_MAX_CHARS = 400
 
@@ -196,8 +206,11 @@ def short_description(text: str) -> str:
 
 
 def build_prompt(asset: Asset) -> str:
+    if asset.kind == "skill" and asset.id >= BESTIA_SKILL_MIN_ID:
+        return f"{BESTIA_SKILL_PREFIX} {short_description(asset.description) or asset.name}"
     subject = f"{asset.name} ({asset.hint})" if asset.hint else asset.name
-    return " ".join(part for part in (STYLE_PREFIX, f"{subject}.", short_description(asset.description)) if part)
+    prefix = ITEM_PREFIX if asset.kind == "item" else STYLE_PREFIX
+    return " ".join(part for part in (prefix, f"{subject}.", short_description(asset.description)) if part)
 
 
 # --- Wiring ---------------------------------------------------------------------------------------

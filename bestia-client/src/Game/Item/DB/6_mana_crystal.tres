@@ -1,14 +1,16 @@
-[gd_resource type="Resource" script_class="ItemResource" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="ItemResource" format=3 uid="uid://bwi6iwtvuntsg"]
 
-[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://bn4gvq3ayku4r" path="res://Game/Item/item_resource.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://Game/Entity/Visual/ItemVisual/Items/ManaCrystal.tscn" id="2_visual"]
+[ext_resource type="Texture2D" uid="uid://bh35m3ej8uw7m" path="res://Game/Item/DB/6_mana_crystal.png" id="3_icon"]
 
 [resource]
 script = ExtResource("1_script")
 item_id = 6
+icon = ExtResource("3_icon")
 name_key = "MANA_CRYSTAL"
 description_key = "MANA_CRYSTAL_DESC"
 weight = 30
+level = 5
 type = 2
 item_visual = ExtResource("2_visual")
-level = 5

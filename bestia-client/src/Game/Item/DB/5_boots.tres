@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ItemResource" format=3 uid="uid://dc34v6p57rh77"]
 
-[ext_resource type="Texture2D" uid="uid://bplev6w0bw7ll" path="res://Game/Item/DB/5_boots.png" id="1_f5kx3"]
+[ext_resource type="Texture2D" uid="uid://cln0ot1bsx3ew" path="res://Game/Item/DB/5_boots.png" id="1_f5kx3"]
 [ext_resource type="Script" uid="uid://bn4gvq3ayku4r" path="res://Game/Item/item_resource.gd" id="1_script"]
 
 [resource]
@@ -10,8 +10,8 @@ icon = ExtResource("1_f5kx3")
 name_key = "BOOTS"
 description_key = "BOOTS_DESC"
 weight = 200
+level = 10
+min_level = 5
 type = 1
 equip_slot = 5
-level = 10
 armor_type = 3
-min_level = 5

@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "companion-app", "run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "docs",
+      "runtimeExecutable": "hugo",
+      "runtimeArgs": ["server", "--source", "../bestia-docs", "--port", "1313", "--baseURL", "http://localhost:1313/"],
+      "port": 1313
     }
   ]
 }

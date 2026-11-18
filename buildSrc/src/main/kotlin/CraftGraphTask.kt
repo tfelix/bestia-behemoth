@@ -20,7 +20,7 @@ import java.io.File
  * Equipment is left off the flowcharts, since a few hundred gear recipes would drown the chains that feed them, but
  * it is in the tables.
  *
- * The output is meant to be copied into the docs repo (`content/docs/mechanics/crafting-chains-generated.md`); this
+ * The output is meant to be copied into the docs repo (`content/docs/mechanics/items-crafting/crafting-chains-generated.md`); this
  * repo does not own that tree, so the task writes where it is told to and never reaches across.
  */
 abstract class CraftGraphTask : DefaultTask() {
@@ -92,7 +92,7 @@ abstract class CraftGraphTask : DefaultTask() {
     text.appendLine()
     text.appendLine("How to read it: a parallelogram is a raw material (a bestia drops it, or a player gathers or mines it), a")
     text.appendLine("box is something a recipe makes, and an arrow carries the amount that goes in. The rules behind the chains are")
-    text.appendLine("on the [crafting chains](/docs/mechanics/crafting-chains/) page.")
+    text.appendLine("on the [crafting chains](/docs/mechanics/items-crafting/crafting-chains/) page.")
     text.appendLine()
 
     val stations = recipes.groupBy { it.station }
