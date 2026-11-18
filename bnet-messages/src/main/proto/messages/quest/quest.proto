@@ -10,6 +10,8 @@ option java_outer_classname = "QuestProto";
 // Who made a quest. Quests are made at runtime, so this names a maker, never a catalogue of quests.
 enum QuestOrigin {
   QUEST_ORIGIN_BLACKBOARD = 0;
+  // The world itself made it, from its history or from something that happened.
+  QUEST_ORIGIN_WORLD = 1;
 }
 
 enum QuestStatus {
