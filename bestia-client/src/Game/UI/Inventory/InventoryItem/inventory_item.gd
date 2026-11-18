@@ -69,7 +69,14 @@ var inventory = null
 ## otherwise swallow the drop, and a full bag has no gap left to aim for. Untyped for the reason above.
 var drop_target = null
 
+## What the tooltip says beyond [ItemDetail]'s text, as BBCode: a scroll's spell, an egg's contents, a shop's
+## refusal. Kept apart so the inventory's detail column, which lays out the rest itself, can show just these.
+var extra_detail: String = ""
+
 var _is_dragging_self: bool = false
+
+## The panel style as authored, which [method set_selected] puts back.
+var _unselected_style: StyleBox
 
 @onready var _count: Label = %Count
 @onready var _icon: TextureRect = %Icon
@@ -77,6 +84,7 @@ var _is_dragging_self: bool = false
 
 
 func _ready() -> void:
+	_unselected_style = get_theme_stylebox("panel")
 	_count.text = str(amount)
 	_icon.texture = item.get_icon()
 	_wear.show_wear(durability, max_durability)
@@ -103,7 +111,32 @@ func _on_egg_read(message: BestiaEggSMSG) -> void:
 	if message.Egg == null or message.Egg.UniqueId != unique_id:
 		return
 	ConnectionManager.bestia_egg_received.disconnect(_on_egg_read)
-	tooltip_text += "\n\n" + BreedingText.egg_detail(message.Egg)
+	var egg := BreedingText.egg_detail(message.Egg)
+	tooltip_text += "\n\n" + egg
+	_add_extra_detail(egg)
+
+
+func _add_extra_detail(bbcode: String) -> void:
+	extra_detail = bbcode if extra_detail.is_empty() else extra_detail + "\n" + bbcode
+	_retell_detail()
+
+
+## Outlines the row whose item the inventory's detail column shows.
+func set_selected(selected: bool) -> void:
+	if not selected:
+		add_theme_stylebox_override("panel", _unselected_style)
+		return
+
+	var style: StyleBoxFlat = _unselected_style.duplicate()
+	style.set_border_width_all(2)
+	style.border_color = UiStyle.ACCENT
+	add_theme_stylebox_override("panel", style)
+
+
+## The row learned more after it was drawn; the detail column may be showing the old state.
+func _retell_detail() -> void:
+	if drag_source == "inventory_item" and inventory != null:
+		inventory.retell_detail(self)
 
 
 ## Names the attack under the scroll's title, once the server has said which it is.
@@ -115,6 +148,7 @@ func _show_spell() -> void:
 	var title_and_rest := tooltip_text.split("\n", true, 1)
 	title_and_rest.insert(1, spell)
 	tooltip_text = "\n".join(title_and_rest)
+	_add_extra_detail(spell)
 
 
 func _is_shopping() -> bool:
@@ -125,6 +159,7 @@ func _show_trade_price() -> void:
 	if trade_price < 0:
 		modulate = Color(1, 1, 1, 0.35)
 		tooltip_text += "\n" + tr("SHOP_NOT_BOUGHT_HERE")
+		_add_extra_detail(tr("SHOP_NOT_BOUGHT_HERE"))
 		return
 
 	var badge := PanelContainer.new()
@@ -209,6 +244,11 @@ func _gui_input(event: InputEvent) -> void:
 			if inventory != null and inventory.try_quick_equip(item, player_item_id):
 				return
 			item.use_item(player_item_id)
+		elif event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			# A plain click reads the item in the inventory's detail column. Only an own held row: the other
+			# lists have no column beside them.
+			if drag_source == "inventory_item" and inventory != null:
+				inventory.show_detail(self)
 		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			if _can_move():
 				_open_move_menu()

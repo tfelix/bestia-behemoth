@@ -56,6 +56,7 @@ var equipment_window: WidgetWindow = null
 @onready var _etc_grid: GridContainer = %EtcGrid
 @onready var _partner_strip: HBoxContainer = %PartnerStrip
 @onready var _exchange: ExchangeColumn = %ExchangeColumn
+@onready var _detail: ItemDetailColumn = %ItemDetailColumn
 
 var _items: Dictionary[int, Array]
 
@@ -98,6 +99,7 @@ func _ready() -> void:
 	inventory_updated.connect(_report_gold_change)
 	_exchange.item_dropped.connect(_on_dropped_on_partner)
 	_exchange.item_requested.connect(_on_partner_row_requested)
+	_detail.closed.connect(_mark_shown_row)
 	_search.text_changed.connect(func(_text: String) -> void: _render_items())
 	_sort.item_selected.connect(func(_index: int) -> void: _render_items())
 	_add_sort_key("INVENTORY_SORT_NAME", _by_name)
@@ -250,6 +252,7 @@ func _render_items() -> void:
 			child.queue_free()
 
 	if !_items.has(selected_entity_id):
+		_follow_shown_item()
 		return
 
 	var still_held_back := _held_back.duplicate()
@@ -284,6 +287,8 @@ func _render_items() -> void:
 				_equip_grid.add_child(inv_item)
 			ItemResource.ItemType.ETC:
 				_etc_grid.add_child(inv_item)
+
+	_follow_shown_item()
 
 
 ## The held items the grids show: matching the search, in the chosen order.
@@ -392,6 +397,59 @@ func try_quick_equip(item: ItemResource, player_item_id: int) -> bool:
 		return false
 
 	return equipment.equip_to_own_slot(item.item_id, player_item_id)
+
+
+# ------------------------------------------------------------------ item detail
+
+## Opens the detail column on [param row], an own row that was clicked. Clicking the row already shown keeps it
+## open: the first click of a double-click and the press that starts a drag are clicks too.
+func show_detail(row) -> void:
+	_detail.show_row(row)
+	_mark_shown_row()
+
+
+## [param row] learned more about its item after it was drawn, like a scroll's spell; the column re-reads it if
+## that is the item it shows.
+func retell_detail(row) -> void:
+	if row.player_item_id == _detail.shown_player_item_id:
+		_detail.show_row(row)
+
+
+## After a re-render the shown item's row is a new one, which carries the item's new state (wear, upgrades).
+## Once the item is no longer held at all - used up, dropped, handed over, or a switch to another entity - the
+## column closes. Merely being filtered out by the search does not count: it is still in the bag.
+func _follow_shown_item() -> void:
+	var shown_id := _detail.shown_player_item_id
+	if shown_id == 0:
+		return
+
+	var row = _shown_row()
+	if row != null:
+		_detail.show_row(row)
+	elif not _items.get(selected_entity_id, []).any(func(held) -> bool: return held.player_item_id == shown_id and not held.equipped):
+		_detail.close()
+
+	_mark_shown_row()
+
+
+func _shown_row():
+	for row in _live_rows():
+		if row.player_item_id == _detail.shown_player_item_id:
+			return row
+	return null
+
+
+## The rows of the three grids, minus the ones a re-render already queued for deletion.
+func _live_rows() -> Array:
+	var rows := []
+	for grid in [_usable_grid, _equip_grid, _etc_grid]:
+		rows.append_array(grid.get_children().filter(func(row) -> bool: return not row.is_queued_for_deletion()))
+	return rows
+
+
+func _mark_shown_row() -> void:
+	for row in _live_rows():
+		row.set_selected(_detail.shown_player_item_id != 0 and row.player_item_id == _detail.shown_player_item_id)
 
 
 # ------------------------------------------------------------------ exchange

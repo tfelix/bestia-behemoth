@@ -16,6 +16,10 @@ const MISSING_VISUAL: PackedScene = preload("res://Game/Entity/Visual/ItemVisual
 
 @export var item_id: int
 @export var icon: Texture2D
+
+## The painted 512 x 512 picture the inventory's item detail column shows, from Game/Item/Art; unset for an
+## item not painted yet, which shows its [member icon] there instead.
+@export var illustration: Texture2D
 @export var name_key: String
 @export var description_key: String
 @export var weight: int

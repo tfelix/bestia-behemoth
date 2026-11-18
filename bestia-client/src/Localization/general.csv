@@ -263,6 +263,17 @@ ITEM_CRAFTED_BY,Crafted by {crafter} in {world}
 ITEM_MATERIAL_AXES,Material: {axes}
 ITEM_ATTACK_RANGE,Range: {tiles} tiles
 ITEM_MIN_LEVEL,Requires level {level}
+ITEM_DETAIL_LEVEL,Lv. {level}
+ITEM_DETAIL_REQUIRED_LEVEL,Required level
+ITEM_DETAIL_WEIGHT,Weight
+ITEM_DETAIL_WEIGHT_KG,{kg} kg
+ITEM_DETAIL_RANGE,Range
+ITEM_DETAIL_RANGE_TILES,{tiles} tiles
+ITEM_DETAIL_SOCKETS,Sockets
+ITEM_DETAIL_DURABILITY,Durability
+ITEM_DETAIL_BROKEN,Broken
+ITEM_DETAIL_LIGHT_LEFT,Light left
+ITEM_DETAIL_BONUSES,Bonuses
 QUIVER_SLOT_EMPTY,Drop arrows here. The leftmost is shot first; double click to take one out.
 CRAFT_HINT_TOO,too {pole}
 CRAFT_POLE_STATE_NEG,fluid

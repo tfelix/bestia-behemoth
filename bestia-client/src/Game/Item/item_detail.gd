@@ -48,7 +48,7 @@ static func as_bbcode(
 		lines.append(_translate("ITEM_ATTACK_RANGE").format({"tiles": item.attack_range}))
 
 	for rolled in rolled_stats:
-		lines.append(_stat_line(rolled.Stat, rolled.Value))
+		lines.append(stat_line(rolled.Stat, rolled.Value))
 
 	if max_durability > 0 and item.gives_light():
 		# A light's wear is the time it has left to burn, which reads better as a share than as points.
@@ -67,7 +67,7 @@ static func as_bbcode(
 	if not crafted_by.is_empty():
 		lines.append(_translate("ITEM_CRAFTED_BY").format({"crafter": crafted_by, "world": crafted_in}))
 
-	var description := _description_of(item)
+	var description := description_of(item)
 	if not description.is_empty():
 		lines.append("")
 		lines.append(description)
@@ -79,7 +79,7 @@ static func as_bbcode(
 ##
 ## Safe to hand to a [RichTextLabel] unescaped because those rows are plain prose - no row contains a
 ## [code][/code] at all, which [code]ItemDescriptionTest[/code] holds them to.
-static func _description_of(item: ItemResource) -> String:
+static func description_of(item: ItemResource) -> String:
 	if item.description_key.is_empty():
 		return ""
 
@@ -91,7 +91,7 @@ static func _description_of(item: ItemResource) -> String:
 
 ## [code]general.csv[/code] holds one [code]ITEM_STAT_<NAME>[/code] row per stat, with a
 ## [code]{value}[/code] placeholder so a language can put the number where it belongs.
-static func _stat_line(stat: String, value: int) -> String:
+static func stat_line(stat: String, value: int) -> String:
 	var key := "ITEM_STAT_" + stat
 	var template := _translate(key)
 	if template == key:
