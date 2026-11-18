@@ -17,6 +17,8 @@ data class QuestView(
   val posterName: String,
   val objectives: List<Objective>,
   val rewards: List<QuestReward>,
+  /** The stage this master works on; 0 for a quest it has not accepted. */
+  val stage: Int = 0,
 ) {
 
   enum class Role {
@@ -37,11 +39,12 @@ data class QuestView(
     val required: Int,
     val progress: Int,
     val yours: Int,
+    val stage: Int = 0,
   )
 
   companion object {
     fun accepted(entry: QuestLogEntry): QuestView {
-      return of(entry.quest, Role.ACCEPTED, entry.counts)
+      return of(entry.quest, Role.ACCEPTED, entry.counts, entry.stage)
     }
 
     fun posted(quest: Quest): QuestView {
@@ -52,14 +55,16 @@ data class QuestView(
       return of(quest, Role.OFFERED, counts = emptyList())
     }
 
-    private fun of(quest: Quest, role: Role, counts: List<Int>): QuestView {
-      val objectives = quest.objectives.mapIndexed { index, objective ->
+    /** A master sees the stages it reached, so the log cannot be read ahead. The poster sees all of its quest. */
+    private fun of(quest: Quest, role: Role, counts: List<Int>, stage: Int = 0): QuestView {
+      val lastShownStage = if (role == Role.POSTED) quest.stageCount else stage
+      val objectives = quest.objectives.withIndex().filter { it.value.stage <= lastShownStage }.map { (index, objective) ->
         val yours = counts.getOrElse(index) { 0 }
         val progress = if (objective.scope == ObjectiveScope.SHARED) objective.progress else yours
         val placeName = (objective.area as? QuestArea.InPlace)?.placeName
         Objective(
           objective.kind, objective.scope, objective.itemId, objective.speciesId, placeName, objective.required,
-          progress, yours,
+          progress, yours, objective.stage,
         )
       }
 
@@ -74,6 +79,7 @@ data class QuestView(
         posterName = quest.posterName ?: "",
         objectives = objectives,
         rewards = quest.rewards,
+        stage = stage,
       )
     }
   }

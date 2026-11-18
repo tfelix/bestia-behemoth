@@ -42,6 +42,13 @@ class QuestLogEntry(
   var counts: List<Int>,
 ) {
 
+  /** The stage this master works on. Equal to the quest's stage count once the master is through. */
+  @Column(nullable = false)
+  var stage: Int = 0
+
+  val stageMet: Boolean
+    get() = quest.objectives.withIndex().filter { it.value.stage == stage }.all { counts[it.index] >= it.value.required }
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   val id: Long = 0
