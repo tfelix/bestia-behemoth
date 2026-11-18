@@ -51,6 +51,11 @@ static func resolve_ref(ref) -> String:
 	return resolve_line(ref.Key, Array(ref.Args))
 
 
+## Fills a text written for this world with the args of its [code]TextRef[/code]. See [TextSource].
+static func resolve_body(body: String, ref) -> String:
+	return _format(body, Array(ref.Args))
+
+
 static func _translate(key: String) -> String:
 	return TranslationServer.translate(key)
 
