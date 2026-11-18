@@ -8,6 +8,8 @@ blueprints:
   - HEARTY_STEW
   - ENGRAVING_SET
   - IRON_INGOT
+  # Charred from a log, which has no craft-axes, so it cannot be discovered.
+  - CHARCOAL
   - GOLD_BAR
   - GOLD_COIN
   - IRON_SWORD

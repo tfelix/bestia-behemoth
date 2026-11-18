@@ -66,7 +66,7 @@ class ItemStatImportTest {
   fun `the equipment catalogue keeps its min levels within the guideline`() {
     val catalogue = items.filter { it.id >= CATALOGUE_FIRST_ID && it.type.uppercase() == "EQUIP" }
 
-    assertEquals(346, catalogue.size)
+    assertEquals(347, catalogue.size)
     catalogue.forEach {
       val minLevel = requireNotNull(it.minLevel)
       assertTrue(minLevel in 1..40 || minLevel >= 60) { "${it.identifier} has min level $minLevel, between 40 and 60" }
