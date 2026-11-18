@@ -239,7 +239,7 @@ func _end_item_hover(line: RichTextLabel) -> void:
 ##
 ## Private: callers outside pick a *kind* of line - [method system_line] or [method error_line] - and the
 ## colour follows from that, so the palette stays in one place.
-func _add_chat_line(text: String, color: Color = Color.WHITE) -> void:
+func _add_chat_line(text: String, color: Color = Color.WHITE) -> Label:
 	var new_line := Label.new()
 	new_line.text = text
 	new_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -247,6 +247,7 @@ func _add_chat_line(text: String, color: Color = Color.WHITE) -> void:
 		new_line.add_theme_color_override("font_color", color)
 
 	_append_line(new_line)
+	return new_line
 
 
 ## A line that carries markup, for the item lines - the only kind this window writes itself.
@@ -372,7 +373,12 @@ func _on_journey_ended(message: JourneyEndedSMSG) -> void:
 
 
 func _on_readable_received(message: ReadableSMSG) -> void:
-	_add_chat_line(DialogText.resolve_ref(message.Text))
+	var line := _add_chat_line("")
+	TextSource.show_ref(message.Text, func(text: String):
+		# An old line may have left the log before its written text arrived.
+		if is_instance_valid(line):
+			line.text = text
+	)
 
 
 func _on_chat_received(message: ChatSMSG) -> void:

@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://cnjm7a2eprhpj" path="res://Game/entity_manager.gd" id="9_eqev2"]
 [ext_resource type="Script" uid="uid://q7faijbdj6o4" path="res://Game/Mouse/mouse_marker.gd" id="11_msmrk"]
 [ext_resource type="Script" uid="uid://ddv6ljagsrg87" path="res://Game/Entity/NameTag/emblem_cache.gd" id="12_emblem"]
+[ext_resource type="Script" path="res://Game/Text/text_source.gd" id="17_texts"]
 [ext_resource type="Script" uid="uid://cxxwsgl6fa6iq" path="res://Game/Mouse/Selection/selection_marker.gd" id="13_selmrk"]
 [ext_resource type="Texture2D" uid="uid://bp0vtb8sk1qwd" path="res://Game/Mouse/Selection/navigation_s.png" id="14_selarw"]
 [ext_resource type="PackedScene" uid="uid://45jpbbdakcsg" path="res://Dev/RenderDebug/RenderDebug.tscn" id="15_rdebug"]
@@ -30,6 +31,9 @@ script = ExtResource("1_oscxy")
 
 [node name="EmblemCache" type="Node" parent="."]
 script = ExtResource("12_emblem")
+
+[node name="TextSource" type="Node" parent="."]
+script = ExtResource("17_texts")
 
 [node name="UI" parent="." unique_id=426573470 instance=ExtResource("2_eqev2")]
 
