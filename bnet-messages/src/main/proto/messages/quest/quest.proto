@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package bnet;
 
+import "messages/system/text.proto";
+
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "QuestProto";
 
@@ -42,19 +44,6 @@ enum QuestRewardKind {
   QUEST_REWARD_KIND_COINS_PER_UNIT = 0;
 }
 
-// A value for the quest's title template. Typed, so the client names items and species in its own language.
-message QuestTextArg {
-  oneof value {
-    int64 number = 1;
-    int64 item_id = 2;
-    int64 species_id = 3;
-    // A translation key the client resolves.
-    string token = 4;
-    // A proper noun, already rendered: a town or a player.
-    string name = 5;
-  }
-}
-
 message QuestObjective {
   ObjectiveKind kind = 1;
   ObjectiveScope scope = 2;
@@ -80,8 +69,7 @@ message Quest {
   QuestOrigin origin = 2;
   QuestStatus status = 3;
   QuestRole role = 4;
-  string title_key = 5;
-  map<string, QuestTextArg> args = 6;
+  TextRef title = 5;
   uint32 suggested_level = 7;
   int64 deadline_epoch_ms = 8;
   string poster_name = 9;

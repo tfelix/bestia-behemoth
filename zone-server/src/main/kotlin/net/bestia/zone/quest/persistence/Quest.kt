@@ -15,7 +15,7 @@ import net.bestia.zone.quest.QuestObjective
 import net.bestia.zone.quest.QuestOrigin
 import net.bestia.zone.quest.QuestReward
 import net.bestia.zone.quest.QuestStatus
-import net.bestia.zone.quest.QuestTextArg
+import net.bestia.zone.text.TextRef
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
 import java.time.Instant
@@ -32,12 +32,9 @@ class Quest(
   @Column(nullable = false)
   val origin: QuestOrigin,
 
-  @Column(name = "title_key", nullable = false)
-  val titleKey: String,
-
-  @Convert(converter = QuestTextArgsConverter::class)
-  @Column(name = "text_args", columnDefinition = "TEXT", nullable = false)
-  val textArgs: List<QuestTextArg>,
+  @Convert(converter = TextRefConverter::class)
+  @Column(columnDefinition = "TEXT", nullable = false)
+  val title: TextRef,
 
   @Column(name = "suggested_level", nullable = false)
   val suggestedLevel: Int,

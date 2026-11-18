@@ -29,6 +29,7 @@ import net.bestia.zone.quest.ObjectiveKind
 import net.bestia.zone.quest.ObjectiveScope
 import net.bestia.zone.quest.QuestOrigin
 import net.bestia.zone.quest.QuestView
+import net.bestia.zone.text.TextRef
 import org.junit.jupiter.api.Test
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.support.TransactionCallback
@@ -225,7 +226,7 @@ class BlackboardServiceTest {
   ) {
     val objective = QuestView.Objective(ObjectiveKind.DELIVER_ITEM, ObjectiveScope.SHARED, itemId, null, null, required, progress, 0)
     fun viewIn(status: QuestStatus) = QuestView(
-      questId, QuestOrigin.BLACKBOARD, status, QuestView.Role.ACCEPTED, "QUEST_DELIVER_TITLE", emptyList(), 18, now,
+      questId, QuestOrigin.BLACKBOARD, status, QuestView.Role.ACCEPTED, TextRef("QUEST_DELIVER_TITLE"), 18, now,
       "Kaelin", listOf(objective), emptyList(),
     )
     every { quests.viewFor(DELIVERER, questId) } returnsMany listOf(viewIn(QuestStatus.OPEN), viewIn(afterwards))
