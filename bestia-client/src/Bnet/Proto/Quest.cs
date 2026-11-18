@@ -41,22 +41,22 @@ namespace Bnet {
             "ZXQuVGV4dFJlZhIXCg9zdWdnZXN0ZWRfbGV2ZWwYByABKA0SGQoRZGVhZGxp",
             "bmVfZXBvY2hfbXMYCCABKAMSEwoLcG9zdGVyX25hbWUYCSABKAkSKAoKb2Jq",
             "ZWN0aXZlcxgKIAMoCzIULmJuZXQuUXVlc3RPYmplY3RpdmUSIgoHcmV3YXJk",
-            "cxgLIAMoCzIRLmJuZXQuUXVlc3RSZXdhcmQSDQoFc3RhZ2UYDCABKA0qKgoL",
-            "UXVlc3RPcmlnaW4SGwoXUVVFU1RfT1JJR0lOX0JMQUNLQk9BUkQQACqQAQoL",
-            "UXVlc3RTdGF0dXMSFQoRUVVFU1RfU1RBVFVTX09QRU4QABIYChRRVUVTVF9T",
-            "VEFUVVNfQ0xPU0lORxABEhoKFlFVRVNUX1NUQVRVU19DT01QTEVURUQQAhIY",
-            "ChRRVUVTVF9TVEFUVVNfRVhQSVJFRBADEhoKFlFVRVNUX1NUQVRVU19XSVRI",
-            "RFJBV04QBCpTCglRdWVzdFJvbGUSFwoTUVVFU1RfUk9MRV9BQ0NFUFRFRBAA",
-            "EhUKEVFVRVNUX1JPTEVfUE9TVEVEEAESFgoSUVVFU1RfUk9MRV9PRkZFUkVE",
-            "EAIqswEKDU9iamVjdGl2ZUtpbmQSHwobT0JKRUNUSVZFX0tJTkRfREVMSVZF",
-            "Ul9JVEVNEAASFwoTT0JKRUNUSVZFX0tJTkRfS0lMTBABEhoKFk9CSkVDVElW",
-            "RV9LSU5EX0VYQU1JTkUQAhIXChNPQkpFQ1RJVkVfS0lORF9UQUxLEAMSGQoV",
-            "T0JKRUNUSVZFX0tJTkRfREVDSURFEAQSGAoUT0JKRUNUSVZFX0tJTkRfQlJJ",
-            "TkcQBSpKCg5PYmplY3RpdmVTY29wZRIaChZPQkpFQ1RJVkVfU0NPUEVfU0hB",
-            "UkVEEAASHAoYT0JKRUNUSVZFX1NDT1BFX1BFUlNPTkFMEAEqNwoPUXVlc3RS",
-            "ZXdhcmRLaW5kEiQKIFFVRVNUX1JFV0FSRF9LSU5EX0NPSU5TX1BFUl9VTklU",
-            "EABCIwoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQgpRdWVzdFByb3RvYgZwcm90",
-            "bzM="));
+            "cxgLIAMoCzIRLmJuZXQuUXVlc3RSZXdhcmQSDQoFc3RhZ2UYDCABKA0qQgoL",
+            "UXVlc3RPcmlnaW4SGwoXUVVFU1RfT1JJR0lOX0JMQUNLQk9BUkQQABIWChJR",
+            "VUVTVF9PUklHSU5fV09STEQQASqQAQoLUXVlc3RTdGF0dXMSFQoRUVVFU1Rf",
+            "U1RBVFVTX09QRU4QABIYChRRVUVTVF9TVEFUVVNfQ0xPU0lORxABEhoKFlFV",
+            "RVNUX1NUQVRVU19DT01QTEVURUQQAhIYChRRVUVTVF9TVEFUVVNfRVhQSVJF",
+            "RBADEhoKFlFVRVNUX1NUQVRVU19XSVRIRFJBV04QBCpTCglRdWVzdFJvbGUS",
+            "FwoTUVVFU1RfUk9MRV9BQ0NFUFRFRBAAEhUKEVFVRVNUX1JPTEVfUE9TVEVE",
+            "EAESFgoSUVVFU1RfUk9MRV9PRkZFUkVEEAIqswEKDU9iamVjdGl2ZUtpbmQS",
+            "HwobT0JKRUNUSVZFX0tJTkRfREVMSVZFUl9JVEVNEAASFwoTT0JKRUNUSVZF",
+            "X0tJTkRfS0lMTBABEhoKFk9CSkVDVElWRV9LSU5EX0VYQU1JTkUQAhIXChNP",
+            "QkpFQ1RJVkVfS0lORF9UQUxLEAMSGQoVT0JKRUNUSVZFX0tJTkRfREVDSURF",
+            "EAQSGAoUT0JKRUNUSVZFX0tJTkRfQlJJTkcQBSpKCg5PYmplY3RpdmVTY29w",
+            "ZRIaChZPQkpFQ1RJVkVfU0NPUEVfU0hBUkVEEAASHAoYT0JKRUNUSVZFX1ND",
+            "T1BFX1BFUlNPTkFMEAEqNwoPUXVlc3RSZXdhcmRLaW5kEiQKIFFVRVNUX1JF",
+            "V0FSRF9LSU5EX0NPSU5TX1BFUl9VTklUEABCIwoVbmV0LmJlc3RpYS5ibmV0",
+            "LnByb3RvQgpRdWVzdFByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.TextReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.QuestOrigin), typeof(global::Bnet.QuestStatus), typeof(global::Bnet.QuestRole), typeof(global::Bnet.ObjectiveKind), typeof(global::Bnet.ObjectiveScope), typeof(global::Bnet.QuestRewardKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -75,6 +75,10 @@ namespace Bnet {
   /// </summary>
   public enum QuestOrigin {
     [pbr::OriginalName("QUEST_ORIGIN_BLACKBOARD")] Blackboard = 0,
+    /// <summary>
+    /// The world itself made it, from its history or from something that happened.
+    /// </summary>
+    [pbr::OriginalName("QUEST_ORIGIN_WORLD")] World = 1,
   }
 
   public enum QuestStatus {
