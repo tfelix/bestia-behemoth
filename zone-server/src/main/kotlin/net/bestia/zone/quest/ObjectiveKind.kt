@@ -9,4 +9,7 @@ enum class ObjectiveKind {
 
   /** Speak to the objective's target, a townsperson. */
   TALK,
+
+  /** Pick one of the objective's choices. What follows may depend on it. */
+  DECIDE,
 }

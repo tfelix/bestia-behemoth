@@ -266,6 +266,66 @@ class QuestServiceTest {
     }
   }
 
+  @Test
+  fun `a pick is final, and what follows depends on it`() {
+    val questId = service.create(artifactDraft()).id
+    service.accept(alice, questId)
+    service.accept(bob, questId)
+
+    assertEquals(OpError.REQUEST_REFUSED, service.decide(alice, questId, "keep"), "the dig comes first")
+    service.recordPersonal(alice, questId, 0, 1)
+    service.recordPersonal(bob, questId, 0, 1)
+    assertEquals(OpError.REQUEST_REFUSED, service.decide(alice, questId, "sell"))
+
+    assertNull(service.decide(alice, questId, "keep"))
+    assertEquals(OpError.REQUEST_REFUSED, service.decide(alice, questId, "return"))
+    val kept = service.viewFor(alice, questId)!!
+    assertEquals("keep", kept.objectives.last().chosen)
+    assertEquals(listOf(ObjectiveKind.EXAMINE, ObjectiveKind.DECIDE), kept.objectives.map { it.kind }, "keeping ends the chain")
+    assertTrue(service.trackedFor(alice).isEmpty)
+
+    assertNull(service.decide(bob, questId, "return"))
+    assertEquals(TEMPLE_KEEPER, service.trackedFor(bob).deeds.single().target)
+    assertEquals(ObjectiveKind.TALK, service.viewFor(bob, questId)!!.objectives.last().kind)
+
+    assertEquals(
+      listOf(
+        QuestStageDoneEvent(questId, alice, 1, wasLast = true, choice = "keep"),
+        QuestStageDoneEvent(questId, bob, 1, wasLast = false, choice = "return"),
+      ),
+      published.stream(QuestStageDoneEvent::class.java).filter { it.stage == 1 }.toList(),
+    )
+  }
+
+  @Test
+  fun `a decide objective needs choices, and a branch needs a choice offered before it`() {
+    val draft = artifactDraft()
+    val decide = draft.objectives[1]
+    val branch = draft.objectives[2]
+
+    assertFailsWith<IllegalArgumentException> { draft.copy(objectives = listOf(draft.objectives[0], decide.copy(choices = decide.choices.take(1)))) }
+    assertFailsWith<IllegalArgumentException> { draft.copy(objectives = draft.objectives.take(2) + branch.copy(afterChoice = "sell")) }
+  }
+
+  /** Dig up the blade, then keep it, or bring word to the keeper of its temple. */
+  private fun artifactDraft(): QuestDraft {
+    val choices = listOf(
+      QuestObjective.Choice("keep", TextRef("QUEST_CHOICE_KEEP")),
+      QuestObjective.Choice("return", TextRef("QUEST_CHOICE_RETURN")),
+    )
+
+    return killDraft(required = 1).copy(
+      objectives = listOf(
+        QuestObjective(ObjectiveKind.EXAMINE, ObjectiveScope.PERSONAL, 1, target = WorldTarget.prop(77), text = TextRef("QUEST_STEP_DIG")),
+        QuestObjective(ObjectiveKind.DECIDE, ObjectiveScope.PERSONAL, 1, stage = 1, text = TextRef("QUEST_STEP_DECIDE"), choices = choices),
+        QuestObjective(
+          ObjectiveKind.TALK, ObjectiveScope.PERSONAL, 1, stage = 2, target = TEMPLE_KEEPER, afterChoice = "return",
+          text = TextRef("QUEST_STEP_RETURN"),
+        ),
+      ),
+    )
+  }
+
   private fun stagedKillDraft(): QuestDraft {
     return killDraft(required = 2).let { draft ->
       draft.copy(
@@ -310,6 +370,7 @@ class QuestServiceTest {
   private companion object {
     const val IRON_ORE = 8L
     const val WOLF = 3L
+    val TEMPLE_KEEPER = WorldTarget.townsfolk(4_000_012)
     const val BEAR = 4L
   }
 }

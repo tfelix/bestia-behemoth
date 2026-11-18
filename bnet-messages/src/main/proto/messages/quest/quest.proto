@@ -34,6 +34,7 @@ enum ObjectiveKind {
   OBJECTIVE_KIND_KILL = 1;
   OBJECTIVE_KIND_EXAMINE = 2;
   OBJECTIVE_KIND_TALK = 3;
+  OBJECTIVE_KIND_DECIDE = 4;
 }
 
 enum ObjectiveScope {
@@ -44,6 +45,12 @@ enum ObjectiveScope {
 
 enum QuestRewardKind {
   QUEST_REWARD_KIND_COINS_PER_UNIT = 0;
+}
+
+// One thing a decide objective lets the master pick.
+message QuestChoice {
+  string id = 1;
+  TextRef text = 2;
 }
 
 message QuestObjective {
@@ -62,6 +69,10 @@ message QuestObjective {
   uint32 stage = 9;
   // How to word the objective. Unset for a delivery or a kill, which the client words from the ids above.
   TextRef text = 10;
+  // What a decide objective offers. Answered with a DecideQuestCMSG.
+  repeated QuestChoice choices = 11;
+  // The id this master picked, empty while it has not.
+  string chosen = 12;
 }
 
 message QuestReward {

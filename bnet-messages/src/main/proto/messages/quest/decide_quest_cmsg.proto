@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "DecideQuestCmsgProto";
+
+// Pick one choice at the decide objective of the stage the master works on. A pick is final.
+message DecideQuestCMSG {
+  uint64 quest_id = 1;
+  string choice_id = 2;
+}

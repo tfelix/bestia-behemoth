@@ -160,15 +160,45 @@ class QuestService(
     events.publishEvent(QuestChangedEvent(questId))
   }
 
-  private fun moveOnIfStageMet(entry: QuestLogEntry) {
+  /**
+   * Picks [choiceId] at the decide objective of the stage [masterId] works on. A pick is final.
+   *
+   * @return the refusal, or null when the pick was taken.
+   */
+  @Transactional
+  fun decide(masterId: Long, questId: Long, choiceId: String): OpError? {
+    val entry = entries.findByMasterIdAndQuestId(masterId, questId) ?: return OpError.REQUEST_REFUSED
+    val quest = entry.quest
+    if (!quest.status.takesWork) {
+      return OpError.QUEST_CLOSED
+    }
+    val open = quest.objectives.withIndex().firstOrNull { (index, objective) ->
+      objective.kind == ObjectiveKind.DECIDE && objective.stage == entry.stage && entry.isFor(objective) && entry.counts[index] == 0
+    }
+    if (open == null || open.value.choices.none { it.id == choiceId }) {
+      LOG.warn { "Master $masterId picked '$choiceId' for quest $questId, which offers no such choice now" }
+      return OpError.REQUEST_REFUSED
+    }
+
+    entry.counts = entry.counts.replaced(open.index, 1)
+    entry.choices = entry.choices + choiceId
+    moveOnIfStageMet(entry, choiceId)
+    events.publishEvent(QuestChangedEvent(questId))
+
+    return null
+  }
+
+  private fun moveOnIfStageMet(entry: QuestLogEntry, choice: String? = null) {
     val quest = entry.quest
     if (entry.stage >= quest.stageCount || !entry.stageMet) {
       return
     }
 
     val done = entry.stage
-    entry.stage += 1
-    events.publishEvent(QuestStageDoneEvent(quest.id, entry.masterId, done, wasLast = entry.stage == quest.stageCount))
+    entry.stage = entry.stageAfter(done)
+    events.publishEvent(
+      QuestStageDoneEvent(quest.id, entry.masterId, done, wasLast = entry.stage == quest.stageCount, choice = choice)
+    )
     val tracked = trackedOf(entry)
     afterCommit {
       live.untrack(listOf(entry.masterId), quest.id)
@@ -261,6 +291,7 @@ class QuestService(
 
     val current = quest.objectives.withIndex()
       .filter { (_, objective) -> objective.stage == entry.stage && objective.scope == ObjectiveScope.PERSONAL }
+      .filter { (_, objective) -> entry.isFor(objective) }
     val kills = current.filter { it.value.kind == ObjectiveKind.KILL }.map { (index, objective) ->
       TrackedKill(
         questId = quest.id,
