@@ -37,6 +37,7 @@ blueprints:
   - MINING_SHAFT_KIT
   - POST_OFFICE_KIT
   - AUCTION_HOUSE_KIT
+  - BLACKBOARD_KIT
   # Breeding: the farm, the incubator and what a clutch uses up, so every master can breed without discovering
   # anything first.
   - BREEDING_FARM_KIT
