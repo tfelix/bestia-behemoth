@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
@@ -301,6 +302,35 @@ class ApiServerScenarioTest : ApiScenarioTestBase() {
     assertEquals(1, asked.count { it.query is ZoneQuery.GuildEmblem })
 
     assertEquals(400, rest.exchange("/v1/companion/emblems/not-a-hash.png", HttpMethod.GET, entity(50), String::class.java).statusCode.value())
+  }
+
+  @Test
+  fun `a written text crosses the bus once and is kept for good, a fallback is not`() {
+    val textId = "ab".repeat(16)
+    answer = { request ->
+      when (val query = request.query) {
+        is ZoneQuery.WhoseTicket -> BusReply.ok(request.correlationId, ZoneAnswer.TicketOwner(50))
+        is ZoneQuery.Text -> BusReply.ok(request.correlationId, ZoneAnswer.Text(query.textId, "en", "Here lies {name}, käse."))
+        else -> BusReply.of(request.correlationId, BusReply.Status.NOT_FOUND)
+      }
+    }
+
+    val first = rest.exchange("/v1/companion/texts/$textId/en", HttpMethod.GET, ticketed("live-ticket"), String::class.java)
+    assertEquals(200, first.statusCode.value())
+    assertEquals("Here lies {name}, käse.", first.body)
+    assertEquals("en", first.headers.getFirst(HttpHeaders.CONTENT_LANGUAGE))
+    assertTrue(first.headers.cacheControl!!.contains("immutable"))
+
+    rest.exchange("/v1/companion/texts/$textId/en", HttpMethod.GET, entity(50), String::class.java)
+    assertEquals(1, asked.count { it.query == ZoneQuery.Text(textId, "en") })
+
+    val fallback = rest.exchange("/v1/companion/texts/$textId/de", HttpMethod.GET, entity(50), String::class.java)
+    assertEquals("en", fallback.headers.getFirst(HttpHeaders.CONTENT_LANGUAGE))
+    assertFalse(fallback.headers.cacheControl!!.contains("immutable"))
+    rest.exchange("/v1/companion/texts/$textId/de", HttpMethod.GET, entity(50), String::class.java)
+    assertEquals(2, asked.count { it.query == ZoneQuery.Text(textId, "de") })
+
+    assertEquals(400, rest.exchange("/v1/companion/texts/not-an-id/en", HttpMethod.GET, entity(50), String::class.java).statusCode.value())
   }
 
   @Test
