@@ -6,7 +6,7 @@ package net.bestia.zone.entity.observe
  */
 data class WorldTarget(val kind: Kind, val key: String) {
 
-  enum class Kind { PROP, POI, TOWNSFOLK }
+  enum class Kind { PROP, POI, TOWNSFOLK, GRAVE, CACHE, SETTLEMENT }
 
   companion object {
 
@@ -18,6 +18,21 @@ data class WorldTarget(val kind: Kind, val key: String) {
     /** By kind name, so a reordered catalogue cannot point at another POI. */
     fun poi(kindName: String, instanceId: Int): WorldTarget {
       return WorldTarget(Kind.POI, "$kindName/$instanceId")
+    }
+
+    /** The named grave of a figure of the chronicle, by the figure's index. */
+    fun grave(figure: Int): WorldTarget {
+      return WorldTarget(Kind.GRAVE, figure.toString())
+    }
+
+    /** A treasure cache, by the id the world generator gave it. */
+    fun cache(cacheId: Long): WorldTarget {
+      return WorldTarget(Kind.CACHE, cacheId.toString())
+    }
+
+    /** A settlement, by its index in the chronicle. */
+    fun settlement(index: Int): WorldTarget {
+      return WorldTarget(Kind.SETTLEMENT, index.toString())
     }
 
     /** [identity] of a `TownsfolkIdentity`. */

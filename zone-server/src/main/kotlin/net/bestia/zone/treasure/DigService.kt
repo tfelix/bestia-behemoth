@@ -1,5 +1,8 @@
 package net.bestia.zone.treasure
 
+import net.bestia.zone.entity.observe.DeedFact
+import net.bestia.zone.entity.observe.DeedObserver
+import net.bestia.zone.entity.observe.WorldTarget
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.worldgen.treasure.TreasureCache
 import net.bestia.worldgen.voxel.BlockType
@@ -49,6 +52,7 @@ class DigService(
   private val skillIds: SkillIds,
   private val outMessageProcessor: OutMessageProcessor,
   private val pickaxeMining: PickaxeMining,
+  private val deedObservers: List<DeedObserver> = emptyList(),
 ) {
 
   private val shovelId by lazy { items.idOf(SHOVEL) }
@@ -128,6 +132,8 @@ class DigService(
   private fun open(world: World, entityId: EntityId, cache: TreasureCache) {
     registry.open(cache.id)
     maps.crumble(world, cache.id)
+    val dugUp = DeedFact(entityId, DeedFact.Deed.EXAMINED, WorldTarget.cache(cache.id))
+    deedObservers.forEach { it.onDeed(world, dugUp) }
 
     val relic = if (cache.artifact >= 0) relics.unearth(cache.artifact) else null
     val contents = loot.roll(richness.of(cache), excavationLevelOf(world, entityId), cache.battlefieldAge) +

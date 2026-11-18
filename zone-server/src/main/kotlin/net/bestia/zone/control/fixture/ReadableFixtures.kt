@@ -21,6 +21,9 @@ import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.entity.observe.DeedFact
 import net.bestia.zone.entity.observe.DeedObserver
 import net.bestia.zone.entity.observe.WorldTarget
+import net.bestia.zone.fact.FactRef
+import net.bestia.zone.fact.FactService
+import net.bestia.zone.fact.FactSource
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
@@ -48,6 +51,7 @@ import kotlin.math.roundToInt
 class ReadableFixtures(
   private val worldService: WorldService,
   private val outMessageProcessor: OutMessageProcessor,
+  private val facts: FactService,
   private val deedObservers: List<DeedObserver> = emptyList(),
 ) {
 
@@ -61,9 +65,18 @@ class ReadableFixtures(
 
     val text = textOf(world, propId, pose, kind) ?: return null
     outMessageProcessor.sendToPlayer(accountId, ReadableSMSG(propId, text))
-    world.get(propId, WorldObjectIdentity::class)?.let { identity ->
-      val examined = DeedFact(actorId, DeedFact.Deed.EXAMINED, WorldTarget.prop(identity.propId))
-      deedObservers.forEach { it.onDeed(world, examined) }
+    val buried = buriedFigure(pose, kind)
+    if (buried != null) {
+      // An epitaph gives the name and the years of the dead.
+      facts.learnAsPlayed(accountId, FactRef(FactRef.Subject.FIGURE, buried.toLong(), FactRef.Aspect.NAME), FactSource.CARRIER)
+      facts.learnAsPlayed(accountId, FactRef(FactRef.Subject.FIGURE, buried.toLong(), FactRef.Aspect.FATE), FactSource.CARRIER)
+    }
+    val targets = listOfNotNull(
+      world.get(propId, WorldObjectIdentity::class)?.let { WorldTarget.prop(it.propId) },
+      buried?.let { WorldTarget.grave(it) },
+    )
+    targets.forEach { target ->
+      deedObservers.forEach { it.onDeed(world, DeedFact(actorId, DeedFact.Deed.EXAMINED, target)) }
     }
     return null
   }
@@ -82,12 +95,7 @@ class ReadableFixtures(
       return plainGrave(generated.world.features.query(Aabb(x - 1, y - 1, x + 1, y + 1)), x, y, identity)
     }
 
-    val marker = generated.world.features.query(Aabb(x - MARKER_SNAP, y - MARKER_SNAP, x + MARKER_SNAP, y + MARKER_SNAP))
-      .filter { it.kind == FeatureKind.FIXTURE }
-      .filterIsInstance<PointMarker>()
-      .filter { it.optionalAttribute(FixtureChannels.KIND)?.toInt() == kind.ordinal }
-      .minByOrNull { (it.position.x - x) * (it.position.x - x) + (it.position.y - y) * (it.position.y - y) }
-      ?: return null
+    val marker = markerUnder(x, y, kind) ?: return null
 
     return when (kind) {
       FixtureKind.SIGNPOST -> destinations("READABLE_SIGNPOST", marker, withBearing = true)
@@ -107,6 +115,26 @@ class ReadableFixtures(
       }
       else -> null
     }
+  }
+
+  /** The figure a named grave was dug for, or null for any other fixture. */
+  private fun buriedFigure(pose: PropPose, kind: FixtureKind): Int? {
+    if (kind != FixtureKind.NAMED_GRAVE || !worldService.isLoaded) return null
+    val voxel = worldService.generated.config.voxelSize
+    val marker = markerUnder((pose.position.x + 0.5) * voxel, (pose.position.y + 0.5) * voxel, kind) ?: return null
+
+    return marker.attribute(FixtureChannels.FIGURE).toInt()
+  }
+
+  /** The dressing stage's marker of [kind] at a prop's spot. */
+  private fun markerUnder(x: Double, y: Double, kind: FixtureKind): PointMarker? {
+    val nearby = Aabb(x - MARKER_SNAP, y - MARKER_SNAP, x + MARKER_SNAP, y + MARKER_SNAP)
+
+    return worldService.generated.world.features.query(nearby)
+      .filter { it.kind == FeatureKind.FIXTURE }
+      .filterIsInstance<PointMarker>()
+      .filter { it.optionalAttribute(FixtureChannels.KIND)?.toInt() == kind.ordinal }
+      .minByOrNull { (it.position.x - x) * (it.position.x - x) + (it.position.y - y) * (it.position.y - y) }
   }
 
   /**
