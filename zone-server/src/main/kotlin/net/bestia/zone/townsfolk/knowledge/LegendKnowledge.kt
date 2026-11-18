@@ -44,6 +44,8 @@ object LegendKnowledge {
     val position: Vec2d,
     val year: Int,
     val slots: Map<String, Knowledge.Slot>,
+    /** The artifact a [LegendKind.LOST_RELIC] legend is about, or -1. */
+    val artifact: Int = -1,
   )
 
   /**
@@ -73,9 +75,9 @@ object LegendKnowledge {
   fun subjectsOf(chronicle: Chronicle): List<Subject> {
     val found = ArrayList<Subject>()
 
-    fun add(kind: LegendKind, site: Int, year: Int, slots: Map<String, Knowledge.Slot>) {
+    fun add(kind: LegendKind, site: Int, year: Int, slots: Map<String, Knowledge.Slot>, artifact: Int = -1) {
       val position = chronicle.sites.getOrNull(site)?.position ?: return
-      found.add(Subject(found.size, kind, position, year, slots))
+      found.add(Subject(found.size, kind, position, year, slots, artifact))
     }
 
     for (site in chronicle.sitesOfKind(SiteKind.HOARD)) {
@@ -98,7 +100,7 @@ object LegendKnowledge {
       val lostYear = chronicle.provenanceOf(relic.index).lastOrNull()?.year ?: relic.forgedYear
       val name = named(ChronicleNames.artifactOf(chronicle, relic.index), HistoryKnowledge.UNKNOWN_ARTIFACT)
       val slots = mapOf(HistoryKnowledge.SLOT_ARTIFACT to name)
-      add(LegendKind.LOST_RELIC, relic.restingSite, lostYear, slots)
+      add(LegendKind.LOST_RELIC, relic.restingSite, lostYear, slots, artifact = relic.index)
     }
 
     return found
