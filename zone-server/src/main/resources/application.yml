@@ -513,6 +513,14 @@ quest:
   # How long an ended quest stays readable in the logs before it is deleted.
   ended-kept-for: 3d
 
+# The QuestManager: quests the world makes from its history. See docs: server/quest-manager.
+questgen:
+  # Quests a town offers at once whatever its size, and one more for every so many people.
+  offers-per-town: 1
+  people-per-extra-offer: 400
+  # How long a quest takes work after its first master accepted it.
+  quest-runs-for: 30d
+
 blackboard:
   # The runs a poster may pick, in days, and the fee each costs in percent of the pay. Paid up front into the
   # world reserve and never refunded.

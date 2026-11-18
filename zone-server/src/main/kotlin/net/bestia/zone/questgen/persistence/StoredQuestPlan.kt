@@ -43,11 +43,22 @@ class StoredQuestPlan(
   @Column(nullable = false, length = 16)
   var state: State = State.PLANNED
 
+  /** The quest of the quest core the plan runs as. Set when the first master accepts. */
+  @Column(name = "quest_id")
+  var questId: Long? = null
+
   enum class State {
     /** Worked out, and not offered yet. */
     PLANNED,
+
+    /** Where the plan starts, the quest can be picked up. */
     OFFERED,
+
+    /** A master accepted it. Others may still join. */
     RUNNING,
-    ENDED,
+    ENDED;
+
+    val canBeAccepted: Boolean
+      get() = this == OFFERED || this == RUNNING
   }
 }
