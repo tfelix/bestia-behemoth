@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/system/text.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ReadableSmsgProto";
+
+/** What a thing in the world says when the player reads it: a signpost, a headstone, a place they examine. */
+message ReadableSMSG {
+  uint64 source_entity_id = 1;
+  TextRef text = 2;
+}

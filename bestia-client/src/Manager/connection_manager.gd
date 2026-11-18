@@ -39,6 +39,8 @@ signal chest_opened(message: ChestOpenedSMSG)
 ## [signal dialog_received] is: it opens a window, and a window belongs to a client rather than to an
 ## entity - the speaker travels inside the message as metadata.
 signal conversation_received(message: ConversationSMSG)
+## Emitted when a thing the player read answers with its text.
+signal readable_received(message: ReadableSMSG)
 signal operation_success(message: OperationSuccess)
 signal operation_error(message: OperationError)
 ## Emitted when another player asks us to trade. Account-scoped for the reason [signal dialog_received] is:
@@ -1749,6 +1751,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		dialog_received.emit(message)
 	elif message is ConversationSMSG:
 		conversation_received.emit(message)
+	elif message is ReadableSMSG:
+		readable_received.emit(message)
 	elif message is CraftableRecipesSMSG:
 		craftable_recipes_received.emit(message)
 	elif message is DiscoveryResultSMSG:

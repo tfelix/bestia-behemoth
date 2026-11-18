@@ -81,6 +81,35 @@ POI_BROKEN_OBELISK,Broken Obelisk
 POI_WAYSTONE,Waystone
 POI_PETRIFIED_TREE,Petrified Tree
 POI_SUNKEN_IDOL,Sunken Idol
+READABLE_POI,You look at the {poi}.
+READABLE_SIGNPOST,The signpost reads: {arms}.
+READABLE_MILESTONE,The milestone reads: {arms}.
+READABLE_WORN_PAINT,the paint has worn away
+READABLE_SIGNPOST_ARMS_1,{place1} {distance1} {bearing1}
+READABLE_SIGNPOST_ARMS_2,{place1} {distance1} {bearing1} · {place2} {distance2} {bearing2}
+READABLE_SIGNPOST_ARMS_3,{place1} {distance1} {bearing1} · {place2} {distance2} {bearing2} · {place3} {distance3} {bearing3}
+READABLE_SIGNPOST_ARMS_4,{place1} {distance1} {bearing1} · {place2} {distance2} {bearing2} · {place3} {distance3} {bearing3} · {place4} {distance4} {bearing4}
+READABLE_MILESTONE_ARMS_1,{place1} {distance1}
+READABLE_MILESTONE_ARMS_2,{place1} {distance1} · {place2} {distance2}
+READABLE_MILESTONE_ARMS_3,{place1} {distance1} · {place2} {distance2} · {place3} {distance3}
+READABLE_MILESTONE_ARMS_4,{place1} {distance1} · {place2} {distance2} · {place3} {distance3} · {place4} {distance4}
+READABLE_NAMED_GRAVE,"Here lies {name}, {role}, {born}-{died}."
+READABLE_GRAVE,"Here lies {name}, {born}-{died}."
+READABLE_GRAVE_WORN,The headstone is too worn to read.
+FIGURE_ROLE_RULER,ruler
+FIGURE_ROLE_GENERAL,general
+FIGURE_ROLE_PROPHET,prophet
+FIGURE_ROLE_SMITH,smith
+FIGURE_ROLE_EXPLORER,explorer
+FIGURE_ROLE_SCHOLAR,scholar
+COMPASS_EAST,east
+COMPASS_NORTH_EAST,north-east
+COMPASS_NORTH,north
+COMPASS_NORTH_WEST,north-west
+COMPASS_WEST,west
+COMPASS_SOUTH_WEST,south-west
+COMPASS_SOUTH,south
+COMPASS_SOUTH_EAST,south-east
 FEATURE_RUIN,Ruins
 FEATURE_ASH_RUIN,Burnt Ruins
 FEATURE_FORT,Fort
