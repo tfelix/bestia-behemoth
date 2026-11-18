@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.event.ApplicationEvents
+import org.springframework.test.context.event.RecordApplicationEvents
+import kotlin.test.assertFailsWith
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
 import java.time.Clock
@@ -24,6 +27,7 @@ import kotlin.test.assertTrue
 
 @SpringBootTest
 @ActiveProfiles("no-socket", "test")
+@RecordApplicationEvents
 class QuestServiceTest {
 
   @Autowired
@@ -46,6 +50,9 @@ class QuestServiceTest {
 
   @Autowired
   private lateinit var live: LiveQuests
+
+  @Autowired
+  private lateinit var published: ApplicationEvents
 
   // Far above any master the scenario fixture creates: this slice keeps master ids without a foreign key.
   private val poster = 9_100_001L
@@ -184,6 +191,50 @@ class QuestServiceTest {
     assertTrue(service.trackedKillsFor(alice).isEmpty())
   }
 
+  @Test
+  fun `a master works through the stages one at a time and sees only the ones it reached`() {
+    val questId = service.create(stagedKillDraft()).id
+    service.accept(alice, questId)
+    service.accept(bob, questId)
+
+    assertEquals(listOf(WOLF), service.trackedKillsFor(alice).map { it.speciesId })
+    assertEquals(1, service.viewFor(alice, questId)!!.objectives.size)
+
+    service.recordPersonal(alice, questId, 0, 2)
+
+    assertEquals(listOf(BEAR), service.trackedKillsFor(alice).map { it.speciesId })
+    val view = service.viewFor(alice, questId)!!
+    assertEquals(1, view.stage)
+    assertEquals(listOf(0, 1), view.objectives.map { it.stage })
+    assertEquals(0, service.viewFor(bob, questId)!!.stage, "each master moves on by its own counts")
+
+    service.recordPersonal(alice, questId, 1, 1)
+
+    assertTrue(service.trackedKillsFor(alice).isEmpty())
+    assertEquals(
+      listOf(QuestStageDoneEvent(questId, alice, 0, wasLast = false), QuestStageDoneEvent(questId, alice, 1, wasLast = true)),
+      published.stream(QuestStageDoneEvent::class.java).toList(),
+    )
+  }
+
+  @Test
+  fun `a quest with stages takes personal objectives only, and its stages have no gap`() {
+    val shared = QuestObjective(ObjectiveKind.DELIVER_ITEM, ObjectiveScope.SHARED, 5, IRON_ORE, stage = 1)
+    val late = QuestObjective(ObjectiveKind.KILL, ObjectiveScope.PERSONAL, 1, speciesId = BEAR, stage = 2)
+
+    assertFailsWith<IllegalArgumentException> { stagedKillDraft().let { it.copy(objectives = it.objectives.take(1) + shared) } }
+    assertFailsWith<IllegalArgumentException> { stagedKillDraft().let { it.copy(objectives = it.objectives.take(1) + late) } }
+  }
+
+  private fun stagedKillDraft(): QuestDraft {
+    return killDraft(required = 2).let { draft ->
+      draft.copy(
+        objectives = draft.objectives +
+          QuestObjective(ObjectiveKind.KILL, ObjectiveScope.PERSONAL, 1, speciesId = BEAR, stage = 1),
+      )
+    }
+  }
+
   private fun killDraft(required: Int): QuestDraft {
     val objective = QuestObjective(
       ObjectiveKind.KILL, ObjectiveScope.PERSONAL, required, speciesId = WOLF, area = QuestArea.InPlace("Ashford"),
@@ -219,5 +270,6 @@ class QuestServiceTest {
   private companion object {
     const val IRON_ORE = 8L
     const val WOLF = 3L
+    const val BEAR = 4L
   }
 }

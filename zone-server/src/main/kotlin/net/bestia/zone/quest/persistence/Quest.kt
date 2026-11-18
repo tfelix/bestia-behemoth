@@ -78,6 +78,9 @@ class Quest(
   @Column(name = "poster_cleared", nullable = false)
   var posterCleared: Boolean = false
 
+  val stageCount: Int
+    get() = (objectives.maxOfOrNull { it.stage } ?: 0) + 1
+
   val sharedObjectivesDone: Boolean
     get() = objectives.filter { it.scope == ObjectiveScope.SHARED }.all { it.remaining <= 0 }
 

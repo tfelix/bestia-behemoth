@@ -14,5 +14,15 @@ data class QuestDraft(
   val poster: Poster? = null,
 ) {
 
+  init {
+    val stages = objectives.map { it.stage }.toSortedSet()
+    require(stages == (0 until stages.size).toSortedSet()) { "Stages must count up from 0 without a gap: $stages" }
+    // A master moves on when its own counts are met. One shared counter would have to move every signer at once.
+    require(stages.size == 1 || objectives.all { it.scope == ObjectiveScope.PERSONAL }) {
+      "A quest with stages takes personal objectives only"
+    }
+  }
+
+
   data class Poster(val masterId: Long, val name: String)
 }
