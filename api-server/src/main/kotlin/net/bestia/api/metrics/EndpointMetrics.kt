@@ -5,7 +5,7 @@ import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.stereotype.Component
 
 /**
- * What became of the requests for cached content: the map's tiles and overlays, and the emblems. Request counts and
+ * What became of the requests for cached content: the map's tiles and overlays, the emblems and the texts. Request counts and
  * latency per route template are `http.server.requests`; this adds how each one was answered, which that cannot see.
  */
 @Component

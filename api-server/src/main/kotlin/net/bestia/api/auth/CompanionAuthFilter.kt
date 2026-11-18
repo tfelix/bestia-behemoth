@@ -38,7 +38,7 @@ class CompanionAuthFilter(
   override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
     val path = pathOf(request)
     val map = MAP_ROUTE.matches(path)
-    val ticketRoute = map || EMBLEM_ROUTE.matches(path)
+    val ticketRoute = map || EMBLEM_ROUTE.matches(path) || TEXT_ROUTE.matches(path)
     val authorization = request.getHeader(HttpHeaders.AUTHORIZATION)
     val scheme = AuthMetrics.Scheme.of(authorization)
     val accountId = try {
@@ -91,9 +91,11 @@ class CompanionAuthFilter(
     private const val TICKET = "Ticket"
     private val PUBLIC_PATHS = setOf("/v1/companion/ws", "/v1/companion/openapi.json", "/v1/companion/push/key")
 
-    /** The map routes of `MapController`; with [EMBLEM_ROUTE], the only routes a game client's ticket opens. */
+    /** The map routes of `MapController`; with [EMBLEM_ROUTE] and [TEXT_ROUTE], the only routes a game client's ticket opens. */
     private val MAP_ROUTE = Regex("""^/v1/companion/masters/\d+/map/(meta|find|places/\d+|[tps]/\d+/-?\d+/-?\d+(\.png|\.json)?|h/\d+/\d+/-?\d+/-?\d+\.png)$""")
 
     private val EMBLEM_ROUTE = Regex("""^/v1/companion/emblems/[0-9a-f]{64}\.png$""")
+
+    private val TEXT_ROUTE = Regex("""^/v1/companion/texts/[0-9a-f]{32}/[a-z]{2}$""")
   }
 }
