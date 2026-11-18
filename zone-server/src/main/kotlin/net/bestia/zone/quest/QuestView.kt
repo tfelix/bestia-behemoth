@@ -41,11 +41,14 @@ data class QuestView(
     val yours: Int,
     val stage: Int = 0,
     val text: TextRef? = null,
+    val choices: List<QuestObjective.Choice> = emptyList(),
+    /** The id this master picked from [choices]; null while it has not. */
+    val chosen: String? = null,
   )
 
   companion object {
     fun accepted(entry: QuestLogEntry): QuestView {
-      return of(entry.quest, Role.ACCEPTED, entry.counts, entry.stage)
+      return of(entry.quest, Role.ACCEPTED, entry.counts, entry.stage, entry::isFor, entry.choices)
     }
 
     fun posted(quest: Quest): QuestView {
@@ -57,15 +60,24 @@ data class QuestView(
     }
 
     /** A master sees the stages it reached, so the log cannot be read ahead. The poster sees all of its quest. */
-    private fun of(quest: Quest, role: Role, counts: List<Int>, stage: Int = 0): QuestView {
+    private fun of(
+      quest: Quest,
+      role: Role,
+      counts: List<Int>,
+      stage: Int = 0,
+      isForMaster: (QuestObjective) -> Boolean = { true },
+      picked: List<String> = emptyList(),
+    ): QuestView {
       val lastShownStage = if (role == Role.POSTED) quest.stageCount else stage
-      val objectives = quest.objectives.withIndex().filter { it.value.stage <= lastShownStage }.map { (index, objective) ->
+      val shown = quest.objectives.withIndex().filter { it.value.stage <= lastShownStage && isForMaster(it.value) }
+      val objectives = shown.map { (index, objective) ->
         val yours = counts.getOrElse(index) { 0 }
         val progress = if (objective.scope == ObjectiveScope.SHARED) objective.progress else yours
         val placeName = (objective.area as? QuestArea.InPlace)?.placeName
         Objective(
           objective.kind, objective.scope, objective.itemId, objective.speciesId, placeName, objective.required,
-          progress, yours, objective.stage, objective.text,
+          progress, yours, objective.stage, objective.text, objective.choices,
+          chosen = objective.choices.map { it.id }.firstOrNull { it in picked },
         )
       }
 

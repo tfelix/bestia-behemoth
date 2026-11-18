@@ -23,7 +23,14 @@ data class QuestObjective(
   val needsFact: FactRef? = null,
   /** How the log words the objective. A kill or a delivery needs none: the client words those from their ids. */
   val text: TextRef? = null,
+  /** What an [ObjectiveKind.DECIDE] objective lets the master pick from. */
+  val choices: List<Choice> = emptyList(),
+  /** Set when the objective is only for a master who picked this [Choice.id] at an earlier stage. */
+  val afterChoice: String? = null,
 ) {
+
+  data class Choice(val id: String, val text: TextRef)
+
 
   val remaining: Int
     get() = required - progress

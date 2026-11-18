@@ -32,6 +32,8 @@ private fun QuestView.Objective.toProto(): QuestProto.QuestObjective {
     .setYours(yours)
     .setStage(stage)
   text?.let { objective.setText(it.toBnet()) }
+  choices.forEach { objective.addChoices(QuestProto.QuestChoice.newBuilder().setId(it.id).setText(it.text.toBnet())) }
+  objective.setChosen(chosen ?: "")
 
   return objective.build()
 }
@@ -74,6 +76,7 @@ private fun ObjectiveKind.toProto(): QuestProto.ObjectiveKind {
     ObjectiveKind.KILL -> QuestProto.ObjectiveKind.OBJECTIVE_KIND_KILL
     ObjectiveKind.EXAMINE -> QuestProto.ObjectiveKind.OBJECTIVE_KIND_EXAMINE
     ObjectiveKind.TALK -> QuestProto.ObjectiveKind.OBJECTIVE_KIND_TALK
+    ObjectiveKind.DECIDE -> QuestProto.ObjectiveKind.OBJECTIVE_KIND_DECIDE
   }
 }
 

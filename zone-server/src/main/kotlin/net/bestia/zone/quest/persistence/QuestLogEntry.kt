@@ -1,5 +1,6 @@
 package net.bestia.zone.quest.persistence
 
+import net.bestia.zone.quest.QuestObjective
 import jakarta.persistence.Column
 import jakarta.persistence.Convert
 import jakarta.persistence.Entity
@@ -46,8 +47,25 @@ class QuestLogEntry(
   @Column(nullable = false)
   var stage: Int = 0
 
+  /** The ids this master picked at the quest's decide objectives, in order. */
+  @Convert(converter = ChoicesConverter::class)
+  @Column(columnDefinition = "TEXT", nullable = false)
+  var choices: List<String> = emptyList()
+
   val stageMet: Boolean
-    get() = quest.objectives.withIndex().filter { it.value.stage == stage }.all { counts[it.index] >= it.value.required }
+    get() = quest.objectives.withIndex()
+      .filter { it.value.stage == stage && isFor(it.value) }
+      .all { counts[it.index] >= it.value.required }
+
+  /** False for an objective on a branch this master did not take. */
+  fun isFor(objective: QuestObjective): Boolean {
+    return objective.afterChoice == null || objective.afterChoice in choices
+  }
+
+  /** The next stage that holds something for this master, or the quest's stage count when it is through. */
+  fun stageAfter(current: Int): Int {
+    return quest.objectives.filter { it.stage > current && isFor(it) }.minOfOrNull { it.stage } ?: quest.stageCount
+  }
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
