@@ -250,6 +250,23 @@ kinds:
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
 
+  # Glass and a burner on a wooden frame: as fragile as the glassblowing bench.
+  - kind: ALCHEMY_LABORATORY
+    max-hp: 150
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1
+
+  - kind: GEM_CUT_STATION
+    max-hp: 150
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+
+  # A slab of engraved stone, so it takes breaking like the furnace.
+  - kind: TRANSMUTATION_WORKBENCH
+    max-hp: 350
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+
   # Planks and iron bands: tougher than a workbench, because what is inside is worth breaking it for.
   - kind: CHEST
     max-hp: 200

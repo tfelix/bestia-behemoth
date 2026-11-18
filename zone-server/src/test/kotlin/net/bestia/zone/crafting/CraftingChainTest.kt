@@ -75,7 +75,8 @@ class CraftingChainTest {
 
     val stations = listOf(
       StaticEntityKind.FURNACE, StaticEntityKind.FORGE, StaticEntityKind.TANNING_RACK, StaticEntityKind.LOOM,
-      StaticEntityKind.GLASS_FURNACE, StaticEntityKind.GLASSBLOWING_BENCH
+      StaticEntityKind.GLASS_FURNACE, StaticEntityKind.GLASSBLOWING_BENCH, StaticEntityKind.ALCHEMY_LABORATORY,
+      StaticEntityKind.GEM_CUT_STATION, StaticEntityKind.TRANSMUTATION_WORKBENCH
     )
     stations.forEach { station ->
       val kit = kitRecipe(station)

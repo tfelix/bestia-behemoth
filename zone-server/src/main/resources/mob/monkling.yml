@@ -49,4 +49,5 @@ armor-types: [CLOTH, LIGHT, MEDIUM, HEAVY]
 loot:
   - { item: apple, chance: 2500 }
   - { item: bramble_berries, chance: 2000 }
+  - { item: grape, chance: 2000 }
   - { item: gold_coin, chance: 500 }
