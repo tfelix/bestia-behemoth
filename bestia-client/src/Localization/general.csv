@@ -1104,6 +1104,16 @@ QUEST_TIME_LEFT_HOURS,%d h
 QUEST_TIME_LEFT_MINUTES,%d min
 QUEST_TIME_LEFT_ENDED,ended
 QUEST_DELIVER_TITLE,Deliver {amount} {item}
+QUESTGEN_LOST_RELIC_TITLE,The lost {artifact}
+QUESTGEN_STEP_HEAR_LEGEND,Hear the legend of {artifact} in {town}.
+QUESTGEN_STEP_HEAR_OF_LOSS,Ask in {town} how {artifact} was lost.
+QUESTGEN_STEP_READ_EPITAPH,Read the epitaph of {keeper} in the cemetery of {graveyard}.
+QUESTGEN_STEP_DIG_RELIC,Dig up {artifact} where it was lost near {near}.
+QUESTGEN_STEP_DECIDE_RELIC,Decide what becomes of {artifact}.
+QUESTGEN_CHOICE_KEEP_RELIC,Keep it
+QUESTGEN_CHOICE_RETURN_RELIC,Bring it home to {home}
+QUESTGEN_STEP_RETURN_RELIC,Bring {artifact} to the temple of {home}.
+QUESTGEN_UNKNOWN_PLACE,a place nobody names any more
 BLACKBOARD_POST,Post a quest
 BLACKBOARD_POST_LIMIT,You have %d quests open. Wait for one to end or withdraw one.
 BLACKBOARD_POST_ITEM,Item
