@@ -153,7 +153,24 @@ class QuestService(
       return
     }
     entry.counts = entry.counts.replaced(objectiveIndex, count)
+    moveOnIfStageMet(entry)
     events.publishEvent(QuestChangedEvent(questId))
+  }
+
+  private fun moveOnIfStageMet(entry: QuestLogEntry) {
+    val quest = entry.quest
+    if (entry.stage >= quest.stageCount || !entry.stageMet) {
+      return
+    }
+
+    val done = entry.stage
+    entry.stage += 1
+    events.publishEvent(QuestStageDoneEvent(quest.id, entry.masterId, done, wasLast = entry.stage == quest.stageCount))
+    val kills = trackedKillsOf(entry)
+    afterCommit {
+      live.untrack(listOf(entry.masterId), quest.id)
+      live.track(entry.masterId, kills)
+    }
   }
 
   /** The personal objectives [masterId] counts on the tick while it plays, for its [ActiveQuests][net.bestia.zone.quest.ecs.ActiveQuests]. */
@@ -237,6 +254,7 @@ class QuestService(
     }
 
     return quest.objectives.withIndex()
+      .filter { (_, objective) -> objective.stage == entry.stage }
       .filter { (_, objective) -> objective.kind == ObjectiveKind.KILL && objective.scope == ObjectiveScope.PERSONAL }
       .map { (index, objective) ->
         TrackedKill(
