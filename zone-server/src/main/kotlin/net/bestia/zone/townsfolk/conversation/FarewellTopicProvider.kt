@@ -1,5 +1,6 @@
 package net.bestia.zone.townsfolk.conversation
 
+import net.bestia.zone.text.TextRef
 import org.springframework.stereotype.Component
 
 /**
@@ -28,7 +29,7 @@ class FarewellTopicProvider(
 
   override fun rootOptions(speaker: Speaker): List<ConversationOption> {
     return listOf(
-      ConversationOption(Topics.FAREWELL, Line(ConversationKeys.FAREWELL), OptionKind.END)
+      ConversationOption(Topics.FAREWELL, TextRef(ConversationKeys.FAREWELL), OptionKind.END)
     )
   }
 

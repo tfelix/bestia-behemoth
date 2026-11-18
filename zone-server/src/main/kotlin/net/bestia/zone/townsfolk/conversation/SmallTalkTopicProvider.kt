@@ -1,6 +1,7 @@
 package net.bestia.zone.townsfolk.conversation
 
 import net.bestia.worldgen.core.GenRng
+import net.bestia.zone.text.TextRef
 import net.bestia.zone.townsfolk.conversation.smalltalk.CircumstanceService
 import net.bestia.zone.townsfolk.conversation.smalltalk.SmallTalk
 import net.bestia.zone.townsfolk.conversation.smalltalk.SmallTalkCatalogue
@@ -31,7 +32,7 @@ class SmallTalkTopicProvider(
   override fun rootOptions(speaker: Speaker): List<ConversationOption> {
     val line = todaysLine(speaker) ?: return emptyList()
 
-    return listOf(ConversationOption(Topics.SMALL_TALK + catalogue.indexOf(line), Line(line.askKey)))
+    return listOf(ConversationOption(Topics.SMALL_TALK + catalogue.indexOf(line), TextRef(line.askKey)))
   }
 
   /**
@@ -50,7 +51,7 @@ class SmallTalkTopicProvider(
       return null
     }
 
-    return ConversationNode(Line(line.replyKey(variantFor(speaker, index, line))), emptyList())
+    return ConversationNode(TextRef(line.replyKey(variantFor(speaker, index, line))), emptyList())
   }
 
   /**

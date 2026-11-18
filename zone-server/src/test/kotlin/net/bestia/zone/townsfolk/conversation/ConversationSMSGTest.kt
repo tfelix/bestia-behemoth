@@ -2,6 +2,7 @@ package net.bestia.zone.townsfolk.conversation
 
 import net.bestia.bnet.proto.DialogSmsgProto
 import net.bestia.zone.text.TextArg
+import net.bestia.zone.text.TextRef
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -22,7 +23,7 @@ class ConversationSMSGTest {
       speakerEntityId = 77L,
       speakerName = "Alden",
       node = ConversationNode(
-        speech = Line(
+        speech = TextRef(
           "HISTORY_ERUPTION_1",
           mapOf(
             "place" to TextArg.Name("Karth"),
@@ -54,10 +55,10 @@ class ConversationSMSGTest {
   @Test
   fun `every option kind survives the crossing`() {
     val options = OptionKind.entries.mapIndexed { index, kind ->
-      ConversationOption(index, Line("ASK_$index"), kind)
+      ConversationOption(index, TextRef("ASK_$index"), kind)
     }
 
-    val sent = ConversationSMSG(1L, "Alden", ConversationNode(Line("TALK_GREETING"), options)).toBnetEnvelope()
+    val sent = ConversationSMSG(1L, "Alden", ConversationNode(TextRef("TALK_GREETING"), options)).toBnetEnvelope()
 
     assertEquals(OptionKind.entries.size, sent.conversation.optionsCount)
     sent.conversation.optionsList.forEachIndexed { index, option ->
@@ -68,7 +69,7 @@ class ConversationSMSGTest {
 
   @Test
   fun `a conversation with nothing to offer still says something`() {
-    val sent = ConversationSMSG(1L, "Alden", ConversationNode(Line("TALK_GOODBYE"), emptyList())).toBnetEnvelope()
+    val sent = ConversationSMSG(1L, "Alden", ConversationNode(TextRef("TALK_GOODBYE"), emptyList())).toBnetEnvelope()
 
     assertEquals("TALK_GOODBYE", sent.conversation.speech.key)
     assertTrue(sent.conversation.optionsList.isEmpty())

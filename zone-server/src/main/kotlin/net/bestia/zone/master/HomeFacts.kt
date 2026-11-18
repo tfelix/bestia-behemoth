@@ -4,7 +4,7 @@ import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.core.SettlementRecord
 import net.bestia.zone.text.TextArg
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.townsfolk.conversation.Line
+import net.bestia.zone.text.TextRef
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
 
@@ -20,7 +20,7 @@ class HomeFacts(
   private val worldService: WorldService,
 ) {
 
-  fun historyOf(settlementIndex: Int): List<Line> {
+  fun historyOf(settlementIndex: Int): List<TextRef> {
     if (!worldService.isLoaded) return emptyList()
 
     val record = worldService.generated.world.chronicle.settlements.getOrNull(settlementIndex)
@@ -49,17 +49,17 @@ class HomeFacts(
     /** Every key [historyOf] can produce, so a test can hold the client's string table to them. */
     val HISTORY_KEYS = listOf(FOUNDED, WALLED, SACKED_ONCE, SACKED_MANY)
 
-    fun historyOf(record: SettlementRecord): List<Line> = buildList {
+    fun historyOf(record: SettlementRecord): List<TextRef> = buildList {
       if (record.wasFounded) {
-        add(Line(FOUNDED, mapOf("year" to TextArg.Number(record.foundedYear.toLong()))))
+        add(TextRef(FOUNDED, mapOf("year" to TextArg.Number(record.foundedYear.toLong()))))
       }
       if (record.wallYear != 0) {
-        add(Line(WALLED, mapOf("year" to TextArg.Number(record.wallYear.toLong()))))
+        add(TextRef(WALLED, mapOf("year" to TextArg.Number(record.wallYear.toLong()))))
       }
       when (record.timesSacked) {
         0 -> Unit
-        1 -> add(Line(SACKED_ONCE))
-        else -> add(Line(SACKED_MANY, mapOf("times" to TextArg.Number(record.timesSacked.toLong()))))
+        1 -> add(TextRef(SACKED_ONCE))
+        else -> add(TextRef(SACKED_MANY, mapOf("times" to TextArg.Number(record.timesSacked.toLong()))))
       }
     }
 

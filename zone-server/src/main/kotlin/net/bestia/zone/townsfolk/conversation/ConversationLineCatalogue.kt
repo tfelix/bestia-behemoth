@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.kotlin.kotlinModule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PostConstruct
 import net.bestia.zone.text.TextArg
+import net.bestia.zone.text.TextRef
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
 
@@ -77,13 +78,13 @@ class ConversationLineCatalogue {
    * Keyed on the speaker rather than rolled, for [ConversationVariants]' reason: asking the same person
    * twice has to give the same answer, or the variety reads as a bug.
    */
-  fun lineFor(speaker: Speaker, key: String, args: Map<String, TextArg> = emptyMap()): Line {
+  fun lineFor(speaker: Speaker, key: String, args: Map<String, TextArg> = emptyMap()): TextRef {
     val count = variants[key]
       ?: throw IllegalStateException("No phrasing count for '$key'; the boot check should have caught it")
 
     val index = ConversationVariants.of(speaker, topics.getValue(key), count)
 
-    return Line("${key}_$index", args)
+    return TextRef("${key}_$index", args)
   }
 
   /**

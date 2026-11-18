@@ -1,5 +1,6 @@
 package net.bestia.zone.townsfolk.conversation
 
+import net.bestia.zone.text.TextRef
 import net.bestia.zone.townsfolk.knowledge.Certainty
 import net.bestia.zone.townsfolk.knowledge.Knowledge
 import net.bestia.zone.townsfolk.knowledge.KnowledgeService
@@ -37,7 +38,7 @@ class KnowledgeTopicProvider(
     }
 
     return listOf(
-      ConversationOption(Topics.KNOWLEDGE + NEWS, Line(ConversationKeys.NEWS_ASK))
+      ConversationOption(Topics.KNOWLEDGE + NEWS, TextRef(ConversationKeys.NEWS_ASK))
     )
   }
 
@@ -73,7 +74,7 @@ class KnowledgeTopicProvider(
     val offered = picked + (uncommon + common).filterNot { it in picked }.take(OFFERED - picked.size)
 
     return ConversationNode(
-      Line(ConversationKeys.NEWS_ASK),
+      TextRef(ConversationKeys.NEWS_ASK),
       offered.map { ConversationOption(Topics.KNOWLEDGE + it.topic, askFor(it)) } + back()
     )
   }
@@ -84,8 +85,8 @@ class KnowledgeTopicProvider(
    * Derived rather than authored so that a new event kind cannot arrive with a line to say and no way to
    * ask about it - the boot check reads the same two keys per kind.
    */
-  private fun askFor(memory: Knowledge): Line {
-    return Line(memory.key + ASK_SUFFIX, memory.slots.mapValues { (_, slot) -> slot.toTextArg() })
+  private fun askFor(memory: Knowledge): TextRef {
+    return TextRef(memory.key + ASK_SUFFIX, memory.slots.mapValues { (_, slot) -> slot.toTextArg() })
   }
 
   /**
@@ -94,9 +95,9 @@ class KnowledgeTopicProvider(
    * Keyed on the speaker as well as the event, so two people in one town tell you the same thing
    * differently - which costs nothing, because the rows have to exist anyway for the kind.
    */
-  private fun lineOf(speaker: Speaker, memory: Knowledge): Line {
+  private fun lineOf(speaker: Speaker, memory: Knowledge): TextRef {
     val index = ConversationVariants.of(speaker, memory.topic.toLong(), memory.variants)
-    val tale = Line("${memory.key}_$index", memory.slots.mapValues { (_, slot) -> slot.toTextArg() })
+    val tale = TextRef("${memory.key}_$index", memory.slots.mapValues { (_, slot) -> slot.toTextArg() })
     val frame = FRAMES[memory.certainty] ?: return tale
 
     // The tale's own arguments ride along, so the client can fill the nested line from them.
@@ -104,7 +105,7 @@ class KnowledgeTopicProvider(
   }
 
   private fun back(): ConversationOption {
-    return ConversationOption(Topics.KNOWLEDGE + NEWS, Line(ConversationKeys.BACK), OptionKind.BACK)
+    return ConversationOption(Topics.KNOWLEDGE + NEWS, TextRef(ConversationKeys.BACK), OptionKind.BACK)
   }
 
   /**
