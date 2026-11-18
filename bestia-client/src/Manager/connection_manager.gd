@@ -223,6 +223,7 @@ var RequestLettersCMSG = load("res://Bnet/Message/Postal/RequestLettersCMSG.cs")
 var ReadLetterCMSG = load("res://Bnet/Message/Postal/ReadLetterCMSG.cs")
 var DeleteLetterCMSG = load("res://Bnet/Message/Postal/DeleteLetterCMSG.cs")
 var AbandonQuestCMSG = load("res://Bnet/Message/Quest/AbandonQuestCMSG.cs")
+var DecideQuestCMSG = load("res://Bnet/Message/Quest/DecideQuestCMSG.cs")
 var SetHomePostOfficeCMSG = load("res://Bnet/Message/Postal/SetHomePostOfficeCMSG.cs")
 var QuoteParcelCMSG = load("res://Bnet/Message/Postal/QuoteParcelCMSG.cs")
 var SendParcelCMSG = load("res://Bnet/Message/Postal/SendParcelCMSG.cs")
@@ -1234,6 +1235,15 @@ func abandon_quest(quest_id: int) -> void:
 	assert(is_ready_to_send())
 	var msg = AbandonQuestCMSG.new()
 	msg.QuestId = quest_id
+	_socket.SendMessage(msg)
+
+
+## Picks one choice at the decide step of a quest. The pick is final. Answered by a QuestUpdatedSMSG.
+func decide_quest(quest_id: int, choice_id: String) -> void:
+	assert(is_ready_to_send())
+	var msg = DecideQuestCMSG.new()
+	msg.QuestId = quest_id
+	msg.ChoiceId = choice_id
 	_socket.SendMessage(msg)
 
 
