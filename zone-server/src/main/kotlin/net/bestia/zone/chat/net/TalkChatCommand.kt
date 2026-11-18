@@ -154,6 +154,7 @@ class TalkChatCommand(
       is TextArg.Entity -> "entity:${arg.entityId}"
       is TextArg.Item -> "item:${arg.itemId}"
       is TextArg.Skill -> "skill:${arg.skillId}"
+      is TextArg.Species -> "species:${arg.speciesId}"
     }
   }
 

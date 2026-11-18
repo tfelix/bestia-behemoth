@@ -4,7 +4,7 @@ package bnet;
 
 import "messages/vec3.proto";
 import "messages/master/bestia_info.proto";
-import "messages/system/conversation_smsg.proto";
+import "messages/system/text.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "MasterProto";
@@ -87,7 +87,7 @@ message MasterSpawnPointCandidate {
   // Translation key of the biome at the spawn point, e.g. BIOME_TEMPERATE_FOREST.
   string biome_token = 7;
   // What the town's history says about it. Lines rather than text, so the client can translate them.
-  repeated Line history = 8;
+  repeated TextRef history = 8;
   // The spawn point as a grid reference to the 100 m cell, like "H12 41 37". Formatted by the zone for the
   // same reason as MasterInfo.grid_ref.
   string grid_ref = 9;

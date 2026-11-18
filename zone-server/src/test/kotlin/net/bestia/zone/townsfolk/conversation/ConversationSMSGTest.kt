@@ -1,6 +1,6 @@
 package net.bestia.zone.townsfolk.conversation
 
-import net.bestia.bnet.proto.DialogSmsgProto
+import net.bestia.bnet.proto.TextProto
 import net.bestia.zone.text.TextArg
 import net.bestia.zone.text.TextRef
 import org.junit.jupiter.api.Test
@@ -48,8 +48,8 @@ class ConversationSMSGTest {
 
     // The `oneof` case, not just the value - a name written as text reads identically on this side and
     // is exactly the mistake worth catching.
-    assertEquals(DialogSmsgProto.DialogArg.ValueCase.NAME, args.getValue("place").valueCase)
-    assertEquals(DialogSmsgProto.DialogArg.ValueCase.TOKEN, args.getValue("ago").valueCase)
+    assertEquals(TextProto.TextArg.ValueCase.NAME, args.getValue("place").valueCase)
+    assertEquals(TextProto.TextArg.ValueCase.TOKEN, args.getValue("ago").valueCase)
   }
 
   @Test

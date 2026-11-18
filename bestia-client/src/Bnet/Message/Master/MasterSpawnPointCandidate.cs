@@ -35,14 +35,14 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     /// <c>Game/UI/Dialog/dialog_text.gd</c>.
     /// </summary>
     [Export]
-    public Godot.Collections.Array<ConversationLine> History { get; set; } = new();
+    public Godot.Collections.Array<TextRef> History { get; set; } = new();
 
     public static MasterSpawnPointCandidate FromProto(global::Bnet.MasterSpawnPointCandidate protoCandidate)
     {
-      var history = new Godot.Collections.Array<ConversationLine>();
+      var history = new Godot.Collections.Array<TextRef>();
       foreach (var line in protoCandidate.History)
       {
-        history.Add(ConversationLine.FromProto(line));
+        history.Add(TextRef.FromProto(line));
       }
 
       return new MasterSpawnPointCandidate

@@ -15,14 +15,14 @@ namespace BestiaBehemothClient.Bnet.Message.System
     public int TopicId { get; set; } = 0;
 
     [Export]
-    public ConversationLine Line { get; set; } = new();
+    public TextRef Line { get; set; } = new();
 
     [Export]
     public global::Bnet.OptionKind Kind { get; set; } = global::Bnet.OptionKind.Talk;
 
     /// <summary>
     /// <see cref="Kind"/> as lowercase snake_case, because GDScript cannot see a C# enum's members.
-    /// See <see cref="DialogArg.KindName"/> for the bug this convention exists to avoid.
+    /// See <see cref="TextArg.KindName"/> for the bug this convention exists to avoid.
     /// </summary>
     [Export]
     public string KindName { get; set; } = "talk";
@@ -32,7 +32,7 @@ namespace BestiaBehemothClient.Bnet.Message.System
       return new ConversationOption
       {
         TopicId = proto.TopicId,
-        Line = ConversationLine.FromProto(proto.Line),
+        Line = TextRef.FromProto(proto.Line),
         Kind = proto.Kind,
         KindName = EnumName.Of(proto.Kind)
       };
