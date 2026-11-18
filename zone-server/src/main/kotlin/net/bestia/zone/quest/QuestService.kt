@@ -161,6 +161,31 @@ class QuestService(
   }
 
   /**
+   * Counts up to [amount] towards personal objective [objectiveIndex], for work a source takes off the tick, such
+   * as goods handed over. Joins the caller's transaction, so a source takes and counts as one change.
+   *
+   * @return how much was counted: never more than the objective still needs, and 0 when it takes no work now.
+   */
+  @Transactional
+  fun advancePersonal(masterId: Long, questId: Long, objectiveIndex: Int, amount: Int): Int {
+    val entry = entries.findByMasterIdAndQuestId(masterId, questId) ?: return 0
+    val objective = entry.quest.objectives[objectiveIndex]
+    require(objective.scope == ObjectiveScope.PERSONAL) { "Objective $objectiveIndex of quest $questId is not personal" }
+
+    val takesWork = entry.quest.status.takesWork && objective.stage == entry.stage && entry.isFor(objective)
+    val counted = minOf(amount, objective.required - entry.counts[objectiveIndex])
+    if (!takesWork || counted <= 0) {
+      return 0
+    }
+
+    entry.counts = entry.counts.replaced(objectiveIndex, entry.counts[objectiveIndex] + counted)
+    moveOnIfStageMet(entry)
+    events.publishEvent(QuestChangedEvent(questId))
+
+    return counted
+  }
+
+  /**
    * Picks [choiceId] at the decide objective of the stage [masterId] works on. A pick is final.
    *
    * @return the refusal, or null when the pick was taken.

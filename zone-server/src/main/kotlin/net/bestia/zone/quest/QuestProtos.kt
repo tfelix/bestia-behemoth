@@ -76,6 +76,7 @@ private fun ObjectiveKind.toProto(): QuestProto.ObjectiveKind {
     ObjectiveKind.KILL -> QuestProto.ObjectiveKind.OBJECTIVE_KIND_KILL
     ObjectiveKind.EXAMINE -> QuestProto.ObjectiveKind.OBJECTIVE_KIND_EXAMINE
     ObjectiveKind.TALK -> QuestProto.ObjectiveKind.OBJECTIVE_KIND_TALK
+    ObjectiveKind.BRING -> QuestProto.ObjectiveKind.OBJECTIVE_KIND_BRING
     ObjectiveKind.DECIDE -> QuestProto.ObjectiveKind.OBJECTIVE_KIND_DECIDE
   }
 }

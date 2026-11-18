@@ -298,6 +298,25 @@ class QuestServiceTest {
   }
 
   @Test
+  fun `goods a source takes count towards a bring objective of the stage the master works on`() {
+    val bring = QuestObjective(
+      ObjectiveKind.BRING, ObjectiveScope.PERSONAL, 3, itemId = IRON_ORE, target = TEMPLE_KEEPER, stage = 1,
+      text = TextRef("QUEST_STEP_BRING"),
+    )
+    val questId = service.create(killDraft(required = 1).let { it.copy(objectives = it.objectives + bring) }).id
+    service.accept(alice, questId)
+
+    assertEquals(0, service.advancePersonal(alice, questId, 1, 2), "the kill comes first")
+    service.recordPersonal(alice, questId, 0, 1)
+
+    assertEquals(2, service.advancePersonal(alice, questId, 1, 2))
+    assertEquals(1, service.advancePersonal(alice, questId, 1, 5), "never more than is still needed")
+    assertEquals(0, service.advancePersonal(bob, questId, 1, 1), "bob did not accept")
+    assertEquals(2, service.viewFor(alice, questId)!!.stage)
+    assertFailsWith<IllegalArgumentException> { killDraft(required = 1).copy(objectives = listOf(bring.copy(itemId = null, stage = 0))) }
+  }
+
+  @Test
   fun `a decide objective needs choices, and a branch needs a choice offered before it`() {
     val draft = artifactDraft()
     val decide = draft.objectives[1]
