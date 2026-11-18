@@ -26,6 +26,9 @@ data class QuestDraft(
         "$it needs a target and a text, and is personal"
       }
     }
+    objectives.filter { it.kind == ObjectiveKind.BRING }.forEach {
+      require(it.itemId != null && it.target != null && it.text != null) { "$it needs an item, a target and a text" }
+    }
     objectives.filter { it.kind == ObjectiveKind.DECIDE }.forEach {
       require(it.text != null && it.required == 1 && it.scope == ObjectiveScope.PERSONAL) {
         "$it needs a text, is met by one pick and is personal"

@@ -10,6 +10,12 @@ enum class ObjectiveKind {
   /** Speak to the objective's target, a townsperson. */
   TALK,
 
+  /**
+   * Hand the objective's item over at its target. The source that made the quest takes the goods and counts
+   * them, as a board does for a delivery.
+   */
+  BRING,
+
   /** Pick one of the objective's choices. What follows may depend on it. */
   DECIDE,
 }
