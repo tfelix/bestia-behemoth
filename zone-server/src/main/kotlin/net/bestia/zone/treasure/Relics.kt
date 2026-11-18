@@ -54,10 +54,17 @@ class Relics(
       .replaceFirstChar { it.uppercase() }
   }
 
+  /** The item a copy of [artifact] is, or null when there is no such artifact or no item for its kind. */
+  fun itemIdOf(artifact: Int): Long? {
+    val record = chronicle().artifacts.getOrNull(artifact) ?: return null
+
+    return items.idOf(identifierOf(record.kind))
+  }
+
   /** The relic the chronicle buried as [artifact], ready to be given, or null when there is none. */
   fun unearth(artifact: Int): CreateItemIntent? {
     val record = chronicle().artifacts.getOrNull(artifact) ?: return null
-    val itemId = items.idOf(identifierOf(record.kind)) ?: return null
+    val itemId = itemIdOf(artifact) ?: return null
 
     val copy = PlayerItemIds.next()
     artifactByCopy[copy] = artifact
