@@ -37,6 +37,24 @@ class TreasureCachesTest {
   }
 
   @Test
+  fun `every artifact resting at a site lies in exactly one cache`() {
+    val chronicle = world.world.chronicle
+    val resting = chronicle.artifacts.filter { it.unclaimed && it.restingSite >= 0 }
+    val notNamedByTheirSite = resting.filter { chronicle.sites[it.restingSite].artifact != it.index }
+    val cachesHolding = stored
+      .groupingBy { it.attribute(TreasureChannels.ARTIFACT).toInt() }
+      .eachCount()
+    println("resting artifacts: ${resting.size}, not named by their site: ${notNamedByTheirSite.map { it.index }}")
+
+    // The case that used to get no cache. Without one the assertion below proves nothing new.
+    assertTrue(notNamedByTheirSite.isNotEmpty(), "this seed has no artifact lost at a site made for something else")
+    for (relic in resting) {
+      assertEquals(1, cachesHolding[relic.index] ?: 0, "caches holding artifact ${relic.index}")
+    }
+    assertEquals(resting.map { it.index }.toSet(), cachesHolding.keys - -1, "caches hold artifacts that rest nowhere")
+  }
+
+  @Test
   fun `every cache lies within the depth range`() {
     val params = TreasureParams()
     for (marker in stored) {

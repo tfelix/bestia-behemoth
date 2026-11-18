@@ -467,7 +467,7 @@ object SiteChannels {
 
   const val NAME_SEED = "name_seed"
 
-  /** Index into [Chronicle.artifacts], or -1. What is buried here. */
+  /** Index into [Chronicle.artifacts] of the artifact the site was made to hold, or -1. See `SiteRecord.artifact`. */
   const val ARTIFACT = "artifact"
 
   /**

@@ -761,7 +761,12 @@ data class SiteRecord(
   /** 0 = fresh, 1 = nothing left but earthworks. Derived from age at [Chronicle.presentYear]. */
   val decay: Double,
   val nameSeed: Long,
-  /** Artifact resting here, or -1. */
+  /**
+   * The artifact this site was made to hold, or -1.
+   *
+   * Not every artifact resting here: one lost later in an older ruin or on a battlefield names this site in its
+   * [ArtifactRecord.restingSite] and is not written back.
+   */
   val artifact: Int,
   /** Figure buried here, or -1. */
   val figure: Int,
