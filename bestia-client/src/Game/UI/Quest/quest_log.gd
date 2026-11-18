@@ -213,6 +213,9 @@ func _show(quest) -> void:
 
 
 func _objective_row(quest, objective) -> Control:
+	if not objective.Text.Key.is_empty():
+		return _worded_objective_row(objective)
+
 	var box := UiStyle.vbox(2)
 	var item := ItemDB.get_instance().get_item(objective.ItemId)
 	var item_name := tr(item.name_key) if item != null else "?"
@@ -225,6 +228,19 @@ func _objective_row(quest, objective) -> Control:
 	UiStyle.set_bar(bar, objective.Progress, objective.Required)
 	box.add_child(bar)
 	return box
+
+
+## A step the server words itself, such as "read the epitaph". Done steps of earlier stages stay, muted.
+func _worded_objective_row(objective) -> Control:
+	var done: bool = objective.Progress >= objective.Required
+	var label := UiStyle.label("", 12, UiStyle.MUTED if done else UiStyle.TEXT)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	TextSource.show_ref(objective.Text, func(text: String):
+		# The row may be redrawn before a written text arrives.
+		if is_instance_valid(label):
+			label.text = text
+	)
+	return label
 
 
 ## What the master carries of what the objective wants.

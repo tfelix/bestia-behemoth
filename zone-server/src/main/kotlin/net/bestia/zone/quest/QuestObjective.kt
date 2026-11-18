@@ -2,6 +2,7 @@ package net.bestia.zone.quest
 
 import net.bestia.zone.entity.observe.WorldTarget
 import net.bestia.zone.fact.FactRef
+import net.bestia.zone.text.TextRef
 
 /**
  * One thing a quest asks for. [progress] counts a [ObjectiveScope.SHARED] objective; a personal one counts per master.
@@ -20,6 +21,8 @@ data class QuestObjective(
   val target: WorldTarget? = null,
   /** What the master must know for the deed to count: the name it is to tell, the place it is to find. */
   val needsFact: FactRef? = null,
+  /** How the log words the objective. A kill or a delivery needs none: the client words those from their ids. */
+  val text: TextRef? = null,
 ) {
 
   val remaining: Int

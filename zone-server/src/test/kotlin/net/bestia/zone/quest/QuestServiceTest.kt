@@ -236,8 +236,11 @@ class QuestServiceTest {
     val name = FactRef(FactRef.Subject.FIGURE, 7, FactRef.Aspect.NAME)
     val draft = killDraft(required = 1).copy(
       objectives = listOf(
-        QuestObjective(ObjectiveKind.EXAMINE, ObjectiveScope.PERSONAL, 1, target = epitaph),
-        QuestObjective(ObjectiveKind.TALK, ObjectiveScope.PERSONAL, 1, target = keeper, needsFact = name, stage = 1),
+        QuestObjective(ObjectiveKind.EXAMINE, ObjectiveScope.PERSONAL, 1, target = epitaph, text = TextRef("QUEST_STEP_READ")),
+        QuestObjective(
+          ObjectiveKind.TALK, ObjectiveScope.PERSONAL, 1, target = keeper, needsFact = name, stage = 1,
+          text = TextRef("QUEST_STEP_TELL"),
+        ),
       ),
     )
     val questId = service.create(draft).id
@@ -251,12 +254,15 @@ class QuestServiceTest {
     val tell = service.trackedFor(alice).deeds.single()
     assertEquals(DeedFact.Deed.TALKED_TO to keeper, tell.deed to tell.target)
     assertEquals(name, tell.needsFact)
+    assertEquals(listOf("QUEST_STEP_READ", "QUEST_STEP_TELL"), service.viewFor(alice, questId)!!.objectives.map { it.text?.key })
   }
 
   @Test
-  fun `an examine objective without a target is refused`() {
-    assertFailsWith<IllegalArgumentException> {
-      killDraft(required = 1).copy(objectives = listOf(QuestObjective(ObjectiveKind.EXAMINE, ObjectiveScope.PERSONAL, 1)))
+  fun `an examine objective without a target or without a text is refused`() {
+    val bare = QuestObjective(ObjectiveKind.EXAMINE, ObjectiveScope.PERSONAL, 1)
+
+    for (objective in listOf(bare.copy(text = TextRef("QUEST_STEP_READ")), bare.copy(target = WorldTarget.prop(77)))) {
+      assertFailsWith<IllegalArgumentException> { killDraft(required = 1).copy(objectives = listOf(objective)) }
     }
   }
 
