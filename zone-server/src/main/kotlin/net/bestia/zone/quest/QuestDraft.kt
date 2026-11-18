@@ -26,8 +26,19 @@ data class QuestDraft(
         "$it needs a target and a text, and is personal"
       }
     }
+    objectives.filter { it.kind == ObjectiveKind.DECIDE }.forEach {
+      require(it.text != null && it.required == 1 && it.scope == ObjectiveScope.PERSONAL) {
+        "$it needs a text, is met by one pick and is personal"
+      }
+      require(it.choices.size >= 2 && it.choices.distinctBy { choice -> choice.id }.size == it.choices.size) {
+        "$it needs two or more choices with ids of their own"
+      }
+    }
+    objectives.filter { it.afterChoice != null }.forEach { branch ->
+      val offeredEarlier = objectives.filter { it.stage < branch.stage }.flatMap { it.choices }.map { it.id }
+      require(branch.afterChoice in offeredEarlier) { "$branch follows a choice no earlier stage offers" }
+    }
   }
-
 
   data class Poster(val masterId: Long, val name: String)
 }

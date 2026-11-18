@@ -212,6 +212,7 @@ import "messages/breeding/incubator_smsg.proto";
 import "messages/quest/quest_log_smsg.proto";
 import "messages/quest/quest_updated_smsg.proto";
 import "messages/quest/abandon_quest_cmsg.proto";
+import "messages/quest/decide_quest_cmsg.proto";
 import "messages/quest/blackboard_smsg.proto";
 
 option java_package = "net.bestia.bnet.proto";
@@ -492,6 +493,7 @@ message Envelope {
     QuestUpdatedSMSG quest_updated = 981;
     AbandonQuestCMSG abandon_quest = 982;
     BlackboardSMSG blackboard = 983;
+    DecideQuestCMSG decide_quest = 984;
 
     // MISC
   }

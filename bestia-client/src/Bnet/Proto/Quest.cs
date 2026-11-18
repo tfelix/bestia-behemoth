@@ -25,38 +25,42 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChptZXNzYWdlcy9xdWVzdC9xdWVzdC5wcm90bxIEYm5ldBoabWVzc2FnZXMv",
-            "c3lzdGVtL3RleHQucHJvdG8i8AEKDlF1ZXN0T2JqZWN0aXZlEiEKBGtpbmQY",
-            "ASABKA4yEy5ibmV0Lk9iamVjdGl2ZUtpbmQSIwoFc2NvcGUYAiABKA4yFC5i",
-            "bmV0Lk9iamVjdGl2ZVNjb3BlEg8KB2l0ZW1faWQYAyABKAMSEAoIcmVxdWly",
-            "ZWQYBCABKA0SEAoIcHJvZ3Jlc3MYBSABKA0SDQoFeW91cnMYBiABKA0SEgoK",
-            "c3BlY2llc19pZBgHIAEoAxISCgpwbGFjZV9uYW1lGAggASgJEg0KBXN0YWdl",
-            "GAkgASgNEhsKBHRleHQYCiABKAsyDS5ibmV0LlRleHRSZWYiQgoLUXVlc3RS",
-            "ZXdhcmQSIwoEa2luZBgBIAEoDjIVLmJuZXQuUXVlc3RSZXdhcmRLaW5kEg4K",
-            "BmFtb3VudBgCIAEoAyLCAgoFUXVlc3QSEAoIcXVlc3RfaWQYASABKAQSIQoG",
-            "b3JpZ2luGAIgASgOMhEuYm5ldC5RdWVzdE9yaWdpbhIhCgZzdGF0dXMYAyAB",
-            "KA4yES5ibmV0LlF1ZXN0U3RhdHVzEh0KBHJvbGUYBCABKA4yDy5ibmV0LlF1",
-            "ZXN0Um9sZRIcCgV0aXRsZRgFIAEoCzINLmJuZXQuVGV4dFJlZhIXCg9zdWdn",
-            "ZXN0ZWRfbGV2ZWwYByABKA0SGQoRZGVhZGxpbmVfZXBvY2hfbXMYCCABKAMS",
-            "EwoLcG9zdGVyX25hbWUYCSABKAkSKAoKb2JqZWN0aXZlcxgKIAMoCzIULmJu",
-            "ZXQuUXVlc3RPYmplY3RpdmUSIgoHcmV3YXJkcxgLIAMoCzIRLmJuZXQuUXVl",
-            "c3RSZXdhcmQSDQoFc3RhZ2UYDCABKA0qKgoLUXVlc3RPcmlnaW4SGwoXUVVF",
-            "U1RfT1JJR0lOX0JMQUNLQk9BUkQQACqQAQoLUXVlc3RTdGF0dXMSFQoRUVVF",
-            "U1RfU1RBVFVTX09QRU4QABIYChRRVUVTVF9TVEFUVVNfQ0xPU0lORxABEhoK",
-            "FlFVRVNUX1NUQVRVU19DT01QTEVURUQQAhIYChRRVUVTVF9TVEFUVVNfRVhQ",
-            "SVJFRBADEhoKFlFVRVNUX1NUQVRVU19XSVRIRFJBV04QBCpTCglRdWVzdFJv",
-            "bGUSFwoTUVVFU1RfUk9MRV9BQ0NFUFRFRBAAEhUKEVFVRVNUX1JPTEVfUE9T",
-            "VEVEEAESFgoSUVVFU1RfUk9MRV9PRkZFUkVEEAIqfgoNT2JqZWN0aXZlS2lu",
-            "ZBIfChtPQkpFQ1RJVkVfS0lORF9ERUxJVkVSX0lURU0QABIXChNPQkpFQ1RJ",
-            "VkVfS0lORF9LSUxMEAESGgoWT0JKRUNUSVZFX0tJTkRfRVhBTUlORRACEhcK",
-            "E09CSkVDVElWRV9LSU5EX1RBTEsQAypKCg5PYmplY3RpdmVTY29wZRIaChZP",
-            "QkpFQ1RJVkVfU0NPUEVfU0hBUkVEEAASHAoYT0JKRUNUSVZFX1NDT1BFX1BF",
-            "UlNPTkFMEAEqNwoPUXVlc3RSZXdhcmRLaW5kEiQKIFFVRVNUX1JFV0FSRF9L",
-            "SU5EX0NPSU5TX1BFUl9VTklUEABCIwoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
-            "QgpRdWVzdFByb3RvYgZwcm90bzM="));
+            "c3lzdGVtL3RleHQucHJvdG8iNgoLUXVlc3RDaG9pY2USCgoCaWQYASABKAkS",
+            "GwoEdGV4dBgCIAEoCzINLmJuZXQuVGV4dFJlZiKkAgoOUXVlc3RPYmplY3Rp",
+            "dmUSIQoEa2luZBgBIAEoDjITLmJuZXQuT2JqZWN0aXZlS2luZBIjCgVzY29w",
+            "ZRgCIAEoDjIULmJuZXQuT2JqZWN0aXZlU2NvcGUSDwoHaXRlbV9pZBgDIAEo",
+            "AxIQCghyZXF1aXJlZBgEIAEoDRIQCghwcm9ncmVzcxgFIAEoDRINCgV5b3Vy",
+            "cxgGIAEoDRISCgpzcGVjaWVzX2lkGAcgASgDEhIKCnBsYWNlX25hbWUYCCAB",
+            "KAkSDQoFc3RhZ2UYCSABKA0SGwoEdGV4dBgKIAEoCzINLmJuZXQuVGV4dFJl",
+            "ZhIiCgdjaG9pY2VzGAsgAygLMhEuYm5ldC5RdWVzdENob2ljZRIOCgZjaG9z",
+            "ZW4YDCABKAkiQgoLUXVlc3RSZXdhcmQSIwoEa2luZBgBIAEoDjIVLmJuZXQu",
+            "UXVlc3RSZXdhcmRLaW5kEg4KBmFtb3VudBgCIAEoAyLCAgoFUXVlc3QSEAoI",
+            "cXVlc3RfaWQYASABKAQSIQoGb3JpZ2luGAIgASgOMhEuYm5ldC5RdWVzdE9y",
+            "aWdpbhIhCgZzdGF0dXMYAyABKA4yES5ibmV0LlF1ZXN0U3RhdHVzEh0KBHJv",
+            "bGUYBCABKA4yDy5ibmV0LlF1ZXN0Um9sZRIcCgV0aXRsZRgFIAEoCzINLmJu",
+            "ZXQuVGV4dFJlZhIXCg9zdWdnZXN0ZWRfbGV2ZWwYByABKA0SGQoRZGVhZGxp",
+            "bmVfZXBvY2hfbXMYCCABKAMSEwoLcG9zdGVyX25hbWUYCSABKAkSKAoKb2Jq",
+            "ZWN0aXZlcxgKIAMoCzIULmJuZXQuUXVlc3RPYmplY3RpdmUSIgoHcmV3YXJk",
+            "cxgLIAMoCzIRLmJuZXQuUXVlc3RSZXdhcmQSDQoFc3RhZ2UYDCABKA0qKgoL",
+            "UXVlc3RPcmlnaW4SGwoXUVVFU1RfT1JJR0lOX0JMQUNLQk9BUkQQACqQAQoL",
+            "UXVlc3RTdGF0dXMSFQoRUVVFU1RfU1RBVFVTX09QRU4QABIYChRRVUVTVF9T",
+            "VEFUVVNfQ0xPU0lORxABEhoKFlFVRVNUX1NUQVRVU19DT01QTEVURUQQAhIY",
+            "ChRRVUVTVF9TVEFUVVNfRVhQSVJFRBADEhoKFlFVRVNUX1NUQVRVU19XSVRI",
+            "RFJBV04QBCpTCglRdWVzdFJvbGUSFwoTUVVFU1RfUk9MRV9BQ0NFUFRFRBAA",
+            "EhUKEVFVRVNUX1JPTEVfUE9TVEVEEAESFgoSUVVFU1RfUk9MRV9PRkZFUkVE",
+            "EAIqmQEKDU9iamVjdGl2ZUtpbmQSHwobT0JKRUNUSVZFX0tJTkRfREVMSVZF",
+            "Ul9JVEVNEAASFwoTT0JKRUNUSVZFX0tJTkRfS0lMTBABEhoKFk9CSkVDVElW",
+            "RV9LSU5EX0VYQU1JTkUQAhIXChNPQkpFQ1RJVkVfS0lORF9UQUxLEAMSGQoV",
+            "T0JKRUNUSVZFX0tJTkRfREVDSURFEAQqSgoOT2JqZWN0aXZlU2NvcGUSGgoW",
+            "T0JKRUNUSVZFX1NDT1BFX1NIQVJFRBAAEhwKGE9CSkVDVElWRV9TQ09QRV9Q",
+            "RVJTT05BTBABKjcKD1F1ZXN0UmV3YXJkS2luZBIkCiBRVUVTVF9SRVdBUkRf",
+            "S0lORF9DT0lOU19QRVJfVU5JVBAAQiMKFW5ldC5iZXN0aWEuYm5ldC5wcm90",
+            "b0IKUXVlc3RQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.TextReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.QuestOrigin), typeof(global::Bnet.QuestStatus), typeof(global::Bnet.QuestRole), typeof(global::Bnet.ObjectiveKind), typeof(global::Bnet.ObjectiveScope), typeof(global::Bnet.QuestRewardKind), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.QuestObjective), global::Bnet.QuestObjective.Parser, new[]{ "Kind", "Scope", "ItemId", "Required", "Progress", "Yours", "SpeciesId", "PlaceName", "Stage", "Text" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.QuestChoice), global::Bnet.QuestChoice.Parser, new[]{ "Id", "Text" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.QuestObjective), global::Bnet.QuestObjective.Parser, new[]{ "Kind", "Scope", "ItemId", "Required", "Progress", "Yours", "SpeciesId", "PlaceName", "Stage", "Text", "Choices", "Chosen" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.QuestReward), global::Bnet.QuestReward.Parser, new[]{ "Kind", "Amount" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Quest), global::Bnet.Quest.Parser, new[]{ "QuestId", "Origin", "Status", "Role", "Title", "SuggestedLevel", "DeadlineEpochMs", "PosterName", "Objectives", "Rewards", "Stage" }, null, null, null, null)
           }));
@@ -100,6 +104,7 @@ namespace Bnet {
     [pbr::OriginalName("OBJECTIVE_KIND_KILL")] Kill = 1,
     [pbr::OriginalName("OBJECTIVE_KIND_EXAMINE")] Examine = 2,
     [pbr::OriginalName("OBJECTIVE_KIND_TALK")] Talk = 3,
+    [pbr::OriginalName("OBJECTIVE_KIND_DECIDE")] Decide = 4,
   }
 
   public enum ObjectiveScope {
@@ -117,6 +122,253 @@ namespace Bnet {
   #endregion
 
   #region Messages
+  /// <summary>
+  /// One thing a decide objective lets the master pick.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class QuestChoice : pb::IMessage<QuestChoice>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<QuestChoice> _parser = new pb::MessageParser<QuestChoice>(() => new QuestChoice());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<QuestChoice> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Bnet.QuestReflection.Descriptor.MessageTypes[0]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public QuestChoice() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public QuestChoice(QuestChoice other) : this() {
+      id_ = other.id_;
+      text_ = other.text_ != null ? other.text_.Clone() : null;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public QuestChoice Clone() {
+      return new QuestChoice(this);
+    }
+
+    /// <summary>Field number for the "id" field.</summary>
+    public const int IdFieldNumber = 1;
+    private string id_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Id {
+      get { return id_; }
+      set {
+        id_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "text" field.</summary>
+    public const int TextFieldNumber = 2;
+    private global::Bnet.TextRef text_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.TextRef Text {
+      get { return text_; }
+      set {
+        text_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as QuestChoice);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(QuestChoice other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Id != other.Id) return false;
+      if (!object.Equals(Text, other.Text)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Id.Length != 0) hash ^= Id.GetHashCode();
+      if (text_ != null) hash ^= Text.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Id.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Id);
+      }
+      if (text_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(Text);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Id.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Id);
+      }
+      if (text_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(Text);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Id.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Id);
+      }
+      if (text_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Text);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(QuestChoice other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Id.Length != 0) {
+        Id = other.Id;
+      }
+      if (other.text_ != null) {
+        if (text_ == null) {
+          Text = new global::Bnet.TextRef();
+        }
+        Text.MergeFrom(other.Text);
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            Id = input.ReadString();
+            break;
+          }
+          case 18: {
+            if (text_ == null) {
+              Text = new global::Bnet.TextRef();
+            }
+            input.ReadMessage(Text);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            Id = input.ReadString();
+            break;
+          }
+          case 18: {
+            if (text_ == null) {
+              Text = new global::Bnet.TextRef();
+            }
+            input.ReadMessage(Text);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class QuestObjective : pb::IMessage<QuestObjective>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -132,7 +384,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.QuestReflection.Descriptor.MessageTypes[0]; }
+      get { return global::Bnet.QuestReflection.Descriptor.MessageTypes[1]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -162,6 +414,8 @@ namespace Bnet {
       placeName_ = other.placeName_;
       stage_ = other.stage_;
       text_ = other.text_ != null ? other.text_.Clone() : null;
+      choices_ = other.choices_.Clone();
+      chosen_ = other.chosen_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -306,6 +560,35 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "choices" field.</summary>
+    public const int ChoicesFieldNumber = 11;
+    private static readonly pb::FieldCodec<global::Bnet.QuestChoice> _repeated_choices_codec
+        = pb::FieldCodec.ForMessage(90, global::Bnet.QuestChoice.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.QuestChoice> choices_ = new pbc::RepeatedField<global::Bnet.QuestChoice>();
+    /// <summary>
+    /// What a decide objective offers. Answered with a DecideQuestCMSG.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.QuestChoice> Choices {
+      get { return choices_; }
+    }
+
+    /// <summary>Field number for the "chosen" field.</summary>
+    public const int ChosenFieldNumber = 12;
+    private string chosen_ = "";
+    /// <summary>
+    /// The id this master picked, empty while it has not.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Chosen {
+      get { return chosen_; }
+      set {
+        chosen_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -331,6 +614,8 @@ namespace Bnet {
       if (PlaceName != other.PlaceName) return false;
       if (Stage != other.Stage) return false;
       if (!object.Equals(Text, other.Text)) return false;
+      if(!choices_.Equals(other.choices_)) return false;
+      if (Chosen != other.Chosen) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -348,6 +633,8 @@ namespace Bnet {
       if (PlaceName.Length != 0) hash ^= PlaceName.GetHashCode();
       if (Stage != 0) hash ^= Stage.GetHashCode();
       if (text_ != null) hash ^= Text.GetHashCode();
+      hash ^= choices_.GetHashCode();
+      if (Chosen.Length != 0) hash ^= Chosen.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -406,6 +693,11 @@ namespace Bnet {
         output.WriteRawTag(82);
         output.WriteMessage(Text);
       }
+      choices_.WriteTo(output, _repeated_choices_codec);
+      if (Chosen.Length != 0) {
+        output.WriteRawTag(98);
+        output.WriteString(Chosen);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -456,6 +748,11 @@ namespace Bnet {
         output.WriteRawTag(82);
         output.WriteMessage(Text);
       }
+      choices_.WriteTo(ref output, _repeated_choices_codec);
+      if (Chosen.Length != 0) {
+        output.WriteRawTag(98);
+        output.WriteString(Chosen);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -495,6 +792,10 @@ namespace Bnet {
       }
       if (text_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Text);
+      }
+      size += choices_.CalculateSize(_repeated_choices_codec);
+      if (Chosen.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Chosen);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -540,6 +841,10 @@ namespace Bnet {
           Text = new global::Bnet.TextRef();
         }
         Text.MergeFrom(other.Text);
+      }
+      choices_.Add(other.choices_);
+      if (other.Chosen.Length != 0) {
+        Chosen = other.Chosen;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -601,6 +906,14 @@ namespace Bnet {
               Text = new global::Bnet.TextRef();
             }
             input.ReadMessage(Text);
+            break;
+          }
+          case 90: {
+            choices_.AddEntriesFrom(input, _repeated_choices_codec);
+            break;
+          }
+          case 98: {
+            Chosen = input.ReadString();
             break;
           }
         }
@@ -665,6 +978,14 @@ namespace Bnet {
             input.ReadMessage(Text);
             break;
           }
+          case 90: {
+            choices_.AddEntriesFrom(ref input, _repeated_choices_codec);
+            break;
+          }
+          case 98: {
+            Chosen = input.ReadString();
+            break;
+          }
         }
       }
     }
@@ -687,7 +1008,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.QuestReflection.Descriptor.MessageTypes[1]; }
+      get { return global::Bnet.QuestReflection.Descriptor.MessageTypes[2]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -925,7 +1246,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.QuestReflection.Descriptor.MessageTypes[2]; }
+      get { return global::Bnet.QuestReflection.Descriptor.MessageTypes[3]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
