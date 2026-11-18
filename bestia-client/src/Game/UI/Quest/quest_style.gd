@@ -18,7 +18,7 @@ static var _formatter := QuestFormatter.new()
 
 
 static func title_of(quest) -> String:
-	return DialogText.resolve_line(quest.Title.Key, quest.Title.Args)
+	return DialogText.resolve_ref(quest.Title)
 
 
 ## The longer text under the title: the title key's [code]_TEXT[/code] twin, with the poster and the pay added to

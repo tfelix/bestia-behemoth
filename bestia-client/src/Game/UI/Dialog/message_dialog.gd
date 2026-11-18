@@ -66,7 +66,7 @@ func _build_choices(content: DialogContent) -> void:
 
 	for option in content.options:
 		var button := Button.new()
-		button.text = DialogText.resolve_line(option.Line.Key, Array(option.Line.Args))
+		button.text = DialogText.resolve_ref(option.Line)
 		button.pressed.connect(_on_option_pressed.bind(option.TopicId))
 		_choices.add_child(button)
 
