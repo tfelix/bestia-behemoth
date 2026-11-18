@@ -6,6 +6,7 @@ import net.bestia.zone.text.TextArg
 import net.bestia.zone.economy.shop.Counter
 import net.bestia.zone.economy.shop.MerchantStock
 import net.bestia.zone.economy.shop.ShopCounter
+import net.bestia.zone.text.TextRef
 import org.springframework.stereotype.Component
 
 /**
@@ -37,9 +38,9 @@ class ShopTopicProvider(
     val counter = counterOf(speaker) ?: return emptyList()
 
     val option = if (shops.isOpen(counter)) {
-      ConversationOption(Topics.SHOP + TRADE, Line(ConversationKeys.SHOP_TRADE_ASK), OptionKind.ACTION)
+      ConversationOption(Topics.SHOP + TRADE, TextRef(ConversationKeys.SHOP_TRADE_ASK), OptionKind.ACTION)
     } else {
-      ConversationOption(Topics.SHOP + HOURS, Line(ConversationKeys.SHOP_HOURS_ASK))
+      ConversationOption(Topics.SHOP + HOURS, TextRef(ConversationKeys.SHOP_HOURS_ASK))
     }
 
     return listOf(option)

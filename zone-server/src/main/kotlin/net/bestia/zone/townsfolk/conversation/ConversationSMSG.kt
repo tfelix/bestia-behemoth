@@ -3,6 +3,7 @@ package net.bestia.zone.townsfolk.conversation
 import net.bestia.bnet.proto.ConversationSmsgProto
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.zone.message.SMSG
+import net.bestia.zone.text.toBnet
 import net.bestia.zone.util.EntityId
 
 /**

@@ -1,6 +1,7 @@
 package net.bestia.zone.townsfolk.conversation
 
 import net.bestia.zone.text.TextArg
+import net.bestia.zone.text.TextRef
 import org.springframework.stereotype.Component
 
 /**
@@ -21,7 +22,7 @@ class OccupationTopicProvider : DialogTopicProvider {
   }
 
   override fun rootOptions(speaker: Speaker): List<ConversationOption> {
-    return listOf(ConversationOption(Topics.OCCUPATION + TRADE, Line(ConversationKeys.TRADE_ASK)))
+    return listOf(ConversationOption(Topics.OCCUPATION + TRADE, TextRef(ConversationKeys.TRADE_ASK)))
   }
 
   override fun nodeFor(asker: Asker, speaker: Speaker, topicId: Int): ConversationNode? {
@@ -38,11 +39,11 @@ class OccupationTopicProvider : DialogTopicProvider {
    * shopless trades from sounding alike: they are all the `labourer` occupation and so share these
    * phrasings, but a tanner's renders "the tannery" where a baker's renders "the bakery".
    */
-  private fun tradeLine(speaker: Speaker): Line {
+  private fun tradeLine(speaker: Speaker): TextRef {
     val occupation = speaker.occupation
     val variant = ConversationVariants.of(speaker, ConversationVariants.TRADE, occupation.dialog.trade)
 
-    return Line(
+    return TextRef(
       ConversationKeys.TRADE_LINE_PREFIX + occupation.id.uppercase() + "_" + variant,
       mapOf(ConversationKeys.SLOT_TRADE to TextArg.Token(speaker.tradeToken)),
     )

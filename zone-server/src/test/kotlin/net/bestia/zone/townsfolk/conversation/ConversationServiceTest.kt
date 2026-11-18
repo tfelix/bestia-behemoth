@@ -5,6 +5,7 @@ import io.mockk.mockk
 import net.bestia.worldgen.pop.Kinship
 import net.bestia.worldgen.pop.Member
 import net.bestia.zone.ai.core.state.HourWindow
+import net.bestia.zone.text.TextRef
 import net.bestia.zone.townsfolk.domain.Occupation
 import net.bestia.zone.townsfolk.domain.OccupationDialog
 import net.bestia.zone.world.time.BestiaClock
@@ -147,11 +148,11 @@ class ConversationServiceTest {
       }
 
       override fun rootOptions(speaker: Speaker): List<ConversationOption> {
-        return (0 until offers).map { ConversationOption(base + it, Line("ASK_$it")) }
+        return (0 until offers).map { ConversationOption(base + it, TextRef("ASK_$it")) }
       }
 
       override fun nodeFor(asker: Asker, speaker: Speaker, topicId: Int): ConversationNode? {
-        return ConversationNode(Line("SAID_$topicId"), emptyList())
+        return ConversationNode(TextRef("SAID_$topicId"), emptyList())
       }
     }
   }
@@ -166,11 +167,11 @@ class ConversationServiceTest {
       }
 
       override fun rootOptions(speaker: Speaker): List<ConversationOption> {
-        return listOf(ConversationOption(Topics.FAREWELL, Line(ConversationKeys.FAREWELL), OptionKind.END))
+        return listOf(ConversationOption(Topics.FAREWELL, TextRef(ConversationKeys.FAREWELL), OptionKind.END))
       }
 
       override fun nodeFor(asker: Asker, speaker: Speaker, topicId: Int): ConversationNode {
-        return ConversationNode(Line(ConversationKeys.GOODBYE), emptyList())
+        return ConversationNode(TextRef(ConversationKeys.GOODBYE), emptyList())
       }
     }
   }

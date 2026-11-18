@@ -5,7 +5,7 @@ import net.bestia.zone.text.TextArg
 import net.bestia.zone.townsfolk.conversation.Asker
 import net.bestia.zone.townsfolk.conversation.ConversationNode
 import net.bestia.zone.townsfolk.conversation.ConversationService
-import net.bestia.zone.townsfolk.conversation.Line
+import net.bestia.zone.text.TextRef
 import net.bestia.zone.townsfolk.conversation.Speaker
 import net.bestia.zone.townsfolk.conversation.SpeakerResolver
 import net.bestia.zone.ecs.core.WorldView
@@ -135,7 +135,7 @@ class TalkChatCommand(
     return lines
   }
 
-  private fun render(line: Line): String {
+  private fun render(line: TextRef): String {
     if (line.args.isEmpty()) {
       return line.key
     }

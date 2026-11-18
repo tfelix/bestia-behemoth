@@ -4,7 +4,7 @@ import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.core.SettlementRecord
 import net.bestia.zone.cartography.render.ClientStrings
 import net.bestia.zone.text.TextArg
-import net.bestia.zone.townsfolk.conversation.Line
+import net.bestia.zone.text.TextRef
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -17,9 +17,9 @@ class HomeFactsTest {
 
     assertEquals(
       listOf(
-        Line(HomeFacts.FOUNDED, mapOf("year" to TextArg.Number(214))),
-        Line(HomeFacts.WALLED, mapOf("year" to TextArg.Number(530))),
-        Line(HomeFacts.SACKED_MANY, mapOf("times" to TextArg.Number(2))),
+        TextRef(HomeFacts.FOUNDED, mapOf("year" to TextArg.Number(214))),
+        TextRef(HomeFacts.WALLED, mapOf("year" to TextArg.Number(530))),
+        TextRef(HomeFacts.SACKED_MANY, mapOf("times" to TextArg.Number(2))),
       ),
       lines,
     )

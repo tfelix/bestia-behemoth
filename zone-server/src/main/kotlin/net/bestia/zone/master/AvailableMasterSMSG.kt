@@ -11,8 +11,8 @@ import net.bestia.zone.message.SelfSMSG
 import net.bestia.zone.account.BodyType
 import net.bestia.zone.account.Face
 import net.bestia.zone.account.Hairstyle
-import net.bestia.zone.townsfolk.conversation.Line
-import net.bestia.zone.townsfolk.conversation.toBnet
+import net.bestia.zone.text.TextRef
+import net.bestia.zone.text.toBnet
 
 data class AvailableMasterSMSG(
   val master: List<MasterInfo>,
@@ -48,7 +48,7 @@ data class AvailableMasterSMSG(
     val gridRef: String,
     /** See [HomeFacts]. */
     val biomeToken: String,
-    val history: List<Line>,
+    val history: List<TextRef>,
   )
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
