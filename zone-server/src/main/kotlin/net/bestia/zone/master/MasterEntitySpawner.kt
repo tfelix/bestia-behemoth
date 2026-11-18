@@ -68,6 +68,8 @@ import net.bestia.zone.guild.ecs.GuildMemberBeacon
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.party.membership
+import net.bestia.zone.fact.FactService
+import net.bestia.zone.fact.ecs.KnownFacts
 import net.bestia.zone.quest.ecs.ActiveQuests
 import net.bestia.zone.quest.QuestService
 import net.bestia.zone.workexp.WorkExpLedger
@@ -96,6 +98,7 @@ class MasterEntitySpawner(
   private val guildMemberships: GuildMemberships,
   private val knownRecipeStore: KnownRecipeStore,
   private val questService: QuestService,
+  private val factService: FactService,
   private val honorService: HonorService,
   private val professions: ProfessionService,
 ) {
@@ -141,6 +144,7 @@ class MasterEntitySpawner(
 
     val knownRecipeIds = knownRecipeStore.load(masterId)
     val trackedKills = questService.trackedKillsFor(masterId)
+    val knownFacts = factService.factsOf(masterId)
     val learnedSkillIds = learnedSkillRepository.findAllByMasterId(masterId)
       .associate { it.skill.id to it.level }
 
@@ -179,6 +183,7 @@ class MasterEntitySpawner(
       professions.refresh(this, id)
       add(id, KnownRecipes(knownRecipeIds.toMutableSet()))
       add(id, ActiveQuests(masterId, trackedKills))
+      add(id, KnownFacts(knownFacts))
       add(id, SkillPoints(master.skillPoints))
       add(id, StatusPoints(master.statusPoints))
       add(
