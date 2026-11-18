@@ -2,6 +2,7 @@ package net.bestia.zone.dialog
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.text.TextArg
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service
  * [OutMessageProcessor] and every dialog goes through the same argument validation:
  *
  * ```
- * dialogService.send(accountId, DialogId.MASTER_INTRO, mapOf("masterName" to DialogArg.Text(name)))
+ * dialogService.send(accountId, DialogId.MASTER_INTRO, mapOf("masterName" to TextArg.Text(name)))
  * ```
  *
  * Sending is immediate and fire-and-forget. Nothing waits for the player to close the dialog, and a
@@ -30,7 +31,7 @@ class DialogService(
   fun send(
     accountId: AccountId,
     dialog: DialogId,
-    args: Map<String, DialogArg> = emptyMap(),
+    args: Map<String, TextArg> = emptyMap(),
     sourceEntityId: EntityId? = null,
   ) {
     dispatch(dialogDefinitionRegistry.getOrThrow(dialog), accountId, args, sourceEntityId)
@@ -44,7 +45,7 @@ class DialogService(
   fun send(
     accountId: AccountId,
     definition: DialogDefinition,
-    args: Map<String, DialogArg> = emptyMap(),
+    args: Map<String, TextArg> = emptyMap(),
     sourceEntityId: EntityId? = null,
   ) {
     dispatch(definition, accountId, args, sourceEntityId)
@@ -53,7 +54,7 @@ class DialogService(
   private fun dispatch(
     definition: DialogDefinition,
     accountId: AccountId,
-    args: Map<String, DialogArg>,
+    args: Map<String, TextArg>,
     sourceEntityId: EntityId?,
   ) {
     validateArgs(definition, args)
@@ -76,7 +77,7 @@ class DialogService(
    * drops a value the author meant to show, and both only surface as a visual bug in one locale -
    * so this throws rather than logs.
    */
-  private fun validateArgs(definition: DialogDefinition, args: Map<String, DialogArg>) {
+  private fun validateArgs(definition: DialogDefinition, args: Map<String, TextArg>) {
     val declared = definition.args.toSet()
     val supplied = args.keys
 

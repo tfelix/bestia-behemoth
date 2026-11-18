@@ -1,6 +1,6 @@
 package net.bestia.zone.townsfolk.conversation
 
-import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.text.TextArg
 import org.springframework.stereotype.Component
 
 /**
@@ -44,7 +44,7 @@ class OccupationTopicProvider : DialogTopicProvider {
 
     return Line(
       ConversationKeys.TRADE_LINE_PREFIX + occupation.id.uppercase() + "_" + variant,
-      mapOf(ConversationKeys.SLOT_TRADE to DialogArg.Token(speaker.tradeToken)),
+      mapOf(ConversationKeys.SLOT_TRADE to TextArg.Token(speaker.tradeToken)),
     )
   }
 

@@ -1,8 +1,8 @@
 package net.bestia.zone.townsfolk.conversation
 
 import net.bestia.bnet.proto.ConversationSmsgProto
-import net.bestia.zone.dialog.DialogArg
-import net.bestia.zone.dialog.toBnet
+import net.bestia.zone.text.TextArg
+import net.bestia.zone.text.toBnet
 
 /**
  * One thing said, as a translation key and its arguments.
@@ -12,7 +12,7 @@ import net.bestia.zone.dialog.toBnet
  */
 data class Line(
   val key: String,
-  val args: Map<String, DialogArg> = emptyMap(),
+  val args: Map<String, TextArg> = emptyMap(),
 )
 
 /** Shared by every message that carries lines: a conversation, and the homes offered to a new master. */

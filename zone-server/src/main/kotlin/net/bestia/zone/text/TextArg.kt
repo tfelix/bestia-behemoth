@@ -1,30 +1,30 @@
-package net.bestia.zone.dialog
+package net.bestia.zone.text
 
 import net.bestia.zone.util.EntityId
 
 /**
- * One placeholder value filled into a dialog's translated text by the client.
+ * One placeholder value filled into a translated text by the client.
  *
  * These are typed instead of pre-rendered strings on purpose: item names, skill names and entity
  * names are themselves localized *on the client*, so sending the reference keeps them translatable.
  * Reach for [Text] only when the value has no client-side representation at all - another player's
  * master name being the usual case.
  */
-sealed interface DialogArg {
+sealed interface TextArg {
 
   /** A string the client cannot derive itself, e.g. a player-chosen master name. */
-  data class Text(val value: String) : DialogArg
+  data class Text(val value: String) : TextArg
 
-  data class Number(val value: Long) : DialogArg
+  data class Number(val value: Long) : TextArg
 
   /** Resolved by the client to that entity's display name; falls back to a placeholder if unknown. */
-  data class Entity(val entityId: EntityId) : DialogArg
+  data class Entity(val entityId: EntityId) : TextArg
 
   /** Resolved by the client through its item DB, so the item name stays localized. */
-  data class Item(val itemId: Long) : DialogArg
+  data class Item(val itemId: Long) : TextArg
 
   /** Resolved by the client through its attack DB, so the skill name stays localized. */
-  data class Skill(val skillId: Long) : DialogArg
+  data class Skill(val skillId: Long) : TextArg
 
   /**
    * A translation key the client resolves in turn and substitutes.
@@ -33,7 +33,7 @@ sealed interface DialogArg {
    * English one. Without it, any composed phrase has to be either one key per combination or an English
    * fragment glued together on the server.
    */
-  data class Token(val key: String) : DialogArg
+  data class Token(val key: String) : TextArg
 
   /**
    * A proper noun, already rendered.
@@ -43,5 +43,5 @@ sealed interface DialogArg {
    * [Text] so that a reviewer can see at a glance that no server-composed sentence has been smuggled in
    * under a type documented as a last resort.
    */
-  data class Name(val value: String) : DialogArg
+  data class Name(val value: String) : TextArg
 }

@@ -2,7 +2,7 @@ package net.bestia.zone.master
 
 import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.core.SettlementRecord
-import net.bestia.zone.dialog.DialogArg
+import net.bestia.zone.text.TextArg
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.townsfolk.conversation.Line
 import net.bestia.zone.world.WorldService
@@ -51,15 +51,15 @@ class HomeFacts(
 
     fun historyOf(record: SettlementRecord): List<Line> = buildList {
       if (record.wasFounded) {
-        add(Line(FOUNDED, mapOf("year" to DialogArg.Number(record.foundedYear.toLong()))))
+        add(Line(FOUNDED, mapOf("year" to TextArg.Number(record.foundedYear.toLong()))))
       }
       if (record.wallYear != 0) {
-        add(Line(WALLED, mapOf("year" to DialogArg.Number(record.wallYear.toLong()))))
+        add(Line(WALLED, mapOf("year" to TextArg.Number(record.wallYear.toLong()))))
       }
       when (record.timesSacked) {
         0 -> Unit
         1 -> add(Line(SACKED_ONCE))
-        else -> add(Line(SACKED_MANY, mapOf("times" to DialogArg.Number(record.timesSacked.toLong()))))
+        else -> add(Line(SACKED_MANY, mapOf("times" to TextArg.Number(record.timesSacked.toLong()))))
       }
     }
 
