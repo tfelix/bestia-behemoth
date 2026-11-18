@@ -22,7 +22,7 @@ namespace BestiaBehemothClient.Bnet.Message.System
     public string SpeakerName { get; set; } = string.Empty;
 
     [Export]
-    public ConversationLine Speech { get; set; } = new();
+    public TextRef Speech { get; set; } = new();
 
     [Export]
     public Godot.Collections.Array<ConversationOption> Options { get; set; } = new();
@@ -39,7 +39,7 @@ namespace BestiaBehemothClient.Bnet.Message.System
       {
         SpeakerEntityId = proto.SpeakerEntityId,
         SpeakerName = proto.SpeakerName ?? string.Empty,
-        Speech = ConversationLine.FromProto(proto.Speech),
+        Speech = TextRef.FromProto(proto.Speech),
         Options = options
       };
     }

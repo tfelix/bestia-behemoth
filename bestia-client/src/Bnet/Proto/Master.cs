@@ -26,34 +26,34 @@ namespace Bnet {
           string.Concat(
             "ChxtZXNzYWdlcy9tYXN0ZXIvbWFzdGVyLnByb3RvEgRibmV0GhNtZXNzYWdl",
             "cy92ZWMzLnByb3RvGiFtZXNzYWdlcy9tYXN0ZXIvYmVzdGlhX2luZm8ucHJv",
-            "dG8aJ21lc3NhZ2VzL3N5c3RlbS9jb252ZXJzYXRpb25fc21zZy5wcm90byIo",
-            "CgVDb2xvchIJCgFyGAEgASgNEgkKAWcYAiABKA0SCQoBYhgDIAEoDSJ/CgxF",
-            "ZmZvcnRWYWx1ZXMSEAoIc3RyZW5ndGgYASABKA0SDwoHYWdpbGl0eRgCIAEo",
-            "DRIQCgh2aXRhbGl0eRgDIAEoDRIUCgxpbnRlbGxpZ2VuY2UYBCABKA0SEQoJ",
-            "ZGV4dGVyaXR5GAUgASgNEhEKCXdpbGxwb3dlchgGIAEoDSKpAQoGTWFzdGVy",
-            "EiIKGm1heF9hdmFpbGFibGVfbWFzdGVyX3Nsb3RzGAEgASgNEiIKGm1heF9h",
-            "dmFpbGFibGVfYmVzdGlhX3Nsb3RzGAIgASgNEiAKBm1hc3RlchgDIAMoCzIQ",
-            "LmJuZXQuTWFzdGVySW5mbxI1CgxzcGF3bl9wb2ludHMYBCADKAsyHy5ibmV0",
-            "Lk1hc3RlclNwYXduUG9pbnRDYW5kaWRhdGUipgEKGU1hc3RlclNwYXduUG9p",
-            "bnRDYW5kaWRhdGUSCgoCaWQYASABKA0SFwoPc2V0dGxlbWVudF9uYW1lGAIg",
-            "ASgJEgwKBHRpZXIYAyABKAkSEgoKcG9wdWxhdGlvbhgEIAEoDRITCgtiaW9t",
-            "ZV90b2tlbhgHIAEoCRIbCgdoaXN0b3J5GAggAygLMgouYm5ldC5MaW5lEhAK",
-            "CGdyaWRfcmVmGAkgASgJIrYCCgpNYXN0ZXJJbmZvEhEKCW1hc3Rlcl9pZBgB",
-            "IAEoBBIMCgRuYW1lGAMgASgJEg0KBWxldmVsGAQgASgNEhwKCHBvc2l0aW9u",
-            "GAUgASgLMgouYm5ldC5WZWMzEhwKBGJvZHkYBiABKA4yDi5ibmV0LkJvZHlU",
-            "eXBlEhgKBGZhY2UYByABKA4yCi5ibmV0LkZhY2USHwoKc2tpbl9jb2xvchgI",
-            "IAEoCzILLmJuZXQuQ29sb3ISHwoKaGFpcl9jb2xvchgJIAEoCzILLmJuZXQu",
-            "Q29sb3ISIQoHYmVzdGlhcxgKIAMoCzIQLmJuZXQuQmVzdGlhSW5mbxIdCgRo",
-            "YWlyGAsgASgOMg8uYm5ldC5IYWlyc3R5bGUSDAoEc2xvdBgMIAEoDRIQCghn",
-            "cmlkX3JlZhgNIAEoCSomCghCb2R5VHlwZRIMCghCT0RZX01fMRAAEgwKCEJP",
-            "RFlfRl8xEAEqfwoERmFjZRIKCgZGQUNFXzEQABIKCgZGQUNFXzIQARIKCgZG",
-            "QUNFXzMQAhIKCgZGQUNFXzQQAxIKCgZGQUNFXzUQBBIKCgZGQUNFXzYQBRIK",
-            "CgZGQUNFXzcQBhIKCgZGQUNFXzgQBxIKCgZGQUNFXzkQCBILCgdGQUNFXzEw",
-            "EAkqRwoJSGFpcnN0eWxlEgoKBkhBSVJfMRAAEgoKBkhBSVJfMhABEgoKBkhB",
-            "SVJfMxACEgoKBkhBSVJfNBADEgoKBkhBSVJfNRAEQiQKFW5ldC5iZXN0aWEu",
-            "Ym5ldC5wcm90b0ILTWFzdGVyUHJvdG9iBnByb3RvMw=="));
+            "dG8aGm1lc3NhZ2VzL3N5c3RlbS90ZXh0LnByb3RvIigKBUNvbG9yEgkKAXIY",
+            "ASABKA0SCQoBZxgCIAEoDRIJCgFiGAMgASgNIn8KDEVmZm9ydFZhbHVlcxIQ",
+            "CghzdHJlbmd0aBgBIAEoDRIPCgdhZ2lsaXR5GAIgASgNEhAKCHZpdGFsaXR5",
+            "GAMgASgNEhQKDGludGVsbGlnZW5jZRgEIAEoDRIRCglkZXh0ZXJpdHkYBSAB",
+            "KA0SEQoJd2lsbHBvd2VyGAYgASgNIqkBCgZNYXN0ZXISIgoabWF4X2F2YWls",
+            "YWJsZV9tYXN0ZXJfc2xvdHMYASABKA0SIgoabWF4X2F2YWlsYWJsZV9iZXN0",
+            "aWFfc2xvdHMYAiABKA0SIAoGbWFzdGVyGAMgAygLMhAuYm5ldC5NYXN0ZXJJ",
+            "bmZvEjUKDHNwYXduX3BvaW50cxgEIAMoCzIfLmJuZXQuTWFzdGVyU3Bhd25Q",
+            "b2ludENhbmRpZGF0ZSKpAQoZTWFzdGVyU3Bhd25Qb2ludENhbmRpZGF0ZRIK",
+            "CgJpZBgBIAEoDRIXCg9zZXR0bGVtZW50X25hbWUYAiABKAkSDAoEdGllchgD",
+            "IAEoCRISCgpwb3B1bGF0aW9uGAQgASgNEhMKC2Jpb21lX3Rva2VuGAcgASgJ",
+            "Eh4KB2hpc3RvcnkYCCADKAsyDS5ibmV0LlRleHRSZWYSEAoIZ3JpZF9yZWYY",
+            "CSABKAkitgIKCk1hc3RlckluZm8SEQoJbWFzdGVyX2lkGAEgASgEEgwKBG5h",
+            "bWUYAyABKAkSDQoFbGV2ZWwYBCABKA0SHAoIcG9zaXRpb24YBSABKAsyCi5i",
+            "bmV0LlZlYzMSHAoEYm9keRgGIAEoDjIOLmJuZXQuQm9keVR5cGUSGAoEZmFj",
+            "ZRgHIAEoDjIKLmJuZXQuRmFjZRIfCgpza2luX2NvbG9yGAggASgLMgsuYm5l",
+            "dC5Db2xvchIfCgpoYWlyX2NvbG9yGAkgASgLMgsuYm5ldC5Db2xvchIhCgdi",
+            "ZXN0aWFzGAogAygLMhAuYm5ldC5CZXN0aWFJbmZvEh0KBGhhaXIYCyABKA4y",
+            "Dy5ibmV0LkhhaXJzdHlsZRIMCgRzbG90GAwgASgNEhAKCGdyaWRfcmVmGA0g",
+            "ASgJKiYKCEJvZHlUeXBlEgwKCEJPRFlfTV8xEAASDAoIQk9EWV9GXzEQASp/",
+            "CgRGYWNlEgoKBkZBQ0VfMRAAEgoKBkZBQ0VfMhABEgoKBkZBQ0VfMxACEgoK",
+            "BkZBQ0VfNBADEgoKBkZBQ0VfNRAEEgoKBkZBQ0VfNhAFEgoKBkZBQ0VfNxAG",
+            "EgoKBkZBQ0VfOBAHEgoKBkZBQ0VfORAIEgsKB0ZBQ0VfMTAQCSpHCglIYWly",
+            "c3R5bGUSCgoGSEFJUl8xEAASCgoGSEFJUl8yEAESCgoGSEFJUl8zEAISCgoG",
+            "SEFJUl80EAMSCgoGSEFJUl81EARCJAoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
+            "QgtNYXN0ZXJQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, global::Bnet.BestiaInfoReflection.Descriptor, global::Bnet.ConversationSmsgReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, global::Bnet.BestiaInfoReflection.Descriptor, global::Bnet.TextReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.BodyType), typeof(global::Bnet.Face), typeof(global::Bnet.Hairstyle), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Color), global::Bnet.Color.Parser, new[]{ "R", "G", "B" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EffortValues), global::Bnet.EffortValues.Parser, new[]{ "Strength", "Agility", "Vitality", "Intelligence", "Dexterity", "Willpower" }, null, null, null, null),
@@ -1184,15 +1184,15 @@ namespace Bnet {
 
     /// <summary>Field number for the "history" field.</summary>
     public const int HistoryFieldNumber = 8;
-    private static readonly pb::FieldCodec<global::Bnet.Line> _repeated_history_codec
-        = pb::FieldCodec.ForMessage(66, global::Bnet.Line.Parser);
-    private readonly pbc::RepeatedField<global::Bnet.Line> history_ = new pbc::RepeatedField<global::Bnet.Line>();
+    private static readonly pb::FieldCodec<global::Bnet.TextRef> _repeated_history_codec
+        = pb::FieldCodec.ForMessage(66, global::Bnet.TextRef.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.TextRef> history_ = new pbc::RepeatedField<global::Bnet.TextRef>();
     /// <summary>
     /// What the town's history says about it. Lines rather than text, so the client can translate them.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Bnet.Line> History {
+    public pbc::RepeatedField<global::Bnet.TextRef> History {
       get { return history_; }
     }
 

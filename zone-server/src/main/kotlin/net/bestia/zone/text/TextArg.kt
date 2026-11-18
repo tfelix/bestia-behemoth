@@ -26,6 +26,9 @@ sealed interface TextArg {
   /** Resolved by the client through its attack DB, so the skill name stays localized. */
   data class Skill(val skillId: Long) : TextArg
 
+  /** Resolved by the client through its bestia DB, so the species name stays localized. */
+  data class Species(val speciesId: Long) : TextArg
+
   /**
    * A translation key the client resolves in turn and substitutes.
    *
