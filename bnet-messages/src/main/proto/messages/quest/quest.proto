@@ -58,6 +58,10 @@ message QuestObjective {
   int64 species_id = 7;
   // The place a kill must happen in, empty when anywhere counts or the spot has no name.
   string place_name = 8;
+  // The step of the quest this belongs to. A master works on one stage at a time.
+  uint32 stage = 9;
+  // How to word the objective. Unset for a delivery or a kill, which the client words from the ids above.
+  TextRef text = 10;
 }
 
 message QuestReward {
@@ -77,4 +81,6 @@ message Quest {
   string poster_name = 9;
   repeated QuestObjective objectives = 10;
   repeated QuestReward rewards = 11;
+  // The stage this master works on. Objectives of later stages are not sent.
+  uint32 stage = 12;
 }

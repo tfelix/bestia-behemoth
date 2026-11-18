@@ -18,6 +18,9 @@ namespace BestiaBehemothClient.Bnet.Message.Quest
     [Export] public int SuggestedLevel { get; set; }
     [Export] public long DeadlineEpochMs { get; set; }
     [Export] public string PosterName { get; set; } = "";
+
+    /// <summary>The stage the master works on. Objectives of later stages are not sent.</summary>
+    [Export] public int Stage { get; set; }
     [Export] public Godot.Collections.Array<QuestObjectiveEntry> Objectives { get; set; } = [];
     [Export] public Godot.Collections.Array<QuestRewardEntry> Rewards { get; set; } = [];
 
@@ -32,7 +35,8 @@ namespace BestiaBehemothClient.Bnet.Message.Quest
         Title = TextRef.FromProto(proto.Title),
         SuggestedLevel = (int)proto.SuggestedLevel,
         DeadlineEpochMs = proto.DeadlineEpochMs,
-        PosterName = proto.PosterName
+        PosterName = proto.PosterName,
+        Stage = (int)proto.Stage
       };
       foreach (var objective in proto.Objectives)
       {

@@ -13,6 +13,7 @@ fun QuestView.toProto(): QuestProto.Quest {
     .setSuggestedLevel(suggestedLevel)
     .setDeadlineEpochMs(deadline.toEpochMilli())
     .setPosterName(posterName)
+    .setStage(stage)
   objectives.forEach { quest.addObjectives(it.toProto()) }
   rewards.forEach { quest.addRewards(it.toProto()) }
 
@@ -20,7 +21,7 @@ fun QuestView.toProto(): QuestProto.Quest {
 }
 
 private fun QuestView.Objective.toProto(): QuestProto.QuestObjective {
-  return QuestProto.QuestObjective.newBuilder()
+  val objective = QuestProto.QuestObjective.newBuilder()
     .setKind(kind.toProto())
     .setScope(scope.toProto())
     .setItemId(itemId ?: 0)
@@ -29,7 +30,10 @@ private fun QuestView.Objective.toProto(): QuestProto.QuestObjective {
     .setRequired(required)
     .setProgress(progress)
     .setYours(yours)
-    .build()
+    .setStage(stage)
+  text?.let { objective.setText(it.toBnet()) }
+
+  return objective.build()
 }
 
 private fun QuestReward.toProto(): QuestProto.QuestReward {
