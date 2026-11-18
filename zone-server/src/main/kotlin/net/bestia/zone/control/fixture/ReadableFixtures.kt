@@ -14,8 +14,6 @@ import net.bestia.worldgen.vector.Aabb
 import net.bestia.worldgen.vector.AreaFeature
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
-import net.bestia.zone.chat.ChatSMSG
-import net.bestia.zone.chat.ChatType
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.PropPose
@@ -23,6 +21,9 @@ import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.text.ReadableSMSG
+import net.bestia.zone.text.TextArg
+import net.bestia.zone.text.TextRef
 import net.bestia.zone.townsfolk.knowledge.ChronicleNames
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
@@ -36,7 +37,7 @@ import kotlin.math.roundToInt
  *
  * The text is not stored anywhere: the dressing stage wrote settlement indices, distances and bearings onto the
  * fixture's marker, and the chronicle has every name. So reading one is finding the marker under the prop and
- * rendering it, and the answer is a chat line to the reader alone. A plain headstone has no marker - the chunk
+ * rendering it as a template with typed values, sent to the reader alone. A plain headstone has no marker - the chunk
  * tier fills a cemetery's plots itself - so its name is drawn from the prop's own identity, from the same name
  * pools the chronicle uses, with years inside the life of the settlement that buried it.
  */
@@ -55,12 +56,12 @@ class ReadableFixtures(
     val accountId = world.get(actorId, Account::class)?.accountId ?: return null
 
     val text = textOf(world, propId, pose, kind) ?: return null
-    outMessageProcessor.sendToPlayer(accountId, ChatSMSG(type = ChatType.COMMAND, text = text))
+    outMessageProcessor.sendToPlayer(accountId, ReadableSMSG(propId, text))
     return null
   }
 
-  /** The line a fixture reads as, or null when the world under it no longer carries what it named. */
-  fun textOf(world: World, propId: EntityId, pose: PropPose, kind: FixtureKind): String? {
+  /** What a fixture reads as, or null when the world under it no longer carries what it named. */
+  fun textOf(world: World, propId: EntityId, pose: PropPose, kind: FixtureKind): TextRef? {
     if (!worldService.isLoaded) return null
     val generated = worldService.generated
     val voxel = generated.config.voxelSize
@@ -81,34 +82,51 @@ class ReadableFixtures(
       ?: return null
 
     return when (kind) {
-      FixtureKind.SIGNPOST -> "The signpost reads: " + destinations(marker, x, y, withBearing = true)
-      FixtureKind.MILESTONE -> "The milestone reads: " + destinations(marker, x, y, withBearing = false)
+      FixtureKind.SIGNPOST -> destinations("READABLE_SIGNPOST", marker, withBearing = true)
+      FixtureKind.MILESTONE -> destinations("READABLE_MILESTONE", marker, withBearing = false)
       FixtureKind.NAMED_GRAVE -> {
         val figure = chronicle.figures.getOrNull(marker.attribute(FixtureChannels.FIGURE).toInt()) ?: return null
         val name = ChronicleNames.figureOf(chronicle, figure.index) ?: return null
-        val role = figure.role.name.lowercase(Locale.ROOT)
-        "Here lies $name, $role, ${yearOf(figure.birthYear)}-${yearOf(figure.deathYear)}."
+        TextRef(
+          "READABLE_NAMED_GRAVE",
+          mapOf(
+            "name" to TextArg.Name(name),
+            "role" to TextArg.Token("FIGURE_ROLE_${figure.role.name}"),
+            "born" to TextArg.Number(figure.birthYear.toLong()),
+            "died" to TextArg.Number(figure.deathYear.toLong()),
+          ),
+        )
       }
       else -> null
     }
   }
 
-  private fun destinations(marker: PointMarker, x: Double, y: Double, withBearing: Boolean): String {
+  /**
+   * The arms as `{place1} {distance1} {bearing1}` and so on. The client has one `[key]_ARMS_n` template per
+   * count of arms, because a template cannot hold a list.
+   */
+  private fun destinations(key: String, marker: PointMarker, withBearing: Boolean): TextRef {
     val chronicle = worldService.generated.world.chronicle
-    val parts = ArrayList<String>()
+    val args = LinkedHashMap<String, TextArg>()
+    var arms = 0
     for (arm in 0 until FixtureChannels.MAX_DESTINATIONS) {
       val settlement = marker.optionalAttribute(FixtureChannels.destination(arm))?.toInt() ?: continue
       if (settlement < 0) continue
       val name = ChronicleNames.placeOf(chronicle, settlement) ?: continue
-      val metres = marker.attribute(FixtureChannels.distance(arm))
-      val bearing = marker.attribute(FixtureChannels.bearing(arm))
-      parts += if (withBearing) "$name ${distanceText(metres)} ${compass(bearing)}" else "$name ${distanceText(metres)}"
+      arms++
+      args["place$arms"] = TextArg.Name(name)
+      args["distance$arms"] = TextArg.Text(distanceText(marker.attribute(FixtureChannels.distance(arm))))
+      if (withBearing) {
+        args["bearing$arms"] = TextArg.Token(compass(marker.attribute(FixtureChannels.bearing(arm))))
+      }
     }
-    return if (parts.isEmpty()) "the paint has worn away." else parts.joinToString(" · ") + "."
+    args["arms"] = TextArg.Token(if (arms == 0) "READABLE_WORN_PAINT" else "${key}_ARMS_$arms")
+
+    return TextRef(key, args)
   }
 
   /** A plain headstone: a name from the identity, years inside the life of the settlement whose cemetery it is in. */
-  private fun plainGrave(nearby: List<net.bestia.worldgen.vector.VectorFeature>, x: Double, y: Double, identity: Long): String {
+  private fun plainGrave(nearby: List<net.bestia.worldgen.vector.VectorFeature>, x: Double, y: Double, identity: Long): TextRef {
     val chronicle = worldService.generated.world.chronicle
     val cemetery = nearby.filter { it.kind == FeatureKind.CEMETERY }.filterIsInstance<AreaFeature>()
       .firstOrNull { it.contains(x, y) }
@@ -121,13 +139,21 @@ class ReadableFixtures(
     val seed = GenRng.hash(identity, GRAVE_NAME_SALT)
     val name = Names.person(seed, culture, FigureRole.entries[(GenRng.unit(seed) * FigureRole.entries.size).toInt()
       .coerceAtMost(FigureRole.entries.size - 1)])
-    if (GenRng.unit(GenRng.mix64(seed + 1)) < WORN_SHARE) return "The headstone is too worn to read."
+    if (GenRng.unit(GenRng.mix64(seed + 1)) < WORN_SHARE) return TextRef("READABLE_GRAVE_WORN")
 
     val founded = record?.foundedYear?.takeIf { it != 0 } ?: (chronicle.presentYear - 200)
     val span = (chronicle.presentYear - founded).coerceAtLeast(30)
     val death = founded + 20 + (GenRng.unit(GenRng.mix64(seed + 2)) * (span - 20)).toInt()
     val birth = death - 18 - (GenRng.unit(GenRng.mix64(seed + 3)) * 60).toInt()
-    return "Here lies $name, ${yearOf(birth)}-${yearOf(death)}."
+
+    return TextRef(
+      "READABLE_GRAVE",
+      mapOf(
+        "name" to TextArg.Name(name),
+        "born" to TextArg.Number(birth.toLong()),
+        "died" to TextArg.Number(death.toLong()),
+      ),
+    )
   }
 
   private fun distanceText(metres: Double): String = if (metres >= 1000.0) {
@@ -137,14 +163,11 @@ class ReadableFixtures(
     "${(metres / 10.0).roundToInt() * 10} m"
   }
 
-  /** Eight-point compass from a bearing in radians, x east and y north. */
+  /** The key of an eight-point compass direction, from a bearing in radians, x east and y north. */
   private fun compass(bearing: Double): String {
     val sector = (((bearing / (2.0 * PI)) * 8.0).roundToInt() % 8 + 8) % 8
     return COMPASS[sector]
   }
-
-  /** A chronicle year as a player reads it: the year itself, which runs negative before the present era. */
-  private fun yearOf(year: Int): String = year.toString()
 
   private companion object {
     const val READ_RANGE = 8L
@@ -153,7 +176,8 @@ class ReadableFixtures(
     const val GRAVE_NAME_SALT = 0x4E414D45L
 
     /** Counted anticlockwise from east, as `atan2` is. */
-    val COMPASS = listOf("east", "north-east", "north", "north-west", "west", "south-west", "south", "south-east")
+    val COMPASS = listOf("EAST", "NORTH_EAST", "NORTH", "NORTH_WEST", "WEST", "SOUTH_WEST", "SOUTH", "SOUTH_EAST")
+      .map { "COMPASS_$it" }
   }
 }
 

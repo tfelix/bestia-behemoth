@@ -49,6 +49,7 @@ const _GUILD_COLOR := UiStyle.GUILD
 func _ready() -> void:
 	add_to_group("world_blocking_ui")
 	ConnectionManager.connect("chat_received", _on_chat_received)
+	ConnectionManager.readable_received.connect(_on_readable_received)
 	ConnectionManager.operation_error.connect(_on_operation_error)
 	ConnectionManager.operation_success.connect(_on_operation_success)
 	ConnectionManager.bestia_capture_received.connect(_on_bestia_capture)
@@ -368,6 +369,10 @@ func _on_journey_ended(message: JourneyEndedSMSG) -> void:
 		system_line(line)
 	else:
 		error_line(line)
+
+
+func _on_readable_received(message: ReadableSMSG) -> void:
+	_add_chat_line(DialogText.resolve_ref(message.Text))
 
 
 func _on_chat_received(message: ChatSMSG) -> void:

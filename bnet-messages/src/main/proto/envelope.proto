@@ -5,6 +5,7 @@ package bnet;
 import "messages/system/ping.proto";
 import "messages/system/chat_cmsg.proto";
 import "messages/system/chat_smsg.proto";
+import "messages/system/readable_smsg.proto";
 import "messages/system/authentication.proto";
 import "messages/system/operation_error.proto";
 import "messages/system/operation_success.proto";
@@ -254,6 +255,7 @@ message Envelope {
     RespawnCMSG respawn = 127;
     InteractCMSG interact = 128;
     ConversationSMSG conversation = 129;
+    ReadableSMSG readable = 130;
 
     // MAP 200
     WorldInfoSMSG world_info = 200;

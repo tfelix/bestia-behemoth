@@ -3,13 +3,14 @@ package net.bestia.zone.poi.script
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.worldgen.poi.PoiKind
-import net.bestia.zone.chat.ChatSMSG
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.Poi
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.text.ReadableSMSG
+import net.bestia.zone.text.TextArg
 import org.junit.jupiter.api.Test
 
 class ExaminePoiScriptTest {
@@ -29,7 +30,7 @@ class ExaminePoiScriptTest {
 
     script.onInteract(world, reader, obelisk)
 
-    verify { messages.sendToPlayer(ACCOUNT_ID, match<ChatSMSG> { "broken obelisk" in it.text }) }
+    verify { messages.sendToPlayer(ACCOUNT_ID, match<ReadableSMSG> { it.text.args["poi"] == TextArg.Token("POI_BROKEN_OBELISK") }) }
   }
 
   @Test
@@ -38,7 +39,7 @@ class ExaminePoiScriptTest {
 
     script.onInteract(world, reader, obelisk)
 
-    verify(exactly = 0) { messages.sendToPlayer(any(), any<ChatSMSG>()) }
+    verify(exactly = 0) { messages.sendToPlayer(any(), any<ReadableSMSG>()) }
   }
 
   private fun playerAt(at: Vec3L): Long {
