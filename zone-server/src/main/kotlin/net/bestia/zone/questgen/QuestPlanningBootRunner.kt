@@ -1,5 +1,6 @@
 package net.bestia.zone.questgen
 
+import net.bestia.zone.questgen.offer.QuestDirector
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
@@ -10,9 +11,14 @@ import org.springframework.stereotype.Component
  */
 @Component
 @Order(130)
-class QuestPlanningBootRunner(private val planning: QuestPlanning) : CommandLineRunner {
+class QuestPlanningBootRunner(
+  private val planning: QuestPlanning,
+  private val director: QuestDirector,
+) : CommandLineRunner {
 
   override fun run(vararg args: String?) {
     planning.planNewSeeds()
+    // At once, so a new world has quests on offer before the director's first round.
+    director.run()
   }
 }
