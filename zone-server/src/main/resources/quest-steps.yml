@@ -1,0 +1,43 @@
+# The things a player does in a generated quest. The planner chains them: a step may be used when something
+# before it gives what it needs. See docs: server/quest-manager.
+#
+# kind     the objective kind of the quest core
+# binds    the real thing of the world the step points at; a step that cannot be bound is left out
+# needs    what must be true before the step
+# gives    what is true after it
+# tension  how tense the step is, 1 to 3; a good chain rises to one peak and then falls
+# text     the template key of the step's line in the quest log
+steps:
+  hear_legend:
+    kind: TALK
+    binds: LEGEND_TELLER
+    gives: [knows:legend, knows:site]
+    tension: 1
+    text: QUESTGEN_STEP_HEAR_LEGEND
+  hear_of_loss:
+    kind: TALK
+    binds: LOSS_WITNESS
+    gives: [knows:legend, knows:site]
+    tension: 1
+    text: QUESTGEN_STEP_HEAR_OF_LOSS
+  read_epitaph:
+    kind: EXAMINE
+    binds: KEEPER_GRAVE
+    needs: [knows:legend]
+    gives: [knows:keeper, knows:site]
+    tension: 2
+    text: QUESTGEN_STEP_READ_EPITAPH
+  dig_relic:
+    kind: EXAMINE
+    binds: RELIC_CACHE
+    needs: [knows:site]
+    gives: [holds:relic]
+    tension: 3
+    text: QUESTGEN_STEP_DIG_RELIC
+  return_relic:
+    kind: BRING
+    binds: HOME_TEMPLE
+    needs: [holds:relic]
+    gives: [at:relic:home]
+    tension: 1
+    text: QUESTGEN_STEP_RETURN_RELIC
