@@ -1119,3 +1119,18 @@ recipes:
     station: WORKBENCH
     craftSeconds: 30.0
     baseSuccessChance: 1.0
+
+  # --- Fuel ----------------------------------------------------------------------------------------
+
+  # Charring a log in the furnace: the smith's own fuel when there is no coal seam nearby. A log weighs 900
+  # and gives charcoal for three smelts.
+  - id: 119
+    identifier: CHARCOAL
+    effect: PRODUCE
+    output: { item: charcoal, amount: 3 }
+    inputs:
+      - { item: log, amount: 1 }
+    skill: { skill: M_ORE_REFINEMENT, level: 1 }
+    station: FURNACE
+    craftSeconds: 10.0
+    baseSuccessChance: 1.0
