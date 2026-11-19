@@ -10,6 +10,7 @@ import net.bestia.worldgen.dress.FixtureKind
 import net.bestia.worldgen.render.optionalAttribute
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
+import net.bestia.zone.text.LocalNames
 import net.bestia.zone.text.TextBrief
 import net.bestia.zone.text.TextBrief.AllowedName
 import net.bestia.zone.text.TextSource
@@ -41,8 +42,11 @@ class EpitaphSource(private val worldService: WorldService) : TextSource {
       task = "Write the epitaph ${framingOf(subject)} of $name. 2 to 5 short lines, 20 to 50 words in total. Name the " +
         "dead, the years of birth and death, and one deed or tie from the FACT SHEET. Solemn tone.",
       allowedNames = listOfNotNull(
-        AllowedName(name, "$who, a ${sexOf(figure)}, ${figure.birthYear}-${figure.deathYear}"),
-        people?.let { AllowedName(it, "a people") },
+        AllowedName(
+          name, "$who, a ${sexOf(figure)}, ${figure.birthYear}-${figure.deathYear}",
+          LocalNames.of(name) { ChronicleNames.figureOf(chronicle, figure.index, it) },
+        ),
+        people?.let { AllowedName(it, "a people", LocalNames.of(it) { locale -> ChronicleNames.civOf(chronicle, figure.civ, locale) }) },
         home?.let { AllowedName(it, "a town, the home of $name") },
       ),
       facts = listOfNotNull(
@@ -51,7 +55,8 @@ class EpitaphSource(private val worldService: WorldService) : TextSource {
         "died: ${figure.deathYear}",
         home?.let { "home: $it" },
       ) + deedsOf(chronicle, figure),
-      mustName = listOf(name),
+      // The years too: a stone without them is the first thing a small model writes.
+      mustName = listOf(name, figure.birthYear.toString(), figure.deathYear.toString()),
     )
   }
 

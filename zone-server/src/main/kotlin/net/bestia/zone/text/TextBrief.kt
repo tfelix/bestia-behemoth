@@ -15,5 +15,9 @@ data class TextBrief(
   val mustName: List<String> = emptyList(),
 ) {
 
-  data class AllowedName(val name: String, val what: String)
+  /**
+   * @param inLocale the name as other languages write it, by language code, where it differs: an epithet is
+   *   translated, a town's name is not.
+   */
+  data class AllowedName(val name: String, val what: String, val inLocale: Map<String, String> = emptyMap())
 }

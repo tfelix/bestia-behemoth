@@ -6,6 +6,8 @@ import net.bestia.zone.questgen.persistence.StoredQuestPlan.State
 import net.bestia.zone.questgen.persistence.StoredQuestPlanRepository
 import net.bestia.zone.questgen.plan.QuestCatalogue
 import net.bestia.zone.questgen.plan.QuestPlan
+import net.bestia.zone.entity.observe.WorldTarget
+import net.bestia.zone.text.LocalNames
 import net.bestia.zone.text.TextArg
 import net.bestia.zone.text.TextBrief
 import net.bestia.zone.text.TextBrief.AllowedName
@@ -99,17 +101,30 @@ class QuestTextSource(
     val artifact = chronicle.artifacts[plan.seed.subject.index]
     val forger = ChronicleNames.figureOf(chronicle, artifact.forgedBy)
 
+    val keeper = plan.steps.firstNotNullOfOrNull { step ->
+      step.objective.target?.takeIf { it.kind == WorldTarget.Kind.GRAVE }?.key?.toInt()
+    }
     val described = names.map { (slot, name) ->
-      val what = when (slot) {
-        "artifact" -> "a ${artifact.kind.name.lowercase(Locale.ROOT)} of ${artifact.material}, made in ${artifact.forgedYear}"
-        "keeper" -> "one who once held it, long dead"
-        else -> "a town"
+      when (slot) {
+        "artifact" -> AllowedName(
+          name, "a ${artifact.kind.name.lowercase(Locale.ROOT)} of ${artifact.material}, made in ${artifact.forgedYear}",
+          LocalNames.of(name) { ChronicleNames.artifactOf(chronicle, artifact.index, it) },
+        )
+
+        "keeper" -> AllowedName(
+          name, "one who once held it, long dead",
+          LocalNames.of(name) { locale -> keeper?.let { ChronicleNames.figureOf(chronicle, it, locale) } },
+        )
+
+        else -> AllowedName(name, "a town")
       }
-      AllowedName(name, what)
+    }
+    val maker = forger?.let {
+      AllowedName(it, "the one who made it", LocalNames.of(it) { locale -> ChronicleNames.figureOf(chronicle, artifact.forgedBy, locale) })
     }
 
     // One town can fill two slots, and the writer is told of it once.
-    return (described + listOfNotNull(forger?.let { AllowedName(it, "the one who made it") })).distinctBy { it.name }
+    return (described + listOfNotNull(maker)).distinctBy { it.name }
   }
 
   /** The artifact's own story in the chronicle, one line per event. */
