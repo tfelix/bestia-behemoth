@@ -3,6 +3,9 @@ package net.bestia.zone.questgen.offer
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.entity.observe.WorldTarget
 import net.bestia.zone.quest.QuestService
+import net.bestia.zone.quest.QuestStatus
+import net.bestia.zone.questgen.QuestPlanning
+import net.bestia.zone.questgen.board.TownBoardPosts
 import net.bestia.zone.questgen.QuestgenConfig
 import net.bestia.zone.questgen.persistence.StoredQuestPlan
 import net.bestia.zone.questgen.persistence.StoredQuestPlan.State
@@ -25,12 +28,16 @@ class QuestDirector(
   private val sites: SettlementSiteIndex,
   private val offers: QuestOffers,
   private val quests: QuestService,
+  private val planning: QuestPlanning,
+  private val boards: TownBoardPosts,
   private val config: QuestgenConfig,
 ) {
 
   @Scheduled(fixedDelay = RUN_EVERY_MS, initialDelay = RUN_EVERY_MS)
   @Transactional
   fun run() {
+    // A shortage or a new open story can come up at any time, so every round plans what is new first.
+    planning.planNewSeeds()
     val expired = planAgainAfterDeadline()
     val withdrawn = withdrawWithoutCause()
     val offered = offerWithinBudget()
@@ -42,10 +49,12 @@ class QuestDirector(
 
   /** Nobody finished in time, so the quest ends and its plan waits to be offered again while its cause is real. */
   private fun planAgainAfterDeadline(): Int {
-    val overdue = plans.findAllByState(State.RUNNING).filter { plan -> plan.questId?.let(quests::expireIfOverdue) == true }
+    val overdue = plans.findAllByStateIn(listOf(State.OFFERED, State.RUNNING))
+      .filter { plan -> plan.questId?.let(quests::expireIfOverdue) == true }
     overdue.forEach {
       it.questId = null
-      it.state = State.PLANNED
+      // What a town lacks is counted anew, so its plan is made anew. A story of the history is the same as before.
+      it.state = if (it.plan.seed.need == null) State.PLANNED else State.ENDED
     }
 
     return overdue.size
@@ -56,7 +65,11 @@ class QuestDirector(
     val real = sources.flatMap { it.seeds() }.map { it.kind to it.subject }.toSet()
     val stale = plans.findAllByStateIn(listOf(State.PLANNED, State.OFFERED))
       .filterNot { (it.plan.seed.kind to it.plan.seed.subject) in real }
-    stale.forEach { it.state = State.ENDED }
+    stale.forEach {
+      // A request on the boards is a quest already. It is taken down with its cause.
+      it.questId?.let { questId -> quests.end(questId, QuestStatus.WITHDRAWN) }
+      it.state = State.ENDED
+    }
 
     return stale.size
   }
@@ -77,6 +90,9 @@ class QuestDirector(
         continue
       }
 
+      if (boards.isForBoard(plan) && !boards.post(plan)) {
+        continue
+      }
       plan.state = State.OFFERED
       offeredPerTown.merge(town, 1, Int::plus)
       offered++
@@ -95,7 +111,11 @@ class QuestDirector(
   private fun townOf(stored: StoredQuestPlan): Int? {
     val start = stored.plan.startsAt
 
-    return start.key.takeIf { start.kind == WorldTarget.Kind.TOWNSFOLK }?.let { TownsfolkIdentity.settlementOf(it.toLong()) }
+    return when (start.kind) {
+      WorldTarget.Kind.TOWNSFOLK -> TownsfolkIdentity.settlementOf(start.key.toLong())
+      WorldTarget.Kind.SETTLEMENT -> start.key.toInt()
+      else -> null
+    }
   }
 
   private companion object {
