@@ -20,6 +20,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _blackboard_win: WidgetWindow = $BlackboardWin
 @onready var _quest_log_win: WidgetWindow = $QuestLogWin
 @onready var _quest_tracker: QuestTracker = $QuestTracker
+@onready var _quest_decide_dialog: QuestDecideDialog = $QuestDecideDialog
 @onready var _breeding_farm_win: WidgetWindow = $BreedingFarmWin
 @onready var _incubator_win: WidgetWindow = $IncubatorWin
 @onready var _bestia_orders_win: WidgetWindow = $BestiaOrdersWin
@@ -201,6 +202,10 @@ func _ready() -> void:
 	var quest_log := _quest_log_win.get_content() as QuestLogPanel
 	quest_log.inventory = _inventory_win.get_content() as Inventory
 	quest_log.notice.connect(_on_quest_notice)
+	quest_log.decide_wanted.connect(_quest_decide_dialog.open)
+	quest_log.quests_changed.connect(
+		func() -> void: _quest_decide_dialog.close_unless_open(quest_log.quests_waiting_for_decision())
+	)
 	_quest_tracker.inventory = quest_log.inventory
 	_quest_tracker.quest_log = quest_log
 	ConnectionManager.parcel_arrived.connect(_on_parcel_arrived)
