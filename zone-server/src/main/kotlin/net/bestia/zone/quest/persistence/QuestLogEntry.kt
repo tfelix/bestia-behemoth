@@ -59,8 +59,15 @@ class QuestLogEntry(
   @Column(name = "superseded_by")
   var supersededBy: String? = null
 
+  /**
+   * Set when this master finished a quest that goes on for the others. A quest that ends for all with its last
+   * step needs no mark: then the quest's own status says it.
+   */
+  @Column(name = "completed_at")
+  var completedAt: Instant? = null
+
   val takesWork: Boolean
-    get() = supersededBy == null && quest.status.takesWork
+    get() = supersededBy == null && completedAt == null && quest.status.takesWork
 
   val stageMet: Boolean
     get() = quest.objectives.withIndex()
