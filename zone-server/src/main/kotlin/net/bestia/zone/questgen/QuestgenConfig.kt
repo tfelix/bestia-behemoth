@@ -15,6 +15,16 @@ data class QuestgenConfig(
   /** How long a quest takes work after its first master accepted it. */
   val questRunsFor: Duration = Duration.ofDays(30),
 
+  /** A town asks for help when this share of a good's usual stock is missing, and at least so many units. */
+  val shortageShare: Double = 0.5,
+  val shortageMinUnits: Double = 20.0,
+
+  /** How much of what is missing the town asks players for. The rest comes back by its own trade. */
+  val shortageAskedShare: Double = 0.6,
+
+  /** What a town pays per unit it asked for, against its market price. More than a shop pays, so it is worth the way. */
+  val shortagePriceFactor: Double = 1.25,
+
   /** Experience for finishing a quest, per suggested level of the quest. */
   val expPerLevel: Int = 100,
 

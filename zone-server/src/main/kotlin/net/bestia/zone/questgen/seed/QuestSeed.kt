@@ -13,12 +13,20 @@ data class QuestSeed(
   /** Everything else the cause names, such as the site an artifact lies in. */
   val others: List<Actor> = emptyList(),
   val uniqueness: Uniqueness,
+  /** What is lacking, for a seed that is about goods. */
+  val need: Need? = null,
 ) {
+
+  data class Need(val itemId: Long, val amount: Int)
+
 
   /** One per quest shape. Each has its motif in `quest-motifs.yml`. */
   enum class Kind {
     /** An artifact nobody holds and nobody laid to rest. */
     LOST_RELIC,
+
+    /** A town whose stock of a good is far below what it should have. */
+    TOWN_SHORTAGE,
   }
 
   enum class Uniqueness {
