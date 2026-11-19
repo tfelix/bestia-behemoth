@@ -3,19 +3,18 @@ package net.bestia.zone.questgen.ending
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.EventKind
-import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.chronicle.WorldFactRecordedEvent
 import net.bestia.zone.persistence.afterCommit
 import net.bestia.zone.quest.QuestService
 import net.bestia.zone.quest.QuestStageDoneEvent
 import net.bestia.zone.quest.QuestStatus
+import net.bestia.zone.questgen.QuestgenConfig
 import net.bestia.zone.questgen.ending.QuestRewards.Ending
 import net.bestia.zone.questgen.offer.QuestOffers
 import net.bestia.zone.questgen.persistence.StoredQuestPlan.State
 import net.bestia.zone.questgen.persistence.StoredQuestPlanRepository
 import net.bestia.zone.questgen.seed.QuestSeed
 import org.springframework.context.event.EventListener
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
 /**
@@ -29,7 +28,7 @@ class QuestEndings(
   private val offers: QuestOffers,
   private val rewards: QuestRewards,
   private val news: NewsArrivals,
-  private val masters: MasterRepository,
+  private val config: QuestgenConfig,
 ) {
 
   /** An artifact somebody took is no longer lost: nobody can take up its quest, and for the others it is over. */
@@ -53,7 +52,10 @@ class QuestEndings(
     afterCommit { offers.refresh() }
   }
 
-  /** The master who did the last step has finished the quest. In a race that is the one who took the prize. */
+  /**
+   * The master who did the last step has finished the quest. In a race that is the one who took the prize, and
+   * the quest is over. A quest each master does alone stays open for the others for a while.
+   */
   @EventListener
   fun onStageDone(event: QuestStageDoneEvent) {
     if (!event.wasLast) {
@@ -61,12 +63,14 @@ class QuestEndings(
     }
     val plan = plans.findByQuestId(event.questId) ?: return
 
-    if (plan.plan.seed.uniqueness == QuestSeed.Uniqueness.UNIQUE) {
-      // Whoever was still on the way was too late. For a prize that was dug up, they were told at the dig already.
-      quests.supersede(event.questId, event.masterId, masters.findByIdOrNull(event.masterId)?.name ?: "")
+    if (plan.plan.seed.uniqueness == QuestSeed.Uniqueness.PERSONAL) {
+      // The others may still finish. The director ends the quest and its plan at the deadline.
+      quests.completeFor(event.masterId, event.questId)
+      quests.endNoLaterThan(event.questId, config.newsOpenAfterFirst)
+    } else {
+      quests.end(event.questId, QuestStatus.COMPLETED)
+      plan.state = State.ENDED
     }
-    quests.end(event.questId, QuestStatus.COMPLETED)
-    plan.state = State.ENDED
     val ending = Ending.of(plan.plan, lastStage = event.stage)
     LOG.info { "Master ${event.masterId} finished the ${plan.plan.motif} quest of ${plan.plan.seed.subject}: $ending" }
     afterCommit {

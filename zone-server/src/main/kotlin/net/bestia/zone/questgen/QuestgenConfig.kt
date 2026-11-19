@@ -34,6 +34,13 @@ data class QuestgenConfig(
   val newsReachMetres: Double = 40_000.0,
   val newsMinStrength: Double = 0.5,
 
+  /**
+   * How many masters may carry the same news, and how long after the first one told it the quest stays open
+   * for the others. After that the news counts as known.
+   */
+  val newsMaxCarriers: Int = 100,
+  val newsOpenAfterFirst: Duration = Duration.ofHours(36),
+
   /** What a town thinks more of a master who brought it news, in honor. */
   val newsHonor: Int = 5,
 

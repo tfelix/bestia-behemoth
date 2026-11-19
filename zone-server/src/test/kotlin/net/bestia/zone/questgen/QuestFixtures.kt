@@ -80,7 +80,7 @@ fun carryNewsPlan(from: Int, to: Int, rumourId: Long, giver: WorldTarget = World
   return QuestPlan(
     seed = QuestSeed(
       QuestSeed.Kind.NEWS, Actor(ActorType.SETTLEMENT, to), others = listOf(Actor(ActorType.SETTLEMENT, from)),
-      uniqueness = QuestSeed.Uniqueness.UNIQUE, rumourId = rumourId,
+      uniqueness = QuestSeed.Uniqueness.PERSONAL, rumourId = rumourId,
     ),
     motif = "carry_news",
     title = TextRef("QUESTGEN_CARRY_NEWS_TITLE", args),

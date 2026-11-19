@@ -89,6 +89,20 @@ class QuestDirectorTest {
 
 
   @Test
+  fun `carried news that reached its deadline is over, and is not offered again`() {
+    val carried = StoredQuestPlan(carryNewsPlan(from = HALE, to = DUNMERE, rumourId = 12, giver = giverIn(HALE, household = 1))).apply {
+      state = State.RUNNING
+      questId = 6
+    }
+    stored += carried
+    every { quests.expireIfOverdue(6) } returns true
+
+    director.run()
+
+    assertEquals(State.ENDED, carried.state)
+  }
+
+  @Test
   fun `a town offers its best plan and keeps the rest for later`() {
     val good = planned(artifact = 1, giverIn(HALE, household = 1), score = 0.9)
     val better = planned(artifact = 2, giverIn(HALE, household = 2), score = 1.4)

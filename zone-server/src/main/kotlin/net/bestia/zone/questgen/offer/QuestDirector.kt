@@ -53,8 +53,8 @@ class QuestDirector(
       .filter { plan -> plan.questId?.let(quests::expireIfOverdue) == true }
     overdue.forEach {
       it.questId = null
-      // What a town lacks is counted anew, so its plan is made anew. A story of the history is the same as before.
-      it.state = if (it.plan.seed.need == null) State.PLANNED else State.ENDED
+      // A cause of the live world is looked at anew, so its plan is made anew. A story of the history is the same as before.
+      it.state = if (it.plan.seed.kind.isLive) State.ENDED else State.PLANNED
     }
 
     return overdue.size

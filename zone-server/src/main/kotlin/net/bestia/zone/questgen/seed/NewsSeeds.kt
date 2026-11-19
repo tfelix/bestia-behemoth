@@ -17,7 +17,7 @@ import kotlin.math.hypot
 /**
  * Big news that stopped at the edge of its reach: one town talks of it, a town not far away has not heard.
  * News does not travel on by itself, so somebody has to carry it. One seed per piece of news, for the shortest
- * way it can go next.
+ * way it can go next. No race: many masters may carry the same news.
  */
 @Component
 class NewsSeeds(
@@ -72,7 +72,7 @@ class NewsSeeds(
       QuestSeed.Kind.NEWS,
       Actor(ActorType.SETTLEMENT, way.to),
       others = listOf(Actor(ActorType.SETTLEMENT, way.rumour.settlement)),
-      uniqueness = QuestSeed.Uniqueness.UNIQUE,
+      uniqueness = QuestSeed.Uniqueness.PERSONAL,
       rumourId = way.rumour.id,
     )
   }
