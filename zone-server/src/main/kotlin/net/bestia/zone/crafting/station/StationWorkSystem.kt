@@ -8,6 +8,7 @@ import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.crafting.CraftingService
 import net.bestia.zone.crafting.Crafters
 import net.bestia.zone.battle.ecs.exp.GainExp
+import net.bestia.zone.battle.ecs.exp.GainExpSystem
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.identity.ecs.Master
@@ -62,9 +63,10 @@ class StationWorkSystem(
 ) : System {
 
   // In ITEMS rather than ACTIONS so every move of the tick is done before the range check, and before the grant
-  // path so a finished item is in the bag the same tick.
+  // path so a finished item is in the bag the same tick. Before GainExpSystem so the work EXP of a finished item
+  // is booked the same tick too.
   override val phase = Phase.ITEMS
-  override val before = setOf(ObtainItemIntentSystem::class)
+  override val before = setOf(ObtainItemIntentSystem::class, GainExpSystem::class)
   // Level and GuildMembership are read, and the ledger and GainExp written, when a finished item pays work EXP.
   override val reads: ComponentClassSet = setOf(
     Position::class, Inventory::class, CarryCapacity::class, Master::class, AiAgent::class, Level::class,
