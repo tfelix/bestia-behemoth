@@ -1153,6 +1153,7 @@ QUEST_LOG_GROUP_WORLD,Local matters
 QUEST_LOG_GROUP_TOWN,Town requests
 QUEST_LOG_GROUP_POSTED,Posted by you
 QUEST_LOG_SUBTITLE,%s · posted by %s · ends in %s · suggested Lv %d
+QUEST_LOG_SUBTITLE_NO_POSTER,%s · ends in %s · suggested Lv %d
 QUEST_ORIGIN_BLACKBOARD,Blackboard
 QUEST_ORIGIN_WORLD,Local matter
 QUEST_ORIGIN_TOWN,Town request
