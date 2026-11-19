@@ -52,6 +52,16 @@ class QuestLogEntry(
   @Column(columnDefinition = "TEXT", nullable = false)
   var choices: List<String> = emptyList()
 
+  /**
+   * Set when another master took the one prize of the quest: that master's name. The quest is over for this
+   * master, while the winner may still have steps to do.
+   */
+  @Column(name = "superseded_by")
+  var supersededBy: String? = null
+
+  val takesWork: Boolean
+    get() = supersededBy == null && quest.status.takesWork
+
   val stageMet: Boolean
     get() = quest.objectives.withIndex()
       .filter { it.value.stage == stage && isFor(it.value) }

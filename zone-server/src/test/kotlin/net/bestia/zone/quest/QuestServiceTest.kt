@@ -317,6 +317,36 @@ class QuestServiceTest {
   }
 
   @Test
+  fun `a taken prize ends the quest for everyone but the winner`() {
+    val questId = service.create(stagedKillDraft()).id
+    service.accept(alice, questId)
+    service.accept(bob, questId)
+
+    service.supersede(questId, winnerMasterId = alice, winnerName = "Alice")
+
+    val lost = service.viewFor(bob, questId)!!
+    assertEquals(QuestStatus.SUPERSEDED to "Alice", lost.status to lost.wonBy)
+    assertTrue(service.trackedFor(bob).isEmpty)
+    service.recordPersonal(bob, questId, 0, 2)
+    assertEquals(0, service.viewFor(bob, questId)!!.stage, "a superseded master counts nothing more")
+
+    assertEquals(QuestStatus.OPEN, service.viewFor(alice, questId)!!.status)
+    service.recordPersonal(alice, questId, 0, 2)
+    assertEquals(1, service.viewFor(alice, questId)!!.stage)
+  }
+
+  @Test
+  fun `a prize taken by somebody outside the quest ends it for all`() {
+    val questId = service.create(stagedKillDraft()).id
+    service.accept(alice, questId)
+
+    service.supersede(questId, winnerMasterId = null, winnerName = "A stranger")
+
+    assertEquals(QuestStatus.SUPERSEDED, quests.findById(questId).get().status)
+    assertEquals("A stranger", service.viewFor(alice, questId)!!.wonBy)
+  }
+
+  @Test
   fun `a decide objective needs choices, and a branch needs a choice offered before it`() {
     val draft = artifactDraft()
     val decide = draft.objectives[1]
