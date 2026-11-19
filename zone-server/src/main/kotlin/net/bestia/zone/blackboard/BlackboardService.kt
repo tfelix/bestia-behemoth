@@ -62,6 +62,8 @@ class BlackboardService(
   private val transactions: TransactionTemplate,
   private val config: BlackboardConfig,
   private val clock: Clock = Clock.systemUTC(),
+  /** Absent in a zone where nothing posts for the towns. */
+  private val townDeliveries: TownDeliveries? = null,
 ) {
 
   /** Acts on [request] and answers with the board as it now stands, and the refusal first if there was one. */
@@ -136,6 +138,9 @@ class BlackboardService(
       ?: return OpError.REQUEST_REFUSED
     if (!quest.status.takesWork) {
       return OpError.QUEST_CLOSED
+    }
+    if (quest.origin == QuestOrigin.TOWN) {
+      return townDeliveries?.handIn(visit, quest, request.amount) ?: OpError.REQUEST_REFUSED
     }
     val wanted = quest.objectives.single()
     val itemId = wanted.itemId ?: return OpError.REQUEST_REFUSED
@@ -225,7 +230,10 @@ class BlackboardService(
       maxCoinsEach = config.maxCoinsEach,
     )
 
-    return BlackboardSMSG(visit.boardEntityId, visit.placeName, quests.boardFor(visit.masterId, QuestOrigin.BLACKBOARD), terms)
+    // What the towns ask for comes first: it is about the place the board stands in.
+    val listed = quests.boardFor(visit.masterId, QuestOrigin.TOWN) + quests.boardFor(visit.masterId, QuestOrigin.BLACKBOARD)
+
+    return BlackboardSMSG(visit.boardEntityId, visit.placeName, listed, terms)
   }
 
   private fun settle(posting: BlackboardPosting, status: QuestStatus) {

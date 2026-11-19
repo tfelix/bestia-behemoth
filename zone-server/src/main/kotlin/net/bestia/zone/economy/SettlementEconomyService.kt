@@ -148,6 +148,29 @@ class SettlementEconomyService(
   }
 
   /**
+   * Takes [units] of a commodity a town asked for into its stock and pays for them out of its purse: up to
+   * [wantedCoins], and never more than it holds. Tick thread, like [settle].
+   *
+   * @return the coins paid
+   */
+  fun takeDelivery(settlement: Int, commodity: String, units: Int, wantedCoins: Long): Long {
+    val reference = referenceOf(settlement) ?: return 0
+    val current = advance(settlement, reference, clock.now().absoluteDay)
+    val paid = minOf(wantedCoins, current.treasury.toLong()).coerceAtLeast(0)
+
+    rememberIfWorthIt(
+      settlement,
+      reference,
+      current.copy(
+        deltaStock = current.deltaStock + (commodity to (current.deltaStock[commodity] ?: 0.0) + units),
+        treasury = current.treasury - paid,
+      )
+    )
+
+    return paid
+  }
+
+  /**
    * The derived path this settlement's ledger is a deviation from, cached per settlement. Null for a fallen
    * town, which has nobody left to trade: its shops close and its books stop where they were.
    */

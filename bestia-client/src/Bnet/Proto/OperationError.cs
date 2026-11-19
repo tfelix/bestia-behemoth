@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqWLwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSq5LwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -160,8 +160,9 @@ namespace Bnet {
             "Cg5RVUVTVF9MT0dfRlVMTBCAAxIRCgxRVUVTVF9DTE9TRUQQgQMSHQoYQkxB",
             "Q0tCT0FSRF9DQU5OT1RfQUZGT1JEEIIDEh0KGEJMQUNLQk9BUkRfUE9TVElO",
             "R19MSU1JVBCDAxIiCh1CTEFDS0JPQVJEX05PVEhJTkdfVE9fSEFORF9JThCE",
-            "AyIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5l",
-            "dC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
+            "AxIhChxCTEFDS0JPQVJEX0hBTkRfSU5fRUxTRVdIRVJFEIUDIgQILhAuKhJT",
+            "SE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNP",
+            "cGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1024,6 +1025,10 @@ namespace Bnet {
     /// The deliverer carries none of what the quest wants, or only gear being worn.
     /// </summary>
     [pbr::OriginalName("BLACKBOARD_NOTHING_TO_HAND_IN")] BlackboardNothingToHandIn = 388,
+    /// <summary>
+    /// The town that asked for these goods takes them at its own board only.
+    /// </summary>
+    [pbr::OriginalName("BLACKBOARD_HAND_IN_ELSEWHERE")] BlackboardHandInElsewhere = 389,
   }
 
   #endregion
