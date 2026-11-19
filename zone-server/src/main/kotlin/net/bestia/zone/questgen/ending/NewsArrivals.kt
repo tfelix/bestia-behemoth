@@ -22,7 +22,7 @@ class NewsArrivals(
 
     world.post {
       // Gone when the town it came from forgot it on the way. Then it is too old to be news anywhere.
-      registry.heardBy(from).firstOrNull { it.id == seed.rumourId }?.let { rumours.retell(it, seed.subject.index) }
+      registry.heardBy(from).firstOrNull { it.id == seed.news?.rumourId }?.let { rumours.retell(it, seed.subject.index) }
     }
   }
 }

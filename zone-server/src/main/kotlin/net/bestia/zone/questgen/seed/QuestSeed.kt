@@ -1,6 +1,7 @@
 package net.bestia.zone.questgen.seed
 
 import net.bestia.worldgen.core.Actor
+import net.bestia.zone.townsfolk.rumour.RumourKind
 
 /**
  * A reason for a quest that the game can show: an open story of the history, a real shortage, a damaged roof.
@@ -15,9 +16,12 @@ data class QuestSeed(
   val uniqueness: Uniqueness,
   /** What is lacking, for a seed that is about goods. */
   val need: Need? = null,
-  /** The news a seed about news is about, by the id of the rumour in the town that tells it. */
-  val rumourId: Long? = null,
+  /** What a seed about news carries. */
+  val news: News? = null,
 ) {
+
+  /** @param rumourId the rumour as the town that tells it holds it */
+  data class News(val rumourId: Long, val kind: RumourKind)
 
   data class Need(val itemId: Long, val amount: Int)
 

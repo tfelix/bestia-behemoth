@@ -1159,7 +1159,8 @@ QUESTGEN_STILL_WAITING,"{artifact} belongs in our temple. We still hope to see i
 QUESTGEN_HOME_AGAIN,"You bring it home! This town will not forget what you did."
 QUESTGEN_LOST_RELIC_ACCEPTED,Then listen well. May you have more luck than those before you.
 QUESTGEN_CARRY_NEWS_TITLE,News for {to}
-QUESTGEN_CARRY_NEWS_OFFER,"Word has reached us that the people of {to} should hear, and nobody here can make the way. Will you carry it?"
+QUESTGEN_CARRY_NEWS_OFFER_BOSS_SLAIN,"A great beast was killed not far from here. Folk went to look, and it is true. The people of {to} still fear it and do not know. Will you carry the word?"
+QUESTGEN_CARRY_NEWS_OFFER_TOWN_FELL,"A town not far from here is gone. No house is left standing, they say. The people of {to} have not heard, and they should. Will you carry the word?"
 QUESTGEN_CARRY_NEWS_ACCEPT,I will carry the word.
 QUESTGEN_CARRY_NEWS_ACCEPTED,"Then hear it all, and tell it to anyone you meet in {to}. Go safely."
 QUESTGEN_STEP_HEAR_NEWS,Hear the news in {from}.

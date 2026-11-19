@@ -98,11 +98,12 @@ class GeneratedQuestWorld(
     val from = seed.others.firstOrNull { it.type == ActorType.SETTLEMENT }?.index ?: return null
     val at = standingTowns()[from] ?: return null
     // What a town has heard is kept on the tick.
-    val stillTold = world.read { rumours.heardBy(from).any { it.id == seed.rumourId } }
+    val rumourId = seed.news?.rumourId ?: return null
+    val stillTold = world.read { rumours.heardBy(from).any { it.id == rumourId } }
     if (!stillTold) {
       return null
     }
-    val topic = Rumour.TOPIC_BASE + seed.rumourId!!.toInt()
+    val topic = Rumour.TOPIC_BASE + rumourId.toInt()
     val household = knowledge.of(from).holdersOf(topic).firstOrNull() ?: FIRST_HOUSE
 
     return Binding(WorldTarget.townsfolk(TownsfolkIdentity.of(from, household, HEAD_OF_HOUSEHOLD)), at, namedPlace(ARG_FROM, from))

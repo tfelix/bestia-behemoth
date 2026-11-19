@@ -71,7 +71,7 @@ class QuestTopicProviderTest {
   private val texts = WorldTexts(mockk())
   private val returns = mockk<QuestReturns> { every { handOver(any(), any(), any()) } returns null }
 
-  private val provider = QuestTopicProvider(offers, sessions, jobs, out, returns, relics, view, texts, masters)
+  private val provider = QuestTopicProvider(offers, sessions, jobs, out, returns, relics, view, texts, QuestgenConfig(), masters)
 
   @Test
   fun `in the artifact's home town a head of household takes it back from the master who carries it`() {
@@ -120,6 +120,19 @@ class QuestTopicProviderTest {
   }
 
   @Test
+  fun `a giver of news says what kind of news it is`() {
+    val teller = speaker(identity = NEWS_TELLER)
+    every { offers.at(WorldTarget.townsfolk(NEWS_TELLER)) } returns
+      QuestOffers.Offer(PLAN_ID, carryNewsPlan(from = 4, to = 6, rumourId = 12, giver = WorldTarget.townsfolk(NEWS_TELLER)))
+
+    val told = assertNotNull(provider.nodeFor(ASKER, teller, provider.rootOptions(teller).single().topicId))
+
+    assertEquals("QUESTGEN_CARRY_NEWS_OFFER_TOWN_FELL", told.speech.key)
+    assertEquals(told.speech.args["to"], told.speech.args["town"], "a written text leaves the town open as {town}")
+    assertEquals("QUESTGEN_CARRY_NEWS_ACCEPT", told.options.single().line.key)
+  }
+
+  @Test
   fun `a refused accept is told to the player`() {
     val giver = speaker(GIVER_IDENTITY)
     val accept = provider.nodeFor(ASKER, giver, provider.rootOptions(giver).single().topicId)!!.options.single()
@@ -152,6 +165,7 @@ class QuestTopicProviderTest {
     const val BLADE = 3
     const val RELIC_COPY = 77L
     const val GIVER_IDENTITY = 42L
+    const val NEWS_TELLER = 43L
     val GIVER = WorldTarget.townsfolk(GIVER_IDENTITY)
     val ASKER = Asker(ACCOUNT, entityId = 2L)
   }
