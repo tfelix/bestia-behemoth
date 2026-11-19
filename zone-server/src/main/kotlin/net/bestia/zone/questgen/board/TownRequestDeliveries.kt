@@ -1,5 +1,10 @@
 package net.bestia.zone.questgen.board
 
+import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.economy.SettlementDamage
+import net.bestia.zone.prop.PropRestoration
+import net.bestia.zone.questgen.seed.DamageSeeds
+import net.bestia.zone.questgen.seed.QuestSeed
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.blackboard.BoardVisit
 import net.bestia.zone.blackboard.TownDeliveries
@@ -23,11 +28,12 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 /**
- * Takes the goods a town asked for. They go into the town's own stock and the town pays from its own purse, so a
- * delivery really ends the shortage it was asked for, and no coin is minted. Off the tick.
+ * Takes the goods a town asked for, and the town pays from its own purse, so no coin is minted. What the goods
+ * do depends on why the town asked: goods it lacked go into its stock, and material to rebuild raises its
+ * destroyed buildings again once all of it is there. Off the tick.
  */
 @Service
-class ShortageDeliveries(
+class TownRequestDeliveries(
   private val plans: StoredQuestPlanRepository,
   private val quests: QuestService,
   private val inventory: InventoryService,
@@ -35,6 +41,9 @@ class ShortageDeliveries(
   private val economy: SettlementEconomyService,
   private val world: WorldView,
   private val offers: QuestOffers,
+  private val damage: DamageSeeds,
+  private val restoration: PropRestoration,
+  private val capacity: SettlementDamage,
 ) : TownDeliveries {
 
   @Transactional
@@ -49,7 +58,6 @@ class ShortageDeliveries(
 
     val wanted = quest.objectives.single()
     val itemId = wanted.itemId ?: return OpError.REQUEST_REFUSED
-    val commodity = commodityItems.commodityOf(itemId) ?: return OpError.REQUEST_REFUSED
     val carried = world.read { looseAmountOf(this, visit, itemId) }
     val given = minOf(amount, wanted.required - wanted.progress, carried)
     if (given <= 0 || !inventory.consumeAll(visit.masterId, listOf(itemId to given))) {
@@ -60,24 +68,40 @@ class ShortageDeliveries(
     check(quests.advanceShared(quest.questId, objectiveIndex = 0, amount = given, byMasterId = visit.masterId) == given) {
       "Quest ${quest.questId} did not take the $given units it still wanted"
     }
-    if (quests.viewFor(visit.masterId, quest.questId)?.status == QuestStatus.COMPLETED) {
+    val complete = quests.viewFor(visit.masterId, quest.questId)?.status == QuestStatus.COMPLETED
+    if (complete) {
       stored.state = StoredQuestPlan.State.ENDED
     }
 
-    val coinsEach = quest.rewards.firstOrNull()?.amount ?: 0
+    val pay = (quest.rewards.firstOrNull()?.amount ?: 0) * given
+    val rebuilds = complete && stored.plan.seed.kind == QuestSeed.Kind.TOWN_DAMAGE
     afterCommit {
-      world.post { settleOnTick(this, visit, town, commodity.id, itemId, given, coinsEach * given) }
+      world.post {
+        settleOnTick(this, visit, town, itemId, given, pay)
+        if (rebuilds) {
+          rebuild(town)
+        }
+      }
       offers.refresh()
     }
 
     return null
   }
 
-  /** The live bag follows the database, the town's books take the goods, and the town pays what it can. */
-  private fun settleOnTick(world: World, visit: BoardVisit, town: Int, commodity: String, itemId: Long, units: Int, pay: Long) {
+  /** With all the material there, every destroyed building of the town stands again. Tick thread. */
+  private fun rebuild(town: Int) {
+    val raised = damage.destroyedBuildingsOf(town).count(restoration::restore)
+    // The town's trades were counted with the buildings missing.
+    capacity.invalidate()
+    LOG.info { "Settlement $town rebuilt $raised buildings" }
+  }
+
+  /** The live bag follows the database, and the town pays what it can. Goods it lacked go into its stock. */
+  private fun settleOnTick(world: World, visit: BoardVisit, town: Int, itemId: Long, units: Int, pay: Long) {
     world.get(visit.masterEntityId, Inventory::class)?.takeAcrossPiles(itemId, units)
 
-    val paid = economy.takeDelivery(town, commodity, units, pay)
+    val commodity = commodityItems.commodityOf(itemId)
+    val paid = if (commodity == null) economy.payFor(town, pay) else economy.takeDelivery(town, commodity.id, units, pay)
     val coinId = commodityItems.coinItemId() ?: return
     if (paid > 0) {
       val due = world.get(visit.masterEntityId, CreateItemsIntent::class)?.grants.orEmpty()
@@ -92,6 +116,8 @@ class ShortageDeliveries(
   }
 
   private companion object {
+    val LOG = KotlinLogging.logger { }
+
     /** The slot of the plan's texts that holds the name of the town that asked. */
     const val TOWN_ARG = "town"
   }
