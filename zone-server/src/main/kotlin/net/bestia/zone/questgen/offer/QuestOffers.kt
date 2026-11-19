@@ -35,8 +35,16 @@ class QuestOffers(
   /** Read on the tick by the conversation, written off it by [refresh]. */
   private val byStart = ConcurrentHashMap<WorldTarget, Offer>()
 
+  /** The running quests whose artifact a town wants back, by the town. Read on the tick. */
+  private val byHome = ConcurrentHashMap<Int, Offer>()
+
   fun at(start: WorldTarget): Offer? {
     return byStart[start]
+  }
+
+  /** The running quest that ends with something brought to [settlement], if there is one. */
+  fun broughtTo(settlement: Int): Offer? {
+    return byHome[settlement]
   }
 
   /** Reads again what can be picked up. Called whenever a plan starts or stops being offered. */
@@ -46,6 +54,12 @@ class QuestOffers(
       .associate { it.plan.startsAt to Offer(it.id, it.plan) }
     byStart.keys.retainAll(open.keys)
     byStart.putAll(open)
+
+    val awaited = plans.findAllByState(StoredQuestPlan.State.RUNNING)
+      .mapNotNull { stored -> stored.plan.broughtTo?.let { it to Offer(stored.id, stored.plan) } }
+      .toMap()
+    byHome.keys.retainAll(awaited.keys)
+    byHome.putAll(awaited)
   }
 
   /** @return the refusal, or null when the quest is now in [masterId]'s log. */

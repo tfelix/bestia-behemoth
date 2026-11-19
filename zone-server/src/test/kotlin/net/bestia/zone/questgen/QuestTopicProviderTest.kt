@@ -1,5 +1,14 @@
 package net.bestia.zone.questgen
 
+import net.bestia.zone.chronicle.LivingChronicle
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.identity.MasterEntityResolver
+import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.questgen.ending.QuestReturns
+import net.bestia.zone.treasure.Relics
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -27,6 +36,7 @@ import kotlin.test.assertTrue
 class QuestTopicProviderTest {
 
   private val offers = mockk<QuestOffers> {
+    every { broughtTo(any()) } returns null
     every { at(any()) } returns null
     every { at(GIVER) } returns QuestOffers.Offer(PLAN_ID, lostRelicPlan(artifact = 3, GIVER))
   }
@@ -39,7 +49,50 @@ class QuestTopicProviderTest {
   }
   private val out = mockk<OutMessageProcessor>(relaxed = true)
 
-  private val provider = QuestTopicProvider(offers, sessions, jobs, out)
+  private val world = testWorld()
+  private val bag = Inventory(mutableListOf(Inventory.Item(itemId = RELIC_ITEM_ID, amount = 1, uniqueId = RELIC_COPY, stackable = false)))
+  private val masterEntity = world.createEntity { id ->
+    add(id, Master(masterId = MASTER, name = "Ayla"))
+    add(id, bag)
+  }
+
+  // Reads and posts run on the test world at once.
+  private val view = mockk<WorldView> {
+    every { read<Any?>(any()) } answers { firstArg<World.() -> Any?>().invoke(world) }
+    every { post(any()) } answers { firstArg<World.() -> Unit>().invoke(world) }
+  }
+  private val masters = mockk<MasterEntityResolver> { every { selectedMasterEntityOf(ACCOUNT) } returns masterEntity }
+  private val relics = mockk<Relics> {
+    every { artifactOf(any()) } returns null
+    every { artifactOf(RELIC_COPY) } returns BLADE
+  }
+  private val returns = mockk<QuestReturns> { every { handOver(any(), any(), any()) } returns null }
+
+  private val provider = QuestTopicProvider(offers, sessions, jobs, out, returns, relics, view, masters)
+
+  @Test
+  fun `in the artifact's home town a head of household takes it back from the master who carries it`() {
+    every { offers.broughtTo(HOME) } returns QuestOffers.Offer(PLAN_ID, lostRelicPlan(BLADE, GIVER, home = HOME))
+    val elder = speaker(identity = 5, settlement = HOME)
+    assertTrue(provider.rootOptions(speaker(identity = 6, settlement = HOME, kinship = Kinship.CHILD)).isEmpty())
+
+    val told = assertNotNull(provider.nodeFor(ASKER, elder, provider.rootOptions(elder).single().topicId))
+
+    assertEquals("QUESTGEN_HOME_AGAIN", told.speech.key)
+    verify { returns.handOver(LivingChronicle.Doer(MASTER, "Ayla"), PLAN_ID, RELIC_COPY) }
+    assertTrue(bag.getItems().isEmpty(), "the live bag follows the database")
+  }
+
+  @Test
+  fun `a master without the artifact is told the town still waits`() {
+    every { offers.broughtTo(HOME) } returns QuestOffers.Offer(PLAN_ID, lostRelicPlan(artifact = 99, GIVER, home = HOME))
+    val elder = speaker(identity = 5, settlement = HOME)
+
+    val told = assertNotNull(provider.nodeFor(ASKER, elder, provider.rootOptions(elder).single().topicId))
+
+    assertEquals("QUESTGEN_STILL_WAITING", told.speech.key)
+    verify(exactly = 0) { returns.handOver(any(), any(), any()) }
+  }
 
   @Test
   fun `only the townsperson a quest starts with speaks of it`() {
@@ -74,16 +127,16 @@ class QuestTopicProviderTest {
     verify { out.sendToPlayer(ACCOUNT, match<OperationErrorSMSG> { it.code == OpError.QUEST_LOG_FULL }) }
   }
 
-  private fun speaker(identity: Long): Speaker {
+  private fun speaker(identity: Long, settlement: Int = 3, kinship: Kinship = Kinship.HEAD): Speaker {
     return Speaker(
       entityId = 1L,
       identity = identity,
-      settlement = 3,
+      settlement = settlement,
       household = 4,
       name = "Otbert",
       occupation = Occupation("farmer", "farmer", null, HourWindow(6, 18), HourWindow(22, 6)),
       business = null,
-      member = Member(40, Kinship.HEAD),
+      member = Member(40, kinship),
       seed = 7L,
     )
   }
@@ -92,6 +145,9 @@ class QuestTopicProviderTest {
     const val ACCOUNT = 8L
     const val MASTER = 80L
     const val PLAN_ID = 12L
+    const val HOME = 6
+    const val BLADE = 3
+    const val RELIC_COPY = 77L
     const val GIVER_IDENTITY = 42L
     val GIVER = WorldTarget.townsfolk(GIVER_IDENTITY)
     val ASKER = Asker(ACCOUNT, entityId = 2L)
