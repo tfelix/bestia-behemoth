@@ -37,6 +37,10 @@ var title_override: String = ""
 ## reports which was chosen, and what a choice *means* stays with whoever built the content.
 var on_choice: Callable = Callable()
 
+## The [code]TextRef[/code] the body came from, when the server sent one. It may name a text written for this
+## world, which then replaces the template. Null for a dialog out of the catalogue.
+var body_ref = null
+
 
 func _init(p_text_key: String, p_title_key: String = "", p_args: Array = []) -> void:
 	text_key = p_text_key
@@ -61,6 +65,7 @@ static func of_message(message) -> DialogContent:
 static func of_conversation(message, choose: Callable) -> DialogContent:
 	var content := DialogContent.new(message.Speech.Key, "", Array(message.Speech.Args))
 	content.options = Array(message.Options)
+	content.body_ref = message.Speech
 	content.title_override = message.SpeakerName
 	content.on_choice = choose
 

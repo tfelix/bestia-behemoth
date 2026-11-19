@@ -46,6 +46,12 @@ func show_dialog(content: DialogContent) -> void:
 	_current = content
 
 	_body.text = DialogText.resolve(content)
+	if content.body_ref != null:
+		TextSource.show_ref(content.body_ref, func(text: String):
+			# A written text may arrive after the player moved on to the next line.
+			if _current == content:
+				_body.text = text
+		)
 
 	_build_choices(content)
 
