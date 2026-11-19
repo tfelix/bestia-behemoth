@@ -15,7 +15,7 @@ class ProseValidator {
 
   class Problem(val type: Type, val value: String)
 
-  enum class Type { NAME, TITLE, CASE, LOWERCASE, NUMBER, MISSING }
+  enum class Type { NAME, TITLE, CASE, LOWERCASE, NUMBER, MISSING, PLACEHOLDER }
 
   private val englishWords: Set<String> by lazy {
     ClassPathResource(WORDS).inputStream.bufferedReader().useLines { it.toHashSet() }
@@ -30,7 +30,16 @@ class ProseValidator {
       wrongCase(text, allowed) +
       wrongNumbers(text, allowed) +
       lowercaseStart(text) +
-      brief.mustName.filterNot { it in text }.map { Problem(Type.MISSING, it) }
+      brief.mustName.filterNot { it in text }.map { Problem(Type.MISSING, it) } +
+      wrongPlaceholders(text, brief)
+  }
+
+  /** The game can only fill what the brief left open, and a placeholder that is not in the text is a lost name. */
+  private fun wrongPlaceholders(text: String, brief: TextBrief): List<Problem> {
+    val wanted = brief.placeholders.map { it.token }
+    val madeUp = PLACEHOLDER.findAll(text).map { it.value }.distinct().filterNot { it in wanted }
+
+    return wanted.filterNot { it in text }.map { Problem(Type.MISSING, it) } + madeUp.map { Problem(Type.PLACEHOLDER, it) }
   }
 
   fun isEnglishWord(word: String): Boolean {
@@ -47,6 +56,7 @@ class ProseValidator {
         Type.LOWERCASE -> "A sentence starts with \"${problem.value}\". Start every sentence with a capital letter."
         Type.NUMBER -> "The number ${problem.value} is not in the fact sheet. Use only years and numbers from the sheet."
         Type.MISSING -> "The text must name ${problem.value}."
+        Type.PLACEHOLDER -> "${problem.value} is not in the PLACEHOLDERS list. Use only the placeholders of the list."
       }
     }
   }
@@ -150,6 +160,7 @@ class ProseValidator {
     // Spaces only, never a line break: a grave stone puts a name on one line and "Born" on the next.
     val PHRASE = Regex("""$CAPITAL_WORD(?:[ \t]+(?:of[ \t]+the|of|the)[ \t]+$CAPITAL_WORD|[ \t]+$CAPITAL_WORD)*""")
     val NUMBER = Regex("""(?<![\w.])\d[\d,]*(?![\w.]\d)""")
+    val PLACEHOLDER = Regex("""\{[^{}]*}""")
     val WORD_LIKE = Regex("""[\w'-]+""")
     val SPACES = Regex("""[ \t]+""")
     val OF = Regex(""" of (?:the )?""")

@@ -17,7 +17,8 @@ object ProsePrompt {
     2. NUMBERS & YEARS: Write all years and numbers strictly as digits (e.g., 901, 406), never as words. Use ONLY numbers present in the FACT SHEET.
     3. ALLOWED CREATIVITY: You may describe weather, emotions, landscape, and unnamed soldiers/crowds to create atmosphere.
     4. STYLE: Write in simple, archaic prose. Avoid modern words.
-    5. OUTPUT FORMAT: Output ONLY the final text, in the length and shape the TASK asks. Do NOT include a title, intro, notes, or markdown formatting.
+    5. PLACEHOLDERS: A word in curly braces, like {town}, is a placeholder. The game puts a real name there later. When the task has a PLACEHOLDERS list, write each one exactly as listed, with the braces, at the place in the sentence where that name belongs (for example "the road to {town}"). Never change, translate or explain a placeholder, and never make up one.
+    6. OUTPUT FORMAT: Output ONLY the final text, in the length and shape the TASK asks. Do NOT include a title, intro, notes, or markdown formatting.
   """.trimIndent()
 
   /** A higher temperature makes a small model invent titles and names. */
@@ -28,13 +29,15 @@ object ProsePrompt {
     val allowed = brief.allowedNames.joinToString("\n") { "- ${it.name} (${it.what})" }
     val facts = brief.facts.joinToString("\n") { "- $it" }
     val avoidBlock = avoid?.let { "\n\nAVOID\n$it" } ?: ""
+    val placeholders = brief.placeholders.joinToString("") { "\n- ${it.token} stands for ${it.what}" }
+    val placeholderBlock = if (placeholders.isEmpty()) "" else "\n\nPLACEHOLDERS (write each exactly like this, at least once):$placeholders"
 
     return """
       |TASK:
       |${brief.task}
       |
       |ALLOWED NAMES (Use exact spelling, use NO other proper nouns):
-      |$allowed
+      |$allowed$placeholderBlock
       |
       |FACT SHEET:
       |$facts$avoidBlock
