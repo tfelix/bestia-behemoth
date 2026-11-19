@@ -23,6 +23,9 @@ const _GROUPS := [
 	["posted", "QUEST_LOG_GROUP_POSTED"],
 ]
 
+const _STEP_DONE := "✓"
+const _STEP_CURRENT := "▸"
+
 ## Set by the UI, which owns the inventory window: objectives show what the master carries.
 var inventory: Inventory
 
@@ -221,7 +224,7 @@ func _show(quest) -> void:
 
 func _objective_row(quest, objective) -> Control:
 	if not objective.Text.Key.is_empty():
-		return _worded_objective_row(objective)
+		return _worded_objective_row(quest, objective)
 
 	var box := UiStyle.vbox(2)
 	var item := ItemDB.get_instance().get_item(objective.ItemId)
@@ -237,11 +240,20 @@ func _objective_row(quest, objective) -> Control:
 	return box
 
 
-## A step the server words itself, such as "read the epitaph". Done steps of earlier stages stay, muted.
-func _worded_objective_row(objective) -> Control:
+## A step the server words itself, such as "read the epitaph". Done steps of earlier stages stay, ticked and
+## muted, so the log reads as the way the master came.
+func _worded_objective_row(quest, objective) -> Control:
 	var done: bool = objective.Progress >= objective.Required
-	var label := UiStyle.label("", 12, UiStyle.MUTED if done else UiStyle.TEXT)
+	var is_current: bool = not done and objective.Stage == quest.Stage and not QuestStyle.has_ended(quest)
+	var row := UiStyle.hbox(6)
+	var mark := UiStyle.label(_STEP_DONE if done else _STEP_CURRENT, 12, UiStyle.ACCENT if is_current else UiStyle.MUTED)
+	mark.custom_minimum_size = Vector2(14, 0)
+	row.add_child(mark)
+
+	var label := UiStyle.label("", 12, UiStyle.TEXT if is_current else UiStyle.MUTED)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(label)
 	# What was picked is said with the step, so a log read later still tells what the master decided.
 	var picked = objective.Choices.filter(func(choice) -> bool: return choice.Id == objective.Chosen)
 	var suffix := "" if picked.is_empty() else " - " + DialogText.resolve_ref(picked[0].Text)
@@ -250,7 +262,7 @@ func _worded_objective_row(objective) -> Control:
 		if is_instance_valid(label):
 			label.text = text + suffix
 	)
-	return label
+	return row
 
 
 ## What the master carries of what the objective wants.
