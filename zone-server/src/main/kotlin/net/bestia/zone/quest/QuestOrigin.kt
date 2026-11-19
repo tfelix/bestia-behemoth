@@ -6,4 +6,7 @@ enum class QuestOrigin {
 
   /** The world itself, through the QuestManager. */
   WORLD,
+
+  /** A town that asks for something on the blackboard. */
+  TOWN,
 }

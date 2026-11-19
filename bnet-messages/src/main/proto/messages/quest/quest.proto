@@ -12,6 +12,8 @@ enum QuestOrigin {
   QUEST_ORIGIN_BLACKBOARD = 0;
   // The world itself made it, from its history or from something that happened.
   QUEST_ORIGIN_WORLD = 1;
+  // A town asks for it on the blackboard, because it really lacks something.
+  QUEST_ORIGIN_TOWN = 2;
 }
 
 enum QuestStatus {

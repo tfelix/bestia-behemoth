@@ -44,7 +44,7 @@ class QuestService(
         objectives = draft.objectives,
         rewards = draft.rewards,
         posterMasterId = draft.poster?.masterId,
-        posterName = draft.poster?.name,
+        posterName = draft.poster?.name ?: draft.issuer,
         createdAt = clock.instant(),
       )
     )

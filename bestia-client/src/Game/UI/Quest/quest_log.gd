@@ -19,7 +19,8 @@ const _TRACKING_FILE := "user://quest_tracking.cfg"
 ## One entry per origin a quest can have, and one for the quests the player posted. A quest of an origin that is
 ## missing here would not be listed at all.
 const _GROUPS := [
-	["world", "QUEST_LOG_GROUP_WORLD"], ["blackboard", "QUEST_LOG_GROUP_BLACKBOARD"], ["posted", "QUEST_LOG_GROUP_POSTED"],
+	["world", "QUEST_LOG_GROUP_WORLD"], ["town", "QUEST_LOG_GROUP_TOWN"], ["blackboard", "QUEST_LOG_GROUP_BLACKBOARD"],
+	["posted", "QUEST_LOG_GROUP_POSTED"],
 ]
 
 ## Set by the UI, which owns the inventory window: objectives show what the master carries.
