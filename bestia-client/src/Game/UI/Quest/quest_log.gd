@@ -16,7 +16,11 @@ const MAX_TRACKED := 5
 const _TRACKING_FILE := "user://quest_tracking.cfg"
 
 ## The list's groups, in order: a quest's own group first, then the posted ones.
-const _GROUPS := [["blackboard", "QUEST_LOG_GROUP_BLACKBOARD"], ["posted", "QUEST_LOG_GROUP_POSTED"]]
+## One entry per origin a quest can have, and one for the quests the player posted. A quest of an origin that is
+## missing here would not be listed at all.
+const _GROUPS := [
+	["world", "QUEST_LOG_GROUP_WORLD"], ["blackboard", "QUEST_LOG_GROUP_BLACKBOARD"], ["posted", "QUEST_LOG_GROUP_POSTED"],
+]
 
 ## Set by the UI, which owns the inventory window: objectives show what the master carries.
 var inventory: Inventory
