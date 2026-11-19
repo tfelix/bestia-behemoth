@@ -51,6 +51,18 @@ class TextTranslatorTest {
   }
 
   @Test
+  fun `a place the game fills in later must stay as it is`() {
+    val open = TextBrief(task = "Ask for news to be carried.", allowedNames = emptyList(), facts = emptyList())
+    val asked = "A town fell. Will you carry the word to {to}?"
+
+    val kept = ScriptedLlm("Eine Stadt ist gefallen. Tragt Ihr die Kunde nach {to}?")
+    assertEquals(1, translator.translate(asked, open, "de", kept).attempts)
+
+    val translatedAway = ScriptedLlm("Eine Stadt ist gefallen. Tragt Ihr die Kunde nach {zu}?")
+    assertNull(translator.translate(asked, open, "de", translatedAway).body)
+  }
+
+  @Test
   fun `only a language with a prompt of its own can be translated to`() {
     assertTrue(translator.canTranslateTo("de"))
     assertFalse(translator.canTranslateTo("fr"))

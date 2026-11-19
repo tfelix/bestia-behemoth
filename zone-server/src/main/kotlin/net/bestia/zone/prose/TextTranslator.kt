@@ -48,8 +48,10 @@ class TextTranslator(
       .distinct()
       .filterNot { it in translation }
     val lostNumbers = NUMBER.findAll(english).map { it.value }.distinct().filterNot { it in translation }.toList()
+    // The game fills these in later, so they must stay as they are.
+    val lostPlaceholders = PLACEHOLDER.findAll(english).map { it.value }.distinct().filterNot { it in translation }.toList()
 
-    return lostWords + lostNumbers
+    return lostWords + lostNumbers + lostPlaceholders
   }
 
   private fun madeUpWordsOf(english: String, local: String?): List<String> {
@@ -76,6 +78,7 @@ class TextTranslator(
 
     val WORD = Regex("""[\p{L}'’-]+""")
     val NUMBER = Regex("""\d+""")
+    val PLACEHOLDER = Regex("""\{\w+}""")
 
     /** One prompt per language the job can translate to, each in its own language. */
     val PROMPTS = mapOf(
@@ -89,7 +92,8 @@ class TextTranslator(
           2. Verwende bei Fraktionen und Gruppen immer passende deutsche Artikel (z. B. "die Saryhorde").
           3. Verändere KEINE Eigennamen, Ortsnamen oder Zahlen, außer wie unten angegeben.
           4. Behalte Zeilenumbrüche bei.
-          5. Gib ausschließlich den fertigen deutschen Text ohne Kommentare aus.
+          5. Ein Wort in geschweiften Klammern wie {town} ist ein Platzhalter. Das Spiel setzt dort später einen Namen ein. Übernimm jeden Platzhalter unverändert mit den Klammern und stelle ihn an die Stelle im Satz, an die der Name gehört (z. B. "nach {town}").
+          6. Gib ausschließlich den fertigen deutschen Text ohne Kommentare aus.
         """.trimIndent(),
         glossaryLine = "Verwende für diese Namen genau die deutsche Form (beuge sie, wo die Grammatik es verlangt):",
         textLabel = "Englischer Text:",

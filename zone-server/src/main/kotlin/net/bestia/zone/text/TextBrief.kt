@@ -13,7 +13,20 @@ data class TextBrief(
   val facts: List<String>,
   /** Names the text must contain: the lead to where the reader goes next. */
   val mustName: List<String> = emptyList(),
+  /** What the text leaves open for the game to fill in when it is shown. The text must hold each of them. */
+  val placeholders: List<Placeholder> = emptyList(),
 ) {
+
+  /**
+   * @param name the arg of the text reference that fills it
+   * @param what what will stand there, said so that a writer can build the sentence around it
+   */
+  data class Placeholder(val name: String, val what: String) {
+
+    /** As it stands in the text. */
+    val token: String
+      get() = "{$name}"
+  }
 
   /**
    * @param inLocale the name as other languages write it, by language code, where it differs: an epithet is

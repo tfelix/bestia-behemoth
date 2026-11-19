@@ -75,4 +75,16 @@ class ProseValidatorTest {
   private fun problemsOf(text: String): List<Pair<Type, String>> {
     return validator.check(text, brief).map { it.type to it.value }
   }
+
+  @Test
+  fun `a text must hold the places its brief leaves open, and no others`() {
+    val open = TextBrief(
+      task = "Ask for news to be carried.", allowedNames = emptyList(), facts = emptyList(),
+      placeholders = listOf(TextBrief.Placeholder("town", "the name of a town")),
+    )
+
+    assertEquals(emptyList(), validator.check("Will you carry the word to {town}?", open).map { it.value })
+    assertEquals(listOf("{town}"), validator.check("Will you carry the word?", open).map { it.value })
+    assertEquals(listOf("{name}"), validator.check("Tell {name} in {town}.", open).map { it.value })
+  }
 }
