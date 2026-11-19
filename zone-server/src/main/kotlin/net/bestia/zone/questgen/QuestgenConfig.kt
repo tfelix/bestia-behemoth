@@ -25,6 +25,11 @@ data class QuestgenConfig(
   /** What a town pays per unit it asked for, against its market price. More than a shop pays, so it is worth the way. */
   val shortagePriceFactor: Double = 1.25,
 
+  /** What a town rebuilds with, how much of it one building takes, and what the town pays for a unit. */
+  val repairItem: String = "plank",
+  val repairUnitsPerBuilding: Int = 20,
+  val repairCoinsEach: Long = 15,
+
   /** Experience for finishing a quest, per suggested level of the quest. */
   val expPerLevel: Int = 100,
 
