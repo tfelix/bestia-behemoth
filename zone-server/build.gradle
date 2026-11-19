@@ -27,6 +27,10 @@ dependencies {
 	// The meter registry only; actuator serves nothing without a web server. The scrape is the Prometheus
 	// client's own exporter on a loopback port (metrics/PrometheusEndpoint, `zone.metrics` in application.yml).
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	// The zone starts and stops the language model's container itself, over the Docker socket (prose/docker).
+	// The zerodep transport brings its own HTTP client, so nothing else comes along.
+	implementation 'com.github.docker-java:docker-java-core:3.4.0'
+	implementation 'com.github.docker-java:docker-java-transport-zerodep:3.4.0'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
 	implementation 'io.prometheus:prometheus-metrics-exporter-httpserver'
 	implementation 'org.jetbrains.kotlin:kotlin-reflect'
