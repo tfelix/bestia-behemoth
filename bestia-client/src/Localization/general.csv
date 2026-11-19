@@ -1138,14 +1138,18 @@ BLACKBOARD_HAND_IN,Hand in %d
 BLACKBOARD_CARRIED,You carry %d
 BLACKBOARD_DROP,Drop quest
 ERROR_BLACKBOARD_NOTHING_TO_HAND_IN,You carry none of what this quest wants.
+ERROR_BLACKBOARD_HAND_IN_ELSEWHERE,This town did not ask for it. Bring it to the board of the town that did.
 QUEST_DELIVER_TEXT,"Bring {amount} {item} to any blackboard. {poster} pays {pay} gold for each."
 QUEST_LOG_EMPTY,Your quest log is empty. Sign a quest at a blackboard in town.
 QUEST_LOG_GROUP_BLACKBOARD,Blackboard
 QUEST_LOG_GROUP_WORLD,Local matters
+QUEST_LOG_GROUP_TOWN,Town requests
 QUEST_LOG_GROUP_POSTED,Posted by you
 QUEST_LOG_SUBTITLE,%s · posted by %s · ends in %s · suggested Lv %d
 QUEST_ORIGIN_BLACKBOARD,Blackboard
 QUEST_ORIGIN_WORLD,Local matter
+QUEST_ORIGIN_TOWN,Town request
+QUESTGEN_TOWN_SHORTAGE_TITLE,{town} needs {amount} {item}
 QUESTGEN_TOPIC_ASK,You look troubled. What is it?
 QUESTGEN_LOST_RELIC_OFFER,"It is {artifact}. It was lost long ago and nobody ever found it. I can tell you what my house knows, if you mean to look for it."
 QUESTGEN_ACCEPT,I will look for it.

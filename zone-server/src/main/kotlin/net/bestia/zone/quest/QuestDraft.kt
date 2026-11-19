@@ -12,6 +12,8 @@ data class QuestDraft(
   val objectives: List<QuestObjective>,
   val rewards: List<QuestReward>,
   val poster: Poster? = null,
+  /** Who asks, for a quest no master posted: the name of a town. */
+  val issuer: String? = null,
 ) {
 
   init {
