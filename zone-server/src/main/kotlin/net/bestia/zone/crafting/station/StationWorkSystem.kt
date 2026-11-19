@@ -1,5 +1,6 @@
 package net.bestia.zone.crafting.station
 
+import net.bestia.zone.battle.ecs.exp.GainExpSystem
 import net.bestia.zone.bestia.diary.BestiaNews
 import net.bestia.zone.bestia.diary.BestiaHappened
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -64,7 +65,8 @@ class StationWorkSystem(
   // In ITEMS rather than ACTIONS so every move of the tick is done before the range check, and before the grant
   // path so a finished item is in the bag the same tick.
   override val phase = Phase.ITEMS
-  override val before = setOf(ObtainItemIntentSystem::class)
+  // Before the EXP is counted, so a finished craft levels its crafter in the same tick.
+  override val before = setOf(ObtainItemIntentSystem::class, GainExpSystem::class)
   // Level and GuildMembership are read, and the ledger and GainExp written, when a finished item pays work EXP.
   override val reads: ComponentClassSet = setOf(
     Position::class, Inventory::class, CarryCapacity::class, Master::class, AiAgent::class, Level::class,
