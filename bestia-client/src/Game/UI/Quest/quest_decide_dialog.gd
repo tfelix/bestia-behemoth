@@ -6,6 +6,8 @@ extends PanelContainer
 
 const _WIDTH := 400
 const _EDGE := Color(0.26, 0.26, 0.31)
+const _ARROW := "›"
+const _ARROW_INSET := 14
 
 var _quest_id: int = 0
 var _quest_title: Label
@@ -90,12 +92,26 @@ func _choice_button(choice) -> Button:
 	button.add_theme_stylebox_override("normal", _choice_box(UiStyle.ROW_BG, _EDGE))
 	button.add_theme_stylebox_override("hover", _choice_box(UiStyle.ROW_HOVER_BG, UiStyle.ACCENT))
 	button.add_theme_stylebox_override("pressed", _choice_box(UiStyle.ROW_HOVER_BG, UiStyle.ACCENT))
+	button.add_child(_arrow_on(button))
 	var choice_id: String = choice.Id
 	button.pressed.connect(func() -> void:
 		ConnectionManager.decide_quest(_quest_id, choice_id)
 		visible = false
 	)
 	return button
+
+
+## The mark at the right edge that says the row leads on. Lit with the row under the pointer.
+func _arrow_on(button: Button) -> Label:
+	var arrow := UiStyle.label(_ARROW, 16, UiStyle.MUTED)
+	arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	arrow.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	arrow.set_anchors_and_offsets_preset(Control.PRESET_RIGHT_WIDE)
+	arrow.offset_left = -_ARROW_INSET - 10
+	arrow.offset_right = -_ARROW_INSET
+	button.mouse_entered.connect(func() -> void: arrow.add_theme_color_override("font_color", UiStyle.ACCENT))
+	button.mouse_exited.connect(func() -> void: arrow.add_theme_color_override("font_color", UiStyle.MUTED))
+	return arrow
 
 
 func _frame() -> StyleBoxFlat:
