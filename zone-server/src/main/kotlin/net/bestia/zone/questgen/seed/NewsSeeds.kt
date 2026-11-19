@@ -73,7 +73,7 @@ class NewsSeeds(
       Actor(ActorType.SETTLEMENT, way.to),
       others = listOf(Actor(ActorType.SETTLEMENT, way.rumour.settlement)),
       uniqueness = QuestSeed.Uniqueness.PERSONAL,
-      rumourId = way.rumour.id,
+      news = QuestSeed.News(way.rumour.id, way.rumour.kind),
     )
   }
 

@@ -11,6 +11,7 @@ import net.bestia.zone.questgen.plan.QuestPlan
 import net.bestia.zone.questgen.seed.QuestSeed
 import net.bestia.zone.text.TextArg
 import net.bestia.zone.text.TextRef
+import net.bestia.zone.townsfolk.rumour.RumourKind
 
 const val RELIC_ITEM_ID = 900L
 
@@ -80,7 +81,7 @@ fun carryNewsPlan(from: Int, to: Int, rumourId: Long, giver: WorldTarget = World
   return QuestPlan(
     seed = QuestSeed(
       QuestSeed.Kind.NEWS, Actor(ActorType.SETTLEMENT, to), others = listOf(Actor(ActorType.SETTLEMENT, from)),
-      uniqueness = QuestSeed.Uniqueness.PERSONAL, rumourId = rumourId,
+      uniqueness = QuestSeed.Uniqueness.PERSONAL, news = QuestSeed.News(rumourId, RumourKind.TOWN_FELL),
     ),
     motif = "carry_news",
     title = TextRef("QUESTGEN_CARRY_NEWS_TITLE", args),

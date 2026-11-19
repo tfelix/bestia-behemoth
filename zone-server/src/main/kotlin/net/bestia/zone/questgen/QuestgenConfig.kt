@@ -41,6 +41,9 @@ data class QuestgenConfig(
   val newsMaxCarriers: Int = 100,
   val newsOpenAfterFirst: Duration = Duration.ofHours(36),
 
+  /** How many ways of asking for it the text job writes per kind of news. Each plan uses one of them. */
+  val newsTextsPerKind: Int = 10,
+
   /** What a town thinks more of a master who brought it news, in honor. */
   val newsHonor: Int = 5,
 

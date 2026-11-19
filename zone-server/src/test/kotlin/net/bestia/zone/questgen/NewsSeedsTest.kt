@@ -38,7 +38,7 @@ class NewsSeedsTest {
 
     assertEquals(QuestSeed.Kind.NEWS to Actor(ActorType.SETTLEMENT, DUNMERE), seed.kind to seed.subject)
     assertEquals(listOf(Actor(ActorType.SETTLEMENT, HALE)), seed.others)
-    assertEquals(told.id, seed.rumourId)
+    assertEquals(QuestSeed.News(told.id, RumourKind.TOWN_FELL), seed.news)
   }
 
   @Test
@@ -49,7 +49,7 @@ class NewsSeedsTest {
     val seed = seedsOn(day = 10.0).single()
 
     assertEquals(Actor(ActorType.SETTLEMENT, FARHOLM), seed.subject)
-    assertEquals(nearer.id, seed.rumourId, "Dunmere is the last town before Farholm")
+    assertEquals(nearer.id, seed.news?.rumourId, "Dunmere is the last town before Farholm")
   }
 
   @Test

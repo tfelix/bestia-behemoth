@@ -16,6 +16,7 @@ import net.bestia.zone.questgen.plan.QuestPlanner
 import net.bestia.zone.questgen.plan.QuestWorld
 import net.bestia.zone.questgen.seed.QuestSeed
 import net.bestia.zone.text.TextArg
+import net.bestia.zone.townsfolk.rumour.RumourKind
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import kotlin.test.assertEquals
@@ -126,7 +127,7 @@ class QuestPlannerTest {
     world.add(BindSlot.NEWS_LISTENER, Binding(WorldTarget.settlement(6), Vec2d(9_000.0, 0.0), mapOf("to" to TextArg.Name("Dunmere"))))
     val news = QuestSeed(
       QuestSeed.Kind.NEWS, Actor(ActorType.SETTLEMENT, 6), others = listOf(Actor(ActorType.SETTLEMENT, 4)),
-      uniqueness = QuestSeed.Uniqueness.PERSONAL, rumourId = 12,
+      uniqueness = QuestSeed.Uniqueness.PERSONAL, news = QuestSeed.News(12, RumourKind.TOWN_FELL),
     )
 
     val plan = assertNotNull(planner.plan(news).plan)

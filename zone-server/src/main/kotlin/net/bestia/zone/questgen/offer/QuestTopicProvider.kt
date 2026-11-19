@@ -6,7 +6,9 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.identity.MasterEntityResolver
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.questgen.QuestgenConfig
 import net.bestia.zone.questgen.ending.QuestReturns
+import net.bestia.zone.questgen.text.NewsOfferTextSource
 import net.bestia.zone.treasure.Relics
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.entity.observe.WorldTarget
@@ -41,6 +43,7 @@ class QuestTopicProvider(
   private val relics: Relics,
   private val world: WorldView,
   private val texts: WorldTexts,
+  private val config: QuestgenConfig,
   private val masters: MasterEntityResolver = MasterEntityResolver(sessions),
 ) : DialogTopicProvider {
 
@@ -71,7 +74,7 @@ class QuestTopicProvider(
 
     return when (local) {
       TELL -> ConversationNode(
-        texts.attach(lineOf(offer, OFFER_SUFFIX), TextSubject.questOffer(offer.planId)),
+        offerLineOf(offer),
         listOf(ConversationOption(Topics.QUEST + ACCEPT, lineOf(offer, ACCEPT_SUFFIX), OptionKind.ACTION)),
       )
 
@@ -131,6 +134,20 @@ class QuestTopicProvider(
     }
   }
 
+  /**
+   * The text written for this plan. News has none of its own: it uses one of the texts written ahead for its
+   * kind of news, always the same one for one plan.
+   */
+  private fun offerLineOf(offer: QuestOffers.Offer): TextRef {
+    val news = offer.plan.seed.news ?: return texts.attach(lineOf(offer, OFFER_SUFFIX), TextSubject.questOffer(offer.planId))
+    val variant = (offer.planId % config.newsTextsPerKind).toInt()
+
+    val line = lineOf(offer, "${OFFER_SUFFIX}_${news.kind.name}")
+    val goesTo = line.args[NEWS_GOES_TO] ?: return line
+
+    return texts.attach(line.copy(args = line.args + (NewsOfferTextSource.TOWN_ARG to goesTo)), TextSubject.newsOffer(news.kind.name, variant))
+  }
+
   /** What is said about a quest is worded per kind of quest: each line is a twin of the title's key. */
   private fun lineOf(offer: QuestOffers.Offer, suffix: String): TextRef {
     val title = offer.plan.title
@@ -156,6 +173,9 @@ class QuestTopicProvider(
     const val BRING_HOME_KEY = "QUESTGEN_BRING_HOME"
     const val STILL_WAITING_KEY = "QUESTGEN_STILL_WAITING"
     const val HOME_AGAIN_KEY = "QUESTGEN_HOME_AGAIN"
+
+    /** The arg of a news plan's title that names the town the news goes to. */
+    const val NEWS_GOES_TO = "to"
 
     const val TITLE_SUFFIX = "_TITLE"
     const val OFFER_SUFFIX = "_OFFER"
