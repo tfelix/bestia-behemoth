@@ -10,6 +10,8 @@ extends PanelContainer
 ## The log changed: a quest arrived, moved, ended or left. The tracker redraws on it.
 signal quests_changed()
 signal notice(text: String)
+## The master has to pick at a decide step: it just reached the step, or the player asked for it in the log.
+signal decide_wanted(quest, objective)
 
 ## The most quests the tracker shows. More would cover the screen.
 const MAX_TRACKED := 5
@@ -54,6 +56,22 @@ func _ready() -> void:
 
 	ConnectionManager.quest_log_received.connect(_on_log)
 	ConnectionManager.quest_updated.connect(_on_updated)
+
+
+## The decide step [param quest] waits at, or null.
+func open_decide_of(quest):
+	if quest == null or QuestStyle.has_ended(quest):
+		return null
+	for objective in quest.Objectives:
+		if objective.Stage == quest.Stage and not objective.Choices.is_empty() and objective.Chosen.is_empty():
+			return objective
+	return null
+
+
+## The ids of the quests that wait for a decision.
+func quests_waiting_for_decision() -> Array:
+	return _quests.values().filter(func(quest) -> bool: return open_decide_of(quest) != null) \
+		.map(func(quest) -> int: return quest.QuestId)
 
 
 ## The quests the tracker shows, in log order.
@@ -138,10 +156,19 @@ func _on_updated(msg: QuestUpdatedSMSG) -> void:
 	else:
 		_quests[msg.QuestId] = msg.Quest
 		_tell_status_change(before, msg.Quest)
+		_ask_for_new_decision(before, msg.Quest)
 		if before == null and msg.Quest.RoleName == "accepted" and _tracked.size() < MAX_TRACKED:
 			_tracked[msg.QuestId] = true
 			_save_tracking()
 	_refresh()
+
+
+## Asked once, when the master arrives at the step. A decision that waited since the last login is not thrown
+## at the player: the log shows it.
+func _ask_for_new_decision(before, after) -> void:
+	var waiting = open_decide_of(after)
+	if waiting != null and before != null and open_decide_of(before) == null:
+		decide_wanted.emit(after, waiting)
 
 
 ## The server sends no notice of its own: a quest that moved to a new state is the news.
@@ -254,6 +281,11 @@ func _worded_objective_row(quest, objective) -> Control:
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(label)
+	if is_current and not objective.Choices.is_empty():
+		var decide := Button.new()
+		decide.text = tr("QUEST_LOG_DECIDE")
+		decide.pressed.connect(func() -> void: decide_wanted.emit(quest, objective))
+		row.add_child(decide)
 	# What was picked is said with the step, so a log read later still tells what the master decided.
 	var picked = objective.Choices.filter(func(choice) -> bool: return choice.Id == objective.Chosen)
 	var suffix := "" if picked.is_empty() else " - " + DialogText.resolve_ref(picked[0].Text)
