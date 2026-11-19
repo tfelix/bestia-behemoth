@@ -22,8 +22,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.context.ActiveProfiles
+import java.time.Duration
+import java.time.Instant
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 /** A race for one blade, from the dig to the end of the quest. */
 @SpringBootTest
@@ -118,18 +121,29 @@ class QuestEndingsTest {
   }
 
   @Test
-  fun `the first to tell the news ends the quest, and whoever was still on the way is too late`() {
+  fun `news is no race, and the quest closes a day and a half after the first master told it`() {
     planId = plans.save(StoredQuestPlan(carryNewsPlan(from = 4, to = 6, rumourId = 12, giver = NEWS_GIVER)).apply { state = State.OFFERED }).id
     offers.refresh()
     offers.accept(ALICE, planId)
     offers.accept(BOB, planId)
     val questId = plan().questId!!
+    val before = Instant.now()
 
     questService.recordPersonal(ALICE, questId, objectiveIndex = 1, count = 1)
 
     assertEquals(QuestStatus.COMPLETED, questService.viewFor(ALICE, questId)!!.status)
-    assertEquals(QuestStatus.SUPERSEDED, questService.viewFor(BOB, questId)!!.status)
-    assertEquals(State.ENDED, plan().state)
+    val stillOnTheWay = questService.viewFor(BOB, questId)!!
+    assertEquals(QuestStatus.OPEN, stillOnTheWay.status)
+    assertTrue(Duration.between(before, stillOnTheWay.deadline) <= Duration.ofHours(37), "was 30 days: ${stillOnTheWay.deadline}")
+    assertEquals(State.RUNNING, plan().state)
+
+    questService.recordPersonal(BOB, questId, objectiveIndex = 1, count = 1)
+
+    assertEquals(QuestStatus.COMPLETED, questService.viewFor(BOB, questId)!!.status)
+
+    questService.end(questId, QuestStatus.EXPIRED)
+
+    assertEquals(QuestStatus.COMPLETED, questService.viewFor(ALICE, questId)!!.status, "the deadline takes nothing from those who made it")
   }
 
   private fun blade_is_taken_by(masterId: Long, name: String) {

@@ -23,9 +23,12 @@ data class QuestSeed(
 
 
   /** One per quest shape. Each has its motif in `quest-motifs.yml`. */
-  enum class Kind {
+  enum class Kind(
+    /** True for a cause of the live world, which is looked at anew each round. A story of the history stays as it is. */
+    val isLive: Boolean = true,
+  ) {
     /** An artifact nobody holds and nobody laid to rest. */
-    LOST_RELIC,
+    LOST_RELIC(isLive = false),
 
     /** A town whose stock of a good is far below what it should have. */
     TOWN_SHORTAGE,
@@ -44,7 +47,7 @@ data class QuestSeed(
     /** Many masters fill one counter. */
     SHARED,
 
-    /** Each master does it alone, and the prize is made per master. */
+    /** Each master does it alone and finishes it alone. The quest goes on for the others. */
     PERSONAL,
   }
 }

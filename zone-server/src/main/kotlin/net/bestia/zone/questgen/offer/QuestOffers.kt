@@ -12,6 +12,7 @@ import net.bestia.zone.questgen.QuestgenConfig
 import net.bestia.zone.questgen.persistence.StoredQuestPlan
 import net.bestia.zone.questgen.persistence.StoredQuestPlanRepository
 import net.bestia.zone.questgen.plan.QuestPlan
+import net.bestia.zone.questgen.seed.QuestSeed
 import net.bestia.zone.text.TextSubject
 import net.bestia.zone.text.WorldTexts
 import org.springframework.stereotype.Service
@@ -84,6 +85,9 @@ class QuestOffers(
   @Transactional
   fun accept(masterId: Long, planId: Long): OpError? {
     val stored = plans.findLocked(planId)?.takeIf { it.state.canBeAccepted } ?: return OpError.QUEST_CLOSED
+    if (isFull(stored)) {
+      return OpError.QUEST_CLOSED
+    }
     val questId = stored.questId ?: quests.create(draftOf(stored.id, stored.plan)).id.also {
       stored.questId = it
       stored.state = StoredQuestPlan.State.RUNNING
@@ -93,6 +97,13 @@ class QuestOffers(
     hearTheGiverOut(masterId, questId, stored.plan)
 
     return null
+  }
+
+  /** A quest each master does alone takes only so many, or a whole server would carry one piece of news. */
+  private fun isFull(stored: StoredQuestPlan): Boolean {
+    val questId = stored.questId ?: return false
+
+    return stored.plan.seed.uniqueness == QuestSeed.Uniqueness.PERSONAL && quests.holdersOf(questId).size >= config.newsMaxCarriers
   }
 
   /** The master stands before the giver, so a first step that is "hear them out" is done as they accept. */

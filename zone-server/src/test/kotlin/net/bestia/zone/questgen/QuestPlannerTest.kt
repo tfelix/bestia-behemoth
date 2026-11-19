@@ -126,7 +126,7 @@ class QuestPlannerTest {
     world.add(BindSlot.NEWS_LISTENER, Binding(WorldTarget.settlement(6), Vec2d(9_000.0, 0.0), mapOf("to" to TextArg.Name("Dunmere"))))
     val news = QuestSeed(
       QuestSeed.Kind.NEWS, Actor(ActorType.SETTLEMENT, 6), others = listOf(Actor(ActorType.SETTLEMENT, 4)),
-      uniqueness = QuestSeed.Uniqueness.UNIQUE, rumourId = 12,
+      uniqueness = QuestSeed.Uniqueness.PERSONAL, rumourId = 12,
     )
 
     val plan = assertNotNull(planner.plan(news).plan)
