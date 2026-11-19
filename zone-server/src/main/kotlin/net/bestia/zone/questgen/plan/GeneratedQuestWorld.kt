@@ -75,6 +75,11 @@ class GeneratedQuestWorld(
     return relics.itemIdOf(seed.subject.index)?.let(items::baseLevelOf) ?: 1
   }
 
+  /** The artifact that lies in the cache, or null for a cache without one. */
+  fun artifactIn(cacheId: Long): Int? {
+    return landmarks().cacheByArtifact.entries.firstOrNull { it.value.id == cacheId }?.key
+  }
+
   @EventListener
   fun handleWorldRecreated(event: WorldRecreatedEvent) {
     landmarks = null

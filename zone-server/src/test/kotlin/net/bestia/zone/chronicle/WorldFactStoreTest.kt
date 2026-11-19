@@ -44,7 +44,7 @@ class WorldFactStoreTest {
     assertEquals(actors, stored.actors)
     assertEquals(listOf(120.0, 80.5, 9L, "Ayla"), listOf(stored.whereX, stored.whereY, stored.byMasterId, stored.byMasterName))
     assertEquals(
-      listOf(WorldFactRecordedEvent(recorded.id, EventKind.ARTIFACT_ENSHRINED, actors)),
+      listOf(WorldFactRecordedEvent(recorded.id, EventKind.ARTIFACT_ENSHRINED, actors, LivingChronicle.Doer(9, "Ayla"))),
       published.stream(WorldFactRecordedEvent::class.java).toList(),
     )
   }
