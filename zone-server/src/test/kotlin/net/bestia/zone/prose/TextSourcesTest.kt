@@ -50,8 +50,8 @@ class TextSourcesTest {
     val figure = worldService.generated.world.chronicle.figures[TextSubject.figureOfGrave(subject)!!]
     val brief = assertNotNull(epitaphs.briefOf(subject))
 
-    assertEquals(1, brief.mustName.size)
-    assertTrue(brief.mustName.single() in brief.task)
+    assertEquals(listOf(figure.birthYear.toString(), figure.deathYear.toString()), brief.mustName.drop(1))
+    assertTrue(brief.mustName.first() in brief.task)
     assertTrue(brief.facts.any { it == "born: ${figure.birthYear}" } && brief.facts.any { it == "died: ${figure.deathYear}" })
     assertEquals(brief.task, epitaphs.briefOf(subject)!!.task, "a text keeps its framing when it is written again")
     assertNull(epitaphs.briefOf(TextSubject.questOffer(1)), "another source's subject is not this one's")

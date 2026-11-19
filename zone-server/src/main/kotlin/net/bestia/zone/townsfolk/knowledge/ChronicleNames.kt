@@ -1,6 +1,7 @@
 package net.bestia.zone.townsfolk.knowledge
 
 import net.bestia.worldgen.core.Chronicle
+import net.bestia.worldgen.history.NameLocale
 import net.bestia.worldgen.history.Names
 
 /**
@@ -17,23 +18,23 @@ object ChronicleNames {
     return Names.place(record.nameSeed, record.nameCulture)
   }
 
-  fun civOf(chronicle: Chronicle, civ: Int): String? {
+  fun civOf(chronicle: Chronicle, civ: Int, locale: NameLocale = NameLocale.EN): String? {
     val record = chronicle.civs.getOrNull(civ) ?: return null
 
-    return Names.civ(record.nameSeed, record.cultureIndex)
+    return Names.civ(record.nameSeed, record.cultureIndex, locale)
   }
 
-  fun figureOf(chronicle: Chronicle, figure: Int): String? {
+  fun figureOf(chronicle: Chronicle, figure: Int, locale: NameLocale = NameLocale.EN): String? {
     val record = chronicle.figures.getOrNull(figure) ?: return null
 
-    return Names.person(record.nameSeed, cultureOfCiv(chronicle, record.civ), record.role)
+    return Names.person(record.nameSeed, cultureOfCiv(chronicle, record.civ), record.role, locale)
   }
 
-  fun artifactOf(chronicle: Chronicle, artifact: Int): String? {
+  fun artifactOf(chronicle: Chronicle, artifact: Int, locale: NameLocale = NameLocale.EN): String? {
     val record = chronicle.artifacts.getOrNull(artifact) ?: return null
     val culture = cultureOfCiv(chronicle, chronicle.figures.getOrNull(record.forgedBy)?.civ ?: -1)
 
-    return Names.artifact(record.nameSeed, culture, record.kind, record.forgedAtNameSeed)
+    return Names.artifact(record.nameSeed, culture, record.kind, record.forgedAtNameSeed, locale)
   }
 
   /** A god as one people calls it. Every culture renders the same seed, so one god has a name per people. */
