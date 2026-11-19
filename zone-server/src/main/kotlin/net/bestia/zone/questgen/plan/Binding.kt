@@ -14,6 +14,8 @@ data class Binding(
   val args: Map<String, TextArg> = emptyMap(),
   /** What a master knows after the step. */
   val teaches: List<FactRef> = emptyList(),
-  /** The item a bring step hands over. */
+  /** The item a bring or deliver step is about. */
   val itemId: Long? = null,
+  /** How many of it the step asks for. */
+  val amount: Int = 1,
 )

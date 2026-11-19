@@ -31,7 +31,8 @@ class QuestPlanning(
 
   @Transactional
   fun planNewSeeds(): Report {
-    val stored = plans.findAll()
+    // A plan that ended does not stand in the way: a town may lack the same good again next season.
+    val stored = plans.findAll().filter { it.state != StoredQuestPlan.State.ENDED }
     val known = stored.map { it.plan.seed.kind to it.plan.seed.subject }.toSet()
     val taken = stored.flatMap { targetsOf(it) }.toMutableSet()
 

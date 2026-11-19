@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.kotlinModule
 import jakarta.annotation.PostConstruct
 import net.bestia.zone.quest.ObjectiveKind
+import net.bestia.zone.quest.ObjectiveScope
 import net.bestia.zone.questgen.seed.QuestSeed
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
@@ -24,9 +25,12 @@ class QuestCatalogue {
     val needs: Set<String>,
     val gives: Set<String>,
     val tension: Int,
-    val text: String,
-    /** What the step asks of the player, in words for the text job. */
-    val brief: String,
+    /** The key of the step's line in the log. Null for a step the client words from its item. */
+    val text: String?,
+    /** What the step asks of the player, in words for the text job. Null for a step no text is written for. */
+    val brief: String?,
+    /** Whether every master counts for itself or all fill one counter. */
+    val scope: ObjectiveScope,
   )
 
   data class Motif(
@@ -35,8 +39,8 @@ class QuestCatalogue {
     val goal: String,
     val steps: List<StepPattern>,
     val title: String,
-    /** What the giver speaks about, in words for the text job. */
-    val offer: String,
+    /** What the giver speaks about, in words for the text job. Null for a quest nobody tells of. */
+    val offer: String?,
     val decide: Decide?,
   )
 
@@ -68,7 +72,7 @@ class QuestCatalogue {
     val steps = mapper.readValue(ClassPathResource(STEPS).inputStream, StepsFile::class.java).steps
       .mapValues { (id, dto) ->
         require(dto.tension in 1..MAX_TENSION) { "$STEPS: '$id' has tension ${dto.tension}, wanted 1 to $MAX_TENSION" }
-        StepPattern(id, dto.kind, dto.binds, dto.needs.toSet(), dto.gives.toSet(), dto.tension, dto.text, dto.brief)
+        StepPattern(id, dto.kind, dto.binds, dto.needs.toSet(), dto.gives.toSet(), dto.tension, dto.text, dto.brief, dto.scope)
       }
 
     fun stepOf(motif: String, id: String): StepPattern {
@@ -96,8 +100,9 @@ class QuestCatalogue {
     val needs: List<String> = emptyList(),
     val gives: List<String> = emptyList(),
     val tension: Int,
-    val text: String,
-    val brief: String,
+    val text: String? = null,
+    val brief: String? = null,
+    val scope: ObjectiveScope = ObjectiveScope.PERSONAL,
   )
 
   private class MotifsFile(val motifs: Map<String, MotifDto> = emptyMap())
@@ -107,7 +112,7 @@ class QuestCatalogue {
     val goal: String,
     val steps: List<String>,
     val title: String,
-    val offer: String,
+    val offer: String? = null,
     val decide: DecideDto? = null,
   )
 

@@ -182,15 +182,16 @@ class QuestPlanner(
     afterChoice: String? = null,
   ): QuestPlan.Step {
     val objective = QuestObjective(
-      pattern.kind, ObjectiveScope.PERSONAL, required = 1, itemId = binding.itemId, stage = stage,
-      target = binding.target, text = TextRef(pattern.text, args), afterChoice = afterChoice,
+      pattern.kind, pattern.scope, required = binding.amount, itemId = binding.itemId, stage = stage,
+      target = binding.target, text = pattern.text?.let { TextRef(it, args) }, afterChoice = afterChoice,
     )
 
     return QuestPlan.Step(pattern.id, objective, binding.teaches)
   }
 
   private companion object {
-    const val MIN_STEPS = 2
+    /** A town's request for goods is one step. A chain through the history has more by its motif. */
+    const val MIN_STEPS = 1
     const val MAX_STEPS = 5
 
     /** The catalogues are small, so this only guards against a motif that explodes. */

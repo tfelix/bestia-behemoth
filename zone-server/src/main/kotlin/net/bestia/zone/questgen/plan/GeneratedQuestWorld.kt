@@ -51,6 +51,9 @@ class GeneratedQuestWorld(
   private var landmarks: Landmarks? = null
 
   override fun bindings(slot: BindSlot, seed: QuestSeed): List<Binding> {
+    if (slot == BindSlot.TOWN_NEED) {
+      return listOfNotNull(townNeedOf(seed))
+    }
     if (seed.subject.type != ActorType.ARTIFACT) {
       return emptyList()
     }
@@ -62,17 +65,38 @@ class GeneratedQuestWorld(
       BindSlot.LOSS_WITNESS -> lossWitnessesOf(artifact)
       BindSlot.KEEPER_GRAVE -> listOfNotNull(keeperGraveOf(artifact))
       BindSlot.HOME_TEMPLE -> listOfNotNull(homeTempleOf(artifact))
+      BindSlot.TOWN_NEED -> emptyList()
     }
   }
 
   override fun argsOf(seed: QuestSeed): Map<String, TextArg> {
+    if (seed.subject.type != ActorType.ARTIFACT) {
+      return emptyMap()
+    }
     val name = ChronicleNames.artifactOf(chronicle(), seed.subject.index) ?: return emptyMap()
 
     return mapOf(ARG_ARTIFACT to TextArg.Name(name))
   }
 
   override fun levelOf(seed: QuestSeed): Int {
-    return relics.itemIdOf(seed.subject.index)?.let(items::baseLevelOf) ?: 1
+    val prize = seed.need?.itemId ?: relics.itemIdOf(seed.subject.index)
+
+    return prize?.let(items::baseLevelOf) ?: 1
+  }
+
+  /** The town of a seed about goods, and what it lacks. */
+  private fun townNeedOf(seed: QuestSeed): Binding? {
+    val need = seed.need ?: return null
+    val town = seed.subject.takeIf { it.type == ActorType.SETTLEMENT }?.index ?: return null
+    val at = standingTowns()[town] ?: return null
+
+    return Binding(
+      target = WorldTarget.settlement(town),
+      at = at,
+      args = namedPlace(ARG_TOWN, town) + mapOf(ARG_ITEM to TextArg.Item(need.itemId), ARG_AMOUNT to TextArg.Number(need.amount.toLong())),
+      itemId = need.itemId,
+      amount = need.amount,
+    )
   }
 
   /** The artifact that lies in the cache, or null for a cache without one. */
@@ -232,5 +256,7 @@ class GeneratedQuestWorld(
     const val ARG_KEEPER = "keeper"
     const val ARG_GRAVEYARD = "graveyard"
     const val ARG_HOME = "home"
+    const val ARG_ITEM = "item"
+    const val ARG_AMOUNT = "amount"
   }
 }

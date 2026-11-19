@@ -32,10 +32,10 @@ class QuestTextSource(
 
   override fun wanted(): List<TextSource.Wanted> {
     return plans.findAllByStateIn(listOf(State.PLANNED, State.OFFERED, State.RUNNING)).flatMap { stored ->
+      val offer = TextSubject.questOffer(stored.id).takeIf { briefOfOffer(stored.plan) != null }
       val steps = stored.plan.steps.indices.filter { briefOfStep(stored.plan, it) != null }
 
-      listOf(TextSource.Wanted(TextSubject.questOffer(stored.id), PRIORITY)) +
-        steps.map { TextSource.Wanted(TextSubject.questStep(stored.id, it), PRIORITY) }
+      (listOfNotNull(offer) + steps.map { TextSubject.questStep(stored.id, it) }).map { TextSource.Wanted(it, PRIORITY) }
     }
   }
 
@@ -49,9 +49,9 @@ class QuestTextSource(
   private fun briefOfOffer(plan: QuestPlan): TextBrief? {
     val motif = catalogue.motif(plan.motif) ?: return null
     val names = namesOf(plan)
-    val about = filled(motif.offer, names) ?: return null
+    val about = motif.offer?.let { filled(it, names) } ?: return null
     // The giver's own step is done by listening, so the lead is the step after it.
-    val next = plan.steps.getOrNull(1)?.let { catalogue.step(it.pattern) }?.let { filled(it.brief, names) } ?: return null
+    val next = plan.steps.getOrNull(1)?.let { catalogue.step(it.pattern) }?.brief?.let { filled(it, names) } ?: return null
     val town = names["town"] ?: return null
 
     return TextBrief(
@@ -67,7 +67,7 @@ class QuestTextSource(
   private fun briefOfStep(plan: QuestPlan, step: Int): TextBrief? {
     val pattern = plan.steps.getOrNull(step)?.let { catalogue.step(it.pattern) } ?: return null
     val names = namesOf(plan)
-    val deed = filled(pattern.brief, names) ?: return null
+    val deed = pattern.brief?.let { filled(it, names) } ?: return null
 
     return TextBrief(
       task = "Write one entry of a traveller's journal, as a note to oneself. One or two sentences, 15 to 35 words, " +
@@ -98,7 +98,8 @@ class QuestTextSource(
 
   private fun allowedNamesOf(plan: QuestPlan, names: Map<String, String>): List<AllowedName> {
     val chronicle = chronicle()
-    val artifact = chronicle.artifacts[plan.seed.subject.index]
+    val artifact = chronicle.artifacts.getOrNull(plan.seed.subject.index)?.takeIf { plan.seed.subject.type == ActorType.ARTIFACT }
+      ?: return emptyList()
     val forger = ChronicleNames.figureOf(chronicle, artifact.forgedBy)
 
     val keeper = plan.steps.firstNotNullOfOrNull { step ->

@@ -6,8 +6,9 @@
 # needs    what must be true before the step
 # gives    what is true after it
 # tension  how tense the step is, 1 to 3; a good chain rises to one peak and then falls
-# text     the template key of the step's line in the quest log
-# brief    what the step asks of the player, for the text job: it follows "the writer has to ..."
+# text     the template key of the step's line in the quest log; left out for a delivery, which the client words
+# brief    what the step asks of the player, for the text job: it follows "the writer has to ..."; optional
+# scope    PERSONAL (the default): every master does it for itself. SHARED: all masters fill one counter
 steps:
   hear_legend:
     kind: TALK
@@ -47,3 +48,9 @@ steps:
     tension: 1
     text: QUESTGEN_STEP_RETURN_RELIC
     brief: bring {artifact} home to the temple of {home}
+  deliver_goods:
+    kind: DELIVER_ITEM
+    binds: TOWN_NEED
+    gives: [stocked:town]
+    tension: 1
+    scope: SHARED

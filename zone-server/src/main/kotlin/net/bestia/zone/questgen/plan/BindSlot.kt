@@ -16,4 +16,7 @@ enum class BindSlot {
 
   /** The standing town whose temple first kept the seed's subject. */
   HOME_TEMPLE,
+
+  /** The town of the seed and the goods it lacks. */
+  TOWN_NEED,
 }
