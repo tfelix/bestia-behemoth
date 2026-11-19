@@ -532,6 +532,8 @@ enum OpError {
   BLACKBOARD_POSTING_LIMIT = 387;
   // The deliverer carries none of what the quest wants, or only gear being worn.
   BLACKBOARD_NOTHING_TO_HAND_IN = 388;
+  // The town that asked for these goods takes them at its own board only.
+  BLACKBOARD_HAND_IN_ELSEWHERE = 389;
 }
 
 message OperationError {
