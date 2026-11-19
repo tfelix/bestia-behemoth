@@ -1,5 +1,6 @@
 package net.bestia.zone.prose
 
+import net.bestia.zone.prose.host.LlmHost
 import net.bestia.zone.prose.persistence.TextJobBudgetRepository
 import net.bestia.zone.text.TextBrief
 import net.bestia.zone.text.TextBrief.AllowedName
@@ -59,6 +60,24 @@ class TextJobTest {
     val textId = assertNotNull(texts.attach(TextRef("READABLE_NAMED_GRAVE"), "$SUBJECT:first").textId)
     assertEquals("Here lies Orwen, 712-780.", texts.bodyOf(textId, "en")!!.text)
     assertEquals(0, job.plan(), "a written text is not wanted again")
+  }
+
+  @Test
+  fun `a world whose texts are written starts no model at the next boot`() {
+    val job = jobOf(ProseConfig(), Clock.systemUTC())
+    job.plan()
+    job.run(ScriptedLlm("Here lies Orwen, 712-780."))
+
+    // The next start of the zone: the rows are in the database, so nothing is wanted and no container starts.
+    val restarted = jobOf(ProseConfig(), Clock.systemUTC())
+    val noModel = object : LlmHost {
+      override fun <T> withModel(work: (LlmClient) -> T): T {
+        error("a written world must not start the model")
+      }
+    }
+    TextJobBootRunner(restarted, noModel, ProseConfig(enabled = true)).run()
+
+    assertEquals(0, restarted.plan())
   }
 
   @Test
