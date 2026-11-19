@@ -25,6 +25,11 @@ services:
       BUS_PASSWORD: ${BUS_ZONE_PASSWORD:?}
       SOCKET_IP_ADDRESS: 0.0.0.0
       CARTOGRAPHY_CACHE_DIR: /data/map-cache
+      # PROSE_ENABLED=true in .env lets a language model write the texts of a new world. The zone then starts the
+      # model's container itself, through docker-proxy, waits with its boot until the texts are written, and removes
+      # the container again. The first time it fetches the model, about 5 GB; the host needs about 8 GB free memory.
+      PROSE_ENABLED: ${PROSE_ENABLED:-false}
+      PROSE_LLM_DOCKER_HOST: tcp://docker-proxy:2375
     ports:
       - '8090:8090'
     volumes:
@@ -36,6 +41,20 @@ services:
     depends_on:
       zone-db: { condition: service_healthy }
       valkey: { condition: service_healthy }
+      docker-proxy: { condition: service_started }
+
+  # Lets the zone start and remove the language model's container without the Docker socket in the zone itself.
+  # It passes on only calls about containers and images. Those are still enough to control this host's Docker,
+  # so the proxy publishes no port: only the services of this file reach it.
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy@sha256:be1ac64f33bd82043beb504822a17ba6b71668ea1ad7cf51a9a01d27bb7ab047
+    restart: unless-stopped
+    environment:
+      CONTAINERS: 1
+      IMAGES: 1
+      POST: 1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
   login:
     <<: *server
