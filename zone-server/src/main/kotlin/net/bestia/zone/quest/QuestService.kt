@@ -164,6 +164,17 @@ class QuestService(
     afterCommit { live.untrack(holders, questId) }
   }
 
+  /** Ends a quest that still takes work past its deadline. @return true when this call ended it. */
+  @Transactional
+  fun expireIfOverdue(questId: Long): Boolean {
+    val overdue = quests.findByIdOrNull(questId)?.let { it.status.takesWork && clock.instant().isAfter(it.deadline) } ?: false
+    if (overdue) {
+      end(questId, QuestStatus.EXPIRED)
+    }
+
+    return overdue
+  }
+
   /**
    * Stores a personal objective's new [count], counted on the tick. Absolute rather than a step, so a job that
    * runs twice or late cannot count a kill twice.

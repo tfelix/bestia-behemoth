@@ -2,6 +2,7 @@ package net.bestia.zone.questgen.offer
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.entity.observe.WorldTarget
+import net.bestia.zone.quest.QuestService
 import net.bestia.zone.questgen.QuestgenConfig
 import net.bestia.zone.questgen.persistence.StoredQuestPlan
 import net.bestia.zone.questgen.persistence.StoredQuestPlan.State
@@ -23,18 +24,31 @@ class QuestDirector(
   private val sources: List<QuestSeedSource>,
   private val sites: SettlementSiteIndex,
   private val offers: QuestOffers,
+  private val quests: QuestService,
   private val config: QuestgenConfig,
 ) {
 
   @Scheduled(fixedDelay = RUN_EVERY_MS, initialDelay = RUN_EVERY_MS)
   @Transactional
   fun run() {
+    val expired = planAgainAfterDeadline()
     val withdrawn = withdrawWithoutCause()
     val offered = offerWithinBudget()
-    if (withdrawn + offered > 0) {
-      LOG.info { "Offered $offered quests, withdrew $withdrawn whose cause is gone" }
+    if (expired + withdrawn + offered > 0) {
+      LOG.info { "Offered $offered quests, withdrew $withdrawn whose cause is gone, $expired ran out of time" }
     }
     offers.refresh()
+  }
+
+  /** Nobody finished in time, so the quest ends and its plan waits to be offered again while its cause is real. */
+  private fun planAgainAfterDeadline(): Int {
+    val overdue = plans.findAllByState(State.RUNNING).filter { plan -> plan.questId?.let(quests::expireIfOverdue) == true }
+    overdue.forEach {
+      it.questId = null
+      it.state = State.PLANNED
+    }
+
+    return overdue.size
   }
 
   /** A plan nobody took yet ends when its cause is gone. One that runs is ended by its own ending. */
