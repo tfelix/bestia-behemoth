@@ -547,6 +547,26 @@ questgen:
   return-treasury-share: 0.02
   return-coins-cap: 5000
 
+# The text job: a language model writes quest texts and epitaphs for a new world. See docs: server/dynamic-text.
+# The zone starts the model in a container of its own when a world has texts to write, waits with the rest of its
+# boot until they are written, and removes the container again. Off, every text stays its template.
+prose:
+  enabled: false
+  # English first; other languages are translated from it.
+  locales: [en]
+  # The most time spent on one language over the life of a world. A restart does not start the clock again.
+  cap-per-locale: 3h
+  llm:
+    # DOCKER: this zone starts and stops the container; it needs the Docker socket. URL: use the server at `url`.
+    host: DOCKER
+    image: ghcr.io/ggml-org/llama.cpp:server
+    # Fetched from Hugging Face on the first start (about 5 GB) and kept in the Docker volume `model-cache`.
+    model: unsloth/gemma-4-E4B-it-GGUF:Q4_K_M
+    model-cache: bestia-llm-models
+    threads: 6
+    prompt-threads: 10
+    memory: 8GB
+
 blackboard:
   # The runs a poster may pick, in days, and the fee each costs in percent of the pay. Paid up front into the
   # world reserve and never refunded.
