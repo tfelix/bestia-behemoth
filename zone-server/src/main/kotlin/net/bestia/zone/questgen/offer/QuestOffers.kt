@@ -11,6 +11,8 @@ import net.bestia.zone.questgen.QuestgenConfig
 import net.bestia.zone.questgen.persistence.StoredQuestPlan
 import net.bestia.zone.questgen.persistence.StoredQuestPlanRepository
 import net.bestia.zone.questgen.plan.QuestPlan
+import net.bestia.zone.text.TextSubject
+import net.bestia.zone.text.WorldTexts
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Clock
@@ -25,6 +27,7 @@ class QuestOffers(
   private val plans: StoredQuestPlanRepository,
   private val quests: QuestService,
   private val facts: FactService,
+  private val texts: WorldTexts,
   private val config: QuestgenConfig,
   private val clock: Clock = Clock.systemUTC(),
 ) {
@@ -66,7 +69,7 @@ class QuestOffers(
   @Transactional
   fun accept(masterId: Long, planId: Long): OpError? {
     val stored = plans.findLocked(planId)?.takeIf { it.state.canBeAccepted } ?: return OpError.QUEST_CLOSED
-    val questId = stored.questId ?: quests.create(draftOf(stored.plan)).id.also {
+    val questId = stored.questId ?: quests.create(draftOf(stored.id, stored.plan)).id.also {
       stored.questId = it
       stored.state = StoredQuestPlan.State.RUNNING
     }
@@ -88,13 +91,19 @@ class QuestOffers(
     first.teaches.forEach { facts.learn(masterId, it, FactSource.TOWNSFOLK) }
   }
 
-  private fun draftOf(plan: QuestPlan): QuestDraft {
+  /** Each step's line gets the id of the text written for it, when the text job wrote one. */
+  private fun draftOf(planId: Long, plan: QuestPlan): QuestDraft {
+    val objectives = plan.steps.mapIndexed { step, planned ->
+      val line = planned.objective.text ?: return@mapIndexed planned.objective
+      planned.objective.copy(text = texts.attach(line, TextSubject.questStep(planId, step)))
+    }
+
     return QuestDraft(
       origin = QuestOrigin.WORLD,
       title = plan.title,
       suggestedLevel = plan.suggestedLevel,
       deadline = clock.instant().plus(config.questRunsFor),
-      objectives = plan.steps.map { it.objective },
+      objectives = objectives,
       // What a quest of the world pays is decided by its ending.
       rewards = emptyList(),
     )
