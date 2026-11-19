@@ -41,6 +41,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Quest/QuestLog.tscn" id="91_questlog"]
 [ext_resource type="Script" path="res://Game/UI/Quest/quest_tracker.gd" id="92_tracker"]
 [ext_resource type="Script" path="res://Game/UI/Quest/quest_decide_dialog.gd" id="93_decide"]
+[ext_resource type="Script" path="res://Game/UI/Readable/readable_sheet.gd" id="94_readable"]
 [ext_resource type="PackedScene" path="res://Game/UI/BlindVignette/BlindVignette.tscn" id="40_blind"]
 [ext_resource type="Script" uid="uid://1u024aahembd" path="res://Game/UI/Map/notebook.gd" id="41_notebook"]
 [ext_resource type="Script" uid="uid://bq7e7aqobe3ro" path="res://Game/UI/Conversation/conversation_presenter.gd" id="42_convpres"]
@@ -276,6 +277,11 @@ script = ExtResource("92_tracker")
 visible = false
 layout_mode = 0
 script = ExtResource("93_decide")
+
+[node name="ReadableSheet" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 0
+script = ExtResource("94_readable")
 
 [node name="Options" parent="." unique_id=1824369574 instance=ExtResource("10_opts")]
 layout_mode = 1
