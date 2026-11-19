@@ -65,6 +65,16 @@ class SettlementMarket(
     return max(0.0, stockOf(commodity) - reserve)
   }
 
+  /** How much of a commodity is missing against what the town should hold at this time of year. Never negative. */
+  fun shortageOf(commodity: String): Double {
+    return max(0.0, expectedStock(commodity) - stockOf(commodity))
+  }
+
+  /** What the town should hold of a commodity at this time of year. */
+  fun expectedOf(commodity: String): Double {
+    return expectedStock(commodity)
+  }
+
   /** The treasury after [change] coins move, for a shop deciding whether it can afford to. */
   fun treasuryWith(change: Long): Double {
     return state.treasury + change
