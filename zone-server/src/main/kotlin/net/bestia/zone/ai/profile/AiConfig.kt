@@ -9,7 +9,7 @@ import jakarta.persistence.Enumerated
 
 /**
  * A bestia's orders: what it does while its owner is not driving it, and the only AI surface a player can change.
- * See `bestia-docs/content/docs/mechanics/bestias/bestia-orders.md`.
+ * See `bestia-docs/content/docs/mechanics/bestias/bestia-ai.md`.
  *
  * ### Why a fixed vocabulary rather than the goal list
  *

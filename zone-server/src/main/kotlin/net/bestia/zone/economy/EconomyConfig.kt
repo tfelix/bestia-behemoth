@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * moving the coin players already hold, so the two drift apart until the reserve absorbs the difference.
  *
  * The default is derived from the gold the generator places on a Genesis world rather than chosen; see
- * `docs/server/money-supply` in bestia-docs.
+ * `docs/server/settlements/money-supply` in bestia-docs.
  */
 @ConfigurationProperties(prefix = "economy")
 data class EconomyConfig(

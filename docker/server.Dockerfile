@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # Packages one server's Spring Boot jar, built on the host with `./gradlew :<module>:bootJar` so Gradle keeps
 # its cache. Pass the jar as JAR, e.g. --build-arg JAR=zone-server/build/libs/zone-server-0.1.0.jar.
-# A JVM image on purpose, not a native one: docs/server/releases in bestia-docs says why.
+# A JVM image on purpose, not a native one: docs/server/services/releases in bestia-docs says why.
 FROM eclipse-temurin:21-jre-noble AS layers
 WORKDIR /work
 ARG JAR

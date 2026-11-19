@@ -64,12 +64,15 @@ A monorepo with everything the game needs, from server to client to world genera
 
 ## 🚀 Getting started
 
+The [Quickstart guide](https://docs.bestia-game.net/docs/quickstart/) walks through the whole local setup step by
+step: prerequisites, signing in the first time, the companion app, ports, resetting the world and the usual
+problems. The short version follows.
+
 You need JDK 21, Docker, and for the client the [Godot 4.7 .NET build](https://godotengine.org/download) with the
-matching .NET SDK. Start the servers in this order (the zone's `bootRun` brings up MariaDB and Valkey through
-Docker Compose):
+matching .NET SDK. Start the servers in this order, each in its own terminal (every `bootRun` brings up its own
+MariaDB through Docker Compose, and the zone's also brings up Valkey, which the other two need):
 
 ```bash
-cd zone-server && docker compose up
 ./gradlew :zone-server:bootRun
 ./gradlew :login-server:bootRun
 ./gradlew :api-server:bootRun
