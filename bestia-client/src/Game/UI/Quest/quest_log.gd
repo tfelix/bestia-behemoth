@@ -223,9 +223,7 @@ func _show(quest) -> void:
 
 	_selected_id = quest.QuestId
 	_detail_title.text = QuestStyle.title_of(quest)
-	_detail_subtitle.text = tr("QUEST_LOG_SUBTITLE") % [
-		tr("QUEST_ORIGIN_%s" % quest.OriginName.to_upper()), quest.PosterName, QuestStyle.time_left(quest), quest.SuggestedLevel
-	]
+	_detail_subtitle.text = _subtitle_of(quest)
 	_detail_text.text = QuestStyle.text_of(quest)
 	if not quest.WonBy.is_empty():
 		_detail_text.text = tr("QUEST_LOG_WON_BY") % quest.WonBy
@@ -247,6 +245,14 @@ func _show(quest) -> void:
 	# A running quest of one's own is withdrawn at a board; everything else may leave the log here.
 	_drop.visible = quest.RoleName == "accepted" or ended
 	_drop.text = tr("QUEST_LOG_CLEAR") if ended else tr("QUEST_LOG_DROP")
+
+
+## A quest of the world has no poster: nobody put it on a board.
+func _subtitle_of(quest) -> String:
+	var origin := tr("QUEST_ORIGIN_%s" % quest.OriginName.to_upper())
+	if quest.PosterName.is_empty():
+		return tr("QUEST_LOG_SUBTITLE_NO_POSTER") % [origin, QuestStyle.time_left(quest), quest.SuggestedLevel]
+	return tr("QUEST_LOG_SUBTITLE") % [origin, quest.PosterName, QuestStyle.time_left(quest), quest.SuggestedLevel]
 
 
 func _objective_row(quest, objective) -> Control:
