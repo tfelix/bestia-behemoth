@@ -54,6 +54,31 @@ class RumourServiceTest {
   }
 
   @Test
+  fun `news carried to a town is told there until the day it is forgotten where it came from`() {
+    onDay(100.0)
+    val told = registry.add(TOWN, RumourKind.TOWN_FELL, "Nname=Karth", 95.0, expiresOnDay = 130.0, strength = 0.8)
+
+    assertTrue(sut.retell(told, OTHER_TOWN))
+
+    val carried = registry.heardBy(OTHER_TOWN).single()
+    assertTrue(carried.isSameNewsAs(told))
+    assertEquals(100.0 to 130.0, carried.postedOnDay to carried.expiresOnDay)
+    verify { knowledge.forget(OTHER_TOWN) }
+  }
+
+  @Test
+  fun `a town is not told what it knows already, or what is too old to be news`() {
+    onDay(100.0)
+    val told = registry.add(TOWN, RumourKind.TOWN_FELL, "", 95.0, expiresOnDay = 130.0, strength = 0.8)
+    val spent = registry.add(TOWN, RumourKind.BOSS_SLAIN, "", 60.0, expiresOnDay = 90.0, strength = 0.8)
+    sut.retell(told, OTHER_TOWN)
+
+    assertEquals(false, sut.retell(told, OTHER_TOWN))
+    assertEquals(false, sut.retell(spent, OTHER_TOWN))
+    assertEquals(1, registry.heardBy(OTHER_TOWN).size)
+  }
+
+  @Test
   fun `a swept town forgets what it knew, so the news stops being offered`() {
     onDay(100.0)
     registry.add(TOWN, RumourKind.BOSS_SLAIN, "", 80.0, expiresOnDay = 90.0, strength = 1.0)
@@ -92,5 +117,6 @@ class RumourServiceTest {
 
   private companion object {
     const val TOWN = 3
+    const val OTHER_TOWN = 4
   }
 }
