@@ -65,8 +65,10 @@ class TalkService(
     if (deedObservers.isEmpty()) {
       return
     }
-    val talkedTo = DeedFact(actor, DeedFact.Deed.TALKED_TO, WorldTarget.townsfolk(speaker.identity))
-    world.post { deedObservers.forEach { it.onDeed(this, talkedTo) } }
+    // To the person, and to the town: some words are for anybody who lives there.
+    val talkedTo = listOf(WorldTarget.townsfolk(speaker.identity), WorldTarget.settlement(speaker.settlement))
+      .map { DeedFact(actor, DeedFact.Deed.TALKED_TO, it) }
+    world.post { talkedTo.forEach { deed -> deedObservers.forEach { it.onDeed(this, deed) } } }
   }
 
   private fun coldShoulder(actor: EntityId, speaker: Speaker): ConversationNode? {
