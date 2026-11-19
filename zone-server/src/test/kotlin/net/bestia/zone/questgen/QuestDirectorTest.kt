@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.entity.observe.WorldTarget
+import net.bestia.zone.quest.QuestService
 import net.bestia.zone.questgen.offer.QuestDirector
 import net.bestia.zone.questgen.offer.QuestOffers
 import net.bestia.zone.questgen.persistence.StoredQuestPlan
@@ -34,7 +35,23 @@ class QuestDirectorTest {
     }
   }
 
-  private val director = QuestDirector(plans, listOf(seeds), sites, offers, QuestgenConfig())
+  private val quests = mockk<QuestService> { every { expireIfOverdue(any()) } returns false }
+
+  private val director = QuestDirector(plans, listOf(seeds), sites, offers, quests, QuestgenConfig())
+
+  @Test
+  fun `a quest nobody finished in time ends, and its plan is offered anew`() {
+    val running = planned(artifact = 1, giverIn(HALE, household = 1), score = 1.0).apply {
+      state = State.RUNNING
+      questId = 5
+    }
+    every { quests.expireIfOverdue(5) } returns true
+
+    director.run()
+
+    assertEquals(State.OFFERED to null, running.state to running.questId)
+  }
+
 
   @Test
   fun `a town offers its best plan and keeps the rest for later`() {
