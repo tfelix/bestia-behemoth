@@ -39,7 +39,7 @@ class LivingChronicle(
     val fact = facts.save(
       WorldFact(kind, actors, where?.x, where?.y, by?.masterId, by?.name, onDay = clock.now().absoluteDay)
     )
-    events.publishEvent(WorldFactRecordedEvent(fact.id, kind, actors))
+    events.publishEvent(WorldFactRecordedEvent(fact.id, kind, actors, by))
 
     return fact
   }
