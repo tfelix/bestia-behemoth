@@ -127,6 +127,25 @@ class QuestService(
     return counted
   }
 
+  /**
+   * The one prize of the quest is taken. It is over for every master but [winnerMasterId], who goes on with what
+   * is left to do. When the winner is not in the quest, it ends for everyone.
+   */
+  @Transactional
+  fun supersede(questId: Long, winnerMasterId: Long?, winnerName: String) {
+    val quest = quests.findLocked(questId) ?: return
+    val holders = entries.findAllByQuestId(questId)
+    val losers = holders.filter { it.masterId != winnerMasterId && it.supersededBy == null }
+    losers.forEach { it.supersededBy = winnerName }
+    if (holders.none { it.masterId == winnerMasterId } && !quest.status.isEnded) {
+      quest.end(QuestStatus.SUPERSEDED, clock.instant())
+    }
+
+    events.publishEvent(QuestChangedEvent(questId))
+    val loserIds = losers.map { it.masterId }
+    afterCommit { live.untrack(loserIds, questId) }
+  }
+
   /** Stops new masters joining; work already under way still counts until the source ends the quest. */
   @Transactional
   fun close(questId: Long) {
@@ -151,7 +170,7 @@ class QuestService(
    */
   @Transactional
   fun recordPersonal(masterId: Long, questId: Long, objectiveIndex: Int, count: Int) {
-    val entry = entries.findByMasterIdAndQuestId(masterId, questId) ?: return
+    val entry = entries.findByMasterIdAndQuestId(masterId, questId)?.takeIf { it.takesWork } ?: return
     if (count <= entry.counts[objectiveIndex]) {
       return
     }
@@ -172,7 +191,7 @@ class QuestService(
     val objective = entry.quest.objectives[objectiveIndex]
     require(objective.scope == ObjectiveScope.PERSONAL) { "Objective $objectiveIndex of quest $questId is not personal" }
 
-    val takesWork = entry.quest.status.takesWork && objective.stage == entry.stage && entry.isFor(objective)
+    val takesWork = entry.takesWork && objective.stage == entry.stage && entry.isFor(objective)
     val counted = minOf(amount, objective.required - entry.counts[objectiveIndex])
     if (!takesWork || counted <= 0) {
       return 0
@@ -194,7 +213,7 @@ class QuestService(
   fun decide(masterId: Long, questId: Long, choiceId: String): OpError? {
     val entry = entries.findByMasterIdAndQuestId(masterId, questId) ?: return OpError.REQUEST_REFUSED
     val quest = entry.quest
-    if (!quest.status.takesWork) {
+    if (!entry.takesWork) {
       return OpError.QUEST_CLOSED
     }
     val open = quest.objectives.withIndex().firstOrNull { (index, objective) ->
@@ -310,7 +329,7 @@ class QuestService(
   /** What the master counts in the stage it works on. */
   private fun trackedOf(entry: QuestLogEntry): TrackedObjectives {
     val quest = entry.quest
-    if (!quest.status.takesWork) {
+    if (!entry.takesWork) {
       return TrackedObjectives()
     }
 

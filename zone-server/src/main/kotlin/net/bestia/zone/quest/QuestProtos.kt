@@ -14,6 +14,7 @@ fun QuestView.toProto(): QuestProto.Quest {
     .setDeadlineEpochMs(deadline.toEpochMilli())
     .setPosterName(posterName)
     .setStage(stage)
+    .setWonBy(wonBy ?: "")
   objectives.forEach { quest.addObjectives(it.toProto()) }
   rewards.forEach { quest.addRewards(it.toProto()) }
 
@@ -60,6 +61,7 @@ private fun QuestStatus.toProto(): QuestProto.QuestStatus {
     QuestStatus.COMPLETED -> QuestProto.QuestStatus.QUEST_STATUS_COMPLETED
     QuestStatus.EXPIRED -> QuestProto.QuestStatus.QUEST_STATUS_EXPIRED
     QuestStatus.WITHDRAWN -> QuestProto.QuestStatus.QUEST_STATUS_WITHDRAWN
+    QuestStatus.SUPERSEDED -> QuestProto.QuestStatus.QUEST_STATUS_SUPERSEDED
   }
 }
 

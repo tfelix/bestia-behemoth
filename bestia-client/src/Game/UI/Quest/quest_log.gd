@@ -192,6 +192,8 @@ func _show(quest) -> void:
 		tr("QUEST_ORIGIN_%s" % quest.OriginName.to_upper()), quest.PosterName, QuestStyle.time_left(quest), quest.SuggestedLevel
 	]
 	_detail_text.text = QuestStyle.text_of(quest)
+	if not quest.WonBy.is_empty():
+		_detail_text.text = tr("QUEST_LOG_WON_BY") % quest.WonBy
 	_detail_text.visible = not _detail_text.text.is_empty()
 
 	for child in _objectives.get_children():
