@@ -25,6 +25,8 @@ class QuestCatalogue {
     val gives: Set<String>,
     val tension: Int,
     val text: String,
+    /** What the step asks of the player, in words for the text job. */
+    val brief: String,
   )
 
   data class Motif(
@@ -33,6 +35,8 @@ class QuestCatalogue {
     val goal: String,
     val steps: List<StepPattern>,
     val title: String,
+    /** What the giver speaks about, in words for the text job. */
+    val offer: String,
     val decide: Decide?,
   )
 
@@ -47,13 +51,24 @@ class QuestCatalogue {
     return motifBySeed[seed]
   }
 
+  fun motif(id: String): Motif? {
+    return motifBySeed.values.firstOrNull { it.id == id }
+  }
+
+  /** A step pattern by its id, among the steps of every motif and of every choice. */
+  fun step(id: String): StepPattern? {
+    return motifBySeed.values
+      .flatMap { motif -> motif.steps + motif.decide?.choices.orEmpty().mapNotNull { it.then } }
+      .firstOrNull { it.id == id }
+  }
+
   @PostConstruct
   fun load() {
     val mapper = JsonMapper.builder(YAMLFactory()).addModule(kotlinModule()).build()
     val steps = mapper.readValue(ClassPathResource(STEPS).inputStream, StepsFile::class.java).steps
       .mapValues { (id, dto) ->
         require(dto.tension in 1..MAX_TENSION) { "$STEPS: '$id' has tension ${dto.tension}, wanted 1 to $MAX_TENSION" }
-        StepPattern(id, dto.kind, dto.binds, dto.needs.toSet(), dto.gives.toSet(), dto.tension, dto.text)
+        StepPattern(id, dto.kind, dto.binds, dto.needs.toSet(), dto.gives.toSet(), dto.tension, dto.text, dto.brief)
       }
 
     fun stepOf(motif: String, id: String): StepPattern {
@@ -66,7 +81,7 @@ class QuestCatalogue {
           require(decide.choices.size >= 2) { "$MOTIFS: '$id' offers fewer than two choices, so nothing is decided" }
           Decide(decide.text, decide.tension, decide.choices.map { (choice, c) -> Choice(choice, c.text, c.then?.let { stepOf(id, it) }) })
         }
-        val motif = Motif(id, dto.seed, dto.goal, dto.steps.map { stepOf(id, it) }, dto.title, decide)
+        val motif = Motif(id, dto.seed, dto.goal, dto.steps.map { stepOf(id, it) }, dto.title, dto.offer, decide)
         require(motif.steps.any { motif.goal in it.gives }) { "$MOTIFS: no step of '$id' gives its goal '${motif.goal}'" }
         motif
       }
@@ -82,6 +97,7 @@ class QuestCatalogue {
     val gives: List<String> = emptyList(),
     val tension: Int,
     val text: String,
+    val brief: String,
   )
 
   private class MotifsFile(val motifs: Map<String, MotifDto> = emptyMap())
@@ -91,6 +107,7 @@ class QuestCatalogue {
     val goal: String,
     val steps: List<String>,
     val title: String,
+    val offer: String,
     val decide: DecideDto? = null,
   )
 
