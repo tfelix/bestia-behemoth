@@ -54,6 +54,11 @@ class Relics(
       .replaceFirstChar { it.uppercase() }
   }
 
+  /** The artifact the held item [uniqueId] is a copy of, or null for anything that is no relic. */
+  fun artifactOf(uniqueId: Long): Int? {
+    return artifactByCopy[uniqueId]
+  }
+
   /** The item a copy of [artifact] is, or null when there is no such artifact or no item for its kind. */
   fun itemIdOf(artifact: Int): Long? {
     val record = chronicle().artifacts.getOrNull(artifact) ?: return null
