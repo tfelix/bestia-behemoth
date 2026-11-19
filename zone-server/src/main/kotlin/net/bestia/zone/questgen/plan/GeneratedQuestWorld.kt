@@ -9,6 +9,7 @@ import net.bestia.worldgen.treasure.TreasureChannels
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.Vec2d
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.entity.observe.WorldTarget
 import net.bestia.zone.fact.FactRef
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
@@ -18,6 +19,8 @@ import net.bestia.zone.townsfolk.ecs.TownsfolkIdentity
 import net.bestia.zone.townsfolk.knowledge.ChronicleNames
 import net.bestia.zone.townsfolk.knowledge.KnowledgeService
 import net.bestia.zone.townsfolk.knowledge.LegendKnowledge
+import net.bestia.zone.townsfolk.persistence.Rumour
+import net.bestia.zone.townsfolk.rumour.RumourRegistry
 import net.bestia.zone.treasure.Relics
 import net.bestia.zone.world.SettlementLoreService
 import net.bestia.zone.world.WorldRecreatedEvent
@@ -36,6 +39,8 @@ class GeneratedQuestWorld(
   private val knowledge: KnowledgeService,
   private val relics: Relics,
   private val items: ItemTemplateRegistry,
+  private val rumours: RumourRegistry,
+  private val world: WorldView,
 ) : QuestWorld {
 
   private class Spot(val id: Long, val at: Vec2d, val settlement: Int = -1)
@@ -51,8 +56,11 @@ class GeneratedQuestWorld(
   private var landmarks: Landmarks? = null
 
   override fun bindings(slot: BindSlot, seed: QuestSeed): List<Binding> {
-    if (slot == BindSlot.TOWN_NEED) {
-      return listOfNotNull(townNeedOf(seed))
+    when (slot) {
+      BindSlot.TOWN_NEED -> return listOfNotNull(townNeedOf(seed))
+      BindSlot.NEWS_TELLER -> return listOfNotNull(newsTellerOf(seed))
+      BindSlot.NEWS_LISTENER -> return listOfNotNull(newsListenerOf(seed))
+      else -> {}
     }
     if (seed.subject.type != ActorType.ARTIFACT) {
       return emptyList()
@@ -65,7 +73,7 @@ class GeneratedQuestWorld(
       BindSlot.LOSS_WITNESS -> lossWitnessesOf(artifact)
       BindSlot.KEEPER_GRAVE -> listOfNotNull(keeperGraveOf(artifact))
       BindSlot.HOME_TEMPLE -> listOfNotNull(homeTempleOf(artifact))
-      BindSlot.TOWN_NEED -> emptyList()
+      BindSlot.TOWN_NEED, BindSlot.NEWS_TELLER, BindSlot.NEWS_LISTENER -> emptyList()
     }
   }
 
@@ -79,9 +87,33 @@ class GeneratedQuestWorld(
   }
 
   override fun levelOf(seed: QuestSeed): Int {
-    val prize = seed.need?.itemId ?: relics.itemIdOf(seed.subject.index)
+    val artifact = seed.subject.takeIf { it.type == ActorType.ARTIFACT }?.index
+    val prize = seed.need?.itemId ?: artifact?.let(relics::itemIdOf)
 
     return prize?.let(items::baseLevelOf) ?: 1
+  }
+
+  /** A house in the town that heard the news and still tells it. The town's first house when all of it knows. */
+  private fun newsTellerOf(seed: QuestSeed): Binding? {
+    val from = seed.others.firstOrNull { it.type == ActorType.SETTLEMENT }?.index ?: return null
+    val at = standingTowns()[from] ?: return null
+    // What a town has heard is kept on the tick.
+    val stillTold = world.read { rumours.heardBy(from).any { it.id == seed.rumourId } }
+    if (!stillTold) {
+      return null
+    }
+    val topic = Rumour.TOPIC_BASE + seed.rumourId!!.toInt()
+    val household = knowledge.of(from).holdersOf(topic).firstOrNull() ?: FIRST_HOUSE
+
+    return Binding(WorldTarget.townsfolk(TownsfolkIdentity.of(from, household, HEAD_OF_HOUSEHOLD)), at, namedPlace(ARG_FROM, from))
+  }
+
+  /** Anybody of the town may be told: the word goes round from there. */
+  private fun newsListenerOf(seed: QuestSeed): Binding? {
+    val to = seed.subject.takeIf { it.type == ActorType.SETTLEMENT }?.index ?: return null
+    val at = standingTowns()[to] ?: return null
+
+    return Binding(WorldTarget.settlement(to), at, namedPlace(ARG_TO, to))
   }
 
   /** The town of a seed about goods, and what it lacks. */
@@ -258,5 +290,10 @@ class GeneratedQuestWorld(
     const val ARG_HOME = "home"
     const val ARG_ITEM = "item"
     const val ARG_AMOUNT = "amount"
+    const val ARG_FROM = "from"
+    const val ARG_TO = "to"
+
+    /** Whoever lives in the first house speaks for a town that has no one house to ask. */
+    const val FIRST_HOUSE = 0
   }
 }

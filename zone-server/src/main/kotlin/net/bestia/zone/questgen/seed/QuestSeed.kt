@@ -15,6 +15,8 @@ data class QuestSeed(
   val uniqueness: Uniqueness,
   /** What is lacking, for a seed that is about goods. */
   val need: Need? = null,
+  /** The news a seed about news is about, by the id of the rumour in the town that tells it. */
+  val rumourId: Long? = null,
 ) {
 
   data class Need(val itemId: Long, val amount: Int)
@@ -30,6 +32,9 @@ data class QuestSeed(
 
     /** A town with destroyed buildings that asks for the material to rebuild them. */
     TOWN_DAMAGE,
+
+    /** News a town has heard and a town nearby has not. The subject is the town that has not. */
+    NEWS,
   }
 
   enum class Uniqueness {

@@ -55,17 +55,19 @@ class QuestEndingsTest {
   private lateinit var worldFacts: WorldFactRepository
 
   private var planId = 0L
+  private var relicPlanId = 0L
 
   @BeforeEach
   fun offerThePlan() {
     planId = plans.save(StoredQuestPlan(lostRelicPlan(BLADE, GIVER)).apply { state = State.OFFERED }).id
+    relicPlanId = planId
     offers.refresh()
   }
 
   @AfterEach
   fun forget() {
     val questId = plans.findByIdOrNull(planId)?.questId
-    plans.deleteById(planId)
+    plans.deleteAllById(setOf(planId, relicPlanId))
     if (questId != null) {
       entries.deleteAll(entries.findAllByQuestId(questId))
       quests.deleteById(questId)
@@ -115,6 +117,21 @@ class QuestEndingsTest {
     assertNull(offers.at(GIVER))
   }
 
+  @Test
+  fun `the first to tell the news ends the quest, and whoever was still on the way is too late`() {
+    planId = plans.save(StoredQuestPlan(carryNewsPlan(from = 4, to = 6, rumourId = 12, giver = NEWS_GIVER)).apply { state = State.OFFERED }).id
+    offers.refresh()
+    offers.accept(ALICE, planId)
+    offers.accept(BOB, planId)
+    val questId = plan().questId!!
+
+    questService.recordPersonal(ALICE, questId, objectiveIndex = 1, count = 1)
+
+    assertEquals(QuestStatus.COMPLETED, questService.viewFor(ALICE, questId)!!.status)
+    assertEquals(QuestStatus.SUPERSEDED, questService.viewFor(BOB, questId)!!.status)
+    assertEquals(State.ENDED, plan().state)
+  }
+
   private fun blade_is_taken_by(masterId: Long, name: String) {
     chronicle.record(EventKind.ARTIFACT_TAKEN, listOf(Actor(ActorType.ARTIFACT, BLADE)), by = LivingChronicle.Doer(masterId, name))
   }
@@ -131,5 +148,6 @@ class QuestEndingsTest {
     const val ALICE = 9_300_001L
     const val BOB = 9_300_002L
     val GIVER = WorldTarget.townsfolk(77_000_002)
+    val NEWS_GIVER = WorldTarget.townsfolk(77_000_003)
   }
 }

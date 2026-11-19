@@ -60,6 +60,14 @@ class QuestRewardsTest {
   }
 
   @Test
+  fun `the town that was told the news thinks more of the master`() {
+    rewards.pay(MASTER, carryNewsPlan(from = 4, to = HOME, rumourId = 12), Ending.KEEP)
+
+    verify { honor.changeSettlement(MASTER, "Ayla", HOME, config.newsHonor) }
+    assertNull(world.get(master, CreateItemsIntent::class), "news is paid in thanks")
+  }
+
+  @Test
   fun `a quest ends as a return only when its last step was the bring step`() {
     assertEquals(Ending.RETURN, Ending.of(plan, lastStage = 3))
     assertEquals(Ending.KEEP, Ending.of(plan, lastStage = 2))

@@ -120,6 +120,25 @@ class QuestPlannerTest {
   }
 
   @Test
+  fun `news is heard in the town that has it and told in the town that has not`() {
+    val teller = WorldTarget.townsfolk(40)
+    world.add(BindSlot.NEWS_TELLER, Binding(teller, Vec2d(0.0, 0.0), mapOf("from" to TextArg.Name("Hale"))))
+    world.add(BindSlot.NEWS_LISTENER, Binding(WorldTarget.settlement(6), Vec2d(9_000.0, 0.0), mapOf("to" to TextArg.Name("Dunmere"))))
+    val news = QuestSeed(
+      QuestSeed.Kind.NEWS, Actor(ActorType.SETTLEMENT, 6), others = listOf(Actor(ActorType.SETTLEMENT, 4)),
+      uniqueness = QuestSeed.Uniqueness.UNIQUE, rumourId = 12,
+    )
+
+    val plan = assertNotNull(planner.plan(news).plan)
+
+    assertEquals(listOf("hear_news", "tell_news"), plan.steps.map { it.pattern })
+    assertEquals(teller, plan.startsAt)
+    assertEquals(WorldTarget.settlement(6), plan.steps[1].objective.target)
+    assertEquals(TextArg.Name("Dunmere"), plan.title.args["to"])
+    QuestDraft(QuestOrigin.WORLD, plan.title, plan.suggestedLevel, Instant.MAX, plan.steps.map { it.objective }, rewards = emptyList())
+  }
+
+  @Test
   fun `the same world gives the same plan`() {
     assertEquals(planner.plan(BLADE).plan, planner.plan(BLADE).plan)
   }

@@ -1153,11 +1153,17 @@ QUESTGEN_TOWN_SHORTAGE_TITLE,{town} needs {amount} {item}
 QUESTGEN_TOWN_DAMAGE_TITLE,{town} rebuilds: {amount} {item}
 QUESTGEN_TOPIC_ASK,You look troubled. What is it?
 QUESTGEN_LOST_RELIC_OFFER,"It is {artifact}. It was lost long ago and nobody ever found it. I can tell you what my house knows, if you mean to look for it."
-QUESTGEN_ACCEPT,I will look for it.
+QUESTGEN_LOST_RELIC_ACCEPT,I will look for it.
 QUESTGEN_BRING_HOME,I have news of {artifact}.
 QUESTGEN_STILL_WAITING,"{artifact} belongs in our temple. We still hope to see it again."
 QUESTGEN_HOME_AGAIN,"You bring it home! This town will not forget what you did."
-QUESTGEN_ACCEPTED,Then listen well. May you have more luck than those before you.
+QUESTGEN_LOST_RELIC_ACCEPTED,Then listen well. May you have more luck than those before you.
+QUESTGEN_CARRY_NEWS_TITLE,News for {to}
+QUESTGEN_CARRY_NEWS_OFFER,"Word has reached us that the people of {to} should hear, and nobody here can make the way. Will you carry it?"
+QUESTGEN_CARRY_NEWS_ACCEPT,I will carry the word.
+QUESTGEN_CARRY_NEWS_ACCEPTED,"Then hear it all, and tell it to anyone you meet in {to}. Go safely."
+QUESTGEN_STEP_HEAR_NEWS,Hear the news in {from}.
+QUESTGEN_STEP_TELL_NEWS,Tell the news to somebody in {to}.
 QUEST_LOG_OBJECTIVE,%s %d / %d
 QUEST_LOG_OBJECTIVE_YOURS,(you: %d · you carry %d)
 QUEST_LOG_REWARD_EACH,Reward: %d gold each
