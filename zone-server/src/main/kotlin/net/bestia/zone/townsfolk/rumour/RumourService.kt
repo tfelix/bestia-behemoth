@@ -81,6 +81,24 @@ class RumourService(
   }
 
   /**
+   * Somebody carried [rumour] to a town it did not reach by itself. It is no newer for the way: [to] forgets it
+   * on the day the town it came from does. Tick thread.
+   *
+   * @return false when [to] knows it already or nobody would bring it up any more
+   */
+  fun retell(rumour: Rumour, to: Int): Boolean {
+    val today = clock.now().absoluteDay
+    if (rumour.hasExpired(today) || registry.heardBy(to).any { it.isSameNewsAs(rumour) }) {
+      return false
+    }
+
+    registry.add(to, rumour.kind, rumour.slots, today, rumour.expiresOnDay, rumour.strength)
+    knowledge.forget(to)
+
+    return true
+  }
+
+  /**
    * Drops news nobody would bring up any more.
    *
    * Swept rather than filtered on read, because the row is the thing worth removing: a rumour that is

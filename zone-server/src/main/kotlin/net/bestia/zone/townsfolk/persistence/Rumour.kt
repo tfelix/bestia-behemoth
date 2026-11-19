@@ -124,6 +124,11 @@ class Rumour(
     return day >= expiresOnDay
   }
 
+  /** Two towns that heard of one thing hold a row each. */
+  fun isSameNewsAs(other: Rumour): Boolean {
+    return kind == other.kind && slots == other.slots
+  }
+
   companion object {
     /** Matches `HistoryKnowledge.KEY_PREFIX`'s shape, so the two read alike in a translation file. */
     const val KEY_PREFIX = "RUMOUR_"
