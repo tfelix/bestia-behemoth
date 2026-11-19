@@ -2,12 +2,14 @@ package net.bestia.zone.text
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import net.bestia.zone.text.persistence.WorldText
 import net.bestia.zone.text.persistence.WorldTextRepository
 import org.junit.jupiter.api.Test
 import java.util.Optional
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class WorldTextsTest {
 
@@ -39,9 +41,37 @@ class WorldTextsTest {
     assertNull(texts.bodyOf(TEXT_ID, "en"))
   }
 
+  @Test
+  fun `a wanted text gets one id for all its languages, and is not asked for twice`() {
+    val saved = slot<List<WorldText>>()
+    every { repository.findAll() } returns emptyList()
+    every { repository.saveAll(capture(saved)) } answers { firstArg() }
+
+    assertEquals(2, texts.request(listOf(TextSource.Wanted("grave:7", priority = 20)), listOf("en", "de")))
+
+    val (english, german) = saved.captured
+    assertEquals(english.id.textId, german.id.textId)
+    assertTrue(WorldTexts.isTextId(english.id.textId))
+    assertEquals(listOf("grave:7" to 20, "grave:7" to 20), saved.captured.map { it.subject to it.priority })
+
+    every { repository.findAll() } returns saved.captured
+    assertEquals(0, texts.request(listOf(TextSource.Wanted("grave:7", priority = 20)), listOf("en", "de")))
+  }
+
+  @Test
+  fun `a template gets the id of its written text, and stays plain without one`() {
+    val key = WorldText.Key(TEXT_ID, "en")
+    val written = WorldText(key, subject = "grave:7", body = "Here lies Orwen.", state = WorldText.State.WRITTEN)
+    every { repository.findAllByIdLocaleAndState("en", WorldText.State.WRITTEN) } returns listOf(written)
+    texts.refreshWritten()
+
+    assertEquals(TEXT_ID, texts.attach(TextRef("READABLE_NAMED_GRAVE"), "grave:7").textId)
+    assertNull(texts.attach(TextRef("READABLE_NAMED_GRAVE"), "grave:8").textId)
+  }
+
   private fun stored(locale: String, body: String?, state: WorldText.State = WorldText.State.WRITTEN) {
     val key = WorldText.Key(TEXT_ID, locale)
-    every { repository.findById(key) } returns Optional.of(WorldText(key, body, state))
+    every { repository.findById(key) } returns Optional.of(WorldText(key, subject = "grave:7", body = body, state = state))
   }
 
   private companion object {
