@@ -308,12 +308,12 @@ class CompanionRequestDispatcherTest {
   @Test
   fun `a written text is served in its language, and in English while that one is missing`() {
     val textId = "ab".repeat(16)
-    worldTexts.save(WorldText(WorldText.Key(textId, "en"), "Here lies {name}.", WorldText.State.WRITTEN))
+    worldTexts.save(WorldText(WorldText.Key(textId, "en"), SUBJECT, body = "Here lies {name}.", state = WorldText.State.WRITTEN))
 
     val english = ask(1L, ZoneQuery.Text(textId, "de")).answer
     assertEquals(ZoneAnswer.Text(textId, "en", "Here lies {name}."), english)
 
-    worldTexts.save(WorldText(WorldText.Key(textId, "de"), "Hier ruht {name}.", WorldText.State.WRITTEN))
+    worldTexts.save(WorldText(WorldText.Key(textId, "de"), SUBJECT, body = "Hier ruht {name}.", state = WorldText.State.WRITTEN))
 
     val german = ask(1L, ZoneQuery.Text(textId, "de")).answer
     assertEquals(ZoneAnswer.Text(textId, "de", "Hier ruht {name}."), german)
@@ -344,6 +344,7 @@ class CompanionRequestDispatcherTest {
 
   private companion object {
     const val BLOB = 1L
+    const val SUBJECT = "dispatcher-test:grave"
     const val ROUTES = RoutesCollection.ID
   }
 }
