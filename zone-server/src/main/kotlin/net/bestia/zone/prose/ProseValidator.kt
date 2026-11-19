@@ -33,6 +33,10 @@ class ProseValidator {
       brief.mustName.filterNot { it in text }.map { Problem(Type.MISSING, it) }
   }
 
+  fun isEnglishWord(word: String): Boolean {
+    return word.lowercase() in englishWords
+  }
+
   /** One sentence per problem, for the next try. */
   fun feedback(problems: List<Problem>): String {
     return problems.joinToString(" ") { problem ->

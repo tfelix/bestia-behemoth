@@ -11,7 +11,7 @@ data class ProseConfig(
   val enabled: Boolean = false,
 
   /** The languages to write, English first: the others are translated from it. */
-  val locales: List<String> = listOf("en"),
+  val locales: List<String> = listOf("en", "de"),
 
   /** The most time the job may spend on one language over the life of a world. What is left stays a template. */
   val capPerLocale: Duration = Duration.ofHours(3),

@@ -38,6 +38,9 @@ class TextJobTest {
   @Autowired
   private lateinit var writer: TextWriter
 
+  @Autowired
+  private lateinit var translator: TextTranslator
+
   @AfterEach
   fun forget() {
     rows.deleteAll(rows.findAll().filter { it.subject.startsWith(SUBJECT) })
@@ -82,8 +85,21 @@ class TextJobTest {
     assertTrue(rows.findAllBySubject("$SUBJECT:first").single().attempts == 3)
   }
 
-  private fun jobOf(config: ProseConfig, clock: Clock): TextJob {
-    return TextJob(listOf(TwoGraves), texts, writer, budgets, config, clock)
+  @Test
+  fun `the second language is translated from the English text, under the same id`() {
+    val job = jobOf(ProseConfig(), Clock.systemUTC(), locales = listOf("en", "de"))
+    assertEquals(4, job.plan())
+
+    // Two English texts first, then their two translations.
+    job.run(ScriptedLlm("Here lies Orwen, 712-780.", "Here lies Orwen, 712-780.", "Hier ruht Orwen, 712-780."))
+
+    val textId = assertNotNull(texts.attach(TextRef("READABLE_NAMED_GRAVE"), "$SUBJECT:first").textId)
+    assertEquals(WorldTexts.Body("de", "Hier ruht Orwen, 712-780."), texts.bodyOf(textId, "de"))
+    assertEquals("Here lies Orwen, 712-780.", texts.bodyOf(textId, "en")!!.text)
+  }
+
+  private fun jobOf(config: ProseConfig, clock: Clock, locales: List<String> = listOf("en")): TextJob {
+    return TextJob(listOf(TwoGraves), texts, writer, translator, budgets, config.copy(locales = locales), clock)
   }
 
   private object TwoGraves : TextSource {

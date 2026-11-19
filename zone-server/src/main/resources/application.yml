@@ -553,7 +553,7 @@ questgen:
 prose:
   enabled: false
   # English first; other languages are translated from it.
-  locales: [en]
+  locales: [en, de]
   # The most time spent on one language over the life of a world. A restart does not start the clock again.
   cap-per-locale: 3h
   llm:
