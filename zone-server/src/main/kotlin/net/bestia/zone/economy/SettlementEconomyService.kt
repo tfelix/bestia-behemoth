@@ -131,6 +131,23 @@ class SettlementEconomyService(
   }
 
   /**
+   * Pays a reward out of the settlement's own purse: [share] of what it holds today, and never more than [cap].
+   * The coins leave the treasury, so nothing is minted. Tick thread, like [settle].
+   *
+   * @return the coins paid, 0 for a fallen or an empty town
+   */
+  fun payReward(settlement: Int, share: Double, cap: Long): Long {
+    val reference = referenceOf(settlement) ?: return 0
+    val current = advance(settlement, reference, clock.now().absoluteDay)
+    val paid = minOf(cap, (current.treasury * share).toLong()).coerceAtLeast(0)
+    if (paid > 0) {
+      rememberIfWorthIt(settlement, reference, current.copy(treasury = current.treasury - paid))
+    }
+
+    return paid
+  }
+
+  /**
    * The derived path this settlement's ledger is a deviation from, cached per settlement. Null for a fallen
    * town, which has nobody left to trade: its shops close and its books stop where they were.
    */

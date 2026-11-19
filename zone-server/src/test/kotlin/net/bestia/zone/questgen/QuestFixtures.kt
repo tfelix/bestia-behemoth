@@ -12,8 +12,13 @@ import net.bestia.zone.questgen.seed.QuestSeed
 import net.bestia.zone.text.TextArg
 import net.bestia.zone.text.TextRef
 
-/** A plan made by hand: hear of the loss from [giver], then dig. */
-fun lostRelicPlan(artifact: Int, giver: WorldTarget, score: Double = 1.0): QuestPlan {
+const val RELIC_ITEM_ID = 900L
+
+/**
+ * A plan made by hand: hear of the loss from [giver], then dig. With [home] the master then decides, and may
+ * bring the artifact to that town.
+ */
+fun lostRelicPlan(artifact: Int, giver: WorldTarget, score: Double = 1.0, home: Int? = null): QuestPlan {
   val args = mapOf("artifact" to TextArg.Name("Ashbrand"))
 
   return QuestPlan(
@@ -35,7 +40,34 @@ fun lostRelicPlan(artifact: Int, giver: WorldTarget, score: Double = 1.0): Quest
           text = TextRef("QUESTGEN_STEP_DIG_RELIC", args),
         ),
       ),
-    ),
+    ) + returnStepsTo(home, args),
     score = score,
+  )
+}
+
+private fun returnStepsTo(home: Int?, args: Map<String, TextArg>): List<QuestPlan.Step> {
+  if (home == null) {
+    return emptyList()
+  }
+
+  val choices = listOf(
+    QuestObjective.Choice("keep", TextRef("QUESTGEN_CHOICE_KEEP_RELIC", args)),
+    QuestObjective.Choice("return", TextRef("QUESTGEN_CHOICE_RETURN_RELIC", args)),
+  )
+
+  return listOf(
+    QuestPlan.Step(
+      "decide",
+      QuestObjective(
+        ObjectiveKind.DECIDE, ObjectiveScope.PERSONAL, 1, stage = 2, text = TextRef("QUESTGEN_STEP_DECIDE_RELIC", args), choices = choices,
+      ),
+    ),
+    QuestPlan.Step(
+      "return_relic",
+      QuestObjective(
+        ObjectiveKind.BRING, ObjectiveScope.PERSONAL, 1, itemId = RELIC_ITEM_ID, stage = 3, target = WorldTarget.settlement(home),
+        text = TextRef("QUESTGEN_STEP_RETURN_RELIC", args), afterChoice = "return",
+      ),
+    ),
   )
 }

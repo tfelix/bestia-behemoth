@@ -8,6 +8,7 @@ import net.bestia.zone.persistence.afterCommit
 import net.bestia.zone.quest.QuestService
 import net.bestia.zone.quest.QuestStageDoneEvent
 import net.bestia.zone.quest.QuestStatus
+import net.bestia.zone.questgen.ending.QuestRewards.Ending
 import net.bestia.zone.questgen.offer.QuestOffers
 import net.bestia.zone.questgen.persistence.StoredQuestPlan.State
 import net.bestia.zone.questgen.persistence.StoredQuestPlanRepository
@@ -24,6 +25,7 @@ class QuestEndings(
   private val plans: StoredQuestPlanRepository,
   private val quests: QuestService,
   private val offers: QuestOffers,
+  private val rewards: QuestRewards,
 ) {
 
   /** An artifact somebody took is no longer lost: nobody can take up its quest, and for the others it is over. */
@@ -57,8 +59,12 @@ class QuestEndings(
 
     quests.end(event.questId, QuestStatus.COMPLETED)
     plan.state = State.ENDED
-    LOG.info { "Master ${event.masterId} finished the ${plan.plan.motif} quest of ${plan.plan.seed.subject}, choice: ${event.choice}" }
-    afterCommit { offers.refresh() }
+    val ending = Ending.of(plan.plan, lastStage = event.stage)
+    LOG.info { "Master ${event.masterId} finished the ${plan.plan.motif} quest of ${plan.plan.seed.subject}: $ending" }
+    afterCommit {
+      offers.refresh()
+      rewards.pay(event.masterId, plan.plan, ending)
+    }
   }
 
   private companion object {

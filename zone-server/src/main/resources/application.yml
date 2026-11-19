@@ -539,6 +539,13 @@ questgen:
   people-per-extra-offer: 400
   # How long a quest takes work after its first master accepted it.
   quest-runs-for: 30d
+  # Rewards. Experience per suggested level of the quest; honor in the artifact's home town for bringing it
+  # back or keeping it; and the share of its treasury the town pays, with a cap.
+  exp-per-level: 100
+  return-honor: 15
+  keep-honor-loss: 5
+  return-treasury-share: 0.02
+  return-coins-cap: 5000
 
 blackboard:
   # The runs a poster may pick, in days, and the fee each costs in percent of the pay. Paid up front into the
