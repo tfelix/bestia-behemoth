@@ -30,8 +30,11 @@ data class ProseConfig(
     /** A llama.cpp server somebody else runs, for [Host.URL]: another node that lends its model. */
     val url: String? = null,
 
-    /** The llama.cpp server image. Pin a digest for a release. */
-    val image: String = "ghcr.io/ggml-org/llama.cpp:server",
+    /**
+     * The llama.cpp server image, by digest: the `server` tag moves with every build of llama.cpp, and a new
+     * build may read its flags another way. This one wrote the texts of the test world on 2026-11-19.
+     */
+    val image: String = "ghcr.io/ggml-org/llama.cpp@sha256:5b43086e3ba7ea5794d72904654f6cd41224a9b1c6ac0398f4940ee380d30f23",
 
     /** The model as a Hugging Face repository and quantisation. The server fetches it once into [modelCache]. */
     val model: String = "unsloth/gemma-4-E4B-it-GGUF:Q4_K_M",
@@ -52,12 +55,12 @@ data class ProseConfig(
     /** The CPUs the container may use, as Docker's `--cpuset-cpus`. Null for all. */
     val cpus: String? = null,
 
-    /** How this zone reaches Docker. */
+    /** How this zone reaches Docker: the socket on a host, a socket proxy (`tcp://docker-proxy:2375`) in a container. */
     val dockerHost: String = "unix:///var/run/docker.sock",
 
     /**
-     * The Docker network to put the container on, for a zone that runs in a container itself: it then reaches
-     * the model by the container's name. Null for a zone on the host, which gets a loopback port.
+     * The Docker network to put the model's container on. Leave it null: a zone in a container finds its own
+     * network and reaches the model by name, and a zone on the host gets a loopback port.
      */
     val network: String? = null,
 
