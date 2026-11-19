@@ -17,6 +17,8 @@ import net.bestia.zone.prose.LlmClient
 import net.bestia.zone.prose.ProseConfig
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
+import java.net.InetAddress
+import java.net.UnknownHostException
 import java.time.Clock
 import java.time.Duration
 
@@ -34,9 +36,10 @@ class DockerLlmHost(
   override fun <T> withModel(work: (LlmClient) -> T): T {
     return connect().use { docker ->
       removeLeftOver(docker)
-      val containerId = start(docker)
+      val network = config.llm.network ?: ownNetworkOf(docker)
+      val containerId = start(docker, network)
       try {
-        work(readyClient(docker, containerId))
+        work(readyClient(docker, containerId, network))
       } finally {
         remove(docker, containerId)
       }
@@ -60,7 +63,21 @@ class DockerLlmHost(
     }
   }
 
-  private fun start(docker: DockerClient): String {
+  /**
+   * The Docker network of this zone when it runs in a container itself, where its host name is its container
+   * id. Null for a zone on the host. So the same settings work in both places.
+   */
+  private fun ownNetworkOf(docker: DockerClient): String? {
+    return try {
+      docker.inspectContainerCmd(InetAddress.getLocalHost().hostName).exec().networkSettings.networks.keys.firstOrNull()
+    } catch (_: NotFoundException) {
+      null
+    } catch (_: UnknownHostException) {
+      null
+    }
+  }
+
+  private fun start(docker: DockerClient, network: String?): String {
     val llm = config.llm
     pullIfMissing(docker, llm.image)
 
@@ -69,11 +86,12 @@ class DockerLlmHost(
       .withMemory(llm.memory.toBytes())
       .withBinds(Bind(llm.modelCache, Volume(MODEL_CACHE_PATH)))
     llm.cpus?.let { host.withCpusetCpus(it) }
-    if (llm.network == null) {
+    if (network == null) {
       // Loopback only, on a port Docker picks: the model is this zone's, not the network's.
       host.withPortBindings(PortBinding(Ports.Binding.bindIp(LOOPBACK), served))
     } else {
-      host.withNetworkMode(llm.network)
+      // Beside the zone, which reaches it by name. No port leaves the network.
+      host.withNetworkMode(network)
     }
 
     val container = docker.createContainerCmd(llm.image)
@@ -99,8 +117,8 @@ class DockerLlmHost(
   }
 
   /** Waits until the model is loaded. On the first start that includes fetching it. */
-  private fun readyClient(docker: DockerClient, containerId: String): LlmClient {
-    val client = LlamaServerClient(urlOf(docker, containerId), config.llm.model)
+  private fun readyClient(docker: DockerClient, containerId: String, network: String?): LlmClient {
+    val client = LlamaServerClient(urlOf(docker, containerId, network), config.llm.model)
     val giveUpAt = clock.instant().plus(config.llm.startTimeout)
 
     while (!client.isReady()) {
@@ -115,8 +133,8 @@ class DockerLlmHost(
     return client
   }
 
-  private fun urlOf(docker: DockerClient, containerId: String): String {
-    if (config.llm.network != null) {
+  private fun urlOf(docker: DockerClient, containerId: String, network: String?): String {
+    if (network != null) {
       return "http://$CONTAINER_NAME:${LlamaServerArgs.PORT}"
     }
 
