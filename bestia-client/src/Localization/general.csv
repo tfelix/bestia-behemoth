@@ -1148,6 +1148,9 @@ QUEST_ORIGIN_WORLD,Local matter
 QUESTGEN_TOPIC_ASK,You look troubled. What is it?
 QUESTGEN_LOST_RELIC_OFFER,"It is {artifact}. It was lost long ago and nobody ever found it. I can tell you what my house knows, if you mean to look for it."
 QUESTGEN_ACCEPT,I will look for it.
+QUESTGEN_BRING_HOME,I have news of {artifact}.
+QUESTGEN_STILL_WAITING,"{artifact} belongs in our temple. We still hope to see it again."
+QUESTGEN_HOME_AGAIN,"You bring it home! This town will not forget what you did."
 QUESTGEN_ACCEPTED,Then listen well. May you have more luck than those before you.
 QUEST_LOG_OBJECTIVE,%s %d / %d
 QUEST_LOG_OBJECTIVE_YOURS,(you: %d · you carry %d)
