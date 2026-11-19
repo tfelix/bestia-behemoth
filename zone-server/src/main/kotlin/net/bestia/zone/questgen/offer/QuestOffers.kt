@@ -6,6 +6,7 @@ import net.bestia.zone.fact.FactService
 import net.bestia.zone.fact.FactSource
 import net.bestia.zone.quest.QuestDraft
 import net.bestia.zone.quest.QuestOrigin
+import net.bestia.zone.quest.QuestReward
 import net.bestia.zone.quest.QuestService
 import net.bestia.zone.questgen.QuestgenConfig
 import net.bestia.zone.questgen.persistence.StoredQuestPlan
@@ -63,6 +64,20 @@ class QuestOffers(
       .toMap()
     byHome.keys.retainAll(awaited.keys)
     byHome.putAll(awaited)
+  }
+
+  /**
+   * Puts a plan that starts at a town on the boards. A board lists quests, so this one becomes a quest at once
+   * and not with its first master. The town pays per unit, a little above its market price.
+   */
+  @Transactional
+  fun postOnBoard(stored: StoredQuestPlan, coinsEach: Long, townName: String) {
+    val draft = draftOf(stored.id, stored.plan).copy(
+      origin = QuestOrigin.TOWN,
+      rewards = listOf(QuestReward(QuestReward.Kind.COINS_PER_UNIT, coinsEach)),
+      issuer = townName,
+    )
+    stored.questId = quests.create(draft).id
   }
 
   /** @return the refusal, or null when the quest is now in [masterId]'s log. */

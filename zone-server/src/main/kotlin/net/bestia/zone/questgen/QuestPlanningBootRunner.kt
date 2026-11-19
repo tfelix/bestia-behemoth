@@ -14,14 +14,10 @@ import org.springframework.stereotype.Component
  */
 @Component
 @Order(108)
-class QuestPlanningBootRunner(
-  private val planning: QuestPlanning,
-  private val director: QuestDirector,
-) : CommandLineRunner {
+class QuestPlanningBootRunner(private val director: QuestDirector) : CommandLineRunner {
 
   override fun run(vararg args: String?) {
-    planning.planNewSeeds()
-    // At once, so a new world has quests on offer before the director's first round.
+    // The director plans what is new and then offers, so a new world has quests on offer before its first round.
     director.run()
   }
 }

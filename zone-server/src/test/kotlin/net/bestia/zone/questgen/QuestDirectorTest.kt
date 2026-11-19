@@ -5,6 +5,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.entity.observe.WorldTarget
 import net.bestia.zone.quest.QuestService
+import net.bestia.zone.quest.QuestStatus
+import net.bestia.zone.questgen.board.TownBoardPosts
 import net.bestia.zone.questgen.offer.QuestDirector
 import net.bestia.zone.questgen.offer.QuestOffers
 import net.bestia.zone.questgen.persistence.StoredQuestPlan
@@ -35,9 +37,42 @@ class QuestDirectorTest {
     }
   }
 
-  private val quests = mockk<QuestService> { every { expireIfOverdue(any()) } returns false }
+  private val quests = mockk<QuestService>(relaxed = true) { every { expireIfOverdue(any()) } returns false }
 
-  private val director = QuestDirector(plans, listOf(seeds), sites, offers, quests, QuestgenConfig())
+  private val planning = mockk<QuestPlanning>(relaxed = true)
+  private val boards = mockk<TownBoardPosts> {
+    every { isForBoard(any()) } answers { firstArg<StoredQuestPlan>().plan.startsAt.kind == WorldTarget.Kind.SETTLEMENT }
+    every { post(any()) } answers { firstArg<StoredQuestPlan>().questId = BOARD_QUEST; true }
+  }
+
+  private val director = QuestDirector(plans, listOf(seeds), sites, offers, quests, planning, boards, QuestgenConfig())
+
+  @Test
+  fun `every round plans what is new before it offers`() {
+    director.run()
+
+    verify { planning.planNewSeeds() }
+  }
+
+  @Test
+  fun `what a town asks for goes on the boards as a quest, and comes down when the town has enough again`() {
+    val request = planned(artifact = 1, WorldTarget.settlement(HALE), score = 1.0)
+
+    director.run()
+    assertEquals(State.OFFERED to BOARD_QUEST, request.state to request.questId)
+
+    stored.remove(request)
+    val gone = StoredQuestPlan(lostRelicPlan(GONE, WorldTarget.settlement(HALE))).apply {
+      state = State.OFFERED
+      questId = BOARD_QUEST
+    }
+    stored += gone
+    director.run()
+
+    assertEquals(State.ENDED, gone.state)
+    verify { quests.end(BOARD_QUEST, QuestStatus.WITHDRAWN) }
+  }
+
 
   @Test
   fun `a quest nobody finished in time ends, and its plan is offered anew`() {
@@ -91,5 +126,6 @@ class QuestDirectorTest {
     const val HALE = 3
     const val DUNMERE = 4
     const val GONE = 99
+    const val BOARD_QUEST = 70L
   }
 }
