@@ -6,6 +6,7 @@ import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.entity.observe.WorldTarget
 import net.bestia.zone.fact.FactRef
 import net.bestia.zone.quest.ObjectiveKind
+import net.bestia.zone.quest.ObjectiveScope
 import net.bestia.zone.quest.QuestDraft
 import net.bestia.zone.quest.QuestOrigin
 import net.bestia.zone.questgen.plan.BindSlot
@@ -98,6 +99,27 @@ class QuestPlannerTest {
   }
 
   @Test
+  fun `a town that lacks a good asks all comers for it in one shared step`() {
+    world.add(
+      BindSlot.TOWN_NEED,
+      Binding(WorldTarget.settlement(6), Vec2d(0.0, 0.0), mapOf("town" to TextArg.Name("Hale")), itemId = IRON_ORE, amount = 40),
+    )
+    val shortage = QuestSeed(
+      QuestSeed.Kind.TOWN_SHORTAGE, Actor(ActorType.SETTLEMENT, 6), uniqueness = QuestSeed.Uniqueness.SHARED,
+      need = QuestSeed.Need(IRON_ORE, 40),
+    )
+
+    val plan = assertNotNull(planner.plan(shortage).plan)
+
+    val deliver = plan.steps.single().objective
+    assertEquals(ObjectiveKind.DELIVER_ITEM to ObjectiveScope.SHARED, deliver.kind to deliver.scope)
+    assertEquals(IRON_ORE to 40, deliver.itemId to deliver.required)
+    assertNull(deliver.text, "the client words a delivery from its item")
+    assertEquals(WorldTarget.settlement(6), plan.startsAt)
+    QuestDraft(QuestOrigin.TOWN, plan.title, plan.suggestedLevel, Instant.MAX, plan.steps.map { it.objective }, rewards = emptyList())
+  }
+
+  @Test
   fun `the same world gives the same plan`() {
     assertEquals(planner.plan(BLADE).plan, planner.plan(BLADE).plan)
   }
@@ -142,6 +164,7 @@ class QuestPlannerTest {
 
   private companion object {
     const val RELIC_ITEM = 900L
+    const val IRON_ORE = 8L
     val BLADE = QuestSeed(QuestSeed.Kind.LOST_RELIC, Actor(ActorType.ARTIFACT, 3), uniqueness = QuestSeed.Uniqueness.UNIQUE)
     val NEAR_TELLER = WorldTarget.townsfolk(1)
     val FAR_TELLER = WorldTarget.townsfolk(2)

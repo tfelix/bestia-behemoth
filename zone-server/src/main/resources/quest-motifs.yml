@@ -23,3 +23,8 @@ motifs:
         return:
           text: QUESTGEN_CHOICE_RETURN_RELIC
           then: return_relic
+  town_shortage:
+    seed: TOWN_SHORTAGE
+    goal: stocked:town
+    steps: [deliver_goods]
+    title: QUESTGEN_TOWN_SHORTAGE_TITLE
