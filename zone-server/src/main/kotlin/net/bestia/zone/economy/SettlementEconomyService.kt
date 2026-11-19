@@ -171,6 +171,23 @@ class SettlementEconomyService(
   }
 
   /**
+   * Pays for work a town asked for out of its purse: up to [wantedCoins], and never more than it holds. Tick
+   * thread, like [settle].
+   *
+   * @return the coins paid
+   */
+  fun payFor(settlement: Int, wantedCoins: Long): Long {
+    val reference = referenceOf(settlement) ?: return 0
+    val current = advance(settlement, reference, clock.now().absoluteDay)
+    val paid = minOf(wantedCoins, current.treasury.toLong()).coerceAtLeast(0)
+    if (paid > 0) {
+      rememberIfWorthIt(settlement, reference, current.copy(treasury = current.treasury - paid))
+    }
+
+    return paid
+  }
+
+  /**
    * The derived path this settlement's ledger is a deviation from, cached per settlement. Null for a fallen
    * town, which has nobody left to trade: its shops close and its books stop where they were.
    */

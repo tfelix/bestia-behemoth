@@ -9,6 +9,7 @@ import net.bestia.worldgen.core.ActorType
 import net.bestia.zone.blackboard.BoardVisit
 import net.bestia.zone.economy.Commodity
 import net.bestia.zone.economy.CommodityItems
+import net.bestia.zone.economy.SettlementDamage
 import net.bestia.zone.economy.SettlementEconomyService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
@@ -24,8 +25,10 @@ import net.bestia.zone.quest.QuestReward
 import net.bestia.zone.quest.QuestService
 import net.bestia.zone.quest.QuestStatus
 import net.bestia.zone.quest.QuestView
-import net.bestia.zone.questgen.board.ShortageDeliveries
+import net.bestia.zone.questgen.board.TownRequestDeliveries
+import net.bestia.zone.prop.PropRestoration
 import net.bestia.zone.questgen.offer.QuestOffers
+import net.bestia.zone.questgen.seed.DamageSeeds
 import net.bestia.zone.questgen.persistence.StoredQuestPlan
 import net.bestia.zone.questgen.persistence.StoredQuestPlanRepository
 import net.bestia.zone.questgen.plan.QuestPlan
@@ -38,7 +41,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 /** Hale asked for 40 iron ore at 12 coins each. A master with 30 stands at a board. */
-class ShortageDeliveriesTest {
+class TownRequestDeliveriesTest {
 
   private val ecs = testWorld()
   private val bag = Inventory(mutableListOf(Inventory.Item(itemId = IRON, amount = 30)))
@@ -69,7 +72,36 @@ class ShortageDeliveriesTest {
   private val economy = mockk<SettlementEconomyService> { every { takeDelivery(HALE, "iron", any(), any()) } answers { arg(3) } }
   private val offers = mockk<QuestOffers>(relaxed = true)
 
-  private val deliveries = ShortageDeliveries(plans, quests, inventory, commodityItems, economy, view, offers)
+  private val damage = mockk<DamageSeeds> { every { destroyedBuildingsOf(HALE) } returns listOf(501L, 502L) }
+  private val restoration = mockk<PropRestoration> { every { restore(any()) } returns true }
+  private val capacity = mockk<SettlementDamage>(relaxed = true)
+
+  private val deliveries = TownRequestDeliveries(plans, quests, inventory, commodityItems, economy, view, offers, damage, restoration, capacity)
+
+  @Test
+  fun `material to rebuild is paid from the purse, and the last unit raises the buildings again`() {
+    val rebuilding = StoredQuestPlan(
+      stored.plan.copy(seed = stored.plan.seed.copy(kind = QuestSeed.Kind.TOWN_DAMAGE, need = QuestSeed.Need(PLANK, 40))),
+    ).apply { state = StoredQuestPlan.State.OFFERED }
+    every { plans.findByQuestId(QUEST) } returns rebuilding
+    every { commodityItems.commodityOf(PLANK) } returns null
+    every { economy.payFor(HALE, any()) } answers { secondArg() }
+    bag.addItem(Inventory.Item(itemId = PLANK, amount = 40))
+
+    every { quests.viewFor(MASTER, QUEST) } returns questView(progress = 20, status = QuestStatus.OPEN, item = PLANK)
+    assertNull(deliveries.handIn(visit(TOWN_NAME), questView(0, QuestStatus.OPEN, item = PLANK), 20))
+    verify(exactly = 0) { restoration.restore(any()) }
+
+    every { quests.viewFor(MASTER, QUEST) } returns questView(progress = 40, status = QuestStatus.COMPLETED, item = PLANK)
+    assertNull(deliveries.handIn(visit(TOWN_NAME), questView(20, QuestStatus.OPEN, item = PLANK), 20))
+
+    verify { economy.payFor(HALE, 240) }
+    verify(exactly = 0) { economy.takeDelivery(any(), any(), any(), any()) }
+    verify { restoration.restore(501L) }
+    verify { restoration.restore(502L) }
+    verify { capacity.invalidate() }
+    assertEquals(StoredQuestPlan.State.ENDED, rebuilding.state)
+  }
 
   @Test
   fun `the goods leave the bag for the town's stock, and the town pays from its purse`() {
@@ -102,13 +134,15 @@ class ShortageDeliveriesTest {
   }
 
   private fun handIn(amount: Int, at: String, progress: Int = 0): OpError? {
-    val visit = BoardVisit(accountId = 1, masterId = MASTER, masterEntityId = master, masterName = "Ayla", boardEntityId = 99, placeName = at)
-
-    return deliveries.handIn(visit, questView(progress, QuestStatus.OPEN), amount)
+    return deliveries.handIn(visit(at), questView(progress, QuestStatus.OPEN), amount)
   }
 
-  private fun questView(progress: Int, status: QuestStatus): QuestView {
-    val wanted = QuestView.Objective(ObjectiveKind.DELIVER_ITEM, ObjectiveScope.SHARED, IRON, null, null, required = 40, progress = progress, yours = 0)
+  private fun visit(at: String): BoardVisit {
+    return BoardVisit(accountId = 1, masterId = MASTER, masterEntityId = master, masterName = "Ayla", boardEntityId = 99, placeName = at)
+  }
+
+  private fun questView(progress: Int, status: QuestStatus, item: Long = IRON): QuestView {
+    val wanted = QuestView.Objective(ObjectiveKind.DELIVER_ITEM, ObjectiveScope.SHARED, item, null, null, required = 40, progress = progress, yours = 0)
 
     return QuestView(
       QUEST, QuestOrigin.TOWN, status, QuestView.Role.ACCEPTED, TextRef("QUESTGEN_TOWN_SHORTAGE_TITLE"), 10, Instant.MAX, TOWN_NAME,
@@ -121,6 +155,7 @@ class ShortageDeliveriesTest {
     const val MASTER = 9L
     const val HALE = 6
     const val IRON = 8L
+    const val PLANK = 12L
     const val COIN = 1L
     const val TOWN_NAME = "Hale"
   }

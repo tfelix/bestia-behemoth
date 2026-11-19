@@ -7,6 +7,7 @@ import net.bestia.zone.entity.observe.WorldTarget
 import net.bestia.zone.questgen.QuestgenConfig
 import net.bestia.zone.questgen.offer.QuestOffers
 import net.bestia.zone.questgen.persistence.StoredQuestPlan
+import net.bestia.zone.questgen.seed.QuestSeed
 import net.bestia.zone.townsfolk.knowledge.ChronicleNames
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Component
@@ -31,13 +32,22 @@ class TownBoardPosts(
   /** @return false when the town has no market or no name any more, so nothing was posted */
   fun post(stored: StoredQuestPlan): Boolean {
     val town = stored.plan.startsAt.key.toInt()
-    val commodity = stored.plan.seed.need?.let { commodityItems.commodityOf(it.itemId) } ?: return false
+    val need = stored.plan.seed.need ?: return false
     val name = ChronicleNames.placeOf(worldService.generated.world.chronicle, town) ?: return false
-    // The books of the towns are kept on the tick.
-    val price = world.read { economy.marketOf(town)?.priceOf(commodity.id) } ?: return false
+    val coinsEach = when (stored.plan.seed.kind) {
+      QuestSeed.Kind.TOWN_DAMAGE -> config.repairCoinsEach
+      else -> marketPriceOf(town, need.itemId)?.let { (it * config.shortagePriceFactor).roundToLong().coerceAtLeast(1) } ?: return false
+    }
 
-    offers.postOnBoard(stored, coinsEach = (price * config.shortagePriceFactor).roundToLong().coerceAtLeast(1), townName = name)
+    offers.postOnBoard(stored, coinsEach, townName = name)
 
     return true
+  }
+
+  /** What the town's own market asks for the good today. The books of the towns are kept on the tick. */
+  private fun marketPriceOf(town: Int, itemId: Long): Double? {
+    val commodity = commodityItems.commodityOf(itemId) ?: return null
+
+    return world.read { economy.marketOf(town)?.priceOf(commodity.id) }
   }
 }
