@@ -24,6 +24,7 @@ import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.questgen.offer.QuestOffers
 import net.bestia.zone.questgen.offer.QuestTopicProvider
 import net.bestia.zone.session.ConnectionInfoService
+import net.bestia.zone.text.WorldTexts
 import net.bestia.zone.townsfolk.conversation.Asker
 import net.bestia.zone.townsfolk.conversation.OptionKind
 import net.bestia.zone.townsfolk.conversation.Speaker
@@ -66,9 +67,11 @@ class QuestTopicProviderTest {
     every { artifactOf(any()) } returns null
     every { artifactOf(RELIC_COPY) } returns BLADE
   }
+  // No text is written in these tests, so every line stays its template.
+  private val texts = WorldTexts(mockk())
   private val returns = mockk<QuestReturns> { every { handOver(any(), any(), any()) } returns null }
 
-  private val provider = QuestTopicProvider(offers, sessions, jobs, out, returns, relics, view, masters)
+  private val provider = QuestTopicProvider(offers, sessions, jobs, out, returns, relics, view, texts, masters)
 
   @Test
   fun `in the artifact's home town a head of household takes it back from the master who carries it`() {

@@ -15,6 +15,8 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.text.TextRef
+import net.bestia.zone.text.TextSubject
+import net.bestia.zone.text.WorldTexts
 import net.bestia.zone.townsfolk.conversation.Asker
 import net.bestia.zone.townsfolk.conversation.ConversationNode
 import net.bestia.zone.townsfolk.conversation.ConversationOption
@@ -38,6 +40,7 @@ class QuestTopicProvider(
   private val returns: QuestReturns,
   private val relics: Relics,
   private val world: WorldView,
+  private val texts: WorldTexts,
   private val masters: MasterEntityResolver = MasterEntityResolver(sessions),
 ) : DialogTopicProvider {
 
@@ -69,7 +72,7 @@ class QuestTopicProvider(
 
     return when (local) {
       TELL -> ConversationNode(
-        TextRef(offer.plan.title.key.replace(TITLE_SUFFIX, OFFER_SUFFIX), args),
+        texts.attach(TextRef(offer.plan.title.key.replace(TITLE_SUFFIX, OFFER_SUFFIX), args), TextSubject.questOffer(offer.planId)),
         listOf(ConversationOption(Topics.QUEST + ACCEPT, TextRef(ACCEPT_KEY, args), OptionKind.ACTION)),
       )
 

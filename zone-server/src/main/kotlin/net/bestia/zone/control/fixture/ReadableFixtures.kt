@@ -30,6 +30,8 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.text.ReadableSMSG
 import net.bestia.zone.text.TextArg
 import net.bestia.zone.text.TextRef
+import net.bestia.zone.text.TextSubject
+import net.bestia.zone.text.WorldTexts
 import net.bestia.zone.townsfolk.knowledge.ChronicleNames
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
@@ -52,6 +54,7 @@ class ReadableFixtures(
   private val worldService: WorldService,
   private val outMessageProcessor: OutMessageProcessor,
   private val facts: FactService,
+  private val texts: WorldTexts,
   private val deedObservers: List<DeedObserver> = emptyList(),
 ) {
 
@@ -103,7 +106,7 @@ class ReadableFixtures(
       FixtureKind.NAMED_GRAVE -> {
         val figure = chronicle.figures.getOrNull(marker.attribute(FixtureChannels.FIGURE).toInt()) ?: return null
         val name = ChronicleNames.figureOf(chronicle, figure.index) ?: return null
-        TextRef(
+        val plain = TextRef(
           "READABLE_NAMED_GRAVE",
           mapOf(
             "name" to TextArg.Name(name),
@@ -112,6 +115,7 @@ class ReadableFixtures(
             "died" to TextArg.Number(figure.deathYear.toLong()),
           ),
         )
+        texts.attach(plain, TextSubject.grave(figure.index))
       }
       else -> null
     }
