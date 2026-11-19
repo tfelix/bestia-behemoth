@@ -19,4 +19,10 @@ enum class BindSlot {
 
   /** The town of the seed and the goods it lacks. */
   TOWN_NEED,
+
+  /** A townsperson who tells the news of the seed, in a town that heard it. */
+  NEWS_TELLER,
+
+  /** A townsperson in the town of the seed, which has not heard the news. */
+  NEWS_LISTENER,
 }

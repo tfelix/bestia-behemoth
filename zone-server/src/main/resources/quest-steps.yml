@@ -54,3 +54,16 @@ steps:
     gives: [stocked:town]
     tension: 1
     scope: SHARED
+  hear_news:
+    kind: TALK
+    binds: NEWS_TELLER
+    gives: [heard:news]
+    tension: 1
+    text: QUESTGEN_STEP_HEAR_NEWS
+  tell_news:
+    kind: TALK
+    binds: NEWS_LISTENER
+    needs: [heard:news]
+    gives: [told:news]
+    tension: 2
+    text: QUESTGEN_STEP_TELL_NEWS

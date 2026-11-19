@@ -33,3 +33,8 @@ motifs:
     goal: stocked:town
     steps: [deliver_goods]
     title: QUESTGEN_TOWN_DAMAGE_TITLE
+  carry_news:
+    seed: NEWS
+    goal: told:news
+    steps: [hear_news, tell_news]
+    title: QUESTGEN_CARRY_NEWS_TITLE

@@ -30,6 +30,13 @@ data class QuestgenConfig(
   val repairUnitsPerBuilding: Int = 20,
   val repairCoinsEach: Long = 15,
 
+  /** News is carried to a town at most this far from one that has heard it, and only while it is this strong. */
+  val newsReachMetres: Double = 40_000.0,
+  val newsMinStrength: Double = 0.5,
+
+  /** What a town thinks more of a master who brought it news, in honor. */
+  val newsHonor: Int = 5,
+
   /** Experience for finishing a quest, per suggested level of the quest. */
   val expPerLevel: Int = 100,
 

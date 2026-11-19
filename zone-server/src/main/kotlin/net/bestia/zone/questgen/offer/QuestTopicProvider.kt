@@ -68,17 +68,16 @@ class QuestTopicProvider(
     }
 
     val offer = offerOf(speaker) ?: return null
-    val args = offer.plan.title.args
 
     return when (local) {
       TELL -> ConversationNode(
-        texts.attach(TextRef(offer.plan.title.key.replace(TITLE_SUFFIX, OFFER_SUFFIX), args), TextSubject.questOffer(offer.planId)),
-        listOf(ConversationOption(Topics.QUEST + ACCEPT, TextRef(ACCEPT_KEY, args), OptionKind.ACTION)),
+        texts.attach(lineOf(offer, OFFER_SUFFIX), TextSubject.questOffer(offer.planId)),
+        listOf(ConversationOption(Topics.QUEST + ACCEPT, lineOf(offer, ACCEPT_SUFFIX), OptionKind.ACTION)),
       )
 
       ACCEPT -> {
         accept(asker, offer)
-        ConversationNode(TextRef(ACCEPTED_KEY, args), emptyList())
+        ConversationNode(lineOf(offer, ACCEPTED_SUFFIX), emptyList())
       }
 
       else -> null
@@ -132,6 +131,13 @@ class QuestTopicProvider(
     }
   }
 
+  /** What is said about a quest is worded per kind of quest: each line is a twin of the title's key. */
+  private fun lineOf(offer: QuestOffers.Offer, suffix: String): TextRef {
+    val title = offer.plan.title
+
+    return TextRef(title.key.replace(TITLE_SUFFIX, suffix), title.args)
+  }
+
   private fun offerOf(speaker: Speaker): QuestOffers.Offer? {
     return offers.at(WorldTarget.townsfolk(speaker.identity))
   }
@@ -147,14 +153,13 @@ class QuestTopicProvider(
     const val BRING_HOME = 3
 
     const val ASK_KEY = "QUESTGEN_TOPIC_ASK"
-    const val ACCEPT_KEY = "QUESTGEN_ACCEPT"
-    const val ACCEPTED_KEY = "QUESTGEN_ACCEPTED"
     const val BRING_HOME_KEY = "QUESTGEN_BRING_HOME"
     const val STILL_WAITING_KEY = "QUESTGEN_STILL_WAITING"
     const val HOME_AGAIN_KEY = "QUESTGEN_HOME_AGAIN"
 
-    /** The giver's own words about a quest are the title key's twin, as the log's longer text is. */
     const val TITLE_SUFFIX = "_TITLE"
     const val OFFER_SUFFIX = "_OFFER"
+    const val ACCEPT_SUFFIX = "_ACCEPT"
+    const val ACCEPTED_SUFFIX = "_ACCEPTED"
   }
 }

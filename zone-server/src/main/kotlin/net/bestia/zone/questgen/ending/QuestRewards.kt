@@ -14,6 +14,7 @@ import net.bestia.zone.item.ecs.ObtainItemIntent.CreateItemIntent
 import net.bestia.zone.item.ecs.ObtainItemIntent.CreateItemsIntent
 import net.bestia.zone.questgen.QuestgenConfig
 import net.bestia.zone.questgen.plan.QuestPlan
+import net.bestia.zone.questgen.seed.QuestSeed
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
@@ -63,6 +64,10 @@ class QuestRewards(
   private fun payOnTick(world: World, masterEntityId: EntityId, masterId: Long, plan: QuestPlan, ending: Ending) {
     val name = world.get(masterEntityId, Master::class)?.name ?: return
     world.update(masterEntityId, { GainExp() }) { it.value += plan.suggestedLevel * config.expPerLevel }
+
+    if (plan.seed.kind == QuestSeed.Kind.NEWS) {
+      honor.changeSettlement(masterId, name, plan.seed.subject.index, config.newsHonor)
+    }
 
     val home = plan.broughtTo ?: return
     when (ending) {

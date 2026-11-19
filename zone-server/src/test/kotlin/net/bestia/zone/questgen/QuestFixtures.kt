@@ -72,3 +72,33 @@ private fun returnStepsTo(home: Int?, args: Map<String, TextArg>): List<QuestPla
     ),
   )
 }
+
+/** A plan made by hand: hear the news from the first house of [from], then tell it to anybody in [to]. */
+fun carryNewsPlan(from: Int, to: Int, rumourId: Long, giver: WorldTarget = WorldTarget.townsfolk(from.toLong())): QuestPlan {
+  val args = mapOf("from" to TextArg.Name("Hale"), "to" to TextArg.Name("Dunmere"))
+
+  return QuestPlan(
+    seed = QuestSeed(
+      QuestSeed.Kind.NEWS, Actor(ActorType.SETTLEMENT, to), others = listOf(Actor(ActorType.SETTLEMENT, from)),
+      uniqueness = QuestSeed.Uniqueness.UNIQUE, rumourId = rumourId,
+    ),
+    motif = "carry_news",
+    title = TextRef("QUESTGEN_CARRY_NEWS_TITLE", args),
+    startsAt = giver,
+    suggestedLevel = 1,
+    steps = listOf(
+      QuestPlan.Step(
+        "hear_news",
+        QuestObjective(ObjectiveKind.TALK, ObjectiveScope.PERSONAL, 1, target = giver, text = TextRef("QUESTGEN_STEP_HEAR_NEWS", args)),
+      ),
+      QuestPlan.Step(
+        "tell_news",
+        QuestObjective(
+          ObjectiveKind.TALK, ObjectiveScope.PERSONAL, 1, stage = 1, target = WorldTarget.settlement(to),
+          text = TextRef("QUESTGEN_STEP_TELL_NEWS", args),
+        ),
+      ),
+    ),
+    score = 1.0,
+  )
+}
