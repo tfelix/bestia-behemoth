@@ -39,8 +39,9 @@ class Quest(
   @Column(name = "suggested_level", nullable = false)
   val suggestedLevel: Int,
 
+  /** Only ever moved closer, by [endNoLaterThan]. */
   @Column(nullable = false)
-  val deadline: Instant,
+  var deadline: Instant,
 
   @Convert(converter = QuestObjectivesConverter::class)
   @Column(columnDefinition = "TEXT", nullable = false)
@@ -83,6 +84,12 @@ class Quest(
 
   val sharedObjectivesDone: Boolean
     get() = objectives.filter { it.scope == ObjectiveScope.SHARED }.all { it.remaining <= 0 }
+
+  fun endNoLaterThan(latest: Instant) {
+    if (latest.isBefore(deadline)) {
+      deadline = latest
+    }
+  }
 
   fun close() {
     check(status == QuestStatus.OPEN) { "Quest $id is $status, it cannot start closing" }

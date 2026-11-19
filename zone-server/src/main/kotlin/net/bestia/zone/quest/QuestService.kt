@@ -17,6 +17,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Clock
+import java.time.Duration
 
 /**
  * The quests sources make and the logs of the masters who took them. Sources decide what a quest asks and when it
@@ -144,6 +145,26 @@ class QuestService(
     events.publishEvent(QuestChangedEvent(questId))
     val loserIds = losers.map { it.masterId }
     afterCommit { live.untrack(loserIds, questId) }
+  }
+
+  /**
+   * [masterId] is done with a quest that stays open: others may still take it and finish it. For a quest many
+   * masters do each for themselves.
+   */
+  @Transactional
+  fun completeFor(masterId: Long, questId: Long) {
+    val entry = entries.findByMasterIdAndQuestId(masterId, questId)?.takeIf { it.takesWork } ?: return
+    entry.completedAt = clock.instant()
+    events.publishEvent(QuestChangedEvent(questId))
+    afterCommit { live.untrack(listOf(masterId), questId) }
+  }
+
+  /** Moves the deadline to [within] from now, unless it is closer already. */
+  @Transactional
+  fun endNoLaterThan(questId: Long, within: Duration) {
+    val quest = quests.findLocked(questId) ?: return
+    quest.endNoLaterThan(clock.instant().plus(within))
+    events.publishEvent(QuestChangedEvent(questId))
   }
 
   /** Stops new masters joining; work already under way still counts until the source ends the quest. */

@@ -51,6 +51,10 @@ data class QuestView(
   companion object {
     fun accepted(entry: QuestLogEntry): QuestView {
       val view = of(entry.quest, Role.ACCEPTED, entry.counts, entry.stage, entry::isFor, entry.choices)
+      if (entry.completedAt != null) {
+        // Whatever the quest became for the others later, this master did it.
+        return view.copy(status = QuestStatus.COMPLETED)
+      }
       val winner = entry.supersededBy ?: return view
 
       return view.copy(status = QuestStatus.SUPERSEDED, wonBy = winner)
