@@ -1141,6 +1141,7 @@ ERROR_BLACKBOARD_NOTHING_TO_HAND_IN,You carry none of what this quest wants.
 QUEST_DELIVER_TEXT,"Bring {amount} {item} to any blackboard. {poster} pays {pay} gold for each."
 QUEST_LOG_EMPTY,Your quest log is empty. Sign a quest at a blackboard in town.
 QUEST_LOG_GROUP_BLACKBOARD,Blackboard
+QUEST_LOG_GROUP_WORLD,Local matters
 QUEST_LOG_GROUP_POSTED,Posted by you
 QUEST_LOG_SUBTITLE,%s · posted by %s · ends in %s · suggested Lv %d
 QUEST_ORIGIN_BLACKBOARD,Blackboard
