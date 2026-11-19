@@ -96,6 +96,13 @@ READABLE_MILESTONE_ARMS_4,{place1} {distance1} · {place2} {distance2} · {place
 READABLE_NAMED_GRAVE,"Here lies {name}, {role}, {born}-{died}."
 READABLE_GRAVE,"Here lies {name}, {born}-{died}."
 READABLE_GRAVE_WORN,The headstone is too worn to read.
+READABLE_NAMED_GRAVE_HEADER,Grave stone
+READABLE_GRAVE_HEADER,Grave stone
+READABLE_GRAVE_WORN_HEADER,Grave stone
+READABLE_SIGNPOST_HEADER,Signpost
+READABLE_MILESTONE_HEADER,Milestone
+READABLE_ALSO_IN_CHAT,Also kept in the chat log
+READABLE_CLOSE,Close
 FIGURE_ROLE_RULER,ruler
 FIGURE_ROLE_GENERAL,general
 FIGURE_ROLE_PROPHET,prophet
