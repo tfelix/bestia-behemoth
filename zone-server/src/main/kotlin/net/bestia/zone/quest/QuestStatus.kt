@@ -7,7 +7,10 @@ enum class QuestStatus {
   CLOSING,
   COMPLETED,
   EXPIRED,
-  WITHDRAWN;
+  WITHDRAWN,
+
+  /** Somebody else took the one prize the quest was about. */
+  SUPERSEDED;
 
   val takesWork: Boolean
     get() = this == OPEN || this == CLOSING

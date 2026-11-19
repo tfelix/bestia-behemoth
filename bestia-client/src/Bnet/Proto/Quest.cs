@@ -34,19 +34,20 @@ namespace Bnet {
             "KAkSDQoFc3RhZ2UYCSABKA0SGwoEdGV4dBgKIAEoCzINLmJuZXQuVGV4dFJl",
             "ZhIiCgdjaG9pY2VzGAsgAygLMhEuYm5ldC5RdWVzdENob2ljZRIOCgZjaG9z",
             "ZW4YDCABKAkiQgoLUXVlc3RSZXdhcmQSIwoEa2luZBgBIAEoDjIVLmJuZXQu",
-            "UXVlc3RSZXdhcmRLaW5kEg4KBmFtb3VudBgCIAEoAyLCAgoFUXVlc3QSEAoI",
+            "UXVlc3RSZXdhcmRLaW5kEg4KBmFtb3VudBgCIAEoAyLSAgoFUXVlc3QSEAoI",
             "cXVlc3RfaWQYASABKAQSIQoGb3JpZ2luGAIgASgOMhEuYm5ldC5RdWVzdE9y",
             "aWdpbhIhCgZzdGF0dXMYAyABKA4yES5ibmV0LlF1ZXN0U3RhdHVzEh0KBHJv",
             "bGUYBCABKA4yDy5ibmV0LlF1ZXN0Um9sZRIcCgV0aXRsZRgFIAEoCzINLmJu",
             "ZXQuVGV4dFJlZhIXCg9zdWdnZXN0ZWRfbGV2ZWwYByABKA0SGQoRZGVhZGxp",
             "bmVfZXBvY2hfbXMYCCABKAMSEwoLcG9zdGVyX25hbWUYCSABKAkSKAoKb2Jq",
             "ZWN0aXZlcxgKIAMoCzIULmJuZXQuUXVlc3RPYmplY3RpdmUSIgoHcmV3YXJk",
-            "cxgLIAMoCzIRLmJuZXQuUXVlc3RSZXdhcmQSDQoFc3RhZ2UYDCABKA0qQgoL",
-            "UXVlc3RPcmlnaW4SGwoXUVVFU1RfT1JJR0lOX0JMQUNLQk9BUkQQABIWChJR",
-            "VUVTVF9PUklHSU5fV09STEQQASqQAQoLUXVlc3RTdGF0dXMSFQoRUVVFU1Rf",
-            "U1RBVFVTX09QRU4QABIYChRRVUVTVF9TVEFUVVNfQ0xPU0lORxABEhoKFlFV",
-            "RVNUX1NUQVRVU19DT01QTEVURUQQAhIYChRRVUVTVF9TVEFUVVNfRVhQSVJF",
-            "RBADEhoKFlFVRVNUX1NUQVRVU19XSVRIRFJBV04QBCpTCglRdWVzdFJvbGUS",
+            "cxgLIAMoCzIRLmJuZXQuUXVlc3RSZXdhcmQSDQoFc3RhZ2UYDCABKA0SDgoG",
+            "d29uX2J5GA0gASgJKkIKC1F1ZXN0T3JpZ2luEhsKF1FVRVNUX09SSUdJTl9C",
+            "TEFDS0JPQVJEEAASFgoSUVVFU1RfT1JJR0lOX1dPUkxEEAEqrQEKC1F1ZXN0",
+            "U3RhdHVzEhUKEVFVRVNUX1NUQVRVU19PUEVOEAASGAoUUVVFU1RfU1RBVFVT",
+            "X0NMT1NJTkcQARIaChZRVUVTVF9TVEFUVVNfQ09NUExFVEVEEAISGAoUUVVF",
+            "U1RfU1RBVFVTX0VYUElSRUQQAxIaChZRVUVTVF9TVEFUVVNfV0lUSERSQVdO",
+            "EAQSGwoXUVVFU1RfU1RBVFVTX1NVUEVSU0VERUQQBSpTCglRdWVzdFJvbGUS",
             "FwoTUVVFU1RfUk9MRV9BQ0NFUFRFRBAAEhUKEVFVRVNUX1JPTEVfUE9TVEVE",
             "EAESFgoSUVVFU1RfUk9MRV9PRkZFUkVEEAIqswEKDU9iamVjdGl2ZUtpbmQS",
             "HwobT0JKRUNUSVZFX0tJTkRfREVMSVZFUl9JVEVNEAASFwoTT0JKRUNUSVZF",
@@ -63,7 +64,7 @@ namespace Bnet {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.QuestChoice), global::Bnet.QuestChoice.Parser, new[]{ "Id", "Text" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.QuestObjective), global::Bnet.QuestObjective.Parser, new[]{ "Kind", "Scope", "ItemId", "Required", "Progress", "Yours", "SpeciesId", "PlaceName", "Stage", "Text", "Choices", "Chosen" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.QuestReward), global::Bnet.QuestReward.Parser, new[]{ "Kind", "Amount" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Quest), global::Bnet.Quest.Parser, new[]{ "QuestId", "Origin", "Status", "Role", "Title", "SuggestedLevel", "DeadlineEpochMs", "PosterName", "Objectives", "Rewards", "Stage" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Quest), global::Bnet.Quest.Parser, new[]{ "QuestId", "Origin", "Status", "Role", "Title", "SuggestedLevel", "DeadlineEpochMs", "PosterName", "Objectives", "Rewards", "Stage", "WonBy" }, null, null, null, null)
           }));
     }
     #endregion
@@ -90,6 +91,10 @@ namespace Bnet {
     [pbr::OriginalName("QUEST_STATUS_COMPLETED")] Completed = 2,
     [pbr::OriginalName("QUEST_STATUS_EXPIRED")] Expired = 3,
     [pbr::OriginalName("QUEST_STATUS_WITHDRAWN")] Withdrawn = 4,
+    /// <summary>
+    /// Somebody else took the one prize the quest was about.
+    /// </summary>
+    [pbr::OriginalName("QUEST_STATUS_SUPERSEDED")] Superseded = 5,
   }
 
   /// <summary>
@@ -1283,6 +1288,7 @@ namespace Bnet {
       objectives_ = other.objectives_.Clone();
       rewards_ = other.rewards_.Clone();
       stage_ = other.stage_;
+      wonBy_ = other.wonBy_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1425,6 +1431,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "won_by" field.</summary>
+    public const int WonByFieldNumber = 13;
+    private string wonBy_ = "";
+    /// <summary>
+    /// Who took the prize of a superseded quest. Empty when nobody is named.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string WonBy {
+      get { return wonBy_; }
+      set {
+        wonBy_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -1451,6 +1472,7 @@ namespace Bnet {
       if(!objectives_.Equals(other.objectives_)) return false;
       if(!rewards_.Equals(other.rewards_)) return false;
       if (Stage != other.Stage) return false;
+      if (WonBy != other.WonBy) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1469,6 +1491,7 @@ namespace Bnet {
       hash ^= objectives_.GetHashCode();
       hash ^= rewards_.GetHashCode();
       if (Stage != 0) hash ^= Stage.GetHashCode();
+      if (WonBy.Length != 0) hash ^= WonBy.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1525,6 +1548,10 @@ namespace Bnet {
         output.WriteRawTag(96);
         output.WriteUInt32(Stage);
       }
+      if (WonBy.Length != 0) {
+        output.WriteRawTag(106);
+        output.WriteString(WonBy);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1573,6 +1600,10 @@ namespace Bnet {
         output.WriteRawTag(96);
         output.WriteUInt32(Stage);
       }
+      if (WonBy.Length != 0) {
+        output.WriteRawTag(106);
+        output.WriteString(WonBy);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1611,6 +1642,9 @@ namespace Bnet {
       size += rewards_.CalculateSize(_repeated_rewards_codec);
       if (Stage != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Stage);
+      }
+      if (WonBy.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(WonBy);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1655,6 +1689,9 @@ namespace Bnet {
       rewards_.Add(other.rewards_);
       if (other.Stage != 0) {
         Stage = other.Stage;
+      }
+      if (other.WonBy.Length != 0) {
+        WonBy = other.WonBy;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1722,6 +1759,10 @@ namespace Bnet {
             Stage = input.ReadUInt32();
             break;
           }
+          case 106: {
+            WonBy = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -1786,6 +1827,10 @@ namespace Bnet {
           }
           case 96: {
             Stage = input.ReadUInt32();
+            break;
+          }
+          case 106: {
+            WonBy = input.ReadString();
             break;
           }
         }

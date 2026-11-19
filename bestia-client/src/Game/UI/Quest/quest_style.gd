@@ -12,7 +12,7 @@ const BAND_COLOURS := {
 	"deadly": Color(0.90, 0.38, 0.38),
 }
 
-const ENDED_STATUSES := ["completed", "expired", "withdrawn"]
+const ENDED_STATUSES := ["completed", "expired", "withdrawn", "superseded"]
 
 static var _formatter := QuestFormatter.new()
 

@@ -21,6 +21,8 @@ enum QuestStatus {
   QUEST_STATUS_COMPLETED = 2;
   QUEST_STATUS_EXPIRED = 3;
   QUEST_STATUS_WITHDRAWN = 4;
+  // Somebody else took the one prize the quest was about.
+  QUEST_STATUS_SUPERSEDED = 5;
 }
 
 // Why the quest is in this master's log.
@@ -97,4 +99,6 @@ message Quest {
   repeated QuestReward rewards = 11;
   // The stage this master works on. Objectives of later stages are not sent.
   uint32 stage = 12;
+  // Who took the prize of a superseded quest. Empty when nobody is named.
+  string won_by = 13;
 }

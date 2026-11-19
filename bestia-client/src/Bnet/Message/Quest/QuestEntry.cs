@@ -21,6 +21,9 @@ namespace BestiaBehemothClient.Bnet.Message.Quest
 
     /// <summary>The stage the master works on. Objectives of later stages are not sent.</summary>
     [Export] public int Stage { get; set; }
+
+    /// <summary>Who took the prize of a superseded quest; empty when nobody is named.</summary>
+    [Export] public string WonBy { get; set; } = "";
     [Export] public Godot.Collections.Array<QuestObjectiveEntry> Objectives { get; set; } = [];
     [Export] public Godot.Collections.Array<QuestRewardEntry> Rewards { get; set; } = [];
 
@@ -36,7 +39,8 @@ namespace BestiaBehemothClient.Bnet.Message.Quest
         SuggestedLevel = (int)proto.SuggestedLevel,
         DeadlineEpochMs = proto.DeadlineEpochMs,
         PosterName = proto.PosterName,
-        Stage = (int)proto.Stage
+        Stage = (int)proto.Stage,
+        WonBy = proto.WonBy
       };
       foreach (var objective in proto.Objectives)
       {

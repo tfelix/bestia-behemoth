@@ -1148,8 +1148,11 @@ QUEST_STATUS_CLOSING,closing
 QUEST_STATUS_COMPLETED,completed
 QUEST_STATUS_EXPIRED,expired
 QUEST_STATUS_WITHDRAWN,withdrawn
+QUEST_STATUS_SUPERSEDED,too late
 QUEST_NOTICE_COMPLETED,Quest complete: %s
 QUEST_NOTICE_EXPIRED,Quest ran out of time: %s
 QUEST_NOTICE_WITHDRAWN,Quest withdrawn: %s
+QUEST_NOTICE_SUPERSEDED,Somebody else was faster: %s
+QUEST_LOG_WON_BY,%s was there first.
 QUEST_NOTICE_CLOSING,Quest is closing in one hour: %s
 QUEST_TRACKER_LINE,%d / %d · carrying %d · %s

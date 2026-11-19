@@ -19,6 +19,8 @@ data class QuestView(
   val rewards: List<QuestReward>,
   /** The stage this master works on; 0 for a quest it has not accepted. */
   val stage: Int = 0,
+  /** Who took the prize, for a master whose quest was superseded. */
+  val wonBy: String? = null,
 ) {
 
   enum class Role {
@@ -48,7 +50,10 @@ data class QuestView(
 
   companion object {
     fun accepted(entry: QuestLogEntry): QuestView {
-      return of(entry.quest, Role.ACCEPTED, entry.counts, entry.stage, entry::isFor, entry.choices)
+      val view = of(entry.quest, Role.ACCEPTED, entry.counts, entry.stage, entry::isFor, entry.choices)
+      val winner = entry.supersededBy ?: return view
+
+      return view.copy(status = QuestStatus.SUPERSEDED, wonBy = winner)
     }
 
     fun posted(quest: Quest): QuestView {
