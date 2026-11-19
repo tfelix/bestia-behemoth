@@ -1150,6 +1150,7 @@ QUEST_ORIGIN_BLACKBOARD,Blackboard
 QUEST_ORIGIN_WORLD,Local matter
 QUEST_ORIGIN_TOWN,Town request
 QUESTGEN_TOWN_SHORTAGE_TITLE,{town} needs {amount} {item}
+QUESTGEN_TOWN_DAMAGE_TITLE,{town} rebuilds: {amount} {item}
 QUESTGEN_TOPIC_ASK,You look troubled. What is it?
 QUESTGEN_LOST_RELIC_OFFER,"It is {artifact}. It was lost long ago and nobody ever found it. I can tell you what my house knows, if you mean to look for it."
 QUESTGEN_ACCEPT,I will look for it.

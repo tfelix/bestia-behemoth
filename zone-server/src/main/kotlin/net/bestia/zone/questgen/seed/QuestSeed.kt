@@ -27,6 +27,9 @@ data class QuestSeed(
 
     /** A town whose stock of a good is far below what it should have. */
     TOWN_SHORTAGE,
+
+    /** A town with destroyed buildings that asks for the material to rebuild them. */
+    TOWN_DAMAGE,
   }
 
   enum class Uniqueness {

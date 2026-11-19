@@ -28,3 +28,8 @@ motifs:
     goal: stocked:town
     steps: [deliver_goods]
     title: QUESTGEN_TOWN_SHORTAGE_TITLE
+  town_damage:
+    seed: TOWN_DAMAGE
+    goal: stocked:town
+    steps: [deliver_goods]
+    title: QUESTGEN_TOWN_DAMAGE_TITLE
