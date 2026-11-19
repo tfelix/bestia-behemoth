@@ -4,6 +4,7 @@
 # seed    the QuestSeed.Kind the motif answers
 # goal    what the chain must give; a chain that cannot reach it is no quest
 # steps   the step patterns of quest-steps.yml the planner may use
+# offer   what the giver speaks about, for the text job; the job adds the lead to the next step
 # decide  optional. Offered only when the step after every choice can be bound in this world.
 #         A choice without `then` ends the quest.
 motifs:
@@ -12,6 +13,7 @@ motifs:
     goal: holds:relic
     steps: [hear_legend, hear_of_loss, read_epitaph, dig_relic]
     title: QUESTGEN_LOST_RELIC_TITLE
+    offer: what {artifact} is and how it was lost
     decide:
       text: QUESTGEN_STEP_DECIDE_RELIC
       tension: 2

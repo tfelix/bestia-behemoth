@@ -7,6 +7,7 @@
 # gives    what is true after it
 # tension  how tense the step is, 1 to 3; a good chain rises to one peak and then falls
 # text     the template key of the step's line in the quest log
+# brief    what the step asks of the player, for the text job: it follows "the writer has to ..."
 steps:
   hear_legend:
     kind: TALK
@@ -14,12 +15,14 @@ steps:
     gives: [knows:legend, knows:site]
     tension: 1
     text: QUESTGEN_STEP_HEAR_LEGEND
+    brief: ask in {town} for the legend of {artifact}
   hear_of_loss:
     kind: TALK
     binds: LOSS_WITNESS
     gives: [knows:legend, knows:site]
     tension: 1
     text: QUESTGEN_STEP_HEAR_OF_LOSS
+    brief: ask in {town} how {artifact} was lost
   read_epitaph:
     kind: EXAMINE
     binds: KEEPER_GRAVE
@@ -27,6 +30,7 @@ steps:
     gives: [knows:keeper, knows:site]
     tension: 2
     text: QUESTGEN_STEP_READ_EPITAPH
+    brief: find the grave of {keeper} in the cemetery of {graveyard} and read its stone
   dig_relic:
     kind: EXAMINE
     binds: RELIC_CACHE
@@ -34,6 +38,7 @@ steps:
     gives: [holds:relic]
     tension: 3
     text: QUESTGEN_STEP_DIG_RELIC
+    brief: dig for {artifact} near {near}, where it was lost
   return_relic:
     kind: BRING
     binds: HOME_TEMPLE
@@ -41,3 +46,4 @@ steps:
     gives: [at:relic:home]
     tension: 1
     text: QUESTGEN_STEP_RETURN_RELIC
+    brief: bring {artifact} home to the temple of {home}

@@ -19,7 +19,8 @@ const val RELIC_ITEM_ID = 900L
  * bring the artifact to that town.
  */
 fun lostRelicPlan(artifact: Int, giver: WorldTarget, score: Double = 1.0, home: Int? = null): QuestPlan {
-  val args = mapOf("artifact" to TextArg.Name("Ashbrand"))
+  val args = mapOf("artifact" to TextArg.Name("Ashbrand"), "town" to TextArg.Name("Dunmere"), "near" to TextArg.Name("Hale")) +
+    (home?.let { mapOf("home" to TextArg.Name("Hale")) } ?: emptyMap())
 
   return QuestPlan(
     seed = QuestSeed(QuestSeed.Kind.LOST_RELIC, Actor(ActorType.ARTIFACT, artifact), uniqueness = QuestSeed.Uniqueness.UNIQUE),
