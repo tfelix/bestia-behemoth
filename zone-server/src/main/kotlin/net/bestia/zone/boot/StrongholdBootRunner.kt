@@ -4,6 +4,8 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.stronghold.EmpyriteSeedDiscoveries
 import net.bestia.zone.stronghold.EmpyriteSeedRegistry
 import net.bestia.zone.stronghold.EmpyriteSeedWaking
+import net.bestia.zone.stronghold.EmpyriteSites
+import net.bestia.zone.stronghold.StrongholdRegistry
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
@@ -18,6 +20,8 @@ class StrongholdBootRunner(
   private val seeds: EmpyriteSeedRegistry,
   private val waking: EmpyriteSeedWaking,
   private val discoveries: EmpyriteSeedDiscoveries,
+  private val strongholds: StrongholdRegistry,
+  private val sites: EmpyriteSites,
   private val world: World,
 ) : CommandLineRunner {
 
@@ -25,6 +29,8 @@ class StrongholdBootRunner(
     seeds.restoreAll()
     waking.wakeAtBoot()
     discoveries.restoreAll()
+    strongholds.restoreAll()
+    sites.restoreOwners(world)
     waking.raiseSprouts(world)
   }
 }

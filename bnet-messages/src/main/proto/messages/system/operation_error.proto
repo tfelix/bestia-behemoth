@@ -538,6 +538,16 @@ enum OpError {
   SETTLEMENT_NEAR_EMPYRITE_SEED = 390;
   // The target is a guild structure, and only members of guilds with Official Guild Approval can harm those.
   COMBAT_NEEDS_GUILD_APPROVAL = 391;
+  // Planting an Empyrite needs a rank that may use guild skills, in a guild with Official Guild Approval.
+  STRONGHOLD_NOT_ALLOWED = 392;
+  // The guild already holds a Stronghold; any further one is won by capture.
+  STRONGHOLD_ALREADY_HELD = 393;
+  // The planter must stand on the seed's core.
+  STRONGHOLD_NOT_ON_CORE = 394;
+  // The planter does not carry the coins planting costs.
+  STRONGHOLD_CANNOT_AFFORD = 395;
+  // The site belongs to a guild, and only its members may work on it.
+  BUILD_NOT_YOUR_GUILDS = 396;
 }
 
 message OperationError {
