@@ -540,6 +540,8 @@ enum OpError {
   STRUCTURE_NEEDS_SETTLEMENT = 390;
   // In a settlement, but too far from its city sign and from every building in it.
   STRUCTURE_TOO_FAR_FROM_TOWN = 391;
+  // Outside a settlement, too close to a structure of another master.
+  STRUCTURE_TOO_CLOSE = 392;
 }
 
 message OperationError {

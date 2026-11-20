@@ -11,6 +11,9 @@ object BuildingPlaces {
   /** A town structure must stand this close to the city sign or to a building of the town. */
   const val ANCHOR_RANGE_METRES = 30.0
 
+  /** Outside a settlement, one master's structures keep this far from another's. */
+  const val WILD_SPACING_METRES = 10.0
+
   /** Small camp and gathering structures. Everything not listed here needs a settlement, so a new kit does too. */
   val WILD_KINDS: Set<StaticEntityKind> = setOf(
     StaticEntityKind.CAMPFIRE,
