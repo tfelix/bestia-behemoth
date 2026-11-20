@@ -11,4 +11,5 @@ data class Stronghold(
   val siteStructureId: Long?,
   val siteWorkedAt: Instant,
   val plantedAt: Instant,
+  val empyriteHp: Int = 0,
 )

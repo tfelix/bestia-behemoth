@@ -35,6 +35,10 @@ class StrongholdRecord(
   @Column(name = "site_worked_at", nullable = false)
   var siteWorkedAt: Instant = Instant.EPOCH,
 
+  /** The Empyrite's health, written now and then while it stands. 0 until it does. */
+  @Column(name = "empyrite_hp", nullable = false)
+  var empyriteHp: Int = 0,
+
   @Column(name = "planted_at", nullable = false)
   var plantedAt: Instant = Instant.EPOCH,
 
