@@ -1,0 +1,121 @@
+NEWS TEXT news:BOSS_SLAIN:0 [en] tries=1 seconds=20,7
+A great beast was killed not far from here. Others went to see it and told what happened. You must take this word to {town}. The news has not reached {town} yet.
+
+NEWS TEXT news:BOSS_SLAIN:0 [de] tries=1 seconds=16,5
+Ein gewaltiges Ungetier wurde nicht weit von hier getötet. Andere eilten herbei, um es zu sehen, und erzählten, was geschehen war. Du musst diese Kunde nach {town} bringen. Die Nachricht hat {town} noch nicht erreicht.
+
+NEWS TEXT news:BOSS_SLAIN:1 [en] tries=1 seconds=23,8
+A great beast was killed not far from here. Some men went to see it and told of the slaying. Carry this word to {town}, for they have not heard the news.
+
+NEWS TEXT news:BOSS_SLAIN:1 [de] tries=1 seconds=15,6
+Ein gewaltiges Ungetier wurde nicht weit von hier getötet. Einige Männer gingen, um es zu sehen, und berichteten vom Sieg. Trage diese Kunde nach {town}, denn dort haben sie von dem Geschehen noch nichts gehört.
+
+NEWS TEXT news:BOSS_SLAIN:2 [en] tries=1 seconds=24,9
+The great beast near here is dead, though I did not see the deed done. Some men went to see it and told of the killing. You must carry this news to {town} before the silence grows too deep.
+
+NEWS TEXT news:BOSS_SLAIN:2 [de] tries=1 seconds=16,8
+Das große Ungeheuer hier in der Nähe ist tot, auch wenn ich den Akt des Tötens nicht selbst gesehen habe. Einige Männer sind hingegangen und berichteten vom Mord. Du musst diese Nachricht nach {town} bringen, bevor die Stille zu tief wird.
+
+NEWS TEXT news:BOSS_SLAIN:3 [en] tries=1 seconds=24,2
+A great beast was killed not far from this place. Some men went to look and told of the deed. Does your journey take you to {town}? Carry this news to {town} for us.
+
+NEWS TEXT news:BOSS_SLAIN:3 [de] tries=1 seconds=15,7
+Ein gewaltiges Ungetier wurde nicht weit von diesem Ort getötet. Einige Männer gingen, um es zu sehen, und berichteten von der Tat. Führt deine Reise nach {town}? Trage diese Kunde für uns nach {town}.
+
+NEWS TEXT news:BOSS_SLAIN:4 [en] tries=1 seconds=24,6
+The great beast near this place is dead, though I saw no deed done. Others went to see it and told of the killing. Please carry this word to {town}, for my kin dwell there.
+
+NEWS TEXT news:BOSS_SLAIN:4 [de] tries=1 seconds=15,0
+Das große Ungetier in dieser Gegend ist tot, obwohl ich keine Tat gesehen habe. Andere sind hingegangen und berichteten vom Tod. Bitte bring diese Nachricht nach {town}, denn meine Leute wohnen dort.
+
+NEWS TEXT news:BOSS_SLAIN:5 [en] tries=1 seconds=24,3
+The great beast near here is slain, though I saw it not. Others went to see the kill and told what was done. Take this news to {town} before the silence grows too deep.
+
+NEWS TEXT news:BOSS_SLAIN:5 [de] tries=1 seconds=16,2
+Das große Ungeheuer in dieser Nähe ist getötet, auch wenn ich es nicht selbst gesehen habe. Andere sind zum Leichnam gekommen und haben berichtet, was geschehen ist. Trage diese Kunde zu {town}, bevor die Stille zu tief wird.
+
+NEWS TEXT news:BOSS_SLAIN:6 [en] tries=1 seconds=25,0
+A great beast was killed not far from here. Others went to see it and told what they saw. You must carry this word to {town}. The cause of the beast's death remains unknown.
+
+NEWS TEXT news:BOSS_SLAIN:6 [de] tries=1 seconds=17,5
+Ein gewaltiges Ungetier wurde nicht weit von hier getötet. Andere eilten her, um es zu sehen, und erzählten, was sie erblickt hatten. Du musst dieses Gerücht nach {town} tragen. Der Grund für das Sterben des Besties bleibt ein Rätsel.
+
+NEWS TEXT news:BOSS_SLAIN:7 [en] tries=1 seconds=23,8
+A great beast was killed not far from here. Others went to see it and told what they saw. You must take word to {town} because they have not heard it.
+
+NEWS TEXT news:BOSS_SLAIN:7 [de] tries=1 seconds=16,6
+Ein gewaltiges Ungetier wurde nicht weit von hier getötet. Andere eilten her, um es zu sehen, und berichteten von dem, was sie erblickten. Du musst die Kunde nach {town} bringen, denn dort haben sie nichts davon gehört.
+
+NEWS TEXT news:BOSS_SLAIN:8 [en] tries=1 seconds=25,1
+The word came at the market that a great beast was killed near this place. Some men went to see it, but none know who slew the creature. You must take this news to {town} before the sun sets.
+
+NEWS TEXT news:BOSS_SLAIN:8 [de] tries=1 seconds=18,3
+Im Markt kursierte das Gerücht, ein gewaltiges Ungetier sei in der Nähe dieses Ortes getötet worden. Einige Männer eilten herauf, um es zu sehen, doch niemand weiß, wer das Geschöpf niedergestreckt hat. Du musst diese Kunde zu {town} bringen, bevor die Sonne untergeht.
+
+NEWS TEXT news:BOSS_SLAIN:9 [en] tries=1 seconds=23,4
+The great beast near here was slain, though I saw not the deed. Others went to see the end of the creature. You must carry this news to {town}.
+
+NEWS TEXT news:BOSS_SLAIN:9 [de] tries=1 seconds=15,0
+Das große Ungeheuer in dieser Gegend ist tot, auch wenn ich den Akt nicht selbst gesehen habe. Andere sind gegangen, um das Ende des Wesens zu sehen. Du musst diese Nachricht nach {town} bringen.
+
+NEWS TEXT news:TOWN_FELL:0 [en] tries=1 seconds=23,6
+The town near here was smashed to ruin. Not one house remains standing in that place. You must take this word to {town} so they know what happened.
+
+NEWS TEXT news:TOWN_FELL:0 [de] tries=1 seconds=15,2
+Die Siedlung in der Nähe wurde zu Trümmern zerfetzt. Nicht ein einziges Haus steht dort mehr. Du musst dieses Wort nach {town} bringen, damit sie wissen, was geschehen ist.
+
+NEWS TEXT news:TOWN_FELL:1 [en] tries=1 seconds=25,9
+The nearby settlement was destroyed; not one house remains. Some folk managed to escape the ruin. Carry this news to {town}, for they have not yet heard the fate of the other place.
+
+NEWS TEXT news:TOWN_FELL:1 [de] tries=1 seconds=16,8
+Die nahegelegene Siedlung ist zerstört; nicht ein einziges Haus ist mehr zu finden. Einige Überlebende konnten der Ruine entkommen. Trage diese Nachricht nach {town}, denn sie haben noch nichts vom Schicksal des anderen Ortes gehört.
+
+NEWS TEXT news:TOWN_FELL:2 [en] tries=1 seconds=26,0
+The town near here is gone now; not one house remains. Some folk escaped that ruin, but the cause is unknown. You must take this word to {town} before more sorrow falls upon them.
+
+NEWS TEXT news:TOWN_FELL:2 [de] tries=1 seconds=19,2
+Der Ort nahe hier ist nun verödet; nicht ein einziges Haus ist geblieben. Manche Menschen entkamen dieser Ruine, doch der Grund dafür ist unbekannt. Du musst dieses Wort nach {town} bringen, bevor noch mehr Leid über sie hereinbricht.
+
+NEWS TEXT news:TOWN_FELL:3 [en] tries=1 seconds=33,2
+A town not far away was destroyed; not one house remains. Some people from that place managed to escape. You must take this word to {town} before the silence grows too deep.
+
+NEWS TEXT news:TOWN_FELL:3 [de] tries=1 seconds=21,8
+Nicht weit entfernt lag ein Dorf, das vernichtet wurde; kein einziges Haus ist mehr zu finden. Einige Überlebende aus jener Gegend konnten fliehen. Du musst diese Nachricht zu {town} bringen, bevor die Stille zu tief wird.
+
+NEWS TEXT news:TOWN_FELL:4 [en] tries=1 seconds=33,3
+The town not far from here was torn down; no house remains. Some folk escaped the ruin. Carry this word to {town}, where kin dwell.
+
+NEWS TEXT news:TOWN_FELL:4 [de] tries=1 seconds=30,0
+Die Siedlung nicht weit von hier wurde niedergerissen; kein Haus ist mehr zu finden. Einige Menschen flohen aus der Ruine. Trage diese Kunde nach {town}, wo deine Verwandten wohnen.
+
+NEWS TEXT news:TOWN_FELL:5 [en] tries=1 seconds=40,5
+The town close by is gone, all burned down to ash. No roof remains in that place. A few people escaped the flames, but who did this is unknown. Please carry this word to {town} before it is too late.
+
+NEWS TEXT news:TOWN_FELL:5 [de] tries=1 seconds=24,5
+Der nahegelegene Ort ist verschwunden, bis zu Asche verbrannt. Kein Dach mehr steht dort. Einige Menschen entkamen den Flammen, doch wer dies tat, ist unbekannt. Bitte bring diese Kunde zu {town}, bevor es zu spät ist.
+
+NEWS TEXT news:TOWN_FELL:6 [en] tries=1 seconds=34,2
+The town near here was struck down; not one house remains. Some folk from that place managed to escape. You must carry this news to {town} before the shadows lengthen.
+
+NEWS TEXT news:TOWN_FELL:6 [de] tries=1 seconds=21,5
+Die Siedlung in der Nähe wurde vernichtet; nicht ein einziges Haus steht mehr. Einige Überlebende aus jener Gegend konnten fliehen. Du musst diese Nachricht zu {town} bringen, bevor die Schatten länger werden.
+
+NEWS TEXT news:TOWN_FELL:7 [en] tries=1 seconds=32,8
+A town near here is gone. No house remains after the fire. Some people from that place escaped. Tell the word to {town} so they know what happened.
+
+NEWS TEXT news:TOWN_FELL:7 [de] tries=1 seconds=21,4
+Ein Dorf in der Nähe ist verödet. Nach dem Feuer ist kein Haus mehr zu finden. Einige Überlebende aus jener Gegend sind geflohen. Bring die Nachricht zu {town}, damit sie wissen, was geschehen ist.
+
+NEWS TEXT news:TOWN_FELL:8 [en] tries=1 seconds=34,3
+The market spoke of a town not far away being utterly destroyed. Not one house remains standing there. Some people managed to escape the ruin. You must carry this word to {town}.
+
+NEWS TEXT news:TOWN_FELL:8 [de] tries=1 seconds=23,2
+Der Markt flüsterte von einer Stadt, nicht weit entfernt, die gänzlich vernichtet worden war. Kein einziges Haus ragt dort mehr empor. Einige wenige konnten der Ruine entkommen. Du musst dieses Gerücht nach {town} tragen.
+
+NEWS TEXT news:TOWN_FELL:9 [en] tries=1 seconds=33,5
+The town not far from here is gone; no house remains. Some folk from that place managed to escape. You must take this word to {town} before it is too late.
+
+NEWS TEXT news:TOWN_FELL:9 [de] tries=1 seconds=21,0
+Die Siedlung nicht weit von hier ist verödet; kein einziger Bau steht mehr. Einige wenige aus jener Gegend konnten entkommen. Du musst diese Nachricht zu {town} bringen, bevor es zu spät ist.
+
+NEWS TOTAL model=google/gemma-4-E4B-it-qat-q4_0-gguf seconds=934 calls=40 words=1355
