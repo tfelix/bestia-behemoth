@@ -14,6 +14,7 @@ class EmpyriteSeedWaking(
   private val guilds: GuildRepository,
   private val seeds: EmpyriteSeedRegistry,
   private val sprouts: EmpyriteSeedSprouts,
+  private val strongholds: StrongholdRegistry,
   private val world: WorldView,
   private val config: StrongholdConfig,
 ) {
@@ -23,9 +24,9 @@ class EmpyriteSeedWaking(
     seeds.wakeUpTo(target(approvedGuilds()))
   }
 
-  /** Boot only, once the seeds are awake: their sprouts are not stored. */
+  /** Boot only, once the seeds are awake: their sprouts are not stored. A planted seed shows its site instead. */
   fun raiseSprouts(world: World) {
-    seeds.awake().forEach { sprouts.raise(world, it) }
+    seeds.awake().filter { strongholds.on(it.rank) == null }.forEach { sprouts.raise(world, it) }
   }
 
   /** Counted here, off the tick; woken on it, where the registry lives. */

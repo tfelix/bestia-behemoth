@@ -7,7 +7,12 @@ import kotlin.test.assertEquals
 class EmpyriteSeedWakingTest {
 
   private val waking = EmpyriteSeedWaking(
-    mockk(), mockk(), mockk(), mockk(), StrongholdConfig(minAwakeSeeds = 4, guildsPerSeed = 25)
+    guilds = mockk(),
+    seeds = mockk(),
+    sprouts = mockk(),
+    strongholds = mockk(),
+    world = mockk(),
+    config = StrongholdConfig(minAwakeSeeds = 4, guildsPerSeed = 25),
   )
 
   @Test

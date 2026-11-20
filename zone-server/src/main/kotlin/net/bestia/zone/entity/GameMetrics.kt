@@ -61,6 +61,9 @@ class GameMetrics(private val registry: MeterRegistry = SimpleMeterRegistry()) {
 
     /** The coins in a treasure cache, withdrawn when it is dug up. */
     TREASURE,
+
+    /** What a member pays to plant an Empyrite. */
+    STRONGHOLD,
   }
 
   private val hits = Counter.builder("zone.combat.hits")

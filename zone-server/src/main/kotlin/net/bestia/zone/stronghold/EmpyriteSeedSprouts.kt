@@ -34,6 +34,11 @@ class EmpyriteSeedSprouts(
     }
   }
 
+  /** The seed was planted: the site stands where the sprout did. */
+  fun uproot(world: World, rank: Int) {
+    sproutOf.remove(rank)?.let(world::destroy)
+  }
+
   fun sproutOf(rank: Int): EntityId? {
     return sproutOf[rank]
   }
