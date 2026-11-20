@@ -38,4 +38,6 @@ enum SenseKind {
   SENSE_MANA = 5;
   // A Spell Binding of the receiver that just fired. The label names it and who set it off.
   SENSE_BINDING_FIRED = 6;
+  // The receiver just walked onto an Empyrite Seed and discovered it. The label is its name; the spot is exact.
+  SENSE_EMPYRITE_SEED_FOUND = 7;
 }

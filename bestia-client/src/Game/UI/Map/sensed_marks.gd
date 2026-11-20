@@ -5,7 +5,7 @@ extends RefCounted
 ## compass and the chat show it, and nothing is put on the map for good.
 
 ## The proto's SenseKind, in its order.
-enum Kind { ORE, HERBS, TIMBER, GAME, HOLLOW, MANA, BINDING_FIRED }
+enum Kind { ORE, HERBS, TIMBER, GAME, HOLLOW, MANA, BINDING_FIRED, EMPYRITE_SEED_FOUND }
 
 const _COLOURS := {
 	Kind.ORE: Color(0.85, 0.62, 0.35),
@@ -15,6 +15,7 @@ const _COLOURS := {
 	Kind.HOLLOW: Color(0.65, 0.65, 0.85),
 	Kind.MANA: Color(0.72, 0.52, 1.0),
 	Kind.BINDING_FIRED: Color(1.0, 0.45, 0.85),
+	Kind.EMPYRITE_SEED_FOUND: Color(1.0, 0.8, 0.16),
 }
 
 ## Each entry: the mark's dictionary plus [code]until[/code], in ticks msec.
@@ -58,6 +59,8 @@ static func summary(message: SenseMarksSMSG, here: Vector2) -> String:
 		return tr_static("SENSE_NOTHING")
 	if int(message.Marks[0]["kind"]) == Kind.BINDING_FIRED:
 		return tr_static("SPELL_BINDING_FIRED") % str(message.Marks[0]["label"])
+	if int(message.Marks[0]["kind"]) == Kind.EMPYRITE_SEED_FOUND:
+		return tr_static("EMPYRITE_SEED_FOUND") % str(message.Marks[0]["label"])
 
 	var vague := message.Marks.filter(func(it: Dictionary) -> bool: return bool(it.get("vague", false)))
 	if not vague.is_empty():

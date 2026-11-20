@@ -782,6 +782,7 @@ SENSE_HOLLOW,hollow
 SENSE_HOLLOW_DETAIL,(%d m deep, %d m across)
 SENSE_MANA,mana (%s)
 SENSE_MANA_NEARBY,You sense mana at work nearby: %d source(s).
+EMPYRITE_SEED_FOUND,"You found the Empyrite Seed of %s. A guild with Official Guild Approval may found its Stronghold here."
 MONSTER_SENSE_TITLE,Lv. %d %s
 MONSTER_SENSE_BODY,"%s, %s, %s
 HP %d / %d   Mana %d / %d

@@ -13,4 +13,4 @@ data class SenseMark(
   val vague: Boolean = false,
 )
 
-enum class SenseKind { ORE, HERBS, TIMBER, GAME, HOLLOW, MANA, BINDING_FIRED }
+enum class SenseKind { ORE, HERBS, TIMBER, GAME, HOLLOW, MANA, BINDING_FIRED, EMPYRITE_SEED_FOUND }

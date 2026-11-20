@@ -86,6 +86,8 @@ stronghold:
   guilds-per-seed: 25
   # A seed this close to a player town or its sign site is skipped, and no town is founded this close to a seed.
   settlement-clearance-metres: 1000
+  # A master discovers a seed by walking onto its core.
+  core-radius-metres: 5
 
 # Settings a *new* world is born with. Ignored once a world exists: what gets generated then comes from the
 # stored record, because that is what its chunks and any player edits were built against.

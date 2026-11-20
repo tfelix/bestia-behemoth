@@ -30,11 +30,12 @@ namespace Bnet {
             "Eh0KBGtpbmQYASABKA4yDy5ibmV0LlNlbnNlS2luZBITCgtlYXN0X21ldHJl",
             "cxgCIAEoARIUCgxub3J0aF9tZXRyZXMYAyABKAESDQoFbGFiZWwYBCABKAkS",
             "DgoGcmVmX2lkGAUgASgDEhQKDGRlcHRoX21ldHJlcxgGIAEoAhITCgtzaXpl",
-            "X21ldHJlcxgHIAEoAhINCgV2YWd1ZRgIIAEoCCqIAQoJU2Vuc2VLaW5kEg0K",
+            "X21ldHJlcxgHIAEoAhINCgV2YWd1ZRgIIAEoCCqnAQoJU2Vuc2VLaW5kEg0K",
             "CVNFTlNFX09SRRAAEg8KC1NFTlNFX0hFUkJTEAESEAoMU0VOU0VfVElNQkVS",
             "EAISDgoKU0VOU0VfR0FNRRADEhAKDFNFTlNFX0hPTExPVxAEEg4KClNFTlNF",
-            "X01BTkEQBRIXChNTRU5TRV9CSU5ESU5HX0ZJUkVEEAZCLAoVbmV0LmJlc3Rp",
-            "YS5ibmV0LnByb3RvQhNTZW5zZU1hcmtzU21zZ1Byb3RvYgZwcm90bzM="));
+            "X01BTkEQBRIXChNTRU5TRV9CSU5ESU5HX0ZJUkVEEAYSHQoZU0VOU0VfRU1Q",
+            "WVJJVEVfU0VFRF9GT1VORBAHQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IT",
+            "U2Vuc2VNYXJrc1Ntc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.SenseKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -57,6 +58,10 @@ namespace Bnet {
     /// A Spell Binding of the receiver that just fired. The label names it and who set it off.
     /// </summary>
     [pbr::OriginalName("SENSE_BINDING_FIRED")] SenseBindingFired = 6,
+    /// <summary>
+    /// The receiver just walked onto an Empyrite Seed and discovered it. The label is its name; the spot is exact.
+    /// </summary>
+    [pbr::OriginalName("SENSE_EMPYRITE_SEED_FOUND")] SenseEmpyriteSeedFound = 7,
   }
 
   #endregion
