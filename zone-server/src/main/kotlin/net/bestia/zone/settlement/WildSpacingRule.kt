@@ -5,13 +5,16 @@ import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.prop.PlacementRule
 import net.bestia.zone.prop.StructureNeighbourhood
+import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
 /**
  * Outside every settlement, keeps a little room between different masters' structures. A master's own camp may
  * stand close together, and a town is built as densely as its builders like.
  */
+/** After [TownBuildingRule], so a forge in the open is told it needs a town, as the client tells it. */
 @Component
+@Order(2)
 class WildSpacingRule(
   private val townBuildingRule: TownBuildingRule,
   private val neighbourhood: StructureNeighbourhood,
