@@ -145,7 +145,8 @@ class WorldParamsTest {
     // Both moved when battlefields were strewn with bones and held caches by their dead: `TreasureParams` and
     // `ChunkMaterializer.VERSION` 18.
     // Only the world tier moved when POIs got a count and kept apart: `PoiParams.poiClearance`.
-    assertEquals(7_311_446_757_389_493_528L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
+    // Only the world tier moved when Empyrite Seeds were placed: `EmpyriteSeedParams`.
+    assertEquals(9_009_351_900_981_701_780L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Pinned as a pair so each half stays checkable: a world-tier retune has to move the number above and
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
     // Moved with `ChunkMaterializer.VERSION` 19, when POIs stopped being props.

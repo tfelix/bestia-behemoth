@@ -43,6 +43,7 @@ import net.bestia.worldgen.mana.ManaStage
 import net.bestia.worldgen.resource.ResourceStage
 import net.bestia.worldgen.spawn.SpawnerStage
 import net.bestia.worldgen.spawn.VegetationStandStage
+import net.bestia.worldgen.stronghold.EmpyriteSeedStage
 import net.bestia.worldgen.treasure.TreasureStage
 import net.bestia.worldgen.voxel.ChunkMaterializer
 import net.bestia.worldgen.voxel.Stratigraphy
@@ -261,6 +262,7 @@ object StandardWorld {
       // `dress/DressingStage.kt` for what is a marker here and what the chunk tier derives.
       DressingStage(base, p.dressing),
       TreasureStage(base, p.treasure),
+      EmpyriteSeedStage(base, p.empyriteSeed),
       // Last, and it has to be: the routes NPCs walk are read off the roads, bridges, gates and cave mouths
       // every stage above put down, so it can only run once all of them are final. Nothing reads it back.
       NavGraphStage(base, p.nav)

@@ -644,6 +644,8 @@ class MapRenderer(
       // it is hidden in.
       FeatureKind.CAVE_HOARD -> Color(230, 180, 80)
       FeatureKind.TREASURE_CACHE -> Color(230, 180, 80)
+      // Gold, as the crystal is.
+      FeatureKind.EMPYRITE_SEED -> Color(255, 205, 40)
       FeatureKind.BESTIA_SPAWN -> Color(220, 70, 70)
       // Green, which nothing else on the map owns: the faults are violet, the ore yellow, the volcanism in
       // fire colours and a den red. Mid rather than bright, because a stand is a patch of ordinary wood.

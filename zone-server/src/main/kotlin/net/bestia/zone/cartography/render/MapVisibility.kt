@@ -152,6 +152,8 @@ enum class MapVisibility(
       FeatureKind.ORE_DEPOSIT -> SECRET
       FeatureKind.CAVE_HOARD -> SECRET
       FeatureKind.TREASURE_CACHE -> SECRET
+      // A seed shows on a map only once somebody discovered it, which the map tiles cannot know.
+      FeatureKind.EMPYRITE_SEED -> SECRET
       FeatureKind.CAVE_SYSTEM -> SECRET
       FeatureKind.CAVE_PASSAGE -> SECRET
       FeatureKind.CAVE_ENTRANCE -> SECRET
