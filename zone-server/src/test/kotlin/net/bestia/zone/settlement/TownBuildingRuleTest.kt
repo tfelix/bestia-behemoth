@@ -12,6 +12,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.prop.PlayerStructureRegistry
 import net.bestia.zone.prop.PropRestoration
 import net.bestia.zone.prop.StructureEntry
+import net.bestia.zone.prop.StructureNeighbourhood
 import net.bestia.zone.settlement.persistence.PlayerSettlement
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.settlement.SettlementSite
@@ -56,7 +57,7 @@ class TownBuildingRuleTest {
       every { isDestroyed(any()) } answers { firstArg<Long>() in razedPropIds }
     }
 
-    rule = TownBuildingRule(towns, registry, generatedTowns, restoration, worldService)
+    rule = TownBuildingRule(towns, StructureNeighbourhood(registry, worldService), generatedTowns, restoration, worldService)
   }
 
   @Test
