@@ -4,6 +4,7 @@ import net.bestia.zone.prose.host.DockerLlmHost
 import net.bestia.zone.text.persistence.WorldText
 import net.bestia.zone.text.persistence.WorldTextRepository
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -19,6 +20,8 @@ import org.springframework.test.context.ActiveProfiles
 @SpringBootTest
 @ActiveProfiles("no-socket", "test")
 @EnabledIfEnvironmentVariable(named = "PROSE_REAL", matches = "true")
+// A CI runner has no memory for the model, whatever its variables say.
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class RealModelManualTest {
 
   @Autowired
