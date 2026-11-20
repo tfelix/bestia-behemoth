@@ -5,8 +5,11 @@ import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.prop.PlacementRule
 import net.bestia.zone.prop.PlayerStructureRegistry
+import net.bestia.zone.prop.PropRestoration
 import net.bestia.zone.prop.StructureEntry
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.settlement.SettlementSite
+import net.bestia.zone.world.settlement.SettlementSiteIndex
 import org.springframework.stereotype.Component
 import kotlin.math.ceil
 import kotlin.math.hypot
@@ -21,6 +24,8 @@ import kotlin.math.hypot
 class TownBuildingRule(
   private val towns: TownRegistry,
   private val structures: PlayerStructureRegistry,
+  private val generatedTowns: SettlementSiteIndex,
+  private val restoration: PropRestoration,
   private val worldService: WorldService,
 ) : PlacementRule {
 
@@ -32,13 +37,31 @@ class TownBuildingRule(
   fun refusal(kind: StaticEntityKind, at: Vec3L): OpError? {
     if (!BuildingPlaces.needsSettlement(kind)) return null
 
-    val town = towns.standingAt(at) ?: return OpError.STRUCTURE_NEEDS_SETTLEMENT
+    val playerTown = towns.standingAt(at)
+    val generatedTown = generatedTowns.siteCovering(at.x, at.y)
+    val isNearAnchor = when {
+      playerTown != null -> isNearSign(playerTown, at) || isNearTownBuilding(at)
+      generatedTown != null -> isNearGeneratedBuilding(generatedTown, at) || isNearTownBuilding(at)
+      else -> return OpError.STRUCTURE_NEEDS_SETTLEMENT
+    }
 
-    return if (isNearSign(town, at) || isNearTownBuilding(at)) null else OpError.STRUCTURE_TOO_FAR_FROM_TOWN
+    return if (isNearAnchor) null else OpError.STRUCTURE_TOO_FAR_FROM_TOWN
   }
 
   private fun isNearSign(town: Town, at: Vec3L): Boolean {
     return metresBetween(town.sign, at) <= BuildingPlaces.ANCHOR_RANGE_METRES
+  }
+
+  /** A razed generated building anchors nothing. */
+  private fun isNearGeneratedBuilding(town: SettlementSite, at: Vec3L): Boolean {
+    val voxelSize = worldService.config.voxelSize
+    val atX = at.x * voxelSize
+    val atY = at.y * voxelSize
+
+    return town.buildings.any {
+      hypot(it.centre.x - atX, it.centre.y - atY) <= BuildingPlaces.ANCHOR_RANGE_METRES &&
+          !restoration.isDestroyed(it.propId)
+    }
   }
 
   /** Only a finished building that adds to a town anchors the next one, so a chest or a site cannot. */
