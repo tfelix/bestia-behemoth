@@ -40,7 +40,7 @@ class RitualServiceTest {
   private val leader = player(accountId = 1L, level = 100)
   private val circle = world.createEntity { id ->
     add(id, Position.fromVec3(Vec3L(0, 0, 0)))
-    add(id, PlayerStructureIdentity(structureId = 9L, ownerAccountId = 1L))
+    add(id, PlayerStructureIdentity(structureId = 9L, ownerAccountId = 1L, ownerMasterId = 1L))
   }
 
   init {

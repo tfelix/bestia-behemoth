@@ -3,13 +3,10 @@ package net.bestia.zone.place.ecs
 /**
  * One resolved answer to "where am I".
  *
- * A type rather than a bare `String` because [Place] compares it to decide whether anything changed, and
- * because a place is the sort of thing that grows fields - a claim will want to say who owns it. Callers
- * get the comparison for free from the data class.
+ * A type rather than a bare `String` because [Place] compares it to decide whether anything changed.
  *
- * Carries no id, no kind and no geometry, and that is the point rather than an omission. The kind is the
- * server's business: it is what decides which name wins, and a client that knew would be able to
- * second-guess it. An id would let a client accumulate the shape of the map over a few walks, which is
- * what `WeatherSMSG` keeps opaque and `WorldInfoSMSG` withholds the seed to prevent.
+ * [settlement] is the ground of the settlement the entity stands in, so the client can tell where a town ends
+ * for the building rules. Only the one settlement a player is inside, which its sign window and the map show
+ * anyway; no id, so a few walks do not add up to the shape of the world map.
  */
-data class PlaceRef(val name: String)
+data class PlaceRef(val name: String, val settlement: SettlementArea? = null)

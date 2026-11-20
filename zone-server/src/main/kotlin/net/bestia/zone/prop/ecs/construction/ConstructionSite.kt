@@ -95,6 +95,7 @@ class ConstructionSite(
       remainingSeconds = remainingSeconds.coerceAtLeast(0f),
       totalSeconds = totalSeconds,
       active = active,
+      ownerMasterId = ownerMasterId,
       removed = removed
     )
   }

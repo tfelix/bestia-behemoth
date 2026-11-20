@@ -99,7 +99,7 @@ class PlayerAuctionHouseScenarios : BestiaNoSocketScenario() {
     buyersHouse = world.read {
       createEntity { id ->
         add(id, PropPose(buyerAt, yaw = 0f))
-        add(id, PlayerStructureIdentity(buyersStructureId, buyer))
+        add(id, PlayerStructureIdentity(buyersStructureId, buyer, 1L))
         add(id, StaticVisual(StaticEntityKind.AUCTION_HOUSE, variant = 0, heightDm = 40, halfLengthDm = 60, halfWidthDm = 40))
       }
     }
@@ -107,7 +107,7 @@ class PlayerAuctionHouseScenarios : BestiaNoSocketScenario() {
     house = world.read {
       createEntity { id ->
         add(id, PropPose(at, yaw = 0f))
-        add(id, PlayerStructureIdentity(structureId, player))
+        add(id, PlayerStructureIdentity(structureId, player, 1L))
         add(id, StaticVisual(StaticEntityKind.AUCTION_HOUSE, variant = 0, heightDm = 40, halfLengthDm = 60, halfWidthDm = 40))
       }
     }

@@ -3,12 +3,14 @@ package net.bestia.zone.settlement
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.persistence.AsyncJobExecutor
+import net.bestia.zone.place.ecs.AreaNameRegistry
 import net.bestia.zone.settlement.persistence.PlayerSettlement
 import net.bestia.zone.settlement.persistence.PlayerSettlementRepository
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
 import java.time.Instant
+import kotlin.math.ceil
 import kotlin.math.hypot
 
 /**
@@ -20,6 +22,7 @@ class TownRegistry(
   private val repository: PlayerSettlementRepository,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val worldService: WorldService,
+  private val areaNames: AreaNameRegistry,
 ) {
 
   private val byId = HashMap<Long, Town>()
@@ -75,7 +78,7 @@ class TownRegistry(
       signHp = TownGrowth.BASE_SIGN_HP,
     )
     val town = townOf(row)
-    byId[town.id] = town
+    put(town)
     asyncJobExecutor.submit(town.id) { repository.save(row) }
 
     return town
@@ -83,7 +86,7 @@ class TownRegistry(
 
   /** Replaces the town with [town] and stores what can change. The size is never stored; it is recounted. */
   fun update(town: Town) {
-    byId[town.id] = town
+    put(town)
 
     asyncJobExecutor.submit(town.id) {
       repository.findById(town.id).ifPresent { row ->
@@ -104,20 +107,40 @@ class TownRegistry(
   /** Memory only: the size is recounted from the buildings rather than stored. */
   fun resize(townId: Long, size: TownGrowth.Size) {
     val town = byId[townId] ?: return
-    byId[townId] = town.copy(size = size)
+    put(town.copy(size = size))
   }
 
   fun remove(townId: Long) {
     if (byId.remove(townId) == null) return
+    areaNames.remove(townId)
 
     asyncJobExecutor.submit(townId) { repository.deleteById(townId) }
   }
 
   /** Boot-time only, before the tick loop starts. */
   fun loadAll() {
-    repository.findAll().forEach { byId[it.id] = townOf(it) }
+    repository.findAll().forEach { put(townOf(it)) }
 
     LOG.info { "Loaded ${byId.size} player settlement(s)" }
+  }
+
+  /** A standing town is a place too, so whoever walks into it learns its name and where it ends. */
+  private fun put(town: Town) {
+    val previous = byId.put(town.id, town)
+    if (previous != null && isSamePlace(previous, town)) return
+
+    if (town.isStanding) {
+      val radius = ceil(town.size.radiusMetres / worldService.config.voxelSize).toLong()
+      areaNames.add(AreaNameRegistry.Entry(town.id, town.name, town.sign.x, town.sign.y, radius))
+    } else {
+      areaNames.remove(town.id)
+    }
+  }
+
+  /** Sign hp changes every few seconds in a fight; only what the place index holds is worth re-announcing. */
+  private fun isSamePlace(a: Town, b: Town): Boolean {
+    return a.isStanding == b.isStanding && a.name == b.name && a.sign == b.sign &&
+        a.size.radiusMetres == b.size.radiusMetres
   }
 
   private fun townOf(row: PlayerSettlement): Town {

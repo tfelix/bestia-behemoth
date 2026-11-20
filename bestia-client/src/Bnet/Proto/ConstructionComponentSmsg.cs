@@ -25,15 +25,15 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CjRtZXNzYWdlcy9jb21wb25lbnQvY29uc3RydWN0aW9uX2NvbXBvbmVudF9z",
-            "bXNnLnByb3RvEgRibmV0InQKGUNvbnN0cnVjdGlvbkNvbXBvbmVudFNNU0cS",
-            "GQoRcmVtYWluaW5nX3NlY29uZHMYAiABKAISFQoNdG90YWxfc2Vjb25kcxgD",
-            "IAEoAhIOCgZhY3RpdmUYBCABKAgSDwoHcmVtb3ZlZBgFIAEoCEoECAEQAkI3",
-            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CHkNvbnN0cnVjdGlvbkNvbXBvbmVu",
-            "dFNtc2dQcm90b2IGcHJvdG8z"));
+            "bXNnLnByb3RvEgRibmV0Io0BChlDb25zdHJ1Y3Rpb25Db21wb25lbnRTTVNH",
+            "EhkKEXJlbWFpbmluZ19zZWNvbmRzGAIgASgCEhUKDXRvdGFsX3NlY29uZHMY",
+            "AyABKAISDgoGYWN0aXZlGAQgASgIEg8KB3JlbW92ZWQYBSABKAgSFwoPb3du",
+            "ZXJfbWFzdGVyX2lkGAYgASgESgQIARACQjcKFW5ldC5iZXN0aWEuYm5ldC5w",
+            "cm90b0IeQ29uc3RydWN0aW9uQ29tcG9uZW50U21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ConstructionComponentSMSG), global::Bnet.ConstructionComponentSMSG.Parser, new[]{ "RemainingSeconds", "TotalSeconds", "Active", "Removed" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ConstructionComponentSMSG), global::Bnet.ConstructionComponentSMSG.Parser, new[]{ "RemainingSeconds", "TotalSeconds", "Active", "Removed", "OwnerMasterId" }, null, null, null, null)
           }));
     }
     #endregion
@@ -96,6 +96,7 @@ namespace Bnet {
       totalSeconds_ = other.totalSeconds_;
       active_ = other.active_;
       removed_ = other.removed_;
+      ownerMasterId_ = other.ownerMasterId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -156,6 +157,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "owner_master_id" field.</summary>
+    public const int OwnerMasterIdFieldNumber = 6;
+    private ulong ownerMasterId_;
+    /// <summary>
+    ///* The master building it, so a client can tell its own sites from others'. 
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong OwnerMasterId {
+      get { return ownerMasterId_; }
+      set {
+        ownerMasterId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -175,6 +191,7 @@ namespace Bnet {
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(TotalSeconds, other.TotalSeconds)) return false;
       if (Active != other.Active) return false;
       if (Removed != other.Removed) return false;
+      if (OwnerMasterId != other.OwnerMasterId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -186,6 +203,7 @@ namespace Bnet {
       if (TotalSeconds != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(TotalSeconds);
       if (Active != false) hash ^= Active.GetHashCode();
       if (Removed != false) hash ^= Removed.GetHashCode();
+      if (OwnerMasterId != 0UL) hash ^= OwnerMasterId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -220,6 +238,10 @@ namespace Bnet {
         output.WriteRawTag(40);
         output.WriteBool(Removed);
       }
+      if (OwnerMasterId != 0UL) {
+        output.WriteRawTag(48);
+        output.WriteUInt64(OwnerMasterId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -246,6 +268,10 @@ namespace Bnet {
         output.WriteRawTag(40);
         output.WriteBool(Removed);
       }
+      if (OwnerMasterId != 0UL) {
+        output.WriteRawTag(48);
+        output.WriteUInt64(OwnerMasterId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -267,6 +293,9 @@ namespace Bnet {
       }
       if (Removed != false) {
         size += 1 + 1;
+      }
+      if (OwnerMasterId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(OwnerMasterId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -291,6 +320,9 @@ namespace Bnet {
       }
       if (other.Removed != false) {
         Removed = other.Removed;
+      }
+      if (other.OwnerMasterId != 0UL) {
+        OwnerMasterId = other.OwnerMasterId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -327,6 +359,10 @@ namespace Bnet {
             Removed = input.ReadBool();
             break;
           }
+          case 48: {
+            OwnerMasterId = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -360,6 +396,10 @@ namespace Bnet {
           }
           case 40: {
             Removed = input.ReadBool();
+            break;
+          }
+          case 48: {
+            OwnerMasterId = input.ReadUInt64();
             break;
           }
         }

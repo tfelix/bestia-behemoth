@@ -15,6 +15,7 @@ data class ConstructionComponentSMSG(
   val remainingSeconds: Float,
   val totalSeconds: Float,
   val active: Boolean,
+  val ownerMasterId: Long,
   val removed: Boolean = false
 ) : EntitySMSG {
 
@@ -23,6 +24,7 @@ data class ConstructionComponentSMSG(
       .setRemainingSeconds(remainingSeconds)
       .setTotalSeconds(totalSeconds)
       .setActive(active)
+      .setOwnerMasterId(ownerMasterId)
       .setRemoved(removed)
       .build()
 

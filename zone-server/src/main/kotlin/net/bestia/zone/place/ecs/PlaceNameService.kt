@@ -22,8 +22,14 @@ class PlaceNameService(
   private val registry: AreaNameRegistry
 ) {
 
+  /** Changes whenever an area is added, resized or removed: every answer may have changed with it. */
+  val version: Long
+    get() {
+      return registry.version
+    }
+
   fun resolve(x: Long, y: Long): PlaceRef {
-    registry.at(x, y)?.let { return PlaceRef(it.name) }
+    registry.at(x, y)?.let { return PlaceRef(it.name, SettlementArea(it.x, it.y, it.radius)) }
 
     return PlaceRef(regionService.regions.regionAt(x.toDouble(), y.toDouble()).name)
   }

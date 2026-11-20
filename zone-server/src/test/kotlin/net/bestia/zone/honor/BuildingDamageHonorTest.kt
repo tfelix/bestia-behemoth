@@ -55,7 +55,7 @@ class BuildingDamageHonorTest {
   fun `a station somebody built counts as a building`() {
     val station = world.createEntity { id ->
       add(id, Health(100, 100))
-      add(id, PlayerStructureIdentity(structureId = 1L, ownerAccountId = 999L))
+      add(id, PlayerStructureIdentity(structureId = 1L, ownerAccountId = 999L, ownerMasterId = 1L))
     }
 
     damage(station, 20)
