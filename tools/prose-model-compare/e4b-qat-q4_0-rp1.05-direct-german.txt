@@ -1,0 +1,241 @@
+NEWS TEXT news:BOSS_SLAIN:0 [en] tries=1 seconds=31,0
+The big beast near here is dead. Some men saw it fall, but I did not see the fight. You must take this news to {town}. Carry the word to them quickly.
+
+NEWS TEXT news:BOSS_SLAIN:0 [de] tries=1 seconds=18,6
+Das große Ungetüm hier ist tot. Einige Männer sahen es fallen, doch den Kampf selbst habe ich nicht gesehen. Du musst diese Nachricht nach {town} bringen. Überbring die Kunde ihnen schnell.
+
+NEWS TEXT news:BOSS_SLAIN:0 [de-direct] tries=1 seconds=31,5
+Ein riesiges Tier ist nicht weit von hier getötet worden, sagt man. Ich habe es nicht selbst gesehen. Du musst diese Kunde nach {town} bringen, bitte.
+
+NEWS TEXT news:BOSS_SLAIN:0 [de-german-brief] tries=1 seconds=27,1
+Die große Bestie ist tot, sagt man hier in {town}. Ich hab es selber nicht gesehen. Manche sind gegangen und haben das erzählt. Kannst du diese Nachricht bitte zu {town} bringen?
+
+NEWS TEXT news:BOSS_SLAIN:1 [en] tries=1 seconds=31,8
+A great beast was slain near here, though this innkeeper saw not the deed. Some men went out and brought back word of the killing. Carry this news to {town} so they may learn what has been done.
+
+NEWS TEXT news:BOSS_SLAIN:1 [de] tries=1 seconds=24,6
+Ein gewaltiges Ungetier wurde in der Nähe getötet, obgleich dieser Wirt das Geschehen nicht miterlebt hat. Einige Männer sind hinausgegangen und brachten die Nachricht vom Tod zurück. Trage diese Kunde nach {town}, damit sie erfahren, was geschehen ist.
+
+NEWS TEXT news:BOSS_SLAIN:1 [de-direct] tries=1 seconds=34,3
+Ein riesiges Ungeheuer ist nicht weit von hier getötet worden, sagt man. Ich habe es selbst nicht gesehen, aber andere haben es geschafft. Du musst diese Nachricht nach {town} bringen.
+
+NEWS TEXT news:BOSS_SLAIN:1 [de-german-brief] tries=1 seconds=27,8
+Die große Bestie ist endlich tot, das haben die Leute gesagt. Ich hab es selbst nicht gesehen. Du musst diese Nachricht zu {town} bringen, damit die auch davon erfahren.
+
+NEWS TEXT news:BOSS_SLAIN:2 [en] tries=1 seconds=31,8
+The great beast near this place is dead. Those who went saw it fall, but no one knows who brought it down. Please carry this word to {town}. We worry for them there.
+
+NEWS TEXT news:BOSS_SLAIN:2 [de] tries=1 seconds=21,2
+Das große Ungetier in dieser Gegend ist tot. Diejenigen, die es sahen, erlebten seinen Fall, doch niemand weiß, wer es niedergerungen hat. Bitte überbring diese Kunde nach {town}. Wir sorgen uns um sie dort.
+
+NEWS TEXT news:BOSS_SLAIN:2 [de-direct] tries=1 seconds=39,5
+Man sagt, ein großes Tier, das wir so fürchteten, sei tot nahe hier. Ich habe es nicht gesehen, aber andere haben es mir erzählt. Du musst diese Nachricht nach {town} bringen, bitte.
+
+NEWS TEXT news:BOSS_SLAIN:2 [de-german-brief] tries=1 seconds=30,1
+Die große Bestie ist weg. Ich hab es selbst nicht gesehen, aber andere erzählen es mir. Sie sagen, die Kreatur ist tot. Kannst du diese Kunde zu {town} bringen?
+
+NEWS TEXT news:BOSS_SLAIN:3 [en] tries=1 seconds=37,1
+Some heard a great beast near this place was slain. The guard did not see the killing, but others came back with word of it. You must carry this news to {town}. Tell them what has happened before the shadows grow long.
+
+NEWS TEXT news:BOSS_SLAIN:3 [de] tries=1 seconds=25,6
+Manche hörten, ein gewaltiges Ungeheuer in der Nähe dieses Ortes sei getötet worden. Der Wächter sah den Tod nicht selbst, doch andere kehrten mit Berichten davon zurück. Du musst diese Kunde nach {town} bringen. Erzähle ihnen, was geschehen ist, bevor die Schatten lang werden.
+
+NEWS TEXT news:BOSS_SLAIN:3 [de-direct] tries=1 seconds=33,2
+Ein riesiges Tier ist nicht weit von hier getötet worden. Ich habe es selbst nicht gesehen, aber andere haben es erzählt. Du musst diese Nachricht nach {town} bringen.
+
+NEWS TEXT news:BOSS_SLAIN:3 [de-german-brief] tries=1 seconds=26,8
+Die große Bestie ist tot, nicht weit von hier. Ich habe es selbst nicht gesehen. Andere haben mir das erzählt. Du musst diese Nachricht zu {town} bringen.
+
+NEWS TEXT news:BOSS_SLAIN:4 [en] tries=1 seconds=36,6
+News reached this place that a great beast was slain near here. No one saw the killing, only heard the word from those who went to look. You must take this tale to {town}. My kin dwell there and need to know what has happened.
+
+NEWS TEXT news:BOSS_SLAIN:4 [de] tries=1 seconds=25,1
+Nachrichten erreichten diesen Ort, dass ein gewaltiges Ungeheuer in der Nähe getötet wurde. Niemand sah den Tod, nur die Kunde von jenen, die nachsehen gingen. Du musst diese Geschichte nach {town} bringen. Meine Leute wohnen dort und müssen wissen, was geschehen ist.
+
+NEWS TEXT news:BOSS_SLAIN:4 [de-direct] tries=1 seconds=36,5
+Ein riesiges Tier wurde nicht weit von hier getötet, sagt man. Ich sah es nicht, aber die Leute berichteten es mir. Du musst diese Nachricht nach {town} bringen, wo sie noch nichts davon wissen.
+
+NEWS TEXT news:BOSS_SLAIN:4 [de-german-brief] tries=1 seconds=31,9
+Die große Bestie ist tot, die Leute hatten Angst davor. Ich habe es selbst nicht gesehen, aber andere sind hingegangen und haben es mir erzählt. Ich weiß nicht, wer das getan hat. Bitte bring diese Nachricht zu {town}, dort müssen sie es wissen.
+
+NEWS TEXT news:BOSS_SLAIN:5 [en] tries=1 seconds=33,0
+The great beast near our place is dead, though I saw not the deed. Others went out and brought word of the slaying. You must carry this news to {town} before the sun sets.
+
+NEWS TEXT news:BOSS_SLAIN:5 [de] tries=1 seconds=23,4
+Das große Ungetier in der Nähe unseres Ortes ist tot, auch wenn ich den Akt nicht selbst gesehen habe. Andere sind hinausgegangen und brachten mir die Kunde vom Tötung herbei. Du musst diese Nachricht zu {town} bringen, bevor die Sonne untergeht.
+
+NEWS TEXT news:BOSS_SLAIN:5 [de-direct] tries=1 seconds=35,6
+Ein riesiges Tier wurde nicht weit von hier getötet, aber ich habe es nicht gesehen. Andere sind gegangen und haben es mir erzählt. Du musst diese Kunde nach {town} bringen, weil sie es noch nicht wissen.
+
+NEWS TEXT news:BOSS_SLAIN:5 [de-german-brief] tries=1 seconds=27,2
+Die große Bestie ist weg. Ich habe es nicht selbst gesehen. Manche Leute sagen, sie sei tot geworden. Kannst du die Nachricht zu {town} bringen?
+
+NEWS TEXT news:BOSS_SLAIN:6 [en] tries=1 seconds=33,6
+News comes that the great beast near this place is slain. Some men went to see the kill, but no one knows who struck the blow. You must take this word to {town}. Tell them what has happened here.
+
+NEWS TEXT news:BOSS_SLAIN:6 [de] tries=1 seconds=25,8
+Es sind Neuigkeiten eingetroffen: Das gewaltige Ungetüm in dieser Gegend ist tot. Einige Männer sind zur Leiche gekommen, doch niemand weiß, wer den Schlag verübt hat. Du musst dieses Wort nach {town} bringen. Erzähle ihnen, was hier geschehen ist.
+
+NEWS TEXT news:BOSS_SLAIN:6 [de-direct] tries=1 seconds=33,3
+Es ist ein riesiges Ungeheuer nahe hier getötet worden, sagt man. Wer es getan hat, weiß niemand. Du musst diese Kunde nach {town} bringen.
+
+NEWS TEXT news:BOSS_SLAIN:6 [de-german-brief] tries=1 seconds=32,8
+Jemand hat die große Bestie getötet, nicht weit von hier. Ich habe es selbst nicht gesehen. Die Leute sagen, dass es jemand war, aber ich weiß nicht wer. Kannst du diese Nachricht zu {town} bringen?
+
+NEWS TEXT news:BOSS_SLAIN:7 [en] tries=1 seconds=31,0
+A great beast died near this place. Some men saw the killing but none knew who did the deed. Take this word to {town} before the news fades away.
+
+NEWS TEXT news:BOSS_SLAIN:7 [de] tries=1 seconds=21,8
+Ein gewaltiges Ungetier starb in der Nähe dieses Ortes. Einige Männer sahen den Tod, doch niemand wusste, wer ihn herbeigeführt hat. Trage diese Kunde nach {town}, bevor die Nachricht verblasst.
+
+NEWS TEXT news:BOSS_SLAIN:7 [de-direct] tries=1 seconds=36,7
+Ein riesiges Tier wurde nicht weit von hier getötet. Ich sah es nicht, aber andere sagten es mir. Trage diese Kunde nach {town}, du musst es dort wissen.
+
+NEWS TEXT news:BOSS_SLAIN:7 [de-german-brief] tries=1 seconds=30,1
+Ein riesiges Tier ist tot, nicht weit von hier. Ich hab es selbst nicht gesehen. Andere haben mir das erzählt, aber ich weiß nicht, wer es getan hat. Du musst das in {town} bringen.
+
+NEWS TEXT news:BOSS_SLAIN:8 [en] tries=1 seconds=35,6
+The news came at the market, word reached this place. A great beast was slain near here, though no one saw the killer. You must take this tidings to {town} before the sun sets.
+
+NEWS TEXT news:BOSS_SLAIN:8 [de] tries=1 seconds=23,5
+Die Kunde erreichte uns auf dem Markt, das Gerücht drang bis an diesen Ort. Ein gewaltiges Ungetier wurde in der Nähe getötet, doch niemand sah den Mörder. Du musst diese Nachricht zu {town} bringen, bevor die Sonne untergeht.
+
+NEWS TEXT news:BOSS_SLAIN:8 [de-direct] tries=1 seconds=38,3
+Man sagt, das große Tier in der Nähe wurde getötet, doch ich habe es nicht gesehen. Die Leute am Markt haben es erzählt, wer es getan hat, weiß niemand. Du musst diese Kunde nach {town} bringen.
+
+NEWS TEXT news:BOSS_SLAIN:8 [de-german-brief] tries=1 seconds=29,8
+Ich habe gehört, dass die große Bestie nicht mehr da ist. Jemand ist hin und hat es erzählt. Ich weiß nicht, wer das getan hat. Du musst diese Nachricht zu {town} bringen.
+
+NEWS TEXT news:BOSS_SLAIN:9 [en] tries=1 seconds=34,5
+News came that the great beast near here was killed. Some men saw it fall, but they said nothing of who struck the blow. You must take this word to {town} before the silence grows.
+
+NEWS TEXT news:BOSS_SLAIN:9 [de] tries=1 seconds=25,7
+Es kam die Kunde, dass das gewaltige Ungetüm in der Nähe getötet wurde. Einige Männer sahen es fallen, doch von dem, wer den Todesstoß versetzte, sagten sie nichts. Du musst dieses Gerücht nach {town} bringen, bevor die Stille einkehrt.
+
+NEWS TEXT news:BOSS_SLAIN:9 [de-direct] tries=1 seconds=35,7
+Man sagt, ein großes Tier nahe {town} sei getötet worden. Ich habe es selbst nicht gesehen, doch die Leute haben mir davon erzählt. Trage diese Nachricht bitte nach {town}.
+
+NEWS TEXT news:BOSS_SLAIN:9 [de-german-brief] tries=1 seconds=34,8
+Die große Bestie ist weg, die Leute hatten Angst davor. Ich habe es selbst nicht gesehen, aber andere sind hingegangen und haben es erzählt. Ich weiß nicht, wer das Ding getötet hat. Du musst diese Nachricht noch nach {town} bringen.
+
+NEWS TEXT news:TOWN_FELL:0 [en] tries=1 seconds=36,6
+The town near here, it is gone. Not one house remains in that place. You must take word to {town} so they know what happened there. It is a great thing we do not know who caused this ruin.
+
+NEWS TEXT news:TOWN_FELL:0 [de] tries=1 seconds=24,0
+Der Ort nahe hier ist verschwunden. Nicht ein einziges Haus mehr steht dort. Du musst nach {town} berichten, damit sie wissen, was dort geschehen ist. Es ist eine große Sache, dass wir nicht wissen, wer diese Verwüstung angerichtet hat.
+
+NEWS TEXT news:TOWN_FELL:0 [de-direct] tries=1 seconds=35,2
+Die nahe Stadt ist zerstört, kein Haus steht mehr. Manche Leute sind geflohen, wer es getan hat, weiß keiner. Du musst diese Nachricht nach {town} bringen.
+
+NEWS TEXT news:TOWN_FELL:0 [de-german-brief] tries=1 seconds=27,7
+Da ist in der Nähe etwas passiert. Ein ganze Ort ist weg, nur Asche bleibt. Ich weiß nicht, wer das getan hat. Bring diese Kunde bitte zu {town}.
+
+NEWS TEXT news:TOWN_FELL:1 [en] tries=1 seconds=33,2
+The town near us suffered ruin; not one house remains in that place. Some folk managed to flee the destruction. You must take this word to {town} so they might know what has transpired.
+
+NEWS TEXT news:TOWN_FELL:1 [de] tries=1 seconds=23,0
+Die Stadt nahe uns wurde zur Ruine; nicht ein einziges Haus steht mehr an diesem Ort. Einige Menschen schafften es, der Zerstörung zu entkommen. Du musst diese Kunde nach {town} bringen, damit sie wissen, was geschehen ist.
+
+NEWS TEXT news:TOWN_FELL:1 [de-direct] tries=1 seconds=35,5
+Ein nahegelegener Ort wurde zerstört, kein Haus steht mehr. Einige Leute sind geflohen. Du musst diese Kunde nach {town} bringen, denn wir wissen nicht, wer das getan hat.
+
+NEWS TEXT news:TOWN_FELL:1 [de-german-brief] tries=1 seconds=29,4
+Die Siedlung in der Nähe ist komplett weg. Es ist nichts mehr zu sehen, keine Häuser stehen da. Ich weiß nicht, wer das angerichtet hat. Du musst die Nachricht unbedingt nach {town} bringen.
+
+NEWS TEXT news:TOWN_FELL:2 [en] tries=1 seconds=32,7
+The town near here was burned down, and no houses remain there. Some folk managed to flee the flames. You must take this news to {town} before it spreads.
+
+NEWS TEXT news:TOWN_FELL:2 [de] tries=1 seconds=21,2
+Der Ort in der Nähe wurde niedergebrannt, und es stehen dort keine Häuser mehr. Einige wenige konnten den Flammen entkommen. Du musst diese Nachricht zu {town} bringen, bevor sie sich ausbreitet.
+
+NEWS TEXT news:TOWN_FELL:2 [de-direct] tries=1 seconds=35,3
+Die Nachbarstadt ist zerstört, es steht kein Haus mehr. Manche Leute sind geflohen, aber ich weiß nicht, wer das getan hat. Du musst diese Nachricht nach {town} bringen.
+
+NEWS TEXT news:TOWN_FELL:2 [de-german-brief] tries=1 seconds=27,4
+Der Nachbarort ist komplett weg. Es gibt dort kein einziges Haus mehr. Ich weiß nicht, wer das angerichtet hat. Du musst diese Nachricht schnell zu {town} bringen.
+
+NEWS TEXT news:TOWN_FELL:3 [en] tries=1 seconds=33,9
+A town near here was torn down; no stone remains of that place. Some folk managed to flee the ruin. You must take this word to {town} before others hear it.
+
+NEWS TEXT news:TOWN_FELL:3 [de] tries=1 seconds=21,9
+Ein Dorf in der Nähe wurde zerstört; nicht ein Stein dieses Ortes ist geblieben. Einige Menschen schafften es, aus der Ruine zu fliehen. Du musst diese Kunde nach {town} bringen, bevor andere davon erfahren.
+
+NEWS TEXT news:TOWN_FELL:3 [de-direct] tries=1 seconds=36,2
+Ein Nachbarort wurde zerstört, kein Haus steht mehr. Manche Leute sind geflohen. Du musst das Wort nach {town} bringen, denn es ist unbekannt, wer dies tat.
+
+NEWS TEXT news:TOWN_FELL:3 [de-german-brief] tries=1 seconds=27,7
+Der Ort nicht weit hier ist weg. Es gibt kein Haus mehr dort. Ich weiß nicht, wer das getan hat. Du musst diese Nachricht zu {town} bringen.
+
+NEWS TEXT news:TOWN_FELL:4 [en] tries=1 seconds=34,7
+A nearby town was burned down; no houses remain there now. Some folk managed to escape that ruin. You must carry word of this to {town}, for my kin dwell near. I do not know who struck such a terrible blow.
+
+NEWS TEXT news:TOWN_FELL:4 [de] tries=1 seconds=25,8
+Ein nahegelegener Ort wurde niedergebrannt; dort stehen nun keine Häuser mehr. Einige Überlebende konnten dieser Ruine entkommen. Du musst diese Nachricht nach {town} bringen, denn meine Verwandten leben in der Nähe. Ich weiß nicht, wer solch einen schrecklichen Schlag verübt hat.
+
+NEWS TEXT news:TOWN_FELL:4 [de-direct] tries=1 seconds=35,0
+Ein Dorf nicht weit von hier wurde zerstört, kein Haus steht mehr. Einige Leute sind geflohen. Du musst diese Nachricht nach {town} bringen, mein Verwandter dort.
+
+NEWS TEXT news:TOWN_FELL:4 [de-german-brief] tries=1 seconds=28,5
+Das Dorf in der Nähe ist komplett zerstört. Es stehen keine Häuser mehr dort. Ich weiß nicht, wer das angerichtet hat. Du musst diese Nachricht schnell nach {town} bringen.
+
+NEWS TEXT news:TOWN_FELL:5 [en] tries=1 seconds=32,1
+The nearby settlement is gone; not one house remains. Few folk from that place escaped the ruin. You must take this word to {town} before silence falls there too.
+
+NEWS TEXT news:TOWN_FELL:5 [de] tries=1 seconds=22,2
+Die nahegelegene Siedlung ist verschwunden; nicht ein einziges Haus ist geblieben. Nur wenige Menschen aus diesem Ort entkamen der Ruine. Du musst dieses Wort nach {town} bringen, bevor auch dort die Stille einkehrt.
+
+NEWS TEXT news:TOWN_FELL:5 [de-direct] tries=1 seconds=34,5
+Die nahe Siedlung ist zerstört, es steht kein Haus mehr da. Manche ihrer Leute sind geflohen, wer das getan hat, weiß niemand. Du musst diese Kunde nach {town} bringen.
+
+NEWS TEXT news:TOWN_FELL:5 [de-german-brief] tries=1 seconds=27,4
+Das Dorf in der Nähe ist ganz weg. Es steht kein einziges Haus mehr da. Ich weiß nicht, wer das gemacht hat. Du musst diese Nachricht zu {town} bringen.
+
+NEWS TEXT news:TOWN_FELL:6 [en] tries=1 seconds=33,4
+The town near here was destroyed; no house remains. Some folk escaped the fire. You must carry this word to {town}. We do not know who brought this ruin upon them.
+
+NEWS TEXT news:TOWN_FELL:6 [de] tries=1 seconds=22,3
+Die Siedlung in der Nähe wurde vernichtet; kein einziges Haus ist mehr zu finden. Einige Überlebende entkamen dem Feuer. Ihr müsst dieses Wort nach {town} tragen. Wir wissen nicht, wer diese Verwüstung über sie gebracht hat.
+
+NEWS TEXT news:TOWN_FELL:6 [de-direct] tries=1 seconds=33,4
+Ein Dorf nicht weit wurde zerstört, kein Haus steht mehr. Manche Leute sind geflohen. Du musst diese Kunde nach {town} bringen.
+
+NEWS TEXT news:TOWN_FELL:6 [de-german-brief] tries=1 seconds=30,6
+Das Nachbardorf ist komplett weg. Es gibt dort kein einziges Haus mehr. Manche Leute sind geflohen, aber ich weiß nicht, was das war. Bitte bring diese Kunde zu {town}.
+
+NEWS TEXT news:TOWN_FELL:7 [en] tries=1 seconds=34,8
+A town near here burned to dust, no homes remain. Some folk managed to flee that ruin. You must take this word to {town}. Tell them what has happened there.
+
+NEWS TEXT news:TOWN_FELL:7 [de] tries=1 seconds=21,0
+Ein Dorf in der Nähe ist zu Staub zerfressen, kein Heim mehr zu finden. Einige Überlebende konnten dieser Ruine entkommen. Du musst diese Kunde nach {town} bringen. Erzähl ihnen, was dort geschehen ist.
+
+NEWS TEXT news:TOWN_FELL:7 [de-direct] tries=1 seconds=33,2
+Ein nahegelegener Ort ist zerstört, es steht kein Haus mehr. Manche Leute sind entkommen. Du musst diese Kunde nach {town} bringen.
+
+NEWS TEXT news:TOWN_FELL:7 [de-german-brief] tries=1 seconds=27,0
+Das Dorf in der Nähe ist komplett weg. Kein Haus steht mehr dort. Ich weiß nicht, wer das angerichtet hat. Du musst die Nachricht nach {town} bringen.
+
+NEWS TEXT news:TOWN_FELL:8 [en] tries=1 seconds=33,5
+The market brought word that a town near us is gone. Not one house remains in that place. You must carry this news to {town}. We do not know who brought such ruin upon them.
+
+NEWS TEXT news:TOWN_FELL:8 [de] tries=1 seconds=22,0
+Der Markt brachte die Kunde, dass ein Dorf nahe uns verschwunden ist. Nicht ein einziges Haus mehr steht an diesem Ort. Du musst diese Nachricht nach {town} bringen. Wir wissen nicht, wer ihnen solch einen Untergang beschert hat.
+
+NEWS TEXT news:TOWN_FELL:8 [de-direct] tries=1 seconds=33,9
+Ein Dorf nicht weit von hier ist zerstört worden, kein Haus steht mehr. Manche Leute sind entkommen, wer es getan hat, weiß niemand. Trag diese Nachricht nach {town}.
+
+NEWS TEXT news:TOWN_FELL:8 [de-german-brief] tries=1 seconds=29,2
+Ich habe gehört, dass ein Ort nicht weit hier zerstört wurde. Da stehen keine Häuser mehr. Manche Leute sind geflohen. Du musst diese Nachricht zu {town} bringen, damit sie es auch erfahren.
+
+NEWS TEXT news:TOWN_FELL:9 [en] tries=1 seconds=34,3
+A nearby settlement met ruin; no walls remain there. Some folk escaped the fire, but who brought this destruction? Take word to {town} and tell them what has happened in the burnt place.
+
+NEWS TEXT news:TOWN_FELL:9 [de] tries=1 seconds=24,3
+Ein nahegelegener Siedlung ist zu Trümmern zerfallen; dort stehen keine Mauern mehr. Einige Überlebten des Feuers, doch wer brachte diese Zerstörung herbei? Bring die Kunde nach {town} und erzähle ihnen, was in dem verbrannten Ort geschehen ist.
+
+NEWS TEXT news:TOWN_FELL:9 [de-direct] tries=1 seconds=34,6
+Das Nachbarstädtchen ist zerstört, kein Haus steht mehr da. Manche Leute sind geflohen, wer das getan hat, weiß niemand. Du musst diese Kunde nach {town} tragen.
+
+NEWS TEXT news:TOWN_FELL:9 [de-german-brief] tries=1 seconds=28,8
+Es ist schlimm geworden bei dem Ort in der Nähe. Da steht kein einziges Haus mehr. Ich weiß nicht, wer das getan hat. Du musst diese Nachricht zu {town} bringen.
+
+NEWS TOTAL model=google/gemma-4-E4B-it-qat-q4_0-gguf seconds=2422 calls=80 words=1428
