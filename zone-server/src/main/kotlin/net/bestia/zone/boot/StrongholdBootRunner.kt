@@ -1,5 +1,6 @@
 package net.bestia.zone.boot
 
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.stronghold.EmpyriteSeedDiscoveries
 import net.bestia.zone.stronghold.EmpyriteSeedRegistry
 import net.bestia.zone.stronghold.EmpyriteSeedWaking
@@ -17,11 +18,13 @@ class StrongholdBootRunner(
   private val seeds: EmpyriteSeedRegistry,
   private val waking: EmpyriteSeedWaking,
   private val discoveries: EmpyriteSeedDiscoveries,
+  private val world: World,
 ) : CommandLineRunner {
 
   override fun run(vararg args: String?) {
     seeds.restoreAll()
     waking.wakeAtBoot()
     discoveries.restoreAll()
+    waking.raiseSprouts(world)
   }
 }
