@@ -42,7 +42,7 @@ class LlamaServerClientTest {
 
     assertEquals("Here lies Orwen.", text)
     assertTrue(""""role":"system","content":"Be exact."""" in asked, asked)
-    assertTrue(""""temperature":0.6""" in asked && """"repeat_penalty":1.08""" in asked && """"max_tokens":400""" in asked, asked)
+    assertTrue(""""temperature":0.6""" in asked && """"repeat_penalty":1.05""" in asked && """"max_tokens":400""" in asked, asked)
   }
 
   @Test

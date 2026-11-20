@@ -22,8 +22,11 @@ object ProsePrompt {
     6. OUTPUT FORMAT: Output ONLY the final text, in the length and shape the TASK asks. Do NOT include a title, intro, notes, or markdown formatting.
   """.trimIndent()
 
-  /** A higher temperature makes a small model invent titles and names. */
-  val SAMPLING = LlmClient.Sampling(temperature = 0.6, topP = 0.85, maxTokens = 400, minP = 0.05, repeatPenalty = 1.08)
+  /**
+   * A higher temperature makes a small model invent titles and names. With no repeat penalty it says the same
+   * flourish in text after text.
+   */
+  val SAMPLING = LlmClient.Sampling(temperature = 0.6, topP = 0.85, maxTokens = 400, minP = 0.05, repeatPenalty = 1.05)
 
   /**
    * What is added to the task for a language other than English. The brief stays English: a brief in German
