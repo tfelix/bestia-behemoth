@@ -534,6 +534,12 @@ enum OpError {
   BLACKBOARD_NOTHING_TO_HAND_IN = 388;
   // The town that asked for these goods takes them at its own board only.
   BLACKBOARD_HAND_IN_ELSEWHERE = 389;
+
+  // Where a player structure may stand.
+  // This kind only goes up in a settlement: a player town or a generated town.
+  STRUCTURE_NEEDS_SETTLEMENT = 390;
+  // In a settlement, but too far from its city sign and from every building in it.
+  STRUCTURE_TOO_FAR_FROM_TOWN = 391;
 }
 
 message OperationError {

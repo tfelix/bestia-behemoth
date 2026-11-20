@@ -13,6 +13,7 @@ import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.postal.office.PostOffices
 import net.bestia.zone.prop.kit.BuildingKit
+import net.bestia.zone.settlement.TownBuildingRule
 import net.bestia.zone.settlement.TownService
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
@@ -26,6 +27,7 @@ class TradePostOwner(
   private val towns: TownService,
   private val offices: PostOffices,
   private val houses: PlayerHouses,
+  private val townBuildingRule: TownBuildingRule,
   losService: LineOfSightService,
 ) : BasicMagicSkillStrategy(losService), BuildingKit {
 
@@ -62,6 +64,7 @@ class TradePostOwner(
 
   private fun siteRefusal(at: Vec3L): OpError? {
     return towns.buildingRefusal(at, StaticEntityKind.AUCTION_HOUSE)
+      ?: townBuildingRule.refusal(StaticEntityKind.AUCTION_HOUSE, at)
       ?: if (offices.playerOfficeAt(at) == null) OpError.TRADE_POST_NEEDS_POST_OFFICE else null
   }
 

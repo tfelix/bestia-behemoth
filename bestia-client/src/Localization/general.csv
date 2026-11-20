@@ -1146,6 +1146,8 @@ BLACKBOARD_CARRIED,You carry %d
 BLACKBOARD_DROP,Drop quest
 ERROR_BLACKBOARD_NOTHING_TO_HAND_IN,You carry none of what this quest wants.
 ERROR_BLACKBOARD_HAND_IN_ELSEWHERE,This town did not ask for it. Bring it to the board of the town that did.
+ERROR_STRUCTURE_NEEDS_SETTLEMENT,This can only be built in a town.
+ERROR_STRUCTURE_TOO_FAR_FROM_TOWN,Build closer to the city sign or to a building of this town.
 QUEST_DELIVER_TEXT,"Bring {amount} {item} to any blackboard. {poster} pays {pay} gold for each."
 QUEST_LOG_EMPTY,Your quest log is empty. Sign a quest at a blackboard in town.
 QUEST_LOG_GROUP_BLACKBOARD,Blackboard
