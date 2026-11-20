@@ -20,6 +20,10 @@ interface GuildRepository : JpaRepository<Guild, Long> {
   @Query("select g.name from Guild g where g.leader.id = :masterId")
   fun findNameLedBy(@Param("masterId") masterId: Long): String?
 
+  /** How many guilds have learned the guild skill [skill], by its `skills.yml` identifier. */
+  @Query("select count(distinct guild_id) from guild_skill_level where skill = :skill and level > 0", nativeQuery = true)
+  fun countWithSkill(@Param("skill") skill: String): Long
+
   /** Lowers every rank taxed above [maxPercent] to it. @return how many ranks it lowered */
   @Modifying
   @Query("update GuildRank r set r.taxPercent = :maxPercent where r.taxPercent > :maxPercent")

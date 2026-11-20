@@ -28,6 +28,7 @@ import net.bestia.zone.skill.SkillId
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.DisplayName
 import net.bestia.zone.util.EntityId
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -62,6 +63,7 @@ class GuildService(
   private val log: GuildLog,
   private val emblemRepository: GuildEmblemRepository,
   private val expulsionRepository: GuildExpulsionRepository,
+  private val events: ApplicationEventPublisher,
 ) {
 
   data class SentInvitation(val invitedAccountId: AccountId, val invitation: GuildInvitationSMSG)
@@ -486,6 +488,11 @@ class GuildService(
     guild.skillLevels[node.identifier] = guild.skillLevel(node.identifier) + 1
     guild.members.forEach { refreshMembership(it) }
     log.record(guild, GuildLogKind.SKILL_LEARNED, actor.master.name, detail = node.skillId.toString())
+
+    if (node.identifier == SkillId.OFFICIAL_GUILD_APPROVAL.name) {
+      val guildId = guild.id
+      afterCommit { events.publishEvent(GuildApprovedEvent(this, guildId)) }
+    }
 
     return guild.id
   }
