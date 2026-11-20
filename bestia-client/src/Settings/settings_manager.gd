@@ -18,7 +18,7 @@ const SAVE_PATH := "user://settings.json"
 ## Build identity, sent in the authentication handshake. Deliberately not a setting: the server
 ## keeps its own version and compares against this, so a client that could edit it into a user file
 ## could misreport what it is.
-const VERSION := "bclient/0.0.1" # x-release-please-version
+const VERSION := "bclient/0.1.0" # x-release-please-version
 
 static var _instance: ClientSettings = null
 
