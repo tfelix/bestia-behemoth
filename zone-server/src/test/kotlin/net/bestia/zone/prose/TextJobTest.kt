@@ -39,9 +39,6 @@ class TextJobTest {
   @Autowired
   private lateinit var writer: TextWriter
 
-  @Autowired
-  private lateinit var translator: TextTranslator
-
   @AfterEach
   fun forget() {
     rows.deleteAll(rows.findAll().filter { it.subject.startsWith(SUBJECT) })
@@ -105,20 +102,34 @@ class TextJobTest {
   }
 
   @Test
-  fun `the second language is translated from the English text, under the same id`() {
+  fun `the second language is written from the brief, under the same id`() {
     val job = jobOf(ProseConfig(), Clock.systemUTC(), locales = listOf("en", "de"))
     assertEquals(4, job.plan())
 
-    // Two English texts first, then their two translations.
-    job.run(ScriptedLlm("Here lies Orwen, 712-780.", "Here lies Orwen, 712-780.", "Hier ruht Orwen, 712-780."))
+    // Two English texts first, then the two German ones.
+    val llm = ScriptedLlm("Here lies Orwen, 712-780.", "Here lies Orwen, 712-780.", "Hier ruht Orwen, 712-780.")
+    job.run(llm)
 
     val textId = assertNotNull(texts.attach(TextRef("READABLE_NAMED_GRAVE"), "$SUBJECT:first").textId)
     assertEquals(WorldTexts.Body("de", "Hier ruht Orwen, 712-780."), texts.bodyOf(textId, "de"))
     assertEquals("Here lies Orwen, 712-780.", texts.bodyOf(textId, "en")!!.text)
+    assertTrue("FACT SHEET" in llm.asked.last(), "German is written from the facts, not from the English text")
+  }
+
+  @Test
+  fun `a language nobody can write is given up without asking the model`() {
+    val job = jobOf(ProseConfig(), Clock.systemUTC(), locales = listOf("xx"))
+    job.plan()
+    val llm = ScriptedLlm("never asked")
+
+    val report = job.run(llm)
+
+    assertEquals(0 to 2, report.written to report.rejected)
+    assertTrue(llm.asked.isEmpty())
   }
 
   private fun jobOf(config: ProseConfig, clock: Clock, locales: List<String> = listOf("en")): TextJob {
-    return TextJob(listOf(TwoGraves), texts, writer, translator, budgets, config.copy(locales = locales), clock)
+    return TextJob(listOf(TwoGraves), texts, writer, budgets, config.copy(locales = locales), clock)
   }
 
   private object TwoGraves : TextSource {

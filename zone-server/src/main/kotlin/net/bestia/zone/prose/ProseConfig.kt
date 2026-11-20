@@ -10,7 +10,7 @@ data class ProseConfig(
   /** Whether the zone writes texts for a new world with a language model. Off, every text stays its template. */
   val enabled: Boolean = false,
 
-  /** The languages to write, English first: the others are translated from it. */
+  /** The languages to write, in this order. English first: it is what a client without its own language shows. */
   val locales: List<String> = listOf("en", "de"),
 
   /** The most time the job may spend on one language over the life of a world. What is left stays a template. */

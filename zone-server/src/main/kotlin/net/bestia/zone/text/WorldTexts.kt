@@ -61,12 +61,6 @@ class WorldTexts(private val repository: WorldTextRepository) {
     return repository.countByIdLocaleAndState(locale, WorldText.State.WAITING)
   }
 
-  /** The English body written about the subject of [row], which a translation starts from. */
-  @Transactional(readOnly = true)
-  fun englishOf(row: WorldText): String? {
-    return written(row.id.textId, FALLBACK_LOCALE)?.text
-  }
-
   /** Stores what the job made of a waiting text: a [body], or none when the model did not get it right. */
   @Transactional
   fun finish(key: WorldText.Key, body: String?, model: String, attempts: Int) {
