@@ -140,6 +140,25 @@ func get_owned_master_entity_id() -> int:
 	return _owned_master_entity_id
 
 
+## The player's own master, by the id the server names a structure's owner with. 0 before the initial self sync.
+func get_owned_master_id() -> int:
+	return _owned_master_id
+
+
+## The construction sites within [param radius] tiles of [param tile], as ChunkStreamManager.PlacementRefusal
+## takes them: [code]{"tile": Vector3, "owner": int}[/code].
+func construction_sites_near(tile: Vector3, radius: float) -> Array:
+	var sites := []
+	for entity: Entity in _entities.values():
+		var site := entity.get_construction()
+		if site == null:
+			continue
+		var at := entity.get_logical_position()
+		if Vector2(at.x - tile.x, at.z - tile.z).length() <= radius:
+			sites.append({"tile": at, "owner": site.OwnerMasterId})
+	return sites
+
+
 ## Returns the Entity node for entity_id, or null if it is not currently known
 ## (out of range / not yet synced).
 func get_entity(entity_id: int) -> Entity:

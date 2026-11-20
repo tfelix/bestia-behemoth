@@ -95,6 +95,9 @@ var _bled: bool = false
 ## Where this entity is, in words. Owner-only on the wire, so null on all but the local master.
 var _place: PlaceComponentSMSG = null
 
+## The site this entity is, or null for anything but a construction site. A kit ghost keeps its distance from it.
+var _construction: ConstructionComponentSMSG = null
+
 # True while channelling a skill; on the owned entity it also blocks movement input.
 var _casting: bool = false
 
@@ -1364,6 +1367,10 @@ func get_place() -> PlaceComponentSMSG:
 	return _place
 
 
+func get_construction() -> ConstructionComponentSMSG:
+	return _construction
+
+
 ## Null until the server has pushed this pool at least once - a missing pool is not 0/0.
 func get_health() -> ConditionPool:
 	return _health
@@ -1403,6 +1410,7 @@ func update_blackboard_offer(msg: BlackboardOfferComponentSMSG) -> void:
 
 
 func update_construction(msg: ConstructionComponentSMSG) -> void:
+	_construction = msg
 	var visual = _get_visual_for_method("update_construction")
 	if visual != null:
 		visual.update_construction(msg)
