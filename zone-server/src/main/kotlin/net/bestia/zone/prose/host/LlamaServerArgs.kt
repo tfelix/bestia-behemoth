@@ -11,6 +11,7 @@ object LlamaServerArgs {
     return listOf(
       // Fetched from Hugging Face on the first start and kept in the model cache.
       "-hf", llm.model,
+    ) + fileOf(llm) + listOf(
       "-c", llm.contextSize.toString(),
       // One request at a time: more slots do not make a CPU write faster.
       "-np", "1",
@@ -22,5 +23,9 @@ object LlamaServerArgs {
       "--host", "0.0.0.0",
       "--port", PORT.toString(),
     )
+  }
+
+  private fun fileOf(llm: ProseConfig.Llm): List<String> {
+    return llm.modelFile?.let { listOf("-hff", it) } ?: emptyList()
   }
 }
