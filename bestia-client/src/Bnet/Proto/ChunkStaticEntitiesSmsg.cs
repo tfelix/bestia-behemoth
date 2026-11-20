@@ -25,23 +25,23 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci1tZXNzYWdlcy9tYXAvY2h1bmtfc3RhdGljX2VudGl0aWVzX3Ntc2cucHJv",
-            "dG8SBGJuZXQaGG1lc3NhZ2VzL21hcC9jaHVuay5wcm90byLUAgoXQ2h1bmtT",
+            "dG8SBGJuZXQaGG1lc3NhZ2VzL21hcC9jaHVuay5wcm90byLtAgoXQ2h1bmtT",
             "dGF0aWNFbnRpdGllc1NNU0cSGwoDcG9zGAEgASgLMg4uYm5ldC5DaHVua1Bv",
             "cxI0CgdlbnRyaWVzGAIgAygLMiMuYm5ldC5DaHVua1N0YXRpY0VudGl0aWVz",
-            "U01TRy5FbnRyeRrlAQoFRW50cnkSEQoJZW50aXR5X2lkGAEgASgGEgwKBGtp",
+            "U01TRy5FbnRyeRr+AQoFRW50cnkSEQoJZW50aXR5X2lkGAEgASgGEgwKBGtp",
             "bmQYAiABKA0SDwoHdmFyaWFudBgDIAEoDRIPCgdsb2NhbF94GAQgASgNEg8K",
             "B2xvY2FsX3kYBSABKA0SCQoBehgGIAEoERIRCgloZWlnaHRfZG0YByABKA0S",
             "GAoQeWF3X2NlbnRpcmFkaWFucxgIIAEoDRIWCg5oYWxmX2xlbmd0aF9kbRgJ",
             "IAEoDRIVCg1oYWxmX3dpZHRoX2RtGAogASgNEiEKBmdyb3d0aBgLIAEoDjIR",
-            "LmJuZXQuR3Jvd3RoU3RhZ2UqbwoLR3Jvd3RoU3RhZ2USFgoSR1JPV1RIX1NU",
-            "QUdFX0dST1dOEAASFgoSR1JPV1RIX1NUQUdFX1NUVU1QEAESGAoUR1JPV1RI",
-            "X1NUQUdFX1NBUExJTkcQAhIWChJHUk9XVEhfU1RBR0VfWU9VTkcQA0I1ChVu",
-            "ZXQuYmVzdGlhLmJuZXQucHJvdG9CHENodW5rU3RhdGljRW50aXRpZXNTTVNH",
-            "UHJvdG9iBnByb3RvMw=="));
+            "LmJuZXQuR3Jvd3RoU3RhZ2USFwoPb3duZXJfbWFzdGVyX2lkGAwgASgEKm8K",
+            "C0dyb3d0aFN0YWdlEhYKEkdST1dUSF9TVEFHRV9HUk9XThAAEhYKEkdST1dU",
+            "SF9TVEFHRV9TVFVNUBABEhgKFEdST1dUSF9TVEFHRV9TQVBMSU5HEAISFgoS",
+            "R1JPV1RIX1NUQUdFX1lPVU5HEANCNQoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
+            "QhxDaHVua1N0YXRpY0VudGl0aWVzU01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.ChunkReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.GrowthStage), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkStaticEntitiesSMSG), global::Bnet.ChunkStaticEntitiesSMSG.Parser, new[]{ "Pos", "Entries" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkStaticEntitiesSMSG.Types.Entry), global::Bnet.ChunkStaticEntitiesSMSG.Types.Entry.Parser, new[]{ "EntityId", "Kind", "Variant", "LocalX", "LocalY", "Z", "HeightDm", "YawCentiradians", "HalfLengthDm", "HalfWidthDm", "Growth" }, null, null, null, null)})
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkStaticEntitiesSMSG), global::Bnet.ChunkStaticEntitiesSMSG.Parser, new[]{ "Pos", "Entries" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkStaticEntitiesSMSG.Types.Entry), global::Bnet.ChunkStaticEntitiesSMSG.Types.Entry.Parser, new[]{ "EntityId", "Kind", "Variant", "LocalX", "LocalY", "Z", "HeightDm", "YawCentiradians", "HalfLengthDm", "HalfWidthDm", "Growth", "OwnerMasterId" }, null, null, null, null)})
           }));
     }
     #endregion
@@ -388,6 +388,7 @@ namespace Bnet {
           halfLengthDm_ = other.halfLengthDm_;
           halfWidthDm_ = other.halfWidthDm_;
           growth_ = other.growth_;
+          ownerMasterId_ = other.ownerMasterId_;
           _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
         }
 
@@ -566,6 +567,21 @@ namespace Bnet {
           }
         }
 
+        /// <summary>Field number for the "owner_master_id" field.</summary>
+        public const int OwnerMasterIdFieldNumber = 12;
+        private ulong ownerMasterId_;
+        /// <summary>
+        ///* The master who built it, so a client can tell its own structures from others'. 0 for anything generated. 
+        /// </summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public ulong OwnerMasterId {
+          get { return ownerMasterId_; }
+          set {
+            ownerMasterId_ = value;
+          }
+        }
+
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
         public override bool Equals(object other) {
@@ -592,6 +608,7 @@ namespace Bnet {
           if (HalfLengthDm != other.HalfLengthDm) return false;
           if (HalfWidthDm != other.HalfWidthDm) return false;
           if (Growth != other.Growth) return false;
+          if (OwnerMasterId != other.OwnerMasterId) return false;
           return Equals(_unknownFields, other._unknownFields);
         }
 
@@ -610,6 +627,7 @@ namespace Bnet {
           if (HalfLengthDm != 0) hash ^= HalfLengthDm.GetHashCode();
           if (HalfWidthDm != 0) hash ^= HalfWidthDm.GetHashCode();
           if (Growth != global::Bnet.GrowthStage.Grown) hash ^= Growth.GetHashCode();
+          if (OwnerMasterId != 0UL) hash ^= OwnerMasterId.GetHashCode();
           if (_unknownFields != null) {
             hash ^= _unknownFields.GetHashCode();
           }
@@ -672,6 +690,10 @@ namespace Bnet {
             output.WriteRawTag(88);
             output.WriteEnum((int) Growth);
           }
+          if (OwnerMasterId != 0UL) {
+            output.WriteRawTag(96);
+            output.WriteUInt64(OwnerMasterId);
+          }
           if (_unknownFields != null) {
             _unknownFields.WriteTo(output);
           }
@@ -726,6 +748,10 @@ namespace Bnet {
             output.WriteRawTag(88);
             output.WriteEnum((int) Growth);
           }
+          if (OwnerMasterId != 0UL) {
+            output.WriteRawTag(96);
+            output.WriteUInt64(OwnerMasterId);
+          }
           if (_unknownFields != null) {
             _unknownFields.WriteTo(ref output);
           }
@@ -768,6 +794,9 @@ namespace Bnet {
           }
           if (Growth != global::Bnet.GrowthStage.Grown) {
             size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Growth);
+          }
+          if (OwnerMasterId != 0UL) {
+            size += 1 + pb::CodedOutputStream.ComputeUInt64Size(OwnerMasterId);
           }
           if (_unknownFields != null) {
             size += _unknownFields.CalculateSize();
@@ -813,6 +842,9 @@ namespace Bnet {
           }
           if (other.Growth != global::Bnet.GrowthStage.Grown) {
             Growth = other.Growth;
+          }
+          if (other.OwnerMasterId != 0UL) {
+            OwnerMasterId = other.OwnerMasterId;
           }
           _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
         }
@@ -877,6 +909,10 @@ namespace Bnet {
                 Growth = (global::Bnet.GrowthStage) input.ReadEnum();
                 break;
               }
+              case 96: {
+                OwnerMasterId = input.ReadUInt64();
+                break;
+              }
             }
           }
         #endif
@@ -938,6 +974,10 @@ namespace Bnet {
               }
               case 88: {
                 Growth = (global::Bnet.GrowthStage) input.ReadEnum();
+                break;
+              }
+              case 96: {
+                OwnerMasterId = input.ReadUInt64();
                 break;
               }
             }

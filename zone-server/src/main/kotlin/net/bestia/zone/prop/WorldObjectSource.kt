@@ -34,7 +34,8 @@ data class WorldObjectSite(
   val halfLengthDm: Int = 0,
   val halfWidthDm: Int = 0,
   val structureId: Long = 0,
-  val ownerAccountId: AccountId? = null
+  val ownerAccountId: AccountId? = null,
+  val ownerMasterId: Long = 0
 )
 
 /**

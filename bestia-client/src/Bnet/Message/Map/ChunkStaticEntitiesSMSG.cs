@@ -74,6 +74,9 @@ namespace BestiaBehemothClient.Bnet.Message.Map
       /// </summary>
       public global::Bnet.GrowthStage Growth { get; init; }
 
+      /// <summary>The master who built it, or 0 for anything the world generated.</summary>
+      public long OwnerMasterId { get; init; }
+
       /// <summary>Whether this entry carries a footprint of its own rather than taking its kind's.</summary>
       public bool HasFootprint => HalfLength > 0f && HalfWidth > 0f;
     }
@@ -101,7 +104,8 @@ namespace BestiaBehemothClient.Bnet.Message.Map
           Yaw = entry.YawCentiradians / 100f,
           HalfLength = entry.HalfLengthDm / 10f,
           HalfWidth = entry.HalfWidthDm / 10f,
-          Growth = entry.Growth
+          Growth = entry.Growth,
+          OwnerMasterId = (long)entry.OwnerMasterId
         });
       }
 

@@ -77,7 +77,7 @@ class PlayerStructureDeathSystemTest {
 
     world.createEntity { id ->
       add(id, Position.fromVec3(AT))
-      add(id, PlayerStructureIdentity(STRUCTURE_ID, OWNER_ACCOUNT))
+      add(id, PlayerStructureIdentity(STRUCTURE_ID, OWNER_ACCOUNT, 1L))
       add(id, TakenDamage().apply { addDamage(by, 500) })
       add(id, Dead())
     }

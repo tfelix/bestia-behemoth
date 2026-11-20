@@ -5,6 +5,7 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.PropVitality
 import net.bestia.zone.entity.ecs.StaticSync
@@ -49,7 +50,8 @@ class WorldObjectResidencySystem(
 
   override val schedule: Schedule = Schedule.EveryTick
 
-  override val reads: ComponentClassSet = setOf(PropPose::class)
+  // The identity for the owner each batch entry names.
+  override val reads: ComponentClassSet = setOf(PropPose::class, PlayerStructureIdentity::class)
 
   override val writes: ComponentClassSet = setOf(
     PropPose::class,

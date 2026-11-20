@@ -30,4 +30,7 @@ message ConstructionComponentSMSG {
   bool active = 4;
 
   bool removed = 5;
+
+  /** The master building it, so a client can tell its own sites from others'. */
+  uint64 owner_master_id = 6;
 }

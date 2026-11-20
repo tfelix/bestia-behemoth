@@ -178,6 +178,20 @@ class StructureResidencyTest {
   }
 
   @Test
+  fun `a client is told who built a station and that nobody built a tree`() {
+    workbenchIn(0, 0, structureId = 7L)
+    bestiaAt(Vec3L(0, 0, 64))
+    tick()
+
+    subscriptions.markSent(1L, ChunkPos(0, 0, 0))
+    tick()
+
+    val entries = batches.single().second.entries
+    assertEquals(setOf(1L), entries.filter { it.kind == StaticEntityKind.WORKBENCH }.map { it.ownerMasterId }.toSet())
+    assertEquals(setOf(0L), entries.filter { it.kind == StaticEntityKind.TREE }.map { it.ownerMasterId }.toSet())
+  }
+
+  @Test
   fun `a station leaves only when its last holder of any kind goes`() {
     workbenchIn(0, 0, structureId = 7L)
     subscriptions.markSent(1L, ChunkPos(0, 0, 0))
