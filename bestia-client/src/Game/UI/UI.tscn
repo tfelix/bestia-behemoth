@@ -23,6 +23,7 @@
 [ext_resource type="PackedScene" uid="uid://bshopwin00001" path="res://Game/UI/Shop/Shop.tscn" id="23_shop"]
 [ext_resource type="PackedScene" path="res://Game/UI/Weather/Weather.tscn" id="21_weather"]
 [ext_resource type="PackedScene" path="res://Game/UI/Location/Location.tscn" id="22_location"]
+[ext_resource type="PackedScene" path="res://Game/UI/TownBanner/TownBanner.tscn" id="95_town_banner"]
 [ext_resource type="Script" uid="uid://t7ftdjhb107i" path="res://Game/UI/Map/map_marks.gd" id="23_mapmarks"]
 [ext_resource type="PackedScene" path="res://Game/UI/Map/MarkNamePopup.tscn" id="24_markpopup"]
 [ext_resource type="PackedScene" path="res://Game/UI/Map/MarkDeletePopup.tscn" id="25_markdelpopup"]
@@ -72,6 +73,9 @@ visible = false
 layout_mode = 1
 
 [node name="Location" parent="." unique_id=1390602605 instance=ExtResource("22_location")]
+layout_mode = 1
+
+[node name="TownBanner" parent="." instance=ExtResource("95_town_banner")]
 layout_mode = 1
 
 [node name="Clock" parent="." unique_id=1359698401 instance=ExtResource("14_clock")]
