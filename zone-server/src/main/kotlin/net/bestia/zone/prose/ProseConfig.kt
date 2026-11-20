@@ -39,6 +39,9 @@ data class ProseConfig(
     /** The model as a Hugging Face repository and quantisation. The server fetches it once into [modelCache]. */
     val model: String = "unsloth/gemma-4-E4B-it-GGUF:Q4_K_M",
 
+    /** The file in the repository of [model], for a repository whose file names do not carry the quantisation. */
+    val modelFile: String? = null,
+
     /** The Docker volume the model file is kept in, so it is fetched once and not per world. */
     val modelCache: String = "bestia-llm-models",
 

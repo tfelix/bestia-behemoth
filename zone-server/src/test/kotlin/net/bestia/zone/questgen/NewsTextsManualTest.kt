@@ -49,6 +49,7 @@ class NewsTextsManualTest {
     val config = ProseConfig(
       llm = defaults.copy(
         model = System.getenv("PROSE_MODEL") ?: defaults.model,
+        modelFile = System.getenv("PROSE_MODEL_FILE")?.ifEmpty { null },
         memory = System.getenv("PROSE_MEMORY_GB")?.let { DataSize.ofGigabytes(it.toLong()) } ?: defaults.memory,
       ),
     )
