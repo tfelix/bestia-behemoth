@@ -10,6 +10,8 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.structure.StructureCollision
 import net.bestia.zone.structure.StructureRasterizer
 import net.bestia.zone.util.AccountId
@@ -38,6 +40,8 @@ class PlayerStructureService(
   private val worldService: WorldService,
   private val events: ApplicationEventPublisher,
   private val collision: StructureCollision,
+  private val placementRules: List<PlacementRule>,
+  private val outMessageProcessor: OutMessageProcessor,
   private val clock: Clock = Clock.systemUTC(),
 ) {
 
@@ -90,6 +94,12 @@ class PlayerStructureService(
     requestedYaw: Float,
     buildSeconds: Float
   ): EntityId? {
+    val placementRefusal = placementRules.firstNotNullOfOrNull { it.refusal(kind, ownerMasterId, position) }
+    if (placementRefusal != null) {
+      outMessageProcessor.sendToPlayer(ownerAccountId, OperationErrorSMSG(placementRefusal))
+      return null
+    }
+
     val yaw = yawOf(kind, requestedYaw)
     val isTaken = if (collision.isPiece(kind)) {
       !collision.fits(kind, position, yaw)
