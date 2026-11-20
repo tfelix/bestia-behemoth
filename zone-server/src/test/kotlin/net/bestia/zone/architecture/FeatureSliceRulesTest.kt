@@ -140,7 +140,7 @@ class FeatureSliceRulesTest {
       "identity", "aoi", "entity", "logout", "navigation", "movement", "world", "text", "chronicle", "structure", "water", "script", "place", "skill",
       "dialog", "battle", "weather", "ground", "item", "fact", "quest", "bestia", "spoor", "prop", "settlement", "casting", "emote", "travel", "ai", "spawn", "workexp", "worldboss",
       "account", "party", "guild", "compendium", "economy", "crafting", "cartography", "treasure", "townsfolk", "honor", "postal", "master", "respawn", "trade", "auction", "blackboard", "questgen", "prose",
-      "capture", "spellscroll", "teleport", "spellbinding", "scry", "breeding", "fishing", "chat", "poi", "control", "companion", "socket", "metrics", "engine", "boot",
+      "stronghold", "capture", "spellscroll", "teleport", "spellbinding", "scry", "breeding", "fishing", "chat", "poi", "control", "companion", "socket", "metrics", "engine", "boot",
     )
   }
 }
