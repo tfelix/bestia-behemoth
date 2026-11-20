@@ -1,0 +1,130 @@
+NEWS TEXT news:BOSS_SLAIN:0 [en] tries=1 seconds=97,5
+A great beast that people feared was killed not far from here. I did not see it myself, but others went to look and told me of it. I do not know who killed it. Please carry this word to {town}.
+
+NEWS TEXT news:BOSS_SLAIN:0 [de] tries=1 seconds=65,5
+Nicht weit von hier wurde eine gewaltige Bestie getötet, vor der die Menschen einst erzitterten. Ich habe sie mit eigenen Augen nicht gesehen, doch andere suchten die Stelle auf und berichteten mir davon. Wer das Ungeheuer zu Fall brachte, ist mir ein Rätsel. Bitte überbringe diese Kunde nach {town}.
+
+NEWS TEXT news:BOSS_SLAIN:1 [en] tries=1 seconds=124,8
+A great beast that people feared was killed not far from here. I did not see it myself, but others went to look and told of the deed. I do not know who killed it. You must carry this word to {town} for them.
+
+NEWS TEXT news:BOSS_SLAIN:1 [de] tries=1 seconds=76,3
+Nicht weit von hier wurde eine gewaltige Bestie getötet, vor der die Menschen einst erzitterten. Ich habe sie mit eigenen Augen nicht gesehen, doch andere suchten das Vieh auf und berichteten von der Tat. Wer es getötet hat, weiß ich nicht. Du musst diese Kunde nach {town} bringen, damit sie davon erfahren.
+
+NEWS TEXT news:BOSS_SLAIN:2 [en] tries=1 seconds=113,8
+The great beast that we feared is dead. Others went to look and told me of its death, though I did not see it. I do not know who killed it. Please carry this news to {town} for me.
+
+NEWS TEXT news:BOSS_SLAIN:2 [de] tries=1 seconds=65,7
+Die gewaltige Bestie, vor der wir so sehr fürchteten, ist gefallen. Andere waren zur Stelle und berichteten mir von ihrem Tod, obgleich ich es mit eigenen Augen nicht sah. Wer sie getötet hat, weiß ich nicht. Bitte überbringe diese Kunde für mich nach {town}.
+
+NEWS TEXT news:BOSS_SLAIN:3 [en] tries=1 seconds=104,1
+A great beast that people feared was killed not far from here. I did not see it, but others went to look and told of the deed. I do not know who killed it. You must carry this news to {town}.
+
+NEWS TEXT news:BOSS_SLAIN:3 [de] tries=1 seconds=68,7
+Nicht weit von hier wurde eine gewaltige Bestie getötet, vor der die Menschen einst erzitterten.
+Ich habe sie selbst nicht gesehen, doch andere suchten das Grab und berichteten von der Tat.
+Wer das Ungeheuer zu Fall brachte, ist mir unbekannt.
+Du musst diese Kunde nach {town} bringen.
+
+NEWS TEXT news:BOSS_SLAIN:4 [en] tries=1 seconds=113,9
+A great beast that people feared was killed not far from here. I did not see it, but others went to look and told of the deed. I do not know who killed it. Please carry this word to {town} for my kin.
+
+NEWS TEXT news:BOSS_SLAIN:4 [de] tries=1 seconds=74,3
+Ein gewaltiges Ungeheuer, vor dem die Leute erzitterten, wurde nicht weit von hier herabgelegt. Ich habe es selbst nicht gesehen, doch andere suchten die Stelle auf und berichteten von der Tat. Wer es getötet hat, weiß ich nicht. Bitte überbringe diese Kunde nach {town} für meine Verwandten.
+
+NEWS TEXT news:BOSS_SLAIN:5 [en] tries=1 seconds=124,7
+The great beast that people feared was killed not far from here. I did not see it, but others went to look and told me of it. I do not know who killed it. Please carry this word to {town} for them.
+
+NEWS TEXT news:BOSS_SLAIN:5 [de] tries=1 seconds=76,9
+Die Bestie, vor der das Volk so sehr fürchtete, wurde nicht weit von hierher getötet. Ich habe sie selbst nicht gesehen, doch andere suchten sie auf und berichteten mir davon. Wer sie erschlagen hat, weiß ich nicht. Bitte überbringe diese Kunde nach {town} für sie.
+
+NEWS TEXT news:BOSS_SLAIN:6 [en] tries=1 seconds=108,4
+A great beast that people feared was killed not far from here. Others went to look and told of the deed, but I do not know who killed it. You must carry this word to {town} so they may know.
+
+NEWS TEXT news:BOSS_SLAIN:6 [de] tries=1 seconds=72,3
+Nicht weit von hier entfernt wurde eine gewaltige Bestie getötet, vor der die Menschen einst erzitterten.
+Andere waren zum Schauplatz gerückt und berichteten von der Tat, doch wer das Ungeheuer zu Fall brachte, bleibt mir verborgen.
+Du musst diese Kunde nach {town} tragen, damit die Leute davon erfahren.
+
+NEWS TEXT news:BOSS_SLAIN:7 [en] tries=1 seconds=115,3
+A great beast was killed near our home. I did not see it, but others saw and told me of the deed. I do not know who killed the beast. You must carry this news to {town}.
+
+NEWS TEXT news:BOSS_SLAIN:7 [de] tries=1 seconds=64,7
+In der Nähe unserer Heimat wurde eine gewaltige Bestie getötet. Ich selbst habe sie nicht gesehen, doch andere Augenzeugen berichteten mir von der Tat. Wer das Ungeheuer zu Fall brachte, ist mir unbekannt. Du musst diese Kunde nach {town} bringen.
+
+NEWS TEXT news:BOSS_SLAIN:8 [en] tries=1 seconds=112,8
+I heard at the market that a great beast was killed near here. I did not see it myself, but others went to look and told of the deed. I do not know who killed it. Please carry this word to {town}.
+
+NEWS TEXT news:BOSS_SLAIN:8 [de] tries=1 seconds=67,5
+Auf dem Markt habe ich vernommen, dass in der Nähe eine gewaltige Bestie getötet wurde. Ich habe sie mit eigenen Augen nicht gesehen, doch andere zogen vor Ort auf die Suche und berichteten von der Tat. Wer das Ungeheuer zu Fall brachte, ist mir nicht bekannt. Bitte überbringe diese Nachricht nach {town}.
+
+NEWS TEXT news:BOSS_SLAIN:9 [en] tries=1 seconds=116,5
+A great beast that people feared was killed not far from here. I did not see it myself, but others went to look and told of the deed. I do not know who killed it. Please carry this word to {town}.
+
+NEWS TEXT news:BOSS_SLAIN:9 [de] tries=1 seconds=71,3
+Nicht weit von hier wurde eine gewaltige Bestie getötet, vor der die Menschen einst erzitterten. Ich habe sie mit eigenen Augen nicht gesehen, doch andere suchten das Grab und berichteten von der Tat. Wer das Ungeheuer zu Fall brachte, ist mir ein Rätsel. Bitte überbringe diese Kunde nach {town}.
+
+NEWS TEXT news:TOWN_FELL:0 [en] tries=1 seconds=103,9
+A town not far from here was destroyed. No house is left standing. Some of its people got away, but I do not know who did it. You must carry this word to {town}.
+
+NEWS TEXT news:TOWN_FELL:0 [de] tries=1 seconds=63,7
+Nicht weit von hier entfernt wurde ein Dorf verwüstet. Kein Haus steht mehr. Einige der Bewohner konnten entkommen, doch ich weiß nicht, wer für diese Tat verantwortlich ist. Du musst diese Kunde nach {town} bringen.
+
+NEWS TEXT news:TOWN_FELL:1 [en] tries=1 seconds=116,0
+A town not far from here was destroyed and no house is left standing. Some of its people got away, but I do not know who did it. You must carry this word to {town} for them.
+
+NEWS TEXT news:TOWN_FELL:1 [de] tries=1 seconds=66,7
+Nicht weit von hier entfernt wurde eine Siedlung verwüstet, bis kein Haus mehr steht.
+Einige der Bewohner konnten entkommen, doch mir ist nicht bewusst, wer für diese Tat verantwortlich ist.
+Du musst diese Kunde nach {town} bringen, um sie zu warnen.
+
+NEWS TEXT news:TOWN_FELL:2 [en] tries=1 seconds=108,6
+A town nearby was destroyed and no house is left standing. Some of its people got away, but I do not know who did it. Please carry this news to {town} for them.
+
+NEWS TEXT news:TOWN_FELL:2 [de] tries=1 seconds=62,0
+Ein nahegelegenes Dorf wurde verwüstet, und kein Haus steht mehr.
+Einige der Bewohner konnten entkommen, doch mir ist nicht bekannt, wer für diese Tat verantwortlich ist.
+Bitte überbringe diese Nachricht für sie nach {town}.
+
+NEWS TEXT news:TOWN_FELL:3 [en] tries=1 seconds=107,4
+A town not far from here was destroyed and no house is left standing. Some of its people got away, but I do not know who did it. Please carry this news to {town} for them.
+
+NEWS TEXT news:TOWN_FELL:3 [de] tries=1 seconds=63,5
+Nicht weit von hier entfernt wurde ein Dorf verwüstet, und kein Haus steht mehr. Einige der Bewohner konnten entkommen, doch ich weiß nicht, wer für diese Tat verantwortlich ist. Bitte überbringe diese Nachricht für sie nach {town}.
+
+NEWS TEXT news:TOWN_FELL:4 [en] tries=1 seconds=107,8
+A town not far from here was destroyed and no house is left standing. Some of its people got away, but I do not know who did it. Please carry this word to {town} for my kin.
+
+NEWS TEXT news:TOWN_FELL:4 [de] tries=1 seconds=63,9
+Nicht weit von hier entfernt wurde eine Siedlung verwüstet, und kein Haus steht mehr. Einige der Bewohner konnten entkommen, doch ich weiß nicht, wer für diese Tat verantwortlich ist. Bitte überbringe diese Nachricht für meine Verwandten nach {town}.
+
+NEWS TEXT news:TOWN_FELL:5 [en] tries=1 seconds=109,2
+A town nearby was destroyed and no house is left standing. Some people got away, but I do not know who did it. You must go and tell the people in {town} what happened. Please carry this news for me.
+
+NEWS TEXT news:TOWN_FELL:5 [de] tries=1 seconds=68,8
+Ein nahegelegenes Dorf wurde verwüstet, und kein Haus steht mehr. Einige Überlebende konnten entkommen, doch ich weiß nicht, wer für diese Tat verantwortlich ist. Du musst zu {town} reisen und den Leuten dort von dem Geschehnen berichten. Bitte übermittle diese Nachricht für mich.
+
+NEWS TEXT news:TOWN_FELL:6 [en] tries=1 seconds=105,5
+A town not far from here was destroyed. No house is left standing, though some people got away. I do not know who did it. Please carry this word to {town}.
+
+NEWS TEXT news:TOWN_FELL:6 [de] tries=1 seconds=59,7
+Nicht weit von hier entfernt wurde ein Ort vernichtet. Kein Haus steht mehr, obschon einige Menschen entkommen konnten. Ich weiß nicht, wer dafür verantwortlich ist. Bitte überbringe diese Kunde nach {town}.
+
+NEWS TEXT news:TOWN_FELL:7 [en] tries=1 seconds=108,4
+A town nearby was destroyed and no house is left standing. Some of its people got away. I do not know who did it. You must carry this word to {town}.
+
+NEWS TEXT news:TOWN_FELL:7 [de] tries=1 seconds=56,4
+Ein nahegelegenes Dorf wurde verwüstet, und kein Haus steht mehr. Einige der Bewohner konnten entkommen. Ich weiß nicht, wer dafür verantwortlich ist. Du musst diese Kunde nach {town} bringen.
+
+NEWS TEXT news:TOWN_FELL:8 [en] tries=1 seconds=105,1
+I heard at the market that a town nearby was destroyed. No house is left standing, though some people got away. I do not know who did it. Please carry this word to {town}.
+
+NEWS TEXT news:TOWN_FELL:8 [de] tries=1 seconds=65,5
+Auf dem Markt habe ich vernommen, dass ein nahegelegenes Dorf verwüstet wurde. Kein Haus steht mehr, obgleich einige Menschen entkommen konnten. Werdessen Täter sind, weiß ich nicht. Bitte überbringe diese Kunde nach {town}.
+
+NEWS TEXT news:TOWN_FELL:9 [en] tries=1 seconds=101,8
+A town nearby was destroyed and no house is left standing. Some of its people got away, but I do not know who did it. You must carry this news to {town} before more people are hurt. Please go now.
+
+NEWS TEXT news:TOWN_FELL:9 [de] tries=1 seconds=63,0
+Ein nahegelegenes Dorf wurde verwüstet, und kein Haus steht mehr. Einige der Bewohner konnten entkommen, doch mir ist nicht bewusst, wer für diese Tat verantwortlich ist. Du musst diese Nachricht nach {town} bringen, bevor noch mehr Unschuldige zu Schaden kommen. Bitte mach dich sofort auf den Weg.
+
+NEWS TOTAL model=google/gemma-4-12B-it-qat-q4_0-gguf:Q4_0 seconds=3542 calls=40 words=1604
