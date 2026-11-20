@@ -1,7 +1,9 @@
 package net.bestia.zone.prop
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.entity.ecs.Dead
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
@@ -9,8 +11,10 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.PropPose
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.prop.chest.ChestStorages
 import net.bestia.zone.structure.StructureCollision
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component as SpringComponent
@@ -38,15 +42,17 @@ class PlayerStructureDeathSystem(
   private val spills: List<StationSpill>,
   private val chests: ChestStorages,
   private val events: ApplicationEventPublisher,
+  private val salvage: StructureSalvage,
 ) : System {
   override val phase = Phase.DEATH
   override val before = setOf(PlayerDeathSystem::class)
 
   override val reads: ComponentClassSet =
-    setOf(Dead::class, PlayerStructureIdentity::class, PropPose::class, Position::class)
+    setOf(Dead::class, PlayerStructureIdentity::class, PropPose::class, Position::class, TakenDamage::class,
+      Account::class) + salvage.reads
 
-  // Empty: the only mutation is to the registry's own map, which is off the ECS entirely.
-  override val writes: ComponentClassSet = emptySet()
+  // Salvage only: everything else this does is to the registry's own map, which is off the ECS entirely.
+  override val writes: ComponentClassSet = salvage.writes
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Dead::class, PlayerStructureIdentity::class).each { id ->
@@ -64,6 +70,7 @@ class PlayerStructureDeathSystem(
       val entry = structures.of(identity.structureId)
       entry?.let { found -> spills.forEach { it.spill(world, found, position) } }
       chests.spill(identity.structureId, identity.ownerAccountId, position)
+      entry?.let { found -> salvageFor(world, id, found, position) }
 
       val chunkSize = worldService.config.chunkSize.toLong()
       structures.remove(
@@ -78,6 +85,18 @@ class PlayerStructureDeathSystem(
 
       LOG.info { "Player structure ${identity.structureId} was destroyed at $position" }
     }
+  }
+
+  /** Only another master earns it, and only for a finished structure. */
+  private fun salvageFor(world: World, structureEntityId: EntityId, structure: StructureEntry, at: Vec3L) {
+    if (structure.isUnderConstruction) return
+
+    val damage = world.get(structureEntityId, TakenDamage::class) ?: return
+    val salvagerAccountId = damage.topAccount(world) ?: return
+    val salvagerId = damage.topSource() ?: return
+    if (salvagerAccountId == structure.ownerAccountId) return
+
+    salvage.salvage(world, structure, at, salvagerId, salvagerAccountId)
   }
 
   private companion object {
