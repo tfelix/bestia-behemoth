@@ -1,0 +1,237 @@
+TEXT grave:13 [en] tries=1
+Batu the Far-Walked, born in 256.
+He walked the lands of Saryhorde.
+In 321, he found his rest.
+From Grimhold he departed.
+END
+TEXT grave:13 [de] tries=1
+Batu der Weitgereiste, geboren im Jahr 256.
+Er wanderte durch die Saryhorde.
+Im Jahr 321 fand er seinen letzten Ruhestatt in Grimhold.
+END
+TEXT grave:18 [en] tries=1
+Muunokhoi the Barefoot, born 346.
+He walked as prophet of the Saryhorde from Grimhold.
+In the year 391, he went unto the Ashen Fall.
+END
+TEXT grave:18 [de] tries=1
+Muunokhoi der Barfüßige, geboren im Jahr 346 in Grimhold. Er war Prophet der Saryhorde. Im Jahr 391 ging er in den Ashen Fall und blieb nicht mehr gesehen.
+END
+TEXT grave:39 [en] tries=1
+Bayan the Patient, born in 671, passed in 736.
+Smith of the Saryhorde from Silberscar.
+He forged the Winddiadem of wrought iron.
+Rest now in the cold earth.
+END
+TEXT grave:39 [de] tries=1
+Bayan der Geduldige, geboren im Jahr 671, starb im Jahr 736. Ein Schmied der Saryhorde aus Silberscar. Er schuf das Winddiadem aus geschmiedetem Eisen.
+END
+TEXT grave:48 [en] tries=1
+Batu, of Silberscar. Born in 741, he served the Keshband. In 761, he opened the gates of Steingrube to the Saryhorde. He passed in 806.
+END
+TEXT grave:48 [de] tries=1
+Batu von Silberscar, geboren im Jahr 741. Er öffnete die Tore zu Steingrube für die Saryhorde im Jahr 761. Sein Tod fand im Jahre 806.
+END
+TEXT grave:5 [en] tries=1
+Temujin the Counter, scholar of the Saryhorde, was born in 141. He dwelt in Grimhold until his passing in 206. His wisdom served the Saryhorde.
+END
+TEXT grave:5 [de] tries=1
+Temujin der Zähler, geboren im Jahr 141 in Grimhold. Er diente als Gelehrter der Saryhorde bis zu seinem Tod im Jahre 206.
+END
+TEXT grave:57 [en] tries=1
+Tsetseg, of Silberscar, 836-851.
+Prophet of the Keshband she was.
+She walked unto the Pale Hollow, where she went unseen.
+END
+TEXT grave:57 [de] tries=1
+Tsetseg, geborene von Silberscar, 836-851. Prophet der Keshband. Sie ging hinaus in die Pale Hollow und kehrte nicht zurück.
+END
+TEXT grave:61 [en] tries=1
+Yesui the Voice, prophet of the Keshband.
+Born 851 in Silberscar.
+She walked into the Pale Hollow in 851.
+Her voice echoes still.
+END
+TEXT grave:61 [de] tries=1
+Yesui die Stimme, geboren und gestorben im Jahr 851. Sie war Prophetin der Keshschar aus Silberscar. In das Pale Hollow ging sie hinaus.
+END
+TEXT grave:63 [en] tries=1
+Tsetseg of Silberscar. Born in 856, she walked as a scholar of the Keshband. In 891, she ventured forth to the Pale Hollow, never seen again.
+END
+TEXT grave:63 [de] tries=1
+Tsetseg, geborene in 856 zu Silberscar. Als Gelehrte des Keshband verging sie im Jahr 891. Sie ging hinaus zur Pale Hollow und kehrte nie zurück.
+END
+TEXT news:BOSS_SLAIN:0 [en] tries=1
+The great beast near this place is dead. Others saw what happened but none tell me who slew it. You must take this word to {town}. Let them know what has been done.
+END
+TEXT news:BOSS_SLAIN:0 [de] tries=1
+Ein riesiges Tier wurde nicht weit von hier getötet. Man weiß nicht, wer es getan hat. Du musst diese Kunde nach {town} bringen.
+END
+TEXT news:BOSS_SLAIN:1 [en] tries=1
+News came that a great beast was killed near this place. Some men went to see it, but no one knows who struck the blow. Carry this word to {town} so they may hear what has passed here.
+END
+TEXT news:BOSS_SLAIN:1 [de] tries=1
+Ein riesiges Ungeheuer wurde nicht weit von hier getötet, doch ich sah es nicht. Andere Leute berichteten mir davon, wer es getan hat. Du musst diese Kunde nach {town} bringen.
+END
+TEXT news:BOSS_SLAIN:2 [en] tries=1
+A great beast near here met its end. Some men saw it fall, but no one knows who struck the blow. Please take this news to {town} before the fear grows stronger.
+END
+TEXT news:BOSS_SLAIN:2 [de] tries=1
+Ein riesiges Tier wurde nicht weit von hier getötet, sagt man. Ich sah es nicht selbst, aber die Männer erzählten es mir. Du musst diese Kunde nach {town} bringen, damit sie es auch wissen.
+END
+TEXT news:BOSS_SLAIN:3 [en] tries=1
+A great beast was killed near this place. Some men saw it fall and brought word back. You must carry this news to {town}. We do not know who slew the creature.
+END
+TEXT news:BOSS_SLAIN:3 [de] tries=1
+Ein riesiges Tier nahe der {town} wurde getötet, sagen die Leute. Ich sah es nicht selbst. Du musst diese Nachricht nach {town} bringen, bevor sie es erfährt.
+END
+TEXT news:BOSS_SLAIN:4 [en] tries=1
+Word came that a great beast was killed near this place. No one saw the deed done, only heard the news from those who went to look. Take this word to {town} where kin wait for such tidings.
+END
+TEXT news:BOSS_SLAIN:4 [de] tries=1
+Ein riesiges Tier wurde nicht weit von hier getötet, sagt man. Ich habe es nicht selbst gesehen. Du musst diese Kunde nach {town} bringen, wo sie noch nichts davon wissen. Meine Verwandten dort warten auf die Nachricht.
+END
+TEXT news:BOSS_SLAIN:5 [en] tries=1
+The great beast near here is dead. Some men went to see it and told us the news. No one knows who brought down that thing. You must take this word to {town}.
+END
+TEXT news:BOSS_SLAIN:5 [de] tries=1
+Ein riesiges Tier wurde nicht weit von {town} getötet, sagt man. Ich sah es nicht selbst, aber andere kamen zurück und erzählten uns davon. Du musst diese Kunde nach {town} bringen, bevor sie es auch dort erfahren.
+END
+TEXT news:BOSS_SLAIN:6 [en] tries=1
+A great beast near here was slain by some unknown hand. Those who went saw the end of the creature's life. Carry this tidings swiftly to {town} so they may learn what has transpired.
+END
+TEXT news:BOSS_SLAIN:6 [de] tries=1
+Ein riesiges Tier wurde nicht weit von hier getötet, sagt man. Wer es getan hat, weiß niemand. Du musst diese Kunde nach {town} bringen.
+END
+TEXT news:BOSS_SLAIN:7 [en] tries=1
+Some say a great beast was killed near this place. Others went to see it, but no one knows who slew the creature. You must carry this news to {town}. Tell them what has happened.
+END
+TEXT news:BOSS_SLAIN:7 [de] tries=1
+Ein großes Tier wurde nicht weit von hier getötet, sagt man. Ich sah es nicht, aber die anderen erzählten mir davon. Trage diese Kunde bitte nach {town}.
+END
+TEXT news:BOSS_SLAIN:8 [en] tries=1
+Word came through the market that a great beast near this place fell. No one saw the killing, only heard the news. You must take this word to {town}. Tell them what has happened here.
+END
+TEXT news:BOSS_SLAIN:8 [de] tries=2
+Man sagt, ein großes Tier wurde nicht weit von hier getötet. Der Fischer hörte es am Markt, doch er weiß nicht, wer es tat. Du musst diese Kunde nach {town} tragen.
+END
+TEXT news:BOSS_SLAIN:9 [en] tries=1
+The great beast near here met its end; word came of it from those who saw. I do not know who slew the creature that caused such dread. You must take this news to {town}. Carry the tale far across the lands until {town} knows what happened.
+END
+TEXT news:BOSS_SLAIN:9 [de] tries=1
+Ein riesiges Tier wurde nicht weit von diesem Ort getötet, sagen die Leute. Wer es getan hat, weiß niemand. Du musst diese Kunde nach {town} tragen.
+END
+TEXT news:TOWN_FELL:0 [en] tries=1
+A nearby settlement is gone, all houses burned to ash. Few folk escaped that ruin. You must carry this word to {town}. Tell them what has happened there.
+END
+TEXT news:TOWN_FELL:0 [de] tries=1
+Der Nachbarort ist zerstört, kein Haus steht mehr. Manche Leute sind geflohen, wer es tat, weiß niemand. Du musst das Wort nach {town} bringen.
+END
+TEXT news:TOWN_FELL:1 [en] tries=1
+The town near here was utterly ruined, no homes remain. Some folk managed to flee the fire. You must take word of this destruction to {town}. Go swiftly and tell them what has happened.
+END
+TEXT news:TOWN_FELL:1 [de] tries=1
+Ein nahegelegener Ort wurde zerstört; kein Haus steht mehr dort. Manche Menschen sind geflohen, wer das getan hat, ist unbekannt. Du musst dies nach {town} bringen, bevor es zu spät ist.
+END
+TEXT news:TOWN_FELL:2 [en] tries=1
+The town near us was ruined; no houses remain standing there. We do not know who brought this destruction upon them. Please, take this word to {town} so they may know what has happened.
+END
+TEXT news:TOWN_FELL:2 [de] tries=1
+Ein Dorf nahe uns ist zerstört, kein Haus steht mehr. Manche Menschen sind entkommen. Du musst das Wort nach {town} bringen, denn wir wissen nicht, wer es getan hat.
+END
+TEXT news:TOWN_FELL:3 [en] tries=1
+A town near this place was wiped away. Not one house remains there. Some folk managed to flee that ruin. Take this word to {town} so they may know what has happened.
+END
+TEXT news:TOWN_FELL:3 [de] tries=1
+Ein Nachbarort ist zerstört, kein Haus steht mehr da. Manche seiner Leute sind geflohen. Wer das getan hat, weiß niemand. Trage diese Kunde nach {town}.
+END
+TEXT news:TOWN_FELL:4 [en] tries=1
+A nearby settlement fell, and no stone remains to show where it stood. Few folk escaped the ruin. You must take this word to {town} where my kin await news of what befell that place.
+END
+TEXT news:TOWN_FELL:4 [de] tries=1
+Ein nahegelegener Ort wurde zerstört, es steht kein Haus mehr da. Manche seiner Leute sind geflohen. Du musst diese Nachricht nach {town} bringen, wo sie noch nichts davon wissen.
+END
+TEXT news:TOWN_FELL:5 [en] tries=1
+The nearby place was wiped away; no houses remain there. Some folk managed to flee the fire, but no one knows what brought this ruin. You must take this news to {town}. Tell them of the destruction.
+END
+TEXT news:TOWN_FELL:5 [de] tries=1
+Ein Dorf nicht weit von hier ist zerstört worden, kein Haus steht mehr. Manche Leute sind geflohen, wer es getan hat, weiß niemand. Du musst das Wort nach {town} bringen, bevor es dort auch geschieht.
+END
+TEXT news:TOWN_FELL:6 [en] tries=1
+A nearby settlement met ruin; no house remains there. Some folk escaped the flames, but the cause of their destruction is unknown to this one. You must carry word to {town}.
+END
+TEXT news:TOWN_FELL:6 [de] tries=1
+Ein Dorf in der Nähe wurde zerstört, kein Haus steht mehr. Einige seiner Leute sind geflohen. Du musst diese Kunde nach {town} bringen, denn wir wissen nicht, wer das getan hat.
+END
+TEXT news:TOWN_FELL:7 [en] tries=1
+The nearby settlement is gone, all houses burned to ash. Few folk escaped that ruin. You must take word to {town} before the silence grows too deep.
+END
+TEXT news:TOWN_FELL:7 [de] tries=1
+Ein Nachbarort ist zerstört, kein Haus steht mehr. Manche Menschen sind geflohen. Wer das getan hat, weiß niemand. Du musst die Nachricht nach {town} bringen.
+END
+TEXT news:TOWN_FELL:8 [en] tries=1
+The market brought word that a town near here is gone. Not one house remains standing there. You must take this news to {town} before the silence grows too deep.
+END
+TEXT news:TOWN_FELL:8 [de] tries=1
+Am Markt hörte man, dass ein Dorf in der Nähe zerstört ist; kein Haus steht mehr dort. Manche Menschen sind geflohen. Du musst diese Nachricht nach {town} bringen, denn niemand weiß, wer das getan hat.
+END
+TEXT news:TOWN_FELL:9 [en] tries=1
+The town near us is gone, burned to ash. Not one house remains standing there. You must carry this news to {town} quickly. I do not know who brought this ruin upon them.
+END
+TEXT news:TOWN_FELL:9 [de] tries=1
+Ein Nachbarort ist zerstört, nicht ein Haus steht mehr. Manche Leute sind entkommen, wer das getan hat, weiß niemand. Du musst das Wort nach {town} bringen.
+END
+TEXT quest:1:offer [en] tries=1
+The Spike of Highstein, a blade of bronze forged by Ulrica the Lawgiver in 381, was a great thing. Yet, in the year 441, it was lost at the barrow of Highstein. The earth claimed it from sight. You should dig near Grafell, for that is where the Spike of Highstein was last seen.
+END
+TEXT quest:1:offer [de] tries=2
+Der Dorn von Highstein, ein bronzen’nes Schwert, wurde im Jahre 381 von Ulrica die Gesetzgeberin geschmiedet. Es ward jedoch im Jahr 441 am Hügel von Highstein verloren. Du sollst nun in der Nähe von Grafell graben, dort wo der Dorn von Highstein versunken ist.
+END
+TEXT quest:1:step:0 [en] tries=1
+I must ask in Grafell how the Spike of Highstein, made in 381 by Ulrica the Lawgiver, came to be lost at the barrow of Highstein in 441.
+END
+TEXT quest:1:step:0 [de] tries=1
+Ich muss in Grafell erfragen, wie der Dorn von Highstein verloren ging, da Ulrica die Gesetzgeberin ihn im Jahr 381 erschuf.
+END
+TEXT quest:1:step:1 [en] tries=1
+I must dig near Grafell, where the Spike of Highstein was lost in 441. Ulrica the Lawgiver wrought this blade of bronze in 381.
+END
+TEXT quest:1:step:1 [de] tries=1
+Ich muss bei Grafell nach dem Dorn von Highstein graben, wo er im Jahr 441 verloren ging. Ulrica die Gesetzgeberin schlug ihn im Jahr 381 aus Bronze.
+END
+TEXT quest:2:offer [en] tries=1
+The Standard of Ulantau was a banner of dyed wool, wrought by Oyuun the Lawgiver in the year 581. It saw its end near Penpike Battlefield in 646. The great cloth was lost there to the dust and the strife. Go then, traveler, and dig for the Standard of Ulantau near Penpike where it fell.
+END
+TEXT quest:2:offer [de] tries=1
+Die Standarte von Ulantau, ein Banner aus gefärbtem Wollstoff, wurde in 581 von Oyuun die Gesetzgeberin bei Grimhold erschaffen. Doch im Jahre 646 ging sie auf dem Schlachtfeld von Penpike verloren. Du sollst tief bei Penpike graben, wo die Standarte von Ulantau verlor.
+END
+TEXT quest:2:step:0 [en] tries=1
+I must seek answers in Penpike to learn how the Standard of Ulantau was lost, though Oyuun the Lawgiver made it in 581.
+END
+TEXT quest:2:step:0 [de] tries=1
+Ich muss in Penpike fragen, wie die Standarte von Ulantau verloren ging, denn Oyuun die Gesetzgeberin machte sie im Jahr 581.
+END
+TEXT quest:2:step:1 [en] tries=1
+I must seek the Standard of Ulantau near Penpike, for it was lost there in 646 after Oyuun the Lawgiver made it.
+END
+TEXT quest:2:step:1 [de] tries=1
+Ich muss die Standarte von Ulantau bei Penpike suchen, wo sie im Jahr 646 verloren ging. Oyuun die Gesetzgeberin schuf sie einst in Grimhold.
+END
+TEXT quest:3:offer [en] tries=1
+Hollowcodex is a tome of vellum, made by Ulrica the Wide-Handed in the year 766. It passed to Erwin Inkhand in 831 before going with him into the blighted land in 851. The old book was lost there. Seek the Hollowcodex near Steingrube, for that is where it was lost.
+END
+TEXT quest:3:offer [de] tries=1
+Der Hohlkodex ist ein Foliant aus Pergament, welcher von Ulrica die Freigebige im Jahr 766 in Highstein erschaffen wurde. Er fiel in die Hände von Erwin Inkhand und verlor sich im Jahr 851 mit ihm in das verdorbene Land. Such ihn nun, du Reisende, nahe Steingrube, wo er verloren ging.
+END
+TEXT quest:3:step:0 [en] tries=1
+I must ask in Steingrube how Hollowcodex was lost, for it passed to Erwin Inkhand in the year 831.
+END
+TEXT quest:3:step:0 [de] tries=1
+Ich muss in Steingrube fragen, wie der Hohlkodex verloren ging, da Ulrica die Freigebige ihn im Jahr 766 schuf.
+END
+TEXT quest:3:step:1 [en] tries=1
+I must seek the Hollowcodex near Steingrube, for it was made by Ulrica the Wide-Handed in 766.
+END
+TEXT quest:3:step:1 [de] tries=1
+Ich muss bei Steingrube nach dem Hohlkodex suchen, den Ulrica die Freigebige im Jahr 766 erschuf. Der Wind weht kalt über das Land.
+END
