@@ -87,4 +87,26 @@ class ProseValidatorTest {
     assertEquals(listOf("{town}"), validator.check("Will you carry the word?", open).map { it.value })
     assertEquals(listOf("{name}"), validator.check("Tell {name} in {town}.", open).map { it.value })
   }
+
+  @Test
+  fun `a German text passes with its nouns in capitals and a name bent by grammar`() {
+    val text = "Hier ruht Temujin der Zähler, Gelehrter der Saryhorde. Geboren 141, gestorben 206 in Grimholds Mauern."
+
+    assertEquals(emptyList(), validator.checkIn("de", text, germanBrief).map { it.type to it.value })
+  }
+
+  @Test
+  fun `a German text is rejected for a number, a placeholder or a lead the brief does not have`() {
+    val text = "Hier ruht ein Gelehrter der Saryhorde aus {town}. Er starb 207."
+
+    val problems = validator.checkIn("de", text, germanBrief).map { it.type to it.value }
+
+    assertEquals(listOf(Type.NUMBER to "207", Type.MISSING to "Temujin der Zähler", Type.PLACEHOLDER to "{town}"), problems)
+  }
+
+  private val germanBrief = brief.copy(
+    allowedNames = brief.allowedNames.map { name ->
+      if (name.name == "Temujin the Counter") name.copy(inLocale = mapOf("de" to "Temujin der Zähler")) else name
+    },
+  )
 }
