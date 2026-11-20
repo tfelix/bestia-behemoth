@@ -2305,10 +2305,16 @@ skills:
 
   - id: 1001
     identifier: OFFICIAL_GUILD_APPROVAL
+    script: OfficialGuildApproval
     targetType: FRIENDLY
     description: |
       The guild is recognised by the realm. It may found a Guild Stronghold and attack the
       installations of other guilds - and its own Stronghold may be attacked in turn.
+
+      Cast it to sense the awake Empyrite Seeds nearby: up to 3 within 30 km, as faint marks on
+      the compass. Cast again closer for a sharper mark.
+
+      Cooldown 60s for the whole guild.
 
   - id: 1002
     identifier: STEWARD_CONTRACT

@@ -61,6 +61,7 @@ class SkillWorldServices(
   val blasts: Blasts? = null,
   val stalls: StallPitching? = null,
   val magicSensing: MagicSensing? = null,
+  val seedSensing: SeedSensing? = null,
   val monsterSensing: MonsterSensing? = null,
   val teleports: SkillTeleports? = null,
   val scrying: SkillScrying? = null,

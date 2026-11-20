@@ -191,6 +191,9 @@ interface SkillWorld {
    */
   fun senseResources(rangeMetres: Double, accuracy: Double)
 
+  /** Shows the caster the awake Empyrite Seeds around it, as Official Guild Approval does. One scan. */
+  fun senseEmpyriteSeeds()
+
   /** Shows the caster the mana at work around it, as much as Magic Sense at [level] tells. One scan. */
   fun senseMagic(level: Int)
 
