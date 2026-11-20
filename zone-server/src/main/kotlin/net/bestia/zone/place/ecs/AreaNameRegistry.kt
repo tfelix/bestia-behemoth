@@ -170,7 +170,7 @@ class AreaNameRegistry {
 
       add(
         Entry(
-          id = -(index.toLong() + 1),
+          id = generatedIdOf(index),
           name = Names.place(record.nameSeed, culture),
           x = feature.position.x.toLong(),
           y = feature.position.y.toLong(),
@@ -205,6 +205,15 @@ class AreaNameRegistry {
   }
 
   companion object {
+    /** A generated settlement's id here, from its index in the chronicle. Never collides with a town's row id. */
+    fun generatedIdOf(index: Int): Long {
+      return -(index.toLong() + 1)
+    }
+
+    fun generatedIndexOf(id: Long): Int {
+      return (-id - 1).toInt()
+    }
+
     /**
      * Edge of one index cell, in position units - which are metres.
      *

@@ -1,0 +1,40 @@
+{
+  "anchorRangeMetres" : 30.0,
+  "wildSpacingMetres" : 10.0,
+  "citySign" : 66,
+  "wildKinds" : {
+    "CAMPFIRE" : 55,
+    "CHEST" : 58,
+    "MANA_CIRCLE" : 57,
+    "MINING_SHAFT" : 71,
+    "THEODOLITE" : 59,
+    "WORKBENCH" : 22
+  },
+  "townAnchorKinds" : {
+    "ALCHEMY_LABORATORY" : 86,
+    "AUCTION_HOUSE" : 13,
+    "FORGE" : 24,
+    "FURNACE" : 23,
+    "GEM_CUT_STATION" : 87,
+    "GLASSBLOWING_BENCH" : 78,
+    "GLASS_FURNACE" : 77,
+    "LOOM" : 76,
+    "POST_OFFICE" : 67,
+    "STRUCTURE_FLOOR" : 53,
+    "STRUCTURE_STAIRS" : 54,
+    "STRUCTURE_WALL" : 52,
+    "TANNING_RACK" : 75,
+    "TRANSMUTATION_WORKBENCH" : 88
+  },
+  "generatedBuildingKinds" : {
+    "AUCTION_HOUSE" : 13,
+    "BUILDING_CIVIC" : 15,
+    "BUILDING_CRAFT" : 17,
+    "BUILDING_FARM" : 21,
+    "BUILDING_INN" : 19,
+    "BUILDING_RESIDENCE" : 20,
+    "BUILDING_SHOP" : 16,
+    "BUILDING_TEMPLE" : 14,
+    "BUILDING_WAREHOUSE" : 18
+  }
+}
