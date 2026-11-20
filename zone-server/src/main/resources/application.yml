@@ -93,6 +93,14 @@ stronghold:
   sense-range-metres: 30000
   sense-marks: 3
   sense-error-share: 0.333
+  # Planting the Empyrite: what it costs the planter, the work its site needs, and how long an unworked site lasts.
+  plant-coins: 10000
+  site-build-minutes: 30
+  site-idle-hours: 24
+  # The Empyrite before any Defense level, and the grounds around it.
+  empyrite-hp: 50000
+  empyrite-defense: 20
+  grounds-radius-metres: 500
 
 # Settings a *new* world is born with. Ignored once a world exists: what gets generated then comes from the
 # stored record, because that is what its chunks and any player edits were built against.

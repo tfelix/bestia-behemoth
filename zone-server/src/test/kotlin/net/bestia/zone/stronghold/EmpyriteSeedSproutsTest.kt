@@ -20,7 +20,7 @@ class EmpyriteSeedSproutsTest {
 
   private val generated = TestWorlds.get(WorldConfig(seed = 9001L, widthCells = 48, heightCells = 48))
   private val worldService = mockk<WorldService>().also { every { it.generated } returns generated }
-  private val sprouts = EmpyriteSeedSprouts(worldService)
+  private val sprouts = EmpyriteSeedSprouts(SeedSpots(worldService))
   private val world = testWorld()
 
   @Test
