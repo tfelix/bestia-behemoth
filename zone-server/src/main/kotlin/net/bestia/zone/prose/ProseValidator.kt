@@ -34,6 +34,31 @@ class ProseValidator {
       wrongPlaceholders(text, brief)
   }
 
+  /**
+   * For a text written in another language than English. German writes every noun with a capital, so a made-up
+   * name cannot be told from a word there: only the numbers, the placeholders and the lead are checked.
+   */
+  fun checkIn(locale: String, text: String, brief: TextBrief): List<Problem> {
+    val allowedNumbers = NUMBER.findAll(allowedTextOf(brief)).map { valueOf(it.value) }.toSet()
+
+    return wrongDigits(text, allowedNumbers) + missingNames(text, brief, locale) + wrongPlaceholders(text, brief)
+  }
+
+  /**
+   * A name may be bent by grammar ("Batus", "dem Unsichtbaren Weber"), so it is looked for by its made-up words,
+   * which no grammar changes, not as a whole.
+   */
+  private fun missingNames(text: String, brief: TextBrief, locale: String): List<Problem> {
+    return brief.mustName.mapNotNull { name ->
+      val local = brief.allowedNames.firstOrNull { it.name == name }?.inLocale?.get(locale)
+      val madeUp = WORD_LIKE.findAll(name).map { it.value }.filterNot { isEnglishWord(it) }
+      // A made-up word that the other language writes in its own way is free to change.
+      val mustStay = if (local == null) madeUp else madeUp.filter { it in local }
+
+      Problem(Type.MISSING, local ?: name).takeIf { mustStay.any { it !in text } }
+    }
+  }
+
   /** The game can only fill what the brief left open, and a placeholder that is not in the text is a lost name. */
   private fun wrongPlaceholders(text: String, brief: TextBrief): List<Problem> {
     val wanted = brief.placeholders.map { it.token }
@@ -115,13 +140,16 @@ class ProseValidator {
 
   private fun wrongNumbers(text: String, allowed: String): List<Problem> {
     val allowedNumbers = NUMBER.findAll(allowed).map { valueOf(it.value) }.toSet()
-    val digits = NUMBER.findAll(text).filter { valueOf(it.value) !in allowedNumbers }.map { Problem(Type.NUMBER, it.value) }
     // "The two peoples" is style. A count of dead or a span of years written out is a fact.
     val spelled = SpelledNumbers.find(text)
       .filter { (_, value) -> value > SMALL_COUNT && value !in allowedNumbers }
       .map { (words, _) -> Problem(Type.NUMBER, words) }
 
-    return digits.toList() + spelled
+    return wrongDigits(text, allowedNumbers) + spelled
+  }
+
+  private fun wrongDigits(text: String, allowedNumbers: Set<Long>): List<Problem> {
+    return NUMBER.findAll(text).filter { valueOf(it.value) !in allowedNumbers }.map { Problem(Type.NUMBER, it.value) }.toList()
   }
 
   private fun lowercaseStart(text: String): List<Problem> {
