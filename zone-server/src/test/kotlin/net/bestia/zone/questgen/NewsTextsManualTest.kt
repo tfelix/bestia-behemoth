@@ -51,7 +51,8 @@ class NewsTextsManualTest {
     val config = ProseConfig(
       llm = defaults.copy(
         model = System.getenv("PROSE_MODEL") ?: defaults.model,
-        modelFile = System.getenv("PROSE_MODEL_FILE")?.ifEmpty { null },
+        // The default file belongs to the default model only.
+        modelFile = if (System.getenv("PROSE_MODEL") == null) defaults.modelFile else System.getenv("PROSE_MODEL_FILE")?.ifEmpty { null },
         memory = System.getenv("PROSE_MEMORY_GB")?.let { DataSize.ofGigabytes(it.toLong()) } ?: defaults.memory,
       ),
     )
