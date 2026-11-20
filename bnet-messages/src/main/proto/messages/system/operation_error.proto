@@ -544,6 +544,8 @@ enum OpError {
   STRUCTURE_TOO_CLOSE = 392;
   // An awake Empyrite Seed lies within 1 km. Strongholds keep their room.
   SETTLEMENT_NEAR_EMPYRITE_SEED = 393;
+  // The target is a guild structure, and only members of guilds with Official Guild Approval can harm those.
+  COMBAT_NEEDS_GUILD_APPROVAL = 394;
 }
 
 message OperationError {

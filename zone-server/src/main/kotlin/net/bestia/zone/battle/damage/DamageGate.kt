@@ -9,6 +9,7 @@ import net.bestia.zone.entity.ecs.WardProtected
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.identity.ecs.GuildOwned
+import net.bestia.zone.skill.SkillId
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 
@@ -36,12 +37,22 @@ object DamageGate {
       return Verdict.IMMUNE
     }
 
-    if (isOwn(world, sourceId, targetId, sourceOwner) || isOwnGuilds(world, sourceId, targetId, sourceOwner)) {
+    if (isOwn(world, sourceId, targetId, sourceOwner)) {
+      return Verdict.OWN
+    }
+
+    val owningGuild = world.get(targetId, GuildOwned::class)?.guildId
+    val attackersGuild = owningGuild?.let { membershipOf(world, sourceId, sourceOwner) }
+    if (owningGuild != null && attackersGuild?.guildId == owningGuild) {
       return Verdict.OWN
     }
 
     if (isWarded(world, sourceId, targetId, sourceOwner)) {
       return Verdict.WARDED
+    }
+
+    if (owningGuild != null && !isApproved(attackersGuild)) {
+      return Verdict.UNAPPROVED
     }
 
     return Verdict.ADMITTED
@@ -61,28 +72,26 @@ object DamageGate {
     return sourceOwner != null && sourceOwner == PlayerOwnership.ownerAccountOf(world, targetId)
   }
 
-  /** A guild's members do not harm what the guild owns. */
-  private fun isOwnGuilds(world: World, sourceId: EntityId?, targetId: EntityId, sourceOwner: AccountId?): Boolean {
-    val guildId = world.get(targetId, GuildOwned::class)?.guildId ?: return false
-
-    return guildOf(world, sourceId, sourceOwner) == guildId
+  /** Guild structures are a matter between guilds the realm recognises. Mobs and guildless masters stay out. */
+  private fun isApproved(membership: GuildMembership?): Boolean {
+    return membership != null && membership.skillLevel(SkillId.OFFICIAL_GUILD_APPROVAL.name) > 0
   }
 
   /** A master carries its guild; a bestia's is its owner's, found among the masters in the world. */
-  private fun guildOf(world: World, sourceId: EntityId?, sourceOwner: AccountId?): Long? {
-    sourceId?.let { world.get(it, GuildMembership::class) }?.let { return it.guildId }
+  private fun membershipOf(world: World, sourceId: EntityId?, sourceOwner: AccountId?): GuildMembership? {
+    sourceId?.let { world.get(it, GuildMembership::class) }?.let { return it }
     if (sourceOwner == null) {
       return null
     }
 
-    var guildId: Long? = null
+    var membership: GuildMembership? = null
     world.query(GuildMembership::class, Account::class).each { _ ->
       if (get<Account>().accountId == sourceOwner) {
-        guildId = get<GuildMembership>().guildId
+        membership = get<GuildMembership>()
       }
     }
 
-    return guildId
+    return membership
   }
 
   /**
@@ -109,5 +118,8 @@ object DamageGate {
     IMMUNE,
     OWN,
     WARDED,
+
+    /** A guild structure, and the source is not of a guild with Official Guild Approval. */
+    UNAPPROVED,
   }
 }
