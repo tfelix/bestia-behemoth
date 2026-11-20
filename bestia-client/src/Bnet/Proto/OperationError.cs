@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSq5LwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrdLwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -160,9 +160,10 @@ namespace Bnet {
             "Cg5RVUVTVF9MT0dfRlVMTBCAAxIRCgxRVUVTVF9DTE9TRUQQgQMSHQoYQkxB",
             "Q0tCT0FSRF9DQU5OT1RfQUZGT1JEEIIDEh0KGEJMQUNLQk9BUkRfUE9TVElO",
             "R19MSU1JVBCDAxIiCh1CTEFDS0JPQVJEX05PVEhJTkdfVE9fSEFORF9JThCE",
-            "AxIhChxCTEFDS0JPQVJEX0hBTkRfSU5fRUxTRVdIRVJFEIUDIgQILhAuKhJT",
-            "SE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNP",
-            "cGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "AxIhChxCTEFDS0JPQVJEX0hBTkRfSU5fRUxTRVdIRVJFEIUDEiIKHVNFVFRM",
+            "RU1FTlRfTkVBUl9FTVBZUklURV9TRUVEEIYDIgQILhAuKhJTSE9QX1RSRUFT",
+            "VVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRpb25F",
+            "cnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1029,6 +1030,10 @@ namespace Bnet {
     /// The town that asked for these goods takes them at its own board only.
     /// </summary>
     [pbr::OriginalName("BLACKBOARD_HAND_IN_ELSEWHERE")] BlackboardHandInElsewhere = 389,
+    /// <summary>
+    /// An awake Empyrite Seed lies within 1 km. Strongholds keep their room.
+    /// </summary>
+    [pbr::OriginalName("SETTLEMENT_NEAR_EMPYRITE_SEED")] SettlementNearEmpyriteSeed = 390,
   }
 
   #endregion

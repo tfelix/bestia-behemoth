@@ -982,6 +982,7 @@ ERROR_SETTLEMENT_NAME_INVALID,"A town name has 3 to 24 letters, digits, spaces o
 ERROR_SETTLEMENT_NAME_TAKEN,Another town already has that name.
 ERROR_SETTLEMENT_ALREADY_HELD,You already hold a town. Tear it down or hand it over first.
 ERROR_SETTLEMENT_TOO_CLOSE,Another settlement is less than 5 km away.
+ERROR_SETTLEMENT_NEAR_EMPYRITE_SEED,An Empyrite Seed lies less than 1 km away.
 ERROR_SETTLEMENT_NOT_EMPTY,A post office or auction house still stands in the town.
 ERROR_SETTLEMENT_CANNOT_RECEIVE,"%s is not nearby, does not know Founder, or already holds a town."
 ERROR_SETTLEMENT_OFFER_DECLINED,%s declined your town.
