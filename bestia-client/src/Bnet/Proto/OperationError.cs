@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqWMAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSq6MAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -162,9 +162,10 @@ namespace Bnet {
             "R19MSU1JVBCDAxIiCh1CTEFDS0JPQVJEX05PVEhJTkdfVE9fSEFORF9JThCE",
             "AxIhChxCTEFDS0JPQVJEX0hBTkRfSU5fRUxTRVdIRVJFEIUDEh8KGlNUUlVD",
             "VFVSRV9ORUVEU19TRVRUTEVNRU5UEIYDEiAKG1NUUlVDVFVSRV9UT09fRkFS",
-            "X0ZST01fVE9XThCHAxIYChNTVFJVQ1RVUkVfVE9PX0NMT1NFEIgDIgQILhAu",
-            "KhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
-            "QhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "X0ZST01fVE9XThCHAxIYChNTVFJVQ1RVUkVfVE9PX0NMT1NFEIgDEiIKHVNF",
+            "VFRMRU1FTlRfTkVBUl9FTVBZUklURV9TRUVEEIkDIgQILhAuKhJTSE9QX1RS",
+            "RUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRp",
+            "b25FcnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1044,6 +1045,10 @@ namespace Bnet {
     /// Outside a settlement, too close to a structure of another master.
     /// </summary>
     [pbr::OriginalName("STRUCTURE_TOO_CLOSE")] StructureTooClose = 392,
+    /// <summary>
+    /// An awake Empyrite Seed lies within 1 km. Strongholds keep their room.
+    /// </summary>
+    [pbr::OriginalName("SETTLEMENT_NEAR_EMPYRITE_SEED")] SettlementNearEmpyriteSeed = 393,
   }
 
   #endregion

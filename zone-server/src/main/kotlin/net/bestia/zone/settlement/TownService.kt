@@ -103,6 +103,7 @@ class TownService(
       towns.heldBy(masterId) != null -> OpError.SETTLEMENT_ALREADY_HELD
       towns.isNameTaken(name) -> OpError.SETTLEMENT_NAME_TAKEN
       !foundingSpot.isFree(at) -> OpError.SETTLEMENT_TOO_CLOSE
+      foundingSpot.isByEmpyriteSeed(at) -> OpError.SETTLEMENT_NEAR_EMPYRITE_SEED
       else -> null
     }
   }
