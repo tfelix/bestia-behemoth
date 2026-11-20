@@ -552,7 +552,7 @@ questgen:
 # boot until they are written, and removes the container again. Off, every text stays its template.
 prose:
   enabled: false
-  # English first; other languages are translated from it.
+  # English first: it is what a client without its own language shows.
   locales: [en, de]
   # The most time spent on one language over the life of a world. A restart does not start the clock again.
   cap-per-locale: 3h
@@ -564,7 +564,9 @@ prose:
     # Pinned by digest; the `server` tag moves with every build of llama.cpp.
     image: ghcr.io/ggml-org/llama.cpp@sha256:5b43086e3ba7ea5794d72904654f6cd41224a9b1c6ac0398f4940ee380d30f23
     # Fetched from Hugging Face on the first start (about 5 GB) and kept in the Docker volume `model-cache`.
-    model: unsloth/gemma-4-E4B-it-GGUF:Q4_K_M
+    model: google/gemma-4-E4B-it-qat-q4_0-gguf
+    # This repository does not name its file by quantisation, so the server must be told the file.
+    model-file: gemma-4-E4B_q4_0-it.gguf
     model-cache: bestia-llm-models
     threads: 6
     prompt-threads: 10

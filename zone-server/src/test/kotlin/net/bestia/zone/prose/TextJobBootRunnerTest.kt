@@ -64,9 +64,9 @@ class TextJobBootRunnerTest {
 
   @Test
   fun `the server is started for one request at a time, without its memory-hungry caches`() {
-    val args = LlamaServerArgs.of(ProseConfig.Llm(model = "unsloth/gemma-4-E4B-it-GGUF:Q4_K_M", threads = 6)).joinToString(" ")
+    val args = LlamaServerArgs.of(ProseConfig.Llm(model = "some/repo-gguf", modelFile = "model_q4.gguf", threads = 6)).joinToString(" ")
 
-    assertTrue("-hf unsloth/gemma-4-E4B-it-GGUF:Q4_K_M" in args, args)
+    assertTrue("-hf some/repo-gguf -hff model_q4.gguf" in args, args)
     assertTrue("-np 1" in args && "-t 6" in args && "--no-repack" in args && "--cache-ram 0" in args, args)
   }
 }

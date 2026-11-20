@@ -21,7 +21,6 @@ class TextJob(
   private val sources: List<TextSource>,
   private val texts: WorldTexts,
   private val writer: TextWriter,
-  private val translator: TextTranslator,
   private val budgets: TextJobBudgetRepository,
   private val config: ProseConfig,
   private val clock: Clock = Clock.systemUTC(),
@@ -64,14 +63,11 @@ class TextJob(
   private fun write(row: WorldText, llm: LlmClient): TextWriter.Written {
     // A subject no source knows any more, such as the text of a plan that ended, is given up without a try.
     val brief = sources.firstNotNullOfOrNull { it.briefOf(row.subject) } ?: return GIVEN_UP
-    if (row.id.locale == WorldTexts.FALLBACK_LOCALE) {
-      return writer.write(brief, llm)
+    if (!writer.canWriteIn(row.id.locale)) {
+      return GIVEN_UP
     }
 
-    // Every other language starts from the English text, so it says the same and no more.
-    val english = texts.englishOf(row)?.takeIf { translator.canTranslateTo(row.id.locale) } ?: return GIVEN_UP
-
-    return translator.translate(english, brief, row.id.locale, llm)
+    return writer.write(brief, llm, row.id.locale)
   }
 
   private fun timeLeftFor(locale: String): Duration {

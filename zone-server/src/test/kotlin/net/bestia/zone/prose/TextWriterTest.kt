@@ -42,6 +42,40 @@ class TextWriterTest {
   }
 
   @Test
+  fun `German is written from the same brief, with the name as German writes it`() {
+    val weaver = AllowedName("the Unseen Weaver", "a god", inLocale = mapOf("de" to "der Unsichtbare Weber"))
+    val llm = ScriptedLlm("Hier ruht Orwen, 712-780, Schmied im Dienst des Unsichtbaren Webers.")
+
+    val written = writer.write(brief.copy(allowedNames = brief.allowedNames + weaver), llm, locale = "de")
+
+    assertEquals(1, written.attempts, "the nouns in capitals are no made-up names")
+    val asked = llm.asked.single()
+    assertTrue("{town}" !in asked, "an example placeholder ends up in a text that has none")
+    assertTrue("Write the text in German" in asked && "- der Unsichtbare Weber (the facts call it \"the Unseen Weaver\"; a god)" in asked, asked)
+  }
+
+  @Test
+  fun `a German text that lost its lead is asked for again`() {
+    val llm = ScriptedLlm("Hier ruht ein Schmied.", "Hier ruht Orwen.")
+
+    val written = writer.write(brief, llm, locale = "de")
+
+    assertEquals("Hier ruht Orwen." to 2, written.body to written.attempts)
+  }
+
+  @Test
+  fun `braces around a real name are taken off, and the placeholder rule is only said for a placeholder`() {
+    val llm = ScriptedLlm("Here lies {Orwen}, 712-780.")
+
+    val written = writer.write(brief, llm)
+
+    assertEquals("Here lies Orwen, 712-780." to 1, written.body to written.attempts)
+    assertFalse("{town}" in ProsePrompt.system(brief))
+    val withPlaceholder = brief.copy(placeholders = listOf(TextBrief.Placeholder("town", "the town to go to")))
+    assertTrue("5. PLACEHOLDERS" in ProsePrompt.system(withPlaceholder) && "6. OUTPUT FORMAT" in ProsePrompt.system(withPlaceholder))
+  }
+
+  @Test
   fun `a text the model never gets right is given up`() {
     val llm = ScriptedLlm("Eldoria.", "Eldoria.", "Eldoria.")
 

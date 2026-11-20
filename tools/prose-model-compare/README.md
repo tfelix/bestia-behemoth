@@ -18,7 +18,7 @@ What reading them showed:
   "zu {town}". 12B: "Werdessen Täter sind", "dem Geschehnen", "herabgelegt", "suchten das Grab", and line breaks
   inside five texts.
 
-So the default model stays. The German errors come from the translation step, not from the size of the model.
+The German errors come from the translation step, not from the size of the model.
 
 ## German written at once
 
@@ -34,3 +34,16 @@ Run `e4b-qat-direct`: E4B QAT, repeat penalty 1.05, each text four ways. Saved i
 Writing German at once from the English brief is clearly the best. It costs about 20 % more time for both
 languages together (34 s + 35 s instead of 34 s + 23 s). The validator cannot check it yet: it finds made-up
 names by words that are not English.
+
+## What was built from this
+
+The text job now writes every language from the brief, and the default is E4B QAT with a repeat penalty of 1.05.
+`test-world-e4b-qat-rp1.05.txt` holds all 74 texts of the test world written that way (graves, quest texts, news;
+English and German): 74 written, none rejected, 2 second tries, about 28 minutes.
+
+What still goes wrong in the German texts, and no check can see:
+
+- A name bent out of shape: "Keshschar" for Keshband.
+- A name in the wrong case after "von": "von Ulrica die Gesetzgeberin".
+- `{town}` used for the wrong town in 2 of 20 news texts ("nicht weit von {town} getötet").
+- Places that have no German form stay English: "Pale Hollow".

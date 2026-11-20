@@ -2,6 +2,7 @@ package net.bestia.zone.prose
 
 import net.bestia.zone.prose.host.DockerLlmHost
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable
 import kotlin.test.assertTrue
 
@@ -12,6 +13,8 @@ import kotlin.test.assertTrue
  *     PROSE_REAL_HOST=true ./gradlew :zone-server:test --tests 'net.bestia.zone.prose.DockerHostManualTest' -i
  */
 @EnabledIfEnvironmentVariable(named = "PROSE_REAL_HOST", matches = "true")
+// A CI runner has no memory for the model, whatever its variables say.
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class DockerHostManualTest {
 
   @Test
