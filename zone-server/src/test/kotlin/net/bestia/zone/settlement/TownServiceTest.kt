@@ -35,6 +35,7 @@ import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -55,6 +56,7 @@ class TownServiceTest {
   private lateinit var service: TownService
   private var now = Instant.parse("2026-11-10T12:00:00Z")
   private var structures = mutableListOf<StructureEntry>()
+  private var byEmpyriteSeed = false
 
   @BeforeEach
   fun setUp() {
@@ -76,7 +78,10 @@ class TownServiceTest {
       world.createEntity { id -> add(id, PlayerStructureIdentity(siteStructureId, accountId, 1L)) }
     }
 
-    val spot = mockk<FoundingSpot> { every { isFree(any()) } returns true }
+    val spot = mockk<FoundingSpot> {
+      every { isFree(any()) } returns true
+      every { isByEmpyriteSeed(any()) } answers { byEmpyriteSeed }
+    }
     messages = mockk(relaxed = true)
     events = mockk(relaxed = true)
 
@@ -124,6 +129,16 @@ class TownServiceTest {
     assertEquals("Oakhold", town.name)
     assertEquals(PlayerSettlement.State.SITE, town.state)
     verify { messages.sendToPlayer(accountId, SettlementPlannedSMSG("Oakhold")) }
+  }
+
+  @Test
+  fun `a town keeps its distance from an awake Empyrite Seed`() {
+    val founder = spawnFounder()
+    service.plan(accountId, masterId, "Oakhold")
+    byEmpyriteSeed = true
+
+    assertEquals(OpError.SETTLEMENT_NEAR_EMPYRITE_SEED, service.foundingRefusal(world, founder))
+    assertFalse(service.found(world, founder))
   }
 
   @Test

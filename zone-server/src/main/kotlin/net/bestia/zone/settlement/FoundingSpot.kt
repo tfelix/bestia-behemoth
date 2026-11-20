@@ -17,10 +17,16 @@ class FoundingSpot(
   private val siteIndex: SettlementSiteIndex,
   private val towns: TownRegistry,
   private val worldService: WorldService,
+  private val strongholdRoom: StrongholdRoom,
 ) {
 
   fun isFree(at: Vec3L): Boolean {
     return !isNearGeneratedSettlement(at) && towns.all().none { towns.metresBetween(it.sign, at) < MIN_DISTANCE_METRES }
+  }
+
+  /** A Stronghold's grounds and the room around them stay free of towns. Its own refusal, unlike [isFree]. */
+  fun isByEmpyriteSeed(at: Vec3L): Boolean {
+    return strongholdRoom.isTooCloseToSeed(at)
   }
 
   private fun isNearGeneratedSettlement(at: Vec3L): Boolean {
