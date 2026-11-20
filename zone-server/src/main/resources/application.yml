@@ -88,6 +88,11 @@ stronghold:
   settlement-clearance-metres: 1000
   # A master discovers a seed by walking onto its core.
   core-radius-metres: 5
+  # Official Guild Approval shows up to sense-marks free awake seeds within sense-range-metres, each off by up to
+  # sense-error-share of its distance.
+  sense-range-metres: 30000
+  sense-marks: 3
+  sense-error-share: 0.333
 
 # Settings a *new* world is born with. Ignored once a world exists: what gets generated then comes from the
 # stored record, because that is what its chunks and any player edits were built against.

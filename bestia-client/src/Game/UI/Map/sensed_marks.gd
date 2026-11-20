@@ -5,7 +5,7 @@ extends RefCounted
 ## compass and the chat show it, and nothing is put on the map for good.
 
 ## The proto's SenseKind, in its order.
-enum Kind { ORE, HERBS, TIMBER, GAME, HOLLOW, MANA, BINDING_FIRED, EMPYRITE_SEED_FOUND }
+enum Kind { ORE, HERBS, TIMBER, GAME, HOLLOW, MANA, BINDING_FIRED, EMPYRITE_SEED_FOUND, EMPYRITE_SEED }
 
 const _COLOURS := {
 	Kind.ORE: Color(0.85, 0.62, 0.35),
@@ -16,6 +16,7 @@ const _COLOURS := {
 	Kind.MANA: Color(0.72, 0.52, 1.0),
 	Kind.BINDING_FIRED: Color(1.0, 0.45, 0.85),
 	Kind.EMPYRITE_SEED_FOUND: Color(1.0, 0.8, 0.16),
+	Kind.EMPYRITE_SEED: Color(1.0, 0.8, 0.16),
 }
 
 ## Each entry: the mark's dictionary plus [code]until[/code], in ticks msec.
@@ -85,6 +86,8 @@ static func name_of(mark: Dictionary) -> String:
 		return tr_static("SENSE_HOLLOW")
 	if int(mark["kind"]) == Kind.MANA:
 		return tr_static("SENSE_MANA") % str(mark["label"])
+	if int(mark["kind"]) == Kind.EMPYRITE_SEED and str(mark["label"]).is_empty():
+		return tr_static("SENSE_EMPYRITE_SEED")
 	return str(mark["label"])
 
 

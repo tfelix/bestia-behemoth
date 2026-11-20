@@ -623,6 +623,12 @@ class BudgetedSkillWorld(
     services.resourceSensing?.sense(world, casterId, rangeMetres, accuracy)
   }
 
+  override fun senseEmpyriteSeeds() {
+    budget.charge(SPAWN_OPS)
+
+    services.seedSensing?.sense(world, casterId)
+  }
+
   override fun senseMagic(level: Int) {
     budget.charge(SPAWN_OPS)
 

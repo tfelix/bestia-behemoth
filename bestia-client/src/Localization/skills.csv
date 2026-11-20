@@ -251,7 +251,12 @@ Level 4 names another master by name
 Level 5 only searches further"
 SKILL_1000_DESC,"The guild may carry an emblem. It shows on its members, its Stronghold and its banners."
 SKILL_1001_DESC,"The guild is recognised by the realm. It may found a Guild Stronghold and attack the
-installations of other guilds - and its own Stronghold may be attacked in turn."
+installations of other guilds - and its own Stronghold may be attacked in turn.
+
+Cast it to sense the awake Empyrite Seeds nearby: up to 3 within 30 km, as faint marks on
+the compass. Cast again closer for a sharper mark.
+
+Cooldown 60s for the whole guild."
 SKILL_1002_DESC,"Hires a steward for the Guild Stronghold. Members can open the guild storage at the
 steward and return to the Stronghold when they fall."
 SKILL_1003_DESC,"A storage every member with the right rank can use, kept by the steward.
