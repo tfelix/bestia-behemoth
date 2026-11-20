@@ -1,6 +1,6 @@
 ---
 name: worldgen
-description: Explains the bestia-behemoth world generator (`worldgen/` Gradle module) — the 25-stage world-tier pipeline (tectonics/climate/hydrology/biomes/history/towns/...), the vector feature system (Ring/AreaFeature/PolylineFeature, blend modes, StationTable), the chunk/voxel tier (ChunkMaterializer, BlockType palette, RleCodec), the store/ caching+versioning tiers, and how it plugs into zone-server (PersistedWorld, boot-time version gate, chunk streaming) and the Godot client. Read this BEFORE touching any file under worldgen/, before adding/reordering a Stage, before changing a params class or a block type, or when investigating "why does this world look like X" / "how does a chunk get from the generator to the client". Triggers on: worldgen, Stage, GenContext, WorldGenPipeline, WorldParams, LayerId, FeatureKind, VectorFeature, Ring, AreaFeature, StationTable, ChunkMaterializer, VoxelChunk, BlockType, RleCodec, ChunkCache, ChunkStore, DerivedStore, PersistedWorld, WorldService, ChunkService, ChunkStreamSystem, pipelineVersion, paramsVersion.
+description: Explains the bestia-behemoth world generator (`worldgen/` Gradle module) — the 28-stage world-tier pipeline (tectonics/climate/hydrology/biomes/history/towns/...), the vector feature system (Ring/AreaFeature/PolylineFeature, blend modes, StationTable), the chunk/voxel tier (ChunkMaterializer, BlockType palette, RleCodec), the store/ caching+versioning tiers, and how it plugs into zone-server (PersistedWorld, boot-time version gate, chunk streaming) and the Godot client. Read this BEFORE touching any file under worldgen/, before adding/reordering a Stage, before changing a params class or a block type, or when investigating "why does this world look like X" / "how does a chunk get from the generator to the client". Triggers on: worldgen, Stage, GenContext, WorldGenPipeline, WorldParams, LayerId, FeatureKind, VectorFeature, Ring, AreaFeature, StationTable, ChunkMaterializer, VoxelChunk, BlockType, RleCodec, ChunkCache, ChunkStore, DerivedStore, PersistedWorld, WorldService, ChunkService, ChunkStreamSystem, pipelineVersion, paramsVersion.
 ---
 
 # worldgen: the world generator
@@ -40,7 +40,8 @@ vector/     geometry: Ring, AreaFeature, PolylineFeature, PointFeature, MarkerFe
 core/       Stage, GenContext, GenRng, LayerStore/FeatureStore, WorldGenPipeline, Chronicle, WorldWrap
 fields/     Noise, Grid, Points (Poisson disk), DistanceTransform, DoubleIntHeap
 
-geo/ climate/ hydro/ bio/ resource/ civ/ history/ pop/ mana/ karst/ spawn/ poi/ dress/   ← the 25 Stages, see below
+geo/ climate/ hydro/ coast/ bio/ resource/ civ/ history/ pop/ mana/ karst/ spawn/ poi/ dress/
+treasure/ stronghold/   ← the 28 Stages, see below
 place/      PlaceRegions: named 5-10 km areas covering the whole world. NOT a stage - see below
 
 voxel/      BlockType palette, Stratigraphy, ChunkMaterializer, RleCodec, CaveNetwork, VegetationScatter
@@ -52,11 +53,11 @@ viewer/     Swing tooling + CLI entry points; the only package allowed I/O
 
 ## The stage pipeline
 
-`StandardWorld.stages()` (`pipeline/StandardWorld.kt:204-256`) constructs **25 stages** in one order,
+`StandardWorld.stages()` (`pipeline/StandardWorld.kt:205-270`) constructs **28 stages** in one order,
 but that construction order is cosmetic — its own KDoc says so directly: *"in declaration order; the
-pipeline sorts them itself"* (`:195-196`). `WorldGenPipeline`'s constructor topologically sorts every
+pipeline sorts them itself"* (`:198`). `WorldGenPipeline`'s constructor topologically sorts every
 stage by its declared `dependencies`, breaking ties **alphabetically by `StageId.name`**
-(`core/WorldGenPipeline.kt:67-68, 122, 315-344`). This tie-break bit the module for real once already —
+(`core/WorldGenPipeline.kt:122, 315-344`). This tie-break bit the module for real once already —
 see [the orphaned glacial stage](#the-glacial-lesson).
 
 Declared construction order, with the load-bearing reason from each stage's own KDoc:
@@ -72,22 +73,25 @@ Declared construction order, with the load-bearing reason from each stage's own 
 | 7 | `GlacialStage` | `geo/` | `ELEVATION` (final), `ICE_THICKNESS` | `GLACIAL_TROUGH`, `FJORD`, `CIRQUE`, `MORAINE` | sole producer of `ELEVATION`; carves the fluvial surface last |
 | 8 | `PondStage` | `hydro/` | — | `LAKE`, `OXBOW_LAKE` | a moraine dam only exists once the ice that left it is gone; specifically the water priority-flood in hydrology *cannot* find |
 | 9 | `AlluviumStage` | `hydro/` | — | `ALLUVIAL_FAN`, `DELTA` | sub-kilometre floodplain shapes the raster can't hold, fed from erosion's own sediment budget |
-| 10 | `VegetationStage` | `bio/` | `CANOPY_COVER` | — | kilometre summary of the same density function the chunk-tier scatter uses, so raster and voxels can't disagree |
-| 11 | `ResourceStage` | `resource/` | `RESOURCE_VALUE` | `ORE_DEPOSIT` | geology-driven deposit placement |
-| 12 | `CaveStage` | `karst/` | — | `CAVE_SYSTEM`, `CAVE_PASSAGE`, `CAVE_ENTRANCE` | reads the chunk tier's own rock tuning (`StrataParams`), not a copy of it |
-| 13 | `ManaStage` | `mana/` | `MANA_DENSITY` | — | must precede history (history reacts to it); corruption must *follow* history, which is why mana/corruption are two stages, not one |
-| 14 | `HabitabilityStage` | `civ/` | `HABITABILITY`, `MOVEMENT_COST` | — | scores settleability |
-| 15 | `SettlementStage` | `civ/` | — | `SETTLEMENT`, `SETTLEMENT_GRADING`, `ROAD`, `BRIDGE`, `SEA_LANE` | places settlements/roads before history judges them. Only cities and towns join the trunk network; `buildTracks` then gives each village one spur ending exactly on the nearest trunk, which is what `TownStage` lays it along. Each road stores its `RoadClass` (`road_class` channel: TRAIL spurs, DIRT_ROAD trunks, the busiest fifth of trunk length COBBLED) and is `meandered` off the routed line |
-| 16 | `HistoryStage` | `history/` | — | `SETTLEMENT_HISTORY`, `RUIN`, `ASH_RUIN`, `BATTLEFIELD`, `TOMB`, `MONUMENT`, `MINE`, `MONASTERY`, `FORT`, `LIGHTHOUSE`, `CAVE_HOARD`, `WOUND`, `SHRINE` | dates/holds/burns settlements already placed — **does not place them** |
-| 17 | `CorruptionStage` | `mana/` | `CORRUPTION`, `CIVILISATION_DISTANCE` | — | the settlements it suppresses by are the ones history left standing |
-| 18 | `SpawnerStage` | `spawn/` | — | `BESTIA_SPAWN` | last in dependency terms: reads corruption + settlements + what history left standing |
-| 19 | `VegetationStandStage` | `spawn/` | — | `VEGETATION_STAND` | lives in `spawn/`, not `bio/`, specifically because it reads `CORRUPTION`, which doesn't exist yet when `bio/VegetationStage` runs |
-| 20 | `TownStage` | `civ/` | — | `STREET`, `BUILDING`, `DISTRICT`, `TOWN_WALL`, `GATE`, `FIELD` | street/building/district layout, plus the fields the settlement works |
-| 21 | `EconomyStage` | `pop/` | — | `SETTLEMENT_ECONOMY`, `BUSINESS`, `ROADSIDE_INN` | businesses/households |
-| 22 | `PoiStage` | `poi/` | — | `POI` | the only stage whose output is coin tosses (`count` rolls at `chance` per `PoiKind`) rather than derived from the land; a required kind (`chance = 1.0`) with no place throws `PoiPlacementException`; reads settlements/sites/cave mouths to stay clear of them |
-| 23 | `NavGraphStage` | `civ/` | — | — (`StageOutput.Navigation`) | last: routes are read off roads/bridges/gates/cave mouths everything above placed; nothing reads it back |
+| 10 | `CoastStage` | `coast/` | — | `COASTLINE` | after alluvium: a delta is the one shore whose kind a feature decides, not a threshold. Nothing in the pipeline reads it back (`BiomeStage` still classifies BEACH by its own kilometre rule); only the chunk tier does |
+| 11 | `VegetationStage` | `bio/` | `CANOPY_COVER` | — | kilometre summary of the same density function the chunk-tier scatter uses, so raster and voxels can't disagree |
+| 12 | `ResourceStage` | `resource/` | `RESOURCE_VALUE` | `ORE_DEPOSIT` | geology-driven deposit placement |
+| 13 | `CaveStage` | `karst/` | — | `CAVE_SYSTEM`, `CAVE_PASSAGE`, `CAVE_ENTRANCE` | reads the chunk tier's own rock tuning (`StrataParams`), not a copy of it |
+| 14 | `ManaStage` | `mana/` | `MANA_DENSITY` | — | must precede history (history reacts to it); corruption must *follow* history, which is why mana/corruption are two stages, not one |
+| 15 | `HabitabilityStage` | `civ/` | `HABITABILITY`, `MOVEMENT_COST` | — | scores settleability |
+| 16 | `SettlementStage` | `civ/` | — | `SETTLEMENT`, `SETTLEMENT_GRADING`, `ROAD`, `BRIDGE`, `SEA_LANE` | places settlements/roads before history judges them. Only cities and towns join the trunk network; `buildTracks` then gives each village one spur ending exactly on the nearest trunk, which is what `TownStage` lays it along. Each road stores its `RoadClass` (`road_class` channel: TRAIL spurs, DIRT_ROAD trunks, the busiest fifth of trunk length COBBLED) and is `meandered` off the routed line |
+| 17 | `HistoryStage` | `history/` | — | `SETTLEMENT_HISTORY`, `RUIN`, `ASH_RUIN`, `BATTLEFIELD`, `TOMB`, `MONUMENT`, `MINE`, `MONASTERY`, `FORT`, `LIGHTHOUSE`, `CAVE_HOARD`, `WOUND`, `SHRINE` | dates/holds/burns settlements already placed — **does not place them** |
+| 18 | `CorruptionStage` | `mana/` | `CORRUPTION`, `CIVILISATION_DISTANCE` | — | the settlements it suppresses by are the ones history left standing |
+| 19 | `SpawnerStage` | `spawn/` | — | `BESTIA_SPAWN` | last in dependency terms: reads corruption + settlements + what history left standing |
+| 20 | `VegetationStandStage` | `spawn/` | — | `VEGETATION_STAND` | lives in `spawn/`, not `bio/`, specifically because it reads `CORRUPTION`, which doesn't exist yet when `bio/VegetationStage` runs |
+| 21 | `TownStage` | `civ/` | — | `STREET`, `BUILDING`, `DISTRICT`, `TOWN_WALL`, `GATE`, `FIELD` | street/building/district layout, plus the fields the settlement works |
+| 22 | `EconomyStage` | `pop/` | — | `SETTLEMENT_ECONOMY`, `BUSINESS`, `ROADSIDE_INN` | businesses/households |
+| 23 | `PoiStage` | `poi/` | — | `POI` | the only stage whose output is coin tosses (`count` rolls at `chance` per `PoiKind`) rather than derived from the land; a required kind (`chance = 1.0`) with no place throws `PoiPlacementException`; reads settlements/sites/cave mouths to stay clear of them |
 | 24 | `KnollStage` | `geo/` | — | `KNOLL` | hills (ADD smoothstep cones in wandering clusters) laid **after** every way, building, field and site, so they go round the ways: a hill reaching a road corridor is slid away, else lowered until the road's REPLACE cuts a climbable bank. The map hillshade reads the km raster and shows none |
 | 25 | `DressingStage` | `dress/` | — | `FIXTURE`, `CEMETERY` | set dressing: piers+boats, wells, windmills, walled cemeteries with the chronicle's named graves, signposts at spur junctions, milestones, lantern lines out of each settlement, cairns at trail crests, inn houses, hilltop outcrops. After knolls (windmills want the highest hill). See "Set dressing" below |
+| 26 | `TreasureStage` | `treasure/` | — | `TREASURE_CACHE` | buried caches at the sites history left: hoards, tombs, ruins, battlefields, forts, monasteries. Reads only history; nothing reads a cache back |
+| 27 | `EmpyriteSeedStage` | `stronghold/` | — | `EMPYRITE_SEED` | a ranked pool of Guild Stronghold sites beside valuable ore, the zone wakes them in rank order. No ore body reaches into a seed's 500 m grounds, so the owners can still mine it. Keeps clear of settlements, home ward fields, sites, cave mouths, roads and POIs, so it runs after `poi` |
+| 28 | `NavGraphStage` | `civ/` | — | — (`StageOutput.Navigation`) | last in construction: routes are read off roads/bridges/gates/cave mouths everything above placed; nothing reads it back |
 
 `history` is the only stage declaring `StageOutput.History`; the pipeline requires there be at most one
 (`core/WorldGenPipeline.kt:106-108`) — two stages writing one world's history isn't resolvable.
@@ -97,10 +101,13 @@ that outrank their construction position:
 
 ```
 tectonics -> climate -> erosion -> glacial -> hydrology -> { alluvium, volcanism }
-  -> { biomes, pond } -> { caves, mana, vegetation } -> resources -> habitability
-  -> settlements -> history -> { corruption, poi } -> { spawners, towns, vegetation_stands }
-  -> economy -> { nav_graph, knolls } -> dressing
+  -> { biomes, coast, pond } -> { caves, mana, vegetation } -> resources -> habitability
+  -> settlements -> history -> { corruption, poi, towns, treasure }
+  -> { economy, empyrite_seeds, nav_graph, spawners, vegetation_stands } -> knolls -> dressing
 ```
+
+Each `{ }` is one round of the scheduler: every stage whose dependencies are done, run in name order.
+`StandardWorldTest` pins the resulting order.
 
 `PoiStage.dependencies` is `{glacial, hydrology, biomes, caves, settlements, history}` — no dependency on
 `corruption`, `towns`, or anything after, so it runs any time after `history`, alongside `corruption`
@@ -109,8 +116,9 @@ rather than behind it.
 Concretely: `HydrologyStage.dependencies` includes `GlacialStage.ID` (`hydro/HydrologyStage.kt:313-314`)
 because it needs the *final* `ELEVATION`, dragging `VolcanismStage` and `BiomeStage` behind glacial too
 even though they're constructed before it. `PondStage` depends on `AlluviumStage` even though
-`AlluviumStage` is constructed three lines *after* it. `TownStage` runs before `VegetationStandStage`
-purely because `"towns" < "vegetation_stands"` alphabetically. **Reordering the list in
+`AlluviumStage` is constructed right *after* it. `TownStage` runs before `SpawnerStage` although
+`"spawners" < "towns"`: the scheduler advances a whole round at a time, and spawners only became ready once
+corruption had finished, by which point towns was already in the round being run. **Reordering the list in
 `StandardWorld.stages()` changes nothing; only editing a `dependencies` list moves a stage.**
 
 ### How a settlement is laid out (`civ/`)
