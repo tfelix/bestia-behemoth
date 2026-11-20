@@ -36,11 +36,14 @@ data class ProseConfig(
      */
     val image: String = "ghcr.io/ggml-org/llama.cpp@sha256:5b43086e3ba7ea5794d72904654f6cd41224a9b1c6ac0398f4940ee380d30f23",
 
-    /** The model as a Hugging Face repository and quantisation. The server fetches it once into [modelCache]. */
-    val model: String = "unsloth/gemma-4-E4B-it-GGUF:Q4_K_M",
+    /**
+     * The model as a Hugging Face repository, with `:quantisation` where the repository holds several. The
+     * server fetches it once into [modelCache]. See `tools/prose-model-compare` for why this one.
+     */
+    val model: String = "google/gemma-4-E4B-it-qat-q4_0-gguf",
 
     /** The file in the repository of [model], for a repository whose file names do not carry the quantisation. */
-    val modelFile: String? = null,
+    val modelFile: String? = "gemma-4-E4B_q4_0-it.gguf",
 
     /** The Docker volume the model file is kept in, so it is fetched once and not per world. */
     val modelCache: String = "bestia-llm-models",
