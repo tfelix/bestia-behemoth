@@ -64,7 +64,7 @@ class PlaceRegionService(
   @Order(WorldRecreatedEvent.ListenerOrder.PLACE_REGIONS)
   fun handleWorldRecreated(event: WorldRecreatedEvent) {
     cached = null
-    registry.clear()
+    registry.clearGenerated()
     registry.loadSettlements(worldService.generated.world)
     LOG.info { "World replaced; rebuilt the place index and dropped the partition" }
   }

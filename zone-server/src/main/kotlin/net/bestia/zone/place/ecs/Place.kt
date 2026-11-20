@@ -37,7 +37,7 @@ class Place(place: PlaceRef) : DirtyableComponent() {
     }
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
-    return PlaceComponentSMSG(entityId = entityId, name = place.name)
+    return PlaceComponentSMSG(entityId = entityId, name = place.name, settlement = place.settlement)
   }
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets {

@@ -13,8 +13,10 @@ option java_outer_classname = "PlaceComponentSMSGProto";
 // a server rule, and the two would drift. For the same reason no kind travels: a name is a name to whoever
 // is reading it, and whether it came from a region, a town or a player's claim is the server's business.
 //
-// No id and no geometry. A client that accumulated those over a few walks would have the shape of the
-// world map, which is what WeatherSMSG keeps opaque and WorldInfoSMSG withholds the seed to prevent.
+// No id. A client that accumulated ids over a few walks would have the shape of the world map, which is
+// what WeatherSMSG keeps opaque and WorldInfoSMSG withholds the seed to prevent. The one shape sent is the
+// settlement the entity stands in, which its sign window and the map show anyway: the building rules need to
+// know where a town ends.
 //
 // The name is English by construction. Generated strings cannot pass through Godot's build-time tr()
 // tables, so only the sentence around a name is ever translated. Making this translatable would mean
@@ -24,4 +26,14 @@ option java_outer_classname = "PlaceComponentSMSGProto";
 message PlaceComponentSMSG {
   reserved 1; // entity_id, now on EntityUpdate
   string name = 2;
+
+  // The settlement this place is. Unset in the open, where the name is a region's.
+  SettlementArea settlement = 3;
+}
+
+// The ground a settlement covers: a circle around its centre, in tiles.
+message SettlementArea {
+  sint64 x = 1;
+  sint64 y = 2;
+  int64 radius = 3;
 }

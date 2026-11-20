@@ -25,13 +25,16 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci1tZXNzYWdlcy9jb21wb25lbnQvcGxhY2VfY29tcG9uZW50X3Ntc2cucHJv",
-            "dG8SBGJuZXQiKAoSUGxhY2VDb21wb25lbnRTTVNHEgwKBG5hbWUYAiABKAlK",
-            "BAgBEAJCMAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhdQbGFjZUNvbXBvbmVu",
-            "dFNNU0dQcm90b2IGcHJvdG8z"));
+            "dG8SBGJuZXQiUgoSUGxhY2VDb21wb25lbnRTTVNHEgwKBG5hbWUYAiABKAkS",
+            "KAoKc2V0dGxlbWVudBgDIAEoCzIULmJuZXQuU2V0dGxlbWVudEFyZWFKBAgB",
+            "EAIiNgoOU2V0dGxlbWVudEFyZWESCQoBeBgBIAEoEhIJCgF5GAIgASgSEg4K",
+            "BnJhZGl1cxgDIAEoA0IwChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CF1BsYWNl",
+            "Q29tcG9uZW50U01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PlaceComponentSMSG), global::Bnet.PlaceComponentSMSG.Parser, new[]{ "Name" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.PlaceComponentSMSG), global::Bnet.PlaceComponentSMSG.Parser, new[]{ "Name", "Settlement" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SettlementArea), global::Bnet.SettlementArea.Parser, new[]{ "X", "Y", "Radius" }, null, null, null, null)
           }));
     }
     #endregion
@@ -46,8 +49,10 @@ namespace Bnet {
   /// a server rule, and the two would drift. For the same reason no kind travels: a name is a name to whoever
   /// is reading it, and whether it came from a region, a town or a player's claim is the server's business.
   ///
-  /// No id and no geometry. A client that accumulated those over a few walks would have the shape of the
-  /// world map, which is what WeatherSMSG keeps opaque and WorldInfoSMSG withholds the seed to prevent.
+  /// No id. A client that accumulated ids over a few walks would have the shape of the world map, which is
+  /// what WeatherSMSG keeps opaque and WorldInfoSMSG withholds the seed to prevent. The one shape sent is the
+  /// settlement the entity stands in, which its sign window and the map show anyway: the building rules need to
+  /// know where a town ends.
   ///
   /// The name is English by construction. Generated strings cannot pass through Godot's build-time tr()
   /// tables, so only the sentence around a name is ever translated. Making this translatable would mean
@@ -91,6 +96,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public PlaceComponentSMSG(PlaceComponentSMSG other) : this() {
       name_ = other.name_;
+      settlement_ = other.settlement_ != null ? other.settlement_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -112,6 +118,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "settlement" field.</summary>
+    public const int SettlementFieldNumber = 3;
+    private global::Bnet.SettlementArea settlement_;
+    /// <summary>
+    /// The settlement this place is. Unset in the open, where the name is a region's.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SettlementArea Settlement {
+      get { return settlement_; }
+      set {
+        settlement_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -128,6 +149,7 @@ namespace Bnet {
         return true;
       }
       if (Name != other.Name) return false;
+      if (!object.Equals(Settlement, other.Settlement)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -136,6 +158,7 @@ namespace Bnet {
     public override int GetHashCode() {
       int hash = 1;
       if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (settlement_ != null) hash ^= Settlement.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -158,6 +181,10 @@ namespace Bnet {
         output.WriteRawTag(18);
         output.WriteString(Name);
       }
+      if (settlement_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(Settlement);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -172,6 +199,10 @@ namespace Bnet {
         output.WriteRawTag(18);
         output.WriteString(Name);
       }
+      if (settlement_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(Settlement);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -184,6 +215,9 @@ namespace Bnet {
       int size = 0;
       if (Name.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (settlement_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Settlement);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -199,6 +233,12 @@ namespace Bnet {
       }
       if (other.Name.Length != 0) {
         Name = other.Name;
+      }
+      if (other.settlement_ != null) {
+        if (settlement_ == null) {
+          Settlement = new global::Bnet.SettlementArea();
+        }
+        Settlement.MergeFrom(other.Settlement);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -223,6 +263,13 @@ namespace Bnet {
             Name = input.ReadString();
             break;
           }
+          case 26: {
+            if (settlement_ == null) {
+              Settlement = new global::Bnet.SettlementArea();
+            }
+            input.ReadMessage(Settlement);
+            break;
+          }
         }
       }
     #endif
@@ -244,6 +291,288 @@ namespace Bnet {
             break;
           case 18: {
             Name = input.ReadString();
+            break;
+          }
+          case 26: {
+            if (settlement_ == null) {
+              Settlement = new global::Bnet.SettlementArea();
+            }
+            input.ReadMessage(Settlement);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// The ground a settlement covers: a circle around its centre, in tiles.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class SettlementArea : pb::IMessage<SettlementArea>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<SettlementArea> _parser = new pb::MessageParser<SettlementArea>(() => new SettlementArea());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<SettlementArea> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Bnet.PlaceComponentSmsgReflection.Descriptor.MessageTypes[1]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SettlementArea() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SettlementArea(SettlementArea other) : this() {
+      x_ = other.x_;
+      y_ = other.y_;
+      radius_ = other.radius_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SettlementArea Clone() {
+      return new SettlementArea(this);
+    }
+
+    /// <summary>Field number for the "x" field.</summary>
+    public const int XFieldNumber = 1;
+    private long x_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long X {
+      get { return x_; }
+      set {
+        x_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "y" field.</summary>
+    public const int YFieldNumber = 2;
+    private long y_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long Y {
+      get { return y_; }
+      set {
+        y_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "radius" field.</summary>
+    public const int RadiusFieldNumber = 3;
+    private long radius_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long Radius {
+      get { return radius_; }
+      set {
+        radius_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as SettlementArea);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(SettlementArea other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (X != other.X) return false;
+      if (Y != other.Y) return false;
+      if (Radius != other.Radius) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (X != 0L) hash ^= X.GetHashCode();
+      if (Y != 0L) hash ^= Y.GetHashCode();
+      if (Radius != 0L) hash ^= Radius.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (X != 0L) {
+        output.WriteRawTag(8);
+        output.WriteSInt64(X);
+      }
+      if (Y != 0L) {
+        output.WriteRawTag(16);
+        output.WriteSInt64(Y);
+      }
+      if (Radius != 0L) {
+        output.WriteRawTag(24);
+        output.WriteInt64(Radius);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (X != 0L) {
+        output.WriteRawTag(8);
+        output.WriteSInt64(X);
+      }
+      if (Y != 0L) {
+        output.WriteRawTag(16);
+        output.WriteSInt64(Y);
+      }
+      if (Radius != 0L) {
+        output.WriteRawTag(24);
+        output.WriteInt64(Radius);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (X != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(X);
+      }
+      if (Y != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(Y);
+      }
+      if (Radius != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(Radius);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(SettlementArea other) {
+      if (other == null) {
+        return;
+      }
+      if (other.X != 0L) {
+        X = other.X;
+      }
+      if (other.Y != 0L) {
+        Y = other.Y;
+      }
+      if (other.Radius != 0L) {
+        Radius = other.Radius;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            X = input.ReadSInt64();
+            break;
+          }
+          case 16: {
+            Y = input.ReadSInt64();
+            break;
+          }
+          case 24: {
+            Radius = input.ReadInt64();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            X = input.ReadSInt64();
+            break;
+          }
+          case 16: {
+            Y = input.ReadSInt64();
+            break;
+          }
+          case 24: {
+            Radius = input.ReadInt64();
             break;
           }
         }

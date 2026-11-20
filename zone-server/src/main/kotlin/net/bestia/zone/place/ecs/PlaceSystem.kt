@@ -50,10 +50,16 @@ class PlaceSystem(
 
   override val writes: ComponentClassSet = setOf(Place::class)
 
+  private var resolvedVersion = -1L
+
   override fun update(world: World, deltaTime: Float) {
+    // A town founded or grown around a player standing still changes their place without a step.
+    val isEveryPlaceStale = names.version != resolvedVersion
+    resolvedVersion = names.version
+
     world.query(Position::class, Place::class).each {
       val position = get<Position>()
-      if (!position.isDirty()) return@each
+      if (!position.isDirty() && !isEveryPlaceStale) return@each
 
       get<Place>().place = names.resolve(position.x, position.y)
     }
