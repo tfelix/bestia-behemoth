@@ -40,4 +40,7 @@ enum SenseKind {
   SENSE_BINDING_FIRED = 6;
   // The receiver just walked onto an Empyrite Seed and discovered it. The label is its name; the spot is exact.
   SENSE_EMPYRITE_SEED_FOUND = 7;
+  // An awake Empyrite Seed, sensed by Official Guild Approval. The label is its name once the receiver discovered
+  // it, else empty; ref_id is its rank.
+  SENSE_EMPYRITE_SEED = 8;
 }

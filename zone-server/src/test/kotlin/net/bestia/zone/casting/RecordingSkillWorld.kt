@@ -503,6 +503,13 @@ class RecordingSkillWorld(
 
   data class ThrownPotion(val targetEntityId: EntityId, val itemId: Long, val strengthPercent: Int)
 
+  /** How often [senseEmpyriteSeeds] was called. */
+  var seedSenses = 0
+
+  override fun senseEmpyriteSeeds() {
+    seedSenses++
+  }
+
   /** The level of each [senseMagic]. */
   val magicSenses = mutableListOf<Int>()
 
