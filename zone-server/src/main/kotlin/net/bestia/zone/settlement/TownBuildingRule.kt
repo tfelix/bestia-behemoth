@@ -64,11 +64,11 @@ class TownBuildingRule(
     }
   }
 
-  /** Only a finished building that adds to a town anchors the next one, so a chest or a site cannot. */
+  /** A construction site anchors nothing until it is finished. */
   private fun isNearTownBuilding(at: Vec3L): Boolean {
     return structuresAround(at, BuildingPlaces.ANCHOR_RANGE_METRES).any {
       !it.isUnderConstruction &&
-          TownGrowth.pointsOf(it.kind) > 0.0 &&
+          BuildingPlaces.anchorsTown(it.kind) &&
           metresBetween(it.position, at) <= BuildingPlaces.ANCHOR_RANGE_METRES
     }
   }

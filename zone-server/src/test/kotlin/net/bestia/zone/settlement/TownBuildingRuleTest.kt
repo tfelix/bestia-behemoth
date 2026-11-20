@@ -97,9 +97,9 @@ class TownBuildingRuleTest {
   }
 
   @Test
-  fun `a chest or an unfinished site anchors nothing`() {
+  fun `a wild structure or an unfinished site anchors nothing`() {
     town = standingTown()
-    structures += structure(StaticEntityKind.CHEST, signAt.plus(80, 0))
+    structures += structure(StaticEntityKind.WORKBENCH, signAt.plus(80, 0))
     structures += structure(StaticEntityKind.FURNACE, signAt.plus(0, 80), buildSeconds = 20f)
 
     assertEquals(OpError.STRUCTURE_TOO_FAR_FROM_TOWN, rule.refusal(StaticEntityKind.FORGE, signAt.plus(100, 0)))
