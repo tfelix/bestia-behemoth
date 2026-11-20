@@ -26,7 +26,7 @@ class TextWriter(
   fun write(brief: TextBrief, llm: LlmClient, locale: String = WorldTexts.FALLBACK_LOCALE): Written {
     var avoid: String? = null
     repeat(config.maxAttempts) { attempt ->
-      val text = clean(llm.chat(ProsePrompt.SYSTEM, ProsePrompt.userMessage(brief, avoid, locale), ProsePrompt.SAMPLING))
+      val text = clean(llm.chat(ProsePrompt.system(brief), ProsePrompt.userMessage(brief, avoid, locale), ProsePrompt.SAMPLING), brief)
       val problems = problemsOf(text, brief, locale)
       if (problems.isEmpty()) {
         return Written(text, attempts = attempt + 1)
@@ -43,12 +43,16 @@ class TextWriter(
     return if (locale == WorldTexts.FALLBACK_LOCALE) validator.check(text, brief) else validator.checkIn(locale, text, brief)
   }
 
-  /** A model sometimes wraps its whole answer in quotes. */
-  private fun clean(answer: String): String {
-    return answer.trim().removeSurrounding("\"").trim()
+  /** A model sometimes wraps its whole answer in quotes, or a name in the braces of a placeholder. */
+  private fun clean(answer: String, brief: TextBrief): String {
+    val names = brief.allowedNames.flatMap { listOf(it.name) + it.inLocale.values }
+    val unbraced = BRACED.replace(answer) { braced -> braced.groupValues[1].takeIf { it in names } ?: braced.value }
+
+    return unbraced.trim().removeSurrounding("\"").trim()
   }
 
   private companion object {
     val LOG = KotlinLogging.logger { }
+    val BRACED = Regex("""\{([^{}]*)}""")
   }
 }
