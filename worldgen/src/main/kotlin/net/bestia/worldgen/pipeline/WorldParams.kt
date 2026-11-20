@@ -30,6 +30,7 @@ import net.bestia.worldgen.mana.ManaParams
 import net.bestia.worldgen.resource.ResourceParams
 import net.bestia.worldgen.spawn.SpawnerParams
 import net.bestia.worldgen.spawn.VegetationStandParams
+import net.bestia.worldgen.stronghold.EmpyriteSeedParams
 import net.bestia.worldgen.treasure.TreasureParams
 import net.bestia.worldgen.voxel.ChunkMaterializer
 import net.bestia.worldgen.voxel.AetheriteParams
@@ -155,6 +156,9 @@ data class WorldParams(
    * a retune moves every cache, so the world has to count as a different one.
    */
   val treasure: TreasureParams = TreasureParams(),
+
+  /** The Empyrite Seeds guilds found Strongholds on. World tier: a retune moves every seed. */
+  val empyriteSeed: EmpyriteSeedParams = EmpyriteSeedParams(),
 
   /**
    * The macro navigation graph NPCs plan journeys over. Last, because it reads everything before it.
@@ -301,6 +305,7 @@ data class WorldParams(
       r.knoll.digest().value,
       r.dressing.digest().value,
       r.treasure.digest().value,
+      r.empyriteSeed.digest().value,
       r.nav.digest().value
     )
   }
@@ -386,6 +391,8 @@ data class WorldParams(
         // and whether a POI is far enough from a road is exactly the sort of thing found by looking at one
         // and then moving a number.
         poi = base.poi.overriddenBy(text.scope("poi")),
+        // Clearances and reaches, like `poi`: found by looking at where the seeds land and moving a number.
+        empyriteSeed = base.empyriteSeed.overriddenBy(text.scope("empyriteSeed")),
         // Off `NOT_YET_LOADABLE` because den density is quadratic in `candidateSpacing` and there is no way
         // to know the right value except by generating a world and counting - which is what
         // `:worldgen:invariants -Pparams=...` is for. Recompiling between attempts is the wrong loop for a

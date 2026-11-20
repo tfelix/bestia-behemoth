@@ -25,6 +25,7 @@ import net.bestia.worldgen.history.HistoryParams
 import net.bestia.worldgen.karst.CaveParams
 import net.bestia.worldgen.mana.CorruptionParams
 import net.bestia.worldgen.mana.ManaParams
+import net.bestia.worldgen.stronghold.EmpyriteSeedParams
 import net.bestia.worldgen.treasure.TreasureParams
 import net.bestia.worldgen.voxel.VegetationParams
 import net.bestia.worldgen.history.Names
@@ -117,6 +118,7 @@ class ParamsVersionTest {
     PoiParams(),
     NavParams(),
     TreasureParams(),
+    EmpyriteSeedParams(),
     // The chunk tier, which reaches no version number at all today.
     DetailParams(),
     StrataParams(),
@@ -259,6 +261,7 @@ class ParamsVersionTest {
       "PoiParams" to -4_364_560_784_182_569_017L,
       "NavParams" to -4_405_367_378_183_192_008L,
       "TreasureParams" to 1_468_402_791_014_294_212L,
+      "EmpyriteSeedParams" to -2_641_166_686_246_558_063L,
       "DetailParams" to 5_837_136_561_326_550_610L,
       "StrataParams" to 5_360_263_422_566_259_310L,
       "DropletParams" to 8_150_952_456_997_203_313L,
