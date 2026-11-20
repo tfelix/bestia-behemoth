@@ -25,4 +25,9 @@ object BuildingPlaces {
   fun needsSettlement(kind: StaticEntityKind): Boolean {
     return kind !in WILD_KINDS && kind != StaticEntityKind.CITY_SIGN
   }
+
+  /** A finished town building the next one may stand near. A wild one is not: a lone workbench starts no town. */
+  fun anchorsTown(kind: StaticEntityKind): Boolean {
+    return needsSettlement(kind) && TownGrowth.pointsOf(kind) > 0.0
+  }
 }
