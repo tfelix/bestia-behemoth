@@ -55,8 +55,9 @@ class EmpyriteSeedRegistryTest {
   fun `the best seeds of the pool wake first`() {
     registry.restoreAll()
 
-    registry.wakeUpTo(2)
+    val woken = registry.wakeUpTo(2)
 
+    assertEquals(pool.take(2), woken)
     assertEquals(pool.take(2), registry.awake())
     assertEquals(listOf(0, 1), saved.filter { it.awake }.map { it.rank })
   }

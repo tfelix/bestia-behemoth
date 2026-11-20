@@ -195,7 +195,13 @@ enum class StaticEntityKind {
   // The Alchemist's and the Miner's stations, appended for the ordinal.
   ALCHEMY_LABORATORY,
   GEM_CUT_STATION,
-  TRANSMUTATION_WORKBENCH;
+  TRANSMUTATION_WORKBENCH,
+
+  // A Guild Stronghold's three looks, all ordinary entities: the golden sprout of an awake Empyrite Seed, the site a
+  // guild works on after planting, and the Empyrite itself. See the stronghold package.
+  EMPYRITE_SEED,
+  EMPYRITE_SITE,
+  EMPYRITE;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.
