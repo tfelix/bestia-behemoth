@@ -134,7 +134,8 @@ class EmpyriteSeedStage(
   /** Every seed has a name no settlement and no other seed carries, so a player can tell them apart. */
   private fun uniqueNameSeed(worldSeed: Long, rank: Int, culture: Int, taken: MutableSet<String>): Long {
     for (attempt in 0 until MAX_NAME_ATTEMPTS) {
-      val nameSeed = Names.seedOf(worldSeed, NAME_SALT, rank.toLong(), attempt.toLong())
+      // A marker channel holds a Double, so the name is checked on the seed that comes back out of it.
+      val nameSeed = Names.seedOf(worldSeed, NAME_SALT, rank.toLong(), attempt.toLong()).toDouble().toLong()
       if (taken.add(Names.place(nameSeed, culture))) return nameSeed
     }
     error("No free name for Empyrite Seed $rank after $MAX_NAME_ATTEMPTS attempts")
