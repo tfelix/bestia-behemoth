@@ -11,10 +11,13 @@ data class StrongholdConfig(
   val guildsPerSeed: Int = 25,
   /** A seed this close to a player town or its sign site is skipped. Also the gap a new town keeps from a seed. */
   val settlementClearanceMetres: Double = 1_000.0,
+  /** A master discovers a seed by walking within this of its centre: the seed's core. */
+  val coreRadiusMetres: Double = 5.0,
 ) {
   init {
     require(minAwakeSeeds >= 0) { "stronghold.min-awake-seeds must not be negative, was $minAwakeSeeds" }
     require(guildsPerSeed > 0) { "stronghold.guilds-per-seed must be positive, was $guildsPerSeed" }
     require(settlementClearanceMetres >= 0.0) { "stronghold.settlement-clearance-metres must not be negative" }
+    require(coreRadiusMetres > 0.0) { "stronghold.core-radius-metres must be positive, was $coreRadiusMetres" }
   }
 }
