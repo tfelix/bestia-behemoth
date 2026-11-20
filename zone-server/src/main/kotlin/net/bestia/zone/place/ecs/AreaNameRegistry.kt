@@ -80,8 +80,17 @@ class AreaNameRegistry {
       return byId.size
     }
 
+  private var changes = 0L
+
+  /** Counts every change, so [PlaceSystem] can tell a player standing still that a town grew around them. */
+  val version: Long
+    get() {
+      return changes
+    }
+
   fun add(entry: Entry) {
     remove(entry.id)
+    changes++
 
     byId[entry.id] = entry
     forEachCoveredCell(entry) { cell ->
@@ -91,6 +100,7 @@ class AreaNameRegistry {
 
   fun remove(id: Long) {
     val existing = byId.remove(id) ?: return
+    changes++
 
     forEachCoveredCell(existing) { cell ->
       val bucket = byCell[cell] ?: return@forEachCoveredCell
@@ -132,9 +142,9 @@ class AreaNameRegistry {
       .minByOrNull { it.id }
   }
 
-  fun clear() {
-    byCell.clear()
-    byId.clear()
+  /** Drops the generated settlements only, so a new world keeps the towns players founded. */
+  fun clearGenerated() {
+    byId.keys.filter { it < 0 }.forEach { remove(it) }
   }
 
   /**

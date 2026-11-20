@@ -47,6 +47,36 @@ class PlaceTest {
   }
 
   @Test
+  fun `a town growing around a player is a change`() {
+    val place = Place(PlaceRef("Oakhold", SettlementArea(0, 0, 150)))
+    place.clearDirty()
+
+    place.place = PlaceRef("Oakhold", SettlementArea(0, 0, 175))
+
+    assertTrue(place.isDirty(), "the client must learn where the town now ends")
+  }
+
+  @Test
+  fun `the settlement a place is travels with it`() {
+    val sent = PlaceComponentSMSG(entityId = 42, name = "Oakhold", settlement = SettlementArea(1000, -20, 150))
+
+    val decoded = sent.toBnetEnvelope().stateBatch.updatesList.single().componentsList.single().place
+
+    assertTrue(decoded.hasSettlement())
+    assertEquals(1000L, decoded.settlement.x)
+    assertEquals(-20L, decoded.settlement.y)
+    assertEquals(150L, decoded.settlement.radius)
+  }
+
+  @Test
+  fun `a place in the open carries no settlement`() {
+    val decoded = PlaceComponentSMSG(entityId = 42, name = "Elm Vale")
+      .toBnetEnvelope().stateBatch.updatesList.single().componentsList.single().place
+
+    assertFalse(decoded.hasSettlement())
+  }
+
+  @Test
   fun `an area name survives a round trip through the envelope`() {
     val sent = AreaNameComponentSMSG(entityId = 7, name = "Ashford", radius = 610)
 

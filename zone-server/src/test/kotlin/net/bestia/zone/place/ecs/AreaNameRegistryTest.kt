@@ -113,14 +113,26 @@ class AreaNameRegistryTest {
   }
 
   @Test
-  fun `clearing drops everything, for a world that was replaced under us`() {
+  fun `a replaced world drops its generated settlements and keeps the founded towns`() {
     val registry = AreaNameRegistry()
-    registry.add(entry(id = 1, x = 0, y = 0, radius = 500))
+    registry.add(entry(id = -1, x = 0, y = 0, radius = 500, name = "Ashford"))
+    registry.add(entry(id = 7, x = 9000, y = 0, radius = 150, name = "Oakhold"))
 
-    registry.clear()
+    registry.clearGenerated()
 
-    assertEquals(0, registry.size)
     assertNull(registry.at(0, 0))
+    assertEquals("Oakhold", registry.at(9000, 0)?.name)
+  }
+
+  @Test
+  fun `every change moves the version on`() {
+    val registry = AreaNameRegistry()
+    val before = registry.version
+
+    registry.add(entry(id = 7, x = 0, y = 0, radius = 150))
+    registry.remove(7)
+
+    assertEquals(before + 2, registry.version)
   }
 
   private fun entry(

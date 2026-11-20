@@ -17,6 +17,7 @@ import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.AsyncJobExecutor
+import net.bestia.zone.place.ecs.AreaNameRegistry
 import net.bestia.zone.prop.PlayerStructureRegistry
 import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.prop.StructureEntry
@@ -47,6 +48,7 @@ class TownServiceTest {
 
   private lateinit var world: EcsWorld
   private lateinit var registry: TownRegistry
+  private val areaNames = AreaNameRegistry()
   private lateinit var structureRegistry: PlayerStructureRegistry
   private lateinit var messages: OutMessageProcessor
   private lateinit var events: ApplicationEventPublisher
@@ -63,7 +65,7 @@ class TownServiceTest {
     }
     val repository = mockk<PlayerSettlementRepository>(relaxed = true)
     every { repository.save(any()) } answers { firstArg() }
-    registry = TownRegistry(repository, mockk<AsyncJobExecutor>(relaxed = true), worldService)
+    registry = TownRegistry(repository, mockk<AsyncJobExecutor>(relaxed = true), worldService, areaNames)
 
     structureRegistry = mockk(relaxed = true)
     every { structureRegistry.all() } answers { structures }
@@ -143,6 +145,21 @@ class TownServiceTest {
     assertEquals(PlayerSettlement.State.STANDING, town.state)
     assertEquals(town.id, world.get(sign, CitySign::class)?.townId)
     assertEquals(TownGrowth.BASE_SIGN_HP, world.get(sign, Health::class)?.max)
+  }
+
+  @Test
+  fun `a standing town is a place that grows with its sphere and goes when it falls`() {
+    foundAndFinish()
+    val townId = registry.heldBy(masterId)!!.id
+    assertEquals("Oakhold", areaNames.at(signAt.x + 140, signAt.y)?.name)
+    assertNull(areaNames.at(signAt.x + 170, signAt.y))
+
+    structures.add(structure(StaticEntityKind.WORKBENCH, Vec3L(signAt.x + 100, signAt.y, signAt.z)))
+    service.regrow(world)
+    assertEquals(175L, areaNames.at(signAt.x + 170, signAt.y)?.radius)
+
+    service.fall(townId)
+    assertNull(areaNames.at(signAt.x, signAt.y))
   }
 
   @Test
