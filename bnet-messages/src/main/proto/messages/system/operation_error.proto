@@ -534,6 +534,8 @@ enum OpError {
   BLACKBOARD_NOTHING_TO_HAND_IN = 388;
   // The town that asked for these goods takes them at its own board only.
   BLACKBOARD_HAND_IN_ELSEWHERE = 389;
+  // An awake Empyrite Seed lies within 1 km. Strongholds keep their room.
+  SETTLEMENT_NEAR_EMPYRITE_SEED = 390;
 }
 
 message OperationError {
