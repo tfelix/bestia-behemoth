@@ -64,22 +64,30 @@ class EmpyriteSeedRegistry(
    * promise it never wakes there, and a town can stand for years.
    *
    * Awake seeds never go back to sleep, so a smaller [target] than before changes nothing.
+   *
+   * @return the seeds that woke now
    */
-  fun wakeUpTo(target: Int) {
+  fun wakeUpTo(target: Int): List<EmpyriteSeed> {
     var awakeCount = decided.values.count { it.awake }
+    val woken = ArrayList<EmpyriteSeed>()
 
     for (seed in pool) {
-      if (awakeCount >= target) return
+      if (awakeCount >= target) return woken
       if (seed.rank in decided) continue
 
       val wakes = !isByTown(seed)
       decide(seed, wakes)
-      if (wakes) awakeCount++
+      if (wakes) {
+        awakeCount++
+        woken.add(seed)
+      }
     }
 
     if (awakeCount < target) {
       LOG.warn { "Only $awakeCount Empyrite Seeds can be awake, $target are wanted: the pool of ${pool.size} is spent" }
     }
+
+    return woken
   }
 
   private fun isByTown(seed: EmpyriteSeed): Boolean {

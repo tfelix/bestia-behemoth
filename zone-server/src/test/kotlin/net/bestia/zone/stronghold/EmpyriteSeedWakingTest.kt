@@ -6,7 +6,9 @@ import kotlin.test.assertEquals
 
 class EmpyriteSeedWakingTest {
 
-  private val waking = EmpyriteSeedWaking(mockk(), mockk(), mockk(), StrongholdConfig(minAwakeSeeds = 4, guildsPerSeed = 25))
+  private val waking = EmpyriteSeedWaking(
+    mockk(), mockk(), mockk(), mockk(), StrongholdConfig(minAwakeSeeds = 4, guildsPerSeed = 25)
+  )
 
   @Test
   fun `a few approved guilds still find the minimum awake`() {

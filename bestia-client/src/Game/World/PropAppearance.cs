@@ -791,7 +791,23 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 1.4f, PlaceholderColour = new Color(0.50f, 0.50f, 0.65f), StructureHeight = 1f,
         Action = PropAction.Use
-      } // TRANSMUTATION_WORKBENCH
+      }, // TRANSMUTATION_WORKBENCH
+
+      // A Guild Stronghold, golden until it has models: an Empyrite Seed's sprout, the site a guild plants on it,
+      // and the Empyrite crystal. Entities like the War Banner.
+      new Kind
+      {
+        PlaceholderWidth = 0.4f, PlaceholderColour = new Color(1.0f, 0.80f, 0.16f), StructureHeight = 0.8f,
+        Action = PropAction.Use
+      }, // EMPYRITE_SEED
+      new Kind
+      {
+        PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.80f, 0.62f, 0.20f), StructureHeight = 1.5f
+      }, // EMPYRITE_SITE
+      new Kind
+      {
+        PlaceholderWidth = 1.2f, PlaceholderColour = new Color(1.0f, 0.84f, 0.20f), StructureHeight = 4f
+      } // EMPYRITE
     };
 
     /// <summary>
