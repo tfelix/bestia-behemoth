@@ -79,6 +79,14 @@ guild:
   war-banner-hp: 1500
   war-banner-seconds: 300
 
+# Guild Strongholds stand on Empyrite Seeds the world generator placed. Awake seeds:
+# max(min-awake-seeds, approved guilds / guilds-per-seed, rounded up). Awake seeds never sleep again.
+stronghold:
+  min-awake-seeds: 4
+  guilds-per-seed: 25
+  # A seed this close to a player town or its sign site is skipped, and no town is founded this close to a seed.
+  settlement-clearance-metres: 1000
+
 # Settings a *new* world is born with. Ignored once a world exists: what gets generated then comes from the
 # stored record, because that is what its chunks and any player edits were built against.
 worldgen:
