@@ -23,7 +23,8 @@ class SummoningSkillsTest {
   }
   private val cooldowns = GuildSkillCooldowns()
   private val banners = WarBanners()
-  private val recall = EmergencyRecall(tree, cooldowns, NoGuildStrongholds())
+  private var isInOwnStronghold = false
+  private val recall = EmergencyRecall(tree, cooldowns) { _, _, _ -> isInOwnStronghold }
   private val rally = RallyToTheBanner(tree, cooldowns, banners)
 
   private val membership = GuildMembership(GUILD, taxPercent = 5, mayUseGuildSkills = true)
@@ -31,8 +32,15 @@ class SummoningSkillsTest {
   private val caster = ecs.createEntity { id -> add(id, membership) }
 
   @Test
-  fun `Emergency Recall is refused outside the guild's own Stronghold, which no guild has yet`() {
+  fun `Emergency Recall is refused outside the guild's own Stronghold`() {
     assertEquals(OpError.GUILD_NOT_IN_STRONGHOLD, recall.checkCastStart(ecs, caster, 1))
+  }
+
+  @Test
+  fun `Emergency Recall may be cast inside it`() {
+    isInOwnStronghold = true
+
+    assertEquals(null, recall.checkCastStart(ecs, caster, 1))
   }
 
   @Test

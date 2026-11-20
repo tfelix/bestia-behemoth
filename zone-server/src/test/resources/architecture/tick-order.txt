@@ -73,6 +73,7 @@
  - DEATH wave 39: PoiDeathSystem [EveryTick]
  - DEATH wave 39: WarBannerSystem [EveryTick]
  - DEATH wave 39: WorldBossSealSystem [EveryTick]
+ - DEATH wave 40: EmpyriteSystem [EveryTick]
  - DEATH wave 40: PropDeathDivergenceSystem [EveryTick]
  - DEATH wave 41: PlayerDeathSystem [EveryTick]
  - DEATH wave 42: NpcKillReporter [EveryTick]

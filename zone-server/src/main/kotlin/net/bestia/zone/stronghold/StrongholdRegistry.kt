@@ -59,6 +59,7 @@ class StrongholdRegistry(
       siteStructureId = stronghold.siteStructureId,
       siteWorkedAt = stronghold.siteWorkedAt,
       plantedAt = stronghold.plantedAt,
+      empyriteHp = stronghold.empyriteHp,
       worldShapeVersion = worldService.record.shapeVersion,
       pipelineVersion = worldService.record.pipelineVersion
     )
@@ -76,7 +77,9 @@ class StrongholdRegistry(
   }
 
   private fun strongholdOf(row: StrongholdRecord): Stronghold {
-    return Stronghold(row.rank, row.guildId, row.state, row.siteStructureId, row.siteWorkedAt, row.plantedAt)
+    return Stronghold(
+      row.rank, row.guildId, row.state, row.siteStructureId, row.siteWorkedAt, row.plantedAt, row.empyriteHp
+    )
   }
 
   private companion object {

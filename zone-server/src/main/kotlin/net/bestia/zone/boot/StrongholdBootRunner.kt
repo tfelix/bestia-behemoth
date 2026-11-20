@@ -5,6 +5,7 @@ import net.bestia.zone.stronghold.EmpyriteSeedDiscoveries
 import net.bestia.zone.stronghold.EmpyriteSeedRegistry
 import net.bestia.zone.stronghold.EmpyriteSeedWaking
 import net.bestia.zone.stronghold.EmpyriteSites
+import net.bestia.zone.stronghold.Empyrites
 import net.bestia.zone.stronghold.StrongholdRegistry
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
@@ -22,6 +23,7 @@ class StrongholdBootRunner(
   private val discoveries: EmpyriteSeedDiscoveries,
   private val strongholds: StrongholdRegistry,
   private val sites: EmpyriteSites,
+  private val empyrites: Empyrites,
   private val world: World,
 ) : CommandLineRunner {
 
@@ -31,6 +33,7 @@ class StrongholdBootRunner(
     discoveries.restoreAll()
     strongholds.restoreAll()
     sites.restoreOwners(world)
+    empyrites.raiseAll(world)
     waking.raiseSprouts(world)
   }
 }

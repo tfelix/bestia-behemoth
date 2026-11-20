@@ -25,6 +25,11 @@ data class StrongholdConfig(
   val siteBuildMinutes: Int = 30,
   /** A site nobody worked on for this long is given up. */
   val siteIdleHours: Long = 24,
+  /** The Empyrite's health and defense before any Defense level. */
+  val empyriteHp: Int = 50_000,
+  val empyriteDefense: Int = 20,
+  /** A Stronghold's grounds around its Empyrite, in metres. Guild skills that need the Stronghold work inside. */
+  val groundsRadiusMetres: Double = 500.0,
 ) {
   init {
     require(minAwakeSeeds >= 0) { "stronghold.min-awake-seeds must not be negative, was $minAwakeSeeds" }
@@ -37,5 +42,8 @@ data class StrongholdConfig(
     require(plantCoins >= 0) { "stronghold.plant-coins must not be negative, was $plantCoins" }
     require(siteBuildMinutes > 0) { "stronghold.site-build-minutes must be positive, was $siteBuildMinutes" }
     require(siteIdleHours > 0) { "stronghold.site-idle-hours must be positive, was $siteIdleHours" }
+    require(empyriteHp > 0) { "stronghold.empyrite-hp must be positive, was $empyriteHp" }
+    require(empyriteDefense >= 0) { "stronghold.empyrite-defense must not be negative, was $empyriteDefense" }
+    require(groundsRadiusMetres > 0.0) { "stronghold.grounds-radius-metres must be positive, was $groundsRadiusMetres" }
   }
 }
