@@ -47,7 +47,7 @@ class ConstructionSystem(
   private val completionByKind = completions.associateBy { it.kind }
   override val phase = Phase.ACTIONS
 
-  override val reads: ComponentClassSet = setOf(Position::class, Dead::class)
+  override val reads: ComponentClassSet = setOf(Position::class, Dead::class) + SiteWorkers.READS
 
   /**
    * The last five are what [PlayerStructureService.completeConstruction] puts on the *static prop* it raises,
@@ -141,6 +141,7 @@ class ConstructionSystem(
   private fun canWorkOn(world: World, workerId: EntityId, siteId: EntityId): Boolean {
     if (!world.isAlive(siteId) || world.get(siteId, ConstructionSite::class) == null) return false
     if (world.has(workerId, Dead::class)) return false
+    if (!SiteWorkers.mayWork(world, workerId, siteId)) return false
 
     val worker = world.get(workerId, Position::class)?.toVec3L() ?: return false
     val site = world.get(siteId, Position::class)?.toVec3L() ?: return false

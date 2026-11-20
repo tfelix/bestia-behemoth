@@ -19,6 +19,12 @@ data class StrongholdConfig(
   val senseMarks: Int = 3,
   /** A sensed mark is off by up to this share of its distance. */
   val senseErrorShare: Double = 1.0 / 3.0,
+  /** What planting an Empyrite costs the member who plants it. */
+  val plantCoins: Long = 10_000,
+  /** Work the Empyrite site needs, in total over every member working on it. */
+  val siteBuildMinutes: Int = 30,
+  /** A site nobody worked on for this long is given up. */
+  val siteIdleHours: Long = 24,
 ) {
   init {
     require(minAwakeSeeds >= 0) { "stronghold.min-awake-seeds must not be negative, was $minAwakeSeeds" }
@@ -28,5 +34,8 @@ data class StrongholdConfig(
     require(senseRangeMetres > 0.0) { "stronghold.sense-range-metres must be positive, was $senseRangeMetres" }
     require(senseMarks > 0) { "stronghold.sense-marks must be positive, was $senseMarks" }
     require(senseErrorShare in 0.0..1.0) { "stronghold.sense-error-share must lie in 0..1, was $senseErrorShare" }
+    require(plantCoins >= 0) { "stronghold.plant-coins must not be negative, was $plantCoins" }
+    require(siteBuildMinutes > 0) { "stronghold.site-build-minutes must be positive, was $siteBuildMinutes" }
+    require(siteIdleHours > 0) { "stronghold.site-idle-hours must be positive, was $siteIdleHours" }
   }
 }

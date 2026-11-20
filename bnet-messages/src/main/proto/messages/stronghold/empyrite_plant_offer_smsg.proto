@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "EmpyritePlantOfferSmsgProto";
+
+// Asks a guild member at an Empyrite Seed's sprout whether to plant the Empyrite there. The client confirms by
+// sending InteractEntityCMSG for the sprout again, with the action "plant".
+message EmpyritePlantOfferSMSG {
+  fixed64 sprout_entity_id = 1;
+  string seed_name = 2;
+  // What planting costs the member who confirms.
+  uint64 coins = 3;
+  // How much work the site needs, in minutes over every member working on it.
+  uint32 site_minutes = 4;
+}

@@ -12,6 +12,7 @@ import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.prop.ecs.construction.Building
 import net.bestia.zone.prop.ecs.construction.ConstructionSite
+import net.bestia.zone.prop.ecs.construction.SiteWorkers
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.modify
 import net.bestia.zone.session.ConnectionInfoService
@@ -147,6 +148,10 @@ class InteractEntityHandler(
     if (world.get(actorId, Building::class)?.siteEntityId == siteId) {
       world.remove(actorId, Building::class)
       return null
+    }
+
+    if (!SiteWorkers.mayWork(world, actorId, siteId)) {
+      return OpError.BUILD_NOT_YOUR_GUILDS
     }
 
     val actorAt = world.get(actorId, Position::class)?.toVec3L() ?: return OpError.BUILD_OUT_OF_RANGE
