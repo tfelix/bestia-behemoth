@@ -46,6 +46,10 @@ class TownBuildingRule(
     return if (isNearAnchor) null else OpError.STRUCTURE_TOO_FAR_FROM_TOWN
   }
 
+  fun isInSettlement(at: Vec3L): Boolean {
+    return towns.standingAt(at) != null || generatedTowns.siteCovering(at.x, at.y) != null
+  }
+
   private fun isNearSign(town: Town, at: Vec3L): Boolean {
     return neighbourhood.metresBetween(town.sign, at) <= BuildingPlaces.ANCHOR_RANGE_METRES
   }

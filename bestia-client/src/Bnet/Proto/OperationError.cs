@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSr8LwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqWMAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -162,9 +162,9 @@ namespace Bnet {
             "R19MSU1JVBCDAxIiCh1CTEFDS0JPQVJEX05PVEhJTkdfVE9fSEFORF9JThCE",
             "AxIhChxCTEFDS0JPQVJEX0hBTkRfSU5fRUxTRVdIRVJFEIUDEh8KGlNUUlVD",
             "VFVSRV9ORUVEU19TRVRUTEVNRU5UEIYDEiAKG1NUUlVDVFVSRV9UT09fRkFS",
-            "X0ZST01fVE9XThCHAyIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5l",
-            "dC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJv",
-            "dG8z"));
+            "X0ZST01fVE9XThCHAxIYChNTVFJVQ1RVUkVfVE9PX0NMT1NFEIgDIgQILhAu",
+            "KhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
+            "QhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1040,6 +1040,10 @@ namespace Bnet {
     /// In a settlement, but too far from its city sign and from every building in it.
     /// </summary>
     [pbr::OriginalName("STRUCTURE_TOO_FAR_FROM_TOWN")] StructureTooFarFromTown = 391,
+    /// <summary>
+    /// Outside a settlement, too close to a structure of another master.
+    /// </summary>
+    [pbr::OriginalName("STRUCTURE_TOO_CLOSE")] StructureTooClose = 392,
   }
 
   #endregion
