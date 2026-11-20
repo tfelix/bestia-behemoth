@@ -36,6 +36,7 @@ import net.bestia.worldgen.spawn.SpawnerStage
 import net.bestia.worldgen.spawn.VegetationStandStage
 import net.bestia.worldgen.geo.KnollStage
 import net.bestia.worldgen.dress.DressingStage
+import net.bestia.worldgen.stronghold.EmpyriteSeedStage
 import net.bestia.worldgen.treasure.TreasureStage
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.MarkerFeature
@@ -133,6 +134,9 @@ class StandardWorldTest {
         // Ready once history ran, and "treasure" sorts after "towns". Nothing reads a cache back.
         TreasureStage.ID,
         EconomyStage.ID,
+        // Ready once the POIs stand, because a seed keeps clear of them; "empyrite_seeds" then sorts after
+        // "economy". Nothing reads a seed back.
+        EmpyriteSeedStage.ID,
         // The navigation graph is the most derived thing in the pipeline: it reads the roads, the bridges,
         // the gates the town stage just placed and the cave mouths, so it cannot be ready until all of them
         // are. Nothing reads it back, which is why it can sit at the end without anything caring exactly

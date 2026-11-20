@@ -373,7 +373,10 @@ enum class FeatureKind(val defaultPriority: Int) {
   CEMETERY(688),
 
   /** A buried treasure cache at a history site. Geometry and attributes only. See `treasure/TreasureStage`. */
-  TREASURE_CACHE(690)
+  TREASURE_CACHE(690),
+
+  /** A spot where a guild can found a Stronghold. Geometry and attributes only. See `stronghold/EmpyriteSeedStage`. */
+  EMPYRITE_SEED(692)
 }
 
 /**
