@@ -1,6 +1,7 @@
 package net.bestia.zone.prose
 
 import net.bestia.zone.text.TextBrief
+import net.bestia.zone.text.WorldTexts
 
 /**
  * How a small model is asked for a text. The order is the one that worked: hard rules as the standing
@@ -24,9 +25,32 @@ object ProsePrompt {
   /** A higher temperature makes a small model invent titles and names. */
   val SAMPLING = LlmClient.Sampling(temperature = 0.6, topP = 0.85, maxTokens = 400, minP = 0.05, repeatPenalty = 1.08)
 
+  /**
+   * What is added to the task for a language other than English. The brief stays English: a brief in German
+   * made the model write worse German.
+   *
+   * @param withPlaceholder said only for a brief that has placeholders: on any other text the example makes
+   *   the model put braces around a name
+   */
+  private class Language(val note: String, val withPlaceholder: String)
+
+  private val LANGUAGES = mapOf(
+    "de" to Language(
+      note = "Write the text in German: natural, correct German, as a German writer would put it. " +
+        "Write each name of the ALLOWED NAMES list letter for letter; only its ending may follow the grammar. " +
+        "If the text speaks to somebody, it says \"du\".",
+      withPlaceholder = "Before the placeholder of a town write \"nach\", as in \"nach {town}\".",
+    ),
+  )
+
+  fun canWriteIn(locale: String): Boolean {
+    return locale == WorldTexts.FALLBACK_LOCALE || locale in LANGUAGES
+  }
+
   /** @param avoid what was wrong with the last try. The rejected text itself is never sent back: the model copies it. */
-  fun userMessage(brief: TextBrief, avoid: String? = null): String {
-    val allowed = brief.allowedNames.joinToString("\n") { "- ${it.name} (${it.what})" }
+  fun userMessage(brief: TextBrief, avoid: String? = null, locale: String = WorldTexts.FALLBACK_LOCALE): String {
+    val allowed = brief.allowedNames.joinToString("\n") { nameLine(it, locale) }
+    val language = LANGUAGES[locale]?.let { "\n${it.note}" + if (brief.placeholders.isEmpty()) "" else " ${it.withPlaceholder}" } ?: ""
     val facts = brief.facts.joinToString("\n") { "- $it" }
     val avoidBlock = avoid?.let { "\n\nAVOID\n$it" } ?: ""
     val placeholders = brief.placeholders.joinToString("") { "\n- ${it.token} stands for ${it.what}" }
@@ -34,7 +58,7 @@ object ProsePrompt {
 
     return """
       |TASK:
-      |${brief.task}
+      |${brief.task}$language
       |
       |ALLOWED NAMES (Use exact spelling, use NO other proper nouns):
       |$allowed$placeholderBlock
@@ -44,5 +68,11 @@ object ProsePrompt {
       |
       |Write the text now:
     """.trimMargin()
+  }
+
+  private fun nameLine(name: TextBrief.AllowedName, locale: String): String {
+    val local = name.inLocale[locale] ?: return "- ${name.name} (${name.what})"
+
+    return "- $local (the facts call it \"${name.name}\"; ${name.what})"
   }
 }
