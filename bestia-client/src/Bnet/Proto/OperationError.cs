@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrdLwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSr/LwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -161,9 +161,10 @@ namespace Bnet {
             "Q0tCT0FSRF9DQU5OT1RfQUZGT1JEEIIDEh0KGEJMQUNLQk9BUkRfUE9TVElO",
             "R19MSU1JVBCDAxIiCh1CTEFDS0JPQVJEX05PVEhJTkdfVE9fSEFORF9JThCE",
             "AxIhChxCTEFDS0JPQVJEX0hBTkRfSU5fRUxTRVdIRVJFEIUDEiIKHVNFVFRM",
-            "RU1FTlRfTkVBUl9FTVBZUklURV9TRUVEEIYDIgQILhAuKhJTSE9QX1RSRUFT",
-            "VVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRpb25F",
-            "cnJvclByb3RvYgZwcm90bzM="));
+            "RU1FTlRfTkVBUl9FTVBZUklURV9TRUVEEIYDEiAKG0NPTUJBVF9ORUVEU19H",
+            "VUlMRF9BUFBST1ZBTBCHAyIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwK",
+            "FW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1034,6 +1035,10 @@ namespace Bnet {
     /// An awake Empyrite Seed lies within 1 km. Strongholds keep their room.
     /// </summary>
     [pbr::OriginalName("SETTLEMENT_NEAR_EMPYRITE_SEED")] SettlementNearEmpyriteSeed = 390,
+    /// <summary>
+    /// The target is a guild structure, and only members of guilds with Official Guild Approval can harm those.
+    /// </summary>
+    [pbr::OriginalName("COMBAT_NEEDS_GUILD_APPROVAL")] CombatNeedsGuildApproval = 391,
   }
 
   #endregion

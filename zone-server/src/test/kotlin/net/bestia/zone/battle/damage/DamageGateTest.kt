@@ -8,6 +8,7 @@ import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.identity.ecs.GuildOwned
+import net.bestia.zone.skill.SkillId
 import net.bestia.zone.util.EntityId
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -107,15 +108,35 @@ class DamageGateTest {
   }
 
   @Test
-  fun `a guild's banner is safe from its own members and their bestias, not from other guilds`() {
+  fun `a guild's banner is safe from its own members and their bestias, even with Approval`() {
     val banner = world.createEntity { id -> add(id, GuildOwned(GUILD)) }
-    val member = player().also { world.add(it, GuildMembership(GUILD, taxPercent = 5)) }
+    val member = player().also { world.add(it, GuildMembership(GUILD, taxPercent = 5, skillLevels = APPROVED)) }
     val membersBestia = world.createEntity { id -> add(id, Account(accountId = member)) }
-    val enemy = player().also { world.add(it, GuildMembership(OTHER_GUILD, taxPercent = 5)) }
 
     assertEquals(DamageGate.Verdict.OWN, DamageGate.verdict(world, member, banner))
     assertEquals(DamageGate.Verdict.OWN, DamageGate.verdict(world, membersBestia, banner))
+  }
+
+  @Test
+  fun `another guild with Approval and its bestias may harm a guild structure`() {
+    val banner = world.createEntity { id -> add(id, GuildOwned(GUILD)) }
+    val enemy = player().also { world.add(it, GuildMembership(OTHER_GUILD, taxPercent = 5, skillLevels = APPROVED)) }
+    val enemysBestia = world.createEntity { id -> add(id, Account(accountId = enemy)) }
+
     assertEquals(DamageGate.Verdict.ADMITTED, DamageGate.verdict(world, enemy, banner))
+    assertEquals(DamageGate.Verdict.ADMITTED, DamageGate.verdict(world, enemysBestia, banner))
+  }
+
+  @Test
+  fun `a guild without Approval, a guildless master and a mob cannot harm a guild structure`() {
+    val banner = world.createEntity { id -> add(id, GuildOwned(GUILD)) }
+    val unapproved = player().also { world.add(it, GuildMembership(OTHER_GUILD, taxPercent = 5)) }
+    val guildless = player()
+    val mob = entity()
+
+    assertEquals(DamageGate.Verdict.UNAPPROVED, DamageGate.verdict(world, unapproved, banner))
+    assertEquals(DamageGate.Verdict.UNAPPROVED, DamageGate.verdict(world, guildless, banner))
+    assertEquals(DamageGate.Verdict.UNAPPROVED, DamageGate.verdict(world, mob, banner))
   }
 
   @Test
@@ -141,6 +162,7 @@ class DamageGateTest {
   private companion object {
     const val GUILD = 1L
     const val OTHER_GUILD = 2L
+    val APPROVED = mapOf(SkillId.OFFICIAL_GUILD_APPROVAL.name to 1)
 
     /** No entity has this id: the caster of a fire that outlived it. */
     const val GONE = 424_242L
