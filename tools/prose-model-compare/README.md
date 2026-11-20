@@ -19,3 +19,18 @@ What reading them showed:
   inside five texts.
 
 So the default model stays. The German errors come from the translation step, not from the size of the model.
+
+## German written at once
+
+Run `e4b-qat-direct`: E4B QAT, repeat penalty 1.05, each text four ways. Saved in
+`e4b-qat-q4_0-rp1.05-direct-german.txt`.
+
+| Way                                              | Avg per text | Defects in 20 texts                                           |
+| ------------------------------------------------ | ------------ | ------------------------------------------------------------- |
+| `de`: English text, then translated              | 23 s         | 3 grammar errors, about 8 wrong or odd words, a fire made up  |
+| `de-direct`: English brief, "write in German"    | 35 s         | no grammar error, 3 odd sentences, `{town}` misused once      |
+| `de-german-brief`: rules, task, facts in German  | 29 s         | 1 grammar error, "zu {town}" 12 times, `{town}` misused once  |
+
+Writing German at once from the English brief is clearly the best. It costs about 20 % more time for both
+languages together (34 s + 35 s instead of 34 s + 23 s). The validator cannot check it yet: it finds made-up
+names by words that are not English.
