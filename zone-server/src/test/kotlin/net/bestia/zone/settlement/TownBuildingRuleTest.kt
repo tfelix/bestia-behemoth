@@ -3,13 +3,19 @@ package net.bestia.zone.settlement
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.worldgen.civ.BuildingFunction
+import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.core.WorldConfig
+import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.prop.PlayerStructureRegistry
+import net.bestia.zone.prop.PropRestoration
 import net.bestia.zone.prop.StructureEntry
 import net.bestia.zone.settlement.persistence.PlayerSettlement
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.settlement.SettlementSite
+import net.bestia.zone.world.settlement.SettlementSiteIndex
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -21,6 +27,8 @@ class TownBuildingRuleTest {
   private val signAt = Vec3L(1000, 1000, 10)
   private val structures = mutableListOf<StructureEntry>()
   private var town: Town? = null
+  private var generatedTown: SettlementSite? = null
+  private val razedPropIds = mutableSetOf<Long>()
 
   private lateinit var rule: TownBuildingRule
 
@@ -41,7 +49,14 @@ class TownBuildingRuleTest {
       }
     }
 
-    rule = TownBuildingRule(towns, registry, worldService)
+    val generatedTowns = mockk<SettlementSiteIndex> {
+      every { siteCovering(any(), any()) } answers { generatedTown }
+    }
+    val restoration = mockk<PropRestoration> {
+      every { isDestroyed(any()) } answers { firstArg<Long>() in razedPropIds }
+    }
+
+    rule = TownBuildingRule(towns, registry, generatedTowns, restoration, worldService)
   }
 
   @Test
@@ -91,6 +106,55 @@ class TownBuildingRuleTest {
     assertEquals(OpError.STRUCTURE_TOO_FAR_FROM_TOWN, rule.refusal(StaticEntityKind.FORGE, signAt.plus(0, 100)))
   }
 
+  @Test
+  fun `a town structure near a generated building is allowed`() {
+    generatedTown = hamlet()
+
+    assertNull(rule.refusal(StaticEntityKind.FORGE, Vec3L(HOUSE_X + 20, 0, 10)))
+  }
+
+  @Test
+  fun `a town structure near a razed generated building is refused`() {
+    generatedTown = hamlet()
+    razedPropIds += HOUSE_PROP_ID
+
+    assertEquals(OpError.STRUCTURE_TOO_FAR_FROM_TOWN, rule.refusal(StaticEntityKind.FORGE, Vec3L(HOUSE_X + 20, 0, 10)))
+  }
+
+  @Test
+  fun `a player building in a generated town anchors the next one`() {
+    generatedTown = hamlet()
+    structures += structure(StaticEntityKind.FURNACE, Vec3L(HOUSE_X + 25, 0, 10))
+
+    assertNull(rule.refusal(StaticEntityKind.FORGE, Vec3L(HOUSE_X + 50, 0, 10)))
+  }
+
+  @Test
+  fun `beyond a generated town's footprint a player building anchors nothing`() {
+    structures += structure(StaticEntityKind.FURNACE, Vec3L(9000, 9000, 10))
+
+    assertEquals(OpError.STRUCTURE_NEEDS_SETTLEMENT, rule.refusal(StaticEntityKind.FORGE, Vec3L(9010, 9000, 10)))
+  }
+
+  private fun hamlet(): SettlementSite {
+    val house = SettlementSite.Building(
+      propId = HOUSE_PROP_ID,
+      function = BuildingFunction.RESIDENCE,
+      centre = Vec2d(HOUSE_X.toDouble(), 0.0),
+      door = Vec2d(HOUSE_X.toDouble(), 0.0),
+      floorElevation = 0.0,
+      businessType = SettlementSiteIndex.NO_BUSINESS,
+    )
+
+    return SettlementSite(
+      index = 1,
+      centre = Vec2d(0.0, 0.0),
+      tier = SettlementTier.HAMLET,
+      population = null,
+      unordered = listOf(house),
+    )
+  }
+
   private fun standingTown(): Town {
     return Town(
       id = 1L,
@@ -113,5 +177,10 @@ class TownBuildingRuleTest {
 
   private fun Vec3L.plus(dx: Long, dy: Long): Vec3L {
     return Vec3L(x + dx, y + dy, z)
+  }
+
+  private companion object {
+    const val HOUSE_X = 100L
+    const val HOUSE_PROP_ID = 500L
   }
 }
