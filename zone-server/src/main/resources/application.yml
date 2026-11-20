@@ -552,7 +552,7 @@ questgen:
 # boot until they are written, and removes the container again. Off, every text stays its template.
 prose:
   enabled: false
-  # English first; other languages are translated from it.
+  # English first: it is what a client without its own language shows.
   locales: [en, de]
   # The most time spent on one language over the life of a world. A restart does not start the clock again.
   cap-per-locale: 3h
