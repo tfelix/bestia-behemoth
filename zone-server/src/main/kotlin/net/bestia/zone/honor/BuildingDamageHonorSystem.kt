@@ -12,6 +12,7 @@ import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.honor.ecs.ChargedVandals
 import net.bestia.zone.identity.MasterEntityResolver
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.identity.ecs.GuildOwned
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
@@ -28,7 +29,8 @@ class BuildingDamageHonorSystem(
   override val after = setOf(ReceivedDamageSystem::class)
 
   override val reads: ComponentClassSet =
-    setOf(TakenDamage::class, Health::class, StaticVisual::class, PlayerStructureIdentity::class) + HonorService.READS
+    setOf(TakenDamage::class, Health::class, StaticVisual::class, PlayerStructureIdentity::class, GuildOwned::class) +
+      HonorService.READS
   override val writes: ComponentClassSet = setOf(ChargedVandals::class) + HonorService.WRITES
 
   override fun update(world: World, deltaTime: Float) {
@@ -38,7 +40,10 @@ class BuildingDamageHonorSystem(
       }
     }
     world.query(TakenDamage::class, Health::class, PlayerStructureIdentity::class).each { structure ->
-      chargeVandals(world, structure, get<TakenDamage>(), get<Health>())
+      // Guilds with Approval fight over guild structures by the rules of the Strongholds; it is no vandalism.
+      if (!world.has(structure, GuildOwned::class)) {
+        chargeVandals(world, structure, get<TakenDamage>(), get<Health>())
+      }
     }
   }
 

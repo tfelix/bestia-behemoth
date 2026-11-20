@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSr/LwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqSMQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -162,9 +162,12 @@ namespace Bnet {
             "R19MSU1JVBCDAxIiCh1CTEFDS0JPQVJEX05PVEhJTkdfVE9fSEFORF9JThCE",
             "AxIhChxCTEFDS0JPQVJEX0hBTkRfSU5fRUxTRVdIRVJFEIUDEiIKHVNFVFRM",
             "RU1FTlRfTkVBUl9FTVBZUklURV9TRUVEEIYDEiAKG0NPTUJBVF9ORUVEU19H",
-            "VUlMRF9BUFBST1ZBTBCHAyIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxMQiwK",
-            "FW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IG",
-            "cHJvdG8z"));
+            "VUlMRF9BUFBST1ZBTBCHAxIbChZTVFJPTkdIT0xEX05PVF9BTExPV0VEEIgD",
+            "EhwKF1NUUk9OR0hPTERfQUxSRUFEWV9IRUxEEIkDEhsKFlNUUk9OR0hPTERf",
+            "Tk9UX09OX0NPUkUQigMSHQoYU1RST05HSE9MRF9DQU5OT1RfQUZGT1JEEIsD",
+            "EhoKFUJVSUxEX05PVF9ZT1VSX0dVSUxEUxCMAyIECC4QLioSU0hPUF9UUkVB",
+            "U1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9u",
+            "RXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1039,6 +1042,26 @@ namespace Bnet {
     /// The target is a guild structure, and only members of guilds with Official Guild Approval can harm those.
     /// </summary>
     [pbr::OriginalName("COMBAT_NEEDS_GUILD_APPROVAL")] CombatNeedsGuildApproval = 391,
+    /// <summary>
+    /// Planting an Empyrite needs a rank that may use guild skills, in a guild with Official Guild Approval.
+    /// </summary>
+    [pbr::OriginalName("STRONGHOLD_NOT_ALLOWED")] StrongholdNotAllowed = 392,
+    /// <summary>
+    /// The guild already holds a Stronghold; any further one is won by capture.
+    /// </summary>
+    [pbr::OriginalName("STRONGHOLD_ALREADY_HELD")] StrongholdAlreadyHeld = 393,
+    /// <summary>
+    /// The planter must stand on the seed's core.
+    /// </summary>
+    [pbr::OriginalName("STRONGHOLD_NOT_ON_CORE")] StrongholdNotOnCore = 394,
+    /// <summary>
+    /// The planter does not carry the coins planting costs.
+    /// </summary>
+    [pbr::OriginalName("STRONGHOLD_CANNOT_AFFORD")] StrongholdCannotAfford = 395,
+    /// <summary>
+    /// The site belongs to a guild, and only its members may work on it.
+    /// </summary>
+    [pbr::OriginalName("BUILD_NOT_YOUR_GUILDS")] BuildNotYourGuilds = 396,
   }
 
   #endregion

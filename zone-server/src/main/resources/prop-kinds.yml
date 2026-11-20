@@ -421,6 +421,23 @@ kinds:
     collider: { half-x: 1, half-y: 1, height: 3 }
     variants: 1
 
+  # A Guild Stronghold's entities. The sprout cannot be harmed; the site's health ramps up to its max-hp as members
+  # work on it; the Empyrite's health comes from stronghold.empyrite-hp.
+  - kind: EMPYRITE_SEED
+    max-hp: 1
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+
+  - kind: EMPYRITE_SITE
+    max-hp: 5000
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1
+
+  - kind: EMPYRITE
+    max-hp: 1
+    collider: { half-x: 1, half-y: 1, height: 4 }
+    variants: 1
+
   - kind: STREET_STALL
     max-hp: 1
     collider: { half-x: 1, half-y: 1, height: 2 }

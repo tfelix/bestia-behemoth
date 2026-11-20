@@ -53,6 +53,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Breeding/BreedingFarmPanel.tscn" id="43_farm"]
 [ext_resource type="PackedScene" path="res://Game/UI/Breeding/IncubatorPanel.tscn" id="44_incubator"]
 [ext_resource type="PackedScene" path="res://Game/UI/BestiaOrders/BestiaOrdersPanel.tscn" id="45_orders"]
+[ext_resource type="Script" path="res://Game/UI/Stronghold/plant_empyrite_dialog.gd" id="96_plantemp"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -324,6 +325,9 @@ script = ExtResource("45_sensepopup")
 
 [node name="MessageDialog" parent="." unique_id=1957725178 instance=ExtResource("13_dialog")]
 oversampling_override = 1.0
+
+[node name="PlantEmpyriteDialog" type="ConfirmationDialog" parent="."]
+script = ExtResource("96_plantemp")
 
 [connection signal="equipment_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_equipment_win_toggled"]
 [connection signal="inventory_win_toggled" from="TopLeftColumn/MasterProfile" to="." method="_on_master_profile_inventory_win_toggled"]
