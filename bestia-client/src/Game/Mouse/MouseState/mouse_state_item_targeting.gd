@@ -31,6 +31,30 @@ var _snapped = null
 const _VALID_TINT := Color(0.4, 0.9, 0.4, 0.5)
 const _REFUSED_TINT := Color(0.95, 0.3, 0.3, 0.5)
 
+## Where the refusal text floats above the tile, in metres: above a storey-high ghost.
+const _REFUSAL_LABEL_HEIGHT := 3.5
+
+## Construction sites farther than this cannot be too close: a little past BuildingPlaces.WildSpacingMetres.
+const _SITE_REACH := 12.0
+
+## The verdict is worked out again this often on the same tile, since others build and tear down nearby.
+const _RECHECK_MS := 500
+
+## Whether the ghost is a kit's, which the building rules apply to.
+var _checks_placement := false
+
+## What the ghost shows now: an OpError name, or "" where it may go.
+var _shown_refusal: String = ""
+
+var _checked_tile = null
+var _checked_at_ms := 0
+
+var _refusal_label: Label3D = null
+var _refused_overlay: StandardMaterial3D = null
+
+## The scaffold colour of construction.gdshader where the kit may not go.
+const _REFUSED_GHOST := Color(0.95, 0.22, 0.18, 0.5)
+
 
 ## Whether this is a placement rather than a plain aim. The camera asks, so that the wheel turns the ghost
 ## instead of zooming - see MouseManager.is_placing.
@@ -48,6 +72,7 @@ func enter(mgr: MouseManager) -> void:
 	if ghost:
 		mgr.add_child(ghost)
 		ghost.visible = false
+		_start_placement_check()
 
 
 func exit(_mgr: MouseManager) -> void:
@@ -77,9 +102,12 @@ func process_state(mgr: MouseManager, _delta: float) -> void:
 	ghost.visible = true
 	# The centre of the tile it will actually be placed on, not the raw hit, so what the player sees is
 	# where it lands. See TileSpace.
-	var centre := TileSpace.tile_centre(TileSpace.world_to_tile(_last_ground_hit))
+	var tile := TileSpace.world_to_tile(_last_ground_hit)
+	var centre := TileSpace.tile_centre(tile)
 	ghost.global_position = Vector3(centre.x, _last_ground_hit.y, centre.z)
 	ghost.rotation.y = _yaw
+	_show_placement_verdict(tile)
+	_tint_ghost(ghost, _shown_refusal != "")
 
 
 func _place_snapped_ghost(mgr: MouseManager) -> void:
@@ -92,8 +120,10 @@ func _place_snapped_ghost(mgr: MouseManager) -> void:
 	# The ghost is drawn around the bottom centre of the piece's first cell, which is what turns with it.
 	ghost.global_position = _snapped["tile"] + Vector3(0.5, 0.0, 0.5)
 	ghost.rotation.y = _yaw
+	_show_placement_verdict(_snapped["tile"])
+	var may_build: bool = _snapped["valid"] and _shown_refusal == ""
 	if ghost.has_meta("piece_material"):
-		ghost.get_meta("piece_material").albedo_color = _VALID_TINT if _snapped["valid"] else _REFUSED_TINT
+		ghost.get_meta("piece_material").albedo_color = _VALID_TINT if may_build else _REFUSED_TINT
 
 
 func handle_input(_mgr: MouseManager, event: InputEvent) -> void:
@@ -135,6 +165,9 @@ func _try_confirm(mgr: MouseManager, event: InputEvent, click_position: Vector3,
 		"tile": TileSpace.world_to_tile(click_position),
 		"yaw": _yaw,
 	}
+	# The server would refuse it and say why in chat; the label already says so, and the ghost stays in hand.
+	if _shown_refusal != "":
+		return
 	if item_use.has_method("snap_ghost"):
 		if _snapped == null:
 			return
@@ -143,3 +176,82 @@ func _try_confirm(mgr: MouseManager, event: InputEvent, click_position: Vector3,
 	var consumed: bool = item_use.on_targeting_click(item, click_info)
 	if consumed:
 		mgr.enter_default()
+
+
+func _start_placement_check() -> void:
+	_shown_refusal = ""
+	_checked_tile = null
+	_checks_placement = item_use is StructureKitUse and item_use.kind >= 0
+	if not _checks_placement:
+		return
+
+	_refused_overlay = StandardMaterial3D.new()
+	_refused_overlay.albedo_color = _REFUSED_TINT
+	_refused_overlay.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_refused_overlay.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+
+	_refusal_label = Label3D.new()
+	_refusal_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_refusal_label.no_depth_test = true
+	_refusal_label.fixed_size = true
+	_refusal_label.pixel_size = 0.0012
+	_refusal_label.font_size = 34
+	_refusal_label.outline_size = 10
+	_refusal_label.modulate = Color(1.0, 0.85, 0.85)
+	_refusal_label.outline_modulate = Color(0.35, 0.0, 0.0)
+	_refusal_label.width = 560.0
+	_refusal_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_refusal_label.position = Vector3(0.0, _REFUSAL_LABEL_HEIGHT, 0.0)
+	_refusal_label.visible = false
+	ghost.add_child(_refusal_label)
+
+
+func _show_placement_verdict(tile: Vector3) -> void:
+	if not _checks_placement:
+		return
+
+	var now := Time.get_ticks_msec()
+	if tile == _checked_tile and now - _checked_at_ms < _RECHECK_MS:
+		return
+	_checked_tile = tile
+	_checked_at_ms = now
+	_shown_refusal = _placement_refusal(tile)
+
+	_refusal_label.visible = _shown_refusal != ""
+	if _refusal_label.visible:
+		_refusal_label.text = tr("ERROR_%s" % _shown_refusal.to_upper())
+
+
+## Every mesh of the ghost, since a station's art may be several meshes deep. A construction ghost turns its
+## own scaffold red; any other mesh gets a red overlay.
+func _tint_ghost(node: Node, refused: bool) -> void:
+	if node is GeometryInstance3D and not node is Label3D:
+		var scaffold := node.material_override as ShaderMaterial
+		if scaffold != null and _has_uniform(scaffold, "ghost_color"):
+			# null drops the override, so the shader's own green comes back.
+			scaffold.set_shader_parameter("ghost_color", _REFUSED_GHOST if refused else null)
+		else:
+			node.material_overlay = _refused_overlay if refused else null
+	for child in node.get_children():
+		_tint_ghost(child, refused)
+
+
+func _has_uniform(material: ShaderMaterial, uniform_name: String) -> bool:
+	return material.shader != null and material.shader.get_shader_uniform_list().any(
+		func(uniform: Dictionary) -> bool: return uniform["name"] == uniform_name
+	)
+
+
+## The building rules applied here from what this client holds, so the ghost needs no round trip. The server
+## still decides when the kit is used.
+func _placement_refusal(tile: Vector3) -> String:
+	var entities := EntityManager.get_instance()
+	var chunk_stream = ConnectionManager.chunk_stream
+	if entities == null or chunk_stream == null:
+		return ""
+
+	var master: Entity = entities.get_entity(entities.get_owned_master_entity_id())
+	var place: PlaceComponentSMSG = master.get_place() if master != null else null
+	var sites := entities.construction_sites_near(tile, _SITE_REACH)
+
+	return chunk_stream.PlacementRefusal(item_use.kind, tile, entities.get_owned_master_id(), place, sites)

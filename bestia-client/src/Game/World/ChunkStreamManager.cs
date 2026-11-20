@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using BestiaBehemothClient.Bnet.Message;
+using BestiaBehemothClient.Bnet.Message.Entity;
 using BestiaBehemothClient.Bnet.Message.Map;
 using BestiaBehemothClient.Game.World.Mesh;
 using Godot;
@@ -1036,6 +1037,57 @@ namespace BestiaBehemothClient.Game.World
         WalkRules.Step.Refused => float.NaN,
         _ => float.PositiveInfinity
       };
+    }
+
+    /// <summary>
+    /// The <c>OpError</c> name that refuses a kit of <paramref name="kind"/> at <paramref name="tile"/>, or "" where
+    /// it may go - see <see cref="BuildingPlaces"/>. In Godot's axes like <see cref="SnapStructure"/>.
+    /// </summary>
+    /// <param name="place">The builder's place, which says whether they stand in a settlement and where it ends.</param>
+    /// <param name="sites">
+    /// Construction sites near the tile, each <c>{"tile": Vector3, "owner": int}</c>. They are entities, not part of
+    /// the static batches this manager holds.
+    /// </param>
+    public string PlacementRefusal(
+      int kind, Vector3 tile, long builderMasterId, PlaceComponentSMSG place, Godot.Collections.Array sites)
+    {
+      BuildingPlaces.Settlement? settlement = place is { InSettlement: true }
+        ? new BuildingPlaces.Settlement(place.SettlementCentre, place.SettlementRadius)
+        : null;
+
+      return BuildingPlaces.RefusalAt(kind, tile, builderMasterId, settlement, NeighboursOf(tile, sites));
+    }
+
+    private IEnumerable<BuildingPlaces.Neighbour> NeighboursOf(Vector3 tile, Godot.Collections.Array sites)
+    {
+      var reach = Mathf.CeilToInt(BuildingPlaces.AnchorRangeMetres);
+      var firstX = Mathf.FloorToInt((tile.X - reach) / WorldLayout.ChunkSize);
+      var lastX = Mathf.FloorToInt((tile.X + reach) / WorldLayout.ChunkSize);
+      var firstY = Mathf.FloorToInt((tile.Z - reach) / WorldLayout.ChunkSize);
+      var lastY = Mathf.FloorToInt((tile.Z + reach) / WorldLayout.ChunkSize);
+
+      for (var x = firstX; x <= lastX; x++)
+      {
+        for (var y = firstY; y <= lastY; y++)
+        {
+          if (!_staticBatches.TryGetValue(new ChunkKey(x, y, 0), out var batch))
+          {
+            continue;
+          }
+
+          foreach (var entry in batch.Entries)
+          {
+            yield return new BuildingPlaces.Neighbour(entry.Kind, entry.Position, entry.OwnerMasterId, IsFinished: true);
+          }
+        }
+      }
+
+      foreach (var site in sites)
+      {
+        var fields = site.AsGodotDictionary();
+        yield return new BuildingPlaces.Neighbour(
+          Kind: -1, fields["tile"].AsVector3(), fields["owner"].AsInt64(), IsFinished: false);
+      }
     }
 
     /// <summary>
