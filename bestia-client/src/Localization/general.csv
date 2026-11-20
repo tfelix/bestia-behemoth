@@ -1149,6 +1149,7 @@ ERROR_BLACKBOARD_HAND_IN_ELSEWHERE,This town did not ask for it. Bring it to the
 ERROR_STRUCTURE_NEEDS_SETTLEMENT,This can only be built in a town.
 ERROR_STRUCTURE_TOO_FAR_FROM_TOWN,Build closer to the city sign or to a building of this town.
 ERROR_STRUCTURE_TOO_CLOSE,Too close to another player's structure.
+TOWN_BANNER_ENTERING,Entering
 QUEST_DELIVER_TEXT,"Bring {amount} {item} to any blackboard. {poster} pays {pay} gold for each."
 QUEST_LOG_EMPTY,Your quest log is empty. Sign a quest at a blackboard in town.
 QUEST_LOG_GROUP_BLACKBOARD,Blackboard
