@@ -9,18 +9,33 @@ import net.bestia.zone.text.WorldTexts
  */
 object ProsePrompt {
 
-  val SYSTEM = """
-    You are an in-world writer of short lore texts for a fantasy game: chronicles, grave stones, legends, sayings.
-    Your highest priority is strict factual accuracy based ONLY on the provided FACT SHEET.
+  /**
+   * The placeholder rule is said only for a brief that has placeholders. As a rule for every text it made the
+   * model put braces around real names. In the task, next to the list, it made the model use `{town}` for
+   * every town of the text.
+   */
+  fun system(brief: TextBrief): String {
+    val rules = listOfNotNull(
+      "ALLOWED PROPER NOUNS ONLY: You may ONLY use proper nouns listed in the ALLOWED NAMES list. Never invent names of people, places, gods, ranks, or titles (do NOT use words like King, Lord, General, or Emperor unless they appear in the ALLOWED NAMES list).",
+      "NUMBERS & YEARS: Write all years and numbers strictly as digits (e.g., 901, 406), never as words. Use ONLY numbers present in the FACT SHEET.",
+      "ALLOWED CREATIVITY: You may describe weather, emotions, landscape, and unnamed soldiers/crowds to create atmosphere.",
+      "STYLE: Write in simple, archaic prose. Avoid modern words.",
+      PLACEHOLDER_RULE.takeIf { brief.placeholders.isNotEmpty() },
+      "OUTPUT FORMAT: Output ONLY the final text, in the length and shape the TASK asks. Do NOT include a title, intro, notes, or markdown formatting.",
+    )
 
-    STRICT VALIDATOR RULES:
-    1. ALLOWED PROPER NOUNS ONLY: You may ONLY use proper nouns listed in the ALLOWED NAMES list. Never invent names of people, places, gods, ranks, or titles (do NOT use words like King, Lord, General, or Emperor unless they appear in the ALLOWED NAMES list).
-    2. NUMBERS & YEARS: Write all years and numbers strictly as digits (e.g., 901, 406), never as words. Use ONLY numbers present in the FACT SHEET.
-    3. ALLOWED CREATIVITY: You may describe weather, emotions, landscape, and unnamed soldiers/crowds to create atmosphere.
-    4. STYLE: Write in simple, archaic prose. Avoid modern words.
-    5. PLACEHOLDERS: A word in curly braces, like {town}, is a placeholder. The game puts a real name there later. When the task has a PLACEHOLDERS list, write each one exactly as listed, with the braces, at the place in the sentence where that name belongs (for example "the road to {town}"). Never change, translate or explain a placeholder, and never make up one.
-    6. OUTPUT FORMAT: Output ONLY the final text, in the length and shape the TASK asks. Do NOT include a title, intro, notes, or markdown formatting.
-  """.trimIndent()
+    return """
+      |You are an in-world writer of short lore texts for a fantasy game: chronicles, grave stones, legends, sayings.
+      |Your highest priority is strict factual accuracy based ONLY on the provided FACT SHEET.
+      |
+      |STRICT VALIDATOR RULES:
+      |${rules.withIndex().joinToString("\n") { (index, rule) -> "${index + 1}. $rule" }}
+    """.trimMargin()
+  }
+
+  private const val PLACEHOLDER_RULE = "PLACEHOLDERS: A word in curly braces, like {town}, is a placeholder. The game puts a real name there later. " +
+    "When the task has a PLACEHOLDERS list, write each one exactly as listed, with the braces, at the place in the sentence " +
+    "where that name belongs (for example \"the road to {town}\"). Never change, translate or explain a placeholder, and never make up one."
 
   /**
    * A higher temperature makes a small model invent titles and names. With no repeat penalty it says the same

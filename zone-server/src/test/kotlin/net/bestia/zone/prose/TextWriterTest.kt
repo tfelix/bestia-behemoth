@@ -64,6 +64,18 @@ class TextWriterTest {
   }
 
   @Test
+  fun `braces around a real name are taken off, and the placeholder rule is only said for a placeholder`() {
+    val llm = ScriptedLlm("Here lies {Orwen}, 712-780.")
+
+    val written = writer.write(brief, llm)
+
+    assertEquals("Here lies Orwen, 712-780." to 1, written.body to written.attempts)
+    assertFalse("{town}" in ProsePrompt.system(brief))
+    val withPlaceholder = brief.copy(placeholders = listOf(TextBrief.Placeholder("town", "the town to go to")))
+    assertTrue("5. PLACEHOLDERS" in ProsePrompt.system(withPlaceholder) && "6. OUTPUT FORMAT" in ProsePrompt.system(withPlaceholder))
+  }
+
+  @Test
   fun `a text the model never gets right is given up`() {
     val llm = ScriptedLlm("Eldoria.", "Eldoria.", "Eldoria.")
 
