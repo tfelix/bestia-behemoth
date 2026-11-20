@@ -7,6 +7,7 @@ import net.bestia.zone.prose.TextWriter
 import net.bestia.zone.prose.host.DockerLlmHost
 import net.bestia.zone.questgen.text.NewsOfferTextSource
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable
 import org.springframework.util.unit.DataSize
 import kotlin.time.measureTimedValue
@@ -21,6 +22,8 @@ import kotlin.time.measureTimedValue
  * needs more than the default, `PROSE_MEMORY_GB`. Each text is printed with the seconds it took.
  */
 @EnabledIfEnvironmentVariable(named = "PROSE_REAL", matches = "true")
+// A CI runner has no memory for the model, whatever its variables say.
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class NewsTextsManualTest {
 
   /** Answers with another repeat penalty than the job asks for, and counts the time spent in the model. */
