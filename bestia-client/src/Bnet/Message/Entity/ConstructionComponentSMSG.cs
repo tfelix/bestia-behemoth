@@ -19,6 +19,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export] public bool Active { get; set; }
     [Export] public bool Removed { get; set; }
 
+    /// <summary>The master building it.</summary>
+    [Export] public long OwnerMasterId { get; set; }
+
     /// <summary>How much of the work is done, 0 to 1.</summary>
     public float Progress =>
       TotalSeconds > 0f ? Mathf.Clamp((TotalSeconds - RemainingSeconds) / TotalSeconds, 0f, 1f) : 1f;
@@ -31,7 +34,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         RemainingSeconds = proto.RemainingSeconds,
         TotalSeconds = proto.TotalSeconds,
         Active = proto.Active,
-        Removed = proto.Removed
+        Removed = proto.Removed,
+        OwnerMasterId = (long)proto.OwnerMasterId
       };
     }
 

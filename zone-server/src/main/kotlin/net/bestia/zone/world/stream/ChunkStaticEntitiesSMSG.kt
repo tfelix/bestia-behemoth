@@ -26,6 +26,7 @@ data class ChunkStaticEntitiesSMSG(
    *   `prop-kinds.yml`. Nonzero only for a building, whose size is decided by the lot it stands on.
    * @property halfWidthDm the same across the facing; travels with [halfLengthDm] or not at all
    * @property growth how far a removed tree has grown back; [GrowthStage.GROWN] for everything else
+   * @property ownerMasterId the master who built it, or 0 for anything the generator placed
    */
   data class Entry(
     val entityId: Long,
@@ -38,7 +39,8 @@ data class ChunkStaticEntitiesSMSG(
     val yawCentiradians: Int,
     val halfLengthDm: Int = 0,
     val halfWidthDm: Int = 0,
-    val growth: GrowthStage = GrowthStage.GROWN
+    val growth: GrowthStage = GrowthStage.GROWN,
+    val ownerMasterId: Long = 0
   )
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -59,6 +61,7 @@ data class ChunkStaticEntitiesSMSG(
           .setHalfLengthDm(entry.halfLengthDm)
           .setHalfWidthDm(entry.halfWidthDm)
           .setGrowthValue(entry.growth.ordinal)
+          .setOwnerMasterId(entry.ownerMasterId)
           .build()
       )
     }

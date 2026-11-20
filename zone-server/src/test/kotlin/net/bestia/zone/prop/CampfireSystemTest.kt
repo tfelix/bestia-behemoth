@@ -75,7 +75,7 @@ class CampfireSystemTest {
 
   private fun givenLoaded(fire: StructureEntry, variant: Int): EntityId {
     return world.createEntity { id ->
-      add(id, PlayerStructureIdentity(fire.id, 1L))
+      add(id, PlayerStructureIdentity(fire.id, 1L, 1L))
       add(id, StaticVisual(StaticEntityKind.CAMPFIRE, variant = variant, heightDm = 10))
     }
   }

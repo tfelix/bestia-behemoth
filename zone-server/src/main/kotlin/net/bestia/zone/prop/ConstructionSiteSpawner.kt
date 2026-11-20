@@ -38,7 +38,7 @@ class ConstructionSiteSpawner {
       add(id, Health(current = ConstructionSite.START_HP, max = ConstructionSite.START_HP))
       // The same baseline, for the same reason, that `PropPromotionService` gives a tree it makes attackable.
       add(id, CombatStats(CombatValues.OBJECT_BASELINE))
-      add(id, PlayerStructureIdentity(entry.id, entry.ownerAccountId))
+      add(id, PlayerStructureIdentity(entry.id, entry.ownerAccountId, entry.ownerMasterId))
       add(
         id,
         ConstructionSite(

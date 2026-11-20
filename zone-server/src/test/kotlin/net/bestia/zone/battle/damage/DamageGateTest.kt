@@ -65,7 +65,7 @@ class DamageGateTest {
 
   @Test
   fun `a warded station cannot be knocked down by a player`() {
-    val workbench = entity(shield = HarmShield.PLAYERS).also { world.add(it, PlayerStructureIdentity(structureId = 7L, ownerAccountId = 70L)) }
+    val workbench = entity(shield = HarmShield.PLAYERS).also { world.add(it, PlayerStructureIdentity(structureId = 7L, ownerAccountId = 70L, ownerMasterId = 1L)) }
 
     assertEquals(DamageGate.Verdict.WARDED, DamageGate.verdict(world, player(), workbench))
   }
@@ -81,7 +81,7 @@ class DamageGateTest {
   fun `nothing harms what its own account owns`() {
     val master = player()
     val bestia = entity().also { world.add(it, Account(accountId = master)) }
-    val workbench = entity().also { world.add(it, PlayerStructureIdentity(structureId = 7L, ownerAccountId = master)) }
+    val workbench = entity().also { world.add(it, PlayerStructureIdentity(structureId = 7L, ownerAccountId = master, ownerMasterId = 1L)) }
 
     assertEquals(DamageGate.Verdict.OWN, DamageGate.verdict(world, master, bestia))
     assertEquals(DamageGate.Verdict.OWN, DamageGate.verdict(world, bestia, master))

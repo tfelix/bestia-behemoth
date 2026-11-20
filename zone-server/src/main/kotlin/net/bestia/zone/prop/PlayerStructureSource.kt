@@ -84,7 +84,8 @@ class PlayerStructureSource(
       heightDm = (spec.collider.height * 10).toInt(),
       yaw = entry.yaw,
       structureId = entry.id,
-      ownerAccountId = entry.ownerAccountId
+      ownerAccountId = entry.ownerAccountId,
+      ownerMasterId = entry.ownerMasterId
     )
   }
 

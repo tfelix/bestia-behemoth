@@ -117,7 +117,7 @@ class AuctionHouseInteractionTest {
 
     return world.createEntity { id ->
       add(id, PropPose(hallAt, yaw = 0f))
-      add(id, PlayerStructureIdentity(OWNED.structureId, 7L))
+      add(id, PlayerStructureIdentity(OWNED.structureId, 7L, 1L))
       add(id, StaticVisual(StaticEntityKind.AUCTION_HOUSE, variant = 0, heightDm = 40, halfLengthDm = 80, halfWidthDm = 60))
     }
   }

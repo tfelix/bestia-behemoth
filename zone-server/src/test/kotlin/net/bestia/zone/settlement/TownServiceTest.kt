@@ -73,7 +73,7 @@ class TownServiceTest {
 
     val playerStructures = mockk<PlayerStructureService>()
     every { playerStructures.beginConstruction(any(), StaticEntityKind.CITY_SIGN, any(), any(), any(), any(), any()) } answers {
-      world.createEntity { id -> add(id, PlayerStructureIdentity(siteStructureId, accountId)) }
+      world.createEntity { id -> add(id, PlayerStructureIdentity(siteStructureId, accountId, 1L)) }
     }
 
     val spot = mockk<FoundingSpot> { every { isFree(any()) } returns true }

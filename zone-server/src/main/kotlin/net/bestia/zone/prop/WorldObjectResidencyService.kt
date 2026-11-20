@@ -219,6 +219,7 @@ class WorldObjectResidencyService(
         for (id in ids) {
           val pose = get(id, PropPose::class) ?: continue
           val visual = get(id, StaticVisual::class) ?: continue
+          val owner = get(id, PlayerStructureIdentity::class)
 
           entries.add(
             ChunkStaticEntitiesSMSG.Entry(
@@ -232,7 +233,8 @@ class WorldObjectResidencyService(
               yawCentiradians = Math.round(pose.yaw * 100f),
               halfLengthDm = visual.halfLengthDm,
               halfWidthDm = visual.halfWidthDm,
-              growth = visual.growth
+              growth = visual.growth,
+              ownerMasterId = owner?.ownerMasterId ?: 0L
             )
           )
         }
@@ -379,7 +381,7 @@ class WorldObjectResidencyService(
       add(id, PropVitality(Math.round(spec.maxHp * size).toInt().coerceAtLeast(1)))
       add(id, WorldObjectIdentity(site.propId, latticeVersion))
       // Only for something a player built, so a tree carries no half-empty second identity.
-      if (site.structureId != 0L) add(id, PlayerStructureIdentity(site.structureId, site.ownerAccountId))
+      if (site.structureId != 0L) add(id, PlayerStructureIdentity(site.structureId, site.ownerAccountId, site.ownerMasterId))
       if (site.kind == StaticEntityKind.CHEST) chests.furnish(this, id, site.structureId)
       add(id, StaticSync)
     }

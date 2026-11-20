@@ -184,7 +184,7 @@ class InteractEntityHandlerTest {
     val workbench = world.createEntity { id ->
       add(id, PropPose(standingAt, yaw = 0f))
       add(id, StaticVisual(StaticEntityKind.WORKBENCH, variant = 0, heightDm = 40))
-      add(id, PlayerStructureIdentity(7L, ownerAccountId = 70L))
+      add(id, PlayerStructureIdentity(7L, ownerAccountId = 70L, ownerMasterId = 1L))
     }
 
     handler.handle(world, interactWith(workbench))
@@ -197,7 +197,7 @@ class InteractEntityHandlerTest {
     val chest = world.createEntity { id ->
       add(id, PropPose(standingAt, yaw = 0f))
       add(id, StaticVisual(StaticEntityKind.CHEST, variant = 0, heightDm = 8))
-      add(id, PlayerStructureIdentity(8L, ownerAccountId = accountId))
+      add(id, PlayerStructureIdentity(8L, ownerAccountId = accountId, ownerMasterId = 1L))
     }
 
     handler.handle(world, interactWith(chest))

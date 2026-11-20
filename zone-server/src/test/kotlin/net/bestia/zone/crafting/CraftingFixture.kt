@@ -173,7 +173,7 @@ class CraftingFixture(
       StructureEntry(structureId, kind, MASTER_ID, ACCOUNT_ID, Vec3L(0, 0, 0), yaw = 0f)
     }
 
-    return world.createEntity { id -> add(id, PlayerStructureIdentity(structureId, ACCOUNT_ID)) }
+    return world.createEntity { id -> add(id, PlayerStructureIdentity(structureId, ACCOUNT_ID, 1L)) }
   }
 
   /**

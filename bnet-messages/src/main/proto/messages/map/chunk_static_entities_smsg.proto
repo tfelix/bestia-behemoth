@@ -103,6 +103,9 @@ message ChunkStaticEntitiesSMSG {
      * that was never removed, so it costs nothing on the wire.
      */
     GrowthStage growth = 11;
+
+    /** The master who built it, so a client can tell its own structures from others'. 0 for anything generated. */
+    uint64 owner_master_id = 12;
   }
 
   repeated Entry entries = 2;
