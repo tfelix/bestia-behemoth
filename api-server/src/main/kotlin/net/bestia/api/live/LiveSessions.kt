@@ -54,6 +54,11 @@ class LiveSessions(private val metrics: LiveMetrics, registry: MeterRegistry) {
     return byAccount[accountId]?.isNotEmpty() == true
   }
 
+  /** Every account with a socket open on this instance. A snapshot. */
+  fun accountIds(): List<Long> {
+    return byAccount.keys.toList()
+  }
+
   fun send(accountId: Long, frame: Any) {
     val sockets = byAccount[accountId] ?: return
     val text = TextMessage(mapper.writeValueAsString(frame))

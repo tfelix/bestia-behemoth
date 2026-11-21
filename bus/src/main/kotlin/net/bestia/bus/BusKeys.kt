@@ -29,6 +29,11 @@ object BusKeys {
     return "dir:account:$accountId"
   }
 
+  /** Set while an api-server holds an open companion socket of [accountId]. */
+  fun appOpen(accountId: Long): String {
+    return "app:account:$accountId"
+  }
+
   fun idempotency(accountId: Long, key: String): String {
     return "bus:idem:$accountId:$key"
   }

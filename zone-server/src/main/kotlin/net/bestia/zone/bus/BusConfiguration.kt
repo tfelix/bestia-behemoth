@@ -2,8 +2,10 @@ package net.bestia.zone.bus
 
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
+import net.bestia.bus.AppPresence
 import net.bestia.bus.Directory
 import net.bestia.bus.EventPublisher
+import net.bestia.bus.valkey.ValkeyAppPresence
 import net.bestia.bus.valkey.ValkeyDirectory
 import net.bestia.bus.valkey.ValkeyEventPublisher
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -27,6 +29,11 @@ class BusConfiguration(private val properties: BusProperties) {
   @Bean(destroyMethod = "close")
   fun busDirectory(busClient: RedisClient): Directory {
     return ValkeyDirectory(busClient)
+  }
+
+  @Bean(destroyMethod = "close")
+  fun busAppPresence(busClient: RedisClient): AppPresence {
+    return ValkeyAppPresence(busClient)
   }
 
   @Bean(destroyMethod = "close")
