@@ -27,6 +27,7 @@ ERROR_CHAT_COMMAND_UNKNOWN,There is no such command. Type /help to see the ones 
 ERROR_CHAT_COMMAND_FAILED,That command went wrong and did nothing.
 ERROR_COMBAT_TARGET_WARDED,A ward stone's magic keeps you from harming them.
 ERROR_COMBAT_NEEDS_GUILD_APPROVAL,Only a guild with Official Guild Approval can harm a guild's structures.
+ERROR_COMBAT_OUTSIDE_ATTACK_WINDOW,A Stronghold can only be attacked during its attack windows.
 ERROR_STRONGHOLD_NOT_ALLOWED,Only a member whose rank may use guild skills can plant an Empyrite, and only for a guild with Official Guild Approval.
 ERROR_STRONGHOLD_ALREADY_HELD,Your guild already holds a Stronghold. Any further one must be captured.
 ERROR_STRONGHOLD_NOT_ON_CORE,Stand right at the sprout to plant the Empyrite.
