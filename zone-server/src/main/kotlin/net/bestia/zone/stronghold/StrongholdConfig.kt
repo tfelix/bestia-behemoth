@@ -30,6 +30,13 @@ data class StrongholdConfig(
   val empyriteDefense: Int = 20,
   /** A Stronghold's grounds around its Empyrite, in metres. Guild skills that need the Stronghold work inside. */
   val groundsRadiusMetres: Double = 500.0,
+  /** What each Defense level adds to the Empyrite. */
+  val empyriteHpPerDefense: Int = 10_000,
+  val empyriteDefensePerLevel: Int = 4,
+  /** One step towards a track's next level costs this many coins times that level. */
+  val stepCoinsPerLevel: Long = 20_000,
+  /** With Permanent Development, the chance that a step counts twice. */
+  val doubleStepChance: Double = 0.5,
   /** After a capture, the new Empyrite cannot be harmed for this long. */
   val captureGraceMinutes: Long = 10,
   /** Weekly spans such as `SATURDAY 18:00-22:00` in which Strongholds can be attacked. Empty: always. */
@@ -52,6 +59,9 @@ data class StrongholdConfig(
     require(empyriteDefense >= 0) { "stronghold.empyrite-defense must not be negative, was $empyriteDefense" }
     require(groundsRadiusMetres > 0.0) { "stronghold.grounds-radius-metres must be positive, was $groundsRadiusMetres" }
     require(captureGraceMinutes >= 0) { "stronghold.capture-grace-minutes must not be negative" }
+    require(empyriteHpPerDefense >= 0 && empyriteDefensePerLevel >= 0) { "Defense must not weaken the Empyrite" }
+    require(stepCoinsPerLevel >= 0) { "stronghold.step-coins-per-level must not be negative, was $stepCoinsPerLevel" }
+    require(doubleStepChance in 0.0..1.0) { "stronghold.double-step-chance must lie in 0..1, was $doubleStepChance" }
     // Parsed here as well as where they are used, so a typo stops the boot rather than the first siege.
     AttackWindows.of(this)
   }
