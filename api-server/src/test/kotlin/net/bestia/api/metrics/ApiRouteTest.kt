@@ -19,6 +19,7 @@ class ApiRouteTest {
       "/v1/companion/masters/5/inventory" to ApiRoute.MASTERS,
       "/v1/companion/masters/5/map/../bestias" to ApiRoute.MASTERS,
       "/v1/companion/masters/5/chat" to ApiRoute.CHAT,
+      "/v1/companion/masters/5/chat/whisper" to ApiRoute.CHAT,
       "/v1/companion/masters/5/letters" to ApiRoute.LETTERS,
       "/v1/companion/masters/5/letters/9/read" to ApiRoute.LETTERS,
       "/v1/companion/masters/5/parcels" to ApiRoute.PARCELS,

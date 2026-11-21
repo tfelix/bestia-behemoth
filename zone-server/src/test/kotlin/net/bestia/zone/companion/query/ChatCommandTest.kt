@@ -11,6 +11,7 @@ import net.bestia.zone.account.persistence.LearnedSkillRepository
 import net.bestia.zone.account.persistence.Master
 import net.bestia.zone.chat.ChatType
 import net.bestia.zone.chat.GroupChat
+import net.bestia.zone.chat.WhisperChat
 import net.bestia.zone.identity.GroupMember
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.guild.GuildAudience
@@ -25,7 +26,7 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
 
-/** Party and guild chat from the app keeps every rule the game's own chat has. */
+/** Party and guild chat and whispers from the app keep every rule the game's own chat has. */
 class ChatCommandTest {
 
   private val owned = mockk<OwnedMasters>()
@@ -33,6 +34,7 @@ class ChatCommandTest {
   private val partyAudience = mockk<PartyAudience>()
   private val guildAudience = mockk<GuildAudience>()
   private val groupChat = mockk<GroupChat>(relaxed = true)
+  private val whisperChat = mockk<WhisperChat>()
 
   /** Runs IO work at once, as if the account's inbox had nothing else queued. */
   private val inbox = object : AccountTaskExecutor {
@@ -51,13 +53,16 @@ class ChatCommandTest {
   }
 
   private val command = ChatCommand(
-    owned, MasterBasicSkill(skillGate, sessions, skillTree, learnedSkills), partyAudience, guildAudience, groupChat, inbox,
+    owned, MasterBasicSkill(skillGate, sessions, skillTree, learnedSkills), partyAudience, guildAudience, groupChat, whisperChat, inbox,
   )
 
   private val master = mockk<Master> { every { name } returns "Ayla" }
 
   private fun send(channel: String = "PARTY", text: String = "on my way") =
     command.send("c", ACCOUNT, ZoneQuery.SendChat(MASTER, channel, text))
+
+  private fun whisper(target: String = "Bren", text: String = "psst") =
+    command.whisper("c", ACCOUNT, ZoneQuery.SendWhisper(MASTER, target, text))
 
   private fun givenMaySpeak() {
     every { owned.find(ACCOUNT, MASTER) } returns master
@@ -150,6 +155,36 @@ class ChatCommandTest {
     send(text = "on my\u202E way")
 
     verify { groupChat.deliver(ChatType.PARTY, "Ayla", "on my way", MEMBERS) }
+  }
+
+  @Test
+  fun `a whisper from the app goes out as the master`() {
+    givenMaySpeak()
+    every { whisperChat.deliver(master, "Bren", "psst") } returns true
+
+    assertEquals(ZoneAnswer.ChatSent(null), whisper(target = " Bren ").answer)
+  }
+
+  @Test
+  fun `a whisper with nowhere to go is refused`() {
+    givenMaySpeak()
+    every { whisperChat.deliver(master, "Bren", "psst") } returns false
+
+    assertEquals(ZoneAnswer.ChatSent(ZoneAnswer.ChatSent.TARGET_UNAVAILABLE), whisper().answer)
+  }
+
+  @Test
+  fun `a whisper needs the chat rank too`() {
+    every { owned.find(ACCOUNT, MASTER) } returns master
+    givenStoredRank(1)
+
+    assertEquals(ZoneAnswer.ChatSent(ZoneAnswer.ChatSent.CHAT_LOCKED), whisper().answer)
+    verify(exactly = 0) { whisperChat.deliver(any(), any(), any()) }
+  }
+
+  @Test
+  fun `a whisper to no name is refused`() {
+    assertEquals(Status.INVALID, whisper(target = "  ").status)
   }
 
   private companion object {

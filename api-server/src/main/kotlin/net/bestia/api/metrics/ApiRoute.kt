@@ -61,7 +61,7 @@ enum class ApiRoute {
         rest.startsWith("push/") -> PUSH
         rest == "ws" -> WS
         rest.startsWith("masters") -> when {
-          rest.endsWith("/chat") -> CHAT
+          rest.endsWith("/chat") || rest.endsWith("/chat/whisper") -> CHAT
           rest.endsWith("/orders") -> ORDERS
           rest.contains("/letters") -> LETTERS
           rest.endsWith("/parcels") -> PARCELS

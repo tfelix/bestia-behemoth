@@ -427,6 +427,24 @@ class ApiServerScenarioTest : ApiScenarioTestBase() {
     assertEquals(403, post("/v1/companion/masters/5/chat", line, accountId = 50, idempotencyKey = UUID.randomUUID().toString()).statusCode.value())
   }
 
+  @Test
+  fun `a whisper from the app is said in the zone, and its refusals become statuses`() {
+    var refusal: String? = null
+    answer = { BusReply.ok(it.correlationId, ZoneAnswer.ChatSent(refusal)) }
+    val whisper = mapOf("targetName" to "Åsa Lind", "text" to "psst")
+    fun send() = post("/v1/companion/masters/5/chat/whisper", whisper, accountId = 56, idempotencyKey = UUID.randomUUID().toString())
+
+    assertEquals(204, send().statusCode.value())
+    assertEquals(ZoneQuery.SendWhisper(5, "Åsa Lind", "psst"), asked.single().query)
+    assertEquals(56L, asked.single().accountId)
+
+    refusal = ZoneAnswer.ChatSent.TARGET_UNAVAILABLE
+    assertEquals(409, send().statusCode.value())
+
+    refusal = ZoneAnswer.ChatSent.CHAT_LOCKED
+    assertEquals(403, send().statusCode.value())
+  }
+
   /** The zone reads the mark to tell whether a whisper to a player away from the game has anywhere to go. */
   @Test
   fun `an open app is marked for the zone to see`() {

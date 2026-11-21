@@ -40,6 +40,7 @@ class BusFrameTest {
       ZoneQuery.MoveAtStation(7, structureId = 5, from = 1, to = 0),
       ZoneQuery.SetStationWorker(7, structureId = 5, playerBestiaId = null, anyFreeCrafter = true),
       ZoneQuery.SendChat(masterId = 7, channel = "PARTY", text = "on my way"),
+      ZoneQuery.SendWhisper(masterId = 7, targetName = "Åsa Lind", text = "psst"),
       ZoneQuery.Compendium(masterId = 7),
       ZoneQuery.SendOnJourney(masterId = 7, playerBestiaId = 11, waypoints = listOf(MapPoint(1.5, 2.5))),
       ZoneQuery.SendOnJourney(7, playerBestiaId = 11, waypoints = emptyList(), routeKey = "k3", reverse = true),
@@ -112,6 +113,7 @@ class BusFrameTest {
       ZoneAnswer.Orders(2, "MINE", "BOLD", fallbackJob = "GUARD", overrides = OrderNumbers(retreatBelowHealthPct = 0)),
       ZoneAnswer.ChatSent(null),
       ZoneAnswer.ChatSent(ZoneAnswer.ChatSent.NOT_IN_GUILD),
+      ZoneAnswer.ChatSent(ZoneAnswer.ChatSent.TARGET_UNAVAILABLE),
       ZoneAnswer.Letters(listOf(ZoneAnswer.Letters.Letter(3, "Ayla", "Bridge", "It is down.", 5, 6, read = true))),
       ZoneAnswer.LetterSent(ZoneAnswer.LetterSent.RECIPIENT_UNKNOWN),
       ZoneAnswer.Parcels(
@@ -149,6 +151,7 @@ class BusFrameTest {
     val events = listOf(
       ZoneEvent.BestiaDiedAway(accountId = 1, masterId = 2, playerBestiaId = 3, bestiaName = null, species = "blob"),
       ZoneEvent.ChatLine(accountId = 1, masterId = 2, channel = "GUILD", senderName = "Ayla", text = "hi", sentAtEpochMs = 5),
+      ZoneEvent.ChatLine(1, 2, channel = "WHISPER", senderName = "Ayla", text = "hi", sentAtEpochMs = 5, targetName = "Bren"),
       ZoneEvent.LetterArrived(accountId = 1, masterId = 2, letterId = 3, senderName = "Ayla", subject = "Bridge"),
       ZoneEvent.ParcelArrived(accountId = 1, masterId = 2, parcelId = 4, senderName = "Ayla", officeName = "Ashfen"),
       ZoneEvent.CompendiumChanged(accountId = 1, masterId = 2),
