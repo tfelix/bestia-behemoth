@@ -416,7 +416,7 @@ class InventoryTest {
   fun `only the owner of a chest sees inside`() {
     val world = testWorld()
     val chest = world.createEntity { id ->
-      add(id, ChestStorage(structureId = 3L, ownerMasterId = 9L, ownerAccountId = 1L))
+      add(id, SlotStorage.ofChest(ChestStorage(structureId = 3L, ownerMasterId = 9L, ownerAccountId = 1L)))
       add(id, inventory)
     }
 

@@ -25,12 +25,13 @@ data class ItemOwner(
     }
 
     /**
-     * Which of [masterId]'s own holders [entityId] is, or null when it is not one. Unlike [of] it knows chests:
-     * a chest only takes and gives goods, and every caller of [of] reads a null bestia as the master's own bag.
+     * Which holder [entityId] is for [masterId], or null when the master may not reach into it. Unlike [of] it knows
+     * slot storages such as chests: one only takes and gives goods, and every caller of [of] reads a null bestia as
+     * the master's own bag.
      */
     fun holderOf(world: World, entityId: EntityId, masterId: Long): ItemHolder? {
-      world.get(entityId, ChestStorage::class)?.let { chest ->
-        return if (chest.ownerMasterId == masterId) ItemHolder.Chest(chest.structureId) else null
+      world.get(entityId, SlotStorage::class)?.let { storage ->
+        return if (storage.useOf(masterId) != null) storage.holder else null
       }
       val owner = of(world, entityId)?.takeIf { it.masterId == masterId } ?: return null
 

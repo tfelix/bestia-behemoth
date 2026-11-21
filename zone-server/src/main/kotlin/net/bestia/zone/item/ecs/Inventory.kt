@@ -367,9 +367,9 @@ data class Inventory(
   }
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets {
-    // A chest has no Account to name its owner by.
-    val chest = world.get(entityId, ChestStorage::class) ?: return SyncTargets.OwnerOnly
+    // A storage has no Account to name its owner by.
+    val storage = world.get(entityId, SlotStorage::class) ?: return SyncTargets.OwnerOnly
 
-    return SyncTargets.Accounts(setOfNotNull(chest.ownerAccountId))
+    return SyncTargets.Accounts(storage.viewers)
   }
 }

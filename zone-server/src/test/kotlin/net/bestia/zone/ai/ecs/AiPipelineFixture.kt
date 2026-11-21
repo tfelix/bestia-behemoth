@@ -33,6 +33,7 @@ import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.container.ItemHandover
 import net.bestia.zone.item.container.ReservedItem
 import net.bestia.zone.item.ecs.ChestStorage
+import net.bestia.zone.item.ecs.SlotStorage
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.prop.PlayerStructureRegistry
@@ -489,7 +490,9 @@ class AiPipelineFixture(
     val id = world.createEntity { eid ->
       world.add(eid, PropPose(pos, yaw = 0f))
       world.add(eid, StaticVisual(StaticEntityKind.CHEST, variant = 0, heightDm = 8))
-      world.add(eid, ChestStorage(structureId, masterId, ownerAccountId = null))
+      val chest = ChestStorage(structureId, masterId, ownerAccountId = null)
+      world.add(eid, chest)
+      world.add(eid, SlotStorage.ofChest(chest))
       world.add(eid, contents)
     }
     aoi.setEntityPosition(id, pos, AoiLayer.STATIC)

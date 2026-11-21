@@ -4,6 +4,7 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.item.StorageOpenedSMSG
 import net.bestia.zone.item.ecs.ChestStorage
 import net.bestia.zone.item.ecs.ExchangeReach
 import net.bestia.zone.item.ecs.Inventory
@@ -33,7 +34,8 @@ class ChestInteraction(
     }
     val accountId = world.get(actorId, Account::class)?.accountId ?: return null
 
-    outMessageProcessor.sendToPlayer(accountId, ChestOpenedSMSG(propId, ChestStorage.SLOTS))
+    val opened = StorageOpenedSMSG(propId, ChestStorage.SLOTS, StorageOpenedSMSG.Kind.CHEST)
+    outMessageProcessor.sendToPlayer(accountId, opened)
     // Goes out with the next sync, after the message above, to the owner like every later change.
     contents.markDirty()
 

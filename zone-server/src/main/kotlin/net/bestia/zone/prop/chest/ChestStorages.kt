@@ -6,6 +6,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.ecs.ChestStorage
+import net.bestia.zone.item.ecs.SlotStorage
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.SpilledProperty
 import net.bestia.zone.item.ecs.toLiveInventory
@@ -46,7 +47,9 @@ class ChestStorages(
   fun furnish(world: World, entityId: EntityId, structureId: Long) {
     val entry = structures.of(structureId) ?: return
 
-    world.add(entityId, ChestStorage(structureId, entry.ownerMasterId, entry.ownerAccountId))
+    val chest = ChestStorage(structureId, entry.ownerMasterId, entry.ownerAccountId)
+    world.add(entityId, chest)
+    world.add(entityId, SlotStorage.ofChest(chest))
     world.add(entityId, contentsOf(structureId))
   }
 

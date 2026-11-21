@@ -6,7 +6,9 @@ import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.container.ItemHolder
 import net.bestia.zone.item.ecs.ChestStorage
+import net.bestia.zone.item.ecs.SlotStorage
 import net.bestia.zone.item.ecs.GroundItemStack
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.SpilledProperty
@@ -40,6 +42,7 @@ class ChestStoragesTest {
 
     assertSame(world.get(first, Inventory::class), world.get(second, Inventory::class))
     assertEquals(ChestStorage(CHEST_ID, ownerMasterId = 9L, ownerAccountId = OWNER), world.get(second, ChestStorage::class))
+    assertEquals(ItemHolder.Chest(CHEST_ID), world.get(second, SlotStorage::class)?.holder)
   }
 
   @Test
