@@ -94,6 +94,7 @@ class CompanionRequestDispatcher(
       is ZoneQuery.MoveAtStation -> workshop.move(id, account, query)
       is ZoneQuery.SetStationWorker -> workshop.setWorker(id, account, query)
       is ZoneQuery.SendChat -> chat.send(id, account, query)
+      is ZoneQuery.SendWhisper -> chat.whisper(id, account, query)
       is ZoneQuery.SendOnJourney -> journeys.send(id, account, query)
       is ZoneQuery.StopJourney -> journeys.stop(id, account, query)
       is ZoneQuery.NotebookList -> notebook.list(id, account, query)

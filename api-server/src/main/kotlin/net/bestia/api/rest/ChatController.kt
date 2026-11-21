@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 
 /**
- * Party and guild chat, written in the app. The line comes back over the socket like every other member's, so the
- * answer is empty. 403: Basic Skill is below the chat rank. 409: the master is in no such party or guild. A 504 means
- * the zone did not answer in time and the line may or may not have gone out: send it again with the same
- * Idempotency-Key.
+ * Party and guild chat and whispers, written in the app. The line comes back over the socket like every other one, so
+ * the answer is empty. 403: Basic Skill is below the chat rank. 409: the master is in no such party or guild, or the
+ * whisper had nowhere to go. A 504 means the zone did not answer in time and the line may or may not have gone out:
+ * send it again with the same Idempotency-Key.
  */
 @RestController
 @RequestMapping("/v1/companion/masters/{masterId}/chat")
@@ -27,6 +27,9 @@ class ChatController(private val zone: ZoneClient) {
 
   /** [channel] is PARTY or GUILD; [text] at most 200 characters. */
   data class ChatOrder(val channel: String, val text: String)
+
+  /** [targetName] is the master's name as typed; [text] at most 200 characters. */
+  data class WhisperOrder(val targetName: String, val text: String)
 
   @PostMapping
   @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -36,7 +39,22 @@ class ChatController(private val zone: ZoneClient) {
     @RequestHeader("Idempotency-Key") idempotencyKey: String,
     @RequestBody order: ChatOrder,
   ) {
-    val query = ZoneQuery.SendChat(masterId, order.channel, order.text)
+    say(accountId, ZoneQuery.SendChat(masterId, order.channel, order.text), idempotencyKey)
+  }
+
+  /** 409 when no master has that name, or its player is neither in the game nor in an app: one answer for both. */
+  @PostMapping("/whisper")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  fun whisper(
+    @RequestAttribute(ACCOUNT_ID) accountId: Long,
+    @PathVariable masterId: Long,
+    @RequestHeader("Idempotency-Key") idempotencyKey: String,
+    @RequestBody order: WhisperOrder,
+  ) {
+    say(accountId, ZoneQuery.SendWhisper(masterId, order.targetName, order.text), idempotencyKey)
+  }
+
+  private fun say(accountId: Long, query: ZoneQuery, idempotencyKey: String) {
     val sent = zone.ask(accountId, query, idempotencyKey.take(MAX_KEY_LENGTH)).answerOrThrow<ZoneAnswer.ChatSent>()
 
     when (sent.refusal) {

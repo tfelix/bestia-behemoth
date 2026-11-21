@@ -340,6 +340,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/companion/masters/{masterId}/chat/whisper": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["whisper"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/companion/texts/{textId}/{locale}": {
         parameters: {
             query?: never;
@@ -989,6 +1005,10 @@ export interface components {
         };
         ChatOrder: {
             channel: string;
+            text: string;
+        };
+        WhisperOrder: {
+            targetName: string;
             text: string;
         };
         PublicKey: {
@@ -2078,6 +2098,32 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["ChatOrder"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    whisper: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                masterId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WhisperOrder"];
             };
         };
         responses: {

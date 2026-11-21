@@ -2,22 +2,44 @@
 	import { page } from '$app/state';
 	import { age } from '#lib/age.ts';
 	import { ApiError, getJson, sendJson } from '#lib/api/client.ts';
-	import type { ChatOrder, GuildView, PartyView } from '#lib/api/model.ts';
+	import type { ChatOrder, GuildView, PartyView, WhisperOrder } from '#lib/api/model.ts';
 	import { chat } from '#lib/chat.svelte.ts';
-	import { closedReason, MAX_TEXT_LENGTH, refusalText, type Channel, type Membership } from '#lib/chatLog.ts';
+	import {
+		closedReason,
+		MAX_TEXT_LENGTH,
+		refusalText,
+		tagOf,
+		unavailableText,
+		whisperPartner,
+		type Channel,
+		type ChatLine,
+		type Membership
+	} from '#lib/chatLog.ts';
 	import { touchesMaster } from '#lib/events.ts';
 	import { guarded } from '#lib/guard.ts';
 	import { live } from '#lib/live.svelte.ts';
 
 	const CHANNELS: { value: Channel; name: string }[] = [
 		{ value: 'PARTY', name: 'Party' },
-		{ value: 'GUILD', name: 'Guild' }
+		{ value: 'GUILD', name: 'Guild' },
+		{ value: 'WHISPER', name: 'Whisper' }
 	];
+
+	/** The longest master name there is. */
+	const MAX_NAME_LENGTH = 24;
+
+	const PLACEHOLDERS: Record<Channel, string> = {
+		PARTY: 'Say to your party',
+		GUILD: 'Say to your guild',
+		WHISPER: 'Whisper'
+	};
 
 	const masterId = $derived(Number(page.params.id));
 	const lines = $derived(chat.lines(masterId));
 
 	let channel = $state<Channel>('PARTY');
+	// Kept after a whisper goes out, so the next line goes to the same player.
+	let whisperTo = $state('');
 	let text = $state('');
 	// Kept until the line is surely sent or surely refused, so sending again after a timeout cannot say it twice.
 	let key = crypto.randomUUID();
@@ -29,8 +51,10 @@
 	let membership = $state<Membership>({ party: null, guild: null });
 	const closed = $derived({
 		PARTY: closedReason('PARTY', membership),
-		GUILD: closedReason('GUILD', membership)
+		GUILD: closedReason('GUILD', membership),
+		WHISPER: closedReason('WHISPER', membership)
 	});
+	const missingTarget = $derived(channel === 'WHISPER' && !whisperTo.trim());
 
 	async function loadMembership(id: number) {
 		try {
@@ -52,11 +76,11 @@
 		return live.on((event) => touchesMaster(event, id) && void loadMembership(id));
 	});
 
-	// A channel the master has left cannot stay chosen.
+	// A group the master has left cannot stay chosen.
 	$effect(() => {
 		if (closed[channel] === null) return;
 		const other: Channel = channel === 'PARTY' ? 'GUILD' : 'PARTY';
-		if (closed[other] === null) channel = other;
+		channel = closed[other] === null ? other : 'WHISPER';
 	});
 
 	$effect(() => {
@@ -70,21 +94,42 @@
 		if (list) list.scrollTop = list.scrollHeight;
 	});
 
+	/** Answers a whisper: whisper mode, to the other player of [line]. */
+	function answer(line: ChatLine) {
+		const partner = whisperPartner(line);
+		if (!partner) return;
+		channel = 'WHISPER';
+		whisperTo = partner;
+	}
+
+	/** The line as its endpoint takes it: whispers name a master, group lines a channel. */
+	function post(line: string): Promise<void> {
+		const headers = { 'Idempotency-Key': key };
+		if (channel === 'WHISPER') {
+			const order: WhisperOrder = { targetName: whisperTo.trim(), text: line };
+			return sendJson<void>('POST', `/v1/companion/masters/${masterId}/chat/whisper`, order, headers);
+		}
+		const order: ChatOrder = { channel, text: line };
+		return sendJson<void>('POST', `/v1/companion/masters/${masterId}/chat`, order, headers);
+	}
+
 	async function send(e: SubmitEvent) {
 		e.preventDefault();
 		const line = text.trim();
-		if (!line || sending) return;
+		if (!line || sending || missingTarget) return;
 
 		sending = true;
 		note = null;
 		try {
-			const order: ChatOrder = { channel, text: line };
-			await guarded(() => sendJson<void>('POST', `/v1/companion/masters/${masterId}/chat`, order, { 'Idempotency-Key': key }));
+			await guarded(() => post(line));
 			text = '';
 			key = crypto.randomUUID();
 		} catch (e) {
 			if (e instanceof ApiError && e.status === 504) {
 				note = 'No answer yet - send again to make sure.';
+			} else if (e instanceof ApiError && e.status === 409 && channel === 'WHISPER') {
+				key = crypto.randomUUID();
+				note = unavailableText(whisperTo.trim());
 			} else if (e instanceof ApiError && e.status === 409) {
 				// Left the group meanwhile: the channel closes itself once membership is read again.
 				key = crypto.randomUUID();
@@ -105,13 +150,19 @@
 	<section class="panel log" bind:this={list} aria-live="polite">
 		{#if lines.length === 0}
 			<p class="muted">
-				Nothing heard yet. What your party and guild say from now on arrives here{live.connected ? '' : ' once the app is listening'}.
+				Nothing heard yet. What your party and guild say and whisper to you from now on arrives here{live.connected
+					? ''
+					: ' once the app is listening'}.
 			</p>
 		{:else}
 			{#each lines as line (line.id)}
 				<p class="line {line.channel.toLowerCase()}">
-					<span class="tag">[{line.channel === 'PARTY' ? 'Party' : 'Guild'}]</span>
-					<strong>{line.senderName}:</strong>
+					{#if line.channel === 'WHISPER'}
+						<button type="button" class="tag answer" title="Whisper back" onclick={() => answer(line)}>{tagOf(line)}</button>
+					{:else}
+						<span class="tag">{tagOf(line)}</span>
+						<strong>{line.senderName}:</strong>
+					{/if}
 					{line.text}
 					<span class="when" title={new Date(line.sentAt).toLocaleString()}>{age(line.sentAt, now)}</span>
 				</p>
@@ -135,15 +186,30 @@
 				>
 			{/each}
 		</div>
+		{#if channel === 'WHISPER'}
+			<input
+				class="field to"
+				bind:value={whisperTo}
+				maxlength={MAX_NAME_LENGTH}
+				placeholder="To (name of a master)"
+				aria-label="Whisper to"
+				autocapitalize="words"
+				autocomplete="off"
+				spellcheck="false"
+			/>
+		{/if}
 		<div class="say">
 			<input
+				class="field"
 				bind:value={text}
 				maxlength={MAX_TEXT_LENGTH}
-				placeholder={channel === 'PARTY' ? 'Say to your party' : 'Say to your guild'}
+				placeholder={PLACEHOLDERS[channel]}
 				aria-label="Message"
 				enterkeyhint="send"
 			/>
-			<button class="btn primary" disabled={sending || !text.trim() || closed[channel] !== null}>{sending ? 'Sending…' : 'Send'}</button>
+			<button class="btn primary" disabled={sending || !text.trim() || missingTarget || closed[channel] !== null}
+				>{sending ? 'Sending…' : 'Send'}</button
+			>
 		</div>
 		{#if note}<p class="muted small">{note}</p>{/if}
 	</form>
@@ -176,6 +242,20 @@
 		color: rgb(204 168 255);
 	}
 
+	.whisper .tag {
+		color: rgb(255 115 217);
+	}
+
+	/* A whisper's tag answers it, without looking like a button among the lines. */
+	.answer {
+		padding: 0;
+		border: 0;
+		background: none;
+		font: inherit;
+		font-weight: 700;
+		cursor: pointer;
+	}
+
 	.when {
 		margin-left: 0.35rem;
 		font-size: 0.75rem;
@@ -184,7 +264,7 @@
 
 	.channels {
 		display: grid;
-		grid-template-columns: repeat(2, 1fr);
+		grid-template-columns: repeat(3, 1fr);
 		gap: 0.35rem;
 		margin-bottom: 0.6rem;
 	}
@@ -219,7 +299,7 @@
 		gap: 0.5rem;
 	}
 
-	.say input {
+	.field {
 		flex: 1;
 		min-width: 0;
 		min-height: 2.75rem;
@@ -229,6 +309,11 @@
 		background: #171310;
 		color: var(--ink);
 		font: inherit;
+	}
+
+	.to {
+		width: 100%;
+		margin-bottom: 0.5rem;
 	}
 
 	.small {

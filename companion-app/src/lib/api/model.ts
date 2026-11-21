@@ -35,6 +35,7 @@ export type QueueOrder = Schemas['QueueOrder'];
 export type WorkerOrder = Schemas['WorkerOrder'];
 export type PresetWrite = Schemas['PresetWrite'];
 export type ChatOrder = Schemas['ChatOrder'];
+export type WhisperOrder = Schemas['WhisperOrder'];
 export type Letter = Schemas['Letter'];
 export type LetterOrder = Schemas['LetterOrder'];
 export type Parcel = Schemas['Parcel'];

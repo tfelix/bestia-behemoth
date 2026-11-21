@@ -152,6 +152,9 @@ sealed interface ZoneQuery {
   /** A line of party or guild chat ([channel] PARTY or GUILD), said as [masterId]. A write: send it with an idempotency key. */
   data class SendChat(val masterId: Long, val channel: String, val text: String) : ZoneQuery
 
+  /** A whisper from [masterId] to the master called [targetName]. A write: send it with an idempotency key. */
+  data class SendWhisper(val masterId: Long, val targetName: String, val text: String) : ZoneQuery
+
   /**
    * Sends an owned bestia through [waypoints], or along the saved route under [routeKey] in the master's notebook -
    * from its last point back when [reverse]. A write: send it with an idempotency key.

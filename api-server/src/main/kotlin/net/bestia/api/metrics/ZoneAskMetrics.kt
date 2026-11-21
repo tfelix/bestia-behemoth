@@ -44,6 +44,7 @@ enum class ZoneQueryKind {
   MOVE_AT_STATION,
   SET_STATION_WORKER,
   SEND_CHAT,
+  SEND_WHISPER,
   SEND_ON_JOURNEY,
   STOP_JOURNEY,
   NOTEBOOK_LIST,
@@ -95,6 +96,7 @@ enum class ZoneQueryKind {
         is ZoneQuery.MoveAtStation -> MOVE_AT_STATION
         is ZoneQuery.SetStationWorker -> SET_STATION_WORKER
         is ZoneQuery.SendChat -> SEND_CHAT
+        is ZoneQuery.SendWhisper -> SEND_WHISPER
         is ZoneQuery.SendOnJourney -> SEND_ON_JOURNEY
         is ZoneQuery.StopJourney -> STOP_JOURNEY
         is ZoneQuery.NotebookList -> NOTEBOOK_LIST

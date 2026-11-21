@@ -84,8 +84,9 @@ sealed interface ZoneEvent {
   ) : ZoneEvent
 
   /**
-   * A line of party or guild chat ([channel] PARTY or GUILD) that reached [masterId], a member of the group, whether
-   * it was typed in the game or in an app. One event per member, the sender's own master included.
+   * A line of chat that reached [masterId], typed in the game or in an app. Party and guild lines ([channel] PARTY or
+   * GUILD) come once per member, the sender's own master included. A whisper ([channel] WHISPER) comes to its target
+   * and to its writer; the writer's copy names the master it went to in [targetName].
    */
   data class ChatLine(
     override val accountId: Long,
@@ -94,6 +95,7 @@ sealed interface ZoneEvent {
     val senderName: String,
     val text: String,
     val sentAtEpochMs: Long,
+    val targetName: String? = null,
   ) : ZoneEvent
 
   /**

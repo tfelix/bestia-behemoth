@@ -331,13 +331,15 @@ sealed interface ZoneAnswer {
 
   /**
    * Whether a chat line went out. [refusal] is null when it did, else why not: CHAT_LOCKED (Basic Skill below the
-   * chat rank), NOT_IN_PARTY or NOT_IN_GUILD.
+   * chat rank), NOT_IN_PARTY, NOT_IN_GUILD, or TARGET_UNAVAILABLE for a whisper to a name nobody has or to a player
+   * neither in the game nor in an app. One answer for both, so whispers cannot tell who exists.
    */
   data class ChatSent(val refusal: String?) : ZoneAnswer {
     companion object {
       const val CHAT_LOCKED = "CHAT_LOCKED"
       const val NOT_IN_PARTY = "NOT_IN_PARTY"
       const val NOT_IN_GUILD = "NOT_IN_GUILD"
+      const val TARGET_UNAVAILABLE = "TARGET_UNAVAILABLE"
     }
   }
 
