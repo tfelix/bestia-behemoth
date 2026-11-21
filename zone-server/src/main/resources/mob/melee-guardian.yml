@@ -1,0 +1,28 @@
+id: 114
+identifier: melee_guardian
+# The Stronghold calls it at 50 + 5 per Defense level (`Watchers`), whatever this range says.
+level-min: 50
+level-max: 50
+name: Melee Guardian
+description: >-
+  A watcher of brass and clockwork that guards a guild's Stronghold up close. Very tough, and it does not tire.
+kind: HUMANOID
+element: NORMAL
+size: MEDIUM
+default-attack: MELEE
+aspd: 90
+ai: guild_watcher
+attack-power: 0.6
+weight: 400
+health: 9000
+mana: 0
+experience: 0
+attributes: { strength: 60, intelligence: 1, vitality: 120, dexterity: 40, willpower: 60, agility: 30 }
+# Called by a Stronghold only; no den or ambient site places one.
+event-only: true
+compendium: false
+habitat: []
+spawn-weight: 0
+equip-slots: []
+armor-types: []
+loot: []

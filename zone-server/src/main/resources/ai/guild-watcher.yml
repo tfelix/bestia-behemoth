@@ -1,0 +1,22 @@
+# A guild's watcher: roams the ground around its Empyrite and attacks the guild's rivals there. It never eats or
+# sleeps. Where it roams and whom it counts as a rival is set per watcher when the Stronghold calls it (`Watchers`),
+# not here: the guard area and the roaming radius are written into its memory.
+#
+# YAML selects and tunes; the priority formula behind each goal lives in Kotlin, in BestiaDomain.Goals.
+identifier: guild_watcher
+perception:
+  sight_radius: 16
+hunger_threshold: 100
+tiredness_threshold: 100
+restless_threshold: 30
+aggression: 100
+goals:
+  - { name: KillEnemy }
+  - { name: KillAttacker }
+  - { name: ReturnHome }
+  - { name: Wander }
+actions:
+  - approachTarget
+  - attack
+  - returnHome
+  - wander

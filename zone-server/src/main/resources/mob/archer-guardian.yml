@@ -1,0 +1,28 @@
+id: 115
+identifier: archer_guardian
+# The Stronghold calls it at 50 + 5 per Defense level (`Watchers`), whatever this range says.
+level-min: 50
+level-max: 50
+name: Archer Guardian
+description: >-
+  A watcher of brass and clockwork that guards a guild's Stronghold from range. Its arrows never run out.
+kind: HUMANOID
+element: NORMAL
+size: MEDIUM
+default-attack: RANGED
+aspd: 110
+ai: guild_watcher
+attack-power: 1.0
+weight: 300
+health: 5000
+mana: 0
+experience: 0
+attributes: { strength: 30, intelligence: 1, vitality: 60, dexterity: 120, willpower: 40, agility: 60 }
+# Called by a Stronghold only; no den or ambient site places one.
+event-only: true
+compendium: false
+habitat: []
+spawn-weight: 0
+equip-slots: []
+armor-types: []
+loot: []
