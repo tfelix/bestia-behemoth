@@ -38,7 +38,7 @@ class Empyrites(
 
   /** The guild's site is done: the Empyrite stands, whole. */
   fun stand(world: World, site: Stronghold) {
-    val standing = site.copy(state = State.STANDING, siteStructureId = null, empyriteHp = config.empyriteHp)
+    val standing = site.copy(state = State.STANDING, siteStructureId = null, empyriteHp = maxHpOf(site))
     strongholds.put(standing)
     raise(world, standing)
 
@@ -64,26 +64,53 @@ class Empyrites(
       return
     }
 
-    val captured = stronghold.copy(guildId = breakerGuildId, empyriteHp = config.empyriteHp)
+    val weakened = stronghold.copy(tracks = stronghold.tracks.mapValues { (_, progress) -> progress.lostLevel() })
+    val captured = weakened.copy(guildId = breakerGuildId, empyriteHp = maxHpOf(weakened))
     strongholds.put(captured)
     val empyriteId = raise(world, captured) ?: return
     val graceSeconds = config.captureGraceMinutes * 60.0
     if (graceSeconds > 0) {
-      statusEffects.applyEffect(world, empyriteId, StatusEffectId.INVULNERABLE, level = 1, durationSeconds = graceSeconds)
+      statusEffects.applyEffect(
+        world, empyriteId, StatusEffectId.INVULNERABLE, level = 1, durationSeconds = graceSeconds
+      )
     }
 
     LOG.info { "Guild $breakerGuildId captured the Stronghold of guild ${stronghold.guildId} at seed $rank" }
   }
 
+  /** A new Defense level hardens a standing Empyrite. Damage taken stays taken: it gains the new health, no heal. */
+  fun harden(world: World, rank: Int) {
+    val stronghold = strongholds.on(rank)?.takeIf { it.state == State.STANDING } ?: return
+    var empyriteId: EntityId? = null
+    world.query(Empyrite::class).each { id -> if (get<Empyrite>().rank == rank) empyriteId = id }
+    val health = empyriteId?.let { world.get(it, Health::class) } ?: return
+
+    val missing = health.max - health.current
+    health.max = maxHpOf(stronghold)
+    health.current = (health.max - missing).coerceAtLeast(1)
+    world.get(empyriteId!!, CombatStats::class)?.values = CombatValues.ofStructure(defenseOf(stronghold))
+  }
+
+  fun maxHpOf(stronghold: Stronghold): Int {
+    return config.empyriteHp + config.empyriteHpPerDefense * stronghold.progressOf(StrongholdTrack.DEFENSE).level
+  }
+
+  private fun defenseOf(stronghold: Stronghold): Int {
+    val level = stronghold.progressOf(StrongholdTrack.DEFENSE).level
+
+    return config.empyriteDefense + config.empyriteDefensePerLevel * level
+  }
+
   private fun raise(world: World, stronghold: Stronghold): EntityId? {
     val seed = seeds.awake().firstOrNull { it.rank == stronghold.rank } ?: return null
-    val hp = if (stronghold.empyriteHp > 0) stronghold.empyriteHp.coerceAtMost(config.empyriteHp) else config.empyriteHp
+    val maxHp = maxHpOf(stronghold)
+    val hp = if (stronghold.empyriteHp > 0) stronghold.empyriteHp.coerceAtMost(maxHp) else maxHp
 
     return world.createEntity { id ->
       add(id, Position.fromVec3(spots.standingAt(seed)))
       add(id, EntityVisual(VisualKind.STRUCTURE, StaticEntityKind.EMPYRITE.ordinal.toLong()))
-      add(id, Health(current = hp, max = config.empyriteHp))
-      add(id, CombatStats(CombatValues.ofStructure(config.empyriteDefense)))
+      add(id, Health(current = hp, max = maxHp))
+      add(id, CombatStats(CombatValues.ofStructure(defenseOf(stronghold))))
       add(id, GuildOwned(stronghold.guildId))
       add(id, Empyrite(stronghold.rank))
     }

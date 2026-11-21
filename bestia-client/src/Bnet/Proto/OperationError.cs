@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSq1MQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqYMgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -166,9 +166,11 @@ namespace Bnet {
             "EhwKF1NUUk9OR0hPTERfQUxSRUFEWV9IRUxEEIkDEhsKFlNUUk9OR0hPTERf",
             "Tk9UX09OX0NPUkUQigMSHQoYU1RST05HSE9MRF9DQU5OT1RfQUZGT1JEEIsD",
             "EhoKFUJVSUxEX05PVF9ZT1VSX0dVSUxEUxCMAxIhChxDT01CQVRfT1VUU0lE",
-            "RV9BVFRBQ0tfV0lORE9XEI0DIgQILhAuKhJTSE9QX1RSRUFTVVJZX0ZVTExC",
-            "LAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3Rv",
-            "YgZwcm90bzM="));
+            "RV9BVFRBQ0tfV0lORE9XEI0DEh8KGlNUUk9OR0hPTERfTk9UX1lPVVJfR1VJ",
+            "TERTEI4DEhwKF1NUUk9OR0hPTERfT1VUX09GX1JBTkdFEI8DEiIKHVNUUk9O",
+            "R0hPTERfQ0FOTk9UX0FGRk9SRF9TVEVQEJADIgQILhAuKhJTSE9QX1RSRUFT",
+            "VVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRpb25F",
+            "cnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1067,6 +1069,18 @@ namespace Bnet {
     /// The target stands on a Stronghold's grounds, and no attack window is open.
     /// </summary>
     [pbr::OriginalName("COMBAT_OUTSIDE_ATTACK_WINDOW")] CombatOutsideAttackWindow = 397,
+    /// <summary>
+    /// The Empyrite belongs to another guild, so its window does not open for the clicker.
+    /// </summary>
+    [pbr::OriginalName("STRONGHOLD_NOT_YOUR_GUILDS")] StrongholdNotYourGuilds = 398,
+    /// <summary>
+    /// The member stands too far from the Empyrite to invest.
+    /// </summary>
+    [pbr::OriginalName("STRONGHOLD_OUT_OF_RANGE")] StrongholdOutOfRange = 399,
+    /// <summary>
+    /// The member does not carry the coins the next step costs.
+    /// </summary>
+    [pbr::OriginalName("STRONGHOLD_CANNOT_AFFORD_STEP")] StrongholdCannotAffordStep = 400,
   }
 
   #endregion

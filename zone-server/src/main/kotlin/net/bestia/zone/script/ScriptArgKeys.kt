@@ -26,4 +26,7 @@ object ScriptArgKeys {
   const val AMOUNT = "amount"
   const val COINS_EACH = "coinsEach"
   const val DAYS = "days"
+
+  /** Which investment track of a Stronghold, by `StrongholdTrack` name. */
+  const val TRACK = "track"
 }

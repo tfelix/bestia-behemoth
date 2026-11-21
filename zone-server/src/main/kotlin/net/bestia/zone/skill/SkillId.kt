@@ -132,6 +132,7 @@ enum class SkillId {
   // Guild skills a guild learns, not a master: net.bestia.zone.guild reads the guild's level of each.
   GUILD_EMBLEM,
   OFFICIAL_GUILD_APPROVAL,
+  PERMANENT_DEVELOPMENT,
   GUILD_EXTENSION,
   GREAT_LEADERSHIP,
   SHARP_GAZE,

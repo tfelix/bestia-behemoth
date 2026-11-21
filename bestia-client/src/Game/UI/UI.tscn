@@ -54,6 +54,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Breeding/IncubatorPanel.tscn" id="44_incubator"]
 [ext_resource type="PackedScene" path="res://Game/UI/BestiaOrders/BestiaOrdersPanel.tscn" id="45_orders"]
 [ext_resource type="Script" path="res://Game/UI/Stronghold/plant_empyrite_dialog.gd" id="96_plantemp"]
+[ext_resource type="PackedScene" path="res://Game/UI/Stronghold/Stronghold.tscn" id="97_stronghold"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -225,6 +226,12 @@ visible = false
 layout_mode = 1
 content = ExtResource("43_citysign")
 window_title = "City Sign"
+
+[node name="StrongholdWin" parent="." instance=ExtResource("8_wdgtw")]
+visible = false
+layout_mode = 1
+content = ExtResource("97_stronghold")
+window_title = "Stronghold"
 
 [node name="WonBoughtWin" parent="." instance=ExtResource("8_wdgtw")]
 visible = false

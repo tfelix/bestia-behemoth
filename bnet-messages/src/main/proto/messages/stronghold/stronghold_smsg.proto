@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "StrongholdSmsgProto";
+
+// Opens, or refreshes, the Stronghold window of a guild member at their guild's Empyrite. The answer to clicking it,
+// and to every step invested there. Its Invest buttons send InteractEntityCMSG for the Empyrite with the action
+// "invest" and the track's name.
+message StrongholdSMSG {
+  fixed64 empyrite_entity_id = 1;
+  string seed_name = 2;
+  string guild_name = 3;
+  uint32 hp = 4;
+  uint32 max_hp = 5;
+  repeated StrongholdTrackInfo tracks = 6;
+  // Whether a step may count twice.
+  bool has_permanent_development = 7;
+  uint32 max_level = 8;
+  uint32 steps_per_level = 9;
+  // What each Defense level adds to the Empyrite.
+  uint32 hp_per_defense = 10;
+  uint32 def_per_defense = 11;
+}
+
+message StrongholdTrackInfo {
+  StrongholdTrack track = 1;
+  uint32 level = 2;
+  // Steps already paid towards the next level.
+  uint32 steps = 3;
+  // What the next step costs; 0 at the top level.
+  uint64 next_step_coins = 4;
+}
+
+enum StrongholdTrack {
+  STRONGHOLD_TRACK_DEFENSE = 0;
+  STRONGHOLD_TRACK_STORAGE = 1;
+  STRONGHOLD_TRACK_ECONOMY = 2;
+}
