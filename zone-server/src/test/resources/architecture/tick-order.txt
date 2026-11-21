@@ -110,6 +110,7 @@
  - UPKEEP wave 52: AttackWindowSystem [EverySeconds(seconds=10.0)]
  - UPKEEP wave 52: CompendiumSightingSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 52: GuildMemberBeaconSystem [EverySeconds(seconds=1.0)]
+ - UPKEEP wave 52: WatcherSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 52: BreedingFarmSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 52: HonorStandingSystem [EverySeconds(seconds=10.0)]
  - UPKEEP wave 53: TownUpkeepSystem [EverySeconds(seconds=10.0)]

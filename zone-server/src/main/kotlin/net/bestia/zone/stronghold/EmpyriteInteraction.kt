@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 
 /**
  * A member's click on their guild's Empyrite opens the Stronghold window. Its Invest buttons click with a track, its
- * Hire button with the steward action.
+ * Hire button with the steward action, its watcher buttons with the watcher actions.
  */
 @Component
 class EmpyriteInteraction(
@@ -28,8 +28,18 @@ class EmpyriteInteraction(
     return when (args.text(ScriptArgKeys.ACTION)) {
       INVEST -> invest(world, actorId, propId, args)
       HIRE_STEWARD -> window.hireSteward(world, actorId, propId)
+      ADD_WATCHER -> changeWatchers(world, actorId, propId, args, +1)
+      REMOVE_WATCHER -> changeWatchers(world, actorId, propId, args, -1)
+      BRING_BACK_WATCHER -> window.bringBackWatcher(world, actorId, propId)
       else -> interact(world, actorId, propId)
     }
+  }
+
+  private fun changeWatchers(world: World, actorId: EntityId, propId: EntityId, args: ScriptArgs, delta: Int): OpError? {
+    val kind = args.text(ScriptArgKeys.WATCHER)?.let { name -> WatcherKind.entries.firstOrNull { it.name == name } }
+      ?: return OpError.REQUEST_REFUSED
+
+    return window.changeWatchers(world, actorId, propId, kind, delta)
   }
 
   private fun invest(world: World, actorId: EntityId, propId: EntityId, args: ScriptArgs): OpError? {
@@ -42,5 +52,8 @@ class EmpyriteInteraction(
   companion object {
     const val INVEST = "invest"
     const val HIRE_STEWARD = "hire_steward"
+    const val ADD_WATCHER = "add_watcher"
+    const val REMOVE_WATCHER = "remove_watcher"
+    const val BRING_BACK_WATCHER = "bring_back_watcher"
   }
 }

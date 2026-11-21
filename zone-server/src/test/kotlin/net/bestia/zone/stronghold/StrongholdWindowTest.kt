@@ -33,6 +33,12 @@ class StrongholdWindowTest {
   private var stronghold = Stronghold(seed.rank, GUILD, State.STANDING, null, Instant.EPOCH, Instant.EPOCH)
   private val empyrites = mockk<Empyrites>(relaxed = true)
   private val stewards = mockk<Stewards>(relaxed = true)
+  private val watchers = mockk<Watchers>(relaxed = true) {
+    every { postsOf(any()) } returns 3
+    every { setMix(world, any(), any(), any()) } answers {
+      stronghold = secondArg<Stronghold>().withWatchers(thirdArg(), arg(3))
+    }
+  }
   private val sent = slot<SMSG>()
   private val messages = mockk<OutMessageProcessor> { every { sendToPlayer(ACCOUNT_ID, capture(sent)) } returns Unit }
 
@@ -44,9 +50,12 @@ class StrongholdWindowTest {
     seeds = mockk { every { awake() } returns listOf(seed) },
     empyrites = empyrites,
     stewards = stewards,
+    watchers = watchers,
     coins = coinsPaidWith(COIN),
     messages = messages,
-    config = StrongholdConfig(stepCoinsPerLevel = 20_000, doubleStepChance = 0.5, stewardCoins = 200_000),
+    config = StrongholdConfig(
+      stepCoinsPerLevel = 20_000, doubleStepChance = 0.5, stewardCoins = 200_000, watcherBringBackCoins = 50_000
+    ),
     random = object : Random() {
       override fun nextBits(bitCount: Int) = 0
       override fun nextDouble() = roll
@@ -147,23 +156,53 @@ class StrongholdWindowTest {
     verify(exactly = 0) { stewards.hire(any(), any()) }
   }
 
+  @Test
+  fun `the leader with Watcher Research adds and removes watchers up to the posts`() {
+    val leader = memberAt(Vec3L(1_000, 1_000, 0), leader = true, watcherResearch = true)
+    val member = memberAt(Vec3L(1_000, 1_000, 0), watcherResearch = true)
+
+    assertEquals(OpError.REQUEST_REFUSED, window().changeWatchers(world, member, empyrite, WatcherKind.MELEE, +1))
+    repeat(3) { assertNull(window().changeWatchers(world, leader, empyrite, WatcherKind.MELEE, +1)) }
+    assertEquals(OpError.REQUEST_REFUSED, window().changeWatchers(world, leader, empyrite, WatcherKind.ARCHER, +1))
+    assertNull(window().changeWatchers(world, leader, empyrite, WatcherKind.MELEE, -1))
+
+    assertEquals(2, stronghold.watchersOf(WatcherKind.MELEE))
+    assertEquals(OpError.REQUEST_REFUSED, window().changeWatchers(world, leader, empyrite, WatcherKind.ARCHER, -1))
+  }
+
+  @Test
+  fun `any member pays to bring a fallen watcher back`() {
+    every { watchers.fallenOf(seed.rank) } returns listOf(Watchers.Fallen(WatcherKind.ARCHER, Instant.EPOCH))
+    val poor = memberAt(Vec3L(1_000, 1_000, 0), coins = 49_999)
+    val member = memberAt(Vec3L(1_000, 1_000, 0), coins = 60_000)
+
+    assertEquals(OpError.STRONGHOLD_CANNOT_AFFORD_BRING_BACK, window().bringBackWatcher(world, poor, empyrite))
+    assertNull(window().bringBackWatcher(world, member, empyrite))
+
+    verify(exactly = 1) { watchers.bringBack(world, any()) }
+    assertEquals(10_000, world.get(member, Inventory::class)!!.getItems().sumOf { it.amount })
+  }
+
   private fun memberAt(
     at: Vec3L,
     guild: Long = GUILD,
     coins: Int = 0,
     permanentDevelopment: Boolean = false,
     stewardContract: Boolean = false,
+    leader: Boolean = false,
+    watcherResearch: Boolean = false,
   ): EntityId {
     val skills = buildMap {
       if (permanentDevelopment) put(SkillId.PERMANENT_DEVELOPMENT.name, 1)
       if (stewardContract) put(SkillId.STEWARD_CONTRACT.name, 1)
+      if (watcherResearch) put(SkillId.WATCHER_RESEARCH.name, 1)
     }
 
     return world.createEntity { id ->
       add(id, Position.fromVec3(at))
       add(id, Master(5L))
       add(id, Account(ACCOUNT_ID))
-      add(id, GuildMembership(guild, taxPercent = 5, guildName = "Iron Wolves", skillLevels = skills))
+      add(id, GuildMembership(guild, taxPercent = 5, guildName = "Iron Wolves", isLeader = leader, skillLevels = skills))
       add(id, Inventory(mutableListOf(Inventory.Item(COIN, coins))))
     }
   }

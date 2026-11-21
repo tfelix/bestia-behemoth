@@ -22,6 +22,9 @@ const ACTION := "action"
 ## Which investment track of a Stronghold, by the server's StrongholdTrack name.
 const TRACK := "track"
 
+## A Stronghold watcher's kind, by the server's WatcherKind name.
+const WATCHER := "watcher"
+
 const QUEST_ID := "questId"
 const ITEM_ID := "itemId"
 const AMOUNT := "amount"

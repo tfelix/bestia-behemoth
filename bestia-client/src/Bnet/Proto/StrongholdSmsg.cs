@@ -25,7 +25,7 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiltZXNzYWdlcy9zdHJvbmdob2xkL3N0cm9uZ2hvbGRfc21zZy5wcm90bxIE",
-            "Ym5ldCLkAgoOU3Ryb25naG9sZFNNU0cSGgoSZW1weXJpdGVfZW50aXR5X2lk",
+            "Ym5ldCLDBAoOU3Ryb25naG9sZFNNU0cSGgoSZW1weXJpdGVfZW50aXR5X2lk",
             "GAEgASgGEhEKCXNlZWRfbmFtZRgCIAEoCRISCgpndWlsZF9uYW1lGAMgASgJ",
             "EgoKAmhwGAQgASgNEg4KBm1heF9ocBgFIAEoDRIpCgZ0cmFja3MYBiADKAsy",
             "GS5ibmV0LlN0cm9uZ2hvbGRUcmFja0luZm8SIQoZaGFzX3Blcm1hbmVudF9k",
@@ -33,17 +33,26 @@ namespace Bnet {
             "cGVyX2xldmVsGAkgASgNEhYKDmhwX3Blcl9kZWZlbnNlGAogASgNEhcKD2Rl",
             "Zl9wZXJfZGVmZW5zZRgLIAEoDRIcChRoYXNfc3Rld2FyZF9jb250cmFjdBgM",
             "IAEoCBITCgtoYXNfc3Rld2FyZBgNIAEoCBIVCg1zdGV3YXJkX2NvaW5zGA4g",
-            "ASgEInIKE1N0cm9uZ2hvbGRUcmFja0luZm8SJAoFdHJhY2sYASABKA4yFS5i",
-            "bmV0LlN0cm9uZ2hvbGRUcmFjaxINCgVsZXZlbBgCIAEoDRINCgVzdGVwcxgD",
-            "IAEoDRIXCg9uZXh0X3N0ZXBfY29pbnMYBCABKAQqawoPU3Ryb25naG9sZFRy",
-            "YWNrEhwKGFNUUk9OR0hPTERfVFJBQ0tfREVGRU5TRRAAEhwKGFNUUk9OR0hP",
-            "TERfVFJBQ0tfU1RPUkFHRRABEhwKGFNUUk9OR0hPTERfVFJBQ0tfRUNPTk9N",
-            "WRACQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITU3Ryb25naG9sZFNtc2dQ",
-            "cm90b2IGcHJvdG8z"));
+            "ASgEEhwKFGhhc193YXRjaGVyX3Jlc2VhcmNoGA8gASgIEhgKEG1heV9zZXRf",
+            "d2F0Y2hlcnMYECABKAgSFQoNd2F0Y2hlcl9wb3N0cxgRIAEoDRIVCg13YXRj",
+            "aGVyX2xldmVsGBIgASgNEhYKDm1lbGVlX3dhdGNoZXJzGBMgASgNEhcKD2Fy",
+            "Y2hlcl93YXRjaGVycxgUIAEoDRIsCg9mYWxsZW5fd2F0Y2hlcnMYFSADKAsy",
+            "Ey5ibmV0LkZhbGxlbldhdGNoZXISGAoQYnJpbmdfYmFja19jb2lucxgWIAEo",
+            "BCJGCg1GYWxsZW5XYXRjaGVyEh8KBGtpbmQYASABKA4yES5ibmV0LldhdGNo",
+            "ZXJLaW5kEhQKDHNlY29uZHNfbGVmdBgCIAEoDSJyChNTdHJvbmdob2xkVHJh",
+            "Y2tJbmZvEiQKBXRyYWNrGAEgASgOMhUuYm5ldC5TdHJvbmdob2xkVHJhY2sS",
+            "DQoFbGV2ZWwYAiABKA0SDQoFc3RlcHMYAyABKA0SFwoPbmV4dF9zdGVwX2Nv",
+            "aW5zGAQgASgEKj4KC1dhdGNoZXJLaW5kEhYKEldBVENIRVJfS0lORF9NRUxF",
+            "RRAAEhcKE1dBVENIRVJfS0lORF9BUkNIRVIQASprCg9TdHJvbmdob2xkVHJh",
+            "Y2sSHAoYU1RST05HSE9MRF9UUkFDS19ERUZFTlNFEAASHAoYU1RST05HSE9M",
+            "RF9UUkFDS19TVE9SQUdFEAESHAoYU1RST05HSE9MRF9UUkFDS19FQ09OT01Z",
+            "EAJCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNTdHJvbmdob2xkU21zZ1By",
+            "b3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.StrongholdTrack), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StrongholdSMSG), global::Bnet.StrongholdSMSG.Parser, new[]{ "EmpyriteEntityId", "SeedName", "GuildName", "Hp", "MaxHp", "Tracks", "HasPermanentDevelopment", "MaxLevel", "StepsPerLevel", "HpPerDefense", "DefPerDefense", "HasStewardContract", "HasSteward", "StewardCoins" }, null, null, null, null),
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.WatcherKind), typeof(global::Bnet.StrongholdTrack), }, null, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StrongholdSMSG), global::Bnet.StrongholdSMSG.Parser, new[]{ "EmpyriteEntityId", "SeedName", "GuildName", "Hp", "MaxHp", "Tracks", "HasPermanentDevelopment", "MaxLevel", "StepsPerLevel", "HpPerDefense", "DefPerDefense", "HasStewardContract", "HasSteward", "StewardCoins", "HasWatcherResearch", "MaySetWatchers", "WatcherPosts", "WatcherLevel", "MeleeWatchers", "ArcherWatchers", "FallenWatchers", "BringBackCoins" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.FallenWatcher), global::Bnet.FallenWatcher.Parser, new[]{ "Kind", "SecondsLeft" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StrongholdTrackInfo), global::Bnet.StrongholdTrackInfo.Parser, new[]{ "Track", "Level", "Steps", "NextStepCoins" }, null, null, null, null)
           }));
     }
@@ -51,6 +60,11 @@ namespace Bnet {
 
   }
   #region Enums
+  public enum WatcherKind {
+    [pbr::OriginalName("WATCHER_KIND_MELEE")] Melee = 0,
+    [pbr::OriginalName("WATCHER_KIND_ARCHER")] Archer = 1,
+  }
+
   public enum StrongholdTrack {
     [pbr::OriginalName("STRONGHOLD_TRACK_DEFENSE")] Defense = 0,
     [pbr::OriginalName("STRONGHOLD_TRACK_STORAGE")] Storage = 1,
@@ -114,6 +128,14 @@ namespace Bnet {
       hasStewardContract_ = other.hasStewardContract_;
       hasSteward_ = other.hasSteward_;
       stewardCoins_ = other.stewardCoins_;
+      hasWatcherResearch_ = other.hasWatcherResearch_;
+      maySetWatchers_ = other.maySetWatchers_;
+      watcherPosts_ = other.watcherPosts_;
+      watcherLevel_ = other.watcherLevel_;
+      meleeWatchers_ = other.meleeWatchers_;
+      archerWatchers_ = other.archerWatchers_;
+      fallenWatchers_ = other.fallenWatchers_.Clone();
+      bringBackCoins_ = other.bringBackCoins_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -303,6 +325,109 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "has_watcher_research" field.</summary>
+    public const int HasWatcherResearchFieldNumber = 15;
+    private bool hasWatcherResearch_;
+    /// <summary>
+    /// With Watcher Research. Only the leader sets the mix, one watcher per click: the actions "add_watcher" and
+    /// "remove_watcher" with the kind's name as "watcher". Any member brings the fallen watcher that would wait
+    /// longest back at once with "bring_back_watcher".
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasWatcherResearch {
+      get { return hasWatcherResearch_; }
+      set {
+        hasWatcherResearch_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "may_set_watchers" field.</summary>
+    public const int MaySetWatchersFieldNumber = 16;
+    private bool maySetWatchers_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool MaySetWatchers {
+      get { return maySetWatchers_; }
+      set {
+        maySetWatchers_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "watcher_posts" field.</summary>
+    public const int WatcherPostsFieldNumber = 17;
+    private uint watcherPosts_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint WatcherPosts {
+      get { return watcherPosts_; }
+      set {
+        watcherPosts_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "watcher_level" field.</summary>
+    public const int WatcherLevelFieldNumber = 18;
+    private uint watcherLevel_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint WatcherLevel {
+      get { return watcherLevel_; }
+      set {
+        watcherLevel_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "melee_watchers" field.</summary>
+    public const int MeleeWatchersFieldNumber = 19;
+    private uint meleeWatchers_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint MeleeWatchers {
+      get { return meleeWatchers_; }
+      set {
+        meleeWatchers_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "archer_watchers" field.</summary>
+    public const int ArcherWatchersFieldNumber = 20;
+    private uint archerWatchers_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint ArcherWatchers {
+      get { return archerWatchers_; }
+      set {
+        archerWatchers_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "fallen_watchers" field.</summary>
+    public const int FallenWatchersFieldNumber = 21;
+    private static readonly pb::FieldCodec<global::Bnet.FallenWatcher> _repeated_fallenWatchers_codec
+        = pb::FieldCodec.ForMessage(170, global::Bnet.FallenWatcher.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.FallenWatcher> fallenWatchers_ = new pbc::RepeatedField<global::Bnet.FallenWatcher>();
+    /// <summary>
+    /// Soonest back first.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.FallenWatcher> FallenWatchers {
+      get { return fallenWatchers_; }
+    }
+
+    /// <summary>Field number for the "bring_back_coins" field.</summary>
+    public const int BringBackCoinsFieldNumber = 22;
+    private ulong bringBackCoins_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong BringBackCoins {
+      get { return bringBackCoins_; }
+      set {
+        bringBackCoins_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -332,6 +457,14 @@ namespace Bnet {
       if (HasStewardContract != other.HasStewardContract) return false;
       if (HasSteward != other.HasSteward) return false;
       if (StewardCoins != other.StewardCoins) return false;
+      if (HasWatcherResearch != other.HasWatcherResearch) return false;
+      if (MaySetWatchers != other.MaySetWatchers) return false;
+      if (WatcherPosts != other.WatcherPosts) return false;
+      if (WatcherLevel != other.WatcherLevel) return false;
+      if (MeleeWatchers != other.MeleeWatchers) return false;
+      if (ArcherWatchers != other.ArcherWatchers) return false;
+      if(!fallenWatchers_.Equals(other.fallenWatchers_)) return false;
+      if (BringBackCoins != other.BringBackCoins) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -353,6 +486,14 @@ namespace Bnet {
       if (HasStewardContract != false) hash ^= HasStewardContract.GetHashCode();
       if (HasSteward != false) hash ^= HasSteward.GetHashCode();
       if (StewardCoins != 0UL) hash ^= StewardCoins.GetHashCode();
+      if (HasWatcherResearch != false) hash ^= HasWatcherResearch.GetHashCode();
+      if (MaySetWatchers != false) hash ^= MaySetWatchers.GetHashCode();
+      if (WatcherPosts != 0) hash ^= WatcherPosts.GetHashCode();
+      if (WatcherLevel != 0) hash ^= WatcherLevel.GetHashCode();
+      if (MeleeWatchers != 0) hash ^= MeleeWatchers.GetHashCode();
+      if (ArcherWatchers != 0) hash ^= ArcherWatchers.GetHashCode();
+      hash ^= fallenWatchers_.GetHashCode();
+      if (BringBackCoins != 0UL) hash ^= BringBackCoins.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -424,6 +565,35 @@ namespace Bnet {
         output.WriteRawTag(112);
         output.WriteUInt64(StewardCoins);
       }
+      if (HasWatcherResearch != false) {
+        output.WriteRawTag(120);
+        output.WriteBool(HasWatcherResearch);
+      }
+      if (MaySetWatchers != false) {
+        output.WriteRawTag(128, 1);
+        output.WriteBool(MaySetWatchers);
+      }
+      if (WatcherPosts != 0) {
+        output.WriteRawTag(136, 1);
+        output.WriteUInt32(WatcherPosts);
+      }
+      if (WatcherLevel != 0) {
+        output.WriteRawTag(144, 1);
+        output.WriteUInt32(WatcherLevel);
+      }
+      if (MeleeWatchers != 0) {
+        output.WriteRawTag(152, 1);
+        output.WriteUInt32(MeleeWatchers);
+      }
+      if (ArcherWatchers != 0) {
+        output.WriteRawTag(160, 1);
+        output.WriteUInt32(ArcherWatchers);
+      }
+      fallenWatchers_.WriteTo(output, _repeated_fallenWatchers_codec);
+      if (BringBackCoins != 0UL) {
+        output.WriteRawTag(176, 1);
+        output.WriteUInt64(BringBackCoins);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -487,6 +657,35 @@ namespace Bnet {
         output.WriteRawTag(112);
         output.WriteUInt64(StewardCoins);
       }
+      if (HasWatcherResearch != false) {
+        output.WriteRawTag(120);
+        output.WriteBool(HasWatcherResearch);
+      }
+      if (MaySetWatchers != false) {
+        output.WriteRawTag(128, 1);
+        output.WriteBool(MaySetWatchers);
+      }
+      if (WatcherPosts != 0) {
+        output.WriteRawTag(136, 1);
+        output.WriteUInt32(WatcherPosts);
+      }
+      if (WatcherLevel != 0) {
+        output.WriteRawTag(144, 1);
+        output.WriteUInt32(WatcherLevel);
+      }
+      if (MeleeWatchers != 0) {
+        output.WriteRawTag(152, 1);
+        output.WriteUInt32(MeleeWatchers);
+      }
+      if (ArcherWatchers != 0) {
+        output.WriteRawTag(160, 1);
+        output.WriteUInt32(ArcherWatchers);
+      }
+      fallenWatchers_.WriteTo(ref output, _repeated_fallenWatchers_codec);
+      if (BringBackCoins != 0UL) {
+        output.WriteRawTag(176, 1);
+        output.WriteUInt64(BringBackCoins);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -536,6 +735,28 @@ namespace Bnet {
       }
       if (StewardCoins != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(StewardCoins);
+      }
+      if (HasWatcherResearch != false) {
+        size += 1 + 1;
+      }
+      if (MaySetWatchers != false) {
+        size += 2 + 1;
+      }
+      if (WatcherPosts != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(WatcherPosts);
+      }
+      if (WatcherLevel != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(WatcherLevel);
+      }
+      if (MeleeWatchers != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(MeleeWatchers);
+      }
+      if (ArcherWatchers != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(ArcherWatchers);
+      }
+      size += fallenWatchers_.CalculateSize(_repeated_fallenWatchers_codec);
+      if (BringBackCoins != 0UL) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt64Size(BringBackCoins);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -588,6 +809,28 @@ namespace Bnet {
       }
       if (other.StewardCoins != 0UL) {
         StewardCoins = other.StewardCoins;
+      }
+      if (other.HasWatcherResearch != false) {
+        HasWatcherResearch = other.HasWatcherResearch;
+      }
+      if (other.MaySetWatchers != false) {
+        MaySetWatchers = other.MaySetWatchers;
+      }
+      if (other.WatcherPosts != 0) {
+        WatcherPosts = other.WatcherPosts;
+      }
+      if (other.WatcherLevel != 0) {
+        WatcherLevel = other.WatcherLevel;
+      }
+      if (other.MeleeWatchers != 0) {
+        MeleeWatchers = other.MeleeWatchers;
+      }
+      if (other.ArcherWatchers != 0) {
+        ArcherWatchers = other.ArcherWatchers;
+      }
+      fallenWatchers_.Add(other.fallenWatchers_);
+      if (other.BringBackCoins != 0UL) {
+        BringBackCoins = other.BringBackCoins;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -662,6 +905,38 @@ namespace Bnet {
           }
           case 112: {
             StewardCoins = input.ReadUInt64();
+            break;
+          }
+          case 120: {
+            HasWatcherResearch = input.ReadBool();
+            break;
+          }
+          case 128: {
+            MaySetWatchers = input.ReadBool();
+            break;
+          }
+          case 136: {
+            WatcherPosts = input.ReadUInt32();
+            break;
+          }
+          case 144: {
+            WatcherLevel = input.ReadUInt32();
+            break;
+          }
+          case 152: {
+            MeleeWatchers = input.ReadUInt32();
+            break;
+          }
+          case 160: {
+            ArcherWatchers = input.ReadUInt32();
+            break;
+          }
+          case 170: {
+            fallenWatchers_.AddEntriesFrom(input, _repeated_fallenWatchers_codec);
+            break;
+          }
+          case 176: {
+            BringBackCoins = input.ReadUInt64();
             break;
           }
         }
@@ -739,6 +1014,273 @@ namespace Bnet {
             StewardCoins = input.ReadUInt64();
             break;
           }
+          case 120: {
+            HasWatcherResearch = input.ReadBool();
+            break;
+          }
+          case 128: {
+            MaySetWatchers = input.ReadBool();
+            break;
+          }
+          case 136: {
+            WatcherPosts = input.ReadUInt32();
+            break;
+          }
+          case 144: {
+            WatcherLevel = input.ReadUInt32();
+            break;
+          }
+          case 152: {
+            MeleeWatchers = input.ReadUInt32();
+            break;
+          }
+          case 160: {
+            ArcherWatchers = input.ReadUInt32();
+            break;
+          }
+          case 170: {
+            fallenWatchers_.AddEntriesFrom(ref input, _repeated_fallenWatchers_codec);
+            break;
+          }
+          case 176: {
+            BringBackCoins = input.ReadUInt64();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class FallenWatcher : pb::IMessage<FallenWatcher>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<FallenWatcher> _parser = new pb::MessageParser<FallenWatcher>(() => new FallenWatcher());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<FallenWatcher> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Bnet.StrongholdSmsgReflection.Descriptor.MessageTypes[1]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public FallenWatcher() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public FallenWatcher(FallenWatcher other) : this() {
+      kind_ = other.kind_;
+      secondsLeft_ = other.secondsLeft_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public FallenWatcher Clone() {
+      return new FallenWatcher(this);
+    }
+
+    /// <summary>Field number for the "kind" field.</summary>
+    public const int KindFieldNumber = 1;
+    private global::Bnet.WatcherKind kind_ = global::Bnet.WatcherKind.Melee;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.WatcherKind Kind {
+      get { return kind_; }
+      set {
+        kind_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "seconds_left" field.</summary>
+    public const int SecondsLeftFieldNumber = 2;
+    private uint secondsLeft_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint SecondsLeft {
+      get { return secondsLeft_; }
+      set {
+        secondsLeft_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as FallenWatcher);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(FallenWatcher other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Kind != other.Kind) return false;
+      if (SecondsLeft != other.SecondsLeft) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Kind != global::Bnet.WatcherKind.Melee) hash ^= Kind.GetHashCode();
+      if (SecondsLeft != 0) hash ^= SecondsLeft.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Kind != global::Bnet.WatcherKind.Melee) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) Kind);
+      }
+      if (SecondsLeft != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(SecondsLeft);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Kind != global::Bnet.WatcherKind.Melee) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) Kind);
+      }
+      if (SecondsLeft != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(SecondsLeft);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Kind != global::Bnet.WatcherKind.Melee) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Kind);
+      }
+      if (SecondsLeft != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(SecondsLeft);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(FallenWatcher other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Kind != global::Bnet.WatcherKind.Melee) {
+        Kind = other.Kind;
+      }
+      if (other.SecondsLeft != 0) {
+        SecondsLeft = other.SecondsLeft;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            Kind = (global::Bnet.WatcherKind) input.ReadEnum();
+            break;
+          }
+          case 16: {
+            SecondsLeft = input.ReadUInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            Kind = (global::Bnet.WatcherKind) input.ReadEnum();
+            break;
+          }
+          case 16: {
+            SecondsLeft = input.ReadUInt32();
+            break;
+          }
         }
       }
     }
@@ -761,7 +1303,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.StrongholdSmsgReflection.Descriptor.MessageTypes[1]; }
+      get { return global::Bnet.StrongholdSmsgReflection.Descriptor.MessageTypes[2]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

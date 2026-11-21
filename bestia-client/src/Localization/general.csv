@@ -44,6 +44,7 @@ ERROR_GUILD_STORAGE_IN_USE,%s is using the guild storage.
 ERROR_STORAGE_MAY_NOT_PUT,Your rank may not put items into this storage.
 ERROR_STORAGE_MAY_NOT_TAKE,Your rank may not take items out of this storage.
 ERROR_STORAGE_FULL,This storage is full.
+ERROR_STRONGHOLD_CANNOT_AFFORD_BRING_BACK,You do not carry enough coins to bring a watcher back.
 STATUS_EFFECT_10,Warded: a ward stone's magic keeps other players from harming you and you from harming them.
 STATUS_EFFECT_12,Guild aura: your guild master is near and lends you strength.
 STATUS_EFFECT_13,"Battle Orders: +5 STR, DEX and INT."
@@ -825,6 +826,16 @@ STRONGHOLD_STEWARD_SERVING,The steward serves here. Members who fall return here
 STRONGHOLD_STEWARD_NEEDS_CONTRACT,Your guild needs the skill Steward Contract to hire a steward.
 STRONGHOLD_STEWARD_COST,Hire: %s coins
 STRONGHOLD_HIRE,Hire
+STRONGHOLD_WATCHERS,Watchers
+STRONGHOLD_WATCHERS_HEAD,Lv %d · %d / %d posts
+STRONGHOLD_WATCHERS_NEED_RESEARCH,Your guild needs the skill Watcher Research to call watchers.
+STRONGHOLD_WATCHER_MELEE,Melee Guardian
+STRONGHOLD_WATCHER_ARCHER,Archer Guardian
+STRONGHOLD_WATCHER_SHORT_MELEE,Melee
+STRONGHOLD_WATCHER_SHORT_ARCHER,Archer
+STRONGHOLD_WATCHERS_FALLEN,"Fallen: %s · next back in %s"
+STRONGHOLD_WATCHERS_BRING_BACK_COST,Bring back now: %s coins
+STRONGHOLD_WATCHERS_BRING_BACK,Bring
 STRONGHOLD_PERMANENT_DEVELOPMENT,Permanent Development: each step has a 50% chance to count twice.
 STRONGHOLD_PLANT,Plant
 STRONGHOLD_PLANT_TEXT,"%s

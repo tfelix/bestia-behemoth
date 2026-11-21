@@ -60,6 +60,12 @@ class StrongholdRecord(
   @Column(name = "has_steward", nullable = false)
   var hasSteward: Boolean = false,
 
+  @Column(name = "melee_watchers", nullable = false)
+  var meleeWatchers: Int = 0,
+
+  @Column(name = "archer_watchers", nullable = false)
+  var archerWatchers: Int = 0,
+
   @Column(name = "planted_at", nullable = false)
   var plantedAt: Instant = Instant.EPOCH,
 

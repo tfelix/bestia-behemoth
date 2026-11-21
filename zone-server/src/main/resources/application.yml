@@ -114,6 +114,16 @@ stronghold:
   # Storage level of each Stronghold the guild holds.
   storage-slots-per-skill-level: 100
   storage-slots-per-storage-level: 50
+  # With Watcher Research the leader calls watchers: 2 posts plus 1 per Defense level, at most 12, at level 50 plus 5
+  # per Defense level. A fallen watcher comes back after the minutes, or at once for the coins. They roam and fight
+  # this far round their Empyrite.
+  watcher-base-posts: 2
+  watcher-max-posts: 12
+  watcher-base-level: 50
+  watcher-level-per-defense: 5
+  watcher-return-minutes: 30
+  watcher-bring-back-coins: 50000
+  watcher-roam-metres: 120
   # The guild that breaks an Empyrite takes the Stronghold; the new Empyrite cannot be harmed for this long.
   capture-grace-minutes: 10
   # Weekly spans in which Strongholds can be attacked, such as "SATURDAY 18:00-22:00", read in attack-window-zone.

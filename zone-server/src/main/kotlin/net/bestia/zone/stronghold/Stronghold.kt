@@ -14,6 +14,8 @@ data class Stronghold(
   val empyriteHp: Int = 0,
   val tracks: Map<StrongholdTrack, TrackProgress> = emptyMap(),
   val hasSteward: Boolean = false,
+  /** The leader's mix of watchers. */
+  val watchers: Map<WatcherKind, Int> = emptyMap(),
 ) {
 
   fun progressOf(track: StrongholdTrack): TrackProgress {
@@ -22,5 +24,13 @@ data class Stronghold(
 
   fun withProgress(track: StrongholdTrack, progress: TrackProgress): Stronghold {
     return copy(tracks = tracks + (track to progress))
+  }
+
+  fun watchersOf(kind: WatcherKind): Int {
+    return watchers[kind] ?: 0
+  }
+
+  fun withWatchers(kind: WatcherKind, count: Int): Stronghold {
+    return copy(watchers = watchers + (kind to count))
   }
 }

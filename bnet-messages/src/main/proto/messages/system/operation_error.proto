@@ -580,6 +580,8 @@ enum OpError {
   STORAGE_MAY_NOT_TAKE = 411;
   // A storage other than a chest has no free slot for a new pile.
   STORAGE_FULL = 412;
+  // The member does not carry the coins to bring a fallen watcher back at once.
+  STRONGHOLD_CANNOT_AFFORD_BRING_BACK = 413;
 }
 
 message OperationError {

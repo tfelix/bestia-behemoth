@@ -9,6 +9,7 @@ import net.bestia.zone.stronghold.GuildStorages
 import net.bestia.zone.stronghold.Empyrites
 import net.bestia.zone.stronghold.Stewards
 import net.bestia.zone.stronghold.StrongholdRegistry
+import net.bestia.zone.stronghold.Watchers
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
@@ -28,6 +29,7 @@ class StrongholdBootRunner(
   private val empyrites: Empyrites,
   private val stewards: Stewards,
   private val guildStorages: GuildStorages,
+  private val watchers: Watchers,
   private val world: World,
 ) : CommandLineRunner {
 
@@ -39,6 +41,7 @@ class StrongholdBootRunner(
     sites.restoreOwners(world)
     empyrites.raiseAll(world)
     stewards.raiseAll(world)
+    watchers.raiseAll(world)
     guildStorages.loadAll()
     waking.raiseSprouts(world)
   }
