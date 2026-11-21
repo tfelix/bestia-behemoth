@@ -2,9 +2,12 @@ package net.bestia.zone.stronghold
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.stronghold.EmpyriteSeed
+import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.ecs.level.Level
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.geometry.Vec3L
@@ -29,6 +32,8 @@ class WatchersTest {
   private var now = Instant.parse("2026-11-21T12:00:00Z")
   private var stronghold = Stronghold(seed.rank, GUILD, State.STANDING, null, Instant.EPOCH, Instant.EPOCH)
     .withProgress(StrongholdTrack.DEFENSE, TrackProgress(2, 0))
+
+  private val statusEffects = mockk<StatusEffectService>(relaxed = true)
 
   private val watchers = Watchers(
     strongholds = mockk {
@@ -59,6 +64,7 @@ class WatchersTest {
       }
     },
     worldService = mockk<WorldService> { every { config } returns WorldConfig(seed = 1L, chunkSize = 32) },
+    statusEffects = statusEffects,
     config = StrongholdConfig(),
     clock = object : Clock() {
       override fun instant() = now
@@ -118,6 +124,21 @@ class WatchersTest {
 
     watchers.dismissAll(world, seed.rank)
     assertTrue(watcherEntities().isEmpty())
+  }
+
+  @Test
+  fun `Strengthen Watchers reaches the standing watchers and every one called later, and never goes down`() {
+    watchers.setMix(world, stronghold, WatcherKind.MELEE, 1)
+    val first = watcherEntities().single()
+
+    watchers.strengthen(world, stronghold, 2)
+    watchers.setMix(world, stronghold, WatcherKind.ARCHER, 1)
+    watchers.strengthen(world, stronghold, 1)
+
+    assertEquals(2, stronghold.watcherStrength)
+    val second = watcherEntities().single { it != first }
+    verify(exactly = 1) { statusEffects.applyEffect(world, first, StatusEffectId.WATCHER_STRENGTH, 2) }
+    verify(exactly = 1) { statusEffects.applyEffect(world, second, StatusEffectId.WATCHER_STRENGTH, 2) }
   }
 
   private fun watcherEntities(): List<EntityId> {

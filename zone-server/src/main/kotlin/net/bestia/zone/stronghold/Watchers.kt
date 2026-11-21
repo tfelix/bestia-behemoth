@@ -5,6 +5,8 @@ import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.domain.bestia.WorkArea
 import net.bestia.zone.ai.ecs.AiAgent
+import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.Dead
@@ -36,6 +38,7 @@ class Watchers(
   private val bestias: BestiaCatalogue,
   private val spawner: BestiaEntitySpawner,
   private val worldService: WorldService,
+  private val statusEffects: StatusEffectService,
   private val config: StrongholdConfig,
   private val clock: Clock = Clock.systemUTC(),
 ) {
@@ -129,6 +132,17 @@ class Watchers(
     }
   }
 
+  /** The guild's Strengthen Watchers level changed: the Stronghold keeps it, and every standing watcher gets it. */
+  fun strengthen(world: World, stronghold: Stronghold, level: Int) {
+    if (level <= stronghold.watcherStrength) return
+
+    val strengthened = stronghold.copy(watcherStrength = level)
+    strongholds.put(strengthened)
+    postsByRank[stronghold.rank].orEmpty().forEach { post ->
+      post.entityId?.takeIf { world.isAlive(it) }?.let { applyStrength(world, it, level) }
+    }
+  }
+
   /** The Stronghold fell or changed hands: its watchers leave with the old guild. */
   fun dismissAll(world: World, rank: Int) {
     postsByRank.remove(rank).orEmpty().forEach { post -> post.entityId?.let { if (world.isAlive(it)) world.destroy(it) } }
@@ -149,6 +163,7 @@ class Watchers(
     )
     world.add(id, GuildOwned(stronghold.guildId))
     world.add(id, Watcher(stronghold.rank))
+    applyStrength(world, id, stronghold.watcherStrength)
     world.get(id, AiAgent::class)?.memory?.let { memory ->
       memory.set(BestiaDomain.GUARD_AREA, WorkArea(home, roamTiles), Blackboard.PERMANENT)
       memory.set(BestiaDomain.WANDER_RADIUS, roamTiles, Blackboard.PERMANENT)
@@ -156,6 +171,10 @@ class Watchers(
 
     post.entityId = id
     post.backAt = null
+  }
+
+  private fun applyStrength(world: World, watcherId: EntityId, level: Int) {
+    if (level > 0) statusEffects.applyEffect(world, watcherId, StatusEffectId.WATCHER_STRENGTH, level)
   }
 
   /** Spread on a small ring round the Empyrite, so they do not all start in one spot. */
