@@ -23,9 +23,10 @@ var _history_index: int = -1
 ## trim - either of which would otherwise leave the details showing for the rest of the session.
 var _hovered_line: RichTextLabel = null
 
-## Maps ChatMode OptionButton index to Bnet.Mode enum int values (Party=0, Guild=1, Public=3).
-## Index 0=Public(/s), 1=Party(/p), 2=Guild(/g)
-const BNET_MODE_MAP: Array[int] = [3, 0, 1]
+## Maps ChatMode OptionButton index to Bnet.Mode enum int values (Party=0, Guild=1, Whisper=2, Public=3).
+## Index 0=Public(/s), 1=Party(/p), 2=Guild(/g), 3=Whisper(/w)
+const BNET_MODE_MAP: Array[int] = [3, 0, 1, 2]
+const _WHISPER_MODE_INDEX := 3
 
 ## Red, for something that did not happen: a refusal, a failure, an action the server turned down.
 const _ERROR_COLOR := Color(0.90, 0.35, 0.35)
@@ -40,14 +41,18 @@ const _SYSTEM_COLOR := Color(0.95, 0.82, 0.35)
 ## their own marks in.
 const _ITEM_COLOR := Color(0.62, 0.85, 1.0)
 
-## Green for the party and violet for the guild, so a line says who heard it before it is read. Kept clear of
-## the red, yellow and blue above.
+## Green for the party, violet for the guild and magenta for a whisper, so a line says who heard it before it
+## is read. Kept clear of the red, yellow and blue above.
 const _PARTY_COLOR := Color(0.55, 0.88, 0.55)
 const _GUILD_COLOR := UiStyle.GUILD
+const _WHISPER_COLOR := Color(1.0, 0.45, 0.85)
+
+var _whisper_address := WhisperAddressReader.new()
 
 
 func _ready() -> void:
 	add_to_group("world_blocking_ui")
+	chat_mode_option.item_selected.connect(_show_name_field_for)
 	ConnectionManager.connect("chat_received", _on_chat_received)
 	ConnectionManager.readable_received.connect(_on_readable_received)
 	ConnectionManager.announcement_received.connect(_on_announcement_received)
@@ -92,7 +97,7 @@ func _handle_enter() -> void:
 	else:
 		chat_input.call_deferred("grab_focus")
 
-## Handles sending chat. Mode-switch prefixes (/s /p /g) update the UI and strip
+## Handles sending chat. Mode-switch prefixes (/s /p /g /w) update the UI and strip
 ## the prefix before sending. Plain /commands are passed as-is; ToEnvelope() in
 ## ChatCMSG.cs detects the leading slash and overrides the mode to Command(7).
 func _handle_chat_send() -> void:
@@ -111,13 +116,21 @@ func _handle_chat_send() -> void:
 	elif chat_text.begins_with("/g "):
 		_switch_chat_mode(2)
 		chat_text = chat_text.substr(3)
-	elif chat_text.begins_with("/w "):
-		# FIXME whisper not yet implemented, we need to extract the username
-		_clear_input()
-		return
-	
+	elif chat_text == "/w" or chat_text.begins_with("/w "):
+		var address: PackedStringArray = _whisper_address.Split(chat_text.substr(2))
+		var target := address[0]
+		if target == "":
+			error_line(tr("CHAT_WHISPER_USAGE"))
+			_clear_input()
+			return
+		_whisper_to(target)
+		chat_text = address[1]
+
 	# Special case handling for internal commands.
-	if chat_text == "/clear":
+	if chat_text == "":
+		# A prefix alone, "/w Bob" say, only chose where the next lines go.
+		pass
+	elif chat_text == "/clear":
 		_handle_clear_chat()
 	elif _refuses_emote(chat_text):
 		pass
@@ -127,10 +140,21 @@ func _handle_chat_send() -> void:
 		ConnectionManager.send_chat(chat_text, 7)
 	else:
 		# Regular send to the server
-		var bnet_mode = BNET_MODE_MAP[chat_mode_option.selected]
-		ConnectionManager.send_chat(chat_text, bnet_mode)
-	
+		_say(chat_text)
+
 	_clear_input()
+
+
+## Says [param text] in the chosen mode: to everybody near, the party, the guild, or the one master whispered to.
+func _say(text: String) -> void:
+	var whisper_target := ""
+	if chat_mode_option.selected == _WHISPER_MODE_INDEX:
+		whisper_target = user_whisper_input.text.strip_edges()
+		if whisper_target == "":
+			error_line(tr("CHAT_WHISPER_NO_TARGET"))
+			return
+
+	ConnectionManager.send_chat(text, BNET_MODE_MAP[chat_mode_option.selected], whisper_target)
 
 
 ## An emote the body the player controls has no clips for - a bestia asked to cheer - is answered here rather than
@@ -157,7 +181,18 @@ func _handle_clear_chat() -> void:
 func _switch_chat_mode(modeIdx: int) -> void:
 	chat_mode_option.select(modeIdx)
 	chat_mode_option.show()
-	user_whisper_input.hide()
+	_show_name_field_for(modeIdx)
+
+
+## Whisper mode stays on [param target], so the next plain lines go to the same master.
+func _whisper_to(target: String) -> void:
+	_switch_chat_mode(_WHISPER_MODE_INDEX)
+	user_whisper_input.text = target
+
+
+## Only a whisper names somebody, so only whisper mode shows the name field.
+func _show_name_field_for(mode_idx: int) -> void:
+	user_whisper_input.visible = mode_idx == _WHISPER_MODE_INDEX
 
 
 ## A neutral notice, in yellow.
@@ -392,7 +427,17 @@ func _on_chat_received(message: ChatSMSG) -> void:
 		_add_chat_line(tr("CHAT_LINE_PARTY") % [message.SenderName, message.Text], _PARTY_COLOR)
 	elif message.IsGuild():
 		_add_chat_line(tr("CHAT_LINE_GUILD") % [message.SenderName, message.Text], _GUILD_COLOR)
+	elif message.IsWhisper():
+		_add_whisper_line(message)
 	elif message.SenderName != "":
 		_add_chat_line("%s: %s" % [message.SenderName, message.Text])
 	else:
 		_add_chat_line(message.Text)
+
+
+## The player's own copy of a whisper names who it went to; a whisper from somebody else names nobody.
+func _add_whisper_line(message: ChatSMSG) -> void:
+	if message.TargetName != "":
+		_add_chat_line(tr("CHAT_LINE_WHISPER_TO") % [message.TargetName, message.Text], _WHISPER_COLOR)
+	else:
+		_add_chat_line(tr("CHAT_LINE_WHISPER_FROM") % [message.SenderName, message.Text], _WHISPER_COLOR)

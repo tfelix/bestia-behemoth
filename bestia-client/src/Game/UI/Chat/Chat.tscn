@@ -39,19 +39,23 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 selected = 0
-item_count = 3
+item_count = 4
 popup/item_0/text = "Public"
 popup/item_0/id = 0
 popup/item_1/text = "Party"
 popup/item_1/id = 1
 popup/item_2/text = "Guild"
 popup/item_2/id = 2
+popup/item_3/text = "Whisper"
+popup/item_3/id = 3
 
 [node name="UserWhisper" type="LineEdit" parent="Bottom"]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
+placeholder_text = "CHAT_WHISPER_NAME"
+max_length = 24
 
 [node name="ChatInput" type="LineEdit" parent="Bottom"]
 unique_name_in_owner = true

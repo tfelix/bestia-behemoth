@@ -443,6 +443,11 @@ CHAT_LINE_ANNOUNCEMENT,[Announcement] %s
 ANNOUNCEMENT_GM,%s
 ANNOUNCEMENT_STRONGHOLD_UNHELD,"The guild %s is gone. %s stands empty, free for any guild to take."
 CHAT_LINE_GUILD,[Guild] %s: %s
+CHAT_LINE_WHISPER_FROM,[From %s] %s
+CHAT_LINE_WHISPER_TO,[To %s] %s
+CHAT_WHISPER_NAME,Name
+CHAT_WHISPER_USAGE,"Whisper with /w Name text. Put a name of two words in quotes: /w ""First Second"" text."
+CHAT_WHISPER_NO_TARGET,Enter the name of the player to whisper to.
 INVITATION_ACCEPT,Yes
 INVITATION_DECLINE,No
 PARTY_NONE_HINT,"You are in no party. Found one, or wait for an invitation."

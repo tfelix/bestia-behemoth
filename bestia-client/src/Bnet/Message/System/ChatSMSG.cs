@@ -34,6 +34,12 @@ namespace BestiaBehemothClient.Bnet.Message.System
     public ulong SenderEntityId { get; set; } = 0;
 
     /// <summary>
+    /// Set only on the player's own copy of a whisper: the master it went to.
+    /// </summary>
+    [Export]
+    public string TargetName { get; set; } = string.Empty;
+
+    /// <summary>
     /// Creates a new ChatSMSG with default values
     /// </summary>
     public ChatSMSG()
@@ -52,7 +58,8 @@ namespace BestiaBehemothClient.Bnet.Message.System
         Text = protoChatSmsg.Text ?? string.Empty,
         ChatMode = protoChatSmsg.Mode,
         SenderName = protoChatSmsg.SenderName ?? string.Empty,
-        SenderEntityId = protoChatSmsg.SenderEntityId
+        SenderEntityId = protoChatSmsg.SenderEntityId,
+        TargetName = protoChatSmsg.TargetName ?? string.Empty
       };
     }
 
