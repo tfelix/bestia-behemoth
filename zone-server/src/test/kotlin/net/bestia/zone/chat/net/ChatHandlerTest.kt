@@ -5,18 +5,17 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.account.persistence.Master
-import net.bestia.zone.account.MasterNotFoundException
 import net.bestia.zone.account.MasterResolver
 import net.bestia.zone.skill.BasicSkillGate
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import org.junit.jupiter.api.Test
-import net.bestia.zone.chat.ChatSMSG
 import net.bestia.zone.guild.GuildAudience
 import net.bestia.zone.party.PartyAudience
 import net.bestia.zone.chat.ChatType
 import net.bestia.zone.chat.GroupChat
+import net.bestia.zone.chat.WhisperChat
 import net.bestia.zone.identity.GroupMember
 
 /**
@@ -31,6 +30,7 @@ class ChatHandlerTest {
   private val partyAudience = mockk<PartyAudience>()
   private val guildAudience = mockk<GuildAudience>()
   private val groupChat = mockk<GroupChat>(relaxed = true)
+  private val whisperChat = mockk<WhisperChat>()
 
   private val handler = ChatHandler(
     outMessageProcessor = out,
@@ -42,14 +42,15 @@ class ChatHandlerTest {
     partyAudience = partyAudience,
     guildAudience = guildAudience,
     groupChat = groupChat,
+    whisperChat = whisperChat,
     scryVoice = mockk(relaxed = true),
   )
 
+  private val sender = mockk<Master> { every { name } returns "sender" }
+
   private fun whisper(target: String, text: String = "helloworld") {
     every { skillGate.mayChat(SENDER) } returns true
-    every { masters.getSelectedMasterByAccountId(SENDER) } returns mockk<Master> {
-      every { name } returns "sender"
-    }
+    every { masters.getSelectedMasterByAccountId(SENDER) } returns sender
 
     handler.handle(
       ChatCMSG(
@@ -61,70 +62,44 @@ class ChatHandlerTest {
     )
   }
 
-  private fun unavailable(target: String) =
-    OperationErrorSMSG(OpError.CHAT_WHISPER_TARGET_UNAVAILABLE, listOf(target))
-
-  @Test
-  fun `a whisper to a connected master is delivered`() {
-    every { masters.getAccountIdByMasterName("target") } returns TARGET
-    every { out.isPlayerConnected(TARGET) } returns true
-
-    whisper("target")
-
-    verify {
-      out.sendToPlayer(
-        TARGET,
-        ChatSMSG(type = ChatType.WHISPER, text = "helloworld", senderUsername = "sender")
-      )
-    }
+  private fun unavailable(target: String): OperationErrorSMSG {
+    return OperationErrorSMSG(OpError.CHAT_WHISPER_TARGET_UNAVAILABLE, listOf(target))
   }
 
   @Test
-  fun `a whisper to a name nobody has is refused`() {
-    every { masters.getAccountIdByMasterName("nobody") } throws MasterNotFoundException()
+  fun `a whisper that arrived is not answered with a refusal`() {
+    every { whisperChat.deliver(sender, "target", "helloworld") } returns true
+
+    whisper("target")
+
+    verify(exactly = 0) { out.sendToPlayer(SENDER, any<OperationErrorSMSG>()) }
+  }
+
+  @Test
+  fun `a whisper that had nowhere to go is refused`() {
+    every { whisperChat.deliver(sender, "nobody", "helloworld") } returns false
 
     whisper("nobody")
 
     verify { out.sendToPlayer(SENDER, unavailable("nobody")) }
   }
 
-  /**
-   * The same answer as the unknown name above, deliberately: a whisper that could tell the two apart would
-   * be a way to ask who is online.
-   */
-  @Test
-  fun `a whisper to a master who is not connected is refused the same way`() {
-    every { masters.getAccountIdByMasterName("target") } returns TARGET
-    every { out.isPlayerConnected(TARGET) } returns false
-
-    whisper("target")
-
-    verify { out.sendToPlayer(SENDER, unavailable("target")) }
-    verify(exactly = 0) { out.sendToPlayer(TARGET, any<ChatSMSG>()) }
-  }
-
   /** Relayed to every client in range, so the length a client may send is the length every reader is shown. */
   @Test
   fun `an over-long line is not relayed`() {
-    every { masters.getAccountIdByMasterName("target") } returns TARGET
-    every { out.isPlayerConnected(TARGET) } returns true
-
     whisper("target", text = "x".repeat(201))
 
-    verify(exactly = 0) { out.sendToPlayer(TARGET, any<ChatSMSG>()) }
+    verify(exactly = 0) { whisperChat.deliver(any(), any(), any()) }
   }
 
   /** A bell or a right-to-left override in someone else's chat window is never something the reader asked for. */
   @Test
   fun `control characters are stripped before relaying`() {
-    every { masters.getAccountIdByMasterName("target") } returns TARGET
-    every { out.isPlayerConnected(TARGET) } returns true
+    every { whisperChat.deliver(any(), any(), any()) } returns true
 
     whisper("target", text = "hello\u0007\u202Eworld")
 
-    verify {
-      out.sendToPlayer(TARGET, ChatSMSG(type = ChatType.WHISPER, text = "helloworld", senderUsername = "sender"))
-    }
+    verify { whisperChat.deliver(sender, "target", "helloworld") }
   }
 
   private fun groupLine(type: ChatType, text: String = "together") {

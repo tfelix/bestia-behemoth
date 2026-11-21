@@ -45,6 +45,9 @@ class ChatScenarios : BestiaNoSocketScenario() {
     assertEquals("helloworld", whisperChatRx.text)
     assertEquals("player1", whisperChatRx.senderUsername)
     assertEquals(ChatType.WHISPER, whisperChatRx.type)
+
+    val ownCopy = clientPlayer1.getLastReceived(ChatSMSG::class)
+    assertEquals(whisperChatRx.copy(targetUsername = "player2"), ownCopy)
   }
 
   @Test

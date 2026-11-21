@@ -10,7 +10,9 @@ data class ChatSMSG(
   val type: ChatType,
   val text: String,
   val senderUsername: String? = null,
-  val senderEntityId: Long? = null
+  val senderEntityId: Long? = null,
+  /** Set only on the writer's own copy of a whisper: the master it went to. */
+  val targetUsername: String? = null,
 ) : SMSG {
 
   init {
@@ -41,6 +43,10 @@ data class ChatSMSG(
 
     if (senderEntityId != null) {
       chat.setSenderEntityId(senderEntityId)
+    }
+
+    if (targetUsername != null) {
+      chat.setTargetName(targetUsername)
     }
 
     return EnvelopeProto.Envelope.newBuilder()
