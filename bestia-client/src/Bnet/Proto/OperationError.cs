@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqENQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSquNQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -176,9 +176,10 @@ namespace Bnet {
             "lgMSHgoZR1VJTERfU1RPUkFHRV9OT1RfQUxMT1dFRBCXAxIfChpHVUlMRF9T",
             "VE9SQUdFX09VVF9PRl9SRUFDSBCYAxIZChRHVUlMRF9TVE9SQUdFX0lOX1VT",
             "RRCZAxIYChNTVE9SQUdFX01BWV9OT1RfUFVUEJoDEhkKFFNUT1JBR0VfTUFZ",
-            "X05PVF9UQUtFEJsDEhEKDFNUT1JBR0VfRlVMTBCcAyIECC4QLioSU0hPUF9U",
-            "UkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0",
-            "aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
+            "X05PVF9UQUtFEJsDEhEKDFNUT1JBR0VfRlVMTBCcAxIoCiNTVFJPTkdIT0xE",
+            "X0NBTk5PVF9BRkZPUkRfQlJJTkdfQkFDSxCdAyIECC4QLioSU0hPUF9UUkVB",
+            "U1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9u",
+            "RXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1132,6 +1133,10 @@ namespace Bnet {
     /// A storage other than a chest has no free slot for a new pile.
     /// </summary>
     [pbr::OriginalName("STORAGE_FULL")] StorageFull = 412,
+    /// <summary>
+    /// The member does not carry the coins to bring a fallen watcher back at once.
+    /// </summary>
+    [pbr::OriginalName("STRONGHOLD_CANNOT_AFFORD_BRING_BACK")] StrongholdCannotAffordBringBack = 413,
   }
 
   #endregion

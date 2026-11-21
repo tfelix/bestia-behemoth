@@ -33,6 +33,7 @@ class EmpyritesTest {
   private val sprouts = mockk<EmpyriteSeedSprouts>(relaxed = true)
   private val statusEffects = mockk<StatusEffectService>(relaxed = true)
   private val stewards = mockk<Stewards>(relaxed = true)
+  private val watchers = mockk<Watchers>(relaxed = true)
 
   private val strongholds = mockk<StrongholdRegistry> {
     every { all() } answers { held.toList() }
@@ -48,6 +49,7 @@ class EmpyritesTest {
     spots = mockk { every { standingAt(seed) } returns Vec3L(1_000, 1_000, 40) },
     statusEffects = statusEffects,
     stewards = stewards,
+    watchers = watchers,
     config = StrongholdConfig(
       empyriteHp = 50_000, empyriteDefense = 20, empyriteHpPerDefense = 10_000, captureGraceMinutes = 10
     ),
@@ -77,7 +79,10 @@ class EmpyritesTest {
 
   @Test
   fun `the guild that strikes the breaking blow takes the Stronghold, whole and unharmable for a while`() {
-    held.add(Stronghold(seed.rank, GUILD, State.STANDING, null, EPOCH, EPOCH, empyriteHp = 1, hasSteward = true))
+    held.add(
+      Stronghold(seed.rank, GUILD, State.STANDING, null, EPOCH, EPOCH, empyriteHp = 1, hasSteward = true)
+        .withWatchers(WatcherKind.MELEE, 3)
+    )
     empyrites.raiseAll(world)
     val broken = assertNotNull(empyriteEntity())
     val enemy = world.createEntity { id ->
@@ -92,7 +97,9 @@ class EmpyritesTest {
     assertEquals(OTHER_GUILD, held.single().guildId)
     assertEquals(50_000, held.single().empyriteHp)
     assertFalse(held.single().hasSteward)
+    assertEquals(emptyMap(), held.single().watchers)
     verify { stewards.dismiss(world, seed.rank) }
+    verify { watchers.dismissAll(world, seed.rank) }
     val reformed = assertNotNull(empyriteEntities().singleOrNull { it != broken })
     assertEquals(GuildOwned(OTHER_GUILD), world.get(reformed, GuildOwned::class))
     assertEquals(50_000, world.get(reformed, Health::class)?.current)

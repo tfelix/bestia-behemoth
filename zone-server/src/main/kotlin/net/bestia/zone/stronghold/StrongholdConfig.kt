@@ -42,6 +42,17 @@ data class StrongholdConfig(
   /** Guild storage slots per level of the Guild Storage skill, and per Storage level of each Stronghold held. */
   val storageSlotsPerSkillLevel: Int = 100,
   val storageSlotsPerStorageLevel: Int = 50,
+  /** Watcher posts: this many, plus one per Defense level, up to the most. */
+  val watcherBasePosts: Int = 2,
+  val watcherMaxPosts: Int = 12,
+  /** A watcher's level: the base, plus this much per Defense level. */
+  val watcherBaseLevel: Int = 50,
+  val watcherLevelPerDefense: Int = 5,
+  /** A fallen watcher comes back after this, or at once for the coins. */
+  val watcherReturnMinutes: Long = 30,
+  val watcherBringBackCoins: Long = 50_000,
+  /** How far from its Empyrite a watcher roams and fights. */
+  val watcherRoamMetres: Double = 120.0,
   /** After a capture, the new Empyrite cannot be harmed for this long. */
   val captureGraceMinutes: Long = 10,
   /** Weekly spans such as `SATURDAY 18:00-22:00` in which Strongholds can be attacked. Empty: always. */
@@ -67,6 +78,10 @@ data class StrongholdConfig(
     require(empyriteHpPerDefense >= 0 && empyriteDefensePerLevel >= 0) { "Defense must not weaken the Empyrite" }
     require(stepCoinsPerLevel >= 0) { "stronghold.step-coins-per-level must not be negative, was $stepCoinsPerLevel" }
     require(storageSlotsPerSkillLevel >= 0 && storageSlotsPerStorageLevel >= 0) { "Guild storage slots must not be negative" }
+    require(watcherBasePosts in 0..watcherMaxPosts) { "stronghold.watcher-base-posts must lie in 0..watcher-max-posts" }
+    require(watcherBaseLevel > 0 && watcherLevelPerDefense >= 0) { "Watcher levels must be positive" }
+    require(watcherReturnMinutes >= 0 && watcherBringBackCoins >= 0) { "Watcher return time and price must not be negative" }
+    require(watcherRoamMetres > 0.0) { "stronghold.watcher-roam-metres must be positive, was $watcherRoamMetres" }
     require(stewardCoins >= 0) { "stronghold.steward-coins must not be negative, was $stewardCoins" }
     require(doubleStepChance in 0.0..1.0) { "stronghold.double-step-chance must lie in 0..1, was $doubleStepChance" }
     // Parsed here as well as where they are used, so a typo stops the boot rather than the first siege.

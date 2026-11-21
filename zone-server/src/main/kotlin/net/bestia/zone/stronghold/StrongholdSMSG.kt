@@ -16,11 +16,23 @@ data class StrongholdSMSG(
   val hpPerDefense: Int,
   val defPerDefense: Int,
   val steward: Steward,
+  val watchers: Watchers,
 ) : SMSG {
 
   data class Track(val track: StrongholdTrack, val progress: TrackProgress, val nextStepCoins: Long)
 
   data class Steward(val hasContract: Boolean, val isHired: Boolean, val coins: Long)
+
+  data class Watchers(
+    val hasResearch: Boolean,
+    val maySet: Boolean,
+    val posts: Int,
+    val level: Int,
+    val mix: Map<WatcherKind, Int>,
+    /** Soonest back first, with the seconds left. */
+    val fallen: List<Pair<WatcherKind, Long>>,
+    val bringBackCoins: Long,
+  )
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val proto = StrongholdSmsgProto.StrongholdSMSG.newBuilder()
@@ -37,6 +49,13 @@ data class StrongholdSMSG(
       .setHasStewardContract(steward.hasContract)
       .setHasSteward(steward.isHired)
       .setStewardCoins(steward.coins)
+      .setHasWatcherResearch(watchers.hasResearch)
+      .setMaySetWatchers(watchers.maySet)
+      .setWatcherPosts(watchers.posts)
+      .setWatcherLevel(watchers.level)
+      .setMeleeWatchers(watchers.mix[WatcherKind.MELEE] ?: 0)
+      .setArcherWatchers(watchers.mix[WatcherKind.ARCHER] ?: 0)
+      .setBringBackCoins(watchers.bringBackCoins)
 
     for (track in tracks) {
       proto.addTracks(
@@ -45,6 +64,14 @@ data class StrongholdSMSG(
           .setLevel(track.progress.level)
           .setSteps(track.progress.steps)
           .setNextStepCoins(track.nextStepCoins)
+      )
+    }
+
+    for ((kind, secondsLeft) in watchers.fallen) {
+      proto.addFallenWatchers(
+        StrongholdSmsgProto.FallenWatcher.newBuilder()
+          .setKind(StrongholdSmsgProto.WatcherKind.forNumber(kind.ordinal))
+          .setSecondsLeft(secondsLeft.toInt())
       )
     }
 

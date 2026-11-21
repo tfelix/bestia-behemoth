@@ -28,6 +28,28 @@ message StrongholdSMSG {
   bool has_steward = 13;
   // What hiring a steward costs.
   uint64 steward_coins = 14;
+  // With Watcher Research. Only the leader sets the mix, one watcher per click: the actions "add_watcher" and
+  // "remove_watcher" with the kind's name as "watcher". Any member brings the fallen watcher that would wait
+  // longest back at once with "bring_back_watcher".
+  bool has_watcher_research = 15;
+  bool may_set_watchers = 16;
+  uint32 watcher_posts = 17;
+  uint32 watcher_level = 18;
+  uint32 melee_watchers = 19;
+  uint32 archer_watchers = 20;
+  // Soonest back first.
+  repeated FallenWatcher fallen_watchers = 21;
+  uint64 bring_back_coins = 22;
+}
+
+message FallenWatcher {
+  WatcherKind kind = 1;
+  uint32 seconds_left = 2;
+}
+
+enum WatcherKind {
+  WATCHER_KIND_MELEE = 0;
+  WATCHER_KIND_ARCHER = 1;
 }
 
 message StrongholdTrackInfo {

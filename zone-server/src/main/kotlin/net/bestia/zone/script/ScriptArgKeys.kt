@@ -29,4 +29,7 @@ object ScriptArgKeys {
 
   /** Which investment track of a Stronghold, by `StrongholdTrack` name. */
   const val TRACK = "track"
+
+  /** A Stronghold watcher's kind, by its name, for the Stronghold window's watcher buttons. */
+  const val WATCHER = "watcher"
 }

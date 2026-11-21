@@ -2,7 +2,7 @@ class_name StrongholdPanel
 extends PanelContainer
 
 ## The Stronghold window at a guild's own Empyrite: its health, the three tracks members invest in, one step per
-## click, and its steward. Opened by the server when a member clicks the Empyrite in reach, closed by walking away,
+## click, its steward and its watchers. Opened by the server when a member clicks the Empyrite in reach, closed by walking away,
 ## like the city sign. Built in code.
 
 signal stronghold_opened()
@@ -13,6 +13,12 @@ const _WALK_AWAY_METRES := 8.0
 ## Mirrors net.bestia.zone.stronghold.EmpyriteInteraction.INVEST.
 const _INVEST := "invest"
 const _HIRE_STEWARD := "hire_steward"
+const _ADD_WATCHER := "add_watcher"
+const _REMOVE_WATCHER := "remove_watcher"
+const _BRING_BACK_WATCHER := "bring_back_watcher"
+
+## The proto's WatcherKind, in its order, by the server's name.
+const _WATCHER_KINDS: Array[String] = ["MELEE", "ARCHER"]
 
 ## The proto's StrongholdTrack, in its order, by the server's name.
 const _TRACK_NAMES: Array[String] = ["DEFENSE", "STORAGE", "ECONOMY"]
@@ -30,6 +36,16 @@ var _rows: Array[Dictionary] = []
 var _steward_state: Label
 var _steward_cost: Label
 var _hire: Button
+var _watcher_head: Label
+var _watcher_state: Label
+## One entry per watcher kind: count label, remove and add buttons.
+var _watcher_rows: Array[Dictionary] = []
+var _fallen: Label
+var _bring_back_cost: Label
+var _bring_back: Button
+## The fallen watchers as last sent, and when, so the countdown runs without the server.
+var _fallen_watchers: Array[Dictionary] = []
+var _fallen_received_ms := 0
 
 
 func _ready() -> void:
@@ -54,6 +70,8 @@ func _process(_delta: float) -> void:
 	var player := _player()
 	if player == null or player.global_position.distance_to(_opened_at) > _WALK_AWAY_METRES:
 		close_stronghold()
+		return
+	_show_fallen()
 
 
 func _on_opened(msg: StrongholdSMSG) -> void:
@@ -81,6 +99,7 @@ func _on_opened(msg: StrongholdSMSG) -> void:
 		(row["invest"] as Button).disabled = maxed
 
 	_show_steward(msg)
+	_show_watchers(msg)
 	stronghold_opened.emit()
 
 
@@ -112,6 +131,62 @@ func _show_steward(msg: StrongholdSMSG) -> void:
 	_steward_cost.text = tr("STRONGHOLD_STEWARD_COST") % UiStyle.group_digits(msg.StewardCoins)
 	_steward_cost.visible = may_hire
 	_hire.visible = may_hire
+
+
+func _order_watcher(action: String, kind: int) -> void:
+	if _empyrite_entity_id == 0:
+		return
+	var args = ConnectionManager.ScriptArgsCls.new()
+	args.SetText(ScriptArgKeys.ACTION, action)
+	if kind >= 0:
+		args.SetText(ScriptArgKeys.WATCHER, _WATCHER_KINDS[kind])
+	ConnectionManager.interact_entity(_empyrite_entity_id, args)
+
+
+func _show_watchers(msg: StrongholdSMSG) -> void:
+	var counts := [msg.MeleeWatchers, msg.ArcherWatchers]
+	var total: int = counts[0] + counts[1]
+	_watcher_head.text = tr("STRONGHOLD_WATCHERS_HEAD") % [msg.WatcherLevel, total, msg.WatcherPosts]
+	_watcher_head.visible = msg.HasWatcherResearch
+	_watcher_state.text = tr("STRONGHOLD_WATCHERS_NEED_RESEARCH")
+	_watcher_state.visible = not msg.HasWatcherResearch
+
+	for kind in _watcher_rows.size():
+		var row: Dictionary = _watcher_rows[kind]
+		(row["line"] as Control).visible = msg.HasWatcherResearch
+		(row["count"] as Label).text = str(counts[kind])
+		(row["remove"] as Button).visible = msg.MaySetWatchers
+		(row["remove"] as Button).disabled = counts[kind] <= 0
+		(row["add"] as Button).visible = msg.MaySetWatchers
+		(row["add"] as Button).disabled = total >= msg.WatcherPosts
+
+	_fallen_watchers.assign(msg.FallenWatchers)
+	_fallen_received_ms = Time.get_ticks_msec()
+	_bring_back_cost.text = tr("STRONGHOLD_WATCHERS_BRING_BACK_COST") % UiStyle.group_digits(msg.BringBackCoins)
+	_show_fallen()
+
+
+## "Fallen: 1 Melee, 1 Archer · next back in 12:03", counted down here between messages.
+func _show_fallen() -> void:
+	var down := not _fallen_watchers.is_empty()
+	_fallen.visible = down
+	_bring_back_cost.visible = down
+	_bring_back.visible = down
+	if not down:
+		return
+
+	var per_kind := [0, 0]
+	for fallen in _fallen_watchers:
+		per_kind[int(fallen["kind"])] += 1
+	var parts: Array[String] = []
+	for kind in per_kind.size():
+		if per_kind[kind] > 0:
+			parts.append("%d %s" % [per_kind[kind], tr("STRONGHOLD_WATCHER_SHORT_%s" % _WATCHER_KINDS[kind])])
+
+	var elapsed := floori((Time.get_ticks_msec() - _fallen_received_ms) / 1000.0)
+	var seconds_left := maxi(0, int(_fallen_watchers[0]["seconds_left"]) - elapsed)
+	var clock := "%d:%02d" % [floori(seconds_left / 60.0), seconds_left % 60]
+	_fallen.text = tr("STRONGHOLD_WATCHERS_FALLEN") % [", ".join(parts), clock]
 
 
 func _show_pips(pips: HBoxContainer, filled: int, total: int) -> void:
@@ -150,6 +225,8 @@ func _build() -> void:
 
 	body.add_child(HSeparator.new())
 	body.add_child(_build_steward_row())
+	body.add_child(HSeparator.new())
+	body.add_child(_build_watcher_rows())
 
 	_development = UiStyle.label(tr("STRONGHOLD_PERMANENT_DEVELOPMENT"), 12, UiStyle.GUILD)
 	_development.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -204,5 +281,54 @@ func _build_steward_row() -> Control:
 	_hire.text = tr("STRONGHOLD_HIRE")
 	_hire.pressed.connect(_hire_steward)
 	foot.add_child(_hire)
+
+	return rows
+
+
+func _build_watcher_rows() -> Control:
+	var rows := UiStyle.vbox(2)
+
+	var head := UiStyle.hbox(8)
+	rows.add_child(head)
+	head.add_child(UiStyle.label(tr("STRONGHOLD_WATCHERS"), 14))
+	_watcher_head = UiStyle.label("", 13, UiStyle.MUTED)
+	head.add_child(_watcher_head)
+
+	_watcher_state = UiStyle.label("", 12, UiStyle.MUTED)
+	_watcher_state.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	rows.add_child(UiStyle.margin(_watcher_state, 12, 0, 0, 0))
+
+	for kind in _WATCHER_KINDS.size():
+		var line := UiStyle.hbox(8)
+		rows.add_child(UiStyle.margin(line, 12, 0, 0, 0))
+		var kind_name := UiStyle.label(tr("STRONGHOLD_WATCHER_%s" % _WATCHER_KINDS[kind]), 12)
+		kind_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		line.add_child(kind_name)
+		var count := UiStyle.label("", 12)
+		count.custom_minimum_size = Vector2(24, 0)
+		line.add_child(count)
+		var remove := Button.new()
+		remove.text = "−"
+		remove.pressed.connect(func() -> void: _order_watcher(_REMOVE_WATCHER, kind))
+		line.add_child(remove)
+		var add := Button.new()
+		add.text = "+"
+		add.pressed.connect(func() -> void: _order_watcher(_ADD_WATCHER, kind))
+		line.add_child(add)
+		_watcher_rows.append({"line": line.get_parent(), "count": count, "remove": remove, "add": add})
+
+	_fallen = UiStyle.label("", 12, UiStyle.MUTED)
+	_fallen.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	rows.add_child(UiStyle.margin(_fallen, 12, 0, 0, 0))
+
+	var foot := UiStyle.hbox(8)
+	rows.add_child(UiStyle.margin(foot, 12, 0, 0, 0))
+	_bring_back_cost = UiStyle.label("", 12)
+	_bring_back_cost.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	foot.add_child(_bring_back_cost)
+	_bring_back = Button.new()
+	_bring_back.text = tr("STRONGHOLD_WATCHERS_BRING_BACK")
+	_bring_back.pressed.connect(func() -> void: _order_watcher(_BRING_BACK_WATCHER, -1))
+	foot.add_child(_bring_back)
 
 	return rows

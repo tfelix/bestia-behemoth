@@ -12,11 +12,13 @@ import net.bestia.zone.skill.SkillId
 import net.bestia.zone.stronghold.ecs.Empyrite
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
+import java.time.Clock
+import java.time.Duration
 import kotlin.random.Random
 
 /**
- * The Stronghold window at a guild's Empyrite: members open it, invest coins one step of one track per click, and
- * hire its steward. Tick thread only.
+ * The Stronghold window at a guild's Empyrite: members open it, invest coins one step of one track per click, hire
+ * its steward, and call its watchers. Tick thread only.
  */
 @Service
 class StrongholdWindow(
@@ -24,10 +26,12 @@ class StrongholdWindow(
   private val seeds: EmpyriteSeedRegistry,
   private val empyrites: Empyrites,
   private val stewards: Stewards,
+  private val watchers: Watchers,
   private val coins: StrongholdCoins,
   private val messages: OutMessageProcessor,
   private val config: StrongholdConfig,
   private val random: Random = Random.Default,
+  private val clock: Clock = Clock.systemUTC(),
 ) {
 
   /** A member clicked their guild's Empyrite: the window opens. */
@@ -53,7 +57,10 @@ class StrongholdWindow(
     val steps = if (hasPermanentDevelopment(world, actorId) && random.nextDouble() < config.doubleStepChance) 2 else 1
     val advanced = progress.advanced(steps)
     strongholds.put(stronghold.withProgress(track, advanced))
-    if (track == StrongholdTrack.DEFENSE && advanced.level != progress.level) empyrites.harden(world, stronghold.rank)
+    if (track == StrongholdTrack.DEFENSE && advanced.level != progress.level) {
+      empyrites.harden(world, stronghold.rank)
+      strongholds.on(stronghold.rank)?.let { watchers.levelUp(world, it) }
+    }
 
     sendWindow(world, actorId, empyriteId)
 
@@ -72,6 +79,44 @@ class StrongholdWindow(
     if (!coins.pay(world, actorId, masterId, config.stewardCoins)) return OpError.STRONGHOLD_CANNOT_AFFORD_STEWARD
 
     stewards.hire(world, stronghold)
+    sendWindow(world, actorId, empyriteId)
+
+    return null
+  }
+
+  /**
+   * The leader adds or removes one watcher of [kind]. Calling one is free; the posts cap the mix. Needs Watcher
+   * Research.
+   */
+  fun changeWatchers(world: World, actorId: EntityId, empyriteId: EntityId, kind: WatcherKind, delta: Int): OpError? {
+    refusal(world, actorId, empyriteId)?.let { return it }
+    val stronghold = strongholdOf(world, empyriteId) ?: return OpError.REQUEST_REFUSED
+    val count = stronghold.watchersOf(kind) + delta
+    val total = stronghold.watchers.values.sum() + delta
+
+    // The window offers no such button, so only a stale window or a hand-made request asks.
+    if (!maySetWatchers(world, actorId) || count < 0 || total > watchers.postsOf(stronghold)) {
+      return OpError.REQUEST_REFUSED
+    }
+
+    watchers.setMix(world, stronghold, kind, count)
+    sendWindow(world, actorId, empyriteId)
+
+    return null
+  }
+
+  /** Any member pays for the fallen watcher that would wait longest to come back at once. */
+  fun bringBackWatcher(world: World, actorId: EntityId, empyriteId: EntityId): OpError? {
+    refusal(world, actorId, empyriteId)?.let { return it }
+    val stronghold = strongholdOf(world, empyriteId) ?: return OpError.REQUEST_REFUSED
+    val masterId = world.get(actorId, Master::class)?.masterId ?: return OpError.REQUEST_REFUSED
+
+    if (watchers.fallenOf(stronghold.rank).isEmpty()) return OpError.REQUEST_REFUSED
+    if (!coins.pay(world, actorId, masterId, config.watcherBringBackCoins)) {
+      return OpError.STRONGHOLD_CANNOT_AFFORD_BRING_BACK
+    }
+
+    watchers.bringBack(world, stronghold)
     sendWindow(world, actorId, empyriteId)
 
     return null
@@ -106,9 +151,30 @@ class StrongholdWindow(
 
     val window = StrongholdSMSG(
       empyriteId, seedName, guildName, health.current, health.max, tracks, hasPermanentDevelopment(world, actorId),
-      config.empyriteHpPerDefense, config.empyriteDefensePerLevel, steward
+      config.empyriteHpPerDefense, config.empyriteDefensePerLevel, steward, watcherInfo(world, actorId, stronghold)
     )
     messages.sendToPlayer(accountId, window)
+  }
+
+  private fun watcherInfo(world: World, actorId: EntityId, stronghold: Stronghold): StrongholdSMSG.Watchers {
+    val now = clock.instant()
+
+    return StrongholdSMSG.Watchers(
+      hasResearch = hasGuildSkill(world, actorId, SkillId.WATCHER_RESEARCH),
+      maySet = maySetWatchers(world, actorId),
+      posts = watchers.postsOf(stronghold),
+      level = watchers.levelOf(stronghold),
+      mix = WatcherKind.entries.associateWith { stronghold.watchersOf(it) },
+      fallen = watchers.fallenOf(stronghold.rank).map { it.kind to Duration.between(now, it.backAt).seconds.coerceAtLeast(0) },
+      bringBackCoins = config.watcherBringBackCoins,
+    )
+  }
+
+  /** The docs leave the mix to the leader, with Watcher Research. */
+  private fun maySetWatchers(world: World, actorId: EntityId): Boolean {
+    val membership = world.get(actorId, GuildMembership::class) ?: return false
+
+    return membership.isLeader && hasGuildSkill(world, actorId, SkillId.WATCHER_RESEARCH)
   }
 
   /** A step towards level N costs N times the base. */
