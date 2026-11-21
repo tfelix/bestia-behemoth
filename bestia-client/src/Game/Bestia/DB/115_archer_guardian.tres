@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 115
+name_key = "BESTIA_ARCHER_GUARDIAN"
+description_key = "BESTIA_ARCHER_GUARDIAN_DESC"
+placeholder_shape = 3
+placeholder_colour = Color(0.7098, 0.5529, 0.2588, 1)
+placeholder_scale = 1.1
+placeholder_glow = 0
+kind = "HUMANOID"
+equip_slots = 0
+armor_types = 0
+non_combatant = false
+habitat = ""
+in_compendium = false
+aggressive = true
+level_min = 50
+level_max = 50
+loot_item_ids = PackedInt32Array()
+loot_chances = PackedInt32Array()

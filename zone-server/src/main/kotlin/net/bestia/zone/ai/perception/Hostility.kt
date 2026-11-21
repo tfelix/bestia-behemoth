@@ -6,11 +6,15 @@ import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.entity.ecs.ClosedToAttack
 import net.bestia.zone.entity.ecs.Poi
+import net.bestia.zone.identity.ecs.GuildAffiliation
 import net.bestia.zone.identity.ecs.GuildMembership
+import net.bestia.zone.identity.ecs.GuildOwned
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.identity.ecs.PartyMembership
+import net.bestia.zone.skill.SkillId
 import net.bestia.zone.util.EntityId
 
 /**
@@ -24,8 +28,8 @@ object Hostility {
 
   val READS: ComponentClassSet = setOf(
     Master::class, OwnedBestia::class, StatusEffects::class, AiAgent::class, PartyMembership::class,
-    GuildMembership::class, Poi::class
-  )
+    GuildMembership::class, Poi::class, GuildOwned::class, ClosedToAttack::class
+  ) + GuildAffiliation.READS
 
   fun isHostile(world: World, self: EntityId, candidate: EntityId): Boolean {
     // A POI has no side. Players may break one, but no creature sets out to.
@@ -45,10 +49,22 @@ object Hostility {
    */
   fun isIntruder(world: World, guard: EntityId, candidate: EntityId): Boolean {
     if (world.has(candidate, Poi::class)) return false
+    world.get(guard, GuildOwned::class)?.let { return isGuildRival(world, guard, it.guildId, candidate) }
     if (isControlled(world, guard) || isControlled(world, candidate)) return isHostile(world, guard, candidate)
     if (isWild(world, candidate)) return huntsOnSight(world, candidate)
 
     return !isAlly(world, guard, candidate)
+  }
+
+  /**
+   * A guild's watcher fights only those who may fight it back: members of another guild with Official Guild Approval
+   * and their bestias, and only while its grounds are open to attack.
+   */
+  private fun isGuildRival(world: World, watcher: EntityId, guildId: Long, candidate: EntityId): Boolean {
+    if (world.has(watcher, ClosedToAttack::class)) return false
+    val membership = GuildAffiliation.membershipOf(world, candidate) ?: return false
+
+    return membership.guildId != guildId && membership.skillLevel(SkillId.OFFICIAL_GUILD_APPROVAL.name) > 0
   }
 
   /** A wolf rather than a deer: a grazer that only fights back is no intruder until it attacks. */

@@ -240,3 +240,7 @@ BESTIA_SIZE_MEDIUM,Medium
 BESTIA_SIZE_BIG,Big
 BESTIA_GUILD_STEWARD,Steward
 BESTIA_GUILD_STEWARD_DESC,Keeps a guild's Stronghold in order beside its Empyrite. Members store goods with the steward and return here when they fall.
+BESTIA_MELEE_GUARDIAN,Melee Guardian
+BESTIA_MELEE_GUARDIAN_DESC,"A watcher of brass and clockwork that guards a guild's Stronghold up close. Very tough, and it does not tire."
+BESTIA_ARCHER_GUARDIAN,Archer Guardian
+BESTIA_ARCHER_GUARDIAN_DESC,A watcher of brass and clockwork that guards a guild's Stronghold from range. Its arrows never run out.
