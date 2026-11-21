@@ -27,6 +27,9 @@ interface ContainerOwners {
   /** Locks the row of a chest [masterId] built: null when another master built it. Throws when there is no such chest. */
   fun lockedChestOf(masterId: Long, structureId: Long): ContainerOwner?
 
+  /** Locks the guild's storage row, made empty when the guild has none yet. */
+  fun lockedGuildStorage(guildId: Long): ContainerOwner
+
   fun save(owner: ContainerOwner)
 
   /** Saves and flushes, and answers the saved row, whose new container slots now have ids. */

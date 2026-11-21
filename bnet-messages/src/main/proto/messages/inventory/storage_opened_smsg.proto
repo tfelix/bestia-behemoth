@@ -20,4 +20,6 @@ message StorageOpenedSMSG {
 // What the client calls the storage.
 enum StorageKind {
   STORAGE_KIND_CHEST = 0;
+  // Opened at a steward; shared by the whole guild, one member at a time.
+  STORAGE_KIND_GUILD_STORAGE = 1;
 }

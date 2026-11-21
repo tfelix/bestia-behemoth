@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqcMwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqENQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -171,9 +171,14 @@ namespace Bnet {
             "U0lERV9BVFRBQ0tfV0lORE9XEJADEh8KGlNUUk9OR0hPTERfTk9UX1lPVVJf",
             "R1VJTERTEJEDEhwKF1NUUk9OR0hPTERfT1VUX09GX1JBTkdFEJIDEiIKHVNU",
             "Uk9OR0hPTERfQ0FOTk9UX0FGRk9SRF9TVEVQEJMDEiUKIFNUUk9OR0hPTERf",
-            "Q0FOTk9UX0FGRk9SRF9TVEVXQVJEEJQDIgQILhAuKhJTSE9QX1RSRUFTVVJZ",
-            "X0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRpb25FcnJv",
-            "clByb3RvYgZwcm90bzM="));
+            "Q0FOTk9UX0FGRk9SRF9TVEVXQVJEEJQDEiIKHUdVSUxEX1NUT1JBR0VfTk9U",
+            "X1lPVVJfR1VJTERTEJUDEh4KGUdVSUxEX1NUT1JBR0VfTk9UX0xFQVJORUQQ",
+            "lgMSHgoZR1VJTERfU1RPUkFHRV9OT1RfQUxMT1dFRBCXAxIfChpHVUlMRF9T",
+            "VE9SQUdFX09VVF9PRl9SRUFDSBCYAxIZChRHVUlMRF9TVE9SQUdFX0lOX1VT",
+            "RRCZAxIYChNTVE9SQUdFX01BWV9OT1RfUFVUEJoDEhkKFFNUT1JBR0VfTUFZ",
+            "X05PVF9UQUtFEJsDEhEKDFNUT1JBR0VfRlVMTBCcAyIECC4QLioSU0hPUF9U",
+            "UkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0",
+            "aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1101,6 +1106,32 @@ namespace Bnet {
     /// The member does not carry the coins a steward costs.
     /// </summary>
     [pbr::OriginalName("STRONGHOLD_CANNOT_AFFORD_STEWARD")] StrongholdCannotAffordSteward = 404,
+    /// <summary>
+    /// The steward serves another guild, so its guild storage does not open.
+    /// </summary>
+    [pbr::OriginalName("GUILD_STORAGE_NOT_YOUR_GUILDS")] GuildStorageNotYourGuilds = 405,
+    /// <summary>
+    /// The guild has not learned Guild Storage.
+    /// </summary>
+    [pbr::OriginalName("GUILD_STORAGE_NOT_LEARNED")] GuildStorageNotLearned = 406,
+    /// <summary>
+    /// The member's rank may neither deposit nor take.
+    /// </summary>
+    [pbr::OriginalName("GUILD_STORAGE_NOT_ALLOWED")] GuildStorageNotAllowed = 407,
+    [pbr::OriginalName("GUILD_STORAGE_OUT_OF_REACH")] GuildStorageOutOfReach = 408,
+    /// <summary>
+    /// Another member has the guild storage open. args[0] is that master's name.
+    /// </summary>
+    [pbr::OriginalName("GUILD_STORAGE_IN_USE")] GuildStorageInUse = 409,
+    /// <summary>
+    /// The member's rank may not put items into, or take them out of, the open storage.
+    /// </summary>
+    [pbr::OriginalName("STORAGE_MAY_NOT_PUT")] StorageMayNotPut = 410,
+    [pbr::OriginalName("STORAGE_MAY_NOT_TAKE")] StorageMayNotTake = 411,
+    /// <summary>
+    /// A storage other than a chest has no free slot for a new pile.
+    /// </summary>
+    [pbr::OriginalName("STORAGE_FULL")] StorageFull = 412,
   }
 
   #endregion

@@ -5,7 +5,7 @@ extends HBoxContainer
 ## the leader, the button that spends a point on it.
 
 ## Skills whose effect lives in a Guild Stronghold, which does not exist yet.
-const NEEDS_STRONGHOLD: Array[int] = [1003, 1004, 1005, 1006, 1019]
+const NEEDS_STRONGHOLD: Array[int] = [1004, 1005, 1006, 1019]
 
 var _info: GuildInfoSMSG
 var _is_leader := false

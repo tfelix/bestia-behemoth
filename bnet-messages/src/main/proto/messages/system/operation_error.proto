@@ -566,6 +566,20 @@ enum OpError {
   STRONGHOLD_CANNOT_AFFORD_STEP = 403;
   // The member does not carry the coins a steward costs.
   STRONGHOLD_CANNOT_AFFORD_STEWARD = 404;
+  // The steward serves another guild, so its guild storage does not open.
+  GUILD_STORAGE_NOT_YOUR_GUILDS = 405;
+  // The guild has not learned Guild Storage.
+  GUILD_STORAGE_NOT_LEARNED = 406;
+  // The member's rank may neither deposit nor take.
+  GUILD_STORAGE_NOT_ALLOWED = 407;
+  GUILD_STORAGE_OUT_OF_REACH = 408;
+  // Another member has the guild storage open. args[0] is that master's name.
+  GUILD_STORAGE_IN_USE = 409;
+  // The member's rank may not put items into, or take them out of, the open storage.
+  STORAGE_MAY_NOT_PUT = 410;
+  STORAGE_MAY_NOT_TAKE = 411;
+  // A storage other than a chest has no free slot for a new pile.
+  STORAGE_FULL = 412;
 }
 
 message OperationError {

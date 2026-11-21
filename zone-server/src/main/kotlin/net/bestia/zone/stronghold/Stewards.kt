@@ -7,6 +7,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.respawn.GuildRespawnPoints
+import net.bestia.zone.script.ecs.ScriptComponent
 import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.stronghold.ecs.Steward
 import net.bestia.zone.stronghold.persistence.StrongholdRecord.State
@@ -14,7 +15,7 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 
 /**
- * The stewards standing beside their Empyrites. Like the Empyrites, not stored as entities: every boot raises them
+ * The stewards standing beside their Empyrites, where members open the guild storage. Like the Empyrites, not stored as entities: every boot raises them
  * again from the Strongholds that hired one. The species is a non-combatant, so nothing harms a steward.
  *
  * A guild's fallen masters get up at the nearest of its Strongholds that has a steward.
@@ -72,6 +73,7 @@ class Stewards(
 
     val id = spawner.spawnMob(world, bestias.byIdentifier(SPECIES).id, at, persistent = false)
     world.add(id, Steward(stronghold.rank))
+    world.add(id, ScriptComponent(checkNotNull(GuildSteward::class.simpleName)))
   }
 
   private companion object {

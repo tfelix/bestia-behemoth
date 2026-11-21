@@ -13,7 +13,7 @@ data class StorageOpenedSMSG(
 ) : SMSG {
 
   /** In the proto's order. */
-  enum class Kind { CHEST }
+  enum class Kind { CHEST, GUILD_STORAGE }
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val opened = StorageOpenedSMSGProto.StorageOpenedSMSG.newBuilder()

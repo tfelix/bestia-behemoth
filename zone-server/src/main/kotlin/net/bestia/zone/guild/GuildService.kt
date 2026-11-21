@@ -542,6 +542,14 @@ class GuildService(
     return guildRepository.findNameLedBy(masterId)
   }
 
+  /** Every take from the guild storage goes into the guild log, with the amount as the target and the item as detail. */
+  @Transactional
+  fun logStorageTake(masterId: Long, itemId: Long, amount: Int) {
+    val (guild, member) = lockedGuildOf(masterId)
+
+    log.record(guild, GuildLogKind.STORAGE_TAKEN, member.master.name, amount.toString(), itemId.toString())
+  }
+
   /**
    * Takes a master out of its guild right before the master row is deleted. A leader is never deleted (see
    * `MasterDeletionService`), so this only ever removes a plain member. @return the guild it left, or null

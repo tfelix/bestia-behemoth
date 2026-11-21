@@ -89,6 +89,7 @@
  - SPAWN wave 50: IndoorEmergenceSystem [EverySeconds(seconds=20.0)]
  - UPKEEP wave 51: EnvironmentalExposureSystem [EveryTick]
  - UPKEEP wave 51: GroundLevelDecaySystem [EveryTick]
+ - UPKEEP wave 51: GuildStorageSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 51: GuildTagSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 51: HonorGossipSystem [EverySeconds(seconds=60.0)]
  - UPKEEP wave 51: LightSourceSystem [EverySeconds(seconds=10.0)]

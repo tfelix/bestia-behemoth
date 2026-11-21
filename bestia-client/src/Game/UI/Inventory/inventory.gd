@@ -37,7 +37,7 @@ const _REACH_POLL_SECONDS := 0.25
 const _EXCHANGE_ICON := preload("res://Theme/Icons/arrows-exchange.svg")
 const _PARTNER_ICON_WIDTH := 16
 ## What the exchange column calls an open storage, by the proto's StorageKind.
-const _STORAGE_NAMES: Array[String] = ["CHEST"]
+const _STORAGE_NAMES: Array[String] = ["CHEST", "GUILD_STORAGE"]
 
 var InventoryItem = preload("res://Game/UI/Inventory/InventoryItem/InventoryItem.tscn")
 var DropAmountDialogScn = preload("res://Game/UI/Inventory/DropAmountDialog/DropAmountDialog.tscn")
@@ -579,7 +579,7 @@ func _close_storage() -> void:
 
 ## A storage has no weight limit, so a full one is only found out by the server.
 func _on_operation_error(msg: OperationError) -> void:
-	if msg.CodeName == "chest_full" and _partner_id == _storage_id and is_exchanging():
+	if msg.CodeName in ["chest_full", "storage_full"] and _partner_id == _storage_id and is_exchanging():
 		_exchange.flash_refusal()
 
 
