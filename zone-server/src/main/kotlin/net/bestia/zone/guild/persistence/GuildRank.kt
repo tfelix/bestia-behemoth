@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
+import org.hibernate.annotations.ColumnDefault
 
 /**
  * A step in a guild's hierarchy. [position] 0 is the leader's rank, which keeps every permission; a higher
@@ -52,6 +53,16 @@ class GuildRank(
 
   @Column(name = "can_edit_motd", nullable = false)
   var canEditMotd: Boolean = false,
+
+  /** May put items into the guild storage. Every rank may, until the leader says otherwise. */
+  @Column(name = "can_deposit", nullable = false)
+  @ColumnDefault("true")
+  var canDeposit: Boolean = true,
+
+  /** May take items out of the guild storage. Every take is in the guild log. */
+  @Column(name = "can_take", nullable = false)
+  @ColumnDefault("false")
+  var canTake: Boolean = false,
 ) {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -6,7 +6,7 @@ import net.bestia.zone.util.AccountId
 /**
  * Marks a master entity as being in a guild, with what the tick needs to know about it, so guild features work
  * with a plain component read: the name, rank title and emblem its [net.bestia.zone.guild.ecs.GuildTag] shows, the tax
- * its rank pays, whether it leads or may cast guild skills, the guild's skill levels, and the roster that hears
+ * its rank pays, whether it leads, may cast guild skills or use the guild storage, the guild's skill levels, and the roster that hears
  * its [net.bestia.zone.guild.ecs.GuildMemberBeacon].
  *
  * Kept up to date by `GuildService` once a change has committed - a member joining or leaving, a new rank, a
@@ -20,6 +20,9 @@ data class GuildMembership(
   val emblemHash: String = "",
   val isLeader: Boolean = false,
   val mayUseGuildSkills: Boolean = false,
+  /** Put items into, and take them out of, the guild storage. */
+  val mayDeposit: Boolean = false,
+  val mayTake: Boolean = false,
   /** By `skills.yml` identifier; a skill the guild never learned has no entry. */
   val skillLevels: Map<String, Int> = emptyMap(),
   val members: Set<Member> = emptySet(),

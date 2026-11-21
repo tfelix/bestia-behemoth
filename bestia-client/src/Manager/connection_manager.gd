@@ -1510,7 +1510,7 @@ func set_guild_member_rank(master_id: int, rank_id: int) -> void:
 
 
 ## Edits a rank, or adds one at the bottom when [param rank_id] is 0.
-func save_guild_rank(rank_id: int, rank_name: String, tax_percent: int, can_invite: bool, can_kick: bool, can_manage_ranks: bool, can_use_guild_skills: bool, can_edit_motd: bool) -> void:
+func save_guild_rank(rank_id: int, rank_name: String, tax_percent: int, can_invite: bool, can_kick: bool, can_manage_ranks: bool, can_use_guild_skills: bool, can_edit_motd: bool, can_deposit: bool, can_take: bool) -> void:
 	assert(is_ready_to_send())
 	var msg = SaveGuildRankCMSG.new()
 	msg.RankId = rank_id
@@ -1521,6 +1521,8 @@ func save_guild_rank(rank_id: int, rank_name: String, tax_percent: int, can_invi
 	msg.CanManageRanks = can_manage_ranks
 	msg.CanUseGuildSkills = can_use_guild_skills
 	msg.CanEditMotd = can_edit_motd
+	msg.CanDeposit = can_deposit
+	msg.CanTake = can_take
 	_socket.SendMessage(msg)
 
 

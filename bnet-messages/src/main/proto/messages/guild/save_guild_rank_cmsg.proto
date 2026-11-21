@@ -17,4 +17,7 @@ message SaveGuildRankCMSG {
   bool can_manage_ranks = 6;
   bool can_use_guild_skills = 7;
   bool can_edit_motd = 8;
+  // Put items into, and take them out of, the guild storage.
+  bool can_deposit = 9;
+  bool can_take = 10;
 }

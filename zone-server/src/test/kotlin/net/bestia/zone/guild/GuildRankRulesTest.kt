@@ -107,6 +107,17 @@ class GuildRankRulesTest {
     assertFalse(GuildRankRules.mayEditMotd(officer))
   }
 
+  @Test
+  fun `a new rank may deposit but not take, and the leader may always do both`() {
+    val recruit = GuildMember(guild, master(7), GuildRank(guild, 5, "Recruit", taxPercent = 5))
+    val quartermaster = GuildMember(guild, master(8), rank(6, "Quartermaster", take = true))
+
+    assertTrue(GuildRankRules.mayDeposit(recruit))
+    assertFalse(GuildRankRules.mayTake(recruit))
+    assertTrue(GuildRankRules.mayTake(quartermaster))
+    assertTrue(GuildRankRules.mayDeposit(leader) && GuildRankRules.mayTake(leader))
+  }
+
   private fun rank(
     position: Int,
     name: String,
@@ -115,6 +126,7 @@ class GuildRankRulesTest {
     manage: Boolean = false,
     useSkills: Boolean = false,
     editMotd: Boolean = false,
+    take: Boolean = false,
   ): GuildRank {
     return GuildRank(
       guild,
@@ -126,6 +138,7 @@ class GuildRankRulesTest {
       canManageRanks = manage,
       canUseGuildSkills = useSkills,
       canEditMotd = editMotd,
+      canTake = take,
     )
   }
 

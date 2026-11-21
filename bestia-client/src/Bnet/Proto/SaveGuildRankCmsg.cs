@@ -25,16 +25,17 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiltZXNzYWdlcy9ndWlsZC9zYXZlX2d1aWxkX3JhbmtfY21zZy5wcm90bxIE",
-            "Ym5ldCK8AQoRU2F2ZUd1aWxkUmFua0NNU0cSDwoHcmFua19pZBgBIAEoBBIM",
+            "Ym5ldCLjAQoRU2F2ZUd1aWxkUmFua0NNU0cSDwoHcmFua19pZBgBIAEoBBIM",
             "CgRuYW1lGAIgASgJEhMKC3RheF9wZXJjZW50GAMgASgNEhIKCmNhbl9pbnZp",
             "dGUYBCABKAgSEAoIY2FuX2tpY2sYBSABKAgSGAoQY2FuX21hbmFnZV9yYW5r",
             "cxgGIAEoCBIcChRjYW5fdXNlX2d1aWxkX3NraWxscxgHIAEoCBIVCg1jYW5f",
-            "ZWRpdF9tb3RkGAggASgIQi8KFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IWU2F2",
-            "ZUd1aWxkUmFua0Ntc2dQcm90b2IGcHJvdG8z"));
+            "ZWRpdF9tb3RkGAggASgIEhMKC2Nhbl9kZXBvc2l0GAkgASgIEhAKCGNhbl90",
+            "YWtlGAogASgIQi8KFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IWU2F2ZUd1aWxk",
+            "UmFua0Ntc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SaveGuildRankCMSG), global::Bnet.SaveGuildRankCMSG.Parser, new[]{ "RankId", "Name", "TaxPercent", "CanInvite", "CanKick", "CanManageRanks", "CanUseGuildSkills", "CanEditMotd" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SaveGuildRankCMSG), global::Bnet.SaveGuildRankCMSG.Parser, new[]{ "RankId", "Name", "TaxPercent", "CanInvite", "CanKick", "CanManageRanks", "CanUseGuildSkills", "CanEditMotd", "CanDeposit", "CanTake" }, null, null, null, null)
           }));
     }
     #endregion
@@ -89,6 +90,8 @@ namespace Bnet {
       canManageRanks_ = other.canManageRanks_;
       canUseGuildSkills_ = other.canUseGuildSkills_;
       canEditMotd_ = other.canEditMotd_;
+      canDeposit_ = other.canDeposit_;
+      canTake_ = other.canTake_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -194,6 +197,33 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "can_deposit" field.</summary>
+    public const int CanDepositFieldNumber = 9;
+    private bool canDeposit_;
+    /// <summary>
+    /// Put items into, and take them out of, the guild storage.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool CanDeposit {
+      get { return canDeposit_; }
+      set {
+        canDeposit_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "can_take" field.</summary>
+    public const int CanTakeFieldNumber = 10;
+    private bool canTake_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool CanTake {
+      get { return canTake_; }
+      set {
+        canTake_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -217,6 +247,8 @@ namespace Bnet {
       if (CanManageRanks != other.CanManageRanks) return false;
       if (CanUseGuildSkills != other.CanUseGuildSkills) return false;
       if (CanEditMotd != other.CanEditMotd) return false;
+      if (CanDeposit != other.CanDeposit) return false;
+      if (CanTake != other.CanTake) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -232,6 +264,8 @@ namespace Bnet {
       if (CanManageRanks != false) hash ^= CanManageRanks.GetHashCode();
       if (CanUseGuildSkills != false) hash ^= CanUseGuildSkills.GetHashCode();
       if (CanEditMotd != false) hash ^= CanEditMotd.GetHashCode();
+      if (CanDeposit != false) hash ^= CanDeposit.GetHashCode();
+      if (CanTake != false) hash ^= CanTake.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -282,6 +316,14 @@ namespace Bnet {
         output.WriteRawTag(64);
         output.WriteBool(CanEditMotd);
       }
+      if (CanDeposit != false) {
+        output.WriteRawTag(72);
+        output.WriteBool(CanDeposit);
+      }
+      if (CanTake != false) {
+        output.WriteRawTag(80);
+        output.WriteBool(CanTake);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -324,6 +366,14 @@ namespace Bnet {
         output.WriteRawTag(64);
         output.WriteBool(CanEditMotd);
       }
+      if (CanDeposit != false) {
+        output.WriteRawTag(72);
+        output.WriteBool(CanDeposit);
+      }
+      if (CanTake != false) {
+        output.WriteRawTag(80);
+        output.WriteBool(CanTake);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -356,6 +406,12 @@ namespace Bnet {
         size += 1 + 1;
       }
       if (CanEditMotd != false) {
+        size += 1 + 1;
+      }
+      if (CanDeposit != false) {
+        size += 1 + 1;
+      }
+      if (CanTake != false) {
         size += 1 + 1;
       }
       if (_unknownFields != null) {
@@ -393,6 +449,12 @@ namespace Bnet {
       }
       if (other.CanEditMotd != false) {
         CanEditMotd = other.CanEditMotd;
+      }
+      if (other.CanDeposit != false) {
+        CanDeposit = other.CanDeposit;
+      }
+      if (other.CanTake != false) {
+        CanTake = other.CanTake;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -445,6 +507,14 @@ namespace Bnet {
             CanEditMotd = input.ReadBool();
             break;
           }
+          case 72: {
+            CanDeposit = input.ReadBool();
+            break;
+          }
+          case 80: {
+            CanTake = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -494,6 +564,14 @@ namespace Bnet {
           }
           case 64: {
             CanEditMotd = input.ReadBool();
+            break;
+          }
+          case 72: {
+            CanDeposit = input.ReadBool();
+            break;
+          }
+          case 80: {
+            CanTake = input.ReadBool();
             break;
           }
         }
