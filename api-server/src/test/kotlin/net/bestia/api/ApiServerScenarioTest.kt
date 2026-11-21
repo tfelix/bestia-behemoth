@@ -12,6 +12,7 @@ import net.bestia.bus.contract.ZoneAnswer
 import net.bestia.bus.contract.MapPoint
 import net.bestia.bus.contract.ZoneEvent
 import net.bestia.bus.contract.ZoneQuery
+import net.bestia.bus.valkey.ValkeyAppPresence
 import net.bestia.bus.valkey.ValkeyEventPublisher
 import net.bestia.bus.valkey.ValkeyRequestServer
 import org.awaitility.Awaitility.await
@@ -424,6 +425,21 @@ class ApiServerScenarioTest : ApiScenarioTestBase() {
 
     refusal = ZoneAnswer.ChatSent.CHAT_LOCKED
     assertEquals(403, post("/v1/companion/masters/5/chat", line, accountId = 50, idempotencyKey = UUID.randomUUID().toString()).statusCode.value())
+  }
+
+  /** The zone reads the mark to tell whether a whisper to a player away from the game has anywhere to go. */
+  @Test
+  fun `an open app is marked for the zone to see`() {
+    val apps = ValkeyAppPresence(zoneClient)
+    assertFalse(apps.isOpen(57))
+
+    val frames = CopyOnWriteArrayList<JsonNode>()
+    connect(57, lastEventId = null, frames).use {
+      await().atMost(Duration.ofSeconds(5)).until { frames.any { it["type"].asText() == "ready" } }
+
+      assertTrue(apps.isOpen(57))
+    }
+    apps.close()
   }
 
   @Test

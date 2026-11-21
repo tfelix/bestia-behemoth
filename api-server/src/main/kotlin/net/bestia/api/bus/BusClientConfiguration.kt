@@ -4,9 +4,11 @@ import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import io.micrometer.core.instrument.binder.MeterBinder
 import net.bestia.api.metrics.BusClientMeters
+import net.bestia.bus.AppPresence
 import net.bestia.bus.BusKeys
 import net.bestia.bus.Directory
 import net.bestia.bus.contract.ZoneEvent
+import net.bestia.bus.valkey.ValkeyAppPresence
 import net.bestia.bus.valkey.ValkeyDirectory
 import net.bestia.bus.valkey.ValkeyNodeBus
 import net.bestia.bus.valkey.ValkeyStreamReader
@@ -28,6 +30,11 @@ class BusClientConfiguration(private val properties: BusClientProperties) {
   @Bean(destroyMethod = "close")
   fun busDirectory(busClient: RedisClient): Directory {
     return ValkeyDirectory(busClient)
+  }
+
+  @Bean(destroyMethod = "close")
+  fun appPresence(busClient: RedisClient): AppPresence {
+    return ValkeyAppPresence(busClient)
   }
 
   @Bean(destroyMethod = "close")

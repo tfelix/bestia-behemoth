@@ -23,6 +23,8 @@ import java.time.Duration
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 /** The ACL file the dev Valkey runs with lets each service do exactly its part of the bus. */
 @Testcontainers
@@ -51,6 +53,29 @@ class ValkeyAclTest {
     await().atMost(Duration.ofSeconds(10)).until { consumed.size == 1 }
 
     listOf(reader, bus, publisher, server, directory).forEach { it.close() }
+    zone.shutdown()
+    api.shutdown()
+  }
+
+  /** Only the app marks are the api-server's to write; the directory and the stream stay the zone's. */
+  @Test
+  fun `the api-server marks an open app for the zone to read, and writes nothing else`() {
+    val zone = connect("zone", "zone-dev-password")
+    val api = connect("api", "api-dev-password")
+
+    val marks = ValkeyAppPresence(api)
+    marks.markOpen(listOf(7L), ttlSeconds = 30)
+    val seen = ValkeyAppPresence(zone)
+    assertTrue(seen.isOpen(7L))
+    assertFalse(seen.isOpen(8L))
+
+    api.connect().use { connection ->
+      assertThrows<RedisCommandExecutionException> { connection.sync().set(BusKeys.directory(7L), "elsewhere") }
+      assertThrows<RedisCommandExecutionException> { connection.sync().set(BusKeys.EVENTS, "gone") }
+      assertThrows<RedisCommandExecutionException> { connection.sync().del(BusKeys.appOpen(7L)) }
+    }
+
+    listOf(marks, seen).forEach { it.close() }
     zone.shutdown()
     api.shutdown()
   }

@@ -1,12 +1,13 @@
 package net.bestia.zone.bus
 
+import net.bestia.bus.AppPresence
 import net.bestia.bus.Directory
 import net.bestia.bus.EventPublisher
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
-/** `bus.enabled: false`, the test suite: events go nowhere and nobody is registered as in the world. */
+/** `bus.enabled: false`, the test suite: events go nowhere, nobody is registered as in the world, and no app is open. */
 @Configuration
 @ConditionalOnProperty(prefix = "bus", name = ["enabled"], havingValue = "false")
 class NoBusConfiguration {
@@ -20,6 +21,17 @@ class NoBusConfiguration {
 
       override fun nodeOf(accountId: Long): String? {
         return null
+      }
+    }
+  }
+
+  @Bean
+  fun busAppPresence(): AppPresence {
+    return object : AppPresence {
+      override fun markOpen(accountIds: Collection<Long>, ttlSeconds: Long) {}
+
+      override fun isOpen(accountId: Long): Boolean {
+        return false
       }
     }
   }

@@ -1,4 +1,4 @@
 user default off
-user zone on >zone-dev-password ~dir:* ~events ~kicks ~bus:idem:* &zone:*:requests &api:*:replies +@all -@admin -@dangerous
-user api on >api-dev-password ~dir:* ~events &zone:*:requests &api:*:replies +@connection +@pubsub +@stream +@read
+user zone on >zone-dev-password ~dir:* ~app:* ~events ~kicks ~bus:idem:* &zone:*:requests &api:*:replies +@all -@admin -@dangerous
+user api on >api-dev-password ~dir:* ~events &zone:*:requests &api:*:replies +@connection +@pubsub +@stream +@read (~app:* +set)
 user login on >login-dev-password ~kicks +@connection +xadd

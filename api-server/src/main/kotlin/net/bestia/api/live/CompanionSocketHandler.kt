@@ -23,6 +23,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler
 class CompanionSocketHandler(
   private val verifier: CompanionTokenVerifier,
   private val sessions: LiveSessions,
+  private val appPresence: AppPresenceBeat,
   private val events: ValkeyStreamReader<ZoneEvent>,
   private val metrics: LiveMetrics,
 ) : TextWebSocketHandler() {
@@ -56,6 +57,7 @@ class CompanionSocketHandler(
     metrics.socketAuth(LiveMetrics.SocketAuth.OK)
     socket.attributes[ACCOUNT] = verified.accountId
     val safe = sessions.add(verified.accountId, socket, verified.expiresAt)
+    appPresence.opened(verified.accountId)
 
     hello.lastEventId?.let { last ->
       val missed = events.since(last, verified.accountId)
