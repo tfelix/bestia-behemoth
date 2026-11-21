@@ -75,6 +75,7 @@ signal settlement_planned(message: SettlementPlannedSMSG)
 signal settlement_sign_opened(message: SettlementSignSMSG)
 signal settlement_offered(message: SettlementOfferSMSG)
 signal empyrite_plant_offered(message: EmpyritePlantOfferSMSG)
+signal stronghold_opened(message: StrongholdSMSG)
 signal settlement_notice(message: SettlementNoticeSMSG)
 signal spell_scrolls_received(message: SpellScrollsSMSG)
 signal inscription_options_received(message: InscriptionOptionsSMSG)
@@ -1816,6 +1817,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		settlement_offered.emit(message)
 	elif message is EmpyritePlantOfferSMSG:
 		empyrite_plant_offered.emit(message)
+	elif message is StrongholdSMSG:
+		stronghold_opened.emit(message)
 	elif message is SettlementNoticeSMSG:
 		settlement_notice.emit(message)
 	elif message is SpellScrollsSMSG:

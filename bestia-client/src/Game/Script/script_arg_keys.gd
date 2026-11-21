@@ -19,6 +19,9 @@ const TARGET_ENTITY_ID := "targetEntityId"
 ## What to do at something that offers several actions, such as "post" at a blackboard. Absent means open it.
 const ACTION := "action"
 
+## Which investment track of a Stronghold, by the server's StrongholdTrack name.
+const TRACK := "track"
+
 const QUEST_ID := "questId"
 const ITEM_ID := "itemId"
 const AMOUNT := "amount"
