@@ -66,6 +66,7 @@ class StrongholdRegistry(
       storageSteps = stronghold.progressOf(StrongholdTrack.STORAGE).steps,
       economyLevel = stronghold.progressOf(StrongholdTrack.ECONOMY).level,
       economySteps = stronghold.progressOf(StrongholdTrack.ECONOMY).steps,
+      hasSteward = stronghold.hasSteward,
       worldShapeVersion = worldService.record.shapeVersion,
       pipelineVersion = worldService.record.pipelineVersion
     )
@@ -90,7 +91,8 @@ class StrongholdRegistry(
     )
 
     return Stronghold(
-      row.rank, row.guildId, row.state, row.siteStructureId, row.siteWorkedAt, row.plantedAt, row.empyriteHp, tracks
+      row.rank, row.guildId, row.state, row.siteStructureId, row.siteWorkedAt, row.plantedAt, row.empyriteHp, tracks,
+      row.hasSteward
     )
   }
 

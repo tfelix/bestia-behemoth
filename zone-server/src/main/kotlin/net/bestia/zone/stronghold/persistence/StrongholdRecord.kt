@@ -57,6 +57,9 @@ class StrongholdRecord(
   @Column(name = "economy_steps", nullable = false)
   var economySteps: Int = 0,
 
+  @Column(name = "has_steward", nullable = false)
+  var hasSteward: Boolean = false,
+
   @Column(name = "planted_at", nullable = false)
   var plantedAt: Instant = Instant.EPOCH,
 

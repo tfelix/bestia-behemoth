@@ -1,9 +1,9 @@
 class_name StrongholdPanel
 extends PanelContainer
 
-## The Stronghold window at a guild's own Empyrite: its health, and the three tracks members invest in, one step
-## per click. Opened by the server when a member clicks the Empyrite in reach, closed by walking away, like the
-## city sign. Built in code.
+## The Stronghold window at a guild's own Empyrite: its health, the three tracks members invest in, one step per
+## click, and its steward. Opened by the server when a member clicks the Empyrite in reach, closed by walking away,
+## like the city sign. Built in code.
 
 signal stronghold_opened()
 signal stronghold_closed()
@@ -12,6 +12,7 @@ const _WALK_AWAY_METRES := 8.0
 
 ## Mirrors net.bestia.zone.stronghold.EmpyriteInteraction.INVEST.
 const _INVEST := "invest"
+const _HIRE_STEWARD := "hire_steward"
 
 ## The proto's StrongholdTrack, in its order, by the server's name.
 const _TRACK_NAMES: Array[String] = ["DEFENSE", "STORAGE", "ECONOMY"]
@@ -26,6 +27,9 @@ var _development: Label
 var _defense_effect: Label
 ## One entry per track: level label, pips row, next-step label, invest button.
 var _rows: Array[Dictionary] = []
+var _steward_state: Label
+var _steward_cost: Label
+var _hire: Button
 
 
 func _ready() -> void:
@@ -76,6 +80,7 @@ func _on_opened(msg: StrongholdSMSG) -> void:
 		(row["next"] as Label).text = tr("STRONGHOLD_MAXED") if maxed else tr("STRONGHOLD_NEXT_STEP") % next_coins
 		(row["invest"] as Button).disabled = maxed
 
+	_show_steward(msg)
 	stronghold_opened.emit()
 
 
@@ -86,6 +91,27 @@ func _invest(track: int) -> void:
 	args.SetText(ScriptArgKeys.ACTION, _INVEST)
 	args.SetText(ScriptArgKeys.TRACK, _TRACK_NAMES[track])
 	ConnectionManager.interact_entity(_empyrite_entity_id, args)
+
+
+func _hire_steward() -> void:
+	if _empyrite_entity_id == 0:
+		return
+	var args = ConnectionManager.ScriptArgsCls.new()
+	args.SetText(ScriptArgKeys.ACTION, _HIRE_STEWARD)
+	ConnectionManager.interact_entity(_empyrite_entity_id, args)
+
+
+func _show_steward(msg: StrongholdSMSG) -> void:
+	var may_hire := msg.HasStewardContract and not msg.HasSteward
+	if msg.HasSteward:
+		_steward_state.text = tr("STRONGHOLD_STEWARD_SERVING")
+	elif msg.HasStewardContract:
+		_steward_state.text = tr("STRONGHOLD_STEWARD_NONE")
+	else:
+		_steward_state.text = tr("STRONGHOLD_STEWARD_NEEDS_CONTRACT")
+	_steward_cost.text = tr("STRONGHOLD_STEWARD_COST") % UiStyle.group_digits(msg.StewardCoins)
+	_steward_cost.visible = may_hire
+	_hire.visible = may_hire
 
 
 func _show_pips(pips: HBoxContainer, filled: int, total: int) -> void:
@@ -122,6 +148,9 @@ func _build() -> void:
 	for track in _TRACK_NAMES.size():
 		body.add_child(_build_track_row(track))
 
+	body.add_child(HSeparator.new())
+	body.add_child(_build_steward_row())
+
 	_development = UiStyle.label(tr("STRONGHOLD_PERMANENT_DEVELOPMENT"), 12, UiStyle.GUILD)
 	_development.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	body.add_child(_development)
@@ -155,4 +184,25 @@ func _build_track_row(track: int) -> Control:
 	foot.add_child(invest)
 
 	_rows.append({"level": level, "pips": pips, "next": next, "invest": invest})
+	return rows
+
+
+func _build_steward_row() -> Control:
+	var rows := UiStyle.vbox(2)
+	rows.add_child(UiStyle.label(tr("STRONGHOLD_STEWARD"), 14))
+
+	_steward_state = UiStyle.label("", 12, UiStyle.MUTED)
+	_steward_state.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	rows.add_child(UiStyle.margin(_steward_state, 12, 0, 0, 0))
+
+	var foot := UiStyle.hbox(8)
+	rows.add_child(UiStyle.margin(foot, 12, 0, 0, 0))
+	_steward_cost = UiStyle.label("", 12)
+	_steward_cost.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	foot.add_child(_steward_cost)
+	_hire = Button.new()
+	_hire.text = tr("STRONGHOLD_HIRE")
+	_hire.pressed.connect(_hire_steward)
+	foot.add_child(_hire)
+
 	return rows

@@ -25,23 +25,25 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiltZXNzYWdlcy9zdHJvbmdob2xkL3N0cm9uZ2hvbGRfc21zZy5wcm90bxIE",
-            "Ym5ldCKaAgoOU3Ryb25naG9sZFNNU0cSGgoSZW1weXJpdGVfZW50aXR5X2lk",
+            "Ym5ldCLkAgoOU3Ryb25naG9sZFNNU0cSGgoSZW1weXJpdGVfZW50aXR5X2lk",
             "GAEgASgGEhEKCXNlZWRfbmFtZRgCIAEoCRISCgpndWlsZF9uYW1lGAMgASgJ",
             "EgoKAmhwGAQgASgNEg4KBm1heF9ocBgFIAEoDRIpCgZ0cmFja3MYBiADKAsy",
             "GS5ibmV0LlN0cm9uZ2hvbGRUcmFja0luZm8SIQoZaGFzX3Blcm1hbmVudF9k",
             "ZXZlbG9wbWVudBgHIAEoCBIRCgltYXhfbGV2ZWwYCCABKA0SFwoPc3RlcHNf",
             "cGVyX2xldmVsGAkgASgNEhYKDmhwX3Blcl9kZWZlbnNlGAogASgNEhcKD2Rl",
-            "Zl9wZXJfZGVmZW5zZRgLIAEoDSJyChNTdHJvbmdob2xkVHJhY2tJbmZvEiQK",
-            "BXRyYWNrGAEgASgOMhUuYm5ldC5TdHJvbmdob2xkVHJhY2sSDQoFbGV2ZWwY",
-            "AiABKA0SDQoFc3RlcHMYAyABKA0SFwoPbmV4dF9zdGVwX2NvaW5zGAQgASgE",
-            "KmsKD1N0cm9uZ2hvbGRUcmFjaxIcChhTVFJPTkdIT0xEX1RSQUNLX0RFRkVO",
-            "U0UQABIcChhTVFJPTkdIT0xEX1RSQUNLX1NUT1JBR0UQARIcChhTVFJPTkdI",
-            "T0xEX1RSQUNLX0VDT05PTVkQAkIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
-            "E1N0cm9uZ2hvbGRTbXNnUHJvdG9iBnByb3RvMw=="));
+            "Zl9wZXJfZGVmZW5zZRgLIAEoDRIcChRoYXNfc3Rld2FyZF9jb250cmFjdBgM",
+            "IAEoCBITCgtoYXNfc3Rld2FyZBgNIAEoCBIVCg1zdGV3YXJkX2NvaW5zGA4g",
+            "ASgEInIKE1N0cm9uZ2hvbGRUcmFja0luZm8SJAoFdHJhY2sYASABKA4yFS5i",
+            "bmV0LlN0cm9uZ2hvbGRUcmFjaxINCgVsZXZlbBgCIAEoDRINCgVzdGVwcxgD",
+            "IAEoDRIXCg9uZXh0X3N0ZXBfY29pbnMYBCABKAQqawoPU3Ryb25naG9sZFRy",
+            "YWNrEhwKGFNUUk9OR0hPTERfVFJBQ0tfREVGRU5TRRAAEhwKGFNUUk9OR0hP",
+            "TERfVFJBQ0tfU1RPUkFHRRABEhwKGFNUUk9OR0hPTERfVFJBQ0tfRUNPTk9N",
+            "WRACQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITU3Ryb25naG9sZFNtc2dQ",
+            "cm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.StrongholdTrack), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StrongholdSMSG), global::Bnet.StrongholdSMSG.Parser, new[]{ "EmpyriteEntityId", "SeedName", "GuildName", "Hp", "MaxHp", "Tracks", "HasPermanentDevelopment", "MaxLevel", "StepsPerLevel", "HpPerDefense", "DefPerDefense" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StrongholdSMSG), global::Bnet.StrongholdSMSG.Parser, new[]{ "EmpyriteEntityId", "SeedName", "GuildName", "Hp", "MaxHp", "Tracks", "HasPermanentDevelopment", "MaxLevel", "StepsPerLevel", "HpPerDefense", "DefPerDefense", "HasStewardContract", "HasSteward", "StewardCoins" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StrongholdTrackInfo), global::Bnet.StrongholdTrackInfo.Parser, new[]{ "Track", "Level", "Steps", "NextStepCoins" }, null, null, null, null)
           }));
     }
@@ -60,7 +62,7 @@ namespace Bnet {
   #region Messages
   /// <summary>
   /// Opens, or refreshes, the Stronghold window of a guild member at their guild's Empyrite. The answer to clicking it,
-  /// and to every step invested there. Its Invest buttons send InteractEntityCMSG for the Empyrite with the action
+  /// to every step invested there and to hiring a steward. Its Invest buttons send InteractEntityCMSG for the Empyrite with the action
   /// "invest" and the track's name.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
@@ -109,6 +111,9 @@ namespace Bnet {
       stepsPerLevel_ = other.stepsPerLevel_;
       hpPerDefense_ = other.hpPerDefense_;
       defPerDefense_ = other.defPerDefense_;
+      hasStewardContract_ = other.hasStewardContract_;
+      hasSteward_ = other.hasSteward_;
+      stewardCoins_ = other.stewardCoins_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -255,6 +260,49 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "has_steward_contract" field.</summary>
+    public const int HasStewardContractFieldNumber = 12;
+    private bool hasStewardContract_;
+    /// <summary>
+    /// Whether the guild knows Steward Contract, so a member may hire a steward. Its button sends InteractEntityCMSG
+    /// for the Empyrite with the action "hire_steward".
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasStewardContract {
+      get { return hasStewardContract_; }
+      set {
+        hasStewardContract_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "has_steward" field.</summary>
+    public const int HasStewardFieldNumber = 13;
+    private bool hasSteward_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasSteward {
+      get { return hasSteward_; }
+      set {
+        hasSteward_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "steward_coins" field.</summary>
+    public const int StewardCoinsFieldNumber = 14;
+    private ulong stewardCoins_;
+    /// <summary>
+    /// What hiring a steward costs.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong StewardCoins {
+      get { return stewardCoins_; }
+      set {
+        stewardCoins_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -281,6 +329,9 @@ namespace Bnet {
       if (StepsPerLevel != other.StepsPerLevel) return false;
       if (HpPerDefense != other.HpPerDefense) return false;
       if (DefPerDefense != other.DefPerDefense) return false;
+      if (HasStewardContract != other.HasStewardContract) return false;
+      if (HasSteward != other.HasSteward) return false;
+      if (StewardCoins != other.StewardCoins) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -299,6 +350,9 @@ namespace Bnet {
       if (StepsPerLevel != 0) hash ^= StepsPerLevel.GetHashCode();
       if (HpPerDefense != 0) hash ^= HpPerDefense.GetHashCode();
       if (DefPerDefense != 0) hash ^= DefPerDefense.GetHashCode();
+      if (HasStewardContract != false) hash ^= HasStewardContract.GetHashCode();
+      if (HasSteward != false) hash ^= HasSteward.GetHashCode();
+      if (StewardCoins != 0UL) hash ^= StewardCoins.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -358,6 +412,18 @@ namespace Bnet {
         output.WriteRawTag(88);
         output.WriteUInt32(DefPerDefense);
       }
+      if (HasStewardContract != false) {
+        output.WriteRawTag(96);
+        output.WriteBool(HasStewardContract);
+      }
+      if (HasSteward != false) {
+        output.WriteRawTag(104);
+        output.WriteBool(HasSteward);
+      }
+      if (StewardCoins != 0UL) {
+        output.WriteRawTag(112);
+        output.WriteUInt64(StewardCoins);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -409,6 +475,18 @@ namespace Bnet {
         output.WriteRawTag(88);
         output.WriteUInt32(DefPerDefense);
       }
+      if (HasStewardContract != false) {
+        output.WriteRawTag(96);
+        output.WriteBool(HasStewardContract);
+      }
+      if (HasSteward != false) {
+        output.WriteRawTag(104);
+        output.WriteBool(HasSteward);
+      }
+      if (StewardCoins != 0UL) {
+        output.WriteRawTag(112);
+        output.WriteUInt64(StewardCoins);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -449,6 +527,15 @@ namespace Bnet {
       }
       if (DefPerDefense != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(DefPerDefense);
+      }
+      if (HasStewardContract != false) {
+        size += 1 + 1;
+      }
+      if (HasSteward != false) {
+        size += 1 + 1;
+      }
+      if (StewardCoins != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(StewardCoins);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -492,6 +579,15 @@ namespace Bnet {
       }
       if (other.DefPerDefense != 0) {
         DefPerDefense = other.DefPerDefense;
+      }
+      if (other.HasStewardContract != false) {
+        HasStewardContract = other.HasStewardContract;
+      }
+      if (other.HasSteward != false) {
+        HasSteward = other.HasSteward;
+      }
+      if (other.StewardCoins != 0UL) {
+        StewardCoins = other.StewardCoins;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -556,6 +652,18 @@ namespace Bnet {
             DefPerDefense = input.ReadUInt32();
             break;
           }
+          case 96: {
+            HasStewardContract = input.ReadBool();
+            break;
+          }
+          case 104: {
+            HasSteward = input.ReadBool();
+            break;
+          }
+          case 112: {
+            StewardCoins = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -617,6 +725,18 @@ namespace Bnet {
           }
           case 88: {
             DefPerDefense = input.ReadUInt32();
+            break;
+          }
+          case 96: {
+            HasStewardContract = input.ReadBool();
+            break;
+          }
+          case 104: {
+            HasSteward = input.ReadBool();
+            break;
+          }
+          case 112: {
+            StewardCoins = input.ReadUInt64();
             break;
           }
         }

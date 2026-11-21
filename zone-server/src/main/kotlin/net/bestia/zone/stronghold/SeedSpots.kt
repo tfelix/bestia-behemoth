@@ -12,12 +12,17 @@ class SeedSpots(
   private val worldService: WorldService,
 ) {
 
-  /** A first guess from the heightfield; `ChunkStreamSystem.groundNewcomers` stands it on the real column. */
-  fun standingAt(seed: EmpyriteSeed): Vec3L {
+  /**
+   * A first guess from the heightfield; `ChunkStreamSystem.groundNewcomers` stands it on the real column. The
+   * offsets in metres place something beside the seed, such as its steward.
+   */
+  fun standingAt(seed: EmpyriteSeed, offsetXMetres: Double = 0.0, offsetYMetres: Double = 0.0): Vec3L {
     val generated = worldService.generated
     val voxel = generated.config.voxelSize
-    val ground = generated.base.heightAt(seed.x, seed.y)
+    val x = seed.x + offsetXMetres
+    val y = seed.y + offsetYMetres
+    val ground = generated.base.heightAt(x, y)
 
-    return Vec3L((seed.x / voxel).toLong(), (seed.y / voxel).toLong(), ChunkCoords.standingZ(generated.config, ground))
+    return Vec3L((x / voxel).toLong(), (y / voxel).toLong(), ChunkCoords.standingZ(generated.config, ground))
   }
 }

@@ -20,6 +20,9 @@ namespace BestiaBehemothClient.Bnet.Message.Stronghold
     [Export] public int StepsPerLevel { get; set; }
     [Export] public int HpPerDefense { get; set; }
     [Export] public int DefPerDefense { get; set; }
+    [Export] public bool HasStewardContract { get; set; }
+    [Export] public bool HasSteward { get; set; }
+    [Export] public long StewardCoins { get; set; }
 
     public static StrongholdSMSG FromProto(global::Bnet.StrongholdSMSG proto)
     {
@@ -47,7 +50,10 @@ namespace BestiaBehemothClient.Bnet.Message.Stronghold
         MaxLevel = (int)proto.MaxLevel,
         StepsPerLevel = (int)proto.StepsPerLevel,
         HpPerDefense = (int)proto.HpPerDefense,
-        DefPerDefense = (int)proto.DefPerDefense
+        DefPerDefense = (int)proto.DefPerDefense,
+        HasStewardContract = proto.HasStewardContract,
+        HasSteward = proto.HasSteward,
+        StewardCoins = (long)proto.StewardCoins
       };
     }
   }

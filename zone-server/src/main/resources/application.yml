@@ -108,6 +108,8 @@ stronghold:
   step-coins-per-level: 20000
   # With Permanent Development, the chance that a step counts twice.
   double-step-chance: 0.5
+  # With Steward Contract, any member hires a steward at the Empyrite for this, when the Stronghold has none.
+  steward-coins: 200000
   # The guild that breaks an Empyrite takes the Stronghold; the new Empyrite cannot be harmed for this long.
   capture-grace-minutes: 10
   # Weekly spans in which Strongholds can be attacked, such as "SATURDAY 18:00-22:00", read in attack-window-zone.

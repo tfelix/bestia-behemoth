@@ -15,13 +15,15 @@ import org.springframework.stereotype.Service
 import kotlin.random.Random
 
 /**
- * Members invest coins at their guild's Empyrite, one step of one track per click. Tick thread only.
+ * Members invest coins at their guild's Empyrite, one step of one track per click, and hire its steward. Tick
+ * thread only.
  */
 @Service
 class StrongholdInvestment(
   private val strongholds: StrongholdRegistry,
   private val seeds: EmpyriteSeedRegistry,
   private val empyrites: Empyrites,
+  private val stewards: Stewards,
   private val coins: StrongholdCoins,
   private val messages: OutMessageProcessor,
   private val config: StrongholdConfig,
@@ -58,6 +60,23 @@ class StrongholdInvestment(
     return null
   }
 
+  /** The member pays for a steward, which stands beside the Empyrite at once. Needs Steward Contract. */
+  fun hireSteward(world: World, actorId: EntityId, empyriteId: EntityId): OpError? {
+    refusal(world, actorId, empyriteId)?.let { return it }
+    val stronghold = strongholdOf(world, empyriteId) ?: return OpError.REQUEST_REFUSED
+    val masterId = world.get(actorId, Master::class)?.masterId ?: return OpError.REQUEST_REFUSED
+
+    // The window offers no button then, so only a stale window or a hand-made request asks.
+    if (!hasStewardContract(world, actorId) || stronghold.hasSteward) return OpError.REQUEST_REFUSED
+
+    if (!coins.pay(world, actorId, masterId, config.stewardCoins)) return OpError.STRONGHOLD_CANNOT_AFFORD_STEWARD
+
+    stewards.hire(world, stronghold)
+    sendWindow(world, actorId, empyriteId)
+
+    return null
+  }
+
   private fun refusal(world: World, actorId: EntityId, empyriteId: EntityId): OpError? {
     val stronghold = strongholdOf(world, empyriteId) ?: return OpError.REQUEST_REFUSED
     val membership = world.get(actorId, GuildMembership::class)
@@ -83,9 +102,11 @@ class StrongholdInvestment(
       StrongholdSMSG.Track(track, progress, if (progress.isMaxed) 0 else stepCoins(progress))
     }
 
+    val steward = StrongholdSMSG.Steward(hasStewardContract(world, actorId), stronghold.hasSteward, config.stewardCoins)
+
     val window = StrongholdSMSG(
       empyriteId, seedName, guildName, health.current, health.max, tracks, hasPermanentDevelopment(world, actorId),
-      config.empyriteHpPerDefense, config.empyriteDefensePerLevel
+      config.empyriteHpPerDefense, config.empyriteDefensePerLevel, steward
     )
     messages.sendToPlayer(accountId, window)
   }
@@ -96,7 +117,15 @@ class StrongholdInvestment(
   }
 
   private fun hasPermanentDevelopment(world: World, actorId: EntityId): Boolean {
-    return (world.get(actorId, GuildMembership::class)?.skillLevel(SkillId.PERMANENT_DEVELOPMENT.name) ?: 0) > 0
+    return hasGuildSkill(world, actorId, SkillId.PERMANENT_DEVELOPMENT)
+  }
+
+  private fun hasStewardContract(world: World, actorId: EntityId): Boolean {
+    return hasGuildSkill(world, actorId, SkillId.STEWARD_CONTRACT)
+  }
+
+  private fun hasGuildSkill(world: World, actorId: EntityId, skill: SkillId): Boolean {
+    return (world.get(actorId, GuildMembership::class)?.skillLevel(skill.name) ?: 0) > 0
   }
 
   private fun strongholdOf(world: World, empyriteId: EntityId): Stronghold? {

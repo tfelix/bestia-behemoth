@@ -15,9 +15,12 @@ data class StrongholdSMSG(
   val hasPermanentDevelopment: Boolean,
   val hpPerDefense: Int,
   val defPerDefense: Int,
+  val steward: Steward,
 ) : SMSG {
 
   data class Track(val track: StrongholdTrack, val progress: TrackProgress, val nextStepCoins: Long)
+
+  data class Steward(val hasContract: Boolean, val isHired: Boolean, val coins: Long)
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val proto = StrongholdSmsgProto.StrongholdSMSG.newBuilder()
@@ -31,6 +34,9 @@ data class StrongholdSMSG(
       .setStepsPerLevel(TrackProgress.STEPS_PER_LEVEL)
       .setHpPerDefense(hpPerDefense)
       .setDefPerDefense(defPerDefense)
+      .setHasStewardContract(steward.hasContract)
+      .setHasSteward(steward.isHired)
+      .setStewardCoins(steward.coins)
 
     for (track in tracks) {
       proto.addTracks(

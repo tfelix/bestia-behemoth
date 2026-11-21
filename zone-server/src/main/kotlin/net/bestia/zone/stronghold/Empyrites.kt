@@ -28,6 +28,7 @@ class Empyrites(
   private val sprouts: EmpyriteSeedSprouts,
   private val spots: SeedSpots,
   private val statusEffects: StatusEffectService,
+  private val stewards: Stewards,
   private val config: StrongholdConfig,
 ) {
 
@@ -52,10 +53,12 @@ class Empyrites(
 
   /**
    * The Empyrite broke. The guild whose member struck the blow takes the Stronghold: the Empyrite forms again at
-   * once, whole, and nothing harms it for a while. Without such a guild, the seed is free again.
+   * once, whole, and nothing harms it for a while. Without such a guild, the seed is free again. Either way the
+   * steward leaves; a new owner hires its own.
    */
   fun broken(world: World, rank: Int, breakerGuildId: Long?) {
     val stronghold = strongholds.on(rank) ?: return
+    stewards.dismiss(world, rank)
 
     if (breakerGuildId == null || breakerGuildId == stronghold.guildId) {
       strongholds.remove(rank)
@@ -65,7 +68,7 @@ class Empyrites(
     }
 
     val weakened = stronghold.copy(tracks = stronghold.tracks.mapValues { (_, progress) -> progress.lostLevel() })
-    val captured = weakened.copy(guildId = breakerGuildId, empyriteHp = maxHpOf(weakened))
+    val captured = weakened.copy(guildId = breakerGuildId, empyriteHp = maxHpOf(weakened), hasSteward = false)
     strongholds.put(captured)
     val empyriteId = raise(world, captured) ?: return
     val graceSeconds = config.captureGraceMinutes * 60.0
