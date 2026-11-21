@@ -17,6 +17,7 @@ import net.bestia.zone.item.container.ItemHolder
 import net.bestia.zone.item.container.ReservedItem
 import net.bestia.zone.item.ecs.CarryCapacity
 import net.bestia.zone.item.ecs.ChestStorage
+import net.bestia.zone.item.ecs.SlotStorage
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.ExchangeReach
 import net.bestia.zone.item.ecs.Inventory
@@ -85,7 +86,7 @@ class TransferItemHandlerTest {
   private fun ownChest(x: Long, masterId: Long = MASTER_ID, contents: List<Inventory.Item> = emptyList()): EntityId =
     world.createEntity { id ->
       add(id, PropPose(Vec3L(x, 5, 0), yaw = 0f))
-      add(id, ChestStorage(STRUCTURE_ID, masterId, ACCOUNT_ID))
+      add(id, SlotStorage.ofChest(ChestStorage(STRUCTURE_ID, masterId, ACCOUNT_ID)))
       add(id, Inventory(contents.toMutableList()))
     }
 

@@ -36,6 +36,8 @@ const _REACH_POLL_SECONDS := 0.25
 
 const _EXCHANGE_ICON := preload("res://Theme/Icons/arrows-exchange.svg")
 const _PARTNER_ICON_WIDTH := 16
+## What the exchange column calls an open storage, by the proto's StorageKind.
+const _STORAGE_NAMES: Array[String] = ["CHEST"]
 
 var InventoryItem = preload("res://Game/UI/Inventory/InventoryItem/InventoryItem.tscn")
 var DropAmountDialogScn = preload("res://Game/UI/Inventory/DropAmountDialog/DropAmountDialog.tscn")
@@ -75,16 +77,17 @@ var _reported_gold := 0
 ## the bag itself, which is always the newer of the two.
 var _carry_max: Dictionary[int, int]
 
-## The own entity or chest whose bag the exchange column shows, or 0. An own entity is kept while it walks out
+## The own entity or storage whose bag the exchange column shows, or 0. An own entity is kept while it walks out
 ## of reach, so the column comes back on its own when it returns.
 var _partner_id := 0
 
-## The chest the player last opened, until they walk off or it vanishes; 0 for none. Unlike an own entity it
-## does not come back by itself: it has to be clicked again.
-var _chest_id := 0
-var _chest_slots := 0
+## The storage the player last opened, such as a chest, until they walk off or it vanishes; 0 for none. Unlike an
+## own entity it does not come back by itself: it has to be clicked again.
+var _storage_id := 0
+var _storage_slots := 0
+var _storage_kind := 0
 
-## Which own entities, and the open chest, stand within reach of the driven one, with the hysteresis the
+## Which own entities, and the open storage, stand within reach of the driven one, with the hysteresis the
 ## constants describe.
 var _in_reach: Dictionary[int, bool]
 var _reach_poll := 0.0
@@ -93,7 +96,7 @@ func _ready() -> void:
 	# How the world's right-click menu, built long after this window, finds it.
 	add_to_group("inventory")
 	ConnectionManager.connect("entity_received", _on_entity_received)
-	ConnectionManager.chest_opened.connect(_on_chest_opened)
+	ConnectionManager.storage_opened.connect(_on_storage_opened)
 	ConnectionManager.operation_error.connect(_on_operation_error)
 	# Every change to a bag, and every switch of the controlled entity, already goes out as this signal.
 	inventory_updated.connect(_report_gold_change)
@@ -143,8 +146,8 @@ func _on_controlled_entity_changed(previous_id: int, entity_id: int) -> void:
 
 
 func _on_entity_received(msg: EntitySMSG) -> void:
-	if msg is VanishEntitySMSG and msg.EntityId == _chest_id:
-		_close_chest()
+	if msg is VanishEntitySMSG and msg.EntityId == _storage_id:
+		_close_storage()
 		_render_partner()
 		return
 
@@ -505,11 +508,11 @@ func _update_reach() -> void:
 			and _within_reach(driven.get_logical_position(), other.get_logical_position(), was_near)
 		)
 
-	if _chest_id != 0:
-		if driven != null and _chest_in_reach(driven.get_logical_position()):
-			reach[_chest_id] = true
+	if _storage_id != 0:
+		if driven != null and _storage_in_reach(driven.get_logical_position()):
+			reach[_storage_id] = true
 		else:
-			_close_chest()
+			_close_storage()
 
 	if reach == _in_reach:
 		return
@@ -540,31 +543,43 @@ func _within_reach(a: Vector3, b: Vector3, was_near: bool) -> bool:
 	return Vector2(a.x - b.x, a.z - b.z).length() <= limit and absf(a.y - b.y) <= _EXCHANGE_REACH_HEIGHT
 
 
-## The server only opens a chest within reach, so it counts as near from the start. A chest whose chunk was
+## The server only opens a storage within reach, so it counts as near from the start. A storage whose chunk was
 ## dropped has no position and counts as out of reach.
-func _chest_in_reach(driven_at: Vector3) -> bool:
+func _storage_in_reach(driven_at: Vector3) -> bool:
+	var storage_at = _storage_position()
+
+	return storage_at != null and _within_reach(driven_at, storage_at, true)
+
+
+## A chest is a prop; other storages are kept by an entity.
+func _storage_position() -> Variant:
 	var props: Node3D = ConnectionManager.chunk_stream.StaticEntities if ConnectionManager.chunk_stream != null else null
-	var chest_at = props.PositionOf(_chest_id) if props != null else null
+	var prop_at = props.PositionOf(_storage_id) if props != null else null
+	if prop_at != null:
+		return prop_at
 
-	return chest_at != null and _within_reach(driven_at, chest_at, true)
-
-
-func _on_chest_opened(msg: ChestOpenedSMSG) -> void:
-	_chest_id = msg.EntityId
-	_chest_slots = msg.Slots
-	open_exchange_with(_chest_id)
+	var entity_manager := EntityManager.get_instance()
+	var keeper := entity_manager.get_entity(_storage_id) if entity_manager != null else null
+	return keeper.get_logical_position() if keeper != null else null
 
 
-func _close_chest() -> void:
-	if _partner_id == _chest_id:
+func _on_storage_opened(msg: StorageOpenedSMSG) -> void:
+	_storage_id = msg.EntityId
+	_storage_slots = msg.Slots
+	_storage_kind = msg.Kind
+	open_exchange_with(_storage_id)
+
+
+func _close_storage() -> void:
+	if _partner_id == _storage_id:
 		_partner_id = 0
-	_items.erase(_chest_id)
-	_chest_id = 0
+	_items.erase(_storage_id)
+	_storage_id = 0
 
 
-## A chest has no weight limit, so a full one is only found out by the server.
+## A storage has no weight limit, so a full one is only found out by the server.
 func _on_operation_error(msg: OperationError) -> void:
-	if msg.CodeName == "chest_full" and _partner_id == _chest_id and is_exchanging():
+	if msg.CodeName == "chest_full" and _partner_id == _storage_id and is_exchanging():
 		_exchange.flash_refusal()
 
 
@@ -608,16 +623,16 @@ func _render_partner() -> void:
 
 
 func _capacity_of(entity_id: int) -> String:
-	if entity_id == _chest_id:
-		return tr("CHEST_SLOTS") % [_items.get(entity_id, []).size(), _chest_slots]
+	if entity_id == _storage_id:
+		return tr("STORAGE_SLOTS") % [_items.get(entity_id, []).size(), _storage_slots]
 
 	var limit: int = _carry_max.get(entity_id, 0)
 	return tr("EXCHANGE_WEIGHT") % [_bag_weight(entity_id) / 100.0, limit / 100.0] if limit > 0 else ""
 
 
 func _name_of(entity_id: int) -> String:
-	if entity_id == _chest_id:
-		return tr("CHEST")
+	if entity_id == _storage_id:
+		return tr(_STORAGE_NAMES[_storage_kind])
 
 	var entity_manager := EntityManager.get_instance()
 	if entity_manager == null:

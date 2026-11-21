@@ -9,7 +9,7 @@ import net.bestia.zone.item.container.ItemHandover
 import net.bestia.zone.item.container.ItemHandover.Party
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.CarryCheck
-import net.bestia.zone.item.ecs.ChestStorage
+import net.bestia.zone.item.ecs.SlotStorage
 import net.bestia.zone.item.ecs.ExchangeReach
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemOwner
@@ -94,13 +94,13 @@ class TransferItemHandler(
     return true
   }
 
-  /** A chest counts slots, everything else carries by weight. */
+  /** A storage counts slots, everything else carries by weight. */
   private fun noRoomFor(world: World, receiverId: EntityId, held: Inventory.Item, amount: Int): OpError? {
-    val chest = world.get(receiverId, ChestStorage::class)
-    if (chest != null) {
+    val storage = world.get(receiverId, SlotStorage::class)
+    if (storage != null) {
       val contents = world.get(receiverId, Inventory::class) ?: return OpError.CHEST_FULL
 
-      return if (chest.hasRoomFor(contents, held)) null else OpError.CHEST_FULL
+      return if (storage.hasRoomFor(contents, held)) null else OpError.CHEST_FULL
     }
 
     return if (CarryCheck.fits(world, receiverId, held.weight * amount)) null else OpError.EXCHANGE_TOO_HEAVY

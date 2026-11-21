@@ -35,7 +35,7 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.DiscoveryResult] = e => Crafting.DiscoveryResultSMSG.FromProto(e.DiscoveryResult),
       [Envelope.MessageOneofCase.MaterialAxes] = e => Crafting.MaterialAxesSMSG.FromProto(e.MaterialAxes),
       [Envelope.MessageOneofCase.StationState] = e => Crafting.StationStateSMSG.FromProto(e.StationState),
-      [Envelope.MessageOneofCase.ChestOpened] = e => Inventory.ChestOpenedSMSG.FromProto(e.ChestOpened),
+      [Envelope.MessageOneofCase.StorageOpened] = e => Inventory.StorageOpenedSMSG.FromProto(e.StorageOpened),
       [Envelope.MessageOneofCase.BreedingFarm] = e => Breeding.BreedingFarmSMSG.FromProto(e.BreedingFarm),
       [Envelope.MessageOneofCase.Incubator] = e => Breeding.IncubatorSMSG.FromProto(e.Incubator),
       [Envelope.MessageOneofCase.BestiaAiConfig] = e => Master.BestiaAiConfigSMSG.FromProto(e.BestiaAiConfig),

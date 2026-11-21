@@ -10,6 +10,7 @@ import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.item.container.ItemHandover.Party
 import net.bestia.zone.item.ecs.ChestStorage
+import net.bestia.zone.item.ecs.SlotStorage
 import net.bestia.zone.item.ecs.ExchangeReach
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemOwner
@@ -28,7 +29,8 @@ class ChestExchange(
     /** How close to walk: inside [ExchangeReach.HORIZONTAL], with a tile to spare for the chest's own footprint. */
     const val REACH = ExchangeReach.HORIZONTAL - 1
 
-    val READS: ComponentClassSet = setOf(ChestStorage::class, PropPose::class, Master::class, OwnedBestia::class)
+    val READS: ComponentClassSet =
+      setOf(ChestStorage::class, SlotStorage::class, PropPose::class, Master::class, OwnedBestia::class)
 
     /** Null when the chest's prop is not in the world, is not its master's, or stands out of reach. */
     fun open(world: World, aoi: EntityAOIService, bestiaId: EntityId, chest: JobChest): ChestExchange? {

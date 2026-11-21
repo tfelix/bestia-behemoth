@@ -2,6 +2,9 @@ package net.bestia.zone.prop.chest
 
 import io.mockk.mockk
 import io.mockk.verify
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.PropPose
@@ -9,6 +12,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.item.StorageOpenedSMSG
 import net.bestia.zone.item.ecs.ChestStorage
 import net.bestia.zone.item.ecs.ExchangeReach
 import net.bestia.zone.item.ecs.Inventory
@@ -16,9 +20,6 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 /** Only the master who built a chest, or one of its bestias, standing next to it, gets to look inside. */
 class ChestInteractionTest {
@@ -48,7 +49,7 @@ class ChestInteractionTest {
 
     assertNull(sut.interact(world, owner, chest))
 
-    verify { messages.sendToPlayer(ACCOUNT_ID, ChestOpenedSMSG(chest, ChestStorage.SLOTS)) }
+    verify { messages.sendToPlayer(ACCOUNT_ID, StorageOpenedSMSG(chest, ChestStorage.SLOTS, StorageOpenedSMSG.Kind.CHEST)) }
     assertTrue(contents.isDirty(), "the contents go out with the next sync")
   }
 
@@ -68,7 +69,7 @@ class ChestInteractionTest {
     val stranger = master(MASTER_ID + 1, ACCOUNT_ID + 1)
 
     assertEquals(OpError.CHEST_NOT_YOURS, sut.interact(world, stranger, chest))
-    verify(exactly = 0) { messages.sendToPlayer(any(), any<ChestOpenedSMSG>()) }
+    verify(exactly = 0) { messages.sendToPlayer(any(), any<StorageOpenedSMSG>()) }
   }
 
   @Test
