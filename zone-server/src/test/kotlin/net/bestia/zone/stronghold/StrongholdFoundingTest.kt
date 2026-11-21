@@ -16,7 +16,6 @@ import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.stronghold.ecs.EmpyriteSeedSprout
@@ -56,12 +55,8 @@ class StrongholdFoundingTest {
     discoveries = mockk(relaxed = true),
     strongholds = strongholds,
     structures = structures,
-    inventoryService = mockk(relaxed = true),
-    commodities = mockk { every { coinItemId() } returns COIN },
-    reserve = mockk(relaxed = true),
+    coins = coinsPaidWith(COIN),
     worldService = mockk<WorldService> { every { config.voxelSize } returns 1.0 },
-    world = mockk(relaxed = true),
-    asyncJobExecutor = mockk<AsyncJobExecutor>(relaxed = true),
     messages = messages,
     config = config,
   )

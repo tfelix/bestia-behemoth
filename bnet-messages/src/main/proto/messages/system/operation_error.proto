@@ -558,6 +558,12 @@ enum OpError {
   BUILD_NOT_YOUR_GUILDS = 399;
   // The target stands on a Stronghold's grounds, and no attack window is open.
   COMBAT_OUTSIDE_ATTACK_WINDOW = 400;
+  // The Empyrite belongs to another guild, so its window does not open for the clicker.
+  STRONGHOLD_NOT_YOUR_GUILDS = 401;
+  // The member stands too far from the Empyrite to invest.
+  STRONGHOLD_OUT_OF_RANGE = 402;
+  // The member does not carry the coins the next step costs.
+  STRONGHOLD_CANNOT_AFFORD_STEP = 403;
 }
 
 message OperationError {
