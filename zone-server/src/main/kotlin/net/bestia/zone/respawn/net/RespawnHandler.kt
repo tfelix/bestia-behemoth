@@ -10,10 +10,12 @@ import net.bestia.zone.message.IoMessageHandler
 import net.bestia.zone.message.decoder
 import org.springframework.stereotype.Component
 import net.bestia.zone.account.SavePointService
+import net.bestia.zone.respawn.GuildRespawnPoints
 import net.bestia.zone.respawn.ecs.Respawn
 
 /**
- * Revives the player's currently active entity at its save point.
+ * Revives the player's currently active entity at its save point. A master gets up at its party's Base Camp or its
+ * guild's Stronghold instead, when there is one.
  *
  * The save point is resolved here, on the IO lane, and handed to [net.bestia.zone.respawn.ecs.RespawnSystem] inside the
  * [Respawn] intent - the tick thread must not go to the database for it.
@@ -24,6 +26,7 @@ class RespawnHandler(
   private val savePointService: SavePointService,
   private val world: WorldView,
   private val camps: BaseCamps? = null,
+  private val guildRespawn: GuildRespawnPoints? = null,
 ) : IoMessageHandler<RespawnCMSG> {
   override val wire = decoder(MessageCase.RESPAWN) { accountId, envelope ->
     RespawnCMSG.fromBnet(accountId, envelope.respawn)
@@ -42,13 +45,15 @@ class RespawnHandler(
 
     val playerBestiaId = connectionInfoService.getActivePlayerBestiaId(msg.playerId)
     val masterId = connectionInfoService.getMasterId(msg.playerId)
-    // A party's Lv.3 Base Camp takes its fallen masters back instead of their save point.
-    val camp = if (playerBestiaId == null) {
-      world.read { camps?.respawnPointFor(this, activeEntityId, masterId) }
+    // A party's Lv.3 Base Camp takes its fallen masters back first, then a Stronghold of their guild.
+    val takenBack = if (playerBestiaId == null) {
+      world.read {
+        camps?.respawnPointFor(this, activeEntityId, masterId) ?: guildRespawn?.respawnPointFor(this, activeEntityId)
+      }
     } else {
       null
     }
-    val savePoint = camp ?: if (playerBestiaId == null) {
+    val savePoint = takenBack ?: if (playerBestiaId == null) {
       savePointService.forMaster(masterId)
     } else {
       savePointService.forPlayerBestia(playerBestiaId)

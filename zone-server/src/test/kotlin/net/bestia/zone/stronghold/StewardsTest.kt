@@ -5,6 +5,7 @@ import io.mockk.mockk
 import net.bestia.worldgen.stronghold.EmpyriteSeed
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.stronghold.ecs.Steward
@@ -13,6 +14,7 @@ import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class StewardsTest {
@@ -25,6 +27,7 @@ class StewardsTest {
   private val stewards = Stewards(
     strongholds = mockk {
       every { all() } answers { held.toList() }
+      every { heldBy(any()) } answers { held.filter { it.guildId == firstArg<Long>() } }
       every { put(any()) } answers { held.removeIf { it.rank == firstArg<Stronghold>().rank }; held.add(firstArg()) }
     },
     seeds = mockk { every { awake() } returns listOf(west, east) },
@@ -65,8 +68,32 @@ class StewardsTest {
     assertTrue(stewardsOf(west.rank).isEmpty())
   }
 
+  @Test
+  fun `a fallen member gets up at the guild's nearest Stronghold with a steward`() {
+    held.add(standing(west).copy(hasSteward = true))
+    held.add(standing(east).copy(hasSteward = true))
+
+    assertEquals(Vec3L(9_003, 998, 40), stewards.respawnPointFor(world, memberAt(Vec3L(8_000, 1_000, 0))))
+  }
+
+  @Test
+  fun `without a steward, or for another guild, there is no Stronghold to get up at`() {
+    held.add(standing(west))
+
+    assertNull(stewards.respawnPointFor(world, memberAt(Vec3L(1_000, 1_000, 0))))
+    held[0] = held[0].copy(hasSteward = true)
+    assertNull(stewards.respawnPointFor(world, memberAt(Vec3L(1_000, 1_000, 0), guild = OTHER_GUILD)))
+  }
+
   private fun standing(seed: EmpyriteSeed): Stronghold {
     return Stronghold(seed.rank, GUILD, State.STANDING, null, Instant.EPOCH, Instant.EPOCH)
+  }
+
+  private fun memberAt(at: Vec3L, guild: Long = GUILD): EntityId {
+    return world.createEntity { id ->
+      add(id, Position.fromVec3(at))
+      add(id, GuildMembership(guild, taxPercent = 5))
+    }
   }
 
   private fun stewardsOf(rank: Int): List<EntityId> {
@@ -77,6 +104,7 @@ class StewardsTest {
 
   private companion object {
     const val GUILD = 1L
+    const val OTHER_GUILD = 2L
     const val SPECIES_ID = 113L
   }
 }
