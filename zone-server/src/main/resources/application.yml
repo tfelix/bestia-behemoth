@@ -101,6 +101,10 @@ stronghold:
   empyrite-hp: 50000
   empyrite-defense: 20
   grounds-radius-metres: 500
+  # Weekly spans in which Strongholds can be attacked, such as "SATURDAY 18:00-22:00", read in attack-window-zone.
+  # Outside them nothing on a Stronghold's grounds takes harm. An empty list means always.
+  attack-windows: []
+  attack-window-zone: UTC
 
 # Settings a *new* world is born with. Ignored once a world exists: what gets generated then comes from the
 # stored record, because that is what its chunks and any player edits were built against.

@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.GuildMembership
+import net.bestia.zone.entity.ecs.ClosedToAttack
 import net.bestia.zone.identity.ecs.GuildOwned
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.util.EntityId
@@ -137,6 +138,17 @@ class DamageGateTest {
     assertEquals(DamageGate.Verdict.UNAPPROVED, DamageGate.verdict(world, unapproved, banner))
     assertEquals(DamageGate.Verdict.UNAPPROVED, DamageGate.verdict(world, guildless, banner))
     assertEquals(DamageGate.Verdict.UNAPPROVED, DamageGate.verdict(world, mob, banner))
+  }
+
+  @Test
+  fun `a guild structure closed to attack turns away even an approved guild`() {
+    val empyrite = world.createEntity { id ->
+      add(id, GuildOwned(GUILD))
+      add(id, ClosedToAttack)
+    }
+    val enemy = player().also { world.add(it, GuildMembership(OTHER_GUILD, taxPercent = 5, skillLevels = APPROVED)) }
+
+    assertEquals(DamageGate.Verdict.CLOSED, DamageGate.verdict(world, enemy, empyrite))
   }
 
   @Test

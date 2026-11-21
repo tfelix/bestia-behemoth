@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrvMQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqSMgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -167,9 +167,10 @@ namespace Bnet {
             "U19HVUlMRF9BUFBST1ZBTBCKAxIbChZTVFJPTkdIT0xEX05PVF9BTExPV0VE",
             "EIsDEhwKF1NUUk9OR0hPTERfQUxSRUFEWV9IRUxEEIwDEhsKFlNUUk9OR0hP",
             "TERfTk9UX09OX0NPUkUQjQMSHQoYU1RST05HSE9MRF9DQU5OT1RfQUZGT1JE",
-            "EI4DEhoKFUJVSUxEX05PVF9ZT1VSX0dVSUxEUxCPAyIECC4QLioSU0hPUF9U",
-            "UkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0",
-            "aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
+            "EI4DEhoKFUJVSUxEX05PVF9ZT1VSX0dVSUxEUxCPAxIhChxDT01CQVRfT1VU",
+            "U0lERV9BVFRBQ0tfV0lORE9XEJADIgQILhAuKhJTSE9QX1RSRUFTVVJZX0ZV",
+            "TExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclBy",
+            "b3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1077,6 +1078,10 @@ namespace Bnet {
     /// The site belongs to a guild, and only its members may work on it.
     /// </summary>
     [pbr::OriginalName("BUILD_NOT_YOUR_GUILDS")] BuildNotYourGuilds = 399,
+    /// <summary>
+    /// The target stands on a Stronghold's grounds, and no attack window is open.
+    /// </summary>
+    [pbr::OriginalName("COMBAT_OUTSIDE_ATTACK_WINDOW")] CombatOutsideAttackWindow = 400,
   }
 
   #endregion

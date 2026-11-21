@@ -106,6 +106,7 @@
  - UPKEEP wave 51: TreeRegrowthSystem [EverySeconds(seconds=60.0)]
  - UPKEEP wave 51: WarpPortalSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 51: WorldStateSampler [EverySeconds(seconds=5.0)]
+ - UPKEEP wave 52: AttackWindowSystem [EverySeconds(seconds=10.0)]
  - UPKEEP wave 52: CompendiumSightingSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 52: GuildMemberBeaconSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 52: BreedingFarmSystem [EverySeconds(seconds=1.0)]
