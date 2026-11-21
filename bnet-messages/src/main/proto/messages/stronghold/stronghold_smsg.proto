@@ -6,7 +6,7 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "StrongholdSmsgProto";
 
 // Opens, or refreshes, the Stronghold window of a guild member at their guild's Empyrite. The answer to clicking it,
-// and to every step invested there. Its Invest buttons send InteractEntityCMSG for the Empyrite with the action
+// to every step invested there and to hiring a steward. Its Invest buttons send InteractEntityCMSG for the Empyrite with the action
 // "invest" and the track's name.
 message StrongholdSMSG {
   fixed64 empyrite_entity_id = 1;
@@ -22,6 +22,12 @@ message StrongholdSMSG {
   // What each Defense level adds to the Empyrite.
   uint32 hp_per_defense = 10;
   uint32 def_per_defense = 11;
+  // Whether the guild knows Steward Contract, so a member may hire a steward. Its button sends InteractEntityCMSG
+  // for the Empyrite with the action "hire_steward".
+  bool has_steward_contract = 12;
+  bool has_steward = 13;
+  // What hiring a steward costs.
+  uint64 steward_coins = 14;
 }
 
 message StrongholdTrackInfo {

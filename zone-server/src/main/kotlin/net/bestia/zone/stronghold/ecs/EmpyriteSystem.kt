@@ -28,7 +28,8 @@ class EmpyriteSystem(
   override val before = setOf(PlayerDeathSystem::class)
   override val after = setOf(CitySignSystem::class)
 
-  override val reads: ComponentClassSet = setOf(Dead::class, TakenDamage::class) + GuildAffiliation.READS
+  // Steward: a broken Empyrite sends its steward away.
+  override val reads: ComponentClassSet = setOf(Dead::class, TakenDamage::class, Steward::class) + GuildAffiliation.READS
   override val writes: ComponentClassSet = setOf(Empyrite::class, Health::class)
 
   private var sinceRecorded = 0f

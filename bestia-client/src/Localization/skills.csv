@@ -257,8 +257,8 @@ Cast it to sense the awake Empyrite Seeds nearby: up to 3 within 30 km, as faint
 the compass. Cast again closer for a sharper mark.
 
 Cooldown 60s for the whole guild."
-SKILL_1002_DESC,"Hires a steward for the Guild Stronghold. Members can open the guild storage at the
-steward and return to the Stronghold when they fall."
+SKILL_1002_DESC,"Lets any member hire a steward at the Stronghold's Empyrite. Members can open the guild
+storage at the steward and return to the Stronghold when they fall."
 SKILL_1003_DESC,"A storage every member with the right rank can use, kept by the steward.
 
 Each level adds more storage space."

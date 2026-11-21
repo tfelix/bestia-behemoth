@@ -564,6 +564,8 @@ enum OpError {
   STRONGHOLD_OUT_OF_RANGE = 402;
   // The member does not carry the coins the next step costs.
   STRONGHOLD_CANNOT_AFFORD_STEP = 403;
+  // The member does not carry the coins a steward costs.
+  STRONGHOLD_CANNOT_AFFORD_STEWARD = 404;
 }
 
 message OperationError {

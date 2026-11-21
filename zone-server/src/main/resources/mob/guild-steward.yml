@@ -1,0 +1,22 @@
+id: 113
+identifier: guild_steward
+level-min: 1
+level-max: 1
+name: Steward
+description: >-
+  Keeps a guild's Stronghold in order beside its Empyrite. Members store goods with the steward and return here when
+  they fall.
+kind: HUMANOID
+health: 100
+mana: 0
+experience: 0
+# The Stronghold hires it beside its Empyrite (`Stewards`); no den or ambient site ever places one.
+event-only: true
+compendium: false
+# The protection spell of the Guild Strongholds page: nothing harms a steward.
+non-combatant: true
+habitat: []
+spawn-weight: 0
+equip-slots: []
+armor-types: []
+loot: []

@@ -32,6 +32,7 @@ class StrongholdInvestmentTest {
   private val seed = EmpyriteSeed(rank = 2, x = 1_000.0, y = 1_000.0, name = "Hochvein", settlement = -1)
   private var stronghold = Stronghold(seed.rank, GUILD, State.STANDING, null, Instant.EPOCH, Instant.EPOCH)
   private val empyrites = mockk<Empyrites>(relaxed = true)
+  private val stewards = mockk<Stewards>(relaxed = true)
   private val sent = slot<SMSG>()
   private val messages = mockk<OutMessageProcessor> { every { sendToPlayer(ACCOUNT_ID, capture(sent)) } returns Unit }
 
@@ -42,9 +43,10 @@ class StrongholdInvestmentTest {
     },
     seeds = mockk { every { awake() } returns listOf(seed) },
     empyrites = empyrites,
+    stewards = stewards,
     coins = coinsPaidWith(COIN),
     messages = messages,
-    config = StrongholdConfig(stepCoinsPerLevel = 20_000, doubleStepChance = 0.5),
+    config = StrongholdConfig(stepCoinsPerLevel = 20_000, doubleStepChance = 0.5, stewardCoins = 200_000),
     random = object : Random() {
       override fun nextBits(bitCount: Int) = 0
       override fun nextDouble() = roll
@@ -120,13 +122,42 @@ class StrongholdInvestmentTest {
     assertEquals(OpError.REQUEST_REFUSED, investment().invest(world, rich, empyrite, StrongholdTrack.STORAGE))
   }
 
+  @Test
+  fun `with Steward Contract, a member pays for a steward and the window shows it`() {
+    val member = memberAt(Vec3L(1_000, 1_000, 0), coins = 250_000, stewardContract = true)
+    every { stewards.hire(world, any()) } answers { stronghold = secondArg<Stronghold>().copy(hasSteward = true) }
+
+    assertNull(investment().hireSteward(world, member, empyrite))
+
+    verify { stewards.hire(world, match { it.rank == seed.rank }) }
+    assertEquals(50_000, world.get(member, Inventory::class)!!.getItems().sumOf { it.amount })
+    assertEquals(StrongholdSMSG.Steward(hasContract = true, isHired = true, coins = 200_000), (sent.captured as StrongholdSMSG).steward)
+  }
+
+  @Test
+  fun `a steward needs the contract, its coins, and a Stronghold without one`() {
+    val noContract = memberAt(Vec3L(1_000, 1_000, 0), coins = 250_000)
+    val poor = memberAt(Vec3L(1_000, 1_000, 0), coins = 199_999, stewardContract = true)
+    val rich = memberAt(Vec3L(1_000, 1_000, 0), coins = 250_000, stewardContract = true)
+
+    assertEquals(OpError.REQUEST_REFUSED, investment().hireSteward(world, noContract, empyrite))
+    assertEquals(OpError.STRONGHOLD_CANNOT_AFFORD_STEWARD, investment().hireSteward(world, poor, empyrite))
+    stronghold = stronghold.copy(hasSteward = true)
+    assertEquals(OpError.REQUEST_REFUSED, investment().hireSteward(world, rich, empyrite))
+    verify(exactly = 0) { stewards.hire(any(), any()) }
+  }
+
   private fun memberAt(
     at: Vec3L,
     guild: Long = GUILD,
     coins: Int = 0,
     permanentDevelopment: Boolean = false,
+    stewardContract: Boolean = false,
   ): EntityId {
-    val skills = if (permanentDevelopment) mapOf(SkillId.PERMANENT_DEVELOPMENT.name to 1) else emptyMap()
+    val skills = buildMap {
+      if (permanentDevelopment) put(SkillId.PERMANENT_DEVELOPMENT.name, 1)
+      if (stewardContract) put(SkillId.STEWARD_CONTRACT.name, 1)
+    }
 
     return world.createEntity { id ->
       add(id, Position.fromVec3(at))

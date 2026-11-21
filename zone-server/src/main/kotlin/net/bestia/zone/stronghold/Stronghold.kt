@@ -13,6 +13,7 @@ data class Stronghold(
   val plantedAt: Instant,
   val empyriteHp: Int = 0,
   val tracks: Map<StrongholdTrack, TrackProgress> = emptyMap(),
+  val hasSteward: Boolean = false,
 ) {
 
   fun progressOf(track: StrongholdTrack): TrackProgress {
