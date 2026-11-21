@@ -3,7 +3,6 @@ package net.bestia.zone.chat.net
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.bnet.proto.OperationErrorProto.OpError
-import net.bestia.zone.account.MasterNotFoundException
 import net.bestia.zone.account.MasterResolver
 import net.bestia.zone.skill.BasicSkillGate
 import net.bestia.zone.session.ConnectionInfoService
@@ -20,6 +19,7 @@ import net.bestia.zone.chat.ChatSMSG
 import net.bestia.zone.chat.ChatText
 import net.bestia.zone.chat.ChatType
 import net.bestia.zone.chat.GroupChat
+import net.bestia.zone.chat.WhisperChat
 import net.bestia.zone.identity.GroupMember
 import net.bestia.zone.scry.ScryVoice
 
@@ -34,6 +34,7 @@ class ChatHandler(
   private val partyAudience: PartyAudience,
   private val guildAudience: GuildAudience,
   private val groupChat: GroupChat,
+  private val whisperChat: WhisperChat,
   private val scryVoice: ScryVoice,
 ) : IoMessageHandler<ChatCMSG> {
   override val wire = decoder(MessageCase.CHAT_CMSG) { accountId, envelope ->
@@ -97,36 +98,19 @@ class ChatHandler(
   }
 
   /**
-   * A whisper is a one-off: unlike component state, nothing will send it again, so the sender has to be told
-   * when it went nowhere. Both ways it can go nowhere give the same answer - see
-   * [OpError.CHAT_WHISPER_TARGET_UNAVAILABLE].
+   * A whisper is a one-off: unlike component state, nothing will send it again, so the writer has to be told
+   * when it went nowhere. See [OpError.CHAT_WHISPER_TARGET_UNAVAILABLE] for why there is one answer only.
    */
   private fun handleWhisperChat(msg: ChatCMSG) {
-    val targetUsername = requireNotNull(msg.targetUsername)
+    val targetName = requireNotNull(msg.targetUsername)
+    val writer = masterOperations.getSelectedMasterByAccountId(msg.playerId)
 
-    val targetAccountId = try {
-      masterOperations.getAccountIdByMasterName(targetUsername)
-    } catch (e: MasterNotFoundException) {
-      null
-    }
-
-    if (targetAccountId == null || !outMessageProcessor.isPlayerConnected(targetAccountId)) {
+    if (!whisperChat.deliver(writer, targetName, msg.text)) {
       outMessageProcessor.sendToPlayer(
         msg.playerId,
-        OperationErrorSMSG(OpError.CHAT_WHISPER_TARGET_UNAVAILABLE, listOf(targetUsername))
+        OperationErrorSMSG(OpError.CHAT_WHISPER_TARGET_UNAVAILABLE, listOf(targetName))
       )
-
-      return
     }
-
-    outMessageProcessor.sendToPlayer(
-      targetAccountId,
-      ChatSMSG(
-        text = msg.text,
-        type = ChatType.WHISPER,
-        senderUsername = masterOperations.getSelectedMasterByAccountId(msg.playerId).name
-      )
-    )
   }
 
   /** Party and guild chat, as [GroupChat] delivers it. */

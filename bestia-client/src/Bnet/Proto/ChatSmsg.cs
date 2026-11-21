@@ -25,15 +25,16 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ch9tZXNzYWdlcy9zeXN0ZW0vY2hhdF9zbXNnLnByb3RvEgRibmV0Gh9tZXNz",
-            "YWdlcy9zeXN0ZW0vY2hhdF9jbXNnLnByb3RvIpABCghDaGF0U01TRxIMCgR0",
+            "YWdlcy9zeXN0ZW0vY2hhdF9jbXNnLnByb3RvIroBCghDaGF0U01TRxIMCgR0",
             "ZXh0GAEgASgJEhgKBG1vZGUYAiABKA4yCi5ibmV0Lk1vZGUSGAoLc2VuZGVy",
             "X25hbWUYAyABKAlIAIgBARIdChBzZW5kZXJfZW50aXR5X2lkGAQgASgESAGI",
-            "AQFCDgoMX3NlbmRlcl9uYW1lQhMKEV9zZW5kZXJfZW50aXR5X2lkQiYKFW5l",
-            "dC5iZXN0aWEuYm5ldC5wcm90b0INQ2hhdFNtc2dQcm90b2IGcHJvdG8z"));
+            "AQESGAoLdGFyZ2V0X25hbWUYBSABKAlIAogBAUIOCgxfc2VuZGVyX25hbWVC",
+            "EwoRX3NlbmRlcl9lbnRpdHlfaWRCDgoMX3RhcmdldF9uYW1lQiYKFW5ldC5i",
+            "ZXN0aWEuYm5ldC5wcm90b0INQ2hhdFNtc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.ChatCmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChatSMSG), global::Bnet.ChatSMSG.Parser, new[]{ "Text", "Mode", "SenderName", "SenderEntityId" }, new[]{ "SenderName", "SenderEntityId" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChatSMSG), global::Bnet.ChatSMSG.Parser, new[]{ "Text", "Mode", "SenderName", "SenderEntityId", "TargetName" }, new[]{ "SenderName", "SenderEntityId", "TargetName" }, null, null, null)
           }));
     }
     #endregion
@@ -81,6 +82,7 @@ namespace Bnet {
       mode_ = other.mode_;
       senderName_ = other.senderName_;
       senderEntityId_ = other.senderEntityId_;
+      targetName_ = other.targetName_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -167,6 +169,35 @@ namespace Bnet {
       _hasBits0 &= ~1;
     }
 
+    /// <summary>Field number for the "target_name" field.</summary>
+    public const int TargetNameFieldNumber = 5;
+    private readonly static string TargetNameDefaultValue = "";
+
+    private string targetName_;
+    /// <summary>
+    /// Set only on the writer's own copy of a whisper: the master it went to.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string TargetName {
+      get { return targetName_ ?? TargetNameDefaultValue; }
+      set {
+        targetName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+    /// <summary>Gets whether the "target_name" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasTargetName {
+      get { return targetName_ != null; }
+    }
+    /// <summary>Clears the value of the "target_name" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearTargetName() {
+      targetName_ = null;
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -186,6 +217,7 @@ namespace Bnet {
       if (Mode != other.Mode) return false;
       if (SenderName != other.SenderName) return false;
       if (SenderEntityId != other.SenderEntityId) return false;
+      if (TargetName != other.TargetName) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -197,6 +229,7 @@ namespace Bnet {
       if (Mode != global::Bnet.Mode.Party) hash ^= Mode.GetHashCode();
       if (HasSenderName) hash ^= SenderName.GetHashCode();
       if (HasSenderEntityId) hash ^= SenderEntityId.GetHashCode();
+      if (HasTargetName) hash ^= TargetName.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -231,6 +264,10 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteUInt64(SenderEntityId);
       }
+      if (HasTargetName) {
+        output.WriteRawTag(42);
+        output.WriteString(TargetName);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -257,6 +294,10 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteUInt64(SenderEntityId);
       }
+      if (HasTargetName) {
+        output.WriteRawTag(42);
+        output.WriteString(TargetName);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -278,6 +319,9 @@ namespace Bnet {
       }
       if (HasSenderEntityId) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(SenderEntityId);
+      }
+      if (HasTargetName) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(TargetName);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -302,6 +346,9 @@ namespace Bnet {
       }
       if (other.HasSenderEntityId) {
         SenderEntityId = other.SenderEntityId;
+      }
+      if (other.HasTargetName) {
+        TargetName = other.TargetName;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -338,6 +385,10 @@ namespace Bnet {
             SenderEntityId = input.ReadUInt64();
             break;
           }
+          case 42: {
+            TargetName = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -371,6 +422,10 @@ namespace Bnet {
           }
           case 32: {
             SenderEntityId = input.ReadUInt64();
+            break;
+          }
+          case 42: {
+            TargetName = input.ReadString();
             break;
           }
         }
