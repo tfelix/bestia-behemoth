@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Stronghold/stronghold_panel.gd" id="1_stronghold"]
+
+[node name="Stronghold" type="PanelContainer"]
+custom_minimum_size = Vector2(380, 0)
+offset_right = 380.0
+offset_bottom = 300.0
+script = ExtResource("1_stronghold")

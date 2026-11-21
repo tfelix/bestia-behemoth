@@ -4,21 +4,14 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.worldgen.stronghold.EmpyriteSeed
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.economy.CommodityItems
-import net.bestia.zone.economy.WorldReserve
-import net.bestia.zone.entity.GameMetrics.CoinSource
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.identity.ecs.GuildOwned
 import net.bestia.zone.identity.ecs.Master
-import net.bestia.zone.item.container.InventoryService
-import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
-import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.stronghold.ecs.EmpyriteSeedSprout
@@ -40,12 +33,8 @@ class StrongholdFounding(
   private val discoveries: EmpyriteSeedDiscoveries,
   private val strongholds: StrongholdRegistry,
   private val structures: PlayerStructureService,
-  private val inventoryService: InventoryService,
-  private val commodities: CommodityItems,
-  private val reserve: WorldReserve,
+  private val coins: StrongholdCoins,
   private val worldService: WorldService,
-  private val world: WorldView,
-  private val asyncJobExecutor: AsyncJobExecutor,
   private val messages: OutMessageProcessor,
   private val config: StrongholdConfig,
   private val clock: Clock = Clock.systemUTC(),
@@ -72,7 +61,7 @@ class StrongholdFounding(
     val guildId = world.get(actorId, GuildMembership::class)?.guildId ?: return OpError.REQUEST_REFUSED
     val at = world.get(sproutId, Position::class)?.toVec3L() ?: return OpError.REQUEST_REFUSED
 
-    if (!pay(world, actorId, master.masterId)) return OpError.STRONGHOLD_CANNOT_AFFORD
+    if (!coins.pay(world, actorId, master.masterId, config.plantCoins)) return OpError.STRONGHOLD_CANNOT_AFFORD
 
     val buildSeconds = config.siteBuildMinutes * 60f
     val siteId = structures.beginConstruction(
@@ -105,7 +94,7 @@ class StrongholdFounding(
       strongholds.heldBy(membership.guildId).isNotEmpty() -> OpError.STRONGHOLD_ALREADY_HELD
       strongholds.on(seed.rank) != null -> OpError.REQUEST_REFUSED
       !isOnCore(world, actorId, seed) -> OpError.STRONGHOLD_NOT_ON_CORE
-      coinsHeld(world, actorId) < config.plantCoins -> OpError.STRONGHOLD_CANNOT_AFFORD
+      coins.heldBy(world, actorId) < config.plantCoins -> OpError.STRONGHOLD_CANNOT_AFFORD
       else -> null
     }
   }
@@ -121,37 +110,6 @@ class StrongholdFounding(
     val voxel = worldService.config.voxelSize
 
     return hypot(at.x * voxel - seed.x, at.y * voxel - seed.y) <= config.coreRadiusMetres
-  }
-
-  private fun coinsHeld(world: World, actorId: EntityId): Long {
-    val coin = commodities.coinItemId() ?: return 0
-    val inventory = world.get(actorId, Inventory::class) ?: return 0
-
-    return inventory.getItems().filter { it.itemId == coin && it.isStackable }.sumOf { it.amount.toLong() }
-  }
-
-  /**
-   * Takes the coins off the live bag now and out of the database in a job, as a shop trade does. They go back to
-   * the world reserve once the database agrees.
-   */
-  private fun pay(world: World, actorId: EntityId, masterId: Long): Boolean {
-    val coins = config.plantCoins.toInt()
-    if (coins == 0) return true
-
-    val coin = commodities.coinItemId() ?: return false
-    val inventory = world.get(actorId, Inventory::class) ?: return false
-    inventory.takeAcrossPiles(coin, coins) ?: return false
-
-    asyncJobExecutor.submit(masterId) {
-      if (inventoryService.consumeAll(masterId, listOf(coin to coins))) {
-        this.world.read { reserve.charge(-coins.toDouble(), CoinSource.STRONGHOLD) }
-      } else {
-        // The live bag is put right by the next login; the site already stands, so the planting was free.
-        LOG.warn { "Master $masterId planted an Empyrite site, but the database still holds the $coins coins" }
-      }
-    }
-
-    return true
   }
 
   private companion object {

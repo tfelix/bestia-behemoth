@@ -806,7 +806,8 @@ namespace BestiaBehemothClient.Game.World
       }, // EMPYRITE_SITE
       new Kind
       {
-        PlaceholderWidth = 1.2f, PlaceholderColour = new Color(1.0f, 0.84f, 0.20f), StructureHeight = 4f
+        PlaceholderWidth = 1.2f, PlaceholderColour = new Color(1.0f, 0.84f, 0.20f), StructureHeight = 4f,
+        Action = PropAction.Use
       } // EMPYRITE
     };
 

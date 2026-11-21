@@ -28,6 +28,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _survey_win: WidgetWindow = $SurveyWin
 @onready var _stall_win: WidgetWindow = $StallWin
 @onready var _city_sign_win: WidgetWindow = $CitySignWin
+@onready var _stronghold_win: WidgetWindow = $StrongholdWin
 @onready var _won_bought_win: WidgetWindow = $WonBoughtWin
 @onready var _invitations: InvitationTray = $Invitations
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
@@ -166,6 +167,10 @@ func _ready() -> void:
 	city_sign.notice.connect(_chat.system_line)
 	city_sign.sign_opened.connect(func() -> void: _city_sign_win.visible = true)
 	city_sign.sign_closed.connect(func() -> void: _city_sign_win.visible = false)
+	# Clicking the guild's own Empyrite opens its Stronghold window, which shows each step invested there.
+	var stronghold := _stronghold_win.get_content() as StrongholdPanel
+	stronghold.stronghold_opened.connect(func() -> void: _stronghold_win.visible = true)
+	stronghold.stronghold_closed.connect(func() -> void: _stronghold_win.visible = false)
 
 	# The party and guild windows exist from the start, hidden: they listen for their rosters and invitations
 	# whether open or not. Both speak through the chat, which is the client's one channel for notices.
