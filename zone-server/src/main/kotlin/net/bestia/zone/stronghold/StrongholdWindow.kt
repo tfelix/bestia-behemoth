@@ -15,11 +15,11 @@ import org.springframework.stereotype.Service
 import kotlin.random.Random
 
 /**
- * Members invest coins at their guild's Empyrite, one step of one track per click, and hire its steward. Tick
- * thread only.
+ * The Stronghold window at a guild's Empyrite: members open it, invest coins one step of one track per click, and
+ * hire its steward. Tick thread only.
  */
 @Service
-class StrongholdInvestment(
+class StrongholdWindow(
   private val strongholds: StrongholdRegistry,
   private val seeds: EmpyriteSeedRegistry,
   private val empyrites: Empyrites,

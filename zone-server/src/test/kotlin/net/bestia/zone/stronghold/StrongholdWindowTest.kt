@@ -26,7 +26,7 @@ import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-class StrongholdInvestmentTest {
+class StrongholdWindowTest {
 
   private val world = testWorld()
   private val seed = EmpyriteSeed(rank = 2, x = 1_000.0, y = 1_000.0, name = "Hochvein", settlement = -1)
@@ -36,7 +36,7 @@ class StrongholdInvestmentTest {
   private val sent = slot<SMSG>()
   private val messages = mockk<OutMessageProcessor> { every { sendToPlayer(ACCOUNT_ID, capture(sent)) } returns Unit }
 
-  private fun investment(roll: Double = 0.9) = StrongholdInvestment(
+  private fun window(roll: Double = 0.9) = StrongholdWindow(
     strongholds = mockk {
       every { on(seed.rank) } answers { stronghold }
       every { put(any()) } answers { stronghold = firstArg() }
@@ -63,7 +63,7 @@ class StrongholdInvestmentTest {
   fun `a member's click opens the window with every track and its next price`() {
     stronghold = stronghold.withProgress(StrongholdTrack.DEFENSE, TrackProgress(1, 2))
 
-    assertNull(investment().open(world, memberAt(Vec3L(1_002, 1_000, 0)), empyrite))
+    assertNull(window().open(world, memberAt(Vec3L(1_002, 1_000, 0)), empyrite))
 
     val window = sent.captured as StrongholdSMSG
     assertEquals("Hochvein", window.seedName)
@@ -79,15 +79,15 @@ class StrongholdInvestmentTest {
     val outsider = memberAt(Vec3L(1_000, 1_000, 0), guild = OTHER_GUILD)
     val farOff = memberAt(Vec3L(1_010, 1_000, 0))
 
-    assertEquals(OpError.STRONGHOLD_NOT_YOUR_GUILDS, investment().open(world, outsider, empyrite))
-    assertEquals(OpError.STRONGHOLD_OUT_OF_RANGE, investment().open(world, farOff, empyrite))
+    assertEquals(OpError.STRONGHOLD_NOT_YOUR_GUILDS, window().open(world, outsider, empyrite))
+    assertEquals(OpError.STRONGHOLD_OUT_OF_RANGE, window().open(world, farOff, empyrite))
   }
 
   @Test
   fun `a step is paid from the bag and moves the track on`() {
     val member = memberAt(Vec3L(1_000, 1_000, 0), coins = 25_000)
 
-    assertNull(investment().invest(world, member, empyrite, StrongholdTrack.STORAGE))
+    assertNull(window().invest(world, member, empyrite, StrongholdTrack.STORAGE))
 
     assertEquals(TrackProgress(0, 1), stronghold.progressOf(StrongholdTrack.STORAGE))
     assertEquals(5_000, world.get(member, Inventory::class)!!.getItems().sumOf { it.amount })
@@ -97,7 +97,7 @@ class StrongholdInvestmentTest {
   fun `with Permanent Development a step may count twice`() {
     val member = memberAt(Vec3L(1_000, 1_000, 0), coins = 25_000, permanentDevelopment = true)
 
-    investment(roll = 0.1).invest(world, member, empyrite, StrongholdTrack.ECONOMY)
+    window(roll = 0.1).invest(world, member, empyrite, StrongholdTrack.ECONOMY)
 
     assertEquals(TrackProgress(0, 2), stronghold.progressOf(StrongholdTrack.ECONOMY))
   }
@@ -106,7 +106,7 @@ class StrongholdInvestmentTest {
   fun `a new Defense level hardens the Empyrite`() {
     stronghold = stronghold.withProgress(StrongholdTrack.DEFENSE, TrackProgress(0, 4))
 
-    investment().invest(world, memberAt(Vec3L(1_000, 1_000, 0), coins = 20_000), empyrite, StrongholdTrack.DEFENSE)
+    window().invest(world, memberAt(Vec3L(1_000, 1_000, 0), coins = 20_000), empyrite, StrongholdTrack.DEFENSE)
 
     assertEquals(TrackProgress(1, 0), stronghold.progressOf(StrongholdTrack.DEFENSE))
     verify { empyrites.harden(world, seed.rank) }
@@ -115,11 +115,11 @@ class StrongholdInvestmentTest {
   @Test
   fun `a step needs its coins, and a track ends at level ten`() {
     val poor = memberAt(Vec3L(1_000, 1_000, 0), coins = 19_999)
-    assertEquals(OpError.STRONGHOLD_CANNOT_AFFORD_STEP, investment().invest(world, poor, empyrite, StrongholdTrack.STORAGE))
+    assertEquals(OpError.STRONGHOLD_CANNOT_AFFORD_STEP, window().invest(world, poor, empyrite, StrongholdTrack.STORAGE))
 
     stronghold = stronghold.withProgress(StrongholdTrack.STORAGE, TrackProgress(10, 0))
     val rich = memberAt(Vec3L(1_000, 1_000, 0), coins = 1_000_000)
-    assertEquals(OpError.REQUEST_REFUSED, investment().invest(world, rich, empyrite, StrongholdTrack.STORAGE))
+    assertEquals(OpError.REQUEST_REFUSED, window().invest(world, rich, empyrite, StrongholdTrack.STORAGE))
   }
 
   @Test
@@ -127,7 +127,7 @@ class StrongholdInvestmentTest {
     val member = memberAt(Vec3L(1_000, 1_000, 0), coins = 250_000, stewardContract = true)
     every { stewards.hire(world, any()) } answers { stronghold = secondArg<Stronghold>().copy(hasSteward = true) }
 
-    assertNull(investment().hireSteward(world, member, empyrite))
+    assertNull(window().hireSteward(world, member, empyrite))
 
     verify { stewards.hire(world, match { it.rank == seed.rank }) }
     assertEquals(50_000, world.get(member, Inventory::class)!!.getItems().sumOf { it.amount })
@@ -140,10 +140,10 @@ class StrongholdInvestmentTest {
     val poor = memberAt(Vec3L(1_000, 1_000, 0), coins = 199_999, stewardContract = true)
     val rich = memberAt(Vec3L(1_000, 1_000, 0), coins = 250_000, stewardContract = true)
 
-    assertEquals(OpError.REQUEST_REFUSED, investment().hireSteward(world, noContract, empyrite))
-    assertEquals(OpError.STRONGHOLD_CANNOT_AFFORD_STEWARD, investment().hireSteward(world, poor, empyrite))
+    assertEquals(OpError.REQUEST_REFUSED, window().hireSteward(world, noContract, empyrite))
+    assertEquals(OpError.STRONGHOLD_CANNOT_AFFORD_STEWARD, window().hireSteward(world, poor, empyrite))
     stronghold = stronghold.copy(hasSteward = true)
-    assertEquals(OpError.REQUEST_REFUSED, investment().hireSteward(world, rich, empyrite))
+    assertEquals(OpError.REQUEST_REFUSED, window().hireSteward(world, rich, empyrite))
     verify(exactly = 0) { stewards.hire(any(), any()) }
   }
 
