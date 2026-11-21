@@ -15,19 +15,19 @@ import org.springframework.stereotype.Component
  */
 @Component
 class EmpyriteInteraction(
-  private val investment: StrongholdInvestment,
+  private val window: StrongholdWindow,
 ) : PropInteraction {
 
   override val kind = StaticEntityKind.EMPYRITE
 
   override fun interact(world: World, actorId: EntityId, propId: EntityId): OpError? {
-    return investment.open(world, actorId, propId)
+    return window.open(world, actorId, propId)
   }
 
   override fun interact(world: World, actorId: EntityId, propId: EntityId, args: ScriptArgs): OpError? {
     return when (args.text(ScriptArgKeys.ACTION)) {
       INVEST -> invest(world, actorId, propId, args)
-      HIRE_STEWARD -> investment.hireSteward(world, actorId, propId)
+      HIRE_STEWARD -> window.hireSteward(world, actorId, propId)
       else -> interact(world, actorId, propId)
     }
   }
@@ -36,7 +36,7 @@ class EmpyriteInteraction(
     val track = args.text(ScriptArgKeys.TRACK)?.let { name -> StrongholdTrack.entries.firstOrNull { it.name == name } }
       ?: return OpError.REQUEST_REFUSED
 
-    return investment.invest(world, actorId, propId, track)
+    return window.invest(world, actorId, propId, track)
   }
 
   companion object {
