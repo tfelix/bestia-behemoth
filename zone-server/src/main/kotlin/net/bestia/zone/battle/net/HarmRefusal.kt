@@ -14,6 +14,7 @@ object HarmRefusal {
       DamageGate.Verdict.ADMITTED -> return
       DamageGate.Verdict.WARDED -> OpError.COMBAT_TARGET_WARDED
       DamageGate.Verdict.UNAPPROVED -> OpError.COMBAT_NEEDS_GUILD_APPROVAL
+      DamageGate.Verdict.CLOSED -> OpError.COMBAT_OUTSIDE_ATTACK_WINDOW
       DamageGate.Verdict.IMMUNE -> {
         // An honest client offers talk, not a fight, on anything immune, so there is nothing to word for the player.
         LOG.warn { "Account $playerId aimed harm at an immune target" }
