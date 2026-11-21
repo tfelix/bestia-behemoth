@@ -12,4 +12,14 @@ data class Stronghold(
   val siteWorkedAt: Instant,
   val plantedAt: Instant,
   val empyriteHp: Int = 0,
-)
+  val tracks: Map<StrongholdTrack, TrackProgress> = emptyMap(),
+) {
+
+  fun progressOf(track: StrongholdTrack): TrackProgress {
+    return tracks[track] ?: TrackProgress()
+  }
+
+  fun withProgress(track: StrongholdTrack, progress: TrackProgress): Stronghold {
+    return copy(tracks = tracks + (track to progress))
+  }
+}

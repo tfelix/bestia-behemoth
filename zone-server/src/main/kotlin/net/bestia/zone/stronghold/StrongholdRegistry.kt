@@ -60,6 +60,12 @@ class StrongholdRegistry(
       siteWorkedAt = stronghold.siteWorkedAt,
       plantedAt = stronghold.plantedAt,
       empyriteHp = stronghold.empyriteHp,
+      defenseLevel = stronghold.progressOf(StrongholdTrack.DEFENSE).level,
+      defenseSteps = stronghold.progressOf(StrongholdTrack.DEFENSE).steps,
+      storageLevel = stronghold.progressOf(StrongholdTrack.STORAGE).level,
+      storageSteps = stronghold.progressOf(StrongholdTrack.STORAGE).steps,
+      economyLevel = stronghold.progressOf(StrongholdTrack.ECONOMY).level,
+      economySteps = stronghold.progressOf(StrongholdTrack.ECONOMY).steps,
       worldShapeVersion = worldService.record.shapeVersion,
       pipelineVersion = worldService.record.pipelineVersion
     )
@@ -77,8 +83,14 @@ class StrongholdRegistry(
   }
 
   private fun strongholdOf(row: StrongholdRecord): Stronghold {
+    val tracks = mapOf(
+      StrongholdTrack.DEFENSE to TrackProgress(row.defenseLevel, row.defenseSteps),
+      StrongholdTrack.STORAGE to TrackProgress(row.storageLevel, row.storageSteps),
+      StrongholdTrack.ECONOMY to TrackProgress(row.economyLevel, row.economySteps),
+    )
+
     return Stronghold(
-      row.rank, row.guildId, row.state, row.siteStructureId, row.siteWorkedAt, row.plantedAt, row.empyriteHp
+      row.rank, row.guildId, row.state, row.siteStructureId, row.siteWorkedAt, row.plantedAt, row.empyriteHp, tracks
     )
   }
 

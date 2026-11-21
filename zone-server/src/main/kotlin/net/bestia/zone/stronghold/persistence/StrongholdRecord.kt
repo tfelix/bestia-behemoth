@@ -39,6 +39,24 @@ class StrongholdRecord(
   @Column(name = "empyrite_hp", nullable = false)
   var empyriteHp: Int = 0,
 
+  @Column(name = "defense_level", nullable = false)
+  var defenseLevel: Int = 0,
+
+  @Column(name = "defense_steps", nullable = false)
+  var defenseSteps: Int = 0,
+
+  @Column(name = "storage_level", nullable = false)
+  var storageLevel: Int = 0,
+
+  @Column(name = "storage_steps", nullable = false)
+  var storageSteps: Int = 0,
+
+  @Column(name = "economy_level", nullable = false)
+  var economyLevel: Int = 0,
+
+  @Column(name = "economy_steps", nullable = false)
+  var economySteps: Int = 0,
+
   @Column(name = "planted_at", nullable = false)
   var plantedAt: Instant = Instant.EPOCH,
 

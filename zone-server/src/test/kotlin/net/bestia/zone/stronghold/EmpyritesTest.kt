@@ -45,7 +45,9 @@ class EmpyritesTest {
     sprouts = sprouts,
     spots = mockk { every { standingAt(seed) } returns Vec3L(1_000, 1_000, 40) },
     statusEffects = statusEffects,
-    config = StrongholdConfig(empyriteHp = 50_000, empyriteDefense = 20, captureGraceMinutes = 10),
+    config = StrongholdConfig(
+      empyriteHp = 50_000, empyriteDefense = 20, empyriteHpPerDefense = 10_000, captureGraceMinutes = 10
+    ),
   )
 
   @Test
@@ -90,6 +92,35 @@ class EmpyritesTest {
     assertEquals(GuildOwned(OTHER_GUILD), world.get(reformed, GuildOwned::class))
     assertEquals(50_000, world.get(reformed, Health::class)?.current)
     verify { statusEffects.applyEffect(world, reformed, StatusEffectId.INVULNERABLE, level = 1, durationSeconds = 600.0) }
+  }
+
+  @Test
+  fun `a capture costs every track one level, and the Empyrite forms at the health its Defense gives`() {
+    val tracks = mapOf(StrongholdTrack.DEFENSE to TrackProgress(3, 2), StrongholdTrack.ECONOMY to TrackProgress(1, 0))
+    held.add(Stronghold(seed.rank, GUILD, State.STANDING, null, EPOCH, EPOCH, empyriteHp = 1, tracks = tracks))
+    empyrites.raiseAll(world)
+    val broken = assertNotNull(empyriteEntity())
+
+    empyrites.broken(world, seed.rank, OTHER_GUILD)
+
+    val captured = held.single()
+    assertEquals(TrackProgress(2, 2), captured.progressOf(StrongholdTrack.DEFENSE))
+    assertEquals(TrackProgress(0, 0), captured.progressOf(StrongholdTrack.ECONOMY))
+    val reformed = assertNotNull(empyriteEntities().singleOrNull { it != broken })
+    assertEquals(70_000, world.get(reformed, Health::class)?.current)
+  }
+
+  @Test
+  fun `a new Defense level hardens a standing Empyrite without healing it`() {
+    held.add(Stronghold(seed.rank, GUILD, State.STANDING, null, EPOCH, EPOCH, empyriteHp = 45_000))
+    empyrites.raiseAll(world)
+    held[0] = held[0].withProgress(StrongholdTrack.DEFENSE, TrackProgress(1, 0))
+
+    empyrites.harden(world, seed.rank)
+
+    val health = world.get(assertNotNull(empyriteEntity()), Health::class)!!
+    assertEquals(60_000, health.max)
+    assertEquals(55_000, health.current)
   }
 
   @Test

@@ -101,6 +101,13 @@ stronghold:
   empyrite-hp: 50000
   empyrite-defense: 20
   grounds-radius-metres: 500
+  # Each Defense level adds this much HP and DEF to the Empyrite.
+  empyrite-hp-per-defense: 10000
+  empyrite-defense-per-level: 4
+  # Members invest in three tracks of 10 levels, 5 steps each. A step towards level N costs N times this.
+  step-coins-per-level: 20000
+  # With Permanent Development, the chance that a step counts twice.
+  double-step-chance: 0.5
   # The guild that breaks an Empyrite takes the Stronghold; the new Empyrite cannot be harmed for this long.
   capture-grace-minutes: 10
   # Weekly spans in which Strongholds can be attacked, such as "SATURDAY 18:00-22:00", read in attack-window-zone.
