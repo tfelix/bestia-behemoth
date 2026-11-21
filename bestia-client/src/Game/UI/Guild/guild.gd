@@ -556,7 +556,8 @@ func _invite() -> void:
 func _add_new_rank() -> void:
 	if _info == null:
 		return
-	ConnectionManager.save_guild_rank(0, tr("GUILD_RANK_DEFAULT_NAME"), int(_info.MinTaxPercent), false, false, false, false, false)
+	# A new rank may deposit but not take, as the server's own default.
+	ConnectionManager.save_guild_rank(0, tr("GUILD_RANK_DEFAULT_NAME"), int(_info.MinTaxPercent), false, false, false, false, false, true, false)
 
 
 ## Every change to the guild may have added an entry, so an open Log tab asks again whenever the guild is pushed.

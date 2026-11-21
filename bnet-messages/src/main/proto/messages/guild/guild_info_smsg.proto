@@ -74,6 +74,8 @@ message GuildRank {
   bool can_manage_ranks = 7;
   bool can_use_guild_skills = 8;
   bool can_edit_motd = 9;
+  bool can_deposit = 10;
+  bool can_take = 11;
 }
 
 message GuildMember {

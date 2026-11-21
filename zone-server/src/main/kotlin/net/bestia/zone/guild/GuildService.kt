@@ -116,6 +116,8 @@ class GuildService(
       canManageRanks = true,
       canUseGuildSkills = true,
       canEditMotd = true,
+      canDeposit = true,
+      canTake = true,
     )
     guild.ranks.add(leaderRank)
     guild.ranks.add(GuildRank(guild = guild, position = 1, name = MEMBER_RANK_NAME, taxPercent = config.defaultTaxPercent))
@@ -355,6 +357,8 @@ class GuildService(
     canManageRanks: Boolean,
     canUseGuildSkills: Boolean,
     canEditMotd: Boolean,
+    canDeposit: Boolean,
+    canTake: Boolean,
   ): Long {
     val (guild, actor) = lockedGuildOf(playedMasterId(accountId))
     val name = DisplayName.normalizeOrNull(rawName, config.rankNameMaxLength) ?: throw GuildInvalidNameException()
@@ -370,7 +374,8 @@ class GuildService(
 
       val position = guild.ranks.maxOf { it.position } + 1
       val rank = GuildRank(
-        guild, position, name, taxPercent, canInvite, canKick, canManageRanks, canUseGuildSkills, canEditMotd
+        guild, position, name, taxPercent, canInvite, canKick, canManageRanks, canUseGuildSkills, canEditMotd,
+        canDeposit, canTake
       )
       guild.ranks.add(rank)
       log.record(guild, GuildLogKind.RANK_ADDED, actor.master.name, detail = name)
@@ -391,6 +396,8 @@ class GuildService(
       rank.canManageRanks = canManageRanks
       rank.canUseGuildSkills = canUseGuildSkills
       rank.canEditMotd = canEditMotd
+      rank.canDeposit = canDeposit
+      rank.canTake = canTake
     }
 
     guild.members.filter { it.rank.id == rank.id }.forEach { refreshMembership(it) }

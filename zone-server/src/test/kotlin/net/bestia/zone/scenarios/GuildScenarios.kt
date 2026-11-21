@@ -154,7 +154,9 @@ class GuildScenarios : BestiaNoSocketScenario() {
     }
 
     assertEquals(
-      GuildMembership(guildId, 5, GUILD_NAME, "Guild Master", isLeader = true, mayUseGuildSkills = true),
+      GuildMembership(
+        guildId, 5, GUILD_NAME, "Guild Master", isLeader = true, mayUseGuildSkills = true, mayDeposit = true, mayTake = true
+      ),
       membershipOf(clientPlayer1.connectedPlayerId)?.copy(members = emptySet()),
     )
   }
@@ -220,7 +222,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
         assertEquals(2, info?.members?.size)
         assertEquals(memberRankId, info?.members?.single { it.masterId == player2MasterId }?.rankId)
       }
-      assertEquals(GuildMembership(guildId, 5, GUILD_NAME, "Member"), membershipOf(clientPlayer2.connectedPlayerId)?.copy(members = emptySet()))
+      assertEquals(GuildMembership(guildId, 5, GUILD_NAME, "Member", mayDeposit = true), membershipOf(clientPlayer2.connectedPlayerId)?.copy(members = emptySet()))
       val roster = setOf(
         GuildMembership.Member(clientPlayer1.connectedPlayerId, player1MasterId),
         GuildMembership.Member(clientPlayer2.connectedPlayerId, player2MasterId),
@@ -251,7 +253,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
   @Order(10)
   fun `a rank's new tax reaches its members' masters`() {
     clientPlayer1.sendMessage(
-      SaveGuildRankCMSG(clientPlayer1.connectedPlayerId, memberRankId, "Recruit", 20, false, false, false, false, false)
+      SaveGuildRankCMSG(clientPlayer1.connectedPlayerId, memberRankId, "Recruit", 20, false, false, false, false, false, false, false)
     )
 
     await {
@@ -264,7 +266,7 @@ class GuildScenarios : BestiaNoSocketScenario() {
   @Order(11)
   fun `a tax outside the bounds is refused`() {
     clientPlayer1.sendMessage(
-      SaveGuildRankCMSG(clientPlayer1.connectedPlayerId, memberRankId, "Recruit", 51, false, false, false, false, false)
+      SaveGuildRankCMSG(clientPlayer1.connectedPlayerId, memberRankId, "Recruit", 51, false, false, false, false, false, false, false)
     )
 
     assertEquals(OperationErrorSMSG(OpError.REQUEST_REFUSED), clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class))

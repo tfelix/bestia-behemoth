@@ -28,6 +28,8 @@ class GuildMemberships(
       emblemHash = member.guild.emblemHash,
       isLeader = member.isLeader,
       mayUseGuildSkills = GuildRankRules.mayUseGuildSkills(member),
+      mayDeposit = GuildRankRules.mayDeposit(member),
+      mayTake = GuildRankRules.mayTake(member),
       skillLevels = member.guild.skillLevels.toMap(),
       members = member.guild.members.mapTo(HashSet()) { GuildMembership.Member(it.master.account.id, it.master.id) },
     )

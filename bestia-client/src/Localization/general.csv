@@ -481,13 +481,15 @@ GUILD_SKILL_NEEDS_STRONGHOLD,Works once the guild holds a Guild Stronghold. Stro
 GUILD_SKILL_DRAG_TO_BAR,Drag it onto the shortcut bar to cast it.
 GUILD_COL_NAME,Rank
 GUILD_COL_TAX,Tax on kill EXP
-GUILD_COL_PERMISSIONS,Invite · Kick · Ranks · Skills · Message
+GUILD_COL_PERMISSIONS,Invite · Kick · Ranks · Skills · Message · Deposit · Take
 GUILD_COL_EXP,EXP paid in
 GUILD_PERM_INVITE,May invite
 GUILD_PERM_KICK,May kick members of lower ranks
 GUILD_PERM_MANAGE_RANKS,May manage the ranks below their own
 GUILD_PERM_USE_SKILLS,May use the guild skills
 GUILD_PERM_EDIT_MOTD,May edit the message of the day
+GUILD_PERM_DEPOSIT,May put items into the guild storage
+GUILD_PERM_TAKE,May take items out of the guild storage
 GUILD_LEADER,Guild master
 GUILD_MEMBER_ONLINE,Online
 GUILD_MEMBER_OFFLINE,Offline

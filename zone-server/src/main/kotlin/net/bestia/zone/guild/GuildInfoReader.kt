@@ -62,6 +62,8 @@ class GuildInfoReader(
           canManageRanks = rank.canManageRanks,
           canUseGuildSkills = rank.canUseGuildSkills,
           canEditMotd = rank.canEditMotd,
+          canDeposit = rank.canDeposit,
+          canTake = rank.canTake,
         )
       },
       members = members.map { member ->

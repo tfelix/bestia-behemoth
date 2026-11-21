@@ -43,17 +43,18 @@ namespace Bnet {
             "ZWwYAyABKA0SMwoNcHJlcmVxdWlzaXRlcxgEIAMoCzIcLmJuZXQuR3VpbGRT",
             "a2lsbFByZXJlcXVpc2l0ZRIdChVjb29sZG93bl9yZW1haW5pbmdfbXMYBSAB",
             "KAQiOQoWR3VpbGRTa2lsbFByZXJlcXVpc2l0ZRIQCghza2lsbF9pZBgBIAEo",
-            "BBINCgVsZXZlbBgCIAEoDSLGAQoJR3VpbGRSYW5rEg8KB3JhbmtfaWQYASAB",
+            "BBINCgVsZXZlbBgCIAEoDSLtAQoJR3VpbGRSYW5rEg8KB3JhbmtfaWQYASAB",
             "KAQSEAoIcG9zaXRpb24YAiABKA0SDAoEbmFtZRgDIAEoCRITCgt0YXhfcGVy",
             "Y2VudBgEIAEoDRISCgpjYW5faW52aXRlGAUgASgIEhAKCGNhbl9raWNrGAYg",
             "ASgIEhgKEGNhbl9tYW5hZ2VfcmFua3MYByABKAgSHAoUY2FuX3VzZV9ndWls",
-            "ZF9za2lsbHMYCCABKAgSFQoNY2FuX2VkaXRfbW90ZBgJIAEoCCLYAQoLR3Vp",
-            "bGRNZW1iZXISEQoJbWFzdGVyX2lkGAEgASgEEhMKC21hc3Rlcl9uYW1lGAIg",
-            "ASgJEg0KBWxldmVsGAMgASgNEg8KB3JhbmtfaWQYBCABKAQSDgoGb25saW5l",
-            "GAUgASgIEhcKD2V4cF9jb250cmlidXRlZBgGIAEoBBIRCglpc19sZWFkZXIY",
-            "ByABKAgSEQoJZW50aXR5X2lkGAggASgGEhYKDmxhc3RfYXJlYV9uYW1lGAkg",
-            "ASgJEhoKEmxhc3Rfc2Vlbl9lcG9jaF9tcxgKIAEoA0IrChVuZXQuYmVzdGlh",
-            "LmJuZXQucHJvdG9CEkd1aWxkSW5mb1Ntc2dQcm90b2IGcHJvdG8z"));
+            "ZF9za2lsbHMYCCABKAgSFQoNY2FuX2VkaXRfbW90ZBgJIAEoCBITCgtjYW5f",
+            "ZGVwb3NpdBgKIAEoCBIQCghjYW5fdGFrZRgLIAEoCCLYAQoLR3VpbGRNZW1i",
+            "ZXISEQoJbWFzdGVyX2lkGAEgASgEEhMKC21hc3Rlcl9uYW1lGAIgASgJEg0K",
+            "BWxldmVsGAMgASgNEg8KB3JhbmtfaWQYBCABKAQSDgoGb25saW5lGAUgASgI",
+            "EhcKD2V4cF9jb250cmlidXRlZBgGIAEoBBIRCglpc19sZWFkZXIYByABKAgS",
+            "EQoJZW50aXR5X2lkGAggASgGEhYKDmxhc3RfYXJlYV9uYW1lGAkgASgJEhoK",
+            "Emxhc3Rfc2Vlbl9lcG9jaF9tcxgKIAEoA0IrChVuZXQuYmVzdGlhLmJuZXQu",
+            "cHJvdG9CEkd1aWxkSW5mb1Ntc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -61,7 +62,7 @@ namespace Bnet {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildExpulsion), global::Bnet.GuildExpulsion.Parser, new[]{ "MasterId", "MasterName", "Reason", "AtEpochMs" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildSkillNode), global::Bnet.GuildSkillNode.Parser, new[]{ "SkillId", "Level", "MaxLevel", "Prerequisites", "CooldownRemainingMs" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildSkillPrerequisite), global::Bnet.GuildSkillPrerequisite.Parser, new[]{ "SkillId", "Level" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildRank), global::Bnet.GuildRank.Parser, new[]{ "RankId", "Position", "Name", "TaxPercent", "CanInvite", "CanKick", "CanManageRanks", "CanUseGuildSkills", "CanEditMotd" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildRank), global::Bnet.GuildRank.Parser, new[]{ "RankId", "Position", "Name", "TaxPercent", "CanInvite", "CanKick", "CanManageRanks", "CanUseGuildSkills", "CanEditMotd", "CanDeposit", "CanTake" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildMember), global::Bnet.GuildMember.Parser, new[]{ "MasterId", "MasterName", "Level", "RankId", "Online", "ExpContributed", "IsLeader", "EntityId", "LastAreaName", "LastSeenEpochMs" }, null, null, null, null)
           }));
     }
@@ -1883,6 +1884,8 @@ namespace Bnet {
       canManageRanks_ = other.canManageRanks_;
       canUseGuildSkills_ = other.canUseGuildSkills_;
       canEditMotd_ = other.canEditMotd_;
+      canDeposit_ = other.canDeposit_;
+      canTake_ = other.canTake_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -2003,6 +2006,30 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "can_deposit" field.</summary>
+    public const int CanDepositFieldNumber = 10;
+    private bool canDeposit_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool CanDeposit {
+      get { return canDeposit_; }
+      set {
+        canDeposit_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "can_take" field.</summary>
+    public const int CanTakeFieldNumber = 11;
+    private bool canTake_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool CanTake {
+      get { return canTake_; }
+      set {
+        canTake_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -2027,6 +2054,8 @@ namespace Bnet {
       if (CanManageRanks != other.CanManageRanks) return false;
       if (CanUseGuildSkills != other.CanUseGuildSkills) return false;
       if (CanEditMotd != other.CanEditMotd) return false;
+      if (CanDeposit != other.CanDeposit) return false;
+      if (CanTake != other.CanTake) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -2043,6 +2072,8 @@ namespace Bnet {
       if (CanManageRanks != false) hash ^= CanManageRanks.GetHashCode();
       if (CanUseGuildSkills != false) hash ^= CanUseGuildSkills.GetHashCode();
       if (CanEditMotd != false) hash ^= CanEditMotd.GetHashCode();
+      if (CanDeposit != false) hash ^= CanDeposit.GetHashCode();
+      if (CanTake != false) hash ^= CanTake.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -2097,6 +2128,14 @@ namespace Bnet {
         output.WriteRawTag(72);
         output.WriteBool(CanEditMotd);
       }
+      if (CanDeposit != false) {
+        output.WriteRawTag(80);
+        output.WriteBool(CanDeposit);
+      }
+      if (CanTake != false) {
+        output.WriteRawTag(88);
+        output.WriteBool(CanTake);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -2143,6 +2182,14 @@ namespace Bnet {
         output.WriteRawTag(72);
         output.WriteBool(CanEditMotd);
       }
+      if (CanDeposit != false) {
+        output.WriteRawTag(80);
+        output.WriteBool(CanDeposit);
+      }
+      if (CanTake != false) {
+        output.WriteRawTag(88);
+        output.WriteBool(CanTake);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -2178,6 +2225,12 @@ namespace Bnet {
         size += 1 + 1;
       }
       if (CanEditMotd != false) {
+        size += 1 + 1;
+      }
+      if (CanDeposit != false) {
+        size += 1 + 1;
+      }
+      if (CanTake != false) {
         size += 1 + 1;
       }
       if (_unknownFields != null) {
@@ -2218,6 +2271,12 @@ namespace Bnet {
       }
       if (other.CanEditMotd != false) {
         CanEditMotd = other.CanEditMotd;
+      }
+      if (other.CanDeposit != false) {
+        CanDeposit = other.CanDeposit;
+      }
+      if (other.CanTake != false) {
+        CanTake = other.CanTake;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -2274,6 +2333,14 @@ namespace Bnet {
             CanEditMotd = input.ReadBool();
             break;
           }
+          case 80: {
+            CanDeposit = input.ReadBool();
+            break;
+          }
+          case 88: {
+            CanTake = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -2327,6 +2394,14 @@ namespace Bnet {
           }
           case 72: {
             CanEditMotd = input.ReadBool();
+            break;
+          }
+          case 80: {
+            CanDeposit = input.ReadBool();
+            break;
+          }
+          case 88: {
+            CanTake = input.ReadBool();
             break;
           }
         }

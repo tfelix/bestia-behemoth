@@ -32,6 +32,8 @@ class SaveGuildRankHandler(
         canManageRanks = msg.canManageRanks,
         canUseGuildSkills = msg.canUseGuildSkills,
         canEditMotd = msg.canEditMotd,
+        canDeposit = msg.canDeposit,
+        canTake = msg.canTake,
       )
 
       publisher.request(guildId)

@@ -41,6 +41,8 @@ data class GuildInfoSMSG(
     val canManageRanks: Boolean,
     val canUseGuildSkills: Boolean,
     val canEditMotd: Boolean,
+    val canDeposit: Boolean,
+    val canTake: Boolean,
   )
 
   data class Skill(
@@ -88,6 +90,8 @@ data class GuildInfoSMSG(
           .setCanManageRanks(rank.canManageRanks)
           .setCanUseGuildSkills(rank.canUseGuildSkills)
           .setCanEditMotd(rank.canEditMotd)
+          .setCanDeposit(rank.canDeposit)
+          .setCanTake(rank.canTake)
           .build()
       })
       .addAllMembers(members.map { member ->
