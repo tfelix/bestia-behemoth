@@ -16,6 +16,8 @@ data class Stronghold(
   val hasSteward: Boolean = false,
   /** The leader's mix of watchers. */
   val watchers: Map<WatcherKind, Int> = emptyMap(),
+  /** The guild's Strengthen Watchers level, as last seen; watchers are called by it while nobody of the guild is near. */
+  val watcherStrength: Int = 0,
 ) {
 
   fun progressOf(track: StrongholdTrack): TrackProgress {

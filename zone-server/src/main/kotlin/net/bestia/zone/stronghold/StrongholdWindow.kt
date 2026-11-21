@@ -37,6 +37,9 @@ class StrongholdWindow(
   /** A member clicked their guild's Empyrite: the window opens. */
   fun open(world: World, actorId: EntityId, empyriteId: EntityId): OpError? {
     refusal(world, actorId, empyriteId)?.let { return it }
+    // The member carries the guild's skill levels; the Stronghold keeps Strengthen Watchers for when nobody is near.
+    val stronghold = strongholdOf(world, empyriteId) ?: return OpError.REQUEST_REFUSED
+    watchers.strengthen(world, stronghold, guildSkillLevel(world, actorId, SkillId.STRENGTHEN_WATCHERS))
     sendWindow(world, actorId, empyriteId)
 
     return null
@@ -191,7 +194,11 @@ class StrongholdWindow(
   }
 
   private fun hasGuildSkill(world: World, actorId: EntityId, skill: SkillId): Boolean {
-    return (world.get(actorId, GuildMembership::class)?.skillLevel(skill.name) ?: 0) > 0
+    return guildSkillLevel(world, actorId, skill) > 0
+  }
+
+  private fun guildSkillLevel(world: World, actorId: EntityId, skill: SkillId): Int {
+    return world.get(actorId, GuildMembership::class)?.skillLevel(skill.name) ?: 0
   }
 
   private fun strongholdOf(world: World, empyriteId: EntityId): Stronghold? {

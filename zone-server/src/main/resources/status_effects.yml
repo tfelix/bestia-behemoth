@@ -891,3 +891,12 @@ statusEffects:
     isSyncedToClient: false
     dispellable: false
     script: ScryVeil
+
+  # Strengthen Watchers, on every watcher of a guild that learned it: harder and quicker blows per level.
+  - id: 253
+    identifier: WATCHER_STRENGTH
+    polarity: BUFF
+    showIcon: false
+    isSyncedToClient: false
+    dispellable: false
+    script: WatcherStrength

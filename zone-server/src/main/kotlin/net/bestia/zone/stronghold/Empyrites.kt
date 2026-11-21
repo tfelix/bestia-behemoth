@@ -70,7 +70,7 @@ class Empyrites(
     }
 
     val weakened = stronghold.copy(tracks = stronghold.tracks.mapValues { (_, progress) -> progress.lostLevel() })
-    val captured = weakened.copy(guildId = breakerGuildId, empyriteHp = maxHpOf(weakened), hasSteward = false, watchers = emptyMap())
+    val captured = weakened.copy(guildId = breakerGuildId, empyriteHp = maxHpOf(weakened), hasSteward = false, watchers = emptyMap(), watcherStrength = 0)
     strongholds.put(captured)
     val empyriteId = raise(world, captured) ?: return
     val graceSeconds = config.captureGraceMinutes * 60.0

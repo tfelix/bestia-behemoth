@@ -496,9 +496,13 @@ class GuildService(
     guild.members.forEach { refreshMembership(it) }
     log.record(guild, GuildLogKind.SKILL_LEARNED, actor.master.name, detail = node.skillId.toString())
 
-    if (node.identifier == SkillId.OFFICIAL_GUILD_APPROVAL.name) {
-      val guildId = guild.id
-      afterCommit { events.publishEvent(GuildApprovedEvent(this, guildId)) }
+    val guildId = guild.id
+    when (node.identifier) {
+      SkillId.OFFICIAL_GUILD_APPROVAL.name -> afterCommit { events.publishEvent(GuildApprovedEvent(this, guildId)) }
+      SkillId.STRENGTHEN_WATCHERS.name -> {
+        val level = guild.skillLevel(node.identifier)
+        afterCommit { events.publishEvent(GuildWatchersStrengthenedEvent(this, guildId, level)) }
+      }
     }
 
     return guild.id

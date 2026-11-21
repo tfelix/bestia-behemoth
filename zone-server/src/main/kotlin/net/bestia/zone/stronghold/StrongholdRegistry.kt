@@ -69,6 +69,7 @@ class StrongholdRegistry(
       hasSteward = stronghold.hasSteward,
       meleeWatchers = stronghold.watchersOf(WatcherKind.MELEE),
       archerWatchers = stronghold.watchersOf(WatcherKind.ARCHER),
+      watcherStrength = stronghold.watcherStrength,
       worldShapeVersion = worldService.record.shapeVersion,
       pipelineVersion = worldService.record.pipelineVersion
     )
@@ -96,6 +97,7 @@ class StrongholdRegistry(
       row.rank, row.guildId, row.state, row.siteStructureId, row.siteWorkedAt, row.plantedAt, row.empyriteHp, tracks,
       row.hasSteward,
       mapOf(WatcherKind.MELEE to row.meleeWatchers, WatcherKind.ARCHER to row.archerWatchers),
+      row.watcherStrength,
     )
   }
 
