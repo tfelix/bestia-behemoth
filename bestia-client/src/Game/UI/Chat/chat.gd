@@ -49,6 +49,9 @@ const _WHISPER_COLOR := Color(1.0, 0.45, 0.85)
 
 var _whisper_address := WhisperAddressReader.new()
 
+## Who whispered the player last, for /r. Empty until somebody has.
+var _last_whisperer := ""
+
 
 func _ready() -> void:
 	add_to_group("world_blocking_ui")
@@ -96,7 +99,7 @@ func _handle_enter() -> void:
 	else:
 		chat_input.call_deferred("grab_focus")
 
-## Handles sending chat. Mode-switch prefixes (/s /p /g /w) update the UI and strip
+## Handles sending chat. Mode-switch prefixes (/s /p /g /w /r) update the UI and strip
 ## the prefix before sending. Plain /commands are passed as-is; ToEnvelope() in
 ## ChatCMSG.cs detects the leading slash and overrides the mode to Command(7).
 func _handle_chat_send() -> void:
@@ -124,6 +127,13 @@ func _handle_chat_send() -> void:
 			return
 		_whisper_to(target)
 		chat_text = address[1]
+	elif chat_text == "/r" or chat_text.begins_with("/r "):
+		if _last_whisperer == "":
+			error_line(tr("CHAT_REPLY_NOBODY"))
+			_clear_input()
+			return
+		_whisper_to(_last_whisperer)
+		chat_text = chat_text.substr(2).strip_edges()
 
 	# Special case handling for internal commands.
 	if chat_text == "":
@@ -435,4 +445,5 @@ func _add_whisper_line(message: ChatSMSG) -> void:
 	if message.TargetName != "":
 		_add_chat_line(tr("CHAT_LINE_WHISPER_TO") % [message.TargetName, message.Text], _WHISPER_COLOR)
 	else:
+		_last_whisperer = message.SenderName
 		_add_chat_line(tr("CHAT_LINE_WHISPER_FROM") % [message.SenderName, message.Text], _WHISPER_COLOR)
