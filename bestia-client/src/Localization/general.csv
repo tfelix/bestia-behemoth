@@ -439,6 +439,11 @@ ERROR_GUILD_BANNER_OUT_OF_RANGE,That spot is too far away to plant the banner.
 ERROR_GUILD_LEADER_MUST_DISBAND,This master leads the guild %s. Hand it over or disband it before deleting the master.
 CHAT_LINE_PARTY,[Party] %s: %s
 CHAT_LINE_GUILD,[Guild] %s: %s
+CHAT_LINE_WHISPER_FROM,[From %s] %s
+CHAT_LINE_WHISPER_TO,[To %s] %s
+CHAT_WHISPER_NAME,Name
+CHAT_WHISPER_USAGE,"Whisper with /w Name text. Put a name of two words in quotes: /w ""First Second"" text."
+CHAT_WHISPER_NO_TARGET,Enter the name of the player to whisper to.
 INVITATION_ACCEPT,Yes
 INVITATION_DECLINE,No
 PARTY_NONE_HINT,"You are in no party. Found one, or wait for an invitation."
