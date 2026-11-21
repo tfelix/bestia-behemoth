@@ -30,6 +30,8 @@ data class StrongholdConfig(
   val empyriteDefense: Int = 20,
   /** A Stronghold's grounds around its Empyrite, in metres. Guild skills that need the Stronghold work inside. */
   val groundsRadiusMetres: Double = 500.0,
+  /** After a capture, the new Empyrite cannot be harmed for this long. */
+  val captureGraceMinutes: Long = 10,
   /** Weekly spans such as `SATURDAY 18:00-22:00` in which Strongholds can be attacked. Empty: always. */
   val attackWindows: List<String> = emptyList(),
   /** The time zone the attack windows are read in. */
@@ -49,6 +51,7 @@ data class StrongholdConfig(
     require(empyriteHp > 0) { "stronghold.empyrite-hp must be positive, was $empyriteHp" }
     require(empyriteDefense >= 0) { "stronghold.empyrite-defense must not be negative, was $empyriteDefense" }
     require(groundsRadiusMetres > 0.0) { "stronghold.grounds-radius-metres must be positive, was $groundsRadiusMetres" }
+    require(captureGraceMinutes >= 0) { "stronghold.capture-grace-minutes must not be negative" }
     // Parsed here as well as where they are used, so a typo stops the boot rather than the first siege.
     AttackWindows.of(this)
   }

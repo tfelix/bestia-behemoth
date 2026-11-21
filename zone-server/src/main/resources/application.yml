@@ -101,6 +101,8 @@ stronghold:
   empyrite-hp: 50000
   empyrite-defense: 20
   grounds-radius-metres: 500
+  # The guild that breaks an Empyrite takes the Stronghold; the new Empyrite cannot be harmed for this long.
+  capture-grace-minutes: 10
   # Weekly spans in which Strongholds can be attacked, such as "SATURDAY 18:00-22:00", read in attack-window-zone.
   # Outside them nothing on a Stronghold's grounds takes harm. An empty list means always.
   attack-windows: []

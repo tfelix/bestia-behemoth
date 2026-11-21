@@ -4,10 +4,15 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.worldgen.stronghold.EmpyriteSeed
+import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.identity.ecs.GuildOwned
 import net.bestia.zone.stronghold.ecs.Empyrite
 import net.bestia.zone.stronghold.ecs.EmpyriteSystem
@@ -25,6 +30,7 @@ class EmpyritesTest {
   private val seed = EmpyriteSeed(rank = 2, x = 1_000.0, y = 1_000.0, name = "Hochvein", settlement = -1)
   private val held = mutableListOf<Stronghold>()
   private val sprouts = mockk<EmpyriteSeedSprouts>(relaxed = true)
+  private val statusEffects = mockk<StatusEffectService>(relaxed = true)
 
   private val strongholds = mockk<StrongholdRegistry> {
     every { all() } answers { held.toList() }
@@ -38,7 +44,8 @@ class EmpyritesTest {
     seeds = mockk { every { awake() } returns listOf(seed) },
     sprouts = sprouts,
     spots = mockk { every { standingAt(seed) } returns Vec3L(1_000, 1_000, 40) },
-    config = StrongholdConfig(empyriteHp = 50_000, empyriteDefense = 20),
+    statusEffects = statusEffects,
+    config = StrongholdConfig(empyriteHp = 50_000, empyriteDefense = 20, captureGraceMinutes = 10),
   )
 
   @Test
@@ -64,7 +71,29 @@ class EmpyritesTest {
   }
 
   @Test
-  fun `a broken Empyrite ends the Stronghold, and the seed sprouts again`() {
+  fun `the guild that strikes the breaking blow takes the Stronghold, whole and unharmable for a while`() {
+    held.add(Stronghold(seed.rank, GUILD, State.STANDING, null, EPOCH, EPOCH, empyriteHp = 1))
+    empyrites.raiseAll(world)
+    val broken = assertNotNull(empyriteEntity())
+    val enemy = world.createEntity { id ->
+      add(id, Account(9L))
+      add(id, GuildMembership(OTHER_GUILD, taxPercent = 5))
+    }
+    world.add(broken, TakenDamage().also { it.addDamage(enemy, 1) })
+    world.add(broken, Dead())
+
+    EmpyriteSystem(empyrites).update(world, 0.05f)
+
+    assertEquals(OTHER_GUILD, held.single().guildId)
+    assertEquals(50_000, held.single().empyriteHp)
+    val reformed = assertNotNull(empyriteEntities().singleOrNull { it != broken })
+    assertEquals(GuildOwned(OTHER_GUILD), world.get(reformed, GuildOwned::class))
+    assertEquals(50_000, world.get(reformed, Health::class)?.current)
+    verify { statusEffects.applyEffect(world, reformed, StatusEffectId.INVULNERABLE, level = 1, durationSeconds = 600.0) }
+  }
+
+  @Test
+  fun `an Empyrite broken with nobody to take it ends the Stronghold, and the seed sprouts again`() {
     held.add(Stronghold(seed.rank, GUILD, State.STANDING, null, EPOCH, EPOCH, empyriteHp = 1))
     empyrites.raiseAll(world)
     world.add(assertNotNull(empyriteEntity()), Dead())
@@ -89,8 +118,12 @@ class EmpyritesTest {
   }
 
   private fun empyriteEntity(): EntityId? {
-    var found: EntityId? = null
-    world.query(Empyrite::class).each { id -> found = id }
+    return empyriteEntities().singleOrNull()
+  }
+
+  private fun empyriteEntities(): List<EntityId> {
+    val found = mutableListOf<EntityId>()
+    world.query(Empyrite::class).each { id -> found.add(id) }
     return found
   }
 
@@ -100,6 +133,7 @@ class EmpyritesTest {
 
   private companion object {
     const val GUILD = 1L
+    const val OTHER_GUILD = 2L
     val EPOCH: Instant = Instant.EPOCH
   }
 }
