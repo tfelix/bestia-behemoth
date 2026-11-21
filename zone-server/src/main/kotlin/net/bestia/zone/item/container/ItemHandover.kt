@@ -10,11 +10,12 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
 /**
- * Moves goods between two of a master's own holders that the caller already checked: ownership, reach, room.
+ * Moves goods between two holders that the caller already checked: ownership or rank, reach, room.
  *
  * The goods leave the giver's live bag on the tick, so from then on nothing else - a second move, a drop, a craft -
  * can reach them. The durable move follows as one transaction on the master's job key, the key every other write
- * to these containers uses. Only that transaction failing gives the goods back: then the database never changed.
+ * to these containers uses. A guild storage is shared by many masters, so a move in or out of it queues on the
+ * storage's own key instead. Only that transaction failing gives the goods back: then the database never changed.
  * When it finds the giver no longer holds them, the live bag showed more than the database had, and they stay
  * gone. At no point do both bags hold the same goods.
  */
@@ -23,6 +24,7 @@ class ItemHandover(
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val worldView: WorldView,
+  private val witnesses: List<HandoverWitness> = emptyList(),
 ) {
 
   /** @return false when nothing moved: the giver does not hold that much, or the move could not be queued */
@@ -33,7 +35,7 @@ class ItemHandover(
     val taken = held.portion(amount)
     inventory.take(playerItemId, amount)
 
-    val queued = asyncJobExecutor.trySubmit(masterId) { handDurably(masterId, from, to, taken) }
+    val queued = asyncJobExecutor.trySubmit(jobKeyOf(masterId, from, to)) { handDurably(masterId, from, to, taken) }
     if (!queued) {
       LOG.warn { "Handover of item ${taken.itemId} for master $masterId was not queued; the giver keeps it" }
       inventory.addItem(taken)
@@ -68,6 +70,11 @@ class ItemHandover(
     }
 
     worldView.grantToLive(to.entityId, listOf(moved))
+    witnesses.forEach { it.handedOver(masterId, from.holder, to.holder, taken.itemId, taken.amount) }
+  }
+
+  private fun jobKeyOf(masterId: Long, from: Party, to: Party): Any {
+    return listOf(from.holder, to.holder).firstOrNull { it is ItemHolder.GuildStorage } ?: masterId
   }
 
   /** A detached copy of [amount] of this held item, to give back or to name to the database. */

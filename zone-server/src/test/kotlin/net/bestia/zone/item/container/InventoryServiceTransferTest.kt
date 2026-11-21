@@ -6,6 +6,7 @@ import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.item.ItemProvenance
+import net.bestia.zone.item.persistence.GuildStorageRepository
 import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.item.persistence.ItemInstanceRepository
 import net.bestia.zone.item.persistence.ItemRepository
@@ -58,6 +59,9 @@ class InventoryServiceTransferTest {
   private lateinit var chestStorages: ChestStorages
 
   @Autowired
+  private lateinit var guildStorageRepository: GuildStorageRepository
+
+  @Autowired
   private lateinit var testFixture: ScenarioDataSetup.TestFixture
 
   @Autowired
@@ -90,6 +94,7 @@ class InventoryServiceTransferTest {
     tx.executeWithoutResult {
       created.forEach { playerBestiaRepository.deleteById(it) }
       createdChests.forEach { playerStructureRepository.deleteById(it) }
+      guildStorageRepository.deleteById(GUILD_ID)
     }
     created.clear()
     createdChests.clear()
@@ -249,6 +254,21 @@ class InventoryServiceTransferTest {
   }
 
   @Test
+  fun `the guild storage is made on first use, and goods go in and back out`() {
+    val master = masterA()
+    val storage = ItemHolder.GuildStorage(GUILD_ID)
+    inventoryService.addItem(master, "apple", 10)
+    val before = held(master, null, "apple")
+
+    assertNotNull(inventoryService.transferBetweenOwners(master, ItemHolder.Master, storage, appleId(), 0L, 4))
+    assertNotNull(inventoryService.transferBetweenOwners(master, storage, ItemHolder.Master, appleId(), 0L, 1))
+
+    val inStorage = tx.execute { guildStorageRepository.findById(GUILD_ID).orElseThrow().container.slots.sumOf { it.amount } }
+    assertEquals(3, inStorage)
+    assertEquals(before - 3, held(master, null, "apple"))
+  }
+
+  @Test
   fun `a chest of another master neither gives nor receives`() {
     val owner = masterA()
     val strangersChest = ItemHolder.Chest(chestOf(masterB()))
@@ -300,5 +320,10 @@ class InventoryServiceTransferTest {
     tx.executeWithoutResult { chestStorages.loadAll() }
 
     assertEquals(listOf(sword.id), chestStorages.contentsOf(chest.structureId).getItems().map { it.uniqueId })
+  }
+
+  private companion object {
+    /** No guild row is needed: the storage is keyed by the id alone. */
+    const val GUILD_ID = 9_001L
   }
 }

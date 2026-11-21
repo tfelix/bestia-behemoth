@@ -110,6 +110,10 @@ stronghold:
   double-step-chance: 0.5
   # With Steward Contract, any member hires a steward at the Empyrite for this, when the Stronghold has none.
   steward-coins: 200000
+  # The guild storage, opened at a steward, has this many slots per level of Guild Storage, plus this many per
+  # Storage level of each Stronghold the guild holds.
+  storage-slots-per-skill-level: 100
+  storage-slots-per-storage-level: 50
   # The guild that breaks an Empyrite takes the Stronghold; the new Empyrite cannot be harmed for this long.
   capture-grace-minutes: 10
   # Weekly spans in which Strongholds can be attacked, such as "SATURDAY 18:00-22:00", read in attack-window-zone.

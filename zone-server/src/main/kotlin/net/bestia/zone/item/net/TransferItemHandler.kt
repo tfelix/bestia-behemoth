@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.DeadActionGuard
 import net.bestia.zone.item.container.ItemHandover
 import net.bestia.zone.item.container.ItemHandover.Party
+import net.bestia.zone.item.container.ItemHolder
 import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.CarryCheck
 import net.bestia.zone.item.ecs.SlotStorage
@@ -23,8 +24,8 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
 /**
- * Hands a held item from one of a master's own entities to another standing next to it, or into or out of a chest
- * the master built.
+ * Hands a held item from one of a master's own entities to another standing next to it, or into or out of a slot
+ * storage the master may reach into: a chest it built, its guild's storage.
  *
  * The goods leave the giver's live bag on the tick that checks the move; [ItemHandover] says what follows.
  *
@@ -55,6 +56,11 @@ class TransferItemHandler(
     val receiver = ItemOwner.holderOf(world, msg.toEntityId, masterId)
     if (giver == null || receiver == null) {
       LOG.warn { "Account ${msg.playerId} tried to move goods between ${msg.fromEntityId} and ${msg.toEntityId}, not both its own" }
+      return true
+    }
+
+    rightsRefusal(world, msg.fromEntityId, msg.toEntityId, masterId)?.let { refusal ->
+      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(refusal))
       return true
     }
 
@@ -98,12 +104,25 @@ class TransferItemHandler(
   private fun noRoomFor(world: World, receiverId: EntityId, held: Inventory.Item, amount: Int): OpError? {
     val storage = world.get(receiverId, SlotStorage::class)
     if (storage != null) {
-      val contents = world.get(receiverId, Inventory::class) ?: return OpError.CHEST_FULL
+      val full = if (storage.holder is ItemHolder.Chest) OpError.CHEST_FULL else OpError.STORAGE_FULL
+      val contents = world.get(receiverId, Inventory::class) ?: return full
 
-      return if (storage.hasRoomFor(contents, held)) null else OpError.CHEST_FULL
+      return if (storage.hasRoomFor(contents, held)) null else full
     }
 
     return if (CarryCheck.fits(world, receiverId, held.weight * amount)) null else OpError.EXCHANGE_TOO_HEAVY
+  }
+
+  /** A storage may let a master put in but not take out, or the other way round. */
+  private fun rightsRefusal(world: World, giverId: EntityId, receiverId: EntityId, masterId: Long): OpError? {
+    val mayTake = world.get(giverId, SlotStorage::class)?.useOf(masterId)?.mayTake ?: true
+    val mayPut = world.get(receiverId, SlotStorage::class)?.useOf(masterId)?.mayPut ?: true
+
+    return when {
+      !mayTake -> OpError.STORAGE_MAY_NOT_TAKE
+      !mayPut -> OpError.STORAGE_MAY_NOT_PUT
+      else -> null
+    }
   }
 
   /** Worn gear stays on until it is taken off, and a copy that is its own item moves one at a time. */

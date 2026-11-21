@@ -4,6 +4,8 @@ import net.bestia.zone.account.MasterNotFoundException
 import net.bestia.zone.account.PlayerBestiaNotFoundException
 import net.bestia.zone.item.container.ContainerOwner
 import net.bestia.zone.item.container.ContainerOwners
+import net.bestia.zone.item.persistence.GuildStorage
+import net.bestia.zone.item.persistence.GuildStorageRepository
 import net.bestia.zone.prop.persistence.PlayerStructure
 import net.bestia.zone.prop.persistence.PlayerStructureRepository
 import net.bestia.zone.util.PlayerBestiaId
@@ -14,6 +16,7 @@ class AccountContainerOwners(
   private val masterRepository: MasterRepository,
   private val playerBestiaRepository: PlayerBestiaRepository,
   private val playerStructureRepository: PlayerStructureRepository,
+  private val guildStorageRepository: GuildStorageRepository,
 ) : ContainerOwners {
 
   override fun lockedMaster(masterId: Long): ContainerOwner {
@@ -39,11 +42,17 @@ class AccountContainerOwners(
     return structure.takeIf { it.ownerMasterId == masterId && it.storage != null }
   }
 
+  override fun lockedGuildStorage(guildId: Long): ContainerOwner {
+    return guildStorageRepository.findByIdForUpdate(guildId)
+      ?: guildStorageRepository.saveAndFlush(GuildStorage(guildId))
+  }
+
   override fun save(owner: ContainerOwner) {
     when (owner) {
       is Master -> masterRepository.save(owner)
       is PlayerBestia -> playerBestiaRepository.save(owner)
       is PlayerStructure -> playerStructureRepository.save(owner)
+      is GuildStorage -> guildStorageRepository.save(owner)
       else -> error("Not a container owner of this slice: ${owner::class.simpleName}")
     }
   }
@@ -53,6 +62,7 @@ class AccountContainerOwners(
       is Master -> masterRepository.saveAndFlush(owner)
       is PlayerBestia -> playerBestiaRepository.saveAndFlush(owner)
       is PlayerStructure -> playerStructureRepository.saveAndFlush(owner)
+      is GuildStorage -> guildStorageRepository.saveAndFlush(owner)
       else -> error("Not a container owner of this slice: ${owner::class.simpleName}")
     }
   }

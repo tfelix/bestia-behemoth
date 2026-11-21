@@ -45,6 +45,10 @@ func _describe(entry: GuildLogEntryInfo) -> String:
 		var attack := AttackDB.get_instance().get_attack(int(detail))
 		if attack != null:
 			detail = attack.name
+	elif entry.KindName == "storage_taken":
+		var item := ItemDB.get_instance().get_item(int(detail))
+		if item != null:
+			detail = tr(item.name_key)
 
 	var key := "GUILD_LOG_%s" % entry.KindName.to_upper()
 	if entry.KindName == "kicked" and not detail.is_empty():

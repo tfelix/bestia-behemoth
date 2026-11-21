@@ -36,6 +36,14 @@ ERROR_STRONGHOLD_NOT_YOUR_GUILDS,This Empyrite belongs to another guild.
 ERROR_STRONGHOLD_OUT_OF_RANGE,You are too far from the Empyrite.
 ERROR_STRONGHOLD_CANNOT_AFFORD_STEP,You do not carry enough coins for this step.
 ERROR_STRONGHOLD_CANNOT_AFFORD_STEWARD,You do not carry enough coins to hire a steward.
+ERROR_GUILD_STORAGE_NOT_YOUR_GUILDS,This steward serves another guild.
+ERROR_GUILD_STORAGE_NOT_LEARNED,Your guild has not learned Guild Storage.
+ERROR_GUILD_STORAGE_NOT_ALLOWED,Your rank may not use the guild storage.
+ERROR_GUILD_STORAGE_OUT_OF_REACH,Walk up to the steward to open the guild storage.
+ERROR_GUILD_STORAGE_IN_USE,%s is using the guild storage.
+ERROR_STORAGE_MAY_NOT_PUT,Your rank may not put items into this storage.
+ERROR_STORAGE_MAY_NOT_TAKE,Your rank may not take items out of this storage.
+ERROR_STORAGE_FULL,This storage is full.
 STATUS_EFFECT_10,Warded: a ward stone's magic keeps other players from harming you and you from harming them.
 STATUS_EFFECT_12,Guild aura: your guild master is near and lends you strength.
 STATUS_EFFECT_13,"Battle Orders: +5 STR, DEX and INT."
@@ -587,6 +595,7 @@ GUILD_LOG_SKILL_LEARNED,{actor} raised the guild skill {detail}.
 GUILD_LOG_MOTD_CHANGED,{actor} changed the message of the day.
 GUILD_LOG_EMBLEM_CHANGED,{actor} gave the guild a new emblem.
 GUILD_LOG_LEADER_TRANSFERRED,{actor} handed the guild to {target}.
+GUILD_LOG_STORAGE_TAKEN,{actor} took {target} × {detail} from the guild storage.
 JOURNEY_SELF_NONE,You have arrived.
 JOURNEY_SELF_NO_ROUTE,You know no way there that is not blocked.
 JOURNEY_SELF_STUCK,You found no way on and stopped.
@@ -693,6 +702,7 @@ EXCHANGE_MOVE_ONE,Move one
 EXCHANGE_MOVE_AMOUNT,Move amount...
 EXCHANGE_MOVE_HOW_MANY,Move how many %s?
 CHEST,Chest
+GUILD_STORAGE,Guild Storage
 STORAGE_SLOTS,%d / %d slots
 INVENTORY_SEARCH,Search
 INVENTORY_SORT_NAME,Name

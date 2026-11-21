@@ -47,9 +47,15 @@ class TransferItemHandlerTest {
   /** Holds the submitted job instead of running it, so the test decides when the database answers. */
   private var pending: (() -> Unit)? = null
   private var queueFull = false
+
+  /** A guild storage's moves queue on the storage, not on the master. */
+  private var pendingForGuild: (() -> Unit)? = null
   private val executor = mockk<AsyncJobExecutor>().also {
     every { it.trySubmit(MASTER_ID, any()) } answers {
       if (queueFull) false else true.also { pending = secondArg() }
+    }
+    every { it.trySubmit(ItemHolder.GuildStorage(GUILD_ID), any()) } answers {
+      true.also { pendingForGuild = secondArg() }
     }
   }
 
@@ -91,6 +97,13 @@ class TransferItemHandlerTest {
     }
 
   /** Distinct goods that each take a slot of their own. */
+  private fun guildStorage(use: SlotStorage.Use, contents: List<Inventory.Item> = emptyList(), slots: Int = 100) =
+    world.createEntity { id ->
+      add(id, Position(6, 5, 0))
+      add(id, Inventory(contents.toMutableList()))
+      add(id, SlotStorage(ItemHolder.GuildStorage(GUILD_ID), slots, mapOf(MASTER_ID to use), setOf(ACCOUNT_ID)))
+    }
+
   private fun otherGoods(count: Int) = (1..count).map { Inventory.Item(itemId = 1000L + it, amount = 1) }
 
   private fun arrowsIn(entity: EntityId): Int =
@@ -134,6 +147,36 @@ class TransferItemHandlerTest {
 
     assertEquals(1, arrowsIn(chest))
     assertEquals(9, arrowsIn(master))
+  }
+
+  @Test
+  fun `a member who may deposit but not take puts goods into the guild storage, queued on the storage`() {
+    val potion = Inventory.Item(itemId = 77L, amount = 1)
+    val storage = guildStorage(SlotStorage.Use(mayPut = true, mayTake = false), contents = listOf(potion))
+    val intoStorage = ItemHolder.GuildStorage(GUILD_ID)
+    every { inventoryService.transferBetweenOwners(MASTER_ID, ItemHolder.Master, intoStorage, ARROW, 0L, 4, null) } returns
+      arrived(4)
+
+    sut.handle(world, TransferItemCMSG(ACCOUNT_ID, storage, master, potion.playerItemId, amount = 1))
+    sut.handle(world, handOver.copy(toEntityId = storage))
+    pendingForGuild!!.invoke()
+
+    verify { outMessages.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OpError.STORAGE_MAY_NOT_TAKE)) }
+    assertEquals(4, arrowsIn(storage))
+    assertEquals(1, world.get(storage, Inventory::class)!!.getItems().count { it.itemId == 77L })
+  }
+
+  @Test
+  fun `a member who may not deposit is told so, and a full guild storage says it is full`() {
+    val takeOnly = guildStorage(SlotStorage.Use(mayPut = false, mayTake = true))
+    sut.handle(world, handOver.copy(toEntityId = takeOnly))
+    verify { outMessages.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OpError.STORAGE_MAY_NOT_PUT)) }
+
+    val full = guildStorage(SlotStorage.Use.FULL, contents = otherGoods(3), slots = 3)
+    sut.handle(world, handOver.copy(toEntityId = full))
+    verify { outMessages.sendToPlayer(ACCOUNT_ID, OperationErrorSMSG(OpError.STORAGE_FULL)) }
+
+    assertEquals(10, arrowsIn(master))
   }
 
   @Test
@@ -321,6 +364,7 @@ class TransferItemHandlerTest {
     const val MASTER_ID = 9L
     const val PLAYER_BESTIA_ID = 21L
     const val STRUCTURE_ID = 33L
+    const val GUILD_ID = 4L
     const val ARROW = 40L
     const val SWORD = 11L
   }

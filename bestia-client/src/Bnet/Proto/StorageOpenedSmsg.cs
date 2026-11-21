@@ -27,9 +27,9 @@ namespace Bnet {
             "CixtZXNzYWdlcy9pbnZlbnRvcnkvc3RvcmFnZV9vcGVuZWRfc21zZy5wcm90",
             "bxIEYm5ldCJWChFTdG9yYWdlT3BlbmVkU01TRxIRCgllbnRpdHlfaWQYASAB",
             "KAQSDQoFc2xvdHMYAiABKA0SHwoEa2luZBgDIAEoDjIRLmJuZXQuU3RvcmFn",
-            "ZUtpbmQqJQoLU3RvcmFnZUtpbmQSFgoSU1RPUkFHRV9LSU5EX0NIRVNUEABC",
-            "LwoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhZTdG9yYWdlT3BlbmVkU01TR1By",
-            "b3RvYgZwcm90bzM="));
+            "ZUtpbmQqRQoLU3RvcmFnZUtpbmQSFgoSU1RPUkFHRV9LSU5EX0NIRVNUEAAS",
+            "HgoaU1RPUkFHRV9LSU5EX0dVSUxEX1NUT1JBR0UQAUIvChVuZXQuYmVzdGlh",
+            "LmJuZXQucHJvdG9CFlN0b3JhZ2VPcGVuZWRTTVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.StorageKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -45,6 +45,10 @@ namespace Bnet {
   /// </summary>
   public enum StorageKind {
     [pbr::OriginalName("STORAGE_KIND_CHEST")] Chest = 0,
+    /// <summary>
+    /// Opened at a steward; shared by the whole guild, one member at a time.
+    /// </summary>
+    [pbr::OriginalName("STORAGE_KIND_GUILD_STORAGE")] GuildStorage = 1,
   }
 
   #endregion

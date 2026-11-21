@@ -647,6 +647,7 @@ class InventoryService(
       ItemHolder.Master -> owners.lockedMaster(masterId)
       is ItemHolder.Bestia -> owners.lockedPlayerBestiaOf(masterId, holder.playerBestiaId)
       is ItemHolder.Chest -> owners.lockedChestOf(masterId, holder.structureId)
+      is ItemHolder.GuildStorage -> owners.lockedGuildStorage(holder.guildId)
     }
   }
 
@@ -771,6 +772,7 @@ class InventoryService(
           ItemHolder.Master -> 0
           is ItemHolder.Bestia -> 1
           is ItemHolder.Chest -> 2
+          is ItemHolder.GuildStorage -> 3
         }
       },
       { holder ->
@@ -778,6 +780,7 @@ class InventoryService(
           ItemHolder.Master -> 0L
           is ItemHolder.Bestia -> holder.playerBestiaId
           is ItemHolder.Chest -> holder.structureId
+          is ItemHolder.GuildStorage -> holder.guildId
         }
       },
     )
