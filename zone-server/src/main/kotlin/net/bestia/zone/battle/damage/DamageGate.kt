@@ -4,6 +4,7 @@ import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.HarmShield
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.entity.ecs.ClosedToAttack
 import net.bestia.zone.entity.ecs.PlayerOwnership
 import net.bestia.zone.entity.ecs.WardProtected
 import net.bestia.zone.identity.ecs.Account
@@ -21,7 +22,7 @@ object DamageGate {
 
   /** Folded into the reads of every system that asks, so the scheduler sees what the gate looks at. */
   val READS: ComponentClassSet =
-    setOf(StatusEffects::class, GuildMembership::class, WardProtected::class) + PlayerOwnership.READS
+    setOf(StatusEffects::class, GuildMembership::class, WardProtected::class, ClosedToAttack::class) + PlayerOwnership.READS
 
   /**
    * Asked where damage is staged, not only where it is drained: by the drain the client has already been
@@ -53,6 +54,10 @@ object DamageGate {
 
     if (owningGuild != null && !isApproved(attackersGuild)) {
       return Verdict.UNAPPROVED
+    }
+
+    if (world.has(targetId, ClosedToAttack::class)) {
+      return Verdict.CLOSED
     }
 
     return Verdict.ADMITTED
@@ -121,5 +126,8 @@ object DamageGate {
 
     /** A guild structure, and the source is not of a guild with Official Guild Approval. */
     UNAPPROVED,
+
+    /** A guild structure on a Stronghold's grounds, while no attack window is open. */
+    CLOSED,
   }
 }

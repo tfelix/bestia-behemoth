@@ -548,6 +548,8 @@ enum OpError {
   STRONGHOLD_CANNOT_AFFORD = 395;
   // The site belongs to a guild, and only its members may work on it.
   BUILD_NOT_YOUR_GUILDS = 396;
+  // The target stands on a Stronghold's grounds, and no attack window is open.
+  COMBAT_OUTSIDE_ATTACK_WINDOW = 397;
 }
 
 message OperationError {
