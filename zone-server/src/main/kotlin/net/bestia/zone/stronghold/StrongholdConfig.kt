@@ -13,6 +13,8 @@ data class StrongholdConfig(
   val settlementClearanceMetres: Double = 1_000.0,
   /** A master discovers a seed by walking within this of its centre: the seed's core. */
   val coreRadiusMetres: Double = 5.0,
+  /** A waking seed with a player's structure on its core moves at most this far to free ground. */
+  val seedMoveMetres: Double = 30.0,
   /** Official Guild Approval senses the awake, free seeds this far away. */
   val senseRangeMetres: Double = 30_000.0,
   /** It shows at most this many of them, nearest first. */

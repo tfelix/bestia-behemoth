@@ -5,13 +5,17 @@ import net.bestia.worldgen.stronghold.EmpyriteSeed
 import net.bestia.worldgen.stronghold.EmpyriteSeeds
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.persistence.AsyncJobExecutor
+import net.bestia.zone.prop.PlayerStructureRegistry
 import net.bestia.zone.settlement.TownRegistry
 import net.bestia.zone.stronghold.persistence.EmpyriteSeedState
 import net.bestia.zone.stronghold.persistence.EmpyriteSeedStateRepository
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
 import java.time.Clock
+import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.hypot
+import kotlin.math.sin
 
 /**
  * The world's Empyrite Seeds as the game has woken them. The pool is the world generator's; which seeds woke and
@@ -24,6 +28,7 @@ class EmpyriteSeedRegistry(
   private val config: StrongholdConfig,
   private val repository: EmpyriteSeedStateRepository,
   private val asyncJobExecutor: AsyncJobExecutor,
+  private val structures: PlayerStructureRegistry,
   private val clock: Clock = Clock.systemUTC(),
 ) {
 
@@ -48,9 +53,15 @@ class EmpyriteSeedRegistry(
     LOG.info { "Restored ${awake().size} awake Empyrite Seeds of a pool of ${pool.size}" }
   }
 
-  /** Awake seeds, best first. */
+  /** Awake seeds, best first, where they woke. */
   fun awake(): List<EmpyriteSeed> {
-    return pool.filter { decided[it.rank]?.awake == true }
+    return pool.mapNotNull { seed ->
+      val state = decided[seed.rank]?.takeIf { it.awake } ?: return@mapNotNull null
+      val movedX = state.movedX
+      val movedY = state.movedY
+
+      if (movedX != null && movedY != null) seed.copy(x = movedX, y = movedY) else seed
+    }
   }
 
   /** Whether an awake seed lies within [metres] of [position], measured flat. */
@@ -61,7 +72,8 @@ class EmpyriteSeedRegistry(
 
   /**
    * Wakes the best sleeping seeds until [target] are awake. A seed by a player town is skipped for good: the docs
-   * promise it never wakes there, and a town can stand for years.
+   * promise it never wakes there, and a town can stand for years. A seed with a player's structure on its core moves to
+   * the nearest free ground within reach, or is skipped too.
    *
    * Awake seeds never go back to sleep, so a smaller [target] than before changes nothing.
    *
@@ -75,11 +87,11 @@ class EmpyriteSeedRegistry(
       if (awakeCount >= target) return woken
       if (seed.rank in decided) continue
 
-      val wakes = !isByTown(seed)
-      decide(seed, wakes)
-      if (wakes) {
+      val spot = if (isByTown(seed)) null else freeSpotFor(seed)
+      decide(seed, spot)
+      if (spot != null) {
         awakeCount++
-        woken.add(seed)
+        woken.add(seed.copy(x = spot.first, y = spot.second))
       }
     }
 
@@ -98,10 +110,44 @@ class EmpyriteSeedRegistry(
       .any { hypot(it.sign.x * voxel - seed.x, it.sign.y * voxel - seed.y) < config.settlementClearanceMetres }
   }
 
-  private fun decide(seed: EmpyriteSeed, wakes: Boolean) {
+  /**
+   * Where [seed] can wake: its own spot, or the nearest spot within [StrongholdConfig.seedMoveMetres] whose core holds
+   * no player's structure. Null when there is none. A structure is known by where it stands, so a little room is kept
+   * round each for its footprint.
+   */
+  private fun freeSpotFor(seed: EmpyriteSeed): Pair<Double, Double>? {
+    val voxel = worldService.config.voxelSize
+    val clearance = config.coreRadiusMetres + FOOTPRINT_METRES
+    val reach = config.seedMoveMetres + clearance
+    val nearby = structures.all()
+      .map { it.position.x * voxel to it.position.y * voxel }
+      .filter { (x, y) -> hypot(x - seed.x, y - seed.y) <= reach }
+    val isFree = { x: Double, y: Double -> nearby.none { (sx, sy) -> hypot(sx - x, sy - y) < clearance } }
+
+    if (isFree(seed.x, seed.y)) return seed.x to seed.y
+
+    for (radius in 1..config.seedMoveMetres.toInt()) {
+      val steps = (2 * PI * radius).toInt().coerceAtLeast(6)
+      for (step in 0 until steps) {
+        val angle = 2 * PI * step / steps
+        val x = seed.x + radius * cos(angle)
+        val y = seed.y + radius * sin(angle)
+        if (isFree(x, y)) return x to y
+      }
+    }
+
+    return null
+  }
+
+  /** [spot] is where it wakes, or null when it is skipped. */
+  private fun decide(seed: EmpyriteSeed, spot: Pair<Double, Double>?) {
+    val wakes = spot != null
+    val moved = spot?.takeIf { it != seed.x to seed.y }
     val state = EmpyriteSeedState(
       rank = seed.rank,
       awake = wakes,
+      movedX = moved?.first,
+      movedY = moved?.second,
       decidedAt = clock.instant(),
       worldShapeVersion = worldService.record.shapeVersion,
       pipelineVersion = worldService.record.pipelineVersion
@@ -112,10 +158,10 @@ class EmpyriteSeedRegistry(
       repository.save(state)
     }
 
-    if (wakes) {
-      LOG.info { "Empyrite Seed ${seed.rank} (${seed.name}) woke at (${seed.x.toInt()}, ${seed.y.toInt()})" }
+    if (spot != null) {
+      LOG.info { "Empyrite Seed ${seed.rank} (${seed.name}) woke at (${spot.first.toInt()}, ${spot.second.toInt()})" }
     } else {
-      LOG.info { "Empyrite Seed ${seed.rank} (${seed.name}) was skipped: a player town stands by it" }
+      LOG.info { "Empyrite Seed ${seed.rank} (${seed.name}) was skipped: a player town stands by it, or structures fill its core" }
     }
   }
 
@@ -124,5 +170,8 @@ class EmpyriteSeedRegistry(
 
     /** One key for every write, so they land in the order they were decided. */
     const val JOB_KEY = "empyrite-seeds"
+
+    /** Room kept round where a structure stands, for the ground it covers. */
+    const val FOOTPRINT_METRES = 3.0
   }
 }

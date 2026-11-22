@@ -7,8 +7,9 @@ import jakarta.persistence.Table
 import java.time.Instant
 
 /**
- * A seed of the pool that has had its turn to wake. Where it lies is the world generator's answer; this row only
- * says whether it woke or was skipped. A seed with no row still sleeps.
+ * A seed of the pool that has had its turn to wake. Where it lies is the world generator's answer, unless it had to
+ * move off a player's structure when it woke; this row says whether it woke or was skipped, and where it moved. A
+ * seed with no row still sleeps.
  *
  * The two versions guard against a row outliving the world it was written for, as `DugTreasureCache`'s do.
  */
@@ -32,4 +33,11 @@ class EmpyriteSeedState(
 
   @Column(name = "pipeline_version", nullable = false)
   var pipelineVersion: Long = 0,
+
+  /** Where it woke in map metres, when a structure stood on its core; null where the generator put it. */
+  @Column(name = "moved_x")
+  var movedX: Double? = null,
+
+  @Column(name = "moved_y")
+  var movedY: Double? = null,
 )
