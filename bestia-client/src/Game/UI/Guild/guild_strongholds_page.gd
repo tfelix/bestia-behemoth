@@ -3,10 +3,11 @@ extends ScrollContainer
 
 ## The guild window's Strongholds tab: one card per Stronghold with its levels, steward, watchers and waiting
 ## treasure drops, and the guild storage below. Asked for each time the tab is shown; the leader collects a card's
-## drops into the guild storage from here.
+## drops into the guild storage from here, and sends a sealed storage to their home post office.
 
 ## The proto's StrongholdTabAction.
 const _COLLECT := 1
+const _SEND_STORAGE_AWAY := 2
 
 var _content: VBoxContainer
 ## One per card: the label counting down to the next drop, and its seconds when the tab came.
@@ -95,8 +96,28 @@ func _storage_line(tab: StrongholdTabSMSG) -> Control:
 	if not tab.HasGuildStorage:
 		return UiStyle.label(tr("GUILD_STRONGHOLDS_STORAGE_NOT_LEARNED"), 12, UiStyle.MUTED)
 	if tab.StorageSealed:
-		return UiStyle.label(tr("GUILD_STRONGHOLDS_STORAGE_SEALED") % tab.StorageUsed, 12)
+		return _sealed_storage(tab)
 	return UiStyle.label(tr("GUILD_STRONGHOLDS_STORAGE") % [tab.StorageUsed, tab.StorageSlots], 12)
+
+
+## Nobody can open it; the leader may pay to have its goods posted home.
+func _sealed_storage(tab: StrongholdTabSMSG) -> Control:
+	var rows := UiStyle.vbox(4)
+	rows.add_child(UiStyle.label(tr("GUILD_STRONGHOLDS_STORAGE_SEALED") % tab.StorageUsed, 12))
+	if not tab.IsLeader or tab.StorageUsed == 0:
+		return rows
+
+	var line := UiStyle.hbox(8)
+	var cost := UiStyle.label(tr("GUILD_STRONGHOLDS_SEND_AWAY_COST") % UiStyle.group_digits(tab.SendAwayCoins), 12)
+	cost.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cost.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	line.add_child(cost)
+	var send := Button.new()
+	send.text = tr("GUILD_STRONGHOLDS_SEND_AWAY")
+	send.pressed.connect(func() -> void: ConnectionManager.stronghold_tab(_SEND_STORAGE_AWAY))
+	line.add_child(send)
+	rows.add_child(line)
+	return rows
 
 
 ## "60,000 coins, 6 Iron Ore, 4 Tin Ore"

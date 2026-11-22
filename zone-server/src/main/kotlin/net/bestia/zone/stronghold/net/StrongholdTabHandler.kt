@@ -1,6 +1,5 @@
 package net.bestia.zone.stronghold.net
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.OperationErrorSMSG
@@ -29,19 +28,12 @@ class StrongholdTabHandler(
     val refusal = when (msg.action) {
       StrongholdTabCMSG.Action.SHOW -> null
       StrongholdTabCMSG.Action.COLLECT -> tab.collect(world, masterEntityId, msg.rank)
-      StrongholdTabCMSG.Action.SEND_STORAGE_AWAY -> {
-        LOG.warn { "Account ${msg.playerId} asked to send the guild storage away, which is not built yet" }
-        null
-      }
+      StrongholdTabCMSG.Action.SEND_STORAGE_AWAY -> tab.sendStorageAway(world, masterEntityId)
     }
 
     refusal?.let { outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(it)) }
     tab.show(world, masterEntityId)
 
     return true
-  }
-
-  private companion object {
-    private val LOG = KotlinLogging.logger { }
   }
 }
