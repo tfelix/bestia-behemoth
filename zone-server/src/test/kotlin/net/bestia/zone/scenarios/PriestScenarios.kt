@@ -1,5 +1,6 @@
 package net.bestia.zone.scenarios
 
+import net.bestia.zone.casting.CastTime
 import net.bestia.zone.account.AccountFactory
 import net.bestia.zone.account.BodyType
 import net.bestia.zone.account.Face
@@ -139,9 +140,12 @@ class PriestScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
     cast("M_SUFFRAGIUM")
     await { assertEquals(30, world.read { get(priest(), CombatStats::class)!!.values.castTimeReduction }) }
 
+    val willpower = world.read { get(priest(), CombatStats::class)!!.values.attributes.willpower }
     cast("M_BLESSING")
 
-    await { assertEquals(1.4f, world.read { get(priest(), Casting::class)?.totalSeconds }) }
+    // Blessing's 2 s bar, less the priest's WIL share and Suffragium's 30 %.
+    val expected = CastTime.seconds(2f, willpower, reductionPercent = 30)
+    await { assertEquals(expected, world.read { get(priest(), Casting::class)?.totalSeconds }) }
     assertFalse(has(priest(), StatusEffectId.SUFFRAGIUM))
     await { assertTrue(has(priest(), StatusEffectId.BLESSING)) }
   }
