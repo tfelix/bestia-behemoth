@@ -1,7 +1,7 @@
 package net.bestia.zone.casting.scripts.bestia
 
 import java.util.Random
-import net.bestia.zone.battle.ElementModifier
+import net.bestia.zone.battle.damage.ElementalSpell
 import net.bestia.zone.battle.EntityBattleContext
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.attack.ThreadLocalRandomSource
@@ -34,10 +34,8 @@ open class BestiaMagicSkill(
     val mechanics = ctx.skill.mechanics
 
     val raw = BestiaSpellPower.of(ctx) * ctx.attackCoefficient
-    val elementMod = ElementModifier.getModifierFloat(battle.usedAttack.attackElement, battle.defender.assumedElement)
-    val defence = if (mechanics.ignoreDefense) 0 else battle.defender.defense.magicDefense
-    // A landed bolt always chips at least a point off, as Firebolt does.
-    val perHit = (raw * elementMod - defence).toInt().coerceAtLeast(MIN_DAMAGE)
+    // Element, resistance, worn and attribute MDEF, and the one-point floor: how every spell lands.
+    val perHit = ElementalSpell.damage(raw, battle, ignoreDefense = mechanics.ignoreDefense)
 
     val damage = BestiaSkillMechanics.strike(mechanics, random) { HitDamage(perHit) }
     BestiaSkillMechanics.afterHit(ctx, target, damage, random)
