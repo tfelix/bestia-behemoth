@@ -8,8 +8,11 @@ import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.TestWorlds
 import net.bestia.worldgen.stronghold.EmpyriteSeed
 import net.bestia.worldgen.stronghold.EmpyriteSeeds
+import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.persistence.AsyncJobExecutor
+import net.bestia.zone.prop.PlayerStructureRegistry
+import net.bestia.zone.prop.StructureEntry
 import net.bestia.zone.settlement.Town
 import net.bestia.zone.settlement.TownRegistry
 import net.bestia.zone.settlement.persistence.PlayerSettlement
@@ -27,6 +30,7 @@ class EmpyriteSeedRegistryTest {
   private val towns = mutableListOf<Town>()
   private val saved = mutableListOf<EmpyriteSeedState>()
   private val stored = mutableListOf<EmpyriteSeedState>()
+  private val structures = mutableListOf<StructureEntry>()
 
   private val repository = mockk<EmpyriteSeedStateRepository>(relaxed = true) {
     every { findAll() } answers { stored }
@@ -49,6 +53,7 @@ class EmpyriteSeedRegistryTest {
     asyncJobExecutor = mockk<AsyncJobExecutor> {
       every { submit(any(), any()) } answers { secondArg<() -> Unit>().invoke() }
     },
+    structures = mockk<PlayerStructureRegistry> { every { all() } answers { structures } },
   )
 
   @Test
@@ -115,6 +120,44 @@ class EmpyriteSeedRegistryTest {
     assertTrue(registry.isAwakeSeedWithin(voxelAt(seed.x + 900.0, seed.y), 1_000.0))
     assertFalse(registry.isAwakeSeedWithin(voxelAt(seed.x + 1_100.0, seed.y), 1_000.0))
     assertFalse(registry.isAwakeSeedWithin(voxelAt(pool[1].x, pool[1].y), 1_000.0), "a sleeping seed counts")
+  }
+
+  @Test
+  fun `a seed with a structure on its core wakes on the nearest free ground, and stays there after a restart`() {
+    val seed = pool[0]
+    val structure = structureAt(seed.x + 1.0, seed.y)
+    structures.add(structure)
+    registry.restoreAll()
+
+    val woken = registry.wakeUpTo(1).single()
+
+    val voxel = world.config.voxelSize
+    val moved = kotlin.math.hypot(woken.x - seed.x, woken.y - seed.y)
+    val clearance = kotlin.math.hypot(woken.x - structure.position.x * voxel, woken.y - structure.position.y * voxel)
+    assertTrue(moved in 1.0..30.0, "moved $moved m")
+    assertTrue(clearance >= 8.0, "clear of the structure's core and footprint, $clearance m")
+    stored.add(saved.single())
+    registry.restoreAll()
+    assertEquals(woken, registry.awake().single())
+  }
+
+  @Test
+  fun `a seed whose surroundings are all built over is skipped`() {
+    val seed = pool[0]
+    for (dx in -40..40 step 4) for (dy in -40..40 step 4) structures.add(structureAt(seed.x + dx, seed.y + dy))
+    registry.restoreAll()
+
+    registry.wakeUpTo(1)
+
+    assertEquals(listOf(false, true), saved.take(2).map { it.awake })
+    assertEquals(pool[1], registry.awake().single())
+  }
+
+  private fun structureAt(x: Double, y: Double): StructureEntry {
+    return StructureEntry(
+      id = structures.size + 1L, kind = StaticEntityKind.WORKBENCH, ownerMasterId = 5L, ownerAccountId = 7L,
+      position = voxelAt(x, y), yaw = 0f,
+    )
   }
 
   private fun townAt(seed: EmpyriteSeed, metresAway: Double): Town {
