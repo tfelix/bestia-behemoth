@@ -8,6 +8,7 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.config.ZoneConfig
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.item.PlayerItemIds
+import net.bestia.zone.prop.PlayerStructureIds
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.SmartInitializingSingleton
 import org.springframework.context.annotation.Bean
@@ -31,6 +32,7 @@ class EcsConfiguration {
   fun entityIdGenerator(zoneShardConfig: ZoneConfig): EntityIdGenerator =
     SnowflakeEntityIdGenerator(nodeId = zoneShardConfig.shardId.coerceIn(0, 255))
       .also { PlayerItemIds.shareWith(it) }
+      .also { PlayerStructureIds.shareWith(it) }
 
   @Bean
   fun ecsWorld(

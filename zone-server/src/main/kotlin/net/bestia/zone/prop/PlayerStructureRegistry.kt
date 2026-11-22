@@ -125,10 +125,9 @@ class PlayerStructureRegistry(
   }
 
   /**
-   * Persists a structure and indexes it, returning the entry the caller should stamp onto the world.
-   *
-   * Synchronous, unlike every other write here: the caller needs the generated id in the same breath, and a
-   * structure whose id arrived a tick later would already be standing in the world unnamed.
+   * Indexes a new structure, returning the entry the caller should stamp onto the world, and writes its row behind
+   * like every other write here. The row mints its own id, so the entry has it at once without asking the database
+   * on the tick.
    */
   fun place(
     kind: StaticEntityKind,
@@ -142,25 +141,27 @@ class PlayerStructureRegistry(
     /** Non-zero to record a construction site rather than a finished structure. */
     buildSeconds: Float = 0f
   ): StructureEntry {
-    val saved = repository.save(
-      PlayerStructure(
-        kind = kind,
-        ownerMasterId = ownerMasterId,
-        ownerAccountId = ownerAccountId,
-        x = position.x,
-        y = position.y,
-        z = position.z,
-        yaw = yaw,
-        chunkX = chunkX,
-        chunkY = chunkY,
-        totalBuildSeconds = buildSeconds,
-        remainingBuildSeconds = buildSeconds,
-        storage = if (kind == StaticEntityKind.CHEST) ItemContainer(ItemContainer.Type.STORAGE) else null
-      )
+    val row = PlayerStructure(
+      kind = kind,
+      ownerMasterId = ownerMasterId,
+      ownerAccountId = ownerAccountId,
+      x = position.x,
+      y = position.y,
+      z = position.z,
+      yaw = yaw,
+      chunkX = chunkX,
+      chunkY = chunkY,
+      totalBuildSeconds = buildSeconds,
+      remainingBuildSeconds = buildSeconds,
+      storage = if (kind == StaticEntityKind.CHEST) ItemContainer(ItemContainer.Type.STORAGE) else null
     )
 
-    val entry = StructureEntry(saved.id, kind, ownerMasterId, ownerAccountId, position, yaw, buildSeconds, buildSeconds)
+    val entry = StructureEntry(row.id, kind, ownerMasterId, ownerAccountId, position, yaw, buildSeconds, buildSeconds)
     index(chunkX, chunkY, entry)
+    // On the structure's own key, ahead of every later write to it.
+    asyncJobExecutor.submit(row.id) {
+      repository.save(row)
+    }
 
     return entry
   }

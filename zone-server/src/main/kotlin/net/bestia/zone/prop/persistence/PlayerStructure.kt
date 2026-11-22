@@ -6,8 +6,6 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
@@ -16,6 +14,7 @@ import jakarta.persistence.Table
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.item.container.ContainerOwner
 import net.bestia.zone.item.persistence.ItemContainer
+import net.bestia.zone.prop.PlayerStructureIds
 
 /**
  * One thing a player put up: a workbench, a furnace, a forge.
@@ -141,7 +140,7 @@ class PlayerStructure(
       return checkNotNull(storage) { "Player structure $id ($kind) stores nothing" }
     }
 
+  /** Minted by the zone, not the database: see [PlayerStructureIds]. */
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  val id: Long = 0
+  val id: Long = PlayerStructureIds.next()
 }
