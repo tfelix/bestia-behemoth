@@ -11700,3 +11700,160 @@ items:
       A slim book with the name of every bestia you keep in storage, in the hand of a Bestia Keeper.
 
       Open it to call a stored bestia or to swap one with your party.
+
+  # Earth's crystal, as the frost crystal is water's and the ember core fire's: grown in old stone and carried
+  # by the creatures that live in it. Arrow Crafting turns it into stone arrows.
+  - id: 629
+    item-db-name: earth_crystal
+    base-level: 40
+    weight: 25
+    type: ETC
+    material: CRYSTAL
+    craft-axes: { STATE: 1.0, INTEGRITY: 0.6, HEFT: 0.7, EDGE: 0.1, ARCANE: 0.6, COMPLEXITY: 0.1 }
+    description: |
+      A brown crystal, rough as a river pebble and much heavier than it looks.
+
+  # Special arrows, made with Arrow Crafting from plain arrows and one material per batch. An elemental arrow's
+  # `element` becomes the shot's; a `script` names what else the arrow does (see `battle/ammo`).
+  - id: 630
+    item-db-name: steel_arrow
+    base-level: 30
+    weight: 1
+    type: AMMO
+    ammo-type: ARROW
+    element: NORMAL
+    material: METAL
+    attack: 7
+    description: |
+      A reed shaft with a narrow steel head, ground to a needle point.
+
+      It hits harder than a plain arrow.
+
+  - id: 631
+    item-db-name: fire_arrow
+    base-level: 45
+    weight: 1
+    type: AMMO
+    ammo-type: ARROW
+    element: FIRE
+    material: WOOD
+    attack: 3
+    description: |
+      An arrow whose head glows dull red, a splinter of ember core bound behind it.
+
+      It strikes as Fire.
+
+  - id: 632
+    item-db-name: crystal_arrow
+    base-level: 40
+    weight: 1
+    type: AMMO
+    ammo-type: ARROW
+    element: WATER
+    material: WOOD
+    attack: 3
+    description: |
+      An arrow tipped with a sliver of frost crystal, cold enough to fog in warm air.
+
+      It strikes as Water.
+
+  - id: 633
+    item-db-name: wind_arrow
+    base-level: 65
+    weight: 1
+    type: AMMO
+    ammo-type: ARROW
+    element: WIND
+    material: WOOD
+    attack: 3
+    description: |
+      An arrow fletched with a storm feather that will not lie flat.
+
+      It strikes as Wind.
+
+  - id: 634
+    item-db-name: stone_arrow
+    base-level: 40
+    weight: 2
+    type: AMMO
+    ammo-type: ARROW
+    element: EARTH
+    material: WOOD
+    attack: 3
+    description: |
+      An arrow with a head of brown crystal, blunt and heavy.
+
+      It strikes as Earth.
+
+  - id: 635
+    item-db-name: silver_arrow
+    base-level: 38
+    weight: 1
+    type: AMMO
+    ammo-type: ARROW
+    element: HOLY
+    material: METAL
+    attack: 3
+    description: |
+      An arrow with a bright silver head, polished until it shows your face.
+
+      It strikes as Holy, and the undead fear it.
+
+  - id: 636
+    item-db-name: shadow_arrow
+    base-level: 55
+    weight: 1
+    type: AMMO
+    ammo-type: ARROW
+    element: SHADOW
+    material: WOOD
+    attack: 3
+    description: |
+      An arrow with a black head that seems to swallow the light around it.
+
+      It strikes as Shadow.
+
+  - id: 637
+    item-db-name: sharp_arrow
+    base-level: 10
+    weight: 1
+    type: AMMO
+    ammo-type: ARROW
+    element: NORMAL
+    material: WOOD
+    attack: 3
+    script: SharpArrow
+    description: |
+      An arrow with a barbed fang for a head, filed thin along both edges.
+
+      It finds the gaps in a hide: far more of its shots are critical.
+
+  - id: 638
+    item-db-name: poison_arrow
+    base-level: 15
+    weight: 1
+    type: AMMO
+    ammo-type: ARROW
+    element: POISON
+    material: WOOD
+    attack: 3
+    script: PoisonArrow
+    description: |
+      An arrow whose head is stained green and smells of the venom it was dipped in.
+
+      It strikes as Poison, and may poison what it hits.
+
+  - id: 639
+    item-db-name: stun_arrow
+    base-level: 45
+    weight: 2
+    type: AMMO
+    ammo-type: ARROW
+    element: NORMAL
+    material: STONE
+    attack: 3
+    script: StunArrow
+    description: |
+      An arrow with a dark, blunt head of lodestone that hums against the palm.
+
+      It may stun what it hits.

@@ -27,6 +27,17 @@ blueprints:
   - IRON_CUIRASS
   - PICKAXE
   - ARROW
+  # The special arrows: Arrow Crafting's level, not discovery, decides which a master can make.
+  - STEEL_ARROW
+  - SHARP_ARROW
+  - FIRE_ARROW
+  - CRYSTAL_ARROW
+  - WIND_ARROW
+  - STONE_ARROW
+  - SILVER_ARROW
+  - SHADOW_ARROW
+  - POISON_ARROW
+  - STUN_ARROW
   # The basics every master can make by hand, from what lies on the ground and what a felled tree drops.
   - STONE_KNIFE
   - STONE_HATCHET

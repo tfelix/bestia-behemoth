@@ -1425,3 +1425,117 @@ recipes:
     station: FURNACE
     craftSeconds: 8.0
     baseSuccessChance: 0.5
+
+  # --- Hunter: special arrows ----------------------------------------------------------------------
+
+  # Twenty plain arrows and one material make twenty special ones. Arrow Crafting's level decides which: 2 the
+  # steel and sharp heads, 3 the four elements, 4 silver, shadow and poison, 5 the stun arrow.
+  - id: 141
+    identifier: STEEL_ARROW
+    effect: PRODUCE
+    output: { item: steel_arrow, amount: 20 }
+    inputs:
+      - { item: arrow, amount: 20 }
+      - { item: steel_ingot, amount: 1 }
+    skill: { skill: M_ARROW_CRAFTING, level: 2 }
+    craftSeconds: 6.0
+    baseSuccessChance: 1.0
+
+  - id: 142
+    identifier: SHARP_ARROW
+    effect: PRODUCE
+    output: { item: sharp_arrow, amount: 20 }
+    inputs:
+      - { item: arrow, amount: 20 }
+      - { item: sharp_fang, amount: 1 }
+    skill: { skill: M_ARROW_CRAFTING, level: 2 }
+    craftSeconds: 6.0
+    baseSuccessChance: 1.0
+
+  - id: 143
+    identifier: FIRE_ARROW
+    effect: PRODUCE
+    output: { item: fire_arrow, amount: 20 }
+    inputs:
+      - { item: arrow, amount: 20 }
+      - { item: ember_core, amount: 1 }
+    skill: { skill: M_ARROW_CRAFTING, level: 3 }
+    craftSeconds: 6.0
+    baseSuccessChance: 1.0
+
+  - id: 144
+    identifier: CRYSTAL_ARROW
+    effect: PRODUCE
+    output: { item: crystal_arrow, amount: 20 }
+    inputs:
+      - { item: arrow, amount: 20 }
+      - { item: frost_crystal, amount: 1 }
+    skill: { skill: M_ARROW_CRAFTING, level: 3 }
+    craftSeconds: 6.0
+    baseSuccessChance: 1.0
+
+  - id: 145
+    identifier: WIND_ARROW
+    effect: PRODUCE
+    output: { item: wind_arrow, amount: 20 }
+    inputs:
+      - { item: arrow, amount: 20 }
+      - { item: storm_feather, amount: 1 }
+    skill: { skill: M_ARROW_CRAFTING, level: 3 }
+    craftSeconds: 6.0
+    baseSuccessChance: 1.0
+
+  - id: 146
+    identifier: STONE_ARROW
+    effect: PRODUCE
+    output: { item: stone_arrow, amount: 20 }
+    inputs:
+      - { item: arrow, amount: 20 }
+      - { item: earth_crystal, amount: 1 }
+    skill: { skill: M_ARROW_CRAFTING, level: 3 }
+    craftSeconds: 6.0
+    baseSuccessChance: 1.0
+
+  - id: 147
+    identifier: SILVER_ARROW
+    effect: PRODUCE
+    output: { item: silver_arrow, amount: 20 }
+    inputs:
+      - { item: arrow, amount: 20 }
+      - { item: silver_ingot, amount: 1 }
+    skill: { skill: M_ARROW_CRAFTING, level: 4 }
+    craftSeconds: 6.0
+    baseSuccessChance: 1.0
+
+  - id: 148
+    identifier: SHADOW_ARROW
+    effect: PRODUCE
+    output: { item: shadow_arrow, amount: 20 }
+    inputs:
+      - { item: arrow, amount: 20 }
+      - { item: shadow_shard, amount: 1 }
+    skill: { skill: M_ARROW_CRAFTING, level: 4 }
+    craftSeconds: 6.0
+    baseSuccessChance: 1.0
+
+  - id: 149
+    identifier: POISON_ARROW
+    effect: PRODUCE
+    output: { item: poison_arrow, amount: 20 }
+    inputs:
+      - { item: arrow, amount: 20 }
+      - { item: venom_sac, amount: 1 }
+    skill: { skill: M_ARROW_CRAFTING, level: 4 }
+    craftSeconds: 6.0
+    baseSuccessChance: 1.0
+
+  - id: 150
+    identifier: STUN_ARROW
+    effect: PRODUCE
+    output: { item: stun_arrow, amount: 20 }
+    inputs:
+      - { item: arrow, amount: 20 }
+      - { item: lodestone, amount: 1 }
+    skill: { skill: M_ARROW_CRAFTING, level: 5 }
+    craftSeconds: 6.0
+    baseSuccessChance: 1.0

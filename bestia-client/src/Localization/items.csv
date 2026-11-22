@@ -1595,3 +1595,45 @@ BESTIA_CENTER_KIT,Storage Center Kit
 BESTIA_CENTER_KIT_DESC,"Gates, pens, a feed trough and a keeper's desk, lashed onto a sledge.
 
 Set it down inside a town without a storage center. Masters keep their bestia there once it is built."
+EARTH_CRYSTAL,earth crystal
+EARTH_CRYSTAL_DESC,"A brown crystal, rough as a river pebble and much heavier than it looks."
+STEEL_ARROW,steel arrow
+STEEL_ARROW_DESC,"A reed shaft with a narrow steel head, ground to a needle point.
+
+It hits harder than a plain arrow."
+FIRE_ARROW,fire arrow
+FIRE_ARROW_DESC,"An arrow whose head glows dull red, a splinter of ember core bound behind it.
+
+It strikes as Fire."
+CRYSTAL_ARROW,crystal arrow
+CRYSTAL_ARROW_DESC,"An arrow tipped with a sliver of frost crystal, cold enough to fog in warm air.
+
+It strikes as Water."
+WIND_ARROW,wind arrow
+WIND_ARROW_DESC,"An arrow fletched with a storm feather that will not lie flat.
+
+It strikes as Wind."
+STONE_ARROW,stone arrow
+STONE_ARROW_DESC,"An arrow with a head of brown crystal, blunt and heavy.
+
+It strikes as Earth."
+SILVER_ARROW,silver arrow
+SILVER_ARROW_DESC,"An arrow with a bright silver head, polished until it shows your face.
+
+It strikes as Holy, and the undead fear it."
+SHADOW_ARROW,shadow arrow
+SHADOW_ARROW_DESC,"An arrow with a black head that seems to swallow the light around it.
+
+It strikes as Shadow."
+SHARP_ARROW,sharp arrow
+SHARP_ARROW_DESC,"An arrow with a barbed fang for a head, filed thin along both edges.
+
+It finds the gaps in a hide: far more of its shots are critical."
+POISON_ARROW,poison arrow
+POISON_ARROW_DESC,"An arrow whose head is stained green and smells of the venom it was dipped in.
+
+It strikes as Poison, and may poison what it hits."
+STUN_ARROW,stun arrow
+STUN_ARROW_DESC,"An arrow with a dark, blunt head of lodestone that hums against the palm.
+
+It may stun what it hits."
