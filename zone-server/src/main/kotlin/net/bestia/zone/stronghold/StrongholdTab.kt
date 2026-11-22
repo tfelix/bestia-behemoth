@@ -1,9 +1,11 @@
 package net.bestia.zone.stronghold
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.economy.WorldReserve
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.entity.GameMetrics.CoinSource
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.GuildMembership
@@ -24,8 +26,8 @@ import java.time.Duration
 import kotlin.math.min
 
 /**
- * The guild window's Stronghold tab, from anywhere: the guild's Strongholds with their waiting treasure, and the
- * leader collecting it into the guild storage. Tick thread only.
+ * The guild window's Stronghold tab, from anywhere: the guild's Strongholds with their waiting treasure, the leader
+ * collecting it into the guild storage, and the leader sending a sealed storage away. Tick thread only.
  */
 @Service
 class StrongholdTab(
@@ -40,6 +42,9 @@ class StrongholdTab(
   private val commodities: CommodityItems,
   private val reserve: WorldReserve,
   private val asyncJobExecutor: AsyncJobExecutor,
+  private val coins: StrongholdCoins,
+  private val mail: GuildStorageMail,
+  private val worldView: WorldView,
   private val messages: OutMessageProcessor,
   private val config: StrongholdConfig,
   private val clock: Clock = Clock.systemUTC(),
@@ -88,6 +93,40 @@ class StrongholdTab(
     return null
   }
 
+  /**
+   * The leader pays per used slot, and everything a sealed storage holds goes as one parcel to their home post
+   * office. Only while sealed: a storage with a steward is opened there instead.
+   */
+  fun sendStorageAway(world: World, masterEntityId: EntityId): OpError? {
+    val membership = world.get(masterEntityId, GuildMembership::class)
+    val masterId = world.get(masterEntityId, Master::class)?.masterId
+    val contents = membership?.let { storages.contentsOf(it.guildId) }
+
+    // The tab offers the button only to the leader of a guild whose storage is sealed and holds something.
+    if (membership == null || masterId == null || contents == null || !membership.isLeader || contents.isEmpty() ||
+      !isSealed(strongholds.heldBy(membership.guildId))
+    ) {
+      return OpError.REQUEST_REFUSED
+    }
+
+    val price = config.storageSendAwayCoinsPerSlot * contents.size()
+    if (!coins.pay(world, masterEntityId, masterId, price)) return OpError.STRONGHOLD_CANNOT_AFFORD_SEND_AWAY
+
+    val sent = contents.getItems()
+    contents.clearItems()
+    asyncJobExecutor.submit(ItemHolder.GuildStorage(membership.guildId)) {
+      try {
+        mail.post(membership.guildId, masterId, membership.guildName)
+      } catch (e: Exception) {
+        // Nothing left the storage in the database, so its goods come back to the live bag too.
+        LOG.error(e) { "Posting the storage of guild ${membership.guildId} failed; it keeps its goods" }
+        worldView.post { contents.addItems(sent) }
+      }
+    }
+
+    return null
+  }
+
   private fun cardOf(stronghold: Stronghold): StrongholdTabSMSG.Card {
     val now = clock.instant()
     val nextDrop = Duration.between(now, treasury.nextDropAt(stronghold)).seconds.coerceAtLeast(0)
@@ -111,9 +150,13 @@ class StrongholdTab(
   }
 
   /** Sealed while no Stronghold of the guild has a steward to open it at. */
+  private fun isSealed(held: List<Stronghold>): Boolean {
+    return held.none { it.state == State.STANDING && it.hasSteward }
+  }
+
   private fun storageOf(membership: GuildMembership, held: List<Stronghold>): StrongholdTabSMSG.Storage {
     val used = storages.contentsOf(membership.guildId).size()
-    val sealed = held.none { it.state == State.STANDING && it.hasSteward }
+    val sealed = isSealed(held)
 
     return StrongholdTabSMSG.Storage(
       learned = membership.skillLevel(SkillId.GUILD_STORAGE.name) > 0,
@@ -122,5 +165,9 @@ class StrongholdTab(
       sealed = sealed,
       sendAwayCoins = config.storageSendAwayCoinsPerSlot * used,
     )
+  }
+
+  private companion object {
+    private val LOG = KotlinLogging.logger { }
   }
 }

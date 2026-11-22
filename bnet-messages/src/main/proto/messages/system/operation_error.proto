@@ -582,6 +582,8 @@ enum OpError {
   STORAGE_FULL = 412;
   // The member does not carry the coins to bring a fallen watcher back at once.
   STRONGHOLD_CANNOT_AFFORD_BRING_BACK = 413;
+  // The leader does not carry the coins to send the sealed guild storage away.
+  STRONGHOLD_CANNOT_AFFORD_SEND_AWAY = 414;
 }
 
 message OperationError {

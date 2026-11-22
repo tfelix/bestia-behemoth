@@ -30,6 +30,9 @@ class StrongholdTabTest {
   private val reserve = mockk<WorldReserve>(relaxed = true) { every { available() } answers { reserveBalance } }
   private val jobs = mockk<AsyncJobExecutor>(relaxed = true)
   private var slots = 100
+  private var held = listOf<Stronghold>()
+  private val coins = mockk<StrongholdCoins> { every { pay(any(), any(), any(), any()) } answers { arg<Long>(3) <= 40_000 } }
+  private val mail = mockk<GuildStorageMail>(relaxed = true)
 
   private var stronghold = Stronghold(RANK, GUILD, State.STANDING, null, Instant.EPOCH, Instant.EPOCH).copy(
     drops = listOf(
@@ -42,6 +45,7 @@ class StrongholdTabTest {
     strongholds = mockk(relaxed = true) {
       every { on(RANK) } answers { stronghold }
       every { put(any()) } answers { stronghold = firstArg() }
+      every { heldBy(GUILD) } answers { held }
     },
     seeds = mockk(relaxed = true),
     empyrites = mockk(relaxed = true),
@@ -56,6 +60,9 @@ class StrongholdTabTest {
     commodities = mockk { every { coinItemId() } returns COIN },
     reserve = reserve,
     asyncJobExecutor = jobs,
+    coins = coins,
+    mail = mail,
+    worldView = mockk(relaxed = true),
     messages = mockk(relaxed = true),
     config = StrongholdConfig(),
   )
@@ -88,6 +95,31 @@ class StrongholdTabTest {
     assertEquals(OpError.STORAGE_FULL, tab.collect(world, master(leader = true), RANK))
     assertEquals(2, stronghold.drops.size)
     assertTrue(contents.getItems().isEmpty())
+  }
+
+  @Test
+  fun `the leader of a guild with no steward left pays per slot to have the sealed storage posted`() {
+    contents.addItems(listOf(Inventory.Item(IRON_ORE, 20), Inventory.Item(DRAKE_HIDE, 1)))
+    val leader = master(leader = true)
+
+    held = listOf(stronghold.copy(hasSteward = true))
+    assertEquals(OpError.REQUEST_REFUSED, tab.sendStorageAway(world, leader), "a steward opens it instead")
+
+    held = emptyList()
+    assertEquals(OpError.REQUEST_REFUSED, tab.sendStorageAway(world, master(leader = false)))
+    assertNull(tab.sendStorageAway(world, leader))
+
+    verify { coins.pay(world, leader, 5L, 2_000) }
+    assertTrue(contents.isEmpty())
+    verify { jobs.submit(ItemHolder.GuildStorage(GUILD), any()) }
+  }
+
+  @Test
+  fun `a leader who cannot pay keeps the storage sealed and full`() {
+    contents.addItems((1..50L).map { Inventory.Item(100 + it, 1) })
+
+    assertEquals(OpError.STRONGHOLD_CANNOT_AFFORD_SEND_AWAY, tab.sendStorageAway(world, master(leader = true)))
+    assertEquals(50, contents.size())
   }
 
   private fun master(leader: Boolean, storage: Boolean = true): EntityId {
