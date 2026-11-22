@@ -16,6 +16,14 @@ class DamageModifiersTest {
     assertEquals(40, DamageModifiers.weigh(100, sword, side(kind = BestiaKind.HUMANOID), defender))
   }
 
+  /** The warrior tree's worked example: Iron Skin 15 % and Shield Wall 35 % add, Magic Armor 30 % multiplies. */
+  @Test
+  fun `the docs' stack of Iron Skin, Shield Wall and Magic Armor takes a sword to 35 percent`() {
+    val defender = side(DamageModifiers(takenByForm = mapOf(HitForm.PHYSICAL to 15 + 35), takenFromAnyHit = 30))
+
+    assertEquals(35, DamageModifiers.weigh(100, sword, side(), defender))
+  }
+
   @Test
   fun `categories multiply`() {
     val defender = side(
