@@ -36,6 +36,7 @@ class TheodoliteSurveys(
   private val worldService: WorldService,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val messages: OutMessageProcessor,
+  private val witnesses: List<SurveyWitness> = emptyList(),
 ) {
 
   private data class Session(val masterId: Long, val accountId: Long, val tier: SurveyTier, val game: SurveyMinigame)
@@ -106,8 +107,11 @@ class TheodoliteSurveys(
 
     structures.setSurvey(structureId, null, 0f)
     val voxelSize = worldService.config.voxelSize
+    val centreX = entry.position.x * voxelSize
+    val centreY = entry.position.y * voxelSize
+    witnesses.forEach { it.surveyed(world, entry.ownerMasterId, centreX, centreY, radius.toDouble()) }
     asyncJobExecutor.submit(entry.ownerMasterId) {
-      val result = chartService.mint(entry.ownerMasterId, entry.position.x * voxelSize, entry.position.y * voxelSize, radius.toDouble())
+      val result = chartService.mint(entry.ownerMasterId, centreX, centreY, radius.toDouble())
       if (result is ChartService.Result.Ok) {
         surveyService.applyToLiveInventory(actorId, result)
         accountId?.let { messages.sendToPlayer(it, OperationSuccessSMSG(OpSuccess.CHART_WRITTEN)) }
