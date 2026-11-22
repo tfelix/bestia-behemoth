@@ -10,7 +10,7 @@ import net.bestia.zone.battle.LineOfSightService
  * enforces while aiming and the reach the server checks the same value.
  */
 abstract class BasicMagicSkillStrategy(
-  private val losService: LineOfSightService,
+  protected val losService: LineOfSightService,
 ) : SkillStrategy {
 
   override fun isCastPossible(ctx: SkillContext): Boolean {

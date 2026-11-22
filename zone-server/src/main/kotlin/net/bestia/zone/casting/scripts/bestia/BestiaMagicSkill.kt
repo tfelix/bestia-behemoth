@@ -63,6 +63,8 @@ open class BestiaMagicSkill(
       val at = ctx.world.positionOf(from) ?: return
       val next = ctx.world.entitiesInCube(at, mechanics.chainHop * 2L)
         .filter { it !in hit && ctx.world.isFoe(it) }
+        // A bolt jumps through the air, not through a wall.
+        .filter { candidate -> ctx.world.positionOf(candidate)?.let { losService.hasLineOfSight(at, it) } ?: false }
         .minByOrNull { candidate -> ctx.world.positionOf(candidate)?.distance(at) ?: Long.MAX_VALUE }
         ?: return
 
