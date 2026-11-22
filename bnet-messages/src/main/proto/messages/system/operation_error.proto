@@ -592,6 +592,8 @@ enum OpError {
   BUILD_ON_SEED_CORE = 417;
   // Only members of the guild that holds a Stronghold build on its grounds.
   BUILD_ON_STRONGHOLD_GROUNDS = 418;
+  // The target cannot be harmed for a while yet, such as an Empyrite right after its capture.
+  COMBAT_TARGET_IN_GRACE = 419;
 }
 
 message OperationError {

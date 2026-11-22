@@ -85,7 +85,7 @@ class Empyrites(
     val graceSeconds = config.captureGraceMinutes * 60.0
     if (graceSeconds > 0) {
       statusEffects.applyEffect(
-        world, empyriteId, StatusEffectId.INVULNERABLE, level = 1, durationSeconds = graceSeconds
+        world, empyriteId, StatusEffectId.CAPTURE_GRACE, level = 1, durationSeconds = graceSeconds
       )
     }
 

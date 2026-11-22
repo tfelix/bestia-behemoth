@@ -13,6 +13,7 @@ import net.bestia.zone.skill.SkillId
 import net.bestia.zone.util.EntityId
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class DamageGateTest {
 
@@ -159,6 +160,14 @@ class DamageGateTest {
     }
 
     assertEquals(DamageGate.Verdict.WARDED, DamageGate.verdict(world, player(), banner))
+  }
+
+  @Test
+  fun `a just captured Empyrite tells its attacker to wait, and the drain cannot harm it either`() {
+    val empyrite = entity(HarmShield.GRACE).also { world.add(it, GuildOwned(GUILD)) }
+
+    assertEquals(DamageGate.Verdict.GRACE, DamageGate.verdict(world, player(), empyrite))
+    assertTrue(DamageGate.isImmune(world, empyrite))
   }
 
   private fun player(shield: HarmShield? = null): EntityId {

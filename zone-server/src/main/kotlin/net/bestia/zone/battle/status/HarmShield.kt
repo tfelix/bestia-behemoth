@@ -9,6 +9,12 @@ enum class HarmShield {
   /** Nothing may harm the bearer. */
   ALL,
 
+  /**
+   * Nothing may harm the bearer for a while, such as a just captured Empyrite. Unlike [ALL] the bearer is a fair
+   * target in itself, so a player who strikes it is told to wait.
+   */
+  GRACE,
+
   /** No harm passes between the bearer and anything a player owns, in either direction. */
   PLAYERS,
 }

@@ -107,7 +107,7 @@ class EmpyritesTest {
     val reformed = assertNotNull(empyriteEntities().singleOrNull { it != broken })
     assertEquals(GuildOwned(OTHER_GUILD), world.get(reformed, GuildOwned::class))
     assertEquals(50_000, world.get(reformed, Health::class)?.current)
-    verify { statusEffects.applyEffect(world, reformed, StatusEffectId.INVULNERABLE, level = 1, durationSeconds = 600.0) }
+    verify { statusEffects.applyEffect(world, reformed, StatusEffectId.CAPTURE_GRACE, level = 1, durationSeconds = 600.0) }
   }
 
   @Test

@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrONgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrrNgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -181,8 +181,9 @@ namespace Bnet {
             "Tk5PVF9BRkZPUkRfU0VORF9BV0FZEJ4DEhsKFkdST1VORF9TRUVEX0NPUkVf",
             "SE9MRFMQnwMSHQoYR1JPVU5EX1NUUk9OR0hPTERfTk9fRElHEKADEhcKEkJV",
             "SUxEX09OX1NFRURfQ09SRRChAxIgChtCVUlMRF9PTl9TVFJPTkdIT0xEX0dS",
-            "T1VORFMQogMiBAguEC4qElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQuYmVz",
-            "dGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
+            "T1VORFMQogMSGwoWQ09NQkFUX1RBUkdFVF9JTl9HUkFDRRCjAyIECC4QLioS",
+            "U0hPUF9UUkVBU1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IT",
+            "T3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1160,6 +1161,10 @@ namespace Bnet {
     /// Only members of the guild that holds a Stronghold build on its grounds.
     /// </summary>
     [pbr::OriginalName("BUILD_ON_STRONGHOLD_GROUNDS")] BuildOnStrongholdGrounds = 418,
+    /// <summary>
+    /// The target cannot be harmed for a while yet, such as an Empyrite right after its capture.
+    /// </summary>
+    [pbr::OriginalName("COMBAT_TARGET_IN_GRACE")] CombatTargetInGrace = 419,
   }
 
   #endregion

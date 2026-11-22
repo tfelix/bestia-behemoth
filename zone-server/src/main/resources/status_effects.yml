@@ -900,3 +900,12 @@ statusEffects:
     isSyncedToClient: false
     dispellable: false
     script: WatcherStrength
+
+  # On an Empyrite right after its capture: nothing harms it for a while, and whoever strikes it is told so.
+  - id: 254
+    identifier: CAPTURE_GRACE
+    polarity: BUFF
+    showIcon: false
+    isSyncedToClient: false
+    dispellable: false
+    script: CaptureGrace
