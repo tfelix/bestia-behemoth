@@ -124,6 +124,32 @@ stronghold:
   watcher-return-minutes: 30
   watcher-bring-back-coins: 50000
   watcher-roam-metres: 120
+  # A treasure drop every 24 hours after planting; 3 wait at most, a new one replaces the oldest. Coins: 10,000 plus
+  # 10,000 per Economy level, taken from the world reserve when collected. Ore: 2 pieces per Economy level of each of
+  # the 3 nearest deposit kinds within 3 km, never gold. One crafting item per 2 Economy levels, from those unlocked.
+  treasury-drop-hours: 24
+  treasury-waiting-drops: 3
+  treasury-coins-base: 10000
+  treasury-coins-per-economy: 10000
+  treasury-ore-kinds: 3
+  treasury-ore-range-metres: 3000
+  treasury-ore-pieces-per-economy: 2
+  treasury-economy-per-crafting-item: 2
+  treasury-crafting-items:
+    - { item: shadow_shard, from-economy: 2 }
+    - { item: drake_hide, from-economy: 2 }
+    - { item: mana_paper, from-economy: 2 }
+    - { item: storm_feather, from-economy: 4 }
+    - { item: golden_carapace, from-economy: 4 }
+    - { item: blackiron_ingot, from-economy: 4 }
+    - { item: clockwork_core, from-economy: 6 }
+    - { item: wyrm_bone, from-economy: 6 }
+    - { item: dragon_scale, from-economy: 6 }
+    - { item: star_core, from-economy: 8 }
+    - { item: heartwood, from-economy: 8 }
+    - { item: starweave, from-economy: 8 }
+    - { item: adamantium_ingot, from-economy: 10 }
+    - { item: ghost_herb, from-economy: 10 }
   # The guild that breaks an Empyrite takes the Stronghold; the new Empyrite cannot be harmed for this long.
   capture-grace-minutes: 10
   # Weekly spans in which Strongholds can be attacked, such as "SATURDAY 18:00-22:00", read in attack-window-zone.

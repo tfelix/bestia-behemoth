@@ -1,10 +1,15 @@
 package net.bestia.zone.stronghold.persistence
 
+import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
+import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
+import jakarta.persistence.FetchType
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.OrderColumn
 import jakarta.persistence.Table
 import java.time.Instant
 
@@ -68,6 +73,16 @@ class StrongholdRecord(
 
   @Column(name = "watcher_strength", nullable = false)
   var watcherStrength: Int = 0,
+
+  /** How many daily treasure drops this Stronghold has made since it was planted, waiting or not. */
+  @Column(name = "drops_made", nullable = false)
+  var dropsMade: Int = 0,
+
+  /** The drops still waiting, oldest first. */
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(name = "stronghold_drop", joinColumns = [JoinColumn(name = "seed_rank")])
+  @OrderColumn(name = "position")
+  var drops: MutableList<TreasureDropRow> = mutableListOf(),
 
   @Column(name = "planted_at", nullable = false)
   var plantedAt: Instant = Instant.EPOCH,
