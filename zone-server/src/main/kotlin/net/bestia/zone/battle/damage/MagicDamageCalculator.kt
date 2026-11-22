@@ -24,6 +24,9 @@ class MagicDamageCalculator(
   override fun getBonusAttack(battleCtx: EntityBattleContext): Float =
     battleCtx.damageVariables.attackMagicBonus
 
+  /** A spell does not care how big its target is; the size table is a weapon's. */
+  override fun sizeFactor(battleCtx: EntityBattleContext): Float = 1f
+
   /** A spell carries no ammunition. */
   override fun getAmmoAttack(battleCtx: EntityBattleContext): Float = 0f
 
