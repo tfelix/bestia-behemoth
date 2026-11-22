@@ -559,6 +559,11 @@ GUILD_ALREADY_IN_GUILD,You are already in a guild.
 GUILD_NOTICE_BANNER_PLANTED,Your guild's War Banner has been planted.
 GUILD_NOTICE_BANNER_FALLEN,Your guild's War Banner has been cut down!
 GUILD_NOTICE_BANNER_FADED,Your guild's War Banner has faded.
+GUILD_NOTICE_EMPYRITE_PLANTED,Your guild planted an Empyrite at %s.
+GUILD_NOTICE_STRONGHOLD_STANDS,The Empyrite of %s stands. The Stronghold is your guild's!
+GUILD_NOTICE_EMPYRITE_UNDER_ATTACK,The Empyrite of %s is under attack!
+GUILD_NOTICE_STRONGHOLD_CAPTURED,Your guild captured %s!
+GUILD_NOTICE_STRONGHOLD_LOST,Your guild lost %s.
 GUILD_JOINED,You joined the guild %s.
 GUILD_LEFT_REASON_LEFT,You left the guild %s.
 GUILD_LEFT_REASON_KICKED,You were removed from the guild %s.
@@ -619,6 +624,10 @@ GUILD_LOG_MOTD_CHANGED,{actor} changed the message of the day.
 GUILD_LOG_EMBLEM_CHANGED,{actor} gave the guild a new emblem.
 GUILD_LOG_LEADER_TRANSFERRED,{actor} handed the guild to {target}.
 GUILD_LOG_STORAGE_TAKEN,{actor} took {target} × {detail} from the guild storage.
+GUILD_LOG_EMPYRITE_PLANTED,{actor} planted an Empyrite at {detail}.
+GUILD_LOG_STRONGHOLD_STANDS,The Empyrite of {detail} stands.
+GUILD_LOG_STRONGHOLD_CAPTURED,The guild captured {detail}.
+GUILD_LOG_STRONGHOLD_LOST,The guild lost {detail}.
 JOURNEY_SELF_NONE,You have arrived.
 JOURNEY_SELF_NO_ROUTE,You know no way there that is not blocked.
 JOURNEY_SELF_STUCK,You found no way on and stopped.

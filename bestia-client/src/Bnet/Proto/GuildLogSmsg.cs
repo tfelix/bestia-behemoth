@@ -29,7 +29,7 @@ namespace Bnet {
             "b2dFbnRyeSJ/Cg1HdWlsZExvZ0VudHJ5EiAKBGtpbmQYASABKA4yEi5ibmV0",
             "Lkd1aWxkTG9nS2luZBITCgthdF9lcG9jaF9tcxgCIAEoAxISCgphY3Rvcl9u",
             "YW1lGAMgASgJEhMKC3RhcmdldF9uYW1lGAQgASgJEg4KBmRldGFpbBgFIAEo",
-            "CSrqAwoMR3VpbGRMb2dLaW5kEh4KGkdVSUxEX0xPR19LSU5EX1VOU1BFQ0lG",
+            "CSqBBQoMR3VpbGRMb2dLaW5kEh4KGkdVSUxEX0xPR19LSU5EX1VOU1BFQ0lG",
             "SUVEEAASGgoWR1VJTERfTE9HX0tJTkRfRk9VTkRFRBABEhkKFUdVSUxEX0xP",
             "R19LSU5EX0pPSU5FRBACEhcKE0dVSUxEX0xPR19LSU5EX0xFRlQQAxIZChVH",
             "VUlMRF9MT0dfS0lORF9LSUNLRUQQBBIbChdHVUlMRF9MT0dfS0lORF9SQU5L",
@@ -39,9 +39,12 @@ namespace Bnet {
             "CRIfChtHVUlMRF9MT0dfS0lORF9NT1REX0NIQU5HRUQQChIhCh1HVUlMRF9M",
             "T0dfS0lORF9FTUJMRU1fQ0hBTkdFRBALEiUKIUdVSUxEX0xPR19LSU5EX0xF",
             "QURFUl9UUkFOU0ZFUlJFRBAMEiMKH0dVSUxEX0xPR19LSU5EX0VYUFVMU0lP",
-            "Tl9MSUZURUQQDRIgChxHVUlMRF9MT0dfS0lORF9TVE9SQUdFX1RBS0VOEA5C",
-            "KgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhFHdWlsZExvZ1Ntc2dQcm90b2IG",
-            "cHJvdG8z"));
+            "Tl9MSUZURUQQDRIgChxHVUlMRF9MT0dfS0lORF9TVE9SQUdFX1RBS0VOEA4S",
+            "IwofR1VJTERfTE9HX0tJTkRfRU1QWVJJVEVfUExBTlRFRBAPEiQKIEdVSUxE",
+            "X0xPR19LSU5EX1NUUk9OR0hPTERfU1RBTkRTEBASJgoiR1VJTERfTE9HX0tJ",
+            "TkRfU1RST05HSE9MRF9DQVBUVVJFRBAREiIKHkdVSUxEX0xPR19LSU5EX1NU",
+            "Uk9OR0hPTERfTE9TVBASQioKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IRR3Vp",
+            "bGRMb2dTbXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.GuildLogKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -72,6 +75,13 @@ namespace Bnet {
     /// The target is the amount, the detail the item's id.
     /// </summary>
     [pbr::OriginalName("GUILD_LOG_KIND_STORAGE_TAKEN")] StorageTaken = 14,
+    /// <summary>
+    /// The detail is the Stronghold's name for these four.
+    /// </summary>
+    [pbr::OriginalName("GUILD_LOG_KIND_EMPYRITE_PLANTED")] EmpyritePlanted = 15,
+    [pbr::OriginalName("GUILD_LOG_KIND_STRONGHOLD_STANDS")] StrongholdStands = 16,
+    [pbr::OriginalName("GUILD_LOG_KIND_STRONGHOLD_CAPTURED")] StrongholdCaptured = 17,
+    [pbr::OriginalName("GUILD_LOG_KIND_STRONGHOLD_LOST")] StrongholdLost = 18,
   }
 
   #endregion

@@ -8,6 +8,8 @@ option java_outer_classname = "GuildNoticeSmsgProto";
 // Something happened to the guild that every member being played should read about.
 message GuildNoticeSMSG {
   GuildNotice notice = 1;
+  // Substitution values for the client's own text, in order, such as a Stronghold's name. Most notices carry none.
+  repeated string args = 2;
 }
 
 enum GuildNotice {
@@ -18,4 +20,14 @@ enum GuildNotice {
   GUILD_NOTICE_BANNER_FALLEN = 2;
   // The War Banner's time ran out.
   GUILD_NOTICE_BANNER_FADED = 3;
+  // A member planted an Empyrite. args[0] is the seed's name.
+  GUILD_NOTICE_EMPYRITE_PLANTED = 4;
+  // The Empyrite site is done: the Stronghold stands. args[0] is its name.
+  GUILD_NOTICE_STRONGHOLD_STANDS = 5;
+  // A rival guild is striking the Empyrite. Sent at most every few minutes. args[0] is the Stronghold's name.
+  GUILD_NOTICE_EMPYRITE_UNDER_ATTACK = 6;
+  // The guild broke another guild's Empyrite and took the Stronghold. args[0] is its name.
+  GUILD_NOTICE_STRONGHOLD_CAPTURED = 7;
+  // The guild lost the Stronghold: captured, broken or its site left too long. args[0] is its name.
+  GUILD_NOTICE_STRONGHOLD_LOST = 8;
 }

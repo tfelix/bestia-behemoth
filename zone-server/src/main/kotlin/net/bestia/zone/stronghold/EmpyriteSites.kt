@@ -24,6 +24,7 @@ class EmpyriteSites(
   private val sprouts: EmpyriteSeedSprouts,
   private val structures: PlayerStructureRegistry,
   private val worldService: WorldService,
+  private val news: StrongholdNews,
   private val config: StrongholdConfig,
   private val clock: Clock = Clock.systemUTC(),
 ) {
@@ -59,6 +60,7 @@ class EmpyriteSites(
     structureId?.let { id -> structures.of(id)?.let { removeStructure(it.id, it.position) } }
     strongholds.remove(stronghold.rank)
     seeds.awake().firstOrNull { it.rank == stronghold.rank }?.let { sprouts.raise(world, it) }
+    news.lost(world, stronghold.guildId, stronghold.rank)
 
     LOG.info { "The Empyrite site of guild ${stronghold.guildId} at seed ${stronghold.rank} is gone" }
   }

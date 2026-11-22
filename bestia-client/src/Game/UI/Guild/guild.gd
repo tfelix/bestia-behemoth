@@ -601,7 +601,8 @@ func _on_guild_message(message: GuildSMSG) -> void:
 	elif message is GuildSkillCooldownSMSG:
 		SkillCooldowns.start(message.SkillId, message.RemainingMs)
 	elif message is GuildNoticeSMSG:
-		notice.emit(tr("GUILD_NOTICE_%s" % message.NoticeName.to_upper()))
+		var text := tr("GUILD_NOTICE_%s" % message.NoticeName.to_upper())
+		notice.emit(text % Array(message.Args) if not message.Args.is_empty() else text)
 	elif message is GuildLogSMSG:
 		_log.show_log(message)
 	elif message is StrongholdTabSMSG:

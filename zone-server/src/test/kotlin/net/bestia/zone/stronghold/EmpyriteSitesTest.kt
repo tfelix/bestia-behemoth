@@ -29,6 +29,7 @@ class EmpyriteSitesTest {
   private val held = mutableListOf<Stronghold>()
   private val entries = mutableMapOf<Long, StructureEntry>()
   private val sprouts = mockk<EmpyriteSeedSprouts>(relaxed = true)
+  private val news = mockk<StrongholdNews>(relaxed = true)
 
   private val strongholds = mockk<StrongholdRegistry> {
     every { all() } answers { held.toList() }
@@ -47,6 +48,7 @@ class EmpyriteSitesTest {
     sprouts = sprouts,
     structures = structures,
     worldService = mockk<WorldService> { every { config } returns WorldConfig(seed = 1L, chunkSize = 32) },
+    news = news,
     config = StrongholdConfig(siteIdleHours = 24),
     clock = Clock.fixed(now, ZoneOffset.UTC),
   )
@@ -71,6 +73,7 @@ class EmpyriteSitesTest {
     assertTrue(!world.isAlive(site))
     assertTrue(entries.isEmpty())
     verify { sprouts.raise(world, seed) }
+    verify { news.lost(world, GUILD, seed.rank) }
   }
 
   @Test
