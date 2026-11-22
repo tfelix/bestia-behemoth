@@ -49,6 +49,31 @@ class DerivedStoreOffThreadBuildTest {
   }
 
   @Test
+  fun `the sight mask arrives with the tile and is never built on ask`() {
+    val store = store()
+    store.track(chunk)
+
+    assertNull(store.sightIfBuilt(chunk), "asking must not build")
+    assertFalse(store.isTracked(chunk))
+
+    store.beginBuild()
+    store.finishBuild(chunk, store.buildTile(chunk, voxelsOf = ::ground), store.buildSight(chunk, voxelsOf = ::ground))
+
+    val sight = assertNotNull(store.sightIfBuilt(chunk))
+    assertTrue(sight.blocks(2, 2, 3), "the granite floor")
+    assertFalse(sight.blocks(2, 2, 4), "the air above it")
+  }
+
+  @Test
+  fun `the synchronous rebuild builds the sight mask too`() {
+    val store = store()
+    store.track(chunk)
+    store.rebuildAll()
+
+    assertNotNull(store.sightIfBuilt(chunk))
+  }
+
+  @Test
   fun `a chunk edited while it was being built is queued again and the old tile dropped`() {
     val store = store()
     store.track(chunk)

@@ -1200,7 +1200,14 @@ class ChunkService(
       begun++
 
       if (!buildDerivedOnWorker(chunk)) {
-        derived.finishBuild(chunk, derived.buildTile(chunk, ::structureCellsOf, loaded.store::merged))
+        // One merge for both: it is the expensive half of either build.
+        val merged = loaded.store.merged(chunk)
+        val voxelsOf = { wanted: ChunkPos -> if (wanted == chunk) merged else loaded.store.merged(wanted) }
+        derived.finishBuild(
+          chunk,
+          derived.buildTile(chunk, ::structureCellsOf, voxelsOf),
+          derived.buildSight(chunk, ::structureCellsOf, voxelsOf)
+        )
       }
 
       // Checked after a handoff too: without workers (tests) the "worker" build ran right here on the tick.
@@ -1244,16 +1251,18 @@ class ChunkService(
             else -> materializer.materialize(wanted)
           }
         }
+        // The sight mask in the same job: an attack reads it and must never be what builds it.
+        val sight = derived.buildSight(chunk, cellsOf) { lowerBase.voxels }
         // Encoded here, so the tick only has to store it.
-        tile to if (lowerBase.generates) encodeBase(chunk, lowerBase.voxels) else null
+        Triple(tile, sight, if (lowerBase.generates) encodeBase(chunk, lowerBase.voxels) else null)
       },
       deliver = { result ->
-        result.onSuccess { (tile, generated) ->
+        result.onSuccess { (tile, sight, generated) ->
           generated?.let {
             loaded.cache.adopt(chunk, it.voxels)
             encoded.put(it.encoded)
           }
-          derived.finishBuild(chunk, tile)
+          derived.finishBuild(chunk, tile, sight)
         }.onFailure {
           LOG.warn(it) { "Walkable tile of $chunk failed to build; it stays queued for the next try" }
           derived.abandonBuild(chunk)

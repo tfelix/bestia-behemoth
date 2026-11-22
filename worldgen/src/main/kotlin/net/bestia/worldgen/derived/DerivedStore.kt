@@ -40,9 +40,13 @@ class DerivedStore(
    *
    * Null here means "not built yet", never "no answer": [summaryOf] and [opacityOf] build on demand and
    * cache from then on, exactly as they would have done if a reader had ever existed.
+   *
+   * [sight] is eager like [walkable], and built in the same job: every attack asks it, and the attack must never
+   * be the one that pays a pass over the chunk. Null only while an install has none to give (see [finishBuild]).
    */
   private class Entry(
     var walkable: WalkableTile,
+    var sight: SightMask? = null,
     var summary: ColumnSummary? = null,
     var opacity: OpacityGrid? = null,
     var stale: Boolean = false
@@ -87,6 +91,12 @@ class DerivedStore(
 
     return OpacityGrid.of(merged ?: voxels(chunk), opacityFactor).also { entry.opacity = it }
   }
+
+  /**
+   * The sight mask of a chunk already built, or null when it is not: never builds, so a line-of-sight check on the
+   * tick costs a map lookup at most. A caller treats null as "nothing known to block".
+   */
+  fun sightIfBuilt(chunk: ChunkPos): SightMask? = entries[chunk]?.sight
 
   fun walkableOf(chunk: ChunkPos): WalkableTile {
     buildIfAbsent(chunk)
@@ -195,7 +205,8 @@ class DerivedStore(
       val chunk = iterator.next()
       iterator.remove()
 
-      install(chunk, walkableTileOf(chunk, voxels(chunk)))
+      val merged = voxels(chunk)
+      install(chunk, walkableTileOf(chunk, merged), SightMask.of(merged, structures(chunk)))
       done++
     }
 
@@ -231,13 +242,22 @@ class DerivedStore(
     return WalkableTile.of(voxelsOf(chunk), agent, cellsOf(chunk), cellsOf(upper)) { voxelsOf(upper) }
   }
 
+  /** The sight mask of [chunk] from [voxelsOf] and [cellsOf]. Pure, like [buildTile], so it may run beside it. */
+  fun buildSight(
+    chunk: ChunkPos,
+    cellsOf: (ChunkPos) -> StructureCells? = { null },
+    voxelsOf: (ChunkPos) -> VoxelChunk
+  ): SightMask = SightMask.of(voxelsOf(chunk), cellsOf(chunk))
+
   /**
    * Puts a tile built after [beginBuild] into the store.
    *
+   * @param sight the chunk's sight mask, built in the same job; null leaves the chunk without one, which reads as
+   *   clear sight, so a caller that has none should still pass one when it can
    * @return false when it was dropped: the chunk was forgotten meanwhile, or edited, in which case it is queued
    *   again to be built from what is there now.
    */
-  fun finishBuild(chunk: ChunkPos, walkable: WalkableTile): Boolean {
+  fun finishBuild(chunk: ChunkPos, walkable: WalkableTile, sight: SightMask? = null): Boolean {
     if (!inFlight.remove(chunk)) return false
 
     if (redirtied.remove(chunk)) {
@@ -245,7 +265,7 @@ class DerivedStore(
       return false
     }
 
-    install(chunk, walkable)
+    install(chunk, walkable, sight)
     return true
   }
 
@@ -256,16 +276,17 @@ class DerivedStore(
     queue.add(chunk)
   }
 
-  private fun install(chunk: ChunkPos, walkable: WalkableTile) {
+  private fun install(chunk: ChunkPos, walkable: WalkableTile, sight: SightMask?) {
     // A queued chunk may have no entry yet - that is what `track` queues, a first build rather than a
     // rebuild - so an absent entry is inserted rather than skipped. An existing one is updated in place so
     // that anything holding the entry keeps seeing the current structures.
     val entry = entries[chunk]
 
     if (entry == null) {
-      entries[chunk] = Entry(walkable = walkable)
+      entries[chunk] = Entry(walkable = walkable, sight = sight)
     } else {
       entry.walkable = walkable
+      entry.sight = sight
 
       // The lazy parts are dropped rather than rebuilt, and dropped *here* rather than in `invalidate`.
       // Dropping them on invalidation would have the next query rebuild from the edited voxels, which is
@@ -325,7 +346,7 @@ class DerivedStore(
     if (chunk in entries) return null
 
     val merged = voxels(chunk)
-    entries[chunk] = Entry(walkable = walkableTileOf(chunk, merged))
+    entries[chunk] = Entry(walkable = walkableTileOf(chunk, merged), sight = SightMask.of(merged, structures(chunk)))
 
     return merged
   }

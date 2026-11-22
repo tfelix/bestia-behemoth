@@ -2,6 +2,7 @@ package net.bestia.zone.battle.ecs.effects
 
 import net.bestia.zone.movement.ecs.Facing
 import net.bestia.zone.battle.ElementModifier
+import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.Unholy
 import kotlin.random.Random
@@ -54,6 +55,7 @@ class AreaEffectSystem(
   private val areaDamageReceiver: AreaDamageReceiver,
   private val mechanicsApplier: AreaMechanicsApplier? = null,
   private val random: Random = Random.Default,
+  private val lineOfSight: LineOfSightService = LineOfSightService(),
 ) : System {
   override val phase = Phase.COMBAT
 
@@ -201,9 +203,13 @@ class AreaEffectSystem(
     val strike = strikeCentre(effect, center)
     val edge = if (strike != null) effect.mechanics.strikeRadiusTiles * 2L else effect.radiusTiles * 2
     val footprint = effect.footprint
+    val origin = strike ?: center
     val inside = LinkedHashSet<EntityId>()
-    entityAOIService.forEachInCube(strike ?: center, edge, AoiLayer.ALL) { id, x, y, _ ->
-      if (footprint == null || footprint.covers(x, y)) inside.add(id)
+    entityAOIService.forEachInCube(strike ?: center, edge, AoiLayer.ALL) { id, x, y, z ->
+      if (footprint != null && !footprint.covers(x, y)) return@forEachInCube
+      // An area does not reach round a wall: a fire on one side of it leaves the other side alone.
+      if (!lineOfSight.hasLineOfSight(origin.x, origin.y, origin.z, x, y, z)) return@forEachInCube
+      inside.add(id)
     }
 
     // Deferred for the reason SkillExecutionService.applyResult defers: `World.add` is itself
