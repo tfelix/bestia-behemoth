@@ -6,9 +6,13 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.stronghold.EmpyriteSeed
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.entity.ecs.PlayerStructureIdentity
+import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.GuildMembership
+import net.bestia.zone.identity.ecs.GuildOwned
 import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.stronghold.ecs.GroundsStructureSystem
 import net.bestia.zone.stronghold.persistence.StrongholdRecord.State
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
@@ -71,10 +75,29 @@ class StrongholdGroundsTest {
     assertNull(grounds.buildRefusal(world, rival, Vec3L(20_100, 10_000, 40)))
   }
 
+  @Test
+  fun `a building on the grounds is the holding guild's, and one off them is nobody's`() {
+    val onGrounds = structureAt(Vec3L(10_200, 10_000, 40))
+    val offGrounds = structureAt(Vec3L(11_000, 10_000, 40))
+    world.add(offGrounds, GuildOwned(OTHER_GUILD))
+
+    GroundsStructureSystem(grounds).update(world, 2f)
+
+    assertEquals(GuildOwned(GUILD), world.get(onGrounds, GuildOwned::class))
+    assertNull(world.get(offGrounds, GuildOwned::class))
+  }
+
   private fun entityAt(east: Long) = world.createEntity { id -> add(id, Position.fromVec3(Vec3L(east, 10_000, 0))) }
 
   private fun builder(guildId: Long): EntityId {
     return world.createEntity { id -> add(id, GuildMembership(guildId, taxPercent = 5)) }
+  }
+
+  private fun structureAt(at: Vec3L): EntityId {
+    return world.createEntity { id ->
+      add(id, PropPose(at, yaw = 0f))
+      add(id, PlayerStructureIdentity(structureId = id, ownerAccountId = 7L, ownerMasterId = 1L))
+    }
   }
 
   private companion object {
