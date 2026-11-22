@@ -11,6 +11,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OrderColumn
 import jakarta.persistence.Table
+import org.springframework.data.domain.Persistable
 import java.time.Instant
 
 /**
@@ -92,7 +93,15 @@ class StrongholdRecord(
 
   @Column(name = "pipeline_version", nullable = false)
   var pipelineVersion: Long = 0,
-) {
+) : Persistable<Int> {
+
+  override fun getId(): Int = rank
+
+  /**
+   * Every save merges. The registry writes behind without knowing if the row exists yet, and Spring would take the
+   * best seed's rank 0 for "never saved" and insert it again.
+   */
+  override fun isNew(): Boolean = false
 
   enum class State {
     /** Planted; members work on the site. */
