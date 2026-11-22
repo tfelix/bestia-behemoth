@@ -33,7 +33,10 @@ class CatalogController(private val zone: ZoneClient) {
     val stackable: Boolean,
   )
 
-  /** [habitat] holds biome names, empty for any land; [inCompendium] is false for species the compendium leaves out. */
+  /**
+   * [habitat] holds biome names, empty for any land; [inCompendium] is false for species the compendium leaves out.
+   * [size] is SMALL, MEDIUM or BIG and [weightKg] the body weight in kilograms.
+   */
   data class Species(
     val id: Long,
     val identifier: String,
@@ -42,6 +45,8 @@ class CatalogController(private val zone: ZoneClient) {
     val level: Int,
     val habitat: List<String>,
     val inCompendium: Boolean,
+    val size: String,
+    val weightKg: Int,
   )
 
   data class Catalog(val version: String, val items: List<Item>, val bestias: List<Species>)
@@ -73,7 +78,7 @@ class CatalogController(private val zone: ZoneClient) {
     val catalog = Catalog(
       data.version,
       data.items.map { Item(it.id, it.identifier, it.type, it.weight, it.equipSlot, it.stackable) },
-      data.bestias.map { Species(it.id, it.identifier, it.kind, it.element, it.level, it.habitat, it.inCompendium) },
+      data.bestias.map { Species(it.id, it.identifier, it.kind, it.element, it.level, it.habitat, it.inCompendium, it.size, it.weightKg) },
     )
     cached = Instant.now() to catalog
     return catalog

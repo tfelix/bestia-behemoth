@@ -22,3 +22,5 @@ level_min = 80
 level_max = 80
 loot_item_ids = PackedInt32Array(94, 6, 7)
 loot_chances = PackedInt32Array(8000, 4000, 1500)
+size = "BIG"
+weight_kg = 500

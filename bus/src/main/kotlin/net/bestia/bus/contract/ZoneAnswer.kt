@@ -169,7 +169,10 @@ sealed interface ZoneAnswer {
       val stackable: Boolean,
     )
 
-    /** [habitat] holds biome names, empty for any land. [inCompendium] is false for townsfolk and test creatures. */
+    /**
+     * [habitat] holds biome names, empty for any land. [inCompendium] is false for townsfolk and test creatures.
+     * [size] is SMALL, MEDIUM or BIG; [weightKg] is the body weight with the size default already applied.
+     */
     data class Species(
       val id: Long,
       val identifier: String,
@@ -178,6 +181,8 @@ sealed interface ZoneAnswer {
       val level: Int,
       val habitat: List<String>,
       val inCompendium: Boolean,
+      val size: String,
+      val weightKg: Int,
     )
   }
 

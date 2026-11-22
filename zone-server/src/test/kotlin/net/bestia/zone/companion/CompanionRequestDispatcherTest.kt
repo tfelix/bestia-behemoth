@@ -292,6 +292,9 @@ class CompanionRequestDispatcherTest {
       val catalog = assertIs<ZoneAnswer.CatalogData>(ask(2L, ZoneQuery.Catalog).answer)
       val blob = catalog.bestias.single { it.id == BLOB }
       assertTrue("GRASSLAND" in blob.habitat && blob.inCompendium)
+      // blob.yml names no weight, so the SMALL default stands in for it.
+      assertEquals("SMALL", blob.size)
+      assertEquals(15, blob.weightKg)
     } finally {
       compendium.deleteAllOf(master.id)
     }
