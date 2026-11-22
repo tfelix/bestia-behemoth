@@ -96,7 +96,9 @@ class DerivedStore(
    * The sight mask of a chunk already built, or null when it is not: never builds, so a line-of-sight check on the
    * tick costs a map lookup at most. A caller treats null as "nothing known to block".
    */
-  fun sightIfBuilt(chunk: ChunkPos): SightMask? = entries[chunk]?.sight
+  fun sightIfBuilt(chunk: ChunkPos): SightMask? {
+    return entries[chunk]?.sight
+  }
 
   fun walkableOf(chunk: ChunkPos): WalkableTile {
     buildIfAbsent(chunk)
@@ -247,7 +249,9 @@ class DerivedStore(
     chunk: ChunkPos,
     cellsOf: (ChunkPos) -> StructureCells? = { null },
     voxelsOf: (ChunkPos) -> VoxelChunk
-  ): SightMask = SightMask.of(voxelsOf(chunk), cellsOf(chunk))
+  ): SightMask {
+    return SightMask.of(voxelsOf(chunk), cellsOf(chunk))
+  }
 
   /**
    * Puts a tile built after [beginBuild] into the store.

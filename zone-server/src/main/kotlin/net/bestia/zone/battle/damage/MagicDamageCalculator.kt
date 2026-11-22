@@ -25,7 +25,9 @@ class MagicDamageCalculator(
     battleCtx.damageVariables.attackMagicBonus
 
   /** A spell does not care how big its target is; the size table is a weapon's. */
-  override fun sizeFactor(battleCtx: EntityBattleContext): Float = 1f
+  override fun sizeFactor(battleCtx: EntityBattleContext): Float {
+    return 1f
+  }
 
   /** A spell carries no ammunition. */
   override fun getAmmoAttack(battleCtx: EntityBattleContext): Float = 0f
@@ -34,8 +36,9 @@ class MagicDamageCalculator(
    * The documented soft MDEF (see [net.bestia.zone.battle.status.DefenseValues]), and nothing more: the same term
    * [ElementalSpell] subtracts, so a spell lands alike whichever way it was cast.
    */
-  override fun getSoftDefense(battleCtx: EntityBattleContext): Float =
-    max(0f, battleCtx.defender.defense.magicDefense.toFloat())
+  override fun getSoftDefense(battleCtx: EntityBattleContext): Float {
+    return max(0f, battleCtx.defender.defense.magicDefense.toFloat())
+  }
 
   /** Worn MDEF, times whatever [DamageVariables.magicDefenseMod] a script or effect has set. */
   override fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float =

@@ -14,14 +14,9 @@ fun interface SightMasks {
 }
 
 /**
- * The line-of-sight walk: a 3D voxel traversal (Amanatides & Woo) from one entity's eyes to the other's chest.
- *
- * Runs on every attack and every spell, so it is written to be a few dozen array reads: no allocation per step,
- * the current chunk's mask kept until the ray leaves it, and an early answer for anything adjacent. A twelve-tile
- * shot visits about twenty voxels.
- *
- * What blocks: a voxel the mask marks opaque, and a structure wall on a border the ray crosses horizontally. The
- * two end voxels are never tested - the attacker's head and the target's chest are where they are.
+ * The line-of-sight walk, a 3D voxel traversal (Amanatides & Woo) from one entity's eyes to the other's chest. It runs
+ * on every attack, so it allocates nothing per step and keeps the current chunk's mask until the ray leaves it. An
+ * opaque voxel or a crossed structure wall blocks; the two end voxels are never tested.
  */
 object SightRay {
 

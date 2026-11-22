@@ -18,5 +18,7 @@ enum class Size(private val bodyWeightKg: Int) {
   BIG(250);
 
   /** The documented default body weight; a boss weighs twice its kin. */
-  fun defaultBodyWeightKg(boss: Boolean): Int = if (boss) bodyWeightKg * 2 else bodyWeightKg
+  fun defaultBodyWeightKg(boss: Boolean): Int {
+    return if (boss) bodyWeightKg * 2 else bodyWeightKg
+  }
 }

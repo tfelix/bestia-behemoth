@@ -19,7 +19,9 @@ class SightLines(
 
   private val masks = SightMasks { x, y, z -> maskOf(x, y, z) }
 
-  private fun maskOf(x: Int, y: Int, z: Int): SightMask? = chunks.derived().sightIfBuilt(ChunkPos(x, y, z))
+  private fun maskOf(x: Int, y: Int, z: Int): SightMask? {
+    return chunks.derived().sightIfBuilt(ChunkPos(x, y, z))
+  }
 
   /** Positions in world units, the voxel each entity stands in. */
   fun isClear(ax: Long, ay: Long, az: Long, bx: Long, by: Long, bz: Long): Boolean {

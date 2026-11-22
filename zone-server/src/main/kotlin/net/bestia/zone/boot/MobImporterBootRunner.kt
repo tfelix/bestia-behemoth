@@ -136,7 +136,9 @@ class MobImporterBootRunner(
     /** The species' body weight in kilograms: its own, or the documented default for its size. */
     @get:JsonIgnore
     val bodyWeight: Int
-      get() = if (weight > 0) weight else size.defaultBodyWeightKg(boss)
+      get() {
+        return if (weight > 0) weight else size.defaultBodyWeightKg(boss)
+      }
 
     data class LearnedAttack(
       val skill: String,
