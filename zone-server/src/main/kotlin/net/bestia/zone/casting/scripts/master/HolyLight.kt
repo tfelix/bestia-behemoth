@@ -1,7 +1,7 @@
 package net.bestia.zone.casting.scripts.master
 
 import net.bestia.zone.battle.Element
-import net.bestia.zone.battle.ElementModifier
+import net.bestia.zone.battle.damage.ElementalSpell
 import net.bestia.zone.battle.EntityBattleContext
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.damage.Damage
@@ -30,10 +30,7 @@ class HolyLight(losService: LineOfSightService) : BasicMagicSkillStrategy(losSer
     fun damageOf(battle: EntityBattleContext, level: Int, ignoresMagicDefense: Boolean): Int {
       val matk = battle.attacker.derivedStatusValues.matk + battle.weapon.matk
       val raw = matk * (100 + MATK_PERCENT_PER_LEVEL * level.coerceIn(1, MAX_LEVEL)) / 100f
-      val holy = raw * ElementModifier.getModifierFloat(Element.HOLY, battle.defender.assumedElement)
-      val defence = if (ignoresMagicDefense) 0 else battle.defender.defense.magicDefense
-
-      return (holy - defence).toInt().coerceAtLeast(MIN_DAMAGE)
+      return ElementalSpell.damage(raw, battle, ignoreDefense = ignoresMagicDefense, element = Element.HOLY)
     }
 
     private const val MAX_LEVEL = 5

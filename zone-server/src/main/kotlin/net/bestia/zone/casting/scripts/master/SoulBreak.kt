@@ -1,6 +1,7 @@
 package net.bestia.zone.casting.scripts.master
 
 import net.bestia.zone.battle.EntityBattleContext
+import net.bestia.zone.battle.damage.ElementalSpell
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.damage.HitDamage
@@ -37,7 +38,7 @@ class SoulBreak(losService: LineOfSightService) : BasicMagicSkillStrategy(losSer
       val percent = MATK_PERCENT_AT_LV1 + MATK_PERCENT_PER_LEVEL * (level.coerceIn(1, MAX_LEVEL) - 1)
       val raw = matk * percent / 100f * (100 + battle.attacker.arcaneDamagePercent) / 100f
 
-      return (raw - battle.defender.defense.magicDefense).toInt().coerceAtLeast(MIN_DAMAGE)
+      return ElementalSpell.elementless(raw, battle)
     }
 
     private const val MAX_LEVEL = 3

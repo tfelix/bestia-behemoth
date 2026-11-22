@@ -35,14 +35,10 @@ abstract class MasterBolt(losService: LineOfSightService) : BasicMagicSkillStrat
   companion object {
 
     fun damageOf(battle: EntityBattleContext, level: Int): Int {
-      val element = battle.usedAttack.attackElement
       val matk = battle.attacker.derivedStatusValues.matk + battle.weapon.matk
       val raw = matk * (100 + MATK_PERCENT_PER_LEVEL * level.coerceIn(1, MAX_LEVEL)) / 100f
-      val defender = battle.defender
 
-      return ElementalSpell.damage(
-        raw, element, defender.assumedElement, defender.elementResistance, defender.defense.magicDefense
-      )
+      return ElementalSpell.damage(raw, battle)
     }
 
     private const val MAX_LEVEL = 5

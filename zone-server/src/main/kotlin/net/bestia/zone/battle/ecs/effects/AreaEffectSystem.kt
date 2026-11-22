@@ -162,7 +162,8 @@ class AreaEffectSystem(
 
       return ElementalSpell.damage(
         effect.damagePerTick.toFloat(), effect.element, element,
-        victim?.elementResistance.orEmpty(), victim?.defense?.magicDefense ?: 0
+        victim?.elementResistance.orEmpty(), victim?.defense?.magicDefense ?: 0,
+        victim?.defense?.hardMagicDefense ?: 0
       )
     }
     val modifier = if (mechanics.weighsElement) ElementModifier.getModifierFloat(effect.element, element) else 1f

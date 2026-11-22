@@ -8,11 +8,10 @@ import kotlin.math.max
  * Magic damage: the same [BaseDamageCalculator] shape as the two physical calculators, off `MATK` and
  * `SoftMDEF` instead of `ATK` and `SoftDEF`.
  *
- * **Nothing uses this yet.** No weapon is magic ([net.bestia.zone.battle.attack.AttackStrategyFactory] routes
- * `MAGIC` to melee), and the magic skills that exist - `Firebolt`, `Ember`, `Heal` - each compute their own
- * number in their own script. It is implemented rather than left as a stub so that the day a skill wants the
- * shared formula, the formula is there and is the same one everything else uses; and because a `TODO()` in a
- * damage calculator is a `NotImplementedError` waiting on the tick thread.
+ * The basic attack of a magic [net.bestia.zone.battle.attack.AttackType], which
+ * [net.bestia.zone.battle.attack.MagicAttackStrategy] resolves when nothing but the caster's MATK sets the power. A
+ * skill script with a formula of its own lands through [ElementalSpell] instead, which weighs element and MDEF the
+ * same way.
  */
 class MagicDamageCalculator(
   random: Random
@@ -29,15 +28,11 @@ class MagicDamageCalculator(
   override fun getAmmoAttack(battleCtx: EntityBattleContext): Float = 0f
 
   /**
-   * `SoftMDEF + WIL/4`: the documented magic defence (see
-   * [net.bestia.zone.battle.status.DefenseValues]) plus willpower, which is what resisting a spell is and has
-   * no place in the physical term.
+   * The documented soft MDEF (see [net.bestia.zone.battle.status.DefenseValues]), and nothing more: the same term
+   * [ElementalSpell] subtracts, so a spell lands alike whichever way it was cast.
    */
-  override fun getSoftDefense(battleCtx: EntityBattleContext): Float {
-    val defender = battleCtx.defender
-
-    return max(0f, defender.defense.magicDefense + defender.statusValues.willpower / 4f)
-  }
+  override fun getSoftDefense(battleCtx: EntityBattleContext): Float =
+    max(0f, battleCtx.defender.defense.magicDefense.toFloat())
 
   /** Worn MDEF, times whatever [DamageVariables.magicDefenseMod] a script or effect has set. */
   override fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float =
