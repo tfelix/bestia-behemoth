@@ -2,6 +2,7 @@ package net.bestia.zone.stronghold
 
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.worldgen.stronghold.EmpyriteSeed
+import net.bestia.zone.crafting.repair.RepairGrounds
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.guild.skill.GuildStrongholds
@@ -16,8 +17,8 @@ import kotlin.math.hypot
 
 /**
  * The ground a Stronghold claims. An awake seed's core holds against every tool and building. Once an Empyrite is
- * planted, nobody digs on the grounds round it, only its guild builds there, and its members are inside their own
- * Stronghold.
+ * planted, nobody digs on the grounds round it, only its guild builds and repairs there, and its members are inside
+ * their own Stronghold.
  */
 @Component
 class StrongholdGrounds(
@@ -25,7 +26,7 @@ class StrongholdGrounds(
   private val seeds: EmpyriteSeedRegistry,
   private val worldService: WorldService,
   private val config: StrongholdConfig,
-) : GuildStrongholds, GroundClaims {
+) : GuildStrongholds, GroundClaims, RepairGrounds {
 
   override fun isInOwnStronghold(world: World, entityId: EntityId, guildId: Long): Boolean {
     val at = world.get(entityId, Position::class)?.toVec3L() ?: return false
@@ -52,6 +53,12 @@ class StrongholdGrounds(
     val builderGuild = GuildAffiliation.membershipOf(world, builderId)?.guildId
 
     return if (builderGuild == stronghold.guildId) null else OpError.BUILD_ON_STRONGHOLD_GROUNDS
+  }
+
+  override fun mayRepairAt(world: World, repairerId: EntityId, at: Vec3L): Boolean {
+    val stronghold = strongholdAt(at) ?: return false
+
+    return GuildAffiliation.membershipOf(world, repairerId)?.guildId == stronghold.guildId
   }
 
   /** The Stronghold, planted or standing, whose grounds [at] lies on, or reaches within [reachMetres] of. */

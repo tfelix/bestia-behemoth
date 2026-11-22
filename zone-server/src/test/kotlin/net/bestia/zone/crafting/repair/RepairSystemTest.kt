@@ -22,7 +22,7 @@ class RepairSystemTest {
   private val structures = mockk<PlayerStructureRegistry>(relaxed = true)
   private val repairs = mockk<RepairService> {
     every { isInReach(any(), any(), any(), any()) } returns true
-    every { isInStandingTown(any()) } returns true
+    every { mayRepairHere(any(), any(), any()) } returns true
     every { costOf(any(), any(), any()) } returns RepairCost(800, 1800f, mapOf(1L to 40))
   }
   private val system = RepairSystem(repairs, structures)

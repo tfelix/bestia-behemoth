@@ -87,6 +87,13 @@ class StrongholdGroundsTest {
     assertNull(world.get(offGrounds, GuildOwned::class))
   }
 
+  @Test
+  fun `only the holding guild repairs buildings on the grounds`() {
+    assertTrue(grounds.mayRepairAt(world, builder(GUILD), Vec3L(10_100, 10_000, 40)))
+    assertFalse(grounds.mayRepairAt(world, builder(OTHER_GUILD), Vec3L(10_100, 10_000, 40)))
+    assertFalse(grounds.mayRepairAt(world, builder(GUILD), Vec3L(11_000, 10_000, 40)), "off the grounds")
+  }
+
   private fun entityAt(east: Long) = world.createEntity { id -> add(id, Position.fromVec3(Vec3L(east, 10_000, 0))) }
 
   private fun builder(guildId: Long): EntityId {
