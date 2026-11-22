@@ -27,8 +27,9 @@ import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
 
 /**
- * Repairs inside a player town: the repairer pays a share of the structure's kit into it, then works on it like
- * a construction site. See the design docs' player settlements page. Tick thread only.
+ * Repairs inside a player town, or on other ground that allows them such as a Stronghold's grounds: the repairer pays
+ * a share of the structure's kit into it, then works on it like a construction site. See the design docs' player
+ * settlements page. Tick thread only.
  */
 @Service
 class RepairService(
@@ -39,6 +40,7 @@ class RepairService(
   private val inventoryService: InventoryService,
   private val jobs: AsyncJobExecutor,
   private val worldService: WorldService,
+  private val grounds: List<RepairGrounds> = emptyList(),
 ) {
 
   /** What [targetId] is to a repair, or null when it is nothing a player can repair. */
@@ -65,7 +67,7 @@ class RepairService(
     val target = targetOf(world, targetId) ?: return OpError.REQUEST_REFUSED
     val actorAt = world.get(actorId, Position::class)?.toVec3L() ?: return OpError.BUILD_OUT_OF_RANGE
     if (!isInReach(world, actorAt, targetId, target)) return OpError.BUILD_OUT_OF_RANGE
-    if (!isInStandingTown(target)) return OpError.REPAIR_OUTSIDE_TOWN
+    if (!mayRepairHere(world, actorId, target)) return OpError.REPAIR_OUTSIDE_TOWN
 
     val missingHp = missingHpOf(world, targetId, target)
     if (missingHp <= 0) return OpError.REPAIR_NOT_NEEDED
@@ -96,7 +98,14 @@ class RepairService(
     return Target.Building(entry.position, structureId, entry.repairStockHp)
   }
 
-  fun isInStandingTown(target: Target): Boolean {
+  /** Inside a standing town, or on ground that lets [repairerId] repair a building. */
+  fun mayRepairHere(world: World, repairerId: EntityId, target: Target): Boolean {
+    if (isInStandingTown(target)) return true
+
+    return target is Target.Building && grounds.any { it.mayRepairAt(world, repairerId, target.position) }
+  }
+
+  private fun isInStandingTown(target: Target): Boolean {
     return when (target) {
       is Target.Sign -> towns.of(target.townId)?.isStanding == true
       is Target.Building -> towns.standingAt(target.position) != null

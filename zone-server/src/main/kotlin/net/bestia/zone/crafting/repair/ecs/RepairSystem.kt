@@ -12,6 +12,7 @@ import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.StaticVisual
+import net.bestia.zone.identity.ecs.GuildAffiliation
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.prop.PlayerStructureRegistry
 import net.bestia.zone.prop.ecs.wear.StructureWear
@@ -36,7 +37,8 @@ class RepairSystem(
   override val reads: ComponentClassSet = setOf(
     Position::class, PropPose::class, StaticVisual::class, PlayerStructureIdentity::class, CitySign::class,
     StructureWear::class, Dead::class
-  )
+    // The repairer's guild, for a building on its Stronghold's grounds.
+  ) + GuildAffiliation.READS
   override val writes: ComponentClassSet = setOf(Repairing::class, Health::class)
 
   override fun update(world: World, deltaTime: Float) {
@@ -57,7 +59,7 @@ class RepairSystem(
 
     val target = repairs.targetOf(world, targetId) ?: return false
     val workerAt = world.get(workerId, Position::class)?.toVec3L() ?: return false
-    if (!repairs.isInReach(world, workerAt, targetId, target) || !repairs.isInStandingTown(target)) return false
+    if (!repairs.isInReach(world, workerAt, targetId, target) || !repairs.mayRepairHere(world, workerId, target)) return false
 
     val health = world.get(targetId, Health::class) ?: return false
     // A building only shows its stored damage once StructureWearSystem has put it back on.
