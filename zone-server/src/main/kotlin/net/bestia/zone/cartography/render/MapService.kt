@@ -17,7 +17,10 @@ package net.bestia.zone.cartography.render
  * `MapPoiIndex` - so a trade nobody staffs yet is decided here in advance and appears the day an occupation
  * takes it on.
  */
-enum class MapService {
+enum class MapService(
+  /** Shown at every zoom, not only close enough for a glyph per shop: a landmark players travel to from afar. */
+  val isLandmark: Boolean = false,
+) {
 
   /** A counter that sells goods: the general store and the trades that make what they sell. */
   MERCHANT,
@@ -38,7 +41,13 @@ enum class MapService {
   TOWN,
 
   /** A post office players built in their town. A generated town's office is not on the map yet. */
-  POST_OFFICE;
+  POST_OFFICE,
+
+  /** An Empyrite Seed somebody discovered and no guild holds, named after it. */
+  EMPYRITE_SEED(isLandmark = true),
+
+  /** A seed a guild holds: its Empyrite site or Empyrite, named after the seed. */
+  STRONGHOLD(isLandmark = true);
 
   companion object {
 

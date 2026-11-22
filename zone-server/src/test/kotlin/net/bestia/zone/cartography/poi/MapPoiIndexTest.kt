@@ -119,4 +119,15 @@ class MapPoiIndexTest {
     index.setPlayerTowns(listOf(sign))
     assertEquals(after, index.revision, "the same towns again changed nothing")
   }
+
+  @Test
+  fun `seeds and Strongholds are on the map until they are replaced`() {
+    val seed = MapPoi(-1_000_000_002L, MapService.STRONGHOLD, null, 1_000.0, 2_000.0, "Hochvein", null, null)
+    val before = index.revision
+
+    index.setStrongholdSeeds(listOf(seed))
+
+    assertEquals(seed, index.liveIn(Aabb(0.0, 0.0, 4_000.0, 4_000.0)).single { it.id == seed.id })
+    assertNotEquals(before, index.revision)
+  }
 }

@@ -772,6 +772,18 @@
 		clip-path: polygon(0 15%, 100% 15%, 100% 85%, 0 85%);
 	}
 
+	.map :global(.service-empyrite_seed span) {
+		background: #ffe68c;
+		border-radius: 0;
+		clip-path: polygon(50% 10%, 82% 90%, 18% 90%);
+	}
+
+	.map :global(.service-stronghold span) {
+		background: #f2b81f;
+		border-radius: 0;
+		clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+	}
+
 	.map :global(.mark span) {
 		display: block;
 		width: 100%;

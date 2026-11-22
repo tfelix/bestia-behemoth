@@ -370,8 +370,8 @@ class MapTileService(
    * something in the world changed or the asker's charts did.
    *
    * The fog test is [places]' own - the tile's bounds, then [Coverage.contains] per point - and so is the 404.
-   * Below the zoom a glyph per shop has room for, the list is empty rather than absent: the tile is charted,
-   * there is just nothing to draw on it at that scale.
+   * Below the zoom a glyph per shop has room for, only the landmarks are listed, such as Strongholds: the tile is
+   * charted, there is just no room for shops at that scale.
    *
    * @throws IllegalArgumentException for a level outside the pyramid, which is a malformed request rather than
    *   an empty answer
@@ -395,11 +395,11 @@ class MapTileService(
     // more download, while one naming a newer state would pin a stale body behind a 304 indefinitely.
     val revision = pois.revision
 
-    val services = if (MapVisibility.draws(FeatureKind.BUSINESS, id.metresPerPixel)) {
-      pois.liveIn(id.bounds).filter { wholly || coverage.contains(it.x, it.y) }
-    } else {
-      emptyList()
-    }
+    // Further out than a glyph per shop has room for, only the landmarks are listed.
+    val listsEveryKind = MapVisibility.draws(FeatureKind.BUSINESS, id.metresPerPixel)
+    val services = pois.liveIn(id.bounds)
+      .filter { listsEveryKind || it.kind.isLandmark }
+      .filter { wholly || coverage.contains(it.x, it.y) }
 
     val suffix = if (wholly) id.path() else "${id.path()}#$digest"
     return Services(services, etag = "\"${resources.key}-s-$suffix-r$revision\"")

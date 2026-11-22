@@ -39,6 +39,11 @@ class EmpyriteSeedDiscoveries(
     return EmpyriteSeedDiscovery.Key(masterId, rank) in discovered
   }
 
+  /** Whether anybody discovered the seed: from then on it is on every map that charts its spot. */
+  fun isDiscoveredByAnyone(rank: Int): Boolean {
+    return discovered.any { it.rank == rank }
+  }
+
   /** @return false when [masterId] knew the seed already */
   fun discover(masterId: Long, rank: Int): Boolean {
     val key = EmpyriteSeedDiscovery.Key(masterId, rank)

@@ -59,6 +59,9 @@ class MapPoiIndex(
   @Volatile
   private var playerTowns: List<MapPoi> = emptyList()
 
+  @Volatile
+  private var strongholdSeeds: List<MapPoi> = emptyList()
+
   private val changes = AtomicLong()
 
   init {
@@ -77,6 +80,7 @@ class MapPoiIndex(
       if (ServiceCandidates.inside(bounds, stone.x, stone.y)) live.add(stone)
     }
     playerTowns.filterTo(live) { ServiceCandidates.inside(bounds, it.x, it.y) }
+    strongholdSeeds.filterTo(live) { ServiceCandidates.inside(bounds, it.x, it.y) }
 
     return live
   }
@@ -110,6 +114,13 @@ class MapPoiIndex(
   fun setPlayerTowns(pois: List<MapPoi>) {
     if (pois == playerTowns) return
     playerTowns = pois
+    changes.incrementAndGet()
+  }
+
+  /** Every discovered Empyrite Seed and every Stronghold, replaced whole. Tick thread. */
+  fun setStrongholdSeeds(pois: List<MapPoi>) {
+    if (pois == strongholdSeeds) return
+    strongholdSeeds = pois
     changes.incrementAndGet()
   }
 

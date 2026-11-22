@@ -3,11 +3,14 @@ import { call } from '#lib/api/client.ts';
 import type { MapMeta, Service } from '#lib/api/model.ts';
 import { inWorld } from './tiles';
 
-/** The finest-detail levels are the only ones the world lists services at, as in the game. */
+/** The finest-detail levels are the only ones the world lists every service at, as in the game. */
 const SERVICES_MAX_LEVEL = 3;
 
 /** As the game draws them (`map_view.gd`): a colour and a silhouette per kind, so neither is the only cue. */
-export const SERVICE_KINDS = ['MERCHANT', 'MARKET', 'INN', 'TEMPLE', 'GUARD', 'WARD_STONE', 'TOWN', 'POST_OFFICE'] as const;
+export const SERVICE_KINDS = ['MERCHANT', 'MARKET', 'INN', 'TEMPLE', 'GUARD', 'WARD_STONE', 'TOWN', 'POST_OFFICE', 'EMPYRITE_SEED', 'STRONGHOLD'] as const;
+
+/** Listed at every zoom, as in the game: places players travel to from afar. */
+const LANDMARK_KINDS: readonly string[] = ['EMPYRITE_SEED', 'STRONGHOLD'];
 
 export function serviceName(service: Service): string {
 	const what = service.business
@@ -40,8 +43,9 @@ export function servicesLayer(
 
 	const show = (services: Service[]) => {
 		const off = hidden();
+		const everyKind = Math.round(-map.getZoom()) <= SERVICES_MAX_LEVEL;
 		for (const service of services) {
-			if (off.includes(service.kind)) continue;
+			if (off.includes(service.kind) || (!everyKind && !LANDMARK_KINDS.includes(service.kind))) continue;
 			L.marker([service.y, service.x], {
 				icon: L.divIcon({ className: `service service-${service.kind.toLowerCase()}`, html: '<span></span>', iconSize: [14, 14], iconAnchor: [7, 7] })
 			})
@@ -56,8 +60,6 @@ export function servicesLayer(
 
 	const refresh = () => {
 		const level = Math.round(-map.getZoom());
-		if (level > SERVICES_MAX_LEVEL) return;
-
 		const current = generation;
 		const span = meta.tileSize * 2 ** Math.max(level, meta.minLevel);
 		const bounds = map.getBounds();

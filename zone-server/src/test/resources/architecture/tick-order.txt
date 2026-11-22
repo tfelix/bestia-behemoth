@@ -97,6 +97,7 @@
  - UPKEEP wave 51: RumourExpirySystem [EverySeconds(seconds=180.0)]
  - UPKEEP wave 51: ScorchRegrowthSystem [EverySeconds(seconds=60.0)]
  - UPKEEP wave 51: SealReturnSystem [EverySeconds(seconds=1.0)]
+ - UPKEEP wave 51: SeedMapSystem [EverySeconds(seconds=10.0)]
  - UPKEEP wave 51: SettlementEconomySystem [EverySeconds(seconds=30.0)]
  - UPKEEP wave 51: SpawnPointWatchSystem [EverySeconds(seconds=30.0)]
  - UPKEEP wave 51: StreetStallSystem [EverySeconds(seconds=1.0)]
