@@ -586,6 +586,12 @@ world-time:
   # world-epoch: 2026-01-01T00:00:00Z
   speed-factor: 3.0
 
+# What running out of stamina costs a master or an owned bestia (StaminaExhaustionSystem). Below 5 % stamina
+# the body loses drain-health-percent of its max health every drain-interval-seconds.
+stamina:
+  drain-interval-seconds: 30
+  drain-health-percent: 0.3
+
 socket:
   ip-address: 127.0.0.1
   port: 8090

@@ -21,6 +21,7 @@ import net.bestia.zone.battle.ecs.status.FormulaDrivenVitals
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.ecs.status.Mana
+import net.bestia.zone.battle.ecs.status.Exhaustion
 import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.ecs.status.RefillVitals
 import net.bestia.zone.entity.ecs.Dead
@@ -91,7 +92,8 @@ class StatusValueRecalcSystem(
     // A bestia reads its master's passives that reach it.
     OwnedBestia::class,
     Casting::class,
-    OffRoad::class
+    OffRoad::class,
+    Exhaustion::class
   ) + equipment.reads
   override val writes: ComponentClassSet = setOf(
     StatusValues::class,
@@ -131,6 +133,8 @@ class StatusValueRecalcSystem(
       if (context.castMovePercent > 0 && world.has(id, Casting::class)) {
         context.speed *= context.castMovePercent / 100f
       }
+      // Low stamina slows the walk last, so it scales whatever speed buffs and gear made of it.
+      world.get(id, Exhaustion::class)?.let { context.speed *= it.speedPercent / 100f }
 
       // Only an owner carries this outbound copy; nothing on the server reads it.
       world.get(id, StatusValues::class)?.let { values ->
