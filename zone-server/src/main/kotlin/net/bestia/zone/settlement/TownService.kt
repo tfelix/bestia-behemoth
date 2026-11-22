@@ -7,6 +7,7 @@ import net.bestia.zone.aoi.EntityAOIService
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.status.CombatValues
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.EntityVisual
@@ -60,6 +61,10 @@ class TownService(
 ) : SiteCompletion {
 
   override val kind = StaticEntityKind.CITY_SIGN
+
+  override val writes: ComponentClassSet = setOf(
+    Position::class, EntityVisual::class, Health::class, CombatStats::class, CitySign::class
+  )
 
   /** Resolved at boot, after the skills are imported: the tick may not query the database. */
   private var founderSkillId: Long? = null

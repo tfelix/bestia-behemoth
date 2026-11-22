@@ -11,6 +11,7 @@ import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ObtainItemIntent.CreateItemsIntent
 import net.bestia.zone.item.mining.PickaxeMining
 import net.bestia.zone.item.mining.ecs.MiningSwing
+import net.bestia.zone.prop.ecs.construction.ConstructionSystem
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.treasure.DigService
 import net.bestia.zone.util.EntityId
@@ -31,6 +32,9 @@ class DiggingSystem(
 
   // A cast this tick has already decided whether it wears the tool or marks the status dirty.
   override val after = setOf(CastingSystem::class)
+
+  // A finished Empyrite or town sign gets its combat values from the site completion; a swing reads them first.
+  override val before = setOf(ConstructionSystem::class)
 
   /** A finished metre wears the tool, which can break it out of the hand, and an opened cache fills the bag. */
   override val writes: ComponentClassSet = setOf(

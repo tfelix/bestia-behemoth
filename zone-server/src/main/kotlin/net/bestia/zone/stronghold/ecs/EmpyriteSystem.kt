@@ -2,15 +2,21 @@ package net.bestia.zone.stronghold.ecs
 
 import net.bestia.zone.battle.ecs.damage.PlayerDeathSystem
 import net.bestia.zone.battle.ecs.damage.TakenDamage
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.Dead
+import net.bestia.zone.guild.skill.WarBannerSystem
 import net.bestia.zone.identity.ecs.GuildAffiliation
+import net.bestia.zone.prop.PlayerStructureDeathSystem
+import net.bestia.zone.prop.PropDeathDivergenceSystem
 import net.bestia.zone.settlement.ecs.CitySignSystem
 import net.bestia.zone.stronghold.Empyrites
+import net.bestia.zone.worldboss.WorldBossSealSystem
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -26,11 +32,17 @@ class EmpyriteSystem(
 
   override val phase = Phase.DEATH
   override val before = setOf(PlayerDeathSystem::class)
-  override val after = setOf(CitySignSystem::class)
+  // The other dead structures go first: raising a captured Empyrite places a new one in the world.
+  override val after = setOf(
+    CitySignSystem::class, PlayerStructureDeathSystem::class, WarBannerSystem::class, WorldBossSealSystem::class,
+    PropDeathDivergenceSystem::class
+  )
 
   // Steward: a broken Empyrite sends its steward away.
   override val reads: ComponentClassSet = setOf(Dead::class, TakenDamage::class, Steward::class) + GuildAffiliation.READS
-  override val writes: ComponentClassSet = setOf(Empyrite::class, Health::class)
+  // A captured Empyrite stands again under grace; a free seed sprouts again.
+  override val writes: ComponentClassSet =
+    Empyrites.RAISES + setOf(StatusEffects::class, IsStatusValueDirty::class, EmpyriteSeedSprout::class)
 
   private var sinceRecorded = 0f
 

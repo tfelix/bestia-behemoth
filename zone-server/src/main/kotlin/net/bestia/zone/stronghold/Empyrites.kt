@@ -6,6 +6,7 @@ import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.EntityVisual
@@ -130,7 +131,12 @@ class Empyrites(
     }
   }
 
-  private companion object {
+  companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** What an Empyrite carries once it stands. A system that stands one up or captures one declares these. */
+    val RAISES: ComponentClassSet = setOf(
+      Position::class, EntityVisual::class, Health::class, CombatStats::class, GuildOwned::class, Empyrite::class
+    )
   }
 }
