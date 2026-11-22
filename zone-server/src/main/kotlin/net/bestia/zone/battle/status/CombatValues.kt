@@ -131,7 +131,8 @@ data class CombatValues(
           atk = context.attack,
           matk = context.magicAttack,
           upgradeLevel = context.weaponUpgradeLevel,
-          ranged = context.rangedWeapon
+          ranged = context.rangedWeapon,
+          type = context.heldWeaponType,
         ),
         hardDefense = context.hardDefense,
         hardMagicDefense = context.hardMagicDefense,
@@ -185,6 +186,7 @@ data class CombatValues(
         atk = scaled(context.offHandAttack, context.attackPercent),
         matk = 0,
         upgradeLevel = context.offHandUpgradeLevel,
+        type = context.offHandWeaponType,
       )
     }
 

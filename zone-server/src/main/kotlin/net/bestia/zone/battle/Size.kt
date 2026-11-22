@@ -1,24 +1,22 @@
 package net.bestia.zone.battle
 
-enum class Size {
+/**
+ * A body's size, which weighs a weapon's attack against it (see [SizeModifier]) and sets a species' default weight.
+ *
+ * @property bodyWeightKg what a species of this size weighs when its row names no weight, from the bestia design
+ *   docs: 15 kg small, 60 kg medium, 250 kg big
+ */
+enum class Size(private val bodyWeightKg: Int) {
 
-  /**
-   * Small entities. The size is basically as big as a medium sized dog or
-   * smaller. For weapons this is assigned for daggers, knuckles, maybe small
-   * swords.
-   */
-  SMALL,
+  /** About as big as a medium sized dog, or smaller. */
+  SMALL(15),
 
-  /**
-   * Medium sized entities. This means the size of about a human is. From
-   * weapons this means normal sized swords, hammers, maces.
-   */
-  MEDIUM,
+  /** About the size of a human. */
+  MEDIUM(60),
 
-  /**
-   * Big sized entities. Far bigger then a human. Maybe like elefants or
-   * nashorns or bigger. For weapons this means heavy two handed hammers, long
-   * spear, twohanded sword etc.
-   */
-  BIG
+  /** Far bigger than a human: a bear, an elephant, a wyrm. */
+  BIG(250);
+
+  /** The documented default body weight; a boss weighs twice its kin. */
+  fun defaultBodyWeightKg(boss: Boolean): Int = if (boss) bodyWeightKg * 2 else bodyWeightKg
 }

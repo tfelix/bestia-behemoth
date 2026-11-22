@@ -1,5 +1,6 @@
 package net.bestia.zone.boot
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.Element
@@ -77,7 +78,7 @@ class MobImporterBootRunner(
     val attackPower: Float = 1f,
     @JsonProperty("status-immunities")
     val statusImmunities: List<StatusEffectId> = emptyList(),
-    /** Body weight in kilograms. */
+    /** Body weight in kilograms; 0 or absent takes the species size's default, see [bodyWeight]. */
     val weight: Int = 0,
 
     /**
@@ -129,7 +130,13 @@ class MobImporterBootRunner(
       require(levelMin >= 1 && levelMin <= levelMax) { "$identifier: level-min $levelMin and level-max $levelMax must satisfy 1 <= min <= max" }
       require(aspd in 0..AttackSpeed.aspd(AttackSpeed.MIN_MOTION_MS)) { "$identifier: aspd $aspd is outside 0..190" }
       require(attackPower > 0f) { "$identifier: attack-power must be > 0" }
+      require(weight >= 0) { "$identifier: weight $weight must not be negative" }
     }
+
+    /** The species' body weight in kilograms: its own, or the documented default for its size. */
+    @get:JsonIgnore
+    val bodyWeight: Int
+      get() = if (weight > 0) weight else size.defaultBodyWeightKg(boss)
 
     data class LearnedAttack(
       val skill: String,
@@ -171,7 +178,7 @@ class MobImporterBootRunner(
       aspd = dto.aspd,
       attackPower = dto.attackPower,
       statusImmunities = dto.statusImmunities.joinToString(","),
-      weight = dto.weight,
+      weight = dto.bodyWeight,
       strength = dto.attributes.strength,
       intelligence = dto.attributes.intelligence,
       vitality = dto.attributes.vitality,
@@ -240,7 +247,7 @@ class MobImporterBootRunner(
         entity.aspd != dto.aspd ||
         entity.attackPower != dto.attackPower ||
         entity.statusImmunities != dto.statusImmunities.joinToString(",") ||
-        entity.weight != dto.weight ||
+        entity.weight != dto.bodyWeight ||
         entity.strength != dto.attributes.strength ||
         entity.intelligence != dto.attributes.intelligence ||
         entity.vitality != dto.attributes.vitality ||
@@ -278,7 +285,7 @@ class MobImporterBootRunner(
     entity.aspd = dto.aspd
     entity.attackPower = dto.attackPower
     entity.statusImmunities = dto.statusImmunities.joinToString(",")
-    entity.weight = dto.weight
+    entity.weight = dto.bodyWeight
     entity.strength = dto.attributes.strength
     entity.intelligence = dto.attributes.intelligence
     entity.vitality = dto.attributes.vitality

@@ -3,6 +3,7 @@ package net.bestia.zone.battle.damage
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.ElementModifier
 import net.bestia.zone.battle.EntityBattleContext
+import net.bestia.zone.battle.SizeModifier
 import net.bestia.zone.battle.status.DefenseValues
 import net.bestia.zone.util.clamp
 import java.util.Random
@@ -15,7 +16,7 @@ import kotlin.math.max
  * ### Shape
  *
  * ```
- * baseAtk = 2 * statusAtk * varMod + weaponAtk * varModReduced + ammoAtk + bonusAtk
+ * baseAtk = 2 * statusAtk * varMod + weaponAtk * varModReduced * sizeMod + ammoAtk + bonusAtk
  * baseAtk = max(1, baseAtk * elementMod)
  * damage  = floor(baseAtk * atkMod * hardDefMod * critMod) - softDef
  * damage  = max(MIN_DAMAGE, damage)
@@ -34,13 +35,11 @@ import kotlin.math.max
  * - **A connected hit always costs at least [MIN_DAMAGE].** Whether it connected at all is not decided here -
  *   see `PhysicalAttackStrategy.isMiss`.
  *
+ * - **The weapon has to fit the body.** Its attack is weighed by RO's weapon-type × size table ([sizeFactor]);
+ *   the attribute term is not.
+ *
  * ### What is missing, and why it is missing rather than approximated
  *
- * - **The size modifier.** `SizeModifier` exists and is exactly RO's table, but neither `Weapon` nor
- *   `BattleEntity` carries a [net.bestia.zone.battle.Size], so there is nothing to look up. Left out rather
- *   than defaulted to a guess.
- * - **Element** is applied, but every entity is `NORMAL` until an element component exists, so in practice the
- *   lookup returns 1.0 for now.
  * - **An element that *heals* its target.** Twenty-four entries in [ElementModifier] are negative - holy against
  *   holy, poison against undead - which in RO means the hit restores health instead of taking it. Here the
  *   `max(1f, …)` in [getBaseAttack] turns that into one point of damage, because [Damage] cannot carry a
@@ -103,7 +102,7 @@ abstract class BaseDamageCalculator(
     val bonusAtk = getBonusAttack(battleCtx)
 
     var baseAtk = STATUS_ATTACK_WEIGHT * statusAtk * varMod() +
-        weaponAtk * varMod(WEAPON_VARIANCE) +
+        weaponAtk * varMod(WEAPON_VARIANCE) * sizeFactor(battleCtx) +
         ammoAtk +
         bonusAtk
 
@@ -147,6 +146,13 @@ abstract class BaseDamageCalculator(
   protected open fun calculateWeaponAtk(battleCtx: EntityBattleContext): Float {
     return battleCtx.weapon.physicalAtk.toFloat()
   }
+
+  /**
+   * How well the weapon in hand fits the target's body, RO's size table (see [SizeModifier]). Scales the weapon term
+   * only: the attributes behind a blow do not care what it lands on, and bare hands - every mob - fit everything.
+   */
+  protected open fun sizeFactor(battleCtx: EntityBattleContext): Float =
+    SizeModifier.factorOf(battleCtx.weapon.type, battleCtx.defender.size)
 
   /** Attack derived purely from the attacker's own attributes - the term that carries an unarmed fighter. */
   protected abstract fun getStatusAttack(battleCtx: EntityBattleContext): Float

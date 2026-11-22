@@ -38,4 +38,7 @@ data class BattleEntity(
 
   /** See [net.bestia.zone.battle.status.StatusValueRecalcContext.arcaneDamagePercent]. */
   val arcaneDamagePercent: Int = 0,
+
+  /** Body size, which weighs a weapon's attack against it (see [SizeModifier]). A master is [Size.MEDIUM]. */
+  val size: Size = Size.MEDIUM,
 )

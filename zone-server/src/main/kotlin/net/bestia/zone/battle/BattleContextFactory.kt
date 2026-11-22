@@ -108,7 +108,8 @@ class BattleContextFactory(
         ?: emptySet(),
       attackPower = nature?.attackPower ?: 1f,
       aspdPercent = combat.aspdPercent,
-      arcaneDamagePercent = combat.arcaneDamagePercent
+      arcaneDamagePercent = combat.arcaneDamagePercent,
+      size = nature?.size ?: Size.MEDIUM,
     )
   }
 

@@ -1,11 +1,15 @@
 package net.bestia.zone.battle
 
+import net.bestia.zone.battle.gear.WeaponType
+
 data class Weapon(
   val atk: Int,
   val matk: Int,
   val upgradeLevel: Int,
   /** Null for anything swung rather than shot. */
-  val ranged: RangedWeapon? = null
+  val ranged: RangedWeapon? = null,
+  /** What kind of weapon it is, which weighs its attack against the target's size. Null for bare hands. */
+  val type: WeaponType? = null,
 ) {
 
   /**
