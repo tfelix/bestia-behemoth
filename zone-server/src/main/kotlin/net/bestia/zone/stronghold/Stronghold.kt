@@ -18,6 +18,9 @@ data class Stronghold(
   val watchers: Map<WatcherKind, Int> = emptyMap(),
   /** The guild's Strengthen Watchers level, as last seen; watchers are called by it while nobody of the guild is near. */
   val watcherStrength: Int = 0,
+  val dropsMade: Int = 0,
+  /** Waiting for the leader, oldest first. */
+  val drops: List<TreasureDrop> = emptyList(),
 ) {
 
   fun progressOf(track: StrongholdTrack): TrackProgress {

@@ -53,6 +53,19 @@ data class StrongholdConfig(
   val watcherBringBackCoins: Long = 50_000,
   /** How far from its Empyrite a watcher roams and fights. */
   val watcherRoamMetres: Double = 120.0,
+  /** A treasure drop every this many hours after planting, and at most this many wait; a new one replaces the oldest. */
+  val treasuryDropHours: Long = 24,
+  val treasuryWaitingDrops: Int = 3,
+  /** A drop's coins: the base, plus this much per Economy level. */
+  val treasuryCoinsBase: Long = 10_000,
+  val treasuryCoinsPerEconomy: Long = 10_000,
+  /** Ore from the nearest deposit kinds round the seed, never gold: this many pieces per Economy level of each. */
+  val treasuryOreKinds: Int = 3,
+  val treasuryOreRangeMetres: Double = 3_000.0,
+  val treasuryOrePiecesPerEconomy: Int = 2,
+  /** One crafting item per this many Economy levels, picked from those [treasuryCraftingItems] unlocks. */
+  val treasuryEconomyPerCraftingItem: Int = 2,
+  val treasuryCraftingItems: List<TreasuryItem> = emptyList(),
   /** After a capture, the new Empyrite cannot be harmed for this long. */
   val captureGraceMinutes: Long = 10,
   /** Weekly spans such as `SATURDAY 18:00-22:00` in which Strongholds can be attacked. Empty: always. */
@@ -82,9 +95,19 @@ data class StrongholdConfig(
     require(watcherBaseLevel > 0 && watcherLevelPerDefense >= 0) { "Watcher levels must be positive" }
     require(watcherReturnMinutes >= 0 && watcherBringBackCoins >= 0) { "Watcher return time and price must not be negative" }
     require(watcherRoamMetres > 0.0) { "stronghold.watcher-roam-metres must be positive, was $watcherRoamMetres" }
+    require(treasuryDropHours > 0 && treasuryWaitingDrops > 0) { "Treasure drops need a positive interval and room" }
+    require(treasuryCoinsBase >= 0 && treasuryCoinsPerEconomy >= 0) { "Treasure coins must not be negative" }
+    require(treasuryOreKinds >= 0 && treasuryOrePiecesPerEconomy >= 0) { "Treasure ore must not be negative" }
+    require(treasuryEconomyPerCraftingItem > 0) { "stronghold.treasury-economy-per-crafting-item must be positive" }
     require(stewardCoins >= 0) { "stronghold.steward-coins must not be negative, was $stewardCoins" }
     require(doubleStepChance in 0.0..1.0) { "stronghold.double-step-chance must lie in 0..1, was $doubleStepChance" }
     // Parsed here as well as where they are used, so a typo stops the boot rather than the first siege.
     AttackWindows.of(this)
   }
 }
+
+/** A crafting item a treasure drop may bring once the Stronghold's Economy reaches [fromEconomy]. */
+data class TreasuryItem(
+  val item: String,
+  val fromEconomy: Int,
+)

@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.stronghold.persistence.StrongholdRecord
 import net.bestia.zone.stronghold.persistence.StrongholdRecordRepository
+import net.bestia.zone.stronghold.persistence.TreasureDropRow
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
 
@@ -70,6 +71,10 @@ class StrongholdRegistry(
       meleeWatchers = stronghold.watchersOf(WatcherKind.MELEE),
       archerWatchers = stronghold.watchersOf(WatcherKind.ARCHER),
       watcherStrength = stronghold.watcherStrength,
+      dropsMade = stronghold.dropsMade,
+      drops = stronghold.drops.mapTo(ArrayList()) { drop ->
+        TreasureDropRow(drop.madeAt, drop.coins, drop.goods.entries.joinToString(",") { (id, amount) -> "$id:$amount" })
+      },
       worldShapeVersion = worldService.record.shapeVersion,
       pipelineVersion = worldService.record.pipelineVersion
     )
@@ -98,7 +103,16 @@ class StrongholdRegistry(
       row.hasSteward,
       mapOf(WatcherKind.MELEE to row.meleeWatchers, WatcherKind.ARCHER to row.archerWatchers),
       row.watcherStrength,
+      row.dropsMade,
+      row.drops.map { drop -> TreasureDrop(drop.madeAt, drop.coins, goodsOf(drop.goods)) },
     )
+  }
+
+  private fun goodsOf(encoded: String): Map<Long, Int> {
+    return encoded.split(",").filter { it.isNotBlank() }.associate { pair ->
+      val (itemId, amount) = pair.split(":")
+      itemId.toLong() to amount.toInt()
+    }
   }
 
   private companion object {
