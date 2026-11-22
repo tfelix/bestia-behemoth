@@ -76,22 +76,13 @@ class PhysicalAttackStrategy(
     ctx.attacker.position.distance(ctx.targetPosition()) <= ctx.usedAttack.range
 
   /**
-   * The roll is against *hitting*, and this answers the negation of it - a high hit rate has to mean mostly
-   * landing.
-   *
-   * A ratio rather than Ragnarok Online's `80 + HIT - FLEE` difference, because the project's own HIT and FLEE
-   * are not on RO's scale: they start at 175 and 100 (see
-   * [net.bestia.zone.battle.status.DerivedStatusValues]), so the difference form would sit pinned at its cap
-   * for every evenly-matched pair.
-   *
-   * **Known consequence, unresolved:** the ratio's two constants stop mattering as attributes grow, so two
-   * evenly-matched fighters get *less* accurate as they level - about 83% at Lv.1, 79% at Lv.10, 69% at Lv.50
-   * and 63% at Lv.100, tending to 50%. Whether an even fight should stay at a fixed accuracy is a balance
-   * decision rather than a bug in this method, and fixing it means changing HIT and FLEE themselves.
+   * The documented hit chance, `(HIT - FLEE) %`. HIT starts 75 above FLEE (see
+   * [net.bestia.zone.battle.status.DerivedStatusValues]), so an even fight lands about three swings in four at any
+   * level; DEX against AGI moves it from there.
    */
   private fun isMiss(ctx: EntityBattleContext): Boolean {
-    val hitrate = (HITRATE_WEIGHT * ctx.attacker.derivedStatusValues.hitrate / ctx.defender.derivedStatusValues.flee)
-      .clamp(MIN_HIT_CHANCE, MAX_HIT_CHANCE)
+    val difference = ctx.attacker.derivedStatusValues.hitrate - ctx.defender.derivedStatusValues.flee
+    val hitrate = (difference / 100f).clamp(MIN_HIT_CHANCE, MAX_HIT_CHANCE)
 
     LOG.trace { "Hit chance: $hitrate" }
 
@@ -130,8 +121,6 @@ class PhysicalAttackStrategy(
   companion object {
     private val LOG = KotlinLogging.logger { }
 
-    /** Evenly-matched low-level attributes land about four swings in five; see [isMiss] on how that drifts. */
-    private const val HITRATE_WEIGHT = 0.5f
     private const val MIN_HIT_CHANCE = 0.05f
     private const val MAX_HIT_CHANCE = 1f
 

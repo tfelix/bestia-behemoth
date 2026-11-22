@@ -130,7 +130,8 @@ class ActivateSkillHandlerTest {
     handlerFor(quick, skill(castTime = 2f)).handle(world, activate(dummy))
     handlerFor(instant, skill(castTime = 2f)).handle(world, activate(dummy))
 
-    assertEquals(1.5f, world.get(quick, Casting::class)?.totalSeconds)
+    // The baseline's 1 WIL takes a hair more off: 2 s x (1 - 1/150) x 0.75.
+    assertEquals(1.49f, world.get(quick, Casting::class)!!.totalSeconds, 0.001f)
     assertEquals(0.4f, world.get(instant, Casting::class)?.totalSeconds)
   }
 

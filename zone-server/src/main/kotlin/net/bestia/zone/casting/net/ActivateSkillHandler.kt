@@ -7,6 +7,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.battle.ActionGuard
 import net.bestia.zone.battle.status.ActionLock
+import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.status.RemovalReason
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.skill.SkillTargetType
@@ -29,6 +30,7 @@ import net.bestia.zone.message.decoder
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import net.bestia.zone.battle.CombatTargetPromotion
+import net.bestia.zone.casting.CastTime
 import net.bestia.zone.casting.NoSkillScriptException
 import net.bestia.zone.casting.SkillCheckService
 import net.bestia.zone.casting.SkillExecutionService
@@ -205,7 +207,7 @@ class ActivateSkillHandler(
             skillLevel = msg.skillLevel,
             targetEntityId = targetEntityId,
             targetPosition = targetPosition,
-            totalSeconds = reducedCastTime(cost.castTimeSeconds, get(id, CombatStats::class)?.values?.castTimeReduction ?: 0),
+            totalSeconds = castSecondsOf(cost.castTimeSeconds, get(id, CombatStats::class)?.values),
             args = msg.args
           )
         )
@@ -258,14 +260,11 @@ class ActivateSkillHandler(
     return if (lacksOne) OpError.SKILL_MISSING_REAGENT else null
   }
 
-  private fun reducedCastTime(seconds: Float, reductionPercent: Int): Float {
-    return seconds * (1f - reductionPercent / 100f).coerceAtLeast(MIN_CAST_TIME_SHARE)
+  private fun castSecondsOf(seconds: Float, combat: CombatValues?): Float {
+    return CastTime.seconds(seconds, combat?.attributes?.willpower ?: 0, combat?.castTimeReduction ?: 0)
   }
 
   companion object {
     private val LOG = KotlinLogging.logger { }
-
-    /** No amount of gear makes a cast instant: a fifth of it always remains. */
-    private const val MIN_CAST_TIME_SHARE = 0.2f
   }
 }
