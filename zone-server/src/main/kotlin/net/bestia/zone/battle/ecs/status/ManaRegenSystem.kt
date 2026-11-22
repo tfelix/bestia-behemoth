@@ -32,6 +32,7 @@ class ManaRegenSystem(
     InCombat::class,
     Dead::class,
     RegenerationModifiers::class,
+    Exhaustion::class,
     // Sitting recovery asks the pose and the master's Basic Skill.
     Animation::class, KnownSkills::class, Master::class, OwnedBestia::class
   )
@@ -41,6 +42,8 @@ class ManaRegenSystem(
     world.query(Mana::class).each { id ->
       // Nothing regenerates while dead - see HpRegenSystem.
       if (world.has(id, Dead::class)) return@each
+      // Nor below 10 % stamina - see HpRegenSystem.
+      if (world.get(id, Exhaustion::class)?.regenBlocked == true) return@each
       val modifier = world.get(id, RegenerationModifiers::class)?.mana
       if (world.has(id, InCombat::class) && modifier?.inCombat != true) return@each
 

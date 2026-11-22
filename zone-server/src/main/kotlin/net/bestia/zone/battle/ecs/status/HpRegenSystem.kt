@@ -32,6 +32,7 @@ class HpRegenSystem(
     InCombat::class,
     Dead::class,
     RegenerationModifiers::class,
+    Exhaustion::class,
     // Sitting recovery asks the pose and the master's Basic Skill.
     Animation::class, KnownSkills::class, Master::class, OwnedBestia::class
   )
@@ -42,6 +43,8 @@ class HpRegenSystem(
       // A player body lies dead until it respawns, and InCombat lapses after ten seconds - without
       // this the corpse would quietly heal itself back to full while still tagged Dead.
       if (world.has(id, Dead::class)) return@each
+      // Below 10 % stamina the body has nothing left to heal with; see StaminaExhaustionSystem.
+      if (world.get(id, Exhaustion::class)?.regenBlocked == true) return@each
       val modifier = world.get(id, RegenerationModifiers::class)?.hp
       if (world.has(id, InCombat::class) && modifier?.inCombat != true) return@each
 

@@ -2,6 +2,7 @@ package net.bestia.zone.crafting.repair.ecs
 
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.HpRegenSystem
+import net.bestia.zone.battle.ecs.status.StaminaExhaustionSystem
 import net.bestia.zone.crafting.repair.RepairService
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
@@ -28,9 +29,9 @@ class RepairSystem(
   private val structures: PlayerStructureRegistry,
 ) : System {
 
-  // With the other health that comes back over time, after regeneration so the two do not race.
+  // With the other health that comes back over time, after regeneration and the exhaustion drain so none race.
   override val phase = Phase.RECOVERY
-  override val after = setOf(HpRegenSystem::class)
+  override val after = setOf(HpRegenSystem::class, StaminaExhaustionSystem::class)
 
   override val reads: ComponentClassSet = setOf(
     Position::class, PropPose::class, StaticVisual::class, PlayerStructureIdentity::class, CitySign::class,

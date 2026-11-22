@@ -1095,6 +1095,12 @@ INCUBATOR_NO_EGGS,You carry no bestia egg.
 INCUBATOR_WAITING_FOR_SLOT,The egg is ready. Free a bestia slot and it hatches.
 SUCCESS_BREEDING_EGG_LAID,Your Breeding Farm laid an egg.
 SUCCESS_BESTIA_HATCHED,An egg hatched. Your new bestia waits next to the Incubator.
+SUCCESS_STAMINA_TIRED,"You are tired, and walk slower. Rest or eat to recover stamina."
+SUCCESS_STAMINA_EXHAUSTED,You are exhausted: your health and mana no longer recover.
+SUCCESS_STAMINA_COLLAPSING,You are collapsing from exhaustion and losing health. Eat something!
+SUCCESS_BESTIA_STAMINA_TIRED,"Your bestia is tired, and walks slower."
+SUCCESS_BESTIA_STAMINA_EXHAUSTED,Your bestia is exhausted: its health and mana no longer recover.
+SUCCESS_BESTIA_STAMINA_COLLAPSING,Your bestia is collapsing from exhaustion and losing health. Feed it!
 BLACKBOARD_TITLE,Blackboard of %s
 BLACKBOARD_TITLE_NOWHERE,Blackboard
 BLACKBOARD_SEARCH,Search quests

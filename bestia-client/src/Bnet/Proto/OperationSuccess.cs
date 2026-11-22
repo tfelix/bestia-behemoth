@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CidtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX3N1Y2Nlc3MucHJvdG8SBGJu",
             "ZXQiMQoQT3BlcmF0aW9uU3VjY2VzcxIdCgRjb2RlGAEgASgOMg8uYm5ldC5P",
-            "cFN1Y2Nlc3Mq7gIKCU9wU3VjY2VzcxISCg5NQVNURVJfQ1JFQVRFRBAAEhIK",
+            "cFN1Y2Nlc3MqhwQKCU9wU3VjY2VzcxISCg5NQVNURVJfQ1JFQVRFRBAAEhIK",
             "Dk1BU1RFUl9ERUxFVEVEEAESEwoPQ1JBRlRfU1VDQ0VFREVEEAISFAoQU1RS",
             "VUNUVVJFX1BMQUNFRBADEhEKDUNIQVJUX1dSSVRURU4QBBIZChVQQVJUWV9J",
             "TlZJVEFUSU9OX1NFTlQQBRIZChVHVUlMRF9JTlZJVEFUSU9OX1NFTlQQBhIR",
@@ -34,8 +34,12 @@ namespace Bnet {
             "TF9TVEFSVEVEEAkSEgoOUklUVUFMX0NIQVJHRUQQChISCg5TVVJWRVlfU1RB",
             "UlRFRBALEhAKDFNVUlZFWV9SRUFEWRAMEhUKEUJSRUVESU5HX0VHR19MQUlE",
             "EA0SEgoOQkVTVElBX0hBVENIRUQQDhIRCg1TUEVMTF9MRUFSTkVEEA8SEwoP",
-            "U1BFTExfSU5TQ1JJQkVEEBBCLgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhVP",
-            "cGVyYXRpb25TdWNjZXNzUHJvdG9iBnByb3RvMw=="));
+            "U1BFTExfSU5TQ1JJQkVEEBASEQoNU1RBTUlOQV9USVJFRBAREhUKEVNUQU1J",
+            "TkFfRVhIQVVTVEVEEBISFgoSU1RBTUlOQV9DT0xMQVBTSU5HEBMSGAoUQkVT",
+            "VElBX1NUQU1JTkFfVElSRUQQFBIcChhCRVNUSUFfU1RBTUlOQV9FWEhBVVNU",
+            "RUQQFRIdChlCRVNUSUFfU1RBTUlOQV9DT0xMQVBTSU5HEBZCLgoVbmV0LmJl",
+            "c3RpYS5ibmV0LnByb3RvQhVPcGVyYXRpb25TdWNjZXNzUHJvdG9iBnByb3Rv",
+            "Mw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpSuccess), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -91,6 +95,16 @@ namespace Bnet {
     /// </summary>
     [pbr::OriginalName("SPELL_LEARNED")] SpellLearned = 15,
     [pbr::OriginalName("SPELL_INSCRIBED")] SpellInscribed = 16,
+    /// <summary>
+    /// The master, or one of its bestias, fell below 30 %, 10 % or 5 % stamina: walking slows, then health and mana
+    /// stop regenerating, then the body starts losing health. Sent once on entering each band, not while in it.
+    /// </summary>
+    [pbr::OriginalName("STAMINA_TIRED")] StaminaTired = 17,
+    [pbr::OriginalName("STAMINA_EXHAUSTED")] StaminaExhausted = 18,
+    [pbr::OriginalName("STAMINA_COLLAPSING")] StaminaCollapsing = 19,
+    [pbr::OriginalName("BESTIA_STAMINA_TIRED")] BestiaStaminaTired = 20,
+    [pbr::OriginalName("BESTIA_STAMINA_EXHAUSTED")] BestiaStaminaExhausted = 21,
+    [pbr::OriginalName("BESTIA_STAMINA_COLLAPSING")] BestiaStaminaCollapsing = 22,
   }
 
   #endregion

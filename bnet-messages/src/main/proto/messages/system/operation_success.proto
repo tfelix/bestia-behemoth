@@ -40,6 +40,15 @@ enum OpSuccess {
   // A bestia learned the attack on a spell scroll, or an attack was copied onto a new one.
   SPELL_LEARNED = 15;
   SPELL_INSCRIBED = 16;
+
+  // The master, or one of its bestias, fell below 30 %, 10 % or 5 % stamina: walking slows, then health and mana
+  // stop regenerating, then the body starts losing health. Sent once on entering each band, not while in it.
+  STAMINA_TIRED = 17;
+  STAMINA_EXHAUSTED = 18;
+  STAMINA_COLLAPSING = 19;
+  BESTIA_STAMINA_TIRED = 20;
+  BESTIA_STAMINA_EXHAUSTED = 21;
+  BESTIA_STAMINA_COLLAPSING = 22;
 }
 
 message OperationSuccess {
