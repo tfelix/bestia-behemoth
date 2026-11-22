@@ -6,17 +6,16 @@ import net.bestia.zone.battle.EntityBattleContext
 import net.bestia.zone.util.clamp
 
 /**
- * How every spell lands, whatever computed its power: a bolt, an ultimate, one tick of a burning area, a mage's
- * basic attack. RO pre-renewal's magic chain - weighed by the element table and the target's resistance to the
- * element, then the worn MDEF as a percentage, then the attribute MDEF subtracted, and never below one.
- *
- * A spell never misses and never crits; that is [net.bestia.zone.battle.attack.MagicAttackStrategy]'s half. This is
- * the arithmetic each spell script used to repeat with a different subset of the steps.
+ * How every spell lands, whatever computed its power: RO pre-renewal's magic chain of element table, resistance,
+ * worn MDEF as a share and attribute MDEF subtracted, never below one. Never missing or critting is
+ * [net.bestia.zone.battle.attack.MagicAttackStrategy]'s half.
  */
 object ElementalSpell {
 
   /**
-   * @param raw the spell's power before the target is considered
+   * The amount a spell of [raw] power moves [targetElement]'s health by: harm, or heal where the element table says
+   * this element restores that body (see [ElementModifier.heals]).
+   *
    * @param targetHardMagicDefense worn MDEF, percentage points
    * @param targetMagicDefense attribute MDEF, subtracted last
    */
@@ -29,7 +28,7 @@ object ElementalSpell {
     targetHardMagicDefense: Int = 0,
   ): Int {
     val resisted = (targetResistance[element.base] ?: 0).coerceIn(0, 100)
-    val weighed = raw * ElementModifier.getModifierFloat(element, targetElement) * (100 - resisted) / 100f
+    val weighed = raw * ElementModifier.weightOf(element, targetElement) * (100 - resisted) / 100f
     val worn = hardFactor(targetHardMagicDefense)
 
     return (weighed * worn - targetMagicDefense).toInt().coerceAtLeast(MIN_DAMAGE)
@@ -57,9 +56,23 @@ object ElementalSpell {
     )
   }
 
-  /**
-   * A spell of no element at all - it strikes the soul, not the body - so only MDEF stands in its way: Soul Break.
-   */
+  /** [damage] as the blow it is: a [Heal] where the element restores the target, a [HitDamage] otherwise. */
+  fun land(
+    raw: Float,
+    battle: EntityBattleContext,
+    ignoreDefense: Boolean = false,
+    element: Element = battle.usedAttack.attackElement,
+  ): Damage {
+    val amount = damage(raw, battle, ignoreDefense, element)
+
+    if (ElementModifier.heals(element, battle.defender.assumedElement)) {
+      return Heal(amount)
+    }
+
+    return HitDamage(amount)
+  }
+
+  /** A spell of no element at all, which only MDEF stands against: Soul Break. */
   fun elementless(raw: Float, battle: EntityBattleContext): Int {
     val defense = battle.defender.defense
 
@@ -67,8 +80,9 @@ object ElementalSpell {
   }
 
   /** `(100 - MDEF) / 100`, bounded like the physical one: armour never makes anybody immune. */
-  private fun hardFactor(hardMagicDefense: Int): Float =
-    ((100 - hardMagicDefense) / 100f).clamp(MIN_WORN_SHARE, MAX_WORN_SHARE)
+  private fun hardFactor(hardMagicDefense: Int): Float {
+    return ((100 - hardMagicDefense) / 100f).clamp(MIN_WORN_SHARE, MAX_WORN_SHARE)
+  }
 
   private const val MIN_DAMAGE = 1
   private const val MIN_WORN_SHARE = 0.05f

@@ -4,7 +4,6 @@ import net.bestia.zone.battle.EntityBattleContext
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.damage.ElementalSpell
-import net.bestia.zone.battle.damage.HitDamage
 import net.bestia.zone.casting.BasicMagicSkillStrategy
 import net.bestia.zone.casting.SkillContext
 import net.bestia.zone.casting.SkillLevelCost
@@ -29,16 +28,16 @@ abstract class MasterBolt(losService: LineOfSightService) : BasicMagicSkillStrat
   override fun execute(ctx: SkillContext): Damage? {
     val battle = ctx.battle as? EntityBattleContext ?: return null
 
-    return HitDamage(damageOf(battle, ctx.skillLevel))
+    return damageOf(battle, ctx.skillLevel)
   }
 
   companion object {
 
-    fun damageOf(battle: EntityBattleContext, level: Int): Int {
+    fun damageOf(battle: EntityBattleContext, level: Int): Damage {
       val matk = battle.attacker.derivedStatusValues.matk + battle.weapon.matk
       val raw = matk * (100 + MATK_PERCENT_PER_LEVEL * level.coerceIn(1, MAX_LEVEL)) / 100f
 
-      return ElementalSpell.damage(raw, battle)
+      return ElementalSpell.land(raw, battle)
     }
 
     private const val MAX_LEVEL = 5

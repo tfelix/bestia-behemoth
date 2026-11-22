@@ -1,6 +1,7 @@
 package net.bestia.zone.battle
 
 import java.util.*
+import kotlin.math.abs
 
 /**
  * Returns the attack damage modifier for a given elemental set of the attacker
@@ -524,5 +525,15 @@ internal object ElementModifier {
    */
   fun getModifierFloat(attacker: Element, defender: Element): Float {
     return getModifier(attacker, defender) / 100f
+  }
+
+  /** Whether a hit of [attacker] restores [defender] instead of hurting it: a negative entry, as in RO. */
+  fun heals(attacker: Element, defender: Element): Boolean {
+    return getModifier(attacker, defender) < 0
+  }
+
+  /** How strongly the element weighs, heal or harm: the share of the hit a heal restores is the same size. */
+  fun weightOf(attacker: Element, defender: Element): Float {
+    return abs(getModifier(attacker, defender)) / 100f
   }
 }

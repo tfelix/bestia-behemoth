@@ -2,6 +2,7 @@ package net.bestia.zone.battle.ecs.effects
 
 import net.bestia.zone.movement.ecs.Facing
 import net.bestia.zone.battle.ElementModifier
+import net.bestia.zone.battle.Healing
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.Unholy
@@ -21,6 +22,7 @@ import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.movement.ecs.Grounded
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -76,7 +78,9 @@ class AreaEffectSystem(
    */
   override val writes: ComponentClassSet = setOf(
     AreaEffect::class, IncomingDamage::class,
-    Position::class, Grounded::class, Health::class, CombatStats::class
+    Position::class, Grounded::class, Health::class, CombatStats::class,
+    // A heal closes a bleeding wound: see [Healing].
+    StatusEffects::class, IsStatusValueDirty::class
   ) + areaDamageReceiver.writes
 
   override fun update(world: World, deltaTime: Float) {
@@ -151,6 +155,29 @@ class AreaEffectSystem(
 
     return world.get(victimId, Nature::class)?.kind in mechanics.foeKinds ||
       elementOf(world, victimId).base in mechanics.foeElements
+  }
+
+  /** An elemental spell's patch restores a body its element heals, as a bolt of it would. */
+  private fun healsOn(world: World, effect: AreaEffect, victimId: EntityId): Boolean {
+    return effect.mechanics.landsAsElementalSpell && ElementModifier.heals(effect.element, elementOf(world, victimId))
+  }
+
+  private fun heal(world: World, effect: AreaEffect, victimId: EntityId) {
+    val restored = Healing.heal(world, victimId, damageOn(world, effect, victimId))
+
+    outMessageProcessor.sendToObserversOf(
+      world,
+      victimId,
+      DamageEntitySMSG(
+        entityId = victimId,
+        sourceEntityId = effect.casterId,
+        attackId = effect.skillId.toInt(),
+        div = 1,
+        damage = restored,
+        skillLevel = effect.skillLevel,
+        type = DamageEntitySMSG.DamageType.HEAL
+      )
+    )
   }
 
   /** The tick's damage on [victimId], weighed by element when the area asks for it. */
@@ -251,6 +278,10 @@ class AreaEffectSystem(
 
         if (!harms(world, effect, victimId)) continue
         mechanicsApplier?.onFoe(world, victimId, effect, center)
+        if (healsOn(world, effect, victimId)) {
+          heal(world, effect, victimId)
+          continue
+        }
         val tickDamage = damageOn(world, effect, victimId)
         if (tickDamage == 0) continue
 

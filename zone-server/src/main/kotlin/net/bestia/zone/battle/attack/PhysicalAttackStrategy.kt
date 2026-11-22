@@ -2,11 +2,13 @@ package net.bestia.zone.battle.attack
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.BattleContext
+import net.bestia.zone.battle.ElementModifier
 import net.bestia.zone.battle.EntityBattleContext
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.damage.BaseDamageCalculator
 import net.bestia.zone.battle.damage.CriticalHit
 import net.bestia.zone.battle.damage.Damage
+import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.HitDamage
 import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.battle.status.StatusEffectId
@@ -50,6 +52,10 @@ class PhysicalAttackStrategy(
 
     if (isMiss(ctx) || isShelteredFrom(ctx)) {
       return Miss
+    }
+
+    if (ElementModifier.heals(ctx.usedAttack.attackElement, ctx.defender.assumedElement)) {
+      return Heal(damageCalculator.calculateDamage(ctx, isCritical = false))
     }
 
     val critical = isCriticalHit(ctx)
