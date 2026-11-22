@@ -546,6 +546,14 @@ class GuildService(
     return guildRepository.findNameLedBy(masterId)
   }
 
+  /** What happened to one of the guild's Strongholds; [strongholdName] is the detail. */
+  @Transactional
+  fun logStronghold(guildId: Long, kind: GuildLogKind, actorName: String, strongholdName: String) {
+    val guild = guildRepository.findByIdForUpdate(guildId) ?: throw NotInGuildException()
+
+    log.record(guild, kind, actorName, detail = strongholdName)
+  }
+
   /** Every take from the guild storage goes into the guild log, with the amount as the target and the item as detail. */
   @Transactional
   fun logStorageTake(masterId: Long, itemId: Long, amount: Int) {

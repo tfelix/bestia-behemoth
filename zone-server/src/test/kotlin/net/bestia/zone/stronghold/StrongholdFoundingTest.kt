@@ -36,6 +36,7 @@ class StrongholdFoundingTest {
   private val held = mutableListOf<Stronghold>()
   private val messages = mockk<OutMessageProcessor>(relaxed = true)
   private val sprouts = mockk<EmpyriteSeedSprouts>(relaxed = true)
+  private val news = mockk<StrongholdNews>(relaxed = true)
 
   private val strongholds = mockk<StrongholdRegistry>(relaxed = true) {
     every { heldBy(any()) } answers { held.filter { it.guildId == firstArg<Long>() } }
@@ -58,6 +59,7 @@ class StrongholdFoundingTest {
     coins = coinsPaidWith(COIN),
     worldService = mockk<WorldService> { every { config.voxelSize } returns 1.0 },
     messages = messages,
+    news = news,
     config = config,
   )
 
@@ -113,6 +115,7 @@ class StrongholdFoundingTest {
     world.query(GuildOwned::class).each { siteGuild = get<GuildOwned>().guildId }
     assertEquals(GUILD, siteGuild)
     verify { sprouts.uproot(world, 2) }
+    verify { news.planted(world, GUILD, 2, any()) }
   }
 
   @Test

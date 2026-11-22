@@ -30,6 +30,7 @@ class Empyrites(
   private val statusEffects: StatusEffectService,
   private val stewards: Stewards,
   private val watchers: Watchers,
+  private val news: StrongholdNews,
   private val config: StrongholdConfig,
 ) {
 
@@ -43,8 +44,14 @@ class Empyrites(
     val standing = site.copy(state = State.STANDING, siteStructureId = null, empyriteHp = maxHpOf(site))
     strongholds.put(standing)
     raise(world, standing)
+    news.stands(world, standing.guildId, standing.rank)
 
     LOG.info { "The Empyrite of guild ${standing.guildId} stands at seed ${standing.rank}" }
+  }
+
+  /** A rival struck the Empyrite; its guild hears of it. */
+  fun struck(world: World, rank: Int) {
+    strongholds.on(rank)?.let { news.underAttack(world, it.guildId, rank) }
   }
 
   fun recordHp(rank: Int, hp: Int) {
@@ -65,6 +72,7 @@ class Empyrites(
     if (breakerGuildId == null || breakerGuildId == stronghold.guildId) {
       strongholds.remove(rank)
       seeds.awake().firstOrNull { it.rank == rank }?.let { sprouts.raise(world, it) }
+      news.lost(world, stronghold.guildId, rank)
       LOG.info { "The Empyrite of guild ${stronghold.guildId} at seed $rank broke, and nobody took it" }
       return
     }
@@ -72,6 +80,7 @@ class Empyrites(
     val weakened = stronghold.copy(tracks = stronghold.tracks.mapValues { (_, progress) -> progress.lostLevel() })
     val captured = weakened.copy(guildId = breakerGuildId, empyriteHp = maxHpOf(weakened), hasSteward = false, watchers = emptyMap(), watcherStrength = 0)
     strongholds.put(captured)
+    news.captured(world, breakerGuildId, stronghold.guildId, rank)
     val empyriteId = raise(world, captured) ?: return
     val graceSeconds = config.captureGraceMinutes * 60.0
     if (graceSeconds > 0) {

@@ -25,16 +25,20 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiZtZXNzYWdlcy9ndWlsZC9ndWlsZF9ub3RpY2Vfc21zZy5wcm90bxIEYm5l",
-            "dCI0Cg9HdWlsZE5vdGljZVNNU0cSIQoGbm90aWNlGAEgASgOMhEuYm5ldC5H",
-            "dWlsZE5vdGljZSqLAQoLR3VpbGROb3RpY2USHAoYR1VJTERfTk9USUNFX1VO",
-            "U1BFQ0lGSUVEEAASHwobR1VJTERfTk9USUNFX0JBTk5FUl9QTEFOVEVEEAES",
-            "HgoaR1VJTERfTk9USUNFX0JBTk5FUl9GQUxMRU4QAhIdChlHVUlMRF9OT1RJ",
-            "Q0VfQkFOTkVSX0ZBREVEEANCLQoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhRH",
-            "dWlsZE5vdGljZVNtc2dQcm90b2IGcHJvdG8z"));
+            "dCJCCg9HdWlsZE5vdGljZVNNU0cSIQoGbm90aWNlGAEgASgOMhEuYm5ldC5H",
+            "dWlsZE5vdGljZRIMCgRhcmdzGAIgAygJKsICCgtHdWlsZE5vdGljZRIcChhH",
+            "VUlMRF9OT1RJQ0VfVU5TUEVDSUZJRUQQABIfChtHVUlMRF9OT1RJQ0VfQkFO",
+            "TkVSX1BMQU5URUQQARIeChpHVUlMRF9OT1RJQ0VfQkFOTkVSX0ZBTExFThAC",
+            "Eh0KGUdVSUxEX05PVElDRV9CQU5ORVJfRkFERUQQAxIhCh1HVUlMRF9OT1RJ",
+            "Q0VfRU1QWVJJVEVfUExBTlRFRBAEEiIKHkdVSUxEX05PVElDRV9TVFJPTkdI",
+            "T0xEX1NUQU5EUxAFEiYKIkdVSUxEX05PVElDRV9FTVBZUklURV9VTkRFUl9B",
+            "VFRBQ0sQBhIkCiBHVUlMRF9OT1RJQ0VfU1RST05HSE9MRF9DQVBUVVJFRBAH",
+            "EiAKHEdVSUxEX05PVElDRV9TVFJPTkdIT0xEX0xPU1QQCEItChVuZXQuYmVz",
+            "dGlhLmJuZXQucHJvdG9CFEd1aWxkTm90aWNlU21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.GuildNotice), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildNoticeSMSG), global::Bnet.GuildNoticeSMSG.Parser, new[]{ "Notice" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GuildNoticeSMSG), global::Bnet.GuildNoticeSMSG.Parser, new[]{ "Notice", "Args" }, null, null, null, null)
           }));
     }
     #endregion
@@ -55,6 +59,26 @@ namespace Bnet {
     /// The War Banner's time ran out.
     /// </summary>
     [pbr::OriginalName("GUILD_NOTICE_BANNER_FADED")] BannerFaded = 3,
+    /// <summary>
+    /// A member planted an Empyrite. args[0] is the seed's name.
+    /// </summary>
+    [pbr::OriginalName("GUILD_NOTICE_EMPYRITE_PLANTED")] EmpyritePlanted = 4,
+    /// <summary>
+    /// The Empyrite site is done: the Stronghold stands. args[0] is its name.
+    /// </summary>
+    [pbr::OriginalName("GUILD_NOTICE_STRONGHOLD_STANDS")] StrongholdStands = 5,
+    /// <summary>
+    /// A rival guild is striking the Empyrite. Sent at most every few minutes. args[0] is the Stronghold's name.
+    /// </summary>
+    [pbr::OriginalName("GUILD_NOTICE_EMPYRITE_UNDER_ATTACK")] EmpyriteUnderAttack = 6,
+    /// <summary>
+    /// The guild broke another guild's Empyrite and took the Stronghold. args[0] is its name.
+    /// </summary>
+    [pbr::OriginalName("GUILD_NOTICE_STRONGHOLD_CAPTURED")] StrongholdCaptured = 7,
+    /// <summary>
+    /// The guild lost the Stronghold: captured, broken or its site left too long. args[0] is its name.
+    /// </summary>
+    [pbr::OriginalName("GUILD_NOTICE_STRONGHOLD_LOST")] StrongholdLost = 8,
   }
 
   #endregion
@@ -99,6 +123,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public GuildNoticeSMSG(GuildNoticeSMSG other) : this() {
       notice_ = other.notice_;
+      args_ = other.args_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -120,6 +145,20 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "args" field.</summary>
+    public const int ArgsFieldNumber = 2;
+    private static readonly pb::FieldCodec<string> _repeated_args_codec
+        = pb::FieldCodec.ForString(18);
+    private readonly pbc::RepeatedField<string> args_ = new pbc::RepeatedField<string>();
+    /// <summary>
+    /// Substitution values for the client's own text, in order, such as a Stronghold's name. Most notices carry none.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<string> Args {
+      get { return args_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -136,6 +175,7 @@ namespace Bnet {
         return true;
       }
       if (Notice != other.Notice) return false;
+      if(!args_.Equals(other.args_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -144,6 +184,7 @@ namespace Bnet {
     public override int GetHashCode() {
       int hash = 1;
       if (Notice != global::Bnet.GuildNotice.Unspecified) hash ^= Notice.GetHashCode();
+      hash ^= args_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -166,6 +207,7 @@ namespace Bnet {
         output.WriteRawTag(8);
         output.WriteEnum((int) Notice);
       }
+      args_.WriteTo(output, _repeated_args_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -180,6 +222,7 @@ namespace Bnet {
         output.WriteRawTag(8);
         output.WriteEnum((int) Notice);
       }
+      args_.WriteTo(ref output, _repeated_args_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -193,6 +236,7 @@ namespace Bnet {
       if (Notice != global::Bnet.GuildNotice.Unspecified) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Notice);
       }
+      size += args_.CalculateSize(_repeated_args_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -208,6 +252,7 @@ namespace Bnet {
       if (other.Notice != global::Bnet.GuildNotice.Unspecified) {
         Notice = other.Notice;
       }
+      args_.Add(other.args_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -231,6 +276,10 @@ namespace Bnet {
             Notice = (global::Bnet.GuildNotice) input.ReadEnum();
             break;
           }
+          case 18: {
+            args_.AddEntriesFrom(input, _repeated_args_codec);
+            break;
+          }
         }
       }
     #endif
@@ -252,6 +301,10 @@ namespace Bnet {
             break;
           case 8: {
             Notice = (global::Bnet.GuildNotice) input.ReadEnum();
+            break;
+          }
+          case 18: {
+            args_.AddEntriesFrom(ref input, _repeated_args_codec);
             break;
           }
         }

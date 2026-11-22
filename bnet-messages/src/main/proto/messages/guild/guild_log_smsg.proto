@@ -39,4 +39,9 @@ enum GuildLogKind {
   GUILD_LOG_KIND_EXPULSION_LIFTED = 13;
   // The target is the amount, the detail the item's id.
   GUILD_LOG_KIND_STORAGE_TAKEN = 14;
+  // The detail is the Stronghold's name for these four.
+  GUILD_LOG_KIND_EMPYRITE_PLANTED = 15;
+  GUILD_LOG_KIND_STRONGHOLD_STANDS = 16;
+  GUILD_LOG_KIND_STRONGHOLD_CAPTURED = 17;
+  GUILD_LOG_KIND_STRONGHOLD_LOST = 18;
 }

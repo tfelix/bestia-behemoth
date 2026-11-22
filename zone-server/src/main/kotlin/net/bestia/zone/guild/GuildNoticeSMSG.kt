@@ -6,19 +6,26 @@ import net.bestia.zone.message.SMSG
 
 data class GuildNoticeSMSG(
   val notice: Notice,
+  /** Substitution values for the client's text, such as a Stronghold's name. */
+  val args: List<String> = emptyList(),
 ) : SMSG {
 
-  enum class Notice { BANNER_PLANTED, BANNER_FALLEN, BANNER_FADED }
+  /** In the proto's order, after its UNSPECIFIED. */
+  enum class Notice {
+    BANNER_PLANTED,
+    BANNER_FALLEN,
+    BANNER_FADED,
+    EMPYRITE_PLANTED,
+    STRONGHOLD_STANDS,
+    EMPYRITE_UNDER_ATTACK,
+    STRONGHOLD_CAPTURED,
+    STRONGHOLD_LOST,
+  }
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val proto = GuildNoticeSmsgProto.GuildNoticeSMSG.newBuilder()
-      .setNotice(
-        when (notice) {
-          Notice.BANNER_PLANTED -> GuildNoticeSmsgProto.GuildNotice.GUILD_NOTICE_BANNER_PLANTED
-          Notice.BANNER_FALLEN -> GuildNoticeSmsgProto.GuildNotice.GUILD_NOTICE_BANNER_FALLEN
-          Notice.BANNER_FADED -> GuildNoticeSmsgProto.GuildNotice.GUILD_NOTICE_BANNER_FADED
-        }
-      )
+      .setNotice(GuildNoticeSmsgProto.GuildNotice.valueOf("GUILD_NOTICE_${notice.name}"))
+      .addAllArgs(args)
       .build()
 
     return EnvelopeProto.Envelope.newBuilder()

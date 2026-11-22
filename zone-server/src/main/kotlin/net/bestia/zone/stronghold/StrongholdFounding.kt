@@ -10,6 +10,7 @@ import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.identity.ecs.GuildOwned
 import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.master.ecs.MasterVisual
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.prop.PlayerStructureService
@@ -36,6 +37,7 @@ class StrongholdFounding(
   private val coins: StrongholdCoins,
   private val worldService: WorldService,
   private val messages: OutMessageProcessor,
+  private val news: StrongholdNews,
   private val config: StrongholdConfig,
   private val clock: Clock = Clock.systemUTC(),
 ) {
@@ -79,6 +81,7 @@ class StrongholdFounding(
 
     val now = clock.instant()
     strongholds.put(Stronghold(seed.rank, guildId, StrongholdRecord.State.SITE, structureId, now, now))
+    news.planted(world, guildId, seed.rank, world.get(actorId, MasterVisual::class)?.name.orEmpty())
     LOG.info { "Master ${master.masterId} of guild $guildId planted an Empyrite site at seed ${seed.rank} (${seed.name})" }
 
     return null

@@ -50,6 +50,7 @@ class EmpyriteSystem(
         return@each
       }
 
+      if (health.current < empyrite.lastHp) empyrites.struck(world, empyrite.rank)
       heal(empyrite, health, deltaTime)
       if (record) empyrites.recordHp(empyrite.rank, health.current)
     }

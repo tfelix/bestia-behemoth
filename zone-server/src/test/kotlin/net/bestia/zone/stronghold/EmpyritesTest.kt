@@ -34,6 +34,7 @@ class EmpyritesTest {
   private val statusEffects = mockk<StatusEffectService>(relaxed = true)
   private val stewards = mockk<Stewards>(relaxed = true)
   private val watchers = mockk<Watchers>(relaxed = true)
+  private val news = mockk<StrongholdNews>(relaxed = true)
 
   private val strongholds = mockk<StrongholdRegistry> {
     every { all() } answers { held.toList() }
@@ -50,6 +51,7 @@ class EmpyritesTest {
     statusEffects = statusEffects,
     stewards = stewards,
     watchers = watchers,
+    news = news,
     config = StrongholdConfig(
       empyriteHp = 50_000, empyriteDefense = 20, empyriteHpPerDefense = 10_000, captureGraceMinutes = 10
     ),
@@ -66,6 +68,7 @@ class EmpyritesTest {
     val empyrite = assertNotNull(empyriteEntity())
     assertEquals(GuildOwned(GUILD), world.get(empyrite, GuildOwned::class))
     assertEquals(50_000, world.get(empyrite, Health::class)?.current)
+    verify { news.stands(world, GUILD, seed.rank) }
   }
 
   @Test
@@ -100,6 +103,7 @@ class EmpyritesTest {
     assertEquals(emptyMap(), held.single().watchers)
     verify { stewards.dismiss(world, seed.rank) }
     verify { watchers.dismissAll(world, seed.rank) }
+    verify { news.captured(world, OTHER_GUILD, GUILD, seed.rank) }
     val reformed = assertNotNull(empyriteEntities().singleOrNull { it != broken })
     assertEquals(GuildOwned(OTHER_GUILD), world.get(reformed, GuildOwned::class))
     assertEquals(50_000, world.get(reformed, Health::class)?.current)
@@ -146,6 +150,7 @@ class EmpyritesTest {
     assertTrue(held.isEmpty())
     verify { sprouts.raise(world, seed) }
     verify { stewards.dismiss(world, seed.rank) }
+    verify { news.lost(world, GUILD, seed.rank) }
   }
 
   @Test
