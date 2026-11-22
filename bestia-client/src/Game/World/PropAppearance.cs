@@ -43,6 +43,18 @@ namespace BestiaBehemothClient.Game.World
   /// </remarks>
   public static class PropAppearance
   {
+    /// <summary>What a placeholder looks like until a kind has art.</summary>
+    public enum PlaceholderShape
+    {
+      Box,
+
+      /// <summary>A cone on its base: something small that grows out of the ground.</summary>
+      Cone,
+
+      /// <summary>A six-sided column: a crystal.</summary>
+      Crystal,
+    }
+
     /// <summary>How one kind is drawn.</summary>
     /// <summary>What a click on a prop of some kind is for.</summary>
     /// <remarks>
@@ -182,6 +194,15 @@ namespace BestiaBehemothClient.Game.World
 
       /// <summary>Colour of the placeholder box. Unused once this kind has a scene.</summary>
       public Color PlaceholderColour { get; init; }
+
+      /// <summary>
+      /// The placeholder's shape, a box unless a kind drawn as an entity should stand apart before it has art. The
+      /// batched placeholders stay boxes.
+      /// </summary>
+      public PlaceholderShape Shape { get; init; }
+
+      /// <summary>How strongly the placeholder glows in its own colour; 0 does not glow.</summary>
+      public float PlaceholderGlow { get; init; }
 
       /// <summary>
       /// How tall a prop of this kind stands, in metres, for the kinds that are also drawn as ordinary
@@ -793,12 +814,12 @@ namespace BestiaBehemothClient.Game.World
         Action = PropAction.Use
       }, // TRANSMUTATION_WORKBENCH
 
-      // A Guild Stronghold, golden until it has models: an Empyrite Seed's sprout, the site a guild plants on it,
-      // and the Empyrite crystal. Entities like the War Banner.
+      // A Guild Stronghold, golden geometry until it has models: an Empyrite Seed's glowing sprout, the site a guild
+      // plants on it, and the Empyrite crystal. Entities like the War Banner.
       new Kind
       {
         PlaceholderWidth = 0.4f, PlaceholderColour = new Color(1.0f, 0.80f, 0.16f), StructureHeight = 0.8f,
-        Action = PropAction.Use
+        Shape = PlaceholderShape.Cone, PlaceholderGlow = 0.6f, Action = PropAction.Use
       }, // EMPYRITE_SEED
       new Kind
       {
@@ -807,7 +828,7 @@ namespace BestiaBehemothClient.Game.World
       new Kind
       {
         PlaceholderWidth = 1.2f, PlaceholderColour = new Color(1.0f, 0.84f, 0.20f), StructureHeight = 4f,
-        Action = PropAction.Use
+        Shape = PlaceholderShape.Crystal, PlaceholderGlow = 0.8f, Action = PropAction.Use
       } // EMPYRITE
     };
 

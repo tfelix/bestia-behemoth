@@ -76,6 +76,7 @@ namespace BestiaBehemothClient.Game.World
       material.SetShaderParameter("y_min", bounds.Position.Y);
       material.SetShaderParameter("y_span", bounds.Size.Y);
       material.SetShaderParameter("built_color", PropAppearance.Of(kind).PlaceholderColour);
+      material.SetShaderParameter("built_glow", PropAppearance.Of(kind).PlaceholderGlow);
       material.SetShaderParameter("progress", 0f);
 
       instance.MaterialOverride = material;
@@ -236,11 +237,26 @@ namespace BestiaBehemothClient.Game.World
       }
 
       var height = HeightOf(appearance);
-
-      return new BoxMesh
+      var width = appearance.PlaceholderWidth;
+      var material = new StandardMaterial3D { AlbedoColor = appearance.PlaceholderColour };
+      if (appearance.PlaceholderGlow > 0f)
       {
-        Size = new Vector3(appearance.PlaceholderWidth, height, appearance.PlaceholderWidth),
-        Material = new StandardMaterial3D { AlbedoColor = appearance.PlaceholderColour }
+        material.EmissionEnabled = true;
+        material.Emission = appearance.PlaceholderColour;
+        material.EmissionEnergyMultiplier = appearance.PlaceholderGlow;
+      }
+
+      return appearance.Shape switch
+      {
+        PropAppearance.PlaceholderShape.Cone => new CylinderMesh
+        {
+          TopRadius = 0f, BottomRadius = width * 0.5f, Height = height, Material = material
+        },
+        PropAppearance.PlaceholderShape.Crystal => new CylinderMesh
+        {
+          TopRadius = width * 0.3f, BottomRadius = width * 0.5f, Height = height, RadialSegments = 6, Material = material
+        },
+        _ => new BoxMesh { Size = new Vector3(width, height, width), Material = material }
       };
     }
 

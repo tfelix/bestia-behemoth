@@ -19,6 +19,9 @@ uniform vec4 built_color : source_color = vec4(0.55, 0.40, 0.24, 1.0);
 
 uniform vec4 ghost_color : source_color = vec4(0.35, 0.90, 0.45, 0.35);
 
+// How strongly the finished part glows in its own colour, for a placeholder such as the Empyrite crystal.
+uniform float built_glow = 0.0;
+
 // How much of the model the line is smeared over, so the boundary sweeps rather than steps.
 uniform float blend_band : hint_range(0.001, 0.5) = 0.06;
 
@@ -37,5 +40,5 @@ void fragment() {
 
 	// The scaffold glows faintly so it reads as a marker rather than as tinted glass, and stops glowing as
 	// the real thing takes over.
-	EMISSION = ghost_color.rgb * (1.0 - built) * 0.25;
+	EMISSION = ghost_color.rgb * (1.0 - built) * 0.25 + built_color.rgb * built * built_glow;
 }
