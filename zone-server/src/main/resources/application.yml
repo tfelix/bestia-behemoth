@@ -114,6 +114,8 @@ stronghold:
   # Storage level of each Stronghold the guild holds.
   storage-slots-per-skill-level: 100
   storage-slots-per-storage-level: 50
+  # A guild that holds no Stronghold with a steward may have its sealed storage posted to the leader, per used slot.
+  storage-send-away-coins-per-slot: 1000
   # With Watcher Research the leader calls watchers: 2 posts plus 1 per Defense level, at most 12, at level 50 plus 5
   # per Defense level. A fallen watcher comes back after the minutes, or at once for the coins. They roam and fight
   # this far round their Empyrite.

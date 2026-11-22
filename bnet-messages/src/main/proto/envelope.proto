@@ -216,6 +216,8 @@ import "messages/quest/decide_quest_cmsg.proto";
 import "messages/quest/blackboard_smsg.proto";
 import "messages/stronghold/empyrite_plant_offer_smsg.proto";
 import "messages/stronghold/stronghold_smsg.proto";
+import "messages/stronghold/stronghold_tab_cmsg.proto";
+import "messages/stronghold/stronghold_tab_smsg.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EnvelopeProto";
@@ -500,6 +502,8 @@ message Envelope {
     // STRONGHOLD
     EmpyritePlantOfferSMSG empyrite_plant_offer = 985;
     StrongholdSMSG stronghold = 986;
+    StrongholdTabCMSG stronghold_tab_request = 987;
+    StrongholdTabSMSG stronghold_tab = 988;
 
     // MISC
   }

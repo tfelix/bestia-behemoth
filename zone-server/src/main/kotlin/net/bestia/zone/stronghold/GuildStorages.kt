@@ -53,6 +53,11 @@ class GuildStorages(
     LOG.info { "Loaded the storages of ${contentsByGuild.size} guild(s)" }
   }
 
+  /** What the guild's storage holds now. One live bag per guild, whichever steward keeps it. */
+  fun contentsOf(guildId: Long): Inventory {
+    return contentsByGuild.getOrPut(guildId) { Inventory(mutableListOf()) }
+  }
+
   /** A member clicked a steward of their guild: the storage opens in their inventory. */
   fun open(world: World, userId: EntityId, stewardId: EntityId): OpError? {
     val rank = world.get(stewardId, Steward::class)?.rank ?: return OpError.REQUEST_REFUSED
@@ -71,7 +76,7 @@ class GuildStorages(
     }
 
     openings[guildId]?.let { previous -> if (previous.stewardId != stewardId) detach(world, previous.stewardId) }
-    val contents = contentsByGuild.getOrPut(guildId) { Inventory(mutableListOf()) }
+    val contents = contentsOf(guildId)
     val slots = slotsOf(membership)
     val use = SlotStorage.Use(mayPut = membership.mayDeposit, mayTake = membership.mayTake)
 
@@ -101,7 +106,7 @@ class GuildStorages(
    * Room from Guild Storage, plus the Storage track of every Stronghold the guild holds. A storage over its limit
    * keeps what it holds.
    */
-  private fun slotsOf(membership: GuildMembership): Int {
+  fun slotsOf(membership: GuildMembership): Int {
     val skillLevel = membership.skillLevel(SkillId.GUILD_STORAGE.name)
     val trackLevels = strongholds.heldBy(membership.guildId).sumOf { it.progressOf(StrongholdTrack.STORAGE).level }
 

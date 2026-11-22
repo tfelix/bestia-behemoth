@@ -91,6 +91,7 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.EmpyritePlantOffer] =
         e => Stronghold.EmpyritePlantOfferSMSG.FromProto(e.EmpyritePlantOffer),
       [Envelope.MessageOneofCase.Stronghold] = e => Stronghold.StrongholdSMSG.FromProto(e.Stronghold),
+      [Envelope.MessageOneofCase.StrongholdTab] = e => Stronghold.StrongholdTabSMSG.FromProto(e.StrongholdTab),
       [Envelope.MessageOneofCase.SpellScrolls] = e => SpellScroll.SpellScrollsSMSG.FromProto(e.SpellScrolls),
       [Envelope.MessageOneofCase.InscriptionOptions] =
         e => SpellScroll.InscriptionOptionsSMSG.FromProto(e.InscriptionOptions),

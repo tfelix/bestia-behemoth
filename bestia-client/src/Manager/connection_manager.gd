@@ -264,6 +264,7 @@ var DeleteGuildRankCMSG = load("res://Bnet/Message/Guild/DeleteGuildRankCMSG.cs"
 var InvestGuildSkillCMSG = load("res://Bnet/Message/Guild/InvestGuildSkillCMSG.cs")
 var DisbandGuildCMSG = load("res://Bnet/Message/Guild/DisbandGuildCMSG.cs")
 var RequestGuildLogCMSG = load("res://Bnet/Message/Guild/RequestGuildLogCMSG.cs")
+var StrongholdTabCMSG = load("res://Bnet/Message/Stronghold/StrongholdTabCMSG.cs")
 var SetGuildMotdCMSG = load("res://Bnet/Message/Guild/SetGuildMotdCMSG.cs")
 var SetGuildEmblemCMSG = load("res://Bnet/Message/Guild/SetGuildEmblemCMSG.cs")
 var TransferGuildLeadershipCMSG = load("res://Bnet/Message/Guild/TransferGuildLeadershipCMSG.cs")
@@ -1562,6 +1563,16 @@ func set_guild_emblem(png: PackedByteArray) -> void:
 func request_guild_log() -> void:
 	assert(is_ready_to_send())
 	_socket.SendMessage(RequestGuildLogCMSG.new())
+
+
+## The guild window's Stronghold tab: [param action] is the proto's StrongholdTabAction, [param seed_rank] the
+## Stronghold to collect from. Answered with a StrongholdTabSMSG.
+func stronghold_tab(action: int, seed_rank: int = 0) -> void:
+	assert(is_ready_to_send())
+	var msg = StrongholdTabCMSG.new()
+	msg.Action = action
+	msg.SeedRank = seed_rank
+	_socket.SendMessage(msg)
 
 
 ## The leader ends the guild. [param confirm_name] is the name the player typed, compared by the server.
