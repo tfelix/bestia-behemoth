@@ -6,6 +6,7 @@ import net.bestia.zone.battle.EntityBattleContext
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.attack.ThreadLocalRandomSource
 import net.bestia.zone.battle.damage.Damage
+import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.HitDamage
 import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.casting.BasicMagicSkillStrategy
@@ -34,10 +35,13 @@ open class BestiaMagicSkill(
     val mechanics = ctx.skill.mechanics
 
     val raw = BestiaSpellPower.of(ctx) * ctx.attackCoefficient
-    // Element, resistance, worn and attribute MDEF, and the one-point floor: how every spell lands.
-    val perHit = ElementalSpell.damage(raw, battle, ignoreDefense = mechanics.ignoreDefense)
+    val landed = ElementalSpell.land(raw, battle, ignoreDefense = mechanics.ignoreDefense)
+    // A bolt the target's element drinks heals it once, carrying nothing a hit would.
+    if (landed is Heal) {
+      return landed
+    }
 
-    val damage = BestiaSkillMechanics.strike(mechanics, random) { HitDamage(perHit) }
+    val damage = BestiaSkillMechanics.strike(mechanics, random) { landed }
     BestiaSkillMechanics.afterHit(ctx, target, damage, random)
     chain(ctx, target, damage)
 

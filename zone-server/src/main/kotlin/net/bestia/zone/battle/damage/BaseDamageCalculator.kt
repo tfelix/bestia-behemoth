@@ -23,7 +23,7 @@ import kotlin.math.max
  * ```
  *
  * Modelled on Ragnarok Online's pre-renewal weapon damage, which is what the rest of this package already
- * follows - `DefenseValues`, `DerivedStatusValues` and [ElementModifier] are all shaped after it. Three of its
+ * follows - `DefenseValues`, `DerivedStatusValues` and [ElementModifier] are all shaped after it. These
  * rules matter more than the arithmetic:
  *
  * - **Defence comes in two kinds.** Equipment DEF is a *percentage* reduction ([getHardDefenseModifier],
@@ -37,14 +37,8 @@ import kotlin.math.max
  *
  * - **The weapon has to fit the body.** Its attack is weighed by RO's weapon-type × size table ([sizeFactor]);
  *   the attribute term is not.
- *
- * ### What is missing, and why it is missing rather than approximated
- *
- * - **An element that *heals* its target.** Twenty-four entries in [ElementModifier] are negative - holy against
- *   holy, poison against undead - which in RO means the hit restores health instead of taking it. Here the
- *   `max(1f, …)` in [getBaseAttack] turns that into one point of damage, because [Damage] cannot carry a
- *   negative amount and the whole application path treats a result as a loss. Making it real means a result
- *   type, not a change to this arithmetic.
+ * - **An element can heal.** A negative entry in [ElementModifier] is weighed by its size here; the strategy
+ *   turns the result into a heal.
  */
 abstract class BaseDamageCalculator(
   private val random: Random
@@ -124,7 +118,8 @@ abstract class BaseDamageCalculator(
     val attackElement = battleCtx.usedAttack.attackElement
     val resistance = (battleCtx.defender.elementResistance[attackElement.base] ?: 0).coerceAtMost(100)
 
-    return ElementModifier.getModifierFloat(attackElement, battleCtx.defender.assumedElement) *
+    // Its size only: whether the hit heals instead is the strategy's call, see [ElementModifier.heals].
+    return ElementModifier.weightOf(attackElement, battleCtx.defender.assumedElement) *
         (1f - resistance / 100f)
   }
 

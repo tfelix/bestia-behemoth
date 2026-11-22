@@ -5,7 +5,6 @@ import net.bestia.zone.battle.damage.ElementalSpell
 import net.bestia.zone.battle.EntityBattleContext
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.damage.Damage
-import net.bestia.zone.battle.damage.HitDamage
 import net.bestia.zone.casting.BasicMagicSkillStrategy
 import net.bestia.zone.casting.SkillContext
 import org.springframework.stereotype.Component
@@ -21,16 +20,16 @@ class HolyLight(losService: LineOfSightService) : BasicMagicSkillStrategy(losSer
   override fun execute(ctx: SkillContext): Damage? {
     val battle = ctx.battle as? EntityBattleContext ?: return null
 
-    return HitDamage(damageOf(battle, ctx.skillLevel, ignoresMagicDefense = false))
+    return damageOf(battle, ctx.skillLevel, ignoresMagicDefense = false)
   }
 
   companion object {
 
     /** Shared with Master Turn Undead, whose blow is a Holy Light of the same level that pierces MDEF. */
-    fun damageOf(battle: EntityBattleContext, level: Int, ignoresMagicDefense: Boolean): Int {
+    fun damageOf(battle: EntityBattleContext, level: Int, ignoresMagicDefense: Boolean): Damage {
       val matk = battle.attacker.derivedStatusValues.matk + battle.weapon.matk
       val raw = matk * (100 + MATK_PERCENT_PER_LEVEL * level.coerceIn(1, MAX_LEVEL)) / 100f
-      return ElementalSpell.damage(raw, battle, ignoreDefense = ignoresMagicDefense, element = Element.HOLY)
+      return ElementalSpell.land(raw, battle, ignoreDefense = ignoresMagicDefense, element = Element.HOLY)
     }
 
     private const val MAX_LEVEL = 5

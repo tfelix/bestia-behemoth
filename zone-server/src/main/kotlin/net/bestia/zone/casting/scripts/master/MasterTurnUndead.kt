@@ -4,7 +4,6 @@ import net.bestia.zone.battle.EntityBattleContext
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.attack.ThreadLocalRandomSource
 import net.bestia.zone.battle.damage.Damage
-import net.bestia.zone.battle.damage.HitDamage
 import net.bestia.zone.battle.damage.TrueDamage
 import net.bestia.zone.casting.BasicMagicSkillStrategy
 import net.bestia.zone.casting.SkillContext
@@ -34,7 +33,7 @@ class MasterTurnUndead(
       return TrueDamage(battle.defender.maxHealth)
     }
 
-    return HitDamage(HolyLight.damageOf(battle, ctx.skillLevel, ignoresMagicDefense = true))
+    return HolyLight.damageOf(battle, ctx.skillLevel, ignoresMagicDefense = true)
   }
 
   companion object {
