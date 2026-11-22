@@ -73,7 +73,7 @@ abstract class StructureKitScript(
       return false
     }
 
-    if (!mayBuildAt(world, userId, at)) {
+    if (!structures.mayBuildOnGround(world, userId, accountId, at) || !mayBuildAt(world, userId, at)) {
       return false
     }
 

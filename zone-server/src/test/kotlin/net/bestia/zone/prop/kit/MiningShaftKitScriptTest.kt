@@ -26,6 +26,7 @@ class MiningShaftKitScriptTest {
 
   private val structures = mockk<PlayerStructureService> {
     every { beginConstruction(any(), any(), any(), any(), any(), any(), any()) } returns 1L
+    every { mayBuildOnGround(any(), any(), any(), any()) } returns true
   }
 
   private val script = MiningShaftKitScript(structures, MiningSkill(skillIdsOf(SkillId.M_MINING to MINING_ID)))

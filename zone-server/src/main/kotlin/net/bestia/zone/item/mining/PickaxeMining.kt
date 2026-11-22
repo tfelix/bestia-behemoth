@@ -17,6 +17,8 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.GroundClaims
+import net.bestia.zone.world.digRefusal
 import net.bestia.zone.world.stream.ChunkStreamInbox
 import org.springframework.stereotype.Service
 import kotlin.math.abs
@@ -32,6 +34,7 @@ class PickaxeMining(
   private val inbox: ChunkStreamInbox,
   private val gearWear: GearWear,
   private val outMessageProcessor: OutMessageProcessor,
+  private val claims: List<GroundClaims> = emptyList(),
 ) {
 
   /** What [finish] reads on the tick, wear included; [begin] runs in the click's handler. */
@@ -43,6 +46,8 @@ class PickaxeMining(
     if (abs(position.z - at.z) > VERTICAL_REACH) {
       return refuse(accountId, OpError.DIG_TOO_FAR)
     }
+
+    claims.digRefusal(at, BALL_RADIUS.toDouble())?.let { return refuse(accountId, it) }
 
     val ball = ballAt(at)
     val ore = oreInBrush.scan(ball)

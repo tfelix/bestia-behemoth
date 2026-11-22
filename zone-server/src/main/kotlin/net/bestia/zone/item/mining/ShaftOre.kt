@@ -6,6 +6,8 @@ import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.worldgen.voxel.VoxelChunk
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.GroundClaims
+import net.bestia.zone.world.digRefusal
 import net.bestia.zone.world.stream.ChunkCoords
 import net.bestia.zone.world.stream.ChunkService
 import net.bestia.zone.world.stream.ChunkStreamInbox
@@ -22,6 +24,7 @@ class ShaftOre(
   private val chunks: ChunkService,
   private val inbox: ChunkStreamInbox,
   private val oreYield: OreYield,
+  private val claims: List<GroundClaims> = emptyList(),
 ) {
 
   /** How far below and around its shaft a miner reaches. */
@@ -77,13 +80,16 @@ class ShaftOre(
     return scans[shaftId]?.takeIf { it.reach == reach } ?: scan(shaftAt, reach).also { scans[shaftId] = it }
   }
 
-  /** The topmost ore still in the ground, skipping what someone else dug out since the scan. */
+  /**
+   * The topmost ore still in the ground, skipping what someone else dug out since the scan, and ground that holds,
+   * such as a Stronghold's grounds.
+   */
   private fun nextOre(shaftId: Long, shaftAt: Vec3L, reach: Reach): Vec3L? {
     val scan = scanOf(shaftId, shaftAt, reach)
 
     while (scan.ore.isNotEmpty()) {
       val next = scan.ore.first()
-      if (blockAt(next) in yieldingBlocks) return next
+      if (blockAt(next) in yieldingBlocks && claims.digRefusal(next, CarveBrush.MIN_RADIUS.toDouble()) == null) return next
       scan.ore.removeFirst()
     }
 

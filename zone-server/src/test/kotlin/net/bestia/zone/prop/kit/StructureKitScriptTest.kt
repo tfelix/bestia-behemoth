@@ -36,6 +36,7 @@ class StructureKitScriptTest {
     world = testWorld()
     structures = mockk()
     every { structures.beginConstruction(any(), any(), any(), any(), any(), any(), any()) } returns 1L
+    every { structures.mayBuildOnGround(any(), any(), any(), any()) } returns true
 
     script = object : StructureKitScript(structures, StaticEntityKind.WORKBENCH, BUILD_SECONDS) {
       override val itemId = 26L
@@ -98,6 +99,16 @@ class StructureKitScriptTest {
     every { structures.beginConstruction(any(), any(), any(), any(), any(), any(), any()) } returns null
 
     assertFalse(script.execute(world, user, argsAt(standingAt)))
+  }
+
+  @Test
+  fun `claimed ground, such as a Stronghold's, leaves the kit in the bag`() {
+    val user = spawnMaster()
+    every { structures.mayBuildOnGround(world, user, ACCOUNT_ID, standingAt) } returns false
+
+    assertFalse(script.execute(world, user, argsAt(standingAt)))
+
+    verify(exactly = 0) { structures.beginConstruction(any(), any(), any(), any(), any(), any(), any()) }
   }
 
   private fun spawnMaster(): EntityId {
