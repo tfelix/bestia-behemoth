@@ -9,6 +9,7 @@ import net.bestia.zone.ai.ecs.AiAgent
 import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiProfileRegistry
+import net.bestia.zone.battle.NaturalArmor
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.status.CombatValuesPool
@@ -128,7 +129,11 @@ class BestiaEntitySpawner(
         id,
         CombatStats(
           combatValuesPool.share(
-            CombatValues.ofBase(level = mobLevel, base = levelScaling.attributes(mobLevel, bestia))
+            CombatValues.ofBase(
+              level = mobLevel,
+              base = levelScaling.attributes(mobLevel, bestia),
+              armor = NaturalArmor.of(bestia.kind, mobLevel, bestia.boss),
+            )
           )
         )
       )

@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.battle.NaturalArmor
 import net.bestia.zone.battle.ecs.skill.Casting
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.passive.PassiveSkillScriptRegistry
@@ -124,6 +125,11 @@ class StatusValueRecalcSystem(
       val context = StatusValueRecalcContext(base, baseSpeed)
 
       world.get(id, IndividualValues::class)?.raise(context, level)
+      // A bestia's hide grows with it; worn armour adds on top.
+      world.get(id, Nature::class)?.let { nature ->
+        val armor = NaturalArmor.of(nature.kind, level, nature.boss)
+        context.addDefense(armor.defense, armor.magicDefense)
+      }
       equipment.contribute(context, world, id)
       context.walksOffRoad = world.has(id, OffRoad::class)
       applyPassiveSkills(context, world, id)
