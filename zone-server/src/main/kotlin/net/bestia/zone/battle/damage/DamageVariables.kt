@@ -29,6 +29,8 @@ data class DamageVariables(
 
   // Critical
   var criticalChanceMod: Float = 1f,
+  /** Percentage points of crit chance on top of the attacker's CRIT, as a sharp arrow adds. */
+  var criticalChanceBonus: Int = 0,
   var criticalDamageMod: Float = 1f,
 
   // Defenses
@@ -100,6 +102,7 @@ data class DamageVariables(
     weaponMod = weaponMod + rhs.weaponMod,
 
     criticalChanceMod = criticalChanceMod + rhs.criticalChanceMod,
+    criticalChanceBonus = criticalChanceBonus + rhs.criticalChanceBonus,
     criticalDamageMod = criticalDamageMod + rhs.criticalDamageMod,
 
     physicalDefenseMod = physicalDefenseMod + rhs.physicalDefenseMod,

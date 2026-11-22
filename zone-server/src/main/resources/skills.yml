@@ -1953,6 +1953,8 @@ skills:
     range: 2
     description: |
       Opens the crafting window with the arrow recipes. Needs no station.
+      Each level adds arrows: steel and sharp at 2, fire, crystal, wind and stone at 3, silver, shadow and poison at 4,
+      stun at 5.
 
   - id: 143
     identifier: M_INSTRUMENT_MASTERY

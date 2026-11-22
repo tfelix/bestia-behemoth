@@ -1148,7 +1148,7 @@ skills:
   - skill: M_ARROW_CRAFTING
     tree: WARRIOR
     subTree: HUNTER
-    maxLevel: 1
+    maxLevel: 5
 
   # Bard (unlocked at 5+ pts in Warrior Tree)
   - skill: M_INSTRUMENT_MASTERY

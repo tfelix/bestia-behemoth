@@ -113,7 +113,7 @@ class PhysicalAttackStrategy(
     }
 
     val shield = ctx.defender.derivedStatusValues.crit / CRIT_SHIELD_DIVISOR
-    val critPercent = (ctx.attacker.derivedStatusValues.crit - shield) * chanceMod
+    val critPercent = (ctx.attacker.derivedStatusValues.crit + ctx.damageVariables.criticalChanceBonus - shield) * chanceMod
     val crit = (critPercent / 100f).clamp(MIN_CRIT_CHANCE, MAX_CRIT_CHANCE)
 
     LOG.trace { "Crit chance: $crit" }

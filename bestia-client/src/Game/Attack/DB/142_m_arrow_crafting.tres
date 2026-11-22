@@ -13,3 +13,4 @@ mana_cost = 0
 cooldown = 0.0
 tree = "WARRIOR"
 sub_tree = "HUNTER"
+max_level = 5

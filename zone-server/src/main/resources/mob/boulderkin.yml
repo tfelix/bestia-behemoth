@@ -48,4 +48,5 @@ armor-types: []
 loot:
   - { item: quarried_stone, chance: 4000 }
   - { item: iron_ore, chance: 2000 }
+  - { item: earth_crystal, chance: 800 }
   - { item: rough_gem, chance: 500 }
