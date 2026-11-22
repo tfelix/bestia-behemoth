@@ -142,7 +142,12 @@ const _PLACE_HIT_RADIUS := 14.0
 ## The service kinds there is a glyph for, in the order the legend lists them. The server's
 ## [code]MapService[/code] enum names; one it adds later still draws, as a plain dot, until it is given a
 ## glyph here.
-const SERVICE_KINDS: Array[String] = ["MERCHANT", "MARKET", "INN", "TEMPLE", "GUARD", "WARD_STONE", "TOWN", "POST_OFFICE"]
+const SERVICE_KINDS: Array[String] = [
+	"MERCHANT", "MARKET", "INN", "TEMPLE", "GUARD", "WARD_STONE", "TOWN", "POST_OFFICE", "EMPYRITE_SEED", "STRONGHOLD",
+]
+
+## The service kinds drawn at every zoom, as the server lists them: places players travel to from afar.
+const LANDMARK_KINDS: Array[String] = ["EMPYRITE_SEED", "STRONGHOLD"]
 
 ## Ink per service kind. Each kind also has its own silhouette - see [constant _SERVICE_SHAPES] - so the
 ## colour is a second cue rather than the only one, and none of them is the cool blue that means "mine".
@@ -155,6 +160,8 @@ const _SERVICE_COLOURS := {
 	"WARD_STONE": Color(0.72, 0.58, 0.96),
 	"TOWN": Color(0.78, 0.60, 0.37),
 	"POST_OFFICE": Color(0.89, 0.84, 0.72),
+	"EMPYRITE_SEED": Color(1.0, 0.90, 0.55),
+	"STRONGHOLD": Color(0.95, 0.72, 0.12),
 }
 
 ## Each kind's outline, as points around its centre at radius one, screen y down. A kind with no entry - the
@@ -184,6 +191,13 @@ const _SERVICE_SHAPES := {
 	],
 	# A letter.
 	"POST_OFFICE": [Vector2(-1.1, -0.7), Vector2(1.1, -0.7), Vector2(1.1, 0.7), Vector2(-1.1, 0.7)],
+	# A small sprout, as the seed stands in the world.
+	"EMPYRITE_SEED": [Vector2(0.0, -1.0), Vector2(0.65, 0.8), Vector2(-0.65, 0.8)],
+	# The Empyrite crystal's six sides.
+	"STRONGHOLD": [
+		Vector2(0.0, -1.3), Vector2(1.1, -0.65), Vector2(1.1, 0.65), Vector2(0.0, 1.3), Vector2(-1.1, 0.65),
+		Vector2(-1.1, -0.65),
+	],
 }
 
 ## Glyph size in pixels, and the dark rim drawn under it so it reads over any tile - the player marker's trick.
@@ -595,11 +609,12 @@ func _draw() -> void:
 			source.want_places(level, tx, ty)
 			places.append_array(source.places_of(key))
 
-			if lists_services:
-				source.want_services(level, tx, ty, services_since)
-				for service in source.services_of(key):
-					if _text_of(service, "kind") not in hidden_services:
-						services.append(service)
+			# Every zoom asks, for the landmarks; only close in are the shops drawn as well.
+			source.want_services(level, tx, ty, services_since)
+			for service in source.services_of(key):
+				var kind := _text_of(service, "kind")
+				if kind not in hidden_services and (lists_services or kind in LANDMARK_KINDS):
+					services.append(service)
 
 	_draw_border()
 
