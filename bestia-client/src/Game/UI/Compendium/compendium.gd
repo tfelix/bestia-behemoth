@@ -43,6 +43,8 @@ var _model_view: CompendiumModelView
 var _detail_portrait: TextureRect
 var _detail_name: Label
 var _detail_subtitle: Label
+## Body size and weight, such as "Medium · 60 kg".
+var _detail_body: Label
 var _detail_caught: Label
 var _detail_habitat: Label
 var _detail_description: Label
@@ -140,6 +142,9 @@ func _build_detail() -> Control:
 
 	_detail_subtitle = UiStyle.label("", 11, UiStyle.MUTED)
 	detail.add_child(_detail_subtitle)
+
+	_detail_body = UiStyle.label("", 11, UiStyle.MUTED)
+	detail.add_child(_detail_body)
 
 	var status := UiStyle.hbox(8)
 	detail.add_child(status)
@@ -294,6 +299,7 @@ func _show_detail() -> void:
 		_model_view.show_species(species)
 	_detail_name.text = tr(species.name_key)
 	_detail_subtitle.text = "%s · %s" % [number_label, tr("BESTIA_KIND_" + species.kind)]
+	_detail_body.text = "%s · %d kg" % [tr("BESTIA_SIZE_" + species.size), species.weight_kg]
 	_detail_caught.text = tr("COMPENDIUM_CAUGHT") if entry.Caught else tr("COMPENDIUM_NOT_CAUGHT")
 	_detail_caught.add_theme_color_override("font_color", UiStyle.ACCENT if entry.Caught else UiStyle.MUTED)
 	_detail_habitat.text = "%s: %s" % [tr("COMPENDIUM_HABITAT"), _habitat_text(species)]

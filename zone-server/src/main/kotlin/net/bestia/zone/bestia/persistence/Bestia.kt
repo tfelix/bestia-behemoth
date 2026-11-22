@@ -57,7 +57,7 @@ class Bestia(
   @Column(nullable = false)
   var attackPower: Float = 1f,
 
-  /** Body weight in kilograms, see `Nature.weight`. */
+  /** Body weight in kilograms, see `Nature.weight`. 0 when the mob YML names none; see [bodyWeightKg]. */
   @Column(nullable = false)
   @ColumnDefault("0")
   var weight: Int = 0,
@@ -231,6 +231,22 @@ class Bestia(
   val referenceLevel: Int
     get() {
       return (levelMin + levelMax) / 2
+    }
+
+  /**
+   * The body weight a player is shown: [weight], or for a species whose mob YML names none the documented default
+   * from its [size] (15 kg SMALL, 60 kg MEDIUM, 250 kg BIG), doubled for a [boss]. `BestiaDbSyncTask` exports the
+   * same default to the game client.
+   */
+  val bodyWeightKg: Int
+    get() {
+      if (weight > 0) return weight
+      val bySize = when (size) {
+        Size.SMALL -> 15
+        Size.MEDIUM -> 60
+        Size.BIG -> 250
+      }
+      return if (boss) bySize * 2 else bySize
     }
 
   @OneToMany(mappedBy = "bestia", cascade = [CascadeType.ALL], orphanRemoval = true)

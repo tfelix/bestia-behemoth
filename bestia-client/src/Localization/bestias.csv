@@ -235,3 +235,6 @@ BESTIA_GRAVE_WISP,Grave Wisp
 BESTIA_GRAVE_WISP_DESC,A cold flame over a grave nobody dug. It drifts toward anyone who comes near and drinks their warmth.
 BESTIA_OATHBOUND_REVENANT,Oathbound Revenant
 BESTIA_OATHBOUND_REVENANT_DESC,"A captain who swore to hold a field and died holding it. The oath outlived the flesh, and it still challenges anyone who crosses its line."
+BESTIA_SIZE_SMALL,Small
+BESTIA_SIZE_MEDIUM,Medium
+BESTIA_SIZE_BIG,Big

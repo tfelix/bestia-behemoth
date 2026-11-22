@@ -88,7 +88,7 @@ class BusFrameTest {
       ZoneAnswer.Bag(listOf(ZoneAnswer.Bag.Holder("MASTER", 1, "Ayla", listOf(ZoneAnswer.Bag.Slot(3, "apple", 5, null, 0, 0, 0))))),
       ZoneAnswer.PartyInfo(ZoneAnswer.PartyInfo.Party("P", 1, listOf(ZoneAnswer.PartyInfo.Member(1, "Ayla", 3, true)))),
       ZoneAnswer.CatalogData("v", listOf(ZoneAnswer.CatalogData.Item(1, "apple", "USABLE", 15, null, true)),
-        listOf(ZoneAnswer.CatalogData.Species(1, "blob", "FORMLESS", "WATER", 1, listOf("GRASSLAND"), true))),
+        listOf(ZoneAnswer.CatalogData.Species(1, "blob", "FORMLESS", "WATER", 1, listOf("GRASSLAND"), true, "SMALL", 15))),
       ZoneAnswer.CompendiumData(listOf(ZoneAnswer.CompendiumData.Entry(speciesId = 1, caught = true, firstSeenEpochMs = 5))),
       ZoneAnswer.MapInfo("w", 256, 0, 9, 128000.0, 128000.0, 1.0),
       ZoneAnswer.Places("\"e\"", false, listOf(ZoneAnswer.Places.Place(1, "SETTLEMENT", 3.5, 4.5, "Ashfen", "TOWN", null))),

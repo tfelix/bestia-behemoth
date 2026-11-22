@@ -52,6 +52,11 @@
 		return live.on((event) => touchesMaster(event, id) && void load(id));
 	});
 
+	/** "Medium · 60 kg", the line the game's compendium shows under the kind. */
+	function bodyText(s: Species): string {
+		return `${s.size.charAt(0) + s.size.slice(1).toLowerCase()} · ${s.weightKg} kg`;
+	}
+
 	function habitatText(s: Species): string {
 		return s.habitat.length === 0 ? 'anywhere on land' : s.habitat.map(biomeName).join(', ');
 	}
@@ -96,6 +101,7 @@
 						<span class="frame large"><img class:unseen={!entry} src={portraitOf(s.id)} alt="" /></span>
 						{#if entry}
 							<p class="muted">{s.kind.charAt(0) + s.kind.slice(1).toLowerCase()} · {entry.caught ? 'Caught' : 'Not caught yet'}</p>
+							<p class="muted">{bodyText(s)}</p>
 							<p><span class="label">Habitat</span><br />{habitatText(s)}</p>
 							{#if speciesDescription(s.identifier)}<p>{speciesDescription(s.identifier)}</p>{/if}
 							<p class="muted small">First seen {new Date(entry.firstSeen).toLocaleDateString()}</p>

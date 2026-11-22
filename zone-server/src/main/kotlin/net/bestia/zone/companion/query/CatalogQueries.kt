@@ -36,6 +36,8 @@ class CatalogQueries(
         it.referenceLevel,
         it.habitat.split(',').filter { biome -> biome.isNotEmpty() },
         it.inCompendium,
+        it.size.name,
+        it.bodyWeightKg,
       )
     }
 

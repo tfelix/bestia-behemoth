@@ -1293,6 +1293,9 @@ export interface components {
             level: number;
             habitat: string[];
             inCompendium: boolean;
+            size: string;
+            /** Format: int32 */
+            weightKg: number;
         };
         Unsubscribe: {
             endpoint: string;

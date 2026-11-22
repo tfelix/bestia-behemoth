@@ -6,7 +6,7 @@ class_name BestiaResource
 ## Generated/kept in sync from zone-server's mob YMLs by './gradlew syncBestiaDb', which owns [member
 ## bestia_id], the two text keys, [member kind], [member equip_slots], [member armor_types], [member
 ## non_combatant], [member habitat], [member in_compendium], [member aggressive], [member level_min], [member
-## level_max], [member loot_item_ids] and [member loot_chances]. The English text behind the keys is synced
+## level_max], [member size], [member weight_kg], [member loot_item_ids] and [member loot_chances]. The English text behind the keys is synced
 ## into Localization/bestias.csv, where it is translated. Anything else here is pure presentation with no
 ## server equivalent and is hand-authored.
 
@@ -65,6 +65,12 @@ enum PlaceholderShape { SPHERE, CAPSULE, BOX, CYLINDER, PRISM, TORUS }
 ## The levels a wild one of this species spawns at.
 @export var level_min: int = 1
 @export var level_max: int = 1
+
+## Body size, "SMALL", "MEDIUM" or "BIG". Its display name is the translation key "BESTIA_SIZE_<size>".
+@export var size: String = "MEDIUM"
+
+## Body weight in kilograms, with the size default already filled in for a species whose YML names none.
+@export var weight_kg: int = 0
 
 ## What a wild one may drop when it dies: the item at index i of [member loot_item_ids] drops with chance
 ## [member loot_chances][i] out of 10000. Read both through [DropFinder].

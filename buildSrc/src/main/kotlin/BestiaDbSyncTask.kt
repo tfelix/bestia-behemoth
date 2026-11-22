@@ -24,7 +24,8 @@ import java.io.File
  * reads them from these resources while the server independently enforces the same values from the
  * `bestia` table. Today that is which equipment slots and armor types a species has, so the UI can grey
  * out the rest, whether it is a non-combatant, so a click can mean talking rather than swinging, its kind, and
- * what the Bestia Compendium shows: its habitat, its level range, its loot and whether it is listed at all.
+ * what the Bestia Compendium shows: its habitat, its level range, its body size and weight, its loot and whether
+ * it is listed at all.
  *
  * Loot names items by identifier, the client by id, so this task also reads `items.yml` to translate. A loot
  * chance stays in the server's fixed point (10000 is 100%).
@@ -90,8 +91,27 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     val name: String,
     val description: String? = null,
     /** The AI profile's identifier. None spawns without AI, which never attacks first. */
-    val ai: String? = null
+    val ai: String? = null,
+    /** SMALL, MEDIUM or BIG; a mob that names none is MEDIUM on the server too. */
+    val size: String = "MEDIUM",
+    /** Body weight in kilograms. Absent (0) means the default [bodyWeightKg] derives. */
+    val weight: Int = 0,
+    val boss: Boolean = false
   ) {
+    /**
+     * The weight a player is shown: the YML's own, or else the documented default from the size (15 kg SMALL,
+     * 60 kg MEDIUM, 250 kg BIG), doubled for a boss. The companion app shows the same, see `Bestia.bodyWeightKg`.
+     */
+    val bodyWeightKg: Int
+      get() = if (weight > 0) weight else {
+        val bySize = when (size.uppercase()) {
+          "SMALL" -> 15
+          "BIG" -> 250
+          else -> 60
+        }
+        if (boss) bySize * 2 else bySize
+      }
+
     val nameKey get() = "BESTIA_${identifier.uppercase()}"
     val descriptionKey get() = "${nameKey}_DESC"
     val kindKey get() = "BESTIA_KIND_${kind.uppercase()}"
@@ -146,7 +166,9 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     "level_min" to mob.levelMin.toString(),
     "level_max" to mob.levelMax.toString(),
     "loot_item_ids" to packedInts(mob.loot.map { itemIdOf(it, mob, itemIds) }),
-    "loot_chances" to packedInts(mob.loot.map { it.chance.toLong() })
+    "loot_chances" to packedInts(mob.loot.map { it.chance.toLong() }),
+    "size" to quoted(mob.size.uppercase()),
+    "weight_kg" to mob.bodyWeightKg.toString()
   )
 
   private fun itemIdOf(loot: LootDto, mob: MobDto, itemIds: Map<String, Long>): Long =
