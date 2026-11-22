@@ -509,7 +509,6 @@ GUILD_SKILL_LEVEL,Lv. %d / %d
 GUILD_SKILL_LEARN,Learn
 GUILD_SKILL_PICK,Pick a skill to see what it does.
 GUILD_SKILL_REQUIRES,Requires %s
-GUILD_SKILL_NEEDS_STRONGHOLD,Works once the guild holds a Guild Stronghold. Strongholds come in a later update.
 GUILD_SKILL_DRAG_TO_BAR,Drag it onto the shortcut bar to cast it.
 GUILD_COL_NAME,Rank
 GUILD_COL_TAX,Tax on kill EXP

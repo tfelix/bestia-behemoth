@@ -4,9 +4,6 @@ extends HBoxContainer
 ## The guild window's Skills tab: the tree, and beside it what the picked skill does, what it needs and, for
 ## the leader, the button that spends a point on it.
 
-## Skills whose effect lives in a Guild Stronghold, which does not exist yet.
-const NEEDS_STRONGHOLD: Array[int] = [1006, 1019]
-
 var _info: GuildInfoSMSG
 var _is_leader := false
 var _may_cast := false
@@ -117,14 +114,8 @@ func _show_selected() -> void:
 	_invest.disabled = not _may_raise(skill)
 
 	var castable := attack != null and not attack.is_passive and skill.Level > 0 and _may_cast
-	_note.add_theme_color_override("font_color", UiStyle.DANGER)
-	if NEEDS_STRONGHOLD.has(int(skill.SkillId)):
-		_note.text = tr("GUILD_SKILL_NEEDS_STRONGHOLD")
-	elif castable:
-		_note.text = tr("GUILD_SKILL_DRAG_TO_BAR")
-		_note.add_theme_color_override("font_color", UiStyle.MUTED)
-	else:
-		_note.text = ""
+	_note.text = tr("GUILD_SKILL_DRAG_TO_BAR") if castable else ""
+	_note.add_theme_color_override("font_color", UiStyle.MUTED)
 
 
 func _requirements_text(skill: GuildSkillInfo) -> String:
