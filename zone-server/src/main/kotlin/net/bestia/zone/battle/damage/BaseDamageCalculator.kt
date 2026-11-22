@@ -146,8 +146,9 @@ abstract class BaseDamageCalculator(
    * How well the weapon in hand fits the target's body, RO's size table (see [SizeModifier]). Scales the weapon term
    * only: the attributes behind a blow do not care what it lands on, and bare hands - every mob - fit everything.
    */
-  protected open fun sizeFactor(battleCtx: EntityBattleContext): Float =
-    SizeModifier.factorOf(battleCtx.weapon.type, battleCtx.defender.size)
+  protected open fun sizeFactor(battleCtx: EntityBattleContext): Float {
+    return SizeModifier.factorOf(battleCtx.weapon.type, battleCtx.defender.size)
+  }
 
   /** Attack derived purely from the attacker's own attributes - the term that carries an unarmed fighter. */
   protected abstract fun getStatusAttack(battleCtx: EntityBattleContext): Float

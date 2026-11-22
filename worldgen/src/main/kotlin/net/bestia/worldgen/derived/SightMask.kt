@@ -5,20 +5,9 @@ import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.worldgen.voxel.VoxelChunk
 
 /**
- * Which voxels of one chunk stop a line of sight: one bit per voxel, in the voxel layout (`(y * size + x) * height + z`),
- * plus the chunk's [StructureCells] for the walls on cell borders.
- *
- * Built for the per-attack line-of-sight check, which runs on every shot and every spell and so has to be a handful
- * of array reads. The [OpacityGrid] beside it is four voxels to a cell, and at that resolution a cell holding the
- * ground under an entity's feet reads as half full and blinds everybody standing on a slope; one bit per voxel does
- * not, and costs 32 KB for a 64³ chunk.
- *
- * A voxel blocks when its block is solid and at least [OPAQUE_FROM] full. The surface voxel an entity stands in is
- * usually partly full (the terrain is continuous, see `Occupancy`), and counting it would put a wall at everybody's
- * ankles. A built cell blocks when its fill does the same; its walls are checked separately by [wallsAt], because a
- * wall stands on a border and blocks only a line that crosses that border.
- *
- * Immutable, so it can be built on a worker thread and handed to the store's owner.
+ * Which voxels of one chunk stop a line of sight, one bit each (32 KB for a 64³ chunk), plus the structure walls on
+ * cell borders ([wallsAt]). Per voxel rather than [OpacityGrid]'s four: at that size the ground under an entity's
+ * feet reads as a wall. A voxel blocks from [OPAQUE_FROM] full, so a partly filled surface voxel does not.
  */
 class SightMask private constructor(
   val size: Int,

@@ -16,8 +16,9 @@ class LineOfSightService(
   private val sightLines: SightLines? = null,
 ) {
 
-  fun hasLineOfSight(a: Vec3<*>, b: Vec3<*>): Boolean =
-    hasLineOfSight(a.x.toLong(), a.y.toLong(), a.z.toLong(), b.x.toLong(), b.y.toLong(), b.z.toLong())
+  fun hasLineOfSight(a: Vec3<*>, b: Vec3<*>): Boolean {
+    return hasLineOfSight(a.x.toLong(), a.y.toLong(), a.z.toLong(), b.x.toLong(), b.y.toLong(), b.z.toLong())
+  }
 
   /** The same, for a caller iterating raw coordinates that would otherwise build two vectors per target. */
   fun hasLineOfSight(ax: Long, ay: Long, az: Long, bx: Long, by: Long, bz: Long): Boolean {

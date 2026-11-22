@@ -51,7 +51,9 @@ object SizeModifier {
     }
   }
 
-  fun factorOf(weapon: WeaponType?, target: Size): Float = percentOf(weapon, target) / 100f
+  fun factorOf(weapon: WeaponType?, target: Size): Float {
+    return percentOf(weapon, target) / 100f
+  }
 
   private data class SizeRow(val small: Int, val medium: Int, val big: Int)
 }
