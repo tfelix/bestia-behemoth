@@ -42,6 +42,8 @@ data class StrongholdConfig(
   /** Guild storage slots per level of the Guild Storage skill, and per Storage level of each Stronghold held. */
   val storageSlotsPerSkillLevel: Int = 100,
   val storageSlotsPerStorageLevel: Int = 50,
+  /** Sending a sealed guild storage to the leader's post office costs this per used slot. */
+  val storageSendAwayCoinsPerSlot: Long = 1_000,
   /** Watcher posts: this many, plus one per Defense level, up to the most. */
   val watcherBasePosts: Int = 2,
   val watcherMaxPosts: Int = 12,

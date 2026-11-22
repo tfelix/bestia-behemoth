@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "StrongholdTabSmsgProto";
+
+// The guild window's Stronghold tab: the guild's Strongholds with their waiting treasure, and its storage.
+message StrongholdTabSMSG {
+  repeated StrongholdCard strongholds = 1;
+  // Only the leader collects and sends the storage away.
+  bool is_leader = 2;
+  bool has_guild_storage = 3;
+  uint32 storage_used = 4;
+  uint32 storage_slots = 5;
+  // The guild holds no Stronghold with a steward, so nobody can open its storage.
+  bool storage_sealed = 6;
+  // What sending the sealed storage away costs.
+  uint64 send_away_coins = 7;
+}
+
+message StrongholdCard {
+  uint32 seed_rank = 1;
+  string name = 2;
+  // Planted, the site not built yet: it makes no drops.
+  bool is_site = 3;
+  uint32 hp = 4;
+  uint32 max_hp = 5;
+  uint32 defense = 6;
+  uint32 storage = 7;
+  uint32 economy = 8;
+  bool has_steward = 9;
+  uint32 watchers = 10;
+  uint32 watcher_posts = 11;
+  // Oldest first.
+  repeated TreasureDropInfo drops = 12;
+  uint32 max_drops = 13;
+  uint32 next_drop_seconds = 14;
+}
+
+message TreasureDropInfo {
+  int64 made_at_epoch_millis = 1;
+  uint64 coins = 2;
+  repeated DropGoods goods = 3;
+}
+
+message DropGoods {
+  uint64 item_id = 1;
+  uint32 amount = 2;
+}

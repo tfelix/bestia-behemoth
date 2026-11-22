@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "StrongholdTabCmsgProto";
+
+// The guild window's Stronghold tab, from anywhere. Every action is answered with a StrongholdTabSMSG.
+message StrongholdTabCMSG {
+  StrongholdTabAction action = 1;
+  // For COLLECT: the Stronghold whose waiting drops the leader takes into the guild storage.
+  uint32 seed_rank = 2;
+}
+
+enum StrongholdTabAction {
+  STRONGHOLD_TAB_ACTION_SHOW = 0;
+  STRONGHOLD_TAB_ACTION_COLLECT = 1;
+  // The leader pays to have a sealed guild storage posted to their home post office.
+  STRONGHOLD_TAB_ACTION_SEND_STORAGE_AWAY = 2;
+}

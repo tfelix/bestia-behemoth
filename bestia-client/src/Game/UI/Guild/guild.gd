@@ -50,6 +50,7 @@ var _motd_title_edit: LineEdit
 var _motd_body_edit: TextEdit
 var _skills: GuildSkillsPage
 var _log: GuildLogPage
+var _strongholds: GuildStrongholdsPage
 var _members: VBoxContainer
 var _expelled_section: Control
 var _expelled: VBoxContainer
@@ -155,14 +156,17 @@ func _build() -> void:
 	_tabs.add_child(_build_ranks())
 	_skills = GuildSkillsPage.new()
 	_tabs.add_child(UiStyle.margin(_skills, 4, 6, 4, 4))
+	_strongholds = GuildStrongholdsPage.new()
+	_tabs.add_child(UiStyle.margin(_strongholds, 4, 6, 4, 4))
 	_log = GuildLogPage.new()
 	_tabs.add_child(UiStyle.margin(_log, 4, 6, 4, 4))
 	_tabs.set_tab_title(0, tr("GUILD_TAB_OVERVIEW"))
 	_tabs.set_tab_title(1, tr("GUILD_TAB_MEMBERS"))
 	_tabs.set_tab_title(2, tr("GUILD_TAB_RANKS"))
 	_tabs.set_tab_title(3, tr("GUILD_TAB_SKILLS"))
-	_tabs.set_tab_title(4, tr("GUILD_TAB_LOG"))
-	_tabs.tab_changed.connect(func(_tab: int) -> void: _refresh_log())
+	_tabs.set_tab_title(4, tr("GUILD_TAB_STRONGHOLDS"))
+	_tabs.set_tab_title(5, tr("GUILD_TAB_LOG"))
+	_tabs.tab_changed.connect(func(_tab: int) -> void: _refresh_shown_tab())
 	body.add_child(_tabs)
 
 	var footer := UiStyle.hbox(6)
@@ -566,6 +570,14 @@ func _refresh_log() -> void:
 		ConnectionManager.request_guild_log()
 
 
+## The tabs the server does not push ask for their content when shown.
+func _refresh_shown_tab() -> void:
+	_refresh_log()
+	if _info != null and is_visible_in_tree() and ConnectionManager.is_ready_to_send() \
+			and _tabs.get_current_tab_control() == _strongholds.get_parent():
+		ConnectionManager.stronghold_tab(0)
+
+
 func _is_log_shown() -> bool:
 	return is_visible_in_tree() and _tabs.get_current_tab_control() == _log.get_parent()
 
@@ -592,6 +604,8 @@ func _on_guild_message(message: GuildSMSG) -> void:
 		notice.emit(tr("GUILD_NOTICE_%s" % message.NoticeName.to_upper()))
 	elif message is GuildLogSMSG:
 		_log.show_log(message)
+	elif message is StrongholdTabSMSG:
+		_strongholds.show_tab(message)
 
 
 func _offer_invitation(message: GuildInvitationSMSG) -> void:
