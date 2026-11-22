@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.status
 
+import net.bestia.zone.battle.NaturalArmor
 import net.bestia.zone.battle.gear.ArmorType
 import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.battle.gear.ToolKind
@@ -109,8 +110,8 @@ data class CombatValues(
      * Wearing and suffering nothing: the spawn seed, and an unbuffed mob's value for life. Equals [fromContext] on an
      * empty context, which a test pins so the seed cannot drift from the recalc.
      */
-    fun ofBase(level: Int, base: StatusValues): CombatValues {
-      return resolve(level, base, base, Weapon.NONE, hardDefense = 0, hardMagicDefense = 0)
+    fun ofBase(level: Int, base: StatusValues, armor: NaturalArmor.Armor = NaturalArmor.Armor.NONE): CombatValues {
+      return resolve(level, base, base, Weapon.NONE, hardDefense = armor.defense, hardMagicDefense = armor.magicDefense)
     }
 
     fun fromContext(level: Int, base: StatusValues, context: StatusValueRecalcContext): CombatValues {
