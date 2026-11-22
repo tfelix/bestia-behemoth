@@ -6,6 +6,7 @@ import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.ClosedToAttack
+import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.weather.EnvironmentalExposureSystem
 import net.bestia.zone.identity.ecs.GuildOwned
 import net.bestia.zone.movement.ecs.Position
@@ -37,7 +38,7 @@ class AttackWindowSystem(
   override val schedule: Schedule = Schedule.EverySeconds(10f)
   override val after = setOf(EnvironmentalExposureSystem::class)
 
-  override val reads: ComponentClassSet = setOf(GuildOwned::class, Position::class)
+  override val reads: ComponentClassSet = setOf(GuildOwned::class, Position::class, PropPose::class)
   override val writes: ComponentClassSet = setOf(ClosedToAttack::class)
 
   private val windows = AttackWindows.of(config)
@@ -47,8 +48,9 @@ class AttackWindowSystem(
     val heldSeeds = seeds.awake().filter { strongholds.on(it.rank) != null }
     val voxel = worldService.config.voxelSize
 
-    world.query(GuildOwned::class, Position::class).each { id ->
-      val at = get<Position>()
+    // A built structure stands at its pose; everything else of a guild has a position.
+    world.query(GuildOwned::class).each { id ->
+      val at = world.get(id, Position::class)?.toVec3L() ?: world.get(id, PropPose::class)?.position ?: return@each
       val isOnGrounds = heldSeeds.any { hypot(it.x - at.x * voxel, it.y - at.y * voxel) <= config.groundsRadiusMetres }
       val isClosed = world.has(id, ClosedToAttack::class)
 
