@@ -1,5 +1,6 @@
 package net.bestia.zone.prop.ecs.construction
 
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.util.EntityId
@@ -11,6 +12,9 @@ import net.bestia.zone.util.EntityId
 interface SiteCompletion {
 
   val kind: StaticEntityKind
+
+  /** What [complete] puts on the entities it raises. [ConstructionSystem] declares them as its own writes. */
+  val writes: ComponentClassSet
 
   fun complete(world: World, siteEntityId: EntityId, site: ConstructionSite)
 }

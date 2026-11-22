@@ -1,5 +1,6 @@
 package net.bestia.zone.stronghold
 
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.prop.PlayerStructureRegistry
@@ -19,6 +20,8 @@ class EmpyriteSiteCompletion(
 ) : SiteCompletion {
 
   override val kind = StaticEntityKind.EMPYRITE_SITE
+
+  override val writes: ComponentClassSet = Empyrites.RAISES
 
   override fun complete(world: World, siteEntityId: EntityId, site: ConstructionSite) {
     world.destroy(siteEntityId)

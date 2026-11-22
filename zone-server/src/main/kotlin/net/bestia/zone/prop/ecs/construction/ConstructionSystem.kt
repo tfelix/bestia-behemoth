@@ -64,7 +64,7 @@ class ConstructionSystem(
     WorldObjectIdentity::class,
     StaticSync::class,
     PlayerStructureIdentity::class
-  )
+  ) + completions.flatMap { it.writes }
 
   override fun update(world: World, deltaTime: Float) {
     val workersPerSite = HashMap<EntityId, Int>()

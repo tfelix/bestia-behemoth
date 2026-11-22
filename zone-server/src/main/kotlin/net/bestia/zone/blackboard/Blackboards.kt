@@ -3,6 +3,7 @@ package net.bestia.zone.blackboard
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.blackboard.ecs.Blackboard
 import net.bestia.zone.blackboard.ecs.BlackboardOffer
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.EntityVisual
@@ -28,6 +29,8 @@ class Blackboards(
 ) : SiteCompletion {
 
   override val kind = StaticEntityKind.BLACKBOARD
+
+  override val writes: ComponentClassSet = setOf(Position::class, EntityVisual::class, Blackboard::class, BlackboardOffer::class)
 
   override fun complete(world: World, siteEntityId: EntityId, site: ConstructionSite) {
     val built = structures.finishAsEntity(world, siteEntityId, site)
