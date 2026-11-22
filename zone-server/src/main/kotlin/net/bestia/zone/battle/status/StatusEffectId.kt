@@ -126,7 +126,8 @@ enum class StatusEffectId(val id: Long) {
   SCRYING(250),
   SCRY_EYE(251),
   SCRY_VEIL(252),
-  WATCHER_STRENGTH(253);
+  WATCHER_STRENGTH(253),
+  CAPTURE_GRACE(254);
 
   companion object {
     private val byId = entries.associateBy { it.id }

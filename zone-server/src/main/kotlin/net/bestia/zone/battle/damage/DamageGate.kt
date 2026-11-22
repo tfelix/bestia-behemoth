@@ -34,6 +34,10 @@ object DamageGate {
 
   /** For a source that can outlive whoever made it, like a fire: [sourceOwner] is the account it was made by. */
   fun verdict(world: World, sourceId: EntityId?, targetId: EntityId, sourceOwner: AccountId?): Verdict {
+    if (hasShield(world, targetId, HarmShield.GRACE)) {
+      return Verdict.GRACE
+    }
+
     if (isImmune(world, targetId)) {
       return Verdict.IMMUNE
     }
@@ -65,7 +69,7 @@ object DamageGate {
 
   /** For the paths that have no source to weigh: the drain, the weather, a trap. */
   fun isImmune(world: World, targetId: EntityId): Boolean {
-    return hasShield(world, targetId, HarmShield.ALL)
+    return hasShield(world, targetId, HarmShield.ALL) || hasShield(world, targetId, HarmShield.GRACE)
   }
 
   /** Nothing harms itself, nor anything else its owner account owns: a master, its bestias, its stations. */
@@ -121,6 +125,9 @@ object DamageGate {
   enum class Verdict {
     ADMITTED,
     IMMUNE,
+
+    /** Unharmable for a while, such as an Empyrite right after its capture. */
+    GRACE,
     OWN,
     WARDED,
 
