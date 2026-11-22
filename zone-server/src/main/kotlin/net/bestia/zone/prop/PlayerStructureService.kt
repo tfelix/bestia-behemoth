@@ -16,7 +16,9 @@ import net.bestia.zone.structure.StructureCollision
 import net.bestia.zone.structure.StructureRasterizer
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.GroundClaims
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.buildRefusal
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import net.bestia.zone.entity.StaticEntityKind
@@ -42,6 +44,7 @@ class PlayerStructureService(
   private val collision: StructureCollision,
   private val placementRules: List<PlacementRule>,
   private val outMessageProcessor: OutMessageProcessor,
+  private val claims: List<GroundClaims> = emptyList(),
   private val clock: Clock = Clock.systemUTC(),
 ) {
 
@@ -72,6 +75,17 @@ class PlayerStructureService(
   fun siteNear(world: World, around: Vec3L, kind: StaticEntityKind): EntityId? {
     return aoi.queryEntitiesInCube(around, RANGE_TILES * 2, setOf(AoiLayer.DYNAMIC))
       .firstOrNull { world.get(it, ConstructionSite::class)?.kind == kind }
+  }
+
+  /**
+   * Whether [userId] may put up a structure from a kit at [at], as far as the ground's claims go; tells the player why
+   * not. The Empyrite site is planted on a seed's core past this, by `StrongholdFounding`.
+   */
+  fun mayBuildOnGround(world: World, userId: EntityId, accountId: AccountId, at: Vec3L): Boolean {
+    val refusal = claims.buildRefusal(world, userId, at) ?: return true
+    outMessageProcessor.sendToPlayer(accountId, OperationErrorSMSG(refusal))
+
+    return false
   }
 
   /**

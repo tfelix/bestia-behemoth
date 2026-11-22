@@ -584,6 +584,14 @@ enum OpError {
   STRONGHOLD_CANNOT_AFFORD_BRING_BACK = 413;
   // The leader does not carry the coins to send the sealed guild storage away.
   STRONGHOLD_CANNOT_AFFORD_SEND_AWAY = 414;
+  // The ground of an awake Empyrite Seed's core holds: no pickaxe, blast or shovel breaks it.
+  GROUND_SEED_CORE_HOLDS = 415;
+  // Nobody digs on a Stronghold's grounds, not even the guild that holds it.
+  GROUND_STRONGHOLD_NO_DIG = 416;
+  // Nobody builds on the core of an awake Empyrite Seed.
+  BUILD_ON_SEED_CORE = 417;
+  // Only members of the guild that holds a Stronghold build on its grounds.
+  BUILD_ON_STRONGHOLD_GROUNDS = 418;
 }
 
 message OperationError {

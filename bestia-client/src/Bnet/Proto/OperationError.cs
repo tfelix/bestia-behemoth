@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrXNQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrONgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -178,9 +178,11 @@ namespace Bnet {
             "RRCZAxIYChNTVE9SQUdFX01BWV9OT1RfUFVUEJoDEhkKFFNUT1JBR0VfTUFZ",
             "X05PVF9UQUtFEJsDEhEKDFNUT1JBR0VfRlVMTBCcAxIoCiNTVFJPTkdIT0xE",
             "X0NBTk5PVF9BRkZPUkRfQlJJTkdfQkFDSxCdAxInCiJTVFJPTkdIT0xEX0NB",
-            "Tk5PVF9BRkZPUkRfU0VORF9BV0FZEJ4DIgQILhAuKhJTSE9QX1RSRUFTVVJZ",
-            "X0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRpb25FcnJv",
-            "clByb3RvYgZwcm90bzM="));
+            "Tk5PVF9BRkZPUkRfU0VORF9BV0FZEJ4DEhsKFkdST1VORF9TRUVEX0NPUkVf",
+            "SE9MRFMQnwMSHQoYR1JPVU5EX1NUUk9OR0hPTERfTk9fRElHEKADEhcKEkJV",
+            "SUxEX09OX1NFRURfQ09SRRChAxIgChtCVUlMRF9PTl9TVFJPTkdIT0xEX0dS",
+            "T1VORFMQogMiBAguEC4qElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQuYmVz",
+            "dGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1142,6 +1144,22 @@ namespace Bnet {
     /// The leader does not carry the coins to send the sealed guild storage away.
     /// </summary>
     [pbr::OriginalName("STRONGHOLD_CANNOT_AFFORD_SEND_AWAY")] StrongholdCannotAffordSendAway = 414,
+    /// <summary>
+    /// The ground of an awake Empyrite Seed's core holds: no pickaxe, blast or shovel breaks it.
+    /// </summary>
+    [pbr::OriginalName("GROUND_SEED_CORE_HOLDS")] GroundSeedCoreHolds = 415,
+    /// <summary>
+    /// Nobody digs on a Stronghold's grounds, not even the guild that holds it.
+    /// </summary>
+    [pbr::OriginalName("GROUND_STRONGHOLD_NO_DIG")] GroundStrongholdNoDig = 416,
+    /// <summary>
+    /// Nobody builds on the core of an awake Empyrite Seed.
+    /// </summary>
+    [pbr::OriginalName("BUILD_ON_SEED_CORE")] BuildOnSeedCore = 417,
+    /// <summary>
+    /// Only members of the guild that holds a Stronghold build on its grounds.
+    /// </summary>
+    [pbr::OriginalName("BUILD_ON_STRONGHOLD_GROUNDS")] BuildOnStrongholdGrounds = 418,
   }
 
   #endregion

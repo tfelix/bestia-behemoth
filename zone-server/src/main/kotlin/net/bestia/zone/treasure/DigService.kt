@@ -1,5 +1,6 @@
 package net.bestia.zone.treasure
 
+import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.zone.entity.observe.DeedFact
 import net.bestia.zone.entity.observe.DeedObserver
 import net.bestia.zone.entity.observe.WorldTarget
@@ -23,6 +24,8 @@ import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.treasure.ecs.Digging
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.GroundClaims
+import net.bestia.zone.world.digRefusal
 import net.bestia.zone.world.stream.ChunkCoords
 import net.bestia.zone.world.stream.ChunkService
 import net.bestia.zone.world.stream.ChunkStreamInbox
@@ -53,6 +56,7 @@ class DigService(
   private val outMessageProcessor: OutMessageProcessor,
   private val pickaxeMining: PickaxeMining,
   private val deedObservers: List<DeedObserver> = emptyList(),
+  private val claims: List<GroundClaims> = emptyList(),
 ) {
 
   private val shovelId by lazy { items.idOf(SHOVEL) }
@@ -62,6 +66,7 @@ class DigService(
 
   fun begin(world: World, entityId: EntityId, accountId: Long, target: Vec3L) {
     val position = world.get(entityId, Position::class)?.toVec3L() ?: return
+    claims.digRefusal(target, CarveBrush.MIN_RADIUS.toDouble())?.let { return refuse(accountId, it) }
     val targetX = target.x + HALF_VOXEL
     val targetY = target.y + HALF_VOXEL
 

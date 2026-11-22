@@ -6,6 +6,8 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.GroundClaims
+import net.bestia.zone.world.digRefusal
 import net.bestia.zone.world.stream.ChunkStreamInbox
 import net.bestia.zone.item.mining.ecs.BlastFuseSystem
 import org.springframework.stereotype.Component
@@ -19,6 +21,7 @@ class Blasts(
   private val oreInBrush: OreInBrush,
   private val miningSkill: MiningSkill,
   private val inbox: ChunkStreamInbox,
+  private val claims: List<GroundClaims> = emptyList(),
 ) {
 
   private class Charge(val accountId: Long, val casterId: EntityId, val ball: CarveBrush, var fuseSeconds: Float)
@@ -28,6 +31,7 @@ class Blasts(
 
   /** Why [casterId] may not blast [radiusMetres] around [at], or null when they may. */
   fun refusal(world: World, casterId: EntityId, at: Vec3L, radiusMetres: Int): OpError? {
+    claims.digRefusal(at, radiusMetres.toDouble())?.let { return it }
     val miningLevel = miningSkill.levelOf(world.get(casterId, KnownSkills::class))
     val ore = oreInBrush.scan(ballAt(at, radiusMetres))
 
