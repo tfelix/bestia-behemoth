@@ -115,6 +115,7 @@ class HistoryLineCatalogue {
       HistoryKnowledge.SLOT_CULT,
       HistoryKnowledge.SLOT_MONSTER,
       LegendKnowledge.SLOT_DIRECTION,
+      LegendKnowledge.SLOT_SEED,
       LineageClaims.SLOT_HOUSE,
     )
 

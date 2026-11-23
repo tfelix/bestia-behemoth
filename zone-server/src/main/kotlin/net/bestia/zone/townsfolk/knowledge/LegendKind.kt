@@ -19,7 +19,13 @@ enum class LegendKind {
   LOST_RELIC,
 
   /** A family's claim to come down from an old ruling house. See [LineageClaims]. */
-  LINEAGE;
+  LINEAGE,
+
+  /** An Empyrite Seed, the golden stone of a god. See [SeedPatrons]. */
+  EMPYRITE_GOD,
+
+  /** An Empyrite Seed a cult kept. */
+  EMPYRITE_CULT;
 
   val key: String get() = KEY_PREFIX + name
 

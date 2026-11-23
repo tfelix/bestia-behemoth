@@ -127,6 +127,10 @@ legends:
   # Not a hidden place: a family's claim to an old ruling house, said as something told. {house} is the
   # bare name, so the phrasing says "House" in its own language.
   LINEAGE: { variants: 2, slots: [house, figure, era] }
+  # An Empyrite Seed, asleep or awake. {seed} is its name, and its patron is the god or the cult whose sanctuary
+  # lies nearest, else the god of the nearest town or its people. {era} is how long the patron has been worshipped.
+  EMPYRITE_GOD: { variants: 2, slots: [seed, deity, direction, place, era] }
+  EMPYRITE_CULT: { variants: 2, slots: [seed, cult, direction, place, era] }
 
 # The lines a conversation owns itself, rather than getting from a memory or from a trade: how somebody
 # signs off, how they answer "what is this place", what they say when they have no news, and what a
