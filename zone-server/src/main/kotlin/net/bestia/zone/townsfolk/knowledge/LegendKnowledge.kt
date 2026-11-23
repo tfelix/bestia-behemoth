@@ -4,6 +4,7 @@ import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.MonsterFate
 import net.bestia.worldgen.core.SiteKind
+import net.bestia.worldgen.stronghold.EmpyriteSeed
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.geometry.Compass
 import net.bestia.zone.world.SettlementLoreService
@@ -11,7 +12,7 @@ import kotlin.math.hypot
 
 /**
  * Old sayings about the places the chronicle hid: a hoard, a sleeping world boss, the field one fell
- * on, a relic lost in battle.
+ * on, a relic lost in battle. And about the Empyrite Seeds, asleep or awake, so a legend may lead a guild to one.
  *
  * A saying points the way from the nearest standing town. Each town tells it its own way: most tell it
  * true, some have the direction and the age wrong, and some point where nothing lies. A player who asks
@@ -23,6 +24,7 @@ object LegendKnowledge {
   const val TOPIC_BASE = 30_000
 
   const val SLOT_DIRECTION = "direction"
+  const val SLOT_SEED = "seed"
 
   enum class Truth { TRUE, DISTORTED, MYTH }
 
@@ -59,20 +61,21 @@ object LegendKnowledge {
     worldSeed: Long,
     positions: Map<Int, Vec2d>,
     variantsOf: (LegendKind) -> Int = { 1 },
+    seeds: List<EmpyriteSeed> = emptyList(),
   ): List<Told> {
     val here = positions[settlement] ?: return emptyList()
     val standing = positions.filterKeys { chronicle.settlementStood(it, chronicle.presentYear) }
     if (standing.isEmpty()) return emptyList()
 
-    return subjectsOf(chronicle)
+    return subjectsOf(chronicle, seeds)
       .filter { hypot(it.position.x - here.x, it.position.y - here.y) <= rangeOf(it.kind) }
       .sortedBy { hypot(it.position.x - here.x, it.position.y - here.y) }
       .take(PER_TOWN)
       .map { tell(chronicle, it, settlement, worldSeed, standing, variantsOf(it.kind)) }
   }
 
-  /** Every hidden place in the world, in a fixed order so a subject's index is its topic. */
-  fun subjectsOf(chronicle: Chronicle): List<Subject> {
+  /** Every hidden place in the world, in a fixed order so a subject's index is its topic. The seeds come last. */
+  fun subjectsOf(chronicle: Chronicle, seeds: List<EmpyriteSeed> = emptyList()): List<Subject> {
     val found = ArrayList<Subject>()
 
     fun add(kind: LegendKind, site: Int, year: Int, slots: Map<String, Knowledge.Slot>, artifact: Int = -1) {
@@ -101,6 +104,12 @@ object LegendKnowledge {
       val name = named(ChronicleNames.artifactOf(chronicle, relic.index), HistoryKnowledge.UNKNOWN_ARTIFACT)
       val slots = mapOf(HistoryKnowledge.SLOT_ARTIFACT to name)
       add(LegendKind.LOST_RELIC, relic.restingSite, lostYear, slots, artifact = relic.index)
+    }
+
+    for (seed in seeds) {
+      val patron = SeedPatrons.of(chronicle, seed)
+      val slots = mapOf(SLOT_SEED to Knowledge.Slot.Name(seed.name), patron.slot)
+      found.add(Subject(found.size, patron.kind, Vec2d(seed.x, seed.y), patron.year, slots))
     }
 
     return found
@@ -160,10 +169,11 @@ object LegendKnowledge {
     }
   }
 
-  /** A world boss is talked about much further away than a lost purse. */
+  /** A world boss or a golden stone is talked about much further away than a lost purse. */
   private fun rangeOf(kind: LegendKind): Double {
     return when (kind) {
       LegendKind.LAIR, LegendKind.SEAL, LegendKind.SLAYING -> SettlementLoreService.NEARBY_RANGE * 2
+      LegendKind.EMPYRITE_GOD, LegendKind.EMPYRITE_CULT -> SettlementLoreService.NEARBY_RANGE * 2
       else -> SettlementLoreService.NEARBY_RANGE
     }
   }

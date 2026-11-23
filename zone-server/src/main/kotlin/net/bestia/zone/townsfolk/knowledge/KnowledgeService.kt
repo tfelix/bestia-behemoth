@@ -3,6 +3,8 @@ package net.bestia.zone.townsfolk.knowledge
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.pop.Household
 import net.bestia.worldgen.pop.Households
+import net.bestia.worldgen.stronghold.EmpyriteSeed
+import net.bestia.worldgen.stronghold.EmpyriteSeeds
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.townsfolk.rumour.RumourLineCatalogue
 import net.bestia.zone.townsfolk.rumour.RumourRegistry
@@ -38,6 +40,7 @@ class KnowledgeService(
 
   private val bySettlement = HashMap<Int, Cached>()
   private var positions: Map<Int, Vec2d>? = null
+  private var seeds: List<EmpyriteSeed>? = null
 
   /** What the person behind a `Townsfolk` component can be told about. */
   fun knownBy(identity: Long): List<Knowledge> {
@@ -84,6 +87,7 @@ class KnowledgeService(
   fun handleWorldRecreated(event: WorldRecreatedEvent) {
     bySettlement.clear()
     positions = null
+    seeds = null
 
     LOG.info { "World replaced; dropped what every town knew" }
   }
@@ -102,6 +106,7 @@ class KnowledgeService(
       legendVariantsOf = { kind -> lines.of(kind).variants },
       rumours = recentNewsIn(settlement),
       positions = positionsOf(),
+      seeds = seedsOf(),
     )
   }
 
@@ -145,6 +150,10 @@ class KnowledgeService(
     positions = built
 
     return built
+  }
+
+  private fun seedsOf(): List<EmpyriteSeed> {
+    return seeds ?: EmpyriteSeeds.of(worldService.generated).also { seeds = it }
   }
 
   private companion object {

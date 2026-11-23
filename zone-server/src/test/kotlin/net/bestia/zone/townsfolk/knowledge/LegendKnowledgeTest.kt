@@ -1,6 +1,7 @@
 package net.bestia.zone.townsfolk.knowledge
 
 import net.bestia.worldgen.pipeline.GeneratedWorld
+import net.bestia.worldgen.stronghold.EmpyriteSeeds
 import net.bestia.zone.geometry.Compass
 import net.bestia.zone.townsfolk.knowledge.LegendKnowledge.Truth
 import net.bestia.zone.world.GeneratedWorlds
@@ -54,6 +55,21 @@ class LegendKnowledgeTest {
   }
 
   @Test
+  fun `every Empyrite Seed has a legend naming its god or its cult`() {
+    for ((world, told) in toldByWorld()) {
+      val seeds = EmpyriteSeeds.of(world)
+      val legends = LegendKnowledge.subjectsOf(world.world.chronicle, seeds).filter { LegendKnowledge.SLOT_SEED in it.slots }
+      val toldSeeds = told.filter { LegendKnowledge.SLOT_SEED in it.subject.slots }.map { it.subject.index }.toSet()
+
+      assertEquals(seeds.map { it.name }, legends.map { (it.slots.getValue(LegendKnowledge.SLOT_SEED) as Knowledge.Slot.Name).value })
+      assertTrue(legends.all { HistoryKnowledge.SLOT_DEITY in it.slots || HistoryKnowledge.SLOT_CULT in it.slots })
+      assertTrue(legends.any { (it.slots[HistoryKnowledge.SLOT_DEITY] ?: it.slots[HistoryKnowledge.SLOT_CULT]) is Knowledge.Slot.Name }, "no seed has a named patron")
+      // A seed deep in the wilds, far from any town, is told nowhere. Approval senses it instead.
+      assertTrue(toldSeeds.isNotEmpty(), "no town tells of any of the ${seeds.size} seeds")
+    }
+  }
+
+  @Test
   fun `every legend is spoken as an old saying`() {
     assertTrue(allTold().all { it.knowledge.certainty == Certainty.LEGEND })
   }
@@ -67,9 +83,10 @@ class LegendKnowledgeTest {
       val world = GeneratedWorlds.of(seed)
       val chronicle = world.world.chronicle
       val positions = SettlementLoreService.settlementPositions(world)
+      val seeds = EmpyriteSeeds.of(world)
       val told = positions.keys
         .filter { chronicle.settlementStood(it, chronicle.presentYear) }
-        .flatMap { LegendKnowledge.toldAt(chronicle, it, seed, positions) }
+        .flatMap { LegendKnowledge.toldAt(chronicle, it, seed, positions, seeds = seeds) }
 
       world to told
     }

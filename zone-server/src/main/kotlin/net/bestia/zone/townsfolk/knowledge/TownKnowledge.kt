@@ -6,6 +6,7 @@ import net.bestia.worldgen.core.HistoryEvent
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pop.Household
 import net.bestia.worldgen.pop.PopulationSummary
+import net.bestia.worldgen.stronghold.EmpyriteSeed
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.world.SettlementLoreService
 import kotlin.math.ceil
@@ -155,10 +156,11 @@ class TownKnowledge(
       rumours: List<Knowledge> = emptyList(),
       nearbyRange: Double = SettlementLoreService.NEARBY_RANGE,
       positions: Map<Int, Vec2d> = SettlementLoreService.settlementPositions(generated),
+      seeds: List<EmpyriteSeed> = emptyList(),
     ): TownKnowledge {
       val chronicle = generated.world.chronicle
       val candidates = poolOf(generated, settlement, nearbyRange, positions)
-      val legends = LegendKnowledge.toldAt(chronicle, settlement, worldSeed, positions, legendVariantsOf)
+      val legends = LegendKnowledge.toldAt(chronicle, settlement, worldSeed, positions, legendVariantsOf, seeds)
         .map { it.knowledge }
       val claims = LineageClaims.at(chronicle, settlement, worldSeed, positions, legendVariantsOf(LegendKind.LINEAGE))
 
