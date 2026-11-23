@@ -53,5 +53,8 @@ enum class Authority {
   MAP_REVEAL,
 
   /** Reading and setting a Master's honor, and committing an act for them, to test the honor rules. */
-  HONOR
+  HONOR,
+
+  /** Sending an announcement to every connected player. */
+  ANNOUNCE
 }

@@ -23,6 +23,8 @@ const ONLINE := Color(0.45, 0.85, 0.45)
 const OFFLINE := Color(0.40, 0.40, 0.44)
 ## Guild chat, and guild members on the map.
 const GUILD := Color(0.80, 0.66, 1.0)
+## Orange, for an announcement to everyone online: in the chat and on its banner.
+const ANNOUNCEMENT := Color(0.94, 0.64, 0.37)
 const DANGER := Color(0.90, 0.38, 0.38)
 
 

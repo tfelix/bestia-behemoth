@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "AnnouncementSmsgProto";
+
+// Something every connected player should read: a GM's words, or news of the world such as a castle left empty.
+message AnnouncementSMSG {
+  Announcement announcement = 1;
+  // Substitution values for the client's own text, in order.
+  repeated string args = 2;
+}
+
+enum Announcement {
+  ANNOUNCEMENT_UNSPECIFIED = 0;
+  // A GM's own words, args[0], shown as they are.
+  ANNOUNCEMENT_GM = 1;
+  // A guild disbanded, and its Stronghold stands empty for any guild to take. args[0] is the guild's name,
+  // args[1] the Stronghold's.
+  ANNOUNCEMENT_STRONGHOLD_UNHELD = 2;
+}

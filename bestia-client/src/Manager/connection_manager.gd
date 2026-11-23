@@ -41,6 +41,8 @@ signal storage_opened(message: StorageOpenedSMSG)
 signal conversation_received(message: ConversationSMSG)
 ## Emitted when a thing the player read answers with its text.
 signal readable_received(message: ReadableSMSG)
+## Emitted when the server tells every connected player something: a GM's words, or news of the world.
+signal announcement_received(message: AnnouncementSMSG)
 signal operation_success(message: OperationSuccess)
 signal operation_error(message: OperationError)
 ## Emitted when another player asks us to trade. Account-scoped for the reason [signal dialog_received] is:
@@ -1778,6 +1780,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		conversation_received.emit(message)
 	elif message is ReadableSMSG:
 		readable_received.emit(message)
+	elif message is AnnouncementSMSG:
+		announcement_received.emit(message)
 	elif message is CraftableRecipesSMSG:
 		craftable_recipes_received.emit(message)
 	elif message is DiscoveryResultSMSG:
