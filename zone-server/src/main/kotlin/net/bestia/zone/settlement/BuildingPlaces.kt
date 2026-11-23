@@ -22,6 +22,8 @@ object BuildingPlaces {
     StaticEntityKind.CHEST,
     StaticEntityKind.WORKBENCH,
     StaticEntityKind.MANA_CIRCLE,
+    // A Stronghold stands at an Empyrite Seed, which lies at least 1 km from any town.
+    StaticEntityKind.EMPYRITE_SITE,
   )
 
   /** The city sign founds the settlement, so Founder checks its spot with rules of its own. */

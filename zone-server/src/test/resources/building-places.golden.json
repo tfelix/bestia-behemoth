@@ -5,6 +5,7 @@
   "wildKinds" : {
     "CAMPFIRE" : 55,
     "CHEST" : 58,
+    "EMPYRITE_SITE" : 90,
     "MANA_CIRCLE" : 57,
     "MINING_SHAFT" : 71,
     "THEODOLITE" : 59,
