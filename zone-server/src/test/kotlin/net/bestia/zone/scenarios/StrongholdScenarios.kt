@@ -2,12 +2,10 @@ package net.bestia.zone.scenarios
 
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.worldgen.stronghold.EmpyriteSeed
-import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.ecs.attack.AttackTarget
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.net.AttackEntityCMSG
-import net.bestia.zone.battle.status.RemovalReason
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.control.net.InteractEntityCMSG
 import net.bestia.zone.control.net.SelectEntityCMSG
@@ -115,9 +113,6 @@ class StrongholdScenarios : BestiaNoSocketScenario() {
   private lateinit var watchers: Watchers
 
   @Autowired
-  private lateinit var statusEffects: StatusEffectService
-
-  @Autowired
   private lateinit var transactionManager: PlatformTransactionManager
 
   private val tx: TransactionTemplate get() = TransactionTemplate(transactionManager)
@@ -150,8 +145,8 @@ class StrongholdScenarios : BestiaNoSocketScenario() {
   @Test
   @Order(1)
   fun `two guilds with Official Guild Approval`() {
-    readyMaster(leader)
-    readyMaster(rival)
+    takeControlOfMaster(leader)
+    takeControlOfMaster(rival)
     found(leader, LEADER_GUILD)
     found(rival, RIVAL_GUILD)
 
@@ -230,6 +225,10 @@ class StrongholdScenarios : BestiaNoSocketScenario() {
   @Test
   @Order(6)
   fun `the rival's breaking blow takes the Stronghold, and both guilds hear of it`() {
+    // The Guardian roams the grounds and would kill the lone rival first. It falls, as it would to a raid party.
+    world.modify(assertNotNull(watcherEntity())) { id -> add(id, Dead()) }
+    await { assertTrue(watchers.fallenOf(seed.rank).isNotEmpty()) }
+
     val target = empyrite()
     standAt(rival, positionOf(target).let { Vec3L(it.x + 1, it.y, it.z) })
     awaitWardFaded(rival)
@@ -243,7 +242,7 @@ class StrongholdScenarios : BestiaNoSocketScenario() {
     await { assertTrue(rival.receivedAny(GuildNoticeSMSG::class) { it.notice == GuildNoticeSMSG.Notice.STRONGHOLD_CAPTURED }) }
     await { assertTrue(leader.receivedAny(GuildNoticeSMSG::class) { it.notice == GuildNoticeSMSG.Notice.STRONGHOLD_LOST }) }
     assertEquals(null, stewardEntity(), "the steward left with the old guild's contract")
-    assertEquals(null, watcherEntity(), "so did the watchers")
+    assertTrue(watchers.fallenOf(seed.rank).isEmpty(), "the fallen Guardian does not come back for the new owner")
   }
 
   @Test
@@ -256,18 +255,10 @@ class StrongholdScenarios : BestiaNoSocketScenario() {
     await { assertEquals(OperationErrorSMSG(OpError.COMBAT_TARGET_IN_GRACE), leader.getLastReceived(OperationErrorSMSG::class)) }
   }
 
-  /**
-   * An earlier scenario may have left a player steering a bestia, or held by an effect that forbids an action. Here
-   * the masters act themselves, and freely.
-   */
-  private fun readyMaster(client: GameClientMock) {
+  /** An earlier scenario may have left a player steering a bestia; here the masters act themselves. */
+  private fun takeControlOfMaster(client: GameClientMock) {
     client.sendMessage(SelectEntityCMSG(client.connectedPlayerId, masterEntityOf(client)))
     await { assertEquals(masterEntityOf(client), connections.getActiveEntityId(client.connectedPlayerId)) }
-
-    world.modify(masterEntityOf(client)) { id ->
-      val locking = get(id, StatusEffects::class)?.activeEffects?.filter { it.locks.isNotEmpty() }.orEmpty()
-      locking.forEach { statusEffects.removeEffect(this, id, it.definitionId, RemovalReason.DISPELLED) }
-    }
   }
 
   private fun found(client: GameClientMock, name: String) {
