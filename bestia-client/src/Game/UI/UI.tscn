@@ -56,6 +56,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/BestiaOrders/BestiaOrdersPanel.tscn" id="45_orders"]
 [ext_resource type="Script" path="res://Game/UI/Stronghold/plant_empyrite_dialog.gd" id="96_plantemp"]
 [ext_resource type="PackedScene" path="res://Game/UI/Stronghold/Stronghold.tscn" id="97_stronghold"]
+[ext_resource type="PackedScene" path="res://Game/UI/Announcement/AnnouncementBanner.tscn" id="98_announce"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -78,6 +79,9 @@ layout_mode = 1
 layout_mode = 1
 
 [node name="TownBanner" parent="." instance=ExtResource("95_town_banner")]
+layout_mode = 1
+
+[node name="AnnouncementBanner" parent="." instance=ExtResource("98_announce")]
 layout_mode = 1
 
 [node name="Clock" parent="." unique_id=1359698401 instance=ExtResource("14_clock")]

@@ -438,6 +438,9 @@ ERROR_GUILD_BANNER_NOT_ALLOWED,Only a guild that knows Rally to the Banner can p
 ERROR_GUILD_BANNER_OUT_OF_RANGE,That spot is too far away to plant the banner.
 ERROR_GUILD_LEADER_MUST_DISBAND,This master leads the guild %s. Hand it over or disband it before deleting the master.
 CHAT_LINE_PARTY,[Party] %s: %s
+CHAT_LINE_ANNOUNCEMENT,[Announcement] %s
+ANNOUNCEMENT_GM,%s
+ANNOUNCEMENT_STRONGHOLD_UNHELD,"The guild %s is gone. %s stands empty, free for any guild to take."
 CHAT_LINE_GUILD,[Guild] %s: %s
 INVITATION_ACCEPT,Yes
 INVITATION_DECLINE,No
