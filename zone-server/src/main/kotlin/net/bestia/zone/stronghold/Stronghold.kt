@@ -31,6 +31,14 @@ data class Stronghold(
     return copy(tracks = tracks + (track to progress))
   }
 
+  companion object {
+    /**
+     * The guild id of a Stronghold whose guild disbanded. No guild has it, so nobody may use what the Stronghold
+     * offers until another guild breaks the Empyrite and takes it.
+     */
+    const val UNHELD = 0L
+  }
+
   fun watchersOf(kind: WatcherKind): Int {
     return watchers[kind] ?: 0
   }

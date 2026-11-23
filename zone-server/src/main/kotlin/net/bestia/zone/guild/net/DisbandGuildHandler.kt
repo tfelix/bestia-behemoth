@@ -1,6 +1,8 @@
 package net.bestia.zone.guild.net
 
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
+import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.guild.GuildDisbanding
 import net.bestia.zone.guild.GuildException
 import net.bestia.zone.guild.GuildInfoPublisher
 import net.bestia.zone.guild.GuildService
@@ -14,6 +16,8 @@ class DisbandGuildHandler(
   private val guildService: GuildService,
   private val publisher: GuildInfoPublisher,
   private val outMessageProcessor: OutMessageProcessor,
+  private val worldView: WorldView,
+  private val disbandings: List<GuildDisbanding>,
 ) : IoMessageHandler<DisbandGuildCMSG> {
 
   override val wire = decoder(MessageCase.DISBAND_GUILD) { accountId, envelope ->
@@ -25,6 +29,7 @@ class DisbandGuildHandler(
       val disbanded = guildService.disband(msg.playerId, msg.confirmName)
 
       publisher.disbanded(disbanded.guildId, disbanded.members)
+      worldView.post { disbandings.forEach { it.disbanded(this, disbanded.guildId, disbanded.guildName) } }
     } catch (e: GuildException) {
       outMessageProcessor.sendToPlayer(msg.playerId, e.toOperationError())
     }

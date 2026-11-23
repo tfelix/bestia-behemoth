@@ -18,6 +18,7 @@ import net.bestia.zone.guild.GuildInfoSMSG
 import net.bestia.zone.guild.GuildNoticeSMSG
 import net.bestia.zone.guild.GuildService
 import net.bestia.zone.guild.net.CreateGuildCMSG
+import net.bestia.zone.guild.net.DisbandGuildCMSG
 import net.bestia.zone.guild.persistence.GuildRepository
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.identity.ecs.GuildOwned
@@ -25,6 +26,8 @@ import net.bestia.zone.item.StorageOpenedSMSG
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ObtainItemIntent
+import net.bestia.zone.message.AnnouncementSMSG
+import net.bestia.zone.message.AnnouncementSMSG.Announcement
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.movement.ecs.Position
@@ -40,6 +43,7 @@ import net.bestia.zone.stronghold.EmpyriteSeedInteraction
 import net.bestia.zone.stronghold.EmpyriteSeedRegistry
 import net.bestia.zone.stronghold.Empyrites
 import net.bestia.zone.stronghold.SeedSpots
+import net.bestia.zone.stronghold.Stronghold
 import net.bestia.zone.stronghold.StrongholdRegistry
 import net.bestia.zone.stronghold.StrongholdSMSG
 import net.bestia.zone.stronghold.Stewards
@@ -253,6 +257,19 @@ class StrongholdScenarios : BestiaNoSocketScenario() {
     leader.sendMessage(AttackEntityCMSG(leader.connectedPlayerId, empyrite()))
 
     await { assertEquals(OperationErrorSMSG(OpError.COMBAT_TARGET_IN_GRACE), leader.getLastReceived(OperationErrorSMSG::class)) }
+  }
+
+  @Test
+  @Order(8)
+  fun `when the rival guild disbands, its Stronghold stands empty and everyone online hears of it`() {
+    rival.sendMessage(DisbandGuildCMSG(rival.connectedPlayerId, RIVAL_GUILD))
+
+    await {
+      val announcement = leader.getLastReceived(AnnouncementSMSG::class)
+      assertEquals(AnnouncementSMSG(Announcement.STRONGHOLD_UNHELD, listOf(RIVAL_GUILD, seed.name)), announcement)
+    }
+    assertEquals(Stronghold.UNHELD, world.read { strongholds.on(seed.rank)?.guildId })
+    assertEquals(GuildOwned(Stronghold.UNHELD), world.read { get(empyrite(), GuildOwned::class) })
   }
 
   /** An earlier scenario may have left a player steering a bestia; here the masters act themselves. */

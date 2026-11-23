@@ -72,6 +72,7 @@ class StrongholdNews(
   }
 
   private fun log(guildId: Long, kind: GuildLogKind, actorName: String, rank: Int) {
+    if (guildId == Stronghold.UNHELD) return
     val name = nameOf(rank)
     asyncJobExecutor.submit(LOG_JOB_KEY) {
       try {
