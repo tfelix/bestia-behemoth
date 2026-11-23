@@ -58,6 +58,12 @@ class GuildStorages(
     return contentsByGuild.getOrPut(guildId) { Inventory(mutableListOf()) }
   }
 
+  /** The guild disbanded with nothing left in its storage. */
+  fun forget(guildId: Long) {
+    contentsByGuild.remove(guildId)
+    openings.remove(guildId)
+  }
+
   /** A member clicked a steward of their guild: the storage opens in their inventory. */
   fun open(world: World, userId: EntityId, stewardId: EntityId): OpError? {
     val rank = world.get(stewardId, Steward::class)?.rank ?: return OpError.REQUEST_REFUSED

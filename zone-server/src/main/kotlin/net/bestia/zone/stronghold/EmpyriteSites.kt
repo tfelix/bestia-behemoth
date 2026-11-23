@@ -55,14 +55,24 @@ class EmpyriteSites(
     }
   }
 
+  /** The guild that planted it disbanded: the site goes, and its seed is free again. Nobody is left to tell. */
+  fun abandon(world: World, stronghold: Stronghold) {
+    val structure = stronghold.siteStructureId?.let(structures::of)
+    clear(world, stronghold, structure?.let { siteEntityOf(world, it.id) }, structure?.id)
+  }
+
   private fun lose(world: World, stronghold: Stronghold, siteId: EntityId?, structureId: Long?) {
+    clear(world, stronghold, siteId, structureId)
+    news.lost(world, stronghold.guildId, stronghold.rank)
+
+    LOG.info { "The Empyrite site of guild ${stronghold.guildId} at seed ${stronghold.rank} is gone" }
+  }
+
+  private fun clear(world: World, stronghold: Stronghold, siteId: EntityId?, structureId: Long?) {
     siteId?.let(world::destroy)
     structureId?.let { id -> structures.of(id)?.let { removeStructure(it.id, it.position) } }
     strongholds.remove(stronghold.rank)
     seeds.awake().firstOrNull { it.rank == stronghold.rank }?.let { sprouts.raise(world, it) }
-    news.lost(world, stronghold.guildId, stronghold.rank)
-
-    LOG.info { "The Empyrite site of guild ${stronghold.guildId} at seed ${stronghold.rank} is gone" }
   }
 
   private fun removeStructure(structureId: Long, at: Vec3L) {

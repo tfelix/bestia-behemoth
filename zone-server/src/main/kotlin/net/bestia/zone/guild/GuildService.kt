@@ -73,7 +73,7 @@ class GuildService(
   /** [member] is out of [guildId], which goes on. */
   data class Departed(val guildId: Long, val member: GuildMemberRef)
 
-  data class Disbanded(val guildId: Long, val members: List<GuildMemberRef>)
+  data class Disbanded(val guildId: Long, val guildName: String, val members: List<GuildMemberRef>)
 
   /**
    * The master [accountId] plays founds a guild named [rawName], spending one Founder's Seal from its bag, and
@@ -518,6 +518,7 @@ class GuildService(
     }
 
     val guildId = guild.id
+    val guildName = guild.name
     val members = guild.members.map { refOf(it) }
 
     // Members before ranks, since every member row points at a rank; left to the cascade, the order is not ours.
@@ -537,7 +538,7 @@ class GuildService(
 
     LOG.info { "Guild $guildId disbanded by its leader" }
 
-    return Disbanded(guildId, members)
+    return Disbanded(guildId, guildName, members)
   }
 
   /** The name of the guild [masterId] leads, or null. */
