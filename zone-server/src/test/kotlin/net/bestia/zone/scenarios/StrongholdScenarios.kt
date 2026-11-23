@@ -2,15 +2,18 @@ package net.bestia.zone.scenarios
 
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.worldgen.stronghold.EmpyriteSeed
+import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.ecs.attack.AttackTarget
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.net.AttackEntityCMSG
+import net.bestia.zone.battle.status.RemovalReason
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.control.net.InteractEntityCMSG
 import net.bestia.zone.control.net.SelectEntityCMSG
 import net.bestia.zone.economy.CommodityItems
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.guild.GuildException
 import net.bestia.zone.guild.GuildInfoSMSG
@@ -112,6 +115,9 @@ class StrongholdScenarios : BestiaNoSocketScenario() {
   private lateinit var watchers: Watchers
 
   @Autowired
+  private lateinit var statusEffects: StatusEffectService
+
+  @Autowired
   private lateinit var transactionManager: PlatformTransactionManager
 
   private val tx: TransactionTemplate get() = TransactionTemplate(transactionManager)
@@ -144,8 +150,8 @@ class StrongholdScenarios : BestiaNoSocketScenario() {
   @Test
   @Order(1)
   fun `two guilds with Official Guild Approval`() {
-    takeControlOfMaster(leader)
-    takeControlOfMaster(rival)
+    readyMaster(leader)
+    readyMaster(rival)
     found(leader, LEADER_GUILD)
     found(rival, RIVAL_GUILD)
 
@@ -250,10 +256,18 @@ class StrongholdScenarios : BestiaNoSocketScenario() {
     await { assertEquals(OperationErrorSMSG(OpError.COMBAT_TARGET_IN_GRACE), leader.getLastReceived(OperationErrorSMSG::class)) }
   }
 
-  /** An earlier scenario may have left a player steering a bestia; here the masters act themselves. */
-  private fun takeControlOfMaster(client: GameClientMock) {
+  /**
+   * An earlier scenario may have left a player steering a bestia, or held by an effect that forbids an action. Here
+   * the masters act themselves, and freely.
+   */
+  private fun readyMaster(client: GameClientMock) {
     client.sendMessage(SelectEntityCMSG(client.connectedPlayerId, masterEntityOf(client)))
     await { assertEquals(masterEntityOf(client), connections.getActiveEntityId(client.connectedPlayerId)) }
+
+    world.modify(masterEntityOf(client)) { id ->
+      val locking = get(id, StatusEffects::class)?.activeEffects?.filter { it.locks.isNotEmpty() }.orEmpty()
+      locking.forEach { statusEffects.removeEffect(this, id, it.definitionId, RemovalReason.DISPELLED) }
+    }
   }
 
   private fun found(client: GameClientMock, name: String) {
@@ -298,7 +312,9 @@ class StrongholdScenarios : BestiaNoSocketScenario() {
     "rival steering ${connections.getActiveEntityId(rival.connectedPlayerId)} from master $attacker " +
       "at ${get(attacker, Position::class)?.toVec3L()}, ordered at ${get(attacker, AttackTarget::class)?.targetEntityId}, " +
       "Empyrite $target at ${get(target, Position::class)?.toVec3L()} with ${get(target, Health::class)?.current} HP, " +
-      "rival's last refusal ${rival.tryGetLastReceived(OperationErrorSMSG::class)?.code}"
+      "rival's last refusal ${rival.tryGetLastReceived(OperationErrorSMSG::class)?.code}, " +
+      "rival dead ${has(attacker, Dead::class)}, " +
+      "rival's effects ${get(attacker, StatusEffects::class)?.activeEffects?.map { "${it.definitionId} locks ${it.locks}" }}"
   }
 
   /** Fresh from the start town, a master still carries its ward for a few seconds and may harm no player's side. */
