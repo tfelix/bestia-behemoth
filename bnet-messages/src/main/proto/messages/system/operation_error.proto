@@ -594,6 +594,8 @@ enum OpError {
   BUILD_ON_STRONGHOLD_GROUNDS = 418;
   // The target cannot be harmed for a while yet, such as an Empyrite right after its capture.
   COMBAT_TARGET_IN_GRACE = 419;
+  // The leader cannot disband the guild while its storage holds anything.
+  GUILD_DISBAND_STORAGE_NOT_EMPTY = 420;
 }
 
 message OperationError {

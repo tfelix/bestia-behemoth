@@ -3,10 +3,12 @@ package net.bestia.zone.stronghold
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.worldgen.stronghold.EmpyriteSeed
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.identity.ecs.GuildOwned
 import net.bestia.zone.item.container.ItemHolder
+import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.message.AnnouncementSMSG
 import net.bestia.zone.message.AnnouncementSMSG.Announcement
 import net.bestia.zone.message.OutMessageProcessor
@@ -16,6 +18,7 @@ import net.bestia.zone.stronghold.persistence.StrongholdRecord.State
 import org.junit.jupiter.api.Test
 import java.time.Instant.EPOCH
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class StrongholdDisbandingTest {
 
@@ -79,9 +82,19 @@ class StrongholdDisbandingTest {
     verify { jobs.submit(ItemHolder.GuildStorage(GUILD), any()) }
   }
 
+  @Test
+  fun `a guild whose storage still holds goods may not disband`() {
+    every { storages.contentsOf(GUILD) } returns Inventory(mutableListOf(Inventory.Item(IRON_ORE, 1)))
+    assertEquals(OpError.GUILD_DISBAND_STORAGE_NOT_EMPTY, disbanding.refusal(world, GUILD))
+
+    every { storages.contentsOf(GUILD) } returns Inventory(mutableListOf())
+    assertNull(disbanding.refusal(world, GUILD))
+  }
+
   private companion object {
     const val GUILD = 1L
     const val STANDING_RANK = 2
     const val SITE_RANK = 3
+    const val IRON_ORE = 20L
   }
 }

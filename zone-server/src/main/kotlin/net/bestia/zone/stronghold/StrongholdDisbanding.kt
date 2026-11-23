@@ -1,6 +1,7 @@
 package net.bestia.zone.stronghold
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.guild.GuildDisbanding
 import net.bestia.zone.identity.ecs.GuildOwned
@@ -17,7 +18,8 @@ import org.springframework.stereotype.Component
 /**
  * A disbanded guild's Strongholds stand empty: steward and watchers leave, nobody may use the Stronghold, and the next
  * guild to break the Empyrite takes it as in any capture. Everyone online hears of it. A site that was not finished
- * is simply gone, and its seed is free again.
+ * is simply gone, and its seed is free again. A guild whose storage still holds goods may not disband: nobody
+ * would be left to take them.
  */
 @Component
 class StrongholdDisbanding(
@@ -31,6 +33,10 @@ class StrongholdDisbanding(
   private val asyncJobExecutor: AsyncJobExecutor,
   private val messages: OutMessageProcessor,
 ) : GuildDisbanding {
+
+  override fun refusal(world: World, guildId: Long): OpError? {
+    return if (storages.contentsOf(guildId).isEmpty()) null else OpError.GUILD_DISBAND_STORAGE_NOT_EMPTY
+  }
 
   override fun disbanded(world: World, guildId: Long, guildName: String) {
     for (stronghold in strongholds.heldBy(guildId).toList()) {
