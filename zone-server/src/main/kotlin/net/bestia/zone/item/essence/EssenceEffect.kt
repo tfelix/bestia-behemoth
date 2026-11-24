@@ -152,7 +152,11 @@ enum class EssenceEffect(val tool: ToolKind? = null) {
       context.noticeRangeCutPercent += 2 * sum.points
     }
   },
-  TAMER,
+  TAMER {
+    override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
+      context.catchChancePoints += sum.points / 2
+    }
+  },
   REFLEX,
   MINING_SPEED(ToolKind.MINING) {
     override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {

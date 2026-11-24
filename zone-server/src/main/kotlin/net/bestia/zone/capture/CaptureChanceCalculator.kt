@@ -19,6 +19,8 @@ class CaptureChanceCalculator {
     val trapperWillpower: Int,
     val trappingLevel: Int,
     val beastfriendLevel: Int,
+    /** From a Tamer essence the trapper wears. */
+    val essencePoints: Int = 0,
   )
 
   /** @return the chance in `0.0..0.95`. */
@@ -27,7 +29,8 @@ class CaptureChanceCalculator {
         hpBonus(input.targetHp, input.targetMaxHp) +
         input.trapperWillpower / WILLPOWER_PER_POINT +
         TRAPPING_PER_LEVEL * input.trappingLevel +
-        BEASTFRIEND_PER_LEVEL * input.beastfriendLevel
+        BEASTFRIEND_PER_LEVEL * input.beastfriendLevel +
+        input.essencePoints
 
     return (points / 100.0).coerceIn(0.0, MAX_CHANCE)
   }

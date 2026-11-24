@@ -149,7 +149,8 @@ class BestiaTrapSystem(
     val health = world.getOrThrow(targetId, Health::class)
 
     // A trapper who has logged out since setting it adds nothing but the trap itself.
-    val willpower = world.get(trap.trapperEntityId, CombatStats::class)?.values?.attributes?.willpower ?: 0
+    val trapper = world.get(trap.trapperEntityId, CombatStats::class)?.values
+    val willpower = trapper?.attributes?.willpower ?: 0
     val trapperSkills = world.get(trap.trapperEntityId, KnownSkills::class)
     val trapping = trappingSkillId?.let { trapperSkills?.levelOf(it) } ?: 0
     val beastfriend = beastfriendSkillId?.let { trapperSkills?.levelOf(it) } ?: 0
@@ -163,6 +164,7 @@ class BestiaTrapSystem(
         trapperWillpower = willpower,
         trappingLevel = trapping,
         beastfriendLevel = beastfriend,
+        essencePoints = trapper?.catchChancePoints ?: 0,
       )
     )
   }

@@ -60,6 +60,22 @@ class CaptureChanceCalculatorTest {
     assertEquals(0.35, sut.chance(input), TOLERANCE)
   }
 
+  @Test
+  fun `a tamer essence adds its points`() {
+    val input = CaptureChanceCalculator.Input(
+      tier = TrapTier.BESTIA_TRAP,
+      targetLevel = 21,
+      targetHp = 100,
+      targetMaxHp = 100,
+      trapperWillpower = 0,
+      trappingLevel = 0,
+      beastfriendLevel = 0,
+      essencePoints = 4,
+    )
+
+    assertEquals(0.24, sut.chance(input), TOLERANCE)
+  }
+
   private fun nearlyDead(
     tier: TrapTier,
     level: Int,
