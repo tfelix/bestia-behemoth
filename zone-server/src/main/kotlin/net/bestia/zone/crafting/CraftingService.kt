@@ -170,7 +170,10 @@ class CraftingService(
         station = station?.kind,
         recipes = offered,
         structureId = station?.id ?: 0,
-        fuelSeconds = station?.burnsOutAt?.let { Campfire.secondsLeft(it, clock.instant()) } ?: 0
+        fuelSeconds = station?.burnsOutAt?.let { Campfire.secondsLeft(it, clock.instant()) } ?: 0,
+        etchingOffers = station?.takeIf { it.kind == StaticEntityKind.CARVING_TABLE }
+          ?.let { etching.offersAt(world, it.position, crafter.master.masterId) }
+          .orEmpty()
       )
     )
 
@@ -597,10 +600,11 @@ class CraftingService(
     provenance: ItemProvenance
   ): Boolean {
     val essenceGemId = itemTemplates.idOf(ESSENCE_GEM) ?: return false
+    val owner = etching.ownerOf(world, bestiaId) ?: crafterId
     val essence = etching.bind(world, bestiaId, recipe.etchedGemId) ?: return false
     val roll = ItemRoll(emptyList(), sockets = 0, itemStats.itemLevelOf(essenceGemId), heldEssence = essence)
 
-    world.add(crafterId, ObtainItemIntent.CreateItemIntent(essenceGemId, 1, roll, provenance))
+    world.add(owner, ObtainItemIntent.CreateItemIntent(essenceGemId, 1, roll, provenance))
     return true
   }
 
