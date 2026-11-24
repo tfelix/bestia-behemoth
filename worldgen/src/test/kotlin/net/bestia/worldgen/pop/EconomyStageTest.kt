@@ -120,6 +120,17 @@ class EconomyStageTest {
   }
 
   @Test
+  fun `every village has a bestia center, and a hamlet has none`() {
+    val center = { population: Int ->
+      BusinessCatalogue.evaluate(setting(population = population)).first { it.type.id == "bestia_center" }
+    }
+
+    assertTrue(center(SettlementTier.VILLAGE.minPopulation).exists, "a village has no bestia center")
+    assertTrue(center(SettlementTier.CITY.minPopulation).exists, "a city has no bestia center")
+    assertTrue(!center(SettlementTier.VILLAGE.minPopulation - 1).exists, "a hamlet has a bestia center")
+  }
+
+  @Test
   fun `a trade that cannot exist still reports a decision`() {
     // Every trade in the catalogue comes back, whether or not it produced anything. That is what the `why`
     // view prints, and a roster that only listed what exists could not answer "why is there no baker".

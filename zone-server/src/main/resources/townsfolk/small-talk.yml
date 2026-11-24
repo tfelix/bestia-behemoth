@@ -68,6 +68,11 @@ lines:
     variants: 4
     occupations: [postmaster]
 
+  # --- Bestia Keeper -------------------------------------------------------------------------------
+  - key: TALK_SMALL_BESTIA_KEEPER_PENS
+    variants: 4
+    occupations: [bestia_keeper]
+
   # --- Baker ---------------------------------------------------------------------------------------
   - key: TALK_SMALL_BAKER_OVEN
     variants: 4
