@@ -11857,3 +11857,14 @@ items:
       An arrow with a dark, blunt head of lodestone that hums against the palm.
 
       It may stun what it hits.
+  - id: 640
+    item-db-name: carving_table_kit
+    base-level: 1
+    weight: 1000
+    type: USABLE
+    material: WOOD
+    script: CarvingTableKitScript
+    description: |
+      A heavy folding table with vices, fine gravers and a shaded lamp.
+
+      Set it down and it becomes a Carving Table, where Runic Etching binds a Bestia into a cut gem.

@@ -267,6 +267,11 @@ kinds:
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
 
+  - kind: CARVING_TABLE
+    max-hp: 150
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+
   # Planks and iron bands: tougher than a workbench, because what is inside is worth breaking it for.
   - kind: CHEST
     max-hp: 200

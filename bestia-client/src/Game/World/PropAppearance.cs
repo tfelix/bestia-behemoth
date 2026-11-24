@@ -836,7 +836,14 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 7.0f, PlaceholderColour = new Color(0.55f, 0.62f, 0.45f), StructureHeight = 4f,
         Action = PropAction.Use
-      } // BESTIA_CENTER
+      }, // BESTIA_CENTER
+
+      // Where an Artificer etches a Bestia into a cut gem: a violet bench until it has a model.
+      new Kind
+      {
+        PlaceholderWidth = 1.4f, PlaceholderColour = new Color(0.45f, 0.35f, 0.55f), StructureHeight = 1f,
+        Action = PropAction.Use
+      } // CARVING_TABLE
     };
 
     /// <summary>

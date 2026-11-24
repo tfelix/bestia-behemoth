@@ -1539,3 +1539,14 @@ recipes:
     skill: { skill: M_ARROW_CRAFTING, level: 5 }
     craftSeconds: 6.0
     baseSuccessChance: 1.0
+  - id: 152
+    identifier: CARVING_TABLE_KIT
+    effect: PRODUCE
+    output: { item: carving_table_kit, amount: 1 }
+    inputs:
+      - { item: plank, amount: 8 }
+      - { item: iron_ingot, amount: 2 }
+      - { item: glass, amount: 1 }
+    skill: { skill: M_RUNIC_ETCHING, level: 1 }
+    craftSeconds: 20.0
+    baseSuccessChance: 1
