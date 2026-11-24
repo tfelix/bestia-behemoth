@@ -4,7 +4,9 @@ import jakarta.persistence.CascadeType
 import jakarta.persistence.Embeddable
 import jakarta.persistence.OneToMany
 import net.bestia.zone.bestia.persistence.Bestia
+import net.bestia.zone.account.BestiaPlace
 import net.bestia.zone.account.PlayerBestiaPolicy
+import java.time.Instant
 
 @Embeddable
 class MasterBestias {
@@ -25,10 +27,13 @@ class MasterBestias {
       return bestias.filter { it.isStored }
     }
 
-  fun addBestia(master: Master, bestia: Bestia, bestiaPolicy: PlayerBestiaPolicy): PlayerBestia {
-    bestiaPolicy.checkPolicy(master, bestia)
+  fun addBestia(master: Master, bestia: Bestia, bestiaPolicy: PlayerBestiaPolicy, now: Instant): PlayerBestia {
+    val place = bestiaPolicy.placeFor(master)
 
     val pb = PlayerBestia(master, bestia)
+    if (place == BestiaPlace.STORAGE) {
+      pb.storedAt = now
+    }
     bestias.add(pb)
 
     return pb

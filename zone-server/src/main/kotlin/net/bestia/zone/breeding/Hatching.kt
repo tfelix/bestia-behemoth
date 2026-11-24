@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional
 
 /**
  * Turns a ready egg into its owner's new bestia at Lv. 1, off the tick. One transaction: the egg is gone exactly when
- * the bestia exists, so a master without a free slot keeps the egg.
+ * the bestia exists, so a master without a free active or storage slot keeps the egg.
  */
 @Service
 class Hatching(
@@ -21,7 +21,7 @@ class Hatching(
   private val createOperation: PlayerBestiaCreateOperation,
 ) {
 
-  /** @throws net.bestia.zone.account.OwnedBestiaPolicyViolationException when the master has no free slot */
+  /** @throws net.bestia.zone.account.OwnedBestiaPolicyViolationException when the master has no free slot at all */
   @Transactional
   fun hatch(masterId: Long, eggInstanceId: Long, at: Vec3L) {
     val egg = checkNotNull(eggs.findByIdOrNull(eggInstanceId)) { "Egg $eggInstanceId has no row" }

@@ -37,7 +37,7 @@ class BestiaAdoptionService(
   /** Published from the tick, so it only hands the work on. */
   @EventListener
   fun onCaptured(event: BestiaCapturedEvent) {
-    // Recorded even when no slot is free and the creature is released again: it was still caught.
+    // Recorded even when no slot is free, not even in storage, and the creature is released again: it was still caught.
     compendiumRecorder.caught(event.ownerAccountId, event.masterId, event.speciesId)
 
     asyncJobExecutor.submit(key = event.ownerAccountId) {
