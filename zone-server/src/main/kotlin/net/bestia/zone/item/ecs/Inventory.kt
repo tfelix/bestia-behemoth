@@ -2,6 +2,7 @@ package net.bestia.zone.item.ecs
 
 import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.PlayerItemIds
+import net.bestia.zone.item.essence.Essence
 import net.bestia.zone.item.stat.StatValue
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
@@ -47,6 +48,10 @@ data class Inventory(
     var itemLevel: Int = 0,
 
     val rolledStats: List<StatValue> = emptyList(),
+
+    /** Mirrors [net.bestia.zone.item.persistence.ItemInstance.essences]. */
+    var essences: List<Essence> = emptyList(),
+    val heldEssence: Essence? = null,
 
     /** Who crafted this pile or copy and where; null for a plain one. Piles with different makers never merge. */
     val provenance: ItemProvenance? = null
@@ -357,6 +362,8 @@ data class Inventory(
           upgradeLevel = item.upgradeLevel,
           itemLevel = item.itemLevel,
           rolledStats = item.rolledStats,
+          essences = item.essences,
+          heldEssence = item.heldEssence,
           playerItemId = item.playerItemId,
           provenance = item.provenance,
           mapCircle = if (item.uniqueId == 0L) null else MapCircles.installed.of(item.uniqueId),

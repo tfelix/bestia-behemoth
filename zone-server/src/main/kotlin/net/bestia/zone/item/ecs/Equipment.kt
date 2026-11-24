@@ -1,6 +1,7 @@
 package net.bestia.zone.item.ecs
 
 import net.bestia.zone.item.ItemProvenance
+import net.bestia.zone.item.essence.Essence
 import net.bestia.zone.item.stat.StatValue
 import net.bestia.zone.ecs.core.DirtyFlag
 import net.bestia.zone.sync.Dirtyable
@@ -51,7 +52,8 @@ data class Equipment(
 
     val itemLevel: Int = 0,
     val rolledStats: List<StatValue> = emptyList(),
-    val provenance: ItemProvenance? = null
+    val provenance: ItemProvenance? = null,
+    val essences: List<Essence> = emptyList()
   ) {
     val isBroken: Boolean
       get() = maxDurability > 0 && durability <= 0
@@ -134,7 +136,8 @@ data class Equipment(
           upgradeLevel = item.upgradeLevel,
           itemLevel = item.itemLevel,
           rolledStats = item.rolledStats,
-          provenance = item.provenance
+          provenance = item.provenance,
+          essences = item.essences
         )
       },
       quiverItemIds = quiver.toList()

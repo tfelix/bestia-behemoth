@@ -69,5 +69,7 @@ data class TradeStateSMSG(
       .addAllRolledStats(item.rolledStats.map { it.toProto() })
       .setCraftedBy(item.provenance?.crafterName.orEmpty())
       .setCraftedIn(item.provenance?.worldName.orEmpty())
+      .addAllEssences(item.essences.map { it.toProto() })
+      .apply { item.heldEssence?.let { setHeldEssence(it.toProto()) } }
       .build()
 }

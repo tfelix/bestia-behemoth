@@ -27,5 +27,7 @@ private fun ReservedItem.toParcelGoods(): ParcelProto.ParcelGoods {
     .setMaxDurability(maxDurability)
     .setSlots(slots)
     .addAllRolledStats(rolledStats.map { it.toProto() })
+    .addAllEssences(essences.map { it.toProto() })
+    .apply { this@toParcelGoods.heldEssence?.let { setHeldEssence(it.toProto()) } }
     .build()
 }

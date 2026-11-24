@@ -29,6 +29,8 @@ fun ItemContainer.toLiveInventory(itemStats: ItemStatCatalog): Inventory {
         upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0,
         itemLevel = itemStats.itemLevelOf(slot),
         rolledStats = slot.rolledStats,
+        essences = slot.essences,
+        heldEssence = slot.heldEssence,
         provenance = slot.heldProvenance
       )
     }.toMutableList()

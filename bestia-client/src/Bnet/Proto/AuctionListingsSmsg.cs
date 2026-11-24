@@ -26,24 +26,27 @@ namespace Bnet {
           string.Concat(
             "CixtZXNzYWdlcy9hdWN0aW9uL2F1Y3Rpb25fbGlzdGluZ3Nfc21zZy5wcm90",
             "bxIEYm5ldBoobWVzc2FnZXMvY29tcG9uZW50L2l0ZW1fc3RhdF92YWx1ZS5w",
-            "cm90byJtChNBdWN0aW9uTGlzdGluZ3NTTVNHEgwKBHBhZ2UYASABKAUSEgoK",
-            "cGFnZV9jb3VudBgCIAEoBRIMCgRtaW5lGAMgASgIEiYKCGxpc3RpbmdzGAQg",
-            "AygLMhQuYm5ldC5BdWN0aW9uTGlzdGluZyKPAwoOQXVjdGlvbkxpc3RpbmcS",
-            "EgoKbGlzdGluZ19pZBgBIAEoBBIPCgdpdGVtX2lkGAIgASgEEg4KBmFtb3Vu",
-            "dBgDIAEoBRINCgVwcmljZRgEIAEoAxITCgtzZWxsZXJfbmFtZRgFIAEoCRIR",
-            "Cgl0b3duX25hbWUYBiABKAkSIAoYZXhwaXJlc19hdF9lcG9jaF9zZWNvbmRz",
-            "GAcgASgDEhIKCml0ZW1fbGV2ZWwYCCABKAUSFQoNdXBncmFkZV9sZXZlbBgJ",
-            "IAEoBRISCgpkdXJhYmlsaXR5GAogASgFEhYKDm1heF9kdXJhYmlsaXR5GAsg",
-            "ASgFEg0KBXNsb3RzGAwgASgFEikKDHJvbGxlZF9zdGF0cxgNIAMoCzITLmJu",
-            "ZXQuSXRlbVN0YXRWYWx1ZRISCgppc19hdWN0aW9uGA4gASgIEhMKC2N1cnJl",
-            "bnRfYmlkGA8gASgDEhQKDG5leHRfbWluX2JpZBgQIAEoAxIOCgZidXlvdXQY",
-            "ESABKAMSDwoHbGVhZGluZxgSIAEoCEIxChVuZXQuYmVzdGlhLmJuZXQucHJv",
-            "dG9CGEF1Y3Rpb25MaXN0aW5nc1Ntc2dQcm90b2IGcHJvdG8z"));
+            "cm90bxolbWVzc2FnZXMvY29tcG9uZW50L2l0ZW1fZXNzZW5jZS5wcm90byJt",
+            "ChNBdWN0aW9uTGlzdGluZ3NTTVNHEgwKBHBhZ2UYASABKAUSEgoKcGFnZV9j",
+            "b3VudBgCIAEoBRIMCgRtaW5lGAMgASgIEiYKCGxpc3RpbmdzGAQgAygLMhQu",
+            "Ym5ldC5BdWN0aW9uTGlzdGluZyLdAwoOQXVjdGlvbkxpc3RpbmcSEgoKbGlz",
+            "dGluZ19pZBgBIAEoBBIPCgdpdGVtX2lkGAIgASgEEg4KBmFtb3VudBgDIAEo",
+            "BRINCgVwcmljZRgEIAEoAxITCgtzZWxsZXJfbmFtZRgFIAEoCRIRCgl0b3du",
+            "X25hbWUYBiABKAkSIAoYZXhwaXJlc19hdF9lcG9jaF9zZWNvbmRzGAcgASgD",
+            "EhIKCml0ZW1fbGV2ZWwYCCABKAUSFQoNdXBncmFkZV9sZXZlbBgJIAEoBRIS",
+            "CgpkdXJhYmlsaXR5GAogASgFEhYKDm1heF9kdXJhYmlsaXR5GAsgASgFEg0K",
+            "BXNsb3RzGAwgASgFEikKDHJvbGxlZF9zdGF0cxgNIAMoCzITLmJuZXQuSXRl",
+            "bVN0YXRWYWx1ZRISCgppc19hdWN0aW9uGA4gASgIEhMKC2N1cnJlbnRfYmlk",
+            "GA8gASgDEhQKDG5leHRfbWluX2JpZBgQIAEoAxIOCgZidXlvdXQYESABKAMS",
+            "DwoHbGVhZGluZxgSIAEoCBIjCghlc3NlbmNlcxgTIAMoCzIRLmJuZXQuSXRl",
+            "bUVzc2VuY2USJwoMaGVsZF9lc3NlbmNlGBQgASgLMhEuYm5ldC5JdGVtRXNz",
+            "ZW5jZUIxChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGEF1Y3Rpb25MaXN0aW5n",
+            "c1Ntc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, global::Bnet.ItemEssenceReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.AuctionListingsSMSG), global::Bnet.AuctionListingsSMSG.Parser, new[]{ "Page", "PageCount", "Mine", "Listings" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.AuctionListing), global::Bnet.AuctionListing.Parser, new[]{ "ListingId", "ItemId", "Amount", "Price", "SellerName", "TownName", "ExpiresAtEpochSeconds", "ItemLevel", "UpgradeLevel", "Durability", "MaxDurability", "Slots", "RolledStats", "IsAuction", "CurrentBid", "NextMinBid", "Buyout", "Leading" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.AuctionListing), global::Bnet.AuctionListing.Parser, new[]{ "ListingId", "ItemId", "Amount", "Price", "SellerName", "TownName", "ExpiresAtEpochSeconds", "ItemLevel", "UpgradeLevel", "Durability", "MaxDurability", "Slots", "RolledStats", "IsAuction", "CurrentBid", "NextMinBid", "Buyout", "Leading", "Essences", "HeldEssence" }, null, null, null, null)
           }));
     }
     #endregion
@@ -404,6 +407,8 @@ namespace Bnet {
       nextMinBid_ = other.nextMinBid_;
       buyout_ = other.buyout_;
       leading_ = other.leading_;
+      essences_ = other.essences_.Clone();
+      heldEssence_ = other.heldEssence_ != null ? other.heldEssence_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -652,6 +657,32 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "essences" field.</summary>
+    public const int EssencesFieldNumber = 19;
+    private static readonly pb::FieldCodec<global::Bnet.ItemEssence> _repeated_essences_codec
+        = pb::FieldCodec.ForMessage(154, global::Bnet.ItemEssence.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.ItemEssence> essences_ = new pbc::RepeatedField<global::Bnet.ItemEssence>();
+    /// <summary>
+    /// See InventoryItem.essences and held_essence.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.ItemEssence> Essences {
+      get { return essences_; }
+    }
+
+    /// <summary>Field number for the "held_essence" field.</summary>
+    public const int HeldEssenceFieldNumber = 20;
+    private global::Bnet.ItemEssence heldEssence_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.ItemEssence HeldEssence {
+      get { return heldEssence_; }
+      set {
+        heldEssence_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -685,6 +716,8 @@ namespace Bnet {
       if (NextMinBid != other.NextMinBid) return false;
       if (Buyout != other.Buyout) return false;
       if (Leading != other.Leading) return false;
+      if(!essences_.Equals(other.essences_)) return false;
+      if (!object.Equals(HeldEssence, other.HeldEssence)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -710,6 +743,8 @@ namespace Bnet {
       if (NextMinBid != 0L) hash ^= NextMinBid.GetHashCode();
       if (Buyout != 0L) hash ^= Buyout.GetHashCode();
       if (Leading != false) hash ^= Leading.GetHashCode();
+      hash ^= essences_.GetHashCode();
+      if (heldEssence_ != null) hash ^= HeldEssence.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -797,6 +832,11 @@ namespace Bnet {
         output.WriteRawTag(144, 1);
         output.WriteBool(Leading);
       }
+      essences_.WriteTo(output, _repeated_essences_codec);
+      if (heldEssence_ != null) {
+        output.WriteRawTag(162, 1);
+        output.WriteMessage(HeldEssence);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -876,6 +916,11 @@ namespace Bnet {
         output.WriteRawTag(144, 1);
         output.WriteBool(Leading);
       }
+      essences_.WriteTo(ref output, _repeated_essences_codec);
+      if (heldEssence_ != null) {
+        output.WriteRawTag(162, 1);
+        output.WriteMessage(HeldEssence);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -937,6 +982,10 @@ namespace Bnet {
       }
       if (Leading != false) {
         size += 2 + 1;
+      }
+      size += essences_.CalculateSize(_repeated_essences_codec);
+      if (heldEssence_ != null) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(HeldEssence);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1001,6 +1050,13 @@ namespace Bnet {
       }
       if (other.Leading != false) {
         Leading = other.Leading;
+      }
+      essences_.Add(other.essences_);
+      if (other.heldEssence_ != null) {
+        if (heldEssence_ == null) {
+          HeldEssence = new global::Bnet.ItemEssence();
+        }
+        HeldEssence.MergeFrom(other.HeldEssence);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1093,6 +1149,17 @@ namespace Bnet {
             Leading = input.ReadBool();
             break;
           }
+          case 154: {
+            essences_.AddEntriesFrom(input, _repeated_essences_codec);
+            break;
+          }
+          case 162: {
+            if (heldEssence_ == null) {
+              HeldEssence = new global::Bnet.ItemEssence();
+            }
+            input.ReadMessage(HeldEssence);
+            break;
+          }
         }
       }
     #endif
@@ -1182,6 +1249,17 @@ namespace Bnet {
           }
           case 144: {
             Leading = input.ReadBool();
+            break;
+          }
+          case 154: {
+            essences_.AddEntriesFrom(ref input, _repeated_essences_codec);
+            break;
+          }
+          case 162: {
+            if (heldEssence_ == null) {
+              HeldEssence = new global::Bnet.ItemEssence();
+            }
+            input.ReadMessage(HeldEssence);
             break;
           }
         }

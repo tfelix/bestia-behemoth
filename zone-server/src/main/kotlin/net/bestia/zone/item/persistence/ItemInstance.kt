@@ -1,7 +1,9 @@
 package net.bestia.zone.item.persistence
 
 import jakarta.persistence.CascadeType
+import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
+import jakarta.persistence.ElementCollection
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -9,17 +11,19 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OrderBy
+import jakarta.persistence.OrderColumn
 import jakarta.persistence.Table
 import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.PlayerItemIds
 import net.bestia.zone.item.enchant.ActiveItemEnchantment
 import net.bestia.zone.item.enchant.ItemEnchantmentId
+import net.bestia.zone.item.essence.Essence
 import net.bestia.zone.item.stat.StatValue
 import java.time.Instant
 
 /**
  * A single, uniquely identifiable item that carries per-instance state (an upgrade level, the
- * master that forged/crafted it, its wear and the rune slots cut into it). An instance is
+ * master that forged/crafted it, its wear and the sockets cut into it). An instance is
  * **owner-agnostic**: it keeps its identity while it moves between a bestia inventory, a master
  * inventory, an NPC inventory or lies on the ground, so that state is never lost in transit. An
  * instance always represents exactly one physical item (quantity 1) and never stacks.
@@ -55,12 +59,7 @@ class ItemInstance(
   /** Only meaningful while [maxDurability] > 0. Zero with a nonzero max is a broken item. */
   var durability: Int = maxDurability,
 
-  /**
-   * Sockets for essences: opened when the item was forged, or cut later by Item Customization.
-   *
-   * A count rather than a list of what sits in them, because nothing can fill one yet - essences are
-   * Artificer work (`RUNIC_ETCHING`) and that sub-tree is not built.
-   */
+  /** Sockets for essences: opened when the item was forged, or cut later by Item Customization. [essences] fill them. */
   var slots: Int = 0,
 
   /** The level this copy rolled to. Null on copies made before item levels existed: read the template's then. */
@@ -70,6 +69,10 @@ class ItemInstance(
   /** For a copy that weighs what it holds, like a mail sack. Null: the template's weight. */
   @Column(name = "held_weight", nullable = true)
   var heldWeight: Int? = null,
+
+  /** What an essence gem holds. Null on every other item. */
+  @Embedded
+  val heldEssence: Essence? = null,
 
   /**
    * Minted by the zone, not by the database: the live inventory shows a new copy in the tick it is granted,
@@ -93,6 +96,25 @@ class ItemInstance(
     stats.forEachIndexed { ordinal, rolled ->
       rolledStatRows.add(ItemInstanceStat(this, ordinal, rolled.stat, rolled.value))
     }
+  }
+
+  @ElementCollection
+  @CollectionTable(name = "item_instance_socket", joinColumns = [JoinColumn(name = "item_instance_id")])
+  @OrderColumn(name = "ordinal")
+  private val socketRows: MutableList<Essence> = mutableListOf()
+
+  /** The filled sockets, in the order they were filled. The other [slots] are empty. */
+  val essences: List<Essence>
+    get() {
+      return socketRows.toList()
+    }
+
+  val hasFreeSocket: Boolean get() = socketRows.size < slots
+
+  /** Permanent: an essence leaves its socket only when the item itself is destroyed. */
+  fun socket(essence: Essence) {
+    check(hasFreeSocket) { "Item instance $id has no free socket" }
+    socketRows.add(essence)
   }
 
   @OneToMany(mappedBy = "itemInstance", cascade = [CascadeType.ALL], orphanRemoval = true)

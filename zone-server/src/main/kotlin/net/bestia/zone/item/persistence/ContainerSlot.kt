@@ -1,6 +1,7 @@
 package net.bestia.zone.item.persistence
 
 import net.bestia.zone.item.ItemProvenance
+import net.bestia.zone.item.essence.Essence
 import net.bestia.zone.item.stat.StatValue
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
@@ -117,4 +118,6 @@ class ContainerSlot(
   /** Null for a stack and for a copy made before item levels: the template's level applies then. */
   val storedItemLevel: Int? get() = itemInstance?.itemLevel
   val rolledStats: List<StatValue> get() = itemInstance?.rolledStats.orEmpty()
+  val essences: List<Essence> get() = itemInstance?.essences.orEmpty()
+  val heldEssence: Essence? get() = itemInstance?.heldEssence
 }

@@ -6,6 +6,7 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "AuctionListingsSmsgProto";
 
 import "messages/component/item_stat_value.proto";
+import "messages/component/item_essence.proto";
 
 // One page of listings, cheapest per unit first.
 message AuctionListingsSMSG {
@@ -48,4 +49,8 @@ message AuctionListing {
   int64 buyout = 17;
   // Whether the receiver holds the highest bid.
   bool leading = 18;
+
+  // See InventoryItem.essences and held_essence.
+  repeated ItemEssence essences = 19;
+  ItemEssence held_essence = 20;
 }

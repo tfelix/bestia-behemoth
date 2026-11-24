@@ -304,7 +304,8 @@ class MasterEntitySpawner(
           slots = slot.slots,
           itemLevel = itemStats.itemLevelOf(slot),
           rolledStats = slot.rolledStats,
-          provenance = slot.heldProvenance
+          provenance = slot.heldProvenance,
+          essences = slot.essences
         )
       }.toMutableMap(),
       quiver = master.container.quiver.toMutableList()

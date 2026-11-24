@@ -2,6 +2,7 @@ package net.bestia.zone.item.container
 
 import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.item.ecs.Inventory
+import net.bestia.zone.item.essence.Essence
 import net.bestia.zone.item.stat.StatValue
 import net.bestia.zone.item.persistence.ContainerSlot
 
@@ -27,6 +28,8 @@ data class ReservedItem(
   val itemLevel: Int,
   val rolledStats: List<StatValue>,
   val provenance: ItemProvenance? = null,
+  val essences: List<Essence> = emptyList(),
+  val heldEssence: Essence? = null,
 ) {
 
   fun toLiveItem(): Inventory.Item {
@@ -43,6 +46,8 @@ data class ReservedItem(
       itemLevel = itemLevel,
       rolledStats = rolledStats,
       provenance = provenance,
+      essences = essences,
+      heldEssence = heldEssence,
     )
   }
 
@@ -72,6 +77,8 @@ data class ReservedItem(
         itemLevel = itemLevel,
         rolledStats = slot.rolledStats,
         provenance = slot.heldProvenance,
+        essences = slot.essences,
+        heldEssence = slot.heldEssence,
       )
     }
   }

@@ -101,6 +101,6 @@ func _make_custom_tooltip(_for_text: String) -> Object:
 	label.custom_minimum_size = Vector2(320, 0)
 	label.text = ItemDetail.as_bbcode(
 		_item, _listing.UpgradeLevel, _listing.Durability, _listing.MaxDurability, _listing.Slots,
-		_listing.ItemLevel, _listing.RolledStats
+		_listing.ItemLevel, _listing.RolledStats, "", "", "", Array(_listing.Essences), _listing.HeldEssence
 	)
 	return label

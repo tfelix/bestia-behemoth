@@ -196,6 +196,8 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 			inv_item.upgrade_level = itemMsg.UpgradeLevel
 			inv_item.item_level = itemMsg.ItemLevel
 			inv_item.rolled_stats = Array(itemMsg.RolledStats)
+			inv_item.essences = Array(itemMsg.Essences)
+			inv_item.held_essence = itemMsg.HeldEssence
 			selected_entity_items.append(inv_item)
 		_render_items()
 		if msg.EntityId == _partner_id:
@@ -282,6 +284,8 @@ func _render_items() -> void:
 		inv_item.upgrade_level = item.upgrade_level
 		inv_item.item_level = item.item_level
 		inv_item.rolled_stats = item.rolled_stats
+		inv_item.essences = item.essences
+		inv_item.held_essence = item.held_essence
 		inv_item.inventory = self
 		inv_item.drop_target = self
 		inv_item.move_requested.connect(_on_own_row_requested.bind(inv_item))

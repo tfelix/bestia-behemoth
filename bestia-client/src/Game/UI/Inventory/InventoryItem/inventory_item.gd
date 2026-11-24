@@ -61,6 +61,10 @@ const _BESTIA_EGG_ITEM_ID := 129
 @export var item_level: int = 0
 @export var rolled_stats: Array = []
 
+## What fills its sockets and what an essence gem holds, as [code]ItemEssence[/code]s.
+var essences: Array = []
+var held_essence: Variant = null
+
 ## Assigned by Inventory when this node is instantiated - used for the double-click-to-equip
 ## shortcut, which has to know whether the equipment window is currently open.
 ## Untyped on purpose: statically typing this as Inventory forces inventory_item.gd to resolve
@@ -92,7 +96,8 @@ func _ready() -> void:
 	_icon.texture = item.get_icon()
 	_wear.show_wear(durability, max_durability)
 	tooltip_text = ItemDetail.as_bbcode(
-		item, upgrade_level, durability, max_durability, slots, item_level, rolled_stats, crafted_by, crafted_in, title
+		item, upgrade_level, durability, max_durability, slots, item_level, rolled_stats, crafted_by, crafted_in, title,
+		essences, held_essence
 	)
 	if item.item_id == SpellScrollBook.ITEM_ID and unique_id != 0:
 		SpellScrollBook.ask([unique_id], _show_spell)

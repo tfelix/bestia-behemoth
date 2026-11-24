@@ -51,7 +51,8 @@ class EquipmentChanges(
       slots = copy.slots,
       itemLevel = itemLevel,
       rolledStats = copy.rolledStats,
-      provenance = copy.provenance
+      provenance = copy.provenance,
+      essences = copy.essences
     )
     equipment.equip(slot, worn)
     inventory.setEquipped(worn.uniqueId, true)

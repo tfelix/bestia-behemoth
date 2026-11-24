@@ -11,6 +11,7 @@ class_name ItemDetail
 
 
 const EMPTY_SOCKET := "○"
+const FILLED_SOCKET := "●"
 
 
 ## The item's name, what it takes to use it, the state of this copy, and finally what it is for.
@@ -24,7 +25,9 @@ static func as_bbcode(
 	rolled_stats: Array = [],
 	crafted_by: String = "",
 	crafted_in: String = "",
-	own_name: String = ""
+	own_name: String = "",
+	essences: Array = [],
+	held_essence: Variant = null
 ) -> String:
 	var title := "[b]%s[/b]" % (own_name if not own_name.is_empty() else _translate(item.name_key))
 	if upgrade_level > 0:
@@ -61,7 +64,12 @@ static func as_bbcode(
 		lines.append("Durability %d/%d%s" % [durability, max_durability, broken])
 
 	if slots > 0:
-		lines.append(_translate("ITEM_SOCKETS").format({"rings": sockets_line(slots)}))
+		lines.append(_translate("ITEM_SOCKETS").format({"rings": sockets_line(slots, essences.size())}))
+		for essence in essences:
+			lines.append("%s %s" % [FILLED_SOCKET, essence_name(essence)])
+
+	if held_essence != null:
+		lines.append(_translate("ITEM_HOLDS_ESSENCE").format({"essence": essence_name(held_essence)}))
 
 	var material_axes := CraftAxes.describe(item.item_id)
 	if not material_axes.is_empty():
@@ -78,12 +86,19 @@ static func as_bbcode(
 	return "\n".join(lines)
 
 
-## One ring per socket, as the detail column draws them. Every ring is open: nothing can fill a socket yet.
-static func sockets_line(slots: int) -> String:
+## One ring per socket, as the detail column draws them: the [param filled] ones first.
+static func sockets_line(slots: int, filled: int = 0) -> String:
 	var rings: Array[String] = []
 	for i in slots:
-		rings.append(EMPTY_SOCKET)
+		rings.append(FILLED_SOCKET if i < filled else EMPTY_SOCKET)
 	return " ".join(rings)
+
+
+## "Burrow Boar · Ruby" for an [code]ItemEssence[/code]: the species sets the effect, the gem its strength.
+static func essence_name(essence) -> String:
+	var bestia := BestiaDB.get_instance().get_bestia(int(essence.BestiaId))
+	var species := _translate(bestia.name_key) if bestia != null else str(essence.BestiaId)
+	return _translate("ITEM_ESSENCE").format({"bestia": species, "gem": _translate("GEM_TIER_" + str(essence.Tier))})
 
 
 ## The prose from [code]items.csv[/code], or nothing for an item that has none.

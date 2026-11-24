@@ -26,21 +26,22 @@ namespace Bnet {
           string.Concat(
             "CjFtZXNzYWdlcy9jb21wb25lbnQvZXF1aXBtZW50X2NvbXBvbmVudF9zbXNn",
             "LnByb3RvEgRibmV0GihtZXNzYWdlcy9jb21wb25lbnQvaXRlbV9zdGF0X3Zh",
-            "bHVlLnByb3RvIloKFkVxdWlwbWVudENvbXBvbmVudFNNU0cSIQoFaXRlbXMY",
-            "AiADKAsyEi5ibmV0LkVxdWlwcGVkSXRlbRIXCg9xdWl2ZXJfaXRlbV9pZHMY",
-            "AyADKA1KBAgBEAIi+QEKDEVxdWlwcGVkSXRlbRIMCgRzbG90GAEgASgNEg8K",
-            "B2l0ZW1faWQYAiABKA0SEQoJdW5pcXVlX2lkGAMgASgEEhIKCmR1cmFiaWxp",
-            "dHkYBCABKA0SFgoObWF4X2R1cmFiaWxpdHkYBSABKA0SDQoFc2xvdHMYBiAB",
-            "KA0SFQoNdXBncmFkZV9sZXZlbBgHIAEoDRISCgppdGVtX2xldmVsGAggASgN",
-            "EikKDHJvbGxlZF9zdGF0cxgJIAMoCzITLmJuZXQuSXRlbVN0YXRWYWx1ZRIS",
-            "CgpjcmFmdGVkX2J5GAogASgJEhIKCmNyYWZ0ZWRfaW4YCyABKAlCNAoVbmV0",
-            "LmJlc3RpYS5ibmV0LnByb3RvQhtFcXVpcG1lbnRDb21wb25lbnRTTVNHUHJv",
-            "dG9iBnByb3RvMw=="));
+            "bHVlLnByb3RvGiVtZXNzYWdlcy9jb21wb25lbnQvaXRlbV9lc3NlbmNlLnBy",
+            "b3RvIloKFkVxdWlwbWVudENvbXBvbmVudFNNU0cSIQoFaXRlbXMYAiADKAsy",
+            "Ei5ibmV0LkVxdWlwcGVkSXRlbRIXCg9xdWl2ZXJfaXRlbV9pZHMYAyADKA1K",
+            "BAgBEAIingIKDEVxdWlwcGVkSXRlbRIMCgRzbG90GAEgASgNEg8KB2l0ZW1f",
+            "aWQYAiABKA0SEQoJdW5pcXVlX2lkGAMgASgEEhIKCmR1cmFiaWxpdHkYBCAB",
+            "KA0SFgoObWF4X2R1cmFiaWxpdHkYBSABKA0SDQoFc2xvdHMYBiABKA0SFQoN",
+            "dXBncmFkZV9sZXZlbBgHIAEoDRISCgppdGVtX2xldmVsGAggASgNEikKDHJv",
+            "bGxlZF9zdGF0cxgJIAMoCzITLmJuZXQuSXRlbVN0YXRWYWx1ZRISCgpjcmFm",
+            "dGVkX2J5GAogASgJEhIKCmNyYWZ0ZWRfaW4YCyABKAkSIwoIZXNzZW5jZXMY",
+            "DCADKAsyES5ibmV0Lkl0ZW1Fc3NlbmNlQjQKFW5ldC5iZXN0aWEuYm5ldC5w",
+            "cm90b0IbRXF1aXBtZW50Q29tcG9uZW50U01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, global::Bnet.ItemEssenceReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EquipmentComponentSMSG), global::Bnet.EquipmentComponentSMSG.Parser, new[]{ "Items", "QuiverItemIds" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EquippedItem), global::Bnet.EquippedItem.Parser, new[]{ "Slot", "ItemId", "UniqueId", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "CraftedBy", "CraftedIn" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EquippedItem), global::Bnet.EquippedItem.Parser, new[]{ "Slot", "ItemId", "UniqueId", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "CraftedBy", "CraftedIn", "Essences" }, null, null, null, null)
           }));
     }
     #endregion
@@ -320,6 +321,7 @@ namespace Bnet {
       rolledStats_ = other.rolledStats_.Clone();
       craftedBy_ = other.craftedBy_;
       craftedIn_ = other.craftedIn_;
+      essences_ = other.essences_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -402,7 +404,7 @@ namespace Bnet {
     public const int SlotsFieldNumber = 6;
     private uint slots_;
     /// <summary>
-    /// Sockets of the backing instance, opened at the forge or by Item Customization; nothing can fill one yet.
+    /// Sockets of the backing instance, opened at the forge or by Item Customization.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -482,6 +484,20 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "essences" field.</summary>
+    public const int EssencesFieldNumber = 12;
+    private static readonly pb::FieldCodec<global::Bnet.ItemEssence> _repeated_essences_codec
+        = pb::FieldCodec.ForMessage(98, global::Bnet.ItemEssence.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.ItemEssence> essences_ = new pbc::RepeatedField<global::Bnet.ItemEssence>();
+    /// <summary>
+    /// See InventoryItem.essences.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.ItemEssence> Essences {
+      get { return essences_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -508,6 +524,7 @@ namespace Bnet {
       if(!rolledStats_.Equals(other.rolledStats_)) return false;
       if (CraftedBy != other.CraftedBy) return false;
       if (CraftedIn != other.CraftedIn) return false;
+      if(!essences_.Equals(other.essences_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -526,6 +543,7 @@ namespace Bnet {
       hash ^= rolledStats_.GetHashCode();
       if (CraftedBy.Length != 0) hash ^= CraftedBy.GetHashCode();
       if (CraftedIn.Length != 0) hash ^= CraftedIn.GetHashCode();
+      hash ^= essences_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -585,6 +603,7 @@ namespace Bnet {
         output.WriteRawTag(90);
         output.WriteString(CraftedIn);
       }
+      essences_.WriteTo(output, _repeated_essences_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -636,6 +655,7 @@ namespace Bnet {
         output.WriteRawTag(90);
         output.WriteString(CraftedIn);
       }
+      essences_.WriteTo(ref output, _repeated_essences_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -677,6 +697,7 @@ namespace Bnet {
       if (CraftedIn.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(CraftedIn);
       }
+      size += essences_.CalculateSize(_repeated_essences_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -720,6 +741,7 @@ namespace Bnet {
       if (other.CraftedIn.Length != 0) {
         CraftedIn = other.CraftedIn;
       }
+      essences_.Add(other.essences_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -783,6 +805,10 @@ namespace Bnet {
             CraftedIn = input.ReadString();
             break;
           }
+          case 98: {
+            essences_.AddEntriesFrom(input, _repeated_essences_codec);
+            break;
+          }
         }
       }
     #endif
@@ -844,6 +870,10 @@ namespace Bnet {
           }
           case 90: {
             CraftedIn = input.ReadString();
+            break;
+          }
+          case 98: {
+            essences_.AddEntriesFrom(ref input, _repeated_essences_codec);
             break;
           }
         }

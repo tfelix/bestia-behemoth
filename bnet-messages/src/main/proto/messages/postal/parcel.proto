@@ -6,6 +6,7 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "ParcelProto";
 
 import "messages/component/item_stat_value.proto";
+import "messages/component/item_essence.proto";
 
 // A parcel to the played master, on the road or waiting at its office.
 message Parcel {
@@ -35,6 +36,9 @@ message ParcelGoods {
   int32 max_durability = 6;
   int32 slots = 7;
   repeated ItemStatValue rolled_stats = 8;
+  // See InventoryItem.essences and held_essence.
+  repeated ItemEssence essences = 9;
+  ItemEssence held_essence = 10;
 }
 
 // One pile or copy from the bag, for a parcel being weighed or sent.

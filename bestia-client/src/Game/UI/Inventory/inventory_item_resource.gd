@@ -42,3 +42,7 @@ var map_circle: Variant = null
 
 ## What this copy rolled when it was made, as [ItemStatValue]s.
 @export var rolled_stats: Array = []
+
+## What fills its sockets and what an essence gem holds, as [code]ItemEssence[/code]s.
+var essences: Array = []
+var held_essence: Variant = null

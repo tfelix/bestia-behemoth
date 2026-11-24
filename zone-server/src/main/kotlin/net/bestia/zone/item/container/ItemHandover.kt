@@ -92,6 +92,8 @@ class ItemHandover(
       itemLevel = itemLevel,
       rolledStats = rolledStats,
       provenance = provenance,
+      essences = essences,
+      heldEssence = heldEssence,
     )
   }
 

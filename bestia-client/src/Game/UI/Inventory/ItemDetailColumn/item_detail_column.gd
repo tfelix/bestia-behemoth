@@ -49,7 +49,8 @@ func show_row(row) -> void:
 		_content.remove_child(child)
 		child.queue_free()
 
-	_add_facts(item, row.slots, row.weight)
+	_add_facts(item, row.slots, row.weight, row.essences.size())
+	_add_essences(row.essences, row.held_essence)
 	_add_wear(item, row.durability, row.max_durability)
 	_add_bonuses(row.rolled_stats)
 	_add_rich(row.extra_detail, UiStyle.TEXT)
@@ -106,7 +107,7 @@ func _show_picture(item: ItemResource) -> void:
 
 
 ## Name on the left, value on the right; only the facts this item has.
-func _add_facts(item: ItemResource, slots: int, weight: int) -> void:
+func _add_facts(item: ItemResource, slots: int, weight: int, filled_slots: int) -> void:
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.add_theme_constant_override("v_separation", 3)
@@ -118,7 +119,7 @@ func _add_facts(item: ItemResource, slots: int, weight: int) -> void:
 	# items.yml weighs in hundredths of a kilogram, as the exchange column's carry line reads it.
 	_add_fact(grid, tr("ITEM_DETAIL_WEIGHT"), _value(tr("ITEM_DETAIL_WEIGHT_KG").format({"kg": String.num(weight / 100.0, 2)})))
 	if slots > 0:
-		_add_fact(grid, tr("ITEM_DETAIL_SOCKETS"), _sockets(slots))
+		_add_fact(grid, tr("ITEM_DETAIL_SOCKETS"), _sockets(slots, filled_slots))
 
 	_content.add_child(grid)
 
@@ -137,16 +138,27 @@ func _value(text: String) -> Label:
 
 
 ## One empty ring per socket: nothing can fill one yet, so every ring is open.
-func _sockets(slots: int) -> HBoxContainer:
+func _sockets(slots: int, filled: int) -> HBoxContainer:
 	var rings := UiStyle.hbox(4)
 	rings.alignment = BoxContainer.ALIGNMENT_END
 	for i in slots:
 		var ring := Panel.new()
 		ring.custom_minimum_size = Vector2(11, 11)
 		ring.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		ring.add_theme_stylebox_override("panel", UiStyle.flat(UiStyle.BAR_BG, 6, 0, UiStyle.ACCENT, 1))
+		var fill := UiStyle.ACCENT if i < filled else UiStyle.BAR_BG
+		ring.add_theme_stylebox_override("panel", UiStyle.flat(fill, 6, 0, UiStyle.ACCENT, 1))
 		rings.add_child(ring)
 	return rings
+
+
+func _add_essences(essences: Array, held_essence: Variant) -> void:
+	var lines: Array[String] = []
+	for essence in essences:
+		lines.append("%s %s" % [ItemDetail.FILLED_SOCKET, ItemDetail.essence_name(essence)])
+	if held_essence != null:
+		lines.append(tr("ITEM_HOLDS_ESSENCE").format({"essence": ItemDetail.essence_name(held_essence)}))
+	if not lines.is_empty():
+		_add_rich("\n".join(lines), UiStyle.TEXT)
 
 
 ## A bar that turns from green through amber to red as the item wears. A light's wear is the time it has
