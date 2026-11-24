@@ -143,7 +143,8 @@ const _PLACE_HIT_RADIUS := 14.0
 ## [code]MapService[/code] enum names; one it adds later still draws, as a plain dot, until it is given a
 ## glyph here.
 const SERVICE_KINDS: Array[String] = [
-	"MERCHANT", "MARKET", "INN", "TEMPLE", "GUARD", "WARD_STONE", "TOWN", "POST_OFFICE", "EMPYRITE_SEED", "STRONGHOLD",
+	"MERCHANT", "MARKET", "INN", "TEMPLE", "GUARD", "WARD_STONE", "TOWN", "POST_OFFICE", "BESTIA_CENTER", "EMPYRITE_SEED",
+	"STRONGHOLD",
 ]
 
 ## The service kinds drawn at every zoom, as the server lists them: places players travel to from afar.
@@ -160,6 +161,7 @@ const _SERVICE_COLOURS := {
 	"WARD_STONE": Color(0.72, 0.58, 0.96),
 	"TOWN": Color(0.78, 0.60, 0.37),
 	"POST_OFFICE": Color(0.89, 0.84, 0.72),
+	"BESTIA_CENTER": Color(0.93, 0.52, 0.66),
 	"EMPYRITE_SEED": Color(1.0, 0.90, 0.55),
 	"STRONGHOLD": Color(0.95, 0.72, 0.12),
 }
@@ -191,6 +193,11 @@ const _SERVICE_SHAPES := {
 	],
 	# A letter.
 	"POST_OFFICE": [Vector2(-1.1, -0.7), Vector2(1.1, -0.7), Vector2(1.1, 0.7), Vector2(-1.1, 0.7)],
+	# A heart: where bestia are cared for.
+	"BESTIA_CENTER": [
+		Vector2(0.0, -0.55), Vector2(0.35, -1.0), Vector2(0.85, -1.0), Vector2(1.15, -0.55), Vector2(1.0, 0.05),
+		Vector2(0.0, 1.1), Vector2(-1.0, 0.05), Vector2(-1.15, -0.55), Vector2(-0.85, -1.0), Vector2(-0.35, -1.0),
+	],
 	# A small sprout, as the seed stands in the world.
 	"EMPYRITE_SEED": [Vector2(0.0, -1.0), Vector2(0.65, 0.8), Vector2(-0.65, 0.8)],
 	# The Empyrite crystal's six sides.

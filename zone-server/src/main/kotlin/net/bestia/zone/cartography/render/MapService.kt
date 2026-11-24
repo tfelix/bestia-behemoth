@@ -43,6 +43,9 @@ enum class MapService(
   /** A post office players built in their town. A generated town's office is not on the map yet. */
   POST_OFFICE,
 
+  /** Where a master keeps the bestia that are not in the party, in a village, a town or a player town. */
+  BESTIA_CENTER,
+
   /** An Empyrite Seed somebody discovered and no guild holds, named after it. */
   EMPYRITE_SEED(isLandmark = true),
 
@@ -91,7 +94,7 @@ enum class MapService(
       "banker" to null,
       "barracks" to GUARD,
       "post_office" to null,
-      "bestia_center" to null,
+      "bestia_center" to BESTIA_CENTER,
     )
 
     /** The kind a trade is drawn as, or null for one kept off the map or one nobody has decided about. */
