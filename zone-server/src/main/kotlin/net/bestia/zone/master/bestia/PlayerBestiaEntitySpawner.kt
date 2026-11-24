@@ -120,12 +120,12 @@ class PlayerBestiaEntitySpawner(
 
   @Transactional(readOnly = true)
   fun loadOwnedBy(masterId: Long): List<LoadedBestia> {
-    return playerBestiaRepository.findAllByMasterId(masterId).map(::load)
+    return playerBestiaRepository.findAllByMasterIdAndStoredAtIsNull(masterId).map(::load)
   }
 
   @Transactional(readOnly = true)
   fun loadAll(): List<LoadedBestia> {
-    return playerBestiaRepository.findAll().map(::load)
+    return playerBestiaRepository.findAllByStoredAtIsNull().map(::load)
   }
 
   /**

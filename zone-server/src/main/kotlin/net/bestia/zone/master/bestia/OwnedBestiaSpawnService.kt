@@ -12,7 +12,8 @@ import org.springframework.transaction.annotation.Transactional
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 
 /**
- * Makes sure every bestia a master owns is in the world and known to the session once that master is selected.
+ * Makes sure every bestia a master has out of storage is in the world and known to the session once that master is
+ * selected.
  *
  * A bestia outlives its owner's session in the live world, so after a relog it is only re-registered; after a
  * restart it is spawned again from its row.
@@ -34,7 +35,7 @@ class OwnedBestiaSpawnService(
       .toSet()
     val live = liveOwnedBestias()
 
-    for (playerBestia in playerBestiaRepository.findAllByMasterId(masterId)) {
+    for (playerBestia in playerBestiaRepository.findAllByMasterIdAndStoredAtIsNull(masterId)) {
       if (playerBestia.id in registered) continue
 
       val entityId = live[playerBestia.id]

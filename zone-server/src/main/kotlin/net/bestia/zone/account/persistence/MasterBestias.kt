@@ -14,6 +14,17 @@ class MasterBestias {
 
   val ownedBestias: List<PlayerBestia> get() = bestias.toList()
 
+  /** The ones out in the world, each taking an active slot. */
+  val activeBestias: List<PlayerBestia>
+    get() {
+      return bestias.filterNot { it.isStored }
+    }
+
+  val storedBestias: List<PlayerBestia>
+    get() {
+      return bestias.filter { it.isStored }
+    }
+
   fun addBestia(master: Master, bestia: Bestia, bestiaPolicy: PlayerBestiaPolicy): PlayerBestia {
     bestiaPolicy.checkPolicy(master, bestia)
 

@@ -8,7 +8,7 @@ import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
 /**
- * Puts every player bestia back into the world, master online or not. A bestia never rests: it walks a journey
+ * Puts every player bestia that is not in storage back into the world, master online or not. A bestia never rests: it walks a journey
  * it was sent on before the restart, its idle AI runs, and the companion app can send it off without its master
  * logging in first. Its master is still loaded only on login.
  *

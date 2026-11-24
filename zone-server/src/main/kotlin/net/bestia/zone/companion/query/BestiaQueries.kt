@@ -26,7 +26,7 @@ class BestiaQueries(
   @Transactional(readOnly = true)
   fun roster(accountId: Long, masterId: Long): ZoneAnswer.Roster? {
     owned.find(accountId, masterId) ?: return null
-    val rows = playerBestias.findAllByMasterId(masterId).sortedBy { it.id }
+    val rows = playerBestias.findAllByMasterIdAndStoredAtIsNull(masterId).sortedBy { it.id }
 
     val entityIds = rows.mapNotNull { it.entityId }
     val live: Map<Long, Vec3L> = world.read {

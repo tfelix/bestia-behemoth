@@ -26,7 +26,7 @@ class PlayerBestiaPolicyTest {
   private fun masterOwning(count: Int): Master {
     return mockk {
       every { account.id } returns ACCOUNT_ID
-      every { bestias.ownedBestias } returns List(count) { mockk<PlayerBestia>() }
+      every { bestias.activeBestias } returns List(count) { mockk<PlayerBestia>() }
     }
   }
 

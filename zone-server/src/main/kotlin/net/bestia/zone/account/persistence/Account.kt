@@ -2,6 +2,7 @@ package net.bestia.zone.account.persistence
 
 import jakarta.persistence.*
 import net.bestia.zone.util.AccountId
+import org.hibernate.annotations.ColumnDefault
 
 /**
  * A zone's local view of an account.
@@ -28,6 +29,11 @@ class Account(
   var additionalMasterSlots: Int = 0
 
   var additionalBestiaSlots: Int = 0
+
+  @Column(name = "additional_bestia_storage_slots", nullable = false)
+  // A database default, so the column can be added to a table that already has accounts.
+  @ColumnDefault("0")
+  var additionalBestiaStorageSlots: Int = 0
 
   companion object {
     const val DEFAULT_MASTER_SLOT_COUNT = 3

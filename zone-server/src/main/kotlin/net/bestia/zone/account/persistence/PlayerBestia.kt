@@ -11,6 +11,7 @@ import net.bestia.zone.bestia.Sex
 import net.bestia.zone.battle.status.IndividualValues
 import org.hibernate.Length
 import org.hibernate.annotations.ColumnDefault
+import java.time.Instant
 
 @Entity
 @Table(
@@ -134,6 +135,15 @@ class PlayerBestia(
    */
   @Column(name = "entity_id", unique = true)
   var entityId: Long? = null
+
+  /** When it went into its master's storage, out of the world. Null while it is out in the world. */
+  @Column(name = "stored_at")
+  var storedAt: Instant? = null
+
+  val isStored: Boolean
+    get() {
+      return storedAt != null
+    }
 
   @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
   @JoinColumn(name = "container_id", nullable = false)
