@@ -27,9 +27,10 @@ class EssenceStatsTest {
   private val turtle = species(8, "turtle", EssenceDefinition(SocketGroup.ARMOR, EssenceEffect.COATED))
   private val blob = species(9, "blob", EssenceDefinition(SocketGroup.ACCESSORY, EssenceEffect.TAMER))
   private val hydra = species(10, "hydra", EssenceDefinition(SocketGroup.WEAPON, EssenceEffect.LEECH))
+  private val lanternwisp = species(12, "lanternwisp", EssenceDefinition(SocketGroup.ACCESSORY, EssenceEffect.LEARNED_TRICK, "shadow_cloak"))
   private val stingtail = species(11, "stingtail", EssenceDefinition(SocketGroup.ACCESSORY, EssenceEffect.REFLEX, "acid_skin"))
 
-  private val stats = essenceStatsOf(boar, hare, ogre, owl, salamander, brute, kobold, turtle, blob, hydra, stingtail)
+  private val stats = essenceStatsOf(boar, hare, ogre, owl, salamander, brute, kobold, turtle, blob, hydra, stingtail, lanternwisp)
   private val context = StatusValueRecalcContext(BaseStatusValues(10, 10, 10, 10, 10, 10), baseSpeed = 1f)
 
   @Test
@@ -119,6 +120,13 @@ class EssenceStatsTest {
     stats.applyTo(context, wearing(Essence(stingtail.id, GemTier.RUBY), Essence(stingtail.id, GemTier.AMETHYST)))
 
     assertEquals(listOf(EssenceSkill("acid_skin", attackLevelCap = 60, chancePercent = 11)), context.reflexes)
+  }
+
+  @Test
+  fun `a learned trick grants its attack up to the gem's attack level`() {
+    stats.applyTo(context, wearing(Essence(lanternwisp.id, GemTier.EMERALD)))
+
+    assertEquals(listOf(EssenceSkill("shadow_cloak", attackLevelCap = 40)), context.learnedTricks)
   }
 
   @Test

@@ -248,6 +248,14 @@ class StatusValueRecalcContext(
     reflexes = reflexes + reflex
   }
 
+  /** Attacks a Learned Trick essence lets this entity cast at will. */
+  var learnedTricks: List<EssenceSkill> = emptyList()
+    private set
+
+  fun addLearnedTrick(trick: EssenceSkill) {
+    learnedTricks = learnedTricks + trick
+  }
+
   /** Per mille of the damage this entity deals that comes back to it as HP. Set by a Leech essence. */
   var leechPermille: Int = 0
 

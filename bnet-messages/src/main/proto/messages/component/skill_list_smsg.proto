@@ -26,4 +26,6 @@ message SkillListEntry {
   // A skill held for a single cast, like a spell copied with Plagiarism, rather than learned. The same id may also
   // be listed as a tree node.
   bool temporary = 4;
+  // Granted by a worn Learned Trick essence for as long as it is worn, rather than learned.
+  bool from_essence = 5;
 }

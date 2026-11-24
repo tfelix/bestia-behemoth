@@ -17,6 +17,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// <summary>Held for a single cast, like a spell copied with Plagiarism, rather than learned.</summary>
     [Export] public bool Temporary { get; set; }
 
+    /// <summary>Granted by a worn Learned Trick essence, for as long as it is worn.</summary>
+    [Export] public bool FromEssence { get; set; }
+
     /// <summary>
     /// Creates a SkillListEntry from protobuf data
     /// </summary>
@@ -27,7 +30,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         SkillId = protoEntry.SkillId,
         Level = protoEntry.Level,
         PotencyBand = protoEntry.PotencyBand,
-        Temporary = protoEntry.Temporary
+        Temporary = protoEntry.Temporary,
+        FromEssence = protoEntry.FromEssence
       };
     }
   }

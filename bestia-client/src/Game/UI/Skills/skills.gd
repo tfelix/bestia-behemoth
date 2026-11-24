@@ -46,8 +46,11 @@ var _available_skill_points: int = 0
 ## and the level the server confirmed for each.
 var _skill_ids: Array[int] = []
 var _levels: Dictionary[int, int] = {}
-## The level of each skill held for one cast, from the list's temporary entries.
+## The level of each skill the master has without learning it: held for one cast (Plagiarism), or granted by a worn
+## essence. Both share the borrowed tab.
 var _copied: Dictionary[int, int] = {}
+## The borrowed skills that come from a worn essence rather than Plagiarism.
+var _from_essence: Dictionary[int, bool] = {}
 ## The Potency band each learned skill casts at now, from the server: 0 for none, 1 (Faint) to 5 (Overwhelming).
 var _potency_bands: Dictionary[int, int] = {}
 ## One entry per queued point, in the order they were queued.
@@ -123,10 +126,13 @@ func _show_list(msg: SkillListSMSG) -> void:
 	_skill_ids.clear()
 	_levels.clear()
 	_copied.clear()
+	_from_essence.clear()
 	_potency_bands.clear()
 	for entry in msg.Skills:
-		if entry.Temporary:
+		if entry.Temporary or entry.FromEssence:
 			_copied[entry.SkillId] = entry.Level
+			if entry.FromEssence:
+				_from_essence[entry.SkillId] = true
 			continue
 		_skill_ids.append(entry.SkillId)
 		_levels[entry.SkillId] = entry.Level
@@ -387,6 +393,10 @@ func _tree_name(tree: String) -> String:
 	return tr("SKILLS_TAB_OTHER") if tree == NO_TREE else _named("SKILL_TREE_" + tree, tree)
 
 
+func _borrowed_text(id: int) -> String:
+	return tr("SKILLS_FROM_ESSENCE") if _from_essence.has(id) else tr("SKILLS_COPIED")
+
+
 func _is_copied_tab() -> bool:
 	return _current_tree() == COPIED_TAB
 
@@ -610,7 +620,7 @@ func _show_selected(levels: Dictionary, remaining: int) -> void:
 	if queued > 0:
 		_level.text += "  " + tr("SKILLS_LEVEL_QUEUED") % queued
 
-	_kind.text = tr("SKILLS_COPIED") if _is_copied_tab() else _kind_text(attack)
+	_kind.text = _borrowed_text(id) if _is_copied_tab() else _kind_text(attack)
 	_description.text = tr(attack.description_key) if not attack.description_key.is_empty() else ""
 	_description.visible = not _description.text.is_empty()
 	_stats.text = _stats_text(attack, _potency_bands.get(id, 0))
