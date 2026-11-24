@@ -612,6 +612,8 @@ enum OpError {
   BESTIA_STORAGE_BESTIA_CONTROLLED = 427;
   // A bestia paired in a breeding farm cannot go into storage.
   BESTIA_STORAGE_BESTIA_BREEDING = 428;
+  // A player-built storage center works only while its town's sign stands.
+  BESTIA_STORAGE_CENTER_CLOSED = 429;
 }
 
 message OperationError {

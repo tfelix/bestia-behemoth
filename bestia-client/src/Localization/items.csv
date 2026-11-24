@@ -1587,3 +1587,7 @@ ITEM_BUNDLE,Item Bundle
 ITEM_BUNDLE_DESC,"A cloth tied around everything a bestia carried, its worn gear too.
 
 Unpack it to put it all into your bag."
+BESTIA_CENTER_KIT,Storage Center Kit
+BESTIA_CENTER_KIT_DESC,"Gates, pens, a feed trough and a keeper's desk, lashed onto a sledge.
+
+Set it down inside a town without a storage center. Masters keep their bestia there once it is built."

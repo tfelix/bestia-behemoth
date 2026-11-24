@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqeOQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrBOQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -188,9 +188,10 @@ namespace Bnet {
             "UkFHRV9QQVJUWV9GVUxMEKgDEh8KGkJFU1RJQV9TVE9SQUdFX0JFU1RJQV9E",
             "RUFEEKkDEiMKHkJFU1RJQV9TVE9SQUdFX0JFU1RJQV9GSUdIVElORxCqAxIl",
             "CiBCRVNUSUFfU1RPUkFHRV9CRVNUSUFfQ09OVFJPTExFRBCrAxIjCh5CRVNU",
-            "SUFfU1RPUkFHRV9CRVNUSUFfQlJFRURJTkcQrAMiBAguEC4qElNIT1BfVFJF",
-            "QVNVUllfRlVMTEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlv",
-            "bkVycm9yUHJvdG9iBnByb3RvMw=="));
+            "SUFfU1RPUkFHRV9CRVNUSUFfQlJFRURJTkcQrAMSIQocQkVTVElBX1NUT1JB",
+            "R0VfQ0VOVEVSX0NMT1NFRBCtAyIECC4QLioSU0hPUF9UUkVBU1VSWV9GVUxM",
+            "QiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90",
+            "b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1208,6 +1209,10 @@ namespace Bnet {
     /// A bestia paired in a breeding farm cannot go into storage.
     /// </summary>
     [pbr::OriginalName("BESTIA_STORAGE_BESTIA_BREEDING")] BestiaStorageBestiaBreeding = 428,
+    /// <summary>
+    /// A player-built storage center works only while its town's sign stands.
+    /// </summary>
+    [pbr::OriginalName("BESTIA_STORAGE_CENTER_CLOSED")] BestiaStorageCenterClosed = 429,
   }
 
   #endregion

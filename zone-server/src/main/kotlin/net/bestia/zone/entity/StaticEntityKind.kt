@@ -201,7 +201,10 @@ enum class StaticEntityKind {
   // guild works on after planting, and the Empyrite itself. See the stronghold package.
   EMPYRITE_SEED,
   EMPYRITE_SITE,
-  EMPYRITE;
+  EMPYRITE,
+
+  /** A player town's storage center, where masters keep the bestia they do not take along. */
+  BESTIA_CENTER;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.

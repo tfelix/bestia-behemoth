@@ -1758,6 +1758,18 @@ items:
 
       Set it down inside a town without a post office, and the post will run it once it is built.
 
+  - id: 628
+    item-db-name: bestia_center_kit
+    base-level: 30
+    weight: 1500
+    type: USABLE
+    material: WOOD
+    script: BestiaCenterKitScript
+    description: |
+      Gates, pens, a feed trough and a keeper's desk, lashed onto a sledge.
+
+      Set it down inside a town without a storage center. Masters keep their bestia there once it is built.
+
   - id: 127
     item-db-name: auction_house_kit
     base-level: 50
