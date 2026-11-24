@@ -9,6 +9,7 @@ import net.bestia.zone.item.persistence.Item
 import net.bestia.zone.item.ItemNotFoundException
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.item.equip.EquipmentSlot
+import net.bestia.zone.item.essence.Essence
 import net.bestia.zone.item.persistence.findByIdentifierOrThrow
 import net.bestia.zone.item.persistence.ItemInstance
 import net.bestia.zone.item.persistence.ItemInstanceRepository
@@ -402,6 +403,24 @@ class InventoryService(
     change(instance)
 
     return itemInstanceRepository.save(instance)
+  }
+
+  /**
+   * Puts [essence] into the next free socket of a held or worn instance. Unlike a craft, it may change worn gear:
+   * the caller works the wearer's stats out again.
+   *
+   * @return false when the instance is neither held nor worn
+   */
+  @Transactional
+  fun socket(masterId: Long, uniqueId: Long, playerBestiaId: PlayerBestiaId?, essence: Essence): Boolean {
+    val instance = withOwnerContainer(masterId, playerBestiaId) { container ->
+      container.slots.firstOrNull { it.uniqueId == uniqueId && !it.isReserved }?.itemInstance
+    } ?: return false
+
+    instance.socket(essence)
+    itemInstanceRepository.save(instance)
+
+    return true
   }
 
   /**

@@ -1,8 +1,10 @@
 package net.bestia.zone.item.essence
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemOwner
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
@@ -14,7 +16,7 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
 /**
- * Using an Essence Gem puts its essence into a held item for good. The gem is used up, and nothing takes the
+ * Using an Essence Gem puts its essence into a held or worn item for good. The gem is used up, and nothing takes the
  * essence out again.
  */
 @Component
@@ -45,24 +47,31 @@ class EssenceGemScript(
     }
 
     inventory.socket(target.uniqueId, essence)
+    if (target.equipped) {
+      socketWorn(world, userId, target.uniqueId, essence)
+    }
     asyncJobExecutor.submit(owner.masterId) {
-      inventoryService.updateInstance(owner.masterId, target.uniqueId, owner.playerBestiaId) { it.socket(essence) }
+      inventoryService.socket(owner.masterId, target.uniqueId, owner.playerBestiaId, essence)
     }
 
     return true
   }
 
-  /**
-   * A free socket of the essence's group, in an item at least as high as its gem asks. The item has to be in the
-   * bag: worn gear would need its wearer's stats worked out again.
-   */
+  /** A free socket of the essence's group, in an item at least as high as its gem asks. */
   fun accepts(target: Inventory.Item, essence: Essence): Boolean {
     val template = templates.templateOf(target.itemId) ?: return false
     val group = species.of(essence.bestiaId)?.group ?: return false
     val hasFreeSocket = target.essences.size < target.slots
 
-    return !target.equipped && hasFreeSocket && SocketGroup.of(template) == group &&
-      target.itemLevel >= essence.tier.minItemLevel
+    return hasFreeSocket && SocketGroup.of(template) == group && target.itemLevel >= essence.tier.minItemLevel
+  }
+
+  private fun socketWorn(world: World, wearerId: EntityId, uniqueId: Long, essence: Essence) {
+    val equipment = world.get(wearerId, Equipment::class) ?: return
+    val (slot, worn) = equipment.getWorn().entries.firstOrNull { it.value.uniqueId == uniqueId } ?: return
+
+    equipment.replace(slot, worn.copy(essences = worn.essences + essence))
+    world.add(wearerId, IsStatusValueDirty)
   }
 
   companion object {
