@@ -9,6 +9,7 @@ import net.bestia.zone.account.persistence.PlayerBestia
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.bestiastorage.BestiaLedgerScript
 import net.bestia.zone.bestiastorage.BestiaStorageSMSG
+import net.bestia.zone.bestiastorage.BestiaStorageService
 import net.bestia.zone.bestiastorage.net.ReleaseStoredBestiaCMSG
 import net.bestia.zone.bestiastorage.net.SummonStoredBestiaCMSG
 import net.bestia.zone.bestiastorage.net.SwapStoredBestiaCMSG
@@ -18,6 +19,7 @@ import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.item.bundle.ItemBundles
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.ecs.GroundItemStack
+import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.LootProtection
 import net.bestia.zone.master.MasterFactory
 import net.bestia.zone.master.bestia.PlayerBestiaCreateOperation
@@ -81,6 +83,12 @@ class BestiaStorageScenarios : BestiaNoSocketScenario(autoClientConnect = false)
 
   @Autowired
   private lateinit var world: WorldView
+
+  @Autowired
+  private lateinit var storage: BestiaStorageService
+
+  @Autowired
+  private lateinit var ledger: BestiaLedgerScript
 
   private lateinit var client: GameClientMock
 
@@ -214,6 +222,25 @@ class BestiaStorageScenarios : BestiaNoSocketScenario(autoClientConnect = false)
       val summoned = bestiasInWorld().single { it.playerBestiaId == swappedOut.playerBestiaId }
       assertFalse(world.read { has(summoned.entityId, Teleporting::class) }, "it has landed")
       assertTrue(positionOf(summoned.entityId).distance(positionOf(masterEntityId)) <= LANDING_RADIUS)
+    }
+  }
+
+  @Test
+  @Order(8)
+  fun `a storage center hands a ledger to a master who has none`() {
+    val masterEntityId = connectionInfoService.getSelectedMasterEntityId(client.connectedPlayerId)
+    val ledgerId = world.read {
+      getOrThrow(masterEntityId, Inventory::class).getItems().single { it.itemId == BestiaLedgerScript.ITEM_ID }.uniqueId
+    }
+    inventoryService.destroyInstance(masterId, ledgerId)
+    world.modify(masterEntityId) { id -> getOrThrow(id, Inventory::class).removeByUniqueId(ledgerId) }
+    client.clearMessages()
+
+    storage.openAtCounter(client.connectedPlayerId)
+
+    await {
+      assertTrue(world.read { ledger.grants(this, masterEntityId) })
+      assertNotNull(client.tryGetLastReceived(BestiaStorageSMSG::class))
     }
   }
 

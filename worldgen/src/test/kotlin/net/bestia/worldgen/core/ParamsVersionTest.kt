@@ -182,7 +182,7 @@ class ParamsVersionTest {
       // Moved when `footprintRadius` was raised by `StreetParams.boundaryReachFactor`, so that a town could be a
       // shape rather than a disc without also becoming a smaller one. See `SettlementTier.footprintRadius`.
       "SettlementTier" to 4_668_433_068_619_246_677L,
-      "BusinessCatalogue" to -4_134_603_911_680_592_775L,
+      "BusinessCatalogue" to 184_165_075_712_031_419L,
       // Moved when every given name got a sex tag (no name changed), then when the phrase of each site kind was
       // folded in and a battlefield became "X Battlefield".
       "Names" to -6_653_103_955_700_458_481L,

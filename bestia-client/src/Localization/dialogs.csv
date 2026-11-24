@@ -123,6 +123,9 @@ TALK_GREETING_SHOPKEEPER_5,{name} greets you like somebody who greets everybody.
 TALK_GREETING_POSTMASTER_1,{name} looks up from a pile of sealed sacks.
 TALK_GREETING_POSTMASTER_2,"{name} stamps one more parcel, then gives you the counter."
 TALK_GREETING_POSTMASTER_3,{name} has a pigeon on one arm and a ledger under the other.
+TALK_GREETING_BESTIA_KEEPER_1,{name} closes a gate on something that growls and turns to you.
+TALK_GREETING_BESTIA_KEEPER_2,"{name} runs a finger down a long list of names, then looks up."
+TALK_GREETING_BESTIA_KEEPER_3,{name} smells of hay and has a scratch on each hand.
 TALK_GREETING_BAKER_1,{name} wipes flour off both hands before anything else.
 TALK_GREETING_BAKER_2,{name} pushes the shutter wider to see you properly.
 TALK_GREETING_BAKER_3,{name} is already halfway through the day and shows it.
@@ -182,6 +185,9 @@ TALK_TRADE_SHOPKEEPER_5,"I run the {trade}. Ask, and if it is not on the shelf I
 TALK_TRADE_POSTMASTER_1,"The {trade}. Every parcel here says when it arrives, and it does."
 TALK_TRADE_POSTMASTER_2,"I keep the {trade}. The coach leaves on time, whether a courier comes or not."
 TALK_TRADE_POSTMASTER_3,"The {trade}. Words go by pigeon, goods go by road."
+TALK_TRADE_BESTIA_KEEPER_1,"The {trade}. Your bestias rest here while you travel with others."
+TALK_TRADE_BESTIA_KEEPER_2,"I keep the {trade}. Every master gets a ledger, and every ledger knows every pen."
+TALK_TRADE_BESTIA_KEEPER_3,"The {trade}. Nothing in my pens gets older or hungrier. It just waits."
 TALK_TRADE_BAKER_1,"The {trade}. Up before the town, done before the afternoon."
 TALK_TRADE_BAKER_2,"I keep the {trade}. One day of bread a day, and no more than that."
 TALK_TRADE_BAKER_3,The {trade}. It is hot work that nobody thinks about until it stops.
@@ -197,6 +203,7 @@ TRADE_APOTHECARY,apothecary
 TRADE_ARMOURER,armoury
 TRADE_BAKER,bakery
 TRADE_BANKER,counting house
+TRADE_BESTIA_CENTER,bestia center
 TRADE_BARRACKS,watch
 TRADE_BLACKSMITH,forge
 TRADE_BOOKBINDER,book bindery
@@ -621,6 +628,11 @@ TALK_SMALL_POSTMASTER_COACH_1,"On the hour it is written for. It has never waite
 TALK_SMALL_POSTMASTER_COACH_2,"Soon enough. If you are quicker, take a sack yourself. The pay is better than the coach's."
 TALK_SMALL_POSTMASTER_COACH_3,"Slowly, and on time. Slow is the point. It leaves room for the couriers."
 TALK_SMALL_POSTMASTER_COACH_4,"When the board says. Ask me again and the answer will be the same."
+TALK_SMALL_BESTIA_KEEPER_PENS_ASK,How do you keep so many bestias?
+TALK_SMALL_BESTIA_KEEPER_PENS_1,"One pen each, and a name on every gate. The ledger does the rest."
+TALK_SMALL_BESTIA_KEEPER_PENS_2,"They sleep. Nothing in my pens grows older or hungrier. It only waits for its master."
+TALK_SMALL_BESTIA_KEEPER_PENS_3,"Patience. And thick gloves. Mostly thick gloves."
+TALK_SMALL_BESTIA_KEEPER_PENS_4,"Every keeper writes in the same ledger, so a bestia left here can be called from any town."
 TALK_SMALL_SHOPKEEPER_STOCK_ASK,Anything new in?
 TALK_SMALL_SHOPKEEPER_STOCK_1,"A little. It goes as fast as it lands, so ask early."
 TALK_SMALL_SHOPKEEPER_STOCK_2,"Whatever the last cart carried. I do not choose it, I only shelve it."

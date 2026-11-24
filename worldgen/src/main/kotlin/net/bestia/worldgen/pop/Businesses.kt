@@ -176,11 +176,16 @@ object BusinessCatalogue {
     BusinessType(
       "post_office", "post office", Sector.ADMIN, 3_000.0, SettlementTier.VILLAGE.minPopulation,
       alwaysAtLeastOne = true
+    ),
+    // Every village and town has one, so a master can reach the bestia storage anywhere above a hamlet.
+    BusinessType(
+      "bestia_center", "bestia center", Sector.SERVICE, 3_000.0, SettlementTier.VILLAGE.minPopulation,
+      alwaysAtLeastOne = true
     )
   )
 
   /**
-   * Fingerprint of the roster: thirty-one trades, their ratios, their thresholds and their preconditions.
+   * Fingerprint of the roster: every trade with its ratio, threshold and preconditions.
    *
    * Folded by trade **id** rather than by list position, and the position is not folded at all - unlike the
    * culture and tier tables, nothing stores an index into this list. What a settlement stores is its economy

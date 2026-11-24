@@ -61,6 +61,12 @@ occupations:
     business: post_office
     shift: { from: 8, to: 18 }
 
+  # Keeps the bestia center: hands out the Bestia Ledger and opens a master's bestia storage.
+  - id: bestia_keeper
+    dialog: { greetings: 3, trade: 3 }
+    business: bestia_center
+    shift: { from: 8, to: 18 }
+
   - id: baker
     dialog: { greetings: 5, trade: 5 }
     business: baker

@@ -50,6 +50,7 @@ class BestiaStorageService(
   private val loss: PlayerBestiaLoss,
   private val breedingFarms: BreedingFarms,
   private val ownedBestias: OwnedBestiasPublisher,
+  private val ledgers: BestiaLedgers,
   private val out: OutMessageProcessor,
   private val asyncJobs: AsyncJobExecutor,
   private val clock: Clock = Clock.systemUTC(),
@@ -62,6 +63,14 @@ class BestiaStorageService(
 
   fun open(accountId: AccountId) {
     onMaster(accountId) { session -> sendView(session) }
+  }
+
+  /** At a storage center the master needs no ledger, and gets one if they have none yet. */
+  fun openAtCounter(accountId: AccountId) {
+    onMaster(accountId, atCounter = true) { session ->
+      ledgers.handOutIfMissing(session.masterId, session.masterEntityId)
+      sendView(session)
+    }
   }
 
   /** The stored bestia comes into a free active slot and lands next to its master. */
@@ -115,7 +124,7 @@ class BestiaStorageService(
     }
   }
 
-  private fun onMaster(accountId: AccountId, action: (MasterSession) -> Unit) {
+  private fun onMaster(accountId: AccountId, atCounter: Boolean = false, action: (MasterSession) -> Unit) {
     val session = MasterSession(
       accountId = accountId,
       masterId = connections.getMasterId(accountId),
@@ -124,7 +133,7 @@ class BestiaStorageService(
 
     asyncJobs.submit(key = session.masterId) {
       try {
-        worldView.read { masterRefusal(this, session.masterEntityId) }?.let { throw BestiaStorageRefusal(it) }
+        worldView.read { masterRefusal(this, session.masterEntityId, atCounter) }?.let { throw BestiaStorageRefusal(it) }
         action(session)
       } catch (refusal: BestiaStorageRefusal) {
         LOG.debug { "Refused a bestia storage request of master ${session.masterId}: ${refusal.code}" }
@@ -133,11 +142,11 @@ class BestiaStorageService(
     }
   }
 
-  private fun masterRefusal(world: World, masterEntityId: EntityId): OpError? {
+  private fun masterRefusal(world: World, masterEntityId: EntityId, atCounter: Boolean): OpError? {
     if (world.has(masterEntityId, InCombat::class)) {
       return OpError.BESTIA_STORAGE_IN_COMBAT
     }
-    if (!ledger.grants(world, masterEntityId)) {
+    if (!atCounter && !ledger.grants(world, masterEntityId)) {
       return OpError.BESTIA_STORAGE_NO_ACCESS
     }
 
