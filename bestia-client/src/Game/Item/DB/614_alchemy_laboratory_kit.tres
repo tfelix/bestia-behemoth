@@ -9,5 +9,5 @@ item_id = 614
 name_key = "ALCHEMY_LABORATORY_KIT"
 description_key = "ALCHEMY_LABORATORY_KIT_DESC"
 weight = 1500
-type = 2
+type = 0
 item_script = ExtResource("2_kit_use")

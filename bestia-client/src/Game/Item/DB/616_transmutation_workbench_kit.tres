@@ -9,5 +9,5 @@ item_id = 616
 name_key = "TRANSMUTATION_WORKBENCH_KIT"
 description_key = "TRANSMUTATION_WORKBENCH_KIT_DESC"
 weight = 1500
-type = 2
+type = 0
 item_script = ExtResource("2_kit_use")
