@@ -8,4 +8,8 @@ import org.springframework.stereotype.Component
 class CatalogueEssences(private val catalogue: BestiaCatalogue) : SpeciesEssences {
 
   override fun of(speciesId: Long): EssenceDefinition? = catalogue.find(speciesId)?.essence
+
+  override fun bossLevelOf(speciesId: Long): Int? {
+    return catalogue.find(speciesId)?.takeIf { it.boss || it.worldBoss }?.referenceLevel
+  }
 }

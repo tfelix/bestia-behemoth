@@ -57,13 +57,19 @@ class EssenceGemScript(
     return true
   }
 
-  /** A free socket of the essence's group, in an item at least as high as its gem asks. */
+  /** A free socket of the essence's group, in an item high enough for its gem and, for a boss essence, for the boss. */
   fun accepts(target: Inventory.Item, essence: Essence): Boolean {
     val template = templates.templateOf(target.itemId) ?: return false
     val group = species.of(essence.bestiaId)?.group ?: return false
     val hasFreeSocket = target.essences.size < target.slots
 
-    return hasFreeSocket && SocketGroup.of(template) == group && target.itemLevel >= essence.tier.minItemLevel
+    return hasFreeSocket && SocketGroup.of(template) == group && target.itemLevel >= minItemLevelOf(essence)
+  }
+
+  private fun minItemLevelOf(essence: Essence): Int {
+    val bossFloor = species.bossLevelOf(essence.bestiaId)?.let { it - BOSS_LEVEL_MARGIN } ?: 0
+
+    return maxOf(essence.tier.minItemLevel, bossFloor)
   }
 
   private fun socketWorn(world: World, wearerId: EntityId, uniqueId: Long, essence: Essence) {
@@ -76,6 +82,9 @@ class EssenceGemScript(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** A boss essence goes only into an item at most this many levels below the boss. */
+    const val BOSS_LEVEL_MARGIN = 20
 
     /** `essence_gem` in items.yml. */
     const val ITEM_ID = 141L
