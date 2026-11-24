@@ -1,5 +1,6 @@
 package net.bestia.zone.master.skill
 
+import net.bestia.zone.casting.essence.LearnedTricks
 import net.bestia.zone.casting.plagiarism.PlagiarizedSkill
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.skill.ecs.KnownSkills
@@ -15,7 +16,8 @@ import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
  */
 @Service
 class MasterSkillListBuilder(
-  private val masterSkillTreeRegistry: MasterSkillTreeRegistry
+  private val masterSkillTreeRegistry: MasterSkillTreeRegistry,
+  private val learnedTricks: LearnedTricks? = null,
 ) {
 
   /**
@@ -34,10 +36,13 @@ class MasterSkillListBuilder(
     return tree + listOfNotNull(copy)
   }
 
-  /** The list of the master [masterEntityId] as it stands in [world]. */
+  /** The list of the master [masterEntityId] as it stands in [world], with the attacks its essences grant. */
   fun entriesFor(world: World, masterEntityId: EntityId): List<SkillListSMSG.SkillListEntry> {
     val levels = world.get(masterEntityId, KnownSkills::class)?.levels().orEmpty()
+    val tricks = learnedTricks?.of(world, masterEntityId).orEmpty().map { skillId ->
+      SkillListSMSG.SkillListEntry(skillId, LearnedTricks.SKILL_LEVEL, fromEssence = true)
+    }
 
-    return entriesFor(levels, world.get(masterEntityId, PlagiarizedSkill::class))
+    return entriesFor(levels, world.get(masterEntityId, PlagiarizedSkill::class)) + tricks
   }
 }

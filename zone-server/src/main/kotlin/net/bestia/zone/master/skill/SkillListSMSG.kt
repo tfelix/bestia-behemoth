@@ -16,6 +16,7 @@ data class SkillListSMSG(
         .setLevel(skill.level)
         .setPotencyBand(skill.potencyBand)
         .setTemporary(skill.temporary)
+        .setFromEssence(skill.fromEssence)
         .build()
     }
 
@@ -33,5 +34,7 @@ data class SkillListSMSG(
     val potencyBand: Int = 0,
     /** Held for one cast, like a Plagiarism copy, rather than learned. */
     val temporary: Boolean = false,
+    /** Granted by a worn Learned Trick essence, for as long as it is worn. */
+    val fromEssence: Boolean = false,
   )
 }

@@ -11,8 +11,7 @@ import net.bestia.zone.battle.status.EssenceSkill
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 
 /**
- * What an essence does with its points, as the effect table of the essence docs lists it. An effect that is
- * not built yet adds nothing: it waits for its mechanism (leech, autocast, skill grant).
+ * What an essence does with its points, as the effect table of the essence docs lists it.
  *
  * [tool] is the one tool a tool essence fits. Null fits every item of the essence's group.
  */
@@ -152,7 +151,11 @@ enum class EssenceEffect(val tool: ToolKind? = null) {
       context.addPercent(aspd = sum.points)
     }
   },
-  LEARNED_TRICK,
+  LEARNED_TRICK {
+    override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
+      context.addLearnedTrick(EssenceSkill(sum.target!!, sum.bestTier.attackLevelCap))
+    }
+  },
   QUIET_STEP {
     override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
       context.noticeRangeCutPercent += 2 * sum.points
@@ -200,8 +203,7 @@ enum class EssenceEffect(val tool: ToolKind? = null) {
     }
   };
 
-  open fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
-  }
+  abstract fun apply(context: StatusValueRecalcContext, sum: EssenceSum)
 
   private companion object {
     const val STEADFAST_POINTS = 3
