@@ -77,7 +77,8 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
       { 23, "Workbench" },
       { 24, "Furnace" },
       { 25, "Forge" },
-      { CampfireKind, "Campfire" }
+      { CampfireKind, "Campfire" },
+      { 94, "Carving Table" }
     };
 
     /// <summary><c>StaticEntityKind.CAMPFIRE</c> ordinal + 1, the one station that burns fuel.</summary>

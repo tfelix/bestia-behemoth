@@ -39,6 +39,7 @@ class PlayerStructureSource(
     StaticEntityKind.ALCHEMY_LABORATORY,
     StaticEntityKind.GEM_CUT_STATION,
     StaticEntityKind.TRANSMUTATION_WORKBENCH,
+    StaticEntityKind.CARVING_TABLE,
     StaticEntityKind.CAMPFIRE,
     StaticEntityKind.CHEST,
     StaticEntityKind.BREEDING_FARM,

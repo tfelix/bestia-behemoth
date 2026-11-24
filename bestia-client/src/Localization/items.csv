@@ -1637,3 +1637,7 @@ STUN_ARROW,stun arrow
 STUN_ARROW_DESC,"An arrow with a dark, blunt head of lodestone that hums against the palm.
 
 It may stun what it hits."
+CARVING_TABLE_KIT,Carving Table Kit
+CARVING_TABLE_KIT_DESC,"A heavy folding table with vices, fine gravers and a shaded lamp.
+
+Set it down and it becomes a Carving Table, where Runic Etching binds a Bestia into a cut gem."

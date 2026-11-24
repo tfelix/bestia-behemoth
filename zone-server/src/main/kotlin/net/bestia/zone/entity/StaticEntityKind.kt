@@ -204,7 +204,10 @@ enum class StaticEntityKind {
   EMPYRITE,
 
   /** A player town's storage center, where masters keep the bestia they do not take along. */
-  BESTIA_CENTER;
+  BESTIA_CENTER,
+
+  /** Where an Artificer etches a Bestia into a cut gem. */
+  CARVING_TABLE;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.
