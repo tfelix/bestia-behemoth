@@ -1,5 +1,6 @@
 package net.bestia.zone.item.ecs
 
+import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.battle.gear.ToolKind
 import net.bestia.zone.battle.gear.ArmorType
 import net.bestia.zone.battle.gear.WeaponType
@@ -44,6 +45,7 @@ class ItemTemplateRegistry(
     val weaponType: WeaponType? = null,
     val armorType: ArmorType? = null,
     val toolKind: ToolKind? = null,
+    val equipSlot: EquipmentSlot? = null,
   ) {
     val isAmmo: Boolean
       get() {
@@ -65,7 +67,7 @@ class ItemTemplateRegistry(
     itemRepository.findAll().associate {
       it.id to Template(
         it.id, it.baseLevel, it.weight, it.stackable, it.maxDurability, it.material, it.type, it.ammoType, it.element,
-        it.attackRange, it.twoHanded, it.script, it.bound, it.weaponType, it.armorType, it.toolKind
+        it.attackRange, it.twoHanded, it.script, it.bound, it.weaponType, it.armorType, it.toolKind, it.equipSlot
       )
     }
   }
