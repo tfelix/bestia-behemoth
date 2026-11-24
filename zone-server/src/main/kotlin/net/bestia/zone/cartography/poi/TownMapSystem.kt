@@ -55,6 +55,7 @@ class TownMapSystem(
     val SERVICE_OF_KIND = mapOf(
       StaticEntityKind.POST_OFFICE to MapService.POST_OFFICE,
       StaticEntityKind.AUCTION_HOUSE to MapService.MARKET,
+      StaticEntityKind.BESTIA_CENTER to MapService.BESTIA_CENTER,
     )
   }
 }

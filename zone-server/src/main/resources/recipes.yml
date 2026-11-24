@@ -111,6 +111,19 @@ recipes:
     craftSeconds: 60.0
     baseSuccessChance: 1.0
 
+  - id: 141
+    identifier: BESTIA_CENTER_KIT
+    effect: PRODUCE
+    output: { item: bestia_center_kit, amount: 1 }
+    inputs:
+      - { item: log, amount: 40 }
+      - { item: loose_stone, amount: 30 }
+      - { item: iron_ingot, amount: 10 }
+    skill: { skill: M_CARPENTRY, level: 3 }
+    station: WORKBENCH
+    craftSeconds: 60.0
+    baseSuccessChance: 1.0
+
   - id: 51
     identifier: AUCTION_HOUSE_KIT
     effect: PRODUCE

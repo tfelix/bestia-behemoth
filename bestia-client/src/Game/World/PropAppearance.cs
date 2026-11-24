@@ -829,7 +829,14 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 1.2f, PlaceholderColour = new Color(1.0f, 0.84f, 0.20f), StructureHeight = 4f,
         Shape = PlaceholderShape.Crystal, PlaceholderGlow = 0.8f, Action = PropAction.Use
-      } // EMPYRITE
+      }, // EMPYRITE
+
+      // A storage center players built in their town. A plain civic box until it has a model, like the post office.
+      new Kind
+      {
+        PlaceholderWidth = 7.0f, PlaceholderColour = new Color(0.55f, 0.62f, 0.45f), StructureHeight = 4f,
+        Action = PropAction.Use
+      } // BESTIA_CENTER
     };
 
     /// <summary>

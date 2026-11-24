@@ -135,6 +135,7 @@ namespace BestiaBehemothClient.Game.World
         "ALCHEMY_LABORATORY" => 86,
         "GEM_CUT_STATION" => 87,
         "TRANSMUTATION_WORKBENCH" => 88,
+        "BESTIA_CENTER" => 92,
         "STRUCTURE_WALL" => Mesh.StructurePieces.Wall,
         "STRUCTURE_FLOOR" => Mesh.StructurePieces.Floor,
         "STRUCTURE_STAIRS" => Mesh.StructurePieces.Stairs,
