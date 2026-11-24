@@ -596,6 +596,22 @@ enum OpError {
   COMBAT_TARGET_IN_GRACE = 419;
   // The leader cannot disband the guild while its storage holds anything.
   GUILD_DISBAND_STORAGE_NOT_EMPTY = 420;
+  // The master holds no Bestia Ledger and stands at no storage center.
+  BESTIA_STORAGE_NO_ACCESS = 421;
+  // Nobody manages the bestia storage while the master is fighting.
+  BESTIA_STORAGE_IN_COMBAT = 422;
+  // The bestia went into storage too recently. args[0]: the minutes left.
+  BESTIA_STORAGE_RESTING = 423;
+  // Every active slot is taken, so a stored bestia can only come out by a swap.
+  BESTIA_STORAGE_PARTY_FULL = 424;
+  // A dead bestia cannot go into storage.
+  BESTIA_STORAGE_BESTIA_DEAD = 425;
+  // A fighting bestia cannot go into storage.
+  BESTIA_STORAGE_BESTIA_FIGHTING = 426;
+  // The bestia the player controls right now cannot go into storage.
+  BESTIA_STORAGE_BESTIA_CONTROLLED = 427;
+  // A bestia paired in a breeding farm cannot go into storage.
+  BESTIA_STORAGE_BESTIA_BREEDING = 428;
 }
 
 message OperationError {

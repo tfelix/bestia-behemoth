@@ -1,5 +1,6 @@
 package net.bestia.zone.breeding
 
+import net.bestia.zone.account.persistence.PlayerBestia
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.breeding.persistence.BestiaEggRepository
 import net.bestia.zone.geometry.Vec3L
@@ -23,7 +24,7 @@ class Hatching(
 
   /** @throws net.bestia.zone.account.OwnedBestiaPolicyViolationException when the master has no free slot at all */
   @Transactional
-  fun hatch(masterId: Long, eggInstanceId: Long, at: Vec3L) {
+  fun hatch(masterId: Long, eggInstanceId: Long, at: Vec3L): PlayerBestia {
     val egg = checkNotNull(eggs.findByIdOrNull(eggInstanceId)) { "Egg $eggInstanceId has no row" }
     val species = catalogue.byId(egg.speciesId)
     val data = PlayerBestiaCreateOperation.PlayerBestiaCreateData(
@@ -36,6 +37,6 @@ class Hatching(
     )
 
     disposal.destroy(eggInstanceId)
-    createOperation.createAndSpawn(masterId, data)
+    return createOperation.createAndSpawn(masterId, data)
   }
 }

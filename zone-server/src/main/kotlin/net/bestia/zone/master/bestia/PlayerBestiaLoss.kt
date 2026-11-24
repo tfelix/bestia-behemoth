@@ -47,6 +47,14 @@ class PlayerBestiaLoss(
     }
   }
 
+  /** Loses a bestia that is not in the world, such as one in storage. Call it off the tick. */
+  fun loseStored(playerBestiaId: PlayerBestiaId) {
+    transactions.executeWithoutResult {
+      val entityId = playerBestiaRepository.findByIdOrNull(playerBestiaId)?.entityId ?: return@executeWithoutResult
+      deleteRow(playerBestiaId, entityId)
+    }
+  }
+
   private fun deleteRow(playerBestiaId: PlayerBestiaId, entityId: EntityId) {
     val bestia = playerBestiaRepository.findByIdOrNull(playerBestiaId) ?: return
     val bag = bestia.container

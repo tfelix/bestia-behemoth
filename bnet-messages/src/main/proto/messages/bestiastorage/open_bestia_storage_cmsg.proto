@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "OpenBestiaStorageCmsgProto";
+
+// The client asks for the selected master's bestia storage, answered with a BestiaStorageSMSG.
+message OpenBestiaStorageCMSG {
+}

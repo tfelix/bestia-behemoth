@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CidtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX3N1Y2Nlc3MucHJvdG8SBGJu",
             "ZXQiMQoQT3BlcmF0aW9uU3VjY2VzcxIdCgRjb2RlGAEgASgOMg8uYm5ldC5P",
-            "cFN1Y2Nlc3MqhwQKCU9wU3VjY2VzcxISCg5NQVNURVJfQ1JFQVRFRBAAEhIK",
+            "cFN1Y2Nlc3MqpQQKCU9wU3VjY2VzcxISCg5NQVNURVJfQ1JFQVRFRBAAEhIK",
             "Dk1BU1RFUl9ERUxFVEVEEAESEwoPQ1JBRlRfU1VDQ0VFREVEEAISFAoQU1RS",
             "VUNUVVJFX1BMQUNFRBADEhEKDUNIQVJUX1dSSVRURU4QBBIZChVQQVJUWV9J",
             "TlZJVEFUSU9OX1NFTlQQBRIZChVHVUlMRF9JTlZJVEFUSU9OX1NFTlQQBhIR",
@@ -37,9 +37,9 @@ namespace Bnet {
             "U1BFTExfSU5TQ1JJQkVEEBASEQoNU1RBTUlOQV9USVJFRBAREhUKEVNUQU1J",
             "TkFfRVhIQVVTVEVEEBISFgoSU1RBTUlOQV9DT0xMQVBTSU5HEBMSGAoUQkVT",
             "VElBX1NUQU1JTkFfVElSRUQQFBIcChhCRVNUSUFfU1RBTUlOQV9FWEhBVVNU",
-            "RUQQFRIdChlCRVNUSUFfU1RBTUlOQV9DT0xMQVBTSU5HEBZCLgoVbmV0LmJl",
-            "c3RpYS5ibmV0LnByb3RvQhVPcGVyYXRpb25TdWNjZXNzUHJvdG9iBnByb3Rv",
-            "Mw=="));
+            "RUQQFRIdChlCRVNUSUFfU1RBTUlOQV9DT0xMQVBTSU5HEBYSHAoYQkVTVElB",
+            "X1NUT1JFRF9PTl9BUlJJVkFMEBdCLgoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
+            "QhVPcGVyYXRpb25TdWNjZXNzUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpSuccess), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -105,6 +105,10 @@ namespace Bnet {
     [pbr::OriginalName("BESTIA_STAMINA_TIRED")] BestiaStaminaTired = 20,
     [pbr::OriginalName("BESTIA_STAMINA_EXHAUSTED")] BestiaStaminaExhausted = 21,
     [pbr::OriginalName("BESTIA_STAMINA_COLLAPSING")] BestiaStaminaCollapsing = 22,
+    /// <summary>
+    /// A caught or hatched bestia found every active slot taken and went into the master's storage.
+    /// </summary>
+    [pbr::OriginalName("BESTIA_STORED_ON_ARRIVAL")] BestiaStoredOnArrival = 23,
   }
 
   #endregion

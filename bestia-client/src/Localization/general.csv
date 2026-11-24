@@ -52,6 +52,14 @@ ERROR_BUILD_ON_SEED_CORE,Nobody builds on the core of an Empyrite Seed.
 ERROR_BUILD_ON_STRONGHOLD_GROUNDS,Only the guild that holds this Stronghold builds on its grounds.
 ERROR_COMBAT_TARGET_IN_GRACE,It was just captured and cannot be harmed for a few minutes yet.
 ERROR_GUILD_DISBAND_STORAGE_NOT_EMPTY,The guild storage still holds goods. Empty it before you disband the guild.
+ERROR_BESTIA_STORAGE_NO_ACCESS,You need a Bestia Ledger or a storage center for that.
+ERROR_BESTIA_STORAGE_IN_COMBAT,You cannot manage your bestia storage while you fight.
+ERROR_BESTIA_STORAGE_RESTING,This bestia rests in your storage for %s more minutes.
+ERROR_BESTIA_STORAGE_PARTY_FULL,Your party is full. Swap a bestia instead.
+ERROR_BESTIA_STORAGE_BESTIA_DEAD,A fallen bestia cannot go into your storage.
+ERROR_BESTIA_STORAGE_BESTIA_FIGHTING,A fighting bestia cannot go into your storage.
+ERROR_BESTIA_STORAGE_BESTIA_CONTROLLED,You cannot put away the bestia you control right now.
+ERROR_BESTIA_STORAGE_BESTIA_BREEDING,This bestia is paired in a Breeding Farm. Release the pair first.
 STATUS_EFFECT_10,Warded: a ward stone's magic keeps other players from harming you and you from harming them.
 STATUS_EFFECT_12,Guild aura: your guild master is near and lends you strength.
 STATUS_EFFECT_13,"Battle Orders: +5 STR, DEX and INT."
@@ -1207,6 +1215,7 @@ SUCCESS_STAMINA_COLLAPSING,You are collapsing from exhaustion and losing health.
 SUCCESS_BESTIA_STAMINA_TIRED,"Your bestia is tired, and walks slower."
 SUCCESS_BESTIA_STAMINA_EXHAUSTED,Your bestia is exhausted: its health and mana no longer recover.
 SUCCESS_BESTIA_STAMINA_COLLAPSING,Your bestia is collapsing from exhaustion and losing health. Feed it!
+SUCCESS_BESTIA_STORED_ON_ARRIVAL,Your party is full. Your new bestia went into your storage.
 BLACKBOARD_TITLE,Blackboard of %s
 BLACKBOARD_TITLE_NOWHERE,Blackboard
 BLACKBOARD_SEARCH,Search quests

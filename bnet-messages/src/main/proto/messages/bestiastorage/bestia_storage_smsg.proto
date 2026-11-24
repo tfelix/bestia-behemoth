@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/master/bestia_info.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BestiaStorageSmsgProto";
+
+// The selected master's bestia storage, sent on request and after every summon, swap and release.
+message BestiaStorageSMSG {
+  message Pool {
+    uint32 current = 1;
+    uint32 max = 2;
+  }
+
+  message StoredBestia {
+    // The entity id is the one it takes again in the world; the position is where it went into storage.
+    BestiaInfo info = 1;
+    // Until it may be summoned again; 0 when it may now.
+    uint32 resting_seconds = 2;
+    Pool health = 3;
+    Pool mana = 4;
+    Pool stamina = 5;
+  }
+
+  repeated StoredBestia bestias = 1;
+  uint32 storage_slot_count = 2;
+  uint32 active_slot_count = 3;
+  uint32 active_bestia_count = 4;
+}

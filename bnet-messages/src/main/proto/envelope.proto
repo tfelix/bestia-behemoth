@@ -48,6 +48,11 @@ import "messages/master/get_skills_cmsg.proto";
 import "messages/master/activate_skill_cmsg.proto";
 import "messages/master/skill_cooldown_smsg.proto";
 import "messages/master/cancel_status_effect_cmsg.proto";
+import "messages/bestiastorage/open_bestia_storage_cmsg.proto";
+import "messages/bestiastorage/bestia_storage_smsg.proto";
+import "messages/bestiastorage/summon_stored_bestia_cmsg.proto";
+import "messages/bestiastorage/swap_stored_bestia_cmsg.proto";
+import "messages/bestiastorage/release_stored_bestia_cmsg.proto";
 import "messages/notebook/survey_minigame_smsg.proto";
 import "messages/notebook/survey_stops_cmsg.proto";
 import "messages/master/sense_marks_smsg.proto";
@@ -314,6 +319,11 @@ message Envelope {
     CompendiumSMSG compendium = 418;
     SkillCooldownSMSG skill_cooldown = 419;
     CancelStatusEffectCMSG cancel_status_effect = 420;
+    OpenBestiaStorageCMSG open_bestia_storage = 421;
+    BestiaStorageSMSG bestia_storage = 422;
+    SummonStoredBestiaCMSG summon_stored_bestia = 423;
+    SwapStoredBestiaCMSG swap_stored_bestia = 424;
+    ReleaseStoredBestiaCMSG release_stored_bestia = 425;
 
     // ENTITY & COMPONENTS 500
     SelectActiveEntity select_active_entity = 500;

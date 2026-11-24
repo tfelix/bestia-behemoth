@@ -2,6 +2,7 @@ package net.bestia.zone.capture
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.bnet.proto.OperationSuccessProto.OpSuccess
 import net.bestia.zone.account.OwnedBestiaPolicyViolationException
 import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.bestia.BestiaCatalogue
@@ -13,6 +14,7 @@ import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.message.OperationSuccessSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.AccountId
 import org.springframework.context.event.EventListener
@@ -46,7 +48,7 @@ class BestiaAdoptionService(
   }
 
   private fun adopt(accountId: AccountId, masterId: Long, species: Bestia, level: Int, at: Vec3L) {
-    try {
+    val adopted = try {
       playerBestiaCreateOperation.createAndSpawn(
         masterId = masterId,
         playerBestiaCreateData = PlayerBestiaCreateOperation.PlayerBestiaCreateData(
@@ -67,6 +69,9 @@ class BestiaAdoptionService(
     }
 
     ownedBestiasPublisher.publish(accountId)
+    if (adopted.isStored) {
+      outMessageProcessor.sendToPlayer(accountId, OperationSuccessSMSG(OpSuccess.BESTIA_STORED_ON_ARRIVAL))
+    }
   }
 
   /** Puts the creature back as a wild one, so a failed hand-over loses nothing. */

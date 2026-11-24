@@ -53,6 +53,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import net.bestia.zone.account.persistence.PlayerBestia
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
+import net.bestia.zone.account.persistence.StoredVitals
 import net.bestia.zone.account.persistence.findByIdOrThrow
 import net.bestia.zone.bestia.persistence.findByIdOrThrow
 
@@ -81,6 +82,8 @@ class PlayerBestiaEntitySpawner(
     val inventory: Inventory,
     val equipment: Equipment,
     val statusEffects: List<ActiveStatusEffect>,
+    /** The pools it comes out of storage with; null for full ones. */
+    val vitals: StoredVitals? = null,
   ) {
     val entityId: EntityId
       get() {
@@ -88,20 +91,23 @@ class PlayerBestiaEntitySpawner(
       }
   }
 
+  /** Spawns a bestia that comes out of storage with [vitals]. */
   @Transactional(readOnly = true)
   fun spawnPlayerBestia(
     playerBestiaId: PlayerBestiaId,
-  ) {
+    vitals: StoredVitals?,
+  ): EntityId {
     val playerBestia = playerBestiaRepository.findByIdOrThrow(playerBestiaId)
 
-    spawnPlayerBestia(playerBestia)
+    return spawnPlayerBestia(playerBestia, vitals)
   }
 
   /** Spawns a bestia that was just created. One that already existed comes back through [respawnMissing]. */
   fun spawnPlayerBestia(
     playerBestia: PlayerBestia,
-  ) {
-    val loaded = load(playerBestia)
+    vitals: StoredVitals? = null,
+  ): EntityId {
+    val loaded = load(playerBestia, vitals)
     val entityId = world.createEntity(loaded.entityId) { id -> addComponents(id, loaded) }
 
     val accountId = playerBestia.master.account.id
@@ -116,6 +122,8 @@ class PlayerBestiaEntitySpawner(
       playerBestiaId = playerBestiaId,
       playerBestiaEntityId = entityId
     )
+
+    return entityId
   }
 
   @Transactional(readOnly = true)
@@ -153,7 +161,7 @@ class PlayerBestiaEntitySpawner(
     }
   }
 
-  private fun load(playerBestia: PlayerBestia): LoadedBestia {
+  private fun load(playerBestia: PlayerBestia, vitals: StoredVitals? = null): LoadedBestia {
     val fixedAttackIds = playerBestia.attackLearnLevels()
       .filterValues { it <= playerBestia.level }
       .mapValues { (_, learnLevel) -> BestiaSkillLevel.forLearnLevel(learnLevel) }
@@ -165,6 +173,7 @@ class PlayerBestiaEntitySpawner(
       inventory = playerBestia.container.toLiveInventory(itemStats),
       equipment = buildEquipment(playerBestia),
       statusEffects = playerBestia.entityId?.let(statusEffectPersistenceService::load).orEmpty(),
+      vitals = vitals,
     )
   }
 
@@ -228,9 +237,10 @@ class PlayerBestiaEntitySpawner(
     val maxStamina = conditionValueCalculator.computeMaxStamina(
       playerBestia.level, baseStatusValues.vitality, baseStatusValues.strength, baseStatusValues.willpower, ivs.stamina
     )
-    add(id, Health(current = maxHp, max = maxHp))
-    add(id, Mana(current = maxMana, max = maxMana))
-    add(id, Stamina(current = maxStamina, max = maxStamina))
+    val vitals = loaded.vitals
+    add(id, Health(current = vitals?.health?.coerceIn(1, maxHp) ?: maxHp, max = maxHp))
+    add(id, Mana(current = vitals?.mana?.coerceIn(0, maxMana) ?: maxMana, max = maxMana))
+    add(id, Stamina(current = vitals?.stamina?.coerceIn(0, maxStamina) ?: maxStamina, max = maxStamina))
     add(id, FormulaDrivenVitals)
 
     // Recalc on the first tick so passives and worn equipment are folded in - see the same call

@@ -49,6 +49,8 @@ enum OpSuccess {
   BESTIA_STAMINA_TIRED = 20;
   BESTIA_STAMINA_EXHAUSTED = 21;
   BESTIA_STAMINA_COLLAPSING = 22;
+  // A caught or hatched bestia found every active slot taken and went into the master's storage.
+  BESTIA_STORED_ON_ARRIVAL = 23;
 }
 
 message OperationSuccess {

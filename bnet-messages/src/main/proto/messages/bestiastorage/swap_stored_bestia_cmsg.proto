@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SwapStoredBestiaCmsgProto";
+
+// Puts the active bestia into storage and the stored one where the active one stood.
+message SwapStoredBestiaCMSG {
+  uint64 stored_player_bestia_id = 1;
+  fixed64 active_entity_id = 2;
+}

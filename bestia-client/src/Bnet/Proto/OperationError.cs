@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqRNwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqeOQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -182,9 +182,15 @@ namespace Bnet {
             "SE9MRFMQnwMSHQoYR1JPVU5EX1NUUk9OR0hPTERfTk9fRElHEKADEhcKEkJV",
             "SUxEX09OX1NFRURfQ09SRRChAxIgChtCVUlMRF9PTl9TVFJPTkdIT0xEX0dS",
             "T1VORFMQogMSGwoWQ09NQkFUX1RBUkdFVF9JTl9HUkFDRRCjAxIkCh9HVUlM",
-            "RF9ESVNCQU5EX1NUT1JBR0VfTk9UX0VNUFRZEKQDIgQILhAuKhJTSE9QX1RS",
-            "RUFTVVJZX0ZVTExCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRp",
-            "b25FcnJvclByb3RvYgZwcm90bzM="));
+            "RF9ESVNCQU5EX1NUT1JBR0VfTk9UX0VNUFRZEKQDEh0KGEJFU1RJQV9TVE9S",
+            "QUdFX05PX0FDQ0VTUxClAxIdChhCRVNUSUFfU1RPUkFHRV9JTl9DT01CQVQQ",
+            "pgMSGwoWQkVTVElBX1NUT1JBR0VfUkVTVElORxCnAxIeChlCRVNUSUFfU1RP",
+            "UkFHRV9QQVJUWV9GVUxMEKgDEh8KGkJFU1RJQV9TVE9SQUdFX0JFU1RJQV9E",
+            "RUFEEKkDEiMKHkJFU1RJQV9TVE9SQUdFX0JFU1RJQV9GSUdIVElORxCqAxIl",
+            "CiBCRVNUSUFfU1RPUkFHRV9CRVNUSUFfQ09OVFJPTExFRBCrAxIjCh5CRVNU",
+            "SUFfU1RPUkFHRV9CRVNUSUFfQlJFRURJTkcQrAMiBAguEC4qElNIT1BfVFJF",
+            "QVNVUllfRlVMTEIsChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlv",
+            "bkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1170,6 +1176,38 @@ namespace Bnet {
     /// The leader cannot disband the guild while its storage holds anything.
     /// </summary>
     [pbr::OriginalName("GUILD_DISBAND_STORAGE_NOT_EMPTY")] GuildDisbandStorageNotEmpty = 420,
+    /// <summary>
+    /// The master holds no Bestia Ledger and stands at no storage center.
+    /// </summary>
+    [pbr::OriginalName("BESTIA_STORAGE_NO_ACCESS")] BestiaStorageNoAccess = 421,
+    /// <summary>
+    /// Nobody manages the bestia storage while the master is fighting.
+    /// </summary>
+    [pbr::OriginalName("BESTIA_STORAGE_IN_COMBAT")] BestiaStorageInCombat = 422,
+    /// <summary>
+    /// The bestia went into storage too recently. args[0]: the minutes left.
+    /// </summary>
+    [pbr::OriginalName("BESTIA_STORAGE_RESTING")] BestiaStorageResting = 423,
+    /// <summary>
+    /// Every active slot is taken, so a stored bestia can only come out by a swap.
+    /// </summary>
+    [pbr::OriginalName("BESTIA_STORAGE_PARTY_FULL")] BestiaStoragePartyFull = 424,
+    /// <summary>
+    /// A dead bestia cannot go into storage.
+    /// </summary>
+    [pbr::OriginalName("BESTIA_STORAGE_BESTIA_DEAD")] BestiaStorageBestiaDead = 425,
+    /// <summary>
+    /// A fighting bestia cannot go into storage.
+    /// </summary>
+    [pbr::OriginalName("BESTIA_STORAGE_BESTIA_FIGHTING")] BestiaStorageBestiaFighting = 426,
+    /// <summary>
+    /// The bestia the player controls right now cannot go into storage.
+    /// </summary>
+    [pbr::OriginalName("BESTIA_STORAGE_BESTIA_CONTROLLED")] BestiaStorageBestiaControlled = 427,
+    /// <summary>
+    /// A bestia paired in a breeding farm cannot go into storage.
+    /// </summary>
+    [pbr::OriginalName("BESTIA_STORAGE_BESTIA_BREEDING")] BestiaStorageBestiaBreeding = 428,
   }
 
   #endregion
