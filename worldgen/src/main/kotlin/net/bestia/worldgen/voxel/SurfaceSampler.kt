@@ -71,7 +71,7 @@ class SurfaceSampler(
    * wood keeps its trees and they come out blighted rather than gone. Killing them is the runtime
    * vegetation simulation's job, not the map's.
    */
-  private val manaDensity: FloatLayer? = null,
+  private val manaPotential: FloatLayer? = null,
   private val corruption: FloatLayer? = null
 ) {
 
@@ -192,9 +192,9 @@ class SurfaceSampler(
   fun soilDepthAt(worldX: Double, worldY: Double): Double =
     soilDepth.sampleBilinear(worldX, worldY).coerceAtLeast(0.0)
 
-  /** Ambient mana here, 0 to 1, or 0 on a pipeline without the mana stage. */
-  fun manaAt(worldX: Double, worldY: Double): Double =
-    manaDensity?.sampleBilinear(worldX, worldY)?.coerceIn(0.0, 1.0) ?: 0.0
+  /** The mana potential here, a rank from 0 to 1, or 0 on a pipeline without the mana stage. */
+  fun potentialAt(worldX: Double, worldY: Double): Double =
+    manaPotential?.sampleBilinear(worldX, worldY)?.coerceIn(0.0, 1.0) ?: 0.0
 
   /** How far the land here has gone over, 0 to 1, or 0 on a pipeline without the corruption stage. */
   fun corruptionAt(worldX: Double, worldY: Double): Double =
@@ -441,7 +441,7 @@ class SurfaceSampler(
       biomeConfidence = layers.require(LayerId.BIOME_CONFIDENCE),
       // Optional reads, unlike the pair above: a partial pipeline in a test or the viewer legitimately has
       // no mana stage, and the answer there is "nothing is corrupted" rather than a failure.
-      manaDensity = layers[LayerId.MANA_DENSITY] as? FloatLayer,
+      manaPotential = layers[LayerId.MANA_POTENTIAL] as? FloatLayer,
       corruption = layers[LayerId.CORRUPTION] as? FloatLayer
     )
 

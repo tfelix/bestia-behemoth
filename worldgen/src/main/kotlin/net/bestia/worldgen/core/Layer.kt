@@ -217,7 +217,7 @@ data class LayerId(val name: String) {
      * How volcanic the ground is: **exactly 0 on quiet crust**, and a percentile rank from just above zero to 1
      * across the volcanic country the world has.
      *
-     * Ranked, like [MANA_DENSITY] and [BIOME_CONFIDENCE], and for the same reason: the raw field is a vent's
+     * Ranked, like [MANA_POTENTIAL] and [BIOME_CONFIDENCE], and for the same reason: the raw field is a vent's
      * strength tapered by distance, and both the vent count and the strengths swing hard with how the plates came
      * out. A raw field would make `0.6` mean "hot" on one seed and "the middle of nowhere" on another - and every
      * consumer reads it as a threshold, so that instability would land directly on where sulfur is, how often a
@@ -225,7 +225,7 @@ data class LayerId(val name: String) {
      *
      * ### The zero is not part of the rank, and that distinction is load-bearing
      *
-     * Unlike [MANA_DENSITY], which is a smooth field with a value everywhere, this one is zero over most of the
+     * Unlike [MANA_POTENTIAL], which is a smooth field with a value everywhere, this one is zero over most of the
      * land - typically about sixty per cent of it. Ranking *all* the land would therefore put every one of those
      * cells at the same rank, namely the height of the spike at zero, and `VolcanismStage.rankAgainstLand`
      * records what that measured out as before it was fixed. So the ranking covers only the cells with something
@@ -239,7 +239,7 @@ data class LayerId(val name: String) {
      * Consequence, the same one [CORRUPTION] carries: this is **relative to a world**. Two seeds' values are not
      * comparable, so do not compare them.
      *
-     * **Zero over ocean and lakes**, unlike [MANA_DENSITY], which is deliberately defined under the sea because
+     * **Zero over ocean and lakes**, unlike [MANA_POTENTIAL], which is deliberately defined under the sea because
      * it describes what the rock holds. This describes what a player would walk into, every consumer is asking
      * about walkable ground, and `LocalTemperature` samples it bilinearly with no NaN handling - so a sentinel
      * here would propagate into the air temperature of the whole coastline.
@@ -249,7 +249,11 @@ data class LayerId(val name: String) {
     // --- Mana ------------------------------------------------------------------------------------
 
     /**
-     * Ambient mana, 0 to 1, **before civilisation has anything to do with it**.
+     * Where the rock holds mana, 0 to 1, **before civilisation has anything to do with it**.
+     *
+     * A percentile rank over the world's land, not an amount (see `ManaStage`): `0.75` means stronger than three
+     * quarters of this world's land. The zone derives how much mana is actually in the air from it, so this layer
+     * never has to change while the world lives.
      *
      * The geological field: broad warped provinces, biased toward convergent plate boundaries the same way
      * ore genesis and volcanism are, so the world's magic and its mountains have a common cause instead of
@@ -263,12 +267,12 @@ data class LayerId(val name: String) {
      * rather than being the same layer after suppression: history must see where mana wells up in order to
      * react to it, and the suppression is a *consequence* of a civilisation that survived doing so.
      */
-    val MANA_DENSITY = LayerId("mana_density")
+    val MANA_POTENTIAL = LayerId("mana_potential")
 
     /**
      * How far the land here has gone over, 0 on clean ground to 1 in the heart of a blighted region.
      *
-     * [MANA_DENSITY] after civilisation suppresses it, ramped past a threshold **solved per world** so that
+     * [MANA_POTENTIAL] after civilisation suppresses it, ramped past a threshold **solved per world** so that
      * `ManaParams.corruptedLandShare` of the land comes out above `CorruptionStage.CORRUPTED`. A fixed cutoff
      * cannot hold that target: the land fraction alone legitimately runs from 0.05 to 0.85, and a seed with
      * few towns has more unsuppressed ground than one with many.

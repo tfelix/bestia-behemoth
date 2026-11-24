@@ -161,7 +161,7 @@ object Palettes {
      * the map a designer sweeping the rarity knobs looks at, so the colour of "0.75" has to mean the same thing
      * from one run to the next or the sweep measures nothing.
      */
-    LayerId.MANA_DENSITY, LayerId.CORRUPTION, LayerId.VOLCANISM ->
+    LayerId.MANA_POTENTIAL, LayerId.CORRUPTION, LayerId.VOLCANISM ->
       ContinuousPalette(Ramps.VIRIDIS, 0.0..1.0)
     LayerId.SOIL_DEPTH -> ContinuousPalette(Ramps.VIRIDIS, 0.0..9.0)
 

@@ -12,7 +12,7 @@ class ManaConcentrationService(
 
   /** The field at [at], 0 on a world without the mana stage. */
   fun manaAt(at: Vec3L): Double {
-    return worldService.generated.materializer.surface.manaAt(at.x.toDouble(), at.y.toDouble())
+    return worldService.generated.materializer.surface.potentialAt(at.x.toDouble(), at.y.toDouble())
   }
 
   fun placeAt(at: Vec3L): Int = ManaConcentration.place(manaAt(at))

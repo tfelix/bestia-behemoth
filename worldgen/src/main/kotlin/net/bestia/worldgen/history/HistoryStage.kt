@@ -239,7 +239,7 @@ class HistoryStage(
    *
    * What it is really worth:
    *
-   * - **A town is not a cell.** `MANA_DENSITY` is a kilometre raster and a settlement's worked hinterland spans
+   * - **A town is not a cell.** `MANA_POTENTIAL` is a kilometre raster and a settlement's worked hinterland spans
    *   several cells of it, so "is the mana high in the cell the market square happens to fall in" is an
    *   arbitrary question at this resolution. Blight reaching a town's *fields* is a statement about the
    *   neighbourhood, and this is that statement.
@@ -253,8 +253,8 @@ class HistoryStage(
    * mechanic on the demo world than on genesis.
    */
   private fun manaField(ctx: GenContext, region: CellRegion, params: HistoryParams): (Vec2d) -> Double {
-    if (!ctx.layers.contains(LayerId.MANA_DENSITY)) return { 0.0 }
-    val mana = ctx.layers.float(LayerId.MANA_DENSITY)
+    if (!ctx.layers.contains(LayerId.MANA_POTENTIAL)) return { 0.0 }
+    val mana = ctx.layers.float(LayerId.MANA_POTENTIAL)
 
     val metres = region.resolution.metresPerCell
     val range = params.blightRange

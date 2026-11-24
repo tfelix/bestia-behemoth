@@ -77,7 +77,7 @@ Declared construction order, with the load-bearing reason from each stage's own 
 | 11 | `VegetationStage` | `bio/` | `CANOPY_COVER` | — | kilometre summary of the same density function the chunk-tier scatter uses, so raster and voxels can't disagree |
 | 12 | `ResourceStage` | `resource/` | `RESOURCE_VALUE` | `ORE_DEPOSIT` | geology-driven deposit placement |
 | 13 | `CaveStage` | `karst/` | — | `CAVE_SYSTEM`, `CAVE_PASSAGE`, `CAVE_ENTRANCE` | reads the chunk tier's own rock tuning (`StrataParams`), not a copy of it |
-| 14 | `ManaStage` | `mana/` | `MANA_DENSITY` | — | must precede history (history reacts to it); corruption must *follow* history, which is why mana/corruption are two stages, not one |
+| 14 | `ManaStage` | `mana/` | `MANA_POTENTIAL` | — | must precede history (history reacts to it); corruption must *follow* history, which is why mana/corruption are two stages, not one |
 | 15 | `HabitabilityStage` | `civ/` | `HABITABILITY`, `MOVEMENT_COST` | — | scores settleability |
 | 16 | `SettlementStage` | `civ/` | — | `SETTLEMENT`, `SETTLEMENT_GRADING`, `ROAD`, `BRIDGE`, `SEA_LANE` | places settlements/roads before history judges them. Only cities and towns join the trunk network; `buildTracks` then gives each village one spur ending exactly on the nearest trunk, which is what `TownStage` lays it along. Each road stores its `RoadClass` (`road_class` channel: TRAIL spurs, DIRT_ROAD trunks, the busiest fifth of trunk length COBBLED) and is `meandered` off the routed line |
 | 17 | `HistoryStage` | `history/` | — | `SETTLEMENT_HISTORY`, `RUIN`, `ASH_RUIN`, `BATTLEFIELD`, `TOMB`, `MONUMENT`, `MINE`, `MONASTERY`, `FORT`, `LIGHTHOUSE`, `CAVE_HOARD`, `WOUND`, `SHRINE` | dates/holds/burns settlements already placed — **does not place them** |

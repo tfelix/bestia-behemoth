@@ -51,7 +51,7 @@ class ResourceFinder(
 
     return nearestOnRings(east, north, rangeMetres) { x, y ->
       // A roll of zero asks only whether the land lets a rare herb grow at all.
-      val herb = HerbKind.of(surface.isBlightedAt(x, y), surface.manaAt(x, y), surface.biomeAt(x, y), 0.0, params)
+      val herb = HerbKind.of(surface.isBlightedAt(x, y), surface.potentialAt(x, y), surface.biomeAt(x, y), 0.0, params)
       if (herb == HerbKind.WILD) null else SenseMark(SenseKind.HERBS, x, y, "${herb.name.lowercase()} herbs")
     }
   }

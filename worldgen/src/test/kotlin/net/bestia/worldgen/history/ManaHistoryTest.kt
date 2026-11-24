@@ -46,7 +46,7 @@ class ManaHistoryTest {
     world.world.layers.require<FloatLayer>(LayerId.CORRUPTION)
 
   private fun mana(world: GeneratedWorld) =
-    world.world.layers.require<FloatLayer>(LayerId.MANA_DENSITY)
+    world.world.layers.require<FloatLayer>(LayerId.MANA_POTENTIAL)
 
   @Test
   fun `every wound stands in ground the corruption reached`() {

@@ -3104,7 +3104,7 @@ object Invariants {
     val unitRange = listOf(
       LayerId.ROCK_HARDNESS, LayerId.CRUST_AGE, LayerId.SOIL_FERTILITY,
       LayerId.BIOME_CONFIDENCE, LayerId.PRECIPITATION_SEASONALITY, LayerId.CANOPY_COVER,
-      LayerId.MANA_DENSITY
+      LayerId.MANA_POTENTIAL
     )
 
     for (id in unitRange) {

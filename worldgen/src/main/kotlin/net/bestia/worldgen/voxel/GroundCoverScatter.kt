@@ -356,7 +356,7 @@ class GroundCoverScatter(
           else -> PropKind.HERB to params.herbHeight
         }
         val herb = if (kind == PropKind.HERB) {
-          HerbKind.of(blighted, surface.manaAt(plant.x, plant.y), biome, plant.herbRoll, params)
+          HerbKind.of(blighted, surface.potentialAt(plant.x, plant.y), biome, plant.herbRoll, params)
         } else {
           HerbKind.WILD
         }

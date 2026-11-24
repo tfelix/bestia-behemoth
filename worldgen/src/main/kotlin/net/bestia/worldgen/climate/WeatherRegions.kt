@@ -158,7 +158,7 @@ class WeatherRegions private constructor(
 
       // Optional: a partial pipeline or an older world has no mana, and "no mana anywhere" is the right
       // answer there rather than a failure.
-      val mana = layers[LayerId.MANA_DENSITY] as? FloatLayer
+      val mana = layers[LayerId.MANA_POTENTIAL] as? FloatLayer
 
       // Elevation and biome are on the *base* grid, not the climate grid, so they are sampled by world
       // position rather than indexed - the mistake that had the economy stage reading polar temperature at a

@@ -650,7 +650,7 @@ class MapRenderer(
       // Green, which nothing else on the map owns: the faults are violet, the ore yellow, the volcanism in
       // fire colours and a den red. Mid rather than bright, because a stand is a patch of ordinary wood.
       FeatureKind.VEGETATION_STAND -> Color(70, 170, 80)
-      // The mana's own hue - the same violet the `mana_density` and `corruption` ramps end on - pushed to full
+      // The mana's own hue - the same violet the `mana_potential` and `corruption` ramps end on - pushed to full
       // saturation, because there are at most three of these on a world and they are the thing the chronicle
       // keeps referring to. Deliberately not in `HIDDEN_BY_DEFAULT`.
       FeatureKind.WOUND -> Color(215, 60, 255)
