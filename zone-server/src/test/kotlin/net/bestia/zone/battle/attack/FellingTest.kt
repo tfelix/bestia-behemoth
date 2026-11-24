@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.gear.ToolKind
+import net.bestia.zone.battle.gear.ToolTerm
 import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.ecs.core.testWorld
@@ -36,10 +37,22 @@ class FellingTest {
     assertEquals(200, sut.felled(world, feller, 100))
   }
 
-  private fun holding(tool: ToolKind? = null, weapon: WeaponType? = null, lumberjackLevel: Int = 0) =
-    world.createEntity { id ->
-      add(id, Master(id))
-      add(id, KnownSkills(mutableMapOf(31L to lumberjackLevel)))
-      add(id, CombatStats(CombatValues.OBJECT_BASELINE.copy(heldTool = tool, heldWeaponType = weapon)))
-    }
+  @Test
+  fun `a felling speed essence adds to each blow after lumberjack`() {
+    val feller = holding(tool = ToolKind.FELLING, lumberjackLevel = 5, fellingDamage = 24)
+
+    assertEquals(248, sut.felled(world, feller, 100))
+  }
+
+  private fun holding(
+    tool: ToolKind? = null,
+    weapon: WeaponType? = null,
+    lumberjackLevel: Int = 0,
+    fellingDamage: Int = 0
+  ) = world.createEntity { id ->
+    add(id, Master(id))
+    add(id, KnownSkills(mutableMapOf(31L to lumberjackLevel)))
+    val terms = mapOf(ToolTerm.FELLING_DAMAGE to fellingDamage)
+    add(id, CombatStats(CombatValues.OBJECT_BASELINE.copy(heldTool = tool, heldWeaponType = weapon, toolTerms = terms)))
+  }
 }

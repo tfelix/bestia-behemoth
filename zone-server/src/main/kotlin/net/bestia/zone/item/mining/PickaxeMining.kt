@@ -6,6 +6,7 @@ import net.bestia.zone.battle.GearWear
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.gear.ToolKind
+import net.bestia.zone.battle.gear.ToolTerm
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
@@ -56,7 +57,9 @@ class PickaxeMining(
       return refuse(accountId, OpError.MINE_ORE_TOO_HARD)
     }
 
-    val seconds = (SECONDS_PER_BALL + SECONDS_PER_ORE * ore.size) * MiningSkill.timeFactorAt(miningLevel)
+    val essenceCut = world.get(entityId, CombatStats::class)?.values?.toolPercent(ToolTerm.MINING_TIME_CUT) ?: 0
+    val seconds = (SECONDS_PER_BALL + SECONDS_PER_ORE * ore.size) * MiningSkill.timeFactorAt(miningLevel) *
+      (100 - essenceCut) / 100.0
     world.add(entityId, MiningSwing(accountId, ball, seconds.toFloat()))
   }
 

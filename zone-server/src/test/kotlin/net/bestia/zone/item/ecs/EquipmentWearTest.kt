@@ -5,6 +5,9 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.gear.ToolTerm
+import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.EcsWorld
 import net.bestia.zone.ecs.core.testWorld
@@ -19,6 +22,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
+import java.util.Random
 
 class EquipmentWearTest {
 
@@ -26,10 +30,13 @@ class EquipmentWearTest {
   private val asyncJobExecutor = mockk<AsyncJobExecutor> {
     every { submit(any<Long>(), any()) } answers { secondArg<() -> Unit>().invoke() }
   }
+  /** Always rolls 40 of 100, so a Tough Grip of 45% spares every use and one of 36% none. */
+  private val rolls = mockk<Random> { every { nextInt(100) } returns 40 }
   private val wear = EquipmentWear(
     EquipmentChanges(ItemTemplateRegistry(mockk<ItemRepository> { every { findAll() } returns emptyList() })),
     inventoryService,
-    asyncJobExecutor
+    asyncJobExecutor,
+    rolls
   )
   private val world: EcsWorld = testWorld()
 
@@ -68,6 +75,22 @@ class EquipmentWearTest {
 
     assertEquals(42, weapon(lightlyCoated)?.durability)
     assertEquals(50, weapon(fullyCoated)?.durability)
+  }
+
+  @Test
+  fun `a tough grip spares a use by chance`() {
+    val spared = wielder(durability = 50).also { grip(it, percent = 45) }
+    val worn = wielder(durability = 50).also { grip(it, percent = 36) }
+
+    wear.wearWeapon(world, spared, 1)
+    wear.wearWeapon(world, worn, 1)
+
+    assertEquals(50, weapon(spared)?.durability)
+    assertEquals(49, weapon(worn)?.durability)
+  }
+
+  private fun grip(id: EntityId, percent: Int) {
+    world.add(id, CombatStats(CombatValues.OBJECT_BASELINE.copy(toolTerms = mapOf(ToolTerm.WEAR_CUT to percent))))
   }
 
   private fun coat(id: EntityId, level: Int) {

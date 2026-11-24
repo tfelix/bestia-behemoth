@@ -5,12 +5,13 @@ import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.damage.HitForm
 import net.bestia.zone.battle.damage.HitReach
 import net.bestia.zone.battle.gear.ToolKind
+import net.bestia.zone.battle.gear.ToolTerm
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 
 /**
  * What an essence does with its points, as the effect table of the essence docs lists it. An effect that is
- * not built yet adds nothing: it waits for its mechanism (leech, autocast, skill grant, tool terms).
+ * not built yet adds nothing: it waits for its mechanism (leech, autocast, skill grant).
  *
  * [tool] is the one tool a tool essence fits. Null fits every item of the essence's group.
  */
@@ -152,12 +153,36 @@ enum class EssenceEffect(val tool: ToolKind? = null) {
   },
   TAMER,
   REFLEX,
-  MINING_SPEED(ToolKind.MINING),
-  FELLING_SPEED(ToolKind.FELLING),
-  DIGGING_SPEED(ToolKind.DIGGING),
-  FASTER_BITE(ToolKind.FISHING),
-  RICH_SEAM(ToolKind.MINING),
-  TOUGH_GRIP;
+  MINING_SPEED(ToolKind.MINING) {
+    override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
+      context.addToolTerm(ToolTerm.MINING_TIME_CUT, 3 * sum.points)
+    }
+  },
+  FELLING_SPEED(ToolKind.FELLING) {
+    override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
+      context.addToolTerm(ToolTerm.FELLING_DAMAGE, 3 * sum.points)
+    }
+  },
+  DIGGING_SPEED(ToolKind.DIGGING) {
+    override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
+      context.addToolTerm(ToolTerm.DIGGING_TIME_CUT, 3 * sum.points)
+    }
+  },
+  FASTER_BITE(ToolKind.FISHING) {
+    override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
+      context.addToolTerm(ToolTerm.BITE_WAIT_CUT, 3 * sum.points)
+    }
+  },
+  RICH_SEAM(ToolKind.MINING) {
+    override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
+      context.addToolTerm(ToolTerm.SECOND_ORE_CHANCE, sum.points)
+    }
+  },
+  TOUGH_GRIP {
+    override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
+      context.addToolTerm(ToolTerm.WEAR_CUT, 3 * sum.points)
+    }
+  };
 
   open fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
   }

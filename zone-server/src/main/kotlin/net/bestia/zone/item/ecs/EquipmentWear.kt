@@ -1,6 +1,9 @@
 package net.bestia.zone.item.ecs
 
 import net.bestia.zone.battle.GearWear
+import net.bestia.zone.battle.attack.ThreadLocalRandomSource
+import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.gear.ToolTerm
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.status.scripts.GearCoating
@@ -10,6 +13,7 @@ import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
+import java.util.Random
 
 /**
  * Wears the weapon in hand down for a fight, the way `LightSourceSystem` burns a torch, less under a [GearCoating]. A
@@ -20,6 +24,7 @@ class EquipmentWear(
   private val equipmentChanges: EquipmentChanges,
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
+  private val random: Random = ThreadLocalRandomSource,
 ) : GearWear {
 
   override fun wearWeapon(world: World, entityId: EntityId, durability: Int) {
@@ -27,7 +32,7 @@ class EquipmentWear(
     val weapon = equipment.get(EquipmentSlot.RIGHT_HAND) ?: return
     if (weapon.maxDurability <= 0 || weapon.isBroken) return
     val loss = durability * GearCoating.wearKeptPercent(world.get(entityId, StatusEffects::class)) / 100
-    if (loss <= 0) return
+    if (loss <= 0 || spared(world, entityId)) return
 
     val worn = weapon.copy(durability = (weapon.durability - loss).coerceAtLeast(0))
     equipment.replace(EquipmentSlot.RIGHT_HAND, worn)
@@ -43,5 +48,12 @@ class EquipmentWear(
         inventoryService.unequip(owner.masterId, owner.playerBestiaId, EquipmentSlot.RIGHT_HAND)
       }
     }
+  }
+
+  /** A Tough Grip essence in the hand's tool: a chance a use wears nothing, since a use costs only a point or two. */
+  private fun spared(world: World, entityId: EntityId): Boolean {
+    val cut = world.get(entityId, CombatStats::class)?.values?.toolPercent(ToolTerm.WEAR_CUT) ?: 0
+
+    return random.nextInt(100) < cut
   }
 }

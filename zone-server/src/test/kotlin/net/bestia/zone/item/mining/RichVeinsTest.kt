@@ -2,6 +2,9 @@ package net.bestia.zone.item.mining
 
 import io.mockk.every
 import io.mockk.mockk
+import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.gear.ToolTerm
+import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.identity.ecs.OwnedBestia
@@ -54,7 +57,17 @@ class RichVeinsTest {
     assertEquals(1, sut.extraPieces(world, bestia, iron))
   }
 
-  private fun masterWith(level: Int) = world.createEntity {
+  @Test
+  fun `a rich seam essence adds to the chance, and still never for gold`() {
+    val master = masterWith(level = 4, secondOreChance = 6)
+
+    assertEquals(1, sut.extraPieces(world, master, iron))
+    assertEquals(0, sut.extraPieces(world, master, gold))
+  }
+
+  private fun masterWith(level: Int, secondOreChance: Int = 0) = world.createEntity {
+    val terms = mapOf(ToolTerm.SECOND_ORE_CHANCE to secondOreChance)
+    add(it, CombatStats(CombatValues.OBJECT_BASELINE.copy(toolTerms = terms)))
     add(it, Master(MASTER_ID))
     add(it, KnownSkills(mutableMapOf(RICH_VEINS_ID to level)))
   }

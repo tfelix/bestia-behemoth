@@ -3,6 +3,8 @@ package net.bestia.zone.item.essence
 import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
+import net.bestia.zone.battle.gear.ToolTerm
+import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.bestia.persistence.Bestia
@@ -20,8 +22,9 @@ class EssenceStatsTest {
   private val owl = species(4, "owl", EssenceDefinition(SocketGroup.HEADGEAR, EssenceEffect.CLEAR_MIND, "BLIND"))
   private val salamander = species(5, "salamander", EssenceDefinition(SocketGroup.ARMOR, EssenceEffect.ELEMENT_BODY, "FIRE"))
   private val brute = species(6, "brute", EssenceDefinition(SocketGroup.ACCESSORY, EssenceEffect.ATTRIBUTE_PAIR, "STR_VIT"))
+  private val kobold = species(7, "kobold", EssenceDefinition(SocketGroup.TOOL, EssenceEffect.MINING_SPEED))
 
-  private val stats = essenceStatsOf(boar, hare, ogre, owl, salamander, brute)
+  private val stats = essenceStatsOf(boar, hare, ogre, owl, salamander, brute, kobold)
   private val context = StatusValueRecalcContext(BaseStatusValues(10, 10, 10, 10, 10, 10), baseSpeed = 1f)
 
   @Test
@@ -70,6 +73,18 @@ class EssenceStatsTest {
 
     assertEquals(12, context.strength)
     assertEquals(11, context.vitality)
+  }
+
+  @Test
+  fun `a tool essence cuts the work of its tool, but never all of it`() {
+    stats.applyTo(context, wearing(Essence(kobold.id, GemTier.RUBY)))
+    assertEquals(24, context.toolTerms[ToolTerm.MINING_TIME_CUT])
+
+    val fourDiamonds = List(4) { Essence(kobold.id, GemTier.DIAMOND) }
+    stats.applyTo(context, wearing(*fourDiamonds.toTypedArray()))
+    val values = CombatValues.OBJECT_BASELINE.copy(toolTerms = context.toolTerms)
+
+    assertEquals(75, values.toolPercent(ToolTerm.MINING_TIME_CUT))
   }
 
   @Test

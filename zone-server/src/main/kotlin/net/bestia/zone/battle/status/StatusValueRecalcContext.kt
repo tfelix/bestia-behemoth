@@ -1,6 +1,7 @@
 package net.bestia.zone.battle.status
 
 import net.bestia.zone.battle.gear.ToolKind
+import net.bestia.zone.battle.gear.ToolTerm
 import net.bestia.zone.battle.gear.ArmorType
 import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.battle.BestiaKind
@@ -218,6 +219,14 @@ class StatusValueRecalcContext(
 
   /** Tiles a throw reaches beyond the skill's own range. Set by Vulture's Eye while a thrown weapon is in hand. */
   var throwReachTiles: Int = 0
+
+  /** Percent per [ToolTerm], from the essences in the tool in hand. */
+  var toolTerms: Map<ToolTerm, Int> = emptyMap()
+    private set
+
+  fun addToolTerm(term: ToolTerm, percent: Int) {
+    toolTerms = toolTerms + (term to (toolTerms[term] ?: 0) + percent)
+  }
 
   /** Percent less of a wild creature's sight radius at which it notices this entity. Set by Camouflage. */
   var noticeRangeCutPercent: Int = 0
