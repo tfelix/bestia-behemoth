@@ -824,6 +824,7 @@ class InventoryService(
           provenance = provenance,
           slots = roll?.sockets ?: 0,
           itemLevel = roll?.itemLevel,
+          heldEssence = roll?.heldEssence,
           id = instanceId
         )
         roll?.let { instance.assignRolledStats(it.stats) }

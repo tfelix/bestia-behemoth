@@ -62,10 +62,20 @@ data class Recipe(
     } else {
       require(output == null) { "Recipe $identifier is $effect and must not declare an output" }
     }
+
+    if (effect == RecipeEffect.ETCH_ESSENCE) {
+      require(inputs.singleOrNull()?.amount == 1) { "Recipe $identifier etches exactly one cut gem" }
+    }
   }
 
-  /** Whether this recipe is aimed at an item the crafter already holds rather than at nothing. */
+  /** Whether this recipe is aimed at something the crafter picks rather than at nothing. */
   val needsTarget: Boolean get() = effect != RecipeEffect.PRODUCE
+
+  /** Whether the target is one of the crafter's Bestias rather than a held item. */
+  val etches: Boolean get() = effect == RecipeEffect.ETCH_ESSENCE
+
+  /** The cut gem an etching binds the Bestia into. */
+  val etchedGemId: Long get() = inputs.single().itemId
 
   /** Item id -> amount, summed per item, so a recipe naming a material twice is checked against the total. */
   val inputTotals: Map<Long, Int>

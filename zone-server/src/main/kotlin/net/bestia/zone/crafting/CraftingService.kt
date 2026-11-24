@@ -42,6 +42,7 @@ import java.time.Clock
 import net.bestia.zone.crafting.ecs.KnownRecipes
 import net.bestia.zone.crafting.discovery.BlueprintPoints
 import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.status.scripts.GloriaGrace
 import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.world.WorldService
@@ -90,6 +91,7 @@ class CraftingService(
   private val roller: ItemStatRoller,
   private val worldService: WorldService,
   private val crafters: Crafters,
+  private val etching: EssenceEtching,
   private val blueprintPoints: BlueprintPoints,
   private val structureRegistry: PlayerStructureRegistry,
   private val stationStates: StationStateSender,
@@ -270,7 +272,9 @@ class CraftingService(
 
     val inventory = world.get(entityId, Inventory::class) ?: return OpError.CRAFT_NOT_POSSIBLE
 
-    if (recipe.needsTarget) {
+    if (recipe.etches) {
+      etchingRefusal(world, entityId, crafter, recipe, targetUniqueId)?.let { return it }
+    } else if (recipe.needsTarget) {
       val target = targetFor(recipe, inventory, targetUniqueId, known) ?: return OpError.CRAFT_NOT_POSSIBLE
       if (!withinReach(known, recipe, target.effectiveLevel)) return OpError.CRAFT_ITEM_TOO_ADVANCED
     } else if (!withinReach(known, recipe, outputLevelOf(recipe))) {
@@ -318,7 +322,11 @@ class CraftingService(
     val inventory = world.get(entityId, Inventory::class) ?: return
     val known = crafter.skills
 
-    val target = if (recipe.needsTarget) {
+    if (recipe.etches) {
+      etchingRefusal(world, entityId, crafter, recipe, crafting.targetUniqueId)?.let { return refuse(accountId, it) }
+    }
+
+    val target = if (recipe.needsTarget && !recipe.etches) {
       targetFor(recipe, inventory, crafting.targetUniqueId, known)
         ?: return refuse(accountId, OpError.CRAFT_NOT_POSSIBLE)
     } else {
@@ -328,7 +336,7 @@ class CraftingService(
     // Re-checked here as well as at the start, because an upgrade landing mid-craft raises the target's
     // effective tier - so a smith can be exactly at their ceiling when they begin and past it when they finish.
     val tier = target?.effectiveLevel ?: outputLevelOf(recipe)
-    if (!withinReach(known, recipe, tier)) {
+    if (!recipe.etches && !withinReach(known, recipe, tier)) {
       return refuse(accountId, OpError.CRAFT_ITEM_TOO_ADVANCED)
     }
 
@@ -342,7 +350,7 @@ class CraftingService(
     val inputs = required(recipe)
     val taken = takeInputs(inventory, inputs) ?: return refuse(accountId, OpError.CRAFT_MISSING_MATERIALS)
 
-    val chance = bonuses.successChance(known, recipe, attributesOf(world, entityId))
+    val chance = bonuses.successChance(known, recipe, attributesOf(world, entityId), etchedLevelOf(world, recipe, crafting))
     val succeeded = Random.nextFloat() <= chance
     val roll = if (succeeded) rollOutput(recipe, known, crafting.rollChanceBonus) else null
     val provenance = ItemProvenance(crafterName = crafter.master.name, worldName = worldService.record.name)
@@ -358,7 +366,7 @@ class CraftingService(
         if (succeeded) {
           succeed(
             this, id, accountId, masterId, playerBestiaId, recipe, target, minted, chance, roll, provenance,
-            crafting.totalSeconds
+            crafting.totalSeconds, etchedBestiaId = crafting.targetUniqueId.takeIf { recipe.etches }
           )
         } else {
           fail(this, id, accountId, masterId, playerBestiaId, recipe, target, known)
@@ -398,7 +406,8 @@ class CraftingService(
     chance: Float,
     roll: ItemRoll?,
     provenance: ItemProvenance,
-    craftSeconds: Float
+    craftSeconds: Float,
+    etchedBestiaId: EntityId? = null
   ) {
     val inventory = world.get(entityId, Inventory::class) ?: return
     metrics.crafted(GameMetrics.Craft.SUCCESS)
@@ -428,6 +437,13 @@ class CraftingService(
         applyToTarget(inventory, masterId, playerBestiaId, target!!.copy(upgradeLevel = target.upgradeLevel + 1))
       RecipeEffect.REPAIR ->
         applyToTarget(inventory, masterId, playerBestiaId, target!!.copy(durability = target.maxDurability))
+      RecipeEffect.ETCH_ESSENCE -> {
+        val granted = etchedBestiaId != null && grantEssenceGem(world, entityId, recipe, etchedBestiaId, provenance)
+        if (!granted) {
+          LOG.warn { "Master $masterId etched a Bestia that was gone by then; the gem is spent" }
+          return refuse(accountId, OpError.CRAFT_NOT_POSSIBLE)
+        }
+      }
     }
 
     LOG.debug { "Master $masterId completed ${recipe.identifier} (${(chance * 100).roundToInt()}% chance)" }
@@ -549,8 +565,43 @@ class CraftingService(
 
       RecipeEffect.UPGRADE -> state.takeIf { it.upgradeLevel < MAX_UPGRADE_LEVEL }
 
-      RecipeEffect.PRODUCE -> null
+      RecipeEffect.PRODUCE, RecipeEffect.ETCH_ESSENCE -> null
     }
+  }
+
+  /** Checked when an etching starts and again when it resolves: the Bestia may walk off in between. */
+  private fun etchingRefusal(
+    world: World,
+    crafterId: EntityId,
+    crafter: Crafters.Crafter,
+    recipe: Recipe,
+    bestiaId: EntityId
+  ): OpError? {
+    if (bestiaId == crafterId) return OpError.CRAFT_NOT_POSSIBLE
+
+    return etching.refusal(world, crafter.master.masterId, bestiaId, recipe.etchedGemId)
+  }
+
+  private fun etchedLevelOf(world: World, recipe: Recipe, crafting: Crafting): Int {
+    if (!recipe.etches) return 0
+
+    return world.get(crafting.targetUniqueId, Level::class)?.level ?: 0
+  }
+
+  /** @return false when the Bestia was gone before it could be bound, which leaves nothing to grant */
+  private fun grantEssenceGem(
+    world: World,
+    crafterId: EntityId,
+    recipe: Recipe,
+    bestiaId: EntityId,
+    provenance: ItemProvenance
+  ): Boolean {
+    val essenceGemId = itemTemplates.idOf(ESSENCE_GEM) ?: return false
+    val essence = etching.bind(world, bestiaId, recipe.etchedGemId) ?: return false
+    val roll = ItemRoll(emptyList(), sockets = 0, itemStats.itemLevelOf(essenceGemId), heldEssence = essence)
+
+    world.add(crafterId, ObtainItemIntent.CreateItemIntent(essenceGemId, 1, roll, provenance))
+    return true
   }
 
   private fun attributesOf(world: World, entityId: EntityId): StatusValues? =
@@ -633,6 +684,7 @@ class CraftingService(
     },
     successPermille = (bonuses.successChance(known, recipe, attributes) * 1000).roundToInt(),
     craftMillis = (bonuses.craftSeconds(known, recipe) * 1000).roundToInt(),
+    reliableBestiaLevel = if (recipe.etches) bonuses.reliableBestiaLevel(known) else 0,
     point = blueprintPoints.pointOf(recipe.id)
   )
 
@@ -689,6 +741,9 @@ class CraftingService(
      * every other per-level table in the tree tops out at.
      */
     const val MAX_UPGRADE_LEVEL = 10
+
+    /** The one item every etching makes; which Bestia and gem it holds is per copy. */
+    private const val ESSENCE_GEM = "essence_gem"
 
     /** The skill id that picks no skill when the crafting window opens. */
     const val NO_SKILL = 0L

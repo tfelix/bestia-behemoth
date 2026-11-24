@@ -38,7 +38,8 @@ message CraftableRecipe {
   uint64 recipe_id = 1;
 
   // net.bestia.zone.crafting.RecipeEffect ordinal, whose declaration order is the contract for this
-  // value. Anything but PRODUCE (0) needs the player to pick an item to work on.
+  // value. Anything but PRODUCE (0) needs the player to pick a target: ETCH_ESSENCE (4) a Bestia, the
+  // others an item.
   uint32 effect = 2;
 
   // What a PRODUCE recipe makes; both 0 for the effects that change an item instead.
@@ -64,6 +65,10 @@ message CraftableRecipe {
 
   // The skill this recipe belongs to, which is how the window groups the list.
   uint64 skill_id = 10;
+
+  // For ETCH_ESSENCE, the highest Bestia level it binds at success_permille; each level above costs 5%.
+  // 2147483647 when no level is too high, 0 for every other recipe.
+  uint32 reliable_bestia_level = 11;
 }
 
 message RecipeInput {

@@ -28,20 +28,21 @@ namespace Bnet {
             "b3RvEgRibmV0IpIBChRDcmFmdGFibGVSZWNpcGVzU01TRxIQCghza2lsbF9p",
             "ZBgBIAEoBBIUCgxzdGF0aW9uX2tpbmQYAiABKA0SJgoHcmVjaXBlcxgDIAMo",
             "CzIVLmJuZXQuQ3JhZnRhYmxlUmVjaXBlEhQKDHN0cnVjdHVyZV9pZBgEIAEo",
-            "BBIUCgxmdWVsX3NlY29uZHMYBSABKA0i7AEKD0NyYWZ0YWJsZVJlY2lwZRIR",
+            "BBIUCgxmdWVsX3NlY29uZHMYBSABKA0iiwIKD0NyYWZ0YWJsZVJlY2lwZRIR",
             "CglyZWNpcGVfaWQYASABKAQSDgoGZWZmZWN0GAIgASgNEhYKDm91dHB1dF9p",
             "dGVtX2lkGAMgASgNEhUKDW91dHB1dF9hbW91bnQYBCABKA0SIQoGaW5wdXRz",
             "GAUgAygLMhEuYm5ldC5SZWNpcGVJbnB1dBIYChBzdWNjZXNzX3Blcm1pbGxl",
             "GAYgASgNEhQKDGNyYWZ0X21pbGxpcxgHIAEoDRITCgtpbnB1dHNfaGVsZBgI",
-            "IAEoCBINCgVwb2ludBgJIAMoAhIQCghza2lsbF9pZBgKIAEoBCI8CgtSZWNp",
-            "cGVJbnB1dBIPCgdpdGVtX2lkGAEgASgNEg4KBmFtb3VudBgCIAEoDRIMCgRo",
-            "ZWxkGAMgASgNQjIKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IZQ3JhZnRhYmxl",
-            "UmVjaXBlc1Ntc2dQcm90b2IGcHJvdG8z"));
+            "IAEoCBINCgVwb2ludBgJIAMoAhIQCghza2lsbF9pZBgKIAEoBBIdChVyZWxp",
+            "YWJsZV9iZXN0aWFfbGV2ZWwYCyABKA0iPAoLUmVjaXBlSW5wdXQSDwoHaXRl",
+            "bV9pZBgBIAEoDRIOCgZhbW91bnQYAiABKA0SDAoEaGVsZBgDIAEoDUIyChVu",
+            "ZXQuYmVzdGlhLmJuZXQucHJvdG9CGUNyYWZ0YWJsZVJlY2lwZXNTbXNnUHJv",
+            "dG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipesSMSG), global::Bnet.CraftableRecipesSMSG.Parser, new[]{ "SkillId", "StationKind", "Recipes", "StructureId", "FuelSeconds" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipe), global::Bnet.CraftableRecipe.Parser, new[]{ "RecipeId", "Effect", "OutputItemId", "OutputAmount", "Inputs", "SuccessPermille", "CraftMillis", "InputsHeld", "Point", "SkillId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipe), global::Bnet.CraftableRecipe.Parser, new[]{ "RecipeId", "Effect", "OutputItemId", "OutputAmount", "Inputs", "SuccessPermille", "CraftMillis", "InputsHeld", "Point", "SkillId", "ReliableBestiaLevel" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.RecipeInput), global::Bnet.RecipeInput.Parser, new[]{ "ItemId", "Amount", "Held" }, null, null, null, null)
           }));
     }
@@ -455,6 +456,7 @@ namespace Bnet {
       inputsHeld_ = other.inputsHeld_;
       point_ = other.point_.Clone();
       skillId_ = other.skillId_;
+      reliableBestiaLevel_ = other.reliableBestiaLevel_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -481,7 +483,8 @@ namespace Bnet {
     private uint effect_;
     /// <summary>
     /// net.bestia.zone.crafting.RecipeEffect ordinal, whose declaration order is the contract for this
-    /// value. Anything but PRODUCE (0) needs the player to pick an item to work on.
+    /// value. Anything but PRODUCE (0) needs the player to pick a target: ETCH_ESSENCE (4) a Bestia, the
+    /// others an item.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -607,6 +610,22 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "reliable_bestia_level" field.</summary>
+    public const int ReliableBestiaLevelFieldNumber = 11;
+    private uint reliableBestiaLevel_;
+    /// <summary>
+    /// For ETCH_ESSENCE, the highest Bestia level it binds at success_permille; each level above costs 5%.
+    /// 2147483647 when no level is too high, 0 for every other recipe.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint ReliableBestiaLevel {
+      get { return reliableBestiaLevel_; }
+      set {
+        reliableBestiaLevel_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -632,6 +651,7 @@ namespace Bnet {
       if (InputsHeld != other.InputsHeld) return false;
       if(!point_.Equals(other.point_)) return false;
       if (SkillId != other.SkillId) return false;
+      if (ReliableBestiaLevel != other.ReliableBestiaLevel) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -649,6 +669,7 @@ namespace Bnet {
       if (InputsHeld != false) hash ^= InputsHeld.GetHashCode();
       hash ^= point_.GetHashCode();
       if (SkillId != 0UL) hash ^= SkillId.GetHashCode();
+      if (ReliableBestiaLevel != 0) hash ^= ReliableBestiaLevel.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -701,6 +722,10 @@ namespace Bnet {
         output.WriteRawTag(80);
         output.WriteUInt64(SkillId);
       }
+      if (ReliableBestiaLevel != 0) {
+        output.WriteRawTag(88);
+        output.WriteUInt32(ReliableBestiaLevel);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -745,6 +770,10 @@ namespace Bnet {
         output.WriteRawTag(80);
         output.WriteUInt64(SkillId);
       }
+      if (ReliableBestiaLevel != 0) {
+        output.WriteRawTag(88);
+        output.WriteUInt32(ReliableBestiaLevel);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -780,6 +809,9 @@ namespace Bnet {
       size += point_.CalculateSize(_repeated_point_codec);
       if (SkillId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(SkillId);
+      }
+      if (ReliableBestiaLevel != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ReliableBestiaLevel);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -818,6 +850,9 @@ namespace Bnet {
       point_.Add(other.point_);
       if (other.SkillId != 0UL) {
         SkillId = other.SkillId;
+      }
+      if (other.ReliableBestiaLevel != 0) {
+        ReliableBestiaLevel = other.ReliableBestiaLevel;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -879,6 +914,10 @@ namespace Bnet {
             SkillId = input.ReadUInt64();
             break;
           }
+          case 88: {
+            ReliableBestiaLevel = input.ReadUInt32();
+            break;
+          }
         }
       }
     #endif
@@ -937,6 +976,10 @@ namespace Bnet {
           }
           case 80: {
             SkillId = input.ReadUInt64();
+            break;
+          }
+          case 88: {
+            ReliableBestiaLevel = input.ReadUInt32();
             break;
           }
         }

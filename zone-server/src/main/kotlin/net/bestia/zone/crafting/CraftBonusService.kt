@@ -46,6 +46,7 @@ class CraftBonusService(
   private val forgeWeaponId: Long? get() = skillIds[SkillId.M_FORGE_WEAPON]
   private val forgeArmorId: Long? get() = skillIds[SkillId.M_FORGE_ARMOR]
   private val upgradeEquipmentId: Long? get() = skillIds[SkillId.M_UPGRADE_EQUIPMENT]
+  private val runicEtchingId: Long? get() = skillIds[SkillId.M_RUNIC_ETCHING]
 
   /**
    * The chance [recipe] succeeds for this crafter, clamped to [MIN_SUCCESS]..1: a recipe's base may be negative (see
@@ -56,8 +57,9 @@ class CraftBonusService(
    * and the two would drift.
    *
    * [attributes] are the crafter's own, whoever crafts: a master, or a bestia working with its master's skills.
+   * [bestiaLevel] is the level of the Bestia an etching binds; every other craft ignores it.
    */
-  fun successChance(known: KnownSkills?, recipe: Recipe, attributes: StatusValues?): Float {
+  fun successChance(known: KnownSkills?, recipe: Recipe, attributes: StatusValues?, bestiaLevel: Int = 0): Float {
     val base = recipe.baseSuccessChance + attributeBonus(attributes, recipe)
     if (known == null) return base.coerceIn(MIN_SUCCESS, 1f)
 
@@ -80,12 +82,17 @@ class CraftBonusService(
 
       upgradeEquipmentId -> upgradeBonus(known)
 
+      runicEtchingId -> at(ETCHING_SUCCESS, known.levelIn(runicEtchingId))
+
       // A repair's chance is the recipe's own. The docs give Equipment Repair a max item level and no success
       // table, and inventing one here would be inventing content.
       else -> 0f
     }
 
-    return (base + bonus).coerceIn(MIN_SUCCESS, 1f)
+    // After the clamp, so each level above the reliable one costs five points off the chance the window shows.
+    val penalty = if (recipe.requiredSkillId == runicEtchingId) etchingPenalty(known, bestiaLevel) else 0f
+
+    return ((base + bonus).coerceIn(MIN_SUCCESS, 1f) - penalty).coerceIn(MIN_SUCCESS, 1f)
   }
 
   /**
@@ -164,6 +171,17 @@ class CraftBonusService(
     level <= 0 -> 0
     level >= uncappedAt -> NO_ITEM_LEVEL_CAP
     else -> step * level
+  }
+
+  /** The highest Bestia level Runic Etching binds at its full chance: ten a rank, no limit at rank ten. */
+  fun reliableBestiaLevel(known: KnownSkills?): Int =
+    ceilingAt(RELIABLE_BESTIA_LEVEL_STEP, RELIABLE_BESTIA_UNCAPPED_AT, rankIn(known, runicEtchingId))
+
+  /** No hard cap, as with forging: every Bestia level above the reliable one costs a little more chance. */
+  private fun etchingPenalty(known: KnownSkills, bestiaLevel: Int): Float {
+    val levelsAbove = (bestiaLevel - reliableBestiaLevel(known)).coerceAtLeast(0)
+
+    return levelsAbove * ETCHING_PENALTY_PER_LEVEL
   }
 
   /**
@@ -280,6 +298,12 @@ class CraftBonusService(
     private const val ROLL_ITEM_LEVEL_STEP = 10
     private const val ROLL_UNCAPPED_AT = 10
     private const val MATERIAL_ROLL_HEADROOM = 20
+
+    /** Runic Etching Lv.1-10: +5% a level, reliable up to Bestia level 10 a level, "100+" at full rank. */
+    private val ETCHING_SUCCESS = (1..10).map { it * 0.05f }
+    private const val RELIABLE_BESTIA_LEVEL_STEP = 10
+    private const val RELIABLE_BESTIA_UNCAPPED_AT = 10
+    private const val ETCHING_PENALTY_PER_LEVEL = 0.05f
 
     /** Equipment Repair Lv.1-5: item tier 20 rising to "100+", so twenty a level and no ceiling at full rank. */
     private const val REPAIR_ITEM_LEVEL_STEP = 20
