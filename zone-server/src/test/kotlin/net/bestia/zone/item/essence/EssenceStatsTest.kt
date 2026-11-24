@@ -24,8 +24,9 @@ class EssenceStatsTest {
   private val brute = species(6, "brute", EssenceDefinition(SocketGroup.ACCESSORY, EssenceEffect.ATTRIBUTE_PAIR, "STR_VIT"))
   private val kobold = species(7, "kobold", EssenceDefinition(SocketGroup.TOOL, EssenceEffect.MINING_SPEED))
   private val turtle = species(8, "turtle", EssenceDefinition(SocketGroup.ARMOR, EssenceEffect.COATED))
+  private val blob = species(9, "blob", EssenceDefinition(SocketGroup.ACCESSORY, EssenceEffect.TAMER))
 
-  private val stats = essenceStatsOf(boar, hare, ogre, owl, salamander, brute, kobold, turtle)
+  private val stats = essenceStatsOf(boar, hare, ogre, owl, salamander, brute, kobold, turtle, blob)
   private val context = StatusValueRecalcContext(BaseStatusValues(10, 10, 10, 10, 10, 10), baseSpeed = 1f)
 
   @Test
@@ -94,6 +95,13 @@ class EssenceStatsTest {
 
     assertTrue(context.armorUnstrippable)
     assertEquals(6, context.defensePercent)
+  }
+
+  @Test
+  fun `tamer gives one catch chance point per two essence points`() {
+    stats.applyTo(context, wearing(Essence(blob.id, GemTier.RUBY)))
+
+    assertEquals(4, context.catchChancePoints)
   }
 
   @Test

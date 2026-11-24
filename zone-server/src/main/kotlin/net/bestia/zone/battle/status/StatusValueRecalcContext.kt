@@ -240,6 +240,9 @@ class StatusValueRecalcContext(
   /** Cannot be pushed back by a blow or a blast. A dash of its own still moves it. */
   var knockbackImmune: Boolean = false
 
+  /** Percentage points on the catch chance of the traps this entity sets. Set by a Tamer essence. */
+  var catchChancePoints: Int = 0
+
   /** The worn armor cannot be stripped. Set by a Coated essence, which only an armor takes. */
   var armorUnstrippable: Boolean = false
 
