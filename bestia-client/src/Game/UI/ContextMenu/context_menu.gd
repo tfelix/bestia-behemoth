@@ -13,6 +13,10 @@ const _ACTION_TALK: int = 2
 const _ACTION_EXCHANGE: int = 3
 const _ACTION_ATTACK: int = 4
 const _ACTION_REPAIR: int = 5
+const _ACTION_OFFER_FOR_ETCHING: int = 6
+
+## The InteractEntity action the server's InteractEntityHandler reads as an etching offer.
+const _OFFER_FOR_ETCHING := "offerForEtching"
 
 var _target_entity_id: int = 0
 var _target: Node3D = null
@@ -30,12 +34,16 @@ func open_for(target: Node3D, screen_position: Vector2) -> bool:
 	_target_entity_id = 0
 	_target = target
 
-	# One of the player's own bodies, other than the one they drive: the only thing to do to it is swap goods.
+	# One of the player's own bodies, other than the one they drive: swap goods with it, or let an Artificer at a
+	# Carving Table etch it. The server answers an offer away from a table with the reason.
 	var entity_manager := EntityManager.get_instance()
 	var own_id: int = target.get_bestia_entity_id() if target.has_method("get_bestia_entity_id") else 0
 	if entity_manager != null and entity_manager.is_owned_entity_id(own_id):
 		_target_entity_id = own_id
 		add_item(tr("CONTEXT_EXCHANGE_ITEMS"), _ACTION_EXCHANGE)
+		var own := entity_manager.get_entity(own_id)
+		if own != null and own.has_essence():
+			add_item(tr("CONTEXT_OFFER_FOR_ETCHING"), _ACTION_OFFER_FOR_ETCHING)
 
 	elif target is MasterVisual:
 		_target_entity_id = target.get_bestia_entity_id()
@@ -107,6 +115,11 @@ func _on_id_pressed(id: int) -> void:
 		_ACTION_REPAIR:
 			if _target_entity_id != 0:
 				ConnectionManager.repair_structure(_target_entity_id)
+		_ACTION_OFFER_FOR_ETCHING:
+			if _target_entity_id != 0:
+				var args = ConnectionManager.ScriptArgsCls.new()
+				args.SetText(ScriptArgKeys.ACTION, _OFFER_FOR_ETCHING)
+				ConnectionManager.interact_entity(_target_entity_id, args)
 		_ACTION_EXCHANGE:
 			var inventory = get_tree().get_first_node_in_group("inventory")
 			if inventory != null and _target_entity_id != 0:

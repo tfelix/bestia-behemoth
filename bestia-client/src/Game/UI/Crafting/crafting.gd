@@ -154,6 +154,7 @@ func _on_craftable_recipes(msg: CraftableRecipesSMSG) -> void:
 	if int(msg.StructureId) != _structure_id:
 		_clear(_queue_rows)
 	_structure_id = int(msg.StructureId)
+	_etching_picker.offers = msg.EtchingOffers
 	# A Carving Table only etches, and an etching never queues.
 	_queue_panel.visible = _at_station() and not msg.Recipes.all(_etches)
 	_show_fuel(msg)
