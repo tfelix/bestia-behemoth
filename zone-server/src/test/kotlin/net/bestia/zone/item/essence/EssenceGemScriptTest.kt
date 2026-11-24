@@ -4,7 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.battle.gear.ToolKind
-import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.identity.ecs.Master
@@ -111,7 +110,7 @@ class EssenceGemScriptTest {
   @Test
   fun `tools form their own group and plain materials have none`() {
     assertEquals(SocketGroup.TOOL, SocketGroup.of(template(1, toolKind = ToolKind.MINING)))
-    assertEquals(SocketGroup.TOOL, SocketGroup.of(template(4, equipSlot = EquipmentSlot.RIGHT_HAND, weaponType = WeaponType.TOOL)))
+    assertEquals(SocketGroup.TOOL, SocketGroup.of(template(4, equipSlot = EquipmentSlot.RIGHT_HAND, toolKind = ToolKind.FISHING)))
     assertEquals(SocketGroup.ACCESSORY, SocketGroup.of(template(2, equipSlot = EquipmentSlot.LIGHT_SOURCE)))
     assertNull(SocketGroup.of(template(3)))
   }
@@ -133,15 +132,11 @@ class EssenceGemScriptTest {
     itemLevel = itemLevel
   )
 
-  private fun template(
-    id: Long,
-    equipSlot: EquipmentSlot? = null,
-    toolKind: ToolKind? = null,
-    weaponType: WeaponType? = null
-  ) = ItemTemplateRegistry.Template(
-    id = id, baseLevel = 1, weight = 1, stackable = false, maxDurability = 100, material = ItemMaterial.CLOTH,
-    toolKind = toolKind, equipSlot = equipSlot, weaponType = weaponType
-  )
+  private fun template(id: Long, equipSlot: EquipmentSlot? = null, toolKind: ToolKind? = null) =
+    ItemTemplateRegistry.Template(
+      id = id, baseLevel = 1, weight = 1, stackable = false, maxDurability = 100, material = ItemMaterial.CLOTH,
+      toolKind = toolKind, equipSlot = equipSlot
+    )
 
   private companion object {
     const val MASTER_ID = 42L

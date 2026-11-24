@@ -27,7 +27,7 @@ const PER_POINT := {
 
 ## The socket group of [param item], or empty for an item no essence fits. Mirrors the server's SocketGroup.of.
 static func group_of(item: ItemResource) -> String:
-	if item.weapon_type == "TOOL":
+	if not item.tool_kind.is_empty():
 		return "TOOL"
 	match EquipmentSlot.from_item_value(item.equip_slot):
 		EquipmentSlot.Slot.RIGHT_HAND: return "WEAPON"
