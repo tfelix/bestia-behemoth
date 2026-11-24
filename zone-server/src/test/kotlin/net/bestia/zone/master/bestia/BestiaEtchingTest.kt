@@ -12,7 +12,10 @@ import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
+import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.master.bestia.ecs.OfferedForEtching
+import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.essence.EssenceDefinition
 import net.bestia.zone.item.essence.EssenceEffect
@@ -48,7 +51,13 @@ class BestiaEtchingTest {
 
   private val loss = mockk<PlayerBestiaLoss>(relaxed = true)
 
-  private val etching = BestiaEtching(catalogue, itemTemplates, structures, loss)
+  private val connections = mockk<ConnectionInfoService> {
+    every { getSelectedMasterEntityId(OWNER_ACCOUNT) } returns OWNER_ENTITY
+  }
+
+  private val offers = EtchingOffers(structures, connections, mockk(relaxed = true))
+
+  private val etching = BestiaEtching(catalogue, itemTemplates, structures, loss, offers)
 
   @Test
   fun `an own Bestia at the table may be etched`() {
@@ -65,10 +74,15 @@ class BestiaEtchingTest {
   }
 
   @Test
-  fun `another master's Bestia needs a commission`() {
+  fun `another master's Bestia may be etched only once its owner offers it`() {
     val boar = givenBestia(level = 6, masterId = MASTER_ID + 1)
+    world.add(boar, Account(OWNER_ACCOUNT))
 
     assertEquals(OpError.CRAFT_NOT_POSSIBLE, etching.refusal(world, MASTER_ID, boar, CUT_AMETHYST))
+
+    world.add(boar, OfferedForEtching)
+    assertNull(etching.refusal(world, MASTER_ID, boar, CUT_AMETHYST))
+    assertEquals(OWNER_ENTITY, etching.ownerOf(world, boar))
   }
 
   @Test
@@ -117,5 +131,7 @@ class BestiaEtchingTest {
     const val BOSS = 99L
     const val CUT_AMETHYST = 136L
     const val CUT_RUBY = 138L
+    const val OWNER_ACCOUNT = 7L
+    const val OWNER_ENTITY = 500L
   }
 }

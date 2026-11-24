@@ -111,6 +111,7 @@
  - UPKEEP wave 53: WorldStateSampler [EverySeconds(seconds=5.0)]
  - UPKEEP wave 54: CompendiumSightingSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 54: GuildMemberBeaconSystem [EverySeconds(seconds=1.0)]
+ - UPKEEP wave 54: EtchingOfferSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 54: WatcherSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 54: BreedingFarmSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 54: HonorStandingSystem [EverySeconds(seconds=10.0)]

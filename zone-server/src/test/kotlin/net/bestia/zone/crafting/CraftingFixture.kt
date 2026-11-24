@@ -102,10 +102,15 @@ class CraftingFixture(
   /** What the Bestia side answers for every etching; null lets it go ahead. */
   var etchingRefusal: OpError? = null
 
+  /** Who the Bestia side says owns every etched Bestia; null leaves the gem with the etcher. */
+  var etchedBestiaOwner: EntityId? = null
+
   /** Binds whatever Bestia it is given into [ETCHED_ESSENCE], without the Bestia rules a test is not about. */
   val etching = mockk<EssenceEtching>().also { etching ->
     every { etching.refusal(any(), any(), any(), any()) } answers { etchingRefusal }
     every { etching.bind(any(), any(), any()) } returns ETCHED_ESSENCE
+    every { etching.ownerOf(any(), any()) } answers { etchedBestiaOwner }
+    every { etching.offersAt(any(), any(), any()) } returns emptyList()
   }
 
   /** Templates of stackable gear such as torches, by id. Every other item is plain gear to the service. */

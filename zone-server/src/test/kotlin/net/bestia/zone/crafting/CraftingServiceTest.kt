@@ -632,6 +632,20 @@ class CraftingServiceTest {
     verify { fixture.etching.bind(any(), bestia, CUT_GEM_ITEM) }
   }
 
+  @Test
+  fun `the Essence Gem of an offered Bestia goes to its owner, not to the Artificer`() {
+    val fixture = etchingFixture(baseSuccessChance = 1f)
+    val artificer = fixture.givenCrafter(items = listOf(stack(CUT_GEM_ITEM, 1)), knownSkills = mapOf(ETCHING_ID to 1))
+    val owner = fixture.givenCrafter(masterId = MASTER_ID + 1)
+    fixture.etchedBestiaOwner = owner
+    val bestia = fixture.givenEtchableBestia(level = 5, masterId = MASTER_ID + 1)
+
+    fixture.service.resolve(fixture.world, artificer, crafting(etch.id, targetUniqueId = bestia))
+
+    assertEquals(ESSENCE_GEM_ITEM, fixture.world.get(owner, ObtainItemIntent.CreateItemIntent::class)?.itemId)
+    assertNull(fixture.world.get(artificer, ObtainItemIntent.CreateItemIntent::class))
+  }
+
   /** The price of bad luck is the gem: a Bestia is only used up when it really becomes an essence. */
   @Test
   fun `a failed etching shatters the gem and leaves the Bestia alone`() {

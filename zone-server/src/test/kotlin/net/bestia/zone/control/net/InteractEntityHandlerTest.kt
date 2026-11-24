@@ -1,5 +1,7 @@
 package net.bestia.zone.control.net
 
+import net.bestia.zone.script.ScriptArgKeys
+import net.bestia.zone.master.bestia.EtchingOffers
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -51,6 +53,8 @@ class InteractEntityHandlerTest {
   private lateinit var hallInteraction: PropInteraction
   private lateinit var chestInteraction: PropInteraction
   private lateinit var script: RecordingScript
+  private val etchingOffers = mockk<EtchingOffers> { every { offer(any(), any(), any()) } returns null }
+
   private lateinit var handler: InteractEntityHandler
   private var actor: EntityId = 0L
 
@@ -84,8 +88,19 @@ class InteractEntityHandlerTest {
       towns = mockk(relaxed = true),
       outMessageProcessor = messages,
       scripts = EntityScriptRegistry(listOf(script)),
+      etchingOffers = etchingOffers,
       propInteractions = listOf(hallInteraction, chestInteraction),
     )
+  }
+
+  @Test
+  fun `offering a Bestia for etching goes to the etching offers`() {
+    val bestia = world.createEntity { id -> add(id, Position.fromVec3(standingAt)) }
+    val offer = ScriptArgs.of(ScriptArgKeys.ACTION to "offerForEtching")
+
+    handler.handle(world, InteractEntityCMSG(playerId = accountId, targetEntityId = bestia, args = offer))
+
+    verify { etchingOffers.offer(world, actor, bestia) }
   }
 
   @Test

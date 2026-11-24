@@ -29,7 +29,10 @@ data class CraftableRecipesSMSG(
   val structureId: Long = 0,
 
   /** Seconds a campfire has left to burn; 0 once it is out or for a station that burns nothing. */
-  val fuelSeconds: Long = 0
+  val fuelSeconds: Long = 0,
+
+  /** Other masters' Bestias offered at this Carving Table, for the etching picker. */
+  val etchingOffers: List<EtchingOffer> = emptyList()
 ) : SMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -64,6 +67,16 @@ data class CraftableRecipesSMSG(
       .addAllRecipes(protoRecipes)
       .setStructureId(structureId)
       .setFuelSeconds(fuelSeconds.toInt())
+      .addAllEtchingOffers(
+        etchingOffers.map { offer ->
+          CraftableRecipesSmsgProto.EtchingOffer.newBuilder()
+            .setEntityId(offer.bestiaId)
+            .setMobId(offer.speciesId.toInt())
+            .setLevel(offer.level)
+            .setOwnerName(offer.ownerName)
+            .build()
+        }
+      )
       .build()
 
     return EnvelopeProto.Envelope.newBuilder()
