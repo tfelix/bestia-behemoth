@@ -167,7 +167,7 @@ data class CorruptionParams(
  *
  * ### The threshold is solved, not configured
  *
- * A fixed cutoff cannot hold "10% of the land" across seeds, for two compounding reasons. `MANA_DENSITY` is
+ * A fixed cutoff cannot hold "10% of the land" across seeds, for two compounding reasons. `MANA_POTENTIAL` is
  * already a rank over land, so a cutoff at `1 - share` would be exactly right *if nothing else happened* -
  * but suppression then pushes an unknown number of cells down, and how many depends on how many settlements
  * the seed produced and how they are spread. A world of few towns has far more unsuppressed land than a
@@ -219,7 +219,7 @@ class CorruptionStage(
   )
 
   override fun generate(ctx: GenContext, region: CellRegion): StageResult {
-    val mana = Grid.from(ctx.layers.float(LayerId.MANA_DENSITY))
+    val mana = Grid.from(ctx.layers.float(LayerId.MANA_POTENTIAL))
     val elevation = Grid.from(ctx.layers.float(LayerId.ELEVATION))
     val waterLevel = Grid.from(ctx.layers.float(LayerId.WATER_LEVEL))
     val biome = ctx.layers.int(LayerId.BIOME)

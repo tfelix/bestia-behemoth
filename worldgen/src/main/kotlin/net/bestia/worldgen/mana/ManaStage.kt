@@ -248,7 +248,7 @@ class ManaStage(
 
   override val scale = StageScale.WORLD
 
-  override val outputs = listOf(StageOutput.Raster(LayerId.MANA_DENSITY))
+  override val outputs = listOf(StageOutput.Raster(LayerId.MANA_POTENTIAL))
 
   override fun generate(ctx: GenContext, region: CellRegion): StageResult {
     val config = ctx.config
@@ -307,7 +307,7 @@ class ManaStage(
 
     rankAgainstLand(ctx, region, mana)
 
-    return StageResult.of(mana.toLayer(LayerId.MANA_DENSITY, region))
+    return StageResult.of(mana.toLayer(LayerId.MANA_POTENTIAL, region))
   }
 
   /**

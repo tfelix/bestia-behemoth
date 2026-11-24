@@ -209,7 +209,7 @@ class CrystalScatter(
     // before testing ownership, which reached the same answer by a longer route - only the owning column
     // can draw, so the only mana test that ever decided anything was the one in the crystal's own column.
     // Asking here makes the cell's verdict a pure function of the cell, which is what `propsIn` needs.
-    if (surface.manaAt(crystalX, crystalY) < params.manaFloor) return null
+    if (surface.potentialAt(crystalX, crystalY) < params.manaFloor) return null
 
     val corruption = surface.corruptionAt(crystalX, crystalY)
     val density = params.cleanLandDensity +

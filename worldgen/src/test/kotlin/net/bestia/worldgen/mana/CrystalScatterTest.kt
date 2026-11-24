@@ -86,7 +86,7 @@ class CrystalScatterTest {
    * ### Spread by stride, and it used to be the top N by score
    *
    * Both scores this could rank by are **saturated**, which is what made a top-N slice the wrong sampler.
-   * `CORRUPTION` clamps at 1.0 and `MANA_DENSITY` is a *percentile rank*, so on the reference world every one
+   * `CORRUPTION` clamps at 1.0 and `MANA_POTENTIAL` is a *percentile rank*, so on the reference world every one
    * of the top cells scores exactly 1.000 - and "the six best" was really "the six lowest-indexed members of a
    * run of several hundred ties". Any change anywhere that added or removed a single cell from the candidate
    * set slid that window along and remeasured six different squares.
@@ -101,7 +101,7 @@ class CrystalScatterTest {
    * the floor rather than the clean-land rate.
    */
   private fun sampleOrigins(highCorruption: Boolean, squares: Int): List<Pair<Double, Double>> {
-    val mana = world.world.layers.require<FloatLayer>(LayerId.MANA_DENSITY)
+    val mana = world.world.layers.require<FloatLayer>(LayerId.MANA_POTENTIAL)
     val corruption = world.world.layers.require<FloatLayer>(LayerId.CORRUPTION)
     val elevation = world.world.layers.require<FloatLayer>(LayerId.ELEVATION)
     val waterLevel = world.world.layers.require<FloatLayer>(LayerId.WATER_LEVEL)

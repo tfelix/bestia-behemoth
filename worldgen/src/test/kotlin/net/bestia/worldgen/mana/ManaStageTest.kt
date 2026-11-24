@@ -21,7 +21,7 @@ class ManaStageTest {
   private fun world(seed: Long, cells: Int = 128) =
     TestWorlds.get(WorldConfig(seed = seed, widthCells = cells, heightCells = cells))
 
-  private fun mana(world: GeneratedWorld) = world.world.layers.require<FloatLayer>(LayerId.MANA_DENSITY)
+  private fun mana(world: GeneratedWorld) = world.world.layers.require<FloatLayer>(LayerId.MANA_POTENTIAL)
 
   @Test
   fun `the field uses the range it claims`() {

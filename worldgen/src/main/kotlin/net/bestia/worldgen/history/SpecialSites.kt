@@ -255,7 +255,7 @@ class SpecialSiteCandidates(
     ): Map<Faction, List<SiteCandidate>> {
       // The raw geological field, like `wounds` reads and for the same reason: this stage runs before
       // `CorruptionStage`, so the only mana field in existence is the one the ground has.
-      val mana = if (ctx.layers.contains(LayerId.MANA_DENSITY)) ctx.layers.float(LayerId.MANA_DENSITY) else null
+      val mana = if (ctx.layers.contains(LayerId.MANA_POTENTIAL)) ctx.layers.float(LayerId.MANA_POTENTIAL) else null
 
       /** Shared by all three: out of town, on dry land, not in a lake. */
       fun sitable(position: Vec2d): Boolean {
@@ -313,7 +313,7 @@ class SpecialSiteCandidates(
     /**
      * The highest-mana places on land, mutually far apart: where the star came down.
      *
-     * Reads [LayerId.MANA_DENSITY] - the **raw** geological field, before any settlement has quenched
+     * Reads [LayerId.MANA_POTENTIAL] - the **raw** geological field, before any settlement has quenched
      * anything, because `mana` runs before `settlements` and `corruption` runs after `history`. That ordering
      * is deliberate and it is what makes this causally right: the star fell where it fell, people later built
      * where they could, and the corruption that survives is what their walls and roads failed to hold back.
@@ -344,8 +344,8 @@ class SpecialSiteCandidates(
       waterLevel: FloatLayer,
       seaLevel: Double
     ): List<SiteCandidate> {
-      if (!ctx.layers.contains(LayerId.MANA_DENSITY)) return emptyList()
-      val mana = ctx.layers.float(LayerId.MANA_DENSITY)
+      if (!ctx.layers.contains(LayerId.MANA_POTENTIAL)) return emptyList()
+      val mana = ctx.layers.float(LayerId.MANA_POTENTIAL)
 
       val found = ArrayList<SiteCandidate>()
       val metres = region.resolution.metresPerCell

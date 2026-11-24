@@ -405,7 +405,7 @@ class VolcanismStage(
    *
    * ### Cells with no volcanism at all are excluded from the ranking, not ranked at the bottom of it
    *
-   * `ManaStage` can rank against all the land because `MANA_DENSITY` is a smooth noise field with a value
+   * `ManaStage` can rank against all the land because `MANA_POTENTIAL` is a smooth noise field with a value
    * everywhere. This one is a **proximity maximum with a hard range cutoff**, so most of the land is exactly
    * zero - and a percentile rank over a distribution with a spike at zero puts *every one of those cells at the
    * same rank*, which is the height of the spike. Measured on three 128 km worlds before this was fixed: about
