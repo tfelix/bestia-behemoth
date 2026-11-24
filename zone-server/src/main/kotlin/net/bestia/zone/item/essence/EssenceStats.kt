@@ -18,8 +18,8 @@ class EssenceStats(private val species: SpeciesEssences) {
       .forEach { (effectAndTarget, essences) ->
         val (effect, target) = effectAndTarget
         val points = essences.sumOf { (definition, tier) -> definition.pointsIn(tier) }
-        val hasDiamond = essences.any { (_, tier) -> tier == GemTier.DIAMOND }
-        effect.apply(context, EssenceSum(target, points, hasDiamond))
+        val bestTier = essences.maxOf { (_, tier) -> tier }
+        effect.apply(context, EssenceSum(target, points, bestTier))
       }
 
     defined.mapNotNull { (definition, _) -> definition.drawback }.forEach { it.applyTo(context) }

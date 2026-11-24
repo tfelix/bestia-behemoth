@@ -101,7 +101,7 @@ class MobCatalogueTest {
     val broken = species.mapNotNull { mob -> mob.essence?.let { mob.identifier to it } }.flatMap { (identifier, essence) ->
       GemTier.entries.mapNotNull { tier ->
         val context = StatusValueRecalcContext(BaseStatusValues(1, 1, 1, 1, 1, 1), baseSpeed = 1f)
-        val sum = EssenceSum(essence.target, essence.pointsIn(tier), tier == GemTier.DIAMOND)
+        val sum = EssenceSum(essence.target, essence.pointsIn(tier), tier)
         runCatching { essence.effect.apply(context, sum) }.exceptionOrNull()?.let { "$identifier at $tier: $it" }
       }
     }
