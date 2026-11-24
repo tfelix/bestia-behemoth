@@ -739,6 +739,8 @@ class InventoryService(
         ?: itemStats.itemLevelOf(detached.template.id, detached.instance?.rolledStats.orEmpty(), detached.instance?.slots ?: 0),
       rolledStats = detached.instance?.rolledStats.orEmpty(),
       provenance = detached.instance?.provenance ?: detached.provenance,
+      essences = detached.instance?.essences.orEmpty(),
+      heldEssence = detached.instance?.heldEssence,
     )
   }
 

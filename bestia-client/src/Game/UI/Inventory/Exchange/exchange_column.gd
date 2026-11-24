@@ -68,6 +68,8 @@ func show_bag(title: String, items: Array, capacity: String) -> void:
 		row.upgrade_level = item.upgrade_level
 		row.item_level = item.item_level
 		row.rolled_stats = item.rolled_stats
+		row.essences = item.essences
+		row.held_essence = item.held_essence
 		row.drag_source = "exchange_partner"
 		row.drop_target = self
 		row.move_requested.connect(func(amount: int) -> void: item_requested.emit(row, amount))

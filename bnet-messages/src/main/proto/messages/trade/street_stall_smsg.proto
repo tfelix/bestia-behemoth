@@ -6,6 +6,7 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "StreetStallSmsgProto";
 
 import "messages/component/item_stat_value.proto";
+import "messages/component/item_essence.proto";
 
 // A Trader's street stall as the viewer sees it: the seller manages it, everyone else buys from it. Sent on
 // opening and after every change; `closed` tells an open window the stall packed up.
@@ -31,4 +32,7 @@ message StallListing {
   int32 max_durability = 8;
   int32 slots = 9;
   repeated ItemStatValue rolled_stats = 10;
+  // See InventoryItem.essences and held_essence.
+  repeated ItemEssence essences = 11;
+  ItemEssence held_essence = 12;
 }

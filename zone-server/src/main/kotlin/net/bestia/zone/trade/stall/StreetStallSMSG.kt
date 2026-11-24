@@ -42,6 +42,8 @@ data class StreetStallSMSG(
       .setMaxDurability(row.goods.maxDurability)
       .setSlots(row.goods.slots)
       .addAllRolledStats(row.goods.rolledStats.map { it.toProto() })
+      .addAllEssences(row.goods.essences.map { it.toProto() })
+      .apply { row.goods.heldEssence?.let { setHeldEssence(it.toProto()) } }
       .build()
   }
 

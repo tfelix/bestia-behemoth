@@ -3,6 +3,7 @@ syntax = "proto3";
 package bnet;
 
 import "messages/component/item_stat_value.proto";
+import "messages/component/item_essence.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "TradeStateSmsgProto";
@@ -67,4 +68,8 @@ message TradeOfferItem {
   // See InventoryItem.crafted_by and crafted_in.
   string crafted_by = 11;
   string crafted_in = 12;
+
+  // See InventoryItem.essences and held_essence.
+  repeated ItemEssence essences = 13;
+  ItemEssence held_essence = 14;
 }

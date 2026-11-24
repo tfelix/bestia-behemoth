@@ -25,30 +25,33 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiVtZXNzYWdlcy90cmFkZS90cmFkZV9zdGF0ZV9zbXNnLnByb3RvEgRibmV0",
-            "GihtZXNzYWdlcy9jb21wb25lbnQvaXRlbV9zdGF0X3ZhbHVlLnByb3RvItkC",
-            "Cg5UcmFkZVN0YXRlU01TRxIQCgh0cmFkZV9pZBgBIAEoBBIhCgZzdGF0dXMY",
-            "AiABKA4yES5ibmV0LlRyYWRlU3RhdHVzEhsKE3BhcnRuZXJfbWFzdGVyX25h",
-            "bWUYAyABKAkSGQoRcGFydG5lcl9lbnRpdHlfaWQYBCABKAQSJwoJb3duX29m",
-            "ZmVyGAUgAygLMhQuYm5ldC5UcmFkZU9mZmVySXRlbRIrCg1wYXJ0bmVyX29m",
-            "ZmVyGAYgAygLMhQuYm5ldC5UcmFkZU9mZmVySXRlbRIQCghvd25fZ29sZBgH",
-            "IAEoBBIUCgxwYXJ0bmVyX2dvbGQYCCABKAQSEgoKb3duX2xvY2tlZBgJIAEo",
-            "CBIWCg5wYXJ0bmVyX2xvY2tlZBgKIAEoCBIVCg1vd25fY29uZmlybWVkGAsg",
-            "ASgIEhkKEXBhcnRuZXJfY29uZmlybWVkGAwgASgIIpQCCg5UcmFkZU9mZmVy",
-            "SXRlbRIVCg1vZmZlcl9zbG90X2lkGAEgASgEEg8KB2l0ZW1faWQYAiABKA0S",
-            "EQoJdW5pcXVlX2lkGAMgASgEEg4KBmFtb3VudBgEIAEoDRISCgpkdXJhYmls",
-            "aXR5GAUgASgNEhYKDm1heF9kdXJhYmlsaXR5GAYgASgNEg0KBXNsb3RzGAcg",
-            "ASgNEhUKDXVwZ3JhZGVfbGV2ZWwYCCABKA0SEgoKaXRlbV9sZXZlbBgJIAEo",
-            "DRIpCgxyb2xsZWRfc3RhdHMYCiADKAsyEy5ibmV0Lkl0ZW1TdGF0VmFsdWUS",
-            "EgoKY3JhZnRlZF9ieRgLIAEoCRISCgpjcmFmdGVkX2luGAwgASgJKnUKC1Ry",
-            "YWRlU3RhdHVzEhUKEVRSQURFX1NUQVRVU19PUEVOEAASFwoTVFJBREVfU1RB",
-            "VFVTX0xPQ0tFRBABEhoKFlRSQURFX1NUQVRVU19DT01QTEVURUQQAhIaChZU",
-            "UkFERV9TVEFUVVNfQ0FOQ0VMTEVEEANCLAoVbmV0LmJlc3RpYS5ibmV0LnBy",
-            "b3RvQhNUcmFkZVN0YXRlU21zZ1Byb3RvYgZwcm90bzM="));
+            "GihtZXNzYWdlcy9jb21wb25lbnQvaXRlbV9zdGF0X3ZhbHVlLnByb3RvGiVt",
+            "ZXNzYWdlcy9jb21wb25lbnQvaXRlbV9lc3NlbmNlLnByb3RvItkCCg5UcmFk",
+            "ZVN0YXRlU01TRxIQCgh0cmFkZV9pZBgBIAEoBBIhCgZzdGF0dXMYAiABKA4y",
+            "ES5ibmV0LlRyYWRlU3RhdHVzEhsKE3BhcnRuZXJfbWFzdGVyX25hbWUYAyAB",
+            "KAkSGQoRcGFydG5lcl9lbnRpdHlfaWQYBCABKAQSJwoJb3duX29mZmVyGAUg",
+            "AygLMhQuYm5ldC5UcmFkZU9mZmVySXRlbRIrCg1wYXJ0bmVyX29mZmVyGAYg",
+            "AygLMhQuYm5ldC5UcmFkZU9mZmVySXRlbRIQCghvd25fZ29sZBgHIAEoBBIU",
+            "CgxwYXJ0bmVyX2dvbGQYCCABKAQSEgoKb3duX2xvY2tlZBgJIAEoCBIWCg5w",
+            "YXJ0bmVyX2xvY2tlZBgKIAEoCBIVCg1vd25fY29uZmlybWVkGAsgASgIEhkK",
+            "EXBhcnRuZXJfY29uZmlybWVkGAwgASgIIuICCg5UcmFkZU9mZmVySXRlbRIV",
+            "Cg1vZmZlcl9zbG90X2lkGAEgASgEEg8KB2l0ZW1faWQYAiABKA0SEQoJdW5p",
+            "cXVlX2lkGAMgASgEEg4KBmFtb3VudBgEIAEoDRISCgpkdXJhYmlsaXR5GAUg",
+            "ASgNEhYKDm1heF9kdXJhYmlsaXR5GAYgASgNEg0KBXNsb3RzGAcgASgNEhUK",
+            "DXVwZ3JhZGVfbGV2ZWwYCCABKA0SEgoKaXRlbV9sZXZlbBgJIAEoDRIpCgxy",
+            "b2xsZWRfc3RhdHMYCiADKAsyEy5ibmV0Lkl0ZW1TdGF0VmFsdWUSEgoKY3Jh",
+            "ZnRlZF9ieRgLIAEoCRISCgpjcmFmdGVkX2luGAwgASgJEiMKCGVzc2VuY2Vz",
+            "GA0gAygLMhEuYm5ldC5JdGVtRXNzZW5jZRInCgxoZWxkX2Vzc2VuY2UYDiAB",
+            "KAsyES5ibmV0Lkl0ZW1Fc3NlbmNlKnUKC1RyYWRlU3RhdHVzEhUKEVRSQURF",
+            "X1NUQVRVU19PUEVOEAASFwoTVFJBREVfU1RBVFVTX0xPQ0tFRBABEhoKFlRS",
+            "QURFX1NUQVRVU19DT01QTEVURUQQAhIaChZUUkFERV9TVEFUVVNfQ0FOQ0VM",
+            "TEVEEANCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNUcmFkZVN0YXRlU21z",
+            "Z1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, global::Bnet.ItemEssenceReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.TradeStatus), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.TradeStateSMSG), global::Bnet.TradeStateSMSG.Parser, new[]{ "TradeId", "Status", "PartnerMasterName", "PartnerEntityId", "OwnOffer", "PartnerOffer", "OwnGold", "PartnerGold", "OwnLocked", "PartnerLocked", "OwnConfirmed", "PartnerConfirmed" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.TradeOfferItem), global::Bnet.TradeOfferItem.Parser, new[]{ "OfferSlotId", "ItemId", "UniqueId", "Amount", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "CraftedBy", "CraftedIn" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.TradeOfferItem), global::Bnet.TradeOfferItem.Parser, new[]{ "OfferSlotId", "ItemId", "UniqueId", "Amount", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "CraftedBy", "CraftedIn", "Essences", "HeldEssence" }, null, null, null, null)
           }));
     }
     #endregion
@@ -724,6 +727,8 @@ namespace Bnet {
       rolledStats_ = other.rolledStats_.Clone();
       craftedBy_ = other.craftedBy_;
       craftedIn_ = other.craftedIn_;
+      essences_ = other.essences_.Clone();
+      heldEssence_ = other.heldEssence_ != null ? other.heldEssence_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -882,6 +887,32 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "essences" field.</summary>
+    public const int EssencesFieldNumber = 13;
+    private static readonly pb::FieldCodec<global::Bnet.ItemEssence> _repeated_essences_codec
+        = pb::FieldCodec.ForMessage(106, global::Bnet.ItemEssence.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.ItemEssence> essences_ = new pbc::RepeatedField<global::Bnet.ItemEssence>();
+    /// <summary>
+    /// See InventoryItem.essences and held_essence.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.ItemEssence> Essences {
+      get { return essences_; }
+    }
+
+    /// <summary>Field number for the "held_essence" field.</summary>
+    public const int HeldEssenceFieldNumber = 14;
+    private global::Bnet.ItemEssence heldEssence_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.ItemEssence HeldEssence {
+      get { return heldEssence_; }
+      set {
+        heldEssence_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -909,6 +940,8 @@ namespace Bnet {
       if(!rolledStats_.Equals(other.rolledStats_)) return false;
       if (CraftedBy != other.CraftedBy) return false;
       if (CraftedIn != other.CraftedIn) return false;
+      if(!essences_.Equals(other.essences_)) return false;
+      if (!object.Equals(HeldEssence, other.HeldEssence)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -928,6 +961,8 @@ namespace Bnet {
       hash ^= rolledStats_.GetHashCode();
       if (CraftedBy.Length != 0) hash ^= CraftedBy.GetHashCode();
       if (CraftedIn.Length != 0) hash ^= CraftedIn.GetHashCode();
+      hash ^= essences_.GetHashCode();
+      if (heldEssence_ != null) hash ^= HeldEssence.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -991,6 +1026,11 @@ namespace Bnet {
         output.WriteRawTag(98);
         output.WriteString(CraftedIn);
       }
+      essences_.WriteTo(output, _repeated_essences_codec);
+      if (heldEssence_ != null) {
+        output.WriteRawTag(114);
+        output.WriteMessage(HeldEssence);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1046,6 +1086,11 @@ namespace Bnet {
         output.WriteRawTag(98);
         output.WriteString(CraftedIn);
       }
+      essences_.WriteTo(ref output, _repeated_essences_codec);
+      if (heldEssence_ != null) {
+        output.WriteRawTag(114);
+        output.WriteMessage(HeldEssence);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1089,6 +1134,10 @@ namespace Bnet {
       }
       if (CraftedIn.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(CraftedIn);
+      }
+      size += essences_.CalculateSize(_repeated_essences_codec);
+      if (heldEssence_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(HeldEssence);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1135,6 +1184,13 @@ namespace Bnet {
       }
       if (other.CraftedIn.Length != 0) {
         CraftedIn = other.CraftedIn;
+      }
+      essences_.Add(other.essences_);
+      if (other.heldEssence_ != null) {
+        if (heldEssence_ == null) {
+          HeldEssence = new global::Bnet.ItemEssence();
+        }
+        HeldEssence.MergeFrom(other.HeldEssence);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1203,6 +1259,17 @@ namespace Bnet {
             CraftedIn = input.ReadString();
             break;
           }
+          case 106: {
+            essences_.AddEntriesFrom(input, _repeated_essences_codec);
+            break;
+          }
+          case 114: {
+            if (heldEssence_ == null) {
+              HeldEssence = new global::Bnet.ItemEssence();
+            }
+            input.ReadMessage(HeldEssence);
+            break;
+          }
         }
       }
     #endif
@@ -1268,6 +1335,17 @@ namespace Bnet {
           }
           case 98: {
             CraftedIn = input.ReadString();
+            break;
+          }
+          case 106: {
+            essences_.AddEntriesFrom(ref input, _repeated_essences_codec);
+            break;
+          }
+          case 114: {
+            if (heldEssence_ == null) {
+              HeldEssence = new global::Bnet.ItemEssence();
+            }
+            input.ReadMessage(HeldEssence);
             break;
           }
         }

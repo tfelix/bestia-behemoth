@@ -3,6 +3,7 @@ syntax = "proto3";
 package bnet;
 
 import "messages/component/item_stat_value.proto";
+import "messages/component/item_essence.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EquipmentComponentSMSGProto";
@@ -35,7 +36,7 @@ message EquippedItem {
   // bar only when max_durability > 0.
   uint32 durability = 4;
   uint32 max_durability = 5;
-  // Sockets of the backing instance, opened at the forge or by Item Customization; nothing can fill one yet.
+  // Sockets of the backing instance, opened at the forge or by Item Customization.
   uint32 slots = 6;
 
   // Upgrade level on the backing instance, 0 for an untouched item and for every plain stack. What
@@ -49,4 +50,7 @@ message EquippedItem {
   // See InventoryItem.crafted_by and crafted_in.
   string crafted_by = 10;
   string crafted_in = 11;
+
+  // See InventoryItem.essences.
+  repeated ItemEssence essences = 12;
 }

@@ -3,6 +3,7 @@ syntax = "proto3";
 package bnet;
 
 import "messages/component/item_stat_value.proto";
+import "messages/component/item_essence.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "InventoryComponentSMSGProto";
@@ -26,7 +27,7 @@ message InventoryItem {
   // bar only when max_durability > 0.
   uint32 durability = 5;
   uint32 max_durability = 6;
-  // Sockets of the backing instance, opened at the forge or by Item Customization; nothing can fill one yet.
+  // Sockets of the backing instance, opened at the forge or by Item Customization.
   uint32 slots = 7;
 
   // Upgrade level on the backing instance, 0 for an untouched item and for every plain stack. What
@@ -55,6 +56,11 @@ message InventoryItem {
   // What this copy weighs, 100 per kg. Set only for a copy, which can weigh more than its kind, like an item
   // bundle with what it holds. A pile weighs what its kind does.
   optional uint32 weight = 16;
+
+  // What fills the sockets, in order; the rest of slots are empty.
+  repeated ItemEssence essences = 17;
+  // What an essence gem holds. Unset on every other item.
+  ItemEssence held_essence = 18;
 }
 
 // In world metres, x east and y north like the server's coordinates.

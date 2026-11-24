@@ -1,6 +1,7 @@
 package net.bestia.zone.item.ecs
 
 import net.bestia.zone.item.ItemProvenance
+import net.bestia.zone.item.essence.Essence
 import net.bestia.zone.item.stat.StatValue
 import net.bestia.bnet.proto.InventoryComponentSMSGProto
 import net.bestia.bnet.proto.StateBatchSmsgProto
@@ -30,6 +31,8 @@ data class InventoryComponentSMSG(
         .apply { item.mapCircle?.let { setMapCircle(it.toProto()) } }
         .setTitle(item.title.orEmpty())
         .apply { item.weight?.let { setWeight(it) } }
+        .addAllEssences(item.essences.map { it.toProto() })
+        .apply { item.heldEssence?.let { setHeldEssence(it.toProto()) } }
         .build()
     }
 
@@ -56,5 +59,7 @@ data class InventoryComponentSMSG(
     val mapCircle: MapCircles.Circle? = null,
     val title: String? = null,
     val weight: Int? = null,
+    val essences: List<Essence> = emptyList(),
+    val heldEssence: Essence? = null
   )
 }
