@@ -412,7 +412,7 @@ Runic Etching binds the essence of a Bestia of level 81 or more into it."
 ESSENCE_GEM,Essence Gem
 ESSENCE_GEM_DESC,"A cut gem with the essence of a Bestia bound inside, glowing with the creature's power.
 
-Use it on an item with a free socket of its group. The essence stays in the item for good."
+Use it on an item with a free socket of its group. Once the gem is socketed, it cannot be removed anymore."
 RESIN,Resin
 RESIN_DESC,"A sticky lump of tree resin.
 

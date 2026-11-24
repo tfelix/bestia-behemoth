@@ -1947,7 +1947,7 @@ items:
     description: |
       A cut gem with the essence of a Bestia bound inside, glowing with the creature's power.
 
-      Use it on an item with a free socket of its group. The essence stays in the item for good.
+      Use it on an item with a free socket of its group. Once the gem is socketed, it cannot be removed anymore.
 
   # What makes wood burn: it turns a stick into a torch and lights a campfire. Trees drop it when felled.
   - id: 142
