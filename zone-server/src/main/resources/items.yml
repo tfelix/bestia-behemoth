@@ -1053,6 +1053,9 @@ items:
     weapon-type: TOOL
     tool: MINING
     max-durability: 180
+    # A tool rolls sockets for tool essences, and no affixes.
+    random-stats:
+      sockets: [10]
     description: |
       A miner's pick, iron-headed on a straight ash haft.
 
@@ -1069,6 +1072,8 @@ items:
     weapon-type: TOOL
     tool: FELLING
     max-durability: 150
+    random-stats:
+      sockets: [10]
     description: |
       A felling axe with a wide iron blade.
 
@@ -1673,6 +1678,8 @@ items:
     weapon-type: TOOL
     tool: FELLING
     max-durability: 60
+    random-stats:
+      sockets: [10]
     description: |
       A knapped stone wedged into a stick.
 
@@ -1689,6 +1696,8 @@ items:
     equip-slot: RIGHT_HAND
     tool: DIGGING
     max-durability: 120
+    random-stats:
+      sockets: [10]
     description: |
       A wooden spade on a long handle, its blade hardened in the fire.
 
@@ -2416,6 +2425,8 @@ items:
     weapon-type: TOOL
     tool: FISHING
     max-durability: 60
+    random-stats:
+      sockets: [10]
     description: |
       A bent willow switch with a line of twisted bark.
 
@@ -2432,6 +2443,8 @@ items:
     weapon-type: TOOL
     tool: FISHING
     max-durability: 120
+    random-stats:
+      sockets: [10]
     description: |
       A light, springy rod of jointed cane.
 
@@ -2446,6 +2459,8 @@ items:
     weapon-type: TOOL
     tool: FISHING
     max-durability: 180
+    random-stats:
+      sockets: [20, 5]
     description: |
       A tapered ash rod with iron guides. It bends a long way before it breaks.
 
@@ -2460,6 +2475,8 @@ items:
     weapon-type: TOOL
     tool: FISHING
     max-durability: 260
+    random-stats:
+      sockets: [30, 10]
     description: |
       A thin steel rod with a geared reel. Made for things that pull back.
 
