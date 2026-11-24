@@ -186,6 +186,7 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 			inv_item.crafted_by = itemMsg.CraftedBy
 			inv_item.crafted_in = itemMsg.CraftedIn
 			inv_item.title = itemMsg.Title
+			inv_item.weight = itemMsg.Weight if itemMsg.HasWeight else item_resource.weight
 			if itemMsg.HasMapCircle:
 				inv_item.map_circle = Vector3(itemMsg.MapCircleCentre.x, itemMsg.MapCircleCentre.y, itemMsg.MapCircleRadius)
 			inv_item.equipped = itemMsg.Equipped
@@ -273,6 +274,7 @@ func _render_items() -> void:
 		inv_item.player_item_id = item.player_item_id
 		inv_item.crafted_by = item.crafted_by
 		inv_item.title = item.title
+		inv_item.weight = item.weight
 		inv_item.crafted_in = item.crafted_in
 		inv_item.durability = item.durability
 		inv_item.max_durability = item.max_durability
@@ -326,7 +328,7 @@ func _name_of_item(held) -> String:
 
 
 func _weight_of(held) -> int:
-	return held.item.weight * held.amount
+	return held.weight * held.amount
 
 
 # ------------------------------------------------------------------ shop
@@ -651,19 +653,27 @@ func _name_of(entity_id: int) -> String:
 func _bag_weight(entity_id: int) -> int:
 	var total := 0
 	for inv_item in _items.get(entity_id, []):
-		total += inv_item.amount * inv_item.item.weight
+		total += inv_item.amount * inv_item.weight
 
 	return total
 
 
 ## How many of [param wanted] the receiver can still carry. An entity whose limit has not arrived yet is not
 ## second-guessed: the server checks every move anyway, this only spares the player a refusal.
-func _fitting(entity_id: int, item: ItemResource, wanted: int) -> int:
+func _fitting(entity_id: int, unit_weight: int, wanted: int) -> int:
 	var limit: int = _carry_max.get(entity_id, 0)
-	if limit <= 0 or item.weight <= 0:
+	if limit <= 0 or unit_weight <= 0:
 		return wanted
 
-	return clampi((limit - _bag_weight(entity_id)) / item.weight, 0, wanted)
+	return clampi((limit - _bag_weight(entity_id)) / unit_weight, 0, wanted)
+
+
+func _unit_weight(entity_id: int, player_item_id: int, item: ItemResource) -> int:
+	for held in _items.get(entity_id, []):
+		if held.player_item_id == player_item_id:
+			return held.weight
+
+	return item.weight
 
 
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
@@ -697,7 +707,7 @@ func _move(from_id: int, to_id: int, player_item_id: int, item_id: int, held: in
 		return
 
 	var item: ItemResource = ItemDB.get_instance().get_item(item_id)
-	var fits := _fitting(to_id, item, held)
+	var fits := _fitting(to_id, _unit_weight(from_id, player_item_id, item), held)
 	if fits <= 0:
 		_exchange.flash_refusal()
 		return
@@ -813,6 +823,7 @@ func add_item(item_resource: ItemResource, amount: int) -> void:
 	var new_inv_item = InventoryItemResource.new()
 	new_inv_item.item = item_resource
 	new_inv_item.amount = amount
+	new_inv_item.weight = item_resource.weight
 	selected_entity_items.append(new_inv_item)
 	inventory_updated.emit()
 

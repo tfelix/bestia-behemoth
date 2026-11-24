@@ -51,6 +51,10 @@ message InventoryItem {
 
   // This copy's own name, like a relic's. Empty for an item that has only its kind's name.
   string title = 15;
+
+  // What this copy weighs, 100 per kg. Set only for a copy, which can weigh more than its kind, like an item
+  // bundle with what it holds. A pile weighs what its kind does.
+  optional uint32 weight = 16;
 }
 
 // In world metres, x east and y north like the server's coordinates.

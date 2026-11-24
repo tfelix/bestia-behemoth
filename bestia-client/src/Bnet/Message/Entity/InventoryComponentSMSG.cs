@@ -104,6 +104,13 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export] public string Title { get; set; } = "";
 
     /// <summary>
+    /// What this copy weighs, which for an item bundle is what it holds. Only meaningful when
+    /// <see cref="HasWeight"/>: a pile weighs what its kind does.
+    /// </summary>
+    [Export] public bool HasWeight { get; set; }
+    [Export] public uint Weight { get; set; }
+
+    /// <summary>
     /// Creates an InventoryItem from protobuf data
     /// </summary>
     public static InventoryItem FromProto(global::Bnet.InventoryItem protoItem)
@@ -128,7 +135,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
           ? Vector2.Zero
           : new Vector2((float)protoItem.MapCircle.X, (float)protoItem.MapCircle.Y),
         MapCircleRadius = (float)(protoItem.MapCircle?.Radius ?? 0.0),
-        Title = protoItem.Title
+        Title = protoItem.Title,
+        HasWeight = protoItem.HasWeight,
+        Weight = protoItem.Weight
       };
     }
   }

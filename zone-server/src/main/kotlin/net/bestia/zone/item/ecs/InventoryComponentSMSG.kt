@@ -29,6 +29,7 @@ data class InventoryComponentSMSG(
         .setCraftedIn(item.provenance?.worldName.orEmpty())
         .apply { item.mapCircle?.let { setMapCircle(it.toProto()) } }
         .setTitle(item.title.orEmpty())
+        .apply { item.weight?.let { setWeight(it) } }
         .build()
     }
 
@@ -53,6 +54,7 @@ data class InventoryComponentSMSG(
     val playerItemId: Long = uniqueId,
     val provenance: ItemProvenance? = null,
     val mapCircle: MapCircles.Circle? = null,
-    val title: String? = null
+    val title: String? = null,
+    val weight: Int? = null,
   )
 }

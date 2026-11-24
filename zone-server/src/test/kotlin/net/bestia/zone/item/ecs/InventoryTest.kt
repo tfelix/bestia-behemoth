@@ -5,6 +5,7 @@ import net.bestia.zone.item.ItemProvenance
 import net.bestia.zone.sync.SyncTargets
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -410,6 +411,24 @@ class InventoryTest {
     val sent = inventory.toEntityMessage(entityId = 5L, removed = false) as InventoryComponentSMSG
 
     assertEquals(alice, sent.items.single().provenance)
+  }
+
+  @Test
+  fun `the client is told what a bundle weighs with its contents`() {
+    inventory.addItem(Inventory.Item(itemId = 626, amount = 1, weight = 1_200, uniqueId = 77L, stackable = false))
+
+    val sent = inventory.toEntityMessage(entityId = 5L, removed = false) as InventoryComponentSMSG
+
+    assertEquals(1_200, sent.items.single().weight)
+  }
+
+  @Test
+  fun `a pile leaves its weight to the client`() {
+    inventory.addItem(Inventory.Item(itemId = 1, amount = 3, weight = 15))
+
+    val sent = inventory.toEntityMessage(entityId = 5L, removed = false) as InventoryComponentSMSG
+
+    assertNull(sent.items.single().weight)
   }
 
   @Test

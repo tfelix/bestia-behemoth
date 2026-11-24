@@ -49,7 +49,7 @@ func show_row(row) -> void:
 		_content.remove_child(child)
 		child.queue_free()
 
-	_add_facts(item, row.slots)
+	_add_facts(item, row.slots, row.weight)
 	_add_wear(item, row.durability, row.max_durability)
 	_add_bonuses(row.rolled_stats)
 	_add_rich(row.extra_detail, UiStyle.TEXT)
@@ -106,7 +106,7 @@ func _show_picture(item: ItemResource) -> void:
 
 
 ## Name on the left, value on the right; only the facts this item has.
-func _add_facts(item: ItemResource, slots: int) -> void:
+func _add_facts(item: ItemResource, slots: int, weight: int) -> void:
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.add_theme_constant_override("v_separation", 3)
@@ -116,7 +116,7 @@ func _add_facts(item: ItemResource, slots: int) -> void:
 	if item.attack_range > 0:
 		_add_fact(grid, tr("ITEM_DETAIL_RANGE"), _value(tr("ITEM_DETAIL_RANGE_TILES").format({"tiles": item.attack_range})))
 	# items.yml weighs in hundredths of a kilogram, as the exchange column's carry line reads it.
-	_add_fact(grid, tr("ITEM_DETAIL_WEIGHT"), _value(tr("ITEM_DETAIL_WEIGHT_KG").format({"kg": String.num(item.weight / 100.0, 2)})))
+	_add_fact(grid, tr("ITEM_DETAIL_WEIGHT"), _value(tr("ITEM_DETAIL_WEIGHT_KG").format({"kg": String.num(weight / 100.0, 2)})))
 	if slots > 0:
 		_add_fact(grid, tr("ITEM_DETAIL_SOCKETS"), _sockets(slots))
 

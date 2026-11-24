@@ -360,7 +360,8 @@ data class Inventory(
           playerItemId = item.playerItemId,
           provenance = item.provenance,
           mapCircle = if (item.uniqueId == 0L) null else MapCircles.installed.of(item.uniqueId),
-          title = if (item.uniqueId == 0L) null else ItemTitles.installed.of(item.uniqueId)
+          title = if (item.uniqueId == 0L) null else ItemTitles.installed.of(item.uniqueId),
+          weight = if (item.uniqueId == 0L) null else item.weight,
         )
       }
     )
