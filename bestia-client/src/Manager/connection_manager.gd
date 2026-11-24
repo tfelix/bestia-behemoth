@@ -118,6 +118,8 @@ signal party_message_received(message: PartySMSG)
 signal guild_message_received(message: GuildSMSG)
 ## The selected master's Bestia Compendium, on request and after every new sighting or catch.
 signal compendium_received(message: CompendiumSMSG)
+## The selected master's bestia storage: on request, at a keeper's counter, and after every summon, swap or release.
+signal bestia_storage_received(message: BestiaStorageSMSG)
 ## Emitted whenever the server re-syncs the pending logout countdown (seconds until despawn).
 signal logout_countdown_received(remaining_seconds: float)
 ## Emitted when the server aborts a pending logout (player moved / used a skill / took damage).
@@ -255,6 +257,10 @@ var RemovePartyMemberCMSG = load("res://Bnet/Message/Party/RemovePartyMemberCMSG
 var SetPartyExpShareCMSG = load("res://Bnet/Message/Party/SetPartyExpShareCMSG.cs")
 var RequestGuildInfoCMSG = load("res://Bnet/Message/Guild/RequestGuildInfoCMSG.cs")
 var RequestCompendiumCMSG = load("res://Bnet/Message/Compendium/RequestCompendiumCMSG.cs")
+var OpenBestiaStorageCMSG = load("res://Bnet/Message/BestiaStorage/OpenBestiaStorageCMSG.cs")
+var SummonStoredBestiaCMSG = load("res://Bnet/Message/BestiaStorage/SummonStoredBestiaCMSG.cs")
+var SwapStoredBestiaCMSG = load("res://Bnet/Message/BestiaStorage/SwapStoredBestiaCMSG.cs")
+var ReleaseStoredBestiaCMSG = load("res://Bnet/Message/BestiaStorage/ReleaseStoredBestiaCMSG.cs")
 var CreateGuildCMSG = load("res://Bnet/Message/Guild/CreateGuildCMSG.cs")
 var InviteToGuildCMSG = load("res://Bnet/Message/Guild/InviteToGuildCMSG.cs")
 var AnswerGuildInviteCMSG = load("res://Bnet/Message/Guild/AnswerGuildInviteCMSG.cs")
@@ -1451,6 +1457,37 @@ func request_compendium() -> void:
 	_socket.SendMessage(RequestCompendiumCMSG.new())
 
 
+## Opens the bestia storage with the Bestia Ledger; answered with a BestiaStorageSMSG.
+func open_bestia_storage() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(OpenBestiaStorageCMSG.new())
+
+
+## Brings a stored bestia into a free active slot, next to the master.
+func summon_stored_bestia(player_bestia_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = SummonStoredBestiaCMSG.new()
+	msg.PlayerBestiaId = player_bestia_id
+	_socket.SendMessage(msg)
+
+
+## Puts the active bestia [param active_entity_id] into storage and the stored one where it stood.
+func swap_stored_bestia(stored_player_bestia_id: int, active_entity_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = SwapStoredBestiaCMSG.new()
+	msg.StoredPlayerBestiaId = stored_player_bestia_id
+	msg.ActiveEntityId = active_entity_id
+	_socket.SendMessage(msg)
+
+
+## Gives up a stored bestia for good.
+func release_stored_bestia(player_bestia_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = ReleaseStoredBestiaCMSG.new()
+	msg.PlayerBestiaId = player_bestia_id
+	_socket.SendMessage(msg)
+
+
 ## Founds a guild named [param guild_name], spending a Founder's Seal from the master's bag.
 func create_guild(guild_name: String) -> void:
 	assert(is_ready_to_send())
@@ -1884,6 +1921,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		guild_message_received.emit(message)
 	elif message is CompendiumSMSG:
 		compendium_received.emit(message)
+	elif message is BestiaStorageSMSG:
+		bestia_storage_received.emit(message)
 	elif message is MapSMSG:
 		# Terrain traffic. ChunkStreamManager subscribes to MessageReceived itself, and a signal fans out to
 		# every listener, so these reach this handler too and have to be ignored rather than reported.

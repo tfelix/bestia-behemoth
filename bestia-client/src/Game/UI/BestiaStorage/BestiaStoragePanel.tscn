@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/BestiaStorage/bestia_storage_panel.gd" id="1_storage"]
+
+[node name="BestiaStoragePanel" type="PanelContainer"]
+custom_minimum_size = Vector2(620, 420)
+offset_right = 620.0
+offset_bottom = 420.0
+script = ExtResource("1_storage")
