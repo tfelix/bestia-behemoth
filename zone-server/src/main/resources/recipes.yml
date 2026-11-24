@@ -1430,7 +1430,7 @@ recipes:
 
   # Twenty plain arrows and one material make twenty special ones. Arrow Crafting's level decides which: 2 the
   # steel and sharp heads, 3 the four elements, 4 silver, shadow and poison, 5 the stun arrow.
-  - id: 141
+  - id: 142
     identifier: STEEL_ARROW
     effect: PRODUCE
     output: { item: steel_arrow, amount: 20 }
@@ -1441,7 +1441,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 142
+  - id: 143
     identifier: SHARP_ARROW
     effect: PRODUCE
     output: { item: sharp_arrow, amount: 20 }
@@ -1452,7 +1452,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 143
+  - id: 144
     identifier: FIRE_ARROW
     effect: PRODUCE
     output: { item: fire_arrow, amount: 20 }
@@ -1463,7 +1463,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 144
+  - id: 145
     identifier: CRYSTAL_ARROW
     effect: PRODUCE
     output: { item: crystal_arrow, amount: 20 }
@@ -1474,7 +1474,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 145
+  - id: 146
     identifier: WIND_ARROW
     effect: PRODUCE
     output: { item: wind_arrow, amount: 20 }
@@ -1485,7 +1485,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 146
+  - id: 147
     identifier: STONE_ARROW
     effect: PRODUCE
     output: { item: stone_arrow, amount: 20 }
@@ -1496,7 +1496,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 147
+  - id: 148
     identifier: SILVER_ARROW
     effect: PRODUCE
     output: { item: silver_arrow, amount: 20 }
@@ -1507,7 +1507,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 148
+  - id: 149
     identifier: SHADOW_ARROW
     effect: PRODUCE
     output: { item: shadow_arrow, amount: 20 }
@@ -1518,7 +1518,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 149
+  - id: 150
     identifier: POISON_ARROW
     effect: PRODUCE
     output: { item: poison_arrow, amount: 20 }
@@ -1529,7 +1529,7 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 1.0
 
-  - id: 150
+  - id: 151
     identifier: STUN_ARROW
     effect: PRODUCE
     output: { item: stun_arrow, amount: 20 }
