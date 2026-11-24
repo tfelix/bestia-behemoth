@@ -38,12 +38,14 @@ class EssenceGemScriptTest {
     every { submit(any<Long>(), any()) } answers { secondArg<() -> Unit>().invoke() }
   }
 
-  private val script = EssenceGemScript(
-    templates,
-    species = { if (it == BOAR) EssenceDefinition(SocketGroup.WEAPON, EssenceEffect.BANE, "BEAST") else null },
-    inventoryService,
-    asyncJobExecutor
-  )
+  private val species = object : SpeciesEssences {
+    override fun of(speciesId: Long) = EssenceDefinition(SocketGroup.WEAPON, EssenceEffect.BANE, "BEAST")
+      .takeIf { speciesId == BOAR || speciesId == BOSS }
+
+    override fun bossLevelOf(speciesId: Long) = BOSS_LEVEL.takeIf { speciesId == BOSS }
+  }
+
+  private val script = EssenceGemScript(templates, species, inventoryService, asyncJobExecutor)
 
   @Test
   fun `an essence goes into a free socket of its group and the gem is used up`() {
@@ -94,6 +96,18 @@ class EssenceGemScriptTest {
   }
 
   @Test
+  fun `a boss essence needs an item at most 20 levels below the boss`() {
+    val user = givenUser(
+      gem(GemTier.AMETHYST, species = BOSS),
+      item(SWORD, uniqueId = 7, slots = 1, itemLevel = BOSS_LEVEL - 21),
+      item(SWORD, uniqueId = 8, slots = 1, itemLevel = BOSS_LEVEL - 20)
+    )
+
+    assertFalse(script.executeHeld(world, user, targeting(7), GEM_ID))
+    assertTrue(script.executeHeld(world, user, targeting(8), GEM_ID))
+  }
+
+  @Test
   fun `tools form their own group and plain materials have none`() {
     assertEquals(SocketGroup.TOOL, SocketGroup.of(template(1, toolKind = ToolKind.MINING)))
     assertEquals(SocketGroup.ACCESSORY, SocketGroup.of(template(2, equipSlot = EquipmentSlot.LIGHT_SOURCE)))
@@ -107,9 +121,9 @@ class EssenceGemScriptTest {
 
   private fun targeting(playerItemId: Long) = ScriptArgs.of(ScriptArgKeys.TARGET_ITEM to playerItemId)
 
-  private fun gem(tier: GemTier) = Inventory.Item(
+  private fun gem(tier: GemTier, species: Long = BOAR) = Inventory.Item(
     itemId = EssenceGemScript.ITEM_ID, amount = 1, weight = 10, uniqueId = GEM_ID, stackable = false,
-    heldEssence = Essence(BOAR, tier)
+    heldEssence = Essence(species, tier)
   )
 
   private fun item(itemId: Long, uniqueId: Long, slots: Int, itemLevel: Int = 1) = Inventory.Item(
@@ -126,6 +140,8 @@ class EssenceGemScriptTest {
   private companion object {
     const val MASTER_ID = 42L
     const val BOAR = 6L
+    const val BOSS = 120L
+    const val BOSS_LEVEL = 54
     const val SWORD = 18L
     const val BOOTS = 40L
     const val GEM_ID = 900L
