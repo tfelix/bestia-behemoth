@@ -772,6 +772,12 @@
 		clip-path: polygon(0 15%, 100% 15%, 100% 85%, 0 85%);
 	}
 
+	.map :global(.service-bestia_center span) {
+		background: #ed85a8;
+		border-radius: 0;
+		clip-path: polygon(50% 25%, 65% 5%, 87% 5%, 100% 25%, 93% 52%, 50% 100%, 7% 52%, 0 25%, 13% 5%, 35% 5%);
+	}
+
 	.map :global(.service-empyrite_seed span) {
 		background: #ffe68c;
 		border-radius: 0;

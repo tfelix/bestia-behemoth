@@ -7,7 +7,7 @@ import { inWorld } from './tiles';
 const SERVICES_MAX_LEVEL = 3;
 
 /** As the game draws them (`map_view.gd`): a colour and a silhouette per kind, so neither is the only cue. */
-export const SERVICE_KINDS = ['MERCHANT', 'MARKET', 'INN', 'TEMPLE', 'GUARD', 'WARD_STONE', 'TOWN', 'POST_OFFICE', 'EMPYRITE_SEED', 'STRONGHOLD'] as const;
+export const SERVICE_KINDS = ['MERCHANT', 'MARKET', 'INN', 'TEMPLE', 'GUARD', 'WARD_STONE', 'TOWN', 'POST_OFFICE', 'BESTIA_CENTER', 'EMPYRITE_SEED', 'STRONGHOLD'] as const;
 
 /** Listed at every zoom, as in the game: places players travel to from afar. */
 const LANDMARK_KINDS: readonly string[] = ['EMPYRITE_SEED', 'STRONGHOLD'];

@@ -1120,6 +1120,7 @@ ERROR_REPAIR_NOT_NEEDED,It is not damaged.
 ERROR_REPAIR_NEEDS_MATERIALS,You carry none of the materials this repair needs.
 SERVICE_TOWN,Player Town
 SERVICE_POST_OFFICE,Post Office
+SERVICE_BESTIA_CENTER,Bestia Center
 SERVICE_EMPYRITE_SEED,Empyrite Seed
 SERVICE_STRONGHOLD,Stronghold
 AUCTION_OWNED_BY,"%s's house, owner fee %d%%"
