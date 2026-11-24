@@ -7,6 +7,7 @@ import net.bestia.zone.battle.damage.HitReach
 import net.bestia.zone.battle.gear.ToolKind
 import net.bestia.zone.battle.gear.ToolTerm
 import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.battle.status.EssenceSkill
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 
 /**
@@ -162,7 +163,12 @@ enum class EssenceEffect(val tool: ToolKind? = null) {
       context.catchChancePoints += sum.points / 2
     }
   },
-  REFLEX,
+  /** Casts the species' buff on the struck wearer, when the best gem's attack level cap covers it. */
+  REFLEX {
+    override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
+      context.addReflex(EssenceSkill(sum.target!!, sum.bestTier.attackLevelCap, chancePercent = sum.points))
+    }
+  },
   MINING_SPEED(ToolKind.MINING) {
     override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
       context.addToolTerm(ToolTerm.MINING_TIME_CUT, 3 * sum.points)
@@ -206,7 +212,9 @@ enum class EssenceEffect(val tool: ToolKind? = null) {
 }
 
 /** One effect at one target, summed over every worn essence that has it. */
-data class EssenceSum(val target: String?, val points: Int, val hasDiamond: Boolean) {
+data class EssenceSum(val target: String?, val points: Int, val bestTier: GemTier) {
+  val hasDiamond: Boolean get() = bestTier == GemTier.DIAMOND
+
   fun kind(): BestiaKind = BestiaKind.valueOf(target!!)
   fun element(): Element = Element.valueOf(target!!)
   fun status(): StatusEffectId = StatusEffectId.valueOf(target!!)

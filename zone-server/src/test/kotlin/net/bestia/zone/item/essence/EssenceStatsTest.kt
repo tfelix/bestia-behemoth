@@ -5,6 +5,7 @@ import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
 import net.bestia.zone.battle.gear.ToolTerm
 import net.bestia.zone.battle.status.CombatValues
+import net.bestia.zone.battle.status.EssenceSkill
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.bestia.persistence.Bestia
@@ -26,8 +27,9 @@ class EssenceStatsTest {
   private val turtle = species(8, "turtle", EssenceDefinition(SocketGroup.ARMOR, EssenceEffect.COATED))
   private val blob = species(9, "blob", EssenceDefinition(SocketGroup.ACCESSORY, EssenceEffect.TAMER))
   private val hydra = species(10, "hydra", EssenceDefinition(SocketGroup.WEAPON, EssenceEffect.LEECH))
+  private val stingtail = species(11, "stingtail", EssenceDefinition(SocketGroup.ACCESSORY, EssenceEffect.REFLEX, "acid_skin"))
 
-  private val stats = essenceStatsOf(boar, hare, ogre, owl, salamander, brute, kobold, turtle, blob, hydra)
+  private val stats = essenceStatsOf(boar, hare, ogre, owl, salamander, brute, kobold, turtle, blob, hydra, stingtail)
   private val context = StatusValueRecalcContext(BaseStatusValues(10, 10, 10, 10, 10, 10), baseSpeed = 1f)
 
   @Test
@@ -110,6 +112,13 @@ class EssenceStatsTest {
     stats.applyTo(context, wearing(Essence(hydra.id, GemTier.RUBY)))
 
     assertEquals(32, context.leechPermille)
+  }
+
+  @Test
+  fun `reflex casts at one percent a point, up to the best gem's attack level`() {
+    stats.applyTo(context, wearing(Essence(stingtail.id, GemTier.RUBY), Essence(stingtail.id, GemTier.AMETHYST)))
+
+    assertEquals(listOf(EssenceSkill("acid_skin", attackLevelCap = 60, chancePercent = 11)), context.reflexes)
   }
 
   @Test

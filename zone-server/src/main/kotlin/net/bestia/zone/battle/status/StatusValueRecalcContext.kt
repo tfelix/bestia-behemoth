@@ -240,6 +240,14 @@ class StatusValueRecalcContext(
   /** Cannot be pushed back by a blow or a blast. A dash of its own still moves it. */
   var knockbackImmune: Boolean = false
 
+  /** Buffs a Reflex essence may cast on this entity when a blow or spell lands on it. */
+  var reflexes: List<EssenceSkill> = emptyList()
+    private set
+
+  fun addReflex(reflex: EssenceSkill) {
+    reflexes = reflexes + reflex
+  }
+
   /** Per mille of the damage this entity deals that comes back to it as HP. Set by a Leech essence. */
   var leechPermille: Int = 0
 

@@ -13,11 +13,20 @@ class SkillIds {
   @Volatile
   private var ids: Map<SkillId, Long>? = null
 
-  /** Takes the whole catalogue. Identifiers no [SkillId] names are content only, so they are dropped. */
+  @Volatile
+  private var byIdentifier: Map<String, Long> = emptyMap()
+
+  /** Takes the whole catalogue. */
   fun load(idByIdentifier: Map<String, Long>) {
     ids = SkillId.entries
       .mapNotNull { skillId -> idByIdentifier[skillId.name]?.let { skillId to it } }
       .toMap(EnumMap(SkillId::class.java))
+    byIdentifier = idByIdentifier
+  }
+
+  /** The id of any skill by its `skills.yml` identifier, such as one a species' essence names; null if unknown. */
+  fun idOf(identifier: String): Long? {
+    return byIdentifier[identifier]
   }
 
   /**
