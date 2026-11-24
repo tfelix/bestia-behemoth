@@ -20,7 +20,7 @@ class ManaSense(
   /** Null below level 1. [at] in voxels, which are metres. */
   fun read(at: Vec3L, weatherSenseLevel: Int): ManaReading? {
     if (weatherSenseLevel <= 0) return null
-    val here = mana.manaAt(at)
+    val here = mana.densityAt(at)
     val rangeMetres = RANGE_METRES_BY_LEVEL.getOrElse(weatherSenseLevel - 1) { RANGE_METRES_BY_LEVEL.last() }
     if (rangeMetres == 0) return ManaReading(here, null, null)
 
@@ -41,7 +41,7 @@ class ManaSense(
           at.y + (sin(direction) * distance).roundToLong(),
           at.z
         )
-        if (matches(mana.manaAt(sample))) return ManaPointer(direction, distance.toDouble())
+        if (matches(mana.densityAt(sample))) return ManaPointer(direction, distance.toDouble())
       }
     }
 

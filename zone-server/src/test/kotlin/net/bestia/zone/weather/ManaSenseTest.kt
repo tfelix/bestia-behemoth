@@ -12,7 +12,7 @@ class ManaSenseTest {
 
   /** Mana rises to the east and falls to the west: 0.5 at the origin, 0.1 more every 500 m. */
   private val sut = ManaSense(mockk<ManaConcentrationService> {
-    every { manaAt(any()) } answers { 0.5 + firstArg<Vec3L>().x / 5000.0 }
+    every { densityAt(any()) } answers { 0.5 + firstArg<Vec3L>().x / 5000.0 }
   })
 
   @Test
@@ -37,7 +37,7 @@ class ManaSenseTest {
   @Test
   fun `a field farther away than the range is not found`() {
     val flat = ManaSense(mockk<ManaConcentrationService> {
-      every { manaAt(any()) } answers { if (firstArg<Vec3L>().x > 1500) 0.9 else 0.5 }
+      every { densityAt(any()) } answers { if (firstArg<Vec3L>().x > 1500) 0.9 else 0.5 }
     })
 
     assertNull(flat.read(ORIGIN, weatherSenseLevel = 2)!!.stronger)
