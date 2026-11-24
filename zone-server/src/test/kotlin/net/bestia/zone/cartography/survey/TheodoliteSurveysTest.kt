@@ -30,7 +30,7 @@ class TheodoliteSurveysTest {
     structures = structures,
     chartService = mockk { every { inventoryCoverage(MASTER_ID) } returns mockk { every { contains(any(), any()) } returns false } },
     surveyService = mockk(relaxed = true),
-    mana = mockk { every { manaAt(any()) } returns 0.5 },
+    mana = mockk { every { densityAt(any()) } returns 0.5 },
     worldService = mockk { every { config.voxelSize } returns 1.0 },
     asyncJobExecutor = mockk { every { submit(any(), any()) } answers { secondArg<() -> Unit>().invoke() } },
     messages = messages,

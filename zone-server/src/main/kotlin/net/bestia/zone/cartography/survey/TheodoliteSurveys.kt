@@ -71,7 +71,7 @@ class TheodoliteSurveys(
     val charted = chartService.inventoryCoverage(masterId)
     val km = (0..MAX_SEARCH_KM).firstOrNull { km -> isChartedAround(charted::contains, centreX, centreY, km * 1000.0) }
       ?: MAX_SEARCH_KM
-    val manaHere = mana.manaAt(theodolite.position)
+    val manaHere = mana.densityAt(theodolite.position)
     val game = SurveyMinigame.of(SurveyMinigame.difficulty(tier, km, manaHere, cartographyLevel))
 
     sessions[theodolite.id] = Session(masterId, accountId, tier, game)
