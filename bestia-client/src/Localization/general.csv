@@ -835,6 +835,7 @@ ERROR_TELEPORT_NOT_NOW,You cannot fly off in the middle of that.
 ERROR_TELEPORT_NO_LANDING,The wing found nowhere to set you down and crumbles to dust.
 CONTEXT_EXCHANGE_ITEMS,Exchange items
 CONTEXT_ATTACK,Attack
+CONTEXT_OFFER_FOR_ETCHING,Offer for etching
 EXCHANGE_WITH,Exchange with %s
 EXCHANGE_HINT,"Show their bag beside yours. Drag between the two, Shift-click to move a whole stack, hold Ctrl on the drop to choose how many."
 EXCHANGE_WEIGHT,Weight %.1f / %.1f kg
@@ -1015,6 +1016,7 @@ STR %d  VIT %d  INT %d
 AGI %d  WIL %d  DEX %d
 DEF %d  MDEF %d"
 SUCCESS_SURVEY_STARTED,"The survey has begun. Stay at the theodolite, or leave a bestia there, for ten minutes."
+SUCCESS_ETCHING_OFFERED,"Your Bestia is offered for etching. Any Artificer at this Carving Table can etch it now. The Essence Gem comes to you."
 SUCCESS_SURVEY_READY,Your theodolite has finished its chart. Use it to collect the chart.
 SUCCESS_CHART_WRITTEN,You collected a new chart. It is in your bag.
 SURVEY_HINT,Stop the needle inside the green arc. Space or Enter stops it.
