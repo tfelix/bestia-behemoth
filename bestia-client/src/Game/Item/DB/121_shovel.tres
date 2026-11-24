@@ -12,3 +12,4 @@ weight = 220
 type = 1
 equip_slot = 6
 item_script = ExtResource("2_dig_use")
+tool_kind = "DIGGING"

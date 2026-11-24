@@ -52,6 +52,10 @@ const MISSING_VISUAL: PackedScene = preload("res://Game/Entity/Visual/ItemVisual
 ## professions may hold it. Kept in sync with items.yml by './gradlew syncItemDb'.
 @export var weapon_type: String = ""
 
+## The server's ToolKind name (MINING, FELLING, DIGGING, FISHING), or empty for anything that is not a tool. Kept in
+## sync with items.yml by './gradlew syncItemDb'.
+@export var tool_kind: String = ""
+
 ## How many tiles a ranged weapon shoots; 0 for anything swung. Kept in sync with items.yml by
 ## './gradlew syncItemDb'.
 @export var attack_range: int = 0

@@ -1687,6 +1687,7 @@ items:
     type: EQUIP
     material: WOOD
     equip-slot: RIGHT_HAND
+    tool: DIGGING
     max-durability: 120
     description: |
       A wooden spade on a long handle, its blade hardened in the fire.
@@ -2413,6 +2414,7 @@ items:
     material: WOOD
     equip-slot: RIGHT_HAND
     weapon-type: TOOL
+    tool: FISHING
     max-durability: 60
     description: |
       A bent willow switch with a line of twisted bark.
@@ -2428,6 +2430,7 @@ items:
     material: WOOD
     equip-slot: RIGHT_HAND
     weapon-type: TOOL
+    tool: FISHING
     max-durability: 120
     description: |
       A light, springy rod of jointed cane.
@@ -2441,6 +2444,7 @@ items:
     material: WOOD
     equip-slot: RIGHT_HAND
     weapon-type: TOOL
+    tool: FISHING
     max-durability: 180
     description: |
       A tapered ash rod with iron guides. It bends a long way before it breaks.
@@ -2454,6 +2458,7 @@ items:
     material: METAL
     equip-slot: RIGHT_HAND
     weapon-type: TOOL
+    tool: FISHING
     max-durability: 260
     description: |
       A thin steel rod with a geared reel. Made for things that pull back.

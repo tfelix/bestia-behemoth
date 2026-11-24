@@ -5,4 +5,5 @@ enum class ToolKind {
   FELLING,
   MINING,
   FISHING,
+  DIGGING,
 }

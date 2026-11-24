@@ -1,6 +1,5 @@
 package net.bestia.zone.item.essence
 
-import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.equip.EquipmentSlot
 
@@ -18,8 +17,7 @@ enum class SocketGroup {
   companion object {
     /** Null for an item no essence fits, such as a material. */
     fun of(template: ItemTemplateRegistry.Template): SocketGroup? {
-      // A rod has no tool kind, fishing knows its rods from its own table. Its weapon type still makes it a tool.
-      if (template.toolKind != null || template.weaponType == WeaponType.TOOL) return TOOL
+      if (template.toolKind != null) return TOOL
 
       return when (template.equipSlot) {
         EquipmentSlot.RIGHT_HAND -> WEAPON
