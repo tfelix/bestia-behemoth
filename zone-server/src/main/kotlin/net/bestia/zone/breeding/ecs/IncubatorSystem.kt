@@ -63,9 +63,9 @@ class IncubatorSystem(
 
       asyncJobExecutor.submit(structure.ownerMasterId) {
         val outcome = try {
-          hatching.hatch(structure.ownerMasterId, egg.instanceId, besideOf(structure))
+          val hatchling = hatching.hatch(structure.ownerMasterId, egg.instanceId, besideOf(structure))
           accountId?.let(ownedBestias::publish)
-          Outcome.HATCHED
+          if (hatchling.isStored) Outcome.HATCHED_INTO_STORAGE else Outcome.HATCHED
         } catch (e: OwnedBestiaPolicyViolationException) {
           Outcome.NO_SLOT
         } catch (e: Exception) {
@@ -82,9 +82,10 @@ class IncubatorSystem(
     val retryAt = clock.instant().plus(RETRY_AFTER)
 
     when (outcome) {
-      Outcome.HATCHED -> {
+      Outcome.HATCHED, Outcome.HATCHED_INTO_STORAGE -> {
         incubators.put(incubator.empty())
-        states.notify(structureId, OperationSuccessSMSG(OpSuccess.BESTIA_HATCHED))
+        val notice = if (outcome == Outcome.HATCHED) OpSuccess.BESTIA_HATCHED else OpSuccess.BESTIA_STORED_ON_ARRIVAL
+        states.notify(structureId, OperationSuccessSMSG(notice))
       }
       Outcome.NO_SLOT -> {
         if (!incubator.waitingForSlot) {
@@ -103,7 +104,7 @@ class IncubatorSystem(
     return Vec3L(structure.position.x + HATCH_OFFSET, structure.position.y, structure.position.z)
   }
 
-  private enum class Outcome { HATCHED, NO_SLOT, FAILED }
+  private enum class Outcome { HATCHED, HATCHED_INTO_STORAGE, NO_SLOT, FAILED }
 
   private companion object {
     val RETRY_AFTER: Duration = Duration.ofMinutes(1)

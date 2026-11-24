@@ -159,7 +159,7 @@ class IncubatorFlowTest {
     assertTrue(waiting.waitingForSlot)
     assertEquals(EGG_INSTANCE, waiting.egg?.instanceId)
 
-    every { hatching.hatch(any(), any(), any()) } returns Unit
+    every { hatching.hatch(any(), any(), any()) } returns mockk(relaxed = true)
     tick(30)
     verify(exactly = 1) { hatching.hatch(any(), any(), any()) }
 

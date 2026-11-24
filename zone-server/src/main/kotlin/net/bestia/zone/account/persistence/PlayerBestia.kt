@@ -145,6 +145,30 @@ class PlayerBestia(
       return storedAt != null
     }
 
+  /** Until when it may not be summoned again after it went into storage. Null when it may. */
+  @Column(name = "rests_until")
+  var restsUntil: Instant? = null
+
+  /** Null for a bestia that has never been out in the world: it comes out with full pools. */
+  @Embedded
+  var storedVitals: StoredVitals? = null
+
+  fun store(now: Instant, restsUntil: Instant, vitals: StoredVitals) {
+    storedAt = now
+    this.restsUntil = restsUntil
+    storedVitals = vitals
+  }
+
+  /** @return the pools it went into storage with */
+  fun takeOutOfStorage(): StoredVitals? {
+    val vitals = storedVitals
+    storedAt = null
+    restsUntil = null
+    storedVitals = null
+
+    return vitals
+  }
+
   @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
   @JoinColumn(name = "container_id", nullable = false)
   override val container: ItemContainer = ItemContainer(ItemContainer.Type.BESTIA)

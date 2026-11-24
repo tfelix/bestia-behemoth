@@ -34,7 +34,7 @@ class LootItemEntitySpawner(
   /**
    * Spawns a single ground item entity at the given position which can be picked up. A rehydrated item passes
    * the [despawnAt] and [integrityLost] it was persisted with; a fresh drop gets the full time and is unharmed.
-   * Kill loot names the [lootOwner] account, which alone may pick it up for a few seconds.
+   * Kill loot names the [lootOwner] account, which alone may pick it up for [lootProtectionSeconds].
    *
    * The [enchantments] are the instance's own rows. A rehydrated item passes [enchantedSince] too, and its
    * enchantments are not told again that they were dropped.
@@ -49,6 +49,8 @@ class LootItemEntitySpawner(
     despawnAt: Instant? = null,
     integrityLost: Int = 0,
     lootOwner: Long? = null,
+    /** Null for the world's usual head start. */
+    lootProtectionSeconds: Float? = null,
     provenance: ItemProvenance? = null,
     roll: ItemRoll? = null,
     enchantments: List<ActiveItemEnchantment> = emptyList(),
@@ -70,7 +72,7 @@ class LootItemEntitySpawner(
         )
       )
       add(id, GroundItemIntegrity(lost = integrityLost))
-      lootOwner?.let { add(id, LootProtection(it, zoneConfig.lootProtectionSeconds)) }
+      lootOwner?.let { add(id, LootProtection(it, lootProtectionSeconds ?: zoneConfig.lootProtectionSeconds)) }
       add(id, Persistent)
       if (enchantments.isNotEmpty()) {
         add(id, ItemEnchantments(enchantments, enchantedSince ?: clock.instant()))

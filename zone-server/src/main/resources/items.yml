@@ -11672,3 +11672,19 @@ items:
       A cloth tied around everything a bestia carried, its worn gear too.
 
       Unpack it to put it all into your bag.
+
+  # Handed out for free by a storage center's keeper. Opens the bestia storage anywhere, but not in a fight.
+  # `bound`, so a master cannot pass it on and every master has to visit a center once.
+  - id: 627
+    item-db-name: bestia_ledger
+    base-level: 1
+    weight: 10
+    type: USABLE
+    material: PAPER
+    stackable: false
+    bound: true
+    script: BestiaLedgerScript
+    description: |
+      A slim book with the name of every bestia you keep in storage, in the hand of a Bestia Keeper.
+
+      Open it to call a stored bestia or to swap one with your party.
