@@ -41,6 +41,7 @@ const _STORAGE_NAMES: Array[String] = ["CHEST", "GUILD_STORAGE"]
 
 var InventoryItem = preload("res://Game/UI/Inventory/InventoryItem/InventoryItem.tscn")
 var DropAmountDialogScn = preload("res://Game/UI/Inventory/DropAmountDialog/DropAmountDialog.tscn")
+var EssenceSocketDialogScn = preload("res://Game/UI/Inventory/EssenceSocketDialog/EssenceSocketDialog.tscn")
 
 ## This is only for testing. In reality you will receive the items from the server.
 @export var preset_items: Array[InventoryItemResource]
@@ -762,6 +763,28 @@ func sellable_piles() -> Array:
 	return _items.get(selected_entity_id, []).filter(
 		func(held) -> bool: return not held.equipped and held.item != null and held.item.item_id != GOLD_COIN_ITEM_ID
 	)
+
+
+## Asks which held or worn copy the essence in the gem [param gem_player_item_id] goes into, then uses the gem on it.
+func ask_to_socket(gem_player_item_id: int) -> void:
+	var held: Array = _items.get(selected_entity_id, [])
+	var gems := held.filter(func(item) -> bool: return item.player_item_id == gem_player_item_id)
+	if gems.is_empty() or gems[0].held_essence == null:
+		return
+
+	var dialog = EssenceSocketDialogScn.instantiate() as EssenceSocketDialog
+	add_child(dialog)
+	dialog.item_picked.connect(_use_gem_on.bind(gem_player_item_id))
+	dialog.open_for(gems[0], held.filter(func(item) -> bool: return item.unique_id != 0))
+
+
+func _use_gem_on(target_player_item_id: int, gem_player_item_id: int) -> void:
+	if not ConnectionManager.is_ready_to_send():
+		return
+
+	var args = ConnectionManager.ScriptArgsCls.new()
+	args.SetInt(ScriptArgKeys.TARGET_ITEM, target_player_item_id)
+	ConnectionManager.use_item(gem_player_item_id, args)
 
 
 func gold() -> int:

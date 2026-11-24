@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="ItemResource" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+[ext_resource type="Script" path="res://Game/Item/UseScripts/essence_gem_use.gd" id="2_gem_use"]
 
 [resource]
 script = ExtResource("1_script")
@@ -8,4 +9,5 @@ item_id = 141
 name_key = "ESSENCE_GEM"
 description_key = "ESSENCE_GEM_DESC"
 weight = 10
+item_script = ExtResource("2_gem_use")
 type = 0

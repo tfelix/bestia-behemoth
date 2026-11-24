@@ -25,6 +25,21 @@ const PER_POINT := {
 	"DIGGING_SPEED": 3, "FASTER_BITE": 3, "RICH_SEAM": 1, "TOUGH_GRIP": 3,
 }
 
+## The socket group of [param item], or empty for an item no essence fits. Mirrors the server's SocketGroup.of.
+static func group_of(item: ItemResource) -> String:
+	if item.weapon_type == "TOOL":
+		return "TOOL"
+	match EquipmentSlot.from_item_value(item.equip_slot):
+		EquipmentSlot.Slot.RIGHT_HAND: return "WEAPON"
+		EquipmentSlot.Slot.LEFT_HAND: return "SHIELD"
+		EquipmentSlot.Slot.ARMOR: return "ARMOR"
+		EquipmentSlot.Slot.GARMENT: return "GARMENT"
+		EquipmentSlot.Slot.FOOTGEAR: return "FOOTGEAR"
+		EquipmentSlot.Slot.HEAD_UPPER, EquipmentSlot.Slot.HEAD_MID: return "HEADGEAR"
+		EquipmentSlot.Slot.ACCESSORY_1, EquipmentSlot.Slot.ACCESSORY_2, EquipmentSlot.Slot.LIGHT_SOURCE: return "ACCESSORY"
+	return ""
+
+
 ## Empty for a species without an essence, so the caller shows the gem's name alone.
 static func describe(bestia: BestiaResource, tier: String) -> String:
 	if bestia == null or bestia.essence_effect.is_empty():

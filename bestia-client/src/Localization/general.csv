@@ -351,6 +351,23 @@ GEM_TIER_EMERALD,Emerald
 GEM_TIER_RUBY,Ruby
 GEM_TIER_PYRELITH,Pyrelith
 GEM_TIER_DIAMOND,Diamond
+ESSENCE_SOCKET_TITLE,Put an essence into a socket
+ESSENCE_SOCKET_CONFIRM,Put it in
+ESSENCE_SOCKET_FITS,Fits a {group} socket
+ESSENCE_SOCKET_FITS_LEVEL,Fits a {group} socket of an item of level {level} or more
+ESSENCE_SOCKET_NONE,No item you hold or wear has a socket for this essence.
+ESSENCE_SOCKET_FULL,no free socket
+ESSENCE_SOCKET_TOO_LOW,item too low for {gem}
+ESSENCE_SOCKET_WORN,worn
+ESSENCE_SOCKET_WARNING,"Once the gem is socketed, it cannot be removed anymore."
+SOCKET_GROUP_WEAPON,Weapon
+SOCKET_GROUP_SHIELD,Shield
+SOCKET_GROUP_ARMOR,Armor
+SOCKET_GROUP_GARMENT,Garment
+SOCKET_GROUP_FOOTGEAR,Footgear
+SOCKET_GROUP_HEADGEAR,Headgear
+SOCKET_GROUP_ACCESSORY,Accessory
+SOCKET_GROUP_TOOL,Tool
 ESSENCE_BANE,+{value}% damage against {target}
 ESSENCE_ELEMENT_HUNTER,+{value}% damage against {target}
 ESSENCE_RIDER,{value}% chance on hit to inflict {target}
