@@ -1941,12 +1941,13 @@ items:
     item-db-name: essence_gem
     base-level: 1
     weight: 10
-    type: ETC
+    type: USABLE
     material: CRYSTAL
+    script: EssenceGemScript
     description: |
       A cut gem with the essence of a Bestia bound inside, glowing with the creature's power.
 
-      It fits into any socket.
+      Use it on an item with a free socket of its group. The essence stays in the item for good.
 
   # What makes wood burn: it turns a stick into a torch and lights a campfire. Trees drop it when felled.
   - id: 142

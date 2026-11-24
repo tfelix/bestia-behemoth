@@ -21,6 +21,9 @@ object ScriptArgKeys {
   /** What to do at something that offers several actions, such as `post` at a blackboard. Absent means open it. */
   const val ACTION = "action"
 
+  /** A held item to work on, as its player item id, such as the item an Essence Gem goes into. */
+  const val TARGET_ITEM = "targetItem"
+
   const val QUEST_ID = "questId"
   const val ITEM_ID = "itemId"
   const val AMOUNT = "amount"

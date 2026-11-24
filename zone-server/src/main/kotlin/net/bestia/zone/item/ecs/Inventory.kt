@@ -335,6 +335,16 @@ data class Inventory(
     return true
   }
 
+  /** Fills the next free socket of the copy [uniqueId]; false when it is not held here. */
+  fun socket(uniqueId: Long, essence: Essence): Boolean {
+    val item = items.find { it.uniqueId == uniqueId && uniqueId != 0L } ?: return false
+
+    item.essences = item.essences + essence
+    markDirty()
+
+    return true
+  }
+
   /** Shows the wear the copy [uniqueId] really has, which the database or a worn slot knew better. */
   fun mirrorWear(uniqueId: Long, durability: Int, maxDurability: Int): Boolean {
     if (uniqueId == 0L) return false
