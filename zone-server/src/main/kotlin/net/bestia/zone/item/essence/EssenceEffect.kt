@@ -4,14 +4,17 @@ import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.damage.HitForm
 import net.bestia.zone.battle.damage.HitReach
+import net.bestia.zone.battle.gear.ToolKind
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 
 /**
  * What an essence does with its points, as the effect table of the essence docs lists it. An effect that is
  * not built yet adds nothing: it waits for its mechanism (leech, autocast, skill grant, tool terms).
+ *
+ * [tool] is the one tool a tool essence fits. Null fits every item of the essence's group.
  */
-enum class EssenceEffect {
+enum class EssenceEffect(val tool: ToolKind? = null) {
   BANE {
     override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
       context.addDamageDealt(3 * sum.points, kind = sum.kind())
@@ -149,11 +152,11 @@ enum class EssenceEffect {
   },
   TAMER,
   REFLEX,
-  MINING_SPEED,
-  FELLING_SPEED,
-  DIGGING_SPEED,
-  FASTER_BITE,
-  RICH_SEAM,
+  MINING_SPEED(ToolKind.MINING),
+  FELLING_SPEED(ToolKind.FELLING),
+  DIGGING_SPEED(ToolKind.DIGGING),
+  FASTER_BITE(ToolKind.FISHING),
+  RICH_SEAM(ToolKind.MINING),
   TOUGH_GRIP;
 
   open fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {

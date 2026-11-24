@@ -14,6 +14,12 @@ const MIN_ITEM_LEVEL_BY_TIER := {"AMETHYST": 0, "EMERALD": 1, "RUBY": 21, "PYREL
 ## The cut gem item ids Runic Etching fills, by the tier each becomes.
 const TIER_BY_CUT_GEM := {136: "AMETHYST", 137: "EMERALD", 138: "RUBY", 139: "PYRELITH", 140: "DIAMOND"}
 
+## The one tool a tool essence fits, by its server ToolKind. Every other essence fits its whole group.
+const TOOL_BY_EFFECT := {
+	"MINING_SPEED": "MINING", "RICH_SEAM": "MINING", "FELLING_SPEED": "FELLING", "DIGGING_SPEED": "DIGGING",
+	"FASTER_BITE": "FISHING",
+}
+
 ## The highest attack level a Learned Trick casts at, by gem. A Diamond has no cap.
 const LEVEL_CAP_BY_TIER := {"AMETHYST": 20, "EMERALD": 40, "RUBY": 60, "PYRELITH": 80, "DIAMOND": 100}
 

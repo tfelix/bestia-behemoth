@@ -60,10 +60,12 @@ class EssenceGemScript(
   /** A free socket of the essence's group, in an item high enough for its gem and, for a boss essence, for the boss. */
   fun accepts(target: Inventory.Item, essence: Essence): Boolean {
     val template = templates.templateOf(target.itemId) ?: return false
-    val group = species.of(essence.bestiaId)?.group ?: return false
+    val definition = species.of(essence.bestiaId) ?: return false
     val hasFreeSocket = target.essences.size < target.slots
+    val fitsItsTool = definition.effect.tool == null || definition.effect.tool == template.toolKind
 
-    return hasFreeSocket && SocketGroup.of(template) == group && target.itemLevel >= minItemLevelOf(essence)
+    return hasFreeSocket && SocketGroup.of(template) == definition.group && fitsItsTool &&
+      target.itemLevel >= minItemLevelOf(essence)
   }
 
   private fun minItemLevelOf(essence: Essence): Int {
