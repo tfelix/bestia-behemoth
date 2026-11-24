@@ -8,6 +8,8 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.worldgen.treasure.TreasureCache
 import net.bestia.worldgen.voxel.BlockType
 import net.bestia.zone.battle.GearWear
+import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.gear.ToolTerm
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.ecs.Equipment
@@ -130,7 +132,8 @@ class DigService(
 
     val toDepth = min(fromDepth + 1.0, cache?.depth ?: BLIND_DEPTH)
     val speed = 1.0 - TIME_CUT_PER_EXCAVATION_LEVEL * excavationLevelOf(world, entityId)
-    val seconds = SECONDS_PER_METRE * (toDepth - fromDepth) * speed
+    val essenceCut = world.get(entityId, CombatStats::class)?.values?.toolPercent(ToolTerm.DIGGING_TIME_CUT) ?: 0
+    val seconds = SECONDS_PER_METRE * (toDepth - fromDepth) * speed * (100 - essenceCut) / 100.0
     world.add(entityId, Digging(accountId, cache, trench, toDepth, seconds.toFloat()))
   }
 

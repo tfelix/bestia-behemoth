@@ -4,6 +4,7 @@ import net.bestia.zone.battle.NaturalArmor
 import net.bestia.zone.battle.gear.ArmorType
 import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.battle.gear.ToolKind
+import net.bestia.zone.battle.gear.ToolTerm
 import net.bestia.zone.battle.damage.DamageModifiers
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.Weapon
@@ -77,6 +78,7 @@ data class CombatValues(
   val offRoadSpeedPercent: Int = 0,
   val markedPreyDamagePercent: Int = 0,
   val throwReachTiles: Int = 0,
+  val toolTerms: Map<ToolTerm, Int> = emptyMap(),
 
   /** What is held in the right hand, for a rule about it: a tree falls only to an axe or a felling tool. */
   val heldWeaponType: WeaponType? = null,
@@ -85,6 +87,9 @@ data class CombatValues(
   /** The weight of the shield in the left hand, or null for none, for a skill that needs one. */
   val shieldArmorType: ArmorType? = null,
 ) {
+
+  /** The [term] of the tool in hand, at most its [ToolTerm.maxPercent]. */
+  fun toolPercent(term: ToolTerm): Int = (toolTerms[term] ?: 0).coerceAtMost(term.maxPercent)
 
   companion object {
 
@@ -172,6 +177,7 @@ data class CombatValues(
         offRoadSpeedPercent = context.offRoadSpeedPercent,
         markedPreyDamagePercent = context.markedPreyDamagePercent,
         throwReachTiles = context.throwReachTiles,
+        toolTerms = context.toolTerms,
         heldWeaponType = context.heldWeaponType,
         heldTool = context.heldTool,
         shieldArmorType = context.shieldArmorType,

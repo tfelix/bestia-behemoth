@@ -7,6 +7,8 @@ import net.bestia.zone.battle.attack.ThreadLocalRandomSource
 import net.bestia.zone.battle.ecs.attack.AttackCancelService
 import net.bestia.zone.battle.ecs.exp.GainExp
 import net.bestia.zone.battle.ecs.skill.CastCancelService
+import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.gear.ToolTerm
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.update
 import net.bestia.zone.fishing.ecs.Fishing
@@ -57,7 +59,7 @@ class FishingService(
     castCancel.interrupt(world, entityId)
     attackCancel.cancelAttack(world, entityId)
     gearWear.wearWeapon(world, entityId, ROD_WEAR_PER_CAST)
-    world.add(entityId, Fishing(target, position, rod.uniqueId, randomWaitSeconds()))
+    world.add(entityId, Fishing(target, position, rod.uniqueId, randomWaitSeconds(world, entityId)))
 
     return null
   }
@@ -105,10 +107,12 @@ class FishingService(
     return held
   }
 
-  private fun randomWaitSeconds(): Float {
+  private fun randomWaitSeconds(world: World, entityId: EntityId): Float {
     val rules = catalogue.rules
+    val essenceCut = world.get(entityId, CombatStats::class)?.values?.toolPercent(ToolTerm.BITE_WAIT_CUT) ?: 0
+    val seconds = rules.minWaitSeconds + random.nextFloat() * (rules.maxWaitSeconds - rules.minWaitSeconds)
 
-    return rules.minWaitSeconds + random.nextFloat() * (rules.maxWaitSeconds - rules.minWaitSeconds)
+    return seconds * (100 - essenceCut) / 100f
   }
 
   private companion object {

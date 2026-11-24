@@ -2,6 +2,7 @@ package net.bestia.zone.battle.attack
 
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.gear.ToolKind
+import net.bestia.zone.battle.gear.ToolTerm
 import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
@@ -34,11 +35,13 @@ class Felling(private val skillIds: SkillIds) {
     return combat.heldTool == ToolKind.FELLING || combat.heldWeaponType in AXES
   }
 
-  /** [amount] of a blow on a tree, after the attacker's Lumberjack. */
+  /** [amount] of a blow on a tree, after the attacker's Lumberjack and the essences in their hatchet. */
   fun felled(world: World, attackerId: EntityId, amount: Int): Int {
     val level = lumberjackId?.let { OwnerSkills.levelOf(world, attackerId, it) } ?: 0
+    val essenceBonus = world.get(attackerId, CombatStats::class)?.values?.toolPercent(ToolTerm.FELLING_DAMAGE) ?: 0
+    val afterLumberjack = amount * 100 / (100 - TIME_PERCENT_PER_LEVEL * level.coerceIn(0, MAX_LEVEL))
 
-    return amount * 100 / (100 - TIME_PERCENT_PER_LEVEL * level.coerceIn(0, MAX_LEVEL))
+    return afterLumberjack * (100 + essenceBonus) / 100
   }
 
   private companion object {
