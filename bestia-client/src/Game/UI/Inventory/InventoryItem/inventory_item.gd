@@ -38,6 +38,9 @@ const _BESTIA_EGG_ITEM_ID := 129
 @export var title: String = ""
 @export var crafted_in: String = ""
 
+## What one unit of this copy weighs - see [member InventoryItemResource.weight].
+@export var weight: int = 0
+
 ## Wear on the backing instance. A [member max_durability] of 0 means this item does not wear at all,
 ## which is the case for every material, every consumable and any gear nobody gave a number to - so the
 ## bar stays hidden rather than showing a full one, since "cannot break" and "unbroken" are not the same

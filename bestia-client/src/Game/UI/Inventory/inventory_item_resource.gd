@@ -21,6 +21,9 @@ class_name InventoryItemResource
 ## radius in z. Null for most items.
 var map_circle: Variant = null
 @export var item: ItemResource
+
+## What one unit of this copy weighs. An item bundle weighs what it holds, not what its kind does.
+@export var weight: int = 0
 @export var equipped: bool = false
 
 ## Wear on the backing instance. Both zero for a plain stack and for gear that does not wear, which is
