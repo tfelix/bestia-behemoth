@@ -8,10 +8,16 @@ class ManaConcentrationTest {
 
   @Test
   fun `an ordinary field changes nothing`() {
-    assertEquals(0, ManaConcentration.place(0.4))
-    assertEquals(0, ManaConcentration.place(0.5))
-    assertEquals(0, ManaConcentration.place(0.6))
-    assertEquals(1.0, ManaConcentration.factor(0.5))
+    assertEquals(0, ManaConcentration.place(0.08))
+    assertEquals(0, ManaConcentration.place(0.25))
+    assertEquals(0, ManaConcentration.place(0.45))
+    assertEquals(1.0, ManaConcentration.factor(0.25))
+  }
+
+  @Test
+  fun `a fresh world changes nothing anywhere below the cores of the Wounds`() {
+    assertEquals(0, ManaConcentration.place(StartDensity.of(0.0)))
+    assertEquals(0, ManaConcentration.place(StartDensity.of(0.9)))
   }
 
   @Test
