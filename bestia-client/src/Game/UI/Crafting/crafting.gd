@@ -45,7 +45,11 @@ const _RESULT_MESSAGES := {
 	"craft_already_in_progress": "Already working on something.",
 	"craft_not_possible": "You cannot do that here.",
 	"craft_item_too_advanced": "That is beyond you for now. Raise the skill to reach a higher tier of item.",
+	"craft_bestia_not_at_table": "Your Bestia must stand next to the Carving Table.",
 }
+
+## What a failed etching costs, said instead of the generic failure: the gem, never the Bestia.
+const _ETCH_FAILED_MESSAGE := "The gem shattered. Your Bestia is safe."
 
 const _SHORT_COLOR := UiStyle.DANGER
 
@@ -83,6 +87,7 @@ var inventory = null
 @onready var _odds: Label = %Odds
 @onready var _target_row: HBoxContainer = %TargetRow
 @onready var _target_picker: OptionButton = %TargetPicker
+@onready var _etching_picker: EtchingPicker = %EtchingPicker
 @onready var _actions: HBoxContainer = %Actions
 @onready var _discover_page: Control = %DiscoverPage
 @onready var _queue_panel: Control = %QueuePanel
@@ -128,6 +133,7 @@ func _ready() -> void:
 	ConnectionManager.discovery_result_received.connect(_on_discovery_result)
 	ConnectionManager.station_state_received.connect(_on_station_state)
 	_target_picker.item_selected.connect(func(_index: int) -> void: _show_actions())
+	_etching_picker.picked.connect(_show_actions)
 	_discover_button.pressed.connect(_show_discovery)
 	%BackButton.pressed.connect(_show_recipes)
 	_add_wood_button.pressed.connect(_on_add_wood_pressed)
@@ -148,7 +154,8 @@ func _on_craftable_recipes(msg: CraftableRecipesSMSG) -> void:
 	if int(msg.StructureId) != _structure_id:
 		_clear(_queue_rows)
 	_structure_id = int(msg.StructureId)
-	_queue_panel.visible = _at_station()
+	# A Carving Table only etches, and an etching never queues.
+	_queue_panel.visible = _at_station() and not msg.Recipes.all(_etches)
 	_show_fuel(msg)
 	_awaiting_result = false
 
@@ -267,7 +274,9 @@ func _icon_of(skill_id: int) -> Texture2D:
 func _build_recipe_list() -> void:
 	_clear(_recipe_rows)
 	_skill_title.text = _title_of_skill(_selected_skill) if _selected_skill != 0 else "Pick a skill"
-	_discover_button.visible = _selected_skill != 0 and _selected_skill != _BASIC_SKILL_ID
+	var recipes: Array = _recipes_by_skill.get(_selected_skill, [])
+	var only_etches := not recipes.is_empty() and recipes.all(_etches)
+	_discover_button.visible = _selected_skill != 0 and _selected_skill != _BASIC_SKILL_ID and not only_etches
 
 	for recipe in _recipes_by_skill.get(_selected_skill, []):
 		_recipe_rows.add_child(_recipe_row(recipe))
@@ -283,7 +292,8 @@ func _recipe_row(recipe: CraftableRecipe) -> Button:
 	row.flat = recipe != _selected_recipe
 
 	var craftable := _craftable_count(recipe)
-	row.text = _title_of(recipe) + ("   [%d]" % craftable if craftable > 0 and not recipe.NeedsTarget else "")
+	var shows_count := not recipe.NeedsTarget or _etches(recipe)
+	row.text = _title_of(recipe) + ("   [%d]" % craftable if craftable > 0 and shows_count else "")
 	if craftable == 0:
 		row.add_theme_color_override("font_color", UiStyle.MUTED)
 
@@ -329,10 +339,15 @@ func _build_detail() -> void:
 
 	_odds.text = "%.1f s · %d %% each" % [recipe.CraftMillis / 1000.0, roundi(recipe.SuccessPermille / 10.0)]
 
-	# One picker for every targeted recipe: they all want the same list of held items.
-	_target_row.visible = recipe.NeedsTarget
-	if recipe.NeedsTarget:
+	# One picker for every recipe that works on an item: they all want the same list of held items. An etching
+	# works on a Bestia instead, and says its own odds per Bestia.
+	_target_row.visible = recipe.NeedsTarget and not _etches(recipe)
+	if _target_row.visible:
 		_fill_target_picker()
+	_odds.visible = not _etches(recipe)
+	_etching_picker.visible = _etches(recipe)
+	if _etches(recipe):
+		_etching_picker.show_for(recipe)
 
 	_show_actions()
 
@@ -385,6 +400,8 @@ func _queues(recipe: CraftableRecipe) -> bool:
 
 
 func _make_label(recipe: CraftableRecipe) -> String:
+	if _etches(recipe):
+		return "Etch"
 	var verb := "Queue" if _queues(recipe) else "Make"
 	return "%s %d" % [verb, _amount] if _amount > 1 else verb
 
@@ -423,6 +440,9 @@ func _fill_target_picker() -> void:
 
 
 func _selected_target() -> int:
+	if _etches(_selected_recipe):
+		return _etching_picker.picked_entity_id
+
 	var index := _target_picker.selected
 	if index < 0:
 		return 0
@@ -453,6 +473,8 @@ func _on_make_pressed() -> void:
 ## anything - so they differ only in the sentence shown.
 func _on_operation_result(message) -> void:
 	var text: String = _RESULT_MESSAGES.get(message.CodeName, "")
+	if message.CodeName == "craft_failed" and _etches(_selected_recipe):
+		text = _ETCH_FAILED_MESSAGE
 	if text.is_empty():
 		# Some other operation entirely (equipping, a master edit): not ours to report on.
 		return
@@ -611,11 +633,18 @@ func _show_recipes() -> void:
 ## A producing recipe is titled by its output item and the three item-changing effects by what they do; the
 ## wire carries no names at all.
 func _title_of(recipe: CraftableRecipe) -> String:
+	# Named by the gem: picking one is picking how strong the essence gets.
+	if _etches(recipe):
+		return _item_name(int(recipe.Inputs[0].ItemId))
 	if recipe.NeedsTarget:
 		return _EFFECT_TITLES.get(recipe.EffectName, recipe.EffectName)
 
 	var name := _item_name(int(recipe.OutputItemId))
 	return name if recipe.OutputAmount <= 1 else "%s ×%d" % [name, recipe.OutputAmount]
+
+
+func _etches(recipe: CraftableRecipe) -> bool:
+	return recipe != null and recipe.EffectName == "etch_essence"
 
 
 func _item_name(item_id: int) -> String:

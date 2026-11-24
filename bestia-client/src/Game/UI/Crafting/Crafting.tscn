@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://bcrafting0win"]
 
 [ext_resource type="Script" path="res://Game/UI/Crafting/crafting.gd" id="1_craft"]
+[ext_resource type="Script" path="res://Game/UI/Crafting/Etching/etching_picker.gd" id="2_etch"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
 bg_color = Color(0.11, 0.11, 0.13, 1)
@@ -126,6 +127,13 @@ text = "Work on:"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="EtchingPicker" type="VBoxContainer" parent="Margin/Body/MakePage/Detail"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 4
+script = ExtResource("2_etch")
 
 [node name="Spacer" type="Control" parent="Margin/Body/MakePage/Detail"]
 layout_mode = 2
