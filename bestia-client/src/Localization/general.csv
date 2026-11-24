@@ -783,6 +783,29 @@ LETTERS_RE,Re: %s
 LETTERS_NO_SUBJECT,(no subject)
 LETTERS_SENT,The pigeon flies off to %s.
 LETTERS_ARRIVED,A pigeon brings a letter from %s.
+BESTIA_STORAGE_PARTY,Party %d / %d
+BESTIA_STORAGE_SLOTS,Storage %d / %d
+BESTIA_STORAGE_FILTER,Filter by name or species
+BESTIA_STORAGE_EMPTY,No bestia in your storage yet. A bestia you catch or hatch with a full party goes here.
+BESTIA_STORAGE_PICK,Pick a stored bestia.
+BESTIA_STORAGE_LEVEL,Lv. %d
+BESTIA_STORAGE_HP,HP
+BESTIA_STORAGE_MANA,Mana
+BESTIA_STORAGE_STAMINA,Stamina
+BESTIA_STORAGE_FROZEN,It stays exactly as it went in.
+BESTIA_STORAGE_RESTS,Rests %d min
+BESTIA_STORAGE_SUMMON,Summon
+BESTIA_STORAGE_SUMMON_FULL,Summon (party full)
+BESTIA_STORAGE_SWAP,Swap with…
+BESTIA_STORAGE_SWAP_SLOT_FREE,A party slot is free. Summon it instead.
+BESTIA_STORAGE_RELEASE,Release
+BESTIA_STORAGE_RELEASE_CONFIRM,Click again to release it for good
+BESTIA_STORAGE_SWAP_TITLE,Swap %s in for…
+BESTIA_STORAGE_SWAP_PICK,Pick the party bestia that goes into storage.
+BESTIA_STORAGE_SWAP_ITEMS,%s carries %d items and wears %d. All of them drop in an Item Bundle where %s stands.
+BESTIA_STORAGE_SWAP_WHERE,%s appears where %s stands. %s rests in your storage for %d min.
+BESTIA_STORAGE_SWAP_CONFIRM,Swap
+BESTIA_STORAGE_CANCEL,Cancel
 POST_OFFICE_TITLE,%s post office
 POST_OFFICE_COACH,The coach leaves every %d hours.
 POST_OFFICE_HOME,Your parcels go to: %s

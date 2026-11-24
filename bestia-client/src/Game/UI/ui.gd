@@ -17,6 +17,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _emotes_win: WidgetWindow = $EmotesWin
 @onready var _letters_win: WidgetWindow = $LettersWin
 @onready var _post_office_win: WidgetWindow = $PostOfficeWin
+@onready var _bestia_storage_win: WidgetWindow = $BestiaStorageWin
 @onready var _blackboard_win: WidgetWindow = $BlackboardWin
 @onready var _quest_log_win: WidgetWindow = $QuestLogWin
 @onready var _quest_tracker: QuestTracker = $QuestTracker
@@ -198,6 +199,10 @@ func _ready() -> void:
 	post_office.notice.connect(_chat.system_line)
 	post_office.post_office_opened.connect(_on_post_office_opened)
 	post_office.post_office_closed.connect(func() -> void: _post_office_win.visible = false)
+
+	# The ledger asks for the storage and a keeper sends it unasked; either way its arrival opens the window.
+	var bestia_storage := _bestia_storage_win.get_content() as BestiaStoragePanel
+	bestia_storage.storage_opened.connect(func() -> void: _bestia_storage_win.visible = true)
 
 	var blackboard := _blackboard_win.get_content() as BlackboardPanel
 	blackboard.inventory = _inventory_win.get_content() as Inventory

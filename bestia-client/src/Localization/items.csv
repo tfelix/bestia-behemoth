@@ -1587,6 +1587,10 @@ ITEM_BUNDLE,Item Bundle
 ITEM_BUNDLE_DESC,"A cloth tied around everything a bestia carried, its worn gear too.
 
 Unpack it to put it all into your bag."
+BESTIA_LEDGER,Bestia Ledger
+BESTIA_LEDGER_DESC,"A slim book with the name of every bestia you keep in storage, in the hand of a Bestia Keeper.
+
+Open it to call a stored bestia or to swap one with your party."
 BESTIA_CENTER_KIT,Storage Center Kit
 BESTIA_CENTER_KIT_DESC,"Gates, pens, a feed trough and a keeper's desk, lashed onto a sledge.
 
