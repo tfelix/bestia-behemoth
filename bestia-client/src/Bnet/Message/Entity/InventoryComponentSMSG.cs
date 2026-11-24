@@ -82,6 +82,12 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// </summary>
     [Export] public Godot.Collections.Array<ItemStatValue> RolledStats { get; set; } = [];
 
+    /// <summary>What fills the sockets, in order.</summary>
+    [Export] public Godot.Collections.Array<ItemEssence> Essences { get; set; } = [];
+
+    /// <summary>What an essence gem holds; null on every other item.</summary>
+    [Export] public ItemEssence HeldEssence { get; set; }
+
     /// <summary>
     /// What every action on this held item names it by. Equals <see cref="UniqueId"/> for an instance; a plain
     /// pile gets a handle that holds while the pile is held this session.
@@ -127,6 +133,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         UpgradeLevel = protoItem.UpgradeLevel,
         ItemLevel = protoItem.ItemLevel,
         RolledStats = ItemStatValue.FromProto(protoItem.RolledStats),
+        Essences = ItemEssence.FromProto(protoItem.Essences),
+        HeldEssence = ItemEssence.FromProto(protoItem.HeldEssence),
         PlayerItemId = protoItem.PlayerItemId,
         CraftedBy = protoItem.CraftedBy,
         CraftedIn = protoItem.CraftedIn,
