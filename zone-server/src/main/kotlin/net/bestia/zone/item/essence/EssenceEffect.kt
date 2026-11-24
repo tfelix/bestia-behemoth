@@ -79,9 +79,10 @@ enum class EssenceEffect(val tool: ToolKind? = null) {
     }
   },
 
-  /** Its first points keep the item from being stripped, which waits for the strip check. */
+  /** Its first points keep the armor from being stripped. */
   COATED {
     override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
+      context.armorUnstrippable = true
       context.addPercent(defense = sum.points - COATED_POINTS)
     }
   },

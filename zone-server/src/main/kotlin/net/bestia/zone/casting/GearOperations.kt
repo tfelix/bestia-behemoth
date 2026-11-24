@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.status.scripts.GearCoating
@@ -29,11 +30,12 @@ class GearOperations(
   private val templates: ItemTemplateRegistry,
 ) {
 
-  /** The pieces [entityId] wears that a strip may take, by the slot lock each one gets. */
+  /** The pieces [entityId] wears that a strip may take, by the slot lock each one gets. A Coated armor is not one. */
   fun strippable(world: World, entityId: EntityId): List<SlotLock> {
     val equipment = world.get(entityId, Equipment::class) ?: return emptyList()
+    val armorUnstrippable = world.get(entityId, CombatStats::class)?.values?.armorUnstrippable == true
 
-    return SlotLock.entries.filter { equipment.get(it.slot) != null }
+    return SlotLock.entries.filter { equipment.get(it.slot) != null && !(armorUnstrippable && it == SlotLock.ARMOR) }
   }
 
   /** Whether [entityId] holds a second weapon in its left hand, rather than a shield or a tome. */
