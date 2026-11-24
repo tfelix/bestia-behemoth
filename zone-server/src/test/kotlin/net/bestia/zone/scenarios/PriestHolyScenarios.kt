@@ -14,6 +14,7 @@ import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.ecs.status.Mana
+import net.bestia.zone.battle.ecs.status.Stamina
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.casting.net.ActivateSkillCMSG
@@ -249,7 +250,11 @@ class PriestHolyScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
 
   private fun cast(identifier: String, level: Int = 1, target: EntityId = 0L) {
     val skillId = skillId(identifier)
-    world.modify(priest()) { id -> get(id, Mana::class)!!.apply { max = MANA; current = MANA } }
+    // Stamina too: a skill costs it, and how much is left depends on how long the shared world has run.
+    world.modify(priest()) { id ->
+      get(id, Mana::class)!!.apply { max = MANA; current = MANA }
+      get(id, Stamina::class)!!.apply { current = max }
+    }
     val at = world.read { getOrThrow(priest(), Position::class).toVec3L() }
     client.sendMessage(ActivateSkillCMSG(accountId, skillId, level, at, target))
   }
