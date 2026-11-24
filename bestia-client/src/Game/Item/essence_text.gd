@@ -7,6 +7,13 @@ class_name EssenceText
 
 const POINTS_BY_TIER := {"AMETHYST": 3, "EMERALD": 5, "RUBY": 8, "PYRELITH": 11, "DIAMOND": 15}
 
+## What a Bestia must have reached to fill a gem, and what an item must have reached to take the essence.
+const MIN_BESTIA_LEVEL_BY_TIER := {"AMETHYST": 1, "EMERALD": 21, "RUBY": 41, "PYRELITH": 61, "DIAMOND": 81}
+const MIN_ITEM_LEVEL_BY_TIER := {"AMETHYST": 0, "EMERALD": 1, "RUBY": 21, "PYRELITH": 41, "DIAMOND": 61}
+
+## The cut gem item ids Runic Etching fills, by the tier each becomes.
+const TIER_BY_CUT_GEM := {136: "AMETHYST", 137: "EMERALD", 138: "RUBY", 139: "PYRELITH", 140: "DIAMOND"}
+
 ## The highest attack level a Learned Trick casts at, by gem. A Diamond has no cap.
 const LEVEL_CAP_BY_TIER := {"AMETHYST": 20, "EMERALD": 40, "RUBY": 60, "PYRELITH": 80, "DIAMOND": 100}
 

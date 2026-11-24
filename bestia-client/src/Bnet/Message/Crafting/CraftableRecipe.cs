@@ -6,14 +6,16 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
   /// What a crafting effect does when it succeeds. Ordinals match
   /// <c>net.bestia.zone.crafting.RecipeEffect</c>, whose declaration order is the contract.
   ///
-  /// Anything but <see cref="Produce"/> needs the player to pick a held item to work on.
+  /// Anything but <see cref="Produce"/> needs the player to pick a target: one of their Bestias for
+  /// <see cref="EtchEssence"/>, a held item for the rest.
   /// </summary>
   public enum RecipeEffect
   {
     Produce = 0,
     AddSlot = 1,
     Upgrade = 2,
-    Repair = 3
+    Repair = 3,
+    EtchEssence = 4
   }
 
   /// <summary>
@@ -61,7 +63,13 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
     /// </summary>
     [Export] public bool InputsHeld { get; set; }
 
-    /// <summary>True when the player has to pick a held item for this recipe to act on.</summary>
+    /// <summary>
+    /// For an etching, the highest Bestia level it binds at <see cref="SuccessPermille"/>; each level above
+    /// costs 5%. <c>int.MaxValue</c> when no level is too high, 0 for every other recipe.
+    /// </summary>
+    [Export] public uint ReliableBestiaLevel { get; set; }
+
+    /// <summary>True when the player has to pick something for this recipe to act on.</summary>
     [Export] public bool NeedsTarget { get; set; }
 
     /// <summary>Where the blueprint sits in the feature space, one value per axis; empty when it has none.</summary>
@@ -77,6 +85,7 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
         OutputAmount = proto.OutputAmount,
         SuccessPermille = proto.SuccessPermille,
         CraftMillis = proto.CraftMillis,
+        ReliableBestiaLevel = proto.ReliableBestiaLevel,
         InputsHeld = proto.InputsHeld,
         Point = [.. proto.Point]
       };
