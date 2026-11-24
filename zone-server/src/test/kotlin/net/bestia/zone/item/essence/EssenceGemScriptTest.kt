@@ -30,6 +30,8 @@ class EssenceGemScriptTest {
   private val templates = mockk<ItemTemplateRegistry> {
     every { templateOf(SWORD) } returns template(SWORD, equipSlot = EquipmentSlot.RIGHT_HAND)
     every { templateOf(BOOTS) } returns template(BOOTS, equipSlot = EquipmentSlot.FOOTGEAR)
+    every { templateOf(PICKAXE) } returns template(PICKAXE, toolKind = ToolKind.MINING)
+    every { templateOf(SHOVEL) } returns template(SHOVEL, toolKind = ToolKind.DIGGING)
   }
 
   private val inventoryService = mockk<InventoryService>(relaxed = true)
@@ -39,8 +41,12 @@ class EssenceGemScriptTest {
   }
 
   private val species = object : SpeciesEssences {
-    override fun of(speciesId: Long) = EssenceDefinition(SocketGroup.WEAPON, EssenceEffect.BANE, "BEAST")
-      .takeIf { speciesId == BOAR || speciesId == BOSS }
+    override fun of(speciesId: Long) = when (speciesId) {
+      BOAR, BOSS -> EssenceDefinition(SocketGroup.WEAPON, EssenceEffect.BANE, "BEAST")
+      MINER -> EssenceDefinition(SocketGroup.TOOL, EssenceEffect.MINING_SPEED)
+      GRIP -> EssenceDefinition(SocketGroup.TOOL, EssenceEffect.TOUGH_GRIP)
+      else -> null
+    }
 
     override fun bossLevelOf(speciesId: Long) = BOSS_LEVEL.takeIf { speciesId == BOSS }
   }
@@ -108,6 +114,19 @@ class EssenceGemScriptTest {
   }
 
   @Test
+  fun `a tool essence fits only the tool it names, unless it fits every tool`() {
+    val user = givenUser(
+      gem(GemTier.AMETHYST, species = MINER),
+      item(SHOVEL, uniqueId = 7, slots = 1),
+      item(PICKAXE, uniqueId = 8, slots = 1)
+    )
+
+    assertFalse(script.executeHeld(world, user, targeting(7), GEM_ID))
+    assertTrue(script.executeHeld(world, user, targeting(8), GEM_ID))
+    assertTrue(script.accepts(item(SHOVEL, uniqueId = 9, slots = 1), Essence(GRIP, GemTier.AMETHYST)))
+  }
+
+  @Test
   fun `tools form their own group and plain materials have none`() {
     assertEquals(SocketGroup.TOOL, SocketGroup.of(template(1, toolKind = ToolKind.MINING)))
     assertEquals(SocketGroup.TOOL, SocketGroup.of(template(4, equipSlot = EquipmentSlot.RIGHT_HAND, toolKind = ToolKind.FISHING)))
@@ -145,6 +164,10 @@ class EssenceGemScriptTest {
     const val BOSS_LEVEL = 54
     const val SWORD = 18L
     const val BOOTS = 40L
+    const val PICKAXE = 73L
+    const val SHOVEL = 121L
+    const val MINER = 31L
+    const val GRIP = 32L
     const val GEM_ID = 900L
   }
 }

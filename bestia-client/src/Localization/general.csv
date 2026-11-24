@@ -359,6 +359,11 @@ ESSENCE_SOCKET_NONE,No item you hold or wear has a socket for this essence.
 ESSENCE_SOCKET_FULL,no free socket
 ESSENCE_SOCKET_TOO_LOW,item too low for {gem}
 ESSENCE_SOCKET_WORN,worn
+ESSENCE_SOCKET_WRONG_TOOL,only for a {tool}
+TOOL_KIND_MINING,pickaxe
+TOOL_KIND_FELLING,hatchet
+TOOL_KIND_DIGGING,shovel
+TOOL_KIND_FISHING,fishing rod
 ESSENCE_SOCKET_WARNING,"Once the gem is socketed, it cannot be removed anymore."
 SOCKET_GROUP_WEAPON,Weapon
 SOCKET_GROUP_SHIELD,Shield

@@ -25,17 +25,20 @@ func _ready() -> void:
 func open_for(gem: InventoryItemResource, copies: Array) -> void:
 	var essence = gem.held_essence
 	var tier := str(essence.Tier)
-	var group := _essence_group(essence)
+	var species := BestiaDB.get_instance().get_bestia(int(essence.BestiaId))
+	var group := species.essence_group if species != null else ""
+	var tool: String = EssenceText.TOOL_BY_EFFECT.get(species.essence_effect, "") if species != null else ""
 	var min_item_level := int(EssenceText.MIN_ITEM_LEVEL_BY_TIER.get(tier, 0))
 
 	_essence.text = ItemDetail.essence_line(essence)
-	_fits.text = tr("ESSENCE_SOCKET_FITS").format({"group": tr("SOCKET_GROUP_" + group)})
+	var socket_name := tr("TOOL_KIND_" + tool) if not tool.is_empty() else tr("SOCKET_GROUP_" + group)
+	_fits.text = tr("ESSENCE_SOCKET_FITS").format({"group": socket_name})
 	if min_item_level > 0:
-		_fits.text = tr("ESSENCE_SOCKET_FITS_LEVEL").format({"group": tr("SOCKET_GROUP_" + group), "level": min_item_level})
+		_fits.text = tr("ESSENCE_SOCKET_FITS_LEVEL").format({"group": socket_name, "level": min_item_level})
 
 	var fitting := copies.filter(func(copy) -> bool: return copy.item != null and EssenceText.group_of(copy.item) == group)
 	for copy in fitting:
-		_rows.add_child(_row(copy, _why_not(copy, tier, min_item_level)))
+		_rows.add_child(_row(copy, _why_not(copy, tier, min_item_level, tool)))
 	if fitting.is_empty():
 		_rows.add_child(UiStyle.label(tr("ESSENCE_SOCKET_NONE"), 12, UiStyle.MUTED))
 
@@ -65,18 +68,15 @@ func _describe(copy: InventoryItemResource) -> String:
 	return text
 
 
-## Empty when the essence may go into [param copy].
-func _why_not(copy: InventoryItemResource, tier: String, min_item_level: int) -> String:
+## Empty when the essence may go into [param copy]. [param tool] is the one tool it fits, or empty for any.
+func _why_not(copy: InventoryItemResource, tier: String, min_item_level: int, tool: String) -> String:
+	if not tool.is_empty() and copy.item.tool_kind != tool:
+		return tr("ESSENCE_SOCKET_WRONG_TOOL").format({"tool": tr("TOOL_KIND_" + tool)})
 	if copy.essences.size() >= copy.slots:
 		return tr("ESSENCE_SOCKET_FULL")
 	if copy.item_level < min_item_level:
 		return tr("ESSENCE_SOCKET_TOO_LOW").format({"gem": tr("GEM_TIER_" + tier)})
 	return ""
-
-
-func _essence_group(essence) -> String:
-	var species := BestiaDB.get_instance().get_bestia(int(essence.BestiaId))
-	return species.essence_group if species != null else ""
 
 
 func _on_row_pressed(player_item_id: int) -> void:
