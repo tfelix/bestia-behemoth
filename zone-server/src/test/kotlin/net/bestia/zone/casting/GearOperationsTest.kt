@@ -1,6 +1,9 @@
 package net.bestia.zone.casting
 
 import io.mockk.mockk
+import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.status.CombatValues
+import net.bestia.zone.item.equip.SlotLock
 import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.item.ecs.Equipment
@@ -10,6 +13,7 @@ import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.item.material.ItemMaterial
 import net.bestia.zone.item.persistence.Item
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -29,6 +33,16 @@ class GearOperationsTest {
     assertTrue(gear.isDualWielding(world, duelist))
     assertFalse(gear.isDualWielding(world, knight))
     assertFalse(gear.isDualWielding(world, bare))
+  }
+
+  @Test
+  fun `a Coated armor cannot be stripped, the rest still can`() {
+    val wearer = wearerWith(SHIELD).also { id ->
+      world.get(id, Equipment::class)!!.equip(EquipmentSlot.ARMOR, Equipment.EquippedItem(itemId = 3L, uniqueId = 2L))
+      world.add(id, CombatStats(CombatValues.OBJECT_BASELINE.copy(armorUnstrippable = true)))
+    }
+
+    assertEquals(listOf(SlotLock.SHIELD), gear.strippable(world, wearer))
   }
 
   private fun wearerWith(leftHand: Item): Long {

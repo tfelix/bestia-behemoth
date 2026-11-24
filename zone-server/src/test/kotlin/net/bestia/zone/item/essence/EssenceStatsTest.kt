@@ -23,8 +23,9 @@ class EssenceStatsTest {
   private val salamander = species(5, "salamander", EssenceDefinition(SocketGroup.ARMOR, EssenceEffect.ELEMENT_BODY, "FIRE"))
   private val brute = species(6, "brute", EssenceDefinition(SocketGroup.ACCESSORY, EssenceEffect.ATTRIBUTE_PAIR, "STR_VIT"))
   private val kobold = species(7, "kobold", EssenceDefinition(SocketGroup.TOOL, EssenceEffect.MINING_SPEED))
+  private val turtle = species(8, "turtle", EssenceDefinition(SocketGroup.ARMOR, EssenceEffect.COATED))
 
-  private val stats = essenceStatsOf(boar, hare, ogre, owl, salamander, brute, kobold)
+  private val stats = essenceStatsOf(boar, hare, ogre, owl, salamander, brute, kobold, turtle)
   private val context = StatusValueRecalcContext(BaseStatusValues(10, 10, 10, 10, 10, 10), baseSpeed = 1f)
 
   @Test
@@ -85,6 +86,14 @@ class EssenceStatsTest {
     val values = CombatValues.OBJECT_BASELINE.copy(toolTerms = context.toolTerms)
 
     assertEquals(75, values.toolPercent(ToolTerm.MINING_TIME_CUT))
+  }
+
+  @Test
+  fun `coated keeps the armor on and puts the rest into defense`() {
+    stats.applyTo(context, wearing(Essence(turtle.id, GemTier.RUBY)))
+
+    assertTrue(context.armorUnstrippable)
+    assertEquals(6, context.defensePercent)
   }
 
   @Test
