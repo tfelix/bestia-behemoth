@@ -11656,3 +11656,19 @@ items:
       A rare, costly sigil of gold. It symbolizes your bond to your Order.
 
       It also holds the power to undo those holy ties.
+
+  # --- Bestia storage ---------------------------------------------------------------------------------
+  # What a bestia carried when it went into storage, tied up in one cloth. Each copy weighs what it holds,
+  # like the mail sack. Unpack puts everything into the bag at once.
+  - id: 626
+    item-db-name: item_bundle
+    base-level: 1
+    weight: 10
+    type: USABLE
+    material: CLOTH
+    stackable: false
+    script: ItemBundleScript
+    description: |
+      A cloth tied around everything a bestia carried, its worn gear too.
+
+      Unpack it to put it all into your bag.

@@ -7,6 +7,8 @@ import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -43,6 +45,8 @@ import net.bestia.zone.item.equip.EquipmentSlot
 @Table(name = "item_container")
 class ItemContainer(
   @Enumerated(EnumType.STRING)
+  // Not a native enum column, so `ddl-auto: update` can take a new type.
+  @JdbcTypeCode(SqlTypes.VARCHAR)
   @Column(nullable = false)
   val type: Type,
 ) {
@@ -379,5 +383,5 @@ class ItemContainer(
     val provenance: ItemProvenance? = null,
   )
 
-  enum class Type { MASTER, BESTIA, NPC, STORAGE, MAIL }
+  enum class Type { MASTER, BESTIA, NPC, STORAGE, MAIL, BUNDLE }
 }
