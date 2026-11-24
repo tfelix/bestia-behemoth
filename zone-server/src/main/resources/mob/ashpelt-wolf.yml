@@ -9,6 +9,7 @@ description: >-
 kind: BEAST
 element: NORMAL_2
 size: MEDIUM
+essence: { group: WEAPON, effect: RIDER, target: BLEEDING }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

@@ -10,6 +10,7 @@ description: >-
 kind: BEAST
 element: HOLY_3
 size: BIG
+essence: { group: ACCESSORY, effect: LEARNED_TRICK, target: benediction }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

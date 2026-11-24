@@ -10,6 +10,7 @@ description: >-
 kind: BIRD
 element: WIND
 size: MEDIUM
+essence: { group: FOOTGEAR, effect: SWIFT }
 default-attack: RANGED
 aspd: 80
 ai: aggressive_melee

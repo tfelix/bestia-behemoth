@@ -9,6 +9,7 @@ description: >-
 kind: UNDEAD
 element: UNDEAD_3
 size: MEDIUM
+essence: { group: HEADGEAR, effect: CLEAR_MIND, target: FEARED }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

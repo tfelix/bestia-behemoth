@@ -9,6 +9,7 @@ description: >-
 kind: BEAST
 element: EARTH
 size: SMALL
+essence: { group: SHIELD, effect: STEADFAST }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

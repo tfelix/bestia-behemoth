@@ -9,6 +9,7 @@ description: >-
 kind: INSECT
 element: EARTH
 size: SMALL
+essence: { group: TOOL, effect: DIGGING_SPEED }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

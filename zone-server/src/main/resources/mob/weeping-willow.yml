@@ -10,6 +10,7 @@ description: >-
 kind: PLANT
 element: EARTH_3
 size: BIG
+essence: { group: HEADGEAR, effect: FOCUS }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

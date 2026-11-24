@@ -8,6 +8,7 @@ import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
 import net.bestia.zone.item.equip.script.IronSwordScript
 import net.bestia.zone.item.equip.script.StatBonusEquipmentScript
+import net.bestia.zone.item.essence.essenceStatsOf
 import net.bestia.zone.item.stat.ItemStat
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.item.stat.ItemStatSheet
@@ -25,7 +26,8 @@ class EquipmentStatusContributorTest {
   private val sut = EquipmentStatusContributor(
     EquipmentScriptRegistry(listOf(StatBonusEquipmentScript(), IronSwordScript())),
     catalog,
-    itemTemplatesOf()
+    itemTemplatesOf(),
+    essenceStatsOf()
   )
   private val world = testWorld()
   private val context = StatusValueRecalcContext(BaseStatusValues(1, 1, 1, 1, 1, 1), baseSpeed = 1f)
@@ -82,7 +84,7 @@ class EquipmentStatusContributorTest {
       weaponType = WeaponType.DAGGER, material = ItemMaterial.METAL
     )
     val contributor = EquipmentStatusContributor(
-      EquipmentScriptRegistry(listOf(StatBonusEquipmentScript())), catalog, itemTemplatesOf(dagger)
+      EquipmentScriptRegistry(listOf(StatBonusEquipmentScript())), catalog, itemTemplatesOf(dagger), essenceStatsOf()
     )
     catalog.load(mapOf(1L to ItemStatSheet(attack = 20), dagger.id to ItemStatSheet(attack = 7)))
     val equipment = Equipment(availableSlotMask = EquipmentSlots.ALL)
@@ -106,7 +108,7 @@ class EquipmentStatusContributorTest {
     val shield = piece(3L, EquipmentSlot.LEFT_HAND, ArmorType.HEAVY)
     val boots = piece(4L, EquipmentSlot.FOOTGEAR, ArmorType.LIGHT)
     val contributor = EquipmentStatusContributor(
-      EquipmentScriptRegistry(listOf(StatBonusEquipmentScript())), catalog, itemTemplatesOf(cuirass, shield, boots)
+      EquipmentScriptRegistry(listOf(StatBonusEquipmentScript())), catalog, itemTemplatesOf(cuirass, shield, boots), essenceStatsOf()
     )
     val equipment = Equipment(availableSlotMask = EquipmentSlots.ALL)
     listOf(cuirass, shield, boots).forEach { equipment.equip(it.equipSlot!!, Equipment.EquippedItem(itemId = it.id, uniqueId = it.id)) }

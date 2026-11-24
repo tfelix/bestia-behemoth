@@ -10,6 +10,7 @@ description: >-
 kind: BEAST
 element: EARTH
 size: MEDIUM
+essence: { group: WEAPON, effect: BANE, target: BEAST }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

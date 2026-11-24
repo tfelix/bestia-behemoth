@@ -8,6 +8,11 @@ import net.bestia.zone.boot.ItemImporterBootRunner
 import net.bestia.zone.boot.MobImporterBootRunner
 import net.bestia.worldgen.core.WorldBoss
 import net.bestia.zone.boot.SkillImporterBootRunner
+import net.bestia.zone.battle.ecs.status.BaseStatusValues
+import net.bestia.zone.battle.status.StatusValueRecalcContext
+import net.bestia.zone.item.essence.EssenceEffect
+import net.bestia.zone.item.essence.EssenceSum
+import net.bestia.zone.item.essence.GemTier
 import org.junit.jupiter.api.Test
 import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
@@ -89,6 +94,29 @@ class MobCatalogueTest {
 
     assertEquals(emptyList(), wrong)
     assertEquals(WorldBoss.entries.size, species.count { it.worldBoss }, "a world-boss species the history never wakes")
+  }
+
+  @Test
+  fun `every essence applies at every gem`() {
+    val broken = species.mapNotNull { mob -> mob.essence?.let { mob.identifier to it } }.flatMap { (identifier, essence) ->
+      GemTier.entries.mapNotNull { tier ->
+        val context = StatusValueRecalcContext(BaseStatusValues(1, 1, 1, 1, 1, 1), baseSpeed = 1f)
+        val sum = EssenceSum(essence.target, essence.pointsIn(tier), tier == GemTier.DIAMOND)
+        runCatching { essence.effect.apply(context, sum) }.exceptionOrNull()?.let { "$identifier at $tier: $it" }
+      }
+    }
+
+    assertEquals(emptyList(), broken)
+  }
+
+  @Test
+  fun `an essence that names an attack names one in skills yml`() {
+    val skills = readSkills().map { it.identifier }.toSet()
+    val namesAnAttack = setOf(EssenceEffect.LEARNED_TRICK, EssenceEffect.REFLEX)
+
+    val unknown = species.mapNotNull { it.essence }.filter { it.effect in namesAnAttack && it.target !in skills }
+
+    assertEquals(emptyList(), unknown)
   }
 
   private fun mapper(): ObjectMapper {

@@ -9,6 +9,7 @@ description: >-
 kind: BEAST
 element: NORMAL
 size: SMALL
+essence: { group: FOOTGEAR, effect: LONG_STRIDE }
 default-attack: RANGED
 aspd: 80
 ai: passive_wanderer

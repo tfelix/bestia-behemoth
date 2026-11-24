@@ -24,3 +24,7 @@ loot_item_ids = PackedInt32Array(101, 106)
 loot_chances = PackedInt32Array(2500, 300)
 size = "MEDIUM"
 weight_kg = 60
+essence_group = "ARMOR"
+essence_effect = "ELEMENT_BODY"
+essence_target = "FIRE"
+essence_drawback = ""

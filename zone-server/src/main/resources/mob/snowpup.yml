@@ -10,6 +10,7 @@ description: >-
 kind: BEAST
 element: WATER
 size: SMALL
+essence: { group: FOOTGEAR, effect: LONG_STRIDE }
 default-attack: RANGED
 aspd: 80
 ai: passive_wanderer

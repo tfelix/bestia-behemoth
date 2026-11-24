@@ -10,6 +10,7 @@ description: >-
 kind: FORMLESS
 element: FIRE_2
 size: SMALL
+essence: { group: ARMOR, effect: ELEMENT_SKIN, target: FIRE }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

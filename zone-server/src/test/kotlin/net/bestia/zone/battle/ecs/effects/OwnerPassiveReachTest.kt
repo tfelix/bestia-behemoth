@@ -18,6 +18,7 @@ import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.item.ecs.itemTemplatesOf
 import net.bestia.zone.item.equip.EquipmentStatusContributor
 import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
+import net.bestia.zone.item.essence.essenceStatsOf
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.SkillTargetType
@@ -48,7 +49,7 @@ class OwnerPassiveReachTest {
       StatusValueRecalcSystem(
         StatusEffectDefinitionRegistry(),
         StatusEffectScriptRegistry(emptyList()),
-        EquipmentStatusContributor(EquipmentScriptRegistry(emptyList()), ItemStatCatalog(), itemTemplatesOf()),
+        EquipmentStatusContributor(EquipmentScriptRegistry(emptyList()), ItemStatCatalog(), itemTemplatesOf(), essenceStatsOf()),
         PassiveSkillScriptRegistry(listOf(passive)).apply { bind(listOf(meditation)) { false } },
         ConditionValueCalculator(),
         CombatValuesPool()

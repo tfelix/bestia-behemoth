@@ -9,6 +9,7 @@ description: >-
 kind: AQUATIC
 element: WATER
 size: SMALL
+essence: { group: HEADGEAR, effect: CLEAR_MIND, target: CONFUSED }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

@@ -9,6 +9,7 @@ description: >-
 kind: ELEMENTAL
 element: EARTH_3
 size: BIG
+essence: { group: SHIELD, effect: STEADFAST, drawback: MOVE_SPEED }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

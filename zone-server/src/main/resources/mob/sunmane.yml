@@ -10,6 +10,7 @@ description: >-
 kind: BEAST
 element: HOLY_2
 size: BIG
+essence: { group: WEAPON, effect: ELEMENT_HUNTER, target: SHADOW }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

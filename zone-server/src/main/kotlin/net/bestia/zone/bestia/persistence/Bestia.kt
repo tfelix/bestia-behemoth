@@ -8,6 +8,7 @@ import net.bestia.zone.battle.status.AttackSpeed
 import net.bestia.zone.util.requireValidIdentifier
 import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.bestia.DefaultAttack
+import net.bestia.zone.item.essence.EssenceDefinition
 
 @Entity
 @Table(
@@ -216,7 +217,11 @@ class Bestia(
   var temperatureMinCelsius: Double? = null,
 
   @Column(name = "temperature_max_celsius")
-  var temperatureMaxCelsius: Double? = null
+  var temperatureMaxCelsius: Double? = null,
+
+  /** What Runic Etching binds out of this species. Null for a species no essence comes from, such as a boss today. */
+  @Embedded
+  var essence: EssenceDefinition? = null
 ) {
 
   init {

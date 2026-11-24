@@ -154,9 +154,9 @@ func _sockets(slots: int, filled: int) -> HBoxContainer:
 func _add_essences(essences: Array, held_essence: Variant) -> void:
 	var lines: Array[String] = []
 	for essence in essences:
-		lines.append("%s %s" % [ItemDetail.FILLED_SOCKET, ItemDetail.essence_name(essence)])
+		lines.append("%s %s" % [ItemDetail.FILLED_SOCKET, ItemDetail.essence_line(essence)])
 	if held_essence != null:
-		lines.append(tr("ITEM_HOLDS_ESSENCE").format({"essence": ItemDetail.essence_name(held_essence)}))
+		lines.append(tr("ITEM_HOLDS_ESSENCE").format({"essence": ItemDetail.essence_line(held_essence)}))
 	if not lines.is_empty():
 		_add_rich("\n".join(lines), UiStyle.TEXT)
 

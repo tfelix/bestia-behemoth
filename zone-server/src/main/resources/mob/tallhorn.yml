@@ -9,6 +9,7 @@ description: >-
 kind: BEAST
 element: NORMAL
 size: BIG
+essence: { group: SHIELD, effect: WARD, target: BEAST }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

@@ -10,6 +10,7 @@ description: >-
 kind: UNDEAD
 element: UNDEAD_3
 size: MEDIUM
+essence: { group: SHIELD, effect: WARD, target: HUMANOID }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

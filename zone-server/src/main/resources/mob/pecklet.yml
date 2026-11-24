@@ -10,6 +10,7 @@ description: >-
 kind: BIRD
 element: FIRE
 size: SMALL
+essence: { group: ACCESSORY, effect: REFLEX, target: flame_coat }
 default-attack: RANGED
 aspd: 80
 ai: passive_wanderer

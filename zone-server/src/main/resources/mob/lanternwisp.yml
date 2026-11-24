@@ -10,6 +10,7 @@ description: >-
 kind: FORMLESS
 element: GHOST
 size: SMALL
+essence: { group: ACCESSORY, effect: LEARNED_TRICK, target: shadow_cloak }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

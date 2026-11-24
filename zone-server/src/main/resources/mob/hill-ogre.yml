@@ -9,6 +9,7 @@ description: >-
 kind: HUMANOID
 element: EARTH_3
 size: BIG
+essence: { group: WEAPON, effect: GIANT_SLAYER, drawback: HIT }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

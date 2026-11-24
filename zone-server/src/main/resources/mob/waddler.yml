@@ -10,6 +10,7 @@ description: >-
 kind: BIRD
 element: WATER
 size: MEDIUM
+essence: { group: SHIELD, effect: WARD, target: BIRD }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

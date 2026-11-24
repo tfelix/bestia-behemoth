@@ -9,6 +9,7 @@ description: >-
 kind: PLANT
 element: EARTH_2
 size: MEDIUM
+essence: { group: WEAPON, effect: BANE, target: INSECT }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

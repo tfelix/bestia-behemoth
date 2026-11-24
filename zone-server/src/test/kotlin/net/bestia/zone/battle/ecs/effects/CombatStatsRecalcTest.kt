@@ -24,6 +24,7 @@ import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.item.equip.EquipmentStatusContributor
 import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
+import net.bestia.zone.item.essence.essenceStatsOf
 import net.bestia.zone.item.stat.ItemStatCatalog
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -46,7 +47,7 @@ class CombatStatsRecalcTest {
       StatusValueRecalcSystem(
         StatusEffectDefinitionRegistry(),
         StatusEffectScriptRegistry(emptyList()),
-        EquipmentStatusContributor(EquipmentScriptRegistry(emptyList()), ItemStatCatalog(), itemTemplatesOf()),
+        EquipmentStatusContributor(EquipmentScriptRegistry(emptyList()), ItemStatCatalog(), itemTemplatesOf(), essenceStatsOf()),
         PassiveSkillScriptRegistry(emptyList()),
         ConditionValueCalculator(),
         pool

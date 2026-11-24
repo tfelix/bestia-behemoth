@@ -9,6 +9,7 @@ description: >-
 kind: PLANT
 element: POISON
 size: SMALL
+essence: { group: HEADGEAR, effect: CLEAR_MIND, target: POISON }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

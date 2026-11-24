@@ -9,6 +9,7 @@ description: >-
 kind: PLANT
 element: EARTH
 size: SMALL
+essence: { group: HEADGEAR, effect: CLEAR_MIND, target: STUN }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

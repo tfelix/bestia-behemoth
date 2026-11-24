@@ -9,6 +9,7 @@ description: >-
 kind: BEAST
 element: WATER_3
 size: BIG
+essence: { group: FOOTGEAR, effect: DEEP_POOLS }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

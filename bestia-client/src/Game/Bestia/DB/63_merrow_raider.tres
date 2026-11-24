@@ -24,3 +24,7 @@ loot_item_ids = PackedInt32Array(57, 43, 103)
 loot_chances = PackedInt32Array(3000, 1500, 600)
 size = "MEDIUM"
 weight_kg = 60
+essence_group = "ACCESSORY"
+essence_effect = "ATTRIBUTE_PAIR"
+essence_target = "STR_VIT"
+essence_drawback = ""

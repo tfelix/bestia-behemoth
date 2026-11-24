@@ -9,6 +9,7 @@ description: >-
   leaves sticky jelly behind when it bursts.
 kind: FORMLESS
 size: SMALL
+essence: { group: ACCESSORY, effect: TAMER }
 # Statuswerte
 ai: passive_wanderer
 health: 10
