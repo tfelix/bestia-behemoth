@@ -237,12 +237,16 @@ class StatusEffectService(
     }
   }
 
+  /** Lifesteal and a Leech essence give back a share of what [sourceId] dealt. */
   override fun onDamageDealt(world: World, sourceId: EntityId, landed: Int) {
-    if (landed <= 0 || world.get(sourceId, StatusEffects::class)?.hasEffect(StatusEffectId.LIFESTEAL.id) != true) {
-      return
-    }
+    if (landed <= 0) return
+    val lifesteal = world.get(sourceId, StatusEffects::class)?.hasEffect(StatusEffectId.LIFESTEAL.id) == true
+    val lifestealPermille = if (lifesteal) Lifesteal.HEAL_PERCENT_OF_DAMAGE * 10 else 0
+    val leechPermille = world.get(sourceId, CombatStats::class)?.values?.leechPermille ?: 0
+    val permille = lifestealPermille + leechPermille
+    if (permille <= 0) return
 
-    Healing.heal(world, sourceId, landed * Lifesteal.HEAL_PERCENT_OF_DAMAGE / 100)
+    Healing.heal(world, sourceId, landed * permille / 1000)
   }
 
   /** Unbreakable: one lethal blow per cooldown leaves 1 HP, and the marker it leaves is that cooldown. */
