@@ -10,6 +10,9 @@ class_name ItemDetail
 ## Static, so the lookups go through [TranslationServer] for the reason [DialogText] gives.
 
 
+const EMPTY_SOCKET := "○"
+
+
 ## The item's name, what it takes to use it, the state of this copy, and finally what it is for.
 static func as_bbcode(
 	item: ItemResource,
@@ -58,7 +61,7 @@ static func as_bbcode(
 		lines.append("Durability %d/%d%s" % [durability, max_durability, broken])
 
 	if slots > 0:
-		lines.append("%d socket(s)" % slots)
+		lines.append(_translate("ITEM_SOCKETS").format({"rings": sockets_line(slots)}))
 
 	var material_axes := CraftAxes.describe(item.item_id)
 	if not material_axes.is_empty():
@@ -73,6 +76,14 @@ static func as_bbcode(
 		lines.append(description)
 
 	return "\n".join(lines)
+
+
+## One ring per socket, as the detail column draws them. Every ring is open: nothing can fill a socket yet.
+static func sockets_line(slots: int) -> String:
+	var rings: Array[String] = []
+	for i in slots:
+		rings.append(EMPTY_SOCKET)
+	return " ".join(rings)
 
 
 ## The prose from [code]items.csv[/code], or nothing for an item that has none.
