@@ -4,12 +4,15 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.battle.gear.ToolKind
+import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.ecs.Equipment
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.ecs.ItemTemplateRegistry
 import net.bestia.zone.item.equip.EquipmentSlot
+import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.item.material.ItemMaterial
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.script.ScriptArgKeys
@@ -50,7 +53,7 @@ class EssenceGemScriptTest {
 
     val sword = world.getOrThrow(user, Inventory::class).byPlayerItemId(7)!!
     assertEquals(listOf(Essence(BOAR, GemTier.RUBY)), sword.essences)
-    verify { inventoryService.updateInstance(MASTER_ID, 7, null, any()) }
+    verify { inventoryService.socket(MASTER_ID, 7, null, Essence(BOAR, GemTier.RUBY)) }
   }
 
   @Test
@@ -77,10 +80,17 @@ class EssenceGemScriptTest {
   }
 
   @Test
-  fun `worn gear is not worked on`() {
+  fun `worn gear takes an essence and its wearer's stats are worked out again`() {
     val user = givenUser(gem(GemTier.AMETHYST), item(SWORD, uniqueId = 7, slots = 1).apply { equipped = true })
+    val equipment = Equipment(availableSlotMask = EquipmentSlots.ALL).apply {
+      equip(EquipmentSlot.RIGHT_HAND, Equipment.EquippedItem(itemId = SWORD, uniqueId = 7, slots = 1))
+    }
+    world.add(user, equipment)
 
-    assertFalse(script.executeHeld(world, user, targeting(7), GEM_ID))
+    assertTrue(script.executeHeld(world, user, targeting(7), GEM_ID))
+
+    assertEquals(listOf(Essence(BOAR, GemTier.AMETHYST)), equipment.get(EquipmentSlot.RIGHT_HAND)!!.essences)
+    assertTrue(world.has(user, IsStatusValueDirty::class))
   }
 
   @Test
