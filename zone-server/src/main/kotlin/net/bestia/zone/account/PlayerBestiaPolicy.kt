@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component
 import net.bestia.zone.account.persistence.Master
 
 /**
- * A master owns at most as many bestia as its account has slots.
+ * A master has at most as many bestia out in the world as its account has active slots.
  */
 @Component
 class PlayerBestiaPolicy(
@@ -15,7 +15,7 @@ class PlayerBestiaPolicy(
   fun checkPolicy(master: Master, addedBestia: Bestia) {
     val availableSlots = availableBestiaSlotService.getTotalSlotCount(master.account.id)
 
-    if (master.bestias.ownedBestias.size + 1 > availableSlots) {
+    if (master.bestias.activeBestias.size + 1 > availableSlots) {
       throw OwnedBestiaPolicyViolationException("You can not have more than $availableSlots Bestia")
     }
   }

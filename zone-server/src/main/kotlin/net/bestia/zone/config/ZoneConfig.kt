@@ -6,6 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 data class ZoneConfig(
   val bestiaBaseSlotCount: Int,
   val bestiaMaxSlotCount: Int,
+  val bestiaStorageBaseSlotCount: Int = 20,
+  val bestiaStorageMaxSlotCount: Int = 100,
   val jwtAuthSecretKey: String,
   val shardId: Int,
   /** How long a kick refuses older login tokens. Must outlast the login token's lifetime. */

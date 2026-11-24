@@ -4,6 +4,9 @@ zone:
   bestia-base-slot-count: 4
   # The max amount of bestia slot a single master can have.
   bestia-max-slot-count: 8
+  # Storage slots for bestia out of the world, increased per account like the active slots.
+  bestia-storage-base-slot-count: 20
+  bestia-storage-max-slot-count: 100
   # jwt-auth-secret-key: no value on purpose, so a deployment that forgets it does not boot. Supplied through
   # ZONE_JWT_AUTH_SECRET_KEY and identical to login-server's `jwt.secret`; the dev profile carries a public one.
   # A shared HMAC secret for now: it moves to an asymmetric key pair (login signs, zones only verify) before

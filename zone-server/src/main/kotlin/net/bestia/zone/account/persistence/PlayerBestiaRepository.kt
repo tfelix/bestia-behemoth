@@ -15,6 +15,10 @@ interface PlayerBestiaRepository : JpaRepository<PlayerBestia, Long> {
 
   fun findAllByMasterId(masterId: Long): List<PlayerBestia>
 
+  fun findAllByMasterIdAndStoredAtIsNull(masterId: Long): List<PlayerBestia>
+
+  fun findAllByStoredAtIsNull(): List<PlayerBestia>
+
   fun findAllByOrderPresetId(orderPresetId: Long): List<PlayerBestia>
 
   fun findAllByEntityIdIsNull(): List<PlayerBestia>

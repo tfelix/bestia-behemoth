@@ -19,4 +19,11 @@ class AvailableBestiaSlotService(
 
     return min(availableSlots, config.bestiaMaxSlotCount)
   }
+
+  fun getStorageSlotCount(accountId: AccountId): Int {
+    val account = accountRepository.findByIdOrThrow(accountId)
+    val availableSlots = account.additionalBestiaStorageSlots + config.bestiaStorageBaseSlotCount
+
+    return min(availableSlots, config.bestiaStorageMaxSlotCount)
+  }
 }
