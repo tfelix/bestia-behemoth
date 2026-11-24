@@ -41,6 +41,12 @@ namespace BestiaBehemothClient.Bnet.Message.Trade
 
     [Export] public Godot.Collections.Array<ItemStatValue> RolledStats { get; set; } = [];
 
+    /// <summary>What fills the sockets, in order.</summary>
+    [Export] public Godot.Collections.Array<ItemEssence> Essences { get; set; } = [];
+
+    /// <summary>What an essence gem holds; null on every other item.</summary>
+    [Export] public ItemEssence HeldEssence { get; set; }
+
     /// <summary>Who crafted this copy and in which world; both empty for an item nobody crafted.</summary>
     [Export] public string CraftedBy { get; set; } = "";
     [Export] public string CraftedIn { get; set; } = "";
@@ -59,6 +65,8 @@ namespace BestiaBehemothClient.Bnet.Message.Trade
         UpgradeLevel = proto.UpgradeLevel,
         ItemLevel = proto.ItemLevel,
         RolledStats = ItemStatValue.FromProto(proto.RolledStats),
+        Essences = ItemEssence.FromProto(proto.Essences),
+        HeldEssence = ItemEssence.FromProto(proto.HeldEssence),
         CraftedBy = proto.CraftedBy,
         CraftedIn = proto.CraftedIn
       };

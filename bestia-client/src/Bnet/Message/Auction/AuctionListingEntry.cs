@@ -28,6 +28,12 @@ namespace BestiaBehemothClient.Bnet.Message.Auction
     [Export] public int Slots { get; set; }
     [Export] public Godot.Collections.Array<ItemStatValue> RolledStats { get; set; } = [];
 
+    /// <summary>What fills the sockets, in order.</summary>
+    [Export] public Godot.Collections.Array<ItemEssence> Essences { get; set; } = [];
+
+    /// <summary>What an essence gem holds; null on every other item.</summary>
+    [Export] public ItemEssence HeldEssence { get; set; }
+
     /// <summary>A timed auction; <see cref="Price"/> is then its starting bid.</summary>
     [Export] public bool IsAuction { get; set; }
 
@@ -59,6 +65,8 @@ namespace BestiaBehemothClient.Bnet.Message.Auction
         MaxDurability = proto.MaxDurability,
         Slots = proto.Slots,
         RolledStats = ItemStatValue.FromProto(proto.RolledStats),
+        Essences = ItemEssence.FromProto(proto.Essences),
+        HeldEssence = ItemEssence.FromProto(proto.HeldEssence),
         IsAuction = proto.IsAuction,
         CurrentBid = proto.CurrentBid,
         NextMinBid = proto.NextMinBid,

@@ -17,6 +17,12 @@ namespace BestiaBehemothClient.Bnet.Message.Postal
     [Export] public int Slots { get; set; }
     [Export] public Godot.Collections.Array<ItemStatValue> RolledStats { get; set; } = [];
 
+    /// <summary>What fills the sockets, in order.</summary>
+    [Export] public Godot.Collections.Array<ItemEssence> Essences { get; set; } = [];
+
+    /// <summary>What an essence gem holds; null on every other item.</summary>
+    [Export] public ItemEssence HeldEssence { get; set; }
+
     public static ParcelGoodsEntry FromProto(global::Bnet.ParcelGoods proto)
     {
       return new ParcelGoodsEntry
@@ -28,7 +34,9 @@ namespace BestiaBehemothClient.Bnet.Message.Postal
         Durability = proto.Durability,
         MaxDurability = proto.MaxDurability,
         Slots = proto.Slots,
-        RolledStats = ItemStatValue.FromProto(proto.RolledStats)
+        RolledStats = ItemStatValue.FromProto(proto.RolledStats),
+        Essences = ItemEssence.FromProto(proto.Essences),
+        HeldEssence = ItemEssence.FromProto(proto.HeldEssence)
       };
     }
   }
