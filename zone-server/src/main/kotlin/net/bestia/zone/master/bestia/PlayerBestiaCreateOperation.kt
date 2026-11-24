@@ -1,5 +1,6 @@
 package net.bestia.zone.master.bestia
 
+import net.bestia.zone.account.persistence.PlayerBestia
 import net.bestia.zone.battle.status.IndividualValues
 import net.bestia.zone.bestia.Sex
 import net.bestia.zone.geometry.Vec3L
@@ -7,8 +8,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 /**
- * The creator not only creates a player bestia in the database it also adds it
- * immediatly to the ECS system as entity.
+ * Creates a player bestia in the database and puts it into the world, unless it went into storage.
  */
 @Component
 class PlayerBestiaCreateOperation(
@@ -34,7 +34,7 @@ class PlayerBestiaCreateOperation(
   fun createAndSpawn(
     masterId: Long,
     playerBestiaCreateData: PlayerBestiaCreateData,
-  ) {
+  ): PlayerBestia {
     val pb = playerBestiaFactory.create(
       masterId = masterId,
       playerBestiaCreateData = PlayerBestiaFactory.PlayerBestiaCreateData(
@@ -47,6 +47,10 @@ class PlayerBestiaCreateOperation(
       )
     )
 
-    playerBestiaEntitySpawner.spawnPlayerBestia(pb)
+    if (!pb.isStored) {
+      playerBestiaEntitySpawner.spawnPlayerBestia(pb)
+    }
+
+    return pb
   }
 }

@@ -267,8 +267,8 @@ class Master(
     require(name.length <= MAX_NAME_LENGTH) { "Master name must be at most $MAX_NAME_LENGTH characters." }
   }
 
-  fun addPlayerBestia(bestia: Bestia, policy: PlayerBestiaPolicy): PlayerBestia {
-    return bestias.addBestia(this, bestia, policy)
+  fun addPlayerBestia(bestia: Bestia, policy: PlayerBestiaPolicy, now: java.time.Instant): PlayerBestia {
+    return bestias.addBestia(this, bestia, policy, now)
   }
 
   override fun toString(): String {

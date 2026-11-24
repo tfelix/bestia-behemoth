@@ -15,6 +15,7 @@ import net.bestia.zone.bestia.persistence.BestiaRepository
 import net.bestia.zone.bestia.persistence.findByIdentifierOrThrow
 import net.bestia.zone.bestia.Sex
 import net.bestia.zone.battle.status.IndividualValues
+import java.time.Clock
 import kotlin.random.Random
 
 @Component
@@ -24,6 +25,7 @@ class PlayerBestiaFactory(
   private val playerBestiaRepository: PlayerBestiaRepository,
   private val playerBestiaPolicy: PlayerBestiaPolicy,
   private val entityIdGenerator: EntityIdGenerator,
+  private val clock: Clock = Clock.systemUTC(),
 ) {
 
   class PlayerBestiaCreateData(
@@ -39,8 +41,8 @@ class PlayerBestiaFactory(
   )
 
   /**
-   * Builds and persists a [PlayerBestia] row for the given master, enforcing [PlayerBestiaPolicy] so the
-   * same bestia can never be owned twice.
+   * Builds and persists a [PlayerBestia] row for the given master, enforcing [PlayerBestiaPolicy]: into an active
+   * slot if one is free, else into storage.
    *
    * Persistence only - putting it into the world is [PlayerBestiaEntitySpawner]'s job, which
    * [PlayerBestiaCreateOperation] calls right after this.
@@ -59,7 +61,7 @@ class PlayerBestiaFactory(
 
     LOG.info { "Created PlayerBestia ${bestia.identifier} for master $master" }
 
-    val pb = master.addPlayerBestia(bestia, playerBestiaPolicy)
+    val pb = master.addPlayerBestia(bestia, playerBestiaPolicy, clock.instant())
     pb.position = playerBestiaCreateData.spawnPosition
     pb.spawnPosition = playerBestiaCreateData.spawnPosition
     pb.level = playerBestiaCreateData.level

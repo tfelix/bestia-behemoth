@@ -239,7 +239,7 @@ SHOP_HOURS,Open %s-%s
 ERROR_TRAP_OUT_OF_RANGE,That is too far away to set a trap.
 ERROR_TRAP_NO_ROOM,You cannot set a trap there.
 ERROR_TRAP_LIMIT_REACHED,You already have %s traps set.
-ERROR_BESTIA_SLOTS_FULL,"Your trap caught a Bestia, but you have no room for another. It got away."
+ERROR_BESTIA_SLOTS_FULL,"Your trap caught a Bestia, but you have no room for another, not even in your storage. It got away."
 CAPTURE_SUCCESS,Your trap snapped shut. The Bestia is yours!
 CAPTURE_FAILED,A Bestia broke free of your trap.
 BESTIA_PARTY_MASTER,Master
@@ -922,7 +922,7 @@ ERROR_BREEDING_NEEDS_BUNDLE,You need a Nesting Bundle to breed.
 ERROR_BREEDING_PAIR_CANNOT_TRAVEL,Your pair cannot reach the Breeding Farm. Bring them closer.
 ERROR_BREEDING_CLUTCH_FAILED,A parent left the Breeding Farm. The clutch and its Nesting Bundle are lost.
 ERROR_BREEDING_NO_ROOM_FOR_EGG,The egg does not fit in your bag.
-ERROR_INCUBATOR_NO_FREE_SLOT,Your egg is ready to hatch. Free a bestia slot and it hatches.
+ERROR_INCUBATOR_NO_FREE_SLOT,Your egg is ready to hatch. Free a slot in your party or your storage and it hatches.
 STATUS_EFFECT_204,Ruwach: every second it ends Hide and Cloak on everyone within 10 m.
 STATUS_EFFECT_205,Endowed: your weapon strikes as an element and hits harder.
 STATUS_EFFECT_206,Magic Rod: the next single-target spell at you is caught and turned into mana.
