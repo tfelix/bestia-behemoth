@@ -614,6 +614,9 @@ enum OpError {
   BESTIA_STORAGE_BESTIA_BREEDING = 428;
   // A player-built storage center works only while its town's sign stands.
   BESTIA_STORAGE_CENTER_CLOSED = 429;
+
+  // The Bestia picked for Runic Etching is not standing next to the Carving Table.
+  CRAFT_BESTIA_NOT_AT_TABLE = 430;
 }
 
 message OperationError {

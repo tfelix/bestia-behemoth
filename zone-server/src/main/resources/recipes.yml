@@ -1550,3 +1550,53 @@ recipes:
     skill: { skill: M_RUNIC_ETCHING, level: 1 }
     craftSeconds: 20.0
     baseSuccessChance: 1
+
+  - id: 153
+    identifier: ETCH_AMETHYST
+    effect: ETCH_ESSENCE
+    inputs:
+      - { item: cut_amethyst, amount: 1 }
+    skill: { skill: M_RUNIC_ETCHING, level: 1 }
+    station: CARVING_TABLE
+    craftSeconds: 10.0
+    baseSuccessChance: 0.5
+
+  - id: 154
+    identifier: ETCH_EMERALD
+    effect: ETCH_ESSENCE
+    inputs:
+      - { item: cut_emerald, amount: 1 }
+    skill: { skill: M_RUNIC_ETCHING, level: 1 }
+    station: CARVING_TABLE
+    craftSeconds: 20.0
+    baseSuccessChance: 0.5
+
+  - id: 155
+    identifier: ETCH_RUBY
+    effect: ETCH_ESSENCE
+    inputs:
+      - { item: cut_ruby, amount: 1 }
+    skill: { skill: M_RUNIC_ETCHING, level: 1 }
+    station: CARVING_TABLE
+    craftSeconds: 30.0
+    baseSuccessChance: 0.5
+
+  - id: 156
+    identifier: ETCH_PYRELITH
+    effect: ETCH_ESSENCE
+    inputs:
+      - { item: cut_pyrelith, amount: 1 }
+    skill: { skill: M_RUNIC_ETCHING, level: 1 }
+    station: CARVING_TABLE
+    craftSeconds: 40.0
+    baseSuccessChance: 0.5
+
+  - id: 157
+    identifier: ETCH_DIAMOND
+    effect: ETCH_ESSENCE
+    inputs:
+      - { item: cut_diamond, amount: 1 }
+    skill: { skill: M_RUNIC_ETCHING, level: 1 }
+    station: CARVING_TABLE
+    craftSeconds: 50.0
+    baseSuccessChance: 0.5

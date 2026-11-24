@@ -212,6 +212,26 @@ class CraftBonusServiceTest {
     assertEquals(0.90f, service.successChance(known(ORE_REFINEMENT to 99), recipe, null), TOLERANCE)
   }
 
+  /** Like forging: no hard cap, but each Bestia level above the reliable one costs another five percent. */
+  @Test
+  fun `etching loses five percent for each Bestia level above the reliable one`() {
+    val recipe = recipeRequiring(RUNIC_ETCHING, baseSuccessChance = 0.5f)
+    val rankTwo = known(RUNIC_ETCHING to 2)
+
+    assertEquals(20, service.reliableBestiaLevel(rankTwo))
+    assertEquals(0.60f, service.successChance(rankTwo, recipe, null, bestiaLevel = 20), TOLERANCE)
+    assertEquals(0.40f, service.successChance(rankTwo, recipe, null, bestiaLevel = 24), TOLERANCE)
+  }
+
+  @Test
+  fun `at full rank no Bestia level is too high to etch reliably`() {
+    val recipe = recipeRequiring(RUNIC_ETCHING, baseSuccessChance = 0.5f)
+    val fullRank = known(RUNIC_ETCHING to 10)
+
+    assertEquals(CraftBonusService.NO_ITEM_LEVEL_CAP, service.reliableBestiaLevel(fullRank))
+    assertEquals(1f, service.successChance(fullRank, recipe, null, bestiaLevel = 120), TOLERANCE)
+  }
+
   private fun known(vararg levels: Pair<String, Int>) =
     KnownSkills(levels.associate { (identifier, level) -> SKILL_IDS.getValue(identifier) to level }.toMutableMap())
 
@@ -245,6 +265,7 @@ class CraftBonusServiceTest {
     const val FORGE_WEAPON = "M_FORGE_WEAPON"
     const val EQUIPMENT_REPAIR = "M_EQUIPMENT_REPAIR"
     const val UPGRADE_EQUIPMENT = "M_UPGRADE_EQUIPMENT"
+    const val RUNIC_ETCHING = "M_RUNIC_ETCHING"
 
     /** Arbitrary but distinct, since the service only ever compares them. */
     val SKILL_IDS = mapOf(
@@ -257,7 +278,8 @@ class CraftBonusServiceTest {
       WEAPONRY_RESEARCH to 16L,
       MASTER_SMITH to 17L,
       COOKING to 3L,
-      UPGRADE_EQUIPMENT to 44L
+      UPGRADE_EQUIPMENT to 44L,
+      RUNIC_ETCHING to 18L
     )
   }
 }

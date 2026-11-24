@@ -42,6 +42,7 @@ data class CraftableRecipesSMSG(
         .setOutputAmount(recipe.outputAmount)
         .setSuccessPermille(recipe.successPermille)
         .setCraftMillis(recipe.craftMillis)
+        .setReliableBestiaLevel(recipe.reliableBestiaLevel)
         .setInputsHeld(recipe.inputs.all { it.held >= it.amount })
         .addAllPoint(recipe.point?.toAxisList().orEmpty())
         .addAllInputs(
@@ -88,7 +89,13 @@ data class CraftableRecipesSMSG(
     val craftMillis: Int,
 
     /** Where the blueprint sits in the feature space, for the discovery chart's outline; null when it has none. */
-    val point: CraftVector? = null
+    val point: CraftVector? = null,
+
+    /**
+     * For an etching, the highest Bestia level it binds at [successPermille]; each level above costs 5%.
+     * [Int.MAX_VALUE] when no level is too high, 0 for any other recipe.
+     */
+    val reliableBestiaLevel: Int = 0
   )
 
   data class Input(

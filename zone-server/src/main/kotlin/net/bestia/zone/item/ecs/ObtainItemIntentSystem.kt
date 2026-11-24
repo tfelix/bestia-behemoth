@@ -242,6 +242,7 @@ class ObtainItemIntentSystem(
           slots = roll?.sockets ?: 0,
           itemLevel = roll?.itemLevel ?: itemStats.itemLevelOf(item.id),
           rolledStats = roll?.stats.orEmpty(),
+          heldEssence = roll?.heldEssence,
           provenance = provenance
         )
       )

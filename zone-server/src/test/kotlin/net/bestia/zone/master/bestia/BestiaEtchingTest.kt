@@ -1,0 +1,121 @@
+package net.bestia.zone.master.bestia
+
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.battle.ecs.level.Level
+import net.bestia.zone.bestia.BestiaCatalogue
+import net.bestia.zone.bestia.persistence.Bestia
+import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.entity.StaticEntityKind
+import net.bestia.zone.entity.ecs.Dead
+import net.bestia.zone.entity.ecs.EntityVisual
+import net.bestia.zone.entity.ecs.VisualKind
+import net.bestia.zone.identity.ecs.OwnedBestia
+import net.bestia.zone.item.ecs.ItemTemplateRegistry
+import net.bestia.zone.item.essence.EssenceDefinition
+import net.bestia.zone.item.essence.EssenceEffect
+import net.bestia.zone.item.essence.Essence
+import net.bestia.zone.item.essence.GemTier
+import net.bestia.zone.item.essence.SocketGroup
+import net.bestia.zone.movement.ecs.Position
+import net.bestia.zone.prop.PlayerStructureService
+import net.bestia.zone.util.EntityId
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Test
+
+class BestiaEtchingTest {
+
+  private val world = testWorld()
+
+  private var tableInReach = true
+
+  private val structures = mockk<PlayerStructureService> {
+    every { stationNear(any(), any(), StaticEntityKind.CARVING_TABLE) } answers { if (tableInReach) 1L else null }
+  }
+
+  private val catalogue = mockk<BestiaCatalogue> {
+    every { find(BOAR) } returns species(BOAR, "boar", EssenceDefinition(SocketGroup.WEAPON, EssenceEffect.BANE, "BEAST"))
+    every { find(BOSS) } returns species(BOSS, "boss", essence = null)
+  }
+
+  private val itemTemplates = mockk<ItemTemplateRegistry> {
+    every { identifierOf(CUT_AMETHYST) } returns "cut_amethyst"
+    every { identifierOf(CUT_RUBY) } returns "cut_ruby"
+  }
+
+  private val loss = mockk<PlayerBestiaLoss>(relaxed = true)
+
+  private val etching = BestiaEtching(catalogue, itemTemplates, structures, loss)
+
+  @Test
+  fun `an own Bestia at the table may be etched`() {
+    val boar = givenBestia(level = 6)
+
+    assertNull(etching.refusal(world, MASTER_ID, boar, CUT_AMETHYST))
+  }
+
+  @Test
+  fun `a Bestia below the gem's level is refused`() {
+    val boar = givenBestia(level = 40)
+
+    assertEquals(OpError.CRAFT_NOT_POSSIBLE, etching.refusal(world, MASTER_ID, boar, CUT_RUBY))
+  }
+
+  @Test
+  fun `another master's Bestia needs a commission`() {
+    val boar = givenBestia(level = 6, masterId = MASTER_ID + 1)
+
+    assertEquals(OpError.CRAFT_NOT_POSSIBLE, etching.refusal(world, MASTER_ID, boar, CUT_AMETHYST))
+  }
+
+  @Test
+  fun `a dead Bestia and a species without an essence are refused`() {
+    val dead = givenBestia(level = 6).also { world.add(it, Dead()) }
+    val boss = givenBestia(level = 6, speciesId = BOSS)
+
+    assertEquals(OpError.CRAFT_NOT_POSSIBLE, etching.refusal(world, MASTER_ID, dead, CUT_AMETHYST))
+    assertEquals(OpError.CRAFT_NOT_POSSIBLE, etching.refusal(world, MASTER_ID, boss, CUT_AMETHYST))
+  }
+
+  @Test
+  fun `a Bestia away from the table is told to come closer`() {
+    tableInReach = false
+    val boar = givenBestia(level = 6)
+
+    assertEquals(OpError.CRAFT_BESTIA_NOT_AT_TABLE, etching.refusal(world, MASTER_ID, boar, CUT_AMETHYST))
+  }
+
+  @Test
+  fun `binding takes the Bestia and answers its species in the gem's tier`() {
+    val boar = givenBestia(level = 45)
+
+    assertEquals(Essence(BOAR, GemTier.RUBY), etching.bind(world, boar, CUT_RUBY))
+    verify { loss.lose(world, boar) }
+  }
+
+  private fun givenBestia(level: Int, masterId: Long = MASTER_ID, speciesId: Long = BOAR): EntityId =
+    world.createEntity { id ->
+      add(id, OwnedBestia(masterId = masterId, playerBestiaId = 1L))
+      add(id, EntityVisual(VisualKind.BESTIA, speciesId))
+      add(id, Level(level))
+      add(id, Position(0, 0, 0))
+    }
+
+  private fun species(id: Long, identifier: String, essence: EssenceDefinition?): Bestia {
+    return Bestia(
+      id = id, identifier = identifier, levelMin = 1, levelMax = 1, experienceReward = 0, health = 1, mana = 1,
+      essence = essence
+    )
+  }
+
+  private companion object {
+    const val MASTER_ID = 42L
+    const val BOAR = 6L
+    const val BOSS = 99L
+    const val CUT_AMETHYST = 136L
+    const val CUT_RUBY = 138L
+  }
+}

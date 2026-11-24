@@ -1,5 +1,9 @@
 package net.bestia.zone.crafting
 
+import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.battle.ecs.level.Level
+import net.bestia.zone.item.essence.Essence
+import net.bestia.zone.item.essence.GemTier
 import net.bestia.zone.crafting.discovery.BlueprintPoints
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.ecs.status.CombatStats
@@ -92,6 +96,16 @@ class CraftingFixture(
   val itemTemplates = mockk<ItemTemplateRegistry>().also { templates ->
     every { templates.baseLevelOf(any()) } answers { itemLevels[firstArg<Long>()] ?: DEFAULT_ITEM_LEVEL }
     every { templates.templateOf(any()) } answers { stackableGear[firstArg<Long>()] }
+    every { templates.idOf("essence_gem") } returns ESSENCE_GEM_ITEM
+  }
+
+  /** What the Bestia side answers for every etching; null lets it go ahead. */
+  var etchingRefusal: OpError? = null
+
+  /** Binds whatever Bestia it is given into [ETCHED_ESSENCE], without the Bestia rules a test is not about. */
+  val etching = mockk<EssenceEtching>().also { etching ->
+    every { etching.refusal(any(), any(), any(), any()) } answers { etchingRefusal }
+    every { etching.bind(any(), any(), any()) } returns ETCHED_ESSENCE
   }
 
   /** Templates of stackable gear such as torches, by id. Every other item is plain gear to the service. */
@@ -141,6 +155,7 @@ class CraftingFixture(
       roller = ItemStatRoller(),
       worldService = worldService,
       crafters = Crafters(starterKit),
+      etching = etching,
       blueprintPoints = BlueprintPoints(),
       structureRegistry = structureRegistry,
       stationStates = mockk(relaxed = true),
@@ -206,6 +221,13 @@ class CraftingFixture(
     add(id, Position(0, 0, 0))
     add(id, Inventory(items.toMutableList()))
     add(id, CombatStats(CombatValues.ofBase(level = 1, base = StatusValues(0, 0, 0, 0, 0, dexterity))))
+  }
+
+  /** A Bestia of [masterId] at [level] for an etching, standing next to its master. */
+  fun givenEtchableBestia(level: Int, masterId: Long = MASTER_ID): EntityId = world.createEntity { id ->
+    add(id, OwnedBestia(masterId = masterId, playerBestiaId = PLAYER_BESTIA_ID))
+    add(id, Position(0, 0, 0))
+    add(id, Level(level))
   }
 
   fun inventoryOf(entityId: EntityId): Inventory = world.getOrThrow(entityId, Inventory::class)
@@ -290,6 +312,9 @@ class CraftingFixture(
     const val INPUT_ITEM = 8L
     const val OUTPUT_ITEM = 9L
     const val TARGET_ITEM = 19L
+    const val ESSENCE_GEM_ITEM = 141L
+    const val CUT_GEM_ITEM = 136L
+    val ETCHED_ESSENCE = Essence(bestiaId = 6, tier = GemTier.AMETHYST)
 
     /** Distinct from [OUTPUT_ITEM], so a plain craft is never mistaken for a mint. */
     const val COIN_ITEM_ID = 27L

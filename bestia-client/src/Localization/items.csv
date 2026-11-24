@@ -392,23 +392,23 @@ Gem Cutting turns the hardest stone there is into a cut diamond."
 CUT_AMETHYST,Cut Amethyst
 CUT_AMETHYST_DESC,"A faceted violet amethyst, clear and empty of any power of its own.
 
-Runic Etching binds an essence of a Bestia up to level 20 into it."
+Runic Etching binds the essence of a Bestia of any level into it."
 CUT_EMERALD,Cut Emerald
 CUT_EMERALD_DESC,"A faceted green emerald, clear and empty of any power of its own.
 
-Runic Etching binds an essence of a Bestia up to level 40 into it."
+Runic Etching binds the essence of a Bestia of level 21 or more into it."
 CUT_RUBY,Cut Ruby
 CUT_RUBY_DESC,"A faceted ruby, deep red and empty of any power of its own.
 
-Runic Etching binds an essence of a Bestia up to level 60 into it."
+Runic Etching binds the essence of a Bestia of level 41 or more into it."
 CUT_PYRELITH,Cut Pyrelith
 CUT_PYRELITH_DESC,"A faceted pyrelith, faintly warm and empty of any power of its own.
 
-Runic Etching binds an essence of a Bestia up to level 80 into it."
+Runic Etching binds the essence of a Bestia of level 61 or more into it."
 CUT_DIAMOND,Cut Diamond
 CUT_DIAMOND_DESC,"A faceted diamond, bright and empty of any power of its own.
 
-Runic Etching binds the essence of a Bestia of any level into it."
+Runic Etching binds the essence of a Bestia of level 81 or more into it."
 ESSENCE_GEM,Essence Gem
 ESSENCE_GEM_DESC,"A cut gem with the essence of a Bestia bound inside, glowing with the creature's power.
 

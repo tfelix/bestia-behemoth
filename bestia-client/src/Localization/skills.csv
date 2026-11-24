@@ -119,8 +119,9 @@ Level 1 enables you to place a Crystal Lathe
 `+4%/lv` success chance
 `+20 crystal lv/lv` max crystal level, 100+ at max rank"
 SKILL_18_DESC,"Binds the essence of a Bestia into a cut gem. The Essence Gem carries the power of the
-Bestia and fits into any socket. The rarer the gem, the higher the Bestia level it can hold.
-Converting a Bestia destroys it, and a failed etching shatters the gem too.
+Bestia and fits a socket of its slot group. The rarer the gem, the stronger the essence, and the
+higher the level the Bestia must have reached. Converting a Bestia destroys it, and a failed
+etching shatters only the gem.
 
 Level 1 enables you to place a Carving Table, the Bestia must stand next to it
 `+5%/lv` success chance

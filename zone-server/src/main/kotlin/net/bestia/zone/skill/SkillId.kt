@@ -49,6 +49,7 @@ enum class SkillId {
   M_MASTER_SMITH,
   M_COOKING,
   M_UPGRADE_EQUIPMENT,
+  M_RUNIC_ETCHING,
 
   // Weather: EnvironmentalExposureSystem widens the comfortable band with one, WeatherPublisher
   // buys forecast reach with the other.
