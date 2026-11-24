@@ -38,7 +38,12 @@ enum class EssenceEffect(val tool: ToolKind? = null) {
       context.addAccuracy(hit = sum.points, crit = sum.points / 3)
     }
   },
-  LEECH,
+  /** 0.4% a point, kept in per mille so a Ruby's 3.2% is not rounded away. */
+  LEECH {
+    override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
+      context.leechPermille += 4 * sum.points
+    }
+  },
   GIANT_SLAYER {
     override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
       context.addDamageDealt(2 * sum.points, boss = true)

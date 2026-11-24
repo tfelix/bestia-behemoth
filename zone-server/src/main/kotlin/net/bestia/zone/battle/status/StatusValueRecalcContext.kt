@@ -240,6 +240,9 @@ class StatusValueRecalcContext(
   /** Cannot be pushed back by a blow or a blast. A dash of its own still moves it. */
   var knockbackImmune: Boolean = false
 
+  /** Per mille of the damage this entity deals that comes back to it as HP. Set by a Leech essence. */
+  var leechPermille: Int = 0
+
   /** Percentage points on the catch chance of the traps this entity sets. Set by a Tamer essence. */
   var catchChancePoints: Int = 0
 
