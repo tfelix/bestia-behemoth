@@ -10,6 +10,7 @@ description: >-
 kind: INSECT
 element: EARTH
 size: SMALL
+essence: { group: SHIELD, effect: WARD, target: INSECT }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

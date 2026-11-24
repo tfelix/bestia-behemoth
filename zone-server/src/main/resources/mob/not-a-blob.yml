@@ -10,6 +10,7 @@ description: >-
 kind: FORMLESS
 element: GHOST_2
 size: SMALL
+essence: { group: GARMENT, effect: ELEMENT_VEIL, target: NORMAL }
 default-attack: RANGED
 aspd: 80
 ai: passive_wanderer

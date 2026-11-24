@@ -13,6 +13,7 @@ import net.bestia.zone.bestia.persistence.BestiaRepository
 import net.bestia.zone.bestia.persistence.BestiaSkill
 import net.bestia.zone.bestia.persistence.BestiaSkillRepository
 import net.bestia.zone.bestia.DefaultAttack
+import net.bestia.zone.item.essence.EssenceDefinition
 import net.bestia.zone.item.persistence.ItemRepository
 import net.bestia.zone.battle.gear.ArmorType
 import net.bestia.zone.item.equip.EquipmentSlot
@@ -124,7 +125,9 @@ class MobImporterBootRunner(
     @JsonProperty("temperature-min")
     val temperatureMin: Double? = null,
     @JsonProperty("temperature-max")
-    val temperatureMax: Double? = null
+    val temperatureMax: Double? = null,
+
+    val essence: EssenceDefinition? = null
   ) {
     init {
       require(levelMin >= 1 && levelMin <= levelMax) { "$identifier: level-min $levelMin and level-max $levelMax must satisfy 1 <= min <= max" }
@@ -201,7 +204,8 @@ class MobImporterBootRunner(
       nonCombatant = dto.nonCombatant,
       inCompendium = dto.compendium,
       temperatureMinCelsius = dto.temperatureMin,
-      temperatureMaxCelsius = dto.temperatureMax
+      temperatureMaxCelsius = dto.temperatureMax,
+      essence = dto.essence
     )
 
     createLootItem(bestia, dto)
@@ -270,7 +274,8 @@ class MobImporterBootRunner(
         entity.nonCombatant != dto.nonCombatant ||
         entity.inCompendium != dto.compendium ||
         entity.temperatureMinCelsius != dto.temperatureMin ||
-        entity.temperatureMaxCelsius != dto.temperatureMax
+        entity.temperatureMaxCelsius != dto.temperatureMax ||
+        entity.essence != dto.essence
 
     if (!changed) {
       return false
@@ -309,6 +314,7 @@ class MobImporterBootRunner(
     entity.inCompendium = dto.compendium
     entity.temperatureMinCelsius = dto.temperatureMin
     entity.temperatureMaxCelsius = dto.temperatureMax
+    entity.essence = dto.essence
 
     return true
   }

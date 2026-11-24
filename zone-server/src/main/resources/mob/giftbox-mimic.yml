@@ -9,6 +9,7 @@ description: >-
 kind: FORMLESS
 element: WATER_2
 size: SMALL
+essence: { group: ARMOR, effect: HARDY }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

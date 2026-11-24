@@ -10,6 +10,7 @@ description: >-
 kind: DEMON
 element: FIRE_2
 size: SMALL
+essence: { group: HEADGEAR, effect: FOCUS }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

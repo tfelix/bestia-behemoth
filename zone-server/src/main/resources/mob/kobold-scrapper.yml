@@ -9,6 +9,7 @@ description: >-
 kind: HUMANOID
 element: NORMAL
 size: SMALL
+essence: { group: TOOL, effect: MINING_SPEED }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

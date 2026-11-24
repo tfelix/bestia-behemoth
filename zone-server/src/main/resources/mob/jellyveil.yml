@@ -10,6 +10,7 @@ description: >-
 kind: AQUATIC
 element: WATER_2
 size: MEDIUM
+essence: { group: GARMENT, effect: ELEMENT_VEIL, target: WATER }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

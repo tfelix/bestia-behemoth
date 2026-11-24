@@ -9,6 +9,7 @@ description: >-
 kind: UNDEAD
 element: UNDEAD_2
 size: MEDIUM
+essence: { group: ACCESSORY, effect: ATTRIBUTE_PAIR, target: STR_VIT }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

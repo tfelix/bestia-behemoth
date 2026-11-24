@@ -10,6 +10,7 @@ description: >-
 kind: BEAST
 element: EARTH_2
 size: BIG
+essence: { group: ARMOR, effect: HARDY }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

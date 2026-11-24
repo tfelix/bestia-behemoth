@@ -9,6 +9,7 @@ description: >-
 kind: BEAST
 element: FIRE_2
 size: MEDIUM
+essence: { group: WEAPON, effect: RIDER, target: BURNING }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

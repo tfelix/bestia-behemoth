@@ -24,3 +24,7 @@ loot_item_ids = PackedInt32Array(99, 53)
 loot_chances = PackedInt32Array(2000, 1500)
 size = "MEDIUM"
 weight_kg = 60
+essence_group = "HEADGEAR"
+essence_effect = "WISDOM"
+essence_target = ""
+essence_drawback = ""

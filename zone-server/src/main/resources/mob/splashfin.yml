@@ -10,6 +10,7 @@ description: >-
 kind: AQUATIC
 element: WATER
 size: SMALL
+essence: { group: TOOL, effect: FASTER_BITE }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

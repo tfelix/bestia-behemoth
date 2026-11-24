@@ -24,3 +24,7 @@ loot_item_ids = PackedInt32Array(93, 102, 226)
 loot_chances = PackedInt32Array(2000, 1000, 1200)
 size = "BIG"
 weight_kg = 250
+essence_group = "FOOTGEAR"
+essence_effect = "DEEP_POOLS"
+essence_target = ""
+essence_drawback = ""

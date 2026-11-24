@@ -9,6 +9,7 @@ description: >-
 kind: FORMLESS
 element: GHOST_4
 size: BIG
+essence: { group: GARMENT, effect: MIST_VEIL, drawback: DEF }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

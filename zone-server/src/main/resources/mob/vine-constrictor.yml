@@ -10,6 +10,7 @@ description: >-
 kind: REPTILE
 element: EARTH_3
 size: BIG
+essence: { group: WEAPON, effect: RIDER, target: SLOWED }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

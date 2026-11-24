@@ -10,6 +10,7 @@ description: >-
 kind: BEAST
 element: SHADOW_3
 size: MEDIUM
+essence: { group: WEAPON, effect: PRECISION }
 default-attack: RANGED
 aspd: 80
 ai: aggressive_melee

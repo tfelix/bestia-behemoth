@@ -9,6 +9,7 @@ description: >-
 kind: INSECT
 element: WIND
 size: SMALL
+essence: { group: ACCESSORY, effect: QUICK_HANDS }
 default-attack: RANGED
 aspd: 80
 ai: aggressive_melee

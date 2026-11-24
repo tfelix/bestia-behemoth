@@ -24,3 +24,7 @@ loot_item_ids = PackedInt32Array(95, 30, 43)
 loot_chances = PackedInt32Array(1500, 1500, 800)
 size = "SMALL"
 weight_kg = 15
+essence_group = "ACCESSORY"
+essence_effect = "QUIET_STEP"
+essence_target = ""
+essence_drawback = ""

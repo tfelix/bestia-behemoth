@@ -10,6 +10,7 @@ description: >-
 kind: ELEMENTAL
 element: WATER_2
 size: MEDIUM
+essence: { group: ARMOR, effect: ELEMENT_BODY, target: WATER }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

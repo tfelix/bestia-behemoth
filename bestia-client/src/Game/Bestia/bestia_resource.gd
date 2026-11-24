@@ -6,7 +6,8 @@ class_name BestiaResource
 ## Generated/kept in sync from zone-server's mob YMLs by './gradlew syncBestiaDb', which owns [member
 ## bestia_id], the two text keys, [member kind], [member equip_slots], [member armor_types], [member
 ## non_combatant], [member habitat], [member in_compendium], [member aggressive], [member level_min], [member
-## level_max], [member size], [member weight_kg], [member loot_item_ids] and [member loot_chances]. The English text behind the keys is synced
+## level_max], [member size], [member weight_kg], [member loot_item_ids], [member loot_chances] and the four
+## [code]essence_*[/code] fields. The English text behind the keys is synced
 ## into Localization/bestias.csv, where it is translated. Anything else here is pure presentation with no
 ## server equivalent and is hand-authored.
 
@@ -76,6 +77,13 @@ enum PlaceholderShape { SPHERE, CAPSULE, BOX, CYLINDER, PRISM, TORUS }
 ## [member loot_chances][i] out of 10000. Read both through [DropFinder].
 @export var loot_item_ids: PackedInt32Array = PackedInt32Array()
 @export var loot_chances: PackedInt32Array = PackedInt32Array()
+
+## What Runic Etching binds out of this species, as the server's names: the slot group, the effect, what the effect
+## aims at, and the drawback. All empty for a species without an essence. Read them through [EssenceText].
+@export var essence_group: String = ""
+@export var essence_effect: String = ""
+@export var essence_target: String = ""
+@export var essence_drawback: String = ""
 
 ## The hand-drawn picture in the Bestia Compendium. Read it through [method get_portrait]. Kept as
 ## DB/<bestia_id>_<identifier>.png, the name the companion app finds it by.

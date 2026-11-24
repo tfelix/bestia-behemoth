@@ -9,6 +9,7 @@ description: >-
 kind: AQUATIC
 element: POISON_2
 size: MEDIUM
+essence: { group: HEADGEAR, effect: WISDOM }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

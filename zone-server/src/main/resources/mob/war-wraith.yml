@@ -10,6 +10,7 @@ description: >-
 kind: UNDEAD
 element: GHOST_4
 size: BIG
+essence: { group: GARMENT, effect: ELEMENT_VEIL, target: NORMAL, drawback: MAX_MANA }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

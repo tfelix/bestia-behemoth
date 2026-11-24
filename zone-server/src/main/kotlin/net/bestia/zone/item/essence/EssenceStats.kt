@@ -1,0 +1,28 @@
+package net.bestia.zone.item.essence
+
+import net.bestia.zone.battle.status.StatusValueRecalcContext
+import net.bestia.zone.bestia.BestiaCatalogue
+import net.bestia.zone.item.ecs.Equipment
+import org.springframework.stereotype.Component
+
+/** What the essences in worn gear add to their wearer. */
+@Component
+class EssenceStats(private val species: BestiaCatalogue) {
+
+  /** Sums each effect over all worn essences first, because a cap like Swift's holds for the sum, not per gem. */
+  fun applyTo(context: StatusValueRecalcContext, worn: Collection<Equipment.EquippedItem>) {
+    val defined = worn.flatMap { it.essences }.mapNotNull { essence ->
+      species.find(essence.bestiaId)?.essence?.let { it to essence.tier }
+    }
+
+    defined.groupBy { (definition, _) -> definition.effect to definition.target }
+      .forEach { (effectAndTarget, essences) ->
+        val (effect, target) = effectAndTarget
+        val points = essences.sumOf { (definition, tier) -> definition.pointsIn(tier) }
+        val hasDiamond = essences.any { (_, tier) -> tier == GemTier.DIAMOND }
+        effect.apply(context, EssenceSum(target, points, hasDiamond))
+      }
+
+    defined.mapNotNull { (definition, _) -> definition.drawback }.forEach { it.applyTo(context) }
+  }
+}

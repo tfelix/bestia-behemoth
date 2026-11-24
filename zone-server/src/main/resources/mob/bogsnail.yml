@@ -9,6 +9,7 @@ description: >-
 kind: AQUATIC
 element: POISON
 size: SMALL
+essence: { group: ARMOR, effect: ELEMENT_SKIN, target: POISON }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

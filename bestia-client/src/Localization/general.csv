@@ -350,6 +350,53 @@ GEM_TIER_EMERALD,Emerald
 GEM_TIER_RUBY,Ruby
 GEM_TIER_PYRELITH,Pyrelith
 GEM_TIER_DIAMOND,Diamond
+ESSENCE_BANE,+{value}% damage against {target}
+ESSENCE_ELEMENT_HUNTER,+{value}% damage against {target}
+ESSENCE_RIDER,{value}% chance on hit to inflict {target}
+ESSENCE_PRECISION,"+{value} HIT, +{crit} CRIT"
+ESSENCE_LEECH,{value}% of the damage dealt comes back as HP
+ESSENCE_GIANT_SLAYER,+{value}% damage against bosses
+ESSENCE_WARD,-{value}% damage taken from {target}
+ESSENCE_ARROW_WARD,-{value}% damage taken from ranged attacks
+ESSENCE_STEADFAST,"Cannot be knocked back, +{value} VIT"
+ESSENCE_ELEMENT_SKIN,+{value}% {target} resistance
+ESSENCE_ELEMENT_BODY,"Your element becomes {target}, +{value}% max HP"
+ESSENCE_HARDY,+{value}% max HP
+ESSENCE_COATED,"This item cannot be stripped, +{value}% DEF"
+ESSENCE_MIST_VEIL,-{value}% magic damage taken
+ESSENCE_ELEMENT_VEIL,+{value}% {target} resistance
+ESSENCE_WHISPER,+{value} FLEE
+ESSENCE_SWIFT,+{value}% move speed
+ESSENCE_LONG_STRIDE,+{value}% stamina recovery
+ESSENCE_DEEP_POOLS,+{value}% max HP and max mana
+ESSENCE_CLEAR_MIND,+{value}% resistance against {target}
+ESSENCE_FOCUS,-{value}% cast time
+ESSENCE_WISDOM,+{value}% mana recovery
+ESSENCE_ATTRIBUTE_PAIR,"+{value} {first}, +{value2} {second}"
+ESSENCE_QUICK_HANDS,+{value}% attack speed
+ESSENCE_LEARNED_TRICK,"Casts {target}, up to level {value}"
+ESSENCE_QUIET_STEP,Wild Bestias notice you {value}% later
+ESSENCE_TAMER,+{value} catch chance
+ESSENCE_REFLEX,{value}% chance when struck to cast {target}
+ESSENCE_MINING_SPEED,-{value}% time per swing of the pickaxe
+ESSENCE_FELLING_SPEED,+{value}% felling damage
+ESSENCE_DIGGING_SPEED,-{value}% time per metre dug
+ESSENCE_FASTER_BITE,-{value}% waiting time for a bite
+ESSENCE_RICH_SEAM,"+{value}% chance of a second piece, never gold"
+ESSENCE_TOUGH_GRIP,-{value}% tool wear
+ESSENCE_DRAWBACK_MOVE_SPEED,-10% move speed
+ESSENCE_DRAWBACK_DEF,-10% DEF
+ESSENCE_DRAWBACK_HIT,-10 HIT
+ESSENCE_DRAWBACK_MAX_MANA,-10% max mana
+ESSENCE_STATUS_STUN,Stun
+ESSENCE_STATUS_FROZEN,Frozen
+ESSENCE_STATUS_SLOWED,Slowed
+ESSENCE_STATUS_CONFUSED,Confusion
+ESSENCE_STATUS_FEARED,Fear
+ESSENCE_STATUS_BLIND,Blind
+ESSENCE_STATUS_POISON,Poison
+ESSENCE_STATUS_BLEEDING,Bleeding
+ESSENCE_STATUS_BURNING,Burning
 ITEM_DETAIL_DURABILITY,Durability
 ITEM_DETAIL_BROKEN,Broken
 ITEM_DETAIL_LIGHT_LEFT,Light left
@@ -1067,6 +1114,12 @@ ELEMENT_FIRE,Fire
 ELEMENT_WATER,Water
 ELEMENT_WIND,Wind
 ELEMENT_EARTH,Earth
+ELEMENT_NORMAL,Neutral
+ELEMENT_POISON,Poison
+ELEMENT_HOLY,Holy
+ELEMENT_SHADOW,Shadow
+ELEMENT_GHOST,Ghost
+ELEMENT_UNDEAD,Undead
 SKILLS_TITLE,Skills
 SKILLS_TAB_OTHER,Other
 SKILLS_TAB_COPIED,Copied

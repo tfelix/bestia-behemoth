@@ -10,6 +10,7 @@ description: >-
 kind: REPTILE
 element: WATER_2
 size: MEDIUM
+essence: { group: ARMOR, effect: COATED }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

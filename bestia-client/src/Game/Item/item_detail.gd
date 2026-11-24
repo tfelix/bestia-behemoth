@@ -66,10 +66,10 @@ static func as_bbcode(
 	if slots > 0:
 		lines.append(_translate("ITEM_SOCKETS").format({"rings": sockets_line(slots, essences.size())}))
 		for essence in essences:
-			lines.append("%s %s" % [FILLED_SOCKET, essence_name(essence)])
+			lines.append("%s %s" % [FILLED_SOCKET, essence_line(essence)])
 
 	if held_essence != null:
-		lines.append(_translate("ITEM_HOLDS_ESSENCE").format({"essence": essence_name(held_essence)}))
+		lines.append(_translate("ITEM_HOLDS_ESSENCE").format({"essence": essence_line(held_essence)}))
 
 	var material_axes := CraftAxes.describe(item.item_id)
 	if not material_axes.is_empty():
@@ -94,11 +94,14 @@ static func sockets_line(slots: int, filled: int = 0) -> String:
 	return " ".join(rings)
 
 
-## "Burrow Boar · Ruby" for an [code]ItemEssence[/code]: the species sets the effect, the gem its strength.
-static func essence_name(essence) -> String:
+## "Burrow Boar · Ruby: +24% damage against Beast" for an [code]ItemEssence[/code].
+static func essence_line(essence) -> String:
 	var bestia := BestiaDB.get_instance().get_bestia(int(essence.BestiaId))
 	var species := _translate(bestia.name_key) if bestia != null else str(essence.BestiaId)
-	return _translate("ITEM_ESSENCE").format({"bestia": species, "gem": _translate("GEM_TIER_" + str(essence.Tier))})
+	var tier := str(essence.Tier)
+	var name := _translate("ITEM_ESSENCE").format({"bestia": species, "gem": _translate("GEM_TIER_" + tier)})
+	var effect := EssenceText.describe(bestia, tier)
+	return name if effect.is_empty() else "%s: %s" % [name, effect]
 
 
 ## The prose from [code]items.csv[/code], or nothing for an item that has none.

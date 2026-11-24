@@ -9,6 +9,7 @@ description: >-
 kind: PLANT
 element: FIRE_2
 size: SMALL
+essence: { group: HEADGEAR, effect: CLEAR_MIND, target: BLIND }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

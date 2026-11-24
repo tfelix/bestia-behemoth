@@ -3,6 +3,7 @@ package net.bestia.zone.battle.ecs.effects
 import net.bestia.zone.item.ecs.itemTemplatesOf
 import net.bestia.zone.battle.status.CombatValuesPool
 import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.item.essence.essenceStatsOf
 import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.battle.passive.PassiveSkillScript
 import net.bestia.zone.battle.passive.PassiveSkillScriptRegistry
@@ -207,7 +208,7 @@ class StatusEffectSystemsIntegrationTest {
         StatusValueRecalcSystem(
           definitionRegistry,
           scriptRegistry,
-          EquipmentStatusContributor(equipmentScriptRegistry, ItemStatCatalog(), itemTemplatesOf()),
+          EquipmentStatusContributor(equipmentScriptRegistry, ItemStatCatalog(), itemTemplatesOf(), essenceStatsOf()),
           passiveSkillScriptRegistry,
           conditionValueCalculator,
           combatValuesPool

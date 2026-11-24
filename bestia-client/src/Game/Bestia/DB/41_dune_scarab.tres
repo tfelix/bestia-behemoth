@@ -24,3 +24,7 @@ loot_item_ids = PackedInt32Array(96, 43)
 loot_chances = PackedInt32Array(3000, 1500)
 size = "SMALL"
 weight_kg = 15
+essence_group = "TOOL"
+essence_effect = "DIGGING_SPEED"
+essence_target = ""
+essence_drawback = ""

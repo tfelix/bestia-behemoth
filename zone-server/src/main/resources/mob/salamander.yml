@@ -10,6 +10,7 @@ description: >-
 kind: ELEMENTAL
 element: FIRE_4
 size: MEDIUM
+essence: { group: HEADGEAR, effect: WISDOM }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

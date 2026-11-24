@@ -24,3 +24,7 @@ loot_item_ids = PackedInt32Array(97, 96, 1)
 loot_chances = PackedInt32Array(1500, 1000, 1000)
 size = "SMALL"
 weight_kg = 15
+essence_group = "SHIELD"
+essence_effect = "WARD"
+essence_target = "INSECT"
+essence_drawback = ""

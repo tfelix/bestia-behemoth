@@ -24,3 +24,7 @@ loot_item_ids = PackedInt32Array(107, 110, 104)
 loot_chances = PackedInt32Array(4000, 1500, 300)
 size = "BIG"
 weight_kg = 250
+essence_group = "GARMENT"
+essence_effect = "ELEMENT_VEIL"
+essence_target = "NORMAL"
+essence_drawback = "MAX_MANA"

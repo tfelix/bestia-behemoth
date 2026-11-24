@@ -24,3 +24,7 @@ loot_item_ids = PackedInt32Array(94, 95, 6)
 loot_chances = PackedInt32Array(2000, 2000, 600)
 size = "BIG"
 weight_kg = 250
+essence_group = "ACCESSORY"
+essence_effect = "LEARNED_TRICK"
+essence_target = "benediction"
+essence_drawback = ""

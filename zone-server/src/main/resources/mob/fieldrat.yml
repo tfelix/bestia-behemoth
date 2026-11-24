@@ -10,6 +10,7 @@ description: >-
 kind: BEAST
 element: NORMAL
 size: SMALL
+essence: { group: ACCESSORY, effect: QUIET_STEP }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

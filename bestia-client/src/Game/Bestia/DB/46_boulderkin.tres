@@ -24,3 +24,7 @@ loot_item_ids = PackedInt32Array(62, 8, 629, 76)
 loot_chances = PackedInt32Array(4000, 2000, 800, 500)
 size = "BIG"
 weight_kg = 250
+essence_group = "SHIELD"
+essence_effect = "STEADFAST"
+essence_target = ""
+essence_drawback = "MOVE_SPEED"

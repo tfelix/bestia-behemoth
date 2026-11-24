@@ -10,6 +10,7 @@ description: >-
 kind: BEAST
 element: WIND_3
 size: BIG
+essence: { group: TOOL, effect: FELLING_SPEED }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

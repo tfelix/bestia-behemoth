@@ -10,6 +10,7 @@ description: >-
 kind: PLANT
 element: EARTH_3
 size: MEDIUM
+essence: { group: SHIELD, effect: ARROW_WARD }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

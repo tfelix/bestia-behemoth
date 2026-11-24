@@ -24,3 +24,7 @@ loot_item_ids = PackedInt32Array(57, 66, 94)
 loot_chances = PackedInt32Array(3000, 2000, 1500)
 size = "BIG"
 weight_kg = 250
+essence_group = "ARMOR"
+essence_effect = "HARDY"
+essence_target = ""
+essence_drawback = ""

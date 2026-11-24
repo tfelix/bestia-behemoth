@@ -9,6 +9,7 @@ description: >-
 kind: ELEMENTAL
 element: EARTH
 size: SMALL
+essence: { group: TOOL, effect: RICH_SEAM }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

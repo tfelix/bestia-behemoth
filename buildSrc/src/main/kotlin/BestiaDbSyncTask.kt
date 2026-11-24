@@ -25,7 +25,7 @@ import java.io.File
  * `bestia` table. Today that is which equipment slots and armor types a species has, so the UI can grey
  * out the rest, whether it is a non-combatant, so a click can mean talking rather than swinging, its kind, and
  * what the Bestia Compendium shows: its habitat, its level range, its body size and weight, its loot and whether
- * it is listed at all.
+ * it is listed at all, and what its essence does in a socket.
  *
  * Loot names items by identifier, the client by id, so this task also reads `items.yml` to translate. A loot
  * chance stays in the server's fixed point (10000 is 100%).
@@ -96,7 +96,8 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     val size: String = "MEDIUM",
     /** Body weight in kilograms. Absent (0) means the default [bodyWeightKg] derives. */
     val weight: Int = 0,
-    val boss: Boolean = false
+    val boss: Boolean = false,
+    val essence: EssenceDto? = null
   ) {
     /**
      * The weight a player is shown: the YML's own, or else the documented default from the size (15 kg SMALL,
@@ -149,6 +150,14 @@ abstract class BestiaDbSyncTask : DefaultTask() {
    * Written even when the value matches `BestiaResource`'s own default, so "absent" is always drift
    * rather than sometimes meaning agreement.
    */
+  /** What Runic Etching binds out of the species, so a tooltip can say what an essence gem does. */
+  private data class EssenceDto(
+    val group: String,
+    val effect: String,
+    val target: String? = null,
+    val drawback: String? = null
+  )
+
   private fun exportedFields(
     mob: MobDto,
     profiles: Map<String, AiProfileDto>,
@@ -168,7 +177,11 @@ abstract class BestiaDbSyncTask : DefaultTask() {
     "loot_item_ids" to packedInts(mob.loot.map { itemIdOf(it, mob, itemIds) }),
     "loot_chances" to packedInts(mob.loot.map { it.chance.toLong() }),
     "size" to quoted(mob.size.uppercase()),
-    "weight_kg" to mob.bodyWeightKg.toString()
+    "weight_kg" to mob.bodyWeightKg.toString(),
+    "essence_group" to quoted(mob.essence?.group.orEmpty()),
+    "essence_effect" to quoted(mob.essence?.effect.orEmpty()),
+    "essence_target" to quoted(mob.essence?.target.orEmpty()),
+    "essence_drawback" to quoted(mob.essence?.drawback.orEmpty())
   )
 
   private fun itemIdOf(loot: LootDto, mob: MobDto, itemIds: Map<String, Long>): Long =
