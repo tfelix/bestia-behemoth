@@ -18,7 +18,10 @@ data class CraftItemCMSG(
   val targetUniqueId: Long,
 
   /** How many to make one after another. */
-  val amount: Int = 1
+  val amount: Int = 1,
+
+  /** For Runic Etching on a Bestia in storage, its player bestia id; [targetUniqueId] is 0 then. */
+  val storedBestiaId: Long = 0,
 ) : CMSG {
   companion object {
     fun fromBnet(accountId: Long, craftItem: CraftItemCmsgProto.CraftItemCMSG): CraftItemCMSG =
@@ -26,7 +29,8 @@ data class CraftItemCMSG(
         playerId = accountId,
         recipeId = craftItem.recipeId,
         targetUniqueId = craftItem.targetUniqueId,
-        amount = craftItem.amount.coerceAtLeast(1)
+        amount = craftItem.amount.coerceAtLeast(1),
+        storedBestiaId = craftItem.storedBestiaId
       )
   }
 }

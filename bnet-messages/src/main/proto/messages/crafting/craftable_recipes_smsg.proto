@@ -35,6 +35,9 @@ message CraftableRecipesSMSG {
 
   // Other masters' Bestias offered for etching at this Carving Table. Empty at every other station.
   repeated EtchingOffer etching_offers = 6;
+
+  // The crafter's own Bestias in storage, at a Carving Table and with storage access. Empty otherwise.
+  repeated StoredEtchable stored_bestias = 7;
 }
 
 message EtchingOffer {
@@ -42,6 +45,14 @@ message EtchingOffer {
   uint32 mob_id = 2;
   uint32 level = 3;
   string owner_name = 4;
+}
+
+message StoredEtchable {
+  uint64 player_bestia_id = 1;
+  uint32 mob_id = 2;
+  uint32 level = 3;
+  // The name its master gave it, or empty.
+  string name = 4;
 }
 
 message CraftableRecipe {

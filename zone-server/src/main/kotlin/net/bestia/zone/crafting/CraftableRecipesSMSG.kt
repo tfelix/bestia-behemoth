@@ -32,7 +32,10 @@ data class CraftableRecipesSMSG(
   val fuelSeconds: Long = 0,
 
   /** Other masters' Bestias offered at this Carving Table, for the etching picker. */
-  val etchingOffers: List<EtchingOffer> = emptyList()
+  val etchingOffers: List<EtchingOffer> = emptyList(),
+
+  /** The crafter's own Bestias in storage, for the etching picker. */
+  val storedBestias: List<StoredEtchable> = emptyList(),
 ) : SMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -74,6 +77,16 @@ data class CraftableRecipesSMSG(
             .setMobId(offer.speciesId.toInt())
             .setLevel(offer.level)
             .setOwnerName(offer.ownerName)
+            .build()
+        }
+      )
+      .addAllStoredBestias(
+        storedBestias.map { stored ->
+          CraftableRecipesSmsgProto.StoredEtchable.newBuilder()
+            .setPlayerBestiaId(stored.playerBestiaId)
+            .setMobId(stored.speciesId.toInt())
+            .setLevel(stored.level)
+            .setName(stored.name.orEmpty())
             .build()
         }
       )
