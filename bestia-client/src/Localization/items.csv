@@ -1641,3 +1641,11 @@ CARVING_TABLE_KIT,Carving Table Kit
 CARVING_TABLE_KIT_DESC,"A heavy folding table with vices, fine gravers and a shaded lamp.
 
 Set it down and it becomes a Carving Table, where Runic Etching binds a Bestia into a cut gem."
+WEAPON_REPAIR_KIT,Weapon Repair Kit
+WEAPON_REPAIR_KIT_DESC,"A leather roll with a whetstone, a small hammer, rivets and a strip of iron to patch a blade.
+
+Use it on a damaged weapon, held or worn, to restore its full durability."
+ARMOR_REPAIR_KIT,Armor Repair Kit
+ARMOR_REPAIR_KIT_DESC,"A leather roll with iron plates, rivets, a punch and spare straps to patch a suit of armour.
+
+Use it on damaged armour, held or worn, to restore its full durability."

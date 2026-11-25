@@ -377,6 +377,14 @@ TOOL_KIND_FELLING,hatchet
 TOOL_KIND_DIGGING,shovel
 TOOL_KIND_FISHING,fishing rod
 ESSENCE_SOCKET_WARNING,"Once the gem is socketed, it cannot be removed anymore."
+REPAIR_KIT_TITLE,Mend an item
+REPAIR_KIT_CONFIRM,Mend it
+REPAIR_KIT_MENDS_WEAPON,Restores the full durability of one weapon.
+REPAIR_KIT_MENDS_ARMOR,Restores the full durability of one piece of armor.
+REPAIR_KIT_NONE_WEAPON,You hold or wear no weapon that can be mended.
+REPAIR_KIT_NONE_ARMOR,You hold or wear no armor that can be mended.
+REPAIR_KIT_UNDAMAGED,undamaged
+REPAIR_KIT_WORN,worn
 SOCKET_GROUP_WEAPON,Weapon
 SOCKET_GROUP_SHIELD,Shield
 SOCKET_GROUP_ARMOR,Armor

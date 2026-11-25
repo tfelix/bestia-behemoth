@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://Game/Item/DB/642_armor_repair_kit.png" id="2_icon"]
+[ext_resource type="Script" path="res://Game/Item/UseScripts/repair_kit_use.gd" id="3_kit_use"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 642
+name_key = "ARMOR_REPAIR_KIT"
+description_key = "ARMOR_REPAIR_KIT_DESC"
+weight = 500
+icon = ExtResource("2_icon")
+item_script = ExtResource("3_kit_use")
+type = 0
