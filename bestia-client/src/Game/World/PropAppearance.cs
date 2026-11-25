@@ -883,7 +883,14 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 1.8f, PlaceholderColour = new Color(0.55f, 0.85f, 0.70f), StructureHeight = 0.3f,
         PlaceholderGlow = 0.45f
-      } // OMEN_FUNGUS_RING
+      }, // OMEN_FUNGUS_RING
+
+      // The gate of an open rift: a tall violet crystal of light until it has a model.
+      new Kind
+      {
+        PlaceholderWidth = 3.0f, PlaceholderColour = new Color(0.55f, 0.35f, 1.0f), StructureHeight = 8f,
+        Shape = PlaceholderShape.Crystal, PlaceholderGlow = 1.2f
+      } // RIFT_GATE
     };
 
     /// <summary>
