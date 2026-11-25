@@ -10,6 +10,7 @@ description: >-
 kind: UNDEAD
 element: UNDEAD_4
 size: MEDIUM
+essence: { group: HEADGEAR, effect: BOSS, target: CAPTAINS_ORDERS }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

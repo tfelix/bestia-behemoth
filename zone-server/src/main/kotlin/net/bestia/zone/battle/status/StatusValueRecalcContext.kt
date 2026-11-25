@@ -243,6 +243,9 @@ class StatusValueRecalcContext(
   /** Shrugs off every harmful status effect, not just the ones in [statusImmunities]. */
   var immuneToDebuffs: Boolean = false
 
+  /** What the boss essences worn here give to those around. */
+  var essenceAuras: Set<EssenceAura> = emptySet()
+
   /** Attacks a boss essence casts by itself when its wearer strikes or is struck. */
   var essenceCasts: List<EssenceCast> = emptyList()
 

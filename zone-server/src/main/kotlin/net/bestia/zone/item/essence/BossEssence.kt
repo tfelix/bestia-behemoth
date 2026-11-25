@@ -3,6 +3,7 @@ package net.bestia.zone.item.essence
 import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.damage.HitForm
+import net.bestia.zone.battle.status.EssenceAura
 import net.bestia.zone.battle.status.EssenceCast
 import net.bestia.zone.battle.status.EssenceCast.Spot
 import net.bestia.zone.battle.status.EssenceCast.Trigger
@@ -90,6 +91,26 @@ enum class BossEssence(val group: SocketGroup) {
   FRESH_VENT(SocketGroup.SHIELD) {
     override fun apply(context: StatusValueRecalcContext) {
       context.essenceCasts += EssenceCast("burning_ground", chancePercent = 10, Trigger.STRUCK_IN_MELEE, Spot.FOE)
+    }
+  },
+  ROYAL_SWARM(SocketGroup.ACCESSORY) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.essenceAuras += EssenceAura.ROYAL_SWARM
+    }
+  },
+  CAPTAINS_ORDERS(SocketGroup.HEADGEAR) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.essenceAuras += EssenceAura.CAPTAINS_ORDERS
+    }
+  },
+  BUDDING_BROOD(SocketGroup.ACCESSORY) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.essenceAuras += EssenceAura.BUDDING_BROOD
+    }
+  },
+  STENCH(SocketGroup.GARMENT) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.essenceAuras += EssenceAura.STENCH
     }
   };
 

@@ -919,3 +919,19 @@ statusEffects:
     isSyncedToClient: true
     dispellable: false
     script: Unruly
+  # Near a master who wears a boss essence with an aura, kept up by EssenceAuraSystem every second.
+  - id: 300
+    identifier: ROYAL_SWARM
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    dispellable: false
+    script: RoyalSwarm
+
+  - id: 301
+    identifier: CAPTAINS_ORDERS
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    dispellable: false
+    script: CaptainsOrders
