@@ -31,3 +31,7 @@ rumours:
   RIFT_OPENED: { variants: 2, slots: [] }
   RIFT_SEALED: { variants: 2, slots: [] }
   RIFT_COLLAPSED: { variants: 2, slots: [] }
+  # The rare bestia as a token: its RARE_HINT_<ID> row for the hint, its species name for a sighting. See
+  # rare_bestia.yml.
+  RARE_BESTIA_HINT: { variants: 2, slots: [rare] }
+  RARE_BESTIA_SEEN: { variants: 2, slots: [rare] }

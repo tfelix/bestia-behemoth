@@ -687,6 +687,15 @@ RUMOUR_RIFT_SEALED_2,"The rift is closed. Whoever did it, the town owes them. Th
 RUMOUR_RIFT_COLLAPSED_ASK,What happened out there?
 RUMOUR_RIFT_COLLAPSED_1,"The rift broke. Everything it swallowed came pouring out at once. Nothing grows right there now."
 RUMOUR_RIFT_COLLAPSED_2,"Nobody closed the rift in time. The storms have not stopped since it fell in on itself."
+RUMOUR_RARE_BESTIA_HINT_ASK,Are there any strange beasts around here?
+RUMOUR_RARE_BESTIA_HINT_1,"Old hunters say {rare}. I have never seen it myself."
+RUMOUR_RARE_BESTIA_HINT_2,"My grandmother swore by it: {rare}. Nobody believed her until a trapper brought home the proof."
+RUMOUR_RARE_BESTIA_SEEN_ASK,Has anyone seen something unusual today?
+RUMOUR_RARE_BESTIA_SEEN_1,"Someone saw a {rare} out there today! It will not stay long. They never do."
+RUMOUR_RARE_BESTIA_SEEN_2,"A {rare}, they say, not an hour's walk from here. If you hurry, you might catch it."
+RARE_HINT_STORM_HERON,a grey heron as tall as a man comes down to the marshes when a storm breaks at dusk
+RARE_HINT_SILVER_HART,a white stag walks the old forests on a clear night when the moon is full
+RARE_HINT_WHITEVEIL_LYNX,"a great pale lynx hunts inside the falling snow, on winter nights without a moon"
 RUMOUR_MISDEED_SEEN_ASK,Is there anybody I should watch out for?
 RUMOUR_MISDEED_SEEN_1,"{name}. They did something terrible in a town not far from here, and people there will not forget it."
 RUMOUR_MISDEED_SEEN_2,"Word came from down the road: keep away from {name}. Folk there saw what they did."

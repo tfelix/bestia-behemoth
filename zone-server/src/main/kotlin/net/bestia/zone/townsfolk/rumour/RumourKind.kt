@@ -43,4 +43,10 @@ enum class RumourKind(
 
   /** A rift nobody sealed collapsed and poured its mana over the land. */
   RIFT_COLLAPSED(baseImportance = 85, lifetimeDays = 40),
+
+  /** Old talk of a rare bestia that lives near here and when it comes. Posted by `RareBestiaHints`. */
+  RARE_BESTIA_HINT(baseImportance = 25, lifetimeDays = 8),
+
+  /** Someone saw a rare bestia nearby, just now. */
+  RARE_BESTIA_SEEN(baseImportance = 55, lifetimeDays = 2),
 }

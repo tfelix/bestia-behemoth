@@ -38,14 +38,14 @@ class WorldEventDirectorTest {
   }
 
   /** Never fits, so only the apex is ever picked here. */
-  private class NoRift : WorldEvent {
-    override val script = "Rift"
+  private class NeverFits(override val script: String) : WorldEvent {
     override fun fits(signals: ProvinceSignals) = false
     override fun start(signals: ProvinceSignals) = null
   }
 
   private val apex = FakeApex()
-  private val catalogue = WorldEventCatalogue(listOf(apex, NoRift())).also { it.load() }
+  private val catalogue =
+    WorldEventCatalogue(listOf(apex, NeverFits("Rift"), NeverFits("RareBestia"))).also { it.load() }
 
   private val wild = province(0)
   private val sanctuary = province(1)

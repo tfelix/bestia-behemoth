@@ -38,3 +38,15 @@ events:
     felt-from: 3
     loot:
       - { item: mana_crystal, amount: 30 }
+
+  # A named bestia whose land lies in the province while its sky holds: see rare_bestia.yml. It roams near where
+  # it came down and leaves when the sky moves on; killing it ends the event. Not drawn by mana at all.
+  - id: rare-bestia
+    script: RareBestia
+    cost: 1
+    weight: 1
+    cooldown: 3
+    lasts: 0.5
+    family: beasts
+    loot:
+      - { item: mana_crystal, amount: 3 }
