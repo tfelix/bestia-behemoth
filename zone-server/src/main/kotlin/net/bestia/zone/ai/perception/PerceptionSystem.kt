@@ -200,8 +200,9 @@ class PerceptionSystem(
     return farNoticed.wearers.mapNotNull { wearer ->
       val pos = world.get(wearer, Position::class)?.toVec3L() ?: return@mapNotNull null
       val axisDistance = maxOf(abs(pos.x - selfPos.x), abs(pos.y - selfPos.y), abs(pos.z - selfPos.z))
-      val smelled = axisDistance <= sightRadius.toLong() * STENCH_REACH_FACTOR &&
-        Hostility.isHostile(world, self, wearer) && !isOutOfReach(world, self, wearer)
+      val reach = sightRadius * STENCH_REACH_FACTOR
+      val smelled = axisDistance <= reach && Hostility.isHostile(world, self, wearer) &&
+        !isOutOfReach(world, self, wearer) && NoticeRange.notices(world, self, wearer, selfPos, pos, reach)
 
       (wearer to selfPos.distance(pos)).takeIf { smelled }
     }.minByOrNull { (_, distance) -> distance }

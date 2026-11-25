@@ -1,6 +1,7 @@
 package net.bestia.zone.item.essence
 
 import jakarta.persistence.Column
+import net.bestia.zone.battle.gear.ToolKind
 import jakarta.persistence.Embeddable
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -31,6 +32,10 @@ data class EssenceDefinition(
   @Column(name = "essence_drawback")
   val drawback: EssenceDrawback? = null,
 ) {
+  /** The one tool the essence fits, or null when it fits its whole group. */
+  val tool: ToolKind?
+    get() = if (effect == EssenceEffect.BOSS) BossEssence.valueOf(target!!).tool else effect.tool
+
   fun pointsIn(tier: GemTier): Int {
     return if (drawback == null) tier.points else tier.points * 3 / 2
   }

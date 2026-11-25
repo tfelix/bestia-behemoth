@@ -6,6 +6,7 @@ import net.bestia.zone.battle.gear.WeaponType
 import net.bestia.zone.battle.gear.ToolKind
 import net.bestia.zone.battle.gear.ToolTerm
 import net.bestia.zone.battle.damage.DamageModifiers
+import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.Weapon
 
@@ -77,6 +78,9 @@ data class CombatValues(
   val reflexes: List<EssenceSkill> = emptyList(),
   val essenceCasts: List<EssenceCast> = emptyList(),
   val essenceAuras: Set<EssenceAura> = emptySet(),
+  val unnoticedByWild: Set<BestiaKind> = emptySet(),
+  val keepsExpOnDeath: Boolean = false,
+  val bestiaLastStandCooldownSeconds: Int = 0,
   val meleeSplash: Boolean = false,
   val doomChancePercent: Int = 0,
   val manaCostCutPercent: Int = 0,
@@ -192,6 +196,9 @@ data class CombatValues(
         reflexes = context.reflexes,
         essenceCasts = context.essenceCasts,
         essenceAuras = context.essenceAuras,
+        unnoticedByWild = context.unnoticedByWild,
+        keepsExpOnDeath = context.keepsExpOnDeath,
+        bestiaLastStandCooldownSeconds = context.bestiaLastStandCooldownSeconds,
         meleeSplash = context.meleeSplash,
         doomChancePercent = context.doomChancePercent,
         manaCostCutPercent = context.manaCostCutPercent,

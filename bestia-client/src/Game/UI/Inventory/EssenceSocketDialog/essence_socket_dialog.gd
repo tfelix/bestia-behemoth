@@ -27,7 +27,7 @@ func open_for(gem: InventoryItemResource, copies: Array) -> void:
 	var tier := str(essence.Tier)
 	var species := BestiaDB.get_instance().get_bestia(int(essence.BestiaId))
 	var group := species.essence_group if species != null else ""
-	var tool: String = EssenceText.TOOL_BY_EFFECT.get(species.essence_effect, "") if species != null else ""
+	var tool: String = EssenceText.tool_of(species)
 	var min_item_level := EssenceText.min_item_level(species, tier)
 
 	_essence.text = ItemDetail.essence_line(essence)

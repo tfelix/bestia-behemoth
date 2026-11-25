@@ -22,6 +22,9 @@ enum class ToolTerm(val maxPercent: Int = Int.MAX_VALUE) {
 
   /** Chance that a use wears the tool not at all. */
   WEAR_CUT(MAX_CUT_PERCENT),
+
+  /** Less time for a felled tree to grow back. */
+  REGROWTH_TIME_CUT(MAX_CUT_PERCENT),
 }
 
 /** Four Diamond essences give 180%; work never becomes free. */

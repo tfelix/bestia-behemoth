@@ -10,6 +10,7 @@ description: >-
 kind: PLANT
 element: EARTH_4
 size: BIG
+essence: { group: TOOL, effect: BOSS, target: GROVE_KEEPER }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

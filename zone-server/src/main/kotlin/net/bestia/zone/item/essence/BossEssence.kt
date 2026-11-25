@@ -3,6 +3,8 @@ package net.bestia.zone.item.essence
 import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.damage.HitForm
+import net.bestia.zone.battle.gear.ToolKind
+import net.bestia.zone.battle.gear.ToolTerm
 import net.bestia.zone.battle.status.EssenceAura
 import net.bestia.zone.battle.status.EssenceCast
 import net.bestia.zone.battle.status.EssenceCast.Spot
@@ -15,7 +17,7 @@ import net.bestia.zone.battle.status.StatusValueRecalcContext
  *
  * Applied once however many are worn: [EssenceStats] sums equal essences into one call.
  */
-enum class BossEssence(val group: SocketGroup) {
+enum class BossEssence(val group: SocketGroup, val tool: ToolKind? = null) {
   ROYAL_JELLY(SocketGroup.ARMOR) {
     override fun apply(context: StatusValueRecalcContext) {
       context.addMaxPools(hpPercent = 25)
@@ -153,6 +155,23 @@ enum class BossEssence(val group: SocketGroup) {
   PHARAOHS_CROWN(SocketGroup.HEADGEAR) {
     override fun apply(context: StatusValueRecalcContext) {
       context.manaCostCutPercent += 25
+    }
+  },
+  GROVE_KEEPER(SocketGroup.TOOL, ToolKind.FELLING) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.addToolTerm(ToolTerm.FELLING_DAMAGE, 50)
+      context.addToolTerm(ToolTerm.REGROWTH_TIME_CUT, 50)
+    }
+  },
+  DREAD_COURT(SocketGroup.HEADGEAR) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.unnoticedByWild += setOf(BestiaKind.UNDEAD, BestiaKind.DEMON)
+    }
+  },
+  ASHEN_REBIRTH(SocketGroup.ACCESSORY) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.keepsExpOnDeath = true
+      context.bestiaLastStandCooldownSeconds = 3600
     }
   };
 

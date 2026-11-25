@@ -62,7 +62,7 @@ class EssenceGemScript(
     val template = templates.templateOf(target.itemId) ?: return false
     val definition = species.of(essence.bestiaId) ?: return false
     val hasFreeSocket = target.essences.size < target.slots
-    val fitsItsTool = definition.effect.tool == null || definition.effect.tool == template.toolKind
+    val fitsItsTool = definition.tool == null || definition.tool == template.toolKind
 
     return hasFreeSocket && SocketGroup.of(template) == definition.group && fitsItsTool &&
       target.itemLevel >= minItemLevelOf(essence)

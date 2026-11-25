@@ -14,6 +14,7 @@ import net.bestia.zone.battle.status.StatusEffectPolarity
 import net.bestia.zone.battle.damage.HitForm
 import net.bestia.zone.battle.damage.HitReach
 import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.ecs.effects.StatusEffects
@@ -290,7 +291,9 @@ class StatusEffectService(
 
   /** Unbreakable: one lethal blow per cooldown leaves 1 HP, and the marker it leaves is that cooldown. */
   override fun survivesLethalDamage(world: World, targetId: EntityId): Boolean {
-    val cooldownSeconds = world.get(targetId, CombatStats::class)?.values?.lastStandCooldownSeconds ?: 0
+    val values = world.get(targetId, CombatStats::class)?.values
+    val bestiaLastStand = if (world.has(targetId, OwnedBestia::class)) values?.bestiaLastStandCooldownSeconds ?: 0 else 0
+    val cooldownSeconds = maxOf(values?.lastStandCooldownSeconds ?: 0, bestiaLastStand)
     if (cooldownSeconds <= 0) return false
     if (world.get(targetId, StatusEffects::class)?.hasEffect(StatusEffectId.UNBREAKABLE_SPENT.id) == true) return false
 

@@ -1,6 +1,8 @@
 package net.bestia.zone.prop
 
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.gear.ToolTerm
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.skill.SkillId
@@ -60,7 +62,7 @@ class PropDeathDivergenceSystem(
   override val reads: ComponentClassSet =
     setOf(
       Dead::class, WorldObjectIdentity::class, StaticVisual::class, Position::class, TakenDamage::class,
-      Account::class
+      Account::class, CombatStats::class
     ) + GatheringExp.READS + OwnerSkills.READS
 
   // The loot entity is brand new and needs nothing declared - DeathSystem's own spawnLoot has the same shape.
@@ -82,14 +84,14 @@ class PropDeathDivergenceSystem(
       if (standing != null && !standing.isFellable) return@each
 
       val position = world.get(id, Position::class)?.toVec3L()
+      // Whoever dealt the most is who felled it, and earns the gathering EXP if it is a bestia.
+      val feller = world.get(id, TakenDamage::class)?.damagePercentages()?.maxByOrNull { it.value }?.key
 
       val spec = kinds.of(visual.kind)
       val yieldShare = spec.regrowth?.yieldOf(visual.growth) ?: 1.0
       if (position != null) {
         val damage = world.get(id, TakenDamage::class)
         val killer = damage?.topAccount(world)
-        // Whoever dealt the most is who felled it, and earns the gathering EXP if it is a bestia.
-        val feller = damage?.damagePercentages()?.maxByOrNull { it.value }?.key
         val extraChance = extraDropPercent(world, id, visual.kind)
         // A tree its planter replanted with care gives more than one left to nature.
         val bonusStacks = standing?.bonusYield ?: 0
@@ -106,8 +108,15 @@ class PropDeathDivergenceSystem(
         }
       }
 
-      removal.removed(world, id, PropRemoval.Cause.USED_UP)
+      removal.removed(world, id, PropRemoval.Cause.USED_UP, growthPercentAfter(world, feller))
     }
+  }
+
+  /** A Grove Keeper essence in the feller's hatchet makes the tree grow back sooner. */
+  private fun growthPercentAfter(world: World, feller: EntityId?): Int {
+    val cut = feller?.let { world.get(it, CombatStats::class)?.values?.toolPercent(ToolTerm.REGROWTH_TIME_CUT) } ?: 0
+
+    return 100 - cut
   }
 
   private companion object {

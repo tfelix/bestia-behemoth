@@ -243,6 +243,15 @@ class StatusValueRecalcContext(
   /** Shrugs off every harmful status effect, not just the ones in [statusImmunities]. */
   var immuneToDebuffs: Boolean = false
 
+  /** Kinds of wild creature that never pick a fight with this entity, though they still fight back. */
+  var unnoticedByWild: Set<BestiaKind> = emptySet()
+
+  /** A master who dies keeps all of its EXP. */
+  var keepsExpOnDeath: Boolean = false
+
+  /** As [lastStandCooldownSeconds], for a Bestia wearer only. */
+  var bestiaLastStandCooldownSeconds: Int = 0
+
   /** A melee swing also strikes every foe next to its target. */
   var meleeSplash: Boolean = false
 
