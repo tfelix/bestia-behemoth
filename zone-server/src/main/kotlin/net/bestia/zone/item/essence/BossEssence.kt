@@ -133,6 +133,27 @@ enum class BossEssence(val group: SocketGroup) {
       context.addDamageTaken(100, form = HitForm.MAGIC)
       context.untargetableBySpells = true
     }
+  },
+  REAPING_SCYTHE(SocketGroup.WEAPON) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.meleeSplash = true
+      context.addAccuracy(hit = -10)
+    }
+  },
+  DOOM(SocketGroup.WEAPON) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.doomChancePercent += 1
+    }
+  },
+  NINE_TAILS(SocketGroup.HEADGEAR) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.everyNinthSpellFree = true
+    }
+  },
+  PHARAOHS_CROWN(SocketGroup.HEADGEAR) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.manaCostCutPercent += 25
+    }
   };
 
   abstract fun apply(context: StatusValueRecalcContext)

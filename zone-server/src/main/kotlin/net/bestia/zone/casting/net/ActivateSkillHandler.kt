@@ -35,6 +35,7 @@ import net.bestia.zone.casting.CastTime
 import net.bestia.zone.casting.NoSkillScriptException
 import net.bestia.zone.casting.SkillCheckService
 import net.bestia.zone.casting.SkillExecutionService
+import net.bestia.zone.casting.essence.EssenceSkillCost
 import net.bestia.zone.casting.SkillStrategyFactory
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.casting.SkillLevelCost
@@ -144,7 +145,7 @@ class ActivateSkillHandler(
     // Before the cast starts, so a skill whose reagent is missing is refused while the
     // player is still looking at the button rather than after channelling for it. Nothing is spent here - see
     // SkillStrategy.checkCastStart.
-    val cost = strategy.costOf(skill, msg.skillLevel)
+    val cost = EssenceSkillCost.of(world, activeEntityId, skill, strategy.costOf(skill, msg.skillLevel))
     val denial = world.modify(activeEntityId) { id ->
       unaffordable(this, id, cost) ?: missingReagent(this, id, skill) ?: strategy.checkCastStart(this, id, msg.skillLevel, msg.args)
     }

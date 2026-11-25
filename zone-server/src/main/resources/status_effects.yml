@@ -944,3 +944,20 @@ statusEffects:
     isSyncedToClient: true
     dispellable: false
     script: TidewallSpent
+
+  # The Ninefold Vixen's Nine Tails: the spells cast since the last free one, and the free one waiting.
+  - id: 303
+    identifier: NINE_TAILS_COUNT
+    polarity: NEUTRAL
+    showIcon: false
+    isSyncedToClient: false
+    dispellable: false
+    script: NineTailsCount
+
+  - id: 304
+    identifier: NINE_TAILS_READY
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    dispellable: false
+    script: NineTailsReady
