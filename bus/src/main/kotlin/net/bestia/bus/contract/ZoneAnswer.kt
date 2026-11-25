@@ -283,9 +283,9 @@ sealed interface ZoneAnswer {
   data class Diary(val lines: List<DiaryEntry>) : ZoneAnswer {
 
     /**
-     * [kind] is NEW_ORDERS, HAULED, WORK_PAUSED, QUEUE_FINISHED, ATTACKED, RETREATED, DIED or LOST. [items] are item
-     * identifiers with amounts, [place] a station's kind, [reason] why work stopped (a station pause, CHEST_FULL or
-     * NO_ORE) or, for NEW_ORDERS, the job.
+     * [kind] is NEW_ORDERS, HAULED, WORK_PAUSED, QUEUE_FINISHED, ATTACKED, RETREATED, DIED, LOST or EVENT_SENSED.
+     * [items] are item identifiers with amounts, [place] a station's kind, [reason] why work stopped (a station
+     * pause, CHEST_FULL or NO_ORE), for NEW_ORDERS the job, or for EVENT_SENSED the kind of event.
      */
     data class DiaryEntry(
       val playerBestiaId: Long,

@@ -59,6 +59,7 @@ function bestiaHappening(d: Record<string, string | number | boolean | null>): {
 		case 'QUEUE_FINISHED':
 		case 'ATTACKED':
 		case 'RETREATED':
+		case 'EVENT_SENSED':
 			return { title: String(who), body: diaryText(line) + '.' };
 		default:
 			return null;
