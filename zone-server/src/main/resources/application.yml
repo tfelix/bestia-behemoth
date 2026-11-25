@@ -391,6 +391,12 @@ mana:
     # A grind spot hunted every day for a week rises by about 0.15. A boss releases ten times as much.
     motes-per-kill-level: 0.04
     boss-factor: 10
+    # An old Wound lifts the land within its reach to storms in about two weeks. A new world's Wounds pour a
+    # tenth of that, rising to full over half a year.
+    wound-motes-per-day: 50000
+    wound-reach-metres: 2500
+    wound-young-share: 0.1
+    wound-full-age-days: 180
 
 # Reading tracks: what the world remembers about the things that left prints, and how much of it a rank
 # earns. None of this changes what is stored, so all of it may be retuned on a restart.

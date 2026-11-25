@@ -17,4 +17,16 @@ data class ManaEmissionConfig(
 
   /** How many times more a boss releases than its level alone. */
   val bossFactor: Double = 10.0,
+
+  /** Motes a Wound pours out per real day once the world is old. */
+  val woundMotesPerDay: Double = 50_000.0,
+
+  /** How far around a Wound its mana falls, in metres. The worldgen corruption reaches as far. */
+  val woundReachMetres: Double = 2500.0,
+
+  /** The share of the full output a Wound has when the world is new. */
+  val woundYoungShare: Double = 0.1,
+
+  /** Real days until a Wound pours at full output. */
+  val woundFullAgeDays: Double = 180.0,
 )

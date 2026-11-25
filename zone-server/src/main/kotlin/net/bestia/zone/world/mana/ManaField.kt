@@ -38,6 +38,10 @@ class ManaField {
     cells.forEach { addTo(it, perCell) }
   }
 
+  fun addToCell(cell: Cell, motes: Double) {
+    addTo(cell, motes * DELTA_PER_MOTE)
+  }
+
   fun setDelta(cell: Cell, delta: Double) {
     tileOf(cell.x, cell.y)[indexOf(cell.x, cell.y)] = delta
     changed += tileKeyOf(cell.x, cell.y)
@@ -119,7 +123,7 @@ class ManaField {
     const val CELL_METRES = 128.0
     const val TILE_CELLS = 32
 
-    /** One mote is the smallest amount anything adds: a thousandth of density on one cell. */
+    /** One mote is a thousandth of density on one cell, the unit every source counts in. */
     const val DELTA_PER_MOTE = 0.001
 
     fun cellOf(metres: Double): Int = floor(metres / CELL_METRES).toInt()
