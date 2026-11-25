@@ -371,6 +371,19 @@ water:
   # Chunks held at most, about 700 kB each. Water pressing past them stops as if against a wall.
   max-chunks: 64
 
+# The mana play adds to the world or takes from it. Only the change over the start density is stored, so all of
+# this may be retuned on a restart.
+mana:
+  field:
+    # Real days until half of any added or taken mana is gone again.
+    leak-half-life-days: 30
+    # How far mana spreads from where it was added, in metres per real week.
+    creep-metres-per-week: 300
+    # Start towns drain added mana down to this density, half of the rest every few Bestia days.
+    sanctuary-target: 0.3
+    sanctuary-half-life-bestia-days: 3
+    sanctuary-radius-metres: 3000
+
 # Reading tracks: what the world remembers about the things that left prints, and how much of it a rank
 # earns. None of this changes what is stored, so all of it may be retuned on a restart.
 spoor:
