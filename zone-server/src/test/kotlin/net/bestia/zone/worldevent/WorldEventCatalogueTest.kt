@@ -13,7 +13,7 @@ class WorldEventCatalogueTest {
 
   @Test
   fun `the apex roamer is a small event of ominous provinces`() {
-    val catalogue = WorldEventCatalogue(listOf(Named("ApexRoamer"), Named("Rift"), Named("RareBestia"))).also { it.load() }
+    val catalogue = WorldEventCatalogue(listOf(Named("ApexRoamer"), Named("Rift"), Named("RareBestia"), Named("AlphaRises"))).also { it.load() }
 
     val apex = catalogue.of("apex-roamer")!!
     assertEquals(1.0, apex.cost)

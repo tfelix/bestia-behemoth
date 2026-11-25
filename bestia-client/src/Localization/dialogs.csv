@@ -696,6 +696,9 @@ RUMOUR_RARE_BESTIA_SEEN_2,"A {rare}, they say, not an hour's walk from here. If 
 RARE_HINT_STORM_HERON,a grey heron as tall as a man comes down to the marshes when a storm breaks at dusk
 RARE_HINT_SILVER_HART,a white stag walks the old forests on a clear night when the moon is full
 RARE_HINT_WHITEVEIL_LYNX,"a great pale lynx hunts inside the falling snow, on winter nights without a moon"
+RUMOUR_ALPHA_PROWLS_ASK,Is the road safe?
+RUMOUR_ALPHA_PROWLS_1,"Not anymore. Three sheep torn open by the road last night, and tracks as big as my hand. Nobody hunts out there, and now something big leads that pack."
+RUMOUR_ALPHA_PROWLS_2,"A carter came in bleeding this morning. Said a beast twice the size of the others jumped his mules on the road. Travel in groups, if you must."
 RUMOUR_MISDEED_SEEN_ASK,Is there anybody I should watch out for?
 RUMOUR_MISDEED_SEEN_1,"{name}. They did something terrible in a town not far from here, and people there will not forget it."
 RUMOUR_MISDEED_SEEN_2,"Word came from down the road: keep away from {name}. Folk there saw what they did."

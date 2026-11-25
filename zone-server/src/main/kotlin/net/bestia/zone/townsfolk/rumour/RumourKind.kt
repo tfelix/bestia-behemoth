@@ -49,4 +49,7 @@ enum class RumourKind(
 
   /** Someone saw a rare bestia nearby, just now. */
   RARE_BESTIA_SEEN(baseImportance = 55, lifetimeDays = 2),
+
+  /** An alpha grew from a pack nobody hunts and prowls the road: torn sheep, tracks, a traveller attacked. */
+  ALPHA_PROWLS(baseImportance = 60, lifetimeDays = 6),
 }

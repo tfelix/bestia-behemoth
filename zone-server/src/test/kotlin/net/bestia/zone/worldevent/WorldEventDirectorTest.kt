@@ -45,7 +45,7 @@ class WorldEventDirectorTest {
 
   private val apex = FakeApex()
   private val catalogue =
-    WorldEventCatalogue(listOf(apex, NeverFits("Rift"), NeverFits("RareBestia"))).also { it.load() }
+    WorldEventCatalogue(listOf(apex, NeverFits("Rift"), NeverFits("RareBestia"), NeverFits("AlphaRises"))).also { it.load() }
 
   private val wild = province(0)
   private val sanctuary = province(1)
