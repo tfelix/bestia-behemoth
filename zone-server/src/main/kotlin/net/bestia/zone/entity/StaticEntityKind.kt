@@ -228,7 +228,10 @@ enum class StaticEntityKind {
   INN,
 
   /** What a sealed rift leaves: a stone that holds all the mana the rift gathered. */
-  SEAL_STONE;
+  SEAL_STONE,
+
+  /** A Scholar's lookout in the wild, where Observation senses the events brewing around. */
+  OBSERVATION_OUTPOST;
 
   /** A scar the mana left, which nothing may break. */
   val isOmen: Boolean get() = name.startsWith("OMEN_")

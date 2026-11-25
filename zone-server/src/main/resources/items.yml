@@ -11932,3 +11932,15 @@ items:
       A leather roll with iron plates, rivets, a punch and spare straps to patch a suit of armour.
 
       Use it on damaged armour, held or worn, to restore its full durability.
+
+  - id: 644
+    item-db-name: observation_outpost_kit
+    base-level: 10
+    weight: 250
+    type: USABLE
+    material: WOOD
+    script: ObservationOutpostKitScript
+    description: |
+      Poles, planks and a brass spyglass, bundled for carrying into the wild.
+
+      Put up anywhere outside a town, it becomes an Observation Outpost. Only a Master who knows Observation can raise it.

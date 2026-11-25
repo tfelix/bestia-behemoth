@@ -736,3 +736,9 @@ kinds:
   - kind: SEAL_STONE
     max-hp: 1
     collider: { half-x: 1, half-y: 1, height: 3 }
+
+  # A Scholar's lookout: a raised platform with a brass glass, where Observation senses the events around.
+  - kind: OBSERVATION_OUTPOST
+    max-hp: 200
+    collider: { half-x: 2, half-y: 2, height: 5 }
+    variants: 1

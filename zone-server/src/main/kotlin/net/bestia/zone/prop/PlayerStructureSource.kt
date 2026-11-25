@@ -45,6 +45,7 @@ class PlayerStructureSource(
     StaticEntityKind.BREEDING_FARM,
     StaticEntityKind.INCUBATOR,
     StaticEntityKind.MINING_SHAFT,
+    StaticEntityKind.OBSERVATION_OUTPOST,
   )
 
   /** A station near a bestia has to be there for a roaming NPC to attack, with or without its master online. */

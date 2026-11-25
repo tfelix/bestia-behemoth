@@ -671,9 +671,10 @@ skills:
     description: |
       The Scholar's ear to the ground - a sense for the direction and distance of world-changing
       events long before word of them travels. Only works at an Observation Outpost. Level 1
-      lets you build one from an outpost kit. Cooldown 60s.
+      lets you build one from an outpost kit. A rift is felt three times further. Cooldown 60s.
 
-      `+1 km/lv` detection distance around the outpost
+      `+1 km/lv` detection distance around the outpost; each level tells more: direction, near or
+      far, the distance and the kind, how far along, and what exactly and when
 
   - id: 169
     identifier: M_AUGURY

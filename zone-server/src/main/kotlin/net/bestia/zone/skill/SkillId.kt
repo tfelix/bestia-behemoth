@@ -34,6 +34,9 @@ enum class SkillId {
    */
   M_BASIC_SKILL,
 
+  /** Building an Observation Outpost needs Lv1 of it. */
+  M_OBSERVATION,
+
   // Crafting: each one's invested level buys a success chance, a craft time, an item tier or a rune
   // slot in net.bestia.zone.crafting.CraftBonusService.
   M_CARPENTRY,

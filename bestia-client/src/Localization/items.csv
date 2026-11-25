@@ -521,6 +521,10 @@ MANA_CIRCLE_KIT,Mana Circle Kit
 MANA_CIRCLE_KIT_DESC,"Five measures of Mana Concentrate and a focus stone, ready to be laid out.
 
 Laid on the ground it becomes a Mana Circle, which charges its leader's next skill after half a minute of channelling with up to five helpers."
+OBSERVATION_OUTPOST_KIT,Observation Outpost Kit
+OBSERVATION_OUTPOST_KIT_DESC,"Poles, planks and a brass spyglass, bundled for carrying into the wild.
+
+Put up anywhere outside a town, it becomes an Observation Outpost. Only a Master who knows Observation can raise it."
 THEODOLITE_KIT,Theodolite Kit
 THEODOLITE_KIT_DESC,"A brass sighting scope and a folding tripod.
 

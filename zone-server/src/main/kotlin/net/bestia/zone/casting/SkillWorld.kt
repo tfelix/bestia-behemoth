@@ -197,6 +197,9 @@ interface SkillWorld {
   /** Shows the caster the mana at work around it, as much as Magic Sense at [level] tells. One scan. */
   fun senseMagic(level: Int)
 
+  /** Shows the caster the world events around its outpost, as much as Observation at [level] tells. One scan. */
+  fun observeEvents(level: Int)
+
   /** Shows the caster how restless the land is, as much as Augury at [level] tells. One scan. */
   fun readOmens(level: Int)
 

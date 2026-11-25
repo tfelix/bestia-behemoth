@@ -904,7 +904,13 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 1.0f, PlaceholderColour = new Color(0.32f, 0.28f, 0.40f), StructureHeight = 3f,
         PlaceholderGlow = 0.4f
-      } // SEAL_STONE
+      }, // SEAL_STONE
+
+      // A Scholar's lookout: a tall timber platform until it has a model. Nothing to click; Observation is cast at it.
+      new Kind
+      {
+        PlaceholderWidth = 2.0f, PlaceholderColour = new Color(0.55f, 0.42f, 0.28f), StructureHeight = 5f
+      } // OBSERVATION_OUTPOST
     };
 
     /// <summary>

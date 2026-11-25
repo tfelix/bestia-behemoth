@@ -137,6 +137,7 @@ namespace BestiaBehemothClient.Game.World
         "TRANSMUTATION_WORKBENCH" => 88,
         "BESTIA_CENTER" => 92,
         "INN" => 102,
+        "OBSERVATION_OUTPOST" => 104,
         "STRUCTURE_WALL" => Mesh.StructurePieces.Wall,
         "STRUCTURE_FLOOR" => Mesh.StructurePieces.Floor,
         "STRUCTURE_STAIRS" => Mesh.StructurePieces.Stairs,

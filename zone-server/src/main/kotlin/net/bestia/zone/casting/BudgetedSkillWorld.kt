@@ -648,6 +648,12 @@ class BudgetedSkillWorld(
     services.magicSensing?.sense(world, casterId, level, castPotency)
   }
 
+  override fun observeEvents(level: Int) {
+    budget.charge(SPAWN_OPS)
+
+    services.eventObservation?.observe(world, casterId, level)
+  }
+
   override fun readOmens(level: Int) {
     budget.charge(SPAWN_OPS)
 

@@ -8,6 +8,7 @@
     "EMPYRITE_SITE" : 90,
     "MANA_CIRCLE" : 57,
     "MINING_SHAFT" : 71,
+    "OBSERVATION_OUTPOST" : 104,
     "THEODOLITE" : 59,
     "WORKBENCH" : 22
   },

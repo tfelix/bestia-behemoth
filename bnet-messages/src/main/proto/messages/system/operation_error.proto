@@ -634,6 +634,11 @@ enum OpError {
   INN_PRICE_CHANGED = 437;
   // A player-built inn works only while its town's sign stands.
   INN_CLOSED = 438;
+
+  // Observation is cast at an Observation Outpost; there is none within reach.
+  OBSERVATION_NO_OUTPOST = 439;
+  // Only a Master who knows Observation can raise an Observation Outpost.
+  OBSERVATION_OUTPOST_NEEDS_SKILL = 440;
 }
 
 message OperationError {
