@@ -42,6 +42,7 @@ const _STORAGE_NAMES: Array[String] = ["CHEST", "GUILD_STORAGE"]
 var InventoryItem = preload("res://Game/UI/Inventory/InventoryItem/InventoryItem.tscn")
 var DropAmountDialogScn = preload("res://Game/UI/Inventory/DropAmountDialog/DropAmountDialog.tscn")
 var EssenceSocketDialogScn = preload("res://Game/UI/Inventory/EssenceSocketDialog/EssenceSocketDialog.tscn")
+var RepairKitDialogScn = preload("res://Game/UI/Inventory/RepairKitDialog/RepairKitDialog.tscn")
 
 ## This is only for testing. In reality you will receive the items from the server.
 @export var preset_items: Array[InventoryItemResource]
@@ -774,17 +775,41 @@ func ask_to_socket(gem_player_item_id: int) -> void:
 
 	var dialog = EssenceSocketDialogScn.instantiate() as EssenceSocketDialog
 	add_child(dialog)
-	dialog.item_picked.connect(_use_gem_on.bind(gem_player_item_id))
+	dialog.item_picked.connect(_use_on.bind(gem_player_item_id))
 	dialog.open_for(gems[0], held.filter(func(item) -> bool: return item.unique_id != 0))
 
 
-func _use_gem_on(target_player_item_id: int, gem_player_item_id: int) -> void:
+## Asks which held or worn copy the repair kit [param kit_player_item_id] mends, then uses the kit on it.
+func ask_to_repair(kit_player_item_id: int) -> void:
+	var held: Array = _items.get(selected_entity_id, [])
+	var kits := held.filter(func(item) -> bool: return item.player_item_id == kit_player_item_id)
+	if kits.is_empty():
+		return
+
+	var dialog = RepairKitDialogScn.instantiate() as RepairKitDialog
+	add_child(dialog)
+	dialog.item_picked.connect(_use_on.bind(kit_player_item_id))
+	dialog.open_for(kits[0].item.item_id, held.filter(func(item) -> bool: return item.unique_id != 0), _worn_durability())
+
+
+## Durability by unique id of what the shown entity wears.
+func _worn_durability() -> Dictionary:
+	var entity_manager := EntityManager.get_instance()
+	var entity: Entity = entity_manager.get_entity(selected_entity_id) if entity_manager else null
+	var by_unique_id := {}
+	if entity != null:
+		for worn in entity.get_equipment().values():
+			by_unique_id[worn["unique_id"]] = worn["durability"]
+	return by_unique_id
+
+
+func _use_on(target_player_item_id: int, used_player_item_id: int) -> void:
 	if not ConnectionManager.is_ready_to_send():
 		return
 
 	var args = ConnectionManager.ScriptArgsCls.new()
 	args.SetInt(ScriptArgKeys.TARGET_ITEM, target_player_item_id)
-	ConnectionManager.use_item(gem_player_item_id, args)
+	ConnectionManager.use_item(used_player_item_id, args)
 
 
 func gold() -> int:
