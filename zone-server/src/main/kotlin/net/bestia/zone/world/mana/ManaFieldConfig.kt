@@ -2,7 +2,7 @@ package net.bestia.zone.world.mana
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-/** How fast the mana play adds or takes fades, creeps and drains out of the start towns. */
+/** How fast the mana play adds or takes fades, creeps and drains out of the start provinces. */
 @ConfigurationProperties("mana.field")
 data class ManaFieldConfig(
 
@@ -12,12 +12,9 @@ data class ManaFieldConfig(
   /** How far mana spreads from where it was added, in metres per real week. */
   val creepMetresPerWeek: Double = 300.0,
 
-  /** The density the start towns drain added mana down to. */
+  /** The density the start provinces drain added mana down to. */
   val sanctuaryTarget: Double = 0.3,
 
-  /** Bestia days until half of the mana above [sanctuaryTarget] has drained out of a start town. */
+  /** Bestia days until half of the mana above [sanctuaryTarget] has drained out of a start province. */
   val sanctuaryHalfLifeBestiaDays: Double = 3.0,
-
-  /** How far around a start town its drain reaches, until provinces exist. */
-  val sanctuaryRadiusMetres: Double = 3000.0,
 )

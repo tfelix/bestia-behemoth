@@ -19,5 +19,6 @@ data class WorldRecreatedEvent(val world: PersistedWorld) {
     const val MONEY_SUPPLY = 30
     const val RESERVE = 40
     const val PLACE_REGIONS = 50
+    const val PROVINCES = 60
   }
 }
