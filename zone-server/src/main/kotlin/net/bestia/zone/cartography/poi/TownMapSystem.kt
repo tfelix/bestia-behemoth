@@ -56,6 +56,7 @@ class TownMapSystem(
       StaticEntityKind.POST_OFFICE to MapService.POST_OFFICE,
       StaticEntityKind.AUCTION_HOUSE to MapService.MARKET,
       StaticEntityKind.BESTIA_CENTER to MapService.BESTIA_CENTER,
+      StaticEntityKind.INN to MapService.INN,
     )
   }
 }

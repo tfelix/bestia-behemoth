@@ -22,7 +22,7 @@ class TendBestiasHandler(
 
   override fun handle(world: World, msg: TendBestiasCMSG): Boolean {
     val actor = connections.getActiveEntityId(msg.playerId)
-    val counter = counters.inReach(msg.playerId, actor, msg.counterEntityId) ?: return true
+    val counter = counters.inReach(world, msg.playerId, actor, msg.counterEntityId) ?: return true
     inn.tend(world, msg.playerId, counter, msg.expectedPrice)
 
     return true

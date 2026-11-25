@@ -52,6 +52,9 @@ interface MasterRepository : JpaRepository<Master, Long> {
     @Param("y") y: Long,
     @Param("z") z: Long,
   ): Int
+
+  @Query("select m from Master m where m.spawnPosition.x = :x and m.spawnPosition.y = :y and m.spawnPosition.z = :z")
+  fun findAllSavedAt(@Param("x") x: Long, @Param("y") y: Long, @Param("z") z: Long): List<Master>
 }
 
 fun MasterRepository.findByIdOrThrow(id: Long): Master {

@@ -890,7 +890,14 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 3.0f, PlaceholderColour = new Color(0.55f, 0.35f, 1.0f), StructureHeight = 8f,
         Shape = PlaceholderShape.Crystal, PlaceholderGlow = 1.2f
-      } // RIFT_GATE
+      }, // RIFT_GATE
+
+      // An inn players built in their town. A plain civic box until it has a model, like the post office.
+      new Kind
+      {
+        PlaceholderWidth = 7.0f, PlaceholderColour = new Color(0.62f, 0.45f, 0.30f), StructureHeight = 4f,
+        Action = PropAction.Use
+      } // INN
     };
 
     /// <summary>

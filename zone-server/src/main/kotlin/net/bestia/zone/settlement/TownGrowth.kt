@@ -24,7 +24,7 @@ object TownGrowth {
 
   /** The buildings that only work inside a town, and keep its founder from tearing the sign down. */
   val FUNCTIONAL_KINDS: Set<StaticEntityKind> = setOf(
-    StaticEntityKind.POST_OFFICE, StaticEntityKind.AUCTION_HOUSE, StaticEntityKind.BESTIA_CENTER,
+    StaticEntityKind.POST_OFFICE, StaticEntityKind.AUCTION_HOUSE, StaticEntityKind.BESTIA_CENTER, StaticEntityKind.INN,
   )
 
   /** A finished structure's worth to the town it stands in. */

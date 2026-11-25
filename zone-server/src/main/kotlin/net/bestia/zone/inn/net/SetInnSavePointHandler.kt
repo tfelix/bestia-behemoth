@@ -22,7 +22,7 @@ class SetInnSavePointHandler(
 
   override fun handle(world: World, msg: SetInnSavePointCMSG): Boolean {
     val actor = connections.getActiveEntityId(msg.playerId)
-    val counter = counters.inReach(msg.playerId, actor, msg.counterEntityId) ?: return true
+    val counter = counters.inReach(world, msg.playerId, actor, msg.counterEntityId) ?: return true
     inn.makeSavePoint(msg.playerId, counter)
 
     return true

@@ -1538,3 +1538,4 @@ INN_NOTHING_TO_TEND,Your bestias lack nothing.
 INN_FALLEN,fallen
 INN_PRICE,%s gold
 INN_TEND,Tend all (%s gold)
+ERROR_INN_CLOSED,This inn stands in no town and is closed.
