@@ -1,0 +1,32 @@
+id: 118
+identifier: silver_hart
+level-min: 34
+level-max: 38
+name: Silver Hart
+description: >-
+  A white stag whose coat shines like the moon it walks under. It is seen in the old forests on clear nights of the
+  full moon, and never twice in the same glade.
+kind: BEAST
+element: HOLY_2
+size: BIG
+default-attack: MELEE
+aspd: 80
+ai: passive_wanderer
+attack-power: 1.0
+weight: 220
+health: 3800
+mana: 260
+experience: 1500
+attributes: { strength: 12, intelligence: 40, vitality: 35, dexterity: 15, willpower: 50, agility: 40 }
+learnset: []
+# A world event brings it when its sky fits; see rare_bestia.yml. No den or ambient site places one.
+event-only: true
+compendium: false
+habitat: []
+spawn-weight: 0
+equip-slots: []
+armor-types: []
+loot:
+  - { item: horn, chance: 10000 }
+  - { item: soft_fur, chance: 6000 }
+  - { item: mana_crystal, chance: 2000 }

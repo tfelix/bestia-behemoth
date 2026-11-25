@@ -1,0 +1,32 @@
+id: 119
+identifier: whiteveil_lynx
+level-min: 56
+level-max: 60
+name: Whiteveil Lynx
+description: >-
+  A great pale lynx that hunts inside falling snow. Trappers say it walks only in winter, on the dark nights of the
+  new moon, when nobody can see it come.
+kind: BEAST
+element: WATER_3
+size: MEDIUM
+default-attack: MELEE
+aspd: 70
+ai: aggressive_melee
+attack-power: 1.1
+weight: 90
+health: 8400
+mana: 240
+experience: 3600
+attributes: { strength: 55, intelligence: 15, vitality: 40, dexterity: 40, willpower: 30, agility: 85 }
+learnset: []
+# A world event brings it when its sky fits; see rare_bestia.yml. No den or ambient site places one.
+event-only: true
+compendium: false
+habitat: []
+spawn-weight: 0
+equip-slots: []
+armor-types: []
+loot:
+  - { item: soft_fur, chance: 10000 }
+  - { item: frost_crystal, chance: 5000 }
+  - { item: mana_crystal, chance: 2000 }
