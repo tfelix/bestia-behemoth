@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 119
+name_key = "BESTIA_WHITEVEIL_LYNX"
+description_key = "BESTIA_WHITEVEIL_LYNX_DESC"
+placeholder_shape = 1
+placeholder_colour = Color(0.85, 0.9, 0.97, 1)
+placeholder_scale = 1.2
+placeholder_glow = 0.5
+kind = "BEAST"
+equip_slots = 0
+armor_types = 0
+non_combatant = false
+habitat = ""
+in_compendium = false
+aggressive = true
+level_min = 56
+level_max = 60
+loot_item_ids = PackedInt32Array(95, 105, 6)
+loot_chances = PackedInt32Array(10000, 5000, 2000)
+size = "MEDIUM"
+weight_kg = 90
+essence_group = ""
+essence_effect = ""
+essence_target = ""
+essence_drawback = ""

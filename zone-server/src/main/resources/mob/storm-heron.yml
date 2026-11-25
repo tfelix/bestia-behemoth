@@ -1,0 +1,32 @@
+id: 117
+identifier: storm_heron
+level-min: 46
+level-max: 50
+name: Storm Heron
+description: >-
+  A grey heron as tall as a man, its feathers crackling with blue sparks. It comes down to the marshes only when a
+  storm breaks at dusk, and is gone with the light.
+kind: BIRD
+element: WIND_3
+size: BIG
+default-attack: RANGED
+aspd: 85
+ai: aggressive_melee
+attack-power: 1.0
+weight: 40
+health: 6200
+mana: 320
+experience: 2400
+attributes: { strength: 20, intelligence: 30, vitality: 30, dexterity: 45, willpower: 35, agility: 90 }
+learnset: []
+# A world event brings it when its sky fits; see rare_bestia.yml. No den or ambient site places one.
+event-only: true
+compendium: false
+habitat: []
+spawn-weight: 0
+equip-slots: []
+armor-types: []
+loot:
+  - { item: feather, chance: 10000 }
+  - { item: storm_feather, chance: 5000 }
+  - { item: mana_crystal, chance: 3000 }

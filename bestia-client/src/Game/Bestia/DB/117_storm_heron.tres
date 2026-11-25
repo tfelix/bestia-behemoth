@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 117
+name_key = "BESTIA_STORM_HERON"
+description_key = "BESTIA_STORM_HERON_DESC"
+placeholder_shape = 2
+placeholder_colour = Color(0.45, 0.6, 0.95, 1)
+placeholder_scale = 1.3
+placeholder_glow = 0.8
+kind = "BIRD"
+equip_slots = 0
+armor_types = 0
+non_combatant = false
+habitat = ""
+in_compendium = false
+aggressive = true
+level_min = 46
+level_max = 50
+loot_item_ids = PackedInt32Array(92, 239, 6)
+loot_chances = PackedInt32Array(10000, 5000, 3000)
+size = "BIG"
+weight_kg = 40
+essence_group = ""
+essence_effect = ""
+essence_target = ""
+essence_drawback = ""
