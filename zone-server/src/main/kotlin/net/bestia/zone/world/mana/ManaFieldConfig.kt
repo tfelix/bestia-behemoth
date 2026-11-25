@@ -17,4 +17,7 @@ data class ManaFieldConfig(
 
   /** Bestia days until half of the mana above [sanctuaryTarget] has drained out of a start province. */
   val sanctuaryHalfLifeBestiaDays: Double = 3.0,
+
+  /** Bestia hours a place must stay past a tier border before it changes tier. */
+  val tierDwellBestiaHours: Double = 1.0,
 )
