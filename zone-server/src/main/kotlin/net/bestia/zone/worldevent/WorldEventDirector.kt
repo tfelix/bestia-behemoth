@@ -117,7 +117,7 @@ class WorldEventDirector(
         x = started.at.x,
         y = started.at.y,
         z = started.at.z,
-        subjectEntityId = started.subjectEntityId,
+        subjectId = started.subjectId,
       )
     )
 
@@ -132,6 +132,7 @@ class WorldEventDirector(
     val outcome = when {
       event == null -> Outcome.CANCELLED
       event.isDefeated(instance) -> Outcome.DEFEATED
+      event.isOver(instance) -> Outcome.EXPIRED
       now >= instance.endsAtSecond -> Outcome.EXPIRED.also { event.end(instance) }
       else -> return false
     }

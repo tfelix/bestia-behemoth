@@ -21,9 +21,12 @@ interface WorldEvent {
   /** Whether the event was ended by players, for example its subject was killed. Checked every run. */
   fun isDefeated(instance: WorldEventInstance): Boolean = false
 
+  /** Whether the event ran its course before its time was up, without players ending it. Checked every run. */
+  fun isOver(instance: WorldEventInstance): Boolean = false
+
   /** Takes back whatever the event put into the world, when it runs out or a GM cancels it. */
   fun end(instance: WorldEventInstance) {}
 
-  /** Where it started and the entity it is about, if any. */
-  data class Started(val at: Vec3L, val subjectEntityId: Long? = null)
+  /** Where it started and what it is about, if anything: an entity such as the apex, or a row such as a rift. */
+  data class Started(val at: Vec3L, val subjectId: Long? = null)
 }

@@ -67,7 +67,7 @@ class ApexRoamerEventTest {
   fun `the strongest beast of the province's dens comes in from the far side and makes for the mana`() {
     val started = sut.start(signals())!!
 
-    assertEquals(77L, started.subjectEntityId)
+    assertEquals(77L, started.subjectId)
     assertEquals(9_000L, started.at.x)
     verify {
       spawner.spawnMob(

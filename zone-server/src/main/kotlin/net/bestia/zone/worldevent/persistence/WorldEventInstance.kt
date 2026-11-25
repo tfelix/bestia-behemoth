@@ -41,9 +41,9 @@ class WorldEventInstance(
   @Column(nullable = false)
   var z: Long = 0,
 
-  /** The entity the event is about, such as the apex bestia, or null. */
-  @Column(name = "subject_entity_id")
-  var subjectEntityId: Long? = null,
+  /** What the event is about: the apex bestia's entity id, a rift's row id, or null. Its event knows which. */
+  @Column(name = "subject_id")
+  var subjectId: Long? = null,
 
   @Enumerated(EnumType.STRING)
   @Column(length = 16)

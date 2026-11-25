@@ -28,7 +28,7 @@ class WorldEventDirectorTest {
   private class FakeApex : WorldEvent {
     override val script = "ApexRoamer"
     var defeated = false
-    override fun start(signals: ProvinceSignals) = WorldEvent.Started(Vec3L(1, 2, 3), subjectEntityId = 42)
+    override fun start(signals: ProvinceSignals) = WorldEvent.Started(Vec3L(1, 2, 3), subjectId = 42)
     override fun isDefeated(instance: WorldEventInstance) = defeated
   }
 
