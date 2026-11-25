@@ -61,12 +61,12 @@ class ApexRoamerEvent(
   }
 
   override fun isDefeated(instance: WorldEventInstance): Boolean {
-    val id = instance.subjectEntityId ?: return true
+    val id = instance.subjectId ?: return true
     return world.read { !isAlive(id) }
   }
 
   override fun end(instance: WorldEventInstance) {
-    val id = instance.subjectEntityId ?: return
+    val id = instance.subjectId ?: return
     world.read {
       deletionQueue.enqueue(id)
       if (isAlive(id)) destroy(id)
