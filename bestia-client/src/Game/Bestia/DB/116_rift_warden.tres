@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="BestiaResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Bestia/bestia_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+bestia_id = 116
+name_key = "BESTIA_RIFT_WARDEN"
+description_key = "BESTIA_RIFT_WARDEN_DESC"
+placeholder_shape = 4
+placeholder_colour = Color(0.55, 0.38, 1.0, 1)
+placeholder_scale = 1.6
+placeholder_glow = 1.2
+kind = "DEMON"
+size = "BIG"
+weight_kg = 600
+equip_slots = 0
+armor_types = 0
+non_combatant = false
+habitat = ""
+in_compendium = false
+aggressive = true
+level_min = 60
+level_max = 60
+loot_item_ids = PackedInt32Array(6, 6)
+loot_chances = PackedInt32Array(10000, 6000)

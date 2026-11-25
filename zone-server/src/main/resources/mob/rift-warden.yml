@@ -1,0 +1,36 @@
+id: 116
+identifier: rift_warden
+# A rift calls it at stage 3, ten levels above the strongest of its province's dens, whatever this range says.
+level-min: 60
+level-max: 60
+name: Rift Warden
+description: >-
+  A shape of violet light and stone that steps out of a rift once it has grown wide enough. While it stands, the
+  rift cannot be sealed.
+kind: DEMON
+element: GHOST_3
+size: BIG
+default-attack: MELEE
+aspd: 90
+ai: aggressive_melee
+attack-power: 1.0
+weight: 600
+health: 40000
+mana: 600
+experience: 12000
+attributes: { strength: 80, intelligence: 90, vitality: 80, dexterity: 40, willpower: 70, agility: 40 }
+learnset:
+  - { skill: shadow_bolt, level: 16, active: true }
+  - { skill: shockwave, level: 31, active: true }
+# Called by a rift only; no den or ambient site places one.
+event-only: true
+boss: true
+compendium: false
+habitat: []
+spawn-weight: 0
+status-immunities: [STUN, FROZEN, STONING, FEARED, CONFUSED, CONTROLLED]
+equip-slots: []
+armor-types: []
+loot:
+  - { item: mana_crystal, chance: 10000 }
+  - { item: mana_crystal, chance: 6000 }
