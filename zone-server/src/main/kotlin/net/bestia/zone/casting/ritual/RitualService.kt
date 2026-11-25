@@ -38,6 +38,7 @@ class RitualService(
   private val residency: WorldObjectResidencyService,
   private val worldService: WorldService,
   private val messages: OutMessageProcessor,
+  private val observers: List<RitualObserver> = emptyList(),
 ) {
 
   /**
@@ -107,6 +108,7 @@ class RitualService(
       ?.firstOrNull { it.definitionId == StatusEffectId.RITUAL_CHARGE.id }
       ?.count = successBonus
     tell(ritual.leaderAccountId, OpSuccess.RITUAL_CHARGED)
+    at?.let { circle -> observers.forEach { it.onRitualCompleted(world, circle, listOf(ritual.leaderId) + stayed) } }
 
     end(world, circleId, ritual)
   }
