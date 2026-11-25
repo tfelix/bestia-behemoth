@@ -121,7 +121,7 @@ class InteractEntityHandler(
     if (structure != null) {
       val accountId = world.get(actorId, Account::class)?.accountId ?: return null
       val masterEntityId = connectionInfoService.getSelectedMasterEntityId(accountId)
-      crafting.openAtStructure(world, actorId, masterEntityId, structure.structureId)
+      crafting.openAtStructure(world, actorId, masterEntityId, structure.structureId, stationEntityId = targetId)
       return null
     }
 

@@ -41,6 +41,10 @@ message CraftableRecipesSMSG {
 
   // At a Carving Table: the viewer's own Bestias that could be locked into it, called out or in storage.
   repeated DepositableBestia depositable = 9;
+
+  // The station's entity, which the window's buttons click with an action, such as locking a Bestia into a
+  // Carving Table. 0 when the window was not opened by clicking it.
+  uint64 station_entity_id = 10;
 }
 
 message DepositedBestia {

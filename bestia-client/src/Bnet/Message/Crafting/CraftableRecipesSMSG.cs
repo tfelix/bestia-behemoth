@@ -38,6 +38,9 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
     /// <summary>Whether the station burns wood, which is what the window offers to add.</summary>
     [Export] public bool BurnsFuel { get; set; }
 
+    /// <summary>A Carving Table, where Bestias are locked in and etched.</summary>
+    [Export] public bool IsCarvingTable { get; set; }
+
     /// <summary>Seconds the fire has left; 0 once it is out.</summary>
     [Export] public uint FuelSeconds { get; set; }
 
@@ -49,6 +52,9 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
     /// <summary>The player's own Bestias that could be locked into this Carving Table.</summary>
     [Export] public Godot.Collections.Array<DepositableBestia> Depositable { get; set; } = [];
 
+    /// <summary>The station's entity, for the window's buttons to click; 0 when it was not opened by clicking it.</summary>
+    [Export] public ulong StationEntityId { get; set; }
+
     public static CraftableRecipesSMSG FromProto(global::Bnet.CraftableRecipesSMSG proto)
     {
       var message = new CraftableRecipesSMSG
@@ -58,7 +64,9 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
         StationName = NameOfStation(proto.StationKind),
         StructureId = proto.StructureId,
         FuelSeconds = proto.FuelSeconds,
-        BurnsFuel = proto.StationKind == CampfireKind
+        StationEntityId = proto.StationEntityId,
+        BurnsFuel = proto.StationKind == CampfireKind,
+        IsCarvingTable = proto.StationKind == CarvingTableKind
       };
 
       foreach (var recipe in proto.Recipes)
@@ -94,11 +102,12 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
       { 24, "Furnace" },
       { 25, "Forge" },
       { CampfireKind, "Campfire" },
-      { 94, "Carving Table" }
+      { CarvingTableKind, "Carving Table" }
     };
 
     /// <summary><c>StaticEntityKind.CAMPFIRE</c> ordinal + 1, the one station that burns fuel.</summary>
     private const uint CampfireKind = 56;
+    private const uint CarvingTableKind = 94;
 
     private static string NameOfStation(uint stationKind)
     {

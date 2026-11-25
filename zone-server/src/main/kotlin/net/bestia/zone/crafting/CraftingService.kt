@@ -125,14 +125,20 @@ class CraftingService(
    * campfire too, so the player sees that it needs wood. A station out of reach opens the window where the
    * crafter stands instead.
    */
-  fun openAtStructure(world: World, crafterId: EntityId, masterEntityId: EntityId, structureId: Long) {
+  fun openAtStructure(
+    world: World,
+    crafterId: EntityId,
+    masterEntityId: EntityId,
+    structureId: Long,
+    stationEntityId: EntityId = 0,
+  ) {
     val station = structureRegistry.of(structureId)
     val at = world.get(crafterId, Position::class)?.toVec3L()
     if (station == null || at == null || at.distance(station.position) > PlayerStructureService.RANGE_TILES) {
       return openCrafting(world, crafterId, masterEntityId, NO_SKILL)
     }
 
-    offer(world, crafterId, masterEntityId, station, NO_SKILL)
+    offer(world, crafterId, masterEntityId, station, NO_SKILL, stationEntityId)
   }
 
   /**
@@ -148,7 +154,8 @@ class CraftingService(
     crafterId: EntityId,
     masterEntityId: EntityId,
     station: StructureEntry?,
-    selectedSkillId: Long
+    selectedSkillId: Long,
+    stationEntityId: EntityId = 0,
   ) {
     val accountId = world.get(crafterId, Account::class)?.accountId ?: return
     val crafter = crafters.of(world, crafterId, masterEntityId) ?: return
@@ -170,6 +177,7 @@ class CraftingService(
       recipes = offered,
       structureId = station?.id ?: 0,
       fuelSeconds = station?.burnsOutAt?.let { Campfire.secondsLeft(it, clock.instant()) } ?: 0,
+      stationEntityId = stationEntityId,
     )
 
     // The Bestias come from the database, so the window waits for them off the tick.

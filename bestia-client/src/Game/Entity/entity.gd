@@ -659,12 +659,6 @@ func is_creature() -> bool:
 	return _is_creature
 
 
-## Whether Runic Etching can bind this creature's species into a gem.
-func has_essence() -> bool:
-	var bestia := BestiaDB.get_instance().get_bestia(_bestia_id)
-	return bestia != null and not bestia.essence_effect.is_empty()
-
-
 func is_townsfolk() -> bool:
 	return _is_townsfolk
 

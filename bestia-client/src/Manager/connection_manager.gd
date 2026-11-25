@@ -837,13 +837,12 @@ func set_quiver(item_ids: Array[int]) -> void:
 ## craft that starts can still fail when it resolves - nothing is applied locally either way. Progress
 ## arrives as a CastingComponentSMSG, which is deliberately the same bar a spell cast uses.
 ## [param amount] crafts follow one another until the materials run out; only a producing recipe repeats.
-func craft_item(recipe_id: int, target_unique_id: int = 0, amount: int = 1, stored_bestia_id: int = 0) -> void:
+func craft_item(recipe_id: int, target_unique_id: int = 0, amount: int = 1) -> void:
 	assert(is_ready_to_send())
 	var msg = CraftItemCMSG.new()
 	msg.RecipeId = recipe_id
 	msg.TargetUniqueId = target_unique_id
 	msg.Amount = amount
-	msg.StoredBestiaId = stored_bestia_id
 	_socket.SendMessage(msg)
 
 

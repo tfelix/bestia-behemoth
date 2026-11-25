@@ -60,7 +60,7 @@ class CarvingTableInteraction(
     }
 
     // After the change, which runs on the same master's job key, so the window shows its result.
-    crafting.openAtStructure(world, actorId, masterEntityId, structureId)
+    crafting.openAtStructure(world, actorId, masterEntityId, structureId, stationEntityId = propId)
 
     return null
   }

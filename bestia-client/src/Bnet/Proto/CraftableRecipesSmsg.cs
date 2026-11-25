@@ -25,32 +25,33 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci5tZXNzYWdlcy9jcmFmdGluZy9jcmFmdGFibGVfcmVjaXBlc19zbXNnLnBy",
-            "b3RvEgRibmV0IvYBChRDcmFmdGFibGVSZWNpcGVzU01TRxIQCghza2lsbF9p",
+            "b3RvEgRibmV0IpECChRDcmFmdGFibGVSZWNpcGVzU01TRxIQCghza2lsbF9p",
             "ZBgBIAEoBBIUCgxzdGF0aW9uX2tpbmQYAiABKA0SJgoHcmVjaXBlcxgDIAMo",
             "CzIVLmJuZXQuQ3JhZnRhYmxlUmVjaXBlEhQKDHN0cnVjdHVyZV9pZBgEIAEo",
             "BBIUCgxmdWVsX3NlY29uZHMYBSABKA0SKAoJZGVwb3NpdGVkGAggAygLMhUu",
             "Ym5ldC5EZXBvc2l0ZWRCZXN0aWESLAoLZGVwb3NpdGFibGUYCSADKAsyFy5i",
-            "bmV0LkRlcG9zaXRhYmxlQmVzdGlhSgQIBhAHSgQIBxAIItYBCg9EZXBvc2l0",
-            "ZWRCZXN0aWESGAoQcGxheWVyX2Jlc3RpYV9pZBgBIAEoBBIOCgZtb2JfaWQY",
-            "AiABKA0SDQoFbGV2ZWwYAyABKA0SDAoEbmFtZRgEIAEoCRISCgpvd25lcl9u",
-            "YW1lGAUgASgJEgwKBG1pbmUYBiABKAgSFAoMZXRjaF9zZWNvbmRzGAcgASgN",
-            "EhkKEWV0Y2hfc2Vjb25kc19sZWZ0GAggASgNEhMKC2V0Y2hlcl9uYW1lGAkg",
-            "ASgJEhQKDGV0Y2hpbmdfbWluZRgKIAEoCCJuChFEZXBvc2l0YWJsZUJlc3Rp",
-            "YRIYChBwbGF5ZXJfYmVzdGlhX2lkGAEgASgEEg4KBm1vYl9pZBgCIAEoDRIN",
-            "CgVsZXZlbBgDIAEoDRIMCgRuYW1lGAQgASgJEhIKCmluX3N0b3JhZ2UYBSAB",
-            "KAgiiwIKD0NyYWZ0YWJsZVJlY2lwZRIRCglyZWNpcGVfaWQYASABKAQSDgoG",
-            "ZWZmZWN0GAIgASgNEhYKDm91dHB1dF9pdGVtX2lkGAMgASgNEhUKDW91dHB1",
-            "dF9hbW91bnQYBCABKA0SIQoGaW5wdXRzGAUgAygLMhEuYm5ldC5SZWNpcGVJ",
-            "bnB1dBIYChBzdWNjZXNzX3Blcm1pbGxlGAYgASgNEhQKDGNyYWZ0X21pbGxp",
-            "cxgHIAEoDRITCgtpbnB1dHNfaGVsZBgIIAEoCBINCgVwb2ludBgJIAMoAhIQ",
-            "Cghza2lsbF9pZBgKIAEoBBIdChVyZWxpYWJsZV9iZXN0aWFfbGV2ZWwYCyAB",
-            "KA0iPAoLUmVjaXBlSW5wdXQSDwoHaXRlbV9pZBgBIAEoDRIOCgZhbW91bnQY",
-            "AiABKA0SDAoEaGVsZBgDIAEoDUIyChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
-            "GUNyYWZ0YWJsZVJlY2lwZXNTbXNnUHJvdG9iBnByb3RvMw=="));
+            "bmV0LkRlcG9zaXRhYmxlQmVzdGlhEhkKEXN0YXRpb25fZW50aXR5X2lkGAog",
+            "ASgESgQIBhAHSgQIBxAIItYBCg9EZXBvc2l0ZWRCZXN0aWESGAoQcGxheWVy",
+            "X2Jlc3RpYV9pZBgBIAEoBBIOCgZtb2JfaWQYAiABKA0SDQoFbGV2ZWwYAyAB",
+            "KA0SDAoEbmFtZRgEIAEoCRISCgpvd25lcl9uYW1lGAUgASgJEgwKBG1pbmUY",
+            "BiABKAgSFAoMZXRjaF9zZWNvbmRzGAcgASgNEhkKEWV0Y2hfc2Vjb25kc19s",
+            "ZWZ0GAggASgNEhMKC2V0Y2hlcl9uYW1lGAkgASgJEhQKDGV0Y2hpbmdfbWlu",
+            "ZRgKIAEoCCJuChFEZXBvc2l0YWJsZUJlc3RpYRIYChBwbGF5ZXJfYmVzdGlh",
+            "X2lkGAEgASgEEg4KBm1vYl9pZBgCIAEoDRINCgVsZXZlbBgDIAEoDRIMCgRu",
+            "YW1lGAQgASgJEhIKCmluX3N0b3JhZ2UYBSABKAgiiwIKD0NyYWZ0YWJsZVJl",
+            "Y2lwZRIRCglyZWNpcGVfaWQYASABKAQSDgoGZWZmZWN0GAIgASgNEhYKDm91",
+            "dHB1dF9pdGVtX2lkGAMgASgNEhUKDW91dHB1dF9hbW91bnQYBCABKA0SIQoG",
+            "aW5wdXRzGAUgAygLMhEuYm5ldC5SZWNpcGVJbnB1dBIYChBzdWNjZXNzX3Bl",
+            "cm1pbGxlGAYgASgNEhQKDGNyYWZ0X21pbGxpcxgHIAEoDRITCgtpbnB1dHNf",
+            "aGVsZBgIIAEoCBINCgVwb2ludBgJIAMoAhIQCghza2lsbF9pZBgKIAEoBBId",
+            "ChVyZWxpYWJsZV9iZXN0aWFfbGV2ZWwYCyABKA0iPAoLUmVjaXBlSW5wdXQS",
+            "DwoHaXRlbV9pZBgBIAEoDRIOCgZhbW91bnQYAiABKA0SDAoEaGVsZBgDIAEo",
+            "DUIyChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGUNyYWZ0YWJsZVJlY2lwZXNT",
+            "bXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipesSMSG), global::Bnet.CraftableRecipesSMSG.Parser, new[]{ "SkillId", "StationKind", "Recipes", "StructureId", "FuelSeconds", "Deposited", "Depositable" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipesSMSG), global::Bnet.CraftableRecipesSMSG.Parser, new[]{ "SkillId", "StationKind", "Recipes", "StructureId", "FuelSeconds", "Deposited", "Depositable", "StationEntityId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.DepositedBestia), global::Bnet.DepositedBestia.Parser, new[]{ "PlayerBestiaId", "MobId", "Level", "Name", "OwnerName", "Mine", "EtchSeconds", "EtchSecondsLeft", "EtcherName", "EtchingMine" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.DepositableBestia), global::Bnet.DepositableBestia.Parser, new[]{ "PlayerBestiaId", "MobId", "Level", "Name", "InStorage" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipe), global::Bnet.CraftableRecipe.Parser, new[]{ "RecipeId", "Effect", "OutputItemId", "OutputAmount", "Inputs", "SuccessPermille", "CraftMillis", "InputsHeld", "Point", "SkillId", "ReliableBestiaLevel" }, null, null, null, null),
@@ -116,6 +117,7 @@ namespace Bnet {
       fuelSeconds_ = other.fuelSeconds_;
       deposited_ = other.deposited_.Clone();
       depositable_ = other.depositable_.Clone();
+      stationEntityId_ = other.stationEntityId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -225,6 +227,22 @@ namespace Bnet {
       get { return depositable_; }
     }
 
+    /// <summary>Field number for the "station_entity_id" field.</summary>
+    public const int StationEntityIdFieldNumber = 10;
+    private ulong stationEntityId_;
+    /// <summary>
+    /// The station's entity, which the window's buttons click with an action, such as locking a Bestia into a
+    /// Carving Table. 0 when the window was not opened by clicking it.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong StationEntityId {
+      get { return stationEntityId_; }
+      set {
+        stationEntityId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -247,6 +265,7 @@ namespace Bnet {
       if (FuelSeconds != other.FuelSeconds) return false;
       if(!deposited_.Equals(other.deposited_)) return false;
       if(!depositable_.Equals(other.depositable_)) return false;
+      if (StationEntityId != other.StationEntityId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -261,6 +280,7 @@ namespace Bnet {
       if (FuelSeconds != 0) hash ^= FuelSeconds.GetHashCode();
       hash ^= deposited_.GetHashCode();
       hash ^= depositable_.GetHashCode();
+      if (StationEntityId != 0UL) hash ^= StationEntityId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -298,6 +318,10 @@ namespace Bnet {
       }
       deposited_.WriteTo(output, _repeated_deposited_codec);
       depositable_.WriteTo(output, _repeated_depositable_codec);
+      if (StationEntityId != 0UL) {
+        output.WriteRawTag(80);
+        output.WriteUInt64(StationEntityId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -327,6 +351,10 @@ namespace Bnet {
       }
       deposited_.WriteTo(ref output, _repeated_deposited_codec);
       depositable_.WriteTo(ref output, _repeated_depositable_codec);
+      if (StationEntityId != 0UL) {
+        output.WriteRawTag(80);
+        output.WriteUInt64(StationEntityId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -352,6 +380,9 @@ namespace Bnet {
       }
       size += deposited_.CalculateSize(_repeated_deposited_codec);
       size += depositable_.CalculateSize(_repeated_depositable_codec);
+      if (StationEntityId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(StationEntityId);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -379,6 +410,9 @@ namespace Bnet {
       }
       deposited_.Add(other.deposited_);
       depositable_.Add(other.depositable_);
+      if (other.StationEntityId != 0UL) {
+        StationEntityId = other.StationEntityId;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -426,6 +460,10 @@ namespace Bnet {
             depositable_.AddEntriesFrom(input, _repeated_depositable_codec);
             break;
           }
+          case 80: {
+            StationEntityId = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -471,6 +509,10 @@ namespace Bnet {
           }
           case 74: {
             depositable_.AddEntriesFrom(ref input, _repeated_depositable_codec);
+            break;
+          }
+          case 80: {
+            StationEntityId = input.ReadUInt64();
             break;
           }
         }

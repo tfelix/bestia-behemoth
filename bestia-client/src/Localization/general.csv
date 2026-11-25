@@ -908,7 +908,6 @@ ERROR_TELEPORT_NOT_NOW,You cannot fly off in the middle of that.
 ERROR_TELEPORT_NO_LANDING,The wing found nowhere to set you down and crumbles to dust.
 CONTEXT_EXCHANGE_ITEMS,Exchange items
 CONTEXT_ATTACK,Attack
-CONTEXT_OFFER_FOR_ETCHING,Offer for etching
 EXCHANGE_WITH,Exchange with %s
 EXCHANGE_HINT,"Show their bag beside yours. Drag between the two, Shift-click to move a whole stack, hold Ctrl on the drop to choose how many."
 EXCHANGE_WEIGHT,Weight %.1f / %.1f kg

@@ -45,11 +45,17 @@ const _RESULT_MESSAGES := {
 	"craft_already_in_progress": "Already working on something.",
 	"craft_not_possible": "You cannot do that here.",
 	"craft_item_too_advanced": "That is beyond you for now. Raise the skill to reach a higher tier of item.",
-	"craft_bestia_not_at_table": "Your Bestia must stand next to the Carving Table.",
+	"craft_bestia_not_at_table": "Stand next to the Carving Table.",
 }
 
-## What a failed etching costs, said instead of the generic failure: the gem, never the Bestia.
-const _ETCH_FAILED_MESSAGE := "The gem shattered. Your Bestia is safe."
+## The Carving Table's two tabs: the Artificer's etching and every master's own Bestias.
+enum TableTab { ETCH, LOCK_IN }
+
+## The InteractEntity actions of the server's CarvingTableInteraction.
+const _DEPOSIT_BESTIA := "depositBestia"
+const _TAKE_BACK_BESTIA := "takeBackBestia"
+const _ETCH_BESTIA := "etchBestia"
+const _CALL_OFF_ETCHING := "callOffEtching"
 
 const _SHORT_COLOR := UiStyle.DANGER
 
@@ -104,6 +110,12 @@ var _skill_order: Array[int] = []
 ## The player structure the window is open at, or 0 for Handiwork.
 var _structure_id: int = 0
 
+## Its entity, which the Carving Table's buttons click with an action; 0 until the server named it.
+var _station_entity_id: int = 0
+
+var _table_tabs: TabBar
+var _deposit_page: CarvingTableDepositPage
+
 var _selected_skill: int = 0
 var _selected_recipe: CraftableRecipe = null
 var _amount: int = 1
@@ -145,6 +157,8 @@ func _ready() -> void:
 	_discovery.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_discover_page.add_child(_discovery)
 
+	_build_table_tabs()
+
 	_show_recipes()
 
 
@@ -153,9 +167,11 @@ func _on_craftable_recipes(msg: CraftableRecipesSMSG) -> void:
 	_station_label.text = msg.StationName if not msg.StationName.is_empty() else _NO_STATION_TITLE
 	if int(msg.StructureId) != _structure_id:
 		_clear(_queue_rows)
+		_station_entity_id = 0
 	_structure_id = int(msg.StructureId)
-	_etching_picker.offers = msg.EtchingOffers
-	_etching_picker.stored = msg.StoredBestias
+	if int(msg.StationEntityId) != 0:
+		_station_entity_id = int(msg.StationEntityId)
+	_show_table(msg)
 	# A Carving Table only etches, and an etching never queues.
 	_queue_panel.visible = _at_station() and not msg.Recipes.all(_etches)
 	_show_fuel(msg)
@@ -390,8 +406,8 @@ func _show_actions() -> void:
 	var make := Button.new()
 	make.text = _make_label(recipe)
 	make.focus_mode = Control.FOCUS_NONE
-	var no_target := _selected_target() == 0 and _selected_stored_bestia() == 0
-	make.disabled = _awaiting_result or (recipe.NeedsTarget and no_target)
+	var no_target := _selected_target() == 0
+	make.disabled = _awaiting_result or (recipe.NeedsTarget and no_target) or (_etches(recipe) and not _etching_picker.can_etch())
 	make.pressed.connect(_on_make_pressed)
 	_emphasize(make)
 	_actions.add_child(make)
@@ -442,14 +458,9 @@ func _fill_target_picker() -> void:
 		_target_picker.set_item_metadata(_target_picker.item_count - 1, held.player_item_id)
 
 
-## The picked Bestia in storage for an etching, as a player bestia id, or 0.
-func _selected_stored_bestia() -> int:
-	return _etching_picker.picked_stored_id if _etches(_selected_recipe) else 0
-
-
 func _selected_target() -> int:
 	if _etches(_selected_recipe):
-		return _etching_picker.picked_entity_id
+		return _etching_picker.picked_id
 
 	var index := _target_picker.selected
 	if index < 0:
@@ -468,7 +479,12 @@ func _on_make_pressed() -> void:
 		_awaiting_queue = true
 		return
 
-	ConnectionManager.craft_item(int(_selected_recipe.RecipeId), _selected_target(), _amount, _selected_stored_bestia())
+	if _etches(_selected_recipe):
+		_click_table(_ETCH_BESTIA, _etching_picker.picked_id, int(_selected_recipe.RecipeId))
+		_status.text = "The etching runs at the table now."
+		return
+
+	ConnectionManager.craft_item(int(_selected_recipe.RecipeId), _selected_target(), _amount)
 
 	_awaiting_result = true
 	_status.text = "Working..."
@@ -481,8 +497,6 @@ func _on_make_pressed() -> void:
 ## anything - so they differ only in the sentence shown.
 func _on_operation_result(message) -> void:
 	var text: String = _RESULT_MESSAGES.get(message.CodeName, "")
-	if message.CodeName == "craft_failed" and _etches(_selected_recipe):
-		text = _ETCH_FAILED_MESSAGE
 	if text.is_empty():
 		# Some other operation entirely (equipping, a master edit): not ours to report on.
 		return
@@ -634,6 +648,64 @@ func _show_discovery() -> void:
 func _show_recipes() -> void:
 	_discover_page.visible = false
 	_make_page.visible = true
+	if _deposit_page != null:
+		_deposit_page.visible = false
+
+
+# --- Carving Table ------------------------------------------------------------------------------------------------
+
+## Tabs above the recipes, shown only at a Carving Table, and the page of the second tab.
+func _build_table_tabs() -> void:
+	_table_tabs = TabBar.new()
+	_table_tabs.add_tab("Etch")
+	_table_tabs.add_tab("Lock in a Bestia")
+	_table_tabs.visible = false
+	_table_tabs.tab_changed.connect(_on_table_tab_changed)
+	_make_page.get_parent().add_child(_table_tabs)
+	_make_page.get_parent().move_child(_table_tabs, _make_page.get_index())
+
+	_deposit_page = CarvingTableDepositPage.new()
+	_deposit_page.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_deposit_page.visible = false
+	_deposit_page.deposit_requested.connect(func(id: int) -> void: _click_table(_DEPOSIT_BESTIA, id))
+	_deposit_page.take_back_requested.connect(func(id: int) -> void: _click_table(_TAKE_BACK_BESTIA, id))
+	_make_page.get_parent().add_child(_deposit_page)
+	_make_page.get_parent().move_child(_deposit_page, _make_page.get_index() + 1)
+
+	_etching_picker.call_off_requested.connect(func(id: int) -> void: _click_table(_CALL_OFF_ETCHING, id))
+
+
+## A master who cannot etch sees only their own Bestias.
+func _show_table(msg: CraftableRecipesSMSG) -> void:
+	var was_visible := _table_tabs.visible
+	_table_tabs.visible = msg.IsCarvingTable
+	_etching_picker.deposited = msg.Deposited
+	_deposit_page.show_bestias(msg.Deposited, msg.Depositable)
+	if not msg.IsCarvingTable:
+		_deposit_page.visible = false
+		return
+
+	if not was_visible:
+		_table_tabs.current_tab = TableTab.ETCH if not msg.Recipes.is_empty() else TableTab.LOCK_IN
+	_on_table_tab_changed(_table_tabs.current_tab)
+
+
+func _on_table_tab_changed(tab: int) -> void:
+	_discover_page.visible = false
+	_make_page.visible = tab == TableTab.ETCH
+	_deposit_page.visible = tab == TableTab.LOCK_IN
+
+
+## Clicks the Carving Table with [param action]; the server answers with a fresh window.
+func _click_table(action: String, player_bestia_id: int, recipe_id := 0) -> void:
+	if _station_entity_id == 0 or not ConnectionManager.is_ready_to_send():
+		return
+	var args = ConnectionManager.ScriptArgsCls.new()
+	args.SetText(ScriptArgKeys.ACTION, action)
+	args.SetInt(ScriptArgKeys.PLAYER_BESTIA_ID, player_bestia_id)
+	if recipe_id != 0:
+		args.SetInt(ScriptArgKeys.RECIPE_ID, recipe_id)
+	ConnectionManager.interact_entity(_station_entity_id, args)
 
 
 # --- Names --------------------------------------------------------------------------------------------------------

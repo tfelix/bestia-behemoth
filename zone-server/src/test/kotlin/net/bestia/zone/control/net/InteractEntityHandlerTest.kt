@@ -191,7 +191,7 @@ class InteractEntityHandlerTest {
 
     handler.handle(world, interactWith(workbench))
 
-    verify { crafting.openAtStructure(world, actor, actor, 7L) }
+    verify { crafting.openAtStructure(world, actor, actor, 7L, stationEntityId = workbench) }
   }
 
   @Test
@@ -205,7 +205,7 @@ class InteractEntityHandlerTest {
     handler.handle(world, interactWith(chest))
 
     verify { chestInteraction.interact(any(), actor, chest, any()) }
-    verify(exactly = 0) { crafting.openAtStructure(any(), any(), any(), any()) }
+    verify(exactly = 0) { crafting.openAtStructure(any(), any(), any(), any(), any()) }
   }
 
   @Test
