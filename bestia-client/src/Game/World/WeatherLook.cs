@@ -38,8 +38,9 @@ namespace BestiaBehemothClient.Game.World
 
     private WeatherLook(float rainRate, float snowRate, float dustRate, float groundWetRate, float overcast,
       float visibility, float windScale, float gustiness, bool hasLightning, Color hazeColour = default,
-      float hazeTint = 0.0f)
+      float hazeTint = 0.0f, float moteRate = 0.0f)
     {
+      MoteRate = moteRate;
       HazeColour = hazeColour;
       HazeTint = hazeTint;
       RainRate = rainRate;
@@ -66,6 +67,12 @@ namespace BestiaBehemothClient.Game.World
 
     /// <summary>How thick the airborne dust is right now, 0 to 1. Sandstorms only.</summary>
     public float DustRate { get; }
+
+    /// <summary>
+    /// How thick the light motes a mana storm carries are, 0 to 1. Mana storms only; the mana tier adds its own,
+    /// see <see cref="ManaLook"/>. Not something falling, so it may run beside rain or snow.
+    /// </summary>
+    public float MoteRate { get; }
 
     /// <summary>
     /// How fast the ground is being wetted, 0 to 1 - which is not always <see cref="RainRate"/>.
@@ -318,10 +325,10 @@ namespace BestiaBehemothClient.Game.World
             new Color(0.78f, 0.64f, 0.42f), 0.85f),
 
         // Ignores shelter and can stand in a clear sky, so it takes the reported cover as it finds it rather
-        // than flooring it. The motes it should have are not built; until they are, the honest rendering is a
-        // charged, hazy sky with lightning in it, and not a downpour it does not have.
+        // than flooring it: a charged, hazy sky with lightning and light motes in it, not a downpour.
         WeatherSMSG.Kind.ManaStorm =>
-          Dry(cover, Mathf.Lerp(0.85f, 0.55f, hard), 1.2f, 0.4f, true, new Color(0.55f, 0.44f, 0.86f), 0.6f),
+          Dry(cover, Mathf.Lerp(0.85f, 0.55f, hard), 1.2f, 0.4f, true, new Color(0.55f, 0.44f, 0.86f), 0.6f,
+            Mathf.Lerp(0.6f, 1.0f, hard)),
 
         // No funnel yet - the hazard fields say where it is and nothing draws it. Rendered as the storm that
         // carries one, which is at least the right weather to be caught outdoors in.
@@ -337,10 +344,10 @@ namespace BestiaBehemothClient.Game.World
 
     /// <summary>A sky with nothing falling out of it and nothing settling under it.</summary>
     private static WeatherLook Dry(float overcast, float visibility, float windScale, float gustiness,
-      bool hasLightning = false, Color hazeColour = default, float hazeTint = 0.0f)
+      bool hasLightning = false, Color hazeColour = default, float hazeTint = 0.0f, float moteRate = 0.0f)
     {
       return new WeatherLook(0.0f, 0.0f, 0.0f, 0.0f, overcast, visibility, windScale, gustiness, hasLightning,
-        hazeColour, hazeTint);
+        hazeColour, hazeTint, moteRate);
     }
 
     /// <summary>A sky with nothing falling out of it that wets the ground anyway.</summary>
