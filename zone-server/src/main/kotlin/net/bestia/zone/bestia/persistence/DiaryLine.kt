@@ -10,6 +10,8 @@ import jakarta.persistence.Id
 import jakarta.persistence.Index
 import jakarta.persistence.Table
 import net.bestia.zone.bestia.diary.BestiaHappened
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.time.Instant
 
 /** One line of a bestia's diary. Kept for [DiaryConfig.keepDays]. */
@@ -28,7 +30,9 @@ class DiaryLine(
   @Column(nullable = false)
   val at: Instant,
 
+  /** A varchar rather than a native ENUM: `ddl-auto: update` never widens an ENUM column when a kind is added. */
   @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.VARCHAR)
   @Column(nullable = false, length = 20)
   val kind: BestiaHappened.Kind,
 
