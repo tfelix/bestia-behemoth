@@ -1,5 +1,6 @@
 package net.bestia.zone.weather
 
+import net.bestia.zone.world.mana.ManaTier
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.WeatherProto
 import net.bestia.bnet.proto.WeatherSMSGProto
@@ -33,6 +34,9 @@ data class WeatherSMSG(
 
   /** What WEATHER_SENSE reads of the mana field, or null without the skill. */
   val mana: ManaReading? = null,
+
+  /** How the mana feels here. Sent to everyone; never the density itself. */
+  val manaTier: ManaTier = ManaTier.CALM,
 ) : SMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -44,6 +48,7 @@ data class WeatherSMSG(
       .setWindSpeed(windSpeed.toFloat())
       .setWindDirection(windDirection.toFloat())
       .setTemperatureCelsius(temperatureCelsius.toFloat())
+      .setManaTier(wireTierOf(manaTier))
 
     forecast?.let {
       weather
@@ -123,6 +128,18 @@ data class WeatherSMSG(
      * somebody adds the wire value and bumps nothing - a new kind a client cannot name would otherwise be
      * silently sent as clear sky, which is the plausible-looking failure `voxel/SurfaceCover` argues against.
      */
+    /** Exhaustive with no `else`, for [wireKindOf]'s reason. */
+    private fun wireTierOf(tier: ManaTier): WeatherSMSGProto.ManaTier = when (tier) {
+      ManaTier.CALM -> WeatherSMSGProto.ManaTier.MANA_TIER_CALM
+      ManaTier.STIRRING -> WeatherSMSGProto.ManaTier.MANA_TIER_STIRRING
+      ManaTier.UNEASY -> WeatherSMSGProto.ManaTier.MANA_TIER_UNEASY
+      ManaTier.OMINOUS -> WeatherSMSGProto.ManaTier.MANA_TIER_OMINOUS
+      ManaTier.STORMS -> WeatherSMSGProto.ManaTier.MANA_TIER_STORMS
+      ManaTier.EVENT -> WeatherSMSGProto.ManaTier.MANA_TIER_EVENT
+      ManaTier.SICKNESS -> WeatherSMSGProto.ManaTier.MANA_TIER_SICKNESS
+      ManaTier.BURN -> WeatherSMSGProto.ManaTier.MANA_TIER_BURN
+    }
+
     private fun wireKindOf(kind: WeatherKind): WeatherProto.WeatherKind = when (kind) {
       WeatherKind.CLEAR -> WeatherProto.WeatherKind.WEATHER_CLEAR
       WeatherKind.CLOUDY -> WeatherProto.WeatherKind.WEATHER_CLOUDY

@@ -8,7 +8,11 @@ import net.bestia.worldgen.climate.WeatherKind
 import net.bestia.worldgen.climate.WeatherState
 import net.bestia.zone.skill.skillIdsOf
 import net.bestia.zone.message.OutMessageHandler
+import net.bestia.bnet.proto.WeatherSMSGProto
+import net.bestia.zone.world.mana.ManaTier
+import net.bestia.zone.world.mana.ManaTiers
 import net.bestia.zone.world.stream.ChunkService
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -30,7 +34,8 @@ class WeatherPublisherTest {
   /** A publisher whose world hands back [states] and [grounds] in order, one per call to `publish`. */
   private fun publisherSeeing(
     vararg states: WeatherState,
-    grounds: List<GroundCover> = listOf(GroundCover.BARE)
+    grounds: List<GroundCover> = listOf(GroundCover.BARE),
+    tiers: ManaTiers? = null,
   ): WeatherPublisher {
     val weatherService = mockk<WeatherService> {
       every { at(any(), any(), any()) } returnsMany states.map {
@@ -45,7 +50,9 @@ class WeatherPublisherTest {
 
     val groundWeather = mockk<GroundWeather> { every { at(any(), any(), any()) } returnsMany grounds }
 
-    return WeatherPublisher(weatherService, groundWeather, chunkService, out, WeatherConfig(), skills, ManaSense(mockk()))
+    return WeatherPublisher(
+      weatherService, groundWeather, chunkService, out, WeatherConfig(), skills, ManaSense(mockk()), tiers
+    )
   }
 
   private fun sky(kind: WeatherKind, cloud: Double = 0.1, intensity: Double = 0.0) = WeatherState(
@@ -125,6 +132,22 @@ class WeatherPublisherTest {
     assertTrue(publisher.publish(accountId, voxelX, voxelY, 0), "snow has settled")
     assertFalse(publisher.publish(accountId, voxelX, voxelY, 0), "ten metres is inside the band")
     assertTrue(publisher.publish(accountId, voxelX, voxelY, 0), "the snow line came down fifty metres")
+  }
+
+  @Test
+  fun `the mana tier rising under a steady sky sends again`() {
+    val tiers = mockk<ManaTiers> { every { tierAt(any()) } returnsMany listOf(ManaTier.CALM, ManaTier.UNEASY) }
+    val sent = mutableListOf<WeatherSMSG>()
+    every { out.sendMessage(accountId, capture(sent)) } returns Unit
+    val publisher = publisherSeeing(sky(WeatherKind.CLEAR), sky(WeatherKind.CLEAR), tiers = tiers)
+
+    assertTrue(publisher.publish(accountId, voxelX, voxelY, 0))
+    assertTrue(publisher.publish(accountId, voxelX, voxelY, 0), "the place turned uneasy")
+
+    assertEquals(ManaTier.UNEASY, sent.last().manaTier)
+    assertEquals(
+      WeatherSMSGProto.ManaTier.MANA_TIER_UNEASY, sent.last().toBnetEnvelope().weather.manaTier
+    )
   }
 
   @Test

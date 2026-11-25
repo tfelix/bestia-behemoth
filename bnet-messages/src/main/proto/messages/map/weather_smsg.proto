@@ -107,4 +107,22 @@ message WeatherSMSG {
   bool has_weaker_mana = 65;
   float weaker_mana_direction = 66;
   float weaker_mana_metres = 67;
+
+  /**
+   * How the mana feels where the player stands, for the sky, the motes and the hum. Everyone gets it, skill or
+   * not: it is what anybody standing there would see. The density behind it is only ever in `mana` above.
+   */
+  ManaTier mana_tier = 70;
+}
+
+/** The steps of the mana ladder, lowest first. A newer server may send a step this build does not know. */
+enum ManaTier {
+  MANA_TIER_CALM = 0;
+  MANA_TIER_STIRRING = 1;
+  MANA_TIER_UNEASY = 2;
+  MANA_TIER_OMINOUS = 3;
+  MANA_TIER_STORMS = 4;
+  MANA_TIER_EVENT = 5;
+  MANA_TIER_SICKNESS = 6;
+  MANA_TIER_BURN = 7;
 }
