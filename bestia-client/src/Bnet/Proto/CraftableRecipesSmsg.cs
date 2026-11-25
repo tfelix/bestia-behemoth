@@ -25,40 +25,34 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci5tZXNzYWdlcy9jcmFmdGluZy9jcmFmdGFibGVfcmVjaXBlc19zbXNnLnBy",
-            "b3RvEgRibmV0IsQCChRDcmFmdGFibGVSZWNpcGVzU01TRxIQCghza2lsbF9p",
+            "b3RvEgRibmV0IvYBChRDcmFmdGFibGVSZWNpcGVzU01TRxIQCghza2lsbF9p",
             "ZBgBIAEoBBIUCgxzdGF0aW9uX2tpbmQYAiABKA0SJgoHcmVjaXBlcxgDIAMo",
             "CzIVLmJuZXQuQ3JhZnRhYmxlUmVjaXBlEhQKDHN0cnVjdHVyZV9pZBgEIAEo",
-            "BBIUCgxmdWVsX3NlY29uZHMYBSABKA0SKgoOZXRjaGluZ19vZmZlcnMYBiAD",
-            "KAsyEi5ibmV0LkV0Y2hpbmdPZmZlchIsCg5zdG9yZWRfYmVzdGlhcxgHIAMo",
-            "CzIULmJuZXQuU3RvcmVkRXRjaGFibGUSKAoJZGVwb3NpdGVkGAggAygLMhUu",
+            "BBIUCgxmdWVsX3NlY29uZHMYBSABKA0SKAoJZGVwb3NpdGVkGAggAygLMhUu",
             "Ym5ldC5EZXBvc2l0ZWRCZXN0aWESLAoLZGVwb3NpdGFibGUYCSADKAsyFy5i",
-            "bmV0LkRlcG9zaXRhYmxlQmVzdGlhInoKD0RlcG9zaXRlZEJlc3RpYRIYChBw",
-            "bGF5ZXJfYmVzdGlhX2lkGAEgASgEEg4KBm1vYl9pZBgCIAEoDRINCgVsZXZl",
-            "bBgDIAEoDRIMCgRuYW1lGAQgASgJEhIKCm93bmVyX25hbWUYBSABKAkSDAoE",
-            "bWluZRgGIAEoCCJuChFEZXBvc2l0YWJsZUJlc3RpYRIYChBwbGF5ZXJfYmVz",
-            "dGlhX2lkGAEgASgEEg4KBm1vYl9pZBgCIAEoDRINCgVsZXZlbBgDIAEoDRIM",
-            "CgRuYW1lGAQgASgJEhIKCmluX3N0b3JhZ2UYBSABKAgiVAoMRXRjaGluZ09m",
-            "ZmVyEhEKCWVudGl0eV9pZBgBIAEoBBIOCgZtb2JfaWQYAiABKA0SDQoFbGV2",
-            "ZWwYAyABKA0SEgoKb3duZXJfbmFtZRgEIAEoCSJXCg5TdG9yZWRFdGNoYWJs",
-            "ZRIYChBwbGF5ZXJfYmVzdGlhX2lkGAEgASgEEg4KBm1vYl9pZBgCIAEoDRIN",
-            "CgVsZXZlbBgDIAEoDRIMCgRuYW1lGAQgASgJIosCCg9DcmFmdGFibGVSZWNp",
-            "cGUSEQoJcmVjaXBlX2lkGAEgASgEEg4KBmVmZmVjdBgCIAEoDRIWCg5vdXRw",
-            "dXRfaXRlbV9pZBgDIAEoDRIVCg1vdXRwdXRfYW1vdW50GAQgASgNEiEKBmlu",
-            "cHV0cxgFIAMoCzIRLmJuZXQuUmVjaXBlSW5wdXQSGAoQc3VjY2Vzc19wZXJt",
-            "aWxsZRgGIAEoDRIUCgxjcmFmdF9taWxsaXMYByABKA0SEwoLaW5wdXRzX2hl",
-            "bGQYCCABKAgSDQoFcG9pbnQYCSADKAISEAoIc2tpbGxfaWQYCiABKAQSHQoV",
-            "cmVsaWFibGVfYmVzdGlhX2xldmVsGAsgASgNIjwKC1JlY2lwZUlucHV0Eg8K",
-            "B2l0ZW1faWQYASABKA0SDgoGYW1vdW50GAIgASgNEgwKBGhlbGQYAyABKA1C",
-            "MgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhlDcmFmdGFibGVSZWNpcGVzU21z",
-            "Z1Byb3RvYgZwcm90bzM="));
+            "bmV0LkRlcG9zaXRhYmxlQmVzdGlhSgQIBhAHSgQIBxAIItYBCg9EZXBvc2l0",
+            "ZWRCZXN0aWESGAoQcGxheWVyX2Jlc3RpYV9pZBgBIAEoBBIOCgZtb2JfaWQY",
+            "AiABKA0SDQoFbGV2ZWwYAyABKA0SDAoEbmFtZRgEIAEoCRISCgpvd25lcl9u",
+            "YW1lGAUgASgJEgwKBG1pbmUYBiABKAgSFAoMZXRjaF9zZWNvbmRzGAcgASgN",
+            "EhkKEWV0Y2hfc2Vjb25kc19sZWZ0GAggASgNEhMKC2V0Y2hlcl9uYW1lGAkg",
+            "ASgJEhQKDGV0Y2hpbmdfbWluZRgKIAEoCCJuChFEZXBvc2l0YWJsZUJlc3Rp",
+            "YRIYChBwbGF5ZXJfYmVzdGlhX2lkGAEgASgEEg4KBm1vYl9pZBgCIAEoDRIN",
+            "CgVsZXZlbBgDIAEoDRIMCgRuYW1lGAQgASgJEhIKCmluX3N0b3JhZ2UYBSAB",
+            "KAgiiwIKD0NyYWZ0YWJsZVJlY2lwZRIRCglyZWNpcGVfaWQYASABKAQSDgoG",
+            "ZWZmZWN0GAIgASgNEhYKDm91dHB1dF9pdGVtX2lkGAMgASgNEhUKDW91dHB1",
+            "dF9hbW91bnQYBCABKA0SIQoGaW5wdXRzGAUgAygLMhEuYm5ldC5SZWNpcGVJ",
+            "bnB1dBIYChBzdWNjZXNzX3Blcm1pbGxlGAYgASgNEhQKDGNyYWZ0X21pbGxp",
+            "cxgHIAEoDRITCgtpbnB1dHNfaGVsZBgIIAEoCBINCgVwb2ludBgJIAMoAhIQ",
+            "Cghza2lsbF9pZBgKIAEoBBIdChVyZWxpYWJsZV9iZXN0aWFfbGV2ZWwYCyAB",
+            "KA0iPAoLUmVjaXBlSW5wdXQSDwoHaXRlbV9pZBgBIAEoDRIOCgZhbW91bnQY",
+            "AiABKA0SDAoEaGVsZBgDIAEoDUIyChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
+            "GUNyYWZ0YWJsZVJlY2lwZXNTbXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipesSMSG), global::Bnet.CraftableRecipesSMSG.Parser, new[]{ "SkillId", "StationKind", "Recipes", "StructureId", "FuelSeconds", "EtchingOffers", "StoredBestias", "Deposited", "Depositable" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.DepositedBestia), global::Bnet.DepositedBestia.Parser, new[]{ "PlayerBestiaId", "MobId", "Level", "Name", "OwnerName", "Mine" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipesSMSG), global::Bnet.CraftableRecipesSMSG.Parser, new[]{ "SkillId", "StationKind", "Recipes", "StructureId", "FuelSeconds", "Deposited", "Depositable" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.DepositedBestia), global::Bnet.DepositedBestia.Parser, new[]{ "PlayerBestiaId", "MobId", "Level", "Name", "OwnerName", "Mine", "EtchSeconds", "EtchSecondsLeft", "EtcherName", "EtchingMine" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.DepositableBestia), global::Bnet.DepositableBestia.Parser, new[]{ "PlayerBestiaId", "MobId", "Level", "Name", "InStorage" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EtchingOffer), global::Bnet.EtchingOffer.Parser, new[]{ "EntityId", "MobId", "Level", "OwnerName" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StoredEtchable), global::Bnet.StoredEtchable.Parser, new[]{ "PlayerBestiaId", "MobId", "Level", "Name" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipe), global::Bnet.CraftableRecipe.Parser, new[]{ "RecipeId", "Effect", "OutputItemId", "OutputAmount", "Inputs", "SuccessPermille", "CraftMillis", "InputsHeld", "Point", "SkillId", "ReliableBestiaLevel" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.RecipeInput), global::Bnet.RecipeInput.Parser, new[]{ "ItemId", "Amount", "Held" }, null, null, null, null)
           }));
@@ -120,8 +114,6 @@ namespace Bnet {
       recipes_ = other.recipes_.Clone();
       structureId_ = other.structureId_;
       fuelSeconds_ = other.fuelSeconds_;
-      etchingOffers_ = other.etchingOffers_.Clone();
-      storedBestias_ = other.storedBestias_.Clone();
       deposited_ = other.deposited_.Clone();
       depositable_ = other.depositable_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -205,34 +197,6 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "etching_offers" field.</summary>
-    public const int EtchingOffersFieldNumber = 6;
-    private static readonly pb::FieldCodec<global::Bnet.EtchingOffer> _repeated_etchingOffers_codec
-        = pb::FieldCodec.ForMessage(50, global::Bnet.EtchingOffer.Parser);
-    private readonly pbc::RepeatedField<global::Bnet.EtchingOffer> etchingOffers_ = new pbc::RepeatedField<global::Bnet.EtchingOffer>();
-    /// <summary>
-    /// Other masters' Bestias offered for etching at this Carving Table. Empty at every other station.
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Bnet.EtchingOffer> EtchingOffers {
-      get { return etchingOffers_; }
-    }
-
-    /// <summary>Field number for the "stored_bestias" field.</summary>
-    public const int StoredBestiasFieldNumber = 7;
-    private static readonly pb::FieldCodec<global::Bnet.StoredEtchable> _repeated_storedBestias_codec
-        = pb::FieldCodec.ForMessage(58, global::Bnet.StoredEtchable.Parser);
-    private readonly pbc::RepeatedField<global::Bnet.StoredEtchable> storedBestias_ = new pbc::RepeatedField<global::Bnet.StoredEtchable>();
-    /// <summary>
-    /// The crafter's own Bestias in storage, at a Carving Table and with storage access. Empty otherwise.
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Bnet.StoredEtchable> StoredBestias {
-      get { return storedBestias_; }
-    }
-
     /// <summary>Field number for the "deposited" field.</summary>
     public const int DepositedFieldNumber = 8;
     private static readonly pb::FieldCodec<global::Bnet.DepositedBestia> _repeated_deposited_codec
@@ -281,8 +245,6 @@ namespace Bnet {
       if(!recipes_.Equals(other.recipes_)) return false;
       if (StructureId != other.StructureId) return false;
       if (FuelSeconds != other.FuelSeconds) return false;
-      if(!etchingOffers_.Equals(other.etchingOffers_)) return false;
-      if(!storedBestias_.Equals(other.storedBestias_)) return false;
       if(!deposited_.Equals(other.deposited_)) return false;
       if(!depositable_.Equals(other.depositable_)) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -297,8 +259,6 @@ namespace Bnet {
       hash ^= recipes_.GetHashCode();
       if (StructureId != 0UL) hash ^= StructureId.GetHashCode();
       if (FuelSeconds != 0) hash ^= FuelSeconds.GetHashCode();
-      hash ^= etchingOffers_.GetHashCode();
-      hash ^= storedBestias_.GetHashCode();
       hash ^= deposited_.GetHashCode();
       hash ^= depositable_.GetHashCode();
       if (_unknownFields != null) {
@@ -336,8 +296,6 @@ namespace Bnet {
         output.WriteRawTag(40);
         output.WriteUInt32(FuelSeconds);
       }
-      etchingOffers_.WriteTo(output, _repeated_etchingOffers_codec);
-      storedBestias_.WriteTo(output, _repeated_storedBestias_codec);
       deposited_.WriteTo(output, _repeated_deposited_codec);
       depositable_.WriteTo(output, _repeated_depositable_codec);
       if (_unknownFields != null) {
@@ -367,8 +325,6 @@ namespace Bnet {
         output.WriteRawTag(40);
         output.WriteUInt32(FuelSeconds);
       }
-      etchingOffers_.WriteTo(ref output, _repeated_etchingOffers_codec);
-      storedBestias_.WriteTo(ref output, _repeated_storedBestias_codec);
       deposited_.WriteTo(ref output, _repeated_deposited_codec);
       depositable_.WriteTo(ref output, _repeated_depositable_codec);
       if (_unknownFields != null) {
@@ -394,8 +350,6 @@ namespace Bnet {
       if (FuelSeconds != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(FuelSeconds);
       }
-      size += etchingOffers_.CalculateSize(_repeated_etchingOffers_codec);
-      size += storedBestias_.CalculateSize(_repeated_storedBestias_codec);
       size += deposited_.CalculateSize(_repeated_deposited_codec);
       size += depositable_.CalculateSize(_repeated_depositable_codec);
       if (_unknownFields != null) {
@@ -423,8 +377,6 @@ namespace Bnet {
       if (other.FuelSeconds != 0) {
         FuelSeconds = other.FuelSeconds;
       }
-      etchingOffers_.Add(other.etchingOffers_);
-      storedBestias_.Add(other.storedBestias_);
       deposited_.Add(other.deposited_);
       depositable_.Add(other.depositable_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -464,14 +416,6 @@ namespace Bnet {
           }
           case 40: {
             FuelSeconds = input.ReadUInt32();
-            break;
-          }
-          case 50: {
-            etchingOffers_.AddEntriesFrom(input, _repeated_etchingOffers_codec);
-            break;
-          }
-          case 58: {
-            storedBestias_.AddEntriesFrom(input, _repeated_storedBestias_codec);
             break;
           }
           case 66: {
@@ -519,14 +463,6 @@ namespace Bnet {
           }
           case 40: {
             FuelSeconds = input.ReadUInt32();
-            break;
-          }
-          case 50: {
-            etchingOffers_.AddEntriesFrom(ref input, _repeated_etchingOffers_codec);
-            break;
-          }
-          case 58: {
-            storedBestias_.AddEntriesFrom(ref input, _repeated_storedBestias_codec);
             break;
           }
           case 66: {
@@ -585,6 +521,10 @@ namespace Bnet {
       name_ = other.name_;
       ownerName_ = other.ownerName_;
       mine_ = other.mine_;
+      etchSeconds_ = other.etchSeconds_;
+      etchSecondsLeft_ = other.etchSecondsLeft_;
+      etcherName_ = other.etcherName_;
+      etchingMine_ = other.etchingMine_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -669,6 +609,66 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "etch_seconds" field.</summary>
+    public const int EtchSecondsFieldNumber = 7;
+    private uint etchSeconds_;
+    /// <summary>
+    /// How long the viewer would take to etch it, in seconds.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint EtchSeconds {
+      get { return etchSeconds_; }
+      set {
+        etchSeconds_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "etch_seconds_left" field.</summary>
+    public const int EtchSecondsLeftFieldNumber = 8;
+    private uint etchSecondsLeft_;
+    /// <summary>
+    /// Seconds left of the etching under way on it; 0 when none is.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint EtchSecondsLeft {
+      get { return etchSecondsLeft_; }
+      set {
+        etchSecondsLeft_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "etcher_name" field.</summary>
+    public const int EtcherNameFieldNumber = 9;
+    private string etcherName_ = "";
+    /// <summary>
+    /// Who is etching it, while an etching is under way.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string EtcherName {
+      get { return etcherName_; }
+      set {
+        etcherName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "etching_mine" field.</summary>
+    public const int EtchingMineFieldNumber = 10;
+    private bool etchingMine_;
+    /// <summary>
+    /// The viewer is the one etching it, so they may call it off.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool EtchingMine {
+      get { return etchingMine_; }
+      set {
+        etchingMine_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -690,6 +690,10 @@ namespace Bnet {
       if (Name != other.Name) return false;
       if (OwnerName != other.OwnerName) return false;
       if (Mine != other.Mine) return false;
+      if (EtchSeconds != other.EtchSeconds) return false;
+      if (EtchSecondsLeft != other.EtchSecondsLeft) return false;
+      if (EtcherName != other.EtcherName) return false;
+      if (EtchingMine != other.EtchingMine) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -703,6 +707,10 @@ namespace Bnet {
       if (Name.Length != 0) hash ^= Name.GetHashCode();
       if (OwnerName.Length != 0) hash ^= OwnerName.GetHashCode();
       if (Mine != false) hash ^= Mine.GetHashCode();
+      if (EtchSeconds != 0) hash ^= EtchSeconds.GetHashCode();
+      if (EtchSecondsLeft != 0) hash ^= EtchSecondsLeft.GetHashCode();
+      if (EtcherName.Length != 0) hash ^= EtcherName.GetHashCode();
+      if (EtchingMine != false) hash ^= EtchingMine.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -745,6 +753,22 @@ namespace Bnet {
         output.WriteRawTag(48);
         output.WriteBool(Mine);
       }
+      if (EtchSeconds != 0) {
+        output.WriteRawTag(56);
+        output.WriteUInt32(EtchSeconds);
+      }
+      if (EtchSecondsLeft != 0) {
+        output.WriteRawTag(64);
+        output.WriteUInt32(EtchSecondsLeft);
+      }
+      if (EtcherName.Length != 0) {
+        output.WriteRawTag(74);
+        output.WriteString(EtcherName);
+      }
+      if (EtchingMine != false) {
+        output.WriteRawTag(80);
+        output.WriteBool(EtchingMine);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -779,6 +803,22 @@ namespace Bnet {
         output.WriteRawTag(48);
         output.WriteBool(Mine);
       }
+      if (EtchSeconds != 0) {
+        output.WriteRawTag(56);
+        output.WriteUInt32(EtchSeconds);
+      }
+      if (EtchSecondsLeft != 0) {
+        output.WriteRawTag(64);
+        output.WriteUInt32(EtchSecondsLeft);
+      }
+      if (EtcherName.Length != 0) {
+        output.WriteRawTag(74);
+        output.WriteString(EtcherName);
+      }
+      if (EtchingMine != false) {
+        output.WriteRawTag(80);
+        output.WriteBool(EtchingMine);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -805,6 +845,18 @@ namespace Bnet {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(OwnerName);
       }
       if (Mine != false) {
+        size += 1 + 1;
+      }
+      if (EtchSeconds != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(EtchSeconds);
+      }
+      if (EtchSecondsLeft != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(EtchSecondsLeft);
+      }
+      if (EtcherName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(EtcherName);
+      }
+      if (EtchingMine != false) {
         size += 1 + 1;
       }
       if (_unknownFields != null) {
@@ -836,6 +888,18 @@ namespace Bnet {
       }
       if (other.Mine != false) {
         Mine = other.Mine;
+      }
+      if (other.EtchSeconds != 0) {
+        EtchSeconds = other.EtchSeconds;
+      }
+      if (other.EtchSecondsLeft != 0) {
+        EtchSecondsLeft = other.EtchSecondsLeft;
+      }
+      if (other.EtcherName.Length != 0) {
+        EtcherName = other.EtcherName;
+      }
+      if (other.EtchingMine != false) {
+        EtchingMine = other.EtchingMine;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -880,6 +944,22 @@ namespace Bnet {
             Mine = input.ReadBool();
             break;
           }
+          case 56: {
+            EtchSeconds = input.ReadUInt32();
+            break;
+          }
+          case 64: {
+            EtchSecondsLeft = input.ReadUInt32();
+            break;
+          }
+          case 74: {
+            EtcherName = input.ReadString();
+            break;
+          }
+          case 80: {
+            EtchingMine = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -921,6 +1001,22 @@ namespace Bnet {
           }
           case 48: {
             Mine = input.ReadBool();
+            break;
+          }
+          case 56: {
+            EtchSeconds = input.ReadUInt32();
+            break;
+          }
+          case 64: {
+            EtchSecondsLeft = input.ReadUInt32();
+            break;
+          }
+          case 74: {
+            EtcherName = input.ReadString();
+            break;
+          }
+          case 80: {
+            EtchingMine = input.ReadBool();
             break;
           }
         }
@@ -1280,627 +1376,6 @@ namespace Bnet {
   }
 
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class EtchingOffer : pb::IMessage<EtchingOffer>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<EtchingOffer> _parser = new pb::MessageParser<EtchingOffer>(() => new EtchingOffer());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<EtchingOffer> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.CraftableRecipesSmsgReflection.Descriptor.MessageTypes[3]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public EtchingOffer() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public EtchingOffer(EtchingOffer other) : this() {
-      entityId_ = other.entityId_;
-      mobId_ = other.mobId_;
-      level_ = other.level_;
-      ownerName_ = other.ownerName_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public EtchingOffer Clone() {
-      return new EtchingOffer(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "mob_id" field.</summary>
-    public const int MobIdFieldNumber = 2;
-    private uint mobId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint MobId {
-      get { return mobId_; }
-      set {
-        mobId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "level" field.</summary>
-    public const int LevelFieldNumber = 3;
-    private uint level_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Level {
-      get { return level_; }
-      set {
-        level_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "owner_name" field.</summary>
-    public const int OwnerNameFieldNumber = 4;
-    private string ownerName_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string OwnerName {
-      get { return ownerName_; }
-      set {
-        ownerName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as EtchingOffer);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(EtchingOffer other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (EntityId != other.EntityId) return false;
-      if (MobId != other.MobId) return false;
-      if (Level != other.Level) return false;
-      if (OwnerName != other.OwnerName) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
-      if (MobId != 0) hash ^= MobId.GetHashCode();
-      if (Level != 0) hash ^= Level.GetHashCode();
-      if (OwnerName.Length != 0) hash ^= OwnerName.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(EntityId);
-      }
-      if (MobId != 0) {
-        output.WriteRawTag(16);
-        output.WriteUInt32(MobId);
-      }
-      if (Level != 0) {
-        output.WriteRawTag(24);
-        output.WriteUInt32(Level);
-      }
-      if (OwnerName.Length != 0) {
-        output.WriteRawTag(34);
-        output.WriteString(OwnerName);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(EntityId);
-      }
-      if (MobId != 0) {
-        output.WriteRawTag(16);
-        output.WriteUInt32(MobId);
-      }
-      if (Level != 0) {
-        output.WriteRawTag(24);
-        output.WriteUInt32(Level);
-      }
-      if (OwnerName.Length != 0) {
-        output.WriteRawTag(34);
-        output.WriteString(OwnerName);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(EntityId);
-      }
-      if (MobId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MobId);
-      }
-      if (Level != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Level);
-      }
-      if (OwnerName.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(OwnerName);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(EtchingOffer other) {
-      if (other == null) {
-        return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
-      }
-      if (other.MobId != 0) {
-        MobId = other.MobId;
-      }
-      if (other.Level != 0) {
-        Level = other.Level;
-      }
-      if (other.OwnerName.Length != 0) {
-        OwnerName = other.OwnerName;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            EntityId = input.ReadUInt64();
-            break;
-          }
-          case 16: {
-            MobId = input.ReadUInt32();
-            break;
-          }
-          case 24: {
-            Level = input.ReadUInt32();
-            break;
-          }
-          case 34: {
-            OwnerName = input.ReadString();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            EntityId = input.ReadUInt64();
-            break;
-          }
-          case 16: {
-            MobId = input.ReadUInt32();
-            break;
-          }
-          case 24: {
-            Level = input.ReadUInt32();
-            break;
-          }
-          case 34: {
-            OwnerName = input.ReadString();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class StoredEtchable : pb::IMessage<StoredEtchable>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<StoredEtchable> _parser = new pb::MessageParser<StoredEtchable>(() => new StoredEtchable());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<StoredEtchable> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.CraftableRecipesSmsgReflection.Descriptor.MessageTypes[4]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public StoredEtchable() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public StoredEtchable(StoredEtchable other) : this() {
-      playerBestiaId_ = other.playerBestiaId_;
-      mobId_ = other.mobId_;
-      level_ = other.level_;
-      name_ = other.name_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public StoredEtchable Clone() {
-      return new StoredEtchable(this);
-    }
-
-    /// <summary>Field number for the "player_bestia_id" field.</summary>
-    public const int PlayerBestiaIdFieldNumber = 1;
-    private ulong playerBestiaId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong PlayerBestiaId {
-      get { return playerBestiaId_; }
-      set {
-        playerBestiaId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "mob_id" field.</summary>
-    public const int MobIdFieldNumber = 2;
-    private uint mobId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint MobId {
-      get { return mobId_; }
-      set {
-        mobId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "level" field.</summary>
-    public const int LevelFieldNumber = 3;
-    private uint level_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint Level {
-      get { return level_; }
-      set {
-        level_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "name" field.</summary>
-    public const int NameFieldNumber = 4;
-    private string name_ = "";
-    /// <summary>
-    /// The name its master gave it, or empty.
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Name {
-      get { return name_; }
-      set {
-        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as StoredEtchable);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(StoredEtchable other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (PlayerBestiaId != other.PlayerBestiaId) return false;
-      if (MobId != other.MobId) return false;
-      if (Level != other.Level) return false;
-      if (Name != other.Name) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (PlayerBestiaId != 0UL) hash ^= PlayerBestiaId.GetHashCode();
-      if (MobId != 0) hash ^= MobId.GetHashCode();
-      if (Level != 0) hash ^= Level.GetHashCode();
-      if (Name.Length != 0) hash ^= Name.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (PlayerBestiaId != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(PlayerBestiaId);
-      }
-      if (MobId != 0) {
-        output.WriteRawTag(16);
-        output.WriteUInt32(MobId);
-      }
-      if (Level != 0) {
-        output.WriteRawTag(24);
-        output.WriteUInt32(Level);
-      }
-      if (Name.Length != 0) {
-        output.WriteRawTag(34);
-        output.WriteString(Name);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (PlayerBestiaId != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(PlayerBestiaId);
-      }
-      if (MobId != 0) {
-        output.WriteRawTag(16);
-        output.WriteUInt32(MobId);
-      }
-      if (Level != 0) {
-        output.WriteRawTag(24);
-        output.WriteUInt32(Level);
-      }
-      if (Name.Length != 0) {
-        output.WriteRawTag(34);
-        output.WriteString(Name);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (PlayerBestiaId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(PlayerBestiaId);
-      }
-      if (MobId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MobId);
-      }
-      if (Level != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Level);
-      }
-      if (Name.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(StoredEtchable other) {
-      if (other == null) {
-        return;
-      }
-      if (other.PlayerBestiaId != 0UL) {
-        PlayerBestiaId = other.PlayerBestiaId;
-      }
-      if (other.MobId != 0) {
-        MobId = other.MobId;
-      }
-      if (other.Level != 0) {
-        Level = other.Level;
-      }
-      if (other.Name.Length != 0) {
-        Name = other.Name;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            PlayerBestiaId = input.ReadUInt64();
-            break;
-          }
-          case 16: {
-            MobId = input.ReadUInt32();
-            break;
-          }
-          case 24: {
-            Level = input.ReadUInt32();
-            break;
-          }
-          case 34: {
-            Name = input.ReadString();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            PlayerBestiaId = input.ReadUInt64();
-            break;
-          }
-          case 16: {
-            MobId = input.ReadUInt32();
-            break;
-          }
-          case 24: {
-            Level = input.ReadUInt32();
-            break;
-          }
-          case 34: {
-            Name = input.ReadString();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class CraftableRecipe : pb::IMessage<CraftableRecipe>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -1915,7 +1390,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.CraftableRecipesSmsgReflection.Descriptor.MessageTypes[5]; }
+      get { return global::Bnet.CraftableRecipesSmsgReflection.Descriptor.MessageTypes[3]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2493,7 +1968,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.CraftableRecipesSmsgReflection.Descriptor.MessageTypes[6]; }
+      get { return global::Bnet.CraftableRecipesSmsgReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

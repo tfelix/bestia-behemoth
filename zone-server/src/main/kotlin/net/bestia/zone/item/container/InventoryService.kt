@@ -289,6 +289,15 @@ class InventoryService(
   }
 
   /**
+   * Makes [amount] of [itemId] inside [container], such as a parcel the post is about to send. Call it inside the
+   * transaction that saves the container.
+   */
+  fun grantInto(container: ItemContainer, itemId: Long, amount: Int, roll: ItemRoll? = null, provenance: ItemProvenance? = null) {
+    val item = itemRepository.findByIdOrNull(itemId) ?: throw ItemNotFoundException(itemId.toString())
+    grant(container, item, amount, uniqueId = 0L, roll = roll, provenance = provenance)
+  }
+
+  /**
    * Takes every stack in [inputs] off a master's container (or its bestia's, when [playerBestiaId] is set) in one
    * transaction, or nothing at all.
    *

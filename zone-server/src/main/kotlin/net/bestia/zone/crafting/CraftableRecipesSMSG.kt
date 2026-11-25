@@ -31,12 +31,6 @@ data class CraftableRecipesSMSG(
   /** Seconds a campfire has left to burn; 0 once it is out or for a station that burns nothing. */
   val fuelSeconds: Long = 0,
 
-  /** Other masters' Bestias offered at this Carving Table, for the etching picker. */
-  val etchingOffers: List<EtchingOffer> = emptyList(),
-
-  /** The crafter's own Bestias in storage, for the etching picker. */
-  val storedBestias: List<StoredEtchable> = emptyList(),
-
   /** At a Carving Table, what is locked into it and what the viewer could lock in. */
   val carvingTable: CarvingTableContents.Contents? = null,
 ) : SMSG {
@@ -73,26 +67,6 @@ data class CraftableRecipesSMSG(
       .addAllRecipes(protoRecipes)
       .setStructureId(structureId)
       .setFuelSeconds(fuelSeconds.toInt())
-      .addAllEtchingOffers(
-        etchingOffers.map { offer ->
-          CraftableRecipesSmsgProto.EtchingOffer.newBuilder()
-            .setEntityId(offer.bestiaId)
-            .setMobId(offer.speciesId.toInt())
-            .setLevel(offer.level)
-            .setOwnerName(offer.ownerName)
-            .build()
-        }
-      )
-      .addAllStoredBestias(
-        storedBestias.map { stored ->
-          CraftableRecipesSmsgProto.StoredEtchable.newBuilder()
-            .setPlayerBestiaId(stored.playerBestiaId)
-            .setMobId(stored.speciesId.toInt())
-            .setLevel(stored.level)
-            .setName(stored.name.orEmpty())
-            .build()
-        }
-      )
       .addAllDeposited(carvingTable?.deposited.orEmpty().map { deposited ->
         CraftableRecipesSmsgProto.DepositedBestia.newBuilder()
           .setPlayerBestiaId(deposited.playerBestiaId)
@@ -101,6 +75,10 @@ data class CraftableRecipesSMSG(
           .setName(deposited.name.orEmpty())
           .setOwnerName(deposited.ownerName)
           .setMine(deposited.mine)
+          .setEtchSeconds(deposited.etchSeconds)
+          .setEtchSecondsLeft(deposited.etchSecondsLeft)
+          .setEtcherName(deposited.etcherName.orEmpty())
+          .setEtchingMine(deposited.etchingMine)
           .build()
       })
       .addAllDepositable(carvingTable?.depositable.orEmpty().map { depositable ->

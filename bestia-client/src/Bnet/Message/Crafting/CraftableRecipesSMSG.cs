@@ -43,11 +43,11 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
 
     [Export] public Godot.Collections.Array<CraftableRecipe> Recipes { get; set; } = [];
 
-    /// <summary>Other masters' Bestias offered for etching here. Empty at every other station.</summary>
-    [Export] public Godot.Collections.Array<EtchingOffer> EtchingOffers { get; set; } = [];
+    /// <summary>The Bestias locked into this Carving Table. Empty at every other station.</summary>
+    [Export] public Godot.Collections.Array<DepositedBestia> Deposited { get; set; } = [];
 
-    /// <summary>The player's own Bestias in storage, for etching here. Empty without the Bestia Ledger.</summary>
-    [Export] public Godot.Collections.Array<StoredEtchable> StoredBestias { get; set; } = [];
+    /// <summary>The player's own Bestias that could be locked into this Carving Table.</summary>
+    [Export] public Godot.Collections.Array<DepositableBestia> Depositable { get; set; } = [];
 
     public static CraftableRecipesSMSG FromProto(global::Bnet.CraftableRecipesSMSG proto)
     {
@@ -66,14 +66,14 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
         message.Recipes.Add(CraftableRecipe.FromProto(recipe));
       }
 
-      foreach (var offer in proto.EtchingOffers)
+      foreach (var deposited in proto.Deposited)
       {
-        message.EtchingOffers.Add(EtchingOffer.FromProto(offer));
+        message.Deposited.Add(DepositedBestia.FromProto(deposited));
       }
 
-      foreach (var stored in proto.StoredBestias)
+      foreach (var depositable in proto.Depositable)
       {
-        message.StoredBestias.Add(StoredEtchable.FromProto(stored));
+        message.Depositable.Add(DepositableBestia.FromProto(depositable));
       }
 
       return message;

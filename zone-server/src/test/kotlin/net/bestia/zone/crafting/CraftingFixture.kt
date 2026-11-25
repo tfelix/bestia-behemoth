@@ -99,33 +99,6 @@ class CraftingFixture(
     every { templates.idOf("essence_gem") } returns ESSENCE_GEM_ITEM
   }
 
-  /** What the Bestia side answers for every etching; null lets it go ahead. */
-  var etchingRefusal: OpError? = null
-
-  /** Who the Bestia side says owns every etched Bestia; null leaves the gem with the etcher. */
-  var etchedBestiaOwner: EntityId? = null
-
-  /** Binds whatever Bestia it is given into [ETCHED_ESSENCE], without the Bestia rules a test is not about. */
-  val etching = mockk<EssenceEtching>().also { etching ->
-    every { etching.refusal(any(), any(), any(), any()) } answers { etchingRefusal }
-    every { etching.bind(any(), any(), any()) } returns ETCHED_ESSENCE
-    every { etching.ownerOf(any(), any()) } answers { etchedBestiaOwner }
-    every { etching.offersAt(any(), any(), any()) } returns emptyList()
-  }
-
-  /** Whether the stored Bestia an etching names is still in storage when the craft resolves. */
-  var storedBestiaStillThere = true
-
-  /** Lets any etching from storage go ahead and binds it into [ETCHED_ESSENCE]. */
-  val storedEtching = mockk<StoredEtching>().also { stored ->
-    every { stored.accessRefusal(any(), any()) } returns null
-    every { stored.load(any()) } returns emptyList()
-    every { stored.refusal(any(), any(), any()) } returns null
-    every { stored.levelOf(any(), any()) } returns 5
-    every { stored.isStillStored(any(), any()) } answers { storedBestiaStillThere }
-    every { stored.bind(any(), any(), any()) } returns ETCHED_ESSENCE
-  }
-
   /** Templates of stackable gear such as torches, by id. Every other item is plain gear to the service. */
   val stackableGear = mutableMapOf<Long, ItemTemplateRegistry.Template>()
 
@@ -173,10 +146,8 @@ class CraftingFixture(
       roller = ItemStatRoller(),
       worldService = worldService,
       crafters = Crafters(starterKit),
-      etching = etching,
-      storedEtching = storedEtching,
       carvingTableContents = mockk {
-        every { load(any(), any()) } returns CarvingTableContents.Contents(emptyList(), emptyList())
+        every { load(any(), any(), any()) } returns CarvingTableContents.Contents(emptyList(), emptyList())
       },
       blueprintPoints = BlueprintPoints(),
       structureRegistry = structureRegistry,
@@ -243,13 +214,6 @@ class CraftingFixture(
     add(id, Position(0, 0, 0))
     add(id, Inventory(items.toMutableList()))
     add(id, CombatStats(CombatValues.ofBase(level = 1, base = StatusValues(0, 0, 0, 0, 0, dexterity))))
-  }
-
-  /** A Bestia of [masterId] at [level] for an etching, standing next to its master. */
-  fun givenEtchableBestia(level: Int, masterId: Long = MASTER_ID): EntityId = world.createEntity { id ->
-    add(id, OwnedBestia(masterId = masterId, playerBestiaId = PLAYER_BESTIA_ID))
-    add(id, Position(0, 0, 0))
-    add(id, Level(level))
   }
 
   fun inventoryOf(entityId: EntityId): Inventory = world.getOrThrow(entityId, Inventory::class)

@@ -34,7 +34,10 @@ data class Recipe(
    */
   val station: StaticEntityKind?,
 
-  /** Before [CraftBonusService]'s time factor, which is the whole of what Master Craftsman buys. */
+  /**
+   * Before [CraftBonusService]'s time factor, which is the whole of what Master Craftsman buys. For an etching it is
+   * the seconds per squared Bestia level, the docs' craft duration `1.2 · L²`.
+   */
   val craftSeconds: Float,
 
   /**

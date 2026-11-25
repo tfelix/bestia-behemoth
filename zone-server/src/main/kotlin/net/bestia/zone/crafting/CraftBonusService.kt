@@ -114,9 +114,12 @@ class CraftBonusService(
    *
    * Cooking has its own reduction table and does not stack with Master Craftsman: the docs put the two in
    * different trees, so a crafter holding both would otherwise get a discount the design never granted.
+   *
+   * An etching takes the craft duration of the Bestia's level, [bestiaLevel].
    */
-  fun craftSeconds(known: KnownSkills?, recipe: Recipe): Float {
-    if (known == null) return recipe.craftSeconds
+  fun craftSeconds(known: KnownSkills?, recipe: Recipe, bestiaLevel: Int = 0): Float {
+    val base = if (recipe.etches) recipe.craftSeconds * bestiaLevel * bestiaLevel else recipe.craftSeconds
+    if (known == null) return base.coerceAtLeast(MIN_CRAFT_SECONDS)
 
     val reduction = if (recipe.requiredSkillId == cookingId) {
       at(COOKING_TIME_REDUCTION, known.levelIn(cookingId))
@@ -126,7 +129,7 @@ class CraftBonusService(
 
     // Floored rather than allowed to reach zero: a craft resolving in the tick it started would never show a
     // progress bar, and `Crafting` requires a positive duration.
-    return (recipe.craftSeconds * (1f - reduction)).coerceAtLeast(MIN_CRAFT_SECONDS)
+    return (base * (1f - reduction)).coerceAtLeast(MIN_CRAFT_SECONDS)
   }
 
   /**
