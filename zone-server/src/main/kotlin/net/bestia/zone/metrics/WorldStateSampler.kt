@@ -19,6 +19,7 @@ import net.bestia.zone.movement.ecs.Path
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
+import net.bestia.zone.weather.EnvironmentalExposureSystem
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -32,8 +33,11 @@ import org.springframework.stereotype.Component as SpringComponent
 class WorldStateSampler(private val registry: MeterRegistry) : System {
   override val phase = Phase.UPKEEP
 
-  /** Honor marks change status effects and breeding pairs set out on paths; samples the tick as it was. */
-  override val before = setOf(HonorStandingSystem::class, BreedingFarmSystem::class)
+  /**
+   * Honor marks and mana sickness change status effects and breeding pairs set out on paths; samples the tick as
+   * it was.
+   */
+  override val before = setOf(HonorStandingSystem::class, BreedingFarmSystem::class, EnvironmentalExposureSystem::class)
 
   override val schedule: Schedule = Schedule.EverySeconds(SAMPLE_SECONDS)
 

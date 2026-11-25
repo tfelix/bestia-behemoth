@@ -2,6 +2,11 @@ package net.bestia.zone.weather
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.world.mana.ManaTier
+import net.bestia.zone.world.mana.ManaTiers
 import net.bestia.worldgen.climate.Temperature
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.zone.battle.ecs.effects.StatusEffects
@@ -65,6 +70,24 @@ class EnvironmentalExposureSystemTest {
 
     assertEquals(HEALTH, coldWorld.getOrThrow(warmed, Health::class).current)
     assertTrue(coldWorld.getOrThrow(cooled, Health::class).current < HEALTH, "cooling must not help in the cold")
+  }
+
+  @Test
+  fun `a master in mana at the Sickness tier falls ill and a bestia beside them does not`() {
+    val tiers = mockk<ManaTiers> { every { tierAt(any()) } returns ManaTier.SICKNESS }
+    val statusEffects = mockk<StatusEffectService>(relaxed = true)
+    val sickening = EnvironmentalExposureSystem(
+      coldAt(15.0), readyChunks(), ExposureConfig(), mockk(relaxed = true), WorldRulesConfig(tickRate = 20),
+      manaTiers = tiers, statusEffects = statusEffects,
+    )
+    val manaWorld = testWorld(systems = listOf(sickening))
+    val master = manaWorld.exhausted().also { manaWorld.add(it, Master(masterId = 1, name = "Ada")) }
+    val bestia = manaWorld.exhausted()
+
+    repeat(sickening.periodTicks.toInt()) { manaWorld.tick(DELTA) }
+
+    verify { statusEffects.applyEffect(any(), master, StatusEffectId.MANA_SICKNESS, 1) }
+    verify(exactly = 0) { statusEffects.applyEffect(any(), bestia, StatusEffectId.MANA_SICKNESS, any()) }
   }
 
   private fun exhausted(): EntityId {
