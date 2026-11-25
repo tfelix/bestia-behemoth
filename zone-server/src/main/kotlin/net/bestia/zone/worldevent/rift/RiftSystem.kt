@@ -1,5 +1,10 @@
 package net.bestia.zone.worldevent.rift
 
+import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.status.CombatValues
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.Schedule
@@ -38,6 +43,8 @@ class RiftSystem(
   private val worldService: WorldService,
   private val rumours: RumourService,
   private val hordes: RiftHordes,
+  private val seals: RiftSeals,
+  private val statusEffects: StatusEffectService,
 ) : System {
 
   private val lifecycle = RiftLifecycle(config, RiftField(field, ground), realSecondsPerBestiaSecond = 1.0 / clock.speedFactor)
@@ -66,9 +73,12 @@ class RiftSystem(
 
     world.defer {
       keepGates(world, active)
+      val sealed = active.filter { rift -> gates[rift.id]?.let { seals.tend(world, rift, it, now) } == true }
       hordes.tend(world, active, now)
+      keepGates(world, active)
       rifts.saveAll(active)
       news.forEach { (rift, what) -> tell(rift, what) }
+      sealed.forEach { tell(it, News.SEALED) }
     }
   }
 
@@ -87,6 +97,10 @@ class RiftSystem(
         add(id, Position.fromVec3(at))
         add(id, EntityVisual(VisualKind.STRUCTURE, StaticEntityKind.RIFT_GATE.ordinal.toLong()))
         add(id, RiftGate(rift.id))
+        // A target a Dispel can aim at, which nothing can break: only its seal window can be lifted.
+        add(id, CombatStats(CombatValues.ofStructure(GATE_DEFENSE)))
+        add(id, Health(GATE_HEALTH, GATE_HEALTH))
+        statusEffects.applyEffect(this, id, StatusEffectId.INVULNERABLE, level = 1)
       }
     }
   }
@@ -95,10 +109,16 @@ class RiftSystem(
     val kind = when (what) {
       News.OPENED -> RumourKind.RIFT_OPENED
       News.COLLAPSED -> RumourKind.RIFT_COLLAPSED
+      News.SEALED -> RumourKind.RIFT_SEALED
       News.DISSOLVED -> return
     }
     val voxel = worldService.config.voxelSize
     rumours.post(kind, (rift.x / voxel).toLong(), (rift.y / voxel).toLong(), strength = 0.9)
+  }
+
+  private companion object {
+    const val GATE_DEFENSE = 100
+    const val GATE_HEALTH = 1_000_000
   }
 
   private fun groundAt(rift: StoredRift): Vec3L? {

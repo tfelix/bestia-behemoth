@@ -70,8 +70,8 @@ class Rifts(
   /** A detached copy, so a write off the tick never reads a rift the tick is changing. */
   private fun copyOf(rift: StoredRift) = StoredRift(
     rift.x, rift.y, rift.provinceIndex, rift.phase, rift.stage, rift.reservoir, rift.formedAtSecond,
-    rift.opensAtSecond, rift.collapsesAtSecond, rift.anchorEntityId, rift.anchorSlain, rift.nextWaveAtSecond,
-    rift.worldShapeVersion, rift.pipelineVersion,
+    rift.opensAtSecond, rift.collapsesAtSecond, rift.anchorEntityId, rift.anchorSlain, rift.nextAnchorStage,
+    rift.sealWindowEndsAtSecond, rift.nextWaveAtSecond, rift.worldShapeVersion, rift.pipelineVersion,
   ).also { it.id = rift.id }
 
   private companion object {

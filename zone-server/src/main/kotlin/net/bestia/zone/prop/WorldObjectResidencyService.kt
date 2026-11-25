@@ -410,16 +410,16 @@ class WorldObjectResidencyService(
    * @return the new entity's id, or null when the column is not resident
    */
   fun placeNow(world: World, site: WorldObjectSite): Long? {
-    require(site.structureId != 0L || site.kind.isOmen) {
-      "Only a player structure or a mana scar is placed at runtime, and it is $site"
+    require(site.structureId != 0L || site.kind.isLeftByMana) {
+      "Only a player structure, a mana scar or a seal stone is placed at runtime, and it is $site"
     }
 
     val chunkX = Math.floorDiv(site.position.x, chunkSize.toLong()).toInt()
     val chunkY = Math.floorDiv(site.position.y, chunkSize.toLong()).toInt()
     val column = pack(chunkX, chunkY)
 
-    // A structure is simulated, a scar only seen, so each joins the layer its source belongs to.
-    val layer = if (site.kind.isOmen) viewed else simulated
+    // A structure is simulated, a scar or seal stone only seen, so each joins the layer its source belongs to.
+    val layer = if (site.kind.isLeftByMana) viewed else simulated
     val ids = layer.resident[column] ?: return null
 
     val id = spawn(world, site)

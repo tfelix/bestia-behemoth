@@ -51,7 +51,7 @@ class RiftHordes(
     rifts.forEach { rift ->
       if (rift.phase == Phase.OPEN) {
         noteAnchorFall(world, rift)
-        if (rift.stage >= config.anchorStage && rift.anchorEntityId == null && !rift.anchorSlain) callAnchor(world, rift)
+        if (rift.stage >= rift.nextAnchorStage && rift.anchorEntityId == null && !rift.anchorSlain) callAnchor(world, rift)
         if (now >= rift.nextWaveAtSecond) sendWave(world, rift, now)
       } else {
         clear(world, rift)

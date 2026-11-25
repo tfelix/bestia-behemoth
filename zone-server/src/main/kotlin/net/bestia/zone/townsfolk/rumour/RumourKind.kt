@@ -38,6 +38,9 @@ enum class RumourKind(
   /** A rift tore open nearby and things are coming out of it. Posted by `RiftSystem`. */
   RIFT_OPENED(baseImportance = 80, lifetimeDays = 15),
 
+  /** A rift nearby was sealed; a stone stands where its gate was. */
+  RIFT_SEALED(baseImportance = 70, lifetimeDays = 30),
+
   /** A rift nobody sealed collapsed and poured its mana over the land. */
   RIFT_COLLAPSED(baseImportance = 85, lifetimeDays = 40),
 }

@@ -52,6 +52,14 @@ class StoredRift(
   @Column(name = "anchor_slain", nullable = false)
   var anchorSlain: Boolean = false,
 
+  /** The stage at which the next anchor steps out. Moves on when a seal window passes unused. */
+  @Column(name = "next_anchor_stage", nullable = false)
+  var nextAnchorStage: Int = 3,
+
+  /** When the open seal window closes, or 0 while none is open. */
+  @Column(name = "seal_window_ends_at_second", nullable = false)
+  var sealWindowEndsAtSecond: Long = 0,
+
   /** When the next wave comes out of the gate. */
   @Column(name = "next_wave_at_second", nullable = false)
   var nextWaveAtSecond: Long = 0,

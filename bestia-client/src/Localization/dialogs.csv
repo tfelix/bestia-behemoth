@@ -681,6 +681,9 @@ RUMOUR_STONES_RISEN_2,"The air out that way tastes of iron, and the sky glows at
 RUMOUR_RIFT_OPENED_ASK,What was that light last night?
 RUMOUR_RIFT_OPENED_1,"The sky tore open out there. A gate of light, they say, and things keep walking out of it."
 RUMOUR_RIFT_OPENED_2,"There is a rift. Whatever comes out of it is headed this way. Bar your doors at night."
+RUMOUR_RIFT_SEALED_ASK,Is the rift still open?
+RUMOUR_RIFT_SEALED_1,"They sealed it. A ritual at the gate, they say, and now a stone stands there that hums if you touch it."
+RUMOUR_RIFT_SEALED_2,"The rift is closed. Whoever did it, the town owes them. The nights are quiet again."
 RUMOUR_RIFT_COLLAPSED_ASK,What happened out there?
 RUMOUR_RIFT_COLLAPSED_1,"The rift broke. Everything it swallowed came pouring out at once. Nothing grows right there now."
 RUMOUR_RIFT_COLLAPSED_2,"Nobody closed the rift in time. The storms have not stopped since it fell in on itself."

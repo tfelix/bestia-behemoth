@@ -225,10 +225,16 @@ enum class StaticEntityKind {
   RIFT_GATE,
 
   /** A player town's inn, where masters set their save point and have their bestias tended. */
-  INN;
+  INN,
+
+  /** What a sealed rift leaves: a stone that holds all the mana the rift gathered. */
+  SEAL_STONE;
 
   /** A scar the mana left, which nothing may break. */
   val isOmen: Boolean get() = name.startsWith("OMEN_")
+
+  /** Placed at runtime by the mana and kept until something says otherwise: the scars and the seal stones. */
+  val isLeftByMana: Boolean get() = isOmen || this == SEAL_STONE
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.
