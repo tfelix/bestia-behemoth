@@ -731,3 +731,8 @@ kinds:
   - kind: RIFT_GATE
     max-hp: 1
     collider: { half-x: 3, half-y: 1, height: 8 }
+
+  # What a sealed rift leaves, holding the mana it gathered. Cannot be broken yet, so `max-hp` is never read.
+  - kind: SEAL_STONE
+    max-hp: 1
+    collider: { half-x: 1, half-y: 1, height: 3 }

@@ -16,7 +16,7 @@ class RiftLifecycle(
 ) {
 
   /** What changed in one step that someone outside should hear about. */
-  enum class News { OPENED, COLLAPSED, DISSOLVED }
+  enum class News { OPENED, COLLAPSED, DISSOLVED, SEALED }
 
   /** Moves [rift] on by [seconds] real seconds to Bestia second [now]. */
   fun step(rift: StoredRift, now: Long, seconds: Double): News? = when (rift.phase) {

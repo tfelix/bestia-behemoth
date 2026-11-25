@@ -897,7 +897,14 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 7.0f, PlaceholderColour = new Color(0.62f, 0.45f, 0.30f), StructureHeight = 4f,
         Action = PropAction.Use
-      } // INN
+      }, // INN
+
+      // What a sealed rift leaves: a dark standing stone with the rift's light still in it.
+      new Kind
+      {
+        PlaceholderWidth = 1.0f, PlaceholderColour = new Color(0.32f, 0.28f, 0.40f), StructureHeight = 3f,
+        PlaceholderGlow = 0.4f
+      } // SEAL_STONE
     };
 
     /// <summary>

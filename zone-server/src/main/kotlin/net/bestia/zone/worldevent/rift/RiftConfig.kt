@@ -44,7 +44,10 @@ data class RiftConfig(
   /** Levels a wave bestia gains per stage, over its kin's highest. */
   val waveLevelsPerStage: Int = 5,
 
-  /** The stage at which the anchor steps out, and how far above the province's strongest den it stands. */
-  val anchorStage: Int = 3,
+  /** How far above the province's strongest den the anchor stands. It first steps out at stage 3. */
   val anchorLevelsAboveDens: Int = 10,
+
+  /** A rift's Potency against a seal: this much, and more for every stage it reached. */
+  val sealPotencyBase: Int = 100,
+  val sealPotencyPerStage: Int = 30,
 )

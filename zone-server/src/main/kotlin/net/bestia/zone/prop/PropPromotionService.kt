@@ -56,8 +56,8 @@ class PropPromotionService(
     if (world.has(entityId, Position::class)) return true
 
     val identity = world.get(entityId, WorldObjectIdentity::class) ?: return true
-    // A scar the mana left cannot be broken: nothing would ever remove it, see `OmenScars`.
-    if (world.get(entityId, StaticVisual::class)?.kind?.isOmen == true) return false
+    // A scar or a seal stone cannot be broken: nothing would ever remove it, see `OmenScars` and `SealStones`.
+    if (world.get(entityId, StaticVisual::class)?.kind?.isLeftByMana == true) return false
     // A sapling or a young tree stands again and can be felled again; a stump never can.
     val standing = divergence.of(identity.propId)
     if (standing != null && !standing.isFellable) return false

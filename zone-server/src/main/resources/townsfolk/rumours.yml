@@ -29,4 +29,5 @@ rumours:
   STONES_RISEN: { variants: 2, slots: [] }
   # No slots: a rift is named by where it stands, which folk say as "out there".
   RIFT_OPENED: { variants: 2, slots: [] }
+  RIFT_SEALED: { variants: 2, slots: [] }
   RIFT_COLLAPSED: { variants: 2, slots: [] }

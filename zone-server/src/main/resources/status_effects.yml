@@ -947,6 +947,16 @@ statusEffects:
     isSyncedToClient: true
     dispellable: false
     script: KeepsakeWard
+
+  # On a rift's gate for the 30 minutes after its anchor fell: the rift's own hold, at the rift's Potency. Dispelling
+  # it seals the rift, which in practice takes a ritual-charged Dispel. See RiftSeals.
+  - id: 259
+    identifier: RIFT_SEAL_WINDOW
+    polarity: BUFF
+    showIcon: false
+    isSyncedToClient: false
+    script: RiftSealWindow
+
   # Near a master who wears a boss essence with an aura, kept up by EssenceAuraSystem every second.
   - id: 300
     identifier: ROYAL_SWARM
