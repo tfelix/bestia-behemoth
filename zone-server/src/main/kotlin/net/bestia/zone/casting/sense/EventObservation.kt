@@ -5,6 +5,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.prop.PlayerStructureRegistry
@@ -33,6 +34,7 @@ class EventObservation(
   private val worldService: WorldService,
   private val messages: OutMessageProcessor,
   private val brewing: BrewingEvents? = null,
+  private val observedMarks: ObservedMarks? = null,
 ) {
 
   /** The outpost the caster stands at, or null. Read-only, so a cast can be refused before its bar. */
@@ -55,11 +57,25 @@ class EventObservation(
     val fromX = outpost.x * voxel
     val fromY = outpost.y * voxel
 
-    val marks = brewing?.brewing().orEmpty()
+    val felt = brewing?.brewing().orEmpty()
       .filter { hypot(it.x - fromX, it.y - fromY) <= level * METRES_PER_LEVEL * it.feltFrom }
-      .map { markOf(it, fromX, fromY, level) }
+    val marks = felt.map { markOf(it, fromX, fromY, level) }
 
     messages.sendToPlayer(accountId, SenseMarksSMSG(marks, VISIBLE_SECONDS))
+
+    val masterId = world.get(casterId, Master::class)?.masterId ?: return
+    if (level >= DISTANCE_LEVEL) observedMarks?.record(accountId, masterId, marks.zip(felt).map { (mark, event) -> onMap(mark, event, level) })
+  }
+
+  /** A pin for the Scholar's own map: as much as this level told, in plain words, since the map shows text as typed. */
+  private fun onMap(mark: SenseMark, event: Brewing, level: Int): ObservedMarks.Observed {
+    val name = if (level >= EXACT_LEVEL) event.eventId.replace('-', ' ').replaceFirstChar { it.uppercase() }
+    else "Something of the ${event.family}"
+    val stage = event.stage.name.lowercase().takeIf { level >= STAGE_LEVEL }
+    val hours = mark.depthMetres.takeIf { it > 0.0 }?.let { "within ${it.toInt()} hours" }
+    val note = listOfNotNull(stage, hours).joinToString(", ").ifEmpty { null }
+
+    return ObservedMarks.Observed(mark.eastMetres, mark.northMetres, name, note)
   }
 
   private fun markOf(event: Brewing, fromX: Double, fromY: Double, level: Int): SenseMark {
