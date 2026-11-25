@@ -1,9 +1,7 @@
 package net.bestia.zone.world.mana
 
-import net.bestia.zone.world.mana.ManaField.Cell
-
-/** Hears a field cell settle into a new tier. On the tick, after the field moved. */
+/** Hears cells settle into a new tier. Called in a deferred block at the end of the tick, one minute's changes at once. */
 fun interface ManaTierListener {
 
-  fun onTierChanged(cell: Cell, from: ManaTier, to: ManaTier)
+  fun onTiersChanged(changes: List<ManaTiers.Change>)
 }

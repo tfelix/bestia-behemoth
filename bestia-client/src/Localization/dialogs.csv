@@ -669,6 +669,15 @@ RUMOUR_BOSS_SLAIN_2,"There was a thing out there. Somebody put it down. I have n
 RUMOUR_TOWN_FELL_ASK,Is something wrong?
 RUMOUR_TOWN_FELL_1,"A town not far from here is gone. Not a house left standing, they say."
 RUMOUR_TOWN_FELL_2,"People are talking about a town that fell. Nobody knows who will take in the ones who got out."
+RUMOUR_STRANGE_LIGHTS_ASK,Have you seen anything odd?
+RUMOUR_STRANGE_LIGHTS_1,"There are lights out there at night. Little ones, drifting. And the flowers came out wrong this year."
+RUMOUR_STRANGE_LIGHTS_2,"My boy swears he heard humming from the hills after dark. I told him to stay inside."
+RUMOUR_RESTLESS_BEASTS_ASK,Are the wilds safe?
+RUMOUR_RESTLESS_BEASTS_1,"The beasts out that way are bigger than they should be. Bolder too. Hunters came back empty-handed."
+RUMOUR_RESTLESS_BEASTS_2,"Something has the bestia stirred up. They glow a little at night, if you get close enough to look."
+RUMOUR_STONES_RISEN_ASK,What is wrong with the weather?
+RUMOUR_STONES_RISEN_1,"Stones stood up out of the ground over there. Nobody put them there. Now the storms come every other day."
+RUMOUR_STONES_RISEN_2,"The air out that way tastes of iron, and the sky glows at night. The old ones say it is the mana."
 RUMOUR_MISDEED_SEEN_ASK,Is there anybody I should watch out for?
 RUMOUR_MISDEED_SEEN_1,"{name}. They did something terrible in a town not far from here, and people there will not forget it."
 RUMOUR_MISDEED_SEEN_2,"Word came from down the road: keep away from {name}. Folk there saw what they did."

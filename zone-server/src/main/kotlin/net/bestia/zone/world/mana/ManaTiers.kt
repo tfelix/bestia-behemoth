@@ -18,8 +18,10 @@ import org.springframework.stereotype.Component
 class ManaTiers(
   private val field: ManaField,
   private val ground: ManaFieldRule.Ground,
-  private val listeners: List<ManaTierListener>,
 ) {
+
+  /** One cell settling into a new tier. */
+  data class Change(val cell: Cell, val from: ManaTier, val to: ManaTier)
 
   private class Memory(var tier: ManaTier, var pending: ManaTier?, var pendingSince: Double)
 
@@ -34,10 +36,11 @@ class ManaTiers(
 
   fun tierOf(cell: Cell): ManaTier = synchronized(field) { memory[cell]?.tier ?: naturalTierOf(cell) }
 
-  /** Moves the clock by [seconds] and settles every cell that holds a change. */
-  fun update(rule: ManaTierRule, seconds: Double) = synchronized(field) {
+  /** Moves the clock by [seconds], settles every cell that holds a change and returns the cells that moved. */
+  fun update(rule: ManaTierRule, seconds: Double): List<Change> = synchronized(field) {
     now += seconds
     val touched = HashSet<Cell>()
+    val changes = ArrayList<Change>()
 
     field.tileKeys().forEach { key ->
       val originX = ManaField.tileXOf(key) * TILE_CELLS
@@ -45,13 +48,14 @@ class ManaTiers(
       for (index in 0 until TILE_CELLS * TILE_CELLS) {
         val cell = Cell(originX + index % TILE_CELLS, originY + index / TILE_CELLS)
         touched += cell
-        if (primed) settle(rule, cell) else prime(cell)
+        if (primed) settle(rule, cell)?.let(changes::add) else prime(cell)
       }
     }
     primed = true
 
     // A cell whose tile faded away is back on its start density, which is a plain cut.
     memory.keys.retainAll(touched)
+    changes
   }
 
   /** After a restart the saved field is already where it is: no dwell, and nothing to tell anyone. */
@@ -60,7 +64,7 @@ class ManaTiers(
     if (tier != naturalTierOf(cell)) memory[cell] = Memory(tier, null, now)
   }
 
-  private fun settle(rule: ManaTierRule, cell: Cell) {
+  private fun settle(rule: ManaTierRule, cell: Cell): Change? {
     val known = memory[cell]
     val current = known?.tier ?: naturalTierOf(cell)
     val wanted = rule.tierFor(densityOf(cell), current)
@@ -70,7 +74,7 @@ class ManaTiers(
         known.pending = null
         if (current == naturalTierOf(cell)) memory.remove(cell)
       }
-      return
+      return null
     }
 
     val state = known ?: Memory(current, null, now).also { memory[cell] = it }
@@ -79,11 +83,11 @@ class ManaTiers(
       state.pendingSince = now
     }
 
-    if (now - state.pendingSince >= rule.dwellSeconds) {
-      state.tier = wanted
-      state.pending = null
-      listeners.forEach { it.onTierChanged(cell, current, wanted) }
-    }
+    if (now - state.pendingSince < rule.dwellSeconds) return null
+
+    state.tier = wanted
+    state.pending = null
+    return Change(cell, current, wanted)
   }
 
   /** The tier of the start density, which is where every cell without memory sits. */
