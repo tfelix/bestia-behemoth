@@ -919,6 +919,17 @@ statusEffects:
     isSyncedToClient: true
     dispellable: false
     script: Unruly
+
+  # On a wild bestia bred by a den in an Ominous place: it was born a few levels higher. A marker for the glow the
+  # client will draw; the levels already make it stronger.
+  - id: 256
+    identifier: MANA_TOUCHED
+    polarity: NEUTRAL
+    showIcon: false
+    isSyncedToClient: false
+    dispellable: false
+    script: ManaTouched
+
   # Near a master who wears a boss essence with an aura, kept up by EssenceAuraSystem every second.
   - id: 300
     identifier: ROYAL_SWARM

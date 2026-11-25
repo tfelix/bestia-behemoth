@@ -32,6 +32,7 @@ import net.bestia.zone.entity.ecs.Living
 import net.bestia.zone.persistence.Persistent
 import net.bestia.zone.spawn.ecs.DenMember
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.mana.ManaTier
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
@@ -89,11 +90,12 @@ class BestiaEntitySpawner(
     homePosition: Vec3L? = null,
     visual: Component? = null,
     level: Int? = null,
+    manaTier: ManaTier = ManaTier.CALM,
   ): EntityId {
     LOG.debug { "Spawning mob bestia $bestiaId on $pos" }
 
     val bestia = bestiaCatalogue.byId(bestiaId)
-    val mobLevel = level ?: LevelRoll.roll(bestia, random)
+    val mobLevel = (level ?: LevelRoll.roll(bestia, random)) + manaTier.denLevelBonus
     val health = levelScaling.health(mobLevel, bestia)
     val mana = levelScaling.mana(mobLevel, bestia)
 
@@ -139,6 +141,7 @@ class BestiaEntitySpawner(
       )
       if (persistent) add(id, Persistent)
       if (bestia.nonCombatant) statusEffectService.applyEffect(this, id, StatusEffectId.INVULNERABLE, level = 1)
+      if (manaTier.breedsManaTouched) statusEffectService.applyEffect(this, id, StatusEffectId.MANA_TOUCHED, level = 1)
       // Only when a den made it. Absence is what marks a creature nothing owns; see DenMember.
       den?.let { add(id, it) }
 

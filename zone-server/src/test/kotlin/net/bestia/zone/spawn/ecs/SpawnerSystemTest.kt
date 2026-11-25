@@ -9,6 +9,8 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.mana.ManaTier
+import net.bestia.zone.world.mana.ManaTiers
 import net.bestia.zone.world.anchor.SimulationAnchor
 import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.world.time.BestiaDateTime
@@ -32,7 +34,8 @@ class SpawnerSystemTest {
   private val deletionQueue = PersistedEntityDeletionQueue()
   private var now = NOON
   private val clock: BestiaClock = mockk { every { now() } answers { now } }
-  private val system = SpawnerSystem(bestiaSpawner, cellIndex, deletionQueue, clock)
+  private val manaTiers: ManaTiers = mockk { every { tierAt(any()) } returns ManaTier.CALM }
+  private val system = SpawnerSystem(bestiaSpawner, cellIndex, deletionQueue, clock, manaTiers = manaTiers)
   private val world = testWorld(systems = listOf(system))
 
   /** Every mob the mocked spawner has produced, in order, so a test can tell a survivor from a replacement. */
@@ -291,6 +294,19 @@ class SpawnerSystemTest {
     tick(2f)
 
     verify { bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), any(), persistent = false) }
+  }
+
+  @Test
+  fun `a den on ominous ground breeds mana-touched bestia`() {
+    every { manaTiers.tierAt(any()) } returns ManaTier.OMINOUS
+    placeDen(Vec3L(0, 0, 0), pack = 1)
+    placePlayer(Vec3L(50, 0, 0))
+
+    tick(2f)
+
+    verify {
+      bestiaSpawner.spawnMob(any(), any<Long>(), any(), any(), any(), any(), manaTier = ManaTier.OMINOUS)
+    }
   }
 
   @Test

@@ -12,6 +12,8 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.mana.ManaTier
+import net.bestia.zone.world.mana.ManaTiers
 import kotlin.random.Random
 import net.bestia.zone.world.anchor.AnchorPositions
 import net.bestia.zone.world.anchor.SimulationAnchor
@@ -89,6 +91,7 @@ class SpawnerSystem(
   private val deletionQueue: PersistedEntityDeletionQueue,
   private val clock: BestiaClock,
   private val metrics: GameMetrics = GameMetrics(),
+  private val manaTiers: ManaTiers? = null,
 ) : System {
   override val phase = Phase.SPAWN
 
@@ -224,6 +227,8 @@ class SpawnerSystem(
       Vec3L(x, y, spawner.position.z),
       den = DenMember(spawner.identity),
       persistent = false,
+      // Read at each restock, so a den breeds stronger bestia while its ground is thick with mana.
+      manaTier = manaTiers?.tierAt(spawner.position) ?: ManaTier.CALM,
     )
 
     spawner.spawnedEntities.add(spawnedEntityId)
