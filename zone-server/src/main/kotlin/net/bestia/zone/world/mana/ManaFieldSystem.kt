@@ -9,13 +9,14 @@ import net.bestia.zone.world.time.BestiaClock
 import org.springframework.stereotype.Component
 
 /**
- * Lets the mana field creep, leak and drain once a minute. It walks only the tiles play has touched, so an
- * untouched world costs nothing. Touches no component.
+ * Lets the Wounds pour and the mana field creep, leak and drain once a minute. It walks only the tiles that hold
+ * a change, so a world without Wounds that nobody touched costs nothing. Touches no component.
  */
 @Component
 class ManaFieldSystem(
   private val field: ManaField,
   private val ground: ManaGround,
+  private val wounds: WoundSources,
   config: ManaFieldConfig,
   clock: BestiaClock,
 ) : System {
@@ -31,6 +32,7 @@ class ManaFieldSystem(
   override val writes: ComponentClassSet = emptySet()
 
   override fun update(world: World, deltaTime: Float) {
+    wounds.pour(deltaTime.toDouble())
     rule.step(field, ground, deltaTime.toDouble())
   }
 

@@ -50,6 +50,27 @@ class ManaCalibrationTest {
     assertEquals(0.15, meanDeltaWithin(GRIND_RADIUS), 0.04)
   }
 
+  @Test
+  fun `the land around an old Wound reaches storms in about two weeks`() {
+    val wound = WoundFootprint(SPOT.x.toDouble(), SPOT.y.toDouble(), config.woundReachMetres, field)
+    val motesPerMinute = WoundSources.motesPerSecond(config, ageDays = config.woundFullAgeDays) * MINUTE
+
+    repeat(14 * MINUTES_PER_DAY) {
+      wound.pour(field, motesPerMinute)
+      rule.step(field, ordinaryLand, MINUTE)
+    }
+
+    assertEquals(STORMS - 0.13, meanDeltaWithin(config.woundReachMetres), 0.05)
+  }
+
+  @Test
+  fun `a young Wound pours a tenth of an old one`() {
+    val young = WoundSources.motesPerSecond(config, ageDays = 0.0)
+    val old = WoundSources.motesPerSecond(config, ageDays = 365.0)
+
+    assertEquals(0.1, young / old, 1e-9)
+  }
+
   /** Runs one real day: [act] every minute for the first [activeMinutes], then the field alone. */
   private fun playDay(activeMinutes: Int, act: () -> Unit) {
     repeat(MINUTES_PER_DAY) { minute ->
@@ -87,5 +108,7 @@ class ManaCalibrationTest {
     const val GRINDING_MINUTES = 2 * 60
     const val GRIND_LEVEL = 30
     const val GRIND_RADIUS = 150.0
+
+    const val STORMS = 0.60
   }
 }
