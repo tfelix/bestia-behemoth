@@ -102,6 +102,13 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
       { 24, "Furnace" },
       { 25, "Forge" },
       { CampfireKind, "Campfire" },
+      { 76, "Tanning Rack" },
+      { 77, "Loom" },
+      { 78, "Glass Furnace" },
+      { 79, "Glassblowing Bench" },
+      { 87, "Alchemy Laboratory" },
+      { 88, "Gem Cut Station" },
+      { 89, "Transmutation Workbench" },
       { CarvingTableKind, "Carving Table" }
     };
 
