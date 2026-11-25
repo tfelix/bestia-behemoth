@@ -139,6 +139,9 @@ class SpawnerSystem(
    */
   private var elapsed = 0f
 
+  /** Dens with a [Spawner.respawnSeconds] that lost a creature, and the [elapsed] stamp before which they wait. */
+  private val restockAt = HashMap<EntityId, Float>()
+
   override fun update(world: World, deltaTime: Float) {
     elapsed += deltaTime
 
@@ -169,7 +172,8 @@ class SpawnerSystem(
       val spawner = world.get(id, Spawner::class) ?: continue
       idleSince.remove(id)
       stocked.add(id)
-      removeDeadEntities(spawner, world)
+      removeDeadEntities(id, spawner, world)
+      if (isWaitingToRestock(id)) continue
       spawnMissingEntities(spawner, world)
     }
 
@@ -283,8 +287,18 @@ class SpawnerSystem(
     stocked.add(denEntityId)
   }
 
-  private fun removeDeadEntities(spawner: Spawner, world: World) {
-    spawner.spawnedEntities.removeIf { entityId -> !world.isAlive(entityId) }
+  private fun removeDeadEntities(denId: EntityId, spawner: Spawner, world: World) {
+    val lostOne = spawner.spawnedEntities.removeIf { entityId -> !world.isAlive(entityId) }
+    val delay = spawner.respawnSeconds ?: return
+    if (lostOne) restockAt[denId] = elapsed + delay.start + Random.nextFloat() * (delay.endInclusive - delay.start)
+  }
+
+  private fun isWaitingToRestock(denId: EntityId): Boolean {
+    val until = restockAt[denId] ?: return false
+    if (elapsed < until) return true
+
+    restockAt.remove(denId)
+    return false
   }
 
   fun randomBetween(x: Long, y: Long): Long {

@@ -41,6 +41,12 @@ class Spawner(
 
   /** Stocks only at night, like a battlefield's dead. At dawn the den goes idle and its pack fades out. */
   val nightOnly: Boolean = false,
+
+  /**
+   * How long the den waits, in seconds, before it brings back a creature it lost. One value is drawn from the
+   * range per loss. Null brings it back at once.
+   */
+  val respawnSeconds: ClosedFloatingPointRange<Float>? = null,
 ) : Component {
 
   init {

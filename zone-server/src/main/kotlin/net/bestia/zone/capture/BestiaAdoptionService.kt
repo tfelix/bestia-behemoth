@@ -12,11 +12,9 @@ import net.bestia.zone.master.bestia.OwnedBestiasPublisher
 import net.bestia.zone.master.bestia.PlayerBestiaCreateOperation
 import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OperationSuccessSMSG
 import net.bestia.zone.message.OutMessageProcessor
-import net.bestia.zone.util.AccountId
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 
@@ -43,28 +41,30 @@ class BestiaAdoptionService(
     compendiumRecorder.caught(event.ownerAccountId, event.masterId, event.speciesId)
 
     asyncJobExecutor.submit(key = event.ownerAccountId) {
-      adopt(event.ownerAccountId, event.masterId, bestiaCatalogue.byId(event.speciesId), event.level, event.at)
+      adopt(event, bestiaCatalogue.byId(event.speciesId))
     }
   }
 
-  private fun adopt(accountId: AccountId, masterId: Long, species: Bestia, level: Int, at: Vec3L) {
+  private fun adopt(event: BestiaCapturedEvent, species: Bestia) {
+    val accountId = event.ownerAccountId
+    val masterId = event.masterId
     val adopted = try {
       playerBestiaCreateOperation.createAndSpawn(
         masterId = masterId,
         playerBestiaCreateData = PlayerBestiaCreateOperation.PlayerBestiaCreateData(
           bestiaIdentifier = species.identifier,
-          spawnPosition = at,
-          level = level
+          spawnPosition = event.at,
+          level = event.level
         )
       )
     } catch (e: OwnedBestiaPolicyViolationException) {
       LOG.info { "Master $masterId has no free slot for the ${species.identifier} it caught: ${e.message}" }
-      release(species, level, at)
+      release(event, species)
       outMessageProcessor.sendToPlayer(accountId, OperationErrorSMSG(OpError.BESTIA_SLOTS_FULL))
       return
     } catch (e: Exception) {
       LOG.error(e) { "Could not hand the caught ${species.identifier} to master $masterId; releasing it" }
-      release(species, level, at)
+      release(event, species)
       return
     }
 
@@ -75,8 +75,10 @@ class BestiaAdoptionService(
   }
 
   /** Puts the creature back as a wild one, so a failed hand-over loses nothing. */
-  private fun release(species: Bestia, level: Int, at: Vec3L) {
-    worldView.read { bestiaEntitySpawner.spawnMob(this, species.id, at, level = level) }
+  private fun release(event: BestiaCapturedEvent, species: Bestia) {
+    if (event.denBringsItBack) return
+
+    worldView.read { bestiaEntitySpawner.spawnMob(this, species.id, event.at, level = event.level) }
   }
 
   private companion object {

@@ -7,7 +7,7 @@ import jakarta.persistence.Table
 import java.time.Instant
 
 /**
- * A lair whose world boss players killed. It stays dead for the rest of this world.
+ * A lair whose world boss players killed or caught. It is gone for the rest of this world.
  *
  * Keyed by the lair marker's feature id, which only names the same lair under the same pipeline version, so the
  * row carries that version and the world id.
@@ -28,7 +28,7 @@ class SlainWorldBoss(
   @Column(name = "bestia_id", nullable = false)
   var bestiaId: Long = 0,
 
-  /** The account that dealt the most damage. */
+  /** The account that dealt the most damage, or that caught it. */
   @Column(name = "slain_by", nullable = false)
   var slainBy: Long = 0,
 

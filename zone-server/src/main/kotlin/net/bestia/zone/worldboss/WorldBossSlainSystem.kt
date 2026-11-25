@@ -34,7 +34,7 @@ class WorldBossSlainSystem(
       if (!lairs.isLair(lair)) return@each
 
       val slayer = world.get(id, TakenDamage::class)?.topAccount(world) ?: return@each
-      lairs.slainByPlayers(world, lair, slayer)
+      lairs.defeatedByPlayers(world, lair, slayer)
     }
   }
 }

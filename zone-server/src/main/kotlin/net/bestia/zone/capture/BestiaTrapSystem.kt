@@ -33,6 +33,9 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.SkillIds
+import net.bestia.zone.spawn.ecs.DenMember
+import net.bestia.zone.spawn.ecs.Spawner
+import net.bestia.zone.worldboss.WorldBossLairService
 import net.bestia.zone.util.EntityId
 import org.springframework.context.ApplicationEventPublisher
 import java.util.Random
@@ -54,6 +57,7 @@ class BestiaTrapSystem(
   private val outMessageProcessor: OutMessageProcessor,
   private val skillIds: SkillIds,
   private val statusEffects: StatusEffectService,
+  private val lairs: WorldBossLairService,
   private val random: Random = ThreadLocalRandomSource,
 ) : System {
 
@@ -63,12 +67,15 @@ class BestiaTrapSystem(
 
   override val reads: ComponentClassSet = setOf(
     Position::class, EntityVisual::class, Health::class, CombatStats::class, KnownSkills::class, Persistent::class,
-    Level::class
+    Level::class, DenMember::class
   ) + WildBestia.READS + DamageGate.READS
 
-  /** [TakenDamage] and [StatusEffects] are written on the creature that broke free, so it turns on the trapper. */
+  /**
+   * [TakenDamage] and [StatusEffects] are written on the creature that broke free, so it turns on the trapper. A
+   * caught lair boss takes its lair's [Spawner] with it.
+   */
   override val writes: ComponentClassSet = setOf(
-    BestiaTrap::class, TakenDamage::class, StatusEffects::class, IsStatusValueDirty::class
+    BestiaTrap::class, TakenDamage::class, StatusEffects::class, IsStatusValueDirty::class, Spawner::class
   )
 
   /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
@@ -137,6 +144,10 @@ class BestiaTrapSystem(
     val speciesId = world.getOrThrow(s.targetId, EntityVisual::class).id
     val level = levelOf(world, s.targetId, bestiaCatalogue.byId(speciesId))
 
+    val den = world.get(s.targetId, DenMember::class)?.den
+    val lair = den?.featureId?.takeIf(lairs::isLair)
+    lair?.let { lairs.defeatedByPlayers(world, it, s.trap.ownerAccountId) }
+
     // A den or ambient spawner notices the gap by itself; only the persisted row has to be told.
     if (world.has(s.targetId, Persistent::class)) {
       deletionQueue.enqueue(s.targetId)
@@ -145,7 +156,10 @@ class BestiaTrapSystem(
 
     LOG.info { "Master ${s.trap.masterId} caught bestia $speciesId (entity ${s.targetId}) at ${s.at}" }
 
-    events.publishEvent(BestiaCapturedEvent(s.trap.ownerAccountId, s.trap.masterId, speciesId, level, s.at))
+    val denBringsItBack = den != null && lair == null
+    events.publishEvent(
+      BestiaCapturedEvent(s.trap.ownerAccountId, s.trap.masterId, speciesId, level, s.at, denBringsItBack)
+    )
   }
 
   /** The creature's own rolled level; a wild one with none is the species' reference level. */

@@ -23,8 +23,8 @@ import java.time.Instant
 /**
  * The world bosses that live in a lair today: one den each, holding the boss alone.
  *
- * A lair boss that players kill stays dead for the rest of the world. Any other death, like a fall or the cold,
- * lets the den bring it back like any other den does.
+ * A lair boss that players kill or catch is gone for the rest of the world. Any other death, like a fall or the
+ * cold, lets the den bring it back after [RESPAWN_SECONDS].
  *
  * Tick thread only after boot, like `WorldObjectDivergenceRegistry`.
  */
@@ -69,6 +69,7 @@ class WorldBossLairService(
             maxSpawnCount = 1,
             position = lair.position,
             range = 1,
+            respawnSeconds = RESPAWN_SECONDS,
           )
         )
       }
@@ -79,14 +80,14 @@ class WorldBossLairService(
     LOG.info { "World bosses: ${lairs.size} lair(s), ${slain.size} slain by players, ${denByLair.size} den(s) placed" }
   }
 
-  /** Players killed the boss of this lair. Its den goes away, now and on every later boot. */
-  fun slainByPlayers(world: World, lairFeatureId: Long, slayer: Long) {
+  /** Players killed or caught the boss of this lair. Its den goes away, now and on every later boot. */
+  fun defeatedByPlayers(world: World, lairFeatureId: Long, slayer: Long) {
     val den = denByLair.remove(lairFeatureId) ?: return
     val lair = lairs.first { it.identity.featureId == lairFeatureId }
 
     world.destroy(den)
     slain.add(lairFeatureId)
-    LOG.info { "World boss ${lair.bestiaId} of lair $lairFeatureId slain, account $slayer dealt the most damage" }
+    LOG.info { "World boss ${lair.bestiaId} of lair $lairFeatureId defeated by account $slayer" }
 
     val row = SlainWorldBoss(
       lairFeatureId = lairFeatureId,
@@ -127,6 +128,8 @@ class WorldBossLairService(
 
   internal companion object {
     private val LOG = KotlinLogging.logger { }
+
+    val RESPAWN_SECONDS = 3600f..7200f
 
     internal fun lairsOf(generated: GeneratedWorld, worldId: Long, bestiaIdOf: (String) -> Long?): List<Lair> {
       val config = generated.config
