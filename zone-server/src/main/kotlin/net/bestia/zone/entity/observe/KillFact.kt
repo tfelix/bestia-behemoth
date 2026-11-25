@@ -8,4 +8,6 @@ data class KillFact(
   val speciesId: Long,
   val position: Vec3L,
   val creditedMasters: Set<EntityId>,
+  val level: Int,
+  val boss: Boolean,
 )

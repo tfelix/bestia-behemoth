@@ -21,6 +21,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.persistence.Skill
 import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.mana.ManaEmission
 import net.bestia.zone.prop.PropPromotionService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -138,6 +139,20 @@ class SkillExecutionServiceTest {
 
     assertEquals(0, script.casts)
     assertEquals(5, world.manaOf(caster))
+  }
+
+  @Test
+  fun `a paid cast releases what it cost into the air, a refused one nothing`() {
+    val emission = mockk<ManaEmission>(relaxed = true)
+    val caster = world.spawnFighter(mana = 100)
+    val target = world.spawnFighter()
+
+    serviceFor(TestScript(result = HitDamage(1)), manaCost = 30, manaEmission = emission)
+      .executeNow(world, caster, SKILL_ID, 1, target, null)
+    serviceFor(TestScript(result = HitDamage(1), possible = false), manaCost = 30, manaEmission = emission)
+      .executeNow(world, caster, SKILL_ID, 1, target, null)
+
+    verify(exactly = 1) { emission.onCast(any(), 30) }
   }
 
   @Test
@@ -410,19 +425,29 @@ class SkillExecutionServiceTest {
     }
   }
 
-  private fun serviceFor(script: SkillStrategy, manaCost: Int = 0, cooldown: Float = 0f) =
-    service(skill(manaCost = manaCost, script = script::class.simpleName!!, cooldown = cooldown), SkillStrategyFactory(listOf(script)))
+  private fun serviceFor(
+    script: SkillStrategy,
+    manaCost: Int = 0,
+    cooldown: Float = 0f,
+    manaEmission: ManaEmission? = null,
+  ) = service(
+    skill(manaCost = manaCost, script = script::class.simpleName!!, cooldown = cooldown),
+    SkillStrategyFactory(listOf(script)),
+    manaEmission = manaEmission,
+  )
 
   private fun service(
     skill: Skill,
     strategies: SkillStrategyFactory,
     plagiarism: Plagiarism? = null,
+    manaEmission: ManaEmission? = null,
   ): SkillExecutionService {
     val repository = mockk<SkillRepository>()
     every { repository.findAll() } returns listOf(skill)
 
     return SkillExecutionService(
-      repository, strategies, contextFactory(plagiarism), SkillCooldownService(clock), plagiarism = plagiarism
+      repository, strategies, contextFactory(plagiarism), SkillCooldownService(clock), plagiarism = plagiarism,
+      manaEmission = manaEmission,
     ).also { it.warmUp() }
   }
 

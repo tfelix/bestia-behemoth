@@ -383,6 +383,14 @@ mana:
     sanctuary-target: 0.3
     sanctuary-half-life-bestia-days: 3
     sanctuary-radius-metres: 3000
+  # What each source releases, in motes (a thousandth of density on one 128 m cell). Set from how the field should
+  # feel: ManaCalibrationTest replays the play behind each number.
+  emission:
+    # A caster's day at one spot adds about 0.03.
+    motes-per-mana-point: 0.0055
+    # A grind spot hunted every day for a week rises by about 0.15. A boss releases ten times as much.
+    motes-per-kill-level: 0.04
+    boss-factor: 10
 
 # Reading tracks: what the world remembers about the things that left prints, and how much of it a rank
 # earns. None of this changes what is stored, so all of it may be retuned on a restart.
