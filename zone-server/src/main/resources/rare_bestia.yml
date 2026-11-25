@@ -1,0 +1,28 @@
+# Named bestia that only come when everything fits: the land, the weather, the part of the day, the moon and the
+# season. The `rare-bestia` world event brings one where its land lies in a province while its sky holds, and it
+# leaves again when the sky moves on. Townsfolk hint at each one near the land it lives on.
+#
+# `bestia` is an event-only species from `mob/`. An empty or missing list allows anything. `biomes` are worldgen
+# biomes, `weather` worldgen weather kinds, `day-parts` DAWN, DAY, DUSK or NIGHT, `moons` NEW, WAXING, FULL or
+# WANING, and `seasons` SPRING, SUMMER, FALL or WINTER. The client's dialogs.csv has a RARE_HINT_<ID> row for each.
+rares:
+  - id: storm-heron
+    bestia: storm_heron
+    biomes: [SWAMP, BOG, RIPARIAN]
+    weather: [THUNDERSTORM, MANA_STORM]
+    day-parts: [DUSK]
+
+  - id: silver-hart
+    bestia: silver_hart
+    biomes: [TEMPERATE_FOREST, TEMPERATE_RAINFOREST, TAIGA]
+    weather: [CLEAR]
+    day-parts: [NIGHT]
+    moons: [FULL]
+
+  - id: whiteveil-lynx
+    bestia: whiteveil_lynx
+    biomes: [TUNDRA, TAIGA, ALPINE]
+    weather: [SNOW, BLIZZARD]
+    day-parts: [NIGHT, DAWN]
+    moons: [NEW]
+    seasons: [WINTER]
