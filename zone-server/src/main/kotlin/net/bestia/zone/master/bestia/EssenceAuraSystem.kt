@@ -24,6 +24,7 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.guild.skill.GuildAuraSystem
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.identity.ecs.OwnedBestia
@@ -45,7 +46,7 @@ class EssenceAuraSystem(
 
   override val phase = Phase.STATUS
   override val schedule: Schedule = Schedule.EverySeconds(PULSE_SECONDS)
-  override val after = setOf(StatusEffectDurationSystem::class)
+  override val after = setOf(StatusEffectDurationSystem::class, GuildAuraSystem::class)
   override val before = setOf(StatusValueRecalcSystem::class, DetectingSystem::class, MarkedPreySystem::class)
 
   override val reads: ComponentClassSet = setOf(
