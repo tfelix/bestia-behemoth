@@ -27,6 +27,20 @@ class ManaEmissionTest {
     assertEquals(11 * ordinary, motesAt(), 1e-9)
   }
 
+  @Test
+  fun `a broken store lets go of what every item held`() {
+    sut.onStoreBroken(AT, "mana_crystal", amount = 3)
+
+    assertEquals(3 * config.storedMotes.getValue("mana_crystal"), motesAt(), 1e-9)
+  }
+
+  @Test
+  fun `a broken store of items that hold no mana releases nothing`() {
+    sut.onStoreBroken(AT, "iron_ore", amount = 5)
+
+    assertEquals(0, field.tileCount)
+  }
+
   private fun motesAt(): Double = field.deltaAt(AT.x.toDouble(), AT.y.toDouble()) / ManaField.DELTA_PER_MOTE
 
   private companion object {

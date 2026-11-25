@@ -25,10 +25,12 @@ class GroundItemDamage(
   private val groundStackRemoval: GroundStackRemoval,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val looseInstanceDisposal: LooseInstanceDisposal,
+  private val manaRelease: GroundStackManaRelease? = null,
 ) : AreaDamageReceiver {
 
   /** For a calling system's own declarations. */
-  override val reads: ComponentClassSet = setOf(GroundItemStack::class, LootProtection::class) + DamageGate.READS
+  override val reads: ComponentClassSet = setOf(GroundItemStack::class, LootProtection::class) + DamageGate.READS +
+    manaRelease?.reads.orEmpty()
   override val writes: ComponentClassSet = setOf(GroundItemIntegrity::class, Dead::class)
 
   override fun receive(world: World, victimId: EntityId, damage: Int, element: Element): Boolean {
@@ -58,6 +60,7 @@ class GroundItemDamage(
 
   private fun destroy(world: World, stackId: EntityId, stack: GroundItemStack, integrity: GroundItemIntegrity) {
     integrity.destroyed = true
+    manaRelease?.release(world, stackId)
     // So the vanish tells clients the stack was destroyed rather than picked up.
     world.add(stackId, Dead())
     groundStackRemoval.remove(world, stackId)
