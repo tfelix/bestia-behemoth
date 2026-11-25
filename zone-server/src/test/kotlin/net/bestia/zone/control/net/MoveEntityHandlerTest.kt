@@ -99,6 +99,7 @@ class MoveEntityHandlerTest {
       attackCancelService = AttackCancelService(),
       deadActionGuard = DeadActionGuard(),
       actionGuard = ActionGuard(),
+      unrulyGuard = mockk(relaxed = true),
       rateLimit = rateLimit,
       journeys = JourneyService(TravelConfig(), AttackCancelService(), RegionGrid(water)),
       clientLeg = ClientLeg(walkQuery, WorldRulesConfig(tickRate = 20)),

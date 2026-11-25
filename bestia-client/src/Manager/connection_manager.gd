@@ -241,6 +241,7 @@ var TakeEggCMSG = load("res://Bnet/Message/Breeding/TakeEggCMSG.cs")
 var PlaceEggCMSG = load("res://Bnet/Message/Breeding/PlaceEggCMSG.cs")
 var InspectEggCMSG = load("res://Bnet/Message/Breeding/InspectEggCMSG.cs")
 var GetBestiaOrdersCMSG = load("res://Bnet/Message/Master/GetBestiaOrdersCMSG.cs")
+var RenameBestiaCMSG = load("res://Bnet/Message/Master/RenameBestiaCMSG.cs")
 var SetBestiaAiConfigCMSG = load("res://Bnet/Message/Master/SetBestiaAiConfigCMSG.cs")
 var GetOrderBookCMSG = load("res://Bnet/Message/Master/GetOrderBookCMSG.cs")
 var SaveOrderPresetCMSG = load("res://Bnet/Message/Master/SaveOrderPresetCMSG.cs")
@@ -967,6 +968,27 @@ func offer_trade_item(trade_id: int, player_item_id: int, amount: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Puts one of our party bestias into our side of the trade, through the same message as an item. Without
+## [param accept_carried_items] a bestia that carries or wears items is refused with
+## TRADE_BESTIA_CARRIES_ITEMS, so the player can be asked first.
+func offer_trade_bestia(trade_id: int, entity_id: int, accept_carried_items: bool) -> void:
+	assert(is_ready_to_send())
+	var msg = OfferTradeItemCMSG.new()
+	msg.TradeId = trade_id
+	msg.BestiaEntityId = entity_id
+	msg.AcceptCarriedItems = accept_carried_items
+	_socket.SendMessage(msg)
+
+
+## Takes one of our bestias back out of our offer.
+func retract_trade_bestia(trade_id: int, player_bestia_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = RetractTradeItemCMSG.new()
+	msg.TradeId = trade_id
+	msg.PlayerBestiaId = player_bestia_id
+	_socket.SendMessage(msg)
+
+
 ## Takes one line back out of our own offer. [param offer_slot_id] is the id the server gave that line, not
 ## an item id - two lines of the same item are separate offers.
 func retract_trade_item(trade_id: int, offer_slot_id: int) -> void:
@@ -1646,6 +1668,16 @@ func select_active_entity(entity_id: int) -> void:
 	assert(is_ready_to_send())
 	var msg = SelectActiveEntityCMSG.new()
 	msg.EntityId = entity_id
+	_socket.SendMessage(msg)
+
+
+## Names one of our party bestias; an empty [param bestia_name] gives it back its species' name. The new
+## name comes back with OwnedBestiasSMSG and on its name tag.
+func rename_bestia(entity_id: int, bestia_name: String) -> void:
+	assert(is_ready_to_send())
+	var msg = RenameBestiaCMSG.new()
+	msg.EntityId = entity_id
+	msg.Name = bestia_name
 	_socket.SendMessage(msg)
 
 

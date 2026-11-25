@@ -61,6 +61,11 @@ ERROR_BESTIA_STORAGE_BESTIA_FIGHTING,A fighting bestia cannot go into your stora
 ERROR_BESTIA_STORAGE_BESTIA_CONTROLLED,You cannot put away the bestia you control right now.
 ERROR_BESTIA_STORAGE_BESTIA_BREEDING,This bestia is paired in a Breeding Farm. Release the pair first.
 ERROR_BESTIA_STORAGE_CENTER_CLOSED,This storage center stands in no town and is closed.
+ERROR_BESTIA_NAME_INVALID,"A bestia's name is one or two words of letters and digits, at most 24 characters."
+ERROR_BESTIA_UNRULY,Your bestia will not listen to you. It is too far above your level.
+ERROR_TRADE_BESTIA_CARRIES_ITEMS,This bestia carries %s items. They would go with it.
+ERROR_TRADE_BESTIA_UNAVAILABLE,"This bestia cannot be traded now: it is dead, fighting, breeding or away on a journey."
+ERROR_TRADE_BESTIA_NO_ROOM,%s has no room for another bestia. Nothing was traded.
 STATUS_EFFECT_10,Warded: a ward stone's magic keeps other players from harming you and you from harming them.
 STATUS_EFFECT_12,Guild aura: your guild master is near and lends you strength.
 STATUS_EFFECT_13,"Battle Orders: +5 STR, DEX and INT."
@@ -100,6 +105,7 @@ STATUS_EFFECT_52,Mirror veil: single-target skills turn back on their caster.
 STATUS_EFFECT_53,Barrier: it soaks up the next blows.
 STATUS_EFFECT_54,Corrosive: weapons that hit you wear down.
 STATUS_EFFECT_55,Controlled: fighting for another side.
+STATUS_EFFECT_255,"Unruly: too far above its master's level, it follows its own mind for a while."
 STATUS_EFFECT_56,Hidden: other players cannot see you. You cannot move. Acting reveals you.
 STATUS_EFFECT_57,Cloaked: other players cannot see you. You move slower. Acting or being hit reveals you.
 STATUS_EFFECT_59,Armor stripped: you cannot put armor on until this ends.
@@ -255,6 +261,12 @@ CAPTURE_FAILED,A Bestia broke free of your trap.
 BESTIA_PARTY_MASTER,Master
 BESTIA_PARTY_EMPTY_SLOT,Empty
 BESTIA_PARTY_EMPTY_SLOT_HINT,Catch a Bestia to fill the empty slot.
+BESTIA_PARTY_ROW_HINT,Click to take control. Right-click to rename.
+BESTIA_RENAME_TITLE,Name your Bestia
+TRADE_BESTIA_TAKE_BACK,Take back
+TRADE_BESTIA_CARRIES,"Carries %s items, which go with it"
+TRADE_BESTIA_CARRIES_TITLE,Items go with it
+TRADE_BESTIA_CARRIES_CONFIRM,"This bestia carries %s items, worn ones too. They go to the new owner with it. Offer it anyway?"
 ORDERS_OPEN,Orders for %s
 ORDERS_TITLE,Orders: %s
 ORDERS_LOADING,Asking for the orders...
@@ -847,6 +859,7 @@ EMOTE_BODY_CANNOT,The body you control has no %s emote.
 EMOTE_BAR_TITLE,Emote bar - Alt+1 to Alt+0
 EMOTE_WINDOW_HINT,"Click an emote to play it, or drag it onto the bar. Typing /cheer, /sit and the rest works too; /help lists them."
 NAME_TAG_LEVEL,Lv. %d
+NAME_TAG_OWNER,"%s's Bestia"
 LETTERS_WRITE,Write a letter
 LETTERS_EMPTY,"No letters. A pigeon brings them to you, wherever you are."
 LETTERS_FROM,From %s on %s
@@ -1301,6 +1314,9 @@ IV_GRADE_3,Great
 IV_GRADE_4,Excellent
 IV_GRADE_5,Perfect
 BESTIA_EGG_PROGRESS,Hatched: %d%%
+BESTIA_ORIGIN_1,Caught by %s
+BESTIA_ORIGIN_2,Bred by %s
+BESTIA_ORIGIN_3,Granted to %s
 BREEDING_FARM_PHASE_0,No clutch. Pick a female and a male of the same species.
 BREEDING_FARM_PHASE_1,The pair is walking to the farm.
 BREEDING_FARM_PHASE_2,The pair is breeding.

@@ -39,6 +39,12 @@ class BestiaEgg(
   @Column(name = "hatch_millis", nullable = false)
   val hatchMillis: Long,
 
+  /**
+   * The master whose farm laid it, a snapshot. The bestia it hatches into reads "Bred by" them, whoever hatches it.
+   */
+  @Column(name = "breeder_name", nullable = false)
+  val breederName: String,
+
   /** How much of [hatchMillis] it has spent in incubators, kept when it is taken out. */
   @Column(name = "hatched_millis", nullable = false)
   var hatchedMillis: Long = 0,
@@ -55,8 +61,9 @@ class BestiaEgg(
     }
 
   companion object {
-    fun of(itemInstanceId: Long, clutch: Clutch): BestiaEgg {
+    fun of(itemInstanceId: Long, clutch: Clutch, breederName: String): BestiaEgg {
       return BestiaEgg(
+        breederName = breederName,
         itemInstanceId = itemInstanceId,
         speciesId = clutch.speciesId,
         sex = clutch.sex,

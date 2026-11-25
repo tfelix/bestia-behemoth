@@ -22,6 +22,8 @@ var TradeRequestDialogScn = preload("res://Game/UI/Trade/TradeRequestDialog/Trad
 var inventory: Inventory = null
 
 @onready var _own_column: VBoxContainer = %OwnColumn
+@onready var _own_bestias: VBoxContainer = %OwnBestias
+@onready var _partner_bestias: VBoxContainer = %PartnerBestias
 @onready var _own_grid: GridContainer = %OwnGrid
 @onready var _own_status: Label = %OwnStatus
 @onready var _partner_header: Label = %PartnerHeader
@@ -34,11 +36,14 @@ var inventory: Inventory = null
 var _trade_id: int = 0
 var _own_locked: bool = false
 var _request_dialog: TradeRequestDialog = null
+## The bestia last dropped in, until the server takes it or asks whether its items go too.
+var _pending_bestia_entity_id: int = 0
 
 
 func _ready() -> void:
 	ConnectionManager.trade_request_received.connect(_on_trade_request)
 	ConnectionManager.trade_state_received.connect(_on_trade_state)
+	ConnectionManager.operation_error.connect(_on_operation_error)
 
 
 ## True while a trade is running. The window survives closing, so the id is what says whether the buttons
@@ -76,9 +81,14 @@ func _on_trade_state(msg: TradeStateSMSG) -> void:
 
 	var was_open := _trade_id != 0
 	_trade_id = msg.TradeId
+	# A state answers the last drop: the bestia went in, or it was refused for good. Only a carried-items
+	# refusal comes without one.
+	_pending_bestia_entity_id = 0
 	_own_locked = msg.OwnLocked
 
 	_partner_header.text = "%s's offer" % msg.PartnerMasterName
+	_render_bestias(_own_bestias, msg.OwnBestias, true)
+	_render_bestias(_partner_bestias, msg.PartnerBestias, false)
 	_render_offer(_own_grid, msg.OwnOffer, true)
 	_render_offer(_partner_grid, msg.PartnerOffer, false)
 	_update_buttons(msg)
@@ -123,6 +133,44 @@ func _render_offer(grid: GridContainer, offer: Array, own: bool) -> void:
 		grid.add_child(row)
 
 
+## One row per offered bestia: who it is, where it came from, its IV grades on hover, and a warning when items
+## go with it. Both sides see the warning, so nobody is surprised by what arrives.
+func _render_bestias(column: VBoxContainer, bestias: Array, own: bool) -> void:
+	for child in column.get_children():
+		child.queue_free()
+
+	for bestia: TradeOfferBestia in bestias:
+		var row := HBoxContainer.new()
+		var label := Label.new()
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		label.mouse_filter = Control.MOUSE_FILTER_PASS
+		label.text = _bestia_text(bestia)
+		label.tooltip_text = BreedingText.iv_lines(bestia.Ivs)
+		row.add_child(label)
+
+		# Only our own side can be taken back, and only while we have not locked it.
+		if own and not _own_locked:
+			var take_back := Button.new()
+			take_back.text = tr("TRADE_BESTIA_TAKE_BACK")
+			take_back.pressed.connect(_on_bestia_taken_back.bind(bestia.PlayerBestiaId))
+			row.add_child(take_back)
+
+		column.add_child(row)
+
+
+func _bestia_text(bestia: TradeOfferBestia) -> String:
+	var bestia_name := bestia.Name if not bestia.Name.is_empty() else BreedingText.species_name(bestia.MobId)
+	var lines: PackedStringArray = [
+		("%s %s  %s" % [bestia_name, BreedingText.sex_mark(bestia.Sex), tr("NAME_TAG_LEVEL") % bestia.Level]).strip_edges(),
+	]
+	var origin := BreedingText.origin_line(bestia.Origin, bestia.OriginMasterName)
+	if not origin.is_empty():
+		lines.append(origin)
+	if bestia.CarriedItemCount > 0 or bestia.WearsGear:
+		lines.append(tr("TRADE_BESTIA_CARRIES") % bestia.CarriedItemCount)
+	return "\n".join(lines)
+
+
 func _update_buttons(msg: TradeStateSMSG) -> void:
 	var both_locked := msg.StatusName == "locked"
 
@@ -160,6 +208,36 @@ func _on_offer_dragged_out(offer_slot_id: int) -> void:
 	ConnectionManager.retract_trade_item(_trade_id, offer_slot_id)
 
 
+func _on_bestia_taken_back(player_bestia_id: int) -> void:
+	if _trade_id == 0:
+		return
+
+	ConnectionManager.retract_trade_bestia(_trade_id, player_bestia_id)
+
+
+## The server refused the bestia because its items would go with it: ask, and offer it again if the player agrees.
+func _on_operation_error(msg: OperationError) -> void:
+	if msg.CodeName != "trade_bestia_carries_items" or _pending_bestia_entity_id == 0 or _trade_id == 0:
+		return
+
+	var entity_id := _pending_bestia_entity_id
+	var trade_id := _trade_id
+	_pending_bestia_entity_id = 0
+	var count: String = msg.Args[0] if msg.Args.size() > 0 else "?"
+
+	var dialog := ConfirmationDialog.new()
+	dialog.title = tr("TRADE_BESTIA_CARRIES_TITLE")
+	dialog.dialog_text = tr("TRADE_BESTIA_CARRIES_CONFIRM") % count
+	dialog.confirmed.connect(func() -> void:
+		if _trade_id == trade_id:
+			ConnectionManager.offer_trade_bestia(trade_id, entity_id, true))
+	dialog.visibility_changed.connect(func() -> void:
+		if not dialog.visible:
+			dialog.queue_free())
+	add_child(dialog)
+	dialog.popup_centered()
+
+
 func _on_lock_pressed() -> void:
 	if _trade_id == 0:
 		return
@@ -189,13 +267,19 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	if _trade_id == 0 or _own_locked or inventory == null:
 		return false
 
-	if typeof(data) != TYPE_DICTIONARY or data.get("source") != "inventory_item":
+	if typeof(data) != TYPE_DICTIONARY or not data.get("source") in ["inventory_item", "party_bestia"]:
 		return false
 
 	return _own_column.get_global_rect().has_point(get_global_mouse_position())
 
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:
+	# A party bestia, dragged from its row: offered as it is, the server asks back if it carries items.
+	if data.get("source") == "party_bestia":
+		_pending_bestia_entity_id = data.get("entity_id", 0)
+		ConnectionManager.offer_trade_bestia(_trade_id, _pending_bestia_entity_id, false)
+		return
+
 	var item_id: int = data.get("id")
 	var player_item_id: int = data.get("player_item_id", 0)
 	var held: int = data.get("amount", 0)

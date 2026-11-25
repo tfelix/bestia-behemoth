@@ -57,6 +57,8 @@ class BestiaStorageViews(
         position = row.position,
         sex = row.sex?.toBnet() ?: BestiaGeneticsProto.BestiaSex.BESTIA_SEX_UNKNOWN,
         ivs = IvReading(ivs, readsExactIvs).toBnet(),
+        origin = row.origin.toBnet(),
+        originMasterName = row.originMasterName,
       ),
       restingSeconds = restingSeconds,
       health = Pool(vitals?.health?.coerceAtMost(maxHp) ?: maxHp, maxHp),

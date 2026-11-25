@@ -38,6 +38,11 @@ theme_override_constants/separation = 4
 layout_mode = 2
 text = "Your offer"
 
+[node name="OwnBestias" type="VBoxContainer" parent="Margin/Body/Columns/OwnColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
 [node name="OwnGrid" type="GridContainer" parent="Margin/Body/Columns/OwnColumn"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -71,6 +76,11 @@ theme_override_constants/separation = 4
 unique_name_in_owner = true
 layout_mode = 2
 text = "Their offer"
+
+[node name="PartnerBestias" type="VBoxContainer" parent="Margin/Body/Columns/PartnerColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
 
 [node name="PartnerGrid" type="GridContainer" parent="Margin/Body/Columns/PartnerColumn"]
 unique_name_in_owner = true

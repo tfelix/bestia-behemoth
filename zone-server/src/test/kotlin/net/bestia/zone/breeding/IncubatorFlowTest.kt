@@ -56,6 +56,7 @@ class IncubatorFlowTest {
     individualValues = IndividualValues(),
     encodedAttackLearnLevels = "",
     hatchMillis = HATCH_MILLIS,
+    breederName = "Breeder",
   )
   private val eggs = mockk<BestiaEggRepository> {
     every { findById(EGG_INSTANCE) } returns Optional.of(eggRow)

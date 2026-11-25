@@ -6,6 +6,7 @@ import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.battle.ActionGuard
+import net.bestia.zone.battle.UnrulyGuard
 import net.bestia.zone.battle.status.ActionLock
 import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.status.RemovalReason
@@ -62,6 +63,7 @@ class ActivateSkillHandler(
   private val logoutCancelService: LogoutCancelService,
   private val deadActionGuard: DeadActionGuard,
   private val actionGuard: ActionGuard,
+  private val unrulyGuard: UnrulyGuard,
   private val propPromotion: CombatTargetPromotion,
   private val outMessageProcessor: OutMessageProcessor,
   private val statusEffects: StatusEffectService,
@@ -78,6 +80,10 @@ class ActivateSkillHandler(
     }
 
     if (actionGuard.refuses(world, activeEntityId, ActionLock.CAST)) {
+      return true
+    }
+
+    if (unrulyGuard.refuses(world, msg.playerId, activeEntityId)) {
       return true
     }
 

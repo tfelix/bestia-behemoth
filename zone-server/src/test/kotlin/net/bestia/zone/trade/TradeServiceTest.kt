@@ -51,6 +51,9 @@ class TradeServiceTest {
     asyncJobExecutor = mockk(relaxed = true),
     deadActionGuard = DeadActionGuard(),
     itemTemplates = mockk(relaxed = true),
+    bestiaTransfer = mockk(relaxed = true),
+    tradeSettlement = mockk(relaxed = true),
+    ownedBestias = mockk(relaxed = true),
   )
 
   @Test

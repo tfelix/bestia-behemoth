@@ -2,6 +2,7 @@ package net.bestia.zone.battle.net
 
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.zone.battle.ActionGuard
+import net.bestia.zone.battle.UnrulyGuard
 import net.bestia.zone.battle.attack.AttackExecutionService
 import net.bestia.zone.battle.attack.AttackOutcome
 import net.bestia.zone.battle.damage.DamageGate
@@ -38,6 +39,7 @@ class AttackEntityHandler(
   private val logoutCancelService: LogoutCancelService,
   private val deadActionGuard: DeadActionGuard,
   private val actionGuard: ActionGuard,
+  private val unrulyGuard: UnrulyGuard,
   private val propPromotion: CombatTargetPromotion,
   private val outMessageProcessor: OutMessageProcessor,
 ) : TickMessageHandler<AttackEntityCMSG> {
@@ -55,6 +57,10 @@ class AttackEntityHandler(
     }
 
     if (actionGuard.refuses(world, attackerId, ActionLock.ATTACK)) {
+      return true
+    }
+
+    if (unrulyGuard.refuses(world, msg.playerId, attackerId)) {
       return true
     }
 

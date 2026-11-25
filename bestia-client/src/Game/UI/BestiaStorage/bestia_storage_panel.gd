@@ -259,6 +259,9 @@ func _render_detail() -> void:
 
 	_title.text = "%s %s" % [_name_of(stored), BreedingText.sex_mark(stored.Info.Sex)]
 	_subtitle.text = _species_line(stored)
+	var origin := BreedingText.origin_line(stored.Info.Origin, stored.Info.OriginMasterName)
+	if not origin.is_empty():
+		_subtitle.text += "\n" + origin
 	_subtitle.tooltip_text = BreedingText.iv_lines(stored.Info.Ivs)
 	_subtitle.mouse_filter = Control.MOUSE_FILTER_PASS
 	UiStyle.set_bar(_health, stored.Health, stored.MaxHealth)

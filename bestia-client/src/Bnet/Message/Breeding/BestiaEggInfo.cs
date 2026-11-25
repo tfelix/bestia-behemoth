@@ -17,6 +17,9 @@ namespace BestiaBehemothClient.Bnet.Message.Breeding
     [Export] public ulong HatchTotalMs { get; set; }
     [Export] public ulong HatchDoneMs { get; set; }
 
+    /// <summary>Whose farm laid it.</summary>
+    [Export] public string BreederName { get; set; } = "";
+
     /// <summary>Null when the message carries no egg.</summary>
     public static BestiaEggInfo FromProto(global::Bnet.BestiaEgg proto)
     {
@@ -32,7 +35,8 @@ namespace BestiaBehemothClient.Bnet.Message.Breeding
         Sex = (int)proto.Sex,
         Ivs = IvReadingInfo.FromProto(proto.Ivs),
         HatchTotalMs = proto.HatchTotalMs,
-        HatchDoneMs = proto.HatchDoneMs
+        HatchDoneMs = proto.HatchDoneMs,
+        BreederName = proto.BreederName
       };
     }
   }

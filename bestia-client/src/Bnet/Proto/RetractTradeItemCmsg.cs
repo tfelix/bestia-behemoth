@@ -25,13 +25,14 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CixtZXNzYWdlcy90cmFkZS9yZXRyYWN0X3RyYWRlX2l0ZW1fY21zZy5wcm90",
-            "bxIEYm5ldCI/ChRSZXRyYWN0VHJhZGVJdGVtQ01TRxIQCgh0cmFkZV9pZBgB",
-            "IAEoBBIVCg1vZmZlcl9zbG90X2lkGAIgASgEQjIKFW5ldC5iZXN0aWEuYm5l",
-            "dC5wcm90b0IZUmV0cmFjdFRyYWRlSXRlbUNtc2dQcm90b2IGcHJvdG8z"));
+            "bxIEYm5ldCJlChRSZXRyYWN0VHJhZGVJdGVtQ01TRxIQCgh0cmFkZV9pZBgB",
+            "IAEoBBIXCg1vZmZlcl9zbG90X2lkGAIgASgESAASGgoQcGxheWVyX2Jlc3Rp",
+            "YV9pZBgDIAEoBEgAQgYKBGxpbmVCMgoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
+            "QhlSZXRyYWN0VHJhZGVJdGVtQ21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.RetractTradeItemCMSG), global::Bnet.RetractTradeItemCMSG.Parser, new[]{ "TradeId", "OfferSlotId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.RetractTradeItemCMSG), global::Bnet.RetractTradeItemCMSG.Parser, new[]{ "TradeId", "OfferSlotId", "PlayerBestiaId" }, new[]{ "Line" }, null, null, null)
           }));
     }
     #endregion
@@ -39,7 +40,7 @@ namespace Bnet {
   }
   #region Messages
   /// <summary>
-  /// Takes one line back out of the sender's own offer, returning it to their inventory.
+  /// Takes one line back out of the sender's own offer: an item returns to their inventory, a bestia stays theirs.
   ///
   /// offer_slot_id is the id the server gave that line in TradeStateSMSG, not an item id: two lines of the
   /// same template are distinct offers and only one of them is being retracted.
@@ -80,7 +81,15 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public RetractTradeItemCMSG(RetractTradeItemCMSG other) : this() {
       tradeId_ = other.tradeId_;
-      offerSlotId_ = other.offerSlotId_;
+      switch (other.LineCase) {
+        case LineOneofCase.OfferSlotId:
+          OfferSlotId = other.OfferSlotId;
+          break;
+        case LineOneofCase.PlayerBestiaId:
+          PlayerBestiaId = other.PlayerBestiaId;
+          break;
+      }
+
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -104,14 +113,78 @@ namespace Bnet {
 
     /// <summary>Field number for the "offer_slot_id" field.</summary>
     public const int OfferSlotIdFieldNumber = 2;
-    private ulong offerSlotId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public ulong OfferSlotId {
-      get { return offerSlotId_; }
+      get { return HasOfferSlotId ? (ulong) line_ : 0UL; }
       set {
-        offerSlotId_ = value;
+        line_ = value;
+        lineCase_ = LineOneofCase.OfferSlotId;
       }
+    }
+    /// <summary>Gets whether the "offer_slot_id" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasOfferSlotId {
+      get { return lineCase_ == LineOneofCase.OfferSlotId; }
+    }
+    /// <summary> Clears the value of the oneof if it's currently set to "offer_slot_id" </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearOfferSlotId() {
+      if (HasOfferSlotId) {
+        ClearLine();
+      }
+    }
+
+    /// <summary>Field number for the "player_bestia_id" field.</summary>
+    public const int PlayerBestiaIdFieldNumber = 3;
+    /// <summary>
+    /// A bestia line, as TradeOfferBestia.player_bestia_id names it.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong PlayerBestiaId {
+      get { return HasPlayerBestiaId ? (ulong) line_ : 0UL; }
+      set {
+        line_ = value;
+        lineCase_ = LineOneofCase.PlayerBestiaId;
+      }
+    }
+    /// <summary>Gets whether the "player_bestia_id" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasPlayerBestiaId {
+      get { return lineCase_ == LineOneofCase.PlayerBestiaId; }
+    }
+    /// <summary> Clears the value of the oneof if it's currently set to "player_bestia_id" </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearPlayerBestiaId() {
+      if (HasPlayerBestiaId) {
+        ClearLine();
+      }
+    }
+
+    private object line_;
+    /// <summary>Enum of possible cases for the "line" oneof.</summary>
+    public enum LineOneofCase {
+      None = 0,
+      OfferSlotId = 2,
+      PlayerBestiaId = 3,
+    }
+    private LineOneofCase lineCase_ = LineOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public LineOneofCase LineCase {
+      get { return lineCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearLine() {
+      lineCase_ = LineOneofCase.None;
+      line_ = null;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -131,6 +204,8 @@ namespace Bnet {
       }
       if (TradeId != other.TradeId) return false;
       if (OfferSlotId != other.OfferSlotId) return false;
+      if (PlayerBestiaId != other.PlayerBestiaId) return false;
+      if (LineCase != other.LineCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -139,7 +214,9 @@ namespace Bnet {
     public override int GetHashCode() {
       int hash = 1;
       if (TradeId != 0UL) hash ^= TradeId.GetHashCode();
-      if (OfferSlotId != 0UL) hash ^= OfferSlotId.GetHashCode();
+      if (HasOfferSlotId) hash ^= OfferSlotId.GetHashCode();
+      if (HasPlayerBestiaId) hash ^= PlayerBestiaId.GetHashCode();
+      hash ^= (int) lineCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -162,9 +239,13 @@ namespace Bnet {
         output.WriteRawTag(8);
         output.WriteUInt64(TradeId);
       }
-      if (OfferSlotId != 0UL) {
+      if (HasOfferSlotId) {
         output.WriteRawTag(16);
         output.WriteUInt64(OfferSlotId);
+      }
+      if (HasPlayerBestiaId) {
+        output.WriteRawTag(24);
+        output.WriteUInt64(PlayerBestiaId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -180,9 +261,13 @@ namespace Bnet {
         output.WriteRawTag(8);
         output.WriteUInt64(TradeId);
       }
-      if (OfferSlotId != 0UL) {
+      if (HasOfferSlotId) {
         output.WriteRawTag(16);
         output.WriteUInt64(OfferSlotId);
+      }
+      if (HasPlayerBestiaId) {
+        output.WriteRawTag(24);
+        output.WriteUInt64(PlayerBestiaId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -197,8 +282,11 @@ namespace Bnet {
       if (TradeId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(TradeId);
       }
-      if (OfferSlotId != 0UL) {
+      if (HasOfferSlotId) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(OfferSlotId);
+      }
+      if (HasPlayerBestiaId) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(PlayerBestiaId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -215,9 +303,15 @@ namespace Bnet {
       if (other.TradeId != 0UL) {
         TradeId = other.TradeId;
       }
-      if (other.OfferSlotId != 0UL) {
-        OfferSlotId = other.OfferSlotId;
+      switch (other.LineCase) {
+        case LineOneofCase.OfferSlotId:
+          OfferSlotId = other.OfferSlotId;
+          break;
+        case LineOneofCase.PlayerBestiaId:
+          PlayerBestiaId = other.PlayerBestiaId;
+          break;
       }
+
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -245,6 +339,10 @@ namespace Bnet {
             OfferSlotId = input.ReadUInt64();
             break;
           }
+          case 24: {
+            PlayerBestiaId = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -270,6 +368,10 @@ namespace Bnet {
           }
           case 16: {
             OfferSlotId = input.ReadUInt64();
+            break;
+          }
+          case 24: {
+            PlayerBestiaId = input.ReadUInt64();
             break;
           }
         }

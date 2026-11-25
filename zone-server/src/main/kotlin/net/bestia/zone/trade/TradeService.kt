@@ -33,6 +33,9 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 import org.springframework.core.annotation.Order
+import net.bestia.zone.master.bestia.OwnedBestiasPublisher
+import net.bestia.zone.util.PlayerBestiaId
+import java.time.Clock
 
 /**
  * Face-to-face trading between two players.
@@ -71,7 +74,11 @@ class TradeService(
   private val asyncJobExecutor: AsyncJobExecutor,
   private val deadActionGuard: DeadActionGuard,
   private val itemTemplates: ItemTemplateRegistry,
+  private val bestiaTransfer: BestiaTradeTransfer,
+  private val tradeSettlement: TradeSettlement,
+  private val ownedBestias: OwnedBestiasPublisher,
   private val metrics: GameMetrics = GameMetrics(),
+  private val clock: Clock = Clock.systemUTC(),
 ) {
 
   private val sessions = ConcurrentHashMap<Long, TradeSession>()
@@ -238,7 +245,7 @@ class TradeService(
       return
     }
 
-    if (synchronized(session) { side.offer.size } >= MAX_OFFER_LINES) {
+    if (synchronized(session) { side.lineCount() } >= MAX_OFFER_LINES) {
       deny(accountId, OpError.TRADE_OFFER_FULL)
       return
     }
@@ -334,6 +341,80 @@ class TradeService(
     }
 
     pushState(session)
+  }
+
+  /**
+   * Puts one of the caller's party bestias into their side of the window. Unlike an item it stays in the world,
+   * and theirs, until the trade goes through: nothing is reserved, so nothing needs giving back. What it carries
+   * goes with it, which the caller has to have agreed to in [acceptCarriedItems].
+   */
+  fun offerBestia(accountId: AccountId, tradeId: Long, entityId: EntityId, acceptCarriedItems: Boolean) {
+    val session = sessions[tradeId] ?: return
+
+    val side = synchronized(session) {
+      if (session.status != TradeStatus.OPEN) null else session.sideOf(accountId)?.takeUnless { it.locked }
+    }
+    if (side == null || world.read { deadActionGuard.refuses(this, side.entityId, "offer a bestia") }) {
+      resendTo(session, accountId)
+      return
+    }
+
+    val offered = when (val offer = bestiaTransfer.describe(side.masterId, entityId)) {
+      is BestiaTradeTransfer.Offer.Refused -> {
+        if (offer.reason == BestiaTradeTransfer.Reason.UNAVAILABLE) {
+          deny(accountId, OpError.TRADE_BESTIA_UNAVAILABLE)
+        } else {
+          LOG.warn { "Trade $tradeId: master ${side.masterId} offered entity $entityId, not a party bestia of theirs" }
+          resendTo(session, accountId)
+        }
+        return
+      }
+      is BestiaTradeTransfer.Offer.Offered -> offer.bestia
+    }
+
+    if (!offered.bag.isEmpty && !acceptCarriedItems) {
+      deny(accountId, OpError.TRADE_BESTIA_CARRIES_ITEMS, offered.bag.count.toString())
+      return
+    }
+
+    var full = false
+    val recorded = synchronized(session) {
+      when {
+        session.status != TradeStatus.OPEN || side.locked -> false
+        side.offeredBestias.any { it.playerBestiaId == offered.playerBestiaId } -> false
+        side.lineCount() >= MAX_OFFER_LINES -> {
+          full = true
+          false
+        }
+        else -> {
+          side.offeredBestias += offered
+          session.clearReadiness()
+          true
+        }
+      }
+    }
+
+    when {
+      recorded -> pushState(session)
+      full -> deny(accountId, OpError.TRADE_OFFER_FULL)
+      else -> resendTo(session, accountId)
+    }
+  }
+
+  /** Takes one of the caller's bestias back out of their offer. It never left them, so there is nothing to return. */
+  fun retractBestia(accountId: AccountId, tradeId: Long, playerBestiaId: PlayerBestiaId) {
+    val session = sessions[tradeId] ?: return
+
+    val retracted = synchronized(session) {
+      val side = session.sideOf(accountId)
+      if (session.status != TradeStatus.OPEN || side == null || side.locked) {
+        false
+      } else {
+        side.offeredBestias.removeIf { it.playerBestiaId == playerBestiaId }.also { if (it) session.clearReadiness() }
+      }
+    }
+
+    if (retracted) pushState(session) else resendTo(session, accountId)
   }
 
   // -------------------------------------------------------------- finalisation
@@ -454,20 +535,44 @@ class TradeService(
 
   // ----------------------------------------------------------------- internals
 
+  /**
+   * Offered bestias leave their old owner's world first, then items and bestias change hands in one
+   * transaction ([TradeSettlement]), then the bestias come into their new owner's world. A bestia that changed
+   * since it was offered, or finds no room, fails the whole trade and goes back to its owner as it was.
+   */
   private fun settle(session: TradeSession) {
     val requester = session.requester
     val target = session.target
 
-    val settlement = try {
-      inventoryService.settleTrade(
+    val offeredBestias = session.sides().flatMap { side -> side.offeredBestias.map { side.masterId to it } }
+    val leaving = bestiaTransfer.leave(offeredBestias)
+    if (leaving == null) {
+      finish(session, TradeEndReason.FAILED, byAccountId = null)
+      return
+    }
+
+    val result = try {
+      tradeSettlement.settle(
         tradeId = session.tradeId,
         masterAId = requester.masterId,
         masterBId = target.masterId,
         expectedA = requester.offer.map { it.offerSlotId }.toSet(),
         expectedB = target.offer.map { it.offerSlotId }.toSet(),
+        bestias = leaving.map { left ->
+          val to = if (left.fromMasterId == requester.masterId) target else requester
+          TradeSettlement.BestiaMove(left.offer.playerBestiaId, left.fromMasterId, to.masterId, left.vitals)
+        },
+        now = clock.instant(),
       )
+    } catch (e: TradeSettlement.NoRoomException) {
+      LOG.info { "Trade ${session.tradeId}: ${e.message}; nothing changed hands" }
+      bestiaTransfer.comeBack(leaving)
+      session.sides().forEach { deny(it.accountId, OpError.TRADE_BESTIA_NO_ROOM, e.masterName) }
+      finish(session, TradeEndReason.CANCELLED, byAccountId = null, silent = true)
+      return
     } catch (e: Exception) {
       LOG.error(e) { "Trade ${session.tradeId} could not be settled; nothing changed hands" }
+      bestiaTransfer.comeBack(leaving)
       finish(session, TradeEndReason.FAILED, byAccountId = null)
       return
     }
@@ -475,8 +580,13 @@ class TradeService(
     // Past the commit. Both offers left their live inventories when they were offered, so each side only has
     // to gain what the other gave. Somebody who went offline in between gets theirs from the database on their
     // next login - it is already durable.
-    world.grantToLive(requester.entityId, settlement.toMasterA)
-    world.grantToLive(target.entityId, settlement.toMasterB)
+    world.grantToLive(requester.entityId, result.items.toMasterA)
+    world.grantToLive(target.entityId, result.items.toMasterB)
+
+    if (result.arrivals.isNotEmpty()) {
+      bestiaTransfer.arrive(result.arrivals) { masterId -> if (masterId == requester.masterId) requester.entityId else target.entityId }
+      session.sides().forEach { ownedBestias.publish(it.accountId) }
+    }
 
     synchronized(session) { session.status = TradeStatus.CLOSED }
 
@@ -496,7 +606,7 @@ class TradeService(
    * The `sessions.remove` guard makes this idempotent, which it has to be - an expiry timer firing on an
    * already-answered request, and a disconnect racing a cancel, both arrive here.
    */
-  private fun finish(session: TradeSession, reason: TradeEndReason, byAccountId: AccountId?) {
+  private fun finish(session: TradeSession, reason: TradeEndReason, byAccountId: AccountId?, silent: Boolean = false) {
     if (sessions.remove(session.tradeId) == null) {
       return
     }
@@ -510,7 +620,8 @@ class TradeService(
 
     releaseHolds(session)
     pushFinalState(session, TradeStateSMSG.Status.CANCELLED)
-    report(session, reason, byAccountId)
+    // Silent when the caller has already told both sides why.
+    if (!silent) report(session, reason, byAccountId)
     metrics.tradeEnded(reason.name)
 
     LOG.debug { "Trade ${session.tradeId} ended: $reason" }
@@ -657,6 +768,8 @@ class TradeService(
       partnerEntityId = partner.entityId,
       ownOffer = side.offer.toList(),
       partnerOffer = partner.offer.toList(),
+      ownBestias = side.offeredBestias.toList(),
+      partnerBestias = partner.offeredBestias.toList(),
       ownLocked = side.locked,
       partnerLocked = partner.locked,
       ownConfirmed = side.confirmed,

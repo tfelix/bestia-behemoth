@@ -14,6 +14,8 @@ data class EggSummary(
   val ivs: IndividualValues,
   val hatchMillis: Long,
   val hatchedMillis: Long,
+  /** Whose farm laid it. */
+  val breederName: String,
 ) {
 
   fun toBnet(readsExactIvs: Boolean, hatchedMillisNow: Long = hatchedMillis): BestiaEggProto.BestiaEgg {
@@ -24,12 +26,13 @@ data class EggSummary(
       .setIvs(IvReading(ivs, readsExactIvs).toBnet())
       .setHatchTotalMs(hatchMillis)
       .setHatchDoneMs(hatchedMillisNow.coerceAtMost(hatchMillis))
+      .setBreederName(breederName)
       .build()
   }
 
   companion object {
     fun of(egg: BestiaEgg): EggSummary {
-      return EggSummary(egg.itemInstanceId, egg.speciesId, egg.sex, egg.individualValues, egg.hatchMillis, egg.hatchedMillis)
+      return EggSummary(egg.itemInstanceId, egg.speciesId, egg.sex, egg.individualValues, egg.hatchMillis, egg.hatchedMillis, egg.breederName)
     }
   }
 }

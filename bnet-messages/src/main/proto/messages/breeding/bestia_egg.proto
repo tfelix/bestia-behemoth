@@ -15,4 +15,6 @@ message BestiaEgg {
   IvReading ivs = 4;
   uint64 hatch_total_ms = 5;
   uint64 hatch_done_ms = 6;
+  // Whose farm laid it: the bestia it hatches into reads "Bred by" them.
+  string breeder_name = 7;
 }

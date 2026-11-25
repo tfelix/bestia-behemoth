@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BestiaOriginProto";
+
+// How a player bestia came to be. It stays with the bestia whoever owns it later.
+enum BestiaOrigin {
+  BESTIA_ORIGIN_UNSPECIFIED = 0;
+  // Caught in the wild by origin_master_name.
+  BESTIA_ORIGIN_CAUGHT = 1;
+  // Hatched from an egg origin_master_name's farm laid.
+  BESTIA_ORIGIN_BRED = 2;
+  // Given to origin_master_name, such as a GM's test bestia.
+  BESTIA_ORIGIN_GRANTED = 3;
+}

@@ -617,6 +617,17 @@ enum OpError {
 
   // The Bestia picked for Runic Etching is not standing next to the Carving Table.
   CRAFT_BESTIA_NOT_AT_TABLE = 430;
+  // A bestia's name has to be one or two words of letters and digits, at most 24 characters.
+  BESTIA_NAME_INVALID = 431;
+  // The bestia stands too far above its master's level and ignores them for a while.
+  BESTIA_UNRULY = 432;
+  // The bestia carries or wears items, which would go with it. The client asks before offering it again.
+  TRADE_BESTIA_CARRIES_ITEMS = 433;
+  // The bestia cannot be offered now: dead, fighting, breeding or sent off on a journey.
+  TRADE_BESTIA_UNAVAILABLE = 434;
+  // The bestia found no free party or storage slot with its new owner, so nothing changed hands.
+  // args[0]: the receiving master's name.
+  TRADE_BESTIA_NO_ROOM = 435;
 }
 
 message OperationError {

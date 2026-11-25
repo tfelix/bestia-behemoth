@@ -31,6 +31,12 @@ internal class TradeSession(
     /** What this side has put in, in the order they put it in. */
     val offer: MutableList<ReservedItem> = mutableListOf()
 
+    /** The party bestias this side has put in, in the order they put them in. */
+    val offeredBestias: MutableList<OfferedBestia> = mutableListOf()
+
+    /** Items and bestias together, against the window's line limit. */
+    fun lineCount(): Int = offer.size + offeredBestias.size
+
     var locked: Boolean = false
     var confirmed: Boolean = false
   }

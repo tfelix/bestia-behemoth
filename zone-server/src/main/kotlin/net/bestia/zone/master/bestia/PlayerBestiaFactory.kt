@@ -13,6 +13,7 @@ import net.bestia.zone.account.persistence.PlayerBestia
 import net.bestia.zone.account.persistence.PlayerBestiaRepository
 import net.bestia.zone.bestia.persistence.BestiaRepository
 import net.bestia.zone.bestia.persistence.findByIdentifierOrThrow
+import net.bestia.zone.bestia.BestiaOrigin
 import net.bestia.zone.bestia.Sex
 import net.bestia.zone.battle.status.IndividualValues
 import java.time.Clock
@@ -38,6 +39,9 @@ class PlayerBestiaFactory(
     val individualValues: IndividualValues? = null,
     /** Bred attacks, skill id to learn level, from the egg. */
     val inheritedAttacks: Map<Long, Int> = emptyMap(),
+    val origin: BestiaOrigin = BestiaOrigin.CAUGHT,
+    /** Who [origin] names. Null for the master it is created for, as for a caught one; a bred one names its breeder. */
+    val originMasterName: String? = null,
   )
 
   /**
@@ -68,6 +72,8 @@ class PlayerBestiaFactory(
     pb.entityId = entityIdGenerator.nextId()
     pb.sex = playerBestiaCreateData.sex ?: Sex.roll(Random.Default)
     pb.individualValues = playerBestiaCreateData.individualValues ?: IndividualValues.rollWild(Random.Default)
+    pb.origin = playerBestiaCreateData.origin
+    pb.originMasterName = playerBestiaCreateData.originMasterName ?: master.name
     playerBestiaCreateData.inheritedAttacks.forEach { (skillId, learnLevel) ->
       pb.inheritedAttacks.add(InheritedAttack(pb, skillId, learnLevel))
     }

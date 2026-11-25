@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrhOQoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSrqOgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -190,8 +190,11 @@ namespace Bnet {
             "CiBCRVNUSUFfU1RPUkFHRV9CRVNUSUFfQ09OVFJPTExFRBCrAxIjCh5CRVNU",
             "SUFfU1RPUkFHRV9CRVNUSUFfQlJFRURJTkcQrAMSIQocQkVTVElBX1NUT1JB",
             "R0VfQ0VOVEVSX0NMT1NFRBCtAxIeChlDUkFGVF9CRVNUSUFfTk9UX0FUX1RB",
-            "QkxFEK4DIgQILhAuKhJTSE9QX1RSRUFTVVJZX0ZVTExCLAoVbmV0LmJlc3Rp",
-            "YS5ibmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
+            "QkxFEK4DEhgKE0JFU1RJQV9OQU1FX0lOVkFMSUQQrwMSEgoNQkVTVElBX1VO",
+            "UlVMWRCwAxIfChpUUkFERV9CRVNUSUFfQ0FSUklFU19JVEVNUxCxAxIdChhU",
+            "UkFERV9CRVNUSUFfVU5BVkFJTEFCTEUQsgMSGQoUVFJBREVfQkVTVElBX05P",
+            "X1JPT00QswMiBAguEC4qElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQuYmVz",
+            "dGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1217,6 +1220,27 @@ namespace Bnet {
     /// The Bestia picked for Runic Etching is not standing next to the Carving Table.
     /// </summary>
     [pbr::OriginalName("CRAFT_BESTIA_NOT_AT_TABLE")] CraftBestiaNotAtTable = 430,
+    /// <summary>
+    /// A bestia's name has to be one or two words of letters and digits, at most 24 characters.
+    /// </summary>
+    [pbr::OriginalName("BESTIA_NAME_INVALID")] BestiaNameInvalid = 431,
+    /// <summary>
+    /// The bestia stands too far above its master's level and ignores them for a while.
+    /// </summary>
+    [pbr::OriginalName("BESTIA_UNRULY")] BestiaUnruly = 432,
+    /// <summary>
+    /// The bestia carries or wears items, which would go with it. The client asks before offering it again.
+    /// </summary>
+    [pbr::OriginalName("TRADE_BESTIA_CARRIES_ITEMS")] TradeBestiaCarriesItems = 433,
+    /// <summary>
+    /// The bestia cannot be offered now: dead, fighting, breeding or sent off on a journey.
+    /// </summary>
+    [pbr::OriginalName("TRADE_BESTIA_UNAVAILABLE")] TradeBestiaUnavailable = 434,
+    /// <summary>
+    /// The bestia found no free party or storage slot with its new owner, so nothing changed hands.
+    /// args[0]: the receiving master's name.
+    /// </summary>
+    [pbr::OriginalName("TRADE_BESTIA_NO_ROOM")] TradeBestiaNoRoom = 435,
   }
 
   #endregion

@@ -75,6 +75,8 @@ var _last_health_msg: HealthComponentSMSG = null
 var _last_mana_msg: ManaComponentSMSG = null
 var _last_worn_gear_msg: WornGearComponentSMSG = null
 var _guild_tag: GuildTagComponentSMSG = null
+## A player bestia's own name and its owner, for its name tag.
+var _bestia_tag: BestiaTagComponentSMSG = null
 var _item_enchantments: ItemEnchantmentsComponentSMSG = null
 
 # A quest board's open levels, kept for a visual that is built after they arrived.
@@ -761,6 +763,8 @@ func _seed_visual(visual: Node) -> void:
 		visual.update_worn_gear(_last_worn_gear_msg)
 	if _guild_tag != null and visual.has_method("set_guild_tag"):
 		visual.set_guild_tag(_guild_tag)
+	if _bestia_tag != null and visual.has_method("set_bestia_tag"):
+		visual.set_bestia_tag(_bestia_tag)
 	if _last_offer_msg != null and visual.has_method("set_offer"):
 		visual.set_offer(_last_offer_msg.LevelsLow, _last_offer_msg.LevelsHigh)
 	if _item_enchantments != null and visual.has_method("set_item_enchantments"):
@@ -1545,6 +1549,13 @@ func update_guild_tag(msg: GuildTagComponentSMSG) -> void:
 
 func get_guild_tag() -> GuildTagComponentSMSG:
 	return _guild_tag
+
+
+func update_bestia_tag(msg: BestiaTagComponentSMSG) -> void:
+	_bestia_tag = msg
+	var visual = _get_visual_for_method("set_bestia_tag")
+	if visual != null:
+		visual.set_bestia_tag(msg)
 
 
 func update_status_values(msg: StatusValuesComponentSMSG) -> void:

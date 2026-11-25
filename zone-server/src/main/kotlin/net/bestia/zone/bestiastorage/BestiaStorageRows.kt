@@ -108,7 +108,7 @@ class BestiaStorageRows(
   }
 
   companion object {
-    /** How long a bestia that went into storage stays there, so swaps cannot move it about. */
-    val REST: Duration = Duration.ofMinutes(30)
+    /** See [PlayerBestia.STORAGE_REST]. */
+    val REST: Duration = PlayerBestia.STORAGE_REST
   }
 }

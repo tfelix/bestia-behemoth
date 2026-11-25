@@ -21,7 +21,10 @@ class RetractTradeItemHandler(
 
 
   override fun handle(msg: RetractTradeItemCMSG): Boolean {
-    tradeService.retractItem(msg.playerId, msg.tradeId, msg.offerSlotId)
+    when {
+      msg.playerBestiaId != null -> tradeService.retractBestia(msg.playerId, msg.tradeId, msg.playerBestiaId)
+      msg.offerSlotId != null -> tradeService.retractItem(msg.playerId, msg.tradeId, msg.offerSlotId)
+    }
 
     return true
   }
