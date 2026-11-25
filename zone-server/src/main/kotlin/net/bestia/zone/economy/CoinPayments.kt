@@ -1,10 +1,8 @@
-package net.bestia.zone.stronghold
+package net.bestia.zone.economy
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.economy.CommodityItems
-import net.bestia.zone.economy.WorldReserve
 import net.bestia.zone.entity.GameMetrics.CoinSource
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.ecs.Inventory
@@ -12,12 +10,9 @@ import net.bestia.zone.persistence.AsyncJobExecutor
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
-/**
- * What members pay for their Stronghold, planting and investing alike. The coins go back to the world reserve.
- * Tick thread only.
- */
+/** Coins a service takes from a player's bag, which go back to the world reserve. Tick thread only. */
 @Component
-class StrongholdCoins(
+class CoinPayments(
   private val inventoryService: InventoryService,
   private val commodities: CommodityItems,
   private val reserve: WorldReserve,
@@ -38,7 +33,7 @@ class StrongholdCoins(
    *
    * @return false when the bag does not hold them
    */
-  fun pay(world: World, entityId: EntityId, masterId: Long, coins: Long): Boolean {
+  fun pay(world: World, entityId: EntityId, masterId: Long, coins: Long, source: CoinSource): Boolean {
     if (coins == 0L) return true
 
     val coin = commodities.coinItemId() ?: return false
@@ -48,10 +43,10 @@ class StrongholdCoins(
 
     asyncJobExecutor.submit(masterId) {
       if (inventoryService.consumeAll(masterId, listOf(coin to amount))) {
-        this.world.read { reserve.charge(-coins.toDouble(), CoinSource.STRONGHOLD) }
+        this.world.read { reserve.charge(-coins.toDouble(), source) }
       } else {
         // The live bag is put right by the next login; what was paid for already happened, so it came free.
-        LOG.warn { "Master $masterId paid $coins coins for a Stronghold, but the database still holds them" }
+        LOG.warn { "Master $masterId paid $coins coins to $source, but the database still holds them" }
       }
     }
 

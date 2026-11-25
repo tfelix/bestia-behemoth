@@ -1,5 +1,7 @@
 package net.bestia.zone.stronghold
 
+import net.bestia.zone.entity.GameMetrics.CoinSource
+import net.bestia.zone.economy.CoinPayments
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.worldgen.stronghold.EmpyriteSeed
@@ -34,7 +36,7 @@ class StrongholdFounding(
   private val discoveries: EmpyriteSeedDiscoveries,
   private val strongholds: StrongholdRegistry,
   private val structures: PlayerStructureService,
-  private val coins: StrongholdCoins,
+  private val coins: CoinPayments,
   private val worldService: WorldService,
   private val messages: OutMessageProcessor,
   private val news: StrongholdNews,
@@ -63,7 +65,7 @@ class StrongholdFounding(
     val guildId = world.get(actorId, GuildMembership::class)?.guildId ?: return OpError.REQUEST_REFUSED
     val at = world.get(sproutId, Position::class)?.toVec3L() ?: return OpError.REQUEST_REFUSED
 
-    if (!coins.pay(world, actorId, master.masterId, config.plantCoins)) return OpError.STRONGHOLD_CANNOT_AFFORD
+    if (!coins.pay(world, actorId, master.masterId, config.plantCoins, CoinSource.STRONGHOLD)) return OpError.STRONGHOLD_CANNOT_AFFORD
 
     val buildSeconds = config.siteBuildMinutes * 60f
     val siteId = structures.beginConstruction(

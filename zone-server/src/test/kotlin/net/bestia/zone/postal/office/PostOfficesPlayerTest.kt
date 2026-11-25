@@ -41,7 +41,7 @@ class PostOfficesPlayerTest {
   }
   private val registry = mockk<PlayerStructureRegistry> { every { all() } answers { structures } }
 
-  private val offices = PostOffices(worldService, mockk(), mockk(), towns, registry)
+  private val offices = PostOffices(worldService, mockk(), mockk(), towns, registry, mockk())
 
   @Test
   fun `a town without a finished post office has no office`() {

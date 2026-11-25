@@ -1,17 +1,14 @@
 package net.bestia.zone.postal.office
 
-import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.pop.BusinessCatalogue
-import net.bestia.worldgen.vector.FeatureKind
-import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.Vec2d
-import net.bestia.zone.cartography.render.PlaceNames
 import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.prop.PlayerStructureRegistry
 import net.bestia.zone.settlement.Town
 import net.bestia.zone.settlement.TownRegistry
 import net.bestia.zone.world.WorldService
+import net.bestia.zone.cartography.SettlementNames
 import net.bestia.zone.world.settlement.SettlementSiteIndex
 import net.bestia.zone.world.settlement.StartTownMarkets
 import org.springframework.stereotype.Service
@@ -31,23 +28,14 @@ class PostOffices(
   private val startTowns: StartTownMarkets,
   private val towns: TownRegistry,
   private val structures: PlayerStructureRegistry,
+  private val settlementNames: SettlementNames,
 ) {
 
   /** [level] 1 to 3 sets how often the coach leaves; see the design docs' office levels. */
   data class Office(val settlement: Int, val name: String, val level: Int)
 
-  private val namesBySettlement: Map<Int, String> by lazy {
-    val chronicle = worldService.generated.world.chronicle
-    worldService.generated.world.features.all()
-      .asSequence()
-      .filter { it.kind == FeatureKind.SETTLEMENT }
-      .filterIsInstance<PointMarker>()
-      .mapNotNull { marker ->
-        val name = PlaceNames.nameOf(chronicle, marker) ?: return@mapNotNull null
-        marker.attribute(SettlementChannels.INDEX).toInt() to name
-      }
-      .toMap()
-  }
+  private val namesBySettlement: Map<Int, String>
+    get() = settlementNames.all
 
   /** The office of [settlement], or null for a hamlet or a settlement that is not standing. */
   fun officeOf(settlement: Int): Office? {

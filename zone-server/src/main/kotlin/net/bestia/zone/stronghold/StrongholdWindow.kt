@@ -1,5 +1,7 @@
 package net.bestia.zone.stronghold
 
+import net.bestia.zone.entity.GameMetrics.CoinSource
+import net.bestia.zone.economy.CoinPayments
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.ecs.core.World
@@ -27,7 +29,7 @@ class StrongholdWindow(
   private val empyrites: Empyrites,
   private val stewards: Stewards,
   private val watchers: Watchers,
-  private val coins: StrongholdCoins,
+  private val coins: CoinPayments,
   private val messages: OutMessageProcessor,
   private val config: StrongholdConfig,
   private val random: Random = Random.Default,
@@ -55,7 +57,7 @@ class StrongholdWindow(
     val progress = stronghold.progressOf(track)
     if (progress.isMaxed) return OpError.REQUEST_REFUSED
 
-    if (!coins.pay(world, actorId, masterId, stepCoins(progress))) return OpError.STRONGHOLD_CANNOT_AFFORD_STEP
+    if (!coins.pay(world, actorId, masterId, stepCoins(progress), CoinSource.STRONGHOLD)) return OpError.STRONGHOLD_CANNOT_AFFORD_STEP
 
     val steps = if (hasPermanentDevelopment(world, actorId) && random.nextDouble() < config.doubleStepChance) 2 else 1
     val advanced = progress.advanced(steps)
@@ -79,7 +81,7 @@ class StrongholdWindow(
     // The window offers no button then, so only a stale window or a hand-made request asks.
     if (!hasStewardContract(world, actorId) || stronghold.hasSteward) return OpError.REQUEST_REFUSED
 
-    if (!coins.pay(world, actorId, masterId, config.stewardCoins)) return OpError.STRONGHOLD_CANNOT_AFFORD_STEWARD
+    if (!coins.pay(world, actorId, masterId, config.stewardCoins, CoinSource.STRONGHOLD)) return OpError.STRONGHOLD_CANNOT_AFFORD_STEWARD
 
     stewards.hire(world, stronghold)
     sendWindow(world, actorId, empyriteId)
@@ -115,7 +117,7 @@ class StrongholdWindow(
     val masterId = world.get(actorId, Master::class)?.masterId ?: return OpError.REQUEST_REFUSED
 
     if (watchers.fallenOf(stronghold.rank).isEmpty()) return OpError.REQUEST_REFUSED
-    if (!coins.pay(world, actorId, masterId, config.watcherBringBackCoins)) {
+    if (!coins.pay(world, actorId, masterId, config.watcherBringBackCoins, CoinSource.STRONGHOLD)) {
       return OpError.STRONGHOLD_CANNOT_AFFORD_BRING_BACK
     }
 
