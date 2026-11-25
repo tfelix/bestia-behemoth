@@ -1952,6 +1952,7 @@ items:
     base-level: 1
     weight: 10
     type: USABLE
+    stackable: false
     material: CRYSTAL
     script: EssenceGemScript
     description: |
