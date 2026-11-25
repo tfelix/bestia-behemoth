@@ -5,7 +5,7 @@ extends RefCounted
 ## compass and the chat show it, and nothing is put on the map for good.
 
 ## The proto's SenseKind, in its order.
-enum Kind { ORE, HERBS, TIMBER, GAME, HOLLOW, MANA, BINDING_FIRED, EMPYRITE_SEED_FOUND, EMPYRITE_SEED }
+enum Kind { ORE, HERBS, TIMBER, GAME, HOLLOW, MANA, BINDING_FIRED, EMPYRITE_SEED_FOUND, EMPYRITE_SEED, OMEN }
 
 const _COLOURS := {
 	Kind.ORE: Color(0.85, 0.62, 0.35),
@@ -17,6 +17,7 @@ const _COLOURS := {
 	Kind.BINDING_FIRED: Color(1.0, 0.45, 0.85),
 	Kind.EMPYRITE_SEED_FOUND: Color(1.0, 0.8, 0.16),
 	Kind.EMPYRITE_SEED: Color(1.0, 0.8, 0.16),
+	Kind.OMEN: Color(0.62, 0.45, 1.0),
 }
 
 ## Each entry: the mark's dictionary plus [code]until[/code], in ticks msec.
@@ -62,6 +63,11 @@ static func summary(message: SenseMarksSMSG, here: Vector2) -> String:
 		return tr_static("SPELL_BINDING_FIRED") % str(message.Marks[0]["label"])
 	if int(message.Marks[0]["kind"]) == Kind.EMPYRITE_SEED_FOUND:
 		return tr_static("EMPYRITE_SEED_FOUND") % str(message.Marks[0]["label"])
+	if int(message.Marks[0]["kind"]) == Kind.OMEN:
+		var readings: Array[String] = []
+		for mark in message.Marks:
+			readings.append(name_of(mark))
+		return tr_static("SENSE_OMEN_READING") % ", ".join(readings)
 
 	var vague := message.Marks.filter(func(it: Dictionary) -> bool: return bool(it.get("vague", false)))
 	if not vague.is_empty():
@@ -86,6 +92,9 @@ static func name_of(mark: Dictionary) -> String:
 		return tr_static("SENSE_HOLLOW")
 	if int(mark["kind"]) == Kind.MANA:
 		return tr_static("SENSE_MANA") % str(mark["label"])
+	if int(mark["kind"]) == Kind.OMEN:
+		var reading := tr_static("SENSE_OMEN_%d" % int(mark["ref_id"]))
+		return reading if str(mark["label"]).is_empty() else "%s: %s" % [str(mark["label"]), reading]
 	if int(mark["kind"]) == Kind.EMPYRITE_SEED and str(mark["label"]).is_empty():
 		return tr_static("SENSE_EMPYRITE_SEED")
 	return str(mark["label"])
