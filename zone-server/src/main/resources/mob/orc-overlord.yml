@@ -9,6 +9,7 @@ description: >-
 kind: HUMANOID
 element: EARTH_4
 size: BIG
+essence: { group: ARMOR, effect: BOSS, target: TROPHY_PLATE }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

@@ -11,6 +11,8 @@ import net.bestia.zone.battle.status.EntityAction
 import net.bestia.zone.battle.status.StatusEffectDefinition
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.status.StatusEffectPolarity
+import net.bestia.zone.battle.damage.HitForm
+import net.bestia.zone.battle.damage.HitReach
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
@@ -229,11 +231,48 @@ class StatusEffectService(
   }
 
   override fun onDamageTaken(world: World, targetId: EntityId, hit: IncomingDamage.DamageAmount): Int {
-    val active = world.get(targetId, StatusEffects::class)?.activeEffects ?: return hit.amount
+    val afterEssences = essenceDefenses(world, targetId, hit)
+    val active = world.get(targetId, StatusEffects::class)?.activeEffects ?: return afterEssences
 
     // Copied, because a freeze removes itself from the list it is being asked from.
-    return active.toList().fold(hit.amount) { landing, effect ->
+    return active.toList().fold(afterEssences) { landing, effect ->
       scriptOf(effect)?.onDamageTaken(hookContext(world, targetId, effect), hit.copy(amount = landing)) ?: landing
+    }
+  }
+
+  /**
+   * Tidewall swallows the first blow or spell of its window whole, and Trophy Plate hits a melee attacker with a
+   * share of its blow. A burn or a passed-on share is neither, so the share never comes back again.
+   */
+  private fun essenceDefenses(world: World, targetId: EntityId, hit: IncomingDamage.DamageAmount): Int {
+    if (hit.amount <= 0 || hit.kind.form == HitForm.OTHER) return hit.amount
+    val values = world.get(targetId, CombatStats::class)?.values ?: return hit.amount
+
+    if (values.firstHitAbsorbSeconds > 0 && absorbsFirstHit(world, targetId, values.firstHitAbsorbSeconds)) return 0
+
+    val meleeBlow = hit.kind.form == HitForm.PHYSICAL && hit.kind.reach == HitReach.MELEE
+    if (values.meleeReflectPercent > 0 && meleeBlow && hit.sourceEntityId != targetId) {
+      hitBack(world, hit.sourceEntityId, hit.amount * values.meleeReflectPercent / 100, from = targetId)
+    }
+
+    return hit.amount
+  }
+
+  /** The marker it leaves is the window, as for [survivesLethalDamage]. */
+  private fun absorbsFirstHit(world: World, targetId: EntityId, windowSeconds: Int): Boolean {
+    if (world.get(targetId, StatusEffects::class)?.hasEffect(StatusEffectId.TIDEWALL_SPENT.id) == true) return false
+
+    return applyEffect(world, targetId, StatusEffectId.TIDEWALL_SPENT.id, level = 1, durationSeconds = windowSeconds.toDouble())
+  }
+
+  /** Deferred for the reason `StatusEffectHookContext.passOn` gives. */
+  private fun hitBack(world: World, attackerId: EntityId, amount: Int, from: EntityId) {
+    if (amount <= 0) return
+
+    world.defer {
+      if (!world.isAlive(attackerId)) return@defer
+      val staged = world.get(attackerId, IncomingDamage::class) ?: world.add(attackerId, IncomingDamage())
+      staged.add(amount, from)
     }
   }
 

@@ -145,6 +145,13 @@ class SkillExecutionService(
       return
     }
 
+    if (targetEntityId != null && targetEntityId != casterId && isSpell(skill) &&
+      world.get(targetEntityId, CombatStats::class)?.values?.untargetableBySpells == true
+    ) {
+      LOG.debug { "Skill $skillId by $casterId fizzled: no spell can reach its target" }
+      return
+    }
+
     val cost = costFor(world, casterId, strategy, skill, skillLevel)
     val ritual = if (paid) RitualBoost.heldBy(world, casterId) else null
     val ctx = skillContextFactory.create(
@@ -236,6 +243,9 @@ class SkillExecutionService(
   private fun reducedStamina(world: World, casterId: EntityId, cost: SkillLevelCost): Int {
     return cost.staminaCostFor(world.get(casterId, CombatStats::class)?.values?.staminaCostReduction ?: 0)
   }
+
+  /** Anything but a weapon strike or a shot, heals and buffs included: those are what Slag Shell keeps out. */
+  private fun isSpell(skill: Skill): Boolean = HitKind.ofSkill(skill).form != HitForm.PHYSICAL
 
   private fun costFor(world: World, casterId: EntityId, strategy: SkillStrategy, skill: Skill, level: Int): SkillLevelCost {
     val cost = strategy.costOf(skill, level)

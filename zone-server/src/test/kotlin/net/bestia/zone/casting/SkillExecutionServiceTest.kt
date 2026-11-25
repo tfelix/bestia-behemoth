@@ -11,6 +11,7 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.battle.BattleContextFactory
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.damage.HitDamage
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.battle.BattleContextFixture
 import net.bestia.zone.ecs.core.World
@@ -99,6 +100,19 @@ class SkillExecutionServiceTest {
 
     service.executeNow(world, assassin, SKILL_ID, 3, foe, null)
     assertFalse(world.has(assassin, PlagiarizedSkill::class))
+  }
+
+  @Test
+  fun `no spell reaches a wearer of Slag Shell`() {
+    val script = TestScript(result = HitDamage(42))
+    val caster = world.spawnFighter()
+    val target = world.spawnFighter()
+    val values = world.getOrThrow(target, CombatStats::class).values
+    world.add(target, CombatStats(values.copy(untargetableBySpells = true)))
+
+    serviceFor(script).executeNow(world, caster, SKILL_ID, 1, target, null)
+
+    assertEquals(0, script.casts)
   }
 
   @Test

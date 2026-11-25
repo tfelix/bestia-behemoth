@@ -243,6 +243,18 @@ class StatusValueRecalcContext(
   /** Shrugs off every harmful status effect, not just the ones in [statusImmunities]. */
   var immuneToDebuffs: Boolean = false
 
+  /** Percent of each melee weapon blow taken that hits its attacker too. */
+  var meleeReflectPercent: Int = 0
+
+  /** The first blow or spell taken in this many seconds does no damage; 0 for none. */
+  var firstHitAbsorbSeconds: Int = 0
+
+  /** Percent chance a spell aimed at this entity alone bounces back to its caster. */
+  var spellBouncePercent: Int = 0
+
+  /** No spell can be aimed at this entity, a friend's heal or buff included. */
+  var untargetableBySpells: Boolean = false
+
   /** What the boss essences worn here give to those around. */
   var essenceAuras: Set<EssenceAura> = emptySet()
 

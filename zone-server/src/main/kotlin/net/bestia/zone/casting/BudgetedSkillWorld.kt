@@ -20,6 +20,8 @@ import net.bestia.zone.battle.damage.weighedTo
 import net.bestia.zone.battle.damage.DamageLanding
 import net.bestia.zone.battle.damage.HitKind
 import net.bestia.zone.battle.damage.HitForm
+import net.bestia.zone.battle.attack.ThreadLocalRandomSource
+import java.util.Random
 import net.bestia.zone.entity.ecs.PlayerStructureIdentity
 import net.bestia.zone.battle.Healing
 import net.bestia.zone.battle.Sides
@@ -76,6 +78,9 @@ class BudgetedSkillWorld(
   private val skillHitKind: HitKind = HitKind.UNTYPED,
   /** The cast's Potency, which every status it leaves carries. */
   private val castPotency: Int = 0,
+  /** Aimed at one foe, which is the only kind of spell a Cloud Veil bounces. */
+  private val singleTarget: Boolean = false,
+  private val random: Random = ThreadLocalRandomSource,
 ) : SkillWorld {
 
   override val remainingOps: Int get() = budget.remainingOps
@@ -180,7 +185,7 @@ class BudgetedSkillWorld(
     }
 
     val hitKind = kind ?: skillHitKind
-    val (receiver, dealer) = if (damage is Heal) targetEntityId to casterId else reflected(targetEntityId)
+    val (receiver, dealer) = if (damage is Heal) targetEntityId to casterId else reflected(targetEntityId, hitKind)
     if (services.shieldGuard?.guard(world, receiver, hitKind, damage) == Blocked) {
       broadcastDamage(receiver, Blocked, projectileItemId)
       return Blocked
@@ -294,16 +299,24 @@ class BudgetedSkillWorld(
    * Bounces a blow off whoever wears a reflect, at most [MAX_REFLECTIONS] times, so two mirrors facing each other
    * still let it land. Returns who takes it and whom it counts as coming from.
    */
-  private fun reflected(targetEntityId: EntityId): Pair<EntityId, EntityId> {
+  private fun reflected(targetEntityId: EntityId, hitKind: HitKind): Pair<EntityId, EntityId> {
     var receiver = targetEntityId
     var dealer = casterId
 
     repeat(MAX_REFLECTIONS) {
-      if (receiver == dealer || !spendReflection(receiver)) return receiver to dealer
+      if (receiver == dealer || !(spendReflection(receiver) || bouncesSpell(receiver, hitKind))) return receiver to dealer
       receiver = dealer.also { dealer = receiver }
     }
 
     return receiver to dealer
+  }
+
+  /** A Cloud Veil: a chance to send a spell aimed at its wearer alone back where it came from. */
+  private fun bouncesSpell(id: EntityId, hitKind: HitKind): Boolean {
+    if (!singleTarget || hitKind.form != HitForm.MAGIC) return false
+    val percent = world.get(id, CombatStats::class)?.values?.spellBouncePercent ?: 0
+
+    return percent > 0 && random.nextInt(100) < percent
   }
 
   private fun spendReflection(id: EntityId): Boolean {

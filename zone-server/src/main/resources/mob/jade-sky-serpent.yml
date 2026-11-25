@@ -9,6 +9,7 @@ description: >-
 kind: DRAGON
 element: WIND_4
 size: BIG
+essence: { group: GARMENT, effect: BOSS, target: CLOUD_VEIL }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

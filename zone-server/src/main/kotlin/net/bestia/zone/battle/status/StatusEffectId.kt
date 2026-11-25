@@ -132,7 +132,8 @@ enum class StatusEffectId(val id: Long) {
 
   // What a boss essence's aura grants, from id 300.
   ROYAL_SWARM(300),
-  CAPTAINS_ORDERS(301);
+  CAPTAINS_ORDERS(301),
+  TIDEWALL_SPENT(302);
 
   companion object {
     private val byId = entries.associateBy { it.id }

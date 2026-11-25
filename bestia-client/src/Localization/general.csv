@@ -449,6 +449,10 @@ ESSENCE_BOSS_ROYAL_SWARM,Royal Swarm: your party and your own Bestias within 10 
 ESSENCE_BOSS_CAPTAINS_ORDERS,Captain's Orders: your own Bestias within 15 m get +15% ATK and MATK
 ESSENCE_BOSS_BUDDING_BROOD,Budding Brood: your own Bestias within 15 m heal 2% of their max HP every 3 s
 ESSENCE_BOSS_STENCH,"Stench: foes within 3 m may be poisoned. Wild Bestias notice you from twice as far"
+ESSENCE_BOSS_TROPHY_PLATE,Trophy Plate: 25% of the melee damage you take hits the attacker too
+ESSENCE_BOSS_TIDEWALL,Tidewall: the first blow or spell you take every 10 s does no damage
+ESSENCE_BOSS_CLOUD_VEIL,Cloud Veil: 25% chance to bounce a spell aimed at you alone back to its caster
+ESSENCE_BOSS_SLAG_SHELL,"Slag Shell: magic does you no damage, and no spell can be aimed at you, not even a friend's heal or buff"
 ITEM_DETAIL_DURABILITY,Durability
 ITEM_DETAIL_BROKEN,Broken
 ITEM_DETAIL_LIGHT_LEFT,Light left
@@ -1099,6 +1103,7 @@ STATUS_EFFECT_233,"Playing Battle Hymn: everyone on your side near you hits hard
 STATUS_EFFECT_234,Battle Hymn: a Bard's song. More ATK and MATK.
 STATUS_EFFECT_300,Royal Swarm: a master near you wears the Hive Queen's essence. More attack speed.
 STATUS_EFFECT_301,"Captain's Orders: your master wears the Drowned Captain's essence. More ATK and MATK."
+STATUS_EFFECT_302,Tidewall spent: the next blow lands until the tide rises again.
 STATUS_EFFECT_235,Playing War March: everyone on your side near you moves and swings faster.
 STATUS_EFFECT_236,War March: a Bard's song. You move and swing faster.
 STATUS_EFFECT_237,Playing Mirage Dance: everyone on your side near you dodges more often.
