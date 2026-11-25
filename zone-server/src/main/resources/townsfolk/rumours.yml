@@ -37,3 +37,7 @@ rumours:
   RARE_BESTIA_SEEN: { variants: 2, slots: [rare] }
   # No slots: folk see torn sheep and tracks, not the species. See AlphaRisesEvent.
   ALPHA_PROWLS: { variants: 2, slots: [] }
+  # No slots: an old seal is "the old stone" or "the crystal" to the folk who live by it. See OldSealEvent.
+  SEAL_CRACKING: { variants: 2, slots: [] }
+  SEAL_REINFORCED: { variants: 2, slots: [] }
+  SEAL_BROKEN: { variants: 2, slots: [] }
