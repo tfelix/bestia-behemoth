@@ -396,8 +396,8 @@ class WorldObjectResidencyService(
   }
 
   /**
-   * Adds a player structure to a column that is *already resident*, and re-announces that column to every client
-   * holding it.
+   * Adds a player structure or a mana scar to a column that is *already resident*, and re-announces that column
+   * to every client holding it.
    *
    * For something built while a client or a bestia is near. A placement writes its durable row first, so a column
    * nobody holds needs nothing here - it will be built from the row the next time somebody walks up to it, and
@@ -410,16 +410,20 @@ class WorldObjectResidencyService(
    * @return the new entity's id, or null when the column is not resident
    */
   fun placeNow(world: World, site: WorldObjectSite): Long? {
-    require(site.structureId != 0L) { "Only a player structure is placed at runtime, and it is $site" }
+    require(site.structureId != 0L || site.kind.isOmen) {
+      "Only a player structure or a mana scar is placed at runtime, and it is $site"
+    }
 
     val chunkX = Math.floorDiv(site.position.x, chunkSize.toLong()).toInt()
     val chunkY = Math.floorDiv(site.position.y, chunkSize.toLong()).toInt()
     val column = pack(chunkX, chunkY)
 
-    val ids = simulated.resident[column] ?: return null
+    // A structure is simulated, a scar only seen, so each joins the layer its source belongs to.
+    val layer = if (site.kind.isOmen) viewed else simulated
+    val ids = layer.resident[column] ?: return null
 
     val id = spawn(world, site)
-    simulated.resident[column] = ids + id
+    layer.resident[column] = ids + id
 
     // Queued rather than sent: `flushBatches` reads the components back off the entity, and the `add`s above
     // are still in the deferred queue while a system is iterating. The next drain runs after them.

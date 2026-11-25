@@ -686,3 +686,37 @@ kinds:
     variants: 1
     loot:
       - { item-id: 108, amount: 10, drop-chance: 10000 }
+
+  # The scars thick mana leaves, one look per kind of ground: rings of standing stones on open land, stones that
+  # float in the hills, crystals blooming in wet ground, sand fused to glass in the dry, trees twisted in a
+  # wood and rings of glowing fungus under it. Raised by `OmenRaiser` where the mana turns Ominous, they stay
+  # when it falls and cannot be broken, so `max-hp` is never read.
+  - kind: OMEN_STONE_RING
+    max-hp: 1
+    collider: { half-x: 3, half-y: 3, height: 2 }
+    variants: 2
+
+  - kind: OMEN_FLOATING_STONES
+    max-hp: 1
+    collider: { half-x: 2, half-y: 2, height: 4 }
+    variants: 2
+
+  - kind: OMEN_CRYSTAL_BLOOM
+    max-hp: 1
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 2
+
+  - kind: OMEN_GLASS_SAND
+    max-hp: 1
+    collider: { half-x: 3, half-y: 3, height: 1 }
+    variants: 2
+
+  - kind: OMEN_TWISTED_TREE
+    max-hp: 1
+    collider: { half-x: 1, half-y: 1, height: 6 }
+    variants: 2
+
+  - kind: OMEN_FUNGUS_RING
+    max-hp: 1
+    collider: { half-x: 2, half-y: 2, height: 1 }
+    variants: 2

@@ -131,6 +131,9 @@ class ManaField {
   private fun tileOf(cellX: Int, cellY: Int): DoubleArray = ensureTile(tileKeyOf(cellX, cellY))
 
   data class Cell(val x: Int, val y: Int) {
+    /** `(x shl 32) or y`, for whatever is stored per cell. */
+    val key: Long get() = (x.toLong() shl 32) or (y.toLong() and 0xFFFFFFFFL)
+
     val centreX: Double get() = (x + 0.5) * CELL_METRES
     val centreY: Double get() = (y + 0.5) * CELL_METRES
   }
