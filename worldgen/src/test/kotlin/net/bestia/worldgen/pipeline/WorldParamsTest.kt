@@ -149,8 +149,9 @@ class WorldParamsTest {
     assertEquals(9_009_351_900_981_701_780L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Pinned as a pair so each half stays checkable: a world-tier retune has to move the number above and
     // leave this one alone, and a chunk-tier one the reverse. This is the half the chunk cache is keyed on.
-    // Moved with `ChunkMaterializer.VERSION` 19, when POIs stopped being props.
-    assertEquals(-3_175_105_832_868_328_057L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
+    // Moved with `ChunkMaterializer.VERSION` 19, when POIs stopped being props, and with `LootScatterParams` and
+    // `ChunkMaterializer.VERSION` 20, when amethyst was scattered in the mountains.
+    assertEquals(-8_087_113_806_675_941_324L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
   }
 
   private fun config() = StandardWorld.demoConfig().copy(widthCells = 64, heightCells = 64)

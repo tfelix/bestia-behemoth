@@ -15,7 +15,7 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 /**
- * Boulders, loose stones, sticks and resin per hectare over a spread of dry land, and the places none may lie.
+ * Boulders, loose stones, sticks, resin, sand and amethyst per hectare over a spread of dry land, and the places none may lie.
  *
  * Counted output, on the habit [GroundCoverScatterTest] states: a density an order of magnitude off in either
  * direction passes every structural test, and only a census shows it. The bounds are wide tripwires around the
@@ -50,6 +50,12 @@ class LootScatterTest {
   private val beachChunks: Set<Pair<Int, Int>> by lazy {
     val biome: IntLayer = world.world.layers.require(LayerId.BIOME)
     chunksAround(biome.data.indices.filter { biome.data[it] == Biome.BEACH.ordinal })
+  }
+
+  /** Chunks centred on a stride of alpine cells, where amethyst is meant to be found. */
+  private val alpineChunks: Set<Pair<Int, Int>> by lazy {
+    val biome: IntLayer = world.world.layers.require(LayerId.BIOME)
+    chunksAround(biome.data.indices.filter { biome.data[it] == Biome.ALPINE.ordinal })
   }
 
   private fun chunksAround(cells: List<Int>): Set<Pair<Int, Int>> {
@@ -145,6 +151,24 @@ class LootScatterTest {
       assertTrue(biome in SAND_BIOMES, "sand at (${sand.x}, ${sand.y}) lies in $biome")
     }
   }
+
+  @Test
+  fun `amethyst lies mostly in the mountains`() {
+    assumeTrue(alpineChunks.isNotEmpty(), "this world has no alpine land, so there are no mountains to compare")
+    val mountain = itemsIn(alpineChunks)
+    val mountainRate = mountain.count { it.kind == PropKind.AMETHYST } / hectaresOf(alpineChunks)
+    val dryRate = items.count { it.kind == PropKind.AMETHYST } / hectaresOf(sweptChunks)
+    println("amethyst: %.2f per hectare of alpine land, %.2f across dry land".format(mountainRate, dryRate))
+
+    // Findable by a player who climbs for one, and clearly rarer below.
+    assertTrue(mountainRate in 0.5..10.0, "amethyst at %.2f per hectare of alpine land".format(mountainRate))
+    assertTrue(mountainRate > 3 * dryRate, "amethyst at %.2f in the mountains against %.2f across dry land".format(
+      mountainRate, dryRate
+    ))
+  }
+
+  private fun hectaresOf(chunks: Set<Pair<Int, Int>>): Double =
+    chunks.size * world.config.chunkExtent * world.config.chunkExtent / 10_000.0
 
   @Test
   fun `nothing lies in a worked field or in standing water, and no item is claimed twice`() {

@@ -843,7 +843,14 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 1.4f, PlaceholderColour = new Color(0.45f, 0.35f, 0.55f), StructureHeight = 1f,
         Action = PropAction.Use
-      } // CARVING_TABLE
+      }, // CARVING_TABLE
+
+      // A small amethyst cluster, picked up as it lies: a violet crystal until it has a model.
+      new Kind
+      {
+        PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.60f, 0.40f, 0.85f), Shape = PlaceholderShape.Crystal,
+        PlaceholderGlow = 0.3f, Collectible = true, Action = PropAction.Collect
+      } // AMETHYST_CLUSTER
     };
 
     /// <summary>

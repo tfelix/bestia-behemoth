@@ -121,7 +121,13 @@ enum class PropKind {
   RESIN,
 
   /** A pile of sand on a beach, picked up as it lies: what a glass furnace turns into glass. See [LootScatter]. */
-  SAND
+  SAND,
+
+  /**
+   * A small amethyst cluster, picked up as it lies: the gem a new player etches a first essence into. Mostly in the
+   * mountains. See [LootScatter]. The fifteenth of sixteen kind ids.
+   */
+  AMETHYST
 }
 
 /**

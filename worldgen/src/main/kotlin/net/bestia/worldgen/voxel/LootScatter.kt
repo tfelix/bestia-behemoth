@@ -32,6 +32,7 @@ data class LootScatterParams(
   val stickCellSize: Double = 6.0,
   val resinCellSize: Double = 8.0,
   val sandCellSize: Double = 8.0,
+  val amethystCellSize: Double = 12.0,
 
   /** How far an item may wander from its cell's centre, as a share of its cell. */
   val jitterShare: Double = 0.7,
@@ -73,6 +74,18 @@ data class LootScatterParams(
    */
   val sandDensity: Double = 0.05,
 
+  /**
+   * Chance per cell of an amethyst cluster in the mountains. About two to the hectare of alpine land, so a player
+   * who climbs for one finds one.
+   */
+  val amethystDensity: Double = 0.03,
+
+  /**
+   * Floor on the amethyst rate anywhere dry, as a share of [amethystDensity]: about one in ten hectares of lowland.
+   * Rare enough that the mountains are where to look, common enough that a lowlander may still stumble on one.
+   */
+  val amethystBaseline: Double = 0.05,
+
   /** Soil depth in metres at and above which the soil adds nothing to how stony the ground is. */
   val stonySoilDepth: Double = 0.8,
 
@@ -94,21 +107,27 @@ data class LootScatterParams(
   val stoneHeight: Double = 0.15,
   val stickHeight: Double = 0.1,
   val resinHeight: Double = 0.08,
-  val sandHeight: Double = 0.1
+  val sandHeight: Double = 0.1,
+  val amethystHeight: Double = 0.3
 ) : Params {
 
   init {
-    require(boulderCellSize > 0.0 && stoneCellSize > 0.0 && stickCellSize > 0.0 && resinCellSize > 0.0 && sandCellSize > 0.0) {
+    require(
+      boulderCellSize > 0.0 && stoneCellSize > 0.0 && stickCellSize > 0.0 && resinCellSize > 0.0 && sandCellSize > 0.0 &&
+      amethystCellSize > 0.0
+    ) {
       "lattice sizes must be positive"
     }
     require(jitterShare in 0.0..1.0) { "jitterShare must be in [0,1], was $jitterShare" }
     require(
       boulderDensity in 0.0..1.0 && stoneDensity in 0.0..1.0 && stickDensity in 0.0..1.0 && resinDensity in 0.0..1.0 &&
-        sandDensity in 0.0..1.0
+        sandDensity in 0.0..1.0 && amethystDensity in 0.0..1.0
     ) {
       "densities must be in [0,1]"
     }
-    require(boulderBaseline in 0.0..1.0 && stoneBaseline in 0.0..1.0) { "baselines must be in [0,1]" }
+    require(boulderBaseline in 0.0..1.0 && stoneBaseline in 0.0..1.0 && amethystBaseline in 0.0..1.0) {
+      "baselines must be in [0,1]"
+    }
     require(stonySoilDepth > 0.0) { "stonySoilDepth must be positive, was $stonySoilDepth" }
     require(glacialReach >= 0.0) { "glacialReach must not be negative, was $glacialReach" }
     require(patchWavelength > 0.0) { "patchWavelength must be positive, was $patchWavelength" }
@@ -121,6 +140,7 @@ data class LootScatterParams(
     .put("stickCellSize", stickCellSize)
     .put("resinCellSize", resinCellSize)
     .put("sandCellSize", sandCellSize)
+    .put("amethystCellSize", amethystCellSize)
     .put("jitterShare", jitterShare)
     .put("boulderDensity", boulderDensity)
     .put("boulderBaseline", boulderBaseline)
@@ -129,6 +149,8 @@ data class LootScatterParams(
     .put("stickDensity", stickDensity)
     .put("resinDensity", resinDensity)
     .put("sandDensity", sandDensity)
+    .put("amethystDensity", amethystDensity)
+    .put("amethystBaseline", amethystBaseline)
     .put("stonySoilDepth", stonySoilDepth)
     .put("glacialReach", glacialReach)
     .put("patchWavelength", patchWavelength)
@@ -140,10 +162,12 @@ data class LootScatterParams(
     .put("stickHeight", stickHeight)
     .put("resinHeight", resinHeight)
     .put("sandHeight", sandHeight)
+    .put("amethystHeight", amethystHeight)
 }
 
 /**
- * The things lying on the ground that a player can take or break: boulders, loose stones, fallen sticks, resin and sand.
+ * The things lying on the ground that a player can take or break: boulders, loose stones, fallen sticks, resin, sand
+ * and amethyst.
  *
  * Implicit, like every other scatter in this package, for the reason [VegetationScatter] gives at length - a
  * hash answers where they are and nothing stores them. A stone picked up or a boulder broken is a divergence
@@ -159,6 +183,8 @@ data class LootScatterParams(
  * - **Sticks** lie under trees, by [Biome.canopy], and nowhere else.
  * - **Sand** lies on beaches, and thinly on the deserts: a glass furnace turns it into glass.
  * - **Resin** lies under conifers. There are no tree species, so the biome stands in for them: see [coniferShareOf].
+ * - **Amethyst** lies mostly in the mountains, see [mountainousAt], and now and then anywhere else, so a new player
+ *   can etch a first essence without mining.
  *
  * Nothing is placed on ground somebody works or keeps: a field, a settlement's graded disc, a cemetery.
  * Paving, buildings, bridges and cave mouths are refused already by the shared [PropSite].
@@ -175,6 +201,7 @@ class LootScatter(
   private val stickSeed = GenRng.mix64(seed xor STICK_SALT)
   private val resinSeed = GenRng.mix64(seed xor RESIN_SALT)
   private val sandSeed = GenRng.mix64(seed xor SAND_SALT)
+  private val amethystSeed = GenRng.mix64(seed xor AMETHYST_SALT)
   private val patchSeed = GenRng.mix64(seed xor PATCH_SALT)
 
   /**
@@ -190,6 +217,7 @@ class LootScatter(
     lattice(chunk, site, ground, into, PropKind.STICK, params.stickCellSize, stickSeed)
     lattice(chunk, site, ground, into, PropKind.RESIN, params.resinCellSize, resinSeed)
     lattice(chunk, site, ground, into, PropKind.SAND, params.sandCellSize, sandSeed)
+    lattice(chunk, site, ground, into, PropKind.AMETHYST, params.amethystCellSize, amethystSeed)
   }
 
   /** The chance one cell of [kind]'s lattice at this position holds one, in `[0, 1]`. */
@@ -209,6 +237,10 @@ class LootScatter(
       PropKind.STICK -> params.stickDensity * biome.canopy
       PropKind.RESIN -> params.resinDensity * biome.canopy * coniferShareOf(biome)
       PropKind.SAND -> params.sandDensity * sandShareOf(biome)
+      PropKind.AMETHYST -> {
+        val mountainous = mountainousAt(biome, worldX, worldY)
+        params.amethystDensity * (params.amethystBaseline + (1.0 - params.amethystBaseline) * mountainous)
+      }
       else -> 0.0
     }
   }
@@ -220,10 +252,13 @@ class LootScatter(
    * stony; a moraine under deep soil is stony; an alpine meadow is stony whatever the soil.
    */
   private fun stoninessAt(biome: Biome, worldX: Double, worldY: Double, glacial: Double): Double {
-    val thin = 1.0 - PolylineFeature.smoothstep(surface.soilDepthAt(worldX, worldY) / params.stonySoilDepth)
     val rocky = rockinessOf(biome)
-    return maxOf(thin, rocky, glacial).coerceIn(0.0, 1.0)
+    return maxOf(thinSoilAt(worldX, worldY), rocky, glacial).coerceIn(0.0, 1.0)
   }
+
+  /** How thin the soil is, in `[0, 1]`: steep ground and bare rock keep little. */
+  private fun thinSoilAt(worldX: Double, worldY: Double): Double =
+    1.0 - PolylineFeature.smoothstep(surface.soilDepthAt(worldX, worldY) / params.stonySoilDepth)
 
   private fun rockinessOf(biome: Biome): Double = when (biome) {
     Biome.ALPINE, Biome.COLD_DESERT -> 0.9
@@ -244,6 +279,18 @@ class LootScatter(
     Biome.TEMPERATE_RAINFOREST -> 0.6
     Biome.TEMPERATE_FOREST -> 0.25
     else -> 0.0
+  }
+
+  /**
+   * How much the ground is mountain, in `[0, 1]`: all of it on alpine land, half of it where the soil is thin.
+   *
+   * Alpine land is the high ground by construction, since the biome follows the elevation. Thin soil stands in for
+   * steep ground below the alpine line: a slope keeps little soil. It counts only half, because bare rock on a
+   * desert flat thins the soil just as much.
+   */
+  private fun mountainousAt(biome: Biome, worldX: Double, worldY: Double): Double {
+    if (biome == Biome.ALPINE) return 1.0
+    return STEEP_SHARE * thinSoilAt(worldX, worldY)
   }
 
   /** How sandy a biome is, in `[0, 1]`: a beach is all sand, and the deserts have some on the surface. */
@@ -280,6 +327,7 @@ class LootScatter(
       PropKind.LOOSE_STONE -> params.stoneDensity
       PropKind.STICK -> params.stickDensity
       PropKind.SAND -> params.sandDensity
+      PropKind.AMETHYST -> params.amethystDensity
       else -> params.resinDensity
     }
 
@@ -312,6 +360,7 @@ class LootScatter(
           PropKind.LOOSE_STONE -> params.stoneHeight to 0.0
           PropKind.STICK -> params.stickHeight to 0.0
           PropKind.SAND -> params.sandHeight to 0.0
+          PropKind.AMETHYST -> params.amethystHeight to 0.0
           else -> params.resinHeight to 0.0
         }
 
@@ -372,7 +421,7 @@ class LootScatter(
 
   companion object {
     /** The kinds this emits, for a consumer counting or filtering them. */
-    val KINDS = setOf(PropKind.BOULDER, PropKind.LOOSE_STONE, PropKind.STICK, PropKind.RESIN, PropKind.SAND)
+    val KINDS = setOf(PropKind.BOULDER, PropKind.LOOSE_STONE, PropKind.STICK, PropKind.RESIN, PropKind.SAND, PropKind.AMETHYST)
 
     /** The kinds that follow the trees, for which how glacial the ground is decides nothing. */
     private val UNDER_TREES = setOf(PropKind.STICK, PropKind.RESIN)
@@ -382,7 +431,9 @@ class LootScatter(
     private const val STICK_SALT = 0x537469636B73L
     private const val RESIN_SALT = 0x526573696EL
     private const val SAND_SALT = 0x53616E64L
+    private const val AMETHYST_SALT = 0x416D657468797374L
     private const val PATCH_SALT = 0x4C6F6F7450L
     private const val PATCH_OCTAVES = 2
+    private const val STEEP_SHARE = 0.5
   }
 }

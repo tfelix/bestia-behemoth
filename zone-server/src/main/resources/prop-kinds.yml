@@ -507,6 +507,15 @@ kinds:
     regrow-seconds: 900
     collect: { item-id: 230, amount: 1 }
 
+  # A small amethyst cluster, mostly in the mountains: the gem a new player etches a first essence into. Slow to come
+  # back, so a climber who finds one has found something.
+  - kind: AMETHYST_CLUSTER
+    max-hp: 5
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+    regrow-seconds: 3600
+    collect: { item-id: 131, amount: 1 }
+
   # A ritual ring of Mana Concentrate laid flat into the ground; used up when its ritual ends.
   - kind: MANA_CIRCLE
     max-hp: 40

@@ -1011,7 +1011,8 @@ class ChunkMaterializer(
     // 16: a crystal stands on every seal's plinth (`TownStructures.sealCrystals`).
     // 17: sand lies on the beaches and thinly on the deserts (`LootScatter`), so those chunks emit props they did not.
     // 18: bones and broken arms lie on battlefields, and a slain world boss's skeleton (`FixtureProps`).
-    const val VERSION = 19
+    // 20: amethyst lies on the ground, mostly in the mountains (`LootScatter`), so chunks emit props they did not.
+    const val VERSION = 20
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.
