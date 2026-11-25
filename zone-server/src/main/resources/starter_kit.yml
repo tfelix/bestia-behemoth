@@ -66,6 +66,8 @@ blueprints:
   - INN_KIT
   - AUCTION_HOUSE_KIT
   - BLACKBOARD_KIT
+  # Observation's lookout. Its log has no craft-axes either; knowing Observation is what gates raising it.
+  - OBSERVATION_OUTPOST_KIT
   # Breeding: the farm, the incubator and what a clutch uses up, so every master can breed without discovering
   # anything first.
   - BREEDING_FARM_KIT

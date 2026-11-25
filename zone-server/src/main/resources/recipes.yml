@@ -97,6 +97,19 @@ recipes:
     craftSeconds: 10.0
     baseSuccessChance: 1.0
 
+  # The Scholar's lookout for Observation, made with Carpentry like every timber kit.
+  - id: 161
+    identifier: OBSERVATION_OUTPOST_KIT
+    effect: PRODUCE
+    output: { item: observation_outpost_kit, amount: 1 }
+    inputs:
+      - { item: log, amount: 20 }
+      - { item: loose_stone, amount: 10 }
+      - { item: iron_ingot, amount: 2 }
+    skill: { skill: M_CARPENTRY, level: 1 }
+    craftSeconds: 20.0
+    baseSuccessChance: 1.0
+
   # A player town's buildings, from the design docs' player settlements page.
   - id: 50
     identifier: POST_OFFICE_KIT

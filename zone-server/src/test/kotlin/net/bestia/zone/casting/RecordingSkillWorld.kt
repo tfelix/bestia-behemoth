@@ -517,6 +517,13 @@ class RecordingSkillWorld(
     magicSenses += level
   }
 
+  /** The level of each [observeEvents]. */
+  val eventObservations = mutableListOf<Int>()
+
+  override fun observeEvents(level: Int) {
+    eventObservations += level
+  }
+
   /** The level of each [readOmens]. */
   val omenReadings = mutableListOf<Int>()
 

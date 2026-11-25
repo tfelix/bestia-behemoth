@@ -5,7 +5,7 @@ extends RefCounted
 ## compass and the chat show it, and nothing is put on the map for good.
 
 ## The proto's SenseKind, in its order.
-enum Kind { ORE, HERBS, TIMBER, GAME, HOLLOW, MANA, BINDING_FIRED, EMPYRITE_SEED_FOUND, EMPYRITE_SEED, OMEN }
+enum Kind { ORE, HERBS, TIMBER, GAME, HOLLOW, MANA, BINDING_FIRED, EMPYRITE_SEED_FOUND, EMPYRITE_SEED, OMEN, EVENT }
 
 const _COLOURS := {
 	Kind.ORE: Color(0.85, 0.62, 0.35),
@@ -18,7 +18,11 @@ const _COLOURS := {
 	Kind.EMPYRITE_SEED_FOUND: Color(1.0, 0.8, 0.16),
 	Kind.EMPYRITE_SEED: Color(1.0, 0.8, 0.16),
 	Kind.OMEN: Color(0.62, 0.45, 1.0),
+	Kind.EVENT: Color(1.0, 0.55, 0.85),
 }
+
+## How far an Observation mark may be shown: the proto's size_metres for SENSE_EVENT.
+enum Precision { DIRECTION, NEAR, FAR, DISTANCE }
 
 ## Each entry: the mark's dictionary plus [code]until[/code], in ticks msec.
 var _marks: Array[Dictionary] = []
@@ -50,7 +54,7 @@ func compass_marks(here: Vector2) -> Array:
 		result.append({
 			"bearing": CompassStrip.bearing_between(Vector3(here.x, 0.0, here.y), Vector3(to.x, 0.0, to.y)),
 			"colour": _COLOURS.get(int(mark["kind"]), Color.WHITE),
-			"label": "%s %.1fkm" % [name_of(mark), here.distance_to(to) / 1000.0],
+			"label": "%s %s" % [name_of(mark), _distance_of(mark, here.distance_to(to))],
 		})
 	return result
 
@@ -63,6 +67,13 @@ static func summary(message: SenseMarksSMSG, here: Vector2) -> String:
 		return tr_static("SPELL_BINDING_FIRED") % str(message.Marks[0]["label"])
 	if int(message.Marks[0]["kind"]) == Kind.EMPYRITE_SEED_FOUND:
 		return tr_static("EMPYRITE_SEED_FOUND") % str(message.Marks[0]["label"])
+	if int(message.Marks[0]["kind"]) == Kind.EVENT:
+		var events: Array[String] = []
+		for mark in message.Marks:
+			var to := Vector2(float(mark["x"]), float(mark["y"]))
+			var bearing := CompassStrip.bearing_between(Vector3(here.x, 0.0, here.y), Vector3(to.x, 0.0, to.y))
+			events.append("%s %s %s" % [name_of(mark), CompassStrip.name_of(bearing), _distance_of(mark, here.distance_to(to))])
+		return tr_static("SENSE_EVENT_READING") % ", ".join(events)
 	if int(message.Marks[0]["kind"]) == Kind.OMEN:
 		var readings: Array[String] = []
 		for mark in message.Marks:
@@ -92,12 +103,43 @@ static func name_of(mark: Dictionary) -> String:
 		return tr_static("SENSE_HOLLOW")
 	if int(mark["kind"]) == Kind.MANA:
 		return tr_static("SENSE_MANA") % str(mark["label"])
+	if int(mark["kind"]) == Kind.EVENT:
+		return _event_name(mark)
 	if int(mark["kind"]) == Kind.OMEN:
 		var reading := tr_static("SENSE_OMEN_%d" % int(mark["ref_id"]))
 		return reading if str(mark["label"]).is_empty() else "%s: %s" % [str(mark["label"]), reading]
 	if int(mark["kind"]) == Kind.EMPYRITE_SEED and str(mark["label"]).is_empty():
 		return tr_static("SENSE_EMPYRITE_SEED")
 	return str(mark["label"])
+
+
+## What Observation may say about an event: its kind or exact name, how far along it is, and when it moves on.
+static func _event_name(mark: Dictionary) -> String:
+	var label := str(mark["label"])
+	var name := tr_static("SENSE_EVENT_SOMETHING")
+	if tr_static("SENSE_EVENT_FAMILY_" + label) != "SENSE_EVENT_FAMILY_" + label:
+		name = tr_static("SENSE_EVENT_FAMILY_" + label)
+	elif not label.is_empty():
+		name = tr_static("WORLD_EVENT_" + label.to_upper().replace("-", "_"))
+	if int(mark["ref_id"]) > 0:
+		name += ", " + tr_static("SENSE_EVENT_STAGE_%d" % int(mark["ref_id"]))
+	if float(mark["depth"]) > 0.0:
+		name += ", " + tr_static("SENSE_EVENT_WITHIN_HOURS") % roundi(float(mark["depth"]))
+	return name
+
+
+## The distance as far as a mark may show it: none for most senses' vague marks, near or far for low Observation.
+static func _distance_of(mark: Dictionary, metres: float) -> String:
+	if int(mark["kind"]) != Kind.EVENT:
+		return "%.1fkm" % (metres / 1000.0)
+	match int(float(mark["size"])):
+		Precision.DIRECTION:
+			return ""
+		Precision.NEAR:
+			return tr_static("SENSE_EVENT_NEAR")
+		Precision.FAR:
+			return tr_static("SENSE_EVENT_FAR")
+	return "%.1fkm" % (metres / 1000.0)
 
 
 static func tr_static(key: String) -> String:

@@ -1026,6 +1026,8 @@ ERROR_RITUAL_RUNNING,The ritual has already begun.
 ERROR_RITUAL_ALREADY_JOINED,You already have a helper in this ritual.
 ERROR_RITUAL_FULL,Five helpers already stand in this circle.
 ERROR_RITUAL_FAILED,The ritual broke: its leader stopped channeling.
+ERROR_OBSERVATION_NO_OUTPOST,Observation is cast at an Observation Outpost.
+ERROR_OBSERVATION_OUTPOST_NEEDS_SKILL,Only a Master who knows Observation can raise an outpost.
 ERROR_BASIC_SKILL_TRADE_POST_LOCKED,You need Basic Skill 3 to list or buy at a trade post.
 ERROR_SKILL_MISSING_REAGENT,You lack the item this skill uses up.
 ERROR_FELLING_NEEDS_AXE,You need an axe or a hatchet to fell a tree.
@@ -1049,6 +1051,21 @@ SENSE_OMEN_0,calm
 SENSE_OMEN_1,uneasy
 SENSE_OMEN_2,ominous
 SENSE_OMEN_3,a neighbouring region is worse
+SENSE_EVENT_SOMETHING,something stirs
+SENSE_EVENT_FAMILY_mana,something of the mana
+SENSE_EVENT_FAMILY_beasts,something among the beasts
+SENSE_EVENT_FAMILY_earth,something in the earth
+SENSE_EVENT_FAMILY_sky,something in the sky
+SENSE_EVENT_FAMILY_people,something among people
+WORLD_EVENT_RIFT,a rift
+WORLD_EVENT_APEX_ROAMER,an apex beast
+SENSE_EVENT_STAGE_1,stirring
+SENSE_EVENT_STAGE_2,gathering
+SENSE_EVENT_STAGE_3,about to break
+SENSE_EVENT_WITHIN_HOURS,within %d hours
+SENSE_EVENT_NEAR,near
+SENSE_EVENT_FAR,far
+SENSE_EVENT_READING,"From the outpost: %s."
 STRONGHOLD_PLANT_TITLE,Plant the Empyrite
 STRONGHOLD_TITLE,%s - Stronghold of %s
 STRONGHOLD_EMPYRITE,Empyrite

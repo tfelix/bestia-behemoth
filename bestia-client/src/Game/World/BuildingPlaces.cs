@@ -18,7 +18,7 @@ namespace BestiaBehemothClient.Game.World
     public const int CitySign = 66;
 
     /// <summary>Small camp and gathering structures, which may stand anywhere.</summary>
-    public static readonly HashSet<int> WildKinds = new() { 22, 55, 57, 58, 59, 71, 90 };
+    public static readonly HashSet<int> WildKinds = new() { 22, 55, 57, 58, 59, 71, 90, 104 };
 
     /// <summary>Finished player buildings a new town building may stand near.</summary>
     public static readonly HashSet<int> TownAnchorKinds = new() { 13, 23, 24, 52, 53, 54, 67, 75, 76, 77, 78, 86, 87, 88, 92, 93, 102 };

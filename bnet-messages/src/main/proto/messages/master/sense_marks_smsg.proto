@@ -46,4 +46,9 @@ enum SenseKind {
   // An Augury reading of a place region: the label is its name, ref_id how restless it is (0 calm, 1 uneasy,
   // 2 ominous) or 3 for "a neighbouring region is worse", which has no name. The caster's own region is vague.
   SENSE_OMEN = 9;
+  // A world event Observation feels from an outpost. size_metres says how far it may be shown: 0 the direction only,
+  // 1 near, 2 far, 3 the distance (the spot is then 500 m exact). label is its kind (mana, beasts, earth, sky,
+  // people) or, at the highest level, the world_events.yml id. ref_id is how far along it is (1 stirring,
+  // 2 gathering, 3 breaking; 0 not told) and depth_metres the hours until it moves on (0 not told).
+  SENSE_EVENT = 10;
 }

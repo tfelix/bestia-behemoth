@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.casting.sense.EventObservation
 import net.bestia.zone.casting.sense.OmenReading
 import net.bestia.zone.casting.sense.EchoSensing
 import net.bestia.zone.item.mining.Blasts
@@ -73,4 +74,5 @@ class SkillWorldServices(
   val shieldGuard: ShieldGuard? = null,
   val tripleBlow: TripleBlow? = null,
   val omenReading: OmenReading? = null,
+  val eventObservation: EventObservation? = null,
 )

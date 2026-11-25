@@ -30,13 +30,13 @@ namespace Bnet {
             "Eh0KBGtpbmQYASABKA4yDy5ibmV0LlNlbnNlS2luZBITCgtlYXN0X21ldHJl",
             "cxgCIAEoARIUCgxub3J0aF9tZXRyZXMYAyABKAESDQoFbGFiZWwYBCABKAkS",
             "DgoGcmVmX2lkGAUgASgDEhQKDGRlcHRoX21ldHJlcxgGIAEoAhITCgtzaXpl",
-            "X21ldHJlcxgHIAEoAhINCgV2YWd1ZRgIIAEoCCrQAQoJU2Vuc2VLaW5kEg0K",
+            "X21ldHJlcxgHIAEoAhINCgV2YWd1ZRgIIAEoCCrhAQoJU2Vuc2VLaW5kEg0K",
             "CVNFTlNFX09SRRAAEg8KC1NFTlNFX0hFUkJTEAESEAoMU0VOU0VfVElNQkVS",
             "EAISDgoKU0VOU0VfR0FNRRADEhAKDFNFTlNFX0hPTExPVxAEEg4KClNFTlNF",
             "X01BTkEQBRIXChNTRU5TRV9CSU5ESU5HX0ZJUkVEEAYSHQoZU0VOU0VfRU1Q",
             "WVJJVEVfU0VFRF9GT1VORBAHEhcKE1NFTlNFX0VNUFlSSVRFX1NFRUQQCBIO",
-            "CgpTRU5TRV9PTUVOEAlCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNTZW5z",
-            "ZU1hcmtzU21zZ1Byb3RvYgZwcm90bzM="));
+            "CgpTRU5TRV9PTUVOEAkSDwoLU0VOU0VfRVZFTlQQCkIsChVuZXQuYmVzdGlh",
+            "LmJuZXQucHJvdG9CE1NlbnNlTWFya3NTbXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.SenseKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -73,6 +73,13 @@ namespace Bnet {
     /// 2 ominous) or 3 for "a neighbouring region is worse", which has no name. The caster's own region is vague.
     /// </summary>
     [pbr::OriginalName("SENSE_OMEN")] SenseOmen = 9,
+    /// <summary>
+    /// A world event Observation feels from an outpost. size_metres says how far it may be shown: 0 the direction only,
+    /// 1 near, 2 far, 3 the distance (the spot is then 500 m exact). label is its kind (mana, beasts, earth, sky,
+    /// people) or, at the highest level, the world_events.yml id. ref_id is how far along it is (1 stirring,
+    /// 2 gathering, 3 breaking; 0 not told) and depth_metres the hours until it moves on (0 not told).
+    /// </summary>
+    [pbr::OriginalName("SENSE_EVENT")] SenseEvent = 10,
   }
 
   #endregion
