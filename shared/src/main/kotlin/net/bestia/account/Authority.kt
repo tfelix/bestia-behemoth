@@ -56,5 +56,11 @@ enum class Authority {
   HONOR,
 
   /** Sending an announcement to every connected player. */
-  ANNOUNCE
+  ANNOUNCE,
+
+  /**
+   * Reading and changing the mana field, and later the world events it drives. Its own authority because the
+   * field is hidden from players: knowing it is part of the game.
+   */
+  WORLD_EVENTS
 }
