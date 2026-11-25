@@ -210,7 +210,19 @@ enum class StaticEntityKind {
   CARVING_TABLE,
 
   // Worldgen's AMETHYST, mostly in the mountains. Ground loot like the stick and the sand, appended for the ordinal.
-  AMETHYST_CLUSTER;
+  AMETHYST_CLUSTER,
+
+  // The scars thick mana leaves on the land, one look per kind of ground. They stay after the mana falls and
+  // cannot be broken; see `OmenScars`.
+  OMEN_STONE_RING,
+  OMEN_FLOATING_STONES,
+  OMEN_CRYSTAL_BLOOM,
+  OMEN_GLASS_SAND,
+  OMEN_TWISTED_TREE,
+  OMEN_FUNGUS_RING;
+
+  /** A scar the mana left, which nothing may break. */
+  val isOmen: Boolean get() = name.startsWith("OMEN_")
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.

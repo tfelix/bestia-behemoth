@@ -1,5 +1,6 @@
 package net.bestia.zone.townsfolk.rumour
 
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.mana.ManaField
 import net.bestia.zone.world.mana.ManaTier
@@ -23,7 +24,7 @@ class ManaRumourReporter(
   /** The day each kind was last posted for a tile. Only rises are news, so a restart forgets nothing it needs. */
   private val postedOn = HashMap<Pair<RumourKind, Long>, Double>()
 
-  override fun onTiersChanged(changes: List<ManaTiers.Change>) {
+  override fun onTiersChanged(world: World, changes: List<ManaTiers.Change>) {
     val today = clock.now().absoluteDay
 
     changes

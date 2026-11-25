@@ -42,8 +42,8 @@ class ManaFieldSystem(
       tiers.update(tierRule, deltaTime.toDouble())
     }
 
-    // Deferred: a listener tells the towns, and their news is touched by systems running beside this one.
-    if (changes.isNotEmpty()) world.defer { tierListeners.forEach { it.onTiersChanged(changes) } }
+    // Deferred: listeners tell the towns and raise scars, which systems running beside this one also touch.
+    if (changes.isNotEmpty()) world.defer { tierListeners.forEach { it.onTiersChanged(world, changes) } }
   }
 
   private companion object {

@@ -11,6 +11,7 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.entity.ecs.PropPose
 import net.bestia.zone.entity.ecs.PropVitality
 import net.bestia.zone.entity.ecs.StaticSync
+import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.entity.ecs.WorldObjectIdentity
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
@@ -36,6 +37,17 @@ class PropPromotionServiceTest {
       add(id, WorldObjectIdentity(propId, latticeVersion = 1L))
       add(id, StaticSync)
     }
+
+  @Test
+  fun `a scar the mana left cannot be broken`() {
+    val world = testWorld()
+    val service = PropPromotionService(noDivergence())
+    val scar = propEntity(world, propId = 0L)
+    world.add(scar, StaticVisual(StaticEntityKind.OMEN_STONE_RING, variant = 0, heightDm = 20))
+
+    assertFalse(service.promoteIfNeeded(world, scar, Vec3L(1, 2, 3), REACH))
+    assertFalse(world.has(scar, Health::class))
+  }
 
   /** A prop's entity id can name a tree anywhere in the world, and each promotion makes a full entity. */
   @Test
