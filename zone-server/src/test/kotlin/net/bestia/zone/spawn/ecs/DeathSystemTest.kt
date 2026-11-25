@@ -241,7 +241,7 @@ class DeathSystemTest {
 
     observed.update(world, 0f)
 
-    assertEquals(listOf(KillFact(7L, Vec3L(1, 2, 3), setOf(killer))), heard)
+    assertEquals(listOf(KillFact(7L, Vec3L(1, 2, 3), setOf(killer), 1, false)), heard)
     assertFalse(bystander in heard.single().creditedMasters)
   }
 }

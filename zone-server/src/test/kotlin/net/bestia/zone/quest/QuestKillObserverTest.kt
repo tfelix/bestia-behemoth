@@ -40,7 +40,7 @@ class QuestKillObserverTest {
     val tracked = trackedKill(area = QuestArea.InPlace(TOWN))
     val master = masterIn(TOWN, tracked)
 
-    observer.onKill(world, KillFact(WOLF, FAR_AWAY, setOf(master)))
+    observer.onKill(world, KillFact(WOLF, FAR_AWAY, setOf(master), LEVEL, boss = false))
 
     assertEquals(1, tracked.count)
     verify { questService.recordPersonal(MASTER_ID, QUEST_ID, 0, 1) }
@@ -53,8 +53,8 @@ class QuestKillObserverTest {
     val elsewhere = masterIn("Elsewhere", trackedKill(area = QuestArea.InPlace(TOWN)))
     val late = masterIn(TOWN, trackedKill(area = QuestArea.InPlace(TOWN), deadline = now.minusSeconds(1)))
 
-    observer.onKill(world, KillFact(BOAR, FAR_AWAY, setOf(inTown)))
-    observer.onKill(world, KillFact(WOLF, FAR_AWAY, setOf(elsewhere, late)))
+    observer.onKill(world, KillFact(BOAR, FAR_AWAY, setOf(inTown), LEVEL, boss = false))
+    observer.onKill(world, KillFact(WOLF, FAR_AWAY, setOf(elsewhere, late), LEVEL, boss = false))
 
     assertEquals(0, tracked.count)
     verify(exactly = 0) { questService.recordPersonal(any(), any(), any(), any()) }
@@ -65,8 +65,8 @@ class QuestKillObserverTest {
     val tracked = trackedKill(area = QuestArea.Around(x = 100, y = 100, radius = 10))
     val master = masterIn(TOWN, tracked)
 
-    observer.onKill(world, KillFact(WOLF, Vec3L(106, 108, 0), setOf(master)))
-    observer.onKill(world, KillFact(WOLF, Vec3L(108, 108, 0), setOf(master)))
+    observer.onKill(world, KillFact(WOLF, Vec3L(106, 108, 0), setOf(master), LEVEL, boss = false))
+    observer.onKill(world, KillFact(WOLF, Vec3L(108, 108, 0), setOf(master), LEVEL, boss = false))
 
     assertEquals(1, tracked.count)
   }
@@ -76,7 +76,7 @@ class QuestKillObserverTest {
     val tracked = trackedKill(area = null, required = 2)
     val master = masterIn(TOWN, tracked)
 
-    repeat(3) { observer.onKill(world, KillFact(WOLF, FAR_AWAY, setOf(master))) }
+    repeat(3) { observer.onKill(world, KillFact(WOLF, FAR_AWAY, setOf(master), LEVEL, boss = false)) }
 
     assertEquals(2, tracked.count)
   }
@@ -96,6 +96,7 @@ class QuestKillObserverTest {
     const val MASTER_ID = 5L
     const val QUEST_ID = 70L
     const val WOLF = 3L
+    const val LEVEL = 10
     const val BOAR = 4L
     const val TOWN = "Ashford"
     val FAR_AWAY = Vec3L(5_000, 5_000, 0)

@@ -24,6 +24,7 @@ import net.bestia.zone.casting.essence.EssenceSkillCost
 import net.bestia.zone.casting.essence.NineTails
 import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.mana.ManaEmission
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
 
@@ -56,6 +57,7 @@ class SkillExecutionService(
   private val statusEffects: StatusEffectService? = null,
   private val groundWards: GroundWards? = null,
   private val plagiarism: Plagiarism? = null,
+  private val manaEmission: ManaEmission? = null,
 ) {
 
   /** Skills never change after the import, and resolution runs on the tick, so they are read once at boot. */
@@ -195,6 +197,8 @@ class SkillExecutionService(
         LOG.debug { "Skill $skillId by $casterId fizzled: not enough mana or stamina" }
         return
       }
+      // What a cast spends goes into the air around the caster, whether the spell lands or not.
+      if (paid) manaEmission?.onCast(ctx.battle.attacker.position, cost.manaCost)
 
       val countsNineTails = world.get(casterId, CombatStats::class)?.values?.everyNinthSpellFree == true
       if (paid && countsNineTails && EssenceSkillCost.isSpell(skill)) statusEffects?.let { NineTails.counted(world, casterId, it) }
