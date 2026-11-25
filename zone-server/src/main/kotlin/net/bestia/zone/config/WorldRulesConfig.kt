@@ -11,6 +11,8 @@ data class WorldRulesConfig(
   val logoutProtectionSeconds: Float = 20f,
   /** Share of its current EXP an entity forfeits when it dies. */
   val deathExpLossFraction: Float = 0.01f,
+  /** Share of its maximum durability, in percent, each worn piece of a player-owned entity loses when it dies. */
+  val deathWearPercent: Int = 10,
   /** Longest path one move message may carry. The client sends legs of at most 24 tiles. */
   val maxMovePathSteps: Int = 64,
   /** How long a dropped plain item lies on the ground before it is gone. Real time, not Bestia time. */
