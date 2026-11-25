@@ -1077,3 +1077,8 @@ SKILL_168_DESC,"Knowing where to dig and how not to break what lies below.
 `-20%/lv` time to dig out a treasure cache
 `+5%/lv` chance for the cache's best item"
 SKILL_2162_DESC,"Wards a bestia's bag until it falls. Then the bag drops as one bundle that only its master may take, and after a minute it goes home by post. A strong Dispel can break the ward first."
+SKILL_169_DESC,"A quick reading of the omens around you, cast anywhere: is this land calm, uneasy or
+ominous? It never says where something is, only how restless the land feels. A world event
+brewing in a region makes it read worse than the mana alone would. Cooldown 30s.
+
+`Lv1` your own region; `Lv2` whether a neighbouring region is worse; `Lv3` every neighbour by name"

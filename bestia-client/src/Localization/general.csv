@@ -1044,6 +1044,11 @@ SENSE_HOLLOW_DETAIL,(%d m deep, %d m across)
 SENSE_MANA,mana (%s)
 SENSE_MANA_NEARBY,You sense mana at work nearby: %d source(s).
 SENSE_EMPYRITE_SEED,Empyrite Seed
+SENSE_OMEN_READING,"The omens: %s."
+SENSE_OMEN_0,calm
+SENSE_OMEN_1,uneasy
+SENSE_OMEN_2,ominous
+SENSE_OMEN_3,a neighbouring region is worse
 STRONGHOLD_PLANT_TITLE,Plant the Empyrite
 STRONGHOLD_TITLE,%s - Stronghold of %s
 STRONGHOLD_EMPYRITE,Empyrite
