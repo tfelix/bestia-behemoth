@@ -850,7 +850,40 @@ namespace BestiaBehemothClient.Game.World
       {
         PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.60f, 0.40f, 0.85f), Shape = PlaceholderShape.Crystal,
         PlaceholderGlow = 0.3f, Collectible = true, Action = PropAction.Collect
-      } // AMETHYST_CLUSTER
+      }, // AMETHYST_CLUSTER
+
+      // The scars thick mana leaves, one per kind of ground. Placeholders until they have models, each with a
+      // faint violet glow so they read as touched by the mana. Nothing to click: they cannot be broken.
+      new Kind
+      {
+        PlaceholderWidth = 2.4f, PlaceholderColour = new Color(0.50f, 0.48f, 0.56f), StructureHeight = 2f,
+        PlaceholderGlow = 0.15f
+      }, // OMEN_STONE_RING
+      new Kind
+      {
+        PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.46f, 0.44f, 0.58f), StructureHeight = 1.4f,
+        PlaceholderGlow = 0.3f
+      }, // OMEN_FLOATING_STONES
+      new Kind
+      {
+        PlaceholderWidth = 0.6f, PlaceholderColour = new Color(0.62f, 0.45f, 1.0f), StructureHeight = 1.6f,
+        Shape = PlaceholderShape.Crystal, PlaceholderGlow = 0.6f
+      }, // OMEN_CRYSTAL_BLOOM
+      new Kind
+      {
+        PlaceholderWidth = 3.0f, PlaceholderColour = new Color(0.70f, 0.78f, 0.86f), StructureHeight = 0.2f,
+        PlaceholderGlow = 0.2f
+      }, // OMEN_GLASS_SAND
+      new Kind
+      {
+        PlaceholderWidth = 0.7f, PlaceholderColour = new Color(0.30f, 0.22f, 0.34f), StructureHeight = 5f,
+        Shape = PlaceholderShape.Cone, PlaceholderGlow = 0.1f
+      }, // OMEN_TWISTED_TREE
+      new Kind
+      {
+        PlaceholderWidth = 1.8f, PlaceholderColour = new Color(0.55f, 0.85f, 0.70f), StructureHeight = 0.3f,
+        PlaceholderGlow = 0.45f
+      } // OMEN_FUNGUS_RING
     };
 
     /// <summary>
