@@ -192,6 +192,7 @@ import "messages/postal/route_board_smsg.proto";
 import "messages/postal/take_parcels_cmsg.proto";
 import "messages/shop/shop_trade_cmsg.proto";
 import "messages/map/weather_smsg.proto";
+import "messages/map/gm_mana_layer_smsg.proto";
 import "messages/map/world_time_smsg.proto";
 import "messages/trade/request_trade_cmsg.proto";
 import "messages/trade/answer_trade_request_cmsg.proto";
@@ -528,6 +529,9 @@ message Envelope {
     InnSMSG inn = 990;
     SetInnSavePointCMSG set_inn_save_point = 991;
     TendBestiasCMSG tend_bestias = 992;
+
+    // GM MAP 993
+    GmManaLayerSMSG gm_mana_layer = 993;
 
     // MISC
   }

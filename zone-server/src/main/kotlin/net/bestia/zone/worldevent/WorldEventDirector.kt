@@ -95,6 +95,17 @@ class WorldEventDirector(
 
   fun budgetOf(provinceIndex: Int): Double = provinceRows()[provinceIndex]?.budget ?: 0.0
 
+  /** Budget and quiet left per province, for a GM's map. */
+  fun provinceStates(): Map<Int, ProvinceState> {
+    val now = clock.now().absoluteSecond
+    return provinceRows().mapValues { (_, row) ->
+      ProvinceState(row.budget, ((row.quietUntilSecond - now) / clock.speedFactor).toLong().coerceAtLeast(0L))
+    }
+  }
+
+  /** [quietSeconds] are real seconds. */
+  data class ProvinceState(val budget: Double, val quietSeconds: Long)
+
   private fun maybeStart(signals: ProvinceSignals, row: EventProvince, now: Long) {
     if (now < row.quietUntilSecond) return
 
