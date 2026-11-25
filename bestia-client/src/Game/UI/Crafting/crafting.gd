@@ -155,6 +155,7 @@ func _on_craftable_recipes(msg: CraftableRecipesSMSG) -> void:
 		_clear(_queue_rows)
 	_structure_id = int(msg.StructureId)
 	_etching_picker.offers = msg.EtchingOffers
+	_etching_picker.stored = msg.StoredBestias
 	# A Carving Table only etches, and an etching never queues.
 	_queue_panel.visible = _at_station() and not msg.Recipes.all(_etches)
 	_show_fuel(msg)
@@ -389,7 +390,8 @@ func _show_actions() -> void:
 	var make := Button.new()
 	make.text = _make_label(recipe)
 	make.focus_mode = Control.FOCUS_NONE
-	make.disabled = _awaiting_result or (recipe.NeedsTarget and _selected_target() == 0)
+	var no_target := _selected_target() == 0 and _selected_stored_bestia() == 0
+	make.disabled = _awaiting_result or (recipe.NeedsTarget and no_target)
 	make.pressed.connect(_on_make_pressed)
 	_emphasize(make)
 	_actions.add_child(make)
@@ -440,6 +442,11 @@ func _fill_target_picker() -> void:
 		_target_picker.set_item_metadata(_target_picker.item_count - 1, held.player_item_id)
 
 
+## The picked Bestia in storage for an etching, as a player bestia id, or 0.
+func _selected_stored_bestia() -> int:
+	return _etching_picker.picked_stored_id if _etches(_selected_recipe) else 0
+
+
 func _selected_target() -> int:
 	if _etches(_selected_recipe):
 		return _etching_picker.picked_entity_id
@@ -461,7 +468,7 @@ func _on_make_pressed() -> void:
 		_awaiting_queue = true
 		return
 
-	ConnectionManager.craft_item(int(_selected_recipe.RecipeId), _selected_target(), _amount)
+	ConnectionManager.craft_item(int(_selected_recipe.RecipeId), _selected_target(), _amount, _selected_stored_bestia())
 
 	_awaiting_result = true
 	_status.text = "Working..."
