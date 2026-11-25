@@ -5,7 +5,10 @@ import net.bestia.worldgen.core.WorldBoss
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.TestWorlds
+import net.bestia.worldgen.vector.Vec2d
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Test
+import kotlin.test.assertNotNull
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -29,8 +32,29 @@ class WorldBossLairsTest {
   }
 
   @Test
+  fun `a spot at sea finds a dry shore nearby`() {
+    val sea = seaSpot()
+    assumeTrue(sea != null, "the test world has no sea")
+
+    val shore = assertNotNull(WorldBossLairService.shoreNear(world, sea!!))
+
+    assertTrue(world.base.heightAt(shore.x, shore.y) > world.config.seaLevel)
+  }
+
+  @Test
   fun `a lair whose species is missing gets no den`() {
     assertEquals(emptyList(), WorldBossLairService.lairsOf(world, WORLD_ID) { null })
+  }
+
+  /** The first cell of the test world that lies under the sea, scanning a coarse grid. */
+  private fun seaSpot(): Vec2d? {
+    val size = world.config.widthCells * world.config.baseResolution.metresPerCell
+    for (x in 0 until size.toInt() step 64) {
+      for (y in 0 until size.toInt() step 64) {
+        if (world.base.heightAt(x.toDouble(), y.toDouble()) < world.config.seaLevel - 5) return Vec2d(x.toDouble(), y.toDouble())
+      }
+    }
+    return null
   }
 
   private companion object {
