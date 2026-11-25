@@ -1,6 +1,7 @@
 package net.bestia.zone.master.skill
 
 import net.bestia.zone.casting.SkillExecutionService
+import net.bestia.zone.casting.essence.LearnedTricks
 import net.bestia.zone.battle.potency.PotencyCalculator
 import net.bestia.zone.battle.potency.Potency
 import net.bestia.zone.bestia.BestiaSkillLevel
@@ -29,6 +30,7 @@ class SkillListService(
   private val world: WorldView,
   private val potency: PotencyCalculator,
   private val skills: SkillExecutionService,
+  private val learnedTricks: LearnedTricks,
 ) {
 
   @Transactional(readOnly = true)
@@ -92,6 +94,18 @@ class SkillListService(
       .filterKeys { it !in fixedSkillIds }
       .map { (skillId, level) -> SkillListSMSG.SkillListEntry(skillId = skillId, level = level) }
 
-    return fixedEntries + customEntries
+    return fixedEntries + customEntries + trickEntries(activeEntityId, fixedEntries + customEntries)
+  }
+
+  /** The attacks its gear lends it, as the master's list shows them, leaving out those it learned itself. */
+  private fun trickEntries(
+    bestiaId: EntityId,
+    own: List<SkillListSMSG.SkillListEntry>
+  ): List<SkillListSMSG.SkillListEntry> {
+    val learned = own.filter { it.level > 0 }.map { it.skillId }.toSet()
+
+    return world.read { learnedTricks.of(this, bestiaId) }
+      .filter { it !in learned }
+      .map { SkillListSMSG.SkillListEntry(it, LearnedTricks.SKILL_LEVEL, fromEssence = true) }
   }
 }
