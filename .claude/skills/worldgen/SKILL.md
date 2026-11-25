@@ -42,7 +42,7 @@ fields/     Noise, Grid, Points (Poisson disk), DistanceTransform, DoubleIntHeap
 
 geo/ climate/ hydro/ coast/ bio/ resource/ civ/ history/ pop/ mana/ karst/ spawn/ poi/ dress/
 treasure/ stronghold/   ← the 28 Stages, see below
-place/      PlaceRegions: named 5-10 km areas covering the whole world. NOT a stage - see below
+place/      PlaceRegions: named 5-10 km areas covering the whole world; Provinces group them. NOT stages - see below
 
 voxel/      BlockType palette, Stratigraphy, ChunkMaterializer, RleCodec, CaveNetwork, VegetationScatter
 derived/    ChunkDelta (player edits), ColumnSummary, OpacityGrid, WalkableTile, DerivedStore
@@ -443,6 +443,11 @@ Three things about it are worth knowing before touching it:
 `RegionCalibrationTest` is `@Disabled` and holds the measurements every constant here came from - relief
 percentiles, region widths per spacing. Read it before changing `RegionParams.spacing` or
 `RegionKind`'s thresholds; the first guesses at both were wrong (nine regions in ten came back as fells).
+
+`place/Provinces.of(world, regions)` groups the regions around capitals (towns, cities and the home
+settlements) plus wild seats where land is over 30 km from any capital. It is not a stage either, so a change
+to its rules or to `RegionParams`/`ProvinceParams` moves `Provinces.partitionVersion` instead of
+`pipelineVersion`. Any zone row stored per region or province carries that version.
 
 ## The vector feature system (`vector/`)
 
