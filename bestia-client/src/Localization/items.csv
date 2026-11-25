@@ -1657,3 +1657,7 @@ INN_KIT,Inn Kit
 INN_KIT_DESC,"Beds, a long table, a hearth and a sign with a tankard on it, lashed onto a sledge.
 
 Set it down inside a town without an inn. Masters make it their save point once it is built."
+MINT_KIT,Mint Kit
+MINT_KIT_DESC,"A stone block, a screw press and a pair of bronze dies, packed in straw.
+
+Set it down and it becomes a Mint, where Minting strikes gold bars into coin."

@@ -34,7 +34,7 @@ object TownGrowth {
       StaticEntityKind.WORKBENCH, StaticEntityKind.FURNACE, StaticEntityKind.FORGE,
       StaticEntityKind.TANNING_RACK, StaticEntityKind.LOOM, StaticEntityKind.GLASS_FURNACE,
       StaticEntityKind.GLASSBLOWING_BENCH, StaticEntityKind.ALCHEMY_LABORATORY, StaticEntityKind.GEM_CUT_STATION,
-      StaticEntityKind.TRANSMUTATION_WORKBENCH, StaticEntityKind.CARVING_TABLE -> 1.0
+      StaticEntityKind.TRANSMUTATION_WORKBENCH, StaticEntityKind.CARVING_TABLE, StaticEntityKind.MINT -> 1.0
       StaticEntityKind.STRUCTURE_WALL, StaticEntityKind.STRUCTURE_FLOOR, StaticEntityKind.STRUCTURE_STAIRS -> 0.1
       else -> 0.0
     }
