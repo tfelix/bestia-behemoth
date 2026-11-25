@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.ecs.damage
 
+import net.bestia.zone.battle.damage.HitKind
 import net.bestia.zone.util.EntityId
 
 /**
@@ -17,5 +18,6 @@ fun interface LandedHits {
     val healthBefore: Int,
     val healthAfter: Int,
     val maxHealth: Int,
+    val kind: HitKind,
   )
 }

@@ -3,6 +3,9 @@ package net.bestia.zone.item.essence
 import net.bestia.zone.battle.BestiaKind
 import net.bestia.zone.battle.Element
 import net.bestia.zone.battle.damage.HitForm
+import net.bestia.zone.battle.status.EssenceCast
+import net.bestia.zone.battle.status.EssenceCast.Spot
+import net.bestia.zone.battle.status.EssenceCast.Trigger
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 
@@ -72,6 +75,21 @@ enum class BossEssence(val group: SocketGroup) {
     override fun apply(context: StatusValueRecalcContext) {
       context.immuneToDebuffs = true
       context.addElementResistance(Element.HOLY, -25)
+    }
+  },
+  SULPHUR_BREATH(SocketGroup.WEAPON) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.essenceCasts += EssenceCast("miasma", chancePercent = 4, Trigger.STRIKES, Spot.FOE)
+    }
+  },
+  HOWL_OF_GARM(SocketGroup.WEAPON) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.essenceCasts += EssenceCast("frost_nova", chancePercent = 3, Trigger.STRIKES_IN_MELEE, Spot.WEARER)
+    }
+  },
+  FRESH_VENT(SocketGroup.SHIELD) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.essenceCasts += EssenceCast("burning_ground", chancePercent = 10, Trigger.STRUCK_IN_MELEE, Spot.FOE)
     }
   };
 

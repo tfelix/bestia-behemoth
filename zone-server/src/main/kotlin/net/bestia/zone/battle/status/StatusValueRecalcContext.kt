@@ -243,6 +243,9 @@ class StatusValueRecalcContext(
   /** Shrugs off every harmful status effect, not just the ones in [statusImmunities]. */
   var immuneToDebuffs: Boolean = false
 
+  /** Attacks a boss essence casts by itself when its wearer strikes or is struck. */
+  var essenceCasts: List<EssenceCast> = emptyList()
+
   /** Buffs a Reflex essence may cast on this entity when a blow or spell lands on it. */
   var reflexes: List<EssenceSkill> = emptyList()
     private set

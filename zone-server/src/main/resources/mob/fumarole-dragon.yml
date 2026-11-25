@@ -9,6 +9,7 @@ description: >-
 kind: DRAGON
 element: POISON_4
 size: BIG
+essence: { group: WEAPON, effect: BOSS, target: SULPHUR_BREATH }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
