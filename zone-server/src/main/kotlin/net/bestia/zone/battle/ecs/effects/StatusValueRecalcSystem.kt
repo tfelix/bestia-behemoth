@@ -21,6 +21,7 @@ import net.bestia.zone.battle.ecs.status.BaseStatusValues
 import net.bestia.zone.battle.ecs.status.FormulaDrivenVitals
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
+import net.bestia.zone.battle.ecs.status.LearnedTricksChanged
 import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.battle.ecs.status.Exhaustion
 import net.bestia.zone.battle.ecs.status.Nature
@@ -106,7 +107,8 @@ class StatusValueRecalcSystem(
     Stamina::class,
     RegenerationModifiers::class,
     CombatStats::class,
-    OwnerCombatStats::class
+    OwnerCombatStats::class,
+    LearnedTricksChanged::class
   )
 
   override fun update(world: World, deltaTime: Float) {
@@ -256,6 +258,12 @@ class StatusValueRecalcSystem(
    * equal copy. [CombatStats] is assigned in place: replacing it would defer to the end of the tick.
    */
   private fun publishCombatValues(world: World, id: EntityId, resolved: CombatValues) {
+    val tricksBefore = world.get(id, CombatStats::class)?.values?.learnedTricks
+    // A master's first values come with its spawn, when the client asks for the skill list anyway.
+    if (tricksBefore != null && tricksBefore != resolved.learnedTricks && world.has(id, Master::class)) {
+      world.add(id, LearnedTricksChanged)
+    }
+
     val owner = world.get(id, OwnerCombatStats::class)
     owner?.update(resolved)
 
