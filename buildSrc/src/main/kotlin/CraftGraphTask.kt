@@ -84,7 +84,7 @@ abstract class CraftGraphTask : DefaultTask() {
     val text = StringBuilder()
     text.appendLine("---")
     text.appendLine("title: Crafting Chains")
-    text.appendLine("weight: 611")
+    text.appendLine("weight: 513")
     text.appendLine("description: Every recipe that refines or assembles a material, drawn per station. Generated.")
     text.appendLine("---")
     text.appendLine()
@@ -114,12 +114,15 @@ abstract class CraftGraphTask : DefaultTask() {
           val shape = if (item in raw) "[/\"${label(item)}\"/]" else "[\"${label(item)}\"]"
           text.appendLine("    $item$shape")
         }
+        // A fuel variant (IRON_INGOT_CHARCOAL) shares the ore edge with its base recipe; mermaid would draw it twice.
+        val drawn = mutableSetOf<String>()
         for (recipe in chain) {
           val out = recipe.output!!.item
           declare(out)
           for (input in recipe.inputs) {
             declare(input.item)
-            text.appendLine("    ${input.item} -->|${input.amount}| $out")
+            val edge = "    ${input.item} -->|${input.amount}| $out"
+            if (drawn.add(edge)) text.appendLine(edge)
           }
         }
         text.appendLine("```")
