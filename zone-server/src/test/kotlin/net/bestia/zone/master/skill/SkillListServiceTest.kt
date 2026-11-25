@@ -3,6 +3,7 @@ package net.bestia.zone.master.skill
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.casting.SkillExecutionService
+import net.bestia.zone.casting.essence.LearnedTricks
 import net.bestia.zone.casting.plagiarism.PlagiarizedSkill
 import net.bestia.zone.account.persistence.InheritedAttack
 import net.bestia.zone.account.persistence.LearnedSkill
@@ -31,6 +32,10 @@ class SkillListServiceTest {
     load(listOf(MasterSkillTreeNode(skillId = BLESSING, identifier = "M_BLESSING", maxLevel = 10, tree = "NOVICE")))
   }
 
+  /** What the gear of the Bestia lends it; nothing unless a test says so. */
+  private var tricks = emptyList<Long>()
+  private val learnedTricks = mockk<LearnedTricks> { every { of(any(), BESTIA_ENTITY) } answers { tricks } }
+
   private val sut = SkillListService(
     connectionInfo,
     playerBestiaRepository,
@@ -39,7 +44,8 @@ class SkillListServiceTest {
     world,
     mockk(relaxed = true),
     // No catalogue row: these tests are about levels, so no band is computed.
-    mockk<SkillExecutionService> { every { skillOf(any()) } returns null }
+    mockk<SkillExecutionService> { every { skillOf(any()) } returns null },
+    learnedTricks,
   )
 
   private val species = Bestia(id = 1L, identifier = "blob", levelMin = 3, levelMax = 3, experienceReward = 5, health = 10, mana = 8)
@@ -120,6 +126,17 @@ class SkillListServiceTest {
     givenCustom(EMBER, 4)
 
     assertEquals(mapOf(EMBER to 4), bestiaLevels())
+  }
+
+  @Test
+  fun `a Bestia's gear lends it a trick it does not know, as the master's list shows one`() {
+    givenBestia(bestiaLevel = 3, EMBER to 3)
+    tricks = listOf(EMBER, OTHER)
+
+    assertEquals(
+      listOf(SkillListSMSG.SkillListEntry(OTHER, LearnedTricks.SKILL_LEVEL, fromEssence = true)),
+      sut.entriesFor(ACCOUNT, BESTIA_ENTITY).filter { it.fromEssence }
+    )
   }
 
   @Test

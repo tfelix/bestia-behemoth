@@ -259,8 +259,8 @@ class StatusValueRecalcSystem(
    */
   private fun publishCombatValues(world: World, id: EntityId, resolved: CombatValues) {
     val tricksBefore = world.get(id, CombatStats::class)?.values?.learnedTricks
-    // A master's first values come with its spawn, when the client asks for the skill list anyway.
-    if (tricksBefore != null && tricksBefore != resolved.learnedTricks && world.has(id, Master::class)) {
+    // A player's first values come with its spawn, when the client asks for the skill list anyway.
+    if (tricksBefore != null && tricksBefore != resolved.learnedTricks && world.has(id, Account::class)) {
       world.add(id, LearnedTricksChanged)
     }
 
