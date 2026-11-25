@@ -4,6 +4,7 @@ import net.bestia.zone.casting.portal.WarpMarks
 import net.bestia.zone.item.profession.Professions
 import net.bestia.zone.item.profession.Profession
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.account.SavePointService
 import net.bestia.zone.account.persistence.Master
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.skill.tree.MasterSkillTreeRegistry
@@ -81,6 +82,7 @@ class MasterEntityPersister(
   private val learnedSkillRepository: LearnedSkillRepository,
   private val skillRepository: SkillRepository,
   private val skillTree: MasterSkillTreeRegistry,
+  private val savePoints: SavePointService,
 ) : EntityPersister {
 
   override val kind = "master"
@@ -141,7 +143,7 @@ class MasterEntityPersister(
       if (snap.died) {
         // Dying and then leaving resolves the respawn on the way out, so the player does not
         // re-materialise on top of whatever killed them - and cannot sit out the death by quitting.
-        master.currentPosition = master.spawnPosition
+        master.currentPosition = savePoints.savePointOf(master, near = Vec3L(snap.x, snap.y, snap.z))
         master.currentHealth = 1
       } else {
         master.currentPosition = Vec3L(snap.x, snap.y, snap.z)
