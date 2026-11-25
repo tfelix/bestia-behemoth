@@ -6,7 +6,8 @@
 # `min-tier` and `min-tier-cells` say how much of the province must be at least that thick with mana. `cooldown`
 # keeps the same event out of one province for a while after it last started there; `lasts` is how long it runs
 # before it ends by itself. Both in Bestia days. `loot` is what everyone who fought or held ground for it splits
-# by their share when players end it; nobody needs to accept anything to take part.
+# by their share when players end it; nobody needs to accept anything to take part. `family` is what Observation
+# calls it (mana, beasts, earth, sky, people) and `felt-from` how many times further than a small event it is felt.
 events:
   # The strongest bestia of the province's own dens, born mana-touched and a few levels up, roams in from the
   # province edge toward the thickest mana. Killing it ends the event.
@@ -18,6 +19,7 @@ events:
     min-tier-cells: 12
     cooldown: 4
     lasts: 2
+    family: beasts
     loot:
       - { item: mana_crystal, amount: 6 }
 
@@ -32,5 +34,7 @@ events:
     min-tier-cells: 6
     cooldown: 6
     lasts: 10
+    family: mana
+    felt-from: 3
     loot:
       - { item: mana_crystal, amount: 30 }

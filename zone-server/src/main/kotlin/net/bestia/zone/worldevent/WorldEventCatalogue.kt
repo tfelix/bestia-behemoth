@@ -24,6 +24,10 @@ data class WorldEventEntry(
   val lasts: Double = 1.0,
   /** What its contributors share when players end it, by `items.yml` identifier. */
   val loot: List<EventLoot> = emptyList(),
+  /** What kind of thing it is, as Observation names it: `mana`, `beasts`, `earth`, `sky` or `people`. */
+  val family: String = "mana",
+  /** How many times further than a small event Observation feels it. */
+  val feltFrom: Double = 1.0,
 )
 
 /** A pile of one item that the contributors of an event split by their share. */

@@ -39,7 +39,7 @@ class OmenReading(
     val at = world.get(casterId, Position::class)?.toVec3L() ?: return
     val regions = placeRegions.regions
     val voxel = worldService.config.voxelSize
-    val events = brewing?.positions().orEmpty()
+    val events = brewing?.brewing().orEmpty().map { it.x to it.y }
 
     val here = regions.regionAt(at.x * voxel, at.y * voxel)
     val ownReading = readingOf(here, events)

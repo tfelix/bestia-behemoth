@@ -1,5 +1,6 @@
 package net.bestia.zone.worldevent.rift
 
+import net.bestia.zone.casting.sense.BrewingEvents
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.mana.ManaField
@@ -51,6 +52,17 @@ class RiftEvent(
 
   override fun isOver(instance: WorldEventInstance): Boolean =
     phaseOf(instance) in setOf(Phase.COLLAPSED, Phase.MERGED)
+
+  /** A knot gathers until it opens; an open rift is breaking. */
+  override fun stageOf(instance: WorldEventInstance): BrewingEvents.Stage =
+    if (riftOf(instance)?.phase == Phase.KNOT) BrewingEvents.Stage.GATHERING else BrewingEvents.Stage.BREAKING
+
+  /** A knot opens at a known moment; an open rift collapses at one. */
+  override fun changesAtSecond(instance: WorldEventInstance): Long? = riftOf(instance)?.let {
+    if (it.phase == Phase.KNOT) it.opensAtSecond else it.collapsesAtSecond
+  }
+
+  private fun riftOf(instance: WorldEventInstance) = instance.subjectId?.let { id -> rifts.active().firstOrNull { it.id == id } }
 
   /** All a rift pulls from: a knot's ring as well, since that is the land players drain to dissolve it. */
   override fun heldArea(instance: WorldEventInstance): WorldEvent.HeldArea? {
