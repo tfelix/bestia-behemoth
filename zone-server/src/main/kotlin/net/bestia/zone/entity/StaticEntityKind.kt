@@ -207,7 +207,10 @@ enum class StaticEntityKind {
   BESTIA_CENTER,
 
   /** Where an Artificer etches a Bestia into a cut gem. */
-  CARVING_TABLE;
+  CARVING_TABLE,
+
+  // Worldgen's AMETHYST, mostly in the mountains. Ground loot like the stick and the sand, appended for the ordinal.
+  AMETHYST_CLUSTER;
 
   /**
    * Whether this is a building, whose walls are voxels rather than something drawn from the prop alone.
@@ -271,6 +274,7 @@ enum class StaticEntityKind {
       PropKind.STICK -> STICK
       PropKind.RESIN -> RESIN
       PropKind.SAND -> SAND_PILE
+      PropKind.AMETHYST -> AMETHYST_CLUSTER
       // `FixtureKind`'s ordinal, on `subKind` for the building arm's reason.
       PropKind.FIXTURE -> FIXTURE_KINDS[subKind]
     }
