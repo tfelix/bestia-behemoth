@@ -28,6 +28,7 @@ learnset:
   - { skill: minor_heal, level: 21 }
   - { skill: hamstring, level: 26 }
   - { skill: benediction, level: 36 }
+  - { skill: keepsake_ward, level: 40 }
   - { skill: healing_circle, level: 41 }
   - { skill: chilling_mist, level: 46, active: true }
   - { skill: hailstone, level: 51, active: true }

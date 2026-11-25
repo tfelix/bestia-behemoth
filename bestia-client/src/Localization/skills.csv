@@ -1076,3 +1076,4 @@ SKILL_168_DESC,"Knowing where to dig and how not to break what lies below.
 
 `-20%/lv` time to dig out a treasure cache
 `+5%/lv` chance for the cache's best item"
+SKILL_2162_DESC,"Wards a bestia's bag until it falls. Then the bag drops as one bundle that only its master may take, and after a minute it goes home by post. A strong Dispel can break the ward first."

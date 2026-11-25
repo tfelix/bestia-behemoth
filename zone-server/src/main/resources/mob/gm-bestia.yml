@@ -211,4 +211,5 @@ learnset:
   - { skill: detect, level: 1 }
   - { skill: burrow, level: 1 }
   - { skill: shadow_cloak, level: 1 }
+  - { skill: keepsake_ward, level: 1 }
 loot: []

@@ -5173,4 +5173,17 @@ skills:
     status: CLOAKED
     description: Moves unseen and slower. Any blow, an area one too, gives it away. Staying hidden costs mana.
 
+  - id: 2162
+    identifier: keepsake_ward
+    name: Keepsake Ward
+    script: ApplyStatus
+    archetype: UTILITY
+    cooldown: 60
+    targetType: FRIENDLY
+    range: 5
+    manaCost: 30
+    status: KEEPSAKE_WARD
+    description: Wards a bestia's bag until it falls. Then the bag drops as one bundle that only its master may take,
+      and after a minute it goes home by post. A strong Dispel can break the ward first.
+
   # END generated bestia skills

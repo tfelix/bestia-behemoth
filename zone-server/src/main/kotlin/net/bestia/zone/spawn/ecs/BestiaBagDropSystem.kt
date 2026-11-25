@@ -13,6 +13,9 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.keepsake.KeepsakeBags
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.item.ecs.Inventory
 import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.item.persistence.ItemContainer
@@ -23,8 +26,9 @@ import org.springframework.stereotype.Component as SpringComponent
 
 /**
  * A killed player bestia drops its bag as kill loot, the way a mob drops its drop table. Worn gear stays on the
- * body. Like [net.bestia.zone.item.net.DropItemHandler], the database gives the items up first, so a drop can
- * lose an item but never copy one.
+ * body. Under a Keepsake Ward the bag drops as one warded bundle instead, see [KeepsakeBags]. Like
+ * [net.bestia.zone.item.net.DropItemHandler], the database gives the items up first, so a drop can lose an item but
+ * never copy one.
  */
 @SpringComponent
 class BestiaBagDropSystem(
@@ -32,12 +36,13 @@ class BestiaBagDropSystem(
   private val lootItemEntitySpawner: LootItemEntitySpawner,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val worldView: WorldView,
+  private val keepsakes: KeepsakeBags,
 ) : System {
   override val phase = Phase.DEATH
   override val after = setOf(DeathSystem::class)
 
   override val reads: ComponentClassSet = setOf(OwnedBestia::class, Position::class, TakenDamage::class, Account::class)
-  override val writes: ComponentClassSet = setOf(Dead::class)
+  override val writes: ComponentClassSet = setOf(Dead::class, StatusEffects::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Dead::class, OwnedBestia::class).each { id ->
@@ -51,14 +56,16 @@ class BestiaBagDropSystem(
       // Taken now: a respawn moves the body and clears its damage before the job may run.
       val fellAt = world.get(id, Position::class)?.toVec3L() ?: return@each
       val killer = world.get(id, TakenDamage::class)?.topAccount(world)
+      val warded = world.get(id, StatusEffects::class)?.removeEffect(StatusEffectId.KEEPSAKE_WARD.id) == true
 
       // Keyed by the master like every other write to its containers, so a loot grant still queued lands first.
-      asyncJobExecutor.submit(owner.masterId) { dropBag(id, owner, fellAt, killer) }
+      asyncJobExecutor.submit(owner.masterId) { dropBag(id, owner, fellAt, killer, warded) }
     }
   }
 
-  private fun dropBag(bestiaEntityId: EntityId, owner: OwnedBestia, fellAt: Vec3L, killer: Long?) {
-    val removed = inventoryService.removeAllFreeFromOwner(owner.masterId, owner.playerBestiaId)
+  private fun dropBag(bestiaEntityId: EntityId, owner: OwnedBestia, fellAt: Vec3L, killer: Long?, warded: Boolean) {
+    val packed = if (warded) keepsakes.pack(owner) else null
+    val removed = packed?.removed ?: inventoryService.removeAllFreeFromOwner(owner.masterId, owner.playerBestiaId)
     if (removed.isEmpty()) {
       return
     }
@@ -73,6 +80,12 @@ class BestiaBagDropSystem(
       LOG.warn {
         "${removed.size - dropped.size} items left bestia ${owner.playerBestiaId} in DB but not its live bag; they are not dropped"
       }
+    }
+
+    val bundle = packed?.bundle
+    if (bundle != null) {
+      worldView.read { keepsakes.drop(this, bundle, owner.masterId, fellAt) }
+      return
     }
 
     worldView.read {

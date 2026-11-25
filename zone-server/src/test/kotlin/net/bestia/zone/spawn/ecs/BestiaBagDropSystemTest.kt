@@ -4,6 +4,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.battle.ecs.damage.TakenDamage
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.status.StackBehavior
+import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.item.keepsake.KeepsakeBags
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.geometry.Vec3L
@@ -21,6 +25,7 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.AsyncJobExecutor
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class BestiaBagDropSystemTest {
@@ -35,7 +40,8 @@ class BestiaBagDropSystemTest {
     every { it.submit(MASTER_ID, any()) } answers { pending += secondArg<() -> Unit>() }
   }
 
-  private val sut = BestiaBagDropSystem(inventoryService, spawner, executor, world)
+  private val keepsakes = mockk<KeepsakeBags>(relaxed = true)
+  private val sut = BestiaBagDropSystem(inventoryService, spawner, executor, world, keepsakes)
 
   private val arrow = Item(id = ARROW, identifier = "arrow", weight = 1, type = Item.ItemType.ETC, material = ItemMaterial.WOOD)
   private val sword = Item(
@@ -140,6 +146,25 @@ class BestiaBagDropSystemTest {
     verify { spawner.spawnLootItem(world, SWORD, 1, Vec3L(5, 6, 0), uniqueId = SWORD_INSTANCE, lootOwner = KILLER_ACCOUNT) }
   }
 
+  @Test
+  fun `a warded bestia drops its bag as one warded bundle and uses up the ward`() {
+    val bundle = ItemInstance(item = arrow, id = BUNDLE_INSTANCE)
+    every { keepsakes.pack(any()) } returns KeepsakeBags.Packed(
+      listOf(ItemContainer.DetachedItem(arrow, 10, instance = null)), bundle
+    )
+    world.add(bestia, StatusEffects().apply {
+      applyEffect(StatusEffectId.KEEPSAKE_WARD.id, StackBehavior.IGNORE_IF_PRESENT, 1, bestia, Double.POSITIVE_INFINITY, false)
+    })
+    killedBy(KILLER_ACCOUNT)
+
+    sut.update(world, 0f)
+    runJobs()
+
+    verify { keepsakes.drop(world, bundle, MASTER_ID, Vec3L(5, 6, 0)) }
+    verify(exactly = 0) { spawner.spawnLootItem(any(), ARROW, any(), any(), any(), any(), any(), any(), any()) }
+    assertFalse(world.get(bestia, StatusEffects::class)!!.hasEffect(StatusEffectId.KEEPSAKE_WARD.id))
+  }
+
   /** Worn gear and promised items are left in the container by the database, so they stay in the live bag too. */
   @Test
   fun `what the database keeps stays in the bag`() {
@@ -202,5 +227,6 @@ class BestiaBagDropSystemTest {
     const val ARROW = 40L
     const val SWORD = 11L
     const val SWORD_INSTANCE = 77L
+    const val BUNDLE_INSTANCE = 88L
   }
 }

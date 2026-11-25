@@ -131,6 +131,7 @@ enum class StatusEffectId(val id: Long) {
   UNRULY(255),
   MANA_TOUCHED(256),
   MANA_SICKNESS(257),
+  KEEPSAKE_WARD(258),
 
   // What a boss essence's aura grants, from id 300.
   ROYAL_SWARM(300),

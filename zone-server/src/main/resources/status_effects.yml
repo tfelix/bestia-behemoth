@@ -939,6 +939,14 @@ statusEffects:
     dispellable: false
     script: ManaSickness
 
+  # Sends a bestia's bag home when it falls. Lasts until then. See the death penalty on the bestia page.
+  - id: 258
+    identifier: KEEPSAKE_WARD
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    dispellable: false
+    script: KeepsakeWard
   # Near a master who wears a boss essence with an aura, kept up by EssenceAuraSystem every second.
   - id: 300
     identifier: ROYAL_SWARM
