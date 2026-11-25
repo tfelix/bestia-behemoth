@@ -58,15 +58,15 @@ class GearOperations(
   }
 
   /**
-   * Takes [percent] of the maximum off the durability of the weapon and the armour worn. What breaks comes off, as
+   * Takes [percent] of the maximum off the durability of the gear worn in [slots]. What breaks comes off, as
    * a weapon broken in a fight does in `EquipmentWear`.
    */
-  fun wear(world: World, entityId: EntityId, percent: Int): Boolean {
+  fun wear(world: World, entityId: EntityId, percent: Int, slots: List<EquipmentSlot> = WEAPON_AND_ARMOR): Boolean {
     val equipment = world.get(entityId, Equipment::class) ?: return false
     val owner = ItemOwner.of(world, entityId)
     val keptPercent = GearCoating.wearKeptPercent(world.get(entityId, StatusEffects::class))
 
-    val worn = WORN_SLOTS.mapNotNull { slot ->
+    val worn = slots.mapNotNull { slot ->
       val item = equipment.get(slot)?.takeIf { it.maxDurability > 0 && !it.isBroken } ?: return@mapNotNull null
       val loss = (item.maxDurability * percent / 100).coerceAtLeast(1) * keptPercent / 100
       if (loss <= 0) return@mapNotNull null
@@ -83,7 +83,10 @@ class GearOperations(
     return worn.isNotEmpty()
   }
 
-  private companion object {
-    val WORN_SLOTS = listOf(EquipmentSlot.RIGHT_HAND, EquipmentSlot.ARMOR)
+  companion object {
+    val WEAPON_AND_ARMOR = listOf(EquipmentSlot.RIGHT_HAND, EquipmentSlot.ARMOR)
+
+    /** Every slot but the light: a torch's durability is its burn time, which nothing but darkness uses up. */
+    val ALL_BUT_LIGHT = EquipmentSlot.entries - EquipmentSlot.LIGHT_SOURCE
   }
 }

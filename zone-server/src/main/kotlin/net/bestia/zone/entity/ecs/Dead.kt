@@ -43,6 +43,9 @@ class Dead : DirtyableComponent(), Removable {
   /** Whether [net.bestia.zone.spawn.ecs.BestiaBagDropSystem] has already dropped this body's bag. */
   var bagDropped: Boolean = false
 
+  /** Whether [net.bestia.zone.master.ecs.DeathWearSystem] has already worn down the body's gear. */
+  var gearWorn: Boolean = false
+
   /** Whether [net.bestia.zone.honor.PlayerKillHonorSystem] has already charged the killer. */
   var honorSettled: Boolean = false
 
