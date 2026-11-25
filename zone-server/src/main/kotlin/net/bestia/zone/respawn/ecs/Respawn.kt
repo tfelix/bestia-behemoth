@@ -10,4 +10,8 @@ import net.bestia.zone.geometry.Vec3L
  * everything that raises the intent - the respawn message handler, the disconnect listener - already
  * runs off the tick thread. [RespawnSystem] therefore does no I/O at all.
  */
-data class Respawn(val position: Vec3L) : Component
+data class Respawn(
+  val position: Vec3L,
+  /** Up with full HP and mana, as an inn tends a fallen bestia, rather than with a single hit point. */
+  val restored: Boolean = false,
+) : Component

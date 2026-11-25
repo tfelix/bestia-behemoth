@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Inn/inn_panel.gd" id="1_inn"]
+
+[node name="InnPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(420, 360)
+offset_right = 420.0
+offset_bottom = 360.0
+script = ExtResource("1_inn")

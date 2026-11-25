@@ -4,6 +4,7 @@ import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.InCombat
+import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.GroundHeight
@@ -44,6 +45,19 @@ class RespawnSystemTest {
     assertEquals(10L, position?.x)
     assertEquals(20L, position?.y)
     assertEquals(1, world.get(id, Health::class)?.current)
+  }
+
+  @Test
+  fun `a body an inn tended gets up with full health and mana`() {
+    val world = testWorld()
+    val id = world.deadBody(Vec3L(10, 20, 30))
+    world.add(id, Mana(current = 3, max = 50))
+    world.add(id, Respawn(Vec3L(10, 20, 30), restored = true))
+
+    RespawnSystem(surfaceAt77).update(world, 0f)
+
+    assertEquals(200, world.get(id, Health::class)?.current)
+    assertEquals(50, world.get(id, Mana::class)?.current)
   }
 
   /**

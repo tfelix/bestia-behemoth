@@ -18,6 +18,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _letters_win: WidgetWindow = $LettersWin
 @onready var _post_office_win: WidgetWindow = $PostOfficeWin
 @onready var _bestia_storage_win: WidgetWindow = $BestiaStorageWin
+@onready var _inn_win: WidgetWindow = $InnWin
 @onready var _blackboard_win: WidgetWindow = $BlackboardWin
 @onready var _quest_log_win: WidgetWindow = $QuestLogWin
 @onready var _quest_tracker: QuestTracker = $QuestTracker
@@ -203,6 +204,9 @@ func _ready() -> void:
 	# The ledger asks for the storage and a keeper sends it unasked; either way its arrival opens the window.
 	var bestia_storage := _bestia_storage_win.get_content() as BestiaStoragePanel
 	bestia_storage.storage_opened.connect(func() -> void: _bestia_storage_win.visible = true)
+
+	# An innkeeper at work or a player-built inn sends its offer; that opens the window.
+	(_inn_win.get_content() as InnPanel).inn_opened.connect(func() -> void: _inn_win.visible = true)
 
 	var blackboard := _blackboard_win.get_content() as BlackboardPanel
 	blackboard.inventory = _inventory_win.get_content() as Inventory

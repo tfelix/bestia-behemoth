@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "InnSmsgProto";
+
+// What an inn offers at its counter: the save point, and the price of tending each bestia out in the world.
+message InnSMSG {
+  // The innkeeper or the inn building. Every request at this inn names it.
+  uint64 counter_entity_id = 1;
+  string place_name = 2;
+  // Whether the master's save point is this inn already.
+  bool save_point_here = 3;
+  repeated Tending tendings = 4;
+
+  message Tending {
+    uint64 entity_id = 1;
+    // The bestia's own name, or empty for one without.
+    string name = 2;
+    // The species, for a bestia without a name.
+    uint64 bestia_id = 3;
+    uint32 price = 4;
+    bool fallen = 5;
+  }
+}

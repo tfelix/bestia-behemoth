@@ -5,6 +5,7 @@ import net.bestia.zone.battle.ecs.attack.AttackTarget
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.ecs.status.Mana
 import net.bestia.zone.battle.ecs.status.InCombat
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
@@ -52,7 +53,7 @@ class RespawnSystem(
   override val reads: ComponentClassSet = setOf(Respawn::class)
 
   override val writes: ComponentClassSet = setOf(
-    Position::class, Grounded::class, Path::class, Health::class,
+    Position::class, Grounded::class, Path::class, Health::class, Mana::class,
     Dead::class, TakenDamage::class, InCombat::class, AttackTarget::class
   )
 
@@ -78,7 +79,11 @@ class RespawnSystem(
       // Whatever the body was walking towards when it fell is not where it is any more.
       world.remove(id, Path::class)
 
-      world.get(id, Health::class)?.let { health -> health.current = 1 }
+      val respawn = get<Respawn>()
+      world.get(id, Health::class)?.let { health -> health.current = if (respawn.restored) health.max else 1 }
+      if (respawn.restored) {
+        world.get(id, Mana::class)?.let { mana -> mana.current = mana.max }
+      }
 
       world.remove(id, Dead::class)
       world.remove(id, TakenDamage::class)

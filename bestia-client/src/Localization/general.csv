@@ -1527,3 +1527,14 @@ QUEST_NOTICE_SUPERSEDED,Somebody else was faster: %s
 QUEST_LOG_WON_BY,%s was there first.
 QUEST_NOTICE_CLOSING,Quest is closing in one hour: %s
 QUEST_TRACKER_LINE,%d / %d · carrying %d · %s
+ERROR_INN_CANNOT_AFFORD,The innkeeper wants %s gold for tending your bestias. You do not carry that much.
+ERROR_INN_PRICE_CHANGED,Your bestias were hurt since the innkeeper named the price. Look at the new price.
+INN_TITLE,The inn of %s
+INN_SAVE_POINT_HERE,This inn is your save point. You get up here when you fall.
+INN_SAVE_POINT_ELSEWHERE,Your save point is elsewhere.
+INN_MAKE_SAVE_POINT,Make this my save point
+INN_TEND_TITLE,Tend my bestias
+INN_NOTHING_TO_TEND,Your bestias lack nothing.
+INN_FALLEN,fallen
+INN_PRICE,%s gold
+INN_TEND,Tend all (%s gold)
