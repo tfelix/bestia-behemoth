@@ -69,14 +69,14 @@ class CraftingChainTest {
   }
 
   @Test
-  fun `a station kit is Carpentry, except the workbench which every master can build`() {
+  fun `a Craftsman station kit is Carpentry, except the workbench which every master can build`() {
     val carpentry = catalog.skillIdByName.getValue("M_CARPENTRY")
     val basic = catalog.skillIdByName.getValue("M_BASIC_SKILL")
 
     val stations = listOf(
       StaticEntityKind.FURNACE, StaticEntityKind.FORGE, StaticEntityKind.TANNING_RACK, StaticEntityKind.LOOM,
       StaticEntityKind.GLASS_FURNACE, StaticEntityKind.GLASSBLOWING_BENCH, StaticEntityKind.ALCHEMY_LABORATORY,
-      StaticEntityKind.GEM_CUT_STATION, StaticEntityKind.TRANSMUTATION_WORKBENCH
+      StaticEntityKind.TRANSMUTATION_WORKBENCH
     )
     stations.forEach { station ->
       val kit = kitRecipe(station)
@@ -84,6 +84,20 @@ class CraftingChainTest {
     }
 
     assertEquals(basic, kitRecipe(StaticEntityKind.WORKBENCH).requiredSkillId)
+  }
+
+  /** Whoever learns such a skill seldom has Carpentry, and the skill would open Handiwork with nothing to make. */
+  @Test
+  fun `a station kit outside the Craftsman tree is made with the skill that works at the station`() {
+    val kitSkills = mapOf(
+      StaticEntityKind.GEM_CUT_STATION to "M_GEM_CUTTING",
+    )
+
+    kitSkills.forEach { (station, skill) ->
+      val kit = kitRecipe(station)
+      assertEquals(catalog.skillIdByName.getValue(skill), kit.requiredSkillId, "${kit.identifier} should be a $skill recipe")
+      assertEquals(1, kit.requiredSkillLevel, "${kit.identifier} should come with the first level of $skill")
+    }
   }
 
   @Test
