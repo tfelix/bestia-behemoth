@@ -3,8 +3,8 @@ package net.bestia.zone.worldevent.contract
 import org.springframework.stereotype.Service
 
 /**
- * Who did what for each running world event, without anybody taking a contract: fighting its creatures and
- * holding its ground count as they happen. Kills land on the tick, holding off it, so every method locks.
+ * Who did what for each running world event, without anybody taking a contract: fighting its creatures, holding
+ * its ground and the work of rituals at it count as they happen. Kills land on the tick, holding off it, so every method locks.
  */
 @Service
 class ContributionLedger {
@@ -12,7 +12,7 @@ class ContributionLedger {
   /** One running event: which kind of event and what it is about, as its creatures are tagged. */
   data class Key(val event: String, val subjectId: Long)
 
-  enum class Axis { FIGHTING, HOLDING }
+  enum class Axis { FIGHTING, HOLDING, WORK }
 
   class Contribution(val masterId: Long, val masterName: String) {
     val points = HashMap<Axis, Double>()

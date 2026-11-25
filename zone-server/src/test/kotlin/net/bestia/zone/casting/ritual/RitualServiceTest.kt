@@ -33,8 +33,10 @@ class RitualServiceTest {
   private val worldService = mockk<WorldService>(relaxed = true) {
     every { config.chunkSize } returns 32
   }
+  private val heard = ArrayList<Pair<Vec3L, List<EntityId>>>()
   private val service = RitualService(
-    sessions, statusEffects, mana, mockk(relaxed = true), mockk(relaxed = true), worldService, mockk(relaxed = true)
+    sessions, statusEffects, mana, mockk(relaxed = true), mockk(relaxed = true), worldService, mockk(relaxed = true),
+    observers = listOf(RitualObserver { _, at, participants -> heard += at to participants }),
   )
 
   private val leader = player(accountId = 1L, level = 100)
@@ -66,6 +68,18 @@ class RitualServiceTest {
     val stranger = player(accountId = 3L, level = 10)
 
     assertEquals(OpError.RITUAL_NOT_OPEN, service.interact(world, stranger, circle))
+  }
+
+  @Test
+  fun `a finished ritual tells where it stood and who stayed`() {
+    val helper = player(accountId = 2L, level = 60)
+    service.interact(world, leader, circle)
+    service.interact(world, helper, circle)
+    service.interact(world, leader, circle)
+
+    service.complete(world, circle, world.get(circle, Ritual::class)!!)
+
+    assertEquals(listOf(Vec3L(0, 0, 0) to listOf(leader, helper)), heard)
   }
 
   @Test
