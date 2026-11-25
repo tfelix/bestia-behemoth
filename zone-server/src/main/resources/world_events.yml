@@ -50,3 +50,16 @@ events:
     family: beasts
     loot:
       - { item: mana_crystal, amount: 3 }
+
+  # A den near a road or a town that nobody hunted for a week grows an alpha: its own species, a few levels up,
+  # prowling the road. Killing it ends the event. The other side of the hunting ground that fills with mana: too
+  # little hunting is a problem too.
+  - id: alpha-rises
+    script: AlphaRises
+    cost: 1
+    weight: 1
+    cooldown: 4
+    lasts: 3
+    family: beasts
+    loot:
+      - { item: mana_crystal, amount: 4 }

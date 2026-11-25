@@ -35,3 +35,5 @@ rumours:
   # rare_bestia.yml.
   RARE_BESTIA_HINT: { variants: 2, slots: [rare] }
   RARE_BESTIA_SEEN: { variants: 2, slots: [rare] }
+  # No slots: folk see torn sheep and tracks, not the species. See AlphaRisesEvent.
+  ALPHA_PROWLS: { variants: 2, slots: [] }
