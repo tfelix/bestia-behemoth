@@ -8,6 +8,7 @@ import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.PointIndex
 import net.bestia.worldgen.fields.PoissonDisk
+import net.bestia.worldgen.mana.StartDensity
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.vector.Aabb
 import net.bestia.worldgen.vector.Vec2d
@@ -49,7 +50,10 @@ data class WeatherRegion(
   /** Share that is sand or bare ground: what a sandstorm needs to lift. */
   val looseSurfaceShare: Double,
 
-  /** Mean mana over the region, and the 95th percentile. See `WeatherField` for why both. */
+  /**
+   * Mean start density over the region, and its 95th percentile (see `mana/StartDensity`). A world in play
+   * reads the live field instead, through `WeatherModel.ManaReading`.
+   */
   val meanMana: Double,
   val peakMana: Double,
 
@@ -202,7 +206,7 @@ class WeatherRegions private constructor(
           if (here in LOOSE_SURFACE) into.loose++
 
           if (mana != null) {
-            val value = mana.sampleBilinear(worldX, worldY)
+            val value = StartDensity.of(mana.sampleBilinear(worldX, worldY))
             into.mana += value
             into.manaValues.add(value)
           }

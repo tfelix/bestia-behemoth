@@ -27,9 +27,9 @@ import net.bestia.worldgen.core.ParamsText
  * percentages, is what says the model is connected to the world at all, and `WeatherClimatologyTest` prints it
  * on every run.
  *
- * The mana-storm share is high against the thunderstorm share and is meant to be: it is concentrated almost
- * entirely in the quarter of the land above [manaStormFloor], where it is the characteristic weather rather
- * than a rare event. [manaStormFloor] is the lever if that reads as too common.
+ * The mana-storm share in the table predates the mana density: it read the worldgen rank, which put a quarter of
+ * the land above the floor. A fresh world now starts with almost no region at storm density, and mana storms
+ * come where play and the Wounds raise the live field. [manaStormFloor] is still the lever.
  *
  * ### It is deliberately absent from `pipelineVersion`
  *
@@ -131,26 +131,27 @@ data class WeatherParams(
   val windVeerRadians: Double = 0.9,
 
   /**
-   * Mean mana below which mana does **nothing** to the weather.
+   * Mana density below which mana does **nothing** to the weather. The Uneasy step of the mana ladder.
    *
    * A threshold rather than a gain from zero, deliberately: if every region got a share of the bonus the layer
    * would be a global multiplier and "high-mana places are dangerous" would not be a thing a player could
    * learn. A threshold makes it a *place*.
    */
-  val manaThreshold: Double = 0.55,
+  val manaThreshold: Double = 0.45,
 
-  /** Exponent on the mana excess. Superlinear, so 0.6 and 0.95 are very different places. */
+  /** Exponent on the mana excess. Superlinear, so 0.5 and 0.9 are very different places. */
   val manaExponent: Double = 2.0,
 
-  /** Extra storm potential at full mana. At 3.0 a saturated region is four times as stormy. */
+  /** Extra storm potential at a density of 1. At 3.0 a saturated region is four times as stormy. */
   val manaGain: Double = 3.0,
 
   /**
-   * Mana below which a [WeatherKind.MANA_STORM] cannot happen at all, whatever the roll.
+   * Mana density below which a [WeatherKind.MANA_STORM] cannot happen at all, whatever the roll. The Storms
+   * step of the mana ladder.
    *
    * What makes it a property of the map rather than a rare global event.
    */
-  val manaStormFloor: Double = 0.75,
+  val manaStormFloor: Double = 0.60,
 
   /** Severity at or above which a high-mana region gets a mana storm. */
   val manaStormSeverity: Double = 0.82,

@@ -1,5 +1,7 @@
 package net.bestia.zone.world.mana
 
+import net.bestia.worldgen.mana.StartDensity
+
 /**
  * What the local mana density does to magic: the Place term of a cast's Potency and the ManaFactor of a Mana
  * Circle. A new world starts at 0.10 almost everywhere (see [StartDensity]), and the band from 0.08 to 0.45 is

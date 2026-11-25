@@ -1,5 +1,6 @@
 package net.bestia.zone.world.mana
 
+import net.bestia.worldgen.mana.StartDensity
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.mana.ManaField.Cell
 import org.springframework.stereotype.Component
