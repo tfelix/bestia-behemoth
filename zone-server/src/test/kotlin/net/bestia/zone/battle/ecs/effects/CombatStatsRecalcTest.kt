@@ -1,5 +1,8 @@
 package net.bestia.zone.battle.ecs.effects
 
+import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.battle.status.EssenceSkill
+import net.bestia.zone.battle.ecs.status.LearnedTricksChanged
 import net.bestia.zone.item.ecs.itemTemplatesOf
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
@@ -90,6 +93,28 @@ class CombatStatsRecalcTest {
   }
 
   private fun CombatStats.atk() = values.derived.atk
+
+  @Test
+  fun `a master whose gear no longer grants a trick is marked for a new skill list`() {
+    val master = spawnOwner().also { id ->
+      world.add(id, Master(1L))
+      val withTrick = world.get(id, CombatStats::class)!!.values.copy(learnedTricks = listOf(EssenceSkill("shadow_cloak", 40)))
+      world.add(id, CombatStats(withTrick))
+    }
+
+    recalc(master)
+
+    assertTrue(world.has(master, LearnedTricksChanged::class))
+  }
+
+  @Test
+  fun `a recalc that keeps the tricks marks nothing`() {
+    val master = spawnOwner().also { world.add(it, Master(1L)) }
+
+    recalc(master)
+
+    assertFalse(world.has(master, LearnedTricksChanged::class))
+  }
 
   @Test
   fun `a recalc that changes nothing leaves a mob on the shared block of its species`() {

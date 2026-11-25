@@ -93,6 +93,7 @@
  - UPKEEP wave 53: GuildStorageSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 53: GuildTagSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 53: HonorGossipSystem [EverySeconds(seconds=60.0)]
+ - UPKEEP wave 53: LearnedTrickListSystem [EveryTick]
  - UPKEEP wave 53: LightSourceSystem [EverySeconds(seconds=10.0)]
  - UPKEEP wave 53: LogoutSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 53: RumourExpirySystem [EverySeconds(seconds=180.0)]
