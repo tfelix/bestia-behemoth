@@ -12,6 +12,7 @@ import org.springframework.context.SmartLifecycle
 import org.springframework.stereotype.Component
 import net.bestia.zone.persistence.EntityPersistenceService
 import net.bestia.zone.water.WaterService
+import net.bestia.zone.world.mana.ManaJournal
 
 /**
  * Saves what changed since the last periodic save when the server stops: the tick is stopped first, so
@@ -30,6 +31,7 @@ class PersistOnShutdown(
   private val water: WaterService,
   private val waterJournal: WaterJournal,
   private val chunkEdits: ChunkEditJournal,
+  private val manaJournal: ManaJournal,
   private val groundLevels: List<GroundLevelStore>,
   private val asyncJobExecutor: AsyncJobExecutor,
 ) : SmartLifecycle {
@@ -55,6 +57,7 @@ class PersistOnShutdown(
       waterJournal.flush()
       chunkEdits.flushDirty()
       groundLevels.forEach { it.flushDirty() }
+      manaJournal.flush()
     }
     asyncJobExecutor.shutdown(timeoutSeconds = DRAIN_SECONDS)
 

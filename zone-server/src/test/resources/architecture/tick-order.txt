@@ -125,6 +125,7 @@
  - UPKEEP wave 57: TownDecaySystem [EverySeconds(seconds=60.0)]
  - UPKEEP wave 57: AttackWindowSystem [EverySeconds(seconds=10.0)]
  - PERSIST wave 58: ChunkEditPersistSystem [EverySeconds(seconds=10.0)]
+ - PERSIST wave 58: ManaPersistSystem [EverySeconds(seconds=300.0)]
  - PERSIST wave 58: StructureWearSystem [EverySeconds(seconds=1.0)]
  - PERSIST wave 58: WaterPersistSystem [EverySeconds(seconds=10.0)]
  - PERSIST wave 59: EntityPersistenceSystem [EverySeconds(seconds=1.0)]
