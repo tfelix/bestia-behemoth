@@ -1,10 +1,16 @@
 package net.bestia.zone.worldboss
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.worldgen.coast.CoastChannels
+import net.bestia.worldgen.coast.ShoreKind
+import net.bestia.worldgen.core.FloatLayer
+import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.history.SiteChannels
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.vector.FeatureKind
+import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.vector.PointMarker
+import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
@@ -144,19 +150,73 @@ class WorldBossLairService(
 
           // A cave lair lies on the cave floor, every other one on the ground.
           val caveFloor = marker.attribute(SiteChannels.ELEVATION)
-          val floor = if (caveFloor.isNaN()) generated.base.heightAt(marker.position.x, marker.position.y) else caveFloor
+          val home = if (caveFloor.isNaN()) landFor(generated, marker.position) else marker.position
+          val floor = if (caveFloor.isNaN()) generated.base.heightAt(home.x, home.y) else caveFloor
 
           Lair(
             identity = DenIdentity(marker.id.value, worldId, generated.world.pipelineVersion),
             bestiaId = bestiaId,
             monster = monster.index,
             position = Vec3L(
-              x = (marker.position.x / config.voxelSize).toLong(),
-              y = (marker.position.y / config.voxelSize).toLong(),
+              x = (home.x / config.voxelSize).toLong(),
+              y = (home.y / config.voxelSize).toLong(),
               z = ChunkCoords.standingZ(config, floor)
             ),
           )
         }
     }
+
+    /**
+     * A lair out at sea keeps its boss on the nearest beach: nothing in the zone swims, so a boss left at sea could
+     * never be reached. Any other lair stays where it is.
+     */
+    private fun landFor(generated: GeneratedWorld, lair: Vec2d): Vec2d {
+      if (isDry(generated, lair)) return lair
+
+      return shoreNear(generated, lair) ?: lair.also { LOG.warn { "No dry shore near the lair at $lair" } }
+    }
+
+    /** The first dry spot behind the coast nearest to [at], a gentle shore before a cliff or a marsh. */
+    internal fun shoreNear(generated: GeneratedWorld, at: Vec2d): Vec2d? {
+      val nearestFirst = generated.world.features.all()
+        .filter { it.kind == FeatureKind.COASTLINE }
+        .filterIsInstance<MarkerFeature>()
+        .map { it to it.centerline.project(at) }
+        .sortedBy { (_, projection) -> projection.distance }
+      val (gentle, rough) = nearestFirst.partition { (line, projection) -> shoreKindAt(line, projection.u) !in ROUGH_SHORES }
+
+      for ((_, projection) in gentle + rough) {
+        val inland = (projection.point - at).normalized()
+        for (setback in SHORE_SETBACKS) {
+          val spot = projection.point + inland * setback
+          if (isDry(generated, spot)) return spot
+        }
+      }
+      return null
+    }
+
+    private fun shoreKindAt(line: MarkerFeature, u: Double): ShoreKind? {
+      val table = line.stations ?: return null
+      return ShoreKind.entries.getOrNull(table.sample(table.channel(CoastChannels.SHORE_KIND), u).toInt())
+    }
+
+    /** Above the sea and not in a lake, the test `Invariants.checkSpawnersAreOnDryLand` makes for a den. */
+    private fun isDry(generated: GeneratedWorld, at: Vec2d): Boolean {
+      val config = generated.config
+      if (generated.base.heightAt(at.x, at.y) <= config.seaLevel + DRY_MARGIN) return false
+
+      val waterLevel = generated.world.layers[LayerId.WATER_LEVEL] as? FloatLayer ?: return true
+      val metres = config.baseResolution.metresPerCell
+
+      return waterLevel[(at.x / metres).toInt(), (at.y / metres).toInt()].isNaN()
+    }
+
+    private val ROUGH_SHORES = setOf(ShoreKind.SEA_CLIFF, ShoreKind.SALT_MARSH)
+
+    /** Metres behind the waterline to try, nearest first. */
+    private val SHORE_SETBACKS = listOf(4.0, 8.0, 16.0, 32.0, 64.0)
+
+    /** Metres above the sea, so the boss does not stand in the surf. */
+    private const val DRY_MARGIN = 0.5
   }
 }
