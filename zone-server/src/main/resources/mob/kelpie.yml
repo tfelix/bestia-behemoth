@@ -13,9 +13,9 @@ essence: { group: FOOTGEAR, effect: DEEP_POOLS }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
-attack-power: 0.14
+attack-power: 0.15
 weight: 250
-health: 1372
+health: 1715
 mana: 455
 experience: 302
 attributes: { strength: 1, intelligence: 93, vitality: 25, dexterity: 1, willpower: 62, agility: 25 }

@@ -13,9 +13,9 @@ essence: { group: ARMOR, effect: BOSS, target: WISP_FLAME }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.27
+attack-power: 0.29
 weight: 120
-health: 17
+health: 20
 mana: 621
 experience: 42078
 attributes: { strength: 1, intelligence: 157, vitality: 42, dexterity: 1, willpower: 105, agility: 42 }

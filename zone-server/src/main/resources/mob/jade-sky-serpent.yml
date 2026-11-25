@@ -15,9 +15,9 @@ aspd: 80
 ai: passive_wanderer
 attack-power: 0.04
 weight: 500
-health: 136303
+health: 112342
 mana: 974
-experience: 37118
+experience: 37061
 attributes: { strength: 1, intelligence: 205, vitality: 55, dexterity: 1, willpower: 137, agility: 55 }
 learnset:
   - { skill: growl, level: 6 }

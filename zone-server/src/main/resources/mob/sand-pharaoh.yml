@@ -13,11 +13,11 @@ essence: { group: HEADGEAR, effect: BOSS, target: PHARAOHS_CROWN }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.11
+attack-power: 0.12
 weight: 500
-health: 80817
+health: 78542
 mana: 645
-experience: 27667
+experience: 27435
 attributes: { strength: 1, intelligence: 160, vitality: 43, dexterity: 1, willpower: 107, agility: 43 }
 learnset:
   - { skill: growl, level: 6 }

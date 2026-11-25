@@ -13,12 +13,12 @@ essence: { group: ACCESSORY, effect: ATTRIBUTE_PAIR, target: STR_VIT }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 1.03
+attack-power: 1.05
 weight: 60
-health: 818
+health: 918
 mana: 112
 experience: 190
-attributes: { strength: 9, intelligence: 7, vitality: 33, dexterity: 4, willpower: 11, agility: 22 }
+attributes: { strength: 12, intelligence: 7, vitality: 33, dexterity: 5, willpower: 11, agility: 22 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

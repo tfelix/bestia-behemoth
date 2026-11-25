@@ -13,11 +13,11 @@ essence: { group: HEADGEAR, effect: WISDOM }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.21
+attack-power: 0.24
 weight: 60
-health: 668
+health: 749
 mana: 194
-experience: 152
+experience: 151
 attributes: { strength: 1, intelligence: 53, vitality: 14, dexterity: 1, willpower: 35, agility: 14 }
 learnset:
   - { skill: growl, level: 6 }

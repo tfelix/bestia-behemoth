@@ -13,12 +13,12 @@ essence: { group: FOOTGEAR, effect: LONG_STRIDE }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
-attack-power: 1.04
+attack-power: 1.26
 weight: 250
-health: 482
+health: 530
 mana: 85
 experience: 120
-attributes: { strength: 1, intelligence: 8, vitality: 46, dexterity: 1, willpower: 18, agility: 6 }
+attributes: { strength: 1, intelligence: 8, vitality: 46, dexterity: 2, willpower: 18, agility: 6 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: shed_wool, level: 6 }

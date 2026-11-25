@@ -13,12 +13,12 @@ essence: { group: FOOTGEAR, effect: DEEP_POOLS }
 default-attack: RANGED
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.95
+attack-power: 1.02
 weight: 250
-health: 5911
+health: 829
 mana: 220
 experience: 3253
-attributes: { strength: 20, intelligence: 14, vitality: 28, dexterity: 34, willpower: 38, agility: 141 }
+attributes: { strength: 22, intelligence: 14, vitality: 28, dexterity: 37, willpower: 38, agility: 141 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: pebble_toss, level: 6 }

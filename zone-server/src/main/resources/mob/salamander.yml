@@ -16,10 +16,10 @@ aspd: 80
 ai: aggressive_melee
 attack-power: 1
 weight: 60
-health: 1263
+health: 1588
 mana: 555
-experience: 340
-attributes: { strength: 19, intelligence: 106, vitality: 28, dexterity: 63, willpower: 71, agility: 28 }
+experience: 347
+attributes: { strength: 15, intelligence: 106, vitality: 28, dexterity: 50, willpower: 71, agility: 28 }
 learnset:
   - { skill: flame_weapon, level: 6 }
   - { skill: ember, level: 11 }

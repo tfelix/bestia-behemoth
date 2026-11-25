@@ -14,12 +14,12 @@ essence: { group: WEAPON, effect: PRECISION }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 1.04
+attack-power: 1.03
 weight: 60
-health: 387
+health: 389
 mana: 57
 experience: 77
-attributes: { strength: 3, intelligence: 3, vitality: 17, dexterity: 2, willpower: 6, agility: 12 }
+attributes: { strength: 4, intelligence: 3, vitality: 17, dexterity: 1, willpower: 6, agility: 12 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

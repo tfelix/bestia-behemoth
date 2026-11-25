@@ -14,9 +14,9 @@ essence: { group: GARMENT, effect: ELEMENT_VEIL, target: NORMAL }
 default-attack: RANGED
 aspd: 80
 ai: passive_wanderer
-attack-power: 0.83
+attack-power: 0.96
 weight: 15
-health: 191
+health: 164
 mana: 133
 experience: 226
 attributes: { strength: 12, intelligence: 7, vitality: 14, dexterity: 20, willpower: 19, agility: 71 }

@@ -15,9 +15,9 @@ aspd: 80
 ai: passive_wanderer
 attack-power: 1
 weight: 15
-health: 234
+health: 221
 mana: 49
-experience: 30
+experience: 27
 attributes: { strength: 1, intelligence: 21, vitality: 6, dexterity: 1, willpower: 14, agility: 6 }
 learnset:
   - { skill: gather_herbs, level: 6 }

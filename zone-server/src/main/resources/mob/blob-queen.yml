@@ -14,12 +14,12 @@ essence: { group: ARMOR, effect: BOSS, target: ROYAL_JELLY }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 2.23
+attack-power: 2.47
 weight: 500
-health: 42938
+health: 52679
 mana: 133
 experience: 13481
-attributes: { strength: 8, intelligence: 18, vitality: 108, dexterity: 5, willpower: 43, agility: 14 }
+attributes: { strength: 10, intelligence: 18, vitality: 108, dexterity: 6, willpower: 43, agility: 14 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: drip_jelly, level: 6 }

@@ -14,9 +14,9 @@ essence: { group: ARMOR, effect: COATED }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
-attack-power: 0.98
+attack-power: 1.16
 weight: 15
-health: 199
+health: 190
 mana: 36
 experience: 27
 attributes: { strength: 1, intelligence: 4, vitality: 22, dexterity: 2, willpower: 9, agility: 3 }

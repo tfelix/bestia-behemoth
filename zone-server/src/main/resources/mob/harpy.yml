@@ -13,12 +13,12 @@ essence: { group: FOOTGEAR, effect: SWIFT }
 default-attack: RANGED
 aspd: 80
 ai: aggressive_melee
-attack-power: 1.06
+attack-power: 1.14
 weight: 60
-health: 717
+health: 596
 mana: 119
 experience: 199
-attributes: { strength: 11, intelligence: 6, vitality: 13, dexterity: 18, willpower: 17, agility: 64 }
+attributes: { strength: 12, intelligence: 6, vitality: 13, dexterity: 19, willpower: 17, agility: 64 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: pebble_toss, level: 6 }

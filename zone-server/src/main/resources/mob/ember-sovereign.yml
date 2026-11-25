@@ -14,12 +14,12 @@ essence: { group: SHIELD, effect: BOSS, target: SLAG_SHELL }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 1
+attack-power: 0.98
 weight: 500
-health: 97915
+health: 100819
 mana: 363
 experience: 42447
-attributes: { strength: 49, intelligence: 42, vitality: 249, dexterity: 26, willpower: 100, agility: 33 }
+attributes: { strength: 60, intelligence: 42, vitality: 249, dexterity: 30, willpower: 100, agility: 33 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: howl, level: 6 }

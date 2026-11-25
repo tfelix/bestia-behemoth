@@ -13,11 +13,11 @@ essence: { group: ACCESSORY, effect: BOSS, target: ROYAL_SWARM }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.02
+attack-power: 0.03
 weight: 500
-health: 55954
+health: 53595
 mana: 343
-experience: 21258
+experience: 21111
 attributes: { strength: 1, intelligence: 89, vitality: 53, dexterity: 1, willpower: 111, agility: 27 }
 learnset:
   - { skill: lick_wounds, level: 1 }

@@ -1,8 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 112
 identifier: oathbound_revenant
-level-min: 54
-level-max: 58
+level-min: 52
+level-max: 60
 name: "Oathbound Revenant"
 description: >-
   A captain who swore to hold a field and died holding it. The oath outlived the flesh, and it still challenges
@@ -16,10 +16,10 @@ aspd: 80
 ai: aggressive_melee
 attack-power: 1.1
 weight: 60
-health: 4259
+health: 4545
 mana: 166
 experience: 2205
-attributes: { strength: 8, intelligence: 17, vitality: 105, dexterity: 3, willpower: 42, agility: 14 }
+attributes: { strength: 13, intelligence: 17, vitality: 105, dexterity: 7, willpower: 42, agility: 14 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: howl, level: 6 }

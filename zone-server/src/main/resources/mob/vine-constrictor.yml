@@ -14,12 +14,12 @@ essence: { group: WEAPON, effect: RIDER, target: SLOWED }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.9
+attack-power: 0.89
 weight: 250
-health: 1137
+health: 1331
 mana: 153
 experience: 274
-attributes: { strength: 16, intelligence: 9, vitality: 45, dexterity: 5, willpower: 15, agility: 30 }
+attributes: { strength: 23, intelligence: 9, vitality: 45, dexterity: 10, willpower: 15, agility: 30 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

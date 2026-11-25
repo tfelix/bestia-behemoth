@@ -14,12 +14,12 @@ essence: { group: GARMENT, effect: ELEMENT_VEIL, target: WATER }
 default-attack: RANGED
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.93
+attack-power: 1.01
 weight: 250
-health: 5306
+health: 1079
 mana: 204
 experience: 3024
-attributes: { strength: 18, intelligence: 13, vitality: 26, dexterity: 31, willpower: 35, agility: 132 }
+attributes: { strength: 19, intelligence: 13, vitality: 26, dexterity: 34, willpower: 35, agility: 132 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: pebble_toss, level: 6 }

@@ -14,9 +14,9 @@ essence: { group: ARMOR, effect: ELEMENT_BODY, target: WATER }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.21
+attack-power: 0.24
 weight: 60
-health: 662
+health: 737
 mana: 186
 experience: 142
 attributes: { strength: 1, intelligence: 50, vitality: 13, dexterity: 1, willpower: 33, agility: 13 }

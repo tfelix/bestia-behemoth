@@ -13,12 +13,12 @@ essence: { group: ARMOR, effect: BOSS, target: FROZEN_AGES }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 1.19
+attack-power: 1.25
 weight: 500
-health: 73754
+health: 79659
 mana: 273
-experience: 33570
-attributes: { strength: 30, intelligence: 33, vitality: 199, dexterity: 15, willpower: 79, agility: 26 }
+experience: 33595
+attributes: { strength: 39, intelligence: 33, vitality: 199, dexterity: 21, willpower: 79, agility: 26 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: howl, level: 6 }

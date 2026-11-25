@@ -14,12 +14,12 @@ essence: { group: ACCESSORY, effect: ATTRIBUTE_PAIR, target: STR_VIT }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 1.32
+attack-power: 1.54
 weight: 60
-health: 1139
+health: 1401
 mana: 239
 experience: 284
-attributes: { strength: 3, intelligence: 39, vitality: 39, dexterity: 2, willpower: 39, agility: 39 }
+attributes: { strength: 8, intelligence: 39, vitality: 39, dexterity: 9, willpower: 39, agility: 39 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ice_shard, level: 6 }

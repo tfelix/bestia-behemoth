@@ -13,9 +13,9 @@ essence: { group: ACCESSORY, effect: QUICK_HANDS }
 default-attack: RANGED
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.83
+attack-power: 0.87
 weight: 15
-health: 242
+health: 212
 mana: 39
 experience: 35
 attributes: { strength: 4, intelligence: 2, vitality: 4, dexterity: 7, willpower: 6, agility: 22 }

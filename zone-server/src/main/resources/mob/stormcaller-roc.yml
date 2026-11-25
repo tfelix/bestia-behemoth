@@ -13,12 +13,12 @@ essence: { group: FOOTGEAR, effect: BOSS, target: STORM_WINGS }
 default-attack: RANGED
 aspd: 80
 ai: aggressive_melee
-attack-power: 3.21
+attack-power: 4.36
 weight: 500
-health: 86996
+health: 8642
 mana: 227
 experience: 32825
-attributes: { strength: 16, intelligence: 18, vitality: 37, dexterity: 27, willpower: 49, agility: 183 }
+attributes: { strength: 18, intelligence: 18, vitality: 37, dexterity: 29, willpower: 49, agility: 183 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: pebble_toss, level: 6 }

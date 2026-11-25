@@ -13,12 +13,12 @@ essence: { group: ARMOR, effect: BOSS, target: TROPHY_PLATE }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 2.16
+attack-power: 2.35
 weight: 500
-health: 78181
+health: 86344
 mana: 154
 experience: 22814
-attributes: { strength: 28, intelligence: 14, vitality: 70, dexterity: 10, willpower: 23, agility: 47 }
+attributes: { strength: 35, intelligence: 14, vitality: 70, dexterity: 15, willpower: 23, agility: 47 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

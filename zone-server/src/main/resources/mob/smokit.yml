@@ -14,12 +14,12 @@ essence: { group: ACCESSORY, effect: QUIET_STEP }
 default-attack: RANGED
 aspd: 80
 ai: passive_wanderer
-attack-power: 0.75
+attack-power: 0.79
 weight: 15
-health: 368
+health: 332
 mana: 62
 experience: 85
-attributes: { strength: 5, intelligence: 3, vitality: 7, dexterity: 8, willpower: 9, agility: 34 }
+attributes: { strength: 5, intelligence: 3, vitality: 7, dexterity: 9, willpower: 9, agility: 34 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: pebble_toss, level: 6 }

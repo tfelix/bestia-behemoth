@@ -13,12 +13,12 @@ essence: { group: WEAPON, effect: ELEMENT_HUNTER, target: EARTH }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.75
+attack-power: 0.76
 weight: 250
-health: 1636
+health: 1886
 mana: 202
 experience: 363
-attributes: { strength: 33, intelligence: 12, vitality: 58, dexterity: 12, willpower: 19, agility: 39 }
+attributes: { strength: 50, intelligence: 12, vitality: 58, dexterity: 20, willpower: 19, agility: 39 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

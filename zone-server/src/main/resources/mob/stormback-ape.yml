@@ -14,12 +14,12 @@ essence: { group: TOOL, effect: FELLING_SPEED }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.95
+attack-power: 1.17
 weight: 250
-health: 1360
+health: 1685
 mana: 175
 experience: 318
-attributes: { strength: 27, intelligence: 10, vitality: 51, dexterity: 10, willpower: 17, agility: 34 }
+attributes: { strength: 34, intelligence: 10, vitality: 51, dexterity: 13, willpower: 17, agility: 34 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

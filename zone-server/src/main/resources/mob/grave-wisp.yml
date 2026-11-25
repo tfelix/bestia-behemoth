@@ -1,8 +1,8 @@
 # Generated from bestia-docs data/bestias.yaml by tools/bestia_export.py. Change it there.
 id: 111
 identifier: grave_wisp
-level-min: 32
-level-max: 36
+level-min: 31
+level-max: 37
 name: "Grave Wisp"
 description: >-
   A cold flame over a grave nobody dug. It drifts toward anyone who comes near and drinks their warmth.
@@ -13,11 +13,11 @@ essence: { group: GARMENT, effect: MIST_VEIL }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.22
+attack-power: 0.25
 weight: 15
-health: 155
+health: 179
 mana: 199
-experience: 154
+experience: 152
 attributes: { strength: 1, intelligence: 53, vitality: 14, dexterity: 1, willpower: 36, agility: 14 }
 learnset:
   - { skill: growl, level: 6 }
