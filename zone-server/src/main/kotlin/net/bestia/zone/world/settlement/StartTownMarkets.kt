@@ -3,6 +3,7 @@ package net.bestia.zone.world.settlement
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.civ.SettlementSpawnPoints
+import net.bestia.worldgen.vector.Vec2d
 import net.bestia.zone.world.MasterSpawnPointService
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
@@ -32,6 +33,8 @@ class StartTownMarkets(
 
   private val startTownIndexes: Set<Int> by lazy { startTowns().mapTo(HashSet()) { it.settlementIndex } }
 
+  private val startTownCentres: List<Vec2d> by lazy { startTowns().map { it.position } }
+
   fun isAuctionHouse(propId: Long): Boolean {
     return propId in townByHall
   }
@@ -42,6 +45,11 @@ class StartTownMarkets(
 
   fun isStartTown(settlementIndex: Int): Boolean {
     return settlementIndex in startTownIndexes
+  }
+
+  /** Where the start towns stand, in metres. */
+  fun startTownCentres(): List<Vec2d> {
+    return startTownCentres
   }
 
   /** The towns with a hall. They share one market. */
