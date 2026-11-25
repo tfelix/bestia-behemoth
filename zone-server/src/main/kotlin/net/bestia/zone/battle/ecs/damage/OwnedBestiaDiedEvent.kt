@@ -9,4 +9,5 @@ class OwnedBestiaDiedEvent(
   val accountId: Long,
   val masterId: Long,
   val playerBestiaId: PlayerBestiaId,
+  val lostForGood: Boolean = false,
 ) : BestiaEvent(source)

@@ -27,6 +27,8 @@ import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import net.bestia.zone.entity.ecs.Animation
 import net.bestia.zone.entity.ecs.Dead
+import net.bestia.zone.config.WorldRulesConfig
+import net.bestia.zone.identity.ecs.OwnedBestia
 
 /** Death tagging, that a body already on the ground is not killed a second time, and that no reported hit is lost. */
 class ReceivedDamageSystemTest {
@@ -147,6 +149,42 @@ class ReceivedDamageSystemTest {
   }
 
   @Test
+  fun `an owned bestia is lost for good only when the blow overkills it by its maximum HP`() {
+    val sut = ReceivedDamageSystem(bestiaOverkill = BestiaOverkill(WorldRulesConfig(tickRate = 20)))
+    // Inside a tick, so the deferred removal of each drained hit waits until every entity has been seen.
+    val world = testWorld(systems = listOf(sut))
+    val barelyKilled = world.ownedBestiaTaking(damage = 109, current = 10, max = 100)
+    val overkilled = world.ownedBestiaTaking(damage = 110, current = 10, max = 100)
+    val wild = world.createEntity { eid ->
+      add(eid, Health(current = 10, max = 100))
+      add(eid, IncomingDamage().also { it.add(500, sourceEntity = 99L) })
+    }
+
+    world.tick(0f)
+
+    assertFalse(world.getOrThrow(barelyKilled, Dead::class).lostForGood)
+    assertTrue(world.getOrThrow(overkilled, Dead::class).lostForGood)
+    assertFalse(world.getOrThrow(wild, Dead::class).lostForGood)
+  }
+
+  @Test
+  fun `a bestia that lives through the blow is never overkilled`() {
+    val lastStand = object : DamageReactions by DamageReactions.NONE {
+      override fun survivesLethalDamage(world: World, targetId: EntityId): Boolean {
+        return true
+      }
+    }
+    val sut = ReceivedDamageSystem(reactions = lastStand, bestiaOverkill = BestiaOverkill(WorldRulesConfig(tickRate = 20)))
+    val world = testWorld()
+    val bestia = world.ownedBestiaTaking(damage = 1000, current = 10, max = 100)
+
+    sut.update(world, 0f)
+    world.tick(0f)
+
+    assertFalse(world.has(bestia, Dead::class))
+  }
+
+  @Test
   fun `a hit stands a sitting entity up`() {
     val world = testWorld()
     val id = world.createEntity { eid ->
@@ -158,6 +196,14 @@ class ReceivedDamageSystemTest {
     sut.update(world, 0f)
 
     assertEquals(Animation.AnimationKind.IDLE, world.getOrThrow(id, Animation::class).currentAnimation)
+  }
+
+  private fun World.ownedBestiaTaking(damage: Int, current: Int, max: Int): EntityId {
+    return createEntity { eid ->
+      add(eid, Health(current = current, max = max))
+      add(eid, OwnedBestia(masterId = 1L, playerBestiaId = eid))
+      add(eid, IncomingDamage().also { it.add(damage, sourceEntity = 99L) })
+    }
   }
 
   private fun World.spawnFighter(at: Vec3L): EntityId {

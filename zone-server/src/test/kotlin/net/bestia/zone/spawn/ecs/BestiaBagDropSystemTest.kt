@@ -127,6 +127,19 @@ class BestiaBagDropSystemTest {
     verify { spawner.spawnLootItem(world, ARROW, 10, Vec3L(5, 6, 0), uniqueId = 0L, lootOwner = KILLER_ACCOUNT) }
   }
 
+  @Test
+  fun `a bestia lost for good before the database answers still drops its bag`() {
+    databaseGivesUpTheBag()
+    killedBy(KILLER_ACCOUNT)
+
+    sut.update(world, 0f)
+    world.destroy(bestia)
+    runJobs()
+
+    verify { spawner.spawnLootItem(world, ARROW, 10, Vec3L(5, 6, 0), uniqueId = 0L, lootOwner = KILLER_ACCOUNT) }
+    verify { spawner.spawnLootItem(world, SWORD, 1, Vec3L(5, 6, 0), uniqueId = SWORD_INSTANCE, lootOwner = KILLER_ACCOUNT) }
+  }
+
   /** Worn gear and promised items are left in the container by the database, so they stay in the live bag too. */
   @Test
   fun `what the database keeps stays in the bag`() {

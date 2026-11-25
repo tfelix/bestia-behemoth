@@ -13,6 +13,8 @@ data class WorldRulesConfig(
   val deathExpLossFraction: Float = 0.01f,
   /** Share of its maximum durability, in percent, each worn piece of a player-owned entity loses when it dies. */
   val deathWearPercent: Int = 10,
+  /** Overkill, as a share of its maximum HP, that loses an owned bestia for good. Still to be balanced. */
+  val bestiaLossOverkillShare: Float = 1f,
   /** Longest path one move message may carry. The client sends legs of at most 24 tiles. */
   val maxMovePathSteps: Int = 64,
   /** How long a dropped plain item lies on the ground before it is gone. Real time, not Bestia time. */

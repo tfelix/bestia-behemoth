@@ -20,8 +20,8 @@ data class Notification(val title: String, val body: String, val url: String, va
         )
 
         is ZoneEvent.BestiaDiedAway -> Notification(
-          title = "${event.bestiaName ?: event.species} was killed",
-          body = "It lies where it fell until you return.",
+          title = "${event.bestiaName ?: event.species} was ${if (event.lostForGood) "lost for good" else "killed"}",
+          body = if (event.lostForGood) "Its gear waits at your post office." else "It lies where it fell until you return.",
           url = "/m/${event.masterId}/bestia",
           tag = "bestia-${event.playerBestiaId}",
         )
