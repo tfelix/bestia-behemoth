@@ -136,6 +136,7 @@ namespace BestiaBehemothClient.Game.World
         "GEM_CUT_STATION" => 87,
         "TRANSMUTATION_WORKBENCH" => 88,
         "BESTIA_CENTER" => 92,
+        "CARVING_TABLE" => 93,
         "INN" => 102,
         "OBSERVATION_OUTPOST" => 104,
         "STRUCTURE_WALL" => Mesh.StructurePieces.Wall,
