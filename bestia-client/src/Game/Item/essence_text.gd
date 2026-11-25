@@ -65,6 +65,24 @@ static func min_item_level(bestia: BestiaResource, tier: String) -> int:
 	return maxi(gem_level, bestia.level_min - _BOSS_LEVEL_MARGIN)
 
 
+## The species whose name or essence effect contains [param text], as the auction search sends them. Empty for
+## empty text.
+static func species_matching(text: String) -> Array[int]:
+	var ids: Array[int] = []
+	if text.is_empty():
+		return ids
+
+	var needle := text.to_lower()
+	for bestia in BestiaDB.get_instance().all_bestias():
+		if bestia.essence_effect.is_empty():
+			continue
+		var species_name := _translate(bestia.name_key).to_lower()
+		var effect_name := _translate("ESSENCE_NAME_" + bestia.essence_effect).to_lower()
+		if species_name.contains(needle) or effect_name.contains(needle):
+			ids.append(bestia.bestia_id)
+	return ids
+
+
 ## The socket group of [param item], or empty for an item no essence fits. Mirrors the server's SocketGroup.of.
 static func group_of(item: ItemResource) -> String:
 	if not item.tool_kind.is_empty():

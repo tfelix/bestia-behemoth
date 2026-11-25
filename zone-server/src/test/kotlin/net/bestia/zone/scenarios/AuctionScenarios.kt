@@ -41,6 +41,10 @@ import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.settlement.SettlementSiteIndex
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
+import net.bestia.zone.item.essence.Essence
+import net.bestia.zone.item.essence.GemTier
+import net.bestia.zone.item.stat.ItemRoll
+import net.bestia.zone.item.container.InventoryService
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -94,6 +98,9 @@ class AuctionScenarios : BestiaNoSocketScenario() {
 
   @Autowired
   private lateinit var transactionManager: PlatformTransactionManager
+
+  @Autowired
+  private lateinit var inventoryService: InventoryService
 
   private val player get() = clientPlayer1.connectedPlayerId
 
@@ -185,6 +192,21 @@ class AuctionScenarios : BestiaNoSocketScenario() {
     assertEquals(1, search(AuctionCategory.CONSUMABLE, itemIds = emptyList()).listings.size)
     assertEquals(1, search(null, itemIds = listOf(apple)).listings.size)
     assertEquals(0, search(AuctionCategory.WEAPON, itemIds = emptyList()).listings.size)
+  }
+
+  @Test
+  fun `an essence search finds a gem that holds the essence and an item it is socketed into`() {
+    val ruby = Essence(bestiaId = BOAR, tier = GemTier.RUBY)
+    listCopy("essence_gem", ItemRoll(emptyList(), sockets = 0, itemLevel = 1, heldEssence = ruby))
+    val pickaxe = listCopy("pickaxe", ItemRoll(emptyList(), sockets = 1, itemLevel = 12)) { uniqueId ->
+      val masterId = connectionInfoService.getMasterId(player)
+      assertTrue(inventoryService.socket(masterId, uniqueId, null, Essence(HARE, GemTier.EMERALD)))
+    }
+
+    assertEquals(2, searchEssence(emptyList(), null).listings.size)
+    assertEquals(1, searchEssence(listOf(BOAR), GemTier.RUBY).listings.size)
+    assertEquals(listOf(pickaxe), searchEssence(listOf(HARE), null).listings.map { it.goods.itemId })
+    assertEquals(0, searchEssence(listOf(BOAR), GemTier.EMERALD).listings.size)
   }
 
   @Test
@@ -345,6 +367,39 @@ class AuctionScenarios : BestiaNoSocketScenario() {
     return awaitListings { it.mine && it.listings.isNotEmpty() }.listings.single().listingId
   }
 
+  /**
+   * Lists one new copy of [identifier] rolled as [roll], after [prepare] had the copy's unique id.
+   *
+   * @return the item id
+   */
+  private fun listCopy(identifier: String, roll: ItemRoll, prepare: (Long) -> Unit = {}): Long {
+    val itemId = itemRepository.findByIdentifierOrThrow(identifier).id
+    val before = durableAmount(itemId)
+    world.modify(masterEntity()) { id -> add(id, ObtainItemIntent.CreateItemIntent(itemId, 1, roll)) }
+    await { assertTrue(durableAmount(itemId) > before) }
+    grant(commodityItems.coinItemId()!!, AuctionFees.listingFee(ESSENCE_PRICE).toInt())
+
+    val copy = world.read {
+      get(masterEntity(), Inventory::class)!!.getItems().last { it.itemId == itemId }
+    }
+    prepare(copy.uniqueId)
+    clientPlayer1.clearMessages()
+    clientPlayer1.sendMessage(ListAuctionItemCMSG(player, house, copy.playerItemId, 1, ListingTerms(ESSENCE_PRICE)))
+    awaitListings { page -> page.mine && page.listings.any { it.goods.itemId == itemId } }
+
+    return itemId
+  }
+
+  private fun searchEssence(bestiaIds: List<Long>, tier: GemTier?): AuctionListingsSMSG {
+    clientPlayer1.clearMessages()
+    val essence = AuctionQuery.EssenceFilter(bestiaIds, tier)
+    clientPlayer1.sendMessage(
+      SearchAuctionsCMSG(player, AuctionQuery(house, null, 0, 0, emptyList(), mine = false, page = 0, essence))
+    )
+
+    return awaitListings { !it.mine }
+  }
+
   private fun search(category: AuctionCategory?, itemIds: List<Long>): AuctionListingsSMSG {
     clientPlayer1.clearMessages()
     clientPlayer1.sendMessage(
@@ -403,5 +458,11 @@ class AuctionScenarios : BestiaNoSocketScenario() {
     var result: T? = null
     await { result = fn() }
     return result!!
+  }
+
+  private companion object {
+    const val BOAR = 6L
+    const val HARE = 7L
+    const val ESSENCE_PRICE = 500L
   }
 }

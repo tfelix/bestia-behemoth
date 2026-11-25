@@ -9,6 +9,9 @@ extends VBoxContainer
 ## The most item ids a name search sends; a name that matches more is too short to mean anything.
 const _MAX_NAME_MATCHES := 200
 
+## The gems an essence filter may ask for, after "any".
+const _GEM_TIERS := ["AMETHYST", "EMERALD", "RUBY", "PYRELITH", "DIAMOND"]
+
 ## Mirrors the server's AuctionCategory; 0 is any.
 const _CATEGORIES := ["AUCTION_CATEGORY_ANY", "AUCTION_CATEGORY_WEAPON", "AUCTION_CATEGORY_ARMOR",
 	"AUCTION_CATEGORY_ACCESSORY", "AUCTION_CATEGORY_CONSUMABLE", "AUCTION_CATEGORY_MATERIAL"]
@@ -23,6 +26,8 @@ var _name: LineEdit
 var _category: OptionButton
 var _min_level: SpinBox
 var _max_level: SpinBox
+var _essence: LineEdit
+var _essence_tier: OptionButton
 var _rows: VBoxContainer
 var _empty: Label
 var _page_label: Label
@@ -58,13 +63,18 @@ func _request(page: int) -> void:
 		return
 
 	var item_ids := _matching_item_ids(_name.text.strip_edges())
+	var essence_text := _essence.text.strip_edges()
+	var essence_species := EssenceText.species_matching(essence_text)
 	# A name that matches nothing has to find nothing, not everything.
-	if not _name.text.strip_edges().is_empty() and item_ids.is_empty():
+	var name_finds_nothing := not _name.text.strip_edges().is_empty() and item_ids.is_empty()
+	if name_finds_nothing or (not essence_text.is_empty() and essence_species.is_empty()):
 		_show([], 0, 0)
 		return
 
+	var essence_tier: String = "" if _essence_tier.selected <= 0 else _GEM_TIERS[_essence_tier.selected - 1]
 	ConnectionManager.search_auctions(
-		house_entity_id, _category.selected, int(_min_level.value), int(_max_level.value), item_ids, false, page
+		house_entity_id, _category.selected, int(_min_level.value), int(_max_level.value), item_ids, false, page,
+		not essence_text.is_empty() or not essence_tier.is_empty(), essence_species, essence_tier
 	)
 
 
@@ -174,6 +184,8 @@ func _build() -> void:
 	search_button.pressed.connect(search)
 	filters.add_child(search_button)
 
+	_build_essence_filter()
+
 	add_child(AuctionListingRow.header())
 
 	var scroll := ScrollContainer.new()
@@ -225,6 +237,26 @@ func _build() -> void:
 	add_child(_bid_dialog)
 
 	_show([], 0, 0)
+
+
+## A second row: the essence a good has to hold, socketed or in a gem, by species or effect, and its gem.
+func _build_essence_filter() -> void:
+	var row := UiStyle.hbox(6)
+	add_child(row)
+
+	row.add_child(UiStyle.label(tr("AUCTION_ESSENCE"), 12, UiStyle.MUTED))
+	_essence = LineEdit.new()
+	_essence.placeholder_text = tr("AUCTION_ESSENCE_PLACEHOLDER")
+	_essence.clear_button_enabled = true
+	_essence.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_essence.text_submitted.connect(func(_text: String) -> void: search())
+	row.add_child(_essence)
+
+	_essence_tier = OptionButton.new()
+	_essence_tier.add_item(tr("AUCTION_ESSENCE_ANY_GEM"))
+	for tier in _GEM_TIERS:
+		_essence_tier.add_item(tr("GEM_TIER_" + tier))
+	row.add_child(_essence_tier)
 
 
 func _level_box() -> SpinBox:

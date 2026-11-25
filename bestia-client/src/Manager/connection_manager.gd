@@ -1034,9 +1034,12 @@ func shop_quote(merchant_entity_id: int, lines: Array[ShopLine]) -> void:
 	_socket.SendMessage(msg)
 
 
-## Asks one page of the market at [param house_entity_id]. Answered by an AuctionListingsSMSG.
+## Asks one page of the market at [param house_entity_id]. Answered by an AuctionListingsSMSG. With
+## [param with_essence], only goods holding an essence of [param essence_bestia_ids] (empty: any species) in
+## [param essence_tier] (empty: any gem).
 func search_auctions(
-	house_entity_id: int, category: int, min_level: int, max_level: int, item_ids: Array[int], mine: bool, page: int
+	house_entity_id: int, category: int, min_level: int, max_level: int, item_ids: Array[int], mine: bool, page: int,
+	with_essence := false, essence_bestia_ids: Array[int] = [], essence_tier := ""
 ) -> void:
 	assert(is_ready_to_send())
 	var msg = SearchAuctionsCMSG.new()
@@ -1047,6 +1050,9 @@ func search_auctions(
 	msg.ItemIds = item_ids
 	msg.Mine = mine
 	msg.Page = page
+	msg.WithEssence = with_essence
+	msg.EssenceBestiaIds = essence_bestia_ids
+	msg.EssenceTier = essence_tier
 	_socket.SendMessage(msg)
 
 

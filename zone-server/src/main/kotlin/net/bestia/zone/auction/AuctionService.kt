@@ -168,6 +168,7 @@ class AuctionService(
 
     val seller = if (query.mine) connectionInfoService.getMasterId(accountId) else null
     val itemIds = query.itemIds.take(MAX_ITEM_IDS)
+    val essence = query.essence
 
     val page = transactions.execute {
       val found = listings.search(
@@ -177,6 +178,10 @@ class AuctionService(
         anyItem = itemIds.isEmpty(),
         itemIds = itemIds.ifEmpty { listOf(NO_ITEM) },
         sellerMasterId = seller,
+        withEssence = essence != null,
+        anyEssenceSpecies = essence?.bestiaIds.isNullOrEmpty(),
+        essenceBestiaIds = essence?.bestiaIds.orEmpty().take(MAX_ITEM_IDS).ifEmpty { listOf(NO_ITEM) },
+        essenceTier = essence?.tier,
         now = clock.instant(),
         startTowns = shown.startTowns,
         houseIds = shown.houseIds.ifEmpty { listOf(NO_HOUSE) },

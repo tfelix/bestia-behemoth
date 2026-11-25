@@ -26,16 +26,17 @@ namespace Bnet {
           string.Concat(
             "CittZXNzYWdlcy9hdWN0aW9uL3NlYXJjaF9hdWN0aW9uc19jbXNnLnByb3Rv",
             "EgRibmV0GidtZXNzYWdlcy9hdWN0aW9uL2F1Y3Rpb25fY2F0ZWdvcnkucHJv",
-            "dG8iqgEKElNlYXJjaEF1Y3Rpb25zQ01TRxIXCg9ob3VzZV9lbnRpdHlfaWQY",
+            "dG8i8gEKElNlYXJjaEF1Y3Rpb25zQ01TRxIXCg9ob3VzZV9lbnRpdHlfaWQY",
             "ASABKAQSJwoIY2F0ZWdvcnkYAiABKA4yFS5ibmV0LkF1Y3Rpb25DYXRlZ29y",
             "eRIRCgltaW5fbGV2ZWwYAyABKAUSEQoJbWF4X2xldmVsGAQgASgFEhAKCGl0",
-            "ZW1faWRzGAUgAygEEgwKBG1pbmUYBiABKAgSDAoEcGFnZRgHIAEoBUIwChVu",
-            "ZXQuYmVzdGlhLmJuZXQucHJvdG9CF1NlYXJjaEF1Y3Rpb25zQ21zZ1Byb3Rv",
-            "YgZwcm90bzM="));
+            "ZW1faWRzGAUgAygEEgwKBG1pbmUYBiABKAgSDAoEcGFnZRgHIAEoBRIUCgx3",
+            "aXRoX2Vzc2VuY2UYCCABKAgSGgoSZXNzZW5jZV9iZXN0aWFfaWRzGAkgAygE",
+            "EhQKDGVzc2VuY2VfdGllchgKIAEoCUIwChVuZXQuYmVzdGlhLmJuZXQucHJv",
+            "dG9CF1NlYXJjaEF1Y3Rpb25zQ21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.AuctionCategoryReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SearchAuctionsCMSG), global::Bnet.SearchAuctionsCMSG.Parser, new[]{ "HouseEntityId", "Category", "MinLevel", "MaxLevel", "ItemIds", "Mine", "Page" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SearchAuctionsCMSG), global::Bnet.SearchAuctionsCMSG.Parser, new[]{ "HouseEntityId", "Category", "MinLevel", "MaxLevel", "ItemIds", "Mine", "Page", "WithEssence", "EssenceBestiaIds", "EssenceTier" }, null, null, null, null)
           }));
     }
     #endregion
@@ -87,6 +88,9 @@ namespace Bnet {
       itemIds_ = other.itemIds_.Clone();
       mine_ = other.mine_;
       page_ = other.page_;
+      withEssence_ = other.withEssence_;
+      essenceBestiaIds_ = other.essenceBestiaIds_.Clone();
+      essenceTier_ = other.essenceTier_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -191,6 +195,51 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "with_essence" field.</summary>
+    public const int WithEssenceFieldNumber = 8;
+    private bool withEssence_;
+    /// <summary>
+    /// Only goods that hold an essence, socketed or in a gem.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool WithEssence {
+      get { return withEssence_; }
+      set {
+        withEssence_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "essence_bestia_ids" field.</summary>
+    public const int EssenceBestiaIdsFieldNumber = 9;
+    private static readonly pb::FieldCodec<ulong> _repeated_essenceBestiaIds_codec
+        = pb::FieldCodec.ForUInt64(74);
+    private readonly pbc::RepeatedField<ulong> essenceBestiaIds_ = new pbc::RepeatedField<ulong>();
+    /// <summary>
+    /// The species that essence may be of. Names and effects live on the client, so they arrive as species. Empty
+    /// means any species.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<ulong> EssenceBestiaIds {
+      get { return essenceBestiaIds_; }
+    }
+
+    /// <summary>Field number for the "essence_tier" field.</summary>
+    public const int EssenceTierFieldNumber = 10;
+    private string essenceTier_ = "";
+    /// <summary>
+    /// A GemTier name. Empty means any gem.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string EssenceTier {
+      get { return essenceTier_; }
+      set {
+        essenceTier_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -213,6 +262,9 @@ namespace Bnet {
       if(!itemIds_.Equals(other.itemIds_)) return false;
       if (Mine != other.Mine) return false;
       if (Page != other.Page) return false;
+      if (WithEssence != other.WithEssence) return false;
+      if(!essenceBestiaIds_.Equals(other.essenceBestiaIds_)) return false;
+      if (EssenceTier != other.EssenceTier) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -227,6 +279,9 @@ namespace Bnet {
       hash ^= itemIds_.GetHashCode();
       if (Mine != false) hash ^= Mine.GetHashCode();
       if (Page != 0) hash ^= Page.GetHashCode();
+      if (WithEssence != false) hash ^= WithEssence.GetHashCode();
+      hash ^= essenceBestiaIds_.GetHashCode();
+      if (EssenceTier.Length != 0) hash ^= EssenceTier.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -270,6 +325,15 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteInt32(Page);
       }
+      if (WithEssence != false) {
+        output.WriteRawTag(64);
+        output.WriteBool(WithEssence);
+      }
+      essenceBestiaIds_.WriteTo(output, _repeated_essenceBestiaIds_codec);
+      if (EssenceTier.Length != 0) {
+        output.WriteRawTag(82);
+        output.WriteString(EssenceTier);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -305,6 +369,15 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteInt32(Page);
       }
+      if (WithEssence != false) {
+        output.WriteRawTag(64);
+        output.WriteBool(WithEssence);
+      }
+      essenceBestiaIds_.WriteTo(ref output, _repeated_essenceBestiaIds_codec);
+      if (EssenceTier.Length != 0) {
+        output.WriteRawTag(82);
+        output.WriteString(EssenceTier);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -333,6 +406,13 @@ namespace Bnet {
       }
       if (Page != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Page);
+      }
+      if (WithEssence != false) {
+        size += 1 + 1;
+      }
+      size += essenceBestiaIds_.CalculateSize(_repeated_essenceBestiaIds_codec);
+      if (EssenceTier.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(EssenceTier);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -364,6 +444,13 @@ namespace Bnet {
       }
       if (other.Page != 0) {
         Page = other.Page;
+      }
+      if (other.WithEssence != false) {
+        WithEssence = other.WithEssence;
+      }
+      essenceBestiaIds_.Add(other.essenceBestiaIds_);
+      if (other.EssenceTier.Length != 0) {
+        EssenceTier = other.EssenceTier;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -413,6 +500,19 @@ namespace Bnet {
             Page = input.ReadInt32();
             break;
           }
+          case 64: {
+            WithEssence = input.ReadBool();
+            break;
+          }
+          case 74:
+          case 72: {
+            essenceBestiaIds_.AddEntriesFrom(input, _repeated_essenceBestiaIds_codec);
+            break;
+          }
+          case 82: {
+            EssenceTier = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -459,6 +559,19 @@ namespace Bnet {
           }
           case 56: {
             Page = input.ReadInt32();
+            break;
+          }
+          case 64: {
+            WithEssence = input.ReadBool();
+            break;
+          }
+          case 74:
+          case 72: {
+            essenceBestiaIds_.AddEntriesFrom(ref input, _repeated_essenceBestiaIds_codec);
+            break;
+          }
+          case 82: {
+            EssenceTier = input.ReadString();
             break;
           }
         }
