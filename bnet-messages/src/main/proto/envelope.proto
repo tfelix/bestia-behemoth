@@ -225,6 +225,9 @@ import "messages/stronghold/stronghold_smsg.proto";
 import "messages/stronghold/stronghold_tab_cmsg.proto";
 import "messages/stronghold/stronghold_tab_smsg.proto";
 import "messages/system/announcement_smsg.proto";
+import "messages/inn/inn_smsg.proto";
+import "messages/inn/set_inn_save_point_cmsg.proto";
+import "messages/inn/tend_bestias_cmsg.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EnvelopeProto";
@@ -520,6 +523,11 @@ message Envelope {
 
     // SYSTEM
     AnnouncementSMSG announcement = 989;
+
+    // INN 990
+    InnSMSG inn = 990;
+    SetInnSavePointCMSG set_inn_save_point = 991;
+    TendBestiasCMSG tend_bestias = 992;
 
     // MISC
   }

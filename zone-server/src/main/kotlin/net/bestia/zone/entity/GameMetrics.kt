@@ -64,6 +64,9 @@ class GameMetrics(private val registry: MeterRegistry = SimpleMeterRegistry()) {
 
     /** What a member pays to plant an Empyrite. */
     STRONGHOLD,
+
+    /** What an inn takes for tending a master's bestias. */
+    LODGING,
   }
 
   private val hits = Counter.builder("zone.combat.hits")

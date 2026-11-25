@@ -58,6 +58,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Stronghold/Stronghold.tscn" id="97_stronghold"]
 [ext_resource type="PackedScene" path="res://Game/UI/Announcement/AnnouncementBanner.tscn" id="98_announce"]
 [ext_resource type="PackedScene" path="res://Game/UI/BestiaStorage/BestiaStoragePanel.tscn" id="99_bestiastorage"]
+[ext_resource type="PackedScene" path="res://Game/UI/Inn/InnPanel.tscn" id="100_inn"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -223,6 +224,12 @@ visible = false
 layout_mode = 1
 content = ExtResource("99_bestiastorage")
 window_title = "Bestia Storage"
+
+[node name="InnWin" parent="." instance=ExtResource("8_wdgtw")]
+visible = false
+layout_mode = 1
+content = ExtResource("100_inn")
+window_title = "Inn"
 
 [node name="BlackboardWin" parent="." instance=ExtResource("8_wdgtw")]
 visible = false

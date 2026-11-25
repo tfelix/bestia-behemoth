@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrqOgoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqaOwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -193,8 +193,10 @@ namespace Bnet {
             "QkxFEK4DEhgKE0JFU1RJQV9OQU1FX0lOVkFMSUQQrwMSEgoNQkVTVElBX1VO",
             "UlVMWRCwAxIfChpUUkFERV9CRVNUSUFfQ0FSUklFU19JVEVNUxCxAxIdChhU",
             "UkFERV9CRVNUSUFfVU5BVkFJTEFCTEUQsgMSGQoUVFJBREVfQkVTVElBX05P",
-            "X1JPT00QswMiBAguEC4qElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQuYmVz",
-            "dGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
+            "X1JPT00QswMSFgoRSU5OX0NBTk5PVF9BRkZPUkQQtAMSFgoRSU5OX1BSSUNF",
+            "X0NIQU5HRUQQtQMiBAguEC4qElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQu",
+            "YmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3Rv",
+            "Mw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1241,6 +1243,14 @@ namespace Bnet {
     /// args[0]: the receiving master's name.
     /// </summary>
     [pbr::OriginalName("TRADE_BESTIA_NO_ROOM")] TradeBestiaNoRoom = 435,
+    /// <summary>
+    /// The master does not carry the coins the inn asks for tending the bestias. args[0]: the price.
+    /// </summary>
+    [pbr::OriginalName("INN_CANNOT_AFFORD")] InnCannotAfford = 436,
+    /// <summary>
+    /// A bestia took damage since the price was named, so tending costs more now. The window shows the new price.
+    /// </summary>
+    [pbr::OriginalName("INN_PRICE_CHANGED")] InnPriceChanged = 437,
   }
 
   #endregion

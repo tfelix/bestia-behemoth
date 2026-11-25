@@ -120,6 +120,7 @@ signal guild_message_received(message: GuildSMSG)
 signal compendium_received(message: CompendiumSMSG)
 ## The selected master's bestia storage: on request, at a keeper's counter, and after every summon, swap or release.
 signal bestia_storage_received(message: BestiaStorageSMSG)
+signal inn_received(message: InnSMSG)
 ## Emitted whenever the server re-syncs the pending logout countdown (seconds until despawn).
 signal logout_countdown_received(remaining_seconds: float)
 ## Emitted when the server aborts a pending logout (player moved / used a skill / took damage).
@@ -262,6 +263,8 @@ var OpenBestiaStorageCMSG = load("res://Bnet/Message/BestiaStorage/OpenBestiaSto
 var SummonStoredBestiaCMSG = load("res://Bnet/Message/BestiaStorage/SummonStoredBestiaCMSG.cs")
 var SwapStoredBestiaCMSG = load("res://Bnet/Message/BestiaStorage/SwapStoredBestiaCMSG.cs")
 var ReleaseStoredBestiaCMSG = load("res://Bnet/Message/BestiaStorage/ReleaseStoredBestiaCMSG.cs")
+var SetInnSavePointCMSG = load("res://Bnet/Message/Inn/SetInnSavePointCMSG.cs")
+var TendBestiasCMSG = load("res://Bnet/Message/Inn/TendBestiasCMSG.cs")
 var CreateGuildCMSG = load("res://Bnet/Message/Guild/CreateGuildCMSG.cs")
 var InviteToGuildCMSG = load("res://Bnet/Message/Guild/InviteToGuildCMSG.cs")
 var AnswerGuildInviteCMSG = load("res://Bnet/Message/Guild/AnswerGuildInviteCMSG.cs")
@@ -1517,6 +1520,23 @@ func release_stored_bestia(player_bestia_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Makes the inn at [param counter_entity_id] the master's save point; answered with a fresh InnSMSG.
+func set_inn_save_point(counter_entity_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = SetInnSavePointCMSG.new()
+	msg.CounterEntityId = counter_entity_id
+	_socket.SendMessage(msg)
+
+
+## Pays the inn to tend every bestia, at no more than [param expected_price].
+func tend_bestias(counter_entity_id: int, expected_price: int) -> void:
+	assert(is_ready_to_send())
+	var msg = TendBestiasCMSG.new()
+	msg.CounterEntityId = counter_entity_id
+	msg.ExpectedPrice = expected_price
+	_socket.SendMessage(msg)
+
+
 ## Founds a guild named [param guild_name], spending a Founder's Seal from the master's bag.
 func create_guild(guild_name: String) -> void:
 	assert(is_ready_to_send())
@@ -1962,6 +1982,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		compendium_received.emit(message)
 	elif message is BestiaStorageSMSG:
 		bestia_storage_received.emit(message)
+	elif message is InnSMSG:
+		inn_received.emit(message)
 	elif message is MapSMSG:
 		# Terrain traffic. ChunkStreamManager subscribes to MessageReceived itself, and a signal fans out to
 		# every listener, so these reach this handler too and have to be ignored rather than reported.

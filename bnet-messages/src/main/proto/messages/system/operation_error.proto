@@ -628,6 +628,10 @@ enum OpError {
   // The bestia found no free party or storage slot with its new owner, so nothing changed hands.
   // args[0]: the receiving master's name.
   TRADE_BESTIA_NO_ROOM = 435;
+  // The master does not carry the coins the inn asks for tending the bestias. args[0]: the price.
+  INN_CANNOT_AFFORD = 436;
+  // A bestia took damage since the price was named, so tending costs more now. The window shows the new price.
+  INN_PRICE_CHANGED = 437;
 }
 
 message OperationError {
