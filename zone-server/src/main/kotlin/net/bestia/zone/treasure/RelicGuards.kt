@@ -37,6 +37,7 @@ class RelicGuards(
     val position: Vec3L,
     val pack: Int,
     val range: Int,
+    val boss: Boolean,
   )
 
   /** Boot only. */
@@ -56,6 +57,7 @@ class RelicGuards(
             maxSpawnCount = guard.pack,
             position = guard.position,
             range = guard.range,
+            respawnSeconds = Spawner.BOSS_RESPAWN_SECONDS.takeIf { guard.boss },
           )
         )
       }
@@ -97,6 +99,7 @@ class RelicGuards(
               z = ChunkCoords.standingZ(config, ground)
             ),
             pack = if (guard.species.boss) 1 else BAND,
+            boss = guard.species.boss,
             range = site.attribute(SiteChannels.RADIUS).roundToInt().coerceIn(1, Spawner.DEFAULT_ACTIVATION_RANGE),
           )
         }

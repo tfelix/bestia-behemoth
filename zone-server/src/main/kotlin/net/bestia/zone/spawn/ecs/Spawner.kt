@@ -69,5 +69,8 @@ class Spawner(
   companion object {
     /** Roughly three chunks beyond a typical view radius, in world units. */
     const val DEFAULT_ACTIVATION_RANGE = 220
+
+    /** Half an hour to an hour for a den's boss, killed or caught; a world boss waits longer. */
+    val BOSS_RESPAWN_SECONDS = 1800f..3600f
   }
 }

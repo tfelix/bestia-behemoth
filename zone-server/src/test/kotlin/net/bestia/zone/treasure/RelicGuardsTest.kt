@@ -39,8 +39,8 @@ class RelicGuardsTest {
   fun `a boss guards alone and anything less comes as a band`() {
     val bosses = undeadAtEveryLevel().map { it.also { species -> species.boss = true } }
 
-    assertTrue(RelicGuards.guardsOf(world, WORLD_ID, bosses).all { it.pack == 1 })
-    assertTrue(RelicGuards.guardsOf(world, WORLD_ID, undeadAtEveryLevel()).all { it.pack > 1 })
+    assertTrue(RelicGuards.guardsOf(world, WORLD_ID, bosses).all { it.pack == 1 && it.boss })
+    assertTrue(RelicGuards.guardsOf(world, WORLD_ID, undeadAtEveryLevel()).all { it.pack > 1 && !it.boss })
   }
 
   private fun undeadAtEveryLevel() = (1..20).map { undead(id = it.toLong(), level = it * 5) }

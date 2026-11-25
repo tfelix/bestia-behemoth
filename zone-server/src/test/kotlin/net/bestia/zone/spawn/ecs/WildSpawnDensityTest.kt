@@ -95,6 +95,12 @@ class WildSpawnDensityTest {
       generated, config.seed, WORLD_ID, shipped.map(::Candidate), spawnConfig
     )
 
+    val bossId = shipped.single { it.boss }.id
+    assertTrue(
+      stocking.dens.all { den -> den.respawnSeconds == Spawner.BOSS_RESPAWN_SECONDS.takeIf { den.bestiaId == bossId } },
+      "a boss den waits before its boss comes back, and an ordinary den does not"
+    )
+
     // Derived from the real configs rather than restated, so the test cannot drift away from what the client
     // is actually streamed.
     val stream = ChunkStreamConfig()
