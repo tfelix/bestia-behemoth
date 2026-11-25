@@ -1649,3 +1649,7 @@ ARMOR_REPAIR_KIT,Armor Repair Kit
 ARMOR_REPAIR_KIT_DESC,"A leather roll with iron plates, rivets, a punch and spare straps to patch a suit of armour.
 
 Use it on damaged armour, held or worn, to restore its full durability."
+INN_KIT,Inn Kit
+INN_KIT_DESC,"Beds, a long table, a hearth and a sign with a tankard on it, lashed onto a sledge.
+
+Set it down inside a town without an inn. Masters make it their save point once it is built."

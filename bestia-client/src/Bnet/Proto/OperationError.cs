@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSqaOwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqrOwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -194,9 +194,9 @@ namespace Bnet {
             "UlVMWRCwAxIfChpUUkFERV9CRVNUSUFfQ0FSUklFU19JVEVNUxCxAxIdChhU",
             "UkFERV9CRVNUSUFfVU5BVkFJTEFCTEUQsgMSGQoUVFJBREVfQkVTVElBX05P",
             "X1JPT00QswMSFgoRSU5OX0NBTk5PVF9BRkZPUkQQtAMSFgoRSU5OX1BSSUNF",
-            "X0NIQU5HRUQQtQMiBAguEC4qElNIT1BfVFJFQVNVUllfRlVMTEIsChVuZXQu",
-            "YmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3Rv",
-            "Mw=="));
+            "X0NIQU5HRUQQtQMSDwoKSU5OX0NMT1NFRBC2AyIECC4QLioSU0hPUF9UUkVB",
+            "U1VSWV9GVUxMQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9u",
+            "RXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1251,6 +1251,10 @@ namespace Bnet {
     /// A bestia took damage since the price was named, so tending costs more now. The window shows the new price.
     /// </summary>
     [pbr::OriginalName("INN_PRICE_CHANGED")] InnPriceChanged = 437,
+    /// <summary>
+    /// A player-built inn works only while its town's sign stands.
+    /// </summary>
+    [pbr::OriginalName("INN_CLOSED")] InnClosed = 438,
   }
 
   #endregion

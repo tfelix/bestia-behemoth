@@ -222,7 +222,10 @@ enum class StaticEntityKind {
   OMEN_FUNGUS_RING,
 
   /** The gate of an open rift, an entity like the Empyrite so it can carry which rift it belongs to. */
-  RIFT_GATE;
+  RIFT_GATE,
+
+  /** A player town's inn, where masters set their save point and have their bestias tended. */
+  INN;
 
   /** A scar the mana left, which nothing may break. */
   val isOmen: Boolean get() = name.startsWith("OMEN_")

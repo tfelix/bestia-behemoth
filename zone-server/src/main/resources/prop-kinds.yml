@@ -636,6 +636,12 @@ kinds:
     collider: { half-x: 4, half-y: 3, height: 4 }
     variants: 1
 
+  # A player town's inn, built from a kit like the post office.
+  - kind: INN
+    max-hp: 800
+    collider: { half-x: 4, half-y: 3, height: 4 }
+    variants: 1
+
   # A town's quest board. Stands as an entity of its own once built, see `Blackboards`.
   - kind: BLACKBOARD
     max-hp: 300

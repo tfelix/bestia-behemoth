@@ -1780,6 +1780,18 @@ items:
 
       Set it down inside a town without a storage center. Masters keep their bestia there once it is built.
 
+  - id: 643
+    item-db-name: inn_kit
+    base-level: 30
+    weight: 1500
+    type: USABLE
+    material: WOOD
+    script: InnKitScript
+    description: |
+      Beds, a long table, a hearth and a sign with a tankard on it, lashed onto a sledge.
+
+      Set it down inside a town without an inn. Masters make it their save point once it is built.
+
   - id: 127
     item-db-name: auction_house_kit
     base-level: 50
