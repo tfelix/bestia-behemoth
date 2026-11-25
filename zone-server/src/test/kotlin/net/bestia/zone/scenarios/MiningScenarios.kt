@@ -166,13 +166,13 @@ class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
   @Order(4)
   fun `Rich Veins gives more iron or gem pieces than the rock holds`() {
     learn("M_RICH_VEINS", 5)
-    // Iron or a gem, which is what the skill reaches. The other metals are heavy enough that a rich voxel of them
-    // overflows a novice's pack and lands at their feet, which is not what this scenario is about.
+    // Iron or a gem, which is what the skill reaches. A novice's pack holds only a few pieces of iron, and what does
+    // not fit lands at the miner's feet: that is paid all the same, so the tally is the bag and the ground together.
     val spot = oreSpots.find(positionOf(miner())) { stack ->
       !stack.isCoinMetal && (stack.itemId == items.idOf("iron_ore") || items.templateOf(stack.itemId)?.material == ItemMaterial.CRYSTAL)
     }
     val itemId = oreSpots.itemAt(spot)
-    val before = amountOf(itemId)
+    val before = minedSoFar(itemId)
     var plain = 0
 
     // Half of all blocks pay a piece more, so a few swings are as good as certain to show one - if each swing reaches
@@ -183,8 +183,8 @@ class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
       standNextTo(at)
       client.sendMessage(DigCMSG(accountId, at))
       hurry(awaitValue { assertNotNull(world.read { get(miner(), MiningSwing::class) }) })
-      await { assertTrue(amountOf(itemId) - before >= plain, "swing $swing paid at least what the rock held") }
-      if (amountOf(itemId) - before > plain) return
+      await { assertTrue(minedSoFar(itemId) - before >= plain, "swing $swing paid at least what the rock held") }
+      if (minedSoFar(itemId) - before > plain) return
     }
 
     fail("$RICH_VEINS_SWINGS swings paid exactly the $plain pieces in the rock, never a piece more")
@@ -275,6 +275,19 @@ class MiningScenarios : BestiaNoSocketScenario(autoClientConnect = false) {
     world.read { query(GroundItemStack::class).each { _ -> if (get<GroundItemStack>().itemId == itemId) found++ } }
 
     return found
+  }
+
+  /** What mining has paid of [itemId]: in the bag, plus what did not fit and lies on the ground. */
+  private fun minedSoFar(itemId: Long): Int {
+    var onGround = 0
+    world.read {
+      query(GroundItemStack::class).each { _ ->
+        val stack = get<GroundItemStack>()
+        if (stack.itemId == itemId) onGround += stack.amount
+      }
+    }
+
+    return amountOf(itemId) + onGround
   }
 
   private fun amountOf(itemId: Long): Int {
