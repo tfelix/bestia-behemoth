@@ -382,6 +382,8 @@ mana:
     # The start towns' provinces drain added mana down to this density, half of the rest every few Bestia days.
     sanctuary-target: 0.3
     sanctuary-half-life-bestia-days: 3
+    # A place changes tier only after it stayed past the border this long, so it does not flicker.
+    tier-dwell-bestia-hours: 1
   # What each source releases, in motes (a thousandth of density on one 128 m cell). Set from how the field should
   # feel: ManaCalibrationTest replays the play behind each number.
   emission:
