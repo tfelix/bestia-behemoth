@@ -675,6 +675,21 @@ skills:
 
       `+1 km/lv` detection distance around the outpost
 
+  - id: 169
+    identifier: M_AUGURY
+    script: Augury
+    targetType: FRIENDLY
+    needsLineOfSight: false
+    manaCost: 10
+    castTime: 2.0
+    cooldown: 30
+    description: |
+      A quick reading of the omens around you, cast anywhere: is this land calm, uneasy or
+      ominous? It never says where something is, only how restless the land feels. A world event
+      brewing in a region makes it read worse than the mana alone would. Cooldown 30s.
+
+      `Lv1` your own region; `Lv2` whether a neighbouring region is worse; `Lv3` every neighbour by name
+
   # Founder sits in the Prospector sub-tree.
   - id: 49
     identifier: M_FOUNDER

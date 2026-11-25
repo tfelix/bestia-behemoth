@@ -43,6 +43,7 @@ class WorldEventDirector(
   private val ledger: ContributionLedger,
   private val rewards: ContractRewards,
   private val journal: ContributionJournal,
+  private val runningEvents: RunningEvents? = null,
 ) {
 
   @Scheduled(fixedDelay = RUN_EVERY_MS, initialDelay = RUN_EVERY_MS)
@@ -66,6 +67,8 @@ class WorldEventDirector(
       .forEach { signals -> maybeStart(signals, rows.getValue(signals.province.index), now) }
 
     journal.save()
+    // Positions are voxels, which are metres.
+    runningEvents?.replace(running().map { it.x.toDouble() to it.y.toDouble() })
   }
 
   /** Starts [entry] where [signals] say, whatever the budget, the quiet or the mana. For a GM. */

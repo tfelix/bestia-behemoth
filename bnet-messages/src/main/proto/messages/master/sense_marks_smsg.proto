@@ -43,4 +43,7 @@ enum SenseKind {
   // An awake Empyrite Seed, sensed by Official Guild Approval. The label is its name once the receiver discovered
   // it, else empty; ref_id is its rank.
   SENSE_EMPYRITE_SEED = 8;
+  // An Augury reading of a place region: the label is its name, ref_id how restless it is (0 calm, 1 uneasy,
+  // 2 ominous) or 3 for "a neighbouring region is worse", which has no name. The caster's own region is vague.
+  SENSE_OMEN = 9;
 }
