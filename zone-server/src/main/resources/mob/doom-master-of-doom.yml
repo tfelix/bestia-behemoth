@@ -10,6 +10,7 @@ description: >-
 kind: DEMON
 element: SHADOW_4
 size: BIG
+essence: { group: WEAPON, effect: BOSS, target: DOOM }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

@@ -243,6 +243,18 @@ class StatusValueRecalcContext(
   /** Shrugs off every harmful status effect, not just the ones in [statusImmunities]. */
   var immuneToDebuffs: Boolean = false
 
+  /** A melee swing also strikes every foe next to its target. */
+  var meleeSplash: Boolean = false
+
+  /** Percent chance a landed swing drops a target that is no boss to 1 HP. */
+  var doomChancePercent: Int = 0
+
+  /** Percent less mana every skill costs. */
+  var manaCostCutPercent: Int = 0
+
+  /** Every ninth spell is instant and costs no mana. */
+  var everyNinthSpellFree: Boolean = false
+
   /** Percent of each melee weapon blow taken that hits its attacker too. */
   var meleeReflectPercent: Int = 0
 

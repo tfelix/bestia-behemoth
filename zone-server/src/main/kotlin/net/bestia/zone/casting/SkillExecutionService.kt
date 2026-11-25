@@ -20,6 +20,8 @@ import net.bestia.zone.casting.plagiarism.Plagiarism
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.persistence.Skill
+import net.bestia.zone.casting.essence.EssenceSkillCost
+import net.bestia.zone.casting.essence.NineTails
 import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
@@ -194,6 +196,9 @@ class SkillExecutionService(
         return
       }
 
+      val countsNineTails = world.get(casterId, CombatStats::class)?.values?.everyNinthSpellFree == true
+      if (paid && countsNineTails && EssenceSkillCost.isSpell(skill)) statusEffects?.let { NineTails.counted(world, casterId, it) }
+
       // Spent by the cast that is paid for, even if it misses or fails, as the ritual rules say.
       if (ritual != null) {
         statusEffects?.removeEffect(world, casterId, StatusEffectId.RITUAL_CHARGE.id, RemovalReason.CANCELLED)
@@ -248,7 +253,7 @@ class SkillExecutionService(
   private fun isSpell(skill: Skill): Boolean = HitKind.ofSkill(skill).form != HitForm.PHYSICAL
 
   private fun costFor(world: World, casterId: EntityId, strategy: SkillStrategy, skill: Skill, level: Int): SkillLevelCost {
-    val cost = strategy.costOf(skill, level)
+    val cost = EssenceSkillCost.of(world, casterId, skill, strategy.costOf(skill, level))
 
     return cost.copy(rangeTiles = strategy.reachOf(world, casterId, cost))
   }

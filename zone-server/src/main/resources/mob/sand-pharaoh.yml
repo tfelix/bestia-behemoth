@@ -9,6 +9,7 @@ description: >-
 kind: UNDEAD
 element: UNDEAD_4
 size: BIG
+essence: { group: HEADGEAR, effect: BOSS, target: PHARAOHS_CROWN }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
