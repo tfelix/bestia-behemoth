@@ -33,14 +33,15 @@ class BestiaEtching(
 ) : EssenceEtching {
 
   override fun refusal(world: World, masterId: Long, bestiaId: EntityId, gemItemId: Long): OpError? {
-    val tier = tierOf(gemItemId) ?: return OpError.CRAFT_NOT_POSSIBLE
+    val tier = tierOfGem(gemItemId) ?: return OpError.CRAFT_NOT_POSSIBLE
     val ownedByEtcher = world.get(bestiaId, OwnedBestia::class)?.masterId == masterId
     val offered = offers.isOffered(world, bestiaId) && offers.ownerOf(world, bestiaId) != null
     val alive = world.get(bestiaId, Dead::class) == null
     val level = world.get(bestiaId, Level::class)?.level ?: 0
 
     // The window greys these out, so only a stale or forged request gets this far.
-    if (!(ownedByEtcher || offered) || !alive || level < tier.minBestiaLevel || !hasEssence(world, bestiaId)) {
+    val species = speciesOf(world, bestiaId)
+    if (!(ownedByEtcher || offered) || !alive || species == null || !fits(species, level, tier)) {
       return OpError.CRAFT_NOT_POSSIBLE
     }
 
@@ -53,7 +54,7 @@ class BestiaEtching(
   }
 
   override fun bind(world: World, bestiaId: EntityId, gemItemId: Long): Essence? {
-    val tier = tierOf(gemItemId) ?: return null
+    val tier = tierOfGem(gemItemId) ?: return null
     val speciesId = speciesOf(world, bestiaId) ?: return null
     if (world.get(bestiaId, OwnedBestia::class) == null) return null
 
@@ -67,14 +68,12 @@ class BestiaEtching(
     return offers.offersAt(world, tablePosition, etcherMasterId)
   }
 
-  private fun tierOf(gemItemId: Long): GemTier? = itemTemplates.identifierOf(gemItemId)?.let(GemTier::ofCutGem)
+  fun tierOfGem(gemItemId: Long): GemTier? = itemTemplates.identifierOf(gemItemId)?.let(GemTier::ofCutGem)
 
   private fun speciesOf(world: World, bestiaId: EntityId): Long? = world.get(bestiaId, EntityVisual::class)?.id
 
-  /** Bosses have no essence yet. */
-  private fun hasEssence(world: World, bestiaId: EntityId): Boolean {
-    val speciesId = speciesOf(world, bestiaId) ?: return false
-
-    return catalogue.find(speciesId)?.essence != null
+  /** Whether a Bestia of [speciesId] at [level] may fill a [tier] gem, wherever it is: called out or in storage. */
+  fun fits(speciesId: Long, level: Int, tier: GemTier): Boolean {
+    return level >= tier.minBestiaLevel && catalogue.find(speciesId)?.essence != null
   }
 }

@@ -113,6 +113,19 @@ class CraftingFixture(
     every { etching.offersAt(any(), any(), any()) } returns emptyList()
   }
 
+  /** Whether the stored Bestia an etching names is still in storage when the craft resolves. */
+  var storedBestiaStillThere = true
+
+  /** Lets any etching from storage go ahead and binds it into [ETCHED_ESSENCE]. */
+  val storedEtching = mockk<StoredEtching>().also { stored ->
+    every { stored.accessRefusal(any(), any()) } returns null
+    every { stored.load(any()) } returns emptyList()
+    every { stored.refusal(any(), any(), any()) } returns null
+    every { stored.levelOf(any(), any()) } returns 5
+    every { stored.isStillStored(any(), any()) } answers { storedBestiaStillThere }
+    every { stored.bind(any(), any(), any()) } returns ETCHED_ESSENCE
+  }
+
   /** Templates of stackable gear such as torches, by id. Every other item is plain gear to the service. */
   val stackableGear = mutableMapOf<Long, ItemTemplateRegistry.Template>()
 
@@ -161,6 +174,7 @@ class CraftingFixture(
       worldService = worldService,
       crafters = Crafters(starterKit),
       etching = etching,
+      storedEtching = storedEtching,
       blueprintPoints = BlueprintPoints(),
       structureRegistry = structureRegistry,
       stationStates = mockk(relaxed = true),

@@ -662,6 +662,30 @@ class CraftingServiceTest {
   }
 
   @Test
+  fun `a Bestia etched from storage becomes the crafter's Essence Gem`() {
+    val fixture = etchingFixture(baseSuccessChance = 1f)
+    val crafter = fixture.givenCrafter(items = listOf(stack(CUT_GEM_ITEM, 1)), knownSkills = mapOf(ETCHING_ID to 1))
+
+    fixture.service.resolve(fixture.world, crafter, crafting(etch.id, storedBestiaId = STORED_BESTIA))
+
+    assertEquals(ETCHED_ESSENCE, fixture.world.get(crafter, ObtainItemIntent.CreateItemIntent::class)?.roll?.heldEssence)
+    verify { fixture.storedEtching.bind(MASTER_ID, STORED_BESTIA, CUT_GEM_ITEM) }
+  }
+
+  @Test
+  fun `a stored Bestia summoned during the etching gives the gem back`() {
+    val fixture = etchingFixture(baseSuccessChance = 1f)
+    fixture.storedBestiaStillThere = false
+    val crafter = fixture.givenCrafter(items = listOf(stack(CUT_GEM_ITEM, 1)), knownSkills = mapOf(ETCHING_ID to 1))
+
+    fixture.service.resolve(fixture.world, crafter, crafting(etch.id, storedBestiaId = STORED_BESTIA))
+
+    assertTrue(fixture.inventoryOf(crafter).getItems().any { it.itemId == CUT_GEM_ITEM }, "the gem is given back")
+    assertNull(fixture.world.get(crafter, ObtainItemIntent.CreateItemIntent::class))
+    verify(exactly = 0) { fixture.storedEtching.bind(any(), any(), any()) }
+  }
+
+  @Test
   fun `an etching the Bestia side refuses does not start`() {
     val fixture = etchingFixture(baseSuccessChance = 1f).withStation(StaticEntityKind.CARVING_TABLE)
     fixture.etchingRefusal = OpError.CRAFT_BESTIA_NOT_AT_TABLE
@@ -692,13 +716,14 @@ class CraftingServiceTest {
   private fun etchingFixture(baseSuccessChance: Float) =
     CraftingFixture(listOf(etch.copy(baseSuccessChance = baseSuccessChance)), skillIds = mapOf("M_RUNIC_ETCHING" to ETCHING_ID))
 
-  private fun crafting(recipeId: Long, targetUniqueId: Long = 0L) =
-    Crafting(recipeId = recipeId, targetUniqueId = targetUniqueId, totalSeconds = 1f)
+  private fun crafting(recipeId: Long, targetUniqueId: Long = 0L, storedBestiaId: Long = 0L) =
+    Crafting(recipeId = recipeId, targetUniqueId = targetUniqueId, totalSeconds = 1f, storedBestiaId = storedBestiaId)
 
   private companion object {
     const val CUSTOMIZATION_ID = 11L
     const val CARPENTRY_ID = 9L
     const val REPAIR_ID = 15L
     const val ETCHING_ID = 18L
+    const val STORED_BESTIA = 900L
   }
 }

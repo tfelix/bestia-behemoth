@@ -1,5 +1,6 @@
 package net.bestia.zone.crafting
 
+import net.bestia.zone.item.essence.Essence
 import net.bestia.zone.entity.GameMetrics
 import net.bestia.zone.entity.GameMetrics.CoinSource
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -92,6 +93,7 @@ class CraftingService(
   private val worldService: WorldService,
   private val crafters: Crafters,
   private val etching: EssenceEtching,
+  private val storedEtching: StoredEtching,
   private val blueprintPoints: BlueprintPoints,
   private val structureRegistry: PlayerStructureRegistry,
   private val stationStates: StationStateSender,
@@ -163,19 +165,25 @@ class CraftingService(
       .filter { it.needsTarget || withinReach(known, it, outputLevelOf(it)) }
       .map { recipe -> describe(recipe, known, inventory, attributesOf(world, crafterId)) }
 
-    outMessageProcessor.sendToPlayer(
-      accountId,
-      CraftableRecipesSMSG(
-        skillId = selectedSkillId,
-        station = station?.kind,
-        recipes = offered,
-        structureId = station?.id ?: 0,
-        fuelSeconds = station?.burnsOutAt?.let { Campfire.secondsLeft(it, clock.instant()) } ?: 0,
-        etchingOffers = station?.takeIf { it.kind == StaticEntityKind.CARVING_TABLE }
-          ?.let { etching.offersAt(world, it.position, crafter.master.masterId) }
-          .orEmpty()
-      )
+    val carvingTable = station?.takeIf { it.kind == StaticEntityKind.CARVING_TABLE }
+    val window = CraftableRecipesSMSG(
+      skillId = selectedSkillId,
+      station = station?.kind,
+      recipes = offered,
+      structureId = station?.id ?: 0,
+      fuelSeconds = station?.burnsOutAt?.let { Campfire.secondsLeft(it, clock.instant()) } ?: 0,
+      etchingOffers = carvingTable?.let { etching.offersAt(world, it.position, crafter.master.masterId) }.orEmpty()
     )
+
+    // The stored Bestias come from the database, so the window waits for them off the tick.
+    val masterId = crafter.master.masterId
+    if (carvingTable != null && storedEtching.accessRefusal(world, masterEntityId) == null) {
+      asyncJobExecutor.submit(masterId) {
+        outMessageProcessor.sendToPlayer(accountId, window.copy(storedBestias = storedEtching.load(masterId)))
+      }
+    } else {
+      outMessageProcessor.sendToPlayer(accountId, window)
+    }
 
     station?.let(stationStates::send)
   }
@@ -245,7 +253,8 @@ class CraftingService(
     recipeId: Long,
     targetUniqueId: Long,
     masterEntityId: EntityId = entityId,
-    repeats: Int = 0
+    repeats: Int = 0,
+    storedBestiaId: Long = 0,
   ): OpError? {
     val recipe = recipes.of(recipeId) ?: return OpError.CRAFT_NOT_POSSIBLE
 
@@ -276,7 +285,7 @@ class CraftingService(
     val inventory = world.get(entityId, Inventory::class) ?: return OpError.CRAFT_NOT_POSSIBLE
 
     if (recipe.etches) {
-      etchingRefusal(world, entityId, crafter, recipe, targetUniqueId)?.let { return it }
+      etchingRefusal(world, entityId, masterEntityId, crafter, recipe, targetUniqueId, storedBestiaId)?.let { return it }
     } else if (recipe.needsTarget) {
       val target = targetFor(recipe, inventory, targetUniqueId, known) ?: return OpError.CRAFT_NOT_POSSIBLE
       if (!withinReach(known, recipe, target.effectiveLevel)) return OpError.CRAFT_ITEM_TOO_ADVANCED
@@ -300,6 +309,7 @@ class CraftingService(
         // A failed upgrade or slot cut can destroy its target, so only a recipe that makes something repeats.
         remainingRepeats = if (recipe.needsTarget) 0 else repeats.coerceIn(0, MAX_REPEATS),
         rollChanceBonus = GloriaGrace.rollChanceBonusOf(world, entityId),
+        storedBestiaId = storedBestiaId.takeIf { recipe.etches } ?: 0L,
       )
     )
 
@@ -326,7 +336,9 @@ class CraftingService(
     val known = crafter.skills
 
     if (recipe.etches) {
-      etchingRefusal(world, entityId, crafter, recipe, crafting.targetUniqueId)?.let { return refuse(accountId, it) }
+      val masterEntityId = crafting.masterEntityId ?: entityId
+      etchingRefusal(world, entityId, masterEntityId, crafter, recipe, crafting.targetUniqueId, crafting.storedBestiaId)
+        ?.let { return refuse(accountId, it) }
     }
 
     val target = if (recipe.needsTarget && !recipe.etches) {
@@ -353,23 +365,37 @@ class CraftingService(
     val inputs = required(recipe)
     val taken = takeInputs(inventory, inputs) ?: return refuse(accountId, OpError.CRAFT_MISSING_MATERIALS)
 
-    val chance = bonuses.successChance(known, recipe, attributesOf(world, entityId), etchedLevelOf(world, recipe, crafting))
+    val chance = bonuses.successChance(known, recipe, attributesOf(world, entityId), etchedLevelOf(world, recipe, crafting, masterId))
     val succeeded = Random.nextFloat() <= chance
     val roll = if (succeeded) rollOutput(recipe, known, crafting.rollChanceBonus) else null
     val provenance = ItemProvenance(crafterName = crafter.master.name, worldName = worldService.record.name)
 
+    val storedBestiaId = crafting.storedBestiaId
     asyncJobExecutor.submit(masterId) {
+      // The tick knew only what the window last read: the Bestia may have been summoned or released since.
+      if (storedBestiaId != 0L && !storedEtching.isStillStored(masterId, storedBestiaId)) {
+        world.modify(entityId) { id -> taken.forEach { get(id, Inventory::class)?.addItem(it) } }
+        return@submit refuse(accountId, OpError.CRAFT_NOT_POSSIBLE)
+      }
+
       if (!inventoryService.consumeAll(masterId, inputs.toList(), playerBestiaId)) {
         LOG.warn { "Master $masterId lost the inputs of ${recipe.identifier} in the database; giving them back" }
         world.modify(entityId) { id -> taken.forEach { get(id, Inventory::class)?.addItem(it) } }
         return@submit refuse(accountId, OpError.CRAFT_MISSING_MATERIALS)
       }
 
+      val storedEssence = if (succeeded && storedBestiaId != 0L) {
+        storedEtching.bind(masterId, storedBestiaId, recipe.etchedGemId)
+      } else {
+        null
+      }
       val applied = world.modify(entityId) { id ->
         if (succeeded) {
           succeed(
             this, id, accountId, masterId, playerBestiaId, recipe, target, minted, chance, roll, provenance,
-            crafting.totalSeconds, etchedBestiaId = crafting.targetUniqueId.takeIf { recipe.etches }
+            crafting.totalSeconds,
+            etchedBestiaId = crafting.targetUniqueId.takeIf { recipe.etches && storedBestiaId == 0L },
+            storedEssence = storedEssence,
           )
         } else {
           fail(this, id, accountId, masterId, playerBestiaId, recipe, target, known)
@@ -410,7 +436,8 @@ class CraftingService(
     roll: ItemRoll?,
     provenance: ItemProvenance,
     craftSeconds: Float,
-    etchedBestiaId: EntityId? = null
+    etchedBestiaId: EntityId? = null,
+    storedEssence: Essence? = null,
   ) {
     val inventory = world.get(entityId, Inventory::class) ?: return
     metrics.crafted(GameMetrics.Craft.SUCCESS)
@@ -441,7 +468,11 @@ class CraftingService(
       RecipeEffect.REPAIR ->
         applyToTarget(inventory, masterId, playerBestiaId, target!!.copy(durability = target.maxDurability))
       RecipeEffect.ETCH_ESSENCE -> {
-        val granted = etchedBestiaId != null && grantEssenceGem(world, entityId, recipe, etchedBestiaId, provenance)
+        val granted = when {
+          storedEssence != null -> giveEssenceGem(world, entityId, storedEssence, provenance)
+          etchedBestiaId != null -> grantEssenceGem(world, entityId, recipe, etchedBestiaId, provenance)
+          else -> false
+        }
         if (!granted) {
           LOG.warn { "Master $masterId etched a Bestia that was gone by then; the gem is spent" }
           return refuse(accountId, OpError.CRAFT_NOT_POSSIBLE)
@@ -576,17 +607,25 @@ class CraftingService(
   private fun etchingRefusal(
     world: World,
     crafterId: EntityId,
+    masterEntityId: EntityId,
     crafter: Crafters.Crafter,
     recipe: Recipe,
-    bestiaId: EntityId
+    bestiaId: EntityId,
+    storedBestiaId: Long,
   ): OpError? {
+    val masterId = crafter.master.masterId
+    if (storedBestiaId != 0L) {
+      return storedEtching.accessRefusal(world, masterEntityId)
+        ?: storedEtching.refusal(masterId, storedBestiaId, recipe.etchedGemId)
+    }
     if (bestiaId == crafterId) return OpError.CRAFT_NOT_POSSIBLE
 
-    return etching.refusal(world, crafter.master.masterId, bestiaId, recipe.etchedGemId)
+    return etching.refusal(world, masterId, bestiaId, recipe.etchedGemId)
   }
 
-  private fun etchedLevelOf(world: World, recipe: Recipe, crafting: Crafting): Int {
+  private fun etchedLevelOf(world: World, recipe: Recipe, crafting: Crafting, masterId: Long): Int {
     if (!recipe.etches) return 0
+    if (crafting.storedBestiaId != 0L) return storedEtching.levelOf(masterId, crafting.storedBestiaId)
 
     return world.get(crafting.targetUniqueId, Level::class)?.level ?: 0
   }
@@ -599,12 +638,17 @@ class CraftingService(
     bestiaId: EntityId,
     provenance: ItemProvenance
   ): Boolean {
-    val essenceGemId = itemTemplates.idOf(ESSENCE_GEM) ?: return false
     val owner = etching.ownerOf(world, bestiaId) ?: crafterId
     val essence = etching.bind(world, bestiaId, recipe.etchedGemId) ?: return false
+
+    return giveEssenceGem(world, owner, essence, provenance)
+  }
+
+  private fun giveEssenceGem(world: World, ownerId: EntityId, essence: Essence, provenance: ItemProvenance): Boolean {
+    val essenceGemId = itemTemplates.idOf(ESSENCE_GEM) ?: return false
     val roll = ItemRoll(emptyList(), sockets = 0, itemStats.itemLevelOf(essenceGemId), heldEssence = essence)
 
-    world.add(owner, ObtainItemIntent.CreateItemIntent(essenceGemId, 1, roll, provenance))
+    world.add(ownerId, ObtainItemIntent.CreateItemIntent(essenceGemId, 1, roll, provenance))
     return true
   }
 
