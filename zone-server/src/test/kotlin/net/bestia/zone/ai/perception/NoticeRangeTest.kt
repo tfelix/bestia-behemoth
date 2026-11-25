@@ -1,6 +1,10 @@
 package net.bestia.zone.ai.perception
 
+import net.bestia.zone.battle.BestiaKind
+import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.Size
 import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.ecs.core.testWorld
@@ -38,6 +42,19 @@ class NoticeRangeTest {
   @Test
   fun `a tamed bestia sees through the camouflage of a master`() {
     assertTrue(NoticeRange.notices(world, tamed, hunter, here, Vec3L(10, 0, 0), SIGHT))
+  }
+
+  @Test
+  fun `wild undead never notice a wearer of Dread Court, the living still do`() {
+    val courtier = world.createEntity {
+      world.add(it, Master(4L))
+      world.add(it, CombatStats(CombatValues.OBJECT_BASELINE.copy(unnoticedByWild = setOf(BestiaKind.UNDEAD))))
+    }
+    val ghoul = world.createEntity { world.add(it, Nature(Element.UNDEAD, Size.MEDIUM, kind = BestiaKind.UNDEAD)) }
+    val wolf = world.createEntity { world.add(it, Nature(Element.NORMAL, Size.MEDIUM, kind = BestiaKind.BEAST)) }
+
+    assertFalse(NoticeRange.notices(world, ghoul, courtier, here, Vec3L(1, 0, 0), SIGHT))
+    assertTrue(NoticeRange.notices(world, wolf, courtier, here, Vec3L(1, 0, 0), SIGHT))
   }
 
   private companion object {

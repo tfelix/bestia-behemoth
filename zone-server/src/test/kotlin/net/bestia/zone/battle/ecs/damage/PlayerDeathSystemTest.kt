@@ -6,6 +6,8 @@ import io.mockk.verify
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.battle.ecs.exp.Exp
+import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.movement.ecs.Path
 import net.bestia.zone.geometry.Vec3L
@@ -33,6 +35,21 @@ class PlayerDeathSystemTest {
     sut.update(world, 0f)
 
     assertEquals(990, world.get(id, Exp::class)?.value)
+  }
+
+  @Test
+  fun `a master wearing Ashen Rebirth keeps all of its exp`() {
+    val world = testWorld()
+    val id = world.createEntity { eid ->
+      add(eid, Account(1L))
+      add(eid, Exp(1000, 5000))
+      add(eid, CombatStats(CombatValues.OBJECT_BASELINE.copy(keepsExpOnDeath = true)))
+      add(eid, Dead())
+    }
+
+    sut.update(world, 0f)
+
+    assertEquals(1000, world.get(id, Exp::class)?.value)
   }
 
   @Test

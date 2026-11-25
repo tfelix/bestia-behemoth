@@ -41,14 +41,15 @@ class PropRemoval(
   /**
    * Removes the resident prop [entityId] and leaves what its kind leaves: a stump, or nothing.
    *
-   * A prop without a generated name - a player's structure - is not handled here and is left alone.
+   * A prop without a generated name - a player's structure - is not handled here and is left alone. A stump grows
+   * back in [growthPercent] of the kind's time.
    */
-  fun removed(world: World, entityId: Long, cause: Cause) {
+  fun removed(world: World, entityId: Long, cause: Cause, growthPercent: Int = 100) {
     val identity = world.get(entityId, WorldObjectIdentity::class) ?: return
     val visual = world.get(entityId, StaticVisual::class) ?: return
     if (identity.propId == 0L) return
 
-    when (record(identity.propId, visual.kind, cause)) {
+    when (record(identity.propId, visual.kind, cause, growthPercent)) {
       GrowthStage.STUMP -> residency.replace(world, entityId, GrowthStage.STUMP)
       else -> residency.remove(world, entityId)
     }
@@ -60,7 +61,7 @@ class PropRemoval(
   }
 
   /** @return what now stands at the prop's place, or null for nothing */
-  private fun record(propId: Long, kind: StaticEntityKind, cause: Cause): GrowthStage? {
+  private fun record(propId: Long, kind: StaticEntityKind, cause: Cause, growthPercent: Int = 100): GrowthStage? {
     val spec = kinds.of(kind)
     val now = clock.instant()
 
@@ -71,7 +72,8 @@ class PropRemoval(
 
     val regrowth = spec.regrowth
     if (regrowth != null) {
-      divergence.record(propId, kind, DivergenceState.STUMP, now.plusSeconds(regrowth.stageSeconds))
+      val stageSeconds = regrowth.stageSeconds * growthPercent / 100
+      divergence.record(propId, kind, DivergenceState.STUMP, now.plusSeconds(stageSeconds), growthPercent)
       return GrowthStage.STUMP
     }
 

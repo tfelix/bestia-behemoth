@@ -10,6 +10,7 @@ import net.bestia.zone.battle.ecs.exp.Exp
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
 import net.bestia.zone.ecs.core.System
+import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.movement.ecs.Path
 import org.springframework.context.ApplicationEventPublisher
@@ -34,7 +35,7 @@ class PlayerDeathSystem(
 ) : System {
   override val phase = Phase.DEATH
 
-  override val reads: ComponentClassSet = setOf(Account::class, OwnedBestia::class)
+  override val reads: ComponentClassSet = setOf(Account::class, OwnedBestia::class, CombatStats::class)
   override val writes: ComponentClassSet = setOf(Dead::class, Exp::class, Path::class, AttackTarget::class)
 
   override fun update(world: World, deltaTime: Float) {
@@ -60,6 +61,8 @@ class PlayerDeathSystem(
       world.remove(id, AttackTarget::class)
 
       val exp = world.get(id, Exp::class) ?: return@each
+      // The Ember Phoenix's essence: reborn as it was.
+      if (world.get(id, CombatStats::class)?.values?.keepsExpOnDeath == true) return@each
       // Floored, so an almost-empty EXP bar forfeits nothing rather than going negative.
       val lost = floor(exp.value * zoneConfig.deathExpLossFraction).toInt()
       exp.value -= lost

@@ -1,6 +1,7 @@
 package net.bestia.zone.ai.perception
 
 import net.bestia.zone.battle.ecs.status.CombatStats
+import net.bestia.zone.battle.ecs.status.Nature
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
@@ -11,15 +12,19 @@ import kotlin.math.max
 /** How close a candidate may come before a creature notices it: the wild notice a camouflaged master later. */
 object NoticeRange {
 
-  val READS: ComponentClassSet = setOf(CombatStats::class)
+  val READS: ComponentClassSet = setOf(CombatStats::class, Nature::class)
 
   /**
    * Whether [perceiver] at [from] notices [candidate] at [to]. Measured like the sight cube, along the longest axis,
    * so a candidate with no camouflage is noticed anywhere in it.
    */
   fun notices(world: World, perceiver: EntityId, candidate: EntityId, from: Vec3L, to: Vec3L, sightRadius: Int): Boolean {
-    val cut = world.get(candidate, CombatStats::class)?.values?.noticeRangeCutPercent ?: 0
-    if (cut <= 0 || !Hostility.isUntamed(world, perceiver)) return true
+    if (!Hostility.isUntamed(world, perceiver)) return true
+    val values = world.get(candidate, CombatStats::class)?.values ?: return true
+    if (world.get(perceiver, Nature::class)?.kind in values.unnoticedByWild) return false
+
+    val cut = values.noticeRangeCutPercent
+    if (cut <= 0) return true
 
     val reach = sightRadius.toLong() * (100 - cut.coerceAtMost(100)) / 100
     val axisDistance = max(abs(to.x - from.x), max(abs(to.y - from.y), abs(to.z - from.z)))

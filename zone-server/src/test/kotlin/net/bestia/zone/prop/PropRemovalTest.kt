@@ -45,6 +45,16 @@ class PropRemovalTest {
   }
 
   @Test
+  fun `a tree felled with a Grove Keeper hatchet grows back in half the time`() {
+    val world = testWorld()
+    val tree = world.prop(StaticEntityKind.TREE)
+
+    removal.removed(world, tree, PropRemoval.Cause.USED_UP, growthPercent = 50)
+
+    verify { divergence.record(5L, StaticEntityKind.TREE, DivergenceState.STUMP, now.plus(Duration.ofDays(7).dividedBy(2)), 50) }
+  }
+
+  @Test
   fun `a blighted tree leaves a stump too`() {
     val world = testWorld()
     val tree = world.prop(StaticEntityKind.BLIGHTED_TREE)

@@ -18,6 +18,7 @@ import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.util.EntityId
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -112,6 +113,29 @@ class StatusEffectServiceTest {
 
     assertFalse(service.applyEffect(world, wyrmArmored, HARM, level = 1, sourceEntityId = world.createEntity { }))
     assertTrue(service.applyEffect(world, wyrmArmored, StatusEffectId.FATIGUE.id, level = 1))
+  }
+
+  @Test
+  fun `Ashen Rebirth spares a Bestia one lethal blow, but not its master`() {
+    val spent = StatusEffectDefinition(
+      id = StatusEffectId.UNBREAKABLE_SPENT.id, identifier = "UNBREAKABLE_SPENT", isSyncedToClient = true,
+      script = "Lingering", polarity = StatusEffectPolarity.NEUTRAL
+    )
+    val service = StatusEffectService(
+      StatusEffectDefinitionRegistry().apply { load(listOf(spent)) },
+      StatusEffectScriptRegistry(listOf(Lingering()))
+    )
+    val phoenixValues = CombatValues.OBJECT_BASELINE.copy(bestiaLastStandCooldownSeconds = 3600)
+    val bestia = world.createEntity { id ->
+      add(id, OwnedBestia(masterId = 1L, playerBestiaId = 1L))
+      add(id, CombatStats(phoenixValues))
+    }
+    val master = player()
+    world.add(master, CombatStats(phoenixValues))
+
+    assertTrue(service.survivesLethalDamage(world, bestia))
+    assertFalse(service.survivesLethalDamage(world, bestia))
+    assertFalse(service.survivesLethalDamage(world, master))
   }
 
   @Test

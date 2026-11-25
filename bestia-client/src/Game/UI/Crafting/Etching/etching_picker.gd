@@ -162,7 +162,7 @@ func _result(bestia: Dictionary, tier: String) -> VBoxContainer:
 
 	var species := BestiaDB.get_instance().get_bestia(bestia.mob_id)
 	var min_item_level := EssenceText.min_item_level(species, tier)
-	var tool: String = EssenceText.TOOL_BY_EFFECT.get(species.essence_effect, "")
+	var tool: String = EssenceText.tool_of(species)
 	var socket_name: String = TranslationServer.translate("TOOL_KIND_" + tool) if not tool.is_empty() else species.essence_group.capitalize()
 	var fits := "Fits a %s socket" % socket_name
 	if min_item_level > 0:

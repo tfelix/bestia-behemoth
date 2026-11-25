@@ -33,6 +33,19 @@ const PER_POINT := {
 	"DIGGING_SPEED": 3, "FASTER_BITE": 3, "RICH_SEAM": 1, "TOUGH_GRIP": 3,
 }
 
+## The one tool a boss essence fits, by its BossEssence name. Mirrors the server's BossEssence.tool.
+const TOOL_BY_BOSS_ESSENCE := {"GROVE_KEEPER": "FELLING"}
+
+
+## The one tool [param bestia]'s essence fits, or empty when it fits its whole group.
+static func tool_of(bestia: BestiaResource) -> String:
+	if bestia == null:
+		return ""
+	if bestia.essence_effect == "BOSS":
+		return TOOL_BY_BOSS_ESSENCE.get(bestia.essence_target, "")
+	return TOOL_BY_EFFECT.get(bestia.essence_effect, "")
+
+
 ## The one gem a boss fills, or empty for any other species. Mirrors the server's GemTier.ofBossLevel.
 static func boss_tier(bestia: BestiaResource) -> String:
 	if bestia == null or bestia.essence_effect != "BOSS":
