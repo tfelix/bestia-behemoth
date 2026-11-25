@@ -2,6 +2,7 @@ package net.bestia.zone.worldevent
 
 import net.bestia.zone.world.WorldScopedData
 import net.bestia.zone.worldevent.persistence.EventProvinceRepository
+import net.bestia.zone.worldevent.persistence.EventContributionRepository
 import net.bestia.zone.worldevent.persistence.StoredRiftRepository
 import net.bestia.zone.worldevent.persistence.WorldEventInstanceRepository
 import org.springframework.stereotype.Component
@@ -12,9 +13,11 @@ class WorldEventWipe(
   private val provinces: EventProvinceRepository,
   private val instances: WorldEventInstanceRepository,
   private val rifts: StoredRiftRepository,
+  private val contributions: EventContributionRepository,
 ) : WorldScopedData {
 
   override fun wipe() {
+    contributions.deleteAll()
     rifts.deleteAll()
     instances.deleteAll()
     provinces.deleteAll()

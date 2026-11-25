@@ -11,9 +11,13 @@ import net.bestia.zone.worldevent.persistence.WorldEventInstance
 import net.bestia.zone.worldevent.persistence.WorldEventInstance.Outcome
 import net.bestia.zone.worldevent.persistence.WorldEventInstance.State
 import net.bestia.zone.worldevent.persistence.WorldEventInstanceRepository
+import net.bestia.zone.worldevent.contract.ContractRewards
+import net.bestia.zone.worldevent.contract.ContributionJournal
+import net.bestia.zone.worldevent.contract.ContributionLedger
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import kotlin.math.hypot
 import kotlin.random.Random
 
 /**
@@ -36,6 +40,9 @@ class WorldEventDirector(
   private val worldService: WorldService,
   private val config: WorldEventConfig,
   private val clock: BestiaClock,
+  private val ledger: ContributionLedger,
+  private val rewards: ContractRewards,
+  private val journal: ContributionJournal,
 ) {
 
   @Scheduled(fixedDelay = RUN_EVERY_MS, initialDelay = RUN_EVERY_MS)
@@ -52,10 +59,13 @@ class WorldEventDirector(
 
     val running = instances.findAllByStateIn(RUNNING).filterNot { settle(it, rows, now) }
     val busy = running.map { it.provinceIndex }.toSet()
+    holdGround(running)
 
     snapshot.take()
       .filter { !it.isSanctuary && it.province.index !in busy }
       .forEach { signals -> maybeStart(signals, rows.getValue(signals.province.index), now) }
+
+    journal.save()
   }
 
   /** Starts [entry] where [signals] say, whatever the budget, the quiet or the mana. For a GM. */
@@ -74,6 +84,7 @@ class WorldEventDirector(
 
     catalogue.of(instance.eventId)?.let { catalogue.eventOf(it).end(instance) }
     resolve(instance, Outcome.CANCELLED, provinceRows(), clock.now().absoluteSecond)
+    journal.save()
     return true
   }
 
@@ -146,8 +157,35 @@ class WorldEventDirector(
     instance.outcome = outcome
     rows[instance.provinceIndex]?.quietUntilSecond = now + (config.quietBestiaDays * SECONDS_PER_DAY).toLong()
 
+    val entry = catalogue.of(instance.eventId)
+    val key = entry?.let { keyOf(it, instance) }
+    if (key != null) {
+      // Only an event players ended pays; one that ran out or was called off leaves its contributors nothing.
+      if (outcome == Outcome.DEFEATED) rewards.grant(key, entry, instance) else ledger.forget(key)
+    }
+
     LOG.info { "World event ${instance.eventId} in province ${instance.provinceIndex} ended: $outcome" }
   }
+
+  /** Every master standing on the ground of a running event holds it for another run. */
+  private fun holdGround(running: List<WorldEventInstance>) {
+    if (running.isEmpty()) return
+    val masters = snapshot.masters()
+
+    running.forEach { instance ->
+      val entry = catalogue.of(instance.eventId) ?: return@forEach
+      val key = keyOf(entry, instance) ?: return@forEach
+      val area = catalogue.eventOf(entry).heldArea(instance) ?: return@forEach
+
+      masters.filter { hypot(it.x - area.x, it.y - area.y) <= area.radius }.forEach { master ->
+        ledger.add(key, master.masterId, master.name, ContributionLedger.Axis.HOLDING, HOLDING_PER_RUN)
+      }
+    }
+  }
+
+  /** What an event's creatures carry: its kind and its subject. Null for an event about nothing in particular. */
+  private fun keyOf(entry: WorldEventEntry, instance: WorldEventInstance): ContributionLedger.Key? =
+    instance.subjectId?.let { ContributionLedger.Key(catalogue.eventOf(entry).script, it) }
 
   private fun accrue(row: EventProvince, now: Long) {
     val days = (now - row.accruedAtSecond).coerceAtLeast(0L) / SECONDS_PER_DAY
@@ -189,5 +227,11 @@ class WorldEventDirector(
     const val SECONDS_PER_DAY = 86_400.0
 
     val RUNNING = listOf(State.OMEN, State.ACTIVE)
+
+    /**
+     * What holding ground for one five-minute run is worth: as much as a level-10 kill. An hour on the ground of a
+     * rift weighs about as much as a dozen such kills.
+     */
+    const val HOLDING_PER_RUN = 10.0
   }
 }

@@ -2,6 +2,10 @@ package net.bestia.zone.worldevent
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import net.bestia.zone.worldevent.contract.ContractRewards
+import net.bestia.zone.worldevent.contract.ContributionJournal
+import net.bestia.zone.worldevent.contract.ContributionLedger
 import net.bestia.worldgen.place.Province
 import net.bestia.worldgen.place.Provinces
 import net.bestia.worldgen.vector.Vec2d
@@ -30,6 +34,7 @@ class WorldEventDirectorTest {
     var defeated = false
     override fun start(signals: ProvinceSignals) = WorldEvent.Started(Vec3L(1, 2, 3), subjectId = 42)
     override fun isDefeated(instance: WorldEventInstance) = defeated
+    override fun heldArea(instance: WorldEventInstance) = WorldEvent.HeldArea(0.0, 0.0, 100.0)
   }
 
   /** Never fits, so only the apex is ever picked here. */
@@ -50,7 +55,13 @@ class WorldEventDirectorTest {
     every { take() } answers {
       listOf(signals(wild, isSanctuary = false), signals(sanctuary, isSanctuary = true))
     }
+    every { masters() } returns listOf(
+      ProvinceSignalSnapshot.MasterAt(1, "Ada", 50.0, 0.0),
+      ProvinceSignalSnapshot.MasterAt(2, "Far", 5_000.0, 0.0),
+    )
   }
+  private val ledger = ContributionLedger()
+  private val rewards = mockk<ContractRewards>(relaxed = true)
   private val split = mockk<Provinces> {
     every { provinces } returns listOf(wild, sanctuary)
     every { count } returns 2
@@ -83,7 +94,7 @@ class WorldEventDirectorTest {
 
   private val director = WorldEventDirector(
     catalogue, snapshot, provinceService, provinceRows, instances, worldService,
-    WorldEventConfig(startChance = 1.0), clock,
+    WorldEventConfig(startChance = 1.0), clock, ledger, rewards, mockk<ContributionJournal>(relaxed = true),
   )
 
   @Test
@@ -148,6 +159,37 @@ class WorldEventDirectorTest {
     director.runAt(now)
 
     assertEquals(Outcome.EXPIRED, events.first().outcome)
+  }
+
+  @Test
+  fun `a master on the event's ground holds it, one far away does not`() {
+    director.runAt(now)
+    now += DAY
+    director.runAt(now)
+
+    director.runAt(now + 300)
+
+    val shares = ledger.sharesOf(ContributionLedger.Key("ApexRoamer", 42))
+    assertEquals(listOf(1L), shares.map { it.first.masterId })
+  }
+
+  @Test
+  fun `a defeated event pays its contributors and one that ran out pays nobody`() {
+    director.runAt(now)
+    now += DAY
+    director.runAt(now)
+    apex.defeated = true
+    director.runAt(now + 300)
+    verify(exactly = 1) { rewards.grant(ContributionLedger.Key("ApexRoamer", 42), any(), any()) }
+
+    apex.defeated = false
+    now += 5 * DAY
+    director.runAt(now)
+    now += 3 * DAY
+    director.runAt(now)
+
+    verify(exactly = 1) { rewards.grant(any(), any(), any()) }
+    assertTrue(ledger.sharesOf(ContributionLedger.Key("ApexRoamer", 42)).isEmpty())
   }
 
   private fun signals(province: Province, isSanctuary: Boolean) = ProvinceSignals(

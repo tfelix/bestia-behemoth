@@ -197,6 +197,20 @@ class HonorService(
     changeLocal(master.masterId, master.name, Scope.GRUDGE, townsperson, amount.local)
   }
 
+  /**
+   * Rewards [actor] for [act] in their own honor, without a witness: a deed the world as a whole hears of, like
+   * helping end a world event. What the nearest town thinks goes through [changeSettlement].
+   */
+  fun rewardGlobal(world: World, act: HonorAct, actor: EntityId) {
+    val honor = world.get(actor, Honor::class) ?: return
+    val now = clock.instant()
+    val ledger = honor.ledger.apply(rules.amountOf(act).global, now, rules.global)
+    honor.update(ledger, ledger.valueAt(now, rules.global))
+  }
+
+  /** What [act] is worth to a settlement, for a deed rewarded through [changeSettlement]. */
+  fun localAmountOf(act: HonorAct): Int = rules.amountOf(act).local
+
   /** Changes what [settlement] thinks of a Master, as news reaches it rather than as somebody there saw it. */
   fun changeSettlement(masterId: Long, masterName: String, settlement: Int, amount: Int) {
     changeLocal(masterId, masterName, Scope.SETTLEMENT, settlement.toLong(), amount)

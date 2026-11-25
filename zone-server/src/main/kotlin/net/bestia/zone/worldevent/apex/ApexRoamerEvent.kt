@@ -4,7 +4,9 @@ import net.bestia.worldgen.place.Province
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.entity.ecs.EventCreature
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.place.ecs.PlaceRegionService
 import net.bestia.zone.place.ecs.ProvinceService
@@ -56,6 +58,7 @@ class ApexRoamerEvent(
         level = species.levelMax + APEX_LEVELS,
         manaTier = tiers.tierOf(peak),
       )
+      add(id, EventCreature(script, id))
       WorldEvent.Started(from, id)
     }
   }
@@ -63,6 +66,13 @@ class ApexRoamerEvent(
   override fun isDefeated(instance: WorldEventInstance): Boolean {
     val id = instance.subjectId ?: return true
     return world.read { !isAlive(id) }
+  }
+
+  /** The ground around the apex, wherever it roams. */
+  override fun heldArea(instance: WorldEventInstance): WorldEvent.HeldArea? {
+    val id = instance.subjectId ?: return null
+    val at = world.read { get(id, Position::class)?.toVec3L() } ?: return null
+    return WorldEvent.HeldArea(at.x.toDouble(), at.y.toDouble(), HELD_RADIUS_METRES)
   }
 
   override fun end(instance: WorldEventInstance) {
@@ -103,5 +113,7 @@ class ApexRoamerEvent(
   private companion object {
     /** How far above its kin's highest level the apex is born, before the mana adds its own. */
     const val APEX_LEVELS = 5
+
+    const val HELD_RADIUS_METRES = 300.0
   }
 }

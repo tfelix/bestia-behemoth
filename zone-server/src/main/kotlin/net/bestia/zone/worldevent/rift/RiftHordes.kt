@@ -3,6 +3,7 @@ package net.bestia.zone.worldevent.rift
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.entity.ecs.EventCreature
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.identity.ecs.Master
 import net.bestia.zone.movement.ecs.Position
@@ -71,6 +72,7 @@ class RiftHordes(
     val level = kinOf(rift).maxOfOrNull { it.levelMax }?.plus(config.anchorLevelsAboveDens) ?: warden.levelMax
 
     rift.anchorEntityId = spawner.spawnMob(world, warden.id, at, homePosition = at, level = level)
+      .also { world.add(it, EventCreature(RIFT, rift.id)) }
   }
 
   private fun sendWave(world: World, rift: StoredRift, now: Long) {
@@ -92,7 +94,7 @@ class RiftHordes(
         homePosition = town,
         level = species.levelMax + config.waveLevelsPerStage * rift.stage,
         manaTier = ManaTier.OMINOUS,
-      )
+      ).also { world.add(it, EventCreature(RIFT, rift.id)) }
     }
   }
 
@@ -144,5 +146,8 @@ class RiftHordes(
 
   private companion object {
     const val ANCHOR = "rift_warden"
+
+    /** The rift event's name, which its creatures carry. */
+    const val RIFT = "Rift"
   }
 }

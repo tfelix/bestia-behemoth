@@ -39,6 +39,19 @@ class ProvinceSignalSnapshot(
     }
   }
 
+  /** A master in the world right now, and where, in metres. */
+  data class MasterAt(val masterId: Long, val name: String, val x: Double, val y: Double)
+
+  fun masters(): List<MasterAt> = world.read {
+    val found = ArrayList<MasterAt>()
+    query(Master::class, Position::class).each { _ ->
+      val master = get<Master>()
+      val at = get<Position>()
+      found += MasterAt(master.masterId, master.name, at.x.toDouble(), at.y.toDouble())
+    }
+    found
+  }
+
   /** The province at a world position in metres, or null for open sea. */
   fun provinceIndexAt(x: Double, y: Double): Int? = provinces.provinceAt(x, y)?.index
 
@@ -76,13 +89,8 @@ class ProvinceSignalSnapshot(
   }
 
   private fun playersByProvince(): Map<Int, Int> {
-    val positions = world.read {
-      val found = ArrayList<Pair<Long, Long>>()
-      query(Master::class, Position::class).each { _ -> found += get<Position>().x to get<Position>().y }
-      found
-    }
     // Position units are metres, see the mana field.
-    return positions.mapNotNull { (x, y) -> provinces.provinceAt(x.toDouble(), y.toDouble())?.index }
+    return masters().mapNotNull { provinces.provinceAt(it.x, it.y)?.index }
       .groupingBy { it }
       .eachCount()
   }

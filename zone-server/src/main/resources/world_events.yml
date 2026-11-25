@@ -5,7 +5,8 @@
 # province budget, which grows by one per Bestia day up to five, so a cost of 1 is a small event and 5 a big one.
 # `min-tier` and `min-tier-cells` say how much of the province must be at least that thick with mana. `cooldown`
 # keeps the same event out of one province for a while after it last started there; `lasts` is how long it runs
-# before it ends by itself. Both in Bestia days.
+# before it ends by itself. Both in Bestia days. `loot` is what everyone who fought or held ground for it splits
+# by their share when players end it; nobody needs to accept anything to take part.
 events:
   # The strongest bestia of the province's own dens, born mana-touched and a few levels up, roams in from the
   # province edge toward the thickest mana. Killing it ends the event.
@@ -17,6 +18,8 @@ events:
     min-tier-cells: 12
     cooldown: 4
     lasts: 2
+    loot:
+      - { item: mana_crystal, amount: 6 }
 
   # Where the mana runs thickest and the land around can feed it, a knot forms. It pulls quietly for a few
   # Bestia days, then opens, grows through five stages and collapses after a real day unless players drain the
@@ -29,3 +32,5 @@ events:
     min-tier-cells: 6
     cooldown: 6
     lasts: 10
+    loot:
+      - { item: mana_crystal, amount: 30 }
