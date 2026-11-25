@@ -11956,3 +11956,16 @@ items:
       A stone block, a screw press and a pair of bronze dies, packed in straw.
 
       Set it down and it becomes a Mint, where Minting strikes gold bars into coin.
+
+  # What keeps an incubator warm. Low enough in level that a breeder builds one around level 20.
+  - id: 646
+    item-db-name: warm_stone
+    base-level: 18
+    weight: 120
+    type: ETC
+    material: STONE
+    craft-axes: { STATE: 0.9, INTEGRITY: 0.5, HEFT: 0.6, ARCANE: 0.3, COMPLEXITY: -0.3 }
+    description: |
+      A dark, dense pebble that drinks in heat and gives it back for hours.
+
+      It is still warm long after the fire around it has gone out.

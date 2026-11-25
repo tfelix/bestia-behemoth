@@ -196,7 +196,7 @@ recipes:
     inputs:
       - { item: plank, amount: 6 }
       - { item: brick, amount: 4 }
-      - { item: ember_core, amount: 2 }
+      - { item: warm_stone, amount: 4 }
     skill: { skill: M_CARPENTRY, level: 3 }
     station: WORKBENCH
     craftSeconds: 15.0

@@ -50,3 +50,4 @@ loot:
   - { item: quarried_stone, chance: 3000 }
   - { item: iron_ore, chance: 1000 }
   - { item: coal, chance: 1000 }
+  - { item: warm_stone, chance: 1500 }
