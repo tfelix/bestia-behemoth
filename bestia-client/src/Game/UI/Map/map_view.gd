@@ -240,6 +240,22 @@ const _GRID_LABEL_SIZE := 12
 ## A search result's marker: a ring with a cross through it, in the selected label's ink.
 const _PIN_RADIUS := 7.0
 
+## The GM layer's tint per mana tier, calm to burn: clear while calm, then warmer and stronger as it rises.
+const _GM_TIER_COLOURS: Array[Color] = [
+	Color(0.0, 0.0, 0.0, 0.0),
+	Color(0.95, 0.95, 0.55, 0.2),
+	Color(0.95, 0.85, 0.3, 0.3),
+	Color(0.95, 0.6, 0.2, 0.35),
+	Color(0.9, 0.35, 0.15, 0.4),
+	Color(0.85, 0.1, 0.1, 0.45),
+	Color(0.8, 0.1, 0.6, 0.5),
+	Color(0.55, 0.1, 0.9, 0.55),
+]
+const _GM_BORDER := Color(0.2, 0.9, 0.95, 0.8)
+
+## Below this many pixels a cell is too small to carry its density as a number.
+const _GM_NUMBER_MIN_PIXELS := 36.0
+
 ## The player picked a place on the map. Carries the whole entry - see [method MapSource.places_of] - so a
 ## listener can put it on the compass without asking anything back.
 signal place_selected(place: Dictionary)
@@ -341,6 +357,12 @@ var pin: Variant = null:
 var treasure_circles: Array[Vector3] = []:
 	set(value):
 		treasure_circles = value
+		queue_redraw()
+
+## A GM's view of the mana field and the event director; null, or a layer of width 0, draws nothing.
+var gm_mana_layer: GmManaLayerSMSG = null:
+	set(value):
+		gm_mana_layer = value
 		queue_redraw()
 
 ## Where the player's own marker is drawn, and what [member follow_player] follows.
@@ -624,6 +646,7 @@ func _draw() -> void:
 					services.append(service)
 
 	_draw_border()
+	_draw_gm_mana_layer()
 
 	_visible_places = places
 	_visible_services = services
@@ -728,6 +751,51 @@ func _draw_grid(west: float, east: float, south: float, north: float) -> void:
 		var at := Vector2(4.0, _to_screen(Vector2(0.0, middle)).y + font.get_ascent(_GRID_LABEL_SIZE) * 0.5)
 		_draw_haloed(font, at, str(row + 1), _GRID_LABEL_SIZE, _LABEL_COLOUR)
 		row += 1
+
+
+## The GM layer: each mana cell tinted by its tier, province borders, the running events and the director's state
+## per province. Under the names and marks, which stay readable.
+func _draw_gm_mana_layer() -> void:
+	var layer := gm_mana_layer
+	if layer == null or layer.Width == 0:
+		return
+
+	var cell := layer.CellMetres
+	var cell_pixels := cell / _metres_per_pixel()
+	var font := get_theme_default_font()
+	@warning_ignore("integer_division")
+	var rows := layer.Density.size() / layer.Width
+	for i in layer.Density.size():
+		var column := i % layer.Width
+		@warning_ignore("integer_division")
+		var row := i / layer.Width
+		var south_west := layer.SouthWest + Vector2(column, row) * cell
+		var corner := _to_screen(south_west + Vector2(0.0, cell))
+		draw_rect(Rect2(corner, Vector2(cell_pixels, cell_pixels)), _GM_TIER_COLOURS[layer.Tier[i]])
+
+		var province := layer.Province[i]
+		if column + 1 < layer.Width and layer.Province[i + 1] != province:
+			draw_line(corner + Vector2(cell_pixels, 0.0), corner + Vector2(cell_pixels, cell_pixels), _GM_BORDER, 2.0)
+		if row + 1 < rows and layer.Province[i + layer.Width] != province:
+			draw_line(corner, corner + Vector2(cell_pixels, 0.0), _GM_BORDER, 2.0)
+		if cell_pixels >= _GM_NUMBER_MIN_PIXELS:
+			var number := "%.2f" % layer.Density[i]
+			_draw_haloed(font, corner + Vector2(3.0, cell_pixels * 0.5), number, _GRID_LABEL_SIZE, _LABEL_COLOUR)
+
+	for event: Dictionary in layer.Events:
+		var at := _to_screen(Vector2(float(event["x"]), float(event["y"])))
+		draw_circle(at, _PIN_RADIUS, _GM_TIER_COLOURS[5].lightened(0.3))
+		var label := "#%d %s" % [int(event["instance_id"]), str(event["event_id"])]
+		_draw_haloed(font, at + Vector2(_PIN_RADIUS + 3.0, 4.0), label, _GRID_LABEL_SIZE, _LABEL_COLOUR)
+
+	var line := 0
+	for province: Dictionary in layer.Provinces:
+		var text := "%s: budget %.1f, quiet %d min%s" % [
+			str(province["name"]), float(province["budget"]), roundi(float(province["quiet_seconds"]) / 60.0),
+			", sanctuary" if province["sanctuary"] else "",
+		]
+		_draw_haloed(font, Vector2(8.0, 20.0 + line * 16.0), text, _GRID_LABEL_SIZE, _LABEL_COLOUR)
+		line += 1
 
 
 func _draw_treasure_circles() -> void:

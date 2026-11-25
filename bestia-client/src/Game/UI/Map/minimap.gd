@@ -34,6 +34,10 @@ func setup(source: MapSource, entities: Node) -> void:
 	_view.go_to_level(_LEVEL)
 
 
+func set_gm_mana_layer(layer: GmManaLayerSMSG) -> void:
+	_view.gm_mana_layer = layer
+
+
 ## Called whenever the inventory changes: the widget exists exactly while a chart does.
 func set_treasure_circles(circles: Array[Vector3]) -> void:
 	_view.treasure_circles = circles
