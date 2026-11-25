@@ -21,6 +21,7 @@ import net.bestia.zone.battle.ecs.effects.AreaEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.logout.ecs.LogoutIntent
@@ -47,7 +48,8 @@ class ReceivedDamageSystem(
   override val after = setOf(AttackSystem::class)
 
   // A lifesteal heals the dealer, weighing its heal-received modifier. Devotion holds only while its Knight is near.
-  override val reads: ComponentClassSet = DamageGate.READS + CombatStats::class + Position::class
+  // OwnedBestia: the last stand of Ashen Rebirth holds for a Bestia only.
+  override val reads: ComponentClassSet = DamageGate.READS + CombatStats::class + Position::class + OwnedBestia::class
   override val writes: ComponentClassSet =
     setOf(
       Health::class, TakenDamage::class, Dead::class, LogoutIntent::class, Casting::class, Crafting::class, Channel::class,
