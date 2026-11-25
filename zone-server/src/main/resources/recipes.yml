@@ -1214,7 +1214,8 @@ recipes:
     baseSuccessChance: 1.0
 
   # --- Alchemy, Gem Cutting and Transmutation stations -----------------------------------------------
-  # Their kits are Carpentry like every other station's, and starter recipes like theirs.
+  # Alchemy and Transmutation share the Craftsman tree with Carpentry, so their kits are Carpentry like the rest.
+  # Gem Cutting is a Miner's skill: a Miner rarely has Carpentry, so the kit is made with Gem Cutting itself.
 
   - id: 120
     identifier: ALCHEMY_LABORATORY_KIT
@@ -1237,7 +1238,7 @@ recipes:
       - { item: plank, amount: 8 }
       - { item: iron_ingot, amount: 2 }
       - { item: sand, amount: 4 }
-    skill: { skill: M_CARPENTRY, level: 2 }
+    skill: { skill: M_GEM_CUTTING, level: 1 }
     craftSeconds: 20.0
     baseSuccessChance: 1
 

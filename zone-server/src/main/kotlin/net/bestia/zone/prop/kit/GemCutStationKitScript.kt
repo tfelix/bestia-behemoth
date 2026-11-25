@@ -4,7 +4,7 @@ import net.bestia.zone.entity.StaticEntityKind
 import net.bestia.zone.prop.PlayerStructureService
 import org.springframework.stereotype.Component
 
-/** The Gem Cut Station Kit (`items.yml` id 615), made in Handiwork with Carpentry. */
+/** The Gem Cut Station Kit (`items.yml` id 615), made in Handiwork with Gem Cutting. */
 @Component
 class GemCutStationKitScript(
   structures: PlayerStructureService
