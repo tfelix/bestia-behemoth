@@ -10,6 +10,10 @@ import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.battle.ecs.status.Health
+import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.entity.ecs.EntityVisual
@@ -31,8 +35,10 @@ class BestiaTrapSystemTest {
   private val aoi = EntityAOIService()
   private val out = mockk<OutMessageProcessor>(relaxed = true)
   private val events = mockk<ApplicationEventPublisher>(relaxed = true)
+  private val statusEffects = mockk<StatusEffectService>(relaxed = true)
   private val catalogue = mockk<BestiaCatalogue> {
-    every { byId(SPECIES_ID) } returns mockk<Bestia> { every { referenceLevel } returns 5 }
+    every { byId(SPECIES_ID) } returns species(boss = false)
+    every { byId(BOSS_ID) } returns species(boss = true)
   }
 
   /** Whatever the roll draws; below the chance catches, at or above it breaks free. */
@@ -52,6 +58,7 @@ class BestiaTrapSystemTest {
     events = events,
     outMessageProcessor = out,
     skillIds = mockk(relaxed = true),
+    statusEffects = statusEffects,
     random = random,
   )
   private val world = testWorld(systems = listOf(sut))
@@ -82,6 +89,29 @@ class BestiaTrapSystemTest {
     assertTrue(world.isAlive(mob))
     verify(exactly = 0) { events.publishEvent(any<Any>()) }
     assertEquals(TRAPPER_ID, world.get(mob, TakenDamage::class)?.mostRecentAttacker(withinMs = 1_000))
+    verify { statusEffects.applyEffect(world, mob, StatusEffectId.TRAP_WARY, 1) }
+  }
+
+  @Test
+  fun `a wary bestia walks over it`() {
+    val trap = trapAt(TRAP_TILE)
+    val mob = mobAt(TRAP_TILE)
+    world.add(mob, StatusEffects(mutableListOf(ActiveStatusEffect(StatusEffectId.TRAP_WARY.id, 1, 30f))))
+
+    world.tick(TICK)
+
+    assertTrue(world.isAlive(trap))
+  }
+
+  @Test
+  fun `a boss breaks free from a roll that catches anything else`() {
+    trapAt(TRAP_TILE)
+    val boss = mobAt(TRAP_TILE, speciesId = BOSS_ID)
+    roll = 0.02
+
+    world.tick(TICK)
+
+    assertTrue(world.isAlive(boss), "a full-health boss in a Bestia Trap has 60% x 0.03 = 1.8%")
   }
 
   @Test
@@ -131,10 +161,10 @@ class BestiaTrapSystemTest {
   }
 
   /** The AOI index is fed by ZoneEngine's dirty-position pass, which no test world runs. */
-  private fun mobAt(at: Vec3L, owned: Boolean = false, dead: Boolean = false): EntityId {
+  private fun mobAt(at: Vec3L, owned: Boolean = false, dead: Boolean = false, speciesId: Long = SPECIES_ID): EntityId {
     val id = world.createEntity { id ->
       add(id, Position.fromVec3(at))
-      add(id, EntityVisual(VisualKind.BESTIA, SPECIES_ID))
+      add(id, EntityVisual(VisualKind.BESTIA, speciesId))
       add(id, Health(current = 100, max = 100))
       if (owned) add(id, Account(ACCOUNT_ID))
       if (dead) add(id, Dead())
@@ -144,9 +174,18 @@ class BestiaTrapSystemTest {
     return id
   }
 
+  private fun species(boss: Boolean): Bestia {
+    return mockk<Bestia> {
+      every { referenceLevel } returns 5
+      every { this@mockk.boss } returns boss
+      every { worldBoss } returns false
+    }
+  }
+
   private companion object {
     val TRAP_TILE = Vec3L(50, 50, 10)
     const val SPECIES_ID = 1L
+    const val BOSS_ID = 2L
     const val ACCOUNT_ID = 3L
     const val MASTER_ID = 7L
     const val TRAPPER_ID = 999L

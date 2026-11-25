@@ -29,6 +29,20 @@ class CaptureChanceCalculatorTest {
     assertEquals(expectedPercent / 100.0, sut.chance(input), TOLERANCE)
   }
 
+  @Test
+  fun `the best setup against a boss stays below three percent`() {
+    val input = nearlyDead(TrapTier.MASTER_TRAP, 110, willpower = 150, trapping = 5, beastfriend = 5, boss = true)
+
+    assertEquals(0.0285, sut.chance(input), TOLERANCE)
+  }
+
+  @Test
+  fun `a boss scales a partial setup by the same factor`() {
+    val input = nearlyDead(TrapTier.MASTER_TRAP, 110, willpower = 0, boss = true)
+
+    assertEquals(0.6 * 0.03, sut.chance(input), TOLERANCE)
+  }
+
   @ParameterizedTest(name = "Bestia Trap vs a healthy Lv. {0}: {1}%")
   @CsvSource("1, 60", "20, 60", "21, 20", "41, 0", "100, 0")
   fun `a bestia trap against an unhurt target`(level: Int, expectedPercent: Int) {
@@ -82,6 +96,7 @@ class CaptureChanceCalculatorTest {
     willpower: Int,
     trapping: Int = 0,
     beastfriend: Int = 0,
+    boss: Boolean = false,
   ): CaptureChanceCalculator.Input {
     return CaptureChanceCalculator.Input(
       tier = tier,
@@ -91,6 +106,7 @@ class CaptureChanceCalculatorTest {
       trapperWillpower = willpower,
       trappingLevel = trapping,
       beastfriendLevel = beastfriend,
+      boss = boss,
     )
   }
 
