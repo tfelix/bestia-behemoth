@@ -1,0 +1,19 @@
+# The discrete events the World Event Director may pick for a province. Ladder effects (storms, stronger dens,
+# sickness, rumours, scars) are not here: they follow the mana on their own.
+#
+# `script` names the WorldEvent bean that runs it; the boot fails on one nobody implements. `cost` comes out of the
+# province budget, which grows by one per Bestia day up to five, so a cost of 1 is a small event and 5 a big one.
+# `min-tier` and `min-tier-cells` say how much of the province must be at least that thick with mana. `cooldown`
+# keeps the same event out of one province for a while after it last started there; `lasts` is how long it runs
+# before it ends by itself. Both in Bestia days.
+events:
+  # The strongest bestia of the province's own dens, born mana-touched and a few levels up, roams in from the
+  # province edge toward the thickest mana. Killing it ends the event.
+  - id: apex-roamer
+    script: ApexRoamer
+    cost: 1
+    weight: 1
+    min-tier: OMINOUS
+    min-tier-cells: 12
+    cooldown: 4
+    lasts: 2
