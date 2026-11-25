@@ -1160,7 +1160,7 @@ ELEMENT_GHOST,Ghost
 ELEMENT_UNDEAD,Undead
 SKILLS_TITLE,Skills
 SKILLS_TAB_OTHER,Other
-SKILLS_TAB_COPIED,Borrowed
+SKILLS_TAB_COPIED,Temporary
 SKILL_TREE_NOVICE,Novice
 SKILL_TREE_CRAFTSMAN,Craftsman
 SKILL_TREE_SURVIVAL,Survival
@@ -1181,6 +1181,7 @@ SKILLS_LEVEL_QUEUED,(+%d queued)
 SKILLS_PASSIVE,Passive: always on once learned
 SKILLS_COPIED,"Copied with Plagiarism: one cast, then it is gone."
 SKILLS_FROM_ESSENCE,"From a Learned Trick essence you wear: yours while you wear it."
+SKILLS_FROM_ESSENCE_BESTIA,"From a Learned Trick essence it wears: its own while it wears it."
 SKILLS_ACTIVE,Active
 SKILLS_TARGET_GROUND,Active: aimed at the ground
 SKILLS_TARGET_AOE_GROUND,Active: hits an area on the ground
