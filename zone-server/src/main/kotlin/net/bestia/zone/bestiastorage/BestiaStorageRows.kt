@@ -83,6 +83,63 @@ class BestiaStorageRows(
     return Swapped(vitals, bundle)
   }
 
+  /**
+   * Locks the active bestia into the Carving Table [structureId], with [activeVitals] and its items packed into a
+   * bundle as for a swap.
+   *
+   * @return what it carried, or null when it carried nothing
+   */
+  @Transactional
+  fun depositActive(
+    masterId: Long,
+    activeId: PlayerBestiaId,
+    at: Vec3L,
+    activeVitals: StoredVitals,
+    now: Instant,
+    structureId: Long,
+  ): ItemInstance? {
+    val active = playerBestias.findByIdForUpdate(activeId)?.takeIf { it.master.id == masterId && !it.isStored }
+      ?: throw BestiaStorageRefusal(OpError.REQUEST_REFUSED)
+
+    active.position = at
+    active.store(now, restsUntil = now.plus(REST), activeVitals)
+    active.depositedAtStructureId = structureId
+
+    return bundles.packAll(active.container)
+  }
+
+  @Transactional
+  fun depositStored(masterId: Long, storedId: PlayerBestiaId, structureId: Long) {
+    storedRowOf(masterId, storedId).depositedAtStructureId = structureId
+  }
+
+  /** The locked bestia goes into its master's storage, which needs a free slot there. */
+  @Transactional
+  fun takeBack(masterId: Long, playerBestiaId: PlayerBestiaId, structureId: Long) {
+    val deposited = playerBestias.findByIdForUpdate(playerBestiaId)
+      ?.takeIf { it.master.id == masterId && it.depositedAtStructureId == structureId }
+      ?: throw BestiaStorageRefusal(OpError.REQUEST_REFUSED)
+    if (!policy.hasFreeStorageSlot(deposited.master)) {
+      throw BestiaStorageRefusal(OpError.BESTIA_SLOTS_FULL)
+    }
+
+    deposited.depositedAtStructureId = null
+  }
+
+  /**
+   * Every bestia locked into the Carving Table [structureId] goes into its master's storage, a full one too: the
+   * table is gone, and nothing else could hold them.
+   *
+   * @return the masters whose storage changed
+   */
+  @Transactional
+  fun returnAllFrom(structureId: Long): Set<Long> {
+    val deposited = playerBestias.findAllByDepositedAtStructureId(structureId)
+    deposited.forEach { it.depositedAtStructureId = null }
+
+    return deposited.map { it.master.id }.toSet()
+  }
+
   /** @throws BestiaStorageRefusal unless [playerBestiaId] is one of the master's stored bestia */
   @Transactional(readOnly = true)
   fun requireStored(masterId: Long, playerBestiaId: PlayerBestiaId) {
@@ -103,7 +160,8 @@ class BestiaStorageRows(
 
   private fun storedRowOf(masterId: Long, playerBestiaId: PlayerBestiaId): PlayerBestia {
     // A bestia not stored or not the master's: the window only offers the master's stored ones.
-    return playerBestias.findByIdForUpdate(playerBestiaId)?.takeIf { it.master.id == masterId && it.isStored }
+    return playerBestias.findByIdForUpdate(playerBestiaId)
+      ?.takeIf { it.master.id == masterId && it.isStored && !it.isDeposited }
       ?: throw BestiaStorageRefusal(OpError.REQUEST_REFUSED)
   }
 

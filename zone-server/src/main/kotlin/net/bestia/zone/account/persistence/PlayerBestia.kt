@@ -153,6 +153,18 @@ class PlayerBestia(
       return storedAt != null
     }
 
+  /**
+   * The Carving Table it is locked into, waiting for Runic Etching; null when it is in none. A locked Bestia is out
+   * of the world like a stored one, but it is not in storage and takes no storage slot.
+   */
+  @Column(name = "deposited_at_structure")
+  var depositedAtStructureId: Long? = null
+
+  val isDeposited: Boolean
+    get() {
+      return depositedAtStructureId != null
+    }
+
   /** Until when it may not be summoned again after it went into storage. Null when it may. */
   @Column(name = "rests_until")
   var restsUntil: Instant? = null

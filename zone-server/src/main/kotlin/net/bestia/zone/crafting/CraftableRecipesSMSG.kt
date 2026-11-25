@@ -36,6 +36,9 @@ data class CraftableRecipesSMSG(
 
   /** The crafter's own Bestias in storage, for the etching picker. */
   val storedBestias: List<StoredEtchable> = emptyList(),
+
+  /** At a Carving Table, what is locked into it and what the viewer could lock in. */
+  val carvingTable: CarvingTableContents.Contents? = null,
 ) : SMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -90,6 +93,25 @@ data class CraftableRecipesSMSG(
             .build()
         }
       )
+      .addAllDeposited(carvingTable?.deposited.orEmpty().map { deposited ->
+        CraftableRecipesSmsgProto.DepositedBestia.newBuilder()
+          .setPlayerBestiaId(deposited.playerBestiaId)
+          .setMobId(deposited.speciesId.toInt())
+          .setLevel(deposited.level)
+          .setName(deposited.name.orEmpty())
+          .setOwnerName(deposited.ownerName)
+          .setMine(deposited.mine)
+          .build()
+      })
+      .addAllDepositable(carvingTable?.depositable.orEmpty().map { depositable ->
+        CraftableRecipesSmsgProto.DepositableBestia.newBuilder()
+          .setPlayerBestiaId(depositable.playerBestiaId)
+          .setMobId(depositable.speciesId.toInt())
+          .setLevel(depositable.level)
+          .setName(depositable.name.orEmpty())
+          .setInStorage(depositable.inStorage)
+          .build()
+      })
       .build()
 
     return EnvelopeProto.Envelope.newBuilder()

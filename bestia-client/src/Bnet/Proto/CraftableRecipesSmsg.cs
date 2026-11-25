@@ -25,29 +25,38 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci5tZXNzYWdlcy9jcmFmdGluZy9jcmFmdGFibGVfcmVjaXBlc19zbXNnLnBy",
-            "b3RvEgRibmV0IuwBChRDcmFmdGFibGVSZWNpcGVzU01TRxIQCghza2lsbF9p",
+            "b3RvEgRibmV0IsQCChRDcmFmdGFibGVSZWNpcGVzU01TRxIQCghza2lsbF9p",
             "ZBgBIAEoBBIUCgxzdGF0aW9uX2tpbmQYAiABKA0SJgoHcmVjaXBlcxgDIAMo",
             "CzIVLmJuZXQuQ3JhZnRhYmxlUmVjaXBlEhQKDHN0cnVjdHVyZV9pZBgEIAEo",
             "BBIUCgxmdWVsX3NlY29uZHMYBSABKA0SKgoOZXRjaGluZ19vZmZlcnMYBiAD",
             "KAsyEi5ibmV0LkV0Y2hpbmdPZmZlchIsCg5zdG9yZWRfYmVzdGlhcxgHIAMo",
-            "CzIULmJuZXQuU3RvcmVkRXRjaGFibGUiVAoMRXRjaGluZ09mZmVyEhEKCWVu",
-            "dGl0eV9pZBgBIAEoBBIOCgZtb2JfaWQYAiABKA0SDQoFbGV2ZWwYAyABKA0S",
-            "EgoKb3duZXJfbmFtZRgEIAEoCSJXCg5TdG9yZWRFdGNoYWJsZRIYChBwbGF5",
-            "ZXJfYmVzdGlhX2lkGAEgASgEEg4KBm1vYl9pZBgCIAEoDRINCgVsZXZlbBgD",
-            "IAEoDRIMCgRuYW1lGAQgASgJIosCCg9DcmFmdGFibGVSZWNpcGUSEQoJcmVj",
-            "aXBlX2lkGAEgASgEEg4KBmVmZmVjdBgCIAEoDRIWCg5vdXRwdXRfaXRlbV9p",
-            "ZBgDIAEoDRIVCg1vdXRwdXRfYW1vdW50GAQgASgNEiEKBmlucHV0cxgFIAMo",
-            "CzIRLmJuZXQuUmVjaXBlSW5wdXQSGAoQc3VjY2Vzc19wZXJtaWxsZRgGIAEo",
-            "DRIUCgxjcmFmdF9taWxsaXMYByABKA0SEwoLaW5wdXRzX2hlbGQYCCABKAgS",
-            "DQoFcG9pbnQYCSADKAISEAoIc2tpbGxfaWQYCiABKAQSHQoVcmVsaWFibGVf",
-            "YmVzdGlhX2xldmVsGAsgASgNIjwKC1JlY2lwZUlucHV0Eg8KB2l0ZW1faWQY",
-            "ASABKA0SDgoGYW1vdW50GAIgASgNEgwKBGhlbGQYAyABKA1CMgoVbmV0LmJl",
-            "c3RpYS5ibmV0LnByb3RvQhlDcmFmdGFibGVSZWNpcGVzU21zZ1Byb3RvYgZw",
-            "cm90bzM="));
+            "CzIULmJuZXQuU3RvcmVkRXRjaGFibGUSKAoJZGVwb3NpdGVkGAggAygLMhUu",
+            "Ym5ldC5EZXBvc2l0ZWRCZXN0aWESLAoLZGVwb3NpdGFibGUYCSADKAsyFy5i",
+            "bmV0LkRlcG9zaXRhYmxlQmVzdGlhInoKD0RlcG9zaXRlZEJlc3RpYRIYChBw",
+            "bGF5ZXJfYmVzdGlhX2lkGAEgASgEEg4KBm1vYl9pZBgCIAEoDRINCgVsZXZl",
+            "bBgDIAEoDRIMCgRuYW1lGAQgASgJEhIKCm93bmVyX25hbWUYBSABKAkSDAoE",
+            "bWluZRgGIAEoCCJuChFEZXBvc2l0YWJsZUJlc3RpYRIYChBwbGF5ZXJfYmVz",
+            "dGlhX2lkGAEgASgEEg4KBm1vYl9pZBgCIAEoDRINCgVsZXZlbBgDIAEoDRIM",
+            "CgRuYW1lGAQgASgJEhIKCmluX3N0b3JhZ2UYBSABKAgiVAoMRXRjaGluZ09m",
+            "ZmVyEhEKCWVudGl0eV9pZBgBIAEoBBIOCgZtb2JfaWQYAiABKA0SDQoFbGV2",
+            "ZWwYAyABKA0SEgoKb3duZXJfbmFtZRgEIAEoCSJXCg5TdG9yZWRFdGNoYWJs",
+            "ZRIYChBwbGF5ZXJfYmVzdGlhX2lkGAEgASgEEg4KBm1vYl9pZBgCIAEoDRIN",
+            "CgVsZXZlbBgDIAEoDRIMCgRuYW1lGAQgASgJIosCCg9DcmFmdGFibGVSZWNp",
+            "cGUSEQoJcmVjaXBlX2lkGAEgASgEEg4KBmVmZmVjdBgCIAEoDRIWCg5vdXRw",
+            "dXRfaXRlbV9pZBgDIAEoDRIVCg1vdXRwdXRfYW1vdW50GAQgASgNEiEKBmlu",
+            "cHV0cxgFIAMoCzIRLmJuZXQuUmVjaXBlSW5wdXQSGAoQc3VjY2Vzc19wZXJt",
+            "aWxsZRgGIAEoDRIUCgxjcmFmdF9taWxsaXMYByABKA0SEwoLaW5wdXRzX2hl",
+            "bGQYCCABKAgSDQoFcG9pbnQYCSADKAISEAoIc2tpbGxfaWQYCiABKAQSHQoV",
+            "cmVsaWFibGVfYmVzdGlhX2xldmVsGAsgASgNIjwKC1JlY2lwZUlucHV0Eg8K",
+            "B2l0ZW1faWQYASABKA0SDgoGYW1vdW50GAIgASgNEgwKBGhlbGQYAyABKA1C",
+            "MgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhlDcmFmdGFibGVSZWNpcGVzU21z",
+            "Z1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipesSMSG), global::Bnet.CraftableRecipesSMSG.Parser, new[]{ "SkillId", "StationKind", "Recipes", "StructureId", "FuelSeconds", "EtchingOffers", "StoredBestias" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipesSMSG), global::Bnet.CraftableRecipesSMSG.Parser, new[]{ "SkillId", "StationKind", "Recipes", "StructureId", "FuelSeconds", "EtchingOffers", "StoredBestias", "Deposited", "Depositable" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.DepositedBestia), global::Bnet.DepositedBestia.Parser, new[]{ "PlayerBestiaId", "MobId", "Level", "Name", "OwnerName", "Mine" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.DepositableBestia), global::Bnet.DepositableBestia.Parser, new[]{ "PlayerBestiaId", "MobId", "Level", "Name", "InStorage" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EtchingOffer), global::Bnet.EtchingOffer.Parser, new[]{ "EntityId", "MobId", "Level", "OwnerName" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.StoredEtchable), global::Bnet.StoredEtchable.Parser, new[]{ "PlayerBestiaId", "MobId", "Level", "Name" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftableRecipe), global::Bnet.CraftableRecipe.Parser, new[]{ "RecipeId", "Effect", "OutputItemId", "OutputAmount", "Inputs", "SuccessPermille", "CraftMillis", "InputsHeld", "Point", "SkillId", "ReliableBestiaLevel" }, null, null, null, null),
@@ -113,6 +122,8 @@ namespace Bnet {
       fuelSeconds_ = other.fuelSeconds_;
       etchingOffers_ = other.etchingOffers_.Clone();
       storedBestias_ = other.storedBestias_.Clone();
+      deposited_ = other.deposited_.Clone();
+      depositable_ = other.depositable_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -222,6 +233,34 @@ namespace Bnet {
       get { return storedBestias_; }
     }
 
+    /// <summary>Field number for the "deposited" field.</summary>
+    public const int DepositedFieldNumber = 8;
+    private static readonly pb::FieldCodec<global::Bnet.DepositedBestia> _repeated_deposited_codec
+        = pb::FieldCodec.ForMessage(66, global::Bnet.DepositedBestia.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.DepositedBestia> deposited_ = new pbc::RepeatedField<global::Bnet.DepositedBestia>();
+    /// <summary>
+    /// At a Carving Table: the Bestias locked into it for Runic Etching, everyone's.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.DepositedBestia> Deposited {
+      get { return deposited_; }
+    }
+
+    /// <summary>Field number for the "depositable" field.</summary>
+    public const int DepositableFieldNumber = 9;
+    private static readonly pb::FieldCodec<global::Bnet.DepositableBestia> _repeated_depositable_codec
+        = pb::FieldCodec.ForMessage(74, global::Bnet.DepositableBestia.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.DepositableBestia> depositable_ = new pbc::RepeatedField<global::Bnet.DepositableBestia>();
+    /// <summary>
+    /// At a Carving Table: the viewer's own Bestias that could be locked into it, called out or in storage.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.DepositableBestia> Depositable {
+      get { return depositable_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -244,6 +283,8 @@ namespace Bnet {
       if (FuelSeconds != other.FuelSeconds) return false;
       if(!etchingOffers_.Equals(other.etchingOffers_)) return false;
       if(!storedBestias_.Equals(other.storedBestias_)) return false;
+      if(!deposited_.Equals(other.deposited_)) return false;
+      if(!depositable_.Equals(other.depositable_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -258,6 +299,8 @@ namespace Bnet {
       if (FuelSeconds != 0) hash ^= FuelSeconds.GetHashCode();
       hash ^= etchingOffers_.GetHashCode();
       hash ^= storedBestias_.GetHashCode();
+      hash ^= deposited_.GetHashCode();
+      hash ^= depositable_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -295,6 +338,8 @@ namespace Bnet {
       }
       etchingOffers_.WriteTo(output, _repeated_etchingOffers_codec);
       storedBestias_.WriteTo(output, _repeated_storedBestias_codec);
+      deposited_.WriteTo(output, _repeated_deposited_codec);
+      depositable_.WriteTo(output, _repeated_depositable_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -324,6 +369,8 @@ namespace Bnet {
       }
       etchingOffers_.WriteTo(ref output, _repeated_etchingOffers_codec);
       storedBestias_.WriteTo(ref output, _repeated_storedBestias_codec);
+      deposited_.WriteTo(ref output, _repeated_deposited_codec);
+      depositable_.WriteTo(ref output, _repeated_depositable_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -349,6 +396,8 @@ namespace Bnet {
       }
       size += etchingOffers_.CalculateSize(_repeated_etchingOffers_codec);
       size += storedBestias_.CalculateSize(_repeated_storedBestias_codec);
+      size += deposited_.CalculateSize(_repeated_deposited_codec);
+      size += depositable_.CalculateSize(_repeated_depositable_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -376,6 +425,8 @@ namespace Bnet {
       }
       etchingOffers_.Add(other.etchingOffers_);
       storedBestias_.Add(other.storedBestias_);
+      deposited_.Add(other.deposited_);
+      depositable_.Add(other.depositable_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -421,6 +472,14 @@ namespace Bnet {
           }
           case 58: {
             storedBestias_.AddEntriesFrom(input, _repeated_storedBestias_codec);
+            break;
+          }
+          case 66: {
+            deposited_.AddEntriesFrom(input, _repeated_deposited_codec);
+            break;
+          }
+          case 74: {
+            depositable_.AddEntriesFrom(input, _repeated_depositable_codec);
             break;
           }
         }
@@ -470,6 +529,749 @@ namespace Bnet {
             storedBestias_.AddEntriesFrom(ref input, _repeated_storedBestias_codec);
             break;
           }
+          case 66: {
+            deposited_.AddEntriesFrom(ref input, _repeated_deposited_codec);
+            break;
+          }
+          case 74: {
+            depositable_.AddEntriesFrom(ref input, _repeated_depositable_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class DepositedBestia : pb::IMessage<DepositedBestia>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<DepositedBestia> _parser = new pb::MessageParser<DepositedBestia>(() => new DepositedBestia());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<DepositedBestia> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Bnet.CraftableRecipesSmsgReflection.Descriptor.MessageTypes[1]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DepositedBestia() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DepositedBestia(DepositedBestia other) : this() {
+      playerBestiaId_ = other.playerBestiaId_;
+      mobId_ = other.mobId_;
+      level_ = other.level_;
+      name_ = other.name_;
+      ownerName_ = other.ownerName_;
+      mine_ = other.mine_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DepositedBestia Clone() {
+      return new DepositedBestia(this);
+    }
+
+    /// <summary>Field number for the "player_bestia_id" field.</summary>
+    public const int PlayerBestiaIdFieldNumber = 1;
+    private ulong playerBestiaId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong PlayerBestiaId {
+      get { return playerBestiaId_; }
+      set {
+        playerBestiaId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "mob_id" field.</summary>
+    public const int MobIdFieldNumber = 2;
+    private uint mobId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint MobId {
+      get { return mobId_; }
+      set {
+        mobId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "level" field.</summary>
+    public const int LevelFieldNumber = 3;
+    private uint level_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Level {
+      get { return level_; }
+      set {
+        level_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "name" field.</summary>
+    public const int NameFieldNumber = 4;
+    private string name_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Name {
+      get { return name_; }
+      set {
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "owner_name" field.</summary>
+    public const int OwnerNameFieldNumber = 5;
+    private string ownerName_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string OwnerName {
+      get { return ownerName_; }
+      set {
+        ownerName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "mine" field.</summary>
+    public const int MineFieldNumber = 6;
+    private bool mine_;
+    /// <summary>
+    /// The viewer owns it, so they may take it back.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Mine {
+      get { return mine_; }
+      set {
+        mine_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as DepositedBestia);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(DepositedBestia other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (PlayerBestiaId != other.PlayerBestiaId) return false;
+      if (MobId != other.MobId) return false;
+      if (Level != other.Level) return false;
+      if (Name != other.Name) return false;
+      if (OwnerName != other.OwnerName) return false;
+      if (Mine != other.Mine) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (PlayerBestiaId != 0UL) hash ^= PlayerBestiaId.GetHashCode();
+      if (MobId != 0) hash ^= MobId.GetHashCode();
+      if (Level != 0) hash ^= Level.GetHashCode();
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (OwnerName.Length != 0) hash ^= OwnerName.GetHashCode();
+      if (Mine != false) hash ^= Mine.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (PlayerBestiaId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(PlayerBestiaId);
+      }
+      if (MobId != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(MobId);
+      }
+      if (Level != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(Level);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Name);
+      }
+      if (OwnerName.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(OwnerName);
+      }
+      if (Mine != false) {
+        output.WriteRawTag(48);
+        output.WriteBool(Mine);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (PlayerBestiaId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(PlayerBestiaId);
+      }
+      if (MobId != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(MobId);
+      }
+      if (Level != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(Level);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Name);
+      }
+      if (OwnerName.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(OwnerName);
+      }
+      if (Mine != false) {
+        output.WriteRawTag(48);
+        output.WriteBool(Mine);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (PlayerBestiaId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(PlayerBestiaId);
+      }
+      if (MobId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MobId);
+      }
+      if (Level != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Level);
+      }
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (OwnerName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(OwnerName);
+      }
+      if (Mine != false) {
+        size += 1 + 1;
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(DepositedBestia other) {
+      if (other == null) {
+        return;
+      }
+      if (other.PlayerBestiaId != 0UL) {
+        PlayerBestiaId = other.PlayerBestiaId;
+      }
+      if (other.MobId != 0) {
+        MobId = other.MobId;
+      }
+      if (other.Level != 0) {
+        Level = other.Level;
+      }
+      if (other.Name.Length != 0) {
+        Name = other.Name;
+      }
+      if (other.OwnerName.Length != 0) {
+        OwnerName = other.OwnerName;
+      }
+      if (other.Mine != false) {
+        Mine = other.Mine;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            PlayerBestiaId = input.ReadUInt64();
+            break;
+          }
+          case 16: {
+            MobId = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            Level = input.ReadUInt32();
+            break;
+          }
+          case 34: {
+            Name = input.ReadString();
+            break;
+          }
+          case 42: {
+            OwnerName = input.ReadString();
+            break;
+          }
+          case 48: {
+            Mine = input.ReadBool();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            PlayerBestiaId = input.ReadUInt64();
+            break;
+          }
+          case 16: {
+            MobId = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            Level = input.ReadUInt32();
+            break;
+          }
+          case 34: {
+            Name = input.ReadString();
+            break;
+          }
+          case 42: {
+            OwnerName = input.ReadString();
+            break;
+          }
+          case 48: {
+            Mine = input.ReadBool();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class DepositableBestia : pb::IMessage<DepositableBestia>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<DepositableBestia> _parser = new pb::MessageParser<DepositableBestia>(() => new DepositableBestia());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<DepositableBestia> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Bnet.CraftableRecipesSmsgReflection.Descriptor.MessageTypes[2]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DepositableBestia() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DepositableBestia(DepositableBestia other) : this() {
+      playerBestiaId_ = other.playerBestiaId_;
+      mobId_ = other.mobId_;
+      level_ = other.level_;
+      name_ = other.name_;
+      inStorage_ = other.inStorage_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DepositableBestia Clone() {
+      return new DepositableBestia(this);
+    }
+
+    /// <summary>Field number for the "player_bestia_id" field.</summary>
+    public const int PlayerBestiaIdFieldNumber = 1;
+    private ulong playerBestiaId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong PlayerBestiaId {
+      get { return playerBestiaId_; }
+      set {
+        playerBestiaId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "mob_id" field.</summary>
+    public const int MobIdFieldNumber = 2;
+    private uint mobId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint MobId {
+      get { return mobId_; }
+      set {
+        mobId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "level" field.</summary>
+    public const int LevelFieldNumber = 3;
+    private uint level_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Level {
+      get { return level_; }
+      set {
+        level_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "name" field.</summary>
+    public const int NameFieldNumber = 4;
+    private string name_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Name {
+      get { return name_; }
+      set {
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "in_storage" field.</summary>
+    public const int InStorageFieldNumber = 5;
+    private bool inStorage_;
+    /// <summary>
+    /// In storage rather than called out; locking it in needs the storage to be open.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool InStorage {
+      get { return inStorage_; }
+      set {
+        inStorage_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as DepositableBestia);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(DepositableBestia other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (PlayerBestiaId != other.PlayerBestiaId) return false;
+      if (MobId != other.MobId) return false;
+      if (Level != other.Level) return false;
+      if (Name != other.Name) return false;
+      if (InStorage != other.InStorage) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (PlayerBestiaId != 0UL) hash ^= PlayerBestiaId.GetHashCode();
+      if (MobId != 0) hash ^= MobId.GetHashCode();
+      if (Level != 0) hash ^= Level.GetHashCode();
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (InStorage != false) hash ^= InStorage.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (PlayerBestiaId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(PlayerBestiaId);
+      }
+      if (MobId != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(MobId);
+      }
+      if (Level != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(Level);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Name);
+      }
+      if (InStorage != false) {
+        output.WriteRawTag(40);
+        output.WriteBool(InStorage);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (PlayerBestiaId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(PlayerBestiaId);
+      }
+      if (MobId != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(MobId);
+      }
+      if (Level != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(Level);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Name);
+      }
+      if (InStorage != false) {
+        output.WriteRawTag(40);
+        output.WriteBool(InStorage);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (PlayerBestiaId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(PlayerBestiaId);
+      }
+      if (MobId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MobId);
+      }
+      if (Level != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Level);
+      }
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (InStorage != false) {
+        size += 1 + 1;
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(DepositableBestia other) {
+      if (other == null) {
+        return;
+      }
+      if (other.PlayerBestiaId != 0UL) {
+        PlayerBestiaId = other.PlayerBestiaId;
+      }
+      if (other.MobId != 0) {
+        MobId = other.MobId;
+      }
+      if (other.Level != 0) {
+        Level = other.Level;
+      }
+      if (other.Name.Length != 0) {
+        Name = other.Name;
+      }
+      if (other.InStorage != false) {
+        InStorage = other.InStorage;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            PlayerBestiaId = input.ReadUInt64();
+            break;
+          }
+          case 16: {
+            MobId = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            Level = input.ReadUInt32();
+            break;
+          }
+          case 34: {
+            Name = input.ReadString();
+            break;
+          }
+          case 40: {
+            InStorage = input.ReadBool();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            PlayerBestiaId = input.ReadUInt64();
+            break;
+          }
+          case 16: {
+            MobId = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            Level = input.ReadUInt32();
+            break;
+          }
+          case 34: {
+            Name = input.ReadString();
+            break;
+          }
+          case 40: {
+            InStorage = input.ReadBool();
+            break;
+          }
         }
       }
     }
@@ -492,7 +1294,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.CraftableRecipesSmsgReflection.Descriptor.MessageTypes[1]; }
+      get { return global::Bnet.CraftableRecipesSmsgReflection.Descriptor.MessageTypes[3]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -801,7 +1603,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.CraftableRecipesSmsgReflection.Descriptor.MessageTypes[2]; }
+      get { return global::Bnet.CraftableRecipesSmsgReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1113,7 +1915,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.CraftableRecipesSmsgReflection.Descriptor.MessageTypes[3]; }
+      get { return global::Bnet.CraftableRecipesSmsgReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1691,7 +2493,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.CraftableRecipesSmsgReflection.Descriptor.MessageTypes[4]; }
+      get { return global::Bnet.CraftableRecipesSmsgReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

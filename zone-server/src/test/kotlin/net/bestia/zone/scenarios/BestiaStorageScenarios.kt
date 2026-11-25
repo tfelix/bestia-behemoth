@@ -244,6 +244,51 @@ class BestiaStorageScenarios : BestiaNoSocketScenario(autoClientConnect = false)
     }
   }
 
+  @Test
+  @Order(9)
+  fun `a called-out bestia locked into a carving table leaves the world and takes no storage slot`() {
+    val calledOut = bestiasInWorld().minBy { it.playerBestiaId }
+
+    storage.deposit(client.connectedPlayerId, calledOut.playerBestiaId, CARVING_TABLE_ID)
+
+    await {
+      assertFalse(world.read { isAlive(calledOut.entityId) })
+      val row = playerBestias.findByIdOrNull(calledOut.playerBestiaId)!!
+      assertEquals(CARVING_TABLE_ID, row.depositedAtStructureId)
+      assertTrue(row.isStored, "out of the world like a stored one")
+    }
+    val window = client.getLastReceived(BestiaStorageSMSG::class)
+    assertTrue(window.bestias.none { it.info.playerBestiaId == calledOut.playerBestiaId }, "not in storage")
+  }
+
+  @Test
+  @Order(10)
+  fun `a locked bestia cannot be summoned until its master takes it back`() {
+    val locked = playerBestias.findAllByDepositedAtStructureId(CARVING_TABLE_ID).single()
+    restedLongEnough(locked.id)
+    client.clearMessages()
+
+    client.sendMessage(SummonStoredBestiaCMSG(client.connectedPlayerId, locked.id))
+    awaitRefusal(OpError.REQUEST_REFUSED)
+
+    storage.takeBack(client.connectedPlayerId, locked.id, CARVING_TABLE_ID)
+    await { assertNull(playerBestias.findByIdOrNull(locked.id)!!.depositedAtStructureId) }
+    assertTrue(playerBestias.findByIdOrNull(locked.id)!!.isStored, "it goes into storage")
+  }
+
+  @Test
+  @Order(11)
+  fun `a stored bestia locked into a table goes back to storage when the table is gone`() {
+    val inStorage = playerBestias.findAllByMasterId(masterId).first { it.isStored && !it.isDeposited }
+
+    storage.deposit(client.connectedPlayerId, inStorage.id, CARVING_TABLE_ID)
+    await { assertEquals(CARVING_TABLE_ID, playerBestias.findByIdOrNull(inStorage.id)!!.depositedAtStructureId) }
+
+    storage.returnAllFrom(CARVING_TABLE_ID)
+
+    assertNull(playerBestias.findByIdOrNull(inStorage.id)!!.depositedAtStructureId)
+  }
+
   private fun create(): PlayerBestia {
     return playerBestiaCreateOperation.createAndSpawn(masterId, PlayerBestiaCreateData("blob", Vec3L.ZERO))
   }
@@ -281,5 +326,6 @@ class BestiaStorageScenarios : BestiaNoSocketScenario(autoClientConnect = false)
     const val ACTIVE_SLOTS = 4
     const val APPLE = 1L
     const val LANDING_RADIUS = 4L
+    const val CARVING_TABLE_ID = 9001L
   }
 }

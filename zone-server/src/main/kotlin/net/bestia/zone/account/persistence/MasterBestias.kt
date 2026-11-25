@@ -24,7 +24,13 @@ class MasterBestias {
 
   val storedBestias: List<PlayerBestia>
     get() {
-      return bestias.filter { it.isStored }
+      return bestias.filter { it.isStored && !it.isDeposited }
+    }
+
+  /** The ones locked into a Carving Table, see [PlayerBestia.depositedAtStructureId]. */
+  val depositedBestias: List<PlayerBestia>
+    get() {
+      return bestias.filter { it.isDeposited }
     }
 
   /** Moves [bestia] into [other]'s set; [PlayerBestia.changeOwner] changes its owning side. */

@@ -93,13 +93,8 @@ class BestiaStorageService(
    */
   fun swap(accountId: AccountId, storedId: PlayerBestiaId, activeEntityId: EntityId) {
     onMaster(accountId) { session ->
-      val leaving = worldView.read { leaving(this, session, activeEntityId) }
       rows.checkSwappable(session.masterId, storedId, clock.instant())
-
-      val effects = worldView.read { statusEffects.snapshot(this, activeEntityId) }
-      worldView.modify(activeEntityId) { id -> destroy(id) }
-      connections.unregisterPlayerBestiaEntity(accountId, session.masterId, leaving.playerBestiaId)
-      statusEffects.persist(listOf(effects ?: StatusEffectsSnapshot(activeEntityId, emptyList())))
+      val leaving = leaveWorld(session, activeEntityId)
 
       val swapped = try {
         rows.swap(session.masterId, storedId, leaving.playerBestiaId, leaving.position, leaving.vitals, clock.instant())
@@ -113,6 +108,51 @@ class BestiaStorageService(
       swapped.bundle?.let { dropBundle(it, leaving.position, accountId) }
       changed(session)
     }
+  }
+
+  /**
+   * Locks one of the master's bestias into the Carving Table [structureId] for Runic Etching: one that is called
+   * out goes like a swapped one, with its items in a bundle; one in storage only needs the storage to be open.
+   */
+  fun deposit(accountId: AccountId, playerBestiaId: PlayerBestiaId, structureId: Long) {
+    onMaster(accountId, atCounter = true) { session ->
+      val calledOut = connections.ownedBestiaOf(accountId, playerBestiaId)?.entityId
+      if (calledOut == null) {
+        worldView.read { masterRefusal(this, session.masterEntityId, atCounter = false) }?.let { throw BestiaStorageRefusal(it) }
+        rows.depositStored(session.masterId, playerBestiaId, structureId)
+      } else {
+        depositCalledOut(session, calledOut, structureId)
+      }
+
+      changed(session)
+    }
+  }
+
+  /** The locked bestia goes into its master's storage. */
+  fun takeBack(accountId: AccountId, playerBestiaId: PlayerBestiaId, structureId: Long) {
+    onMaster(accountId, atCounter = true) { session ->
+      rows.takeBack(session.masterId, playerBestiaId, structureId)
+      changed(session)
+    }
+  }
+
+  /** The Carving Table [structureId] is gone: every bestia locked into it goes into its master's storage. Off the tick. */
+  fun returnAllFrom(structureId: Long) {
+    val masters = rows.returnAllFrom(structureId)
+    LOG.info { "Carving Table $structureId is gone; returned the bestias of ${masters.size} master(s) to storage" }
+  }
+
+  private fun depositCalledOut(session: MasterSession, entityId: EntityId, structureId: Long) {
+    val leaving = leaveWorld(session, entityId)
+
+    val bundle = try {
+      rows.depositActive(session.masterId, leaving.playerBestiaId, leaving.position, leaving.vitals, clock.instant(), structureId)
+    } catch (e: Exception) {
+      // Its row is still active: put it back as it was.
+      spawner.spawnPlayerBestia(leaving.playerBestiaId, leaving.vitals)
+      throw e
+    }
+    bundle?.let { dropBundle(it, leaving.position, session.accountId) }
   }
 
   /** Gives up a stored bestia for good. */
@@ -151,6 +191,17 @@ class BestiaStorageService(
     }
 
     return null
+  }
+
+  /** Takes a called-out bestia out of the world and keeps its status effects for when it comes back. */
+  private fun leaveWorld(session: MasterSession, entityId: EntityId): Leaving {
+    val leaving = worldView.read { leaving(this, session, entityId) }
+    val effects = worldView.read { statusEffects.snapshot(this, entityId) }
+    worldView.modify(entityId) { id -> destroy(id) }
+    connections.unregisterPlayerBestiaEntity(session.accountId, session.masterId, leaving.playerBestiaId)
+    statusEffects.persist(listOf(effects ?: StatusEffectsSnapshot(entityId, emptyList())))
+
+    return leaving
   }
 
   private fun leaving(world: World, session: MasterSession, entityId: EntityId): Leaving {

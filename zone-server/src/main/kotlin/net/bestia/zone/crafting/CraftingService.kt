@@ -94,6 +94,7 @@ class CraftingService(
   private val crafters: Crafters,
   private val etching: EssenceEtching,
   private val storedEtching: StoredEtching,
+  private val carvingTableContents: CarvingTableContents,
   private val blueprintPoints: BlueprintPoints,
   private val structureRegistry: PlayerStructureRegistry,
   private val stationStates: StationStateSender,
@@ -175,11 +176,14 @@ class CraftingService(
       etchingOffers = carvingTable?.let { etching.offersAt(world, it.position, crafter.master.masterId) }.orEmpty()
     )
 
-    // The stored Bestias come from the database, so the window waits for them off the tick.
+    // The Bestias come from the database, so the window waits for them off the tick.
     val masterId = crafter.master.masterId
-    if (carvingTable != null && storedEtching.accessRefusal(world, masterEntityId) == null) {
+    if (carvingTable != null) {
+      val mayEtchFromStorage = storedEtching.accessRefusal(world, masterEntityId) == null
       asyncJobExecutor.submit(masterId) {
-        outMessageProcessor.sendToPlayer(accountId, window.copy(storedBestias = storedEtching.load(masterId)))
+        val stored = if (mayEtchFromStorage) storedEtching.load(masterId) else emptyList()
+        val contents = carvingTableContents.load(carvingTable.id, masterId)
+        outMessageProcessor.sendToPlayer(accountId, window.copy(storedBestias = stored, carvingTable = contents))
       }
     } else {
       outMessageProcessor.sendToPlayer(accountId, window)

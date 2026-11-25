@@ -18,12 +18,15 @@ class PlayerBestiaPolicy(
       return BestiaPlace.ACTIVE
     }
 
-    val storageSlots = availableBestiaSlotService.getStorageSlotCount(master.account.id)
-    if (master.bestias.storedBestias.size < storageSlots) {
+    if (hasFreeStorageSlot(master)) {
       return BestiaPlace.STORAGE
     }
 
     throw OwnedBestiaPolicyViolationException("Master ${master.id} has no free active or storage slot")
+  }
+
+  fun hasFreeStorageSlot(master: Master): Boolean {
+    return master.bestias.storedBestias.size < availableBestiaSlotService.getStorageSlotCount(master.account.id)
   }
 
   fun hasFreeActiveSlot(master: Master): Boolean {
