@@ -147,6 +147,9 @@ func _why_not(bestia: Dictionary, tier: String) -> String:
 	var species := BestiaDB.get_instance().get_bestia(bestia.mob_id)
 	if species == null or species.essence_effect.is_empty():
 		return "has no essence"
+	var boss_tier := EssenceText.boss_tier(species)
+	if not boss_tier.is_empty() and boss_tier != tier:
+		return "fills only %s" % TranslationServer.translate("GEM_TIER_" + boss_tier)
 	if bestia.level < int(EssenceText.MIN_BESTIA_LEVEL_BY_TIER.get(tier, 0)):
 		return "too low for %s" % TranslationServer.translate("GEM_TIER_" + tier)
 	return ""
@@ -158,7 +161,7 @@ func _result(bestia: Dictionary, tier: String) -> VBoxContainer:
 	box.add_child(UiStyle.label("Essence Gem: " + ItemDetail.essence_line(essence), 13, UiStyle.SELF_BORDER))
 
 	var species := BestiaDB.get_instance().get_bestia(bestia.mob_id)
-	var min_item_level := int(EssenceText.MIN_ITEM_LEVEL_BY_TIER.get(tier, 0))
+	var min_item_level := EssenceText.min_item_level(species, tier)
 	var tool: String = EssenceText.TOOL_BY_EFFECT.get(species.essence_effect, "")
 	var socket_name: String = TranslationServer.translate("TOOL_KIND_" + tool) if not tool.is_empty() else species.essence_group.capitalize()
 	var fits := "Fits a %s socket" % socket_name

@@ -22,5 +22,14 @@ enum class GemTier(
     fun ofCutGem(identifier: String): GemTier? {
       return entries.find { it.cutGem == identifier }
     }
+
+    /** The one gem a boss fills. Its essence is fixed, so a better gem would add nothing. */
+    fun ofBossLevel(bossLevel: Int): GemTier {
+      return when {
+        bossLevel <= 60 -> RUBY
+        bossLevel <= 80 -> PYRELITH
+        else -> DIAMOND
+      }
+    }
   }
 }

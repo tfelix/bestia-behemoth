@@ -23,6 +23,8 @@ const TOOL_BY_EFFECT := {
 ## The highest attack level a Learned Trick casts at, by gem. A Diamond has no cap.
 const LEVEL_CAP_BY_TIER := {"AMETHYST": 20, "EMERALD": 40, "RUBY": 60, "PYRELITH": 80, "DIAMOND": 100}
 
+const _BOSS_LEVEL_MARGIN := 20
+
 ## Effects whose value is plain points times this, in percent or flat as their text says.
 const PER_POINT := {
 	"BANE": 3, "ELEMENT_HUNTER": 3, "GIANT_SLAYER": 2, "WARD": 3, "ARROW_WARD": 1, "ELEMENT_SKIN": 3,
@@ -30,6 +32,25 @@ const PER_POINT := {
 	"WISDOM": 5, "QUICK_HANDS": 1, "QUIET_STEP": 2, "REFLEX": 1, "MINING_SPEED": 3, "FELLING_SPEED": 3,
 	"DIGGING_SPEED": 3, "FASTER_BITE": 3, "RICH_SEAM": 1, "TOUGH_GRIP": 3,
 }
+
+## The one gem a boss fills, or empty for any other species. Mirrors the server's GemTier.ofBossLevel.
+static func boss_tier(bestia: BestiaResource) -> String:
+	if bestia == null or bestia.essence_effect != "BOSS":
+		return ""
+	if bestia.level_min <= 60:
+		return "RUBY"
+	if bestia.level_min <= 80:
+		return "PYRELITH"
+	return "DIAMOND"
+
+
+## The lowest item level the essence goes into: the gem's, and for a boss at most 20 below the boss.
+static func min_item_level(bestia: BestiaResource, tier: String) -> int:
+	var gem_level := int(MIN_ITEM_LEVEL_BY_TIER.get(tier, 0))
+	if boss_tier(bestia).is_empty():
+		return gem_level
+	return maxi(gem_level, bestia.level_min - _BOSS_LEVEL_MARGIN)
+
 
 ## The socket group of [param item], or empty for an item no essence fits. Mirrors the server's SocketGroup.of.
 static func group_of(item: ItemResource) -> String:

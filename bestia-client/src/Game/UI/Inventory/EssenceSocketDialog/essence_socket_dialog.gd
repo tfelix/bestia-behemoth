@@ -28,7 +28,7 @@ func open_for(gem: InventoryItemResource, copies: Array) -> void:
 	var species := BestiaDB.get_instance().get_bestia(int(essence.BestiaId))
 	var group := species.essence_group if species != null else ""
 	var tool: String = EssenceText.TOOL_BY_EFFECT.get(species.essence_effect, "") if species != null else ""
-	var min_item_level := int(EssenceText.MIN_ITEM_LEVEL_BY_TIER.get(tier, 0))
+	var min_item_level := EssenceText.min_item_level(species, tier)
 
 	_essence.text = ItemDetail.essence_line(essence)
 	var socket_name := tr("TOOL_KIND_" + tool) if not tool.is_empty() else tr("SOCKET_GROUP_" + group)
