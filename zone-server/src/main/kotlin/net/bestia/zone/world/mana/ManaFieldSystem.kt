@@ -35,9 +35,11 @@ class ManaFieldSystem(
   override val writes: ComponentClassSet = emptySet()
 
   override fun update(world: World, deltaTime: Float) {
-    wounds.pour(deltaTime.toDouble())
-    rule.step(field, ground, deltaTime.toDouble())
-    tiers.update(tierRule, deltaTime.toDouble())
+    synchronized(field) {
+      wounds.pour(deltaTime.toDouble())
+      rule.step(field, ground, deltaTime.toDouble())
+      tiers.update(tierRule, deltaTime.toDouble())
+    }
   }
 
   private companion object {

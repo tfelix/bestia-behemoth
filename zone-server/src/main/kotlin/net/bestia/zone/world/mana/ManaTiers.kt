@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
  * falls only once the density is [ManaTierRule.HYSTERESIS] below the border. Only cells whose tier differs from
  * their start density's keep that memory; every other cell sits at the tier of its start density.
  *
- * Tick-thread only, like [ManaField].
+ * Shares the [ManaField]'s lock, because spawns and exposure read tiers while the field moves.
  */
 @Component
 class ManaTiers(
@@ -32,10 +32,10 @@ class ManaTiers(
 
   fun tierAt(at: Vec3L): ManaTier = tierOf(Cell(ManaField.cellOf(at.x.toDouble()), ManaField.cellOf(at.y.toDouble())))
 
-  fun tierOf(cell: Cell): ManaTier = memory[cell]?.tier ?: naturalTierOf(cell)
+  fun tierOf(cell: Cell): ManaTier = synchronized(field) { memory[cell]?.tier ?: naturalTierOf(cell) }
 
   /** Moves the clock by [seconds] and settles every cell that holds a change. */
-  fun update(rule: ManaTierRule, seconds: Double) {
+  fun update(rule: ManaTierRule, seconds: Double) = synchronized(field) {
     now += seconds
     val touched = HashSet<Cell>()
 

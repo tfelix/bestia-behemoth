@@ -3,7 +3,7 @@ package net.bestia.zone.world.mana
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component
 
-/** Everything that releases mana into the field goes through here, so the amounts stay in one place. Tick only. */
+/** Everything that releases mana into the field goes through here, so the amounts stay in one place. */
 @Component
 class ManaEmission(
   private val field: ManaField,
