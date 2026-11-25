@@ -44,6 +44,18 @@ class StoredRift(
   @Column(name = "collapses_at_second", nullable = false)
   var collapsesAtSecond: Long = 0,
 
+  /** The anchor bestia an open rift calls at stage 3, while it stands; null before and after. */
+  @Column(name = "anchor_entity_id")
+  var anchorEntityId: Long? = null,
+
+  /** Whether the anchor fell. A rift whose anchor stands cannot be sealed. */
+  @Column(name = "anchor_slain", nullable = false)
+  var anchorSlain: Boolean = false,
+
+  /** When the next wave comes out of the gate. */
+  @Column(name = "next_wave_at_second", nullable = false)
+  var nextWaveAtSecond: Long = 0,
+
   @Column(name = "world_shape_version", nullable = false)
   var worldShapeVersion: Long = 0,
 

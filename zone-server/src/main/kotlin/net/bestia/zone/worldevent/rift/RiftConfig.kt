@@ -29,4 +29,22 @@ data class RiftConfig(
 
   /** How far a collapse spills its mana, in metres. Heaviest at the centre. */
   val spillRadiusMetres: Double = 300.0,
+
+  /** Real minutes between two waves out of an open gate, rolled between the two. */
+  val waveMinRealMinutes: Double = 20.0,
+  val waveMaxRealMinutes: Double = 30.0,
+
+  /** Bestia in a wave while players stand near the gate, and while nobody does. */
+  val waveSizeWatched: Int = 5,
+  val waveSizeUnwatched: Int = 2,
+
+  /** How near the gate a master counts as watching it, in metres. */
+  val watchRadiusMetres: Double = 1500.0,
+
+  /** Levels a wave bestia gains per stage, over its kin's highest. */
+  val waveLevelsPerStage: Int = 5,
+
+  /** The stage at which the anchor steps out, and how far above the province's strongest den it stands. */
+  val anchorStage: Int = 3,
+  val anchorLevelsAboveDens: Int = 10,
 )

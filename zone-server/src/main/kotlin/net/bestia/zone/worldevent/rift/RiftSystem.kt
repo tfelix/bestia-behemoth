@@ -24,7 +24,7 @@ import net.bestia.zone.worldevent.rift.RiftLifecycle.News
 import org.springframework.stereotype.Component
 
 /**
- * Moves every rift on once a minute, and keeps a gate standing at each open one. Touches no component in the
+ * Moves every rift on once a minute, keeps a gate standing at each open one and lets its hordes out. Touches no component in the
  * step; gates and rumours go in a deferred block, because other systems touch those beside this one.
  */
 @Component
@@ -37,6 +37,7 @@ class RiftSystem(
   private val chunks: ChunkService,
   private val worldService: WorldService,
   private val rumours: RumourService,
+  private val hordes: RiftHordes,
 ) : System {
 
   private val lifecycle = RiftLifecycle(config, RiftField(field, ground), realSecondsPerBestiaSecond = 1.0 / clock.speedFactor)
@@ -62,10 +63,11 @@ class RiftSystem(
       lifecycle.merge(active)
       heard
     }
-    rifts.saveAll(active)
 
     world.defer {
       keepGates(world, active)
+      hordes.tend(world, active, now)
+      rifts.saveAll(active)
       news.forEach { (rift, what) -> tell(rift, what) }
     }
   }
