@@ -11,7 +11,7 @@ import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
- * Sends a player the skill list again once the gear of its master or Bestia grants other Learned Tricks, so the Borrowed
+ * Sends a player the skill list again once the gear of its master or Bestia grants other Learned Tricks, so the Temporary
  * tab follows the gear.
  */
 @SpringComponent
