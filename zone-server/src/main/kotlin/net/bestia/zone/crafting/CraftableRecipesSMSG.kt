@@ -5,6 +5,7 @@ import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.crafting.discovery.CraftVector
 import net.bestia.zone.entity.StaticEntityKind
+import net.bestia.zone.util.EntityId
 
 /**
  * What the caster can make with the skill they just activated, at the station they are standing next to.
@@ -33,6 +34,9 @@ data class CraftableRecipesSMSG(
 
   /** At a Carving Table, what is locked into it and what the viewer could lock in. */
   val carvingTable: CarvingTableContents.Contents? = null,
+
+  /** The station's entity, for the window's buttons to click; 0 when it was not opened by clicking it. */
+  val stationEntityId: EntityId = 0,
 ) : SMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -67,6 +71,7 @@ data class CraftableRecipesSMSG(
       .addAllRecipes(protoRecipes)
       .setStructureId(structureId)
       .setFuelSeconds(fuelSeconds.toInt())
+      .setStationEntityId(stationEntityId)
       .addAllDeposited(carvingTable?.deposited.orEmpty().map { deposited ->
         CraftableRecipesSmsgProto.DepositedBestia.newBuilder()
           .setPlayerBestiaId(deposited.playerBestiaId)

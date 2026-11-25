@@ -30,6 +30,8 @@ const WATCHER := "watcher"
 
 const QUEST_ID := "questId"
 const ITEM_ID := "itemId"
+const PLAYER_BESTIA_ID := "playerBestiaId"
+const RECIPE_ID := "recipeId"
 const AMOUNT := "amount"
 const COINS_EACH := "coinsEach"
 const DAYS := "days"
