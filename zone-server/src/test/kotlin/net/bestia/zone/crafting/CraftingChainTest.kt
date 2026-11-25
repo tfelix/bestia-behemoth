@@ -91,6 +91,7 @@ class CraftingChainTest {
   fun `a station kit outside the Craftsman tree is made with the skill that works at the station`() {
     val kitSkills = mapOf(
       StaticEntityKind.GEM_CUT_STATION to "M_GEM_CUTTING",
+      StaticEntityKind.MINT to "M_MINTING",
     )
 
     kitSkills.forEach { (station, skill) ->

@@ -231,7 +231,10 @@ enum class StaticEntityKind {
   SEAL_STONE,
 
   /** A Scholar's lookout in the wild, where Observation senses the events brewing around. */
-  OBSERVATION_OUTPOST;
+  OBSERVATION_OUTPOST,
+
+  /** Where a Trader mints gold bars into coin. */
+  MINT;
 
   /** A scar the mana left, which nothing may break. */
   val isOmen: Boolean get() = name.startsWith("OMEN_")

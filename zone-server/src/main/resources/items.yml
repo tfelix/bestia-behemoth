@@ -11944,3 +11944,15 @@ items:
       Poles, planks and a brass spyglass, bundled for carrying into the wild.
 
       Put up anywhere outside a town, it becomes an Observation Outpost. Only a Master who knows Observation can raise it.
+
+  - id: 645
+    item-db-name: mint_kit
+    base-level: 1
+    weight: 1500
+    type: USABLE
+    material: STONE
+    script: MintKitScript
+    description: |
+      A stone block, a screw press and a pair of bronze dies, packed in straw.
+
+      Set it down and it becomes a Mint, where Minting strikes gold bars into coin.

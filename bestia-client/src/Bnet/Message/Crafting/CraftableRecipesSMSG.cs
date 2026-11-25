@@ -109,7 +109,8 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
       { 87, "Alchemy Laboratory" },
       { 88, "Gem Cut Station" },
       { 89, "Transmutation Workbench" },
-      { CarvingTableKind, "Carving Table" }
+      { CarvingTableKind, "Carving Table" },
+      { 106, "Mint" }
     };
 
     /// <summary><c>StaticEntityKind.CAMPFIRE</c> ordinal + 1, the one station that burns fuel.</summary>

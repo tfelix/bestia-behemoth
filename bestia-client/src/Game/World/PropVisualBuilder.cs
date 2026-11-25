@@ -139,6 +139,7 @@ namespace BestiaBehemothClient.Game.World
         "CARVING_TABLE" => 93,
         "INN" => 102,
         "OBSERVATION_OUTPOST" => 104,
+        "MINT" => 105,
         "STRUCTURE_WALL" => Mesh.StructurePieces.Wall,
         "STRUCTURE_FLOOR" => Mesh.StructurePieces.Floor,
         "STRUCTURE_STAIRS" => Mesh.StructurePieces.Stairs,

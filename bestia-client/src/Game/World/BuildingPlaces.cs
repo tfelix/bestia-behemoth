@@ -21,7 +21,7 @@ namespace BestiaBehemothClient.Game.World
     public static readonly HashSet<int> WildKinds = new() { 22, 55, 57, 58, 59, 71, 90, 104 };
 
     /// <summary>Finished player buildings a new town building may stand near.</summary>
-    public static readonly HashSet<int> TownAnchorKinds = new() { 13, 23, 24, 52, 53, 54, 67, 75, 76, 77, 78, 86, 87, 88, 92, 93, 102 };
+    public static readonly HashSet<int> TownAnchorKinds = new() { 13, 23, 24, 52, 53, 54, 67, 75, 76, 77, 78, 86, 87, 88, 92, 93, 102, 105 };
 
     /// <summary>What the world generator builds in its towns. A generated market is drawn as an auction house.</summary>
     public static readonly HashSet<int> GeneratedBuildingKinds = new() { 13, 14, 15, 16, 17, 18, 19, 20, 21 };

@@ -272,6 +272,12 @@ kinds:
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 1
 
+  # Stone and an iron press: as tough as a chest, because gold bars wait in its queue.
+  - kind: MINT
+    max-hp: 200
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1
+
   # Planks and iron bands: tougher than a workbench, because what is inside is worth breaking it for.
   - kind: CHEST
     max-hp: 200

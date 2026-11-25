@@ -910,7 +910,14 @@ namespace BestiaBehemothClient.Game.World
       new Kind
       {
         PlaceholderWidth = 2.0f, PlaceholderColour = new Color(0.55f, 0.42f, 0.28f), StructureHeight = 5f
-      } // OBSERVATION_OUTPOST
+      }, // OBSERVATION_OUTPOST
+
+      // Where a Trader strikes coin: a gold-grey block of stone until it has a model.
+      new Kind
+      {
+        PlaceholderWidth = 1.4f, PlaceholderColour = new Color(0.70f, 0.62f, 0.38f), StructureHeight = 2f,
+        Action = PropAction.Use
+      } // MINT
     };
 
     /// <summary>

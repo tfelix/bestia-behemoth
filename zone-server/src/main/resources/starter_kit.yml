@@ -56,6 +56,7 @@ blueprints:
   - GEM_CUT_STATION_KIT
   - TRANSMUTATION_WORKBENCH_KIT
   - CARVING_TABLE_KIT
+  - MINT_KIT
   - CAMPFIRE_KIT
   # Found stranded by `CraftingChainTest`: a log carries no craft-axes (it is the precursor of a plank), so these four
   # had no point to discover and nothing else teaches a recipe. Carpentry rank still gates the town buildings.

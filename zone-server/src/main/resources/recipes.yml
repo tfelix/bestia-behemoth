@@ -356,8 +356,7 @@ recipes:
     inputs:
       - { item: gold_bar, amount: 1 }
     skill: { skill: M_MINTING, level: 1 }
-    # A workbench until the Mint exists as a station.
-    station: WORKBENCH
+    station: MINT
     craftSeconds: 20.0
     baseSuccessChance: 1.0
 
@@ -1604,6 +1603,21 @@ recipes:
       - { item: iron_ingot, amount: 2 }
       - { item: glass, amount: 1 }
     skill: { skill: M_RUNIC_ETCHING, level: 1 }
+    craftSeconds: 20.0
+    baseSuccessChance: 1
+
+  # Minting is a Trader's skill, so like the Gem Cut Station the kit comes with the skill rather than with Carpentry.
+  # Everything in it is in reach around level 15 to 20: bronze and iron from the first ores, stone from a boulder.
+  - id: 162
+    identifier: MINT_KIT
+    effect: PRODUCE
+    output: { item: mint_kit, amount: 1 }
+    inputs:
+      - { item: cut_stone, amount: 6 }
+      - { item: plank, amount: 4 }
+      - { item: iron_ingot, amount: 2 }
+      - { item: bronze_ingot, amount: 2 }
+    skill: { skill: M_MINTING, level: 1 }
     craftSeconds: 20.0
     baseSuccessChance: 1
 
