@@ -74,6 +74,13 @@ data class BestiaDateTime(
   /** True whenever it is not [isNight]. Includes the twilight hours, which are lit. */
   val isDay: Boolean get() = !isNight
 
+  val dayPart: DayPart get() = DayPart.ofHour(hour)
+
+  /** Where the moon is in its month, 0 to 1 from new to new; see [MoonPhase]. */
+  val moonCycle: Double get() = (absoluteSecond.toDouble() / SECONDS_PER_MOON_CYCLE).let { it - Math.floor(it) }
+
+  val moonPhase: MoonPhase get() = MoonPhase.of(moonCycle)
+
   /**
    * How much of the sun's light is up, in `[0, 1]`: `1.0` in full day, `0.0` in full night, and a smooth
    * ramp across dawn and dusk.
@@ -163,6 +170,7 @@ data class BestiaDateTime(
 
     private const val SECONDS_PER_HOUR = 3600L
     private const val SECONDS_PER_DAY = HOURS_PER_DAY * SECONDS_PER_HOUR
+    private const val SECONDS_PER_MOON_CYCLE = DAYS_PER_MONTH * SECONDS_PER_DAY
     private const val DAYS_PER_YEAR = DAYS_PER_MONTH * MONTHS_PER_YEAR
 
     /** The Bestia date/time [speedFactor]x real-time-speed [elapsed] real-world duration after a world's creation. */
