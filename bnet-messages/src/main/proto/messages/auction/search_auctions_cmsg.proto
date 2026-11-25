@@ -24,4 +24,14 @@ message SearchAuctionsCMSG {
 
   // Zero-based.
   int32 page = 7;
+
+  // Only goods that hold an essence, socketed or in a gem.
+  bool with_essence = 8;
+
+  // The species that essence may be of. Names and effects live on the client, so they arrive as species. Empty
+  // means any species.
+  repeated uint64 essence_bestia_ids = 9;
+
+  // A GemTier name. Empty means any gem.
+  string essence_tier = 10;
 }

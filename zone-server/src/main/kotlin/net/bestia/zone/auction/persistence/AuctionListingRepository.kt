@@ -1,6 +1,7 @@
 package net.bestia.zone.auction.persistence
 
 import net.bestia.zone.auction.AuctionCategory
+import net.bestia.zone.item.essence.GemTier
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import jakarta.persistence.LockModeType
@@ -26,7 +27,8 @@ interface AuctionListingRepository : JpaRepository<AuctionListing, Long> {
 
   /**
    * Cheapest per unit first. [itemIds] must not be empty - JPQL has no empty `IN` - so "any item" is
-   * [anyItem] rather than an empty list.
+   * [anyItem] rather than an empty list; [essenceBestiaIds] and [anyEssenceSpecies] the same. With [withEssence],
+   * only goods with an essence socketed into them or held in an essence gem.
    */
   @Query(
     value = """
@@ -35,6 +37,17 @@ interface AuctionListingRepository : JpaRepository<AuctionListing, Long> {
         AND l.itemLevel BETWEEN :minLevel AND :maxLevel
         AND (:anyItem = true OR l.itemId IN :itemIds)
         AND (:sellerMasterId IS NULL OR l.sellerMasterId = :sellerMasterId)
+        AND (:withEssence = false OR EXISTS (
+          SELECT s.id FROM ContainerSlot s JOIN s.itemInstance i LEFT JOIN i.socketRows e
+          WHERE s.container = l.container AND (
+            (i.heldEssence.bestiaId IS NOT NULL
+              AND (:anyEssenceSpecies = true OR i.heldEssence.bestiaId IN :essenceBestiaIds)
+              AND (:essenceTier IS NULL OR i.heldEssence.tier = :essenceTier))
+            OR (e.bestiaId IS NOT NULL
+              AND (:anyEssenceSpecies = true OR e.bestiaId IN :essenceBestiaIds)
+              AND (:essenceTier IS NULL OR e.tier = :essenceTier))
+          )
+        ))
         AND l.expiresAt > :now
         AND ((:startTowns = true AND l.houseStructureId IS NULL) OR l.houseStructureId IN :houseIds)
       ORDER BY (l.price * 1.0 / l.amount), l.id
@@ -45,6 +58,17 @@ interface AuctionListingRepository : JpaRepository<AuctionListing, Long> {
         AND l.itemLevel BETWEEN :minLevel AND :maxLevel
         AND (:anyItem = true OR l.itemId IN :itemIds)
         AND (:sellerMasterId IS NULL OR l.sellerMasterId = :sellerMasterId)
+        AND (:withEssence = false OR EXISTS (
+          SELECT s.id FROM ContainerSlot s JOIN s.itemInstance i LEFT JOIN i.socketRows e
+          WHERE s.container = l.container AND (
+            (i.heldEssence.bestiaId IS NOT NULL
+              AND (:anyEssenceSpecies = true OR i.heldEssence.bestiaId IN :essenceBestiaIds)
+              AND (:essenceTier IS NULL OR i.heldEssence.tier = :essenceTier))
+            OR (e.bestiaId IS NOT NULL
+              AND (:anyEssenceSpecies = true OR e.bestiaId IN :essenceBestiaIds)
+              AND (:essenceTier IS NULL OR e.tier = :essenceTier))
+          )
+        ))
         AND l.expiresAt > :now
         AND ((:startTowns = true AND l.houseStructureId IS NULL) OR l.houseStructureId IN :houseIds)
     """
@@ -56,6 +80,10 @@ interface AuctionListingRepository : JpaRepository<AuctionListing, Long> {
     anyItem: Boolean,
     itemIds: Collection<Long>,
     sellerMasterId: Long?,
+    withEssence: Boolean,
+    anyEssenceSpecies: Boolean,
+    essenceBestiaIds: Collection<Long>,
+    essenceTier: GemTier?,
     now: Instant,
     startTowns: Boolean,
     houseIds: Collection<Long>,

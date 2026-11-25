@@ -21,6 +21,13 @@ namespace BestiaBehemothClient.Bnet.Message.Auction
 
     public int Page { get; set; }
 
+    /// <summary>Only goods holding an essence of <see cref="EssenceBestiaIds"/> (empty: any) in <see cref="EssenceTier"/> (empty: any).</summary>
+    public bool WithEssence { get; set; }
+
+    public Godot.Collections.Array<long> EssenceBestiaIds { get; set; } = [];
+
+    public string EssenceTier { get; set; } = string.Empty;
+
     public override Envelope ToEnvelope()
     {
       var search = new global::Bnet.SearchAuctionsCMSG
@@ -30,11 +37,17 @@ namespace BestiaBehemothClient.Bnet.Message.Auction
         MinLevel = MinLevel,
         MaxLevel = MaxLevel,
         Mine = Mine,
-        Page = Page
+        Page = Page,
+        WithEssence = WithEssence,
+        EssenceTier = EssenceTier
       };
       foreach (var itemId in ItemIds)
       {
         search.ItemIds.Add((ulong)itemId);
+      }
+      foreach (var bestiaId in EssenceBestiaIds)
+      {
+        search.EssenceBestiaIds.Add((ulong)bestiaId);
       }
 
       return new Envelope { SearchAuctions = search };

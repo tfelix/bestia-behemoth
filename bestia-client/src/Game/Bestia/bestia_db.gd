@@ -58,6 +58,10 @@ func get_equip_slots(bestia_id: int) -> int:
 	return bestia.equip_slots
 
 
+func all_bestias() -> Array:
+	return _bestias.values()
+
+
 ## Every species the Bestia Compendium lists, by number.
 func listed_species() -> Array[BestiaResource]:
 	var listed: Array[BestiaResource] = []
