@@ -27,6 +27,12 @@ class MasterBestias {
       return bestias.filter { it.isStored }
     }
 
+  /** Moves [bestia] into [other]'s set; [PlayerBestia.changeOwner] changes its owning side. */
+  fun handOver(bestia: PlayerBestia, other: MasterBestias) {
+    bestias.remove(bestia)
+    other.bestias.add(bestia)
+  }
+
   fun addBestia(master: Master, bestia: Bestia, bestiaPolicy: PlayerBestiaPolicy, now: Instant): PlayerBestia {
     val place = bestiaPolicy.placeFor(master)
 

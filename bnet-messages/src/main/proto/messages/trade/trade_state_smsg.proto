@@ -4,6 +4,8 @@ package bnet;
 
 import "messages/component/item_stat_value.proto";
 import "messages/component/item_essence.proto";
+import "messages/master/bestia_genetics.proto";
+import "messages/master/bestia_origin.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "TradeStateSmsgProto";
@@ -34,6 +36,10 @@ message TradeStateSMSG {
   bool partner_locked = 10;
   bool own_confirmed = 11;
   bool partner_confirmed = 12;
+
+  // Party bestias offered, shown above the items.
+  repeated TradeOfferBestia own_bestias = 13;
+  repeated TradeOfferBestia partner_bestias = 14;
 }
 
 enum TradeStatus {
@@ -72,4 +78,22 @@ message TradeOfferItem {
   // See InventoryItem.essences and held_essence.
   repeated ItemEssence essences = 13;
   ItemEssence held_essence = 14;
+}
+
+// A party bestia in an offer. Retracted by RetractTradeItemCMSG.player_bestia_id.
+message TradeOfferBestia {
+  uint64 player_bestia_id = 1;
+  fixed64 entity_id = 2;
+  uint32 mob_id = 3;
+  // Empty for its species' name.
+  string name = 4;
+  uint32 level = 5;
+  BestiaSex sex = 6;
+  BestiaOrigin origin = 7;
+  string origin_master_name = 8;
+  // Grades only, whoever reads it: exact values stay with the owner's Bloodline Study.
+  IvReading ivs = 9;
+  // The items in its bag, worn ones included, which go with it.
+  uint32 carried_item_count = 10;
+  bool wears_gear = 11;
 }

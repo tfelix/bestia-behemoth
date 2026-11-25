@@ -1,6 +1,7 @@
 package net.bestia.zone.breeding
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.trade.PairedBestias
 import net.bestia.zone.breeding.persistence.BestiaEggRepository
 import net.bestia.zone.breeding.persistence.BreedingFarmRow
 import net.bestia.zone.breeding.persistence.BreedingFarmRowRepository
@@ -17,7 +18,7 @@ class BreedingFarms(
   private val rows: BreedingFarmRowRepository,
   private val eggs: BestiaEggRepository,
   private val asyncJobExecutor: AsyncJobExecutor,
-) {
+) : PairedBestias {
 
   private val byStructure = HashMap<Long, BreedingFarm>()
 
@@ -28,6 +29,8 @@ class BreedingFarms(
   fun all(): Collection<BreedingFarm> {
     return byStructure.values
   }
+
+  override fun isPaired(playerBestiaId: Long): Boolean = pairedWith(playerBestiaId) != null
 
   /** The farm whose pair [playerBestiaId] belongs to. */
   fun pairedWith(playerBestiaId: Long): BreedingFarm? {

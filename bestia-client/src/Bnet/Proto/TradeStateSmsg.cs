@@ -26,32 +26,43 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy90cmFkZS90cmFkZV9zdGF0ZV9zbXNnLnByb3RvEgRibmV0",
             "GihtZXNzYWdlcy9jb21wb25lbnQvaXRlbV9zdGF0X3ZhbHVlLnByb3RvGiVt",
-            "ZXNzYWdlcy9jb21wb25lbnQvaXRlbV9lc3NlbmNlLnByb3RvItkCCg5UcmFk",
-            "ZVN0YXRlU01TRxIQCgh0cmFkZV9pZBgBIAEoBBIhCgZzdGF0dXMYAiABKA4y",
-            "ES5ibmV0LlRyYWRlU3RhdHVzEhsKE3BhcnRuZXJfbWFzdGVyX25hbWUYAyAB",
-            "KAkSGQoRcGFydG5lcl9lbnRpdHlfaWQYBCABKAQSJwoJb3duX29mZmVyGAUg",
-            "AygLMhQuYm5ldC5UcmFkZU9mZmVySXRlbRIrCg1wYXJ0bmVyX29mZmVyGAYg",
-            "AygLMhQuYm5ldC5UcmFkZU9mZmVySXRlbRIQCghvd25fZ29sZBgHIAEoBBIU",
-            "CgxwYXJ0bmVyX2dvbGQYCCABKAQSEgoKb3duX2xvY2tlZBgJIAEoCBIWCg5w",
-            "YXJ0bmVyX2xvY2tlZBgKIAEoCBIVCg1vd25fY29uZmlybWVkGAsgASgIEhkK",
-            "EXBhcnRuZXJfY29uZmlybWVkGAwgASgIIuICCg5UcmFkZU9mZmVySXRlbRIV",
-            "Cg1vZmZlcl9zbG90X2lkGAEgASgEEg8KB2l0ZW1faWQYAiABKA0SEQoJdW5p",
-            "cXVlX2lkGAMgASgEEg4KBmFtb3VudBgEIAEoDRISCgpkdXJhYmlsaXR5GAUg",
-            "ASgNEhYKDm1heF9kdXJhYmlsaXR5GAYgASgNEg0KBXNsb3RzGAcgASgNEhUK",
-            "DXVwZ3JhZGVfbGV2ZWwYCCABKA0SEgoKaXRlbV9sZXZlbBgJIAEoDRIpCgxy",
-            "b2xsZWRfc3RhdHMYCiADKAsyEy5ibmV0Lkl0ZW1TdGF0VmFsdWUSEgoKY3Jh",
-            "ZnRlZF9ieRgLIAEoCRISCgpjcmFmdGVkX2luGAwgASgJEiMKCGVzc2VuY2Vz",
-            "GA0gAygLMhEuYm5ldC5JdGVtRXNzZW5jZRInCgxoZWxkX2Vzc2VuY2UYDiAB",
-            "KAsyES5ibmV0Lkl0ZW1Fc3NlbmNlKnUKC1RyYWRlU3RhdHVzEhUKEVRSQURF",
-            "X1NUQVRVU19PUEVOEAASFwoTVFJBREVfU1RBVFVTX0xPQ0tFRBABEhoKFlRS",
-            "QURFX1NUQVRVU19DT01QTEVURUQQAhIaChZUUkFERV9TVEFUVVNfQ0FOQ0VM",
-            "TEVEEANCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNUcmFkZVN0YXRlU21z",
-            "Z1Byb3RvYgZwcm90bzM="));
+            "ZXNzYWdlcy9jb21wb25lbnQvaXRlbV9lc3NlbmNlLnByb3RvGiVtZXNzYWdl",
+            "cy9tYXN0ZXIvYmVzdGlhX2dlbmV0aWNzLnByb3RvGiNtZXNzYWdlcy9tYXN0",
+            "ZXIvYmVzdGlhX29yaWdpbi5wcm90byK3AwoOVHJhZGVTdGF0ZVNNU0cSEAoI",
+            "dHJhZGVfaWQYASABKAQSIQoGc3RhdHVzGAIgASgOMhEuYm5ldC5UcmFkZVN0",
+            "YXR1cxIbChNwYXJ0bmVyX21hc3Rlcl9uYW1lGAMgASgJEhkKEXBhcnRuZXJf",
+            "ZW50aXR5X2lkGAQgASgEEicKCW93bl9vZmZlchgFIAMoCzIULmJuZXQuVHJh",
+            "ZGVPZmZlckl0ZW0SKwoNcGFydG5lcl9vZmZlchgGIAMoCzIULmJuZXQuVHJh",
+            "ZGVPZmZlckl0ZW0SEAoIb3duX2dvbGQYByABKAQSFAoMcGFydG5lcl9nb2xk",
+            "GAggASgEEhIKCm93bl9sb2NrZWQYCSABKAgSFgoOcGFydG5lcl9sb2NrZWQY",
+            "CiABKAgSFQoNb3duX2NvbmZpcm1lZBgLIAEoCBIZChFwYXJ0bmVyX2NvbmZp",
+            "cm1lZBgMIAEoCBIrCgtvd25fYmVzdGlhcxgNIAMoCzIWLmJuZXQuVHJhZGVP",
+            "ZmZlckJlc3RpYRIvCg9wYXJ0bmVyX2Jlc3RpYXMYDiADKAsyFi5ibmV0LlRy",
+            "YWRlT2ZmZXJCZXN0aWEi4gIKDlRyYWRlT2ZmZXJJdGVtEhUKDW9mZmVyX3Ns",
+            "b3RfaWQYASABKAQSDwoHaXRlbV9pZBgCIAEoDRIRCgl1bmlxdWVfaWQYAyAB",
+            "KAQSDgoGYW1vdW50GAQgASgNEhIKCmR1cmFiaWxpdHkYBSABKA0SFgoObWF4",
+            "X2R1cmFiaWxpdHkYBiABKA0SDQoFc2xvdHMYByABKA0SFQoNdXBncmFkZV9s",
+            "ZXZlbBgIIAEoDRISCgppdGVtX2xldmVsGAkgASgNEikKDHJvbGxlZF9zdGF0",
+            "cxgKIAMoCzITLmJuZXQuSXRlbVN0YXRWYWx1ZRISCgpjcmFmdGVkX2J5GAsg",
+            "ASgJEhIKCmNyYWZ0ZWRfaW4YDCABKAkSIwoIZXNzZW5jZXMYDSADKAsyES5i",
+            "bmV0Lkl0ZW1Fc3NlbmNlEicKDGhlbGRfZXNzZW5jZRgOIAEoCzIRLmJuZXQu",
+            "SXRlbUVzc2VuY2UimAIKEFRyYWRlT2ZmZXJCZXN0aWESGAoQcGxheWVyX2Jl",
+            "c3RpYV9pZBgBIAEoBBIRCgllbnRpdHlfaWQYAiABKAYSDgoGbW9iX2lkGAMg",
+            "ASgNEgwKBG5hbWUYBCABKAkSDQoFbGV2ZWwYBSABKA0SHAoDc2V4GAYgASgO",
+            "Mg8uYm5ldC5CZXN0aWFTZXgSIgoGb3JpZ2luGAcgASgOMhIuYm5ldC5CZXN0",
+            "aWFPcmlnaW4SGgoSb3JpZ2luX21hc3Rlcl9uYW1lGAggASgJEhwKA2l2cxgJ",
+            "IAEoCzIPLmJuZXQuSXZSZWFkaW5nEhoKEmNhcnJpZWRfaXRlbV9jb3VudBgK",
+            "IAEoDRISCgp3ZWFyc19nZWFyGAsgASgIKnUKC1RyYWRlU3RhdHVzEhUKEVRS",
+            "QURFX1NUQVRVU19PUEVOEAASFwoTVFJBREVfU1RBVFVTX0xPQ0tFRBABEhoK",
+            "FlRSQURFX1NUQVRVU19DT01QTEVURUQQAhIaChZUUkFERV9TVEFUVVNfQ0FO",
+            "Q0VMTEVEEANCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNUcmFkZVN0YXRl",
+            "U21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, global::Bnet.ItemEssenceReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.ItemStatValueReflection.Descriptor, global::Bnet.ItemEssenceReflection.Descriptor, global::Bnet.BestiaGeneticsReflection.Descriptor, global::Bnet.BestiaOriginReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.TradeStatus), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.TradeStateSMSG), global::Bnet.TradeStateSMSG.Parser, new[]{ "TradeId", "Status", "PartnerMasterName", "PartnerEntityId", "OwnOffer", "PartnerOffer", "OwnGold", "PartnerGold", "OwnLocked", "PartnerLocked", "OwnConfirmed", "PartnerConfirmed" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.TradeOfferItem), global::Bnet.TradeOfferItem.Parser, new[]{ "OfferSlotId", "ItemId", "UniqueId", "Amount", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "CraftedBy", "CraftedIn", "Essences", "HeldEssence" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.TradeStateSMSG), global::Bnet.TradeStateSMSG.Parser, new[]{ "TradeId", "Status", "PartnerMasterName", "PartnerEntityId", "OwnOffer", "PartnerOffer", "OwnGold", "PartnerGold", "OwnLocked", "PartnerLocked", "OwnConfirmed", "PartnerConfirmed", "OwnBestias", "PartnerBestias" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.TradeOfferItem), global::Bnet.TradeOfferItem.Parser, new[]{ "OfferSlotId", "ItemId", "UniqueId", "Amount", "Durability", "MaxDurability", "Slots", "UpgradeLevel", "ItemLevel", "RolledStats", "CraftedBy", "CraftedIn", "Essences", "HeldEssence" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.TradeOfferBestia), global::Bnet.TradeOfferBestia.Parser, new[]{ "PlayerBestiaId", "EntityId", "MobId", "Name", "Level", "Sex", "Origin", "OriginMasterName", "Ivs", "CarriedItemCount", "WearsGear" }, null, null, null, null)
           }));
     }
     #endregion
@@ -136,6 +147,8 @@ namespace Bnet {
       partnerLocked_ = other.partnerLocked_;
       ownConfirmed_ = other.ownConfirmed_;
       partnerConfirmed_ = other.partnerConfirmed_;
+      ownBestias_ = other.ownBestias_.Clone();
+      partnerBestias_ = other.partnerBestias_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -291,6 +304,31 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "own_bestias" field.</summary>
+    public const int OwnBestiasFieldNumber = 13;
+    private static readonly pb::FieldCodec<global::Bnet.TradeOfferBestia> _repeated_ownBestias_codec
+        = pb::FieldCodec.ForMessage(106, global::Bnet.TradeOfferBestia.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.TradeOfferBestia> ownBestias_ = new pbc::RepeatedField<global::Bnet.TradeOfferBestia>();
+    /// <summary>
+    /// Party bestias offered, shown above the items.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.TradeOfferBestia> OwnBestias {
+      get { return ownBestias_; }
+    }
+
+    /// <summary>Field number for the "partner_bestias" field.</summary>
+    public const int PartnerBestiasFieldNumber = 14;
+    private static readonly pb::FieldCodec<global::Bnet.TradeOfferBestia> _repeated_partnerBestias_codec
+        = pb::FieldCodec.ForMessage(114, global::Bnet.TradeOfferBestia.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.TradeOfferBestia> partnerBestias_ = new pbc::RepeatedField<global::Bnet.TradeOfferBestia>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.TradeOfferBestia> PartnerBestias {
+      get { return partnerBestias_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -318,6 +356,8 @@ namespace Bnet {
       if (PartnerLocked != other.PartnerLocked) return false;
       if (OwnConfirmed != other.OwnConfirmed) return false;
       if (PartnerConfirmed != other.PartnerConfirmed) return false;
+      if(!ownBestias_.Equals(other.ownBestias_)) return false;
+      if(!partnerBestias_.Equals(other.partnerBestias_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -337,6 +377,8 @@ namespace Bnet {
       if (PartnerLocked != false) hash ^= PartnerLocked.GetHashCode();
       if (OwnConfirmed != false) hash ^= OwnConfirmed.GetHashCode();
       if (PartnerConfirmed != false) hash ^= PartnerConfirmed.GetHashCode();
+      hash ^= ownBestias_.GetHashCode();
+      hash ^= partnerBestias_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -397,6 +439,8 @@ namespace Bnet {
         output.WriteRawTag(96);
         output.WriteBool(PartnerConfirmed);
       }
+      ownBestias_.WriteTo(output, _repeated_ownBestias_codec);
+      partnerBestias_.WriteTo(output, _repeated_partnerBestias_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -449,6 +493,8 @@ namespace Bnet {
         output.WriteRawTag(96);
         output.WriteBool(PartnerConfirmed);
       }
+      ownBestias_.WriteTo(ref output, _repeated_ownBestias_codec);
+      partnerBestias_.WriteTo(ref output, _repeated_partnerBestias_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -491,6 +537,8 @@ namespace Bnet {
       if (PartnerConfirmed != false) {
         size += 1 + 1;
       }
+      size += ownBestias_.CalculateSize(_repeated_ownBestias_codec);
+      size += partnerBestias_.CalculateSize(_repeated_partnerBestias_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -535,6 +583,8 @@ namespace Bnet {
       if (other.PartnerConfirmed != false) {
         PartnerConfirmed = other.PartnerConfirmed;
       }
+      ownBestias_.Add(other.ownBestias_);
+      partnerBestias_.Add(other.partnerBestias_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -602,6 +652,14 @@ namespace Bnet {
             PartnerConfirmed = input.ReadBool();
             break;
           }
+          case 106: {
+            ownBestias_.AddEntriesFrom(input, _repeated_ownBestias_codec);
+            break;
+          }
+          case 114: {
+            partnerBestias_.AddEntriesFrom(input, _repeated_partnerBestias_codec);
+            break;
+          }
         }
       }
     #endif
@@ -667,6 +725,14 @@ namespace Bnet {
           }
           case 96: {
             PartnerConfirmed = input.ReadBool();
+            break;
+          }
+          case 106: {
+            ownBestias_.AddEntriesFrom(ref input, _repeated_ownBestias_codec);
+            break;
+          }
+          case 114: {
+            partnerBestias_.AddEntriesFrom(ref input, _repeated_partnerBestias_codec);
             break;
           }
         }
@@ -1346,6 +1412,595 @@ namespace Bnet {
               HeldEssence = new global::Bnet.ItemEssence();
             }
             input.ReadMessage(HeldEssence);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// A party bestia in an offer. Retracted by RetractTradeItemCMSG.player_bestia_id.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class TradeOfferBestia : pb::IMessage<TradeOfferBestia>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<TradeOfferBestia> _parser = new pb::MessageParser<TradeOfferBestia>(() => new TradeOfferBestia());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<TradeOfferBestia> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Bnet.TradeStateSmsgReflection.Descriptor.MessageTypes[2]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public TradeOfferBestia() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public TradeOfferBestia(TradeOfferBestia other) : this() {
+      playerBestiaId_ = other.playerBestiaId_;
+      entityId_ = other.entityId_;
+      mobId_ = other.mobId_;
+      name_ = other.name_;
+      level_ = other.level_;
+      sex_ = other.sex_;
+      origin_ = other.origin_;
+      originMasterName_ = other.originMasterName_;
+      ivs_ = other.ivs_ != null ? other.ivs_.Clone() : null;
+      carriedItemCount_ = other.carriedItemCount_;
+      wearsGear_ = other.wearsGear_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public TradeOfferBestia Clone() {
+      return new TradeOfferBestia(this);
+    }
+
+    /// <summary>Field number for the "player_bestia_id" field.</summary>
+    public const int PlayerBestiaIdFieldNumber = 1;
+    private ulong playerBestiaId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong PlayerBestiaId {
+      get { return playerBestiaId_; }
+      set {
+        playerBestiaId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "entity_id" field.</summary>
+    public const int EntityIdFieldNumber = 2;
+    private ulong entityId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong EntityId {
+      get { return entityId_; }
+      set {
+        entityId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "mob_id" field.</summary>
+    public const int MobIdFieldNumber = 3;
+    private uint mobId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint MobId {
+      get { return mobId_; }
+      set {
+        mobId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "name" field.</summary>
+    public const int NameFieldNumber = 4;
+    private string name_ = "";
+    /// <summary>
+    /// Empty for its species' name.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Name {
+      get { return name_; }
+      set {
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "level" field.</summary>
+    public const int LevelFieldNumber = 5;
+    private uint level_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Level {
+      get { return level_; }
+      set {
+        level_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "sex" field.</summary>
+    public const int SexFieldNumber = 6;
+    private global::Bnet.BestiaSex sex_ = global::Bnet.BestiaSex.Unknown;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.BestiaSex Sex {
+      get { return sex_; }
+      set {
+        sex_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "origin" field.</summary>
+    public const int OriginFieldNumber = 7;
+    private global::Bnet.BestiaOrigin origin_ = global::Bnet.BestiaOrigin.Unspecified;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.BestiaOrigin Origin {
+      get { return origin_; }
+      set {
+        origin_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "origin_master_name" field.</summary>
+    public const int OriginMasterNameFieldNumber = 8;
+    private string originMasterName_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string OriginMasterName {
+      get { return originMasterName_; }
+      set {
+        originMasterName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "ivs" field.</summary>
+    public const int IvsFieldNumber = 9;
+    private global::Bnet.IvReading ivs_;
+    /// <summary>
+    /// Grades only, whoever reads it: exact values stay with the owner's Bloodline Study.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.IvReading Ivs {
+      get { return ivs_; }
+      set {
+        ivs_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "carried_item_count" field.</summary>
+    public const int CarriedItemCountFieldNumber = 10;
+    private uint carriedItemCount_;
+    /// <summary>
+    /// The items in its bag, worn ones included, which go with it.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint CarriedItemCount {
+      get { return carriedItemCount_; }
+      set {
+        carriedItemCount_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "wears_gear" field.</summary>
+    public const int WearsGearFieldNumber = 11;
+    private bool wearsGear_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool WearsGear {
+      get { return wearsGear_; }
+      set {
+        wearsGear_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as TradeOfferBestia);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(TradeOfferBestia other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (PlayerBestiaId != other.PlayerBestiaId) return false;
+      if (EntityId != other.EntityId) return false;
+      if (MobId != other.MobId) return false;
+      if (Name != other.Name) return false;
+      if (Level != other.Level) return false;
+      if (Sex != other.Sex) return false;
+      if (Origin != other.Origin) return false;
+      if (OriginMasterName != other.OriginMasterName) return false;
+      if (!object.Equals(Ivs, other.Ivs)) return false;
+      if (CarriedItemCount != other.CarriedItemCount) return false;
+      if (WearsGear != other.WearsGear) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (PlayerBestiaId != 0UL) hash ^= PlayerBestiaId.GetHashCode();
+      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
+      if (MobId != 0) hash ^= MobId.GetHashCode();
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (Level != 0) hash ^= Level.GetHashCode();
+      if (Sex != global::Bnet.BestiaSex.Unknown) hash ^= Sex.GetHashCode();
+      if (Origin != global::Bnet.BestiaOrigin.Unspecified) hash ^= Origin.GetHashCode();
+      if (OriginMasterName.Length != 0) hash ^= OriginMasterName.GetHashCode();
+      if (ivs_ != null) hash ^= Ivs.GetHashCode();
+      if (CarriedItemCount != 0) hash ^= CarriedItemCount.GetHashCode();
+      if (WearsGear != false) hash ^= WearsGear.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (PlayerBestiaId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(PlayerBestiaId);
+      }
+      if (EntityId != 0UL) {
+        output.WriteRawTag(17);
+        output.WriteFixed64(EntityId);
+      }
+      if (MobId != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(MobId);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Name);
+      }
+      if (Level != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(Level);
+      }
+      if (Sex != global::Bnet.BestiaSex.Unknown) {
+        output.WriteRawTag(48);
+        output.WriteEnum((int) Sex);
+      }
+      if (Origin != global::Bnet.BestiaOrigin.Unspecified) {
+        output.WriteRawTag(56);
+        output.WriteEnum((int) Origin);
+      }
+      if (OriginMasterName.Length != 0) {
+        output.WriteRawTag(66);
+        output.WriteString(OriginMasterName);
+      }
+      if (ivs_ != null) {
+        output.WriteRawTag(74);
+        output.WriteMessage(Ivs);
+      }
+      if (CarriedItemCount != 0) {
+        output.WriteRawTag(80);
+        output.WriteUInt32(CarriedItemCount);
+      }
+      if (WearsGear != false) {
+        output.WriteRawTag(88);
+        output.WriteBool(WearsGear);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (PlayerBestiaId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(PlayerBestiaId);
+      }
+      if (EntityId != 0UL) {
+        output.WriteRawTag(17);
+        output.WriteFixed64(EntityId);
+      }
+      if (MobId != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(MobId);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Name);
+      }
+      if (Level != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(Level);
+      }
+      if (Sex != global::Bnet.BestiaSex.Unknown) {
+        output.WriteRawTag(48);
+        output.WriteEnum((int) Sex);
+      }
+      if (Origin != global::Bnet.BestiaOrigin.Unspecified) {
+        output.WriteRawTag(56);
+        output.WriteEnum((int) Origin);
+      }
+      if (OriginMasterName.Length != 0) {
+        output.WriteRawTag(66);
+        output.WriteString(OriginMasterName);
+      }
+      if (ivs_ != null) {
+        output.WriteRawTag(74);
+        output.WriteMessage(Ivs);
+      }
+      if (CarriedItemCount != 0) {
+        output.WriteRawTag(80);
+        output.WriteUInt32(CarriedItemCount);
+      }
+      if (WearsGear != false) {
+        output.WriteRawTag(88);
+        output.WriteBool(WearsGear);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (PlayerBestiaId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(PlayerBestiaId);
+      }
+      if (EntityId != 0UL) {
+        size += 1 + 8;
+      }
+      if (MobId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MobId);
+      }
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (Level != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Level);
+      }
+      if (Sex != global::Bnet.BestiaSex.Unknown) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Sex);
+      }
+      if (Origin != global::Bnet.BestiaOrigin.Unspecified) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Origin);
+      }
+      if (OriginMasterName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(OriginMasterName);
+      }
+      if (ivs_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Ivs);
+      }
+      if (CarriedItemCount != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(CarriedItemCount);
+      }
+      if (WearsGear != false) {
+        size += 1 + 1;
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(TradeOfferBestia other) {
+      if (other == null) {
+        return;
+      }
+      if (other.PlayerBestiaId != 0UL) {
+        PlayerBestiaId = other.PlayerBestiaId;
+      }
+      if (other.EntityId != 0UL) {
+        EntityId = other.EntityId;
+      }
+      if (other.MobId != 0) {
+        MobId = other.MobId;
+      }
+      if (other.Name.Length != 0) {
+        Name = other.Name;
+      }
+      if (other.Level != 0) {
+        Level = other.Level;
+      }
+      if (other.Sex != global::Bnet.BestiaSex.Unknown) {
+        Sex = other.Sex;
+      }
+      if (other.Origin != global::Bnet.BestiaOrigin.Unspecified) {
+        Origin = other.Origin;
+      }
+      if (other.OriginMasterName.Length != 0) {
+        OriginMasterName = other.OriginMasterName;
+      }
+      if (other.ivs_ != null) {
+        if (ivs_ == null) {
+          Ivs = new global::Bnet.IvReading();
+        }
+        Ivs.MergeFrom(other.Ivs);
+      }
+      if (other.CarriedItemCount != 0) {
+        CarriedItemCount = other.CarriedItemCount;
+      }
+      if (other.WearsGear != false) {
+        WearsGear = other.WearsGear;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            PlayerBestiaId = input.ReadUInt64();
+            break;
+          }
+          case 17: {
+            EntityId = input.ReadFixed64();
+            break;
+          }
+          case 24: {
+            MobId = input.ReadUInt32();
+            break;
+          }
+          case 34: {
+            Name = input.ReadString();
+            break;
+          }
+          case 40: {
+            Level = input.ReadUInt32();
+            break;
+          }
+          case 48: {
+            Sex = (global::Bnet.BestiaSex) input.ReadEnum();
+            break;
+          }
+          case 56: {
+            Origin = (global::Bnet.BestiaOrigin) input.ReadEnum();
+            break;
+          }
+          case 66: {
+            OriginMasterName = input.ReadString();
+            break;
+          }
+          case 74: {
+            if (ivs_ == null) {
+              Ivs = new global::Bnet.IvReading();
+            }
+            input.ReadMessage(Ivs);
+            break;
+          }
+          case 80: {
+            CarriedItemCount = input.ReadUInt32();
+            break;
+          }
+          case 88: {
+            WearsGear = input.ReadBool();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            PlayerBestiaId = input.ReadUInt64();
+            break;
+          }
+          case 17: {
+            EntityId = input.ReadFixed64();
+            break;
+          }
+          case 24: {
+            MobId = input.ReadUInt32();
+            break;
+          }
+          case 34: {
+            Name = input.ReadString();
+            break;
+          }
+          case 40: {
+            Level = input.ReadUInt32();
+            break;
+          }
+          case 48: {
+            Sex = (global::Bnet.BestiaSex) input.ReadEnum();
+            break;
+          }
+          case 56: {
+            Origin = (global::Bnet.BestiaOrigin) input.ReadEnum();
+            break;
+          }
+          case 66: {
+            OriginMasterName = input.ReadString();
+            break;
+          }
+          case 74: {
+            if (ivs_ == null) {
+              Ivs = new global::Bnet.IvReading();
+            }
+            input.ReadMessage(Ivs);
+            break;
+          }
+          case 80: {
+            CarriedItemCount = input.ReadUInt32();
+            break;
+          }
+          case 88: {
+            WearsGear = input.ReadBool();
             break;
           }
         }

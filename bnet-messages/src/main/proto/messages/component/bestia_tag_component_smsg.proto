@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BestiaTagComponentSMSGProto";
+
+// What everyone in range reads on a player bestia's name tag: the name its owner gave it, and whose it is.
+message BestiaTagComponentSMSG {
+  // Empty while the owner has not named it; the client then shows the species.
+  string name = 1;
+  string owner_name = 2;
+}

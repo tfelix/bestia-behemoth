@@ -1,5 +1,6 @@
 package net.bestia.zone.breeding
 
+import net.bestia.zone.bestia.BestiaOrigin
 import net.bestia.zone.account.persistence.PlayerBestia
 import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.breeding.persistence.BestiaEggRepository
@@ -34,6 +35,9 @@ class Hatching(
       sex = egg.sex,
       individualValues = egg.individualValues,
       inheritedAttacks = egg.attackLearnLevels,
+      // The farm's owner, however often the egg changed hands since.
+      origin = BestiaOrigin.BRED,
+      originMasterName = egg.breederName,
     )
 
     disposal.destroy(eggInstanceId)

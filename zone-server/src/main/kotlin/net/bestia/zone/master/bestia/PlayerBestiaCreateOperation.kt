@@ -2,6 +2,7 @@ package net.bestia.zone.master.bestia
 
 import net.bestia.zone.account.persistence.PlayerBestia
 import net.bestia.zone.battle.status.IndividualValues
+import net.bestia.zone.bestia.BestiaOrigin
 import net.bestia.zone.bestia.Sex
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component
@@ -24,6 +25,9 @@ class PlayerBestiaCreateOperation(
     val sex: Sex? = null,
     val individualValues: IndividualValues? = null,
     val inheritedAttacks: Map<Long, Int> = emptyMap(),
+    val origin: BestiaOrigin = BestiaOrigin.CAUGHT,
+    /** See [PlayerBestiaFactory.PlayerBestiaCreateData.originMasterName]. */
+    val originMasterName: String? = null,
   )
 
   /**
@@ -44,6 +48,8 @@ class PlayerBestiaCreateOperation(
         sex = playerBestiaCreateData.sex,
         individualValues = playerBestiaCreateData.individualValues,
         inheritedAttacks = playerBestiaCreateData.inheritedAttacks,
+        origin = playerBestiaCreateData.origin,
+        originMasterName = playerBestiaCreateData.originMasterName,
       )
     )
 

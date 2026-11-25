@@ -31,6 +31,8 @@ const _FONT_SIZE := 13
 const _EXCHANGE_ICON := preload("res://Theme/Icons/arrows-exchange.svg")
 const _ORDERS_ICON := preload("res://Theme/Icons/flag.svg")
 const _EXCHANGE_ICON_WIDTH := 14
+## As the server's BestiaRenaming.MAX_NAME_LENGTH.
+const _MAX_BESTIA_NAME_LENGTH := 24
 
 ## entity id -> {"button": Button, "hp": ProgressBar, "exchange": Button}
 var _rows: Dictionary = {}
@@ -104,6 +106,11 @@ func _rebuild() -> void:
 		var label := "%s  Lv. %d" % [OwnedSlots.title_of(bestia), bestia.Level]
 		var row := _add_owned_row(bestia.EntityId, label, OwnedSlots.name_of(bestia), OwnedSlots.color_of(i + 1))
 		row.add_child(_make_orders_button(bestia, OwnedSlots.color_of(i + 1)))
+		var slot_button: Button = _rows[bestia.EntityId]["button"]
+		slot_button.tooltip_text = tr("BESTIA_PARTY_ROW_HINT")
+		slot_button.gui_input.connect(_on_bestia_row_input.bind(bestia))
+		# Dragged onto the trade window, it is offered there.
+		slot_button.set_drag_forwarding(_bestia_drag_data.bind(bestia, slot_button), Callable(), Callable())
 
 	for i in maxi(entity_manager.get_bestia_slot_count() - bestias.size(), 0):
 		_add_empty_row()
@@ -207,6 +214,43 @@ func _highlight() -> void:
 	for entity_id in _rows:
 		var button: Button = _rows[entity_id]["button"]
 		button.add_theme_color_override("font_color", _ACTIVE_COLOR if entity_id == active_id else _IDLE_COLOR)
+
+
+## What a bestia row carries when dragged: the trade window reads it.
+func _bestia_drag_data(_at_position: Vector2, bestia: BestiaInfo, source: Button) -> Variant:
+	var preview := Label.new()
+	preview.text = OwnedSlots.name_of(bestia)
+	source.set_drag_preview(preview)
+	return {"source": "party_bestia", "entity_id": bestia.EntityId, "player_bestia_id": bestia.PlayerBestiaId}
+
+
+## A right click names the bestia.
+func _on_bestia_row_input(event: InputEvent, bestia: BestiaInfo) -> void:
+	var click := event as InputEventMouseButton
+	if click == null or not click.pressed or click.button_index != MOUSE_BUTTON_RIGHT:
+		return
+	accept_event()
+	_open_rename(bestia)
+
+
+## Built here rather than in the scene: it lives only until it is answered.
+func _open_rename(bestia: BestiaInfo) -> void:
+	var dialog := ConfirmationDialog.new()
+	dialog.title = tr("BESTIA_RENAME_TITLE")
+	var field := LineEdit.new()
+	field.text = bestia.Name
+	field.placeholder_text = OwnedSlots.name_of(bestia)
+	field.max_length = _MAX_BESTIA_NAME_LENGTH
+	field.select_all_on_focus = true
+	dialog.add_child(field)
+	dialog.register_text_enter(field)
+	dialog.confirmed.connect(func() -> void: ConnectionManager.rename_bestia(bestia.EntityId, field.text))
+	dialog.visibility_changed.connect(func() -> void:
+		if not dialog.visible:
+			dialog.queue_free())
+	add_child(dialog)
+	dialog.popup_centered(Vector2i(280, 0))
+	field.grab_focus()
 
 
 func _on_row_pressed(entity_id: int) -> void:

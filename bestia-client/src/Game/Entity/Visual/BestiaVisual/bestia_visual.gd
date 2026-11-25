@@ -42,9 +42,11 @@ var body_tint := Color(1, 1, 1, 0):
 var _bestia_id: int = 0
 var _bestia_entity_id: int = 0
 var _species_name: String = ""
-## An individual's name, which wins over the species when there is one. Only townsfolk have one; a
-## wolf is a Wolf.
+## An individual's name, which wins over the species when there is one: a townsperson's, or the name a
+## master gave their bestia. A wild wolf is a Wolf.
 var _display_name: String = ""
+## Whose bestia it is, empty for a wild one.
+var _owner_name: String = ""
 ## 0 until the server sends it, and the tag then leaves it out.
 var _level: int = 0
 ## Whether the species hunts on sight, from the bestia DB. Its name shows red, unless it is the player's own.
@@ -157,6 +159,13 @@ func set_display_name(display_name: String) -> void:
 	_apply_name_tag()
 
 
+## A player bestia's own name, empty for its species', and its owner, who shows on the line under it.
+func set_bestia_tag(tag: BestiaTagComponentSMSG) -> void:
+	_display_name = tag.Name
+	_owner_name = tag.OwnerName
+	_apply_name_tag()
+
+
 ## [Entity] calls setup_visual before the visual is in the tree, so the @onready children are still null
 ## there. The name is kept and written again from here, which is the first moment $NameTag exists.
 func set_guild_tag(tag: GuildTagComponentSMSG) -> void:
@@ -174,6 +183,8 @@ func _apply_name_tag() -> void:
 	if _name_tag == null:
 		return
 	var bestia_name := _display_name if not _display_name.is_empty() else _species_name
+	if not _owner_name.is_empty():
+		bestia_name = "%s\n%s" % [bestia_name, tr("NAME_TAG_OWNER") % _owner_name]
 	_name_tag.text = GuildTagLine.under(bestia_name, _guild_line)
 	_emblem = GuildTagLine.show_emblem(_name_tag, _emblem, _emblem_hash)
 	_tint_name_tag()

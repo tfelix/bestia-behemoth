@@ -34,6 +34,14 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     [Export]
     public IvReadingInfo Ivs { get; set; } = new();
 
+    /// <summary>The <c>BestiaOrigin</c> ordinal: 1 caught, 2 bred, 3 granted.</summary>
+    [Export]
+    public int Origin { get; set; }
+
+    /// <summary>Who caught, bred or was given it.</summary>
+    [Export]
+    public string OriginMasterName { get; set; } = "";
+
     /// <summary>
     /// Creates a BestiaInfo message from protobuf data
     /// </summary>
@@ -49,7 +57,9 @@ namespace BestiaBehemothClient.Bnet.Message.Master
         Name = protoBestiaInfo.Name,
         Level = protoBestiaInfo.Level,
         Sex = (int)protoBestiaInfo.Sex,
-        Ivs = IvReadingInfo.FromProto(protoBestiaInfo.Ivs)
+        Ivs = IvReadingInfo.FromProto(protoBestiaInfo.Ivs),
+        Origin = (int)protoBestiaInfo.Origin,
+        OriginMasterName = protoBestiaInfo.OriginMasterName
       };
 
       // Convert Vec3 to Godot Vector3 with null check (swap Y and Z: server z-up to Godot y-up)

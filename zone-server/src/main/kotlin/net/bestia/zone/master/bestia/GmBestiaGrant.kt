@@ -1,5 +1,6 @@
 package net.bestia.zone.master.bestia
 
+import net.bestia.zone.bestia.BestiaOrigin
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
 import net.bestia.zone.bestia.BestiaCatalogue
@@ -47,7 +48,8 @@ class GmBestiaGrant(
             bestiaIdentifier = SPECIES,
             spawnPosition = at,
             // The species' level, so the YML stays the one place it is set.
-            level = species.referenceLevel
+            level = species.referenceLevel,
+            origin = BestiaOrigin.GRANTED,
           )
         )
       }

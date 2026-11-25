@@ -5,13 +5,22 @@ package bnet;
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "OfferTradeItemCmsgProto";
 
-// Puts an item from the sender's inventory into their side of the trade window. The server takes it out
-// of the live inventory at once, so it can no longer be dropped, used or spent on a craft while offered.
+// Puts an item from the sender's inventory, or one of their party bestias, into their side of the trade window.
+// An item leaves the live inventory at once, so it can no longer be dropped, used or spent on a craft while
+// offered. A bestia stays in the world until the trade goes through.
 message OfferTradeItemCMSG {
   reserved 2, 3; // item_id and unique_id, replaced by player_item_id
 
   uint64 trade_id = 1;
-  // The held pile or copy to offer from, as InventoryItem.player_item_id names it.
-  uint64 player_item_id = 5;
+  oneof offer {
+    // The held pile or copy to offer from, as InventoryItem.player_item_id names it.
+    uint64 player_item_id = 5;
+    // A party bestia, by its entity. Whatever it carries and wears goes with it.
+    fixed64 bestia_entity_id = 6;
+  }
+  // Items only.
   uint32 amount = 4;
+  // A bestia that carries or wears items is refused with TRADE_BESTIA_CARRIES_ITEMS until the sender confirms
+  // its items go too.
+  bool accept_carried_items = 7;
 }

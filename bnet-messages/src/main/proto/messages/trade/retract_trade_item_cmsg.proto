@@ -5,11 +5,15 @@ package bnet;
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "RetractTradeItemCmsgProto";
 
-// Takes one line back out of the sender's own offer, returning it to their inventory.
+// Takes one line back out of the sender's own offer: an item returns to their inventory, a bestia stays theirs.
 //
 // offer_slot_id is the id the server gave that line in TradeStateSMSG, not an item id: two lines of the
 // same template are distinct offers and only one of them is being retracted.
 message RetractTradeItemCMSG {
   uint64 trade_id = 1;
-  uint64 offer_slot_id = 2;
+  oneof line {
+    uint64 offer_slot_id = 2;
+    // A bestia line, as TradeOfferBestia.player_bestia_id names it.
+    uint64 player_bestia_id = 3;
+  }
 }

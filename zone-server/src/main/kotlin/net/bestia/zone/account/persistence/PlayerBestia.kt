@@ -7,23 +7,21 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.ContainerOwner
 import net.bestia.zone.item.persistence.ItemContainer
 import net.bestia.zone.bestia.persistence.Bestia
+import net.bestia.zone.bestia.BestiaOrigin
 import net.bestia.zone.bestia.Sex
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import net.bestia.zone.battle.status.IndividualValues
 import org.hibernate.Length
 import org.hibernate.annotations.ColumnDefault
 import java.time.Instant
 
 @Entity
-@Table(
-  name = "player_bestia",
-  indexes = [
-    Index(columnList = "name", unique = true)
-  ]
-)
+@Table(name = "player_bestia")
 class PlayerBestia(
   @ManyToOne
   @JoinColumn(name = "master_id", nullable = false)
-  val master: Master,
+  var master: Master,
 
   @ManyToOne
   @JoinColumn(name = "bestia_id", nullable = false)
@@ -92,6 +90,16 @@ class PlayerBestia(
   @Embedded
   var individualValues: IndividualValues = IndividualValues()
 
+  /** How it came to be. Stays with it whoever owns it later. */
+  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.VARCHAR)
+  @Column(name = "origin", nullable = false)
+  var origin: BestiaOrigin = BestiaOrigin.CAUGHT
+
+  /** A snapshot of who caught, bred or was given it, so the name survives that master being deleted. */
+  @Column(name = "origin_master_name", nullable = false)
+  var originMasterName: String = ""
+
   /** The preset its orders follow, or null for orders of its own. See `BestiaAiConfigService`. */
   @Column(name = "order_preset_id")
   var orderPresetId: Long? = null
@@ -152,6 +160,25 @@ class PlayerBestia(
   /** Null for a bestia that has never been out in the world: it comes out with full pools. */
   @Embedded
   var storedVitals: StoredVitals? = null
+
+  /**
+   * Hands it to [newOwner], on both sides of the relation. It keeps its origin, its name and what it carries; the
+   * orders it was given were its old owner's, so it starts over with none.
+   */
+  fun changeOwner(newOwner: Master) {
+    master.bestias.handOver(this, newOwner.bestias)
+    master = newOwner
+    aiConfig = AiConfig()
+    ownOverrides = OrderOverrides()
+    orderPresetId = null
+    // An errand of its old owner's, which the spawn would otherwise send it on again.
+    journey = null
+  }
+
+  companion object {
+    /** How long a bestia that went into storage stays there, so swaps and trades cannot move it about. */
+    val STORAGE_REST: java.time.Duration = java.time.Duration.ofMinutes(30)
+  }
 
   fun store(now: Instant, restsUntil: Instant, vitals: StoredVitals) {
     storedAt = now

@@ -20,6 +20,8 @@ data class TradeStateSMSG(
   val partnerEntityId: EntityId,
   val ownOffer: List<ReservedItem>,
   val partnerOffer: List<ReservedItem>,
+  val ownBestias: List<OfferedBestia>,
+  val partnerBestias: List<OfferedBestia>,
   val ownLocked: Boolean,
   val partnerLocked: Boolean,
   val ownConfirmed: Boolean,
@@ -37,6 +39,8 @@ data class TradeStateSMSG(
       .setPartnerEntityId(partnerEntityId)
       .addAllOwnOffer(ownOffer.map { mapItem(it) })
       .addAllPartnerOffer(partnerOffer.map { mapItem(it) })
+      .addAllOwnBestias(ownBestias.map { it.toProto() })
+      .addAllPartnerBestias(partnerBestias.map { it.toProto() })
       .setOwnLocked(ownLocked)
       .setPartnerLocked(partnerLocked)
       .setOwnConfirmed(ownConfirmed)

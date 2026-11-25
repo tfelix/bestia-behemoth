@@ -126,7 +126,7 @@ func _show_master_identity() -> void:
 func _show_bestia_identity(bestia: BestiaInfo) -> void:
 	_profile_portrait.show_bestia(bestia.MobId)
 	_master_name.text = OwnedSlots.title_of(bestia)
-	_master_name.tooltip_text = BreedingText.iv_lines(bestia.Ivs)
+	_master_name.tooltip_text = BreedingText.bestia_tooltip(bestia)
 	_update_level(bestia.Level)
 
 

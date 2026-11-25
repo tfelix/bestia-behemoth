@@ -909,3 +909,13 @@ statusEffects:
     isSyncedToClient: false
     dispellable: false
     script: CaptureGrace
+
+  # On a player bestia whose master gave it a command while it stands more than 20 levels above them: for a
+  # minute it ignores its master and follows its own orders, see UnrulyGuard.
+  - id: 255
+    identifier: UNRULY
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: true
+    dispellable: false
+    script: Unruly

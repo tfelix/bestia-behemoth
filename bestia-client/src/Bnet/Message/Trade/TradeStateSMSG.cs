@@ -41,6 +41,11 @@ namespace BestiaBehemothClient.Bnet.Message.Trade
 
     [Export] public Godot.Collections.Array<TradeOfferItem> PartnerOffer { get; set; } = [];
 
+    /// <summary>Party bestias offered, shown above the items.</summary>
+    [Export] public Godot.Collections.Array<TradeOfferBestia> OwnBestias { get; set; } = [];
+
+    [Export] public Godot.Collections.Array<TradeOfferBestia> PartnerBestias { get; set; } = [];
+
     /// <summary>Reserved for currency, which does not exist yet - always 0.</summary>
     [Export] public ulong OwnGold { get; set; }
 
@@ -79,6 +84,8 @@ namespace BestiaBehemothClient.Bnet.Message.Trade
         PartnerEntityId = proto.PartnerEntityId,
         OwnOffer = own,
         PartnerOffer = partner,
+        OwnBestias = Bestias(proto.OwnBestias),
+        PartnerBestias = Bestias(proto.PartnerBestias),
         OwnGold = proto.OwnGold,
         PartnerGold = proto.PartnerGold,
         OwnLocked = proto.OwnLocked,
@@ -86,6 +93,18 @@ namespace BestiaBehemothClient.Bnet.Message.Trade
         OwnConfirmed = proto.OwnConfirmed,
         PartnerConfirmed = proto.PartnerConfirmed
       };
+    }
+
+    private static Godot.Collections.Array<TradeOfferBestia> Bestias(
+      Google.Protobuf.Collections.RepeatedField<global::Bnet.TradeOfferBestia> bestias)
+    {
+      var mapped = new Godot.Collections.Array<TradeOfferBestia>();
+      foreach (var bestia in bestias)
+      {
+        mapped.Add(TradeOfferBestia.FromProto(bestia));
+      }
+
+      return mapped;
     }
 
     private static TradeStatus MapStatus(global::Bnet.TradeStatus status)

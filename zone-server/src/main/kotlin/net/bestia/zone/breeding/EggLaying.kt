@@ -42,7 +42,8 @@ class EggLaying(
 
     val eggItem = checkNotNull(items.findByIdentifier(BreedingFarmService.BESTIA_EGG)) { "items.yml has no bestia_egg" }
     val instance = instances.save(ItemInstance(item = eggItem))
-    val egg = eggs.save(BestiaEgg.of(instance.id, clutch))
+    // Both parents are the farm owner's.
+    val egg = eggs.save(BestiaEgg.of(instance.id, clutch, breederName = mother.master.name))
 
     return EggSummary.of(egg)
   }

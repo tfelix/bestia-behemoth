@@ -25,16 +25,16 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiJtZXNzYWdlcy9icmVlZGluZy9iZXN0aWFfZWdnLnByb3RvEgRibmV0GiVt",
-            "ZXNzYWdlcy9tYXN0ZXIvYmVzdGlhX2dlbmV0aWNzLnByb3RvIpkBCglCZXN0",
+            "ZXNzYWdlcy9tYXN0ZXIvYmVzdGlhX2dlbmV0aWNzLnByb3RvIq8BCglCZXN0",
             "aWFFZ2cSEQoJdW5pcXVlX2lkGAEgASgGEg4KBm1vYl9pZBgCIAEoDRIcCgNz",
             "ZXgYAyABKA4yDy5ibmV0LkJlc3RpYVNleBIcCgNpdnMYBCABKAsyDy5ibmV0",
             "Lkl2UmVhZGluZxIWCg5oYXRjaF90b3RhbF9tcxgFIAEoBBIVCg1oYXRjaF9k",
-            "b25lX21zGAYgASgEQicKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IOQmVzdGlh",
-            "RWdnUHJvdG9iBnByb3RvMw=="));
+            "b25lX21zGAYgASgEEhQKDGJyZWVkZXJfbmFtZRgHIAEoCUInChVuZXQuYmVz",
+            "dGlhLmJuZXQucHJvdG9CDkJlc3RpYUVnZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.BestiaGeneticsReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaEgg), global::Bnet.BestiaEgg.Parser, new[]{ "UniqueId", "MobId", "Sex", "Ivs", "HatchTotalMs", "HatchDoneMs" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.BestiaEgg), global::Bnet.BestiaEgg.Parser, new[]{ "UniqueId", "MobId", "Sex", "Ivs", "HatchTotalMs", "HatchDoneMs", "BreederName" }, null, null, null, null)
           }));
     }
     #endregion
@@ -85,6 +85,7 @@ namespace Bnet {
       ivs_ = other.ivs_ != null ? other.ivs_.Clone() : null;
       hatchTotalMs_ = other.hatchTotalMs_;
       hatchDoneMs_ = other.hatchDoneMs_;
+      breederName_ = other.breederName_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -166,6 +167,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "breeder_name" field.</summary>
+    public const int BreederNameFieldNumber = 7;
+    private string breederName_ = "";
+    /// <summary>
+    /// Whose farm laid it: the bestia it hatches into reads "Bred by" them.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string BreederName {
+      get { return breederName_; }
+      set {
+        breederName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -187,6 +203,7 @@ namespace Bnet {
       if (!object.Equals(Ivs, other.Ivs)) return false;
       if (HatchTotalMs != other.HatchTotalMs) return false;
       if (HatchDoneMs != other.HatchDoneMs) return false;
+      if (BreederName != other.BreederName) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -200,6 +217,7 @@ namespace Bnet {
       if (ivs_ != null) hash ^= Ivs.GetHashCode();
       if (HatchTotalMs != 0UL) hash ^= HatchTotalMs.GetHashCode();
       if (HatchDoneMs != 0UL) hash ^= HatchDoneMs.GetHashCode();
+      if (BreederName.Length != 0) hash ^= BreederName.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -242,6 +260,10 @@ namespace Bnet {
         output.WriteRawTag(48);
         output.WriteUInt64(HatchDoneMs);
       }
+      if (BreederName.Length != 0) {
+        output.WriteRawTag(58);
+        output.WriteString(BreederName);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -276,6 +298,10 @@ namespace Bnet {
         output.WriteRawTag(48);
         output.WriteUInt64(HatchDoneMs);
       }
+      if (BreederName.Length != 0) {
+        output.WriteRawTag(58);
+        output.WriteString(BreederName);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -303,6 +329,9 @@ namespace Bnet {
       }
       if (HatchDoneMs != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(HatchDoneMs);
+      }
+      if (BreederName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(BreederName);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -336,6 +365,9 @@ namespace Bnet {
       }
       if (other.HatchDoneMs != 0UL) {
         HatchDoneMs = other.HatchDoneMs;
+      }
+      if (other.BreederName.Length != 0) {
+        BreederName = other.BreederName;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -383,6 +415,10 @@ namespace Bnet {
             HatchDoneMs = input.ReadUInt64();
             break;
           }
+          case 58: {
+            BreederName = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -427,6 +463,10 @@ namespace Bnet {
           }
           case 48: {
             HatchDoneMs = input.ReadUInt64();
+            break;
+          }
+          case 58: {
+            BreederName = input.ReadString();
             break;
           }
         }

@@ -60,6 +60,7 @@ class AttackEntityHandlerTest {
       logoutCancelService = LogoutCancelService(),
       deadActionGuard = DeadActionGuard(),
       actionGuard = ActionGuard(),
+      unrulyGuard = mockk(relaxed = true),
       propPromotion = PropPromotionService(mockk(relaxed = true)),
       outMessageProcessor = messages,
     )

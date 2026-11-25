@@ -8,6 +8,9 @@ const _SEX_MARKS := {1: "♂", 2: "♀"}
 ## Same order as [IvReadingInfo]: STR, INT, VIT, DEX, WIL, AGI, HP, MANA, STAMINA.
 const _IV_STAT_COUNT := 9
 
+## BestiaOrigin.BESTIA_ORIGIN_BRED: an egg is always bred.
+const _ORIGIN_BRED := 2
+
 
 ## Empty for a bestia whose sex this client was not told.
 static func sex_mark(sex: int) -> String:
@@ -31,6 +34,25 @@ static func iv_lines(reading: IvReadingInfo) -> String:
 	return "\n".join(lines)
 
 
+## "Caught by Ann", "Bred by Ann" or "Granted to Ann", from a [BestiaInfo]'s origin. Empty when it has none.
+static func origin_line(origin: int, master_name: String) -> String:
+	if origin <= 0 or master_name.is_empty():
+		return ""
+	return TranslationServer.translate("BESTIA_ORIGIN_%d" % origin) % master_name
+
+
+## The origin line above the IV lines, for a bestia's tooltip.
+static func bestia_tooltip(bestia: BestiaInfo) -> String:
+	var parts: PackedStringArray = []
+	var origin := origin_line(bestia.Origin, bestia.OriginMasterName)
+	if not origin.is_empty():
+		parts.append(origin)
+	var ivs := iv_lines(bestia.Ivs)
+	if not ivs.is_empty():
+		parts.append(ivs)
+	return "\n\n".join(parts)
+
+
 static func species_name(mob_id: int) -> String:
 	var species := BestiaDB.get_instance().get_bestia(mob_id)
 	return str(TranslationServer.translate(species.name_key)) if species != null else "?"
@@ -45,8 +67,9 @@ static func egg_detail(egg: BestiaEggInfo) -> String:
 	var percent := 0
 	if egg.HatchTotalMs > 0:
 		percent = int(100.0 * egg.HatchDoneMs / egg.HatchTotalMs)
-	return "%s\n%s\n%s" % [
+	return "%s\n%s\n%s\n%s" % [
 		egg_title(egg),
+		origin_line(_ORIGIN_BRED, egg.BreederName),
 		TranslationServer.translate("BESTIA_EGG_PROGRESS") % percent,
 		iv_lines(egg.Ivs),
 	]

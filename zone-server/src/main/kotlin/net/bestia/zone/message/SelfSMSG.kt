@@ -2,6 +2,7 @@ package net.bestia.zone.message
 
 import net.bestia.bnet.proto.BestiaGeneticsProto
 import net.bestia.bnet.proto.BestiaInfoProto
+import net.bestia.bnet.proto.BestiaOriginProto
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.SelfSMSGProto
 import net.bestia.bnet.proto.Vec3OuterClass
@@ -28,6 +29,8 @@ data class SelfSMSG(
     val sex: BestiaGeneticsProto.BestiaSex = BestiaGeneticsProto.BestiaSex.BESTIA_SEX_UNKNOWN,
     /** Null where the receiver has no business reading them. */
     val ivs: BestiaGeneticsProto.IvReading? = null,
+    val origin: BestiaOriginProto.BestiaOrigin,
+    val originMasterName: String,
   ) {
 
     fun toBnet(): BestiaInfoProto.BestiaInfo {
@@ -46,6 +49,8 @@ data class SelfSMSG(
         .setLevel(level)
         .setPosition(position)
         .setSex(sex)
+        .setOrigin(origin)
+        .setOriginMasterName(originMasterName)
       ivs?.let(info::setIvs)
 
       return info.build()

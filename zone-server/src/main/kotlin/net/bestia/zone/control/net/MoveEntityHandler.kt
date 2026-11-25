@@ -7,6 +7,7 @@ import java.util.Random
 import net.bestia.bnet.proto.EnvelopeProto.Envelope.MessageCase
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.ActionGuard
+import net.bestia.zone.battle.UnrulyGuard
 import net.bestia.zone.battle.ActionReactions
 import net.bestia.zone.battle.attack.ThreadLocalRandomSource
 import net.bestia.zone.battle.ecs.attack.AttackCancelService
@@ -50,6 +51,7 @@ class MoveEntityHandler(
   private val attackCancelService: AttackCancelService,
   private val deadActionGuard: DeadActionGuard,
   private val actionGuard: ActionGuard,
+  private val unrulyGuard: UnrulyGuard,
   private val rateLimit: MoveRequestRateLimit,
   private val journeys: JourneyService,
   private val clientLeg: ClientLeg,
@@ -77,6 +79,9 @@ class MoveEntityHandler(
 
     // Before the cancels too: a stunned body keeps the cast its stun already broke off, and no more.
     if (actionGuard.refuses(world, id, ActionLock.MOVE)) return true
+
+    // A bestia far above its master's level may refuse; its own AI walks it meanwhile.
+    if (unrulyGuard.refuses(world, request.playerId, id)) return true
 
     val msg = if (isConfused(world, id)) strayed(world, request) else request
 

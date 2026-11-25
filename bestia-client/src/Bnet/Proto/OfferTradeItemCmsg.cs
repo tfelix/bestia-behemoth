@@ -25,14 +25,15 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiptZXNzYWdlcy90cmFkZS9vZmZlcl90cmFkZV9pdGVtX2Ntc2cucHJvdG8S",
-            "BGJuZXQiWgoST2ZmZXJUcmFkZUl0ZW1DTVNHEhAKCHRyYWRlX2lkGAEgASgE",
-            "EhYKDnBsYXllcl9pdGVtX2lkGAUgASgEEg4KBmFtb3VudBgEIAEoDUoECAIQ",
-            "A0oECAMQBEIwChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CF09mZmVyVHJhZGVJ",
-            "dGVtQ21zZ1Byb3RvYgZwcm90bzM="));
+            "BGJuZXQinwEKEk9mZmVyVHJhZGVJdGVtQ01TRxIQCgh0cmFkZV9pZBgBIAEo",
+            "BBIYCg5wbGF5ZXJfaXRlbV9pZBgFIAEoBEgAEhoKEGJlc3RpYV9lbnRpdHlf",
+            "aWQYBiABKAZIABIOCgZhbW91bnQYBCABKA0SHAoUYWNjZXB0X2NhcnJpZWRf",
+            "aXRlbXMYByABKAhCBwoFb2ZmZXJKBAgCEANKBAgDEARCMAoVbmV0LmJlc3Rp",
+            "YS5ibmV0LnByb3RvQhdPZmZlclRyYWRlSXRlbUNtc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.OfferTradeItemCMSG), global::Bnet.OfferTradeItemCMSG.Parser, new[]{ "TradeId", "PlayerItemId", "Amount" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.OfferTradeItemCMSG), global::Bnet.OfferTradeItemCMSG.Parser, new[]{ "TradeId", "PlayerItemId", "BestiaEntityId", "Amount", "AcceptCarriedItems" }, new[]{ "Offer" }, null, null, null)
           }));
     }
     #endregion
@@ -40,8 +41,9 @@ namespace Bnet {
   }
   #region Messages
   /// <summary>
-  /// Puts an item from the sender's inventory into their side of the trade window. The server takes it out
-  /// of the live inventory at once, so it can no longer be dropped, used or spent on a craft while offered.
+  /// Puts an item from the sender's inventory, or one of their party bestias, into their side of the trade window.
+  /// An item leaves the live inventory at once, so it can no longer be dropped, used or spent on a craft while
+  /// offered. A bestia stays in the world until the trade goes through.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class OfferTradeItemCMSG : pb::IMessage<OfferTradeItemCMSG>
@@ -79,8 +81,17 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public OfferTradeItemCMSG(OfferTradeItemCMSG other) : this() {
       tradeId_ = other.tradeId_;
-      playerItemId_ = other.playerItemId_;
       amount_ = other.amount_;
+      acceptCarriedItems_ = other.acceptCarriedItems_;
+      switch (other.OfferCase) {
+        case OfferOneofCase.PlayerItemId:
+          PlayerItemId = other.PlayerItemId;
+          break;
+        case OfferOneofCase.BestiaEntityId:
+          BestiaEntityId = other.BestiaEntityId;
+          break;
+      }
+
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -104,22 +115,68 @@ namespace Bnet {
 
     /// <summary>Field number for the "player_item_id" field.</summary>
     public const int PlayerItemIdFieldNumber = 5;
-    private ulong playerItemId_;
     /// <summary>
     /// The held pile or copy to offer from, as InventoryItem.player_item_id names it.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public ulong PlayerItemId {
-      get { return playerItemId_; }
+      get { return HasPlayerItemId ? (ulong) offer_ : 0UL; }
       set {
-        playerItemId_ = value;
+        offer_ = value;
+        offerCase_ = OfferOneofCase.PlayerItemId;
+      }
+    }
+    /// <summary>Gets whether the "player_item_id" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasPlayerItemId {
+      get { return offerCase_ == OfferOneofCase.PlayerItemId; }
+    }
+    /// <summary> Clears the value of the oneof if it's currently set to "player_item_id" </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearPlayerItemId() {
+      if (HasPlayerItemId) {
+        ClearOffer();
+      }
+    }
+
+    /// <summary>Field number for the "bestia_entity_id" field.</summary>
+    public const int BestiaEntityIdFieldNumber = 6;
+    /// <summary>
+    /// A party bestia, by its entity. Whatever it carries and wears goes with it.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong BestiaEntityId {
+      get { return HasBestiaEntityId ? (ulong) offer_ : 0UL; }
+      set {
+        offer_ = value;
+        offerCase_ = OfferOneofCase.BestiaEntityId;
+      }
+    }
+    /// <summary>Gets whether the "bestia_entity_id" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasBestiaEntityId {
+      get { return offerCase_ == OfferOneofCase.BestiaEntityId; }
+    }
+    /// <summary> Clears the value of the oneof if it's currently set to "bestia_entity_id" </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearBestiaEntityId() {
+      if (HasBestiaEntityId) {
+        ClearOffer();
       }
     }
 
     /// <summary>Field number for the "amount" field.</summary>
     public const int AmountFieldNumber = 4;
     private uint amount_;
+    /// <summary>
+    /// Items only.
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public uint Amount {
@@ -127,6 +184,43 @@ namespace Bnet {
       set {
         amount_ = value;
       }
+    }
+
+    /// <summary>Field number for the "accept_carried_items" field.</summary>
+    public const int AcceptCarriedItemsFieldNumber = 7;
+    private bool acceptCarriedItems_;
+    /// <summary>
+    /// A bestia that carries or wears items is refused with TRADE_BESTIA_CARRIES_ITEMS until the sender confirms
+    /// its items go too.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool AcceptCarriedItems {
+      get { return acceptCarriedItems_; }
+      set {
+        acceptCarriedItems_ = value;
+      }
+    }
+
+    private object offer_;
+    /// <summary>Enum of possible cases for the "offer" oneof.</summary>
+    public enum OfferOneofCase {
+      None = 0,
+      PlayerItemId = 5,
+      BestiaEntityId = 6,
+    }
+    private OfferOneofCase offerCase_ = OfferOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public OfferOneofCase OfferCase {
+      get { return offerCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearOffer() {
+      offerCase_ = OfferOneofCase.None;
+      offer_ = null;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -146,7 +240,10 @@ namespace Bnet {
       }
       if (TradeId != other.TradeId) return false;
       if (PlayerItemId != other.PlayerItemId) return false;
+      if (BestiaEntityId != other.BestiaEntityId) return false;
       if (Amount != other.Amount) return false;
+      if (AcceptCarriedItems != other.AcceptCarriedItems) return false;
+      if (OfferCase != other.OfferCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -155,8 +252,11 @@ namespace Bnet {
     public override int GetHashCode() {
       int hash = 1;
       if (TradeId != 0UL) hash ^= TradeId.GetHashCode();
-      if (PlayerItemId != 0UL) hash ^= PlayerItemId.GetHashCode();
+      if (HasPlayerItemId) hash ^= PlayerItemId.GetHashCode();
+      if (HasBestiaEntityId) hash ^= BestiaEntityId.GetHashCode();
       if (Amount != 0) hash ^= Amount.GetHashCode();
+      if (AcceptCarriedItems != false) hash ^= AcceptCarriedItems.GetHashCode();
+      hash ^= (int) offerCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -183,9 +283,17 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteUInt32(Amount);
       }
-      if (PlayerItemId != 0UL) {
+      if (HasPlayerItemId) {
         output.WriteRawTag(40);
         output.WriteUInt64(PlayerItemId);
+      }
+      if (HasBestiaEntityId) {
+        output.WriteRawTag(49);
+        output.WriteFixed64(BestiaEntityId);
+      }
+      if (AcceptCarriedItems != false) {
+        output.WriteRawTag(56);
+        output.WriteBool(AcceptCarriedItems);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -205,9 +313,17 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteUInt32(Amount);
       }
-      if (PlayerItemId != 0UL) {
+      if (HasPlayerItemId) {
         output.WriteRawTag(40);
         output.WriteUInt64(PlayerItemId);
+      }
+      if (HasBestiaEntityId) {
+        output.WriteRawTag(49);
+        output.WriteFixed64(BestiaEntityId);
+      }
+      if (AcceptCarriedItems != false) {
+        output.WriteRawTag(56);
+        output.WriteBool(AcceptCarriedItems);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -222,11 +338,17 @@ namespace Bnet {
       if (TradeId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(TradeId);
       }
-      if (PlayerItemId != 0UL) {
+      if (HasPlayerItemId) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(PlayerItemId);
+      }
+      if (HasBestiaEntityId) {
+        size += 1 + 8;
       }
       if (Amount != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Amount);
+      }
+      if (AcceptCarriedItems != false) {
+        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -243,12 +365,21 @@ namespace Bnet {
       if (other.TradeId != 0UL) {
         TradeId = other.TradeId;
       }
-      if (other.PlayerItemId != 0UL) {
-        PlayerItemId = other.PlayerItemId;
-      }
       if (other.Amount != 0) {
         Amount = other.Amount;
       }
+      if (other.AcceptCarriedItems != false) {
+        AcceptCarriedItems = other.AcceptCarriedItems;
+      }
+      switch (other.OfferCase) {
+        case OfferOneofCase.PlayerItemId:
+          PlayerItemId = other.PlayerItemId;
+          break;
+        case OfferOneofCase.BestiaEntityId:
+          BestiaEntityId = other.BestiaEntityId;
+          break;
+      }
+
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -280,6 +411,14 @@ namespace Bnet {
             PlayerItemId = input.ReadUInt64();
             break;
           }
+          case 49: {
+            BestiaEntityId = input.ReadFixed64();
+            break;
+          }
+          case 56: {
+            AcceptCarriedItems = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -309,6 +448,14 @@ namespace Bnet {
           }
           case 40: {
             PlayerItemId = input.ReadUInt64();
+            break;
+          }
+          case 49: {
+            BestiaEntityId = input.ReadFixed64();
+            break;
+          }
+          case 56: {
+            AcceptCarriedItems = input.ReadBool();
             break;
           }
         }

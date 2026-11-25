@@ -45,6 +45,8 @@ class BestiaInfoFactory(
           position = position,
           sex = playerBestia.sex?.toBnet() ?: BestiaGeneticsProto.BestiaSex.BESTIA_SEX_UNKNOWN,
           ivs = IvReading(playerBestia.individualValues, readsExactIvs).toBnet(),
+          origin = playerBestia.origin.toBnet(),
+          originMasterName = playerBestia.originMasterName,
         )
       } ?: throw EntityNotAliveException(entityId)
     }

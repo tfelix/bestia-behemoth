@@ -31,6 +31,7 @@ import net.bestia.zone.item.ecs.WornGear
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.movement.ecs.Speed
 import net.bestia.zone.identity.ecs.Account
+import net.bestia.zone.identity.ecs.BestiaTag
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.battle.ecs.exp.Exp
@@ -268,6 +269,7 @@ class PlayerBestiaEntitySpawner(
     // What it sees of the routes is its master's knowledge too.
     add(id, Vicinity())
     add(id, OwnedBestia(masterId = playerBestia.master.id, playerBestiaId = playerBestia.id))
+    add(id, BestiaTag(playerBestia.name, playerBestia.master.name))
     statusEffectPersistenceService.attach(this, id, loaded.statusEffects)
 
     attachIdleAi(id, playerBestia)

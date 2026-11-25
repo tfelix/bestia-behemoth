@@ -79,7 +79,7 @@ class BreedingFarmFlowTest {
     every { bloodlineStudyLevel(any()) } returns 4
     every { beastfriendLevel(any()) } returns 0
   }
-  private val laidEgg = EggSummary(EGG_INSTANCE, 1L, Sex.MALE, IndividualValues(), 1_000, 0)
+  private val laidEgg = EggSummary(EGG_INSTANCE, 1L, Sex.MALE, IndividualValues(), 1_000, 0, "Breeder")
   private val eggLaying = mockk<EggLaying> { every { lay(any(), any(), any()) } returns laidEgg }
   private val lootItems = mockk<LootItemEntitySpawner>(relaxed = true)
 
