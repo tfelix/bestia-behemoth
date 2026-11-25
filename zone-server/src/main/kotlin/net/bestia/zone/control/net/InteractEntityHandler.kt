@@ -30,7 +30,6 @@ import net.bestia.zone.prop.PlayerStructureService
 import net.bestia.zone.prop.PropInteraction
 import net.bestia.zone.script.ScriptArgKeys
 import net.bestia.zone.script.ScriptArgs
-import net.bestia.zone.master.bestia.EtchingOffers
 import net.bestia.zone.entity.ecs.StaticVisual
 import net.bestia.zone.script.EntityScriptRegistry
 import net.bestia.zone.script.ecs.ScriptComponent
@@ -56,7 +55,6 @@ class InteractEntityHandler(
   private val towns: TownService,
   private val outMessageProcessor: OutMessageProcessor,
   private val scripts: EntityScriptRegistry,
-  private val etchingOffers: EtchingOffers,
   propInteractions: List<PropInteraction>,
 ) : TickMessageHandler<InteractEntityCMSG> {
 
@@ -100,10 +98,6 @@ class InteractEntityHandler(
 
     if (world.get(targetId, ConstructionSite::class) != null) {
       return toggleBuilding(world, actorId, targetId)
-    }
-
-    if (args.text(ScriptArgKeys.ACTION) == OFFER_FOR_ETCHING) {
-      return etchingOffers.offer(world, actorId, targetId)
     }
 
     val script = world.get(targetId, ScriptComponent::class)?.let { scripts.find(it.scriptId) }
@@ -175,8 +169,5 @@ class InteractEntityHandler(
 
   private companion object {
     val LOG = KotlinLogging.logger { }
-
-    /** The action on one's own Bestia at a Carving Table, see [EtchingOffers]. */
-    const val OFFER_FOR_ETCHING = "offerForEtching"
   }
 }

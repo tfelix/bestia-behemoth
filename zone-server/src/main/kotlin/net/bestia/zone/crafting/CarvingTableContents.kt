@@ -8,7 +8,8 @@ import net.bestia.zone.util.PlayerBestiaId
  */
 interface CarvingTableContents {
 
-  fun load(structureId: Long, viewerMasterId: Long): Contents
+  /** [etchSecondsPerLevelSquared] is the viewer's etching time, see [CraftBonusService.craftSeconds]. */
+  fun load(structureId: Long, viewerMasterId: Long, etchSecondsPerLevelSquared: Float): Contents
 
   data class Contents(val deposited: List<Deposited>, val depositable: List<Depositable>)
 
@@ -21,6 +22,14 @@ interface CarvingTableContents {
     val ownerName: String,
     /** The viewer owns it. */
     val mine: Boolean,
+    /** How long the viewer would take to etch it. */
+    val etchSeconds: Int = 0,
+    /** Seconds left of the etching under way on it, 0 when none is. */
+    val etchSecondsLeft: Int = 0,
+    /** Who is etching it, while an etching is under way. */
+    val etcherName: String? = null,
+    /** The viewer is the one etching it. */
+    val etchingMine: Boolean = false,
   )
 
   /** One of the viewer's own Bestias that is not locked in anywhere. */

@@ -44,9 +44,6 @@ class Crafting(
 
   /** Points on every random stat and socket chance, settled when the craft starts, see `ItemStatRoller`. */
   val rollChanceBonus: Int = 0,
-
-  /** The Bestia in storage that Runic Etching takes, as a player bestia id, or 0. */
-  val storedBestiaId: Long = 0,
 ) : Countdown(remainingSeconds), Removable {
 
   // A craft bar reports "still busy" rather than feeding a decision, so it beats at half the rate a

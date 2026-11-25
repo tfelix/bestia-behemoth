@@ -1593,6 +1593,7 @@ recipes:
     craftSeconds: 20.0
     baseSuccessChance: 1
 
+  # An etching takes 1.2 · L² seconds for a Bestia of level L: craftSeconds is the factor, see Recipe.craftSeconds.
   - id: 153
     identifier: ETCH_AMETHYST
     effect: ETCH_ESSENCE
@@ -1600,7 +1601,7 @@ recipes:
       - { item: cut_amethyst, amount: 1 }
     skill: { skill: M_RUNIC_ETCHING, level: 1 }
     station: CARVING_TABLE
-    craftSeconds: 10.0
+    craftSeconds: 1.2
     baseSuccessChance: 0.5
 
   - id: 154
@@ -1610,7 +1611,7 @@ recipes:
       - { item: cut_emerald, amount: 1 }
     skill: { skill: M_RUNIC_ETCHING, level: 1 }
     station: CARVING_TABLE
-    craftSeconds: 20.0
+    craftSeconds: 1.2
     baseSuccessChance: 0.5
 
   - id: 155
@@ -1620,7 +1621,7 @@ recipes:
       - { item: cut_ruby, amount: 1 }
     skill: { skill: M_RUNIC_ETCHING, level: 1 }
     station: CARVING_TABLE
-    craftSeconds: 30.0
+    craftSeconds: 1.2
     baseSuccessChance: 0.5
 
   - id: 156
@@ -1630,7 +1631,7 @@ recipes:
       - { item: cut_pyrelith, amount: 1 }
     skill: { skill: M_RUNIC_ETCHING, level: 1 }
     station: CARVING_TABLE
-    craftSeconds: 40.0
+    craftSeconds: 1.2
     baseSuccessChance: 0.5
 
   - id: 157
@@ -1640,5 +1641,5 @@ recipes:
       - { item: cut_diamond, amount: 1 }
     skill: { skill: M_RUNIC_ETCHING, level: 1 }
     station: CARVING_TABLE
-    craftSeconds: 50.0
+    craftSeconds: 1.2
     baseSuccessChance: 0.5

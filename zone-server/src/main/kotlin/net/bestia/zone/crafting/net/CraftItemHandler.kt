@@ -49,7 +49,6 @@ class CraftItemHandler(
         entityId = id,
         recipeId = msg.recipeId,
         targetUniqueId = msg.targetUniqueId,
-        storedBestiaId = msg.storedBestiaId,
         masterEntityId = connectionInfoService.getSelectedMasterEntityId(msg.playerId),
         repeats = msg.amount - 1
       )

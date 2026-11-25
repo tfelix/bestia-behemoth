@@ -33,11 +33,8 @@ message CraftableRecipesSMSG {
   // Seconds a campfire has left to burn, 0 once it is out or for a station that burns nothing.
   uint32 fuel_seconds = 5;
 
-  // Other masters' Bestias offered for etching at this Carving Table. Empty at every other station.
-  repeated EtchingOffer etching_offers = 6;
-
-  // The crafter's own Bestias in storage, at a Carving Table and with storage access. Empty otherwise.
-  repeated StoredEtchable stored_bestias = 7;
+  // Were the offered and the stored Bestias of the old etching picker; see deposited.
+  reserved 6, 7;
 
   // At a Carving Table: the Bestias locked into it for Runic Etching, everyone's.
   repeated DepositedBestia deposited = 8;
@@ -55,6 +52,18 @@ message DepositedBestia {
 
   // The viewer owns it, so they may take it back.
   bool mine = 6;
+
+  // How long the viewer would take to etch it, in seconds.
+  uint32 etch_seconds = 7;
+
+  // Seconds left of the etching under way on it; 0 when none is.
+  uint32 etch_seconds_left = 8;
+
+  // Who is etching it, while an etching is under way.
+  string etcher_name = 9;
+
+  // The viewer is the one etching it, so they may call it off.
+  bool etching_mine = 10;
 }
 
 message DepositableBestia {
@@ -65,21 +74,6 @@ message DepositableBestia {
 
   // In storage rather than called out; locking it in needs the storage to be open.
   bool in_storage = 5;
-}
-
-message EtchingOffer {
-  uint64 entity_id = 1;
-  uint32 mob_id = 2;
-  uint32 level = 3;
-  string owner_name = 4;
-}
-
-message StoredEtchable {
-  uint64 player_bestia_id = 1;
-  uint32 mob_id = 2;
-  uint32 level = 3;
-  // The name its master gave it, or empty.
-  string name = 4;
 }
 
 message CraftableRecipe {

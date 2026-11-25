@@ -27,6 +27,7 @@ object ScriptArgKeys {
   const val QUEST_ID = "questId"
   const val ITEM_ID = "itemId"
   const val PLAYER_BESTIA_ID = "playerBestiaId"
+  const val RECIPE_ID = "recipeId"
   const val AMOUNT = "amount"
   const val COINS_EACH = "coinsEach"
   const val DAYS = "days"

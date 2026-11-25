@@ -21,7 +21,6 @@ message CraftItemCMSG {
   // How many to make one after another; 0 means 1. Only a producing recipe repeats.
   uint32 amount = 3;
 
-  // For Runic Etching on one of the crafter's own Bestias in storage, its player bestia id; target_unique_id is 0
-  // then. 0 for every other craft.
-  uint64 stored_bestia_id = 4;
+  // Was the Bestia in storage for Runic Etching, which now runs at the Carving Table.
+  reserved 4;
 }

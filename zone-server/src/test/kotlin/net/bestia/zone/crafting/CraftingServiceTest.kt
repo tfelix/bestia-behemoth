@@ -14,7 +14,6 @@ import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.crafting.CraftingFixture.Companion.ACCOUNT_ID
 import net.bestia.zone.crafting.CraftingFixture.Companion.CUT_GEM_ITEM
 import net.bestia.zone.crafting.CraftingFixture.Companion.ESSENCE_GEM_ITEM
-import net.bestia.zone.crafting.CraftingFixture.Companion.ETCHED_ESSENCE
 import net.bestia.zone.crafting.CraftingFixture.Companion.INPUT_ITEM
 import net.bestia.zone.crafting.CraftingFixture.Companion.MASTER_ID
 import net.bestia.zone.crafting.CraftingFixture.Companion.OUTPUT_ITEM
@@ -618,93 +617,11 @@ class CraftingServiceTest {
   }
 
   @Test
-  fun `a successful etching binds the Bestia and grants an Essence Gem that holds it`() {
-    val fixture = etchingFixture(baseSuccessChance = 1f)
-    val crafter = fixture.givenCrafter(items = listOf(stack(CUT_GEM_ITEM, 1)), knownSkills = mapOf(ETCHING_ID to 1))
-    val bestia = fixture.givenEtchableBestia(level = 5)
-
-    fixture.service.resolve(fixture.world, crafter, crafting(etch.id, targetUniqueId = bestia))
-
-    assertTrue(fixture.inventoryOf(crafter).getItems().none { it.itemId == CUT_GEM_ITEM }, "the cut gem is used up")
-    val intent = fixture.world.get(crafter, ObtainItemIntent.CreateItemIntent::class)!!
-    assertEquals(ESSENCE_GEM_ITEM, intent.itemId)
-    assertEquals(ETCHED_ESSENCE, intent.roll?.heldEssence)
-    verify { fixture.etching.bind(any(), bestia, CUT_GEM_ITEM) }
-  }
-
-  @Test
-  fun `the Essence Gem of an offered Bestia goes to its owner, not to the Artificer`() {
-    val fixture = etchingFixture(baseSuccessChance = 1f)
-    val artificer = fixture.givenCrafter(items = listOf(stack(CUT_GEM_ITEM, 1)), knownSkills = mapOf(ETCHING_ID to 1))
-    val owner = fixture.givenCrafter(masterId = MASTER_ID + 1)
-    fixture.etchedBestiaOwner = owner
-    val bestia = fixture.givenEtchableBestia(level = 5, masterId = MASTER_ID + 1)
-
-    fixture.service.resolve(fixture.world, artificer, crafting(etch.id, targetUniqueId = bestia))
-
-    assertEquals(ESSENCE_GEM_ITEM, fixture.world.get(owner, ObtainItemIntent.CreateItemIntent::class)?.itemId)
-    assertNull(fixture.world.get(artificer, ObtainItemIntent.CreateItemIntent::class))
-  }
-
-  /** The price of bad luck is the gem: a Bestia is only used up when it really becomes an essence. */
-  @Test
-  fun `a failed etching shatters the gem and leaves the Bestia alone`() {
-    val fixture = etchingFixture(baseSuccessChance = 0f)
-    val crafter = fixture.givenCrafter(items = listOf(stack(CUT_GEM_ITEM, 1)), knownSkills = mapOf(ETCHING_ID to 1))
-    // Far above the reliable level, so the chance sits at the 1% floor.
-    val bestia = fixture.givenEtchableBestia(level = 100)
-
-    fixture.service.resolve(fixture.world, crafter, crafting(etch.id, targetUniqueId = bestia))
-
-    assertTrue(fixture.inventoryOf(crafter).getItems().none { it.itemId == CUT_GEM_ITEM }, "the gem shatters")
-    val granted = fixture.world.get(crafter, ObtainItemIntent.CreateItemIntent::class) != null
-    verify(exactly = if (granted) 1 else 0) { fixture.etching.bind(any(), any(), any()) }
-  }
-
-  @Test
-  fun `a Bestia etched from storage becomes the crafter's Essence Gem`() {
-    val fixture = etchingFixture(baseSuccessChance = 1f)
-    val crafter = fixture.givenCrafter(items = listOf(stack(CUT_GEM_ITEM, 1)), knownSkills = mapOf(ETCHING_ID to 1))
-
-    fixture.service.resolve(fixture.world, crafter, crafting(etch.id, storedBestiaId = STORED_BESTIA))
-
-    assertEquals(ETCHED_ESSENCE, fixture.world.get(crafter, ObtainItemIntent.CreateItemIntent::class)?.roll?.heldEssence)
-    verify { fixture.storedEtching.bind(MASTER_ID, STORED_BESTIA, CUT_GEM_ITEM) }
-  }
-
-  @Test
-  fun `a stored Bestia summoned during the etching gives the gem back`() {
-    val fixture = etchingFixture(baseSuccessChance = 1f)
-    fixture.storedBestiaStillThere = false
-    val crafter = fixture.givenCrafter(items = listOf(stack(CUT_GEM_ITEM, 1)), knownSkills = mapOf(ETCHING_ID to 1))
-
-    fixture.service.resolve(fixture.world, crafter, crafting(etch.id, storedBestiaId = STORED_BESTIA))
-
-    assertTrue(fixture.inventoryOf(crafter).getItems().any { it.itemId == CUT_GEM_ITEM }, "the gem is given back")
-    assertNull(fixture.world.get(crafter, ObtainItemIntent.CreateItemIntent::class))
-    verify(exactly = 0) { fixture.storedEtching.bind(any(), any(), any()) }
-  }
-
-  @Test
-  fun `an etching the Bestia side refuses does not start`() {
-    val fixture = etchingFixture(baseSuccessChance = 1f).withStation(StaticEntityKind.CARVING_TABLE)
-    fixture.etchingRefusal = OpError.CRAFT_BESTIA_NOT_AT_TABLE
-    val crafter = fixture.givenCrafter(items = listOf(stack(CUT_GEM_ITEM, 1)), knownSkills = mapOf(ETCHING_ID to 1))
-    val bestia = fixture.givenEtchableBestia(level = 5)
-
-    assertEquals(
-      OpError.CRAFT_BESTIA_NOT_AT_TABLE,
-      fixture.service.start(fixture.world, crafter, etch.id, targetUniqueId = bestia)
-    )
-    assertNull(fixture.world.get(crafter, Crafting::class))
-  }
-
-  @Test
-  fun `a crafter cannot etch itself`() {
+  fun `an etching never starts as a craft of the crafter`() {
     val fixture = etchingFixture(baseSuccessChance = 1f).withStation(StaticEntityKind.CARVING_TABLE)
     val crafter = fixture.givenCrafter(items = listOf(stack(CUT_GEM_ITEM, 1)), knownSkills = mapOf(ETCHING_ID to 1))
 
-    assertEquals(OpError.CRAFT_NOT_POSSIBLE, fixture.service.start(fixture.world, crafter, etch.id, targetUniqueId = crafter))
+    assertEquals(OpError.CRAFT_NOT_POSSIBLE, fixture.service.start(fixture.world, crafter, etch.id, targetUniqueId = 0))
   }
 
   private val etch = recipe(
@@ -716,14 +633,13 @@ class CraftingServiceTest {
   private fun etchingFixture(baseSuccessChance: Float) =
     CraftingFixture(listOf(etch.copy(baseSuccessChance = baseSuccessChance)), skillIds = mapOf("M_RUNIC_ETCHING" to ETCHING_ID))
 
-  private fun crafting(recipeId: Long, targetUniqueId: Long = 0L, storedBestiaId: Long = 0L) =
-    Crafting(recipeId = recipeId, targetUniqueId = targetUniqueId, totalSeconds = 1f, storedBestiaId = storedBestiaId)
+  private fun crafting(recipeId: Long, targetUniqueId: Long = 0L) =
+    Crafting(recipeId = recipeId, targetUniqueId = targetUniqueId, totalSeconds = 1f)
 
   private companion object {
     const val CUSTOMIZATION_ID = 11L
     const val CARPENTRY_ID = 9L
     const val REPAIR_ID = 15L
     const val ETCHING_ID = 18L
-    const val STORED_BESTIA = 900L
   }
 }

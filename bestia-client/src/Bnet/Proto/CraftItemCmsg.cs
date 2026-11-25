@@ -25,14 +25,14 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CidtZXNzYWdlcy9jcmFmdGluZy9jcmFmdF9pdGVtX2Ntc2cucHJvdG8SBGJu",
-            "ZXQiZgoNQ3JhZnRJdGVtQ01TRxIRCglyZWNpcGVfaWQYASABKAQSGAoQdGFy",
-            "Z2V0X3VuaXF1ZV9pZBgCIAEoBBIOCgZhbW91bnQYAyABKA0SGAoQc3RvcmVk",
-            "X2Jlc3RpYV9pZBgEIAEoBEIrChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CEkNy",
-            "YWZ0SXRlbUNtc2dQcm90b2IGcHJvdG8z"));
+            "ZXQiUgoNQ3JhZnRJdGVtQ01TRxIRCglyZWNpcGVfaWQYASABKAQSGAoQdGFy",
+            "Z2V0X3VuaXF1ZV9pZBgCIAEoBBIOCgZhbW91bnQYAyABKA1KBAgEEAVCKwoV",
+            "bmV0LmJlc3RpYS5ibmV0LnByb3RvQhJDcmFmdEl0ZW1DbXNnUHJvdG9iBnBy",
+            "b3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftItemCMSG), global::Bnet.CraftItemCMSG.Parser, new[]{ "RecipeId", "TargetUniqueId", "Amount", "StoredBestiaId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CraftItemCMSG), global::Bnet.CraftItemCMSG.Parser, new[]{ "RecipeId", "TargetUniqueId", "Amount" }, null, null, null, null)
           }));
     }
     #endregion
@@ -85,7 +85,6 @@ namespace Bnet {
       recipeId_ = other.recipeId_;
       targetUniqueId_ = other.targetUniqueId_;
       amount_ = other.amount_;
-      storedBestiaId_ = other.storedBestiaId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -138,22 +137,6 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "stored_bestia_id" field.</summary>
-    public const int StoredBestiaIdFieldNumber = 4;
-    private ulong storedBestiaId_;
-    /// <summary>
-    /// For Runic Etching on one of the crafter's own Bestias in storage, its player bestia id; target_unique_id is 0
-    /// then. 0 for every other craft.
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong StoredBestiaId {
-      get { return storedBestiaId_; }
-      set {
-        storedBestiaId_ = value;
-      }
-    }
-
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -172,7 +155,6 @@ namespace Bnet {
       if (RecipeId != other.RecipeId) return false;
       if (TargetUniqueId != other.TargetUniqueId) return false;
       if (Amount != other.Amount) return false;
-      if (StoredBestiaId != other.StoredBestiaId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -183,7 +165,6 @@ namespace Bnet {
       if (RecipeId != 0UL) hash ^= RecipeId.GetHashCode();
       if (TargetUniqueId != 0UL) hash ^= TargetUniqueId.GetHashCode();
       if (Amount != 0) hash ^= Amount.GetHashCode();
-      if (StoredBestiaId != 0UL) hash ^= StoredBestiaId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -214,10 +195,6 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteUInt32(Amount);
       }
-      if (StoredBestiaId != 0UL) {
-        output.WriteRawTag(32);
-        output.WriteUInt64(StoredBestiaId);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -240,10 +217,6 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteUInt32(Amount);
       }
-      if (StoredBestiaId != 0UL) {
-        output.WriteRawTag(32);
-        output.WriteUInt64(StoredBestiaId);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -262,9 +235,6 @@ namespace Bnet {
       }
       if (Amount != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Amount);
-      }
-      if (StoredBestiaId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(StoredBestiaId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -286,9 +256,6 @@ namespace Bnet {
       }
       if (other.Amount != 0) {
         Amount = other.Amount;
-      }
-      if (other.StoredBestiaId != 0UL) {
-        StoredBestiaId = other.StoredBestiaId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -321,10 +288,6 @@ namespace Bnet {
             Amount = input.ReadUInt32();
             break;
           }
-          case 32: {
-            StoredBestiaId = input.ReadUInt64();
-            break;
-          }
         }
       }
     #endif
@@ -354,10 +317,6 @@ namespace Bnet {
           }
           case 24: {
             Amount = input.ReadUInt32();
-            break;
-          }
-          case 32: {
-            StoredBestiaId = input.ReadUInt64();
             break;
           }
         }
