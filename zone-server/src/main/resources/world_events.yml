@@ -17,3 +17,15 @@ events:
     min-tier-cells: 12
     cooldown: 4
     lasts: 2
+
+  # Where the mana runs thickest and the land around can feed it, a knot forms. It pulls quietly for a few
+  # Bestia days, then opens, grows through five stages and collapses after a real day unless players drain the
+  # land until it loses its hold, or seal it. See the rift section of the world events page.
+  - id: rift
+    script: Rift
+    cost: 3
+    weight: 1
+    min-tier: EVENT
+    min-tier-cells: 6
+    cooldown: 6
+    lasts: 10

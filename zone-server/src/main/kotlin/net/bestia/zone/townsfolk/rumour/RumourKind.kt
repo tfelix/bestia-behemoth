@@ -34,4 +34,10 @@ enum class RumourKind(
 
   /** Stones stand up out of the ground nearby and storms come: the mana there reached the Storms tier. */
   STONES_RISEN(baseImportance = 55, lifetimeDays = 20),
+
+  /** A rift tore open nearby and things are coming out of it. Posted by `RiftSystem`. */
+  RIFT_OPENED(baseImportance = 80, lifetimeDays = 15),
+
+  /** A rift nobody sealed collapsed and poured its mana over the land. */
+  RIFT_COLLAPSED(baseImportance = 85, lifetimeDays = 40),
 }
