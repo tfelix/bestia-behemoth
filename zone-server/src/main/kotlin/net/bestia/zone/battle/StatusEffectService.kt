@@ -371,7 +371,10 @@ class StatusEffectService(
   private companion object {
     val LOG = KotlinLogging.logger { }
 
-    /** Debuffs a fighter pays for its own choice, an Enrage or a ritual. No blanket immunity waives the price. */
-    val PRICES_PAID = setOf(StatusEffectId.FATIGUE.id, StatusEffectId.RITUAL_FATIGUE.id)
+    /**
+     * Debuffs that are the price of a choice, not a foe's attack: an Enrage, a ritual, commanding a Bestia far above
+     * its master. No blanket immunity waives the price.
+     */
+    val PRICES_PAID = setOf(StatusEffectId.FATIGUE.id, StatusEffectId.RITUAL_FATIGUE.id, StatusEffectId.UNRULY.id)
   }
 }
