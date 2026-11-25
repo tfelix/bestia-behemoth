@@ -31,6 +31,8 @@ export function diaryText(line: DiaryEntry): string {
 			return 'Was killed';
 		case 'LOST':
 			return 'Was killed and lost for good';
+		case 'EVENT_SENSED':
+			return `Felt something of the ${line.reason ?? 'land'} stir near the outpost`;
 		default:
 			return line.kind;
 	}

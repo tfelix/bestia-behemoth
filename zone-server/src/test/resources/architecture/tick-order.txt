@@ -100,6 +100,7 @@
  - UPKEEP wave 56: LightSourceSystem [EverySeconds(seconds=10.0)]
  - UPKEEP wave 56: LogoutSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 56: ManaFieldSystem [EverySeconds(seconds=60.0)]
+ - UPKEEP wave 56: OutpostWatchSystem [EverySeconds(seconds=60.0)]
  - UPKEEP wave 56: RiftSystem [EverySeconds(seconds=60.0)]
  - UPKEEP wave 56: RumourExpirySystem [EverySeconds(seconds=180.0)]
  - UPKEEP wave 56: ScorchRegrowthSystem [EverySeconds(seconds=60.0)]

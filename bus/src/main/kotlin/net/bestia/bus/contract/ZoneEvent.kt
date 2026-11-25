@@ -45,7 +45,7 @@ sealed interface ZoneEvent {
 
   /**
    * Something an owned bestia did, as its diary says it: [kind] NEW_ORDERS, HAULED, WORK_PAUSED, QUEUE_FINISHED,
-   * ATTACKED or RETREATED, with [place] and [reason] as the diary has them. [whilePlaying] when the player was in the
+   * ATTACKED, RETREATED or EVENT_SENSED, with [place] and [reason] as the diary has them. [whilePlaying] when the player was in the
    * game to see it, which is no time to wake them.
    */
   data class BestiaHappening(

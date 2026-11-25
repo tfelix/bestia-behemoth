@@ -20,4 +20,10 @@ describe('diary', () => {
 	it('names new orders by their job', () => {
 		expect(diaryText({ ...line, kind: 'NEW_ORDERS', reason: 'MINE' })).toBe('Got new orders: Mine');
 	});
+
+	it('names the kind of event a watching bestia felt', () => {
+		expect(diaryText({ ...line, kind: 'EVENT_SENSED', reason: 'mana' })).toBe(
+			'Felt something of the mana stir near the outpost'
+		);
+	});
 });

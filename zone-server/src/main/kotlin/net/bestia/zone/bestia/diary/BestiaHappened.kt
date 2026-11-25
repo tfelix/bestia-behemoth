@@ -35,5 +35,7 @@ class BestiaHappened(
 
     /** Overkilled: it is gone for good. */
     LOST,
+    /** Keeping watch at an Observation Outpost, it felt a world event begin to stir; [reason] is its kind. */
+    EVENT_SENSED,
   }
 }
