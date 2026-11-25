@@ -55,10 +55,10 @@ class LiveManaReading(
 
   fun peakOf(regionIndex: Int): Double = peak[regionIndex]
 
-  /** Freezes the field as it is now. On the tick, which owns [field]. */
+  /** Freezes the field as it is now. */
   fun refresh(field: ManaField) {
     val change = HashMap<Int, Double>()
-    field.tileKeys().forEach { key -> collectChange(field, key, change) }
+    synchronized(field) { field.tileKeys().forEach { key -> collectChange(field, key, change) } }
 
     val touched = change.keys.map { regionOfSample[it] }.toSet()
     val next = startPeak.copyOf()

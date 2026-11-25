@@ -104,7 +104,7 @@ class WeatherService(
     return Built(built, live)
   }
 
-  /** Freezes the live mana field for the weather once per Bestia hour. On the tick, which owns the field. */
+  /** Freezes the live mana field for the weather once per Bestia hour. On the tick. */
   fun refreshMana() {
     val field = manaField ?: return
     val hour = clock.now().absoluteSecond / BESTIA_SECONDS_PER_HOUR.toLong()

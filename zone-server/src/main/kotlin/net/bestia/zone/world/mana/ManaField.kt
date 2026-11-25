@@ -11,7 +11,8 @@ import kotlin.math.max
  * Only the difference is kept, on 128 m cells grouped into 4 km tiles. A tile exists only where something
  * happened, so an untouched world holds no tiles at all.
  *
- * Tick-thread only, like `ScorchRegistry`. Boot loads before the loop starts.
+ * Guarded by its own monitor. Casts, kills, fire and decay release mana from systems that run in parallel within
+ * one tick wave, so every method locks the field, and a caller that walks the tiles holds the lock throughout.
  */
 @Component
 class ManaField {
@@ -22,31 +23,38 @@ class ManaField {
   private val changed = HashSet<Long>()
   private val dropped = HashSet<Long>()
 
-  val tileCount: Int get() = tiles.size
+  val tileCount: Int
+    @Synchronized get() = tiles.size
 
+  @Synchronized
   fun deltaAt(x: Double, y: Double): Double = deltaOf(cellOf(x), cellOf(y))
 
+  @Synchronized
   fun deltaOf(cellX: Int, cellY: Int): Double {
     val tile = tiles[tileKeyOf(cellX, cellY)] ?: return 0.0
     return tile[indexOf(cellX, cellY)]
   }
 
   /** Spreads [motes] evenly over the cells whose centre lies within [radius] metres, at least the one under it. */
+  @Synchronized
   fun add(x: Double, y: Double, motes: Double, radius: Double = 0.0) {
     val cells = cellsWithin(x, y, radius)
     val perCell = motes * DELTA_PER_MOTE / cells.size
     cells.forEach { addTo(it, perCell) }
   }
 
+  @Synchronized
   fun addToCell(cell: Cell, motes: Double) {
     addTo(cell, motes * DELTA_PER_MOTE)
   }
 
+  @Synchronized
   fun setDelta(cell: Cell, delta: Double) {
     tileOf(cell.x, cell.y)[indexOf(cell.x, cell.y)] = delta
     changed += tileKeyOf(cell.x, cell.y)
   }
 
+  @Synchronized
   fun cellsWithin(x: Double, y: Double, radius: Double): List<Cell> {
     val centre = Cell(cellOf(x), cellOf(y))
     val reach = (radius / CELL_METRES).toInt() + 1
@@ -64,16 +72,21 @@ class ManaField {
   }
 
   /** Every cell holding a delta, for the field rule to walk. */
+  @Synchronized
   internal fun tileKeys(): List<Long> = tiles.keys.toList()
 
+  @Synchronized
   internal fun tileArray(key: Long): DoubleArray? = tiles[key]
 
+  @Synchronized
   internal fun ensureTile(key: Long): DoubleArray = tiles.getOrPut(key) { DoubleArray(TILE_CELLS * TILE_CELLS) }
 
+  @Synchronized
   internal fun markChanged(key: Long) {
     changed += key
   }
 
+  @Synchronized
   internal fun drop(key: Long) {
     if (tiles.remove(key) == null) return
     changed -= key
@@ -81,6 +94,7 @@ class ManaField {
   }
 
   /** Hands the tiles to write and to delete since the last call, and forgets them. */
+  @Synchronized
   fun takeChanges(): Changes {
     val written = changed.mapNotNull { key -> tiles[key]?.let { key to it.copyOf() } }.toMap()
     val gone = dropped.toSet()
@@ -91,11 +105,13 @@ class ManaField {
   }
 
   /** Puts a saved tile back. Boot only. */
+  @Synchronized
   fun restore(key: Long, delta: DoubleArray) {
     require(delta.size == TILE_CELLS * TILE_CELLS) { "A mana tile holds ${TILE_CELLS * TILE_CELLS} cells" }
     tiles[key] = delta
   }
 
+  @Synchronized
   fun clear() {
     tiles.clear()
     changed.clear()
@@ -103,8 +119,10 @@ class ManaField {
   }
 
   /** The largest change on a tile, so the field rule can drop tiles that have faded out. */
+  @Synchronized
   internal fun peakOf(tile: DoubleArray): Double = tile.fold(0.0) { peak, delta -> max(peak, abs(delta)) }
 
+  @Synchronized
   private fun addTo(cell: Cell, delta: Double) {
     tileOf(cell.x, cell.y)[indexOf(cell.x, cell.y)] += delta
     changed += tileKeyOf(cell.x, cell.y)
