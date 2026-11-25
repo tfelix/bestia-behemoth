@@ -81,7 +81,7 @@ class ManaFieldRule(
   private fun openNeighboursOf(field: ManaField, key: Long) {
     val tile = field.tileArray(key) ?: return
     Side.entries
-      .filter { edgePeak(tile, it) >= FADED }
+      .filter { edgePeak(tile, it) >= SPREADING }
       .forEach { field.ensureTile(it.neighbourOf(key)) }
   }
 
@@ -115,7 +115,7 @@ class ManaFieldRule(
     }
   }
 
-  /** A tile is dropped once nothing on it is worth a mote and no neighbour still pours into it. */
+  /** A tile is dropped once nothing on it is worth counting and no neighbour still pours into it. */
   private fun dropFaded(field: ManaField) {
     field.tileKeys()
       .filter { key -> field.peakOf(field.tileArray(key)!!) < FADED && !fedByNeighbour(field, key) }
@@ -124,7 +124,7 @@ class ManaFieldRule(
 
   private fun fedByNeighbour(field: ManaField, key: Long): Boolean = Side.entries.any { side ->
     val neighbour = field.tileArray(side.neighbourOf(key)) ?: return@any false
-    edgePeak(neighbour, side.opposite) >= FADED
+    edgePeak(neighbour, side.opposite) >= SPREADING
   }
 
   private fun edgePeak(tile: DoubleArray, side: Side): Double =
@@ -157,7 +157,13 @@ class ManaFieldRule(
     /** Explicit diffusion stays stable while a cell passes on less than a quarter per step. */
     const val STABLE_SHARE = 0.2
 
-    /** Half a mote: below it a cell counts as untouched. */
-    const val FADED = 0.5 * ManaField.DELTA_PER_MOTE
+    /**
+     * A thousandth of a mote: below it a cell counts as untouched. Far below what one cast adds, so the many small
+     * releases of play add up instead of being dropped one by one.
+     */
+    const val FADED = 0.001 * ManaField.DELTA_PER_MOTE
+
+    /** A twentieth of a mote on an edge cell is enough to open the neighbouring tile for the creep. */
+    const val SPREADING = 0.05 * ManaField.DELTA_PER_MOTE
   }
 }

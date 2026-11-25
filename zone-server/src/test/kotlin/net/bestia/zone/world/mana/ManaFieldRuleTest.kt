@@ -39,6 +39,18 @@ class ManaFieldRuleTest {
   }
 
   @Test
+  fun `many small releases add up instead of fading one by one`() {
+    val rule = ManaFieldRule(ManaFieldConfig(), BESTIA_DAY)
+
+    repeat(60) {
+      field.add(MIDDLE, MIDDLE, motes = 0.05)
+      rule.step(field, ground, 60.0)
+    }
+
+    assertEquals(3.0, totalMotes(), 0.01)
+  }
+
+  @Test
   fun `start towns drain added mana halfway to the target in three Bestia days`() {
     val rule = ManaFieldRule(ManaFieldConfig(creepMetresPerWeek = 0.0), BESTIA_DAY)
     field.setDelta(TOWN, 0.7)
