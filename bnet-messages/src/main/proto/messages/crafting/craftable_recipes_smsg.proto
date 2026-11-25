@@ -38,6 +38,33 @@ message CraftableRecipesSMSG {
 
   // The crafter's own Bestias in storage, at a Carving Table and with storage access. Empty otherwise.
   repeated StoredEtchable stored_bestias = 7;
+
+  // At a Carving Table: the Bestias locked into it for Runic Etching, everyone's.
+  repeated DepositedBestia deposited = 8;
+
+  // At a Carving Table: the viewer's own Bestias that could be locked into it, called out or in storage.
+  repeated DepositableBestia depositable = 9;
+}
+
+message DepositedBestia {
+  uint64 player_bestia_id = 1;
+  uint32 mob_id = 2;
+  uint32 level = 3;
+  string name = 4;
+  string owner_name = 5;
+
+  // The viewer owns it, so they may take it back.
+  bool mine = 6;
+}
+
+message DepositableBestia {
+  uint64 player_bestia_id = 1;
+  uint32 mob_id = 2;
+  uint32 level = 3;
+  string name = 4;
+
+  // In storage rather than called out; locking it in needs the storage to be open.
+  bool in_storage = 5;
 }
 
 message EtchingOffer {

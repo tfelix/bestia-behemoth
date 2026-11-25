@@ -175,6 +175,9 @@ class CraftingFixture(
       crafters = Crafters(starterKit),
       etching = etching,
       storedEtching = storedEtching,
+      carvingTableContents = mockk {
+        every { load(any(), any()) } returns CarvingTableContents.Contents(emptyList(), emptyList())
+      },
       blueprintPoints = BlueprintPoints(),
       structureRegistry = structureRegistry,
       stationStates = mockk(relaxed = true),
