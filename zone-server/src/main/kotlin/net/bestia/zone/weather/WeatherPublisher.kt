@@ -1,5 +1,7 @@
 package net.bestia.zone.weather
 
+import net.bestia.zone.world.mana.ManaTier
+import net.bestia.zone.world.mana.ManaTiers
 import net.bestia.zone.geometry.Vec3L
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.SkillId
@@ -43,6 +45,7 @@ class WeatherPublisher(
   private val config: WeatherConfig,
   private val skillIds: SkillIds,
   private val manaSense: ManaSense,
+  private val manaTiers: ManaTiers? = null,
 ) {
 
   /**
@@ -96,7 +99,9 @@ class WeatherPublisher(
 
     val cover = groundWeather.at(voxelX, voxelY, ground)
     val mana = manaSense.read(Vec3L(voxelX, voxelY, ground.toLong()), weatherSenseLevel)
-    val message = WeatherSMSG.of(at.regionId, at.state, at.temperature, hazardVoxel, forecast, cover).copy(mana = mana)
+    val tier = manaTiers?.tierAt(Vec3L(voxelX, voxelY, ground.toLong())) ?: ManaTier.CALM
+    val message = WeatherSMSG.of(at.regionId, at.state, at.temperature, hazardVoxel, forecast, cover)
+      .copy(mana = mana, manaTier = tier)
 
     val now = System.currentTimeMillis()
     val previous = lastSent[accountId]
@@ -149,7 +154,8 @@ class WeatherPublisher(
         abs(previous.windSpeed - current.windSpeed) >= config.windBand ||
         (previous.hazardX != current.hazardX || previous.hazardY != current.hazardY) ||
         groundChanged(previous.ground, current.ground) ||
-        manaChanged(previous.mana, current.mana)
+        manaChanged(previous.mana, current.mana) ||
+        previous.manaTier != current.manaTier
 
   private fun groundChanged(previous: GroundCover, current: GroundCover): Boolean {
     return abs(previous.wetness - current.wetness) >= config.wetnessBand ||
