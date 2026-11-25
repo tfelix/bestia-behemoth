@@ -20,6 +20,12 @@ class ManaEmission(
     release(at, level * config.motesPerKillLevel * factor)
   }
 
+  /** A store of mana broke: every item of it lets go of what it held. */
+  fun onStoreBroken(at: Vec3L, itemIdentifier: String, amount: Int) {
+    val perItem = config.storedMotes[itemIdentifier] ?: return
+    release(at, perItem * amount)
+  }
+
   private fun release(at: Vec3L, motes: Double) {
     field.add(at.x.toDouble(), at.y.toDouble(), motes)
   }

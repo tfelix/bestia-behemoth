@@ -391,6 +391,9 @@ mana:
     # A grind spot hunted every day for a week rises by about 0.15. A boss releases ten times as much.
     motes-per-kill-level: 0.04
     boss-factor: 10
+    # What a broken store releases per item.
+    stored-motes:
+      mana_crystal: 10
     # An old Wound lifts the land within its reach to storms in about two weeks. A new world's Wounds pour a
     # tenth of that, rising to full over half a year.
     wound-motes-per-day: 50000

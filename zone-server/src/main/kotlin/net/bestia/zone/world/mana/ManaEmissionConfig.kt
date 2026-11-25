@@ -18,6 +18,9 @@ data class ManaEmissionConfig(
   /** How many times more a boss releases than its level alone. */
   val bossFactor: Double = 10.0,
 
+  /** Motes per item a broken store releases, by item identifier. */
+  val storedMotes: Map<String, Double> = mapOf("mana_crystal" to 10.0),
+
   /** Motes a Wound pours out per real day once the world is old. */
   val woundMotesPerDay: Double = 50_000.0,
 

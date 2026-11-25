@@ -29,13 +29,21 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import net.bestia.zone.world.mana.ManaEmission
+import net.bestia.zone.world.mana.ManaEmissionConfig
+import net.bestia.zone.world.mana.ManaField
 
 class GroundItemDamageTest {
 
   private val blueprint = Item(id = 16L, identifier = "blueprint", weight = 1, type = Item.ItemType.ETC, material = ItemMaterial.PAPER)
   private val sword = Item(id = 19L, identifier = "sword", weight = 120, type = Item.ItemType.ETC, material = ItemMaterial.METAL)
 
-  private val itemRepository = mockk<ItemRepository> { every { findAll() } returns listOf(blueprint, sword) }
+  private val crystal =
+    Item(id = 6L, identifier = "mana_crystal", weight = 30, type = Item.ItemType.ETC, material = ItemMaterial.CRYSTAL)
+
+  private val itemRepository =
+    mockk<ItemRepository> { every { findAll() } returns listOf(blueprint, sword, crystal) }
+  private val manaField = ManaField()
   private val deletionQueue = PersistedEntityDeletionQueue()
   private val instanceDisposal = mockk<LooseInstanceDisposal>(relaxed = true)
 
@@ -45,6 +53,9 @@ class GroundItemDamageTest {
     groundStackRemoval = GroundStackRemoval(deletionQueue),
     asyncJobExecutor = AsyncJobExecutor(workerCount = 1),
     looseInstanceDisposal = instanceDisposal,
+    manaRelease = GroundStackManaRelease(
+      ItemTemplateRegistry(itemRepository), ManaEmission(manaField, ManaEmissionConfig())
+    ),
   )
 
   private val spawner = LootItemEntitySpawner(WorldRulesConfig(tickRate = 20), mockk(relaxed = true))
@@ -62,6 +73,17 @@ class GroundItemDamageTest {
 
     assertFalse(world.isAlive(stack))
     assertEquals(listOf(stack), deletionQueue.drainAll())
+  }
+
+  @Test
+  fun `a shattered stack of mana crystals lets its mana go where it lay`() {
+    val world = testWorld()
+    val stack = world.stackOf(crystal)
+
+    sut.damage(world, stack, 100_000, Element.NORMAL)
+
+    assertFalse(world.isAlive(stack))
+    assertEquals(5 * 10 * ManaField.DELTA_PER_MOTE, manaField.deltaAt(0.0, 0.0), 1e-9)
   }
 
   /** It lay in no container, so nothing else would ever delete its row. */
