@@ -9,6 +9,7 @@ import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.status.EssenceAura
+import net.bestia.zone.battle.status.FarNoticed
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.identity.ecs.Account
@@ -19,13 +20,15 @@ import net.bestia.zone.identity.ecs.PartyMembership
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
 class EssenceAuraSystemTest {
 
   private val world = testWorld()
   private val statusEffects = mockk<StatusEffectService>(relaxed = true)
   private val aoi = mockk<EntityAOIService>()
-  private val system = EssenceAuraSystem(statusEffects, aoi)
+  private val farNoticed = FarNoticed()
+  private val system = EssenceAuraSystem(statusEffects, aoi, farNoticed)
 
   @Test
   fun `captain's orders reach the wearer's own Bestias in range and no others`() {
@@ -54,7 +57,7 @@ class EssenceAuraSystemTest {
   }
 
   @Test
-  fun `a stench may poison a foe close by`() {
+  fun `a stench may poison a foe close by and lets the wild notice its wearer from afar`() {
     val wearer = master(MASTER, at = 0, auras = setOf(EssenceAura.STENCH))
     val foe = world.createEntity { id ->
       add(id, Position(2, 0, 0))
@@ -65,6 +68,7 @@ class EssenceAuraSystemTest {
     system.update(world, 1f)
 
     verify { statusEffects.tryInflict(world, foe, StatusEffectId.POISON, 1, wearer, 10) }
+    assertEquals(listOf(wearer), farNoticed.wearers)
   }
 
   private fun master(masterId: Long, at: Long, auras: Set<EssenceAura> = emptySet()): EntityId = world.createEntity { id ->
