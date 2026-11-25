@@ -52,7 +52,8 @@ class WildSpawnerBootRunner(
             maxSpawnCount = den.pack,
             position = den.position,
             range = den.range,
-            activationRange = den.activationRange
+            activationRange = den.activationRange,
+            respawnSeconds = den.respawnSeconds,
           )
         )
       }

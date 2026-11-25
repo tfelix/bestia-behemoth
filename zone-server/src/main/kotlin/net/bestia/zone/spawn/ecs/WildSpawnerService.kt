@@ -74,7 +74,9 @@ class WildSpawnerService(
     val position: Vec3L,
     val pack: Int,
     val range: Int,
-    val activationRange: Int
+    val activationRange: Int,
+    /** See [Spawner.respawnSeconds]. */
+    val respawnSeconds: ClosedFloatingPointRange<Float>? = null,
   )
 
   /**
@@ -305,7 +307,8 @@ class WildSpawnerService(
             pack = pack,
             range = range,
             activationRange = (range + config.activationMargin)
-              .coerceAtMost(SpawnerSystem.MAX_ACTIVATION_RANGE)
+              .coerceAtMost(SpawnerSystem.MAX_ACTIVATION_RANGE),
+            respawnSeconds = Spawner.BOSS_RESPAWN_SECONDS.takeIf { choice.species.boss },
           )
         )
       }
