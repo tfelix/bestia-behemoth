@@ -18,18 +18,20 @@ class EconomyCatalogueTest {
 
   @Test
   fun `the chain runs farm to mill to bakery, and in that order`() {
-    val order = catalogue.topological.map { it.id }
+    val order = catalogue.topological.map { it.id }.filter { it in setOf("grain", "flour", "bread") }
 
     assertEquals(listOf("grain", "flour", "bread"), order, "a stage out of order costs a shock a day to travel")
   }
 
   @Test
-  fun `only bread is eaten, and everything above it exists to make it`() {
-    // The property the whole reference derivation rests on: exactly one good has a demand of its own,
-    // and every throughput above it is worked out from that rather than authored.
+  fun `only the last good of a chain is used up, and everything above it exists to make it`() {
+    // The property the whole reference derivation rests on: a good with a demand of its own feeds no trade, so
+    // every throughput above it is worked out from that rather than authored.
     val eaten = catalogue.commodities().filter { it.perCapitaPerDay > 0.0 }.map { it.id }
+    val consumed = catalogue.trades().flatMap { trade -> trade.consumes.map { it.commodity } }
 
-    assertEquals(listOf("bread"), eaten)
+    assertEquals(listOf("bread", "weapon_repair_kit", "armor_repair_kit"), eaten)
+    assertTrue(eaten.none { it in consumed })
   }
 
   @Test

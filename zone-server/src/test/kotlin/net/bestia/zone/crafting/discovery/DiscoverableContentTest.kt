@@ -31,6 +31,7 @@ class DiscoverableContentTest {
       "WEAPON_BLUEPRINT", "ARMOR_BLUEPRINT", "WAR_BANNER", "BAMBOO_ROD", "ASH_ROD", "STEEL_ROD",
       "SMALL_HEALTH_POTION", "SMALL_MANA_POTION", "HEALTH_POTION", "MANA_POTION",
       "PURE_MANA_ESSENCE", "MANA_CONCENTRATE", "YELLOW_MANA_CRYSTAL", "RED_MANA_CRYSTAL",
+      "WEAPON_REPAIR_KIT", "ARMOR_REPAIR_KIT",
     )
 
     assertTrue(gear.size >= 340, "expected the whole equipment catalogue, found ${gear.size}")

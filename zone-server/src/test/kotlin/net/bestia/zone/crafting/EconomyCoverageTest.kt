@@ -133,6 +133,8 @@ class EconomyCoverageTest {
   )
 
   private companion object {
-    val KNOWN = mapOf("grain" to 28L, "flour" to 29L, "bread" to 30L)
+    val KNOWN = mapOf(
+      "grain" to 28L, "flour" to 29L, "bread" to 30L, "weapon_repair_kit" to 641L, "armor_repair_kit" to 642L
+    )
   }
 }

@@ -424,6 +424,23 @@ class InventoryService(
   }
 
   /**
+   * Restores the full durability of a held or worn instance, as a repair kit does wherever its owner stands.
+   *
+   * @return false when the instance is neither held nor worn
+   */
+  @Transactional
+  fun repair(masterId: Long, uniqueId: Long, playerBestiaId: PlayerBestiaId?): Boolean {
+    val instance = withOwnerContainer(masterId, playerBestiaId) { container ->
+      container.slots.firstOrNull { it.uniqueId == uniqueId && !it.isReserved }?.itemInstance
+    } ?: return false
+
+    instance.repair(instance.maxDurability)
+    itemInstanceRepository.save(instance)
+
+    return true
+  }
+
+  /**
    * Destroys a held, not-worn instance outright - what a failed rune-slot cut does to the item.
    *
    * Deletes the row rather than only detaching it, which is the opposite of every other removal path here

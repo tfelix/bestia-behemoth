@@ -11892,3 +11892,31 @@ items:
       A heavy folding table with vices, fine gravers and a shaded lamp.
 
       Set it down and it becomes a Carving Table, where Runic Etching binds a Bestia into a cut gem.
+
+  # Mending away from a forge: a blacksmith packs what a forge repair would use into a kit, and a general store sells
+  # it dearer than that repair. Weapons and armour need different tools, so there are two.
+  - id: 641
+    item-db-name: weapon_repair_kit
+    base-level: 1
+    weight: 400
+    type: USABLE
+    stackable: false
+    material: METAL
+    script: RepairKitScript
+    description: |
+      A leather roll with a whetstone, a small hammer, rivets and a strip of iron to patch a blade.
+
+      Use it on a damaged weapon, held or worn, to restore its full durability.
+
+  - id: 642
+    item-db-name: armor_repair_kit
+    base-level: 1
+    weight: 500
+    type: USABLE
+    stackable: false
+    material: METAL
+    script: RepairKitScript
+    description: |
+      A leather roll with iron plates, rivets, a punch and spare straps to patch a suit of armour.
+
+      Use it on damaged armour, held or worn, to restore its full durability.

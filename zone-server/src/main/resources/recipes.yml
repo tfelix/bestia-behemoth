@@ -372,6 +372,35 @@ recipes:
     craftSeconds: 6.0
     baseSuccessChance: 0.8
 
+  # What a forge repair uses, packed to be used anywhere, plus the tools to apply it. The leather is the roll it
+  # travels in, and the weapon kit's cut stone the whetstone. Kept dearer than a forge repair on purpose.
+  - id: 158
+    identifier: WEAPON_REPAIR_KIT
+    effect: PRODUCE
+    output: { item: weapon_repair_kit, amount: 1 }
+    inputs:
+      - { item: iron_ingot, amount: 2 }
+      - { item: coal, amount: 2 }
+      - { item: leather, amount: 1 }
+      - { item: cut_stone, amount: 1 }
+    skill: { skill: M_EQUIPMENT_REPAIR, level: 2 }
+    station: FORGE
+    craftSeconds: 12.0
+    baseSuccessChance: 0.7
+
+  - id: 159
+    identifier: ARMOR_REPAIR_KIT
+    effect: PRODUCE
+    output: { item: armor_repair_kit, amount: 1 }
+    inputs:
+      - { item: iron_ingot, amount: 2 }
+      - { item: coal, amount: 2 }
+      - { item: leather, amount: 1 }
+    skill: { skill: M_EQUIPMENT_REPAIR, level: 2 }
+    station: FORGE
+    craftSeconds: 12.0
+    baseSuccessChance: 0.7
+
   # Upgrading is the one craft with no station in the Blacksmith block: the docs give Upgrade Equipment
   # neither a range nor a target, and it sits in the Craftsman tree rather than under the forge.
   - id: 24

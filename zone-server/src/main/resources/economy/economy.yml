@@ -42,6 +42,22 @@ commodities:
     # throughput above it is derived from - see SettlementReference.
     per-capita: 0.9
 
+  # No settlement trade makes these; trade with the outside world refills what the townsfolk use up, and that use is
+  # what sets a town's stock. Priced well above the ~70 coins a forge repair costs, so a kit is for the road.
+  - id: weapon_repair_kit
+    item: weapon_repair_kit
+    price: 180.0
+    spoil: 0.002
+    cover-days: 30
+    per-capita: 0.002
+
+  - id: armor_repair_kit
+    item: armor_repair_kit
+    price: 180.0
+    spoil: 0.002
+    cover-days: 30
+    per-capita: 0.002
+
 trades:
   # `per-unit` is input per unit of output, so the chain reads as a recipe: 1.3 sacks of grain make a unit
   # of flour, and 0.35 of a unit of flour makes a loaf.
