@@ -136,7 +136,9 @@ abstract class CraftGraphTask : DefaultTask() {
         val makes = recipe.output?.let { "${it.amount} x ${label(it.item)}" } ?: recipe.effect.lowercase().replace('_', ' ')
         val skill = "${recipe.skill.removePrefix("M_").lowercase().replace('_', ' ')} ${recipe.skillLevel}"
         val known = if (recipe.identifier in starters) "yes" else "discover"
-        text.appendLine("| `${recipe.identifier}` | $needs | $makes | $skill | ${(recipe.chance * 100).toInt()}% | ${recipe.seconds} | $known |")
+        // An etching's craftSeconds is the factor of the Bestia's squared level, see Recipe.craftSeconds.
+        val seconds = if (recipe.effect == "ETCH_ESSENCE") "${recipe.seconds} · L²" else "${recipe.seconds}"
+        text.appendLine("| `${recipe.identifier}` | $needs | $makes | $skill | ${(recipe.chance * 100).toInt()}% | $seconds | $known |")
       }
       text.appendLine()
     }
