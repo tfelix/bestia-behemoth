@@ -19,7 +19,7 @@ class WorldBossSealsTest {
   @Test
   fun `every seal stands a crystal whose prop id names the sealed boss`() {
     val sealed = world.world.chronicle.monsters.filter { it.fate == MonsterFate.SEALED }
-    val bossByCrystal = WorldBossSealService.bossesBySealCrystal(world, bestiaIds::get)
+    val bossByCrystal = WorldBossSealService.sealCrystals(world, bestiaIds::get).associate { it.propId to it.bossId }
 
     assertTrue(sealed.isNotEmpty(), "the test world has no seal to check")
     assertEquals(sealed.map { bestiaIds.getValue(it.boss.identifier) }.sorted(), bossByCrystal.values.sorted())

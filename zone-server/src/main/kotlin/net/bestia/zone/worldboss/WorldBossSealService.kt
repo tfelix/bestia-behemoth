@@ -5,6 +5,7 @@ import net.bestia.worldgen.history.SiteChannels
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
+import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.voxel.BuildingProps
 import net.bestia.worldgen.voxel.PropId
 import net.bestia.worldgen.voxel.PropKind
@@ -19,9 +20,12 @@ class WorldBossSealService(
   private val bestiaCatalogue: BestiaCatalogue,
 ) {
 
-  private val bossByCrystal: Map<Long, Long> by lazy {
+  /** A seal crystal by its prop id, the world boss bound in it and where it stands, in metres. */
+  data class SealCrystal(val propId: Long, val bossId: Long, val at: Vec2d)
+
+  private val crystals: List<SealCrystal> by lazy {
     val byIdentifier = bestiaCatalogue.all().associate { it.identifier to it.id }
-    bossesBySealCrystal(worldService.generated) { identifier ->
+    sealCrystals(worldService.generated) { identifier ->
       byIdentifier[identifier] ?: run {
         LOG.warn { "No species '$identifier' for a world boss seal" }
         null
@@ -29,14 +33,18 @@ class WorldBossSealService(
     }
   }
 
+  private val bossByCrystal: Map<Long, Long> by lazy { crystals.associate { it.propId to it.bossId } }
+
   /** The species bound in the crystal [propId], or null for any other prop. */
   fun bossOf(propId: Long): Long? = bossByCrystal[propId]
+
+  fun all(): List<SealCrystal> = crystals
 
   internal companion object {
     private val LOG = KotlinLogging.logger { }
 
     /** Names each crystal the way `TownStructures.sealCrystals` does. */
-    internal fun bossesBySealCrystal(generated: GeneratedWorld, bestiaIdOf: (String) -> Long?): Map<Long, Long> {
+    internal fun sealCrystals(generated: GeneratedWorld, bestiaIdOf: (String) -> Long?): List<SealCrystal> {
       val monsters = generated.world.chronicle.monsters
 
       return generated.world.features.all()
@@ -48,9 +56,8 @@ class WorldBossSealService(
           val crystal = PropId.of(
             PropKind.FIXTURE, BuildingProps.cellOf(seal.position.x), BuildingProps.cellOf(seal.position.y)
           )
-          crystal to bestiaId
+          SealCrystal(crystal, bestiaId, seal.position)
         }
-        .toMap()
     }
   }
 }
