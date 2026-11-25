@@ -21,13 +21,17 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
     /// <summary>How many to make one after another. Only a producing recipe repeats.</summary>
     public uint Amount { get; set; } = 1;
 
+    /// <summary>For Runic Etching on a Bestia in storage, its player bestia id; 0 otherwise.</summary>
+    public ulong StoredBestiaId { get; set; }
+
     public override Envelope ToEnvelope()
     {
       var craftItem = new global::Bnet.CraftItemCMSG
       {
         RecipeId = RecipeId,
         TargetUniqueId = TargetUniqueId,
-        Amount = Amount
+        Amount = Amount,
+        StoredBestiaId = StoredBestiaId
       };
 
       return new Envelope

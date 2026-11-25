@@ -46,6 +46,9 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
     /// <summary>Other masters' Bestias offered for etching here. Empty at every other station.</summary>
     [Export] public Godot.Collections.Array<EtchingOffer> EtchingOffers { get; set; } = [];
 
+    /// <summary>The player's own Bestias in storage, for etching here. Empty without the Bestia Ledger.</summary>
+    [Export] public Godot.Collections.Array<StoredEtchable> StoredBestias { get; set; } = [];
+
     public static CraftableRecipesSMSG FromProto(global::Bnet.CraftableRecipesSMSG proto)
     {
       var message = new CraftableRecipesSMSG
@@ -66,6 +69,11 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
       foreach (var offer in proto.EtchingOffers)
       {
         message.EtchingOffers.Add(EtchingOffer.FromProto(offer));
+      }
+
+      foreach (var stored in proto.StoredBestias)
+      {
+        message.StoredBestias.Add(StoredEtchable.FromProto(stored));
       }
 
       return message;

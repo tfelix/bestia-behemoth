@@ -1,24 +1,30 @@
 extends VBoxContainer
 class_name EtchingPicker
 ## The Bestia half of a Runic Etching recipe: which Bestia goes into the gem, and what comes out. Lists the
-## Artificer's own Bestias and the ones other masters offered at this table; the gem of an offered one goes to its
-## owner.
-##
-## Only the Bestias out in the world are listed. One in storage has to be called first, since the server wants it
-## standing at the Carving Table. English like the rest of the crafting window.
+## Artificer's own Bestias, out in the world or in storage, and the ones other masters offered at this table; the
+## gem of an offered one goes to its owner. English like the rest of the crafting window.
 
 signal picked()
+
+const _STORAGE_ICON := preload("res://Theme/Icons/chest.svg")
+const _STORAGE_ICON_SIZE := 20
 
 ## The server's floor on any craft chance, in percent.
 const _MIN_CHANCE := 1
 const _PENALTY_PER_LEVEL := 5
 const _NO_LEVEL_TOO_HIGH := 1000
 
-## The entity id of the picked Bestia, or 0.
+## The entity id of the picked Bestia out in the world, or 0.
 var picked_entity_id: int = 0
+
+## The player bestia id of the picked Bestia in storage, or 0.
+var picked_stored_id: int = 0
 
 ## [EtchingOffer]s of other masters at this table, from the last recipe list.
 var offers: Array = []
+
+## [StoredEtchable]s: the Artificer's own Bestias in storage, from the last recipe list.
+var stored: Array = []
 
 var _recipe: CraftableRecipe = null
 
@@ -26,6 +32,7 @@ var _recipe: CraftableRecipe = null
 func show_for(recipe: CraftableRecipe) -> void:
 	if recipe != _recipe:
 		picked_entity_id = 0
+		picked_stored_id = 0
 	_recipe = recipe
 	_rebuild()
 
@@ -38,9 +45,15 @@ func _rebuild() -> void:
 	var tier := _tier()
 	add_child(UiStyle.label("Pick a Bestia", 13))
 	var bestias := _candidates()
-	if bestias.is_empty():
+	var at_table := bestias.filter(func(bestia: Dictionary) -> bool: return not _is_stored(bestia))
+	var in_storage := bestias.filter(_is_stored)
+	if at_table.is_empty():
 		add_child(UiStyle.label("Call a Bestia to the Carving Table first.", 12, UiStyle.MUTED))
-	for bestia in bestias:
+	for bestia in at_table:
+		add_child(_row(bestia, tier))
+	if not in_storage.is_empty():
+		add_child(_storage_heading())
+	for bestia in in_storage:
 		add_child(_row(bestia, tier))
 
 	var chosen := _picked_bestia(bestias)
@@ -55,7 +68,7 @@ func _rebuild() -> void:
 		add_child(UiStyle.label("The Essence Gem goes to %s." % chosen.owner, 12, UiStyle.ACCENT))
 
 
-## Each Bestia as {entity_id, mob_id, level, name, owner}; owner is empty for the Artificer's own.
+## Each Bestia as {entity_id or stored_id, mob_id, level, name, owner}; owner is empty for the Artificer's own.
 func _candidates() -> Array[Dictionary]:
 	var candidates: Array[Dictionary] = []
 	for bestia in _owned_bestias():
@@ -63,13 +76,22 @@ func _candidates() -> Array[Dictionary]:
 			"entity_id": int(bestia.EntityId), "mob_id": int(bestia.MobId), "level": int(bestia.Level),
 			"name": OwnedSlots.name_of(bestia), "owner": "",
 		})
+	for bestia in stored:
+		candidates.append({
+			"stored_id": int(bestia.PlayerBestiaId), "mob_id": int(bestia.MobId), "level": int(bestia.Level),
+			"name": bestia.Name if not bestia.Name.is_empty() else _species_name(int(bestia.MobId)), "owner": "",
+		})
 	for offer in offers:
-		var species := BestiaDB.get_instance().get_bestia(int(offer.MobId))
 		candidates.append({
 			"entity_id": int(offer.EntityId), "mob_id": int(offer.MobId), "level": int(offer.Level),
-			"name": tr(species.name_key) if species != null else "?", "owner": offer.OwnerName,
+			"name": _species_name(int(offer.MobId)), "owner": offer.OwnerName,
 		})
 	return candidates
+
+
+func _species_name(mob_id: int) -> String:
+	var species := BestiaDB.get_instance().get_bestia(mob_id)
+	return tr(species.name_key) if species != null else "?"
 
 
 func _row(bestia: Dictionary, tier: String) -> Button:
@@ -80,20 +102,44 @@ func _row(bestia: Dictionary, tier: String) -> Button:
 	row.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	row.add_theme_font_size_override("font_size", 13)
 	row.disabled = not why_not.is_empty()
-	row.button_pressed = bestia.entity_id == picked_entity_id
+	row.button_pressed = _is_picked(bestia)
 	row.text = "%s   Lv %d" % [bestia.name, bestia.level]
 	if not bestia.owner.is_empty():
 		row.text += "   · %s's" % bestia.owner
 	if not why_not.is_empty():
 		row.text += "   · " + why_not
-	row.pressed.connect(_on_row_pressed.bind(bestia.entity_id))
+	row.pressed.connect(_on_row_pressed.bind(bestia.get("entity_id", 0), bestia.get("stored_id", 0)))
 	return row
 
 
-func _on_row_pressed(entity_id: int) -> void:
+func _on_row_pressed(entity_id: int, stored_id := 0) -> void:
 	picked_entity_id = entity_id
+	picked_stored_id = stored_id
 	_rebuild()
 	picked.emit()
+
+
+func _is_stored(bestia: Dictionary) -> bool:
+	return bestia.get("stored_id", 0) != 0
+
+
+func _storage_heading() -> HBoxContainer:
+	var heading := UiStyle.hbox(6)
+	var icon := TextureRect.new()
+	icon.texture = _STORAGE_ICON
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.custom_minimum_size = Vector2(_STORAGE_ICON_SIZE, _STORAGE_ICON_SIZE)
+	icon.modulate = UiStyle.MUTED
+	heading.add_child(icon)
+	heading.add_child(UiStyle.label("In storage", 13, UiStyle.MUTED))
+	return heading
+
+
+func _is_picked(bestia: Dictionary) -> bool:
+	if picked_entity_id == 0 and picked_stored_id == 0:
+		return false
+	return bestia.get("entity_id", 0) == picked_entity_id and bestia.get("stored_id", 0) == picked_stored_id
 
 
 ## Empty when the Bestia may go into this gem.
@@ -140,7 +186,7 @@ func _tier() -> String:
 
 func _picked_bestia(bestias: Array[Dictionary]) -> Dictionary:
 	for bestia in bestias:
-		if bestia.entity_id == picked_entity_id:
+		if _is_picked(bestia):
 			return bestia
 	return {}
 
