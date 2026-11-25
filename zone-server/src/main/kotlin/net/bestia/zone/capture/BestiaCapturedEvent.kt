@@ -17,4 +17,7 @@ data class BestiaCapturedEvent(
   /** The level this individual was rolled at, which the master's bestia keeps. */
   val level: Int,
   val at: Vec3L,
+
+  /** It came from a den that replaces it, so a failed hand-over must not put it back as well. */
+  val denBringsItBack: Boolean = false,
 )

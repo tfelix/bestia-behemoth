@@ -64,6 +64,7 @@ class SpawnerSystemTest {
     activationRange: Int = 100,
     featureId: Long = 1L,
     nightOnly: Boolean = false,
+    respawnSeconds: ClosedFloatingPointRange<Float>? = null,
   ): PlacedDen {
     val spawner = Spawner(
       identity = identity(featureId),
@@ -73,6 +74,7 @@ class SpawnerSystemTest {
       range = 10,
       activationRange = activationRange,
       nightOnly = nightOnly,
+      respawnSeconds = respawnSeconds,
     )
     val id = world.createEntity { it -> world.add(it, spawner) }
     cellIndex.add(id, position)
@@ -103,6 +105,21 @@ class SpawnerSystemTest {
   }
 
   private fun livingPackOf(den: Spawner) = den.spawnedEntities.filter { world.isAlive(it) }
+
+  @Test
+  fun `a den with a respawn time brings a lost creature back only after it`() {
+    val den = placeDen(Vec3L(0, 0, 0), pack = 1, respawnSeconds = 10f..10f).spawner
+    placePlayer(Vec3L(50, 0, 0))
+    tick(1f)
+    world.destroy(spawned.single())
+
+    tick(9f)
+    assertTrue(livingPackOf(den).isEmpty(), "still waiting")
+
+    tick(1.5f)
+    assertEquals(1, livingPackOf(den).size)
+    assertEquals(2, spawned.size)
+  }
 
   @Test
   fun `a den with no player near it never spawns anything`() {

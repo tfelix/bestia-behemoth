@@ -11,6 +11,9 @@ import net.bestia.zone.entity.ecs.Dead
 import net.bestia.zone.battle.ecs.damage.TakenDamage
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.spawn.ecs.DenIdentity
+import net.bestia.zone.spawn.ecs.DenMember
+import net.bestia.zone.worldboss.WorldBossLairService
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.StatusEffectId
@@ -36,6 +39,9 @@ class BestiaTrapSystemTest {
   private val out = mockk<OutMessageProcessor>(relaxed = true)
   private val events = mockk<ApplicationEventPublisher>(relaxed = true)
   private val statusEffects = mockk<StatusEffectService>(relaxed = true)
+  private val lairs = mockk<WorldBossLairService>(relaxed = true) {
+    every { isLair(LAIR_FEATURE_ID) } returns true
+  }
   private val catalogue = mockk<BestiaCatalogue> {
     every { byId(SPECIES_ID) } returns species(boss = false)
     every { byId(BOSS_ID) } returns species(boss = true)
@@ -59,6 +65,7 @@ class BestiaTrapSystemTest {
     outMessageProcessor = out,
     skillIds = mockk(relaxed = true),
     statusEffects = statusEffects,
+    lairs = lairs,
     random = random,
   )
   private val world = testWorld(systems = listOf(sut))
@@ -90,6 +97,32 @@ class BestiaTrapSystemTest {
     verify(exactly = 0) { events.publishEvent(any<Any>()) }
     assertEquals(TRAPPER_ID, world.get(mob, TakenDamage::class)?.mostRecentAttacker(withinMs = 1_000))
     verify { statusEffects.applyEffect(world, mob, StatusEffectId.TRAP_WARY, 1) }
+  }
+
+  @Test
+  fun `a caught lair boss defeats its lair`() {
+    trapAt(TRAP_TILE)
+    val boss = mobAt(TRAP_TILE, speciesId = BOSS_ID)
+    world.add(boss, DenMember(DenIdentity(LAIR_FEATURE_ID, worldId = 1, worldVersion = 1)))
+    roll = 0.0
+
+    world.tick(TICK)
+
+    verify { lairs.defeatedByPlayers(world, LAIR_FEATURE_ID, ACCOUNT_ID) }
+    verify { events.publishEvent(BestiaCapturedEvent(ACCOUNT_ID, MASTER_ID, BOSS_ID, 5, TRAP_TILE, false) as Any) }
+  }
+
+  @Test
+  fun `a creature caught from an ordinary den is replaced by the den`() {
+    trapAt(TRAP_TILE)
+    val mob = mobAt(TRAP_TILE)
+    world.add(mob, DenMember(DenIdentity(featureId = 5, worldId = 1, worldVersion = 1)))
+    roll = 0.0
+
+    world.tick(TICK)
+
+    verify(exactly = 0) { lairs.defeatedByPlayers(any(), any(), any()) }
+    verify { events.publishEvent(BestiaCapturedEvent(ACCOUNT_ID, MASTER_ID, SPECIES_ID, 5, TRAP_TILE, true) as Any) }
   }
 
   @Test
@@ -186,6 +219,7 @@ class BestiaTrapSystemTest {
     val TRAP_TILE = Vec3L(50, 50, 10)
     const val SPECIES_ID = 1L
     const val BOSS_ID = 2L
+    const val LAIR_FEATURE_ID = 40L
     const val ACCOUNT_ID = 3L
     const val MASTER_ID = 7L
     const val TRAPPER_ID = 999L
