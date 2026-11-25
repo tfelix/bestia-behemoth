@@ -42,7 +42,7 @@ class OmenReadingTest {
   }
   private val worldService = mockk<WorldService> { every { config } returns WorldConfig(seed = 1, widthCells = 128, heightCells = 128) }
   private val messages = mockk<OutMessageProcessor>(relaxed = true)
-  private var events = emptyList<Pair<Double, Double>>()
+  private var events = emptyList<BrewingEvents.Brewing>()
 
   private val sut = OmenReading(placeRegions, mana, worldService, messages) { events }
 
@@ -71,7 +71,7 @@ class OmenReadingTest {
 
   @Test
   fun `an event running in the region makes it read ominous`() {
-    events = listOf(1_200.0 to 900.0)
+    events = listOf(BrewingEvents.Brewing(1_200.0, 900.0, "mana", "rift", 3.0, BrewingEvents.Stage.GATHERING))
 
     assertEquals(listOf("Sube Vale" to Reading.OMINOUS), readings(level = 1))
   }

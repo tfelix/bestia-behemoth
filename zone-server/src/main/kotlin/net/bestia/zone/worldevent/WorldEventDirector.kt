@@ -11,6 +11,7 @@ import net.bestia.zone.worldevent.persistence.WorldEventInstance
 import net.bestia.zone.worldevent.persistence.WorldEventInstance.Outcome
 import net.bestia.zone.worldevent.persistence.WorldEventInstance.State
 import net.bestia.zone.worldevent.persistence.WorldEventInstanceRepository
+import net.bestia.zone.casting.sense.BrewingEvents
 import net.bestia.zone.worldevent.contract.ContractRewards
 import net.bestia.zone.worldevent.contract.ContributionJournal
 import net.bestia.zone.worldevent.contract.ContributionLedger
@@ -67,8 +68,7 @@ class WorldEventDirector(
       .forEach { signals -> maybeStart(signals, rows.getValue(signals.province.index), now) }
 
     journal.save()
-    // Positions are voxels, which are metres.
-    runningEvents?.replace(running().map { it.x.toDouble() to it.y.toDouble() })
+    runningEvents?.replace(running().mapNotNull { brewingOf(it, now) })
   }
 
   /** Starts [entry] where [signals] say, whatever the budget, the quiet or the mana. For a GM. */
@@ -168,6 +168,21 @@ class WorldEventDirector(
     }
 
     LOG.info { "World event ${instance.eventId} in province ${instance.provinceIndex} ended: $outcome" }
+  }
+
+  /** A running event as the senses feel it. Positions are voxels, which are metres. */
+  private fun brewingOf(instance: WorldEventInstance, now: Long): BrewingEvents.Brewing? {
+    val entry = catalogue.of(instance.eventId) ?: return null
+    val event = catalogue.eventOf(entry)
+    return BrewingEvents.Brewing(
+      x = instance.x.toDouble(),
+      y = instance.y.toDouble(),
+      family = entry.family,
+      eventId = entry.id,
+      feltFrom = event.feltFrom(instance) ?: entry.feltFrom,
+      stage = event.stageOf(instance),
+      changesInSeconds = event.changesAtSecond(instance)?.let { ((it - now) / clock.speedFactor).toLong() },
+    )
   }
 
   /** Every master standing on the ground of a running event holds it for another run. */

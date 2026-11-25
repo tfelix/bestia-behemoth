@@ -1,5 +1,6 @@
 package net.bestia.zone.worldevent
 
+import net.bestia.zone.casting.sense.BrewingEvents
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.worldevent.persistence.WorldEventInstance
 
@@ -26,6 +27,15 @@ interface WorldEvent {
 
   /** The ground masters hold by standing on it while the event runs, which counts for its contract; null for none. */
   fun heldArea(instance: WorldEventInstance): HeldArea? = null
+
+  /** How far along the event is, as Observation tells it. */
+  fun stageOf(instance: WorldEventInstance): BrewingEvents.Stage = BrewingEvents.Stage.BREAKING
+
+  /** How many times further than a small event it is felt right now, or null for the catalogue's figure. */
+  fun feltFrom(instance: WorldEventInstance): Double? = null
+
+  /** The Bestia second it next moves on, such as a knot opening, or null when there is no such moment. */
+  fun changesAtSecond(instance: WorldEventInstance): Long? = null
 
   /** Takes back whatever the event put into the world, when it runs out or a GM cancels it. */
   fun end(instance: WorldEventInstance) {}
