@@ -32,7 +32,18 @@ class ItemBundles(
   @Transactional
   fun packAll(bag: ItemContainer): ItemInstance? {
     bag.equipped().keys.forEach { bag.unequip(it) }
-    val items = bag.removeAllFree().flatMap(::unpackedNested)
+
+    return pack(bag.removeAllFree())
+  }
+
+  /**
+   * Packs [detached], which their container has already given up, into a new bundle that sits in no container yet.
+   *
+   * @return the bundle's instance, or null when there was nothing to pack
+   */
+  @Transactional
+  fun pack(detached: List<ItemContainer.DetachedItem>): ItemInstance? {
+    val items = detached.flatMap(::unpackedNested)
     if (items.isEmpty()) {
       return null
     }

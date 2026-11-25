@@ -116,6 +116,7 @@
  - UPKEEP wave 56: TreeRegrowthSystem [EverySeconds(seconds=60.0)]
  - UPKEEP wave 56: WarpPortalSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 56: WorldStateSampler [EverySeconds(seconds=5.0)]
+ - UPKEEP wave 57: KeepsakeReturnSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 57: EtchingOfferSystem [EverySeconds(seconds=1.0)]
  - UPKEEP wave 57: EnvironmentalExposureSystem [EveryTick]
  - UPKEEP wave 58: BreedingFarmSystem [EverySeconds(seconds=1.0)]

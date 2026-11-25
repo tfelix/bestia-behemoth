@@ -25,6 +25,7 @@ learnset:
   - { skill: flame_weapon, level: 21 }
   - { skill: shockwave, level: 31, active: true }
   - { skill: bewilder, level: 36 }
+  - { skill: keepsake_ward, level: 40 }
   - { skill: haunt, level: 46 }
   - { skill: mending_light, level: 56 }
   - { skill: spirit_burst, level: 61 }

@@ -27,6 +27,7 @@ learnset:
   - { skill: shadow_cloak, level: 26 }
   - { skill: shockwave, level: 31 }
   - { skill: bewilder, level: 36 }
+  - { skill: keepsake_ward, level: 40 }
   - { skill: haunt, level: 46 }
   - { skill: mending_light, level: 56 }
   - { skill: spirit_burst, level: 61 }

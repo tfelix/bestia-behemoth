@@ -1539,3 +1539,4 @@ INN_FALLEN,fallen
 INN_PRICE,%s gold
 INN_TEND,Tend all (%s gold)
 ERROR_INN_CLOSED,This inn stands in no town and is closed.
+STATUS_EFFECT_256,"Keepsake Ward: if this bestia falls, its bag goes home to its master by post."

@@ -5,7 +5,8 @@ package net.bestia.zone.item.enchant
  * [ItemEnchantmentCatalogBootValidator] fails the boot if they drift, like [net.bestia.zone.battle.status.StatusEffectId].
  */
 enum class ItemEnchantmentId(val id: Long) {
-  POSTAL_SEAL(1);
+  POSTAL_SEAL(1),
+  KEEPSAKE_WARD(2);
 
   companion object {
     private val byId = entries.associateBy { it.id }

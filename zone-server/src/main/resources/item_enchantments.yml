@@ -11,3 +11,9 @@ itemEnchantments:
     identifier: POSTAL_SEAL
     dispellable: true
     script: PostalSeal
+
+  # Bound to the bag a warded bestia drops when it falls. Only its master may take it, and it goes home by post.
+  - id: 2
+    identifier: KEEPSAKE_WARD
+    dispellable: true
+    script: KeepsakeWardEnchantment
