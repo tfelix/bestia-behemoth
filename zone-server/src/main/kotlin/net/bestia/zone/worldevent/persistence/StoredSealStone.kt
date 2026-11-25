@@ -23,6 +23,10 @@ class StoredSealStone(
   @Column(nullable = false)
   var motes: Double = 0.0,
 
+  /** The Bestia second its rift was sealed: an old seal wears thin under strong mana. */
+  @Column(name = "sealed_at_second", nullable = false)
+  var sealedAtSecond: Long = 0,
+
   @Column(name = "world_shape_version", nullable = false)
   var worldShapeVersion: Long = 0,
 

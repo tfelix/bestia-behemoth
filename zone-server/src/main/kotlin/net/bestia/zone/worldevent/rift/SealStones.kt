@@ -14,8 +14,9 @@ import net.bestia.zone.worldevent.persistence.StoredSealStoneRepository
 import org.springframework.stereotype.Component
 
 /**
- * The seal stones sealed rifts left, each holding the mana its rift gathered, served per chunk like the trees. They
- * cannot be broken yet; an old seal weakening is a later event. Tick-thread only, loaded at boot.
+ * The seal stones sealed rifts left, each holding the mana its rift gathered, served per chunk like the trees. No
+ * blow breaks one; an old stone under strong mana can crack and break, see `OldSealEvent`. Tick-thread only,
+ * loaded at boot.
  */
 @Component
 class SealStones(
@@ -37,13 +38,21 @@ class SealStones(
   }
 
   /** Raises a stone holding [motes] at [at] and writes it off the tick. */
-  fun raise(at: Vec3L, motes: Double): WorldObjectSite {
+  fun raise(at: Vec3L, motes: Double, sealedAtSecond: Long): WorldObjectSite {
     val stone = StoredSealStone(
-      at.x, at.y, at.z, motes, worldService.record.shapeVersion, worldService.record.pipelineVersion,
+      at.x, at.y, at.z, motes, sealedAtSecond, worldService.record.shapeVersion, worldService.record.pipelineVersion,
     )
     stones += stone
     asyncJobExecutor.submit(JOB_KEY) { repository.save(stone) }
     return siteOf(stone)
+  }
+
+  fun all(): List<StoredSealStone> = stones.toList()
+
+  /** Takes the stone away and deletes it off the tick. Its standing prop is the caller's to remove. */
+  fun remove(stone: StoredSealStone) {
+    stones -= stone
+    asyncJobExecutor.submit(JOB_KEY) { repository.delete(stone) }
   }
 
   /** Boot only. Deletes the stones of another world. */

@@ -13,6 +13,7 @@ import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.prop.WorldObjectResidencyService
 import net.bestia.zone.prop.WorldObjectSite
 import net.bestia.zone.world.time.BestiaClock
+import net.bestia.zone.world.time.BestiaDateTime
 import net.bestia.zone.worldevent.persistence.StoredRift
 import net.bestia.zone.worldevent.persistence.StoredRift.Phase
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -25,9 +26,12 @@ class RiftSealsTest {
   private val world = testWorld()
   private val statusEffects = mockk<StatusEffectService>(relaxed = true)
   private val site = mockk<WorldObjectSite>()
-  private val sealStones = mockk<SealStones> { every { raise(any(), any()) } returns site }
+  private val sealStones = mockk<SealStones> { every { raise(any(), any(), any()) } returns site }
   private val residency = mockk<WorldObjectResidencyService>(relaxed = true)
-  private val clock = mockk<BestiaClock> { every { speedFactor } returns 3.0 }
+  private val clock = mockk<BestiaClock> {
+    every { speedFactor } returns 3.0
+    every { now() } returns BestiaDateTime(1, 1, 1, 0, 0, 0)
+  }
   private val sut = RiftSeals(RiftConfig(), statusEffects, sealStones, residency, clock)
 
   private val gate = world.createEntity { id -> add(id, Position.fromVec3(Vec3L(100, 200, 5))) }
@@ -49,7 +53,7 @@ class RiftSealsTest {
 
     assertEquals(Phase.SEALED, rift.phase)
     assertEquals(0.0, rift.reservoir)
-    verify { sealStones.raise(Vec3L(100, 200, 5), 5_000.0) }
+    verify { sealStones.raise(Vec3L(100, 200, 5), 5_000.0, any()) }
     verify { residency.placeNow(world, site) }
   }
 
