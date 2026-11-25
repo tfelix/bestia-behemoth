@@ -60,7 +60,7 @@ class RiftSeals(
 
   private fun seal(world: World, rift: StoredRift, gate: EntityId) {
     val at = world.get(gate, Position::class)?.toVec3L()
-    if (at != null) residency.placeNow(world, sealStones.raise(at, rift.reservoir))
+    if (at != null) residency.placeNow(world, sealStones.raise(at, rift.reservoir, clock.now().absoluteSecond))
 
     rift.reservoir = 0.0
     rift.sealWindowEndsAtSecond = 0
