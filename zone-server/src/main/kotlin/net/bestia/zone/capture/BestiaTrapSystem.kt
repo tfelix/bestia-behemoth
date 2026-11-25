@@ -12,6 +12,10 @@ import net.bestia.zone.skill.ecs.KnownSkills
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.damage.DamageGate
+import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
+import net.bestia.zone.battle.ecs.effects.StatusEffects
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Phase
@@ -35,7 +39,8 @@ import java.util.Random
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
- * Springs a [BestiaTrap] on the first wild bestia standing on its tile and rolls the catch.
+ * Springs a [BestiaTrap] on the first wild bestia standing on its tile and rolls the catch. A bestia that broke free
+ * is [StatusEffectId.TRAP_WARY] for a while, and no trap springs on it until that runs out.
  *
  * In the actions phase, which follows movement, so a creature is caught on the tick it steps in.
  */
@@ -48,6 +53,7 @@ class BestiaTrapSystem(
   private val events: ApplicationEventPublisher,
   private val outMessageProcessor: OutMessageProcessor,
   private val skillIds: SkillIds,
+  private val statusEffects: StatusEffectService,
   private val random: Random = ThreadLocalRandomSource,
 ) : System {
 
@@ -60,8 +66,10 @@ class BestiaTrapSystem(
     Level::class
   ) + WildBestia.READS + DamageGate.READS
 
-  /** [TakenDamage] is written on the creature that broke free, so it turns on the trapper. */
-  override val writes: ComponentClassSet = setOf(BestiaTrap::class, TakenDamage::class)
+  /** [TakenDamage] and [StatusEffects] are written on the creature that broke free, so it turns on the trapper. */
+  override val writes: ComponentClassSet = setOf(
+    BestiaTrap::class, TakenDamage::class, StatusEffects::class, IsStatusValueDirty::class
+  )
 
   /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
   private val trappingSkillId: Long? get() = skillIds[SkillId.M_TRAPPING]
@@ -120,6 +128,7 @@ class BestiaTrapSystem(
     } else {
       // No damage, only a timestamp: what the creature's retaliation reads is who touched it last.
       world.update(s.targetId, { TakenDamage() }) { it.addDamage(s.trap.trapperEntityId, 0) }
+      statusEffects.applyEffect(world, s.targetId, StatusEffectId.TRAP_WARY, level = 1)
     }
   }
 
@@ -165,6 +174,7 @@ class BestiaTrapSystem(
         trappingLevel = trapping,
         beastfriendLevel = beastfriend,
         essencePoints = trapper?.catchChancePoints ?: 0,
+        boss = species.boss || species.worldBoss,
       )
     )
   }
@@ -175,13 +185,17 @@ class BestiaTrapSystem(
     return entityAOIService.queryEntitiesInCube(at, HEIGHT_TOLERANCE * 2, AoiLayer.DYNAMIC_ONLY)
       .filter { id ->
         val pos = world.get(id, Position::class) ?: return@filter false
-        pos.x == at.x && pos.y == at.y && isWildBestia(world, id)
+        pos.x == at.x && pos.y == at.y && isWildBestia(world, id) && !isWary(world, id)
       }
       .minOrNull()
   }
 
   private fun isWildBestia(world: World, id: EntityId): Boolean {
     return WildBestia.isWild(world, id) && !DamageGate.isImmune(world, id) && world.has(id, Health::class)
+  }
+
+  private fun isWary(world: World, id: EntityId): Boolean {
+    return world.get(id, StatusEffects::class)?.hasEffect(StatusEffectId.TRAP_WARY.id) == true
   }
 
   private companion object {

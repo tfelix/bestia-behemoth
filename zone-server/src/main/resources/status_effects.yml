@@ -957,6 +957,15 @@ statusEffects:
     isSyncedToClient: false
     script: RiftSealWindow
 
+  # On a wild bestia that broke out of a trap: no trap springs on it until this runs out, see BestiaTrapSystem.
+  - id: 260
+    identifier: TRAP_WARY
+    polarity: NEUTRAL
+    showIcon: true
+    isSyncedToClient: true
+    dispellable: false
+    script: TrapWary
+
   # Near a master who wears a boss essence with an aura, kept up by EssenceAuraSystem every second.
   - id: 300
     identifier: ROYAL_SWARM

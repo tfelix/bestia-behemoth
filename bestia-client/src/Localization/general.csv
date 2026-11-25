@@ -106,6 +106,7 @@ STATUS_EFFECT_53,Barrier: it soaks up the next blows.
 STATUS_EFFECT_54,Corrosive: weapons that hit you wear down.
 STATUS_EFFECT_55,Controlled: fighting for another side.
 STATUS_EFFECT_255,"Unruly: too far above its master's level, it follows its own mind for a while."
+STATUS_EFFECT_260,"Wary: it just broke out of a trap and steps around the next one for a while."
 STATUS_EFFECT_56,Hidden: other players cannot see you. You cannot move. Acting reveals you.
 STATUS_EFFECT_57,Cloaked: other players cannot see you. You move slower. Acting or being hit reveals you.
 STATUS_EFFECT_59,Armor stripped: you cannot put armor on until this ends.
