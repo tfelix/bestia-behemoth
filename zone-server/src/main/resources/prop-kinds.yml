@@ -720,3 +720,8 @@ kinds:
     max-hp: 1
     collider: { half-x: 2, half-y: 2, height: 1 }
     variants: 2
+
+  # The gate of an open rift. An entity rather than a prop; this row only gives it a size.
+  - kind: RIFT_GATE
+    max-hp: 1
+    collider: { half-x: 3, half-y: 1, height: 8 }

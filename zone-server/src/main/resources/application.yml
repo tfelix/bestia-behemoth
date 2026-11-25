@@ -412,6 +412,20 @@ world-events:
   quiet-bestia-days: 3.0
   # Chance per five-minute run that a ready province starts an event.
   start-chance: 0.25
+  rift:
+    # A knot gathers this many Bestia days before it opens; an open rift collapses after the real hours.
+    knot-min-bestia-days: 2.5
+    knot-max-bestia-days: 4.5
+    open-real-hours: 24
+    # How far a knot and a fully grown rift pull, and how hard, per real minute at the centre.
+    knot-radius-metres: 300
+    open-radius-metres: 1500
+    knot-pull-per-minute: 0.002
+    open-pull-per-minute: 0.004
+    drained-density: 0.05
+    # A knot whose surrounding ring falls below this dissolves. A collapse spills within the radius.
+    dissolve-below: 0.6
+    spill-radius-metres: 300
 
 # Reading tracks: what the world remembers about the things that left prints, and how much of it a rank
 # earns. None of this changes what is stored, so all of it may be retuned on a restart.

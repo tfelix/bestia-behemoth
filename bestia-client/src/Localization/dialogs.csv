@@ -678,6 +678,12 @@ RUMOUR_RESTLESS_BEASTS_2,"Something has the bestia stirred up. They glow a littl
 RUMOUR_STONES_RISEN_ASK,What is wrong with the weather?
 RUMOUR_STONES_RISEN_1,"Stones stood up out of the ground over there. Nobody put them there. Now the storms come every other day."
 RUMOUR_STONES_RISEN_2,"The air out that way tastes of iron, and the sky glows at night. The old ones say it is the mana."
+RUMOUR_RIFT_OPENED_ASK,What was that light last night?
+RUMOUR_RIFT_OPENED_1,"The sky tore open out there. A gate of light, they say, and things keep walking out of it."
+RUMOUR_RIFT_OPENED_2,"There is a rift. Whatever comes out of it is headed this way. Bar your doors at night."
+RUMOUR_RIFT_COLLAPSED_ASK,What happened out there?
+RUMOUR_RIFT_COLLAPSED_1,"The rift broke. Everything it swallowed came pouring out at once. Nothing grows right there now."
+RUMOUR_RIFT_COLLAPSED_2,"Nobody closed the rift in time. The storms have not stopped since it fell in on itself."
 RUMOUR_MISDEED_SEEN_ASK,Is there anybody I should watch out for?
 RUMOUR_MISDEED_SEEN_1,"{name}. They did something terrible in a town not far from here, and people there will not forget it."
 RUMOUR_MISDEED_SEEN_2,"Word came from down the road: keep away from {name}. Folk there saw what they did."
