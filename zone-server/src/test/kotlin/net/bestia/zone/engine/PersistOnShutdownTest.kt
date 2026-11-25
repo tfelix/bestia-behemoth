@@ -15,6 +15,7 @@ import net.bestia.zone.world.stream.ChunkEditJournal
 import org.junit.jupiter.api.Test
 import net.bestia.zone.persistence.EntityPersistenceService
 import net.bestia.zone.water.WaterService
+import net.bestia.zone.world.mana.ManaJournal
 
 class PersistOnShutdownTest {
 
@@ -31,12 +32,13 @@ class PersistOnShutdownTest {
   private val chunkEdits = mockk<ChunkEditJournal>(relaxed = true)
   private val wear = mockk<GroundLevelStore>(relaxed = true)
   private val blood = mockk<GroundLevelStore>(relaxed = true)
+  private val manaJournal = mockk<ManaJournal>(relaxed = true)
   private val executor = mockk<AsyncJobExecutor>(relaxed = true)
 
   private val sut =
     PersistOnShutdown(
-      engine, worldView, persistence, economy, reserve, water, waterJournal, chunkEdits, listOf(wear, blood),
-      executor
+      engine, worldView, persistence, economy, reserve, water, waterJournal, chunkEdits, manaJournal,
+      listOf(wear, blood), executor
     )
 
   @Test
@@ -55,6 +57,7 @@ class PersistOnShutdownTest {
       chunkEdits.flushDirty()
       wear.flushDirty()
       blood.flushDirty()
+      manaJournal.flush()
       executor.shutdown(timeoutSeconds = any())
     }
   }
