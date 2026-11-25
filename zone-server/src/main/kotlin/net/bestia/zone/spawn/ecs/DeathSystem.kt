@@ -8,6 +8,7 @@ import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.battle.ecs.exp.Exp
 import net.bestia.zone.battle.ecs.level.Level
 import net.bestia.zone.battle.ecs.status.Nature
+import net.bestia.zone.entity.ecs.EventCreature
 import net.bestia.zone.battle.ecs.exp.GainExp
 import net.bestia.zone.entity.ecs.EntityVisual
 import net.bestia.zone.entity.ecs.VisualKind
@@ -52,7 +53,8 @@ class DeathSystem(
       Persistent::class,
       Living::class,
       Level::class,
-      Nature::class
+      Nature::class,
+      EventCreature::class
     ) + expSplitter.reads + levies.flatMap { it.reads } + lootChanceModifiers.flatMap { it.reads } +
       killObservers.flatMap { it.reads }
 
@@ -127,6 +129,7 @@ class DeathSystem(
     val killedAt = world.get(entityId, Position::class)?.toVec3L()
     val killedLevel = world.get(entityId, Level::class)?.level
     val killedBoss = world.get(entityId, Nature::class)?.boss == true
+    val killedFor = world.get(entityId, EventCreature::class)
 
     // Check which of those are an actual player. Every player bestia has an Account component.
     val attackingPlayerCount = damageDealer.keys
@@ -156,7 +159,7 @@ class DeathSystem(
       }
 
       killedAt?.let {
-        reportToObservers(world, KillFact(species, it, creditedMasters(credits), killedLevel ?: 1, killedBoss))
+        reportToObservers(world, KillFact(species, it, creditedMasters(credits), killedLevel ?: 1, killedBoss, killedFor))
       }
     }
   }

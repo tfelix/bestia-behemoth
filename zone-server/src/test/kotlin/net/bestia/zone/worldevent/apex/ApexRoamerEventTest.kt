@@ -14,6 +14,7 @@ import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.entity.ecs.EventCreature
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.place.ecs.PlaceRegionService
 import net.bestia.zone.place.ecs.ProvinceService
@@ -53,7 +54,9 @@ class ApexRoamerEventTest {
     every { find(any()) } answers { listOf(wolf, bear, lord).first { it.id == firstArg<Long>() } }
   }
   private val spawner = mockk<BestiaEntitySpawner> {
-    every { spawnMob(any(), any<Long>(), any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns 77L
+    every { spawnMob(any(), any<Long>(), any(), any(), any(), any(), any(), any(), any(), any(), any()) } answers {
+      world.createEntity { }
+    }
   }
   private val tiers = mockk<ManaTiers> { every { tierOf(any()) } returns ManaTier.OMINOUS }
   private val chunks = mockk<ChunkService> { every { surfaceElevationAt(any(), any()) } returns 40.0 }
@@ -67,7 +70,8 @@ class ApexRoamerEventTest {
   fun `the strongest beast of the province's dens comes in from the far side and makes for the mana`() {
     val started = sut.start(signals())!!
 
-    assertEquals(77L, started.subjectId)
+    val apex = started.subjectId!!
+    assertEquals(EventCreature("ApexRoamer", apex), world.get(apex, EventCreature::class))
     assertEquals(9_000L, started.at.x)
     verify {
       spawner.spawnMob(

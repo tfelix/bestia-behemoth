@@ -1,5 +1,6 @@
 package net.bestia.zone.entity.observe
 
+import net.bestia.zone.entity.ecs.EventCreature
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 
@@ -10,4 +11,6 @@ data class KillFact(
   val creditedMasters: Set<EntityId>,
   val level: Int,
   val boss: Boolean,
+  /** The world event the bestia belonged to, if one put it there. */
+  val event: EventCreature? = null,
 )

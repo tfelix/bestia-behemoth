@@ -22,7 +22,12 @@ data class WorldEventEntry(
   val cooldown: Double = 0.0,
   /** Bestia days it runs before it ends by itself. */
   val lasts: Double = 1.0,
+  /** What its contributors share when players end it, by `items.yml` identifier. */
+  val loot: List<EventLoot> = emptyList(),
 )
+
+/** A pile of one item that the contributors of an event split by their share. */
+data class EventLoot(val item: String, val amount: Int)
 
 /** The events of `world_events.yml`, each bound to the [WorldEvent] that runs it. The boot fails on a gap. */
 @Service

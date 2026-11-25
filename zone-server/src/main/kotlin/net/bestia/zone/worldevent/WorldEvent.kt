@@ -24,9 +24,15 @@ interface WorldEvent {
   /** Whether the event ran its course before its time was up, without players ending it. Checked every run. */
   fun isOver(instance: WorldEventInstance): Boolean = false
 
+  /** The ground masters hold by standing on it while the event runs, which counts for its contract; null for none. */
+  fun heldArea(instance: WorldEventInstance): HeldArea? = null
+
   /** Takes back whatever the event put into the world, when it runs out or a GM cancels it. */
   fun end(instance: WorldEventInstance) {}
 
   /** Where it started and what it is about, if anything: an entity such as the apex, or a row such as a rift. */
   data class Started(val at: Vec3L, val subjectId: Long? = null)
+
+  /** A circle in metres. */
+  data class HeldArea(val x: Double, val y: Double, val radius: Double)
 }

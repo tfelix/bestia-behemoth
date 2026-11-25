@@ -25,4 +25,7 @@ enum class HonorAct {
   HELP_NPC,
   COMPLETE_COMMISSION,
   RETURN_STOLEN_ITEM,
+
+  /** Helping end a world event that threatened a settlement: an apex nearby, a rift drained or sealed. */
+  DEFEND_SETTLEMENT,
 }

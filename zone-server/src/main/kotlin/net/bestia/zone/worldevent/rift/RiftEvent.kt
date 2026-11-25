@@ -52,6 +52,14 @@ class RiftEvent(
   override fun isOver(instance: WorldEventInstance): Boolean =
     phaseOf(instance) in setOf(Phase.COLLAPSED, Phase.MERGED)
 
+  /** All a rift pulls from: a knot's ring as well, since that is the land players drain to dissolve it. */
+  override fun heldArea(instance: WorldEventInstance): WorldEvent.HeldArea? {
+    val id = instance.subjectId ?: return null
+    val rift = rifts.active().firstOrNull { it.id == id } ?: return null
+    val radius = if (rift.phase == Phase.OPEN) config.openRadiusMetres else 2 * config.knotRadiusMetres
+    return WorldEvent.HeldArea(rift.x, rift.y, radius)
+  }
+
   /** A GM cancel or the director's safety limit: the knot or rift dissolves and lets its mana go quietly. */
   override fun end(instance: WorldEventInstance) {
     val id = instance.subjectId ?: return
