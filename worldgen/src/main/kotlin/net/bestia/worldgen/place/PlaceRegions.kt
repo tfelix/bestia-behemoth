@@ -51,6 +51,9 @@ import net.bestia.worldgen.vector.Vec2d
  */
 class PlaceRegions private constructor(
   val regions: List<PlaceRegion>,
+  /** What shaped this partition, so anything stored per region can tell when the partition moved. */
+  val params: RegionParams,
+  private val neighbours: List<IntArray>,
   private val owner: IntArray,
   private val grid: CellRegion,
   private val wrapX: Boolean,
@@ -73,6 +76,11 @@ class PlaceRegions private constructor(
     get() {
       return regions.count { !it.isWater }
     }
+
+  /** The regions that share a border with region [index], in ascending order. */
+  fun neighboursOf(index: Int): IntArray {
+    return neighbours[index]
+  }
 
   /** Which region covers a world position, in metres. Any coordinate, normalised or not. */
   fun regionAt(worldX: Double, worldY: Double): PlaceRegion {
@@ -136,11 +144,12 @@ class PlaceRegions private constructor(
       val kinds = stats.map {
         RegionKind.of(it.dominantBiome, it.relief, it.landShare, it.coastalShare, it.meanElevation)
       }
+      val neighbours = neighboursOf(merged, grid, config.wrapX, config.wrapY)
       val named = RegionNaming.nameAll(
         world = world,
         count = merged.regionCount,
         kinds = kinds,
-        neighbours = neighboursOf(merged, grid, config.wrapX, config.wrapY),
+        neighbours = neighbours,
         regionOf = { x, y -> ownerAt(merged.owner, grid, config.wrapX, config.wrapY, x, y) }
       )
 
@@ -162,14 +171,14 @@ class PlaceRegions private constructor(
         )
       }
 
-      return PlaceRegions(regions, merged.owner, grid, config.wrapX, config.wrapY)
+      return PlaceRegions(regions, params, neighbours, merged.owner, grid, config.wrapX, config.wrapY)
     }
 
     /**
      * Which regions each region touches.
      *
-     * Only used to scope name uniqueness, so the set is kept rather than the border length: two regions
-     * meeting at all is enough reason for a player to need to tell them apart.
+     * The set is kept rather than the border length: two regions meeting at all is enough reason for a
+     * player to need to tell them apart, and for a province to grow from one into the other.
      */
     private fun neighboursOf(
       assignment: RegionGrowth.Assignment,
