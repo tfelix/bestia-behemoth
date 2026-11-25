@@ -36,7 +36,8 @@ class BestiaDiary(
 
   @EventListener
   fun onDied(died: OwnedBestiaDiedEvent) {
-    onHappened(BestiaHappened(this, died.masterId, died.playerBestiaId, BestiaHappened.Kind.DIED))
+    val kind = if (died.lostForGood) BestiaHappened.Kind.LOST else BestiaHappened.Kind.DIED
+    onHappened(BestiaHappened(this, died.masterId, died.playerBestiaId, kind))
   }
 
   /** The master's diary, newest first. */

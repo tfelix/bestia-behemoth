@@ -32,5 +32,8 @@ class BestiaHappened(
     ATTACKED,
     RETREATED,
     DIED,
+
+    /** Overkilled: it is gone for good. */
+    LOST,
   }
 }

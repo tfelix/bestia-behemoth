@@ -10,7 +10,9 @@ export function describe(event: LiveEvent): { title: string; body: string } | nu
 		case 'HomeFell':
 			return { title: `${d.fallen} has fallen`, body: `${d.masterName} now calls ${d.newHome} home.` };
 		case 'BestiaDiedAway':
-			return { title: `${d.bestiaName ?? speciesName(String(d.species))} was killed`, body: 'It lies where it fell until you return.' };
+			return d.lostForGood
+				? { title: `${d.bestiaName ?? speciesName(String(d.species))} was lost for good`, body: 'Its gear waits at your post office.' }
+				: { title: `${d.bestiaName ?? speciesName(String(d.species))} was killed`, body: 'It lies where it fell until you return.' };
 		case 'ConstructionDone':
 			return { title: 'Construction finished', body: `Your ${String(d.kind).toLowerCase().replace(/_/g, ' ')} is standing.` };
 		case 'JourneyEnded':

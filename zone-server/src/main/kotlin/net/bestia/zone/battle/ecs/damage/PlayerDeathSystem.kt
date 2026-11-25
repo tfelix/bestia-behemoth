@@ -50,7 +50,9 @@ class PlayerDeathSystem(
 
       world.get(id, OwnedBestia::class)?.let { owned ->
         val accountId = get<Account>().accountId
-        events.publishEvent(OwnedBestiaDiedEvent(this@PlayerDeathSystem, accountId, owned.masterId, owned.playerBestiaId))
+        events.publishEvent(
+          OwnedBestiaDiedEvent(this@PlayerDeathSystem, accountId, owned.masterId, owned.playerBestiaId, dead.lostForGood)
+        )
       }
 
       // Whatever it was walking towards, it is not going there.

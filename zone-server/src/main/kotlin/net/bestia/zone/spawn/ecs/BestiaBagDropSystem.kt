@@ -63,10 +63,11 @@ class BestiaBagDropSystem(
       return
     }
 
+    // A bestia lost for good has left the world already: no live bag is left to mirror, the database's word stands.
     val dropped = worldView.modify(bestiaEntityId) { id ->
       val inventory = get(id, Inventory::class) ?: return@modify emptyList()
       removed.mapNotNull { item -> inventory.mirror(item) }
-    }.orEmpty()
+    } ?: removed.map { it.toDropped(it.amount) }
 
     if (dropped.size < removed.size) {
       LOG.warn {
@@ -90,11 +91,13 @@ class BestiaBagDropSystem(
   }
 
   private fun Inventory.mirror(item: ItemContainer.DetachedItem): DroppedItem? {
-    val itemId = item.template.id
-    val uniqueId = item.instance?.id ?: 0L
-    val amount = mirrorRemoval(itemId, item.amount, uniqueId) ?: return null
+    val amount = mirrorRemoval(item.template.id, item.amount, item.instance?.id ?: 0L) ?: return null
 
-    return DroppedItem(itemId, amount, uniqueId, item.instance?.provenance ?: item.provenance)
+    return item.toDropped(amount)
+  }
+
+  private fun ItemContainer.DetachedItem.toDropped(amount: Int): DroppedItem {
+    return DroppedItem(template.id, amount, instance?.id ?: 0L, instance?.provenance ?: provenance)
   }
 
   private data class DroppedItem(

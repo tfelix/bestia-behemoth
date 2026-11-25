@@ -43,6 +43,9 @@ class Dead : DirtyableComponent(), Removable {
   /** Whether [net.bestia.zone.spawn.ecs.BestiaBagDropSystem] has already dropped this body's bag. */
   var bagDropped: Boolean = false
 
+  /** An owned bestia overkilled by its killing blow, which [net.bestia.zone.master.bestia.PermanentBestiaDeathSystem] loses. */
+  var lostForGood: Boolean = false
+
   /** Whether [net.bestia.zone.master.ecs.DeathWearSystem] has already worn down the body's gear. */
   var gearWorn: Boolean = false
 
@@ -65,12 +68,12 @@ class Dead : DirtyableComponent(), Removable {
      *
      * @return true if [id] died just now
      */
-    fun markOnce(world: World, id: EntityId): Boolean {
+    fun markOnce(world: World, id: EntityId, lostForGood: Boolean = false): Boolean {
       if (world.has(id, Dead::class)) {
         return false
       }
 
-      world.add(id, Dead())
+      world.add(id, Dead().also { it.lostForGood = lostForGood })
       return true
     }
   }

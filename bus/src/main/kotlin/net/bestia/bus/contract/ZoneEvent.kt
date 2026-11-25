@@ -16,13 +16,14 @@ sealed interface ZoneEvent {
     val newHome: String,
   ) : ZoneEvent
 
-  /** An owned bestia died while nobody was playing its master. It stays down until the master comes back. */
+  /** An owned bestia died while nobody was playing its master. It stays down until the master comes back, unless [lostForGood]. */
   data class BestiaDiedAway(
     override val accountId: Long,
     val masterId: Long,
     val playerBestiaId: Long,
     val bestiaName: String?,
     val species: String,
+    val lostForGood: Boolean = false,
   ) : ZoneEvent
 
   data class ConstructionDone(override val accountId: Long, val masterId: Long, val kind: String) : ZoneEvent

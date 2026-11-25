@@ -50,7 +50,9 @@ class ZoneEventRelay(
     jobs.submit(event.masterId) {
       val bestia = playerBestias.findByIdOrNull(event.playerBestiaId) ?: return@submit
       events.publish(
-        ZoneEvent.BestiaDiedAway(event.accountId, event.masterId, event.playerBestiaId, bestia.name, bestia.bestia.identifier)
+        ZoneEvent.BestiaDiedAway(
+          event.accountId, event.masterId, event.playerBestiaId, bestia.name, bestia.bestia.identifier, event.lostForGood
+        )
       )
     }
   }

@@ -29,6 +29,8 @@ export function diaryText(line: DiaryEntry): string {
 			return 'Retreated home';
 		case 'DIED':
 			return 'Was killed';
+		case 'LOST':
+			return 'Was killed and lost for good';
 		default:
 			return line.kind;
 	}

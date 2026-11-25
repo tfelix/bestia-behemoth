@@ -43,6 +43,7 @@ class ReceivedDamageSystem(
   private val random: Random = Random.Default,
   private val otherWork: List<InterruptibleWork> = emptyList(),
   private val landedHits: List<LandedHits> = emptyList(),
+  private val bestiaOverkill: BestiaOverkill? = null,
 ) : System {
   override val phase = Phase.COMBAT
   override val after = setOf(AttackSystem::class)
@@ -125,8 +126,12 @@ class ReceivedDamageSystem(
         world.get(id, Animation::class)?.endEmote()
       }
 
-      if (health.current == 0 && Dead.markOnce(world, id)) {
-        LOG.trace { "$id died due to damage." }
+      if (health.current == 0) {
+        val lostForGood = world.has(id, OwnedBestia::class) &&
+          bestiaOverkill?.losesForGood(healthBefore, total, health.max) == true
+        if (Dead.markOnce(world, id, lostForGood)) {
+          LOG.trace { "$id died due to damage." }
+        }
       }
     }
   }
