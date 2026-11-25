@@ -14,11 +14,11 @@ essence: { group: GARMENT, effect: MIST_VEIL }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.3
+attack-power: 0.35
 weight: 60
-health: 5
+health: 6
 mana: 438
-experience: 308
+experience: 293
 attributes: { strength: 1, intelligence: 91, vitality: 24, dexterity: 1, willpower: 61, agility: 24 }
 learnset:
   - { skill: growl, level: 6 }

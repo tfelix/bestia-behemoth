@@ -14,12 +14,12 @@ essence: { group: ACCESSORY, effect: REFLEX, target: flame_coat }
 default-attack: RANGED
 aspd: 80
 ai: passive_wanderer
-attack-power: 0.74
+attack-power: 0.63
 weight: 15
-health: 193
+health: 169
 mana: 31
-experience: 19
-attributes: { strength: 4, intelligence: 2, vitality: 4, dexterity: 7, willpower: 5, agility: 19 }
+experience: 18
+attributes: { strength: 5, intelligence: 2, vitality: 4, dexterity: 7, willpower: 5, agility: 19 }
 learnset:
   - { skill: tackle, level: 1, active: true }
   - { skill: flame_weapon, level: 6 }

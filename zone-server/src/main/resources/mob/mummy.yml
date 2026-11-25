@@ -13,12 +13,12 @@ essence: { group: ARMOR, effect: ELEMENT_BODY, target: UNDEAD }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 1.16
+attack-power: 1.2
 weight: 60
-health: 813
+health: 879
 mana: 140
 experience: 217
-attributes: { strength: 5, intelligence: 12, vitality: 74, dexterity: 3, willpower: 30, agility: 10 }
+attributes: { strength: 9, intelligence: 12, vitality: 74, dexterity: 5, willpower: 30, agility: 10 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: howl, level: 6 }

@@ -14,12 +14,12 @@ essence: { group: WEAPON, effect: BANE, target: BEAST }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
-attack-power: 0.93
+attack-power: 0.68
 weight: 60
-health: 231
+health: 220
 mana: 37
 experience: 32
-attributes: { strength: 3, intelligence: 2, vitality: 11, dexterity: 2, willpower: 4, agility: 8 }
+attributes: { strength: 4, intelligence: 2, vitality: 11, dexterity: 1, willpower: 4, agility: 8 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6, active: true }

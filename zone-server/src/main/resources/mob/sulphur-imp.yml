@@ -14,11 +14,11 @@ essence: { group: HEADGEAR, effect: FOCUS }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.01
+attack-power: 0.03
 weight: 15
-health: 912
+health: 1039
 mana: 281
-experience: 204
+experience: 202
 attributes: { strength: 1, intelligence: 68, vitality: 18, dexterity: 1, willpower: 45, agility: 18 }
 learnset:
   - { skill: growl, level: 6 }

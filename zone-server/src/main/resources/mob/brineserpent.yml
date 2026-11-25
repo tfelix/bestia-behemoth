@@ -13,12 +13,12 @@ essence: { group: WEAPON, effect: ELEMENT_HUNTER, target: FIRE }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.93
+attack-power: 1.02
 weight: 250
-health: 1388
+health: 1718
 mana: 177
 experience: 319
-attributes: { strength: 28, intelligence: 10, vitality: 52, dexterity: 12, willpower: 17, agility: 35 }
+attributes: { strength: 40, intelligence: 10, vitality: 52, dexterity: 15, willpower: 17, agility: 35 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

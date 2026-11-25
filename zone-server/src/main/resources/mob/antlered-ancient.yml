@@ -13,9 +13,9 @@ essence: { group: ACCESSORY, effect: BOSS, target: CROWN_OF_LIGHT }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
-attack-power: 0.22
+attack-power: 0.25
 weight: 500
-health: 83987
+health: 94300
 mana: 575
 experience: 31285
 attributes: { strength: 1, intelligence: 124, vitality: 74, dexterity: 1, willpower: 155, agility: 37 }

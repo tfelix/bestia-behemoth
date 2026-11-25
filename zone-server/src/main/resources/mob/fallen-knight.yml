@@ -14,12 +14,12 @@ essence: { group: SHIELD, effect: WARD, target: UNDEAD }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 1.06
+attack-power: 1.19
 weight: 60
-health: 1620
+health: 1641
 mana: 266
 experience: 410
-attributes: { strength: 22, intelligence: 22, vitality: 130, dexterity: 12, willpower: 52, agility: 17 }
+attributes: { strength: 39, intelligence: 22, vitality: 130, dexterity: 21, willpower: 52, agility: 17 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: howl, level: 6 }

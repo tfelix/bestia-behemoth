@@ -13,9 +13,9 @@ essence: { group: GARMENT, effect: BOSS, target: STENCH }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.11
+attack-power: 0.12
 weight: 500
-health: 82585
+health: 94730
 mana: 669
 experience: 28975
 attributes: { strength: 1, intelligence: 163, vitality: 43, dexterity: 1, willpower: 109, agility: 43 }

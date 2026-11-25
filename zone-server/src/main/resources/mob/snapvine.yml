@@ -13,12 +13,12 @@ essence: { group: WEAPON, effect: BANE, target: INSECT }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.97
+attack-power: 0.96
 weight: 60
-health: 534
+health: 574
 mana: 78
 experience: 120
-attributes: { strength: 5, intelligence: 5, vitality: 23, dexterity: 3, willpower: 8, agility: 15 }
+attributes: { strength: 7, intelligence: 5, vitality: 23, dexterity: 3, willpower: 8, agility: 15 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

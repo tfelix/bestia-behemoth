@@ -13,12 +13,12 @@ essence: { group: WEAPON, effect: RIDER, target: BURNING }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 1.07
+attack-power: 1.13
 weight: 60
-health: 711
+health: 803
 mana: 96
 experience: 158
-attributes: { strength: 8, intelligence: 6, vitality: 29, dexterity: 2, willpower: 10, agility: 19 }
+attributes: { strength: 10, intelligence: 6, vitality: 29, dexterity: 3, willpower: 10, agility: 19 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

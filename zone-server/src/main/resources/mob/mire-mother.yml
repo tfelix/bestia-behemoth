@@ -14,9 +14,9 @@ essence: { group: ACCESSORY, effect: BOSS, target: BUDDING_BROOD }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.03
+attack-power: 0.04
 weight: 500
-health: 143775
+health: 166062
 mana: 1118
 experience: 40557
 attributes: { strength: 1, intelligence: 222, vitality: 59, dexterity: 1, willpower: 148, agility: 59 }

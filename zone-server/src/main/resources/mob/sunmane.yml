@@ -14,12 +14,12 @@ essence: { group: WEAPON, effect: ELEMENT_HUNTER, target: SHADOW }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 1.2
+attack-power: 1.18
 weight: 250
-health: 4050
+health: 4674
 mana: 120
 experience: 1781
-attributes: { strength: 14, intelligence: 9, vitality: 44, dexterity: 5, willpower: 15, agility: 29 }
+attributes: { strength: 19, intelligence: 9, vitality: 44, dexterity: 9, willpower: 15, agility: 29 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

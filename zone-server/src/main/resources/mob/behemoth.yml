@@ -14,12 +14,12 @@ essence: { group: ARMOR, effect: BOSS, target: TITANS_STRIDE }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 1.84
+attack-power: 1.87
 weight: 500
-health: 165548
+health: 198518
 mana: 321
 experience: 46687
-attributes: { strength: 79, intelligence: 27, vitality: 134, dexterity: 33, willpower: 45, agility: 89 }
+attributes: { strength: 109, intelligence: 27, vitality: 134, dexterity: 44, willpower: 45, agility: 89 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

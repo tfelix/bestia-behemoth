@@ -13,12 +13,12 @@ essence: { group: WEAPON, effect: BOSS, target: HOWL_OF_GARM }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 1.86
+attack-power: 2
 weight: 500
-health: 113743
+health: 130962
 mana: 215
 experience: 32055
-attributes: { strength: 42, intelligence: 19, vitality: 95, dexterity: 17, willpower: 32, agility: 63 }
+attributes: { strength: 59, intelligence: 19, vitality: 95, dexterity: 25, willpower: 32, agility: 63 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

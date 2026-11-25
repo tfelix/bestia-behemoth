@@ -13,12 +13,12 @@ essence: { group: WEAPON, effect: BOSS, target: REAPING_SCYTHE }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 1.86
+attack-power: 2.01
 weight: 500
-health: 119414
+health: 120367
 mana: 230
 experience: 34365
-attributes: { strength: 49, intelligence: 20, vitality: 101, dexterity: 21, willpower: 34, agility: 67 }
+attributes: { strength: 66, intelligence: 20, vitality: 101, dexterity: 26, willpower: 34, agility: 67 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

@@ -13,12 +13,12 @@ essence: { group: WEAPON, effect: BOSS, target: BURNING_STRIPES }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 1.86
+attack-power: 2.03
 weight: 500
-health: 70435
+health: 75463
 mana: 134
 experience: 18879
-attributes: { strength: 20, intelligence: 12, vitality: 61, dexterity: 7, willpower: 20, agility: 41 }
+attributes: { strength: 28, intelligence: 12, vitality: 61, dexterity: 10, willpower: 20, agility: 41 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

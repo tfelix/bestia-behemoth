@@ -13,12 +13,12 @@ essence: { group: WEAPON, effect: RIDER, target: BLEEDING }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.98
+attack-power: 1.01
 weight: 60
-health: 588
+health: 647
 mana: 82
 experience: 129
-attributes: { strength: 5, intelligence: 5, vitality: 24, dexterity: 3, willpower: 8, agility: 16 }
+attributes: { strength: 7, intelligence: 5, vitality: 24, dexterity: 4, willpower: 8, agility: 16 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

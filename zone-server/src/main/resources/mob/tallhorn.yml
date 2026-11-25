@@ -15,10 +15,10 @@ aspd: 80
 ai: passive_wanderer
 attack-power: 1
 weight: 250
-health: 360
+health: 382
 mana: 71
 experience: 93
-attributes: { strength: 2, intelligence: 6, vitality: 39, dexterity: 1, willpower: 15, agility: 5 }
+attributes: { strength: 3, intelligence: 6, vitality: 39, dexterity: 1, willpower: 15, agility: 5 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: howl, level: 6 }

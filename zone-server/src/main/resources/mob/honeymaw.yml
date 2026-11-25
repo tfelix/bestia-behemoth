@@ -14,12 +14,12 @@ essence: { group: WEAPON, effect: GIANT_SLAYER }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
-attack-power: 1.11
+attack-power: 1.23
 weight: 250
-health: 700
+health: 791
 mana: 94
 experience: 155
-attributes: { strength: 7, intelligence: 6, vitality: 28, dexterity: 4, willpower: 9, agility: 19 }
+attributes: { strength: 9, intelligence: 6, vitality: 28, dexterity: 4, willpower: 9, agility: 19 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

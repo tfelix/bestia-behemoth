@@ -14,12 +14,12 @@ essence: { group: TOOL, effect: BOSS, target: GROVE_KEEPER }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
-attack-power: 2.82
+attack-power: 2.86
 weight: 500
-health: 65246
+health: 72395
 mana: 213
 experience: 26665
-attributes: { strength: 20, intelligence: 27, vitality: 161, dexterity: 9, willpower: 65, agility: 22 }
+attributes: { strength: 27, intelligence: 27, vitality: 161, dexterity: 15, willpower: 65, agility: 22 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: howl, level: 6 }

@@ -16,10 +16,10 @@ aspd: 80
 ai: passive_wanderer
 attack-power: 1
 weight: 60
-health: 476
+health: 493
 mana: 110
-experience: 135
-attributes: { strength: 5, intelligence: 21, vitality: 21, dexterity: 5, willpower: 21, agility: 21 }
+experience: 133
+attributes: { strength: 7, intelligence: 21, vitality: 21, dexterity: 6, willpower: 21, agility: 21 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: flame_dart, level: 6 }

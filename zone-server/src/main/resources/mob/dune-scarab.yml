@@ -13,11 +13,11 @@ essence: { group: TOOL, effect: DIGGING_SPEED }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
-attack-power: 0.93
+attack-power: 1.15
 weight: 15
-health: 483
+health: 507
 mana: 83
-experience: 116
+experience: 113
 attributes: { strength: 1, intelligence: 8, vitality: 45, dexterity: 1, willpower: 18, agility: 6 }
 learnset:
   - { skill: tackle, level: 1 }

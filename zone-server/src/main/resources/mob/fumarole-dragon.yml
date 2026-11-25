@@ -13,11 +13,11 @@ essence: { group: WEAPON, effect: BOSS, target: SULPHUR_BREATH }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 0.11
+attack-power: 0.12
 weight: 500
-health: 83283
+health: 67102
 mana: 723
-experience: 30304
+experience: 30538
 attributes: { strength: 1, intelligence: 171, vitality: 46, dexterity: 1, willpower: 114, agility: 46 }
 learnset:
   - { skill: growl, level: 6 }

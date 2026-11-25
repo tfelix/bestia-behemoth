@@ -16,10 +16,10 @@ aspd: 80
 ai: aggressive_melee
 attack-power: 1
 weight: 15
-health: 64
+health: 65
 mana: 88
-experience: 65
-attributes: { strength: 1, intelligence: 29, vitality: 8, dexterity: 4, willpower: 20, agility: 8 }
+experience: 67
+attributes: { strength: 1, intelligence: 29, vitality: 8, dexterity: 5, willpower: 20, agility: 8 }
 learnset:
   - { skill: growl, level: 6, active: true }
   - { skill: soul_strike, level: 16 }

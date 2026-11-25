@@ -13,12 +13,12 @@ essence: { group: SHIELD, effect: STEADFAST, drawback: MOVE_SPEED }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer
-attack-power: 0.9
+attack-power: 0.89
 weight: 250
-health: 4110
+health: 4765
 mana: 157
 experience: 2051
-attributes: { strength: 7, intelligence: 17, vitality: 100, dexterity: 4, willpower: 40, agility: 13 }
+attributes: { strength: 12, intelligence: 17, vitality: 100, dexterity: 6, willpower: 40, agility: 13 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: howl, level: 6 }

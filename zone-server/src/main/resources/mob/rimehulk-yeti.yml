@@ -15,10 +15,10 @@ aspd: 80
 ai: aggressive_melee
 attack-power: 1.27
 weight: 250
-health: 1144
+health: 1415
 mana: 155
 experience: 276
-attributes: { strength: 16, intelligence: 9, vitality: 45, dexterity: 8, willpower: 15, agility: 30 }
+attributes: { strength: 24, intelligence: 9, vitality: 45, dexterity: 10, willpower: 15, agility: 30 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

@@ -14,9 +14,9 @@ essence: { group: FOOTGEAR, effect: LONG_STRIDE }
 default-attack: RANGED
 aspd: 80
 ai: passive_wanderer
-attack-power: 0.65
+attack-power: 0.75
 weight: 15
-health: 263
+health: 233
 mana: 44
 experience: 44
 attributes: { strength: 4, intelligence: 3, vitality: 5, dexterity: 8, willpower: 7, agility: 26 }

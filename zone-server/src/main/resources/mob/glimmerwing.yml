@@ -16,9 +16,9 @@ aspd: 80
 ai: passive_wanderer
 attack-power: 1
 weight: 15
-health: 239
+health: 230
 mana: 60
-experience: 57
+experience: 51
 attributes: { strength: 1, intelligence: 18, vitality: 11, dexterity: 1, willpower: 23, agility: 5 }
 learnset:
   - { skill: lick_wounds, level: 1 }

@@ -13,12 +13,12 @@ essence: { group: WEAPON, effect: LEECH }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 1.17
+attack-power: 1.41
 weight: 250
-health: 6728
+health: 8088
 mana: 193
 experience: 2975
-attributes: { strength: 30, intelligence: 14, vitality: 68, dexterity: 11, willpower: 23, agility: 46 }
+attributes: { strength: 46, intelligence: 14, vitality: 68, dexterity: 19, willpower: 23, agility: 46 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }

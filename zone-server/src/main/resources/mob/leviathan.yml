@@ -13,12 +13,12 @@ essence: { group: SHIELD, effect: BOSS, target: TIDEWALL }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
-attack-power: 1.71
+attack-power: 1.62
 weight: 500
-health: 158283
+health: 128880
 mana: 297
 experience: 43607
-attributes: { strength: 69, intelligence: 25, vitality: 126, dexterity: 29, willpower: 42, agility: 84 }
+attributes: { strength: 99, intelligence: 25, vitality: 126, dexterity: 39, willpower: 42, agility: 84 }
 learnset:
   - { skill: tackle, level: 1 }
   - { skill: ram, level: 6 }
