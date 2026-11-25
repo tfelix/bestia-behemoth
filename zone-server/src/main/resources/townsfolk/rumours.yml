@@ -22,3 +22,8 @@ rumours:
   TOWN_FELL: { variants: 2, slots: [] }
   # The Master's name: what a town warns its neighbours about is who, not what.
   MISDEED_SEEN: { variants: 2, slots: [name] }
+  # No slots: what folk notice is the sign, not the place it comes from. A rise in the mana posts them; see
+  # ManaRumourReporter.
+  STRANGE_LIGHTS: { variants: 2, slots: [] }
+  RESTLESS_BEASTS: { variants: 2, slots: [] }
+  STONES_RISEN: { variants: 2, slots: [] }

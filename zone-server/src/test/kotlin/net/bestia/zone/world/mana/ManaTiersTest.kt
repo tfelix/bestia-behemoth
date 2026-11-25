@@ -11,9 +11,13 @@ class ManaTiersTest {
     override fun startDensity(cell: Cell) = START
     override fun isSanctuary(cell: Cell) = false
   }
-  private val heard = ArrayList<Triple<Cell, ManaTier, ManaTier>>()
-  private val tiers = ManaTiers(field, ground, listOf(ManaTierListener { cell, from, to -> heard += Triple(cell, from, to) }))
+  private val tiers = ManaTiers(field, ground)
   private val rule = ManaTierRule(dwellSeconds = DWELL)
+  private val heard = ArrayList<ManaTiers.Change>()
+
+  private fun update(seconds: Double) {
+    heard += tiers.update(rule, seconds)
+  }
 
   @Test
   fun `a density is cut into the tiers of the ladder`() {
@@ -25,32 +29,32 @@ class ManaTiersTest {
 
   @Test
   fun `a place rises only after it stayed past the border for the dwell time`() {
-    tiers.update(rule, 60.0)
+    update(60.0)
     densityTo(0.50)
 
-    tiers.update(rule, 60.0)
-    tiers.update(rule, DWELL - 120.0)
+    update(60.0)
+    update(DWELL - 120.0)
     assertEquals(ManaTier.CALM, tiers.tierOf(CELL))
 
-    tiers.update(rule, 120.0)
+    update(120.0)
     assertEquals(ManaTier.UNEASY, tiers.tierOf(CELL))
-    assertEquals(listOf(Triple(CELL, ManaTier.CALM, ManaTier.UNEASY)), heard)
+    assertEquals(listOf(ManaTiers.Change(CELL, ManaTier.CALM, ManaTier.UNEASY)), heard)
   }
 
   @Test
   fun `a place falls only once it is well below the border`() {
-    tiers.update(rule, 60.0)
+    update(60.0)
     densityTo(0.50)
-    tiers.update(rule, 60.0)
-    tiers.update(rule, DWELL)
+    update(60.0)
+    update(DWELL)
 
     densityTo(0.43)
-    tiers.update(rule, DWELL * 2)
+    update(DWELL * 2)
     assertEquals(ManaTier.UNEASY, tiers.tierOf(CELL))
 
     densityTo(0.40)
-    tiers.update(rule, 60.0)
-    tiers.update(rule, DWELL)
+    update(60.0)
+    update(DWELL)
     assertEquals(ManaTier.STIRRING, tiers.tierOf(CELL))
   }
 
@@ -58,7 +62,7 @@ class ManaTiersTest {
   fun `after a restart the saved field has its tier at once and tells nobody`() {
     densityTo(0.62)
 
-    tiers.update(rule, 60.0)
+    update(60.0)
 
     assertEquals(ManaTier.STORMS, tiers.tierOf(CELL))
     assertEquals(emptyList<Any>(), heard)

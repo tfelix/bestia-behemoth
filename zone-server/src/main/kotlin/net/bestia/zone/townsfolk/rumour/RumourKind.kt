@@ -25,4 +25,13 @@ enum class RumourKind(
 
   /** A town nearby will never forgive a Master for what they did there. Posted by `HonorGossipSystem`. */
   MISDEED_SEEN(baseImportance = 60, lifetimeDays = 30),
+
+  /** Lights at night and strange plants nearby: the mana there turned Uneasy. Posted by `ManaRumourReporter`. */
+  STRANGE_LIGHTS(baseImportance = 30, lifetimeDays = 10),
+
+  /** The bestia nearby grow bigger and bolder: the mana there turned Ominous. */
+  RESTLESS_BEASTS(baseImportance = 45, lifetimeDays = 15),
+
+  /** Stones stand up out of the ground nearby and storms come: the mana there reached the Storms tier. */
+  STONES_RISEN(baseImportance = 55, lifetimeDays = 20),
 }

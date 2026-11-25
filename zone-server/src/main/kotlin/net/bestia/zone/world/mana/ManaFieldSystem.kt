@@ -18,6 +18,7 @@ class ManaFieldSystem(
   private val ground: ManaGround,
   private val wounds: WoundSources,
   private val tiers: ManaTiers,
+  private val tierListeners: List<ManaTierListener>,
   config: ManaFieldConfig,
   clock: BestiaClock,
 ) : System {
@@ -35,11 +36,14 @@ class ManaFieldSystem(
   override val writes: ComponentClassSet = emptySet()
 
   override fun update(world: World, deltaTime: Float) {
-    synchronized(field) {
+    val changes = synchronized(field) {
       wounds.pour(deltaTime.toDouble())
       rule.step(field, ground, deltaTime.toDouble())
       tiers.update(tierRule, deltaTime.toDouble())
     }
+
+    // Deferred: a listener tells the towns, and their news is touched by systems running beside this one.
+    if (changes.isNotEmpty()) world.defer { tierListeners.forEach { it.onTiersChanged(changes) } }
   }
 
   private companion object {
