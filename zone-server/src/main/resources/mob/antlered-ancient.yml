@@ -9,6 +9,7 @@ description: >-
 kind: BEAST
 element: HOLY_4
 size: BIG
+essence: { group: ACCESSORY, effect: BOSS, target: CROWN_OF_LIGHT }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

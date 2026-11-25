@@ -432,6 +432,16 @@ ESSENCE_STATUS_BLIND,Blind
 ESSENCE_STATUS_POISON,Poison
 ESSENCE_STATUS_BLEEDING,Bleeding
 ESSENCE_STATUS_BURNING,Burning
+ESSENCE_BOSS_ROYAL_JELLY,"Royal Jelly: +25% max HP, -10% move speed"
+ESSENCE_BOSS_GILDED_SHELL,"Gilded Shell: -30% magic damage taken, -10% move speed"
+ESSENCE_BOSS_BURNING_STRIPES,Burning Stripes: 8% chance on hit to inflict Burning
+ESSENCE_BOSS_STILL_LAKE,"Still Lake: HP and mana keep recovering in combat, and recover 30% faster"
+ESSENCE_BOSS_WISP_FLAME,Wisp Flame: your element becomes Ghost 1
+ESSENCE_BOSS_CROWN_OF_LIGHT,"Crown of Light: immune to Blind and Fear, -15% damage taken from Undead and Demons"
+ESSENCE_BOSS_STORM_WINGS,"Storm Wings: +15% move speed, +10% attack speed"
+ESSENCE_BOSS_FROZEN_AGES,"Frozen Ages: +100% max HP, -50% DEF"
+ESSENCE_BOSS_TITANS_STRIDE,"Titan's Stride: +30% max HP, +15% ATK, immune to knockback, Slowed and Immobilized"
+ESSENCE_BOSS_BONE_LATTICE,"Bone Lattice: immune to every harmful status effect, +25% damage taken from Holy"
 ITEM_DETAIL_DURABILITY,Durability
 ITEM_DETAIL_BROKEN,Broken
 ITEM_DETAIL_LIGHT_LEFT,Light left

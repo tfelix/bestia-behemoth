@@ -95,6 +95,23 @@ class StatusEffectServiceTest {
   }
 
   @Test
+  fun `a wearer immune to every debuff still pays the fatigue of its own Enrage`() {
+    val wyrmArmored = player()
+    world.add(wyrmArmored, CombatStats(CombatValues.OBJECT_BASELINE.copy(immuneToDebuffs = true)))
+    val fatigue = StatusEffectDefinition(
+      id = StatusEffectId.FATIGUE.id, identifier = "FATIGUE", isSyncedToClient = true, script = "Lingering",
+      polarity = StatusEffectPolarity.DEBUFF
+    )
+    val service = StatusEffectService(
+      StatusEffectDefinitionRegistry().apply { load(listOf(definition(HARM, StatusEffectPolarity.DEBUFF), fatigue)) },
+      StatusEffectScriptRegistry(listOf(Lingering()))
+    )
+
+    assertFalse(service.applyEffect(world, wyrmArmored, HARM, level = 1, sourceEntityId = world.createEntity { }))
+    assertTrue(service.applyEffect(world, wyrmArmored, StatusEffectId.FATIGUE.id, level = 1))
+  }
+
+  @Test
   fun `Unbreakable spares one lethal blow, then not again until its marker runs out`() {
     val spent = StatusEffectDefinition(
       id = StatusEffectId.UNBREAKABLE_SPENT.id, identifier = "UNBREAKABLE_SPENT", isSyncedToClient = true,

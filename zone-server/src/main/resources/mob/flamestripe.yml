@@ -9,6 +9,7 @@ description: >-
 kind: BEAST
 element: FIRE_3
 size: BIG
+essence: { group: WEAPON, effect: BOSS, target: BURNING_STRIPES }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

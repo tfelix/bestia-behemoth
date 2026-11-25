@@ -10,6 +10,7 @@ description: >-
 kind: BEAST
 element: EARTH_4
 size: BIG
+essence: { group: ARMOR, effect: BOSS, target: TITANS_STRIDE }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

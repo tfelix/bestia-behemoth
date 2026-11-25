@@ -10,6 +10,7 @@ description: >-
 kind: FORMLESS
 element: NORMAL_3
 size: BIG
+essence: { group: ARMOR, effect: BOSS, target: ROYAL_JELLY }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

@@ -10,6 +10,7 @@ description: >-
 kind: ELEMENTAL
 element: WATER_4
 size: MEDIUM
+essence: { group: GARMENT, effect: BOSS, target: STILL_LAKE }
 default-attack: MELEE
 aspd: 80
 ai: passive_wanderer

@@ -10,6 +10,7 @@ description: >-
 kind: DRAGON
 element: UNDEAD_4
 size: BIG
+essence: { group: ARMOR, effect: BOSS, target: BONE_LATTICE }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

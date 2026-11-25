@@ -9,6 +9,7 @@ description: >-
 kind: BEAST
 element: WATER_4
 size: BIG
+essence: { group: ARMOR, effect: BOSS, target: FROZEN_AGES }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
