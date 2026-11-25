@@ -13,4 +13,6 @@ data class KillFact(
   val boss: Boolean,
   /** The world event the bestia belonged to, if one put it there. */
   val event: EventCreature? = null,
+  /** The feature id of the den the bestia belonged to, if one bred it. */
+  val denFeatureId: Long? = null,
 )

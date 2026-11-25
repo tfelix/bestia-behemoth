@@ -54,7 +54,8 @@ class DeathSystem(
       Living::class,
       Level::class,
       Nature::class,
-      EventCreature::class
+      EventCreature::class,
+      DenMember::class,
     ) + expSplitter.reads + levies.flatMap { it.reads } + lootChanceModifiers.flatMap { it.reads } +
       killObservers.flatMap { it.reads }
 
@@ -130,6 +131,7 @@ class DeathSystem(
     val killedLevel = world.get(entityId, Level::class)?.level
     val killedBoss = world.get(entityId, Nature::class)?.boss == true
     val killedFor = world.get(entityId, EventCreature::class)
+    val killedDen = world.get(entityId, DenMember::class)?.den?.featureId
 
     // Check which of those are an actual player. Every player bestia has an Account component.
     val attackingPlayerCount = damageDealer.keys
@@ -159,7 +161,7 @@ class DeathSystem(
       }
 
       killedAt?.let {
-        reportToObservers(world, KillFact(species, it, creditedMasters(credits), killedLevel ?: 1, killedBoss, killedFor))
+        reportToObservers(world, KillFact(species, it, creditedMasters(credits), killedLevel ?: 1, killedBoss, killedFor, killedDen))
       }
     }
   }
