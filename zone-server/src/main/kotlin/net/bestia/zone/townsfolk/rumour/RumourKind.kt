@@ -52,4 +52,13 @@ enum class RumourKind(
 
   /** An alpha grew from a pack nobody hunts and prowls the road: torn sheep, tracks, a traveller attacked. */
   ALPHA_PROWLS(baseImportance = 60, lifetimeDays = 6),
+
+  /** An old seal nearby cracks and hums under the mana. */
+  SEAL_CRACKING(baseImportance = 65, lifetimeDays = 3),
+
+  /** A ritual made the cracking seal whole again. */
+  SEAL_REINFORCED(baseImportance = 55, lifetimeDays = 15),
+
+  /** Nobody came: the seal broke, and what it held is free. */
+  SEAL_BROKEN(baseImportance = 90, lifetimeDays = 40),
 }

@@ -63,3 +63,19 @@ events:
     family: beasts
     loot:
       - { item: mana_crystal, amount: 4 }
+
+  # Strong mana wears an old seal thin: a crystal of the history that holds a world boss, or a seal stone older than
+  # a Bestia month. It cracks, and a ritual beside it within two Bestia days reinforces it. Otherwise it breaks: the
+  # world boss wakes, or the stone spills the mana it held.
+  - id: old-seal
+    script: OldSeal
+    cost: 3
+    weight: 1
+    min-tier: UNEASY
+    min-tier-cells: 1
+    cooldown: 10
+    lasts: 3
+    family: earth
+    felt-from: 2
+    loot:
+      - { item: mana_crystal, amount: 10 }

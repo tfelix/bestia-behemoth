@@ -699,6 +699,15 @@ RARE_HINT_WHITEVEIL_LYNX,"a great pale lynx hunts inside the falling snow, on wi
 RUMOUR_ALPHA_PROWLS_ASK,Is the road safe?
 RUMOUR_ALPHA_PROWLS_1,"Not anymore. Three sheep torn open by the road last night, and tracks as big as my hand. Nobody hunts out there, and now something big leads that pack."
 RUMOUR_ALPHA_PROWLS_2,"A carter came in bleeding this morning. Said a beast twice the size of the others jumped his mules on the road. Travel in groups, if you must."
+RUMOUR_SEAL_CRACKING_ASK,What is that humming?
+RUMOUR_SEAL_CRACKING_1,"The old seal. There is a crack through it now, and it hums all night. My grandfather said it must never break."
+RUMOUR_SEAL_CRACKING_2,"Have you seen the seal? Cracked, top to bottom. Somebody who knows the old rituals should go and see to it, and soon."
+RUMOUR_SEAL_REINFORCED_ASK,Is the seal safe?
+RUMOUR_SEAL_REINFORCED_1,"They held a ritual by the old seal. The crack is gone and the humming stopped. I slept through the night for once."
+RUMOUR_SEAL_REINFORCED_2,"Someone made the seal whole again. Whoever it was, they did more for this place than the council ever has."
+RUMOUR_SEAL_BROKEN_ASK,What broke out there?
+RUMOUR_SEAL_BROKEN_1,"The seal broke. Nobody came, and now whatever it held is loose. Lock your doors."
+RUMOUR_SEAL_BROKEN_2,"I heard it go, like ice on a lake. The ground shook, and the sky went strange over the place where the seal stood."
 RUMOUR_MISDEED_SEEN_ASK,Is there anybody I should watch out for?
 RUMOUR_MISDEED_SEEN_1,"{name}. They did something terrible in a town not far from here, and people there will not forget it."
 RUMOUR_MISDEED_SEEN_2,"Word came from down the road: keep away from {name}. Folk there saw what they did."
