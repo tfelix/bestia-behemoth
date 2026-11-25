@@ -17,6 +17,7 @@ import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.mana.ManaConcentrationService
 import net.bestia.zone.world.mana.ManaField
 import net.bestia.zone.world.mana.ManaGround
+import net.bestia.zone.worldevent.gm.GmManaLayer
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
@@ -40,7 +41,9 @@ class ManaChatCommandTest {
   private val mana = ManaConcentrationService(mockk(), field, ground)
   private val out = mockk<OutMessageProcessor>(relaxed = true)
 
-  private val sut = ManaChatCommand(connections, mana, ground, worldView, out)
+  private val layer = mockk<GmManaLayer>(relaxed = true)
+
+  private val sut = ManaChatCommand(connections, mana, ground, worldView, out, layer)
 
   @Test
   fun `set makes the density read back as given`() {
@@ -64,8 +67,19 @@ class ManaChatCommandTest {
   }
 
   @Test
+  fun `layer on and off toggle the GM layer`() {
+    sut.tryExecute(PLAYER, "/mana layer on", Role.GM.authorities)
+    sut.tryExecute(PLAYER, "/mana layer off", Role.GM.authorities)
+
+    verify { layer.turnOn(PLAYER) }
+    verify { layer.turnOff(PLAYER) }
+  }
+
+  @Test
   fun `a player cannot read the field`() {
     assertFalse(sut.tryExecute(PLAYER, "/mana", Role.USER.authorities))
+    assertFalse(sut.tryExecute(PLAYER, "/mana layer on", Role.USER.authorities))
+    verify(exactly = 0) { layer.turnOn(any()) }
 
     verify(exactly = 0) { out.sendToPlayer(any(), any<ChatSMSG>()) }
   }

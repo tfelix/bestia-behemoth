@@ -1,0 +1,48 @@
+syntax = "proto3";
+package bnet;
+
+import "messages/map/weather_smsg.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "GmManaLayerSmsgProto";
+
+// The mana field and the world event director around a GM, drawn on the GM's map. Sent only to an account with
+// the WORLD_EVENTS authority that asked for it with `/mana layer on`, never to a player: players learn the tier
+// where they stand and nothing more. A grid of width 0 clears the layer.
+message GmManaLayerSMSG {
+  // The south-west corner of the grid in map metres, and the side of one cell.
+  double west_metres = 1;
+  double south_metres = 2;
+  float cell_metres = 3;
+
+  // Cells per row. Rows run west to east and follow each other from south to north.
+  uint32 width = 4;
+  repeated float density = 5;
+  repeated ManaTier tier = 6;
+
+  // The province each cell lies in, -1 for none.
+  repeated sint32 province = 7;
+
+  repeated GmProvince provinces = 8;
+  repeated GmWorldEvent events = 9;
+}
+
+// What the director holds for one province on the grid.
+message GmProvince {
+  int32 index = 1;
+  string name = 2;
+  float budget = 3;
+
+  // How long the province stays quiet after its last event, in real seconds.
+  uint32 quiet_seconds = 4;
+  bool sanctuary = 5;
+}
+
+// A running world event anywhere in the world.
+message GmWorldEvent {
+  int64 instance_id = 1;
+  string event_id = 2;
+  double east_metres = 3;
+  double north_metres = 4;
+  int32 province = 5;
+}
