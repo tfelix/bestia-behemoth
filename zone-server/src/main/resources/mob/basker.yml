@@ -46,3 +46,4 @@ armor-types: [LIGHT, MEDIUM]
 loot:
   - { item: reptile_scale, chance: 2500 }
   - { item: ember_core, chance: 300 }
+  - { item: warm_stone, chance: 2000 }

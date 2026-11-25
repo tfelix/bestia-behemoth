@@ -1661,3 +1661,7 @@ MINT_KIT,Mint Kit
 MINT_KIT_DESC,"A stone block, a screw press and a pair of bronze dies, packed in straw.
 
 Set it down and it becomes a Mint, where Minting strikes gold bars into coin."
+WARM_STONE,Warm Stone
+WARM_STONE_DESC,"A dark, dense pebble that drinks in heat and gives it back for hours.
+
+It is still warm long after the fire around it has gone out."

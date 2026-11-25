@@ -13,7 +13,7 @@ class IncubatorKitScript(
   override val itemId = 42L
 
   private companion object {
-    /** Fired clay over an ember core: as much work as a furnace. */
+    /** Fired clay over warm stones: as much work as a furnace. */
     const val BUILD_SECONDS = 25f
   }
 }
