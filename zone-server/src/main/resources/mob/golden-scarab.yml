@@ -10,6 +10,7 @@ description: >-
 kind: INSECT
 element: FIRE_3
 size: MEDIUM
+essence: { group: SHIELD, effect: BOSS, target: GILDED_SHELL }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

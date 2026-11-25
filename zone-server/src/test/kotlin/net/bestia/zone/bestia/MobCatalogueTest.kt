@@ -10,6 +10,7 @@ import net.bestia.worldgen.core.WorldBoss
 import net.bestia.zone.boot.SkillImporterBootRunner
 import net.bestia.zone.battle.ecs.status.BaseStatusValues
 import net.bestia.zone.battle.status.StatusValueRecalcContext
+import net.bestia.zone.item.essence.BossEssence
 import net.bestia.zone.item.essence.EssenceEffect
 import net.bestia.zone.item.essence.EssenceSum
 import net.bestia.zone.item.essence.GemTier
@@ -117,6 +118,17 @@ class MobCatalogueTest {
     val unknown = species.mapNotNull { it.essence }.filter { it.effect in namesAnAttack && it.target !in skills }
 
     assertEquals(emptyList(), unknown)
+  }
+
+  @Test
+  fun `a boss essence belongs to a boss and names its own group`() {
+    val wrong = species.filter { it.essence?.effect == EssenceEffect.BOSS }.filter { mob ->
+      val essence = mob.essence!!
+      val named = BossEssence.entries.find { it.name == essence.target }
+      !(mob.boss || mob.worldBoss) || named == null || named.group != essence.group
+    }
+
+    assertEquals(emptyList(), wrong.map { it.identifier })
   }
 
   private fun mapper(): ObjectMapper {

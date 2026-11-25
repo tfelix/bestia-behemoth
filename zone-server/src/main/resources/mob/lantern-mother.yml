@@ -9,6 +9,7 @@ description: >-
 kind: FORMLESS
 element: GHOST_4
 size: MEDIUM
+essence: { group: ARMOR, effect: BOSS, target: WISP_FLAME }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

@@ -294,7 +294,9 @@ class StatusEffectService(
 
     // The species' own immunities, and whatever a buff or a passive grants for the time being (Juggernaut).
     val species = world.get(targetId, Nature::class)?.statusImmunities.orEmpty()
-    val granted = world.get(targetId, CombatStats::class)?.values?.statusImmunities.orEmpty()
+    val values = world.get(targetId, CombatStats::class)?.values
+    if (values?.immuneToDebuffs == true && definition.id !in PRICES_PAID) return true
+    val granted = values?.statusImmunities.orEmpty()
 
     return (species + granted).any { it.id == definition.id }
   }
@@ -368,5 +370,8 @@ class StatusEffectService(
 
   private companion object {
     val LOG = KotlinLogging.logger { }
+
+    /** Debuffs a fighter pays for its own choice, an Enrage or a ritual. No blanket immunity waives the price. */
+    val PRICES_PAID = setOf(StatusEffectId.FATIGUE.id, StatusEffectId.RITUAL_FATIGUE.id)
   }
 }

@@ -51,6 +51,10 @@ static func describe(bestia: BestiaResource, tier: String) -> String:
 	if bestia == null or bestia.essence_effect.is_empty():
 		return ""
 
+	# A boss essence has fixed numbers, so its whole text is one key.
+	if bestia.essence_effect == "BOSS":
+		return _translate("ESSENCE_BOSS_" + bestia.essence_target)
+
 	var points: int = POINTS_BY_TIER.get(tier, 0)
 	if not bestia.essence_drawback.is_empty():
 		points = points * 3 / 2

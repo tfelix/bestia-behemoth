@@ -29,8 +29,11 @@ class EssenceStatsTest {
   private val hydra = species(10, "hydra", EssenceDefinition(SocketGroup.WEAPON, EssenceEffect.LEECH))
   private val lanternwisp = species(12, "lanternwisp", EssenceDefinition(SocketGroup.ACCESSORY, EssenceEffect.LEARNED_TRICK, "shadow_cloak"))
   private val stingtail = species(11, "stingtail", EssenceDefinition(SocketGroup.ACCESSORY, EssenceEffect.REFLEX, "acid_skin"))
+  private val blobQueen = species(13, "blob_queen", EssenceDefinition(SocketGroup.ARMOR, EssenceEffect.BOSS, "ROYAL_JELLY"))
 
-  private val stats = essenceStatsOf(boar, hare, ogre, owl, salamander, brute, kobold, turtle, blob, hydra, stingtail, lanternwisp)
+  private val stats = essenceStatsOf(
+    boar, hare, ogre, owl, salamander, brute, kobold, turtle, blob, hydra, stingtail, lanternwisp, blobQueen
+  )
   private val context = StatusValueRecalcContext(BaseStatusValues(10, 10, 10, 10, 10, 10), baseSpeed = 1f)
 
   @Test
@@ -38,6 +41,14 @@ class EssenceStatsTest {
     stats.applyTo(context, wearing(Essence(boar.id, GemTier.RUBY)))
 
     assertEquals(24, context.damageModifiers.dealtVsKind[BestiaKind.BEAST])
+  }
+
+  @Test
+  fun `a boss essence counts once however many are worn`() {
+    stats.applyTo(context, wearing(Essence(blobQueen.id, GemTier.RUBY), Essence(blobQueen.id, GemTier.RUBY)))
+
+    assertEquals(25, context.maxHpPercent)
+    assertEquals(0.9f, context.speed, 0.0001f)
   }
 
   @Test

@@ -201,6 +201,13 @@ enum class EssenceEffect(val tool: ToolKind? = null) {
     override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
       context.addToolTerm(ToolTerm.WEAR_CUT, 3 * sum.points)
     }
+  },
+
+  /** A boss's hand-made essence, named by [EssenceSum.target]. Its numbers are fixed, so the points do not count. */
+  BOSS {
+    override fun apply(context: StatusValueRecalcContext, sum: EssenceSum) {
+      BossEssence.valueOf(sum.target!!).apply(context)
+    }
   };
 
   abstract fun apply(context: StatusValueRecalcContext, sum: EssenceSum)

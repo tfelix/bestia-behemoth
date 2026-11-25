@@ -9,6 +9,7 @@ description: >-
 kind: BIRD
 element: WIND_4
 size: BIG
+essence: { group: FOOTGEAR, effect: BOSS, target: STORM_WINGS }
 default-attack: RANGED
 aspd: 80
 ai: aggressive_melee

@@ -240,6 +240,9 @@ class StatusValueRecalcContext(
   /** Cannot be pushed back by a blow or a blast. A dash of its own still moves it. */
   var knockbackImmune: Boolean = false
 
+  /** Shrugs off every harmful status effect, not just the ones in [statusImmunities]. */
+  var immuneToDebuffs: Boolean = false
+
   /** Buffs a Reflex essence may cast on this entity when a blow or spell lands on it. */
   var reflexes: List<EssenceSkill> = emptyList()
     private set
