@@ -23,6 +23,11 @@ import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.SkillIds
 import net.bestia.zone.world.stream.ChunkCoords
 import net.bestia.zone.world.stream.ChunkService
+import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.identity.ecs.Master
+import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.mana.ManaTier
+import net.bestia.zone.world.mana.ManaTiers
 import kotlin.math.roundToInt
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -44,6 +49,8 @@ class EnvironmentalExposureSystem(
   private val config: ExposureConfig,
   private val skillIds: SkillIds,
   zoneConfig: WorldRulesConfig,
+  private val manaTiers: ManaTiers? = null,
+  private val statusEffects: StatusEffectService? = null,
 ) : System {
   override val phase = Phase.UPKEEP
 
@@ -56,9 +63,9 @@ class EnvironmentalExposureSystem(
   override val schedule: Schedule get() = Schedule.EveryTick
 
   override val reads: ComponentClassSet =
-    setOf(Position::class, StatusEffects::class, CombatStats::class) + OwnerSkills.READS + DamageGate.READS
+    setOf(Position::class, StatusEffects::class, CombatStats::class, Master::class) + OwnerSkills.READS + DamageGate.READS
 
-  override val writes: ComponentClassSet = setOf(Stamina::class, Health::class, Dead::class)
+  override val writes: ComponentClassSet = setOf(Stamina::class, Health::class, Dead::class, StatusEffects::class)
 
   private var drained = 0L
   private var hurt = 0L
@@ -82,6 +89,8 @@ class EnvironmentalExposureSystem(
 
       val position = get<Position>()
       val stamina = get<Stamina>()
+
+      catchManaSickness(world, entityId, position)
 
       // The entity's own altitude, not the terrain's under it, and the difference is the whole tick budget.
       // `GroundHeight` already put this entity on the ground, so asking `ChunkService.surfaceElevationAt` for
@@ -146,6 +155,18 @@ class EnvironmentalExposureSystem(
         }
       }
     }
+  }
+
+  /**
+   * Masters fall ill where mana runs at the Sickness tier; bestia do not, they are born from it. No roof or
+   * camp helps. The illness lasts a while after leaving, so stepping out for a moment does not cure it.
+   */
+  private fun catchManaSickness(world: World, entityId: EntityId, position: Position) {
+    val tiers = manaTiers ?: return
+    if (!world.has(entityId, Master::class)) return
+    if (tiers.tierAt(position.toVec3L()) < ManaTier.SICKNESS) return
+
+    statusEffects?.applyEffect(world, entityId, StatusEffectId.MANA_SICKNESS, level = 1)
   }
 
   /** For the counters to be visible without a debugger; a stuck zero is the shipped-dead signal. */

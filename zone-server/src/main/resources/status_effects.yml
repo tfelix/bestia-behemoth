@@ -930,6 +930,15 @@ statusEffects:
     dispellable: false
     script: ManaTouched
 
+  # On a master in mana at the Sickness tier: weaker and no longer healing on their own. Renewed while they stay.
+  - id: 257
+    identifier: MANA_SICKNESS
+    polarity: DEBUFF
+    showIcon: true
+    isSyncedToClient: false
+    dispellable: false
+    script: ManaSickness
+
   # Near a master who wears a boss essence with an aura, kept up by EssenceAuraSystem every second.
   - id: 300
     identifier: ROYAL_SWARM
