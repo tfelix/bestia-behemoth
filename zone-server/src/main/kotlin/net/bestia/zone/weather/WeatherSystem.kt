@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component as SpringComponent
 class WeatherSystem(
   private val publisher: WeatherPublisher,
   private val config: WeatherConfig,
+  private val weather: WeatherService? = null,
 ) : System {
   override val phase = Phase.WORLD
   override val after = setOf(ChunkStreamSystem::class)
@@ -44,6 +45,8 @@ class WeatherSystem(
 
   override fun update(world: World, deltaTime: Float) {
     if (!config.enabled) return
+
+    weather?.refreshMana()
 
     val seen = HashSet<Long>()
 

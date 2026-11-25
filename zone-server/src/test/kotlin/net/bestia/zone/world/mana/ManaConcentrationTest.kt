@@ -1,5 +1,6 @@
 package net.bestia.zone.world.mana
 
+import net.bestia.worldgen.mana.StartDensity
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

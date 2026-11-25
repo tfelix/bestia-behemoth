@@ -1,4 +1,4 @@
-package net.bestia.zone.world.mana
+package net.bestia.worldgen.mana
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

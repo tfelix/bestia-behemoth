@@ -101,8 +101,22 @@ class WeatherModel(
   val regions: WeatherRegions,
   private val config: WorldConfig,
   private val params: WeatherParams,
-  seed: Long
+  seed: Long,
+  private val mana: ManaReading = ManaReading.START,
 ) {
+
+  /**
+   * The mana density a region's storms read. The only state the weather has: a world in play hands in the live
+   * field, frozen for a Bestia hour at a time, so a forecast inside the hour still comes true.
+   */
+  fun interface ManaReading {
+    fun of(region: WeatherRegion): Double
+
+    companion object {
+      /** A fresh world: the start density's 95th percentile, so a hot spot over a twentieth of a region counts. */
+      val START = ManaReading { it.peakMana }
+    }
+  }
 
   private val wetSeed = GenRng.mix64(seed xor WET_SALT)
   private val airmassSeed = GenRng.mix64(seed xor AIRMASS_SALT)
@@ -205,7 +219,7 @@ class WeatherModel(
     frozen: Boolean,
     timeOfDay: Double
   ): WeatherKind = when {
-    severity >= params.manaStormSeverity && manaFor(region) >= params.manaStormFloor -> WeatherKind.MANA_STORM
+    severity >= params.manaStormSeverity && stormMana(region) >= params.manaStormFloor -> WeatherKind.MANA_STORM
 
     severity >= params.tornadoSeverity && precipitating && !frozen &&
         convectivePotential(region) >= TORNADO_POTENTIAL -> WeatherKind.TORNADO
@@ -242,19 +256,13 @@ class WeatherModel(
    * without making it wet, which is what keeps a mana storm possible in a clear desert sky.
    */
   private fun manaBoost(region: WeatherRegion): Double {
-    val excess = ((manaFor(region) - params.manaThreshold) / (1.0 - params.manaThreshold))
+    val excess = ((stormMana(region) - params.manaThreshold) / (1.0 - params.manaThreshold))
       .coerceAtLeast(0.0)
     return 1.0 + params.manaGain * excess.pow(params.manaExponent)
   }
 
-  /**
-   * The mana figure the thresholds read.
-   *
-   * The larger of the mean and a share of the peak, so a small hot spot inside an otherwise quiet region still
-   * counts - a province is not required to be uniformly saturated to have storms in it.
-   */
-  private fun manaFor(region: WeatherRegion): Double =
-    maxOf(region.meanMana, PEAK_MANA_WEIGHT * region.peakMana)
+  /** The mana density the storm thresholds read, from [ManaReading]. */
+  fun stormMana(region: WeatherRegion): Double = mana.of(region)
 
   /** Convective potential: warmth, relief and a wet air mass. What a thunderstorm is built out of. */
   private fun convectivePotential(region: WeatherRegion): Double {
@@ -399,8 +407,6 @@ class WeatherModel(
     /** Fraction of a mana storm's severity that reads as intensity when nothing wetter is happening. */
     private const val SEVERITY_AS_INTENSITY = 0.9
 
-    private const val PEAK_MANA_WEIGHT = 0.6
-
     private const val TORNADO_POTENTIAL = 0.45
     private const val CONVECTION_COLD = 4.0
     private const val CONVECTION_WARM = 26.0
@@ -459,12 +465,18 @@ class WeatherModel(
     }
 
     /** Builds the model for a generated world. */
-    fun of(generated: GeneratedWorld, params: WeatherParams = WeatherParams()): WeatherModel =
+    fun of(
+      generated: GeneratedWorld,
+      params: WeatherParams = WeatherParams(),
+      regions: WeatherRegions = WeatherRegions.of(generated),
+      mana: ManaReading = ManaReading.START,
+    ): WeatherModel =
       WeatherModel(
-        regions = WeatherRegions.of(generated),
+        regions = regions,
         config = generated.config,
         params = params,
-        seed = generated.config.seed
+        seed = generated.config.seed,
+        mana = mana,
       )
   }
 }

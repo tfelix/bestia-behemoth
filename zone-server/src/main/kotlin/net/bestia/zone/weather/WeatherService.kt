@@ -1,5 +1,8 @@
 package net.bestia.zone.weather
 
+import net.bestia.worldgen.climate.WeatherRegions
+import net.bestia.worldgen.mana.StartDensity
+import net.bestia.zone.world.mana.ManaField
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.climate.LocalTemperature
 import net.bestia.worldgen.climate.Temperature
@@ -44,10 +47,18 @@ data class WeatherAt(
 @Service
 class WeatherService(
   private val worldService: WorldService,
-  private val clock: BestiaClock
+  private val clock: BestiaClock,
+  private val manaField: ManaField? = null,
 ) {
 
-  private val model: WeatherModel by lazy { build() }
+  private class Built(val model: WeatherModel, val liveMana: LiveManaReading?)
+
+  private val built: Built by lazy { build() }
+
+  private val model: WeatherModel get() = built.model
+
+  /** The Bestia hour the live mana was last frozen in, so a forecast inside one hour stays true. */
+  private var manaHour = Long.MIN_VALUE
 
   private val temperature: LocalTemperature by lazy {
     LocalTemperature.from(
@@ -58,12 +69,23 @@ class WeatherService(
     ) ?: error("the world has no climate layers; weather cannot be modelled on it")
   }
 
-  private fun build(): WeatherModel {
+  private fun build(): Built {
     val generated = worldService.generated
-    val built = WeatherModel.of(generated, generated.params.weather)
+    val regions = WeatherRegions.of(generated)
+    val surface = generated.materializer.surface
+    val live = manaField?.let {
+      LiveManaReading(
+        regions.count,
+        regionAt = { x, y -> regions.regionAt(x, y).index },
+        width = generated.config.widthMetres,
+        height = generated.config.heightMetres,
+        startDensityAt = { x, y -> StartDensity.of(surface.potentialAt(x, y)) },
+      )
+    }
+    val built = WeatherModel.of(generated, generated.params.weather, regions, live ?: WeatherModel.ManaReading.START)
 
     val aboveStormFloor = built.regions.regions.count {
-      maxOf(it.meanMana, 0.6 * it.peakMana) >= generated.params.weather.manaStormFloor
+      built.stormMana(it) >= generated.params.weather.manaStormFloor
     }
 
     // Logged in the shape of WorldService's own readiness line, and it is the boot-time smoke test for this
@@ -79,7 +101,17 @@ class WeatherService(
           "$aboveStormFloor above the mana-storm floor, mean wet fraction ${"%.2f".format(meanWet)}"
     }
 
-    return built
+    return Built(built, live)
+  }
+
+  /** Freezes the live mana field for the weather once per Bestia hour. On the tick, which owns the field. */
+  fun refreshMana() {
+    val field = manaField ?: return
+    val hour = clock.now().absoluteSecond / BESTIA_SECONDS_PER_HOUR.toLong()
+    if (hour == manaHour) return
+
+    built.liveMana?.refresh(field)
+    manaHour = hour
   }
 
   /** The weather now, at a voxel position and the ground elevation there. */

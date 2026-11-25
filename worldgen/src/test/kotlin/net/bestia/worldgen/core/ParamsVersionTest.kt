@@ -269,7 +269,7 @@ class ParamsVersionTest {
       // The pickable plants. Chunk tier only, so it moves `chunkTierVersion` and no stage version.
       "GroundCoverParams" to 780_591_524_799_301_061L,
       // Re-pinned when `windVeerRadians` was added, so a region's wind could back and veer over time.
-      "WeatherParams" to 7_021_021_729_926_617_752L,
+      "WeatherParams" to -7_060_824_393_580_613_959L,
       "Culture" to -8_541_605_725_367_154_968L
     )
 
