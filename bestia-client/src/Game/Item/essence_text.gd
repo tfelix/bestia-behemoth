@@ -77,10 +77,17 @@ static func species_matching(text: String) -> Array[int]:
 		if bestia.essence_effect.is_empty():
 			continue
 		var species_name := _translate(bestia.name_key).to_lower()
-		var effect_name := _translate("ESSENCE_NAME_" + bestia.essence_effect).to_lower()
+		var effect_name := _effect_name(bestia).to_lower()
 		if species_name.contains(needle) or effect_name.contains(needle):
 			ids.append(bestia.bestia_id)
 	return ids
+
+
+## A boss essence goes by its own name, the head of its text; every other essence by its effect.
+static func _effect_name(bestia: BestiaResource) -> String:
+	if bestia.essence_effect == "BOSS":
+		return _translate("ESSENCE_BOSS_" + bestia.essence_target).get_slice(":", 0)
+	return _translate("ESSENCE_NAME_" + bestia.essence_effect)
 
 
 ## The socket group of [param item], or empty for an item no essence fits. Mirrors the server's SocketGroup.of.
