@@ -9,6 +9,7 @@ description: >-
 kind: ELEMENTAL
 element: FIRE_4
 size: BIG
+essence: { group: SHIELD, effect: BOSS, target: FRESH_VENT }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee

@@ -442,6 +442,9 @@ ESSENCE_BOSS_STORM_WINGS,"Storm Wings: +15% move speed, +10% attack speed"
 ESSENCE_BOSS_FROZEN_AGES,"Frozen Ages: +100% max HP, -50% DEF"
 ESSENCE_BOSS_TITANS_STRIDE,"Titan's Stride: +30% max HP, +15% ATK, immune to knockback, Slowed and Immobilized"
 ESSENCE_BOSS_BONE_LATTICE,"Bone Lattice: immune to every harmful status effect, +25% damage taken from Holy"
+ESSENCE_BOSS_SULPHUR_BREATH,Sulphur Breath: 4% chance on a weapon blow to cast Miasma
+ESSENCE_BOSS_HOWL_OF_GARM,Howl of Garm: 3% chance on a melee blow to cast Frost Nova around you
+ESSENCE_BOSS_FRESH_VENT,"Fresh Vent: when a melee blow hits you, 10% chance to cast Burning Ground under the attacker"
 ITEM_DETAIL_DURABILITY,Durability
 ITEM_DETAIL_BROKEN,Broken
 ITEM_DETAIL_LIGHT_LEFT,Light left

@@ -90,7 +90,7 @@ class ReceivedDamageSystem(
       hits.forEach { reactions.onDamageDealt(world, it.sourceEntityId, it.amount) }
       if (total > 0) {
         hits.forEach { hit ->
-          val landed = LandedHits.LandedHit(id, hit.sourceEntityId, healthBefore, health.current, health.max)
+          val landed = LandedHits.LandedHit(id, hit.sourceEntityId, healthBefore, health.current, health.max, hit.kind)
           landedHits.forEach { it.landed(landed) }
         }
       }

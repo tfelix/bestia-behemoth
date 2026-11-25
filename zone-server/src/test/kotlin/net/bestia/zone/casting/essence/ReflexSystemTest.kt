@@ -3,6 +3,7 @@ package net.bestia.zone.casting.essence
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import net.bestia.zone.battle.damage.HitKind
 import net.bestia.zone.battle.ecs.damage.LandedHits
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.status.CombatValues
@@ -61,7 +62,9 @@ class ReflexSystemTest {
   }
 
   private fun struck(id: EntityId) {
-    hits.landed(LandedHits.LandedHit(id, sourceId = 99L, healthBefore = 100, healthAfter = 90, maxHealth = 100))
+    hits.landed(
+      LandedHits.LandedHit(id, sourceId = 99L, healthBefore = 100, healthAfter = 90, maxHealth = 100, HitKind.UNTYPED)
+    )
   }
 
   private companion object {
