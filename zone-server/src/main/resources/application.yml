@@ -426,6 +426,16 @@ world-events:
     # A knot whose surrounding ring falls below this dissolves. A collapse spills within the radius.
     dissolve-below: 0.6
     spill-radius-metres: 300
+    # An open gate sends a wave every 20-30 real minutes: five bestia while players watch it, two while nobody does.
+    wave-min-real-minutes: 20
+    wave-max-real-minutes: 30
+    wave-size-watched: 5
+    wave-size-unwatched: 2
+    watch-radius-metres: 1500
+    wave-levels-per-stage: 5
+    # The anchor steps out at this stage, this many levels above the province's strongest den.
+    anchor-stage: 3
+    anchor-levels-above-dens: 10
 
 # Reading tracks: what the world remembers about the things that left prints, and how much of it a rank
 # earns. None of this changes what is stored, so all of it may be retuned on a restart.
