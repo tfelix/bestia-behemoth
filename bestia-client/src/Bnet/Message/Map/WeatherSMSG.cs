@@ -97,6 +97,12 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     [Export] public float WeakerManaDirection { get; set; }
     [Export] public float WeakerManaMetres { get; set; }
 
+    /// <summary>
+    /// The step of the mana ladder where the player stands, 0 Calm to 7 Burn, sent to everyone. An int rather
+    /// than an enum because GDScript cannot name a nested C# enum; <see cref="Game.World.ManaLook"/> reads it.
+    /// </summary>
+    [Export] public int ManaTier { get; set; }
+
     public static WeatherSMSG FromProto(global::Bnet.WeatherSMSG proto)
     {
       return new WeatherSMSG
@@ -126,7 +132,8 @@ namespace BestiaBehemothClient.Bnet.Message.Map
         StrongerManaMetres = proto.StrongerManaMetres,
         HasWeakerMana = proto.HasWeakerMana,
         WeakerManaDirection = proto.WeakerManaDirection,
-        WeakerManaMetres = proto.WeakerManaMetres
+        WeakerManaMetres = proto.WeakerManaMetres,
+        ManaTier = (int)proto.ManaTier
       };
     }
 

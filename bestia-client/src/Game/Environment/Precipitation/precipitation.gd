@@ -3,7 +3,8 @@ extends Node3D
 ## Rain, snow and blown dust, falling around the camera and leaning into the wind.
 ##
 ## Three [GPUParticles3D] emitters, of which at most one is ever running - a sky does one thing at a time, and
-## [code]WeatherLookTest[/code] holds it to that. They are built here rather than authored into the scene
+## [code]WeatherLookTest[/code] holds it to that. A fourth, the mana motes, is not weather falling but light
+## drifting where the mana is thick, so it may run beside any of them. They are built here rather than authored into the scene
 ## because their meshes and textures are generated too, so there would be nothing in the scene to look at.
 ##
 ## [b]The emitters follow the camera and are never parented to it.[/b] The camera is a child of the owned
@@ -85,6 +86,19 @@ extends Node3D
 
 @export var dust_colour: Color = Color(0.76, 0.63, 0.42, 0.30)
 
+@export_group("Mana motes")
+
+## Motes of light where the mana is thick, see [code]ManaLook[/code]. They rise slowly and glow, so they show
+## at night; by day a little of them is left, enough to notice in a mana storm.
+@export_range(50, 4000, 50) var mote_count: int = 600
+@export var mote_colour: Color = Color(0.72, 0.58, 1.0, 0.9)
+@export_range(1, 30, 0.5) var mote_lifetime: float = 9.0
+@export_range(-0.5, 2, 0.05) var mote_rise_speed: float = 0.3
+@export_range(0, 2, 0.05) var mote_wind_factor: float = 0.3
+@export_range(-10, 20, 1) var mote_spawn_height: float = 2.0
+## Share of the motes left in full daylight.
+@export_range(0, 1, 0.05) var mote_daylight_share: float = 0.25
+
 ## Splashes kept alive at once; a drop that lands while all are in use simply vanishes.
 @export_range(100, 8000, 100) var rain_splashes: int = 1500
 
@@ -116,6 +130,8 @@ var _weather: Node = null
 var _rain: GPUParticles3D = null
 var _snow: GPUParticles3D = null
 var _dust: GPUParticles3D = null
+var _motes: GPUParticles3D = null
+var _clock: Node = null
 var _splash: GPUParticles3D = null
 
 ## What rain and snow land on: a height map of the ground, roofs and trees, re-rendered from above as the
@@ -132,6 +148,8 @@ func _ready() -> void:
 	_weather = ConnectionManager.weather
 	if _weather == null:
 		push_warning("[precipitation] no WeatherState; nothing will fall.")
+
+	_clock = ConnectionManager.world_clock
 
 	var soft_dot := _build_dot_texture()
 
@@ -167,6 +185,13 @@ func _ready() -> void:
 
 	_turbulence(_dust.process_material as ParticleProcessMaterial, 4.0, 0.30)
 
+	var mote_material := _build_dot_material(mote_colour, soft_dot)
+	# Added onto what is behind them, so they read as light and not as specks.
+	mote_material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	_motes = _build_emitter("Motes", mote_count, mote_lifetime, mote_material,
+		Vector2(0.12, 0.12), 12.0, GPUParticles3D.TRANSFORM_ALIGN_Z_BILLBOARD)
+	_turbulence(_motes.process_material as ParticleProcessMaterial, 0.8, 0.12)
+
 	# Dust blows through anything; rain and snow stop where they land, so neither falls through a roof.
 	_ground.size = Vector3(spawn_radius * 2.0, 120.0, spawn_radius * 2.0)
 	_ground.resolution = GPUParticlesCollisionHeightField3D.RESOLUTION_512
@@ -195,6 +220,7 @@ func _process(_delta: float) -> void:
 		_rain.emitting = false
 		_snow.emitting = false
 		_dust.emitting = false
+		_motes.emitting = false
 		return
 
 	var wind: Vector3 = _weather.Wind
@@ -215,9 +241,21 @@ func _process(_delta: float) -> void:
 	_drive(_dust, dust_rate, wind, dust_fall_speed, dust_wind_factor, dust_spawn_height, dust_lifetime,
 		camera, retune)
 
+	var mote_rate: float = _weather.MoteRate
+	_drive(_motes, mote_rate * _darkness(), wind, -mote_rise_speed, mote_wind_factor, mote_spawn_height,
+		mote_lifetime, camera, retune)
+
 	_ground.visible = _rain.emitting or _snow.emitting
 	# Its particles live in world space, but its culling box goes with the node.
 	_splash.global_position = camera.global_position
+
+
+## 1 at night, [member mote_daylight_share] in full daylight, eased through dusk and dawn.
+func _darkness() -> float:
+	if _clock == null:
+		return 1.0
+	var daylight: float = _clock.Daylight
+	return lerpf(1.0, mote_daylight_share, daylight)
 
 
 ## Points one emitter at the wind, positions it over the camera, and sets how much of it is running.

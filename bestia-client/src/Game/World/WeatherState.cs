@@ -210,6 +210,14 @@ namespace BestiaBehemothClient.Game.World
 
     [Export(PropertyHint.Range, "-500,6000,10")] public float DebugSnowFull { get; set; } = 6000.0f;
 
+    /// <summary>The mana tier while the Debug knobs are in charge, 0 Calm to 7 Burn.</summary>
+    [Export(PropertyHint.Range, "0,7,1")] public int DebugManaTier { get; set; }
+
+    private int _manaTier;
+    private float _manaMood;
+    private float _moteRate;
+    private float _manaHum;
+
     private float _wetness;
     private float _snow;
     private float _temperature = 15.0f;
@@ -442,6 +450,26 @@ namespace BestiaBehemothClient.Game.World
       get { return _rainRate > 0.001f || _snowRate > 0.001f || _dustRate > 0.001f; }
     }
 
+    /// <summary>How much of the mana mood grades the sky, 0 to 1, smoothed. See <see cref="ManaLook"/>.</summary>
+    public float ManaMoodStrength
+    {
+      get { return _manaMood; }
+    }
+
+    /// <summary>
+    /// How thick the light motes are, 0 to 1, smoothed: the mana tier's or a mana storm's, whichever is more.
+    /// </summary>
+    public float MoteRate
+    {
+      get { return _moteRate; }
+    }
+
+    /// <summary>How loud the mana hum is, 0 to 1, smoothed.</summary>
+    public float ManaHum
+    {
+      get { return _manaHum; }
+    }
+
     /// <summary>Air temperature where the player stands, smoothed.</summary>
     public float TemperatureCelsius
     {
@@ -492,6 +520,7 @@ namespace BestiaBehemothClient.Game.World
       _windSpeed = weather.WindSpeed;
       _windDirection = weather.WindDirection;
       _temperatureTarget = weather.TemperatureCelsius;
+      _manaTier = weather.ManaTier;
 
       const float voxelSize = (float)WorldLayout.VoxelSizeMetres;
       _groundWetness = weather.GroundWetness;
@@ -543,6 +572,11 @@ namespace BestiaBehemothClient.Game.World
       _gustiness = look.Gustiness;
       _gustedWind = _wind;
 
+      var mana = ManaLook.For(TargetManaTier());
+      _manaMood = mana.MoodStrength;
+      _moteRate = Mathf.Max(mana.MoteRate, look.MoteRate);
+      _manaHum = mana.Hum;
+
       Publish();
     }
 
@@ -569,6 +603,12 @@ namespace BestiaBehemothClient.Game.World
       _overcast = Approach(_overcast, look.Overcast, step, SkySeconds, SkySeconds);
       _visibility = Approach(_visibility, look.Visibility, step, SkySeconds, SkySeconds);
       _hazeTint = Approach(_hazeTint, look.HazeTint * (1.0f - look.Visibility), step, SkySeconds, SkySeconds);
+
+      // Polled by environment.gd, precipitation.gd and weather_audio.gd, so like the sky values they need no publish.
+      var mana = ManaLook.For(TargetManaTier());
+      _manaMood = Approach(_manaMood, mana.MoodStrength, step, SkySeconds, SkySeconds);
+      _moteRate = Approach(_moteRate, Mathf.Max(mana.MoteRate, look.MoteRate), step, SkySeconds, SkySeconds);
+      _manaHum = Approach(_manaHum, mana.Hum, step, SkySeconds, SkySeconds);
 
       // Assigned before the publish test below rather than after it, unlike the three that follow: this one is
       // read straight off the property every frame by cloud_shadows.gd, so holding it back on a frame that is
@@ -663,6 +703,11 @@ namespace BestiaBehemothClient.Game.World
       }
 
       return Approach(value, target, delta, SnowLineSeconds, SnowLineSeconds);
+    }
+
+    private int TargetManaTier()
+    {
+      return DebugOverrideEnabled ? DebugManaTier : _manaTier;
     }
 
     private float TargetTemperature()

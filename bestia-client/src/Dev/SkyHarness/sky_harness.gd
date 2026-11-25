@@ -13,7 +13,8 @@ const CLEAR := 0
 const CLOUDY := 1
 const THUNDERSTORM := 5
 
-## name, hour, day of the month, weather kind, cloud cover, wind m/s, mood strength, which way to look.
+## name, hour, day of the month, weather kind, cloud cover, wind m/s, mood strength, which way to look, and the
+## mana tier (0 Calm to 7 Burn), which takes over the mood when it is above Calm.
 const SHOTS := [
 	["noon_clear", 13.0, 15, CLEAR, 0.0, 3.0, 0.0, "anti_sun"],
 	["noon_cumulus", 11.0, 15, CLEAR, 0.45, 6.0, 0.0, "anti_sun"],
@@ -24,6 +25,8 @@ const SHOTS := [
 	["cloudy_gale", 12.0, 15, CLOUDY, 0.71, 20.0, 0.0, "anti_sun"],
 	["storm", 15.0, 15, THUNDERSTORM, 1.0, 18.0, 0.0, "anti_sun"],
 	["doomsday", 20.8, 15, CLEAR, 0.4, 5.0, 1.0, "sun"],
+	["mana_ominous_night", 1.0, 15, CLEAR, 0.25, 2.0, 0.0, "moon", 3],
+	["mana_storms_dusk", 20.8, 15, CLEAR, 0.4, 4.0, 0.0, "sun", 4],
 ]
 
 ## Frames before the first capture. SDFGI paints black blotches until it has settled.
@@ -100,6 +103,7 @@ func _apply(shot: Array) -> void:
 	weather.DebugCloudCover = shot[4]
 	weather.DebugWindSpeed = shot[5]
 	weather.DebugWindDirectionDegrees = 30.0
+	weather.DebugManaTier = shot[8] if shot.size() > 8 else 0
 
 	# A shot shows the weather it asked for, not one still easing in from the previous shot.
 	weather.SkySeconds = 0.2

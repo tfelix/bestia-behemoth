@@ -128,9 +128,13 @@ signal lightning_struck(ground: Vector3)
 
 @export_group("Mood")
 
-## An artistic grade over the sky and its light, for example the red of a world that is ending. Nothing sets it
-## yet; the doomsday events will, through mood_strength.
+## An artistic grade over the sky and its light, for example the red of a world that is ending. The mana where
+## the player stands sets it to [member mana_mood]; the doomsday events will set their own.
 @export var mood: SkyMood = null
+
+## The violet the sky takes on where the mana is thick, blended in by WeatherState.ManaMoodStrength. A mood
+## somebody else set, like the sky harness's doomsday, is left alone while the mana is calm.
+@export var mana_mood: SkyMood = preload("res://Game/Environment/Sky/moods/mana.tres")
 
 ## How much of the mood is applied, 0 none to 1 full.
 @export_range(0, 1, 0.01) var mood_strength: float = 0.0
@@ -273,6 +277,7 @@ func _process(delta: float) -> void:
 
 	var overcast := _overcast()
 	var visibility := _visibility()
+	_follow_mana_mood()
 
 	_last_updated_since += delta
 
@@ -470,6 +475,17 @@ func _apply_sky(daylight: float, twilight: float, overcast: float, visibility: f
 	# effect at different strengths and all of them belong here rather than in a per-kind branch.
 	_environment.fog_depth_begin = lerpf(whiteout_fog_begin, _clear_fog_begin, visibility)
 	_environment.fog_depth_end = lerpf(whiteout_fog_end, _clear_fog_end, visibility)
+
+
+## Takes the mana mood while the mana is anything but calm, and lets go of it once the mana has calmed again.
+func _follow_mana_mood() -> void:
+	if _weather == null or mana_mood == null:
+		return
+
+	var strength: float = _weather.ManaMoodStrength
+	if strength > 0.001 or mood == mana_mood:
+		mood = mana_mood
+		mood_strength = strength
 
 
 ## A colour with the mood's grade applied, using the mood's tint of that name.

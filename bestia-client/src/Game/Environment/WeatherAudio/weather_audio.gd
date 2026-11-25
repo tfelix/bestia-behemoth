@@ -8,6 +8,9 @@ extends Node
 @export var rain_loop: AudioStream
 @export var wind_loop: AudioStream
 
+## A low hum where the mana is thick, louder with each step of the ladder. See [code]ManaLook[/code].
+@export var mana_hum_loop: AudioStream
+
 ## Sharp cracks for strikes close by, and long rumbles for the rest.
 @export var thunder_near: Array[AudioStream] = []
 @export var thunder_far: Array[AudioStream] = []
@@ -23,6 +26,7 @@ const _SPEED_OF_SOUND := 343.0
 var _weather: Node = null
 var _rain := AudioStreamPlayer.new()
 var _wind := AudioStreamPlayer.new()
+var _hum := AudioStreamPlayer.new()
 
 
 func _ready() -> void:
@@ -30,6 +34,7 @@ func _ready() -> void:
 
 	_setup_loop(_rain, rain_loop)
 	_setup_loop(_wind, wind_loop)
+	_setup_loop(_hum, mana_hum_loop)
 
 	var environment := get_parent()
 	if environment.has_signal(&"lightning_struck"):
@@ -44,6 +49,7 @@ func _process(_delta: float) -> void:
 	var gale := clampf(_weather.WindSpeed / full_wind_speed, 0.0, 1.0)
 	_wind.volume_linear = gale
 	_wind.pitch_scale = lerpf(0.85, 1.2, gale)
+	_hum.volume_linear = _weather.ManaHum
 
 
 func _setup_loop(player: AudioStreamPlayer, stream: AudioStream) -> void:
