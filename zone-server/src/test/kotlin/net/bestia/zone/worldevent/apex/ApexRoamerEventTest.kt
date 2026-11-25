@@ -26,6 +26,7 @@ import net.bestia.zone.world.mana.ManaField.Cell
 import net.bestia.zone.world.mana.ManaTier
 import net.bestia.zone.world.mana.ManaTiers
 import net.bestia.zone.world.stream.ChunkService
+import net.bestia.zone.worldevent.EventGround
 import net.bestia.zone.worldevent.ProvinceSignals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -63,7 +64,7 @@ class ApexRoamerEventTest {
   private val worldService = mockk<WorldService> { every { config } returns WorldConfig(seed = 1, widthCells = 128, heightCells = 128) }
 
   private val sut = ApexRoamerEvent(
-    provinces, regions, dens, catalogue, spawner, tiers, chunks, worldService, mockk(relaxed = true), view,
+    provinces, regions, dens, catalogue, spawner, tiers, EventGround(chunks, worldService), mockk(relaxed = true), view,
   )
 
   @Test

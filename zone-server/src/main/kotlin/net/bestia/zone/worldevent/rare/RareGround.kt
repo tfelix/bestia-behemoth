@@ -6,8 +6,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.place.ecs.PlaceRegionService
 import net.bestia.zone.weather.WeatherService
 import net.bestia.zone.world.WorldService
-import net.bestia.zone.world.stream.ChunkCoords
-import net.bestia.zone.world.stream.ChunkService
+import net.bestia.zone.worldevent.EventGround
 import org.springframework.stereotype.Component
 
 /**
@@ -18,7 +17,7 @@ import org.springframework.stereotype.Component
 class RareGround(
   private val placeRegions: PlaceRegionService,
   private val worldService: WorldService,
-  private val chunks: ChunkService,
+  private val ground: EventGround,
   private val weather: WeatherService,
 ) {
 
@@ -36,14 +35,7 @@ class RareGround(
   fun allSpots(): List<Spot> = spotsOf(placeRegions.regions.regions.indices.toList())
 
   /** Where a bestia stands on [spot], or null on water or where the ground is not known. */
-  fun grounded(spot: Spot): Vec3L? {
-    val config = worldService.config
-    val voxelX = Math.floor(spot.x / config.voxelSize).toLong()
-    val voxelY = Math.floor(spot.y / config.voxelSize).toLong()
-    val elevation = chunks.surfaceElevationAt(voxelX, voxelY) ?: return null
-    if (elevation <= config.seaLevel) return null
-    return Vec3L(voxelX, voxelY, ChunkCoords.standingZ(config, elevation))
-  }
+  fun grounded(spot: Spot): Vec3L? = ground.grounded(spot.x, spot.y)
 
   fun weatherAt(at: Vec3L): WeatherKind =
     weather.at(at.x, at.y, worldService.config.elevationOfVoxel(at.z.toInt())).state.kind

@@ -5,18 +5,15 @@ import net.bestia.zone.bestia.BestiaCatalogue
 import net.bestia.zone.bestia.persistence.Bestia
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.entity.ecs.EventCreature
-import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.movement.ecs.Position
 import net.bestia.zone.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.place.ecs.PlaceRegionService
 import net.bestia.zone.place.ecs.ProvinceService
 import net.bestia.zone.spawn.BestiaEntitySpawner
 import net.bestia.zone.spawn.ecs.WildSpawnerService
-import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.mana.ManaField.Cell
 import net.bestia.zone.world.mana.ManaTiers
-import net.bestia.zone.world.stream.ChunkCoords
-import net.bestia.zone.world.stream.ChunkService
+import net.bestia.zone.worldevent.EventGround
 import net.bestia.zone.worldevent.ProvinceSignals
 import net.bestia.zone.worldevent.WorldEvent
 import net.bestia.zone.worldevent.persistence.WorldEventInstance
@@ -36,8 +33,7 @@ class ApexRoamerEvent(
   private val bestiaCatalogue: BestiaCatalogue,
   private val spawner: BestiaEntitySpawner,
   private val tiers: ManaTiers,
-  private val chunks: ChunkService,
-  private val worldService: WorldService,
+  private val ground: EventGround,
   private val deletionQueue: PersistedEntityDeletionQueue,
   private val world: WorldView,
 ) : WorldEvent {
@@ -50,8 +46,8 @@ class ApexRoamerEvent(
     val (edgeX, edgeY) = farSideOf(signals.province, peak) ?: return null
 
     return world.read {
-      val from = grounded(edgeX, edgeY) ?: return@read null
-      val home = grounded(peak.centreX, peak.centreY) ?: return@read null
+      val from = ground.grounded(edgeX, edgeY) ?: return@read null
+      val home = ground.grounded(peak.centreX, peak.centreY) ?: return@read null
       val id = spawner.spawnMob(
         this, species.id, from,
         homePosition = home,
@@ -101,14 +97,6 @@ class ApexRoamerEvent(
       ?.let { it.centre.x to it.centre.y }
   }
 
-  private fun grounded(x: Double, y: Double): Vec3L? {
-    val config = worldService.config
-    val voxelX = Math.floor(x / config.voxelSize).toLong()
-    val voxelY = Math.floor(y / config.voxelSize).toLong()
-    val elevation = chunks.surfaceElevationAt(voxelX, voxelY) ?: return null
-    if (elevation <= config.seaLevel) return null
-    return Vec3L(voxelX, voxelY, ChunkCoords.standingZ(config, elevation))
-  }
 
   private companion object {
     /** How far above its kin's highest level the apex is born, before the mana adds its own. */
