@@ -648,6 +648,12 @@ class BudgetedSkillWorld(
     services.magicSensing?.sense(world, casterId, level, castPotency)
   }
 
+  override fun readOmens(level: Int) {
+    budget.charge(SPAWN_OPS)
+
+    services.omenReading?.read(world, casterId, level)
+  }
+
   override fun senseMonster(targetId: EntityId): Boolean {
     budget.charge()
 

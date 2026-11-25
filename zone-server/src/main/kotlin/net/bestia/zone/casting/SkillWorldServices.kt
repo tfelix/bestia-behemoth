@@ -1,5 +1,6 @@
 package net.bestia.zone.casting
 
+import net.bestia.zone.casting.sense.OmenReading
 import net.bestia.zone.casting.sense.EchoSensing
 import net.bestia.zone.item.mining.Blasts
 import net.bestia.zone.casting.sense.MagicSensing
@@ -71,4 +72,5 @@ class SkillWorldServices(
   val plagiarism: Plagiarism? = null,
   val shieldGuard: ShieldGuard? = null,
   val tripleBlow: TripleBlow? = null,
+  val omenReading: OmenReading? = null,
 )

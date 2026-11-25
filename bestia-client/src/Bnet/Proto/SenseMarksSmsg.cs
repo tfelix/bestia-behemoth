@@ -30,13 +30,13 @@ namespace Bnet {
             "Eh0KBGtpbmQYASABKA4yDy5ibmV0LlNlbnNlS2luZBITCgtlYXN0X21ldHJl",
             "cxgCIAEoARIUCgxub3J0aF9tZXRyZXMYAyABKAESDQoFbGFiZWwYBCABKAkS",
             "DgoGcmVmX2lkGAUgASgDEhQKDGRlcHRoX21ldHJlcxgGIAEoAhITCgtzaXpl",
-            "X21ldHJlcxgHIAEoAhINCgV2YWd1ZRgIIAEoCCrAAQoJU2Vuc2VLaW5kEg0K",
+            "X21ldHJlcxgHIAEoAhINCgV2YWd1ZRgIIAEoCCrQAQoJU2Vuc2VLaW5kEg0K",
             "CVNFTlNFX09SRRAAEg8KC1NFTlNFX0hFUkJTEAESEAoMU0VOU0VfVElNQkVS",
             "EAISDgoKU0VOU0VfR0FNRRADEhAKDFNFTlNFX0hPTExPVxAEEg4KClNFTlNF",
             "X01BTkEQBRIXChNTRU5TRV9CSU5ESU5HX0ZJUkVEEAYSHQoZU0VOU0VfRU1Q",
-            "WVJJVEVfU0VFRF9GT1VORBAHEhcKE1NFTlNFX0VNUFlSSVRFX1NFRUQQCEIs",
-            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE1NlbnNlTWFya3NTbXNnUHJvdG9i",
-            "BnByb3RvMw=="));
+            "WVJJVEVfU0VFRF9GT1VORBAHEhcKE1NFTlNFX0VNUFlSSVRFX1NFRUQQCBIO",
+            "CgpTRU5TRV9PTUVOEAlCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNTZW5z",
+            "ZU1hcmtzU21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.SenseKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -68,6 +68,11 @@ namespace Bnet {
     /// it, else empty; ref_id is its rank.
     /// </summary>
     [pbr::OriginalName("SENSE_EMPYRITE_SEED")] SenseEmpyriteSeed = 8,
+    /// <summary>
+    /// An Augury reading of a place region: the label is its name, ref_id how restless it is (0 calm, 1 uneasy,
+    /// 2 ominous) or 3 for "a neighbouring region is worse", which has no name. The caster's own region is vague.
+    /// </summary>
+    [pbr::OriginalName("SENSE_OMEN")] SenseOmen = 9,
   }
 
   #endregion

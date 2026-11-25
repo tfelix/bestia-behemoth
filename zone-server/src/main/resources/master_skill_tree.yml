@@ -391,6 +391,13 @@ skills:
       - skill: M_MAGIC_SENSE
         level: 3
 
+  - skill: M_AUGURY
+    tree: SCHOLAR
+    maxLevel: 3
+    prerequisites:
+      - skill: M_OBSERVATION
+        level: 2
+
   # Trader (unlocked at 5+ pts in Scholar Tree)
   - skill: M_SCAVENGER
     tree: SCHOLAR
