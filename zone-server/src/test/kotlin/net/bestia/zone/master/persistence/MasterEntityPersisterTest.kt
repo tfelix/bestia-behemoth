@@ -7,6 +7,7 @@ import io.mockk.verify
 import net.bestia.zone.account.BodyType
 import net.bestia.zone.account.Face
 import net.bestia.zone.account.Hairstyle
+import net.bestia.zone.account.SavePointService
 import net.bestia.zone.account.persistence.Master
 import net.bestia.zone.account.persistence.MasterRepository
 import net.bestia.zone.skill.tree.MasterSkillTreeNode
@@ -26,6 +27,7 @@ import net.bestia.zone.account.persistence.LearnedSkillRepository
 import net.bestia.zone.skill.persistence.Skill
 import net.bestia.zone.skill.persistence.SkillRepository
 import net.bestia.zone.workexp.WorkExpLedger
+import net.bestia.zone.world.SpawnPointAvailability
 import org.junit.jupiter.api.Test
 import java.awt.Color
 import kotlin.test.assertEquals
@@ -65,7 +67,19 @@ class MasterEntityPersisterTest {
     load(listOf(TREE_SKILL_ID, OTHER_TREE_SKILL_ID).map { MasterSkillTreeNode(it, "SKILL_$it", 5, "NOVICE") })
   }
 
-  private val sut = MasterEntityPersister(repository, learnedSkills, skills, skillTree)
+  private val startTowns = mockk<SpawnPointAvailability> {
+    every { offered() } returns listOf(
+      startTown("Far Town", Vec3L(5000, 5000, 10)),
+      startTown("Near Town", Vec3L(100, 100, 10)),
+    )
+  }
+  private val savePoints = SavePointService(mockk(), mockk(), startTowns)
+
+  private val sut = MasterEntityPersister(repository, learnedSkills, skills, skillTree, savePoints)
+
+  private fun startTown(name: String, position: Vec3L): SpawnPointAvailability.Offer {
+    return SpawnPointAvailability.Offer(1, name, "town", position, settlementIndex = 0, population = 100)
+  }
 
   private fun World.master(dead: Boolean) = createEntity { eid ->
     add(eid, MasterComponent(masterId, "Tester"))
@@ -96,6 +110,19 @@ class MasterEntityPersisterTest {
 
     assertEquals(savePoint, row.currentPosition)
     assertEquals(1, row.currentHealth)
+  }
+
+  @Test
+  fun `a master that left dead without a save point gets the start town nearest to where it fell`() {
+    row.spawnPosition = Vec3L.ZERO
+    val world = testWorld()
+    val id = world.master(dead = true)
+
+    sut.persist(listOfNotNull(sut.snapshot(world, id)))
+
+    assertEquals(Vec3L(100, 100, 10), row.spawnPosition)
+    assertEquals("Near Town", row.homeSettlementName)
+    assertEquals(Vec3L(100, 100, 10), row.currentPosition)
   }
 
   @Test
