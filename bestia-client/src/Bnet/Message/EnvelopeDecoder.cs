@@ -70,6 +70,7 @@ namespace BestiaBehemothClient.Bnet.Message
       [Envelope.MessageOneofCase.StaticEntityRemoved] =
         e => Map.StaticEntityRemovedSMSG.FromProto(e.StaticEntityRemoved),
       [Envelope.MessageOneofCase.TreasureShimmer] = e => Map.TreasureShimmerSMSG.FromProto(e.TreasureShimmer),
+      [Envelope.MessageOneofCase.GmManaLayer] = e => Map.GmManaLayerSMSG.FromProto(e.GmManaLayer),
       [Envelope.MessageOneofCase.TradeRequest] = e => Trade.TradeRequestSMSG.FromProto(e.TradeRequest),
       [Envelope.MessageOneofCase.TradeState] = e => Trade.TradeStateSMSG.FromProto(e.TradeState),
       [Envelope.MessageOneofCase.ShopOffer] = e => Shop.ShopOfferSMSG.FromProto(e.ShopOffer),

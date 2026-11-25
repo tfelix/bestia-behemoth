@@ -224,6 +224,8 @@ func _ready() -> void:
 	_quest_tracker.quest_log = quest_log
 	ConnectionManager.parcel_arrived.connect(_on_parcel_arrived)
 	ConnectionManager.sense_marks_received.connect(_on_sense_marks)
+	ConnectionManager.gm_mana_layer_received.connect(_minimap.set_gm_mana_layer)
+	ConnectionManager.gm_mana_layer_received.connect(_map_overlay.set_gm_mana_layer)
 
 	# Clicking an own Breeding Farm or Incubator is what opens it. Placing an egg picks it from the bag.
 	(_breeding_farm_win.get_content() as BreedingFarmPanel).farm_opened.connect(
