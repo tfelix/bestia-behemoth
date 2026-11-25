@@ -14,6 +14,7 @@ import net.bestia.zone.battle.status.scripts.Blind
 import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.battle.damage.DamageGate
 import net.bestia.zone.battle.ecs.damage.TakenDamage
+import net.bestia.zone.battle.status.FarNoticed
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.ecs.level.Level
@@ -29,6 +30,7 @@ import net.bestia.zone.world.time.BestiaClock
 import net.bestia.zone.world.time.BestiaDateTime
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component as SpringComponent
+import kotlin.math.abs
 
 /**
  * First stage of the AI pipeline, and the **only** writer of the domain's observation keys: own position
@@ -49,6 +51,7 @@ class PerceptionSystem(
   private val clock: BestiaClock,
   private val throttle: AiThrottle,
   private val zoneConfig: WorldRulesConfig,
+  private val farNoticed: FarNoticed,
 ) : EcsSystem {
   override val phase = Phase.AI
   override val after = setOf(AiDetailSystem::class)
@@ -180,7 +183,28 @@ class PerceptionSystem(
       }
     }
 
-    return nearest
+    return nearestFarNoticed(world, self, selfPos, sightRadius, guardArea)
+      ?.takeIf { (_, distance) -> distance < nearestDistance }?.first ?: nearest
+  }
+
+  /** A wearer of Stench the wild smell from twice as far as they see, with its distance. Guards keep to their area. */
+  private fun nearestFarNoticed(
+    world: World,
+    self: Long,
+    selfPos: Vec3L,
+    sightRadius: Int,
+    guardArea: WorkArea?,
+  ): Pair<Long, Long>? {
+    if (guardArea != null || !Hostility.isUntamed(world, self)) return null
+
+    return farNoticed.wearers.mapNotNull { wearer ->
+      val pos = world.get(wearer, Position::class)?.toVec3L() ?: return@mapNotNull null
+      val axisDistance = maxOf(abs(pos.x - selfPos.x), abs(pos.y - selfPos.y), abs(pos.z - selfPos.z))
+      val smelled = axisDistance <= sightRadius.toLong() * STENCH_REACH_FACTOR &&
+        Hostility.isHostile(world, self, wearer) && !isOutOfReach(world, self, wearer)
+
+      (wearer to selfPos.distance(pos)).takeIf { smelled }
+    }.minByOrNull { (_, distance) -> distance }
   }
 
   /**
@@ -227,4 +251,8 @@ class PerceptionSystem(
     return (health.current * 100 / health.max).coerceIn(0, 100)
   }
 
+  private companion object {
+    /** How much farther than it sees a wild creature smells a Stench. */
+    const val STENCH_REACH_FACTOR = 2
+  }
 }

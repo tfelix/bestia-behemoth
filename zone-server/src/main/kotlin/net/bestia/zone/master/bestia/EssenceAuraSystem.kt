@@ -13,6 +13,7 @@ import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
 import net.bestia.zone.battle.mark.MarkedPreySystem
 import net.bestia.zone.battle.status.EssenceAura
+import net.bestia.zone.battle.status.FarNoticed
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.scripts.AuraScript
 import net.bestia.zone.casting.detect.DetectingSystem
@@ -39,6 +40,7 @@ import org.springframework.stereotype.Component as SpringComponent
 class EssenceAuraSystem(
   private val statusEffects: StatusEffectService,
   private val aoi: EntityAOIService,
+  private val farNoticed: FarNoticed,
 ) : System {
 
   override val phase = Phase.STATUS
@@ -56,8 +58,10 @@ class EssenceAuraSystem(
 
   override fun update(world: World, deltaTime: Float) {
     pulses++
+    val wearers = wearers(world)
+    farNoticed.wearers = wearers.filter { (_, auras) -> EssenceAura.STENCH in auras }.map { (id, _) -> id }
 
-    for ((wearerId, auras) in wearers(world)) {
+    for ((wearerId, auras) in wearers) {
       val centre = world.get(wearerId, Position::class)?.toVec3L() ?: continue
       auras.forEach { aura -> pulse(world, wearerId, centre, aura) }
     }

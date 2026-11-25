@@ -8,6 +8,7 @@ import net.bestia.zone.bestia.diary.BestiaNews
 import net.bestia.zone.bestia.diary.BestiaHappened
 import net.bestia.zone.item.mining.ShaftOre
 import net.bestia.zone.battle.attack.BasicAttackResolver
+import net.bestia.zone.battle.status.FarNoticed
 import net.bestia.zone.identity.ecs.OwnedBestia
 import net.bestia.zone.movement.ecs.GroundTrample
 import io.mockk.every
@@ -330,7 +331,7 @@ class AiPipelineFixture(
   /** The AI stages in pipeline order, plus movement so a decision to walk actually moves something. */
   val systems: List<System> = listOf(
     AiDetailSystem(throttle, zoneConfig),
-    PerceptionSystem(profiles, aoi, clock, throttle, zoneConfig),
+    PerceptionSystem(profiles, aoi, clock, throttle, zoneConfig, FarNoticed()),
     // Spring collects the Sense beans in the live server; a test names the ones its scenario cares about.
     SenseSystem(
       listOf(
