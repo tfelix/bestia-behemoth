@@ -72,8 +72,14 @@ class BestiaEtching(
 
   private fun speciesOf(world: World, bestiaId: EntityId): Long? = world.get(bestiaId, EntityVisual::class)?.id
 
-  /** Whether a Bestia of [speciesId] at [level] may fill a [tier] gem, wherever it is: called out or in storage. */
+  /**
+   * Whether a Bestia of [speciesId] at [level] may fill a [tier] gem, wherever it is: called out or in storage. A boss
+   * fills only the gem of its level.
+   */
   fun fits(speciesId: Long, level: Int, tier: GemTier): Boolean {
-    return level >= tier.minBestiaLevel && catalogue.find(speciesId)?.essence != null
+    val species = catalogue.find(speciesId) ?: return false
+    val bossGem = if (species.boss || species.worldBoss) GemTier.ofBossLevel(species.referenceLevel) else null
+
+    return species.essence != null && level >= tier.minBestiaLevel && (bossGem == null || bossGem == tier)
   }
 }

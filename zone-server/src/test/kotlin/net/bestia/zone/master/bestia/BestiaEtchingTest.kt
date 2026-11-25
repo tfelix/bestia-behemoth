@@ -41,12 +41,16 @@ class BestiaEtchingTest {
 
   private val catalogue = mockk<BestiaCatalogue> {
     every { find(BOAR) } returns species(BOAR, "boar", EssenceDefinition(SocketGroup.WEAPON, EssenceEffect.BANE, "BEAST"))
-    every { find(BOSS) } returns species(BOSS, "boss", essence = null)
+    every { find(CRITTER) } returns species(CRITTER, "critter", essence = null)
+    every { find(BLOB_QUEEN) } returns species(
+      BLOB_QUEEN, "blob_queen", EssenceDefinition(SocketGroup.ARMOR, EssenceEffect.BOSS, "ROYAL_JELLY"), bossLevel = 42
+    )
   }
 
   private val itemTemplates = mockk<ItemTemplateRegistry> {
     every { identifierOf(CUT_AMETHYST) } returns "cut_amethyst"
     every { identifierOf(CUT_RUBY) } returns "cut_ruby"
+    every { identifierOf(CUT_PYRELITH) } returns "cut_pyrelith"
   }
 
   private val loss = mockk<PlayerBestiaLoss>(relaxed = true)
@@ -88,10 +92,19 @@ class BestiaEtchingTest {
   @Test
   fun `a dead Bestia and a species without an essence are refused`() {
     val dead = givenBestia(level = 6).also { world.add(it, Dead()) }
-    val boss = givenBestia(level = 6, speciesId = BOSS)
+    val critter = givenBestia(level = 6, speciesId = CRITTER)
 
     assertEquals(OpError.CRAFT_NOT_POSSIBLE, etching.refusal(world, MASTER_ID, dead, CUT_AMETHYST))
-    assertEquals(OpError.CRAFT_NOT_POSSIBLE, etching.refusal(world, MASTER_ID, boss, CUT_AMETHYST))
+    assertEquals(OpError.CRAFT_NOT_POSSIBLE, etching.refusal(world, MASTER_ID, critter, CUT_AMETHYST))
+  }
+
+  @Test
+  fun `a boss fills only the gem of its level`() {
+    val queen = givenBestia(level = 42, speciesId = BLOB_QUEEN)
+
+    assertNull(etching.refusal(world, MASTER_ID, queen, CUT_RUBY))
+    assertEquals(OpError.CRAFT_NOT_POSSIBLE, etching.refusal(world, MASTER_ID, queen, CUT_AMETHYST))
+    assertEquals(OpError.CRAFT_NOT_POSSIBLE, etching.refusal(world, MASTER_ID, queen, CUT_PYRELITH))
   }
 
   @Test
@@ -118,19 +131,22 @@ class BestiaEtchingTest {
       add(id, Position(0, 0, 0))
     }
 
-  private fun species(id: Long, identifier: String, essence: EssenceDefinition?): Bestia {
+  private fun species(id: Long, identifier: String, essence: EssenceDefinition?, bossLevel: Int? = null): Bestia {
+    val level = bossLevel ?: 1
     return Bestia(
-      id = id, identifier = identifier, levelMin = 1, levelMax = 1, experienceReward = 0, health = 1, mana = 1,
-      essence = essence
+      id = id, identifier = identifier, levelMin = level, levelMax = level, experienceReward = 0, health = 1, mana = 1,
+      essence = essence, boss = bossLevel != null
     )
   }
 
   private companion object {
     const val MASTER_ID = 42L
     const val BOAR = 6L
-    const val BOSS = 99L
+    const val CRITTER = 98L
+    const val BLOB_QUEEN = 79L
     const val CUT_AMETHYST = 136L
     const val CUT_RUBY = 138L
+    const val CUT_PYRELITH = 139L
     const val OWNER_ACCOUNT = 7L
     const val OWNER_ENTITY = 500L
   }
