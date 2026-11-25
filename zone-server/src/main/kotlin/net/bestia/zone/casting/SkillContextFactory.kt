@@ -3,6 +3,7 @@ package net.bestia.zone.casting
 import net.bestia.zone.battle.potency.Potency
 import net.bestia.zone.battle.potency.PotencyCalculator
 import net.bestia.zone.battle.damage.HitKind
+import net.bestia.zone.skill.SkillTargetType
 import net.bestia.zone.battle.BattleContext
 import net.bestia.zone.battle.BattleContextFactory
 import net.bestia.zone.entity.ecs.EntityVisual
@@ -74,7 +75,8 @@ class SkillContextFactory(
         skillId = skill.id,
         skillLevel = skillLevel,
         skillHitKind = HitKind.ofSkill(skill),
-        castPotency = potency
+        castPotency = potency,
+        singleTarget = skill.targetType == SkillTargetType.ENEMY
       ),
       casterId = casterId,
       targetEntityId = targetEntityId,

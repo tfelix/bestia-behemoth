@@ -5,6 +5,9 @@ import net.bestia.zone.battle.status.CombatValues
 import net.bestia.zone.battle.ecs.status.CombatStats
 import net.bestia.zone.battle.ecs.status.Health
 import net.bestia.zone.battle.ecs.status.IsStatusValueDirty
+import net.bestia.zone.battle.damage.HitKind
+import net.bestia.zone.battle.damage.HitReach
+import net.bestia.zone.battle.ecs.damage.IncomingDamage
 import net.bestia.zone.battle.ecs.effects.ActiveStatusEffect
 import net.bestia.zone.battle.ecs.effects.StatusEffects
 import net.bestia.zone.battle.status.HarmShield
@@ -109,6 +112,36 @@ class StatusEffectServiceTest {
 
     assertFalse(service.applyEffect(world, wyrmArmored, HARM, level = 1, sourceEntityId = world.createEntity { }))
     assertTrue(service.applyEffect(world, wyrmArmored, StatusEffectId.FATIGUE.id, level = 1))
+  }
+
+  @Test
+  fun `a tidewall swallows the first blow of its window, then the next lands`() {
+    val spent = StatusEffectDefinition(
+      id = StatusEffectId.TIDEWALL_SPENT.id, identifier = "TIDEWALL_SPENT", isSyncedToClient = true,
+      script = "Lingering", polarity = StatusEffectPolarity.NEUTRAL
+    )
+    val service = StatusEffectService(
+      StatusEffectDefinitionRegistry().apply { load(listOf(spent)) },
+      StatusEffectScriptRegistry(listOf(Lingering()))
+    )
+    val wall = player()
+    world.add(wall, CombatStats(CombatValues.OBJECT_BASELINE.copy(firstHitAbsorbSeconds = 10)))
+    val blow = IncomingDamage.DamageAmount(40, world.createEntity { }, HitKind.physical(HitReach.MELEE))
+
+    assertEquals(0, service.onDamageTaken(world, wall, blow))
+    assertEquals(40, service.onDamageTaken(world, wall, blow))
+  }
+
+  @Test
+  fun `a trophy plate hits a melee attacker with a quarter of its blow`() {
+    val plate = player()
+    world.add(plate, CombatStats(CombatValues.OBJECT_BASELINE.copy(meleeReflectPercent = 25)))
+    val attacker = world.createEntity { }
+
+    assertEquals(40, service.onDamageTaken(world, plate, IncomingDamage.DamageAmount(40, attacker, HitKind.physical(HitReach.MELEE))))
+    service.onDamageTaken(world, plate, IncomingDamage.DamageAmount(40, attacker, HitKind.magic()))
+
+    assertEquals(10, world.get(attacker, IncomingDamage::class)?.total())
   }
 
   @Test

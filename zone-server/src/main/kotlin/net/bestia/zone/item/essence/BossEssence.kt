@@ -112,6 +112,27 @@ enum class BossEssence(val group: SocketGroup) {
     override fun apply(context: StatusValueRecalcContext) {
       context.essenceAuras += EssenceAura.STENCH
     }
+  },
+  TROPHY_PLATE(SocketGroup.ARMOR) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.meleeReflectPercent += 25
+    }
+  },
+  TIDEWALL(SocketGroup.SHIELD) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.firstHitAbsorbSeconds = 10
+    }
+  },
+  CLOUD_VEIL(SocketGroup.GARMENT) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.spellBouncePercent += 25
+    }
+  },
+  SLAG_SHELL(SocketGroup.SHIELD) {
+    override fun apply(context: StatusValueRecalcContext) {
+      context.addDamageTaken(100, form = HitForm.MAGIC)
+      context.untargetableBySpells = true
+    }
   };
 
   abstract fun apply(context: StatusValueRecalcContext)

@@ -935,3 +935,12 @@ statusEffects:
     isSyncedToClient: true
     dispellable: false
     script: CaptainsOrders
+
+  # The Leviathan's Tidewall swallowed a blow; until this runs out, the next one lands.
+  - id: 302
+    identifier: TIDEWALL_SPENT
+    polarity: NEUTRAL
+    showIcon: true
+    isSyncedToClient: true
+    dispellable: false
+    script: TidewallSpent
