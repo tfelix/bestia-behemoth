@@ -1,5 +1,6 @@
 package net.bestia.zone.stronghold
 
+import net.bestia.zone.economy.CoinPayments
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.economy.CommodityItems
@@ -42,7 +43,7 @@ class StrongholdTab(
   private val commodities: CommodityItems,
   private val reserve: WorldReserve,
   private val asyncJobExecutor: AsyncJobExecutor,
-  private val coins: StrongholdCoins,
+  private val coins: CoinPayments,
   private val mail: GuildStorageMail,
   private val worldView: WorldView,
   private val messages: OutMessageProcessor,
@@ -110,7 +111,7 @@ class StrongholdTab(
     }
 
     val price = config.storageSendAwayCoinsPerSlot * contents.size()
-    if (!coins.pay(world, masterEntityId, masterId, price)) return OpError.STRONGHOLD_CANNOT_AFFORD_SEND_AWAY
+    if (!coins.pay(world, masterEntityId, masterId, price, CoinSource.STRONGHOLD)) return OpError.STRONGHOLD_CANNOT_AFFORD_SEND_AWAY
 
     val sent = contents.getItems()
     contents.clearItems()

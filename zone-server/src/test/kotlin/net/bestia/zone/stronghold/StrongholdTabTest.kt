@@ -1,12 +1,13 @@
 package net.bestia.zone.stronghold
 
+import net.bestia.zone.economy.CoinPayments
+import net.bestia.zone.entity.GameMetrics.CoinSource
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.economy.WorldReserve
 import net.bestia.zone.ecs.core.testWorld
-import net.bestia.zone.entity.GameMetrics.CoinSource
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.identity.ecs.GuildMembership
 import net.bestia.zone.identity.ecs.Master
@@ -31,7 +32,7 @@ class StrongholdTabTest {
   private val jobs = mockk<AsyncJobExecutor>(relaxed = true)
   private var slots = 100
   private var held = listOf<Stronghold>()
-  private val coins = mockk<StrongholdCoins> { every { pay(any(), any(), any(), any()) } answers { arg<Long>(3) <= 40_000 } }
+  private val coins = mockk<CoinPayments> { every { pay(any(), any(), any(), any(), any()) } answers { arg<Long>(3) <= 40_000 } }
   private val mail = mockk<GuildStorageMail>(relaxed = true)
 
   private var stronghold = Stronghold(RANK, GUILD, State.STANDING, null, Instant.EPOCH, Instant.EPOCH).copy(
@@ -109,7 +110,7 @@ class StrongholdTabTest {
     assertEquals(OpError.REQUEST_REFUSED, tab.sendStorageAway(world, master(leader = false)))
     assertNull(tab.sendStorageAway(world, leader))
 
-    verify { coins.pay(world, leader, 5L, 2_000) }
+    verify { coins.pay(world, leader, 5L, 2_000, CoinSource.STRONGHOLD) }
     assertTrue(contents.isEmpty())
     verify { jobs.submit(ItemHolder.GuildStorage(GUILD), any()) }
   }
