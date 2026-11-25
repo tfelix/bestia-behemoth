@@ -9,6 +9,7 @@ description: >-
 kind: INSECT
 element: WIND_4
 size: BIG
+essence: { group: ACCESSORY, effect: BOSS, target: ROYAL_SWARM }
 default-attack: MELEE
 aspd: 80
 ai: aggressive_melee
