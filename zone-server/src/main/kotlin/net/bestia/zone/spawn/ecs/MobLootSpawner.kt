@@ -27,11 +27,14 @@ class MobLootSpawner(
     dropsBySpecies.size
   }
 
-  /**
-   * [lootOwner] is the account of the killer, which alone may pick the loot up for a few seconds. Every drop's
-   * chance is multiplied by [chanceFactor].
-   */
-  fun spawnLoot(world: World, bestiaId: Long, pos: Vec3L, lootOwner: Long?, chanceFactor: Double = 1.0): List<EntityId> {
+  /** Every drop's chance is multiplied by [chanceFactor]. Without [loot], anybody may pick the drops up at once. */
+  fun spawnLoot(
+    world: World,
+    bestiaId: Long,
+    pos: Vec3L,
+    loot: KillLootClaims.KillLoot?,
+    chanceFactor: Double = 1.0,
+  ): List<EntityId> {
     val lootItems = dropsBySpecies[bestiaId] ?: emptyList()
 
     val spawnItems = lootItems.filter { lootItem ->
@@ -44,7 +47,11 @@ class MobLootSpawner(
 
     return spawnItems.map { spawnItem ->
       lootItemEntitySpawner.spawnLootItem(
-        world, itemId = spawnItem.itemId, amount = 1, pos = pos, lootOwner = lootOwner
+        world,
+        itemId = spawnItem.itemId,
+        amount = 1,
+        pos = pos,
+        lootClaims = loot?.claimsForNextDrop() ?: emptyList(),
       )
     }
   }

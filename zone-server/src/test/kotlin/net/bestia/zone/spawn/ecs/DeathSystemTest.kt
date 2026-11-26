@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.bestia.zone.config.PartyRulesConfig
+import net.bestia.zone.config.WorldRulesConfig
 import net.bestia.zone.identity.ecs.Account
 import net.bestia.zone.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
@@ -48,6 +49,7 @@ class DeathSystemTest {
     mobLootSpawner = lootSpawner,
     deletionQueue = deletionQueue,
     expSplitter = KillExpSplitter(ConnectionInfoService(), PartyRulesConfig()),
+    lootClaims = KillLootClaims(ConnectionInfoService(), WorldRulesConfig(tickRate = 10)),
     notableKills = mockk<KillReporter>(relaxed = true),
     spill = { x, y -> spilledAt += x to y },
   )
@@ -95,7 +97,7 @@ class DeathSystemTest {
 
     sut.update(world, 0f)
 
-    verify { lootSpawner.spawnLoot(any(), 7L, Vec3L(1, 2, 3), lootOwner = null) }
+    verify { lootSpawner.spawnLoot(any(), 7L, Vec3L(1, 2, 3), loot = null) }
   }
 
   @Test
@@ -107,7 +109,7 @@ class DeathSystemTest {
 
     sut.update(world, 0f)
 
-    verify { lootSpawner.spawnLoot(any(), 7L, Vec3L(1, 2, 3), lootOwner = 42L) }
+    verify { lootSpawner.spawnLoot(any(), 7L, Vec3L(1, 2, 3), match { it?.leadAccount == 42L }) }
   }
 
   @Test
@@ -234,6 +236,7 @@ class DeathSystemTest {
       mobLootSpawner = lootSpawner,
       deletionQueue = deletionQueue,
       expSplitter = KillExpSplitter(ConnectionInfoService(), PartyRulesConfig()),
+      lootClaims = KillLootClaims(ConnectionInfoService(), WorldRulesConfig(tickRate = 10)),
       notableKills = mockk<KillReporter>(relaxed = true),
       spill = { _, _ -> },
       killObservers = listOf(observer),
