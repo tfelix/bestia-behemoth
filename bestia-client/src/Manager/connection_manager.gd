@@ -139,6 +139,8 @@ signal passkey_login_failed(reason: String)
 ## Emitted when a stored session could not be resumed and has been discarded, so the browser is the only way
 ## left in. Not an error: this is what the end of a token's life looks like.
 signal session_resume_unavailable()
+## Emitted when the game cannot start because a new world is being born. The stored session is kept.
+signal world_rebirth_underway()
 
 enum ConnectionState {DISCONNECTED, CONNECTED_NOT_AUTHED, CONNECTED_AUTHED}
 enum ConnectionError {NO_ERROR, ZONE_CONNECTION_LOST, PROTOCOL_MISMATCH}
@@ -361,6 +363,8 @@ var account_id: int = 0
 # routes to the main menu instead of the "connection lost" screen.
 var _intentional_disconnect: bool = false
 
+const _REBIRTH_SCENE := "res://Menu/Rebirth/Rebirth.tscn"
+
 # Set once the final sequence started, so the world end's disconnect leaves the player on it instead of the
 # "connection lost" screen.
 var _world_end_seen: bool = false
@@ -514,6 +518,18 @@ func _on_passkey_login_failed(reason: String) -> void:
 
 func _on_passkey_resume_unavailable() -> void:
 	session_resume_unavailable.emit()
+
+
+func _on_passkey_world_rebirth() -> void:
+	world_rebirth_underway.emit()
+	goto_rebirth()
+
+
+## The screen that waits out a new world's birth and tries again by itself. Stays put when already on it.
+func goto_rebirth() -> void:
+	if get_tree().current_scene != null and get_tree().current_scene.scene_file_path == _REBIRTH_SCENE:
+		return
+	SceneManager.goto_scene(_REBIRTH_SCENE)
 
 
 func _goto_connection_lost(last_error: ConnectionError) -> void:
@@ -2076,6 +2092,9 @@ func _on_bnet_socket_connection_status_changed(status: int) -> void:
 		elif _socket.LastDisconnectReason == "WORLD_ENDED" and _world_end_seen:
 			_world_end_seen = false
 			world_ended.emit()
+		elif _socket.LastDisconnectReason in ["WORLD_ENDED", "SERVER_NOT_READY"]:
+			# The zone is restarting into a new world, or still loading one.
+			goto_rebirth()
 		else:
 			_goto_connection_lost(ConnectionError.ZONE_CONNECTION_LOST)
 	elif status == 1:

@@ -5,8 +5,8 @@ extends Control
 ## white light while every master and bestia in view dissolves into it, then the white title. Both end with what the
 ## world lived through and the hint that a new one is coming. Nothing behind the overlay takes input meanwhile.
 ##
-## The server closes the connection shortly after; the overlay stays, and the button leads back to the title. A
-## GM's preview (/doom sequence) is never followed by that, so there the button closes the overlay instead.
+## The server closes the connection shortly after; the overlay stays, and the button leads on to wait for the new
+## world. A GM's preview (/doom sequence) is never followed by that, so there the button closes the overlay instead.
 
 const _CALLED_FX_KIND := "WORLD_CALLED"
 
@@ -78,7 +78,7 @@ func _on_world_end_received(message: WorldEndSMSG) -> void:
 
 func _on_world_ended() -> void:
 	_connection_closed = true
-	_leave.text = tr("WORLD_END_RETURN")
+	_leave.text = tr("WORLD_END_WAIT")
 
 
 func _play_lost() -> void:
@@ -154,13 +154,13 @@ func _style_text(colour: Color, outline: Color) -> void:
 
 
 func _offer_leave() -> void:
-	_leave.text = tr("WORLD_END_RETURN") if _connection_closed else tr("WORLD_END_CLOSE")
+	_leave.text = tr("WORLD_END_WAIT") if _connection_closed else tr("WORLD_END_CLOSE")
 	_leave.visible = true
 
 
 func _on_leave_pressed() -> void:
 	if _connection_closed:
-		SceneManager.goto_scene("res://Menu/Main/Main.tscn")
+		ConnectionManager.goto_rebirth()
 		return
 	_stop()
 	visible = false
