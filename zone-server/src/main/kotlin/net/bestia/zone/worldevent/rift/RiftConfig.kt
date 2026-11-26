@@ -47,6 +47,15 @@ data class RiftConfig(
   /** How far above the province's strongest den the anchor stands. It first steps out at stage 3. */
   val anchorLevelsAboveDens: Int = 10,
 
+  /** Share of its reservoir a rift loses with every crystal broken around its gate. */
+  val crystalShare: Double = 0.05,
+
+  /** Real minutes before a rift grows another crystal, up to one per stage it reached. */
+  val crystalRegrowRealMinutes: Double = 10.0,
+
+  /** A crystal's level for every stage of its rift: tougher the longer the rift stands. */
+  val crystalLevelsPerStage: Int = 10,
+
   /** A rift's Potency against a seal: this much, and more for every stage it reached. */
   val sealPotencyBase: Int = 100,
   val sealPotencyPerStage: Int = 30,
