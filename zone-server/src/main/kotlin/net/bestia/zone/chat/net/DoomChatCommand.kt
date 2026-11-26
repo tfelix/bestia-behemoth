@@ -27,8 +27,8 @@ class DoomChatCommand(
 
   override fun getHelpText(): String {
     return "/doom - The doomsday at a glance. /doom set <0..1> - Sets the clock. /doom push <delta> - Moves it. " +
-      "/doom pace <x|auto> - Fixes its pace. /doom kind <KIND> - Another threat. /doom foreshadow <KIND> - Another " +
-      "Foreshadowing. /doom end <lost|saved> [minutes] - Ends the world. /doom end cancel - Stops the end, a Last " +
+      "/doom pace <x|auto> - Fixes its pace. /doom kind <KIND> - Another threat. /doom foreshadow <KIND|now> - Another " +
+      "Foreshadowing, or one now. /doom foreshadow end <contained|failed> - Ends it. /doom end <lost|saved> [minutes] - Ends the world. /doom end cancel - Stops the end, a Last " +
       "Stand counts as won. /doom sequence <lost|saved> - Plays the final sequence for you alone. Built threats: " + director.builtKinds().joinToString(", ").ifEmpty { "none" }
   }
 
@@ -39,7 +39,7 @@ class DoomChatCommand(
   override fun execute(playerId: Long, cmdText: String): Boolean {
     val match = CMD_REGEX.find(cmdText.trim()) ?: return false
     val (verb, argument, extra) = match.destructured
-    if (extra.isNotEmpty() && verb != "end") {
+    if (extra.isNotEmpty() && verb != "end" && verb != "foreshadow") {
       return false
     }
 
@@ -49,7 +49,7 @@ class DoomChatCommand(
       "push" -> argument.toDoubleOrNull()?.let { "Doom clock pushed, now ${director.push(it)}." } ?: return false
       "pace" -> pace(argument) ?: return false
       "kind" -> kind(argument) ?: return false
-      "foreshadow" -> foreshadow(argument) ?: return false
+      "foreshadow" -> foreshadow(argument, extra) ?: return false
       "end" -> end(argument, extra) ?: return false
       "sequence" -> sequence(playerId, argument) ?: return false
       else -> return false
@@ -74,7 +74,21 @@ class DoomChatCommand(
     return if (director.repick(kind)) "The world is now fated to $kind." else "$kind is not built or does not fit."
   }
 
-  private fun foreshadow(argument: String): String? {
+  private fun foreshadow(argument: String, outcome: String): String? {
+    when (argument) {
+      "now" -> {
+        director.foreshadowNow()
+        return "The Foreshadowing strikes on the next run of the doom clock."
+      }
+      "end" -> {
+        val contained = when (outcome) {
+          "contained" -> true
+          "failed" -> false
+          else -> return null
+        }
+        return if (director.endForeshadow(contained)) "The Foreshadowing ended." else "No Foreshadowing is running."
+      }
+    }
     val kind = ForeshadowKind.entries.firstOrNull { it.name.equals(argument, ignoreCase = true) } ?: return null
     return if (director.repickForeshadow(kind)) "The Foreshadowing is now $kind." else "$kind is not built."
   }

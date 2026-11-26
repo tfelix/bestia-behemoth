@@ -37,4 +37,10 @@ enum Announcement {
   ANNOUNCEMENT_DOOM_CATACLYSM = 10;
   // The doomsday was pushed back a stage. args[0] is its name as a text key.
   ANNOUNCEMENT_DOOM_RECEDES = 11;
+  // The Foreshadowing strikes. args[0] is the direction it lies in, args[1] its name, both as text keys.
+  ANNOUNCEMENT_FORESHADOW_BEGINS = 12;
+  // The players contained the Foreshadowing. args[0] is its name as a text key.
+  ANNOUNCEMENT_FORESHADOW_HELD = 13;
+  // The Foreshadowing ran its course. args[0] is its name as a text key.
+  ANNOUNCEMENT_FORESHADOW_FAILED = 14;
 }

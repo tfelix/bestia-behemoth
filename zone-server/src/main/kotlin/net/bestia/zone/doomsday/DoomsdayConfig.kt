@@ -19,6 +19,11 @@ data class DoomsdayConfig(
   val foreshadowAtMin: Double = 0.4,
   val foreshadowAtMax: Double = 0.6,
 
+  /** How long the Foreshadowing lasts, and how far its outcome moves the onset, in days. */
+  val foreshadowMinDays: Double = 7.0,
+  val foreshadowMaxDays: Double = 14.0,
+  val foreshadowShiftDays: Double = 14.0,
+
   /** A world still standing at this share of its life span, in percent, is saved. */
   val savedAtT: Double = 150.0,
 

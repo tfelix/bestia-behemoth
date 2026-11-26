@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CidtZXNzYWdlcy9zeXN0ZW0vYW5ub3VuY2VtZW50X3Ntc2cucHJvdG8SBGJu",
             "ZXQiSgoQQW5ub3VuY2VtZW50U01TRxIoCgxhbm5vdW5jZW1lbnQYASABKA4y",
-            "Ei5ibmV0LkFubm91bmNlbWVudBIMCgRhcmdzGAIgAygJKv0CCgxBbm5vdW5j",
+            "Ei5ibmV0LkFubm91bmNlbWVudBIMCgRhcmdzGAIgAygJKucDCgxBbm5vdW5j",
             "ZW1lbnQSHAoYQU5OT1VOQ0VNRU5UX1VOU1BFQ0lGSUVEEAASEwoPQU5OT1VO",
             "Q0VNRU5UX0dNEAESIgoeQU5OT1VOQ0VNRU5UX1NUUk9OR0hPTERfVU5IRUxE",
             "EAISGwoXQU5OT1VOQ0VNRU5UX0xBU1RfU1RBTkQQAxIgChxBTk5PVU5DRU1F",
@@ -35,8 +35,10 @@ namespace Bnet {
             "RU1FTlRfQ0FMTElOR19TT09OEAcSGwoXQU5OT1VOQ0VNRU5UX0RPT01fT05T",
             "RVQQCBIgChxBTk5PVU5DRU1FTlRfRE9PTV9FU0NBTEFUSU9OEAkSHwobQU5O",
             "T1VOQ0VNRU5UX0RPT01fQ0FUQUNMWVNNEAoSHQoZQU5OT1VOQ0VNRU5UX0RP",
-            "T01fUkVDRURFUxALQi4KFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IVQW5ub3Vu",
-            "Y2VtZW50U21zZ1Byb3RvYgZwcm90bzM="));
+            "T01fUkVDRURFUxALEiIKHkFOTk9VTkNFTUVOVF9GT1JFU0hBRE9XX0JFR0lO",
+            "UxAMEiAKHEFOTk9VTkNFTUVOVF9GT1JFU0hBRE9XX0hFTEQQDRIiCh5BTk5P",
+            "VU5DRU1FTlRfRk9SRVNIQURPV19GQUlMRUQQDkIuChVuZXQuYmVzdGlhLmJu",
+            "ZXQucHJvdG9CFUFubm91bmNlbWVudFNtc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.Announcement), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -94,6 +96,18 @@ namespace Bnet {
     /// The doomsday was pushed back a stage. args[0] is its name as a text key.
     /// </summary>
     [pbr::OriginalName("ANNOUNCEMENT_DOOM_RECEDES")] DoomRecedes = 11,
+    /// <summary>
+    /// The Foreshadowing strikes. args[0] is the direction it lies in, args[1] its name, both as text keys.
+    /// </summary>
+    [pbr::OriginalName("ANNOUNCEMENT_FORESHADOW_BEGINS")] ForeshadowBegins = 12,
+    /// <summary>
+    /// The players contained the Foreshadowing. args[0] is its name as a text key.
+    /// </summary>
+    [pbr::OriginalName("ANNOUNCEMENT_FORESHADOW_HELD")] ForeshadowHeld = 13,
+    /// <summary>
+    /// The Foreshadowing ran its course. args[0] is its name as a text key.
+    /// </summary>
+    [pbr::OriginalName("ANNOUNCEMENT_FORESHADOW_FAILED")] ForeshadowFailed = 14,
   }
 
   #endregion
