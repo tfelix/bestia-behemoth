@@ -18,6 +18,9 @@ namespace BestiaBehemothClient.Bnet.Message.Party
     /// <summary>True for Even share, false for Each take.</summary>
     [Export] public bool EvenShare { get; set; }
 
+    /// <summary>True for Take turns, false for Party share.</summary>
+    [Export] public bool TakeTurns { get; set; }
+
     [Export] public ulong OwnerMasterId { get; set; }
 
     public static PartyInfoSMSG FromProto(global::Bnet.PartyInfoSMSG proto)
@@ -34,6 +37,7 @@ namespace BestiaBehemothClient.Bnet.Message.Party
         PartyName = proto.PartyName,
         Members = members,
         EvenShare = proto.ExpShare == global::Bnet.PartyExpShare.EvenShare,
+        TakeTurns = proto.LootShare == global::Bnet.PartyLootShare.TakeTurns,
         OwnerMasterId = proto.OwnerMasterId
       };
     }

@@ -632,6 +632,11 @@ PARTY_EXP_EACH_TAKE,Each take
 PARTY_EXP_EVEN_SHARE,Even share
 PARTY_EXP_EACH_TAKE_HINT,Every member keeps the EXP their own damage earned.
 PARTY_EXP_EVEN_SHARE_HINT,"EXP is split evenly between the members within 100 m of the kill, with a 30% bonus when shared."
+PARTY_LOOT_MODE,Loot
+PARTY_LOOT_PARTY_SHARE,Party share
+PARTY_LOOT_TAKE_TURNS,Take turns
+PARTY_LOOT_PARTY_SHARE_HINT,Every member may pick up every drop.
+PARTY_LOOT_TAKE_TURNS_HINT,"Each drop waits 30 s for the next member within 100 m of the kill, then any member may pick it up."
 PARTY_INVITE_PLACEHOLDER,Master name
 PARTY_INVITE,Invite
 PARTY_INVITE_PROMPT,%s invites you to join the party %s.
