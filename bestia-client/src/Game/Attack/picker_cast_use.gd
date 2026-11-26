@@ -6,9 +6,14 @@ extends AttackUse
 ## knows how to read. Closing the picker without a choice casts nothing.
 
 
-func on_skill_activated(attack: AttackResource, level: int) -> void:
+## The level the wheel may raise the aimed cast to, kept here rather than handed through every subclass's picker.
+var _max_level: int = 0
+
+
+func on_skill_activated(attack: AttackResource, level: int, max_level: int = 0) -> void:
 	if SkillCooldowns.remaining_seconds(attack.skill_id) > 0.0:
 		return
+	_max_level = max_level
 	_open_picker(attack, level)
 
 
@@ -23,7 +28,7 @@ func _picked(attack: AttackResource, level: int, args: PackedInt64Array) -> void
 	if _casts_on_self():
 		ConnectionManager.activate_skill(attack.skill_id, level, Vector3.ZERO, 0, args)
 	else:
-		MouseManager.get_instance().enter_skill_targeting(attack, level, null, args)
+		MouseManager.get_instance().enter_skill_targeting(attack, level, null, args, Callable(), _max_level)
 
 
 func _casts_on_self() -> bool:

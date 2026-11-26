@@ -62,15 +62,16 @@ func get_icon() -> Texture2D:
 	return icon if icon != null else MISSING_ICON
 
 
-func use_skill(level: int) -> void:
+## [param max_level] is the learned level the mouse wheel may raise [param level] to while aiming; 0 keeps it fixed.
+func use_skill(level: int, max_level: int = 0) -> void:
 	if attack_script:
 		var attack_use_instance: AttackUse = _get_or_create_attack_use_instance()
 		if attack_use_instance:
-			attack_use_instance.on_skill_activated(self, level)
+			attack_use_instance.on_skill_activated(self, level, max_level)
 		else:
 			printerr("AttackResource: Failed to load or instantiate attack script for skill: %s" % [skill_id])
 	else:
-		MouseManager.get_instance().enter_skill_targeting(self, level)
+		MouseManager.get_instance().enter_skill_targeting(self, level, null, PackedInt64Array(), Callable(), max_level)
 
 
 func _get_or_create_attack_use_instance() -> AttackUse:

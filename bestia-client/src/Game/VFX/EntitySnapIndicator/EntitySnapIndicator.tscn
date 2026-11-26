@@ -3,6 +3,7 @@
 [ext_resource type="Texture2D" path="res://Game/VFX/AOECastIndicator/cast_indicator.png" id="1_tex"]
 
 [node name="Decal" type="Decal"]
-size = Vector3(1.2, 1.2, 1.2)
+size = Vector3(1, 1.2, 1)
 texture_emission = ExtResource("1_tex")
-emission_energy = 2.64
+emission_energy = 0.6
+modulate = Color(1, 0.6, 0.55, 0.55)

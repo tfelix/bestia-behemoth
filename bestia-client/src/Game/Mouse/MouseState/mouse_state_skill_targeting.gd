@@ -11,12 +11,23 @@ class_name MouseStateSkillTargeting
 ##   SettingsManager.skill_target_snap_distance of the mouse's floor position (Shift
 ##   inverts the enemy/friendly filter) and only confirms while snapped. A skill that
 ##   targets enchanted items, like Dispel, also snaps onto a sealed item on the ground.
+##
+## The mouse wheel picks the level of this one cast, between 1 and [member max_skill_level], and a small tag beside
+## the marker shows it. The slot the skill came from keeps its own level for the next cast.
 
 const _DEFAULT_GROUND_INDICATOR_SCENE := preload("res://Game/VFX/AOECastIndicator/AOECastIndicator.tscn")
 const _ENTITY_SNAP_INDICATOR_SCENE := preload("res://Game/VFX/EntitySnapIndicator/EntitySnapIndicator.tscn")
 
+## How far the level tag sits off an entity's feet: right of it and lifted to about its waist.
+const _ENTITY_TAG_OFFSET := Vector3(0.6, 0.6, 0.6)
+const _TAG_LIFT := 0.3
+const _TAG_COLOR := Color(0.98, 0.78, 0.46)
+
 var skill: AttackResource
 var skill_level: int = 1
+## The highest level the wheel may pick: the learned one. Equal to [member skill_level] when the level is fixed, such
+## as a spell scroll's, which leaves the wheel to the camera (see MouseManager.is_choosing_skill_level).
+var max_skill_level: int = 1
 ## The choice a picker made before targeting began, sent along with the target; empty for most skills.
 var args: PackedInt64Array = PackedInt64Array()
 var indicator_scene: PackedScene = null
@@ -25,6 +36,7 @@ var indicator_scene: PackedScene = null
 var on_confirm := Callable()
 
 var _indicator: Node3D = null
+var _level_tag: Label3D = null
 var _last_ground_hit = null
 var _snap_target: Entity = null
 
@@ -42,17 +54,59 @@ func enter(mgr: MouseManager) -> void:
 		_indicator = _ENTITY_SNAP_INDICATOR_SCENE.instantiate()
 	else:
 		_indicator = (indicator_scene if indicator_scene else _DEFAULT_GROUND_INDICATOR_SCENE).instantiate()
-		if skill.target_type == AttackResource.TARGET_TYPE_AOE_GROUND and _indicator.has_method("set_radius"):
-			_indicator.set_radius(skill.aoe_radius)
+		if _indicator.has_method("set_radius"):
+			_indicator.set_radius(_aoe_radius())
 	mgr.add_child(_indicator)
 	_indicator.visible = false
+
+	_level_tag = Label3D.new()
+	_level_tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_level_tag.no_depth_test = true
+	_level_tag.fixed_size = true
+	_level_tag.pixel_size = 0.0014
+	_level_tag.font_size = 18
+	_level_tag.outline_size = 6
+	_level_tag.modulate = _TAG_COLOR
+	_level_tag.outline_modulate = Color(0.1, 0.08, 0.2, 0.85)
+	_level_tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_level_tag.visible = false
+	mgr.add_child(_level_tag)
+	_show_level()
 
 
 func exit(mgr: MouseManager) -> void:
 	if _indicator:
 		_indicator.queue_free()
 		_indicator = null
+	if _level_tag:
+		_level_tag.queue_free()
+		_level_tag = null
 	_snap_target = null
+
+
+func handle_input(mgr: MouseManager, event: InputEvent) -> void:
+	if max_skill_level <= 1 or mgr.is_pointer_over_ui():
+		return
+	# The zoom actions rather than the raw buttons, as placement turns its ghost with them; camera_spring_arm.gd
+	# skips its zoom meanwhile, see MouseManager.is_choosing_skill_level. Wheel up raises the level.
+	var step := 0
+	if event.is_action_pressed("camera_zoom_out"):
+		step = 1
+	elif event.is_action_pressed("camera_zoom_in"):
+		step = -1
+	if step != 0:
+		skill_level = clampi(skill_level + step, 1, max_skill_level)
+		_show_level()
+
+
+func _show_level() -> void:
+	if _level_tag:
+		_level_tag.text = TranslationServer.translate("SKILL_TARGET_LEVEL") % skill_level
+
+
+## Tiles the cast reaches from its centre: none past it for a plain ground skill.
+func _aoe_radius() -> float:
+	return skill.aoe_radius if skill.target_type == AttackResource.TARGET_TYPE_AOE_GROUND else 0.0
 
 
 func process_state(mgr: MouseManager, delta: float) -> void:
@@ -68,6 +122,7 @@ func _update_ground_indicator() -> void:
 		return
 	if _last_ground_hit == null:
 		_indicator.visible = false
+		_place_tag(null)
 	else:
 		_indicator.visible = true
 		# Snapped to the tile that will actually be hit rather than sliding with the mouse. The
@@ -76,12 +131,24 @@ func _update_ground_indicator() -> void:
 		# drawn at the raw hit it was up to half a tile out from them on each axis.
 		var centre := TileSpace.tile_centre(TileSpace.world_to_tile(_last_ground_hit))
 		_indicator.global_position = Vector3(centre.x, _last_ground_hit.y, centre.z)
+		# Just outside the footprint's corner, so the number never covers a cell that will be hit.
+		var corner := _aoe_radius() + 0.5
+		_place_tag(_indicator.global_position + Vector3(corner, _TAG_LIFT, corner))
+
+
+func _place_tag(at) -> void:
+	if _level_tag == null:
+		return
+	_level_tag.visible = at != null
+	if at != null:
+		_level_tag.global_position = at
 
 
 func _update_entity_snap(mgr: MouseManager) -> void:
 	_snap_target = null
 	if _indicator:
 		_indicator.visible = false
+	_place_tag(null)
 	if _last_ground_hit == null:
 		return
 
@@ -105,6 +172,7 @@ func _update_entity_snap(mgr: MouseManager) -> void:
 	if _snap_target and _indicator:
 		_indicator.visible = true
 		_indicator.global_position = _snap_target.global_position
+		_place_tag(_snap_target.global_position + _ENTITY_TAG_OFFSET)
 
 
 func handle_object_clicked(mgr: MouseManager, object: Node3D, event: InputEvent, click_position: Vector3) -> void:

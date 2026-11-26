@@ -55,14 +55,15 @@ func _unhandled_input(event: InputEvent) -> void:
 			_rmb_dragged = true
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
-	# The wheel turns a placement ghost instead of zooming while one is held, and it belongs to whatever
+	# The wheel turns a placement ghost or picks the aimed skill's level instead of zooming, and it belongs to whatever
 	# panel it is over: Godot hands on a wheel event no Control claimed, so a list scrolled to its end would
 	# otherwise zoom the world. Asked rather than raced for: both nodes take this through _unhandled_input,
 	# and neither can rely on running first.
 	var zoom_suppressed := false
 	var mouse_manager := MouseManager.get_instance()
 	if mouse_manager != null:
-		zoom_suppressed = mouse_manager.is_placing() or mouse_manager.is_pointer_over_ui()
+		zoom_suppressed = mouse_manager.is_placing() or mouse_manager.is_choosing_skill_level() \
+				or mouse_manager.is_pointer_over_ui()
 
 	if event.is_action_pressed("camera_zoom_in") and not zoom_suppressed:
 		_zoom_to(spring_arm.spring_length / zoom_factor)

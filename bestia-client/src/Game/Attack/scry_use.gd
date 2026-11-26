@@ -7,12 +7,12 @@ extends PickerCastUse
 const _MAP := -1
 
 
-func on_skill_activated(attack: AttackResource, level: int) -> void:
+func on_skill_activated(attack: AttackResource, level: int, max_level: int = 0) -> void:
 	var scry := ScryView.get_instance()
 	if scry != null and scry.is_open():
 		scry.return_to_body()
 		return
-	super.on_skill_activated(attack, level)
+	super.on_skill_activated(attack, level, max_level)
 
 
 func _open_picker(_attack: AttackResource, _level: int) -> void:

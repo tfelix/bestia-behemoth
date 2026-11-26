@@ -40,6 +40,9 @@ var _disabled: bool = false
 var _from_shared: bool = false
 ## The level the controlled entity can cast the slot's skill at. 0 when it does not know the skill.
 var _usable_skill_level: int = 1
+## The highest level the wheel may pick while this slot's skill is aimed: the learned one, or the slot's own until the
+## skill list has arrived.
+var _skill_level_cap: int = 1
 ## Seconds left on a skill that is recovering, over the icon.
 var _cooldown: Label
 ## An emote with no icon yet shows its glyph here instead.
@@ -252,6 +255,7 @@ func set_shortcut(data: Dictionary) -> void:
 		_shortcut_data.reference_id = data["id"]
 		_shortcut_data.skill_level = data.get("level", 1)
 		_usable_skill_level = _shortcut_data.skill_level
+		_skill_level_cap = _shortcut_data.skill_level
 
 	_update_display()
 	shortcut_changed.emit(shortcut_row, shortcut_number, _shortcut_data)
@@ -264,6 +268,7 @@ func get_shortcut_data() -> ShortcutData:
 func set_shortcut_data(data: ShortcutData, from_shared: bool = false) -> void:
 	_shortcut_data = data
 	_usable_skill_level = data.skill_level
+	_skill_level_cap = data.skill_level
 	_from_shared = from_shared
 	_shared_mark.visible = from_shared
 	tooltip_text = ("Shared slot %s: your master and every bestia use it.\n"
@@ -278,9 +283,11 @@ func update_item_count(count: int) -> void:
 		set_disabled(count <= 0)
 
 
-func set_usable_skill_level(level: int) -> void:
+## [param cap] is the level the wheel may raise a cast to while aiming, see MouseStateSkillTargeting.max_skill_level.
+func set_usable_skill_level(level: int, cap: int = 0) -> void:
 	if _shortcut_data.type == ShortcutData.ShortcutType.SKILL:
 		_usable_skill_level = level
+		_skill_level_cap = maxi(cap, level)
 		set_disabled(level <= 0)
 
 
@@ -357,4 +364,4 @@ func _use_skill() -> void:
 	if attack == null:
 		printerr("ShortcutContainer: Can not use skill, no attack returned for ID: %s" % [_shortcut_data.reference_id])
 		return
-	attack.use_skill(_usable_skill_level)
+	attack.use_skill(_usable_skill_level, _skill_level_cap)

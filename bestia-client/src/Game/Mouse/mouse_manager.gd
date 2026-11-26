@@ -158,17 +158,21 @@ func enter_item_targeting(
 
 
 ## [param on_confirm] takes the aimed target instead of casting the skill, see [member MouseStateSkillTargeting.on_confirm].
+## [param max_level] is how far the mouse wheel may raise the level while aiming, see
+## [member MouseStateSkillTargeting.max_skill_level].
 func enter_skill_targeting(
 	skill: AttackResource,
 	skill_level: int,
 	indicator_scene: PackedScene = null,
 	args := PackedInt64Array(),
-	on_confirm := Callable()
+	on_confirm := Callable(),
+	max_level: int = 0
 ) -> void:
 	print_debug("MouseManager.enter_skill_targeting: %s" % [skill.name])
 	var state := MouseStateSkillTargeting.new()
 	state.skill = skill
 	state.skill_level = skill_level
+	state.max_skill_level = maxi(max_level, skill_level)
 	state.args = args
 	state.on_confirm = on_confirm
 	if indicator_scene:
@@ -185,6 +189,12 @@ func is_targeting() -> bool:
 ## right-click handling already does.
 func is_placing() -> bool:
 	return current_state is MouseStateItemTargeting and current_state.has_ghost()
+
+
+## Whether the wheel picks the level of the skill being aimed. The camera skips its wheel zoom while this is true,
+## as it does for [method is_placing]; a skill with only one level to choose from leaves the wheel to the camera.
+func is_choosing_skill_level() -> bool:
+	return current_state is MouseStateSkillTargeting and current_state.max_skill_level > 1
 
 
 ## Whether the cursor sits on a panel - something the player is reading, rather than ground they are

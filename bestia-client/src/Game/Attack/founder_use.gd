@@ -9,7 +9,7 @@ var _attack: AttackResource = null
 var _level: int = 0
 
 
-func on_skill_activated(attack: AttackResource, level: int) -> void:
+func on_skill_activated(attack: AttackResource, level: int, _max_level: int = 0) -> void:
 	if SkillCooldowns.remaining_seconds(attack.skill_id) > 0.0:
 		return
 	if not ConnectionManager.settlement_planned.is_connected(_on_planned):

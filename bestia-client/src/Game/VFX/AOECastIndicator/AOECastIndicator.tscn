@@ -1,11 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://wlupv5mhh8xt"]
+[gd_scene load_steps=2 format=3 uid="uid://wlupv5mhh8xt"]
 
-[ext_resource type="Texture2D" path="res://Game/VFX/AOECastIndicator/cast_indicator.png" id="1_g82te"]
 [ext_resource type="Script" uid="uid://dkfbdblsv1fh7" path="res://Game/VFX/AOECastIndicator/aoe_cast_indicator.gd" id="2_hlog6"]
 
 [node name="Decal" type="Decal"]
 size = Vector3(1, 1, 1)
-texture_emission = ExtResource("1_g82te")
-emission_energy = 2.64
+modulate = Color(0.75, 0.88, 1, 0.45)
 script = ExtResource("2_hlog6")
-rotation_speed = 0.5

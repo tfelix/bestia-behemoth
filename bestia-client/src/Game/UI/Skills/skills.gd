@@ -729,7 +729,7 @@ func _use_skill(id: int) -> void:
 	var attack := AttackDB.get_instance().get_attack(id)
 	if attack == null or attack.is_passive or _known_level(id) == 0:
 		return
-	attack.use_skill(_use_level_of(id))
+	attack.use_skill(_use_level_of(id), _known_level(id))
 
 
 ## A learned skill that can be cast goes onto the shortcut bar at the level picked in the details (see

@@ -5,7 +5,7 @@ extends AttackUse
 ## picked, the server aims a friendly skill at the caster.
 
 
-func on_skill_activated(attack: AttackResource, level: int) -> void:
+func on_skill_activated(attack: AttackResource, level: int, _max_level: int = 0) -> void:
 	if SkillCooldowns.remaining_seconds(attack.skill_id) > 0.0:
 		return
 	ConnectionManager.activate_skill(attack.skill_id, level)

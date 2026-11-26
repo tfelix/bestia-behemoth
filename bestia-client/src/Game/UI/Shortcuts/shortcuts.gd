@@ -194,6 +194,15 @@ func _usable_skill_level(slot: ShortcutData) -> int:
 	return mini(slot.skill_level, _known_skills[_controlled_entity_id].get(slot.reference_id, 0))
 
 
+## The highest level the controlled entity may cast the slot's skill at, which the wheel may pick while aiming it. The
+## slot's own level while that is all there is to go on: before the skill list arrives, and for a guild skill, whose
+## rank the server checks.
+func _learned_skill_level(slot: ShortcutData) -> int:
+	if not _known_skills.has(_controlled_entity_id) or _is_guild_skill(slot):
+		return slot.skill_level
+	return _known_skills[_controlled_entity_id].get(slot.reference_id, 0)
+
+
 func _is_guild_skill(slot: ShortcutData) -> bool:
 	if slot.type != ShortcutData.ShortcutType.SKILL:
 		return false
@@ -334,7 +343,7 @@ func _show_slot(container: ShortcutContainer) -> void:
 	var number := container.shortcut_number
 	var slot := _layout.resolve(_entity_key, layer, row, number)
 	container.set_shortcut_data(slot, _layout.shows_shared(_entity_key, layer, row, number))
-	container.set_usable_skill_level(_usable_skill_level(slot))
+	container.set_usable_skill_level(_usable_skill_level(slot), _learned_skill_level(slot))
 
 
 func clear_all_shortcuts() -> void:
