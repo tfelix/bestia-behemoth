@@ -9,6 +9,8 @@ interface BugReportRepository : JpaRepository<BugReport, Long> {
 
   fun countByAccountIdAndCreatedAtAfter(accountId: Long, after: LocalDateTime): Long
 
+  fun findAllByAccountIdAndStatus(accountId: Long, status: BugReport.Status): List<BugReport>
+
   fun countBySignatureAndStatusIn(signature: String, statuses: Collection<BugReport.Status>): Long
 
   /** Reports in [status] whose next attempt is due, oldest first. */

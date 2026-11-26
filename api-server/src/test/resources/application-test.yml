@@ -19,3 +19,6 @@ bug-reports:
     repo: bestia/reports
     # Tests publish by calling the publisher, so the schedule never races them.
     publish-interval: PT1H
+
+admin:
+  token: test-admin-token

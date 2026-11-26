@@ -1,5 +1,6 @@
 package net.bestia.api.config
 
+import net.bestia.api.auth.AdminProperties
 import net.bestia.api.auth.CompanionProperties
 import net.bestia.api.push.PushProperties
 import org.springframework.core.env.Environment
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets
 class ApiDeploymentGuard(
   companion: CompanionProperties,
   push: PushProperties,
+  admin: AdminProperties,
   environment: Environment,
 ) {
 
@@ -25,6 +27,9 @@ class ApiDeploymentGuard(
       }
       check(push.vapidPublicKey != DEV_VAPID_PUBLIC_KEY) {
         "push.vapid-public-key is the committed development key; set PUSH_VAPID_PUBLIC_KEY and PUSH_VAPID_PRIVATE_KEY"
+      }
+      check(admin.token.isNullOrBlank() || admin.token.length >= MIN_SECRET_BYTES) {
+        "admin.token must be at least $MIN_SECRET_BYTES characters, or unset to turn the admin API off"
       }
     }
   }
