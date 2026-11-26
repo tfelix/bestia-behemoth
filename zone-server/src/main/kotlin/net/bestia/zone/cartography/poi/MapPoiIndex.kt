@@ -62,6 +62,9 @@ class MapPoiIndex(
   @Volatile
   private var strongholdSeeds: List<MapPoi> = emptyList()
 
+  @Volatile
+  private var worldEvents: List<MapPoi> = emptyList()
+
   private val changes = AtomicLong()
 
   init {
@@ -81,6 +84,7 @@ class MapPoiIndex(
     }
     playerTowns.filterTo(live) { ServiceCandidates.inside(bounds, it.x, it.y) }
     strongholdSeeds.filterTo(live) { ServiceCandidates.inside(bounds, it.x, it.y) }
+    worldEvents.filterTo(live) { ServiceCandidates.inside(bounds, it.x, it.y) }
 
     return live
   }
@@ -121,6 +125,13 @@ class MapPoiIndex(
   fun setStrongholdSeeds(pois: List<MapPoi>) {
     if (pois == strongholdSeeds) return
     strongholdSeeds = pois
+    changes.incrementAndGet()
+  }
+
+  /** Every running world event the towns post, replaced whole. Any thread: the director runs off the tick. */
+  fun setWorldEvents(pois: List<MapPoi>) {
+    if (pois == worldEvents) return
+    worldEvents = pois
     changes.incrementAndGet()
   }
 

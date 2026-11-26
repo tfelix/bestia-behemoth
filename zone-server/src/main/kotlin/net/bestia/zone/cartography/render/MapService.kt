@@ -50,7 +50,10 @@ enum class MapService(
   EMPYRITE_SEED(isLandmark = true),
 
   /** A seed a guild holds: its Empyrite site or Empyrite, named after the seed. */
-  STRONGHOLD(isLandmark = true);
+  STRONGHOLD(isLandmark = true),
+
+  /** A running world event the towns post: what it is as the business, where as the settlement. */
+  WORLD_EVENT(isLandmark = true);
 
   companion object {
 

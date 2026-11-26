@@ -144,11 +144,11 @@ const _PLACE_HIT_RADIUS := 14.0
 ## glyph here.
 const SERVICE_KINDS: Array[String] = [
 	"MERCHANT", "MARKET", "INN", "TEMPLE", "GUARD", "WARD_STONE", "TOWN", "POST_OFFICE", "BESTIA_CENTER", "EMPYRITE_SEED",
-	"STRONGHOLD",
+	"STRONGHOLD", "WORLD_EVENT",
 ]
 
 ## The service kinds drawn at every zoom, as the server lists them: places players travel to from afar.
-const LANDMARK_KINDS: Array[String] = ["EMPYRITE_SEED", "STRONGHOLD"]
+const LANDMARK_KINDS: Array[String] = ["EMPYRITE_SEED", "STRONGHOLD", "WORLD_EVENT"]
 
 ## Ink per service kind. Each kind also has its own silhouette - see [constant _SERVICE_SHAPES] - so the
 ## colour is a second cue rather than the only one, and none of them is the cool blue that means "mine".
@@ -164,6 +164,7 @@ const _SERVICE_COLOURS := {
 	"BESTIA_CENTER": Color(0.93, 0.52, 0.66),
 	"EMPYRITE_SEED": Color(1.0, 0.90, 0.55),
 	"STRONGHOLD": Color(0.95, 0.72, 0.12),
+	"WORLD_EVENT": Color(0.92, 0.36, 0.62),
 }
 
 ## Each kind's outline, as points around its centre at radius one, screen y down. A kind with no entry - the
@@ -204,6 +205,11 @@ const _SERVICE_SHAPES := {
 	"STRONGHOLD": [
 		Vector2(0.0, -1.3), Vector2(1.1, -0.65), Vector2(1.1, 0.65), Vector2(0.0, 1.3), Vector2(-1.1, 0.65),
 		Vector2(-1.1, -0.65),
+	],
+	# A burst: something is happening here.
+	"WORLD_EVENT": [
+		Vector2(0.0, -1.3), Vector2(0.35, -0.35), Vector2(1.3, 0.0), Vector2(0.35, 0.35), Vector2(0.0, 1.3),
+		Vector2(-0.35, 0.35), Vector2(-1.3, 0.0), Vector2(-0.35, -0.35),
 	],
 }
 
@@ -1267,7 +1273,11 @@ func service_label(service: Dictionary) -> String:
 	var what := ""
 
 	var business := _text_of(service, "business")
-	if not business.is_empty():
+	if _text_of(service, "kind") == "WORLD_EVENT" and not business.is_empty():
+		# The event's id, named as the boards and Observation name it.
+		what = tr("WORLD_EVENT_" + business.to_upper().replace("-", "_"))
+		what = what.left(1).to_upper() + what.substr(1)
+	elif not business.is_empty():
 		var business_key := "BUSINESS_" + business.to_upper()
 		var text := tr(business_key)
 		if text != business_key:
